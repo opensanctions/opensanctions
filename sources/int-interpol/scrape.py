@@ -35,13 +35,14 @@ def scrape_case(url):
 def scrape(out_file):
     url = 'http://www.interpol.int/notice/search/wanted/(offset)/%s'
     cases = []
+    print 'Storing to JSON: %s' % out_file
     for i in count(0):
         p = i * 9
         res = requests.get(url % p)
         doc = html.fromstring(res.content)
         links = doc.findall('.//div[@class="wanted"]//a')
         if not len(links):
-            return
+            break
         for link in links:
             case_url = urljoin(url, link.get('href'))
             cases.append(scrape_case(case_url))
