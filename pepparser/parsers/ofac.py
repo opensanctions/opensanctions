@@ -1,8 +1,8 @@
-import click
 from lxml import etree
 from datetime import datetime
 
-from pepparser.core.util import remove_namespace
+from pepparser.util import remove_namespace, make_id
+
 
 PUBLISHER = {
     'publisher': 'US Treasury Office of Foreign Assets Control',
@@ -10,23 +10,28 @@ PUBLISHER = {
 }
 
 
-def ofac_parse(sdn, consolidated, xmlfile):
+def ofac_parse(emit, sdn, consolidated, xmlfile):
     doc = etree.parse(xmlfile)
     remove_namespace(doc, 'http://tempuri.org/sdnList.xsd')
 
     publish_date = datetime.strptime(doc.findtext('.//Publish_Date'),
                                      '%m/%d/%Y')
     source = {
-        'updated_at': publish_date.date(),
-        'source_url': 'http://sdnsearch.ofac.treas.gov/'
+        'url': 'http://sdnsearch.ofac.treas.gov/'
     }
     source.update(PUBLISHER)
     if sdn:
-        source['source'] = 'Specially Designated Nationals and Blocked Persons'
+        source['title'] = 'Specially Designated Nationals and Blocked Persons'
     if consolidated:
-        source['source'] = 'Consolidated non-SDN List'
-    print source
+        source['title'] = 'Consolidated non-SDN List'
+
     for entry in doc.findall('.//sdnEntry'):
         uid = entry.findtext('uid')
-        record_url = 'https://sdnsearch.ofac.treas.gov/Details.aspx?id=%s' % uid
+        # record_url = 'https://sdnsearch.ofac.treas.gov/Details.aspx?id=%s' % uid
         # print record_url
+        record = {
+            'id': make_id('us', 'ofac', uid),
+            'updated_at': publish_date.date(),
+            'source': source
+        }
+        emit.entity(record)

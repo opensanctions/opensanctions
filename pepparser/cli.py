@@ -1,6 +1,7 @@
 import click
 import logging
 
+from pepparser.emitter import Emitter
 from pepparser.parsers.ofac import ofac_parse
 
 
@@ -13,12 +14,18 @@ def cli(debug):
     logging.getLogger('requests').setLevel(logging.WARNING)
 
 
-@cli.command()
+@cli.group()
+def parse():
+    pass
+
+
+@parse.command()
 @click.option('--sdn', default=False, is_flag=True)
 @click.option('--consolidated', default=False, is_flag=True)
 @click.argument('xmlfile')
 def ofac(sdn, consolidated, xmlfile):
-    ofac_parse(sdn, consolidated, xmlfile)
+    emit = Emitter()
+    ofac_parse(emit, sdn, consolidated, xmlfile)
 
 
 if __name__ == '__main__':

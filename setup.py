@@ -31,7 +31,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'pep-parse = pepparser.cli:cli'
+            'pep = pepparser.cli:cli'
         ]
     },
     tests_require=[]
