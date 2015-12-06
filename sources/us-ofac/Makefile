@@ -13,7 +13,8 @@ $(CONS_FILE):
 	curl -o $(CONS_FILE) https://www.treasury.gov/ofac/downloads/consolidated/consolidated.xml
 
 parse: $(SDN_FILE) $(CONS_FILE)
-	python parse.py $(SDN_FILE)
+	pep-parse ofac --sdn $(SDN_FILE)
+	pep-parse ofac --consolidated $(CONS_FILE)
 
 clean:
 	rm $(SDN_FILE)
