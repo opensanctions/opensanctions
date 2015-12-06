@@ -1,5 +1,7 @@
 from pprint import pprint  # noqa
 
+from pepparser.util import clean_obj
+
 
 class Emitter(object):
 
@@ -7,7 +9,8 @@ class Emitter(object):
         pass
 
     def individual(self, data):
-        pprint(data)
+        self.entity(data)
 
     def entity(self, data):
+        data = clean_obj(data)
         pprint(data)
