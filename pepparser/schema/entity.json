@@ -75,6 +75,11 @@
       "type": "string",
       "format": "country-code"
     },
+    "nationality": {
+      "title": "Nationality",
+      "type": "string",
+      "format": "country-code"
+    },
     "gender": {
       "title": "Gender",
       "enum": ["male", "female"]

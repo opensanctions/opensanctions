@@ -47,6 +47,7 @@ def parse_entry(emit, group, rows):
             'date_of_birth': parse_date(row.pop('DOB')),
             'place_of_birth': row.pop('Town of Birth'),
             'country_of_birth': normalize_country(row.pop('Country of Birth')),
+            'nationality': normalize_country(row.get('Nationality')),
             'program': row.pop('Regime'),
             'summary': row.pop('Other Information'),
             'updated_at': parse_date(row.pop('Last Updated')),

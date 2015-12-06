@@ -6,6 +6,7 @@ from pepparser.parsers.ofac import ofac_parse
 from pepparser.parsers.eeas import eeas_parse
 from pepparser.parsers.sdfm import sdfm_parse
 from pepparser.parsers.hmt import hmt_parse
+from pepparser.parsers.interpol import interpol_parse
 from pepparser.parsers.cia_world_leaders import worldleaders_parse
 from pepparser.parsers.every_politician import everypolitician_parse
 
@@ -59,6 +60,13 @@ def hmt(csvfile):
 def worldleaders(jsonfile):
     emit = Emitter()
     worldleaders_parse(emit, jsonfile)
+
+
+@parse.command()
+@click.argument('jsonfile')
+def interpol(jsonfile):
+    emit = Emitter()
+    interpol_parse(emit, jsonfile)
 
 
 @parse.command()
