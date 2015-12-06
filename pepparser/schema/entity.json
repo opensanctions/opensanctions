@@ -57,6 +57,10 @@
       "title": "Place of birth",
       "type": "string"
     },
+    "gender": {
+      "title": "Gender",
+      "enum": ["male", "female"]
+    },
     "other_names": {
       "type": "array",
       "items": {

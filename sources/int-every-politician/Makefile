@@ -8,6 +8,7 @@ $(JSON_FILE):
 	python scrape.py $(JSON_FILE)
 
 parse: $(JSON_FILE)
+	pep parse everypolitician $(JSON_FILE)
 
 clean:
 	rm $(JSON_FILE)

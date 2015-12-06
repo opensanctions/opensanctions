@@ -29,6 +29,9 @@ def normalize_country(name):
     countries = load_countries()
     if normed in countries:
         return countries[normed]
+    normed = normed.upper()
+    if normed in countries.values():
+        return normed
     for req in REQUESTED:
         if req['name'] == name:
             return
