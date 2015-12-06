@@ -5,6 +5,7 @@ from pepparser.emitter import Emitter
 from pepparser.parsers.ofac import ofac_parse
 from pepparser.parsers.eeas import eeas_parse
 from pepparser.parsers.sdfm import sdfm_parse
+from pepparser.parsers.unsc import unsc_parse
 from pepparser.parsers.hmt import hmt_parse
 from pepparser.parsers.interpol import interpol_parse
 from pepparser.parsers.cia_world_leaders import worldleaders_parse
@@ -46,6 +47,13 @@ def sdfm(xmlfile):
 def eeas(xmlfile):
     emit = Emitter()
     eeas_parse(emit, xmlfile)
+
+
+@parse.command()
+@click.argument('xmlfile')
+def unsc(xmlfile):
+    emit = Emitter()
+    unsc_parse(emit, xmlfile)
 
 
 @parse.command()
