@@ -4,7 +4,7 @@ from pprint import pprint  # noqa
 
 from jsonschema import Draft4Validator, FormatChecker, RefResolver
 
-from pepparser.util import clean_obj, SCHEMA_FIXTURES
+from pepparser.util import clean_obj, unique_objs, SCHEMA_FIXTURES
 from pepparser.country import load_countries
 
 BASE_URI = 'http://schema.opennames.org/'
@@ -39,6 +39,10 @@ class Emitter(object):
         pass
 
     def entity(self, data):
+        # data = clean_obj(data)
+        data['identities'] = unique_objs(data.get('identities'))
+        data['other_names'] = unique_objs(data.get('other_names'))
+        data['addresses'] = unique_objs(data.get('addresses'))
         data = clean_obj(data)
         validate(resolver, data, ENTITY_SCHEMA)
         pprint(data)

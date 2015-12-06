@@ -1,5 +1,6 @@
 import os
 import six
+from hashlib import sha1
 from normality import slugify
 
 DATA_FIXTURES = os.path.join(os.path.dirname(__file__), 'data')
@@ -39,3 +40,26 @@ def clean_obj(data):
         if not len(data):
             return None
     return data
+
+
+def obj_hash(data):
+    if isinstance(data, dict):
+        sum_ = sha1()
+        for k, v in data.items():
+            sum_.update(unicode(k).encode('utf-8'))
+            sum_.update(unicode(v).encode('utf-8'))
+        return sum_.hexdigest()
+    return hash(data)
+
+
+def unique_objs(objs):
+    out = []
+    if objs is None:
+        return out
+    seen = set()
+    for obj in objs:
+        sum_ = obj_hash(obj)
+        if sum_ not in seen:
+            seen.add(sum_)
+            out.append(obj)
+    return out

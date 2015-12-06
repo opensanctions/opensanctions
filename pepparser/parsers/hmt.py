@@ -1,10 +1,9 @@
 import unicodecsv
 import logging
 import xlrd
-from dateutil.parser import parse as dateutil_parse
 from datetime import datetime
 
-from pepparser.util import remove_namespace, make_id
+from pepparser.util import make_id
 from pepparser.text import combine_name
 from pepparser.country import normalize_country
 
@@ -34,51 +33,84 @@ def parse_date(date):
         log.exception(xle)
 
 
-def parse_entry(emit, record, row):
-    # from pprint import pprint
-    # pprint(row)
+def parse_entry(emit, group, rows):
+    record = SOURCE.copy()
     record.update({
-        'uid': make_id('gb', 'hmt', int(float(row.get('Group ID')))),
-        'type': row.get('Group Type').lower(),
-        'date_of_birth': parse_date(row.get('DOB')),
-        'place_of_birth': row.get('Town of Birth'),
-        'country_of_birth': normalize_country(row.get('Country of Birth')),
-        'program': row.get('Regime'),
-        'summary': row.get('Other Information'),
-        'updated_at': parse_date(row.get('Last Update')),
-        'function': row.get('Position'),
-        'first_name': row.get('Name 1'),
-        'second_name': row.get('Name 2'),
-        'middle_name': row.get('Name 3'),
-        'last_name': row.get('Name 6'),
-        'identities': []
+        'uid': make_id('gb', 'hmt', group),
+        'identities': [],
+        'addresses': [],
+        'other_names': []
     })
-
-    name = [row.get('Title'), row.get('Name 1'), row.get('Name 2'),
-            row.get('Name 3'), row.get('Name 4'), row.get('Name 5'),
-            row.get('Name 6')]
-    record['name'] = combine_name(*name)
-
-    if row.get('Passport Details'):
-        record['identities'].append({
-            'type': 'Passport',
-            'number': row.get('Passport Details'),
-            'country': normalize_country(row.get('Nationality'))
+    for row in rows:
+        record.update({
+            'type': row.pop('Group Type').lower(),
+            'date_of_birth': parse_date(row.pop('DOB')),
+            'place_of_birth': row.pop('Town of Birth'),
+            'country_of_birth': normalize_country(row.pop('Country of Birth')),
+            'program': row.pop('Regime'),
+            'summary': row.pop('Other Information'),
+            'updated_at': parse_date(row.pop('Last Updated')),
+            'function': row.pop('Position')
         })
 
-    if row.get('NI'):
-        record['identities'].append({
-            'type': 'NI',
-            'number': row.get('Passport Details'),
-            'country': normalize_country(row.get('Country'))
-        })
+        names = {
+            'first_name': row.get('Name 1'),
+            'second_name': row.get('Name 2'),
+            'middle_name': row.get('Name 3'),
+            'last_name': row.get('Name 6')
+        }
 
+        name = [row.pop('Title'), row.pop('Name 1'), row.pop('Name 2'),
+                row.pop('Name 3'), row.pop('Name 4'), row.pop('Name 5'),
+                row.pop('Name 6')]
+        name = combine_name(*name)
+
+        if 'name' not in record:
+            record['name'] = name
+            record.update(names)
+        else:
+            names['other_name'] = name
+            names['type'] = row.pop('Alias Type')
+            record['other_names'].append(names)
+
+        addr = [row.pop('Address 1'), row.pop('Address 2'),
+                row.pop('Address 3'), row.pop('Address 4'),
+                row.pop('Address 5'), row.pop('Address 6')]
+        addr = combine_name(*addr)
+        if len(addr):
+            record['addresses'].append({
+                'text': addr,
+                'postal_code': row.pop('Post/Zip Code')
+            })
+
+        if row.get('Passport Details'):
+            record['identities'].append({
+                'type': 'Passport',
+                'number': row.pop('Passport Details'),
+                'country': normalize_country(row.get('Nationality'))
+            })
+
+        if row.get('NI Number'):
+            record['identities'].append({
+                'type': 'NI',
+                'number': row.pop('NI Number'),
+                'country': normalize_country(row.get('Country'))
+            })
+
+        # from pprint import pprint
+        # pprint(row)
     emit.entity(record)
 
 
 def hmt_parse(emit, csvfile):
+    groups = {}
     with open(csvfile, 'r') as fh:
         fh.readline()
         for row in unicodecsv.DictReader(fh):
-            record = SOURCE.copy()
-            parse_entry(emit, record, row)
+            group = int(float(row.pop('Group ID')))
+            if group not in groups:
+                groups[group] = []
+            groups[group].append(row)
+
+    for group, rows in groups.items():
+        parse_entry(emit, group, rows)
