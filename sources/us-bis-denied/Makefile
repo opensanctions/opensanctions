@@ -9,6 +9,7 @@ $(TXT_FILE):
 	curl -o $(TXT_FILE) $(URL)
 
 parse: $(TXT_FILE)
+	pep parse usbis $(TXT_FILE)
 
 clean:
 	rm $(TXT_FILE)

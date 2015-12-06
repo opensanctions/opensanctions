@@ -45,4 +45,4 @@ class Emitter(object):
         data['addresses'] = unique_objs(data.get('addresses'))
         data = clean_obj(data)
         validate(resolver, data, ENTITY_SCHEMA)
-        # pprint(data)
+        pprint(data)
