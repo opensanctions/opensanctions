@@ -45,6 +45,11 @@
       "description": "Program under which the entity is sanctioned",
       "type": ["null", "string"]
     },
+    "function": {
+      "title": "Function",
+      "description": "A bio or sentence describing the entity",
+      "type": ["null", "string"]
+    },
     "summary": {
       "title": "Summary",
       "description": "A short reason for sanctioning the entity",
@@ -59,7 +64,7 @@
     "date_of_birth": {
       "title": "Date of birth",
       "type": "string",
-      "format": "date"
+      "pattern": "^\\d{4}(-\\d{2}-\\d{2})?$"
     },
     "place_of_birth": {
       "title": "Place of birth",

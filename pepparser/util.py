@@ -1,4 +1,5 @@
 import os
+import six
 from normality import slugify
 
 DATA_FIXTURES = os.path.join(os.path.dirname(__file__), 'data')
@@ -22,6 +23,8 @@ def make_id(*parts):
 
 def clean_obj(data):
     if isinstance(data, dict):
+        if not len(data.keys()):
+            return None
         out = {}
         for k, v in data.items():
             v = clean_obj(v)
@@ -32,5 +35,7 @@ def clean_obj(data):
         if not len(data):
             return
         return [clean_obj(o) for o in data]
-    else:
-        return data
+    elif isinstance(data, six.string_types):
+        if not len(data):
+            return None
+    return data

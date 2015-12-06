@@ -9,6 +9,7 @@ $(XML_FILE):
 	curl -o $(XML_FILE) $(URL)
 
 parse: $(XML_FILE)
+	pep parse eeas $(XML_FILE)
 
 clean:
 	rm $(XML_FILE)

@@ -3,7 +3,8 @@ import logging
 
 from pepparser.emitter import Emitter
 from pepparser.parsers.ofac import ofac_parse
-from pepparser.parsers.sdfm_blacklist import sdfm_parse
+from pepparser.parsers.eeas import eeas_parse
+from pepparser.parsers.sdfm import sdfm_parse
 from pepparser.parsers.cia_world_leaders import worldleaders_parse
 from pepparser.parsers.every_politician import everypolitician_parse
 
@@ -36,6 +37,13 @@ def ofac(sdn, consolidated, xmlfile):
 def sdfm(xmlfile):
     emit = Emitter()
     sdfm_parse(emit, xmlfile)
+
+
+@parse.command()
+@click.argument('xmlfile')
+def eeas(xmlfile):
+    emit = Emitter()
+    eeas_parse(emit, xmlfile)
 
 
 @parse.command()
