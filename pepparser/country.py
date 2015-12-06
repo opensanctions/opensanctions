@@ -28,6 +28,8 @@ def normalize_country(name):
         return
     countries = load_countries()
     if normed in countries:
+        if countries[normed] == 'XX':
+            return
         return countries[normed]
     normed = normed.upper()
     if normed in countries.values():
