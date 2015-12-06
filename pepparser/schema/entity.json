@@ -24,6 +24,14 @@
       "title": "First (given) name",
       "type": "string"
     },
+    "second_name": {
+      "title": "Second (given) name",
+      "type": "string"
+    },
+    "middle_name": {
+      "title": "Middle name",
+      "type": "string"
+    },
     "last_name": {
       "title": "Last name",
       "type": "string"
@@ -146,8 +154,8 @@
           "title": "Type",
           "type": "string"
         },
-        "category": {
-          "title": "Category",
+        "quality": {
+          "title": "Quality",
           "type": "string"
         },
         "other_name": {

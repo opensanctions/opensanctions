@@ -1,7 +1,6 @@
 import json
 import logging
 from datetime import datetime
-from dateutil.parser import parse as dateutil_parse
 
 from pepparser.util import make_id
 from pepparser.country import normalize_country

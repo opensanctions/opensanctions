@@ -41,4 +41,4 @@ class Emitter(object):
     def entity(self, data):
         data = clean_obj(data)
         validate(resolver, data, ENTITY_SCHEMA)
-        pprint(data)
+        # pprint(data)

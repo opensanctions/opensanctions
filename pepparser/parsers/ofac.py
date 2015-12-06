@@ -44,7 +44,7 @@ def parse_entry(emit, record, entry):
     for aka in entry.findall('./akaList/aka'):
         data = {
             'type': aka.findtext('./type'),
-            'category': aka.findtext('./category'),
+            'quality': aka.findtext('./category'),
             'first_name': aka.findtext('./firstName'),
             'last_name': aka.findtext('./lastName'),
             'other_name': combine_name(aka.findtext('./firstName'),
