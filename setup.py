@@ -27,6 +27,7 @@ setup(
         "click",
         "requests",
         "lxml",
+        "xlrd",
         "csvkit",
         "six"
     ],

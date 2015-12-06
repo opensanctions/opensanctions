@@ -15,7 +15,7 @@ PUBLISHER = {
 
 
 def parse_date(date):
-    if date is None and len(date.strip()):
+    if date is None or not len(date.strip()):
         return
     try:
         return dateutil_parse(date).date().isoformat()

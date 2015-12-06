@@ -70,6 +70,7 @@ def parse_entry(emit, record, entry):
     record['identities'] = []
     for passport in entry.findall('./PASSPORT'):
         data = {
+            'type': 'Passport',
             'number': passport.findtext('./NUMBER'),
             'country': normalize_country(passport.findtext('./COUNTRY'))
         }
@@ -90,12 +91,14 @@ def parse_entry(emit, record, entry):
         place = birth.findtext('./PLACE')
         if place and len(place) > len(record.get('place_of_birth', '')):
             record['place_of_birth'] = place
+
         date_ = parse_date(birth.findtext('./DATE'))
         if date_ and len(date_) > len(record.get('date_of_birth', '')):
             record['date_of_birth'] = date_
 
-        # TODO:
-        country_ = birth.findtext('./COUNTRY')
+        country = normalize_country(birth.findtext('./COUNTRY'))
+        if country and len(country) > len(record.get('country_of_birth', '')):
+            record['country_of_birth'] = country
 
     # print etree.tostring(entry, pretty_print=True)
     emit.entity(record)
