@@ -23,6 +23,7 @@ setup(
     test_suite='nose.collector',
     install_requires=[
         "unicodecsv",
+        "jsonschema",
         "click",
         "requests",
         "lxml",

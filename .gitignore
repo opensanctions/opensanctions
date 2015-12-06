@@ -44,4 +44,6 @@ coverage.xml
 # Sphinx documentation
 docs/_build/
 
+.DS_Store
 .env
+pepparser/data/requested.csv

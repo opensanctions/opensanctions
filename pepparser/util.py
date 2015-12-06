@@ -1,4 +1,8 @@
+import os
 from normality import slugify
+
+DATA_FIXTURES = os.path.join(os.path.dirname(__file__), 'data')
+SCHEMA_FIXTURES = os.path.join(os.path.dirname(__file__), 'schema')
 
 
 def remove_namespace(doc, namespace):

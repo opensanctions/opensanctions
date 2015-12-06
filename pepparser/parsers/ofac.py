@@ -3,7 +3,8 @@ from dateutil.parser import parse as dateutil_parse
 from datetime import datetime
 
 from pepparser.util import remove_namespace, make_id
-from pepparser.text import combine_name, normalize_country
+from pepparser.text import combine_name
+from pepparser.country import normalize_country
 
 
 PUBLISHER = {
@@ -17,7 +18,7 @@ def parse_date(date):
     if date is None and len(date.strip()):
         return
     try:
-        return dateutil_parse(date).date()
+        return dateutil_parse(date).date().isoformat()
     except:
         return
 
@@ -25,7 +26,8 @@ def parse_date(date):
 def parse_entry(emit, record, entry):
     uid = entry.findtext('uid')
     record.update({
-        'id': make_id('us', 'ofac', uid),
+        'uid': make_id('us', 'ofac', uid),
+        'type': 'individual',
         'program': entry.findtext('./programList/program'),
         'summary': entry.findtext('./remarks'),
         'first_name': entry.findtext('./firstName'),
@@ -35,6 +37,7 @@ def parse_entry(emit, record, entry):
     })
     is_entity = entry.findtext('./sdnType') != 'Individual'
     if is_entity:
+        record['type'] = 'entity'
         record.pop('last_name', None)
 
     record['other_names'] = []
@@ -44,8 +47,8 @@ def parse_entry(emit, record, entry):
             'category': aka.findtext('./category'),
             'first_name': aka.findtext('./firstName'),
             'last_name': aka.findtext('./lastName'),
-            'full_name': combine_name(aka.findtext('./firstName'),
-                                      aka.findtext('./lastName'))
+            'other_name': combine_name(aka.findtext('./firstName'),
+                                       aka.findtext('./lastName'))
         }
         if is_entity:
             data.pop('last_name', None)
@@ -83,9 +86,7 @@ def parse_entry(emit, record, entry):
 
     if is_entity:
         record.pop('last_name', None)
-        emit.entity(record)
-    else:
-        emit.individual(record)
+    emit.entity(record)
 
 
 def ofac_parse(emit, sdn, consolidated, xmlfile):
@@ -95,7 +96,7 @@ def ofac_parse(emit, sdn, consolidated, xmlfile):
     publish_date = datetime.strptime(doc.findtext('.//Publish_Date'),
                                      '%m/%d/%Y')
     source = PUBLISHER.copy()
-    source['updated_at'] = publish_date.date()
+    source['updated_at'] = publish_date.date().isoformat()
     if sdn:
         source['source'] = 'Specially Designated Nationals and Blocked Persons'
     if consolidated:
