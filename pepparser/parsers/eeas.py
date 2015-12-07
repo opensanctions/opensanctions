@@ -1,9 +1,7 @@
 from lxml import etree
 from dateutil.parser import parse as dateutil_parse
-from datetime import datetime
 
-from pepparser.util import remove_namespace, make_id
-from pepparser.text import combine_name
+from pepparser.util import make_id
 from pepparser.country import normalize_country
 
 
@@ -32,11 +30,7 @@ def parse_entry(emit, record, entry):
         'updated_at': entry.get('reg_date'),
         'source_url': entry.get('pdf_link'),
         'program': entry.get('programme'),
-        'summary': entry.get('remark'),
-        # 'first_name': entry.findtext('./firstName'),
-        # 'last_name': entry.findtext('./lastName'),
-        # 'name': combine_name(entry.findtext('./firstName'),
-        #                      entry.findtext('./lastName'))
+        'summary': entry.get('remark')
     })
     is_entity = entry.get('Type') != 'P'
     if is_entity:

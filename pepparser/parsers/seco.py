@@ -192,5 +192,4 @@ def seco_parse(emit, xmlfile):
     for target in doc.findall('.//target'):
         if target.getparent().tag == 'modification':
             continue
-        # print target.get('ssid')
         parse_entry(emit, target, sanctions, places)

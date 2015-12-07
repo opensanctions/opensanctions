@@ -99,18 +99,17 @@ def parse_entry(emit, entry):
 
     # FIXME: handle multiple
     for pob in entry.findall('./place-of-birth-list'):
+        if 'place_of_birth' in record:
+            log.debug('Multiple places of birth: %(name)s', record)
         record['place_of_birth'] = pob.text.strip()
 
     # FIXME: handle multiple
     for dob in entry.findall('./date-of-birth-list'):
+        if 'place_of_birth' in record:
+            log.debug('Multiple dates of birth: %(name)s', record)
         record['date_of_birth'] = parse_date(dob.text)
 
     # print etree.tostring(entry, pretty_print=True)
-    # if is_entity:
-    #     data.pop('last_name', None)
-    #     data.pop('first_name', None)
-    #     data.pop('second_name', None)
-    #     data.pop('middle_name', None)
     emit.entity(record)
 
 
