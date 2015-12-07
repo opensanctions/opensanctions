@@ -6,7 +6,7 @@ A consolidated, public database of persons with political or criminal relevance.
 
 Possible data sources for this project (only a few are included thus far):
 
-* **US** Treasury/OFAC, [Specially Designated Nationals][https://www.treasury.gov/resource-center/sanctions/SDN-List/Pages/default.aspx], [Consolidated List](https://www.treasury.gov/resource-center/sanctions/SDN-List/Pages/consolidated.aspx).
+* **US** Treasury/OFAC, [Specially Designated Nationals](https://www.treasury.gov/resource-center/sanctions/SDN-List/Pages/default.aspx), [Consolidated List](https://www.treasury.gov/resource-center/sanctions/SDN-List/Pages/consolidated.aspx).
 * **US** State Dept., designated [Foreign Terrorist Organisations](http://www.state.gov/j/ct/rls/other/des/123085.htm).
 * **US** Terrorist [Exclusion List](http://www.state.gov/j/ct/rls/other/des/123086.htm)
 * **US** BIS/Commerce [Denied Persons](https://www.bis.doc.gov/index.php/policy-guidance/lists-of-parties-of-concern/denied-persons-list).

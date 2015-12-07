@@ -19,3 +19,9 @@
 ### Multiple programmes
 
 * Exists in US/OFAC - SDN
+
+
+## Passports
+
+* Proper enum for type
+* Validity dates

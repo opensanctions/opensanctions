@@ -6,6 +6,7 @@ from pepparser.parsers.ofac import ofac_parse
 from pepparser.parsers.eeas import eeas_parse
 from pepparser.parsers.sdfm import sdfm_parse
 from pepparser.parsers.unsc import unsc_parse
+from pepparser.parsers.seco import seco_parse
 from pepparser.parsers.hmt import hmt_parse
 from pepparser.parsers.usbis import usbis_parse
 from pepparser.parsers.wbdeb import wbdeb_parse
@@ -56,6 +57,13 @@ def eeas(xmlfile):
 def unsc(xmlfile):
     emit = Emitter()
     unsc_parse(emit, xmlfile)
+
+
+@parse.command()
+@click.argument('xmlfile')
+def seco(xmlfile):
+    emit = Emitter()
+    seco_parse(emit, xmlfile)
 
 
 @parse.command()
