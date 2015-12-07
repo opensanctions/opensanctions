@@ -25,6 +25,7 @@ setup(
         "unicodecsv",
         "jsonschema",
         "click",
+        "dataset",
         "requests",
         "lxml",
         "xlrd",
@@ -33,7 +34,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'pep = pepparser.cli:cli'
+            'pep = pepparser.cli:main'
         ]
     },
     tests_require=[]

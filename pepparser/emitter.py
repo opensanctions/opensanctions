@@ -1,11 +1,15 @@
 import os
 import json
+import logging
 from pprint import pprint  # noqa
 
 from jsonschema import Draft4Validator, FormatChecker, RefResolver
 
 from pepparser.util import clean_obj, unique_objs, SCHEMA_FIXTURES
 from pepparser.country import load_countries
+
+
+log = logging.getLogger(__name__)
 
 BASE_URI = 'http://schema.opennames.org/'
 ENTITY_SCHEMA = 'http://schema.opennames.org/entity.json#'
@@ -36,7 +40,7 @@ def validate(resolver, data, schema):
 class Emitter(object):
 
     def __init__(self):
-        pass
+        self.entities = []
 
     def entity(self, data):
         # data = clean_obj(data)
@@ -45,4 +49,8 @@ class Emitter(object):
         data['addresses'] = unique_objs(data.get('addresses'))
         data = clean_obj(data)
         validate(resolver, data, ENTITY_SCHEMA)
-        pprint(data)
+        # pprint(data)
+        self.entities.append(data)
+
+    def close(self):
+        log.info("Parsed %s entities", len(self.entities))

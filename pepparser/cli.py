@@ -1,5 +1,6 @@
 import click
 import logging
+import dataset
 
 from pepparser.emitter import Emitter
 from pepparser.parsers.ofac import ofac_parse
@@ -14,99 +15,123 @@ from pepparser.parsers.interpol import interpol_parse
 from pepparser.parsers.cia_world_leaders import worldleaders_parse
 from pepparser.parsers.every_politician import everypolitician_parse
 
+log = logging.getLogger(__name__)
+
 
 @click.group()
 @click.option('--debug/--no-debug', default=False)
-def cli(debug):
+@click.option('database_uri', '--db', envvar='DATABASE_URI', required=True)
+@click.pass_context
+def cli(ctx, debug, database_uri):
     fmt = '[%(levelname)-8s] %(name)-12s: %(message)s'
     level = logging.DEBUG if debug else logging.INFO
     logging.basicConfig(level=level, format=fmt)
     logging.getLogger('requests').setLevel(logging.WARNING)
 
+    ctx.obj['debug'] = debug
+    ctx.obj['database_uri'] = database_uri
+    log.debug('Connecting to DB: %r', database_uri)
+    ctx.obj['engine'] = dataset.connect(database_uri)
+
 
 @cli.group()
-def parse():
-    pass
+@click.pass_context
+def parse(ctx):
+    ctx.obj['emit'] = Emitter()
 
 
 @parse.command()
 @click.option('--sdn', default=False, is_flag=True)
 @click.option('--consolidated', default=False, is_flag=True)
 @click.argument('xmlfile')
-def ofac(sdn, consolidated, xmlfile):
-    emit = Emitter()
-    ofac_parse(emit, sdn, consolidated, xmlfile)
+@click.pass_context
+def ofac(ctx, sdn, consolidated, xmlfile):
+    ofac_parse(ctx.obj['emit'], sdn, consolidated, xmlfile)
+    ctx.obj['emit'].close()
 
 
 @parse.command()
 @click.argument('xmlfile')
-def sdfm(xmlfile):
-    emit = Emitter()
-    sdfm_parse(emit, xmlfile)
+@click.pass_context
+def sdfm(ctx, xmlfile):
+    sdfm_parse(ctx.obj['emit'], xmlfile)
+    ctx.obj['emit'].close()
 
 
 @parse.command()
 @click.argument('xmlfile')
-def eeas(xmlfile):
-    emit = Emitter()
-    eeas_parse(emit, xmlfile)
+@click.pass_context
+def eeas(ctx, xmlfile):
+    eeas_parse(ctx.obj['emit'], xmlfile)
+    ctx.obj['emit'].close()
 
 
 @parse.command()
 @click.argument('xmlfile')
-def unsc(xmlfile):
-    emit = Emitter()
-    unsc_parse(emit, xmlfile)
+@click.pass_context
+def unsc(ctx, xmlfile):
+    unsc_parse(ctx.obj['emit'], xmlfile)
+    ctx.obj['emit'].close()
 
 
 @parse.command()
 @click.argument('xmlfile')
-def seco(xmlfile):
-    emit = Emitter()
-    seco_parse(emit, xmlfile)
+@click.pass_context
+def seco(ctx, xmlfile):
+    seco_parse(ctx.obj['emit'], xmlfile)
+    ctx.obj['emit'].close()
 
 
 @parse.command()
 @click.argument('csvfile')
-def hmt(csvfile):
-    emit = Emitter()
-    hmt_parse(emit, csvfile)
+@click.pass_context
+def hmt(ctx, csvfile):
+    hmt_parse(ctx.obj['emit'], csvfile)
+    ctx.obj['emit'].close()
 
 
 @parse.command()
 @click.argument('csvfile')
-def usbis(csvfile):
-    emit = Emitter()
-    usbis_parse(emit, csvfile)
+@click.pass_context
+def usbis(ctx, csvfile):
+    usbis_parse(ctx.obj['emit'], csvfile)
+    ctx.obj['emit'].close()
 
 
 @parse.command()
 @click.argument('jsonfile')
-def worldleaders(jsonfile):
-    emit = Emitter()
-    worldleaders_parse(emit, jsonfile)
+@click.pass_context
+def worldleaders(ctx, jsonfile):
+    worldleaders_parse(ctx.obj['emit'], jsonfile)
+    ctx.obj['emit'].close()
 
 
 @parse.command()
 @click.argument('jsonfile')
-def interpol(jsonfile):
-    emit = Emitter()
-    interpol_parse(emit, jsonfile)
+@click.pass_context
+def interpol(ctx, jsonfile):
+    interpol_parse(ctx.obj['emit'], jsonfile)
+    ctx.obj['emit'].close()
 
 
 @parse.command()
 @click.argument('htmlfile')
-def wbdeb(htmlfile):
-    emit = Emitter()
-    wbdeb_parse(emit, htmlfile)
+@click.pass_context
+def wbdeb(ctx, htmlfile):
+    wbdeb_parse(ctx.obj['emit'], htmlfile)
+    ctx.obj['emit'].close()
 
 
 @parse.command()
 @click.argument('jsonfile')
-def everypolitician(jsonfile):
-    emit = Emitter()
-    everypolitician_parse(emit, jsonfile)
+@click.pass_context
+def everypolitician(ctx, jsonfile):
+    everypolitician_parse(ctx.obj['emit'], jsonfile)
+    ctx.obj['emit'].close()
 
+
+def main():
+    cli(obj={})
 
 if __name__ == '__main__':
-    cli()
+    main()
