@@ -27,6 +27,7 @@ def cli(ctx, debug, database_uri):
     level = logging.DEBUG if debug else logging.INFO
     logging.basicConfig(level=level, format=fmt)
     logging.getLogger('requests').setLevel(logging.WARNING)
+    logging.getLogger('alembic').setLevel(logging.WARNING)
 
     ctx.obj['debug'] = debug
     ctx.obj['database_uri'] = database_uri
@@ -37,7 +38,7 @@ def cli(ctx, debug, database_uri):
 @cli.group()
 @click.pass_context
 def parse(ctx):
-    ctx.obj['emit'] = Emitter()
+    ctx.obj['emit'] = Emitter(ctx.obj['engine'])
 
 
 @parse.command()
