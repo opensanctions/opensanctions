@@ -8,6 +8,7 @@ from pepparser.parsers.sdfm import sdfm_parse
 from pepparser.parsers.unsc import unsc_parse
 from pepparser.parsers.hmt import hmt_parse
 from pepparser.parsers.usbis import usbis_parse
+from pepparser.parsers.wbdeb import wbdeb_parse
 from pepparser.parsers.interpol import interpol_parse
 from pepparser.parsers.cia_world_leaders import worldleaders_parse
 from pepparser.parsers.every_politician import everypolitician_parse
@@ -83,6 +84,13 @@ def worldleaders(jsonfile):
 def interpol(jsonfile):
     emit = Emitter()
     interpol_parse(emit, jsonfile)
+
+
+@parse.command()
+@click.argument('htmlfile')
+def wbdeb(htmlfile):
+    emit = Emitter()
+    wbdeb_parse(emit, htmlfile)
 
 
 @parse.command()

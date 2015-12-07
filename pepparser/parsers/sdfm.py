@@ -1,10 +1,13 @@
+import logging
 from lxml import etree
 from dateutil.parser import parse as dateutil_parse
 from datetime import datetime
 
-from pepparser.util import remove_namespace, make_id
+from pepparser.util import make_id
 from pepparser.text import combine_name
 from pepparser.country import normalize_country
+
+log = logging.getLogger(__name__)
 
 
 def parse_date(date):
@@ -13,8 +16,8 @@ def parse_date(date):
     date = date.replace('.', '').strip()
     try:
         return dateutil_parse(date).date().isoformat()
-    except:
-        return
+    except Exception as ex:
+        log.exception(ex)
 
 
 def get_names(aka):

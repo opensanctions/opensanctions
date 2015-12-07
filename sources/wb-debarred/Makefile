@@ -9,6 +9,7 @@ $(HTML_FILE):
 	curl -o $(HTML_FILE) $(URL)
 
 parse: $(HTML_FILE)
+	pep parse wbdeb $(HTML_FILE)
 
 clean:
 	rm $(HTML_FILE)
