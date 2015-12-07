@@ -1,4 +1,5 @@
 import logging
+import re
 from lxml import etree
 from dateutil.parser import parse as dateutil_parse
 from datetime import datetime
@@ -14,9 +15,14 @@ def parse_date(date):
     if date is None:
         return
     date = date.replace('.', '').strip()
+    if ';' in date:
+        date, _ = date.split(';', 1)
     try:
         return dateutil_parse(date).date().isoformat()
     except Exception as ex:
+        match = re.search('\d{4}', date)
+        if match:
+            return match.group(0)
         log.exception(ex)
 
 

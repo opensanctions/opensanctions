@@ -1,8 +1,6 @@
 from lxml import etree
-from dateutil.parser import parse as dateutil_parse
-from datetime import datetime
 
-from pepparser.util import remove_namespace, make_id
+from pepparser.util import make_id
 from pepparser.text import combine_name
 from pepparser.country import normalize_country
 

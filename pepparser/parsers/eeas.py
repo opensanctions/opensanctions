@@ -46,8 +46,8 @@ def parse_entry(emit, record, entry):
         }
 
         funct = aka.findtext('./FUNCTION')
-        if funct and len(funct) > len(data.get('function', '')):
-            data['function'] = funct
+        if funct and len(funct) > len(record.get('function', '')):
+            record['function'] = funct
 
         gender = aka.findtext('./GENDER')
         if gender == 'M':
