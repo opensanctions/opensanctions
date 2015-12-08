@@ -53,6 +53,7 @@ def parse_entry(emit, entry):
         'type': 'individual',
         'publisher': 'State Financial Monitoring Service of Ukraine',
         'publisher_url': 'http://www.sdfm.gov.ua/',
+        'source_id': 'UA-SDFM-SANC',
         'source_url': 'http://www.sdfm.gov.ua/articles.php?cat_id=87&lang=en',
         'program': entry.findtext('./program-entry'),
         'summary': entry.findtext('./comments')

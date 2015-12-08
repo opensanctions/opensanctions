@@ -11,6 +11,7 @@ PUBLISHER = {
     'publisher': 'Swiss State Secretariat for Economic Affairs (SECO)',
     'publisher_url': 'http://www.seco.admin.ch/',
     'source': 'Sanctions / Embargoes',
+    'source_id': 'CH-SECO',
     'source_url': 'http://www.seco.admin.ch/themen/00513/00620/04991/index.html?lang=en'
 }
 
@@ -154,13 +155,14 @@ def parse_identity(record, ident, places):
         })
 
 
-def parse_entry(emit, target, sanctions, places):
+def parse_entry(emit, doc, target, sanctions, places):
     node = target.find('./individual')
     if node is None:
         node = target.find('./entity')
     record = {
         'uid': make_id('ch', 'seco', target.get('ssid')),
         'type': node.tag,
+        'updated_at': doc.getroot().get('date'),
         'program': sanctions.get(target.get('sanctions-set-id')),
         'function': node.findtext('./other-information'),
         'summary': node.findtext('./justification'),
@@ -190,7 +192,5 @@ def seco_parse(emit, xmlfile):
     for place in doc.findall('.//place'):
         places[place.get('ssid')] = place
 
-    for target in doc.findall('.//target'):
-        if target.getparent().tag == 'modification':
-            continue
-        parse_entry(emit, target, sanctions, places)
+    for target in doc.findall('./target'):
+        parse_entry(emit, doc, target, sanctions, places)

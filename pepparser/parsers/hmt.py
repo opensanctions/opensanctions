@@ -14,6 +14,7 @@ SOURCE = {
     'publisher': 'HM Treasury',
     'publisher_url': 'https://www.gov.uk/government/publications/financial-sanctions-consolidated-list-of-targets/consolidated-list-of-targets',
     'source': 'Consolidated Sanctions list',
+    'source_id': 'GB-HMT-SANC',
     'source_url': 'http://hmt-sanctions.s3.amazonaws.com/sanctionsconlist.htm'
 }
 

@@ -1,10 +1,7 @@
 import unicodecsv
 import logging
-import xlrd
-from datetime import datetime
 
 from pepparser.util import make_id
-from pepparser.text import combine_name
 from pepparser.country import normalize_country
 
 log = logging.getLogger(__name__)
@@ -14,6 +11,7 @@ SOURCE = {
     'publisher': 'US Bureau of Industry and Security',
     'publisher_url': 'https://www.bis.doc.gov/',
     'source': 'Denied Persons list',
+    'source_id': 'US-BIS-DPL',
     'source_url': 'https://www.bis.doc.gov/index.php/the-denied-persons-list',
     'type': 'entity'
 }

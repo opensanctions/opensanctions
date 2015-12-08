@@ -10,7 +10,8 @@ log = logging.getLogger(__name__)
 PUBLISHER = {
     'publisher': 'US Central Intelligence Agency',
     'publisher_url': 'https://www.cia.gov/library/publications/resources/world-leaders-1/index.html',
-    'source': 'World Leaders'
+    'source': 'World Leaders',
+    'source_id': 'US-CIA-LEADERS'
 }
 
 

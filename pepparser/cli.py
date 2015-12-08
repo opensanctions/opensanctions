@@ -48,7 +48,7 @@ def parse(ctx):
 @click.pass_context
 def ofac(ctx, sdn, consolidated, xmlfile):
     ofac_parse(ctx.obj['emit'], sdn, consolidated, xmlfile)
-    ctx.obj['emit'].close()
+    ctx.obj['emit'].save()
 
 
 @parse.command()
@@ -56,7 +56,7 @@ def ofac(ctx, sdn, consolidated, xmlfile):
 @click.pass_context
 def sdfm(ctx, xmlfile):
     sdfm_parse(ctx.obj['emit'], xmlfile)
-    ctx.obj['emit'].close()
+    ctx.obj['emit'].save()
 
 
 @parse.command()
@@ -64,7 +64,7 @@ def sdfm(ctx, xmlfile):
 @click.pass_context
 def eeas(ctx, xmlfile):
     eeas_parse(ctx.obj['emit'], xmlfile)
-    ctx.obj['emit'].close()
+    ctx.obj['emit'].save()
 
 
 @parse.command()
@@ -72,7 +72,7 @@ def eeas(ctx, xmlfile):
 @click.pass_context
 def unsc(ctx, xmlfile):
     unsc_parse(ctx.obj['emit'], xmlfile)
-    ctx.obj['emit'].close()
+    ctx.obj['emit'].save()
 
 
 @parse.command()
@@ -80,7 +80,7 @@ def unsc(ctx, xmlfile):
 @click.pass_context
 def seco(ctx, xmlfile):
     seco_parse(ctx.obj['emit'], xmlfile)
-    ctx.obj['emit'].close()
+    ctx.obj['emit'].save()
 
 
 @parse.command()
@@ -88,7 +88,7 @@ def seco(ctx, xmlfile):
 @click.pass_context
 def hmt(ctx, csvfile):
     hmt_parse(ctx.obj['emit'], csvfile)
-    ctx.obj['emit'].close()
+    ctx.obj['emit'].save()
 
 
 @parse.command()
@@ -96,7 +96,7 @@ def hmt(ctx, csvfile):
 @click.pass_context
 def usbis(ctx, csvfile):
     usbis_parse(ctx.obj['emit'], csvfile)
-    ctx.obj['emit'].close()
+    ctx.obj['emit'].save()
 
 
 @parse.command()
@@ -104,7 +104,7 @@ def usbis(ctx, csvfile):
 @click.pass_context
 def worldleaders(ctx, jsonfile):
     worldleaders_parse(ctx.obj['emit'], jsonfile)
-    ctx.obj['emit'].close()
+    ctx.obj['emit'].save()
 
 
 @parse.command()
@@ -112,7 +112,7 @@ def worldleaders(ctx, jsonfile):
 @click.pass_context
 def interpol(ctx, jsonfile):
     interpol_parse(ctx.obj['emit'], jsonfile)
-    ctx.obj['emit'].close()
+    ctx.obj['emit'].save()
 
 
 @parse.command()
@@ -120,7 +120,7 @@ def interpol(ctx, jsonfile):
 @click.pass_context
 def wbdeb(ctx, htmlfile):
     wbdeb_parse(ctx.obj['emit'], htmlfile)
-    ctx.obj['emit'].close()
+    ctx.obj['emit'].save()
 
 
 @parse.command()
@@ -128,7 +128,7 @@ def wbdeb(ctx, htmlfile):
 @click.pass_context
 def everypolitician(ctx, jsonfile):
     everypolitician_parse(ctx.obj['emit'], jsonfile)
-    ctx.obj['emit'].close()
+    ctx.obj['emit'].save()
 
 
 def main():

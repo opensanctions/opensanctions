@@ -99,8 +99,10 @@ def ofac_parse(emit, sdn, consolidated, xmlfile):
     source['updated_at'] = publish_date.date().isoformat()
     if sdn:
         source['source'] = 'Specially Designated Nationals and Blocked Persons'
+        source['source_id'] = 'US-OFAC-SDN'
     if consolidated:
         source['source'] = 'Consolidated non-SDN List'
+        source['source_id'] = 'US-OFAC-NONSDN'
 
     for entry in doc.findall('.//sdnEntry'):
         record = source.copy()

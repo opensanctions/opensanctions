@@ -9,6 +9,7 @@ BASE = {
     'publisher': 'European External Action Service',
     'publisher_url': 'http://eeas.europa.eu/',
     'source': 'Consolidated list of entities subject to EU financial sanctions',
+    'source_id': 'EU-EEAS-SANC',
     'source_url': 'http://eeas.europa.eu/cfsp/sanctions/consol-list/index_en.htm'
 }
 

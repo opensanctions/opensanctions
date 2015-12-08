@@ -17,6 +17,7 @@ SOURCE = {
     'publisher': 'World Bank Group',
     'publisher_url': 'http://www.worldbank.org/',
     'source': 'Debarred & Cross-Debarred Firms & Individuals',
+    'source_id': 'WB-DEBARRED',
     'source_url': 'http://web.worldbank.org/external/default/main?contentMDK=64069844&menuPK=116730&pagePK=64148989&piPK=64148984&querycontentMDK=64069700&theSitePK=84266',
     'type': 'entity'
 }

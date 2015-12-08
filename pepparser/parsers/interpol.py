@@ -14,6 +14,7 @@ SOURCE = {
     'publisher': 'Interpol',
     'publisher_url': 'http://www.interpol.int/notice/search/wanted',
     'source': 'Wanted Persons',
+    'source_id': 'INTERPOL-WANTED',
     'program': 'Red List',
     'type': 'individual'
 }

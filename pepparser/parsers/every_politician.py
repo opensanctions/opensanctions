@@ -10,7 +10,8 @@ log = logging.getLogger(__name__)
 PUBLISHER = {
     'publisher': 'mySociety',
     'publisher_url': 'https://www.mysociety.org/',
-    'source': 'EveryPolitician.org'
+    'source': 'EveryPolitician.org',
+    'source_id': 'EVERY-POLITICIAN'
 }
 
 
@@ -29,7 +30,7 @@ def everypolitician_parse(emit, json_file):
         # TODO: add politician
         country = normalize_country(policitian.get('country_code'))
         entity = {
-            'uid': make_id('mysociety', 'ep', policitian.get('id')),
+            'uid': make_id('evpo', policitian.get('id').split('-')[-1]),
             'name': policitian.get('name'),
             'type': 'individual',
             'addresses': [{'country': country}],
