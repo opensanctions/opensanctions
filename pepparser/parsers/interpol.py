@@ -21,11 +21,10 @@ SOURCE = {
 
 
 def parse_case(emit, case):
-    record = SOURCE.copy()
     url = case.get('url')
     name = combine_name(*reversed(case.get('name').split(', ')))
     updated = dateutil_parse(case.get('last_updated'))
-    record.update({
+    record = {
         'uid': make_id('interpol', url.split('/')[-1]),
         'source_url': url,
         'name': name,
@@ -39,7 +38,8 @@ def parse_case(emit, case):
         'identities': [],
         'addresses': [],
         'other_names': []
-    })
+    }
+    record.update(SOURCE)
     birth = case.get('date_of_birth').split(' ')[0]
 
     try:

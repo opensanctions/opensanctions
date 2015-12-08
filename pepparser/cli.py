@@ -3,6 +3,8 @@ import logging
 import dataset
 
 from pepparser.emitter import Emitter
+from pepparser.model import EntityManager
+from pepparser.dump import dump_db
 from pepparser.parsers.ofac import ofac_parse
 from pepparser.parsers.eeas import eeas_parse
 from pepparser.parsers.sdfm import sdfm_parse
@@ -33,12 +35,20 @@ def cli(ctx, debug, database_uri):
     ctx.obj['database_uri'] = database_uri
     log.debug('Connecting to DB: %r', database_uri)
     ctx.obj['engine'] = dataset.connect(database_uri)
+    ctx.obj['manager'] = EntityManager(ctx.obj['engine'])
 
 
 @cli.group()
 @click.pass_context
 def parse(ctx):
-    ctx.obj['emit'] = Emitter(ctx.obj['engine'])
+    ctx.obj['emit'] = Emitter(ctx.obj['manager'])
+
+
+@cli.command()
+@click.pass_context
+@click.argument('outdir')
+def dump(ctx, outdir):
+    dump_db(ctx.obj['manager'], outdir)
 
 
 @parse.command()

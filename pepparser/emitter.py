@@ -3,7 +3,6 @@ from pprint import pprint  # noqa
 
 from pepparser.util import clean_obj, unique_objs
 from pepparser.schema import validate
-from pepparser.model import EntityManager
 
 
 log = logging.getLogger(__name__)
@@ -11,8 +10,8 @@ log = logging.getLogger(__name__)
 
 class Emitter(object):
 
-    def __init__(self, engine):
-        self.manager = EntityManager(engine)
+    def __init__(self, manager):
+        self.manager = manager
         self.entities = []
 
     def entity(self, data):

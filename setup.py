@@ -29,6 +29,7 @@ setup(
         "requests",
         "lxml",
         "xlrd",
+        "XlsxWriter",
         "csvkit",
         "six"
     ],
