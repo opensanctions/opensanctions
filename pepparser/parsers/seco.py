@@ -55,6 +55,7 @@ def get_name_data(names):
     for (name_part, value) in names:
         np_type = name_part.get('name-part-type')
 
+        data['quality'] = name_part.getparent().get('quality')
         if value and len(value) and value.strip() != '-':
             if np_type == 'whole-name':
                 data['other_name'] = value
