@@ -1,17 +1,21 @@
 #!/bin/bash
 
+ORIG_DATA_PATH=$DATA_PATH
+BUILD_PATH=$DATA_PATH/build/`date +%Y%m%d`/opennames
+ARCHIVE_PATH=$ORIG_DATA_PATH/opennames-`date +%Y%m%d`.tgz
+DATA_PATH=$BUILD_PATH/sources
+
+mkdir -p $DATA_PATH
 make
 
-DUMP_BASE=$DATA_PATH/tmp/`date +%Y%m%d`
-DUMP_PATH=$DUMP_BASE/opennames
-ARCHIVE_PATH=$DATA_PATH/opennames/opennames-`date +%Y%m%d`.tgz
+mkdir -p $ORIG_DATA_PATH/sources
+cp -R $DATA_PATH $ORIG_DATA_PATH/sources
 
-mkdir -p $DUMP_PATH
-pep dump $DUMP_PATH
+pep dump $BUILD_PATH
 
-cd $DUMP_BASE
+cd $BUILD_PATH/..
 tar cfz $ARCHIVE_PATH opennames
 
 aws s3 cp $ARCHIVE_PATH s3://archive.pudo.org/opennames/opennames-`date +%Y%m%d`.tgz
-aws s3 cp $ARCHIVE_PATH s3://archive.pudo.org/opennames/opennames.tgz
-aws s3 sync $DUMP_PATH $ARCHIVE_PATH s3://archive.pudo.org/opennames/data/
+aws s3 cp $ARCHIVE_PATH s3://archive.pudo.org/opennames/opennames-latest.tgz
+aws s3 sync $BUILD_PATH s3://archive.pudo.org/opennames/latest/
