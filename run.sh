@@ -16,6 +16,6 @@ pep dump $BUILD_PATH
 cd $BUILD_PATH/..
 tar cfz $ARCHIVE_PATH opennames
 
-aws s3 cp $ARCHIVE_PATH s3://archive.pudo.org/opennames/opennames-`date +%Y%m%d`.tgz
-aws s3 cp $ARCHIVE_PATH s3://archive.pudo.org/opennames/opennames-latest.tgz
-aws s3 sync $BUILD_PATH s3://archive.pudo.org/opennames/latest/
+aws s3 cp --acl public-read $ARCHIVE_PATH s3://archive.pudo.org/opennames/opennames-`date +%Y%m%d`.tgz
+aws s3 cp --acl public-read $ARCHIVE_PATH s3://archive.pudo.org/opennames/opennames-latest.tgz
+aws s3 sync --acl public-read $BUILD_PATH s3://archive.pudo.org/opennames/latest/
