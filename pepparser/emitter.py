@@ -21,9 +21,10 @@ class Emitter(object):
         data['addresses'] = unique_objs(data.get('addresses'))
         data = clean_obj(data)
         validate(data)
-        # log.info('%r: %s', data.get('uid'), data.get('name'))
+        log.debug('%r: %s', data.get('uid'), data.get('name'))
         self.entities.append(data)
 
     def save(self):
         log.info("Parsed %s entities", len(self.entities))
         self.manager.save_entities(self.entities)
+        log.info("Saved.")
