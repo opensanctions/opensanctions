@@ -36,6 +36,12 @@ def csv_generate(file_name, rows):
             writer.writerow([row.get(h) for h in headers])
 
 
+def json_generate(file_name, jsons):
+    log.info(' -> %s', file_name)
+    with open(file_name, 'w') as fh:
+        json.dump({'entities': jsons}, fh)
+
+
 def xlsx_generate(file_name, sheets):
     log.info(' -> %s', file_name)
     with open(file_name, 'w') as fh:
@@ -76,23 +82,32 @@ def xlsx_generate(file_name, sheets):
         workbook.close()
 
 
-def dump_query(manager, prefix, name, q):
+def dump_query(manager, prefix, name, q, include_metadata=False):
     uids = set()
     entities = []
-    for entity in manager._entities.find(**q):
-        uids.add(entity.get('uid'))
-        entities.append(entity)
-    entities = sorted(entities, key=lambda e: e.get('name'))
+    jsons = []
     file_base = os.path.join(prefix, name)
-    csv_generate(file_base + '.entities.csv', entities)
-
     meta = {
         'csv': [{
             'label': 'Entities',
             'file': name + '.entities.csv'
         }],
-        'xlsx': file_base + '.xlsx'
+        'xlsx': name + '.xlsx',
+        'json': name + '.json'
     }
+
+    for entity in manager._entities.find(**q):
+        uids.add(entity.get('uid'))
+        json_repr = entity.pop('json', None)
+        if json_repr is not None:
+            jsons.append(json.loads(json_repr))
+        if include_metadata:
+            meta['source_id'] = entity.get('source_id')
+            meta['publisher'] = entity.get('publisher')
+            meta['publisher_url'] = entity.get('publisher_url')
+        entities.append(entity)
+    entities = sorted(entities, key=lambda e: e.get('name'))
+    csv_generate(file_base + '.entities.csv', entities)
 
     sheets = [('Entities', entities)]
     tables = {
@@ -112,6 +127,7 @@ def dump_query(manager, prefix, name, q):
         })
 
     xlsx_generate(file_base + '.xlsx', sheets)
+    json_generate(file_base + '.json', jsons)
     return meta
 
 
@@ -123,7 +139,8 @@ def dump_db(manager, outdir):
 
     log.info('Generating full dumps...')
     meta = {
-        'data': dump_query(manager, outdir, "full", {}),
+        'data': dump_query(manager, outdir, "full", {},
+                           include_metadata=False),
         'sources': []
     }
     for source in manager._entities.distinct(*SOURCE_FIELDS):
@@ -132,7 +149,8 @@ def dump_db(manager, outdir):
             continue
         log.info('Generating: %s...', source.get('source'))
         q = {'source_id': source_id}
-        source['data'] = dump_query(manager, outdir, source_id.lower(), q)
+        source['data'] = dump_query(manager, outdir, source_id.lower(), q,
+                                    include_metadata=True)
         meta['sources'].append(source)
 
     with open(os.path.join(outdir, 'metadata.json'), 'w') as fh:

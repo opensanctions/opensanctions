@@ -1,3 +1,5 @@
+import json
+from copy import deepcopy
 
 
 class EntityManager(object):
@@ -40,6 +42,7 @@ class EntityManager(object):
         addresses = []
 
         for entity in entities:
+            entity['json'] = json.dumps(entity)
             base = {
                 'uid': entity.get('uid'),
                 'name': entity.get('name')
