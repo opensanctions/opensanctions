@@ -82,7 +82,7 @@ def xlsx_generate(file_name, sheets):
         workbook.close()
 
 
-def dump_query(manager, prefix, name, q, include_metadata=False):
+def dump_query(manager, prefix, name, q):
     uids = set()
     entities = []
     jsons = []
@@ -101,10 +101,6 @@ def dump_query(manager, prefix, name, q, include_metadata=False):
         json_repr = entity.pop('json', None)
         if json_repr is not None:
             jsons.append(json.loads(json_repr))
-        if include_metadata:
-            meta['source_id'] = entity.get('source_id')
-            meta['publisher'] = entity.get('publisher')
-            meta['publisher_url'] = entity.get('publisher_url')
         entities.append(entity)
     entities = sorted(entities, key=lambda e: e.get('name'))
     csv_generate(file_base + '.entities.csv', entities)
@@ -139,8 +135,7 @@ def dump_db(manager, outdir):
 
     log.info('Generating full dumps...')
     meta = {
-        'data': dump_query(manager, outdir, "full", {},
-                           include_metadata=False),
+        'data': dump_query(manager, outdir, "full", {}),
         'sources': []
     }
     for source in manager._entities.distinct(*SOURCE_FIELDS):
@@ -149,8 +144,7 @@ def dump_db(manager, outdir):
             continue
         log.info('Generating: %s...', source.get('source'))
         q = {'source_id': source_id}
-        source['data'] = dump_query(manager, outdir, source_id.lower(), q,
-                                    include_metadata=True)
+        source['data'] = dump_query(manager, outdir, source_id.lower(), q)
         meta['sources'].append(source)
 
     with open(os.path.join(outdir, 'metadata.json'), 'w') as fh:
