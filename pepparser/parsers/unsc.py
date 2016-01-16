@@ -54,9 +54,15 @@ def parse_entity(emit, record, ent):
 
 
 def parse_individual(emit, record, ind):
+    last_name = ind.findtext('.//THIRD_NAME')
+    second_name = ind.findtext('.//SECOND_NAME')
+    if last_name is None:
+        last_name = second_name
+        second_name = None
     record.update({
         'first_name': ind.findtext('.//FIRST_NAME'),
-        'last_name': ind.findtext('.//LAST_NAME')
+        'second_name': second_name,
+        'last_name': last_name
     })
 
     for alias in ind.findall('./INDIVIDUAL_ALIAS'):
@@ -112,7 +118,8 @@ def parse_common(node, type_):
         'program': program_ref,
         'summary': node.findtext('./COMMENTS1'),
         'name': combine_name(node.findtext('./FIRST_NAME'),
-                             node.findtext('./LAST_NAME')),
+                             node.findtext('./SECOND_NAME'),
+                             node.findtext('./THIRD_NAME')),
         'function': node.findtext('./DESIGNATION/VALUE'),
         'updated_at': node.findtext('./LISTED_ON'),
         'nationality': normalize_country(node.findtext('./NATIONALITY/VALUE')),
