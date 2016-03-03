@@ -6,9 +6,9 @@ from pepparser.country import normalize_country
 
 
 BASE = {
-    'publisher': 'European External Action Service',
+    'publisher': 'EEAS',
     'publisher_url': 'http://eeas.europa.eu/',
-    'source': 'Consolidated list of entities subject to EU financial sanctions',
+    'source': 'Entities Subject to EU Financial Sanctions',
     'source_id': 'EU-EEAS-SANC',
     'source_url': 'http://eeas.europa.eu/cfsp/sanctions/consol-list/index_en.htm'
 }

@@ -8,7 +8,7 @@ from pepparser.country import normalize_country
 
 
 PUBLISHER = {
-    'publisher': 'US Treasury Office of Foreign Assets Control',
+    'publisher': 'US Treasury OFAC',
     'publisher_url': 'https://www.treasury.gov/about/organizational-structure/offices/Pages/Office-of-Foreign-Assets-Control.aspx',    
     'source_url': 'http://sdnsearch.ofac.treas.gov/'
 }

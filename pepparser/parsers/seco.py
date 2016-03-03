@@ -8,7 +8,7 @@ from pepparser.country import normalize_country
 
 
 PUBLISHER = {
-    'publisher': 'Swiss State Secretariat for Economic Affairs (SECO)',
+    'publisher': 'Swiss Secretariat for Economic Affairs (SECO)',
     'publisher_url': 'http://www.seco.admin.ch/',
     'source': 'Sanctions / Embargoes',
     'source_id': 'CH-SECO',

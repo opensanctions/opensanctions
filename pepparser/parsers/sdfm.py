@@ -51,8 +51,9 @@ def parse_entry(emit, entry):
     record = {
         'uid': make_id('ua', 'sdfm', uid),
         'type': 'individual',
-        'publisher': 'State Financial Monitoring Service of Ukraine',
+        'publisher': 'Ukraine SDFM',
         'publisher_url': 'http://www.sdfm.gov.ua/',
+        'source': 'Blacklist',
         'source_id': 'UA-SDFM-SANC',
         'source_url': 'http://www.sdfm.gov.ua/articles.php?cat_id=87&lang=en',
         'program': entry.findtext('./program-entry'),

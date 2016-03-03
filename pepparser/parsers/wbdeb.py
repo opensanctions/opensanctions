@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 SPLITS = r'(a\.k\.a\.?|aka|f/k/a|also known as|\(formerly |, also d\.b\.a\.|\(currently (d/b/a)?|d/b/a|\(name change from|, as the successor or assign to)'
 
 SOURCE = {
-    'publisher': 'World Bank Group',
+    'publisher': 'World Bank',
     'publisher_url': 'http://www.worldbank.org/',
     'source': 'Debarred & Cross-Debarred Firms & Individuals',
     'source_id': 'WB-DEBARRED',

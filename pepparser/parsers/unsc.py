@@ -6,9 +6,9 @@ from pepparser.country import normalize_country
 
 
 BASE = {
-    'publisher': 'United Nations Security Council',
+    'publisher': 'UN Security Council',
     'publisher_url': 'https://www.un.org/en/sc/',
-    'source': 'Consolidated Sanctions List',
+    'source': 'Consolidated Sanctions',
     'source_id': 'UN-SC-SANC',
     'source_url': 'https://www.un.org/sc/suborg/sites/www.un.org.sc.suborg/files/consolidated.htm'
 }

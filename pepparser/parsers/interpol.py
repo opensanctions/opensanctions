@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 
 
 SOURCE = {
-    'publisher': 'Interpol',
+    'publisher': 'INTERPOL',
     'publisher_url': 'http://www.interpol.int/notice/search/wanted',
     'source': 'Wanted Persons',
     'source_id': 'INTERPOL-WANTED',
