@@ -1,5 +1,5 @@
-WORK_PATH=$(OPENNAMES_SOURCE_DATA)/int-interpol
-JSON_FILE=$(WORK_PATH)/wanted.json
+WORK_PATH=$(OPENNAMES_SOURCE_DATA)
+JSON_FILE=$(WORK_PATH)/int-interpol-wanted.json
 
 all: scrape parse
 

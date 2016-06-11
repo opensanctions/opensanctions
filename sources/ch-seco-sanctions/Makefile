@@ -1,6 +1,6 @@
 URL="https://www.sesam.search.admin.ch/sesam-search-web/pages/downloadXmlGesamtliste.xhtml?lang=en&action=downloadXmlGesamtlisteAction"
-WORK_PATH=$(OPENNAMES_SOURCE_DATA)/ch-seco-sanctions
-XML_FILE=$(WORK_PATH)/gesamt.xml
+WORK_PATH=$(OPENNAMES_SOURCE_DATA)
+XML_FILE=$(WORK_PATH)/ch-seco-sanctions.xml
 
 all: scrape parse
 

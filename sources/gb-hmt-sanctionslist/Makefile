@@ -1,7 +1,7 @@
 URL=http://hmt-sanctions.s3.amazonaws.com/sanctionsconlist.xls
-WORK_PATH=$(OPENNAMES_SOURCE_DATA)/gb-hmt-sanctionslist
-XLS_FILE=$(WORK_PATH)/sanctionsconlist.xls
-CSV_FILE=$(WORK_PATH)/sanctionsconlist.csv
+WORK_PATH=$(OPENNAMES_SOURCE_DATA)
+XLS_FILE=$(WORK_PATH)/gb-hmt-sanctionslist.xls
+CSV_FILE=$(WORK_PATH)/gb-hmt-sanctionslist.csv
 
 all: scrape parse
 

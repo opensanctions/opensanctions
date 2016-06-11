@@ -1,7 +1,7 @@
 URL="http://dfat.gov.au/international-relations/security/sanctions/Documents/regulation8_consolidated.xls"
-WORK_PATH=$(OPENNAMES_SOURCE_DATA)/au-sanctions
-XLS_FILE=$(WORK_PATH)/regulation8-consolidated.xls
-CSV_FILE=$(WORK_PATH)/regulation8-consolidated.csv
+WORK_PATH=$(OPENNAMES_SOURCE_DATA)
+XLS_FILE=$(WORK_PATH)/au-sanctions-regulation8-consolidated.xls
+CSV_FILE=$(WORK_PATH)/-au-sanctionsregulation8-consolidated.csv
 
 all: scrape parse
 

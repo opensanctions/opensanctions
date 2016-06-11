@@ -1,6 +1,6 @@
-WORK_PATH=$(OPENNAMES_SOURCE_DATA)/us-ofac
-SDN_FILE=$(WORK_PATH)/sdn.xml
-CONS_FILE=$(WORK_PATH)/consolidated.xml
+WORK_PATH=$(OPENNAMES_SOURCE_DATA)
+SDN_FILE=$(WORK_PATH)/us-ofac-sdn.xml
+CONS_FILE=$(WORK_PATH)/us-ofac-consolidated.xml
 
 all: scrape parse
 

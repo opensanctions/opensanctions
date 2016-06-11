@@ -1,5 +1,5 @@
-WORK_PATH=$(OPENNAMES_SOURCE_DATA)/gb-bis-disqualified
-JSON_FILE=$(WORK_PATH)/disqualified.json
+WORK_PATH=$(OPENNAMES_SOURCE_DATA)
+JSON_FILE=$(WORK_PATH)/gb-bis-disqualified.json
 
 all: scrape parse
 

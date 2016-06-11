@@ -1,6 +1,6 @@
 URL="http://web.worldbank.org/external/default/main?contentMDK=64069844&menuPK=116730&pagePK=64148989&piPK=64148984&querycontentMDK=64069700&theSitePK=84266"
-WORK_PATH=$(OPENNAMES_SOURCE_DATA)/wb-debarred
-HTML_FILE=$(WORK_PATH)/list.html
+WORK_PATH=$(OPENNAMES_SOURCE_DATA)
+HTML_FILE=$(WORK_PATH)/int-wb-debarred.html
 
 all: scrape parse
 

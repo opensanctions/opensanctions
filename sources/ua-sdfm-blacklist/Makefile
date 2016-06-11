@@ -1,6 +1,6 @@
 URL=http://www.sdfm.gov.ua/content/file/Site_docs/Black_list/zBlackListFull.xml
-WORK_PATH=$(OPENNAMES_SOURCE_DATA)/ua-sdfm-blacklist
-XML_FILE=$(WORK_PATH)/blacklist.xml
+WORK_PATH=$(OPENNAMES_SOURCE_DATA)
+XML_FILE=$(WORK_PATH)/ua-sdfm-blacklist.xml
 
 all: scrape parse
 

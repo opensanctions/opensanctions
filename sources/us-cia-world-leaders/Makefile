@@ -1,5 +1,5 @@
-WORK_PATH=$(OPENNAMES_SOURCE_DATA)/us-cia-world-leaders
-JSON_FILE=$(WORK_PATH)/world-leaders-$(shell date +%Y%m%d).json
+WORK_PATH=$(OPENNAMES_SOURCE_DATA)
+JSON_FILE=$(WORK_PATH)/us-cia-world-leaders.json
 
 all: scrape parse
 

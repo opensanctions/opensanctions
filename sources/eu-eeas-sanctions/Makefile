@@ -1,6 +1,6 @@
 URL=http://ec.europa.eu/external_relations/cfsp/sanctions/list/version4/global/global.xml
-WORK_PATH=$(OPENNAMES_SOURCE_DATA)/eu-eeas-sanctions
-XML_FILE=$(WORK_PATH)/global.xml
+WORK_PATH=$(OPENNAMES_SOURCE_DATA)
+XML_FILE=$(WORK_PATH)/eu-eeas-sanctions.xml
 
 all: scrape parse
 

@@ -1,6 +1,6 @@
 URL=https://www.bis.doc.gov/dpl/dpl.txt
-WORK_PATH=$(OPENNAMES_SOURCE_DATA)/us-bis-denied
-TXT_FILE=$(WORK_PATH)/denied.csv
+WORK_PATH=$(OPENNAMES_SOURCE_DATA)
+TXT_FILE=$(WORK_PATH)/us-bis-denied.csv
 
 all: scrape parse
 

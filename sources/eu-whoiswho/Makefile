@@ -1,5 +1,5 @@
 URL=http://ec.europa.eu/external_relations/cfsp/sanctions/list/version4/global/global.xml
-WORK_PATH=$(OPENNAMES_SOURCE_DATA)/eu-whoiswho
+WORK_PATH=$(OPENNAMES_SOURCE_DATA)
 # XML_FILE=$(WORK_PATH)/global-$(shell date +%Y%m%d).xml
 
 all: scrape parse

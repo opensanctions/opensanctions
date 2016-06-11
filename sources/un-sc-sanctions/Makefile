@@ -1,6 +1,6 @@
 URL=https://www.un.org/sc/suborg/sites/www.un.org.sc.suborg/files/consolidated.xml
-WORK_PATH=$(OPENNAMES_SOURCE_DATA)/un-sc-sanctions
-XML_FILE=$(WORK_PATH)/consolidated.xml
+WORK_PATH=$(OPENNAMES_SOURCE_DATA)
+XML_FILE=$(WORK_PATH)/un-sc-sanctions-consolidated.xml
 
 all: scrape parse
 

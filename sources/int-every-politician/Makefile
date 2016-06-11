@@ -1,16 +1,15 @@
 WORK_PATH=$(OPENNAMES_SOURCE_DATA)/int-every-politician
-JSON_FILE=$(WORK_PATH)/politicians.json
 
 all: scrape parse
 
-$(JSON_FILE):
+$(WORK_PATH):
 	mkdir -p $(WORK_PATH)
-	python scrape.py $(JSON_FILE)
+	python scrape.py $(WORK_PATH)
 
-scrape: $(JSON_FILE)
+scrape: $(WORK_PATH)
 
-parse: $(JSON_FILE)
-	pep parse everypolitician $(JSON_FILE)
+parse: $(WORK_PATH)
+	pep parse everypolitician $(WORK_PATH)
 
 clean:
-	rm $(JSON_FILE)
+	rm -rf $(WORK_PATH)
