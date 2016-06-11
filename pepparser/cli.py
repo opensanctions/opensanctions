@@ -5,17 +5,6 @@ import dataset
 from pepparser.emitter import Emitter
 from pepparser.model import EntityManager
 from pepparser.dump import dump_db
-from pepparser.parsers.ofac import ofac_parse
-from pepparser.parsers.eeas import eeas_parse
-from pepparser.parsers.sdfm import sdfm_parse
-from pepparser.parsers.unsc import unsc_parse
-from pepparser.parsers.seco import seco_parse
-from pepparser.parsers.hmt import hmt_parse
-from pepparser.parsers.usbis import usbis_parse
-from pepparser.parsers.wbdeb import wbdeb_parse
-from pepparser.parsers.interpol import interpol_parse
-from pepparser.parsers.cia_world_leaders import worldleaders_parse
-from pepparser.parsers.every_politician import everypolitician_parse
 
 log = logging.getLogger(__name__)
 

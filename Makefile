@@ -21,6 +21,9 @@ int-every-politician: env
 int-interpol: env
 	make -C sources/int-interpol
 
+int-wb-debarred: env
+	make -C sources/int-wb-debarred
+
 ua-sdfm-blacklist: env
 	make -C sources/ua-sdfm-blacklist
 
@@ -35,9 +38,6 @@ us-cia-world-leaders: env
 
 us-ofac: env
 	make -C sources/us-ofac
-
-wb-debarred: env
-	make -C sources/wb-debarred
 
 env:
 ifndef DATA_PATH
