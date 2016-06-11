@@ -2,7 +2,7 @@ import os
 from normality import slugify
 import unicodecsv
 
-from pepparser.util import DATA_FIXTURES
+from peplib.util import DATA_FIXTURES
 
 COUNTRIES = {}
 REQUESTED = []

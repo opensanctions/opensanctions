@@ -3,8 +3,8 @@ import json
 
 from jsonschema import Draft4Validator, FormatChecker, RefResolver
 
-from pepparser.util import SCHEMA_FIXTURES
-from pepparser.country import load_countries
+from peplib.util import SCHEMA_FIXTURES
+from peplib.country import load_countries
 
 BASE_URI = 'http://schema.opennames.org/'
 ENTITY_SCHEMA = 'http://schema.opennames.org/entity.json#'

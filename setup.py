@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='pepparser',
+    name='peplib',
     version='0.0.1',
     description="",
     long_description="",
@@ -24,7 +24,6 @@ setup(
     install_requires=[
         "unicodecsv",
         "jsonschema",
-        "click",
         "dataset",
         "requests",
         "lxml",
@@ -33,10 +32,6 @@ setup(
         "csvkit",
         "six"
     ],
-    entry_points={
-        'console_scripts': [
-            'pep = pepparser.cli:main'
-        ]
-    },
+    entry_points={},
     tests_require=[]
 )
