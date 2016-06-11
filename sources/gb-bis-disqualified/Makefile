@@ -1,12 +1,13 @@
-BIS_PATH=$(DATA_PATH)/gb-bis-disqualified
-CACHE_PATH=$(BIS_PATH)/gb-bis-disqualified/details
-JSON_FILE=$(BIS_PATH)/disqualified-$(shell date +%Y%m%d).json
+WORK_PATH=$(OPENNAMES_SOURCE_DATA)/gb-bis-disqualified
+JSON_FILE=$(WORK_PATH)/disqualified.json
 
-all: parse
+all: scrape parse
 
 $(JSON_FILE):
-	mkdir -p $(CACHE_PATH)
-	python scrape.py $(CACHE_PATH) $(JSON_FILE)
+	mkdir -p $(WORK_PATH)
+	python scrape.py $(WORK_PATH) $(JSON_FILE)
+
+scrape: $(JSON_FILE)
 
 parse: $(JSON_FILE)
 

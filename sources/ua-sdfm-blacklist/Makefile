@@ -1,12 +1,14 @@
 URL=http://www.sdfm.gov.ua/content/file/Site_docs/Black_list/zBlackListFull.xml
-SDFM_PATH=$(DATA_PATH)/ua-sdfm-blacklist
-XML_FILE=$(SDFM_PATH)/blacklist-$(shell date +%Y%m%d).xml
+WORK_PATH=$(OPENNAMES_SOURCE_DATA)/ua-sdfm-blacklist
+XML_FILE=$(WORK_PATH)/blacklist.xml
 
-all: parse
+all: scrape parse
 
 $(XML_FILE):
-	mkdir -p $(SDFM_PATH)
+	mkdir -p $(WORK_PATH)
 	curl -o $(XML_FILE) $(URL)
+
+scrape: $(XML_FILE)
 
 parse: $(XML_FILE)
 	pep parse sdfm $(XML_FILE)

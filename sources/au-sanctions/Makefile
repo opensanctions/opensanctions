@@ -1,16 +1,18 @@
 URL="http://dfat.gov.au/international-relations/security/sanctions/Documents/regulation8_consolidated.xls"
-AU_PATH=$(DATA_PATH)/au-sanctions
-XLS_FILE=$(AU_PATH)/regulation8-consolidated-$(shell date +%Y%m%d).xls
-CSV_FILE=$(AU_PATH)/regulation8-consolidated-$(shell date +%Y%m%d).csv
+WORK_PATH=$(OPENNAMES_SOURCE_DATA)/au-sanctions
+XLS_FILE=$(WORK_PATH)/regulation8-consolidated.xls
+CSV_FILE=$(WORK_PATH)/regulation8-consolidated.csv
 
-all: parse
+all: scrape parse
 
 $(XLS_FILE):
-	mkdir -p $(AU_PATH)
+	mkdir -p $(WORK_PATH)
 	curl -o $(XLS_FILE) $(URL)
 
 $(CSV_FILE): $(XLS_FILE)
 	in2csv $(XLS_FILE) >$(CSV_FILE)
+
+scrape: $(CSV_FILE)
 
 parse: $(CSV_FILE)
 

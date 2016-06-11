@@ -1,12 +1,14 @@
 URL="http://web.worldbank.org/external/default/main?contentMDK=64069844&menuPK=116730&pagePK=64148989&piPK=64148984&querycontentMDK=64069700&theSitePK=84266"
-WB_PATH=$(DATA_PATH)/wb-debarred
-HTML_FILE=$(WB_PATH)/list-$(shell date +%Y%m%d).html
+WORK_PATH=$(OPENNAMES_SOURCE_DATA)/wb-debarred
+HTML_FILE=$(WORK_PATH)/list.html
 
-all: parse
+all: scrape parse
 
 $(HTML_FILE):
-	mkdir -p $(WB_PATH)
+	mkdir -p $(WORK_PATH)
 	curl -o $(HTML_FILE) $(URL)
+
+scrape: $(HTML_FILE)
 
 parse: $(HTML_FILE)
 	pep parse wbdeb $(HTML_FILE)

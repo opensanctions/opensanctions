@@ -1,12 +1,14 @@
 URL=https://www.bis.doc.gov/dpl/dpl.txt
-BIS_PATH=$(DATA_PATH)/us-bis-denied
-TXT_FILE=$(BIS_PATH)/denied-$(shell date +%Y%m%d).csv
+WORK_PATH=$(OPENNAMES_SOURCE_DATA)/us-bis-denied
+TXT_FILE=$(WORK_PATH)/denied.csv
 
-all: parse
+all: scrape parse
 
 $(TXT_FILE):
-	mkdir -p $(BIS_PATH)
+	mkdir -p $(WORK_PATH)
 	curl -o $(TXT_FILE) $(URL)
+
+scrape: $(TXT_FILE)
 
 parse: $(TXT_FILE)
 	pep parse usbis $(TXT_FILE)

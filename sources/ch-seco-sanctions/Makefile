@@ -1,12 +1,14 @@
 URL="https://www.sesam.search.admin.ch/sesam-search-web/pages/downloadXmlGesamtliste.xhtml?lang=en&action=downloadXmlGesamtlisteAction"
-SECO_PATH=$(DATA_PATH)/ch-seco-sanctions
-XML_FILE=$(SECO_PATH)/gesamt-$(shell date +%Y%m%d).xml
+WORK_PATH=$(OPENNAMES_SOURCE_DATA)/ch-seco-sanctions
+XML_FILE=$(WORK_PATH)/gesamt.xml
 
-all: parse
+all: scrape parse
 
 $(XML_FILE):
-	mkdir -p $(SECO_PATH)
+	mkdir -p $(WORK_PATH)
 	curl -o $(XML_FILE) $(URL)
+
+scrape: $(XML_FILE)
 
 parse: $(XML_FILE)
 	pep parse seco $(XML_FILE)

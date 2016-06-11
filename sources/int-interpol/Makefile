@@ -1,11 +1,13 @@
-IPOL_PATH=$(DATA_PATH)/int-interpol
-JSON_FILE=$(IPOL_PATH)/wanted-$(shell date +%Y%m%d).json
+WORK_PATH=$(OPENNAMES_SOURCE_DATA)/int-interpol
+JSON_FILE=$(WORK_PATH)/wanted.json
 
-all: parse
+all: scrape parse
 
 $(JSON_FILE):
-	mkdir -p $(IPOL_PATH)
+	mkdir -p $(WORK_PATH)
 	python scrape.py $(JSON_FILE)
+
+scrape: $(JSON_FILE)
 
 parse: $(JSON_FILE)
 	pep parse interpol $(JSON_FILE)

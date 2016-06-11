@@ -1,16 +1,18 @@
 URL=http://hmt-sanctions.s3.amazonaws.com/sanctionsconlist.xls
-HMT_PATH=$(DATA_PATH)/gb-hmt-sanctionslist
-XLS_FILE=$(HMT_PATH)/sanctionsconlist-$(shell date +%Y%m%d).xls
-CSV_FILE=$(HMT_PATH)/sanctionsconlist-$(shell date +%Y%m%d).csv
+WORK_PATH=$(OPENNAMES_SOURCE_DATA)/gb-hmt-sanctionslist
+XLS_FILE=$(WORK_PATH)/sanctionsconlist.xls
+CSV_FILE=$(WORK_PATH)/sanctionsconlist.csv
 
-all: parse
+all: scrape parse
 
 $(XLS_FILE):
-	mkdir -p $(HMT_PATH)
+	mkdir -p $(WORK_PATH)
 	curl -o $(XLS_FILE) $(URL)
 
 $(CSV_FILE): $(XLS_FILE)
 	in2csv $(XLS_FILE) >$(CSV_FILE)
+
+scrape: $(CSV_FILE)
 
 parse: $(CSV_FILE)
 	pep parse hmt $(CSV_FILE)

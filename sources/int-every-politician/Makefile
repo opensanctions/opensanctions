@@ -1,11 +1,13 @@
-EVPO_PATH=$(DATA_PATH)/int-every-politician
-JSON_FILE=$(EVPO_PATH)/politicians-$(shell date +%Y%m%d).json
+WORK_PATH=$(OPENNAMES_SOURCE_DATA)/int-every-politician
+JSON_FILE=$(WORK_PATH)/politicians.json
 
-all: parse
+all: scrape parse
 
 $(JSON_FILE):
-	mkdir -p $(EVPO_PATH)
+	mkdir -p $(WORK_PATH)
 	python scrape.py $(JSON_FILE)
+
+scrape: $(JSON_FILE)
 
 parse: $(JSON_FILE)
 	pep parse everypolitician $(JSON_FILE)
