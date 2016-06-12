@@ -1,10 +1,12 @@
+import sys
 from lxml import etree
 from dateutil.parser import parse as dateutil_parse
 from datetime import datetime
 
-from pepparser.util import remove_namespace, make_id
-from pepparser.text import combine_name
-from pepparser.country import normalize_country
+from peplib import Source
+from peplib.util import remove_namespace, make_id
+from peplib.text import combine_name
+from peplib.country import normalize_country
 
 
 PUBLISHER = {
@@ -23,7 +25,7 @@ def parse_date(date):
         return
 
 
-def parse_entry(emit, record, entry):
+def parse_entry(source, record, entry):
     uid = entry.findtext('uid')
     record.update({
         'uid': make_id('us', 'ofac', uid),
@@ -86,24 +88,30 @@ def parse_entry(emit, record, entry):
 
     if is_entity:
         record.pop('last_name', None)
-    emit.entity(record)
+    source.emit(record)
 
 
-def ofac_parse(emit, sdn, consolidated, xmlfile):
+def ofac_parse(xmlfile):
     doc = etree.parse(xmlfile)
     remove_namespace(doc, 'http://tempuri.org/sdnList.xsd')
 
     publish_date = datetime.strptime(doc.findtext('.//Publish_Date'),
                                      '%m/%d/%Y')
-    source = PUBLISHER.copy()
-    source['updated_at'] = publish_date.date().isoformat()
-    if sdn:
-        source['source'] = 'Specially Designated Nationals and Blocked Persons'
-        source['source_id'] = 'US-OFAC-SDN'
-    if consolidated:
-        source['source'] = 'Consolidated non-SDN List'
-        source['source_id'] = 'US-OFAC-NONSDN'
+    source_data = PUBLISHER.copy()
+    source_data['updated_at'] = publish_date.date().isoformat()
+    if 'sdn.xml' in xmlfile:
+        source = Source('us-ofac-sdn')
+        source_data['source'] = 'Specially Designated Nationals and Blocked Persons'
+    elif 'consolidated.xml' in xmlfile:
+        source = Source('us-ofac-nonsdn')
+        source_data['source_id'] = 'US-OFAC-NONSDN'
+    else:
+        raise TypeError("Unknown file type")
 
     for entry in doc.findall('.//sdnEntry'):
-        record = source.copy()
-        parse_entry(emit, record, entry)
+        record = source_data.copy()
+        parse_entry(source, record, entry)
+
+
+if __name__ == '__main__':
+    ofac_parse(sys.argv[1])

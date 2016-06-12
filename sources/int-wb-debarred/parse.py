@@ -1,15 +1,17 @@
 import re
+import sys
 import logging
 from hashlib import sha1
 
 from lxml import html
 from dateutil.parser import parse as dateutil_parse
 
-from pepparser.util import make_id
-from pepparser.country import normalize_country
+from peplib import Source
+from peplib.util import make_id
+from peplib.country import normalize_country
 
 log = logging.getLogger(__name__)
-
+source = Source('wb-debarred')
 
 SPLITS = r'(a\.k\.a\.?|aka|f/k/a|also known as|\(formerly |, also d\.b\.a\.|\(currently (d/b/a)?|d/b/a|\(name change from|, as the successor or assign to)'
 
@@ -17,7 +19,6 @@ SOURCE = {
     'publisher': 'World Bank',
     'publisher_url': 'http://www.worldbank.org/',
     'source': 'Debarred & Cross-Debarred Firms & Individuals',
-    'source_id': 'WB-DEBARRED',
     'source_url': 'http://web.worldbank.org/external/default/main?contentMDK=64069844&menuPK=116730&pagePK=64148989&piPK=64148984&querycontentMDK=64069700&theSitePK=84266',
     'type': 'entity'
 }
@@ -45,15 +46,15 @@ def clean_name(text):
 
     clean_names = []
     for name in names:
-        name = name.strip()
-        name = re.sub(r'\* *\d{1,4}$', '', name)
+        name, _ = name.rsplit('*', 1)
+        # name = re.sub(r'\* *\d{1,4}$', '', name)
         name = name.strip(')').strip('(').strip(',')
         name = name.strip()
         clean_names.append(name)
     return clean_names
 
 
-def wbdeb_parse(emit, html_file):
+def wbdeb_parse(html_file):
     doc = html.parse(html_file)
     for table in doc.findall('//table'):
         if 'List of Debarred' not in table.get('summary', ''):
@@ -77,7 +78,7 @@ def wbdeb_parse(emit, html_file):
 
             record = {
                 'uid': make_id('wb', 'debarred', uid),
-                'name': values[0],
+                'name': names[0],
                 'nationality': normalize_country(values[2]),
                 'program': values[5],
                 'addresses': [{
@@ -93,4 +94,8 @@ def wbdeb_parse(emit, html_file):
                     'other_name': name
                 })
             record.update(SOURCE)
-            emit.entity(record)
+            source.emit(record)
+
+
+if __name__ == '__main__':
+    wbdeb_parse(sys.argv[1])

@@ -1,15 +1,17 @@
+import sys
 from lxml import etree
 from dateutil.parser import parse as dateutil_parse
 
-from pepparser.util import make_id
-from pepparser.country import normalize_country
+from peplib import Source
+from peplib.util import make_id
+from peplib.country import normalize_country
 
+source = Source('eu-eeas')
 
 BASE = {
     'publisher': 'EEAS',
     'publisher_url': 'http://eeas.europa.eu/',
     'source': 'Entities Subject to EU Financial Sanctions',
-    'source_id': 'EU-EEAS-SANC',
     'source_url': 'http://eeas.europa.eu/cfsp/sanctions/consol-list/index_en.htm'
 }
 
@@ -23,7 +25,7 @@ def parse_date(date):
         return
 
 
-def parse_entry(emit, record, entry):
+def parse_entry(record, entry):
     uid = entry.get('Id')
     record.update({
         'uid': make_id('eu', 'eeas', uid),
@@ -96,10 +98,14 @@ def parse_entry(emit, record, entry):
             record['country_of_birth'] = country
 
     # print etree.tostring(entry, pretty_print=True)
-    emit.entity(record)
+    source.emit(record)
 
 
-def eeas_parse(emit, xmlfile):
+def eeas_parse(xmlfile):
     doc = etree.parse(xmlfile)
     for entry in doc.findall('.//ENTITY'):
-        parse_entry(emit, BASE.copy(), entry)
+        parse_entry(BASE.copy(), entry)
+
+
+if __name__ == '__main__':
+    eeas_parse(sys.argv[1])

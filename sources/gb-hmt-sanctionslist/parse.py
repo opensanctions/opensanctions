@@ -1,20 +1,21 @@
+import sys
 import unicodecsv
 import logging
 import xlrd
 from datetime import datetime
 
-from pepparser.util import make_id
-from pepparser.text import combine_name
-from pepparser.country import normalize_country
+from peplib import Source
+from peplib.util import make_id
+from peplib.text import combine_name
+from peplib.country import normalize_country
 
 log = logging.getLogger(__name__)
-
+source = Source('gb-hmt-sanc')
 
 SOURCE = {
     'publisher': 'HM Treasury',
     'publisher_url': 'https://www.gov.uk/government/publications/financial-sanctions-consolidated-list-of-targets/consolidated-list-of-targets',
     'source': 'Consolidated Sanctions',
-    'source_id': 'GB-HMT-SANC',
     'source_url': 'http://hmt-sanctions.s3.amazonaws.com/sanctionsconlist.htm'
 }
 
@@ -34,7 +35,7 @@ def parse_date(date):
         log.exception(xle)
 
 
-def parse_entry(emit, group, rows):
+def parse_entry(group, rows):
     record = SOURCE.copy()
     record.update({
         'uid': make_id('gb', 'hmt', group),
@@ -101,10 +102,10 @@ def parse_entry(emit, group, rows):
 
         # from pprint import pprint
         # pprint(row)
-    emit.entity(record)
+    source.emit(record)
 
 
-def hmt_parse(emit, csvfile):
+def hmt_parse(csvfile):
     groups = {}
     with open(csvfile, 'r') as fh:
         fh.readline()
@@ -115,4 +116,8 @@ def hmt_parse(emit, csvfile):
             groups[group].append(row)
 
     for group, rows in groups.items():
-        parse_entry(emit, group, rows)
+        parse_entry(group, rows)
+
+
+if __name__ == '__main__':
+    hmt_parse(sys.argv[1])

@@ -1,23 +1,24 @@
+import sys
 import unicodecsv
 import logging
 
-from pepparser.util import make_id
-from pepparser.country import normalize_country
+from peplib import Source
+from peplib.util import make_id
+from peplib.country import normalize_country
 
 log = logging.getLogger(__name__)
-
+source = Source('us-bis-dpl')
 
 SOURCE = {
     'publisher': 'US BIS',
     'publisher_url': 'https://www.bis.doc.gov/',
     'source': 'Denied Persons List',
-    'source_id': 'US-BIS-DPL',
     'source_url': 'https://www.bis.doc.gov/index.php/the-denied-persons-list',
     'type': 'entity'
 }
 
 
-def parse_row(emit, row):
+def parse_row(row):
     record = SOURCE.copy()
     record.update({
         'uid': make_id('us', 'bis', row.get('Effective_Date'),
@@ -35,10 +36,14 @@ def parse_row(emit, row):
             'country': normalize_country(row.get('Country'))
         }]
     })
-    emit.entity(record)
+    source.emit(record)
 
 
-def usbis_parse(emit, csvfile):
+def usbis_parse(csvfile):
     with open(csvfile, 'r') as fh:
         for row in unicodecsv.DictReader(fh, delimiter='\t'):
-            parse_row(emit, row)
+            parse_row(row)
+
+
+if __name__ == '__main__':
+    usbis_parse(sys.argv[1])

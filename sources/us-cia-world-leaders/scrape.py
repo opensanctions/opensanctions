@@ -63,5 +63,4 @@ def scrape(out_path):
 
 
 if __name__ == '__main__':
-    out_path = sys.argv[1]
-    scrape(out_path)
+    scrape(sys.argv[1])

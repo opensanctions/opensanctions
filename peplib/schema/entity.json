@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "id": "http://schema.opennames.org/entity.json#",
+  "id": "entity.json",
   "title": "PEP/POI Entity",
   "description": "An entity - indivdual or organisation - of political or criminal interest",
   "type": "object",

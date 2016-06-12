@@ -1,17 +1,19 @@
+import sys
 from lxml import etree
 from datetime import date
 from itertools import combinations
 
-from pepparser.util import make_id
-from pepparser.text import combine_name
-from pepparser.country import normalize_country
+from peplib import Source
+from peplib.util import make_id
+from peplib.text import combine_name
+from peplib.country import normalize_country
 
+source = Source('ch-seco')
 
 PUBLISHER = {
     'publisher': 'Swiss Secretariat for Economic Affairs (SECO)',
     'publisher_url': 'http://www.seco.admin.ch/',
     'source': 'Sanctions / Embargoes',
-    'source_id': 'CH-SECO',
     'source_url': 'http://www.seco.admin.ch/themen/00513/00620/04991/index.html?lang=en'
 }
 
@@ -155,10 +157,15 @@ def parse_identity(record, ident, places):
         })
 
 
-def parse_entry(emit, doc, target, sanctions, places):
+def parse_entry(doc, target, sanctions, places):
     node = target.find('./individual')
     if node is None:
         node = target.find('./entity')
+    if node is None:
+        node = target.find('./object')
+        # TODO: build out support for these!
+        return
+
     record = {
         'uid': make_id('ch', 'seco', target.get('ssid')),
         'type': node.tag,
@@ -176,10 +183,10 @@ def parse_entry(emit, doc, target, sanctions, places):
 
     # from pprint import pprint
     # pprint(record)
-    emit.entity(record)
+    source.emit(record)
 
 
-def seco_parse(emit, xmlfile):
+def seco_parse(xmlfile):
     doc = etree.parse(xmlfile)
 
     sanctions = {}
@@ -193,4 +200,8 @@ def seco_parse(emit, xmlfile):
         places[place.get('ssid')] = place
 
     for target in doc.findall('./target'):
-        parse_entry(emit, doc, target, sanctions, places)
+        parse_entry(doc, target, sanctions, places)
+
+
+if __name__ == '__main__':
+    seco_parse(sys.argv[1])

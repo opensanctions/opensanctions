@@ -1,15 +1,17 @@
+import sys
 from lxml import etree
 
-from pepparser.util import make_id
-from pepparser.text import combine_name
-from pepparser.country import normalize_country
+from peplib import Source
+from peplib.util import make_id
+from peplib.text import combine_name
+from peplib.country import normalize_country
 
+source = Source('un-sc-sanc')
 
 BASE = {
     'publisher': 'UN Security Council',
     'publisher_url': 'https://www.un.org/en/sc/',
     'source': 'Consolidated Sanctions',
-    'source_id': 'UN-SC-SANC',
     'source_url': 'https://www.un.org/sc/suborg/sites/www.un.org.sc.suborg/files/consolidated.htm'
 }
 
@@ -43,17 +45,17 @@ def parse_address(addr, record):
     record['addresses'].append(data)
 
 
-def parse_entity(emit, record, ent):
+def parse_entity(record, ent):
     for alias in ent.findall('./ENTITY_ALIAS'):
         parse_alias(alias, record)
 
     for addr in ent.findall('./ENTITY_ADDRESS'):
         parse_address(addr, record)
 
-    emit.entity(record)
+    source.emit(record)
 
 
-def parse_individual(emit, record, ind):
+def parse_individual(record, ind):
     last_name = ind.findtext('.//THIRD_NAME')
     second_name = ind.findtext('.//SECOND_NAME')
     if last_name is None:
@@ -106,7 +108,7 @@ def parse_individual(emit, record, ind):
         if region:
             record['place_of_birth'] = region
 
-    emit.entity(record)
+    source.emit(record)
 
 
 def parse_common(node, type_):
@@ -143,13 +145,17 @@ def parse_common(node, type_):
     return record
 
 
-def unsc_parse(emit, xmlfile):
+def unsc_parse(xmlfile):
     doc = etree.parse(xmlfile)
 
     for node in doc.findall('.//INDIVIDUAL'):
         record = parse_common(node, 'individual')
-        parse_individual(emit, record, node)
+        parse_individual(record, node)
 
     for node in doc.findall('.//ENTITY'):
         record = parse_common(node, 'entity')
-        parse_entity(emit, record, node)
+        parse_entity(record, node)
+
+
+if __name__ == '__main__':
+    unsc_parse(sys.argv[1])

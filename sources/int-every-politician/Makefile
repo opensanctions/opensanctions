@@ -9,7 +9,7 @@ $(WORK_PATH):
 scrape: $(WORK_PATH)
 
 parse: $(WORK_PATH)
-	pep parse everypolitician $(WORK_PATH)
+	python parse.py $(WORK_PATH)
 
 clean:
 	rm -rf $(WORK_PATH)

@@ -11,7 +11,7 @@ $(HTML_FILE):
 scrape: $(HTML_FILE)
 
 parse: $(HTML_FILE)
-	pep parse wbdeb $(HTML_FILE)
+	python parse.py $(HTML_FILE)
 
 clean:
 	rm $(HTML_FILE)

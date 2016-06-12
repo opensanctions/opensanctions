@@ -1,17 +1,19 @@
+import sys
 import json
 import logging
 from dateutil.parser import parse as dateutil_parse
 
-from pepparser.util import make_id
-from pepparser.country import normalize_country
+from peplib import Source
+from peplib.util import make_id
+from peplib.country import normalize_country
 
 log = logging.getLogger(__name__)
+source = Source('us-cia-leaders')
 
 PUBLISHER = {
     'publisher': 'US CIA',
     'publisher_url': 'https://www.cia.gov/library/publications/resources/world-leaders-1/index.html',
-    'source': 'World Leaders',
-    'source_id': 'US-CIA-LEADERS'
+    'source': 'World Leaders'
 }
 
 
@@ -24,7 +26,7 @@ def parse_date(date):
         return
 
 
-def worldleaders_parse(emit, json_file):
+def worldleaders_parse(json_file):
     with open(json_file, 'r') as fh:
         data = json.load(fh)
 
@@ -47,4 +49,8 @@ def worldleaders_parse(emit, json_file):
             'source_url': leader.get('url')
         }
         entity.update(PUBLISHER)
-        emit.entity(entity)
+        source.emit(entity)
+
+
+if __name__ == '__main__':
+    worldleaders_parse(sys.argv[1])

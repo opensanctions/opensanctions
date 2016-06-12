@@ -1,14 +1,15 @@
-URL=http://ec.europa.eu/external_relations/cfsp/sanctions/list/version4/global/global.xml
 WORK_PATH=$(OPENNAMES_SOURCE_DATA)
-# XML_FILE=$(WORK_PATH)/global-$(shell date +%Y%m%d).xml
+XML_FILE=$(WORK_PATH)/eu-whoiswho.json
 
 all: scrape parse
 
-scrape:
-	python scrape.py
+$(XML_FILE):
+	python scrape.py $(XML_FILE)
+
+scrape: $(XML_FILE)
 
 parse: $(XML_FILE)
-	pep parse eeas $(XML_FILE)
+	python parse.py $(XML_FILE)
 
 clean:
 	rm $(XML_FILE)

@@ -1,14 +1,17 @@
-import logging
 import re
+import sys
+import logging
 from lxml import etree
 from dateutil.parser import parse as dateutil_parse
 from datetime import datetime
 
-from pepparser.util import make_id
-from pepparser.text import combine_name
-from pepparser.country import normalize_country
+from peplib import Source
+from peplib.util import make_id
+from peplib.text import combine_name
+from peplib.country import normalize_country
 
 log = logging.getLogger(__name__)
+source = Source('ua-sdfm')
 
 
 def parse_date(date):
@@ -46,7 +49,7 @@ def get_names(aka):
     return data
 
 
-def parse_entry(emit, entry):
+def parse_entry(entry):
     uid = entry.findtext('number-entry')
     record = {
         'uid': make_id('ua', 'sdfm', uid),
@@ -118,11 +121,15 @@ def parse_entry(emit, entry):
         record['date_of_birth'] = parse_date(dob.text)
 
     # print etree.tostring(entry, pretty_print=True)
-    emit.entity(record)
+    source.emit(record)
 
 
-def sdfm_parse(emit, xmlfile):
+def sdfm_parse(xmlfile):
     doc = etree.parse(xmlfile)
 
     for entry in doc.findall('.//acount-list'):
-        parse_entry(emit, entry)
+        parse_entry(entry)
+
+
+if __name__ == '__main__':
+    sdfm_parse(sys.argv[1])

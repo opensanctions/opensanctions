@@ -1,10 +1,13 @@
 
 all: extract
 
-extract: scrape
+extract: scrape parse
 
 scrape:
 	make -C sources scrape
+
+parse:
+	make -C sources parse
 
 env:
 ifndef OPENNAMES_SOURCE_DATA

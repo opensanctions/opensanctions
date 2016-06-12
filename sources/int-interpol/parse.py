@@ -1,26 +1,28 @@
+import sys
 import json
 import logging
 from datetime import datetime
 from dateutil.parser import parse as dateutil_parse
 
-from pepparser.util import make_id
-from pepparser.text import combine_name
-from pepparser.country import normalize_country
+from peplib import Source
+from peplib.util import make_id
+from peplib.text import combine_name
+from peplib.country import normalize_country
 
 log = logging.getLogger(__name__)
+source = Source('interpol-wanted')
 
 
 SOURCE = {
     'publisher': 'INTERPOL',
     'publisher_url': 'http://www.interpol.int/notice/search/wanted',
     'source': 'Wanted Persons',
-    'source_id': 'INTERPOL-WANTED',
     'program': 'Red List',
     'type': 'individual'
 }
 
 
-def parse_case(emit, case):
+def parse_case(case):
     url = case.get('url')
     name = combine_name(*reversed(case.get('name').split(', ')))
     updated = dateutil_parse(case.get('last_updated'))
@@ -52,12 +54,16 @@ def parse_case(emit, case):
         except Exception as ex:
             log.exception(ex)
 
-    emit.entity(record)
+    source.emit(record)
 
 
-def interpol_parse(emit, jsonfile):
+def interpol_parse(jsonfile):
     with open(jsonfile, 'r') as fh:
         data = json.load(fh)
 
     for case in data['cases']:
-        parse_case(emit, case)
+        parse_case(case)
+
+
+if __name__ == '__main__':
+    interpol_parse(sys.argv[1])

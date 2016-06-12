@@ -11,7 +11,7 @@ $(XML_FILE):
 scrape: $(XML_FILE)
 
 parse: $(XML_FILE)
-	pep parse unsc $(XML_FILE)
+	python parse.py $(XML_FILE)
 
 clean:
 	rm $(XML_FILE)

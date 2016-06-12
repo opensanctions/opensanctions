@@ -15,7 +15,7 @@ $(CSV_FILE): $(XLS_FILE)
 scrape: $(CSV_FILE)
 
 parse: $(CSV_FILE)
-	pep parse hmt $(CSV_FILE)
+	python parse.py $(CSV_FILE)
 
 clean:
 	rm $(CSV_FILE)

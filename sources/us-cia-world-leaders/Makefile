@@ -10,7 +10,7 @@ $(JSON_FILE):
 scrape: $(JSON_FILE)
 
 parse: $(JSON_FILE)
-	pep parse worldleaders $(JSON_FILE)
+	python parse.py $(JSON_FILE)
 
 clean:
 	rm $(JSON_FILE)
