@@ -1,15 +1,15 @@
 
 all: scrape parse
 
-scrape: au-sanctions.scrape ch-seco-sanctions.scrape eu-eeas-sanctions.scrape \
-	gb-hmt-sanctionslist.scrape int-every-politician.scrape int-interpol.scrape \
-	int-wb-debarred.scrape ua-sdfm-blacklist.scrape un-sc-sanctions.scrape \
-	us-bis-denied.scrape us-cia-world-leaders.scrape us-ofac.scrape
+scrape: au_sanctions.scrape ch_seco_sanctions.scrape eu_eeas_sanctions.scrape \
+	gb_hmt_sanctionslist.scrape zz_every_politician.scrape zz_interpol.scrape \
+	zz_wb_debarred.scrape ua_sdfm_blacklist.scrape zz_unsc_sanctions.scrape \
+	us_bis_denied.scrape us_cia_world_leaders.scrape us_ofac.scrape
 
-parse: au-sanctions.parse ch-seco-sanctions.parse eu-eeas-sanctions.parse \
-	gb-hmt-sanctionslist.parse int-every-politician.parse int-interpol.parse \
-	int-wb-debarred.parse ua-sdfm-blacklist.parse un-sc-sanctions.parse \
-	us-bis-denied.parse us-cia-world-leaders.parse us-ofac.parse
+parse: au_sanctions.parse ch_seco_sanctions.parse eu_eeas_sanctions.parse \
+	gb_hmt_sanctionslist.parse zz_every_politician.parse zz_interpol.parse \
+	zz_wb_debarred.parse ua_sdfm_blacklist.parse zz_unsc_sanctions.parse \
+	us_bis_denied.parse us_cia_world_leaders.parse us_ofac.parse
 
 %.scrape: env
 	make -C $(basename $@) scrape

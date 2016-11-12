@@ -26,6 +26,7 @@ setup(
         "jsonschema",
         "dataset",
         "requests",
+        "thready",
         "lxml",
         "xlrd",
         "XlsxWriter",

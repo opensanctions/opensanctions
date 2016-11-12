@@ -1,7 +1,5 @@
 
-all: extract
-
-extract: scrape parse
+all: scrape parse
 
 scrape:
 	make -C sources scrape
