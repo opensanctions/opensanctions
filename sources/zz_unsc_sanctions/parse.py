@@ -5,7 +5,7 @@ from peplib import Source
 from peplib.util import make_id
 from peplib.text import combine_name
 
-source = Source('un-sc-sanc')
+source = Source('zz_unsc_sanctions')
 
 BASE = {
     'publisher': 'UN Security Council',

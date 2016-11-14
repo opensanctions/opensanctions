@@ -54,8 +54,8 @@ def everypolitician_parse(data_dir):
     for country in data:
         legs = country.pop('legislatures', [])
         for legislature in legs:
-            legis = slugify(legislature['name'], sep='-')
-            source_id = 'evpo-%s-%s' % (country['code'].lower(), legis)
+            legis = slugify(legislature['name'], sep='_')
+            source_id = '%s_%s' % (country['code'].lower(), legis)
             print 'Source', source_id
             source = Source(source_id)
             periods = legislature.pop('legislative_periods', [])

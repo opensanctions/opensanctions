@@ -10,7 +10,7 @@ from peplib import Source
 from peplib.util import make_id
 
 log = logging.getLogger(__name__)
-source = Source('wb-debarred')
+source = Source('zz_wb_debarred')
 
 SPLITS = r'(a\.k\.a\.?|aka|f/k/a|also known as|\(formerly |, also d\.b\.a\.|\(currently (d/b/a)?|d/b/a|\(name change from|, as the successor or assign to)'
 

@@ -99,13 +99,12 @@ def ofac_parse(xmlfile):
     source_data = PUBLISHER.copy()
     source_data['updated_at'] = publish_date.date().isoformat()
     if 'sdn.xml' in xmlfile:
-        source = Source('us-ofac-sdn')
-        source_data['source'] = 'Specially Designated Nationals and Blocked Persons'
+        source = Source('us_ofac_sdn')
     elif 'consolidated.xml' in xmlfile:
-        source = Source('us-ofac-nonsdn')
-        source_data['source_id'] = 'US-OFAC-NONSDN'
+        source = Source('us_ofac_nonsdn')
     else:
         raise TypeError("Unknown file type")
+    source.clear()
 
     for entry in doc.findall('.//sdnEntry'):
         record = source_data.copy()

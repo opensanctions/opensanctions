@@ -9,7 +9,7 @@ from peplib.util import make_id
 from peplib.text import combine_name
 
 log = logging.getLogger(__name__)
-source = Source('gb-hmt-sanc')
+source = Source('gb_hmt_sanctionslist')
 
 SOURCE = {
     'publisher': 'HM Treasury',

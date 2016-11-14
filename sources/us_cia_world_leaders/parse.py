@@ -7,7 +7,7 @@ from peplib import Source
 from peplib.util import make_id
 
 log = logging.getLogger(__name__)
-source = Source('us-cia-leaders')
+source = Source('us_cia_world_leaders')
 
 PUBLISHER = {
     'publisher': 'US CIA',

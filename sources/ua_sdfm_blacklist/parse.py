@@ -10,7 +10,7 @@ from peplib.util import make_id
 from peplib.text import combine_name
 
 log = logging.getLogger(__name__)
-source = Source('ua-sdfm')
+source = Source('ua_sdfm_blacklist')
 
 
 def parse_date(date):

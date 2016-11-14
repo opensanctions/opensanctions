@@ -5,7 +5,7 @@ from dateutil.parser import parse as dateutil_parse
 from peplib import Source
 from peplib.util import make_id
 
-source = Source('eu-eeas')
+source = Source('eu_eeas')
 
 BASE = {
     'publisher': 'EEAS',

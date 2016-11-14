@@ -6,7 +6,7 @@ from peplib import Source
 from peplib.util import make_id
 
 log = logging.getLogger(__name__)
-source = Source('us-bis-dpl')
+source = Source('us_bis_denied')
 
 SOURCE = {
     'publisher': 'US BIS',
