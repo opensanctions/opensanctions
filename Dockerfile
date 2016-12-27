@@ -4,4 +4,4 @@ MAINTAINER Friedrich Lindenberg <friedrich@pudo.org>
 COPY . /opennames
 WORKDIR /opennames
 RUN pip install -q -e .
-CMD sh run.sh
+CMD /bin/bash run.sh
