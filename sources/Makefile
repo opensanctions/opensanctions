@@ -11,13 +11,8 @@ parse: au_sanctions.parse ch_seco_sanctions.parse eu_eeas_sanctions.parse \
 	zz_wb_debarred.parse ua_sdfm_blacklist.parse zz_unsc_sanctions.parse \
 	us_bis_denied.parse us_cia_world_leaders.parse us_ofac.parse
 
-%.scrape: env
+%.scrape:
 	make -C $(basename $@) scrape
 
-%.parse: env
+%.parse:
 	make -C $(basename $@) parse
-
-env:
-ifndef OPENNAMES_SOURCE_DATA
-	$(error OPENNAMES_SOURCE_DATA is not set)
-endif
