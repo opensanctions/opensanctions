@@ -1,6 +1,6 @@
 # OpenNames
 
-A consolidated, public database of persons with political or criminal relevance. The source data for this repository is a variety of sanctions lists, political databases and related information sources. 
+A consolidated, public database of persons with political or criminal relevance. The source data for this repository is a variety of sanctions lists, political databases and related information sources.
 
 ## Installation
 
@@ -8,7 +8,6 @@ A consolidated, public database of persons with political or criminal relevance.
 ### Environment variables
 
 * ``OPENNAMES_SOURCE_DATA``, the path in which source data will be stored.
-* ``OPENNAMES_JSON_DATA``, output path for parsers, containing the generated JSON.
 
 ## Data Sources
 
@@ -40,7 +39,7 @@ Possible data sources for this project (only a few are included thus far):
 * [Rulers.org](http://rulers.org/) and [World Statesmen](http://worldstatesmen.org/)
 * [Archigos](http://privatewww.essex.ac.uk/~ksg/archigos.html): A Database of Political Leaders.
 * [Biografías Líderes Políticos](http://www.cidob.org/en/biografias_lideres_politicos_only_in_spanish) (Only in spanish)
-* Leahy [vetting requests](https://en.wikipedia.org/wiki/Leahy_Law). 
+* Leahy [vetting requests](https://en.wikipedia.org/wiki/Leahy_Law).
 * Aylas [List Directory](http://aylias.com/list/).
 * [MrWatchLists](http://mrwatchlist.com/watchlists/).
 * FBI [Most Wanted](http://www.fbi.gov/wanted)

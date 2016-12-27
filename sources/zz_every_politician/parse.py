@@ -48,16 +48,19 @@ def parse_politicians(data_dir, source, country, legislature, csv):
 
 
 def everypolitician_parse(data_dir):
+    source_id = 'zz_everypolitician'
+    source = Source(source_id)
+
     with open(os.path.join(data_dir, 'countries.json'), 'r') as fh:
         data = json.load(fh)
 
     for country in data:
         legs = country.pop('legislatures', [])
         for legislature in legs:
-            legis = slugify(legislature['name'], sep='_')
-            source_id = '%s_%s' % (country['code'].lower(), legis)
-            print 'Source', source_id
-            source = Source(source_id)
+            # legis = slugify(legislature['name'], sep='_')
+            # source_id = '%s_%s' % (country['code'].lower(), legis)
+            # print 'Source', source_id
+            # source = Source(source_id)
             periods = legislature.pop('legislative_periods', [])
             for period in periods:
                 parse_politicians(data_dir, source, country, legislature,
