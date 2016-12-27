@@ -21,18 +21,7 @@ setup(
     include_package_data=True,
     zip_safe=False,
     test_suite='nose.collector',
-    install_requires=[
-        "unicodecsv",
-        "jsonschema",
-        "dataset",
-        "requests",
-        "thready",
-        "lxml",
-        "xlrd",
-        "XlsxWriter",
-        "csvkit",
-        "six"
-    ],
+    install_requires=[],
     entry_points={},
     tests_require=[]
 )
