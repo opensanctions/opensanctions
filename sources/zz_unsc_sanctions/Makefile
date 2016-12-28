@@ -1,4 +1,4 @@
-URL=https://www.un.org/sc/suborg/sites/www.un.org.sc.suborg/files/consolidated.xml
+URL=https://scsanctions.un.org/resources/xml/en/consolidated.xml
 WORK_PATH=$(OPENNAMES_SOURCE_DATA)
 XML_FILE=$(WORK_PATH)/zz_unsc_sanctions_consolidated.xml
 

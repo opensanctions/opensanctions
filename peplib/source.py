@@ -34,7 +34,11 @@ class Source(object):
         data['other_names'] = unique_objs(data.get('other_names', []))
         data['addresses'] = unique_objs(data.get('addresses', []))
         data = clean_obj(data)
-        validate(data)
+        try:
+            validate(data)
+        except Exception as ex:
+            log.exception(ex)
+            return
         uid = data.get('uid')
 
         for identity in data.pop('identities', []):
