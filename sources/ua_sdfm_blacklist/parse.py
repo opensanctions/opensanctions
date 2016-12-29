@@ -66,8 +66,7 @@ def parse_entry(entry):
         date_entry = datetime.strptime(date_entry, '%Y%m%d')
         record['updated_at'] = date_entry.date().isoformat()
 
-    is_entity = entry.findtext('./type-entry') != '1'
-    if is_entity:
+    if entry.findtext('./type-entry') == '1':
         record['type'] = 'entity'
 
     record['other_names'] = []

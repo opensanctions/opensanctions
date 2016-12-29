@@ -19,7 +19,8 @@ def scrape_country(data):
         return
     component = None
     existing = set()
-    for row in output.findall('.//tr'):
+    rows = []
+    for row in output.findall('.//li'):
         next_comp = row.findtext('./td[@class="componentName"]/strong')
         if next_comp is not None:
             component = next_comp
@@ -42,7 +43,8 @@ def scrape_country(data):
             'name': name
         }
         row.update(data)
-        yield row
+        rows.append(row)
+    return rows
 
 
 def scrape(out_path):
@@ -57,9 +59,9 @@ def scrape(out_path):
             'url': url,
             'country': link.text
         }))
-
-    with open(out_path, 'w') as fh:
-        json.dump({'leaders': leaders}, fh, indent=2)
+        print 'Leaders len: ', len(leaders)
+        with open(out_path, 'w') as fh:
+            json.dump({'leaders': leaders}, fh, indent=2)
 
 
 if __name__ == '__main__':

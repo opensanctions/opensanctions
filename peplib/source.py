@@ -18,16 +18,20 @@ class Source(object):
         self.source_id = source_id
         self.log = logging.getLogger(source_id)
         self.entity_count = 0
-        self.entity_table = db[source_id]
-        self.identities_table = db[source_id + '_identities']
-        self.other_names_table = db[source_id + '_other_names']
-        self.addresses_table = db[source_id + '_addresses']
+        self.entity_table = source_id
+        self.identities_table = source_id + '_identities'
+        self.other_names_table = source_id + '_other_names'
+        self.addresses_table = source_id + '_addresses'
 
     def clear(self):
-        self.entity_table.delete()
-        self.identities_table.delete()
-        self.other_names_table.delete()
-        self.addresses_table.delete()
+        if self.entity_table in db:
+            db[self.entity_table].delete()
+        if self.identities_table in db:
+            db[self.identities_table].delete()
+        if self.other_names_table in db:
+            db[self.other_names_table].delete()
+        if self.addresses_table in db:
+            db[self.addresses_table].delete()
 
     def emit(self, data):
         data['identities'] = unique_objs(data.get('identities', []))
@@ -43,17 +47,17 @@ class Source(object):
 
         for identity in data.pop('identities', []):
             identity['uid'] = uid
-            self.identities_table.insert(identity)
+            db[self.identities_table].insert(identity)
 
         for other_name in data.pop('other_names', []):
             other_name['uid'] = uid
-            self.other_names_table.insert(other_name)
+            db[self.other_names_table].insert(other_name)
 
         for address in data.pop('addresses', []):
             address['uid'] = uid
-            self.addresses_table.insert(address)
+            db[self.addresses_table].insert(address)
 
-        self.entity_table.insert(data)
+        db[self.entity_table].insert(data)
         self.entity_count += 1
 
     def normalize_country(self, name):

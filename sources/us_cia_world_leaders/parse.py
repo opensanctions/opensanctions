@@ -31,7 +31,7 @@ def worldleaders_parse(json_file):
 
     for leader in data.get('leaders'):
         if not len(leader.get('name')):
-            log.warning('No name on entity: %(title)s (%(country)s)', leader)
+            log.warning('No name on entity: %r', leader)
             continue
         country = source.normalize_country(leader.get('country'))
         summary = leader.get('title')

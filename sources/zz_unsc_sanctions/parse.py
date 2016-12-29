@@ -11,7 +11,7 @@ BASE = {
     'publisher': 'UN Security Council',
     'publisher_url': 'https://www.un.org/en/sc/',
     'source': 'Consolidated Sanctions',
-    'source_url': 'https://www.un.org/sc/suborg/sites/www.un.org.sc.suborg/files/consolidated.htm'
+    'source_url': 'https://www.un.org/sc/suborg/en/sanctions/un-sc-consolidated-list'
 }
 
 
