@@ -41,9 +41,9 @@ def worldleaders_parse(json_file):
             'uid': make_id('us', 'cia', 'worldleaders', country,
                            leader.get('name')),
             'name': leader.get('name'),
+            'nationality': country,
             'type': 'individual',
             'summary': summary,
-            'addresses': [{'country': country}],
             'updated_at': parse_date(leader.get('last_update')),
             'source_url': leader.get('url')
         }
