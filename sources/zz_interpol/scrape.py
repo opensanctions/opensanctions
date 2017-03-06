@@ -25,6 +25,8 @@ def scrape_case(url):
     for row in doc.findall('.//div[@class="bloc_detail"]//tr'):
         title, value = row.findall('./td')
         name = slugify(title.text_content(), sep='_')
+        if name is None:
+            continue
         if len(name):
             data[name] = value.text_content().strip()
 
