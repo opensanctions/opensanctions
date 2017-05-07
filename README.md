@@ -51,7 +51,7 @@ Possible data sources for this project (only a few are included thus far):
 
 The MIT License (MIT)
 
-Copyright (c) 2015-2016 Friedrich Lindenberg
+Copyright (c) 2015-2017 Friedrich Lindenberg
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
