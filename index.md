@@ -8,3 +8,7 @@ description: >
 ---
 
 # Welcome to OpenSanctions!
+
+OpenSanctions combines sanctions lists, lists of politically exposed persons,
+and parties excluded from procurement. It is a database of persons and
+companies of political, criminal, or economic significance.
