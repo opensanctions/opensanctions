@@ -30,6 +30,13 @@ Possible data sources for this project (only a few are included thus far):
 * **UN** Security Council [Consolidated List](https://www.un.org/sc/suborg/en/sanctions/un-sc-consolidated-list).
 * World Bank Procurement [Debarred vendors](http://web.worldbank.org/external/default/main?contentMDK=64069844&menuPK=116730&pagePK=64148989&piPK=64148984&querycontentMDK=64069700&theSitePK=84266).
 * **RU** [Guantanamo List](http://sputniknews.com/voiceofrussia/2013_04_13/Russia-s-Guantanamo-List-officially-published/).
+* **RU** FSB [Terror List](http://www.fsb.ru/fsb/npd/terror.htm)
+* **RU** Federal [Financial Monitoring Service](http://www.fedsfm.ru/documents/terrorists-catalog-portal-add)
+* **RU** [List of Banks](https://arb.ru/en/banks/ratings/?ind=4&from=12.2012&to=12.2013#)
+* **KZ** Committee for Financial Monitoring, [List of Individuals associated with terrorism or extremism](http://kfm.gov.kz/ru/the-list-of-organizations-and-individuals-associa/)
+* **KG** State FIU or Kyrgyz Republic, [National List](https://fiu.gov.kg/sked/1)
+* **SG** [List of registered business trusts](http://www.mas.gov.sg/Regulations-and-Financial-Stability/Regulations-Guidance-and-Licensing/Business-Trusts/List-of-Registered-Business-Trusts.aspx)
+* **FR** Treasury, [List of sanctions](http://www.tresor.economie.gouv.fr/11448_liste-unique-de-gels)
 
 ### Less structured sources
 

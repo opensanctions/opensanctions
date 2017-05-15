@@ -1,5 +1,11 @@
 - slug: un-sc-sanctions
   publisher: 'UN Security Council'
   publisher_url: 'https://www.un.org/en/sc/'
-  source: 'Consolidated Sanctions'
+  title: 'Consolidated Sanctions'
   source_url: 'https://www.un.org/sc/suborg/en/sanctions/un-sc-consolidated-list'
+
+- slug: us-cia-world-leaders
+  publisher: US CIA
+  publisher_url: https://www.cia.gov/
+  title: World Leaders
+  source_url: https://www.cia.gov/library/publications/resources/world-leaders-1/index.html
