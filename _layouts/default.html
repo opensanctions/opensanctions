@@ -27,6 +27,13 @@
 
     {% include footer.html %}
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/smooth-scroll/11.0.2/js/smooth-scroll.min.js"></script>
+    <script>
+      smoothScroll.init({
+        speed: 500,
+        // offset: 0,
+        easing: 'easeInOutCubic'
+      });
+    </script>
   </body>
 </html>

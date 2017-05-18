@@ -20,11 +20,6 @@ h1, h2, h3, h4 {
   font-weight: 700;
 }
 
-h1 {
-  margin-top: 2em;
-  margin-bottom: 1em;
-}
-
 ul {
   li {
     margin-top: 0.4em;
@@ -42,6 +37,35 @@ ul {
   &.header {
     background-color: $color-theme-1;
     color: $color-theme-3;
+
+    h1 {
+      text-align: center;
+      margin-top: 2em;
+      margin-bottom: 1em;
+    }
+
+    .actions {
+      text-align: center;
+      padding-top: 2em;
+      padding-bottom: 2em;
+
+      a {
+        background-color: $color-theme-5;
+        font-weight: bold;
+        color: $color-theme-4;
+        padding: 1em;
+        margin: 0.5em;
+
+        i {
+          margin-right: 0.5em;
+        }
+
+        &:hover {
+          text-decoration: none;
+          background-color: darken($color-theme-5, 10%);
+        }
+      }
+    }
   }
 
   &.downloads {
@@ -56,9 +80,15 @@ ul {
 }
 
 footer {
-  background-color: #333;
-  color: #fff;
+  $footer-fg-color: #fff;
+  $footer-bg-color: #333;
+  background-color: $footer-bg-color;
+  color: $footer-fg-color;
 
   padding-top: 3em;
   padding-bottom: 4em;
+
+  a {
+    color: $color-theme-4;
+  }
 }

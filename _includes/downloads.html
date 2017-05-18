@@ -27,4 +27,17 @@
       Birth places
     </a>
   </div>
+  <div class="publisher">
+    {% if source.publisher %}
+      Publisher:
+      {% if source.publisher.url %}
+        <a href="{{source.publisher.url}}">{{source.publisher.title}}</a>
+      {% else %}
+        {{source.publisher.title}}
+      {% endif %}
+    {% endif %}
+    {% if source.data %}
+      <a href="{{source.data.url}}">{{source.data.format}}</a>
+    {% endif %}
+  </div>
 {% endfor %}
