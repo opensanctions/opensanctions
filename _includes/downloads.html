@@ -1,11 +1,11 @@
 <h2>Downloads</h2>
 
 {% for category in site.source_categories %}
-  <h3>{{category.value.title}}</h3>
-  <p>{{category.value.description}}</p>
+  <h3>{{category[1].title}}</h3>
+  <p>{{category[1].description}}</p>
 
   {% for source in site.data.sources %}
-    {% if source.category == category.key %}
+    {% if source.category == category[0] %}
     <div class="download">
       <h4>
         <i class="fa fa-database" aria-hidden="true"></i>

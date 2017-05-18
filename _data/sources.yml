@@ -112,7 +112,7 @@
     title: State Financial Intelligence Service Under the Government of the Kyrgyz Republic
     url: https://fiu.gov.kg/
   url: https://fiu.gov.kg/sked/1?language=ru
-  data: 
+  data:
     url: http://fiu.gov.kg/uploads/58f843ca071b3.xml
     format: xml
 
@@ -123,7 +123,7 @@
     title: Interpol
     url: https://www.interpol.int/
   url: https://www.interpol.int/INTERPOL-expertise/Notices
-  data: 
+  data:
     url: https://www.interpol.int/INTERPOL-expertise/Notices
     format: xml
 
@@ -134,7 +134,6 @@
     title: Mysociety.org
     url: http://everypolitician.org
   url: http://everypolitician.org
-  data: 
+  data:
     url: https://github.com/everypolitician/everypolitician-data/raw/master/countries.json
     format: JSON
-

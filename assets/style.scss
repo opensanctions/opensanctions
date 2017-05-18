@@ -89,6 +89,10 @@ ul {
     background-color: $color-theme-4;
     color: $color-theme-1;
 
+    h3 {
+      margin-top: 1.5em;
+    }
+
     .download {
       h4 {
         i {
@@ -97,7 +101,8 @@ ul {
         }
       }
 
-      margin-bottom: 1.5em;
+      margin-bottom: 0.5em;
+      margin-top: 1.5em;
 
       th {
         width: 7em;

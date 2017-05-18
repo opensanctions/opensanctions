@@ -4,7 +4,7 @@ highlighter: rouge
 data_path: http://data.opensanctions.org/v1/sources
 
 source_categories:
-  peps:
+  pep:
     title: Politically Exposed Persons
     description: >
       Datasets that contain details about politicians, members of cabinet or
