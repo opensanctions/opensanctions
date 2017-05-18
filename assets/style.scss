@@ -1,10 +1,56 @@
 ---
 ---
 
+$font-family: 'Open Sans', sans-serif;
+$font-base-size: 18px;
+
+$color-theme-1: #1A212C;
+$color-theme-2: #1D7872;
+$color-theme-3: #71B095;
+$color-theme-4: #DEDBA7;
+$color-theme-5: #D13F32;
+
 body {
-  font-family: 'Open Sans', sans-serif;
+  font-family: $font-family;
+  font-size: $font-base-size;
+  line-height: 1.7em;
+}
+
+.container {
+  max-width: 750px;
+}
+
+.section {
+  padding-top: 2 * $font-base-size;
+  padding-bottom: 2 * $font-base-size;
+
+  &.header {
+    background-color: $color-theme-1;
+    color: $color-theme-3;
+  }
+
+  &.downloads {
+    background-color: $color-theme-3;
+    color: $color-theme-1;
+  }
+
+  &.faq {
+    background-color: $color-theme-3;
+    color: $color-theme-1;
+  }
 }
 
 h1, h2, h3, h4 {
   font-weight: 700;
+}
+
+h1 {
+  margin-top: 2em;
+  margin-bottom: 1em;
+}
+
+ul {
+  li {
+    margin-top: 0.4em;
+  }
 }

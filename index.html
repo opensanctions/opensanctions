@@ -1,0 +1,128 @@
+---
+layout: default
+title: Open-source data for due diligence
+description: >
+  OpenSanctions is a database of persons and companies of political, criminal,
+  or economic interest. We combine sanctioned entities, politically exposed
+  persons, and other public information.
+---
+
+<div class="section header">
+  <div class="container">
+    <h1>OpenSanctions</h1>
+
+    <p>
+      OpenSanctions is a global database of <strong>persons and companies of
+      political, criminal, or economic interest</strong>. It combines sanctions
+      lists, databases of politically exposed persons, and other public
+      information into a single, easy-to-access dataset.
+    </p>
+
+    <ul>
+      <li>
+        Cross-check leaks and public databases for possible conflicts of interests
+        and signs of illicit activity.
+      </li>
+      <li>
+        Track political conflicts and compare world-wide sanctions policies.
+      </li>
+      <li>
+        Check potential customers and partners in international dealings.
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div class="section downloads">
+  <div class="container">
+    <h2>Downloads</h2>
+
+    {% for source in site.data.sources %}
+      <h4>{{ source.title }}</h4>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="section faq">
+  <div class="container">
+    <h2>Frequently Asked Questions</h2>
+
+    <h4>What is OpenSanctions?</h4>
+    <p>
+      OpenSanctions brings together sanctions lists, lists of politically exposed
+      persons (PEPs), and parties excluded from government contracts in different countries.
+      It is a list of persons and companies of political, criminal, or economic
+      significance that merit further investigation.
+    </p>
+    <p>
+      It is meant to be a resource for journalists and civil society who need to
+      perform due diligence-style tasks (e.g. searching for persons of interest in
+      a leak or open dataset).
+    <p>
+      OpenSanctions is an open project, anyone is invited to use the dataset and
+      contribute additional information.
+    </p>
+
+    <h4>Where does the data come from?</h4>
+    <p>
+      Our preferred sources are official datasets published by governments all over
+      the world; including commonly used sanctions and ban lists. In the future, we
+      hope to also include information from media reporting, Wikidata and Wikipedia
+      and litigation.
+    </p>
+
+    <h4>How frequently is OpenSanctions updated?</h4>
+    <p>
+      The data is updated daily and processed in several stages, so there can be
+      delays of up to 72 hours for a new entity to make its way into the master
+      dataset.
+    </p>
+
+    <h4>Does OpenSanctions only contain sanctions lists?</h4>
+    <p>
+      No, we are just bad at naming things. The project includes sanctions lists,
+      lists of politicians, ban lists used in government procurement, lists of known
+      terrorists and other data sources relevant to journalistic research and due
+      diligence.
+    </p>
+
+    <h4>Can I contribute a new data source?</h4>
+    <p>
+      Yes! We're particularly keen to add sources that include information from
+      criminal cases, and family and associates of politically exposed persons.
+    </p>
+    <p>
+      Our data sources are currently set up as independent repositories inside the
+      OpenSanctions organization on GitHub. Please file a ticket with the main
+      repository to suggest a new source and get access to contribute.
+    </p>
+    <p>
+      Data import scripts are self-running Python scrapers hosted on morph.io. If
+      you're keen to write or improve scrapers, we'd love your help!
+    </p>
+
+    <!--
+    ### Can I use OpenSanctions commercially?
+
+    Feel free to. OpenSanctions offers a set of open-source scrapers for sanctions
+    and PEP information that can be used freely.
+
+    However, while it is our goal to achieve a similar level of comprehensiveness
+    to paid products like World-Check or WorldCompliance, OpenSanctions currently
+    is a proof of concept and does not contain relatives and close associates of
+    many key persons. For users who need to meet formal compliance requirements,
+    OpenSanctions cannot replace commercial products yet.
+
+    OpenSanctions is published under the terms of a Creative Commons 4.0 Attribution
+    license.
+    -->
+
+    <h4>Who is behind OpenSanctions?</h4>
+  </div>
+</div>
+
+<!--
+### Links
+
+* MrWatchlist
+-->
