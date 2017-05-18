@@ -1,6 +1,6 @@
 - title: UN Consolidated Sanctions
   slug: un-sc-sanctions
-  category: Sanctions
+  category: sanctions
   publisher:
     title: United Nations Security Council
     url: 'https://www.un.org/en/sc/'
@@ -11,6 +11,7 @@
 
 - title: CIA World Leaders
   slug: us-cia-world-leaders
+  category: pep
   publisher:
     title: US Central Intelligence Agency
     url: https://www.cia.gov/
@@ -18,7 +19,7 @@
 
 - title: SDFM Blacklist
   slug: ua-sdfm-blacklist
-  category: Sanctions
+  category: sanctions
   publisher:
     title: Ukraine State Finance Monitoring Service
     url: http://www.sdfm.gov.ua/
@@ -29,7 +30,7 @@
 
 - title: Swiss SECO Sanctions/Embargoes
   slug: kg-fiu-national
-  category: Sanctions
+  category: sanctions
   publisher:
     title: State Secretariat for Economic Affairs (SECO)
     url: https://www.seco.admin.ch/
@@ -40,7 +41,7 @@
 
 - title: OFAC Consolidated List
   slug: us-ofac
-  category: Sanctions
+  category: sanctions
   publisher:
     title: US Department of the Treasury
     url: https://www.treasury.gov/
@@ -51,7 +52,7 @@
 
 - title: US Denied Persons List
   slug: us-bis-denied
-  category: Sanctions
+  category: sanctions
   publisher:
     title: US Department of Commerce
     url: https://www.bis.doc.gov/
@@ -62,7 +63,7 @@
 
 - title: GB Consolidated list of targets
   slug: gb-hm-sanctionslist
-  category: Sanctions
+  category: sanctions
   publisher:
     title: HM Treasury
     url: https://www.gov.uk/
@@ -73,7 +74,7 @@
 
 - title: GB Insolvency Disqualified Directors
   slug: gb-coh-disqualified
-  category: Finance
+  category: finance
   publisher:
     title: The UK Insolvency Service
     url: https://www.insolvencydirect.bis.gov.uk
@@ -84,7 +85,7 @@
 
 - title: EU EEAS Consolidated Lists
   slug: eu-eeas-sanctions
-  category: Sanctions
+  category: sanctions
   publisher:
     title: European Union External Action Service
     url: https://eeas.europa.eu/
@@ -95,7 +96,7 @@
 
 - title: CH SECO Sanctions List
   slug: ch-seco-sanctions
-  category: Sanctions
+  category: sanctions
   publisher:
     title: State Secretariat for Economic Affairs SECO
     url: https://www.seco.admin.ch/
@@ -106,7 +107,7 @@
 
 - title: KG State FIU National List
   slug: kg-fiu-national
-  category: Sanctions
+  category: sanctions
   publisher:
     title: State Financial Intelligence Service Under the Government of the Kyrgyz Republic
     url: https://fiu.gov.kg/
@@ -117,7 +118,7 @@
 
 - title: Interpol Red Notices
   slug: interpol-red-notices
-  category: Crime
+  category: crime
   publisher:
     title: Interpol
     url: https://www.interpol.int/
@@ -128,7 +129,7 @@
 
 - title: Every Politician
   slug: everypolitician
-  category: Politically Exposed Persons
+  category: pep
   publisher:
     title: Mysociety.org
     url: http://everypolitician.org
