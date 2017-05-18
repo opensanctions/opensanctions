@@ -9,6 +9,8 @@ feel free to submit pull requests for any suggested improvements.
 
 ## Data Sources
 
+https://docs.google.com/spreadsheets/d/1ozEF7aTRM5mOK7PfusKnlGnfoYdee5AygdKbMTHkRQE/edit#gid=0
+
 Possible data sources for this project (only a few are included thus far):
 
 * **US** Treasury/OFAC, [Specially Designated Nationals](https://www.treasury.gov/resource-center/sanctions/SDN-List/Pages/default.aspx), [Consolidated List](https://www.treasury.gov/resource-center/sanctions/SDN-List/Pages/consolidated.aspx).
