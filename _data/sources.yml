@@ -26,7 +26,7 @@
     format: XML
 
 - title: Swiss SECO Sanctions/Embargoes
-  slug: ua-sdfm-blacklist
+  slug: kg-fiu-national
   publisher:
     title: State Secretariat for Economic Affairs (SECO)
     url: https://www.seco.admin.ch/
@@ -34,3 +34,73 @@
   data:
     url: https://www.sesam.search.admin.ch/sesam-search-web/pages/downloadXmlGesamtliste.xhtml?lang=en&action=downloadXmlGesamtlisteAction
     format: XML
+
+- title: OFAC Consolidated List
+  slug: us-ofac
+  publisher:
+    title: US Department of the Treasury
+    url: https://www.treasury.gov/
+  url: https://www.treasury.gov/resource-center/sanctions/Pages/default.aspx
+  data:
+    url: https://www.treasury.gov/resource-center/sanctions/SDN-List/Pages/consolidated.aspx
+    format: XML
+
+- title: US Denied Persons List
+  slug: us-bis-denied
+  publisher:
+    title: US Department of Commerce
+    url: https://www.bis.doc.gov/
+  url: https://www.bis.doc.gov/index.php/policy-guidance/lists-of-parties-of-concern/denied-persons-list
+  data:
+    url: https://www.bis.doc.gov/dpl/dpl.txt
+    format: txt
+
+- title: GB Consolidated list of targets
+  slug: gb-hm-sanctionslist
+  publisher:
+    title: HM Treasury
+    url: https://www.gov.uk/
+  url: https://www.gov.uk/government/publications/financial-sanctions-consolidated-list-of-targets
+  data:
+    url: https://www.gov.uk/government/publications/financial-sanctions-consolidated-list-of-targets/consolidated-list-of-targets
+    format: html
+
+- title: GB Insolvency Disqualified Directors
+  slug: gb-coh-disqualified
+  publisher:
+    title: The UK Insolvency Service
+    url: https://www.insolvencydirect.bis.gov.uk
+  url: https://www.insolvencydirect.bis.gov.uk/IESdatabase/viewdirectorsummary-new.asp
+  data:
+    url: https://www.insolvencydirect.bis.gov.uk/IESdatabase/viewdirectorsummary-new.asp
+    format: html
+
+- title: EU EEAS Consolidated Lists
+  slug: eu-eeas-sanctions
+  publisher:
+    title: European Union External Action Service
+    url: https://eeas.europa.eu/
+  url: https://eeas.europa.eu/topics/common-foreign-security-policy-cfsp_en
+  data:
+    url: https://www.insolvencydirect.bis.gov.uk/IESdatabase/viewdirectorsummary-new.asp
+    format: html
+
+- title: CH SECO Sanctions List
+  slug: ch-seco-sanctions
+  publisher:
+    title: State Secretariat for Economic Affairs SECO
+    url: https://www.seco.admin.ch/
+  url: https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos.html?_organization=703&_pageIndex=0
+  data:
+    url: https://www.sesam.search.admin.ch/sesam-search-web/pages/downloadXmlGesamtliste.xhtml?lang=de&action=downloadXmlGesamtlisteAction
+    format: xml
+
+- title: KG State FIU National List
+  slug: kg-fiu-national
+  publisher:
+    title: State Financial Intelligence Service Under the Government of the Kyrgyz Republic
+    url: https://fiu.gov.kg/
+  url: https://fiu.gov.kg/sked/1?language=ru
+  data: 
+    url: http://fiu.gov.kg/uploads/58f843ca071b3.xml
+    format: xml
