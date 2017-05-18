@@ -14,3 +14,23 @@
     title: US Central Intelligence Agency
     url: https://www.cia.gov/
   url: https://www.cia.gov/library/publications/resources/world-leaders-1/index.html
+
+- title: SDFM Blacklist
+  slug: ua-sdfm-blacklist
+  publisher:
+    title: Ukraine State Finance Monitoring Service
+    url: http://www.sdfm.gov.ua/
+  url: http://www.sdfm.gov.ua/articles.php?cat_id=87&lang=en
+  data:
+    url: http://www.sdfm.gov.ua/content/file/Site_docs/Black_list/zBlackListFull.xml
+    format: XML
+
+- title: Swiss SECO Sanctions/Embargoes
+  slug: ua-sdfm-blacklist
+  publisher:
+    title: State Secretariat for Economic Affairs (SECO)
+    url: https://www.seco.admin.ch/
+  url: https://www.seco.admin.ch/seco/en/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos.html
+  data:
+    url: https://www.sesam.search.admin.ch/sesam-search-web/pages/downloadXmlGesamtliste.xhtml?lang=en&action=downloadXmlGesamtlisteAction
+    format: XML

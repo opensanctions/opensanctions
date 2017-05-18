@@ -1,0 +1,30 @@
+<h2>Downloads</h2>
+
+{% for source in site.data.sources %}
+  <h4>{{source.title}}</h4>
+  <p>{{source.description}}</p>
+  <div class="files">
+    CSV:
+    <a href="{{site.data_path}}/{{source.slug}}/latest/entities.csv">
+      Entities
+    </a>
+    <a href="{{site.data_path}}/{{source.slug}}/latest/addresses.csv">
+      Addresses
+    </a>
+    <a href="{{site.data_path}}/{{source.slug}}/latest/aliases.csv">
+      Aliases
+    </a>
+    <a href="{{site.data_path}}/{{source.slug}}/latest/nationalities.csv">
+      Nationalities
+    </a>
+    <a href="{{site.data_path}}/{{source.slug}}/latest/identifiers.csv">
+      ID/Passport
+    </a>
+    <a href="{{site.data_path}}/{{source.slug}}/latest/birthdates.csv">
+      Birth dates
+    </a>
+    <a href="{{site.data_path}}/{{source.slug}}/latest/birthplaces.csv">
+      Birth places
+    </a>
+  </div>
+{% endfor %}

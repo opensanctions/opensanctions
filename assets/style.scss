@@ -16,6 +16,21 @@ body {
   line-height: 1.7em;
 }
 
+h1, h2, h3, h4 {
+  font-weight: 700;
+}
+
+h1 {
+  margin-top: 2em;
+  margin-bottom: 1em;
+}
+
+ul {
+  li {
+    margin-top: 0.4em;
+  }
+}
+
 .container {
   max-width: 750px;
 }
@@ -40,17 +55,10 @@ body {
   }
 }
 
-h1, h2, h3, h4 {
-  font-weight: 700;
-}
+footer {
+  background-color: #333;
+  color: #fff;
 
-h1 {
-  margin-top: 2em;
-  margin-bottom: 1em;
-}
-
-ul {
-  li {
-    margin-top: 0.4em;
-  }
+  padding-top: 3em;
+  padding-bottom: 4em;
 }
