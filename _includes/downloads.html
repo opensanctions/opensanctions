@@ -1,43 +1,73 @@
 <h2>Downloads</h2>
 
 {% for source in site.data.sources %}
-  <h4>{{source.title}}</h4>
-  <p>{{source.description}}</p>
-  <div class="files">
-    CSV:
-    <a href="{{site.data_path}}/{{source.slug}}/latest/entities.csv">
-      Entities
-    </a>
-    <a href="{{site.data_path}}/{{source.slug}}/latest/addresses.csv">
-      Addresses
-    </a>
-    <a href="{{site.data_path}}/{{source.slug}}/latest/aliases.csv">
-      Aliases
-    </a>
-    <a href="{{site.data_path}}/{{source.slug}}/latest/nationalities.csv">
-      Nationalities
-    </a>
-    <a href="{{site.data_path}}/{{source.slug}}/latest/identifiers.csv">
-      ID/Passport
-    </a>
-    <a href="{{site.data_path}}/{{source.slug}}/latest/birthdates.csv">
-      Birth dates
-    </a>
-    <a href="{{site.data_path}}/{{source.slug}}/latest/birthplaces.csv">
-      Birth places
-    </a>
-  </div>
-  <div class="publisher">
-    {% if source.publisher %}
-      Publisher:
-      {% if source.publisher.url %}
-        <a href="{{source.publisher.url}}">{{source.publisher.title}}</a>
-      {% else %}
-        {{source.publisher.title}}
-      {% endif %}
-    {% endif %}
-    {% if source.data %}
-      <a href="{{source.data.url}}">{{source.data.format}}</a>
-    {% endif %}
+  <div class="download">
+    <h4>
+      <i class="fa fa-database" aria-hidden="true"></i>
+      {{source.title}}
+    </h4>
+    <p>{{source.description}}</p>
+    <div class="files">
+      <table>
+        <tr>
+          <th>
+            CSV
+          </th>
+          <td>
+            <a href="{{site.data_path}}/{{source.slug}}/latest/entities.csv">
+              entities.csv</a>,
+            <a href="{{site.data_path}}/{{source.slug}}/latest/addresses.csv">
+              addresses.csv</a>,
+            <a href="{{site.data_path}}/{{source.slug}}/latest/aliases.csv">
+              aliases.csv</a>,
+            <a href="{{site.data_path}}/{{source.slug}}/latest/nationalities.csv">
+              nationalities.csv</a>,
+            <a href="{{site.data_path}}/{{source.slug}}/latest/identifiers.csv">
+              identifiers.csv</a>,
+            <a href="{{site.data_path}}/{{source.slug}}/latest/birthdates.csv">
+              birthdates.csv</a>,
+            <a href="{{site.data_path}}/{{source.slug}}/latest/birthplaces.csv">
+              birthplaces.csv</a>
+          </td>
+        </tr>
+        <!--
+        <tr>
+          <th>
+            JSON
+          </th>
+          <td>
+            <em>(soon)</em>
+          </td>
+        </tr>
+        -->
+        {% if source.publisher %}
+          <tr>
+            <th>
+              Publisher
+            </th>
+            <td>
+              {% if source.publisher.url %}
+                <a href="{{source.publisher.url}}">{{source.publisher.title}}</a>
+              {% else %}
+                {{source.publisher.title}}
+              {% endif %}
+            </td>
+          </tr>
+        {% endif %}
+        {% if source.data %}
+          <tr>
+            <th>
+              Source
+            </th>
+            <td>
+              <a href="{{source.data.url}}">
+                {{source.data.url | truncate:40}}
+              </a>
+              ({{source.data.format | upcase}})
+            </td>
+          </tr>
+        {% endif %}
+      </table>
+    </div>
   </div>
 {% endfor %}
