@@ -86,7 +86,7 @@ ul {
   }
 
   &.downloads {
-    background-color: $color-theme-3;
+    background-color: $color-theme-4;
     color: $color-theme-1;
 
     .download {
@@ -106,20 +106,30 @@ ul {
       th, td {
         vertical-align: top;
       }
+
+      a {
+        color: $color-theme-2;
+      }
     }
-
-
   }
 
   &.faq {
-    background-color: $color-theme-3;
-    color: $color-theme-1;
+    background-color: $color-theme-1;
+    color: white;
+
+    p {
+      margin-bottom: 1em;
+    }
+
+    h4 {
+      padding-top: 1em;
+    }
   }
 }
 
 footer {
   $footer-fg-color: #fff;
-  $footer-bg-color: #333;
+  $footer-bg-color: #000;
   background-color: $footer-bg-color;
   color: $footer-fg-color;
 
@@ -127,6 +137,6 @@ footer {
   padding-bottom: 4em;
 
   a {
-    color: $color-theme-4;
+    color: $color-theme-2;
   }
 }
