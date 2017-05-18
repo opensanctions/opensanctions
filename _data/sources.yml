@@ -104,3 +104,24 @@
   data: 
     url: http://fiu.gov.kg/uploads/58f843ca071b3.xml
     format: xml
+
+- title: Interpol Red Notices
+  slug: interpol-red-notices
+  publisher:
+    title: Interpol
+    url: https://www.interpol.int/
+  url: https://www.interpol.int/INTERPOL-expertise/Notices
+  data: 
+    url: https://www.interpol.int/INTERPOL-expertise/Notices
+    format: xml
+
+- title: Every Politician
+  slug: everypolitician
+  publisher:
+    title: Mysociety.org
+    url: http://everypolitician.org
+  url: http://everypolitician.org
+  data: 
+    url: https://github.com/everypolitician/everypolitician-data/raw/master/countries.json
+    format: JSON
+
