@@ -3,6 +3,22 @@ highlighter: rouge
 
 data_path: http://data.opensanctions.org/v1/sources
 
+source_categories:
+  peps:
+    title: Politically Exposed Persons
+    description: >
+      Datasets that contain details about politicians, members of cabinet or
+      their families and associates.
+  crime:
+    title: Crime
+    description: >
+      Persons wanted in connections with a crime.
+  sanctions:
+    title: Sanctions Lists
+    description: >
+      Offical lists of entities that have been sanctioned by countries or
+      international organisations.
+
 sass:
   style: compressed
 
