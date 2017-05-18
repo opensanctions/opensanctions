@@ -4,11 +4,11 @@
 $font-family: 'Open Sans', sans-serif;
 $font-base-size: 18px;
 
-$color-theme-1: #1A212C;
-$color-theme-2: #1D7872;
-$color-theme-3: #71B095;
-$color-theme-4: #DEDBA7;
-$color-theme-5: #D13F32;
+$color-theme-1: #313732;
+$color-theme-2: #8AA8B0;
+$color-theme-3: #DEDEDE;
+$color-theme-4: #FFFFFF;
+$color-theme-5: #F26101;
 
 body {
   font-family: $font-family;
@@ -34,14 +34,31 @@ ul {
   padding-top: 2 * $font-base-size;
   padding-bottom: 2 * $font-base-size;
 
+  h2 {
+    margin-bottom: 1.5em;
+  }
+
   &.header {
+    /*
+    background: url(/images/saddam.png);
+    background-cover: cover;
+    background-size: 100%;
+    background-position: 50%;
+    */
     background-color: $color-theme-1;
-    color: $color-theme-3;
+    // color: $color-theme-3;
+    color: white;
 
     h1 {
       text-align: center;
-      margin-top: 2em;
+      // display: inline-block;
+      font-size: 4em;
+      margin: auto;
+      margin-top: 1em;
       margin-bottom: 1em;
+      // background: black;
+      padding: 0.1em;
+      color: $color-theme-5;
     }
 
     .actions {
@@ -71,6 +88,27 @@ ul {
   &.downloads {
     background-color: $color-theme-3;
     color: $color-theme-1;
+
+    .download {
+      h4 {
+        i {
+          color: $color-theme-5;
+          margin-right: 0.5em;
+        }
+      }
+
+      margin-bottom: 1.5em;
+
+      th {
+        width: 7em;
+      }
+
+      th, td {
+        vertical-align: top;
+      }
+    }
+
+
   }
 
   &.faq {
