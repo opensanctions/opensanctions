@@ -71,6 +71,24 @@
               </td>
             </tr>
           {% endif %}
+          {% if source.slug %}
+            <tr>
+              <th>
+                Developer
+              </th>
+              <td>
+                <a href="https://morph.io/opensanctions/{{source.slug}}">
+                  Scraper status</a>
+                &middot;
+                <a href="https://github.com/opensanctions/{{source.slug}}">
+                  <i class="fa fa-github" aria-hidden="true"></i>
+                  Code repository
+                </a>
+
+              </td>
+            </tr>
+          {% endif %}
+
         </table>
       </div>
     </div>
