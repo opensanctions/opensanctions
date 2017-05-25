@@ -1,5 +1,12 @@
 <h2>Downloads</h2>
 
+<p>
+  The datasets below are offered under the terms of a <a href="https://creativecommons.org/licenses/by/4.0/">
+    <i class="fa fa-creative-commons" aria-hidden="true"></i>
+    CC-BY 4.0 License</a>, which allows free re-use of the data. If you notice
+    any mistakes or inaccuracies in the data, please let us know.
+</p>
+
 {% for category in site.source_categories %}
   <h3>{{category[1].title}}</h3>
   <p>{{category[1].description}}</p>
@@ -11,9 +18,25 @@
         <i class="fa fa-database" aria-hidden="true"></i>
         {{source.title}}
       </h4>
-      <p>{{source.description}}</p>
+      {% if source.description %}
+        <p>{{source.description}}</p>
+      {% endif %}
       <div class="files">
         <table>
+          {% if source.publisher %}
+            <tr>
+              <th>
+                Publisher
+              </th>
+              <td>
+                {% if source.publisher.url %}
+                  <a href="{{source.publisher.url}}">{{source.publisher.title}}</a>
+                {% else %}
+                  {{source.publisher.title}}
+                {% endif %}
+              </td>
+            </tr>
+          {% endif %}
           <tr>
             <th>
               CSV
@@ -35,30 +58,6 @@
                 birthplaces.csv</a>
             </td>
           </tr>
-          <!--
-          <tr>
-            <th>
-              JSON
-            </th>
-            <td>
-              <em>(soon)</em>
-            </td>
-          </tr>
-          -->
-          {% if source.publisher %}
-            <tr>
-              <th>
-                Publisher
-              </th>
-              <td>
-                {% if source.publisher.url %}
-                  <a href="{{source.publisher.url}}">{{source.publisher.title}}</a>
-                {% else %}
-                  {{source.publisher.title}}
-                {% endif %}
-              </td>
-            </tr>
-          {% endif %}
           {% if source.data %}
             <tr>
               <th>

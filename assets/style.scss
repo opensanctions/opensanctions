@@ -3,6 +3,7 @@
 
 $font-family: 'Open Sans', sans-serif;
 $font-base-size: 18px;
+$site-width: 750px;
 
 $color-theme-1: #313732;
 $color-theme-2: #8AA8B0;
@@ -12,12 +13,40 @@ $color-theme-5: #F26101;
 
 body {
   font-family: $font-family;
-  font-size: $font-base-size;
+
+  font-size: $font-base-size * 0.8;
+  @media (min-width: $site-width) {
+    font-size: $font-base-size;
+  }
+
   line-height: 1.7em;
 }
 
 h1, h2, h3, h4 {
   font-weight: 700;
+  line-height: 1.5em;
+}
+
+h2 {
+  font-size: 1.3em;
+  @media (min-width: $site-width) {
+    font-size: 1.5em;
+  }
+}
+
+h3 {
+  font-size: 1.2em;
+  margin-top: 1em;
+  @media (min-width: $site-width) {
+    font-size: 1.3em;
+  }
+}
+
+h4 {
+  font-size: 1em;
+  @media (min-width: $site-width) {
+    font-size: 1.1em;
+  }
 }
 
 ul {
@@ -27,7 +56,7 @@ ul {
 }
 
 .container {
-  max-width: 750px;
+  max-width: $site-width;
 }
 
 .section {
@@ -35,28 +64,24 @@ ul {
   padding-bottom: 2 * $font-base-size;
 
   h2 {
-    margin-bottom: 1.5em;
+    margin-bottom: 0.5em;
   }
 
   &.header {
-    /*
-    background: url(/images/saddam.png);
-    background-cover: cover;
-    background-size: 100%;
-    background-position: 50%;
-    */
     background-color: $color-theme-1;
-    // color: $color-theme-3;
     color: white;
 
     h1 {
       text-align: center;
-      // display: inline-block;
-      font-size: 4em;
+
+      font-size: 2em;
+      @media (min-width: $site-width) {
+        font-size: 4em;
+      }
+
       margin: auto;
-      margin-top: 1em;
-      margin-bottom: 1em;
-      // background: black;
+      margin-top: 0.8em;
+      margin-bottom: 0.8em;
       padding: 0.1em;
       color: $color-theme-5;
     }
@@ -89,8 +114,8 @@ ul {
     background-color: $color-theme-4;
     color: $color-theme-1;
 
-    h3 {
-      margin-top: 1.5em;
+    p {
+      padding-bottom: 0em;
     }
 
     .download {
@@ -101,11 +126,11 @@ ul {
         }
       }
 
-      margin-bottom: 0.5em;
-      margin-top: 1.5em;
+      margin-bottom: 1.5em;
+      // margin-top: 1em;
 
       th {
-        width: 7em;
+        width: 20%;
       }
 
       th, td {
@@ -124,10 +149,6 @@ ul {
 
     p {
       margin-bottom: 1em;
-    }
-
-    h4 {
-      padding-top: 1em;
     }
   }
 }

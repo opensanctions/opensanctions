@@ -1,4 +1,7 @@
 - title: UN Consolidated Sanctions
+  description: >
+    The Security Council's set of sanctions serve as the foundation for most
+    national sanctions lists.
   slug: un-sc-sanctions
   category: sanctions
   publisher:
@@ -10,6 +13,9 @@
     format: XML
 
 - title: CIA World Leaders
+  description: >
+    An index of most national-level cabinet members in world governments that
+    is publicly maintained by the CIA.
   slug: us-cia-world-leaders
   category: pep
   publisher:
@@ -18,6 +24,9 @@
   url: https://www.cia.gov/library/publications/resources/world-leaders-1/index.html
 
 - title: SDFM Blacklist
+  description: >
+    Ukraine's financial intelligence unit publishes this list of sanctioned
+    individuals.
   slug: ua-sdfm-blacklist
   category: sanctions
   publisher:
@@ -29,10 +38,13 @@
     format: XML
 
 - title: Swiss SECO Sanctions/Embargoes
-  slug: kg-fiu-national
+  description: >
+    Switzerland manages a sanctions lists with a high degree of detail on the
+    individuals that are subject to it's embargoes.
+  slug: ch-seco-sanctions
   category: sanctions
   publisher:
-    title: State Secretariat for Economic Affairs (SECO)
+    title: "State Secretariat for Economic Affairs (SECO)"
     url: https://www.seco.admin.ch/
   url: https://www.seco.admin.ch/seco/en/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos.html
   data:
@@ -40,6 +52,10 @@
     format: XML
 
 - title: OFAC Consolidated List
+  description: >
+    Both parts of the United States' consolidated sanctions list, both the
+    specially designated nationals (SDN) and the non-SDN entities published
+    by the Office of Foreign Assets Control (OFAC).
   slug: us-ofac
   category: sanctions
   publisher:
@@ -51,6 +67,9 @@
     format: XML
 
 - title: US Denied Persons List
+  description: >
+    The Bureau of Industry and Security publishes this list of entities which
+    are relevant with regards to export controls.
   slug: us-bis-denied
   category: sanctions
   publisher:
@@ -61,7 +80,9 @@
     url: https://www.bis.doc.gov/dpl/dpl.txt
     format: txt
 
-- title: GB Consolidated list of targets
+- title: GB Consolidated List of Targets
+  description: >
+    The United Kingom's consolidated internation sanctions list.
   slug: gb-hm-sanctionslist
   category: sanctions
   publisher:
@@ -73,8 +94,11 @@
     format: html
 
 - title: GB Insolvency Disqualified Directors
+  description: >
+    Individuals which have been disqualified from holding the post of a
+    company director in the United Kingdom following a court decision.
   slug: gb-coh-disqualified
-  category: finance
+  category: crime
   publisher:
     title: The UK Insolvency Service
     url: https://www.insolvencydirect.bis.gov.uk
@@ -83,40 +107,38 @@
     url: https://www.insolvencydirect.bis.gov.uk/IESdatabase/viewdirectorsummary-new.asp
     format: html
 
-- title: EU EEAS Consolidated Lists
+- title: EEAS Consolidated List
+  description: >
+    As part of the Common Foreign Security Policy thr European Union publishes
+    a sanctions list that is implemented by all member states.
   slug: eu-eeas-sanctions
   category: sanctions
   publisher:
     title: European Union External Action Service
     url: https://eeas.europa.eu/
-  url: https://eeas.europa.eu/topics/common-foreign-security-policy-cfsp_en
+  url: https://eeas.europa.eu/headquarters/headquarters-homepage/423/sanctions-policy_en
   data:
-    url: https://www.insolvencydirect.bis.gov.uk/IESdatabase/viewdirectorsummary-new.asp
-    format: html
+    url: http://ec.europa.eu/external_relations/cfsp/sanctions/list/version4/global/global.xml
+    format: XML
 
-- title: CH SECO Sanctions List
-  slug: ch-seco-sanctions
-  category: sanctions
-  publisher:
-    title: State Secretariat for Economic Affairs SECO
-    url: https://www.seco.admin.ch/
-  url: https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos.html?_organization=703&_pageIndex=0
-  data:
-    url: https://www.sesam.search.admin.ch/sesam-search-web/pages/downloadXmlGesamtliste.xhtml?lang=de&action=downloadXmlGesamtlisteAction
-    format: xml
-
-- title: KG State FIU National List
+- title: Kyrgyz FIU National List
+  description: >
+    A simple list of sanctioned individuals and entities published by the
+    Kyrgyz' State Financial Intelligence Service.
   slug: kg-fiu-national
   category: sanctions
   publisher:
-    title: State Financial Intelligence Service Under the Government of the Kyrgyz Republic
+    title: State Financial Intelligence Service
     url: https://fiu.gov.kg/
   url: https://fiu.gov.kg/sked/1?language=ru
   data:
     url: http://fiu.gov.kg/uploads/58f843ca071b3.xml
     format: xml
 
-- title: Interpol Red Notices
+- title: INTERPOL Red Notices
+  description: >
+    International arrest warrants published by INTERPOL with a view to
+    extradition of the wanted individuals.
   slug: interpol-red-notices
   category: crime
   publisher:
@@ -128,10 +150,13 @@
     format: xml
 
 - title: Every Politician
+  description: >
+    An index of all national members of parliament in the world. This version
+    only includes individuals active within the past 15 years.
   slug: everypolitician
   category: pep
   publisher:
-    title: Mysociety.org
+    title: MySociety (UK Citizens Online Democracy)
     url: http://everypolitician.org
   url: http://everypolitician.org
   data:
