@@ -1,3 +1,13 @@
+- title: OpenSanctions.org Consolidated Dataset
+  description: >
+    This dataset combines all the entities and details from the datasets
+    listed below, except the EveryPolitician data, which is more detailed
+    than some users may wish.
+  slug: master
+  category: master
+  publisher:
+    title: OpenSanctions.org
+
 - title: UN Consolidated Sanctions
   description: >
     The Security Council's set of sanctions serve as the foundation for most
@@ -132,7 +142,7 @@
     url: https://fiu.gov.kg/
   url: https://fiu.gov.kg/sked/1?language=ru
   data:
-    url: http://fiu.gov.kg/uploads/58f843ca071b3.xml
+    url: http://fiu.gov.kg/uploads/595c5fd1ea663.xml
     format: xml
 
 - title: INTERPOL Red Notices
@@ -162,3 +172,31 @@
   data:
     url: https://github.com/everypolitician/everypolitician-data/raw/master/countries.json
     format: JSON
+
+- title: EU Members of Parliament
+  description: >
+    A set of all the members of the European Union parliament, which are
+    elected by member state.
+  slug: eu-meps
+  category: pep
+  publisher:
+    title: European Parliament
+    url: http://www.europarl.europa.eu/
+  url: http://www.europarl.europa.eu/meps/
+  data:
+    url: http://www.europarl.europa.eu/meps/en/xml.html?query=full&filter=all
+    format: XML
+
+- title: CoE Parliamentary Assembly
+  description: >
+    The Council of Europe's parliamentary assembly is composed of members of
+    national parliaments from European countries including Turkey and Russia.
+  slug: coe-assembly
+  category: pep
+  publisher:
+    title: Council of Europe
+    url: http://www.coe.int
+  url: http://www.assembly.coe.int/nw/Home-EN.asp
+  data:
+    url: http://www.assembly.coe.int/nw/xml/AssemblyList/MP-Alpha-EN.asp?initial=A
+    format: HTML
