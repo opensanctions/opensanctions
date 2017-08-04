@@ -93,7 +93,7 @@
 - title: GB Consolidated List of Targets
   description: >
     The United Kingom's consolidated internation sanctions list.
-  slug: gb-hm-sanctionslist
+  slug: gb-hmt-sanctionslist
   category: sanctions
   publisher:
     title: HM Treasury
