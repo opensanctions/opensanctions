@@ -22,6 +22,16 @@
     url: https://scsanctions.un.org/resources/xml/en/consolidated.xml
     format: XML
 
+- title: World Presidents Database
+  description: >
+    Current world leaders, presidents, prime ministers and dictators.
+  slug: worldpresidentsdb
+  category: pep
+  publisher:
+    title: WorldPresidentsDB.com
+    url: 'http://www.worldpresidentsdb.com/'
+  url: 'http://www.worldpresidentsdb.com/list/current/'
+
 - title: CIA World Leaders
   description: >
     An index of most national-level cabinet members in world governments that
