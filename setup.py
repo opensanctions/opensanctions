@@ -18,6 +18,7 @@ setup(
         'memorious >= 0.4',
         'unicodecsv',
         'xlrd',
+        'attrs',
         'pandas',
     ],
     entry_points={

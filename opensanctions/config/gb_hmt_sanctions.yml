@@ -1,5 +1,5 @@
 name: gb_hmt_sanctions
-description: "[Opensanctions] UK HM Treasury sanctions list"
+description: "[OSANC] UK HM Treasury sanctions list"
 schedule: weekly
 pipeline:
   init:

@@ -2,8 +2,8 @@ import logging
 import countrynames
 from pprint import pprint  # noqa
 
-from normality import stringify, collapse_spaces, slugify
 import attr
+from normality import stringify, collapse_spaces, slugify
 
 
 log = logging.getLogger(__name__)

@@ -1,5 +1,5 @@
 name: eu_meps
-description: "[Opensanctions] Members of the European Parliament"
+description: "[OSANC] Members of the European Parliament"
 schedule: weekly
 pipeline:
   init:
