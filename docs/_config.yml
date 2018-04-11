@@ -4,10 +4,10 @@ highlighter: rouge
 data_path: http://data.opensanctions.org/v1/sources
 
 source_categories:
-  master:
-    title: Consolidated Datasets
-    description: >
-      The following is a consolidated version of the datasets listed below.
+  # master:
+  #   title: Consolidated Datasets
+  #   description: >
+  #     The following is a consolidated version of the datasets listed below.
   pep:
     title: Politically Exposed Persons
     description: >

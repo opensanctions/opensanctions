@@ -1,18 +1,8 @@
-- title: OpenSanctions.org Consolidated Dataset
-  description: >
-    This dataset combines all the entities and details from the datasets
-    listed below, except the EveryPolitician data, which is more detailed
-    than some users may wish.
-  slug: master
-  category: master
-  publisher:
-    title: OpenSanctions.org
-
 - title: UN Consolidated Sanctions
   description: >
     The Security Council's set of sanctions serve as the foundation for most
     national sanctions lists.
-  slug: un-sc-sanctions
+  slug: un_sc_sanctions
   category: sanctions
   publisher:
     title: United Nations Security Council
@@ -36,7 +26,7 @@
   description: >
     An index of most national-level cabinet members in world governments that
     is publicly maintained by the CIA.
-  slug: us-cia-world-leaders
+  slug: us_cia_world_leaders
   category: pep
   publisher:
     title: US Central Intelligence Agency
@@ -47,7 +37,7 @@
   description: >
     Ukraine's financial intelligence unit publishes this list of sanctioned
     individuals.
-  slug: ua-sdfm-blacklist
+  slug: ua_sdfm_blacklist
   category: sanctions
   publisher:
     title: Ukraine State Finance Monitoring Service
@@ -61,7 +51,7 @@
   description: >
     Switzerland manages a sanctions lists with a high degree of detail on the
     individuals that are subject to it's embargoes.
-  slug: ch-seco-sanctions
+  slug: ch_seco_sanctions
   category: sanctions
   publisher:
     title: "State Secretariat for Economic Affairs (SECO)"
@@ -76,7 +66,7 @@
     Both parts of the United States' consolidated sanctions list, both the
     specially designated nationals (SDN) and the non-SDN entities published
     by the Office of Foreign Assets Control (OFAC).
-  slug: us-ofac
+  slug: us_ofac
   category: sanctions
   publisher:
     title: US Department of the Treasury
@@ -90,7 +80,7 @@
   description: >
     The Bureau of Industry and Security publishes this list of entities which
     are relevant with regards to export controls.
-  slug: us-bis-denied
+  slug: us_bis_denied
   category: sanctions
   publisher:
     title: US Department of Commerce
@@ -103,7 +93,7 @@
 - title: GB Consolidated List of Targets
   description: >
     The United Kingom's consolidated internation sanctions list.
-  slug: gb-hmt-sanctionslist
+  slug: gb_hmt_sanctionslist
   category: sanctions
   publisher:
     title: HM Treasury
@@ -117,7 +107,7 @@
   description: >
     Individuals which have been disqualified from holding the post of a
     company director in the United Kingdom following a court decision.
-  slug: gb-coh-disqualified
+  slug: gb_coh_disqualified
   category: crime
   publisher:
     title: The UK Insolvency Service
@@ -131,7 +121,7 @@
   description: >
     As part of the Common Foreign Security Policy thr European Union publishes
     a sanctions list that is implemented by all member states.
-  slug: eu-eeas-sanctions
+  slug: eu_eeas_sanctions
   category: sanctions
   publisher:
     title: European Union External Action Service
@@ -145,7 +135,7 @@
   description: >
     A simple list of sanctioned individuals and entities published by the
     Kyrgyz' State Financial Intelligence Service.
-  slug: kg-fiu-national
+  slug: kg_fiu_national
   category: sanctions
   publisher:
     title: State Financial Intelligence Service
@@ -159,7 +149,7 @@
   description: >
     International arrest warrants published by INTERPOL with a view to
     extradition of the wanted individuals.
-  slug: interpol-red-notices
+  slug: interpol_red_notices
   category: crime
   publisher:
     title: Interpol
@@ -187,7 +177,7 @@
   description: >
     A set of all the members of the European Union parliament, which are
     elected by member state.
-  slug: eu-meps
+  slug: eu_meps
   category: pep
   publisher:
     title: European Parliament
@@ -201,7 +191,7 @@
   description: >
     The Council of Europe's parliamentary assembly is composed of members of
     national parliaments from European countries including Turkey and Russia.
-  slug: coe-assembly
+  slug: coe_assembly
   category: pep
   publisher:
     title: Council of Europe
