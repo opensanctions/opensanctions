@@ -1,2 +1,5 @@
 data/
 docs/
+Makefile
+Dockerfile
+.git
