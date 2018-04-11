@@ -1,0 +1,28 @@
+name: everypolitician
+description: "[Opensanctions] Data from EveryPolitician.org"
+schedule: weekly
+pipeline:
+  init:
+    method: seed
+    params:
+      url: 'https://raw.githubusercontent.com/everypolitician/everypolitician-data/master/countries.json'
+    handle:
+      pass: fetch
+  fetch:
+    method: fetch
+    handle:
+      pass: scrape
+  scrape:
+    method: opensanctions.crawlers.everypolitician:scrape
+    handle:
+      pass: scrape_csv
+  scrape_csv:
+    method: opensanctions.crawlers.everypolitician:scrape_csv
+    handle:
+      pass: scrape_entity
+  scrape_entity:
+    method: opensanctions.crawlers.everypolitician:scrape_entity
+    handle:
+      pass: store
+  store:
+    method: opensanctions.helpers:store_entity

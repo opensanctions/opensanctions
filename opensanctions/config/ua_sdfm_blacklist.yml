@@ -1,0 +1,22 @@
+name: ua_sdfm_blacklist
+description: "[Opensanctions] Ukraine State Finance Monitoring Service"
+schedule: weekly
+pipeline:
+  init:
+    method: seed
+    params:
+      url: 'http://www.sdfm.gov.ua/content/file/Site_docs/Black_list/zBlackListFull.xml'
+    handle:
+      pass: fetch
+  fetch:
+    method: fetch
+    handle:
+      pass: parse
+  parse:
+    method: opensanctions.crawlers.ua_sdfm_blacklist:parse
+    params:
+      url: 'http://www.sdfm.gov.ua/content/file/Site_docs/Black_list/zBlackListFull.xml'
+    handle:
+      pass: store
+  store:
+    method: opensanctions.helpers:store_entity

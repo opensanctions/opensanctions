@@ -1,0 +1,20 @@
+name: un_sc_sanctions
+description: "[Opensanctions] United Nations Security Council sanctions"
+schedule: weekly
+pipeline:
+  init:
+    method: seed
+    params:
+      url: 'https://scsanctions.un.org/resources/xml/en/consolidated.xml'
+    handle:
+      pass: fetch
+  fetch:
+    method: fetch
+    handle:
+      pass: parse
+  parse:
+    method: opensanctions.crawlers.un_sc_sanctions:parse
+    handle:
+      pass: store
+  store:
+    method: opensanctions.helpers:store_entity

@@ -1,0 +1,14 @@
+name: us_ofac
+description: "[Opensanctions] Office of Foreign Assets Control - Specially Designated Nationals, and Consolidated Sanctions Lists"
+schedule: weekly
+pipeline:
+  init:
+    method: opensanctions.crawlers.us_ofac:parse
+    params:
+      urls:
+        - 'https://www.treasury.gov/ofac/downloads/sdn.xml'
+        - 'https://www.treasury.gov/ofac/downloads/consolidated/consolidated.xml'
+    handle:
+      pass: store
+  store:
+    method: opensanctions.helpers:store_entity

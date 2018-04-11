@@ -1,0 +1,10 @@
+name: eu_whoiswho
+description: "[Opensanctions] EU Who is Who Staff Directory"
+schedule: weekly
+pipeline:
+  init:
+    method: opensanctions.crawlers.eu_whoiswho:scrape
+    handle:
+      pass: store
+  store:
+    method: opensanctions.helpers:store_entity

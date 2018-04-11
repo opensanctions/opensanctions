@@ -1,0 +1,20 @@
+name: worldpresidentsdb
+description: "[Opensanctions] List of current world presidents"
+schedule: weekly
+pipeline:
+  init:
+    method: seed
+    params:
+      url: 'http://www.worldpresidentsdb.com/list/current/'
+    handle:
+      pass: fetch
+  fetch:
+    method: fetch
+    handle:
+      pass: parse
+  parse:
+    method: opensanctions.crawlers.worldpresidentsdb:parse
+    handle:
+      pass: store
+  store:
+    method: opensanctions.helpers:store_entity

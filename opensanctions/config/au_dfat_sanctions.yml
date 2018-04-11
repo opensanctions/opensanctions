@@ -1,0 +1,24 @@
+name: au_dfat_sanctions
+description: "[Opensanctions] Australian Department of Foreign Affairs and Trade Sanctions List"
+schedule: weekly
+pipeline:
+  init:
+    method: seed
+    params:
+      url: 'http://dfat.gov.au/international-relations/security/sanctions/Documents/regulation8_consolidated.xls'
+    handle:
+      pass: fetch
+  fetch:
+    method: fetch
+    handle:
+      pass: parse
+  parse:
+    method: opensanctions.crawlers.au_dfat_sanctions:parse
+    handle:
+      pass: parse_entry
+  parse_entry:
+    method: opensanctions.crawlers.au_dfat_sanctions:parse_entry
+    handle:
+      pass: store
+  store:
+    method: opensanctions.helpers:store_entity

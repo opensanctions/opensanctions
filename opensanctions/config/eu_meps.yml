@@ -1,0 +1,20 @@
+name: eu_meps
+description: "[Opensanctions] Members of the European Parliament"
+schedule: weekly
+pipeline:
+  init:
+    method: seed
+    params:
+      url: 'http://www.europarl.europa.eu/meps/en/xml.html?query=full&filter=all'
+    handle:
+      pass: fetch
+  fetch:
+    method: fetch
+    handle:
+      pass: parse
+  parse:
+    method: opensanctions.crawlers.eu_meps:parse
+    handle:
+      pass: store
+  store:
+    method: opensanctions.helpers:store_entity
