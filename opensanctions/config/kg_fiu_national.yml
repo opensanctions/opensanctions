@@ -1,0 +1,21 @@
+name: kg_fiu_national
+description: "[Opensanctions] Kyrgyz Financial Intelligence Unit National List"
+schedule: weekly
+pipeline:
+  init:
+    method: seed
+    params:
+      # url: 'https://fiu.gov.kg/sked/1'
+      url: 'https://fiu.gov.kg/uploads/59c1fe8b4aae0.xml'
+    handle:
+      pass: fetch
+  fetch:
+    method: fetch
+    handle:
+      pass: parse
+  parse:
+    method: opensanctions.crawlers.kg_fiu_national:parse
+    handle:
+      pass: store
+  store:
+    method: opensanctions.helpers:store_entity

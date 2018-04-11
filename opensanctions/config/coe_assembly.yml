@@ -1,0 +1,12 @@
+name: coe_assembly
+description: "[Opensanctions] Council of Europe Parliamentary Assembly"
+schedule: weekly
+pipeline:
+  init:
+    method: opensanctions.crawlers.coe_assembly:parse
+    params:
+      url: 'http://www.assembly.coe.int/nw/xml/AssemblyList/MP-Alpha-EN.asp?initial=%s&offset=0'
+    handle:
+      pass: store
+  store:
+    method: opensanctions.helpers:store_entity

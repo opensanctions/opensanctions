@@ -1,0 +1,28 @@
+name: gb_coh_disqualified
+description: "[Opensanctions] Disqualified company directors from the UK (Companies' House)"
+schedule: weekly
+pipeline:
+  init:
+    method: seed
+    params:
+      url: 'https://beta.companieshouse.gov.uk/register-of-disqualifications/A'
+    handle:
+      pass: fetch
+  fetch:
+    method: fetch
+    handle:
+      pass: crawl_alphabetical
+  crawl_alphabetical:
+    method: opensanctions.crawlers.gb_coh_disqualified:crawl_alphabetical
+    handle:
+      pass: crawl_pages
+  crawl_pages:
+    method: opensanctions.crawlers.gb_coh_disqualified:crawl_pages
+    handle:
+      pass: crawl_officer
+  crawl_officer:
+    method: opensanctions.crawlers.gb_coh_disqualified:crawl_officer
+    handle:
+      pass: store
+  store:
+    method: opensanctions.helpers:store_entity

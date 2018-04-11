@@ -1,0 +1,26 @@
+name: us_cia_world_leaders
+description: "[Opensanctions] CIA List of cabinet members across the world"
+schedule: weekly
+pipeline:
+  init:
+    method: seed
+    params:
+      url: 'https://www.cia.gov/library/publications/resources/world-leaders-1/index.html'
+    handle:
+      pass: fetch
+  fetch:
+    method: fetch
+    handle:
+      pass: scrape
+  scrape:
+    method: opensanctions.crawlers.us_cia_world_leaders:scrape
+    params:
+      url: 'https://www.cia.gov/library/publications/resources/world-leaders-1/index.html'
+    handle:
+      pass: scrape_country
+  scrape_country:
+    method: opensanctions.crawlers.us_cia_world_leaders:scrape_country
+    handle:
+      pass: store
+  store:
+    method: opensanctions.helpers:store_entity

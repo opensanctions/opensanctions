@@ -1,0 +1,20 @@
+name: eu_eeas_sanctions
+description: "[Opensanctions] EEAS Entities Subject to EU Financial Sanctions"
+schedule: weekly
+pipeline:
+  init:
+    method: seed
+    params:
+      url: 'http://ec.europa.eu/external_relations/cfsp/sanctions/list/version4/global/global.xml'
+    handle:
+      pass: fetch
+  fetch:
+    method: fetch
+    handle:
+      pass: parse
+  parse:
+    method: opensanctions.crawlers.eu_eeas_sanctions:eeas_parse
+    handle:
+      pass: store
+  store:
+    method: opensanctions.helpers:store_entity

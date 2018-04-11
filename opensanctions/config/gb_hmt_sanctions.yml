@@ -1,0 +1,24 @@
+name: gb_hmt_sanctions
+description: "[Opensanctions] UK HM Treasury sanctions list"
+schedule: weekly
+pipeline:
+  init:
+    method: seed
+    params:
+      url: 'http://hmt-sanctions.s3.amazonaws.com/sanctionsconlist.csv'
+    handle:
+      pass: fetch
+  fetch:
+    method: fetch
+    handle:
+      pass: parse
+  parse:
+    method: opensanctions.crawlers.gb_hmt_sanctions:parse
+    handle:
+      pass: parse_entry
+  parse_entry:
+    method: opensanctions.crawlers.gb_hmt_sanctions:parse_entry
+    handle:
+      pass: store
+  store:
+    method: opensanctions.helpers:store_entity
