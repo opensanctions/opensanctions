@@ -1,5 +1,5 @@
 name: ua_sdfm_blacklist
-description: "[Opensanctions] Ukraine State Finance Monitoring Service"
+description: "[OSANC] Ukraine State Finance Monitoring Service"
 schedule: weekly
 pipeline:
   init:

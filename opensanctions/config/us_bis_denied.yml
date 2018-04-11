@@ -1,5 +1,5 @@
 name: us_bis_denied
-description: "[Opensanctions] US Bureau of Industry and Security - Denied Persons List"
+description: "[OSANC] US BIS Denied Persons List"
 schedule: weekly
 pipeline:
   init:

@@ -1,5 +1,5 @@
 name: us_cia_world_leaders
-description: "[Opensanctions] CIA List of cabinet members across the world"
+description: "[OSANC] CIA World Leaders"
 schedule: weekly
 pipeline:
   init:

@@ -1,6 +1,6 @@
 name: us_ofac
-description: "[Opensanctions] Office of Foreign Assets Control - Specially Designated Nationals, and Consolidated Sanctions Lists"
-schedule: weekly
+description: "[OSANC] US OFAC SDN, non-SDN"
+schedule: daily
 pipeline:
   init:
     method: opensanctions.crawlers.us_ofac:parse

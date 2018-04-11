@@ -1,5 +1,5 @@
 name: worldpresidentsdb
-description: "[Opensanctions] List of current world presidents"
+description: "[OSANC] List of current world presidents"
 schedule: weekly
 pipeline:
   init:

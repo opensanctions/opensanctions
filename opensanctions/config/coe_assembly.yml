@@ -1,5 +1,5 @@
 name: coe_assembly
-description: "[Opensanctions] Council of Europe Parliamentary Assembly"
+description: "[OSANC] Council of Europe Parliamentary Assembly"
 schedule: weekly
 pipeline:
   init:

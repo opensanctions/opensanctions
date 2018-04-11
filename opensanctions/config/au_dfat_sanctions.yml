@@ -1,5 +1,5 @@
 name: au_dfat_sanctions
-description: "[Opensanctions] Australian Department of Foreign Affairs and Trade Sanctions List"
+description: "[OSANC] Australian DFAT Sanctions List"
 schedule: weekly
 pipeline:
   init:

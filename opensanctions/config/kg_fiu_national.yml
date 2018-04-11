@@ -1,5 +1,5 @@
 name: kg_fiu_national
-description: "[Opensanctions] Kyrgyz Financial Intelligence Unit National List"
+description: "[OSANC] Kyrgyz FIU National List"
 schedule: weekly
 pipeline:
   init:

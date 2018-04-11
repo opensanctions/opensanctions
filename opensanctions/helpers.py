@@ -1,6 +1,3 @@
-from hashlib import sha1
-
-from normality import stringify
 from memorious.operations import db
 
 

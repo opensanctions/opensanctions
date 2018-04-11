@@ -1,6 +1,6 @@
 name: eu_eeas_sanctions
-description: "[Opensanctions] EEAS Entities Subject to EU Financial Sanctions"
-schedule: weekly
+description: "[OSANC] EEAS Entities Subject to EU Financial Sanctions"
+schedule: daily
 pipeline:
   init:
     method: seed

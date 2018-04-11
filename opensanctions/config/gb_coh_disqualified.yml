@@ -1,5 +1,5 @@
 name: gb_coh_disqualified
-description: "[Opensanctions] Disqualified company directors from the UK (Companies' House)"
+description: "[OSANC] Disqualified company directors from the UK (Companies House)"
 schedule: weekly
 pipeline:
   init:

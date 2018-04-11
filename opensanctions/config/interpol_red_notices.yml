@@ -1,6 +1,6 @@
 name: interpol_red_notices
-description: "[Opensanctions] International search warrants issued by Interpol"
-schedule: weekly
+description: "[OSANC] Interpol Red Notices"
+schedule: daily
 pipeline:
   init:
     method: opensanctions.crawlers.interpol_red_notices:scrape

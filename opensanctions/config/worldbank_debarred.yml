@@ -1,5 +1,5 @@
 name: worldbank_debarred
-description: "[Opensanctions] Worldbank List of Debarred Providers"
+description: "[OSANC] Worldbank List of Debarred Providers"
 schedule: weekly
 pipeline:
   init:

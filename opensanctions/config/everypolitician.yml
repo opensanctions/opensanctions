@@ -1,5 +1,5 @@
 name: everypolitician
-description: "[Opensanctions] Data from EveryPolitician.org"
+description: "[OSANC] EveryPolitician.org"
 schedule: weekly
 pipeline:
   init:

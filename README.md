@@ -4,6 +4,9 @@ This repository contains the home page for OpenSanctions.org, an open-source
 repository of sanctions data, politically exposed persons, and other entities
 of interest.
 
+The scrapers are executed using [memorious](https://github.com/alephdata/memorious),
+a scraping framework.
+
 OpenSanctions.org is generated using Jekyll, and hosted on GitHub pages. Please
 feel free to submit pull requests for any suggested improvements.
 

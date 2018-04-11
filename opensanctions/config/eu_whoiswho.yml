@@ -1,5 +1,5 @@
 name: eu_whoiswho
-description: "[Opensanctions] EU Who is Who Staff Directory"
+description: "[OSANC] EU Who is Who Staff Directory"
 schedule: weekly
 pipeline:
   init:
