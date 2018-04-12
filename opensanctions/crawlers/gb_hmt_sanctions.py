@@ -68,7 +68,7 @@ def parse_entry(context, data):
             if dob is None and '/' in dob_text:
                 _, dob = dob_text.rsplit('/', 1)
             birth_date = entity.create_birth_date()
-            birth_date.date = dob
+            birth_date.date = stringify(dob)
 
         if fresh_value(seen, row, 'Town of Birth') or \
            fresh_value(seen, row, 'Country of Birth'):
