@@ -1,6 +1,6 @@
 name: un_sc_sanctions
 description: "[OSANC] United Nations Security Council sanctions"
-schedule: daily
+schedule: weekly
 pipeline:
   init:
     method: seed

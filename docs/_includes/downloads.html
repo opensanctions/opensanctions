@@ -58,7 +58,7 @@
                 birthplaces.csv</a>
             </td>
           </tr>
-          <tr>
+          <!--tr>
             <th>
               JSON
             </th>
@@ -66,7 +66,7 @@
               <a href="{{site.data_path}}/{{source.slug}}/latest/{{source.slug}}.ijson">
                 {{source.slug}}.ijson</a> (line-based JSON, one entity per line)
             </td>
-          </tr>
+          </tr-->
           {% if source.data %}
             <tr>
               <th>
@@ -86,12 +86,9 @@
                 Developer
               </th>
               <td>
-                <a href="https://morph.io/opensanctions/{{source.slug}}">
-                  Scraper status</a>
-                &middot;
-                <a href="https://github.com/opensanctions/{{source.slug}}">
+                <a href="https://github.com/alephdata/opensanctions/blob/master/opensanctions/config/{{source.slug}}.yml">
                   <i class="fa fa-github" aria-hidden="true"></i>
-                  Code repository
+                  Scraper code
                 </a>
 
               </td>
