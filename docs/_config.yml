@@ -1,7 +1,7 @@
 markdown: kramdown
 highlighter: rouge
 
-data_path: http://data.opensanctions.org/v1/sources
+data_path: https://s3.us.archive.org/opensanctions
 
 source_categories:
   # master:
