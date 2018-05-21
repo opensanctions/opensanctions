@@ -1,6 +1,6 @@
 import os
 from pprint import pprint  # noqa
-from urlparse import urljoin
+from urllib.parse import urljoin
 
 from opensanctions.models import Entity
 

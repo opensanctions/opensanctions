@@ -1,4 +1,4 @@
-from urlparse import urljoin
+from urllib.parse import urljoin
 from normality import slugify, collapse_spaces, stringify
 from itertools import count
 from pprint import pprint  # noqa
@@ -16,7 +16,7 @@ SEXES = {
 def element_text(el):
     if el is None:
         return
-    text = stringify(unicode(el.text_content()))
+    text = stringify(el.text_content())
     if text is not None:
         return collapse_spaces(text)
 
