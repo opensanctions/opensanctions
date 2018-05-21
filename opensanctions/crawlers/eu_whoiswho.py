@@ -1,4 +1,4 @@
-from urlparse import urljoin
+from urllib.parse import urljoin
 from pprint import pprint  # noqa
 
 from memorious.helpers import make_id

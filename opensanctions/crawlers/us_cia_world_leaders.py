@@ -1,4 +1,4 @@
-from urlparse import urljoin
+from urllib.parse import urljoin
 from pprint import pprint  # noqa
 
 from normality import collapse_spaces, stringify
@@ -10,7 +10,7 @@ from opensanctions.models import Entity
 def element_text(el):
     if el is None:
         return
-    text = stringify(unicode(el.text_content()))
+    text = stringify(el.text_content())
     if text is not None:
         return collapse_spaces(text)
 
