@@ -25,7 +25,7 @@ def parse_entry(context, entry):
 
 
 def parse(context, data):
-    for letter in string.uppercase:
+    for letter in string.ascii_uppercase:
         seen = set()
         url_template = context.params.get('url')
         url = url_template % letter
