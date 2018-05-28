@@ -1,5 +1,5 @@
 from datetime import datetime
-from unicodecsv import DictReader
+from csv import DictReader
 
 from pprint import pprint  # noqa
 from opensanctions.models import Entity
@@ -56,7 +56,7 @@ def scrape_csv(context, data):
     if current_year - 10 > start_year:
         return
     res = context.http.get(period.get('csv_url'))
-    with open(res.file_path, 'rb') as csvfile:
+    with open(res.file_path, 'r') as csvfile:
         for row in DictReader(csvfile):
             context.emit(data={
                 "country": country,

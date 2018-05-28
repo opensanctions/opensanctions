@@ -1,6 +1,7 @@
 from pprint import pprint  # noqa
 
-import pandas as pd
+import xlrd
+from xlrd.xldate import xldate_as_datetime
 from opensanctions.models import Entity
 from normality import slugify
 
@@ -64,14 +65,26 @@ def parse_entry(context, data):
 
 def parse(context, data):
     res = context.http.rehash(data)
-    xls = pd.ExcelFile(res.file_path)
-    df = xls.parse(xls.sheet_names[0])
-    df.rename(lambda h: slugify(h, sep='_'), axis=1, inplace=True)
-    assert XLS_COLUMNS == list(df.columns)
+    xls = xlrd.open_workbook(res.file_path)
+    ws = xls.sheet_by_index(0)
+
+    header = [slugify(h, sep='_') for h in ws.row_values(0)]
+    assert XLS_COLUMNS == header
+
     batch = []
-    for _, row in df.iterrows():
-        row = row.to_dict()
-        row['control_date'] = str(row.get('control_date', ''))
+    for r in range(1, ws.nrows):
+        row = ws.row(r)
+        row = dict(zip(header, row))
+        for head, cell in row.items():
+            if cell.ctype == 1:
+                row[head] = cell.value
+            elif cell.ctype == 2:
+                row[head] = str(int(cell.value))
+            elif cell.ctype == 3:
+                date = xldate_as_datetime(cell.value, xls.datemode)
+                row[head] = date.strftime('%m/%d/%y')
+            elif cell.ctype == 0:
+                row[head] = None
         if row.get('name_type') == 'Primary Name':
             batch = [row]
         elif row.get('name_type') == 'aka':
