@@ -16,10 +16,8 @@ setup(
     zip_safe=False,
     install_requires=[
         'memorious >= 0.4',
-        'unicodecsv',
         'xlrd',
         'attrs',
-        'pandas',
     ],
     entry_points={
         'memorious.plugins': [

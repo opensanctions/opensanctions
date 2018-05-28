@@ -1,6 +1,6 @@
 from pprint import pprint  # noqa
 
-import unicodecsv
+import csv
 from memorious.helpers import make_id
 
 from opensanctions.models import Entity
@@ -28,6 +28,6 @@ def parse_row(context, data):
 
 def parse(context, data):
     res = context.http.rehash(data)
-    with open(res.file_path, 'rb') as csvfile:
-        for row in unicodecsv.DictReader(csvfile, delimiter='\t'):
+    with open(res.file_path, 'r') as csvfile:
+        for row in csv.DictReader(csvfile, delimiter='\t'):
             context.emit(data={'row': row})
