@@ -3,7 +3,7 @@ from pprint import pprint  # noqa
 
 from normality import stringify
 from memorious.helpers import parse_date
-import unicodecsv
+import csv
 
 from opensanctions.models import Entity, Identifier
 
@@ -119,10 +119,10 @@ def parse(context, data):
     groups = {}
     res = context.http.rehash(data)
 
-    with open(res.file_path, 'rb') as csvfile:
+    with open(res.file_path, 'r', encoding='iso-8859-1') as csvfile:
         # ignore first line
         next(csvfile)
-        for row in unicodecsv.DictReader(csvfile, encoding='latin-1'):
+        for row in csv.DictReader(csvfile):
             group = int(float(row.pop('Group ID')))
             if group not in groups:
                 groups[group] = []
