@@ -10,6 +10,7 @@ pipeline:
       pass: scrape_case
   scrape_case:
     method: opensanctions.crawlers.interpol_red_notices:scrape_case
-    pass: store
+    handle:
+      pass: store
   store:
     method: opensanctions.helpers:store_entity
