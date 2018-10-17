@@ -31,10 +31,9 @@ def parse_entry(context, data):
     entity = Entity.create('gb-hmt-sanctions', group)
     for row in rows:
         entity.type = ENTITY_TYPES[row.pop('Group Type')]
-
         names = (row.pop('Name 1'), row.pop('Name 2'), row.pop('Name 3'),
                  row.pop('Name 4'), row.pop('Name 5'), row.pop('Name 6'))
-        names = [n for n in names if n is not None]
+        names = [n for n in names if len(n) > 0]
         row['_name'] = ' '.join(names)
 
         if fresh_value(seen, row, '_name'):
@@ -80,12 +79,12 @@ def parse_entry(context, data):
                 row.pop('Address 3'), row.pop('Address 4'),
                 row.pop('Address 5'), row.pop('Address 6')]
         addr_ids = addr + [row.get('Post/Zip Code'), row.get('Post/Zip Code')]
-        row['_addr'] = ' '.join([a for a in addr_ids if a is not None])
+        row['_addr'] = ' '.join([a for a in addr_ids if len(a) > 0])
         if fresh_value(seen, row, '_addr'):
             address = entity.create_address()
             address.country = row.pop('Country')
             address.postal_code = row.pop('Post/Zip Code')
-            address.text = ', '.join([a for a in addr if a is not None])
+            address.text = ', '.join([a for a in addr if len(a) > 0])
 
         if fresh_value(seen, row, 'Passport Details'):
             identifier = entity.create_identifier()
@@ -126,7 +125,7 @@ def parse(context, data):
             group = int(float(row.pop('Group ID')))
             if group not in groups:
                 groups[group] = []
-            groups[group].append({k: stringify(v) for k, v in row.items()})
+            groups[group].append({k: v for k, v in row.items()})
 
     for group, rows in groups.items():
         context.emit(data={
