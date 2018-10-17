@@ -125,7 +125,7 @@ def parse(context, data):
             group = int(float(row.pop('Group ID')))
             if group not in groups:
                 groups[group] = []
-            groups[group].append({k: v for k, v in row.items()})
+            groups[group].append({k: stringify(v) if stringify(v) is not None else '' for k, v in row.items()})
 
     for group, rows in groups.items():
         context.emit(data={
