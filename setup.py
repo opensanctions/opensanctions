@@ -16,6 +16,7 @@ setup(
     zip_safe=False,
     install_requires=[
         'memorious >= 0.4',
+        'countrynames',
         'xlrd',
         'attrs',
     ],

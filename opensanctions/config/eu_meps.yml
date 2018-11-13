@@ -14,7 +14,7 @@ pipeline:
       pass: parse
   parse:
     method: opensanctions.crawlers.eu_meps:parse
-    handle:
-      pass: store
-  store:
-    method: opensanctions.helpers:store_entity
+  #   handle:
+  #     pass: store
+  # store:
+  #   method: opensanctions.helpers:store_entity
