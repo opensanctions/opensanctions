@@ -3,6 +3,7 @@ from pprint import pprint  # noqa
 from opensanctions.models import Entity
 from followthemoney import model
 
+
 def split_name(name):
     for i in range(len(name)):
         last_name = name[i:].strip()
@@ -13,7 +14,7 @@ def split_name(name):
 
 
 def parse_entry(context, node):
-    person = model.make_entity("Person")
+    person = model.make_entity("Person", key_prefix="eu_meps")
     person.make_id(node.findtext('.//id'))
     name = node.findtext('.//fullName')
     first_name, last_name = split_name(name)
@@ -25,7 +26,7 @@ def parse_entry(context, node):
     person.add("summary", summary)
     country = node.findtext('.//country')
     person.add("nationality", country)
-    pprint(person.to_dict())
+    # pprint(person.to_dict())
     context.emit(data=person.to_dict())
 
 
