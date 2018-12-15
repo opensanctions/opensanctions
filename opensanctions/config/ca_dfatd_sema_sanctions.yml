@@ -1,0 +1,20 @@
+name: ca_dfatd_sema_sanctions
+description: "[OSANC] Canada Special Economic Measures Act Sanctions"
+schedule: weekly
+pipeline:
+  init:
+    method: seed
+    params:
+      url: 'http://www.international.gc.ca/sanctions/assets/office_docs/sema-lmes.xml'
+    handle:
+      pass: fetch
+  fetch:
+    method: fetch
+    handle:
+      pass: parse
+  parse:
+    method: opensanctions.crawlers.ca_dfatd_sema_sanctions:parse
+    handle:
+      pass: store
+  store:
+    method: opensanctions.helpers:store_entity
