@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='opensanctions',
-    version='0.1',
+    version='1.99',
     author='Journalism Development Network',
     author_email='data@occrp.org',
     url='https://github.com/alephdata/opensanctions',
@@ -15,6 +15,7 @@ setup(
     },
     zip_safe=False,
     install_requires=[
+        'followthemoney >= 1.4.0',
         'memorious >= 0.4',
         'countrynames',
         'xlrd',

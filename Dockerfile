@@ -1,6 +1,6 @@
 FROM alephdata/memorious
 
-RUN pip install --upgrade pandas unicodecsv xlrd attrs
+RUN pip install --upgrade xlrd attrs
 
 COPY . /opensanctions
 RUN pip install -e /opensanctions

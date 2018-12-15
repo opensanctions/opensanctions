@@ -3,13 +3,17 @@ description: "[OSANC] Interpol Red Notices"
 schedule: daily
 pipeline:
   init:
-    method: opensanctions.crawlers.interpol_red_notices:scrape
+    method: opensanctions.crawlers.interpol_red_notices:index
     params:
       url: 'http://www.interpol.int/notice/search/wanted/(offset)/%s'
     handle:
-      pass: scrape_case
-  scrape_case:
-    method: opensanctions.crawlers.interpol_red_notices:scrape_case
+      pass: fetch
+  fetch:
+    method: fetch
+    handle:
+      pass: parse
+  parse:
+    method: opensanctions.crawlers.interpol_red_notices:parse
     handle:
       pass: store
   store:
