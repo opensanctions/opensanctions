@@ -8,8 +8,7 @@ def parse_row(emitter, row):
     entity = emitter.make('LegalEntity')
     entity.make_id(row.get('Effective_Date'), row.get('Name'))
     entity.add('name', row.get('Name'))
-    entity.add('summary', row.get('Action'))
-    entity.add('program', row.get('FR_Citation'))
+    entity.add('notes', row.get('Action'))
     entity.add('country', normalize_country(row.get('Country')))
     # entity.updated_at = row.get('Effective_Date')
 
@@ -20,6 +19,15 @@ def parse_row(emitter, row):
     address = ', '.join(address)
     entity.add('address', address)
     emitter.emit(entity)
+
+    sanction = emitter.make('Sanction')
+    sanction.make_id(entity.id, row.get('FR_Citation'))
+    sanction.add('entity', entity)
+    sanction.add('program', row.get('FR_Citation'))
+    sanction.add('authority', 'US Bureau of Industry and Security')
+    sanction.add('country', 'us')
+    sanction.add('startDate', row.get('Effective_Date'))
+    emitter.emit(sanction)
 
 
 def parse(context, data):

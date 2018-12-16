@@ -7,21 +7,26 @@ pipeline:
     params:
       url: 'https://beta.companieshouse.gov.uk/register-of-disqualifications/A'
     handle:
-      pass: fetch
-  fetch:
+      pass: fetch_index
+  fetch_index:
     method: fetch
     handle:
-      pass: crawl_alphabetical
-  crawl_alphabetical:
-    method: opensanctions.crawlers.gb_coh_disqualified:crawl_alphabetical
+      pass: alphabetical
+  alphabetical:
+    method: opensanctions.crawlers.gb_coh_disqualified:alphabetical
     handle:
-      pass: crawl_pages
-  crawl_pages:
-    method: opensanctions.crawlers.gb_coh_disqualified:crawl_pages
+      pass: fetch_pages
+  fetch_pages:
+    method: fetch
     handle:
-      pass: crawl_officer
-  crawl_officer:
-    method: opensanctions.crawlers.gb_coh_disqualified:crawl_officer
+      pass: parse_pages
+  parse_pages:
+    method: opensanctions.crawlers.gb_coh_disqualified:pages
+    handle:
+      pass: officer
+      url: fetch_pages
+  officer:
+    method: opensanctions.crawlers.gb_coh_disqualified:officer
     handle:
       pass: store
   store:
