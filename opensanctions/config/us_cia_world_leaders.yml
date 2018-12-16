@@ -11,15 +11,19 @@ pipeline:
   fetch:
     method: fetch
     handle:
-      pass: scrape
-  scrape:
-    method: opensanctions.crawlers.us_cia_world_leaders:scrape
+      pass: index
+  index:
+    method: opensanctions.crawlers.us_cia_world_leaders:index
     params:
       url: 'https://www.cia.gov/library/publications/resources/world-leaders-1/index.html'
     handle:
-      pass: scrape_country
-  scrape_country:
-    method: opensanctions.crawlers.us_cia_world_leaders:scrape_country
+      pass: fetch_country
+  fetch_country:
+    method: fetch
+    handle:
+      pass: parse
+  parse:
+    method: opensanctions.crawlers.us_cia_world_leaders:parse
     handle:
       pass: store
   store:

@@ -15,10 +15,6 @@ pipeline:
   parse:
     method: opensanctions.crawlers.us_bis_denied:parse
     handle:
-      pass: parse_row
-  parse_row:
-    method: opensanctions.crawlers.us_bis_denied:parse_row
-    handle:
       pass: store
   store:
     method: opensanctions.helpers:store_entity

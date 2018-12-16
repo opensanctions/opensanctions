@@ -7,21 +7,21 @@ pipeline:
     params:
       url: 'https://raw.githubusercontent.com/everypolitician/everypolitician-data/master/countries.json'
     handle:
+      pass: fetch_index
+  fetch_index:
+    method: fetch
+    handle:
+      pass: index
+  index:
+    method: opensanctions.crawlers.everypolitician:index
+    handle:
       pass: fetch
   fetch:
     method: fetch
     handle:
-      pass: scrape
-  scrape:
-    method: opensanctions.crawlers.everypolitician:scrape
-    handle:
-      pass: scrape_csv
-  scrape_csv:
-    method: opensanctions.crawlers.everypolitician:scrape_csv
-    handle:
-      pass: scrape_entity
-  scrape_entity:
-    method: opensanctions.crawlers.everypolitician:scrape_entity
+      pass: parse
+  parse:
+    method: opensanctions.crawlers.everypolitician:parse
     handle:
       pass: store
   store:
