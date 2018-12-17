@@ -1,31 +1,18 @@
 from pprint import pprint  # noqa
+from normality import collapse_spaces, stringify
 
-from normality import collapse_spaces
-
-from opensanctions.models import Entity, Identifier, Alias, BirthDate
+from opensanctions.util import EntityEmitter, normalize_country
 
 
-ID_TYPES = {
-    'Passport': Identifier.TYPE_PASSPORT,
-    'National Identification Number': Identifier.TYPE_NATIONALID,
-    u'Num\xe9ro de passeport ': Identifier.TYPE_PASSPORT,
-    u'N\xfamero de pasaporte': Identifier.TYPE_PASSPORT,
-    'National identification no.': Identifier.TYPE_NATIONALID,
-    None: None
-}
-
-QUALITY = {
-    'Low': Alias.QUALITY_WEAK,
-    'Good': Alias.QUALITY_STRONG,
-    'a.k.a.': Alias.QUALITY_STRONG,
-    'f.k.a.': Alias.QUALITY_WEAK,
-    'EXACT': BirthDate.QUALITY_STRONG,
-    'APPROXIMATELY': BirthDate.QUALITY_WEAK
-}
+def values(node):
+    if node is None:
+        return []
+    return [c.text for c in node.findall('./VALUE')]
 
 
 def parse_alias(entity, node):
     names = node.findtext('./ALIAS_NAME')
+    quality = node.findtext('./QUALITY')
     if names is None:
         return
 
@@ -34,25 +21,35 @@ def parse_alias(entity, node):
         if not len(name):
             continue
 
-        alias = entity.create_alias(name=name)
-        alias.quality = QUALITY[node.findtext('./QUALITY')]
+        if quality == 'Low':
+            entity.add('weakAlias', name)
+        elif quality == 'Good':
+            entity.add('alias', name)
+        elif quality == 'a.k.a.':
+            entity.add('alias', name)
+        elif quality == 'f.k.a.':
+            entity.add('previousName', name)
 
 
 def parse_address(entity, addr):
     text = addr.xpath('string()').strip()
     if not len(text):
         return
-    address = entity.create_address()
-    address.note = addr.findtext('./NOTE')
-    address.street = addr.findtext('./STREET')
-    address.city = addr.findtext('./CITY')
-    address.region = addr.findtext('./STATE_PROVINCE')
-    address.country = addr.findtext('./COUNTRY')
+    note = addr.findtext('./NOTE')
+    street = addr.findtext('./STREET')
+    city = addr.findtext('./CITY')
+    region = addr.findtext('./STATE_PROVINCE')
+    country = addr.findtext('./COUNTRY')
+    parts = (note, street, city, region, country)
+    parts = [p for p in parts if stringify(p) is not None]
+    entity.add('address', ', '.join(parts))
+    entity.add('country', normalize_country(country))
 
 
-def parse_entity(context, node):
-    entity = parse_common(node)
-    entity.type = entity.TYPE_ENTITY
+def parse_entity(emitter, node):
+    entity = emitter.make('LegalEntity')
+    sanction = parse_common(emitter, entity, node)
+    entity.add('alias', node.findtext('./FIRST_NAME'))
 
     for alias in node.findall('./ENTITY_ALIAS'):
         parse_alias(entity, alias)
@@ -60,88 +57,89 @@ def parse_entity(context, node):
     for addr in node.findall('./ENTITY_ADDRESS'):
         parse_address(entity, addr)
 
-    # pprint(entity.to_dict())
-    context.emit(data=entity.to_dict())
+    emitter.emit(entity)
+    emitter.emit(sanction)
 
 
-def parse_individual(context, node):
-    entity = parse_common(node)
-    entity.type = entity.TYPE_INDIVIDUAL
-    entity.title = node.findtext('./TITLE/VALUE')
-    entity.first_name = node.findtext('.//FIRST_NAME')
-    entity.second_name = node.findtext('.//SECOND_NAME')
-    entity.third_name = node.findtext('.//THIRD_NAME')
+def parse_individual(emitter, node):
+    person = emitter.make('Person')
+    sanction = parse_common(emitter, person, node)
+    person.add('title', values(node.find('./TITLE')))
+    person.add('firstName', node.findtext('./FIRST_NAME'))
+    person.add('secondName', node.findtext('./SECOND_NAME'))
+    person.add('middleName', node.findtext('./THIRD_NAME'))
+    person.add('position', values(node.find('./DESIGNATION')))
 
     for alias in node.findall('./INDIVIDUAL_ALIAS'):
-        parse_alias(entity, alias)
+        parse_alias(person, alias)
 
     for addr in node.findall('./INDIVIDUAL_ADDRESS'):
-        parse_address(entity, addr)
+        parse_address(person, addr)
 
     for doc in node.findall('./INDIVIDUAL_DOCUMENT'):
-        if doc.findtext('./NUMBER') is None:
+        passport = emitter.make('Passport')
+        number = doc.findtext('./NUMBER')
+        date = doc.findtext('./DATE_OF_ISSUE')
+        type_ = doc.findtext('./TYPE_OF_DOCUMENT')
+        if number is None and date is None and type_ is None:
             continue
-        identifier = entity.create_identifier()
-        identifier.country = doc.findtext('./COUNTRY_OF_ISSUE')
-        if identifier.country is None:
-            identifier.country = doc.findtext('./ISSUING_COUNTRY')
-        identifier.number = doc.findtext('./NUMBER')
-        identifier.type = ID_TYPES[doc.findtext('./TYPE_OF_DOCUMENT')]
-        identifier.description = doc.findtext('./NOTE')
-        identifier.issued_at = doc.findtext('./DATE_OF_ISSUE')
+        passport.make_id(person.id, number, date, type_)
+        passport.add('holder', person)
+        passport.add('passportNumber', number)
+        passport.add('startDate', date)
+        passport.add('type', type_)
+        passport.add('type', doc.findtext('./TYPE_OF_DOCUMENT2'))
+        passport.add('summary', doc.findtext('./NOTE'))
+        country = doc.findtext('./COUNTRY_OF_ISSUE')
+        country = country or doc.findtext('./ISSUING_COUNTRY')
+        passport.add('country', normalize_country(country))
+        emitter.emit(passport)
 
     for nat in node.findall('./NATIONALITY/VALUE'):
-        nationality = entity.create_nationality()
-        nationality.country = nat.text
+        person.add('nationality', normalize_country(nat.text))
 
     for dob in node.findall('./INDIVIDUAL_DATE_OF_BIRTH'):
         date = dob.findtext('./DATE') or dob.findtext('./YEAR')
-        if date is None:
-            continue
-        birth_date = entity.create_birth_date()
-        birth_date.quality = QUALITY[dob.findtext('./TYPE_OF_DATE')]
-        birth_date.date = date
+        person.add('birthDate', date)
 
     for pob in node.findall('./INDIVIDUAL_PLACE_OF_BIRTH'):
-        place = pob.findtext('./CITY')
-        region = pob.findtext('./STATE_PROVINCE')
-        country = pob.findtext('./COUNTRY')
-        if place is None and region is None and country is None:
-            continue
-        birth_place = entity.create_birth_place()
-        birth_place.place = place
-        if region is not None:
-            if place is not None:
-                birth_place.place = '%s (%s)' % (place, region)
-            else:
-                birth_place.place = region
-        birth_place.country = country
+        person.add('country', normalize_country(pob.findtext('./COUNTRY')))
+        place = (pob.findtext('./CITY'),
+                 pob.findtext('./STATE_PROVINCE'),
+                 pob.findtext('./COUNTRY'))
+        place = [p for p in place if stringify(p) is not None]
+        person.add('birthPlace', ', '.join(place))
 
-    # pprint(entity.to_dict())
-    context.emit(data=entity.to_dict())
+    emitter.emit(person)
+    emitter.emit(sanction)
 
 
-def parse_common(node):
-    entity = Entity.create('un-sc-sanctions', node.findtext('./DATAID'))
-    entity.program = '%s (%s)' % (node.findtext('./UN_LIST_TYPE').strip(),
-                                  node.findtext('./REFERENCE_NUMBER').strip())
-    entity.summary = node.findtext('./COMMENTS1')
-    entity.function = node.findtext('./DESIGNATION/VALUE')
-    entity.listed_at = node.findtext('./LISTED_ON')
-    entity.updated_at = node.findtext('./LAST_DAY_UPDATED/VALUE')
-    entity.name = node.findtext('./NAME_ORIGINAL_SCRIPT')
-    entity.first_name = node.findtext('./FIRST_NAME')
-    entity.second_name = node.findtext('./SECOND_NAME')
-    entity.third_name = node.findtext('./THIRD_NAME')
-    return entity
+def parse_common(emitter, entity, node):
+    entity.make_id(node.findtext('./DATAID'))
+    name = node.findtext('./NAME_ORIGINAL_SCRIPT')
+    name = name or node.findtext('./FIRST_NAME')
+    entity.add('name', name)
+    entity.add('description', node.findtext('./COMMENTS1'))
+    entity.add('modifiedAt', values(node.find('./LAST_DAY_UPDATED')))
+
+    sanction = emitter.make('Sanction')
+    sanction.make_id(entity.id)
+    sanction.add('entity', entity)
+    sanction.add('authority', 'United Nations Security Council')
+    sanction.add('startDate', node.findtext('./LISTED_ON'))
+    sanction.add('modifiedAt', values(node.find('./LAST_DAY_UPDATED')))
+
+    program = '%s (%s)' % (node.findtext('./UN_LIST_TYPE').strip(),
+                           node.findtext('./REFERENCE_NUMBER').strip())
+    sanction.add('program', program)
+    return sanction
 
 
 def parse(context, data):
-    res = context.http.rehash(data)
-    doc = res.xml
+    emitter = EntityEmitter(context)
+    with context.http.rehash(data) as res:
+        for node in res.xml.findall('.//INDIVIDUAL'):
+            parse_individual(emitter, node)
 
-    for node in doc.findall('.//INDIVIDUAL'):
-        parse_individual(context, node)
-
-    for node in doc.findall('.//ENTITY'):
-        parse_entity(context, node)
+        for node in res.xml.findall('.//ENTITY'):
+            parse_entity(emitter, node)

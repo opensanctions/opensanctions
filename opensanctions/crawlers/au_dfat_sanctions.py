@@ -54,8 +54,8 @@ def parse_reference(emitter, reference, rows):
         control_date = int(row.pop('control_date'))
         base_date = datetime(1900, 1, 1).toordinal()
         dt = datetime.fromordinal(base_date + control_date - 2)
-        sanction.add('modifiedAt', dt)
-        entity.add('modifiedAt', dt)
+        sanction.add('modifiedAt', dt.date())
+        entity.add('modifiedAt', dt.date())
 
     emitter.emit(entity)
     emitter.emit(sanction)

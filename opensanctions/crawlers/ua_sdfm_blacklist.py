@@ -1,100 +1,98 @@
 import re
-from dateutil.parser import parse as dateutil_parse
 from datetime import datetime
 from pprint import pprint  # noqa
 
-from opensanctions.models import Entity, Alias, Identifier
-
-XML_URL = 'http://www.sdfm.gov.ua/content/file/Site_docs/Black_list/zBlackListFull.xml'  # noqa
-ENTITY_TYPES = {
-    '1': Entity.TYPE_ENTITY,
-    '2': Entity.TYPE_INDIVIDUAL
-}
-ALIAS_QUALITY = {
-    '1': Alias.QUALITY_STRONG,
-    '2': Alias.QUALITY_WEAK,
-    None: None
-}
+from opensanctions.util import EntityEmitter, normalize_country
 
 
-def parse_date(context, date):
+def parse_date(date):
     if date is None:
         return
     date = date.replace('.', '').strip()
     if ';' in date:
         date, _ = date.split(';', 1)
     try:
-        return dateutil_parse(date).date().isoformat()
+        return datetime.strptime(date, '%d %b %Y').date().isoformat()
     except Exception as ex:
         match = re.search('\d{4}', date)
         if match:
             return match.group(0)
-        context.log.exception(ex)
 
 
-def parse_entry(context, entry):
-    uid = entry.findtext('number-entry')
-    entity = Entity.create('ua-sdfm-blacklist', uid)
-    entity.type = ENTITY_TYPES[entry.findtext('./type-entry')]
-    entity.program = entry.findtext('./program-entry')
-    entity.summary = entry.findtext('./comments')
-    entity.url = 'http://www.sdfm.gov.ua/articles.php?cat_id=87&lang=en'
+def parse_entry(emitter, entry):
+    entity = emitter.make('LegalEntity')
+    if entry.findtext('./type-entry') == '2':
+        entity = emitter.make('Person')
+    entity.make_id(entry.findtext('number-entry'))
+
+    sanction = emitter.make('Sanction')
+    sanction.make_id('Sanction', entity.id)
+    sanction.add('entity', entity)
+    sanction.add('authority', 'State Financial Monitoring Service of Ukraine')
+    sanction.add('sourceUrl', 'http://www.sdfm.gov.ua/articles.php?cat_id=87&lang=en')  # noqa
+    sanction.add('program', entry.findtext('./program-entry'))
     date_entry = entry.findtext('./date-entry')
     if date_entry:
-        date_entry = datetime.strptime(date_entry, '%Y%m%d')
-        entity.updated_at = date_entry.date().isoformat()
+        date = datetime.strptime(date_entry, '%Y%m%d').date()
+        sanction.add('startDate', date)
 
     for aka in entry.findall('./aka-list'):
+        first_name = aka.findtext('./aka-name1')
+        entity.add('firstName', first_name)
+        second_name = aka.findtext('./aka-name2')
+        entity.add('secondName', second_name)
+        third_name = aka.findtext('./aka-name3')
+        entity.add('middleName', third_name)
+        last_name = aka.findtext('./aka-name4')
+        entity.add('lastName', last_name)
+        parts = (first_name, second_name, third_name, last_name)
+        parts = [p for p in parts if p is not None]
+        name = ' '.join(parts)
+
         if aka.findtext('type-aka') == 'N':
-            obj = entity
+            entity.add('name', name)
         else:
-            obj = entity.create_alias()
-            obj.type = aka.findtext('./category-aka')
-            obj.description = aka.findtext('./type-aka')
-            obj.quality = ALIAS_QUALITY[aka.findtext('./quality-aka')]
-        obj.first_name = aka.findtext('./aka-name1')
-        obj.second_name = aka.findtext('./aka-name2')
-        obj.third_name = aka.findtext('./aka-name3')
-        obj.last_name = aka.findtext('./aka-name4')
+            if aka.findtext('./quality-aka') == '2':
+                entity.add('weakAlias', name)
+            else:
+                entity.add('alias', name)
 
     for node in entry.findall('./title-list'):
-        entity.title = node.text
+        entity.add('title', node.text)
 
     for doc in entry.findall('./document-list'):
-        identifier = entity.create_identifier()
-        identifier.type = Identifier.TYPE_PASSPORT
-        identifier.description = doc.findtext('./document-reg')
-        identifier.number = doc.findtext('./document-id')
-        identifier.country = doc.findtext('./document-country')
+        reg = doc.findtext('./document-reg')
+        number = doc.findtext('./document-id')
+        country = normalize_country(doc.findtext('./document-country'))
+        passport = emitter.make('Passport')
+        passport.make_id('Passport', entity.id, reg, number, country)
+        passport.add('holder', entity)
+        passport.add('passportNumber', number)
+        passport.add('summary', reg)
+        passport.add('country', country)
+        emitter.emit(passport)
 
     for doc in entry.findall('./id-number-list'):
-        identifier = entity.create_identifier()
-        identifier.type = Identifier.TYPE_NATIONALID
-        identifier.description = doc.text
+        entity.add('idNumber', doc.text)
 
     for node in entry.findall('./address-list'):
-        address = entity.create_address()
-        address.text = node.findtext('./address')
+        entity.add('address', node.findtext('./address'))
 
     for pob in entry.findall('./place-of-birth-list'):
-        birth_place = entity.create_birth_place()
-        birth_place.place = pob.text
+        entity.add('birthPlace', pob.text)
 
     for dob in entry.findall('./date-of-birth-list'):
-        birth_date = entity.create_birth_date()
-        birth_date.date = parse_date(context, dob.text)
+        entity.add('birthDate', parse_date(dob.text))
 
     for nat in entry.findall('./nationality-list'):
-        nationality = entity.create_nationality()
-        nationality.country = nat.text
+        entity.add('nationality', normalize_country(nat.text))
 
-    # pprint(entity.to_dict())
-    context.emit(data=entity.to_dict())
+    emitter.emit(entity)
+    emitter.emit(sanction)
 
 
 def parse(context, data):
-    res = context.http.rehash(data)
-    doc = res.xml
-
-    for entry in doc.findall('.//acount-list'):
-        parse_entry(context, entry)
+    emitter = EntityEmitter(context)
+    with context.http.rehash(data) as res:
+        for entry in res.xml.findall('.//acount-list'):
+            parse_entry(emitter, entry)

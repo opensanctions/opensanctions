@@ -1,13 +1,18 @@
 import re
-from hashlib import sha1
 from pprint import pprint  # noqa
+from datetime import datetime
 
-from dateutil.parser import parse as dateutil_parse
-
-from opensanctions.models import Entity
-
+from opensanctions.util import EntityEmitter, normalize_country
 
 SPLITS = r'(a\.k\.a\.?|aka|f/k/a|also known as|\(formerly |, also d\.b\.a\.|\(currently (d/b/a)?|d/b/a|\(name change from|, as the successor or assign to)'  # noqa
+
+
+def clean_date(date):
+    try:
+        dt = datetime.strptime(date, '%d-%b-%Y')
+        return dt.date().isoformat()
+    except Exception:
+        pass
 
 
 def clean_value(el):
@@ -42,42 +47,37 @@ def clean_name(text):
 
 
 def parse(context, data):
-    url = context.params.get('url')
-    res = context.http.rehash(data)
-    doc = res.html
-    for table in doc.findall('.//table'):
-        if 'List of Debarred' not in table.get('summary', ''):
-            continue
-        rows = table.findall('.//tr')
-        for row in rows:
-            tds = row.findall('./td')
-            if len(tds) != 6:
+    emitter = EntityEmitter(context)
+    with context.http.rehash(data) as res:
+        for table in res.html.findall('.//table'):
+            if 'List of Debarred' not in table.get('summary', ''):
                 continue
-            values = [clean_value(td) for td in tds]
-            uid = sha1()
-            for value in values:
-                uid.update(value.encode('utf-8'))
-            uid = uid.hexdigest()[:10]
+            rows = table.findall('.//tr')
+            for row in rows:
+                tds = row.findall('./td')
+                if len(tds) != 6:
+                    continue
+                values = [clean_value(td) for td in tds]
+                entity = emitter.make('LegalEntity')
+                entity.make_id(*values)
 
-            names = clean_name(values[0])
-            if not len(names):
-                context.log.warning("No name: %r", values)
-                continue
+                names = clean_name(values[0])
+                if not len(names):
+                    context.log.warning("No name: %r", values)
+                    continue
 
-            entity = Entity.create('zz-wb-debarred', uid)
-            entity.program = values[5]
-            entity.name = names[0]
-            entity.updated_at = dateutil_parse(values[3]).date().isoformat()
-            entity.url = url
-            for name in names[1:]:
-                entity.create_alias(name=name)
-            
-            nationality = entity.create_nationality()
-            nationality.country = values[2]
+                entity.add('name', names[0])
+                entity.add('address', values[1])
+                entity.add('country', normalize_country(values[2]))
+                for name in names[1:]:
+                    entity.add('alias', name)
 
-            address = entity.create_address()
-            address.text = values[1]
-            address.country = values[2]
-
-            # pprint(entity.to_dict())
-            context.emit(data=entity.to_dict())
+                sanction = emitter.make('Sanction')
+                sanction.make_id('Sanction', entity.id)
+                sanction.add('authority', 'World Bank Debarrment')
+                sanction.add('program', values[5])
+                sanction.add('startDate', clean_date(values[3]))
+                sanction.add('endDate', clean_date(values[4]))
+                sanction.add('sourceUrl', data.get('url'))
+                emitter.emit(entity)
+                emitter.emit(sanction)
