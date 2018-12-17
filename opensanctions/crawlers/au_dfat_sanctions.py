@@ -1,94 +1,88 @@
-from pprint import pprint  # noqa
-
 import xlrd
 from xlrd.xldate import xldate_as_datetime
-from opensanctions.models import Entity
+from collections import defaultdict
+from pprint import pprint  # noqa
+from datetime import datetime
 from normality import slugify
+from followthemoney import model
+
+from opensanctions.util import EntityEmitter, normalize_country
+
+URL = 'http://dfat.gov.au/international-relations/security/sanctions/Pages/sanctions.aspx'  # noqa
 
 
-XLS_COLUMNS = [
-    'reference',
-    'name_of_individual_or_entity',
-    'type',
-    'name_type',
-    'date_of_birth',
-    'place_of_birth',
-    'citizenship',
-    'address',
-    'additional_information',
-    'listing_information',
-    'committees',
-    'control_date']
+def clean_reference(ref):
+    if isinstance(ref, (int, float)):
+        return int(ref)
+    number = ref
+    while len(number):
+        try:
+            return int(number)
+        except Exception:
+            number = number[:-1]
+    raise ValueError()
 
 
-def parse_entry(context, data):
-    rows = data.get('rows')
-    primary = rows[0]
-    if slugify(primary.get('type', '')) == 'individual':
-        type_ = Entity.TYPE_INDIVIDUAL
-    else:
-        type_ = Entity.TYPE_ENTITY
+def parse_reference(emitter, reference, rows):
+    entity = emitter.make('LegalEntity')
+    entity.make_id(reference)
+    entity.add('sourceUrl', URL)
+    sanction = emitter.make('Sanction')
+    sanction.make_id(entity.id)
+    sanction.add('authority', 'Australian Department of Foreign Affairs and Trade Consolidated Sanctions')  # noqa
+    sanction.add('entity', entity)
 
-    entity = Entity.create('au-dfat-sanctions', primary.get('reference'))
-    entity.type = type_
-    entity.url = 'http://dfat.gov.au/international-relations/security/sanctions/Pages/sanctions.aspx'  # noqa
-    entity.name = primary.get('name_of_individual_or_entity', '')
-    entity.program = primary.get('committees', '')
-    entity.summary = primary.get('additional_information', '')
+    for row in rows:
+        if row.pop('type') == 'Individual':
+            entity.schema = model.get('Person')
 
-    country = primary.get('citizenship', '')
-    if not isinstance(country, float):  # not NaN
-        nationality = entity.create_nationality()
-        nationality.country = country
+        name = row.pop('name_of_individual_or_entity', None)
+        if row.pop('name_type') == 'aka':
+            entity.add('alias', name)
+        else:
+            entity.add('name', name)
 
-    address = entity.create_address()
-    address.text = primary.get('address', '')
+        entity.add('address', row.pop('address'))
+        entity.add('notes', row.pop('additional_information'))
+        sanction.add('program', row.pop('committees'))
+        nationality = normalize_country(row.pop('citizenship'))
+        entity.add('nationality', nationality, quiet=True)
+        entity.add('birthDate', row.pop('date_of_birth'), quiet=True)
+        entity.add('birthPlace', row.pop('place_of_birth'), quiet=True)
+        entity.add('status', row.pop('listing_information'), quiet=True)
 
-    birth_date_text = primary.get('date_of_birth', '')
-    if not isinstance(birth_date_text, float):
-        birth_date = entity.create_birth_date()
-        birth_date.date = birth_date_text
+        control_date = int(row.pop('control_date'))
+        base_date = datetime(1900, 1, 1).toordinal()
+        dt = datetime.fromordinal(base_date + control_date - 2)
+        sanction.add('modifiedAt', dt)
+        entity.add('modifiedAt', dt)
 
-    birth_place_text = primary.get('place_of_birth', '')
-    if not isinstance(birth_place_text, float):
-        birth_place = entity.create_birth_place()
-        birth_place.place = birth_place_text
-
-    if rows[1:]:
-        for row in rows[1:]:
-            alias = entity.create_alias()
-            alias.name = row.get('name_of_individual_or_entity', '')
-
-    # pprint(entity.to_dict())
-    context.emit(data=entity.to_dict())
+    emitter.emit(entity)
+    emitter.emit(sanction)
 
 
 def parse(context, data):
-    res = context.http.rehash(data)
-    xls = xlrd.open_workbook(res.file_path)
-    ws = xls.sheet_by_index(0)
+    emitter = EntityEmitter(context)
+    references = defaultdict(list)
+    with context.http.rehash(data) as res:
+        xls = xlrd.open_workbook(res.file_path)
+        ws = xls.sheet_by_index(0)
+        headers = [slugify(h, sep='_') for h in ws.row_values(0)]
+        for r in range(1, ws.nrows):
+            row = ws.row(r)
+            row = dict(zip(headers, row))
+            for header, cell in row.items():
+                if cell.ctype == 2:
+                    row[header] = str(int(cell.value))
+                elif cell.ctype == 3:
+                    date = xldate_as_datetime(cell.value, xls.datemode)
+                    row[header] = date.isoformat()
+                elif cell.ctype == 0:
+                    row[header] = None
+                row[header] = cell.value
 
-    header = [slugify(h, sep='_') for h in ws.row_values(0)]
-    assert XLS_COLUMNS == header
+            reference = clean_reference(row.get('reference'))
+            references[reference].append(row)
 
-    batch = []
-    for r in range(1, ws.nrows):
-        row = ws.row(r)
-        row = dict(zip(header, row))
-        for head, cell in row.items():
-            if cell.ctype == 1:
-                row[head] = cell.value
-            elif cell.ctype == 2:
-                row[head] = str(int(cell.value))
-            elif cell.ctype == 3:
-                date = xldate_as_datetime(cell.value, xls.datemode)
-                row[head] = date.strftime('%m/%d/%y')
-            elif cell.ctype == 0:
-                row[head] = None
-        if row.get('name_type') == 'Primary Name':
-            batch = [row]
-        elif row.get('name_type') == 'aka':
-            batch.append(row)
-        context.emit(data={
-            'rows': batch
-        })
+    for ref, rows in references.items():
+        parse_reference(emitter, ref, rows)
