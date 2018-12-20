@@ -3,11 +3,19 @@ description: "[OSANC] US OFAC SDN, non-SDN"
 schedule: daily
 pipeline:
   init:
-    method: opensanctions.crawlers.us_ofac:parse
+    method: seed
     params:
       urls:
-        - 'https://www.treasury.gov/ofac/downloads/sdn.xml'
-        - 'https://www.treasury.gov/ofac/downloads/consolidated/consolidated.xml'
+        - https://www.treasury.gov/ofac/downloads/sanctions/1.0/sdn_advanced.xml
+        - https://www.treasury.gov/ofac/downloads/sanctions/1.0/cons_advanced.xml
+    handle:
+      pass: fetch
+  fetch:
+    method: fetch
+    handle:
+      pass: parse
+  parse:
+    method: opensanctions.crawlers.us_ofac:parse
     handle:
       pass: store
   store:
