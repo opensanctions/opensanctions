@@ -53,6 +53,7 @@ class Entity(Base):
         obj = cls.by_id(session, proxy.id)
         if obj is None:
             obj = cls()
+            obj.origin = origin
         obj.proxy = proxy
         session.add(obj)
         return obj
@@ -64,6 +65,12 @@ class Entity(Base):
         q = session.query(cls)
         q = q.filter(cls.id == entity_id)
         return q.first()
+
+    @classmethod
+    def all(cls, session):
+        q = session.query(cls)
+        for entity in q.yield_per(10000):
+            yield entity
 
 
 # class Judgement(Base):
