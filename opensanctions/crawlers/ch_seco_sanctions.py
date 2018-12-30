@@ -142,7 +142,7 @@ def parse_entry(emitter, target, programs, places, updated_at):
     entity = emitter.make('LegalEntity')
     node = target.find('./entity')
     if node is None:
-        node = target.find('./individual')    
+        node = target.find('./individual')
         entity = emitter.make('Person')
     if node is None:
         # node = target.find('./object')
