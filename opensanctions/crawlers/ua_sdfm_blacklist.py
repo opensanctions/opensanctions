@@ -39,13 +39,13 @@ def parse_entry(emitter, entry):
 
     for aka in entry.findall('./aka-list'):
         first_name = aka.findtext('./aka-name1')
-        entity.add('firstName', first_name)
+        entity.add('firstName', first_name, quiet=True)
         second_name = aka.findtext('./aka-name2')
-        entity.add('secondName', second_name)
+        entity.add('secondName', second_name, quiet=True)
         third_name = aka.findtext('./aka-name3')
-        entity.add('middleName', third_name)
+        entity.add('middleName', third_name, quiet=True)
         last_name = aka.findtext('./aka-name4')
-        entity.add('lastName', last_name)
+        entity.add('lastName', last_name, quiet=True)
         name = jointext(first_name, second_name, third_name, last_name)
         if aka.findtext('type-aka') == 'N':
             entity.add('name', name)
@@ -56,7 +56,7 @@ def parse_entry(emitter, entry):
                 entity.add('alias', name)
 
     for node in entry.findall('./title-list'):
-        entity.add('title', node.text)
+        entity.add('title', node.text, quiet=True)
 
     for doc in entry.findall('./document-list'):
         reg = doc.findtext('./document-reg')
@@ -77,13 +77,13 @@ def parse_entry(emitter, entry):
         entity.add('address', node.findtext('./address'))
 
     for pob in entry.findall('./place-of-birth-list'):
-        entity.add('birthPlace', pob.text)
+        entity.add('birthPlace', pob.text, quiet=True)
 
     for dob in entry.findall('./date-of-birth-list'):
-        entity.add('birthDate', parse_date(dob.text))
+        entity.add('birthDate', parse_date(dob.text), quiet=True)
 
     for nat in entry.findall('./nationality-list'):
-        entity.add('nationality', normalize_country(nat.text))
+        entity.add('nationality', normalize_country(nat.text), quiet=True)
 
     emitter.emit(entity)
     emitter.emit(sanction)

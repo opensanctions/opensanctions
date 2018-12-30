@@ -186,7 +186,6 @@ def qpath(name):
 def deref(doc, tag, value, attr=None, key='ID', element=False):
     cache = (tag, value, attr, key, element)
     if cache in CACHE:
-        print(cache)
         return CACHE[cache]
     query = '//%s[@%s="%s"]' % (qtag(tag), key, value)
     for node in doc.findall(query):
