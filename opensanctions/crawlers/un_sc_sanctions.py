@@ -1,7 +1,8 @@
 from pprint import pprint  # noqa
-from normality import collapse_spaces, stringify
+from normality import collapse_spaces
 
-from opensanctions.util import EntityEmitter, normalize_country
+from opensanctions.util import EntityEmitter
+from opensanctions.util import jointext, normalize_country
 
 
 def values(node):
@@ -35,14 +36,14 @@ def parse_address(entity, addr):
     text = addr.xpath('string()').strip()
     if not len(text):
         return
-    note = addr.findtext('./NOTE')
-    street = addr.findtext('./STREET')
-    city = addr.findtext('./CITY')
-    region = addr.findtext('./STATE_PROVINCE')
     country = addr.findtext('./COUNTRY')
-    parts = (note, street, city, region, country)
-    parts = [p for p in parts if stringify(p) is not None]
-    entity.add('address', ', '.join(parts))
+    address = jointext(addr.findtext('./NOTE'),
+                       addr.findtext('./STREET'),
+                       addr.findtext('./CITY'),
+                       addr.findtext('./STATE_PROVINCE'),
+                       country,
+                       sep=', ')
+    entity.add('address', address)
     entity.add('country', normalize_country(country))
 
 
@@ -104,11 +105,11 @@ def parse_individual(emitter, node):
 
     for pob in node.findall('./INDIVIDUAL_PLACE_OF_BIRTH'):
         person.add('country', normalize_country(pob.findtext('./COUNTRY')))
-        place = (pob.findtext('./CITY'),
-                 pob.findtext('./STATE_PROVINCE'),
-                 pob.findtext('./COUNTRY'))
-        place = [p for p in place if stringify(p) is not None]
-        person.add('birthPlace', ', '.join(place))
+        place = jointext(pob.findtext('./CITY'),
+                         pob.findtext('./STATE_PROVINCE'),
+                         pob.findtext('./COUNTRY'),
+                         sep=', ')
+        person.add('birthPlace', place)
 
     emitter.emit(person)
     emitter.emit(sanction)

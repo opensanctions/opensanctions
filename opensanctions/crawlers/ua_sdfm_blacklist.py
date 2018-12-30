@@ -2,7 +2,8 @@ import re
 from datetime import datetime
 from pprint import pprint  # noqa
 
-from opensanctions.util import EntityEmitter, normalize_country
+from opensanctions.util import EntityEmitter
+from opensanctions.util import jointext, normalize_country
 
 
 def parse_date(date):
@@ -45,10 +46,7 @@ def parse_entry(emitter, entry):
         entity.add('middleName', third_name)
         last_name = aka.findtext('./aka-name4')
         entity.add('lastName', last_name)
-        parts = (first_name, second_name, third_name, last_name)
-        parts = [p for p in parts if p is not None]
-        name = ' '.join(parts)
-
+        name = jointext(first_name, second_name, third_name, last_name)
         if aka.findtext('type-aka') == 'N':
             entity.add('name', name)
         else:

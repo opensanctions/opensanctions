@@ -7,6 +7,7 @@ from followthemoney.types import registry
 from os.path import commonprefix
 
 from opensanctions.util import EntityEmitter
+from opensanctions.util import jointext
 
 CACHE = {}
 
@@ -245,15 +246,15 @@ def parse_feature(doc, feature):
             type_ = deref(doc, 'LocPartType', type_id)
             value = part.findtext(qpath('Value'))
             parts[type_] = value
-        address = (parts.get('Unknown'),
-                   parts.get('ADDRESS1'),
-                   parts.get('ADDRESS2'),
-                   parts.get('ADDRESS2'),
-                   parts.get('CITY'),
-                   parts.get('POSTAL CODE'),
-                   parts.get('REGION'),
-                   parts.get('STATE/PROVINCE'))
-        address = ', '.join([a for a in address if a is not None])
+        address = jointext(parts.get('Unknown'),
+                           parts.get('ADDRESS1'),
+                           parts.get('ADDRESS2'),
+                           parts.get('ADDRESS2'),
+                           parts.get('CITY'),
+                           parts.get('POSTAL CODE'),
+                           parts.get('REGION'),
+                           parts.get('STATE/PROVINCE'),
+                           sep=', ')
 
         for area in location.findall(qpath('LocationAreaCode')):
             country_id = deref(doc, 'AreaCode', area.get('AreaCodeID'), 'CountryID')  # noqa
@@ -285,13 +286,11 @@ def parse_alias(party, doc, alias):
         if field != 'name' and not weak:
             party.add(field, value.text)
         # print(field, value.text)
-    name = (data.get('firstName'),
-            data.get('middleName'),
-            data.get('fatherName'),
-            data.get('lastName'),
-            data.get('name'))
-    name = [n for n in name if n is not None]
-    name = ' '.join(name)
+    name = jointext(data.get('firstName'),
+                    data.get('middleName'),
+                    data.get('fatherName'),
+                    data.get('lastName'),
+                    data.get('name'))
     if primary:
         party.add('name', name)
     elif alias_type == 'F.K.A.':

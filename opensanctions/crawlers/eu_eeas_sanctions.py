@@ -1,7 +1,7 @@
 from pprint import pprint  # noqa
-from normality import stringify
 
 from opensanctions.util import EntityEmitter
+from opensanctions.util import jointext
 
 GENDERS = {
     'M': "male",
@@ -19,8 +19,10 @@ def parse_entry(emitter, entry):
     sanction = emitter.make('Sanction')
     sanction.make_id(entity.id)
     sanction.add('entity', entity)
+    sanction.add('authority', 'European External Action Service')
     sanction.add('sourceUrl', entry.get('pdf_link'))
-    program = '%s - %s' % (entry.get('programme'), entry.get('legal_basis'))
+    program = jointext(entry.get('programme'), entry.get('legal_basis'),
+                       sep=' - ')
     sanction.add('program', program)
     sanction.add('reason', entry.get('remark'))
     sanction.add('startDate', entry.get('reg_date'))
@@ -47,12 +49,11 @@ def parse_entry(emitter, entry):
         emitter.emit(passport)
 
     for node in entry.findall('./ADDRESS'):
-        parts = (node.findtext('./STREET'),
-                 node.findtext('./NUMBER'),
-                 node.findtext('./CITY'),
-                 node.findtext('./ZIPCODE'))
-        parts = [p for p in parts if stringify(p) is not None]
-        entity.add('address', ' '.join(parts))
+        address = jointext(node.findtext('./STREET'),
+                           node.findtext('./NUMBER'),
+                           node.findtext('./CITY'),
+                           node.findtext('./ZIPCODE'))
+        entity.add('address', address)
         entity.add('country', node.findtext('./COUNTRY'))
 
     for birth in entry.findall('./BIRTH'):

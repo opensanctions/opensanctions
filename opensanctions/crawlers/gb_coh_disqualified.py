@@ -2,7 +2,8 @@ import os
 from pprint import pprint  # noqa
 from urllib.parse import urljoin
 
-from opensanctions.util import EntityEmitter, normalize_country
+from opensanctions.util import EntityEmitter
+from opensanctions.util import normalize_country, jointext
 
 
 API_KEY = os.environ.get("MEMORIOUS_COH_API_KEY")
@@ -31,11 +32,7 @@ def officer(context, data):
         person.add('firstName', forename)
         other_forenames = data.pop('other_forenames', None)
         person.add('middleName', other_forenames)
-
-        name = (forename, other_forenames, last_name)
-        name = [n for n in name if n is not None and len(n)]
-        name = ' '.join(name)
-        person.add('name', name)
+        person.add('name', jointext(forename, other_forenames, last_name))
         person.add('title', data.pop('title', None))
 
         nationality = normalize_country(data.pop('nationality', None))
@@ -55,18 +52,13 @@ def officer(context, data):
 
             address = disqual.pop('address', {})
             locality = address.get('locality')
-            postal_code = address.get('postal_code')
-            if locality and postal_code:
-                locality = '%s %s' % (locality, postal_code)
+            locality = jointext(locality, address.get('postal_code'))
             street = address.get('address_line_1')
             premises = address.get('premises')
-            if street and premises:
-                street = '%s %s' % (street, premises)
-            parts = (street, address.get('address_line_2'),
-                     locality, address.get('region'))
-            parts = [p for p in parts if p is not None]
-            parts = ', '.join(parts)
-            person.add('address', parts)
+            street = jointext(street, premises)
+            address = jointext(street, address.get('address_line_2'),
+                               locality, address.get('region'), sep=', ')
+            person.add('address', address)
         emitter.emit(person)
 
 

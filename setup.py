@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 setup(
     name='opensanctions',
     version='1.99',
-    author='Journalism Development Network',
+    author='Organized Crime and Corruption Reporting Project',
     author_email='data@occrp.org',
     url='https://github.com/alephdata/opensanctions',
     license='MIT',
@@ -16,10 +16,9 @@ setup(
     zip_safe=False,
     install_requires=[
         'followthemoney >= 1.4.0',
-        'memorious >= 0.4',
+        'memorious >= 0.8',
         'countrynames',
         'xlrd',
-        'attrs',
     ],
     entry_points={
         'memorious.plugins': [

@@ -1,7 +1,8 @@
 from pprint import pprint  # noqa
 from normality import collapse_spaces
 
-from opensanctions.util import EntityEmitter, normalize_country
+from opensanctions.util import EntityEmitter
+from opensanctions.util import normalize_country, jointext
 
 
 XML_URL = 'http://www.international.gc.ca/sanctions/assets/office_docs/sema-lmes.xml'  # noqa
@@ -41,7 +42,7 @@ def parse_entry(emitter, node):
     last_name = node.findtext('.//LastName')
     entity.add('lastName', last_name, quiet=True)
     if not entity.has('name'):
-        entity.add('name', ' '.join((given_name, last_name)))
+        entity.add('name', jointext(given_name, last_name))
 
     dob = node.findtext('.//DateOfBirth')
     if dob is not None:

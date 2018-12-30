@@ -2,10 +2,11 @@ import csv
 from pprint import pprint  # noqa
 from datetime import datetime
 from collections import defaultdict
-from normality import stringify, collapse_spaces
+from normality import stringify
 from followthemoney import model
 
-from opensanctions.util import EntityEmitter, normalize_country
+from opensanctions.util import EntityEmitter
+from opensanctions.util import normalize_country, jointext
 
 
 def parse_date(date):
@@ -68,8 +69,7 @@ def parse_entry(emitter, group, rows):
         name5 = row.pop('Name 5')
         name6 = row.pop('Name 6')
         entity.add('lastName', name6, quiet=True)
-        name = (name1, name2, name3, name4, name5, name6)
-        name = collapse_spaces(' '.join(name))
+        name = jointext(name1, name2, name3, name4, name5, name6)
         if not entity.has('name'):
             entity.add('name', name)
         else:
@@ -88,20 +88,16 @@ def parse_entry(emitter, group, rows):
         entity.add('nationality', nationality, quiet=True)
 
         country = row.pop('Country', None)
-        country_code = normalize_country(country)
-        entity.add('country', country_code)
+        entity.add('country', normalize_country(country))
 
-        address1 = row.pop('Address 1', None)
-        address2 = row.pop('Address 2', None)
-        address3 = row.pop('Address 3', None)
-        address4 = row.pop('Address 4', None)
-        address5 = row.pop('Address 5', None)
-        address6 = row.pop('Address 6', None)
-        post_code = row.pop('Post/Zip Code', None)
-        address = (address1, address2, address3, address4,
-                   address5, address6, post_code, country)
-        address = [a for a in address if stringify(a) is not None]
-        address = ', '.join(address)
+        address = jointext(row.pop('Address 1', None),
+                           row.pop('Address 2', None),
+                           row.pop('Address 3', None),
+                           row.pop('Address 4', None),
+                           row.pop('Address 5', None),
+                           row.pop('Address 6', None),
+                           row.pop('Post/Zip Code', None),
+                           country)
         entity.add('address', address, quiet=True)
 
         passport = row.pop('Passport Details', None)

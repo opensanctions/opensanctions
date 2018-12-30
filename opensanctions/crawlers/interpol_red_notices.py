@@ -3,6 +3,7 @@ from normality import slugify, collapse_spaces, stringify
 from pprint import pprint  # noqa
 
 from opensanctions.util import EntityEmitter, Constants
+from opensanctions.util import jointext
 
 SEXES = {
     'Male': Constants.GENDER_MALE,
@@ -34,7 +35,7 @@ def parse(context, data):
 
         if ', ' in name:
             last, first = name.split(', ', 1)
-            entity.add('alias', ' '.join((first, last)))
+            entity.add('alias', jointext(first, last))
 
         for row in doc.findall('.//div[@class="bloc_detail"]//tr'):
             title, value = row.findall('./td')
@@ -65,8 +66,7 @@ def index(context, data):
     url = context.params.get('url')
     url = url % (page * 9)
     res = context.http.get(url)
-    doc = res.html
-    links = doc.findall('.//div[@class="wanted"]//a')
+    links = res.html.findall('.//div[@class="wanted"]//a')
     if not len(links):
         return
     for link in links:

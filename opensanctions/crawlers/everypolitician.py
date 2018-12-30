@@ -1,5 +1,3 @@
-# from pprint import pprint
-
 from opensanctions.util import EntityEmitter
 
 

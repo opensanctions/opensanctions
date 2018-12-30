@@ -1,17 +1,8 @@
 from datetime import date
 from pprint import pprint  # noqa
-from normality import stringify
-from collections import namedtuple, defaultdict
+from collections import defaultdict
 
-from opensanctions.util import EntityEmitter
-
-Program = namedtuple('Program', ['key', 'name'])
-
-
-def texts(*parts, sep=' '):
-    parts = [stringify(p) for p in parts]
-    parts = [p for p in parts if p is not None]
-    return sep.join(parts)
+from opensanctions.util import EntityEmitter, jointext
 
 
 def parse_date(el):
@@ -56,7 +47,7 @@ def make_address(address):
                address.get('p-o-box'),
                address.get('zip-code'),
                address.get('area'))
-    return texts(*address, sep=', ')
+    return jointext(*address, sep=', ')
 
 
 def whole_name(parts):
@@ -68,7 +59,7 @@ def whole_name(parts):
             parts.get('tribal-name'),
             parts.get('whole-name'),
             parts.get('other'))
-    return texts(*name, sep=' ')
+    return jointext(*name, sep=' ')
 
 
 def parse_name(entity, node):
@@ -165,14 +156,14 @@ def parse_entry(emitter, target, programs, places, updated_at):
     sanction = emitter.make('Sanction')
     sanction.make_id(entity.id, 'Sanction')
     sanction.add('entity', entity)
+    sanction.add('authority', 'Swiss SECO Consolidated Sanctions')
     sanction.add('modifiedAt', updated_at)
 
     for justification in node.findall('./justification'):
         sanction.add('reason', justification.text)
 
     ssid = target.get('sanctions-set-id')
-    program = programs.get(ssid)
-    sanction.add('program', program.name)
+    sanction.add('program', programs.get(ssid))
 
     for identity in node.findall('./identity'):
         parse_identity(emitter, entity, identity, places)
@@ -189,9 +180,7 @@ def seco_parse(context, data):
         programs = {}
         for sanc in res.xml.findall('.//sanctions-program'):
             ssid = sanc.find('./sanctions-set').get('ssid')
-            key = sanc.findtext('./program-key[@lang="eng"]')
-            name = sanc.findtext('./program-name[@lang="eng"]')
-            programs[ssid] = Program(key, name)
+            programs[ssid] = sanc.findtext('./program-name[@lang="eng"]')
 
         places = {}
         for place in res.xml.findall('.//place'):

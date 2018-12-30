@@ -1,8 +1,8 @@
 from pprint import pprint  # noqa
-from normality import stringify
 from datetime import datetime
 
 from opensanctions.util import EntityEmitter
+from opensanctions.util import jointext
 
 
 ORG_HEADER = ["No", "Last Name", "Name", "Middle Name", "Date of birth",
@@ -45,9 +45,7 @@ def extract_rows(node):
 
 def parse_individual(emitter, data):
     person = emitter.make('Person')
-    name = (data["Name"], data["Middle Name"], data["Last Name"])
-    name = [n for n in name if stringify(n) is not None]
-    name = ' '.join(name)
+    name = jointext(data["Name"], data["Middle Name"], data["Last Name"])
     person.make_id(name, data["Reason for inclusion"])
     person.add('name', name)
     person.add('lastName', data["Last Name"])

@@ -1,7 +1,8 @@
 import csv
 from pprint import pprint  # noqa
 
-from opensanctions.util import EntityEmitter, normalize_country
+from opensanctions.util import EntityEmitter
+from opensanctions.util import jointext, normalize_country
 
 
 def parse_row(emitter, row):
@@ -12,11 +13,11 @@ def parse_row(emitter, row):
     entity.add('country', normalize_country(row.get('Country')))
     # entity.updated_at = row.get('Effective_Date')
 
-    address = (row.get('Street_Address'),
-               row.get('Postal_Code'),
-               row.get('City'),
-               row.get('State'))
-    address = ', '.join(address)
+    address = jointext(row.get('Street_Address'),
+                       row.get('Postal_Code'),
+                       row.get('City'),
+                       row.get('State'),
+                       sep=', ')
     entity.add('address', address)
     emitter.emit(entity)
 
