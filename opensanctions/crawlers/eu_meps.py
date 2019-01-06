@@ -13,15 +13,19 @@ def split_name(name):
 
 
 def parse_node(emitter, node):
+    mep_id = node.findtext('.//id')
     person = emitter.make("Person")
-    person.make_id(node.findtext('.//id'))
+    person.make_id(mep_id)
     name = node.findtext('.//fullName')
     person.add("name", name)
+    url = 'http://www.europarl.europa.eu/meps/en/%s' % mep_id
+    person.add("sourceUrl", url)
     first_name, last_name = split_name(name)
     person.add("firstName", first_name)
     person.add("lastName", last_name)
     country = normalize_country(node.findtext('.//country'))
     person.add("nationality", country)
+    person.add("keywords", ['PEP', 'MEP'])
     emitter.emit(person)
 
     party_name = node.findtext('.//nationalPoliticalGroup')

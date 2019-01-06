@@ -19,4 +19,4 @@ pipeline:
     handle:
       pass: store
   store:
-    method: opensanctions.helpers:store_entity
+    method: opensanctions.store:store_entity

@@ -5,9 +5,6 @@ from opensanctions.util import EntityEmitter
 from opensanctions.util import normalize_country, jointext
 
 
-XML_URL = 'http://www.international.gc.ca/sanctions/assets/office_docs/sema-lmes.xml'  # noqa
-
-
 def parse(context, data):
     emitter = EntityEmitter(context)
     with context.http.rehash(data) as result:
@@ -18,13 +15,18 @@ def parse(context, data):
 def parse_entry(emitter, node):
     # ids are per country and entry type (individual/entity)
     country = node.findtext('./Country')
-    country, _ = country.split(' / ')
+    if ' / ' in country:
+        country, _ = country.split(' / ')
     country_code = normalize_country(country)
     entity_name = node.findtext('./Entity')
     item = node.findtext('.//Item')
 
     entity = emitter.make('LegalEntity')
+    if entity_name is None:
+        entity = emitter.make('Person')
     entity.make_id(country, entity_name, item)
+    entity.add('name', entity_name)
+    entity.add('country', country_code)
 
     sanction = emitter.make('Sanction')
     sanction.make_id(entity.id)
@@ -32,17 +34,11 @@ def parse_entry(emitter, node):
     sanction.add('authority', 'Canadian international sanctions')
     sanction.add('program', node.findtext('.//Schedule'))
 
-    entity.add('name', entity_name)
-    entity.add('country', country_code)
-    if entity_name is None:
-        entity = emitter.make('Person')
-
     given_name = node.findtext('.//GivenName')
     entity.add('firstName', given_name, quiet=True)
     last_name = node.findtext('.//LastName')
     entity.add('lastName', last_name, quiet=True)
-    if not entity.has('name'):
-        entity.add('name', jointext(given_name, last_name))
+    entity.add('name', jointext(given_name, last_name))
 
     dob = node.findtext('.//DateOfBirth')
     if dob is not None:

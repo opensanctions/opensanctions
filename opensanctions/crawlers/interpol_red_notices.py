@@ -2,12 +2,13 @@ from urllib.parse import urljoin
 from normality import slugify, collapse_spaces, stringify
 from pprint import pprint  # noqa
 
-from opensanctions.util import EntityEmitter, Constants
+from opensanctions import settings
+from opensanctions.util import EntityEmitter
 from opensanctions.util import jointext
 
 SEXES = {
-    'Male': Constants.GENDER_MALE,
-    'Female': Constants.GENDER_FEMALE,
+    'Male': settings.GENDER_MALE,
+    'Female': settings.GENDER_FEMALE,
 }
 
 
@@ -32,6 +33,8 @@ def parse(context, data):
         entity.add('sourceUrl', data.get('url'))
         wanted = element_text(doc.find('.//span[@class="nom_fugitif_wanted_small"]'))  # noqa
         entity.add('program', wanted)
+        entity.add('keywords', 'REDNOTICE')
+        entity.add('keywords', 'CRIME')
 
         if ', ' in name:
             last, first = name.split(', ', 1)

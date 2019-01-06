@@ -23,6 +23,9 @@ setup(
     entry_points={
         'memorious.plugins': [
             'opensanctions = opensanctions:init'
+        ],
+        'console_scripts': [
+            'osanc-dump = opensanctions:cli',
         ]
     }
 )

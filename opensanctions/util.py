@@ -10,6 +10,7 @@ class EntityEmitter(object):
 
     def __init__(self, context):
         self.context = context
+        self.log = context.log
 
     def make(self, schema):
         key_prefix = self.context.crawler.name
@@ -21,15 +22,6 @@ class EntityEmitter(object):
         if entity.id is None:
             log.warning("Entity has no ID: %r", data)
         self.context.emit(rule=rule, data=data)
-
-
-class Constants(object):
-    TYPE_PASSPORT = u'passport'
-    TYPE_NATIONALID = u'nationalid'
-    TYPE_OTHER = u'other'
-
-    GENDER_MALE = 'male'
-    GENDER_FEMALE = 'female'
 
 
 def normalize_country(name):

@@ -346,6 +346,7 @@ def parse_party(emitter, doc, distinct_party):
             party.add(attr, value, quiet=True)
 
     emitter.emit(party)
+    emitter.log.info("[%s] %s", party.schema.name, party.caption)
 
 
 def parse_entry(emitter, doc, entry):
@@ -394,7 +395,9 @@ def parse_relation(emitter, doc, relation):
 def parse(context, data):
     emitter = EntityEmitter(context)
     with context.http.rehash(data) as res:
+        context.log.info("LOADED XML")
         doc = res.xml
+        context.log.info("PARSED XML")
         for distinct_party in doc.findall(qpath('DistinctParty')):
             parse_party(emitter, doc, distinct_party)
 

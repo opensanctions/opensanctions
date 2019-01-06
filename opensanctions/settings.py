@@ -1,8 +1,10 @@
 import os
 
-DATABASE_URI = 'sqlite:///opensanctions.sqlite'
-DATABASE_URI = os.environ.get('OPENSANCTIONS_DATABASE_URI', DATABASE_URI)
+TABLE = os.environ.get('OPENSANCTIONS_TABLE', 'zz_opensanctions')  # noqa
 
-ALEPH_HOST = os.environ.get('OPENSANCTIONS_ALEPH_HOST')
-ALEPH_API_KEY = os.environ.get('OPENSANCTIONS_ALEPH_API_KEY')
-ALEPH_COLLECTION = os.environ.get('OPENSANCTIONS_ALEPH_COLLECTION', 'opensanctions')  # noqa
+TYPE_PASSPORT = u'passport'
+TYPE_NATIONALID = u'nationalid'
+TYPE_OTHER = u'other'
+
+GENDER_MALE = 'male'
+GENDER_FEMALE = 'female'

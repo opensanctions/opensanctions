@@ -1,11 +1,12 @@
 from pprint import pprint  # noqa
 
+from opensanctions import settings
 from opensanctions.util import EntityEmitter
 from opensanctions.util import jointext
 
 GENDERS = {
-    'M': "male",
-    'F': "female"
+    'M': settings.GENDER_MALE,
+    'F': settings.GENDER_FEMALE
 }
 
 
@@ -62,7 +63,7 @@ def parse_entry(emitter, entry):
         entity.add('country', birth.findtext('./COUNTRY'))
 
     for country in entry.findall('./CITIZEN/COUNTRY'):
-        entity.add('nationality', country.text)
+        entity.add('nationality', country.text, quiet=True)
 
     emitter.emit(entity)
     emitter.emit(sanction)

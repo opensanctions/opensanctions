@@ -24,6 +24,7 @@ def parse_entry(emitter, entry):
     person.add('summary', role.text_content().strip())
     country = normalize_country(country.text_content().strip())
     person.add('nationality', country)
+    person.add('keywords', ['PEP', 'PACE'])
     emitter.emit(person)
 
 
