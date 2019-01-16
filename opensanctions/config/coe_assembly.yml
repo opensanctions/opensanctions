@@ -7,5 +7,9 @@ pipeline:
     handle:
       pass: store
       page: fetch
+  # store:
+  #   method: opensanctions.helpers:store_entity
   store:
-    method: opensanctions.helpers:store_entity
+    method: balkhash_emit
+    # params:
+    #   remote: True

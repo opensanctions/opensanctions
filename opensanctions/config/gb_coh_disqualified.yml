@@ -29,5 +29,9 @@ pipeline:
     method: opensanctions.crawlers.gb_coh_disqualified:officer
     handle:
       pass: store
+  # store:
+  #   method: opensanctions.helpers:store_entity
   store:
-    method: opensanctions.helpers:store_entity
+    method: balkhash_emit
+    # params:
+    #   remote: True

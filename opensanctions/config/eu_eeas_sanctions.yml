@@ -16,5 +16,9 @@ pipeline:
     method: opensanctions.crawlers.eu_eeas_sanctions:eeas_parse
     handle:
       pass: store
+  # store:
+  #   method: opensanctions.helpers:store_entity
   store:
-    method: opensanctions.helpers:store_entity
+    method: balkhash_emit
+    # params:
+    #   remote: True

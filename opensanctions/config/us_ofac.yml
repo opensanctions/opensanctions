@@ -18,5 +18,9 @@ pipeline:
     method: opensanctions.crawlers.us_ofac:parse
     handle:
       pass: store
+  # store:
+  #   method: opensanctions.helpers:store_entity
   store:
-    method: opensanctions.helpers:store_entity
+    method: balkhash_emit
+    # params:
+    #   remote: True

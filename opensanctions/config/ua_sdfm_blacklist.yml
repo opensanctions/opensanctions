@@ -16,5 +16,9 @@ pipeline:
     method: opensanctions.crawlers.ua_sdfm_blacklist:parse
     handle:
       pass: store
+  # store:
+  #   method: opensanctions.helpers:store_entity
   store:
-    method: opensanctions.helpers:store_entity
+    method: balkhash_emit
+    # params:
+    #   remote: True
