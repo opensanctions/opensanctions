@@ -10,6 +10,7 @@ class EntityEmitter(object):
 
     def __init__(self, context):
         self.context = context
+        self.fragment = 0
         self.log = context.log
 
     def make(self, schema):
@@ -21,6 +22,8 @@ class EntityEmitter(object):
         data = entity.to_dict()
         if entity.id is None:
             log.warning("Entity has no ID: %r", data)
+        data['fragment'] = str(self.fragment)
+        self.fragment += 1
         self.context.emit(rule=rule, data=data)
 
 

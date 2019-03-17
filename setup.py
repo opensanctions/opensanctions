@@ -15,7 +15,8 @@ setup(
     },
     zip_safe=False,
     install_requires=[
-        'followthemoney >= 1.4.0',
+        'followthemoney >= 1.9.2',
+        'balkhash[sql] >= 0.3.0',
         'memorious >= 0.8',
         'countrynames',
         'xlrd',
