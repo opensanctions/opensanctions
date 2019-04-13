@@ -1,12 +1,12 @@
 from pprint import pprint  # noqa
 
-from opensanctions import settings
+from opensanctions import constants
 from opensanctions.util import EntityEmitter
 from opensanctions.util import jointext
 
 GENDERS = {
-    'M': settings.GENDER_MALE,
-    'F': settings.GENDER_FEMALE
+    'M': constants.MALE,
+    'F': constants.FEMALE
 }
 
 

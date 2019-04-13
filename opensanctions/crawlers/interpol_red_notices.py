@@ -2,13 +2,13 @@ from urllib.parse import urljoin
 from normality import slugify, collapse_spaces, stringify
 from pprint import pprint  # noqa
 
-from opensanctions import settings
+from opensanctions import constants
 from opensanctions.util import EntityEmitter
 from opensanctions.util import jointext
 
 SEXES = {
-    'Male': settings.GENDER_MALE,
-    'Female': settings.GENDER_FEMALE,
+    'Male': constants.MALE,
+    'Female': constants.FEMALE,
 }
 
 
