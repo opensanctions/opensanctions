@@ -10,9 +10,6 @@ build:
 run: build
 	docker run -ti -v $(DATA_DIR):/data alephdata/opensanctions /bin/bash
 
-
-
-
 data/osanc.entities:
 	osanc-dump >data/osanc.entities
 

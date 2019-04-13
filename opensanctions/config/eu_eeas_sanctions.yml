@@ -18,5 +18,3 @@ pipeline:
       pass: store
   store:
     method: balkhash_put
-    params:
-      dataset: opensanctions

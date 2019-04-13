@@ -30,4 +30,5 @@ pipeline:
     handle:
       pass: store
   store:
-    method: opensanctions.store:store_entity
+    method: balkhash_put
+
