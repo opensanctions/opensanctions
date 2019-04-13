@@ -3,6 +3,7 @@ __pycache__/
 *.py[cod]
 .DS_Store
 *.sqlite
+*.sqlite3
 .env
 .vscode
 

@@ -14,9 +14,8 @@ pipeline:
       pass: parse
   parse:
     method: opensanctions.crawlers.worldbank_debarred:parse
-    params:
-      url: 'http://web.worldbank.org/external/default/main?contentMDK=64069844&menuPK=116730&pagePK=64148989&piPK=64148984&querycontentMDK=64069700&theSitePK=84266'
     handle:
       pass: store
   store:
-    method: opensanctions.helpers:store_entity
+    method: balkhash_put
+

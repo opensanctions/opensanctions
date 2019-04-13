@@ -1,87 +1,76 @@
 from pprint import pprint  # noqa
 
-from normality import stringify
-from memorious.helpers import parse_date
+from opensanctions import constants
+from opensanctions.util import EntityEmitter
+from opensanctions.util import jointext
 
-from opensanctions.models import Entity, Identifier
-
-
-ENTITY_TYPES = {
-    'P': Entity.TYPE_INDIVIDUAL,
-    'E': Entity.TYPE_ENTITY
-}
 GENDERS = {
-    'M': Entity.GENDER_MALE,
-    'F': Entity.GENDER_FEMALE,
-    '': None,
-    None: None
+    'M': constants.MALE,
+    'F': constants.FEMALE
 }
 
 
-def parse_entry(context, entry):
-    type_ = ENTITY_TYPES[entry.get('Type')]
-    entity = Entity.create('eu-eeas-sanctions', entry.get('Id'))
-    entity.type = type_
-    entity.updated_at = entry.get('reg_date')
-    entity.url = entry.get('pdf_link')
-    entity.program = entry.get('programme')
-    entity.summary = entry.get('remark')
+def parse_entry(emitter, entry):
+    entity = emitter.make('LegalEntity')
+    if entry.get('Type') == 'P':
+        entity = emitter.make('Person')
+    entity.make_id(entry.get('Id'))
+    entity.add('sourceUrl', entry.get('pdf_link'))
+
+    sanction = emitter.make('Sanction')
+    sanction.make_id(entity.id)
+    sanction.add('entity', entity)
+    sanction.add('authority', 'European External Action Service')
+    sanction.add('sourceUrl', entry.get('pdf_link'))
+    program = jointext(entry.get('programme'), entry.get('legal_basis'),
+                       sep=' - ')
+    sanction.add('program', program)
+    sanction.add('reason', entry.get('remark'))
+    sanction.add('startDate', entry.get('reg_date'))
 
     for name in entry.findall('./NAME'):
-        if entity.name is None:
-            obj = entity
+        if entity.has('name'):
+            entity.add('alias', name.findtext('./WHOLENAME'))
         else:
-            obj = entity.create_alias()
+            entity.add('name', name.findtext('./WHOLENAME'))
+        entity.add('title', name.findtext('./TITLE'), quiet=True)
+        entity.add('firstName', name.findtext('./FIRSTNAME'), quiet=True)
+        entity.add('middleName', name.findtext('./MIDDLENAME'), quiet=True)
+        entity.add('lastName', name.findtext('./LASTNAME'), quiet=True)
+        entity.add('position', name.findtext('./FUNCTION'), quiet=True)
+        gender = GENDERS.get(name.findtext('./GENDER'))
+        entity.add('gender', gender, quiet=True)
 
-        obj.title = name.findtext('./TITLE')
-        obj.name = name.findtext('./WHOLENAME')
-        obj.first_name = name.findtext('./FIRSTNAME')
-        obj.second_name = name.findtext('./MIDDLENAME')
-        obj.last_name = name.findtext('./LASTNAME')
-
-        if entity.function is None:
-            entity.function = name.findtext('./FUNCTION')
-
-        if entity.gender is None:
-            entity.gender = GENDERS[name.findtext('./GENDER')]
-
-    for passport in entry.findall('./PASSPORT'):
-        identifier = entity.create_identifier()
-        identifier.type = Identifier.TYPE_PASSPORT
-        identifier.number = passport.findtext('./NUMBER')
-        identifier.country = passport.findtext('./COUNTRY')
+    for pnode in entry.findall('./PASSPORT'):
+        passport = emitter.make('Passport')
+        passport.make_id('Passport', entity.id, pnode.findtext('./NUMBER'))
+        passport.add('holder', entity)
+        passport.add('passportNumber', pnode.findtext('./NUMBER'))
+        passport.add('country', pnode.findtext('./COUNTRY'))
+        emitter.emit(passport)
 
     for node in entry.findall('./ADDRESS'):
-        address = entity.create_address()
-        address.street = node.findtext('./STREET')
-        address.street_2 = node.findtext('./NUMBER')
-        address.city = node.findtext('./CITY')
-        address.postal_code = node.findtext('./ZIPCODE')
-        address.country = node.findtext('./COUNTRY')
+        address = jointext(node.findtext('./STREET'),
+                           node.findtext('./NUMBER'),
+                           node.findtext('./CITY'),
+                           node.findtext('./ZIPCODE'))
+        entity.add('address', address)
+        entity.add('country', node.findtext('./COUNTRY'))
 
     for birth in entry.findall('./BIRTH'):
-        place = stringify(birth.findtext('./PLACE'))
-        country = stringify(birth.findtext('./COUNTRY'))
-        if place is not None or country is not None:
-            birth_place = entity.create_birth_place()
-            birth_place.place = place
-            birth_place.country = country
-
-        date_ = stringify(parse_date(birth.findtext('./DATE')))
-        if date_ is not None:
-            birth_date = entity.create_birth_date()
-            birth_date.date = date_
+        entity.add('birthDate', birth.findtext('./DATE'))
+        entity.add('birthPlace', birth.findtext('./PLACE'))
+        entity.add('country', birth.findtext('./COUNTRY'))
 
     for country in entry.findall('./CITIZEN/COUNTRY'):
-        nationality = entity.create_nationality()
-        nationality.country = country.text
+        entity.add('nationality', country.text, quiet=True)
 
-    # pprint(entity.to_dict())
-    context.emit(data=entity.to_dict())
+    emitter.emit(entity)
+    emitter.emit(sanction)
 
 
 def eeas_parse(context, data):
-    res = context.http.rehash(data)
-    doc = res.xml
-    for entry in doc.findall('.//ENTITY'):
-        parse_entry(context, entry)
+    emitter = EntityEmitter(context)
+    with context.http.rehash(data) as res:
+        for entry in res.xml.findall('.//ENTITY'):
+            parse_entry(emitter, entry)

@@ -1,77 +1,118 @@
-from datetime import datetime
-from csv import DictReader
-
-from pprint import pprint  # noqa
-from opensanctions.models import Entity
+from opensanctions.util import EntityEmitter
 
 
-GENDERS = {
-    'male': Entity.GENDER_MALE,
-    'female': Entity.GENDER_FEMALE,
-    None: None,
-    '': None
-}
-
-
-def parse_ts(ts):
-    return datetime.fromtimestamp(int(ts)).date().isoformat()
-
-
-def scrape_entity(context, data):
-    row = data.get("row")
-    legislature = data.get("legislature")
-    country = data.get("country")
-    if row.get('id') is None:
-        context.log.warning("No ID for entry: %r", row)
-    entity = Entity.create('everypolitician', row.get('id'))
-    entity.type = entity.TYPE_INDIVIDUAL
-    entity.updated_at = parse_ts(legislature.get('lastmod'))
-    entity.name = row.get('name')
-    entity.function = row.get('group')
-    entity.program = legislature.get('name')
-    entity.gender = GENDERS[row.get('gender')]
-
-    nationality = entity.create_nationality()
-    nationality.country = country.get('name')
-    nationality.country_code = country.get('code')
-
-    if row.get('name') != row.get('sort_name'):
-        alias = entity.create_alias()
-        alias.name = row.get('sort_name')
-
-    # TODO: email
-    # TODO: socialmedia
-    # TODO: photograph
-    # pprint(entity.to_dict())
-    context.emit(data=entity.to_dict())
-
-
-def scrape_csv(context, data):
-    period = data.get("period")
-    country = data.get("country")
-    legislature = data.get("legislature")
-    start_year = int(period.get('start_date')[:4])
-    current_year = datetime.utcnow().year
-    # Don't import the US 2nd continental congress (TM):
-    if current_year - 10 > start_year:
-        return
-    res = context.http.get(period.get('csv_url'))
-    with open(res.file_path, 'r') as csvfile:
-        for row in DictReader(csvfile):
-            context.emit(data={
-                "country": country,
-                "legislature": legislature,
-                "row": row
-            })
-
-
-def scrape(context, data):
-    res = context.http.rehash(data)
-    for country in res.json:
-        for legislature in country.get('legislatures', []):
-            for period in legislature.pop('legislative_periods', []):
+def index(context, data):
+    with context.http.rehash(data) as res:
+        for country in res.json:
+            for legislature in country.get('legislatures', []):
                 context.emit(data={
                     "country": country,
                     "legislature": legislature,
-                    "period": period,
+                    "url": legislature.get('popolo_url'),
                 })
+
+
+def parse(context, data):
+    emitter = EntityEmitter(context)
+    country = data.get('country', {}).get('code')
+    with context.http.rehash(data) as res:
+        persons = {}
+        for person in res.json.get('persons', []):
+            ep_id, ftm_id = parse_person(emitter, person, country)
+            persons[ep_id] = ftm_id
+
+        organizations = {}
+        for organization in res.json.get('organizations', []):
+            ep_id, ftm_id = parse_organization(emitter, organization, country)
+            organizations[ep_id] = ftm_id
+
+        for membership in res.json.get('memberships', []):
+            parse_membership(emitter, membership, persons, organizations)
+
+
+def parse_person(emitter, data, country):
+    person_id = data.pop('id', None)
+    person = emitter.make('Person')
+    person.make_id(person_id)
+    person.add('name', data.pop('name', None))
+    person.add('alias', data.pop('sort_name', None))
+    person.add('gender', data.pop('gender', None))
+    person.add('title', data.pop('honorific_prefix', None))
+    person.add('title', data.pop('honorific_suffix', None))
+    person.add('firstName', data.pop('given_name', None))
+    person.add('lastName', data.pop('family_name', None))
+    person.add('fatherName', data.pop('patronymic_name', None))
+    person.add('birthDate', data.pop('birth_date', None))
+    person.add('deathDate', data.pop('death_date', None))
+    person.add('email', data.pop('email', None))
+    person.add('summary', data.pop('summary', None))
+    person.add('keywords', ['PEP', 'PARL'])
+
+    for other_name in data.pop('other_names', []):
+        person.add('alias', other_name.get('name'))
+
+    for identifier in data.pop('identifiers', []):
+        if 'wikidata' == identifier.get('scheme'):
+            person.add('wikidataId', identifier.get('identifier'))
+
+    for link in data.pop('links', []):
+        if 'Wikipedia' in link.get('note'):
+            person.add('wikipediaUrl', link.get('url'))
+
+    for contact_detail in data.pop('contact_details', []):
+        if 'email' == contact_detail.get('type'):
+            person.add('email', contact_detail.get('value'))
+        if 'phone' == contact_detail.get('type'):
+            person.add('phone', contact_detail.get('value'))
+
+    # data.pop('image', None)
+    emitter.emit(person)
+    return person_id, person.id
+
+
+def parse_organization(emitter, data, country):
+    org_id = data.get('id')
+    if data.get('name') == 'unknown':
+        return org_id, None
+
+    organization = emitter.make('Organization')
+    organization.make_id(org_id)
+    organization.add('name', data.get('name'))
+    organization.add('summary', data.get('type'))
+    organization.add('country', country)
+
+    for identifier in data.get('identifiers', []):
+        if 'wikidata' == identifier.get('scheme'):
+            organization.add('wikidataId', identifier.get('identifier'))
+
+    emitter.emit(organization)
+    return org_id, organization.id
+
+
+def parse_membership(emitter, data, persons, organizations):
+    person_id = persons.get(data.get('person_id'))
+    organization_id = organizations.get(data.get('organization_id'))
+    on_behalf_of_id = organizations.get(data.get('on_behalf_of_id'))
+
+    if person_id and organization_id:
+        membership = emitter.make('Membership')
+        membership.make_id(person_id, organization_id)
+        membership.add('member', person_id)
+        membership.add('organization', organization_id)
+        membership.add('role', data.get('role'))
+
+        for source in data.get('sources', []):
+            membership.add('sourceUrl', source.get('url'))
+
+        emitter.emit(membership)
+
+    if person_id and on_behalf_of_id:
+        membership = emitter.make('Membership')
+        membership.make_id(person_id, on_behalf_of_id)
+        membership.add('member', person_id)
+        membership.add('organization', on_behalf_of_id)
+
+        for source in data.get('sources', []):
+            membership.add('sourceUrl', source.get('url'))
+
+        emitter.emit(membership)

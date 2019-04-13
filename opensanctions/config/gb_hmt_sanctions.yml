@@ -15,10 +15,7 @@ pipeline:
   parse:
     method: opensanctions.crawlers.gb_hmt_sanctions:parse
     handle:
-      pass: parse_entry
-  parse_entry:
-    method: opensanctions.crawlers.gb_hmt_sanctions:parse_entry
-    handle:
       pass: store
   store:
-    method: opensanctions.helpers:store_entity
+    method: balkhash_put
+

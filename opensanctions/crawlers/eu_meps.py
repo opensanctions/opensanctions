@@ -1,6 +1,6 @@
 from pprint import pprint  # noqa
 
-from opensanctions.models import Entity
+from opensanctions.util import EntityEmitter, normalize_country
 
 
 def split_name(name):
@@ -12,23 +12,50 @@ def split_name(name):
             return first_name, last_name
 
 
-def parse_entry(context, node):
-    entity = Entity.create('eu-meps', node.findtext('.//id'))
-    entity.type = Entity.TYPE_INDIVIDUAL
-    entity.name = node.findtext('.//fullName')
-    entity.first_name, entity.last_name = split_name(entity.name)
+def parse_node(emitter, node):
+    mep_id = node.findtext('.//id')
+    person = emitter.make("Person")
+    person.make_id(mep_id)
+    name = node.findtext('.//fullName')
+    person.add("name", name)
+    url = 'http://www.europarl.europa.eu/meps/en/%s' % mep_id
+    person.add("sourceUrl", url)
+    first_name, last_name = split_name(name)
+    person.add("firstName", first_name)
+    person.add("lastName", last_name)
+    country = normalize_country(node.findtext('.//country'))
+    person.add("nationality", country)
+    person.add("keywords", ['PEP', 'MEP'])
+    emitter.emit(person)
 
-    group = node.findtext('.//nationalPoliticalGroup') or ''
-    entity.summary = '%s (%s)' % (node.findtext('.//politicalGroup') or '',
-                                  group)
+    party_name = node.findtext('.//nationalPoliticalGroup')
+    if party_name not in ['Independent']:
+        party = emitter.make('Organization')
+        party.make_id('nationalPoliticalGroup', party_name)
+        party.add('name', party_name)
+        party.add('country', country)
+        emitter.emit(party)
+        membership = emitter.make('Membership')
+        membership.make_id(person.id, party.id)
+        membership.add('member', person)
+        membership.add('organization', party)
+        emitter.emit(membership)
 
-    nationality = entity.create_nationality()
-    nationality.country = node.findtext('.//country')
-    # pprint(entity.to_dict())
-    context.emit(data=entity.to_dict())
+    group_name = node.findtext('.//politicalGroup')
+    group = emitter.make('Organization')
+    group.make_id('politicalGroup', group_name)
+    group.add('name', group_name)
+    group.add('country', 'eu')
+    emitter.emit(group)
+    membership = emitter.make('Membership')
+    membership.make_id(person.id, group.id)
+    membership.add('member', person)
+    membership.add('organization', group)
+    emitter.emit(membership)
 
 
 def parse(context, data):
-    res = context.http.rehash(data)
-    for node in res.xml.findall('.//mep'):
-        parse_entry(context, node)
+    emitter = EntityEmitter(context)
+    with context.http.rehash(data) as res:
+        for node in res.xml.findall('.//mep'):
+            parse_node(emitter, node)
