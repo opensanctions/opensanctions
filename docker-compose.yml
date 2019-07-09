@@ -9,6 +9,7 @@ services:
     command: memorious process
     links:
       - postgres
+      - redis
     volumes:
       - "./build/data:/data"
     tmpfs:
