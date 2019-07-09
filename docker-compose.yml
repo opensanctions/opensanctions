@@ -1,0 +1,44 @@
+version: "2"
+
+volumes:
+  local_postgres_data: {}
+
+services:
+  worker:
+    build: .
+    command: memorious process
+    links:
+      - postgres
+    volumes:
+      - "./build/data:/data"
+    tmpfs:
+      - "/tmp"
+    env_file:
+      - envfile.env
+
+  postgres:
+    image: postgres:11.4
+    volumes:
+      - local_postgres_data:/var/lib/postgresql/data
+    env_file:
+      - envfile.env
+
+  ui:
+    build: .
+    command: gunicorn -t 900 -w 8 -b 0.0.0.0:8000 --log-level info --log-file - memorious.ui.views:app
+    links:
+      - redis
+    volumes:
+      - "./build/data:/data"
+    tmpfs:
+      - "/tmp"
+    ports:
+      - "8000:8000"
+    env_file:
+      - envfile.env
+
+  redis:
+    image: redis:alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - ./build/redis-data:/data

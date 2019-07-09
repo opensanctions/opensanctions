@@ -3,3 +3,5 @@ docs/
 Makefile
 Dockerfile
 .git
+venv
+*.egg-info
