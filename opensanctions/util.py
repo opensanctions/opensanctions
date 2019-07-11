@@ -13,7 +13,7 @@ class EntityEmitter(object):
         self.context = context
         self.fragment = 0
         self.log = context.log
-        self.dataset = balkhash.init(self.context.name)
+        self.dataset = balkhash.init(self.context.crawler.name)
         self.bulk = self.dataset.bulk()
 
     def make(self, schema):
