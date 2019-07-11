@@ -13,22 +13,22 @@ services:
       - "/tmp"
     environment:
       BALKHASH_BACKEND: POSTGRESQL
-      BALKHASH_DATABASE_URI: postgresql://postgres:postgres@postgres/opensanctions
+      BALKHASH_DATABASE_URI: postgresql://opensanctions:opensanctions@postgres/opensanctions
 
   postgres:
     image: postgres:11.4
     volumes:
       - "./data/postgres-data:/var/lib/postgresql/data"
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DATABASE: opensanctions
+      POSTGRES_USER: opensanctions
+      POSTGRES_PASSWORD: opensanctions
 
   ui:
     build: .
     command: gunicorn -t 900 -w 8 -b 0.0.0.0:8000 --log-level info --log-file - memorious.ui.views:app
     links:
       - redis
+      - postgres
     volumes:
       - "./data/data:/data"
     tmpfs:
@@ -37,7 +37,7 @@ services:
       - "8000:8000"
     environment:
       BALKHASH_BACKEND: POSTGRESQL
-      BALKHASH_DATABASE_URI: postgresql://postgres:postgres@postgres/opensanctions
+      BALKHASH_DATABASE_URI: postgresql://opensanctions:opensanctions@postgres/opensanctions
 
   redis:
     image: redis:alpine
