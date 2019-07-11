@@ -406,3 +406,5 @@ def parse(context, data):
 
         for relation in doc.findall(qpath('ProfileRelationship')):
             parse_relation(emitter, doc, relation)
+
+    emitter.finalize()

@@ -28,6 +28,7 @@ def parse(context, data):
 
         for membership in res.json.get('memberships', []):
             parse_membership(emitter, membership, persons, organizations)
+    emitter.finalize()
 
 
 def parse_person(emitter, data, country):

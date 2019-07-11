@@ -26,6 +26,9 @@ class EntityEmitter(object):
         self.fragment += 1
         self.context.emit(rule=rule, data=data)
 
+    def finalize(self):
+        pass
+
 
 def normalize_country(name):
     return countrynames.to_code(name)

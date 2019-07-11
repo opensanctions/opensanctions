@@ -10,6 +10,7 @@ def parse(context, data):
     with context.http.rehash(data) as result:
         for node in result.xml.findall('.//record'):
             parse_entry(emitter, node)
+    emitter.finalize()
 
 
 def parse_entry(emitter, node):

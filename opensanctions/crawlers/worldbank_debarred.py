@@ -81,3 +81,5 @@ def parse(context, data):
                 sanction.add('sourceUrl', data.get('url'))
                 emitter.emit(entity)
                 emitter.emit(sanction)
+
+    emitter.finalize()

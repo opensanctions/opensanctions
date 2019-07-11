@@ -48,3 +48,4 @@ def parse(context, data):
                     url = next_url
             if url is None:
                 break
+    emitter.finalize()

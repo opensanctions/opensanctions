@@ -62,6 +62,7 @@ def parse(context, data):
             elif name == 'place_of_birth':
                 entity.add('birthPlace', value)
         emitter.emit(entity)
+    emitter.finalize()
 
 
 def index(context, data):
