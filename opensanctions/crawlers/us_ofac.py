@@ -386,7 +386,7 @@ def parse_relation(emitter, doc, relation):
     type_ = deref(doc, 'RelationType', relation.get('RelationTypeID'))
     schema, from_attr, to_attr = RELATIONS.get(type_)
     entity = emitter.make(schema)
-    entity.make_id(relation.get('ID'))
+    entity.make_id(schema, relation.get('ID'))
     entity.add(from_attr, from_party)
     entity.add(to_attr, to_party)
     emitter.emit(entity)
