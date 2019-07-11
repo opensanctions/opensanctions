@@ -14,8 +14,3 @@ pipeline:
       pass: parse
   parse:
     method: opensanctions.crawlers.worldbank_debarred:parse
-    handle:
-      pass: store
-  store:
-    method: balkhash_put
-

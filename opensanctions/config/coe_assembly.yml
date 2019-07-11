@@ -5,8 +5,4 @@ pipeline:
   init:
     method: opensanctions.crawlers.coe_assembly:parse
     handle:
-      pass: store
       page: fetch
-  store:
-    method: balkhash_put
-

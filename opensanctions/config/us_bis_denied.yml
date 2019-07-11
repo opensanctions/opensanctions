@@ -14,8 +14,3 @@ pipeline:
       pass: parse
   parse:
     method: opensanctions.crawlers.us_bis_denied:parse
-    handle:
-      pass: store
-  store:
-    method: balkhash_put
-

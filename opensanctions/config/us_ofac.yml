@@ -16,8 +16,3 @@ pipeline:
       pass: parse
   parse:
     method: opensanctions.crawlers.us_ofac:parse
-    handle:
-      pass: store
-  store:
-    method: balkhash_put
-

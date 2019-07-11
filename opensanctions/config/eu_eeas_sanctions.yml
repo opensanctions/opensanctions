@@ -14,7 +14,3 @@ pipeline:
       pass: parse
   parse:
     method: opensanctions.crawlers.eu_eeas_sanctions:eeas_parse
-    handle:
-      pass: store
-  store:
-    method: balkhash_put
