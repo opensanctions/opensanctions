@@ -10,21 +10,20 @@ log = logging.getLogger(__name__)
 class EntityEmitter(object):
 
     def __init__(self, context):
-        self.context = context
         self.fragment = 0
         self.log = context.log
-        self.dataset = balkhash.init(self.context.crawler.name)
+        self.name = context.crawler.name
+        self.dataset = balkhash.init(self.name)
         self.bulk = self.dataset.bulk()
 
     def make(self, schema):
-        key_prefix = self.context.crawler.name
-        entity = model.make_entity(schema, key_prefix=key_prefix)
+        entity = model.make_entity(schema, key_prefix=self.name)
         return entity
 
     def emit(self, entity, rule='pass'):
         if entity.id is None:
-            log.warning("Entity has no ID: %r", entity)
-        self.bulk.put(entity, str(self.fragment))
+            raise RuntimeError("Entity has no ID: %r", entity)
+        self.bulk.put(entity, fragment=str(self.fragment))
         self.fragment += 1
 
     def finalize(self):
