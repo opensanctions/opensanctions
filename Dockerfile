@@ -1,5 +1,5 @@
 FROM alephdata/memorious
-RUN apk add --no-cache --virtual .build-deps gcc python3-dev postgresql-dev
+RUN apk add --no-cache --virtual .build-deps gcc python3-dev postgresql-dev musl-dev
 COPY setup.py /opensanctions/setup.py
 RUN pip install -e /opensanctions
 COPY . /opensanctions
