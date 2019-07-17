@@ -1,20 +1,6 @@
 version: "2"
 
 services:
-  worker:
-    build: .
-    command: memorious process
-    links:
-      - postgres
-      - redis
-    volumes:
-      - "./data/data:/data"
-    tmpfs:
-      - "/tmp"
-    environment:
-      BALKHASH_BACKEND: POSTGRESQL
-      BALKHASH_DATABASE_URI: postgresql://opensanctions:opensanctions@postgres/opensanctions
-
   postgres:
     image: postgres:11.4
     volumes:
@@ -22,6 +8,12 @@ services:
     environment:
       POSTGRES_USER: opensanctions
       POSTGRES_PASSWORD: opensanctions
+
+  redis:
+    image: redis:alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - ./data/redis-data:/data
 
   ui:
     build: .
@@ -38,9 +30,17 @@ services:
     environment:
       BALKHASH_BACKEND: POSTGRESQL
       BALKHASH_DATABASE_URI: postgresql://opensanctions:opensanctions@postgres/opensanctions
-
-  redis:
-    image: redis:alpine
-    command: ["redis-server", "--appendonly", "yes"]
+  
+  worker:
+    build: .
+    command: memorious process
+    links:
+      - postgres
+      - redis
     volumes:
-      - ./data/redis-data:/data
+      - "./data/data:/data"
+    tmpfs:
+      - "/tmp"
+    environment:
+      BALKHASH_BACKEND: POSTGRESQL
+      BALKHASH_DATABASE_URI: postgresql://opensanctions:opensanctions@postgres/opensanctions
