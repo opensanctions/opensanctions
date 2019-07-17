@@ -74,3 +74,4 @@ def eeas_parse(context, data):
     with context.http.rehash(data) as res:
         for entry in res.xml.findall('.//ENTITY'):
             parse_entry(emitter, entry)
+    emitter.finalize()

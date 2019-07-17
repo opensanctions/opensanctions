@@ -59,3 +59,4 @@ def parse(context, data):
     with context.http.rehash(data) as res:
         for node in res.xml.findall('.//mep'):
             parse_node(emitter, node)
+    emitter.finalize()

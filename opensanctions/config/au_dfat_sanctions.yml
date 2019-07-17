@@ -14,8 +14,3 @@ pipeline:
       pass: parse
   parse:
     method: opensanctions.crawlers.au_dfat_sanctions:parse
-    handle:
-      pass: store
-  store:
-    method: balkhash_put
-

@@ -37,3 +37,4 @@ def parse(context, data):
         with open(res.file_path, 'r') as csvfile:
             for row in csv.DictReader(csvfile, delimiter='\t'):
                 parse_row(emitter, row)
+    emitter.finalize()

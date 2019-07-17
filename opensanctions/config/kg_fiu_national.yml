@@ -14,8 +14,3 @@ pipeline:
       pass: parse
   parse:
     method: opensanctions.crawlers.kg_fiu_national:parse
-    handle:
-      pass: store
-  store:
-    method: balkhash_put
-

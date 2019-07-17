@@ -386,7 +386,7 @@ def parse_relation(emitter, doc, relation):
     type_ = deref(doc, 'RelationType', relation.get('RelationTypeID'))
     schema, from_attr, to_attr = RELATIONS.get(type_)
     entity = emitter.make(schema)
-    entity.make_id(relation.get('ID'))
+    entity.make_id(schema, relation.get('ID'))
     entity.add(from_attr, from_party)
     entity.add(to_attr, to_party)
     emitter.emit(entity)
@@ -395,9 +395,7 @@ def parse_relation(emitter, doc, relation):
 def parse(context, data):
     emitter = EntityEmitter(context)
     with context.http.rehash(data) as res:
-        context.log.info("LOADED XML")
         doc = res.xml
-        context.log.info("PARSED XML")
         for distinct_party in doc.findall(qpath('DistinctParty')):
             parse_party(emitter, doc, distinct_party)
 
@@ -406,3 +404,5 @@ def parse(context, data):
 
         for relation in doc.findall(qpath('ProfileRelationship')):
             parse_relation(emitter, doc, relation)
+
+    emitter.finalize()

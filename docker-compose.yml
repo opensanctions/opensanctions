@@ -1,8 +1,5 @@
 version: "2"
 
-volumes:
-  local_postgres_data: {}
-
 services:
   worker:
     build: .
@@ -11,35 +8,39 @@ services:
       - postgres
       - redis
     volumes:
-      - "./build/data:/data"
+      - "./data/data:/data"
     tmpfs:
       - "/tmp"
-    env_file:
-      - envfile.env
+    environment:
+      BALKHASH_BACKEND: POSTGRESQL
+      BALKHASH_DATABASE_URI: postgresql://opensanctions:opensanctions@postgres/opensanctions
 
   postgres:
     image: postgres:11.4
     volumes:
-      - local_postgres_data:/var/lib/postgresql/data
-    env_file:
-      - envfile.env
+      - "./data/postgres-data:/var/lib/postgresql/data"
+    environment:
+      POSTGRES_USER: opensanctions
+      POSTGRES_PASSWORD: opensanctions
 
   ui:
     build: .
     command: gunicorn -t 900 -w 8 -b 0.0.0.0:8000 --log-level info --log-file - memorious.ui.views:app
     links:
       - redis
+      - postgres
     volumes:
-      - "./build/data:/data"
+      - "./data/data:/data"
     tmpfs:
       - "/tmp"
     ports:
       - "8000:8000"
-    env_file:
-      - envfile.env
+    environment:
+      BALKHASH_BACKEND: POSTGRESQL
+      BALKHASH_DATABASE_URI: postgresql://opensanctions:opensanctions@postgres/opensanctions
 
   redis:
     image: redis:alpine
     command: ["redis-server", "--appendonly", "yes"]
     volumes:
-      - ./build/redis-data:/data
+      - ./data/redis-data:/data

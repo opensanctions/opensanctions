@@ -22,7 +22,4 @@ pipeline:
       pass: parse
   parse:
     method: opensanctions.crawlers.everypolitician:parse
-    handle:
-      pass: store
-  store:
-    method: balkhash_put
+

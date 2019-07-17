@@ -144,3 +144,4 @@ def parse(context, data):
 
         for node in res.xml.findall('.//ENTITY'):
             parse_entity(emitter, node)
+    emitter.finalize()

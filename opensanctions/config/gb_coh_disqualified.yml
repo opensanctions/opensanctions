@@ -27,8 +27,3 @@ pipeline:
       url: fetch_pages
   officer:
     method: opensanctions.crawlers.gb_coh_disqualified:officer
-    handle:
-      pass: store
-  store:
-    method: balkhash_put
-

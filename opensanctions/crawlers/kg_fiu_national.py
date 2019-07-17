@@ -90,3 +90,4 @@ def parse(context, data):
                 parse_organisation(emitter, row)
             if len(row) == 9:
                 parse_individual(emitter, row)
+    emitter.finalize()

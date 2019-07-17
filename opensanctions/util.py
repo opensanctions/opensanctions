@@ -1,4 +1,5 @@
 import logging
+import balkhash
 import countrynames
 from normality import stringify
 from followthemoney import model
@@ -9,22 +10,24 @@ log = logging.getLogger(__name__)
 class EntityEmitter(object):
 
     def __init__(self, context):
-        self.context = context
         self.fragment = 0
         self.log = context.log
+        self.name = context.crawler.name
+        self.dataset = balkhash.init(self.name)
+        self.bulk = self.dataset.bulk()
 
     def make(self, schema):
-        key_prefix = self.context.crawler.name
-        entity = model.make_entity(schema, key_prefix=key_prefix)
+        entity = model.make_entity(schema, key_prefix=self.name)
         return entity
 
     def emit(self, entity, rule='pass'):
-        data = entity.to_dict()
         if entity.id is None:
-            log.warning("Entity has no ID: %r", data)
-        data['fragment'] = str(self.fragment)
+            raise RuntimeError("Entity has no ID: %r", entity)
+        self.bulk.put(entity, fragment=str(self.fragment))
         self.fragment += 1
-        self.context.emit(rule=rule, data=data)
+
+    def finalize(self):
+        self.bulk.flush()
 
 
 def normalize_country(name):

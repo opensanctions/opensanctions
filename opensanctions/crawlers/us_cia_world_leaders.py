@@ -43,6 +43,7 @@ def parse(context, data):
             person.add('position', function)
             person.add('sourceUrl', url)
             emitter.emit(person)
+    emitter.finalize()
 
 
 def index(context, data):

@@ -14,8 +14,8 @@ def parse_date(date):
         date, _ = date.split(';', 1)
     try:
         return datetime.strptime(date, '%d %b %Y').date().isoformat()
-    except Exception as ex:
-        match = re.search('\d{4}', date)
+    except Exception:
+        match = re.search(r'\d{4}', date)
         if match:
             return match.group(0)
 
@@ -94,3 +94,4 @@ def parse(context, data):
     with context.http.rehash(data) as res:
         for entry in res.xml.findall('.//acount-list'):
             parse_entry(emitter, entry)
+    emitter.finalize()

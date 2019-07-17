@@ -86,3 +86,4 @@ def parse(context, data):
 
     for ref, rows in references.items():
         parse_reference(emitter, ref, rows)
+    emitter.finalize()

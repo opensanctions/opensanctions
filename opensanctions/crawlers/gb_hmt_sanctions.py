@@ -133,3 +133,5 @@ def parse(context, data):
 
     for group, rows in groups.items():
         parse_entry(emitter, group, rows)
+
+    emitter.finalize()

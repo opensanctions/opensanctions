@@ -60,6 +60,7 @@ def officer(context, data):
                                locality, address.get('region'), sep=', ')
             person.add('address', address)
         emitter.emit(person)
+    emitter.finalize()
 
 
 def pages(context, data):

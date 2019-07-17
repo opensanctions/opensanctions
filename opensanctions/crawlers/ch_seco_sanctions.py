@@ -188,3 +188,4 @@ def seco_parse(context, data):
 
         for target in res.xml.findall('./target'):
             parse_entry(emitter, target, programs, places, updated_at)
+    emitter.finalize()
