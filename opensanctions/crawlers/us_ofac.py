@@ -305,6 +305,9 @@ def parse_party(emitter, doc, distinct_party):
     type_ = deref(doc, 'PartySubType', sub_type_, 'PartyTypeID')
     type_ = deref(doc, 'PartyType', type_)
     schema = TYPES.get(type_, TYPES.get(sub_type))
+    if schema is None:
+        emitter.log.error("Unknown type: %s", type_)
+        return
     party = emitter.make(schema)
     party.make_id('Profile', profile.get('ID'))
     party.add('notes', distinct_party.findtext(qpath('Comment')))
