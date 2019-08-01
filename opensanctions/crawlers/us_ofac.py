@@ -84,7 +84,7 @@ REGISTRATIONS = {
     "US FEIN": ('LegalEntity', ''),
     "Driver's License No.": ('Person', 'idNumber'),
     "RUC #": ('LegalEntity', 'taxNumber'),
-    "N.I.E.": ('LegalEntity', 'isNumber'),
+    "N.I.E.": ('LegalEntity', 'idNumber'),
     "C.I.F.": ('LegalEntity', 'taxNumber'),
     "Business Registration Document #": ('LegalEntity', ''),
     "RIF #": ('LegalEntity', ''),
