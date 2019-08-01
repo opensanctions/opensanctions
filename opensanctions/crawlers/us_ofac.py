@@ -306,7 +306,7 @@ def parse_party(emitter, doc, distinct_party):
     type_ = deref(doc, 'PartyType', type_)
     schema = TYPES.get(type_, TYPES.get(sub_type))
     party = emitter.make(schema)
-    party.make_id(profile.get('ID'))
+    party.make_id('Profile', profile.get('ID'))
     party.add('notes', distinct_party.findtext(qpath('Comment')))
 
     for identity in profile.findall(qpath('Identity')):
@@ -351,10 +351,10 @@ def parse_party(emitter, doc, distinct_party):
 
 def parse_entry(emitter, doc, entry):
     party = emitter.make('LegalEntity')
-    party.make_id(entry.get('ProfileID'))
+    party.make_id('Profile', entry.get('ProfileID'))
 
     sanction = emitter.make('Sanction')
-    sanction.make_id(party.id, entry.get('ID'))
+    sanction.make_id('Sanction', party.id, entry.get('ID'))
     sanction.add('entity', party)
     sanction.add('authority', 'US Office of Foreign Asset Control')
 
@@ -379,14 +379,14 @@ def parse_entry(emitter, doc, entry):
 
 def parse_relation(emitter, doc, relation):
     from_party = emitter.make('LegalEntity')
-    from_party.make_id(relation.get('From-ProfileID'))
+    from_party.make_id('Profile', relation.get('From-ProfileID'))
     to_party = emitter.make('LegalEntity')
-    to_party.make_id(relation.get('To-ProfileID'))
+    to_party.make_id('Profile', relation.get('To-ProfileID'))
 
     type_ = deref(doc, 'RelationType', relation.get('RelationTypeID'))
     schema, from_attr, to_attr = RELATIONS.get(type_)
     entity = emitter.make(schema)
-    entity.make_id(schema, relation.get('ID'))
+    entity.make_id('Relation', schema, relation.get('ID'))
     entity.add(from_attr, from_party)
     entity.add(to_attr, to_party)
     emitter.emit(entity)
