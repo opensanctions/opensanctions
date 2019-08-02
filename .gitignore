@@ -6,6 +6,7 @@ __pycache__/
 *.sqlite3
 .env
 .vscode
+balkhashdb
 
 # C extensions
 *.so

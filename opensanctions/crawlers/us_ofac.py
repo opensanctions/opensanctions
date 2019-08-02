@@ -47,7 +47,7 @@ FEATURES = {
     "Website": ('website', 'LegalEntity'),
     "Email Address": ('email', 'LegalEntity'),
     "Former Vessel Flag": ('pastFlags', 'Vessel'),
-    "Location": ('address', 'LegalEntity'),
+    "Location": ('address', 'Thing'),
     "Title": ('title', 'LegalEntity'),
     "Aircraft Construction Number (also called L/N or S/N or F/N)": ('serialNumber', 'Airplane'),  # noqa
     "Aircraft Manufacture Date": ('buildDate', 'Airplane'),
