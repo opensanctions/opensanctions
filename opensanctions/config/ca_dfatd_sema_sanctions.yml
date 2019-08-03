@@ -1,6 +1,6 @@
 name: ca_dfatd_sema_sanctions
 description: "[OSANC] Canada Special Economic Measures Act Sanctions"
-schedule: weekly
+schedule: daily
 pipeline:
   init:
     method: seed

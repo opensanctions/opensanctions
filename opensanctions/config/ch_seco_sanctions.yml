@@ -1,6 +1,6 @@
 name: ch_seco_sanctions
 description: "[OSANC] Swiss SECO Sanctions/Embargoes"
-schedule: weekly
+schedule: daily
 pipeline:
   init:
     method: seed

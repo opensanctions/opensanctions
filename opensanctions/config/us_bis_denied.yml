@@ -1,6 +1,6 @@
 name: us_bis_denied
 description: "[OSANC] US BIS Denied Persons List"
-schedule: weekly
+schedule: daily
 pipeline:
   init:
     method: seed

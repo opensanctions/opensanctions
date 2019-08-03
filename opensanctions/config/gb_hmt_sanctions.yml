@@ -1,6 +1,6 @@
 name: gb_hmt_sanctions
 description: "[OSANC] UK HM Treasury sanctions list"
-schedule: weekly
+schedule: daily
 pipeline:
   init:
     method: seed

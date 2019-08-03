@@ -1,6 +1,6 @@
 name: coe_assembly
 description: "[OSANC] Council of Europe Parliamentary Assembly"
-schedule: weekly
+schedule: daily
 pipeline:
   init:
     method: opensanctions.crawlers.coe_assembly:parse
