@@ -36,7 +36,7 @@ FEATURES = {
     "Vessel Call Sign": ('callSign', 'Vessel'),
     "VESSEL TYPE": ('type', 'Vessel'),
     "Vessel Flag": ('flag', 'Vessel'),
-    "Vessel Owner": ('owner', 'Vessel'),
+    # "Vessel Owner": ('owner', 'Vessel'),
     "Vessel Tonnage": ('tonnage', 'Vessel'),
     "Vessel Gross Registered Tonnage": ('tonnage', 'Vessel'),  # noqa
     "Birthdate": ('birthDate', 'Person'),
