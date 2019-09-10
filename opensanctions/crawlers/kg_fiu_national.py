@@ -1,5 +1,6 @@
 from pprint import pprint  # noqa
 from datetime import datetime
+import re
 
 from opensanctions.util import EntityEmitter
 from opensanctions.util import jointext
@@ -22,8 +23,13 @@ def has_integer_id(row):
 
 
 def parse_date(date):
+    pattern = re.compile(r'[^0-9\.]')
     if date is not None:
-        date = datetime.strptime(date, '%d.%m.%Y')
+        date = pattern.sub('', date)
+        try:
+            date = datetime.strptime(date, '%d.%m.%Y')
+        except ValueError:
+            date = datetime.strptime(date, '%Y')
         return date.date()
 
 
@@ -51,7 +57,12 @@ def parse_individual(emitter, data):
     person.add('lastName', data["Last Name"])
     person.add('firstName', data["Name"])
     person.add('fatherName', data["Middle Name"])
-    person.add('birthDate', parse_date(data["Date of birth"]))
+    # Some records have multiple dobs
+    dob = data["Date of birth"]
+    if dob is not None:
+        dobs = dob.split()
+        for date in dobs:
+            person.add('birthDate', parse_date(date))
     person.add('birthPlace', data["Place of birth"])
 
     sanction = emitter.make('Sanction')

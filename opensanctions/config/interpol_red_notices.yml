@@ -3,14 +3,30 @@ description: "[OSANC] Interpol Red Notices"
 schedule: daily
 pipeline:
   init:
-    method: opensanctions.crawlers.interpol_red_notices:index
+    method: seed
     params:
-      url: 'http://www.interpol.int/notice/search/wanted/(offset)/%s'
+      url: 'https://www.interpol.int/en/How-we-work/Notices/View-Red-Notices'
     handle:
       pass: fetch
   fetch:
     method: fetch
     handle:
-      pass: parse
-  parse:
-    method: opensanctions.crawlers.interpol_red_notices:parse
+      pass: index
+  index:
+    method: opensanctions.crawlers.interpol_red_notices:index
+    handle:
+      pass: fetch_notices
+  fetch_notices:
+    method: fetch
+    handle:
+      pass: parse_noticelist
+  parse_noticelist:
+    method: opensanctions.crawlers.interpol_red_notices:parse_noticelist
+    handle:
+      pass: fetch_notice
+  fetch_notice:
+    method: fetch
+    handle:
+      pass: parse_notice
+  parse_notice:
+    method: opensanctions.crawlers.interpol_red_notices:parse_notice

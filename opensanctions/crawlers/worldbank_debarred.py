@@ -5,7 +5,7 @@ from datetime import datetime
 from opensanctions.util import EntityEmitter, normalize_country
 
 SPLITS = r'(a\.k\.a\.?|aka|f/k/a|also known as|\(formerly |, also d\.b\.a\.|\(currently (d/b/a)?|d/b/a|\(name change from|, as the successor or assign to)'  # noqa
-
+SOURCE = 'https://www.worldbank.org/en/projects-operations/procurement/debarred-firms'
 
 def clean_date(date):
     try:
@@ -13,12 +13,6 @@ def clean_date(date):
         return dt.date().isoformat()
     except Exception:
         pass
-
-
-def clean_value(el):
-    text = el.text_content().strip()
-    text = text.replace(u',\xa0\n\n', ' ')
-    return text.strip()
 
 
 def clean_name(text):
@@ -46,40 +40,46 @@ def clean_name(text):
     return clean_names
 
 
+def fetch(context, data):
+    url = context.params.get('url')
+    apikey = context.params.get('apikey')
+    response = context.http.get(url, headers={'apikey': apikey})
+    for ent in response.json['response']['ZPROCSUPP']:
+        context.emit(data=ent)
+
+
 def parse(context, data):
     emitter = EntityEmitter(context)
-    with context.http.rehash(data) as res:
-        for table in res.html.findall('.//table'):
-            if 'List of Debarred' not in table.get('summary', ''):
-                continue
-            rows = table.findall('.//tr')
-            for row in rows:
-                tds = row.findall('./td')
-                if len(tds) != 6:
-                    continue
-                values = [clean_value(td) for td in tds]
-                entity = emitter.make('LegalEntity')
-                entity.make_id(*values)
+    entity = emitter.make('LegalEntity')
 
-                names = clean_name(values[0])
-                if not len(names):
-                    context.log.warning("No name: %r", values)
-                    continue
+    name = data.get('SUPP_NAME')
+    ent_id = data.get('SUPP_ID')
+    reason = data.get('DEBAR_REASON')
+    country = data.get('COUNTRY_NAME')
+    city = data.get('SUPP_CITY')
+    address = data.get('SUPP_ADDR')
+    start_date = data.get('DEBAR_FROM_DATE')
+    end_date = data.get('DEBAR_TO_DATE')
 
-                entity.add('name', names[0])
-                entity.add('address', values[1])
-                entity.add('country', normalize_country(values[2]))
-                for name in names[1:]:
-                    entity.add('alias', name)
 
-                sanction = emitter.make('Sanction')
-                sanction.make_id('Sanction', entity.id)
-                sanction.add('authority', 'World Bank Debarrment')
-                sanction.add('program', values[5])
-                sanction.add('startDate', clean_date(values[3]))
-                sanction.add('endDate', clean_date(values[4]))
-                sanction.add('sourceUrl', data.get('url'))
-                emitter.emit(entity)
-                emitter.emit(sanction)
+    entity.make_id(name, ent_id, country)
+
+    names = clean_name(name)
+    entity.add('name', names[0])
+    entity.add('address', address)
+    entity.add('address', city)
+    entity.add('country', normalize_country(country))
+    for name in names[1:]:
+        entity.add('alias', name)
+
+    sanction = emitter.make('Sanction')
+    sanction.make_id('Sanction', entity.id)
+    sanction.add('authority', 'World Bank Debarrment')
+    sanction.add('program', reason)
+    sanction.add('startDate', clean_date(start_date))
+    sanction.add('endDate', clean_date(end_date))
+    sanction.add('sourceUrl', SOURCE)
+    emitter.emit(entity)
+    emitter.emit(sanction)
 
     emitter.finalize()

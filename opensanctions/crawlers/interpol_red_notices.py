@@ -1,79 +1,83 @@
 from urllib.parse import urljoin
 from normality import slugify, collapse_spaces, stringify
 from pprint import pprint  # noqa
+from datetime import datetime
 
 from opensanctions import constants
 from opensanctions.util import EntityEmitter
 from opensanctions.util import jointext
 
 SEXES = {
-    'Male': constants.MALE,
-    'Female': constants.FEMALE,
+    'M': constants.MALE,
+    'F': constants.FEMALE,
 }
 
+NOTICE_URL = 'https://ws-public.interpol.int/notices/v1/red?&nationality=%s&arrestWarrantCountryId=%s'
 
-def element_text(el):
+def parse_date(date):
+    date = datetime.strptime(date, '%Y/%m/%d')
+    return date.date()
+
+def get_value(el):
     if el is None:
         return
-    text = stringify(el.text_content())
+    text = stringify(el.get('value'))
     if text is not None:
         return collapse_spaces(text)
 
 
-def parse(context, data):
-    emitter = EntityEmitter(context)
+def index(context, data):
     with context.http.rehash(data) as result:
         doc = result.html
-        name = element_text(doc.find('.//div[@class="nom_fugitif_wanted"]'))
-        if name is None or name == 'Identity unknown':
-            return
+        nationalities = doc.findall(".//select[@id='nationality']//option")
+        nationalities = [get_value(el) for el in nationalities]
+        nationalities = [x for x in nationalities if x is not None]
+        wanted_by = doc.findall(".//select[@id='arrestWarrantCountryId']//option")  # noqa
+        wanted_by = [get_value(el) for el in wanted_by]
+        wanted_by = [x for x in wanted_by if x is not None]
+        combinations = [(n, w) for n in nationalities for w in wanted_by]
+        for (nationality, wanted_by) in combinations:
+            url = NOTICE_URL % (nationality, wanted_by)
+            context.emit(data={'url': url})
+
+
+def parse_noticelist(context, data):
+    with context.http.rehash(data) as res:
+        res = res.json
+        notices = res['_embedded']['notices']
+        for notice in notices:
+            url = notice['_links']['self']['href']
+            context.emit(data={'url': url})
+
+
+def parse_notice(context, data):
+    with context.http.rehash(data) as res:
+        res = res.json
+        first_name = res['forename'] or ''
+        last_name = res['name'] or ''
+        dob = res['date_of_birth']
+        nationalities = res['nationalities']
+        place_of_birth = res['place_of_birth']
+        warrants = [
+            (warrant['charge'], warrant['issuing_country_id'])
+            for warrant in res['arrest_warrants']  # noqa
+        ]
+        gender = SEXES.get(res['sex_id'])
+        emitter = EntityEmitter(context)
         entity = emitter.make('Person')
-        entity.make_id(data.get('url'))
-        entity.add('name', name)
-        entity.add('sourceUrl', data.get('url'))
-        wanted = element_text(doc.find('.//span[@class="nom_fugitif_wanted_small"]'))  # noqa
-        entity.add('program', wanted)
+        entity.make_id(first_name, last_name, res['entity_id'])
+        entity.add('name', first_name + ' ' + last_name)
+        entity.add('firstName', first_name)
+        entity.add('lastName', last_name)
+        entity.add('nationality', nationalities)
+        for charge, country in warrants:
+            entity.add('program', country)
+            entity.add('summary', charge)
+        entity.add('gender', gender)
+        entity.add('birthPlace', place_of_birth)
+        entity.add('birthDate', parse_date(dob))
+        entity.add('sourceUrl', res['_links']['self']['href'])
         entity.add('keywords', 'REDNOTICE')
         entity.add('keywords', 'CRIME')
-
-        if ', ' in name:
-            last, first = name.split(', ', 1)
-            entity.add('alias', jointext(first, last))
-
-        for row in doc.findall('.//div[@class="bloc_detail"]//tr'):
-            title, value = row.findall('./td')
-            name = slugify(element_text(title), sep='_')
-            value = element_text(value)
-            if value is None:
-                continue
-            if name == 'charges':
-                entity.add('summary', value)
-            elif name == 'present_family_name':
-                entity.add('lastName', value)
-            elif name == 'forename':
-                entity.add('firstName', value)
-            elif name == 'nationality':
-                for country in value.split(', '):
-                    entity.add('nationality', country)
-            elif name == 'sex':
-                entity.add('gender', SEXES[value])
-            elif name == 'date_of_birth':
-                entity.add('birthDate', value.split('(')[0])
-            elif name == 'place_of_birth':
-                entity.add('birthPlace', value)
         emitter.emit(entity)
-    emitter.finalize()
-
-
-def index(context, data):
-    page = data.get('page', 0)
-    url = context.params.get('url')
-    url = url % (page * 9)
-    res = context.http.get(url)
-    links = res.html.findall('.//div[@class="wanted"]//a')
-    if not len(links):
-        return
-    for link in links:
-        case_url = urljoin(url, link.get('href'))
-        context.emit(data={'url': case_url})
-    context.recurse(data={'page': page + 1})
+        emitter.finalize()
