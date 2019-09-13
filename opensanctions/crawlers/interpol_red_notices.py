@@ -1,11 +1,10 @@
-from urllib.parse import urljoin
-from normality import slugify, collapse_spaces, stringify
+from normality import collapse_spaces, stringify
 from pprint import pprint  # noqa
 from datetime import datetime
 
 from opensanctions import constants
 from opensanctions.util import EntityEmitter
-from opensanctions.util import jointext
+
 
 SEXES = {
     'M': constants.MALE,
@@ -14,9 +13,15 @@ SEXES = {
 
 NOTICE_URL = 'https://ws-public.interpol.int/notices/v1/red?&nationality=%s&arrestWarrantCountryId=%s'
 
+
 def parse_date(date):
-    date = datetime.strptime(date, '%Y/%m/%d')
-    return date.date()
+    if date:
+        try:
+            date = datetime.strptime(date, '%Y/%m/%d')
+        except ValueError:
+            date = datetime.strptime(date, '%Y')
+        return date.date()
+
 
 def get_value(el):
     if el is None:
