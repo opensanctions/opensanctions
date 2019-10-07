@@ -5,7 +5,7 @@ pipeline:
   init:
     method: seed
     params:
-      url: 'http://hmt-sanctions.s3.amazonaws.com/sanctionsconlist.csv'
+      url: 'https://ofsistorage.blob.core.windows.net/publishlive/ConList.csv'
     handle:
       pass: fetch
   fetch:
