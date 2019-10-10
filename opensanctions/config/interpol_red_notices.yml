@@ -30,3 +30,5 @@ pipeline:
       pass: parse_notice
   parse_notice:
     method: opensanctions.crawlers.interpol_red_notices:parse_notice
+aggregator:
+  method: balkhash.memorious:aleph_bulkpush

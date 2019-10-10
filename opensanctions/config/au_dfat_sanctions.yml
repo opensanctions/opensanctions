@@ -14,3 +14,5 @@ pipeline:
       pass: parse
   parse:
     method: opensanctions.crawlers.au_dfat_sanctions:parse
+aggregator:
+  method: balkhash.memorious:aleph_bulkpush
