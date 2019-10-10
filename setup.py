@@ -15,9 +15,10 @@ setup(
     },
     zip_safe=False,
     install_requires=[
-        'followthemoney >= 1.9.2',
-        'balkhash[sql] >= 0.3.0',
-        'memorious >= 0.8',
+        'followthemoney >= 1.21.2',
+        'balkhash[sql] >= 1.0.2',
+        'memorious >= 1.2.3',
+        'alephclient >= 1.2.1',
         'countrynames',
         'xlrd',
     ],
