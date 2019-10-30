@@ -22,4 +22,5 @@ pipeline:
       pass: parse
   parse:
     method: opensanctions.crawlers.everypolitician:parse
-
+aggregator:
+  method: balkhash.memorious:aleph_bulkpush

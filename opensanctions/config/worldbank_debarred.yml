@@ -11,3 +11,5 @@ pipeline:
       pass: parse
   parse:
     method: opensanctions.crawlers.worldbank_debarred:parse
+aggregator:
+  method: balkhash.memorious:aleph_bulkpush

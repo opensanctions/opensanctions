@@ -27,3 +27,5 @@ pipeline:
       url: fetch_pages
   officer:
     method: opensanctions.crawlers.gb_coh_disqualified:officer
+aggregator:
+  method: balkhash.memorious:aleph_bulkpush

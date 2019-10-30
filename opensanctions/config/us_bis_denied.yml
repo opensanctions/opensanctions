@@ -14,3 +14,5 @@ pipeline:
       pass: parse
   parse:
     method: opensanctions.crawlers.us_bis_denied:parse
+aggregator:
+  method: balkhash.memorious:aleph_bulkpush

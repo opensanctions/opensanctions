@@ -6,3 +6,5 @@ pipeline:
     method: opensanctions.crawlers.coe_assembly:parse
     handle:
       page: fetch
+aggregator:
+  method: balkhash.memorious:aleph_bulkpush
