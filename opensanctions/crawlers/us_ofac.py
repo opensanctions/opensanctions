@@ -36,7 +36,7 @@ FEATURES = {
     "Vessel Call Sign": ('callSign', 'Vessel'),
     "VESSEL TYPE": ('type', 'Vessel'),
     "Vessel Flag": ('flag', 'Vessel'),
-    # "Vessel Owner": ('owner', 'Vessel'),
+    "Vessel Owner": ('owner', 'Vessel'),
     "Vessel Tonnage": ('tonnage', 'Vessel'),
     "Vessel Gross Registered Tonnage": ('tonnage', 'Vessel'),  # noqa
     "Birthdate": ('birthDate', 'Person'),
@@ -134,7 +134,7 @@ REGISTRATIONS = {
     "Romanian C.R.": ('LegalEntity', ''),
     "Folio Mercantil No.": ('LegalEntity', ''),
     "Istanbul Chamber of Comm. No.": ('LegalEntity', 'registrationNumber'),
-    "Turkish Identificiation Number": ('LegalEntity', 'idNumber'),
+    "Turkish Identification Number": ('LegalEntity', 'idNumber'),
     "Romanian Tax Registration": ('LegalEntity', 'taxNumber'),
     "Stateless Person Passport": ('Person', 'passportNumber'),
     "Stateless Person ID Card": ('Person', 'idNumber'),
@@ -329,16 +329,24 @@ def parse_party(emitter, doc, distinct_party):
                 party.schema = model.get('Company')
                 party.add('ogrnCode', number)
                 continue
-            schema, attr = REGISTRATIONS.get(type_)
-            party.schema = model.common_schema(party.schema, schema)
-            if len(attr):
-                party.add(attr, number)
+            if type_ in REGISTRATIONS.keys():
+                schema, attr = REGISTRATIONS.get(type_)
+            else:
+                emitter.log.error("Unknown type: %s", type_)
+                return
 
+            party.schema = model.common_schema(party.schema, schema)
+            if attr:
+                party.add(attr, number)
     for feature in profile.findall(qpath('Feature')):
         feature_type = deref(doc, 'FeatureType', feature.get('FeatureTypeID'))
-        attr, schema = FEATURES.get(feature_type)
+        if feature_type in FEATURES.keys():
+            attr, schema = FEATURES.get(feature_type)
+        else:
+            emitter.log.error("Unknown type: %s", feature_type)
+            return
         party.schema = model.common_schema(party.schema, schema)
-        if len(attr):
+        if attr:
             value = parse_feature(doc, feature)
             if isinstance(value, tuple):
                 value, country_code = value
@@ -404,7 +412,7 @@ def parse(context, data):
 
         for entry in doc.findall(qpath('SanctionsEntry')):
             parse_entry(emitter, doc, entry)
-
+           
         for relation in doc.findall(qpath('ProfileRelationship')):
             parse_relation(emitter, doc, relation)
 
