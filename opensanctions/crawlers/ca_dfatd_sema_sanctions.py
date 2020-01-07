@@ -47,12 +47,10 @@ def parse_entry(emitter, node):
         entity.add('birthDate', dob, quiet=True)
 
     names = node.findtext('.//Aliases')
-    if names is None:
-        return
-
-    for name in names.split(', '):
-        name = collapse_spaces(name)
-        entity.add('alias', name)
+    if names is not None:
+        for name in names.split(', '):
+            name = collapse_spaces(name)
+            entity.add('alias', name)
 
     emitter.emit(entity)
     emitter.emit(sanction)
