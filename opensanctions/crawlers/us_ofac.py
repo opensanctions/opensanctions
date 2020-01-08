@@ -36,7 +36,7 @@ FEATURES = {
     "Vessel Call Sign": ('callSign', 'Vessel'),
     "VESSEL TYPE": ('type', 'Vessel'),
     "Vessel Flag": ('flag', 'Vessel'),
-    # "Vessel Owner": ('owner', 'Vessel'),
+    "Vessel Owner": ('owner', 'Vessel'),
     "Vessel Tonnage": ('tonnage', 'Vessel'),
     "Vessel Gross Registered Tonnage": ('tonnage', 'Vessel'),  # noqa
     "Birthdate": ('birthDate', 'Person'),
@@ -56,10 +56,10 @@ FEATURES = {
     "Previous Aircraft Tail Number": ('registrationNumber', 'Airplane'),  # noqa
     "Aircraft Manufacturer’s Serial Number (MSN)": ('serialNumber', 'Airplane'),  # noqa
     "Aircraft Tail Number": ('registrationNumber', 'Airplane'),  # noqa
-    "IFCA Determination -": ('notes', 'LegalEntity'),
-    "Additional Sanctions Information -": ('notes', 'LegalEntity'),  # noqa
+    "IFCA Determination -": ('notes', 'Thing'),
+    "Additional Sanctions Information -": ('notes', 'Thing'),  # noqa
     "BIK (RU)": ('bikCode', 'Company'),
-    "Executive Order 13662 Directive Determination -": ('notes', 'LegalEntity'),  # noqa
+    "Executive Order 13662 Directive Determination -": ('notes', 'Thing'),  # noqa
     "Gender": ('gender', 'Person'),
     "UN/LOCODE": (None, 'LegalEntity'),
     "MICEX Code": (None, 'Company'),
@@ -68,9 +68,9 @@ FEATURES = {
     "Nationality of Registration": ('country', 'LegalEntity'),
     "Other Vessel Flag": ('pastFlags', 'Vessel'),
     "Other Vessel Call Sign": ('callSign', 'Vessel'),
-    "Secondary sanctions risk:": ('notes', 'LegalEntity'),
+    "Secondary sanctions risk:": ('notes', 'Thing'),
     "Phone Number": ('phone', 'LegalEntity'),
-    "CAATSA Section 235 Information:": ('notes', 'LegalEntity'),
+    "CAATSA Section 235 Information:": ('notes', 'Thing'),
     "Other Vessel Type": ('pastTypes', 'LegalEntity'),
 }
 
@@ -134,7 +134,7 @@ REGISTRATIONS = {
     "Romanian C.R.": ('LegalEntity', ''),
     "Folio Mercantil No.": ('LegalEntity', ''),
     "Istanbul Chamber of Comm. No.": ('LegalEntity', 'registrationNumber'),
-    "Turkish Identificiation Number": ('LegalEntity', 'idNumber'),
+    "Turkish Identification Number": ('LegalEntity', 'idNumber'),
     "Romanian Tax Registration": ('LegalEntity', 'taxNumber'),
     "Stateless Person Passport": ('Person', 'passportNumber'),
     "Stateless Person ID Card": ('Person', 'idNumber'),
@@ -329,16 +329,23 @@ def parse_party(emitter, doc, distinct_party):
                 party.schema = model.get('Company')
                 party.add('ogrnCode', number)
                 continue
-            schema, attr = REGISTRATIONS.get(type_)
+            if type_ in REGISTRATIONS.keys():
+                schema, attr = REGISTRATIONS.get(type_)
+            else:
+                emitter.log.error("Unknown type: %s", type_)
+                continue
             party.schema = model.common_schema(party.schema, schema)
-            if len(attr):
+            if attr:
                 party.add(attr, number)
-
     for feature in profile.findall(qpath('Feature')):
         feature_type = deref(doc, 'FeatureType', feature.get('FeatureTypeID'))
-        attr, schema = FEATURES.get(feature_type)
+        if feature_type in FEATURES.keys():
+            attr, schema = FEATURES.get(feature_type)
+        else:
+            emitter.log.error("Unknown type: %s", feature_type)
+            continue
         party.schema = model.common_schema(party.schema, schema)
-        if len(attr):
+        if attr:
             value = parse_feature(doc, feature)
             if isinstance(value, tuple):
                 value, country_code = value
