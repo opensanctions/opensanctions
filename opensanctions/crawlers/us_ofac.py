@@ -53,11 +53,12 @@ FEATURES = {
     "Aircraft Manufacture Date": ('buildDate', 'Airplane'),
     "Aircraft Model": ('model', 'Airplane'),
     "Aircraft Operator": ('operator', 'Airplane'),
-    "Previous Aircraft Tail Number": ('registrationNumber', 'Airplane'),  # noqa
+    "Previous Aircraft Tail Number": ('registrationNumber', 'Airplane'),
     "Aircraft Manufacturer’s Serial Number (MSN)": ('serialNumber', 'Airplane'),  # noqa
-    "Aircraft Tail Number": ('registrationNumber', 'Airplane'),  # noqa
+    "Aircraft Mode S Transponder Code": ('serialNumber', 'Airplane'),
+    "Aircraft Tail Number": ('registrationNumber', 'Airplane'),
     "IFCA Determination -": ('notes', 'Thing'),
-    "Additional Sanctions Information -": ('notes', 'Thing'),  # noqa
+    "Additional Sanctions Information -": ('notes', 'Thing'),
     "BIK (RU)": ('bikCode', 'Company'),
     "Executive Order 13662 Directive Determination -": ('notes', 'Thing'),  # noqa
     "Gender": ('gender', 'Person'),
@@ -65,13 +66,13 @@ FEATURES = {
     "MICEX Code": (None, 'Company'),
     "Digital Currency Address - XBT": (None, 'LegalEntity'),
     "D-U-N-S Number": ('dunsCode', 'LegalEntity'),
-    "Nationality of Registration": ('country', 'LegalEntity'),
+    "Nationality of Registration": ('country', 'Thing'),
     "Other Vessel Flag": ('pastFlags', 'Vessel'),
     "Other Vessel Call Sign": ('callSign', 'Vessel'),
     "Secondary sanctions risk:": ('notes', 'Thing'),
     "Phone Number": ('phone', 'LegalEntity'),
     "CAATSA Section 235 Information:": ('notes', 'Thing'),
-    "Other Vessel Type": ('pastTypes', 'LegalEntity'),
+    "Other Vessel Type": ('pastTypes', 'Vessel'),
 }
 
 REGISTRATIONS = {
@@ -120,7 +121,7 @@ REGISTRATIONS = {
     "Certificate of Incorporation Number": ('LegalEntity', 'registrationNumber'),  # noqa
     "Cartilla de Servicio Militar Nacional": ('LegalEntity', ''),
     "C.U.I.P.": ('LegalEntity', ''),
-    "Vessel Registration Identification": ('Vessel', ''),
+    "Vessel Registration Identification": ('Vessel', 'imoNumber'),
     "Personal ID Card": ('LegalEntity', 'idNumber'),
     "VisaNumberID": ('LegalEntity', ''),
     "Matricula Mercantil No": ('LegalEntity', ''),
@@ -162,16 +163,17 @@ REGISTRATIONS = {
     "Birth Certificate Number": ('LegalEntity', ''),
     "Business Registration Number": ('LegalEntity', 'registrationNumber'),
     "Registration Number": ('LegalEntity', 'registrationNumber'),
+    "Aircraft Serial Identification": ('Airplane', 'serialNumber'),
 }
 
 RELATIONS = {
-    'Associate Of': ('Associate', 'person', 'associate'),
-    'Providing support to': ('UnknownLink', 'subject', 'object'),
-    'Acting for or on behalf of': ('Representation', 'agent', 'client'),
-    'Owned or Controlled By': ('Ownership', 'asset', 'owner'),
-    'Family member of': ('Family', 'person', 'relative'),
-    'playing a significant role in': ('Membership', 'member', 'organization'),
-    'Leader or official of': ('Directorship', 'director', 'organization'),
+    'Associate Of': ('Associate', 'person', 'associate', 'Person'),
+    'Providing support to': ('UnknownLink', 'subject', 'object', 'LegalEntity'),  # noqa
+    'Acting for or on behalf of': ('Representation', 'agent', 'client', 'LegalEntity'),  # noqa
+    'Owned or Controlled By': ('Ownership', 'asset', 'owner', 'Company'),
+    'Family member of': ('Family', 'person', 'relative', 'Person'),
+    'playing a significant role in': ('Membership', 'member', 'organization', 'LegalEntity'),  # noqa
+    'Leader or official of': ('Directorship', 'director', 'organization', 'LegalEntity'),  # noqa
 }
 
 
@@ -334,9 +336,15 @@ def parse_party(emitter, doc, distinct_party):
             else:
                 emitter.log.error("Unknown type: %s", type_)
                 continue
-            party.schema = model.common_schema(party.schema, schema)
-            if attr:
-                party.add(attr, number)
+            if attr == 'imoNumber' and party.schema.is_a('LegalEntity'):
+                # https://en.wikipedia.org/wiki/IMO_number
+                # vessel owning Companies can have imoNumber too
+                party.add('idNumber', number)
+                party.schema = model.get('Company')
+            else:
+                party.schema = model.common_schema(party.schema, schema)
+                if attr:
+                    party.add(attr, number)
     for feature in profile.findall(qpath('Feature')):
         feature_type = deref(doc, 'FeatureType', feature.get('FeatureTypeID'))
         if feature_type in FEATURES.keys():
@@ -392,9 +400,10 @@ def parse_relation(emitter, doc, relation):
     from_party.make_id('Profile', relation.get('From-ProfileID'))
     to_party = emitter.make('LegalEntity')
     to_party.make_id('Profile', relation.get('To-ProfileID'))
-
     type_ = deref(doc, 'RelationType', relation.get('RelationTypeID'))
-    schema, from_attr, to_attr = RELATIONS.get(type_)
+    schema, from_attr, to_attr, from_type = RELATIONS.get(type_)
+    from_party.schema = model.get(from_type)
+    emitter.emit(from_party)
     entity = emitter.make(schema)
     entity.make_id('Relation', schema, relation.get('ID'))
     entity.add(from_attr, from_party)
