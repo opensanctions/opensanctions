@@ -28,4 +28,4 @@ pipeline:
   officer:
     method: opensanctions.crawlers.gb_coh_disqualified:officer
 aggregator:
-  method: balkhash.memorious:aleph_bulkpush
+  method: ftm_load_aleph

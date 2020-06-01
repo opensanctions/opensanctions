@@ -15,4 +15,4 @@ pipeline:
   parse:
     method: opensanctions.crawlers.un_sc_sanctions:parse
 aggregator:
-  method: balkhash.memorious:aleph_bulkpush
+  method: ftm_load_aleph

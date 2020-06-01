@@ -16,7 +16,7 @@ setup(
     zip_safe=False,
     install_requires=[
         'followthemoney >= 1.21.2',
-        'followthemoney-store[postgresql] >= 1.2.0',
+        'followthemoney-store[postgresql] >= 2.1.4',
         'memorious >= 1.2.3',
         'alephclient >= 1.2.1',
         'countrynames',

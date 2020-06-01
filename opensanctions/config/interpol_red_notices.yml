@@ -31,4 +31,4 @@ pipeline:
   parse_notice:
     method: opensanctions.crawlers.interpol_red_notices:parse_notice
 aggregator:
-  method: balkhash.memorious:aleph_bulkpush
+  method: ftm_load_aleph
