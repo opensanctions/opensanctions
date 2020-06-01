@@ -28,8 +28,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      BALKHASH_BACKEND: POSTGRESQL
-      BALKHASH_DATABASE_URI: postgresql://opensanctions:opensanctions@postgres/opensanctions
+      MEMORIOUS_DATASTORE_URI: postgresql://opensanctions:opensanctions@postgres/opensanctions
   
   worker:
     build: .
@@ -42,5 +41,4 @@ services:
     tmpfs:
       - "/tmp"
     environment:
-      BALKHASH_BACKEND: POSTGRESQL
-      BALKHASH_DATABASE_URI: postgresql://opensanctions:opensanctions@postgres/opensanctions
+      MEMORIOUS_DATASTORE_URI: postgresql://opensanctions:opensanctions@postgres/opensanctions

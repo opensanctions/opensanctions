@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='opensanctions',
-    version='1.99',
+    version='2.00',
     author='Organized Crime and Corruption Reporting Project',
     author_email='data@occrp.org',
     url='https://github.com/alephdata/opensanctions',
@@ -16,7 +16,7 @@ setup(
     zip_safe=False,
     install_requires=[
         'followthemoney >= 1.21.2',
-        'balkhash[sql] >= 1.0.2',
+        'followthemoney-store[postgresql] >= 1.2.0',
         'memorious >= 1.2.3',
         'alephclient >= 1.2.1',
         'countrynames',
@@ -26,8 +26,5 @@ setup(
         'memorious.plugins': [
             'opensanctions = opensanctions:init'
         ],
-        'console_scripts': [
-            'osanc-dump = opensanctions:cli',
-        ]
     }
 )

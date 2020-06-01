@@ -1,10 +1,11 @@
 import logging
-import balkhash
 import countrynames
 from normality import stringify
+from ftmstore import Dataset
 from followthemoney import model
 
 log = logging.getLogger(__name__)
+ORIGIN = 'opensanctions'
 
 
 class EntityEmitter(object):
@@ -13,7 +14,7 @@ class EntityEmitter(object):
         self.fragment = 0
         self.log = context.log
         self.name = context.crawler.name
-        self.dataset = balkhash.init(self.name)
+        self.dataset = Dataset(self.name, origin=ORIGIN)
         self.bulk = self.dataset.bulk()
 
     def make(self, schema):
