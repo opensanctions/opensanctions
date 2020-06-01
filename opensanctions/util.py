@@ -1,7 +1,7 @@
 import logging
 import countrynames
 from normality import stringify
-from ftmstore import Dataset
+from ftmstore.memorious import get_dataset
 from followthemoney import model
 
 log = logging.getLogger(__name__)
@@ -14,7 +14,7 @@ class EntityEmitter(object):
         self.fragment = 0
         self.log = context.log
         self.name = context.crawler.name
-        self.dataset = Dataset(self.name, origin=ORIGIN)
+        self.dataset = get_dataset(context)
         self.bulk = self.dataset.bulk()
 
     def make(self, schema):
@@ -24,7 +24,8 @@ class EntityEmitter(object):
     def emit(self, entity, rule='pass'):
         if entity.id is None:
             raise RuntimeError("Entity has no ID: %r", entity)
-        self.bulk.put(entity, fragment=str(self.fragment))
+        fragment = str(self.fragment)
+        self.bulk.put(entity, fragment=fragment, origin=ORIGIN)
         self.fragment += 1
 
     def finalize(self):

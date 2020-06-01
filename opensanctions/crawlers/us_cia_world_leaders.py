@@ -53,7 +53,7 @@ def index(context, data):
 
     for link in doc.findall('.//div[@id="cosAlphaList"]//a'):
         country_url = urljoin(url, link.get('href'))
-        context.log.info("Crawling country: %s", link.text)
+        context.log.info("Crawling country: %s (%s)", link.text, country_url)
         context.emit(data={
             'url': country_url,
             'country': link.text
