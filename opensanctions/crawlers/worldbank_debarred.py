@@ -1,11 +1,13 @@
 import re
 from pprint import pprint  # noqa
 from datetime import datetime
+from ftmstore.memorious import EntityEmitter
 
-from opensanctions.util import EntityEmitter, normalize_country
+from opensanctions.util import normalize_country
 
 SPLITS = r'(a\.k\.a\.?|aka|f/k/a|also known as|\(formerly |, also d\.b\.a\.|\(currently (d/b/a)?|d/b/a|\(name change from|, as the successor or assign to)'  # noqa
-SOURCE = 'https://www.worldbank.org/en/projects-operations/procurement/debarred-firms'
+SOURCE = 'https://www.worldbank.org/en/projects-operations/procurement/debarred-firms'  # noqa
+
 
 def clean_date(date):
     try:
@@ -61,9 +63,7 @@ def parse(context, data):
     start_date = data.get('DEBAR_FROM_DATE')
     end_date = data.get('DEBAR_TO_DATE')
 
-
     entity.make_id(name, ent_id, country)
-
     names = clean_name(name)
     entity.add('name', names[0])
     entity.add('address', address)

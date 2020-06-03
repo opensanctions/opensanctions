@@ -1,8 +1,8 @@
 import string
 from pprint import pprint  # noqa
 from urllib.parse import urljoin
+from ftmstore.memorious import EntityEmitter
 
-from opensanctions.util import EntityEmitter
 from opensanctions.util import normalize_country
 
 URL = 'http://www.assembly.coe.int/nw/xml/AssemblyList/MP-Alpha-EN.asp?initial=%s&offset=0'  # noqa

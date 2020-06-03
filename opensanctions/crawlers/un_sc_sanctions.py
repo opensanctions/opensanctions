@@ -1,7 +1,7 @@
 from pprint import pprint  # noqa
 from normality import collapse_spaces
+from ftmstore.memorious import EntityEmitter
 
-from opensanctions.util import EntityEmitter
 from opensanctions.util import jointext, normalize_country
 
 

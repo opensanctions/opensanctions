@@ -1,8 +1,9 @@
 from urllib.parse import urljoin
 from pprint import pprint  # noqa
 from normality import collapse_spaces, stringify
+from ftmstore.memorious import EntityEmitter
 
-from opensanctions.util import EntityEmitter, normalize_country
+from opensanctions.util import normalize_country
 
 
 def element_text(el):

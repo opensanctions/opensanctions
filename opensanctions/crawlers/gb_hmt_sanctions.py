@@ -4,8 +4,8 @@ from datetime import datetime
 from collections import defaultdict
 from normality import stringify
 from followthemoney import model
+from ftmstore.memorious import EntityEmitter
 
-from opensanctions.util import EntityEmitter
 from opensanctions.util import normalize_country, jointext
 
 

@@ -1,4 +1,4 @@
-from opensanctions.util import EntityEmitter
+from ftmstore.memorious import EntityEmitter
 
 
 def index(context, data):

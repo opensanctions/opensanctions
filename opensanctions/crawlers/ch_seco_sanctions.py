@@ -1,8 +1,9 @@
 from datetime import date
 from pprint import pprint  # noqa
 from collections import defaultdict
+from ftmstore.memorious import EntityEmitter
 
-from opensanctions.util import EntityEmitter, jointext
+from opensanctions.util import jointext
 
 
 def parse_date(el):

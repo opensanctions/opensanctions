@@ -1,8 +1,8 @@
 import re
 from datetime import datetime
 from pprint import pprint  # noqa
+from ftmstore.memorious import EntityEmitter
 
-from opensanctions.util import EntityEmitter
 from opensanctions.util import jointext, normalize_country
 
 

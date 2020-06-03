@@ -1,6 +1,7 @@
 from pprint import pprint  # noqa
+from ftmstore.memorious import EntityEmitter
 
-from opensanctions.util import EntityEmitter, normalize_country
+from opensanctions.util import normalize_country
 
 
 def split_name(name):

@@ -1,7 +1,7 @@
 from pprint import pprint  # noqa
+from ftmstore.memorious import EntityEmitter
 
 from opensanctions import constants
-from opensanctions.util import EntityEmitter
 from opensanctions.util import jointext
 
 GENDERS = {

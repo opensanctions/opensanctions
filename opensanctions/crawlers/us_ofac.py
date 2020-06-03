@@ -5,8 +5,8 @@ from pprint import pprint  # noqa
 from followthemoney import model
 from followthemoney.types import registry
 from os.path import commonprefix
+from ftmstore.memorious import EntityEmitter
 
-from opensanctions.util import EntityEmitter
 from opensanctions.util import jointext
 
 CACHE = {}

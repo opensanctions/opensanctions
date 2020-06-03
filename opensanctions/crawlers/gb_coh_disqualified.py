@@ -1,8 +1,8 @@
 import os
 from pprint import pprint  # noqa
 from urllib.parse import urljoin
+from ftmstore.memorious import EntityEmitter
 
-from opensanctions.util import EntityEmitter
 from opensanctions.util import normalize_country, jointext
 
 

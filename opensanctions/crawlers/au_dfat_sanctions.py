@@ -5,8 +5,9 @@ from pprint import pprint  # noqa
 from datetime import datetime
 from normality import slugify
 from followthemoney import model
+from ftmstore.memorious import EntityEmitter
 
-from opensanctions.util import EntityEmitter, normalize_country
+from opensanctions.util import normalize_country
 
 URL = 'http://dfat.gov.au/international-relations/security/sanctions/Pages/sanctions.aspx'  # noqa
 

@@ -1,9 +1,9 @@
 from normality import collapse_spaces, stringify
 from pprint import pprint  # noqa
 from datetime import datetime
+from ftmstore.memorious import EntityEmitter
 
 from opensanctions import constants
-from opensanctions.util import EntityEmitter
 
 
 SEXES = {
@@ -11,7 +11,7 @@ SEXES = {
     'F': constants.FEMALE,
 }
 
-NOTICE_URL = 'https://ws-public.interpol.int/notices/v1/red?&nationality=%s&arrestWarrantCountryId=%s'
+NOTICE_URL = 'https://ws-public.interpol.int/notices/v1/red?&nationality=%s&arrestWarrantCountryId=%s'  # noqa
 
 
 def parse_date(date):
