@@ -30,4 +30,4 @@ We collect data sources for this project [here](https://docs.google.com/spreadsh
 
 4. Export to CSVs:
 
-        balkhash iterate -d un_sc_sanctions | ftm export-csv
+        ftm store iterate -d un_sc_sanctions | ftm export-csv
