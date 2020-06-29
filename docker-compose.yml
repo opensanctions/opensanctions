@@ -5,9 +5,23 @@ services:
     image: postgres:11.4
     volumes:
       - "./data/postgres-data:/var/lib/postgresql/data"
+    expose:
+      - 5432
     environment:
       POSTGRES_USER: opensanctions
       POSTGRES_PASSWORD: opensanctions
+
+  pgweb:
+    image: sosedoff/pgweb
+    restart: always
+    ports:
+        - 9633:8081
+    links:
+        - postgres
+    depends_on:
+        - postgres
+    environment:
+      DATABASE_URL: postgres://opensanctions:opensanctions@postgres:5432/opensanctions?sslmode=disable
 
   redis:
     image: redis:alpine
@@ -23,12 +37,14 @@ services:
       - postgres
     volumes:
       - "./data/data:/data"
+      - "./opensanctions:/opensanctions/opensanctions"
     tmpfs:
       - "/tmp"
     ports:
       - "8000:8000"
     environment:
       MEMORIOUS_DATASTORE_URI: postgresql://opensanctions:opensanctions@postgres/opensanctions
+      REDIS_URL: redis://redis:6379/0
   
   worker:
     build: .
@@ -38,7 +54,10 @@ services:
       - redis
     volumes:
       - "./data/data:/data"
+      - "./opensanctions:/opensanctions/opensanctions"
     tmpfs:
       - "/tmp"
     environment:
       MEMORIOUS_DATASTORE_URI: postgresql://opensanctions:opensanctions@postgres/opensanctions
+      REDIS_URL: redis://redis:6379/0
+      WORKER_THREADS: 10
