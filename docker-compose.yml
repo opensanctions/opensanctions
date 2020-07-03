@@ -60,4 +60,5 @@ services:
     environment:
       MEMORIOUS_DATASTORE_URI: postgresql://opensanctions:opensanctions@postgres/opensanctions
       REDIS_URL: redis://redis:6379/0
+      FTM_STORE_URI: postgresql://opensanctions:opensanctions@postgres/opensanctions
       WORKER_THREADS: 10
