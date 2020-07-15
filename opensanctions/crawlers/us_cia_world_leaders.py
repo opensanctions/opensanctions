@@ -16,8 +16,8 @@ def element_text(el):
 
 def parse(context, data):
     emitter = EntityEmitter(context)
-    url = data.get('url')
-    country = normalize_country(data.get('country'))
+    url = data.get("url")
+    country = normalize_country(data.get("country"))
     with context.http.rehash(data) as res:
         doc = res.html
         # updated_at = doc.findtext('.//span[@id="lastUpdateDate"]')
@@ -25,7 +25,7 @@ def parse(context, data):
         if output is None:
             return
         # component = None
-        for row in output.findall('.//li'):
+        for row in output.findall(".//li"):
             # next_comp = row.findtext('./td[@class="componentName"]/strong')
             # if next_comp is not None:
             #     component = next_comp
@@ -37,25 +37,22 @@ def parse(context, data):
             if name is None:
                 continue
 
-            person = emitter.make('Person')
+            person = emitter.make("Person")
             person.make_id(country, name, function)
-            person.add('name', name)
-            person.add('country', country)
-            person.add('position', function)
-            person.add('sourceUrl', url)
+            person.add("name", name)
+            person.add("country", country)
+            person.add("position", function)
+            person.add("sourceUrl", url)
             emitter.emit(person)
     emitter.finalize()
 
 
 def index(context, data):
-    url = context.params.get('url')
+    url = context.params.get("url")
     res = context.http.rehash(data)
     doc = res.html
 
     for link in doc.findall('.//div[@id="cosAlphaList"]//a'):
-        country_url = urljoin(url, link.get('href'))
+        country_url = urljoin(url, link.get("href"))
         context.log.info("Crawling country: %s (%s)", link.text, country_url)
-        context.emit(data={
-            'url': country_url,
-            'country': link.text
-        })
+        context.emit(data={"url": country_url, "country": link.text})
