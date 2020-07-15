@@ -120,7 +120,7 @@ def parse_individual(emitter, node):
 
 
 def parse_common(emitter, entity, node):
-    entity.make_id(node.findtext("./DATAID"))
+    entity.id = "unsc-%s" % node.findtext("./DATAID")
     name = node.findtext("./NAME_ORIGINAL_SCRIPT")
     name = name or node.findtext("./FIRST_NAME")
     entity.add("name", name)

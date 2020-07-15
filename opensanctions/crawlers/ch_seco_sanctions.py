@@ -10,14 +10,13 @@ def parse_date(el):
     if el is None or not el.get("year"):
         return
     if el.get("month") and el.get("day"):
+        year = int(el.get("year"))
+        month = int(el.get("month"))
+        day = int(el.get("day"))
         try:
-            return date(
-                int(el.get("year")), int(el.get("month")), int(el.get("day"))
-            ).isoformat()
+            return date(year, month, day).isoformat()
         except ValueError:
-            return date(
-                int(el.get("year")), int(el.get("month")), int(el.get("day")) - 1
-            ).isoformat()
+            return date(year, month, day - 1).isoformat()
     else:
         return el.get("year")
 
@@ -156,7 +155,7 @@ def parse_entry(emitter, target, programs, places, updated_at):
         # TODO: build out support for these!
         return
 
-    entity.make_id(target.get("ssid"))
+    entity.id = "seco-%s" % target.get("ssid")
     for other in node.findall("./other-information"):
         entity.add("notes", other.text)
 

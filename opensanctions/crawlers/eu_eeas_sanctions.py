@@ -11,7 +11,7 @@ def parse_entry(emitter, entry):
     entity = emitter.make("LegalEntity")
     if entry.get("Type") == "P":
         entity = emitter.make("Person")
-    entity.make_id(entry.get("Id"))
+    entity.id = "eeas-%s" % entry.get("Id")
     entity.add("sourceUrl", entry.get("pdf_link"))
 
     sanction = emitter.make("Sanction")
@@ -19,8 +19,8 @@ def parse_entry(emitter, entry):
     sanction.add("entity", entity)
     sanction.add("authority", "European External Action Service")
     sanction.add("sourceUrl", entry.get("pdf_link"))
-    program = jointext(entry.get("programme"), entry.get("legal_basis"), sep=" - ")
-    sanction.add("program", program)
+    sanction.add("program", entry.get("programme"))
+    sanction.add("program", entry.get("legal_basis"))
     sanction.add("reason", entry.get("remark"))
     sanction.add("startDate", entry.get("reg_date"))
 
