@@ -5,7 +5,7 @@ pipeline:
   init:
     method: seed
     params:
-      url: 'https://fiu.gov.kg/uploads/59c1fe8b4aae0.xml'
+      url: "https://fiu.gov.kg/uploads/5ef4745e29e6a.xml"
     handle:
       pass: fetch
   fetch:

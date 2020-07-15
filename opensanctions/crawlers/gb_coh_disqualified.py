@@ -19,6 +19,7 @@ def officer(context, data):
     url = API_URL % officer_id
     with context.http.get(url, auth=AUTH) as res:
         if res.status_code != 200:
+            context.log.info("CoH error: %r", res.json)
             return
         data = res.json
         person = emitter.make("Person")

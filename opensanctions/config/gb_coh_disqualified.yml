@@ -5,7 +5,7 @@ pipeline:
   init:
     method: seed
     params:
-      url: 'https://beta.companieshouse.gov.uk/register-of-disqualifications/A'
+      url: "https://beta.companieshouse.gov.uk/register-of-disqualifications/A"
     handle:
       pass: fetch_index
   fetch_index:
