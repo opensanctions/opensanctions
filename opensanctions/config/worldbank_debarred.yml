@@ -5,8 +5,8 @@ pipeline:
   init:
     method: opensanctions.crawlers.worldbank_debarred:fetch
     params:
-      url: 'https://apigwext.worldbank.org/dvsvc/v1.0/json/APPLICATION/ADOBE_EXPRNCE_MGR/FIRM/SANCTIONED_FIRM'
-      apikey: 'z9duUaFUiEUYSHs97CU38fcZO7ipOPvm'
+      url: "https://apigwext.worldbank.org/dvsvc/v1.0/json/APPLICATION/ADOBE_EXPRNCE_MGR/FIRM/SANCTIONED_FIRM"
+      apikey: "z9duUaFUiEUYSHs97CU38fcZO7ipOPvm"
     handle:
       pass: parse
   parse:
