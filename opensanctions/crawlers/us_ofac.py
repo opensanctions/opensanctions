@@ -3,6 +3,7 @@
 # https://www.treasury.gov/resource-center/sanctions/SDN-List/Documents/sdn_advanced_notes.pdf
 from pprint import pprint  # noqa
 from followthemoney import model
+from followthemoney.exc import InvalidData
 
 # from followthemoney.types import registry
 from os.path import commonprefix
@@ -228,7 +229,7 @@ REGISTRATIONS = {
 }
 
 RELATIONS = {
-    "15003": ("Ownership", "owner", "asset", "role"),
+    "15003": ("Ownership", "asset", "owner", "role"),
     "15002": ("Representation", "agent", "client", "role"),
     # Providing support to:
     "15001": ("UnknownLink", "subject", "object", "role"),
@@ -289,6 +290,24 @@ def deref(doc, tag, value, attr=None, key="ID", element=False):
             value = node.text
         CACHE[cache] = value
         return value
+
+
+def add_schema(entity, addition):
+    try:
+        entity.schema = model.common_schema(entity.schema, addition)
+    except InvalidData:
+        for schema in model.schemata.values():
+            if schema.is_a(entity.schema) and schema.is_a(addition):
+                entity.schema = schema
+                return
+        raise
+
+
+def disjoint_schema(entity, addition):
+    for schema in model.schemata.values():
+        if schema.is_a(entity.schema) and schema.is_a(addition):
+            return False
+    return True
 
 
 def parse_date_single(node):
@@ -395,9 +414,7 @@ def parse_party(emitter, doc, distinct_party):
     schema = TYPES.get(sub_type.get("Value"))
     type_ = ref_value("PartyType", sub_type.get("PartyTypeID"))
     schema = TYPES.get(type_, schema)
-    # print(type_, sub_type.get("Value"))
     if schema is None:
-        raise RuntimeError()
         emitter.log.error("Unknown party type: %s", type_)
         return
     party = emitter.make(schema)
@@ -437,7 +454,7 @@ def parse_party(emitter, doc, distinct_party):
     #             party.add("idNumber", number)
     #             # party.schema = model.get("Company")
     #         else:
-    #             party.schema = model.common_schema(party.schema, schema)
+    #                add_schema(party, schema)
     #             if attr:
     #                 party.add(attr, number)
 
@@ -449,17 +466,17 @@ def parse_party(emitter, doc, distinct_party):
         #     print("    '%s': (None, None)," % feature_id)
         schema, prop = FEATURES[feature_id]
         if schema is not None:
-            party.schema = model.common_schema(party.schema, schema)
-        # if prop is None:
-        #     continue
+            add_schema(party, schema)
+        if prop is None:
+            continue
 
         period = feature.find(".//DatePeriod")
         if period is not None:
             party.add(prop, parse_date_period(period))
 
-        vlocation = feature.find(".//VersionLocation")
-        if vlocation is not None:
-            parse_location(party, doc, vlocation.get("LocationID"))
+        # vlocation = feature.find(".//VersionLocation")
+        # if vlocation is not None:
+        #     parse_location(party, doc, vlocation.get("LocationID"))
 
         detail = feature.find(".//VersionDetail")
         if detail is not None:
@@ -470,15 +487,11 @@ def parse_party(emitter, doc, distinct_party):
                 value = detail.text
             if feature_id in ADJACENT_FEATURES:
                 value = make_adjacent(emitter, value)
-            # if prop is None:
-            #     print("DETAIL", feature_type, ">>", value)
-            #     continue
-            if prop is not None:
-                party.add(prop, value)
+            party.add(prop, value)
 
     emitter.emit(party)
-    pprint(party.to_dict())
-    # emitter.log.info("[%s] %s", party.schema.name, party.caption)
+    # pprint(party.to_dict())
+    emitter.log.info("[%s] %s", party.schema.name, party.caption)
 
 
 def parse_entry(emitter, doc, entry):
@@ -516,17 +529,29 @@ def parse_relation(emitter, doc, relation):
     #     return
     schema, from_attr, to_attr, desc_attr = RELATIONS[type_id]
     entity = emitter.make(schema)
-    from_party = emitter.make(entity.schema.get(from_attr).range)
-    from_party.id = "ofac-%s" % relation.get("From-ProfileID")
+    from_id = "ofac-%s" % relation.get("From-ProfileID")
+    from_party = emitter.dataset.get(from_id)
+    from_range = entity.schema.get(from_attr).range
+    to_id = "ofac-%s" % relation.get("To-ProfileID")
+    to_party = emitter.dataset.get(to_id)
+    to_range = entity.schema.get(to_attr).range
+
+    # HACK: Looks like OFAC just has some link in a direction that makes no
+    # semantic validity, so we're flipping them here.
+    if disjoint_schema(from_party, from_range) or disjoint_schema(to_party, to_range):
+        from_party, to_party = to_party, from_party
+
+    add_schema(from_party, from_range)
+    add_schema(to_party, to_range)
     emitter.emit(from_party)
-    to_party = emitter.make(entity.schema.get(to_attr).range)
-    to_party.id = "ofac-%s" % relation.get("To-ProfileID")
     emitter.emit(to_party)
     entity.make_id("Relation", from_party.id, to_party.id, relation.get("ID"))
     entity.add(from_attr, from_party)
     entity.add(to_attr, to_party)
     entity.add(desc_attr, type_)
+    entity.add("summary", relation.findtext("./Comment"))
     emitter.emit(entity)
+    emitter.log.info("Relation [%s]-[%s]->[%s]", from_party, type_, to_party)
     # pprint(entity.to_dict())
 
 
