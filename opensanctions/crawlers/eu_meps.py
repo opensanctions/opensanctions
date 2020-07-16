@@ -31,7 +31,7 @@ def parse_node(emitter, node):
         party = emitter.make("Organization")
         party.make_id("nationalPoliticalGroup", party_name)
         party.add("name", party_name)
-        party.add("country", country)
+        party.add("country", node.findtext(".//country"))
         emitter.emit(party)
         membership = emitter.make("Membership")
         membership.make_id(person.id, party.id)
