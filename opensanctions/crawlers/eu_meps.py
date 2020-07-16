@@ -1,8 +1,6 @@
 from pprint import pprint  # noqa
 from ftmstore.memorious import EntityEmitter
 
-from opensanctions.util import normalize_country
-
 
 def split_name(name):
     for i in range(len(name)):
@@ -24,9 +22,8 @@ def parse_node(emitter, node):
     first_name, last_name = split_name(name)
     person.add("firstName", first_name)
     person.add("lastName", last_name)
-    country = normalize_country(node.findtext(".//country"))
-    person.add("nationality", country)
-    person.add("keywords", ["PEP", "MEP"])
+    person.add("nationality", node.findtext(".//country"))
+    person.add("topics", "role.pep")
     emitter.emit(person)
 
     party_name = node.findtext(".//nationalPoliticalGroup")

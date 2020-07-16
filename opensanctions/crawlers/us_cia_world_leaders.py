@@ -3,8 +3,6 @@ from pprint import pprint  # noqa
 from normality import collapse_spaces, stringify
 from ftmstore.memorious import EntityEmitter
 
-from opensanctions.util import normalize_country
-
 
 def element_text(el):
     if el is None:
@@ -17,7 +15,7 @@ def element_text(el):
 def parse(context, data):
     emitter = EntityEmitter(context)
     url = data.get("url")
-    country = normalize_country(data.get("country"))
+    country = data.get("country")
     with context.http.rehash(data) as res:
         doc = res.html
         # updated_at = doc.findtext('.//span[@id="lastUpdateDate"]')
@@ -43,6 +41,7 @@ def parse(context, data):
             person.add("country", country)
             person.add("position", function)
             person.add("sourceUrl", url)
+            person.add("topics", "role.pep")
             emitter.emit(person)
     emitter.finalize()
 

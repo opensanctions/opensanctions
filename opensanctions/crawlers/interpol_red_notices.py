@@ -85,6 +85,6 @@ def parse_notice(context, data):
         entity.add("birthDate", parse_date(dob))
         entity.add("sourceUrl", res["_links"]["self"]["href"])
         entity.add("keywords", "REDNOTICE")
-        entity.add("keywords", "CRIME")
+        entity.add("topics", "crime")
         emitter.emit(entity)
         emitter.finalize()

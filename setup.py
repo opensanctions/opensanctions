@@ -17,7 +17,6 @@ setup(
         "followthemoney-store[postgresql] >= 2.1.6",
         "memorious >= 1.2.3",
         "alephclient >= 1.2.1",
-        "countrynames",
         "xlrd",
     ],
     entry_points={"memorious.plugins": ["opensanctions = opensanctions:init"],},

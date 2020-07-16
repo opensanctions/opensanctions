@@ -7,8 +7,9 @@ from normality import slugify
 from followthemoney import model
 from ftmstore.memorious import EntityEmitter
 
-from opensanctions.util import normalize_country
-
+AUTHORITY = (
+    "Australian Department of Foreign Affairs and Trade Consolidated Sanctions"  # noqa
+)
 URL = "http://dfat.gov.au/international-relations/security/sanctions/Pages/sanctions.aspx"  # noqa
 
 
@@ -30,10 +31,7 @@ def parse_reference(emitter, reference, rows):
     entity.add("sourceUrl", URL)
     sanction = emitter.make("Sanction")
     sanction.make_id("Sanction", entity.id)
-    sanction.add(
-        "authority",
-        "Australian Department of Foreign Affairs and Trade Consolidated Sanctions",
-    )
+    sanction.add("authority", AUTHORITY)
     sanction.add("entity", entity)
 
     for row in rows:
@@ -49,8 +47,7 @@ def parse_reference(emitter, reference, rows):
         entity.add("address", row.pop("address"))
         entity.add("notes", row.pop("additional_information"))
         sanction.add("program", row.pop("committees"))
-        nationality = normalize_country(row.pop("citizenship"))
-        entity.add("nationality", nationality, quiet=True)
+        entity.add("nationality", row.pop("citizenship"), quiet=True)
         entity.add("birthDate", row.pop("date_of_birth"), quiet=True)
         entity.add("birthPlace", row.pop("place_of_birth"), quiet=True)
         entity.add("status", row.pop("listing_information"), quiet=True)

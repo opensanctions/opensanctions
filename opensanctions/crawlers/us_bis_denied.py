@@ -2,7 +2,7 @@ import csv
 from pprint import pprint  # noqa
 from ftmstore.memorious import EntityEmitter
 
-from opensanctions.util import jointext, normalize_country
+from opensanctions.util import jointext
 
 
 def parse_row(emitter, row):
@@ -10,7 +10,7 @@ def parse_row(emitter, row):
     entity.make_id("USBIS", row.get("Effective_Date"), row.get("Name"))
     entity.add("name", row.get("Name"))
     entity.add("notes", row.get("Action"))
-    entity.add("country", normalize_country(row.get("Country")))
+    entity.add("country", row.get("Country"))
     # entity.updated_at = row.get('Effective_Date')
 
     address = jointext(

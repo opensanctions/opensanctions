@@ -2,7 +2,7 @@ from pprint import pprint  # noqa
 from normality import collapse_spaces
 from ftmstore.memorious import EntityEmitter
 
-from opensanctions.util import normalize_country, jointext
+from opensanctions.util import jointext
 
 
 def parse(context, data):
@@ -18,7 +18,6 @@ def parse_entry(emitter, node):
     country = node.findtext("./Country")
     if " / " in country:
         country, _ = country.split(" / ")
-    country_code = normalize_country(country)
     entity_name = node.findtext("./Entity")
     item = node.findtext(".//Item")
 
@@ -27,7 +26,7 @@ def parse_entry(emitter, node):
         entity = emitter.make("Person")
     entity.make_id("CASEMA", country, entity_name, item)
     entity.add("name", entity_name)
-    entity.add("country", country_code)
+    entity.add("country", country)
 
     sanction = emitter.make("Sanction")
     sanction.make_id("Sanction", entity.id)

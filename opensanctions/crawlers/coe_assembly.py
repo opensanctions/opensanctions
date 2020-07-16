@@ -3,8 +3,6 @@ from pprint import pprint  # noqa
 from urllib.parse import urljoin
 from ftmstore.memorious import EntityEmitter
 
-from opensanctions.util import normalize_country
-
 URL = "http://www.assembly.coe.int/nw/xml/AssemblyList/MP-Alpha-EN.asp?initial=%s&offset=0"  # noqa
 
 
@@ -22,9 +20,8 @@ def parse_entry(emitter, entry):
     person.add("position", entry.findtext('.//span[@class="fonction"]'))
     role, country = entry.findall('.//span[@class="infos"]')
     person.add("summary", role.text_content().strip())
-    country = normalize_country(country.text_content().strip())
-    person.add("nationality", country)
-    person.add("keywords", ["PEP", "PACE"])
+    person.add("nationality", country.text_content())
+    person.add("topics", "role.pep")
     emitter.emit(person)
 
 

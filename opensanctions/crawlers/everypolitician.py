@@ -49,7 +49,7 @@ def parse_person(emitter, data, country):
     person.add("deathDate", data.pop("death_date", None))
     person.add("email", data.pop("email", None))
     person.add("summary", data.pop("summary", None))
-    person.add("keywords", ["PEP", "PARL"])
+    person.add("topics", "role.pep")
 
     for other_name in data.pop("other_names", []):
         person.add("alias", other_name.get("name"))

@@ -3,7 +3,7 @@ from pprint import pprint  # noqa
 from urllib.parse import urljoin
 from ftmstore.memorious import EntityEmitter
 
-from opensanctions.util import normalize_country, jointext
+from opensanctions.util import jointext
 
 
 API_KEY = os.environ.get("MEMORIOUS_COH_API_KEY")
@@ -36,9 +36,9 @@ def officer(context, data):
         person.add("name", jointext(forename, other_forenames, last_name))
         person.add("title", data.pop("title", None))
 
-        nationality = normalize_country(data.pop("nationality", None))
-        person.add("nationality", nationality)
+        person.add("nationality", data.pop("nationality", None))
         person.add("birthDate", data.pop("date_of_birth", None))
+        person.add("topics", "crime")
 
         for disqual in data.pop("disqualifications", []):
             case = disqual.get("case_identifier")

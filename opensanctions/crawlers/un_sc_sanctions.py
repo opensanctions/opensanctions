@@ -2,7 +2,7 @@ from pprint import pprint  # noqa
 from normality import collapse_spaces
 from ftmstore.memorious import EntityEmitter
 
-from opensanctions.util import jointext, normalize_country
+from opensanctions.util import jointext
 
 
 def values(node):
@@ -46,7 +46,7 @@ def parse_address(entity, addr):
         sep=", ",
     )
     entity.add("address", address)
-    entity.add("country", normalize_country(country))
+    entity.add("country", country)
 
 
 def parse_entity(emitter, node):
@@ -95,18 +95,18 @@ def parse_individual(emitter, node):
         passport.add("summary", doc.findtext("./NOTE"))
         country = doc.findtext("./COUNTRY_OF_ISSUE")
         country = country or doc.findtext("./ISSUING_COUNTRY")
-        passport.add("country", normalize_country(country))
+        passport.add("country", country)
         emitter.emit(passport)
 
     for nat in node.findall("./NATIONALITY/VALUE"):
-        person.add("nationality", normalize_country(nat.text))
+        person.add("nationality", nat.text)
 
     for dob in node.findall("./INDIVIDUAL_DATE_OF_BIRTH"):
         date = dob.findtext("./DATE") or dob.findtext("./YEAR")
         person.add("birthDate", date)
 
     for pob in node.findall("./INDIVIDUAL_PLACE_OF_BIRTH"):
-        person.add("country", normalize_country(pob.findtext("./COUNTRY")))
+        person.add("country", pob.findtext("./COUNTRY"))
         place = jointext(
             pob.findtext("./CITY"),
             pob.findtext("./STATE_PROVINCE"),

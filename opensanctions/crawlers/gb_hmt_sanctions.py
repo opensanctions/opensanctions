@@ -6,7 +6,7 @@ from normality import stringify
 from followthemoney import model
 from ftmstore.memorious import EntityEmitter
 
-from opensanctions.util import normalize_country, jointext
+from opensanctions.util import jointext
 
 
 def parse_date(date):
@@ -83,12 +83,10 @@ def parse_entry(emitter, group, rows):
         entity.add("position", row.pop("Position"), quiet=True)
         entity.add("notes", row.pop("Other Information"), quiet=True)
         entity.add("birthDate", parse_date(row.pop("DOB")), quiet=True)
-
-        nationality = normalize_country(row.pop("Nationality", None))
-        entity.add("nationality", nationality, quiet=True)
+        entity.add("nationality", row.pop("Nationality", None), quiet=True)
 
         country = row.pop("Country", None)
-        entity.add("country", normalize_country(country))
+        entity.add("country", country)
 
         address = jointext(
             row.pop("Address 1", None),
@@ -108,11 +106,8 @@ def parse_entry(emitter, group, rows):
         national_id = row.pop("NI Number", None)
         entity.add("nationalId", national_id, quiet=True)
 
-        country_of_birth = []
         for country in split_items(row.pop("Country of Birth")):
-            code = normalize_country(country)
-            country_of_birth.append(country)
-            entity.add("country", code)
+            entity.add("country", country)
 
         for town in split_items(row.pop("Town of Birth", None)):
             entity.add("birthPlace", town)

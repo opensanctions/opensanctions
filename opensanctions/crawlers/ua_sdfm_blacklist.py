@@ -3,7 +3,7 @@ from datetime import datetime
 from pprint import pprint  # noqa
 from ftmstore.memorious import EntityEmitter
 
-from opensanctions.util import jointext, normalize_country
+from opensanctions.util import jointext
 
 
 def parse_date(date):
@@ -63,7 +63,7 @@ def parse_entry(emitter, entry):
     for doc in entry.findall("./document-list"):
         reg = doc.findtext("./document-reg")
         number = doc.findtext("./document-id")
-        country = normalize_country(doc.findtext("./document-country"))
+        country = doc.findtext("./document-country")
         passport = emitter.make("Passport")
         passport.make_id("Passport", entity.id, reg, number, country)
         passport.add("holder", entity)
@@ -85,7 +85,7 @@ def parse_entry(emitter, entry):
         entity.add("birthDate", parse_date(dob.text), quiet=True)
 
     for nat in entry.findall("./nationality-list"):
-        entity.add("nationality", normalize_country(nat.text), quiet=True)
+        entity.add("nationality", nat.text, quiet=True)
 
     emitter.emit(entity)
     emitter.emit(sanction)
