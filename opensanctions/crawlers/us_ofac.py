@@ -137,95 +137,195 @@ ADJACENT_FEATURES = [
     "48",
 ]
 
-REGISTRATIONS = {
-    "Cedula No.": ("LegalEntity", "idNumber"),
-    "Passport": ("Person", "passportNumber"),
-    "SSN": ("Person", "idNumber"),
-    "R.F.C.": ("LegalEntity", "taxNumber"),
-    "D.N.I.": ("LegalEntity", "idNumber"),
-    "NIT #": ("LegalEntity", "idNumber"),
-    "US FEIN": ("LegalEntity", ""),
-    "Driver's License No.": ("Person", "idNumber"),
-    "RUC #": ("LegalEntity", "taxNumber"),
-    "N.I.E.": ("LegalEntity", "idNumber"),
-    "C.I.F.": ("LegalEntity", "taxNumber"),
-    "Business Registration Document #": ("LegalEntity", ""),
-    "RIF #": ("LegalEntity", ""),
-    "National ID No.": ("LegalEntity", "idNumber"),
-    "Registration ID": ("LegalEntity", "registrationNumber"),
-    "LE Number": ("LegalEntity", "registrationNumber"),
-    "Bosnian Personal ID No.": ("Person", "idNumber"),
-    "Registered Charity No.": ("Organization", "registrationNumber"),
-    "V.A.T. Number": ("LegalEntity", "vatCode"),
-    "Credencial electoral": ("LegalEntity", ""),
-    "Kenyan ID No.": ("LegalEntity", "idNumber"),
-    "Italian Fiscal Code": ("LegalEntity", "taxNumber"),
-    "Serial No.": ("LegalEntity", ""),
-    "C.U.I.T.": ("LegalEntity", "taxNumber"),
-    "Tax ID No.": ("LegalEntity", "taxNumber"),
-    "Moroccan Personal ID No.": ("LegalEntity", "idNumber"),
-    "Public Security and Immigration No.": ("LegalEntity", ""),
-    "C.U.R.P.": ("LegalEntity", ""),
-    "British National Overseas Passport": ("Person", "passportNumber"),
-    "C.R. No.": ("LegalEntity", ""),
-    "UK Company Number": ("Person", "registrationNumber"),
-    "Immigration No.": ("LegalEntity", ""),
-    "Travel Document Number": ("Person", "passportNumber"),
-    "Electoral Registry No.": ("LegalEntity", ""),
-    "Identification Number": ("LegalEntity", "idNumber"),
-    "Paraguayan tax identification number": ("LegalEntity", "taxNumber"),
-    "National Foreign ID Number": ("LegalEntity", "idNumber"),
-    "RFC": ("LegalEntity", "taxNumber"),
-    "Diplomatic Passport": ("Person", "passportNumber"),
-    "Dubai Chamber of Commerce Membership No.": ("LegalEntity", ""),
-    "Trade License No.": ("LegalEntity", ""),
-    "Commercial Registry Number": ("LegalEntity", "registrationNumber"),
-    "Certificate of Incorporation Number": ("LegalEntity", "registrationNumber"),
-    "Cartilla de Servicio Militar Nacional": ("LegalEntity", ""),
-    "C.U.I.P.": ("LegalEntity", ""),
-    "Vessel Registration Identification": ("Vessel", "imoNumber"),
-    "Personal ID Card": ("LegalEntity", "idNumber"),
-    "VisaNumberID": ("LegalEntity", ""),
-    "Matricula Mercantil No": ("LegalEntity", ""),
-    "Residency Number": ("Person", ""),
-    "Numero Unico de Identificacao Tributaria (NUIT)": ("LegalEntity", ""),
-    "CNP (Personal Numerical Code)": ("LegalEntity", ""),
-    "Romanian Permanent Resident": ("LegalEntity", "idNumber"),
-    "Government Gazette Number": ("LegalEntity", ""),
-    "Fiscal Code": ("LegalEntity", "taxNumber"),
-    "Pilot License Number": ("LegalEntity", ""),
-    "Romanian C.R.": ("LegalEntity", ""),
-    "Folio Mercantil No.": ("LegalEntity", ""),
-    "Istanbul Chamber of Comm. No.": ("LegalEntity", "registrationNumber"),
-    "Turkish Identification Number": ("LegalEntity", "idNumber"),
-    "Romanian Tax Registration": ("LegalEntity", "taxNumber"),
-    "Stateless Person Passport": ("Person", "passportNumber"),
-    "Stateless Person ID Card": ("Person", "idNumber"),
-    "Refugee ID Card": ("Person", "idNumber"),
-    "Afghan Money Service Provider License Number": ("LegalEntity", ""),
-    "MMSI": ("Thing", "mmsi"),
-    "Company Number": ("LegalEntity", "registrationNumber"),
-    "Public Registration Number": ("LegalEntity", "registrationNumber"),
-    "RTN": ("LegalEntity", ""),
-    "Numero de Identidad": ("LegalEntity", "idNumber"),
-    "SRE Permit No.": ("LegalEntity", ""),
-    "Tazkira National ID Card": ("LegalEntity", "idNumber"),
-    "License": ("LegalEntity", ""),
-    "Chinese Commercial Code": ("LegalEntity", ""),
-    "I.F.E.": ("LegalEntity", ""),
-    "Branch Unit Number": ("LegalEntity", ""),
-    "Enterprise Number": ("LegalEntity", "registrationNumber"),
-    "Citizen's Card Number": ("LegalEntity", "idNumber"),
-    "UAE Identification": ("LegalEntity", ""),
-    "United Social Credit Code Certificate (USCCC)": ("LegalEntity", ""),
-    "Tarjeta Profesional": ("LegalEntity", "idNumber"),
-    "Chamber of Commerce Number": ("LegalEntity", "registrationNumber"),
-    "Legal Entity Number": ("LegalEntity", "registrationNumber"),
-    "Business Number": ("LegalEntity", "registrationNumber"),
-    "Birth Certificate Number": ("LegalEntity", ""),
-    "Business Registration Number": ("LegalEntity", "registrationNumber"),
-    "Registration Number": ("LegalEntity", "registrationNumber"),
-    "Aircraft Serial Identification": ("Airplane", "serialNumber"),
+REG_ID = {
+    # Passport
+    "1571": (None, None),
+    # US FEIN
+    "1576": (None, None),
+    # SSN
+    "1572": (None, None),
+    # Cedula No.
+    "1570": ("LegalEntity", "idNumber"),
+    # NIT #
+    "1575": ("LegalEntity", "idNumber"),
+    # UK Company Number
+    "1603": ("LegalEntity", "registrationNumber"),
+    # Serial No.
+    "1593": (None, None),
+    # Kenyan ID No.
+    "1591": ("LegalEntity", "idNumber"),
+    # R.F.C.
+    "1573": (None, None),
+    # Credencial electoral
+    "1590": (None, None),
+    # Driver's License No.
+    "1577": (None, None),
+    # D.N.I.
+    "1574": (None, None),
+    # Italian Fiscal Code
+    "1592": ("LegalEntity", "taxNumber"),
+    # V.A.T. Number
+    "1589": ("LegalEntity", "vatCode"),
+    # National ID No.
+    "1584": ("LegalEntity", "idNumber"),
+    # Public Security and Immigration No.
+    "1598": (None, None),
+    # Registration ID
+    "1585": ("LegalEntity", "registrationNumber"),
+    # Identification Number
+    "1608": ("LegalEntity", "idNumber"),
+    # Moroccan Personal ID No.
+    "1597": ("LegalEntity", "idNumber"),
+    # Registered Charity No.
+    "1588": (None, None),
+    # Bosnian Personal ID No.
+    "1587": ("LegalEntity", "idNumber"),
+    # C.U.I.T.
+    "1595": (None, None),
+    # LE Number
+    "1586": (None, None),
+    # Business Registration Document #
+    "1581": ("LegalEntity", "registrationNumber"),
+    # RUC #
+    "1578": ("LegalEntity", "taxNumber"),
+    # Tax ID No.
+    "1596": ("LegalEntity", "taxNumber"),
+    # C.U.R.P.
+    "1600": (None, None),
+    # British National Overseas Passport
+    "1601": (None, None),
+    # Immigration No.
+    "1604": (None, None),
+    # Travel Document Number
+    "1605": (None, None),
+    # C.R. No.
+    "1602": (None, None),
+    # Electoral Registry No.
+    "1607": (None, None),
+    # Paraguayan tax identification number
+    "1609": ("LegalEntity", "taxNumber"),
+    # National Foreign ID Number
+    "1611": ("LegalEntity", "idNumber"),
+    # RFC
+    "1612": (None, None),
+    # Diplomatic Passport
+    "1613": (None, None),
+    # Commercial Registry Number
+    "1619": ("LegalEntity", "registrationNumber"),
+    # Certificate of Incorporation Number
+    "1620": ("LegalEntity", "registrationNumber"),
+    # Personal ID Card
+    "1627": ("LegalEntity", "idNumber"),
+    # VisaNumberID
+    "1630": (None, None),
+    # Residency Number
+    "1632": (None, None),
+    # Matricula Mercantil No
+    "1631": (None, None),
+    # Registration Number
+    "91761": ("LegalEntity", "registrationNumber"),
+    # Numero Unico de Identificacao Tributaria (NUIT)
+    "1633": (None, None),
+    # N.I.E.
+    "1579": (None, None),
+    # C.I.F.
+    "1580": (None, None),
+    # C.U.I.P.
+    "1625": (None, None),
+    # Cartilla de Servicio Militar Nacional
+    "1624": (None, None),
+    # Folio Mercantil No.
+    "1643": (None, None),
+    # RIF #
+    "1582": (None, None),
+    # Istanbul Chamber of Comm. No.
+    "1644": ("LegalEntity", "registrationNumber"),
+    # Turkish Identification Number
+    "1645": ("LegalEntity", "idNumber"),
+    # Dubai Chamber of Commerce Membership No.
+    "1614": (None, None),
+    # Refugee ID Card
+    "1649": (None, None),
+    # Stateless Person ID Card
+    "1648": (None, None),
+    # Stateless Person Passport
+    "1647": (None, None),
+    # CNP (Personal Numerical Code)
+    "1634": ("LegalEntity", "idNumber"),
+    # Romanian Permanent Resident
+    "1635": (None, None),
+    # Romanian C.R.
+    "1642": (None, None),
+    # Romanian Tax Registration
+    "1646": ("LegalEntity", "taxNumber"),
+    # Fiscal Code
+    "1638": (None, None),
+    # Numero de Identidad
+    "91482": ("LegalEntity", "idNumber"),
+    # Afghan Money Service Provider License Number
+    "91236": (None, None),
+    # Vessel Registration Identification
+    "1626": ("Vehicle", "registrationNumber"),
+    # MMSI
+    "91264": ("Vessel", "mmsi"),
+    # Company Number
+    "91412": ("LegalEntity", "registrationNumber"),
+    # Public Registration Number
+    "91475": ("LegalEntity", "registrationNumber"),
+    # RTN
+    "91481": (None, None),
+    # SRE Permit No.
+    "91484": (None, None),
+    # Chinese Commercial Code
+    "91508": ("LegalEntity", "registrationNumber"),
+    # Tazkira National ID Card
+    "91492": ("LegalEntity", "idNumber"),
+    # Government Gazette Number
+    "1636": (None, None),
+    # License
+    "91504": (None, None),
+    # Pilot License Number
+    "1639": (None, None),
+    # I.F.E.
+    "91712": (None, None),
+    # Enterprise Number
+    "91720": (None, None),
+    # Branch Unit Number
+    "91719": (None, None),
+    # Trade License No.
+    "1615": (None, None),
+    # Citizen's Card Number
+    "91739": ("LegalEntity", "idNumber"),
+    # UAE Identification
+    "91740": ("LegalEntity", "idNumber"),
+    # Business Registration Number
+    "91760": ("LegalEntity", "registrationNumber"),
+    # Tarjeta Profesional
+    "91750": (None, None),
+    # United Social Credit Code Certificate (USCCC)
+    "91747": (None, None),
+    # Chamber of Commerce Number
+    "91751": (None, None),
+    # Legal Entity Number
+    "91752": ("LegalEntity", "registrationNumber"),
+    # Business Number
+    "91753": ("LegalEntity", "registrationNumber"),
+    # Birth Certificate Number
+    "91759": (None, None),
+    # RSIN
+    "91813": (None, None),
+    # MSB Registration Number
+    "91812": (None, None),
+    # File Number
+    "91835": (None, None),
+    # C.U.I.
+    "91854": (None, None),
+    # Aircraft Serial Identification
+    "1623": ("Vehicle", "registrationNumber"),
+    # Seafarer's Identification Document
+    "91891": (None, None),
+    # Tourism License No.
+    "1621": (None, None),
 }
 
 RELATIONS = {
@@ -254,10 +354,6 @@ def remove_namespace(doc):
     return doc
 
 
-def qpath(name):
-    return "./%s" % name
-
-
 def load_ref_values(doc):
     ref_value_sets = doc.find(".//ReferenceValueSets")
     for ref_set in ref_value_sets.getchildren():
@@ -274,22 +370,6 @@ def ref_get(type_, id_):
 
 def ref_value(type_, id_):
     return ref_get(type_, id_).get("Value")
-
-
-def deref(doc, tag, value, attr=None, key="ID", element=False):
-    cache = (tag, value, attr, key, element)
-    if cache in CACHE:
-        return CACHE[cache]
-    query = '//%s[@%s="%s"]' % (tag, key, value)
-    for node in doc.findall(query):
-        if element:
-            return node
-        if attr is not None:
-            value = node.get(attr)
-        else:
-            value = node.text
-        CACHE[cache] = value
-        return value
 
 
 def add_schema(entity, addition):
@@ -310,7 +390,7 @@ def disjoint_schema(entity, addition):
     return True
 
 
-def parse_date_single(node):
+def parse_date(node):
     parts = (
         node.findtext("./Year"),
         node.findtext("./Month"),
@@ -319,7 +399,7 @@ def parse_date_single(node):
     return "-".join(parts)
 
 
-def date_common_prefix(*dates):
+def date_prefix(*dates):
     prefix = commonprefix(dates)[:10]
     if len(prefix) < 10:
         prefix = prefix[:7]
@@ -332,12 +412,15 @@ def date_common_prefix(*dates):
 
 def parse_date_period(date):
     start = date.find("./Start")
-    start_from = parse_date_single(start.find("./From"))
-    start_to = parse_date_single(start.find("./To"))
+    start_from = parse_date(start.find("./From"))
+    start_to = parse_date(start.find("./To"))
     end = date.find("./End")
-    end_from = parse_date_single(end.find("./From"))
-    end_to = parse_date_single(end.find("./To"))
-    return date_common_prefix(start_from, start_to, end_from, end_to)
+    end_from = parse_date(end.find("./From"))
+    end_to = parse_date(end.find("./To"))
+    return (
+        date_prefix(start_from, start_to),
+        date_prefix(end_from, end_to),
+    )
 
 
 def load_locations(doc):
@@ -373,6 +456,15 @@ def load_locations(doc):
 
         locations[location_id] = (address, countries)
     return locations
+
+
+def load_documents(doc):
+    documents = {}
+    for regdoc in doc.findall("./IDRegDocuments/IDRegDocument"):
+        identity_id = regdoc.get("IdentityID")
+        documents.setdefault(identity_id, [])
+        documents[identity_id].append(regdoc)
+    return documents
 
 
 def parse_alias(party, parts, alias):
@@ -412,7 +504,7 @@ def make_adjacent(emitter, name):
     return entity
 
 
-def parse_party(emitter, doc, distinct_party, locations):
+def parse_party(emitter, doc, distinct_party, locations, documents):
     profile = distinct_party.find("Profile")
     sub_type = ref_get("PartySubType", profile.get("PartySubTypeID"))
     schema = TYPES.get(sub_type.get("Value"))
@@ -434,33 +526,47 @@ def parse_party(emitter, doc, distinct_party, locations):
         for alias in identity.findall("./Alias"):
             parse_alias(party, parts, alias)
 
-    #     identity_id = identity.get("ID")
-    #     query = '//%s[@IdentityID="%s"]' % (qtag("IDRegDocument"), identity_id)
-    #     for idreg in doc.findall(query):
-    #         authority = idreg.findtext(qpath("IssuingAuthority"))
-    #         number = idreg.findtext(qpath("IDRegistrationNo"))
-    #         type_ = deref(doc, "IDRegDocType", idreg.get("IDRegDocTypeID"))
-    #         if authority == "INN":
-    #             party.add("innCode", number)
-    #             continue
-    #         if authority == "OGRN":
-    #             party.schema = model.get("Company")
-    #             party.add("ogrnCode", number)
-    #             continue
-    #         if type_ in REGISTRATIONS.keys():
-    #             schema, attr = REGISTRATIONS.get(type_)
-    #         else:
-    #             emitter.log.error("Unknown type: %s", type_)
-    #             continue
-    #         if attr == "imoNumber" and party.schema.is_a("LegalEntity"):
-    #             # https://en.wikipedia.org/wiki/IMO_number
-    #             # vessel owning Companies can have imoNumber too
-    #             party.add("idNumber", number)
-    #             # party.schema = model.get("Company")
-    #         else:
-    #                add_schema(party, schema)
-    #             if attr:
-    #                 party.add(attr, number)
+        for regdoc in documents.get(identity.get("ID"), []):
+            authority = regdoc.findtext("./IssuingAuthority")
+            number = regdoc.findtext("./IDRegistrationNo")
+            doc_type_id = regdoc.get("IDRegDocTypeID")
+            doc_type = ref_value("IDRegDocType", doc_type_id)
+            country = regdoc.get("IssuedBy-CountryID")
+            if country is not None:
+                country = ref_get("Country", country).get("ISO2")
+            party.add("country", country)
+
+            if authority == "INN":
+                party.add("innCode", number)
+                continue
+            if authority == "OGRN":
+                party.schema = model.get("Company")
+                party.add("ogrnCode", number)
+                continue
+
+            reg_schema, prop = REG_ID[doc_type_id]
+            if reg_schema is None:
+                if not party.schema.is_a("LegalEntity"):
+                    continue
+                passport = emitter.make("Passport")
+                passport.make_id("Passport", party.id, regdoc.get("ID"))
+                passport.add("holder", party)
+                passport.add("type", doc_type)
+                passport.add("country", country)
+                passport.add("passportNumber", number)
+                passport.add("authority", authority)
+                emitter.emit(passport)
+                continue
+
+            if not disjoint_schema(party, reg_schema):
+                add_schema(party, reg_schema)
+                party.add(prop, number)
+                continue
+
+            # if doc_type_id not in CACHE:
+            #     print("    # %s" % doc_type)
+            #     print("    '%s': (None, None)," % doc_type_id)
+            #     CACHE[doc_type_id] = doc_type
 
     for feature in profile.findall("./Feature"):
         feature_id = feature.get("FeatureTypeID")
@@ -511,7 +617,7 @@ def parse_entry(emitter, doc, entry):
     sanction.add("program", ref_value("List", entry.get("ListID")))
 
     for event in entry.findall("./EntryEvent"):
-        sanction.add("startDate", parse_date_single(event.find("./Date")))
+        sanction.add("startDate", parse_date(event.find("./Date")))
         sanction.add("summary", event.findtext("./Comment"))
         basis = ref_value("LegalBasis", event.get("LegalBasisID"))
         sanction.add("reason", basis)
@@ -569,9 +675,11 @@ def parse(context, data):
         load_ref_values(doc)
         context.log.info("Loading locations...")
         locations = load_locations(doc)
+        context.log.info("Loading ID reg documents...")
+        documents = load_documents(doc)
 
         for distinct_party in doc.findall(".//DistinctParty"):
-            parse_party(emitter, doc, distinct_party, locations)
+            parse_party(emitter, doc, distinct_party, locations, documents)
 
         for entry in doc.findall(".//SanctionsEntry"):
             parse_entry(emitter, doc, entry)
