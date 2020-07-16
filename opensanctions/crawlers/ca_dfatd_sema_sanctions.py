@@ -25,12 +25,12 @@ def parse_entry(emitter, node):
     entity = emitter.make("LegalEntity")
     if entity_name is None:
         entity = emitter.make("Person")
-    entity.make_id(country, entity_name, item)
+    entity.make_id("CASEMA", country, entity_name, item)
     entity.add("name", entity_name)
     entity.add("country", country_code)
 
     sanction = emitter.make("Sanction")
-    sanction.make_id(entity.id)
+    sanction.make_id("Sanction", entity.id)
     sanction.add("entity", entity)
     sanction.add("authority", "Canadian international sanctions")
     sanction.add("program", node.findtext(".//Schedule"))

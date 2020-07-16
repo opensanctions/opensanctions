@@ -26,14 +26,14 @@ def clean_reference(ref):
 
 def parse_reference(emitter, reference, rows):
     entity = emitter.make("LegalEntity")
-    entity.make_id(reference)
+    entity.make_id("AUDFAT", reference)
     entity.add("sourceUrl", URL)
     sanction = emitter.make("Sanction")
-    sanction.make_id(entity.id)
+    sanction.make_id("Sanction", entity.id)
     sanction.add(
         "authority",
         "Australian Department of Foreign Affairs and Trade Consolidated Sanctions",
-    )  # noqa
+    )
     sanction.add("entity", entity)
 
     for row in rows:

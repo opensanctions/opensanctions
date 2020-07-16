@@ -51,7 +51,7 @@ def split_items(text):
 
 def parse_entry(emitter, group, rows):
     entity = emitter.make("LegalEntity")
-    entity.make_id(group)
+    entity.id = "gbhmt-%s" % group
     sanction = emitter.make("Sanction")
     sanction.make_id(entity.id, "Sanction")
     sanction.add("entity", entity)

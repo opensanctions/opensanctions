@@ -38,7 +38,7 @@ def parse(context, data):
                 continue
 
             person = emitter.make("Person")
-            person.make_id(country, name, function)
+            person.make_id(url, country, name, function)
             person.add("name", name)
             person.add("country", country)
             person.add("position", function)

@@ -72,7 +72,7 @@ def parse_notice(context, data):
         gender = SEXES.get(res["sex_id"])
         emitter = EntityEmitter(context)
         entity = emitter.make("Person")
-        entity.make_id(first_name, last_name, res["entity_id"])
+        entity.make_id("INTERPOL", first_name, last_name, res["entity_id"])
         entity.add("name", first_name + " " + last_name)
         entity.add("firstName", first_name)
         entity.add("lastName", last_name)

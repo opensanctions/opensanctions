@@ -63,7 +63,7 @@ def parse(context, data):
     start_date = data.get("DEBAR_FROM_DATE")
     end_date = data.get("DEBAR_TO_DATE")
 
-    entity.make_id(name, ent_id, country)
+    entity.make_id("WBDEBAR", name, ent_id, country)
     names = clean_name(name)
     entity.add("name", names[0])
     entity.add("address", address)

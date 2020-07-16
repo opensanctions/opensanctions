@@ -16,7 +16,7 @@ def split_name(name):
 def parse_node(emitter, node):
     mep_id = node.findtext(".//id")
     person = emitter.make("Person")
-    person.make_id(mep_id)
+    person.make_id("EUMEP", mep_id)
     name = node.findtext(".//fullName")
     person.add("name", name)
     url = "http://www.europarl.europa.eu/meps/en/%s" % mep_id

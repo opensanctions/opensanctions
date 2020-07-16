@@ -13,7 +13,7 @@ def parse_entry(emitter, entry):
     url = urljoin(URL, link.get("href"))
     _, member_id = url.rsplit("=", 1)
     person = emitter.make("Person")
-    person.make_id(member_id)
+    person.make_id("COE", member_id)
     person.add("name", link.text)
     person.add("sourceUrl", url)
     last_name, first_name = link.text.split(", ", 1)

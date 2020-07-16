@@ -7,7 +7,7 @@ from opensanctions.util import jointext, normalize_country
 
 def parse_row(emitter, row):
     entity = emitter.make("LegalEntity")
-    entity.make_id(row.get("Effective_Date"), row.get("Name"))
+    entity.make_id("USBIS", row.get("Effective_Date"), row.get("Name"))
     entity.add("name", row.get("Name"))
     entity.add("notes", row.get("Action"))
     entity.add("country", normalize_country(row.get("Country")))
