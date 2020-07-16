@@ -3,13 +3,17 @@
 # https://www.treasury.gov/resource-center/sanctions/SDN-List/Documents/sdn_advanced_notes.pdf
 from pprint import pprint  # noqa
 from followthemoney import model
-from followthemoney.types import registry
+
+# from followthemoney.types import registry
 from os.path import commonprefix
 from ftmstore.memorious import EntityEmitter
 
 from opensanctions.util import jointext
 
 CACHE = {}
+REFERENCES = {}
+
+TAG = "{http://www.un.org/sanctions/1.0}"
 
 TYPES = {
     "Entity": "LegalEntity",
@@ -23,7 +27,7 @@ NAMES = {
     "First Name": "firstName",
     "Middle Name": "middleName",
     "Maiden Name": "lastName",
-    "Aircraft Name": "name",
+    "Aircraft Name": "registrationNumber",
     "Entity Name": "name",
     "Vessel Name": "name",
     "Nickname": "weakAlias",
@@ -31,52 +35,106 @@ NAMES = {
     "Matronymic": "motherName",
 }
 
-
 FEATURES = {
-    "Vessel Call Sign": ("callSign", "Vessel"),
-    "VESSEL TYPE": ("type", "Vessel"),
-    "Vessel Flag": ("flag", "Vessel"),
-    "Vessel Owner": ("owner", "Vessel"),
-    "Vessel Tonnage": ("tonnage", "Vessel"),
-    "Vessel Gross Registered Tonnage": ("tonnage", "Vessel"),  # noqa
-    "Birthdate": ("birthDate", "Person"),
-    "Place of Birth": ("birthPlace", "Person"),
-    "Nationality Country": ("nationality", "LegalEntity"),
-    "Citizenship Country": ("nationality", "Person"),
-    "SWIFT/BIC": ("swiftBic", "Company"),
-    "Website": ("website", "LegalEntity"),
-    "Email Address": ("email", "LegalEntity"),
-    "Former Vessel Flag": ("pastFlags", "Vessel"),
-    "Location": ("address", "Thing"),
-    "Title": ("title", "LegalEntity"),
-    "Aircraft Construction Number (also called L/N or S/N or F/N)": (
-        "serialNumber",
-        "Airplane",
-    ),  # noqa
-    "Aircraft Manufacture Date": ("buildDate", "Airplane"),
-    "Aircraft Model": ("model", "Airplane"),
-    "Aircraft Operator": ("operator", "Airplane"),
-    "Previous Aircraft Tail Number": ("registrationNumber", "Airplane"),
-    "Aircraft Manufacturer’s Serial Number (MSN)": ("serialNumber", "Airplane"),  # noqa
-    "Aircraft Mode S Transponder Code": ("serialNumber", "Airplane"),
-    "Aircraft Tail Number": ("registrationNumber", "Airplane"),
-    "IFCA Determination -": ("notes", "Thing"),
-    "Additional Sanctions Information -": ("notes", "Thing"),
-    "BIK (RU)": ("bikCode", "Company"),
-    "Executive Order 13662 Directive Determination -": ("notes", "Thing"),  # noqa
-    "Gender": ("gender", "Person"),
-    "UN/LOCODE": (None, "LegalEntity"),
-    "MICEX Code": (None, "Company"),
-    "Digital Currency Address - XBT": (None, "LegalEntity"),
-    "D-U-N-S Number": ("dunsCode", "LegalEntity"),
-    "Nationality of Registration": ("country", "Thing"),
-    "Other Vessel Flag": ("pastFlags", "Vessel"),
-    "Other Vessel Call Sign": ("callSign", "Vessel"),
-    "Secondary sanctions risk:": ("notes", "Thing"),
-    "Phone Number": ("phone", "LegalEntity"),
-    "CAATSA Section 235 Information:": ("notes", "Thing"),
-    "Other Vessel Type": ("pastTypes", "Vessel"),
+    # Location
+    "25": (None, None),
+    # Title
+    "26": (None, "position"),
+    # Birthdate
+    "8": ("Person", "birthDate"),
+    # Place of Birth
+    "9": ("Person", "birthPlace"),
+    # Additional Sanctions Information -
+    "125": (None, "notes"),
+    # Gender
+    "224": ("Person", "gender"),
+    # Vessel Call Sign
+    "1": ("Vessel", "callSign"),
+    # Vessel Flag
+    "3": ("Vessel", "flag"),
+    # Vessel Owner
+    "4": ("Vehicle", "owner"),
+    # Vessel Tonnage
+    "5": ("Vessel", "tonnage"),
+    # Vessel Gross Registered Tonnage
+    "6": ("Vessel", "grossRegisteredTonnage"),
+    # VESSEL TYPE
+    "2": ("Vehicle", "type"),
+    # Nationality Country
+    "10": ("Person", "nationality"),
+    # Citizenship Country
+    "11": ("Person", "nationality"),
+    # Secondary sanctions risk:
+    "504": (None, "program"),
+    # Transactions Prohibited For Persons Owned or Controlled By U.S. Financial Institutions:
+    "626": (None, "program"),
+    # Website
+    "14": (None, "website"),
+    # Email Address
+    "21": (None, "email"),
+    # IFCA Determination -
+    "104": (None, "classification"),
+    # SWIFT/BIC
+    "13": (None, "swiftBic"),
+    # Phone Number
+    "524": (None, "phone"),
+    # Former Vessel Flag
+    "24": (None, "pastFlags"),
+    # Aircraft Construction Number (also called L/N or S/N or F/N)
+    "44": (None, None),
+    # Aircraft Manufacturer’s Serial Number (MSN)
+    "50": ("Airplane", "serialNumber"),
+    # Aircraft Manufacture Date
+    "45": ("Vehicle", "buildDate"),
+    # Aircraft Model
+    "47": ("Vehicle", "model"),
+    # Aircraft Operator
+    "48": ("Vehicle", "operator"),
+    # BIK (RU)
+    "164": ("Company", "bikCode"),
+    # UN/LOCODE
+    "264": (None, None),
+    # Aircraft Tail Number
+    "64": ("Vehicle", "registrationNumber"),
+    # Previous Aircraft Tail Number
+    "49": (None, "icaoCode"),
+    # Executive Order 13662 Directive Determination -
+    "204": (None, "program"),
+    # MICEX Code
+    "304": (None, None),
+    # Nationality of Registration
+    "365": ("Thing", "country"),
+    # D-U-N-S Number
+    "364": ("LegalEntity", "dunsCode"),
+    # Other Vessel Call Sign
+    "425": (None, "callSign"),
+    # Other Vessel Flag
+    "424": (None, "flag"),
+    # CAATSA Section 235 Information:
+    "525": (None, "program"),
+    # Other Vessel Type
+    "526": ("Vehicle", "type"),
+    # TODO: should we model these as BankAccount??
+    # Digital Currency Address - XBT
+    "344": (None, None),
+    # Digital Currency Address - LTC
+    "566": (None, None),
+    # Aircraft Mode S Transponder Code
+    "46": (None, "registrationNumber"),
+    # Executive Order 13846 information:
+    "586": (None, "program"),
+    # Organization Established Date
+    "646": ("Organization", "incorporationDate"),
+    # Organization Type:
+    "647": ("Organization", "legalForm"),
 }
+
+ADJACENT_FEATURES = [
+    # Vessel Owner
+    "4",
+    # Aircraft Operator
+    "48",
+]
 
 REGISTRATIONS = {
     "Cedula No.": ("LegalEntity", "idNumber"),
@@ -121,10 +179,7 @@ REGISTRATIONS = {
     "Dubai Chamber of Commerce Membership No.": ("LegalEntity", ""),
     "Trade License No.": ("LegalEntity", ""),
     "Commercial Registry Number": ("LegalEntity", "registrationNumber"),
-    "Certificate of Incorporation Number": (
-        "LegalEntity",
-        "registrationNumber",
-    ),  # noqa
+    "Certificate of Incorporation Number": ("LegalEntity", "registrationNumber"),
     "Cartilla de Servicio Militar Nacional": ("LegalEntity", ""),
     "C.U.I.P.": ("LegalEntity", ""),
     "Vessel Registration Identification": ("Vessel", "imoNumber"),
@@ -147,7 +202,7 @@ REGISTRATIONS = {
     "Stateless Person ID Card": ("Person", "idNumber"),
     "Refugee ID Card": ("Person", "idNumber"),
     "Afghan Money Service Provider License Number": ("LegalEntity", ""),
-    "MMSI": ("Vessel", "mmsi"),
+    "MMSI": ("Thing", "mmsi"),
     "Company Number": ("LegalEntity", "registrationNumber"),
     "Public Registration Number": ("LegalEntity", "registrationNumber"),
     "RTN": ("LegalEntity", ""),
@@ -173,44 +228,58 @@ REGISTRATIONS = {
 }
 
 RELATIONS = {
-    "Associate Of": ("Associate", "person", "associate", "Person"),
-    "Providing support to": ("UnknownLink", "subject", "object", "LegalEntity"),  # noqa
-    "Acting for or on behalf of": (
-        "Representation",
-        "agent",
-        "client",
-        "LegalEntity",
-    ),  # noqa
-    "Owned or Controlled By": ("Ownership", "asset", "owner", "Company"),
-    "Family member of": ("Family", "person", "relative", "Person"),
-    "playing a significant role in": (
-        "Membership",
-        "member",
-        "organization",
-        "LegalEntity",
-    ),  # noqa
-    "Leader or official of": (
-        "Directorship",
-        "director",
-        "organization",
-        "LegalEntity",
-    ),  # noqa
+    "15003": ("Ownership", "owner", "asset", "role"),
+    "15002": ("Representation", "agent", "client", "role"),
+    # Providing support to:
+    "15001": ("UnknownLink", "subject", "object", "role"),
+    # Leader or official of
+    "91725": ("Directorship", "director", "organization", "role"),
+    # Principal Executive Officer
+    "91900": ("Directorship", "director", "organization", "role"),
+    # Associate Of
+    "1555": ("UnknownLink", "subject", "object", "role"),
+    # playing a significant role in
+    "91422": ("Membership", "member", "organization", "role"),
+    # Family member of
+    "15004": ("Family", "person", "relative", "relationship"),
 }
 
 
-def qtag(name):
-    return "{http://www.un.org/sanctions/1.0}%s" % name
+def remove_namespace(doc):
+    """Remove namespace in the passed document in place."""
+    for elem in doc.getiterator():
+        if elem.tag.startswith(TAG):
+            elem.tag = elem.tag[len(TAG) :]
+    return doc
 
 
 def qpath(name):
-    return ".//%s" % qtag(name)
+    return "./%s" % name
+
+
+def load_ref_values(doc):
+    ref_value_sets = doc.find(".//ReferenceValueSets")
+    for ref_set in ref_value_sets.getchildren():
+        for ref_val in ref_set.getchildren():
+            data = dict(ref_val.attrib)
+            assert "Value" not in data
+            data["Value"] = ref_val.text
+            REFERENCES[(ref_val.tag, data.get("ID"))] = data
+
+
+def ref_get(type_, id_):
+    return REFERENCES[(type_, id_)]
+
+
+def ref_value(type_, id_):
+    return ref_get(type_, id_).get("Value")
 
 
 def deref(doc, tag, value, attr=None, key="ID", element=False):
     cache = (tag, value, attr, key, element)
     if cache in CACHE:
         return CACHE[cache]
-    query = '//%s[@%s="%s"]' % (qtag(tag), key, value)
+    query = '//%s[@%s="%s"]' % (tag, key, value)
     for node in doc.findall(query):
         if element:
             return node
@@ -223,13 +292,12 @@ def deref(doc, tag, value, attr=None, key="ID", element=False):
 
 
 def parse_date_single(node):
-    return "-".join(
-        (
-            node.findtext(qpath("Year")),
-            node.findtext(qpath("Month")).zfill(2),
-            node.findtext(qpath("Day")).zfill(2),
-        )
+    parts = (
+        node.findtext("./Year"),
+        node.findtext("./Month"),
+        node.findtext("./Day"),
     )
+    return "-".join(parts)
 
 
 def date_common_prefix(*dates):
@@ -244,213 +312,237 @@ def date_common_prefix(*dates):
 
 
 def parse_date_period(date):
-    start = date.find(qpath("Start"))
-    start_from = parse_date_single(start.find(qpath("From")))
-    start_to = parse_date_single(start.find(qpath("To")))
-    end = date.find(qpath("End"))
-    end_from = parse_date_single(end.find(qpath("From")))
-    end_to = parse_date_single(end.find(qpath("To")))
+    start = date.find("./Start")
+    start_from = parse_date_single(start.find("./From"))
+    start_to = parse_date_single(start.find("./To"))
+    end = date.find("./End")
+    end_from = parse_date_single(end.find("./From"))
+    end_to = parse_date_single(end.find("./To"))
     return date_common_prefix(start_from, start_to, end_from, end_to)
 
 
-def parse_feature(doc, feature):
-    detail = feature.find(qpath("VersionDetail"))
+def parse_location(entity, doc, location_id):
+    location = doc.find("./Locations/Location[@ID='%s']" % location_id)
+    parts = {}
+    for part in location.findall("./LocationPart"):
+        type_ = ref_value("LocPartType", part.get("LocPartTypeID"))
+        parts[type_] = part.findtext("./LocationPartValue/Value")
+    address = jointext(
+        parts.get("Unknown"),
+        parts.get("ADDRESS1"),
+        parts.get("ADDRESS2"),
+        parts.get("ADDRESS2"),
+        parts.get("CITY"),
+        parts.get("POSTAL CODE"),
+        parts.get("REGION"),
+        parts.get("STATE/PROVINCE"),
+        sep=", ",
+    )
+    entity.add("address", address)
 
-    period = feature.find(qpath("DatePeriod"))
-    if period is not None:
-        return parse_date_period(period)
+    for area in location.findall("./LocationAreaCode"):
+        area_code = ref_get("AreaCode", area.get("AreaCodeID"))
+        country = ref_get("Country", area_code.get("CountryID"))
+        entity.add("country", country.get("ISO2"))
+    for country in location.findall("./LocationCountry"):
+        country = ref_get("Country", country.get("CountryID"))
+        entity.add("country", country.get("ISO2"))
 
-    vlocation = feature.find(qpath("VersionLocation"))
-    if vlocation is not None:
-        location = deref(doc, "Location", vlocation.get("LocationID"), element=True)
-        country_code = None
-        parts = {}
-        for part in location.findall(qpath("LocationPart")):
-            type_id = part.get("LocPartTypeID")
-            type_ = deref(doc, "LocPartType", type_id)
-            value = part.findtext(qpath("Value"))
-            parts[type_] = value
-        address = jointext(
-            parts.get("Unknown"),
-            parts.get("ADDRESS1"),
-            parts.get("ADDRESS2"),
-            parts.get("ADDRESS2"),
-            parts.get("CITY"),
-            parts.get("POSTAL CODE"),
-            parts.get("REGION"),
-            parts.get("STATE/PROVINCE"),
-            sep=", ",
-        )
-
-        for area in location.findall(qpath("LocationAreaCode")):
-            country_id = deref(
-                doc, "AreaCode", area.get("AreaCodeID"), "CountryID"
-            )  # noqa
-            country_code = deref(doc, "Country", country_id, "ISO2")
-        for country in location.findall(qpath("LocationCountry")):
-            country_id = country.get("CountryID")
-            country_code = deref(doc, "Country", country_id, "ISO2")
-        return (address, country_code)
-
-    if detail is not None:
-        reference_id = detail.get("DetailReferenceID")
-        if reference_id is not None:
-            return deref(doc, "DetailReference", reference_id)
-        return detail.text
+    if not entity.has("country"):
+        entity.add("country", parts.get("Unknown"))
 
 
-def parse_alias(party, doc, alias):
+def parse_alias(party, parts, alias):
     primary = alias.get("Primary") == "true"
     weak = alias.get("LowQuality") == "true"
-    alias_type = deref(doc, "AliasType", alias.get("AliasTypeID"))
-    data = {}
-    for name_part in alias.findall(qpath("DocumentedNamePart")):
-        value = name_part.find(qpath("NamePartValue"))
-        type_id = value.get("NamePartGroupID")
-        type_id = deref(doc, "NamePartGroup", type_id, "NamePartTypeID")  # noqa
-        part_type = deref(doc, "NamePartType", type_id)
-        field = NAMES.get(part_type)
-        data[field] = value.text
-        if field != "name" and not weak:
-            party.add(field, value.text)
-        # print(field, value.text)
-    name = jointext(
-        data.get("firstName"),
-        data.get("middleName"),
-        data.get("fatherName"),
-        data.get("lastName"),
-        data.get("name"),
-    )
-    if primary:
-        party.add("name", name)
-    elif alias_type == "F.K.A.":
-        party.add("previousName", name)
-    else:
-        party.add("alias", name)
+    alias_type = ref_value("AliasType", alias.get("AliasTypeID"))
+    for name in alias.findall("./DocumentedName"):
+        data = {}
+        for name_part in name.findall("./DocumentedNamePart"):
+            value = name_part.find("./NamePartValue")
+            type_ = parts.get(value.get("NamePartGroupID"))
+            field = NAMES[type_]
+            data[field] = value.text
+            if field != "name" and not weak:
+                party.add(field, value.text)
+            # print(field, value.text)
+        name = jointext(
+            data.get("firstName"),
+            data.get("middleName"),
+            data.get("fatherName"),
+            data.get("lastName"),
+            data.get("name"),
+        )
+        if primary:
+            party.add("name", name)
+        elif alias_type == "F.K.A.":
+            party.add("previousName", name)
+        else:
+            party.add("alias", name)
+
+
+def make_adjacent(emitter, name):
+    entity = emitter.make("LegalEntity")
+    entity.make_id("Named", name)
+    entity.add("name", name)
+    emitter.emit(entity)
+    return entity
 
 
 def parse_party(emitter, doc, distinct_party):
-    profile = distinct_party.find(qpath("Profile"))
-    sub_type_ = profile.get("PartySubTypeID")
-    sub_type = deref(doc, "PartySubType", sub_type_)
-    type_ = deref(doc, "PartySubType", sub_type_, "PartyTypeID")
-    type_ = deref(doc, "PartyType", type_)
-    schema = TYPES.get(type_, TYPES.get(sub_type))
+    profile = distinct_party.find("Profile")
+    sub_type = ref_get("PartySubType", profile.get("PartySubTypeID"))
+    schema = TYPES.get(sub_type.get("Value"))
+    type_ = ref_value("PartyType", sub_type.get("PartyTypeID"))
+    schema = TYPES.get(type_, schema)
+    # print(type_, sub_type.get("Value"))
     if schema is None:
-        emitter.log.error("Unknown type: %s", type_)
+        raise RuntimeError()
+        emitter.log.error("Unknown party type: %s", type_)
         return
     party = emitter.make(schema)
-    party.make_id("Profile", profile.get("ID"))
-    party.add("notes", distinct_party.findtext(qpath("Comment")))
+    party.id = "ofac-%s" % profile.get("ID")
+    party.add("notes", distinct_party.findtext("Comment"))
 
-    for identity in profile.findall(qpath("Identity")):
-        for alias in identity.findall(qpath("Alias")):
-            parse_alias(party, doc, alias)
+    for identity in profile.findall("./Identity"):
+        parts = {}
+        for group in identity.findall(".//NamePartGroup"):
+            type_id = group.get("NamePartTypeID")
+            parts[group.get("ID")] = ref_value("NamePartType", type_id)
 
-        identity_id = identity.get("ID")
-        query = '//%s[@IdentityID="%s"]' % (qtag("IDRegDocument"), identity_id)
-        for idreg in doc.findall(query):
-            authority = idreg.findtext(qpath("IssuingAuthority"))
-            number = idreg.findtext(qpath("IDRegistrationNo"))
-            type_ = deref(doc, "IDRegDocType", idreg.get("IDRegDocTypeID"))
-            if authority == "INN":
-                party.add("innCode", number)
-                continue
-            if authority == "OGRN":
-                party.schema = model.get("Company")
-                party.add("ogrnCode", number)
-                continue
-            if type_ in REGISTRATIONS.keys():
-                schema, attr = REGISTRATIONS.get(type_)
+        for alias in identity.findall("./Alias"):
+            parse_alias(party, parts, alias)
+
+    #     identity_id = identity.get("ID")
+    #     query = '//%s[@IdentityID="%s"]' % (qtag("IDRegDocument"), identity_id)
+    #     for idreg in doc.findall(query):
+    #         authority = idreg.findtext(qpath("IssuingAuthority"))
+    #         number = idreg.findtext(qpath("IDRegistrationNo"))
+    #         type_ = deref(doc, "IDRegDocType", idreg.get("IDRegDocTypeID"))
+    #         if authority == "INN":
+    #             party.add("innCode", number)
+    #             continue
+    #         if authority == "OGRN":
+    #             party.schema = model.get("Company")
+    #             party.add("ogrnCode", number)
+    #             continue
+    #         if type_ in REGISTRATIONS.keys():
+    #             schema, attr = REGISTRATIONS.get(type_)
+    #         else:
+    #             emitter.log.error("Unknown type: %s", type_)
+    #             continue
+    #         if attr == "imoNumber" and party.schema.is_a("LegalEntity"):
+    #             # https://en.wikipedia.org/wiki/IMO_number
+    #             # vessel owning Companies can have imoNumber too
+    #             party.add("idNumber", number)
+    #             # party.schema = model.get("Company")
+    #         else:
+    #             party.schema = model.common_schema(party.schema, schema)
+    #             if attr:
+    #                 party.add(attr, number)
+
+    for feature in profile.findall("./Feature"):
+        feature_id = feature.get("FeatureTypeID")
+        # feature_type = ref_value("FeatureType", feature_id)
+        # if feature_id not in FEATURES:
+        #     print("    # %s" % feature_type)
+        #     print("    '%s': (None, None)," % feature_id)
+        schema, prop = FEATURES[feature_id]
+        if schema is not None:
+            party.schema = model.common_schema(party.schema, schema)
+        # if prop is None:
+        #     continue
+
+        period = feature.find(".//DatePeriod")
+        if period is not None:
+            party.add(prop, parse_date_period(period))
+
+        vlocation = feature.find(".//VersionLocation")
+        if vlocation is not None:
+            parse_location(party, doc, vlocation.get("LocationID"))
+
+        detail = feature.find(".//VersionDetail")
+        if detail is not None:
+            reference_id = detail.get("DetailReferenceID")
+            if reference_id is not None:
+                value = ref_value("DetailReference", reference_id)
             else:
-                emitter.log.error("Unknown type: %s", type_)
-                continue
-            if attr == "imoNumber" and party.schema.is_a("LegalEntity"):
-                # https://en.wikipedia.org/wiki/IMO_number
-                # vessel owning Companies can have imoNumber too
-                party.add("idNumber", number)
-                party.schema = model.get("Company")
-            else:
-                party.schema = model.common_schema(party.schema, schema)
-                if attr:
-                    party.add(attr, number)
-    for feature in profile.findall(qpath("Feature")):
-        feature_type = deref(doc, "FeatureType", feature.get("FeatureTypeID"))
-        if feature_type in FEATURES.keys():
-            attr, schema = FEATURES.get(feature_type)
-        else:
-            emitter.log.error("Unknown type: %s", feature_type)
-            continue
-        party.schema = model.common_schema(party.schema, schema)
-        if attr:
-            value = parse_feature(doc, feature)
-            if isinstance(value, tuple):
-                value, country_code = value
-                if party.schema.get(attr).type == registry.country:
-                    value = country_code
-                else:
-                    party.add("country", country_code)
-            party.add(attr, value, quiet=True)
+                value = detail.text
+            if feature_id in ADJACENT_FEATURES:
+                value = make_adjacent(emitter, value)
+            # if prop is None:
+            #     print("DETAIL", feature_type, ">>", value)
+            #     continue
+            if prop is not None:
+                party.add(prop, value)
 
     emitter.emit(party)
-    emitter.log.info("[%s] %s", party.schema.name, party.caption)
+    pprint(party.to_dict())
+    # emitter.log.info("[%s] %s", party.schema.name, party.caption)
 
 
 def parse_entry(emitter, doc, entry):
-    party = emitter.make("LegalEntity")
-    party.make_id("Profile", entry.get("ProfileID"))
+    party = emitter.make("Thing")
+    party.id = "ofac-%s" % entry.get("ProfileID")
 
     sanction = emitter.make("Sanction")
     sanction.make_id("Sanction", party.id, entry.get("ID"))
     sanction.add("entity", party)
     sanction.add("authority", "US Office of Foreign Asset Control")
+    sanction.add("program", ref_value("List", entry.get("ListID")))
 
-    sanctions_list = deref(doc, "List", entry.get("ListID"))
-    sanction.add("program", sanctions_list)
+    for event in entry.findall("./EntryEvent"):
+        sanction.add("startDate", parse_date_single(event.find("./Date")))
+        sanction.add("summary", event.findtext("./Comment"))
+        basis = ref_value("LegalBasis", event.get("LegalBasisID"))
+        sanction.add("reason", basis)
 
-    for event in entry.findall(qpath("EntryEvent")):
-        date = parse_date_single(event.find(qpath("Date")))
-        sanction.add("startDate", date)
-        sanction.add("summary", event.findtext(qpath("Comment")))
-        reason = deref(doc, "LegalBasis", event.get("LegalBasisID"))
-        sanction.add("reason", reason)
-
-    for measure in entry.findall(qpath("SanctionsMeasure")):
-        sanction.add("summary", measure.findtext(qpath("Comment")))
-        type_ = deref(doc, "SanctionsType", event.get("SanctionsTypeID"))
-        sanction.add("program", type_)
+    for measure in entry.findall("./SanctionsMeasure"):
+        sanction.add("summary", measure.findtext("./Comment"))
+        type_id = measure.get("SanctionsTypeID")
+        sanction.add("program", ref_value("SanctionsType", type_id))
 
     emitter.emit(sanction)
     # pprint(sanction.to_dict())
 
 
 def parse_relation(emitter, doc, relation):
-    from_party = emitter.make("LegalEntity")
-    from_party.make_id("Profile", relation.get("From-ProfileID"))
-    to_party = emitter.make("LegalEntity")
-    to_party.make_id("Profile", relation.get("To-ProfileID"))
-    type_ = deref(doc, "RelationType", relation.get("RelationTypeID"))
-    schema, from_attr, to_attr, from_type = RELATIONS.get(type_)
-    from_party.schema = model.get(from_type)
-    emitter.emit(from_party)
+    type_id = relation.get("RelationTypeID")
+    type_ = ref_value("RelationType", relation.get("RelationTypeID"))
+    # if type_id not in RELATIONS:
+    #     from_party = emitter.dataset.get(from_party.id)
+    #     to_party = emitter.dataset.get(to_party.id)
+    #     print(from_party, ">>", type_, ">>", to_party, " :: ", type_id)
+    #     return
+    schema, from_attr, to_attr, desc_attr = RELATIONS[type_id]
     entity = emitter.make(schema)
-    entity.make_id("Relation", schema, relation.get("ID"))
+    from_party = emitter.make(entity.schema.get(from_attr).range)
+    from_party.id = "ofac-%s" % relation.get("From-ProfileID")
+    emitter.emit(from_party)
+    to_party = emitter.make(entity.schema.get(to_attr).range)
+    to_party.id = "ofac-%s" % relation.get("To-ProfileID")
+    emitter.emit(to_party)
+    entity.make_id("Relation", from_party.id, to_party.id, relation.get("ID"))
     entity.add(from_attr, from_party)
     entity.add(to_attr, to_party)
+    entity.add(desc_attr, type_)
     emitter.emit(entity)
+    # pprint(entity.to_dict())
 
 
 def parse(context, data):
     emitter = EntityEmitter(context)
     with context.http.rehash(data) as res:
-        doc = res.xml
-        for distinct_party in doc.findall(qpath("DistinctParty")):
+        doc = remove_namespace(res.xml)
+        load_ref_values(doc)
+
+        for distinct_party in doc.findall(".//DistinctParty"):
             parse_party(emitter, doc, distinct_party)
 
-        for entry in doc.findall(qpath("SanctionsEntry")):
+        for entry in doc.findall(".//SanctionsEntry"):
             parse_entry(emitter, doc, entry)
 
-        for relation in doc.findall(qpath("ProfileRelationship")):
+        for relation in doc.findall(".//ProfileRelationship"):
             parse_relation(emitter, doc, relation)
 
     emitter.finalize()
