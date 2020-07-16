@@ -340,35 +340,39 @@ def parse_date_period(date):
     return date_common_prefix(start_from, start_to, end_from, end_to)
 
 
-def parse_location(entity, doc, location_id):
-    location = doc.find("./Locations/Location[@ID='%s']" % location_id)
-    parts = {}
-    for part in location.findall("./LocationPart"):
-        type_ = ref_value("LocPartType", part.get("LocPartTypeID"))
-        parts[type_] = part.findtext("./LocationPartValue/Value")
-    address = jointext(
-        parts.get("Unknown"),
-        parts.get("ADDRESS1"),
-        parts.get("ADDRESS2"),
-        parts.get("ADDRESS2"),
-        parts.get("CITY"),
-        parts.get("POSTAL CODE"),
-        parts.get("REGION"),
-        parts.get("STATE/PROVINCE"),
-        sep=", ",
-    )
-    entity.add("address", address)
+def load_locations(doc):
+    locations = {}
+    for location in doc.findall("./Locations/Location"):
+        location_id = location.get("ID")
+        countries = set()
+        parts = {}
+        for part in location.findall("./LocationPart"):
+            type_ = ref_value("LocPartType", part.get("LocPartTypeID"))
+            parts[type_] = part.findtext("./LocationPartValue/Value")
+        address = jointext(
+            parts.get("Unknown"),
+            parts.get("ADDRESS1"),
+            parts.get("ADDRESS2"),
+            parts.get("ADDRESS2"),
+            parts.get("CITY"),
+            parts.get("POSTAL CODE"),
+            parts.get("REGION"),
+            parts.get("STATE/PROVINCE"),
+            sep=", ",
+        )
 
-    for area in location.findall("./LocationAreaCode"):
-        area_code = ref_get("AreaCode", area.get("AreaCodeID"))
-        country = ref_get("Country", area_code.get("CountryID"))
-        entity.add("country", country.get("ISO2"))
-    for country in location.findall("./LocationCountry"):
-        country = ref_get("Country", country.get("CountryID"))
-        entity.add("country", country.get("ISO2"))
+        countries = set([parts.get("Unknown")])
+        for area in location.findall("./LocationAreaCode"):
+            area_code = ref_get("AreaCode", area.get("AreaCodeID"))
+            country = ref_get("Country", area_code.get("CountryID"))
+            countries.add(country.get("ISO2"))
 
-    if not entity.has("country"):
-        entity.add("country", parts.get("Unknown"))
+        for country in location.findall("./LocationCountry"):
+            country = ref_get("Country", country.get("CountryID"))
+            countries.add(country.get("ISO2"))
+
+        locations[location_id] = (address, countries)
+    return locations
 
 
 def parse_alias(party, parts, alias):
@@ -408,7 +412,7 @@ def make_adjacent(emitter, name):
     return entity
 
 
-def parse_party(emitter, doc, distinct_party):
+def parse_party(emitter, doc, distinct_party, locations):
     profile = distinct_party.find("Profile")
     sub_type = ref_get("PartySubType", profile.get("PartySubTypeID"))
     schema = TYPES.get(sub_type.get("Value"))
@@ -474,9 +478,11 @@ def parse_party(emitter, doc, distinct_party):
         if period is not None:
             party.add(prop, parse_date_period(period))
 
-        # vlocation = feature.find(".//VersionLocation")
-        # if vlocation is not None:
-        #     parse_location(party, doc, vlocation.get("LocationID"))
+        location = feature.find(".//VersionLocation")
+        if location is not None:
+            address, countries = locations[location.get("LocationID")]
+            party.add("address", address)
+            party.add("country", countries)
 
         detail = feature.find(".//VersionDetail")
         if detail is not None:
@@ -559,10 +565,13 @@ def parse(context, data):
     emitter = EntityEmitter(context)
     with context.http.rehash(data) as res:
         doc = remove_namespace(res.xml)
+        context.log.info("Loading reference values...")
         load_ref_values(doc)
+        context.log.info("Loading locations...")
+        locations = load_locations(doc)
 
         for distinct_party in doc.findall(".//DistinctParty"):
-            parse_party(emitter, doc, distinct_party)
+            parse_party(emitter, doc, distinct_party, locations)
 
         for entry in doc.findall(".//SanctionsEntry"):
             parse_entry(emitter, doc, entry)
