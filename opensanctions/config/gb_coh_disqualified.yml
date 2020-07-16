@@ -10,6 +10,8 @@ pipeline:
       pass: fetch_index
   fetch_index:
     method: fetch
+    params:
+      http_rate_limit: 5
     handle:
       pass: alphabetical
   alphabetical:
@@ -18,10 +20,14 @@ pipeline:
       pass: fetch_pages
   fetch_pages:
     method: fetch
+    params:
+      http_rate_limit: 5
     handle:
       pass: parse_pages
   parse_pages:
     method: opensanctions.crawlers.gb_coh_disqualified:pages
+    params:
+      http_rate_limit: 5
     handle:
       pass: officer
       url: fetch_pages
