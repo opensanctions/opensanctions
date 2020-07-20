@@ -10,14 +10,29 @@ pipeline:
       pass: fetch
   fetch:
     method: fetch
+    params:
+      http_rate_limit: 30
     handle:
       pass: index
   index:
-    method: opensanctions.crawlers.interpol_red_notices:index
+    method: opensanctions.crawlers.interpol_red_notices:get_countries
     handle:
       pass: fetch_notices
   fetch_notices:
     method: fetch
+    params:
+      http_rate_limit: 30
+    handle:
+      pass: parse_countrywise_noticelist
+  parse_countrywise_noticelist:
+    method: opensanctions.crawlers.interpol_red_notices:parse_countrywise_noticelist
+    handle:
+      pass: fetch_notice
+      fetch: fetch_notices_agewise
+  fetch_notices_agewise:
+    method: fetch
+    params:
+      http_rate_limit: 30
     handle:
       pass: parse_noticelist
   parse_noticelist:
@@ -26,6 +41,8 @@ pipeline:
       pass: fetch_notice
   fetch_notice:
     method: fetch
+    params:
+      http_rate_limit: 30
     handle:
       pass: parse_notice
   parse_notice:

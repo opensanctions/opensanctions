@@ -1,5 +1,5 @@
 from normality import collapse_spaces, stringify
-from pprint import pprint  # noqa
+from pprint import pformat  # noqa
 from datetime import datetime
 from ftmstore.memorious import EntityEmitter
 
@@ -11,7 +11,9 @@ SEXES = {
     "F": constants.FEMALE,
 }
 
-NOTICE_URL = "https://ws-public.interpol.int/notices/v1/red?&nationality=%s&arrestWarrantCountryId=%s"  # noqa
+AGE_WISE_URL = 'https://ws-public.interpol.int/notices/v1/red?ageMin={0}&ageMax={0}&resultPerPage=160'  # noqa
+AGE_COUNTRY_WISE_URL = 'https://ws-public.interpol.int/notices/v1/red?ageMin={0}&ageMax={0}&arrestWarrantCountryId={1}&resultPerPage=160'  # noqa
+COUNTRY_WISE_URL = 'https://ws-public.interpol.int/notices/v1/red?arrestWarrantCountryId={0}&resultPerPage=160'  # noqa
 
 
 def parse_date(date):
@@ -31,21 +33,33 @@ def get_value(el):
         return collapse_spaces(text)
 
 
-def index(context, data):
+def get_countries(context, data):
     with context.http.rehash(data) as result:
         doc = result.html
-        nationalities = doc.findall(".//select[@id='nationality']//option")
-        nationalities = [get_value(el) for el in nationalities]
-        nationalities = [x for x in nationalities if x is not None]
-        wanted_by = doc.findall(
-            ".//select[@id='arrestWarrantCountryId']//option"
-        )  # noqa
+        wanted_by = doc.findall(".//select[@id='arrestWarrantCountryId']//option")  # noqa
         wanted_by = [get_value(el) for el in wanted_by]
-        wanted_by = [x for x in wanted_by if x is not None]
-        combinations = [(n, w) for n in nationalities for w in wanted_by]
-        for (nationality, wanted_by) in combinations:
-            url = NOTICE_URL % (nationality, wanted_by)
-            context.emit(data={"url": url})
+        for country in wanted_by:
+            url = COUNTRY_WISE_URL.format(country)
+            data['url'] = url
+            data['retry_attempt'] = 3
+            data['wanted_by'] = country
+            context.emit(data=data)
+
+
+def parse_countrywise_noticelist(context, data):
+    with context.http.rehash(data) as res:
+        res = res.json
+        notices = res['_embedded']['notices']
+        for notice in notices:
+            url = notice['_links']['self']['href']
+            if context.skip_incremental(url):
+                context.emit(data={'url': url})
+        total = res['total']
+        if int(total) > 160:
+            for age in range(18, 100):
+                url = AGE_COUNTRY_WISE_URL.format(age, data['wanted_by'])
+                data['url'] = url
+                context.emit(data=data, rule='fetch')
 
 
 def parse_noticelist(context, data):
@@ -53,8 +67,9 @@ def parse_noticelist(context, data):
         res = res.json
         notices = res["_embedded"]["notices"]
         for notice in notices:
-            url = notice["_links"]["self"]["href"]
-            context.emit(data={"url": url})
+            url = notice['_links']['self']['href']
+            if context.skip_incremental(url):
+                context.emit(data={'url': url})
 
 
 def parse_notice(context, data):
