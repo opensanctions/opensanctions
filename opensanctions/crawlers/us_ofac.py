@@ -616,11 +616,18 @@ def parse_entry(emitter, doc, entry):
     sanction.add("authority", "US Office of Foreign Asset Control")
     sanction.add("program", ref_value("List", entry.get("ListID")))
 
+    dates = set()
     for event in entry.findall("./EntryEvent"):
-        sanction.add("startDate", parse_date(event.find("./Date")))
+        date = parse_date(event.find("./Date"))
+        dates.add(date)
+        sanction.add("startDate", date)
         sanction.add("summary", event.findtext("./Comment"))
         basis = ref_value("LegalBasis", event.get("LegalBasisID"))
         sanction.add("reason", basis)
+
+    if len(dates):
+        party.context["created_at"] = min(dates)
+        party.context["updated_at"] = max(dates)
 
     for measure in entry.findall("./SanctionsMeasure"):
         sanction.add("summary", measure.findtext("./Comment"))
@@ -649,7 +656,7 @@ def parse_relation(emitter, doc, relation):
     to_range = entity.schema.get(to_attr).range
 
     # HACK: Looks like OFAC just has some link in a direction that makes no
-    # semantic validity, so we're flipping them here.
+    # semantic sense, so we're flipping them here.
     if disjoint_schema(from_party, from_range) or disjoint_schema(to_party, to_range):
         from_party, to_party = to_party, from_party
 

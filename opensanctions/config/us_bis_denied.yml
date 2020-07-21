@@ -5,7 +5,7 @@ pipeline:
   init:
     method: seed
     params:
-      url: 'https://www.bis.doc.gov/dpl/dpl.txt'
+      url: "https://bis.doc.gov/dpl/dpl.txt"
     handle:
       pass: fetch
   fetch:

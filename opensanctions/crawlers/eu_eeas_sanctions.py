@@ -8,11 +8,14 @@ GENDERS = {"M": constants.MALE, "F": constants.FEMALE}
 
 
 def parse_entry(emitter, entry):
+    reg_date = entry.get("reg_date")
     entity = emitter.make("LegalEntity")
     if entry.get("Type") == "P":
         entity = emitter.make("Person")
     entity.id = "eeas-%s" % entry.get("Id")
     entity.add("sourceUrl", entry.get("pdf_link"))
+    entity.add("modifiedAt", reg_date)
+    entity.context["created_at"] = reg_date
 
     sanction = emitter.make("Sanction")
     sanction.make_id(entity.id)
@@ -22,7 +25,7 @@ def parse_entry(emitter, entry):
     sanction.add("program", entry.get("programme"))
     sanction.add("program", entry.get("legal_basis"))
     sanction.add("reason", entry.get("remark"))
-    sanction.add("startDate", entry.get("reg_date"))
+    sanction.add("startDate", reg_date)
 
     for name in entry.findall("./NAME"):
         if entity.has("name"):

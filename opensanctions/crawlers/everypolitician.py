@@ -1,4 +1,5 @@
 from pprint import pprint  # noqa
+from datetime import datetime
 from ftmstore.memorious import EntityEmitter
 
 PSEUDO = (
@@ -16,6 +17,16 @@ PSEUDO = (
 )
 
 
+class ContextEmitter(EntityEmitter):
+    def __init__(self, context, updated_at):
+        self.updated_at = updated_at.isoformat()
+        super(ContextEmitter, self).__init__(context)
+
+    def emit(self, entity, rule="pass"):
+        entity.context["updated_at"] = self.updated_at
+        super(ContextEmitter, self).emit(entity, rule=rule)
+
+
 def index(context, data):
     with context.http.rehash(data) as res:
         for country in res.json:
@@ -30,7 +41,10 @@ def index(context, data):
 
 
 def parse(context, data):
-    emitter = EntityEmitter(context)
+    legislature = data.get("legislature")
+    lastmod = int(legislature.get("lastmod"))
+    lastmod = datetime.utcfromtimestamp(lastmod)
+    emitter = ContextEmitter(context, lastmod)
     country = data.get("country", {}).get("code")
     entities = {}
     with context.http.rehash(data) as res:

@@ -5,7 +5,7 @@ pipeline:
   init:
     method: seed
     params:
-      url: 'https://www.dfat.gov.au/sites/default/files/regulation8_consolidated.xls'
+      url: "https://www.dfat.gov.au/sites/default/files/regulation8_consolidated.xls"
     handle:
       pass: fetch
   fetch:

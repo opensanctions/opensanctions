@@ -126,12 +126,15 @@ def parse_common(emitter, entity, node):
     entity.add("name", name)
     entity.add("description", node.findtext("./COMMENTS1"))
     entity.add("modifiedAt", values(node.find("./LAST_DAY_UPDATED")))
+    listed_on = node.findtext("./LISTED_ON")
+    if listed_on is not None:
+        entity["created_at"] = listed_on
 
     sanction = emitter.make("Sanction")
     sanction.make_id(entity.id)
     sanction.add("entity", entity)
     sanction.add("authority", "United Nations Security Council")
-    sanction.add("startDate", node.findtext("./LISTED_ON"))
+    sanction.add("startDate", listed_on)
     sanction.add("modifiedAt", values(node.find("./LAST_DAY_UPDATED")))
 
     program = "%s (%s)" % (

@@ -36,8 +36,9 @@ def parse_entry(emitter, entry):
     sanction.add("program", entry.findtext("./program-entry"))
     date_entry = entry.findtext("./date-entry")
     if date_entry:
-        date = datetime.strptime(date_entry, "%Y%m%d").date()
-        sanction.add("startDate", date)
+        date = datetime.strptime(date_entry, "%Y%m%d")
+        entity.context["created_at"] = date.isoformat()
+        sanction.add("startDate", date.date())
 
     for aka in entry.findall("./aka-list"):
         first_name = aka.findtext("./aka-name1")

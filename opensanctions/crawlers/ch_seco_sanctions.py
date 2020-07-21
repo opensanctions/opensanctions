@@ -155,6 +155,16 @@ def parse_entry(emitter, target, programs, places, updated_at):
         # TODO: build out support for these!
         return
 
+    dates = set()
+    for mod in target.findall("./modification"):
+        date = mod.get("publication-date")
+        if date is not None:
+            dates.add(date)
+    if not len(dates):
+        dates.add(updated_at)
+    entity.context["created_at"] = min(dates)
+    entity.context["updated_at"] = max(dates)
+
     entity.id = "seco-%s" % target.get("ssid")
     for other in node.findall("./other-information"):
         entity.add("notes", other.text)
@@ -163,7 +173,7 @@ def parse_entry(emitter, target, programs, places, updated_at):
     sanction.make_id(entity.id, "Sanction")
     sanction.add("entity", entity)
     sanction.add("authority", "Swiss SECO Consolidated Sanctions")
-    sanction.add("modifiedAt", updated_at)
+    sanction.add("modifiedAt", max(dates))
 
     for justification in node.findall("./justification"):
         sanction.add("reason", justification.text)

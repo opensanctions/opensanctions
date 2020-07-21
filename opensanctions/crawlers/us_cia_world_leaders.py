@@ -1,5 +1,6 @@
 from urllib.parse import urljoin
 from pprint import pprint  # noqa
+from datetime import datetime
 from normality import collapse_spaces, stringify
 from ftmstore.memorious import EntityEmitter
 
@@ -12,13 +13,20 @@ def element_text(el):
         return collapse_spaces(text)
 
 
+def parse_updated(text):
+    text = text.strip()
+    try:
+        return datetime.strptime(text, "%d %b %Y").date()
+    except ValueError:
+        pass
+
+
 def parse(context, data):
     emitter = EntityEmitter(context)
     url = data.get("url")
     country = data.get("country")
     with context.http.rehash(data) as res:
         doc = res.html
-        # updated_at = doc.findtext('.//span[@id="lastUpdateDate"]')
         output = doc.find('.//div[@id="countryOutput"]')
         if output is None:
             return
@@ -42,6 +50,11 @@ def parse(context, data):
             person.add("position", function)
             person.add("sourceUrl", url)
             person.add("topics", "role.pep")
+            updated_at = doc.findtext('.//span[@id="lastUpdateDate"]')
+            updated_at = parse_updated(updated_at)
+            if updated_at is not None:
+                person.add("modifiedAt", updated_at)
+                person.context["updated_at"] = updated_at.isoformat()
             emitter.emit(person)
     emitter.finalize()
 

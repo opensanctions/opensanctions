@@ -1,8 +1,18 @@
 import csv
 from pprint import pprint  # noqa
+from datetime import datetime
 from ftmstore.memorious import EntityEmitter
 
 from opensanctions.util import jointext
+
+
+def parse_date(text):
+    if text is None:
+        return
+    try:
+        return datetime.strptime(text, "%m/%d/%Y").date()
+    except ValueError:
+        return text
 
 
 def parse_row(emitter, row):
@@ -11,7 +21,8 @@ def parse_row(emitter, row):
     entity.add("name", row.get("Name"))
     entity.add("notes", row.get("Action"))
     entity.add("country", row.get("Country"))
-    # entity.updated_at = row.get('Effective_Date')
+    entity.add("modifiedAt", row.get("Last_Update"))
+    entity.context["updated_at"] = row.get("Last_Update")
 
     address = jointext(
         row.get("Street_Address"),
@@ -29,7 +40,9 @@ def parse_row(emitter, row):
     sanction.add("program", row.get("FR_Citation"))
     sanction.add("authority", "US Bureau of Industry and Security")
     sanction.add("country", "us")
-    sanction.add("startDate", row.get("Effective_Date"))
+    sanction.add("startDate", parse_date(row.get("Effective_Date")))
+    sanction.add("endDate", parse_date(row.get("Expiration_Date")))
+    pprint(row)
     emitter.emit(sanction)
 
 

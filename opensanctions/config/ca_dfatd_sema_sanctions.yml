@@ -5,7 +5,7 @@ pipeline:
   init:
     method: seed
     params:
-      url: 'http://www.international.gc.ca/sanctions/assets/office_docs/sema-lmes.xml'
+      url: "http://www.international.gc.ca/sanctions/assets/office_docs/sema-lmes.xml"
     handle:
       pass: fetch
   fetch:

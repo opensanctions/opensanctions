@@ -22,6 +22,7 @@ def officer(context, data):
             context.log.info("CoH error: %r", res.json)
             return
         data = res.json
+        # pprint(data)
         person = emitter.make("Person")
         person.make_id(officer_id)
         source_url = urljoin(WEB_URL, data.get("links", {}).get("self", "/"))
@@ -47,7 +48,9 @@ def officer(context, data):
             sanction.add("entity", person)
             sanction.add("authority", "UK Companies House")
             sanction.add("program", case)
-            sanction.add("startDate", disqual.pop("disqualified_from", None))
+            from_date = disqual.pop("disqualified_from", None)
+            person.context["created_at"] = from_date
+            sanction.add("startDate", from_date)
             sanction.add("endDate", disqual.pop("disqualified_until", None))
             emitter.emit(sanction)
 

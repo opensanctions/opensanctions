@@ -74,16 +74,19 @@ def parse_entry(emitter, group, rows):
             entity.add("name", name)
         else:
             entity.add("alias", name)
-        entity.add("title", row.pop("Title"), quiet=True)
-        sanction.add("program", row.pop("Regime"))
-        last_updated = parse_date(row.pop("Last Updated"))
-        sanction.add("modifiedAt", last_updated)
-        sanction.add("startDate", parse_date(row.pop("Listed On")))
-        entity.add("modifiedAt", last_updated)
         entity.add("position", row.pop("Position"), quiet=True)
         entity.add("notes", row.pop("Other Information"), quiet=True)
         entity.add("birthDate", parse_date(row.pop("DOB")), quiet=True)
         entity.add("nationality", row.pop("Nationality", None), quiet=True)
+        entity.add("title", row.pop("Title"), quiet=True)
+        sanction.add("program", row.pop("Regime"))
+        sanction.add("startDate", parse_date(row.pop("Listed On")))
+        last_updated = parse_date(row.pop("Last Updated"))
+        if last_updated is not None:
+            sanction.add("modifiedAt", last_updated)
+            sanction.context["updated_at"] = last_updated
+            entity.add("modifiedAt", last_updated)
+            entity.context["updated_at"] = last_updated
 
         country = row.pop("Country", None)
         entity.add("country", country)
