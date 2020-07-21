@@ -11,9 +11,9 @@ SEXES = {
     "F": constants.FEMALE,
 }
 
-AGE_WISE_URL = 'https://ws-public.interpol.int/notices/v1/red?ageMin={0}&ageMax={0}&resultPerPage=160'  # noqa
-AGE_COUNTRY_WISE_URL = 'https://ws-public.interpol.int/notices/v1/red?ageMin={0}&ageMax={0}&arrestWarrantCountryId={1}&resultPerPage=160'  # noqa
-COUNTRY_WISE_URL = 'https://ws-public.interpol.int/notices/v1/red?arrestWarrantCountryId={0}&resultPerPage=160'  # noqa
+AGE_WISE_URL = "https://ws-public.interpol.int/notices/v1/red?ageMin={0}&ageMax={0}&resultPerPage=160"  # noqa
+AGE_COUNTRY_WISE_URL = "https://ws-public.interpol.int/notices/v1/red?ageMin={0}&ageMax={0}&arrestWarrantCountryId={1}&resultPerPage=160"  # noqa
+COUNTRY_WISE_URL = "https://ws-public.interpol.int/notices/v1/red?arrestWarrantCountryId={0}&resultPerPage=160"  # noqa
 
 
 def parse_date(date):
@@ -36,30 +36,32 @@ def get_value(el):
 def get_countries(context, data):
     with context.http.rehash(data) as result:
         doc = result.html
-        wanted_by = doc.findall(".//select[@id='arrestWarrantCountryId']//option")  # noqa
+        wanted_by = doc.findall(
+            ".//select[@id='arrestWarrantCountryId']//option"
+        )  # noqa
         wanted_by = [get_value(el) for el in wanted_by]
         for country in wanted_by:
             url = COUNTRY_WISE_URL.format(country)
-            data['url'] = url
-            data['retry_attempt'] = 3
-            data['wanted_by'] = country
+            data["url"] = url
+            data["retry_attempt"] = 3
+            data["wanted_by"] = country
             context.emit(data=data)
 
 
 def parse_countrywise_noticelist(context, data):
     with context.http.rehash(data) as res:
         res = res.json
-        notices = res['_embedded']['notices']
+        notices = res["_embedded"]["notices"]
         for notice in notices:
-            url = notice['_links']['self']['href']
+            url = notice["_links"]["self"]["href"]
             if context.skip_incremental(url):
-                context.emit(data={'url': url})
-        total = res['total']
+                context.emit(data={"url": url})
+        total = res["total"]
         if int(total) > 160:
             for age in range(18, 100):
-                url = AGE_COUNTRY_WISE_URL.format(age, data['wanted_by'])
-                data['url'] = url
-                context.emit(data=data, rule='fetch')
+                url = AGE_COUNTRY_WISE_URL.format(age, data["wanted_by"])
+                data["url"] = url
+                context.emit(data=data, rule="fetch")
 
 
 def parse_noticelist(context, data):
@@ -67,9 +69,9 @@ def parse_noticelist(context, data):
         res = res.json
         notices = res["_embedded"]["notices"]
         for notice in notices:
-            url = notice['_links']['self']['href']
+            url = notice["_links"]["self"]["href"]
             if context.skip_incremental(url):
-                context.emit(data={'url': url})
+                context.emit(data={"url": url})
 
 
 def parse_notice(context, data):
