@@ -125,10 +125,13 @@ def parse_common(emitter, entity, node):
     name = name or node.findtext("./FIRST_NAME")
     entity.add("name", name)
     entity.add("description", node.findtext("./COMMENTS1"))
-    entity.add("modifiedAt", values(node.find("./LAST_DAY_UPDATED")))
+    updated_at = values(node.find("./LAST_DAY_UPDATED"))
+    if len(updated_at):
+        entity.add("modifiedAt", updated_at)
+        entity.context["updated_at"] = max(updated_at)
     listed_on = node.findtext("./LISTED_ON")
     if listed_on is not None:
-        entity["created_at"] = listed_on
+        entity.context["created_at"] = listed_on
 
     sanction = emitter.make("Sanction")
     sanction.make_id(entity.id)
