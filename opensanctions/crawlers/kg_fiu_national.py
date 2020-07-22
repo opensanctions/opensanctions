@@ -48,7 +48,8 @@ def parse_common(emitter, node, entity):
     sanction.add("program", node.findtext("./CategoryPerson"))
     inclusion_date = parse_date(node.findtext("./DateInclusion"))
     sanction.add("startDate", inclusion_date)
-    entity.context["created_at"] = inclusion_date
+    if inclusion_date is not None:
+        entity.context["created_at"] = inclusion_date
     emitter.emit(entity)
     emitter.emit(sanction)
 
