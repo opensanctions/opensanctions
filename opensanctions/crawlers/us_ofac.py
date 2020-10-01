@@ -546,6 +546,9 @@ def parse_party(emitter, doc, distinct_party, locations, documents):
                 party.add("ogrnCode", number)
                 continue
 
+            if doc_type_id not in REG_ID:
+                emitter.log.warn("Unknwon document type: %s", doc_type_id)
+                continue
             reg_schema, prop = REG_ID[doc_type_id]
             if reg_schema is None:
                 if not party.schema.is_a("LegalEntity"):
