@@ -304,6 +304,8 @@ REG_ID = {
     "91750": (None, None),
     # United Social Credit Code Certificate (USCCC)
     "91747": (None, None),
+    # Unified Social Credit Code (USCC)
+    "92001": (None, None),
     # Chamber of Commerce Number
     "91751": (None, None),
     # Legal Entity Number
