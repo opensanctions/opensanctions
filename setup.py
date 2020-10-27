@@ -15,9 +15,11 @@ setup(
     install_requires=[
         "followthemoney >= 1.21.2",
         "followthemoney-store[postgresql] >= 2.1.6",
-        "memorious >= 1.2.3",
-        "alephclient >= 1.2.1",
+        "memorious >= 1.8.3",
+        "alephclient >= 2.1.3",
         "xlrd",
     ],
-    entry_points={"memorious.plugins": ["opensanctions = opensanctions:init"],},
+    entry_points={
+        "memorious.plugins": ["opensanctions = opensanctions:init"],
+    },
 )
