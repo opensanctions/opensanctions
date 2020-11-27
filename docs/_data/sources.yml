@@ -6,8 +6,8 @@
   category: sanctions
   publisher:
     title: United Nations Security Council
-    url: 'https://www.un.org/en/sc/'
-  url: 'https://www.un.org/sc/suborg/en/sanctions/un-sc-consolidated-list'
+    url: "https://www.un.org/en/sc/"
+  url: "https://www.un.org/sc/suborg/en/sanctions/un-sc-consolidated-list"
   data:
     url: https://scsanctions.un.org/resources/xml/en/consolidated.xml
     format: XML
@@ -19,8 +19,8 @@
   category: pep
   publisher:
     title: WorldPresidentsDB.com
-    url: 'http://www.worldpresidentsdb.com/'
-  url: 'http://www.worldpresidentsdb.com/list/current/'
+    url: "http://www.worldpresidentsdb.com/"
+  url: "http://www.worldpresidentsdb.com/list/current/"
 
 - title: CIA World Leaders
   description: >
@@ -152,7 +152,7 @@
   slug: interpol_red_notices
   category: crime
   publisher:
-    title: Interpol
+    title: Interpol Red
     url: https://www.interpol.int/
   url: https://www.interpol.int/INTERPOL-expertise/Notices
   data:
@@ -200,3 +200,17 @@
   data:
     url: http://www.assembly.coe.int/nw/xml/AssemblyList/MP-Alpha-EN.asp?initial=A
     format: HTML
+
+- title: INTERPOL Yellow Notices
+  description: >
+    International arrest warrants published by INTERPOL with a view to
+    extradition of the wanted individuals.
+  slug: interpol_yellow_notices
+  category: researched
+  publisher:
+    title: Interpol Yellow
+    url: https://www.interpol.int/
+  url: https://www.interpol.int/INTERPOL-expertise/Notices
+  data:
+    url: https://www.interpol.int/INTERPOL-expertise/Notices
+    format: xml
