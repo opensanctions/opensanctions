@@ -6,8 +6,8 @@
   category: sanctions
   publisher:
     title: United Nations Security Council
-    url: 'https://www.un.org/en/sc/'
-  url: 'https://www.un.org/sc/suborg/en/sanctions/un-sc-consolidated-list'
+    url: "https://www.un.org/en/sc/"
+  url: "https://www.un.org/sc/suborg/en/sanctions/un-sc-consolidated-list"
   data:
     url: https://scsanctions.un.org/resources/xml/en/consolidated.xml
     format: XML
@@ -19,8 +19,8 @@
   category: pep
   publisher:
     title: WorldPresidentsDB.com
-    url: 'http://www.worldpresidentsdb.com/'
-  url: 'http://www.worldpresidentsdb.com/list/current/'
+    url: "http://www.worldpresidentsdb.com/"
+  url: "http://www.worldpresidentsdb.com/list/current/"
 
 - title: CIA World Leaders
   description: >
@@ -199,4 +199,19 @@
   url: http://www.assembly.coe.int/nw/Home-EN.asp
   data:
     url: http://www.assembly.coe.int/nw/xml/AssemblyList/MP-Alpha-EN.asp?initial=A
+    format: HTML
+
+- title: FR Freezing of Assets
+  description: >
+    This register lists all persons, entities and vessels subject to asset
+    freezing measures in force on French territory, pursuant to national, 
+    European and international (UN) provisions.
+  slug: fr_freezing_of_assets
+  category: sanctions
+  publisher:
+    title: French's Ministry of Economy, Finance, and Recovery
+    url: https://www.tresor.economie.gouv.fr/
+  url: https://www.tresor.economie.gouv.fr/services-aux-entreprises/sanctions-economiques/tout-savoir-sur-les-personnes-et-entites-sanctionnees
+  data:
+    url: https://www.tresor.economie.gouv.fr/services-aux-entreprises/sanctions-economiques/tout-savoir-sur-les-personnes-et-entites-sanctionnees
     format: HTML
