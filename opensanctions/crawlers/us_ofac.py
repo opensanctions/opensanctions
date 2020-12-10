@@ -575,6 +575,10 @@ def parse_party(emitter, doc, distinct_party, locations, documents):
 
     for feature in profile.findall("./Feature"):
         feature_id = feature.get("FeatureTypeID")
+        if feature_id not in FEATURES:
+            emitter.log.warn("Unknwon feature type: %s", feature_id)
+            continue
+
         # feature_type = ref_value("FeatureType", feature_id)
         # if feature_id not in FEATURES:
         #     print("    # %s" % feature_type)
@@ -645,6 +649,10 @@ def parse_entry(emitter, doc, entry):
 
 def parse_relation(emitter, doc, relation):
     type_id = relation.get("RelationTypeID")
+    if type_id not in RELATIONS:
+        emitter.log.warn("Unknwon relation type: %s", type_id)
+        return
+
     type_ = ref_value("RelationType", relation.get("RelationTypeID"))
     # if type_id not in RELATIONS:
     #     from_party = emitter.dataset.get(from_party.id)
