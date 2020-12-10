@@ -6,35 +6,29 @@ import io
 import zipfile
 import xlrd
 from xlrd.xldate import xldate_as_datetime
+import time
 
 NATURES = {"personne physique": "Physical person",
            "personne morale": "Corporation"}
 
 
 def parse_reference(_emitter: EntityEmitter, _row: dict):
-    nature = NATURES.get(_row.pop("nature"))
     first_name = _row.pop("firstname")
     last_name = _row.pop("lastname")
     birth_date = _row.pop("birthdate")
 
-    if nature == NATURES.get("personne morale"):
-        entity = _emitter.make("LegalEntity")
-        entity.add("incorporationDate", birth_date)
-    else:
-        entity = _emitter.make("Person")
-        entity.add("birthDate", birth_date)
-        entity.add("birthPlace", _row.pop("birthplace"))
-
+    entity = _emitter.make("Person")
     entity.make_id("FREEZING", "{}{}{}".format(
         first_name, last_name, birth_date)
     )
 
+    entity.add('status', NATURES.get(_row.pop("nature")))
+    entity.add("birthDate", birth_date)
+    entity.add("birthPlace", _row.pop("birthplace"))
     entity.add("name", "{} {}".format(
         first_name, last_name)
     )
     entity.add("alias", _row.pop("aliases"))
-
-    entity.add("status", nature)
     entity.add("keywords", "ASSETS_FREEZING")
 
     _emitter.emit(entity)
@@ -42,7 +36,6 @@ def parse_reference(_emitter: EntityEmitter, _row: dict):
 
 def parse(context, data):
     emitter = EntityEmitter(context)
-    items = []
     with context.http.rehash(data) as res:
         doc = res.html
         url_file = doc.find(".//main//ul//li//a[@href]")
@@ -69,13 +62,13 @@ def parse(context, data):
                     date = xldate_as_datetime(cell.value, xls.datemode)
                     row[header] = date.isoformat()
                 elif cell.ctype == 0:
-                    row[header] = ""
+                    row[header] = "None"
                 else:
                     row[header] = cell.value
 
-            items.append(row)
+                if row[header] == '':
+                    row[header] = "None"
 
-        for row in items:
             parse_reference(emitter, row)
 
         emitter.finalize()
