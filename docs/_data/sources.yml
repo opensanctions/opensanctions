@@ -6,8 +6,8 @@
   category: sanctions
   publisher:
     title: United Nations Security Council
-    url: 'https://www.un.org/en/sc/'
-  url: 'https://www.un.org/sc/suborg/en/sanctions/un-sc-consolidated-list'
+    url: "https://www.un.org/en/sc/"
+  url: "https://www.un.org/sc/suborg/en/sanctions/un-sc-consolidated-list"
   data:
     url: https://scsanctions.un.org/resources/xml/en/consolidated.xml
     format: XML
@@ -19,8 +19,8 @@
   category: pep
   publisher:
     title: WorldPresidentsDB.com
-    url: 'http://www.worldpresidentsdb.com/'
-  url: 'http://www.worldpresidentsdb.com/list/current/'
+    url: "http://www.worldpresidentsdb.com/"
+  url: "http://www.worldpresidentsdb.com/list/current/"
 
 - title: CIA World Leaders
   description: >
@@ -200,3 +200,20 @@
   data:
     url: http://www.assembly.coe.int/nw/xml/AssemblyList/MP-Alpha-EN.asp?initial=A
     format: HTML
+
+- title: List of persons, groups and entities subject to EU financial sanctions
+  description: >
+    In its policy, the European Union intervenes when necessary to prevent 
+    conflict or in response to emerging or actual crises. In certain cases, 
+    EU intervention can take the form of restrictive measures or 'sanctions'. 
+    The application of financial sanctions and more precisely the freezing of 
+    assets constitutes an obligation for both the public and private sector.
+  slug: eu_fsl
+  category: sanctions
+  publisher:
+    title: European Commission - External relations / Sanctions List
+    url: https://webgate.ec.europa.eu
+  url: https://webgate.ec.europa.eu/fsd/fsf/public/rss
+  data:
+    url: https://webgate.ec.europa.eu/fsd/fsf/public/rss
+    format: XML
