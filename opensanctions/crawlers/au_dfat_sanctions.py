@@ -76,12 +76,10 @@ def parse(context, data):
             for header, cell in row.items():
                 if cell.ctype == 2:
                     row[header] = str(int(cell.value))
-                elif cell.ctype == 3:
-                    date = xldate_as_datetime(cell.value, xls.datemode)
-                    row[header] = date.isoformat()
                 elif cell.ctype == 0:
                     row[header] = None
-                row[header] = cell.value
+                else:
+                    row[header] = cell.value
 
             reference = clean_reference(row.get("reference"))
             references[reference].append(row)
