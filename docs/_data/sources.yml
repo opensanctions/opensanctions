@@ -6,8 +6,8 @@
   category: sanctions
   publisher:
     title: United Nations Security Council
-    url: 'https://www.un.org/en/sc/'
-  url: 'https://www.un.org/sc/suborg/en/sanctions/un-sc-consolidated-list'
+    url: "https://www.un.org/en/sc/"
+  url: "https://www.un.org/sc/suborg/en/sanctions/un-sc-consolidated-list"
   data:
     url: https://scsanctions.un.org/resources/xml/en/consolidated.xml
     format: XML
@@ -19,8 +19,8 @@
   category: pep
   publisher:
     title: WorldPresidentsDB.com
-    url: 'http://www.worldpresidentsdb.com/'
-  url: 'http://www.worldpresidentsdb.com/list/current/'
+    url: "http://www.worldpresidentsdb.com/"
+  url: "http://www.worldpresidentsdb.com/list/current/"
 
 - title: CIA World Leaders
   description: >
@@ -199,4 +199,20 @@
   url: http://www.assembly.coe.int/nw/Home-EN.asp
   data:
     url: http://www.assembly.coe.int/nw/xml/AssemblyList/MP-Alpha-EN.asp?initial=A
+    format: HTML
+
+- title: List of the members and alternates of the European Commitee of the Regions
+  description: >
+    ​The European Committee of the Regions (CoR) is the voice of regions and 
+    cities in the European Union (EU). It represents local and regional authorities 
+    across the European Union and advises on new laws that have an impact on regions 
+    and cities (70% of all EU legislation).
+  slug: eu_cor_m_a
+  category: pep
+  publisher:
+    title: European Committee of the Regions
+    url: https://cor.europa.eu/en
+  url: https://cor.europa.eu/en
+  data:
+    url: http://memberspage.cor.europa.eu/
     format: HTML
