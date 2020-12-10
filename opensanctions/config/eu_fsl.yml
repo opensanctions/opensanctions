@@ -1,0 +1,18 @@
+name: eu_fsl
+description: "[OSANC] List of persons, groups and entities subject to EU financial sanctions"
+schedule: daily
+pipeline:
+  init:
+    method: seed
+    params:
+      url: "https://webgate.ec.europa.eu/fsd/fsf/public/rss"
+    handle:
+      pass: fetch
+  fetch:
+    method: fetch
+    handle:
+      pass: parse
+  parse:
+    method: opensanctions.crawlers.eu_fsl:parse
+aggregator:
+  method: ftm_load_aleph
