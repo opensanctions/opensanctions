@@ -201,6 +201,22 @@
     url: http://www.assembly.coe.int/nw/xml/AssemblyList/MP-Alpha-EN.asp?initial=A
     format: HTML
 
+- title: List of the members and alternates of the European Commitee of the Regions
+  description: >
+    ​The European Committee of the Regions (CoR) is the voice of regions and 
+    cities in the European Union (EU). It represents local and regional authorities 
+    across the European Union and advises on new laws that have an impact on regions 
+    and cities (70% of all EU legislation).
+  slug: eu_cor_m_a
+  category: pep
+  publisher:
+    title: European Committee of the Regions
+    url: https://cor.europa.eu/en
+  url: https://cor.europa.eu/en
+  data:
+    url: http://memberspage.cor.europa.eu/
+    format: HTML
+
 - title: FR Freezing of Assets
   description: >
     This register lists all persons, entities and vessels subject to asset
@@ -229,3 +245,4 @@
   data:
     url: https://www.interpol.int/INTERPOL-expertise/Notices
     format: xml
+

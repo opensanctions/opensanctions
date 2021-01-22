@@ -1,0 +1,28 @@
+name: eu_cor_m_a
+description: "[OSANC] List of the members and alternates of the European Commitee of the Regions"
+schedule: daily
+pipeline:
+  init:
+    method: seed
+    params:
+      url: "http://memberspage.cor.europa.eu/"
+    handle:
+      pass: fetch
+  fetch:
+    method: fetch
+    handle:
+      pass: index
+  index:
+    method: opensanctions.crawlers.eu_cor_m_a:index
+    params:
+      url: "http://memberspage.cor.europa.eu/"
+    handle:
+      pass: fetch_people
+  fetch_people:
+    method: fetch
+    handle:
+      pass: parse
+  parse:
+    method: opensanctions.crawlers.eu_cor_m_a:parse
+aggregator:
+  method: ftm_load_aleph
