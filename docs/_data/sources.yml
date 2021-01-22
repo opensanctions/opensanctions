@@ -152,7 +152,7 @@
   slug: interpol_red_notices
   category: crime
   publisher:
-    title: Interpol
+    title: Interpol Red
     url: https://www.interpol.int/
   url: https://www.interpol.int/INTERPOL-expertise/Notices
   data:
@@ -216,3 +216,33 @@
   data:
     url: http://memberspage.cor.europa.eu/
     format: HTML
+
+- title: FR Freezing of Assets
+  description: >
+    This register lists all persons, entities and vessels subject to asset
+    freezing measures in force on French territory, pursuant to national, 
+    European and international (UN) provisions.
+  slug: fr_freezing_of_assets
+  category: sanctions
+  publisher:
+    title: French's Ministry of Economy, Finance, and Recovery
+    url: https://www.tresor.economie.gouv.fr/
+  url: https://www.tresor.economie.gouv.fr/services-aux-entreprises/sanctions-economiques/tout-savoir-sur-les-personnes-et-entites-sanctionnees
+  data:
+    url: https://www.tresor.economie.gouv.fr/services-aux-entreprises/sanctions-economiques/tout-savoir-sur-les-personnes-et-entites-sanctionnees
+    format: HTML
+
+- title: INTERPOL Yellow Notices
+  description: >
+    International arrest warrants published by INTERPOL with a view to
+    extradition of the wanted individuals.
+  slug: interpol_yellow_notices
+  category: researched
+  publisher:
+    title: Interpol Yellow
+    url: https://www.interpol.int/
+  url: https://www.interpol.int/INTERPOL-expertise/Notices
+  data:
+    url: https://www.interpol.int/INTERPOL-expertise/Notices
+    format: xml
+
