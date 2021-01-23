@@ -5,6 +5,9 @@ from opensanctions import constants
 from ftmstore.memorious import EntityEmitter
 from opensanctions.util import jointext
 
+# https://eeas.europa.eu/topics/sanctions-policy/8442/consolidated-list-of-sanctions_en
+# https://webgate.ec.europa.eu/fsd/fsf#!/files
+
 GENDERS = {"M": constants.MALE, "F": constants.FEMALE}
 
 NS = {"default": "http://eu.europa.ec/fpi/fsd/export"}
