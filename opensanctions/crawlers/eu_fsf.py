@@ -1,4 +1,5 @@
 from pprint import pprint  # noqa
+from normality import slugify
 
 from opensanctions import constants
 from ftmstore.memorious import EntityEmitter
@@ -13,30 +14,26 @@ def parse_entry(emitter, entry):
     entity = emitter.make("LegalEntity")
     if entry.find("./default:subjectType", NS).get("classificationCode") == "P":
         entity = emitter.make("Person")
-    entity.make_id(entry.get("logicalId"))
-    entity.add(
-        "sourceUrl",
-        entry.findtext("./default:regulation/default:publicationUrl", "", NS),
-    )
+    reference_no = slugify(entry.get("euReferenceNumber"))
+    entity.id = "fsf-%s" % reference_no
+
+    regulation = entry.find("./default:regulation", NS)
+    source_url = regulation.findtext("./default:publicationUrl", "", NS)
+    entity.add("sourceUrl", source_url)
 
     sanction = emitter.make("Sanction")
     sanction.make_id(entity.id)
     sanction.add("entity", entity)
     sanction.add("authority", "European Union")
-    sanction.add(
-        "sourceUrl",
-        entry.findtext("./default:regulation/default:publicationUrl", "", NS),
-    )
+    sanction.add("sourceUrl", source_url)
     program = jointext(
-        entry.find("./default:regulation", NS).get("programme"),
-        entry.find("./default:regulation", NS).get("numberTitle"),
+        regulation.get("programme"),
+        regulation.get("numberTitle"),
         sep=" - ",
     )
     sanction.add("program", program)
     sanction.add("reason", entry.findtext("./default:remark", "", NS))
-    sanction.add(
-        "startDate", entry.find("./default:regulation", NS).get("entryIntoForceDate")
-    )
+    sanction.add("startDate", regulation.get("entryIntoForceDate"))
 
     for name in entry.findall("./default:nameAlias", NS):
         if entity.has("name"):
@@ -51,11 +48,12 @@ def parse_entry(emitter, entry):
         gender = GENDERS.get(name.get("gender"))
         entity.add("gender", gender, quiet=True)
 
+    # TODO: support other types of ID
     for pnode in entry.findall(
         './default:identification[@identificationTypeCode="passport"]', NS
     ):
         passport = emitter.make("Passport")
-        passport.make_id("Passport", entity.id, pnode.get("number"))
+        passport.make_id("Passport", entity.id, pnode.get("logicalId"))
         passport.add("holder", entity)
         passport.add("passportNumber", pnode.get("number"))
         passport.add("country", pnode.get("countryIso2Code"))
@@ -71,7 +69,8 @@ def parse_entry(emitter, entry):
         entity.add("country", node.get("countryIso2Code"))
 
     for birth in entry.findall("./default:birthdate", NS):
-        entity.add("birthDate", birth.get("year"))
+        entity.add("birthDate", birth.get("birthdate"))
+        entity.add("birthPlace", birth.get("city"))
 
     for country in entry.findall("./default:citizenship", NS):
         entity.add("nationality", country.get("countryIso2Code"), quiet=True)
