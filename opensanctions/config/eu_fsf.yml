@@ -1,0 +1,18 @@
+name: eu_fsf
+description: "[OSANC] Financial Sanctions Files (FSF) published by EU Commision"
+schedule: daily
+pipeline:
+  init:
+    method: seed
+    params:
+      url: 'https://webgate.ec.europa.eu/europeaid/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=n00378os'
+    handle:
+      pass: fetch
+  fetch:
+    method: fetch
+    handle:
+      pass: parse
+  parse:
+    method: opensanctions.crawlers.eu_fsf:fsf_parse
+aggregator:
+  method: ftmstore.memorious:ftm_load_aleph
