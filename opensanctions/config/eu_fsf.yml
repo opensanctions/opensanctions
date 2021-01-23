@@ -5,7 +5,7 @@ pipeline:
   init:
     method: seed
     params:
-      url: 'https://webgate.ec.europa.eu/europeaid/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=n00378os'
+      url: "https://webgate.ec.europa.eu/europeaid/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=n00378os"
     handle:
       pass: fetch
   fetch:
