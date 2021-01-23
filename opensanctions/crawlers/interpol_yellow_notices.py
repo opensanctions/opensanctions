@@ -36,9 +36,7 @@ def get_value(el):
 def get_nationalities(context, data):
     with context.http.rehash(data) as result:
         doc = result.html
-        nationalities = doc.findall(
-            ".//select[@id='nationality']//option"
-        )
+        nationalities = doc.findall(".//select[@id='nationality']//option")
         nationalities = [get_value(el) for el in nationalities]
         for nationality in nationalities:
             url = NATIONALITY_WISE_URL.format(nationality)
@@ -85,8 +83,7 @@ def parse_notice(context, data):
         gender = SEXES.get(res["sex_id"])
         emitter = EntityEmitter(context)
         entity = emitter.make("Person")
-        entity.make_id("INTERPOL", first_name,
-                       last_name, res["entity_id"])
+        entity.make_id("INTERPOL", first_name, last_name, res["entity_id"])
         entity.add("name", first_name + " " + last_name)
         entity.add("firstName", first_name)
         entity.add("lastName", last_name)
