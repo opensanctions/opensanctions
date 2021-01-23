@@ -3,26 +3,6 @@ description: "[OSANC] CIA World Leaders"
 schedule: daily
 pipeline:
   init:
-    method: seed
-    params:
-      url: 'https://www.cia.gov/library/publications/resources/world-leaders-1/index.html'
-    handle:
-      pass: fetch
-  fetch:
-    method: fetch
-    handle:
-      pass: index
-  index:
-    method: opensanctions.crawlers.us_cia_world_leaders:index
-    params:
-      url: 'https://www.cia.gov/library/publications/resources/world-leaders-1/index.html'
-    handle:
-      pass: fetch_country
-  fetch_country:
-    method: fetch
-    handle:
-      pass: parse
-  parse:
-    method: opensanctions.crawlers.us_cia_world_leaders:parse
+    method: opensanctions.crawlers.us_cia_world_leaders:crawl
 aggregator:
   method: ftm_load_aleph
