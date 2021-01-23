@@ -11,22 +11,22 @@ import time
 NATURES = {"personne physique": "Physical person", "personne morale": "Corporation"}
 
 
-def parse_reference(_emitter: EntityEmitter, _row: dict):
-    first_name = _row.pop("firstname")
-    last_name = _row.pop("lastname")
-    birth_date = _row.pop("birthdate")
+def parse_reference(emitter: EntityEmitter, row: dict):
+    first_name = row.pop("firstname")
+    last_name = row.pop("lastname")
+    birth_date = row.pop("birthdate")
 
-    entity = _emitter.make("Person")
+    entity = emitter.make("Person")
     entity.make_id("FREEZING", "{}{}{}".format(first_name, last_name, birth_date))
 
-    entity.add("status", NATURES.get(_row.pop("nature")))
+    entity.add("status", NATURES.get(row.pop("nature")))
     entity.add("birthDate", birth_date)
-    entity.add("birthPlace", _row.pop("birthplace"))
+    entity.add("birthPlace", row.pop("birthplace"))
     entity.add("name", "{} {}".format(first_name, last_name))
-    entity.add("alias", _row.pop("aliases"))
+    entity.add("alias", row.pop("aliases"))
     entity.add("keywords", "ASSETS_FREEZING")
 
-    _emitter.emit(entity)
+    emitter.emit(entity)
 
 
 def parse(context, data):
@@ -64,12 +64,9 @@ def parse(context, data):
                     date = xldate_as_datetime(cell.value, xls.datemode)
                     row[header] = date.isoformat()
                 elif cell.ctype == 0:
-                    row[header] = "None"
+                    row[header] = None
                 else:
                     row[header] = cell.value
-
-                if row[header] == "":
-                    row[header] = "None"
 
             parse_reference(emitter, row)
 
