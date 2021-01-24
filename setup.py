@@ -20,6 +20,9 @@ setup(
         "xlrd",
     ],
     entry_points={
-        "memorious.plugins": ["opensanctions = opensanctions:init"],
+        "console_scripts": [
+            "opensanctions = opensanctions.cli:cli",
+            "osanc = opensanctions.cli:cli",
+        ],
     },
 )
