@@ -1,4 +1,5 @@
 import yaml
+from importlib import import_module
 from ftmstore import get_dataset as get_store
 
 from opensanctions import settings
@@ -39,12 +40,25 @@ class Dataset(object):
         self.country = config.get("country", "zz")
         self.category = config.get("category", "other")
         self.description = config.get("description", "")
+        self.entry_point = config.get("entry_point")
         self.data = DatasetData(config.get("data", {}))
         self.publisher = DatasetPublisher(config.get("publisher", {}))
 
     @property
     def store(self):
         return get_store(self.name, database_uri=settings.DATABASE_URI)
+
+    @property
+    def method(self):
+        """Load the actual crawler code behind the dataset."""
+        method = "crawl"
+        package = self.entry_point
+        if package is None:
+            raise RuntimeError("The dataset has no entry point!")
+        if ":" in package:
+            package, method = method.rsplit(":", 1)
+        module = import_module(package)
+        return getattr(module, method)
 
     def to_dict(self):
         return {
@@ -54,6 +68,7 @@ class Dataset(object):
             "country": self.country,
             "category": self.category,
             "description": self.description,
+            "entry_point": self.entry_point,
             "data": self.data.to_dict(),
             "publisher": self.publisher.to_dict(),
         }

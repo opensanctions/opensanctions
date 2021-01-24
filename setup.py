@@ -14,10 +14,14 @@ setup(
     zip_safe=False,
     install_requires=[
         "followthemoney >= 1.21.2",
-        "followthemoney-store[postgresql] >= 2.1.6",
-        "memorious >= 1.8.3",
+        "followthemoney-store[postgresql] >= 3.0.1, < 4.0.0",
+        "requests[security] >= 2.25.0, < 3.0.0",
+        "requests_cache >= 0.5.2, < 0.6.0",
         "alephclient >= 2.1.3",
+        "structlog",
+        "colorama",
         "xlrd",
+        "lxml",
     ],
     entry_points={
         "console_scripts": [

@@ -36,9 +36,7 @@ def get_value(el):
 def get_countries(context, data):
     with context.http.rehash(data) as result:
         doc = result.html
-        wanted_by = doc.findall(
-            ".//select[@id='arrestWarrantCountryId']//option"
-        )  # noqa
+        wanted_by = doc.findall(".//select[@id='arrestWarrantCountryId']//option")
         wanted_by = [get_value(el) for el in wanted_by]
         for country in wanted_by:
             url = COUNTRY_WISE_URL.format(country)

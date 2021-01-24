@@ -4,13 +4,13 @@ import click
 import logging
 from followthemoney.cli.util import write_object
 
-from opensanctions.core import Dataset
+from opensanctions.core import Dataset, Context
+from opensanctions.core.logs import configure_logging
 
 
 @click.group(help="OpenSanctions ETL toolkit")
 def cli():
-    fmt = "%(name)s [%(levelname)s] %(message)s"
-    logging.basicConfig(stream=sys.stderr, level=logging.INFO, format=fmt)
+    configure_logging()
 
 
 @cli.command("dump", help="Export the entities from a dataset")
@@ -20,3 +20,10 @@ def dump_dataset(dataset, outfile):
     dataset = Dataset.get(dataset)
     for entity in dataset.store:
         write_object(outfile, entity)
+
+
+@cli.command("crawl", help="Crawl entities into the given dataset")
+@click.argument("dataset", type=click.Choice(Dataset.names()))
+def crawl(dataset):
+    dataset = Dataset.get(dataset)
+    Context(dataset).crawl()

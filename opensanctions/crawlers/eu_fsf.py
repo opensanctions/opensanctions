@@ -2,7 +2,6 @@ from pprint import pprint  # noqa
 from normality import slugify
 
 from opensanctions import constants
-from ftmstore.memorious import EntityEmitter
 from opensanctions.util import jointext
 
 # https://eeas.europa.eu/topics/sanctions-policy/8442/consolidated-list-of-sanctions_en
@@ -13,10 +12,10 @@ GENDERS = {"M": constants.MALE, "F": constants.FEMALE}
 NS = {"default": "http://eu.europa.ec/fpi/fsd/export"}
 
 
-def parse_entry(emitter, entry):
-    entity = emitter.make("LegalEntity")
+def parse_entry(context, entry):
+    entity = context.make("LegalEntity")
     if entry.find("./default:subjectType", NS).get("classificationCode") == "P":
-        entity = emitter.make("Person")
+        entity = context.make("Person")
     reference_no = slugify(entry.get("euReferenceNumber"))
     entity.id = "fsf-%s" % reference_no
 
@@ -24,7 +23,7 @@ def parse_entry(emitter, entry):
     source_url = regulation.findtext("./default:publicationUrl", "", NS)
     entity.add("sourceUrl", source_url)
 
-    sanction = emitter.make("Sanction")
+    sanction = context.make("Sanction")
     sanction.make_id(entity.id)
     sanction.add("entity", entity)
     sanction.add("authority", "European Union")
@@ -55,12 +54,12 @@ def parse_entry(emitter, entry):
     for pnode in entry.findall(
         './default:identification[@identificationTypeCode="passport"]', NS
     ):
-        passport = emitter.make("Passport")
+        passport = context.make("Passport")
         passport.make_id("Passport", entity.id, pnode.get("logicalId"))
         passport.add("holder", entity)
         passport.add("passportNumber", pnode.get("number"))
         passport.add("country", pnode.get("countryIso2Code"))
-        emitter.emit(passport)
+        context.emit(passport)
 
     for node in entry.findall("./default:address", NS):
         address = jointext(
@@ -78,14 +77,12 @@ def parse_entry(emitter, entry):
     for country in entry.findall("./default:citizenship", NS):
         entity.add("nationality", country.get("countryIso2Code"), quiet=True)
 
-    emitter.emit(entity)
-    emitter.emit(sanction)
+    context.emit(entity)
+    context.emit(sanction)
 
 
-def fsf_parse(context, data):
-    emitter = EntityEmitter(context)
-
-    with context.http.rehash(data) as res:
-        for entry in res.xml.findall(".//default:sanctionEntity", NS):
-            parse_entry(emitter, entry)
-    emitter.finalize()
+def crawl(context):
+    context.fetch_artifact("source.xml", context.dataset.data.url)
+    doc = context.parse_artifact_xml("source.xml")
+    for entry in doc.findall(".//default:sanctionEntity", NS):
+        parse_entry(context, entry)

@@ -5,6 +5,8 @@ from ftmstore.memorious import EntityEmitter
 
 from opensanctions.util import jointext
 
+# https://fiu.gov.kg/sked/9
+
 
 def parse_date(text):
     pattern = re.compile(r"[^0-9\.]")

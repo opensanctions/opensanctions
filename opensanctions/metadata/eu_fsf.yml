@@ -1,3 +1,4 @@
+entry_point: opensanctions.crawlers.eu_fsf
 title: "Financial Sanctions Files (FSF) published by EU Commision"
 description: >
   As part of the Common Foreign Security Policy thr European Union publishes
@@ -7,7 +8,7 @@ category: sanctions
 publisher:
   title: European Union External Action Service
   url: https://eeas.europa.eu/
-url: https://eeas.europa.eu/headquarters/headquarters-homepage/423/sanctions-policy_en
+url: https://eeas.europa.eu/topics/sanctions-policy/8442/consolidated-list-of-sanctions_en
 data:
-  url: http://ec.europa.eu/external_relations/cfsp/sanctions/list/version4/global/global.xml
+  url: https://webgate.ec.europa.eu/europeaid/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=n00378os
   format: XML
