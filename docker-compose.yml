@@ -11,18 +11,6 @@ services:
       POSTGRES_USER: opensanctions
       POSTGRES_PASSWORD: opensanctions
 
-  pgweb:
-    image: sosedoff/pgweb
-    restart: always
-    ports:
-        - 9633:8081
-    links:
-        - postgres
-    depends_on:
-        - postgres
-    environment:
-      DATABASE_URL: postgres://opensanctions:opensanctions@postgres:5432/opensanctions?sslmode=disable
-
   redis:
     image: redis:alpine
     command: ["redis-server", "--appendonly", "yes"]
@@ -45,7 +33,7 @@ services:
     environment:
       MEMORIOUS_DATASTORE_URI: postgresql://opensanctions:opensanctions@postgres/opensanctions
       REDIS_URL: redis://redis:6379/0
-  
+
   worker:
     build: .
     command: memorious process

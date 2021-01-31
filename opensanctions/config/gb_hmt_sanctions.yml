@@ -5,7 +5,8 @@ pipeline:
   init:
     method: seed
     params:
-      url: 'https://ofsistorage.blob.core.windows.net/publishlive/ConList.csv'
+      # TODO: https://ofsistorage.blob.core.windows.net/publishlive/ConList.xml
+      url: "https://ofsistorage.blob.core.windows.net/publishlive/ConList.csv"
     handle:
       pass: fetch
   fetch:

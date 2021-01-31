@@ -92,6 +92,7 @@ def parse_notice(context, data):
         entity.add("firstName", first_name)
         entity.add("lastName", last_name)
         entity.add("nationality", nationalities)
+        # TODO: make this a Sanction:
         for charge, country in warrants:
             entity.add("program", country)
             entity.add("summary", charge)

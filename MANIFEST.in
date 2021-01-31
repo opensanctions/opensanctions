@@ -1,2 +1,2 @@
 include README.md
-recursive-include opensanctions/configs/
+recursive-include opensanctions/metadata/
