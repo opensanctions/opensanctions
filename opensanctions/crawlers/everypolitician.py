@@ -1,6 +1,5 @@
 from pprint import pprint  # noqa
 from datetime import datetime
-from ftmstore.memorious import EntityEmitter
 
 PSEUDO = (
     "party/unknown",
@@ -17,54 +16,38 @@ PSEUDO = (
 )
 
 
-class ContextEmitter(EntityEmitter):
-    def __init__(self, context, updated_at):
-        self.updated_at = updated_at.isoformat()
-        super(ContextEmitter, self).__init__(context)
-
-    def emit(self, entity, rule="pass"):
-        entity.context["updated_at"] = self.updated_at
-        super(ContextEmitter, self).emit(entity, rule=rule)
+def crawl(context):
+    res = context.http.get(context.dataset.data.url)
+    for country in res.json():
+        for legislature in country.get("legislatures", []):
+            code = country.get("code").lower()
+            crawl_legislature(context, code, legislature)
 
 
-def index(context, data):
-    with context.http.rehash(data) as res:
-        for country in res.json:
-            for legislature in country.get("legislatures", []):
-                context.emit(
-                    data={
-                        "country": country,
-                        "legislature": legislature,
-                        "url": legislature.get("popolo_url"),
-                    }
-                )
-
-
-def parse(context, data):
-    legislature = data.get("legislature")
+def crawl_legislature(context, country, legislature):
     lastmod = int(legislature.get("lastmod"))
     lastmod = datetime.utcfromtimestamp(lastmod)
-    emitter = ContextEmitter(context, lastmod)
-    country = data.get("country", {}).get("code")
     entities = {}
-    with context.http.rehash(data) as res:
-        for person in res.json.pop("persons", []):
-            parse_person(emitter, person, country, entities)
 
-        for organization in res.json.pop("organizations", []):
-            parse_organization(emitter, organization, country, entities)
+    url = legislature.get("popolo_url")
+    res = context.http.get(url)
+    data = res.json()
 
-        events = res.json.pop("events", [])
-        events = {e.get("id"): e for e in events}
+    for person in data.pop("persons", []):
+        parse_person(context, person, country, entities, lastmod)
 
-        for membership in res.json.pop("memberships", []):
-            parse_membership(emitter, membership, entities, events)
+    for organization in data.pop("organizations", []):
+        parse_organization(context, organization, country, entities, lastmod)
 
-        # pprint(res.json)
-    emitter.finalize()
+    events = data.pop("events", [])
+    events = {e.get("id"): e for e in events}
+
+    for membership in data.pop("memberships", []):
+        parse_membership(context, membership, entities, events)
 
 
-def parse_common(entity, data):
+def parse_common(entity, data, lastmod):
+    entity.context["updated_at"] = lastmod.isoformat()
     entity.add("name", data.pop("name", None))
     entity.add("alias", data.pop("sort_name", None))
     for other in data.pop("other_names", []):
@@ -95,11 +78,11 @@ def parse_common(entity, data):
             entity.add("phone", contact_detail.get("value"))
 
 
-def parse_person(emitter, data, country, entities):
+def parse_person(context, data, country, entities, lastmod):
     person_id = data.pop("id", None)
-    person = emitter.make("Person")
-    person.make_id("EVPO", person_id)
-    parse_common(person, data)
+    person = context.make("Person")
+    person.id = f"evpo-{person_id}"
+    parse_common(person, data, lastmod)
     person.add("nationality", country)
 
     if data.get("birth_date", "9999") < "1900":
@@ -123,26 +106,28 @@ def parse_person(emitter, data, country, entities):
     # data.pop("images", None)
     # if len(data):
     #     pprint(data)
-    emitter.emit(person)
+    context.emit(person)
     entities[person_id] = person.id
 
 
-def parse_organization(emitter, data, country, entities):
+def parse_organization(context, data, country, entities, lastmod):
     org_id = data.pop("id", None)
     if org_id.lower() in PSEUDO:
         return
 
     classification = data.pop("classification", None)
-    organization = emitter.make("Organization")
+    organization = context.make("Organization")
     if classification == "legislature":
-        organization = emitter.make("PublicBody")
+        organization = context.make("PublicBody")
         organization.add("topics", "gov.national")
     elif classification == "party":
         organization.add("topics", "pol.party")
     else:
-        emitter.log.error("Unknown org type: %s", classification)
-    organization.make_id("EVPO", country, org_id)
-    parse_common(organization, data)
+        context.log.error(
+            "Unknown org type", field="classification", value=classification
+        )
+    organization.id = f"evpo-{country}-{org_id}"
+    parse_common(organization, data, lastmod)
     organization.add("legalForm", data.pop("type", None))
     organization.add("country", country)
 
@@ -151,18 +136,18 @@ def parse_organization(emitter, data, country, entities):
     # data.pop("seats", None)
     # if len(data):
     #     pprint(data)
-    emitter.emit(organization)
+    context.emit(organization)
     entities[org_id] = organization.id
 
 
-def parse_membership(emitter, data, entities, events):
+def parse_membership(context, data, entities, events):
     person_id = entities.get(data.pop("person_id", None))
     organization_id = entities.get(data.pop("organization_id", None))
     on_behalf_of_id = entities.get(data.pop("on_behalf_of_id", None))
 
     if person_id and organization_id:
         period_id = data.get("legislative_period_id")
-        membership = emitter.make("Membership")
+        membership = context.make("Membership")
         membership.make_id(period_id, person_id, organization_id)
         membership.add("member", person_id)
         membership.add("organization", organization_id)
@@ -179,10 +164,10 @@ def parse_membership(emitter, data, entities, events):
             membership.add("sourceUrl", source.get("url"))
 
         # pprint(data)
-        emitter.emit(membership)
+        context.emit(membership)
 
     if person_id and on_behalf_of_id:
-        membership = emitter.make("Membership")
+        membership = context.make("Membership")
         membership.make_id(person_id, on_behalf_of_id)
         membership.add("member", person_id)
         membership.add("organization", on_behalf_of_id)
@@ -190,4 +175,4 @@ def parse_membership(emitter, data, entities, events):
         for source in data.get("sources", []):
             membership.add("sourceUrl", source.get("url"))
 
-        emitter.emit(membership)
+        context.emit(membership)

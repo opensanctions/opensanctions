@@ -11,50 +11,49 @@ def split_name(name):
             return first_name, last_name
 
 
-def parse_node(emitter, node):
+def crawl_node(context, node):
     mep_id = node.findtext(".//id")
-    person = emitter.make("Person")
-    person.make_id("EUMEP", mep_id)
-    name = node.findtext(".//fullName")
-    person.add("name", name)
+    person = context.make("Person")
+    person.id = f"eumep-{mep_id}"
     url = "http://www.europarl.europa.eu/meps/en/%s" % mep_id
     person.add("sourceUrl", url)
+    name = node.findtext(".//fullName")
+    person.add("name", name)
     first_name, last_name = split_name(name)
     person.add("firstName", first_name)
     person.add("lastName", last_name)
     person.add("nationality", node.findtext(".//country"))
     person.add("topics", "role.pep")
-    emitter.emit(person)
+    context.emit(person)
 
     party_name = node.findtext(".//nationalPoliticalGroup")
     if party_name not in ["Independent"]:
-        party = emitter.make("Organization")
+        party = context.make("Organization")
         party.make_id("nationalPoliticalGroup", party_name)
         party.add("name", party_name)
         party.add("country", node.findtext(".//country"))
-        emitter.emit(party)
-        membership = emitter.make("Membership")
+        context.emit(party)
+        membership = context.make("Membership")
         membership.make_id(person.id, party.id)
         membership.add("member", person)
         membership.add("organization", party)
-        emitter.emit(membership)
+        context.emit(membership)
 
     group_name = node.findtext(".//politicalGroup")
-    group = emitter.make("Organization")
+    group = context.make("Organization")
     group.make_id("politicalGroup", group_name)
     group.add("name", group_name)
     group.add("country", "eu")
-    emitter.emit(group)
-    membership = emitter.make("Membership")
+    context.emit(group)
+    membership = context.make("Membership")
     membership.make_id(person.id, group.id)
     membership.add("member", person)
     membership.add("organization", group)
-    emitter.emit(membership)
+    context.emit(membership)
 
 
-def parse(context, data):
-    emitter = EntityEmitter(context)
-    with context.http.rehash(data) as res:
-        for node in res.xml.findall(".//mep"):
-            parse_node(emitter, node)
-    emitter.finalize()
+def crawl(context):
+    context.fetch_artifact("source.xml", context.dataset.data.url)
+    doc = context.parse_artifact_xml("source.xml")
+    for node in doc.findall(".//mep"):
+        crawl_node(context, node)

@@ -1,17 +1,16 @@
 import string
+from lxml import html
 from pprint import pprint  # noqa
-from urllib.parse import urljoin
-from ftmstore.memorious import EntityEmitter
-
-URL = "http://www.assembly.coe.int/nw/xml/AssemblyList/MP-Alpha-EN.asp?initial=%s&offset=0"  # noqa
+from urllib.parse import urljoin, urlencode
 
 
-def parse_entry(emitter, entry):
+def crawl_entry(context, entry):
     link = entry.find(".//a")
-    url = urljoin(URL, link.get("href"))
+    url = context.dataset.data.url
+    url = urljoin(url, link.get("href"))
     _, member_id = url.rsplit("=", 1)
-    person = emitter.make("Person")
-    person.make_id("COE", member_id)
+    person = context.make("Person")
+    person.id = f"coe-{member_id}"
     person.add("name", link.text)
     person.add("sourceUrl", url)
     last_name, first_name = link.text.split(", ", 1)
@@ -22,27 +21,24 @@ def parse_entry(emitter, entry):
     person.add("summary", role.text_content().strip())
     person.add("nationality", country.text_content())
     person.add("topics", "role.pep")
-    emitter.emit(person)
+    context.emit(person)
 
 
-def parse(context, data):
-    emitter = EntityEmitter(context)
+def crawl(context):
     seen = set()
+    data_url = context.dataset.data.url
     for letter in string.ascii_uppercase:
-        url = URL % letter
-        while True:
-            context.log.info("URL: %s", url)
+        params = {"initial": letter, "offset": 0}
+        url = data_url + "?" + urlencode(params)
+        while url is not None:
             res = context.http.get(url)
-            doc = res.html
+            doc = html.fromstring(res.text)
             for member in doc.findall('.//ul[@class="member-results"]/li'):
-                parse_entry(emitter, member)
+                parse_entry(context, member)
 
             seen.add(url)
             url = None
             for a in doc.findall('.//div[@id="pagination"]//a'):
-                next_url = urljoin(URL, a.get("href"))
+                next_url = urljoin(data_url, a.get("href"))
                 if next_url not in seen:
                     url = next_url
-            if url is None:
-                break
-    emitter.finalize()

@@ -106,20 +106,6 @@
     url: http://ec.europa.eu/external_relations/cfsp/sanctions/list/version4/global/global.xml
     format: XML
 
-- title: Kyrgyz FIU National List
-  description: >
-    A simple list of sanctioned individuals and entities published by the
-    Kyrgyz' State Financial Intelligence Service.
-  slug: kg_fiu_national
-  category: sanctions
-  publisher:
-    title: State Financial Intelligence Service
-    url: https://fiu.gov.kg/
-  url: https://fiu.gov.kg/sked/1?language=ru
-  data:
-    url: http://fiu.gov.kg/uploads/595c5fd1ea663.xml
-    format: xml
-
 - title: INTERPOL Red Notices
   description: >
     International arrest warrants published by INTERPOL with a view to
@@ -133,48 +119,6 @@
   data:
     url: https://www.interpol.int/INTERPOL-expertise/Notices
     format: xml
-
-- title: Every Politician
-  description: >
-    An index of all national members of parliament in the world. This version
-    only includes individuals active within the past 15 years.
-  slug: everypolitician
-  category: pep
-  publisher:
-    title: MySociety (UK Citizens Online Democracy)
-    url: http://everypolitician.org
-  url: http://everypolitician.org
-  data:
-    url: https://github.com/everypolitician/everypolitician-data/raw/master/countries.json
-    format: JSON
-
-- title: EU Members of Parliament
-  description: >
-    A set of all the members of the European Union parliament, which are
-    elected by member state.
-  slug: eu_meps
-  category: pep
-  publisher:
-    title: European Parliament
-    url: http://www.europarl.europa.eu/
-  url: http://www.europarl.europa.eu/meps/
-  data:
-    url: http://www.europarl.europa.eu/meps/en/xml.html?query=full&filter=all
-    format: XML
-
-- title: CoE Parliamentary Assembly
-  description: >
-    The Council of Europe's parliamentary assembly is composed of members of
-    national parliaments from European countries including Turkey and Russia.
-  slug: coe_assembly
-  category: pep
-  publisher:
-    title: Council of Europe
-    url: http://www.coe.int
-  url: http://www.assembly.coe.int/nw/Home-EN.asp
-  data:
-    url: http://www.assembly.coe.int/nw/xml/AssemblyList/MP-Alpha-EN.asp?initial=A
-    format: HTML
 
 - title: List of the members and alternates of the European Commitee of the Regions
   description: >
