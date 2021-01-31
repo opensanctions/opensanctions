@@ -1,3 +1,7 @@
+"""
+title: test
+category: bla
+"""
 from pprint import pprint  # noqa
 from normality import slugify
 

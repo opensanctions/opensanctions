@@ -46,7 +46,8 @@ class Dataset(object):
 
     @property
     def store(self):
-        return get_store(self.name, database_uri=settings.DATABASE_URI)
+        name = f"dataset_{self.name}"
+        return get_store(name, database_uri=settings.DATABASE_URI)
 
     @property
     def method(self):

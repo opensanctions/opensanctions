@@ -4,13 +4,12 @@ import click
 import logging
 from followthemoney.cli.util import write_object
 
-from opensanctions.core import Dataset, Context
-from opensanctions.core.logs import configure_logging
+from opensanctions.core import Dataset, Context, setup
 
 
 @click.group(help="OpenSanctions ETL toolkit")
 def cli():
-    configure_logging()
+    setup()
 
 
 @cli.command("dump", help="Export the entities from a dataset")

@@ -1,11 +1,12 @@
 import json
 import structlog
 from lxml import etree, html
-from datetime import datetime
+from datetime import datetime, timedelta
 from ftmstore import get_dataset
 from followthemoney import model
 
 from opensanctions import settings
+from opensanctions.core import db
 from opensanctions.core.http import get_session, fetch_download
 from opensanctions.core.logs import clear_contextvars, bind_contextvars
 
@@ -19,17 +20,13 @@ class Context(object):
     def __init__(self, dataset):
         self.run_id = datetime.utcnow().strftime("%Y%m%d")
         self.dataset = dataset
+        self.dataset_path = settings.DATA_PATH.joinpath(dataset.name)
+        self.path = self.dataset_path.joinpath(self.run_id)
         self.store = dataset.store
         self._bulk = self.store.bulk()
-        self.http = get_session()
+        self.http = get_session(self.dataset_path)
         self.fragment = 0
         self.log = structlog.get_logger(dataset.name)
-
-    @property
-    def path(self):
-        path = settings.DATA_PATH
-        path = path.joinpath(self.dataset.name)
-        return path.joinpath(self.run_id)
 
     def fetch_artifact(self, name, url):
         """Fetch a URL into a file located in the current run folder,
@@ -79,3 +76,11 @@ class Context(object):
         """Flush and tear down the context."""
         self._bulk.flush()
         clear_contextvars()
+
+        # Explicitly clear HTTP cache:
+        expire = timedelta(seconds=settings.CACHE_EXPIRE)
+        expire_at = datetime.utcnow() - expire
+        self.http.cache.remove_old_entries(expire_at)
+
+        # Persist any events to the database:
+        db.session.commit()
