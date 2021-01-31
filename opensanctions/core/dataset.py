@@ -57,7 +57,7 @@ class Dataset(object):
         if package is None:
             raise RuntimeError("The dataset has no entry point!")
         if ":" in package:
-            package, method = method.rsplit(":", 1)
+            package, method = package.rsplit(":", 1)
         module = import_module(package)
         return getattr(module, method)
 

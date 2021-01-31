@@ -1,0 +1,14 @@
+entry_point: opensanctions.crawlers.us_bis_denied
+title: US Denied Persons List
+description: >
+  The Bureau of Industry and Security publishes this list of entities which
+  are relevant with regards to export controls.
+country: us
+category: sanctions
+publisher:
+  title: US Department of Commerce
+  url: https://www.bis.doc.gov/
+url: https://www.bis.doc.gov/index.php/policy-guidance/lists-of-parties-of-concern/denied-persons-list
+data:
+  url: https://www.bis.doc.gov/dpl/dpl.txt
+  format: TSV

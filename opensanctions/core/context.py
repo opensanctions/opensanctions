@@ -28,17 +28,20 @@ class Context(object):
         self.fragment = 0
         self.log = structlog.get_logger(dataset.name)
 
+    def get_artifact_path(self, name):
+        return self.path.joinpath(name)
+
     def fetch_artifact(self, name, url):
         """Fetch a URL into a file located in the current run folder,
         if it does not exist."""
-        file_path = self.path.joinpath(name)
+        file_path = self.get_artifact_path(name)
         if not file_path.exists():
             fetch_download(file_path, url)
         return file_path
 
     def parse_artifact_xml(self, name):
         """Parse a file in the artifact folder into an XML tree."""
-        file_path = self.path.joinpath(name)
+        file_path = self.get_artifact_path(name)
         with open(file_path, "rb") as fh:
             return etree.parse(fh)
 
@@ -51,7 +54,7 @@ class Context(object):
         if entity.id is None:
             raise RuntimeError("Entity has no ID: %r", entity)
         # pprint(entity.to_dict())
-        # self.log.debug(entity, schema=entity.schema.name, id=entity.id)
+        self.log.debug(entity, schema=entity.schema.name, id=entity.id)
         fragment = str(self.fragment)
         self._bulk.put(entity, fragment=fragment)
         self.fragment += 1
@@ -66,7 +69,7 @@ class Context(object):
             self.log.info("Begin crawl")
             # Run the dataset:
             self.dataset.method(self)
-            self.log.info("Crawl completed")
+            self.log.info("Crawl completed", fragment=self.fragment)
         except Exception:
             self.log.exception("Crawl failed")
         finally:

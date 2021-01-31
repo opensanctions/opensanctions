@@ -6,8 +6,9 @@ from sqlalchemy.ext.declarative import declarative_base
 from opensanctions import settings
 
 store = get_store(settings.DATABASE_URI)
-session = sessionmaker(bind=store.engine)
+Session = sessionmaker(bind=store.engine)
 Base = declarative_base(bind=store.engine, metadata=store.meta)
+session = Session()
 
 
 class Event(Base):

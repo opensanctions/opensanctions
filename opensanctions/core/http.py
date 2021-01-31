@@ -10,6 +10,7 @@ HEADERS = {"User-Agent": settings.USER_AGENT}
 
 def get_session(path):
     """Make a cached session."""
+    path.mkdir(exist_ok=True, parents=True)
     path = path.joinpath("http").as_posix()
     expire = int(settings.INTERVAL * 0.7)
     session = CachedSession(cache_name=path, expire_after=expire)

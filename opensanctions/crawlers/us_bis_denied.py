@@ -15,8 +15,8 @@ def parse_date(text):
         return text
 
 
-def parse_row(emitter, row):
-    entity = emitter.make("LegalEntity")
+def parse_row(context, row):
+    entity = context.make("LegalEntity")
     entity.make_id("USBIS", row.get("Effective_Date"), row.get("Name"))
     entity.add("name", row.get("Name"))
     entity.add("notes", row.get("Action"))
@@ -32,9 +32,9 @@ def parse_row(emitter, row):
         sep=", ",
     )
     entity.add("address", address)
-    emitter.emit(entity)
+    context.emit(entity)
 
-    sanction = emitter.make("Sanction")
+    sanction = context.make("Sanction")
     sanction.make_id(entity.id, row.get("FR_Citation"))
     sanction.add("entity", entity)
     sanction.add("program", row.get("FR_Citation"))
@@ -42,14 +42,12 @@ def parse_row(emitter, row):
     sanction.add("country", "us")
     sanction.add("startDate", parse_date(row.get("Effective_Date")))
     sanction.add("endDate", parse_date(row.get("Expiration_Date")))
-    pprint(row)
-    emitter.emit(sanction)
+    # pprint(row)
+    context.emit(sanction)
 
 
-def parse(context, data):
-    emitter = EntityEmitter(context)
-    with context.http.rehash(data) as res:
-        with open(res.file_path, "r") as csvfile:
-            for row in csv.DictReader(csvfile, delimiter="\t"):
-                parse_row(emitter, row)
-    emitter.finalize()
+def crawl(context):
+    context.fetch_artifact("dpl.tsv", context.dataset.data.url)
+    with open(context.get_artifact_path("dpl.tsv"), "r") as csvfile:
+        for row in csv.DictReader(csvfile, delimiter="\t"):
+            parse_row(context, row)
