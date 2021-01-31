@@ -3,14 +3,14 @@ from setuptools import setup, find_packages
 
 setup(
     name="opensanctions",
-    version="2.00",
+    version="3.0.0",
     author="Organized Crime and Corruption Reporting Project",
     author_email="data@occrp.org",
     url="https://github.com/alephdata/opensanctions",
     license="MIT",
     packages=find_packages(exclude=["ez_setup", "examples", "test"]),
     namespace_packages=[],
-    package_data={"opensanctions": ["config/*.yml"]},
+    package_data={"opensanctions": ["metadata/*.yml", "metadata/*.yaml"]},
     zip_safe=False,
     install_requires=[
         "followthemoney >= 1.21.2",
