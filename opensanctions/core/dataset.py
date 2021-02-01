@@ -1,3 +1,4 @@
+import os
 import yaml
 from importlib import import_module
 from ftmstore import get_dataset as get_store
@@ -10,10 +11,14 @@ class DatasetData(object):
 
     def __init__(self, config):
         self.url = config.get("url")
+        self.mode = config.get("mode")
         self.format = config.get("format")
+        self.api_key = config.get("api_key")
+        if self.api_key is not None:
+            self.api_key = os.path.expandvars(self.api_key)
 
     def to_dict(self):
-        return {"url": self.url, "fomat": self.format}
+        return {"url": self.url, "fomat": self.format, "mode": self.mode}
 
 
 class DatasetPublisher(object):

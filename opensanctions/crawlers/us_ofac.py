@@ -1,13 +1,10 @@
 # cf.
 # https://github.com/archerimpact/SanctionsExplorer/blob/master/data/sdn_parser.py
 # https://www.treasury.gov/resource-center/sanctions/SDN-List/Documents/sdn_advanced_notes.pdf
+from os.path import commonprefix
 from pprint import pprint  # noqa
 from followthemoney import model
 from followthemoney.exc import InvalidData
-
-# from followthemoney.types import registry
-from os.path import commonprefix
-from ftmstore.memorious import EntityEmitter
 
 from opensanctions.util import jointext
 
@@ -498,24 +495,24 @@ def parse_alias(party, parts, alias):
             party.add("alias", name)
 
 
-def make_adjacent(emitter, name):
-    entity = emitter.make("LegalEntity")
+def make_adjacent(context, name):
+    entity = context.make("LegalEntity")
     entity.make_id("Named", name)
     entity.add("name", name)
-    emitter.emit(entity)
+    context.emit(entity)
     return entity
 
 
-def parse_party(emitter, doc, distinct_party, locations, documents):
+def parse_party(context, doc, distinct_party, locations, documents):
     profile = distinct_party.find("Profile")
     sub_type = ref_get("PartySubType", profile.get("PartySubTypeID"))
     schema = TYPES.get(sub_type.get("Value"))
     type_ = ref_value("PartyType", sub_type.get("PartyTypeID"))
     schema = TYPES.get(type_, schema)
     if schema is None:
-        emitter.log.error("Unknown party type: %s", type_)
+        context.log.error("Unknown party type", value=type_)
         return
-    party = emitter.make(schema)
+    party = context.make(schema)
     party.id = "ofac-%s" % profile.get("ID")
     party.add("notes", distinct_party.findtext("Comment"))
 
@@ -547,20 +544,20 @@ def parse_party(emitter, doc, distinct_party, locations, documents):
                 continue
 
             if doc_type_id not in REG_ID:
-                emitter.log.warn("Unknwon document type: %s", doc_type_id)
+                context.log.warn("Unknwon document type", value=doc_type_id)
                 continue
             reg_schema, prop = REG_ID[doc_type_id]
             if reg_schema is None:
                 if not party.schema.is_a("LegalEntity"):
                     continue
-                passport = emitter.make("Passport")
+                passport = context.make("Passport")
                 passport.make_id("Passport", party.id, regdoc.get("ID"))
                 passport.add("holder", party)
                 passport.add("type", doc_type)
                 passport.add("country", country)
                 passport.add("passportNumber", number)
                 passport.add("authority", authority)
-                emitter.emit(passport)
+                context.emit(passport)
                 continue
 
             if not disjoint_schema(party, reg_schema):
@@ -576,7 +573,7 @@ def parse_party(emitter, doc, distinct_party, locations, documents):
     for feature in profile.findall("./Feature"):
         feature_id = feature.get("FeatureTypeID")
         if feature_id not in FEATURES:
-            emitter.log.warn("Unknwon feature type: %s", feature_id)
+            context.log.warn("Unknwon feature type", value=feature_id)
             continue
 
         # feature_type = ref_value("FeatureType", feature_id)
@@ -607,19 +604,19 @@ def parse_party(emitter, doc, distinct_party, locations, documents):
             else:
                 value = detail.text
             if feature_id in ADJACENT_FEATURES:
-                value = make_adjacent(emitter, value)
+                value = make_adjacent(context, value)
             party.add(prop, value)
 
-    emitter.emit(party)
+    context.emit(party)
     # pprint(party.to_dict())
-    emitter.log.info("[%s] %s", party.schema.name, party.caption)
+    context.log.info("[%s] %s" % (party.schema.name, party.caption))
 
 
-def parse_entry(emitter, doc, entry):
-    party = emitter.make("Thing")
+def parse_entry(context, doc, entry):
+    party = context.make("Thing")
     party.id = "ofac-%s" % entry.get("ProfileID")
 
-    sanction = emitter.make("Sanction")
+    sanction = context.make("Sanction")
     sanction.make_id("Sanction", party.id, entry.get("ID"))
     sanction.add("entity", party)
     sanction.add("authority", "US Office of Foreign Asset Control")
@@ -643,29 +640,30 @@ def parse_entry(emitter, doc, entry):
         type_id = measure.get("SanctionsTypeID")
         sanction.add("program", ref_value("SanctionsType", type_id))
 
-    emitter.emit(sanction)
+    context.emit(sanction)
     # pprint(sanction.to_dict())
 
 
-def parse_relation(emitter, doc, relation):
+def parse_relation(context, doc, relation):
     type_id = relation.get("RelationTypeID")
     if type_id not in RELATIONS:
-        emitter.log.warn("Unknwon relation type: %s", type_id)
+        context.log.warn("Unknwon relation type", value=type_id)
         return
 
     type_ = ref_value("RelationType", relation.get("RelationTypeID"))
     # if type_id not in RELATIONS:
-    #     from_party = emitter.dataset.get(from_party.id)
-    #     to_party = emitter.dataset.get(to_party.id)
+    #     from_party = context.dataset.get(from_party.id)
+    #     to_party = context.dataset.get(to_party.id)
     #     print(from_party, ">>", type_, ">>", to_party, " :: ", type_id)
     #     return
     schema, from_attr, to_attr, desc_attr = RELATIONS[type_id]
-    entity = emitter.make(schema)
+    entity = context.make(schema)
+    store = context.dataset.store
     from_id = "ofac-%s" % relation.get("From-ProfileID")
-    from_party = emitter.dataset.get(from_id)
+    from_party = store.get(from_id)
     from_range = entity.schema.get(from_attr).range
     to_id = "ofac-%s" % relation.get("To-ProfileID")
-    to_party = emitter.dataset.get(to_id)
+    to_party = store.get(to_id)
     to_range = entity.schema.get(to_attr).range
 
     # HACK: Looks like OFAC just has some link in a direction that makes no
@@ -675,36 +673,34 @@ def parse_relation(emitter, doc, relation):
 
     add_schema(from_party, from_range)
     add_schema(to_party, to_range)
-    emitter.emit(from_party)
-    emitter.emit(to_party)
+    context.emit(from_party)
+    context.emit(to_party)
     entity.make_id("Relation", from_party.id, to_party.id, relation.get("ID"))
     entity.add(from_attr, from_party)
     entity.add(to_attr, to_party)
     entity.add(desc_attr, type_)
     entity.add("summary", relation.findtext("./Comment"))
-    emitter.emit(entity)
-    emitter.log.info("Relation [%s]-[%s]->[%s]", from_party, type_, to_party)
+    context.emit(entity)
+    context.log.info("Relation", from_=from_party, type=type_, to=to_party)
     # pprint(entity.to_dict())
 
 
-def parse(context, data):
-    emitter = EntityEmitter(context)
-    with context.http.rehash(data) as res:
-        doc = remove_namespace(res.xml)
-        context.log.info("Loading reference values...")
-        load_ref_values(doc)
-        context.log.info("Loading locations...")
-        locations = load_locations(doc)
-        context.log.info("Loading ID reg documents...")
-        documents = load_documents(doc)
+def crawl(context):
+    context.fetch_artifact("source.xml", context.dataset.data.url)
+    doc = context.parse_artifact_xml("source.xml")
+    doc = remove_namespace(doc)
+    context.log.info("Loading reference values...")
+    load_ref_values(doc)
+    context.log.info("Loading locations...")
+    locations = load_locations(doc)
+    context.log.info("Loading ID reg documents...")
+    documents = load_documents(doc)
 
-        for distinct_party in doc.findall(".//DistinctParty"):
-            parse_party(emitter, doc, distinct_party, locations, documents)
+    for distinct_party in doc.findall(".//DistinctParty"):
+        parse_party(context, doc, distinct_party, locations, documents)
 
-        for entry in doc.findall(".//SanctionsEntry"):
-            parse_entry(emitter, doc, entry)
+    for entry in doc.findall(".//SanctionsEntry"):
+        parse_entry(context, doc, entry)
 
-        for relation in doc.findall(".//ProfileRelationship"):
-            parse_relation(emitter, doc, relation)
-
-    emitter.finalize()
+    for relation in doc.findall(".//ProfileRelationship"):
+        parse_relation(context, doc, relation)

@@ -1,27 +1,3 @@
-- title: UN Consolidated Sanctions
-  description: >
-    The Security Council's set of sanctions serve as the foundation for most
-    national sanctions lists.
-  slug: un_sc_sanctions
-  category: sanctions
-  publisher:
-    title: United Nations Security Council
-    url: "https://www.un.org/en/sc/"
-  url: "https://www.un.org/sc/suborg/en/sanctions/un-sc-consolidated-list"
-  data:
-    url: https://scsanctions.un.org/resources/xml/en/consolidated.xml
-    format: XML
-
-- title: World Presidents Database
-  description: >
-    Current world leaders, presidents, prime ministers and dictators.
-  slug: worldpresidentsdb
-  category: pep
-  publisher:
-    title: WorldPresidentsDB.com
-    url: "http://www.worldpresidentsdb.com/"
-  url: "http://www.worldpresidentsdb.com/list/current/"
-
 - title: SDFM Blacklist
   description: >
     Ukraine's financial intelligence unit publishes this list of sanctioned
@@ -48,21 +24,6 @@
   url: https://www.seco.admin.ch/seco/en/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos.html
   data:
     url: https://www.sesam.search.admin.ch/sesam-search-web/pages/downloadXmlGesamtliste.xhtml?lang=en&action=downloadXmlGesamtlisteAction
-    format: XML
-
-- title: OFAC Consolidated List
-  description: >
-    Both parts of the United States' consolidated sanctions list, both the
-    specially designated nationals (SDN) and the non-SDN entities published
-    by the Office of Foreign Assets Control (OFAC).
-  slug: us_ofac
-  category: sanctions
-  publisher:
-    title: US Department of the Treasury
-    url: https://www.treasury.gov/
-  url: https://www.treasury.gov/resource-center/sanctions/Pages/default.aspx
-  data:
-    url: https://www.treasury.gov/resource-center/sanctions/SDN-List/Pages/consolidated.aspx
     format: XML
 
 - title: GB Consolidated List of Targets
