@@ -38,12 +38,15 @@ def crawl_country(context, path, country):
     content = blocks.get("free_form_content", []).get("content")
     doc = html.fromstring(content)
     function = None
-    for el in doc.getchildren():
+    for i, el in enumerate(doc.getchildren()):
         text = el.text_content().strip()
         if el.tag == "h2":
             continue
         if el.tag == "h3":
             function = text
+            continue
+        if i == 0 and el.tag == "p":
+            # this paragraph at the start is a note, not a person
             continue
         name = text.replace("(Acting)", "")
         person = emitter.make("Person")
