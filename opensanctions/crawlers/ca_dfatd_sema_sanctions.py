@@ -1,19 +1,17 @@
 from pprint import pprint  # noqa
 from normality import collapse_spaces
-from ftmstore.memorious import EntityEmitter
 
 from opensanctions.util import jointext
 
 
-def parse(context, data):
-    emitter = EntityEmitter(context)
-    with context.http.rehash(data) as result:
-        for node in result.xml.findall(".//record"):
-            parse_entry(emitter, node)
-    emitter.finalize()
+def crawl(context):
+    context.fetch_artifact("source.xml", context.dataset.data.url)
+    doc = context.parse_artifact_xml("source.xml")
+    for node in doc.findall(".//record"):
+        parse_entry(context, node)
 
 
-def parse_entry(emitter, node):
+def parse_entry(context, node):
     # ids are per country and entry type (individual/entity)
     country = node.findtext("./Country")
     if " / " in country:
@@ -21,14 +19,14 @@ def parse_entry(emitter, node):
     entity_name = node.findtext("./Entity")
     item = node.findtext(".//Item")
 
-    entity = emitter.make("LegalEntity")
+    entity = context.make("LegalEntity")
     if entity_name is None:
-        entity = emitter.make("Person")
+        entity = context.make("Person")
     entity.make_id("CASEMA", country, entity_name, item)
     entity.add("name", entity_name)
     entity.add("country", country)
 
-    sanction = emitter.make("Sanction")
+    sanction = context.make("Sanction")
     sanction.make_id("Sanction", entity.id)
     sanction.add("entity", entity)
     sanction.add("authority", "Canadian international sanctions")
@@ -51,5 +49,5 @@ def parse_entry(emitter, node):
             name = collapse_spaces(name)
             entity.add("alias", name)
 
-    emitter.emit(entity)
-    emitter.emit(sanction)
+    context.emit(entity)
+    context.emit(sanction)
