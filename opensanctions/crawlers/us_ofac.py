@@ -1,6 +1,7 @@
 # cf.
 # https://github.com/archerimpact/SanctionsExplorer/blob/master/data/sdn_parser.py
 # https://www.treasury.gov/resource-center/sanctions/SDN-List/Documents/sdn_advanced_notes.pdf
+from lxml import etree
 from os.path import commonprefix
 from pprint import pprint  # noqa
 from followthemoney import model
@@ -348,8 +349,8 @@ RELATIONS = {
 def remove_namespace(doc):
     """Remove namespace in the passed document in place."""
     for elem in doc.getiterator():
-        if elem.tag.startswith(TAG):
-            elem.tag = elem.tag[len(TAG) :]
+        elem.tag = etree.QName(elem).localname
+    etree.cleanup_namespaces(doc)
     return doc
 
 
@@ -375,6 +376,7 @@ def add_schema(entity, addition):
     try:
         entity.schema = model.common_schema(entity.schema, addition)
     except InvalidData:
+        # FIXME: this might make vessels out of companies!!!
         for schema in model.schemata.values():
             if schema.is_a(entity.schema) and schema.is_a(addition):
                 entity.schema = schema
