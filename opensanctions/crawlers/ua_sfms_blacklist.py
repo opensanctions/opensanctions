@@ -1,7 +1,6 @@
 import re
 from datetime import datetime
 from pprint import pprint  # noqa
-from ftmstore.memorious import EntityEmitter
 
 from opensanctions.util import jointext
 
@@ -20,19 +19,18 @@ def parse_date(date):
             return match.group(0)
 
 
-def parse_entry(emitter, entry):
-    entity = emitter.make("LegalEntity")
+def parse_entry(context, entry):
+    entity = context.make("LegalEntity")
     if entry.findtext("./type-entry") == "2":
-        entity = emitter.make("Person")
-    entity.make_id(entry.findtext("number-entry"))
+        entity = context.make("Person")
+    entry_id = entry.findtext("number-entry")
+    entity.id = f"sfms-{entry_id}"
 
-    sanction = emitter.make("Sanction")
+    sanction = context.make("Sanction")
     sanction.make_id("Sanction", entity.id)
     sanction.add("entity", entity)
     sanction.add("authority", "State Financial Monitoring Service of Ukraine")
-    sanction.add(
-        "sourceUrl", "http://www.sdfm.gov.ua/articles.php?cat_id=87&lang=en"
-    )  # noqa
+    sanction.add("sourceUrl", context.dataset.url)
     sanction.add("program", entry.findtext("./program-entry"))
     date_entry = entry.findtext("./date-entry")
     if date_entry:
@@ -65,13 +63,13 @@ def parse_entry(emitter, entry):
         reg = doc.findtext("./document-reg")
         number = doc.findtext("./document-id")
         country = doc.findtext("./document-country")
-        passport = emitter.make("Passport")
+        passport = context.make("Passport")
         passport.make_id("Passport", entity.id, reg, number, country)
         passport.add("holder", entity)
         passport.add("passportNumber", number)
         passport.add("summary", reg)
         passport.add("country", country)
-        emitter.emit(passport)
+        context.emit(passport)
 
     for doc in entry.findall("./id-number-list"):
         entity.add("idNumber", doc.text)
@@ -88,13 +86,12 @@ def parse_entry(emitter, entry):
     for nat in entry.findall("./nationality-list"):
         entity.add("nationality", nat.text, quiet=True)
 
-    emitter.emit(entity)
-    emitter.emit(sanction)
+    context.emit(entity)
+    context.emit(sanction)
 
 
-def parse(context, data):
-    emitter = EntityEmitter(context)
-    with context.http.rehash(data) as res:
-        for entry in res.xml.findall(".//acount-list"):
-            parse_entry(emitter, entry)
-    emitter.finalize()
+def crawl(context):
+    context.fetch_artifact("source.xml", context.dataset.data.url)
+    doc = context.parse_artifact_xml("source.xml")
+    for entry in doc.findall(".//acount-list"):
+        parse_entry(context, entry)

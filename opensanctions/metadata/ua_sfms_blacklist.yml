@@ -1,0 +1,14 @@
+entry_point: opensanctions.crawlers.ua_sfms_blacklist
+title: SFMS Blacklist
+description: >
+  Ukraine's financial intelligence unit publishes this list of sanctioned
+  individuals.
+country: ua
+category: sanctions
+publisher:
+  title: Ukraine State Finance Monitoring Service
+  url: https://fiu.gov.ua/
+url: https://fiu.gov.ua/en/pages/dijalnist/protidija-terorizmu/perelik-teroristiv
+data:
+  url: https://fiu.gov.ua/assets/userfiles/Terror/zBlackListFull.xml
+  format: XML
