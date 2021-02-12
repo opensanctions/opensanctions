@@ -2,11 +2,12 @@ import csv
 from pprint import pprint  # noqa
 from datetime import datetime
 from collections import defaultdict
-from normality import stringify
+from normality import stringify, collapse_spaces
 from followthemoney import model
-from ftmstore.memorious import EntityEmitter
 
 from opensanctions.util import jointext
+
+NSMAP = {"GB": "http://schemas.datacontract.org/2004/07/"}
 
 
 def parse_date(date):
@@ -49,89 +50,154 @@ def split_items(text):
     return items
 
 
-def parse_entry(emitter, group, rows):
-    entity = emitter.make("LegalEntity")
-    entity.id = "gbhmt-%s" % group
-    sanction = emitter.make("Sanction")
+def parse_row(context, row):
+    entity = context.make("LegalEntity")
+    entity.id = "gbhmt-%s" % row.pop("GroupID")
+    sanction = context.make("Sanction")
     sanction.make_id(entity.id, "Sanction")
     sanction.add("entity", entity)
     sanction.add("authority", "HM Treasury Financial sanctions targets")
     sanction.add("country", "gb")
-    for row in rows:
-        if row.pop("Group Type") == "Individual":
-            entity.schema = model.get("Person")
-        row.pop("Alias Type", None)
-        name1 = row.pop("Name 1")
-        entity.add("firstName", name1, quiet=True)
-        name2 = row.pop("Name 2")
-        name3 = row.pop("Name 3")
-        name4 = row.pop("Name 4")
-        name5 = row.pop("Name 5")
-        name6 = row.pop("Name 6")
-        entity.add("lastName", name6, quiet=True)
-        name = jointext(name1, name2, name3, name4, name5, name6)
-        if not entity.has("name"):
-            entity.add("name", name)
-        else:
-            entity.add("alias", name)
-        entity.add("position", row.pop("Position"), quiet=True)
-        entity.add("notes", row.pop("Other Information"), quiet=True)
-        entity.add("birthDate", parse_date(row.pop("DOB")), quiet=True)
-        entity.add("nationality", row.pop("Nationality", None), quiet=True)
-        entity.add("title", row.pop("Title"), quiet=True)
-        sanction.add("program", row.pop("Regime"))
-        sanction.add("startDate", parse_date(row.pop("Listed On")))
-        last_updated = parse_date(row.pop("Last Updated"))
-        if last_updated is not None:
-            sanction.add("modifiedAt", last_updated)
-            sanction.context["updated_at"] = last_updated
-            entity.add("modifiedAt", last_updated)
-            entity.context["updated_at"] = last_updated
 
-        country = row.pop("Country", None)
-        entity.add("country", country)
+    if row.pop("GroupTypeDescription") == "Individual":
+        entity.schema = model.get("Person")
+    org_type = row.pop("OrgType", None)
+    if org_type in (
+        "Enterprise",
+        "Company",
+        "Public",
+        "Banking",
+        "Manufacturer",
+        "Airline Company",
+        "Shipping company",
+    ):
+        entity.schema = model.get("Company")
+    elif org_type in (
+        "Government",
+        "Special Police Unit",
+        "Government, Ministry",
+        "Government Ministry",
+        "Department within Government/Military Unit.",
+        "Department within Government",
+        "Military Government",
+        "Military",
+    ):
+        entity.schema = model.get("PublicBody")
+    elif org_type in (
+        "State Owned Enterprise",
+        "University",
+        "Port operator",
+        "Foundation",
+    ):
+        entity.schema = model.get("Organization")
 
-        address = jointext(
-            row.pop("Address 1", None),
-            row.pop("Address 2", None),
-            row.pop("Address 3", None),
-            row.pop("Address 4", None),
-            row.pop("Address 5", None),
-            row.pop("Address 6", None),
-            row.pop("Post/Zip Code", None),
-            country,
-        )
-        entity.add("address", address, quiet=True)
+    entity.add("legalForm", org_type)
+    entity.add("title", row.pop("NameTitle", None), quiet=True)
+    name1 = row.pop("name1", None)
+    entity.add("firstName", name1, quiet=True)
+    name2 = row.pop("name2", None)
+    name3 = row.pop("name3", None)
+    name4 = row.pop("name4", None)
+    name5 = row.pop("name5", None)
+    name6 = row.pop("Name6", None)
+    entity.add("lastName", name6, quiet=True)
+    full_name = row.pop("FullName")
+    row.pop("AliasTypeName")
+    if row.pop("AliasType") == "AKA":
+        entity.add("alias", full_name)
+    else:
+        entity.add("name", full_name)
 
-        passport = row.pop("Passport Details", None)
-        entity.add("passportNumber", passport, quiet=True)
+    # entity.add("position", row.pop("Position"), quiet=True)
+    entity.add("notes", row.pop("OtherInformation", None), quiet=True)
+    entity.add("notes", row.pop("FurtherIdentifiyingInformation", None), quiet=True)
 
-        national_id = row.pop("NI Number", None)
-        entity.add("nationalId", national_id, quiet=True)
+    sanction.add("program", row.pop("RegimeName"))
+    sanction.add("authority", row.pop("ListingType", None))
+    sanction.add("startDate", parse_date(row.pop("DateListed")))
+    sanction.add("recordId", row.pop("FCOId", None))
+    sanction.add("status", row.pop("GroupStatus", None))
+    sanction.add("reason", row.pop("UKStatementOfReasons", None))
 
-        for country in split_items(row.pop("Country of Birth")):
-            entity.add("country", country)
+    last_updated = parse_date(row.pop("LastUpdated"))
+    if last_updated is not None:
+        sanction.add("modifiedAt", last_updated)
+        sanction.context["updated_at"] = last_updated
+        entity.add("modifiedAt", last_updated)
+        entity.context["updated_at"] = last_updated
 
-        for town in split_items(row.pop("Town of Birth", None)):
-            entity.add("birthPlace", town)
+    # DoB is sometimes a year only
+    row.pop("DateOfBirth", None)
+    dob_day = int(stringify(row.pop("DayOfBirth", "0")))
+    dob_month = int(stringify(row.pop("MonthOfBirth", "0")))
+    dob_year = int(stringify(row.pop("YearOfBirth", "0")))
+    if dob_year > 1000:
+        try:
+            dt = datetime(dob_year, dob_month, dob_day)
+            context.prop_cast(entity, "Person", "birthDate", dt.date())
+        except ValueError:
+            context.prop_cast(entity, "Person", "birthDate", dob_year)
 
-    emitter.emit(entity)
-    emitter.emit(sanction)
+    entity.add("nationality", row.pop("Nationality", None), quiet=True)
+    entity.add("gender", row.pop("Gender", None), quiet=True)
+    entity.add("position", row.pop("Position", None), quiet=True)
+    entity.add("country", row.pop("Country", None))
+    entity.add("address", row.pop("FullAddress", None))
+    entity.add("birthPlace", row.pop("TownOfBirth", None), quiet=True)
+    entity.add("country", row.pop("CountryOfBirth", None), quiet=True)
+
+    address = jointext(
+        row.pop("address1", None),
+        row.pop("address2", None),
+        row.pop("address3", None),
+        row.pop("address4", None),
+        row.pop("address5", None),
+        row.pop("address6", None),
+        row.pop("PostCode", None),
+    )
+    entity.add("address", address, quiet=True)
+    entity.add("idNumber", row.pop("NationalIdNumber", None))
+    passport = row.pop("PassportDetails", None)
+    context.prop_cast(entity, "Person", "passportNumber", passport)
+
+    reg_number = row.pop("BusinessRegNumber", None)
+    entity.add("registrationNumber", reg_number)
+
+    row.pop("DateListedDay", None)
+    row.pop("DateListedMonth", None)
+    row.pop("DateListedYear", None)
+    row.pop("LastUpdatedDay", None)
+    row.pop("LastUpdatedMonth", None)
+    row.pop("LastUpdatedYear", None)
+    row.pop("GrpStatus", None)
+    row.pop("ID", None)
+    row.pop("DateOfBirthId", None)
+    row.pop("DateListedDay", None)
+    if len(row):
+        pprint(row)
+
+    context.emit(entity)
+    context.emit(sanction)
 
 
-def parse(context, data):
-    emitter = EntityEmitter(context)
-    groups = defaultdict(list)
-    with context.http.rehash(data) as res:
-        with open(res.file_path, "r", encoding="iso-8859-1") as csvfile:
-            # ignore first line
-            next(csvfile)
-            for row in csv.DictReader(csvfile):
-                group = row.pop("Group ID")
-                if group is not None:
-                    groups[group].append(row)
+def make_row(el):
+    row = {}
+    for cell in el.getchildren():
+        if cell.text is None:
+            continue
+        value = cell.text.strip()
+        if not len(value):
+            continue
+        _, field = cell.tag.split("}")
+        assert field not in row, field
+        row[field] = value
+    return row
 
-    for group, rows in groups.items():
-        parse_entry(emitter, group, rows)
 
-    emitter.finalize()
+def crawl(context):
+    context.fetch_artifact("source.xml", context.dataset.data.url)
+    doc = context.parse_artifact_xml("source.xml")
+    root = doc.getroot()
+
+    for el in doc.findall(".//ConsolidatedList", root.nsmap):
+        parse_row(context, make_row(el))
