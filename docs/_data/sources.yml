@@ -1,44 +1,3 @@
-- title: SDFM Blacklist
-  description: >
-    Ukraine's financial intelligence unit publishes this list of sanctioned
-    individuals.
-  slug: ua_sdfm_blacklist
-  category: sanctions
-  publisher:
-    title: Ukraine State Finance Monitoring Service
-    url: http://www.sdfm.gov.ua/
-  url: http://www.sdfm.gov.ua/articles.php?cat_id=87&lang=en
-  data:
-    url: http://www.sdfm.gov.ua/content/file/Site_docs/Black_list/zBlackListFull.xml
-    format: XML
-
-- title: Swiss SECO Sanctions/Embargoes
-  description: >
-    Switzerland manages a sanctions lists with a high degree of detail on the
-    individuals that are subject to it's embargoes.
-  slug: ch_seco_sanctions
-  category: sanctions
-  publisher:
-    title: "State Secretariat for Economic Affairs (SECO)"
-    url: https://www.seco.admin.ch/
-  url: https://www.seco.admin.ch/seco/en/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos.html
-  data:
-    url: https://www.sesam.search.admin.ch/sesam-search-web/pages/downloadXmlGesamtliste.xhtml?lang=en&action=downloadXmlGesamtlisteAction
-    format: XML
-
-- title: GB Consolidated List of Targets
-  description: >
-    The United Kingom's consolidated internation sanctions list.
-  slug: gb_hmt_sanctionslist
-  category: sanctions
-  publisher:
-    title: HM Treasury
-    url: https://www.gov.uk/
-  url: https://www.gov.uk/government/publications/financial-sanctions-consolidated-list-of-targets
-  data:
-    url: https://www.gov.uk/government/publications/financial-sanctions-consolidated-list-of-targets/consolidated-list-of-targets
-    format: html
-
 - title: GB Insolvency Disqualified Directors
   description: >
     Individuals which have been disqualified from holding the post of a
@@ -52,20 +11,6 @@
   data:
     url: https://www.insolvencydirect.bis.gov.uk/IESdatabase/viewdirectorsummary-new.asp
     format: html
-
-- title: EEAS Consolidated List
-  description: >
-    As part of the Common Foreign Security Policy thr European Union publishes
-    a sanctions list that is implemented by all member states.
-  slug: eu_eeas_sanctions
-  category: sanctions
-  publisher:
-    title: European Union External Action Service
-    url: https://eeas.europa.eu/
-  url: https://eeas.europa.eu/headquarters/headquarters-homepage/423/sanctions-policy_en
-  data:
-    url: http://ec.europa.eu/external_relations/cfsp/sanctions/list/version4/global/global.xml
-    format: XML
 
 - title: INTERPOL Red Notices
   description: >
