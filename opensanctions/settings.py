@@ -29,4 +29,4 @@ METADATA_PATH = env.get("OPENSANCTIONS_METADATA_PATH", METADATA_PATH)
 METADATA_PATH = Path(METADATA_PATH).resolve()
 
 # User agent
-USER_AGENT = "OpenSanctions/3.0"
+USER_AGENT = "OpenSanctions/3.0 xxx"

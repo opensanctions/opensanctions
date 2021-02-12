@@ -1,11 +1,11 @@
 import structlog
 from lxml import etree
 from datetime import datetime, timedelta
-from followthemoney import model
 from structlog.contextvars import clear_contextvars, bind_contextvars
 
+# from opensanctions.core import db
 from opensanctions import settings
-from opensanctions.core import db
+from opensanctions.core.entity import OSETLEntity
 from opensanctions.core.http import get_session, fetch_download
 
 
@@ -45,23 +45,7 @@ class Context(object):
 
     def make(self, schema):
         """Make a new entity with some dataset context set."""
-        return model.make_entity(schema, key_prefix=self.dataset.name)
-
-    def prop_cast(self, entity, schema, prop, value):
-        """Set a property on an entity. If the entity is of a schema that doesn't
-        have the given property, also modify the schema (e.g. if something has a
-        birthDate, assume it's a Person, not a LegalEntity).
-        """
-        if entity.schema.get(prop) is not None:
-            entity.add(prop, value)
-            return
-
-        schema = model.get(schema)
-        prop_ = schema.get(prop)
-        if prop_.type.clean(value) is None:
-            return
-        entity.schema = model.common_schema(entity.schema, schema)
-        entity.add(prop, value)
+        return OSETLEntity(self.dataset, schema)
 
     def emit(self, entity):
         """Send an FtM entity to the store."""
@@ -100,4 +84,4 @@ class Context(object):
         self.http.cache.remove_old_entries(expire_at)
 
         # Persist any events to the database:
-        db.session.commit()
+        # db.session.commit()

@@ -4,8 +4,6 @@ from setuptools import setup, find_packages
 setup(
     name="opensanctions",
     version="3.0.0",
-    author="Organized Crime and Corruption Reporting Project",
-    author_email="data@occrp.org",
     url="https://github.com/alephdata/opensanctions",
     license="MIT",
     packages=find_packages(exclude=["ez_setup", "examples", "test"]),

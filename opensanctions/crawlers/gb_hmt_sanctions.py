@@ -1,7 +1,5 @@
-import csv
 from pprint import pprint  # noqa
 from datetime import datetime
-from collections import defaultdict
 from normality import stringify, collapse_spaces
 from followthemoney import model
 
@@ -89,23 +87,7 @@ def parse_row(context, row):
     ):
         entity.schema = model.get("Organization")
 
-    context.prop_cast(entity, "LegalEntity", "legalForm", org_type)
-    # entity.add("legalForm", org_type)
-    entity.add("title", row.pop("NameTitle", None), quiet=True)
-    name1 = row.pop("name1", None)
-    entity.add("firstName", name1, quiet=True)
-    name2 = row.pop("name2", None)
-    name3 = row.pop("name3", None)
-    name4 = row.pop("name4", None)
-    name5 = row.pop("name5", None)
-    name6 = row.pop("Name6", None)
-    entity.add("lastName", name6, quiet=True)
-    full_name = row.pop("FullName")
-    row.pop("AliasTypeName")
-    if row.pop("AliasType") == "AKA":
-        entity.add("alias", full_name)
-    else:
-        entity.add("name", full_name)
+    entity.add_cast("LegalEntity", "legalForm", org_type)
 
     # entity.add("position", row.pop("Position"), quiet=True)
     entity.add("notes", row.pop("OtherInformation", None), quiet=True)
@@ -133,12 +115,65 @@ def parse_row(context, row):
     if dob_year > 1000:
         try:
             dt = datetime(dob_year, dob_month, dob_day)
-            context.prop_cast(entity, "Person", "birthDate", dt.date())
+            entity.add_cast("Person", "birthDate", dt.date())
         except ValueError:
-            context.prop_cast(entity, "Person", "birthDate", dob_year)
+            entity.add_cast("Person", "birthDate", dob_year)
+
+    entity.add_cast("Person", "gender", row.pop("Gender", None))
+    id_number = row.pop("NationalIdNumber", None)
+    entity.add_cast("LegalEntity", "idNumber", id_number)
+    passport = row.pop("PassportDetails", None)
+    entity.add_cast("Person", "passportNumber", passport)
+
+    reg_number = row.pop("BusinessRegNumber", None)
+    entity.add_cast("LegalEntity", "registrationNumber", reg_number)
+
+    phones = split_items(row.pop("PhoneNumber", None), comma=True)
+    entity.add_cast("LegalEntity", "phone", phones)
+
+    website = split_items(row.pop("Website", None), comma=True)
+    entity.add_cast("LegalEntity", "website", website)
+
+    emails = split_items(row.pop("EmailAddress", None), comma=True)
+    entity.add_cast("LegalEntity", "email", emails)
+
+    flag = row.pop("FlagOfVessel", None)
+    entity.add_cast("Vessel", "flag", flag)
+
+    prev_flag = row.pop("PreviousFlags", None)
+    entity.add_cast("Vessel", "pastFlags", prev_flag)
+
+    year = row.pop("YearBuilt", None)
+    entity.add_cast("Vehicle", "buildDate", year)
+
+    type_ = row.pop("TypeOfVessel", None)
+    entity.add_cast("Vehicle", "type", type_)
+
+    imo = row.pop("IMONumber", None)
+    entity.add_cast("Vessel", "imoNumber", imo)
+
+    tonnage = row.pop("TonnageOfVessel", None)
+    entity.add_cast("Vessel", "tonnage", tonnage)
+    row.pop("LengthOfVessel", None)
+
+    # entity.add("legalForm", org_type)
+    entity.add("title", row.pop("NameTitle", None), quiet=True)
+    name1 = row.pop("name1", None)
+    entity.add("firstName", name1, quiet=True)
+    name2 = row.pop("name2", None)
+    name3 = row.pop("name3", None)
+    name4 = row.pop("name4", None)
+    name5 = row.pop("name5", None)
+    name6 = row.pop("Name6", None)
+    entity.add("lastName", name6, quiet=True)
+    full_name = row.pop("FullName")
+    row.pop("AliasTypeName")
+    if row.pop("AliasType") == "AKA":
+        entity.add("alias", full_name)
+    else:
+        entity.add("name", full_name)
 
     entity.add("nationality", row.pop("Nationality", None), quiet=True)
-    entity.add("gender", row.pop("Gender", None), quiet=True)
     entity.add("position", row.pop("Position", None), quiet=True)
     entity.add("country", row.pop("Country", None))
     entity.add("address", row.pop("FullAddress", None))
@@ -155,41 +190,6 @@ def parse_row(context, row):
         row.pop("PostCode", None),
     )
     entity.add("address", address, quiet=True)
-    id_number = row.pop("NationalIdNumber", None)
-    context.prop_cast(entity, "LegalEntity", "idNumber", id_number)
-    passport = row.pop("PassportDetails", None)
-    context.prop_cast(entity, "Person", "passportNumber", passport)
-
-    reg_number = row.pop("BusinessRegNumber", None)
-    context.prop_cast(entity, "LegalEntity", "registrationNumber", reg_number)
-
-    phones = split_items(row.pop("PhoneNumber", None), comma=True)
-    entity.add("phone", phones, quiet=True)
-
-    website = split_items(row.pop("Website", None), comma=True)
-    entity.add("website", website, quiet=True)
-
-    emails = split_items(row.pop("EmailAddress", None), comma=True)
-    entity.add("email", emails, quiet=True)
-
-    flag = row.pop("FlagOfVessel", None)
-    context.prop_cast(entity, "Vessel", "flag", flag)
-
-    prev_flag = row.pop("PreviousFlags", None)
-    context.prop_cast(entity, "Vessel", "pastFlags", prev_flag)
-
-    year = row.pop("YearBuilt", None)
-    context.prop_cast(entity, "Vehicle", "buildDate", year)
-
-    type_ = row.pop("TypeOfVessel", None)
-    context.prop_cast(entity, "Vehicle", "type", type_)
-
-    imo = row.pop("IMONumber", None)
-    context.prop_cast(entity, "Vessel", "imoNumber", imo)
-
-    tonnage = row.pop("TonnageOfVessel", None)
-    context.prop_cast(entity, "Vessel", "tonnage", tonnage)
-    row.pop("LengthOfVessel", None)
 
     # TODO: graph
     row.pop("Subsidiaries", None)

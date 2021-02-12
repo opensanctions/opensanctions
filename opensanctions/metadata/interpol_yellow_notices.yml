@@ -1,0 +1,11 @@
+title: INTERPOL Yellow Notices
+description: >
+  International arrest warrants published by INTERPOL with a view to
+  extradition of the wanted individuals.
+publisher:
+  title: Interpol Yellow
+  url: https://www.interpol.int/
+url: https://www.interpol.int/INTERPOL-expertise/Notices
+data:
+  url: https://ws-public.interpol.int/notices/v1/yellow
+  format: xml
