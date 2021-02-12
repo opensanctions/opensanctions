@@ -1,5 +1,5 @@
 import xlrd
-from xlrd.xldate import xldate_as_datetime
+# from xlrd.xldate import xldate_as_datetime
 from collections import defaultdict
 from pprint import pprint  # noqa
 from datetime import datetime
