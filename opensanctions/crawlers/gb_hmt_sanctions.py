@@ -30,28 +30,26 @@ def parse_date(date):
         pass
 
 
-def split_items(text):
-    items = []
+def split_items(text, comma=False):
     text = stringify(text)
     if text is None:
-        return items
-    for raw in text.split(")"):
-        if " " not in raw:
-            items.append(raw)
-            continue
-
-        cleaned, suffix = raw.split(" ", 1)
-        suffix = suffix.replace("(", "")
-        try:
-            int(suffix)
-            items.append(cleaned)
-        except Exception:
-            items.append(raw)
+        return []
+    items = []
+    rest = str(text)
+    for num in range(50):
+        parts = rest.split(f"({num})")
+        if len(parts) > 1:
+            match = collapse_spaces(parts[0])
+            if len(match):
+                items.append(match)
+            rest = parts[1]
+    if comma and text == rest:
+        items = text.split(",")
     return items
 
 
 def parse_row(context, row):
-    entity = context.make("LegalEntity")
+    entity = context.make("Thing")
     entity.id = "gbhmt-%s" % row.pop("GroupID")
     sanction = context.make("Sanction")
     sanction.make_id(entity.id, "Sanction")
@@ -91,7 +89,8 @@ def parse_row(context, row):
     ):
         entity.schema = model.get("Organization")
 
-    entity.add("legalForm", org_type)
+    context.prop_cast(entity, "LegalEntity", "legalForm", org_type)
+    # entity.add("legalForm", org_type)
     entity.add("title", row.pop("NameTitle", None), quiet=True)
     name1 = row.pop("name1", None)
     entity.add("firstName", name1, quiet=True)
@@ -156,12 +155,46 @@ def parse_row(context, row):
         row.pop("PostCode", None),
     )
     entity.add("address", address, quiet=True)
-    entity.add("idNumber", row.pop("NationalIdNumber", None))
+    id_number = row.pop("NationalIdNumber", None)
+    context.prop_cast(entity, "LegalEntity", "idNumber", id_number)
     passport = row.pop("PassportDetails", None)
     context.prop_cast(entity, "Person", "passportNumber", passport)
 
     reg_number = row.pop("BusinessRegNumber", None)
-    entity.add("registrationNumber", reg_number)
+    context.prop_cast(entity, "LegalEntity", "registrationNumber", reg_number)
+
+    phones = split_items(row.pop("PhoneNumber", None), comma=True)
+    entity.add("phone", phones, quiet=True)
+
+    website = split_items(row.pop("Website", None), comma=True)
+    entity.add("website", website, quiet=True)
+
+    emails = split_items(row.pop("EmailAddress", None), comma=True)
+    entity.add("email", emails, quiet=True)
+
+    flag = row.pop("FlagOfVessel", None)
+    context.prop_cast(entity, "Vessel", "flag", flag)
+
+    prev_flag = row.pop("PreviousFlags", None)
+    context.prop_cast(entity, "Vessel", "pastFlags", prev_flag)
+
+    year = row.pop("YearBuilt", None)
+    context.prop_cast(entity, "Vehicle", "buildDate", year)
+
+    type_ = row.pop("TypeOfVessel", None)
+    context.prop_cast(entity, "Vehicle", "type", type_)
+
+    imo = row.pop("IMONumber", None)
+    context.prop_cast(entity, "Vessel", "imoNumber", imo)
+
+    tonnage = row.pop("TonnageOfVessel", None)
+    context.prop_cast(entity, "Vessel", "tonnage", tonnage)
+    row.pop("LengthOfVessel", None)
+
+    # TODO: graph
+    row.pop("Subsidiaries", None)
+    row.pop("ParentCompany", None)
+    row.pop("CurrentOwners", None)
 
     row.pop("DateListedDay", None)
     row.pop("DateListedMonth", None)
