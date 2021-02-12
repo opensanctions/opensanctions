@@ -31,10 +31,10 @@ def crawl(context):
         params = {"initial": letter, "offset": 0}
         url = data_url + "?" + urlencode(params)
         while url is not None:
-            res = context.http.get(url)
+            res = context.http.get(url, timeout=30)
             doc = html.fromstring(res.text)
             for member in doc.findall('.//ul[@class="member-results"]/li'):
-                parse_entry(context, member)
+                crawl_entry(context, member)
 
             seen.add(url)
             url = None

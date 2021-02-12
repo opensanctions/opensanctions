@@ -2,7 +2,6 @@ import re
 from lxml import html
 from pprint import pprint  # noqa
 from datetime import datetime
-from ftmstore.memorious import EntityEmitter
 
 from opensanctions.util import jointext
 

@@ -1,7 +1,6 @@
 # Settings configuration for OpenSanctions
 # Below settings can be configured via environment variables, which makes
 # them easy to access in a dockerized environment.
-import os
 from pathlib import Path
 from os import environ as env
 
