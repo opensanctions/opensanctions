@@ -6,6 +6,7 @@ __pycache__/
 *.sqlite3
 .env
 .vscode
+.idea/
 balkhashdb
 
 # C extensions
@@ -14,6 +15,7 @@ balkhashdb
 # Distribution / packaging
 .Python
 env/
+venv/
 build/
 develop-eggs/
 dist/
