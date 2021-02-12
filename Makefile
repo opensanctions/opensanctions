@@ -3,9 +3,8 @@ all: shell
 build:
 	docker-compose build
 
-services:
-	docker-compose up -d postgres redis
-	sleep 3
+shell:
+	docker-compose run worker bash
 
-shell: build services
-	docker-compose run worker sh
+run: 
+	docker-compose run worker
