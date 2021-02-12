@@ -1,9 +1,9 @@
 import sys
-import time
 import logging
 import structlog
 from structlog.contextvars import merge_contextvars
-from structlog.contextvars import clear_contextvars, bind_contextvars
+
+# from structlog.contextvars import clear_contextvars, bind_contextvars
 
 logging.getLogger("requests").setLevel(logging.WARNING)
 logging.getLogger("urllib3").setLevel(logging.ERROR)
@@ -11,16 +11,17 @@ logging.getLogger("httpstream").setLevel(logging.WARNING)
 
 
 def store_event(logger, log_method, data):
-    level = getattr(logging, data.get("level").upper())
-    if level > logging.INFO:
-        print("FOO", logger, log_method)
+    # level = getattr(logging, data.get("level").upper())
+    # if level > logging.INFO:
+    #     print("FOO", logger, log_method)
     data.pop("run_id", None)
     data.pop("dataset", None)
     return data
 
 
-def configure_logging():
+def configure_logging(quiet=False):
     """Configure log levels and structured logging"""
+    active_level = logging.ERROR if quiet else logging.DEBUG
     processors = [
         structlog.stdlib.add_log_level,
         structlog.stdlib.add_logger_name,
@@ -46,9 +47,9 @@ def configure_logging():
     )
 
     handler = logging.StreamHandler(sys.stderr)
-    handler.setLevel(logging.DEBUG)
+    handler.setLevel(active_level)
     handler.setFormatter(formatter)
 
     logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(active_level)
     logger.addHandler(handler)

@@ -1,20 +1,18 @@
-import sys
-import json
 import click
-import logging
 from followthemoney.cli.util import write_object
 
 from opensanctions.core import Dataset, Context, setup
 
 
 @click.group(help="OpenSanctions ETL toolkit")
-def cli():
-    setup()
+@click.option("-q", "--quiet", is_flag=True, default=False)
+def cli(quiet=False):
+    setup(quiet=quiet)
 
 
 @cli.command("dump", help="Export the entities from a dataset")
 @click.argument("dataset", type=click.Choice(Dataset.names()))
-@click.option("-o", "--outfile", type=click.File("w"), default="-")  # noqa
+@click.option("-o", "--outfile", type=click.File("w"), default="-")
 def dump_dataset(dataset, outfile):
     dataset = Dataset.get(dataset)
     for entity in dataset.store:
