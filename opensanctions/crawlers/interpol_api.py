@@ -45,9 +45,11 @@ def crawl_notice(context, notice):
         return
     SEEN.add(url)
     res = context.http.get(url)
-    if res.status_code == 403:
-        context.log.warning("Blocked by INTERPOL", url=res.url, country=country)
-        return
+    # if res.status_code == 403:
+    #     context.log.warning("Blocked by INTERPOL", url=res.url, country=country)
+    #     return
+    # if not res.from_cache:
+    #     time.sleep(0.5)
     notice = res.json()
     first_name = notice["forename"] or ""
     last_name = notice["name"] or ""
@@ -77,25 +79,32 @@ def crawl_notice(context, notice):
 
 def crawl_country(context, country, age_max=120, age_min=0):
     params = {
-        "ageMin": age_min,
-        "ageMax": age_max,
+        "ageMin": int(age_min),
+        "ageMax": int(age_max),
         "arrestWarrantCountryId": country,
         "resultPerPage": MAX_RESULTS,
     }
     res = context.http.get(context.dataset.data.url, params=params)
-    if res.status_code == 403:
-        context.log.warning("Blocked by INTERPOL", url=res.url, country=country)
-        return
+    # if res.status_code == 403:
+    #     context.log.warning("Blocked by INTERPOL", url=res.url, country=country)
+    #     return
+    # if not res.from_cache:
+    #     time.sleep(0.5)
     data = res.json()
     notices = data.get("_embedded", {}).get("notices", [])
     for notice in notices:
         crawl_notice(context, notice)
     total = data.get("total")
-    pprint((country, total, age_max, age_min))
+    # pprint((country, total, age_max, age_min))
     if total > MAX_RESULTS:
-        age_split = age_min + ((age_max - age_min) / 2)
-        crawl_country(context, country, age_max, age_split)
-        crawl_country(context, country, age_split, age_min)
+        age_range = age_max - age_min
+        if age_range > 1:
+            age_split = age_min + (age_range // 2)
+            crawl_country(context, country, age_max, age_split)
+            crawl_country(context, country, age_split, age_min)
+        elif age_range == 1:
+            crawl_country(context, country, age_max, age_max)
+            crawl_country(context, country, age_min, age_min)
 
 
 def crawl(context):

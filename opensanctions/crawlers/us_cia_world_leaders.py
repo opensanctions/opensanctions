@@ -1,9 +1,5 @@
-from urllib.parse import urljoin
 from lxml import html
-import requests
 from pprint import pprint  # noqa
-from datetime import datetime
-from normality import collapse_spaces, stringify
 
 UI_URL = "https://www.cia.gov%s"
 DATA_URL = "https://www.cia.gov/page-data%spage-data.json"
