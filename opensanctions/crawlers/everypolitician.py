@@ -21,6 +21,7 @@ def crawl(context):
     for country in res.json():
         for legislature in country.get("legislatures", []):
             code = country.get("code").lower()
+            context.log.info("Country: %s" % code)
             crawl_legislature(context, code, legislature)
 
 

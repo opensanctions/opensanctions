@@ -611,7 +611,7 @@ def parse_party(context, doc, distinct_party, locations, documents):
 
     context.emit(party)
     # pprint(party.to_dict())
-    context.log.info("[%s] %s" % (party.schema.name, party.caption))
+    # context.log.info("[%s] %s" % (party.schema.name, party.caption))
 
 
 def parse_entry(context, doc, entry):
@@ -683,7 +683,7 @@ def parse_relation(context, doc, relation):
     entity.add(desc_attr, type_)
     entity.add("summary", relation.findtext("./Comment"))
     context.emit(entity)
-    context.log.info("Relation", from_=from_party, type=type_, to=to_party)
+    context.log.debug("Relation", from_=from_party, type=type_, to=to_party)
     # pprint(entity.to_dict())
 
 

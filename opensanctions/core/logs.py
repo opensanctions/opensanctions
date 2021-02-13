@@ -19,9 +19,8 @@ def store_event(logger, log_method, data):
     return data
 
 
-def configure_logging(quiet=False):
+def configure_logging(level=logging.DEBUG):
     """Configure log levels and structured logging"""
-    active_level = logging.ERROR if quiet else logging.DEBUG
     processors = [
         structlog.stdlib.add_log_level,
         structlog.stdlib.add_logger_name,
@@ -47,9 +46,9 @@ def configure_logging(quiet=False):
     )
 
     handler = logging.StreamHandler(sys.stderr)
-    handler.setLevel(active_level)
+    handler.setLevel(level)
     handler.setFormatter(formatter)
 
     logger = logging.getLogger()
-    logger.setLevel(active_level)
+    logger.setLevel(level)
     logger.addHandler(handler)
