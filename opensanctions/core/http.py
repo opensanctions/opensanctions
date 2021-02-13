@@ -24,8 +24,8 @@ def fetch_download(file_path, url):
     session.headers.update(HEADERS)
     log.info("Fetching artifact", path=file_path.as_posix(), url=url)
     file_path.parent.mkdir(exist_ok=True, parents=True)
-    with session.get(url, stream=True) as res:
+    with session.get(url, stream=True, timeout=30) as res:
         res.raise_for_status()
         with open(file_path, "wb") as handle:
-            for chunk in res.iter_content(chunk_size=8192):
+            for chunk in res.iter_content(chunk_size=8192 * 10):
                 handle.write(chunk)
