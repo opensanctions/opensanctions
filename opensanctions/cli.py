@@ -1,26 +1,36 @@
 import click
+import logging
 from followthemoney.cli.util import write_object
 
-from opensanctions.core import Dataset, Context, setup
+from opensanctions.core import Target, Context, setup
 
 
 @click.group(help="OpenSanctions ETL toolkit")
+@click.option("-v", "--verbose", is_flag=True, default=False)
 @click.option("-q", "--quiet", is_flag=True, default=False)
-def cli(quiet=False):
-    setup(quiet=quiet)
+def cli(verbose=False, quiet=False):
+    level = logging.INFO
+    if quiet:
+        level = logging.ERROR
+    if verbose:
+        level = logging.DEBUG
+    setup(log_level=level)
 
 
-@cli.command("dump", help="Export the entities from a dataset")
-@click.argument("dataset", type=click.Choice(Dataset.names()))
+@cli.command("dump", help="Export the entities from a target")
+@click.argument("target", type=click.Choice(Target.names()))
 @click.option("-o", "--outfile", type=click.File("w"), default="-")
-def dump_dataset(dataset, outfile):
-    dataset = Dataset.get(dataset)
-    for entity in dataset.store:
-        write_object(outfile, entity)
+def dump_target(target, outfile):
+    target = Target.get(target)
+    for dataset in target.datasets:
+        # TODO: consolidate the data
+        for entity in dataset.store:
+            write_object(outfile, entity)
 
 
-@cli.command("crawl", help="Crawl entities into the given dataset")
-@click.argument("dataset", type=click.Choice(Dataset.names()))
-def crawl(dataset):
-    dataset = Dataset.get(dataset)
-    Context(dataset).crawl()
+@cli.command("crawl", help="Crawl entities into the given target")
+@click.argument("target", type=click.Choice(Target.names()))
+def crawl(target):
+    target = Target.get(target)
+    for dataset in target.datasets:
+        Context(dataset).crawl()
