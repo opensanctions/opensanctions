@@ -4,7 +4,8 @@ description: >
   Switzerland manages a sanctions lists with a high degree of detail on the
   individuals that are subject to it's embargoes.
 country: ch
-category: sanctions
+collections:
+  - sanctions
 publisher:
   title: "State Secretariat for Economic Affairs (SECO)"
   url: https://www.seco.admin.ch/

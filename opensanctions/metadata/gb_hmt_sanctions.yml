@@ -3,7 +3,8 @@ title: GB Consolidated List of Targets
 description: >
   The United Kingom's consolidated internation sanctions list
 country: gb
-category: sanctions
+collections:
+  - sanctions
 publisher:
   title: HM Treasury
   url: https://www.gov.uk/

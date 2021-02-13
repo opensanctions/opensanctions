@@ -4,7 +4,8 @@ description: >
   A simple list of sanctioned individuals and entities published by the
   Kyrgyz' State Financial Intelligence Service.
 country: kg
-category: sanctions
+collections:
+  - sanctions
 publisher:
   title: State Financial Intelligence Service
   url: https://fiu.gov.kg/

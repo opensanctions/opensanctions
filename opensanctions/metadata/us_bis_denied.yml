@@ -4,7 +4,8 @@ description: >
   The Bureau of Industry and Security publishes this list of entities which
   are relevant with regards to export controls.
 country: us
-category: sanctions
+collections:
+  - sanctions
 publisher:
   title: US Department of Commerce
   url: https://www.bis.doc.gov/

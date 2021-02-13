@@ -4,7 +4,8 @@ description: >
   Ukraine's financial intelligence unit publishes this list of sanctioned
   individuals.
 country: ua
-category: sanctions
+collections:
+  - sanctions
 publisher:
   title: Ukraine State Finance Monitoring Service
   url: https://fiu.gov.ua/

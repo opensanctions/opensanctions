@@ -4,7 +4,8 @@ description: >
   Both parts of the United States' consolidated sanctions list, non-SDN entities published
   by the Office of Foreign Assets Control (OFAC).
 country: us
-category: sanctions
+collections:
+  - sanctions
 publisher:
   title: US Department of the Treasury
   url: https://www.treasury.gov/

@@ -4,7 +4,8 @@ description: >
   As part of the Common Foreign Security Policy thr European Union publishes
   a sanctions list that is implemented by all member states.
 country: eu
-category: sanctions
+collections:
+  - sanctions
 publisher:
   title: European Union External Action Service
   url: https://eeas.europa.eu/

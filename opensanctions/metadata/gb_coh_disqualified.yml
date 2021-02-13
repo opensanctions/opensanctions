@@ -4,6 +4,8 @@ title: GB Insolvency Disqualified Directors
 description: >
   Individuals which have been disqualified from holding the post of a
   company director in the United Kingdom following a court decision.
+collections:
+  - crime
 publisher:
   title: The UK Insolvency Service
   url: https://www.insolvencydirect.bis.gov.uk

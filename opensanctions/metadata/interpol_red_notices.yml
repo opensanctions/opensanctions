@@ -3,6 +3,8 @@ title: INTERPOL Red Notices
 description: >
   International arrest warrants published by INTERPOL with a view to
   extradition of the wanted individuals.
+collections:
+  - crime
 publisher:
   title: Interpol Red
   url: https://www.interpol.int/

@@ -4,7 +4,8 @@ description: >
   An index of most national-level cabinet members in world governments that
   is publicly maintained by the CIA.
 country: us
-category: pep
+collections:
+  - peps
 url: https://www.cia.gov/resources/world-leaders/
 publisher:
   title: US Central Intelligence Agency

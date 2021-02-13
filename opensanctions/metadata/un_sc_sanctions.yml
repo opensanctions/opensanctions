@@ -3,7 +3,8 @@ title: UN Consolidated Sanctions
 description: >
   The Security Council's set of sanctions serve as the foundation for most
   national sanctions lists.
-category: sanctions
+collections:
+  - sanctions
 publisher:
   title: United Nations Security Council
   url: "https://www.un.org/en/sc/"

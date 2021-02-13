@@ -3,7 +3,8 @@ title: CoE Parliamentary Assembly
 description: >
   The Council of Europe's parliamentary assembly is composed of members of
   national parliaments from European countries including Turkey and Russia.
-category: pep
+collections:
+  - peps
 publisher:
   title: Council of Europe
   url: http://www.coe.int

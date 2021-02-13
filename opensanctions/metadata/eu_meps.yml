@@ -4,7 +4,8 @@ description: >
   A set of all the members of the European Union parliament, which are
   elected by member state.
 country: eu
-category: pep
+collections:
+  - peps
 publisher:
   title: European Parliament
   url: http://www.europarl.europa.eu/
