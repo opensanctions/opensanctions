@@ -30,7 +30,7 @@ def parse_reference(context, row: dict):
 
 
 def crawl(context):
-    res = context.http.get(context.dataset.data.url, timeout=30)
+    res = context.http.get(context.dataset.data.url)
     doc = html.fromstring(res.text)
     url_file = doc.find(".//a[@class='download']")
     url_file = urljoin(res.url, url_file.get("href"))

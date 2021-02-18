@@ -18,7 +18,7 @@ def cli(verbose=False, quiet=False):
 
 
 @cli.command("dump", help="Export the entities from a target")
-@click.argument("target", type=click.Choice(Target.names()))
+@click.argument("target", default=Target.ALL, type=click.Choice(Target.names()))
 @click.option("-o", "--outfile", type=click.File("w"), default="-")
 def dump_target(target, outfile):
     target = Target.get(target)
@@ -29,7 +29,7 @@ def dump_target(target, outfile):
 
 
 @cli.command("crawl", help="Crawl entities into the given target")
-@click.argument("target", type=click.Choice(Target.names()))
+@click.argument("target", default=Target.ALL, type=click.Choice(Target.names()))
 def crawl(target):
     target = Target.get(target)
     for dataset in target.datasets:

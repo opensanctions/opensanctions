@@ -1,5 +1,4 @@
 from pprint import pprint  # noqa
-from ftmstore.memorious import EntityEmitter
 
 
 def split_name(name):
