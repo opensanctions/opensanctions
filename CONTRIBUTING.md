@@ -1,8 +1,6 @@
 # Contributing
 
-When contributing to this repository, please discuss the change you wish to make via issue, email, or any other method with the owners of this repository before making a change.
-
-If you plan to add a dataset/crawler, please pitch the addition as an issue first. Adding a data source to OpenSanctions requires us to engage with this data in perpetuity. We want to prioritise data quality over quantity. Don't be offended if we decide to reject your _guerilla contribution_.
+If you plan to add a dataset/crawler, please pitch the addition as an issue first. Adding a data source to OpenSanctions requires us to engage with this data in perpetuity. We want to prioritise data quality over quantity.
 
 ## Inclusion criteria
 
