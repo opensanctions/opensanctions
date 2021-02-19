@@ -1,0 +1,14 @@
+entry_point: opensanctions.crawlers.worldbank_debarred
+title: WorldBank Debarred Providers
+description: >
+  Worldbank List of Debarred Providers
+collections:
+  - crime
+publisher:
+  title: World Bank
+  url: https://www.worldbank.org
+url: https://www.worldbank.org/en/projects-operations/procurement/debarred-firms
+data:
+  url: "https://apigwext.worldbank.org/dvsvc/v1.0/json/APPLICATION/ADOBE_EXPRNCE_MGR/FIRM/SANCTIONED_FIRM"
+  api_key: z9duUaFUiEUYSHs97CU38fcZO7ipOPvm
+  format: JSON

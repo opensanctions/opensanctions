@@ -1,0 +1,14 @@
+entry_point: opensanctions.crawlers.gb_hmt_sanctions
+title: GB Consolidated List of Targets
+description: >
+  The United Kingom's consolidated internation sanctions list
+country: gb
+collections:
+  - sanctions
+publisher:
+  title: HM Treasury
+  url: https://www.gov.uk/
+url: https://www.gov.uk/government/publications/financial-sanctions-consolidated-list-of-targets
+data:
+  url: https://ofsistorage.blob.core.windows.net/publishlive/ConList.xml
+  format: xml

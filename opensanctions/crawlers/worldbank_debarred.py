@@ -1,10 +1,8 @@
 import re
 from pprint import pprint  # noqa
 from datetime import datetime
-from ftmstore.memorious import EntityEmitter
 
 SPLITS = r"(a\.k\.a\.?|aka|f/k/a|also known as|\(formerly |, also d\.b\.a\.|\(currently (d/b/a)?|d/b/a|\(name change from|, as the successor or assign to)"  # noqa
-SOURCE = "https://www.worldbank.org/en/projects-operations/procurement/debarred-firms"  # noqa
 
 
 def clean_date(date):
@@ -40,41 +38,35 @@ def clean_name(text):
     return clean_names
 
 
-def fetch(context, data):
-    url = context.params.get("url")
-    apikey = context.params.get("apikey")
-    response = context.http.get(url, headers={"apikey": apikey})
-    for ent in response.json["response"]["ZPROCSUPP"]:
-        context.emit(data=ent)
+def crawl(context):
+    url = context.dataset.data.url
+    headers = {"apikey": context.dataset.data.api_key}
+    print(url)
+    res = context.http.get(url, headers=headers)
+    for data in res.json()["response"]["ZPROCSUPP"]:
+        pprint(data)
+        entity = context.make("LegalEntity")
+        name = data.get("SUPP_NAME")
+        ent_id = data.get("SUPP_ID")
+        city = data.get("SUPP_CITY")
+        address = data.get("SUPP_ADDR")
+        start_date = clean_date(data.get("DEBAR_FROM_DATE"))
 
+        entity.make_id("WBDEBAR", name, ent_id)
+        names = clean_name(name)
+        entity.add("name", names[0])
+        entity.add("address", address)
+        entity.add("address", city)
+        entity.add("country", data.get("COUNTRY_NAME"))
+        for name in names[1:]:
+            entity.add("alias", name)
 
-def parse(context, data):
-    emitter = EntityEmitter(context)
-    entity = emitter.make("LegalEntity")
-
-    name = data.get("SUPP_NAME")
-    ent_id = data.get("SUPP_ID")
-    city = data.get("SUPP_CITY")
-    address = data.get("SUPP_ADDR")
-    start_date = clean_date(data.get("DEBAR_FROM_DATE"))
-
-    entity.make_id("WBDEBAR", name, ent_id)
-    names = clean_name(name)
-    entity.add("name", names[0])
-    entity.add("address", address)
-    entity.add("address", city)
-    entity.add("country", data.get("COUNTRY_NAME"))
-    for name in names[1:]:
-        entity.add("alias", name)
-
-    sanction = emitter.make("Sanction")
-    sanction.make_id("Sanction", entity.id)
-    sanction.add("authority", "World Bank Debarrment")
-    sanction.add("program", data.get("DEBAR_REASON"))
-    sanction.add("startDate", start_date)
-    sanction.add("endDate", clean_date(data.get("DEBAR_TO_DATE")))
-    sanction.add("sourceUrl", SOURCE)
-    emitter.emit(entity)
-    emitter.emit(sanction)
-
-    emitter.finalize()
+        sanction = context.make("Sanction")
+        sanction.make_id("Sanction", entity.id)
+        sanction.add("authority", "World Bank Debarrment")
+        sanction.add("program", data.get("DEBAR_REASON"))
+        sanction.add("startDate", start_date)
+        sanction.add("endDate", clean_date(data.get("DEBAR_TO_DATE")))
+        sanction.add("sourceUrl", context.dataset.url)
+        context.emit(entity)
+        context.emit(sanction)

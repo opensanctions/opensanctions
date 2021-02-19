@@ -1,7 +1,6 @@
 from datetime import date
 from pprint import pprint  # noqa
 from collections import defaultdict
-from ftmstore.memorious import EntityEmitter
 
 from opensanctions.util import jointext
 
@@ -99,7 +98,7 @@ def parse_name(entity, node):
             entity.add("weakAlias", name)
 
 
-def parse_identity(emitter, entity, node, places):
+def parse_identity(context, entity, node, places):
     for name in node.findall("./name"):
         parse_name(entity, name)
 
@@ -134,22 +133,22 @@ def parse_identity(emitter, entity, node, places):
             entity.add("idNumber", number)
         if type_ in ["passport", "diplomatic-passport"]:
             entity.add("idNumber", number)
-        passport = emitter.make("Passport")
+        passport = context.make("Passport")
         passport.make_id(entity.id, "Passport", doc.get("ssid"))
         passport.add("holder", entity)
         passport.add("country", country.get("code"))
         passport.add("passportNumber", number)
         passport.add("type", type_)
         passport.add("summary", doc.findtext("./remark"))
-        emitter.emit(passport)
+        context.emit(passport)
 
 
-def parse_entry(emitter, target, programs, places, updated_at):
-    entity = emitter.make("LegalEntity")
+def parse_entry(context, target, programs, places, updated_at):
+    entity = context.make("LegalEntity")
     node = target.find("./entity")
     if node is None:
         node = target.find("./individual")
-        entity = emitter.make("Person")
+        entity = context.make("Person")
     if node is None:
         # node = target.find('./object')
         # TODO: build out support for these!
@@ -169,10 +168,11 @@ def parse_entry(emitter, target, programs, places, updated_at):
     for other in node.findall("./other-information"):
         entity.add("notes", other.text)
 
-    sanction = emitter.make("Sanction")
+    sanction = context.make("Sanction")
     sanction.make_id(entity.id, "Sanction")
     sanction.add("entity", entity)
     sanction.add("authority", "Swiss SECO Consolidated Sanctions")
+    sanction.add("sourceUrl", context.dataset.url)
     sanction.add("modifiedAt", max(dates))
 
     for justification in node.findall("./justification"):
@@ -182,26 +182,25 @@ def parse_entry(emitter, target, programs, places, updated_at):
     sanction.add("program", programs.get(ssid))
 
     for identity in node.findall("./identity"):
-        parse_identity(emitter, entity, identity, places)
+        parse_identity(context, entity, identity, places)
 
-    emitter.emit(entity)
-    emitter.emit(sanction)
+    context.emit(entity)
+    context.emit(sanction)
 
 
-def seco_parse(context, data):
-    emitter = EntityEmitter(context)
-    with context.http.rehash(data) as res:
-        updated_at = res.xml.getroot().get("date")
+def crawl(context):
+    context.fetch_artifact("source.xml", context.dataset.data.url)
+    doc = context.parse_artifact_xml("source.xml")
+    updated_at = doc.getroot().get("date")
 
-        programs = {}
-        for sanc in res.xml.findall(".//sanctions-program"):
-            ssid = sanc.find("./sanctions-set").get("ssid")
-            programs[ssid] = sanc.findtext('./program-name[@lang="eng"]')
+    programs = {}
+    for sanc in doc.findall(".//sanctions-program"):
+        ssid = sanc.find("./sanctions-set").get("ssid")
+        programs[ssid] = sanc.findtext('./program-name[@lang="eng"]')
 
-        places = {}
-        for place in res.xml.findall(".//place"):
-            places[place.get("ssid")] = parse_address(place)
+    places = {}
+    for place in doc.findall(".//place"):
+        places[place.get("ssid")] = parse_address(place)
 
-        for target in res.xml.findall("./target"):
-            parse_entry(emitter, target, programs, places, updated_at)
-    emitter.finalize()
+    for target in doc.findall("./target"):
+        parse_entry(context, target, programs, places, updated_at)

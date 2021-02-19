@@ -1,0 +1,14 @@
+entry_point: opensanctions.crawlers.us_ofac
+title: OFAC Specially Designated Nationals (SDN) List
+description: >
+  The United States' sanctions list, specially designated nationals (SDN) part.
+country: us
+collections:
+  - sanctions
+publisher:
+  title: US Department of the Treasury
+  url: https://www.treasury.gov/
+url: https://www.treasury.gov/resource-center/sanctions/Pages/default.aspx
+data:
+  url: https://www.treasury.gov/ofac/downloads/sanctions/1.0/sdn_advanced.xml
+  format: XML

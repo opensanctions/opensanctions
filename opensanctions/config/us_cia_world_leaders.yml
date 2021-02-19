@@ -1,8 +1,0 @@
-name: us_cia_world_leaders
-description: "[OSANC] CIA World Leaders"
-schedule: daily
-pipeline:
-  init:
-    method: opensanctions.crawlers.us_cia_world_leaders:crawl
-aggregator:
-  method: ftm_load_aleph

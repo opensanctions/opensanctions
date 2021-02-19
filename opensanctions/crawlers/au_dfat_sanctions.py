@@ -1,16 +1,11 @@
 import xlrd
-from xlrd.xldate import xldate_as_datetime
+
+# from xlrd.xldate import xldate_as_datetime
 from collections import defaultdict
 from pprint import pprint  # noqa
 from datetime import datetime
 from normality import slugify
 from followthemoney import model
-from ftmstore.memorious import EntityEmitter
-
-AUTHORITY = (
-    "Australian Department of Foreign Affairs and Trade Consolidated Sanctions"  # noqa
-)
-URL = "http://dfat.gov.au/international-relations/security/sanctions/Pages/sanctions.aspx"  # noqa
 
 
 def clean_reference(ref):
@@ -25,13 +20,13 @@ def clean_reference(ref):
     raise ValueError()
 
 
-def parse_reference(emitter, reference, rows):
-    entity = emitter.make("LegalEntity")
+def parse_reference(context, reference, rows):
+    entity = context.make("LegalEntity")
     entity.make_id("AUDFAT", reference)
-    entity.add("sourceUrl", URL)
-    sanction = emitter.make("Sanction")
+    entity.add("sourceUrl", context.dataset.url)
+    sanction = context.make("Sanction")
     sanction.make_id("Sanction", entity.id)
-    sanction.add("authority", AUTHORITY)
+    sanction.add("authority", context.dataset.publisher.title)
     sanction.add("entity", entity)
 
     for row in rows:
@@ -59,31 +54,29 @@ def parse_reference(emitter, reference, rows):
         entity.add("modifiedAt", dt)
         entity.context["updated_at"] = dt.isoformat()
 
-    emitter.emit(entity)
-    emitter.emit(sanction)
+    context.emit(entity)
+    context.emit(sanction)
 
 
-def parse(context, data):
-    emitter = EntityEmitter(context)
+def crawl(context):
+    context.fetch_artifact("source.xls", context.dataset.data.url)
+    xls = xlrd.open_workbook(context.get_artifact_path("source.xls"))
+    ws = xls.sheet_by_index(0)
+    headers = [slugify(h, sep="_") for h in ws.row_values(0)]
     references = defaultdict(list)
-    with context.http.rehash(data) as res:
-        xls = xlrd.open_workbook(res.file_path)
-        ws = xls.sheet_by_index(0)
-        headers = [slugify(h, sep="_") for h in ws.row_values(0)]
-        for r in range(1, ws.nrows):
-            row = ws.row(r)
-            row = dict(zip(headers, row))
-            for header, cell in row.items():
-                if cell.ctype == 2:
-                    row[header] = str(int(cell.value))
-                elif cell.ctype == 0:
-                    row[header] = None
-                else:
-                    row[header] = cell.value
+    for r in range(1, ws.nrows):
+        row = ws.row(r)
+        row = dict(zip(headers, row))
+        for header, cell in row.items():
+            if cell.ctype == 2:
+                row[header] = str(int(cell.value))
+            elif cell.ctype == 0:
+                row[header] = None
+            else:
+                row[header] = cell.value
 
-            reference = clean_reference(row.get("reference"))
-            references[reference].append(row)
+        reference = clean_reference(row.get("reference"))
+        references[reference].append(row)
 
     for ref, rows in references.items():
-        parse_reference(emitter, ref, rows)
-    emitter.finalize()
+        parse_reference(context, ref, rows)

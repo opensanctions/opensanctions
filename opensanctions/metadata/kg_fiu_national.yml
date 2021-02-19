@@ -1,0 +1,33 @@
+entry_point: opensanctions.crawlers.kg_fiu_national
+title: Kyrgyz FIU National List
+description: >
+  A simple list of sanctioned individuals and entities published by the
+  Kyrgyz' State Financial Intelligence Service.
+country: kg
+collections:
+  - sanctions
+publisher:
+  title: State Financial Intelligence Service
+  url: https://fiu.gov.kg/
+url: https://fiu.gov.kg/sked/9
+data:
+  url: https://fiu.gov.kg/sked/9
+  format: xml
+# name: kg_fiu_national
+# description: "[OSANC] Kyrgyz FIU National List"
+# schedule: weekly
+# pipeline:
+#   init:
+#     method: seed
+#     params:
+#       url: "https://fiu.gov.kg/uploads/5ef4745e29e6a.xml"
+#     handle:
+#       pass: fetch
+#   fetch:
+#     method: fetch
+#     handle:
+#       pass: parse
+#   parse:
+#     method: opensanctions.crawlers.kg_fiu_national:parse
+# aggregator:
+#   method: ftm_load_aleph

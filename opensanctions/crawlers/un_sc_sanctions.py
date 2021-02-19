@@ -1,6 +1,5 @@
 from pprint import pprint  # noqa
 from normality import collapse_spaces
-from ftmstore.memorious import EntityEmitter
 
 from opensanctions.util import jointext
 
@@ -49,9 +48,9 @@ def parse_address(entity, addr):
     entity.add("country", country)
 
 
-def parse_entity(emitter, node):
-    entity = emitter.make("LegalEntity")
-    sanction = parse_common(emitter, entity, node)
+def parse_entity(context, node):
+    entity = context.make("LegalEntity")
+    sanction = parse_common(context, entity, node)
     entity.add("alias", node.findtext("./FIRST_NAME"))
 
     for alias in node.findall("./ENTITY_ALIAS"):
@@ -60,13 +59,13 @@ def parse_entity(emitter, node):
     for addr in node.findall("./ENTITY_ADDRESS"):
         parse_address(entity, addr)
 
-    emitter.emit(entity)
-    emitter.emit(sanction)
+    context.emit(entity)
+    context.emit(sanction)
 
 
-def parse_individual(emitter, node):
-    person = emitter.make("Person")
-    sanction = parse_common(emitter, person, node)
+def parse_individual(context, node):
+    person = context.make("Person")
+    sanction = parse_common(context, person, node)
     person.add("title", values(node.find("./TITLE")))
     person.add("firstName", node.findtext("./FIRST_NAME"))
     person.add("secondName", node.findtext("./SECOND_NAME"))
@@ -80,7 +79,7 @@ def parse_individual(emitter, node):
         parse_address(person, addr)
 
     for doc in node.findall("./INDIVIDUAL_DOCUMENT"):
-        passport = emitter.make("Passport")
+        passport = context.make("Passport")
         number = doc.findtext("./NUMBER")
         date = doc.findtext("./DATE_OF_ISSUE")
         type_ = doc.findtext("./TYPE_OF_DOCUMENT")
@@ -96,7 +95,7 @@ def parse_individual(emitter, node):
         country = doc.findtext("./COUNTRY_OF_ISSUE")
         country = country or doc.findtext("./ISSUING_COUNTRY")
         passport.add("country", country)
-        emitter.emit(passport)
+        context.emit(passport)
 
     for nat in node.findall("./NATIONALITY/VALUE"):
         person.add("nationality", nat.text)
@@ -115,11 +114,11 @@ def parse_individual(emitter, node):
         )
         person.add("birthPlace", place)
 
-    emitter.emit(person)
-    emitter.emit(sanction)
+    context.emit(person)
+    context.emit(sanction)
 
 
-def parse_common(emitter, entity, node):
+def parse_common(context, entity, node):
     entity.id = "unsc-%s" % node.findtext("./DATAID")
     name = node.findtext("./NAME_ORIGINAL_SCRIPT")
     name = name or node.findtext("./FIRST_NAME")
@@ -133,7 +132,7 @@ def parse_common(emitter, entity, node):
     if listed_on is not None:
         entity.context["created_at"] = listed_on
 
-    sanction = emitter.make("Sanction")
+    sanction = context.make("Sanction")
     sanction.make_id(entity.id)
     sanction.add("entity", entity)
     sanction.add("authority", "United Nations Security Council")
@@ -148,12 +147,12 @@ def parse_common(emitter, entity, node):
     return sanction
 
 
-def parse(context, data):
-    emitter = EntityEmitter(context)
-    with context.http.rehash(data) as res:
-        for node in res.xml.findall(".//INDIVIDUAL"):
-            parse_individual(emitter, node)
+def crawl(context):
+    context.fetch_artifact("source.xml", context.dataset.data.url)
+    doc = context.parse_artifact_xml("source.xml")
 
-        for node in res.xml.findall(".//ENTITY"):
-            parse_entity(emitter, node)
-    emitter.finalize()
+    for node in doc.findall(".//INDIVIDUAL"):
+        parse_individual(context, node)
+
+    for node in doc.findall(".//ENTITY"):
+        parse_entity(context, node)

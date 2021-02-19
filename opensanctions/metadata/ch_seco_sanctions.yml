@@ -1,0 +1,15 @@
+entry_point: opensanctions.crawlers.ch_seco_sanctions
+title: Swiss SECO Sanctions/Embargoes
+description: >
+  Switzerland manages a sanctions lists with a high degree of detail on the
+  individuals that are subject to it's embargoes.
+country: ch
+collections:
+  - sanctions
+publisher:
+  title: "State Secretariat for Economic Affairs (SECO)"
+  url: https://www.seco.admin.ch/
+url: https://www.seco.admin.ch/seco/en/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos.html
+data:
+  url: https://www.sesam.search.admin.ch/sesam-search-web/pages/downloadXmlGesamtliste.xhtml?lang=en&action=downloadXmlGesamtlisteAction
+  format: XML

@@ -3,5 +3,7 @@ docs/
 Makefile
 Dockerfile
 .git
+.gitignore
 venv
 *.egg-info
+__pycache__

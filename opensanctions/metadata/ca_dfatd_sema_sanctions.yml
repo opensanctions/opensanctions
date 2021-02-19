@@ -1,0 +1,13 @@
+entry_point: opensanctions.crawlers.ca_dfatd_sema_sanctions
+title: "Canada Special Economic Measures Act Sanctions"
+description: ""
+country: ca
+collections:
+  - sanctions
+url: https://www.international.gc.ca/world-monde/international_relations-relations_internationales/sanctions/consolidated-consolide.aspx?lang=eng
+publisher:
+  title: "Global Affairs Canada"
+  url: https://www.international.gc.ca/global-affairs-affaires-mondiales/home-accueil.aspx?lang=eng
+data:
+  url: "https://www.international.gc.ca/world-monde/assets/office_docs/international_relations-relations_internationales/sanctions/sema-lmes.xml"
+  format: XML

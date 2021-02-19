@@ -1,0 +1,14 @@
+entry_point: opensanctions.crawlers.un_sc_sanctions
+title: UN Consolidated Sanctions
+description: >
+  The Security Council's set of sanctions serve as the foundation for most
+  national sanctions lists.
+collections:
+  - sanctions
+publisher:
+  title: United Nations Security Council
+  url: "https://www.un.org/en/sc/"
+url: "https://www.un.org/securitycouncil/sanctions/information"
+data:
+  url: https://scsanctions.un.org/resources/xml/en/consolidated.xml
+  format: XML

@@ -1,0 +1,14 @@
+entry_point: opensanctions.crawlers.coe_assembly
+title: CoE Parliamentary Assembly
+description: >
+  The Council of Europe's parliamentary assembly is composed of members of
+  national parliaments from European countries including Turkey and Russia.
+collections:
+  - peps
+publisher:
+  title: Council of Europe
+  url: http://www.coe.int
+url: http://www.assembly.coe.int/nw/Home-EN.asp
+data:
+  url: http://www.assembly.coe.int/nw/xml/AssemblyList/MP-Alpha-EN.asp
+  format: HTML

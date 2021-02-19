@@ -1,0 +1,6 @@
+type: collection
+title: All datasets
+description: >
+  All the datasets in OpenSanctions. This exists mainly for technical
+  reasons - in practice you probably want to use the `default` collection
+  instead.
