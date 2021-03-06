@@ -1,5 +1,5 @@
 from opensanctions.core.target import Target
-from opensanctions.core.dataset import Dataset
+from opensanctions.core.source import Source
 
 
 class Collection(Target):
@@ -12,9 +12,9 @@ class Collection(Target):
         super().__init__(self.TYPE, file_path, config)
 
     @property
-    def datasets(self):
+    def sources(self):
         targets = set()
         for target in Target.all():
             if self.name in target.collections:
-                targets.update(target.datasets)
-        return set([t for t in targets if t.TYPE == Dataset.TYPE])
+                targets.update(target.sources)
+        return set([t for t in targets if t.TYPE == Source.TYPE])

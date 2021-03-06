@@ -4,7 +4,7 @@ from importlib import import_module
 from opensanctions.core.target import Target
 
 
-class DatasetData(object):
+class SourceData(object):
     """Data source specification."""
 
     def __init__(self, config):
@@ -19,7 +19,7 @@ class DatasetData(object):
         return {"url": self.url, "fomat": self.format, "mode": self.mode}
 
 
-class DatasetPublisher(object):
+class SourcePublisher(object):
     """Publisher information, eg. the government authority."""
 
     def __init__(self, config):
@@ -30,12 +30,12 @@ class DatasetPublisher(object):
         return {"url": self.url, "title": self.title}
 
 
-class Dataset(Target):
-    """A dataset to be included in OpenSanctions, backed by a crawler
+class Source(Target):
+    """A source to be included in OpenSanctions, backed by a crawler
     that can acquire and transform the data.
     """
 
-    TYPE = "dataset"
+    TYPE = "source"
 
     def __init__(self, file_path, config):
         super().__init__(self.TYPE, file_path, config)
@@ -43,11 +43,11 @@ class Dataset(Target):
         self.country = config.get("country", "zz")
         self.category = config.get("category", "other")
         self.entry_point = config.get("entry_point")
-        self.data = DatasetData(config.get("data", {}))
-        self.publisher = DatasetPublisher(config.get("publisher", {}))
+        self.data = SourceData(config.get("data", {}))
+        self.publisher = SourcePublisher(config.get("publisher", {}))
 
     @property
-    def datasets(self):
+    def sources(self):
         return set([self])
 
     @property

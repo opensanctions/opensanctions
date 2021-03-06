@@ -29,3 +29,5 @@ class OSETLEntity(EntityProxy):
             return
         self.schema = model.common_schema(self.schema, schema)
         return self.add(prop, value)
+
+    ## TODO: from_dict!!

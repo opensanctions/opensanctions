@@ -22,9 +22,9 @@ def cli(verbose=False, quiet=False):
 @click.option("-o", "--outfile", type=click.File("w"), default="-")
 def dump_target(target, outfile):
     target = Target.get(target)
-    for dataset in target.datasets:
+    for source in target.sources:
         # TODO: consolidate the data
-        for entity in dataset.store:
+        for entity in source.store:
             write_object(outfile, entity)
 
 
@@ -32,5 +32,5 @@ def dump_target(target, outfile):
 @click.argument("target", default=Target.ALL, type=click.Choice(Target.names()))
 def crawl(target):
     target = Target.get(target)
-    for dataset in target.datasets:
-        Context(dataset).crawl()
+    for source in target.sources:
+        Context(source).crawl()

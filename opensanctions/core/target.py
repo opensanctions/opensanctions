@@ -32,18 +32,18 @@ class Target(object):
 
     @classmethod
     def _from_metadata(cls, file_path):
-        from opensanctions.core.dataset import Dataset
+        from opensanctions.core.source import Source
         from opensanctions.core.collection import Collection
 
         with open(file_path, "r") as fh:
             config = yaml.load(fh, Loader=yaml.SafeLoader)
 
-        type_ = config.get("type", Dataset.TYPE)
+        type_ = config.get("type", Source.TYPE)
         type_ = type_.lower().strip()
         if type_ == Collection.TYPE:
             return Collection(file_path, config)
-        if type_ == Dataset.TYPE:
-            return Dataset(file_path, config)
+        if type_ == Source.TYPE:
+            return Source(file_path, config)
 
     @classmethod
     def _load_cache(cls):

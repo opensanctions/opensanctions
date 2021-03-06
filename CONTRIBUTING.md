@@ -1,6 +1,6 @@
 # Contributing
 
-If you plan to add a dataset/crawler, please pitch the addition as an issue first. Adding a data source to OpenSanctions requires us to engage with this data in perpetuity. We want to prioritise data quality over quantity.
+If you plan to add a data source, please pitch the addition as an issue first. Adding a data source to OpenSanctions requires us to engage with this data in perpetuity. We want to prioritise data quality over quantity.
 
 ## Inclusion criteria
 
