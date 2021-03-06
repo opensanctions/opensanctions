@@ -16,9 +16,6 @@ DATA_PATH = Path.cwd().joinpath("data")
 DATA_PATH = env.get("OPENSANCTIONS_DATA_PATH", DATA_PATH)
 DATA_PATH = Path(DATA_PATH).resolve()
 
-# FIXME: put into some init()
-DATA_PATH.mkdir(parents=True, exist_ok=True)
-
 # SQL database URI for structured data
 DATABASE_URI = f"sqlite:///{DATA_PATH}/opensanctions.sqlite3"
 DATABASE_URI = env.get("OPENSANCTIONS_DATABASE_URI", DATABASE_URI)
