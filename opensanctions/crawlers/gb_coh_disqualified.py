@@ -88,6 +88,8 @@ def pages(context, data):
 
 
 def alphabetical(context, data):
+    url = "https://beta.companieshouse.gov.uk/register-of-disqualifications/A"
+    res = context.http.get(url)
     with context.http.rehash(data) as res:
         doc = res.html
         for a in doc.findall('.//ul[@id="alphabetical-pager"]/li/a'):

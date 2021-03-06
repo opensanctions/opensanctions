@@ -54,26 +54,24 @@ def crawl_notice(context, notice):
     first_name = notice["forename"] or ""
     last_name = notice["name"] or ""
     dob = notice["date_of_birth"]
-    warrants = [
-        (warrant["charge"], warrant["issuing_country_id"])
-        for warrant in notice["arrest_warrants"]  # noqa
-    ]
     entity = context.make("Person")
     entity.make_id("INTERPOL", notice.get("entity_id"))
     entity.add("name", first_name + " " + last_name)
     entity.add("firstName", first_name)
     entity.add("lastName", last_name)
     entity.add("nationality", notice.get("nationalities"))
-    # TODO: make this a Sanction:
-    for charge, country in warrants:
-        entity.add("program", country)
-        entity.add("summary", charge)
     entity.add("gender", SEXES.get(notice.get("sex_id")))
     entity.add("birthPlace", notice.get("place_of_birth"))
     entity.add("birthDate", parse_date(dob))
     entity.add("sourceUrl", url)
     # entity.add("keywords", "REDNOTICE")
     # entity.add("topics", "crime")
+
+    for idx, warrant in enumerate(notice.get("arrest_warrants", []), 1):
+        # TODO: make this a Sanction:
+        entity.add("program", warrant["issuing_country_id"])
+        entity.add("summary", warrant["charge"])
+
     context.emit(entity)
 
 

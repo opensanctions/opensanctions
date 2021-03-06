@@ -1,3 +1,4 @@
+entry_point: opensanctions.crawlers.interpol_api
 title: INTERPOL Yellow Notices
 description: >
   International arrest warrants published by INTERPOL with a view to
