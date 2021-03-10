@@ -5,10 +5,10 @@ from ftmstore import get_dataset as get_store
 from opensanctions import settings
 
 
-class Target(object):
-    """A target (think: Makefile target) is a unit of execution of crawlers, and
-    a grouping of data. There are two types: datasets (which relate to a specific
-    data source), and collections (which group datasets into more useful units)."""
+class Dataset(object):
+    """A dataset is a unit of execution of crawlers, and a grouping of entities.
+    There are two types: sources (which relate to a specific crawlers), and
+    collections (which group sources into more useful units)."""
 
     ALL = "all"
 
@@ -51,8 +51,8 @@ class Target(object):
             cls._cache = {}
             for glob in ("**/*.yml", "**/*.yaml"):
                 for file_path in settings.METADATA_PATH.glob(glob):
-                    target = cls._from_metadata(file_path)
-                    cls._cache[target.name] = target
+                    dataset = cls._from_metadata(file_path)
+                    cls._cache[dataset.name] = dataset
         return cls._cache
 
     @classmethod
@@ -65,8 +65,8 @@ class Target(object):
 
     @classmethod
     def names(cls):
-        """An array of all target names found in the metadata path."""
-        return [target.name for target in cls.all()]
+        """An array of all dataset names found in the metadata path."""
+        return [dataset.name for dataset in cls.all()]
 
     def to_dict(self):
         return {
@@ -80,4 +80,4 @@ class Target(object):
         return self.name == other.name
 
     def __hash__(self):
-        return hash(self.name)
+        return hash(self.type + self.name)

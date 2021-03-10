@@ -41,7 +41,7 @@ def clean_name(text):
 def crawl(context):
     url = context.dataset.data.url
     headers = {"apikey": context.dataset.data.api_key}
-    print(url)
+    # print(url)
     res = context.http.get(url, headers=headers)
     for data in res.json()["response"]["ZPROCSUPP"]:
         pprint(data)

@@ -1,10 +1,10 @@
-from opensanctions.core.target import Target
+from opensanctions.core.dataset import Dataset
 from opensanctions.core.source import Source
 
 
-class Collection(Target):
+class Collection(Dataset):
     """A grouping of individual data sources. Data sources are bundled in order
-    to be more useful than any individual source."""
+    to be more useful for list use."""
 
     TYPE = "collection"
 
@@ -13,8 +13,8 @@ class Collection(Target):
 
     @property
     def sources(self):
-        targets = set()
-        for target in Target.all():
-            if self.name in target.collections:
-                targets.update(target.sources)
-        return set([t for t in targets if t.TYPE == Source.TYPE])
+        datasets = set()
+        for dataset in Dataset.all():
+            if self.name in dataset.collections:
+                datasets.update(dataset.sources)
+        return set([t for t in datasets if t.TYPE == Source.TYPE])

@@ -1,7 +1,7 @@
 import os
 from importlib import import_module
 
-from opensanctions.core.target import Target
+from opensanctions.core.dataset import Dataset
 
 
 class SourceData(object):
@@ -30,9 +30,9 @@ class SourcePublisher(object):
         return {"url": self.url, "title": self.title}
 
 
-class Source(Target):
-    """A source to be included in OpenSanctions, backed by a crawler
-    that can acquire and transform the data.
+class Source(Dataset):
+    """A source to be included in OpenSanctions, backed by a crawler that can
+    acquire and transform the data.
     """
 
     TYPE = "source"

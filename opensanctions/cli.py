@@ -2,7 +2,7 @@ import click
 import logging
 from followthemoney.cli.util import write_object
 
-from opensanctions.core import Target, Context, setup
+from opensanctions.core import Dataset, Context, setup
 
 
 @click.group(help="OpenSanctions ETL toolkit")
@@ -17,20 +17,20 @@ def cli(verbose=False, quiet=False):
     setup(log_level=level)
 
 
-@cli.command("dump", help="Export the entities from a target")
-@click.argument("target", default=Target.ALL, type=click.Choice(Target.names()))
+@cli.command("dump", help="Export the entities from a dataset")
+@click.argument("dataset", default=Dataset.ALL, type=click.Choice(Dataset.names()))
 @click.option("-o", "--outfile", type=click.File("w"), default="-")
-def dump_target(target, outfile):
-    target = Target.get(target)
-    for source in target.sources:
+def dump_dataset(dataset, outfile):
+    dataset = Dataset.get(dataset)
+    for source in dataset.sources:
         # TODO: consolidate the data
         for entity in source.store:
             write_object(outfile, entity)
 
 
-@cli.command("crawl", help="Crawl entities into the given target")
-@click.argument("target", default=Target.ALL, type=click.Choice(Target.names()))
-def crawl(target):
-    target = Target.get(target)
-    for source in target.sources:
+@cli.command("crawl", help="Crawl entities into the given dataset")
+@click.argument("dataset", default=Dataset.ALL, type=click.Choice(Dataset.names()))
+def crawl(dataset):
+    dataset = Dataset.get(dataset)
+    for source in dataset.sources:
         Context(source).crawl()

@@ -45,9 +45,9 @@ def crawl_notice(context, notice):
         return
     SEEN.add(url)
     res = context.http.get(url)
-    # if res.status_code == 403:
-    #     context.log.warning("Blocked by INTERPOL", url=res.url, country=country)
-    #     return
+    if not res.ok:
+        context.log.warning("HTTP error", url=res.url, error=res.status_code)
+        return
     # if not res.from_cache:
     #     time.sleep(0.5)
     notice = res.json()
@@ -83,9 +83,11 @@ def crawl_country(context, country, age_max=120, age_min=0):
         "resultPerPage": MAX_RESULTS,
     }
     res = context.http.get(context.dataset.data.url, params=params)
-    # if res.status_code == 403:
-    #     context.log.warning("Blocked by INTERPOL", url=res.url, country=country)
-    #     return
+    if res.status_code != 200:
+        context.log.warning(
+            "HTTP error", url=res.url, country=country, error=res.status_code
+        )
+        return
     # if not res.from_cache:
     #     time.sleep(0.5)
     data = res.json()
@@ -108,4 +110,5 @@ def crawl_country(context, country, age_max=120, age_min=0):
 def crawl(context):
     for country in get_countries(context):
         if country is not None:
+            context.log.info("Crawl %s" % country)
             crawl_country(context, country)

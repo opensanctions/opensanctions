@@ -30,4 +30,4 @@ class OSETLEntity(EntityProxy):
         self.schema = model.common_schema(self.schema, schema)
         return self.add(prop, value)
 
-    ## TODO: from_dict!!
+    # TODO: from_dict!!
