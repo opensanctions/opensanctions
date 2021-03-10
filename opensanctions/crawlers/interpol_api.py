@@ -79,7 +79,8 @@ def crawl_country(context, country, age_max=120, age_min=0):
     params = {
         "ageMin": int(age_min),
         "ageMax": int(age_max),
-        "arrestWarrantCountryId": country,
+        # "arrestWarrantCountryId": country,
+        "nationality": country,
         "resultPerPage": MAX_RESULTS,
     }
     res = context.http.get(context.dataset.data.url, params=params)
