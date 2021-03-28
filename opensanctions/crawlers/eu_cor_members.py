@@ -1,107 +1,127 @@
 from pprint import pprint  # noqa
-from ftmstore.memorious import EntityEmitter
+from datetime import datetime
 from urllib.parse import urljoin
-import requests
-import json
-
-ROOT_URL = "https://memberspage.cor.europa.eu"
-SEARCH_URL = "http://memberspage.cor.europa.eu/Search/Details/Person/"
+from normality import stringify, collapse_spaces, slugify
+from lxml import html
 
 
-def parse(context, data):
-    emitter = EntityEmitter(context)
-    url = data.get("url")
-    with context.http.rehash(data) as res:
-        doc = res.html
-        divs = doc.findall('.//div[@class="regular-details"]/div')
-        image_link = "{}{}".format(ROOT_URL, divs[0].find(".//img").attrib["src"])
-
-        infos = {}
-        infos["phone"] = []
-
-        for li in divs[1].findall('.//ul[@class="no-bullet"]/li'):
-            children = li.getchildren()
-            title = children[0]
-            if len(children) > 1:
-                infos[title.text.strip()[0:-1]] = []
-                for child in children:
-                    if child.tag == "a":
-                        infos[title.text.strip()[0:-1]].append(child.text)
-                    if child.tag == "ul":
-                        for li_in in child.findall("./li"):
-                            infos[title.text.strip()[0:-1]].append(li_in.text)
-                    if child.tag == "b":
-                        for item in title.xpath(
-                            "following-sibling::*/text()|following-sibling::text()"
-                        ):
-                            item = item.strip()
-                            if item:
-                                infos[title.text.strip()[0:-1]].append(item)
-                    if child.tag == "img":
-                        infos[title.text.strip()[0:-1]].append(
-                            "image: {}{}".format(ROOT_URL, child.attrib["src"])
-                        )
-            elif title.tag == "b" or title.tag == "i":
-                if title.tag == "i" and not title.attrib:
-                    infos["description"] = title.text
-                else:
-                    for item in title.xpath(
-                        "following-sibling::*/text()|following-sibling::text()"
-                    ):
-                        item = item.strip()
-                        if item:
-                            if title.tag == "b":
-                                infos[title.text.strip()[0:-1]] = item
-                            elif title.tag == "i":
-                                phone_type = "phone"
-                                if title.attrib["class"] == "fa fa-fax":
-                                    phone_type = "fax"
-                                infos["phone"].append("{}: {}".format(phone_type, item))
-
-        first_name = infos["Full name"].split(", ")[1]
-        last_name = infos["Full name"].split(", ")[0]
-
-        if "Languages" in infos:
-            infos["Languages"] = [
-                info.strip() for info in infos["Languages"].split(",")
-            ]
-
-        person = emitter.make("Person")
-        person.make_id(url, first_name, last_name)
-        person.add("sourceUrl", url)
-
-        person.add("firstName", first_name)
-        person.add("lastName", last_name)
-        person.add("name", infos.pop("Full name"))
-        person.add("description", infos.get("description"))
-
-        street = infos.get("Street", "")
-        city = infos.get("City", "")
-        postal_code = infos.get("Postal code", "")
-        country = infos.get("Country", "")
-        person.add("address", "{} {} {} {}".format(street, city, postal_code, country))
-        person.add("email", email=infos.get("Emails"))
-        person.add("country", infos.get("Represented Country"))
-        person.add("phone", infos.get("phone"))
-
-        # TODO: make political party into an entity
-        # TODO: don't have any left-over JSON stuff :)
-        infos["Photo"] = image_link
-        person.add("notes", json.dumps({key: value for key, value in infos.items()}))
-
-        emitter.emit(person)
-    emitter.finalize()
+def parse_date(date):
+    dt = datetime.strptime(date, "%d/%m/%Y")
+    return dt.date().isoformat()
 
 
-def index(context, data):
-    with context.http.rehash(data) as res:
-        doc = res.html
-        for link in doc.xpath('//div[@class="people"]/ul[@class="no-bullet"]/li'):
-            person_url = urljoin(SEARCH_URL, link.attrib["id"][1::])
-            person = doc.xpath(
-                '//li[@id="_{}"]//ul[@class="no-bullet"]/li/a[@class="_fullname"]'.format(
-                    link.attrib["id"][1::]
-                )
-            )[0]
-            context.log.info("Crawling person: {} ({})".format(person.text, person_url))
-            context.emit(data={"url": person_url})
+def crawl_person(context, name, url):
+    res = context.http.get(url)
+    doc = html.fromstring(res.text)
+    _, person_id = url.rsplit("/", 1)
+    person = context.make("Person")
+    person.id = f"eu-cor-{person_id}"
+    person.add("sourceUrl", url)
+    person.add("name", name)
+
+    last_name, first_name = name.split(", ", 1)
+    person.add("firstName", first_name)
+    person.add("lastName", last_name)
+
+    address = {}
+
+    details = doc.find('.//div[@class="regular-details"]')
+    for row in details.findall('.//ul[@class="no-bullet"]/li'):
+        children = row.getchildren()
+        title = children[0]
+        title_text = collapse_spaces(stringify(title.text_content()))
+        title_text = title_text or title.get("class")
+        value = collapse_spaces(title.tail)
+        if title_text in ("Full name:", "Address:", "Declaration of interests"):
+            # ignore these.
+            continue
+        if title_text == "Emails:":
+            emails = [e.text for e in row.findall(".//a")]
+            person.add("email", emails)
+            continue
+        if "glyphicon-phone" in title_text:
+            person.add("phone", value.split(","))
+            continue
+        if "fa-fax" in title_text:
+            # TODO: yeah, no
+            # person.add("phone", value)
+            continue
+        if title_text in ("Web sites:", "list-inline"):
+            sites = [e.get("href") for e in row.findall(".//a")]
+            person.add("website", sites)
+            continue
+        if title_text == "Represented Country:":
+            person.add("country", value)
+            continue
+        if title_text == "Languages:":
+            # TODO: missing in FtM
+            # person.add("languages", value.split(','))
+            continue
+        if "Regions since:" in title_text:
+            date = parse_date(value)
+            person.context["created_at"] = date
+            continue
+        if "Date of birth:" in title_text:
+            person.add("birthDate", parse_date(value))
+            continue
+        if "Commissions:" in title_text:
+            for com in row.findall(".//li"):
+                text = collapse_spaces(com.text_content())
+                sep = "Mandate - "
+                if sep in text:
+                    _, text = text.split(sep, 1)
+                person.add("sector", text)
+            continue
+        if "Areas of interest:" in title_text:
+            for area in row.findall(".//li"):
+                person.add("keywords", area.text_content())
+            continue
+        if title.tag == "i" and value is None:
+            person.add("position", title_text)
+            continue
+        if title_text in ("Country:"):
+            person.add("country", value)
+        if title_text in ("Street:", "Postal code:", "City:", "Country:"):
+            address[title_text.replace(":", "")] = value
+            continue
+        if title_text == "Political group:":
+            group = context.make("Organization")
+            group.add("name", value)
+            slug = value
+            if "(" in slug:
+                _, slug = slug.rsplit("(", 1)
+            slug = slugify(slug, sep="-")
+            group.id = f"eu-cor-group-{slug}"
+            context.emit(group)
+            member = context.make("Membership")
+            member.make_id("Membership", person.id, group.id)
+            member.add("member", person)
+            member.add("organization", group)
+            context.emit(member)
+            continue
+
+    address = (
+        address.get("Street"),
+        address.get("City"),
+        address.get("Posal code"),
+        address.get("Country"),
+    )
+    address = ", ".join([a for a in address if a is not None])
+    person.add("address", address)
+    context.emit(person)
+
+
+def crawl(context):
+    res = context.http.get(context.dataset.data.url)
+    doc = html.fromstring(res.text)
+
+    seen = set()
+    for link in doc.findall('.//div[@class="people"]//li//a[@class="_fullname"]'):
+        url = urljoin(res.url, link.get("href"))
+        url, _ = url.split("?", 1)
+        if url in seen:
+            continue
+        seen.add(url)
+        # person = item.xpath('//ul[@class="no-bullet"]/li/a[@class="_fullname"]')[0]
+        context.log.info("Crawling member", name=link.text, url=url)
+        crawl_person(context, link.text, url)

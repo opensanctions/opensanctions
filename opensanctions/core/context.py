@@ -52,7 +52,12 @@ class Context(object):
         if entity.id is None:
             raise RuntimeError("Entity has no ID: %r", entity)
         # pprint(entity.to_dict())
-        self.log.debug(entity, schema=entity.schema.name, id=entity.id)
+        self.log.debug(
+            entity,
+            schema=entity.schema.name,
+            id=entity.id,
+            properties=entity.properties,
+        )
         fragment = str(self.fragment)
         self._bulk.put(entity, fragment=fragment)
         self.fragment += 1
