@@ -11,6 +11,7 @@ def parse_date(date):
 
 
 def crawl_person(context, name, url):
+    # context.log.info("Crawling member", name=name, url=url)
     res = context.http.get(url)
     doc = html.fromstring(res.text)
     _, person_id = url.rsplit("/", 1)
@@ -18,6 +19,7 @@ def crawl_person(context, name, url):
     person.id = f"eu-cor-{person_id}"
     person.add("sourceUrl", url)
     person.add("name", name)
+    person.add("topics", "role.pep")
 
     last_name, first_name = name.split(", ", 1)
     person.add("firstName", first_name)
@@ -122,6 +124,4 @@ def crawl(context):
         if url in seen:
             continue
         seen.add(url)
-        # person = item.xpath('//ul[@class="no-bullet"]/li/a[@class="_fullname"]')[0]
-        context.log.info("Crawling member", name=link.text, url=url)
         crawl_person(context, link.text, url)
