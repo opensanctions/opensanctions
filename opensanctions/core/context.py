@@ -2,10 +2,12 @@ import structlog
 from lxml import etree
 from datetime import datetime, timedelta
 from structlog.contextvars import clear_contextvars, bind_contextvars
+from followthemoney.cli.util import write_object
 
 # from opensanctions.core import db
 from opensanctions import settings
 from opensanctions.core.entity import OSETLEntity
+from opensanctions.core.collection import Collection
 from opensanctions.core.http import get_session, fetch_download
 
 
@@ -75,6 +77,57 @@ class Context(object):
             self.log.info("Crawl completed", fragment=self.fragment)
         except Exception:
             self.log.exception("Crawl failed")
+        finally:
+            self.close()
+
+    def _consolidate_collection(self):
+        """Copy all of the entities from each source dataset into the combined
+        store for the whole collection."""
+        if not isinstance(self.dataset, Collection):
+            return
+        self.dataset.store.delete()
+        for source in self.dataset.sources:
+            if self.dataset == source:
+                continue
+            self.log.info(
+                "Consolidating source entities into collection",
+                source=source.name,
+            )
+            entities = list(source.store.iterate())
+            self.log.info(
+                "All entities in source",
+                source=source.name,
+                entities=len(entities),
+            )
+            bulk = self.dataset.store.bulk()
+            for idx, entity in enumerate(entities, 1):
+                bulk.put(entity, origin=source.name, fragment=idx)
+            bulk.flush()
+
+    def normalize(self):
+        """Apply processing steps to the dataset which must be executed between
+        the crawling and export steps."""
+        try:
+            self.bind()
+            self._consolidate_collection()
+        finally:
+            self.close()
+
+    def export(self):
+        """Generate exported files for the dataset."""
+        try:
+            self.bind()
+
+            ftm_path = self.get_artifact_path("entities.ftm.json")
+            ftm_path.parent.mkdir(exist_ok=True, parents=True)
+            self.log.info(
+                "Writing entities to line-based JSON",
+                path=ftm_path,
+                entities=len(self.dataset.store),
+            )
+            with open(ftm_path, "w") as fh:
+                for entity in self.dataset.store:
+                    write_object(fh, entity)
         finally:
             self.close()
 

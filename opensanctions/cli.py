@@ -22,10 +22,10 @@ def cli(verbose=False, quiet=False):
 @click.option("-o", "--outfile", type=click.File("w"), default="-")
 def dump_dataset(dataset, outfile):
     dataset = Dataset.get(dataset)
-    for source in dataset.sources:
-        # TODO: consolidate the data
-        for entity in source.store:
-            write_object(outfile, entity)
+    context = Context(dataset)
+    context.normalize()
+    for entity in dataset.store:
+        write_object(outfile, entity)
 
 
 @cli.command("crawl", help="Crawl entities into the given dataset")
@@ -34,3 +34,25 @@ def crawl(dataset):
     dataset = Dataset.get(dataset)
     for source in dataset.sources:
         Context(source).crawl()
+
+
+@cli.command("export", help="Export entities from the given dataset")
+@click.argument("dataset", default=Dataset.ALL, type=click.Choice(Dataset.names()))
+def export(dataset):
+    dataset = Dataset.get(dataset)
+    for dataset_ in dataset.datasets:
+        context = Context(dataset_)
+        context.normalize()
+        context.export()
+
+
+@cli.command("run", help="Run the full process for the given dataset")
+@click.argument("dataset", default=Dataset.ALL, type=click.Choice(Dataset.names()))
+def run(dataset):
+    dataset = Dataset.get(dataset)
+    for source in dataset.sources:
+        Context(source).crawl()
+    for dataset_ in dataset.datasets:
+        context = Context(dataset_)
+        context.normalize()
+        context.export()

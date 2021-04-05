@@ -12,9 +12,13 @@ class Collection(Dataset):
         super().__init__(self.TYPE, file_path, config)
 
     @property
-    def sources(self):
-        datasets = set()
+    def datasets(self):
+        datasets = set([self])
         for dataset in Dataset.all():
             if self.name in dataset.collections:
-                datasets.update(dataset.sources)
-        return set([t for t in datasets if t.TYPE == Source.TYPE])
+                datasets.update(dataset.datasets)
+        return datasets
+
+    @property
+    def sources(self):
+        return set([t for t in self.datasets if t.TYPE == Source.TYPE])

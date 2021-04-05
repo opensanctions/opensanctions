@@ -26,6 +26,10 @@ class Dataset(object):
         self.collections = set(collections)
 
     @property
+    def datasets(self):
+        return set([self])
+
+    @property
     def store(self):
         name = f"{self.type}_{self.name}"
         return get_store(name, database_uri=settings.DATABASE_URI)

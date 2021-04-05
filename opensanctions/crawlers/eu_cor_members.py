@@ -26,7 +26,6 @@ def crawl_person(context, name, url):
     person.add("lastName", last_name)
 
     address = {}
-
     details = doc.find('.//div[@class="regular-details"]')
     for row in details.findall('.//ul[@class="no-bullet"]/li'):
         children = row.getchildren()

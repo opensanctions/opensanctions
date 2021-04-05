@@ -30,5 +30,5 @@ def fetch_download(file_path, url):
     with session.get(url, stream=True, timeout=settings.HTTP_TIMEOUT) as res:
         res.raise_for_status()
         with open(file_path, "wb") as handle:
-            for chunk in res.iter_content(chunk_size=8192 * 10):
+            for chunk in res.iter_content(chunk_size=8192 * 16):
                 handle.write(chunk)
