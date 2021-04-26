@@ -1,5 +1,6 @@
 entry_point: opensanctions.crawlers.interpol_api
 title: INTERPOL Red Notices
+prefix: interpol-red
 description: >
   International arrest warrants published by INTERPOL with a view to
   extradition of the wanted individuals.

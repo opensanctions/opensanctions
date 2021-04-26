@@ -24,7 +24,7 @@ def parse_entry(context, entry):
     if entry.findtext("./type-entry") == "2":
         entity = context.make("Person")
     entry_id = entry.findtext("number-entry")
-    entity.id = f"sfms-{entry_id}"
+    entity.make_slug(entry_id)
 
     sanction = context.make("Sanction")
     sanction.make_id("Sanction", entity.id)

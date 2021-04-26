@@ -394,8 +394,8 @@ def disjoint_schema(entity, addition):
 def parse_date(node):
     parts = (
         node.findtext("./Year"),
-        node.findtext("./Month"),
-        node.findtext("./Day"),
+        node.findtext("./Month").zfill(2),
+        node.findtext("./Day").zfill(2),
     )
     return "-".join(parts)
 
@@ -499,7 +499,7 @@ def parse_alias(party, parts, alias):
 
 def make_adjacent(context, name):
     entity = context.make("LegalEntity")
-    entity.make_id("Named", name)
+    entity.make_slug("Named", name)
     entity.add("name", name)
     context.emit(entity)
     return entity
@@ -515,7 +515,7 @@ def parse_party(context, doc, distinct_party, locations, documents):
         context.log.error("Unknown party type", value=type_)
         return
     party = context.make(schema)
-    party.id = "ofac-%s" % profile.get("ID")
+    party.make_slug(profile.get("ID"))
     party.add("notes", distinct_party.findtext("Comment"))
 
     for identity in profile.findall("./Identity"):
@@ -616,7 +616,7 @@ def parse_party(context, doc, distinct_party, locations, documents):
 
 def parse_entry(context, doc, entry):
     party = context.make("Thing")
-    party.id = "ofac-%s" % entry.get("ProfileID")
+    party.make_slug(entry.get("ProfileID"))
 
     sanction = context.make("Sanction")
     sanction.make_id("Sanction", party.id, entry.get("ID"))
@@ -661,10 +661,10 @@ def parse_relation(context, doc, relation):
     schema, from_attr, to_attr, desc_attr = RELATIONS[type_id]
     entity = context.make(schema)
     store = context.dataset.store
-    from_id = "ofac-%s" % relation.get("From-ProfileID")
+    from_id = context.dataset.make_slug(relation.get("From-ProfileID"))
     from_party = store.get(from_id)
     from_range = entity.schema.get(from_attr).range
-    to_id = "ofac-%s" % relation.get("To-ProfileID")
+    to_id = context.dataset.make_slug(relation.get("To-ProfileID"))
     to_party = store.get(to_id)
     to_range = entity.schema.get(to_attr).range
 

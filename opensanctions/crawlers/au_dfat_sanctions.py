@@ -22,7 +22,7 @@ def clean_reference(ref):
 
 def parse_reference(context, reference, rows):
     entity = context.make("LegalEntity")
-    entity.make_id("AUDFAT", reference)
+    entity.make_slug(reference)
     entity.add("sourceUrl", context.dataset.url)
     sanction = context.make("Sanction")
     sanction.make_id("Sanction", entity.id)

@@ -52,7 +52,7 @@ def crawl(context):
         address = data.get("SUPP_ADDR")
         start_date = clean_date(data.get("DEBAR_FROM_DATE"))
 
-        entity.make_id("WBDEBAR", name, ent_id)
+        entity.make_slug(name, ent_id)
         names = clean_name(name)
         entity.add("name", names[0])
         entity.add("address", address)

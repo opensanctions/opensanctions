@@ -1,5 +1,6 @@
 entry_point: opensanctions.crawlers.ca_dfatd_sema_sanctions
 title: "Canada Special Economic Measures Act Sanctions"
+prefix: ca-sema
 description: ""
 country: ca
 collections:

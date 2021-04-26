@@ -13,6 +13,7 @@ PSEUDO = (
     "initial-presiding-officer",
     "independiente",
     "speaker",
+    "*",
 )
 
 
@@ -21,6 +22,8 @@ def crawl(context):
     for country in res.json():
         for legislature in country.get("legislatures", []):
             code = country.get("code").lower()
+            # if code != "jp":
+            #     continue
             context.log.info("Country: %s" % code)
             crawl_legislature(context, code, legislature)
 
@@ -61,8 +64,6 @@ def parse_common(entity, data, lastmod):
             entity.add("wikipediaUrl", link.get("url"))
         elif "wikipedia" in link.get("note"):
             entity.add("wikipediaUrl", link.get("url"))
-        # else:
-        #     pprint(link)
 
     for ident in data.pop("identifiers", []):
         identifier = ident.get("identifier")
@@ -74,7 +75,8 @@ def parse_common(entity, data, lastmod):
 
     for contact_detail in data.pop("contact_details", []):
         if "email" == contact_detail.get("type"):
-            entity.add("email", contact_detail.get("value"))
+            value = contact_detail.get("value")
+            entity.add("email", value.split(","))
         if "phone" == contact_detail.get("type"):
             entity.add("phone", contact_detail.get("value"))
 
@@ -82,9 +84,9 @@ def parse_common(entity, data, lastmod):
 def parse_person(context, data, country, entities, lastmod):
     person_id = data.pop("id", None)
     person = context.make("Person")
-    person.id = f"evpo-{person_id}"
-    parse_common(person, data, lastmod)
+    person.make_slug(person_id)
     person.add("nationality", country)
+    parse_common(person, data, lastmod)
 
     if data.get("birth_date", "9999") < "1900":
         return
@@ -113,7 +115,7 @@ def parse_person(context, data, country, entities, lastmod):
 
 def parse_organization(context, data, country, entities, lastmod):
     org_id = data.pop("id", None)
-    if org_id.lower() in PSEUDO:
+    if org_id is None or org_id.lower() in PSEUDO:
         return
 
     classification = data.pop("classification", None)
@@ -127,10 +129,13 @@ def parse_organization(context, data, country, entities, lastmod):
         context.log.error(
             "Unknown org type", field="classification", value=classification
         )
-    organization.id = f"evpo-{country}-{org_id}"
+    organization.make_slug(country, org_id)
+    if organization.id is None:
+        context.log.warning("No ID for organization", country=country, org_id=org_id)
+        return
+    organization.add("country", country)
     parse_common(organization, data, lastmod)
     organization.add("legalForm", data.pop("type", None))
-    organization.add("country", country)
 
     # data.pop("image", None)
     # data.pop("images", None)
@@ -144,7 +149,6 @@ def parse_organization(context, data, country, entities, lastmod):
 def parse_membership(context, data, entities, events):
     person_id = entities.get(data.pop("person_id", None))
     organization_id = entities.get(data.pop("organization_id", None))
-    on_behalf_of_id = entities.get(data.pop("on_behalf_of_id", None))
 
     if person_id and organization_id:
         period_id = data.get("legislative_period_id")
@@ -166,6 +170,8 @@ def parse_membership(context, data, entities, events):
 
         # pprint(data)
         context.emit(membership)
+
+    on_behalf_of_id = entities.get(data.pop("on_behalf_of_id", None))
 
     if person_id and on_behalf_of_id:
         membership = context.make("Membership")

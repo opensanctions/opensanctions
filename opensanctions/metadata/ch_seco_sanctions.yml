@@ -1,5 +1,6 @@
 entry_point: opensanctions.crawlers.ch_seco_sanctions
 title: Swiss SECO Sanctions/Embargoes
+prefix: ch-seco
 description: >
   Switzerland manages a sanctions lists with a high degree of detail on the
   individuals that are subject to it's embargoes.

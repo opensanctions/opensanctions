@@ -3,6 +3,7 @@ from banal import ensure_list
 from ftmstore import get_dataset as get_store
 
 from opensanctions import settings
+from opensanctions.util import joinslug
 
 
 class Dataset(object):
@@ -16,6 +17,7 @@ class Dataset(object):
         self.type = type_
         self.file_path = file_path
         self.name = config.get("name", file_path.stem)
+        self.prefix = config.get("prefix", self.name)
         self.title = config.get("title", self.name)
         self.description = config.get("description", "")
 
@@ -24,6 +26,9 @@ class Dataset(object):
         if self.name != self.ALL:
             collections.append(self.ALL)
         self.collections = set(collections)
+
+    def make_slug(self, *parts, strict=True):
+        return joinslug(*parts, prefix=self.prefix, strict=strict)
 
     @property
     def datasets(self):

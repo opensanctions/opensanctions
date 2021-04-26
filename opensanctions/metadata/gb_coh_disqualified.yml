@@ -1,6 +1,7 @@
 # TODO: should we try the CoH API or that listing?
 
 title: GB Insolvency Disqualified Directors
+prefix: gb-coh
 description: >
   Individuals which have been disqualified from holding the post of a
   company director in the United Kingdom following a court decision.

@@ -16,7 +16,7 @@ def parse_date(text):
 
 def parse_row(context, row):
     entity = context.make("LegalEntity")
-    entity.make_id("USBIS", row.get("Effective_Date"), row.get("Name"))
+    entity.make_slug(row.get("Effective_Date"), row.get("Name"))
     entity.add("name", row.get("Name"))
     entity.add("notes", row.get("Action"))
     entity.add("country", row.get("Country"))

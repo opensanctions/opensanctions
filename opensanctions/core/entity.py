@@ -2,6 +2,7 @@ import structlog
 
 from followthemoney import model
 from followthemoney.proxy import EntityProxy
+from followthemoney.util import value_list
 
 log = structlog.get_logger(__name__)
 
@@ -14,6 +15,32 @@ class OSETLEntity(EntityProxy):
         self.dataset = dataset
         data = data or {"schema": schema}
         super().__init__(model, data, key_prefix=dataset.name)
+
+    def make_slug(self, *parts, strict=True):
+        self.id = self.dataset.make_slug(*parts, strict=strict)
+        return self.id
+
+    def add(self, prop, values, cleaned=False, quiet=False, fuzzy=False):
+        prop_name = self._prop_name(prop, quiet=quiet)
+        if prop_name is None:
+            return
+        prop = self.schema.properties[prop_name]
+
+        for value in value_list(values):
+            if value is None or len(str(value).strip()) == 0:
+                continue
+            if not cleaned:
+                raw = value
+                value = prop.type.clean(value, proxy=self, fuzzy=fuzzy)
+            if value is None:
+                log.warning(
+                    "Rejected property value",
+                    entity=self.id,
+                    schema=self.schema.name,
+                    prop=prop.name,
+                    value=raw,
+                )
+            super().add(prop, value, cleaned=True, quiet=quiet, fuzzy=fuzzy)
 
     def add_cast(self, schema, prop, value):
         """Set a property on an entity. If the entity is of a schema that doesn't

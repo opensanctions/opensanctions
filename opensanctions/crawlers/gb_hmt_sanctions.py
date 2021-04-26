@@ -48,7 +48,7 @@ def split_items(text, comma=False):
 
 def parse_row(context, row):
     entity = context.make("Thing")
-    entity.id = "gbhmt-%s" % row.pop("GroupID")
+    entity.make_slug(row.pop("GroupID"))
     sanction = context.make("Sanction")
     sanction.make_id(entity.id, "Sanction")
     sanction.add("entity", entity)

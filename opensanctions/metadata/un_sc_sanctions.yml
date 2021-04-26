@@ -1,5 +1,6 @@
 entry_point: opensanctions.crawlers.un_sc_sanctions
 title: UN Consolidated Sanctions
+prefix: un-sc
 description: >
   The Security Council's set of sanctions serve as the foundation for most
   national sanctions lists.

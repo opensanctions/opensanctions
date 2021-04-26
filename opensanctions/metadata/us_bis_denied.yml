@@ -1,5 +1,6 @@
 entry_point: opensanctions.crawlers.us_bis_denied
 title: US Denied Persons List
+prefix: us-bis
 description: >
   The Bureau of Industry and Security publishes this list of entities which
   are relevant with regards to export controls.

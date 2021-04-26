@@ -26,7 +26,7 @@ def crawl_country(context, params, path, country):
             continue
         name = text.replace("(Acting)", "")
         person = context.make("Person")
-        person.make_id(source_url, name, function)
+        person.make_slug(country, name, function)
         person.add("name", name)
         person.add("country", country)
         person.add("position", function)

@@ -1,5 +1,6 @@
 entry_point: opensanctions.crawlers.us_cia_world_leaders:crawl
 title: CIA World Leaders
+prefix: us-cia
 description: >
   An index of most national-level cabinet members in world governments that
   is publicly maintained by the CIA.

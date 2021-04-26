@@ -1,5 +1,6 @@
 entry_point: opensanctions.crawlers.everypolitician
 title: Every Politician
+prefix: evpo
 description: >
   An index of all national members of parliament in the world. This version
   only includes individuals active within the past 15 years.

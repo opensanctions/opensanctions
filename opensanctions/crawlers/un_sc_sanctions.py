@@ -119,7 +119,7 @@ def parse_individual(context, node):
 
 
 def parse_common(context, entity, node):
-    entity.id = "unsc-%s" % node.findtext("./DATAID")
+    entity.make_slug(node.findtext("./DATAID"))
     name = node.findtext("./NAME_ORIGINAL_SCRIPT")
     name = name or node.findtext("./FIRST_NAME")
     entity.add("name", name)

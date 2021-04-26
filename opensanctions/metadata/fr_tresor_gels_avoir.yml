@@ -1,5 +1,6 @@
 entry_point: opensanctions.crawlers.fr_tresor_gels_avoir
 title: French Freezing of Assets
+prefix: fr-gels
 description: >
   This register lists all persons, entities and vessels subject to asset
   freezing measures in force on French territory, pursuant to national, 

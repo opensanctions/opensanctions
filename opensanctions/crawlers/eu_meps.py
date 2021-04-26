@@ -13,7 +13,7 @@ def split_name(name):
 def crawl_node(context, node):
     mep_id = node.findtext(".//id")
     person = context.make("Person")
-    person.id = f"eumep-{mep_id}"
+    person.make_slug(mep_id)
     url = "http://www.europarl.europa.eu/meps/en/%s" % mep_id
     person.add("sourceUrl", url)
     name = node.findtext(".//fullName")
@@ -28,7 +28,7 @@ def crawl_node(context, node):
     party_name = node.findtext(".//nationalPoliticalGroup")
     if party_name not in ["Independent"]:
         party = context.make("Organization")
-        party.make_id("nationalPoliticalGroup", party_name)
+        party.make_slug("npg", party_name)
         party.add("name", party_name)
         party.add("country", node.findtext(".//country"))
         context.emit(party)
@@ -40,7 +40,7 @@ def crawl_node(context, node):
 
     group_name = node.findtext(".//politicalGroup")
     group = context.make("Organization")
-    group.make_id("politicalGroup", group_name)
+    group.make_slug("pg", group_name)
     group.add("name", group_name)
     group.add("country", "eu")
     context.emit(group)

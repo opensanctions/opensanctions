@@ -22,7 +22,7 @@ def parse_entry(context, node):
     entity = context.make("LegalEntity")
     if entity_name is None:
         entity = context.make("Person")
-    entity.make_id("CASEMA", country, entity_name, item)
+    entity.make_slug(country, entity_name, item)
     entity.add("name", entity_name)
     entity.add("country", country)
 

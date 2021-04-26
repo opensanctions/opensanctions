@@ -1,5 +1,6 @@
 entry_point: opensanctions.crawlers.kg_fiu_national
 title: Kyrgyz FIU National List
+prefix: kg-fiu
 description: >
   A simple list of sanctioned individuals and entities published by the
   Kyrgyz' State Financial Intelligence Service.

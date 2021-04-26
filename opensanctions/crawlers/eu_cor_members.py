@@ -16,7 +16,7 @@ def crawl_person(context, name, url):
     doc = html.fromstring(res.text)
     _, person_id = url.rsplit("/", 1)
     person = context.make("Person")
-    person.id = f"eu-cor-{person_id}"
+    person.make_slug(person_id)
     person.add("sourceUrl", url)
     person.add("name", name)
     person.add("topics", "role.pep")

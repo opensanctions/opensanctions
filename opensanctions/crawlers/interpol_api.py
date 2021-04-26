@@ -55,7 +55,7 @@ def crawl_notice(context, notice):
     last_name = notice["name"] or ""
     dob = notice["date_of_birth"]
     entity = context.make("Person")
-    entity.make_id("INTERPOL", notice.get("entity_id"))
+    entity.make_slug(notice.get("entity_id"))
     entity.add("name", first_name + " " + last_name)
     entity.add("firstName", first_name)
     entity.add("lastName", last_name)

@@ -10,7 +10,7 @@ def crawl_entry(context, entry):
     url = urljoin(url, link.get("href"))
     _, member_id = url.rsplit("=", 1)
     person = context.make("Person")
-    person.id = f"coe-{member_id}"
+    person.make_slug(member_id)
     person.add("name", link.text)
     person.add("sourceUrl", url)
     last_name, first_name = link.text.split(", ", 1)

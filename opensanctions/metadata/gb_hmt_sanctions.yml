@@ -1,5 +1,6 @@
 entry_point: opensanctions.crawlers.gb_hmt_sanctions
 title: GB Consolidated List of Targets
+prefix: gb-hmt
 description: >
   The United Kingom's consolidated internation sanctions list
 country: gb

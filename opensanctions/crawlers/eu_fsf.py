@@ -1,7 +1,3 @@
-"""
-title: test
-category: bla
-"""
 from pprint import pprint  # noqa
 from normality import slugify
 
@@ -21,14 +17,14 @@ def parse_entry(context, entry):
     if entry.find("./default:subjectType", NS).get("classificationCode") == "P":
         entity = context.make("Person")
     reference_no = slugify(entry.get("euReferenceNumber"))
-    entity.id = "fsf-%s" % reference_no
+    entity.make_slug(reference_no)
 
     regulation = entry.find("./default:regulation", NS)
     source_url = regulation.findtext("./default:publicationUrl", "", NS)
     entity.add("sourceUrl", source_url)
 
     sanction = context.make("Sanction")
-    sanction.make_id(entity.id)
+    sanction.make_id("Sanction", entity.id)
     sanction.add("entity", entity)
     sanction.add("authority", "European Union")
     sanction.add("sourceUrl", source_url)

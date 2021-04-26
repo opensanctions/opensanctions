@@ -164,7 +164,7 @@ def parse_entry(context, target, programs, places, updated_at):
     entity.context["created_at"] = min(dates)
     entity.context["updated_at"] = max(dates)
 
-    entity.id = "seco-%s" % target.get("ssid")
+    entity.make_slug(target.get("ssid"))
     for other in node.findall("./other-information"):
         entity.add("notes", other.text)
 

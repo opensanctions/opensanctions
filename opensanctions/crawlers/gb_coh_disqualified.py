@@ -24,7 +24,7 @@ def officer(context, data):
         data = res.json
         # pprint(data)
         person = emitter.make("Person")
-        person.make_id(officer_id)
+        person.make_slug("officer", officer_id)
         source_url = urljoin(WEB_URL, data.get("links", {}).get("self", "/"))
         person.add("sourceUrl", source_url)
 

@@ -41,7 +41,7 @@ def parse_legal(context, node):
 
 
 def parse_common(context, node, entity):
-    entity.make_id(node.tag, node.findtext("./Number"))
+    entity.make_slug(node.tag, node.findtext("./Number"))
     sanction = context.make("Sanction")
     sanction.make_id("Sanction", entity.id)
     sanction.add("entity", entity)

@@ -1,5 +1,6 @@
 entry_point: opensanctions.crawlers.au_dfat_sanctions
 title: "Australian DFAT Sanctions List"
+prefix: au-dfat
 description: ""
 collections:
   - sanctions
