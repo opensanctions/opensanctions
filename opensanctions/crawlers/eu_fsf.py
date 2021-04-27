@@ -77,7 +77,7 @@ def parse_entry(context, entry):
     for country in entry.findall("./default:citizenship", NS):
         entity.add("nationality", country.get("countryIso2Code"), quiet=True)
 
-    context.emit(entity)
+    context.emit(entity, target=True, unique=True)
     context.emit(sanction)
 
 

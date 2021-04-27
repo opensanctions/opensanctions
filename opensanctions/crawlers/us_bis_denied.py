@@ -31,7 +31,7 @@ def parse_row(context, row):
         sep=", ",
     )
     entity.add("address", address)
-    context.emit(entity)
+    context.emit(entity, target=True)
 
     sanction = context.make("Sanction")
     sanction.make_id(entity.id, row.get("FR_Citation"))

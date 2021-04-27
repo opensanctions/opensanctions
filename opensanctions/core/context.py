@@ -49,7 +49,7 @@ class Context(object):
         """Make a new entity with some dataset context set."""
         return OSETLEntity(self.dataset, schema)
 
-    def emit(self, entity):
+    def emit(self, entity, target=False, unique=False):
         """Send an FtM entity to the store."""
         if entity.id is None:
             raise RuntimeError("Entity has no ID: %r", entity)

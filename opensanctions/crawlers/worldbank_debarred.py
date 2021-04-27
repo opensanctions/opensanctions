@@ -68,5 +68,5 @@ def crawl(context):
         sanction.add("startDate", start_date)
         sanction.add("endDate", clean_date(data.get("DEBAR_TO_DATE")))
         sanction.add("sourceUrl", context.dataset.url)
-        context.emit(entity)
+        context.emit(entity, target=True)
         context.emit(sanction)

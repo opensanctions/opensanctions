@@ -21,7 +21,7 @@ def crawl_entry(context, entry):
     person.add("summary", role.text_content().strip())
     person.add("nationality", country.text_content())
     person.add("topics", "role.pep")
-    context.emit(person)
+    context.emit(person, target=True)
 
 
 def crawl(context):

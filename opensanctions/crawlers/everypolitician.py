@@ -109,7 +109,7 @@ def parse_person(context, data, country, entities, lastmod):
     # data.pop("images", None)
     # if len(data):
     #     pprint(data)
-    context.emit(person)
+    context.emit(person, target=True, unique=True)
     entities[person_id] = person.id
 
 

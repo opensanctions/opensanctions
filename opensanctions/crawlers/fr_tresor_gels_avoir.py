@@ -90,7 +90,7 @@ def crawl_entity(context, data):
         for value in detail.pop("Valeur"):
             apply_prop(entity, sanction, field, value)
 
-    context.emit(entity)
+    context.emit(entity, target=True)
 
 
 def crawl(context):

@@ -68,7 +68,7 @@ def officer(context, data):
                 sep=", ",
             )
             person.add("address", address)
-        emitter.emit(person)
+        emitter.emit(person, target=True)
     emitter.finalize()
 
 

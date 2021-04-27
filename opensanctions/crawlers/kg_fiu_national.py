@@ -52,7 +52,7 @@ def parse_common(context, node, entity):
     sanction.add("startDate", inclusion_date)
     if inclusion_date is not None:
         entity.context["created_at"] = inclusion_date
-    context.emit(entity)
+    context.emit(entity, target=True)
     context.emit(sanction)
 
 

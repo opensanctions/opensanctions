@@ -23,7 +23,7 @@ def crawl_node(context, node):
     person.add("lastName", last_name)
     person.add("nationality", node.findtext(".//country"))
     person.add("topics", "role.pep")
-    context.emit(person)
+    context.emit(person, target=True, unique=True)
 
     party_name = node.findtext(".//nationalPoliticalGroup")
     if party_name not in ["Independent"]:

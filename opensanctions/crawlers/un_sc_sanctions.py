@@ -59,7 +59,7 @@ def parse_entity(context, node):
     for addr in node.findall("./ENTITY_ADDRESS"):
         parse_address(entity, addr)
 
-    context.emit(entity)
+    context.emit(entity, target=True, unique=True)
     context.emit(sanction)
 
 

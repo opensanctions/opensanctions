@@ -609,7 +609,7 @@ def parse_party(context, doc, distinct_party, locations, documents):
                 value = make_adjacent(context, value)
             party.add(prop, value)
 
-    context.emit(party)
+    context.emit(party, target=True, unique=True)
     # pprint(party.to_dict())
     # context.log.info("[%s] %s" % (party.schema.name, party.caption))
 

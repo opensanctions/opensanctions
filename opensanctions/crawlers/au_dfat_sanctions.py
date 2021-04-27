@@ -54,7 +54,7 @@ def parse_reference(context, reference, rows):
         entity.add("modifiedAt", dt)
         entity.context["updated_at"] = dt.isoformat()
 
-    context.emit(entity)
+    context.emit(entity, target=True)
     context.emit(sanction)
 
 

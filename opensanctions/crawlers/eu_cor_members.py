@@ -109,7 +109,7 @@ def crawl_person(context, name, url):
     )
     address = ", ".join([a for a in address if a is not None])
     person.add("address", address)
-    context.emit(person)
+    context.emit(person, target=True)
 
 
 def crawl(context):

@@ -86,7 +86,7 @@ def parse_entry(context, entry):
     for nat in entry.findall("./nationality-list"):
         entity.add("nationality", nat.text, quiet=True)
 
-    context.emit(entity)
+    context.emit(entity, target=True, unique=True)
     context.emit(sanction)
 
 

@@ -209,7 +209,7 @@ def parse_row(context, row):
     if len(row):
         pprint(row)
 
-    context.emit(entity)
+    context.emit(entity, target=True, unique=True)
     context.emit(sanction)
 
 

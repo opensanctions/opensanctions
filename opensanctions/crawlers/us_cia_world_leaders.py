@@ -33,7 +33,7 @@ def crawl_country(context, params, path, country):
         person.add("sourceUrl", source_url)
         person.add("topics", "role.pep")
         # pprint(person.to_dict())
-        context.emit(person)
+        context.emit(person, target=True, unique=True)
 
 
 def crawl(context):

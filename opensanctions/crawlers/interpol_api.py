@@ -72,7 +72,7 @@ def crawl_notice(context, notice):
         entity.add("program", warrant["issuing_country_id"])
         entity.add("summary", warrant["charge"])
 
-    context.emit(entity)
+    context.emit(entity, target=True, unique=True)
 
 
 def crawl_country(context, country, age_max=120, age_min=0):
