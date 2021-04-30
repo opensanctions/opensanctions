@@ -1,10 +1,13 @@
-all: shell
+DOCKER=
+
+all: run
 
 build:
-	docker-compose build
+	docker build --pull -t opensanctions .
 
-shell:
-	docker-compose run worker bash
+shell: build
+	mkdir -p $(PWD)/data
+	docker run -ti --rm -v $(PWD)/data:/data opensanctions bash
 
-run: 
-	docker-compose run worker
+run: build
+	docker run -ti --rm -v $(PWD)/data:/data opensanctions
