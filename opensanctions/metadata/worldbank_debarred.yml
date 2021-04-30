@@ -1,6 +1,6 @@
 entry_point: opensanctions.crawlers.worldbank_debarred
 title: WorldBank Debarred Providers
-prefix: wb-debar
+prefix: wbdeb
 description: >
   Worldbank List of Debarred Providers
 collections:

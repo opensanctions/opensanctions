@@ -1,8 +1,8 @@
 import structlog
+from banal import ensure_list
 
 from followthemoney import model
 from followthemoney.proxy import EntityProxy
-from followthemoney.util import value_list
 
 log = structlog.get_logger(__name__)
 
@@ -20,13 +20,23 @@ class OSETLEntity(EntityProxy):
         self.id = self.dataset.make_slug(*parts, strict=strict)
         return self.id
 
+    def _lookup_values(self, prop, values):
+        values = ensure_list(values)
+        lookup = self.dataset.lookups.get(prop.type.name)
+        if lookup is None:
+            yield from values
+            return
+
+        for value in values:
+            yield from lookup.get_values(value, value)
+
     def add(self, prop, values, cleaned=False, quiet=False, fuzzy=False):
         prop_name = self._prop_name(prop, quiet=quiet)
         if prop_name is None:
             return
         prop = self.schema.properties[prop_name]
 
-        for value in value_list(values):
+        for value in self._lookup_values(prop, values):
             if value is None or len(str(value).strip()) == 0:
                 continue
             if not cleaned:
@@ -56,5 +66,23 @@ class OSETLEntity(EntityProxy):
             return
         self.schema = model.common_schema(self.schema, schema)
         return self.add(prop, value)
+
+    def add_address(
+        self,
+        full=None,
+        remarks=None,
+        postOfficeBox=None,
+        street=None,
+        street2=None,
+        city=None,
+        postalCode=None,
+        region=None,
+        latitude=None,
+        longitude=None,
+        country=None,
+    ):
+        assert self.schema.is_a("Thing"), self.schema
+        if full is not None:
+            self.add("address", full)
 
     # TODO: from_dict!!

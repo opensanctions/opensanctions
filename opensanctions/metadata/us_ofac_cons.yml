@@ -1,6 +1,6 @@
 entry_point: opensanctions.crawlers.us_ofac
 title: OFAC Consolidated List
-prefix: us-ofac-cons
+prefix: ofac-cons
 description: >
   Both parts of the United States' consolidated sanctions list, non-SDN entities published
   by the Office of Foreign Assets Control (OFAC).

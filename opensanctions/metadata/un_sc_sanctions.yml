@@ -1,6 +1,6 @@
 entry_point: opensanctions.crawlers.un_sc_sanctions
 title: UN Consolidated Sanctions
-prefix: un-sc
+prefix: unsc
 description: >
   The Security Council's set of sanctions serve as the foundation for most
   national sanctions lists.
@@ -13,3 +13,57 @@ url: "https://www.un.org/securitycouncil/sanctions/information"
 data:
   url: https://scsanctions.un.org/resources/xml/en/consolidated.xml
   format: XML
+
+lookups:
+  country:
+    options:
+    - match: RPDC
+      value: North Korea
+    - match: Sudanese by birth
+      value: Sudan
+    - match:
+      - Sudan/South Sudan
+      - Sudan/or South Sudan
+      values:
+      - Sudan
+      - South Sudan
+    - contains: Kuwaiti citizenship
+      value: Kuwait
+    - contains: Bahrain (citizenship revoked
+      normalize: true
+      value: Bahrain
+    - contains: United Kingdom of Great Britain
+      value: GB
+    - match: United States. Also believed to hold Syrian nationality
+      values:
+      - US
+      - SY
+    - match:
+      - Iran / unknown
+      - 'Branch Office 11: Iran'
+      value: IR
+    - match:
+      - Libyan Arab Jamahiriya
+      - Libya (in custody)
+      value: Libya
+    - match: Tunisian passport
+      value: Tunisia
+    - match: Possibly Ethiopian
+      value: Ethiopia
+    - match: Hong Kong Special Administrative Region
+      value: HK
+    - match: USSR (until 1991)
+      value: SUHH
+    - match:
+      - Indonesia (as at Dec. 2003)
+      - Indonesian passport
+      value: Indonesia
+  date:
+    map:
+      '1966-02-02-05:00': 1966-02-02T05:00
+      '1960-01-01-05:00': 1960-01-01T05:00
+      '1962-11-09-05:00': 1962-11-09T05:00
+      '2015-04-07-04:00': 2015-04-07T04:00
+      '2015-04-14-04:00': 2015-04-14T04:00
+      '2015-07-01-04:00': 2015-07-01T04:00
+      '2015-03-27-04:00': 2015-03-27T04:00

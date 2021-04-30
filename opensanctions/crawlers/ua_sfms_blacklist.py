@@ -2,7 +2,7 @@ import re
 from datetime import datetime
 from pprint import pprint  # noqa
 
-from opensanctions.util import jointext
+from opensanctions.util import jointext, remove_bracketed, multi_split
 
 
 def parse_date(date):
@@ -84,7 +84,9 @@ def parse_entry(context, entry):
         entity.add("birthDate", parse_date(dob.text), quiet=True)
 
     for nat in entry.findall("./nationality-list"):
-        entity.add("nationality", nat.text, quiet=True)
+        for country in multi_split(nat.text, [";", ","]):
+            country = remove_bracketed(country)
+            entity.add("nationality", country, quiet=True)
 
     context.emit(entity, target=True, unique=True)
     context.emit(sanction)

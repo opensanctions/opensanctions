@@ -1,6 +1,6 @@
 entry_point: opensanctions.crawlers.us_ofac
 title: OFAC Specially Designated Nationals (SDN) List
-prefix: us-ofac-sdn
+prefix: ofac-sdn
 description: >
   The United States' sanctions list, specially designated nationals (SDN) part.
 country: us

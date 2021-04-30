@@ -15,12 +15,13 @@ SEXES = {
 
 
 def parse_date(date):
-    if date:
-        try:
-            date = datetime.strptime(date, "%Y/%m/%d")
-        except ValueError:
-            date = datetime.strptime(date, "%Y")
-        return date.date()
+    if not date:
+        return
+    try:
+        date = datetime.strptime(date, "%Y/%m/%d")
+    except ValueError:
+        date = datetime.strptime(date, "%Y")
+    return date.date()
 
 
 def get_value(el):

@@ -14,3 +14,8 @@ url: https://eeas.europa.eu/topics/sanctions-policy/8442/consolidated-list-of-sa
 data:
   url: https://webgate.ec.europa.eu/europeaid/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=n00378os
   format: XML
+
+lookups:
+  country:
+    map:
+      '00': null

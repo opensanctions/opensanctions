@@ -3,6 +3,7 @@ from banal import ensure_list
 from ftmstore import get_dataset as get_store
 
 from opensanctions import settings
+from opensanctions.core.lookup import Lookup
 from opensanctions.util import joinslug
 
 
@@ -26,6 +27,10 @@ class Dataset(object):
         if self.name != self.ALL:
             collections.append(self.ALL)
         self.collections = set(collections)
+
+        self.lookups = {}
+        for name, lconfig in config.get("lookups", {}).items():
+            self.lookups[name] = Lookup(name, lconfig)
 
     def make_slug(self, *parts, strict=True):
         return joinslug(*parts, prefix=self.prefix, strict=strict)
