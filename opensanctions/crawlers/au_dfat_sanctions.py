@@ -1,11 +1,73 @@
 import xlrd
-
-# from xlrd.xldate import xldate_as_datetime
+from xlrd.xldate import xldate_as_datetime
 from collections import defaultdict
 from pprint import pprint  # noqa
-from datetime import datetime
 from normality import slugify
+from datetime import datetime
 from followthemoney import model
+
+from opensanctions.util import multi_split, remove_bracketed
+
+FORMATS = ["%d/%m/%Y", "%d %b. %Y", "%d %b.%Y", "%d %b %Y", "%d %B %Y"]
+
+
+def date_formats(text, formats):
+    if isinstance(text, datetime):
+        return text.isoformat()
+    if not isinstance(text, str):
+        return text
+    for fmt in formats:
+        try:
+            dt = datetime.strptime(text, fmt)
+            return dt.isoformat()
+        except ValueError:
+            pass
+    return text
+
+
+def clean_date(date):
+    splits = [
+        "a)",
+        "b)",
+        "c)",
+        "d)",
+        "e)",
+        "f)",
+        "g)",
+        "h)",
+        "i)",
+        " or ",
+        " to ",
+        " and ",
+        ";",
+        ">>",
+    ]
+    dates = set()
+    if isinstance(date, float):
+        date = str(int(date))
+    if isinstance(date, datetime):
+        date = date.date().isoformat()
+    date = remove_bracketed(date)
+    date = date.replace("\n", " ")
+    for part in multi_split(date, splits):
+        part = part.lower()
+        for word in (
+            "approximately",
+            "approx",
+            "circa",
+            "between",
+            "alt dob:",
+            "alt dob",
+            "c.",
+            "(.)",
+        ):
+            part = part.replace(word, "")
+        part = part.replace(" de ", " dec ")
+        part = part.strip(",")
+        part = part.strip()
+        part = date_formats(part, FORMATS)
+        dates.add(part)
+    return dates
 
 
 def clean_reference(ref):
@@ -42,17 +104,17 @@ def parse_reference(context, reference, rows):
         entity.add("address", row.pop("address"))
         entity.add("notes", row.pop("additional_information"))
         sanction.add("program", row.pop("committees"))
-        entity.add("nationality", row.pop("citizenship"), quiet=True)
-        entity.add("birthDate", row.pop("date_of_birth"), quiet=True)
+        citizen = multi_split(row.pop("citizenship"), ["a)", "b)", "c)", "d)"])
+        entity.add("nationality", citizen, quiet=True)
+        dates = clean_date(row.pop("date_of_birth"))
+        entity.add("birthDate", dates, quiet=True)
         entity.add("birthPlace", row.pop("place_of_birth"), quiet=True)
         entity.add("status", row.pop("listing_information"), quiet=True)
 
-        control_date = int(row.pop("control_date"))
-        base_date = datetime(1900, 1, 1).toordinal()
-        dt = datetime.fromordinal(base_date + control_date - 2)
-        sanction.add("modifiedAt", dt)
-        entity.add("modifiedAt", dt)
-        entity.context["updated_at"] = dt.isoformat()
+        control_date = row.pop("control_date")
+        sanction.add("modifiedAt", control_date)
+        entity.add("modifiedAt", control_date)
+        entity.context["updated_at"] = control_date.isoformat()
 
     context.emit(entity, target=True)
     context.emit(sanction)
@@ -72,6 +134,9 @@ def crawl(context):
                 row[header] = str(int(cell.value))
             elif cell.ctype == 0:
                 row[header] = None
+            if cell.ctype == 3:
+                dt = xldate_as_datetime(cell.value, xls.datemode)
+                row[header] = dt
             else:
                 row[header] = cell.value
 
