@@ -13,3 +13,192 @@ url: https://www.gov.uk/government/publications/financial-sanctions-consolidated
 data:
   url: https://ofsistorage.blob.core.windows.net/publishlive/ConList.xml
   format: xml
+
+lookups:
+  org_type:
+    normalize: true
+    required: true
+    options:
+    - match:
+      - Armed Separatist Group
+      - Armed Seperatist Group
+      - Public Movement
+      - University
+      - Foundation
+      value: Organization  
+    - match:
+      - Enterprise
+      - Railway
+      - Private
+      - Real Estate Development
+      - Shipping company
+      - Private, Investment
+      - Private,Investment
+      - Public Joint-Stock
+      - Private, Transport, Oil and Petroleum
+      - Aluminium Supplier
+      - Company
+      - Shipping company
+      - Public
+      - Private sector development group
+      - Exporter
+      - Insurance
+      - Finance
+      - Private,Real Estate
+      - Manufacturing/Proliferation
+      - Enterprise - Police Agency
+      contains:
+      - Military Holding Company
+      - Import/export
+      - State Owned Enterprise
+      - State-owned
+      - Manufacturer
+      - Banking
+      - Private Joint Stock Company
+      - Joint Stock Company
+      - Port operator
+      - Airline Company
+      - Subsidiary of
+      - Leading corporate group
+      - construction company
+      - General Corporation for Refining
+      - Manufacturing and supplying anti-aircraft
+      value: Company
+    - match:
+      - Government
+      - Public Security Body
+      - Public Government Body
+      - (1) Military (2) Militia
+      - Government, Ministry
+      - Government department
+      - Special Police Unit
+      - Military
+      contains:
+      - Government department
+      - Government Entity
+      - Government agency
+      - Department within Government
+      - Military Government
+      value: PublicBody
+  country:
+    normalize: true
+    options:
+    - match:
+      - "-"
+      - PO BOX 416
+      value: null
+    - match:
+      - Democratic People's Republic of Korea (DPRK)
+      - Democratic People's Republic of Korea,RPDC
+      value: North Korea
+    - match:
+      - Ethnic Russian
+      - Southern Russia
+      value: RU
+    - match: Former Ukrainian
+      value: UA
+    - match: Tehran
+      value: Iran
+    - match: Australian citizen
+      value: Australia
+    - match: Believed location - Egypt
+      value: Egypt
+    - match: former USSR, now Azerbaijan
+      values: ['SUHH', 'AZ']
+    - match: former USSR, now Kyrgyzstan
+      values: ['SUHH', 'KG']
+    - match: Iraq,Iran
+      values: ['Iraq', 'Iran']
+    - contains: Iraq, possible alternative
+      value: 'Iraq'
+    - match:
+      - Ukrainian SSR (now Ukraine)
+      - former USSR, now Ukraine
+      values:
+      - SUHH
+      - UA
+    - match:
+      - Ukrainian,Russian
+      - Russian Federation,Ukraine
+      values:
+      - UA
+      - RU
+    - match:
+      - Russian SFSR (now Russian Federation)
+      - Russian SFSR
+      - RSFSR
+      - former USSR Currently Russia
+      values:
+      - SUHH
+      - RU
+    - match:
+      - Former USSR Currently Belarus
+      - Former USSR Now Belarus
+      values:
+      - SUHH
+      - BY
+    - match:
+      - Former USSR
+      - Uzbekistan SSR
+      - Moldovan SSR
+      - Kazakh Soviet Socialist Republic
+      - Komi ASSR,
+      - Yakut Autonomous SSR
+      - Belarusian SSR,
+      - Kyrgyz SSR
+      value: SUHH
+    - match: DRC,Belgium
+      values:
+      - DR Congo
+      - Belgium
+    - match: United States of America. Also believed to hold Syrian nationality
+      values:
+      - USA
+      - Syria
+    - match: United Kingdom, previous address
+      value: United Kingdom
+    - contains:
+      - Syrian Arab Republic
+      - Damascus
+      value: Syria
+    - match:
+      - possibly United Arab Emirates
+      value: AE
+    - match: former Yugoslavia
+      value: Yugoslavia
+    - match:
+      - Afghanistan   Afghanistan
+      value: AF
+    - match: Hong Kong Special Administrative Region
+      value: HK
+    - match:
+      - Libyan Arab Jamahiriya
+      - South Libya
+      value: Libya
+    - match: to   Morocco
+      value: Morocco
+    - match: Rawanda
+      value: Rwanda
+    - match: Saudi Arabian Citizen
+      value: Saudi Arabia
+    - contains: Afghanistan/Pakistan
+      values:
+      - AF
+      - PK
+    - match: Kenya/Somalia border
+      values:
+      - KE
+      - SO
+    - match: Sudan/South Sudan
+      values:
+      - Sudan
+      - South Sudan
+    - match: Somali citizen
+      value: Somalia
+  phone:
+    options:
+    - match:
+      - '-4874878'
+      - Indonesia
+      - '43294'
+      value: null

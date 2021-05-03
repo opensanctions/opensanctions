@@ -3,29 +3,24 @@ from datetime import datetime
 from normality import stringify, collapse_spaces
 from followthemoney import model
 
-from opensanctions.util import jointext
+from opensanctions.util import jointext, multi_split, remove_bracketed
+from opensanctions.util import date_formats, MONTH, YEAR
 
+FORMATS = ["%d/%m/%Y", ("00/%m/%Y", MONTH), ("00/00/%Y", YEAR), ("%Y", YEAR)]
 NSMAP = {"GB": "http://schemas.datacontract.org/2004/07/"}
+COUNTRY_SPLIT = ["(1)", "(2)", "(3)"]
 
 
 def parse_date(date):
-    date = stringify(date)
-    if date is None:
-        return
-    date = date.replace("00/00/", "")
-    date = date.strip()
-    if len(date) == 4:
-        return date
-    try:
-        date = datetime.strptime(date, "%d/%m/%Y")
-        return date.date().isoformat()
-    except Exception:
-        pass
-    try:
-        date = datetime.strptime(date, "00/%m/%Y")
-        return date.date().isoformat()[:7]
-    except Exception:
-        pass
+    return date_formats(date, FORMATS)
+
+
+def parse_countries(text):
+    countries = set()
+    for country in multi_split(text, COUNTRY_SPLIT):
+        country = remove_bracketed(country)
+        countries.add(country)
+    return countries
 
 
 def split_items(text, comma=False):
@@ -58,36 +53,11 @@ def parse_row(context, row):
     if row.pop("GroupTypeDescription") == "Individual":
         entity.schema = model.get("Person")
     org_type = row.pop("OrgType", None)
-    if org_type in (
-        "Enterprise",
-        "Company",
-        "Public",
-        "Banking",
-        "Manufacturer",
-        "Airline Company",
-        "Shipping company",
-    ):
-        entity.schema = model.get("Company")
-    elif org_type in (
-        "Government",
-        "Special Police Unit",
-        "Government, Ministry",
-        "Government Ministry",
-        "Department within Government/Military Unit.",
-        "Department within Government",
-        "Military Government",
-        "Military",
-    ):
-        entity.schema = model.get("PublicBody")
-    elif org_type in (
-        "State Owned Enterprise",
-        "University",
-        "Port operator",
-        "Foundation",
-    ):
-        entity.schema = model.get("Organization")
-
-    entity.add_cast("LegalEntity", "legalForm", org_type)
+    if org_type is not None:
+        schema = context.lookup_value("org_type", org_type)
+        if schema is not None:
+            entity.schema = model.get(schema)
+        entity.add_cast("LegalEntity", "legalForm", org_type)
 
     # entity.add("position", row.pop("Position"), quiet=True)
     entity.add("notes", row.pop("OtherInformation", None), quiet=True)
@@ -173,12 +143,17 @@ def parse_row(context, row):
     else:
         entity.add("name", full_name)
 
-    entity.add("nationality", row.pop("Nationality", None), quiet=True)
+    countries = parse_countries(row.pop("Nationality", None))
+    entity.add("nationality", countries, quiet=True)
     entity.add("position", row.pop("Position", None), quiet=True)
-    entity.add("country", row.pop("Country", None))
+
+    countries = parse_countries(row.pop("Country", None))
+    entity.add("country", countries)
     entity.add("address", row.pop("FullAddress", None))
     entity.add("birthPlace", row.pop("TownOfBirth", None), quiet=True)
-    entity.add("country", row.pop("CountryOfBirth", None), quiet=True)
+
+    countries = parse_countries(row.pop("CountryOfBirth", None))
+    entity.add("country", countries, quiet=True)
 
     address = jointext(
         row.pop("address1", None),
