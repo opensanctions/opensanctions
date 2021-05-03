@@ -1,17 +1,12 @@
 import csv
 from pprint import pprint  # noqa
-from datetime import datetime
 
 from opensanctions.util import jointext
+from opensanctions.util import date_formats, DAY
 
 
 def parse_date(text):
-    if text is None:
-        return
-    try:
-        return datetime.strptime(text, "%m/%d/%Y").date()
-    except ValueError:
-        return text
+    return date_formats(text, [("%m/%d/%Y", DAY)])
 
 
 def parse_row(context, row):

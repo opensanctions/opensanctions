@@ -1,43 +1,32 @@
 from normality import collapse_spaces, stringify
 from pprint import pprint  # noqa
-from datetime import datetime
 from lxml import html
 
 from opensanctions import constants
+from opensanctions.util import date_formats, MONTH, YEAR, DAY
 
 MAX_RESULTS = 160
 SEEN = set()
 COUNTRIES_URL = "https://www.interpol.int/en/How-we-work/Notices/View-Red-Notices"
+FORMATS = [("%Y/%m/%d", DAY), ("%Y/%m", MONTH), ("%Y", YEAR)]
 SEXES = {
     "M": constants.MALE,
     "F": constants.FEMALE,
 }
 
 
-def parse_date(date):
-    if not date:
-        return
-    try:
-        date = datetime.strptime(date, "%Y/%m/%d")
-    except ValueError:
-        date = datetime.strptime(date, "%Y")
-    return date.date()
-
-
-def get_value(el):
-    if el is None:
-        return
-    text = stringify(el.get("value"))
-    if text is not None:
-        return collapse_spaces(text)
-
-
 def get_countries(context):
     res = context.http.get(COUNTRIES_URL)
     doc = html.fromstring(res.text)
     path = ".//select[@id='arrestWarrantCountryId']//option"
-    options = doc.findall(path)
-    return [get_value(el) for el in options]
+    options = []
+    for option in doc.findall(path):
+        code = stringify(option.get("value"))
+        if code is None:
+            continue
+        label = collapse_spaces(option.text_content())
+        options.append((code, label))
+    return list(sorted(options))
 
 
 def crawl_notice(context, notice):
@@ -54,17 +43,18 @@ def crawl_notice(context, notice):
     notice = res.json()
     first_name = notice["forename"] or ""
     last_name = notice["name"] or ""
-    dob = notice["date_of_birth"]
     entity = context.make("Person")
     entity.make_slug(notice.get("entity_id"))
     entity.add("name", first_name + " " + last_name)
     entity.add("firstName", first_name)
     entity.add("lastName", last_name)
+    entity.add("sourceUrl", url)
     entity.add("nationality", notice.get("nationalities"))
     entity.add("gender", SEXES.get(notice.get("sex_id")))
     entity.add("birthPlace", notice.get("place_of_birth"))
-    entity.add("birthDate", parse_date(dob))
-    entity.add("sourceUrl", url)
+
+    dob = date_formats(notice["date_of_birth"], FORMATS)
+    entity.add("birthDate", dob)
     # entity.add("keywords", "REDNOTICE")
     # entity.add("topics", "crime")
 
@@ -110,7 +100,6 @@ def crawl_country(context, country, age_max=120, age_min=0):
 
 
 def crawl(context):
-    for country in get_countries(context):
-        if country is not None:
-            context.log.info("Crawl %s" % country)
-            crawl_country(context, country)
+    for country, label in get_countries(context):
+        context.log.info("Crawl %r" % label, code=country)
+        crawl_country(context, country)

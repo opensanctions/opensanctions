@@ -45,6 +45,9 @@ class Context(object):
         with open(file_path, "rb") as fh:
             return etree.parse(fh)
 
+    def lookup_value(self, lookup, value, default=None):
+        return self.dataset.lookups[lookup].get_value(value, default=default)
+
     def make(self, schema):
         """Make a new entity with some dataset context set."""
         return OSETLEntity(self.dataset, schema)

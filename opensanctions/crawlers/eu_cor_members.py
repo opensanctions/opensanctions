@@ -1,17 +1,15 @@
-from pprint import pprint  # noqa
-from datetime import datetime
 from urllib.parse import urljoin
 from normality import stringify, collapse_spaces, slugify
 from lxml import html
+from opensanctions.util import date_formats, DAY
 
 
-def parse_date(date):
-    dt = datetime.strptime(date, "%d/%m/%Y")
-    return dt.date().isoformat()
+def parse_date(text):
+    return date_formats(text, [("%d/%m/%Y", DAY)])
 
 
 def crawl_person(context, name, url):
-    # context.log.info("Crawling member", name=name, url=url)
+    context.log.debug("Crawling member", name=name, url=url)
     res = context.http.get(url)
     doc = html.fromstring(res.text)
     _, person_id = url.rsplit("/", 1)

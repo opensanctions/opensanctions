@@ -1,10 +1,37 @@
 import re
 import logging
 from banal import ensure_list
+from datetime import datetime, date
 from normality import stringify, slugify
 
 log = logging.getLogger(__name__)
 BRACKETED = re.compile(r"\(.*\)")
+YEAR = 4
+MONTH = 7
+DAY = 10
+FULL = 19
+
+
+def date_formats(text, formats):
+    """Sequentially try to parse using a set of formats. A format can be
+    specified as a tuple that also specifies its granularity (e.g.
+    ('%Y', YEAR) for year-only)."""
+    if isinstance(text, (date, datetime)):
+        return text.isoformat()
+    if not isinstance(text, str):
+        return text
+    for fmt in formats:
+        length = FULL
+        try:
+            fmt, length = fmt
+        except (ValueError, TypeError):
+            pass
+        try:
+            dt = datetime.strptime(text, fmt)
+            return dt.isoformat()[:FULL]
+        except (ValueError, TypeError):
+            pass
+    return text
 
 
 def is_empty(text):
@@ -12,7 +39,7 @@ def is_empty(text):
         return True
     if isinstance(text, str):
         text = text.strip()
-        return len(text) < 1
+        return len(text) == 0
     return False
 
 

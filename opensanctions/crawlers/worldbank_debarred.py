@@ -1,16 +1,13 @@
 import re
 from pprint import pprint  # noqa
-from datetime import datetime
+
+from opensanctions.util import date_formats, DAY
 
 SPLITS = r"(a\.k\.a\.?|aka|f/k/a|also known as|\(formerly |, also d\.b\.a\.|\(currently (d/b/a)?|d/b/a|\(name change from|, as the successor or assign to)"  # noqa
 
 
-def clean_date(date):
-    try:
-        dt = datetime.strptime(date, "%d-%b-%Y")
-        return dt.date().isoformat()
-    except Exception:
-        pass
+def parse_date(text):
+    return date_formats(text, [("%d-%b-%Y", DAY)])
 
 
 def clean_name(text):
@@ -50,7 +47,7 @@ def crawl(context):
         ent_id = data.get("SUPP_ID")
         city = data.get("SUPP_CITY")
         address = data.get("SUPP_ADDR")
-        start_date = clean_date(data.get("DEBAR_FROM_DATE"))
+        start_date = parse_date(data.get("DEBAR_FROM_DATE"))
 
         entity.make_slug(ent_id)
         names = clean_name(name)
@@ -66,7 +63,7 @@ def crawl(context):
         sanction.add("authority", "World Bank Debarrment")
         sanction.add("program", data.get("DEBAR_REASON"))
         sanction.add("startDate", start_date)
-        sanction.add("endDate", clean_date(data.get("DEBAR_TO_DATE")))
+        sanction.add("endDate", parse_date(data.get("DEBAR_TO_DATE")))
         sanction.add("sourceUrl", context.dataset.url)
         context.emit(entity, target=True)
         context.emit(sanction)

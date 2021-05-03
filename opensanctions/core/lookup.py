@@ -1,6 +1,6 @@
 import structlog
 from banal import ensure_list, ensure_dict
-from normality import normalize
+from normality import normalize, stringify
 
 log = structlog.get_logger(__name__)
 
@@ -60,11 +60,13 @@ class Option(object):
 
     def normalize_value(self, value):
         if self.normalize:
-            value = normalize(value, ascii=True, lowercase=self.lowercase)
-        if isinstance(value, str):
-            if self.lowercase:
-                value = value.lower()
-            value = value.strip()
+            value = normalize(value, ascii=True)
+        else:
+            value = stringify(value)
+            if value is not None:
+                if self.lowercase:
+                    value = value.lower()
+                value = value.strip()
         return value
 
     def matches(self, value):

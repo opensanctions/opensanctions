@@ -7,22 +7,10 @@ from datetime import datetime
 from followthemoney import model
 
 from opensanctions.util import multi_split, remove_bracketed
+from opensanctions.util import date_formats, MONTH
 
 FORMATS = ["%d/%m/%Y", "%d %b. %Y", "%d %b.%Y", "%d %b %Y", "%d %B %Y"]
-
-
-def date_formats(text, formats):
-    if isinstance(text, datetime):
-        return text.isoformat()
-    if not isinstance(text, str):
-        return text
-    for fmt in formats:
-        try:
-            dt = datetime.strptime(text, fmt)
-            return dt.isoformat()
-        except ValueError:
-            pass
-    return text
+FORMATS = FORMATS + [("%b. %Y", MONTH), "%d %B. %Y"]
 
 
 def clean_date(date):

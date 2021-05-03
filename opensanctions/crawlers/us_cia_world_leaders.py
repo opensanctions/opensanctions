@@ -1,5 +1,6 @@
 from lxml import html
-from pprint import pprint  # noqa
+
+from opensanctions.util import is_empty
 
 UI_URL = "https://www.cia.gov%s"
 DATA_URL = "https://www.cia.gov/page-data%spage-data.json"
@@ -25,6 +26,15 @@ def crawl_country(context, params, path, country):
             # this paragraph at the start is a note, not a person
             continue
         name = text.replace("(Acting)", "")
+        if is_empty(name):
+            continue
+        context.log.debug(
+            "Person",
+            country=country,
+            name=name,
+            function=function,
+            url=source_url,
+        )
         person = context.make("Person")
         person.make_slug(country, name, function)
         person.add("name", name)
@@ -32,7 +42,6 @@ def crawl_country(context, params, path, country):
         person.add("position", function)
         person.add("sourceUrl", source_url)
         person.add("topics", "role.pep")
-        # pprint(person.to_dict())
         context.emit(person, target=True, unique=True)
 
 

@@ -1,8 +1,11 @@
-import re
 from datetime import datetime
 from pprint import pprint  # noqa
 
 from opensanctions.util import jointext, remove_bracketed, multi_split
+from opensanctions.util import date_formats, DAY, YEAR, MONTH
+
+FORMATS = [("%d %b %Y", DAY), ("%d %B %Y", DAY), ("%Y", YEAR), ("%b %Y", MONTH)]
+FORMATS = FORMATS + [("%B %Y", MONTH)]
 
 
 def parse_date(date):
@@ -11,12 +14,7 @@ def parse_date(date):
     date = date.replace(".", "").strip()
     if ";" in date:
         date, _ = date.split(";", 1)
-    try:
-        return datetime.strptime(date, "%d %b %Y").date().isoformat()
-    except Exception:
-        match = re.search(r"\d{4}", date)
-        if match:
-            return match.group(0)
+    return date_formats(date, FORMATS)
 
 
 def parse_entry(context, entry):

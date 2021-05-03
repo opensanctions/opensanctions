@@ -80,7 +80,7 @@ class Dataset(object):
     @classmethod
     def names(cls):
         """An array of all dataset names found in the metadata path."""
-        return [dataset.name for dataset in cls.all()]
+        return list(sorted((dataset.name for dataset in cls.all())))
 
     def to_dict(self):
         return {
