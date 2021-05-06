@@ -1,20 +1,8 @@
 from pprint import pprint  # noqa
 from datetime import datetime
+from urllib.parse import unquote
 
-PSEUDO = (
-    "party/unknown",
-    "independent",
-    "non_inscrit",
-    "independant",
-    "non_inscrit",
-    "non-inscrit",
-    "out_of_faction",
-    "unknown",
-    "initial-presiding-officer",
-    "independiente",
-    "speaker",
-    "*",
-)
+from opensanctions.util import multi_split
 
 
 def crawl(context):
@@ -22,7 +10,7 @@ def crawl(context):
     for country in res.json():
         for legislature in country.get("legislatures", []):
             code = country.get("code").lower()
-            # if code != "jp":
+            # if code != "bi":
             #     continue
             context.log.info("Country: %s" % code)
             crawl_legislature(context, code, legislature)
@@ -50,7 +38,20 @@ def crawl_legislature(context, country, legislature):
         parse_membership(context, membership, entities, events)
 
 
-def parse_common(entity, data, lastmod):
+def parse_phones(value):
+    return value
+
+
+def parse_emails(value):
+    emails = set()
+    for email in multi_split(value, [",", "/"]):
+        email = unquote(email)
+        email = email.strip().strip(".")
+        emails.add(email)
+    return emails
+
+
+def parse_common(context, entity, data, lastmod):
     entity.context["updated_at"] = lastmod.isoformat()
     entity.add("name", data.pop("name", None))
     entity.add("alias", data.pop("sort_name", None))
@@ -58,12 +59,15 @@ def parse_common(entity, data, lastmod):
         entity.add("alias", other.get("name"))
 
     for link in data.pop("links", []):
+        url = link.get("url")
         if link.get("note") in ("website", "blog", "twitter", "facebook"):
-            entity.add("website", link.get("url"))
-        elif "Wikipedia (" in link.get("note"):
-            entity.add("wikipediaUrl", link.get("url"))
-        elif "wikipedia" in link.get("note"):
-            entity.add("wikipediaUrl", link.get("url"))
+            entity.add("website", url)
+        elif "Wikipedia (" in link.get("note") and "wikipedia.org" in url:
+            entity.add("wikipediaUrl", url)
+        elif "wikipedia" in link.get("note") and "wikipedia.org" in url:
+            entity.add("wikipediaUrl", url)
+        # else:
+        #     context.log.info("Unknown URL", url=url, note=link.get("note"))
 
     for ident in data.pop("identifiers", []):
         identifier = ident.get("identifier")
@@ -74,11 +78,11 @@ def parse_common(entity, data, lastmod):
         #     pprint(ident)
 
     for contact_detail in data.pop("contact_details", []):
+        value = contact_detail.get("value")
         if "email" == contact_detail.get("type"):
-            value = contact_detail.get("value")
-            entity.add("email", value.split(","))
+            entity.add("email", parse_emails(value))
         if "phone" == contact_detail.get("type"):
-            entity.add("phone", contact_detail.get("value"))
+            entity.add("phone", parse_phones(value))
 
 
 def parse_person(context, data, country, entities, lastmod):
@@ -86,7 +90,7 @@ def parse_person(context, data, country, entities, lastmod):
     person = context.make("Person")
     person.make_slug(person_id)
     person.add("nationality", country)
-    parse_common(person, data, lastmod)
+    parse_common(context, person, data, lastmod)
 
     if data.get("birth_date", "9999") < "1900":
         return
@@ -101,7 +105,7 @@ def parse_person(context, data, country, entities, lastmod):
     person.add("fatherName", data.pop("patronymic_name", None))
     person.add("birthDate", data.pop("birth_date", None))
     person.add("deathDate", data.pop("death_date", None))
-    person.add("email", data.pop("email", None))
+    person.add("email", parse_emails(data.pop("email", None)))
     person.add("summary", data.pop("summary", None))
     person.add("topics", "role.pep")
 
@@ -115,7 +119,8 @@ def parse_person(context, data, country, entities, lastmod):
 
 def parse_organization(context, data, country, entities, lastmod):
     org_id = data.pop("id", None)
-    if org_id is None or org_id.lower() in PSEUDO:
+    org_id = context.lookup_value("org_id", org_id, org_id)
+    if org_id is None:
         return
 
     classification = data.pop("classification", None)
@@ -134,7 +139,7 @@ def parse_organization(context, data, country, entities, lastmod):
         context.log.warning("No ID for organization", country=country, org_id=org_id)
         return
     organization.add("country", country)
-    parse_common(organization, data, lastmod)
+    parse_common(context, organization, data, lastmod)
     organization.add("legalForm", data.pop("type", None))
 
     # data.pop("image", None)
