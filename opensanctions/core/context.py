@@ -18,13 +18,11 @@ class Context(object):
     """
 
     def __init__(self, dataset):
-        self.run_id = datetime.utcnow().strftime("%Y%m%d")
         self.dataset = dataset
-        self.dataset_path = settings.DATA_PATH.joinpath(dataset.name)
-        self.path = self.dataset_path.joinpath(self.run_id)
+        self.path = settings.DATA_PATH.joinpath(dataset.name)
         self.store = dataset.store
         self._bulk = self.store.bulk()
-        self.http = get_session(self.dataset_path)
+        self.http = get_session(self.path)
         self.fragment = 0
         self.log = structlog.get_logger(dataset.name)
 
@@ -68,7 +66,7 @@ class Context(object):
         self.fragment += 1
 
     def bind(self):
-        bind_contextvars(dataset=self.dataset.name, run_id=self.run_id)
+        bind_contextvars(dataset=self.dataset.name)
 
     def crawl(self):
         """Run the crawler."""

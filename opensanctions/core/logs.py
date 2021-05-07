@@ -14,7 +14,6 @@ def store_event(logger, log_method, data):
     # level = getattr(logging, data.get("level").upper())
     # if level > logging.INFO:
     #     print("FOO", logger, log_method)
-    # data.pop("run_id", None)
     # data.pop("dataset", None)
     return data
 
