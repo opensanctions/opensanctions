@@ -7,7 +7,7 @@ from pprint import pprint  # noqa
 from followthemoney import model
 from followthemoney.exc import InvalidData
 
-from opensanctions.util import jointext
+from opensanctions.util import jointext, date_parts
 
 CACHE = {}
 REFERENCES = {}
@@ -391,13 +391,10 @@ def disjoint_schema(entity, addition):
     return True
 
 
-def parse_date(node):
-    parts = (
-        node.findtext("./Year"),
-        node.findtext("./Month").zfill(2),
-        node.findtext("./Day").zfill(2),
+def parse_date(el):
+    return date_parts(
+        el.findtext("./Year"), el.findtext("./Month"), el.findtext("./Day")
     )
-    return "-".join(parts)
 
 
 def date_prefix(*dates):

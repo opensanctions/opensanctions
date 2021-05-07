@@ -1,23 +1,7 @@
-from datetime import date
 from pprint import pprint  # noqa
 from collections import defaultdict
 
-from opensanctions.util import jointext
-
-
-def parse_date(el):
-    if el is None or not el.get("year"):
-        return
-    if el.get("month") and el.get("day"):
-        year = int(el.get("year"))
-        month = int(el.get("month"))
-        day = int(el.get("day"))
-        try:
-            return date(year, month, day).isoformat()
-        except ValueError:
-            return date(year, month, day - 1).isoformat()
-    else:
-        return el.get("year")
+from opensanctions.util import jointext, date_parts
 
 
 def parse_address(node):
@@ -110,7 +94,8 @@ def parse_identity(context, entity, node, places):
         entity.add("country", parts.get("country"))
 
     for bday in node.findall("./day-month-year"):
-        entity.add("birthDate", parse_date(bday))
+        bval = date_parts(bday.get("year"), bday.get("month"), bday.get("day"))
+        entity.add("birthDate", bval)
 
     for nationality in node.findall("./nationality"):
         country = nationality.find("./country")

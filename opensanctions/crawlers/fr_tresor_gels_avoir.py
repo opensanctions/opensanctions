@@ -1,21 +1,12 @@
 import json
 
+from opensanctions.util import date_parts
+
 SCHEMATA = {
     "Personne physique": "Person",
     "Personne morale": "Company",
     "Navire": "Vessel",
 }
-
-
-def format_date(value):
-    date = value.pop("Annee")
-    month = value.pop("Mois")
-    if len(month):
-        date = f"{date}-{month}"
-        day = value.pop("Jour")
-        if len(day):
-            date = f"{date}-{day}"
-    return date
 
 
 def apply_prop(entity, sanction, field, value):
@@ -38,7 +29,8 @@ def apply_prop(entity, sanction, field, value):
     elif field == "NUMERO_OMI":
         entity.add("imoNumber", value.pop("NumeroOMI"))
     elif field == "DATE_DE_NAISSANCE":
-        entity.add("birthDate", format_date(value))
+        date = date_parts(value.pop("Annee"), value.pop("Mois"), value.pop("Jour"))
+        entity.add("birthDate", date)
     elif field in ("ADRESSE_PM", "ADRESSE_PP"):
         entity.add("country", value.pop("Pays"))
         entity.add("address", value.pop("Adresse"))

@@ -34,6 +34,29 @@ def date_formats(text, formats):
     return text
 
 
+def _parse_date_part(value):
+    try:
+        value = int(value)
+        if value > 0:
+            return value
+    except (TypeError, ValueError):
+        return None
+
+
+def date_parts(year, month, day):
+    """Compose a date string from a set of components."""
+    year = _parse_date_part(year)
+    if year is not None:
+        text = str(year)
+        month = _parse_date_part(month)
+        if month is not None and month <= 12:
+            text = f"{text}-{month:02}"
+            day = _parse_date_part(day)
+            if day is not None and day <= 31:
+                text = f"{text}-{day:02}"
+        return text
+
+
 def is_empty(text):
     if text is None:
         return True
