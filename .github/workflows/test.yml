@@ -6,10 +6,7 @@ jobs:
   python:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - name: Show ref
-        run: |
-          echo "$GITHUB_REF"
+      - uses: actions/checkout@v2
       - name: Set up Python
         uses: actions/setup-python@v1
         with:
@@ -18,10 +15,9 @@ jobs:
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
-          sudo apt-get update -y -qq
           sudo apt-get install -y -qq libicu-dev
-          pip install wheel pyicu
-          pip install -e .
+          pip install --no-cache-dir -q pyicu awscli
+          pip install --no-cache-dir -q -e .
       - name: Run a single dataset
         run: |
           opensanctions run us_ofac_cons

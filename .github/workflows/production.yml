@@ -1,0 +1,43 @@
+name: production
+
+on:
+  push:
+    branches: [production]
+  schedule:
+    - cron: "0 3 * * *"
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ref/head/production
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: "3.9"
+      - name: Install dependencies
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          sudo apt-get install -y -qq libicu-dev
+          pip install --no-cache-dir -q pyicu awscli
+          pip install --no-cache-dir -q -e .
+      # - name: Fetch system state from S3
+      #   env:
+      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #   run: |
+      #     aws s3 sync --no-progress s3://data.opensanctions.org/_state _state
+      - name: Run a single dataset
+        run: |
+          opensanctions run
+      - name: Publish data to data.opensanctions.org
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          aws s3 sync --delete --no-progress --acl public-read data s3://data.opensanctions.org/datasets/latest
+          aws s3 sync --delete --no-progress --acl public-read data s3://data.opensanctions.org/datasets/`date +%Y%m%d`
+    
