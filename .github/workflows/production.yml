@@ -24,20 +24,24 @@ jobs:
           sudo apt-get install -y -qq libicu-dev
           pip install --no-cache-dir -q pyicu awscli
           pip install --no-cache-dir -q -e .
-      # - name: Fetch system state from S3
-      #   env:
-      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #   run: |
-      #     aws s3 sync --no-progress s3://data.opensanctions.org/_state _state
-      - name: Run a single dataset
+      - name: Fetch cache from data.opensanctions.org
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
-          opensanctions run
+          aws s3 sync --no-progress s3://data.opensanctions.org/_cache _cache
+      - name: Run opensanctions
+        env:
+          OPENSANCTIONS_CACHE_PATH: _cache
+        run: |
+          opensanctions cleanup
+          opensanctions --quiet run
       - name: Publish data to data.opensanctions.org
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
-          aws s3 sync --delete --no-progress --acl public-read data s3://data.opensanctions.org/datasets/latest
-          aws s3 sync --delete --no-progress --acl public-read data s3://data.opensanctions.org/datasets/`date +%Y%m%d`
+          aws s3 sync --delete --no-progress _cache s3://data.opensanctions.org/_cache
+          aws s3 sync --delete --no-progress --acl public-read data/datasets s3://data.opensanctions.org/datasets/latest
+          aws s3 sync --delete --no-progress --acl public-read data/datasets s3://data.opensanctions.org/datasets/`date +%Y%m%d`
     

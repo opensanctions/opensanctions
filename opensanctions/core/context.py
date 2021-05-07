@@ -1,6 +1,5 @@
 import structlog
 from lxml import etree
-from datetime import datetime, timedelta
 from structlog.contextvars import clear_contextvars, bind_contextvars
 from followthemoney.cli.util import write_object
 
@@ -19,10 +18,10 @@ class Context(object):
 
     def __init__(self, dataset):
         self.dataset = dataset
-        self.path = settings.DATA_PATH.joinpath(dataset.name)
+        self.path = settings.DATASET_PATH.joinpath(dataset.name)
         self.store = dataset.store
         self._bulk = self.store.bulk()
-        self.http = get_session(self.path)
+        self.http = get_session()
         self.fragment = 0
         self.log = structlog.get_logger(dataset.name)
 
@@ -136,11 +135,6 @@ class Context(object):
         """Flush and tear down the context."""
         self._bulk.flush()
         clear_contextvars()
-
-        # Explicitly clear HTTP cache:
-        expire = timedelta(seconds=settings.CACHE_EXPIRE)
-        expire_at = datetime.utcnow() - expire
-        self.http.cache.remove_old_entries(expire_at)
 
         # Persist any events to the database:
         # db.session.commit()

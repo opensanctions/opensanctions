@@ -16,6 +16,14 @@ DATA_PATH = Path.cwd().joinpath("data")
 DATA_PATH = env.get("OPENSANCTIONS_DATA_PATH", DATA_PATH)
 DATA_PATH = Path(DATA_PATH).resolve()
 
+DATASET_PATH = DATA_PATH.joinpath("datasets")
+DATASET_PATH = env.get("OPENSANCTIONS_DATASET_PATH", DATASET_PATH)
+DATASET_PATH = Path(DATASET_PATH).resolve()
+
+CACHE_PATH = DATA_PATH.joinpath("cache")
+CACHE_PATH = env.get("OPENSANCTIONS_CACHE_PATH", CACHE_PATH)
+CACHE_PATH = Path(CACHE_PATH).resolve()
+
 # SQL database URI for structured data
 DATABASE_URI = f"sqlite:///{DATA_PATH}/opensanctions.sqlite3"
 DATABASE_URI = env.get("OPENSANCTIONS_DATABASE_URI", DATABASE_URI)
@@ -27,4 +35,4 @@ METADATA_PATH = Path(METADATA_PATH).resolve()
 
 # User agent
 USER_AGENT = "Mozilla/5.0 (any) OpenSanctions/3"
-HTTP_TIMEOUT = 30
+HTTP_TIMEOUT = 60

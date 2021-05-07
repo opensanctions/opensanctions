@@ -3,6 +3,7 @@ import logging
 from followthemoney.cli.util import write_object
 
 from opensanctions.core import Dataset, Context, setup
+from opensanctions.core.http import cleanup_cache
 
 
 @click.group(help="OpenSanctions ETL toolkit")
@@ -56,3 +57,8 @@ def run(dataset):
         context = Context(dataset_)
         context.normalize()
         context.export()
+
+
+@cli.command("cleanup", help="Clean up caches")
+def cleanup():
+    cleanup_cache()
