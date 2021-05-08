@@ -1,5 +1,6 @@
 from lxml import html
 
+from opensanctions import settings
 from opensanctions.util import is_empty
 
 UI_URL = "https://www.cia.gov%s"
@@ -46,7 +47,7 @@ def crawl_country(context, params, path, country):
 
 
 def crawl(context):
-    params = {"_": context.run_id}
+    params = {"_": settings.RUN_DATE}
     res = context.http.get(context.dataset.data.url, params=params)
     data = res.json().get("result", {}).get("data", {})
     for edge in data.get("governments", {}).get("edges", []):

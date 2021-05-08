@@ -2,7 +2,7 @@ from normality import collapse_spaces, stringify
 from pprint import pprint  # noqa
 from lxml import html
 
-from opensanctions import constants
+from opensanctions import constants, settings
 from opensanctions.util import date_formats, MONTH, YEAR, DAY
 
 MAX_RESULTS = 160
@@ -73,6 +73,7 @@ def crawl_country(context, country, age_max=120, age_min=0):
         # "arrestWarrantCountryId": country,
         "nationality": country,
         "resultPerPage": MAX_RESULTS,
+        "_": settings.RUN_DATE,
     }
     res = context.http.get(context.dataset.data.url, params=params)
     if res.status_code != 200:

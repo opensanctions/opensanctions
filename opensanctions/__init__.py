@@ -1,3 +1,4 @@
-# import logging
+import logging
 
-# logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
+
+logging.getLogger("requests_cache").setLevel(logging.WARNING)

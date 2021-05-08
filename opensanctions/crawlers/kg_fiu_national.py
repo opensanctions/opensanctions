@@ -2,6 +2,7 @@ import re
 from lxml import html
 from pprint import pprint  # noqa
 
+from opensanctions import settings
 from opensanctions.util import jointext
 from opensanctions.util import date_formats, DAY
 
@@ -53,7 +54,7 @@ def parse_common(context, node, entity):
 
 
 def crawl_index(context):
-    params = {"_": context.run_id}
+    params = {"_": settings.RUN_DATE}
     res = context.http.get(context.dataset.url, params=params)
     doc = html.fromstring(res.text)
     for link in doc.findall(".//div[@class='sked-view']//a"):

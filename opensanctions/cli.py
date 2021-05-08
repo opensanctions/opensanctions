@@ -12,7 +12,7 @@ from opensanctions.core.http import cleanup_cache
 def cli(verbose=False, quiet=False):
     level = logging.INFO
     if quiet:
-        level = logging.ERROR
+        level = logging.WARNING
     if verbose:
         level = logging.DEBUG
     setup(log_level=level)
