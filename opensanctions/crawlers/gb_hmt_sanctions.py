@@ -1,10 +1,9 @@
-from pprint import pprint  # noqa
-from datetime import datetime
+from pprint import pprint
 from normality import stringify, collapse_spaces
 from followthemoney import model
 
 from opensanctions.util import jointext, multi_split, remove_bracketed
-from opensanctions.util import date_formats, MONTH, YEAR
+from opensanctions.util import date_parts, date_formats, MONTH, YEAR
 
 FORMATS = ["%d/%m/%Y", ("00/%m/%Y", MONTH), ("00/00/%Y", YEAR), ("%Y", YEAR)]
 NSMAP = {"GB": "http://schemas.datacontract.org/2004/07/"}
@@ -79,33 +78,19 @@ def parse_row(context, row):
 
     # DoB is sometimes a year only
     row.pop("DateOfBirth", None)
-    dob_day = int(stringify(row.pop("DayOfBirth", "0")))
-    dob_month = int(stringify(row.pop("MonthOfBirth", "0")))
-    dob_year = int(stringify(row.pop("YearOfBirth", "0")))
-    if dob_year > 1000:
-        try:
-            dt = datetime(dob_year, dob_month, dob_day)
-            entity.add_cast("Person", "birthDate", dt.date())
-        except ValueError:
-            entity.add_cast("Person", "birthDate", dob_year)
+    dob = date_parts(
+        row.pop("YearOfBirth", 0),
+        row.pop("MonthOfBirth", 0),
+        row.pop("DayOfBirth", 0),
+    )
+    if dob is not None:
+        entity.add_cast("Person", "birthDate", dob)
 
     entity.add_cast("Person", "gender", row.pop("Gender", None))
     id_number = row.pop("NationalIdNumber", None)
     entity.add_cast("LegalEntity", "idNumber", id_number)
     passport = row.pop("PassportDetails", None)
     entity.add_cast("Person", "passportNumber", passport)
-
-    reg_number = row.pop("BusinessRegNumber", None)
-    entity.add_cast("LegalEntity", "registrationNumber", reg_number)
-
-    phones = split_items(row.pop("PhoneNumber", None), comma=True)
-    entity.add_cast("LegalEntity", "phone", phones)
-
-    website = split_items(row.pop("Website", None), comma=True)
-    entity.add_cast("LegalEntity", "website", website)
-
-    emails = split_items(row.pop("EmailAddress", None), comma=True)
-    entity.add_cast("LegalEntity", "email", emails)
 
     flag = row.pop("FlagOfVessel", None)
     entity.add_cast("Vessel", "flag", flag)
@@ -128,15 +113,14 @@ def parse_row(context, row):
 
     # entity.add("legalForm", org_type)
     entity.add("title", row.pop("NameTitle", None), quiet=True)
-    name1 = row.pop("name1", None)
-    entity.add("firstName", name1, quiet=True)
-    name2 = row.pop("name2", None)
-    name3 = row.pop("name3", None)
-    name4 = row.pop("name4", None)
-    name5 = row.pop("name5", None)
+    entity.add("firstName", row.pop("name1", None), quiet=True)
+    entity.add("secondName", row.pop("name2", None), quiet=True)
+    entity.add("middleName", row.pop("name3", None), quiet=True)
+    entity.add("middleName", row.pop("name4", None), quiet=True)
+    entity.add("middleName", row.pop("name5", None), quiet=True)
     name6 = row.pop("Name6", None)
     entity.add("lastName", name6, quiet=True)
-    full_name = row.pop("FullName")
+    full_name = row.pop("FullName", name6)
     row.pop("AliasTypeName")
     if row.pop("AliasType") == "AKA":
         entity.add("alias", full_name)
@@ -165,6 +149,18 @@ def parse_row(context, row):
         row.pop("PostCode", None),
     )
     entity.add("address", address, quiet=True)
+
+    reg_number = row.pop("BusinessRegNumber", None)
+    entity.add_cast("LegalEntity", "registrationNumber", reg_number)
+
+    phones = split_items(row.pop("PhoneNumber", None), comma=True)
+    entity.add_cast("LegalEntity", "phone", phones)
+
+    website = split_items(row.pop("Website", None), comma=True)
+    entity.add_cast("LegalEntity", "website", website)
+
+    emails = split_items(row.pop("EmailAddress", None), comma=True)
+    entity.add_cast("LegalEntity", "email", emails)
 
     # TODO: graph
     row.pop("Subsidiaries", None)

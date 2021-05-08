@@ -10,7 +10,7 @@ from os import environ as env
 INTERVAL = 84600
 
 # HTTP cache expiry may last multiple runs
-CACHE_EXPIRE = INTERVAL * 10
+CACHE_EXPIRE = INTERVAL * 7
 
 # All data storage (e.g. a Docker volume mount)
 DATA_PATH = Path.cwd().joinpath("data")

@@ -13,12 +13,12 @@ class Lookup(object):
         self.required = config.pop("required", False)
         self.normalize = config.pop("normalize", False)
         self.lowercase = config.pop("lowercase", False)
-        self.options = []
+        self.options = set()
         for option in ensure_list(config.pop("options", [])):
-            self.options.append(Option(self, option))
+            self.options.add(Option(self, option))
         for match, value in ensure_dict(config.pop("map", {})).items():
             option = {"match": match, "value": value}
-            self.options.append(Option(self, option))
+            self.options.add(Option(self, option))
 
     def match(self, value):
         results = []
@@ -76,6 +76,21 @@ class Option(object):
                 if cand in norm_value:
                     return True
         return norm_value in self.match
+
+    @property
+    def criteria(self):
+        criteria = set(self.match)
+        criteria.update((f"c({c})" for c in self.contains))
+        return sorted(criteria)
+
+    def __str__(self):
+        return "|".join(self.criteria)
+
+    def __repr__(self):
+        return "<Option(%r, %r)>" % (str(self), self.result)
+
+    def __hash__(self):
+        return hash(str(self))
 
 
 class Result(object):
