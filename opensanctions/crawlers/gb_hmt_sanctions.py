@@ -2,6 +2,7 @@ from pprint import pprint
 from normality import stringify, collapse_spaces
 from followthemoney import model
 
+from opensanctions.util import remove_namespace
 from opensanctions.util import jointext, multi_split, remove_bracketed
 from opensanctions.util import date_parts, date_formats, MONTH, YEAR
 
@@ -192,16 +193,15 @@ def make_row(el):
         value = cell.text.strip()
         if not len(value):
             continue
-        _, field = cell.tag.split("}")
-        assert field not in row, field
-        row[field] = value
+        assert cell.tag not in row, cell.tag
+        row[cell.tag] = value
     return row
 
 
 def crawl(context):
     context.fetch_artifact("source.xml", context.dataset.data.url)
     doc = context.parse_artifact_xml("source.xml")
-    root = doc.getroot()
+    doc = remove_namespace(doc)
 
-    for el in doc.findall(".//ConsolidatedList", root.nsmap):
+    for el in doc.findall(".//ConsolidatedList"):
         parse_row(context, make_row(el))

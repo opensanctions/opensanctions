@@ -1,5 +1,6 @@
 import re
 import logging
+from lxml import etree
 from banal import ensure_list
 from datetime import datetime, date
 from normality import stringify, slugify
@@ -64,6 +65,14 @@ def is_empty(text):
         text = text.strip()
         return len(text) == 0
     return False
+
+
+def remove_namespace(doc):
+    """Remove namespace in the passed document in place."""
+    for elem in doc.getiterator():
+        elem.tag = etree.QName(elem).localname
+    etree.cleanup_namespaces(doc)
+    return doc
 
 
 def jointext(*parts, sep=" "):

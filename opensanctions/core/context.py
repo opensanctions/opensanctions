@@ -45,6 +45,9 @@ class Context(object):
     def lookup_value(self, lookup, value, default=None):
         return self.dataset.lookups[lookup].get_value(value, default=default)
 
+    def lookup(self, lookup, value):
+        return self.dataset.lookups[lookup].match(value)
+
     def make(self, schema):
         """Make a new entity with some dataset context set."""
         return OSETLEntity(self.dataset, schema)

@@ -1,13 +1,12 @@
 # cf.
 # https://github.com/archerimpact/SanctionsExplorer/blob/master/data/sdn_parser.py
 # https://www.treasury.gov/resource-center/sanctions/SDN-List/Documents/sdn_advanced_notes.pdf
-from lxml import etree
 from os.path import commonprefix
 from pprint import pprint  # noqa
 from followthemoney import model
 from followthemoney.exc import InvalidData
 
-from opensanctions.util import jointext, date_parts
+from opensanctions.util import jointext, date_parts, remove_namespace
 
 CACHE = {}
 REFERENCES = {}
@@ -346,14 +345,6 @@ RELATIONS = {
 }
 
 
-def remove_namespace(doc):
-    """Remove namespace in the passed document in place."""
-    for elem in doc.getiterator():
-        elem.tag = etree.QName(elem).localname
-    etree.cleanup_namespaces(doc)
-    return doc
-
-
 def load_ref_values(doc):
     ref_value_sets = doc.find(".//ReferenceValueSets")
     for ref_set in ref_value_sets.getchildren():
@@ -572,7 +563,11 @@ def parse_party(context, doc, distinct_party, locations, documents):
     for feature in profile.findall("./Feature"):
         feature_id = feature.get("FeatureTypeID")
         if feature_id not in FEATURES:
-            context.log.warn("Unknwon feature type", value=feature_id)
+            context.log.warn(
+                "Unknwon feature type",
+                id=feature_id,
+                value=ref_value("FeatureType", feature_id),
+            )
             continue
 
         # feature_type = ref_value("FeatureType", feature_id)
@@ -645,24 +640,24 @@ def parse_entry(context, doc, entry):
 
 def parse_relation(context, doc, relation):
     type_id = relation.get("RelationTypeID")
-    if type_id not in RELATIONS:
-        context.log.warn("Unknwon relation type", value=type_id)
-        return
-
-    type_ = ref_value("RelationType", relation.get("RelationTypeID"))
-    # if type_id not in RELATIONS:
-    #     from_party = context.dataset.get(from_party.id)
-    #     to_party = context.dataset.get(to_party.id)
-    #     print(from_party, ">>", type_, ">>", to_party, " :: ", type_id)
-    #     return
-    schema, from_attr, to_attr, desc_attr = RELATIONS[type_id]
-    entity = context.make(schema)
     store = context.dataset.store
     from_id = context.dataset.make_slug(relation.get("From-ProfileID"))
     from_party = store.get(from_id)
-    from_range = entity.schema.get(from_attr).range
     to_id = context.dataset.make_slug(relation.get("To-ProfileID"))
     to_party = store.get(to_id)
+    type_ = ref_value("RelationType", relation.get("RelationTypeID"))
+    if type_id not in RELATIONS:
+        context.log.warn(
+            "Unknown relation type",
+            type_id=type_id,
+            type_value=type_,
+            from_party=from_party,
+            to_party=to_party,
+        )
+        return
+    schema, from_attr, to_attr, desc_attr = RELATIONS[type_id]
+    entity = context.make(schema)
+    from_range = entity.schema.get(from_attr).range
     to_range = entity.schema.get(to_attr).range
 
     # HACK: Looks like OFAC just has some link in a direction that makes no
