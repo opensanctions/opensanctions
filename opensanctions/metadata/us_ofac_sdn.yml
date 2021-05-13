@@ -13,3 +13,65 @@ url: https://www.treasury.gov/resource-center/sanctions/Pages/default.aspx
 data:
   url: https://www.treasury.gov/ofac/downloads/sanctions/1.0/sdn_advanced.xml
   format: XML
+
+lookups:
+  relations:
+    options:
+      - label: Associate Of
+        match: 1555
+        schema: UnknownLink
+        from_prop: subject
+        to_prop: object
+        description_prop: role
+      - label: "Providing support to_prop:"
+        match: 15001
+        schema: UnknownLink
+        from_prop: subject
+        to_prop: object
+        description_prop: role
+      - label: Acting for or on behalf of
+        match: 15002
+        schema: Representation
+        from_prop: agent
+        to_prop: client
+        description_prop: role
+      - label: Owned or Controlled By
+        match: 15003
+        schema: Ownership
+        from_prop: asset
+        to_prop: owner
+        description_prop: role
+      - label: Family member of
+        match: 15004
+        schema: Family
+        from_prop: person
+        to_prop: relative
+        description_prop: relationship
+      - label: Leader or official of
+        match: 91725
+        schema: Directorship
+        from_prop: director
+        to_prop: organization
+        description_prop: role
+      - label: playing a significant role in
+        match: 91422
+        schema: Membership
+        from_prop: member
+        to_prop: organization
+        description_prop: role
+      - label: Principal Executive Officer
+        match: 91900
+        schema: Directorship
+        from_prop: director
+        to_prop: organization
+        description_prop: role
+      - label: Owns, controls, or operates
+        match: 92019
+        schema: Ownership
+        from_prop: owner
+        to_prop: asset
+        description_prop: role
+  country:
+    options:
+      - match: None Identified
+        value: null

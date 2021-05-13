@@ -1,17 +1,23 @@
 # cf.
 # https://github.com/archerimpact/SanctionsExplorer/blob/master/data/sdn_parser.py
-# https://www.treasury.gov/resource-center/sanctions/SDN-List/Documents/sdn_advanced_notes.pdf
+# https://home.treasury.gov/system/files/126/sdn_advanced_notes.pdf
 from os.path import commonprefix
-from pprint import pprint  # noqa
 from followthemoney import model
 from followthemoney.exc import InvalidData
 
+from opensanctions.core.dataset import Dataset
 from opensanctions.util import jointext, date_parts, remove_namespace
 
 CACHE = {}
 REFERENCES = {}
 
-TAG = "{http://www.un.org/sanctions/1.0}"
+
+def lookup(name, value):
+    # We don't want to duplicate the lookup configs in both YAML files,
+    # so we're hard-coding that lookups go against the SDN config.
+    sdn = Dataset.get("us_ofac_sdn")
+    return sdn.lookups.get(name).match(value)
+
 
 TYPES = {
     "Entity": "LegalEntity",
@@ -327,23 +333,6 @@ REG_ID = {
     "1621": (None, None),
 }
 
-RELATIONS = {
-    "15003": ("Ownership", "asset", "owner", "role"),
-    "15002": ("Representation", "agent", "client", "role"),
-    # Providing support to:
-    "15001": ("UnknownLink", "subject", "object", "role"),
-    # Leader or official of
-    "91725": ("Directorship", "director", "organization", "role"),
-    # Principal Executive Officer
-    "91900": ("Directorship", "director", "organization", "role"),
-    # Associate Of
-    "1555": ("UnknownLink", "subject", "object", "role"),
-    # playing a significant role in
-    "91422": ("Membership", "member", "organization", "role"),
-    # Family member of
-    "15004": ("Family", "person", "relative", "relationship"),
-}
-
 
 def load_ref_values(doc):
     ref_value_sets = doc.find(".//ReferenceValueSets")
@@ -487,7 +476,7 @@ def parse_alias(party, parts, alias):
 
 def make_adjacent(context, name):
     entity = context.make("LegalEntity")
-    entity.make_slug("Named", name)
+    entity.make_slug("named", name)
     entity.add("name", name)
     context.emit(entity)
     return entity
@@ -563,11 +552,11 @@ def parse_party(context, doc, distinct_party, locations, documents):
     for feature in profile.findall("./Feature"):
         feature_id = feature.get("FeatureTypeID")
         if feature_id not in FEATURES:
-            context.log.warn(
-                "Unknwon feature type",
-                id=feature_id,
-                value=ref_value("FeatureType", feature_id),
-            )
+            # context.log.warn(
+            #     "Unknown feature type",
+            #     id=feature_id,
+            #     value=ref_value("FeatureType", feature_id),
+            # )
             continue
 
         # feature_type = ref_value("FeatureType", feature_id)
@@ -638,15 +627,16 @@ def parse_entry(context, doc, entry):
     # pprint(sanction.to_dict())
 
 
-def parse_relation(context, doc, relation):
-    type_id = relation.get("RelationTypeID")
+def parse_relation(context, doc, el):
+    type_id = el.get("RelationTypeID")
     store = context.dataset.store
-    from_id = context.dataset.make_slug(relation.get("From-ProfileID"))
+    from_id = context.dataset.make_slug(el.get("From-ProfileID"))
     from_party = store.get(from_id)
-    to_id = context.dataset.make_slug(relation.get("To-ProfileID"))
+    to_id = context.dataset.make_slug(el.get("To-ProfileID"))
     to_party = store.get(to_id)
-    type_ = ref_value("RelationType", relation.get("RelationTypeID"))
-    if type_id not in RELATIONS:
+    type_ = ref_value("RelationType", el.get("RelationTypeID"))
+    relation = lookup("relations", type_id)
+    if relation is None:
         context.log.warn(
             "Unknown relation type",
             type_id=type_id,
@@ -655,10 +645,9 @@ def parse_relation(context, doc, relation):
             to_party=to_party,
         )
         return
-    schema, from_attr, to_attr, desc_attr = RELATIONS[type_id]
-    entity = context.make(schema)
-    from_range = entity.schema.get(from_attr).range
-    to_range = entity.schema.get(to_attr).range
+    entity = context.make(relation.schema)
+    from_range = entity.schema.get(relation.from_prop).range
+    to_range = entity.schema.get(relation.to_prop).range
 
     # HACK: Looks like OFAC just has some link in a direction that makes no
     # semantic sense, so we're flipping them here.
@@ -669,11 +658,11 @@ def parse_relation(context, doc, relation):
     add_schema(to_party, to_range)
     context.emit(from_party)
     context.emit(to_party)
-    entity.make_id("Relation", from_party.id, to_party.id, relation.get("ID"))
-    entity.add(from_attr, from_party)
-    entity.add(to_attr, to_party)
-    entity.add(desc_attr, type_)
-    entity.add("summary", relation.findtext("./Comment"))
+    entity.make_id("Relation", from_party.id, to_party.id, el.get("ID"))
+    entity.add(relation.from_prop, from_party)
+    entity.add(relation.to_prop, to_party)
+    entity.add(relation.description_prop, type_)
+    entity.add("summary", el.findtext("./Comment"))
     context.emit(entity)
     context.log.debug("Relation", from_=from_party, type=type_, to=to_party)
     # pprint(entity.to_dict())
