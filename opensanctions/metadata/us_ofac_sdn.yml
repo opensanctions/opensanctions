@@ -15,6 +15,389 @@ data:
   format: XML
 
 lookups:
+  IDRegDocType:
+    options:
+      - label: Cedula No.
+        match: 1570
+        schema: LegalEntity
+        prop: idNumber
+      - label: Passport
+        match: 1571
+        schema: null
+        prop: null
+      - label: SSN
+        match: 1572
+        schema: null
+        prop: null
+      - label: R.F.C.
+        match: 1573
+        schema: null
+        prop: null
+      - label: D.N.I.
+        match: 1574
+        schema: null
+        prop: null
+      - label: "NIT #"
+        match: 1575
+        schema: LegalEntity
+        prop: idNumber
+      - label: US FEIN
+        match: 1576
+        schema: null
+        prop: null
+      - label: Driver's License No.
+        match: 1577
+        schema: null
+        prop: null
+      - label: "RUC #"
+        match: 1578
+        schema: LegalEntity
+        prop: taxNumber
+      - label: N.I.E.
+        match: 1579
+        schema: null
+        prop: null
+      - label: C.I.F.
+        match: 1580
+        schema: null
+        prop: null
+      - label: "Business Registration Document #"
+        match: 1581
+        schema: LegalEntity
+        prop: registrationNumber
+      - label: "RIF #"
+        match: 1582
+        schema: null
+        prop: null
+      - label: National ID No.
+        match: 1584
+        schema: LegalEntity
+        prop: idNumber
+      - label: Registration ID
+        match: 1585
+        schema: LegalEntity
+        prop: registrationNumber
+      - label: LE Number
+        match: 1586
+        schema: null
+        prop: null
+      - label: Bosnian Personal ID No.
+        match: 1587
+        schema: Person
+        prop: idNumber
+      - label: Registered Charity No.
+        match: 1588
+        schema: null
+        prop: null
+      - label: V.A.T. Number
+        match: 1589
+        schema: LegalEntity
+        prop: taxNumber
+      - label: Credencial electoral
+        match: 1590
+        schema: null
+        prop: null
+      - label: Kenyan ID No.
+        match: 1591
+        schema: LegalEntity
+        prop: idNumber
+      - label: Italian Fiscal Code
+        match: 1592
+        schema: LegalEntity
+        prop: taxNumber
+      - label: Serial No.
+        match: 1593
+        schema: null
+        prop: null
+      - label: C.U.I.T.
+        match: 1595
+        schema: null
+        prop: null
+      - label: Tax ID No.
+        match: 1596
+        schema: LegalEntity
+        prop: taxNumber
+      - label: Moroccan Personal ID No.
+        match: 1597
+        schema: LegalEntity
+        prop: idNumber
+      - label: Public Security and Immigration No.
+        match: 1598
+        schema: null
+        prop: null
+      - label: C.U.R.P.
+        match: 1600
+        schema: null
+        prop: null
+      - label: British National Overseas Passport
+        match: 1601
+        schema: null
+        prop: null
+      - label: C.R. No.
+        match: 1602
+        schema: null
+        prop: null
+      - label: UK Company Number
+        match: 1603
+        schema: Company
+        prop: registrationNumber
+      - label: Immigration No.
+        match: 1604
+        schema: null
+        prop: null
+      - label: Travel Document Number
+        match: 1605
+        schema: null
+        prop: null
+      - label: Electoral Registry No.
+        match: 1607
+        schema: null
+        prop: null
+      - label: Identification Number
+        match: 1608
+        schema: LegalEntity
+        prop: idNumber
+      - label: Paraguayan tax identification number
+        match: 1609
+        schema: LegalEntity
+        prop: taxNumber
+      - label: National Foreign ID Number
+        match: 1611
+        schema: LegalEntity
+        prop: idNumber
+      - label: RFC
+        match: 1612
+        schema: null
+        prop: null
+      - label: Diplomatic Passport
+        match: 1613
+        schema: null
+        prop: null
+      - label: Dubai Chamber of Commerce Membership No.
+        match: 1614
+        schema: null
+        prop: null
+      - label: Trade License No.
+        match: 1615
+        schema: null
+        prop: null
+      - label: Commercial Registry Number
+        match: 1619
+        schema: LegalEntity
+        prop: registrationNumber
+      - label: Certificate of Incorporation Number
+        match: 1620
+        schema: LegalEntity
+        prop: registrationNumber
+      - label: Tourism License No.
+        match: 1621
+        schema: null
+        prop: null
+      - label: Aircraft Serial Identification
+        match: 1623
+        schema: Vehicle
+        prop: registrationNumber
+      - label: Cartilla de Servicio Militar Nacional
+        match: 1624
+        schema: null
+        prop: null
+      - label: C.U.I.P.
+        match: 1625
+        schema: null
+        prop: null
+      - label: Vessel Registration Identification
+        match: 1626
+        schema: Vehicle
+        prop: registrationNumber
+      - label: Personal ID Card
+        match: 1627
+        schema: LegalEntity
+        prop: idNumber
+      - label: VisaNumberID
+        match: 1630
+        schema: null
+        prop: null
+      - label: Matricula Mercantil No
+        match: 1631
+        schema: null
+        prop: null
+      - label: Residency Number
+        match: 1632
+        schema: null
+        prop: null
+      - label: Numero Unico de Identificacao Tributaria (NUIT)
+        match: 1633
+        schema: null
+        prop: null
+      - label: CNP (Personal Numerical Code)
+        match: 1634
+        schema: LegalEntity
+        prop: idNumber
+      - label: Romanian Permanent Resident
+        match: 1635
+        schema: null
+        prop: null
+      - label: Government Gazette Number
+        match: 1636
+        schema: null
+        prop: null
+      - label: Fiscal Code
+        match: 1638
+        schema: null
+        prop: null
+      - label: Pilot License Number
+        match: 1639
+        schema: null
+        prop: null
+      - label: Romanian C.R.
+        match: 1642
+        schema: null
+        prop: null
+      - label: Folio Mercantil No.
+        match: 1643
+        schema: null
+        prop: null
+      - label: Istanbul Chamber of Comm. No.
+        match: 1644
+        schema: LegalEntity
+        prop: registrationNumber
+      - label: Turkish Identification Number
+        match: 1645
+        schema: LegalEntity
+        prop: idNumber
+      - label: Romanian Tax Registration
+        match: 1646
+        schema: LegalEntity
+        prop: taxNumber
+      - label: Stateless Person Passport
+        match: 1647
+        schema: null
+        prop: null
+      - label: Stateless Person ID Card
+        match: 1648
+        schema: null
+        prop: null
+      - label: Refugee ID Card
+        match: 1649
+        schema: null
+        prop: null
+      - label: Afghan Money Service Provider License Number
+        match: 91236
+        schema: null
+        prop: null
+      - label: MMSI
+        match: 91264
+        schema: Vessel
+        prop: mmsi
+      - label: Company Number
+        match: 91412
+        schema: Company
+        prop: registrationNumber
+      - label: Public Registration Number
+        match: 91475
+        schema: LegalEntity
+        prop: registrationNumber
+      - label: RTN
+        match: 91481
+        schema: null
+        prop: null
+      - label: Numero de Identidad
+        match: 91482
+        schema: LegalEntity
+        prop: idNumber
+      - label: SRE Permit No.
+        match: 91484
+        schema: null
+        prop: null
+      - label: Tazkira National ID Card
+        match: 91492
+        schema: Person
+        prop: idNumber
+      - label: License
+        match: 91504
+        schema: null
+        prop: null
+      - label: Chinese Commercial Code
+        match: 91508
+        schema: LegalEntity
+        prop: registrationNumber
+      - label: I.F.E.
+        match: 91712
+        schema: null
+        prop: null
+      - label: Branch Unit Number
+        match: 91719
+        schema: null
+        prop: null
+      - label: Enterprise Number
+        match: 91720
+        schema: Company
+        prop: registrationNumber
+      - label: Citizen's Card Number
+        match: 91739
+        schema: Person
+        prop: idNumber
+      - label: UAE Identification
+        match: 91740
+        schema: LegalEntity
+        prop: idNumber
+      - label: United Social Credit Code Certificate (USCCC)
+        match: 91747
+        schema: null
+        prop: null
+      - label: Tarjeta Profesional
+        match: 91750
+        schema: null
+        prop: null
+      - label: Chamber of Commerce Number
+        match: 91751
+        schema: LegalEntity
+        prop: registrationNumber
+      - label: Legal Entity Number
+        match: 91752
+        schema: LegalEntity
+        prop: registrationNumber
+      - label: Business Number
+        match: 91753
+        schema: Company
+        prop: registrationNumber
+      - label: Birth Certificate Number
+        match: 91759
+        schema: null
+        prop: null
+      - label: Business Registration Number
+        match: 91760
+        schema: LegalEntity
+        prop: registrationNumber
+      - label: Registration Number
+        match: 91761
+        schema: LegalEntity
+        prop: registrationNumber
+      - label: MSB Registration Number
+        match: 91812
+        schema: Company
+        prop: registrationNumber
+      - label: RSIN
+        url: https://www.kvk.nl/english/registration/rsin-number/
+        match: 91813
+        schema: Organization
+        prop: registrationNumber
+      - label: File Number
+        match: 91835
+        schema: null
+        prop: null
+      - label: C.U.I.
+        match: 91854
+        schema: null
+        prop: null
+      - label: Seafarer's Identification Document
+        match: 91891
+        schema: null
+        prop: null
+      - label: Unified Social Credit Code (USCC)
+        match: 92001
+        schema: null
+        prop: null
   relations:
     options:
       - label: Associate Of

@@ -18,5 +18,6 @@ data:
 lookups:
   email:
     options:
+      # https://subchik.ru/organisations/7005
       - match: PRIYEMNAYA@YGDU
-        value: null
+        value: PRIYEMNAYA@ygdu_gazprom.ru

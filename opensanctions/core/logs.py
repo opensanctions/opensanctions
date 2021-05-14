@@ -1,6 +1,7 @@
 import sys
 import logging
 import structlog
+from lxml.etree import _Element, tostring
 from structlog.contextvars import merge_contextvars
 
 # from structlog.contextvars import clear_contextvars, bind_contextvars
@@ -11,6 +12,15 @@ logging.getLogger("httpstream").setLevel(logging.WARNING)
 
 
 def store_event(logger, log_method, data):
+    for key, value in data.items():
+        if hasattr(value, "as_posix"):
+            value = value.as_posix()
+        if hasattr(value, "to_dict"):
+            value = value.to_dict()
+        if isinstance(value, _Element):
+            value = tostring(value, pretty_print=False)
+        data[key] = value
+
     # level = getattr(logging, data.get("level").upper())
     # if level > logging.INFO:
     #     print("FOO", logger, log_method)
