@@ -19,7 +19,7 @@ def lookup(name, value):
 
 
 TYPES = {
-    "Entity": "LegalEntity",
+    "Entity": "Organization",
     "Individual": "Person",
     "Vessel": "Vessel",
     "Aircraft": "Airplane",
@@ -37,107 +37,6 @@ NAMES = {
     "Patronymic": "fatherName",
     "Matronymic": "motherName",
 }
-
-FEATURES = {
-    # Location
-    "25": (None, None),
-    # Title
-    "26": (None, "position"),
-    # Birthdate
-    "8": ("Person", "birthDate"),
-    # Place of Birth
-    "9": ("Person", "birthPlace"),
-    # Additional Sanctions Information -
-    "125": (None, "notes"),
-    # Gender
-    "224": ("Person", "gender"),
-    # Vessel Call Sign
-    "1": ("Vessel", "callSign"),
-    # Vessel Flag
-    "3": ("Vessel", "flag"),
-    # Vessel Owner
-    "4": ("Vehicle", "owner"),
-    # Vessel Tonnage
-    "5": ("Vessel", "tonnage"),
-    # Vessel Gross Registered Tonnage
-    "6": ("Vessel", "grossRegisteredTonnage"),
-    # VESSEL TYPE
-    "2": ("Vehicle", "type"),
-    # Nationality Country
-    "10": ("Person", "nationality"),
-    # Citizenship Country
-    "11": ("Person", "nationality"),
-    # Secondary sanctions risk:
-    "504": (None, "program"),
-    # Transactions Prohibited For Persons Owned or Controlled By U.S. Financial Institutions:
-    "626": (None, "program"),
-    # Website
-    "14": (None, "website"),
-    # Email Address
-    "21": (None, "email"),
-    # IFCA Determination -
-    "104": (None, "classification"),
-    # SWIFT/BIC
-    "13": (None, "swiftBic"),
-    # Phone Number
-    "524": (None, "phone"),
-    # Former Vessel Flag
-    "24": (None, "pastFlags"),
-    # Aircraft Construction Number (also called L/N or S/N or F/N)
-    "44": (None, None),
-    # Aircraft Manufacturer’s Serial Number (MSN)
-    "50": ("Airplane", "serialNumber"),
-    # Aircraft Manufacture Date
-    "45": ("Vehicle", "buildDate"),
-    # Aircraft Model
-    "47": ("Vehicle", "model"),
-    # Aircraft Operator
-    "48": ("Vehicle", "operator"),
-    # BIK (RU)
-    "164": ("Company", "bikCode"),
-    # UN/LOCODE
-    "264": (None, None),
-    # Aircraft Tail Number
-    "64": ("Vehicle", "registrationNumber"),
-    # Previous Aircraft Tail Number
-    "49": (None, "icaoCode"),
-    # Executive Order 13662 Directive Determination -
-    "204": (None, "program"),
-    # MICEX Code
-    "304": (None, None),
-    # Nationality of Registration
-    "365": ("Thing", "country"),
-    # D-U-N-S Number
-    "364": ("LegalEntity", "dunsCode"),
-    # Other Vessel Call Sign
-    "425": (None, "callSign"),
-    # Other Vessel Flag
-    "424": (None, "flag"),
-    # CAATSA Section 235 Information:
-    "525": (None, "program"),
-    # Other Vessel Type
-    "526": ("Vehicle", "type"),
-    # TODO: should we model these as BankAccount??
-    # Digital Currency Address - XBT
-    "344": (None, None),
-    # Digital Currency Address - LTC
-    "566": (None, None),
-    # Aircraft Mode S Transponder Code
-    "46": (None, "registrationNumber"),
-    # Executive Order 13846 information:
-    "586": (None, "program"),
-    # Organization Established Date
-    "646": ("Organization", "incorporationDate"),
-    # Organization Type:
-    "647": ("Organization", "legalForm"),
-}
-
-ADJACENT_FEATURES = [
-    # Vessel Owner
-    "4",
-    # Aircraft Operator
-    "48",
-]
 
 
 def load_ref_values(doc):
@@ -280,15 +179,59 @@ def parse_alias(party, parts, alias):
             party.add("alias", name)
 
 
-def make_adjacent(context, name):
-    entity = context.make("LegalEntity")
+def make_adjacent(context, schema, name):
+    entity = context.make(schema)
     entity.make_slug("named", name)
     entity.add("name", name)
     context.emit(entity)
     return entity
 
 
-def parse_party(context, doc, distinct_party, locations, documents):
+def parse_feature(context, feature, party, locations):
+    feature_id = feature.get("FeatureTypeID")
+    feature_label = ref_value("FeatureType", feature_id)
+    feature_res = lookup("FeatureType", int(feature_id))
+    if feature_res is None:
+        context.log.warn(
+            "Unknown FeatureType",
+            id=feature_id,
+            value=feature_label,
+            schema=party.schema.name,
+        )
+        return
+
+    if feature_res.schema is not None:
+        add_schema(party, feature_res.schema)
+    if feature_res.prop is None:
+        # from lxml import etree
+        # print("---[%r]-> %s" % (party, feature_label))
+        # print(etree.tostring(feature).decode("utf-8"))
+        return
+
+    period = feature.find(".//DatePeriod")
+    if period is not None:
+        party.add(feature_res.prop, parse_date_period(period))
+
+    location = feature.find(".//VersionLocation")
+    if location is not None:
+        address, countries = locations[location.get("LocationID")]
+        party.add("address", address)
+        party.add("country", countries)
+
+    detail = feature.find(".//VersionDetail")
+    if detail is not None:
+        # detail_type = ref_value("DetailType", detail.get("DetailTypeID"))
+        reference_id = detail.get("DetailReferenceID")
+        if reference_id is not None:
+            value = ref_value("DetailReference", reference_id)
+        else:
+            value = detail.text
+        if feature_res.entity:
+            value = make_adjacent(context, feature_res.entity, value)
+        party.add(feature_res.prop, value)
+
+
+def parse_party(context, distinct_party, locations, documents):
     profile = distinct_party.find("Profile")
     sub_type = ref_get("PartySubType", profile.get("PartySubTypeID"))
     schema = TYPES.get(sub_type.get("Value"))
@@ -338,7 +281,7 @@ def parse_party(context, doc, distinct_party, locations, documents):
                 party.add("ogrnCode", number)
                 continue
 
-            if doc_res.schema is None:
+            if doc_res.prop is None:
                 if not party.schema.is_a("LegalEntity"):
                     context.log.warn(
                         "Cannot attach passport",
@@ -347,6 +290,7 @@ def parse_party(context, doc, distinct_party, locations, documents):
                         label=doc_label,
                     )
                     continue
+                # TODO: Check out IDRegDocDateType
                 passport = context.make("Passport")
                 passport.make_id("Passport", party.id, regdoc.get("ID"))
                 passport.add("holder", party)
@@ -357,58 +301,21 @@ def parse_party(context, doc, distinct_party, locations, documents):
                 context.emit(passport)
                 continue
 
+            # TODO: this should not be there.
             if not disjoint_schema(party, doc_res.schema):
                 add_schema(party, doc_res.schema)
                 party.add(doc_res.prop, number)
                 continue
 
     for feature in profile.findall("./Feature"):
-        feature_id = feature.get("FeatureTypeID")
-        if feature_id not in FEATURES:
-            # context.log.warn(
-            #     "Unknown feature type",
-            #     id=feature_id,
-            #     value=ref_value("FeatureType", feature_id),
-            # )
-            continue
-
-        # feature_type = ref_value("FeatureType", feature_id)
-        # if feature_id not in FEATURES:
-        #     print("    # %s" % feature_type)
-        #     print("    '%s': (None, None)," % feature_id)
-        schema, prop = FEATURES[feature_id]
-        if schema is not None:
-            add_schema(party, schema)
-        if prop is None:
-            continue
-
-        period = feature.find(".//DatePeriod")
-        if period is not None:
-            party.add(prop, parse_date_period(period))
-
-        location = feature.find(".//VersionLocation")
-        if location is not None:
-            address, countries = locations[location.get("LocationID")]
-            party.add("address", address)
-            party.add("country", countries)
-
-        detail = feature.find(".//VersionDetail")
-        if detail is not None:
-            reference_id = detail.get("DetailReferenceID")
-            if reference_id is not None:
-                value = ref_value("DetailReference", reference_id)
-            else:
-                value = detail.text
-            if feature_id in ADJACENT_FEATURES:
-                value = make_adjacent(context, value)
-            party.add(prop, value)
+        parse_feature(context, feature, party, locations)
 
     context.emit(party, target=True, unique=True)
     # pprint(party.to_dict())
     # context.log.info("[%s] %s" % (party.schema.name, party.caption))
 
 
-def parse_entry(context, doc, entry):
+def parse_entry(context, entry):
     party = context.make("Thing")
     party.make_slug(entry.get("ProfileID"))
 
@@ -440,7 +347,7 @@ def parse_entry(context, doc, entry):
     # pprint(sanction.to_dict())
 
 
-def parse_relation(context, doc, el):
+def parse_relation(context, el):
     type_id = el.get("RelationTypeID")
     store = context.dataset.store
     from_id = context.dataset.make_slug(el.get("From-ProfileID"))
@@ -493,10 +400,10 @@ def crawl(context):
     documents = load_documents(doc)
 
     for distinct_party in doc.findall(".//DistinctParty"):
-        parse_party(context, doc, distinct_party, locations, documents)
+        parse_party(context, distinct_party, locations, documents)
 
     for entry in doc.findall(".//SanctionsEntry"):
-        parse_entry(context, doc, entry)
+        parse_entry(context, entry)
 
     for relation in doc.findall(".//ProfileRelationship"):
-        parse_relation(context, doc, relation)
+        parse_relation(context, relation)

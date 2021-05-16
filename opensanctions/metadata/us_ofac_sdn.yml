@@ -15,6 +15,252 @@ data:
   format: XML
 
 lookups:
+  FeatureType:
+    options:
+      - label: "Vessel Call Sign"
+        match: 1
+        schema: Vehicle
+        prop: callSign
+      - label: "VESSEL TYPE"
+        match: 2
+        schema: Vehicle
+        prop: type
+      - label: "Vessel Flag"
+        match: 3
+        schema: Vessel
+        prop: flag
+      - label: "Vessel Owner"
+        match: 4
+        entity: LegalEntity # forward ref
+        schema: Vehicle
+        prop: owner
+      - label: "Vessel Tonnage"
+        match: 5
+        schema: Vessel
+        prop: tonnage
+      - label: "Vessel Gross Registered Tonnage"
+        match: 6
+        schema: Vessel
+        prop: grossRegisteredTonnage
+      - label: "Birthdate"
+        match: 8
+        schema: Person
+        prop: birthDate
+      - label: "Place of Birth"
+        match: 9
+        schema: Person
+        prop: birthPlace
+      - label: "Nationality Country"
+        match: 10
+        schema: Person
+        prop: nationality
+      - label: "Citizenship Country"
+        match: 11
+        schema: Person
+        prop: nationality
+      - label: "SWIFT/BIC"
+        match: 13
+        schema: LegalEntity
+        prop: swiftBic
+      - label: "Website"
+        match: 14
+        schema: LegalEntity
+        prop: website
+      - label: "Email Address"
+        match: 21
+        schema: LegalEntity
+        prop: email
+      - label: "Former Vessel Flag"
+        match: 24
+        schema: Vessel
+        prop: pastFlags
+      - label: "Location"
+        match: 25
+        schema: Thing
+        prop: address
+      - label: "Title"
+        match: 26
+        schema: null
+        prop: position
+      - label: "Aircraft Construction Number (also called L/N or S/N or F/N)"
+        match: 44
+        schema: null
+        prop: null
+      - label: "Aircraft Manufacture Date"
+        match: 45
+        schema: Vehicle
+        prop: buildDate
+      - label: "Aircraft Mode S Transponder Code"
+        match: 46
+        schema: null
+        prop: registrationNumber
+      - label: "Aircraft Model"
+        match: 47
+        schema: Airplane
+        prop: model
+      - label: "Aircraft Operator"
+        match: 48
+        entity: LegalEntity # forward ref
+        schema: Airplane
+        prop: operator
+      - label: "Previous Aircraft Tail Number"
+        match: 49
+        schema: Airplane
+        prop: icaoCode
+      - label: "Aircraft Manufacturer’s Serial Number (MSN)"
+        match: 50
+        schema: Airplane
+        prop: serialNumber
+      - label: "Aircraft Tail Number"
+        match: 64
+        schema: Airplane
+        prop: registrationNumber
+      - label: "IFCA Determination -"
+        match: 104
+        schema: null
+        prop: classification
+      - label: "Additional Sanctions Information -"
+        match: 125
+        schema: Thing
+        prop: notes
+      - label: "BIK (RU)"
+        match: 164
+        schema: Company
+        prop: bikCode
+      - label: "Executive Order 13662 Directive Determination -"
+        match: 204
+        schema: Thing
+        prop: program
+      - label: "Gender"
+        match: 224
+        schema: Person
+        prop: gender
+      - label: "UN/LOCODE"
+        match: 264
+        schema: null
+        prop: null
+      - label: "MICEX Code"
+        match: 304
+        schema: null
+        prop: null
+      - label: "Digital Currency Address - XBT"
+        match: 344
+        schema: null
+        prop: null
+      - label: "Digital Currency Address - ETH"
+        match: 345
+        schema: null
+        prop: null
+      - label: "D-U-N-S Number"
+        match: 364
+        schema: LegalEntity
+        prop: dunsCode
+      - label: "Nationality of Registration"
+        match: 365
+        # TODO: is this for vessels?
+        schema: Thing
+        prop: country
+      - label: "Other Vessel Flag"
+        match: 424
+        schema: Vessel
+        prop: flag
+      - label: "Other Vessel Call Sign"
+        match: 425
+        schema: Vessel
+        prop: callSign
+      - label: "Digital Currency Address - XMR"
+        match: 444
+        schema: null
+        prop: null
+      - label: "Secondary sanctions risk:"
+        match: 504
+        schema: null
+        prop: program
+      - label: "Phone Number"
+        match: 524
+        schema: LegalEntity
+        prop: phone
+      - label: "CAATSA Section 235 Information:"
+        match: 525
+        schema: Thing
+        prop: program
+      - label: "Other Vessel Type"
+        match: 526
+        schema: Vessel
+        prop: type
+      - label: "Digital Currency Address - LTC"
+        match: 566
+        schema: null
+        prop: null
+      - label: "Executive Order 13846 information:"
+        url: https://home.treasury.gov/system/files/126/13846.pdf
+        match: 586
+        schema: null
+        prop: program
+      - label: "Transactions Prohibited For Persons Owned or Controlled By U.S. Financial Institutions:"
+        match: 626
+        schema: null
+        prop: program
+      - label: "Organization Established Date"
+        match: 646
+        schema: LegalEntity
+        prop: incorporationDate
+      - label: "Organization Type:"
+        match: 647
+        schema: LegalEntity
+        prop: legalForm
+      - label: "Digital Currency Address - ZEC"
+        match: 686
+        schema: null
+        prop: null
+      - label: "Digital Currency Address - DASH"
+        match: 687
+        schema: null
+        prop: null
+      - label: "Digital Currency Address - BTG"
+        match: 688
+        schema: null
+        prop: null
+      - label: "Digital Currency Address - ETC"
+        match: 689
+        schema: null
+        prop: null
+      - label: "Digital Currency Address - BSV"
+        match: 706
+        schema: null
+        prop: null
+      - label: "Digital Currency Address - BCH"
+        match: 726
+        schema: null
+        prop: null
+      - label: "Digital Currency Address - XVG"
+        match: 746
+        schema: null
+        prop: null
+      - label: "Equity Ticker"
+        match: 766
+        schema: null
+        prop: null
+      - label: "Issuer Name"
+        match: 767
+        schema: Thing
+        prop: alias
+      - label: "Listing Date (CCMC)"
+        match: 786
+        schema: null
+        prop: null
+      - label: "Effective Date (CCMC)"
+        match: 787
+        schema: null
+        prop: null
+      - label: "Divestment Date (CCMC)"
+        match: 788
+        schema: null
+        prop: null
+      - label: "Target Type"
+        match: 826
+        schema: null
+        prop: null
   IDRegDocType:
     options:
       - label: Cedula No.
