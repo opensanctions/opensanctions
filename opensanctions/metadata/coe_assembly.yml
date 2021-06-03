@@ -11,5 +11,52 @@ publisher:
   url: http://www.coe.int
 url: http://www.assembly.coe.int/nw/Home-EN.asp
 data:
-  url: http://www.assembly.coe.int/nw/xml/AssemblyList/MP-Alpha-EN.asp
+  url: https://pace.coe.int/en/members
   format: HTML
+
+lookups:
+  title:
+    options:
+      # jeez, Britain, relax
+      - regex: Sir.*
+        value: Sir
+      - regex: Mr.*
+        value: Mr
+      - regex: M\.P\..*
+        value: M.P.
+      - regex: Ms.*
+        value: Ms
+      - regex: Lord.*
+        value: Lord
+      - regex: Duke of.*
+        value: Duke
+      - regex: Viscount.*
+        value: Viscount
+      - regex: Dr\.*
+        value: Dr.
+      - regex: Prof\..*
+        value: Professor
+      - regex: Lady.*
+        value: Lady
+      - regex: Dame.*
+        value: Dame
+      - regex: Baroness.*
+        value: Baroness
+      - regex: Marquess of.*
+        value: Marquess
+      - regex: Rt Hon\..*
+        value: Rt Hon.
+  country:
+    options:
+      - match: Council of Europe
+        value: null
+      - match: Saar
+        value: DE
+      - match: Assembly of Kosovo*
+        value: XK
+      - match: Socialist Federal Republic of Yugoslavia
+        value: YUCS
+      - match: Palestinian National Council
+        value: Palestine
+      - match: Cyprus* [Resolution 1376 (2004)]
+        value: CY

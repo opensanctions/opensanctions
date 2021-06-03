@@ -1,3 +1,4 @@
+import re
 import structlog
 from banal import ensure_list, ensure_dict
 from normality import normalize, stringify
@@ -56,6 +57,8 @@ class Option(object):
         self.contains = [self.normalize_value(c) for c in contains]
         match = ensure_list(config.pop("match", []))
         self.match = [self.normalize_value(m) for m in match]
+        regex = ensure_list(config.pop("regex", []))
+        self.regex = [re.compile(r, re.U | re.M | re.S) for r in regex]
         self.result = Result(config)
 
     def normalize_value(self, value):
@@ -70,6 +73,9 @@ class Option(object):
         return value
 
     def matches(self, value):
+        for regex in self.regex:
+            if regex.match(value):
+                return True
         norm_value = self.normalize_value(value)
         if norm_value is not None:
             for cand in self.contains:
