@@ -1,6 +1,5 @@
-# TODO: should we try the CoH API or that listing?
-
-title: GB Insolvency Disqualified Directors
+entry_point: opensanctions.crawlers.gb_coh_disqualified
+title: GB Disqualified Directors
 prefix: gb-coh
 description: >
   Individuals which have been disqualified from holding the post of a
@@ -8,47 +7,9 @@ description: >
 collections:
   - crime
 publisher:
-  title: The UK Insolvency Service
-  url: https://www.insolvencydirect.bis.gov.uk
-url: https://www.insolvencydirect.bis.gov.uk/IESdatabase/viewdirectorsummary-new.asp
+  title: UK Companies House
+  url: https://www.gov.uk/government/organisations/companies-house
+url: https://find-and-update.company-information.service.gov.uk/register-of-disqualifications/A
 data:
-  url: https://www.insolvencydirect.bis.gov.uk/IESdatabase/viewdirectorsummary-new.asp
-  format: html
-
-# name: gb_coh_disqualified
-# description: "[OSANC] Disqualified company directors from the UK (Companies House)"
-# schedule: weekly
-# pipeline:
-#   init:
-#     method: seed
-#     params:
-#       url: "https://beta.companieshouse.gov.uk/register-of-disqualifications/A"
-#     handle:
-#       pass: fetch_index
-#   fetch_index:
-#     method: fetch
-#     params:
-#       http_rate_limit: 5
-#     handle:
-#       pass: alphabetical
-#   alphabetical:
-#     method: opensanctions.crawlers.gb_coh_disqualified:alphabetical
-#     handle:
-#       pass: fetch_pages
-#   fetch_pages:
-#     method: fetch
-#     params:
-#       http_rate_limit: 5
-#     handle:
-#       pass: parse_pages
-#   parse_pages:
-#     method: opensanctions.crawlers.gb_coh_disqualified:pages
-#     params:
-#       http_rate_limit: 5
-#     handle:
-#       pass: officer
-#       url: fetch_pages
-#   officer:
-#     method: opensanctions.crawlers.gb_coh_disqualified:officer
-# aggregator:
-#   method: ftm_load_aleph
+  url: https://api.companieshouse.gov.uk/search/disqualified-officers
+  format: json

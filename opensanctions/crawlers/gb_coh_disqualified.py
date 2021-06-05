@@ -1,19 +1,31 @@
 import os
+import string
 from pprint import pprint  # noqa
 from urllib.parse import urljoin
 
 from opensanctions.util import jointext
 
 
-API_KEY = os.environ.get("MEMORIOUS_COH_API_KEY")
+class RateLimit(Exception):
+    pass
+
+
+API_KEY = os.environ.get("OPENSANCTIONS_COH_API_KEY")
 AUTH = (API_KEY, "")
 SEARCH_URL = "https://api.companieshouse.gov.uk/search/disqualified-officers"
 API_URL = "https://api.companieshouse.gov.uk/disqualified-officers/natural/%s"
 WEB_URL = "https://beta.companieshouse.gov.uk/register-of-disqualifications/A"
 
 
+def http_get(context, url, params=None):
+    res = context.http.get(url, params=params, auth=AUTH)
+    if res.status_code == 429:
+        raise RateLimit()
+    return res
+
+
 def officer(context, data):
-    emitter = EntityEmitter(context)
+    # emitter = EntityEmitter(context)
     officer_id = data.get("officer_id")
     url = API_URL % officer_id
     with context.http.get(url, auth=AUTH) as res:
@@ -22,7 +34,7 @@ def officer(context, data):
             return
         data = res.json
         # pprint(data)
-        person = emitter.make("Person")
+        # person = emitter.make("Person")
         person.make_slug("officer", officer_id)
         source_url = urljoin(WEB_URL, data.get("links", {}).get("self", "/"))
         person.add("sourceUrl", source_url)
@@ -86,11 +98,20 @@ def pages(context, data):
                 context.emit(rule="url", data={"url": url})
 
 
-def alphabetical(context, data):
-    url = "https://beta.companieshouse.gov.uk/register-of-disqualifications/A"
-    res = context.http.get(url)
-    with context.http.rehash(data) as res:
-        doc = res.html
-        for a in doc.findall('.//ul[@id="alphabetical-pager"]/li/a'):
-            url = urljoin(WEB_URL, a.get("href"))
-            context.emit(data={"url": url})
+def crawl(context):
+    if API_KEY is None:
+        context.log.error("Please set $OPENSANCTIONS_COH_API_KEY.")
+        return
+    for letter in string.ascii_uppercase:
+        start_index = 0
+        while True:
+            params = {"q": letter, "start_index": start_index, "items_per_page": 100}
+            res = http_get(context, SEARCH_URL, params=params)
+            if res.status_code == 416:
+                break
+            data = res.json()
+            data.pop("items", [])
+            # pprint(data)
+            start_index = data["start_index"] + data["items_per_page"]
+            if data["total_results"] < start_index:
+                break
