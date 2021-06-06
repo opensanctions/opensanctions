@@ -5,6 +5,7 @@ __pycache__/
 *.sqlite
 *.sqlite3
 .env
+.envrc
 .vscode
 .idea/
 balkhashdb
