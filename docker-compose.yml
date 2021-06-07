@@ -19,7 +19,7 @@ services:
     links:
       - postgres
     volumes:
-      - "./data/data:/data"
+      - "./data:/data"
       - "./opensanctions:/opensanctions/opensanctions"
     tmpfs:
       - "/tmp"

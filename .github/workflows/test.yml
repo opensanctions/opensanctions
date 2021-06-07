@@ -13,6 +13,8 @@ jobs:
           POSTGRES_USER: opensanctions
           POSTGRES_PASSWORD: opensanctions
           POSTGRES_DATABASE: opensanctions
+        ports:
+          - 5432:5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -20,7 +22,7 @@ jobs:
           --health-retries 5
 
     env:
-      OPENSANCTIONS_DATABASE_URI: postgresql://opensanctions:opensanctions@postgres/opensanctions
+      OPENSANCTIONS_DATABASE_URI: postgresql://opensanctions:opensanctions@localhost/opensanctions
 
     steps:
       - uses: actions/checkout@v2
