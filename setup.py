@@ -14,7 +14,7 @@ setup(
         "followthemoney >= 1.21.2",
         "sqlalchemy",
         "alembic",
-        "followthemoney-store[postgresql] >= 3.0.1, < 4.0.0",
+        "psycopg2-binary",
         "requests[security] >= 2.25.0, < 3.0.0",
         "requests_cache >= 0.6.3, < 0.7.0",
         "alephclient >= 2.1.3",
