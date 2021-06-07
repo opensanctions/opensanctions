@@ -1,6 +1,5 @@
 import yaml
 from banal import ensure_list
-from ftmstore import get_dataset as get_store
 
 from opensanctions import settings
 from opensanctions.core.lookup import Lookup

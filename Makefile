@@ -3,12 +3,15 @@ ALEMBIC=alembic -c opensanctions/migrate/alembic.ini
 
 all: run
 
-build:
-	docker build --pull -t opensanctions .
+workdir:
+	mkdir -p data/postgres
+
+build: workdir
+	docker compose build --pull
 
 shell: build
 	mkdir -p $(PWD)/data
-	docker run -ti --rm -v $(PWD)/data:/data opensanctions bash
+	docker compose run --rm app bash
 
 run: build
-	docker run -ti --rm -v $(PWD)/data:/data opensanctions
+	docker compose run --rm app opensanctions run

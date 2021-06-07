@@ -2,7 +2,7 @@ version: "2"
 
 services:
   postgres:
-    image: postgres:13.2
+    image: postgres:13.3
     volumes:
       - "./data/postgres:/var/lib/postgresql"
     expose:
@@ -10,10 +10,12 @@ services:
     environment:
       POSTGRES_USER: opensanctions
       POSTGRES_PASSWORD: opensanctions
+      POSTGRES_DATABASE: opensanctions
 
-  worker:
+  app:
     build: .
-    command: opensanctions crawl us_ofac_sdn
+    image: pudo/opensanctions
+    command: opensanctions run
     links:
       - postgres
     volumes:
