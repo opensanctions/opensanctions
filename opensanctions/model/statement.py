@@ -1,6 +1,4 @@
 from sqlalchemy import Column, Unicode, DateTime, Boolean
-from sqlalchemy.schema import UniqueConstraint
-from sqlalchemy.sql.expression import insert, update
 from sqlalchemy.dialects.postgresql import insert as upsert
 
 from opensanctions import settings
@@ -10,7 +8,7 @@ from opensanctions.model.base import Base, db, ENTITY_ID_LEN
 class Statement(Base):
     """A single statement about a property relevant to an entity.
 
-    For example, this could be used to say: "In dataset A, entity X has the
+    For example, this could be useddocker to say: "In dataset A, entity X has the
     property `name` set to 'John Smith'. I first observed this at K, and last
     saw it at L."
 
@@ -30,10 +28,6 @@ class Statement(Base):
     unique = Column(Boolean, default=False, nullable=False)
     first_seen = Column(DateTime, nullable=True)
     last_seen = Column(DateTime)
-
-    __table_args__ = (
-        UniqueConstraint("entity_id", "prop", "value", "dataset", name="_prov"),
-    )
 
     @classmethod
     def from_entity(cls, entity, target=False, unique=False):

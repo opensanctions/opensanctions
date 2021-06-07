@@ -16,6 +16,7 @@ services:
     build: .
     image: pudo/opensanctions
     command: opensanctions run
+    hostname: osapp
     links:
       - postgres
     volumes:

@@ -29,7 +29,6 @@ def upgrade():
         sa.Column("target", sa.Boolean(), nullable=False),
         sa.Column("unique", sa.Boolean(), nullable=False),
         sa.PrimaryKeyConstraint("entity_id", "prop", "value", "dataset"),
-        sa.UniqueConstraint("entity_id", "prop", "value", "dataset", name="_prov"),
     )
     op.create_index(
         op.f("ix_statement_entity_id"), "statement", ["entity_id"], unique=False
