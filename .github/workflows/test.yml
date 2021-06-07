@@ -20,7 +20,7 @@ jobs:
           --health-retries 5
 
     env:
-      OPENSANCTIONS_DATABASE_URI: postresql://opensanctions:opensanctions@postgres/opensanctions
+      OPENSANCTIONS_DATABASE_URI: postgresql://opensanctions:opensanctions@postgres/opensanctions
 
     steps:
       - uses: actions/checkout@v2
