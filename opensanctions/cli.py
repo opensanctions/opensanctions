@@ -2,7 +2,7 @@ import click
 import logging
 from followthemoney.cli.util import write_object
 
-from opensanctions.core import Dataset, Context, setup
+from opensanctions.core import Dataset, Context, Entity, setup
 from opensanctions.core.http import cleanup_cache
 from opensanctions.model.base import migrate_db
 
@@ -24,9 +24,7 @@ def cli(verbose=False, quiet=False):
 @click.option("-o", "--outfile", type=click.File("w"), default="-")
 def dump_dataset(dataset, outfile):
     dataset = Dataset.get(dataset)
-    context = Context(dataset)
-    context.normalize()
-    for entity in dataset.store:
+    for entity in Entity.query(dataset):
         write_object(outfile, entity)
 
 
@@ -44,7 +42,6 @@ def export(dataset):
     dataset = Dataset.get(dataset)
     for dataset_ in dataset.datasets:
         context = Context(dataset_)
-        context.normalize()
         context.export()
 
 
@@ -56,7 +53,6 @@ def run(dataset):
         Context(source).crawl()
     for dataset_ in dataset.datasets:
         context = Context(dataset_)
-        context.normalize()
         context.export()
 
 

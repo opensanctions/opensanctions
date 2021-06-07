@@ -40,9 +40,8 @@ class Dataset(object):
         return set([self])
 
     @property
-    def store(self):
-        name = f"{self.type}_{self.name}"
-        return get_store(name, database_uri=settings.DATABASE_URI)
+    def source_names(self):
+        return [s.name for s in self.sources]
 
     @classmethod
     def _from_metadata(cls, file_path):

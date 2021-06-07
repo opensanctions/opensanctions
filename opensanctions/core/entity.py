@@ -4,10 +4,12 @@ from banal import ensure_list
 from followthemoney import model
 from followthemoney.proxy import EntityProxy
 
+from opensanctions.model import db, Statement
+
 log = structlog.get_logger(__name__)
 
 
-class OSETLEntity(EntityProxy):
+class Entity(EntityProxy):
     """Add utility methods to the entity proxy for extracting data from sanctions
     lists."""
 
@@ -84,5 +86,22 @@ class OSETLEntity(EntityProxy):
         assert self.schema.is_a("Thing"), self.schema
         if full is not None:
             self.add("address", full)
+
+    @classmethod
+    def query(cls, dataset, entity_id=None):
+        current_entity_id = None
+        entity = None
+        for stmt in Statement.all_statements(dataset=dataset, entity_id=entity_id):
+            schema = model.get(stmt.schema)
+            if stmt.entity_id != current_entity_id:
+                if entity is not None:
+                    yield entity
+                entity = cls(dataset, schema)
+                entity.id = stmt.entity_id
+            current_entity_id = stmt.entity_id
+            entity.schema = model.common_schema(entity.schema, schema)
+            entity.add(stmt.prop, stmt.value, cleaned=True)
+        if entity is not None:
+            yield entity
 
     # TODO: from_dict!!

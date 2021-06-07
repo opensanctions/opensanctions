@@ -31,7 +31,7 @@ CACHE_PATH = Path(CACHE_PATH).resolve()
 DATABASE_URI = env.get("OPENSANCTIONS_DATABASE_URI")
 
 # Per-run timestamp
-RUN_TIME = datetime.utcnow()
+RUN_TIME = datetime.utcnow().replace(microsecond=0)
 RUN_DATE = RUN_TIME.date().isoformat()
 
 # Directory with metadata specifications for each crawler
