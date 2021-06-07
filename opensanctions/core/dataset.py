@@ -1,6 +1,5 @@
 import yaml
 from banal import ensure_list
-from ftmstore import get_dataset as get_store
 
 from opensanctions import settings
 from opensanctions.core.lookup import Lookup
@@ -40,9 +39,8 @@ class Dataset(object):
         return set([self])
 
     @property
-    def store(self):
-        name = f"{self.type}_{self.name}"
-        return get_store(name, database_uri=settings.DATABASE_URI)
+    def source_names(self):
+        return [s.name for s in self.sources]
 
     @classmethod
     def _from_metadata(cls, file_path):

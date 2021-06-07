@@ -349,11 +349,10 @@ def parse_entry(context, entry):
 
 def parse_relation(context, el):
     type_id = el.get("RelationTypeID")
-    store = context.dataset.store
     from_id = context.dataset.make_slug(el.get("From-ProfileID"))
-    from_party = store.get(from_id)
+    from_party = context.get_entity(from_id)
     to_id = context.dataset.make_slug(el.get("To-ProfileID"))
-    to_party = store.get(to_id)
+    to_party = context.get_entity(to_id)
     type_ = ref_value("RelationType", el.get("RelationTypeID"))
     relation = lookup("relations", type_id)
     if relation is None:
