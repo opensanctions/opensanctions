@@ -1,4 +1,5 @@
 DOCKER=
+ALEMBIC=alembic -c opensanctions/migrate/alembic.ini
 
 all: run
 

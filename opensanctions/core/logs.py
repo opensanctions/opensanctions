@@ -25,6 +25,7 @@ def store_event(logger, log_method, data):
     # if level > logging.INFO:
     #     print("FOO", logger, log_method)
     # data.pop("dataset", None)
+    # print(data)
     return data
 
 

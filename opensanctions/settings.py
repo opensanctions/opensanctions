@@ -27,9 +27,8 @@ CACHE_PATH = DATA_PATH.joinpath("cache")
 CACHE_PATH = env.get("OPENSANCTIONS_CACHE_PATH", CACHE_PATH)
 CACHE_PATH = Path(CACHE_PATH).resolve()
 
-# SQL database URI for structured data
-DATABASE_URI = f"sqlite:///{DATA_PATH}/opensanctions.sqlite3"
-DATABASE_URI = env.get("OPENSANCTIONS_DATABASE_URI", DATABASE_URI)
+# PostgreSQL database URI for structured data
+DATABASE_URI = env.get("OPENSANCTIONS_DATABASE_URI")
 
 # Per-run timestamp
 RUN_TIME = datetime.utcnow()

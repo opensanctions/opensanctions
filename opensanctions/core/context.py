@@ -3,8 +3,8 @@ from lxml import etree
 from structlog.contextvars import clear_contextvars, bind_contextvars
 from followthemoney.cli.util import write_object
 
-# from opensanctions.core import db
 from opensanctions import settings
+from opensanctions.model import db
 from opensanctions.core.entity import OSETLEntity
 from opensanctions.core.collection import Collection
 from opensanctions.core.http import get_session, fetch_download
@@ -140,4 +140,4 @@ class Context(object):
         clear_contextvars()
 
         # Persist any events to the database:
-        # db.session.commit()
+        db.session.commit()
