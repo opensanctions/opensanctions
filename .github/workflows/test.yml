@@ -5,6 +5,23 @@ on: [push]
 jobs:
   python:
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: opensanctions
+          POSTGRES_PASSWORD: opensanctions
+          POSTGRES_DATABASE: opensanctions
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      OPENSANCTIONS_DATABASE_URI: postresql://opensanctions:opensanctions@postgres/opensanctions
+
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python
@@ -21,4 +38,3 @@ jobs:
       - name: Run a single dataset
         run: |
           opensanctions run us_ofac_cons
-    
