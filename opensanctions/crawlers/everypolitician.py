@@ -132,11 +132,19 @@ def parse_organization(context, data, country, entities, lastmod):
         organization.add("topics", "pol.party")
     else:
         context.log.error(
-            "Unknown org type", field="classification", value=classification
+            "Unknown org type",
+            entity=organization,
+            field="classification",
+            value=classification,
         )
     organization.make_slug(country, org_id)
     if organization.id is None:
-        context.log.warning("No ID for organization", country=country, org_id=org_id)
+        context.log.warning(
+            "No ID for organization",
+            entity=organization,
+            country=country,
+            org_id=org_id,
+        )
         return
     organization.add("country", country)
     parse_common(context, organization, data, lastmod)

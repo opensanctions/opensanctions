@@ -1,5 +1,6 @@
-from opensanctions.model.base import engine, metadata, db
+from opensanctions.model.base import db
 from opensanctions.model.statement import Statement
+from opensanctions.model.issue import Issue
 
 
-__all__ = ["engine", "metadata", "db", "Statement"]
+__all__ = ["db", "Statement", "Issue"]

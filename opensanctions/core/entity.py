@@ -47,8 +47,7 @@ class Entity(EntityProxy):
             if value is None:
                 log.warning(
                     "Rejected property value",
-                    entity=self.id,
-                    schema=self.schema.name,
+                    entity=self,
                     prop=prop.name,
                     value=raw,
                 )

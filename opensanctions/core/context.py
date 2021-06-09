@@ -4,7 +4,7 @@ from structlog.contextvars import clear_contextvars, bind_contextvars
 from followthemoney.cli.util import write_object
 
 from opensanctions import settings
-from opensanctions.model import db, Statement
+from opensanctions.model import db, Statement, Issue
 from opensanctions.core.entity import Entity
 from opensanctions.core.http import get_session, fetch_download
 
@@ -62,6 +62,7 @@ class Context(object):
         """Run the crawler."""
         try:
             self.bind()
+            Issue.clear(self.dataset)
             self.log.info("Begin crawl")
             # Run the dataset:
             self.dataset.method(self)

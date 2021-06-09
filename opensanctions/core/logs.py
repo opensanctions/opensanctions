@@ -4,7 +4,7 @@ import structlog
 from lxml.etree import _Element, tostring
 from structlog.contextvars import merge_contextvars
 
-# from structlog.contextvars import clear_contextvars, bind_contextvars
+from opensanctions.model import Issue
 
 logging.getLogger("requests").setLevel(logging.WARNING)
 logging.getLogger("urllib3").setLevel(logging.ERROR)
@@ -18,14 +18,12 @@ def store_event(logger, log_method, data):
         if hasattr(value, "to_dict"):
             value = value.to_dict()
         if isinstance(value, _Element):
-            value = tostring(value, pretty_print=False)
+            value = tostring(value, pretty_print=False, encoding=str)
         data[key] = value
 
-    # level = getattr(logging, data.get("level").upper())
-    # if level > logging.INFO:
-    #     print("FOO", logger, log_method)
-    # data.pop("dataset", None)
-    # print(data)
+    level_num = getattr(logging, data.get("level").upper())
+    if level_num > logging.INFO:
+        Issue.save(data)
     return data
 
 

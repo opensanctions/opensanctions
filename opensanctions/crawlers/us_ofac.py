@@ -194,9 +194,9 @@ def parse_feature(context, feature, party, locations):
     if feature_res is None:
         context.log.warn(
             "Unknown FeatureType",
+            entity=party,
             id=feature_id,
             value=feature_label,
-            schema=party.schema.name,
         )
         return
 
@@ -263,6 +263,7 @@ def parse_party(context, distinct_party, locations, documents):
             if doc_res is None:
                 context.log.warn(
                     "Unknown IDRegDocType",
+                    entity=party,
                     id=doc_type_id,
                     label=doc_label,
                 )

@@ -4,10 +4,10 @@ from sqlalchemy import pool
 from alembic import context
 
 from opensanctions import settings
-from opensanctions.model import metadata
+from opensanctions.model import db
 
 config = context.config
-target_metadata = metadata
+target_metadata = db.metadata
 
 
 def run_migrations_offline():
