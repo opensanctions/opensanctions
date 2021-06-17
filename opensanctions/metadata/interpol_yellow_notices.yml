@@ -1,11 +1,11 @@
 entry_point: opensanctions.crawlers.interpol_api
-title: INTERPOL Yellow Notices
+title: Yellow Notices
 prefix: interpol-yellow
 description: >
   International arrest warrants published by INTERPOL with a view to
   extradition of the wanted individuals.
 publisher:
-  title: Interpol Yellow
+  title: INTERPOL
   url: https://www.interpol.int/
 url: https://www.interpol.int/INTERPOL-expertise/Notices
 data:

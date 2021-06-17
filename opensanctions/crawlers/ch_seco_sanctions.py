@@ -137,6 +137,7 @@ def parse_entry(context, target, programs, places, updated_at):
     if node is None:
         # node = target.find('./object')
         # TODO: build out support for these!
+        context.log.warning("Unknown target type", target=target)
         return
 
     dates = set()

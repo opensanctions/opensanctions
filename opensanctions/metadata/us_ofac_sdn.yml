@@ -373,8 +373,8 @@ lookups:
         prop: null
       - label: C.U.R.P.
         match: 1600
-        schema: null
-        prop: null
+        schema: Person
+        prop: idNumber
       - label: British National Overseas Passport
         match: 1601
         schema: null

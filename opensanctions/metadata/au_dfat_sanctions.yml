@@ -17,100 +17,99 @@ lookups:
   country:
     normalize: true
     options:
-    - match: Australia and Egypt
-      values:
-      - Australia
-      - Egypt
-    - match: German, Moroccan
-      values:
-      - German
-      - Morocco
-    - match: United States and Iranian
-      values:
-      - United States
-      - Iran
-    - match: Uzbek; Afghan
-      values:
-      - Uzbekistan
-      - Afghanistan
-    - match: Malian / Mauritanian
-      values:
-      - Mauritania
-      - Mali
-    - contains: Fiji (Prakash’s Australian
-      value: Fiji
-    - contains: Lebanon (Succarieh’s Australia
-      value: Lebanon
-    - match: Possibly Ethiopian
-      value: Ethiopia
-    - match: USSR (until 1991)
-      value: SUHH
-    - match: Kuwaiti citizenship withdrawn in 2002
-      value: Kuwait
-    - match: Indonesian (as at Dec. 2003)
-      value: Indonesia
-    - match: 'France (alt. citizen: Syri'
-      value: France
-    - match: Saudi Arabian (this aka only, alt Citizenship Yemeni)
-      values:
-      - Saudi Arabia
-      - Yemen
-    - match: Bahrain (citizenship revoked in Jan. 2015)
-      value: Bahrain
+      - match: Australia and Egypt
+        values:
+          - Australia
+          - Egypt
+      - match: German, Moroccan
+        values:
+          - German
+          - Morocco
+      - match: United States and Iranian
+        values:
+          - United States
+          - Iran
+      - match: Uzbek; Afghan
+        values:
+          - Uzbekistan
+          - Afghanistan
+      - match: Malian / Mauritanian
+        values:
+          - Mauritania
+          - Mali
+      - contains: Fiji (Prakash’s Australian
+        value: Fiji
+      - contains: Lebanon (Succarieh’s Australia
+        value: Lebanon
+      - match: Possibly Ethiopian
+        value: Ethiopia
+      - match: USSR (until 1991)
+        value: SUHH
+      - match: Kuwaiti citizenship withdrawn in 2002
+        value: Kuwait
+      - match: Indonesian (as at Dec. 2003)
+        value: Indonesia
+      - match: "France (alt. citizen: Syri"
+        value: France
+      - match: Saudi Arabian (this aka only, alt Citizenship Yemeni)
+        values:
+          - Saudi Arabia
+          - Yemen
+      - match: Bahrain (citizenship revoked in Jan. 2015)
+        value: Bahrain
   date:
     normalize: true
     options:
-    - match:
-      - (29 years ol
-      - (30-35 years ol
-      - aug.
-      contains:
-      - hijri calendar
-      value: null
-    - match: sep 1977
-      value: 1977-09
-    - match: 1977/1978
-      values: [1977, 1978]
-    - match: '1970-1973'
-      values: [1970, 1973]
-    - match: '1960- 1962'
-      values: [1960, 1962]
-    - match:
-      - '1962-1963'
-      - '1962- 1963'
-      values: [1962, 1963]
-    - match: '1966-1967'
-      values: [1966, 1967]
-    - match: '1979-1982'
-      values: [1979, 1982]
-    - match: '1974, 1975'
-      values: [1974, 1975]
-    - match: '1940-1941'
-      values: [1940, 1941]
-    - match: '1954-1955'
-      values: [1954, 1955]
-    - match: '1956-1957'
-      values: [1956, 1957]
-    - match: '1955- 1958'
-      values: [1955, 1958]
-    - match: '1945-1950'
-      values: [1945, 1950]
-    - contains: '5 feb. 1970 (this aka only'
-      value: '1970-02-05'
-    - contains: '1955. for this aka only,  01/01/1969'
-      values:
-      - 1955
-      - '1969-01-01'
+      - match:
+          - (29 years ol
+          - (30-35 years ol
+          - aug.
+        contains:
+          - hijri calendar
+        value: null
+      - match: sep 1977
+        value: 1977-09
+      - match: 1977/1978
+        values: [1977, 1978]
+      - match: "1970-1973"
+        values: [1970, 1973]
+      - match: "1960- 1962"
+        values: [1960, 1962]
+      - match:
+          - "1962-1963"
+          - "1962- 1963"
+        values: [1962, 1963]
+      - match: "1966-1967"
+        values: [1966, 1967]
+      - match: "1979-1982"
+        values: [1979, 1982]
+      - match: "1974, 1975"
+        values: [1974, 1975]
+      - match: "1940-1941"
+        values: [1940, 1941]
+      - match: "1954-1955"
+        values: [1954, 1955]
+      - match: "1956-1957"
+        values: [1956, 1957]
+      - match: "1955- 1958"
+        values: [1955, 1958]
+      - match: "1945-1950"
+        values: [1945, 1950]
+      - contains: "5 feb. 1970 (this aka only"
+        value: "1970-02-05"
+      - contains: "1955. for this aka only,  01/01/1969"
+        values:
+          - 1955
+          - "1969-01-01"
     map:
-      30 de1980: '1980-12-30'
-      31 de 1952: '1952-12-31'
-      4 de 1960: '1960-12-04'
+      30 de1980: "1980-12-30"
+      31 de 1952: "1952-12-31"
+      4 de 1960: "1960-12-04"
       november 1950: 1950-11
-      3 march 1979 (from false passport): '1979-03-03'
-      march 16, 1972: '1972-03-16'
-      24-apr-68: '1968-04-24'
-      '1965.': '1965'
-      '07/04/62': '1962-04-07'
-      'april 1, 1978': '1978-04-01'
-      '1965, 29 march': '1965-03-29'
-
+      3 march 1979 (from false passport): "1979-03-03"
+      march 16, 1972: "1972-03-16"
+      24-apr-68: "1968-04-24"
+      "1965.": "1965"
+      "07/04/62": "1962-04-07"
+      "april 1, 1978": "1978-04-01"
+      "1965, 29 march": "1965-03-29"

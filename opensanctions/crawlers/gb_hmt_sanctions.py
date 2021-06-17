@@ -42,22 +42,27 @@ def split_items(text, comma=False):
 
 
 def parse_row(context, row):
-    entity = context.make("Thing")
+    group_type = row.pop("GroupTypeDescription")
+    org_type = row.pop("OrgType", None)
+    if group_type == "Individual":
+        base_schema = "Person"
+    elif row.get("TypeOfVessel") is not None:
+        base_schema = "Vessel"
+    elif group_type == "Entity":
+        base_schema = context.lookup_value("org_type", org_type, "Organization")
+    else:
+        context.log.error("Unknown entity type", group_type=group_type)
+        return
+    entity = context.make(base_schema)
     entity.make_slug(row.pop("GroupID"))
+    if org_type is not None:
+        entity.add_cast("LegalEntity", "legalForm", org_type)
+
     sanction = context.make("Sanction")
     sanction.make_id(entity.id, "Sanction")
     sanction.add("entity", entity)
     sanction.add("authority", "HM Treasury Financial sanctions targets")
     sanction.add("country", "gb")
-
-    if row.pop("GroupTypeDescription") == "Individual":
-        entity.schema = model.get("Person")
-    org_type = row.pop("OrgType", None)
-    if org_type is not None:
-        schema = context.lookup_value("org_type", org_type)
-        if schema is not None:
-            entity.schema = model.get(schema)
-        entity.add_cast("LegalEntity", "legalForm", org_type)
 
     # entity.add("position", row.pop("Position"), quiet=True)
     entity.add("notes", row.pop("OtherInformation", None), quiet=True)
