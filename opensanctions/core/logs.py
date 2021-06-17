@@ -13,10 +13,6 @@ logging.getLogger("httpstream").setLevel(logging.WARNING)
 
 def store_event(logger, log_method, data):
     for key, value in data.items():
-        if hasattr(value, "as_posix"):
-            value = value.as_posix()
-        if hasattr(value, "to_dict"):
-            value = value.to_dict()
         if isinstance(value, _Element):
             value = tostring(value, pretty_print=False, encoding=str)
         data[key] = value

@@ -22,6 +22,12 @@ class Issue(Base):
     @classmethod
     def save(cls, event):
         data = dict(event)
+        for key, value in data.items():
+            if hasattr(value, "as_posix"):
+                value = value.as_posix()
+            if hasattr(value, "to_dict"):
+                value = value.to_dict()
+        data[key] = value
         issue = cls()
         data.pop("timestamp", None)
         issue.timestamp = settings.RUN_TIME
