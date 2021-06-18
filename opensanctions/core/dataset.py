@@ -1,8 +1,8 @@
 import yaml
 from banal import ensure_list
+from datapatch import get_lookups
 
 from opensanctions import settings
-from opensanctions.core.lookup import Lookup
 from opensanctions.util import joinslug
 
 
@@ -27,9 +27,7 @@ class Dataset(object):
             collections.append(self.ALL)
         self.collections = set(collections)
 
-        self.lookups = {}
-        for name, lconfig in config.get("lookups", {}).items():
-            self.lookups[name] = Lookup(name, lconfig)
+        self.lookups = get_lookups(config.get("lookups", {}))
 
     def make_slug(self, *parts, strict=True):
         return joinslug(*parts, prefix=self.prefix, strict=strict)

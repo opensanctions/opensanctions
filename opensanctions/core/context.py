@@ -1,5 +1,6 @@
 import structlog
 from lxml import etree
+from datapatch import LookupException
 from structlog.contextvars import clear_contextvars, bind_contextvars
 from followthemoney.cli.util import write_object
 
@@ -39,7 +40,10 @@ class Context(object):
             return etree.parse(fh)
 
     def lookup_value(self, lookup, value, default=None):
-        return self.dataset.lookups[lookup].get_value(value, default=default)
+        try:
+            return self.dataset.lookups[lookup].get_value(value, default=default)
+        except LookupException:
+            return default
 
     def lookup(self, lookup, value):
         return self.dataset.lookups[lookup].match(value)
@@ -71,6 +75,8 @@ class Context(object):
                 entities=Statement.all_counts(dataset=self.dataset),
                 targets=Statement.all_counts(dataset=self.dataset, target=True),
             )
+        except LookupException as exc:
+            self.log.error(exc.message, lookup=exc.lookup.name, value=exc.value)
         except Exception:
             self.log.exception("Crawl failed")
         finally:
