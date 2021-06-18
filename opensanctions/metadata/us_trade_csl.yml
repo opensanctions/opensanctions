@@ -1,0 +1,78 @@
+entry_point: opensanctions.crawlers.us_trade_csl
+title: Consolidated Screening List (CSL)
+prefix: trade-csl
+description: >
+  The Consolidated Screening List (CSL) is a list of parties for which the United
+  States Government maintains restrictions on certain exports, reexports, or transfers
+  of items.
+country: us
+collections:
+  - sanctions
+publisher:
+  title: US Department of the Commerce
+  # International Trade Administration
+  url: https://www.trade.gov/
+url: https://www.trade.gov/consolidated-screening-list
+data:
+  url: https://api.trade.gov/static/consolidated_screening_list/consolidated.json
+  format: JSON
+
+lookups:
+  type:
+    options:
+      - match:
+          - null
+        value: LegalEntity
+      - match: Individual
+        value: Person
+      - match: Entity
+        value: Organization
+      - match: Vessel
+        value: Vessel
+      - match: Aircraft
+        value: Airplane
+  ids:
+    options:
+      - match: Gender
+        prop: gender
+      - match:
+          - "Additional Sanctions Information -"
+          - "Executive Order 13662 Directive Determination -"
+          - "Executive Order 13846 information:"
+          - "Secondary sanctions risk:"
+          - "Transactions Prohibited For Persons Owned or Controlled By U.S. Financial Institutions:"
+        prop: notes
+      - match: Website
+        prop: website
+      - match: Email Address
+        prop: email
+      - match:
+          - Commercial Registry Number
+          - Registration Number
+          - Registered Charity No.
+          - Registration ID
+          - Company Number
+          - "Business Registration Document #"
+          - Matricula Mercantil No
+          - Vessel Registration Identification
+        prop: registrationNumber
+      - match:
+          - National Foreign ID Number
+          - National ID No.
+          - "Identification Number"
+          - SSN
+          - Cedula No.
+          - "NIT #"
+          - C.U.R.P
+          - C.U.R.P.
+        prop: idNumber
+      - match:
+          - Tax ID No.
+          - "RUC #"
+        prop: taxNumber
+      # --- adjacent objects
+      - match: Passport
+        schema: Passport
+        type: type
+        value: number
+        backref: holder
