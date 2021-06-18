@@ -2,15 +2,12 @@ import structlog
 from lxml import etree
 from datapatch import LookupException
 from structlog.contextvars import clear_contextvars, bind_contextvars
-from followthemoney import model
-from followthemoney.cli.util import write_object
 
 from opensanctions import settings
 from opensanctions.model import db, Statement, Issue
-from opensanctions.core.dataset import Dataset
 from opensanctions.core.entity import Entity
 from opensanctions.core.http import get_session, fetch_download
-from opensanctions.core.export import write_json
+from opensanctions.core.export import export_dataset
 
 
 class Context(object):
@@ -89,34 +86,9 @@ class Context(object):
         """Generate exported files for the dataset."""
         try:
             self.bind()
-
-            ftm_path = self.get_artifact_path("entities.ftm.json")
-            ftm_path.parent.mkdir(exist_ok=True, parents=True)
-            self.log.info("Writing entities to line-based JSON", path=ftm_path)
-            with open(ftm_path, "w") as fh:
-                for entity in Entity.query(self.dataset):
-                    write_object(fh, entity)
-
-            meta_path = self.get_artifact_path("metadata.json")
-            with open(meta_path, "w") as fh:
-                meta = self.dataset.to_metadata(shallow=False)
-                write_json(meta, fh)
+            export_dataset(self, self.dataset)
         finally:
             self.close()
-
-    @classmethod
-    def export_global_metadata(cls):
-        """Export the global metadata for all datasets.
-
-        This should live somewhere else."""
-        meta_path = settings.DATASET_PATH.joinpath("metadata.json")
-        datasets = []
-        for dataset in Dataset.all():
-            datasets.append(dataset.to_metadata(shallow=True))
-
-        with open(meta_path, "w") as fh:
-            meta = {"datasets": datasets, "model": model}
-            write_json(meta, fh)
 
     def get_entity(self, entity_id):
         for entity in Entity.query(self.dataset, entity_id=entity_id):

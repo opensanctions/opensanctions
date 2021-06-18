@@ -1,9 +1,10 @@
+from datetime import datetime
 import yaml
 from banal import ensure_list
 from datapatch import get_lookups
 
 from opensanctions import settings
-from opensanctions.model import Issue
+from opensanctions.model import Issue, Statement
 from opensanctions.util import joinslug
 
 
@@ -87,11 +88,17 @@ class Dataset(object):
             "description": self.description,
         }
 
-    def to_metadata(self, shallow=False):
+    def to_index(self, shallow=False):
         meta = self.to_dict()
         meta["shallow"] = shallow
         meta["issue_levels"] = Issue.agg_by_level(dataset=self)
+        meta["issue_count"] = sum(meta["issue_levels"].values())
+        meta["target_count"] = Statement.all_counts(dataset=self, target=True)
         if not shallow:
+            meta["targets"] = {
+                "by_country": Statement.agg_target_by_country(dataset=self),
+                "by_schema": Statement.agg_target_by_schema(dataset=self),
+            }
             meta["issues"] = Issue.query(dataset=self).all()
         return meta
 

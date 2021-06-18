@@ -3,6 +3,7 @@ import logging
 from followthemoney.cli.util import write_object
 
 from opensanctions.core import Dataset, Context, Entity, setup
+from opensanctions.core.export import export_global_index
 from opensanctions.core.http import cleanup_cache
 from opensanctions.model.base import migrate_db
 
@@ -43,7 +44,7 @@ def export(dataset):
     for dataset_ in dataset.datasets:
         context = Context(dataset_)
         context.export()
-    Context.export_global_metadata()
+    export_global_index()
 
 
 @cli.command("run", help="Run the full process for the given dataset")
@@ -55,7 +56,7 @@ def run(dataset):
     for dataset_ in dataset.datasets:
         context = Context(dataset_)
         context.export()
-    Context.export_global_metadata()
+    export_global_index()
 
 
 @cli.command("cleanup", help="Clean up caches")

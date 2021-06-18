@@ -67,5 +67,6 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           aws s3 sync --delete --no-progress _cache s3://data.opensanctions.org/_cache
-          aws s3 sync --delete --no-progress --acl public-read data/datasets s3://data.opensanctions.org/datasets/latest
-          aws s3 sync --delete --no-progress --acl public-read data/datasets s3://data.opensanctions.org/datasets/`date +%Y%m%d`
+          aws s3 sync --delete --no-progress --cache-control "public, max-age=42300" --acl public-read data/datasets s3://data.opensanctions.org/datasets/latest
+          aws s3 sync --delete --no-progress --cache-control "public, max-age=84600" --acl public-read data/datasets s3://data.opensanctions.org/datasets/`date +%Y%m%d`
+        # aws cloudfront create-invalidation --distribution-id E321O1ATKKHDQT --paths "/datasets/latest/*"

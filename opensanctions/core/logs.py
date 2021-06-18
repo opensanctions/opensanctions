@@ -1,9 +1,11 @@
 import sys
 import logging
 import structlog
+from pathlib import Path
 from lxml.etree import _Element, tostring
 from structlog.contextvars import merge_contextvars
 
+from opensanctions import settings
 from opensanctions.model import Issue
 
 logging.getLogger("requests").setLevel(logging.WARNING)
@@ -15,6 +17,8 @@ def store_event(logger, log_method, data):
     for key, value in data.items():
         if isinstance(value, _Element):
             value = tostring(value, pretty_print=False, encoding=str)
+        if isinstance(value, Path):
+            value = value.relative_to(settings.DATA_PATH).as_posix()
         data[key] = value
 
     level_num = getattr(logging, data.get("level").upper())

@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Unicode, DateTime, Boolean
+from sqlalchemy import func, Column, Unicode, DateTime, Boolean
 from sqlalchemy.dialects.postgresql import insert as upsert
+from followthemoney.types import registry
 
 from opensanctions import settings
 from opensanctions.model.base import Base, db, ENTITY_ID_LEN
@@ -86,6 +87,30 @@ class Statement(Base):
     def all_counts(cls, dataset=None, unique=None, target=None):
         q = cls.all_entity_ids(dataset=dataset, unique=unique, target=target)
         return q.count()
+
+    @classmethod
+    def agg_target_by_country(cls, dataset=None):
+        """Return the number of targets grouped by country."""
+        q = db.session.query(cls.value, func.count(func.distinct(cls.entity_id)))
+        # TODO: this could be generic to type values?
+        q = q.filter(cls.target == True)  # noqa
+        q = q.filter(cls.prop_type == registry.country.name)
+        if dataset is not None:
+            q = q.filter(cls.dataset.in_(dataset.source_names))
+        q = q.group_by(cls.value)
+        return {l: c for (l, c) in q.all()}
+
+    @classmethod
+    def agg_target_by_schema(cls, dataset=None):
+        """Return the number of targets grouped by their schema."""
+        # FIXME: duplicates entities when there are statements with different schema
+        # defined for the same entity.
+        q = db.session.query(cls.schema, func.count(func.distinct(cls.entity_id)))
+        q = q.filter(cls.target == True)  # noqa
+        if dataset is not None:
+            q = q.filter(cls.dataset.in_(dataset.source_names))
+        q = q.group_by(cls.schema)
+        return {l: c for (l, c) in q.all()}
 
     def to_dict(self):
         return {
