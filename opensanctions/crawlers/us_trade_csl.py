@@ -101,8 +101,8 @@ def parse_result(context, result):
 
 
 def crawl(context):
-    context.fetch_artifact("source.json", context.dataset.data.url)
-    path = context.get_artifact_path("source.json")
+    context.fetch_resource("source.json", context.dataset.data.url)
+    path = context.get_resource_path("source.json")
     with open(path, "r") as file:
         data = json.load(file)
         for result in data.get("results"):

@@ -17,7 +17,7 @@ DATA_PATH = Path.cwd().joinpath("data")
 DATA_PATH = env.get("OPENSANCTIONS_DATA_PATH", DATA_PATH)
 DATA_PATH = Path(DATA_PATH).resolve()
 
-# Artifacts generated from specific datasets
+# Resources generated from specific datasets
 DATASET_PATH = DATA_PATH.joinpath("datasets")
 DATASET_PATH = env.get("OPENSANCTIONS_DATASET_PATH", DATASET_PATH)
 DATASET_PATH = Path(DATASET_PATH).resolve()

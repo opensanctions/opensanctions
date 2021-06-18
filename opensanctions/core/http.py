@@ -30,7 +30,7 @@ def fetch_download(file_path, url):
     """Circumvent the cache for large file downloads."""
     session = requests.Session()
     session.headers.update(HEADERS)
-    log.info("Fetching artifact", path=file_path.as_posix(), url=url)
+    log.info("Fetching resource", path=file_path.as_posix(), url=url)
     file_path.parent.mkdir(exist_ok=True, parents=True)
     with session.get(url, stream=True, timeout=settings.HTTP_TIMEOUT) as res:
         res.raise_for_status()

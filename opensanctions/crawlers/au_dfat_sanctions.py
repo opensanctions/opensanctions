@@ -109,8 +109,8 @@ def parse_reference(context, reference, rows):
 
 
 def crawl(context):
-    context.fetch_artifact("source.xls", context.dataset.data.url)
-    xls = xlrd.open_workbook(context.get_artifact_path("source.xls"))
+    context.fetch_resource("source.xls", context.dataset.data.url)
+    xls = xlrd.open_workbook(context.get_resource_path("source.xls"))
     ws = xls.sheet_by_index(0)
     headers = [slugify(h, sep="_") for h in ws.row_values(0)]
     references = defaultdict(list)

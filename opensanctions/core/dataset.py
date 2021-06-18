@@ -1,11 +1,11 @@
-from datetime import datetime
 import yaml
+from pathlib import Path
 from banal import ensure_list
 from urllib.parse import urljoin
 from datapatch import get_lookups
 
 from opensanctions import settings
-from opensanctions.model import Issue, Statement
+from opensanctions.model import Issue, Statement, Resource
 from opensanctions.util import joinslug
 
 
@@ -45,7 +45,7 @@ class Dataset(object):
 
     def make_public_url(self, path):
         """Generate a public URL for a file within the dataset context."""
-        url = urljoin(settings.DATASET_URL, self.name)
+        url = urljoin(settings.DATASET_URL, f"{self.name}/")
         return urljoin(url, path)
 
     @classmethod
@@ -107,6 +107,11 @@ class Dataset(object):
                 "by_schema": Statement.agg_target_by_schema(dataset=self),
             }
             meta["issues"] = Issue.query(dataset=self).all()
+            meta["resources"] = []
+            for resource in Resource.query(dataset=self):
+                res = resource.to_dict()
+                res["url"] = self.make_public_url(resource.path)
+                meta["resources"].append(res)
         return meta
 
     def __eq__(self, other):

@@ -1,10 +1,12 @@
+import hashlib
+import mimetypes
 import structlog
 from lxml import etree
 from datapatch import LookupException
 from structlog.contextvars import clear_contextvars, bind_contextvars
 
 from opensanctions import settings
-from opensanctions.model import db, Statement, Issue
+from opensanctions.model import db, Statement, Issue, Resource
 from opensanctions.core.entity import Entity
 from opensanctions.core.http import get_session, fetch_download
 from opensanctions.core.export import export_dataset
@@ -22,22 +24,40 @@ class Context(object):
         self.http = get_session()
         self.log = structlog.get_logger(dataset.name)
 
-    def get_artifact_path(self, name):
+    def get_resource_path(self, name):
         return self.path.joinpath(name)
 
-    def fetch_artifact(self, name, url):
+    def fetch_resource(self, name, url):
         """Fetch a URL into a file located in the current run folder,
         if it does not exist."""
-        file_path = self.get_artifact_path(name)
+        file_path = self.get_resource_path(name)
         if not file_path.exists():
             fetch_download(file_path, url)
         return file_path
 
-    def parse_artifact_xml(self, name):
-        """Parse a file in the artifact folder into an XML tree."""
-        file_path = self.get_artifact_path(name)
+    def parse_resource_xml(self, name):
+        """Parse a file in the resource folder into an XML tree."""
+        file_path = self.get_resource_path(name)
         with open(file_path, "rb") as fh:
             return etree.parse(fh)
+
+    def export_resource(self, path, mime_type=None, title=None):
+        """Register a file as a documented file exported by the dataset."""
+        if mime_type is None:
+            mime_type, _ = mimetypes.guess(path)
+
+        digest = hashlib.sha1()
+        size = 0
+        with open(path, "rb") as fh:
+            while True:
+                chunk = fh.read(65536)
+                if not chunk:
+                    break
+                size += len(chunk)
+                digest.update(chunk)
+        checksum = digest.hexdigest()
+        rel_path = path.relative_to(self.path).as_posix()
+        Resource.save(rel_path, self.dataset, checksum, mime_type, size, title)
 
     def lookup_value(self, lookup, value, default=None):
         try:

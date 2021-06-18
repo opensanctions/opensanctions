@@ -5,6 +5,7 @@ from followthemoney import model
 from followthemoney.cli.util import write_object
 
 from opensanctions import settings
+from opensanctions.model import db
 from opensanctions.core.entity import Entity
 from opensanctions.core.dataset import Dataset
 
@@ -47,14 +48,17 @@ def export_global_index():
 
 def export_dataset(context, dataset):
     """Dump the contents of the dataset to the output directory."""
-    ftm_path = context.get_artifact_path("entities.ftm.json")
+    ftm_path = context.get_resource_path("entities.ftm.json")
     ftm_path.parent.mkdir(exist_ok=True, parents=True)
     context.log.info("Writing entities to FtM", path=ftm_path)
     with open(ftm_path, "w") as fh:
         for entity in Entity.query(dataset):
             write_object(fh, entity)
+    title = "FollowTheMoney entity graph"
+    context.export_resource(ftm_path, mime_type="application/json+ftm", title=title)
 
-    index_path = context.get_artifact_path("index.json")
+    db.session.flush()
+    index_path = context.get_resource_path("index.json")
     context.log.info("Writing dataset index", path=index_path)
     with open(index_path, "w") as fh:
         meta = dataset.to_index(shallow=False)

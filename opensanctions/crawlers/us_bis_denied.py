@@ -41,7 +41,7 @@ def parse_row(context, row):
 
 
 def crawl(context):
-    context.fetch_artifact("dpl.tsv", context.dataset.data.url)
-    with open(context.get_artifact_path("dpl.tsv"), "r") as csvfile:
+    context.fetch_resource("dpl.tsv", context.dataset.data.url)
+    with open(context.get_resource_path("dpl.tsv"), "r") as csvfile:
         for row in csv.DictReader(csvfile, delimiter="\t"):
             parse_row(context, row)

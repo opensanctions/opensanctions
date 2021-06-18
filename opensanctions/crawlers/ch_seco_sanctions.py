@@ -175,8 +175,8 @@ def parse_entry(context, target, programs, places, updated_at):
 
 
 def crawl(context):
-    context.fetch_artifact("source.xml", context.dataset.data.url)
-    doc = context.parse_artifact_xml("source.xml")
+    context.fetch_resource("source.xml", context.dataset.data.url)
+    doc = context.parse_resource_xml("source.xml")
     updated_at = doc.getroot().get("date")
 
     programs = {}

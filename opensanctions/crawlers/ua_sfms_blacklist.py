@@ -91,7 +91,7 @@ def parse_entry(context, entry):
 
 
 def crawl(context):
-    context.fetch_artifact("source.xml", context.dataset.data.url)
-    doc = context.parse_artifact_xml("source.xml")
+    context.fetch_resource("source.xml", context.dataset.data.url)
+    doc = context.parse_resource_xml("source.xml")
     for entry in doc.findall(".//acount-list"):
         parse_entry(context, entry)

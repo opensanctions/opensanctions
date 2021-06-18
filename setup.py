@@ -12,6 +12,7 @@ setup(
     zip_safe=False,
     install_requires=[
         "followthemoney >= 1.21.2",
+        "pantomime",
         "sqlalchemy",
         "alembic",
         "psycopg2-binary",

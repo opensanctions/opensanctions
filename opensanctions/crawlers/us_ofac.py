@@ -389,8 +389,8 @@ def parse_relation(context, el):
 
 
 def crawl(context):
-    context.fetch_artifact("source.xml", context.dataset.data.url)
-    doc = context.parse_artifact_xml("source.xml")
+    context.fetch_resource("source.xml", context.dataset.data.url)
+    doc = context.parse_resource_xml("source.xml")
     doc = remove_namespace(doc)
     context.log.info("Loading reference values...")
     load_ref_values(doc)
