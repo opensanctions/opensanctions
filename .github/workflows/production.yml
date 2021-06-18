@@ -36,6 +36,10 @@ jobs:
         uses: actions/setup-python@v1
         with:
           python-version: "3.9"
+      - name: Set env
+        run: |
+          echo "OPENSANCTIONS_DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
+          echo "OPENSANCTIONS_DATASET_URL=https://data.opensanctions.org/datasets/$(date +%Y%m%d)/" >> $GITHUB_ENV
       - name: Install dependencies
         env:
           DEBIAN_FRONTEND: noninteractive
@@ -68,5 +72,5 @@ jobs:
         run: |
           aws s3 sync --delete --no-progress _cache s3://data.opensanctions.org/_cache
           aws s3 sync --delete --no-progress --cache-control "public, max-age=42300" --acl public-read data/datasets s3://data.opensanctions.org/datasets/latest
-          aws s3 sync --delete --no-progress --cache-control "public, max-age=84600" --acl public-read data/datasets s3://data.opensanctions.org/datasets/`date +%Y%m%d`
+          aws s3 sync --delete --no-progress --cache-control "public, max-age=84600" --acl public-read data/datasets s3://data.opensanctions.org/datasets/$OPENSANCTIONS_DATE
           aws cloudfront create-invalidation --distribution-id ETROMAQBEJS91 --paths "/datasets/latest/*"

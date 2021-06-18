@@ -22,6 +22,10 @@ DATASET_PATH = DATA_PATH.joinpath("datasets")
 DATASET_PATH = env.get("OPENSANCTIONS_DATASET_PATH", DATASET_PATH)
 DATASET_PATH = Path(DATASET_PATH).resolve()
 
+# Public URL version
+DATASET_URL = "https://data.opensanctions.org/datasets/latest/"
+DATASET_URL = env.get("OPENSANCTIONS_DATASET_URL", DATASET_URL)
+
 # Used to keep the HTTP cache
 CACHE_PATH = DATA_PATH.joinpath("cache")
 CACHE_PATH = env.get("OPENSANCTIONS_CACHE_PATH", CACHE_PATH)

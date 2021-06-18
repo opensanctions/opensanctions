@@ -1,6 +1,7 @@
 from datetime import datetime
 import yaml
 from banal import ensure_list
+from urllib.parse import urljoin
 from datapatch import get_lookups
 
 from opensanctions import settings
@@ -41,6 +42,11 @@ class Dataset(object):
     @property
     def source_names(self):
         return [s.name for s in self.sources]
+
+    def make_public_url(self, path):
+        """Generate a public URL for a file within the dataset context."""
+        url = urljoin(settings.DATASET_URL, self.name)
+        return urljoin(url, path)
 
     @classmethod
     def _from_metadata(cls, file_path):
@@ -91,6 +97,7 @@ class Dataset(object):
     def to_index(self, shallow=False):
         meta = self.to_dict()
         meta["shallow"] = shallow
+        meta["index_url"] = self.make_public_url("index.json")
         meta["issue_levels"] = Issue.agg_by_level(dataset=self)
         meta["issue_count"] = sum(meta["issue_levels"].values())
         meta["target_count"] = Statement.all_counts(dataset=self, target=True)
