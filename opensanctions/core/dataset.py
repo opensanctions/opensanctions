@@ -3,6 +3,7 @@ from banal import ensure_list
 from datapatch import get_lookups
 
 from opensanctions import settings
+from opensanctions.model import Issue
 from opensanctions.util import joinslug
 
 
@@ -85,6 +86,14 @@ class Dataset(object):
             "title": self.title,
             "description": self.description,
         }
+
+    def to_metadata(self, shallow=False):
+        meta = self.to_dict()
+        meta["shallow"] = shallow
+        meta["issue_levels"] = Issue.agg_by_level(dataset=self)
+        if not shallow:
+            meta["issues"] = Issue.query(dataset=self).all()
+        return meta
 
     def __eq__(self, other):
         return self.name == other.name

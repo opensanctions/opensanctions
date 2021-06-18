@@ -1,5 +1,5 @@
 from banal import is_mapping
-from sqlalchemy import Column, Integer, Unicode, DateTime
+from sqlalchemy import func, Column, Integer, Unicode, DateTime
 from sqlalchemy.dialects.postgresql import JSONB
 
 from opensanctions import settings
@@ -27,7 +27,7 @@ class Issue(Base):
                 value = value.as_posix()
             if hasattr(value, "to_dict"):
                 value = value.to_dict()
-        data[key] = value
+            data[key] = value
         issue = cls()
         data.pop("timestamp", None)
         issue.timestamp = settings.RUN_TIME
@@ -49,3 +49,33 @@ class Issue(Base):
         pq = db.session.query(cls)
         pq = pq.filter(cls.dataset.in_(dataset.source_names))
         pq.delete(synchronize_session=False)
+
+    @classmethod
+    def query(cls, dataset=None):
+        q = db.session.query(cls)
+        if dataset is not None:
+            q = q.filter(cls.dataset.in_(dataset.source_names))
+        q = q.order_by(cls.id.asc())
+        return q
+
+    @classmethod
+    def agg_by_level(cls, dataset=None):
+        q = db.session.query(cls.level, func.count(cls.id))
+        if dataset is not None:
+            q = q.filter(cls.dataset.in_(dataset.source_names))
+        q = q.group_by(cls.level)
+        return {l: c for (l, c) in q.all()}
+
+    def to_dict(self):
+        # TODO: should this try and return an actual nested entity?
+        return {
+            "id": self.id,
+            "timestamp": self.timestamp,
+            "level": self.level,
+            "module": self.module,
+            "dataset": self.dataset,
+            "message": self.message,
+            "entity_id": self.entity_id,
+            "entity_schema": self.entity_schema,
+            "data": self.data,
+        }

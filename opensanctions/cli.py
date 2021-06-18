@@ -43,6 +43,7 @@ def export(dataset):
     for dataset_ in dataset.datasets:
         context = Context(dataset_)
         context.export()
+    Context.export_global_metadata()
 
 
 @cli.command("run", help="Run the full process for the given dataset")
@@ -54,6 +55,7 @@ def run(dataset):
     for dataset_ in dataset.datasets:
         context = Context(dataset_)
         context.export()
+    Context.export_global_metadata()
 
 
 @cli.command("cleanup", help="Clean up caches")
