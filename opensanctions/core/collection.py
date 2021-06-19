@@ -22,3 +22,8 @@ class Collection(Dataset):
     @property
     def sources(self):
         return set([t for t in self.datasets if t.TYPE == Source.TYPE])
+
+    def to_dict(self):
+        data = super().to_dict()
+        data["sources"] = [s.to_dict() for s in self.sources]
+        return data

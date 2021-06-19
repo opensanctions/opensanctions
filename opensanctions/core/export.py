@@ -4,8 +4,8 @@ from datetime import date, datetime
 from followthemoney import model
 from followthemoney.cli.util import write_object
 
-from opensanctions import settings
-from opensanctions.model import db
+from opensanctions import settings, __version__
+from opensanctions.model import db, Issue
 from opensanctions.core.entity import Entity
 from opensanctions.core.dataset import Dataset
 
@@ -38,11 +38,18 @@ def export_global_index():
     index_path = settings.DATASET_PATH.joinpath("index.json")
     datasets = []
     for dataset in Dataset.all():
-        datasets.append(dataset.to_index(shallow=True))
+        datasets.append(dataset.to_index())
 
     log.info("Writing global index", datasets=len(datasets), path=index_path)
     with open(index_path, "w") as fh:
-        meta = {"datasets": datasets, "model": model}
+        meta = {
+            "datasets": datasets,
+            "run_time": settings.RUN_TIME,
+            "dataset_url": settings.DATASET_URL,
+            "model": model,
+            "app": "opensanctions",
+            "version": __version__,
+        }
         write_json(meta, fh)
 
 
@@ -57,9 +64,19 @@ def export_dataset(context, dataset):
     title = "FollowTheMoney entity graph"
     context.export_resource(ftm_path, mime_type="application/json+ftm", title=title)
 
+    # Make sure the exported resources are visible in the database
     db.session.flush()
+
+    # Export list of data issues from crawl stage
+    issues_path = context.get_resource_path("issues.json")
+    context.log.info("Writing dataset issues list", path=issues_path)
+    with open(issues_path, "w") as fh:
+        data = {"issues": Issue.query(dataset=dataset).all()}
+        write_json(data, fh)
+
+    # Export full metadata
     index_path = context.get_resource_path("index.json")
     context.log.info("Writing dataset index", path=index_path)
     with open(index_path, "w") as fh:
-        meta = dataset.to_index(shallow=False)
+        meta = dataset.to_index()
         write_json(meta, fh)

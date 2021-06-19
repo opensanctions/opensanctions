@@ -1,5 +1,6 @@
 import os
 from importlib import import_module
+from followthemoney.types import registry
 
 from opensanctions.core.dataset import Dataset
 
