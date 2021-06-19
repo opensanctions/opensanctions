@@ -4,12 +4,13 @@ prefix: ua-sfms
 description: >
   Ukraine's financial intelligence unit publishes this list of sanctioned
   individuals.
-country: ua
 collections:
   - sanctions
 publisher:
-  title: Ukraine State Finance Monitoring Service
+  organization: State Finance Monitoring Service
   url: https://fiu.gov.ua/
+  acronym: SFMS
+  country: ua
 url: https://fiu.gov.ua/en/pages/dijalnist/protidija-terorizmu/perelik-teroristiv
 data:
   url: https://fiu.gov.ua/assets/userfiles/Terror/zBlackListFull.xml
@@ -28,11 +29,11 @@ lookups:
       Kuwaiti citizenship withdrawn in 2002: null
       South Sudan number: South Sudan
     options:
-    - match: Afghan  Pakistani
-      values:
-      - Afghanistan
-      - Pakistan
-    - match: United States    Also believed to hold Syrian nationality
-      values:
-      - US
-      - Syria
+      - match: Afghan  Pakistani
+        values:
+          - Afghanistan
+          - Pakistan
+      - match: United States    Also believed to hold Syrian nationality
+        values:
+          - US
+          - Syria

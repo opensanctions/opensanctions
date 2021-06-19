@@ -4,12 +4,13 @@ prefix: eu-meps
 description: >
   A set of all the members of the European Union parliament, which are
   elected by member state.
-country: eu
 collections:
   - peps
 publisher:
-  title: European Parliament
+  organization: European Parliament
+  acronym: EP
   url: http://www.europarl.europa.eu/
+  country: eu
 url: http://www.europarl.europa.eu/meps/
 data:
   url: http://www.europarl.europa.eu/meps/en/full-list/xml

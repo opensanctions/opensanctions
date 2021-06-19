@@ -7,7 +7,7 @@ description: >
 collections:
   - peps
 publisher:
-  title: MySociety (UK Citizens Online Democracy)
+  organization: MySociety (UK Citizens Online Democracy)
   url: http://everypolitician.org
 url: http://everypolitician.org
 data:
@@ -20,78 +20,78 @@ lookups:
     lowercase: true
     # required: true
     options:
-    - match:
-      - "party/unknown"
-      - "independent"
-      - "independant"
-      - "_IND"
-      - "ind"
-      - "independent_candidate"
-      - "indép."
-      - "independiente"
-      - "independent_members"
-      - "independent_mps"
-      - "none"
-      - "n/a"
-      - "na"
-      - "non_inscrit"
-      - "non-inscrit"
-      - "non-inscrits_divers_droite"
-      - "non-inscrits_divers_gauche"
-      - "non_specificato"
-      - "non-partisan"
-      - "no_agrupado"
-      - "Aucun_bloc"
-      - "partilös"
-      - "out_of_faction"
-      - "s.partido"
-      - "unknown"
-      - "initial-presiding-officer"
-      - "speaker"
-      - "speaker_of_the_house"
-      - "deputy-speaker"
-      - "pres"
-      - "president_of_the_senate"
-      - "autre"
-      - "*"
-      - "-"
-      value: null
+      - match:
+          - "party/unknown"
+          - "independent"
+          - "independant"
+          - "_IND"
+          - "ind"
+          - "independent_candidate"
+          - "indép."
+          - "independiente"
+          - "independent_members"
+          - "independent_mps"
+          - "none"
+          - "n/a"
+          - "na"
+          - "non_inscrit"
+          - "non-inscrit"
+          - "non-inscrits_divers_droite"
+          - "non-inscrits_divers_gauche"
+          - "non_specificato"
+          - "non-partisan"
+          - "no_agrupado"
+          - "Aucun_bloc"
+          - "partilös"
+          - "out_of_faction"
+          - "s.partido"
+          - "unknown"
+          - "initial-presiding-officer"
+          - "speaker"
+          - "speaker_of_the_house"
+          - "deputy-speaker"
+          - "pres"
+          - "president_of_the_senate"
+          - "autre"
+          - "*"
+          - "-"
+        value: null
   country:
     map:
       sh-hl: Saint Helena
   url:
     options:
-    - contains: /het-politiek-college/
-      value: null
-    - match: ttp://www.koutsoukosgiannis.gr
-      value: http://www.koutsoukosgiannis.gr
-    - match: Olimpia Teligioridou (facebook)
-      value: null
+      - contains: /het-politiek-college/
+        value: null
+      - match: ttp://www.koutsoukosgiannis.gr
+        value: http://www.koutsoukosgiannis.gr
+      - match: Olimpia Teligioridou (facebook)
+        value: null
   email:
     options:
-    - match: aliyoum@assnatcm
-      value: aliyoum@assnat.cm
-    - match: barnabeloundou@assnatcm
-      value: barnabeloundou@assnat.cm
-    - match: marycamachotorres@gmail.commarycamachotorres@gmail.com
-      value: marycamachotorres@gmail.com
-    - match: giovani.bushishi@parliament@gov.rw
-      value: giovani.bushishi@parliament.gov.rw
-    - match: Victoria.Oliver@deputies.gov.ggvictoria1.oliver@icloud.com
-      values:
-      - Victoria.Oliver@deputies.gov.gg
-      - victoria1.oliver@icloud.com
-    - match: la.khan7860@yahoo
-      value: la.khan7860@yahoo.com
-    - match: knaru@morobe.gov.pg or knarumpg@gmail.com
-      values:
-      - knaru@morobe.gov.pg
-      - knarumpg@gmail.com
-    - match:
-      - janak.ram@sansad
-      - com
-      - "-"
-      - j
-      - No tiene
-      - ministersecrcasapng.gov.pg
-      value: null
+      - match: aliyoum@assnatcm
+        value: aliyoum@assnat.cm
+      - match: barnabeloundou@assnatcm
+        value: barnabeloundou@assnat.cm
+      - match: marycamachotorres@gmail.commarycamachotorres@gmail.com
+        value: marycamachotorres@gmail.com
+      - match: giovani.bushishi@parliament@gov.rw
+        value: giovani.bushishi@parliament.gov.rw
+      - match: Victoria.Oliver@deputies.gov.ggvictoria1.oliver@icloud.com
+        values:
+          - Victoria.Oliver@deputies.gov.gg
+          - victoria1.oliver@icloud.com
+      - match: la.khan7860@yahoo
+        value: la.khan7860@yahoo.com
+      - match: knaru@morobe.gov.pg or knarumpg@gmail.com
+        values:
+          - knaru@morobe.gov.pg
+          - knarumpg@gmail.com
+      - match:
+          - janak.ram@sansad
+          - com
+          - "-"
+          - j
+          - No tiene
+          - ministersecrcasapng.gov.pg
+        value: null

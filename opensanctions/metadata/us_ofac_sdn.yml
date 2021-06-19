@@ -3,11 +3,13 @@ title: OFAC Specially Designated Nationals (SDN) List
 prefix: ofac-sdn
 description: >
   The United States' sanctions list, specially designated nationals (SDN) part.
-country: us
 collections:
   - sanctions
 publisher:
-  title: US Department of the Treasury
+  organization: US Department of the Treasury
+  authority: Office of Foreign Assets Control
+  acronym: OFAC
+  country: us
   url: https://www.treasury.gov/
 url: https://www.treasury.gov/resource-center/sanctions/Pages/default.aspx
 data:

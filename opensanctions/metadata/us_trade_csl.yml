@@ -5,12 +5,12 @@ description: >
   The Consolidated Screening List (CSL) is a list of parties for which the United
   States Government maintains restrictions on certain exports, reexports, or transfers
   of items.
-country: us
 collections:
   - sanctions
 publisher:
-  title: US Department of the Commerce
-  # International Trade Administration
+  organization: Department of the Commerce
+  country: us
+  authority: International Trade Administration
   url: https://www.trade.gov/
 url: https://www.trade.gov/consolidated-screening-list
 data:

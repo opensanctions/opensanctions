@@ -4,11 +4,12 @@ prefix: ch-seco
 description: >
   Switzerland manages a sanctions lists with a high degree of detail on the
   individuals that are subject to it's embargoes.
-country: ch
 collections:
   - sanctions
 publisher:
-  title: "State Secretariat for Economic Affairs (SECO)"
+  organization: "State Secretariat for Economic Affairs"
+  acronym: SECO
+  country: ch
   url: https://www.seco.admin.ch/
 url: https://www.seco.admin.ch/seco/en/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos.html
 data:

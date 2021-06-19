@@ -4,11 +4,13 @@ prefix: ofac-cons
 description: >
   Both parts of the United States' consolidated sanctions list, non-SDN entities published
   by the Office of Foreign Assets Control (OFAC).
-country: us
 collections:
   - sanctions
 publisher:
-  title: US Department of the Treasury
+  organization: US Department of the Treasury
+  authority: Office of Foreign Assets Control
+  acronym: OFAC
+  country: us
   url: https://www.treasury.gov/
 url: https://www.treasury.gov/resource-center/sanctions/Pages/default.aspx
 data:

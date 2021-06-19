@@ -7,7 +7,8 @@ description: >
 collections:
   - sanctions
 publisher:
-  title: United Nations Security Council
+  organization: United Nations Security Council
+  acronym: UNSC
   url: "https://www.un.org/en/sc/"
 url: "https://www.un.org/securitycouncil/sanctions/information"
 data:

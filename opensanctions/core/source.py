@@ -25,10 +25,21 @@ class SourcePublisher(object):
 
     def __init__(self, config):
         self.url = config.get("url")
-        self.title = config.get("title")
+        self.organization = config.get("organization")
+        self.country = config.get("country", "zz")
+        assert registry.country.validate(self.country), "Invalid publisher country"
+        self.authority = config.get("authority")
+        self.acronym = config.get("acronym")
 
     def to_dict(self):
-        return {"url": self.url, "title": self.title}
+        return {
+            "url": self.url,
+            "organization": self.organization,
+            "country": self.country,
+            "country_label": registry.country.caption(self.country),
+            "authority": self.authority,
+            "acronym": self.acronym,
+        }
 
 
 class Source(Dataset):
@@ -41,7 +52,6 @@ class Source(Dataset):
     def __init__(self, file_path, config):
         super().__init__(self.TYPE, file_path, config)
         self.url = config.get("url", "")
-        self.country = config.get("country", "zz")
         self.category = config.get("category", "other")
         self.entry_point = config.get("entry_point")
         self.data = SourceData(config.get("data", {}))
@@ -68,7 +78,6 @@ class Source(Dataset):
         data.update(
             {
                 "url": self.url,
-                "country": self.country,
                 "entry_point": self.entry_point,
                 "data": self.data.to_dict(),
                 "publisher": self.publisher.to_dict(),

@@ -1,5 +1,5 @@
 entry_point: opensanctions.crawlers.coe_assembly
-title: CoE Parliamentary Assembly
+title: Parliamentary Assembly Members
 prefix: coe
 description: >
   The Council of Europe's parliamentary assembly is composed of members of
@@ -7,7 +7,9 @@ description: >
 collections:
   - peps
 publisher:
-  title: Council of Europe
+  organization: Council of Europe
+  acronym: CoE
+  authority: PACE
   url: http://www.coe.int
 url: http://www.assembly.coe.int/nw/Home-EN.asp
 data:

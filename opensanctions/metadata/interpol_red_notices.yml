@@ -7,7 +7,7 @@ description: >
 collections:
   - crime
 publisher:
-  title: INTERPOL
+  organization: INTERPOL
   url: https://www.interpol.int/
 url: https://www.interpol.int/INTERPOL-expertise/Notices
 data:

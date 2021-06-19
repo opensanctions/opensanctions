@@ -1,13 +1,14 @@
 entry_point: opensanctions.crawlers.au_dfat_sanctions
-title: "Australian DFAT Sanctions List"
+title: "Sanctions List"
 prefix: au-dfat
 description: ""
 collections:
   - sanctions
-country: au
 url: http://dfat.gov.au/international-relations/security/sanctions/Pages/sanctions.aspx
 publisher:
-  title: "Australian Department of Foreign Affairs and Trade"
+  organization: "Department of Foreign Affairs and Trade"
+  country: au
+  acronym: DFAT
   url: http://dfat.gov.au/
 data:
   url: "https://www.dfat.gov.au/sites/default/files/regulation8_consolidated.xls"

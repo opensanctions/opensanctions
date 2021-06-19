@@ -9,7 +9,10 @@ description: >
 collections:
   - peps
 publisher:
-  title: European Committee of the Regions
+  organization: European Union
+  authority: Committee of the Regions
+  acronym: CoR
+  country: eu
   url: https://cor.europa.eu/en
 url: https://cor.europa.eu/en
 data:

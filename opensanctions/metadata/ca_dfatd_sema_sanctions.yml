@@ -1,13 +1,14 @@
 entry_point: opensanctions.crawlers.ca_dfatd_sema_sanctions
-title: "Canada Special Economic Measures Act Sanctions"
+title: "Special Economic Measures Act Sanctions"
 prefix: ca-sema
 description: ""
-country: ca
 collections:
   - sanctions
 url: https://www.international.gc.ca/world-monde/international_relations-relations_internationales/sanctions/consolidated-consolide.aspx?lang=eng
 publisher:
-  title: "Global Affairs Canada"
+  organization: "Global Affairs Canada"
+  country: ca
+  acronym: SEMA
   url: https://www.international.gc.ca/global-affairs-affaires-mondiales/home-accueil.aspx?lang=eng
 data:
   url: "https://www.international.gc.ca/world-monde/assets/office_docs/international_relations-relations_internationales/sanctions/sema-lmes.xml"
@@ -16,11 +17,11 @@ data:
 lookups:
   country:
     options:
-    - contains: (JVCFOR)
-      value: null
+      - contains: (JVCFOR)
+        value: null
   date:
     options:
-    - match: 1972-08-10 or 1972-08-11
-      values:
-      - 1972-08-10
-      - 1972-08-11
+      - match: 1972-08-10 or 1972-08-11
+        values:
+          - 1972-08-10
+          - 1972-08-11
