@@ -1,6 +1,6 @@
 project = "opensanctions"
-copyright = "2021, Friedrich Lindenberg"
-author = "Friedrich Lindenberg"
+copyright = "2021, OpenSanctions Team"
+author = "OpenSanctions Team"
 
 # Do not modify manually
 release = "3.0.0"

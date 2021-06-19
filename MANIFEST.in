@@ -1,2 +1,2 @@
 include README.md
-recursive-include opensanctions/metadata/
+recursive-include opensanctions/ *.yml *.yaml

@@ -6,9 +6,11 @@ setup(
     version="3.0.0",
     url="https://github.com/alephdata/opensanctions",
     license="MIT",
+    author="OpenSanctions Team",
+    author_email="info@opensanctions.org",
     packages=find_packages(exclude=["ez_setup", "examples", "test"]),
     namespace_packages=[],
-    package_data={"opensanctions": ["metadata/**/*.yml", "metadata/**/*.yaml"]},
+    package_data={"opensanctions": ["**/*.yml", "**/*.yaml"]},
     zip_safe=False,
     install_requires=[
         "followthemoney >= 1.21.2",
