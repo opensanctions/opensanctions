@@ -8,7 +8,7 @@ setup(
     license="MIT",
     packages=find_packages(exclude=["ez_setup", "examples", "test"]),
     namespace_packages=[],
-    package_data={"opensanctions": ["metadata/*.yml", "metadata/*.yaml"]},
+    package_data={"opensanctions": ["metadata/**/*.yml", "metadata/**/*.yaml"]},
     zip_safe=False,
     install_requires=[
         "followthemoney >= 1.21.2",
@@ -25,6 +25,17 @@ setup(
         "xlrd",
         "lxml",
     ],
+    extras_require={
+        "dev": [
+            "sphinx",
+            "bump2version",
+            "wheel>=0.29.0",
+            "twine",
+            "black",
+            "flake8>=2.6.0",
+            "sphinx-rtd-theme",
+        ],
+    },
     entry_points={
         "console_scripts": [
             "opensanctions = opensanctions.cli:cli",
