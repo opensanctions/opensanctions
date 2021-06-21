@@ -51,11 +51,11 @@ class Resource(Base):
         mime = parse_mimetype(self.mime_type)
         return {
             "path": self.path,
-            "checksum": self.checksum,
+            "sha1": self.checksum,
             "timestamp": self.timestamp,
-            "dataset": self.dataset,
+            # "dataset": self.dataset,
             "mime_type": self.mime_type,
-            "mime_label": mime.label,
+            "mime_type_label": mime.label,
             "size": self.size,
             "title": self.title,
         }
