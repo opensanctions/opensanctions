@@ -135,10 +135,13 @@ def parse_entry(context, target, programs, places, updated_at):
         node = target.find("./individual")
         entity = context.make("Person")
     if node is None:
-        # node = target.find('./object')
-        # TODO: build out support for these!
-        context.log.warning("Unknown target type", target=target)
-        return
+        node = target.find("./object")
+        object_type = node.get("object-type")
+        if object_type != "vessel":
+            context.log.warning(
+                "Unknown target type", target=target, object_type=object_type
+            )
+        entity = context.make("Vessel")
 
     dates = set()
     for mod in target.findall("./modification"):
@@ -152,7 +155,12 @@ def parse_entry(context, target, programs, places, updated_at):
 
     entity.make_slug(target.get("ssid"))
     for other in node.findall("./other-information"):
-        entity.add("notes", other.text)
+        value = other.text.strip()
+        if entity.schema.is_a("Vessel") and value.lower().startswith("imo"):
+            _, imo_num = value.split(":", 1)
+            entity.add("imoNumber", imo_num)
+        else:
+            entity.add("notes", value)
 
     sanction = context.make_sanction(entity)
     sanction.add("modifiedAt", max(dates))
