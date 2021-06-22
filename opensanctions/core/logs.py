@@ -8,10 +8,6 @@ from structlog.contextvars import merge_contextvars
 from opensanctions import settings
 from opensanctions.model import Issue
 
-logging.getLogger("requests").setLevel(logging.WARNING)
-logging.getLogger("urllib3").setLevel(logging.ERROR)
-logging.getLogger("httpstream").setLevel(logging.WARNING)
-
 
 def store_event(logger, log_method, data):
     for key, value in data.items():
