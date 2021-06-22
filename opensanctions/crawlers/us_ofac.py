@@ -320,10 +320,7 @@ def parse_entry(context, entry):
     party = context.make("Thing")
     party.make_slug(entry.get("ProfileID"))
 
-    sanction = context.make("Sanction")
-    sanction.make_id("Sanction", party.id, entry.get("ID"))
-    sanction.add("entity", party)
-    sanction.add("authority", "US Office of Foreign Asset Control")
+    sanction = context.make_sanction(party, key=entry.get("ID"))
     sanction.add("program", ref_value("List", entry.get("ListID")))
 
     dates = set()

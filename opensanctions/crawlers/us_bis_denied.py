@@ -28,12 +28,8 @@ def parse_row(context, row):
     entity.add("address", address)
     context.emit(entity, target=True)
 
-    sanction = context.make("Sanction")
-    sanction.make_id(entity.id, row.get("FR_Citation"))
-    sanction.add("entity", entity)
+    sanction = context.make_sanction(entity, key=row.get("FR_Citation"))
     sanction.add("program", row.get("FR_Citation"))
-    sanction.add("authority", "US Bureau of Industry and Security")
-    sanction.add("country", "us")
     sanction.add("startDate", parse_date(row.get("Effective_Date")))
     sanction.add("endDate", parse_date(row.get("Expiration_Date")))
     # pprint(row)

@@ -58,12 +58,7 @@ def parse_row(context, row):
     if org_type is not None:
         entity.add_cast("LegalEntity", "legalForm", org_type)
 
-    sanction = context.make("Sanction")
-    sanction.make_id(entity.id, "Sanction")
-    sanction.add("entity", entity)
-    sanction.add("authority", "HM Treasury Financial sanctions targets")
-    sanction.add("country", "gb")
-
+    sanction = context.make_sanction(entity)
     # entity.add("position", row.pop("Position"), quiet=True)
     entity.add("notes", row.pop("OtherInformation", None), quiet=True)
     entity.add("notes", row.pop("FurtherIdentifiyingInformation", None), quiet=True)

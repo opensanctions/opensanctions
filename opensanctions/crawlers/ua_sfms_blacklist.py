@@ -24,11 +24,7 @@ def parse_entry(context, entry):
     entry_id = entry.findtext("number-entry")
     entity.make_slug(entry_id)
 
-    sanction = context.make("Sanction")
-    sanction.make_id("Sanction", entity.id)
-    sanction.add("entity", entity)
-    sanction.add("authority", "State Financial Monitoring Service of Ukraine")
-    sanction.add("sourceUrl", context.dataset.url)
+    sanction = context.make_sanction(entity)
     sanction.add("program", entry.findtext("./program-entry"))
     date_entry = entry.findtext("./date-entry")
     if date_entry:

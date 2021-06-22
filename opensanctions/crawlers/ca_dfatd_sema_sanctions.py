@@ -26,10 +26,7 @@ def parse_entry(context, node):
     entity.add("name", entity_name)
     entity.add("country", country)
 
-    sanction = context.make("Sanction")
-    sanction.make_id("Sanction", entity.id)
-    sanction.add("entity", entity)
-    sanction.add("authority", "Canadian international sanctions")
+    sanction = context.make_sanction(entity)
     sanction.add("program", node.findtext(".//Schedule"))
 
     given_name = node.findtext(".//GivenName")

@@ -58,12 +58,9 @@ def crawl(context):
         for name in names[1:]:
             entity.add("alias", name)
 
-        sanction = context.make("Sanction")
-        sanction.make_id("Sanction", entity.id)
-        sanction.add("authority", "World Bank Debarrment")
+        sanction = context.make_sanction(entity)
         sanction.add("program", data.get("DEBAR_REASON"))
         sanction.add("startDate", start_date)
         sanction.add("endDate", parse_date(data.get("DEBAR_TO_DATE")))
-        sanction.add("sourceUrl", context.dataset.url)
         context.emit(entity, target=True)
         context.emit(sanction)

@@ -72,6 +72,21 @@ class Context(object):
         """Make a new entity with some dataset context set."""
         return Entity(self.dataset, schema)
 
+    def make_sanction(self, entity, key=None):
+        """Create a sanctions object derived from the dataset metadata."""
+        assert entity.schema.is_a("Thing"), entity.schema
+        sanction = self.make("Sanction")
+        sanction.make_id("Sanction", entity.id, key)
+        sanction.add("entity", entity)
+        publisher = self.dataset.publisher
+        if publisher.country != "zz":
+            sanction.add("country", publisher.country)
+        sanction.add("authority", publisher.authority)
+        if not sanction.has("authority"):
+            sanction.add("authority", publisher.organization)
+        sanction.add("sourceUrl", self.dataset.url)
+        return sanction
+
     def emit(self, entity, target=False, unique=False):
         """Send an FtM entity to the store."""
         if entity.id is None:

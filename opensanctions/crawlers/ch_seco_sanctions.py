@@ -154,11 +154,7 @@ def parse_entry(context, target, programs, places, updated_at):
     for other in node.findall("./other-information"):
         entity.add("notes", other.text)
 
-    sanction = context.make("Sanction")
-    sanction.make_id(entity.id, "Sanction")
-    sanction.add("entity", entity)
-    sanction.add("authority", "Swiss SECO Consolidated Sanctions")
-    sanction.add("sourceUrl", context.dataset.url)
+    sanction = context.make_sanction(entity)
     sanction.add("modifiedAt", max(dates))
 
     for justification in node.findall("./justification"):

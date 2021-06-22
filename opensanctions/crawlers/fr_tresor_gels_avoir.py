@@ -74,9 +74,7 @@ def crawl_entity(context, data):
     entity.make_slug(data.pop("IdRegistre"))
     entity.add("name", data.pop("Nom"))
 
-    sanction = context.make("Sanction")
-    sanction.make_id("Sanction", entity.id)
-    sanction.add("entity", entity)
+    sanction = context.make_sanction(entity)
     for detail in data.pop("RegistreDetail"):
         field = detail.pop("TypeChamp")
         for value in detail.pop("Valeur"):

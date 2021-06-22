@@ -39,10 +39,7 @@ def parse_legal(context, node):
 
 def parse_common(context, node, entity):
     entity.make_slug(node.tag, node.findtext("./Number"))
-    sanction = context.make("Sanction")
-    sanction.make_id("Sanction", entity.id)
-    sanction.add("entity", entity)
-    sanction.add("authority", "Kyrgyz Financial Intelligence Unit")
+    sanction = context.make_sanction(entity)
     sanction.add("reason", node.findtext("./BasicInclusion"))
     sanction.add("program", node.findtext("./CategoryPerson"))
     inclusion_date = parse_date(node.findtext("./DateInclusion"))

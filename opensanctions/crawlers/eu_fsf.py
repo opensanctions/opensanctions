@@ -21,11 +21,7 @@ def parse_entry(context, entry):
     source_url = regulation.findtext("./publicationUrl", "")
     entity.add("sourceUrl", source_url)
 
-    sanction = context.make("Sanction")
-    sanction.make_id("Sanction", entity.id)
-    sanction.add("entity", entity)
-    sanction.add("authority", "European Union")
-    sanction.add("sourceUrl", source_url)
+    sanction = context.make_sanction(entity)
     program = jointext(
         regulation.get("programme"),
         regulation.get("numberTitle"),

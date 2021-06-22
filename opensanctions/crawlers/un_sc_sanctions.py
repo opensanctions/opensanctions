@@ -132,10 +132,7 @@ def parse_common(context, entity, node):
     if listed_on is not None:
         entity.context["created_at"] = listed_on
 
-    sanction = context.make("Sanction")
-    sanction.make_id(entity.id)
-    sanction.add("entity", entity)
-    sanction.add("authority", "United Nations Security Council")
+    sanction = context.make_sanction(entity)
     sanction.add("startDate", listed_on)
     sanction.add("modifiedAt", values(node.find("./LAST_DAY_UPDATED")))
 
