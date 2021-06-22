@@ -1,8 +1,16 @@
 import json
 from pprint import pprint  # noqa
+from followthemoney.types import registry
 
 from opensanctions.util import jointext
-from opensanctions.util import date_formats, DAY
+from opensanctions.util import date_formats, DAY, MONTH, YEAR
+
+FORMATS = [("%d %b %Y", DAY), ("%d %B %Y", DAY), ("%Y", YEAR), ("%b %Y", MONTH)]
+FORMATS = FORMATS + [("%B %Y", MONTH)]
+
+
+def parse_date(date):
+    return date_formats(date, FORMATS)
 
 
 def parse_result(context, result):
@@ -57,19 +65,43 @@ def parse_result(context, result):
     for ident in result.pop("ids", []):
         country = ident.get("country")
         value = ident.get("number")
-        idres = context.lookup("ids", ident.get("type"))
+        type_ = ident.get("type")
+        idres = context.lookup("ids", type_)
         if idres is None:
             context.log.warning(
                 "Unknown ID type",
                 entity=entity,
-                type=ident.get("type"),
+                type=type_,
                 value=value,
                 country=country,
             )
             continue
-        if idres.prop is not None:
-            entity.add(idres.prop, value)
+        if idres.nested is not None:
+            adj = context.make(idres.schema)
+            adj.make_id(type_, value)
+            if idres.type is not None:
+                adj.add(idres.type, type_)
+            adj.add(idres.value, value)
+            entity.add(idres.nested, adj)
+            context.emit(adj)
+        elif idres.backref is not None:
+            adj = context.make(idres.schema)
+            adj.make_id(type_, value)
+            adj.add(idres.backref, entity)
+            if idres.type is not None:
+                adj.add(idres.type, type_)
+            adj.add(idres.value, value)
+            context.emit(adj)
+        else:
+            if idres.schema is not None:
+                entity.add_schema(idres.schema)
             entity.add("country", country)
+            if idres.prop is not None:
+                prop = entity.schema.get(idres.prop)
+                if prop.type == registry.date:
+                    value = parse_date(value)
+                entity.add(idres.prop, value)
+
         # pprint(ident)
 
     sanction = context.make("Sanction")
