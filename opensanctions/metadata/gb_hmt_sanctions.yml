@@ -206,7 +206,16 @@ lookups:
         value: null
   email:
     options:
+      - match:
+          - www.surena gc.com
+          - 43294
+        contains:
+          - https://vk.com/
+          - http://vk.com/
+        value: null
       - match: "Email: info@gpc-sy.com"
         value: info@gpc-sy.com
+      - match: request@mehr fci.ir
+        value: request@mehr-fci.ir
       - match: info@etemad mobin.com
         value: info@etemad-mobin.com
