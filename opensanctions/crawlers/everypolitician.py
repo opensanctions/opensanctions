@@ -1,4 +1,3 @@
-from pprint import pprint  # noqa
 from datetime import datetime
 from urllib.parse import unquote
 

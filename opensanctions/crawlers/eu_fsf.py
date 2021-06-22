@@ -1,13 +1,13 @@
 from pprint import pprint  # noqa
 from normality import slugify
 
-from opensanctions import constants
+from opensanctions.helpers import gender
 from opensanctions.util import jointext, remove_namespace
 
 # https://eeas.europa.eu/topics/sanctions-policy/8442/consolidated-list-of-sanctions_en
 # https://webgate.ec.europa.eu/fsd/fsf#!/files
 
-GENDERS = {"M": constants.MALE, "F": constants.FEMALE}
+GENDERS = {"M": gender.MALE, "F": gender.FEMALE}
 
 
 def parse_entry(context, entry):
