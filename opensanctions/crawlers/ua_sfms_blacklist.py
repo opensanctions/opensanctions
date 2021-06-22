@@ -1,5 +1,4 @@
 from datetime import datetime
-from pprint import pprint  # noqa
 
 from opensanctions.util import jointext, remove_bracketed, multi_split
 from opensanctions.util import date_formats, DAY, YEAR, MONTH

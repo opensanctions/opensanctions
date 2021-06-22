@@ -2,7 +2,8 @@ from normality import collapse_spaces, stringify
 from pprint import pprint  # noqa
 from lxml import html
 
-from opensanctions import constants, settings
+from opensanctions import settings
+from opensanctions.helpers import gender
 from opensanctions.util import date_formats, MONTH, YEAR, DAY
 
 MAX_RESULTS = 160
@@ -10,8 +11,8 @@ SEEN = set()
 COUNTRIES_URL = "https://www.interpol.int/en/How-we-work/Notices/View-Red-Notices"
 FORMATS = [("%Y/%m/%d", DAY), ("%Y/%m", MONTH), ("%Y", YEAR)]
 SEXES = {
-    "M": constants.MALE,
-    "F": constants.FEMALE,
+    "M": gender.MALE,
+    "F": gender.FEMALE,
 }
 
 

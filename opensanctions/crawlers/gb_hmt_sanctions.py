@@ -1,13 +1,12 @@
 from pprint import pprint
 from normality import stringify, collapse_spaces
-from followthemoney import model
 
+from opensanctions.helpers import clean_emails, clean_phones
 from opensanctions.util import remove_namespace
 from opensanctions.util import jointext, multi_split, remove_bracketed
 from opensanctions.util import date_parts, date_formats, MONTH, YEAR
 
 FORMATS = ["%d/%m/%Y", ("00/%m/%Y", MONTH), ("00/00/%Y", YEAR), ("%Y", YEAR)]
-NSMAP = {"GB": "http://schemas.datacontract.org/2004/07/"}
 COUNTRY_SPLIT = ["(1)", "(2)", "(3)"]
 
 
@@ -155,12 +154,14 @@ def parse_row(context, row):
     entity.add_cast("LegalEntity", "registrationNumber", reg_number)
 
     phones = split_items(row.pop("PhoneNumber", None), comma=True)
+    phones = clean_phones(phones)
     entity.add_cast("LegalEntity", "phone", phones)
 
     website = split_items(row.pop("Website", None), comma=True)
     entity.add_cast("LegalEntity", "website", website)
 
     emails = split_items(row.pop("EmailAddress", None), comma=True)
+    emails = clean_emails(emails)
     entity.add_cast("LegalEntity", "email", emails)
 
     # TODO: graph

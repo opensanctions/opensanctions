@@ -1,5 +1,4 @@
 import csv
-from pprint import pprint  # noqa
 
 from opensanctions.util import jointext
 from opensanctions.util import date_formats, DAY

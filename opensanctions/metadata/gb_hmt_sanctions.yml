@@ -204,3 +204,9 @@ lookups:
           - Indonesia
           - "43294"
         value: null
+  email:
+    options:
+      - match: "Email: info@gpc-sy.com"
+        value: info@gpc-sy.com
+      - match: info@etemad mobin.com
+        value: info@etemad-mobin.com

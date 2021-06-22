@@ -1,19 +1,14 @@
-import re
 from lxml import html
-from pprint import pprint  # noqa
 
 from opensanctions import settings
 from opensanctions.util import jointext
 from opensanctions.util import date_formats, DAY
 
-# https://fiu.gov.kg/sked/9
+FORMATS = [("%d.%m.%Y", DAY), ("%Y%m%d", DAY), ("%Y-%m-%d", DAY)]
 
 
 def parse_date(text):
-    pattern = re.compile(r"[^0-9\.]")
-    if text is not None:
-        text = pattern.sub("", text)
-    return date_formats(text, [("%d.%m.%Y", DAY), ("%Y%m%d", DAY)])
+    return date_formats(text, FORMATS)
 
 
 def parse_person(context, node):

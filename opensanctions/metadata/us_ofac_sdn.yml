@@ -262,7 +262,7 @@ lookups:
       - label: "Target Type"
         match: 826
         schema: null
-        prop: null
+        prop: legalForm
   IDRegDocType:
     options:
       - label: Cedula No.
