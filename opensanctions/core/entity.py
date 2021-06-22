@@ -65,8 +65,11 @@ class Entity(EntityProxy):
         prop_ = schema.get(prop)
         if prop_.type.clean(value) is None:
             return
-        self.schema = model.common_schema(self.schema, schema)
+        self.add_schema(schema)
         return self.add(prop, value)
+
+    def add_schema(self, schema):
+        self.schema = model.common_schema(self.schema, schema)
 
     def add_address(
         self,

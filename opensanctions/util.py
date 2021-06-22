@@ -29,7 +29,7 @@ def date_formats(text, formats):
             pass
         try:
             dt = datetime.strptime(text, fmt)
-            return dt.isoformat()[:FULL]
+            return dt.isoformat()[:length]
         except (ValueError, TypeError):
             pass
     return text
