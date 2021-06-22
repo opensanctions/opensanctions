@@ -10,8 +10,11 @@ log = structlog.get_logger(__name__)
 
 
 class Entity(EntityProxy):
-    """Add utility methods to the entity proxy for extracting data from sanctions
-    lists."""
+    """Entity for sanctions list entries and adjacent objects.
+
+    Add utility methods to the :ref:`followthemoney:entity-proxy` for extracting
+    data from sanctions lists and for auditing parsing errors to structured logging.
+    """
 
     def __init__(self, dataset, schema, data=None):
         self.dataset = dataset
@@ -69,6 +72,9 @@ class Entity(EntityProxy):
         return self.add(prop, value)
 
     def add_schema(self, schema):
+        """Try to apply the given schema to the current entity, making it more
+        specific (e.g. turning a `LegalEntity` into a `Company`). This raises an
+        exception if the current and new type are incompatible."""
         self.schema = model.common_schema(self.schema, schema)
 
     def add_address(
@@ -91,6 +97,8 @@ class Entity(EntityProxy):
 
     @classmethod
     def query(cls, dataset, entity_id=None):
+        """Query the statement table for the given dataset and entity ID and return
+        re-constructed entities with the given properties."""
         current_entity_id = None
         entity = None
         for stmt in Statement.all_statements(dataset=dataset, entity_id=entity_id):
@@ -101,7 +109,7 @@ class Entity(EntityProxy):
                 entity = cls(dataset, schema)
                 entity.id = stmt.entity_id
             current_entity_id = stmt.entity_id
-            entity.schema = model.common_schema(entity.schema, schema)
+            entity.add_schema(schema)
             entity.add(stmt.prop, stmt.value, cleaned=True)
         if entity is not None:
             yield entity
