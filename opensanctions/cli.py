@@ -59,6 +59,14 @@ def run(dataset):
     export_global_index()
 
 
+@cli.command("clear", help="Delete all stored data for the given source")
+@click.argument("dataset", default=Dataset.ALL, type=click.Choice(Dataset.names()))
+def run(dataset):
+    dataset = Dataset.get(dataset)
+    for source in dataset.sources:
+        Context(source).clear()
+
+
 @cli.command("cleanup", help="Clean up caches")
 def cleanup():
     cleanup_cache()

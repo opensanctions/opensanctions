@@ -113,6 +113,7 @@ class Context(object):
         except LookupException as exc:
             self.log.error(exc.message, lookup=exc.lookup.name, value=exc.value)
         except Exception:
+            db.session.rollback()
             self.log.exception("Crawl failed")
         finally:
             self.close()
@@ -124,6 +125,12 @@ class Context(object):
             export_dataset(self, self.dataset)
         finally:
             self.close()
+
+    def clear(self):
+        """Delete all recorded data for a given dataset."""
+        Issue.clear(self.dataset)
+        Statement.clear(self.dataset)
+        db.session.commit()
 
     def get_entity(self, entity_id):
         for entity in Entity.query(self.dataset, entity_id=entity_id):

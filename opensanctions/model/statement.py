@@ -48,6 +48,9 @@ class Statement(Base):
             }
             values.append(stmt)
 
+        if not len(values):
+            return
+
         istmt = upsert(cls.__table__).values(values)
         stmt = istmt.on_conflict_do_update(
             index_elements=["entity_id", "prop", "value", "dataset"],
@@ -115,6 +118,13 @@ class Statement(Base):
         q = q.group_by(cls.schema)
         q = q.order_by(count.desc())
         return q.all()
+
+    @classmethod
+    def clear(cls, dataset):
+        pq = db.session.query(cls)
+        # TODO: should this do collections?
+        pq = pq.filter(cls.dataset == dataset.name)
+        pq.delete(synchronize_session=False)
 
     def to_dict(self):
         return {

@@ -1,9 +1,15 @@
 data/
 docs/
+dist/
+build/
+.envrc
 Makefile
 Dockerfile
+.mypy_cache
+.pytest_cache
 .git
 .gitignore
 venv
+*.pyc
 *.egg-info
 __pycache__
