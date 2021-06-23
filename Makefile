@@ -1,6 +1,8 @@
 DOCKER=
 ALEMBIC=alembic -c opensanctions/migrate/alembic.ini
 
+.PHONY: build
+
 all: run
 
 workdir:
@@ -9,8 +11,7 @@ workdir:
 build:
 	docker compose build --pull
 
-shell: build workdir
-	mkdir -p $(PWD)/data
+shell: build workdir	
 	docker compose run --rm app bash
 
 run: build workdir
@@ -18,3 +19,6 @@ run: build workdir
 
 stop:
 	docker compose down --remove-orphans
+
+delete:
+	rm -rf data/datasets
