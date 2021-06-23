@@ -26,6 +26,7 @@ class Issue(Base):
             if hasattr(value, "to_dict"):
                 value = value.to_dict()
             data[key] = value
+        data.pop("_record", None)
         issue = cls()
         data.pop("timestamp", None)
         issue.timestamp = settings.RUN_TIME

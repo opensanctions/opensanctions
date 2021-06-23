@@ -1,7 +1,6 @@
 from datetime import datetime
-from urllib.parse import unquote
 
-from opensanctions.util import multi_split
+from opensanctions.helpers import clean_emails, clean_phones
 
 
 def crawl(context):
@@ -9,8 +8,6 @@ def crawl(context):
     for country in res.json():
         for legislature in country.get("legislatures", []):
             code = country.get("code").lower()
-            # if code != "bi":
-            #     continue
             context.log.info("Country: %s" % code)
             crawl_legislature(context, code, legislature)
 
@@ -35,19 +32,6 @@ def crawl_legislature(context, country, legislature):
 
     for membership in data.pop("memberships", []):
         parse_membership(context, membership, entities, events)
-
-
-def parse_phones(value):
-    return value
-
-
-def parse_emails(value):
-    emails = set()
-    for email in multi_split(value, [",", "/"]):
-        email = unquote(email)
-        email = email.strip().strip(".")
-        emails.add(email)
-    return emails
 
 
 def parse_common(context, entity, data, lastmod):
@@ -79,9 +63,9 @@ def parse_common(context, entity, data, lastmod):
     for contact_detail in data.pop("contact_details", []):
         value = contact_detail.get("value")
         if "email" == contact_detail.get("type"):
-            entity.add("email", parse_emails(value))
+            entity.add("email", clean_emails(value))
         if "phone" == contact_detail.get("type"):
-            entity.add("phone", parse_phones(value))
+            entity.add("phone", clean_phones(value))
 
 
 def parse_person(context, data, country, entities, lastmod):
@@ -104,7 +88,7 @@ def parse_person(context, data, country, entities, lastmod):
     person.add("fatherName", data.pop("patronymic_name", None))
     person.add("birthDate", data.pop("birth_date", None))
     person.add("deathDate", data.pop("death_date", None))
-    person.add("email", parse_emails(data.pop("email", None)))
+    person.add("email", clean_emails(data.pop("email", None)))
     person.add("summary", data.pop("summary", None))
     person.add("topics", "role.pep")
 
