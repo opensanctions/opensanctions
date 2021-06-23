@@ -6,7 +6,7 @@ OpenSanctions uses [Follow the Money](https://docs.alephdata.org/developers/foll
 
 ## Data sources
 
-We collect data sources for this project [here](https://docs.google.com/spreadsheets/d/1ozEF7aTRM5mOK7PfusKnlGnfoYdee5AygdKbMTHkRQE/edit#gid=0). Please feel free to create issues to suggest additional data sources, but read `CONTRIBUTING.md` before writing the needed code.
+We collect data sources for this project [in this spreadsheet](https://docs.google.com/spreadsheets/d/1zHP91a-KT-MW-3s2Xb9-wPVhxTiPO1ZqJ90v4COswRY/edit#gid=0). Please feel free to create issues to suggest additional data sources, but read `CONTRIBUTING.md` before writing the needed code.
 
 ## Running
 
