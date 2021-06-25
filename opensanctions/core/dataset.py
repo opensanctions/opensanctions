@@ -7,6 +7,7 @@ from followthemoney.types import registry
 
 from opensanctions import settings
 from opensanctions.model import Issue, Statement, Resource
+from opensanctions.model.base import ENTITY_ID_LEN
 from opensanctions.util import joinslug
 
 
@@ -34,7 +35,8 @@ class Dataset(object):
         self.lookups = get_lookups(config.get("lookups", {}))
 
     def make_slug(self, *parts, strict=True):
-        return joinslug(*parts, prefix=self.prefix, strict=strict)
+        slug = joinslug(*parts, prefix=self.prefix, strict=strict)
+        return slug[:ENTITY_ID_LEN]
 
     @property
     def datasets(self):

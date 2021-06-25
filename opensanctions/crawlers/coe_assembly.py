@@ -1,8 +1,6 @@
-import string
 from lxml import html
-from pprint import pprint  # noqa
 from itertools import count
-from urllib.parse import urljoin, urlencode
+from urllib.parse import urljoin
 
 
 def crawl_entry(context, pace, href, member_url):

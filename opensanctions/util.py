@@ -45,7 +45,8 @@ def _parse_date_part(value):
 
 
 def date_parts(year, month, day):
-    """Compose a date string from a set of components."""
+    """Compose a date string from a set of (year, month, day) components. If the day
+    or month are empty, a prefix is generated."""
     year = _parse_date_part(year)
     if year is not None:
         text = str(year)

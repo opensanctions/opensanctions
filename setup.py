@@ -17,6 +17,7 @@ setup(
         "pantomime",
         "sqlalchemy",
         "alembic",
+        "international-address-formatter",
         "psycopg2-binary",
         "requests[security] >= 2.25.0, < 3.0.0",
         "requests_cache >= 0.6.3, < 0.7.0",

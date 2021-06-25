@@ -1,12 +1,11 @@
 from pprint import pprint  # noqa
 from collections import defaultdict
 
+from opensanctions.helpers import make_address
 from opensanctions.util import jointext, date_parts
 
 
 def parse_address(node):
-    if node is None:
-        return {}
     address = {
         "remarks": node.findtext("./remarks"),
         "co": node.findtext("./c-o"),
@@ -15,24 +14,29 @@ def parse_address(node):
         "p-o-box": node.findtext("./p-o-box"),
         "zip-code": node.findtext("./zip-code"),
         "area": node.findtext("./area"),
+        "country": node.findtext("./country"),
     }
-    country = node.find("./country")
-    if country is not None:
-        address["country"] = country.get("iso-code")
-    return address
+    return {k: v for (k, v) in address.items() if v is not None}
 
 
-def make_address(address):
-    address = (
-        address.get("remarks"),
-        address.get("co"),
-        address.get("location"),
-        address.get("address-details"),
-        address.get("p-o-box"),
-        address.get("zip-code"),
-        address.get("area"),
+def compose_address(context, entity, place, el):
+    addr = dict(place)
+    addr.update(parse_address(el))
+    entity.add("country", addr.get("country"))
+    po_box = addr.get("p-o-box")
+    if po_box is not None:
+        po_box = f"P.O. Box {po_box}"
+    return make_address(
+        context,
+        remarks=addr.get("remarks"),
+        summary=addr.get("co"),
+        street=addr.get("address-details"),
+        city=addr.get("location"),
+        po_box=po_box,
+        postal_code=addr.get("zip-code"),
+        region=addr.get("area"),
+        country=addr.get("country"),
     )
-    return jointext(*address, sep=", ")
 
 
 def whole_name(parts):
@@ -68,9 +72,7 @@ def parse_name(entity, node):
             # TODO: suffix
             entity.add("title", parts.get("title"), quiet=True)
             entity.add("firstName", parts.get("given-name"), quiet=True)
-            entity.add(
-                "secondName", parts.get("further-given-name"), quiet=True
-            )  # noqa
+            entity.add("secondName", parts.get("further-given-name"), quiet=True)
             entity.add("lastName", parts.get("family-name"), quiet=True)
             entity.add("lastName", parts.get("maiden-name"), quiet=True)
             entity.add("fatherName", parts.get("father-name"), quiet=True)
@@ -88,10 +90,9 @@ def parse_identity(context, entity, node, places):
 
     for address in node.findall("./address"):
         place = places.get(address.get("place-id"))
-        parts = dict(place)
-        parts.update(parse_address(address))
-        entity.add("address", make_address(parts))
-        entity.add("country", parts.get("country"))
+        obj = compose_address(context, entity, place, address)
+        entity.add("addressEntity", obj.id)
+        context.emit(obj)
 
     for bday in node.findall("./day-month-year"):
         bval = date_parts(bday.get("year"), bday.get("month"), bday.get("day"))
@@ -104,10 +105,8 @@ def parse_identity(context, entity, node, places):
 
     for bplace in node.findall("./place-of-birth"):
         place = places.get(bplace.get("place-id"))
-        address = dict(place)
-        address.update(parse_address(bplace))
-        entity.add("birthPlace", make_address(address))
-        entity.add("country", address.get("country"))
+        address = compose_address(context, entity, place, bplace)
+        entity.add("birthPlace", address.get("full"))
 
     for doc in node.findall("./identification-document"):
         country = doc.find("./issuer")

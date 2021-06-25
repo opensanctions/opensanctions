@@ -2,6 +2,7 @@ import structlog
 from banal import ensure_list
 
 from followthemoney import model
+from followthemoney.types import registry
 from followthemoney.proxy import EntityProxy
 
 from opensanctions.model import db, Statement
@@ -24,6 +25,10 @@ class Entity(EntityProxy):
     def make_slug(self, *parts, strict=True):
         self.id = self.dataset.make_slug(*parts, strict=strict)
         return self.id
+
+    def make_id(self, *parts):
+        hashed = super().make_id(*parts)
+        return self.make_slug(hashed)
 
     def _lookup_values(self, prop, values):
         values = ensure_list(values)
@@ -48,6 +53,8 @@ class Entity(EntityProxy):
                 raw = value
                 value = prop.type.clean(value, proxy=self, fuzzy=fuzzy)
             if value is None:
+                if prop.type == registry.phone:
+                    continue
                 log.warning(
                     "Rejected property value",
                     entity=self,
@@ -76,24 +83,6 @@ class Entity(EntityProxy):
         specific (e.g. turning a `LegalEntity` into a `Company`). This raises an
         exception if the current and new type are incompatible."""
         self.schema = model.common_schema(self.schema, schema)
-
-    def add_address(
-        self,
-        full=None,
-        remarks=None,
-        postOfficeBox=None,
-        street=None,
-        street2=None,
-        city=None,
-        postalCode=None,
-        region=None,
-        latitude=None,
-        longitude=None,
-        country=None,
-    ):
-        assert self.schema.is_a("Thing"), self.schema
-        if full is not None:
-            self.add("address", full)
 
     @classmethod
     def query(cls, dataset, entity_id=None):
