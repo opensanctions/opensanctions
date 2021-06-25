@@ -17,8 +17,11 @@ class Entity(EntityProxy):
     data from sanctions lists and for auditing parsing errors to structured logging.
     """
 
-    def __init__(self, dataset, schema, data=None):
+    def __init__(self, dataset, schema, data=None, target=False):
         self.dataset = dataset
+        self.target = target
+        self.first_seen = None
+        self.last_seen = None
         data = data or {"schema": schema}
         super().__init__(model, data, key_prefix=dataset.name)
 
@@ -84,6 +87,14 @@ class Entity(EntityProxy):
         exception if the current and new type are incompatible."""
         self.schema = model.common_schema(self.schema, schema)
 
+    def to_dict(self):
+        data = super().to_dict()
+        data["first_seen"] = self.first_seen
+        data["last_seen"] = self.last_seen
+        data["target"] = self.target
+        data["dataset"] = self.dataset.name
+        return data
+
     @classmethod
     def query(cls, dataset, entity_id=None):
         """Query the statement table for the given dataset and entity ID and return
@@ -97,9 +108,14 @@ class Entity(EntityProxy):
                     yield entity
                 entity = cls(dataset, schema)
                 entity.id = stmt.entity_id
+                entity.first_seen = stmt.first_seen
+                entity.last_seen = stmt.last_seen
             current_entity_id = stmt.entity_id
             entity.add_schema(schema)
             entity.add(stmt.prop, stmt.value, cleaned=True)
+            entity.target = max(entity.target, stmt.target)
+            entity.first_seen = min(entity.first_seen, stmt.first_seen)
+            entity.last_seen = max(entity.last_seen, stmt.last_seen)
         if entity is not None:
             yield entity
 

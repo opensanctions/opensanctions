@@ -1,9 +1,8 @@
 import click
 import logging
-from followthemoney.cli.util import write_object
 
 from opensanctions.core import Dataset, Context, Entity, setup
-from opensanctions.core.export import export_global_index
+from opensanctions.core.export import export_global_index, write_object
 from opensanctions.core.http import cleanup_cache
 from opensanctions.model.base import migrate_db
 

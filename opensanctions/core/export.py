@@ -2,7 +2,6 @@ import json
 import structlog
 from datetime import date, datetime
 from followthemoney import model
-from followthemoney.cli.util import write_object
 
 from opensanctions import settings, __version__
 from opensanctions.model import db, Issue
@@ -31,6 +30,12 @@ class JSONEncoder(json.JSONEncoder):
 def write_json(data, fh):
     """Write a JSON object to the given open file handle."""
     json.dump(data, fh, sort_keys=True, indent=2, cls=JSONEncoder)
+
+
+def write_object(stream, obj):
+    """Write an object for line-based JSON format."""
+    data = json.dumps(obj, sort_keys=True, cls=JSONEncoder)
+    stream.write(data + "\n")
 
 
 def export_global_index():
