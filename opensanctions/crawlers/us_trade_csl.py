@@ -2,7 +2,7 @@ import json
 from pprint import pprint  # noqa
 from followthemoney.types import registry
 
-from opensanctions.util import jointext
+from opensanctions.helpers import make_address
 from opensanctions.util import date_formats, DAY, MONTH, YEAR
 
 FORMATS = [("%d %b %Y", DAY), ("%d %B %Y", DAY), ("%Y", YEAR), ("%b %Y", MONTH)]
@@ -53,14 +53,18 @@ def parse_result(context, result):
     assert not len(result.pop("places_of_birth", []))
 
     for address in result.pop("addresses", []):
-        parts = (
-            address.get("address"),
-            address.get("city"),
-            address.get("postal_code"),
-            address.get("state"),
+        obj = make_address(
+            context,
+            street=address.get("address"),
+            city=address.get("city"),
+            postal_code=address.get("postal_code"),
+            region=address.get("state"),
+            country=address.get("country"),
         )
-        entity.add("address", jointext(*parts, sep=", "))
-        entity.add("country", address.get("country", None))
+        if obj is not None:
+            context.emit(obj)
+            entity.add("addressEntity", obj)
+            entity.add("country", obj.get("country"))
 
     for ident in result.pop("ids", []):
         country = ident.get("country")

@@ -1,6 +1,6 @@
 import csv
 
-from opensanctions.util import jointext
+from opensanctions.helpers import make_address
 from opensanctions.util import date_formats, DAY
 
 
@@ -17,14 +17,17 @@ def parse_row(context, row):
     entity.add("modifiedAt", row.get("Last_Update"))
     entity.context["updated_at"] = row.get("Last_Update")
 
-    address = jointext(
-        row.get("Street_Address"),
-        row.get("Postal_Code"),
-        row.get("City"),
-        row.get("State"),
-        sep=", ",
+    address = make_address(
+        context,
+        street=row.get("Street_Address"),
+        postal_code=row.get("Postal_Code"),
+        city=row.get("City"),
+        region=row.get("State"),
+        country=row.get("Country"),
     )
-    entity.add("address", address)
+    if address is not None:
+        entity.add("addressEntity", address)
+        context.emit(address, target=True)
     context.emit(entity, target=True)
 
     sanction = context.make_sanction(entity, key=row.get("FR_Citation"))

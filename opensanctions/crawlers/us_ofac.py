@@ -119,6 +119,7 @@ def load_locations(doc):
             parts.get("Unknown"),
             parts.get("ADDRESS1"),
             parts.get("ADDRESS2"),
+            parts.get("ADDRESS3"),
             parts.get("CITY"),
             parts.get("POSTAL CODE"),
             parts.get("REGION"),

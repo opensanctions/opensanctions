@@ -1,22 +1,10 @@
 from functools import lru_cache
-from normality import collapse_spaces
-from international_address_formatter import AddressFormatter
+from addressformatting import AddressFormatter
 
 
 @lru_cache(maxsize=None)
 def get_formatter():
     return AddressFormatter()
-
-
-def _clean_full(full):
-    prev = None
-    while prev != full:
-        prev = full
-        full = collapse_spaces(full)
-        full = full.replace(" ,", ",")
-        full = full.replace(",,", ",")
-        full = full.strip(",")
-    return full
 
 
 def make_address(
@@ -58,7 +46,7 @@ def make_address(
         }
         cc = address.first("country")
         full = get_formatter().one_line(data, country=cc)
-        address.add("full", _clean_full(full))
+        address.add("full", full)
 
     if not address.has("full"):
         return

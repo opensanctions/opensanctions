@@ -91,8 +91,9 @@ class Context(object):
         """Send an FtM entity to the store."""
         if entity.id is None:
             raise RuntimeError("Entity has no ID: %r", entity)
+        entity.target = target
+        Statement.from_entity(entity, unique=unique)
         self.log.debug("Emitted", entity=entity)
-        Statement.from_entity(entity, target=target, unique=unique)
 
     def bind(self):
         bind_contextvars(dataset=self.dataset.name)

@@ -1,7 +1,6 @@
-from pprint import pprint  # noqa
 from normality import collapse_spaces
 
-from opensanctions.util import jointext
+from opensanctions.helpers import make_address
 
 
 def values(node):
@@ -31,21 +30,16 @@ def parse_alias(entity, node):
             entity.add("previousName", name)
 
 
-def parse_address(entity, addr):
-    text = addr.xpath("string()").strip()
-    if not len(text):
-        return
-    country = addr.findtext("./COUNTRY")
-    address = jointext(
-        addr.findtext("./NOTE"),
-        addr.findtext("./STREET"),
-        addr.findtext("./CITY"),
-        addr.findtext("./STATE_PROVINCE"),
-        country,
-        sep=", ",
+def parse_address(context, node):
+    return make_address(
+        context,
+        remarks=node.findtext("./NOTE"),
+        street=node.findtext("./STREET"),
+        city=node.findtext("./CITY"),
+        region=node.findtext("./STATE_PROVINCE"),
+        postal_code=node.findtext("./ZIP_CODE"),
+        country=node.findtext("./COUNTRY"),
     )
-    entity.add("address", address)
-    entity.add("country", country)
 
 
 def parse_entity(context, node):
@@ -57,7 +51,11 @@ def parse_entity(context, node):
         parse_alias(entity, alias)
 
     for addr in node.findall("./ENTITY_ADDRESS"):
-        parse_address(entity, addr)
+        address = parse_address(context, addr)
+        if address is not None:
+            context.emit(address)
+            entity.add("addressEntity", address)
+            entity.add("country", address.get("country"))
 
     context.emit(entity, target=True, unique=True)
     context.emit(sanction)
@@ -76,7 +74,11 @@ def parse_individual(context, node):
         parse_alias(person, alias)
 
     for addr in node.findall("./INDIVIDUAL_ADDRESS"):
-        parse_address(person, addr)
+        address = parse_address(context, addr)
+        if address is not None:
+            context.emit(address)
+            person.add("addressEntity", address)
+            person.add("country", address.get("country"))
 
     for doc in node.findall("./INDIVIDUAL_DOCUMENT"):
         passport = context.make("Passport")
@@ -105,16 +107,12 @@ def parse_individual(context, node):
         person.add("birthDate", date)
 
     for pob in node.findall("./INDIVIDUAL_PLACE_OF_BIRTH"):
-        person.add("country", pob.findtext("./COUNTRY"))
-        place = jointext(
-            pob.findtext("./CITY"),
-            pob.findtext("./STATE_PROVINCE"),
-            pob.findtext("./COUNTRY"),
-            sep=", ",
-        )
-        person.add("birthPlace", place)
+        address = parse_address(context, pob)
+        if address is not None:
+            person.add("birthPlace", address.get("full"))
+            person.add("country", address.get("country"))
 
-    context.emit(person)
+    context.emit(person, target=True, unique=True)
     context.emit(sanction)
 
 

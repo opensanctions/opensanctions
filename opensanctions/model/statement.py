@@ -31,7 +31,7 @@ class Statement(Base):
     last_seen = Column(DateTime)
 
     @classmethod
-    def from_entity(cls, entity, target=False, unique=False):
+    def from_entity(cls, entity, unique=False):
         values = []
         for prop, value in entity.itervalues():
             stmt = {
@@ -41,7 +41,7 @@ class Statement(Base):
                 "schema": entity.schema.name,
                 "value": value,
                 "dataset": entity.dataset.name,
-                "target": target,
+                "target": entity.target,
                 "unique": unique,
                 "first_seen": settings.RUN_TIME,
                 "last_seen": settings.RUN_TIME,
