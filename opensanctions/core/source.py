@@ -17,7 +17,7 @@ class SourceData(object):
             self.api_key = os.path.expandvars(self.api_key)
 
     def to_dict(self):
-        return {"url": self.url, "fomat": self.format, "mode": self.mode}
+        return {"url": self.url, "format": self.format, "mode": self.mode}
 
 
 class SourcePublisher(object):
