@@ -1,11 +1,13 @@
 # cf.
 # https://github.com/archerimpact/SanctionsExplorer/blob/master/data/sdn_parser.py
 # https://home.treasury.gov/system/files/126/sdn_advanced_notes.pdf
+from banal import first
 from os.path import commonprefix
 from followthemoney import model
 from followthemoney.exc import InvalidData
 
 from opensanctions.core.dataset import Dataset
+from opensanctions.helpers import make_address
 from opensanctions.util import jointext, date_parts, remove_namespace
 
 REFERENCES = {}
@@ -106,38 +108,44 @@ def parse_date_period(date):
     )
 
 
-def load_locations(doc):
+def load_locations(context, doc):
     locations = {}
     for location in doc.findall("./Locations/Location"):
         location_id = location.get("ID")
+
         countries = set()
+        for area in location.findall("./LocationAreaCode"):
+            area_code = ref_get("AreaCode", area.get("AreaCodeID"))
+            countries.add(area_code.get("Description"))
+
+        for country in location.findall("./LocationCountry"):
+            country_obj = ref_get("Country", country.get("CountryID"))
+            countries.add(country_obj.get("Value"))
+
+        if len(countries) > 1:
+            context.log.warn("Multiple countries", countries=countries)
+
         parts = {}
         for part in location.findall("./LocationPart"):
             type_ = ref_value("LocPartType", part.get("LocPartTypeID"))
             parts[type_] = part.findtext("./LocationPartValue/Value")
-        address = jointext(
-            parts.get("Unknown"),
-            parts.get("ADDRESS1"),
-            parts.get("ADDRESS2"),
-            parts.get("ADDRESS3"),
-            parts.get("CITY"),
-            parts.get("POSTAL CODE"),
-            parts.get("REGION"),
-            parts.get("STATE/PROVINCE"),
-            sep=", ",
+
+        country = first(countries) or parts.get("Unknown")
+        address = make_address(
+            context,
+            full=parts.get("Unknown"),
+            street=parts.get("ADDRESS1"),
+            street2=parts.get("ADDRESS2"),
+            street3=parts.get("ADDRESS3"),
+            city=parts.get("CITY"),
+            postal_code=parts.get("POSTAL CODE"),
+            region=parts.get("REGION"),
+            state=parts.get("STATE/PROVINCE"),
+            country=country,
         )
-
-        countries = set([parts.get("Unknown")])
-        for area in location.findall("./LocationAreaCode"):
-            area_code = ref_get("AreaCode", area.get("AreaCodeID"))
-            country = ref_get("Country", area_code.get("CountryID"))
-            countries.add(country.get("ISO2"))
-
-        for country in location.findall("./LocationCountry"):
-            country = ref_get("Country", country.get("CountryID"))
-            countries.add(country.get("ISO2"))
-
-        locations[location_id] = (address, countries)
+        if address is not None:
+            context.emit(address)
+            locations[location_id] = address
     return locations
 
 
@@ -214,9 +222,10 @@ def parse_feature(context, feature, party, locations):
 
     location = feature.find(".//VersionLocation")
     if location is not None:
-        address, countries = locations[location.get("LocationID")]
-        party.add("address", address)
-        party.add("country", countries)
+        address = locations.get(location.get("LocationID"))
+        if address is not None:
+            party.add("addressEntity", address)
+            party.add("country", address.get("country"))
 
     detail = feature.find(".//VersionDetail")
     if detail is not None:
@@ -392,7 +401,7 @@ def crawl(context):
     context.log.info("Loading reference values...")
     load_ref_values(doc)
     context.log.info("Loading locations...")
-    locations = load_locations(doc)
+    locations = load_locations(context, doc)
     context.log.info("Loading ID reg documents...")
     documents = load_documents(doc)
 

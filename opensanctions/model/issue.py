@@ -25,6 +25,8 @@ class Issue(Base):
         for key, value in data.items():
             if hasattr(value, "to_dict"):
                 value = value.to_dict()
+            if isinstance(value, set):
+                value = list(value)
             data[key] = value
         data.pop("_record", None)
         issue = cls()

@@ -19,5 +19,14 @@ data:
 
 lookups:
   country:
-    map:
-      "00": null
+    options:
+      - match:
+          - "00"
+          - "UNKNOWN"
+        value: null
+      - match:
+          - "CONGO, Democratic Republic of (was Zaire)"
+        value: CD
+      - match:
+          - "PALESTINIAN TERRITORY, Occupied"
+        value: Palestine

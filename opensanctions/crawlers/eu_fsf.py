@@ -1,11 +1,8 @@
 from pprint import pprint  # noqa
 from normality import slugify
 
-from opensanctions.helpers import gender
+from opensanctions.helpers import gender, make_address
 from opensanctions.util import jointext, remove_namespace
-
-# https://eeas.europa.eu/topics/sanctions-policy/8442/consolidated-list-of-sanctions_en
-# https://webgate.ec.europa.eu/fsd/fsf#!/files
 
 GENDERS = {"M": gender.MALE, "F": gender.FEMALE}
 
@@ -54,13 +51,21 @@ def parse_entry(context, entry):
         context.emit(passport)
 
     for node in entry.findall("./address"):
-        address = jointext(
-            node.get("street"),
-            node.get("city"),
-            node.findtext("zipCode", ""),
+        # context.log.info("Address", node=node)
+        address = make_address(
+            context,
+            street=node.get("street"),
+            po_box=node.get("poBox"),
+            city=node.get("city"),
+            place=node.get("place"),
+            postal_code=node.get("zipCode"),
+            region=node.get("region"),
+            country=node.get("countryDescription"),
         )
-        entity.add("address", address)
-        entity.add("country", node.get("countryIso2Code"))
+        if address is not None:
+            context.emit(address)
+            entity.add("addressEntity", address)
+            entity.add("country", node.get("countryIso2Code"))
 
     for birth in entry.findall("./birthdate"):
         entity.add("birthDate", birth.get("birthdate"))

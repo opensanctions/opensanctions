@@ -23,3 +23,9 @@ lookups:
       # https://subchik.ru/organisations/7005
       - match: PRIYEMNAYA@YGDU
         value: PRIYEMNAYA@ygdu_gazprom.ru
+  country:
+    options:
+      - match:
+          - "None Identified"
+          - "undetermined"
+        value: null

@@ -1,6 +1,7 @@
 import re
 from pprint import pprint  # noqa
 
+from opensanctions.helpers import make_address
 from opensanctions.util import date_formats, DAY
 
 SPLITS = r"(a\.k\.a\.?|aka|f/k/a|also known as|\(formerly |, also d\.b\.a\.|\(currently (d/b/a)?|d/b/a|\(name change from|, as the successor or assign to)"  # noqa
@@ -45,22 +46,27 @@ def crawl(context):
         entity = context.make("LegalEntity")
         name = data.get("SUPP_NAME")
         ent_id = data.get("SUPP_ID")
-        city = data.get("SUPP_CITY")
-        address = data.get("SUPP_ADDR")
-        start_date = parse_date(data.get("DEBAR_FROM_DATE"))
-
         entity.make_slug(ent_id)
         names = clean_name(name)
         entity.add("name", names[0])
-        entity.add("address", address)
-        entity.add("address", city)
         entity.add("country", data.get("COUNTRY_NAME"))
         for name in names[1:]:
             entity.add("alias", name)
 
+        address = make_address(
+            context,
+            street=data.get("SUPP_ADDR"),
+            city=data.get("SUPP_CITY"),
+            country=data.get("COUNTRY_NAME"),
+            key=entity.id,
+        )
+        if address is not None:
+            context.emit(address)
+            entity.add("addressEntity", address)
+
         sanction = context.make_sanction(entity)
         sanction.add("program", data.get("DEBAR_REASON"))
-        sanction.add("startDate", start_date)
+        sanction.add("startDate", parse_date(data.get("DEBAR_FROM_DATE")))
         sanction.add("endDate", parse_date(data.get("DEBAR_TO_DATE")))
         context.emit(entity, target=True)
         context.emit(sanction)

@@ -704,5 +704,7 @@ lookups:
         description_prop: role
   country:
     options:
-      - match: None Identified
+      - match:
+          - "None Identified"
+          - "undetermined"
         value: null

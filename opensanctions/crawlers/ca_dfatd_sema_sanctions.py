@@ -1,4 +1,3 @@
-from pprint import pprint  # noqa
 from normality import collapse_spaces
 
 from opensanctions.util import jointext
