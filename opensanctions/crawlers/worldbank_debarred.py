@@ -40,7 +40,7 @@ def crawl(context):
     url = context.dataset.data.url
     headers = {"apikey": context.dataset.data.api_key}
     # print(url)
-    res = context.http.get(url, headers=headers)
+    res = context.http.get(url, headers=headers, timeout=240)
     for data in res.json()["response"]["ZPROCSUPP"]:
         # pprint(data)
         entity = context.make("LegalEntity")

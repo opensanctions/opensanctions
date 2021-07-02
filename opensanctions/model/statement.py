@@ -24,11 +24,11 @@ class Statement(Base):
     prop_type = Column(Unicode, nullable=False)
     schema = Column(Unicode, nullable=False)
     value = Column(Unicode, index=True, primary_key=True, nullable=False)
-    dataset = Column(Unicode, primary_key=True)
+    dataset = Column(Unicode, primary_key=True, index=True)
     target = Column(Boolean, default=False, nullable=False)
     unique = Column(Boolean, default=False, nullable=False)
     first_seen = Column(DateTime, nullable=True)
-    last_seen = Column(DateTime)
+    last_seen = Column(DateTime, index=True)
 
     @classmethod
     def from_entity(cls, entity, unique=False):

@@ -20,5 +20,5 @@ run: build workdir
 stop:
 	docker compose down --remove-orphans
 
-delete:
-	rm -rf data/datasets
+clean:
+	rm -rf data/datasets build dist .mypy_cache .pytest_cache
