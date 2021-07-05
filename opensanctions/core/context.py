@@ -89,6 +89,10 @@ class Context(object):
         return sanction
 
     def flush(self):
+        """Emitted entities are de-constructed into statements for the database
+        to store. These are inserted in batches - so the statement cache on the
+        context is flushed to the store. All statements that are not flushed
+        when a crawl is aborted are not persisted to the database."""
         self.log.debug("Flushing statements to database...")
         Statement.upsert_many(list(self._statements.values()))
         self._statements = {}
@@ -96,12 +100,15 @@ class Context(object):
     def emit(self, entity, target=False, unique=False):
         """Send an FtM entity to the store."""
         if entity.id is None:
-            raise RuntimeError("Entity has no ID: %r", entity)
+            raise ValueError("Entity has no ID: %r", entity)
         entity.target = target
-        for stmt in Statement.from_entity(entity, unique=unique):
+        statements = Statement.from_entity(entity, unique=unique)
+        if not len(statements):
+            raise ValueError("Entity has no properties: %r", entity)
+        for stmt in statements:
             key = (stmt["entity_id"], stmt["prop"], stmt["value"])
             self._statements[key] = stmt
-        if len(self._statements) > 20000:
+        if len(self._statements) > 50000:
             self.flush()
         self.log.debug("Emitted", entity=entity)
 
@@ -116,6 +123,7 @@ class Context(object):
             self.log.info("Begin crawl")
             # Run the dataset:
             self.dataset.method(self)
+            self.flush()
             self.log.info(
                 "Crawl completed",
                 entities=Statement.all_counts(dataset=self.dataset),
@@ -153,6 +161,5 @@ class Context(object):
 
     def close(self):
         """Flush and tear down the context."""
-        self.flush()
         clear_contextvars()
         db.session.commit()
