@@ -1,4 +1,3 @@
-from banal import ensure_list
 from urllib.parse import unquote
 from opensanctions.util import multi_split
 
