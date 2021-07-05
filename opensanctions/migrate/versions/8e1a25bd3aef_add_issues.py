@@ -26,7 +26,7 @@ def upgrade():
         sa.Column("message", sa.Unicode(), nullable=True),
         sa.Column("entity_id", sa.Unicode(length=128), nullable=True),
         sa.Column("entity_schema", sa.Unicode(), nullable=True),
-        sa.Column("data", postgresql.JSONB(astext_type=sa.Text()), nullable=False),
+        sa.Column("data", sa.JSON(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(op.f("ix_issue_dataset"), "issue", ["dataset"], unique=False)

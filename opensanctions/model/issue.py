@@ -1,6 +1,6 @@
 from banal import is_mapping
 from sqlalchemy import func, Column, Integer, Unicode, DateTime
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.types import JSON
 
 from opensanctions import settings
 from opensanctions.model.base import Base, db, ENTITY_ID_LEN
@@ -17,7 +17,7 @@ class Issue(Base):
     message = Column(Unicode)
     entity_id = Column(Unicode(ENTITY_ID_LEN), index=True)
     entity_schema = Column(Unicode)
-    data = Column(JSONB, nullable=False)
+    data = Column(JSON, nullable=False)
 
     @classmethod
     def save(cls, event):
