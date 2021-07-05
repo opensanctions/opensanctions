@@ -1,6 +1,8 @@
 from followthemoney.types import registry
 from sqlalchemy import func, Column, Unicode, DateTime, Boolean
-from sqlalchemy.dialects.postgresql import insert as upsert
+from sqlalchemy.dialects.sqlite import insert as insert_sqlite
+from sqlalchemy.dialects.postgresql import insert as insert_postgresql
+
 
 from opensanctions import settings
 from opensanctions.model.base import Base, db, ENTITY_ID_LEN
@@ -47,9 +49,16 @@ class Statement(Base):
                 "last_seen": settings.RUN_TIME,
             }
             values.append(stmt)
+        return values
 
+    @classmethod
+    def upsert_many(cls, values):
         if not len(values):
             return
+
+        upsert = insert_sqlite
+        if db.engine.dialect.name == "postgresql":
+            upsert = insert_postgresql
 
         istmt = upsert(cls.__table__).values(values)
         stmt = istmt.on_conflict_do_update(

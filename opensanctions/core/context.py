@@ -23,6 +23,7 @@ class Context(object):
         self.path = settings.DATASET_PATH.joinpath(dataset.name)
         self.http = get_session()
         self.log = structlog.get_logger(dataset.name)
+        self._statements = {}
 
     def get_resource_path(self, name):
         return self.path.joinpath(name)
@@ -87,12 +88,21 @@ class Context(object):
         sanction.add("sourceUrl", self.dataset.url)
         return sanction
 
+    def flush(self):
+        self.log.debug("Flushing statements to database...")
+        Statement.upsert_many(list(self._statements.values()))
+        self._statements = {}
+
     def emit(self, entity, target=False, unique=False):
         """Send an FtM entity to the store."""
         if entity.id is None:
             raise RuntimeError("Entity has no ID: %r", entity)
         entity.target = target
-        Statement.from_entity(entity, unique=unique)
+        for stmt in Statement.from_entity(entity, unique=unique):
+            key = (stmt["entity_id"], stmt["prop"], stmt["value"])
+            self._statements[key] = stmt
+        if len(self._statements) > 20000:
+            self.flush()
         self.log.debug("Emitted", entity=entity)
 
     def bind(self):
@@ -111,7 +121,11 @@ class Context(object):
                 entities=Statement.all_counts(dataset=self.dataset),
                 targets=Statement.all_counts(dataset=self.dataset, target=True),
             )
+        except KeyboardInterrupt:
+            db.session.rollback()
+            raise
         except LookupException as exc:
+            db.session.rollback()
             self.log.error(exc.message, lookup=exc.lookup.name, value=exc.value)
         except Exception:
             db.session.rollback()
@@ -139,6 +153,6 @@ class Context(object):
 
     def close(self):
         """Flush and tear down the context."""
+        self.flush()
         clear_contextvars()
-
         db.session.commit()
