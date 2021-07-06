@@ -36,7 +36,8 @@ class Dataset(object):
 
     def make_slug(self, *parts, strict=True):
         slug = joinslug(*parts, prefix=self.prefix, strict=strict)
-        return slug[:ENTITY_ID_LEN]
+        if slug is not None:
+            return slug[:ENTITY_ID_LEN]
 
     @property
     def datasets(self):

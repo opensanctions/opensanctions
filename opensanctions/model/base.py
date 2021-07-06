@@ -9,7 +9,6 @@ from sqlalchemy.ext.declarative import declarative_base
 from opensanctions import settings
 
 ENTITY_ID_LEN = 128
-DIALECTS = ["sqlite", "postgresql"]
 alembic_dir = os.path.join(os.path.dirname(__file__), "../migrate")
 alembic_dir = os.path.abspath(alembic_dir)
 alembic_ini = os.path.join(alembic_dir, "alembic.ini")
@@ -21,6 +20,8 @@ assert (
     settings.DATABASE_URI is not None
 ), "Need to configure $OPENSANCTIONS_DATABASE_URI."
 engine = create_engine(settings.DATABASE_URI)
+
+DIALECTS = ["sqlite", "postgresql"]
 assert engine.dialect.name in DIALECTS, "Unsupported database engine"
 
 metadata = MetaData(bind=engine)
