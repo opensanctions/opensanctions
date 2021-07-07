@@ -6,6 +6,7 @@ from followthemoney import model
 from followthemoney.types import registry
 
 from opensanctions import settings
+from opensanctions.core.entity import Entity
 from opensanctions.model import Issue, Statement, Resource
 from opensanctions.model.base import ENTITY_ID_LEN
 from opensanctions.util import joinslug
@@ -38,6 +39,13 @@ class Dataset(object):
         slug = joinslug(*parts, prefix=self.prefix, strict=strict)
         if slug is not None:
             return slug[:ENTITY_ID_LEN]
+
+    def make_entity(self, schema, target=False):
+        return Entity(self, schema, target=target)
+
+    def get_entity(self, entity_id):
+        for entity in Entity.query(self.dataset, entity_id=entity_id):
+            return entity
 
     @property
     def datasets(self):

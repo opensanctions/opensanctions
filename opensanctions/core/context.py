@@ -7,7 +7,6 @@ from structlog.contextvars import clear_contextvars, bind_contextvars
 
 from opensanctions import settings
 from opensanctions.model import db, Statement, Issue, Resource
-from opensanctions.core.entity import Entity
 from opensanctions.core.http import get_session, fetch_download
 from opensanctions.core.export import export_dataset
 
@@ -69,9 +68,9 @@ class Context(object):
     def lookup(self, lookup, value):
         return self.dataset.lookups[lookup].match(value)
 
-    def make(self, schema):
+    def make(self, schema, target=False):
         """Make a new entity with some dataset context set."""
-        return Entity(self.dataset, schema)
+        return self.dataset.make_entity(schema, target=target)
 
     def make_sanction(self, entity, key=None):
         """Create a sanctions object derived from the dataset metadata."""
@@ -97,11 +96,12 @@ class Context(object):
         Statement.upsert_many(list(self._statements.values()))
         self._statements = {}
 
-    def emit(self, entity, target=False, unique=False):
+    def emit(self, entity, target=None, unique=False):
         """Send an FtM entity to the store."""
         if entity.id is None:
             raise ValueError("Entity has no ID: %r", entity)
-        entity.target = target
+        if target is not None:
+            entity.target = target
         statements = Statement.from_entity(entity, unique=unique)
         if not len(statements):
             raise ValueError("Entity has no properties: %r", entity)
@@ -154,10 +154,6 @@ class Context(object):
         Issue.clear(self.dataset)
         Statement.clear(self.dataset)
         db.session.commit()
-
-    def get_entity(self, entity_id):
-        for entity in Entity.query(self.dataset, entity_id=entity_id):
-            return entity
 
     def close(self):
         """Flush and tear down the context."""

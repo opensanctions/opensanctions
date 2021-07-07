@@ -5,7 +5,7 @@ from followthemoney import model
 from followthemoney.types import registry
 from followthemoney.proxy import EntityProxy
 
-from opensanctions.model import db, Statement
+from opensanctions.model import Statement
 
 log = structlog.get_logger(__name__)
 
