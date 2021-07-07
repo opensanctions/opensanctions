@@ -16,16 +16,3 @@ url: https://www.treasury.gov/resource-center/sanctions/Pages/default.aspx
 data:
   url: https://www.treasury.gov/ofac/downloads/sanctions/1.0/cons_advanced.xml
   format: XML
-
-lookups:
-  email:
-    options:
-      # https://subchik.ru/organisations/7005
-      - match: PRIYEMNAYA@YGDU
-        value: PRIYEMNAYA@ygdu_gazprom.ru
-  country:
-    options:
-      - match:
-          - "None Identified"
-          - "undetermined"
-        value: null

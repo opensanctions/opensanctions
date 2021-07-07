@@ -702,9 +702,3 @@ lookups:
         from_prop: owner
         to_prop: asset
         description_prop: role
-  country:
-    options:
-      - match:
-          - "None Identified"
-          - "undetermined"
-        value: null

@@ -6,6 +6,7 @@ from followthemoney.types import registry
 from followthemoney.proxy import EntityProxy
 
 from opensanctions.model import Statement
+from opensanctions.helpers import type_lookup
 
 log = structlog.get_logger(__name__)
 
@@ -34,14 +35,8 @@ class Entity(EntityProxy):
         return self.make_slug(hashed)
 
     def _lookup_values(self, prop, values):
-        values = ensure_list(values)
-        lookup = self.dataset.lookups.get(prop.type.name)
-        if lookup is None:
-            yield from values
-            return
-
-        for value in values:
-            yield from lookup.get_values(value, value)
+        for value in ensure_list(values):
+            yield from type_lookup(prop.type, value)
 
     def add(self, prop, values, cleaned=False, quiet=False, fuzzy=False):
         prop_name = self._prop_name(prop, quiet=quiet)

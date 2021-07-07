@@ -15,25 +15,3 @@ url: https://fiu.gov.ua/en/pages/dijalnist/protidija-terorizmu/perelik-teroristi
 data:
   url: https://fiu.gov.ua/assets/userfiles/Terror/zBlackListFull.xml
   format: XML
-
-lookups:
-  country:
-    map:
-      Sudanese by birth: Sudan
-      Possibly Ethiopian: Ethiopia
-      Jordanian of Palestinian origin: Jordan
-      Somali Location: Somalia
-      Somalia Alt.: Somalia
-      Stateless Palestinian: null
-      Sanaa, Yemen: Yemen
-      Kuwaiti citizenship withdrawn in 2002: null
-      South Sudan number: South Sudan
-    options:
-      - match: Afghan  Pakistani
-        values:
-          - Afghanistan
-          - Pakistan
-      - match: United States    Also believed to hold Syrian nationality
-        values:
-          - US
-          - Syria

@@ -48,17 +48,3 @@ lookups:
         value: Marquess
       - regex: Rt Hon\..*
         value: Rt Hon.
-  country:
-    options:
-      - match: Council of Europe
-        value: null
-      - match: Saar
-        value: DE
-      - match: Assembly of Kosovo*
-        value: XK
-      - match: Socialist Federal Republic of Yugoslavia
-        value: YUCS
-      - match: Palestinian National Council
-        value: Palestine
-      - match: Cyprus* [Resolution 1376 (2004)]
-        value: CY

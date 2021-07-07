@@ -15,11 +15,3 @@ url: https://www.seco.admin.ch/seco/en/home/Aussenwirtschaftspolitik_Wirtschaftl
 data:
   url: https://www.sesam.search.admin.ch/sesam-search-web/pages/downloadXmlGesamtliste.xhtml?lang=en&action=downloadXmlGesamtlisteAction
   format: XML
-
-lookups:
-  country:
-    options:
-      - match: Congo DR
-        value: CD
-      - match: Germany, Democratic Republic (GDR)
-        value: DD

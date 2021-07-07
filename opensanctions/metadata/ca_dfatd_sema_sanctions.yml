@@ -13,15 +13,3 @@ publisher:
 data:
   url: "https://www.international.gc.ca/world-monde/assets/office_docs/international_relations-relations_internationales/sanctions/sema-lmes.xml"
   format: XML
-
-lookups:
-  country:
-    options:
-      - contains: (JVCFOR)
-        value: null
-  date:
-    options:
-      - match: 1972-08-10 or 1972-08-11
-        values:
-          - 1972-08-10
-          - 1972-08-11

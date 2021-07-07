@@ -13,8 +13,3 @@ url: https://www.interpol.int/INTERPOL-expertise/Notices
 data:
   url: https://ws-public.interpol.int/notices/v1/red
   format: xml
-
-lookups:
-  country:
-    map:
-      UNK: null

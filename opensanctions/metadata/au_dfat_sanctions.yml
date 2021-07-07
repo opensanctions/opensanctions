@@ -15,49 +15,6 @@ data:
   format: XLS
 
 lookups:
-  country:
-    normalize: true
-    options:
-      - match: Australia and Egypt
-        values:
-          - Australia
-          - Egypt
-      - match: German, Moroccan
-        values:
-          - German
-          - Morocco
-      - match: United States and Iranian
-        values:
-          - United States
-          - Iran
-      - match: Uzbek; Afghan
-        values:
-          - Uzbekistan
-          - Afghanistan
-      - match: Malian / Mauritanian
-        values:
-          - Mauritania
-          - Mali
-      - contains: Fiji (Prakash’s Australian
-        value: Fiji
-      - contains: Lebanon (Succarieh’s Australia
-        value: Lebanon
-      - match: Possibly Ethiopian
-        value: Ethiopia
-      - match: USSR (until 1991)
-        value: SUHH
-      - match: Kuwaiti citizenship withdrawn in 2002
-        value: Kuwait
-      - match: Indonesian (as at Dec. 2003)
-        value: Indonesia
-      - match: "France (alt. citizen: Syri"
-        value: France
-      - match: Saudi Arabian (this aka only, alt Citizenship Yemeni)
-        values:
-          - Saudi Arabia
-          - Yemen
-      - match: Bahrain (citizenship revoked in Jan. 2015)
-        value: Bahrain
   date:
     normalize: true
     options:
