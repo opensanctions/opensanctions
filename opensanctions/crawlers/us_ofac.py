@@ -82,7 +82,7 @@ def disjoint_schema(entity, addition):
 def parse_date(el):
     return parse_parts(
         el.findtext("./Year"), el.findtext("./Month"), el.findtext("./Day")
-    )
+    ).text
 
 
 def date_prefix(*dates):

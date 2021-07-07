@@ -44,7 +44,7 @@ class Dataset(object):
         return Entity(self, schema, target=target)
 
     def get_entity(self, entity_id):
-        for entity in Entity.query(self.dataset, entity_id=entity_id):
+        for entity in Entity.query(self, entity_id=entity_id):
             return entity
 
     @property
