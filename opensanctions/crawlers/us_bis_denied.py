@@ -1,6 +1,6 @@
 import csv
 
-from opensanctions.helpers import make_address
+from opensanctions.helpers import make_address, make_sanction
 from opensanctions.util import date_formats, DAY
 
 
@@ -30,7 +30,7 @@ def parse_row(context, row):
         context.emit(address, target=True)
     context.emit(entity, target=True)
 
-    sanction = context.make_sanction(entity, key=row.get("FR_Citation"))
+    sanction = make_sanction(entity, key=row.get("FR_Citation"))
     sanction.add("program", row.get("FR_Citation"))
     sanction.add("startDate", parse_date(row.get("Effective_Date")))
     sanction.add("endDate", parse_date(row.get("Expiration_Date")))

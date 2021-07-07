@@ -1,7 +1,7 @@
 from pprint import pprint  # noqa
 from normality import slugify
 
-from opensanctions.helpers import gender, make_address
+from opensanctions.helpers import gender, make_address, make_sanction
 from opensanctions.util import jointext, remove_namespace
 
 GENDERS = {"M": gender.MALE, "F": gender.FEMALE}
@@ -18,7 +18,7 @@ def parse_entry(context, entry):
     source_url = regulation.findtext("./publicationUrl", "")
     entity.add("sourceUrl", source_url)
 
-    sanction = context.make_sanction(entity)
+    sanction = make_sanction(entity)
     program = jointext(
         regulation.get("programme"),
         regulation.get("numberTitle"),

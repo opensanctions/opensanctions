@@ -1,6 +1,6 @@
 from normality import collapse_spaces
 
-from opensanctions.helpers import make_address
+from opensanctions.helpers import make_address, make_sanction
 
 
 def values(node):
@@ -130,7 +130,7 @@ def parse_common(context, entity, node):
     if listed_on is not None:
         entity.context["created_at"] = listed_on
 
-    sanction = context.make_sanction(entity)
+    sanction = make_sanction(entity)
     sanction.add("startDate", listed_on)
     sanction.add("modifiedAt", values(node.find("./LAST_DAY_UPDATED")))
 

@@ -1,7 +1,7 @@
 import re
 from pprint import pprint  # noqa
 
-from opensanctions.helpers import make_address
+from opensanctions.helpers import make_address, make_sanction
 from opensanctions.util import date_formats, DAY
 
 SPLITS = r"(a\.k\.a\.?|aka|f/k/a|also known as|\(formerly |, also d\.b\.a\.|\(currently (d/b/a)?|d/b/a|\(name change from|, as the successor or assign to)"  # noqa
@@ -64,7 +64,7 @@ def crawl(context):
             context.emit(address)
             entity.add("addressEntity", address)
 
-        sanction = context.make_sanction(entity)
+        sanction = make_sanction(entity)
         sanction.add("program", data.get("DEBAR_REASON"))
         sanction.add("startDate", parse_date(data.get("DEBAR_FROM_DATE")))
         sanction.add("endDate", parse_date(data.get("DEBAR_TO_DATE")))

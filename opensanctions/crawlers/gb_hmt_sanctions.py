@@ -1,7 +1,7 @@
 from pprint import pprint
 from normality import stringify, collapse_spaces
 
-from opensanctions.helpers import clean_emails, clean_phones
+from opensanctions.helpers import clean_emails, clean_phones, make_sanction
 from opensanctions.util import remove_namespace
 from opensanctions.util import jointext, multi_split, remove_bracketed
 from opensanctions.util import date_parts, date_formats, MONTH, YEAR
@@ -57,7 +57,7 @@ def parse_row(context, row):
     if org_type is not None:
         entity.add_cast("LegalEntity", "legalForm", org_type)
 
-    sanction = context.make_sanction(entity)
+    sanction = make_sanction(entity)
     # entity.add("position", row.pop("Position"), quiet=True)
     entity.add("notes", row.pop("OtherInformation", None), quiet=True)
     entity.add("notes", row.pop("FurtherIdentifiyingInformation", None), quiet=True)

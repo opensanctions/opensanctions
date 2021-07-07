@@ -7,7 +7,7 @@ from followthemoney import model
 from followthemoney.exc import InvalidData
 
 from opensanctions.core.dataset import Dataset
-from opensanctions.helpers import make_address
+from opensanctions.helpers import make_address, make_sanction
 from opensanctions.util import jointext, date_parts, remove_namespace
 
 REFERENCES = {}
@@ -329,7 +329,7 @@ def parse_entry(context, entry):
     party = context.make("Thing")
     party.make_slug(entry.get("ProfileID"))
 
-    sanction = context.make_sanction(party, key=entry.get("ID"))
+    sanction = make_sanction(party, key=entry.get("ID"))
     sanction.add("program", ref_value("List", entry.get("ListID")))
 
     dates = set()

@@ -1,6 +1,7 @@
 from lxml import html
 
 from opensanctions import settings
+from opensanctions.helpers import make_sanction
 from opensanctions.util import jointext
 from opensanctions.util import date_formats, DAY
 
@@ -34,7 +35,7 @@ def parse_legal(context, node):
 
 def parse_common(context, node, entity):
     entity.make_slug(node.tag, node.findtext("./Number"))
-    sanction = context.make_sanction(entity)
+    sanction = make_sanction(entity)
     sanction.add("reason", node.findtext("./BasicInclusion"))
     sanction.add("program", node.findtext("./CategoryPerson"))
     inclusion_date = parse_date(node.findtext("./DateInclusion"))

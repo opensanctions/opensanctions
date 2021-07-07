@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from opensanctions.helpers import make_sanction
 from opensanctions.util import jointext, remove_bracketed, multi_split
 from opensanctions.util import date_formats, DAY, YEAR, MONTH
 
@@ -23,7 +24,7 @@ def parse_entry(context, entry):
     entry_id = entry.findtext("number-entry")
     entity.make_slug(entry_id)
 
-    sanction = context.make_sanction(entity)
+    sanction = make_sanction(entity)
     sanction.add("program", entry.findtext("./program-entry"))
     date_entry = entry.findtext("./date-entry")
     if date_entry:

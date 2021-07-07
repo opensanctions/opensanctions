@@ -72,21 +72,6 @@ class Context(object):
         """Make a new entity with some dataset context set."""
         return self.dataset.make_entity(schema, target=target)
 
-    def make_sanction(self, entity, key=None):
-        """Create a sanctions object derived from the dataset metadata."""
-        assert entity.schema.is_a("Thing"), entity.schema
-        sanction = self.make("Sanction")
-        sanction.make_id("Sanction", entity.id, key)
-        sanction.add("entity", entity)
-        publisher = self.dataset.publisher
-        if publisher.country != "zz":
-            sanction.add("country", publisher.country)
-        sanction.add("authority", publisher.authority)
-        if not sanction.has("authority"):
-            sanction.add("authority", publisher.organization)
-        sanction.add("sourceUrl", self.dataset.url)
-        return sanction
-
     def flush(self):
         """Emitted entities are de-constructed into statements for the database
         to store. These are inserted in batches - so the statement cache on the

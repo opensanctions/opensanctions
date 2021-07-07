@@ -1,5 +1,6 @@
 from normality import collapse_spaces
 
+from opensanctions.helpers import make_sanction
 from opensanctions.util import jointext
 
 
@@ -25,7 +26,7 @@ def parse_entry(context, node):
     entity.add("name", entity_name)
     entity.add("country", country)
 
-    sanction = context.make_sanction(entity)
+    sanction = make_sanction(entity)
     sanction.add("program", node.findtext(".//Schedule"))
 
     given_name = node.findtext(".//GivenName")

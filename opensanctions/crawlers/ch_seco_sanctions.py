@@ -1,7 +1,7 @@
 from pprint import pprint  # noqa
 from collections import defaultdict
 
-from opensanctions.helpers import make_address
+from opensanctions.helpers import make_address, make_sanction
 from opensanctions.util import jointext, date_parts
 
 
@@ -161,7 +161,7 @@ def parse_entry(context, target, programs, places, updated_at):
         else:
             entity.add("notes", value)
 
-    sanction = context.make_sanction(entity)
+    sanction = make_sanction(entity)
     sanction.add("modifiedAt", max(dates))
 
     for justification in node.findall("./justification"):
