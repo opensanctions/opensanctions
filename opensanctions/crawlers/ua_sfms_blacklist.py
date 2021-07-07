@@ -1,11 +1,10 @@
 from datetime import datetime
+from prefixdate import parse_formats
 
 from opensanctions.helpers import make_sanction
 from opensanctions.util import jointext, remove_bracketed, multi_split
-from opensanctions.util import date_formats, DAY, YEAR, MONTH
 
-FORMATS = [("%d %b %Y", DAY), ("%d %B %Y", DAY), ("%Y", YEAR), ("%b %Y", MONTH)]
-FORMATS = FORMATS + [("%B %Y", MONTH)]
+FORMATS = ["%d %b %Y", "%d %B %Y", "%Y", "%b %Y", "%B %Y"]
 
 
 def parse_date(date):
@@ -14,7 +13,7 @@ def parse_date(date):
     date = date.replace(".", "").strip()
     if ";" in date:
         date, _ = date.split(";", 1)
-    return date_formats(date, FORMATS)
+    return parse_formats(date, FORMATS)
 
 
 def parse_entry(context, entry):

@@ -2,61 +2,10 @@ import re
 import logging
 from lxml import etree
 from banal import ensure_list
-from datetime import datetime, date
 from normality import stringify, slugify
 
 log = logging.getLogger(__name__)
 BRACKETED = re.compile(r"\(.*\)")
-YEAR = 4
-MONTH = 7
-DAY = 10
-FULL = 19
-
-
-def date_formats(text, formats):
-    """Sequentially try to parse using a set of formats. A format can be
-    specified as a tuple that also specifies its granularity (e.g.
-    ('%Y', YEAR) for year-only)."""
-    if isinstance(text, (date, datetime)):
-        return text.isoformat()
-    if not isinstance(text, str):
-        return text
-    for fmt in formats:
-        length = FULL
-        try:
-            fmt, length = fmt
-        except (ValueError, TypeError):
-            pass
-        try:
-            dt = datetime.strptime(text, fmt)
-            return dt.isoformat()[:length]
-        except (ValueError, TypeError):
-            pass
-    return text
-
-
-def _parse_date_part(value):
-    try:
-        value = int(value)
-        if value > 0:
-            return value
-    except (TypeError, ValueError):
-        return None
-
-
-def date_parts(year, month, day):
-    """Compose a date string from a set of (year, month, day) components. If the day
-    or month are empty, a prefix is generated."""
-    year = _parse_date_part(year)
-    if year is not None:
-        text = str(year)
-        month = _parse_date_part(month)
-        if month is not None and month <= 12:
-            text = f"{text}-{month:02}"
-            day = _parse_date_part(day)
-            if day is not None and day <= 31:
-                text = f"{text}-{day:02}"
-        return text
 
 
 def is_empty(text):

@@ -1,11 +1,11 @@
 from urllib.parse import urljoin
 from normality import stringify, collapse_spaces, slugify
 from lxml import html
-from opensanctions.util import date_formats, DAY
+from prefixdate.formats import parse_format
 
 
 def parse_date(text):
-    return date_formats(text, [("%d/%m/%Y", DAY)])
+    return parse_format(text, "%d/%m/%Y")
 
 
 def crawl_person(context, name, url):

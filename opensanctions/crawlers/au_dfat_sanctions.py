@@ -5,13 +5,13 @@ from pprint import pprint  # noqa
 from normality import slugify
 from datetime import datetime
 from followthemoney import model
+from prefixdate import parse_formats
 
 from opensanctions.helpers import make_sanction
 from opensanctions.util import multi_split, remove_bracketed
-from opensanctions.util import date_formats, MONTH
 
 FORMATS = ["%d/%m/%Y", "%d %b. %Y", "%d %b.%Y", "%d %b %Y", "%d %B %Y"]
-FORMATS = FORMATS + [("%b. %Y", MONTH), "%d %B. %Y"]
+FORMATS = FORMATS + ["%b. %Y", "%d %B. %Y"]
 
 
 def clean_date(date):
@@ -54,7 +54,7 @@ def clean_date(date):
         part = part.replace(" de ", " dec ")
         part = part.strip(",")
         part = part.strip()
-        part = date_formats(part, FORMATS)
+        part = parse_formats(part, FORMATS)
         dates.add(part)
     return dates
 

@@ -1,15 +1,14 @@
 from normality import collapse_spaces, stringify
-from pprint import pprint  # noqa
 from lxml import html
+from prefixdate import parse_formats
 
 from opensanctions import settings
 from opensanctions.helpers import gender
-from opensanctions.util import date_formats, MONTH, YEAR, DAY
 
 MAX_RESULTS = 160
 SEEN = set()
 COUNTRIES_URL = "https://www.interpol.int/en/How-we-work/Notices/View-Red-Notices"
-FORMATS = [("%Y/%m/%d", DAY), ("%Y/%m", MONTH), ("%Y", YEAR)]
+FORMATS = ["%Y/%m/%d", "%Y/%m", "%Y"]
 SEXES = {
     "M": gender.MALE,
     "F": gender.FEMALE,
@@ -54,7 +53,7 @@ def crawl_notice(context, notice):
     entity.add("gender", SEXES.get(notice.get("sex_id")))
     entity.add("birthPlace", notice.get("place_of_birth"))
 
-    dob = date_formats(notice["date_of_birth"], FORMATS)
+    dob = parse_formats(notice["date_of_birth"], FORMATS)
     entity.add("birthDate", dob)
     # entity.add("keywords", "REDNOTICE")
     # entity.add("topics", "crime")

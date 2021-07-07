@@ -1,7 +1,7 @@
 import json
+from prefixdate import parse_parts
 
 from opensanctions.helpers import make_sanction
-from opensanctions.util import date_parts
 
 SCHEMATA = {
     "Personne physique": "Person",
@@ -30,7 +30,7 @@ def apply_prop(entity, sanction, field, value):
     elif field == "NUMERO_OMI":
         entity.add("imoNumber", value.pop("NumeroOMI"))
     elif field == "DATE_DE_NAISSANCE":
-        date = date_parts(value.pop("Annee"), value.pop("Mois"), value.pop("Jour"))
+        date = parse_parts(value.pop("Annee"), value.pop("Mois"), value.pop("Jour"))
         entity.add("birthDate", date)
     elif field in ("ADRESSE_PM", "ADRESSE_PP"):
         entity.add("country", value.pop("Pays"))

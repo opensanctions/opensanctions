@@ -5,10 +5,11 @@ from banal import first
 from os.path import commonprefix
 from followthemoney import model
 from followthemoney.exc import InvalidData
+from prefixdate import parse_parts
 
 from opensanctions.core.dataset import Dataset
 from opensanctions.helpers import make_address, make_sanction
-from opensanctions.util import jointext, date_parts, remove_namespace
+from opensanctions.util import jointext, remove_namespace
 
 REFERENCES = {}
 
@@ -79,7 +80,7 @@ def disjoint_schema(entity, addition):
 
 
 def parse_date(el):
-    return date_parts(
+    return parse_parts(
         el.findtext("./Year"), el.findtext("./Month"), el.findtext("./Day")
     )
 

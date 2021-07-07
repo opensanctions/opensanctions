@@ -1,11 +1,11 @@
 import csv
+from prefixdate import parse_format
 
 from opensanctions.helpers import make_address, make_sanction
-from opensanctions.util import date_formats, DAY
 
 
 def parse_date(text):
-    return date_formats(text, [("%m/%d/%Y", DAY)])
+    return parse_format(text, "%m/%d/%Y")
 
 
 def parse_row(context, row):

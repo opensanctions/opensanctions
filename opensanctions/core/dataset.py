@@ -1,4 +1,3 @@
-import yaml
 from banal import ensure_list
 from urllib.parse import urljoin
 from datapatch import get_lookups
@@ -7,6 +6,7 @@ from followthemoney.types import registry
 
 from opensanctions import settings
 from opensanctions.core.entity import Entity
+from opensanctions.helpers.lookups import load_yaml
 from opensanctions.model import Issue, Statement, Resource
 from opensanctions.model.base import ENTITY_ID_LEN
 from opensanctions.util import joinslug
@@ -60,9 +60,7 @@ class Dataset(object):
         from opensanctions.core.source import Source
         from opensanctions.core.collection import Collection
 
-        with open(file_path, "r") as fh:
-            config = yaml.load(fh, Loader=yaml.SafeLoader)
-
+        config = load_yaml(file_path)
         type_ = config.get("type", Source.TYPE)
         type_ = type_.lower().strip()
         if type_ == Collection.TYPE:

@@ -1,16 +1,15 @@
 import json
 from pprint import pprint  # noqa
 from followthemoney.types import registry
+from prefixdate import parse_formats
 
 from opensanctions.helpers import make_address
-from opensanctions.util import date_formats, DAY, MONTH, YEAR
 
-FORMATS = [("%d %b %Y", DAY), ("%d %B %Y", DAY), ("%Y", YEAR), ("%b %Y", MONTH)]
-FORMATS = FORMATS + [("%B %Y", MONTH)]
+FORMATS = ["%d %b %Y", "%d %B %Y", "%Y", "%b %Y", "%B %Y"]
 
 
 def parse_date(date):
-    return date_formats(date, FORMATS)
+    return parse_formats(date, FORMATS)
 
 
 def parse_result(context, result):

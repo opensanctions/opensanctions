@@ -1,15 +1,15 @@
 from lxml import html
+from prefixdate import parse_formats
 
 from opensanctions import settings
 from opensanctions.helpers import make_sanction
 from opensanctions.util import jointext
-from opensanctions.util import date_formats, DAY
 
-FORMATS = [("%d.%m.%Y", DAY), ("%Y%m%d", DAY), ("%Y-%m-%d", DAY)]
+FORMATS = ["%d.%m.%Y", "%Y%m%d", "%Y-%m-%d"]
 
 
 def parse_date(text):
-    return date_formats(text, FORMATS)
+    return parse_formats(text, FORMATS)
 
 
 def parse_person(context, node):

@@ -1,17 +1,17 @@
 from pprint import pprint
 from normality import stringify, collapse_spaces
+from prefixdate import parse_parts, parse_formats
 
 from opensanctions.helpers import clean_emails, clean_phones, make_sanction
 from opensanctions.util import remove_namespace
 from opensanctions.util import jointext, multi_split, remove_bracketed
-from opensanctions.util import date_parts, date_formats, MONTH, YEAR
 
-FORMATS = ["%d/%m/%Y", ("00/%m/%Y", MONTH), ("00/00/%Y", YEAR), ("%Y", YEAR)]
+FORMATS = ["%d/%m/%Y", "00/%m/%Y", "00/00/%Y", "%Y"]
 COUNTRY_SPLIT = ["(1)", "(2)", "(3)"]
 
 
 def parse_date(date):
-    return date_formats(date, FORMATS)
+    return parse_formats(date, FORMATS)
 
 
 def parse_countries(text):
@@ -78,7 +78,7 @@ def parse_row(context, row):
 
     # DoB is sometimes a year only
     row.pop("DateOfBirth", None)
-    dob = date_parts(
+    dob = parse_parts(
         row.pop("YearOfBirth", 0),
         row.pop("MonthOfBirth", 0),
         row.pop("DayOfBirth", 0),
