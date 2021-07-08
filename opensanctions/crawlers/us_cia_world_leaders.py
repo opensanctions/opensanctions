@@ -9,7 +9,7 @@ DATA_URL = "https://www.cia.gov/page-data%spage-data.json"
 
 def crawl_country(context, params, path, country):
     source_url = UI_URL % path
-    context.log.info("Crawling country: %s" % country)
+    context.log.debug("Crawling country: %s" % country)
     res = context.http.get(DATA_URL % path, params=params)
     data = res.json().get("result", {}).get("data", {}).get("page", {})
     blocks = data.get("acf", {}).get("blocks", [{}])[0]
