@@ -3,12 +3,14 @@ from pathlib import Path
 from functools import lru_cache
 from datapatch import get_lookups
 
+from opensanctions import settings
+
 types_path = Path(__file__).parent.joinpath("types.yml")
 
 
 def load_yaml(file_path):
     """Safely parse a YAML document."""
-    with open(file_path, "r") as fh:
+    with open(file_path, "r", encoding=settings.ENCODING) as fh:
         return yaml.load(fh, Loader=yaml.SafeLoader)
 
 

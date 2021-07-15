@@ -23,7 +23,7 @@ class JSONEncoder(json.JSONEncoder):
         if isinstance(obj, (datetime, date)):
             return obj.isoformat()
         if isinstance(obj, bytes):
-            return obj.decode("utf-8")
+            return obj.decode(settings.ENCODING)
         if isinstance(obj, set):
             return [o for o in obj]
         if hasattr(obj, "to_dict"):
@@ -50,7 +50,7 @@ def export_global_index():
         datasets.append(dataset.to_index())
 
     log.info("Writing global index", datasets=len(datasets), path=index_path)
-    with open(index_path, "w") as fh:
+    with open(index_path, "w", encoding=settings.ENCODING) as fh:
         meta = {
             "datasets": datasets,
             "run_time": settings.RUN_TIME,
@@ -117,7 +117,7 @@ def export_dataset(context, dataset):
     context.log.info("Writing entities to FtM", path=ftm_path)
     inverted = {}
     entities = {}
-    with open(ftm_path, "w") as fh:
+    with open(ftm_path, "w", encoding=settings.ENCODING) as fh:
         for entity in Entity.query(dataset):
             entities[entity.id] = entity
             for prop, value in entity.itervalues():
@@ -134,7 +134,7 @@ def export_dataset(context, dataset):
     targets_path.parent.mkdir(exist_ok=True, parents=True)
     context.log.info("Writing targets to nested JSON", path=targets_path)
     columns = set()
-    with open(targets_path, "w") as fh:
+    with open(targets_path, "w", encoding=settings.ENCODING) as fh:
         for entity in entities.values():
             if not entity.target:
                 continue
@@ -149,7 +149,7 @@ def export_dataset(context, dataset):
     wide_path = context.get_resource_path("wide.csv")
     wide_path.parent.mkdir(exist_ok=True, parents=True)
     context.log.info("Writing targets to wide-format CSV", path=wide_path)
-    with open(wide_path, "w") as fh:
+    with open(wide_path, "w", encoding=settings.ENCODING) as fh:
         writer = csv.writer(fh, dialect=csv.unix_dialect)
         writer.writerow(list(columns))
         for entity in entities.values():
@@ -169,13 +169,13 @@ def export_dataset(context, dataset):
     # Export list of data issues from crawl stage
     issues_path = context.get_resource_path("issues.json")
     context.log.info("Writing dataset issues list", path=issues_path)
-    with open(issues_path, "w") as fh:
+    with open(issues_path, "w", encoding=settings.ENCODING) as fh:
         data = {"issues": Issue.query(dataset=dataset).all()}
         write_json(data, fh)
 
     # Export full metadata
     index_path = context.get_resource_path("index.json")
     context.log.info("Writing dataset index", path=index_path)
-    with open(index_path, "w") as fh:
+    with open(index_path, "w", encoding=settings.ENCODING) as fh:
         meta = dataset.to_index()
         write_json(meta, fh)

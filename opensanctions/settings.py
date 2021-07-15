@@ -46,3 +46,6 @@ METADATA_PATH = Path(METADATA_PATH).resolve()
 # User agent
 USER_AGENT = "Mozilla/5.0 (any) OpenSanctions"
 HTTP_TIMEOUT = 60
+
+# If you change this, all bets are off
+ENCODING = "utf-8"
