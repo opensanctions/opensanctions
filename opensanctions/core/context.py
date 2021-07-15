@@ -56,7 +56,7 @@ class Context(object):
                 size += len(chunk)
                 digest.update(chunk)
         if size == 0:
-            self.log.warning("Resource is empty", path=path, title=title)
+            self.log.warning("Resource is empty", path=path)
         checksum = digest.hexdigest()
         rel_path = path.relative_to(self.path).as_posix()
         Resource.save(rel_path, self.dataset, checksum, mime_type, size, title)
@@ -95,7 +95,7 @@ class Context(object):
         for stmt in statements:
             key = (stmt["entity_id"], stmt["prop"], stmt["value"])
             self._statements[key] = stmt
-        if len(self._statements) > 50000:
+        if len(self._statements) >= db.batch_size:
             self.flush()
         self.log.debug("Emitted", entity=entity)
 

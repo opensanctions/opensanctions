@@ -14,7 +14,7 @@ def store_event(logger, log_method, data):
         if isinstance(value, _Element):
             value = tostring(value, pretty_print=False, encoding=str)
         if isinstance(value, Path):
-            value = value.relative_to(settings.DATA_PATH).as_posix()
+            value = str(value.relative_to(settings.DATA_PATH))
         data[key] = value
 
     level_num = getattr(logging, data.get("level").upper())
