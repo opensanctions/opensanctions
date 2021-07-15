@@ -4,6 +4,14 @@
 from pathlib import Path
 from datetime import datetime
 from os import environ as env
+from normality import stringify
+
+
+def env_str(name, default=None):
+    """Ensure the env returns a string even on Windows (#100)."""
+    value = stringify(env.get(name))
+    return default if value is None else value
+
 
 # Update the data every day (not totally trying to make this flexible yet,
 # since a day seems like a pretty good universal rule).
@@ -24,15 +32,17 @@ DATASET_PATH = Path(DATASET_PATH).resolve()
 
 # Public URL version
 DATASET_URL = "https://data.opensanctions.org/datasets/latest/"
-DATASET_URL = env.get("OPENSANCTIONS_DATASET_URL", DATASET_URL)
+DATASET_URL = env_str("OPENSANCTIONS_DATASET_URL", DATASET_URL)
 
 # Used to keep the HTTP cache
 CACHE_PATH = DATA_PATH.joinpath("cache")
 CACHE_PATH = env.get("OPENSANCTIONS_CACHE_PATH", CACHE_PATH)
 CACHE_PATH = Path(CACHE_PATH).resolve()
 
-# PostgreSQL database URI for structured data
-DATABASE_URI = env.get("OPENSANCTIONS_DATABASE_URI")
+# SQL database URI for structured data
+DATABASE_SQLITE = DATASET_PATH.joinpath("opensanctions.sqlite")
+DATABASE_URI = f"sqlite:///{DATABASE_SQLITE}"
+DATABASE_URI = env_str("OPENSANCTIONS_DATABASE_URI", DATABASE_URI)
 
 # Per-run timestamp
 RUN_TIME = datetime.utcnow().replace(microsecond=0)
