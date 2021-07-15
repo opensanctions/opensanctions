@@ -55,6 +55,8 @@ class Context(object):
                     break
                 size += len(chunk)
                 digest.update(chunk)
+        if size == 0:
+            self.log.warning("Resource is empty", path=path, title=title)
         checksum = digest.hexdigest()
         rel_path = path.relative_to(self.path).as_posix()
         Resource.save(rel_path, self.dataset, checksum, mime_type, size, title)

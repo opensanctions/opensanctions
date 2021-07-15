@@ -22,6 +22,11 @@ class Resource(Base):
         q = q.filter(cls.dataset == dataset.name)
         q = q.filter(cls.path == path)
         resource = q.first()
+        if size == 0:
+            if resource is not None:
+                db.session.delete(resource)
+            return
+
         if resource is None:
             resource = cls()
             resource.dataset = dataset.name
