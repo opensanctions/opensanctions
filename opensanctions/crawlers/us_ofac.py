@@ -357,11 +357,17 @@ def parse_entry(context, entry):
 
 def parse_relation(context, el):
     type_id = el.get("RelationTypeID")
+    type_ = ref_value("RelationType", el.get("RelationTypeID"))
     from_id = context.dataset.make_slug(el.get("From-ProfileID"))
     from_party = context.dataset.get_entity(from_id)
+    if from_party is None:
+        context.log.warn("Missing relation 'from' party", entity_id=from_id, type=type_)
+        return
     to_id = context.dataset.make_slug(el.get("To-ProfileID"))
     to_party = context.dataset.get_entity(to_id)
-    type_ = ref_value("RelationType", el.get("RelationTypeID"))
+    if to_party is None:
+        context.log.warn("Missing relation 'to' party", entity_id=to_id, type=type_)
+        return
     relation = lookup("relations", type_id)
     if relation is None:
         context.log.warn(
@@ -408,9 +414,12 @@ def crawl(context):
 
     for distinct_party in doc.findall(".//DistinctParty"):
         parse_party(context, distinct_party, locations, documents)
+    # Needed so the relations can fetch entities from the DB:
+    context.flush()
 
     for entry in doc.findall(".//SanctionsEntry"):
         parse_entry(context, entry)
+    context.flush()
 
     for relation in doc.findall(".//ProfileRelationship"):
         parse_relation(context, relation)
