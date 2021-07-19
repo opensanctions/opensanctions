@@ -21,7 +21,7 @@ setup(
         "prefixdate",
         "psycopg2-binary",
         "requests[security] >= 2.25.0, < 3.0.0",
-        "requests_cache >= 0.6.3, < 0.7.0",
+        "requests_cache >= 0.6.3, < 0.8.0",
         "alephclient >= 2.1.3",
         "datapatch",
         "structlog",
