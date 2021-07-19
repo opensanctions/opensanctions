@@ -324,6 +324,7 @@ def parse_party(context, distinct_party, locations, documents):
     context.emit(party, target=True, unique=True)
     # pprint(party.to_dict())
     # context.log.info("[%s] %s" % (party.schema.name, party.caption))
+    return party
 
 
 def parse_entry(context, entry):
@@ -355,16 +356,16 @@ def parse_entry(context, entry):
     # pprint(sanction.to_dict())
 
 
-def parse_relation(context, el):
+def parse_relation(context, el, parties):
     type_id = el.get("RelationTypeID")
     type_ = ref_value("RelationType", el.get("RelationTypeID"))
     from_id = context.dataset.make_slug(el.get("From-ProfileID"))
-    from_party = context.dataset.get_entity(from_id)
+    from_party = parties.get(from_id)
     if from_party is None:
         context.log.warn("Missing relation 'from' party", entity_id=from_id, type=type_)
         return
     to_id = context.dataset.make_slug(el.get("To-ProfileID"))
-    to_party = context.dataset.get_entity(to_id)
+    to_party = parties.get(to_id)
     if to_party is None:
         context.log.warn("Missing relation 'to' party", entity_id=to_id, type=type_)
         return
@@ -389,8 +390,8 @@ def parse_relation(context, el):
 
     add_schema(from_party, from_range)
     add_schema(to_party, to_range)
-    context.emit(from_party)
-    context.emit(to_party)
+    context.emit(from_party, target=True)
+    context.emit(to_party, target=True)
     entity.make_id("Relation", from_party.id, to_party.id, el.get("ID"))
     entity.add(relation.from_prop, from_party)
     entity.add(relation.to_prop, to_party)
@@ -412,14 +413,13 @@ def crawl(context):
     context.log.info("Loading ID reg documents...")
     documents = load_documents(doc)
 
+    parties = {}
     for distinct_party in doc.findall(".//DistinctParty"):
-        parse_party(context, distinct_party, locations, documents)
-    # Needed so the relations can fetch entities from the DB:
-    context.flush()
+        party = parse_party(context, distinct_party, locations, documents)
+        parties[party.id] = party.schema
 
     for entry in doc.findall(".//SanctionsEntry"):
         parse_entry(context, entry)
-    context.flush()
 
     for relation in doc.findall(".//ProfileRelationship"):
-        parse_relation(context, relation)
+        parse_relation(context, relation, parties)
