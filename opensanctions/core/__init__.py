@@ -13,7 +13,6 @@ __all__ = ["Dataset", "Source", "Context", "Entity"]
 
 def setup(log_level=None):
     """Configure the framework."""
-    settings.DATA_PATH.mkdir(parents=True, exist_ok=True)
     configure_logging(level=log_level)
     log = structlog.get_logger(__name__)
     log.debug(

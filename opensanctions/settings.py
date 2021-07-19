@@ -24,6 +24,7 @@ CACHE_EXPIRE = INTERVAL * 7
 DATA_PATH = Path.cwd().joinpath("data")
 DATA_PATH = env.get("OPENSANCTIONS_DATA_PATH", DATA_PATH)
 DATA_PATH = Path(DATA_PATH).resolve()
+DATA_PATH.mkdir(parents=True, exist_ok=True)
 
 # Resources generated from specific datasets
 DATASET_PATH = DATA_PATH.joinpath("datasets")
@@ -40,7 +41,7 @@ CACHE_PATH = env.get("OPENSANCTIONS_CACHE_PATH", CACHE_PATH)
 CACHE_PATH = Path(CACHE_PATH).resolve()
 
 # SQL database URI for structured data
-DATABASE_SQLITE = DATASET_PATH.joinpath("opensanctions.sqlite")
+DATABASE_SQLITE = DATA_PATH.joinpath("opensanctions.sqlite")
 DATABASE_URI = f"sqlite:///{DATABASE_SQLITE}"
 DATABASE_URI = env_str("OPENSANCTIONS_DATABASE_URI", DATABASE_URI)
 
