@@ -416,7 +416,7 @@ def crawl(context):
     parties = {}
     for distinct_party in doc.findall(".//DistinctParty"):
         party = parse_party(context, distinct_party, locations, documents)
-        parties[party.id] = party.schema
+        parties[party.id] = party
 
     for entry in doc.findall(".//SanctionsEntry"):
         parse_entry(context, entry)
