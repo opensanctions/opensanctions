@@ -49,6 +49,9 @@ DATABASE_URI = env_str("OPENSANCTIONS_DATABASE_URI", DATABASE_URI)
 RUN_TIME = datetime.utcnow().replace(microsecond=0)
 RUN_DATE = RUN_TIME.date().isoformat()
 
+# Cache the max last seen times:
+DATASET_LAST_SEEN = {}
+
 # Directory with metadata specifications for each crawler
 METADATA_PATH = Path(__file__).resolve().parent.joinpath("metadata")
 METADATA_PATH = env.get("OPENSANCTIONS_METADATA_PATH", METADATA_PATH)
