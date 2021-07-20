@@ -1,10 +1,15 @@
 from setuptools import setup, find_packages
 
+with open("README.md") as f:
+    long_description = f.read()
+
 
 setup(
     name="opensanctions",
     version="3.0.0",
     url="https://github.com/alephdata/opensanctions",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     license="MIT",
     author="OpenSanctions",
     author_email="info@opensanctions.org",
