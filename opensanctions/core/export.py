@@ -6,7 +6,7 @@ from datetime import date, datetime
 from followthemoney import model
 from followthemoney.types import registry
 
-from opensanctions import settings, __version__
+from opensanctions import settings
 from opensanctions.model import db, Issue
 from opensanctions.core.entity import Entity
 from opensanctions.core.dataset import Dataset
@@ -57,7 +57,7 @@ def export_global_index():
             "dataset_url": settings.DATASET_URL,
             "model": model,
             "app": "opensanctions",
-            "version": __version__,
+            "version": settings.VERSION,
         }
         write_json(meta, fh)
 

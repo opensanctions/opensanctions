@@ -57,8 +57,11 @@ METADATA_PATH = Path(__file__).resolve().parent.joinpath("metadata")
 METADATA_PATH = env.get("OPENSANCTIONS_METADATA_PATH", METADATA_PATH)
 METADATA_PATH = Path(METADATA_PATH).resolve()
 
+# Do not edit manually, use the release process
+VERSION = "3.0.0"
+
 # User agent
-USER_AGENT = "Mozilla/5.0 (any) OpenSanctions"
+USER_AGENT = f"Mozilla/5.0 (any) OpenSanctions/{VERSION}"
 HTTP_TIMEOUT = 60
 
 # If you change this, all bets are off

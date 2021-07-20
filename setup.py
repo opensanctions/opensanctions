@@ -10,7 +10,15 @@ setup(
     author_email="info@opensanctions.org",
     packages=find_packages(exclude=["ez_setup", "examples", "test"]),
     namespace_packages=[],
-    package_data={"opensanctions": ["**/*.yml", "**/*.yaml"]},
+    package_data={
+        "opensanctions": [
+            "**/*.yml",
+            "**/*.yaml",
+            "**/*.ini",
+            "**/*.mako",
+            "migrate/versions/*.py",
+        ]
+    },
     zip_safe=False,
     install_requires=[
         "followthemoney >= 1.21.2",
