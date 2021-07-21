@@ -102,5 +102,5 @@ def crawl_country(context, country, age_max=120, age_min=0):
 
 def crawl(context):
     for country, label in get_countries(context):
-        context.log.debug("Crawl %r" % label, code=country)
+        context.log.info("Crawl %r" % label, code=country)
         crawl_country(context, country)
