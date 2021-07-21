@@ -15,9 +15,9 @@ System overview
 The OpenSanctions pipeline handles the following key steps:
 
 * Fetching entity data from online sources and parsing the original format
-* Normalising the entities in source data into the core OpenSanctions data model
+* Normalising the entities in source data into the :ref:`OpenSanctions data model <entities>`
 * Storing entities to a local staging database for processing
-* Merging entities across different sources (TODO)
+* Merging entities across different :ref:`sources <datasets>` (TODO)
 * Exporting data into a variety of target formats (JSON, CSV)
 
 These steps are triggered using a command-line utility, ``opensanctions``, which can
@@ -30,7 +30,7 @@ run parts or all of this process for specific segments of the data.
 
    install.rst
    usage.rst
-   context.rst
+   crawlers.rst
    helpers.rst
 
 

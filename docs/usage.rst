@@ -27,12 +27,14 @@ and import the material. This code is usually located in ``opensanctions/crawler
 Entities and targets
 ---------------------
 
-The main objective of the system is to combine data from multiple sources into a common
-data model. To this end, OpenSanctions uses the
-`FollowTheMoney <https://followthemoney.readthedocs.io/en/latest/index.html>`_ (FtM) system,
-which defines a set of :ref:`entity schemata <followthemoney:entities>`, such as
+The main objective of OpenSanctions is to combine data from multiple sources into a common
+data model. To this end, the system uses
+`FollowTheMoney <https://followthemoney.readthedocs.io/en/latest/index.html>`_ (FtM),
+a data modelling and validation library which defines a set of
+:ref:`entity schemata <followthemoney:entities>`, such as
 :ref:`Person <followthemoney:schema-Person>`, :ref:`Company <followthemoney:schema-Company>`, 
-:ref:`Address <followthemoney:schema-Address>` or :ref:`Sanction <followthemoney:schema-Sanction>`.
+:ref:`Address <followthemoney:schema-Address>`
+or :ref:`Sanction <followthemoney:schema-Sanction>`.
 FtM-based entities are stored in a local database and then exported to a variety of file
 formats.
 
@@ -77,4 +79,5 @@ built-in command-line tool to run parts of the system:
     $ opensanctions clear us_ofac_cons
 
 The available dataset names are determined from the set of metadata YAML files
-found in :ref:`$OPENSANCTIONS_METADATA_PATH <config>`.
+found in ``OPENSANCTIONS_METADATA_PATH`` (see: :ref:`configuration <config>`).
+
