@@ -1,5 +1,5 @@
 
-Dataset context
+Crawler context
 ================
 
 .. autoclass:: opensanctions.core.context.Context
