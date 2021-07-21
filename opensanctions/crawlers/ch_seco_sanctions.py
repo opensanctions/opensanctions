@@ -2,7 +2,7 @@ from pprint import pprint  # noqa
 from collections import defaultdict
 from prefixdate import parse_parts
 
-from opensanctions.helpers import make_address, make_sanction
+from opensanctions.helpers import make_address, apply_address, make_sanction
 from opensanctions.util import jointext
 
 
@@ -91,9 +91,8 @@ def parse_identity(context, entity, node, places):
 
     for address in node.findall("./address"):
         place = places.get(address.get("place-id"))
-        obj = compose_address(context, entity, place, address)
-        entity.add("addressEntity", obj.id)
-        context.emit(obj)
+        address = compose_address(context, entity, place, address)
+        apply_address(context, entity, address)
 
     for bday in node.findall("./day-month-year"):
         bval = parse_parts(bday.get("year"), bday.get("month"), bday.get("day"))

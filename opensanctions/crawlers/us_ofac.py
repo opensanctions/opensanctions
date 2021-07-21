@@ -8,7 +8,7 @@ from followthemoney.exc import InvalidData
 from prefixdate import parse_parts
 
 from opensanctions.core.dataset import Dataset
-from opensanctions.helpers import make_address, make_sanction
+from opensanctions.helpers import make_address, apply_address, make_sanction
 from opensanctions.util import jointext, remove_namespace
 
 REFERENCES = {}
@@ -224,9 +224,7 @@ def parse_feature(context, feature, party, locations):
     location = feature.find(".//VersionLocation")
     if location is not None:
         address = locations.get(location.get("LocationID"))
-        if address is not None:
-            party.add("addressEntity", address)
-            party.add("country", address.get("country"))
+        apply_address(context, party, address)
 
     detail = feature.find(".//VersionDetail")
     if detail is not None:

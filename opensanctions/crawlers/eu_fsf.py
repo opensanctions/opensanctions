@@ -1,7 +1,7 @@
 from pprint import pprint  # noqa
 from normality import slugify
 
-from opensanctions.helpers import gender, make_address, make_sanction
+from opensanctions.helpers import gender, make_address, apply_address, make_sanction
 from opensanctions.util import jointext, remove_namespace
 
 GENDERS = {"M": gender.MALE, "F": gender.FEMALE}
@@ -62,10 +62,8 @@ def parse_entry(context, entry):
             region=node.get("region"),
             country=node.get("countryDescription"),
         )
-        if address is not None:
-            context.emit(address)
-            entity.add("addressEntity", address)
-            entity.add("country", node.get("countryIso2Code"))
+        apply_address(context, entity, address)
+        entity.add("country", node.get("countryIso2Code"))
 
     for birth in entry.findall("./birthdate"):
         entity.add("birthDate", birth.get("birthdate"))

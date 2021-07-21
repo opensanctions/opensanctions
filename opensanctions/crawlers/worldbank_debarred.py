@@ -2,7 +2,7 @@ import re
 from pprint import pprint
 from prefixdate import parse_format  # noqa
 
-from opensanctions.helpers import make_address, make_sanction
+from opensanctions.helpers import make_address, apply_address, make_sanction
 
 SPLITS = r"(a\.k\.a\.?|aka|f/k/a|also known as|\(formerly |, also d\.b\.a\.|\(currently (d/b/a)?|d/b/a|\(name change from|, as the successor or assign to)"  # noqa
 
@@ -60,9 +60,7 @@ def crawl(context):
             country=data.get("COUNTRY_NAME"),
             key=entity.id,
         )
-        if address is not None:
-            context.emit(address)
-            entity.add("addressEntity", address)
+        apply_address(context, entity, address)
 
         sanction = make_sanction(entity)
         sanction.add("program", data.get("DEBAR_REASON"))

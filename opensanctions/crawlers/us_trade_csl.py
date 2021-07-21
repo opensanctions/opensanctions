@@ -3,7 +3,7 @@ from pprint import pprint  # noqa
 from followthemoney.types import registry
 from prefixdate import parse_formats
 
-from opensanctions.helpers import make_address
+from opensanctions.helpers import make_address, apply_address
 
 FORMATS = ["%d %b %Y", "%d %B %Y", "%Y", "%b %Y", "%B %Y"]
 
@@ -60,10 +60,7 @@ def parse_result(context, result):
             region=address.get("state"),
             country=address.get("country"),
         )
-        if obj is not None:
-            context.emit(obj)
-            entity.add("addressEntity", obj)
-            entity.add("country", obj.get("country"))
+        apply_address(context, entity, obj)
 
     for ident in result.pop("ids", []):
         country = ident.get("country")

@@ -1,7 +1,7 @@
 import csv
 from prefixdate import parse_format
 
-from opensanctions.helpers import make_address, make_sanction
+from opensanctions.helpers import make_address, apply_address, make_sanction
 
 
 def parse_date(text):
@@ -25,9 +25,7 @@ def parse_row(context, row):
         region=row.get("State"),
         country=row.get("Country"),
     )
-    if address is not None:
-        entity.add("addressEntity", address)
-        context.emit(address, target=True)
+    apply_address(context, entity, address)
     context.emit(entity, target=True)
 
     sanction = make_sanction(entity, key=row.get("FR_Citation"))

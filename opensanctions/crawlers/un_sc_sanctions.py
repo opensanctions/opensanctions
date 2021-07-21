@@ -1,6 +1,6 @@
 from normality import collapse_spaces
 
-from opensanctions.helpers import make_address, make_sanction
+from opensanctions.helpers import make_address, apply_address, make_sanction
 
 
 def values(node):
@@ -51,11 +51,7 @@ def parse_entity(context, node):
         parse_alias(entity, alias)
 
     for addr in node.findall("./ENTITY_ADDRESS"):
-        address = parse_address(context, addr)
-        if address is not None:
-            context.emit(address)
-            entity.add("addressEntity", address)
-            entity.add("country", address.get("country"))
+        apply_address(context, entity, parse_address(context, addr))
 
     context.emit(entity, target=True, unique=True)
     context.emit(sanction)
@@ -74,11 +70,7 @@ def parse_individual(context, node):
         parse_alias(person, alias)
 
     for addr in node.findall("./INDIVIDUAL_ADDRESS"):
-        address = parse_address(context, addr)
-        if address is not None:
-            context.emit(address)
-            person.add("addressEntity", address)
-            person.add("country", address.get("country"))
+        apply_address(context, person, parse_address(context, addr))
 
     for doc in node.findall("./INDIVIDUAL_DOCUMENT"):
         passport = context.make("Passport")
