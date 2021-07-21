@@ -36,12 +36,13 @@ DATASET_URL = "https://data.opensanctions.org/datasets/latest/"
 DATASET_URL = env_str("OPENSANCTIONS_DATASET_URL", DATASET_URL)
 
 # Used to keep the HTTP cache
-CACHE_PATH = DATA_PATH.joinpath("cache")
-CACHE_PATH = env.get("OPENSANCTIONS_CACHE_PATH", CACHE_PATH)
-CACHE_PATH = Path(CACHE_PATH).resolve()
+STATE_PATH = DATA_PATH.joinpath("state")
+STATE_PATH = env.get("OPENSANCTIONS_STATE_PATH", STATE_PATH)
+STATE_PATH = Path(STATE_PATH).resolve()
+STATE_PATH.mkdir(parents=True, exist_ok=True)
 
 # SQL database URI for structured data
-DATABASE_SQLITE = DATA_PATH.joinpath("opensanctions.sqlite")
+DATABASE_SQLITE = STATE_PATH.joinpath("opensanctions.sqlite")
 DATABASE_URI = f"sqlite:///{DATABASE_SQLITE}"
 DATABASE_URI = env_str("OPENSANCTIONS_DATABASE_URI", DATABASE_URI)
 

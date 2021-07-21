@@ -16,24 +16,25 @@ depends_on = None
 
 
 def upgrade():
+    tbl = "statement"
     op.create_table(
-        "statement",
-        sa.Column("entity_id", sa.Unicode(length=128), nullable=False),
-        sa.Column("prop", sa.Unicode(), nullable=False),
-        sa.Column("prop_type", sa.Unicode(), nullable=False),
-        sa.Column("schema", sa.Unicode(), nullable=False),
-        sa.Column("value", sa.Unicode(), nullable=False),
-        sa.Column("dataset", sa.Unicode(), nullable=False),
+        tbl,
+        sa.Column("entity_id", sa.Unicode(length=255), nullable=False),
+        sa.Column("prop", sa.Unicode(length=255), nullable=False),
+        sa.Column("prop_type", sa.Unicode(length=255), nullable=False),
+        sa.Column("schema", sa.Unicode(length=255), nullable=False),
+        sa.Column("value", sa.Unicode(length=65535), nullable=False),
+        sa.Column("dataset", sa.Unicode(length=255), nullable=False),
         sa.Column("first_seen", sa.DateTime(), nullable=True),
         sa.Column("last_seen", sa.DateTime(), nullable=True),
         sa.Column("target", sa.Boolean(), nullable=False),
         sa.Column("unique", sa.Boolean(), nullable=False),
         sa.PrimaryKeyConstraint("entity_id", "prop", "value", "dataset"),
     )
-    op.create_index(
-        op.f("ix_statement_entity_id"), "statement", ["entity_id"], unique=False
-    )
-    op.create_index(op.f("ix_statement_value"), "statement", ["value"], unique=False)
+    op.create_index(op.f("ix_statement_entity_id"), tbl, ["entity_id"], unique=False)
+    op.create_index(op.f("ix_statement_value"), tbl, ["value"], unique=False)
+    op.create_index(op.f("ix_statement_dataset"), tbl, ["dataset"], unique=False)
+    op.create_index(op.f("ix_statement_last_seen"), tbl, ["last_seen"], unique=False)
 
 
 def downgrade():

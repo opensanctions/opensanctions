@@ -3,7 +3,7 @@ from sqlalchemy import func, Column, Integer, Unicode, DateTime
 from sqlalchemy.types import JSON
 
 from opensanctions import settings
-from opensanctions.model.base import Base, db, ENTITY_ID_LEN
+from opensanctions.model.base import Base, db, VALUE_LEN, KEY_LEN
 
 
 class Issue(Base):
@@ -11,12 +11,12 @@ class Issue(Base):
 
     id = Column(Integer, primary_key=True)
     timestamp = Column(DateTime, nullable=False)
-    level = Column(Unicode, nullable=False)
-    module = Column(Unicode)
-    dataset = Column(Unicode, index=True, nullable=False)
-    message = Column(Unicode)
-    entity_id = Column(Unicode(ENTITY_ID_LEN), index=True)
-    entity_schema = Column(Unicode)
+    level = Column(Unicode(KEY_LEN), nullable=False)
+    module = Column(Unicode(KEY_LEN))
+    dataset = Column(Unicode(KEY_LEN), index=True, nullable=False)
+    message = Column(Unicode(VALUE_LEN))
+    entity_id = Column(Unicode(KEY_LEN), index=True)
+    entity_schema = Column(Unicode(KEY_LEN))
     data = Column(JSON, nullable=False)
 
     @classmethod

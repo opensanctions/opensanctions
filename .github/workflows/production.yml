@@ -47,30 +47,31 @@ jobs:
           sudo apt-get install -y -qq libicu-dev
           pip install --no-cache-dir -q pyicu awscli
           pip install --no-cache-dir -q -e .
-      - name: Fetch cache from data.opensanctions.org
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - name: Make data directory
         run: |
-          aws s3 sync --no-progress s3://data.opensanctions.org/_cache _cache
-      - name: Restore database
-        run: |
-          psql -f _cache/opensanctions.sql $OPENSANCTIONS_DATABASE_URI
+          mkdir -p data/state
+      # - name: Fetch cache from data.opensanctions.org
+      #   env:
+      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #   run: |
+      #     aws s3 sync --no-progress s3://data.opensanctions.org/state data/state
+      # - name: Restore database
+      #   run: |
+      #     psql -f data/state/opensanctions.sql $OPENSANCTIONS_DATABASE_URI
       - name: Run opensanctions
-        env:
-          OPENSANCTIONS_CACHE_PATH: _cache
         run: |
           opensanctions cleanup
           opensanctions --quiet run
       - name: Dump database to file
         run: |
-          pg_dump -O -x -c -f _cache/opensanctions.sql $OPENSANCTIONS_DATABASE_URI
+          pg_dump -O -x -c -f data/state/opensanctions.sql $OPENSANCTIONS_DATABASE_URI
       - name: Publish data to data.opensanctions.org
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
-          aws s3 sync --delete --no-progress _cache s3://data.opensanctions.org/_cache
+          aws s3 sync --delete --no-progress --acl public-read data/state s3://data.opensanctions.org/state
           aws s3 sync --delete --no-progress --cache-control "public, max-age=42300" --acl public-read data/datasets s3://data.opensanctions.org/datasets/latest
           aws s3 sync --delete --no-progress --cache-control "public, max-age=84600" --acl public-read data/datasets s3://data.opensanctions.org/datasets/$OPENSANCTIONS_DATE
           aws cloudfront create-invalidation --distribution-id ETROMAQBEJS91 --paths "/datasets/latest/*"

@@ -5,7 +5,7 @@ from sqlalchemy.dialects.postgresql import insert as insert_postgresql
 
 
 from opensanctions import settings
-from opensanctions.model.base import Base, db, ENTITY_ID_LEN
+from opensanctions.model.base import Base, KEY_LEN, VALUE_LEN, db
 
 
 class Statement(Base):
@@ -23,12 +23,12 @@ class Statement(Base):
 
     __tablename__ = "statement"
 
-    entity_id = Column(Unicode(ENTITY_ID_LEN), index=True, primary_key=True)
-    prop = Column(Unicode, primary_key=True, nullable=False)
-    prop_type = Column(Unicode, nullable=False)
-    schema = Column(Unicode, nullable=False)
-    value = Column(Unicode, index=True, primary_key=True, nullable=False)
-    dataset = Column(Unicode, primary_key=True, index=True)
+    entity_id = Column(Unicode(KEY_LEN), index=True, primary_key=True)
+    prop = Column(Unicode(KEY_LEN), primary_key=True, nullable=False)
+    prop_type = Column(Unicode(KEY_LEN), nullable=False)
+    schema = Column(Unicode(KEY_LEN), nullable=False)
+    value = Column(Unicode(VALUE_LEN), index=True, primary_key=True, nullable=False)
+    dataset = Column(Unicode(KEY_LEN), primary_key=True, index=True)
     target = Column(Boolean, default=False, nullable=False)
     unique = Column(Boolean, default=False, nullable=False)
     first_seen = Column(DateTime, nullable=True)

@@ -8,7 +8,7 @@ from opensanctions import settings
 from opensanctions.core.entity import Entity
 from opensanctions.helpers.lookups import load_yaml
 from opensanctions.model import Issue, Statement, Resource
-from opensanctions.model.base import ENTITY_ID_LEN
+from opensanctions.model.base import KEY_LEN
 from opensanctions.util import joinslug
 
 
@@ -38,7 +38,7 @@ class Dataset(object):
     def make_slug(self, *parts, strict=True):
         slug = joinslug(*parts, prefix=self.prefix, strict=strict)
         if slug is not None:
-            return slug[:ENTITY_ID_LEN]
+            return slug[:KEY_LEN]
 
     def make_entity(self, schema, target=False):
         return Entity(self, schema, target=target)

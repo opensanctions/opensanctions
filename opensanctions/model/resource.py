@@ -2,19 +2,19 @@ from pantomime import parse_mimetype
 from sqlalchemy import Column, Integer, Unicode, DateTime
 
 from opensanctions import settings
-from opensanctions.model.base import Base, db
+from opensanctions.model.base import Base, KEY_LEN, VALUE_LEN, db
 
 
 class Resource(Base):
     __tablename__ = "resource"
 
-    path = Column(Unicode, primary_key=True, nullable=False)
-    checksum = Column(Unicode, primary_key=True, nullable=False)
-    dataset = Column(Unicode, index=True, nullable=False)
+    path = Column(Unicode(KEY_LEN), primary_key=True, nullable=False)
+    dataset = Column(Unicode(KEY_LEN), primary_key=True, index=True, nullable=False)
+    checksum = Column(Unicode(KEY_LEN), nullable=False)
     timestamp = Column(DateTime, nullable=False)
-    mime_type = Column(Unicode, nullable=True)
+    mime_type = Column(Unicode(KEY_LEN), nullable=True)
     size = Column(Integer, nullable=True)
-    title = Column(Unicode, nullable=True)
+    title = Column(Unicode(VALUE_LEN), nullable=True)
 
     @classmethod
     def save(cls, path, dataset, checksum, mime_type, size, title):
@@ -58,7 +58,7 @@ class Resource(Base):
             "path": self.path,
             "sha1": self.checksum,
             "timestamp": self.timestamp,
-            # "dataset": self.dataset,
+            "dataset": self.dataset,
             "mime_type": self.mime_type,
             "mime_type_label": mime.label,
             "size": self.size,

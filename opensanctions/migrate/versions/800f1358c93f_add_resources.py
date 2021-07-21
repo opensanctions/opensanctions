@@ -19,14 +19,14 @@ depends_on = None
 def upgrade():
     op.create_table(
         "resource",
-        sa.Column("path", sa.Unicode(), nullable=False),
-        sa.Column("checksum", sa.Unicode(), nullable=False),
-        sa.Column("dataset", sa.Unicode(), nullable=False),
+        sa.Column("path", sa.Unicode(length=255), nullable=False),
+        sa.Column("checksum", sa.Unicode(length=255), nullable=False),
+        sa.Column("dataset", sa.Unicode(length=255), nullable=False),
         sa.Column("timestamp", sa.DateTime(), nullable=False),
-        sa.Column("mime_type", sa.Unicode(), nullable=True),
+        sa.Column("mime_type", sa.Unicode(length=255), nullable=True),
         sa.Column("size", sa.Integer(), nullable=True),
-        sa.Column("title", sa.Unicode(), nullable=True),
-        sa.PrimaryKeyConstraint("path", "checksum"),
+        sa.Column("title", sa.Unicode(length=65535), nullable=True),
+        sa.PrimaryKeyConstraint("path", "dataset"),
     )
     op.create_index(op.f("ix_resource_dataset"), "resource", ["dataset"], unique=False)
 

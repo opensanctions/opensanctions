@@ -8,7 +8,8 @@ from sqlalchemy.ext.declarative import declarative_base
 
 from opensanctions import settings
 
-ENTITY_ID_LEN = 128
+KEY_LEN = 255
+VALUE_LEN = 65535
 alembic_dir = os.path.join(os.path.dirname(__file__), "../migrate")
 alembic_dir = os.path.abspath(alembic_dir)
 alembic_ini = os.path.join(alembic_dir, "alembic.ini")
