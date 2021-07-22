@@ -21,7 +21,7 @@ The OpenSanctions pipeline handles the following key steps:
 * Exporting data into a variety of target formats (JSON, CSV)
 
 These steps are triggered using a command-line utility, ``opensanctions``, which can
-run parts or all of this process for specific segments of the data.
+run :ref:`parts or all of this process <cli>` for specific segments of the data.
 
 
 .. toctree::

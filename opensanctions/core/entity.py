@@ -14,8 +14,9 @@ log = structlog.get_logger(__name__)
 class Entity(EntityProxy):
     """Entity for sanctions list entries and adjacent objects.
 
-    Add utility methods to the :ref:`followthemoney:entity-proxy` for extracting
-    data from sanctions lists and for auditing parsing errors to structured logging.
+    Add utility methods to the :py:class:`followthemoney.proxy:EntityProxy` for
+    extracting data from sanctions lists and for auditing parsing errors to
+    structured logging.
     """
 
     def __init__(self, dataset, schema, data=None, target=False):

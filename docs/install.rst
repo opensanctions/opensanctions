@@ -81,9 +81,13 @@ If you encounter any errors during the installation, please consider googling
 errors related to libraries used by OpenSanctions (e.g.: SQLAlchemy,
 Python-Levenshtein, click, etc.).
 
+Please avoid installing the ``opensanctions`` package from PyPI via pip. The
+package exists mainly to claim the package name but is not regularly updated
+as part of the build/release process of OpenSanctions.
+
 .. hint:: 
 
-    OpenSanctions contains a soft dependency on PyICU, a library related to the 
+    OpenSanctions has an optional dependency on PyICU, a library related to the 
     transliteration of names in other alphabets to the latin character set. This
     library is not installed by default because its configuration can be tricky.
     

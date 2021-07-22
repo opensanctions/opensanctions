@@ -14,6 +14,7 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 intersphinx_mapping = {
     "followthemoney": ("https://followthemoney.readthedocs.io/en/latest/", None),
+    "requests": ("https://docs.python-requests.org/en/master/", None),
 }
 
 html_theme = "sphinx_rtd_theme"
