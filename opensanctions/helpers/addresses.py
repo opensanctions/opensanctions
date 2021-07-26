@@ -40,7 +40,7 @@ def make_address(
     address.add("city", city)
     address.add("postalCode", postal_code)
     address.add("region", region)
-    address.add("state", state)
+    address.add("state", state, quiet=True)
     address.add("country", country)
 
     if not address.has("full"):

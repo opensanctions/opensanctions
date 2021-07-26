@@ -5,25 +5,6 @@ on: [push]
 jobs:
   python:
     runs-on: ubuntu-latest
-
-    services:
-      postgres:
-        image: postgres
-        env:
-          POSTGRES_USER: opensanctions
-          POSTGRES_PASSWORD: opensanctions
-          POSTGRES_DATABASE: opensanctions
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-    env:
-      OPENSANCTIONS_DATABASE_URI: postgresql://opensanctions:opensanctions@localhost/opensanctions
-
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python

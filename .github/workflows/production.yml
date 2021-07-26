@@ -50,12 +50,12 @@ jobs:
       - name: Make data directory
         run: |
           mkdir -p data/state
-      # - name: Fetch cache from data.opensanctions.org
-      #   env:
-      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #   run: |
-      #     aws s3 sync --no-progress s3://data.opensanctions.org/state data/state
+      - name: Fetch database state from data.opensanctions.org
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          aws s3 sync --no-progress s3://data.opensanctions.org/state data/state
       # - name: Restore database
       #   run: |
       #     psql -f data/state/opensanctions.sql $OPENSANCTIONS_DATABASE_URI
@@ -66,6 +66,13 @@ jobs:
       # - name: Dump database to file
       #   run: |
       #     pg_dump -O -x -c -f data/state/opensanctions.sql $OPENSANCTIONS_DATABASE_URI
+      - name: Upload fetched resources to data.opensanctions.org
+        if: ${{ always() }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          aws s3 sync --no-progress --cache-control "public, max-age=846000" --acl public-read data/datasets s3://data.opensanctions.org/datasets/$OPENSANCTIONS_DATE
       - name: Publish data to data.opensanctions.org
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}

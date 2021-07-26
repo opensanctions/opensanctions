@@ -62,52 +62,52 @@ def export_global_index():
         write_json(meta, fh)
 
 
-def nested_entity(entity, entities, inverted, path):
-    data = entity.to_dict()
-    properties = data.pop("properties", {})
-    for prop in entity.iterprops():
-        if prop.type != registry.entity:
-            continue
-        values = properties.pop(prop.name)
-        if prop in path:
-            continue
-        nested = []
-        for value in values:
-            adjacent = entities.get(value)
-            sub_path = path + [prop]
-            sub = nested_entity(adjacent, entities, inverted, sub_path)
-            nested.append(sub)
-        properties[prop.name] = nested
+# def nested_entity(entity, entities, inverted, path):
+#     data = entity.to_dict()
+#     properties = data.pop("properties", {})
+#     for prop in entity.iterprops():
+#         if prop.type != registry.entity:
+#             continue
+#         values = properties.pop(prop.name)
+#         if prop in path:
+#             continue
+#         nested = []
+#         for value in values:
+#             adjacent = entities.get(value)
+#             sub_path = path + [prop]
+#             sub = nested_entity(adjacent, entities, inverted, sub_path)
+#             nested.append(sub)
+#         properties[prop.name] = nested
 
-    for prop, ref in inverted.get(entity.id, []):
-        if prop in path:
-            continue
-        adjacent = entities.get(ref)
-        sub_path = path + [prop]
-        sub = nested_entity(adjacent, entities, inverted, sub_path)
-        if prop.reverse.name not in properties:
-            properties[prop.reverse.name] = []
-        properties[prop.reverse.name].append(sub)
+#     for prop, ref in inverted.get(entity.id, []):
+#         if prop in path:
+#             continue
+#         adjacent = entities.get(ref)
+#         sub_path = path + [prop]
+#         sub = nested_entity(adjacent, entities, inverted, sub_path)
+#         if prop.reverse.name not in properties:
+#             properties[prop.reverse.name] = []
+#         properties[prop.reverse.name].append(sub)
 
-    data["properties"] = properties
-    return data
-
-
-def _prefix(*parts):
-    return jointext(*parts, sep=".")
+#     data["properties"] = properties
+#     return data
 
 
-def flatten_row(nested, prefix=None):
-    yield (_prefix(prefix, "id"), nested.get("id"))
-    yield (_prefix(prefix, "schema"), nested.get("schema"))
-    yield (_prefix(prefix, "target"), nested.get("target"))
-    for prop, values in nested.get("properties").items():
-        for idx, value in enumerate(values):
-            prop_prefix = _prefix(prefix, prop, idx)
-            if is_mapping(value):
-                yield from flatten_row(value, prefix=prop_prefix)
-            else:
-                yield (prop_prefix, value)
+# def _prefix(*parts):
+#     return jointext(*parts, sep=".")
+
+
+# def flatten_row(nested, prefix=None):
+#     yield (_prefix(prefix, "id"), nested.get("id"))
+#     yield (_prefix(prefix, "schema"), nested.get("schema"))
+#     yield (_prefix(prefix, "target"), nested.get("target"))
+#     for prop, values in nested.get("properties").items():
+#         for idx, value in enumerate(values):
+#             prop_prefix = _prefix(prefix, prop, idx)
+#             if is_mapping(value):
+#                 yield from flatten_row(value, prefix=prop_prefix)
+#             else:
+#                 yield (prop_prefix, value)
 
 
 def export_dataset(context, dataset):
