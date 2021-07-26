@@ -10,23 +10,23 @@ jobs:
   generate:
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres
-        env:
-          POSTGRES_USER: opensanctions
-          POSTGRES_PASSWORD: opensanctions
-          POSTGRES_DATABASE: opensanctions
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+    # services:
+    #   postgres:
+    #     image: postgres
+    #     env:
+    #       POSTGRES_USER: opensanctions
+    #       POSTGRES_PASSWORD: opensanctions
+    #       POSTGRES_DATABASE: opensanctions
+    #     ports:
+    #       - 5432:5432
+    #     options: >-
+    #       --health-cmd pg_isready
+    #       --health-interval 10s
+    #       --health-timeout 5s
+    #       --health-retries 5
 
-    env:
-      OPENSANCTIONS_DATABASE_URI: postgresql://opensanctions:opensanctions@localhost/opensanctions
+    # env:
+    #   OPENSANCTIONS_DATABASE_URI: postgresql://opensanctions:opensanctions@localhost/opensanctions
 
     steps:
       - uses: actions/checkout@v2
@@ -63,9 +63,9 @@ jobs:
         run: |
           opensanctions cleanup
           opensanctions --quiet run
-      - name: Dump database to file
-        run: |
-          pg_dump -O -x -c -f data/state/opensanctions.sql $OPENSANCTIONS_DATABASE_URI
+      # - name: Dump database to file
+      #   run: |
+      #     pg_dump -O -x -c -f data/state/opensanctions.sql $OPENSANCTIONS_DATABASE_URI
       - name: Publish data to data.opensanctions.org
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
