@@ -115,52 +115,52 @@ def export_dataset(context, dataset):
     ftm_path = context.get_resource_path("entities.ftm.json")
     ftm_path.parent.mkdir(exist_ok=True, parents=True)
     context.log.info("Writing entities to FtM", path=ftm_path)
-    inverted = {}
-    entities = {}
+    # inverted = {}
+    # entities = {}
     with open(ftm_path, "w", encoding=settings.ENCODING) as fh:
         for entity in Entity.query(dataset):
-            entities[entity.id] = entity
-            for prop, value in entity.itervalues():
-                if prop.type != registry.entity:
-                    continue
-                if value not in inverted:
-                    inverted[value] = []
-                inverted[value].append((prop, entity.id))
+            # entities[entity.id] = entity
+            # for prop, value in entity.itervalues():
+            #     if prop.type != registry.entity:
+            #         continue
+            #     if value not in inverted:
+            #         inverted[value] = []
+            #     inverted[value].append((prop, entity.id))
             write_object(fh, entity)
     title = "FollowTheMoney entity graph"
     context.export_resource(ftm_path, mime_type="application/json+ftm", title=title)
 
-    targets_path = context.get_resource_path("targets.json")
-    targets_path.parent.mkdir(exist_ok=True, parents=True)
-    context.log.info("Writing targets to nested JSON", path=targets_path)
-    columns = set()
-    with open(targets_path, "w", encoding=settings.ENCODING) as fh:
-        for entity in entities.values():
-            if not entity.target:
-                continue
-            data = nested_entity(entity, entities, inverted, [])
-            for column, _ in flatten_row(data):
-                columns.add(column)
-            write_object(fh, data, indent=2)
+    # targets_path = context.get_resource_path("targets.json")
+    # targets_path.parent.mkdir(exist_ok=True, parents=True)
+    # context.log.info("Writing targets to nested JSON", path=targets_path)
+    # columns = set()
+    # with open(targets_path, "w", encoding=settings.ENCODING) as fh:
+    #     for entity in entities.values():
+    #         if not entity.target:
+    #             continue
+    #         data = nested_entity(entity, entities, inverted, [])
+    #         for column, _ in flatten_row(data):
+    #             columns.add(column)
+    #         write_object(fh, data, indent=2)
 
-    title = "List of targets with details"
+    # title = "List of targets with details"
     # context.export_resource(targets_path, mime_type="application/json", title=title)
 
-    wide_path = context.get_resource_path("wide.csv")
-    wide_path.parent.mkdir(exist_ok=True, parents=True)
-    context.log.info("Writing targets to wide-format CSV", path=wide_path)
-    with open(wide_path, "w", encoding=settings.ENCODING) as fh:
-        writer = csv.writer(fh, dialect=csv.unix_dialect)
-        writer.writerow(list(columns))
-        for entity in entities.values():
-            if not entity.target:
-                continue
-            data = nested_entity(entity, entities, inverted, [])
-            data = dict(flatten_row(data))
-            row = [data.get(c) for c in columns]
-            writer.writerow(row)
+    # wide_path = context.get_resource_path("wide.csv")
+    # wide_path.parent.mkdir(exist_ok=True, parents=True)
+    # context.log.info("Writing targets to wide-format CSV", path=wide_path)
+    # with open(wide_path, "w", encoding=settings.ENCODING) as fh:
+    #     writer = csv.writer(fh, dialect=csv.unix_dialect)
+    #     writer.writerow(list(columns))
+    #     for entity in entities.values():
+    #         if not entity.target:
+    #             continue
+    #         data = nested_entity(entity, entities, inverted, [])
+    #         data = dict(flatten_row(data))
+    #         row = [data.get(c) for c in columns]
+    #         writer.writerow(row)
 
-    title = "List of targets with details"
+    # title = "List of targets with details"
     # context.export_resource(wide_path, mime_type="text/csv", title=title)
 
     # Make sure the exported resources are visible in the database
