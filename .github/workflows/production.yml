@@ -46,6 +46,7 @@ jobs:
         run: |
           sudo apt-get install -y -qq libicu-dev
           pip install --no-cache-dir -q pyicu awscli
+          pip install --force-reinstall --upgrade pyopenssl
           pip install --no-cache-dir -q -e .
       - name: Make data directory
         run: |
@@ -62,7 +63,7 @@ jobs:
       - name: Run opensanctions
         run: |
           opensanctions cleanup
-          opensanctions --quiet run
+          opensanctions --quiet run coe_assembly
       # - name: Dump database to file
       #   run: |
       #     pg_dump -O -x -c -f data/state/opensanctions.sql $OPENSANCTIONS_DATABASE_URI
