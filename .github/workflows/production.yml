@@ -63,7 +63,7 @@ jobs:
       - name: Run opensanctions
         run: |
           opensanctions cleanup
-          opensanctions --quiet run coe_assembly
+          opensanctions --quiet run
       # - name: Dump database to file
       #   run: |
       #     pg_dump -O -x -c -f data/state/opensanctions.sql $OPENSANCTIONS_DATABASE_URI
