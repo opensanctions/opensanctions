@@ -1,3 +1,4 @@
+import urllib3
 import requests
 import structlog
 import functools
@@ -7,6 +8,16 @@ from opensanctions import settings
 
 log = structlog.get_logger("http")
 HEADERS = {"User-Agent": settings.USER_AGENT}
+
+
+requests.packages.urllib3.disable_warnings()
+requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS = "ALL:@SECLEVEL=1"
+# requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS += ':HIGH:!DH:!aNULL'
+# try:
+#     requests.packages.urllib3.contrib.pyopenssl.util.ssl_.DEFAULT_CIPHERS += ':HIGH:!DH:!aNULL'
+# except AttributeError:
+#     # no pyopenssl support used / needed / available
+#     pass
 
 
 def get_session():
