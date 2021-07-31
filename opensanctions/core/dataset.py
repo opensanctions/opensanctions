@@ -142,6 +142,8 @@ class Dataset(object):
         meta["issue_levels"] = Issue.agg_by_level(dataset=self)
         meta["issue_count"] = sum(meta["issue_levels"].values())
         meta["target_count"] = Statement.all_counts(dataset=self, target=True)
+        meta["last_change"] = Statement.max_last_seen(dataset=self)
+        meta["last_export"] = settings.RUN_TIME
 
         meta["targets"] = {
             "countries": self.get_target_countries(),
