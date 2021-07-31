@@ -1,12 +1,14 @@
 entry_point: opensanctions.crawlers.worldbank_debarred
 title: WorldBank Debarred Providers
 prefix: wbdeb
-description: >
-  Worldbank List of Debarred Providers
+summary: >
+  The firms and individuals listed in this datasetare debarred and thus
+  ineligible to participate in World Bank-financed contracts for the
+  periods indicated.
 collections:
   - crime
 publisher:
-  title: World Bank
+  name: World Bank (IBRD / IDA)
   url: https://www.worldbank.org
 url: https://www.worldbank.org/en/projects-operations/procurement/debarred-firms
 data:

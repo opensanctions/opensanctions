@@ -1,5 +1,6 @@
 type: collection
-title: Politically exposed persons
-description: >
-  All OpenSanctions data relating to politically exposed people, rather
-  than sanctioned or criminal entities.
+title: Politically Exposed Persons (PEPs)
+summary: >
+  A politically exposed person (PEP) is a person that has been entrusted with
+  a prominent public function. PEPs include elected officials, members of
+  government.

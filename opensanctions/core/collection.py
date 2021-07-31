@@ -25,5 +25,5 @@ class Collection(Dataset):
 
     def to_dict(self):
         data = super().to_dict()
-        data["sources"] = [s.to_dict() for s in self.sources]
+        data["sources"] = [s.name for s in self.sources]
         return data

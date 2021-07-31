@@ -25,20 +25,19 @@ class SourcePublisher(object):
 
     def __init__(self, config):
         self.url = config.get("url")
-        self.organization = config.get("organization")
+        self.name = config.get("name")
+        self.description = config.get("description")
         self.country = config.get("country", "zz")
         assert registry.country.validate(self.country), "Invalid publisher country"
-        self.authority = config.get("authority")
-        self.acronym = config.get("acronym")
+        
 
     def to_dict(self):
         return {
             "url": self.url,
-            "organization": self.organization,
+            "name": self.name,
+            "description": self.description,
             "country": self.country,
             "country_label": registry.country.caption(self.country),
-            "authority": self.authority,
-            "acronym": self.acronym,
         }
 
 
@@ -81,6 +80,7 @@ class Source(Dataset):
                 "entry_point": self.entry_point,
                 "data": self.data.to_dict(),
                 "publisher": self.publisher.to_dict(),
+                "collections": self.collections
             }
         )
         return data

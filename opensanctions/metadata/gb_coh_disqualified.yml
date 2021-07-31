@@ -1,16 +1,15 @@
 entry_point: opensanctions.crawlers.gb_coh_disqualified
-title: Disqualified Directors
+title: UK Companies House Disqualified Directors
 prefix: gb-coh
-description: >
+summary: >
   Individuals which have been disqualified from holding the post of a
   company director in the United Kingdom following a court decision.
 collections:
   - crime
 publisher:
-  organization: Companies House
+  name: Companies House
   url: https://www.gov.uk/government/organisations/companies-house
   country: gb
-  acronym: CoH
 url: https://find-and-update.company-information.service.gov.uk/register-of-disqualifications/A
 data:
   url: https://api.companieshouse.gov.uk/search/disqualified-officers

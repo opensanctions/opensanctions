@@ -1,14 +1,13 @@
 entry_point: opensanctions.crawlers.eu_meps
-title: EU Members of Parliament
+title: Members of the European Parliament
 prefix: eu-meps
-description: >
-  A set of all the members of the European Union parliament, which are
-  elected by member state.
+summary: >
+  A set of all the members of the European Union's parliament, which are
+  elected per member state.
 collections:
   - peps
 publisher:
-  organization: European Parliament
-  acronym: EP
+  name: European Parliament
   url: http://www.europarl.europa.eu/
   country: eu
 url: http://www.europarl.europa.eu/meps/

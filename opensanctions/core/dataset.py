@@ -25,6 +25,7 @@ class Dataset(object):
         self.name = config.get("name", file_path.stem)
         self.prefix = config.get("prefix", self.name)
         self.title = config.get("title", self.name)
+        self.summary = config.get("summary", "")
         self.description = config.get("description", "")
 
         # Collections can be part of other collections.
@@ -101,6 +102,7 @@ class Dataset(object):
             "name": self.name,
             "type": self.type,
             "title": self.title,
+            "summary": self.summary,
             "description": self.description,
         }
 

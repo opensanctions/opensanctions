@@ -1,15 +1,34 @@
 entry_point: opensanctions.crawlers.coe_assembly
-title: Parliamentary Assembly Members
+title: Members of the CoE Parliamentary Assembly
 prefix: coe
-description: >
-  The Council of Europe's parliamentary assembly is composed of members of
-  national parliaments from European countries including Turkey and Russia.
+summary: |
+  The Parliamentary Assembly of the Council of Europe is composed of members
+  of national parliaments from European countries.
+description: |
+  The Parliamentary Assembly of the Council of Europe (PACE) consists of a
+  number of individual representatives from each member State, with a President
+  elected each year from among them for a maximum period of two sessions.
+
+  Whilst in the Committee of Ministers each member State has one vote, in the
+  Parliamentary Assembly the number of representatives and consequently of votes
+  is determined by the size of the country. The biggest number is eighteen, the
+  smallest two. As there are an equal number of representatives and substitutes,
+  the total number of members of the Assembly is therefore 648, plus 30 Observers
+  and 30 Partners for democracy.
+
+  They are appointed to PACE in a manner which is left to be decided by each
+  member state, as long as they are elected within their national or federal
+  Parliament, or appointed from amongst the members of that parliament. The balance
+  of political parties within each national delegation must ensure a fair
+  representation of the political parties or groups in their national parliaments.
 collections:
   - peps
 publisher:
-  organization: Council of Europe
-  acronym: CoE
-  authority: PACE
+  name: Council of Europe
+  description: |
+    The Council of Europe is the organisation of the 47 countries which have
+    signed the European Convention on Human Rights and fall into the jurisdiction
+    of the European Court of Human Rights.
   url: http://www.coe.int
 url: http://www.assembly.coe.int/nw/Home-EN.asp
 data:

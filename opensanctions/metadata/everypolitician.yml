@@ -1,13 +1,15 @@
 entry_point: opensanctions.crawlers.everypolitician
-title: Every Politician
+name: Every Politician
 prefix: evpo
-description: >
-  An index of all national members of parliament in the world. This version
-  only includes individuals active within the past 15 years.
+summary: >
+  All members of national parliament in the world, collected from hundreds of
+  government web sites and consolidated via Wikidata.
+description: |
+  This version only includes individuals active within the past 15 years.
 collections:
   - peps
 publisher:
-  organization: MySociety (UK Citizens Online Democracy)
+  name: MySociety (UK Citizens Online Democracy)
   url: http://everypolitician.org
 url: http://everypolitician.org
 data:

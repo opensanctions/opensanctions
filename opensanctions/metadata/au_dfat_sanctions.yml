@@ -1,14 +1,32 @@
 entry_point: opensanctions.crawlers.au_dfat_sanctions
-title: "Sanctions List"
+title: "Australian Sanctions Consolidated List"
 prefix: au-dfat
-description: ""
+summary: |
+  The Consolidated List is a list of all persons and entities who are subject to
+  targeted financial sanctions under Australian sanctions law.
+description: |
+  The Consolidated List is a list of all persons and entities who are subject to
+  targeted financial sanctions under Australian sanctions law. Those listed may be
+  Australian citizens, foreign nationals, or residents in Australia or overseas.
+
+  Australia implements two types of sanctions:
+
+  * United Nations Security Council (UNSC) sanctions, which Australia must impose as
+    a member of the UN.
+  * Australian autonomous sanctions, which are imposed as a matter of Australian
+    foreign policy.
+
+  ASO maintains the list and updates it regularly.
 collections:
   - sanctions
-url: http://dfat.gov.au/international-relations/security/sanctions/Pages/sanctions.aspx
+url: https://www.dfat.gov.au/international-relations/security/sanctions/Pages/sanctions
 publisher:
-  organization: "Department of Foreign Affairs and Trade"
+  name: "Department of Foreign Affairs and Trade (DFAT)"
+  description: |
+    The Australian Sanctions Office (ASO) is the Australian Government’s sanctions
+    regulator. It sits within DFAT’s Legal Division in the International Security,
+    Humanitarian and Consular Group.
   country: au
-  acronym: DFAT
   url: http://dfat.gov.au/
 data:
   url: "https://www.dfat.gov.au/sites/default/files/regulation8_consolidated.xls"

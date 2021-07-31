@@ -1,14 +1,13 @@
 entry_point: opensanctions.crawlers.gb_hmt_sanctions
-title: Consolidated List of Targets
+title: HMT Consolidated List of Targets
 prefix: gb-hmt
 description: >
-  The United Kingom's consolidated internation sanctions list
+  The United Kingom's consolidated international sanctions list.
 collections:
   - sanctions
 publisher:
-  organization: Her Majesty's Treasury
+  name: Her Majesty's Treasury
   url: https://www.gov.uk/
-  acronym: HMT
   country: gb
 url: https://www.gov.uk/government/publications/financial-sanctions-consolidated-list-of-targets
 data:

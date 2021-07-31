@@ -1,14 +1,13 @@
 entry_point: opensanctions.crawlers.un_sc_sanctions
-title: UN Consolidated Sanctions
+title: UN Security Council Consolidated Sanctions
 prefix: unsc
-description: >
+summary: >
   The Security Council's set of sanctions serve as the foundation for most
   national sanctions lists.
 collections:
   - sanctions
 publisher:
-  organization: United Nations Security Council
-  acronym: UNSC
+  name: United Nations Security Council (UN SC)
   url: "https://www.un.org/en/sc/"
 url: "https://www.un.org/securitycouncil/sanctions/information"
 data:

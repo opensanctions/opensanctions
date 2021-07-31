@@ -1,11 +1,11 @@
 entry_point: opensanctions.crawlers.interpol_api
-title: Yellow Notices
+title: INTERPOL Yellow Notices
 prefix: interpol-yellow
-description: >
-  International arrest warrants published by INTERPOL with a view to
-  extradition of the wanted individuals.
+summary: >
+  Yellow notices are issued to help locate missing persons, often minors, or
+  to help identify persons who are unable to identify themselves.
 publisher:
-  organization: INTERPOL
+  name: INTERPOL
   url: https://www.interpol.int/
 url: https://www.interpol.int/INTERPOL-expertise/Notices
 data:

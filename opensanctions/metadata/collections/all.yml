@@ -1,6 +1,7 @@
 type: collection
-title: All datasets
-description: >
-  All the datasets in OpenSanctions. This exists mainly for technical
-  reasons - in practice you probably want to use the `default` collection
-  instead.
+title: All entities in OpenSanctions
+summary: >
+  Entities from all the datasets in OpenSanctions, including sanctions,
+  politically exposed person and criminal figures. This collection exists
+  mainly for technical reasons - in practice you probably want to use
+  a more specific collection instead.

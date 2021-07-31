@@ -1,15 +1,23 @@
 entry_point: opensanctions.crawlers.us_ofac
-title: OFAC Consolidated List
+title: US OFAC Consolidated (non-SDN) List
 prefix: ofac-cons
-description: >
-  Both parts of the United States' consolidated sanctions list, non-SDN entities published
-  by the Office of Foreign Assets Control (OFAC).
+summary: >
+  OFAC is providing all of its non-SDN sanctions lists in a consolidated set
+  of data called "the Consolidated Sanctions List".
+description: |
+  In order to make it easier to comply with OFAC's sanctions regulations, OFAC is
+  offering all of its non-SDN sanctions lists in a consolidated set of data
+  files called "the Consolidated Sanctions List".
+
+  In the future, if OFAC creates a new non-SDN style list, the office will add
+  the new data associated with that list to these consolidated data files if
+  appropriate. While the consolidated sanctions list data files are not part of OFAC's
+  list of Specially Designated Nationals and Blocked Persons "the SDN List," the records
+  in these consolidated files may also appear on the SDN List.
 collections:
   - sanctions
 publisher:
-  organization: US Department of the Treasury
-  authority: Office of Foreign Assets Control
-  acronym: OFAC
+  name: US Department of the Treasury, Office of Foreign Assets Control (OFAC)
   country: us
   url: https://www.treasury.gov/
 url: https://www.treasury.gov/resource-center/sanctions/Pages/default.aspx

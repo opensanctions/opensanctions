@@ -1,5 +1,5 @@
 entry_point: opensanctions.crawlers.us_bis_denied
-title: US Denied Persons List
+title: US BIS Denied Persons List
 prefix: us-bis
 description: >
   The Bureau of Industry and Security publishes this list of entities which
@@ -7,8 +7,7 @@ description: >
 collections:
   - sanctions
 publisher:
-  organization: Department of Commerce
-  authority: Bureau of Industry and Security
+  name: Department of Commerce - Bureau of Industry and Security (BIS)
   url: https://www.bis.doc.gov/
   country: us
 url: https://www.bis.doc.gov/index.php/policy-guidance/lists-of-parties-of-concern/denied-persons-list

@@ -1,14 +1,27 @@
 entry_point: opensanctions.crawlers.ch_seco_sanctions
 title: Swiss SECO Sanctions/Embargoes
 prefix: ch-seco
-description: >
+summary: |
   Switzerland manages a sanctions lists with a high degree of detail on the
   individuals that are subject to it's embargoes.
+description: |
+  The Confederation can adopt coercive measures to enforce sanctions that have
+  been decided by the United Nations Organization, the Organization for Security
+  and Cooperation in Europe or by Switzerland's most important trading partners
+  and which serve to ensure compliance with international law, in particular
+  respect for human rights (Art. 1, Para. 1 Embargo Act). The Federal Council
+  is responsible for enacting the coercive measures (Art. 2, Para. 1 Embargo Act).
+
+  * [List of enforcement measures](https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen.html)
+  * [Switzerland's role in international sanctions](https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/die-schweiz-und-internationale-sanktionen.html)
+
 collections:
   - sanctions
 publisher:
-  organization: "State Secretariat for Economic Affairs"
-  acronym: SECO
+  name: "State Secretariat for Economic Affairs (SECO)"
+  description: |
+    The State Secretariat for Economic Affairs is the Swiss governments 
+    center of competence for economic, labour and trade matters.
   country: ch
   url: https://www.seco.admin.ch/
 url: https://www.seco.admin.ch/seco/en/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos.html

@@ -1,14 +1,24 @@
 entry_point: opensanctions.crawlers.fr_tresor_gels_avoir
-title: Freezing of Assets
+title: French Freezing of Assets
 prefix: fr-ga
-description: >
-  This register lists all persons, entities and vessels subject to asset
+summary: >
+  The register lists all persons, entities and vessels subject to asset
   freezing measures in force on French territory, pursuant to national, 
   European and international (UN) provisions.
+description: |
+  By virtue of the provisions of Article L 562-4 of the Monetary and Financial
+  Code, whether decided by the United Nations, by the European Union or on a
+  national basis, the asset freezing measures are applicable without deadline
+  by natural and legal persons.
+
+  In order to know the list of persons and entities sanctioned, DG Trésor
+  publishes and updates the national register of asset freezing measures. This
+  lists all the people, entities and vessels affected by the asset freezing
+  measures in force throughout France.
 collections:
   - sanctions
 publisher:
-  organization: Ministry of Economy, Finance, and Recovery
+  name: Ministry of Economy, Finance, and Recovery
   country: fr
   url: https://www.tresor.economie.gouv.fr/
 url: https://gels-avoirs.dgtresor.gouv.fr/
