@@ -9,25 +9,6 @@ on:
 jobs:
   generate:
     runs-on: ubuntu-latest
-
-    # services:
-    #   postgres:
-    #     image: postgres
-    #     env:
-    #       POSTGRES_USER: opensanctions
-    #       POSTGRES_PASSWORD: opensanctions
-    #       POSTGRES_DATABASE: opensanctions
-    #     ports:
-    #       - 5432:5432
-    #     options: >-
-    #       --health-cmd pg_isready
-    #       --health-interval 10s
-    #       --health-timeout 5s
-    #       --health-retries 5
-
-    # env:
-    #   OPENSANCTIONS_DATABASE_URI: postgresql://opensanctions:opensanctions@localhost/opensanctions
-
     steps:
       - uses: actions/checkout@v2
         with:
@@ -57,16 +38,14 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           aws s3 sync --no-progress s3://data.opensanctions.org/state data/state
-      # - name: Restore database
-      #   run: |
-      #     psql -f data/state/opensanctions.sql $OPENSANCTIONS_DATABASE_URI
       - name: Run opensanctions
         run: |
           opensanctions cleanup
           opensanctions --quiet run
-      # - name: Dump database to file
-      #   run: |
-      #     pg_dump -O -x -c -f data/state/opensanctions.sql $OPENSANCTIONS_DATABASE_URI
+      - name: Compress database
+        run: |
+          sqlite3 -version
+          sqlite3 data/state/opensanctions.sqlite "VACUUM;"
       - name: Upload fetched resources to data.opensanctions.org
         if: ${{ always() }}
         env:
