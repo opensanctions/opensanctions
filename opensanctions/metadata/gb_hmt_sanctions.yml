@@ -1,7 +1,7 @@
 entry_point: opensanctions.crawlers.gb_hmt_sanctions
 title: HMT Consolidated List of Targets
 prefix: gb-hmt
-description: >
+summary: >
   The United Kingom's consolidated international sanctions list.
 collections:
   - sanctions
