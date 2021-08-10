@@ -1,5 +1,5 @@
 entry_point: opensanctions.crawlers.everypolitician
-name: Every Politician
+title: Every Politician
 prefix: evpo
 summary: >
   All members of national parliament in the world, collected from hundreds of
