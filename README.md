@@ -2,7 +2,7 @@
 
 The codebase for OpenSanctions, an open-source repository of sanctions data, politically exposed persons, and other entities of interest.
 
-OpenSanctions uses [Follow the Money](https://docs.alephdata.org/developers/followthemoney), a JSON-based anti-corruption data model, as a common target for all crawlers. Additonal exports into CSV and JSON formats are planned.
+OpenSanctions uses [Follow the Money](https://followthemoney.readthedocs.io/en/latest/index.html), a JSON-based anti-corruption data model, as a common target for all crawlers. Additonal exports into CSV and JSON formats are planned.
 
 * [opensanctions.org](https://opensanctions.org)
     * [Datasets](https://opensanctions.org/datasets/)
