@@ -194,6 +194,25 @@ also check out the :ref:`FtM documentation <followthemoney:api>` on entity
 construction. Some additional utility methods are added in the
 :py:class:`entity class <opensanctions.core.entity.Entity>` in OpenSanctions.
 
+
+Checklist
+---------
+
+When contributing a new data source, or some other change, make sure of the following:
+
+* You've created a metadata YAML file with detailed descriptions and links to the source
+  URL.
+* Your code should run after doing a simple ``pip install`` of the codebase. Include
+  additional dependencies in the ``setup.py``. Don't use non-Python dependencies like
+  ``Headless Chrome`` or ``Selenium``.
+* The output data for your crawler should be Follow The Money objects. If you need more
+  fields added to the ontology, submit a pull request upstream. Don't include left-over
+  data in an improvised way.
+* Include verbose logging in your crawler. Make sure that new fields or enum values
+  introduced upstream (e.g. a new country code or sanction program) will cause a warning
+  to be emitted.
+* Bonus points: your Python code is linted and formatted with ``black``.
+
 Using the context
 ------------------
 
