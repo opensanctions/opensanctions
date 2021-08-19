@@ -39,6 +39,8 @@ jobs:
         run: |
           aws s3 sync --no-progress s3://data.opensanctions.org/state data/state
       - name: Run opensanctions
+        env:
+          OPENSANCTIONS_COH_API_KEY: ${{ secrets.OPENSANCTIONS_COH_API_KEY }}
         run: |
           opensanctions cleanup
           opensanctions --quiet run
