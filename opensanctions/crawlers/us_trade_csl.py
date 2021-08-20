@@ -1,6 +1,7 @@
 import json
 from pprint import pprint  # noqa
 from followthemoney.types import registry
+from pantomime.types import JSON
 from prefixdate import parse_formats
 
 from opensanctions.helpers import make_address, apply_address
@@ -133,8 +134,8 @@ def parse_result(context, result):
 
 
 def crawl(context):
-    context.fetch_resource("source.json", context.dataset.data.url)
-    path = context.get_resource_path("source.json")
+    path = context.fetch_resource("source.json", context.dataset.data.url)
+    context.export_resource(path, JSON, title=context.SOURCE_TITLE)
     with open(path, "r") as file:
         data = json.load(file)
         for result in data.get("results"):

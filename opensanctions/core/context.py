@@ -59,8 +59,8 @@ class Context(object):
         if size == 0:
             self.log.warning("Resource is empty", path=path)
         checksum = digest.hexdigest()
-        rel_path = path.relative_to(self.path).as_posix()
-        return Resource.save(rel_path, self.dataset, checksum, mime_type, size, title)
+        name = path.relative_to(self.path).as_posix()
+        return Resource.save(name, self.dataset, checksum, mime_type, size, title)
 
     def lookup_value(self, lookup, value, default=None):
         try:
@@ -108,6 +108,7 @@ class Context(object):
         try:
             self.bind()
             Issue.clear(self.dataset)
+            Resource.clear(self.dataset)
             db.session.commit()
             self.log.info("Begin crawl")
             # Run the dataset:

@@ -37,7 +37,8 @@ def parse_row(context, row):
 
 
 def crawl(context):
-    context.fetch_resource("dpl.tsv", context.dataset.data.url)
-    with open(context.get_resource_path("dpl.tsv"), "r") as csvfile:
+    path = context.fetch_resource("source.tsv", context.dataset.data.url)
+    context.export_resource(path, "text/tsv", title=context.SOURCE_TITLE)
+    with open(path, "r") as csvfile:
         for row in csv.DictReader(csvfile, delimiter="\t"):
             parse_row(context, row)

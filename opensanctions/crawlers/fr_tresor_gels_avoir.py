@@ -1,5 +1,6 @@
 import json
 from prefixdate import parse_parts
+from pantomime.types import JSON
 
 from opensanctions.helpers import make_sanction
 
@@ -85,7 +86,8 @@ def crawl_entity(context, data):
 
 
 def crawl(context):
-    context.fetch_resource("source.json", context.dataset.data.url)
+    path = context.fetch_resource("source.json", context.dataset.data.url)
+    context.export_resource(path, JSON, title=context.SOURCE_TITLE)
     path = context.get_resource_path("source.json")
     with open(path, "r") as fh:
         data = json.load(fh)

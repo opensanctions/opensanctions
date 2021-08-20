@@ -31,8 +31,16 @@ class Exporter(object):
         resource = self.context.export_resource(
             self.path, mime_type=self.MIME_TYPE, title=self.TITLE
         )
+        if resource is None:
+            self.context.log.warning(
+                "Export is empty: %s" % self.TITLE,
+                path=self.path,
+            )
+            return
         self.context.log.info(
-            "Exported: %s" % self.TITLE, path=self.path, size=resource.size
+            "Exported: %s" % self.TITLE,
+            path=self.path,
+            size=resource.size,
         )
 
 

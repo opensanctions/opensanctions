@@ -6,6 +6,7 @@ from normality import slugify
 from datetime import datetime
 from followthemoney import model
 from prefixdate import parse_formats
+from pantomime.types import EXCEL
 
 from opensanctions.helpers import make_sanction
 from opensanctions.util import multi_split, remove_bracketed
@@ -107,8 +108,9 @@ def parse_reference(context, reference, rows):
 
 
 def crawl(context):
-    context.fetch_resource("source.xls", context.dataset.data.url)
-    xls = xlrd.open_workbook(context.get_resource_path("source.xls"))
+    path = context.fetch_resource("source.xls", context.dataset.data.url)
+    context.export_resource(path, EXCEL, title=context.SOURCE_TITLE)
+    xls = xlrd.open_workbook(path)
     ws = xls.sheet_by_index(0)
     headers = [slugify(h, sep="_") for h in ws.row_values(0)]
     references = defaultdict(list)

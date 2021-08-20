@@ -61,7 +61,8 @@ def crawl(context):
     if url is None:
         context.log.error("Could not locate XML file", url=context.dataset.url)
         return
-    context.fetch_resource("source.xml", url)
+    path = context.fetch_resource("source.xml", url)
+    context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     xml = context.parse_resource_xml("source.xml")
 
     for person in xml.findall(".//KyrgyzPhysicPerson"):
