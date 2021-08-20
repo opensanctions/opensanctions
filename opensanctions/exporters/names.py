@@ -6,7 +6,7 @@ from opensanctions.exporters.common import Exporter, write_object
 
 
 class NamesExporter(Exporter):
-    TITLE = "Names-only text file"
+    TITLE = "Target names text file"
     NAME = "names"
     EXTENSION = "txt"
     MIME_TYPE = "text/plain"
