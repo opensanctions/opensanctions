@@ -18,9 +18,9 @@ jobs:
         with:
           python-version: "3.9"
       - name: Set env
+        # echo "OPENSANCTIONS_DATASET_URL=https://data.opensanctions.org/datasets/$(date +%Y%m%d)/" >> $GITHUB_ENV
         run: |
           echo "OPENSANCTIONS_DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
-          echo "OPENSANCTIONS_DATASET_URL=https://data.opensanctions.org/datasets/$(date +%Y%m%d)/" >> $GITHUB_ENV
       - name: Install dependencies
         env:
           DEBIAN_FRONTEND: noninteractive
