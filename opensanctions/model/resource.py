@@ -37,6 +37,7 @@ class Resource(Base):
         resource.size = size
         resource.title = title
         db.session.add(resource)
+        return resource
 
     @classmethod
     def clear(cls, dataset):

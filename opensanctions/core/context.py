@@ -8,7 +8,6 @@ from structlog.contextvars import clear_contextvars, bind_contextvars
 from opensanctions import settings
 from opensanctions.model import db, Statement, Issue, Resource
 from opensanctions.core.http import get_session, fetch_download
-from opensanctions.core.export import export_dataset
 
 
 class Context(object):
@@ -16,6 +15,8 @@ class Context(object):
     emitting entities, accessing metadata and logging errors and
     warnings.
     """
+
+    SOURCE_TITLE = "Source data"
 
     def __init__(self, dataset):
         self.dataset = dataset
@@ -59,7 +60,7 @@ class Context(object):
             self.log.warning("Resource is empty", path=path)
         checksum = digest.hexdigest()
         rel_path = path.relative_to(self.path).as_posix()
-        Resource.save(rel_path, self.dataset, checksum, mime_type, size, title)
+        return Resource.save(rel_path, self.dataset, checksum, mime_type, size, title)
 
     def lookup_value(self, lookup, value, default=None):
         try:
@@ -107,6 +108,7 @@ class Context(object):
         try:
             self.bind()
             Issue.clear(self.dataset)
+            db.session.commit()
             self.log.info("Begin crawl")
             # Run the dataset:
             self.dataset.method(self)
@@ -125,14 +127,6 @@ class Context(object):
         except Exception:
             db.session.rollback()
             self.log.exception("Crawl failed")
-        finally:
-            self.close()
-
-    def export(self):
-        """Generate exported files for the dataset."""
-        try:
-            self.bind()
-            export_dataset(self, self.dataset)
         finally:
             self.close()
 

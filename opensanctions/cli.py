@@ -2,7 +2,8 @@ import click
 import logging
 
 from opensanctions.core import Dataset, Context, Entity, setup
-from opensanctions.core.export import export_global_index, write_object
+from opensanctions.exporters import export_global_index, export_dataset
+from opensanctions.exporters.common import write_object
 from opensanctions.core.http import cleanup_cache
 from opensanctions.model.base import migrate_db
 
@@ -41,8 +42,7 @@ def crawl(dataset):
 def export(dataset):
     dataset = Dataset.get(dataset)
     for dataset_ in dataset.datasets:
-        context = Context(dataset_)
-        context.export()
+        export_dataset(dataset_)
     export_global_index()
 
 
@@ -53,8 +53,7 @@ def run(dataset):
     for source in dataset.sources:
         Context(source).crawl()
     for dataset_ in dataset.datasets:
-        context = Context(dataset_)
-        context.export()
+        export_dataset(dataset_)
     export_global_index()
 
 
