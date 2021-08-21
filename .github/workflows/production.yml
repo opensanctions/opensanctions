@@ -64,3 +64,7 @@ jobs:
           aws s3 sync --delete --no-progress --cache-control "public, max-age=42300" --acl public-read data/datasets s3://data.opensanctions.org/datasets/latest
           aws s3 sync --delete --no-progress --cache-control "public, max-age=84600" --acl public-read data/datasets s3://data.opensanctions.org/datasets/$OPENSANCTIONS_DATE
           aws cloudfront create-invalidation --distribution-id ETROMAQBEJS91 --paths "/datasets/latest/*"
+      - uses: actions/upload-artifact@v2
+        with:
+          name: data
+          path: data/
