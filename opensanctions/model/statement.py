@@ -145,6 +145,17 @@ class Statement(Base):
         return q.all()
 
     @classmethod
+    def all_schemata(cls, dataset=None):
+        """Return all schemata present in the dataset"""
+        last_seen = cls.max_last_seen(dataset=dataset)
+        q = db.session.query(cls.schema)
+        q = q.filter(cls.last_seen == last_seen)
+        if dataset is not None:
+            q = q.filter(cls.dataset.in_(dataset.source_names))
+        q = q.group_by(cls.schema)
+        return q.all()
+
+    @classmethod
     def max_last_seen(cls, dataset=None):
         """Return the latest date of the data."""
         if dataset in settings.DATASET_LAST_SEEN:
