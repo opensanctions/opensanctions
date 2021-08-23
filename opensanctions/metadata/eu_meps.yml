@@ -6,6 +6,7 @@ summary: >
   elected per member state.
 collections:
   - peps
+  - default
 publisher:
   name: European Parliament
   url: http://www.europarl.europa.eu/

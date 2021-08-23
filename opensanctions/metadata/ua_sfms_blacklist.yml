@@ -6,6 +6,7 @@ summary: >
   individuals.
 collections:
   - sanctions
+  - default
 publisher:
   name: State Finance Monitoring Service (SFMS)
   url: https://fiu.gov.ua/

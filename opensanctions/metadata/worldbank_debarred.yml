@@ -7,6 +7,7 @@ summary: >
   periods indicated.
 collections:
   - crime
+  - default
 publisher:
   name: World Bank (IBRD / IDA)
   url: https://www.worldbank.org

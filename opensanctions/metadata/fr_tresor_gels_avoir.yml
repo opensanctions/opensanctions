@@ -17,6 +17,7 @@ description: |
   measures in force throughout France.
 collections:
   - sanctions
+  - default
 publisher:
   name: Ministry of Economy, Finance, and Recovery
   country: fr

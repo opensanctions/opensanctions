@@ -6,6 +6,7 @@ summary: >
   are relevant with regards to export controls.
 collections:
   - sanctions
+  - default
 publisher:
   name: Department of Commerce - Bureau of Industry and Security (BIS)
   url: https://www.bis.doc.gov/

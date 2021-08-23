@@ -6,6 +6,7 @@ summary: >
   national sanctions lists.
 collections:
   - sanctions
+  - default
 publisher:
   name: United Nations Security Council (UN SC)
   url: "https://www.un.org/en/sc/"

@@ -17,6 +17,7 @@ description: |
 
 collections:
   - sanctions
+  - default
 publisher:
   name: "State Secretariat for Economic Affairs (SECO)"
   description: |

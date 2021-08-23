@@ -5,6 +5,7 @@ summary: >
   The United Kingom's consolidated international sanctions list.
 collections:
   - sanctions
+  - default
 publisher:
   name: Her Majesty's Treasury
   url: https://www.gov.uk/

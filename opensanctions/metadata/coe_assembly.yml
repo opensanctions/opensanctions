@@ -23,6 +23,7 @@ description: |
   representation of the political parties or groups in their national parliaments.
 collections:
   - peps
+  - default
 publisher:
   name: Council of Europe
   description: |

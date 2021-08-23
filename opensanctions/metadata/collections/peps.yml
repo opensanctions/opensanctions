@@ -4,6 +4,19 @@ summary: >
   A politically exposed person (PEP) is a person that has been entrusted with
   a prominent public function. PEPs include elected officials, members of
   government.
-
 description: |
-  http://peppercat.org/
+  Integrating data about political actors is an essential step in making
+  an open source due diligence database. However, it is a much more intricate
+  task than collecting sanctions lists (of which there are only a few dozen),
+  and fully addressing it will be the focus of a later stage of this project.
+
+  At present, OpenSanctions relies mainly on the efforts of the now-defunct
+  [EveryPolitician](https://everypolitician.org) project to include law makers
+  from many countries. EveryPolitician is soon to be superseded by the new
+  [Peppercat](http://peppercat.org/) initiative, which aims to keep the 
+  information on political office holders in [Wikidata](https://wikidata.org)
+  up-to-date. Please visit the Peppecat site to learn more about that 
+  effort and how you can support it.
+
+  * What are [politically exposed persons (PEP)](https://opensanctions.org/docs/faq/#peps)?
+  * [FATF guidance on PEPs](https://www.fatf-gafi.org/media/fatf/documents/recommendations/guidance-pep-rec12-22.pdf)

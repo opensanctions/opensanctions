@@ -6,6 +6,7 @@ summary: >
   a sanctions list that is implemented by all member states.
 collections:
   - sanctions
+  - default
 publisher:
   name: European External Action Service
   acronym: EEAS

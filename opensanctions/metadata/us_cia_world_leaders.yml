@@ -6,6 +6,7 @@ summary: >
   is publicly maintained by the CIA.
 collections:
   - peps
+  - default
 url: https://www.cia.gov/resources/world-leaders/
 publisher:
   name: Central Intelligence Agency (CIA)

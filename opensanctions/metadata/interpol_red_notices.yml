@@ -6,6 +6,7 @@ summary: >
   extradition of the wanted individuals.
 collections:
   - crime
+  - default
 publisher:
   name: INTERPOL
   url: https://www.interpol.int/

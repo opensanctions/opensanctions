@@ -1,0 +1,16 @@
+type: collection
+title: Due Diligence List
+summary: >
+  This collection includes most of the data collected by OpenSanctions which
+  meets quality standards and would be useful to an analyst or journalist
+  attempting to perform a due-diligence type task.
+description: |
+  This list can be used as the broadest available OpenSanctions dataset. It
+  includes any entity that should receive enhanced public scrutiny - either
+  because they appear on a sanctions list, in a criminal context or as a
+  political office holder.
+
+  Be advised that the data in this collection originates from a variety of
+  sources and therefore varies in terms of detail and precision. For example,
+  many listings of political office holders do not include their exact birth
+  dates or full given names.

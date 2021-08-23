@@ -6,6 +6,7 @@ summary: >
   Kyrgyz' State Financial Intelligence Service.
 collections:
   - sanctions
+  - default
 publisher:
   name: State Financial Intelligence Service (FIU)
   url: https://fiu.gov.kg/

@@ -12,6 +12,7 @@ description: >
   and cities (70% of all EU legislation).
 collections:
   - peps
+  - default
 publisher:
   name: European Committee of the Regions
   country: eu

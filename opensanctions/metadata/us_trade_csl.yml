@@ -29,6 +29,7 @@ description: |
     supplement no. 2 to part 744 is specified in § 744.21(d) and (e).
 collections:
   - sanctions
+  - default
 publisher:
   name: Department of the Commerce - International Trade Administration
   country: us
