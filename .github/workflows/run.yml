@@ -6,6 +6,7 @@ on:
       - main
   # schedule:
   #   - cron: "0 3 * * *"
+  workflow_dispatch: {}
 
 jobs:
   data:
@@ -14,31 +15,25 @@ jobs:
       - uses: actions/checkout@v2
         with:
           ref: production
-      # - name: Set up Python
-      #   uses: actions/setup-python@v1
-      #   with:
-      #     python-version: "3.9"
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: "3.9"
       - name: Set env
-        # echo "OPENSANCTIONS_DATASET_URL=https://data.opensanctions.org/datasets/$(date +%Y%m%d)/" >> $GITHUB_ENV
         run: |
           echo "OPENSANCTIONS_DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
-      # - name: Install dependencies
-      #   env:
-      #     DEBIAN_FRONTEND: noninteractive
-      #   run: |
-      #     sudo apt-get install -y -qq libicu-dev
-      #     pip install --no-cache-dir -q pyicu awscli
-      #     pip install --force-reinstall --upgrade pyopenssl
-      #     pip install --no-cache-dir -q -e .
+      - name: Install awscli
+        run: |
+          pip install --no-cache-dir -q awscli
       - name: Make data directory
         run: |
           mkdir -p data/state
-      # - name: Fetch database state from data.opensanctions.org
-      #   env:
-      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #   run: |
-      #     aws s3 sync --no-progress s3://data.opensanctions.org/state data/state
+      - name: Fetch database state from data.opensanctions.org
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          aws s3 sync --no-progress s3://data.opensanctions.org/state data/state
       - name: Run opensanctions
         env:
           OPENSANCTIONS_COH_API_KEY: ${{ secrets.OPENSANCTIONS_COH_API_KEY }}
@@ -49,3 +44,7 @@ jobs:
             -e OPENSANCTIONS_DATE \
             pudo/opensanctions \
             opensanctions run us_ofac_sdn
+      - uses: actions/upload-artifact@v2
+        with:
+          name: data
+          path: data/
