@@ -44,7 +44,7 @@ jobs:
           OPENSANCTIONS_COH_API_KEY: ${{ secrets.OPENSANCTIONS_COH_API_KEY }}
         run: |
           docker run \
-            -v ./data:/opensanctions/data \
+            -v `pwd`/data:/opensanctions/data \
             -e OPENSANCTIONS_COH_API_KEY \
             -e OPENSANCTIONS_DATE \
             pudo/opensanctions \
