@@ -33,12 +33,12 @@ jobs:
       - name: Make data directory
         run: |
           mkdir -p data/state
-      - name: Fetch database state from data.opensanctions.org
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: |
-          aws s3 sync --no-progress s3://data.opensanctions.org/state data/state
+      # - name: Fetch database state from data.opensanctions.org
+      #   env:
+      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #   run: |
+      #     aws s3 sync --no-progress s3://data.opensanctions.org/state data/state
       - name: Run opensanctions
         env:
           OPENSANCTIONS_COH_API_KEY: ${{ secrets.OPENSANCTIONS_COH_API_KEY }}
