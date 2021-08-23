@@ -1,13 +1,12 @@
 name: production
 
 on:
-  push:
-    branches: [production]
   schedule:
     - cron: "0 3 * * *"
+  workflow_dispatch: {}
 
 jobs:
-  generate:
+  data:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -17,33 +16,29 @@ jobs:
         uses: actions/setup-python@v1
         with:
           python-version: "3.9"
+      - name: Install awscli
+        run: |
+          pip install --no-cache-dir -q awscli
       - name: Set env
-        # echo "OPENSANCTIONS_DATASET_URL=https://data.opensanctions.org/datasets/$(date +%Y%m%d)/" >> $GITHUB_ENV
         run: |
           echo "OPENSANCTIONS_DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
-      - name: Install dependencies
-        env:
-          DEBIAN_FRONTEND: noninteractive
-        run: |
-          sudo apt-get install -y -qq libicu-dev
-          pip install --no-cache-dir -q pyicu awscli
-          pip install --force-reinstall --upgrade pyopenssl
-          pip install --no-cache-dir -q -e .
-      - name: Make data directory
-        run: |
-          mkdir -p data/state
       - name: Fetch database state from data.opensanctions.org
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
+          mkdir -p data/state
           aws s3 sync --no-progress s3://data.opensanctions.org/state data/state
       - name: Run opensanctions
         env:
           OPENSANCTIONS_COH_API_KEY: ${{ secrets.OPENSANCTIONS_COH_API_KEY }}
         run: |
-          opensanctions cleanup
-          opensanctions --quiet run
+          docker run \
+            -v `pwd`/data:/opensanctions/data \
+            -e OPENSANCTIONS_COH_API_KEY \
+            -e OPENSANCTIONS_DATE \
+            pudo/opensanctions \
+            opensanctions run
       - name: Compress database
         run: |
           sqlite3 -version
@@ -64,7 +59,3 @@ jobs:
           aws s3 sync --delete --no-progress --cache-control "public, max-age=42300" --acl public-read data/datasets s3://data.opensanctions.org/datasets/latest
           aws s3 sync --delete --no-progress --cache-control "public, max-age=84600" --acl public-read data/datasets s3://data.opensanctions.org/datasets/$OPENSANCTIONS_DATE
           aws cloudfront create-invalidation --distribution-id ETROMAQBEJS91 --paths "/datasets/latest/*"
-      - uses: actions/upload-artifact@v2
-        with:
-          name: data
-          path: data/
