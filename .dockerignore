@@ -2,12 +2,14 @@ data/
 docs/
 dist/
 build/
+contrib/logo/
 .envrc
 Makefile
 Dockerfile
 .mypy_cache
 .pytest_cache
 .git
+.github/
 .gitignore
 venv
 *.pyc
