@@ -1,0 +1,16 @@
+@import './variables.scss';
+
+.code {
+    color: $gray-600;
+}
+
+.tableKey {
+    vertical-align: top;
+    width: 20%;
+    min-width: 20%;
+    max-width: 20%;
+}
+
+.dataTable {
+    margin-bottom: 0;
+}

@@ -1,0 +1,38 @@
+@import './variables.scss';
+
+.card {
+    margin-bottom: 1em;
+}
+
+.cardTitle {
+    a {
+        color: black;
+        text-decoration: none;
+    }
+}
+
+.publisherDescription {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    color: $text-muted;
+}
+
+// .warningLink {
+//     color: $warning;
+//     text-decoration: none;
+//     &:hover {
+//         color: shift-color($warning, $link-shade-percentage);
+//     }
+// }
+
+// .errorLink {
+//     color: $danger;
+//     text-decoration: none;
+//     &:hover {
+//         color: shift-color($danger, $link-shade-percentage);
+//     }
+// }
+
+.viewTab {
+    padding-top: 1em;
+}
