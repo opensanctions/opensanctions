@@ -89,6 +89,7 @@ class Entity(EntityProxy):
         data["last_seen"] = self.last_seen
         data["target"] = self.target
         data["dataset"] = self.dataset.name
+        data["caption"] = self.caption
         return data
 
     @classmethod

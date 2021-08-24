@@ -1,13 +1,14 @@
 import io
 import csv
+from opensanctions.exporters.common import Exporter
 from banal import first
 from followthemoney.types import registry
 
-from opensanctions.exporters.nested import NestedJSONExporter
+from opensanctions.exporters.common import Exporter
 from opensanctions.util import jointext
 
 
-class SimpleCSVExporter(NestedJSONExporter):
+class SimpleCSVExporter(Exporter):
     TITLE = "Targets as simplified CSV"
     NAME = "targets.simple"
     EXTENSION = "csv"
@@ -44,11 +45,11 @@ class SimpleCSVExporter(NestedJSONExporter):
 
     def sanction_text(self, sanction):
         return jointext(
-            *sanction.get("program", []),
-            *sanction.get("reason", []),
-            *sanction.get("status", []),
-            *sanction.get("startDate", []),
-            *sanction.get("endDate", []),
+            *sanction.get("program"),
+            *sanction.get("reason"),
+            *sanction.get("status"),
+            *sanction.get("startDate"),
+            *sanction.get("endDate"),
             sep=" - ",
         )
 
@@ -59,23 +60,23 @@ class SimpleCSVExporter(NestedJSONExporter):
     def feed(self, entity):
         if not entity.target:
             return
-        data = self.nested(entity, [])
         countries = set(entity.get_type_values(registry.country))
         identifiers = set(entity.get_type_values(registry.identifier))
         names = set(entity.get_type_values(registry.name))
         names.discard(entity.caption)
-
         sanctions = set()
-        for sanction in data.get("sanctions", []):
-            sanctions.add(self.sanction_text(sanction))
+        addresses = set(entity.get("address"))
 
-        addresses = set()
-        for address in data.get("addressEntity", []):
-            addresses.update(address.get("full", []))
+        for _, adjacent in self.get_adjacent(entity):
+            if adjacent.schema.is_a("Sanction"):
+                sanctions.add(self.sanction_text(adjacent))
 
-        for identification in data.get("identification", []):
-            identifiers.update(identification.get("number", []))
-            countries.update(identification.get("country", []))
+            if adjacent.schema.is_a("Address"):
+                addresses.add(adjacent.caption)
+
+            if adjacent.schema.is_a("Identification"):
+                identifiers.update(adjacent.get("number"))
+                countries.update(adjacent.get("country"))
 
         row = [
             entity.id,

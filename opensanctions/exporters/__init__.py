@@ -1,4 +1,5 @@
 import structlog
+from urllib.parse import urljoin
 from followthemoney import model
 
 from opensanctions import settings
@@ -18,17 +19,24 @@ EXPORTERS = [FtMExporter, NestedJSONExporter, NamesExporter, SimpleCSVExporter]
 
 def export_global_index():
     """Export the global index for all datasets."""
-    index_path = settings.DATASET_PATH.joinpath("index.json")
     datasets = []
     for dataset in Dataset.all():
         datasets.append(dataset.to_index())
 
+    issues_path = settings.DATASET_PATH.joinpath("issues.json")
+    log.info("Writing global issues list", path=issues_path)
+    with open(issues_path, "w", encoding=settings.ENCODING) as fh:
+        data = {"issues": Issue.query().all()}
+        write_json(data, fh)
+
+    index_path = settings.DATASET_PATH.joinpath("index.json")
     log.info("Writing global index", datasets=len(datasets), path=index_path)
     with open(index_path, "w", encoding=settings.ENCODING) as fh:
         meta = {
             "datasets": datasets,
             "run_time": settings.RUN_TIME,
             "dataset_url": settings.DATASET_URL,
+            "issues_url": urljoin(settings.DATASET_URL, "issues.json"),
             "model": model,
             "schemata": [s for s, in Statement.all_schemata()],
             "app": "opensanctions",

@@ -11,38 +11,20 @@ class NestedJSONExporter(Exporter):
 
     def nested(self, entity, path, root=True):
         path = path + [entity.id]
-        data = {
-            "$id": entity.id,
-            "$schema": entity.schema.name,
-            "$last_seen": entity.last_seen,
-            "$first_seen": entity.first_seen,
-        }
-        if entity.target:
-            data["$target"] = entity.target
-        for prop, value in entity.itervalues():
-            if prop.type == registry.entity:
-                if value in path:
-                    continue
-                adjacent = self.index.get_entity(value)
-                value = self.nested(adjacent, path, False)
-            if prop.name not in data:
-                data[prop.name] = []
-            data[prop.name].append(value)
-
-        if root:
-            for prop, ref in self.index.get_inverted(entity.id):
-                if ref in path:
-                    continue
-                adjacent = self.index.get_entity(ref)
-                sub = self.nested(adjacent, path, False)
-                if prop.name not in data:
-                    data[prop.name] = []
-                data[prop.name].append(sub)
-
+        data = entity.to_dict()
+        nested = {}
+        for prop, adjacent in self.get_adjacent(entity, inverted=root):
+            if adjacent.id in path:
+                continue
+            value = self.nested(adjacent, path, False)
+            if prop.name not in nested:
+                nested[prop.name] = []
+            nested[prop.name].append(value)
+        data["properties"].update(nested)
         return data
 
     def feed(self, entity):
         if not entity.target:
             return
         data = self.nested(entity, [])
-        write_object(self.fh, data)
+        write_object(self.fh, data, indent=2)

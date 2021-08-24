@@ -1,6 +1,7 @@
 import json
 from banal import is_mapping
 from datetime import date, datetime
+from followthemoney.types import registry
 
 from opensanctions import settings
 
@@ -19,6 +20,15 @@ class Exporter(object):
         self.fh = open(self.path, "w", encoding=settings.ENCODING)
         self.index = index
         self.setup()
+
+    def get_adjacent(self, entity, inverted=True):
+        for prop, value in entity.itervalues():
+            if prop.type == registry.entity:
+                yield prop, self.index.get_entity(value)
+
+        if inverted:
+            for prop, ref in self.index.get_inverted(entity.id):
+                yield prop, self.index.get_entity(ref)
 
     def setup(self):
         pass
