@@ -8,10 +8,14 @@ import Layout from '../../components/Layout'
 import Dataset from '../../components/Dataset'
 import { getDatasets } from '../../lib/api'
 import { getSchemaDataCatalog } from '../../lib/schema'
-import { isCollection, isSource } from '../../lib/dataset';
+import { ICollection, isCollection, isSource } from '../../lib/dataset';
+
+// fake up a semantic ordering of collections
+const COLLECTIONS = ['sanctions', 'default', 'peps', 'crime'];
 
 export default function DatasetIndex({ datasets, structured }: InferGetStaticPropsType<typeof getStaticProps>) {
-  const collections = datasets.filter(isCollection)
+  const allCollections = datasets.filter(isCollection)
+  const collections = COLLECTIONS.map(n => allCollections.find(c => c.name == n)) as Array<ICollection>
   const sources = datasets.filter(isSource)
   return (
     <Layout.Base title="Datasets" structured={structured}>

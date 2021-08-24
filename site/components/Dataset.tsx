@@ -2,14 +2,11 @@ import Link from 'next/link'
 import Card from 'react-bootstrap/Card';
 import { CollectionFill, MapFill } from 'react-bootstrap-icons';
 
-import { IDataset, ICollection, ISource, isCollection, isSource } from '../lib/dataset'
-import { Markdown } from './util';
+import { IDataset, isCollection, isSource } from '../lib/dataset'
+import { Markdown, Numeric } from './util';
 import styles from '../styles/Dataset.module.scss'
+import { SPACER } from '../lib/constants';
 
-
-function getHref(dataset: IDataset) {
-  return `/datasets/${dataset.name}/`;
-}
 
 type DatasetProps = {
   dataset: IDataset
@@ -41,31 +38,30 @@ function DatasetCard({ dataset }: DatasetProps) {
       )}
       <Card.Body>
         <Card.Title className={styles.cardTitle}>
-          <Link href={getHref(dataset)}>
+          <Link href={dataset.link}>
             {dataset.title}
           </Link>
         </Card.Title>
-        {isCollection(dataset) && (
-          <Card.Subtitle className="mb-2 text-muted">
-            {dataset.sources.length} data sources
-          </Card.Subtitle>
-        )}
-        {isSource(dataset) && (
-          <Card.Subtitle className="mb-2 text-muted">
-            {dataset.publisher.country_label}
-          </Card.Subtitle>
-        )}
+        <Card.Subtitle className="mb-2 text-muted">
+          {isCollection(dataset) && (
+            <><Numeric value={dataset.sources.length} /> data sources</>
+          )}
+          {isSource(dataset) && (
+            <>{dataset.publisher.country_label}</>
+          )}
+          {SPACER}
+          <Numeric value={dataset.target_count} /> targets
+        </Card.Subtitle>
         <Card.Text>
           {dataset.summary}
         </Card.Text>
-        <Card.Link href={getHref(dataset)}>Details</Card.Link>
+        <Card.Link href={dataset.link}>Details</Card.Link>
       </Card.Body>
     </Card>
   )
 }
 
 export default class Dataset {
-  static getHref = getHref
   static Card = DatasetCard
   static Icon = DatasetIcon
   static Description = DatasetDescription

@@ -61,7 +61,7 @@ export default function DatasetMetadataTable({ dataset, collections }: DatasetSc
             <td>
               <>included in </>
               {wordList(collections.map((collection) =>
-                <Link href={Dataset.getHref(collection)}>
+                <Link href={collection.link}>
                   {collection.title}
                 </Link>
               ), SPACER)}
