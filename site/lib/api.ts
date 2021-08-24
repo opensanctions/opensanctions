@@ -6,6 +6,8 @@ export interface IIndex {
   app: string
   version: string
   model: IModelDatum
+  issues_url: string
+  schemata: Array<string>
   datasets: Array<IDataset>
 }
 

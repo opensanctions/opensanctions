@@ -61,37 +61,3 @@ export default function IssuesTable({ issues }: IssuesTableProps) {
     </Table>
   )
 }
-
-
-// type IssueSectionProps = {
-//   index: IIssueIndex
-// }
-
-// export default function IssueSection({ index }: IssueSectionProps) {
-//   if (index.issues.length === 0) {
-//     return null;
-//   }
-
-//   return (
-//     <>
-//       <h2>Data issues</h2>
-//       <p>
-//         As an open source project, one of our values is transparency. That's
-//         why below we list all known inconsistencies that have occurred in the
-//         process of importing this dataset.
-//       </p>
-//       {errors.length > 0 && (
-//         <>
-//           <h3><a id="errors"></a> Errors</h3>
-//           <IssuesTable issues={errors} />
-//         </>
-//       )}
-//       {warnings.length > 0 && (
-//         <>
-//           <h3><a id="warnings"></a> Warnings</h3>
-//           <IssuesTable issues={warnings} />
-//         </>
-//       )}
-//     </>
-//   )
-// }

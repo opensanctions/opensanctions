@@ -2,9 +2,8 @@ import Link from 'next/link'
 import Table from 'react-bootstrap/Table'
 
 import { IDataset, ICollection, isSource } from '../lib/dataset'
-import { FormattedDate, Numeric, Plural, URLLink } from './util'
+import { FormattedDate, HelpLink, Numeric, Plural, URLLink } from './util'
 import { wordList } from '../lib/util'
-import Dataset from './Dataset'
 import { SPACER } from '../lib/constants'
 
 import styles from '../styles/Dataset.module.scss'
@@ -17,13 +16,18 @@ type DatasetScreenProps = {
 
 export default function DatasetMetadataTable({ dataset, collections }: DatasetScreenProps) {
   const schemaList = wordList(dataset.targets.schemata.map((ts) =>
-    <Plural value={ts.count} one={ts.label} many={ts.plural} />
+    <span>
+      <Plural value={ts.count} one={ts.label} many={ts.plural} />
+      <HelpLink href={`/docs/reference/#schema.${ts.name}`} />
+    </span >
   ), SPACER);
   return (
     <Table>
       <tbody>
         <tr>
-          <th style={{ width: "15%" }}>Targets:</th>
+          <th style={{ width: "15%" }}>
+            Targets<HelpLink href="/docs/reference/#targets" />:
+          </th>
           <td>
             {dataset.targets.schemata.length == 1 && schemaList}
             {dataset.targets.schemata.length > 1 && (
@@ -57,7 +61,9 @@ export default function DatasetMetadataTable({ dataset, collections }: DatasetSc
         )}
         {isSource(dataset) && !!collections?.length && (
           <tr>
-            <th>Collections:</th>
+            <th>
+              Collections<HelpLink href="/docs/faq/#collections" />:
+            </th>
             <td>
               <>included in </>
               {wordList(collections.map((collection) =>
@@ -69,7 +75,7 @@ export default function DatasetMetadataTable({ dataset, collections }: DatasetSc
           </tr>
         )}
         <tr>
-          <th>Last changed:</th>
+          <th>Last changed<HelpLink href="/docs/faq/#updates" />:</th>
           <td><FormattedDate date={dataset.last_change} /></td>
         </tr>
       </tbody>

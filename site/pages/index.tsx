@@ -71,9 +71,9 @@ export default function Home({ datasets }: InferGetStaticPropsType<typeof getSta
           </Col>
           <Col md={4} className={styles.explainer}>
             <h4>Clean data and transparent process</h4>
-            We consolidate data from a broad range of sources and take on the
-            complex task of transforming it into a clean and well-understood
-            dataset.
+            We consolidate data from a <Link href="/datasets/#sources">broad range of sources</Link> and take on the
+            complex task of transforming it into a clean and <Link href="/docs/reference/">well-understood
+              dataset</Link>.
           </Col>
           <Col md={4} className={styles.explainer}>
             <h4>Open source code and data</h4>

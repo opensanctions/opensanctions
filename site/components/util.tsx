@@ -1,6 +1,8 @@
 import filesize from 'filesize';
+import Link from 'next/link';
+import { ReactNode } from 'react';
 import { Badge } from 'react-bootstrap';
-import { Link45deg } from 'react-bootstrap-icons';
+import { Link45deg, QuestionCircleFill } from 'react-bootstrap-icons';
 import { markdownToHtml } from '../lib/util';
 
 import styles from '../styles/util.module.scss';
@@ -30,8 +32,8 @@ export function NumericBadge({ value, bg, className }: NumericBadgeProps) {
 
 type PluralProps = {
   value?: number | null
-  one: string
-  many: string
+  one: string | ReactNode
+  many: string | ReactNode
 }
 
 export function Plural({ value, one, many }: PluralProps) {
@@ -118,4 +120,17 @@ export function URLLink({ url, label, icon = true }: URLLinkProps) {
       <a href={href} target="_blank" title={url}>{textLabel}</a>
     </>
   );
+}
+
+type HelpLinkProps = {
+  href: string
+  size?: number
+}
+
+export function HelpLink({ href, size = 10 }: HelpLinkProps) {
+  return (
+    <a href={href}>
+      <sup><QuestionCircleFill size={size} /></sup>
+    </a>
+  )
 }

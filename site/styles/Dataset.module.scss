@@ -6,8 +6,13 @@
 
 .cardTitle {
     a {
-        color: black;
+        color: inherit !important;
         text-decoration: none;
+        font-weight: bold;
+
+        &:hover {
+            text-decoration: underline;
+        }
     }
 }
 
@@ -16,22 +21,6 @@
     padding-bottom: 0;
     color: $text-muted;
 }
-
-// .warningLink {
-//     color: $warning;
-//     text-decoration: none;
-//     &:hover {
-//         color: shift-color($warning, $link-shade-percentage);
-//     }
-// }
-
-// .errorLink {
-//     color: $danger;
-//     text-decoration: none;
-//     &:hover {
-//         color: shift-color($danger, $link-shade-percentage);
-//     }
-// }
 
 .viewTab {
     padding-top: 1em;

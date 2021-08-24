@@ -80,6 +80,10 @@ export default function DatasetScreen({ dataset, structured, issues, sources, co
               {!!dataset.targets.countries.length && (
                 <Tab eventKey="profile" title={<>{'Geographic coverage'} <NumericBadge value={dataset.targets.countries.length} /></>} className={styles.viewTab}>
                   <>
+                    <p>
+                      {dataset.title} includes target entities in the following countries.
+                      {' '}<Link href="/docs/reference#type.country">Read more about countries...</Link>
+                    </p>
                     <Table>
                       <thead>
                         <tr>
@@ -128,6 +132,7 @@ export default function DatasetScreen({ dataset, structured, issues, sources, co
               </ListGroup>
               <Card.Footer className="text-muted">
                 Help: <Link href="/docs/usage">Using the data</Link>
+                {SPACER} <Link href="/docs/reference">reference</Link>
               </Card.Footer>
             </Card>
           </Col>

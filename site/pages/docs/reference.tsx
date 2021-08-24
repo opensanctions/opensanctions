@@ -1,22 +1,23 @@
+import Link from 'next/link';
 import { InferGetStaticPropsType } from 'next'
 import { Model } from "@alephdata/followthemoney"
-import Table from 'react-bootstrap/Table';
+import Alert from 'react-bootstrap/Alert';
 
 import Layout from '../../components/Layout'
 import Content from '../../components/Content'
 import { getContentBySlug } from '../../lib/content'
 import { Summary } from '../../components/util'
 import { fetchIndex, getDatasetByName } from '../../lib/api'
+import { SchemaReference, TypeReference } from '../../components/Reference';
+import { INDEX_URL } from '../../lib/constants';
 
-export default function Reference({ content, dataset, model }: InferGetStaticPropsType<typeof getStaticProps>) {
+
+export default function Reference({ content, dataset, index }: InferGetStaticPropsType<typeof getStaticProps>) {
   if (dataset === undefined) {
     return null;
   }
-  const ftm = new Model(model)
-  const country = ftm.getType('country')
-  const countryValues = Array.from(country.values.entries())
-
-  const schemata = dataset.targets.schemata.map(s => ftm.getSchema(s.name)).filter(s => s !== undefined)
+  const model = new Model(index.model)
+  const schemata = index.schemata.map(s => model.getSchema(s)).filter(s => s !== undefined)
 
   return (
     <Layout.Content content={content}>
@@ -25,62 +26,80 @@ export default function Reference({ content, dataset, model }: InferGetStaticPro
         <div>
           <Content.Body content={content} />
         </div>
+        <h2><a id="targets"></a>Entities and targets</h2>
+        <p className="text-body">
+          OpenSanctions collects data about real-world <strong>entities</strong>, such as
+          people, companies, sanctions and addresses, but also the relationships between
+          them. In order to process that data, it is internally converted into an object
+          graph that is defined below. Different exporters then might simplify the data
+          for end-users.
+        </p>
+        <p className="text-body">
+          Each data source produces a set of <strong>targets</strong>, the main entities
+          described by the publisher (e.g. sanctioned companies, politicians or criminal
+          actors), and any number of non-target adjacent entities. Non-target entities
+          might include a polictical party that a politician is a member of, or an
+          address they are linked to.
+        </p>
+        <p className="text-body">
+          The data model used by OpenSanctions is <Link href="https://followthemoney.readthedocs.io/en/latest/index.html">FollowTheMoney</Link>,
+          an ontology used in anti-corruption data analysis - in particular by the <Link href="https://docs.alephdata.org/">Aleph data platform</Link>.
+          Only a subset of the entity types defined in FtM are used by OpenSanctions.
+        </p>
+        <Alert variant="info">
+          <strong>Developer note:</strong> All of the information detailed below is also
+          available in the <Link href={INDEX_URL}>JSON metadata</Link> for OpenSanctions.
+          FollowTheMoney additionally provides libraries for <Link href="https://pypi.org/project/followthemoney/">Python</Link> and <Link href="https://www.npmjs.com/package/@alephdata/followthemoney">TypeScript</Link> that can be
+          used to process and analyse entities more easily.
+        </Alert>
         <h2>Schema types</h2>
-        {schemata.map((schema) => (
-          <>
-            <h3><a id={`schema.${schema.name}`} /> {schema.plural}</h3>
-            <Table>
-              <thead>
-                <tr>
-                  <th>Property</th>
-                  <th>Type</th>
-                  <th>Label</th>
-                  <th>Description</th>
-                </tr>
-              </thead>
-              {/* <tbody>
-                {schema.getProperties().values().map((prop) => (
-                  <tr key={prop.qname}>
-
-                  </tr>
-                ))}
-              </tbody> */}
-            </Table>
-          </>
+        <p className="text-body">
+          All entities in OpenSanctions must conform to a schema, a definition that states
+          what properties they are allowed to have. Some properties also allow entities to
+          reference other entities, turning the entities into a graph.
+        </p>
+        <p className="text-body">
+          The following schema types are currently referenced in OpenSanctions:
+        </p>
+        <ul>
+          {schemata.map(schema => (
+            <li><code><Link href={`#schema.${schema.name}`}>{schema.name}</Link></code></li>
+          ))}
+        </ul>
+        {schemata.map(schema => (
+          <SchemaReference schema={schema} index={index} key={schema.name} />
         ))}
 
         <h2>Type definitions</h2>
-        <h3><a id={country.name} />{country.plural}</h3>
-        <p>
-          Country index.
+        <p className="text-body">
+          Schema properties have specific types which define the range of valid
+          values they can hold. Below are the enumerated values for some of the
+          types. Other types perform algorithmic validation, e.g. for phone
+          numbers, URLs or email addresses.
         </p>
-        <Table>
-          <thead>
-            <tr>
-              <th>Code</th>
-              <th>Label</th>
-            </tr>
-          </thead>
-          <tbody>
-            {countryValues.map(([code, label]) => (
-              <tr key={code}>
-                <td><code>{code}</code></td>
-                <td>{label}</td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
+        <TypeReference type={model.getType('topic')}>
+          Topics are used to tag other entities - mainly organizations and people - with
+          semantic roles, e.g. to designate an individual as a politician, terrorist or
+          to hint that a certain company is a bank.
+        </TypeReference>
+        <TypeReference type={model.getType('country')}>
+          We use a descriptive approach to modelling the countries in our database.
+          If a list refers to a country, so do we. This includes countries that have
+          seized to exist (e.g. Soviet Union, Yugoslavia) and territories whose status
+          as a country may be controversial (e.g. Kosovo, Artsakh). If the presence of a
+          country in this list is offensive to you, we invite you to reflect the mental
+          health impact of being angry at tables on the internet.
+        </TypeReference>
       </Content.Menu>
     </Layout.Content >
   )
 }
 
 export async function getStaticProps() {
-  const index = await fetchIndex()
   return {
     props: {
       content: await getContentBySlug('reference'),
-      model: index.model,
+      index: await fetchIndex(),
       dataset: await getDatasetByName('all')
     }
   }
