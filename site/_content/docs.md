@@ -1,5 +1,5 @@
 ---
-title: Help
+title: Documentation
 ---
 
 This section:
