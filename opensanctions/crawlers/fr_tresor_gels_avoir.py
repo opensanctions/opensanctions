@@ -88,7 +88,6 @@ def crawl_entity(context, data):
 def crawl(context):
     path = context.fetch_resource("source.json", context.dataset.data.url)
     context.export_resource(path, JSON, title=context.SOURCE_TITLE)
-    path = context.get_resource_path("source.json")
     with open(path, "r") as fh:
         data = json.load(fh)
 

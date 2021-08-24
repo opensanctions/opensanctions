@@ -7,7 +7,7 @@ from opensanctions.util import jointext
 def crawl(context):
     path = context.fetch_resource("source.xml", context.dataset.data.url)
     context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
-    doc = context.parse_resource_xml("source.xml")
+    doc = context.parse_resource_xml(path)
     for node in doc.findall(".//record"):
         parse_entry(context, node)
 

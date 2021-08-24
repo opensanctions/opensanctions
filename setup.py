@@ -30,6 +30,7 @@ setup(
         "pantomime",
         "sqlalchemy",
         "alembic",
+        "certifi",
         "addressformatting",
         "prefixdate",
         "psycopg2-binary",

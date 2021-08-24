@@ -137,7 +137,7 @@ def parse_common(context, entity, node):
 def crawl(context):
     path = context.fetch_resource("source.xml", context.dataset.data.url)
     context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
-    doc = context.parse_resource_xml("source.xml")
+    doc = context.parse_resource_xml(path)
 
     for node in doc.findall(".//INDIVIDUAL"):
         parse_individual(context, node)

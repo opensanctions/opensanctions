@@ -63,7 +63,7 @@ def crawl(context):
         return
     path = context.fetch_resource("source.xml", url)
     context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
-    xml = context.parse_resource_xml("source.xml")
+    xml = context.parse_resource_xml(path)
 
     for person in xml.findall(".//KyrgyzPhysicPerson"):
         parse_person(context, person)

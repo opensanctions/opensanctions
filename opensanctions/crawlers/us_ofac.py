@@ -403,7 +403,7 @@ def parse_relation(context, el, parties):
 def crawl(context):
     path = context.fetch_resource("source.xml", context.dataset.data.url)
     context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
-    doc = context.parse_resource_xml("source.xml")
+    doc = context.parse_resource_xml(path)
     doc = remove_namespace(doc)
     context.log.info("Loading reference values...")
     load_ref_values(doc)
