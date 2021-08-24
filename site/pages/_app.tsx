@@ -1,4 +1,4 @@
-import '../styles/globals.css'
+import '../styles/globals.scss'
 
 import { useEffect } from 'react'
 import { useRouter } from 'next/router'
@@ -6,7 +6,7 @@ import type { AppProps } from 'next/app'
 
 import * as gtag from '../lib/gtag'
 
-function MyApp({ Component, pageProps }: AppProps) {
+export default function OpenSanctionsApp({ Component, pageProps }: AppProps) {
   const router = useRouter()
   useEffect(() => {
     const handleRouteChange = (url: string) => {
@@ -20,4 +20,3 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   return <Component {...pageProps} />
 }
-export default MyApp
