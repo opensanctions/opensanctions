@@ -69,4 +69,5 @@ jobs:
         run: |
           pip install -q -U awscli
           aws s3 sync --delete --no-progress --cache-control "public, max-age=3600" --acl public-read out s3://opensanctions.org
+          aws s3 sync --delete --no-progress --cache-control "public, max-age=36000000, immutable" --acl public-read out/_next/static s3://opensanctions.org/_next/static
           aws cloudfront create-invalidation --distribution-id E321O1ATKKHDQT --paths "/*"
