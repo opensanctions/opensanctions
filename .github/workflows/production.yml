@@ -11,14 +11,14 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          ref: production
+          ref: main
       - name: Set up Python
         uses: actions/setup-python@v1
         with:
           python-version: "3.9"
       - name: Install awscli
         run: |
-          pip install --no-cache-dir -q awscli
+          pip install --upgrade --no-cache-dir -q awscli
       - name: Set env
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -52,6 +52,6 @@ jobs:
       - name: Publish data to data.opensanctions.org
         run: |
           aws s3 sync --delete --no-progress --acl public-read data/state s3://data.opensanctions.org/state
-          aws s3 sync --delete --no-progress --cache-control "public, max-age=42300" --acl public-read data/datasets s3://data.opensanctions.org/datasets/latest
-          aws s3 sync --delete --no-progress --cache-control "public, max-age=84600" --acl public-read data/datasets s3://data.opensanctions.org/datasets/$OPENSANCTIONS_DATE
+          aws s3 sync --delete --no-progress --cache-control "public, max-age=42300" --content-encoding utf-8 --acl public-read data/datasets s3://data.opensanctions.org/datasets/latest
+          aws s3 sync --delete --no-progress --cache-control "public, max-age=84600" --content-encoding utf-8 --acl public-read data/datasets s3://data.opensanctions.org/datasets/$OPENSANCTIONS_DATE
           aws cloudfront create-invalidation --distribution-id ETROMAQBEJS91 --paths "/datasets/latest/*"
