@@ -19,6 +19,7 @@ OpenSanctions uses [Follow the Money](https://followthemoney.readthedocs.io/en/l
 Repository layout:
 
 * ``opensanctions/``: Python project with data extraction and cleaning components
+* ``site/``: Next.js project web site
 * ``docs/``: Sphinx [technical documentation](https://opensanctions.org/docs/faq/)
 
 Daily data extraction and processing runs on GitHub Actions. Status:
