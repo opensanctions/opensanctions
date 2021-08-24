@@ -6,9 +6,12 @@ import Container from 'react-bootstrap/Container';
 
 import Layout from '../../components/Layout'
 import Dataset from '../../components/Dataset'
+import { INDEX_URL } from '../../lib/constants';
 import { getDatasets } from '../../lib/api'
 import { getSchemaDataCatalog } from '../../lib/schema'
 import { ICollection, isCollection, isSource } from '../../lib/dataset';
+import { JSONLink } from '../../components/util';
+
 
 // fake up a semantic ordering of collections
 const COLLECTIONS = ['sanctions', 'default', 'peps', 'crime'];
@@ -22,6 +25,7 @@ export default function DatasetIndex({ datasets, structured }: InferGetStaticPro
       <Container>
         <h1>
           Collections
+          <JSONLink href={INDEX_URL} />
         </h1>
         <Row>
           <Col md={3}>

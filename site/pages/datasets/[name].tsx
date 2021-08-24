@@ -17,7 +17,7 @@ import Layout from '../../components/Layout'
 import Dataset from '../../components/Dataset'
 import { getDatasets, getDatasetByName, getDatasetIssues } from '../../lib/api'
 import { IDataset, ICollection, ISource, isCollection, isSource, IIssueIndex, LEVEL_ERROR, LEVEL_WARNING } from '../../lib/dataset'
-import { Summary, FileSize, NumericBadge } from '../../components/util'
+import { Summary, FileSize, NumericBadge, JSONLink } from '../../components/util'
 import DatasetMetadataTable from '../../components/DatasetMetadataTable'
 import { getSchemaDataset } from '../../lib/schema';
 import IssuesTable from '../../components/Issue';
@@ -47,6 +47,7 @@ export default function DatasetScreen({ dataset, structured, issues, sources, co
       <Container>
         <h1>
           <Dataset.Icon dataset={dataset} size="30px" /> {dataset.title}
+          <JSONLink href={dataset.index_url} />
         </h1>
         <Row>
           <Col sm={9}>

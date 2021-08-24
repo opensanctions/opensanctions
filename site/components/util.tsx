@@ -1,8 +1,8 @@
 import filesize from 'filesize';
-import Link from 'next/link';
 import { ReactNode } from 'react';
-import { Badge } from 'react-bootstrap';
-import { Link45deg, QuestionCircleFill } from 'react-bootstrap-icons';
+import Badge from 'react-bootstrap/Badge';
+import Button from 'react-bootstrap/Button';
+import { FileEarmarkCodeFill, Link45deg, QuestionCircleFill } from 'react-bootstrap-icons';
 import { markdownToHtml } from '../lib/util';
 
 import styles from '../styles/util.module.scss';
@@ -132,5 +132,15 @@ export function HelpLink({ href, size = 10 }: HelpLinkProps) {
     <a href={href}>
       <sup><QuestionCircleFill size={size} /></sup>
     </a>
+  )
+}
+
+
+export function JSONLink({ href }: HelpLinkProps) {
+  return (
+    <Button variant="outline-dark" size="sm" className={styles.jsonLink} href={href}>
+      <FileEarmarkCodeFill className="bsIcon" />
+      {' '}JSON
+    </Button>
   )
 }
