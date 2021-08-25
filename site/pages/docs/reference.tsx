@@ -86,7 +86,7 @@ export default function Reference({ content, dataset, index }: InferGetStaticPro
           to hint that a certain company is a bank.
         </TypeReference>
         <TypeReference type={model.getType('date')}>
-          Dates in the data are given in a basic ISO 8601 date or date-time format,
+          Dates are given in a basic ISO 8601 date or date-time format,
           <code>YYYY-MM-DD</code> or <code>YYYY-MM-DDTHH:MM:SS</code>. In source data,
           we find varying degrees of precision: some events may be defined as a
           full timestamp (<code>2021-08-25T09:26:11</code>), while for many we only
@@ -98,9 +98,9 @@ export default function Reference({ content, dataset, index }: InferGetStaticPro
           We use a descriptive approach to modelling the countries in our database.
           If a list refers to a country, so do we. This includes countries that have
           seized to exist (e.g. Soviet Union, Yugoslavia) and territories whose status
-          as a country may be controversial (e.g. Kosovo, Artsakh). If the presence of a
-          country in this list is offensive to you, we invite you to reflect the mental
-          health impact of being angry at tables on the internet.
+          as a country may be controversial (e.g. Kosovo, Artsakh). <em>If the presence of a
+            country in this list is offensive to you, we invite you to reflect the mental
+            health impact of being angry at tables on the internet.</em>
         </TypeReference>
       </Content.Menu>
     </Layout.Content >

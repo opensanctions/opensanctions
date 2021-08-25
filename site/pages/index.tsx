@@ -36,9 +36,8 @@ export default function Home({ datasets }: InferGetStaticPropsType<typeof getSta
                 {CLAIM}
               </h2>
               <p className={styles.subClaim}>
-                OpenSanctions lets investigators to find leads, helps companies
-                to manage risk and enables technologists to build data-driven
-                products.
+                OpenSanctions lets investigators find leads, helps companies manage risk and
+                enables technologists to build data-driven products.
                 {' '}<a href="/docs/about/" className={styles.claimLink}>Learn more...</a>
               </p>
               <div>
@@ -65,9 +64,8 @@ export default function Home({ datasets }: InferGetStaticPropsType<typeof getSta
         <Row>
           <Col md={4} className={styles.explainer}>
             <h4>People and companies that matter</h4>
-            Persons of interest data works like a investigative contrast agent
-            that helps analysts find evidence of corruption, money laundering
-            and other criminal activity.
+            Persons of interest data provides the key that helps analysts find evidence of
+            corruption, money laundering and other criminal activity.
           </Col>
           <Col md={4} className={styles.explainer}>
             <h4>Clean data and transparent process</h4>
