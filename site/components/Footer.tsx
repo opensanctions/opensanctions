@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link'
-import { Twitter, Github, Discord, HeartFill } from 'react-bootstrap-icons';
+import { Twitter, Github, HeartFill, EnvelopeFill } from 'react-bootstrap-icons';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
@@ -61,9 +61,9 @@ export default class Footer extends React.Component {
                       <Link href="https://twitter.com/open_sanctions">Twitter</Link>
                     </li>
                     <li>
-                      <Link href="https://discord.gg/K4t2vXgetR"><Discord /></Link>
+                      <Link href="/contact/"><EnvelopeFill /></Link>
                       {' '}
-                      <Link href="https://discord.gg/K4t2vXgetR">Discord</Link>
+                      <Link href="/contact/">Contact us</Link>
                     </li>
                   </ul>
                 </Col>
@@ -77,8 +77,6 @@ export default class Footer extends React.Component {
                   Made with <HeartFill className={styles.love} /> in Python
                   {SPACER}
                   <Link href="/impressum/">Impressum</Link>
-                  {SPACER}
-                  <Link href="/contact/">Contact us</Link>
                 </p>
               </Row>
             </Col>
