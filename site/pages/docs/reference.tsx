@@ -97,10 +97,10 @@ export default function Reference({ content, dataset, index }: InferGetStaticPro
         <TypeReference type={model.getType('country')}>
           We use a descriptive approach to modelling the countries in our database.
           If a list refers to a country, so do we. This includes countries that have
-          seized to exist (e.g. Soviet Union, Yugoslavia) and territories whose status
-          as a country may be controversial (e.g. Kosovo, Artsakh). <em>If the presence of a
-            country in this list is offensive to you, we invite you to reflect the mental
-            health impact of being angry at tables on the internet.</em>
+          ceased to exist (e.g. Soviet Union, Yugoslavia) and territories whose status
+          as a country may be controversial (e.g. Kosovo, Artsakh). If the presence of a
+          country in this list is offensive to you, we invite you to reflect the mental
+          health impact of being angry at tables on the internet.
         </TypeReference>
       </Content.Menu>
     </Layout.Content >

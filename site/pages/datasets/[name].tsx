@@ -17,7 +17,7 @@ import Layout from '../../components/Layout'
 import Dataset from '../../components/Dataset'
 import { getDatasets, getDatasetByName, getDatasetIssues } from '../../lib/api'
 import { IDataset, ICollection, ISource, isCollection, isSource, IIssueIndex, LEVEL_ERROR, LEVEL_WARNING } from '../../lib/dataset'
-import { Summary, FileSize, NumericBadge, JSONLink } from '../../components/util'
+import { Summary, FileSize, NumericBadge, JSONLink, HelpLink } from '../../components/util'
 import DatasetMetadataTable from '../../components/DatasetMetadataTable'
 import { getSchemaDataset } from '../../lib/schema';
 import IssuesTable from '../../components/Issue';
@@ -121,6 +121,8 @@ export default function DatasetScreen({ dataset, structured, issues, sources, co
                     <a href={resource.url} download={true}>
                       {resource.title}
                     </a>
+                    {' '}
+                    <HelpLink href={`/docs/usage/#${resource.path}`} />
                     <div>
                       <FileSize size={resource.size} />
                       {SPACER}
@@ -139,7 +141,7 @@ export default function DatasetScreen({ dataset, structured, issues, sources, co
           </Col>
         </Row>
       </Container>
-    </Layout.Base>
+    </Layout.Base >
   )
 }
 
