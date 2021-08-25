@@ -78,10 +78,6 @@ export default function Sponsor() {
           </p>
           <ul>
             <li>
-              <strong>E-Mail updates</strong> about the project, in particular with
-              regards to format changes and new data sources.
-            </li>
-            <li>
               <strong>Active support</strong> from the developer team when it comes to
               using the data and generating custom exports.
             </li>
