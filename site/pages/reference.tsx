@@ -3,22 +3,19 @@ import { InferGetStaticPropsType } from 'next'
 import { Model } from "@alephdata/followthemoney"
 import Alert from 'react-bootstrap/Alert';
 
-import Layout from '../../components/Layout'
-import Content from '../../components/Content'
-import { getContentBySlug } from '../../lib/content'
-import { Summary } from '../../components/util'
-import { fetchIndex, getDatasetByName } from '../../lib/api'
-import { SchemaReference, TypeReference } from '../../components/Reference';
-import { INDEX_URL } from '../../lib/constants';
-import { getAllParents } from '../../lib/util';
+import Layout from '../components/Layout'
+import Content from '../components/Content'
+import { getContentBySlug } from '../lib/content'
+import { Summary } from '../components/util'
+import { fetchIndex } from '../lib/api'
+import { SchemaReference, TypeReference } from '../components/Reference';
+import { INDEX_URL } from '../lib/constants';
+import { getAllParents } from '../lib/util';
 
 
-export default function Reference({ content, dataset, index }: InferGetStaticPropsType<typeof getStaticProps>) {
-  if (dataset === undefined) {
-    return null;
-  }
-  const model = new Model(index.model)
-  const usedSchemata = index.schemata.map(s => model.getSchema(s)).filter(s => s !== undefined)
+export default function Reference({ content, activeModel, schemata }: InferGetStaticPropsType<typeof getStaticProps>) {
+  const model = new Model(activeModel)
+  const usedSchemata = schemata.map(s => model.getSchema(s)).filter(s => s !== undefined)
   const refSchemata = getAllParents(usedSchemata)
 
   return (
@@ -108,11 +105,12 @@ export default function Reference({ content, dataset, index }: InferGetStaticPro
 }
 
 export async function getStaticProps() {
+  const index = await fetchIndex()
   return {
     props: {
       content: await getContentBySlug('reference'),
-      index: await fetchIndex(),
-      dataset: await getDatasetByName('all')
+      schemata: index.schemata,
+      activeModel: index.model,
     }
   }
 }

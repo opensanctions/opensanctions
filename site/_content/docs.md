@@ -10,7 +10,7 @@ summary: |
 * [Frequently asked questions](/docs/faq/)
 * [Data sources roadmap](https://bit.ly/osa-sources) (Google sheet)
 * [Using the data](/docs/usage/)
-    * [Data dictionary](/docs/reference/)
+    * [Data dictionary](/reference/)
 * [Contributing a crawler](/docs/contribute/)
     * [Technical documentation](https://docs.opensanctions.org/en/latest/) (readthedocs.org)
     * [Installing the codebase](https://docs.opensanctions.org/en/latest/install.html) (readthedocs.org)

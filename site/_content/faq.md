@@ -7,7 +7,7 @@ summary: |
 
 ### What is OpenSanctions?
 
-OpenSanctions brings together sanctions lists, lists of [politically exposed persons (PEPs)](#peps), and parties excluded from government contracts in different countries. This data is otherwise difficult to query because it is published in a multitude of semi-structured formats across dozens of government websites. OpenSanctions collects the data and converts it into a [well-defined and expressive format](/docs/reference/) for [easy use and integration](/docs/usage/) into third-party systems.
+OpenSanctions brings together sanctions lists, lists of [politically exposed persons (PEPs)](#peps), and parties excluded from government contracts in different countries. This data is otherwise difficult to query because it is published in a multitude of semi-structured formats across dozens of government websites. OpenSanctions collects the data and converts it into a [well-defined and expressive format](/reference/) for [easy use and integration](/docs/usage/) into third-party systems.
 
 
 ### Does OpenSanctions contain only sanctions lists?

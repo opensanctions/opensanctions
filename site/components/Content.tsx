@@ -60,7 +60,7 @@ function ContentMenu({ title, children }: React.PropsWithChildren<ContentMenuPro
               <RoutedNavLink href="/docs/usage/">Using the data</RoutedNavLink>
             </Nav.Item>
             <Nav.Item>
-              <RoutedNavLink href="/docs/reference/">Data dictionary</RoutedNavLink>
+              <RoutedNavLink href="/reference/">Data dictionary</RoutedNavLink>
             </Nav.Item>
             <Nav.Item>
               <RoutedNavLink href="/docs/contribute/">Contribute a source</RoutedNavLink>

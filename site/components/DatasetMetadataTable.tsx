@@ -18,7 +18,7 @@ export default function DatasetMetadataTable({ dataset, collections }: DatasetSc
   const schemaList = wordList(dataset.targets.schemata.map((ts) =>
     <span>
       <Plural value={ts.count} one={ts.label} many={ts.plural} />
-      <HelpLink href={`/docs/reference/#schema.${ts.name}`} />
+      <HelpLink href={`/reference/#schema.${ts.name}`} />
     </span >
   ), SPACER);
   return (
@@ -26,7 +26,7 @@ export default function DatasetMetadataTable({ dataset, collections }: DatasetSc
       <tbody>
         <tr>
           <th style={{ width: "15%" }}>
-            Targets<HelpLink href="/docs/reference/#targets" />:
+            Targets<HelpLink href="/reference/#targets" />:
           </th>
           <td>
             {dataset.targets.schemata.length == 1 && schemaList}

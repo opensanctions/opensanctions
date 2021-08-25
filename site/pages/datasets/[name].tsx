@@ -83,7 +83,7 @@ export default function DatasetScreen({ dataset, structured, issues, sources, co
                   <>
                     <p>
                       {dataset.title} includes target entities in the following countries.
-                      {' '}<Link href="/docs/reference#type.country">Read more about countries...</Link>
+                      {' '}<Link href="/reference/#type.country">Read more about countries...</Link>
                     </p>
                     <Table>
                       <thead>
@@ -135,7 +135,7 @@ export default function DatasetScreen({ dataset, structured, issues, sources, co
               </ListGroup>
               <Card.Footer className="text-muted">
                 Help: <Link href="/docs/usage">Using the data</Link>
-                {SPACER} <Link href="/docs/reference">reference</Link>
+                {SPACER} <Link href="/reference/">reference</Link>
               </Card.Footer>
             </Card>
           </Col>
