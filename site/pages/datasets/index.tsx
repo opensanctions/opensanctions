@@ -24,6 +24,7 @@ export default function DatasetIndex({ datasets, structured }: InferGetStaticPro
     <Layout.Base title="Datasets" structured={structured}>
       <Container>
         <h1>
+          <a id="collections" />
           Collections
           <JSONLink href={INDEX_URL} />
         </h1>
@@ -48,6 +49,7 @@ export default function DatasetIndex({ datasets, structured }: InferGetStaticPro
         </Row>
         <hr />
         <h1>
+          <a id="sources" />
           Data sources
         </h1>
         <Row>

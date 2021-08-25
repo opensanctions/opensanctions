@@ -54,3 +54,15 @@ export function getSchemaChildren(schema: Schema): Array<Schema> {
   }
   return children;
 }
+
+export function getAllParents(schemata: Array<Schema>): Array<Schema> {
+  const parents = Array.from(schemata)
+  for (const schema of schemata) {
+    for (const parent of getSchemaParents(schema)) {
+      if (parents.indexOf(parent) === -1) {
+        parents.push(parent)
+      }
+    }
+  }
+  return parents;
+}

@@ -10,6 +10,7 @@ import { Summary } from '../../components/util'
 import { fetchIndex, getDatasetByName } from '../../lib/api'
 import { SchemaReference, TypeReference } from '../../components/Reference';
 import { INDEX_URL } from '../../lib/constants';
+import { getAllParents } from '../../lib/util';
 
 
 export default function Reference({ content, dataset, index }: InferGetStaticPropsType<typeof getStaticProps>) {
@@ -17,7 +18,8 @@ export default function Reference({ content, dataset, index }: InferGetStaticPro
     return null;
   }
   const model = new Model(index.model)
-  const schemata = index.schemata.map(s => model.getSchema(s)).filter(s => s !== undefined)
+  const usedSchemata = index.schemata.map(s => model.getSchema(s)).filter(s => s !== undefined)
+  const refSchemata = getAllParents(usedSchemata)
 
   return (
     <Layout.Content content={content}>
@@ -52,7 +54,7 @@ export default function Reference({ content, dataset, index }: InferGetStaticPro
           FollowTheMoney additionally provides libraries for <Link href="https://pypi.org/project/followthemoney/">Python</Link> and <Link href="https://www.npmjs.com/package/@alephdata/followthemoney">TypeScript</Link> that can be
           used to process and analyse entities more easily.
         </Alert>
-        <h2>Schema types</h2>
+        <h2><a id="schema" /> Schema types</h2>
         <p className="text-body">
           All entities in OpenSanctions must conform to a schema, a definition that states
           what properties they are allowed to have. Some properties also allow entities to
@@ -62,12 +64,13 @@ export default function Reference({ content, dataset, index }: InferGetStaticPro
           The following schema types are currently referenced in OpenSanctions:
         </p>
         <ul>
-          {schemata.map(schema => (
+          {usedSchemata.map(schema => (
             <li><code><Link href={`#schema.${schema.name}`}>{schema.name}</Link></code></li>
           ))}
         </ul>
-        {schemata.map(schema => (
-          <SchemaReference schema={schema} index={index} key={schema.name} />
+        <h3>Schema definitions in detail</h3>
+        {refSchemata.map(schema => (
+          <SchemaReference schema={schema} schemata={refSchemata} key={schema.name} />
         ))}
 
         <h2>Type definitions</h2>
@@ -81,6 +84,15 @@ export default function Reference({ content, dataset, index }: InferGetStaticPro
           Topics are used to tag other entities - mainly organizations and people - with
           semantic roles, e.g. to designate an individual as a politician, terrorist or
           to hint that a certain company is a bank.
+        </TypeReference>
+        <TypeReference type={model.getType('date')}>
+          Dates in the data are given in a basic ISO 8601 date or date-time format,
+          <code>YYYY-MM-DD</code> or <code>YYYY-MM-DDTHH:MM:SS</code>. In source data,
+          we find varying degrees of precision: some events may be defined as a
+          full timestamp (<code>2021-08-25T09:26:11</code>), while for many we only
+          know a year (<code>2021</code>) or month (<code>2021-08</code>). Such date
+          prefixes are carried through and used to specify date precision as well as
+          the actual value.
         </TypeReference>
         <TypeReference type={model.getType('country')}>
           We use a descriptive approach to modelling the countries in our database.
