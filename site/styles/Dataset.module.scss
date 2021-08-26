@@ -1,0 +1,27 @@
+@import './variables.scss';
+
+.card {
+    margin-bottom: 1em;
+}
+
+.cardTitle {
+    a {
+        color: inherit !important;
+        text-decoration: none;
+        font-weight: bold;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}
+
+.publisherDescription {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    color: $text-muted;
+}
+
+.viewTab {
+    padding-top: 1em;
+}

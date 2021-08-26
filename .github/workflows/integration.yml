@@ -57,6 +57,8 @@ jobs:
         working-directory: ./site
     steps:
       - uses: actions/checkout@v2
+      - name: Install awscli
+        run: pip install -q -U awscli
       - uses: actions/setup-node@v2
         with:
           node-version: 16
@@ -64,9 +66,13 @@ jobs:
         run: npm install
       - name: Build and export site
         run: npm run build
+      - name: Publish draft to beta.opensanctions.org
+        if: ${{ github.ref == 'refs/heads/develop' }}
+        run: |
+          aws s3 sync --delete --no-progress --acl public-read out s3://beta.opensanctions.org
       - name: Publish site to opensanctions.org
         if: ${{ github.ref == 'refs/heads/main' }}
         run: |
-          pip install -q -U awscli
           aws s3 sync --delete --no-progress --cache-control "public, max-age=3600" --acl public-read out s3://opensanctions.org
+          aws s3 sync --delete --no-progress --cache-control "public, max-age=36000000, immutable" --acl public-read out/_next/static s3://opensanctions.org/_next/static
           aws cloudfront create-invalidation --distribution-id E321O1ATKKHDQT --paths "/*"

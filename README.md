@@ -8,7 +8,7 @@ OpenSanctions uses [Follow the Money](https://followthemoney.readthedocs.io/en/l
     * [Datasets](https://opensanctions.org/datasets/)
     * [About the project](https://opensanctions.org/docs/about/)
     * [FAQ](https://opensanctions.org/docs/faq/)
-* [Technical documentation](https://docs.opensanctions.org/en/latest/)
+* [Technical documentation](https://docs.opensanctions.org/en/latest/) (readthedocs.org)
     * [Installation](https://docs.opensanctions.org/en/latest/install.html)
     * [Adding crawlers](https://opensanctions.org/docs/contribute/)
 * [Data sources roadmap](https://bit.ly/osa-sources)
@@ -19,6 +19,7 @@ OpenSanctions uses [Follow the Money](https://followthemoney.readthedocs.io/en/l
 Repository layout:
 
 * ``opensanctions/``: Python project with data extraction and cleaning components
+* ``site/``: Next.js project web site
 * ``docs/``: Sphinx [technical documentation](https://opensanctions.org/docs/faq/)
 
 Daily data extraction and processing runs on GitHub Actions. Status:

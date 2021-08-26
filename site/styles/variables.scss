@@ -1,0 +1,15 @@
+
+/// bootstrap overrides
+// https://github.com/twbs/bootstrap/blob/main/scss/_variables.scss
+$primary:                 hsl(209, 95%, 53%);
+$highlight:               #ff005e;
+$pink:                      $highlight;
+$code-color:                $highlight;
+
+@import "~bootstrap/scss/functions";
+@import "~bootstrap/scss/variables";
+@import "~bootstrap/scss/mixins";
+
+$max-text-width:          50em;
+
+
