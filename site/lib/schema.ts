@@ -57,7 +57,9 @@ async function getNestedSchemaDatasets(datasets: Array<string>, deep: boolean): 
   if (deep) {
     return await Promise.all(nested.map((d) => d ? getSchemaDataset(d.name, false) : undefined))
   }
-  return nested.map((d) => d?.url)
+  return nested.map((d) => {
+    return { "@type": "Dataset", "name": d?.title, "url": d?.url };
+  })
 }
 
 export async function getSchemaDataset(name: string, deep: boolean = true) {
