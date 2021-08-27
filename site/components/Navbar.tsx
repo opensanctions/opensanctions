@@ -30,7 +30,7 @@ export default function NavbarSection() {
         </Link>
         <Link href="/" passHref>
           <Navbar.Brand className={styles.brand}>
-            OpenSanctions<sup className={styles.beta}>beta</sup>
+            OpenSanctions
           </Navbar.Brand>
         </Link>
         <Navbar.Toggle />

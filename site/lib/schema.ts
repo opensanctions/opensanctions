@@ -52,14 +52,8 @@ function getResourceDataDownload(resource: IResource) {
 }
 
 
-async function getNestedSchemaDatasets(datasets: Array<string>, deep: boolean): Promise<any> {
-  const nested = await Promise.all(datasets.map((name) => getDatasetByName(name)))
-  if (deep) {
-    return await Promise.all(nested.map((d) => d ? getSchemaDataset(d.name, false) : undefined))
-  }
-  return nested.map((d) => {
-    return { "@type": "Dataset", "name": d?.title, "url": d?.url };
-  })
+async function getNestedSchemaDatasets(datasets: Array<string>): Promise<any> {
+  return await Promise.all(datasets.map((name) => getSchemaDataset(name, false)))
 }
 
 export async function getSchemaDataset(name: string, deep: boolean = true) {
@@ -86,9 +80,14 @@ export async function getSchemaDataset(name: string, deep: boolean = true) {
     schema = {
       ...schema,
       "isBasedOn": dataset.data.url,
-      "isPartOf": await getNestedSchemaDatasets(dataset.collections, deep),
       "sameAs": dataset.url,
       "publisher": getPublisherOrganization(dataset.publisher)
+    }
+    if (deep) {
+      schema = {
+        ...schema,
+        "isPartOf": await getNestedSchemaDatasets(dataset.collections),
+      }
     }
     if (dataset.publisher.country !== 'zz') {
       schema = {
@@ -97,10 +96,10 @@ export async function getSchemaDataset(name: string, deep: boolean = true) {
       }
     }
   }
-  if (isCollection(dataset)) {
+  if (isCollection(dataset) && deep) {
     schema = {
       ...schema,
-      "hasPart": await getNestedSchemaDatasets(dataset.sources, deep),
+      "hasPart": await getNestedSchemaDatasets(dataset.sources),
     }
   }
   return schema;
