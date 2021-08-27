@@ -29,7 +29,12 @@ export default function Home({ datasets }: InferGetStaticPropsType<typeof getSta
         <Container>
           <Row>
             <Col md={4}>
-              <img src="/static/home.webp" className={styles.logo} />
+              <img
+                src="/static/home.webp"
+                width="272px"
+                height="282px"
+                className={styles.logo}
+              />
             </Col>
             <Col md={8}>
               <h2 className={styles.claim}>
