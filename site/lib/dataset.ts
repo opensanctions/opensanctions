@@ -39,7 +39,7 @@ export interface IDatasetBase {
   type: string
   title: string
   link: string
-  url: string
+  opensanctions_url: string
   summary: string
   description?: string
   index_url: string
@@ -69,6 +69,7 @@ export interface ISourcePublisher {
 
 
 export interface ISource extends IDatasetBase {
+  url?: string
   data: ISourceData
   publisher: ISourcePublisher
   collections: Array<string>

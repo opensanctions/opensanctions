@@ -24,7 +24,7 @@ export async function fetchIndex(): Promise<IIndex> {
     const index = await response.json()
     index.datasets = index.datasets.map((ds: IDatasetBase) => {
       ds.link = `/datasets/${ds.name}/`
-      ds.url = BASE_URL + ds.link
+      ds.opensanctions_url = BASE_URL + ds.link
       return ds.type === 'collection' ? ds as ICollection : ds as ISource
     })
     index.model = index.model as IModelDatum

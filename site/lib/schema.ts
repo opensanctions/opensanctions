@@ -66,7 +66,7 @@ export async function getSchemaDataset(name: string, deep: boolean = true) {
     "@context": "https://schema.org/",
     "@type": "Dataset",
     "name": dataset.title,
-    "url": dataset.url,
+    "url": dataset.opensanctions_url,
     "description": dataset.summary,
     "license": LICENSE_URL,
     "version": index.version,
@@ -80,8 +80,13 @@ export async function getSchemaDataset(name: string, deep: boolean = true) {
     schema = {
       ...schema,
       "isBasedOn": dataset.data.url,
-      "sameAs": dataset.url,
       "publisher": getPublisherOrganization(dataset.publisher)
+    }
+    if (dataset.url) {
+      schema = {
+        ...schema,
+        "sameAs": dataset.url,
+      }
     }
     if (deep) {
       schema = {
