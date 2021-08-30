@@ -50,7 +50,7 @@ export default function DatasetMetadataTable({ dataset, collections }: DatasetSc
             </td>
           </tr>
         )}
-        {!!dataset.url && (
+        {isSource(dataset) && !!dataset.url && (
           <tr>
             <th className={styles.tableHeader}>Information:</th>
             <td>
