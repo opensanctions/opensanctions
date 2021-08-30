@@ -2,14 +2,32 @@ entry_point: opensanctions.crawlers.worldbank_debarred
 title: WorldBank Debarred Providers
 prefix: wbdeb
 summary: >
-  The firms and individuals listed in this datasetare debarred and thus
+  The firms and individuals listed in this dataset are debarred and thus
   ineligible to participate in World Bank-financed contracts for the
   periods indicated.
+description: |
+  The World Bank Group (IBRD, IDA) maintain a list of companies that are not 
+  allowed to be awarded projects by its member organisations. Entities are added
+  either as a consequence of a sanctioning process within the bank (see [here](https://policies.worldbank.org/en/policies/all/ppfdetail/3872) 
+  for details), or via cross-sanctioning from one of the following other international
+  development banks: 
+
+  * Asian Development Bank
+  * European Bank for Reconstruction and Development
+  * Inter-American Development Bank
+  * African Development Bank
+
+  nb. This cross-debarment process looks to be somewhat manual. OpenSanctions should
+  crawl all of the involved banks and reconcile their lists.
 collections:
   - crime
   - default
 publisher:
-  name: World Bank (IBRD / IDA)
+  name: World Bank
+  description: |
+    The World Bank Group of organisations (most notably the IBRD and IDA) are a set of
+    global development banks that provide finance with the ultimate goal of ending
+    extreme poverty.
   url: https://www.worldbank.org
 url: https://www.worldbank.org/en/projects-operations/procurement/debarred-firms
 data:

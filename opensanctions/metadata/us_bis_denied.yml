@@ -4,11 +4,17 @@ prefix: us-bis
 summary: >
   The Bureau of Industry and Security publishes this list of entities which
   are relevant with regards to export controls.
+description: |
+  The Denied Persons List is also included in the [US Trade Consolidated List](https://opensanctions.org/datasets/us_trade_csl/),
+  so we may want to remove this crawler at some point.
 collections:
   - sanctions
   - default
 publisher:
-  name: Department of Commerce - Bureau of Industry and Security (BIS)
+  name: Bureau of Industry and Security (BIS)
+  description: |
+    BIS is part of the U.S. Department of Commerce, where it manages the intersection between
+    business and the foreign policy and security interests of the U.S.
   url: https://www.bis.doc.gov/
   country: us
 url: https://www.bis.doc.gov/index.php/policy-guidance/lists-of-parties-of-concern/denied-persons-list

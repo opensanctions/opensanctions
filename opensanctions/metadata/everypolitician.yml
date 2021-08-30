@@ -5,13 +5,28 @@ summary: >
   All members of national parliament in the world, collected from hundreds of
   government web sites and consolidated via Wikidata.
 description: |
-  This version only includes individuals active within the past 15 years.
+  The EveryPolitician project ran until 2019 and created a mechanism for consolidating 
+  data about members of parliament for 233 different countries and territories. As part
+  of the project, EveryPolitician operated a large fleet of crawlers which would update
+  politician profiles in [Wikidata](https://wikidata.org), the structured data version
+  of Wikipedia.
+
+  The project was [shut down in June 2019](https://www.mysociety.org/2019/06/26/placing-everypolitician-on-hold/), 
+  leaving the contained data to slowly wither in precision. We are including
+  EveryPolitician in OpenSanctions as a stopgap measure until we can devise a better
+  plan for gathering [PEPs data](https://opensanctions.org/datasets/peps/) or ally with
+  other initiatives that do the same.
+
+  The OpenSanctions importer only includes individuals active within the past 15 years.
 collections:
   - peps
   - default
 publisher:
   name: MySociety (UK Citizens Online Democracy)
-  url: http://everypolitician.org
+  description: |
+    MySociety is a non-profit group developing online technologies that empower citizens
+    to participate in politics and civic life.
+  url: https://www.mysociety.org/
 url: http://everypolitician.org
 data:
   url: https://github.com/everypolitician/everypolitician-data/raw/master/countries.json
