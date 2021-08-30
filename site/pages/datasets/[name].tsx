@@ -45,9 +45,9 @@ export default function DatasetScreen({ dataset, structured, issues, sources, co
   return (
     <Layout.Base title={dataset.title} description={dataset.summary} structured={structured}>
       <Container>
+        <JSONLink href={dataset.index_url} />
         <h1>
           <Dataset.Icon dataset={dataset} size="30px" /> {dataset.title}
-          <JSONLink href={dataset.index_url} />
         </h1>
         <Row>
           <Col sm={9}>
