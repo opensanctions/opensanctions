@@ -8,8 +8,9 @@ summary: |
 description: |
   Sources included:
 
-  * Denied Persons List - Individuals and entities that have been denied export
-    privileges. Any dealings with a party on this list that would violate the terms
+  * [Denied Persons List](https://opensanctions.org/datasets/us_bis_denied/) -
+    Individuals and entities that have been denied export privileges. Any
+    dealings with a party on this list that would violate the terms
     of its denial order are prohibited. 
   * Unverified List - End-users who BIS has been unable to verify in prior
     transactions. The presence of a party on this list in a transaction is a
@@ -27,6 +28,8 @@ description: |
     Exception GOV set forth in § 740.11(b)(2)(i) and (ii) of the EAR. The license
     application procedure and license review policy for entities specified in
     supplement no. 2 to part 744 is specified in § 744.21(d) and (e).
+
+  (This also seems to include US OFAC SDN/CONS data.)
 collections:
   - sanctions
   - default
