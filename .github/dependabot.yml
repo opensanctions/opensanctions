@@ -5,3 +5,8 @@ updates:
     open-pull-requests-limit: 99
     schedule:
       interval: "daily"
+  - package-ecosystem: npm
+    directory: "/site"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 99
