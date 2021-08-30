@@ -83,7 +83,7 @@ export default function DatasetScreen({ dataset, structured, issues, sources, co
                   <>
                     <p>
                       {dataset.title} includes target entities in the following countries.
-                      {' '}<Link href="/reference/#type.country">Read more about countries...</Link>
+                      {' '}<Link href="/reference/#type.country">Read about countries...</Link>
                     </p>
                     <Table>
                       <thead>

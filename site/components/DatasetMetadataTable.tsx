@@ -16,16 +16,16 @@ type DatasetScreenProps = {
 
 export default function DatasetMetadataTable({ dataset, collections }: DatasetScreenProps) {
   const schemaList = wordList(dataset.targets.schemata.map((ts) =>
-    <span>
+    <span className={styles.noWrap}>
       <Plural value={ts.count} one={ts.label} many={ts.plural} />
       <HelpLink href={`/reference/#schema.${ts.name}`} />
-    </span >
+    </span>
   ), SPACER);
   return (
-    <Table>
+    <Table responsive="md">
       <tbody>
         <tr>
-          <th style={{ width: "15%" }}>
+          <th className={styles.tableHeader}>
             Targets<HelpLink href="/reference/#targets" />:
           </th>
           <td>
@@ -40,7 +40,7 @@ export default function DatasetMetadataTable({ dataset, collections }: DatasetSc
         </tr>
         {isSource(dataset) && (
           <tr>
-            <th>Publisher:</th>
+            <th className={styles.tableHeader}>Publisher:</th>
             <td>
               <URLLink url={dataset.publisher.url} label={dataset.publisher.name} icon={false} />
               {dataset.publisher.country !== 'zz' && (
@@ -52,7 +52,7 @@ export default function DatasetMetadataTable({ dataset, collections }: DatasetSc
         )}
         {isSource(dataset) && dataset.data.url && (
           <tr>
-            <th>Source data:</th>
+            <th className={styles.tableHeader}>Source data:</th>
             <td>
               <URLLink url={dataset.data.url} />
               <> ({dataset.data.format})</>
@@ -61,7 +61,7 @@ export default function DatasetMetadataTable({ dataset, collections }: DatasetSc
         )}
         {isSource(dataset) && !!collections?.length && (
           <tr>
-            <th>
+            <th className={styles.tableHeader}>
               Collections<HelpLink href="/docs/faq/#collections" />:
             </th>
             <td>
@@ -75,7 +75,7 @@ export default function DatasetMetadataTable({ dataset, collections }: DatasetSc
           </tr>
         )}
         <tr>
-          <th>Last changed<HelpLink href="/docs/faq/#updates" />:</th>
+          <th className={styles.tableHeader}>Last changed<HelpLink href="/docs/faq/#updates" />:</th>
           <td><FormattedDate date={dataset.last_change} /></td>
         </tr>
       </tbody>
