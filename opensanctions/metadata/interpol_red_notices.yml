@@ -4,6 +4,23 @@ prefix: interpol-red
 summary: >
   International arrest warrants published by INTERPOL with a view to
   extradition of the wanted individuals.
+description: |
+  From the [INTERPOL site](https://www.interpol.int/en/How-we-work/Notices/Red-Notices):
+
+  > A Red Notice is a request to law enforcement worldwide to locate and
+  > provisionally arrest a person pending extradition, surrender, or similar
+  > legal action.
+  >
+  > It contains two main types of information:
+  > 
+  > Information to identify the wanted person, such as their name, date of
+  > birth, nationality, hair and eye colour, photographs and fingerprints
+  > if available.
+  > Information related to the crime they are wanted for, which can typically
+  > be murder, rape, child abuse or armed robbery. 
+  > Red Notices are published by INTERPOL at the request of a member country,
+  > and must comply with INTERPOL’s Constitution and Rules. A Red Notice is
+  > not an international arrest warrant.
 collections:
   - crime
   - default
