@@ -7,6 +7,7 @@ import Card from 'react-bootstrap/Card';
 import Table from 'react-bootstrap/Table';
 import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
+import Alert from 'react-bootstrap/Alert';
 import Tooltip from 'react-bootstrap/Tooltip';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Container from 'react-bootstrap/Container';
@@ -56,6 +57,13 @@ export default function DatasetScreen({ dataset, structured, issues, sources, co
             <Tabs activeKey={view} defaultActiveKey="description" onSelect={(k) => setView(k || 'description')}>
               <Tab eventKey="description" title="Description" className={styles.viewTab}>
                 <Dataset.Description dataset={dataset} />
+                {isCollection(dataset) && (
+                  <Alert variant="warning">
+                    The people and companies from multiple data sources that have been
+                    aggregated into this collection are not de-duplicated. This function
+                    {' '}<Link href="https://github.com/pudo/opensanctions/issues/86">will be added</Link> in Q4 of 2021.
+                  </Alert>
+                )}
               </Tab>
               {isSource(dataset) && !!errors.length && (
                 <Tab eventKey="errors" title={<>{'Errors'} <NumericBadge value={errors.length} bg="danger" /></>} className={styles.viewTab}>

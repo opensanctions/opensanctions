@@ -7,9 +7,9 @@ from datadotworld.client.api import RestApiError
 SUMMARY = '''
 %(summary)s
 
-See: %(url)s
+See: [%(title)s](%(url)s)
 
-This dataset is part of the OpenSanctions project: https://opensanctions.org/docs/about
+This dataset is part of the [OpenSanctions project](https://opensanctions.org/docs/about)
 '''
 INDEX_URL = 'https://data.opensanctions.org/datasets/latest/index.json'
 USER = 'opensanctions'
@@ -37,7 +37,7 @@ def transfer_dataset(dataset):
     pprint(key)
     description, summary = truncate(dataset.get('summary'))
     url = 'https://opensanctions.org/datasets/%s/' % dataset.get('name')
-    summary = SUMMARY % {'summary': summary, 'url': url}
+    summary = SUMMARY % {'summary': summary, 'url': url, 'title': dataset.get('title')}
     client.update_dataset(key,
         title=dataset.get('title'),
         description=description,
