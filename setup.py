@@ -7,7 +7,7 @@ with open("README.md") as f:
 setup(
     name="opensanctions",
     version="3.0.0",
-    url="https://github.com/alephdata/opensanctions",
+    url="https://opensanctions.org",
     long_description=long_description,
     long_description_content_type="text/markdown",
     license="MIT",
