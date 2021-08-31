@@ -13,7 +13,7 @@ class NestedJSONExporter(Exporter):
         path = path + [entity.id]
         data = entity.to_dict()
         nested = {}
-        for prop, adjacent in self.get_adjacent(entity, inverted=root):
+        for prop, adjacent in self.index.get_adjacent(entity, inverted=root):
             if adjacent.id in path:
                 continue
             value = self.nested(adjacent, path, False)

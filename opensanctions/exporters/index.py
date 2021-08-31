@@ -1,5 +1,4 @@
 import structlog
-from followthemoney import model
 from followthemoney.types import registry
 
 from opensanctions.core import Entity
@@ -26,6 +25,16 @@ class ExportIndex(object):
 
     def get_inverted(self, id):
         return self.inverted.get(id, [])
+
+    def get_adjacent(self, entity, inverted=True):
+        for prop, value in entity.itervalues():
+            if prop.type == registry.entity:
+                yield prop, self.get_entity(value)
+
+        if inverted:
+            for prop, ref in self.get_inverted(entity.id):
+                yield prop, self.get_entity(ref)
+
 
     def __iter__(self):
         return iter(self.entities.values())
