@@ -38,6 +38,7 @@ function LayoutBase({ title, description, structured, children }: React.PropsWit
         {description && (
           <>
             <meta property="og:description" content={description} />
+            <meta name="description" content={description} />
           </>
         )}
         {structured && (

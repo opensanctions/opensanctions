@@ -24,7 +24,7 @@ export default function NavbarSection() {
               width="30"
               height="30"
               className="align-top"
-              alt="OpenSanctions"
+              alt="OpenSanctions logo"
             />
           </Navbar.Brand>
         </Link>

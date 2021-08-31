@@ -15,7 +15,11 @@ export default class Footer extends React.Component {
         <Container>
           <Row>
             <Col md={3}>
-              <img src="/static/footer.png" className={styles.logo} />
+              <img
+                src="/static/footer.png"
+                alt="OpenSanctions project"
+                className={styles.logo}
+              />
             </Col>
             <Col md={9}>
               <Row>
