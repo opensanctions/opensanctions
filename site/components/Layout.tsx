@@ -35,10 +35,10 @@ function LayoutBase({ title, description, structured, children }: React.PropsWit
         <meta name="twitter:card" content="summary" />
         <meta name="twitter:site" content="@open_sanctions" />
         <meta name="twitter:creator" content="@pudo" />
-        {description && (
+        {!!description && (
           <>
-            <meta property="og:description" content={description} />
-            <meta name="description" content={description} />
+            <meta property="og:description" content={description.trim()} />
+            <meta name="description" content={description.trim()} />
           </>
         )}
         {structured && (

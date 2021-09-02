@@ -88,12 +88,12 @@ export async function getSchemaDataset(name: string, deep: boolean = true) {
         "sameAs": dataset.url,
       }
     }
-    if (deep) {
-      schema = {
-        ...schema,
-        "isPartOf": await getNestedSchemaDatasets(dataset.collections),
-      }
-    }
+    // if (deep) {
+    //   schema = {
+    //     ...schema,
+    //     "isPartOf": await getNestedSchemaDatasets(dataset.collections),
+    //   }
+    // }
     if (dataset.publisher.country !== 'zz') {
       schema = {
         ...schema,
@@ -101,12 +101,12 @@ export async function getSchemaDataset(name: string, deep: boolean = true) {
       }
     }
   }
-  if (isCollection(dataset) && deep) {
-    schema = {
-      ...schema,
-      "hasPart": await getNestedSchemaDatasets(dataset.sources),
-    }
-  }
+  // if (isCollection(dataset) && deep) {
+  //   schema = {
+  //     ...schema,
+  //     "hasPart": await getNestedSchemaDatasets(dataset.sources),
+  //   }
+  // }
   return schema;
 }
 
