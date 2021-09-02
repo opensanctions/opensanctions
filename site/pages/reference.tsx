@@ -93,9 +93,10 @@ export default function Reference({ content, activeModel, schemata }: InferGetSt
         </TypeReference>
         <TypeReference type={model.getType('country')}>
           We use a descriptive approach to modelling the countries in our database.
-          If a list refers to a country, so do we. This includes countries that have
-          ceased to exist (e.g. Soviet Union, Yugoslavia) and territories whose status
-          as a country may be controversial (e.g. Kosovo, Artsakh). If the presence of a
+          If a list refers to a country, so do we. We use ISO 3166-1 alpha-2 as a
+          starting point, but have also included countries that have ceased to exist (e.g.
+          Soviet Union, Yugoslavia) and territories whose status
+          as a country is controversial (e.g. Kosovo, Artsakh). If the presence of a
           country in this list is offensive to you, we invite you to reflect the mental
           health impact of being angry at tables on the internet.
         </TypeReference>

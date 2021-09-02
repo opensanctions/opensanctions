@@ -1,4 +1,4 @@
-import { InferGetStaticPropsType } from 'next'
+import { GetStaticPropsContext, InferGetStaticPropsType } from 'next'
 import Link from 'next/link'
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -14,6 +14,7 @@ import { getSchemaOpenSanctionsOrganization } from '../lib/schema';
 import { Search } from 'react-bootstrap-icons';
 import { FormattedDate, NumericBadge } from '../components/util';
 import { isCollection, isSource } from '../lib/dataset';
+import writeSitemap from '../lib/sitemap';
 
 
 export default function Home({ datasets }: InferGetStaticPropsType<typeof getStaticProps>) {
@@ -91,8 +92,9 @@ export default function Home({ datasets }: InferGetStaticPropsType<typeof getSta
   )
 }
 
-export const getStaticProps = async () => {
+export const getStaticProps = async (context: GetStaticPropsContext) => {
   const datasets = await getDatasets()
+  writeSitemap(datasets)
   return {
     props: {
       datasets

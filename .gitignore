@@ -68,3 +68,4 @@ data/
 env*/
 
 _site/
+site/public/sitemap.xml

@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /impressum/
+
+Sitemap: https://opensanctions.org/sitemap.xml
