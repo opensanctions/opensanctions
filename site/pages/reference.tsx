@@ -20,7 +20,7 @@ export default function Reference({ content, activeModel, schemata }: InferGetSt
 
   return (
     <Layout.Content content={content}>
-      <Content.Menu title={content.title}>
+      <Content.Menu title={content.title} jsonLink={INDEX_URL}>
         <Summary summary={content.summary} />
         <div>
           <Content.Body content={content} />

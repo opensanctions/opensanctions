@@ -6,7 +6,7 @@ import Nav from 'react-bootstrap/Nav';
 import Container from 'react-bootstrap/Container';
 
 import { IContent } from '../lib/content'
-import { Markdown, Summary } from './util';
+import { JSONLink, Markdown, Summary } from './util';
 
 import styles from '../styles/Content.module.scss';
 
@@ -33,14 +33,15 @@ function RoutedNavLink({ href, children }: React.PropsWithChildren<RoutedNavLink
 
 type ContentMenuProps = {
   title: string
+  jsonLink?: string
 }
 
-function ContentMenu({ title, children }: React.PropsWithChildren<ContentMenuProps>) {
-
+function ContentMenu({ title, children, jsonLink }: React.PropsWithChildren<ContentMenuProps>) {
   return (
     <Container>
       <Row>
         <Col>
+          {jsonLink && (<JSONLink href={jsonLink} />)}
           <h1>{title}</h1>
         </Col>
       </Row>
