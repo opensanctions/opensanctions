@@ -122,11 +122,11 @@ export default function DatasetScreen({ dataset, structured, issues, sources, co
               <ListGroup variant="flush">
                 {dataset.resources.map((resource) =>
                   <ListGroup.Item key={resource.path}>
-                    <a href={resource.url} download={true}>
+                    <a href={resource.url} download={resource.path}>
                       <FileEarmarkArrowDownFill className="bsIcon" />
                     </a>
                     {' '}
-                    <a href={resource.url} download={true}>
+                    <a href={resource.url} download={resource.path}>
                       {resource.title}
                     </a>
                     {' '}
