@@ -5,7 +5,7 @@ from normality import normalize, WS
 from followthemoney.types import registry
 from opensanctions import settings
 from opensanctions.core import Dataset
-from opensanctions.core.loader import DBEntityLoader as Loader
+from opensanctions.core.loader import DBEntityLoader, MemoryEntityLoader
 
 log = structlog.get_logger(__name__)
 
@@ -42,6 +42,8 @@ def tokenize_value(type, value):
     if value is not None:
         type_weight = TYPE_WEIGHTS.get(type, 1.0)
         yield value, type_weight
+    if type == registry.date and len(value) > 3:
+        yield f"y:{value[:4]}", 0.7
     if type in TEXT_TYPES:
         norm = normalize(value, ascii=True, lowercase=True)
         if norm is None:
@@ -106,7 +108,7 @@ class Index(object):
 
     def __init__(self, dataset_name):
         self.dataset = Dataset.get(dataset_name)
-        self.loader = Loader(self.dataset)
+        self.loader = DBEntityLoader(self.dataset)
         self.inverted = {}
         self.terms = {}
 
@@ -139,6 +141,9 @@ class Index(object):
 
     def build(self, adjacent=True):
         """Index all entities in the dataset."""
+        # Hacky: load to memory for full re-indexes
+        if not isinstance(self.loader, MemoryEntityLoader):
+            self.loader = MemoryEntityLoader(self.dataset)
         self.inverted = {}
         self.terms = {}
         for entity in self.loader:

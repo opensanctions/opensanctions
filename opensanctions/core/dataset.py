@@ -161,3 +161,6 @@ class Dataset(object):
 
     def __hash__(self):
         return hash(self.type + self.name)
+
+    def __repr__(self):
+        return f"<{self.__class__.__name__}({self.name!r})>"

@@ -71,7 +71,7 @@ def run(dataset):
 def index(dataset):
     dataset = Dataset.get(dataset)
     index = Index(dataset.name)
-    index.build(adjacent=False)
+    index.build(adjacent=True)
     index.save()
 
 
