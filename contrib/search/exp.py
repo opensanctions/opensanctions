@@ -1,10 +1,11 @@
+import sys
 import math
 from followthemoney import model
 from normality import normalize, WS
 from followthemoney.types import registry
 from opensanctions import settings
 from opensanctions.core import Dataset
-from opensanctions.exporters.index import ExportIndex
+from opensanctions.core.loader import DBEntityLoader as Loader
 
 TYPE_WEIGHTS = {
     registry.country: 0.2,
@@ -86,11 +87,20 @@ class IndexEntry(object):
     def __repr__(self):
         return "<IndexEntry(%r, %r)>" % (self.token, self.weight)
 
+    def to_dict(self):
+        return dict(token=self.token, weight=self.weight, entities=self.entities)
+
+    @classmethod
+    def from_dict(cls, index, data):
+        obj = cls(index, data["token"], weight=data["weight"])
+        obj.entities = data["entities"]
+        return obj
+
 
 class Index(object):
     def __init__(self, dataset_name):
         self.dataset = Dataset.get(dataset_name)
-        self.cache = ExportIndex(self.dataset)
+        self.cache = Loader(self.dataset)
         self.inverted = {}
         self.terms = {}
 
@@ -115,11 +125,16 @@ class Index(object):
     def build(self):
         self.inverted = {}
         self.terms = {}
-        for entity in self.cache.entities.values():
+        for entity in self.cache:
             if not entity.target:
                 continue
             self.index_entity(entity)
-        print("BUILT INDEX", len(self.inverted), len(self.terms))
+        # print("BUILT INDEX", len(self.inverted), len(self.terms))
+        # print("SIZE", sys.getsizeof(self.inverted))
+
+        counts = [(t.token, t.num_entities) for t in self.inverted.values()]
+        counts = sorted(counts, key=lambda x: x[1], reverse=True)
+        print(counts[:100])
 
     def remove(self, entity):
         self.terms.pop(entity.id, None)
@@ -139,15 +154,34 @@ class Index(object):
                 matches[entity_id] += tf * idf
         results = sorted(matches.items(), key=lambda x: x[1], reverse=True)
         for entity_id, count in results[:limit]:
-            # score = count / self.terms[entity_id]
             score = count
             print(self.cache.get_entity(entity_id), score)
 
+    def __getstate__(self):
+        inverted = [t.to_dict() for t in self.inverted.values()]
+        return {
+            "dataset": self.dataset.name,
+            "inverted": inverted,
+            "terms": self.terms,
+        }
+
+    def __setstate__(self, state):
+        self.dataset = Dataset.get(state.get("dataset"))
+        self.cache = Loader(self.dataset)
+        entries = [IndexEntry.from_dict(self, i) for i in state["inverted"]]
+        self.inverted = {e.token: e for e in entries}
+        self.terms = state.get("terms")
+
 
 if __name__ == "__main__":
-    index = Index("default")
+    index = Index("us_ofac_sdn")
     index.build()
 
-    entity = model.make_entity("Person")
-    entity.add("name", "Keven")
-    index.match(entity)
+    import pickle
+
+    with open("ofac.pkl", "wb") as fh:
+        pickle.dump(index, fh)
+
+    # entity = model.make_entity("Person")
+    # entity.add("name", "Saddam Hussein")
+    # index.match(entity)

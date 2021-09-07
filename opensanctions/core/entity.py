@@ -93,12 +93,14 @@ class Entity(EntityProxy):
         return data
 
     @classmethod
-    def query(cls, dataset, entity_id=None):
+    def query(cls, dataset, entity_id=None, inverted_id=None):
         """Query the statement table for the given dataset and entity ID and return
         re-constructed entities with the given properties."""
         current_entity_id = None
         entity = None
-        for stmt in Statement.all_statements(dataset=dataset, entity_id=entity_id):
+        for stmt in Statement.all_statements(
+            dataset=dataset, entity_id=entity_id, inverted_id=inverted_id
+        ):
             schema = model.get(stmt.schema)
             if stmt.entity_id != current_entity_id:
                 if entity is not None:

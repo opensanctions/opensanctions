@@ -9,14 +9,14 @@ class Exporter(object):
 
     FILE_MODE = "w"
 
-    def __init__(self, context, index):
+    def __init__(self, context, loader):
         self.context = context
         self.dataset = context.dataset
         self.resource_name = f"{self.NAME}.{self.EXTENSION}"
         self.path = context.get_resource_path(self.resource_name)
         self.path.parent.mkdir(exist_ok=True, parents=True)
         self.fh = open(self.path, "w", encoding=settings.ENCODING)
-        self.index = index
+        self.loader = loader
         self.setup()
 
     def setup(self):

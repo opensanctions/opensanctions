@@ -1,5 +1,6 @@
 from followthemoney.types import registry
 from sqlalchemy import func, Column, Unicode, DateTime, Boolean
+from sqlalchemy.orm import aliased
 from sqlalchemy.dialects.sqlite import insert as insert_sqlite
 from sqlalchemy.dialects.postgresql import insert as insert_postgresql
 
@@ -92,10 +93,17 @@ class Statement(Base):
         return q
 
     @classmethod
-    def all_statements(cls, dataset=None, entity_id=None, last_seen=MAX):
+    def all_statements(
+        cls, dataset=None, entity_id=None, inverted_id=None, last_seen=MAX
+    ):
         q = db.session.query(cls)
         if entity_id is not None:
             q = q.filter(cls.entity_id == entity_id)
+        if inverted_id is not None:
+            inverted = aliased(cls)
+            q = q.filter(cls.entity_id == inverted.entity_id)
+            q = q.filter(inverted.prop_type == registry.entity.name)
+            q = q.filter(inverted.value == inverted_id)
         if dataset is not None:
             q = q.filter(cls.dataset.in_(dataset.source_names))
         if last_seen == cls.MAX:
