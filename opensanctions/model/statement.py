@@ -100,6 +100,8 @@ class Statement(Base):
         if entity_id is not None:
             q = q.filter(cls.entity_id == entity_id)
         if inverted_id is not None:
+            # Find entities which refer to the given entity in one of their
+            # property values.
             inverted = aliased(cls)
             q = q.filter(cls.entity_id == inverted.entity_id)
             q = q.filter(inverted.prop_type == registry.entity.name)

@@ -8,7 +8,14 @@ log = structlog.get_logger(__name__)
 
 
 class EntityLoader(object):
-    pass
+    def get_adjacent(self, entity, inverted=True):
+        for prop, value in entity.itervalues():
+            if prop.type == registry.entity:
+                yield prop, self.get_entity(value)
+
+        if inverted:
+            for prop, adjacent in self.get_inverted(entity.id):
+                yield prop, adjacent
 
 
 class MemoryEntityLoader(EntityLoader):
@@ -29,16 +36,8 @@ class MemoryEntityLoader(EntityLoader):
         return self.entities.get(id)
 
     def get_inverted(self, id):
-        return self.inverted.get(id, [])
-
-    def get_adjacent(self, entity, inverted=True):
-        for prop, value in entity.itervalues():
-            if prop.type == registry.entity:
-                yield prop, self.get_entity(value)
-
-        if inverted:
-            for prop, ref in self.get_inverted(entity.id):
-                yield prop, self.get_entity(ref)
+        for prop, entity_id in self.inverted.get(id, []):
+            yield prop, self.get_entity(entity_id)
 
     def __iter__(self):
         return iter(self.entities.values())
@@ -57,16 +56,9 @@ class DBEntityLoader(EntityLoader):
 
     def get_inverted(self, id):
         for entity in Entity.query(self.dataset, inverted_id=id):
-            yield entity
-
-    def get_adjacent(self, entity, inverted=True):
-        for prop, value in entity.itervalues():
-            if prop.type == registry.entity:
-                yield prop, self.get_entity(value)
-
-        if inverted:
-            for prop, ref in self.get_inverted(entity.id):
-                yield prop, self.get_entity(ref)
+            for prop, value in entity.itervalues():
+                if prop.type == registry.entity and value == id:
+                    yield prop.reverse, entity
 
     def __iter__(self):
         return iter(Entity.query(self.dataset))

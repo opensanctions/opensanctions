@@ -5,6 +5,7 @@ from opensanctions.core import Dataset, Context, Entity, setup
 from opensanctions.exporters import export_global_index, export_dataset
 from opensanctions.exporters.common import write_object
 from opensanctions.core.http import cleanup_cache
+from opensanctions.core.index import Index
 from opensanctions.model.base import migrate_db
 
 
@@ -63,6 +64,15 @@ def run(dataset):
     dataset = Dataset.get(dataset)
     for source in dataset.sources:
         Context(source).clear()
+
+
+@cli.command("index", help="Index entities from the given dataset")
+@click.argument("dataset", default=Dataset.ALL, type=click.Choice(Dataset.names()))
+def index(dataset):
+    dataset = Dataset.get(dataset)
+    index = Index(dataset.name)
+    index.build(adjacent=False)
+    index.save()
 
 
 @cli.command("cleanup", help="Clean up caches")
