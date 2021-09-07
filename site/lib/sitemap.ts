@@ -3,7 +3,7 @@ import { join } from 'path'
 import { BASE_URL } from './constants';
 import { IDataset, isCollection } from "./dataset";
 
-const PAGES = ['/', '/docs/about/', '/docs/faq/', '/docs/usage/', '/reference', '/contact/', '/sponsor/', '/datasets/', '/docs/', '/docs/contribute/']
+const PAGES = ['/', '/docs/about/', '/docs/faq/', '/docs/usage/', '/reference/', '/contact/', '/sponsor/', '/datasets/', '/docs/', '/docs/contribute/']
 
 const sitemapPath = join(process.cwd(), 'public', 'sitemap.xml')
 

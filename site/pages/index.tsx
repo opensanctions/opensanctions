@@ -9,7 +9,7 @@ import Badge from 'react-bootstrap/Badge';
 import styles from '../styles/Home.module.scss'
 import Layout from '../components/Layout'
 import { getDatasets } from '../lib/api'
-import { CLAIM, SPACER } from '../lib/constants'
+import { CLAIM, SUBCLAIM, SPACER } from '../lib/constants'
 import { getSchemaOpenSanctionsOrganization } from '../lib/schema';
 import { Search } from 'react-bootstrap-icons';
 import { FormattedDate, NumericBadge } from '../components/util';
@@ -22,10 +22,12 @@ export default function Home({ datasets }: InferGetStaticPropsType<typeof getSta
   if (all === undefined) {
     return null;
   }
-  const collections = datasets.filter(isCollection)
-  const sources = datasets.filter(isSource)
+  const sources = datasets.filter(isSource).sort((a, b) => a.title.localeCompare(b.title))
+  const oddSources = sources.filter((d, i) => i % 2 == 0)
+  const evenSources = sources.filter((d, i) => i % 2 == 1)
+  const collections = datasets.filter(isCollection).filter(c => c.name !== 'all')
   return (
-    <Layout.Base title={CLAIM} structured={getSchemaOpenSanctionsOrganization()}>
+    <Layout.Base title="Persons of interest database" description={SUBCLAIM} structured={getSchemaOpenSanctionsOrganization()}>
       <div className={styles.claimBanner}>
         <Container>
           <Row>
@@ -34,16 +36,16 @@ export default function Home({ datasets }: InferGetStaticPropsType<typeof getSta
                 src="/static/home.webp"
                 width="272px"
                 height="282px"
+                alt="Welcome to OpenSanctions"
                 className={styles.logo}
               />
             </Col>
             <Col md={8}>
-              <h2 className={styles.claim}>
+              <h1 className={styles.claim}>
                 {CLAIM}
-              </h2>
+              </h1>
               <p className={styles.subClaim}>
-                OpenSanctions lets investigators find leads, helps companies manage risk and
-                enables technologists to build data-driven products.
+                {SUBCLAIM}
                 {' '}<a href="/docs/about/" className={styles.claimLink}>Learn more...</a>
               </p>
               <div>
@@ -87,8 +89,42 @@ export default function Home({ datasets }: InferGetStaticPropsType<typeof getSta
             {' '}and integrate the technology.
           </Col>
         </Row>
+        <Row>
+          <Col md={4} className={styles.explainer}>
+            <h4>Collections</h4>
+            <p>
+              <Link href="/docs/faq/#collections">Collections</Link> are custom datasets
+              provided by OpenSanctions that combine data from
+              many sources based on a topic.
+            </p>
+            <ul>
+              {collections.map(c => (
+                <li><Link href={c.link}>{c.title}</Link></li>
+              ))}
+            </ul>
+          </Col>
+          <Col md={8} className={styles.explainer}>
+            <h4>Data sources</h4>
+            <Row>
+              <Col md={6}>
+                <ul>
+                  {oddSources.map(d => (
+                    <li><Link href={d.link}>{d.title}</Link></li>
+                  ))}
+                </ul>
+              </Col>
+              <Col md={6}>
+                <ul>
+                  {evenSources.map(d => (
+                    <li><Link href={d.link}>{d.title}</Link></li>
+                  ))}
+                </ul>
+              </Col>
+            </Row>
+          </Col>
+        </Row>
       </Container>
-    </Layout.Base>
+    </Layout.Base >
   )
 }
 
