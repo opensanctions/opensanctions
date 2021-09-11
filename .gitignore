@@ -4,6 +4,7 @@ __pycache__/
 .DS_Store
 *.sqlite
 *.sqlite3
+*.perf
 .env
 .envrc
 .vscode
