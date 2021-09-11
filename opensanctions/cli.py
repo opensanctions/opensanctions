@@ -100,11 +100,12 @@ def xref_prune(keep=0):
 
 
 @cli.command("dedupe", help="Interactively judge xref candidates")
-def dedupe():
+@click.option("-d", "--dataset", type=datasets, default=Dataset.DEFAULT)
+def dedupe(dataset):
     from nomenklatura.tui import DedupeApp
     from opensanctions.core.loader import DatabaseLoader
 
-    loader = DatabaseLoader(Dataset.get(Dataset.DEFAULT))
+    loader = DatabaseLoader(Dataset.get(dataset))
     resolver = get_resolver()
 
     DedupeApp.run(
