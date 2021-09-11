@@ -3,6 +3,7 @@ from urllib.parse import urljoin
 from datapatch import get_lookups
 from followthemoney import model
 from followthemoney.types import registry
+from nomenklatura.dataset import Dataset as NomenklaturaDataset
 
 from opensanctions import settings
 from opensanctions.core.entity import Entity
@@ -12,19 +13,21 @@ from opensanctions.model.base import KEY_LEN
 from opensanctions.util import joinslug
 
 
-class Dataset(object):
+class Dataset(NomenklaturaDataset):
     """A dataset is a unit of execution of crawlers, and a grouping of entities.
     There are two types: sources (which relate to a specific crawlers), and
     collections (which group sources into more useful units)."""
 
     ALL = "all"
+    DEFAULT = "default"
 
     def __init__(self, type_, file_path, config):
         self.type = type_
         self.file_path = file_path
-        self.name = config.get("name", file_path.stem)
+        name = config.get("name", file_path.stem)
+        title = config.get("title", name)
+        super().__init__(name, title)
         self.prefix = config.get("prefix", self.name)
-        self.title = config.get("title", self.name)
         self.summary = config.get("summary", "")
         self.description = config.get("description", "")
 
@@ -155,12 +158,3 @@ class Dataset(object):
             res["url"] = self.make_public_url(resource.path)
             meta["resources"].append(res)
         return meta
-
-    def __eq__(self, other):
-        return self.name == other.name
-
-    def __hash__(self):
-        return hash(self.type + self.name)
-
-    def __repr__(self):
-        return f"<{self.__class__.__name__}({self.name!r})>"
