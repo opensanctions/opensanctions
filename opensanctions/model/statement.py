@@ -1,5 +1,5 @@
 from followthemoney.types import registry
-from sqlalchemy import func, Column, Unicode, DateTime, Boolean
+from sqlalchemy import select, func, Column, Unicode, DateTime, Boolean
 from sqlalchemy.orm import aliased
 from sqlalchemy.dialects.sqlite import insert as insert_sqlite
 from sqlalchemy.dialects.postgresql import insert as insert_postgresql
@@ -183,6 +183,24 @@ class Statement(Base):
         # TODO: should this do collections?
         pq = pq.filter(cls.dataset == dataset.name)
         pq.delete(synchronize_session=False)
+
+    @classmethod
+    def unique_conflict(cls, left_ids, right_ids):
+        cte = select(
+            func.distinct(cls.entity_id).label("entity_id"),
+            cls.dataset.label("dataset"),
+        ).cte("uniques")
+        # sqlite 3.35 -
+        # cte = cte.prefix_with("MATERIALIZED")
+        left = cte.alias("left")
+        right = cte.alias("right")
+        q = select([left.c.entity_id, right.c.entity_id])
+        q = q.where(left.c.dataset == right.c.dataset)
+        q = q.where(left.c.entity_id.in_(left_ids))
+        q = q.where(right.c.entity_id.in_(right_ids))
+        for _ in db.engine.execute(q):
+            return True
+        return False
 
     def to_dict(self):
         return {

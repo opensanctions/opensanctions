@@ -93,10 +93,26 @@ def xref(base, candidates):
 
 @cli.command("xref-prune", help="Remove dedupe candidates")
 @click.option("-k", "--keep", type=int, default=0)
-def xref(keep=0):
+def xref_prune(keep=0):
     resolver = get_resolver()
     resolver.prune(keep=keep)
     resolver.save()
+
+
+@cli.command("dedupe", help="Interactively judge xref candidates")
+def dedupe():
+    from nomenklatura.tui import DedupeApp
+    from opensanctions.core.loader import DatabaseLoader
+
+    loader = DatabaseLoader(Dataset.get(Dataset.DEFAULT))
+    resolver = get_resolver()
+
+    DedupeApp.run(
+        title="OpenSanction De-duplication",
+        # log="textual.log",
+        loader=loader,
+        resolver=resolver,
+    )
 
 
 @cli.command("cleanup", help="Clean up caches")
