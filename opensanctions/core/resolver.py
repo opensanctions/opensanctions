@@ -40,10 +40,10 @@ def get_resolver() -> Resolver:
     return UniqueResolver.load(RESOLVER_PATH)
 
 
-def xref_datasets(base: Dataset, candidates: Dataset):
+def xref_datasets(base: Dataset, candidates: Dataset, limit: int = 15):
     resolver = get_resolver()
     entities = Entity.query(candidates)
     loader = DatasetMemoryLoader(base)
     index = get_index(base, loader)
-    xref(index, resolver, entities)
+    xref(index, resolver, entities, limit=limit)
     resolver.save()

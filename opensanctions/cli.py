@@ -85,10 +85,11 @@ def index(dataset):
 @cli.command("xref", help="Generate dedupe candidates from the given dataset")
 @click.argument("candidates", type=datasets)
 @click.option("-b", "--base", type=datasets, default=Dataset.DEFAULT)
-def xref(base, candidates):
+@click.option("-l", "--limit", type=int, default=15)
+def xref(base, candidates, limit=15):
     base_dataset = Dataset.get(base)
     candidates_dataset = Dataset.get(candidates)
-    xref_datasets(base_dataset, candidates_dataset)
+    xref_datasets(base_dataset, candidates_dataset, limit=limit)
 
 
 @cli.command("xref-prune", help="Remove dedupe candidates")
