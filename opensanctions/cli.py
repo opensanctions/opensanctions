@@ -126,3 +126,7 @@ def cleanup():
 @click.option("-m", "--message", "message")
 def migrate(message):
     migrate_db(message)
+
+
+if __name__ == "__main__":
+    cli()
