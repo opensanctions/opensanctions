@@ -1,7 +1,7 @@
 from functools import lru_cache
 from typing import Optional, Tuple
 from followthemoney.dedupe.judgement import Judgement
-from nomenklatura.resolver import Resolver, Identifier
+from nomenklatura.resolver import Resolver, Identifier, StrIdent
 from nomenklatura.xref import xref
 
 from opensanctions import settings
@@ -26,6 +26,18 @@ class UniqueResolver(Resolver):
             self.decide(left, right, Judgement.NEGATIVE)
             return False
         return True
+
+    def decide(
+        self,
+        left_id: StrIdent,
+        right_id: StrIdent,
+        judgement: Judgement,
+        user: Optional[str] = None,
+        score: Optional[float] = None,
+    ) -> Identifier:
+        target = super().decide(left_id, right_id, judgement, user=user, score=score)
+        Statement.resolve_one(self, target.id)
+        return target
 
 
 @lru_cache(maxsize=None)

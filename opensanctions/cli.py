@@ -113,7 +113,8 @@ def xref_prune(keep=0):
 @click.option("-d", "--dataset", type=datasets, default=Dataset.DEFAULT)
 def dedupe(dataset):
     resolver = get_resolver()
-    loader = DatabaseLoader(Dataset.get(dataset), resolver)
+    dataset = Dataset.get(dataset)
+    loader = DatabaseLoader(dataset, resolver)
     DedupeApp.run(
         title="OpenSanction De-duplication",
         # log="textual.log",

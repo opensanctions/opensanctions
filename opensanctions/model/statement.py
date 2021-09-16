@@ -105,12 +105,12 @@ class Statement(Base):
     ):
         q = db.session.query(cls)
         if canonical_id is not None:
-            q = q.filter(cls.entity_id == canonical_id)
+            q = q.filter(cls.canonical_id == canonical_id)
         if inverted_ids is not None:
             # Find entities which refer to the given entity in one of their
             # property values.
             inverted = aliased(cls)
-            q = q.filter(cls.entity_id == inverted.entity_id)
+            q = q.filter(cls.canonical_id == inverted.canonical_id)
             q = q.filter(inverted.prop_type == registry.entity.name)
             q = q.filter(inverted.value.in_(inverted_ids))
         if dataset is not None:
@@ -119,7 +119,7 @@ class Statement(Base):
             last_seen = cls.max_last_seen(dataset=dataset)
         if last_seen is not None:
             q = q.filter(cls.last_seen == last_seen)
-        q = q.order_by(cls.entity_id.asc())
+        q = q.order_by(cls.canonical_id.asc())
         return q.yield_per(10000)
 
     @classmethod
@@ -186,7 +186,7 @@ class Statement(Base):
 
     @classmethod
     def resolve(cls, resolver):
-        log.info("Resolving entity de-duplication in statements...", resolver=resolver)
+        log.info("Resolving canonical_id in statements...", resolver=resolver)
         q = db.session.query(cls)
         q = q.filter(cls.canonical_id != cls.entity_id)
         q.update({cls.canonical_id: cls.entity_id})
@@ -196,6 +196,14 @@ class Statement(Base):
             q = db.session.query(cls)
             q = q.filter(cls.entity_id.in_(referents))
             q = q.update({cls.canonical_id: canonical.id})
+        db.session.commit()
+
+    @classmethod
+    def resolve_one(cls, resolver, canonical_id):
+        referents = resolver.get_referents(canonical_id)
+        q = db.session.query(cls)
+        q = q.filter(cls.entity_id.in_(referents))
+        q = q.update({cls.canonical_id: canonical_id})
         db.session.commit()
 
     @classmethod

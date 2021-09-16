@@ -41,6 +41,9 @@ class DatabaseLoader(Loader[Dataset, Entity]):
     def __len__(self) -> int:
         return Statement.all_ids(self.dataset).count()
 
+    def __repr__(self):
+        return f"<DatabaseLoader({self.dataset!r})>"
+
     @classmethod
     def query(cls, resolver, dataset, entity_id=None, inverted_id=None):
         """Query the statement table for the given dataset and entity ID and return
@@ -54,7 +57,9 @@ class DatabaseLoader(Loader[Dataset, Entity]):
         current_id = None
         entity = None
         q = Statement.all_statements(
-            dataset=dataset, canonical_id=canonical_id, inverted_ids=inverted_ids
+            dataset=dataset,
+            canonical_id=canonical_id,
+            inverted_ids=inverted_ids,
         )
         for stmt in q:
             schema = model.get(stmt.schema)
