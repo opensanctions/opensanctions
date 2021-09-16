@@ -49,7 +49,7 @@ def export_dataset(dataset):
     """Dump the contents of the dataset to the output directory."""
     context = Context(dataset)
     context.bind()
-    loader = DatasetMemoryLoader(dataset)
+    loader = DatasetMemoryLoader(dataset, context.resolver)
     exporters = [Exporter(context, loader) for Exporter in EXPORTERS]
     for entity in loader:
         for exporter in exporters:

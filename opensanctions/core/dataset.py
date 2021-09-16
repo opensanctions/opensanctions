@@ -47,15 +47,6 @@ class Dataset(NomenklaturaDataset):
     def make_entity(self, schema, target=False):
         return Entity(self, schema, target=target)
 
-    def get_entity(self, entity_id):
-        """Fetch an entity in the given dataset by its ID.
-
-        If you run this in a crawler, you may want to run ``context.flush()``
-        first to ensure all relevant entity fragments have been written to the
-        database."""
-        for entity in Entity.query(self, entity_id=entity_id):
-            return entity
-
     @property
     def datasets(self):
         return set([self])

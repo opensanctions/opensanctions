@@ -1,5 +1,5 @@
 from functools import lru_cache
-from typing import Generator, Optional, Tuple
+from typing import Optional, Tuple
 from followthemoney.dedupe.judgement import Judgement
 from nomenklatura.resolver import Resolver, Identifier
 from nomenklatura.xref import xref
@@ -7,8 +7,7 @@ from nomenklatura.xref import xref
 from opensanctions import settings
 from opensanctions.model import Statement
 from opensanctions.core.dataset import Dataset
-from opensanctions.core.entity import Entity
-from opensanctions.core.loader import DatasetMemoryLoader
+from opensanctions.core.loader import DatabaseLoader, DatasetMemoryLoader
 from opensanctions.core.index import get_index
 
 RESOLVER_PATH = settings.STATIC_PATH.joinpath("resolve.ijson")
@@ -18,21 +17,15 @@ Scored = Tuple[str, str, Optional[float]]
 class UniqueResolver(Resolver):
     """OpenSanctions semantics for the entity resolver graph."""
 
-    def get_candidates(self, limit: int = 15) -> Generator[Scored, None, None]:
-        """Check if the candidates are contradicted by an in-datset unique statement
-        on the source data entities."""
-        returned = 0
-        candidates = super().get_candidates(limit=len(self.edges))
-        for (target, source, score) in candidates:
-            targets = [c.id for c in self.connected(Identifier.get(target))]
-            sources = [c.id for c in self.connected(Identifier.get(source))]
-            if Statement.unique_conflict(targets, sources):
-                self.decide(target, source, Judgement.NEGATIVE)
-                continue
-            yield (target, source, score)
-            returned += 1
-            if returned >= limit:
-                break
+    def check_candidate(self, left: Identifier, right: Identifier) -> bool:
+        if not super().check_candidate(left, right):
+            return False
+        lefts = [c.id for c in self.connected(left)]
+        rights = [c.id for c in self.connected(right)]
+        if Statement.unique_conflict(lefts, rights):
+            self.decide(left, right, Judgement.NEGATIVE)
+            return False
+        return True
 
 
 @lru_cache(maxsize=None)
@@ -42,8 +35,8 @@ def get_resolver() -> Resolver:
 
 def xref_datasets(base: Dataset, candidates: Dataset, limit: int = 15):
     resolver = get_resolver()
-    entities = Entity.query(candidates)
-    loader = DatasetMemoryLoader(base)
+    entities = DatabaseLoader(candidates, resolver)
+    loader = DatasetMemoryLoader(base, resolver)
     index = get_index(base, loader)
     xref(index, resolver, entities, limit=limit)
     resolver.save()

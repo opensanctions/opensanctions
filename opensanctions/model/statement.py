@@ -1,3 +1,4 @@
+import structlog
 from followthemoney.types import registry
 from sqlalchemy import select, func, Column, Unicode, DateTime, Boolean
 from sqlalchemy.orm import aliased
@@ -7,6 +8,8 @@ from sqlalchemy.dialects.postgresql import insert as insert_postgresql
 
 from opensanctions import settings
 from opensanctions.model.base import Base, KEY_LEN, VALUE_LEN, db
+
+log = structlog.get_logger(__name__)
 
 
 class Statement(Base):
@@ -25,6 +28,7 @@ class Statement(Base):
     __tablename__ = "statement"
 
     entity_id = Column(Unicode(KEY_LEN), index=True, primary_key=True)
+    canonical_id = Column(Unicode(KEY_LEN), index=True, nullable=True)
     prop = Column(Unicode(KEY_LEN), primary_key=True, nullable=False)
     prop_type = Column(Unicode(KEY_LEN), nullable=False)
     schema = Column(Unicode(KEY_LEN), nullable=False)
@@ -36,11 +40,13 @@ class Statement(Base):
     last_seen = Column(DateTime, index=True)
 
     @classmethod
-    def from_entity(cls, entity, unique=False):
+    def from_entity(cls, entity, resolver, unique=False):
+        canonical_id = resolver.get_canonical(entity.id)
         values = []
         for prop, value in entity.itervalues():
             stmt = {
                 "entity_id": entity.id,
+                "canonical_id": canonical_id,
                 "prop": prop.name,
                 "prop_type": prop.type.name,
                 "schema": entity.schema.name,
@@ -67,6 +73,7 @@ class Statement(Base):
         stmt = istmt.on_conflict_do_update(
             index_elements=["entity_id", "prop", "value", "dataset"],
             set_=dict(
+                canonical_id=istmt.excluded.canonical_id,
                 schema=istmt.excluded.schema,
                 prop_type=istmt.excluded.prop_type,
                 target=istmt.excluded.target,
@@ -77,8 +84,8 @@ class Statement(Base):
         db.session.execute(stmt)
 
     @classmethod
-    def all_entity_ids(cls, dataset=None, unique=None, target=None, last_seen=MAX):
-        q = db.session.query(cls.entity_id)
+    def all_ids(cls, dataset=None, unique=None, target=None, last_seen=MAX):
+        q = db.session.query(cls.canonical_id)
         if unique is not None:
             q = q.filter(cls.unique == unique)
         if target is not None:
@@ -94,18 +101,18 @@ class Statement(Base):
 
     @classmethod
     def all_statements(
-        cls, dataset=None, entity_id=None, inverted_id=None, last_seen=MAX
+        cls, dataset=None, canonical_id=None, inverted_ids=None, last_seen=MAX
     ):
         q = db.session.query(cls)
-        if entity_id is not None:
-            q = q.filter(cls.entity_id == entity_id)
-        if inverted_id is not None:
+        if canonical_id is not None:
+            q = q.filter(cls.entity_id == canonical_id)
+        if inverted_ids is not None:
             # Find entities which refer to the given entity in one of their
             # property values.
             inverted = aliased(cls)
             q = q.filter(cls.entity_id == inverted.entity_id)
             q = q.filter(inverted.prop_type == registry.entity.name)
-            q = q.filter(inverted.value == inverted_id)
+            q = q.filter(inverted.value.in_(inverted_ids))
         if dataset is not None:
             q = q.filter(cls.dataset.in_(dataset.source_names))
         if last_seen == cls.MAX:
@@ -117,7 +124,7 @@ class Statement(Base):
 
     @classmethod
     def all_counts(cls, dataset=None, unique=None, target=None, last_seen=MAX):
-        q = cls.all_entity_ids(
+        q = cls.all_ids(
             dataset=dataset, unique=unique, target=target, last_seen=last_seen
         )
         return q.count()
@@ -178,6 +185,20 @@ class Statement(Base):
             return value
 
     @classmethod
+    def resolve(cls, resolver):
+        log.info("Resolving entity de-duplication in statements...", resolver=resolver)
+        q = db.session.query(cls)
+        q = q.filter(cls.canonical_id != cls.entity_id)
+        q.update({cls.canonical_id: cls.entity_id})
+        for canonical in resolver.canonicals():
+            referents = resolver.get_referents(canonical)
+            log.debug("Resolving: %s" % canonical.id, referents=referents)
+            q = db.session.query(cls)
+            q = q.filter(cls.entity_id.in_(referents))
+            q = q.update({cls.canonical_id: canonical.id})
+        db.session.commit()
+
+    @classmethod
     def clear(cls, dataset):
         pq = db.session.query(cls)
         # TODO: should this do collections?
@@ -205,6 +226,7 @@ class Statement(Base):
     def to_dict(self):
         return {
             "entity_id": self.entity_id,
+            "canonical_id": self.canonical_id,
             "prop": self.prop,
             "prop_type": self.prop_type,
             "schema": self.schema,

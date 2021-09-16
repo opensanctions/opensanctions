@@ -1,14 +1,16 @@
 import click
 import logging
 import structlog
+from nomenklatura.tui import DedupeApp
 
-from opensanctions.core import Dataset, Context, Entity, setup
+from opensanctions.core import Dataset, Context, setup
 from opensanctions.exporters import export_global_index, export_dataset
 from opensanctions.exporters.common import write_object
 from opensanctions.core.http import cleanup_cache
 from opensanctions.core.index import get_index, get_index_path
-from opensanctions.core.loader import DatasetMemoryLoader
+from opensanctions.core.loader import DatabaseLoader, DatasetMemoryLoader
 from opensanctions.core.resolver import get_resolver, xref_datasets
+from opensanctions.model.statement import Statement
 from opensanctions.model.base import migrate_db
 
 log = structlog.get_logger(__name__)
@@ -32,7 +34,7 @@ def cli(verbose=False, quiet=False):
 @click.option("-o", "--outfile", type=click.File("w"), default="-")
 def dump_dataset(dataset, outfile):
     dataset = Dataset.get(dataset)
-    for entity in Entity.query(dataset):
+    for entity in DatabaseLoader(dataset):
         write_object(outfile, entity)
 
 
@@ -72,11 +74,18 @@ def run(dataset):
         Context(source).clear()
 
 
+@cli.command("resolve", help="Apply de-duplication to the statements table")
+def resolver():
+    resolver = get_resolver()
+    Statement.resolve(resolver)
+
+
 @cli.command("index", help="Index entities from the given dataset")
 @click.argument("dataset", default=Dataset.DEFAULT, type=datasets)
 def index(dataset):
+    resolver = get_resolver()
     dataset = Dataset.get(dataset)
-    loader = DatasetMemoryLoader(dataset)
+    loader = DatasetMemoryLoader(dataset, resolver)
     path = get_index_path(dataset)
     path.unlink(missing_ok=True)
     get_index(dataset, loader)
@@ -103,12 +112,8 @@ def xref_prune(keep=0):
 @cli.command("dedupe", help="Interactively judge xref candidates")
 @click.option("-d", "--dataset", type=datasets, default=Dataset.DEFAULT)
 def dedupe(dataset):
-    from nomenklatura.tui import DedupeApp
-    from opensanctions.core.loader import DatabaseLoader
-
-    loader = DatabaseLoader(Dataset.get(dataset))
     resolver = get_resolver()
-
+    loader = DatabaseLoader(Dataset.get(dataset), resolver)
     DedupeApp.run(
         title="OpenSanction De-duplication",
         # log="textual.log",

@@ -13,7 +13,7 @@ def load_yaml(file_path):
 
 @lru_cache(maxsize=None)
 def types_lookup():
-    types_path = settings.STATIC_PATH.join("types.yml")
+    types_path = settings.STATIC_PATH.joinpath("types.yml")
     return get_lookups(load_yaml(types_path))
 
 

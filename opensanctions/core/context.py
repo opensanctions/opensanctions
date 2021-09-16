@@ -8,6 +8,7 @@ from structlog.contextvars import clear_contextvars, bind_contextvars
 from opensanctions import settings
 from opensanctions.model import db, Statement, Issue, Resource
 from opensanctions.core.http import get_session, fetch_download
+from opensanctions.core.resolver import get_resolver
 
 
 class Context(object):
@@ -22,6 +23,7 @@ class Context(object):
         self.dataset = dataset
         self.path = settings.DATASET_PATH.joinpath(dataset.name)
         self.http = get_session()
+        self.resolver = get_resolver()
         self.log = structlog.get_logger(dataset.name)
         self._statements = {}
 
@@ -90,7 +92,7 @@ class Context(object):
             raise ValueError("Entity has no ID: %r", entity)
         if target is not None:
             entity.target = target
-        statements = Statement.from_entity(entity, unique=unique)
+        statements = Statement.from_entity(entity, self.resolver, unique=unique)
         if not len(statements):
             raise ValueError("Entity has no properties: %r", entity)
         for stmt in statements:
