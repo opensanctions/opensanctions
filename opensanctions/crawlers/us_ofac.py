@@ -4,6 +4,7 @@
 from banal import first
 from os.path import commonprefix
 from followthemoney import model
+from followthemoney.types import registry
 from followthemoney.exc import InvalidData
 from prefixdate import parse_parts
 
@@ -131,10 +132,17 @@ def load_locations(context, doc):
             type_ = ref_value("LocPartType", part.get("LocPartTypeID"))
             parts[type_] = part.findtext("./LocationPartValue/Value")
 
-        country = first(countries) or parts.get("Unknown")
+        country = first(countries)
+        unknown = parts.get("Unknown")
+        if registry.country.clean(unknown, fuzzy=True):
+            country = unknown
+
+        if country == "undetermined":
+            country = None
+
         address = make_address(
             context,
-            full=parts.get("Unknown"),
+            full=unknown,
             street=parts.get("ADDRESS1"),
             street2=parts.get("ADDRESS2"),
             street3=parts.get("ADDRESS3"),
@@ -394,7 +402,7 @@ def parse_relation(context, el, parties):
     entity.add(relation.from_prop, from_party)
     entity.add(relation.to_prop, to_party)
     entity.add(relation.description_prop, type_)
-    entity.add("notes", el.findtext("./Comment"))
+    entity.add("summary", el.findtext("./Comment"))
     context.emit(entity)
     context.log.debug("Relation", from_=from_party, type=type_, to=to_party)
     # pprint(entity.to_dict())
