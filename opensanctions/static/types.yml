@@ -354,3 +354,21 @@ url:
       value: http://www.koutsoukosgiannis.gr
     - match: Olimpia Teligioridou (facebook)
       value: null
+
+gender:
+  # Welcome to the wonderful world of police databases:
+  lowercase: true
+  options:
+    - match:
+        - Female
+        - Féminin
+        - F
+        - female
+      value: female
+    - match:
+        - MALE
+        - Male
+        - Masculin
+        - male
+        - M
+      value: male

@@ -1,10 +1,13 @@
 from pprint import pprint  # noqa
 from normality import slugify
 
-from opensanctions.helpers import gender, make_address, apply_address, make_sanction
+from opensanctions.helpers import (
+    clean_gender,
+    make_address,
+    apply_address,
+    make_sanction,
+)
 from opensanctions.util import jointext, remove_namespace
-
-GENDERS = {"M": gender.MALE, "F": gender.FEMALE}
 
 
 def parse_entry(context, entry):
@@ -38,7 +41,7 @@ def parse_entry(context, entry):
         entity.add("middleName", name.get("middleName"), quiet=True)
         entity.add("lastName", name.get("lastName"), quiet=True)
         entity.add("position", name.get("function"), quiet=True)
-        gender = GENDERS.get(name.get("gender"))
+        gender = clean_gender(name.get("gender"))
         entity.add("gender", gender, quiet=True)
 
     # TODO: support other types of ID

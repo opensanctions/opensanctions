@@ -2,7 +2,8 @@ from pprint import pprint
 from normality import stringify, collapse_spaces
 from prefixdate import parse_parts, parse_formats
 
-from opensanctions.helpers import clean_emails, clean_phones, make_sanction
+from opensanctions.helpers import clean_emails, clean_phones, clean_gender
+from opensanctions.helpers import make_sanction
 from opensanctions.util import remove_namespace
 from opensanctions.util import jointext, multi_split, remove_bracketed
 
@@ -86,7 +87,8 @@ def parse_row(context, row):
     if dob is not None:
         entity.add_cast("Person", "birthDate", dob)
 
-    entity.add_cast("Person", "gender", row.pop("Gender", None))
+    gender = clean_gender(row.pop("Gender", None))
+    entity.add_cast("Person", "gender", gender)
     id_number = row.pop("NationalIdNumber", None)
     entity.add_cast("LegalEntity", "idNumber", id_number)
     passport = row.pop("PassportDetails", None)

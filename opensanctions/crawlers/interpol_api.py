@@ -3,16 +3,12 @@ from lxml import html
 from prefixdate import parse_formats
 
 from opensanctions import settings
-from opensanctions.helpers import gender
+from opensanctions.helpers import clean_gender
 
 MAX_RESULTS = 160
 SEEN = set()
 COUNTRIES_URL = "https://www.interpol.int/en/How-we-work/Notices/View-Red-Notices"
 FORMATS = ["%Y/%m/%d", "%Y/%m", "%Y"]
-SEXES = {
-    "M": gender.MALE,
-    "F": gender.FEMALE,
-}
 
 
 def get_countries(context):
@@ -50,7 +46,7 @@ def crawl_notice(context, notice):
     entity.add("lastName", last_name)
     entity.add("sourceUrl", url)
     entity.add("nationality", notice.get("nationalities"))
-    entity.add("gender", SEXES.get(notice.get("sex_id")))
+    entity.add("gender", clean_gender(notice.get("sex_id")))
     entity.add("birthPlace", notice.get("place_of_birth"))
 
     dob = parse_formats(notice["date_of_birth"], FORMATS)

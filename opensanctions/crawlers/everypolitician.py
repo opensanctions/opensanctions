@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from opensanctions.helpers import clean_emails, clean_phones
+from opensanctions.helpers import clean_emails, clean_phones, clean_gender
 
 
 def crawl(context):
@@ -80,7 +80,7 @@ def parse_person(context, data, country, entities, lastmod):
     if data.get("death_date", "9999") < "2000":
         return
 
-    person.add("gender", data.pop("gender", None))
+    person.add("gender", clean_gender(data.pop("gender", None)))
     person.add("title", data.pop("honorific_prefix", None))
     person.add("title", data.pop("honorific_suffix", None))
     person.add("firstName", data.pop("given_name", None))
