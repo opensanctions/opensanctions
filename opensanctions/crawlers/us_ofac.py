@@ -138,7 +138,7 @@ def load_locations(context, doc):
             country = unknown
 
         if country == "undetermined":
-            country = None
+            country = unknown = None
 
         address = make_address(
             context,
