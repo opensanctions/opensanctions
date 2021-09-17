@@ -63,7 +63,7 @@ class Entity(EntityProxy):
                     prop=prop.name,
                     value=value,
                 )
-            super().add(prop, clean, cleaned=True, quiet=False, fuzzy=fuzzy)
+            self.unsafe_add(prop, clean, cleaned=True)
 
     def add_cast(self, schema, prop, value):
         """Set a property on an entity. If the entity is of a schema that doesn't

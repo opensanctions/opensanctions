@@ -75,15 +75,16 @@ def run(dataset):
 
 
 @cli.command("resolve", help="Apply de-duplication to the statements table")
-def resolver():
+def resolve():
     resolver = get_resolver()
-    Statement.resolve(resolver)
+    Statement.resolve_all(resolver)
 
 
 @cli.command("index", help="Index entities from the given dataset")
 @click.argument("dataset", default=Dataset.DEFAULT, type=datasets)
 def index(dataset):
     resolver = get_resolver()
+    Statement.resolve_all(resolver)
     dataset = Dataset.get(dataset)
     loader = DatasetMemoryLoader(dataset, resolver)
     path = get_index_path(dataset)

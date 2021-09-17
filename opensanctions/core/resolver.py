@@ -23,7 +23,7 @@ class UniqueResolver(Resolver):
         lefts = [c.id for c in self.connected(left)]
         rights = [c.id for c in self.connected(right)]
         if Statement.unique_conflict(lefts, rights):
-            self.decide(left, right, Judgement.NEGATIVE)
+            self.decide(left, right, Judgement.NEGATIVE, user="opensanctions")
             return False
         return True
 
@@ -36,7 +36,8 @@ class UniqueResolver(Resolver):
         score: Optional[float] = None,
     ) -> Identifier:
         target = super().decide(left_id, right_id, judgement, user=user, score=score)
-        Statement.resolve_one(self, target.id)
+        if judgement == Judgement.POSITIVE:
+            Statement.resolve(self, target.id)
         return target
 
 

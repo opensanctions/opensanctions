@@ -1,7 +1,7 @@
 import structlog
+from functools import lru_cache
 from followthemoney.types import registry
 from sqlalchemy import select, func, Column, Unicode, DateTime, Boolean
-from sqlalchemy.orm import aliased
 from sqlalchemy.dialects.sqlite import insert as insert_sqlite
 from sqlalchemy.dialects.postgresql import insert as insert_postgresql
 
@@ -107,12 +107,20 @@ class Statement(Base):
         if canonical_id is not None:
             q = q.filter(cls.canonical_id == canonical_id)
         if inverted_ids is not None:
+            sq = db.session.query(func.distinct(cls.canonical_id))
+            sq = sq.filter(cls.prop_type == registry.entity.name)
+            sq = sq.filter(cls.value.in_(inverted_ids))
+            sq = sq.subquery()
+            # cte = select(func.distinct(cls.canonical_id).label("canonical_id"))
+            # cte = cte.where(cls.prop_type == registry.entity.name)
+            # cte = cte.where(cls.value.in_(inverted_ids))
+            # cte = cte.cte("inverted")
             # Find entities which refer to the given entity in one of their
             # property values.
-            inverted = aliased(cls)
-            q = q.filter(cls.canonical_id == inverted.canonical_id)
-            q = q.filter(inverted.prop_type == registry.entity.name)
-            q = q.filter(inverted.value.in_(inverted_ids))
+            # inverted = aliased(cls)
+            q = q.filter(cls.canonical_id.in_(sq))
+            # q = q.filter(inverted.prop_type == registry.entity.name)
+            # q = q.filter(inverted.value.in_(inverted_ids))
         if dataset is not None:
             q = q.filter(cls.dataset.in_(dataset.source_names))
         if last_seen == cls.MAX:
@@ -185,7 +193,7 @@ class Statement(Base):
             return value
 
     @classmethod
-    def resolve(cls, resolver):
+    def resolve_all(cls, resolver):
         log.info("Resolving canonical_id in statements...", resolver=resolver)
         q = db.session.query(cls)
         q = q.filter(cls.canonical_id != cls.entity_id)
@@ -199,7 +207,7 @@ class Statement(Base):
         db.session.commit()
 
     @classmethod
-    def resolve_one(cls, resolver, canonical_id):
+    def resolve(cls, resolver, canonical_id):
         referents = resolver.get_referents(canonical_id)
         q = db.session.query(cls)
         q = q.filter(cls.entity_id.in_(referents))
@@ -214,6 +222,7 @@ class Statement(Base):
         pq.delete(synchronize_session=False)
 
     @classmethod
+    # @lru_cache(maxsize=10000)
     def unique_conflict(cls, left_ids, right_ids):
         cte = select(
             func.distinct(cls.entity_id).label("entity_id"),
