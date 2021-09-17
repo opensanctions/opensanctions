@@ -110,7 +110,7 @@ def crawl(context):
             if res.status_code == 416:
                 break
             data = res.json()
-            data.pop("items", [])
+            items = data.pop("items", [])
             # pprint(data)
             start_index = data["start_index"] + data["items_per_page"]
             if data["total_results"] < start_index:

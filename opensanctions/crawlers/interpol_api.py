@@ -61,7 +61,7 @@ def crawl_notice(context, notice):
     for idx, warrant in enumerate(notice.get("arrest_warrants", []), 1):
         # TODO: make this a Sanction:
         entity.add("program", warrant["issuing_country_id"])
-        entity.add("summary", warrant["charge"])
+        entity.add("notes", warrant["charge"])
 
     context.emit(entity, target=True, unique=True)
 

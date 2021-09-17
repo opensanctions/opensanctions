@@ -26,7 +26,7 @@ def parse_result(context, result):
 
     entity.add("name", result.pop("name", None))
     entity.add("alias", result.pop("alt_names", None))
-    entity.add("summary", result.pop("remarks", None))
+    entity.add("notes", result.pop("remarks", None))
     entity.add("country", result.pop("country", None))
     if entity.schema.is_a("Person"):
         entity.add("position", result.pop("title", None))

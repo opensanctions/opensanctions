@@ -394,7 +394,7 @@ def parse_relation(context, el, parties):
     entity.add(relation.from_prop, from_party)
     entity.add(relation.to_prop, to_party)
     entity.add(relation.description_prop, type_)
-    entity.add("summary", el.findtext("./Comment"))
+    entity.add("notes", el.findtext("./Comment"))
     context.emit(entity)
     context.log.debug("Relation", from_=from_party, type=type_, to=to_party)
     # pprint(entity.to_dict())

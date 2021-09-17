@@ -89,7 +89,7 @@ def parse_person(context, data, country, entities, lastmod):
     person.add("birthDate", data.pop("birth_date", None))
     person.add("deathDate", data.pop("death_date", None))
     person.add("email", clean_emails(data.pop("email", None)))
-    person.add("summary", data.pop("summary", None))
+    person.add("notes", data.pop("summary", None))
     person.add("topics", "role.pep")
 
     # data.pop("image", None)
