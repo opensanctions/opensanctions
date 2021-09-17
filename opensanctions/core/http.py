@@ -2,7 +2,7 @@
 import requests
 import structlog
 import functools
-from requests_cache.core import CachedSession
+from requests_cache import CachedSession
 
 from opensanctions import settings
 
