@@ -29,7 +29,6 @@ class SourcePublisher(object):
         self.description = config.get("description")
         self.country = config.get("country", "zz")
         assert registry.country.validate(self.country), "Invalid publisher country"
-        
 
     def to_dict(self):
         return {
@@ -80,7 +79,7 @@ class Source(Dataset):
                 "entry_point": self.entry_point,
                 "data": self.data.to_dict(),
                 "publisher": self.publisher.to_dict(),
-                "collections": self.collections
+                "collections": self.collections,
             }
         )
         return data

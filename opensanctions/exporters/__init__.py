@@ -5,12 +5,12 @@ from followthemoney import model
 from opensanctions import settings
 from opensanctions.model import db, Issue, Statement
 from opensanctions.core import Context, Dataset
+from opensanctions.core.loader import DatasetMemoryLoader
 from opensanctions.exporters.common import write_json
 from opensanctions.exporters.ftm import FtMExporter
 from opensanctions.exporters.nested import NestedJSONExporter
 from opensanctions.exporters.names import NamesExporter
 from opensanctions.exporters.simplecsv import SimpleCSVExporter
-from opensanctions.exporters.index import ExportIndex
 
 log = structlog.get_logger(__name__)
 
@@ -49,9 +49,9 @@ def export_dataset(dataset):
     """Dump the contents of the dataset to the output directory."""
     context = Context(dataset)
     context.bind()
-    index = ExportIndex(dataset)
-    exporters = [Exporter(context, index) for Exporter in EXPORTERS]
-    for entity in index:
+    loader = DatasetMemoryLoader(dataset, context.resolver)
+    exporters = [Exporter(context, loader) for Exporter in EXPORTERS]
+    for entity in loader:
         for exporter in exporters:
             exporter.feed(entity)
 

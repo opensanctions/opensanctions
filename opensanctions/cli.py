@@ -1,11 +1,20 @@
 import click
 import logging
+import structlog
+from nomenklatura.tui import DedupeApp
 
-from opensanctions.core import Dataset, Context, Entity, setup
+from opensanctions.core import Dataset, Context, setup
 from opensanctions.exporters import export_global_index, export_dataset
 from opensanctions.exporters.common import write_object
 from opensanctions.core.http import cleanup_cache
+from opensanctions.core.index import get_index, get_index_path
+from opensanctions.core.loader import DatabaseLoader, DatasetMemoryLoader
+from opensanctions.core.resolver import get_resolver, xref_datasets
+from opensanctions.model.statement import Statement
 from opensanctions.model.base import migrate_db
+
+log = structlog.get_logger(__name__)
+datasets = click.Choice(Dataset.names())
 
 
 @click.group(help="OpenSanctions ETL toolkit")
@@ -21,16 +30,16 @@ def cli(verbose=False, quiet=False):
 
 
 @cli.command("dump", help="Export the entities from a dataset")
-@click.argument("dataset", default=Dataset.ALL, type=click.Choice(Dataset.names()))
+@click.argument("dataset", default=Dataset.ALL, type=datasets)
 @click.option("-o", "--outfile", type=click.File("w"), default="-")
 def dump_dataset(dataset, outfile):
     dataset = Dataset.get(dataset)
-    for entity in Entity.query(dataset):
+    for entity in DatabaseLoader(dataset):
         write_object(outfile, entity)
 
 
 @cli.command("crawl", help="Crawl entities into the given dataset")
-@click.argument("dataset", default=Dataset.ALL, type=click.Choice(Dataset.names()))
+@click.argument("dataset", default=Dataset.ALL, type=datasets)
 def crawl(dataset):
     dataset = Dataset.get(dataset)
     for source in dataset.sources:
@@ -38,7 +47,7 @@ def crawl(dataset):
 
 
 @cli.command("export", help="Export entities from the given dataset")
-@click.argument("dataset", default=Dataset.ALL, type=click.Choice(Dataset.names()))
+@click.argument("dataset", default=Dataset.ALL, type=datasets)
 def export(dataset):
     dataset = Dataset.get(dataset)
     for dataset_ in dataset.datasets:
@@ -47,7 +56,7 @@ def export(dataset):
 
 
 @cli.command("run", help="Run the full process for the given dataset")
-@click.argument("dataset", default=Dataset.ALL, type=click.Choice(Dataset.names()))
+@click.argument("dataset", default=Dataset.ALL, type=datasets)
 def run(dataset):
     dataset = Dataset.get(dataset)
     for source in dataset.sources:
@@ -58,11 +67,61 @@ def run(dataset):
 
 
 @cli.command("clear", help="Delete all stored data for the given source")
-@click.argument("dataset", default=Dataset.ALL, type=click.Choice(Dataset.names()))
+@click.argument("dataset", default=Dataset.ALL, type=datasets)
 def run(dataset):
     dataset = Dataset.get(dataset)
     for source in dataset.sources:
         Context(source).clear()
+
+
+@cli.command("resolve", help="Apply de-duplication to the statements table")
+def resolve():
+    resolver = get_resolver()
+    Statement.resolve_all(resolver)
+
+
+@cli.command("index", help="Index entities from the given dataset")
+@click.argument("dataset", default=Dataset.DEFAULT, type=datasets)
+def index(dataset):
+    resolver = get_resolver()
+    Statement.resolve_all(resolver)
+    dataset = Dataset.get(dataset)
+    loader = DatasetMemoryLoader(dataset, resolver)
+    path = get_index_path(dataset)
+    path.unlink(missing_ok=True)
+    get_index(dataset, loader)
+
+
+@cli.command("xref", help="Generate dedupe candidates from the given dataset")
+@click.argument("candidates", type=datasets)
+@click.option("-b", "--base", type=datasets, default=Dataset.DEFAULT)
+@click.option("-l", "--limit", type=int, default=15)
+def xref(base, candidates, limit=15):
+    base_dataset = Dataset.get(base)
+    candidates_dataset = Dataset.get(candidates)
+    xref_datasets(base_dataset, candidates_dataset, limit=limit)
+
+
+@cli.command("xref-prune", help="Remove dedupe candidates")
+@click.option("-k", "--keep", type=int, default=0)
+def xref_prune(keep=0):
+    resolver = get_resolver()
+    resolver.prune(keep=keep)
+    resolver.save()
+
+
+@cli.command("dedupe", help="Interactively judge xref candidates")
+@click.option("-d", "--dataset", type=datasets, default=Dataset.DEFAULT)
+def dedupe(dataset):
+    resolver = get_resolver()
+    dataset = Dataset.get(dataset)
+    loader = DatabaseLoader(dataset, resolver)
+    DedupeApp.run(
+        title="OpenSanction De-duplication",
+        # log="textual.log",
+        loader=loader,
+        resolver=resolver,
+    )
 
 
 @cli.command("cleanup", help="Clean up caches")
@@ -74,3 +133,7 @@ def cleanup():
 @click.option("-m", "--message", "message")
 def migrate(message):
     migrate_db(message)
+
+
+if __name__ == "__main__":
+    cli()

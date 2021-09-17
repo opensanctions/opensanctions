@@ -1,9 +1,11 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
+.mypy_cache/
 *.py[cod]
 .DS_Store
 *.sqlite
 *.sqlite3
+*.perf
 .env
 .envrc
 .vscode

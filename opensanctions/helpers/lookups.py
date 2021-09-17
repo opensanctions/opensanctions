@@ -1,11 +1,8 @@
 import yaml
-from pathlib import Path
 from functools import lru_cache
 from datapatch import get_lookups
 
 from opensanctions import settings
-
-types_path = Path(__file__).parent.joinpath("types.yml")
 
 
 def load_yaml(file_path):
@@ -16,6 +13,7 @@ def load_yaml(file_path):
 
 @lru_cache(maxsize=None)
 def types_lookup():
+    types_path = settings.STATIC_PATH.joinpath("types.yml")
     return get_lookups(load_yaml(types_path))
 
 

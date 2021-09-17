@@ -21,6 +21,7 @@ class Entity(EntityProxy):
 
     def __init__(self, dataset, schema, data=None, target=False):
         self.dataset = dataset
+        self.sources = set()
         self.target = target
         self.first_seen = None
         self.last_seen = None
@@ -40,6 +41,10 @@ class Entity(EntityProxy):
             yield from type_lookup(prop.type, value)
 
     def add(self, prop, values, cleaned=False, quiet=False, fuzzy=False):
+        if cleaned:
+            super().add(prop, values, cleaned=True, quiet=quiet, fuzzy=fuzzy)
+            return
+
         prop_name = self._prop_name(prop, quiet=quiet)
         if prop_name is None:
             return
@@ -48,19 +53,17 @@ class Entity(EntityProxy):
         for value in self._lookup_values(prop, values):
             if value is None or len(str(value).strip()) == 0:
                 continue
-            if not cleaned:
-                raw = value
-                value = prop.type.clean(value, proxy=self, fuzzy=fuzzy)
-            if value is None:
+            clean = prop.type.clean(value, proxy=self, fuzzy=fuzzy)
+            if clean is None:
                 if prop.type == registry.phone:
                     continue
                 log.warning(
                     "Rejected property value",
                     entity=self,
                     prop=prop.name,
-                    value=raw,
+                    value=value,
                 )
-            super().add(prop, value, cleaned=True, quiet=False, fuzzy=fuzzy)
+            self.unsafe_add(prop, clean, cleaned=True)
 
     def add_cast(self, schema, prop, value):
         """Set a property on an entity. If the entity is of a schema that doesn't
@@ -91,29 +94,3 @@ class Entity(EntityProxy):
         data["dataset"] = self.dataset.name
         data["caption"] = self.caption
         return data
-
-    @classmethod
-    def query(cls, dataset, entity_id=None):
-        """Query the statement table for the given dataset and entity ID and return
-        re-constructed entities with the given properties."""
-        current_entity_id = None
-        entity = None
-        for stmt in Statement.all_statements(dataset=dataset, entity_id=entity_id):
-            schema = model.get(stmt.schema)
-            if stmt.entity_id != current_entity_id:
-                if entity is not None:
-                    yield entity
-                entity = cls(dataset, schema)
-                entity.id = stmt.entity_id
-                entity.first_seen = stmt.first_seen
-                entity.last_seen = stmt.last_seen
-            current_entity_id = stmt.entity_id
-            entity.add_schema(schema)
-            entity.add(stmt.prop, stmt.value, cleaned=True)
-            entity.target = max(entity.target, stmt.target)
-            entity.first_seen = min(entity.first_seen, stmt.first_seen)
-            entity.last_seen = max(entity.last_seen, stmt.last_seen)
-        if entity is not None:
-            yield entity
-
-    # TODO: from_dict!!
