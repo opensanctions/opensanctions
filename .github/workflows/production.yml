@@ -33,14 +33,28 @@ jobs:
         run: |
           mkdir -p data/state
           aws s3 sync --no-progress s3://data.opensanctions.org/state data/state
-      - name: Run opensanctions
+      - name: Crawl data sources
         run: |
           docker run \
             -v `pwd`/data:/opensanctions/data \
             -e OPENSANCTIONS_COH_API_KEY \
             -e OPENSANCTIONS_DATE \
             pudo/opensanctions \
-            opensanctions run
+            opensanctions crawl
+      - name: Apply entity de-duplication
+        run: |
+          docker run \
+            -v `pwd`/data:/opensanctions/data \
+            -e OPENSANCTIONS_DATE \
+            pudo/opensanctions \
+            opensanctions resolve
+      - name: Export data dumps
+        run: |
+          docker run \
+            -v `pwd`/data:/opensanctions/data \
+            -e OPENSANCTIONS_DATE \
+            pudo/opensanctions \
+            opensanctions export
       - name: Compress database
         run: |
           sqlite3 -version
