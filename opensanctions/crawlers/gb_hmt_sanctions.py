@@ -87,8 +87,9 @@ def parse_row(context, row):
     if dob is not None:
         entity.add_cast("Person", "birthDate", dob)
 
-    gender = clean_gender(row.pop("Gender", None))
-    entity.add_cast("Person", "gender", gender)
+    for gender in clean_gender(row.pop("Gender", None)):
+        if gender is not None:
+            entity.add_cast("Person", "gender", gender)
     id_number = row.pop("NationalIdNumber", None)
     entity.add_cast("LegalEntity", "idNumber", id_number)
     passport = row.pop("PassportDetails", None)

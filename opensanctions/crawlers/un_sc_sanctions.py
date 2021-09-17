@@ -85,7 +85,7 @@ def parse_individual(context, node):
         passport.add("startDate", date)
         passport.add("type", type_)
         passport.add("type", doc.findtext("./TYPE_OF_DOCUMENT2"))
-        passport.add("notes", doc.findtext("./NOTE"))
+        passport.add("summary", doc.findtext("./NOTE"))
         country = doc.findtext("./COUNTRY_OF_ISSUE")
         country = country or doc.findtext("./ISSUING_COUNTRY")
         passport.add("country", country)
