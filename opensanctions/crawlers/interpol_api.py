@@ -51,8 +51,8 @@ def crawl_notice(context, notice):
 
     dob = parse_formats(notice["date_of_birth"], FORMATS)
     entity.add("birthDate", dob)
-    # entity.add("keywords", "REDNOTICE")
-    # entity.add("topics", "crime")
+    if "v1/red" in res.url:
+        entity.add("topics", "crime")
 
     for idx, warrant in enumerate(notice.get("arrest_warrants", []), 1):
         # TODO: make this a Sanction:

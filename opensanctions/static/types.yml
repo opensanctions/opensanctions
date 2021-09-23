@@ -14,6 +14,7 @@ country:
         - "-"
         - PO BOX 416
         - "02214513"
+        - "Other"
       contains:
         - (JVCFOR)
       value: null
@@ -84,7 +85,9 @@ country:
         - "South Sudan number"
         - Juba
       value: South Sudan
-    - contains: United Kingdom of Great Britain
+    - contains:
+        - United Kingdom of Great Britain
+        - Uk/British
       value: GB
     - match: United States. Also believed to hold Syrian nationality
       values:
@@ -267,7 +270,9 @@ country:
         - Bogota
         - Maico, Guajira
       value: CO
-    - match: Faisalabad, Punjab, Pakistan
+    - match:
+        - Faisalabad, Punjab, Pakistan
+        - Pakis
       value: PK
 
 date:

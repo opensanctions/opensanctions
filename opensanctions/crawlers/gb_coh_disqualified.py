@@ -3,7 +3,7 @@ import string
 from pprint import pprint  # noqa
 from urllib.parse import urljoin
 
-from opensanctions.util import jointext
+from opensanctions.helpers import make_address, apply_address, make_sanction
 
 
 class RateLimit(Exception):
@@ -13,7 +13,7 @@ class RateLimit(Exception):
 API_KEY = os.environ.get("OPENSANCTIONS_COH_API_KEY")
 AUTH = (API_KEY, "")
 SEARCH_URL = "https://api.companieshouse.gov.uk/search/disqualified-officers"
-API_URL = "https://api.companieshouse.gov.uk/disqualified-officers/natural/%s"
+API_URL = "https://api.companieshouse.gov.uk/"
 WEB_URL = "https://beta.companieshouse.gov.uk/register-of-disqualifications/A"
 
 
@@ -24,94 +24,94 @@ def http_get(context, url, params=None):
     return res
 
 
-def officer(context, data):
-    # emitter = EntityEmitter(context)
-    officer_id = data.get("officer_id")
-    url = API_URL % officer_id
-    with context.http.get(url, auth=AUTH) as res:
-        if res.status_code != 200:
-            context.log.info("CoH error: %r", res.json)
-            return
-        data = res.json
-        # pprint(data)
-        # person = emitter.make("Person")
-        person.make_slug("officer", officer_id)
-        source_url = urljoin(WEB_URL, data.get("links", {}).get("self", "/"))
-        person.add("sourceUrl", source_url)
+def crawl_item(context, listing):
+    links = listing.get("links", {})
+    url = urljoin(API_URL, links.get("self"))
+    res = http_get(context, url)
+    data = res.json()
+    person = context.make("Person")
+    officer_id = url.rsplit("/", 1)
+    person.make_slug(officer_id)
 
-        last_name = data.pop("surname", None)
-        person.add("lastName", last_name)
-        forename = data.pop("forename", None)
-        person.add("firstName", forename)
-        other_forenames = data.pop("other_forenames", None)
-        person.add("middleName", other_forenames)
-        person.add("name", jointext(forename, other_forenames, last_name))
-        person.add("title", data.pop("title", None))
+    person.add("name", listing.get("title"))
+    person.add("notes", listing.get("description"))
+    source_url = urljoin(WEB_URL, links.get("self"))
+    person.add("sourceUrl", source_url)
 
-        person.add("nationality", data.pop("nationality", None))
-        person.add("birthDate", data.pop("date_of_birth", None))
-        person.add("topics", "crime")
+    last_name = data.pop("surname", None)
+    person.add("lastName", last_name)
+    forename = data.pop("forename", None)
+    person.add("firstName", forename)
+    other_forenames = data.pop("other_forenames", None)
+    person.add("middleName", other_forenames)
+    person.add("title", data.pop("title", None))
 
-        for disqual in data.pop("disqualifications", []):
-            case = disqual.get("case_identifier")
-            sanction = emitter.make("Sanction")
-            sanction.make_id(person.id, case)
-            sanction.add("entity", person)
-            sanction.add("authority", "UK Companies House")
-            sanction.add("program", case)
-            from_date = disqual.pop("disqualified_from", None)
-            person.context["created_at"] = from_date
-            sanction.add("startDate", from_date)
-            sanction.add("endDate", disqual.pop("disqualified_until", None))
-            emitter.emit(sanction)
+    person.add("nationality", data.pop("nationality", None))
+    person.add("birthDate", data.pop("date_of_birth", None))
+    person.add("topics", "crime")
 
-            address = disqual.pop("address", {})
-            locality = address.get("locality")
-            locality = jointext(locality, address.get("postal_code"))
-            street = address.get("address_line_1")
-            premises = address.get("premises")
-            street = jointext(street, premises)
-            address = jointext(
-                street,
-                address.get("address_line_2"),
-                locality,
-                address.get("region"),
-                sep=", ",
-            )
-            person.add("address", address)
-        emitter.emit(person, target=True)
-    emitter.finalize()
+    address = listing.get("address", {})
+    address = make_address(
+        context,
+        full=listing.get("address_snippet"),
+        street=address.get("address_line_1"),
+        street2=address.get("premises"),
+        city=address.get("locality"),
+        postal_code=address.get("postal_code"),
+        region=address.get("region"),
+    )
+    apply_address(context, person, address)
 
+    for disqual in data.pop("disqualifications", []):
+        sanction = make_sanction(person, key=disqual.get("case_identifier"))
+        sanction.add("recordId", disqual.get("case_identifier"))
+        sanction.add("startDate", disqual.get("disqualified_from"))
+        sanction.add("endDate", disqual.get("disqualified_until"))
+        sanction.add("listingDate", disqual.get("undertaken_on"))
+        for key, value in disqual.get("reason", {}).items():
+            value = value.replace("-", " ")
+            reason = f"{key}: {value}"
+            sanction.add("reason", reason)
+        sanction.add("country", "gb")
 
-def pages(context, data):
-    with context.http.rehash(data) as res:
-        doc = res.html
-        for direct in doc.findall(".//table//a"):
-            ref = direct.get("href")
-            _, officer_id = ref.rsplit("/", 1)
-            context.emit(data={"officer_id": officer_id})
+        for company_name in disqual.get("company_names", []):
+            company = context.make("Company")
+            company.make_slug("named", company_name)
+            company.add("name", company_name)
+            company.add("jurisdiction", "gb")
+            context.emit(company)
 
-        for a in doc.findall('.//ul[@id="pager"]/li/a'):
-            next_title = a.text.strip()
-            if next_title == "Next":
-                url = urljoin(data.get("url"), a.get("href"))
-                context.emit(rule="url", data={"url": url})
+            directorship = context.make("Directorship")
+            directorship.make_id(person.id, company.id)
+            directorship.add("director", person)
+            directorship.add("organization", company)
+            context.emit(directorship)
+
+        context.emit(sanction)
+    context.emit(person, target=True)
 
 
 def crawl(context):
     if API_KEY is None:
         context.log.error("Please set $OPENSANCTIONS_COH_API_KEY.")
         return
-    for letter in string.ascii_uppercase:
-        start_index = 0
-        while True:
-            params = {"q": letter, "start_index": start_index, "items_per_page": 100}
-            res = http_get(context, SEARCH_URL, params=params)
-            if res.status_code == 416:
-                break
-            data = res.json()
-            items = data.pop("items", [])
-            # pprint(data)
-            start_index = data["start_index"] + data["items_per_page"]
-            if data["total_results"] < start_index:
-                break
+    try:
+        for letter in string.ascii_uppercase:
+            start_index = 0
+            while True:
+                params = {
+                    "q": letter,
+                    "start_index": start_index,
+                    "items_per_page": 100,
+                }
+                res = http_get(context, SEARCH_URL, params=params)
+                if res.status_code == 416:
+                    break
+                data = res.json()
+                for item in data.pop("items", []):
+                    crawl_item(context, item)
+                start_index = data["start_index"] + data["items_per_page"]
+                if data["total_results"] < start_index:
+                    break
+    except RateLimit:
+        context.log.info("Rate limit exceeded, aborting.")
