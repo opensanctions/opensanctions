@@ -1,11 +1,12 @@
+from banal import first
 from pprint import pprint
 from normality import stringify, collapse_spaces
 from prefixdate import parse_parts, parse_formats
 
 from opensanctions.helpers import clean_emails, clean_phones, clean_gender
-from opensanctions.helpers import make_sanction
+from opensanctions.helpers import make_sanction, make_address, apply_address
 from opensanctions.util import remove_namespace
-from opensanctions.util import jointext, multi_split, remove_bracketed
+from opensanctions.util import multi_split, remove_bracketed
 
 FORMATS = ["%d/%m/%Y", "00/%m/%Y", "00/00/%Y", "%Y"]
 COUNTRY_SPLIT = ["(1)", "(2)", "(3)"]
@@ -130,28 +131,30 @@ def parse_row(context, row):
     else:
         entity.add("name", full_name)
 
-    countries = parse_countries(row.pop("Nationality", None))
-    entity.add("nationality", countries, quiet=True)
+    nationalities = parse_countries(row.pop("Nationality", None))
+    entity.add("nationality", nationalities, quiet=True)
     entity.add("position", row.pop("Position", None), quiet=True)
 
     countries = parse_countries(row.pop("Country", None))
     entity.add("country", countries)
-    entity.add("address", row.pop("FullAddress", None))
     entity.add("birthPlace", row.pop("TownOfBirth", None), quiet=True)
 
-    countries = parse_countries(row.pop("CountryOfBirth", None))
-    entity.add("country", countries, quiet=True)
+    birth_countries = parse_countries(row.pop("CountryOfBirth", None))
+    entity.add("country", birth_countries, quiet=True)
 
-    address = jointext(
-        row.pop("address1", None),
-        row.pop("address2", None),
-        row.pop("address3", None),
-        row.pop("address4", None),
-        row.pop("address5", None),
-        row.pop("address6", None),
-        row.pop("PostCode", None),
+    address = make_address(
+        context,
+        full=row.pop("FullAddress", None),
+        street=row.pop("address1", None),
+        street2=row.pop("address2", None),
+        street3=row.pop("address3", None),
+        city=row.pop("address4", None),
+        place=row.pop("address5", None),
+        region=row.pop("address6", None),
+        postal_code=row.pop("PostCode", None),
+        country=first(countries),
     )
-    entity.add("address", address, quiet=True)
+    apply_address(context, entity, address)
 
     reg_number = row.pop("BusinessRegNumber", None)
     entity.add_cast("LegalEntity", "registrationNumber", reg_number)

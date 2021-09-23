@@ -9,6 +9,7 @@ from prefixdate import parse_formats
 from pantomime.types import EXCEL
 
 from opensanctions.helpers import make_sanction
+from opensanctions.helpers import make_address, apply_address
 from opensanctions.util import multi_split, remove_bracketed
 
 FORMATS = ["%d/%m/%Y", "%d %b. %Y", "%d %b.%Y", "%d %b %Y", "%d %B %Y"]
@@ -88,15 +89,16 @@ def parse_reference(context, reference, rows):
         else:
             entity.add("name", name)
 
-        entity.add("address", row.pop("address"))
-        entity.add("notes", row.pop("additional_information"))
+        address = make_address(context, full=row.pop("address"))
+        apply_address(context, entity, address)
         sanction.add("program", row.pop("committees"))
         citizen = multi_split(row.pop("citizenship"), ["a)", "b)", "c)", "d)"])
         entity.add("nationality", citizen, quiet=True)
         dates = clean_date(row.pop("date_of_birth"))
         entity.add("birthDate", dates, quiet=True)
         entity.add("birthPlace", row.pop("place_of_birth"), quiet=True)
-        entity.add("status", row.pop("listing_information"), quiet=True)
+        entity.add("notes", row.pop("additional_information"))
+        entity.add("notes", row.pop("listing_information"), quiet=True)
 
         control_date = row.pop("control_date")
         sanction.add("modifiedAt", control_date)

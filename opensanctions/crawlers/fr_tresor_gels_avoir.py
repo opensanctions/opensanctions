@@ -2,16 +2,17 @@ import json
 from prefixdate import parse_parts
 from pantomime.types import JSON
 
+from opensanctions.helpers import make_address, apply_address
 from opensanctions.helpers import make_sanction, clean_gender
 
 SCHEMATA = {
     "Personne physique": "Person",
-    "Personne morale": "Company",
+    "Personne morale": "Organization",
     "Navire": "Vessel",
 }
 
 
-def apply_prop(entity, sanction, field, value):
+def apply_prop(context, entity, sanction, field, value):
     if field == "ALIAS":
         entity.add("alias", value.pop("Alias"))
     elif field == "SEXE":
@@ -34,8 +35,12 @@ def apply_prop(entity, sanction, field, value):
         date = parse_parts(value.pop("Annee"), value.pop("Mois"), value.pop("Jour"))
         entity.add("birthDate", date)
     elif field in ("ADRESSE_PM", "ADRESSE_PP"):
-        entity.add("country", value.pop("Pays"))
-        entity.add("address", value.pop("Adresse"))
+        address = make_address(
+            context,
+            full=value.pop("Adresse"),
+            country=value.pop("Pays"),
+        )
+        apply_address(context, entity, address)
     elif field == "LIEU_DE_NAISSANCE":
         entity.add("birthPlace", value.pop("Lieu"))
         entity.add("country", value.pop("Pays"))
@@ -80,7 +85,7 @@ def crawl_entity(context, data):
     for detail in data.pop("RegistreDetail"):
         field = detail.pop("TypeChamp")
         for value in detail.pop("Valeur"):
-            apply_prop(entity, sanction, field, value)
+            apply_prop(context, entity, sanction, field, value)
 
     context.emit(entity, target=True)
 

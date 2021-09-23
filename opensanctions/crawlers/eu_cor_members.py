@@ -3,6 +3,8 @@ from normality import stringify, collapse_spaces, slugify
 from lxml import html
 from prefixdate.formats import parse_format
 
+from opensanctions.helpers import make_address, apply_address
+
 
 def parse_date(text):
     return parse_format(text, "%d/%m/%Y")
@@ -99,14 +101,14 @@ def crawl_person(context, name, url):
             context.emit(member)
             continue
 
-    address = (
-        address.get("Street"),
-        address.get("City"),
-        address.get("Posal code"),
-        address.get("Country"),
+    address = make_address(
+        context,
+        street=address.get("Street"),
+        city=address.get("City"),
+        postal_code=address.get("Posal code"),
+        country=address.get("Country"),
     )
-    address = ", ".join([a for a in address if a is not None])
-    person.add("address", address)
+    apply_address(context, person, address)
     context.emit(person, target=True)
 
 

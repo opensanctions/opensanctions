@@ -81,9 +81,10 @@ def disjoint_schema(entity, addition):
 
 
 def parse_date(el):
-    return parse_parts(
+    pf = parse_parts(
         el.findtext("./Year"), el.findtext("./Month"), el.findtext("./Day")
-    ).text
+    )
+    return pf.text
 
 
 def date_prefix(*dates):
@@ -98,16 +99,21 @@ def date_prefix(*dates):
 
 
 def parse_date_period(date):
-    start = date.find("./Start")
-    start_from = parse_date(start.find("./From"))
-    start_to = parse_date(start.find("./To"))
-    end = date.find("./End")
-    end_from = parse_date(end.find("./From"))
-    end_to = parse_date(end.find("./To"))
-    return (
-        date_prefix(start_from, start_to),
-        date_prefix(end_from, end_to),
-    )
+    start_el = date.find("./Start")
+    start_from = parse_date(start_el.find("./From"))
+    start_to = parse_date(start_el.find("./To"))
+    end_el = date.find("./End")
+    end_from = parse_date(end_el.find("./From"))
+    end_to = parse_date(end_el.find("./To"))
+    start = date_prefix(start_from, start_to)
+    end = date_prefix(end_from, end_to)
+    # This is a little sketchy, but OFAC seems to use date ranges spanning
+    # a whole year as a way of signalling a lack of precision:
+    common = date_prefix(start, end)
+    if common is not None and len(common) == 4:
+        if start.endswith("-01-01") and end.endswith("-12-31"):
+            return (common,)
+    return (start, end)
 
 
 def load_locations(context, doc):

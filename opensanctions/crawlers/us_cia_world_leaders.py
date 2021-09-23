@@ -43,7 +43,7 @@ def crawl_country(context, params, path, country):
         person.add("position", function)
         person.add("sourceUrl", source_url)
         person.add("topics", "role.pep")
-        context.emit(person, target=True, unique=True)
+        context.emit(person, target=True)
 
 
 def crawl(context):

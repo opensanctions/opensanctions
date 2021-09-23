@@ -113,7 +113,7 @@ def parse_common(context, entity, node):
     name = node.findtext("./NAME_ORIGINAL_SCRIPT")
     name = name or node.findtext("./FIRST_NAME")
     entity.add("name", name)
-    entity.add("description", node.findtext("./COMMENTS1"))
+    entity.add("notes", node.findtext("./COMMENTS1"))
     updated_at = values(node.find("./LAST_DAY_UPDATED"))
     if len(updated_at):
         entity.add("modifiedAt", updated_at)

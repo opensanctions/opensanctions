@@ -8,4 +8,4 @@ logging.getLogger("alembic").setLevel(logging.WARNING)
 logging.getLogger("httpstream").setLevel(logging.WARNING)
 logging.getLogger("prefixdate").setLevel(logging.ERROR)
 
-warnings.simplefilter("ignore", ResourceWarning)
+warnings.simplefilter("ignore", category=ResourceWarning)
