@@ -65,6 +65,9 @@ country:
         - "CONGO, Democratic Republic of (was Zaire)"
         - "Kinshasa"
       value: CD
+    - match:
+        - CONGO, People's Republic of
+      value: CG
     - match: Germany, Democratic Republic (GDR)
       value: DD
     - match: NM # New Mexico?
@@ -349,6 +352,38 @@ email:
       values:
         - knaru@morobe.gov.pg
         - knarumpg@gmail.com
+    - match:
+        - pac@silibank. com and kndic@co.chesin.com
+        - pac@silibank.com and kndic@co.chesin.com
+      values:
+        - pac@silibank.com
+        - kndic@co.chesin.com
+    - match:
+        - "info@hamshointl.com and hamshogrou\u00adp@yahoo.com"
+      values:
+        - info@hamshointl.com
+        - hamshogroup@yahoo.com
+    - match:
+        - ryonha@ silibank.com; sjc117@ hotmail.com; and millim@ silibank.com
+      values:
+        - ryonha@silibank.com
+        - sjc117@hotmail.com
+        - millim@silibank.com
+    - match:
+        - s.bank@scs‐net.org, post‐gm@net.sy
+      values:
+        - s.bank@scs‐net.org
+        - post‐gm@net.sy
+    - match: spccom2@scs‐net.org or spccom1@scsnet.org
+      values:
+        - spccom2@scs‐net.org
+        - spccom1@scsnet.org
+    - match: helmand_exchange_msp@ yahoo.com
+      value: helmand_exchange_msp@yahoo.com
+    - match: info@dsgd.ru; gmn@dsgd.ru
+      values:
+        - info@dsgd.ru
+        - gmn@dsgd.ru
 
 phone:
   options:

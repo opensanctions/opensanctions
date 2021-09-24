@@ -24,6 +24,7 @@ def make_address(
     state=None,
     region=None,
     country=None,
+    country_code=None,
     key=None,
 ):
     """Generate an address schema object adjacent to the main entity."""
@@ -42,7 +43,9 @@ def make_address(
     address.add("region", region)
     address.add("state", state, quiet=True)
     address.add("country", country)
+    address.add("country", country_code)
 
+    country_code = address.first("country")
     if not address.has("full"):
         data = {
             "attention": summary,
@@ -51,16 +54,12 @@ def make_address(
             "postcode": postal_code,
             "city": city,
             "state": jointext(region, state, sep=", "),
-            "country": country,
+            # "country": country,
         }
-        cc = address.first("country")
-        full = get_formatter().one_line(data, country=cc)
+        full = get_formatter().one_line(data, country=country_code)
         address.add("full", full)
-
-    if not address.has("full"):
-        return
-
-    address.make_id("Address", full, key)
+    if full:
+        address.make_id("Address", full, country_code, key)
     return address
 
 
@@ -68,6 +67,7 @@ def apply_address(context, entity, address):
     """Link the given entity to the given address."""
     if address is None:
         return
-    entity.add("addressEntity", address)
     entity.add("country", address.get("country"))
-    context.emit(address)
+    if address.id is not None:
+        entity.add("addressEntity", address)
+        context.emit(address)

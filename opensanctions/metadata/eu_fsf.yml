@@ -16,3 +16,17 @@ url: https://eeas.europa.eu/topics/sanctions-policy/8442/consolidated-list-of-sa
 data:
   url: https://webgate.ec.europa.eu/europeaid/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=n00378os
   format: XML
+
+lookups:
+  subject_type:
+    options:
+      - match: person
+        value: Person
+      - match: enterprise
+        value: Organization
+  contact_info:
+    map:
+      PHONE: phone
+      FAX: phone
+      EMAIL: email
+      WEB: website
