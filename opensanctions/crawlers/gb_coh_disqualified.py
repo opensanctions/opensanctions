@@ -59,6 +59,7 @@ def crawl_item(context, listing):
         city=address.get("locality"),
         postal_code=address.get("postal_code"),
         region=address.get("region"),
+        # country_code=person.first("nationality"),
     )
     apply_address(context, person, address)
 
@@ -73,6 +74,7 @@ def crawl_item(context, listing):
             reason = f"{key}: {value}"
             sanction.add("reason", reason)
         sanction.add("country", "gb")
+        context.emit(sanction)
 
         for company_name in disqual.get("company_names", []):
             company = context.make("Company")
@@ -87,7 +89,6 @@ def crawl_item(context, listing):
             directorship.add("organization", company)
             context.emit(directorship)
 
-        context.emit(sanction)
     context.emit(person, target=True)
 
 

@@ -135,12 +135,12 @@ def parse_row(context, row):
     entity.add("nationality", nationalities, quiet=True)
     entity.add("position", row.pop("Position", None), quiet=True)
 
+    birth_countries = parse_countries(row.pop("CountryOfBirth", None))
+    entity.add("country", birth_countries, quiet=True)
+
     countries = parse_countries(row.pop("Country", None))
     entity.add("country", countries)
     entity.add("birthPlace", row.pop("TownOfBirth", None), quiet=True)
-
-    birth_countries = parse_countries(row.pop("CountryOfBirth", None))
-    entity.add("country", birth_countries, quiet=True)
 
     address = make_address(
         context,

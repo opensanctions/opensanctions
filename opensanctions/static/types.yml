@@ -15,6 +15,7 @@ country:
         - PO BOX 416
         - "02214513"
         - "Other"
+        - "Not Known"
       contains:
         - (JVCFOR)
       value: null
@@ -72,6 +73,10 @@ country:
       value: Mali
     - match: sh-hl
       value: Saint Helena
+    - match: German,British
+      values:
+        - DE
+        - GB
     - match:
         - Sudan/South Sudan
         - Sudan/or South Sudan
@@ -285,6 +290,8 @@ date:
       value: 2017-08-22
     - match: 0097-06-30
       value: 1997-06-30
+    - match: 3030-03-09
+      value: null
   map:
     "1966-02-02-05:00": 1966-02-02T05:00
     "1960-01-01-05:00": 1960-01-01T05:00
