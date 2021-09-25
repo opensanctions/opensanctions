@@ -158,7 +158,7 @@ def load_locations(context, doc):
             state=parts.get("STATE/PROVINCE"),
             country=country,
         )
-        if address is not None:
+        if address.id is not None:
             context.emit(address)
             locations[location_id] = address
     return locations
