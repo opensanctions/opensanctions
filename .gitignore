@@ -71,3 +71,4 @@ env*/
 
 _site/
 site/public/sitemap.xml
+site/_data

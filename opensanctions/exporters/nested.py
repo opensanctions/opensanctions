@@ -27,4 +27,4 @@ class NestedJSONExporter(Exporter):
         if not entity.target:
             return
         data = self.nested(entity, [])
-        write_object(self.fh, data, indent=2)
+        write_object(self.fh, data)

@@ -14,8 +14,11 @@ country:
         - "-"
         - PO BOX 416
         - "02214513"
+        - "220030"
         - "Other"
         - "Not Known"
+        # This is now three countries, so dropping:
+        - "Netherlands Antilles"
       contains:
         - (JVCFOR)
       value: null
