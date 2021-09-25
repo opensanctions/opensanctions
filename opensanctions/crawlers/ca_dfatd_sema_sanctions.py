@@ -15,8 +15,8 @@ def crawl(context):
 def parse_entry(context, node):
     # ids are per country and entry type (individual/entity)
     country = node.findtext("./Country")
-    if " / " in country:
-        country, _ = country.split(" / ")
+    if "/" in country:
+        country, _ = country.split("/")
     entity_name = node.findtext("./Entity")
     item = node.findtext(".//Item")
 
@@ -38,7 +38,6 @@ def parse_entry(context, node):
 
     dob = node.findtext(".//DateOfBirth")
     if dob is not None:
-        dob = "-".join(reversed(dob.split("/")))
         entity.add("birthDate", dob, quiet=True)
 
     names = node.findtext(".//Aliases")
