@@ -64,8 +64,9 @@ def crawl_item(context, listing):
     apply_address(context, person, address)
 
     for disqual in data.pop("disqualifications", []):
-        sanction = make_sanction(person, key=disqual.get("case_identifier"))
-        sanction.add("recordId", disqual.get("case_identifier"))
+        case_id = disqual.get("case_identifier")
+        sanction = make_sanction(context, person, key=case_id)
+        sanction.add("recordId", case_id)
         sanction.add("startDate", disqual.get("disqualified_from"))
         sanction.add("endDate", disqual.get("disqualified_until"))
         sanction.add("listingDate", disqual.get("undertaken_on"))
@@ -78,13 +79,13 @@ def crawl_item(context, listing):
 
         for company_name in disqual.get("company_names", []):
             company = context.make("Company")
-            company.make_slug("named", company_name)
+            company.id = context.make_slug("named", company_name)
             company.add("name", company_name)
             company.add("jurisdiction", "gb")
             context.emit(company)
 
             directorship = context.make("Directorship")
-            directorship.make_id(person.id, company.id)
+            directorship.id = context.make_id(person.id, company.id)
             directorship.add("director", person)
             directorship.add("organization", company)
             context.emit(directorship)

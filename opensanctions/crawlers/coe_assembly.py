@@ -6,7 +6,7 @@ from urllib.parse import urljoin
 def crawl_entry(context, pace, href, member_url):
     _, slug = href.get("href").split("members/", 1)
     person = context.make("Person")
-    person.make_slug(slug)
+    person.id = context.make_slug(slug)
     for span in href.findall("./span"):
         icon = span.find(".//i")
         if icon is None:
@@ -54,7 +54,7 @@ def crawl_entry(context, pace, href, member_url):
 def crawl(context):
     index_url = context.dataset.data.url
     pace = context.make("PublicBody")
-    pace.make_slug("pace")
+    pace.id = context.make_slug("pace")
     pace.add("name", "Counil of Europe Parliamentary Assembly")
     context.emit(pace)
     for page_idx in count(1):

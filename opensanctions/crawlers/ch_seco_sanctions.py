@@ -118,7 +118,7 @@ def parse_identity(context, entity, node, places):
         if type_ in ["passport", "diplomatic-passport"]:
             entity.add("idNumber", number)
         passport = context.make("Passport")
-        passport.make_id(entity.id, "Passport", doc.get("ssid"))
+        passport.id = context.make_id(entity.id, "Passport", doc.get("ssid"))
         passport.add("holder", entity)
         passport.add("country", country.get("code"))
         passport.add("passportNumber", number)
@@ -152,7 +152,7 @@ def parse_entry(context, target, programs, places, updated_at):
     entity.context["created_at"] = min(dates)
     entity.context["updated_at"] = max(dates)
 
-    entity.make_slug(target.get("ssid"))
+    entity.id = context.make_slug(target.get("ssid"))
     for other in node.findall("./other-information"):
         value = other.text.strip()
         if entity.schema.is_a("Vessel") and value.lower().startswith("imo"):
@@ -161,7 +161,7 @@ def parse_entry(context, target, programs, places, updated_at):
         else:
             entity.add("notes", value)
 
-    sanction = make_sanction(entity)
+    sanction = make_sanction(context, entity)
     sanction.add("modifiedAt", max(dates))
 
     for justification in node.findall("./justification"):

@@ -71,7 +71,7 @@ def parse_common(context, entity, data, lastmod):
 def parse_person(context, data, country, entities, lastmod):
     person_id = data.pop("id", None)
     person = context.make("Person")
-    person.make_slug(person_id)
+    person.id = context.make_slug(person_id)
     person.add("nationality", country)
     parse_common(context, person, data, lastmod)
 
@@ -120,7 +120,7 @@ def parse_organization(context, data, country, entities, lastmod):
             field="classification",
             value=classification,
         )
-    organization.make_slug(country, org_id)
+    organization.id = context.make_slug(country, org_id)
     if organization.id is None:
         context.log.warning(
             "No ID for organization",
@@ -149,7 +149,7 @@ def parse_membership(context, data, entities, events):
     if person_id and organization_id:
         period_id = data.get("legislative_period_id")
         membership = context.make("Membership")
-        membership.make_id(period_id, person_id, organization_id)
+        membership.id = context.make_id(period_id, person_id, organization_id)
         membership.add("member", person_id)
         membership.add("organization", organization_id)
         membership.add("role", data.pop("role", None))
@@ -171,7 +171,7 @@ def parse_membership(context, data, entities, events):
 
     if person_id and on_behalf_of_id:
         membership = context.make("Membership")
-        membership.make_id(person_id, on_behalf_of_id)
+        membership.id = context.make_id(person_id, on_behalf_of_id)
         membership.add("member", person_id)
         membership.add("organization", on_behalf_of_id)
 

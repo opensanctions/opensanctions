@@ -16,7 +16,7 @@ def crawl_person(context, name, url):
     doc = html.fromstring(res.text)
     _, person_id = url.rsplit("/", 1)
     person = context.make("Person")
-    person.make_slug(person_id)
+    person.id = context.make_slug(person_id)
     person.add("sourceUrl", url)
     person.add("name", name)
     person.add("topics", "role.pep")
@@ -95,7 +95,7 @@ def crawl_person(context, name, url):
             group.id = f"eu-cor-group-{slug}"
             context.emit(group)
             member = context.make("Membership")
-            member.make_id("Membership", person.id, group.id)
+            member.id = context.make_id("Membership", person.id, group.id)
             member.add("member", person)
             member.add("organization", group)
             context.emit(member)

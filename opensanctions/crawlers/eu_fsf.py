@@ -36,10 +36,10 @@ def parse_entry(context, entry):
         return
 
     entity = context.make(schema)
-    entity.make_slug(entry.get("euReferenceNumber"))
+    entity.id = context.make_slug(entry.get("euReferenceNumber"))
     entity.add("notes", entry.findtext("./remark"))
 
-    sanction = make_sanction(entity)
+    sanction = make_sanction(context, entity)
     regulation = entry.find("./regulation")
     source_url = regulation.findtext("./publicationUrl", "")
     sanction.set("sourceUrl", source_url)
@@ -65,7 +65,7 @@ def parse_entry(context, entry):
         type = node.get("identificationTypeCode")
         schema = "Passport" if type == "passport" else "Identification"
         passport = context.make(schema)
-        passport.make_id("ID", entity.id, node.get("logicalId"))
+        passport.id = context.make_id("ID", entity.id, node.get("logicalId"))
         passport.add("holder", entity)
         passport.add("authority", node.get("issuedBy"))
         passport.add("type", node.get("identificationTypeDescription"))

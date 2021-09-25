@@ -21,9 +21,9 @@ def parse_entry(context, entry):
     if entry.findtext("./type-entry") == "2":
         entity = context.make("Person")
     entry_id = entry.findtext("number-entry")
-    entity.make_slug(entry_id)
+    entity.id = context.make_slug(entry_id)
 
-    sanction = make_sanction(entity)
+    sanction = make_sanction(context, entity)
     sanction.add("program", entry.findtext("./program-entry"))
     date_entry = entry.findtext("./date-entry")
     if date_entry:
@@ -57,7 +57,7 @@ def parse_entry(context, entry):
         number = doc.findtext("./document-id")
         country = doc.findtext("./document-country")
         passport = context.make("Passport")
-        passport.make_id("Passport", entity.id, reg, number, country)
+        passport.id = context.make_id("Passport", entity.id, reg, number, country)
         passport.add("holder", entity)
         passport.add("passportNumber", number)
         passport.add("summary", reg)

@@ -13,7 +13,7 @@ def split_name(name):
 def crawl_node(context, node):
     mep_id = node.findtext(".//id")
     person = context.make("Person")
-    person.make_slug(mep_id)
+    person.id = context.make_slug(mep_id)
     url = "http://www.europarl.europa.eu/meps/en/%s" % mep_id
     person.add("sourceUrl", url)
     name = node.findtext(".//fullName")
@@ -28,26 +28,26 @@ def crawl_node(context, node):
     party_name = node.findtext(".//nationalPoliticalGroup")
     if party_name not in ["Independent"]:
         party = context.make("Organization")
-        party.make_slug("npg", party_name)
+        party.id = context.make_slug("npg", party_name)
         if party.id is not None:
             party.add("name", party_name)
             party.add("country", node.findtext(".//country"))
             context.emit(party)
             membership = context.make("Membership")
-            membership.make_id(person.id, party.id)
+            membership.id = context.make_id(person.id, party.id)
             membership.add("member", person)
             membership.add("organization", party)
             context.emit(membership)
 
     group_name = node.findtext(".//politicalGroup")
     group = context.make("Organization")
-    group.make_slug("pg", group_name)
+    group.id = context.make_slug("pg", group_name)
     if group.id is not None:
         group.add("name", group_name)
         group.add("country", "eu")
         context.emit(group)
         membership = context.make("Membership")
-        membership.make_id(person.id, group.id)
+        membership.id = context.make_id(person.id, group.id)
         membership.add("member", person)
         membership.add("organization", group)
         context.emit(membership)

@@ -24,6 +24,7 @@ class Statement(Base):
     """
 
     MAX = "max"
+    BASE = "id"
 
     __tablename__ = "statement"
 
@@ -40,9 +41,23 @@ class Statement(Base):
     last_seen = Column(DateTime, index=True)
 
     @classmethod
-    def from_entity(cls, entity, resolver, unique=False):
+    def from_entity(cls, entity, dataset, resolver, unique=False):
         canonical_id = resolver.get_canonical(entity.id)
-        values = []
+        values = [
+            {
+                "entity_id": entity.id,
+                "canonical_id": canonical_id,
+                "prop": cls.BASE,
+                "prop_type": cls.BASE,
+                "schema": entity.schema.name,
+                "value": entity.id,
+                "dataset": dataset.name,
+                "target": entity.target,
+                "unique": unique,
+                "first_seen": settings.RUN_TIME,
+                "last_seen": settings.RUN_TIME,
+            }
+        ]
         for prop, value in entity.itervalues():
             stmt = {
                 "entity_id": entity.id,
@@ -51,7 +66,7 @@ class Statement(Base):
                 "prop_type": prop.type.name,
                 "schema": entity.schema.name,
                 "value": value,
-                "dataset": entity.dataset.name,
+                "dataset": dataset.name,
                 "target": entity.target,
                 "unique": unique,
                 "first_seen": settings.RUN_TIME,

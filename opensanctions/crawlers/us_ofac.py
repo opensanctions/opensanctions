@@ -204,7 +204,7 @@ def parse_alias(party, parts, alias):
 
 def make_adjacent(context, schema, name):
     entity = context.make(schema)
-    entity.make_slug("named", name)
+    entity.id = context.make_slug("named", name)
     entity.add("name", name)
     context.emit(entity)
     return entity
@@ -263,7 +263,7 @@ def parse_party(context, distinct_party, locations, documents):
         context.log.error("Unknown party type", value=type_)
         return
     party = context.make(schema)
-    party.make_slug(profile.get("ID"))
+    party.id = context.make_slug(profile.get("ID"))
     party.add("notes", distinct_party.findtext("Comment"))
 
     for identity in profile.findall("./Identity"):
@@ -341,9 +341,9 @@ def parse_party(context, distinct_party, locations, documents):
 
 def parse_entry(context, entry):
     party = context.make("Thing")
-    party.make_slug(entry.get("ProfileID"))
+    party.id = context.make_slug(entry.get("ProfileID"))
 
-    sanction = make_sanction(party, key=entry.get("ID"))
+    sanction = make_sanction(context, party, key=entry.get("ID"))
     sanction.add("program", ref_value("List", entry.get("ListID")))
 
     dates = set()
@@ -404,7 +404,7 @@ def parse_relation(context, el, parties):
     add_schema(to_party, to_range)
     context.emit(from_party, target=True)
     context.emit(to_party, target=True)
-    entity.make_id("Relation", from_party.id, to_party.id, el.get("ID"))
+    entity.id = context.make_id("Relation", from_party.id, to_party.id, el.get("ID"))
     entity.add(relation.from_prop, from_party)
     entity.add(relation.to_prop, to_party)
     entity.add(relation.description_prop, type_)

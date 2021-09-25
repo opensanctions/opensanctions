@@ -6,7 +6,6 @@ from followthemoney.types import registry
 from nomenklatura.dataset import Dataset as NomenklaturaDataset
 
 from opensanctions import settings
-from opensanctions.core.entity import Entity
 from opensanctions.helpers.lookups import load_yaml
 from opensanctions.model import Issue, Statement, Resource
 from opensanctions.model.base import KEY_LEN
@@ -43,9 +42,6 @@ class Dataset(NomenklaturaDataset):
         slug = joinslug(*parts, prefix=self.prefix, strict=strict)
         if slug is not None:
             return slug[:KEY_LEN]
-
-    def make_entity(self, schema, target=False):
-        return Entity(self, schema, target=target)
 
     @property
     def datasets(self):

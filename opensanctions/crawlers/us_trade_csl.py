@@ -22,7 +22,7 @@ def parse_result(context, result):
         context.log.error("Unknown result type", type=type_)
         return
     entity = context.make(schema)
-    entity.make_slug(result.pop("id"))
+    entity.id = context.make_slug(result.pop("id"))
 
     result.pop("entity_number", None)
 
@@ -81,7 +81,7 @@ def parse_result(context, result):
             continue
         if idres.nested is not None:
             adj = context.make(idres.schema)
-            adj.make_id(type_, value)
+            adj.id = context.make_id(type_, value)
             if idres.type is not None:
                 adj.add(idres.type, type_)
             adj.add(idres.value, value)
@@ -89,7 +89,7 @@ def parse_result(context, result):
             context.emit(adj)
         elif idres.backref is not None:
             adj = context.make(idres.schema)
-            adj.make_id(type_, value)
+            adj.id = context.make_id(type_, value)
             adj.add(idres.backref, entity)
             if idres.type is not None:
                 adj.add(idres.type, type_)
@@ -108,7 +108,7 @@ def parse_result(context, result):
         # pprint(ident)
 
     sanction = context.make("Sanction")
-    sanction.make_id(entity.id, "Sanction")
+    sanction.id = context.make_id(entity.id, "Sanction")
     sanction.add("entity", entity)
     sanction.add("program", result.pop("programs", []))
     sanction.add("status", result.pop("license_policy", []))

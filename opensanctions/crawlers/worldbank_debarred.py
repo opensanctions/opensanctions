@@ -46,7 +46,7 @@ def crawl(context):
         entity = context.make("LegalEntity")
         name = data.get("SUPP_NAME")
         ent_id = data.get("SUPP_ID")
-        entity.make_slug(ent_id)
+        entity.id = context.make_slug(ent_id)
         names = clean_name(name)
         entity.add("name", names[0])
         entity.add("country", data.get("COUNTRY_NAME"))
@@ -62,7 +62,7 @@ def crawl(context):
         )
         apply_address(context, entity, address)
 
-        sanction = make_sanction(entity)
+        sanction = make_sanction(context, entity)
         sanction.add("program", data.get("DEBAR_REASON"))
         sanction.add("startDate", parse_date(data.get("DEBAR_FROM_DATE")))
         sanction.add("endDate", parse_date(data.get("DEBAR_TO_DATE")))

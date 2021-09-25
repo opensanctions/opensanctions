@@ -37,7 +37,7 @@ def crawl_country(context, params, path, country):
             url=source_url,
         )
         person = context.make("Person")
-        person.make_slug(country, name, function)
+        person.id = context.make_slug(country, name, function)
         person.add("name", name)
         person.add("country", country)
         person.add("position", function)

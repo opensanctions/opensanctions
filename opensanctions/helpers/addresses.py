@@ -59,7 +59,7 @@ def make_address(
         full = get_formatter().one_line(data, country=country_code)
         address.add("full", full)
     if full:
-        address.make_id("Address", full, country_code, key)
+        address.id = context.make_id("Address", full, country_code, key)
     return address
 
 

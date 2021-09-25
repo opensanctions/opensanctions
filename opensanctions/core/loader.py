@@ -5,7 +5,6 @@ from followthemoney.types import registry
 from followthemoney.property import Property
 from nomenklatura import Loader, MemoryLoader, Resolver
 
-
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.entity import Entity
 from opensanctions.model import Statement
@@ -66,20 +65,20 @@ class DatabaseLoader(Loader[Dataset, Entity]):
             if stmt.canonical_id != current_id:
                 if entity is not None:
                     yield entity
-                entity = Entity(dataset, schema)
+                entity = Entity(schema)
                 entity.id = stmt.canonical_id
                 entity.first_seen = stmt.first_seen
                 entity.last_seen = stmt.last_seen
             current_id = stmt.canonical_id
-            entity.add_schema(schema)
-            entity.sources.add(stmt.dataset)
+            if stmt.prop == stmt.BASE:
+                entity.add_schema(schema)
+                entity.datasets.add(Dataset.get(stmt.dataset))
+                entity.referents.add(stmt.entity_id)
+                entity.first_seen = min(entity.first_seen, stmt.first_seen)
+                entity.last_seen = max(entity.last_seen, stmt.last_seen)
+                entity.target = max(entity.target, stmt.target)
+                continue
             prop = schema.properties[stmt.prop]
-            value = stmt.value
-            if prop.type == registry.entity:
-                value = resolver.get_canonical(value)
-            entity.unsafe_add(prop, value, cleaned=True)
-            entity.target = max(entity.target, stmt.target)
-            entity.first_seen = min(entity.first_seen, stmt.first_seen)
-            entity.last_seen = max(entity.last_seen, stmt.last_seen)
+            entity.unsafe_add(prop, stmt.value, cleaned=True)
         if entity is not None:
             yield entity

@@ -23,11 +23,11 @@ def parse_entry(context, node):
     entity = context.make("LegalEntity")
     if entity_name is None:
         entity = context.make("Person")
-    entity.make_slug(country, item)
+    entity.id = context.make_slug(country, item)
     entity.add("name", entity_name)
     entity.add("country", country)
 
-    sanction = make_sanction(entity)
+    sanction = make_sanction(context, entity)
     sanction.add("program", node.findtext(".//Schedule"))
 
     given_name = node.findtext(".//GivenName")

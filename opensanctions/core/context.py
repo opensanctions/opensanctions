@@ -4,10 +4,12 @@ import structlog
 from lxml import etree
 from datapatch import LookupException
 from structlog.contextvars import clear_contextvars, bind_contextvars
+from followthemoney.util import make_entity_id
 
 from opensanctions import settings
 from opensanctions.model import db, Statement, Issue, Resource
 from opensanctions.core.http import get_session, fetch_download
+from opensanctions.core.entity import Entity
 from opensanctions.core.resolver import get_resolver
 
 
@@ -75,7 +77,14 @@ class Context(object):
 
     def make(self, schema, target=False):
         """Make a new entity with some dataset context set."""
-        return self.dataset.make_entity(schema, target=target)
+        return Entity(schema, target=target)
+
+    def make_slug(self, *parts, strict=True):
+        return self.dataset.make_slug(*parts, strict=strict)
+
+    def make_id(self, *parts):
+        hashed = make_entity_id(*parts, key_prefix=self.dataset.name)
+        return self.make_slug(hashed)
 
     def flush(self):
         """Emitted entities are de-constructed into statements for the database
@@ -92,7 +101,9 @@ class Context(object):
             raise ValueError("Entity has no ID: %r", entity)
         if target is not None:
             entity.target = target
-        statements = Statement.from_entity(entity, self.resolver, unique=unique)
+        statements = Statement.from_entity(
+            entity, self.dataset, self.resolver, unique=unique
+        )
         if not len(statements):
             raise ValueError("Entity has no properties: %r", entity)
         for stmt in statements:

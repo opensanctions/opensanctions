@@ -55,11 +55,11 @@ def parse_row(context, row):
         context.log.error("Unknown entity type", group_type=group_type)
         return
     entity = context.make(base_schema)
-    entity.make_slug(row.pop("GroupID"))
+    entity.id = context.make_slug(row.pop("GroupID"))
     if org_type is not None:
         entity.add_cast("LegalEntity", "legalForm", org_type)
 
-    sanction = make_sanction(entity)
+    sanction = make_sanction(context, entity)
     # entity.add("position", row.pop("Position"), quiet=True)
     entity.add("notes", row.pop("OtherInformation", None), quiet=True)
     entity.add("notes", row.pop("FurtherIdentifiyingInformation", None), quiet=True)

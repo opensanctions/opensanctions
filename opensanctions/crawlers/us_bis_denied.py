@@ -10,7 +10,7 @@ def parse_date(text):
 
 def parse_row(context, row):
     entity = context.make("LegalEntity")
-    entity.make_slug(row.get("Effective_Date"), row.get("Name"))
+    entity.id = context.make_slug(row.get("Effective_Date"), row.get("Name"))
     entity.add("name", row.get("Name"))
     entity.add("notes", row.get("Action"))
     entity.add("country", row.get("Country"))
@@ -28,8 +28,9 @@ def parse_row(context, row):
     apply_address(context, entity, address)
     context.emit(entity, target=True)
 
-    sanction = make_sanction(entity, key=row.get("FR_Citation"))
-    sanction.add("program", row.get("FR_Citation"))
+    citation = row.get("FR_Citation")
+    sanction = make_sanction(context, entity, key=citation)
+    sanction.add("program", citation)
     sanction.add("startDate", parse_date(row.get("Effective_Date")))
     sanction.add("endDate", parse_date(row.get("Expiration_Date")))
     # pprint(row)

@@ -40,7 +40,7 @@ def crawl_notice(context, notice):
     first_name = notice["forename"] or ""
     last_name = notice["name"] or ""
     entity = context.make("Person")
-    entity.make_slug(notice.get("entity_id"))
+    entity.id = context.make_slug(notice.get("entity_id"))
     entity.add("name", first_name + " " + last_name)
     entity.add("firstName", first_name)
     entity.add("lastName", last_name)

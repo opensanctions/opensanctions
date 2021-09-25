@@ -75,9 +75,9 @@ def clean_reference(ref):
 
 def parse_reference(context, reference, rows):
     entity = context.make("LegalEntity")
-    entity.make_slug(reference)
+    entity.id = context.make_slug(reference)
     entity.add("sourceUrl", context.dataset.url)
-    sanction = make_sanction(entity)
+    sanction = make_sanction(context, entity)
 
     for row in rows:
         if row.pop("type") == "Individual":

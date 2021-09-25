@@ -79,7 +79,7 @@ def parse_individual(context, node):
         type_ = doc.findtext("./TYPE_OF_DOCUMENT")
         if number is None and date is None and type_ is None:
             continue
-        passport.make_id(person.id, number, date, type_)
+        passport.id = context.make_id(person.id, number, date, type_)
         passport.add("holder", person)
         passport.add("passportNumber", number)
         passport.add("startDate", date)
@@ -109,7 +109,7 @@ def parse_individual(context, node):
 
 
 def parse_common(context, entity, node):
-    entity.make_slug(node.findtext("./DATAID"))
+    entity.id = context.make_slug(node.findtext("./DATAID"))
     name = node.findtext("./NAME_ORIGINAL_SCRIPT")
     name = name or node.findtext("./FIRST_NAME")
     entity.add("name", name)
@@ -122,7 +122,7 @@ def parse_common(context, entity, node):
     if listed_on is not None:
         entity.context["created_at"] = listed_on
 
-    sanction = make_sanction(entity)
+    sanction = make_sanction(context, entity)
     sanction.add("startDate", listed_on)
     sanction.add("modifiedAt", values(node.find("./LAST_DAY_UPDATED")))
 

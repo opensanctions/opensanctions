@@ -78,6 +78,7 @@ class SimpleCSVExporter(Exporter):
                 identifiers.update(adjacent.get("number"))
                 countries.update(adjacent.get("country"))
 
+        datasets = [ds.title for ds in entity.datasets]
         row = [
             entity.id,
             entity.schema.name,
@@ -90,7 +91,7 @@ class SimpleCSVExporter(Exporter):
             self.concat_values(sanctions),
             self.concat_values(entity.get_type_values(registry.phone)),
             self.concat_values(entity.get_type_values(registry.email)),
-            entity.dataset.title,
+            self.concat_values(datasets),
             entity.first_seen,
             entity.last_seen,
         ]

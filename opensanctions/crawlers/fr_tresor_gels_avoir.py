@@ -78,10 +78,10 @@ def crawl_entity(context, data):
     nature = data.pop("Nature")
     schema = SCHEMATA.get(nature)
     entity = context.make(schema)
-    entity.make_slug(data.pop("IdRegistre"))
+    entity.id = context.make_slug(data.pop("IdRegistre"))
     entity.add("name", data.pop("Nom"))
 
-    sanction = make_sanction(entity)
+    sanction = make_sanction(context, entity)
     for detail in data.pop("RegistreDetail"):
         field = detail.pop("TypeChamp")
         for value in detail.pop("Valeur"):

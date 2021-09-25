@@ -3,15 +3,14 @@ from banal import ensure_list
 
 from followthemoney import model
 from followthemoney.types import registry
-from followthemoney.proxy import EntityProxy
+from nomenklatura.entity import CompositeEntity
 
-from opensanctions.model import Statement
 from opensanctions.helpers import type_lookup
 
 log = structlog.get_logger(__name__)
 
 
-class Entity(EntityProxy):
+class Entity(CompositeEntity):
     """Entity for sanctions list entries and adjacent objects.
 
     Add utility methods to the :py:class:`followthemoney.proxy:EntityProxy` for
@@ -19,30 +18,25 @@ class Entity(EntityProxy):
     structured logging.
     """
 
-    def __init__(self, dataset, schema, data=None, target=False):
-        self.dataset = dataset
-        self.sources = set()
+    def __init__(self, schema, data=None, target=False):
         self.target = target
         self.first_seen = None
         self.last_seen = None
         data = data or {"schema": schema}
-        super().__init__(model, data, key_prefix=dataset.name)
-
-    def make_slug(self, *parts, strict=True):
-        self.id = self.dataset.make_slug(*parts, strict=strict)
-        return self.id
+        super().__init__(model, data)
 
     def make_id(self, *parts):
-        hashed = super().make_id(*parts)
-        return self.make_slug(hashed)
+        raise NotImplemented
 
     def _lookup_values(self, prop, values):
         for value in ensure_list(values):
             yield from type_lookup(prop.type, value)
 
-    def add(self, prop, values, cleaned=False, quiet=False, fuzzy=False):
+    def add(self, prop, values, cleaned=False, quiet=False, fuzzy=False, format=None):
         if cleaned:
-            super().add(prop, values, cleaned=True, quiet=quiet, fuzzy=fuzzy)
+            super().add(
+                prop, values, cleaned=True, quiet=quiet, fuzzy=fuzzy, format=format
+            )
             return
 
         prop_name = self._prop_name(prop, quiet=quiet)
@@ -53,7 +47,7 @@ class Entity(EntityProxy):
         for value in self._lookup_values(prop, values):
             if value is None or len(str(value).strip()) == 0:
                 continue
-            clean = prop.type.clean(value, proxy=self, fuzzy=fuzzy)
+            clean = prop.type.clean(value, proxy=self, fuzzy=fuzzy, format=format)
             if clean is None:
                 if prop.type == registry.phone:
                     continue
@@ -61,7 +55,7 @@ class Entity(EntityProxy):
                     "Rejected property value",
                     entity=self,
                     prop=prop.name,
-                    value=value,
+                    value=repr(value),
                 )
             self.unsafe_add(prop, clean, cleaned=True)
 
@@ -91,6 +85,5 @@ class Entity(EntityProxy):
         data["first_seen"] = self.first_seen
         data["last_seen"] = self.last_seen
         data["target"] = self.target
-        data["dataset"] = self.dataset.name
         data["caption"] = self.caption
         return data
