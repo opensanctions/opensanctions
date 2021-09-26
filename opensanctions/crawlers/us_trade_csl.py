@@ -12,7 +12,8 @@ FORMATS = ["%d %b %Y", "%d %B %Y", "%Y", "%b %Y", "%B %Y"]
 def parse_date(date):
     if date is not None:
         date = date.replace("circa", "").strip()
-    return parse_formats(date, FORMATS)
+    parsed = parse_formats(date, FORMATS)
+    return parsed.text or date
 
 
 def parse_result(context, result):

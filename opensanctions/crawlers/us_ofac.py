@@ -315,7 +315,7 @@ def parse_party(context, distinct_party, locations, documents):
                     continue
                 # TODO: Check out IDRegDocDateType
                 passport = context.make("Passport")
-                passport.make_id("Passport", party.id, regdoc.get("ID"))
+                passport.id = context.make_id("Passport", party.id, regdoc.get("ID"))
                 passport.add("holder", party)
                 passport.add("type", doc_label)
                 passport.add("country", country)

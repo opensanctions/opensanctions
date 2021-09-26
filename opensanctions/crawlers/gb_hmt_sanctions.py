@@ -13,7 +13,8 @@ COUNTRY_SPLIT = ["(1)", "(2)", "(3)"]
 
 
 def parse_date(date):
-    return parse_formats(date, FORMATS)
+    parsed = parse_formats(date, FORMATS)
+    return parsed.text or date
 
 
 def parse_countries(text):

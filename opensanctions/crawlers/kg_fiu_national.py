@@ -9,7 +9,8 @@ FORMATS = ["%d.%m.%Y", "%Y%m%d", "%Y-%m-%d"]
 
 
 def parse_date(text):
-    return parse_formats(text, FORMATS)
+    parsed = parse_formats(text, FORMATS)
+    return parsed.text or text
 
 
 def parse_person(context, node):

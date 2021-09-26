@@ -49,7 +49,8 @@ def crawl_notice(context, notice):
     entity.add("gender", clean_gender(notice.get("sex_id")))
     entity.add("birthPlace", notice.get("place_of_birth"))
 
-    dob = parse_formats(notice["date_of_birth"], FORMATS)
+    dob_raw = notice["date_of_birth"]
+    dob = parse_formats(dob_raw, FORMATS).text or dob_raw
     entity.add("birthDate", dob)
     if "v1/red" in res.url:
         entity.add("topics", "crime")

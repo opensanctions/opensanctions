@@ -13,7 +13,10 @@ def parse_date(date):
     date = date.replace(".", "").strip()
     if ";" in date:
         date, _ = date.split(";", 1)
-    return parse_formats(date, FORMATS)
+    parsed = parse_formats(date, FORMATS)
+    if parsed.text is None:
+        return date
+    return parsed
 
 
 def parse_entry(context, entry):
@@ -71,10 +74,11 @@ def parse_entry(context, entry):
         entity.add("address", node.findtext("./address"))
 
     for pob in entry.findall("./place-of-birth-list"):
-        entity.add("birthPlace", pob.text, quiet=True)
+        entity.add_cast("Person", "birthPlace", pob.text)
 
     for dob in entry.findall("./date-of-birth-list"):
-        entity.add("birthDate", parse_date(dob.text), quiet=True)
+        date = parse_date(dob.text)
+        entity.add_cast("Person", "birthDate", date)
 
     for nat in entry.findall("./nationality-list"):
         for country in multi_split(nat.text, [";", ","]):
