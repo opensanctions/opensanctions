@@ -127,6 +127,7 @@ class Context(object):
             # Run the dataset:
             self.dataset.method(self)
             self.flush()
+            Statement.cleanup_dataset(self.dataset)
             self.log.info(
                 "Crawl completed",
                 entities=Statement.all_counts(dataset=self.dataset),

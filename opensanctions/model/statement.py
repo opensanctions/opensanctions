@@ -1,7 +1,6 @@
 import structlog
-from functools import lru_cache
 from followthemoney.types import registry
-from sqlalchemy import select, func, Column, Unicode, DateTime, Boolean
+from sqlalchemy import select, update, func, Column, Unicode, DateTime, Boolean
 from sqlalchemy.dialects.sqlite import insert as insert_sqlite
 from sqlalchemy.dialects.postgresql import insert as insert_postgresql
 
@@ -99,7 +98,7 @@ class Statement(Base):
         db.session.execute(stmt)
 
     @classmethod
-    def all_ids(cls, dataset=None, unique=None, target=None, last_seen=MAX):
+    def all_ids(cls, dataset=None, unique=None, target=None):
         q = db.session.query(cls.canonical_id)
         if unique is not None:
             q = q.filter(cls.unique == unique)
@@ -107,17 +106,11 @@ class Statement(Base):
             q = q.filter(cls.target == target)
         if dataset is not None:
             q = q.filter(cls.dataset.in_(dataset.source_names))
-        if last_seen == cls.MAX:
-            last_seen = cls.max_last_seen(dataset=dataset)
-        if last_seen is not None:
-            q = q.filter(cls.last_seen == last_seen)
         q = q.distinct()
         return q
 
     @classmethod
-    def all_statements(
-        cls, dataset=None, canonical_id=None, inverted_ids=None, last_seen=MAX
-    ):
+    def all_statements(cls, dataset=None, canonical_id=None, inverted_ids=None):
         q = db.session.query(cls)
         if canonical_id is not None:
             q = q.filter(cls.canonical_id == canonical_id)
@@ -138,30 +131,22 @@ class Statement(Base):
             # q = q.filter(inverted.value.in_(inverted_ids))
         if dataset is not None:
             q = q.filter(cls.dataset.in_(dataset.source_names))
-        if last_seen == cls.MAX:
-            last_seen = cls.max_last_seen(dataset=dataset)
-        if last_seen is not None:
-            q = q.filter(cls.last_seen == last_seen)
         q = q.order_by(cls.canonical_id.asc())
         return q.yield_per(10000)
 
     @classmethod
-    def all_counts(cls, dataset=None, unique=None, target=None, last_seen=MAX):
-        q = cls.all_ids(
-            dataset=dataset, unique=unique, target=target, last_seen=last_seen
-        )
+    def all_counts(cls, dataset=None, unique=None, target=None):
+        q = cls.all_ids(dataset=dataset, unique=unique, target=target)
         return q.count()
 
     @classmethod
     def agg_target_by_country(cls, dataset=None):
         """Return the number of targets grouped by country."""
         count = func.count(func.distinct(cls.entity_id))
-        last_seen = cls.max_last_seen(dataset=dataset)
         q = db.session.query(cls.value, count)
         # TODO: this could be generic to type values?
         q = q.filter(cls.target == True)  # noqa
         q = q.filter(cls.prop_type == registry.country.name)
-        q = q.filter(cls.last_seen == last_seen)
         if dataset is not None:
             q = q.filter(cls.dataset.in_(dataset.source_names))
         q = q.group_by(cls.value)
@@ -174,10 +159,8 @@ class Statement(Base):
         # FIXME: duplicates entities when there are statements with different schema
         # defined for the same entity.
         count = func.count(func.distinct(cls.entity_id))
-        last_seen = cls.max_last_seen(dataset=dataset)
         q = db.session.query(cls.schema, count)
         q = q.filter(cls.target == True)  # noqa
-        q = q.filter(cls.last_seen == last_seen)
         if dataset is not None:
             q = q.filter(cls.dataset.in_(dataset.source_names))
         q = q.group_by(cls.schema)
@@ -187,9 +170,7 @@ class Statement(Base):
     @classmethod
     def all_schemata(cls, dataset=None):
         """Return all schemata present in the dataset"""
-        last_seen = cls.max_last_seen(dataset=dataset)
         q = db.session.query(cls.schema)
-        q = q.filter(cls.last_seen == last_seen)
         if dataset is not None:
             q = q.filter(cls.dataset.in_(dataset.source_names))
         q = q.group_by(cls.schema)
@@ -198,14 +179,41 @@ class Statement(Base):
     @classmethod
     def max_last_seen(cls, dataset=None):
         """Return the latest date of the data."""
-        if dataset in settings.DATASET_LAST_SEEN:
-            return settings.DATASET_LAST_SEEN[dataset]
         q = db.session.query(func.max(cls.last_seen))
         if dataset is not None:
             q = q.filter(cls.dataset.in_(dataset.source_names))
         for (value,) in q.all():
-            settings.DATASET_LAST_SEEN[dataset] = value
             return value
+
+    @classmethod
+    def cleanup_dataset(cls, dataset):
+        db.session.flush()
+        # set the entity BASE to the earliest spotting of the entity:
+        table = cls.__table__
+        cte = select(
+            func.min(table.c.first_seen).label("first_seen"),
+            table.c.entity_id.label("entity_id"),
+        )
+        cte = cte.where(table.c.dataset == dataset.name)
+        cte = cte.group_by(table.c.entity_id)
+        cte = cte.cte("seen")
+        sq = select(cte.c.first_seen)
+        sq = sq.where(cte.c.entity_id == table.c.entity_id)
+        sq = sq.limit(1)
+        q = update(table)
+        q = q.where(table.c.dataset == dataset.name)
+        q = q.where(table.c.prop == cls.BASE)
+        q = q.values({table.c.first_seen: sq.scalar_subquery()})
+        # log.info("Setting BASE first_seen...", q=str(q))
+        db.session.execute(q)
+
+        # remove non-current statements (in the future we may want to keep them?)
+        max_last_seen = cls.max_last_seen(dataset=dataset)
+        if max_last_seen is not None:
+            pq = db.session.query(cls)
+            pq = pq.filter(cls.dataset == dataset.name)
+            pq = pq.filter(cls.last_seen < max_last_seen)
+            pq.delete(synchronize_session=False)
 
     @classmethod
     def resolve_all(cls, resolver):

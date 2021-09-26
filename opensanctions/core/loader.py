@@ -70,8 +70,9 @@ class DatabaseLoader(Loader[Dataset, Entity]):
                 entity.first_seen = stmt.first_seen
                 entity.last_seen = stmt.last_seen
             current_id = stmt.canonical_id
-            if stmt.prop == stmt.BASE:
+            if stmt.schema != entity.schema.name:
                 entity.add_schema(schema)
+            if stmt.prop == stmt.BASE:
                 entity.datasets.add(Dataset.get(stmt.dataset))
                 entity.referents.add(stmt.entity_id)
                 entity.first_seen = min(entity.first_seen, stmt.first_seen)

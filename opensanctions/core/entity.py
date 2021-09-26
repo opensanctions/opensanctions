@@ -26,7 +26,7 @@ class Entity(CompositeEntity):
         super().__init__(model, data)
 
     def make_id(self, *parts):
-        raise NotImplemented
+        raise NotImplementedError
 
     def _lookup_values(self, prop, values):
         for value in ensure_list(values):
@@ -74,7 +74,7 @@ class Entity(CompositeEntity):
         self.add_schema(schema)
         return self.add(prop, value)
 
-    def add_schema(self, schema):
+    def add_schema(self, schema: str) -> None:
         """Try to apply the given schema to the current entity, making it more
         specific (e.g. turning a `LegalEntity` into a `Company`). This raises an
         exception if the current and new type are incompatible."""
