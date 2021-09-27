@@ -1,5 +1,7 @@
+from normality import slugify
 from functools import lru_cache
 from addressformatting import AddressFormatter
+from followthemoney.util import make_entity_id
 
 from opensanctions.util import jointext
 
@@ -59,7 +61,10 @@ def make_address(
         full = get_formatter().one_line(data, country=country_code)
         address.add("full", full)
     if full:
-        address.id = context.make_id("Address", full, country_code, key)
+        norm_full = slugify(full)
+        hash_id = make_entity_id(country_code, norm_full, key)
+        if hash_id is not None:
+            address.id = f"addr-{hash_id}"
     return address
 
 
