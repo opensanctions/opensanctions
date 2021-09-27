@@ -146,7 +146,7 @@ lookups:
       - label: "Executive Order 13662 Directive Determination -"
         match: 204
         schema: Thing
-        prop: program
+        prop: notes
       - label: "Gender"
         match: 224
         schema: Person
@@ -191,7 +191,7 @@ lookups:
       - label: "Secondary sanctions risk:"
         match: 504
         schema: null
-        prop: program
+        prop: notes
       - label: "Phone Number"
         match: 524
         schema: LegalEntity
@@ -199,7 +199,7 @@ lookups:
       - label: "CAATSA Section 235 Information:"
         match: 525
         schema: Thing
-        prop: program
+        prop: notes
       - label: "Other Vessel Type"
         match: 526
         schema: Vessel
@@ -212,11 +212,11 @@ lookups:
         url: https://home.treasury.gov/system/files/126/13846.pdf
         match: 586
         schema: null
-        prop: program
+        prop: notes
       - label: "Transactions Prohibited For Persons Owned or Controlled By U.S. Financial Institutions:"
         match: 626
         schema: null
-        prop: program
+        prop: notes
       - label: "Organization Established Date"
         match: 646
         schema: LegalEntity
