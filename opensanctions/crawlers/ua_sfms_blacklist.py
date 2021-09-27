@@ -1,7 +1,7 @@
 from datetime import datetime
 from prefixdate import parse_formats
 
-from opensanctions.helpers import make_sanction
+from opensanctions import helpers as h
 from opensanctions.util import jointext, remove_bracketed, multi_split
 
 FORMATS = ["%d %b %Y", "%d %B %Y", "%Y", "%b %Y", "%B %Y"]
@@ -26,7 +26,7 @@ def parse_entry(context, entry):
     entry_id = entry.findtext("number-entry")
     entity.id = context.make_slug(entry_id)
 
-    sanction = make_sanction(context, entity)
+    sanction = h.make_sanction(context, entity)
     sanction.add("program", entry.findtext("./program-entry"))
     date_entry = entry.findtext("./date-entry")
     if date_entry:
@@ -71,7 +71,8 @@ def parse_entry(context, entry):
         entity.add("idNumber", doc.text)
 
     for node in entry.findall("./address-list"):
-        entity.add("address", node.findtext("./address"))
+        address = h.make_address(context, full=node.findtext("./address"))
+        h.apply_address(context, entity, address)
 
     for pob in entry.findall("./place-of-birth-list"):
         entity.add_cast("Person", "birthPlace", pob.text)

@@ -254,6 +254,7 @@ lookups:
           - Digital Currency Address - BTG
           - Digital Currency Address - ETC
           - Digital Currency Address - XVG
+          - Digital Currency Address - USDT
         schema: CryptoWallet
         type: currency
         value: publicKey

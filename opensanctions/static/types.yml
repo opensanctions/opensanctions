@@ -17,6 +17,7 @@ country:
         - "220030"
         - "Other"
         - "Not Known"
+        - "Not Disclosed"
         # This is now three countries, so dropping:
         - "Netherlands Antilles"
       contains:
@@ -79,6 +80,17 @@ country:
       value: Mali
     - match: sh-hl
       value: Saint Helena
+    - match:
+        - Brithish
+      value: GB
+    - match: British,Irish
+      values:
+        - GB
+        - IE
+    - match: British Pakistani
+      value:
+        - GB
+        - PK
     - match: German,British
       values:
         - DE
@@ -296,6 +308,8 @@ date:
       value: 2017-08-22
     - match: 0097-06-30
       value: 1997-06-30
+    - match: 0017-05-26
+      value: 2017-05-26
     - match: 3030-03-09
       value: null
   map:
