@@ -49,7 +49,7 @@ def get_resolver() -> Resolver:
 def xref_datasets(base: Dataset, candidates: Dataset, limit: int = 15):
     resolver = get_resolver()
     entities = DatabaseLoader(candidates, resolver)
-    loader = DatasetMemoryLoader(base, resolver)
+    loader = DatabaseLoader(base, resolver)
     index = get_index(base, loader)
     xref(index, resolver, entities, limit=limit)
     resolver.save()

@@ -1,7 +1,5 @@
 import io
 import csv
-from opensanctions.exporters.common import Exporter
-from banal import first
 from followthemoney.types import registry
 
 from opensanctions.exporters.common import Exporter
