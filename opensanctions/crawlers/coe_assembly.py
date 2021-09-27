@@ -32,7 +32,7 @@ def crawl_entry(context, pace, href, member_url):
             person.add("political", text)
         elif "fa-calendar" in category:
             member = context.make("Membership")
-            member.make_slug(f"{slug}-pace")
+            member.id = context.make_slug(f"{slug}-pace")
             member.add("organization", pace)
             member.add("member", person)
             joined = text.replace("Joined in ", "")

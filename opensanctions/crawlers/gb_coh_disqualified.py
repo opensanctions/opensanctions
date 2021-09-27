@@ -30,8 +30,8 @@ def crawl_item(context, listing):
     res = http_get(context, url)
     data = res.json()
     person = context.make("Person")
-    officer_id = url.rsplit("/", 1)
-    person.make_slug(officer_id)
+    _, officer_id = url.rsplit("/", 1)
+    person.id = context.make_slug(officer_id)
 
     person.add("name", listing.get("title"))
     person.add("notes", listing.get("description"))
