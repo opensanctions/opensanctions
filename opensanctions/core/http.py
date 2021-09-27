@@ -1,5 +1,6 @@
 # import urllib3
 import requests
+import warnings
 import structlog
 import functools
 from requests_cache import CachedSession
@@ -8,6 +9,8 @@ from opensanctions import settings
 
 log = structlog.get_logger("http")
 HEADERS = {"User-Agent": settings.USER_AGENT}
+
+warnings.simplefilter("ignore", category=ResourceWarning)
 
 # cf. https://stackoverflow.com/questions/38015537 for pace.coe.int
 requests.packages.urllib3.disable_warnings()

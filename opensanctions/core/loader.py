@@ -80,6 +80,9 @@ class DatabaseLoader(Loader[Dataset, Entity]):
                 entity.target = max(entity.target, stmt.target)
                 continue
             prop = schema.properties[stmt.prop]
-            entity.unsafe_add(prop, stmt.value, cleaned=True)
+            value = stmt.value
+            if prop.type == registry.entity:
+                value = resolver.get_canonical(value)
+            entity.unsafe_add(prop, value, cleaned=True)
         if entity is not None:
             yield entity
