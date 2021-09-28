@@ -8,12 +8,11 @@ from followthemoney import model
 from prefixdate import parse_formats
 from pantomime.types import EXCEL
 
-from opensanctions.helpers import make_sanction
-from opensanctions.helpers import make_address, apply_address
+from opensanctions import helpers as h
 from opensanctions.util import multi_split, remove_bracketed
 
 FORMATS = ["%d/%m/%Y", "%d %b. %Y", "%d %b.%Y", "%d %b %Y", "%d %B %Y"]
-FORMATS = FORMATS + ["%b. %Y", "%d %B. %Y"]
+FORMATS = FORMATS + ["%b. %Y", "%d %B. %Y", "%Y"]
 
 
 def clean_date(date):
@@ -30,6 +29,8 @@ def clean_date(date):
         " or ",
         " to ",
         " and ",
+        "alt DOB:",
+        "alt DOB",
         ";",
         ">>",
     ]
@@ -41,22 +42,17 @@ def clean_date(date):
     date = remove_bracketed(date)
     date = date.replace("\n", " ")
     for part in multi_split(date, splits):
-        part = part.lower()
-        for word in (
-            "approximately",
-            "approx",
-            "circa",
-            "between",
-            "alt dob:",
-            "alt dob",
-            "c.",
-            "(.)",
-        ):
-            part = part.replace(word, "")
-        part = part.replace(" de ", " dec ")
-        part = part.strip(",")
-        part = part.strip()
-        part = parse_formats(part, FORMATS)
+        part = part.strip().strip(",")
+        if not len(part):
+            continue
+        parsed = parse_formats(part, FORMATS)
+        if parsed.text is not None:
+            dates.add(parsed.text)
+            continue
+        years = h.extract_years(part)
+        if years is not None:
+            dates.update(years)
+            continue
         dates.add(part)
     return dates
 
@@ -77,7 +73,7 @@ def parse_reference(context, reference, rows):
     entity = context.make("LegalEntity")
     entity.id = context.make_slug(reference)
     entity.add("sourceUrl", context.dataset.url)
-    sanction = make_sanction(context, entity)
+    sanction = h.make_sanction(context, entity)
 
     for row in rows:
         if row.pop("type") == "Individual":
@@ -89,8 +85,8 @@ def parse_reference(context, reference, rows):
         else:
             entity.add("name", name)
 
-        address = make_address(context, full=row.pop("address"))
-        apply_address(context, entity, address)
+        address = h.make_address(context, full=row.pop("address"))
+        h.apply_address(context, entity, address)
         sanction.add("program", row.pop("committees"))
         citizen = multi_split(row.pop("citizenship"), ["a)", "b)", "c)", "d)"])
         entity.add("nationality", citizen, quiet=True)
