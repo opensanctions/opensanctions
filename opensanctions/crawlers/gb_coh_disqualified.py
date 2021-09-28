@@ -46,7 +46,9 @@ def crawl_item(context, listing):
     person.add("middleName", other_forenames)
     person.add("title", data.pop("title", None))
 
-    person.add("nationality", data.pop("nationality", None))
+    nationality = data.pop("nationality", None)
+    if nationality is not None:
+        person.add("nationality", nationality.split(","))
     person.add("birthDate", data.pop("date_of_birth", None))
     person.add("topics", "crime")
 
