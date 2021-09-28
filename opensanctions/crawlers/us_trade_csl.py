@@ -4,16 +4,16 @@ from followthemoney.types import registry
 from pantomime.types import JSON
 from prefixdate import parse_formats
 
-from opensanctions.helpers import make_address, apply_address
+from opensanctions import helpers as h
 
 FORMATS = ["%d %b %Y", "%d %B %Y", "%Y", "%b %Y", "%B %Y"]
 
 
 def parse_date(date):
-    if date is not None:
-        date = date.replace("circa", "").strip()
     parsed = parse_formats(date, FORMATS)
-    return parsed.text or date
+    if parsed.text is not None:
+        return parsed.text
+    return h.extract_years(date, date)
 
 
 def parse_result(context, result):
@@ -35,7 +35,8 @@ def parse_result(context, result):
         entity.add("position", result.pop("title", None))
         entity.add("nationality", result.pop("nationalities", None))
         entity.add("nationality", result.pop("citizenships", None))
-        entity.add("birthDate", result.pop("dates_of_birth", None))
+        for dob in result.pop("dates_of_birth", []):
+            entity.add("birthDate", parse_date(dob))
         entity.add("birthPlace", result.pop("places_of_birth", None))
     elif entity.schema.is_a("Vessel"):
         entity.add("flag", result.pop("vessel_flag", None))
@@ -56,7 +57,7 @@ def parse_result(context, result):
     assert not len(result.pop("places_of_birth", []))
 
     for address in result.pop("addresses", []):
-        obj = make_address(
+        obj = h.make_address(
             context,
             street=address.get("address"),
             city=address.get("city"),
@@ -64,7 +65,7 @@ def parse_result(context, result):
             region=address.get("state"),
             country=address.get("country"),
         )
-        apply_address(context, entity, obj)
+        h.apply_address(context, entity, obj)
 
     for ident in result.pop("ids", []):
         country = ident.get("country")

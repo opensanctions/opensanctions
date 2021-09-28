@@ -10,12 +10,13 @@ FORMATS = ["%d %b %Y", "%d %B %Y", "%Y", "%b %Y", "%B %Y"]
 def parse_date(date):
     if date is None:
         return
-    date = date.replace(".", "").strip()
+    date = date.replace(".", "")
     if ";" in date:
         date, _ = date.split(";", 1)
+    date = date.strip()
     parsed = parse_formats(date, FORMATS)
     if parsed.text is None:
-        return date
+        return h.extract_years(date, date)
     return parsed
 
 

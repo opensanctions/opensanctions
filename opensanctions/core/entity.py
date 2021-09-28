@@ -55,7 +55,7 @@ class Entity(CompositeEntity):
                     "Rejected property value",
                     entity=self,
                     prop=prop.name,
-                    value=repr(value),
+                    value=value,
                 )
             self.unsafe_add(prop, clean, cleaned=True)
 
