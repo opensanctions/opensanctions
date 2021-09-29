@@ -12,9 +12,17 @@ from opensanctions.exporters.nested import NestedJSONExporter
 from opensanctions.exporters.names import NamesExporter
 from opensanctions.exporters.simplecsv import SimpleCSVExporter
 
+# from opensanctions.exporters.widecsv import WideCSVExporter
+
 log = structlog.get_logger(__name__)
 
-EXPORTERS = [FtMExporter, NestedJSONExporter, NamesExporter, SimpleCSVExporter]
+EXPORTERS = [
+    FtMExporter,
+    NestedJSONExporter,
+    NamesExporter,
+    SimpleCSVExporter,
+    # WideCSVExporter,
+]
 
 
 def export_global_index():
