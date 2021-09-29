@@ -1,3 +1,4 @@
+import { IModelDatum } from "@alephdata/followthemoney"
 
 export interface IResource {
   url: string
@@ -108,3 +109,13 @@ export interface IIssue {
 export interface IIssueIndex {
   issues: Array<IIssue>
 }
+
+export interface IIndex {
+  app: string
+  version: string
+  model: IModelDatum
+  issues_url: string
+  schemata: Array<string>
+  datasets: Array<IDataset>
+}
+

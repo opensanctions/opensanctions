@@ -1,7 +1,6 @@
 import { Property, PropertyType, Schema } from "@alephdata/followthemoney"
 import Link from "next/link";
 import Table from 'react-bootstrap/Table';
-import { IIndex } from "../lib/api";
 import { SPACER } from "../lib/constants";
 import { getSchemaChildren, getSchemaParents, wordList } from "../lib/util";
 

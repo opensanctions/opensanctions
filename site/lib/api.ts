@@ -1,15 +1,6 @@
 import { IModelDatum } from "@alephdata/followthemoney"
-import { IDataset, IDatasetBase, ICollection, ISource, IIssueIndex } from "./dataset";
+import { IDataset, IDatasetBase, ICollection, ISource, IIssueIndex, IIndex } from "./dataset";
 import { INDEX_URL, BASE_URL } from "./constants";
-
-export interface IIndex {
-  app: string
-  version: string
-  model: IModelDatum
-  issues_url: string
-  schemata: Array<string>
-  datasets: Array<IDataset>
-}
 
 export type IndexCache = {
   index: IIndex | null
