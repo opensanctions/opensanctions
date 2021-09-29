@@ -2,14 +2,54 @@ entry_point: opensanctions.crawlers.eu_fsf
 title: "EU Financial Sanctions Files (FSF)"
 prefix: eu-fsf
 summary: >
-  As part of the Common Foreign Security Policy thr European Union publishes
+  As part of the Common Foreign Security Policy the European Union publishes
   a sanctions list that is implemented by all member states.
+description: |
+  The combined sanctions list for the European Union, which is also the sanctions list
+  used by most of the member states in place of publishing their own. Some countries, like
+  France, do publish additional sanctions data with additional legal implications.
+
+  Description from the web site:
+
+  > The correct application of financial sanctions is crucial in order to meet the
+  > objectives of the Common Foreign and Security Policy and especially to help prevent
+  > the financing of terrorism. The application of financial sanctions constitutes an
+  > obligation for both the public and private sector. In this regard, the EU assigns
+  > particular responsibility to credit and financial institutions, since they are
+  > involved in the bulk of financial transfers and transactions affected by the relevant
+  > Regulations.
+  > 
+  > In order to facilitate the application of financial sanctions, the European
+  > Banking Federation, the European Savings Banks Group, the European Association of
+  > Co-operative Banks and the European Association of Public Banks ("the EU Credit Sector
+  > Federations") and the Commission recognised the need for an EU consolidated list
+  > of persons, groups and entities subject to CFSP related financial sanctions. It was
+  > therefore agreed that the Credit Sector Federations would set up a database
+  > containing the consolidated list for the Commission, which would host and maintain
+  > the database and keep it up-to-date. This database was developed first and foremost
+  > to assist the members of the EU Credit Sector Federations in their compliance with
+  > financial sanctions.
+  > 
+  > **Disclaimer:** While every effort is made to ensure that the database and the
+  > consolidated list correctly reproduce all relevant data of the officially adopted
+  > texts published in the Official Journal of the European Union, neither the Commission
+  > nor the EU credit sector federations accepts any liability for possible omissions
+  > of relevant data or mistakes, and for any use made of the database or of the
+  > consolidated list. Only the information published in the Official Journal of the EU
+  > is deemed authentic.
+
+  The data is published in a password-protected area but the generated download links
+  can be used to programmatically update the material.
+
 collections:
   - sanctions
   - default
 publisher:
   name: European External Action Service
-  acronym: EEAS
+  description: |
+    The EEAS is the diplomatic service of the European Union, tasked both with foreign
+    policy and defense tasks. It is lead by the High Representative, the de-facto
+    foreign minister of the EU.
   country: eu
   url: https://eeas.europa.eu/
 url: https://eeas.europa.eu/topics/sanctions-policy/8442/consolidated-list-of-sanctions_en

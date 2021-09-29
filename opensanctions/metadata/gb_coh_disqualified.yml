@@ -4,11 +4,38 @@ prefix: gb-coh
 summary: >
   Individuals which have been disqualified from holding the post of a
   company director in the United Kingdom following a court decision.
+description: |
+  UK company directors can be banned (‘disqualified’) from being a company director
+  if they don’t meet your legal responsibilities.
+
+  > ‘Unfit conduct’ includes:
+  >
+  > * allowing a company to continue trading when it can’t pay its debts
+  > * not keeping proper company accounting records
+  > * not sending accounts and returns to Companies House
+  > * not paying tax owed by the company
+  > * using company money or assets for personal benefit
+
+  This is usually handled by the Insolvency Service, but:
+
+  > Apart from The Insolvency Service, other bodies can apply to have you
+  > disqualified under certain circumstances, eg:
+  > 
+  > * Companies House
+  > * the Competition and Markets Authority (CMA)
+  > * the courts
+  > * a company insolvency practitioner
+
+  Directors can be disqualified for up to 15 years.
 collections:
   - crime
 publisher:
-  name: Companies House
-  url: https://www.gov.uk/government/organisations/companies-house
+  name: The Insolvency Service
+  description: >
+    Tthe Insolvency Service is an executive agency, sponsored by the Department
+    for Business, Energy & Industrial Strategy. It is responsible for
+    bankruptcies, but also the handling of financial wrong-doing.
+  url: https://www.gov.uk/government/organisations/insolvency-service
   country: gb
 url: https://find-and-update.company-information.service.gov.uk/register-of-disqualifications/A
 data:

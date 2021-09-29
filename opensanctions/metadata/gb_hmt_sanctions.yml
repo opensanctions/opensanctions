@@ -3,12 +3,24 @@ title: HMT Consolidated List of Targets
 prefix: gb-hmt
 summary: >
   The United Kingom's consolidated international sanctions list.
+description: |
+  The Office of Financial Sanctions Implementation (OFSI) publishes a list of all
+  those subject to financial sanctions imposed by the UK which it keeps updated.
+
+  You can find more information about the [current UK sanctions regimes here](https://www.gov.uk/government/collections/uk-sanctions-regimes-under-the-sanctions-act)
+  and read the [guidance](https://www.gov.uk/government/publications/financial-sanctions-faqs).
+
+  The UK sanctions list suffers from very bad data quality as the result of manual
+  data processing and inappropriate data structures used by the XML files.
 collections:
   - sanctions
   - default
 publisher:
-  name: Her Majesty's Treasury
-  url: https://www.gov.uk/
+  name: Office of Financial Sanctions Implementation
+  description: >
+    OFSI is part of Her Majesty's Treasury. It helps to ensure that financial
+    sanctions are properly understood, implemented and enforced in the United Kingdom.
+  url: https://www.gov.uk/government/organisations/office-of-financial-sanctions-implementation
   country: gb
 url: https://www.gov.uk/government/publications/financial-sanctions-consolidated-list-of-targets
 data:

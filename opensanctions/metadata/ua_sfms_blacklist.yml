@@ -4,11 +4,26 @@ prefix: ua-sfms
 summary: >
   Ukraine's financial intelligence unit publishes this list of sanctioned
   individuals.
+description: |
+  The Ukrainian sanctions list appaears to largely mirror the UN main list, but
+  does not retain a lot of the detail contained in the original list.
+
+  Title on their web site: "An up-to-date list of persons involved in terrorist
+  activities or subject to international sanctions" (Актуальний перелік осіб,
+  пов’язаних з провадженням терористичної діяльності або стосовно яких застосовано
+  міжнародні санкції)
+
+  A PDF version is [available here](https://fiu.gov.ua/assets/userfiles/Terror/BlackListFull.pdf).
 collections:
   - sanctions
   - default
 publisher:
-  name: State Finance Monitoring Service (SFMS)
+  name: Державна служба фінансового моніторингу України (Держфінмоніторинг)
+  description: >
+    The State Finance Monitoring Service (SFMS) is a national center for receiving and
+    analyzing reports of suspicious transactions and other information related to money
+    laundering related to predicate offenses and terrorist financing, and to disseminate
+    the results of this analysis.
   url: https://fiu.gov.ua/
   country: ua
 url: https://fiu.gov.ua/en/pages/dijalnist/protidija-terorizmu/perelik-teroristiv
