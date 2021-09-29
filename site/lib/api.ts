@@ -1,5 +1,5 @@
 import { IModelDatum } from "@alephdata/followthemoney"
-import { IDataset, IDatasetBase, ICollection, ISource, IIssueIndex, IIndex } from "./dataset";
+import { IDataset, IDatasetBase, ICollection, ISource, IIssueIndex, IIndex } from "./types";
 import { INDEX_URL, BASE_URL } from "./constants";
 
 export type IndexCache = {

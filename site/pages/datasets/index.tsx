@@ -9,7 +9,7 @@ import Dataset from '../../components/Dataset'
 import { INDEX_URL } from '../../lib/constants';
 import { getDatasets } from '../../lib/api'
 import { getSchemaDataCatalog } from '../../lib/schema'
-import { ICollection, isCollection, isSource } from '../../lib/dataset';
+import { ICollection, isCollection, isSource } from '../../lib/types';
 import { JSONLink } from '../../components/util';
 
 

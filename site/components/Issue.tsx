@@ -1,5 +1,5 @@
 import Table from "react-bootstrap/Table";
-import { IIssue } from "../lib/dataset";
+import { IIssue } from "../lib/types";
 
 import styles from '../styles/Issue.module.scss'
 

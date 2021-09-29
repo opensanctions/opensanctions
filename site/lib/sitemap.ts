@@ -1,7 +1,7 @@
 import fs from 'fs'
 import { join } from 'path'
 import { BASE_URL } from './constants';
-import { IDataset, isCollection } from "./dataset";
+import { IDataset, isCollection } from "./types";
 
 const PAGES = ['/', '/docs/about/', '/docs/faq/', '/docs/usage/', '/reference/', '/contact/', '/sponsor/', '/datasets/', '/docs/', '/docs/contribute/']
 

@@ -2,7 +2,7 @@ import Link from 'next/link'
 import Card from 'react-bootstrap/Card';
 import { CollectionFill, MapFill } from 'react-bootstrap-icons';
 
-import { IDataset, isCollection, isSource } from '../lib/dataset'
+import { IDataset, isCollection, isSource } from '../lib/types'
 import { Markdown, Numeric } from './util';
 import styles from '../styles/Dataset.module.scss'
 import { SPACER } from '../lib/constants';

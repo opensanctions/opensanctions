@@ -4,7 +4,7 @@
 
 import { BASE_URL, LICENSE_URL, CLAIM, EMAIL, SITE } from './constants';
 import { fetchIndex, getDatasetByName, getDatasets } from './api';
-import { IResource, isCollection, ISourcePublisher, isSource } from './dataset';
+import { IResource, ISourcePublisher, isSource } from './types';
 
 
 export function getSchemaOpenSanctionsOrganization() {

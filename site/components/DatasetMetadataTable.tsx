@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import Table from 'react-bootstrap/Table'
 
-import { IDataset, ICollection, isSource } from '../lib/dataset'
+import { IDataset, ICollection, isSource } from '../lib/types'
 import { FormattedDate, HelpLink, Numeric, Plural, URLLink } from './util'
 import { wordList } from '../lib/util'
 import { SPACER } from '../lib/constants'

@@ -17,7 +17,7 @@ import { FileEarmarkArrowDownFill } from 'react-bootstrap-icons';
 import Layout from '../../components/Layout'
 import Dataset from '../../components/Dataset'
 import { getDatasets, getDatasetByName, getDatasetIssues } from '../../lib/api'
-import { IDataset, ICollection, ISource, isCollection, isSource, IIssueIndex, LEVEL_ERROR, LEVEL_WARNING } from '../../lib/dataset'
+import { IDataset, ICollection, ISource, isCollection, isSource, IIssueIndex, LEVEL_ERROR, LEVEL_WARNING } from '../../lib/types'
 import { Summary, FileSize, NumericBadge, JSONLink, HelpLink } from '../../components/util'
 import DatasetMetadataTable from '../../components/DatasetMetadataTable'
 import { getSchemaDataset } from '../../lib/schema';

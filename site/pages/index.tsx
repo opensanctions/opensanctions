@@ -13,11 +13,11 @@ import { CLAIM, SUBCLAIM, SPACER } from '../lib/constants'
 import { getSchemaOpenSanctionsOrganization } from '../lib/schema';
 import { Search } from 'react-bootstrap-icons';
 import { FormattedDate, NumericBadge } from '../components/util';
-import { isCollection, isSource } from '../lib/dataset';
+import { isCollection, isSource } from '../lib/types';
 import writeSitemap from '../lib/sitemap';
 
 
-export default function Home({ datasets }: InferGetStaticPropsType<typeof getStaticProps>) {
+export default function Home({ datasets, structured }: InferGetStaticPropsType<typeof getStaticProps>) {
   const all = datasets.find((d) => d.name === 'all');
   if (all === undefined) {
     return null;
@@ -27,7 +27,7 @@ export default function Home({ datasets }: InferGetStaticPropsType<typeof getSta
   const evenSources = sources.filter((d, i) => i % 2 == 1)
   const collections = datasets.filter(isCollection).filter(c => c.name !== 'all')
   return (
-    <Layout.Base title="Persons of interest database" description={SUBCLAIM} structured={getSchemaOpenSanctionsOrganization()}>
+    <Layout.Base title="Persons of interest database" description={SUBCLAIM} structured={structured}>
       <div className={styles.claimBanner}>
         <Container>
           <Row>
@@ -133,7 +133,8 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
   writeSitemap(datasets)
   return {
     props: {
-      datasets
+      datasets,
+      structured: getSchemaOpenSanctionsOrganization()
     }
   }
 }
