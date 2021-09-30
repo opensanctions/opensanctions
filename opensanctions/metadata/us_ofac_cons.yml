@@ -1,6 +1,6 @@
 entry_point: opensanctions.crawlers.us_ofac
 title: US OFAC Consolidated (non-SDN) List
-prefix: ofac-cons
+prefix: ofac
 summary: >
   OFAC is providing all of its non-SDN sanctions lists in a consolidated set
   of data called "the Consolidated Sanctions List".

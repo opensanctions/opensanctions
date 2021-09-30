@@ -1,9 +1,11 @@
 import json
 from pprint import pprint  # noqa
 from followthemoney.types import registry
+from followthemoney.dedupe import Judgement
 from pantomime.types import JSON
 from prefixdate import parse_formats
 
+from opensanctions.core import Dataset
 from opensanctions import helpers as h
 
 FORMATS = ["%d %b %Y", "%d %B %Y", "%Y", "%b %Y", "%B %Y"]
@@ -16,6 +18,23 @@ def parse_date(date):
     return h.extract_years(date, date)
 
 
+def decide_sdn_mappings(context, entity, sdn_id):
+    assert int(sdn_id)
+    dataset = Dataset.get("us_ofac_sdn")
+    sdn_id = dataset.make_slug(sdn_id)
+    judgement = context.resolver.get_judgement(entity.id, sdn_id)
+
+    if judgement == Judgement.NEGATIVE:
+        context.log.warning("SDN/CSL Contradiction", sdn_id=sdn_id, csl_id=entity.id)
+        context.resolver.explode(entity.id)
+        context.resolver.explode(sdn_id)
+        return
+
+    context.resolver.decide(
+        sdn_id, entity.id, judgement=Judgement.POSITIVE, user="csl_automatch"
+    )
+
+
 def parse_result(context, result):
     type_ = result.pop("type", None)
     schema = context.lookup_value("type", type_)
@@ -25,7 +44,10 @@ def parse_result(context, result):
     entity = context.make(schema)
     entity.id = context.make_slug(result.pop("id"))
 
-    result.pop("entity_number", None)
+    entity_number = result.pop("entity_number", None)
+    if entity_number is not None:
+        decide_sdn_mappings(context, entity, entity_number)
+        return
 
     entity.add("name", result.pop("name", None))
     entity.add("alias", result.pop("alt_names", None))
@@ -119,7 +141,8 @@ def parse_result(context, result):
     sanction.add("startDate", result.pop("start_date", None))
     sanction.add("endDate", result.pop("end_date", None))
     sanction.add("country", "us")
-    sanction.add("authority", result.pop("source"))
+    sanction.add("authority", result.pop("source", None))
+
     # TODO: deref
     sanction.add("sourceUrl", result.pop("source_information_url"))
     result.pop("source_list_url")
@@ -144,3 +167,5 @@ def crawl(context):
         data = json.load(file)
         for result in data.get("results"):
             parse_result(context, result)
+
+    context.resolver.save()
