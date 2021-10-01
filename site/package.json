@@ -8,7 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
-    "@alephdata/followthemoney": "^2.6.1",
+    "@alephdata/followthemoney": "^2.7.3",
     "@types/lodash": "^4.14.172",
     "bootstrap": "^5.1.0",
     "filesize": "^8.0.0",
