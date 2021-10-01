@@ -11,7 +11,7 @@
     "@alephdata/followthemoney": "^2.7.3",
     "@types/lodash": "^4.14.172",
     "bootstrap": "^5.1.1",
-    "filesize": "^8.0.0",
+    "filesize": "^8.0.3",
     "gray-matter": "^4.0.3",
     "lodash": "^4.17.21",
     "next": "^11.1.2",
