@@ -3,6 +3,7 @@ from banal import ensure_list
 
 from followthemoney import model
 from followthemoney.types import registry
+from followthemoney.util import value_list
 from nomenklatura.entity import CompositeEntity
 
 from opensanctions.helpers import type_lookup
@@ -59,20 +60,33 @@ class Entity(CompositeEntity):
                 )
             self.unsafe_add(prop, clean, cleaned=True)
 
-    def add_cast(self, schema, prop, value):
+    def add_cast(self, schema, prop, value, cleaned=False, fuzzy=False, format=None):
         """Set a property on an entity. If the entity is of a schema that doesn't
         have the given property, also modify the schema (e.g. if something has a
         birthDate, assume it's a Person, not a LegalEntity).
         """
-        if self.schema.get(prop) is not None:
-            return self.add(prop, value)
-
         schema = model.get(schema)
-        prop_ = schema.get(prop)
-        if prop_.type.clean(value) is None:
-            return
-        self.add_schema(schema)
-        return self.add(prop, value)
+        for value in value_list(value):
+            prop_ = self.schema.get(prop)
+            if prop_ is not None:
+                return self.unsafe_add(
+                    prop_,
+                    value,
+                    cleaned=cleaned,
+                    fuzzy=fuzzy,
+                    format=format,
+                )
+
+            prop_ = schema.get(prop)
+            clean = prop_.type.clean(
+                value,
+                proxy=self,
+                fuzzy=fuzzy,
+                format=format,
+            )
+            if clean is not None:
+                self.add_schema(schema)
+                self.unsafe_add(prop_, clean, cleaned=True)
 
     def add_schema(self, schema: str) -> None:
         """Try to apply the given schema to the current entity, making it more
