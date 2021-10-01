@@ -5,16 +5,12 @@ from prefixdate import parse_parts, parse_formats
 
 from opensanctions.helpers import clean_emails, clean_phones, clean_gender
 from opensanctions.helpers import make_sanction, make_address, apply_address
+from opensanctions import helpers as h
 from opensanctions.util import remove_namespace
 from opensanctions.util import multi_split, remove_bracketed
 
 FORMATS = ["%d/%m/%Y", "00/%m/%Y", "00/00/%Y", "%Y"]
 COUNTRY_SPLIT = ["(1)", "(2)", "(3)"]
-
-
-def parse_date(date):
-    parsed = parse_formats(date, FORMATS)
-    return parsed.text or date
 
 
 def parse_countries(text):
@@ -67,12 +63,12 @@ def parse_row(context, row):
 
     sanction.add("program", row.pop("RegimeName"))
     sanction.add("authority", row.pop("ListingType", None))
-    sanction.add("startDate", parse_date(row.pop("DateListed")))
+    sanction.add("startDate", h.parse_date(row.pop("DateListed"), FORMATS))
     sanction.add("recordId", row.pop("FCOId", None))
     sanction.add("status", row.pop("GroupStatus", None))
     sanction.add("reason", row.pop("UKStatementOfReasons", None))
 
-    last_updated = parse_date(row.pop("LastUpdated"))
+    last_updated = h.parse_date(row.pop("LastUpdated"), FORMATS)
     if last_updated is not None:
         sanction.add("modifiedAt", last_updated)
         sanction.context["updated_at"] = last_updated

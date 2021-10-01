@@ -1,4 +1,3 @@
-from pprint import pprint  # noqa
 from prefixdate import parse_parts
 
 from opensanctions.helpers import (

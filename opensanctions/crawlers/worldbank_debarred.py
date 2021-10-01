@@ -1,14 +1,11 @@
 import re
-from pprint import pprint
 from prefixdate import parse_format  # noqa
 
-from opensanctions.helpers import make_address, apply_address, make_sanction
+from opensanctions import helpers as h
 
 SPLITS = r"(a\.k\.a\.?|aka|f/k/a|also known as|\(formerly |, also d\.b\.a\.|\(currently (d/b/a)?|d/b/a|\(name change from|, as the successor or assign to)"  # noqa
 
-
-def parse_date(text):
-    return parse_format(text, "%d-%b-%Y")
+FORMATS = ("%d-%b-%Y",)
 
 
 def clean_name(text):
@@ -42,7 +39,7 @@ def crawl(context):
     res = context.http.get(url, headers=headers, timeout=240)
     # TODO write this out to a source.json
     for data in res.json()["response"]["ZPROCSUPP"]:
-        # pprint(data)
+        # context.pprint(data)
         entity = context.make("LegalEntity")
         name = data.get("SUPP_NAME")
         ent_id = data.get("SUPP_ID")
@@ -53,18 +50,18 @@ def crawl(context):
         for name in names[1:]:
             entity.add("alias", name)
 
-        address = make_address(
+        address = h.make_address(
             context,
             street=data.get("SUPP_ADDR"),
             city=data.get("SUPP_CITY"),
             country=data.get("COUNTRY_NAME"),
             key=entity.id,
         )
-        apply_address(context, entity, address)
+        h.apply_address(context, entity, address)
 
-        sanction = make_sanction(context, entity)
+        sanction = h.make_sanction(context, entity)
         sanction.add("program", data.get("DEBAR_REASON"))
-        sanction.add("startDate", parse_date(data.get("DEBAR_FROM_DATE")))
-        sanction.add("endDate", parse_date(data.get("DEBAR_TO_DATE")))
+        sanction.add("startDate", h.parse_date(data.get("DEBAR_FROM_DATE"), FORMATS))
+        sanction.add("endDate", h.parse_date(data.get("DEBAR_TO_DATE"), FORMATS))
         context.emit(entity, target=True)
         context.emit(sanction)

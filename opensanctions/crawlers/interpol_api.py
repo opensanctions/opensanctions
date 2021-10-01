@@ -3,7 +3,7 @@ from lxml import html
 from prefixdate import parse_formats
 
 from opensanctions import settings
-from opensanctions.helpers import clean_gender
+from opensanctions import helpers as h
 
 MAX_RESULTS = 160
 SEEN = set()
@@ -46,12 +46,11 @@ def crawl_notice(context, notice):
     entity.add("lastName", last_name)
     entity.add("sourceUrl", url)
     entity.add("nationality", notice.get("nationalities"))
-    entity.add("gender", clean_gender(notice.get("sex_id")))
+    entity.add("gender", h.clean_gender(notice.get("sex_id")))
     entity.add("birthPlace", notice.get("place_of_birth"))
 
     dob_raw = notice["date_of_birth"]
-    dob = parse_formats(dob_raw, FORMATS).text or dob_raw
-    entity.add("birthDate", dob)
+    entity.add("birthDate", h.parse_date(dob_raw, FORMATS))
     if "v1/red" in res.url:
         entity.add("topics", "crime")
 
@@ -75,7 +74,10 @@ def crawl_country(context, country, age_max=120, age_min=0):
     res = context.http.get(context.dataset.data.url, params=params)
     if res.status_code != 200:
         context.log.warning(
-            "HTTP error", url=res.url, country=country, error=res.status_code
+            "HTTP error",
+            url=res.url,
+            country=country,
+            error=res.status_code,
         )
         return
     # if not res.from_cache:
