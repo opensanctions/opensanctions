@@ -2,7 +2,9 @@ import hashlib
 import mimetypes
 import structlog
 from lxml import etree
+from pprint import pprint
 from datapatch import LookupException
+from lxml.etree import _Element, tostring
 from structlog.contextvars import clear_contextvars, bind_contextvars
 from followthemoney.util import make_entity_id
 
@@ -85,6 +87,14 @@ class Context(object):
     def make_id(self, *parts):
         hashed = make_entity_id(*parts, key_prefix=self.dataset.name)
         return self.make_slug(hashed)
+
+    def pprint(self, obj):
+        """Utility to avoid dumb imports."""
+        if isinstance(obj, _Element):
+            obj = tostring(obj, pretty_print=True, encoding=str)
+            print(obj)
+        else:
+            pprint(obj)
 
     def flush(self):
         """Emitted entities are de-constructed into statements for the database
