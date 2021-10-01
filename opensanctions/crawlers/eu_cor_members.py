@@ -1,7 +1,6 @@
+from lxml import html
 from urllib.parse import urljoin
 from normality import stringify, collapse_spaces, slugify
-from lxml import html
-from prefixdate.formats import parse_format
 
 from opensanctions import helpers as h
 

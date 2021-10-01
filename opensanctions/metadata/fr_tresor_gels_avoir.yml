@@ -26,3 +26,71 @@ url: https://gels-avoirs.dgtresor.gouv.fr/
 data:
   url: https://gels-avoirs.dgtresor.gouv.fr/ApiPublic/api/v1/publication/derniere-publication-fichier-json
   format: JSON
+
+lookups:
+  identification:
+    lowercase: true
+    normalize: true
+    options:
+      - match:
+          - numéro fédéral Suisse
+          - Numéro d'enregistrement national
+          - (IOM)
+        contains:
+          - n° d'enregistrement national
+        prop: idNumber
+      - match:
+          - Numéro d'enregistrement
+          - Numéro d’enregistrement
+          - Numéro d'enregistrement - Biélorussie
+          - Numéro d'enregistement
+          - numéro d'enregistrement -
+          - N° d'enregistrement
+          - "Numéro d'enregistrement: Dana Astra"
+          - "date de constitution: le 04/07/2000"
+          - (BVI)
+          - Suisse
+          - PSRN
+        contains:
+          - n° d'inscription au registre de commerce
+          - en sous-préfecture
+          - numéro d'identification d'entreprise
+          - numéro d'enregistrement - société à
+          - US Federal Employer Identification Number
+          # why are IMO codes linked to companies?
+          - n° OMI
+        prop: registrationNumber
+      - match:
+          - Numéro d'identification fiscale (INN)
+          - Immatriculation Russie
+          - Numéro d'enregistrement - Russie
+          - Numéro d'enregistrement- Russie
+          - INN
+        prop: innCode
+      - match:
+          - N ° d'identification fiscale
+          - Numéro d'identification fiscale
+          - Numéro de taxe nationale pakistanaise
+          - numéro d'identification fiscal
+        contains:
+          - n° d'identification fiscale
+        prop: taxNumber
+      - match:
+          - Immatriculation (numéro OGRN)
+        schema: Company
+        prop: ogrnCode
+      - match:
+          - KPP
+        schema: Company
+        prop: kppCode
+      - contains:
+          - SWIFT
+        schema: Company
+        prop: swiftBic
+      - match:
+          - ""
+        contains:
+          - Secteur d'activité
+          - Val-d'Oise
+          - licence afghan de fournisseur
+        prop: notes

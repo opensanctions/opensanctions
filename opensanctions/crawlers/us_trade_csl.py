@@ -1,7 +1,5 @@
 import json
-from pprint import pprint  # noqa
 from followthemoney.types import registry
-from followthemoney.dedupe import Judgement
 from pantomime.types import JSON
 from prefixdate import parse_formats
 
@@ -10,13 +8,6 @@ from opensanctions import helpers as h
 
 FORMATS = ["%d %b %Y", "%d %B %Y", "%Y", "%b %Y", "%B %Y"]
 SDN = Dataset.get("us_ofac_sdn")
-
-
-def parse_date(date):
-    parsed = parse_formats(date, FORMATS)
-    if parsed.text is not None:
-        return parsed.text
-    return h.extract_years(date, date)
 
 
 def parse_result(context, result):
@@ -42,7 +33,7 @@ def parse_result(context, result):
         entity.add("nationality", result.pop("nationalities", None))
         entity.add("nationality", result.pop("citizenships", None))
         for dob in result.pop("dates_of_birth", []):
-            entity.add("birthDate", parse_date(dob))
+            entity.add("birthDate", h.parse_date(dob, FORMATS))
         entity.add("birthPlace", result.pop("places_of_birth", None))
     elif entity.schema.is_a("Vessel"):
         entity.add("flag", result.pop("vessel_flag", None))
@@ -78,7 +69,7 @@ def parse_result(context, result):
         value = ident.get("number")
         type_ = ident.get("type")
         idres = context.lookup("ids", type_)
-        # pprint(ident)
+        # context.pprint(ident)
         # continue
         if idres is None:
             context.log.warning(
@@ -112,7 +103,7 @@ def parse_result(context, result):
             if idres.prop is not None:
                 prop = entity.schema.get(idres.prop)
                 if prop.type == registry.date:
-                    value = parse_date(value)
+                    value = h.parse_date(value, FORMATS)
                 entity.add(idres.prop, value)
 
     sanction = context.make("Sanction")

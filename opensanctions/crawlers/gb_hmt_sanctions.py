@@ -1,10 +1,8 @@
 from banal import first
 from pprint import pprint
 from normality import stringify, collapse_spaces
-from prefixdate import parse_parts, parse_formats
+from prefixdate import parse_parts
 
-from opensanctions.helpers import clean_emails, clean_phones, clean_gender
-from opensanctions.helpers import make_sanction, make_address, apply_address
 from opensanctions import helpers as h
 from opensanctions.util import remove_namespace
 from opensanctions.util import multi_split, remove_bracketed
@@ -56,7 +54,7 @@ def parse_row(context, row):
     if org_type is not None:
         entity.add_cast("LegalEntity", "legalForm", org_type)
 
-    sanction = make_sanction(context, entity)
+    sanction = h.make_sanction(context, entity)
     # entity.add("position", row.pop("Position"), quiet=True)
     entity.add("notes", row.pop("OtherInformation", None), quiet=True)
     entity.add("notes", row.pop("FurtherIdentifiyingInformation", None), quiet=True)
@@ -82,12 +80,10 @@ def parse_row(context, row):
         row.pop("MonthOfBirth", 0),
         row.pop("DayOfBirth", 0),
     )
-    if dob is not None:
-        entity.add_cast("Person", "birthDate", dob)
+    entity.add_cast("Person", "birthDate", dob)
 
-    for gender in clean_gender(row.pop("Gender", None)):
-        if gender is not None:
-            entity.add_cast("Person", "gender", gender)
+    gender = h.clean_gender(row.pop("Gender", None))
+    entity.add_cast("Person", "gender", gender)
     id_number = row.pop("NationalIdNumber", None)
     entity.add_cast("LegalEntity", "idNumber", id_number)
     passport = row.pop("PassportDetails", None)
@@ -139,7 +135,7 @@ def parse_row(context, row):
     entity.add("country", countries)
     entity.add("birthPlace", row.pop("TownOfBirth", None), quiet=True)
 
-    address = make_address(
+    address = h.make_address(
         context,
         full=row.pop("FullAddress", None),
         street=row.pop("address1", None),
@@ -151,20 +147,20 @@ def parse_row(context, row):
         postal_code=row.pop("PostCode", None),
         country=first(countries),
     )
-    apply_address(context, entity, address)
+    h.apply_address(context, entity, address)
 
     reg_number = row.pop("BusinessRegNumber", None)
     entity.add_cast("LegalEntity", "registrationNumber", reg_number)
 
     phones = split_items(row.pop("PhoneNumber", None), comma=True)
-    phones = clean_phones(phones)
+    phones = h.clean_phones(phones)
     entity.add_cast("LegalEntity", "phone", phones)
 
     website = split_items(row.pop("Website", None), comma=True)
     entity.add_cast("LegalEntity", "website", website)
 
     emails = split_items(row.pop("EmailAddress", None), comma=True)
-    emails = clean_emails(emails)
+    emails = h.clean_emails(emails)
     entity.add_cast("LegalEntity", "email", emails)
 
     # TODO: graph

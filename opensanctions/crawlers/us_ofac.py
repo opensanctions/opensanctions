@@ -253,6 +253,72 @@ def parse_feature(context, feature, party, locations):
         party.add(feature_res.prop, value)
 
 
+def parse_registration_doc(context, party, regdoc):
+    authority = regdoc.findtext("./IssuingAuthority")
+    number = regdoc.findtext("./IDRegistrationNo")
+    comment = regdoc.findtext("./Comment")
+    issue_date = None
+    expire_date = None
+    for date in regdoc.findall("./DocumentDate"):
+        period = parse_date_period(date.find("./DatePeriod"))
+        date_type_id = date.get("IDRegDocDateTypeID")
+        date_type = ref_value("IDRegDocDateType", date_type_id)
+        if date_type == "Issue Date":
+            issue_date = period
+        if date_type == "Expiration Date":
+            expire_date = period
+    country = regdoc.get("IssuedBy-CountryID")
+    if country is not None:
+        country = ref_get("Country", country).get("ISO2")
+
+    doc_type_id = regdoc.get("IDRegDocTypeID")
+    doc_label = ref_value("IDRegDocType", doc_type_id)
+    if len(authority.strip()):
+        doc_label = f"{doc_label} ({authority})"
+
+    doc_res = lookup("IDRegDocType", doc_type_id)
+
+    # context.pprint((party.schema, number, doc_label))
+    # context.pprint(regdoc)
+    # return
+    if doc_res is None:
+        context.log.warn(
+            "Unknown IDRegDocType",
+            entity=party,
+            id=doc_type_id,
+            label=doc_label,
+        )
+        return
+
+    party.add("country", country)
+
+    if doc_res.prop is None:
+        if not party.schema.is_a("LegalEntity"):
+            context.log.warn(
+                "Cannot attach passport",
+                entity=party,
+                id=doc_type_id,
+                label=doc_label,
+            )
+            return
+        # TODO: Check out IDRegDocDateType
+        passport = context.make("Passport")
+        passport.id = context.make_id("Passport", party.id, regdoc.get("ID"))
+        passport.add("holder", party)
+        passport.add("type", doc_label)
+        passport.add("country", country)
+        passport.add("passportNumber", number)
+        passport.add("authority", authority)
+        context.emit(passport)
+        return
+
+    # TODO: this should not be there.
+    if not disjoint_schema(party, doc_res.schema):
+        add_schema(party, doc_res.schema)
+        party.add(doc_res.prop, number)
+        return
+
+
 def parse_party(context, distinct_party, locations, documents):
     profile = distinct_party.find("Profile")
     sub_type = ref_get("PartySubType", profile.get("PartySubTypeID"))
@@ -276,59 +342,7 @@ def parse_party(context, distinct_party, locations, documents):
             parse_alias(party, parts, alias)
 
         for regdoc in documents.get(identity.get("ID"), []):
-            authority = regdoc.findtext("./IssuingAuthority")
-            number = regdoc.findtext("./IDRegistrationNo")
-            doc_type_id = regdoc.get("IDRegDocTypeID")
-            doc_label = ref_value("IDRegDocType", doc_type_id)
-
-            doc_res = lookup("IDRegDocType", doc_type_id)
-            if doc_res is None:
-                context.log.warn(
-                    "Unknown IDRegDocType",
-                    entity=party,
-                    id=doc_type_id,
-                    label=doc_label,
-                )
-                continue
-
-            country = regdoc.get("IssuedBy-CountryID")
-            if country is not None:
-                country = ref_get("Country", country).get("ISO2")
-            party.add("country", country)
-
-            if authority == "INN":
-                party.add("innCode", number)
-                continue
-            if authority == "OGRN":
-                party.schema = model.get("Company")
-                party.add("ogrnCode", number)
-                continue
-
-            if doc_res.prop is None:
-                if not party.schema.is_a("LegalEntity"):
-                    context.log.warn(
-                        "Cannot attach passport",
-                        entity=party,
-                        id=doc_type_id,
-                        label=doc_label,
-                    )
-                    continue
-                # TODO: Check out IDRegDocDateType
-                passport = context.make("Passport")
-                passport.id = context.make_id("Passport", party.id, regdoc.get("ID"))
-                passport.add("holder", party)
-                passport.add("type", doc_label)
-                passport.add("country", country)
-                passport.add("passportNumber", number)
-                passport.add("authority", authority)
-                context.emit(passport)
-                continue
-
-            # TODO: this should not be there.
-            if not disjoint_schema(party, doc_res.schema):
-                add_schema(party, doc_res.schema)
-                party.add(doc_res.prop, number)
-                continue
+            parse_registration_doc(context, party, regdoc)
 
     for feature in profile.findall("./Feature"):
         parse_feature(context, feature, party, locations)

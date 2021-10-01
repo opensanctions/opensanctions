@@ -2,8 +2,7 @@ import json
 from prefixdate import parse_parts
 from pantomime.types import JSON
 
-from opensanctions.helpers import make_address, apply_address
-from opensanctions.helpers import make_sanction, clean_gender
+from opensanctions import helpers as h
 
 SCHEMATA = {
     "Personne physique": "Person",
@@ -16,7 +15,7 @@ def apply_prop(context, entity, sanction, field, value):
     if field == "ALIAS":
         entity.add("alias", value.pop("Alias"))
     elif field == "SEXE":
-        entity.add("gender", clean_gender(value.pop("Sexe")))
+        entity.add("gender", h.clean_gender(value.pop("Sexe")))
     elif field == "PRENOM":
         entity.add("firstName", value.pop("Prenom"))
     elif field == "NATIONALITE":
@@ -35,31 +34,32 @@ def apply_prop(context, entity, sanction, field, value):
         date = parse_parts(value.pop("Annee"), value.pop("Mois"), value.pop("Jour"))
         entity.add("birthDate", date)
     elif field in ("ADRESSE_PM", "ADRESSE_PP"):
-        address = make_address(
+        address = h.make_address(
             context,
             full=value.pop("Adresse"),
             country=value.pop("Pays"),
         )
-        apply_address(context, entity, address)
+        h.apply_address(context, entity, address)
     elif field == "LIEU_DE_NAISSANCE":
         entity.add("birthPlace", value.pop("Lieu"))
         entity.add("country", value.pop("Pays"))
     elif field == "PASSEPORT":
         entity.add("passportNumber", value.pop("NumeroPasseport"))
     elif field == "IDENTIFICATION":
-        comment = value.pop("Commentaire").lower()
+        comment = value.pop("Commentaire")
         content = value.pop("Identification")
-        if "swift" in comment:
-            entity.add("swiftBic", content)
-        elif "inn" in comment:
-            entity.add("innCode", content)
-        elif "fiscal" in comment or "taxe" in comment:
-            entity.add("taxNumber", content)
-        elif "arvada/arfada" in comment:
-            pass
+        result = context.lookup("identification", comment)
+        if result is None:
+            context.log.warning(
+                "Unknown Identification type",
+                comment=comment,
+                content=content,
+            )
         else:
-            entity.add("registrationNumber", content)
-            # print((comment, content))
+            schema = result.schema or entity.schema
+            entity.add_cast(schema, result.prop, content)
+            if result.prop == "notes":
+                entity.add(result.prop, comment)
     elif field == "AUTRE_IDENTITE":
         entity.add("idNumber", value.pop("NumeroCarte"))
     elif field == "REFERENCE_UE":
@@ -81,7 +81,7 @@ def crawl_entity(context, data):
     entity.id = context.make_slug(data.pop("IdRegistre"))
     entity.add("name", data.pop("Nom"))
 
-    sanction = make_sanction(context, entity)
+    sanction = h.make_sanction(context, entity)
     for detail in data.pop("RegistreDetail"):
         field = detail.pop("TypeChamp")
         for value in detail.pop("Valeur"):
