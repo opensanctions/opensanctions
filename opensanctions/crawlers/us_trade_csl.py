@@ -1,7 +1,5 @@
 import json
-from followthemoney.types import registry
 from pantomime.types import JSON
-from prefixdate import parse_formats
 
 from opensanctions.core import Dataset
 from opensanctions import helpers as h
@@ -65,46 +63,19 @@ def parse_result(context, result):
         h.apply_address(context, entity, obj)
 
     for ident in result.pop("ids", []):
-        country = ident.get("country")
-        value = ident.get("number")
-        type_ = ident.get("type")
-        idres = context.lookup("ids", type_)
-        # context.pprint(ident)
-        # continue
-        if idres is None:
-            context.log.warning(
-                "Unknown ID type",
-                entity=entity,
-                type=type_,
-                value=value,
-                country=country,
-            )
-            continue
-        if idres.nested is not None:
-            adj = context.make(idres.schema)
-            adj.id = context.make_id(type_, value)
-            if idres.type is not None:
-                adj.add(idres.type, type_)
-            adj.add(idres.value, value)
-            entity.add(idres.nested, adj)
-            context.emit(adj)
-        elif idres.backref is not None:
-            adj = context.make(idres.schema)
-            adj.id = context.make_id(type_, value)
-            adj.add(idres.backref, entity)
-            if idres.type is not None:
-                adj.add(idres.type, type_)
-            adj.add(idres.value, value)
-            context.emit(adj)
-        else:
-            if idres.schema is not None:
-                entity.add_schema(idres.schema)
-            entity.add("country", country)
-            if idres.prop is not None:
-                prop = entity.schema.get(idres.prop)
-                if prop.type == registry.date:
-                    value = h.parse_date(value, FORMATS)
-                entity.add(idres.prop, value)
+        country = ident.pop("country")
+        entity.add("country", country)
+        h.apply_feature(
+            context,
+            entity,
+            "ids",
+            ident.pop("type"),
+            ident.pop("number"),
+            country=country,
+            date_formats=FORMATS,
+            start_date=ident.pop("issue_date", None),
+            end_date=ident.pop("expiration_date", None),
+        )
 
     sanction = context.make("Sanction")
     sanction.id = context.make_id(entity.id, "Sanction")
@@ -129,10 +100,7 @@ def parse_result(context, result):
     context.emit(entity, target=True)
 
     if len(result):
-        pprint(result)
-    # title = result.get("title", None)
-    # if title is not None:
-    #     print(title)
+        context.pprint(result)
 
 
 def crawl(context):
