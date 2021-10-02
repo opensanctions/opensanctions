@@ -4,7 +4,7 @@ from followthemoney.types import registry
 
 from opensanctions.helpers.dates import parse_date
 from opensanctions.helpers.gender import clean_gender
-from opensanctions.helpers.lookups import types_lookup
+from opensanctions.helpers.lookups import common_lookups
 
 log = structlog.get_logger(__name__)
 
@@ -37,7 +37,7 @@ def apply_feature(
 ):
     """This is pretty specific to the needs of OFAC/CSL data."""
     feature = feature.replace("Digital Currency Address - ", "")
-    lookup = types_lookup().get("features")
+    lookup = common_lookups().get("features")
     result = lookup.match(feature)
     if result is None:
         log.warning(
