@@ -68,7 +68,6 @@ def parse_result(context, result):
         h.apply_feature(
             context,
             entity,
-            "ids",
             ident.pop("type"),
             ident.pop("number"),
             country=country,

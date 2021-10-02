@@ -9,7 +9,7 @@ from followthemoney.exc import InvalidData
 from prefixdate import parse_parts
 
 from opensanctions.core.dataset import Dataset
-from opensanctions.helpers import make_address, apply_address, make_sanction
+from opensanctions import helpers as h
 from opensanctions.util import jointext, remove_namespace
 
 REFERENCES = {}
@@ -146,7 +146,7 @@ def load_locations(context, doc):
         if country == "undetermined":
             country = unknown = None
 
-        address = make_address(
+        address = h.make_address(
             context,
             full=unknown,
             street=parts.get("ADDRESS1"),
@@ -202,43 +202,21 @@ def parse_alias(party, parts, alias):
             party.add("alias", name)
 
 
-def make_adjacent(context, schema, name):
-    entity = context.make(schema)
-    entity.id = context.make_slug("named", name)
-    entity.add("name", name)
-    context.emit(entity)
-    return entity
-
-
 def parse_feature(context, feature, party, locations):
     feature_id = feature.get("FeatureTypeID")
-    feature_label = ref_value("FeatureType", feature_id)
-    feature_res = lookup("FeatureType", int(feature_id))
-    if feature_res is None:
-        context.log.warn(
-            "Unknown FeatureType",
-            entity=party,
-            id=feature_id,
-            value=feature_label,
-        )
-        return
-
-    if feature_res.schema is not None:
-        add_schema(party, feature_res.schema)
-    if feature_res.prop is None:
-        # from lxml import etree
-        # print("---[%r]-> %s" % (party, feature_label))
-        # print(etree.tostring(feature).decode("utf-8"))
-        return
-
-    period = feature.find(".//DatePeriod")
-    if period is not None:
-        party.add(feature_res.prop, parse_date_period(period))
-
     location = feature.find(".//VersionLocation")
     if location is not None:
         address = locations.get(location.get("LocationID"))
-        apply_address(context, party, address)
+        h.apply_address(context, party, address)
+        return
+
+    feature_label = ref_value("FeatureType", feature_id)
+    value = None
+
+    period = feature.find(".//DatePeriod")
+    if period is not None:
+        value = parse_date_period(period)
+        h.apply_feature(context, party, feature_label, value)
 
     detail = feature.find(".//VersionDetail")
     if detail is not None:
@@ -248,9 +226,7 @@ def parse_feature(context, feature, party, locations):
             value = ref_value("DetailReference", reference_id)
         else:
             value = detail.text
-        if feature_res.entity:
-            value = make_adjacent(context, feature_res.entity, value)
-        party.add(feature_res.prop, value)
+        h.apply_feature(context, party, feature_label, value)
 
 
 def parse_registration_doc(context, party, regdoc):
@@ -270,53 +246,24 @@ def parse_registration_doc(context, party, regdoc):
     country = regdoc.get("IssuedBy-CountryID")
     if country is not None:
         country = ref_get("Country", country).get("ISO2")
+        party.add("country", country)
 
     doc_type_id = regdoc.get("IDRegDocTypeID")
-    doc_label = ref_value("IDRegDocType", doc_type_id)
-    if len(authority.strip()):
-        doc_label = f"{doc_label} ({authority})"
+    feature = ref_value("IDRegDocType", doc_type_id)
+    if authority in ("INN", "OGRN", "IMO"):
+        feature = authority
 
-    doc_res = lookup("IDRegDocType", doc_type_id)
-
-    # context.pprint((party.schema, number, doc_label))
-    # context.pprint(regdoc)
-    # return
-    if doc_res is None:
-        context.log.warn(
-            "Unknown IDRegDocType",
-            entity=party,
-            id=doc_type_id,
-            label=doc_label,
-        )
-        return
-
-    party.add("country", country)
-
-    if doc_res.prop is None:
-        if not party.schema.is_a("LegalEntity"):
-            context.log.warn(
-                "Cannot attach passport",
-                entity=party,
-                id=doc_type_id,
-                label=doc_label,
-            )
-            return
-        # TODO: Check out IDRegDocDateType
-        passport = context.make("Passport")
-        passport.id = context.make_id("Passport", party.id, regdoc.get("ID"))
-        passport.add("holder", party)
-        passport.add("type", doc_label)
-        passport.add("country", country)
-        passport.add("passportNumber", number)
-        passport.add("authority", authority)
-        context.emit(passport)
-        return
-
-    # TODO: this should not be there.
-    if not disjoint_schema(party, doc_res.schema):
-        add_schema(party, doc_res.schema)
-        party.add(doc_res.prop, number)
-        return
+    h.apply_feature(
+        context,
+        party,
+        feature,
+        number,
+        country=country,
+        start_date=issue_date,
+        end_date=expire_date,
+        comment=comment,
+        authority=authority,
+    )
 
 
 def parse_party(context, distinct_party, locations, documents):
@@ -357,7 +304,7 @@ def parse_entry(context, entry):
     party = context.make("Thing")
     party.id = context.make_slug(entry.get("ProfileID"))
 
-    sanction = make_sanction(context, party, key=entry.get("ID"))
+    sanction = h.make_sanction(context, party, key=entry.get("ID"))
     sanction.add("program", ref_value("List", entry.get("ListID")))
 
     dates = set()
@@ -395,6 +342,17 @@ def parse_relation(context, el, parties):
     if to_party is None:
         context.log.warn("Missing relation 'to' party", entity_id=to_id, type=type_)
         return
+
+    # if type_id == "15003":
+    #     print(
+    #         "REL",
+    #         from_party.caption,
+    #         from_party.schema.name,
+    #         type_,
+    #         to_party.caption,
+    #         to_party.schema.name,
+    #     )
+
     relation = lookup("relations", type_id)
     if relation is None:
         context.log.warn(
@@ -412,6 +370,13 @@ def parse_relation(context, el, parties):
     # HACK: Looks like OFAC just has some link in a direction that makes no
     # semantic sense, so we're flipping them here.
     if disjoint_schema(from_party, from_range) or disjoint_schema(to_party, to_range):
+        # context.log.warning(
+        #     "Flipped relation",
+        #     from_party=from_party,
+        #     to_party=to_party,
+        #     schema=entity.schema,
+        #     type=type_,
+        # )
         from_party, to_party = to_party, from_party
 
     add_schema(from_party, from_range)

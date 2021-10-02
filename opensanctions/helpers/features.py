@@ -4,6 +4,7 @@ from followthemoney.types import registry
 
 from opensanctions.helpers.dates import parse_date
 from opensanctions.helpers.gender import clean_gender
+from opensanctions.helpers.lookups import types_lookup
 
 log = structlog.get_logger(__name__)
 
@@ -25,20 +26,22 @@ def _prepare_value(prop, values, date_formats):
 def apply_feature(
     context,
     entity,
-    lookup,
     feature,
     values,
     country=None,
     start_date=None,
     end_date=None,
     comment=None,
+    authority=None,
     date_formats=[],
 ):
     """This is pretty specific to the needs of OFAC/CSL data."""
-    result = context.lookup(lookup, feature)
+    feature = feature.replace("Digital Currency Address - ", "")
+    lookup = types_lookup().get("features")
+    result = lookup.match(feature)
     if result is None:
         log.warning(
-            "Missing [%s]" % lookup,
+            "Missing feature",
             entity=entity,
             schema=entity.schema,
             feature=feature,
@@ -91,6 +94,7 @@ def apply_feature(
         adj.add("startDate", start_date, quiet=True)
         adj.add("endDate", end_date, quiet=True)
         adj.add("description", comment, quiet=True)
+        adj.add("authority", authority, quiet=True)
 
         context.emit(adj)
         return adj
