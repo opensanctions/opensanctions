@@ -1,4 +1,3 @@
-from pprint import pprint  # noqa
 from collections import defaultdict
 from prefixdate import parse_parts
 

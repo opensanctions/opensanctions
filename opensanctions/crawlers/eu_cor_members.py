@@ -1,13 +1,10 @@
+from lxml import html
 from urllib.parse import urljoin
 from normality import stringify, collapse_spaces, slugify
-from lxml import html
-from prefixdate.formats import parse_format
 
-from opensanctions.helpers import make_address, apply_address
+from opensanctions import helpers as h
 
-
-def parse_date(text):
-    return parse_format(text, "%d/%m/%Y")
+FORMATS = ("%d/%m/%Y",)
 
 
 def crawl_person(context, name, url):
@@ -59,11 +56,11 @@ def crawl_person(context, name, url):
             # person.add("languages", value.split(','))
             continue
         if "Regions since:" in title_text:
-            date = parse_date(value)
+            date = h.parse_date(value, FORMATS)
             person.context["created_at"] = date
             continue
         if "Date of birth:" in title_text:
-            person.add("birthDate", parse_date(value))
+            person.add("birthDate", h.parse_date(value, FORMATS))
             continue
         if "Commissions:" in title_text:
             for com in row.findall(".//li"):
@@ -101,14 +98,14 @@ def crawl_person(context, name, url):
             context.emit(member)
             continue
 
-    address = make_address(
+    address = h.make_address(
         context,
         street=address.get("Street"),
         city=address.get("City"),
         postal_code=address.get("Posal code"),
         country=address.get("Country"),
     )
-    apply_address(context, person, address)
+    h.apply_address(context, person, address)
     context.emit(person, target=True)
 
 

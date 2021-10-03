@@ -1,6 +1,3 @@
-from pprint import pprint  # noqa
-
-
 def split_name(name):
     for i in range(len(name)):
         last_name = name[i:].strip()

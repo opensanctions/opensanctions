@@ -1,5 +1,4 @@
 from datetime import datetime
-from prefixdate import parse_formats
 
 from opensanctions import helpers as h
 from opensanctions.util import jointext, remove_bracketed, multi_split
@@ -14,10 +13,7 @@ def parse_date(date):
     if ";" in date:
         date, _ = date.split(";", 1)
     date = date.strip()
-    parsed = parse_formats(date, FORMATS)
-    if parsed.text is None:
-        return h.extract_years(date, date)
-    return parsed
+    return h.parse_date(date, FORMATS)
 
 
 def parse_entry(context, entry):

@@ -1,11 +1,9 @@
 import xlrd
 from xlrd.xldate import xldate_as_datetime
 from collections import defaultdict
-from pprint import pprint  # noqa
 from normality import slugify
 from datetime import datetime
 from followthemoney import model
-from prefixdate import parse_formats
 from pantomime.types import EXCEL
 
 from opensanctions import helpers as h
@@ -45,15 +43,7 @@ def clean_date(date):
         part = part.strip().strip(",")
         if not len(part):
             continue
-        parsed = parse_formats(part, FORMATS)
-        if parsed.text is not None:
-            dates.add(parsed.text)
-            continue
-        years = h.extract_years(part)
-        if years is not None:
-            dates.update(years)
-            continue
-        dates.add(part)
+        dates.update(h.parse_date(part, FORMATS))
     return dates
 
 

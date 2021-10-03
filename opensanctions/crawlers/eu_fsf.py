@@ -1,12 +1,6 @@
-from pprint import pprint  # noqa
 from prefixdate import parse_parts
 
-from opensanctions.helpers import (
-    clean_gender,
-    make_address,
-    apply_address,
-    make_sanction,
-)
+from opensanctions import helpers as h
 from opensanctions.util import remove_namespace
 
 
@@ -15,7 +9,7 @@ def parse_address(context, el):
     if country == "UNKNOWN":
         country = None
     # context.log.info("Addrr", el=el)
-    return make_address(
+    return h.make_address(
         context,
         street=el.get("street"),
         po_box=el.get("poBox"),
@@ -39,7 +33,7 @@ def parse_entry(context, entry):
     entity.id = context.make_slug(entry.get("euReferenceNumber"))
     entity.add("notes", entry.findtext("./remark"))
 
-    sanction = make_sanction(context, entity)
+    sanction = h.make_sanction(context, entity)
     regulation = entry.find("./regulation")
     source_url = regulation.findtext("./publicationUrl", "")
     sanction.set("sourceUrl", source_url)
@@ -58,7 +52,7 @@ def parse_entry(context, entry):
         entity.add("middleName", name.get("middleName"), quiet=True)
         entity.add("lastName", name.get("lastName"), quiet=True)
         entity.add("position", name.get("function"), quiet=True)
-        gender = clean_gender(name.get("gender"))
+        gender = h.clean_gender(name.get("gender"))
         entity.add("gender", gender, quiet=True)
 
     for node in entry.findall("./identification"):
@@ -81,7 +75,7 @@ def parse_entry(context, entry):
 
     for node in entry.findall("./address"):
         address = parse_address(context, node)
-        apply_address(context, entity, address)
+        h.apply_address(context, entity, address)
 
         for child in node.getchildren():
             if child.tag in ("regulationSummary"):

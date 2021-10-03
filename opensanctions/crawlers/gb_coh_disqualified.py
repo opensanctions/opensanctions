@@ -1,9 +1,8 @@
 import os
 import string
-from pprint import pprint  # noqa
 from urllib.parse import urljoin
 
-from opensanctions.helpers import make_address, apply_address, make_sanction
+from opensanctions import helpers as h
 
 
 class RateLimit(Exception):
@@ -53,7 +52,7 @@ def crawl_item(context, listing):
     person.add("topics", "crime")
 
     address = listing.get("address", {})
-    address = make_address(
+    address = h.make_address(
         context,
         full=listing.get("address_snippet"),
         street=address.get("address_line_1"),
@@ -63,11 +62,11 @@ def crawl_item(context, listing):
         region=address.get("region"),
         # country_code=person.first("nationality"),
     )
-    apply_address(context, person, address)
+    h.apply_address(context, person, address)
 
     for disqual in data.pop("disqualifications", []):
         case_id = disqual.get("case_identifier")
-        sanction = make_sanction(context, person, key=case_id)
+        sanction = h.make_sanction(context, person, key=case_id)
         sanction.add("recordId", case_id)
         sanction.add("startDate", disqual.get("disqualified_from"))
         sanction.add("endDate", disqual.get("disqualified_until"))

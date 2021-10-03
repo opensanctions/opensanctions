@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from opensanctions.helpers import clean_emails, clean_phones, clean_gender
+from opensanctions import helpers as h
 
 
 def crawl(context):
@@ -63,9 +63,9 @@ def parse_common(context, entity, data, lastmod):
     for contact_detail in data.pop("contact_details", []):
         value = contact_detail.get("value")
         if "email" == contact_detail.get("type"):
-            entity.add("email", clean_emails(value))
+            entity.add("email", h.clean_emails(value))
         if "phone" == contact_detail.get("type"):
-            entity.add("phone", clean_phones(value))
+            entity.add("phone", h.clean_phones(value))
 
 
 def parse_person(context, data, country, entities, lastmod):
@@ -80,7 +80,7 @@ def parse_person(context, data, country, entities, lastmod):
     if data.get("death_date", "9999") < "2000":
         return
 
-    person.add("gender", clean_gender(data.pop("gender", None)))
+    person.add("gender", h.clean_gender(data.pop("gender", None)))
     person.add("title", data.pop("honorific_prefix", None))
     person.add("title", data.pop("honorific_suffix", None))
     person.add("firstName", data.pop("given_name", None))
@@ -88,7 +88,7 @@ def parse_person(context, data, country, entities, lastmod):
     person.add("fatherName", data.pop("patronymic_name", None))
     person.add("birthDate", data.pop("birth_date", None))
     person.add("deathDate", data.pop("death_date", None))
-    person.add("email", clean_emails(data.pop("email", None)))
+    person.add("email", h.clean_emails(data.pop("email", None)))
     person.add("notes", data.pop("summary", None))
     person.add("topics", "role.pep")
 

@@ -12,9 +12,9 @@ def load_yaml(file_path):
 
 
 @lru_cache(maxsize=None)
-def types_lookup():
-    types_path = settings.STATIC_PATH.joinpath("types.yml")
-    return get_lookups(load_yaml(types_path))
+def common_lookups():
+    common_path = settings.STATIC_PATH.joinpath("common.yml")
+    return get_lookups(load_yaml(common_path))
 
 
 def type_lookup(type_, value):
@@ -23,7 +23,7 @@ def type_lookup(type_, value):
     `types.yml`.
 
     The override value is then cleaned again and applied to the entity."""
-    lookup = types_lookup().get(type_.name)
+    lookup = common_lookups().get(type_.name)
     if lookup is None:
         return [value]
     return lookup.get_values(value, default=[value])
