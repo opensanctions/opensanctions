@@ -42,7 +42,7 @@ jobs:
         run: |
           sudo apt-get install -y -qq libicu-dev
           pip install --no-cache-dir -q pyicu awscli
-          pip install --no-cache-dir -q -e .
+          pip install --no-cache-dir -q -e ".[dev]"
       - name: Run a single dataset
         run: |
           opensanctions run us_ofac_cons
