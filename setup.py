@@ -6,7 +6,7 @@ with open("README.md") as f:
 
 setup(
     name="opensanctions",
-    version="3.1.0",
+    version="3.1.1",
     url="https://opensanctions.org",
     long_description=long_description,
     long_description_content_type="text/markdown",
