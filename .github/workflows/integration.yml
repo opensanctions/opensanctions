@@ -46,6 +46,17 @@ jobs:
       - name: Run a single dataset
         run: |
           opensanctions run us_ofac_cons
+      - name: Build a distribution
+        run: |
+          python setup.py sdist bdist_wheel
+      - name: Publish opensanctions to PyPI
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+        uses: pypa/gh-action-pypi-publish@master
+        with:
+          user: __token__
+          password: ${{ secrets.pypi_password }}
+          packages_dir: dist/
+          skip_existing: true
   site:
     runs-on: ubuntu-latest
     env:
