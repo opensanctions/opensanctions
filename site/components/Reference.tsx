@@ -2,7 +2,7 @@ import { Property, PropertyType, Schema } from "@alephdata/followthemoney"
 import Link from "next/link";
 import Table from 'react-bootstrap/Table';
 import { SPACER } from "../lib/constants";
-import { getSchemaChildren, getSchemaParents, wordList } from "../lib/util";
+import { wordList } from "../lib/util";
 
 
 type TypeReferenceProps = {
@@ -65,9 +65,9 @@ export function SchemaReference({ schema, schemata }: SchemaReferenceProps) {
   const properties = allProperties
     .filter(prop => !prop.hidden)
     .filter(prop => !prop.hasRange || -1 !== schemata.indexOf(prop.getRange()))
-  const parents = getSchemaParents(schema)
+  const parents = schema.getParents()
     .map(s => <Link href={`#schema.${s.name}`}>{s.name}</Link>)
-  const children = getSchemaChildren(schema)
+  const children = schema.getChildren()
     .filter(s => schemata.indexOf(s) !== -1)
     .map(s => <Link href={`#schema.${s.name}`}>{s.name}</Link>)
   return (

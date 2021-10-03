@@ -51,11 +51,6 @@ function getResourceDataDownload(resource: IResource) {
   }
 }
 
-
-async function getNestedSchemaDatasets(datasets: Array<string>): Promise<any> {
-  return await Promise.all(datasets.map((name) => getSchemaDataset(name, false)))
-}
-
 export async function getSchemaDataset(name: string, deep: boolean = true) {
   const dataset = await getDatasetByName(name)
   const index = await fetchIndex()
@@ -88,12 +83,6 @@ export async function getSchemaDataset(name: string, deep: boolean = true) {
         "sameAs": dataset.url,
       }
     }
-    // if (deep) {
-    //   schema = {
-    //     ...schema,
-    //     "isPartOf": await getNestedSchemaDatasets(dataset.collections),
-    //   }
-    // }
     if (dataset.publisher.country !== 'zz') {
       schema = {
         ...schema,
@@ -101,12 +90,6 @@ export async function getSchemaDataset(name: string, deep: boolean = true) {
       }
     }
   }
-  // if (isCollection(dataset) && deep) {
-  //   schema = {
-  //     ...schema,
-  //     "hasPart": await getNestedSchemaDatasets(dataset.sources),
-  //   }
-  // }
   return schema;
 }
 

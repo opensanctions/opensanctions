@@ -32,33 +32,10 @@ export function wordList(arr: Array<any>, sep: string): ReactElement {
     ]), [<span key={arr[0]}>{arr[0]}</span>])
 }
 
-
-export function getSchemaParents(schema: Schema): Array<Schema> {
-  const parents = new Map<string, Schema>()
-  for (const ext of schema.getExtends()) {
-    parents.set(ext.name, ext)
-    for (const parent of getSchemaParents(ext)) {
-      parents.set(parent.name, parent)
-    }
-  }
-  return Array.from(parents.values())
-}
-
-export function getSchemaChildren(schema: Schema): Array<Schema> {
-  const children = new Array<Schema>()
-  for (const ms of schema.model.getSchemata()) {
-    const parents = getSchemaParents(ms)
-    if (parents.indexOf(schema) !== -1 && children.indexOf(schema) === -1) {
-      children.push(ms)
-    }
-  }
-  return children;
-}
-
 export function getAllParents(schemata: Array<Schema>): Array<Schema> {
   const parents = Array.from(schemata)
   for (const schema of schemata) {
-    for (const parent of getSchemaParents(schema)) {
+    for (const parent of schema.getParents()) {
       if (parents.indexOf(parent) === -1) {
         parents.push(parent)
       }
