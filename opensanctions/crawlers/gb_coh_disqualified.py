@@ -34,6 +34,7 @@ def crawl_item(context, listing):
 
     person.add("name", listing.get("title"))
     person.add("notes", listing.get("description"))
+    person.add("topics", "crime")
     source_url = urljoin(WEB_URL, links.get("self"))
     person.add("sourceUrl", source_url)
 

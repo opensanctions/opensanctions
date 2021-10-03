@@ -80,6 +80,7 @@ def crawl_entity(context, data):
     entity = context.make(schema)
     entity.id = context.make_slug(data.pop("IdRegistre"))
     entity.add("name", data.pop("Nom"))
+    entity.add("topics", "sanction")
 
     sanction = h.make_sanction(context, entity)
     for detail in data.pop("RegistreDetail"):

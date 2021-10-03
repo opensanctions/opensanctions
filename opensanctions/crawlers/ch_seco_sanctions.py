@@ -172,6 +172,7 @@ def parse_entry(context, target, programs, places, updated_at):
     for identity in node.findall("./identity"):
         parse_identity(context, entity, identity, places)
 
+    entity.add("topics", "sanction")
     context.emit(entity, target=True, unique=True)
     context.emit(sanction)
 

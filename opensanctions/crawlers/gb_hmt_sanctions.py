@@ -181,6 +181,7 @@ def parse_row(context, row):
     if len(row):
         pprint(row)
 
+    entity.add("topics", "sanction")
     context.emit(entity, target=True, unique=True)
     context.emit(sanction)
 

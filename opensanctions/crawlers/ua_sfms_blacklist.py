@@ -83,6 +83,7 @@ def parse_entry(context, entry):
             country = remove_bracketed(country)
             entity.add("nationality", country, quiet=True)
 
+    entity.add("topics", "sanction")
     context.emit(entity, target=True, unique=True)
     context.emit(sanction)
 

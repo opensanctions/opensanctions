@@ -46,5 +46,6 @@ def parse_entry(context, node):
             name = collapse_spaces(name)
             entity.add("alias", name)
 
+    entity.add("topics", "sanction")
     context.emit(entity, target=True)
     context.emit(sanction)

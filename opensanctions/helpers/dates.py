@@ -22,6 +22,8 @@ def parse_date(text, formats):
     """Parse a date two ways: first, try and apply a set of structured formats and
     return a partial date if any of them parse correctly. Otherwise, apply `extract_years`
     on the remaining string."""
+    if text is None:
+        return []
     parsed = parse_formats(text, formats)
     if parsed.text is not None:
         return [parsed.text]

@@ -91,6 +91,7 @@ def parse_reference(context, reference, rows):
         entity.add("modifiedAt", control_date)
         entity.context["updated_at"] = control_date.isoformat()
 
+    entity.add("topics", "sanction")
     context.emit(entity, target=True)
     context.emit(sanction)
 

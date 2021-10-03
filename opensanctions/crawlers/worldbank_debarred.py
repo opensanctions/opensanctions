@@ -46,6 +46,7 @@ def crawl(context):
         entity.id = context.make_slug(ent_id)
         names = clean_name(name)
         entity.add("name", names[0])
+        entity.add("topics", "debarment")
         entity.add("country", data.get("COUNTRY_NAME"))
         for name in names[1:]:
             entity.add("alias", name)

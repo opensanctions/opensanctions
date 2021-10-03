@@ -50,6 +50,8 @@ def crawl(dataset):
 @click.argument("dataset", default=Dataset.ALL, type=datasets)
 def export(dataset):
     dataset = Dataset.get(dataset)
+    resolver = get_resolver()
+    Statement.resolve_all(resolver)
     for dataset_ in dataset.datasets:
         export_dataset(dataset_)
     export_global_index()
@@ -59,8 +61,10 @@ def export(dataset):
 @click.argument("dataset", default=Dataset.ALL, type=datasets)
 def run(dataset):
     dataset = Dataset.get(dataset)
+    resolver = get_resolver()
     for source in dataset.sources:
         Context(source).crawl()
+    Statement.resolve_all(resolver)
     for dataset_ in dataset.datasets:
         export_dataset(dataset_)
     export_global_index()

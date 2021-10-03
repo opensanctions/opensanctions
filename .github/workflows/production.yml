@@ -41,13 +41,6 @@ jobs:
             -e OPENSANCTIONS_DATE \
             pudo/opensanctions \
             opensanctions crawl
-      - name: Apply entity de-duplication
-        run: |
-          docker run \
-            -v `pwd`/data:/opensanctions/data \
-            -e OPENSANCTIONS_DATE \
-            pudo/opensanctions \
-            opensanctions resolve
       - name: Export data dumps
         run: |
           docker run \

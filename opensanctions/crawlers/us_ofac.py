@@ -278,6 +278,7 @@ def parse_party(context, distinct_party, locations, documents):
     party = context.make(schema)
     party.id = context.make_slug(profile.get("ID"))
     party.add("notes", distinct_party.findtext("Comment"))
+    party.add("topics", "sanction")
 
     for identity in profile.findall("./Identity"):
         parts = {}
