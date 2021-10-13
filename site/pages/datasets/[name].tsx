@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { GetStaticPropsContext } from 'next'
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Card from 'react-bootstrap/Card';
@@ -39,9 +40,14 @@ export default function DatasetScreen({ dataset, structured, issues, sources, co
   if (dataset === undefined) {
     return null;
   }
+  const router = useRouter();
   const [view, setView] = useState('description');
   const errors = issues.issues.filter((i) => i.level === LEVEL_ERROR)
   const warnings = issues.issues.filter((i) => i.level === LEVEL_WARNING)
+
+  useEffect(() => {
+    router.events.on("routeChangeComplete", async () => setView('description'))
+  })
 
   return (
     <Layout.Base title={dataset.title} description={dataset.summary} structured={structured}>
