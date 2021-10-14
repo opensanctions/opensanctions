@@ -132,7 +132,7 @@ export default function DatasetScreen({ dataset, structured, issues, sources, co
                       <FileEarmarkArrowDownFill className="bsIcon" />
                     </a>
                     {' '}
-                    <a href={resource.url} download={resource.path}>
+                    <a href={resource.url} download={resource.path} rel="nofollow">
                       {resource.title}
                     </a>
                     {' '}
