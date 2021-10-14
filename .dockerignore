@@ -1,8 +1,7 @@
 data/
 docs/
 dist/
-build/
-contrib/logo/
+site/
 .envrc
 Makefile
 Dockerfile
