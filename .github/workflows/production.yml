@@ -84,6 +84,8 @@ jobs:
           node-version: 16
       - name: Install npm dependencies
         run: npm install
+      - name: Download opensanctions data
+        run: make data
       - name: Build and export site
         run: npm run build
       - name: Publish site to opensanctions.org
