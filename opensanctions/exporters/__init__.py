@@ -1,6 +1,8 @@
 import structlog
 from urllib.parse import urljoin
 from followthemoney import model
+from followthemoney.helpers import name_entity, remove_prefix_dates
+from followthemoney.helpers import simplify_provenance
 
 from opensanctions import settings
 from opensanctions.model import db, Issue, Statement
@@ -53,11 +55,20 @@ def export_global_index():
         write_json(meta, fh)
 
 
+def export_loader(context):
+    loader = DatasetMemoryLoader(context.dataset, context.resolver)
+    for entity in loader.entities.values():
+        entity = simplify_provenance(entity)
+        entity = remove_prefix_dates(entity)
+        entity = name_entity(entity)
+    return loader
+
+
 def export_dataset(dataset):
     """Dump the contents of the dataset to the output directory."""
     context = Context(dataset)
     context.bind()
-    loader = DatasetMemoryLoader(dataset, context.resolver)
+    loader = export_loader(context)
     exporters = [Exporter(context, loader) for Exporter in EXPORTERS]
     for entity in loader:
         for exporter in exporters:
