@@ -1,16 +1,32 @@
 @import './variables.scss';
 
-.code {
+.issueValue {
     color: $gray-600;
 }
 
-.tableKey {
+.issueTableKey {
     vertical-align: top;
     width: 20%;
     min-width: 20%;
     max-width: 20%;
+    color: $gray-600;
 }
 
-.dataTable {
-    margin-bottom: 0;
+.issueCard {
+    margin-bottom: 1em;
+
+    table {
+        margin-bottom: 0;
+    }
+}
+
+.issueFooter {
+    text-align: right;
+}
+
+.issueHeader {
+    code {
+        color: $gray-600;
+        font-weight: bold;
+    }
 }

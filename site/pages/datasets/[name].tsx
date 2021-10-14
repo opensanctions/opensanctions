@@ -73,12 +73,12 @@ export default function DatasetScreen({ dataset, structured, issues, sources, co
               </Tab>
               {isSource(dataset) && !!errors.length && (
                 <Tab eventKey="errors" title={<>{'Errors'} <NumericBadge value={errors.length} bg="danger" /></>} className={styles.viewTab}>
-                  <IssuesList issues={errors} />
+                  <IssuesList issues={errors} showDataset={false} />
                 </Tab>
               )}
               {isSource(dataset) && !!warnings.length && (
                 <Tab eventKey="warnings" title={<>{'Warnings'} <NumericBadge value={warnings.length} bg="warning" /></>} className={styles.viewTab}>
-                  <IssuesList issues={warnings} />
+                  <IssuesList issues={warnings} showDataset={false} />
                 </Tab>
               )}
               {isCollection(dataset) && sources?.length && (
