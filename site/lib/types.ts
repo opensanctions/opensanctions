@@ -1,4 +1,4 @@
-import { IModelDatum } from "@alephdata/followthemoney"
+import { IEntityDatum, IModelDatum } from "@alephdata/followthemoney"
 
 export interface IResource {
   url: string
@@ -81,6 +81,15 @@ export interface ICollection extends IDatasetBase {
 }
 
 export type IDataset = ISource | ICollection
+
+export interface IOpenSanctionsEntity extends IEntityDatum {
+  caption: string
+  referents: Array<string>
+  datasets: Array<string>
+  last_seen: string
+  first_seen: string
+  target: boolean
+}
 
 
 export function isCollection(dataset?: IDataset): dataset is ICollection {

@@ -11,7 +11,7 @@ _data/issues.json: _data
 	curl -s -o _data/issues.json https://data.opensanctions.org/datasets/latest/issues.json
 
 _data/targets.ijson: _data
-	curl -s -o _data/targets.ijson https://data.opensanctions.org/datasets/latest/default/targets.nested.json
+	curl -s -o _data/targets.ijson https://data.opensanctions.org/datasets/latest/sanctions/targets.nested.json
 
 clean:
 	rm -rf out _data

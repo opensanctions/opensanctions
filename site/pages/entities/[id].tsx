@@ -1,22 +1,8 @@
 import { useState, useEffect } from 'react';
 import { GetStaticPropsContext, InferGetStaticPropsType } from 'next'
-import Link from 'next/link';
-import { useRouter } from 'next/router';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import Card from 'react-bootstrap/Card';
-import Table from 'react-bootstrap/Table';
-import Tabs from 'react-bootstrap/Tabs';
-import Tab from 'react-bootstrap/Tab';
-import Alert from 'react-bootstrap/Alert';
-import Tooltip from 'react-bootstrap/Tooltip';
-import ListGroup from 'react-bootstrap/ListGroup';
 import Container from 'react-bootstrap/Container';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import { FileEarmarkArrowDownFill } from 'react-bootstrap-icons';
 
 import Layout from '../../components/Layout'
-import Dataset from '../../components/Dataset'
 import { getDatasets, getDatasetByName, getDatasetIssues, getEntityById, getEntityIds } from '../../lib/data'
 import { IDataset, IIssue, ICollection, ISource, isCollection, isSource, LEVEL_ERROR, LEVEL_WARNING } from '../../lib/types'
 import { Summary, FileSize, NumericBadge, JSONLink, HelpLink } from '../../components/util'
@@ -34,11 +20,10 @@ export default function DatasetScreen({ entity }: InferGetStaticPropsType<typeof
     return null;
   }
   return (
-    <Layout.Base title={entity.getCaption()}>
+    <Layout.Base title={entity.caption}>
       <Container>
-        <h1>
-          {entity.getCaption()}
-        </h1>
+        <h1>{entity.caption}</h1>
+        <pre>{JSON.stringify(entity, null, 2)}</pre>
       </Container>
     </Layout.Base >
   )
@@ -47,6 +32,15 @@ export default function DatasetScreen({ entity }: InferGetStaticPropsType<typeof
 export const getStaticProps = async (context: GetStaticPropsContext) => {
   const params = context.params!
   const entity = await getEntityById(params.id as string);
+  // if (entity !== undefined && entity.id !== params.id) {
+  //   console.log("Redirect", params.id, " -> ", entity.id);
+  //   return {
+  //     redirect: {
+  //       destination: `/entities/${entity.id}/`,
+  //       permanent: false
+  //     }
+  //   }
+  // }
   return { props: { entity: entity } };
 }
 
