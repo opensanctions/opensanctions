@@ -1,18 +1,20 @@
+import { promises as fs } from 'fs';
+import { join } from 'path'
 import { IModelDatum } from "@alephdata/followthemoney"
-import { IDataset, IDatasetBase, ICollection, ISource, IIssueIndex, IIndex } from "./types";
-import { INDEX_URL, BASE_URL } from "./constants";
+import { IDataset, IDatasetBase, ICollection, ISource, IIssueIndex, IIndex, IIssue } from "./types";
+import { BASE_URL } from "./constants";
 
 export type IndexCache = {
   index: IIndex | null
 }
 
+const dataDirectory = join(process.cwd(), '_data')
 const CACHE: IndexCache = { index: null };
 
 export async function fetchIndex(): Promise<IIndex> {
   if (CACHE.index === null) {
-    console.log("Fetching Index", INDEX_URL)
-    const response = await fetch(INDEX_URL)
-    const index = await response.json()
+    const data = await fs.readFile(join(dataDirectory, 'index.json'), 'utf8')
+    const index = JSON.parse(data)
     index.datasets = index.datasets.map((ds: IDatasetBase) => {
       ds.link = `/datasets/${ds.name}/`
       ds.opensanctions_url = BASE_URL + ds.link
@@ -34,11 +36,13 @@ export async function getDatasetByName(name: string): Promise<IDataset | undefin
   return datasets.find((dataset) => dataset.name === name)
 }
 
-export async function getDatasetIssues(dataset?: IDataset): Promise<IIssueIndex> {
-  if (dataset === undefined) {
-    return { issues: [] } as IIssueIndex
-  }
-  const response = await fetch(dataset.issues_url)
-  const data = await response.json()
-  return data as IIssueIndex
+export async function getIssues(): Promise<Array<IIssue>> {
+  const data = await fs.readFile(join(dataDirectory, 'issues.json'), 'utf8')
+  const index = JSON.parse(data) as IIssueIndex
+  return index.issues
+}
+
+export async function getDatasetIssues(dataset?: IDataset): Promise<Array<IIssue>> {
+  const issues = await getIssues()
+  return issues.filter(issue => issue.dataset === dataset?.name);
 }

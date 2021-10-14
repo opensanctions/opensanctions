@@ -7,7 +7,7 @@ import Layout from '../components/Layout'
 import Content from '../components/Content'
 import { getContentBySlug } from '../lib/content'
 import { Summary } from '../components/util'
-import { fetchIndex } from '../lib/api'
+import { fetchIndex } from '../lib/data'
 import { SchemaReference, TypeReference } from '../components/Reference';
 import { INDEX_URL } from '../lib/constants';
 import { getAllParents } from '../lib/util';

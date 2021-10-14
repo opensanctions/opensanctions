@@ -7,7 +7,7 @@ import Container from 'react-bootstrap/Container';
 import Layout from '../../components/Layout'
 import Dataset from '../../components/Dataset'
 import { INDEX_URL } from '../../lib/constants';
-import { getDatasets } from '../../lib/api'
+import { getDatasets } from '../../lib/data'
 import { getSchemaDataCatalog } from '../../lib/schema'
 import { ICollection, isCollection, isSource } from '../../lib/types';
 import { JSONLink } from '../../components/util';

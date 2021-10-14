@@ -8,7 +8,7 @@ import Badge from 'react-bootstrap/Badge';
 
 import styles from '../styles/Home.module.scss'
 import Layout from '../components/Layout'
-import { getDatasets } from '../lib/api'
+import { getDatasets } from '../lib/data'
 import { CLAIM, SUBCLAIM, SPACER } from '../lib/constants'
 import { getSchemaOpenSanctionsOrganization } from '../lib/schema';
 import { Search } from 'react-bootstrap-icons';

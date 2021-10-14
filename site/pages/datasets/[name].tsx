@@ -17,12 +17,12 @@ import { FileEarmarkArrowDownFill } from 'react-bootstrap-icons';
 
 import Layout from '../../components/Layout'
 import Dataset from '../../components/Dataset'
-import { getDatasets, getDatasetByName, getDatasetIssues } from '../../lib/api'
-import { IDataset, ICollection, ISource, isCollection, isSource, IIssueIndex, LEVEL_ERROR, LEVEL_WARNING } from '../../lib/types'
+import { getDatasets, getDatasetByName, getDatasetIssues } from '../../lib/data'
+import { IDataset, IIssue, ICollection, ISource, isCollection, isSource, LEVEL_ERROR, LEVEL_WARNING } from '../../lib/types'
 import { Summary, FileSize, NumericBadge, JSONLink, HelpLink } from '../../components/util'
 import DatasetMetadataTable from '../../components/DatasetMetadataTable'
 import { getSchemaDataset } from '../../lib/schema';
-import IssuesTable from '../../components/Issue';
+import { IssuesList } from '../../components/Issue';
 import { SPACER } from '../../lib/constants';
 
 import styles from '../../styles/Dataset.module.scss'
@@ -31,7 +31,7 @@ import styles from '../../styles/Dataset.module.scss'
 type DatasetScreenProps = {
   dataset?: IDataset
   structured: any
-  issues: IIssueIndex
+  issues: Array<IIssue>
   sources?: Array<ISource>
   collections?: Array<ICollection>
 }
@@ -42,8 +42,8 @@ export default function DatasetScreen({ dataset, structured, issues, sources, co
   }
   const router = useRouter();
   const [view, setView] = useState('description');
-  const errors = issues.issues.filter((i) => i.level === LEVEL_ERROR)
-  const warnings = issues.issues.filter((i) => i.level === LEVEL_WARNING)
+  const errors = issues.filter((i) => i.level === LEVEL_ERROR)
+  const warnings = issues.filter((i) => i.level === LEVEL_WARNING)
 
   useEffect(() => {
     router.events.on("routeChangeComplete", async () => setView('description'))
@@ -73,12 +73,12 @@ export default function DatasetScreen({ dataset, structured, issues, sources, co
               </Tab>
               {isSource(dataset) && !!errors.length && (
                 <Tab eventKey="errors" title={<>{'Errors'} <NumericBadge value={errors.length} bg="danger" /></>} className={styles.viewTab}>
-                  <IssuesTable issues={errors} />
+                  <IssuesList issues={errors} />
                 </Tab>
               )}
               {isSource(dataset) && !!warnings.length && (
                 <Tab eventKey="warnings" title={<>{'Warnings'} <NumericBadge value={warnings.length} bg="warning" /></>} className={styles.viewTab}>
-                  <IssuesTable issues={warnings} />
+                  <IssuesList issues={warnings} />
                 </Tab>
               )}
               {isCollection(dataset) && sources?.length && (
@@ -124,7 +124,7 @@ export default function DatasetScreen({ dataset, structured, issues, sources, co
           </Col>
           <Col sm={3}>
             <Card>
-              <Card.Header>Downloads</Card.Header>
+              <Card.Header><strong>Downloads</strong></Card.Header>
               <ListGroup variant="flush">
                 {dataset.resources.map((resource) =>
                   <ListGroup.Item key={resource.path}>

@@ -3,7 +3,7 @@
 // https://schema.org/Dataset
 
 import { BASE_URL, LICENSE_URL, CLAIM, EMAIL, SITE } from './constants';
-import { fetchIndex, getDatasetByName, getDatasets } from './api';
+import { fetchIndex, getDatasetByName, getDatasets } from './data';
 import { IResource, ISourcePublisher, isSource } from './types';
 
 
