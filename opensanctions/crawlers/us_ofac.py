@@ -42,6 +42,8 @@ NAMES = {
     "Matronymic": "motherName",
 }
 
+URL = "https://sanctionssearch.ofac.treas.gov/Details.aspx?id=%s"
+
 
 def load_ref_values(doc):
     ref_value_sets = doc.find(".//ReferenceValueSets")
@@ -278,6 +280,7 @@ def parse_party(context, distinct_party, locations, documents):
     party = context.make(schema)
     party.id = context.make_slug(profile.get("ID"))
     party.add("notes", distinct_party.findtext("Comment"))
+    party.add("sourceUrl", URL % profile.get("ID"))
     party.add("topics", "sanction")
 
     for identity in profile.findall("./Identity"):
