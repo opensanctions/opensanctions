@@ -81,29 +81,31 @@ export default function DatasetScreen({ id, data, modelData, datasets }: Dataset
           </Col>
           <Col md={9}>
             {entity.hasProperty('notes') && (
-              <>
+              <div className={styles.entityPageSection}>
                 {/* <h2>Notes</h2> */}
                 {entity.getProperty('notes').map((v) => <Summary summary={v as string} />)}
-              </>
+              </div>
             )}
             {entityProperties.map((prop) =>
-              <>
-                <h2>{prop.label}</h2>
+              <div className={styles.entityPageSection}>
+                <h2>{prop.getRange().plural}</h2>
                 {entity.getProperty(prop).map((value) =>
                   <EntityCard entity={value as OpenSanctionsEntity} />
                 )}
-              </>
+              </div>
             )}
-
-            <h2>Data sources</h2>
-            <Row>
-              {datasets.map((d) => (
-                <Col md={4} key={d.name}>
-                  <Dataset.Card dataset={d} />
-                </Col>
-              ))}
-            </Row>
+            <div className={styles.entityPageSection}>
+              <h2>Data sources</h2>
+              <Row>
+                {datasets.map((d) => (
+                  <Col md={4} key={d.name}>
+                    <Dataset.Card dataset={d} />
+                  </Col>
+                ))}
+              </Row>
+            </div>
           </Col>
+
         </Row>
       </Container>
     </Layout.Base >

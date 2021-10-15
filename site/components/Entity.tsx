@@ -23,11 +23,11 @@ export function EntityLink({ entity }: EntityProps) {
 
 export function EntityCard({ entity }: EntityProps) {
   return (
-    <Card key={entity.id}>
+    <Card key={entity.id} className={styles.card}>
       <Card.Header>
         <strong>{entity.schema.label}</strong>
       </Card.Header>
-      <Table>
+      <Table className={styles.cardTable}>
         <tbody>
           {entity.getProperties().map((prop) =>
             <tr key={prop.name}>
@@ -43,6 +43,7 @@ export function EntityCard({ entity }: EntityProps) {
           )}
         </tbody>
       </Table>
+
     </Card >
   );
 }
