@@ -1,6 +1,7 @@
 import json
 from functools import lru_cache
 from pantomime.types import JSON
+from requests.exceptions import TooManyRedirects
 
 from opensanctions.core import Dataset
 from opensanctions import helpers as h
@@ -11,8 +12,11 @@ SDN = Dataset.get("us_ofac_sdn")
 
 @lru_cache(maxsize=None)
 def deref_url(context, url):
-    res = context.http.get(url)
-    return res.url
+    try:
+        res = context.http.get(url, stream=True)
+        return res.url
+    except TooManyRedirects:
+        return url
 
 
 def parse_result(context, result):
