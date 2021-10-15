@@ -3,8 +3,7 @@
 // https://schema.org/Dataset
 
 import { BASE_URL, LICENSE_URL, CLAIM, EMAIL, SITE } from './constants';
-import { fetchIndex, getDatasetByName, getDatasets } from './data';
-import { IResource, ISourcePublisher, isSource } from './types';
+import { IDataset, IResource, ISourcePublisher, isSource } from './types';
 
 
 export function getSchemaOpenSanctionsOrganization() {
@@ -51,12 +50,7 @@ function getResourceDataDownload(resource: IResource) {
   }
 }
 
-export async function getSchemaDataset(name: string, deep: boolean = true) {
-  const dataset = await getDatasetByName(name)
-  const index = await fetchIndex()
-  if (dataset === undefined) {
-    return undefined
-  }
+export function getSchemaDataset(dataset: IDataset) {
   let schema: any = {
     "@context": "https://schema.org/",
     "@type": "Dataset",
@@ -64,7 +58,6 @@ export async function getSchemaDataset(name: string, deep: boolean = true) {
     "url": dataset.opensanctions_url,
     "description": dataset.summary,
     "license": LICENSE_URL,
-    "version": index.version,
     "includedInDataCatalog": getDataCatalog(),
     "creator": getSchemaOpenSanctionsOrganization(),
     "isAccessibleForFree": true,
@@ -94,12 +87,20 @@ export async function getSchemaDataset(name: string, deep: boolean = true) {
 }
 
 
-export async function getSchemaDataCatalog() {
-  const datasetObjs = await getDatasets()
-  const datasets = await Promise.all(datasetObjs.map((d) => getSchemaDataset(d.name, false)))
+export async function getSchemaDataCatalog(datasets: Array<IDataset>) {
   return {
     ...getDataCatalog(),
     license: LICENSE_URL,
-    dataset: datasets
+    dataset: datasets.map((d) => getSchemaDataset(d))
   }
 }
+
+// function applyProperty(entity, prop, field) {
+
+// }
+
+// export async function getSchemaEntity(entity) {
+//   // https://schema.org/Person
+//   // https://schema.org/Organization
+//   // https://schema.org/PostalAddress
+// }

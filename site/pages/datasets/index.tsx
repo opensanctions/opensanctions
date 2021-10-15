@@ -16,7 +16,8 @@ import { JSONLink } from '../../components/util';
 // fake up a semantic ordering of collections
 const COLLECTIONS = ['sanctions', 'default', 'peps', 'crime'];
 
-export default function DatasetIndex({ datasets, structured }: InferGetStaticPropsType<typeof getStaticProps>) {
+export default function DatasetIndex({ datasets }: InferGetStaticPropsType<typeof getStaticProps>) {
+  const structured = getSchemaDataCatalog(datasets)
   const allCollections = datasets.filter(isCollection)
   const collections = COLLECTIONS.map(n => allCollections.find(c => c.name == n)) as Array<ICollection>
   const sources = datasets.filter(isSource)
@@ -83,8 +84,7 @@ export default function DatasetIndex({ datasets, structured }: InferGetStaticPro
 export const getStaticProps = async () => {
   return {
     props: {
-      datasets: await getDatasets(),
-      structured: await getSchemaDataCatalog()
+      datasets: await getDatasets()
     }
   }
 }

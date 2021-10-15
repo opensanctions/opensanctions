@@ -1,11 +1,22 @@
 import json
+from functools import lru_cache
 from pantomime.types import JSON
+from requests.exceptions import TooManyRedirects
 
 from opensanctions.core import Dataset
 from opensanctions import helpers as h
 
 FORMATS = ["%d %b %Y", "%d %B %Y", "%Y", "%b %Y", "%B %Y"]
 SDN = Dataset.get("us_ofac_sdn")
+
+
+@lru_cache(maxsize=None)
+def deref_url(context, url):
+    try:
+        res = context.http.get(url, stream=True)
+        return res.url
+    except TooManyRedirects:
+        return url
 
 
 def parse_result(context, result):
@@ -89,7 +100,8 @@ def parse_result(context, result):
     sanction.add("authority", result.pop("source", None))
 
     # TODO: deref
-    sanction.add("sourceUrl", result.pop("source_information_url"))
+    source_url = deref_url(context, result.pop("source_information_url"))
+    sanction.add("sourceUrl", source_url)
     result.pop("source_list_url")
 
     # TODO: what is this?
