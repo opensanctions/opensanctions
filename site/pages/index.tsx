@@ -17,7 +17,8 @@ import { isCollection, isSource } from '../lib/types';
 import writeSitemap from '../lib/sitemap';
 
 
-export default function Home({ datasets, structured }: InferGetStaticPropsType<typeof getStaticProps>) {
+export default function Home({ datasets }: InferGetStaticPropsType<typeof getStaticProps>) {
+  const structured = getSchemaOpenSanctionsOrganization()
   const all = datasets.find((d) => d.name === 'all');
   if (all === undefined) {
     return null;
@@ -133,8 +134,7 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
   writeSitemap(datasets)
   return {
     props: {
-      datasets,
-      structured: getSchemaOpenSanctionsOrganization()
+      datasets
     }
   }
 }

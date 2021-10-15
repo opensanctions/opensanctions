@@ -1,11 +1,12 @@
 import filesize from 'filesize';
-import { ReactNode } from 'react';
+import React, { ReactNode } from 'react';
 import Badge from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
 import { FileEarmarkCodeFill, Link45deg, QuestionCircleFill } from 'react-bootstrap-icons';
 import { markdownToHtml } from '../lib/util';
 
 import styles from '../styles/util.module.scss';
+import { SPACER } from '../lib/constants';
 
 type NumericProps = {
   value?: number | null
@@ -69,6 +70,9 @@ type FormattedDateProps = {
 export function FormattedDate({ date }: FormattedDateProps) {
   if (date === undefined || date === null) {
     return null;
+  }
+  if (date.length <= 10) {
+    return <time dateTime={date}>{date}</time>
   }
   const obj = new Date(date as string);
   const fmt = new Intl.DateTimeFormat('en-CA', { dateStyle: 'medium', timeStyle: 'short' });
@@ -142,5 +146,22 @@ export function JSONLink({ href }: HelpLinkProps) {
       <FileEarmarkCodeFill className="bsIcon" />
       {' '}JSON
     </Button>
+  )
+}
+
+type SpacedListProps = {
+  values: Array<ReactNode>
+}
+
+export function SpacedList({ values }: SpacedListProps) {
+  if (values.length == 0) {
+    return null;
+  }
+  return (
+    <>
+      {values
+        .map<React.ReactNode>(t => <span>{t}</span>)
+        .reduce((prev, curr) => [prev, SPACER, curr])}
+    </>
   )
 }

@@ -29,21 +29,18 @@ import styles from '../../styles/Dataset.module.scss'
 
 
 type DatasetScreenProps = {
-  dataset?: IDataset
-  structured: any
+  dataset: IDataset
   issues: Array<IIssue>
   sources?: Array<ISource>
   collections?: Array<ICollection>
 }
 
-export default function DatasetScreen({ dataset, structured, issues, sources, collections }: DatasetScreenProps) {
-  if (dataset === undefined) {
-    return null;
-  }
+export default function DatasetScreen({ dataset, issues, sources, collections }: DatasetScreenProps) {
   const router = useRouter();
   const [view, setView] = useState('description');
   const errors = issues.filter((i) => i.level === LEVEL_ERROR)
   const warnings = issues.filter((i) => i.level === LEVEL_WARNING)
+  const structured = getSchemaDataset(dataset)
 
   useEffect(() => {
     router.events.on("routeChangeComplete", async () => setView('description'))
@@ -162,9 +159,11 @@ export default function DatasetScreen({ dataset, structured, issues, sources, co
 export const getStaticProps = async (context: GetStaticPropsContext) => {
   const params = context.params!
   const dataset = await getDatasetByName(params.name as string)
-  const structured = await getSchemaDataset(params.name as string)
+  if (dataset === undefined) {
+    return { redirect: { destination: '/', permanent: false } };
+  }
   const issues = await getDatasetIssues(dataset)
-  const props: DatasetScreenProps = { dataset, structured, issues }
+  const props: DatasetScreenProps = { dataset, issues }
   if (isCollection(dataset)) {
     const sources = await Promise.all(dataset.sources.map((name) => getDatasetByName(name)))
     props.sources = sources as Array<ISource>

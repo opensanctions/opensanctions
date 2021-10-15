@@ -1,0 +1,9 @@
+@import './variables.scss';
+
+.cardProp {
+    vertical-align: top;
+    width: 20%;
+    min-width: 20%;
+    max-width: 20%;
+    color: $gray-600;
+}
