@@ -85,3 +85,14 @@ export async function getEntityIds(): Promise<Array<string>> {
   const entities = await getEntityMap();
   return Array.from(entities.keys())
 }
+
+export async function getCanonialEntityIds(): Promise<Array<string>> {
+  const entities = await getEntityMap();
+  const ids = new Array<string>()
+  entities.forEach((entity, id) => {
+    if (entity.id === id) {
+      ids.push(id);
+    }
+  })
+  return ids
+}
