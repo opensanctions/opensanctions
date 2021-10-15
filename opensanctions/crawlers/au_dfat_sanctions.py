@@ -62,7 +62,7 @@ def clean_reference(ref):
 def parse_reference(context, reference, rows):
     entity = context.make("LegalEntity")
     entity.id = context.make_slug(reference)
-    entity.add("sourceUrl", context.dataset.url)
+    # entity.add("sourceUrl", context.dataset.url)
     sanction = h.make_sanction(context, entity)
 
     for row in rows:
