@@ -43,6 +43,7 @@ jobs:
           sudo apt-get install -y -qq libicu-dev
           pip install --no-cache-dir -q pyicu awscli
           pip install --no-cache-dir -q -e ".[dev]"
+          pip freeze
       - name: Run a single dataset
         run: |
           opensanctions run us_ofac_cons
