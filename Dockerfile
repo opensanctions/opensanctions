@@ -15,7 +15,7 @@ RUN apt-get -qq -y update \
 ENV LANG='en_US.UTF-8'
 
 RUN pip3 install -q --no-cache-dir -U pip setuptools six psycopg2-binary \
-    && python --version
+    && python3 --version
 
 COPY . /opensanctions
 WORKDIR /opensanctions

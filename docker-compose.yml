@@ -1,28 +1,28 @@
 version: "2"
 
 services:
-  postgres:
-    image: postgres:13.3
-    volumes:
-      - "./data/postgres:/var/lib/postgresql"
-    expose:
-      - 5432
-    environment:
-      POSTGRES_USER: opensanctions
-      POSTGRES_PASSWORD: opensanctions
-      POSTGRES_DATABASE: opensanctions
+  # postgres:
+  #   image: postgres:13.3
+  #   volumes:
+  #     - "./data/postgres:/var/lib/postgresql"
+  #   expose:
+  #     - 5432
+  #   environment:
+  #     POSTGRES_USER: opensanctions
+  #     POSTGRES_PASSWORD: opensanctions
+  #     POSTGRES_DATABASE: opensanctions
 
   app:
     build: .
     image: pudo/opensanctions
     command: opensanctions run
     hostname: work
-    links:
-      - postgres
+    # links:
+    #   - postgres
     volumes:
       - "./data:/opensanctions/data"
       - "./opensanctions:/opensanctions/opensanctions"
     tmpfs:
       - "/tmp"
-    environment:
-      OPENSANCTIONS_DATABASE_URI: postgresql://opensanctions:opensanctions@postgres/opensanctions
+    # environment:
+    #   OPENSANCTIONS_DATABASE_URI: postgresql://opensanctions:opensanctions@postgres/opensanctions
