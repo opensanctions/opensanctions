@@ -85,29 +85,30 @@ def parse_name(entity, node):
 
 
 def parse_identity(context, entity, node, places):
-    for name in node.findall("./name"):
+    for name in node.findall(".//name"):
         parse_name(entity, name)
 
-    for address in node.findall("./address"):
+    for address in node.findall(".//address"):
         place = places.get(address.get("place-id"))
         address = compose_address(context, entity, place, address)
         apply_address(context, entity, address)
 
-    for bday in node.findall("./day-month-year"):
+    for bday in node.findall(".//day-month-year"):
         bval = parse_parts(bday.get("year"), bday.get("month"), bday.get("day"))
         entity.add("birthDate", bval)
 
-    for nationality in node.findall("./nationality"):
+    for nationality in node.findall(".//nationality"):
         country = nationality.find("./country")
         if country is not None:
             entity.add("nationality", country.get("iso-code"))
+            entity.add("nationality", country.text)
 
-    for bplace in node.findall("./place-of-birth"):
+    for bplace in node.findall(".//place-of-birth"):
         place = places.get(bplace.get("place-id"))
         address = compose_address(context, entity, place, bplace)
         entity.add("birthPlace", address.get("full"))
 
-    for doc in node.findall("./identification-document"):
+    for doc in node.findall(".//identification-document"):
         country = doc.find("./issuer")
         type_ = doc.get("document-type")
         number = doc.findtext("./number")
@@ -123,6 +124,8 @@ def parse_identity(context, entity, node, places):
         passport.add("passportNumber", number)
         passport.add("type", type_)
         passport.add("summary", doc.findtext("./remark"))
+        passport.add("startDate", doc.findtext("./date-of-issue"))
+        passport.add("endDate", doc.findtext("./expiry-date"))
         context.emit(passport)
 
 
@@ -152,6 +155,7 @@ def parse_entry(context, target, programs, places, updated_at):
     entity.context["updated_at"] = max(dates)
 
     entity.id = context.make_slug(target.get("ssid"))
+    entity.add("gender", node.get("sex"), quiet=True)
     for other in node.findall("./other-information"):
         value = other.text.strip()
         if entity.schema.is_a("Vessel") and value.lower().startswith("imo"):
@@ -164,7 +168,7 @@ def parse_entry(context, target, programs, places, updated_at):
     sanction.add("modifiedAt", max(dates))
 
     for justification in node.findall("./justification"):
-        sanction.add("reason", justification.text)
+        entity.add("notes", justification.text)
 
     ssid = target.get("sanctions-set-id")
     sanction.add("program", programs.get(ssid))
