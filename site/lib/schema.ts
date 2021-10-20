@@ -74,7 +74,7 @@ export function getSchemaDataset(dataset: IDataset) {
     if (dataset.url) {
       schema = {
         ...schema,
-        "sameAs": dataset.url,
+        "isBasedOn": dataset.url,
       }
     }
     if (dataset.publisher.country !== 'zz') {
