@@ -160,7 +160,7 @@ export function SpacedList({ values }: SpacedListProps) {
   return (
     <>
       {values
-        .map<React.ReactNode>(t => <span>{t}</span>)
+        .map<React.ReactNode>((t, idx) => <span key={idx}>{t}</span>)
         .reduce((prev, curr) => [prev, SPACER, curr])}
     </>
   )

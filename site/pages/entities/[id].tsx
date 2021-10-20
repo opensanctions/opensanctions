@@ -1,18 +1,17 @@
 import { useState, useEffect } from 'react';
-import { GetStaticPropsContext, InferGetStaticPropsType } from 'next'
+import { GetStaticPropsContext } from 'next'
 import Head from 'next/head';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
 import Layout from '../../components/Layout'
-import { getDatasets, getDatasetByName, getDatasetIssues, getEntityById, getEntityIds, fetchIndex } from '../../lib/data'
-import { IDataset, IIssue, ICollection, ISource, isCollection, isSource, LEVEL_ERROR, LEVEL_WARNING, IOpenSanctionsEntity, OpenSanctionsEntity } from '../../lib/types'
-import { Summary, FileSize, NumericBadge, JSONLink, HelpLink } from '../../components/util'
-import DatasetMetadataTable from '../../components/DatasetMetadataTable'
-import { getSchemaDataset } from '../../lib/schema';
-import { IssuesList } from '../../components/Issue';
-import { BASE_URL, SPACER } from '../../lib/constants';
+import { getDatasetByName, getEntityById, getEntityIds, fetchIndex } from '../../lib/data'
+import { IDataset, IOpenSanctionsEntity, OpenSanctionsEntity } from '../../lib/types'
+import { Summary } from '../../components/util'
+import { getSchemaEntityPage } from '../../lib/schema';
+
+import { BASE_URL } from '../../lib/constants';
 
 import styles from '../../styles/Entity.module.scss'
 import { IModelDatum, Model } from '@alephdata/followthemoney';
@@ -48,23 +47,21 @@ type DatasetScreenProps = {
 }
 
 
-export default function DatasetScreen({ id, data, modelData, datasets }: DatasetScreenProps) {
+export default function EntityScreen({ id, data, modelData, datasets }: DatasetScreenProps) {
   if (data.id !== id) {
     return <CanonicalRedirect entity={data} />
   }
-  const model = new Model(modelData);
-  const entity = OpenSanctionsEntity.fromData(model, data);
+  const model = new Model(modelData)
+  const entity = OpenSanctionsEntity.fromData(model, data)
+  const structured = getSchemaEntityPage(entity, datasets)
   const properties = entity.getDisplayProperties();
   const sidebarProperties = properties.filter((p) => p.type.name !== 'entity' && p.name !== 'notes');
   const entityProperties = properties.filter((p) => p.type.name === 'entity');
-  const jsonData = encodeURIComponent(JSON.stringify(data));
-  const dataUrl = `data:application/json,${jsonData}`
   return (
-    <Layout.Base title={entity.caption}>
+    <Layout.Base title={entity.caption} structured={structured}>
       <Container>
         <h1>
           {entity.caption}
-          <JSONLink href={dataUrl} />
         </h1>
         <Row>
           <Col md={3}>
@@ -73,7 +70,7 @@ export default function DatasetScreen({ id, data, modelData, datasets }: Dataset
               <span>{entity.schema.label}</span>
             </p>
             {sidebarProperties.map((prop) =>
-              <p>
+              <p key={prop.name}>
                 <strong>{prop.label}</strong><br />
                 <span><PropertyValues prop={prop} values={entity.getProperty(prop)} /></span>
               </p>
@@ -83,14 +80,18 @@ export default function DatasetScreen({ id, data, modelData, datasets }: Dataset
             {entity.hasProperty('notes') && (
               <div className={styles.entityPageSection}>
                 {/* <h2>Notes</h2> */}
-                {entity.getProperty('notes').map((v) => <Summary summary={v as string} />)}
+                {entity.getProperty('notes').map((v, idx) => <Summary key={idx} summary={v as string} />)}
               </div>
             )}
             {entityProperties.map((prop) =>
-              <div className={styles.entityPageSection}>
+              <div className={styles.entityPageSection} key={prop.qname}>
                 <h2>{prop.getRange().plural}</h2>
                 {entity.getProperty(prop).map((value) =>
-                  <EntityCard entity={value as OpenSanctionsEntity} />
+                  <EntityCard
+                    key={(value as OpenSanctionsEntity).id}
+                    entity={value as OpenSanctionsEntity}
+                    via={prop}
+                  />
                 )}
               </div>
             )}
@@ -105,7 +106,6 @@ export default function DatasetScreen({ id, data, modelData, datasets }: Dataset
               </Row>
             </div>
           </Col>
-
         </Row>
       </Container>
     </Layout.Base >

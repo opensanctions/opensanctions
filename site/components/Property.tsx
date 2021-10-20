@@ -9,10 +9,11 @@ import { EntityLink, EntityProps } from "./Entity";
 type TypeValueProps = {
   type: PropertyType
   value: Value
+  prop?: Property
   entity?: ComponentType<EntityProps>
 }
 
-export function TypeValue({ type, value, entity: Entity = EntityLink }: TypeValueProps) {
+export function TypeValue({ type, value, entity: Entity = EntityLink, prop }: TypeValueProps) {
   if (['country', 'language', 'topic'].indexOf(type.name) != -1) {
     return <>{type.values.get(value as string) || value}</>
   }
@@ -27,7 +28,7 @@ export function TypeValue({ type, value, entity: Entity = EntityLink }: TypeValu
   }
   if (type.name === 'entity') {
     if (typeof (value) !== 'string') {
-      return <Entity entity={value as OpenSanctionsEntity} />
+      return <Entity entity={value as OpenSanctionsEntity} via={prop} />
     }
     return <code>{value}</code>
   }
@@ -37,11 +38,12 @@ export function TypeValue({ type, value, entity: Entity = EntityLink }: TypeValu
 type TypeValuesProps = {
   type: PropertyType
   values: Values
+  prop?: Property
   entity?: ComponentType<EntityProps>
 }
 
-export function TypeValues({ type, values, entity }: TypeValuesProps) {
-  const elems = values.map((v) => <TypeValue type={type} value={v} entity={entity} />)
+export function TypeValues({ type, values, entity, prop }: TypeValuesProps) {
+  const elems = values.map((v) => <TypeValue type={type} value={v} entity={entity} prop={prop} />)
   if (elems.length === 0) {
     return <span className="text-muted">not available</span>
   }
@@ -55,7 +57,7 @@ type PropertyValueProps = {
 }
 
 export function PropertyValue({ prop, value, entity }: PropertyValueProps) {
-  return <TypeValue type={prop.type} value={value} entity={entity} />
+  return <TypeValue type={prop.type} value={value} entity={entity} prop={prop} />
 }
 
 type PropertyValuesProps = {
@@ -65,5 +67,5 @@ type PropertyValuesProps = {
 }
 
 export function PropertyValues({ prop, values, entity }: PropertyValuesProps) {
-  return <TypeValues type={prop.type} values={values} entity={entity} />
+  return <TypeValues type={prop.type} values={values} entity={entity} prop={prop} />
 }

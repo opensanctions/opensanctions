@@ -1,16 +1,16 @@
 import Link from 'next/link'
 import Card from 'react-bootstrap/Card';
 
-import { IDataset, isCollection, isSource, OpenSanctionsEntity } from '../lib/types'
-import { Markdown, Numeric } from './util';
-import { SPACER } from '../lib/constants';
+import { OpenSanctionsEntity } from '../lib/types'
 
 import styles from '../styles/Entity.module.scss'
-import { Badge, Table } from 'react-bootstrap';
+import { Table } from 'react-bootstrap';
 import { PropertyValues } from './Property';
+import { Property } from '@alephdata/followthemoney';
 
 export type EntityProps = {
-  entity: OpenSanctionsEntity
+  entity: OpenSanctionsEntity,
+  via?: Property
 }
 
 export function EntityLink({ entity }: EntityProps) {
@@ -21,7 +21,9 @@ export function EntityLink({ entity }: EntityProps) {
 }
 
 
-export function EntityCard({ entity }: EntityProps) {
+export function EntityCard({ entity, via }: EntityProps) {
+  const props = entity.getDisplayProperties()
+    .filter((p) => via === undefined || p.qname !== via.getReverse().qname);
   return (
     <Card key={entity.id} className={styles.card}>
       <Card.Header>
@@ -29,8 +31,8 @@ export function EntityCard({ entity }: EntityProps) {
       </Card.Header>
       <Table className={styles.cardTable}>
         <tbody>
-          {entity.getProperties().map((prop) =>
-            <tr key={prop.name}>
+          {props.map((prop) =>
+            <tr key={prop.qname}>
               <th className={styles.cardProp}>{prop.label}</th>
               <td>
                 <PropertyValues
@@ -43,7 +45,6 @@ export function EntityCard({ entity }: EntityProps) {
           )}
         </tbody>
       </Table>
-
-    </Card >
+    </Card>
   );
 }
