@@ -16,7 +16,7 @@ export default function Issues({ issues }: InferGetStaticPropsType<typeof getSta
   return (
     <Layout.Base title={TITLE} description={null}>
       <Content.Menu title={TITLE} jsonLink={ISSUES_URL}>
-        <Summary summary="Below is an index of all issues that appeared while importing the data." />
+        <Summary summary="Below is an overview of all parsing and processing issues that appeared while importing the data." />
         <IssuesList issues={issues} showDataset={true} />
       </Content.Menu>
     </Layout.Base >

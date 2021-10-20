@@ -59,7 +59,7 @@ export function getSchemaDataset(dataset: IDataset) {
     "description": dataset.summary,
     "license": LICENSE_URL,
     "includedInDataCatalog": getDataCatalog(),
-    "maintainer": getSchemaOpenSanctionsOrganization(),
+    "creator": getSchemaOpenSanctionsOrganization(),
     "isAccessibleForFree": true,
     "dateModified": dataset.last_change,
     "distribution": dataset.resources.map((r) => getResourceDataDownload(r))
@@ -68,7 +68,8 @@ export function getSchemaDataset(dataset: IDataset) {
     schema = {
       ...schema,
       "isBasedOn": dataset.data.url,
-      "publisher": getPublisherOrganization(dataset.publisher)
+      "creator": getPublisherOrganization(dataset.publisher),
+      "maintainer": getSchemaOpenSanctionsOrganization(),
     }
     if (dataset.url) {
       schema = {
