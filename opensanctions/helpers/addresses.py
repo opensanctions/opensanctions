@@ -7,7 +7,7 @@ from opensanctions.util import jointext
 
 
 @lru_cache(maxsize=None)
-def get_formatter():
+def get_formatter() -> AddressFormatter:
     return AddressFormatter()
 
 

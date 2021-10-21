@@ -1,3 +1,4 @@
+from typing import Any, Dict, List, Optional, Set
 from banal import ensure_list
 from urllib.parse import urljoin
 from datapatch import get_lookups
@@ -44,11 +45,11 @@ class Dataset(NomenklaturaDataset):
             return slug[:KEY_LEN]
 
     @property
-    def datasets(self):
+    def datasets(self) -> Set["Dataset"]:
         return set([self])
 
     @property
-    def source_names(self):
+    def source_names(self) -> List[str]:
         return [s.name for s in self.sources]
 
     @classmethod
@@ -67,27 +68,28 @@ class Dataset(NomenklaturaDataset):
     @classmethod
     def _load_cache(cls):
         if not hasattr(cls, "_cache"):
-            cls._cache = {}
+            cls._cache: Dict[str, Dataset] = {}
             for glob in ("**/*.yml", "**/*.yaml"):
                 for file_path in settings.METADATA_PATH.glob(glob):
                     dataset = cls._from_metadata(file_path)
-                    cls._cache[dataset.name] = dataset
+                    if dataset is not None:
+                        cls._cache[dataset.name] = dataset
         return cls._cache
 
     @classmethod
-    def all(cls):
-        return cls._load_cache().values()
+    def all(cls) -> List["Dataset"]:
+        return sorted(cls._load_cache().values())
 
     @classmethod
-    def get(cls, name):
+    def get(cls, name) -> Optional["Dataset"]:
         return cls._load_cache().get(name)
 
     @classmethod
-    def names(cls):
+    def names(cls) -> List[str]:
         """An array of all dataset names found in the metadata path."""
-        return list(sorted((dataset.name for dataset in cls.all())))
+        return [dataset.name for dataset in cls.all()]
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Any]:
         return {
             "name": self.name,
             "type": self.type,
@@ -96,12 +98,12 @@ class Dataset(NomenklaturaDataset):
             "description": self.description,
         }
 
-    def make_public_url(self, path):
+    def make_public_url(self, path: str) -> str:
         """Generate a public URL for a file within the dataset context."""
         url = urljoin(settings.DATASET_URL, f"{self.name}/")
         return urljoin(url, path)
 
-    def get_target_countries(self):
+    def get_target_countries(self) -> List[Dict[str, Any]]:
         countries = []
         for code, count in Statement.agg_target_by_country(dataset=self):
             result = {
@@ -112,10 +114,12 @@ class Dataset(NomenklaturaDataset):
             countries.append(result)
         return countries
 
-    def get_target_schemata(self):
+    def get_target_schemata(self) -> List[Dict[str, Any]]:
         schemata = []
         for name, count in Statement.agg_target_by_schema(dataset=self):
             schema = model.get(name)
+            if schema is None:
+                continue
             result = {
                 "name": name,
                 "count": count,
@@ -125,7 +129,7 @@ class Dataset(NomenklaturaDataset):
             schemata.append(result)
         return schemata
 
-    def to_index(self):
+    def to_index(self) -> Dict[str, Any]:
         meta = self.to_dict()
         meta["index_url"] = self.make_public_url("index.json")
         meta["issues_url"] = self.make_public_url("issues.json")
