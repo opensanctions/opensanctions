@@ -1,3 +1,9 @@
+name:
+  options:
+    - match:
+        - "(a.k.a.:"
+      value: null
+
 country:
   normalize: true
   lowercase: true
@@ -10,6 +16,7 @@ country:
         - "None Identified"
         - "undetermined"
         - "Kuwaiti citizenship withdrawn in 2002"
+        - 2002年にクウェート国籍を剥奪された。
         - "Stateless Palestinian"
         - "-"
         - PO BOX 416
@@ -103,6 +110,7 @@ country:
         - South Sudan
     - match:
         - "Sudanese by birth"
+        - スーダン人（生まれ）
       value: Sudan
     - match:
         - "South Sudan number"
@@ -112,7 +120,9 @@ country:
         - United Kingdom of Great Britain
         - Uk/British
       value: GB
-    - match: United States. Also believed to hold Syrian nationality
+    - match:
+        - United States. Also believed to hold Syrian nationality
+        - 米国。また、シリア国籍も所持していると見られる。
       values:
         - US
         - SY
@@ -129,6 +139,7 @@ country:
       value: Tunisia
     - match:
         - Possibly Ethiopian
+        - エチオピアと思われる
       value: Ethiopia
     - match: Hong Kong Special Administrative Region
       value: HK
@@ -136,6 +147,7 @@ country:
         - Indonesia (as at Dec. 2003)
         - Indonesian (as at Dec. 2003)
         - Indonesian passport
+        - インドネシア（2003年12月時点）
       value: Indonesia
     - match: Afghan  Pakistani
       values:
@@ -177,7 +189,9 @@ country:
       values:
         - Saudi Arabia
         - Yemen
-    - match: Bahrain (citizenship revoked in Jan. 2015)
+    - match:
+        - Bahrain (citizenship revoked in Jan. 2015)
+        - バーレーン（2015年1月市民権剥奪）
       value: Bahrain
     - match:
         - Democratic People's Republic of Korea (DPRK)
@@ -192,6 +206,10 @@ country:
       value: RU
     - match: Former Ukrainian
       value: UA
+    - match: スウェーデン（リンケビー、ストックホルム）、ソマリア（モガディシュ）
+      values:
+        - SE
+        - SO
     - match: Tehran
       value: Iran
     - match:
@@ -250,6 +268,7 @@ country:
         - Belarusian SSR,
         - Kyrgyz SSR
         - USSR (until 1991)
+        - ソビエト社会主義共和国連邦（1991年まで）
       value: SUHH
     - match: DRC,Belgium
       values:
@@ -289,6 +308,10 @@ country:
       values:
         - KE
         - SO
+    - match: ソマリア（モガディシュ）
+      value: SO
+    - match: ケニア・ナイロビ
+      value: KE
     - match:
         - Bogota
         - Maico, Guajira
@@ -362,7 +385,20 @@ date:
     - match:
         - 3030-03-09
         - "Approximately (30-35 years old)"
+        - "おおむね30~35歳"
+        - "おおむね30～35歳"
+        - "59"
       value: null
+    - match:
+        - "1983年2(3)月10"
+        - 1983年2(3)月10
+      values:
+        - 1983-02-10
+        - 1983-03-10
+    - match: 1977年8月から9月の間
+      values:
+        - 1977-08
+        - 1977-09
   map:
     "1966-02-02-05:00": 1966-02-02T05:00
     "1960-01-01-05:00": 1960-01-01T05:00
@@ -386,7 +422,17 @@ date:
     "06.02.1974": "1974-02-06"
     "24-Apr-68": "1968-04-24"
     "3 March 1979 (from false passport)": "1979-03-03"
+    "Born at Belgrade, Republic of Serbia, on 19 December 1942": "1942-12-19"
+    "Born on 2 July 1974": "1074-07-02"
+    "Born on 10 July 1942": "1942-07-10"
+    "Born at Pozarevac, Republic of Serbia, on 20 August 1941": "1941-08-20"
+    "Born at Ravni, Republic of Serbia, on 1 June 1941": "1941-06-01"
+    "Born at Bor, Republic of Serbia, on 7 December 1948": "1948-12-07"
     "07/04/62": "1962-04-07"
+    "200812.19": "2008-12-19"
+    "2007.713": "2007-07-13"
+    "©1979年3月3": "1979-03-03"
+    "60年": "1960"
 
 email:
   options:
