@@ -1,0 +1,7 @@
+# OpenSanctions Appliance
+
+This directory contains code and a Docker image for running an API to match data against
+OpenSanctions. It is intended to be run on-premises in KYC contexts so that no customer
+data leaves the deployment context.
+
+
