@@ -7,6 +7,7 @@ from followthemoney import model
 from pantomime.types import EXCEL
 
 from opensanctions import helpers as h
+from opensanctions.helpers.excel import convert_excel_cell
 from opensanctions.util import multi_split, remove_bracketed
 
 FORMATS = ["%d/%m/%Y", "%d %b. %Y", "%d %b.%Y", "%d %b %Y", "%d %B %Y"]
@@ -104,19 +105,8 @@ def crawl(context):
     headers = [slugify(h, sep="_") for h in ws.row_values(0)]
     references = defaultdict(list)
     for r in range(1, ws.nrows):
-        row = ws.row(r)
+        row = [h.convert_excel_cell(xls, c) for c in ws.row(r)]
         row = dict(zip(headers, row))
-        for header, cell in row.items():
-            if cell.ctype == 2:
-                row[header] = str(int(cell.value))
-            elif cell.ctype == 0:
-                row[header] = None
-            if cell.ctype == 3:
-                dt = xldate_as_datetime(cell.value, xls.datemode)
-                row[header] = dt
-            else:
-                row[header] = cell.value
-
         reference = clean_reference(row.get("reference"))
         references[reference].append(row)
 

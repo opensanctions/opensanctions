@@ -6,6 +6,7 @@ from opensanctions.helpers.sanctions import make_sanction
 from opensanctions.helpers.lookups import type_lookup
 from opensanctions.helpers.features import apply_feature
 from opensanctions.helpers.dates import extract_years, parse_date
+from opensanctions.helpers.excel import convert_excel_cell
 
 __all__ = [
     "clean_gender",
@@ -18,4 +19,5 @@ __all__ = [
     "extract_years",
     "parse_date",
     "apply_feature",
+    "convert_excel_cell",
 ]
