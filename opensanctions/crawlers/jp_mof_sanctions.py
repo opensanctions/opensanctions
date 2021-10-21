@@ -37,6 +37,18 @@ def parse_date(context, text: List[Optional[str]]) -> List[str]:
     return dates
 
 
+def parse_names(names: List[str]) -> List[str]:
+    cleaned = []
+    for name in names:
+        name = name.replace("(original script:", "")
+        name = name.replace("(a.k.a.:", "")
+        name = name.replace("(a.k.a:", "")
+        name = name.replace("(previously listed as", "")
+        # name = name.replace(")", "")
+        cleaned.append(name)
+    return cleaned
+
+
 def fetch_xls_url(context):
     params = {"_": settings.RUN_DATE}
     res = context.http.get(context.dataset.data.url, params=params)
@@ -58,18 +70,18 @@ def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str
     if entity.id is None:
         # context.pprint((sheet, row))
         return
-    entity.add("name", row.pop("name_english"))
+    entity.add("name", parse_names(row.pop("name_english")))
     if not entity.has("name"):
-        entity.add("name", row.pop("name_japanese"))
+        entity.add("name", parse_names(row.pop("name_japanese")))
     else:
-        entity.add("alias", row.pop("name_japanese"))
+        entity.add("alias", parse_names(row.pop("name_japanese")))
 
-    entity.add("alias", row.pop("alias", []))
-    entity.add("alias", row.pop("known_alias", []))
-    entity.add("weakAlias", row.pop("weak_alias", []))
-    entity.add("weakAlias", row.pop("nickname", []))
-    entity.add("previousName", row.pop("past_alias", []))
-    entity.add("previousName", row.pop("old_name", []))
+    entity.add("alias", parse_names(row.pop("alias", [])))
+    entity.add("alias", parse_names(row.pop("known_alias", [])))
+    entity.add("weakAlias", parse_names(row.pop("weak_alias", [])))
+    entity.add("weakAlias", parse_names(row.pop("nickname", [])))
+    entity.add("previousName", parse_names(row.pop("past_alias", [])))
+    entity.add("previousName", parse_names(row.pop("old_name", [])))
     entity.add_cast("Person", "position", row.pop("position", []))
     birth_date = parse_date(context, row.pop("birth_date", []))
     entity.add_cast("Person", "birthDate", birth_date)
@@ -109,8 +121,9 @@ def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str
     sanction.add("listingDate", parse_date(context, row.pop("publication_date", [])))
 
     row.pop("designated_un", None)
-    if len(row):
-        context.pprint(row)
+    # if len(row):
+    #     context.pprint(row)
+    entity.add("topics", "sanction")
     context.emit(entity, target=True)
     context.emit(sanction)
 
