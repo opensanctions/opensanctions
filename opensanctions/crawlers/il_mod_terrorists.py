@@ -81,9 +81,9 @@ def crawl_individuals(context: Context):
         entity.id = context.make_id(name_en, name_he, name_ar)
         if entity.id is None:
             continue
-        entity.add("name", name_en)
-        entity.add("name", name_he)
-        entity.add("name", name_ar)
+        entity.add("name", name_en or name_he or name_ar)
+        entity.add("alias", name_he)
+        entity.add("alias", name_ar)
         entity.add("topics", "crime.terror")
         entity.add("birthDate", parse_date(record.pop("d_o_b", None)))
         entity.add("nationality", record.pop("nationality_residency", None))
@@ -94,26 +94,12 @@ def crawl_individuals(context: Context):
         sanction.add("recordId", record.pop("foreign_designation_id", None))
         sanction.add("program", record.pop("designation", None))
         sanction.add("program", record.pop("foreign_designation", None))
-        # sanction.add("reason", lang_pick(record, "designation_justification"))
         sanction.add("authority", lang_pick(record, "designated_by"))
-        # sanction.add("publisher", record.pop("public_records_references", None))
 
         lang_pick(record, "designated_by_abroad")
         record.pop("date_of_foreign_designation_date", None)
 
-        # street = lang_pick(record, "street")
-        # city = lang_pick(record, "city_village")
-        # if street or city:
-        #     address = h.make_address(
-        #         context, street=street, city=city, country_code=entity.first("country")
-        #     )
-        #     h.apply_address(context, entity, address)
-
-        for field in (
-            "date_of_designation_in_israel",
-            # "date_of_permenant_designation",
-            # "date_designation_in_west_bank",
-        ):
+        for field in ("date_of_designation_in_israel",):
             sanction.add("startDate", parse_date(record.pop(field, None)))
 
         context.emit(entity, target=True)
