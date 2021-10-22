@@ -36,11 +36,11 @@ publisher:
     The State Secretariat for Economic Affairs is the Swiss governments 
     center of competence for economic, labour and trade matters.
   country: jp
-  url: https://www.seco.admin.ch/
+  url: https://www.mof.go.jp/
 url: https://www.mof.go.jp/policy/international_policy/gaitame_kawase/gaitame/economic_sanctions/gaiyou.html
 data:
   url: https://www.mof.go.jp/policy/international_policy/gaitame_kawase/gaitame/economic_sanctions/list.html
-  format: XML
+  format: XLS
 
 lookups:
   schema:

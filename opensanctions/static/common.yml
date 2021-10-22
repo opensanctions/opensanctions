@@ -128,8 +128,14 @@ country:
         - Libyan Arab Jamahiriya
         - Libya (in custody)
         - South Libya
+        - BENGHAZI
+        - בנגאזי
+        - DERNA
+        - דרנה
       value: Libya
-    - match: Tunisian passport
+    - match:
+        - Tunisian passport
+        - תוניס
       value: Tunisia
     - match:
         - Possibly Ethiopian
@@ -177,6 +183,18 @@ country:
       value: Lebanon
     - match: BUJUMBURA
       value: Burundi
+    - match: אלג'יר או רש"פ
+      values:
+        - Algeria
+        - PS
+    - match: פיליפים / סעודיה
+      values:
+        - Saudi Arabia
+        - Philippines
+    - match: אוזבקיסטן / אפגניסטן
+      values:
+        - Uzbekistan
+        - Afghanistan
     - match: "France (alt. citizen: Syri"
       value: France
     - match: Saudi Arabian (this aka only, alt Citizenship Yemeni)
@@ -224,6 +242,10 @@ country:
       values:
         - "Iraq"
         - "Iran"
+    - match: עירק/סוריה
+      values:
+        - Iraq
+        - Syria
     - contains: Iraq, possible alternative
       value: "Iraq"
     - match:
@@ -291,10 +313,16 @@ country:
     - match: Rawanda
       value: RW
     - match:
+        - Ramallah
+      value: PS
+    - match:
         - Saudi Arabian Citizen
         - al-Khafji
       value: Saudi Arabia
-    - contains: Afghanistan/Pakistan
+    - match:
+        - פקיסטן ואפגניסטן
+        - PAKISTAN AND AFGHNISTAN
+      contains: Afghanistan/Pakistan
       values:
         - AF
         - PK
@@ -379,6 +407,7 @@ date:
     - match:
         - 3030-03-09
         - "Approximately (30-35 years old)"
+        - "הכרזה בוטלה ביום 29.8.21"
         - "おおむね30~35歳"
         - "おおむね30～35歳"
         - "59"
@@ -393,6 +422,10 @@ date:
       values:
         - 1977-08
         - 1977-09
+    - match: 1/1/67; 16/6/67
+      values:
+        - 1967-01-01
+        - 1967-06-16
   map:
     "1966-02-02-05:00": 1966-02-02T05:00
     "1960-01-01-05:00": 1960-01-01T05:00
@@ -427,6 +460,9 @@ date:
     "2007.713": "2007-07-13"
     "©1979年3月3": "1979-03-03"
     "60年": "1960"
+    "20//4/2016": "2016-04-20"
+    "1/1/67": "1967-01-01"
+    "16/6/67": "1967-06-16"
 
 email:
   options:
@@ -472,6 +508,8 @@ email:
         - victoria1.oliver@icloud.com
     - match: la.khan7860@yahoo
       value: la.khan7860@yahoo.com
+    - match: admin@europalforum org.uk
+      value: admin@europalforum.org.uk
     - match: knaru@morobe.gov.pg or knarumpg@gmail.com
       values:
         - knaru@morobe.gov.pg
@@ -523,6 +561,12 @@ url:
       value: null
     - match: ttp://www.koutsoukosgiannis.gr
       value: http://www.koutsoukosgiannis.gr
+    - match: "טוויטר: Addameer"
+      value: https://twitter.com/Addameer
+    - match: "טוויטר: @PalesAbroadE"
+      value: https://twitter.com/PalesAbroadE
+    - match: "טוויטר: @EuroPalForum"
+      value: https://twitter.com/EuroPalForum
     - match: Olimpia Teligioridou (facebook)
       value: null
 

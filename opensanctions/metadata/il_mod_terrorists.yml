@@ -1,0 +1,34 @@
+entry_point: opensanctions.crawlers.il_mod_terrorists:crawl
+title: Israel Terrorists Organizations and Unauthorized Associations lists
+prefix: il-nbctf
+summary: |
+  Terrorist organizations and individuals as designated by the Israeli government.
+description: |
+  > According to the Defense Regulations (Emergency), 1945 and the Prohibition on
+  > Terrorist Financing Law 5765-2004 and Designations on Terrorist Organizations
+  > in accordance with the Prevention of Terrorism Ordinance No 33 5708-1948 and
+  > the Counter Terrorism Law, 2016
+
+  Broadly:
+
+  > The Counter-Terrorism Law, 5776-2016 (hereinafter: the Law) authorizes the
+  > Minister of Defense to designate a group of persons as a Terrorist Organization.
+  > Such a designation may be made following a reasoned request by a Security
+  > Agency (Israel Security Agency, Israel Defense Force, the Mossad, Israel
+  > Police) and the consent of the Attorney General of Israel.
+collections:
+  - sanctions
+  - default
+publisher:
+  name: "National Bureau for Counter Terror Financing"
+  description: |
+    The National Bureau for Counter Terror Financing (NBCTF), at the Ministry of Defense,
+    was established with the aim of unifying and concentrating national efforts to counter
+    financial infrastructure of terrorist organizations, perpetrators and parties involved
+    in Terror Financing.
+  country: il
+  url: https://nbctf.mod.gov.il/en/aboutus/Pages/mandate.aspx
+url: https://nbctf.mod.gov.il/en/designations/Pages/designationProcess.aspx
+data:
+  url: https://nbctf.mod.gov.il/en/designations/Pages/downloads.aspx
+  format: XLSX
