@@ -1,0 +1,57 @@
+entry_point: opensanctions.crawlers.iadb_sanctions:crawl
+title: Inter-American Development Bank Sanctions
+prefix: iadb
+summary: |
+  The firms and individuals listed have been sanctioned for having engaged in
+  fraudulent, corrupt, collusive, coercive or obstructive practices, in
+  violation of the IDB Group’s Sanctions Procedures and anti-corruption policies.
+description: |
+  Sanctions are meant to prevent and deter Prohibited Practices in IDB
+  Group-financed activities. Such sanctions are imposed as a result of:
+
+  * Determinations and Decisions by the Sanctions Officer or the Sanctions
+    Committee through the IDB Group’s administrative process that permitted
+    the accused firms and/or individuals to respond to the allegations
+    pursuant to the Sanctions Procedures;
+  * Negotiated Resolution Agreements entered between the Bank Group and
+    companies or individuals as a result of investigations undertaken by
+    OII; OR
+  * Cross debarment in accordance with the Agreement for Mutual Enforcement
+    of Debarment Decisions dated 9 April 2010, which, as of 11 July 2012,
+    has been made effective by the Inter-American Development Bank,
+    World Bank, Asian Development Bank, European Bank for Reconstruction
+    and Development, and African Development Bank
+
+  In accordance with the IDB Group’s Sanctions Procedures, the Sanctions
+  Officer and Sanctions Committee may impose any sanction that it deems
+  to be appropriate under the circumstances, including but not limited
+  to reprimand, debarment, conditional non-debarment, and conditions on
+  future contracting. Debarred firms or individuals are ineligible to be
+  awarded and participate in any IDB financed contract for the periods
+  indicated.  Ineligibility may extend to any firm or individual who
+  directly or indirectly controls the debarred firm or any firm which the
+  debarred firm directly or indirectly controls. In the case of a debarred
+  individual, ineligibility may extend to any firm which the debarred
+  individual directly or indirectly controls.
+collections:
+  - crime
+  - default
+publisher:
+  name: "Inter-American Development Bank"
+  # description: |
+  #   The National Bureau for Counter Terror Financing (NBCTF), at the Ministry of Defense,
+  #   was established with the aim of unifying and concentrating national efforts to counter
+  #   financial infrastructure of terrorist organizations, perpetrators and parties involved
+  #   in Terror Financing.
+  country: zz
+  url: https://www.iadb.org/
+url: https://www.iadb.org/en/transparency/sanctioned-firms-and-individuals
+data:
+  url: https://www.iadb.org/en/sanctioned-firms/get-santions/pPageNumber=1&pPageSize=100&pLang=en
+  format: XLSX
+
+lookups:
+  types:
+    map:
+      Firm: Company
+      Individual: Person
