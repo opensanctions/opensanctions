@@ -25,7 +25,7 @@ DATE_SPLITS = SPLITS + ["、", "；", "又は", "または", "生", "改訂", "�
 DATE_CLEAN = re.compile(r"(\(|\)|（|）| |改訂日|改訂)")
 
 
-def parse_date(context, text: List[Optional[str]]) -> List[str]:
+def parse_date(text: List[Optional[str]]) -> List[str]:
     dates: List[str] = []
     for date in multi_split(text, DATE_SPLITS):
         cleaned = DATE_CLEAN.sub("", date)
@@ -81,7 +81,7 @@ def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str
     entity.add("previousName", parse_names(row.pop("past_alias", [])))
     entity.add("previousName", parse_names(row.pop("old_name", [])))
     entity.add_cast("Person", "position", row.pop("position", []))
-    birth_date = parse_date(context, row.pop("birth_date", []))
+    birth_date = parse_date(row.pop("birth_date", []))
     entity.add_cast("Person", "birthDate", birth_date)
     entity.add_cast("Person", "birthPlace", row.pop("birth_place", []))
     entity.add_cast("Person", "passportNumber", row.pop("passport_number", []))
@@ -114,9 +114,9 @@ def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str
     sanction.add("reason", row.pop("reason_res1483", None))
     sanction.add("recordId", row.pop("notification_number", None))
 
-    sanction.add("startDate", parse_date(context, row.pop("notification_date", [])))
-    sanction.add("startDate", parse_date(context, row.pop("designated_date", [])))
-    sanction.add("listingDate", parse_date(context, row.pop("publication_date", [])))
+    sanction.add("startDate", parse_date(row.pop("notification_date", [])))
+    sanction.add("startDate", parse_date(row.pop("designated_date", [])))
+    sanction.add("listingDate", parse_date(row.pop("publication_date", [])))
 
     row.pop("designated_un", None)
     # if len(row):
