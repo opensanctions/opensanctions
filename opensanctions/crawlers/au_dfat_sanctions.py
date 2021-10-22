@@ -1,5 +1,4 @@
 import xlrd
-from xlrd.xldate import xldate_as_datetime
 from collections import defaultdict
 from normality import slugify
 from datetime import datetime
@@ -7,7 +6,6 @@ from followthemoney import model
 from pantomime.types import EXCEL
 
 from opensanctions import helpers as h
-from opensanctions.helpers.excel import convert_excel_cell
 from opensanctions.util import multi_split, remove_bracketed
 
 FORMATS = ["%d/%m/%Y", "%d %b. %Y", "%d %b.%Y", "%d %b %Y", "%d %B %Y"]

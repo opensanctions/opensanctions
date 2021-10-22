@@ -2,14 +2,12 @@ from typing import Dict, List, Optional
 import re
 import xlrd
 import string
-import prefixdate
 from lxml import html
 from datetime import datetime
 from urllib.parse import urljoin
 from pantomime.types import XLS
 from normality import collapse_spaces, stringify
 from normality.cleaning import decompose_nfkd
-from followthemoney.types import registry
 
 from opensanctions.core import Context
 from opensanctions import settings
