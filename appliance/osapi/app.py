@@ -3,7 +3,7 @@ from enum import Enum
 from datetime import datetime
 from functools import lru_cache
 from importlib.metadata import metadata
-from typing import Dict, List
+from typing import Dict, List, Union
 from pydantic import BaseModel, Field
 from fastapi import FastAPI, Path, HTTPException
 from starlette.responses import RedirectResponse
@@ -31,17 +31,17 @@ dataset = Dataset.get("us_ofac_sdn")
 resolver = get_resolver()
 
 
-class EntityModel(BaseModel):
+class EntityResponse(BaseModel):
     id: str
     schema_: str = Field("LegalEntity", alias="schema")
-    properties: Dict[str, List[str]]
-
-
-class EntityResponse(EntityModel):
+    properties: Dict[str, List[Union[str, "EntityResponse"]]]
     datasets: List[str]
     referents: List[str]
     first_seen: datetime
     last_seen: datetime
+
+
+EntityResponse.update_forward_refs()
 
 
 class SearchResponse(BaseModel):
