@@ -126,12 +126,8 @@ def parse_common(context, entity, node):
     sanction = make_sanction(context, entity)
     sanction.add("startDate", listed_on)
     sanction.add("modifiedAt", values(node.find("./LAST_DAY_UPDATED")))
-
-    program = "%s (%s)" % (
-        node.findtext("./UN_LIST_TYPE").strip(),
-        node.findtext("./REFERENCE_NUMBER").strip(),
-    )
-    sanction.add("program", program)
+    sanction.add("program", node.findtext("./UN_LIST_TYPE"))
+    sanction.add("recordId", node.findtext("./REFERENCE_NUMBER"))
     return sanction
 
 
