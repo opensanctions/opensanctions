@@ -7,7 +7,7 @@ with open("README.md") as f:
 setup(
     name="osapi",
     version="3.1.1",
-    url="https://opensanctions.org/docs/appliance/",
+    url="https://opensanctions.org/docs/api/",
     long_description=long_description,
     long_description_content_type="text/markdown",
     license="MIT",

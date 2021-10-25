@@ -2,6 +2,7 @@ data/
 docs/
 dist/
 site/
+api/
 .envrc
 Makefile
 Dockerfile

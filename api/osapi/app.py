@@ -19,7 +19,7 @@ from opensanctions.core.loader import DatasetMemoryLoader
 log = logging.getLogger(__name__)
 meta = metadata("opensanctions")
 app = FastAPI(
-    title="OpenSanctions Matching Appliance",
+    title="OpenSanctions Matching API",
     version=meta["Version"],
     contact={
         "name": meta["Author"],

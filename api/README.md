@@ -5,3 +5,10 @@ OpenSanctions. It is intended to be run on-premises in KYC contexts so that no c
 data leaves the deployment context.
 
 
+## Usage
+
+Development: 
+
+```bash
+uvicorn osapi.app:app --reload
+```
