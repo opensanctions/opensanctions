@@ -38,17 +38,15 @@ collections:
   - default
 publisher:
   name: "Inter-American Development Bank"
-  # description: |
-  #   The National Bureau for Counter Terror Financing (NBCTF), at the Ministry of Defense,
-  #   was established with the aim of unifying and concentrating national efforts to counter
-  #   financial infrastructure of terrorist organizations, perpetrators and parties involved
-  #   in Terror Financing.
+  description: |
+    The Inter-American Development Bank (IDB, IADB, BID) provides development financing
+    in Latin America and the Caribbean. It was established in 1959.
   country: zz
   url: https://www.iadb.org/
 url: https://www.iadb.org/en/transparency/sanctioned-firms-and-individuals
 data:
   url: https://www.iadb.org/en/sanctioned-firms/get-santions/pPageNumber=1&pPageSize=100&pLang=en
-  format: XLSX
+  format: JSON
 
 lookups:
   types:

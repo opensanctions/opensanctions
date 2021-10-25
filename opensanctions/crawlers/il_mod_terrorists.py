@@ -63,7 +63,7 @@ def excel_records(path):
 
 
 def crawl(context: Context):
-    # crawl_organizations(context)
+    crawl_organizations(context)
     crawl_individuals(context)
 
 

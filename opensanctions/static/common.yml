@@ -19,11 +19,17 @@ country:
         - "Other"
         - "Not Known"
         - "Not Disclosed"
+        - "Regional"
         # This is now three countries, so dropping:
         - "Netherlands Antilles"
       contains:
         - (JVCFOR)
       value: null
+    - match:
+        - "Taiwan (Republic of China)"
+      value: TW
+    - match: Macao Special Administrative Region
+      value: MO
     - match:
         - "Jalisco"
         - "Guadalajara, Jalisco"
