@@ -6,3 +6,5 @@ run: build
 build:
 	docker build -t $(IMAGE) .
 
+api: build
+	docker run -ti -p 8000:8000 $(IMAGE)
