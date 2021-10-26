@@ -3,8 +3,7 @@ ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get -qq -y update \
     && apt-get -qq -y upgrade \
-    && apt-get -qq -y install locales ca-certificates curl \
-    python3-pip libpq-dev python3-icu python3-psycopg2 python3-crypto \
+    && apt-get -qq -y install locales ca-certificates curl python3-pip python3-icu python3-crypto \
     && apt-get -qq -y autoremove \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
@@ -14,7 +13,7 @@ RUN apt-get -qq -y update \
 
 ENV LANG='en_US.UTF-8'
 
-RUN pip3 install -q --no-cache-dir -U pip setuptools six psycopg2-binary \
+RUN pip3 install -q --no-cache-dir -U pip setuptools six \
     && python3 --version
 
 COPY . /opensanctions
