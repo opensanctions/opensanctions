@@ -174,7 +174,7 @@ class Statement(Base):
         if dataset is not None:
             q = q.filter(cls.dataset.in_(dataset.source_names))
         q = q.group_by(cls.schema)
-        return q.all()
+        return [s for (s,) in q.all()]
 
     @classmethod
     def max_last_seen(cls, dataset=None):

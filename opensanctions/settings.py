@@ -7,7 +7,7 @@ from os import environ as env
 from normality import stringify
 
 
-def env_str(name, default=None):
+def env_str(name: str, default: str) -> str:
     """Ensure the env returns a string even on Windows (#100)."""
     value = stringify(env.get(name))
     return default if value is None else value
@@ -21,14 +21,14 @@ INTERVAL = 84600
 CACHE_EXPIRE = INTERVAL * 7
 
 # All data storage (e.g. a Docker volume mount)
-DATA_PATH = Path.cwd().joinpath("data")
-DATA_PATH = env.get("OPENSANCTIONS_DATA_PATH", DATA_PATH)
+DATA_PATH_DEFAULT = Path.cwd().joinpath("data")
+DATA_PATH = env.get("OPENSANCTIONS_DATA_PATH", DATA_PATH_DEFAULT)
 DATA_PATH = Path(DATA_PATH).resolve()
 DATA_PATH.mkdir(parents=True, exist_ok=True)
 
 # Resources generated from specific datasets
-DATASET_PATH = DATA_PATH.joinpath("datasets")
-DATASET_PATH = env.get("OPENSANCTIONS_DATASET_PATH", DATASET_PATH)
+DATASET_PATH_DEFAULT = DATA_PATH.joinpath("datasets")
+DATASET_PATH = env.get("OPENSANCTIONS_DATASET_PATH", DATASET_PATH_DEFAULT)
 DATASET_PATH = Path(DATASET_PATH).resolve()
 
 # Public URL version
@@ -36,8 +36,7 @@ DATASET_URL = "https://data.opensanctions.org/datasets/latest/"
 DATASET_URL = env_str("OPENSANCTIONS_DATASET_URL", DATASET_URL)
 
 # Used to keep the HTTP cache
-STATE_PATH = DATA_PATH.joinpath("state")
-STATE_PATH = env.get("OPENSANCTIONS_STATE_PATH", STATE_PATH)
+STATE_PATH = env.get("OPENSANCTIONS_STATE_PATH", DATA_PATH.joinpath("state"))
 STATE_PATH = Path(STATE_PATH).resolve()
 STATE_PATH.mkdir(parents=True, exist_ok=True)
 
@@ -50,17 +49,14 @@ DATABASE_URI = env_str("OPENSANCTIONS_DATABASE_URI", DATABASE_URI)
 RUN_TIME = datetime.utcnow().replace(microsecond=0)
 RUN_DATE = RUN_TIME.date().isoformat()
 
-# Cache the max last seen times:
-DATASET_LAST_SEEN = {}
-
 # Directory with metadata specifications for each crawler
-METADATA_PATH = Path(__file__).resolve().parent.joinpath("metadata")
-METADATA_PATH = env.get("OPENSANCTIONS_METADATA_PATH", METADATA_PATH)
+METADATA_PATH_DEFAULT = Path(__file__).resolve().parent.joinpath("metadata")
+METADATA_PATH = env.get("OPENSANCTIONS_METADATA_PATH", METADATA_PATH_DEFAULT)
 METADATA_PATH = Path(METADATA_PATH).resolve()
 
 # Storage for static reference data
-STATIC_PATH = Path(__file__).resolve().parent.joinpath("static")
-STATIC_PATH = env.get("OPENSANCTIONS_STATIC_PATH", STATIC_PATH)
+STATIC_PATH_DEFAULT = Path(__file__).resolve().parent.joinpath("static")
+STATIC_PATH = env.get("OPENSANCTIONS_STATIC_PATH", STATIC_PATH_DEFAULT)
 STATIC_PATH = Path(STATIC_PATH).resolve()
 
 # Do not edit manually, use the release process

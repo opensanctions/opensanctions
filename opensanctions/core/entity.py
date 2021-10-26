@@ -1,10 +1,12 @@
-from typing import Any, Dict
+from typing import Any, Dict, Optional, Union
+from followthemoney.schema import Schema
 import structlog
 from banal import ensure_list
 
 from followthemoney import model
 from followthemoney.exc import InvalidData
 from followthemoney.types import registry
+from followthemoney.property import Property
 from nomenklatura.entity import CompositeEntity
 
 from opensanctions.helpers import type_lookup
@@ -20,11 +22,11 @@ class Entity(CompositeEntity):
     structured logging.
     """
 
-    def __init__(self, schema, data=None, target=False):
+    def __init__(self, schema: Union[str, Schema], target: bool = False):
         self.target = target
         self.first_seen = None
         self.last_seen = None
-        data = data or {"schema": schema}
+        data = {"schema": schema}
         super().__init__(model, data)
 
     def make_id(self, *parts: Any) -> str:
@@ -50,7 +52,15 @@ class Entity(CompositeEntity):
         )
         return None
 
-    def add(self, prop, values, cleaned=False, quiet=False, fuzzy=False, format=None):
+    def add(
+        self,
+        prop: Union[str, Property],
+        values: Any,
+        cleaned: bool = False,
+        quiet: bool = False,
+        fuzzy: bool = False,
+        format: Optional[str] = None,
+    ):
         if cleaned:
             super().add(
                 prop, values, cleaned=True, quiet=quiet, fuzzy=fuzzy, format=format
@@ -66,7 +76,15 @@ class Entity(CompositeEntity):
             clean = self._verbose_clean(prop, value, fuzzy, format)
             self.unsafe_add(prop, clean, cleaned=True)
 
-    def add_cast(self, schema, prop, values, cleaned=False, fuzzy=False, format=None):
+    def add_cast(
+        self,
+        schema: Union[str, Schema],
+        prop: Union[str, Property],
+        values: Any,
+        cleaned: bool = False,
+        fuzzy: bool = False,
+        format: Optional[str] = None,
+    ):
         """Set a property on an entity. If the entity is of a schema that doesn't
         have the given property, also modify the schema (e.g. if something has a
         birthDate, assume it's a Person, not a LegalEntity).
@@ -75,15 +93,19 @@ class Entity(CompositeEntity):
         if prop_ is not None:
             return self.add(prop, values, cleaned=cleaned, fuzzy=fuzzy, format=format)
 
-        schema = model.get(schema)
-        prop_ = schema.get(prop)
+        schema_ = model.get(schema)
+        if schema_ is None:
+            raise RuntimeError("Invalid schema: %s" % schema)
+        prop_ = schema_.get(prop)
+        if prop_ is None:
+            raise RuntimeError("Invalid prop: %s" % prop)
         for value in self._lookup_values(prop_, values):
             clean = self._verbose_clean(prop_, value, fuzzy, format)
             if clean is not None:
                 self.add_schema(schema)
                 self.unsafe_add(prop_, clean, cleaned=True)
 
-    def add_schema(self, schema: str) -> None:
+    def add_schema(self, schema: Union[str, Schema]) -> None:
         """Try to apply the given schema to the current entity, making it more
         specific (e.g. turning a `LegalEntity` into a `Company`). This raises an
         exception if the current and new type are incompatible."""

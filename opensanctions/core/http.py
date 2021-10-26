@@ -17,7 +17,7 @@ requests.packages.urllib3.disable_warnings()
 requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS = "ALL:@SECLEVEL=1"
 
 
-def get_session():
+def get_session() -> CachedSession:
     """Make a cached session."""
     path = settings.STATE_PATH.joinpath("http").as_posix()
     session = CachedSession(cache_name=path, expire_after=settings.CACHE_EXPIRE)
@@ -33,7 +33,7 @@ def cleanup_cache():
     session.cache.remove_expired_responses(expire_after=settings.CACHE_EXPIRE)
 
 
-def fetch_download(file_path, url):
+def fetch_download(file_path, url: str):
     """Circumvent the cache for large file downloads."""
     session = requests.Session()
     session.headers.update(HEADERS)

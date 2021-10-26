@@ -1,5 +1,6 @@
 import re
 import logging
+from typing import Optional
 from lxml import etree
 from banal import ensure_list
 from normality import stringify, slugify
@@ -8,7 +9,7 @@ log = logging.getLogger(__name__)
 BRACKETED = re.compile(r"\(.*\)")
 
 
-def is_empty(text):
+def is_empty(text: Optional[str]) -> bool:
     """Check if the given text is empty: it can either be null, or
     the stripped version of the string could have 0 length."""
     if text is None:

@@ -7,7 +7,7 @@ from nomenklatura.xref import xref
 from opensanctions import settings
 from opensanctions.model import Statement
 from opensanctions.core.dataset import Dataset
-from opensanctions.core.loader import DatabaseLoader, DatasetMemoryLoader
+from opensanctions.core.loader import DatabaseLoader
 from opensanctions.core.index import get_index
 
 RESOLVER_PATH = settings.STATIC_PATH.joinpath("resolve.ijson")

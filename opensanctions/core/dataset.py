@@ -20,6 +20,7 @@ class Dataset(NomenklaturaDataset):
 
     ALL = "all"
     DEFAULT = "default"
+    TYPE = "default"
 
     def __init__(self, type_, file_path, config):
         self.type = type_
@@ -39,10 +40,11 @@ class Dataset(NomenklaturaDataset):
 
         self.lookups = get_lookups(config.get("lookups", {}))
 
-    def make_slug(self, *parts, strict=True):
+    def make_slug(self, *parts: str, strict: bool = True) -> Optional[str]:
         slug = joinslug(*parts, prefix=self.prefix, strict=strict)
         if slug is not None:
             return slug[:KEY_LEN]
+        return None
 
     @property
     def datasets(self) -> Set["Dataset"]:

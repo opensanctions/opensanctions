@@ -48,7 +48,7 @@ def export_global_index():
             "dataset_url": settings.DATASET_URL,
             "issues_url": urljoin(settings.DATASET_URL, "issues.json"),
             "model": model,
-            "schemata": [s for s, in Statement.all_schemata()],
+            "schemata": Statement.all_schemata(),
             "app": "opensanctions",
             "version": settings.VERSION,
         }

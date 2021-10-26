@@ -1,5 +1,6 @@
 import hashlib
 import mimetypes
+from typing import Optional, Union
 import structlog
 from lxml import etree
 from pprint import pprint
@@ -7,6 +8,7 @@ from datapatch import LookupException
 from lxml.etree import _Element, tostring
 from structlog.contextvars import clear_contextvars, bind_contextvars
 from followthemoney.util import make_entity_id
+from followthemoney.schema import Schema
 
 from opensanctions import settings
 from opensanctions.model import db, Statement, Issue, Resource
@@ -77,18 +79,18 @@ class Context(object):
     def lookup(self, lookup, value):
         return self.dataset.lookups[lookup].match(value)
 
-    def make(self, schema, target=False):
+    def make(self, schema: Union[str, Schema], target=False) -> Entity:
         """Make a new entity with some dataset context set."""
         return Entity(schema, target=target)
 
-    def make_slug(self, *parts, strict=True):
+    def make_slug(self, *parts, strict=True) -> Optional[str]:
         return self.dataset.make_slug(*parts, strict=strict)
 
-    def make_id(self, *parts):
+    def make_id(self, *parts: str) -> Optional[str]:
         hashed = make_entity_id(*parts, key_prefix=self.dataset.name)
         return self.make_slug(hashed)
 
-    def pprint(self, obj):
+    def pprint(self, obj) -> None:
         """Utility to avoid dumb imports."""
         if isinstance(obj, _Element):
             obj = tostring(obj, pretty_print=True, encoding=str)
@@ -96,7 +98,7 @@ class Context(object):
         else:
             pprint(obj)
 
-    def flush(self):
+    def flush(self) -> None:
         """Emitted entities are de-constructed into statements for the database
         to store. These are inserted in batches - so the statement cache on the
         context is flushed to the store. All statements that are not flushed
@@ -105,7 +107,7 @@ class Context(object):
         Statement.upsert_many(list(self._statements.values()))
         self._statements = {}
 
-    def emit(self, entity, target=None, unique=False):
+    def emit(self, entity: Entity, target: Optional[bool] = None, unique: bool = False):
         """Send an FtM entity to the store."""
         if entity.id is None:
             raise ValueError("Entity has no ID: %r", entity)
@@ -123,10 +125,10 @@ class Context(object):
             self.flush()
         self.log.debug("Emitted", entity=entity)
 
-    def bind(self):
+    def bind(self) -> None:
         bind_contextvars(dataset=self.dataset.name)
 
-    def crawl(self):
+    def crawl(self) -> None:
         """Run the crawler."""
         try:
             self.bind()
@@ -155,13 +157,13 @@ class Context(object):
         finally:
             self.close()
 
-    def clear(self):
+    def clear(self) -> None:
         """Delete all recorded data for a given dataset."""
         Issue.clear(self.dataset)
         Statement.clear(self.dataset)
         db.session.commit()
 
-    def close(self):
+    def close(self) -> None:
         """Flush and tear down the context."""
         clear_contextvars()
         db.session.commit()

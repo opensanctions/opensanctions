@@ -1,66 +1,42 @@
+import json
 import logging
-from enum import Enum
-from datetime import datetime
-from functools import lru_cache
-from importlib.metadata import metadata
-from typing import Dict, List, Union
-from pydantic import BaseModel, Field
-from fastapi import FastAPI, Path, HTTPException
+from urllib.parse import urljoin
+from typing import Optional
+from fastapi import FastAPI, Path, Query, Form, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from followthemoney.types import registry
 from starlette.responses import RedirectResponse
 from followthemoney import model
-from nomenklatura.index.index import Index
-from nomenklatura.loader import Loader
-
+from followthemoney.exc import InvalidData
+from api.osapi.data import (
+    get_freebase_entity,
+    get_freebase_property,
+    get_matchable_schemata,
+)
 from opensanctions.core.entity import Entity
-from opensanctions.core.dataset import Dataset
-from opensanctions.core.resolver import get_resolver
-from opensanctions.core.loader import DatasetMemoryLoader
+from opensanctions.core.logs import configure_logging
+
+from osapi import settings
+from osapi.models import EntityResponse, SearchResponse
+from osapi.data import dataset, resolver
+from osapi.data import get_loader, get_index, get_schemata
+from osapi.data import get_freebase_type, get_freebase_types
+from osapi.util import match_prefix
 
 log = logging.getLogger(__name__)
-meta = metadata("opensanctions")
 app = FastAPI(
     title="OpenSanctions Matching API",
-    version=meta["Version"],
-    contact={
-        "name": meta["Author"],
-        "url": meta["Home-page"],
-        "email": meta["Author-email"],
-    },
+    version=settings.VERSION,
+    contact=settings.CONTACT,
 )
-dataset = Dataset.get("us_ofac_sdn")
-resolver = get_resolver()
-
-
-class EntityResponse(BaseModel):
-    id: str
-    schema_: str = Field("LegalEntity", alias="schema")
-    properties: Dict[str, List[Union[str, "EntityResponse"]]]
-    datasets: List[str]
-    referents: List[str]
-    first_seen: datetime
-    last_seen: datetime
-
-
-EntityResponse.update_forward_refs()
-
-
-class SearchResponse(BaseModel):
-    results: List[EntityResponse]
-
-
-@lru_cache(maxsize=None)
-def get_loader() -> Loader[Dataset, Entity]:
-    if dataset is None:
-        raise RuntimeError("Unkown dataset")
-    log.info("Loading %s to in-memory cache..." % dataset)
-    return DatasetMemoryLoader(dataset, resolver)
-
-
-@lru_cache(maxsize=None)
-def get_index(loader: Loader[Dataset, Entity]) -> Index[Dataset, Entity]:
-    index = Index(loader)
-    index.build()
-    return index
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+configure_logging(level=logging.INFO)
 
 
 @app.on_event("startup")
@@ -81,6 +57,12 @@ async def index():
     }
 
 
+@app.get("/healthz")
+async def healthz():
+    """No-op basic health check."""
+    return {"status": "ok"}
+
+
 @app.get("/entities/{entity_id}", response_model=EntityResponse)
 async def get_entity(
     entity_id: str = Path(None, title="The ID of the entity to retrieve")
@@ -99,7 +81,11 @@ async def get_entity(
 
 @app.get("/search", response_model=SearchResponse)
 async def search(
-    q: str, schema: str = "LegalEntity", limit: int = 10, fuzzy: bool = False
+    q: str,
+    schema: str = Query(settings.BASE_SCHEMA, title="Types of entities that can match"),
+    limit: int = Query(10, title="Number of results to return"),
+    fuzzy: bool = Query(False, title="Enable n-gram matching of partial names"),
+    nested: bool = Query(False, title="Include adjacent entities in response"),
 ):
     """Search matching entities based on a simple piece of text, e.g. a name."""
     loader = get_loader()
@@ -109,8 +95,155 @@ async def search(
     query.add("notes", q)
     results = []
     for result, score in index.match_entities(query, limit=limit, fuzzy=fuzzy):
-        result_data = result.to_nested_dict(loader)
+        result_data = None
+        if nested:
+            result_data = result.to_nested_dict(loader)
+        else:
+            result_data = result.to_dict()
         result_data["score"] = score
         results.append(result_data)
-
     return {"results": results}
+
+
+@app.get("/reconcile")
+def reconcile(queries: Optional[str] = None):
+    """Reconciliation API, emulates Google Refine API. This endpoint can be used
+    to bulk match entities against the system using an end-user application like
+    [OpenRefine](https://openrefine.org).
+
+    See: [Reconciliation API docs](https://reconciliation-api.github.io/specs/latest/#structure-of-a-reconciliation-query)
+    """
+    if queries is not None:
+        return reconcile_queries(queries)
+    base_url = urljoin(settings.ENDPOINT_URL, "/reconcile")
+    return {
+        "versions": ["0.2"],
+        "name": f"{dataset.title} ({app.title})",
+        "identifierSpace": "https://opensanctions.org/reference/#schema",
+        "schemaSpace": "https://opensanctions.org/reference/#schema",
+        "view": {"url": ("https://opensanctions.org/entities/{{id}}/")},
+        "suggest": {
+            "entity": {
+                "service_url": base_url,
+                "service_path": "/suggest/entity",
+            },
+            "type": {
+                "service_url": base_url,
+                "service_path": "/suggest/type",
+            },
+            "property": {
+                "service_url": base_url,
+                "service_path": "/suggest/property",
+            },
+        },
+        "defaultTypes": get_freebase_types(),
+    }
+
+
+@app.post("/reconcile")
+def reconcile_post(queries: str = Form("")):
+    """Reconciliation API, emulates Google Refine API."""
+    return reconcile_queries(queries)
+
+
+def reconcile_queries(queries):
+    # multiple requests in one query
+    try:
+        queries = json.loads(queries)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Cannot decode query")
+    results = {}
+    for k, q in queries.items():
+        results[k] = reconcile_query(q)
+    # log.info("RESULTS: %r" % results)
+    return results
+
+
+def reconcile_query(query):
+    """Reconcile operation for a single query."""
+    # log.info("Reconcile: %r", query)
+    limit = int(query.get("limit", 5))
+    type = query.get("type", settings.BASE_SCHEMA)
+    loader = get_loader()
+    index = get_index(loader)
+    proxy = Entity(type)
+    proxy.add("name", query.get("query"))
+    proxy.add("notes", query.get("query"))
+    for p in query.get("properties", []):
+        prop = model.get_qname(p.get("pid"))
+        if prop is None:
+            continue
+        try:
+            proxy.add_cast(prop.schema, prop.name, p.get("v"), fuzzy=True)
+        except InvalidData:
+            log.exception("Invalid property is set.")
+
+    results = []
+    # log.info("QUERY %r %s", proxy.to_dict(), limit)
+    for result, score in index.match_entities(proxy, limit=limit, fuzzy=True):
+        results.append(get_freebase_entity(result, score))
+    return {"result": results}
+
+
+@app.get("/reconcile/suggest/entity")
+def reconcile_suggest_entity(prefix: str = "", limit: int = 10):
+    """Suggest an entity API, emulates Google Refine API.
+
+    This is functionally very similar to the basic search API, but returns
+    data in the structure assumed by the
+    [Reconciliation API](https://reconciliation-api.github.io/specs/latest/#suggest-services).
+
+    Searches are conducted based on name and text content, using all matchable
+    entities in the system index."""
+    loader = get_loader()
+    index = get_index(loader)
+    query = Entity(settings.BASE_SCHEMA)
+    query.add("name", prefix)
+    query.add("notes", prefix)
+    results = []
+    for result, score in index.match_entities(query, limit=limit, fuzzy=True):
+        results.append(get_freebase_entity(result, score))
+    return {
+        "code": "/api/status/ok",
+        "status": "200 OK",
+        "prefix": prefix,
+        "result": results,
+    }
+
+
+@app.get("/reconcile/suggest/property")
+def reconcile_suggest_property(prefix: str = ""):
+    """Given a search prefix, return all the type/schema properties which match
+    the given text. This is used to auto-complete property selection for detail
+    filters in OpenRefine."""
+    matches = []
+    for prop in model.properties:
+        if not prop.schema.is_a(settings.BASE_SCHEMA):
+            continue
+        if prop.hidden or prop.type == prop.type == registry.entity:
+            continue
+        if match_prefix(prefix, prop.name, prop.label):
+            matches.append(get_freebase_property(prop))
+    return {
+        "code": "/api/status/ok",
+        "status": "200 OK",
+        "prefix": prefix,
+        "result": matches,
+    }
+
+
+@app.get("/reconcile/suggest/type")
+def suggest_type(prefix: str = ""):
+    """Given a search prefix, return all the types (i.e. schema) which match
+    the given text. This is used to auto-complete type selection for the
+    configuration of reconciliation in OpenRefine."""
+    matches = []
+    for schema in get_matchable_schemata():
+        if match_prefix(prefix, schema.name, schema.label):
+            matches.append(get_freebase_type(schema))
+    return {
+        "code": "/api/status/ok",
+        "status": "200 OK",
+        "prefix": prefix,
+        "result": matches,
+    }

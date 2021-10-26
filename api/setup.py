@@ -16,7 +16,12 @@ setup(
     packages=find_packages(exclude=["ez_setup", "examples", "test"]),
     namespace_packages=[],
     zip_safe=False,
-    install_requires=["opensanctions", "fastapi", "uvicorn[standard]"],
+    install_requires=[
+        "opensanctions",
+        "fastapi",
+        "uvicorn[standard]",
+        "python-multipart",
+    ],
     extras_require={
         "dev": [],
     },
