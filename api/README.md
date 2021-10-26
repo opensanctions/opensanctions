@@ -12,3 +12,10 @@ Development:
 ```bash
 uvicorn osapi.app:app --reload
 ```
+
+
+## Deployment
+
+```
+aws cloudformation deploy --template-file deploy.yml --stack-name OpenSanctionsAPI --capabilities CAPABILITY_NAMED_IAM
+```
