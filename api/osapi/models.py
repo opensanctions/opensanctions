@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Dict, List, Optional, TypedDict, Union
 from pydantic import BaseModel, Field
+from followthemoney.model import ModelToDict
 
 
 class EntityResponse(BaseModel):
@@ -14,6 +15,17 @@ class EntityResponse(BaseModel):
 
 
 EntityResponse.update_forward_refs()
+
+
+class IndexResponse(BaseModel):
+    datasets: List[str]
+    model: ModelToDict
+    terms: int
+    tokens: int
+
+
+class HealthzResponse(BaseModel):
+    status: str = "ok"
 
 
 class SearchResponse(BaseModel):

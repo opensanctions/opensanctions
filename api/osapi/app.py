@@ -12,6 +12,8 @@ from api.osapi.models import (
     FreebaseEntitySuggestResponse,
     FreebasePropertySuggestResponse,
     FreebaseTypeSuggestResponse,
+    HealthzResponse,
+    IndexResponse,
 )
 from opensanctions.model import db
 from opensanctions.core.dataset import Dataset
@@ -64,7 +66,7 @@ def get_dataset(name: str) -> Dataset:
     return dataset
 
 
-@app.get("/")
+@app.get("/", response_model=IndexResponse)
 async def index():
     """Get system configuration information."""
     try:
@@ -72,13 +74,14 @@ async def index():
         return {
             "datasets": [ds.name for ds in get_datasets()],
             "model": model.to_dict(),
-            "index": {"terms": len(index.terms), "tokens": len(index.inverted)},
+            "terms": len(index.terms),
+            "tokens": len(index.inverted),
         }
     finally:
         db.session.close()
 
 
-@app.get("/healthz")
+@app.get("/healthz", response_model=HealthzResponse)
 async def healthz():
     """No-op basic health check."""
     try:

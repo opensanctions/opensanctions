@@ -3,7 +3,7 @@ version: "2"
 services:
   app:
     build: .
-    image: pudo/opensanctions
+    image: pudo/opensanctions:latest
     command: opensanctions run
     hostname: work
     volumes:
