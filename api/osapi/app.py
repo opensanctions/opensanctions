@@ -79,9 +79,10 @@ async def get_entity(
     return entity.to_nested_dict(loader)
 
 
-@app.get("/search", response_model=SearchResponse)
+@app.get("/search/{dataset}", response_model=SearchResponse)
 async def search(
     q: str,
+    dataset: str = Path(dataset.name, title="Data source or collection ID"),
     schema: str = Query(settings.BASE_SCHEMA, title="Types of entities that can match"),
     limit: int = Query(10, title="Number of results to return"),
     fuzzy: bool = Query(False, title="Enable n-gram matching of partial names"),
@@ -105,8 +106,11 @@ async def search(
     return {"results": results}
 
 
-@app.get("/reconcile")
-def reconcile(queries: Optional[str] = None):
+@app.get("/reconcile/{dataset}")
+def reconcile(
+    queries: Optional[str] = None,
+    dataset: str = Path(dataset.name, title="Data source or collection ID"),
+):
     """Reconciliation API, emulates Google Refine API. This endpoint can be used
     to bulk match entities against the system using an end-user application like
     [OpenRefine](https://openrefine.org).
@@ -115,7 +119,7 @@ def reconcile(queries: Optional[str] = None):
     """
     if queries is not None:
         return reconcile_queries(queries)
-    base_url = urljoin(settings.ENDPOINT_URL, "/reconcile")
+    base_url = urljoin(settings.ENDPOINT_URL, f"/reconcile/{dataset}")
     return {
         "versions": ["0.2"],
         "name": f"{dataset.title} ({app.title})",

@@ -100,6 +100,7 @@ class Statement(Base):
     @classmethod
     def all_ids(cls, dataset=None, unique=None, target=None):
         q = db.session.query(cls.canonical_id)
+        q = q.filter(cls.prop == cls.BASE)
         if unique is not None:
             q = q.filter(cls.unique == unique)
         if target is not None:
@@ -132,7 +133,7 @@ class Statement(Base):
         if dataset is not None:
             q = q.filter(cls.dataset.in_(dataset.source_names))
         q = q.order_by(cls.canonical_id.asc())
-        return q.yield_per(10000)
+        return q
 
     @classmethod
     def all_counts(cls, dataset=None, unique=None, target=None):
