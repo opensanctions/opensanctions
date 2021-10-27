@@ -18,7 +18,7 @@ def store_event(logger, log_method, data):
         data[key] = value
 
     level_num = getattr(logging, data.get("level").upper())
-    if level_num > logging.INFO:
+    if level_num > logging.INFO and "dataset" in data:
         Issue.save(data)
     return data
 

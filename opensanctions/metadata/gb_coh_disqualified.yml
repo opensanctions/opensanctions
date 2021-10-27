@@ -29,6 +29,7 @@ description: |
   Directors can be disqualified for up to 15 years.
 collections:
   - crime
+  - default
 publisher:
   name: The Insolvency Service
   description: >

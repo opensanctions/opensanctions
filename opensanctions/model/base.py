@@ -5,6 +5,8 @@ from collections import namedtuple
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.pool import SingletonThreadPool
+
 
 from opensanctions import settings
 
@@ -20,7 +22,7 @@ alembic_cfg.set_main_option("sqlalchemy.url", settings.DATABASE_URI)
 assert (
     settings.DATABASE_URI is not None
 ), "Need to configure $OPENSANCTIONS_DATABASE_URI."
-engine = create_engine(settings.DATABASE_URI)
+engine = create_engine(settings.DATABASE_URI, poolclass=SingletonThreadPool)
 
 DIALECTS = ["sqlite", "postgresql"]
 assert engine.dialect.name in DIALECTS, "Unsupported database engine"
