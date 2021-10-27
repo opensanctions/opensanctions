@@ -13,34 +13,31 @@ def crawl(context):
 
 
 def parse_entry(context, node):
+    entity_name = node.findtext("./Entity")
+    if entity_name is not None:
+        entity = context.make("LegalEntity")
+        entity.add("name", entity_name)
+    else:
+        entity = context.make("Person")
+        given_name = node.findtext("./GivenName")
+        entity.add("firstName", given_name)
+        last_name = node.findtext("./LastName")
+        entity.add("lastName", last_name)
+        entity.add("name", jointext(given_name, last_name))
+        entity.add("birthDate", node.findtext("./DateOfBirth"))
+
     # ids are per country and entry type (individual/entity)
+    item = node.findtext("./Item")
+    schedule = node.findtext("./Schedule")
     country = node.findtext("./Country")
     if "/" in country:
         country, _ = country.split("/")
-    entity_name = node.findtext("./Entity")
-    item = node.findtext(".//Item")
-
-    entity = context.make("LegalEntity")
-    if entity_name is None:
-        entity = context.make("Person")
-    entity.id = context.make_slug(country, item)
-    entity.add("name", entity_name)
+    entity.id = context.make_slug(country, schedule, item, strict=False)
     entity.add("country", country)
-
     sanction = h.make_sanction(context, entity)
-    sanction.add("program", node.findtext(".//Schedule"))
+    sanction.add("program", schedule)
 
-    given_name = node.findtext(".//GivenName")
-    entity.add("firstName", given_name, quiet=True)
-    last_name = node.findtext(".//LastName")
-    entity.add("lastName", last_name, quiet=True)
-    entity.add("name", jointext(given_name, last_name))
-
-    dob = node.findtext(".//DateOfBirth")
-    if dob is not None:
-        entity.add("birthDate", dob, quiet=True)
-
-    names = node.findtext(".//Aliases")
+    names = node.findtext("./Aliases")
     if names is not None:
         for name in names.split(", "):
             name = collapse_spaces(name)

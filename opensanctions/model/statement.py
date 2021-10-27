@@ -189,23 +189,23 @@ class Statement(Base):
     def cleanup_dataset(cls, dataset):
         db.session.flush()
         # set the entity BASE to the earliest spotting of the entity:
-        table = cls.__table__
-        cte = select(
-            func.min(table.c.first_seen).label("first_seen"),
-            table.c.entity_id.label("entity_id"),
-        )
-        cte = cte.where(table.c.dataset == dataset.name)
-        cte = cte.group_by(table.c.entity_id)
-        cte = cte.cte("seen")
-        sq = select(cte.c.first_seen)
-        sq = sq.where(cte.c.entity_id == table.c.entity_id)
-        sq = sq.limit(1)
-        q = update(table)
-        q = q.where(table.c.dataset == dataset.name)
-        q = q.where(table.c.prop == cls.BASE)
-        q = q.values({table.c.first_seen: sq.scalar_subquery()})
-        # log.info("Setting BASE first_seen...", q=str(q))
-        db.session.execute(q)
+        # table = cls.__table__
+        # cte = select(
+        #     func.min(table.c.first_seen).label("first_seen"),
+        #     table.c.entity_id.label("entity_id"),
+        # )
+        # cte = cte.where(table.c.dataset == dataset.name)
+        # cte = cte.group_by(table.c.entity_id)
+        # cte = cte.cte("seen")
+        # sq = select(cte.c.first_seen)
+        # sq = sq.where(cte.c.entity_id == table.c.entity_id)
+        # sq = sq.limit(1)
+        # q = update(table)
+        # q = q.where(table.c.dataset == dataset.name)
+        # q = q.where(table.c.prop == cls.BASE)
+        # q = q.values({table.c.first_seen: sq.scalar_subquery()})
+        # # log.info("Setting BASE first_seen...", q=str(q))
+        # db.session.execute(q)
 
         # remove non-current statements (in the future we may want to keep them?)
         max_last_seen = cls.max_last_seen(dataset=dataset)
@@ -245,7 +245,6 @@ class Statement(Base):
         pq.delete(synchronize_session=False)
 
     @classmethod
-    # @lru_cache(maxsize=10000)
     def unique_conflict(cls, left_ids, right_ids):
         cte = select(
             func.distinct(cls.entity_id).label("entity_id"),
