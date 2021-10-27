@@ -9,6 +9,6 @@ EMAIL = meta["Author-email"]
 CONTACT = {"name": AUTHOR, "url": HOME_PAGE, "email": EMAIL}
 
 
-DATASET = env_str("OSAPI_DATASET", "us_ofac_cons")
+SCOPE_DATASET = env_str("OSAPI_SCOPE_DATASET", "default")
 ENDPOINT_URL = env_str("OSAPI_ENDPOINT_URL", "http://localhost:8000")
 BASE_SCHEMA = "Thing"
