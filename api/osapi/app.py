@@ -8,13 +8,6 @@ from followthemoney.types import registry
 from starlette.responses import RedirectResponse
 from followthemoney import model
 from followthemoney.exc import InvalidData
-from api.osapi.models import (
-    FreebaseEntitySuggestResponse,
-    FreebasePropertySuggestResponse,
-    FreebaseTypeSuggestResponse,
-    HealthzResponse,
-    IndexResponse,
-)
 from opensanctions.model import db
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.entity import Entity
@@ -22,12 +15,15 @@ from opensanctions.core.logs import configure_logging
 
 from osapi import settings
 from osapi.models import EntityResponse, SearchResponse
+from osapi.models import FreebaseEntitySuggestResponse
+from osapi.models import FreebasePropertySuggestResponse
+from osapi.models import FreebaseTypeSuggestResponse
+from osapi.models import HealthzResponse, IndexResponse
 from osapi.data import get_entity, get_index, resolver
 from osapi.data import get_loader, match_entities, get_datasets
 from osapi.data import get_freebase_type, get_freebase_types
 from osapi.data import get_freebase_entity, get_freebase_property
 from osapi.data import get_matchable_schemata, get_scope
-
 from osapi.util import match_prefix
 
 log = logging.getLogger(__name__)

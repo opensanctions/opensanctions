@@ -5,7 +5,6 @@ from followthemoney.schema import Schema
 from followthemoney.property import Property
 from nomenklatura.index.index import Index
 from nomenklatura.loader import Loader
-from api.osapi.models import FreebaseEntity, FreebaseProperty
 from opensanctions.model import Statement
 from opensanctions.core.entity import Entity
 from opensanctions.core.dataset import Dataset
@@ -15,7 +14,7 @@ from opensanctions.core.loader import DatabaseLoader
 
 from osapi import settings
 from osapi.models import FreebaseType
-
+from osapi.models import FreebaseEntity, FreebaseProperty
 
 resolver = get_resolver()
 
