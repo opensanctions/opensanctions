@@ -30,6 +30,40 @@ jobs:
           tags: pudo/opensanctions:latest
           cache-from: type=registry,ref=pudo/opensanctions:latest
           cache-to: type=inline
+  index:
+    if: ${{ github.ref == 'refs/heads/main' }}
+    needs: [docker]
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: eu-central-1
+      AWS_REGION: eu-central-1
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      # - name: Set env
+      #   env:
+      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #   run: |
+      #     echo "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" >> $GITHUB_ENV
+      #     echo "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> $GITHUB_ENV
+      - name: Fetch database state from data.opensanctions.org
+        run: |
+          mkdir -p data/state
+          aws s3 sync --no-progress s3://data.opensanctions.org/state data/state
+      - name: Index default dataset
+        run: |
+          docker run \
+            -v `pwd`/data:/opensanctions/data \
+            pudo/opensanctions \
+            opensanctions index default
+      - name: Upload index to data.opensanctions.org
+        if: ${{ always() }}
+        run: |
+          aws s3 sync --no-progress --acl public-read data/index s3://data.opensanctions.org/index
   api:
     if: ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
