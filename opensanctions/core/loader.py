@@ -44,6 +44,33 @@ class DatabaseLoader(Loader[Dataset, Entity]):
         return f"<DatabaseLoader({self.dataset!r})>"
 
     @classmethod
+    def assemble(cls, types, props, resolver):
+        entity = None
+        for stmt in types:
+            schema = model.get(stmt.schema)
+            if entity is None:
+                entity = Entity(schema)
+                entity.id = str(stmt.canonical_id)
+                entity.first_seen = stmt.first_seen
+                entity.last_seen = stmt.last_seen
+                entity.target = stmt.target
+            else:
+                entity.add_schema(schema)
+                entity.first_seen = min(entity.first_seen, stmt.first_seen)
+                entity.last_seen = max(entity.last_seen, stmt.last_seen)
+                entity.target = max(entity.target, stmt.target)
+            entity.datasets.add(Dataset.get(stmt.dataset))
+            entity.referents.add(str(stmt.entity_id))
+
+        for stmt in props:
+            prop = entity.schema.properties[stmt.prop]
+            value = str(stmt.value)
+            if prop.type == registry.entity:
+                value = resolver.get_canonical(value)
+            entity.unsafe_add(prop, value, cleaned=True)
+        return entity
+
+    @classmethod
     def query(cls, resolver, dataset, entity_id=None, inverted_id=None):
         """Query the statement table for the given dataset and entity ID and return
         re-constructed entities with the given properties."""
@@ -54,35 +81,23 @@ class DatabaseLoader(Loader[Dataset, Entity]):
         if inverted_id is not None:
             inverted_ids = resolver.get_referents(inverted_id)
         current_id = None
-        entity = None
+        types = []
+        props = []
         q = Statement.all_statements(
             dataset=dataset,
             canonical_id=canonical_id,
             inverted_ids=inverted_ids,
         )
         for stmt in q:
-            schema = model.get(stmt.schema)
             if stmt.canonical_id != current_id:
-                if entity is not None:
-                    yield entity
-                entity = Entity(schema)
-                entity.id = stmt.canonical_id
-                entity.first_seen = stmt.first_seen
-                entity.last_seen = stmt.last_seen
+                if len(types):
+                    yield cls.assemble(types, props, resolver)
+                types = []
+                props = []
             current_id = stmt.canonical_id
-            if stmt.schema != entity.schema.name:
-                entity.add_schema(schema)
             if stmt.prop == stmt.BASE:
-                entity.datasets.add(Dataset.get(stmt.dataset))
-                entity.referents.add(stmt.entity_id)
-                entity.first_seen = min(entity.first_seen, stmt.first_seen)
-                entity.last_seen = max(entity.last_seen, stmt.last_seen)
-                entity.target = max(entity.target, stmt.target)
-                continue
-            prop = schema.properties[stmt.prop]
-            value = stmt.value
-            if prop.type == registry.entity:
-                value = resolver.get_canonical(value)
-            entity.unsafe_add(prop, value, cleaned=True)
-        if entity is not None:
-            yield entity
+                types.append(stmt)
+            else:
+                props.append(stmt)
+        if len(types):
+            yield cls.assemble(types, props, resolver)

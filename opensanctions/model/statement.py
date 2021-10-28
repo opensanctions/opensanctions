@@ -108,7 +108,7 @@ class Statement(Base):
         if dataset is not None:
             q = q.filter(cls.dataset.in_(dataset.source_names))
         q = q.distinct()
-        return q
+        return q.yield_per(10000)
 
     @classmethod
     def all_statements(cls, dataset=None, canonical_id=None, inverted_ids=None):
@@ -133,7 +133,7 @@ class Statement(Base):
         if dataset is not None:
             q = q.filter(cls.dataset.in_(dataset.source_names))
         q = q.order_by(cls.canonical_id.asc())
-        return q
+        return q.yield_per(10000)
 
     @classmethod
     def all_counts(cls, dataset=None, unique=None, target=None):

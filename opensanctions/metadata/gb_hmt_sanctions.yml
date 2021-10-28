@@ -92,4 +92,5 @@ lookups:
           - Government agency
           - Department within Government
           - Military Government
-        value: PublicBody
+        # value: PublicBody
+        value: Organization
