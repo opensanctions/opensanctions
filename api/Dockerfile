@@ -1,14 +1,14 @@
 FROM pudo/opensanctions
 
 
-RUN mkdir -p /opensanctions/data/state
+RUN mkdir -p /opensanctions/data/state \
+    && mkdir -p /opensanctions/data/index
 RUN chown -R app:app /opensanctions/data
 ADD --chown=app:app https://data.opensanctions.org/state/opensanctions.sqlite /opensanctions/data/state/opensanctions.sqlite
-# RUN chmod 666 /opensanctions/data/state/opensanctions.sqlite
+ADD --chown=app:app https:////data.opensanctions.org/index/default.pkl /opensanctions/data/index/default.pkl
 
 ENV OPENSANCTIONS_DATA_PATH=/opensanctions/data \
     OSAPI_SCOPE_DATASET=default
-# RUN opensanctions index $OSAPI_SCOPE_DATASET
 
 RUN mkdir -p /appliance
 COPY . /appliance
