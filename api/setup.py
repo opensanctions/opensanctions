@@ -22,10 +22,4 @@ setup(
         "uvicorn[standard]",
         "python-multipart",
     ],
-    extras_require={
-        "dev": [],
-    },
-    entry_points={
-        "console_scripts": ["osapi = osapi.cli:cli"],
-    },
 )

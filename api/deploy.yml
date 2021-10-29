@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: Deploy the OpenSanctions API using CloudFormation/Fargate.
+Description: Deploy the OpenSanctions API to Fargate.
 Parameters:
   VPC:
     Type: AWS::EC2::VPC::Id
@@ -18,7 +18,7 @@ Parameters:
     Default: pudo/opensanctions-api:latest
   DeployID:
     Type: String
-    Default: BANANA
+    Default: Release-001
   ServiceName:
     Type: String
     Default: OpenSanctionsAPI
@@ -27,7 +27,7 @@ Parameters:
     Default: 8000
   HealthCheckPath:
     Type: String
-    Default: /
+    Default: /healthz
   HostedZoneName:
     Type: String
     Default: opensanctions.org
@@ -53,10 +53,8 @@ Resources:
       ClusterName: !Join ["", [!Ref ServiceName, Cluster]]
   TaskDefinition:
     Type: AWS::ECS::TaskDefinition
-    # Makes sure the log group is created before it is used.
     DependsOn: LogGroup
     Properties:
-      # Name of the task definition. Subsequent versions of the task definition are grouped together under this name.
       Family: !Join ["", [!Ref ServiceName, TaskDefinition]]
       # awsvpc is required for Fargate
       NetworkMode: awsvpc
@@ -73,9 +71,8 @@ Resources:
       # 2GB, 3GB, 4GB, 5GB, 6GB, 7GB, 8GB - Available cpu values: 1024 (1 vCPU)
       # Between 4GB and 16GB in 1GB increments - Available cpu values: 2048 (2 vCPU)
       # Between 8GB and 30GB in 1GB increments - Available cpu values: 4096 (4 vCPU)
-      Memory: 1GB
+      Memory: 2GB
       ExecutionRoleArn: !Ref ExecutionRole
-      # "The Amazon Resource Name (ARN) of an AWS Identity and Access Management (IAM) role that grants containers in the task permission to call AWS APIs on your behalf."
       TaskRoleArn: !Ref TaskRole
       ContainerDefinitions:
         - Name: !Ref ServiceName
@@ -83,6 +80,9 @@ Resources:
           Environment:
             - Name: OSAPI_DEPLOY
               Value: !Ref DeployID
+            - Name: OSAPI_ENDPOINT_URL
+              Value:
+                !Join ["", ["https://", !Ref Subdomain, ., !Ref HostedZoneName]]
           PortMappings:
             - ContainerPort: !Ref ContainerPort
           # Send logs to CloudWatch Logs
@@ -259,7 +259,6 @@ Resources:
       ResourceId: !Join ["/", [service, !Ref Cluster, !GetAtt Service.Name]]
       ScalableDimension: ecs:service:DesiredCount
       ServiceNamespace: ecs
-      # "The Amazon Resource Name (ARN) of an AWS Identity and Access Management (IAM) role that allows Application Auto Scaling to modify your scalable target."
       RoleARN: !GetAtt AutoScalingRole.Arn
   AutoScalingPolicy:
     Type: AWS::ApplicationAutoScaling::ScalingPolicy
