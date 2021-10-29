@@ -128,6 +128,14 @@ def dedupe(dataset):
     )
 
 
+@cli.command("explode", help="Destroy a cluster of deduplication matches")
+@click.argument("canonical_id", type=str)
+def explode(canonical_id):
+    resolver = get_resolver()
+    resolved_id = resolver.get_canonical(canonical_id)
+    resolver.explode(resolved_id)
+
+
 @cli.command("cleanup", help="Clean up caches")
 def cleanup():
     cleanup_cache()

@@ -37,6 +37,8 @@ def clean_date(date):
     if isinstance(date, datetime):
         date = date.date().isoformat()
     date = remove_bracketed(date)
+    if date is None:
+        return dates
     date = date.replace("\n", " ")
     for part in multi_split(date, splits):
         part = part.strip().strip(",")

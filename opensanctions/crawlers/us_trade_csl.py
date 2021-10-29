@@ -1,4 +1,5 @@
 import json
+from banal import ensure_list
 from functools import lru_cache
 from pantomime.types import JSON
 from requests.exceptions import TooManyRedirects
@@ -34,7 +35,8 @@ def parse_result(context, result):
         entity.id = SDN.make_slug(entity_number)
 
     entity.add("name", result.pop("name", None))
-    entity.add("alias", result.pop("alt_names", None))
+    for alias in ensure_list(result.pop("alt_names", "")):
+        entity.add("alias", alias.split("; "))
     entity.add("notes", result.pop("remarks", None))
     entity.add("country", result.pop("country", None))
     if entity.schema.is_a("Person"):
