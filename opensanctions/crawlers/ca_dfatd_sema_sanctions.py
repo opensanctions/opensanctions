@@ -16,7 +16,7 @@ def parse_entry(context, node):
     entity_name = node.findtext("./Entity")
     if entity_name is not None:
         entity = context.make("LegalEntity")
-        entity.add("name", entity_name)
+        entity.add("name", entity_name.split("/"))
     else:
         entity = context.make("Person")
         given_name = node.findtext("./GivenName")
