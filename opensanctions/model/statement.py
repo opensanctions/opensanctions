@@ -112,13 +112,14 @@ class Statement(Base):
 
     @classmethod
     def all_statements(cls, dataset=None, canonical_id=None, inverted_ids=None):
-        q = db.session.query(cls)
+        table = cls.__table__
+        q = select(table)
         if canonical_id is not None:
-            q = q.filter(cls.canonical_id == canonical_id)
+            q = q.filter(table.c.canonical_id == canonical_id)
         if inverted_ids is not None:
-            sq = db.session.query(func.distinct(cls.canonical_id))
-            sq = sq.filter(cls.prop_type == registry.entity.name)
-            sq = sq.filter(cls.value.in_(inverted_ids))
+            sq = select(func.distinct(table.c.canonical_id))
+            sq = sq.filter(table.c.prop_type == registry.entity.name)
+            sq = sq.filter(table.c.value.in_(inverted_ids))
             sq = sq.subquery()
             # cte = select(func.distinct(cls.canonical_id).label("canonical_id"))
             # cte = cte.where(cls.prop_type == registry.entity.name)
@@ -127,13 +128,18 @@ class Statement(Base):
             # Find entities which refer to the given entity in one of their
             # property values.
             # inverted = aliased(cls)
-            q = q.filter(cls.canonical_id.in_(sq))
+            q = q.filter(table.c.canonical_id.in_(sq))
             # q = q.filter(inverted.prop_type == registry.entity.name)
             # q = q.filter(inverted.value.in_(inverted_ids))
         if dataset is not None:
-            q = q.filter(cls.dataset.in_(dataset.source_names))
-        q = q.order_by(cls.canonical_id.asc())
-        return q.yield_per(10000)
+            q = q.filter(table.c.dataset.in_(dataset.source_names))
+        q = q.order_by(table.c.canonical_id.asc())
+        res = db.session.execute(q)
+        while True:
+            batch = res.fetchmany(20000)
+            if not batch:
+                break
+            yield from batch
 
     @classmethod
     def all_counts(cls, dataset=None, unique=None, target=None):

@@ -95,7 +95,7 @@ class DatabaseLoader(Loader[Dataset, Entity]):
                 types = []
                 props = []
             current_id = stmt.canonical_id
-            if stmt.prop == stmt.BASE:
+            if stmt.prop == Statement.BASE:
                 types.append(stmt)
             else:
                 props.append(stmt)
