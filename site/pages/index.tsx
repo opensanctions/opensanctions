@@ -99,7 +99,7 @@ export default function Home({ datasets }: InferGetStaticPropsType<typeof getSta
             </p>
             <ul>
               {collections.map(c => (
-                <li><Link href={c.link}>{c.title}</Link></li>
+                <li key={c.name}><Link href={c.link}>{c.title}</Link></li>
               ))}
             </ul>
           </Col>
@@ -109,14 +109,14 @@ export default function Home({ datasets }: InferGetStaticPropsType<typeof getSta
               <Col md={6}>
                 <ul>
                   {oddSources.map(d => (
-                    <li><Link href={d.link}>{d.title}</Link></li>
+                    <li key={d.name}><Link href={d.link}>{d.title}</Link></li>
                   ))}
                 </ul>
               </Col>
               <Col md={6}>
                 <ul>
                   {evenSources.map(d => (
-                    <li><Link href={d.link}>{d.title}</Link></li>
+                    <li key={d.name}><Link href={d.link}>{d.title}</Link></li>
                   ))}
                 </ul>
               </Col>

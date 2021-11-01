@@ -1,4 +1,4 @@
-import { CaretRightFill, EnvelopeFill, Github, Twitter } from 'react-bootstrap-icons';
+import { CaretRightFill, EnvelopeFill, Github, Slack, Twitter } from 'react-bootstrap-icons';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import CardGroup from 'react-bootstrap/CardGroup';
@@ -32,15 +32,15 @@ export default function Contact() {
             </Card>
             <Card bg="secondary" text="white">
               <Card.Body>
-                <Card.Title><Github /> Technical support</Card.Title>
+                <Card.Title><Slack /> Slack chat</Card.Title>
                 <Card.Text>
-                  File an issue to describe a problem
-                  with the dataset.
+                  Join our Slack workspace and chat with the team and others
+                  working on sanctions data.
                 </Card.Text>
               </Card.Body>
               <Card.Footer>
-                <Button href="https://github.com/pudo/opensanctions/issues" variant="light">
-                  <CaretRightFill className="bsIcon" /> opensanctions/issues
+                <Button href="https://bit.ly/osa-slack" variant="light">
+                  <CaretRightFill className="bsIcon" /> OpenSanctions Slack
                 </Button>
               </Card.Footer>
             </Card>
