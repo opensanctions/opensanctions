@@ -16,9 +16,6 @@ Parameters:
   Image:
     Type: String
     Default: pudo/opensanctions-api:latest
-  DeployID:
-    Type: String
-    Default: Release-001
   ServiceName:
     Type: String
     Default: OpenSanctionsAPI
@@ -79,7 +76,7 @@ Resources:
           Image: !Ref Image
           Environment:
             - Name: OSAPI_DEPLOY
-              Value: !Ref DeployID
+              Value: Release-004
             - Name: OSAPI_ENDPOINT_URL
               Value:
                 !Join ["", ["https://", !Ref Subdomain, ., !Ref HostedZoneName]]

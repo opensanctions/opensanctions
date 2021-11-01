@@ -1,9 +1,14 @@
 from normality import slugify
 from functools import lru_cache
+from typing import List
 from addressformatting import AddressFormatter
 from followthemoney.util import make_entity_id
 
+from opensanctions.core.context import Context
+from opensanctions.core.entity import Entity
 from opensanctions.util import jointext
+
+NOMINATIM = "https://nominatim.openstreetmap.org/search.php"
 
 
 @lru_cache(maxsize=None)
@@ -11,8 +16,20 @@ def get_formatter() -> AddressFormatter:
     return AddressFormatter()
 
 
+def query_full(context: Context, full: str, countries: List[str]):
+    params = {
+        "q": full,
+        "countrycodes": countries,
+        "format": "jsonv2",
+        "accept-language": "en",
+        "addressdetails": 1,
+    }
+    res = context.http.get(NOMINATIM, params=params)
+    context.pprint(res.json())
+
+
 def make_address(
-    context,
+    context: Context,
     full=None,
     remarks=None,
     summary=None,
@@ -61,6 +78,7 @@ def make_address(
         full = get_formatter().one_line(data, country=country_code)
         address.add("full", full)
     if full:
+        query_full(context, full, address.get("country"))
         norm_full = slugify(full)
         hash_id = make_entity_id(country_code, norm_full, key)
         if hash_id is not None:
@@ -68,7 +86,7 @@ def make_address(
     return address
 
 
-def apply_address(context, entity, address):
+def apply_address(context: Context, entity: Entity, address: Entity):
     """Link the given entity to the given address."""
     if address is None:
         return

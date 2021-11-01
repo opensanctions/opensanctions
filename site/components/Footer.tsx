@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { Twitter, HeartFill, EnvelopeFill, Slack } from 'react-bootstrap-icons';
+import { Twitter, Github, HeartFill, EnvelopeFill, Slack } from 'react-bootstrap-icons';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
@@ -65,9 +65,9 @@ export default class Footer extends React.Component {
                       <Link href="https://twitter.com/open_sanctions">Twitter</Link>
                     </li>
                     <li>
-                      <Link href="/contact/"><EnvelopeFill /></Link>
+                      <Link href="https://github.com/pudo/opensanctions"><Github /></Link>
                       {' '}
-                      <Link href="/contact/">Contact us</Link>
+                      <Link href="https://github.com/pudo/opensanctions">Github code</Link>
                     </li>
                   </ul>
                 </Col>

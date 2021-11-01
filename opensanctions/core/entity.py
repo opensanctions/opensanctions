@@ -1,15 +1,14 @@
-from typing import Any, Dict, Optional, Union
-from followthemoney.schema import Schema
 import structlog
 from banal import ensure_list
-
+from typing import Any, Dict, Optional, Union
 from followthemoney import model
 from followthemoney.exc import InvalidData
 from followthemoney.types import registry
+from followthemoney.schema import Schema
 from followthemoney.property import Property
 from nomenklatura.entity import CompositeEntity
 
-from opensanctions.helpers import type_lookup
+from opensanctions.core.lookups import type_lookup
 
 log = structlog.get_logger(__name__)
 

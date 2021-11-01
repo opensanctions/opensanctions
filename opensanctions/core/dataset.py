@@ -7,7 +7,7 @@ from followthemoney.types import registry
 from nomenklatura.dataset import Dataset as NomenklaturaDataset
 
 from opensanctions import settings
-from opensanctions.helpers.lookups import load_yaml
+from opensanctions.core.lookups import load_yaml
 from opensanctions.model import Issue, Statement, Resource
 from opensanctions.model.base import KEY_LEN
 from opensanctions.util import joinslug

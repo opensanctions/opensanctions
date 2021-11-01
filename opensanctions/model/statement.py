@@ -1,6 +1,6 @@
 import structlog
 from followthemoney.types import registry
-from sqlalchemy import select, update, func, Column, Unicode, DateTime, Boolean
+from sqlalchemy import select, func, Column, Unicode, DateTime, Boolean
 from sqlalchemy.dialects.sqlite import insert as insert_sqlite
 from sqlalchemy.dialects.postgresql import insert as insert_postgresql
 

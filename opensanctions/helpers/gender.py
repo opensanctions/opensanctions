@@ -1,5 +1,5 @@
 from typing import List
-from opensanctions.helpers.lookups import common_lookups
+from opensanctions.core.lookups import common_lookups
 
 
 def clean_gender(value: str) -> List[str]:
