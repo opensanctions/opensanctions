@@ -134,6 +134,37 @@ def explode(canonical_id):
     resolver = get_resolver()
     resolved_id = resolver.get_canonical(canonical_id)
     resolver.explode(resolved_id)
+    resolver.save()
+    Statement.resolve_all(resolver)
+
+
+@cli.command("prof", help="Profile test")
+@click.option("-d", "--dataset", type=datasets, default=Dataset.DEFAULT)
+def prof(dataset):
+    resolver = get_resolver()
+    dataset = Dataset.get(dataset)
+    from opensanctions.core.loader import Database
+    from nomenklatura.index import Index
+
+    db = Database(dataset, resolver, cached=True)
+    loader = db.view(dataset)
+    index = Index(loader)
+    index.build(fuzzy=False)
+    resolver.prune()
+
+    for pair, score in index.pairs()[:10000]:
+        left, right = pair
+        left_entity = loader.get_entity(left)
+        right_entity = loader.get_entity(right)
+        if left_entity is None or right_entity is None:
+            continue
+        if left_entity.schema not in right_entity.schema.matchable_schemata:
+            continue
+        if not resolver.check_candidate(left, right):
+            continue
+        resolver.suggest(left, right, score)
+        # print(pair, score)
+    resolver.save()
 
 
 @cli.command("cleanup", help="Clean up caches")

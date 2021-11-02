@@ -6,6 +6,7 @@ from nomenklatura.xref import xref
 
 from opensanctions import settings
 from opensanctions.model import Statement
+from opensanctions.core.entity import Entity
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.loader import DatabaseLoader
 from opensanctions.core.index import get_index
@@ -14,7 +15,7 @@ RESOLVER_PATH = settings.STATIC_PATH.joinpath("resolve.ijson")
 Scored = Tuple[str, str, Optional[float]]
 
 
-class UniqueResolver(Resolver):
+class UniqueResolver(Resolver[Entity]):
     """OpenSanctions semantics for the entity resolver graph."""
 
     def check_candidate(self, left: Identifier, right: Identifier) -> bool:
@@ -42,7 +43,7 @@ class UniqueResolver(Resolver):
 
 
 @lru_cache(maxsize=None)
-def get_resolver() -> Resolver:
+def get_resolver() -> Resolver[Entity]:
     return UniqueResolver.load(RESOLVER_PATH)
 
 

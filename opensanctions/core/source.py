@@ -1,5 +1,7 @@
 import os
 from importlib import import_module
+from functools import cached_property
+from typing import Set
 from followthemoney.types import registry
 
 from opensanctions.core.dataset import Dataset
@@ -55,8 +57,8 @@ class Source(Dataset):
         self.data = SourceData(config.get("data", {}))
         self.publisher = SourcePublisher(config.get("publisher", {}))
 
-    @property
-    def sources(self):
+    @cached_property
+    def sources(self) -> Set["Source"]:
         return set([self])
 
     @property
