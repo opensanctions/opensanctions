@@ -56,8 +56,8 @@ METADATA_PATH = Path(METADATA_PATH).resolve()
 
 # Storage for static reference data
 STATIC_PATH_DEFAULT = Path(__file__).resolve().parent.joinpath("static")
-STATIC_PATH = env.get("OPENSANCTIONS_STATIC_PATH", STATIC_PATH_DEFAULT)
-STATIC_PATH = Path(STATIC_PATH).resolve()
+STATIC_PATH_ = env.get("OPENSANCTIONS_STATIC_PATH", STATIC_PATH_DEFAULT)
+STATIC_PATH = Path(STATIC_PATH_).resolve()
 
 # Do not edit manually, use the release process
 VERSION = "3.1.1"
