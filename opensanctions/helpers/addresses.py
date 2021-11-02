@@ -78,7 +78,7 @@ def make_address(
         full = get_formatter().one_line(data, country=country_code)
         address.add("full", full)
     if full:
-        query_full(context, full, address.get("country"))
+        # query_full(context, full, address.get("country"))
         norm_full = slugify(full)
         hash_id = make_entity_id(country_code, norm_full, key)
         if hash_id is not None:

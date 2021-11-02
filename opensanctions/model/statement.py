@@ -117,10 +117,11 @@ class Statement(Base):
         if canonical_id is not None:
             q = q.filter(table.c.canonical_id == canonical_id)
         if inverted_ids is not None:
-            sq = select(func.distinct(table.c.canonical_id))
-            sq = sq.filter(table.c.prop_type == registry.entity.name)
-            sq = sq.filter(table.c.value.in_(inverted_ids))
-            sq = sq.subquery()
+            alias = table.alias()
+            sq = select(func.distinct(alias.c.canonical_id))
+            sq = sq.filter(alias.c.prop_type == registry.entity.name)
+            sq = sq.filter(alias.c.value.in_(inverted_ids))
+            # sq = sq.subquery()
             # cte = select(func.distinct(cls.canonical_id).label("canonical_id"))
             # cte = cte.where(cls.prop_type == registry.entity.name)
             # cte = cte.where(cls.value.in_(inverted_ids))
@@ -136,7 +137,7 @@ class Statement(Base):
         q = q.order_by(table.c.canonical_id.asc())
         res = db.session.execute(q)
         while True:
-            batch = res.fetchmany(20000)
+            batch = res.fetchmany(10000)
             if not batch:
                 break
             yield from batch
