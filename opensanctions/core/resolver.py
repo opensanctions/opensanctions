@@ -8,7 +8,7 @@ from opensanctions import settings
 from opensanctions.model import Statement
 from opensanctions.core.entity import Entity
 from opensanctions.core.dataset import Dataset
-from opensanctions.core.loader import DatabaseLoader
+from opensanctions.core.loader import Database
 from opensanctions.core.index import get_index
 
 RESOLVER_PATH = settings.STATIC_PATH.joinpath("resolve.ijson")
@@ -49,8 +49,11 @@ def get_resolver() -> Resolver[Entity]:
 
 def xref_datasets(base: Dataset, candidates: Dataset, limit: int = 15):
     resolver = get_resolver()
-    entities = DatabaseLoader(candidates, resolver)
-    loader = DatabaseLoader(base, resolver)
+    if candidates not in base.datasets:
+        raise RuntimeError("%r is not contained in %r" % (candidates, base))
+    db = Database(base, resolver, cached=True)
+    entities = db.view(candidates)
+    loader = db.view(base)
     index = get_index(base, loader)
     xref(index, resolver, entities, limit=limit)
     resolver.save()

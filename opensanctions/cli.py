@@ -8,7 +8,7 @@ from opensanctions.exporters import export_global_index, export_dataset
 from opensanctions.exporters.common import write_object
 from opensanctions.core.http import cleanup_cache
 from opensanctions.core.index import get_index, get_index_path
-from opensanctions.core.loader import DatabaseLoader, DatasetMemoryLoader
+from opensanctions.core.loader import Database
 from opensanctions.core.resolver import get_resolver, xref_datasets
 from opensanctions.model.statement import Statement
 from opensanctions.model.base import migrate_db
@@ -34,7 +34,9 @@ def cli(verbose=False, quiet=False):
 @click.option("-o", "--outfile", type=click.File("w"), default="-")
 def dump_dataset(dataset, outfile):
     dataset = Dataset.get(dataset)
-    for entity in DatabaseLoader(dataset):
+    resolver = get_resolver()
+    loader = Database(dataset, resolver).view(dataset)
+    for entity in loader:
         write_object(outfile, entity)
 
 
@@ -72,7 +74,7 @@ def run(dataset):
 
 @cli.command("clear", help="Delete all stored data for the given source")
 @click.argument("dataset", default=Dataset.ALL, type=datasets)
-def run(dataset):
+def clear(dataset):
     dataset = Dataset.get(dataset)
     for source in dataset.sources:
         Context(source).clear()
@@ -90,7 +92,7 @@ def index(dataset):
     resolver = get_resolver()
     Statement.resolve_all(resolver)
     dataset = Dataset.get(dataset)
-    loader = DatasetMemoryLoader(dataset, resolver)
+    loader = Database(dataset, resolver, cached=True).view(dataset)
     path = get_index_path(dataset)
     path.unlink(missing_ok=True)
     get_index(dataset, loader)
@@ -119,11 +121,11 @@ def xref_prune(keep=0):
 def dedupe(dataset):
     resolver = get_resolver()
     dataset = Dataset.get(dataset)
-    loader = DatabaseLoader(dataset, resolver)
+    db = Database(dataset, resolver)
     DedupeApp.run(
         title="OpenSanction De-duplication",
         # log="textual.log",
-        loader=loader,
+        loader=db.view(dataset),
         resolver=resolver,
     )
 
@@ -143,27 +145,34 @@ def explode(canonical_id):
 def prof(dataset):
     resolver = get_resolver()
     dataset = Dataset.get(dataset)
-    from opensanctions.core.loader import Database
+
+    import time
+    import gc
     from nomenklatura.index import Index
 
     db = Database(dataset, resolver, cached=True)
     loader = db.view(dataset)
+    gc.collect()
+    while True:
+        time.sleep(1)
+    return
     index = Index(loader)
     index.build(fuzzy=False)
+    index.save("sanctions.pkl")
     resolver.prune()
 
-    for pair, score in index.pairs()[:10000]:
-        left, right = pair
-        left_entity = loader.get_entity(left)
-        right_entity = loader.get_entity(right)
-        if left_entity is None or right_entity is None:
-            continue
-        if left_entity.schema not in right_entity.schema.matchable_schemata:
-            continue
-        if not resolver.check_candidate(left, right):
-            continue
-        resolver.suggest(left, right, score)
-        # print(pair, score)
+    # for pair, score in index.pairs()[:10000]:
+    #     left, right = pair
+    #     left_entity = loader.get_entity(left)
+    #     right_entity = loader.get_entity(right)
+    #     if left_entity is None or right_entity is None:
+    #         continue
+    #     if left_entity.schema not in right_entity.schema.matchable_schemata:
+    #         continue
+    #     if not resolver.check_candidate(left, right):
+    #         continue
+    #     resolver.suggest(left, right, score)
+    #     # print(pair, score)
     resolver.save()
 
 

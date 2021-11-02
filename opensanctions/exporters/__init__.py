@@ -7,7 +7,7 @@ from followthemoney.helpers import simplify_provenance
 from opensanctions import settings
 from opensanctions.model import db, Issue, Statement
 from opensanctions.core import Context, Dataset
-from opensanctions.core.loader import DatasetMemoryLoader
+from opensanctions.core.loader import Database
 from opensanctions.exporters.common import write_json
 from opensanctions.exporters.ftm import FtMExporter
 from opensanctions.exporters.nested import NestedJSONExporter
