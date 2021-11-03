@@ -112,9 +112,9 @@ def xref(base, candidates, limit=15):
 
 
 @cli.command("xref-internal", help="Block dedupe candidates from the given dataset")
-@click.option("-b", "--base", type=datasets, default=Dataset.DEFAULT)
-def xref_int(base):
-    xref_internal(Dataset.require(base))
+@click.argument("dataset", default=Dataset.DEFAULT, type=datasets)
+def xref_int(dataset):
+    xref_internal(Dataset.require(dataset))
 
 
 @cli.command("xref-prune", help="Remove dedupe candidates")
