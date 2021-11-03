@@ -8,8 +8,8 @@ from opensanctions.exporters import export_global_index, export_dataset
 from opensanctions.exporters.common import write_object
 from opensanctions.core.http import cleanup_cache
 from opensanctions.core.index import get_index, get_index_path
-from opensanctions.core.loader import DatabaseLoader, DatasetMemoryLoader
-from opensanctions.core.resolver import get_resolver, xref_datasets
+from opensanctions.core.loader import Database
+from opensanctions.core.resolver import get_resolver, xref_datasets, xref_internal
 from opensanctions.model.statement import Statement
 from opensanctions.model.base import migrate_db
 
@@ -34,14 +34,16 @@ def cli(verbose=False, quiet=False):
 @click.option("-o", "--outfile", type=click.File("w"), default="-")
 def dump_dataset(dataset, outfile):
     dataset = Dataset.get(dataset)
-    for entity in DatabaseLoader(dataset):
+    resolver = get_resolver()
+    loader = Database(dataset, resolver).view(dataset)
+    for entity in loader:
         write_object(outfile, entity)
 
 
 @cli.command("crawl", help="Crawl entities into the given dataset")
 @click.argument("dataset", default=Dataset.ALL, type=datasets)
 def crawl(dataset):
-    dataset = Dataset.get(dataset)
+    dataset = Dataset.require(dataset)
     for source in dataset.sources:
         Context(source).crawl()
 
@@ -49,31 +51,33 @@ def crawl(dataset):
 @cli.command("export", help="Export entities from the given dataset")
 @click.argument("dataset", default=Dataset.ALL, type=datasets)
 def export(dataset):
-    dataset = Dataset.get(dataset)
     resolver = get_resolver()
     Statement.resolve_all(resolver)
+    dataset = Dataset.require(dataset)
+    database = Database(dataset, resolver, cached=True)
     for dataset_ in dataset.datasets:
-        export_dataset(dataset_)
+        export_dataset(dataset_, database)
     export_global_index()
 
 
 @cli.command("run", help="Run the full process for the given dataset")
 @click.argument("dataset", default=Dataset.ALL, type=datasets)
 def run(dataset):
-    dataset = Dataset.get(dataset)
+    dataset = Dataset.require(dataset)
     resolver = get_resolver()
     for source in dataset.sources:
         Context(source).crawl()
     Statement.resolve_all(resolver)
+    database = Database(dataset, resolver, cached=True)
     for dataset_ in dataset.datasets:
-        export_dataset(dataset_)
+        export_dataset(dataset_, database)
     export_global_index()
 
 
 @cli.command("clear", help="Delete all stored data for the given source")
 @click.argument("dataset", default=Dataset.ALL, type=datasets)
-def run(dataset):
-    dataset = Dataset.get(dataset)
+def clear(dataset):
+    dataset = Dataset.require(dataset)
     for source in dataset.sources:
         Context(source).clear()
 
@@ -90,7 +94,8 @@ def index(dataset):
     resolver = get_resolver()
     Statement.resolve_all(resolver)
     dataset = Dataset.get(dataset)
-    loader = DatasetMemoryLoader(dataset, resolver)
+    database = Database(dataset, resolver, cached=True)
+    loader = database.view(dataset)
     path = get_index_path(dataset)
     path.unlink(missing_ok=True)
     get_index(dataset, loader)
@@ -101,9 +106,15 @@ def index(dataset):
 @click.option("-b", "--base", type=datasets, default=Dataset.DEFAULT)
 @click.option("-l", "--limit", type=int, default=15)
 def xref(base, candidates, limit=15):
-    base_dataset = Dataset.get(base)
-    candidates_dataset = Dataset.get(candidates)
+    base_dataset = Dataset.require(base)
+    candidates_dataset = Dataset.require(candidates)
     xref_datasets(base_dataset, candidates_dataset, limit=limit)
+
+
+@cli.command("xref-internal", help="Block dedupe candidates from the given dataset")
+@click.argument("dataset", default=Dataset.DEFAULT, type=datasets)
+def xref_int(dataset):
+    xref_internal(Dataset.require(dataset))
 
 
 @cli.command("xref-prune", help="Remove dedupe candidates")
@@ -119,11 +130,11 @@ def xref_prune(keep=0):
 def dedupe(dataset):
     resolver = get_resolver()
     dataset = Dataset.get(dataset)
-    loader = DatabaseLoader(dataset, resolver)
+    db = Database(dataset, resolver)
     DedupeApp.run(
         title="OpenSanction De-duplication",
         # log="textual.log",
-        loader=loader,
+        loader=db.view(dataset),
         resolver=resolver,
     )
 
@@ -134,6 +145,8 @@ def explode(canonical_id):
     resolver = get_resolver()
     resolved_id = resolver.get_canonical(canonical_id)
     resolver.explode(resolved_id)
+    resolver.save()
+    Statement.resolve_all(resolver)
 
 
 @cli.command("cleanup", help="Clean up caches")

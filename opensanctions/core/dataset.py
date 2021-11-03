@@ -1,7 +1,8 @@
-from typing import Any, Dict, List, Optional, Set
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set
 from banal import ensure_list
 from urllib.parse import urljoin
 from datapatch import get_lookups
+from functools import cached_property
 from followthemoney import model
 from followthemoney.types import registry
 from nomenklatura.dataset import Dataset as NomenklaturaDataset
@@ -11,6 +12,9 @@ from opensanctions.core.lookups import load_yaml
 from opensanctions.model import Issue, Statement, Resource
 from opensanctions.model.base import KEY_LEN
 from opensanctions.util import joinslug
+
+if TYPE_CHECKING:
+    from opensanctions.core.source import Source
 
 
 class Dataset(NomenklaturaDataset):
@@ -46,9 +50,13 @@ class Dataset(NomenklaturaDataset):
             return slug[:KEY_LEN]
         return None
 
-    @property
+    @cached_property
     def datasets(self) -> Set["Dataset"]:
         return set([self])
+
+    @cached_property
+    def sources(self) -> Set["Source"]:
+        return set()
 
     @property
     def source_names(self) -> List[str]:
@@ -85,6 +93,13 @@ class Dataset(NomenklaturaDataset):
     @classmethod
     def get(cls, name) -> Optional["Dataset"]:
         return cls._load_cache().get(name)
+
+    @classmethod
+    def require(cls, name) -> "Dataset":
+        dataset = cls.get(name)
+        if dataset is None:
+            raise ValueError("No such dataset: %s" % name)
+        return dataset
 
     @classmethod
     def names(cls) -> List[str]:

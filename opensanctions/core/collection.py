@@ -1,4 +1,5 @@
 from typing import Any, Dict, Set, cast
+from functools import cached_property
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.source import Source
 
@@ -12,7 +13,7 @@ class Collection(Dataset):
     def __init__(self, file_path, config):
         super().__init__(self.TYPE, file_path, config)
 
-    @property
+    @cached_property
     def datasets(self) -> Set[Dataset]:
         datasets: Set[Dataset] = set([self])
         for dataset in Dataset.all():
@@ -20,7 +21,7 @@ class Collection(Dataset):
                 datasets.update(dataset.datasets)
         return datasets
 
-    @property
+    @cached_property
     def sources(self) -> Set[Source]:
         return set([cast(Source, t) for t in self.datasets if t.TYPE == Source.TYPE])
 

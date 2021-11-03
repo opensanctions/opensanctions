@@ -7,7 +7,7 @@ from followthemoney.helpers import simplify_provenance
 from opensanctions import settings
 from opensanctions.model import db, Issue, Statement
 from opensanctions.core import Context, Dataset
-from opensanctions.core.loader import DatasetMemoryLoader
+from opensanctions.core.loader import Database
 from opensanctions.exporters.common import write_json
 from opensanctions.exporters.ftm import FtMExporter
 from opensanctions.exporters.nested import NestedJSONExporter
@@ -55,20 +55,17 @@ def export_global_index():
         write_json(meta, fh)
 
 
-def export_loader(context):
-    loader = DatasetMemoryLoader(context.dataset, context.resolver)
-    for entity in loader.entities.values():
-        entity = simplify_provenance(entity)
-        entity = remove_prefix_dates(entity)
-        entity = name_entity(entity)
-    return loader
+def export_assembler(entity):
+    entity = simplify_provenance(entity)
+    entity = remove_prefix_dates(entity)
+    return name_entity(entity)
 
 
-def export_dataset(dataset):
+def export_dataset(dataset: Dataset, database: Database):
     """Dump the contents of the dataset to the output directory."""
     context = Context(dataset)
     context.bind()
-    loader = export_loader(context)
+    loader = database.view(dataset, export_assembler)
     exporters = [Exporter(context, loader) for Exporter in EXPORTERS]
     for entity in loader:
         for exporter in exporters:

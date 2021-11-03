@@ -10,7 +10,7 @@ from opensanctions.core.entity import Entity
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.index import get_index as get_dataset_index
 from opensanctions.core.resolver import get_resolver
-from opensanctions.core.loader import DatabaseLoader
+from opensanctions.core.loader import Database
 
 from osapi import settings
 from osapi.models import FreebaseType
@@ -24,6 +24,11 @@ def get_scope() -> Dataset:
     if scope is None:
         raise RuntimeError("Cannot load dataset: %s" % settings.SCOPE_DATASET)
     return scope
+
+
+@cache
+def get_database() -> Database:
+    return Database(get_scope(), resolver, cached=True)
 
 
 @cache
@@ -53,9 +58,9 @@ def get_matchable_schemata(dataset: Dataset):
     return [s for s in get_schemata(dataset) if s.matchable]
 
 
-@cache
 def get_loader(dataset: Dataset) -> Loader[Dataset, Entity]:
-    return DatabaseLoader(dataset, resolver)
+    db = get_database()
+    return db.view(dataset)
 
 
 @cache
@@ -113,5 +118,4 @@ def get_freebase_property(prop: Property) -> FreebaseProperty:
         "id": prop.qname,
         "name": prop.label,
         "description": prop.description,
-        # "n:type": {"id": "/properties/property", "name": "Property"},
     }
