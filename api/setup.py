@@ -21,5 +21,6 @@ setup(
         "fastapi",
         "uvicorn[standard]",
         "python-multipart",
+        "email-validator",
     ],
 )

@@ -9,7 +9,7 @@ from opensanctions.exporters.common import write_object
 from opensanctions.core.http import cleanup_cache
 from opensanctions.core.index import get_index, get_index_path
 from opensanctions.core.loader import Database
-from opensanctions.core.resolver import get_resolver, xref_datasets
+from opensanctions.core.resolver import get_resolver, xref_datasets, xref_internal
 from opensanctions.model.statement import Statement
 from opensanctions.model.base import migrate_db
 
@@ -43,7 +43,7 @@ def dump_dataset(dataset, outfile):
 @cli.command("crawl", help="Crawl entities into the given dataset")
 @click.argument("dataset", default=Dataset.ALL, type=datasets)
 def crawl(dataset):
-    dataset = Dataset.get(dataset)
+    dataset = Dataset.require(dataset)
     for source in dataset.sources:
         Context(source).crawl()
 
@@ -53,7 +53,7 @@ def crawl(dataset):
 def export(dataset):
     resolver = get_resolver()
     Statement.resolve_all(resolver)
-    dataset = Dataset.get(dataset)
+    dataset = Dataset.require(dataset)
     database = Database(dataset, resolver, cached=True)
     for dataset_ in dataset.datasets:
         export_dataset(dataset_, database)
@@ -63,7 +63,7 @@ def export(dataset):
 @cli.command("run", help="Run the full process for the given dataset")
 @click.argument("dataset", default=Dataset.ALL, type=datasets)
 def run(dataset):
-    dataset = Dataset.get(dataset)
+    dataset = Dataset.require(dataset)
     resolver = get_resolver()
     for source in dataset.sources:
         Context(source).crawl()
@@ -77,7 +77,7 @@ def run(dataset):
 @cli.command("clear", help="Delete all stored data for the given source")
 @click.argument("dataset", default=Dataset.ALL, type=datasets)
 def clear(dataset):
-    dataset = Dataset.get(dataset)
+    dataset = Dataset.require(dataset)
     for source in dataset.sources:
         Context(source).clear()
 
@@ -106,9 +106,15 @@ def index(dataset):
 @click.option("-b", "--base", type=datasets, default=Dataset.DEFAULT)
 @click.option("-l", "--limit", type=int, default=15)
 def xref(base, candidates, limit=15):
-    base_dataset = Dataset.get(base)
-    candidates_dataset = Dataset.get(candidates)
+    base_dataset = Dataset.require(base)
+    candidates_dataset = Dataset.require(candidates)
     xref_datasets(base_dataset, candidates_dataset, limit=limit)
+
+
+@cli.command("xref-internal", help="Block dedupe candidates from the given dataset")
+@click.option("-b", "--base", type=datasets, default=Dataset.DEFAULT)
+def xref_int(base):
+    xref_internal(Dataset.require(base))
 
 
 @cli.command("xref-prune", help="Remove dedupe candidates")
@@ -141,45 +147,6 @@ def explode(canonical_id):
     resolver.explode(resolved_id)
     resolver.save()
     Statement.resolve_all(resolver)
-
-
-@cli.command("prof", help="Profile test")
-@click.option("-d", "--dataset", type=datasets, default=Dataset.DEFAULT)
-def prof(dataset):
-    resolver = get_resolver()
-    dataset = Dataset.get(dataset)
-
-    import time
-    import gc
-    from nomenklatura.index import Index
-
-    db = Database(dataset, resolver, cached=True)
-    loader = db.view(dataset)
-    gc.collect()
-    print("LOADED DATASET")
-    index = Index(loader)
-    index.build(fuzzy=False)
-    # index.save("sanctions.pkl")
-    from pympler import asizeof
-
-    print("LOADED INDEX")
-    while True:
-        time.sleep(1)
-
-    # resolver.prune()
-    # for pair, score in index.pairs()[:10000]:
-    #     left, right = pair
-    #     left_entity = loader.get_entity(left)
-    #     right_entity = loader.get_entity(right)
-    #     if left_entity is None or right_entity is None:
-    #         continue
-    #     if left_entity.schema not in right_entity.schema.matchable_schemata:
-    #         continue
-    #     if not resolver.check_candidate(left, right):
-    #         continue
-    #     resolver.suggest(left, right, score)
-    #     # print(pair, score)
-    # resolver.save()
 
 
 @cli.command("cleanup", help="Clean up caches")

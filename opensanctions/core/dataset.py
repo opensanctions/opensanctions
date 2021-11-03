@@ -95,6 +95,13 @@ class Dataset(NomenklaturaDataset):
         return cls._load_cache().get(name)
 
     @classmethod
+    def require(cls, name) -> "Dataset":
+        dataset = cls.get(name)
+        if dataset is None:
+            raise ValueError("No such dataset: %s" % name)
+        return dataset
+
+    @classmethod
     def names(cls) -> List[str]:
         """An array of all dataset names found in the metadata path."""
         return [dataset.name for dataset in cls.all()]

@@ -25,10 +25,7 @@ class CachedType(object):
 
     def __init__(self, stmt: Statement):
         self.canonical_id = str(stmt.canonical_id)
-        dataset = Dataset.get(stmt.dataset)
-        if dataset is None:
-            raise RuntimeError("Missing dataset: %r" % stmt.dataset)
-        self.dataset = dataset
+        self.dataset = Dataset.require(stmt.dataset)
         self.schema = model.schemata[stmt.schema]
         self.entity_id = str(stmt.entity_id)
         self.first_seen = stmt.first_seen
@@ -41,10 +38,7 @@ class CachedProp(object):
 
     def __init__(self, stmt: Statement):
         self.canonical_id = str(stmt.canonical_id)
-        dataset = Dataset.get(stmt.dataset)
-        if dataset is None:
-            raise RuntimeError("Missing dataset: %r" % stmt.dataset)
-        self.dataset = dataset
+        self.dataset = Dataset.require(stmt.dataset)
         schema = model.schemata[stmt.schema]
         self.prop = schema.properties[stmt.prop]
         self.value = str(stmt.value)
@@ -65,7 +59,7 @@ class Database(object):
         self.inverted: Dict[str, Set[str]] = {}
         self.load()
 
-    def view(self, dataset: Dataset, assembler: Assembler) -> "DatasetLoader":
+    def view(self, dataset: Dataset, assembler: Assembler = None) -> "DatasetLoader":
         if self.cached:
             return CachedDatasetLoader(self, dataset, assembler)
         return DatasetLoader(self, dataset, assembler)
@@ -80,10 +74,10 @@ class Database(object):
             for stmt in cached[1]:
                 if stmt.prop.type != registry.entity:
                     continue
-                value = stmt.value = self.resolver.get_canonical(stmt.value)
-                if value not in self.inverted:
-                    self.inverted[value] = set()
-                self.inverted[value].add(entity_id)
+                entity_id = self.resolver.get_canonical(stmt.value)
+                if entity_id not in self.inverted:
+                    self.inverted[entity_id] = set()
+                self.inverted[entity_id].add(entity_id)
 
     def query(
         self, dataset: Dataset, entity_id=None, inverted_id=None
@@ -158,9 +152,7 @@ class DatasetLoader(Loader[Dataset, Entity]):
             return
         entity = self.db.assemble(cached, sources=self.dataset.sources)
         if entity is not None:
-            # This is already canonicalised thanks to `Database.load()`.
-            if not self.db.cached:
-                entity = self.db.resolver.apply(entity)
+            entity = self.db.resolver.apply(entity)
             if self.assembler is not None:
                 entity = self.assembler(entity)
             yield entity

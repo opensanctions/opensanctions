@@ -8,7 +8,7 @@ from opensanctions.core import Dataset
 from opensanctions import helpers as h
 
 FORMATS = ["%d %b %Y", "%d %B %Y", "%Y", "%b %Y", "%B %Y"]
-SDN = Dataset.get("us_ofac_sdn")
+SDN = Dataset.require("us_ofac_sdn")
 
 
 @lru_cache(maxsize=None)

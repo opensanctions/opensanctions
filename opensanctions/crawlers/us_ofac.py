@@ -18,7 +18,7 @@ REFERENCES = {}
 def lookup(name, value):
     # We don't want to duplicate the lookup configs in both YAML files,
     # so we're hard-coding that lookups go against the SDN config.
-    sdn = Dataset.get("us_ofac_sdn")
+    sdn = Dataset.require("us_ofac_sdn")
     return sdn.lookups.get(name).match(value)
 
 
