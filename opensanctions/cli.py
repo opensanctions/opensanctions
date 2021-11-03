@@ -51,11 +51,12 @@ def crawl(dataset):
 @cli.command("export", help="Export entities from the given dataset")
 @click.argument("dataset", default=Dataset.ALL, type=datasets)
 def export(dataset):
-    dataset = Dataset.get(dataset)
     resolver = get_resolver()
     Statement.resolve_all(resolver)
+    dataset = Dataset.get(dataset)
+    database = Database(dataset, resolver, cached=True)
     for dataset_ in dataset.datasets:
-        export_dataset(dataset_)
+        export_dataset(dataset_, database)
     export_global_index()
 
 
@@ -67,8 +68,9 @@ def run(dataset):
     for source in dataset.sources:
         Context(source).crawl()
     Statement.resolve_all(resolver)
+    database = Database(dataset, resolver, cached=True)
     for dataset_ in dataset.datasets:
-        export_dataset(dataset_)
+        export_dataset(dataset_, database)
     export_global_index()
 
 
@@ -92,7 +94,8 @@ def index(dataset):
     resolver = get_resolver()
     Statement.resolve_all(resolver)
     dataset = Dataset.get(dataset)
-    loader = Database(dataset, resolver, cached=True).view(dataset)
+    database = Database(dataset, resolver, cached=True)
+    loader = database.view(dataset)
     path = get_index_path(dataset)
     path.unlink(missing_ok=True)
     get_index(dataset, loader)
@@ -153,14 +156,17 @@ def prof(dataset):
     db = Database(dataset, resolver, cached=True)
     loader = db.view(dataset)
     gc.collect()
-    while True:
-        time.sleep(1)
-    return
+    print("LOADED DATASET")
     index = Index(loader)
     index.build(fuzzy=False)
-    index.save("sanctions.pkl")
-    resolver.prune()
+    # index.save("sanctions.pkl")
+    from pympler import asizeof
 
+    print("LOADED INDEX")
+    while True:
+        time.sleep(1)
+
+    # resolver.prune()
     # for pair, score in index.pairs()[:10000]:
     #     left, right = pair
     #     left_entity = loader.get_entity(left)
@@ -173,7 +179,7 @@ def prof(dataset):
     #         continue
     #     resolver.suggest(left, right, score)
     #     # print(pair, score)
-    resolver.save()
+    # resolver.save()
 
 
 @cli.command("cleanup", help="Clean up caches")

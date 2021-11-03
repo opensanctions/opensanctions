@@ -1,5 +1,5 @@
 import structlog
-from typing import Dict, Generator, Iterator, List, Optional, Set, Tuple
+from typing import Callable, Dict, Generator, Iterator, List, Optional, Set, Tuple
 from followthemoney import model
 from followthemoney.types import registry
 from followthemoney.property import Property
@@ -51,6 +51,7 @@ class CachedProp(object):
 
 
 CachedEntity = Tuple[Tuple[CachedType, ...], Tuple[CachedProp, ...]]
+Assembler = Optional[Callable[[Entity], Entity]]
 
 
 class Database(object):
@@ -62,14 +63,14 @@ class Database(object):
         self.resolver = resolver
         self.entities: Dict[str, CachedEntity] = {}
         self.inverted: Dict[str, Set[str]] = {}
-        self.load_cache()
+        self.load()
 
-    def view(self, dataset: Dataset) -> "DatasetLoader":
+    def view(self, dataset: Dataset, assembler: Assembler) -> "DatasetLoader":
         if self.cached:
-            return CachedDatasetLoader(self, dataset)
-        return DatasetLoader(self, dataset)
+            return CachedDatasetLoader(self, dataset, assembler)
+        return DatasetLoader(self, dataset, assembler)
 
-    def load_cache(self):
+    def load(self) -> None:
         if not self.cached:
             return
         log.info("Loading database cache...", scope=self.scope)
@@ -147,15 +148,22 @@ class Database(object):
 
 
 class DatasetLoader(Loader[Dataset, Entity]):
-    def __init__(self, database: Database, dataset: Dataset):
+    def __init__(self, database: Database, dataset: Dataset, assembler: Assembler):
         self.db = database
         self.dataset = dataset
+        self.assembler = assembler
 
-    def assemble(self, cached: CachedEntity) -> Generator[Entity, None, None]:
-        entity = self.db.assemble(cached)
+    def assemble(self, cached: Optional[CachedEntity]) -> Generator[Entity, None, None]:
+        if cached is None:
+            return
+        entity = self.db.assemble(cached, sources=self.dataset.sources)
         if entity is not None:
-            resolved = self.db.resolver.apply(entity)
-            yield resolved
+            # This is already canonicalised thanks to `Database.load()`.
+            if not self.db.cached:
+                entity = self.db.resolver.apply(entity)
+            if self.assembler is not None:
+                entity = self.assembler(entity)
+            yield entity
 
     def get_entity(self, id: str) -> Optional[Entity]:
         for cached in self.db.query(self.dataset, entity_id=id):
@@ -194,13 +202,6 @@ class DatasetLoader(Loader[Dataset, Entity]):
 
 
 class CachedDatasetLoader(DatasetLoader):
-    def assemble(self, cached: Optional[CachedEntity]) -> Generator[Entity, None, None]:
-        if cached is None:
-            return
-        entity = self.db.assemble(cached, sources=self.dataset.sources)
-        if entity is not None:
-            yield entity
-
     def get_entity(self, id: str) -> Optional[Entity]:
         cached = self.db.entities.get(id)
         for entity in self.assemble(cached):
