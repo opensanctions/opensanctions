@@ -54,8 +54,12 @@ def get_schemata(dataset: Dataset) -> List[Schema]:
     return schemata
 
 
-def get_matchable_schemata(dataset: Dataset):
-    return [s for s in get_schemata(dataset) if s.matchable]
+def get_matchable_schemata(dataset: Dataset) -> Set[Schema]:
+    schemata: Set[Schema] = set()
+    for schema in get_schemata(dataset):
+        if schema.matchable:
+            schemata.update(schema.schemata)
+    return schemata
 
 
 def get_loader(dataset: Dataset) -> Loader[Dataset, Entity]:

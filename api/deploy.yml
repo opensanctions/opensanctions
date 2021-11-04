@@ -76,7 +76,9 @@ Resources:
           Image: !Ref Image
           Environment:
             - Name: OSAPI_DEPLOY
-              Value: Release-004
+              Value: Release-005
+            - Name: OSAPI_CACHED
+              Value: "false"
             - Name: OSAPI_ENDPOINT_URL
               Value:
                 !Join ["", ["https://", !Ref Subdomain, ., !Ref HostedZoneName]]

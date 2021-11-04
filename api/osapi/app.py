@@ -380,9 +380,10 @@ def reconcile_suggest_property(
     filters in OpenRefine."""
     try:
         ds = get_dataset(dataset)
+        schemata = get_matchable_schemata(ds)
         matches = []
         for prop in model.properties:
-            if not prop.schema.is_a(settings.BASE_SCHEMA):
+            if prop.schema not in schemata:
                 continue
             if prop.hidden or prop.type == prop.type == registry.entity:
                 continue

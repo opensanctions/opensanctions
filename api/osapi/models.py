@@ -64,13 +64,13 @@ class EntityMatchResponse(BaseModel):
 class FreebaseType(BaseModel):
     id: str = Field(..., example="Person")
     name: str = Field(..., example="People")
-    description: str = Field(..., example="...")
+    description: Optional[str] = Field(None, example="...")
 
 
 class FreebaseProperty(BaseModel):
     id: str = Field(..., example="birthDate")
     name: str = Field(..., example="Date of birth")
-    description: str = Field(..., example="...")
+    description: Optional[str] = Field(None, example="...")
 
 
 class FreebaseEntity(BaseModel):
@@ -78,7 +78,7 @@ class FreebaseEntity(BaseModel):
     name: str = Field(..., example="John Doe")
     score: Optional[float] = Field(..., example=0.99)
     match: Optional[bool] = Field(..., example=False)
-    description: Optional[str]
+    description: Optional[str] = Field(None, example="...")
     type: List[FreebaseType]
 
 
