@@ -9,6 +9,7 @@ HOME_PAGE = meta["Home-page"]
 EMAIL = meta["Author-email"]
 CONTACT = {"name": AUTHOR, "url": HOME_PAGE, "email": EMAIL}
 
+TITLE = "OpenSanctions Matching API"
 DESCRIPTION = """
 The OpenSanctions API provides tools that help you determine if any of the people
 or companies mentioned in your data are subject to international sanctions, known
@@ -37,7 +38,8 @@ Further reading:
 TAGS = [
     {
         "name": "Matching",
-        "description": "Entity matching endpoints",
+        "description": "Services that enable driving a user-facing entity search or"
+        "matching a local data store against the given dataset.",
         "externalDocs": {
             "description": "Data dictionary",
             "url": "https://opensanctions.org/reference/",

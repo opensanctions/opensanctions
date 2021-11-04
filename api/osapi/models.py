@@ -1,29 +1,38 @@
 from datetime import datetime
-from typing import Dict, List, Optional, TypedDict, Union
+from typing import Dict, List, Optional, Union
 from pydantic import BaseModel, Field
 from followthemoney.model import ModelToDict
+from pydantic.networks import AnyHttpUrl
 
 from opensanctions.core import Dataset
+from osapi import settings
+
+EntityProperties = Dict[str, List[Union[str, "EntityResponse"]]]
 
 
 class EntityResponse(BaseModel):
-    id: str = "NK-A7z...."
-    schema_: str = Field("LegalEntity", alias="schema")
-    properties: Dict[str, List[Union[str, "EntityResponse"]]]
-    datasets: List[str] = ["us_ofac_sdn"]
-    referents: List[str] = ["ofac-1234"]
-    first_seen: datetime = datetime.utcnow()
-    last_seen: datetime = datetime.utcnow()
+    id: str = Field(..., example="NK-A7z....")
+    schema_: str = Field(..., example="LegalEntity", alias="schema")
+    properties: EntityProperties = Field(..., example={"name": ["John Doe"]})
+    datasets: List[str] = Field([], example=["us_ofac_sdn"])
+    referents: List[str] = Field([], example=["ofac-1234"])
+    first_seen: datetime = Field(..., example=datetime.utcnow())
+    last_seen: datetime = Field(..., example=datetime.utcnow())
 
 
 EntityResponse.update_forward_refs()
 
 
+class ScoredEntityResponse(EntityResponse):
+    score: float = 0.99
+    match: bool = False
+
+
 class IndexResponse(BaseModel):
     datasets: List[str] = Dataset.names()
     model: ModelToDict
-    terms: int = 23
-    tokens: int = 42
+    terms: int = Field(..., example=23)
+    tokens: int = Field(..., example=42)
 
 
 class HealthzResponse(BaseModel):
@@ -34,24 +43,42 @@ class SearchResponse(BaseModel):
     results: List[EntityResponse]
 
 
+class EntityExample(BaseModel):
+    schema_: str = Field(..., example=settings.BASE_SCHEMA, alias="schema")
+    properties: Dict[str, List[Union[str]]]
+
+
+class EntityMatchQuery(BaseModel):
+    queries: Dict[str, EntityExample]
+
+
+class EntityMatches(BaseModel):
+    results: List[ScoredEntityResponse]
+    query: EntityExample
+
+
+class EntityMatchResponse(BaseModel):
+    responses: Dict[str, EntityMatches]
+
+
 class FreebaseType(BaseModel):
-    id: str = "Person"
-    name: str = "People"
-    description: str = "..."
+    id: str = Field(..., example="Person")
+    name: str = Field(..., example="People")
+    description: str = Field(..., example="...")
 
 
 class FreebaseProperty(BaseModel):
-    id: str = "birthDate"
-    name: str = "Date of birth"
-    description: str = "..."
+    id: str = Field(..., example="birthDate")
+    name: str = Field(..., example="Date of birth")
+    description: str = Field(..., example="...")
 
 
 class FreebaseEntity(BaseModel):
-    id: str = "NK-A7z...."
-    name: str = "John Doe"
-    score: Optional[float] = 0.99
-    match: Optional[bool] = False
-    description: Optional[str] = None
+    id: str = Field(..., example="NK-A7z....")
+    name: str = Field(..., example="John Doe")
+    score: Optional[float] = Field(..., example=0.99)
+    match: Optional[bool] = Field(..., example=False)
+    description: Optional[str]
     type: List[FreebaseType]
 
 
@@ -81,7 +108,7 @@ class FreebaseManifestView(BaseModel):
 
 
 class FreebaseManifestSuggestType(BaseModel):
-    service_url: str
+    service_url: AnyHttpUrl
     service_path: str
 
 
@@ -92,10 +119,10 @@ class FreebaseManifestSuggest(BaseModel):
 
 
 class FreebaseManifest(BaseModel):
-    versions: List[str] = ["0.2"]
-    title: str
-    identifierSpace: str
-    schemaSpace: str
+    versions: List[str] = Field(..., example=["0.2"])
+    title: str = Field(..., example=settings.TITLE)
+    identifierSpace: AnyHttpUrl
+    schemaSpace: AnyHttpUrl
     view: FreebaseManifestView
     suggest: FreebaseManifestSuggest
     defaultTypes: List[FreebaseType]

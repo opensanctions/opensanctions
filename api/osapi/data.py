@@ -90,6 +90,22 @@ def match_entities(
         returned += 1
 
 
+def query_results(
+    dataset: Dataset, query: Entity, limit: int, fuzzy: bool, nested: bool
+):
+    results = []
+    loader = get_loader(dataset)
+    for result, score in match_entities(dataset, query, limit=limit, fuzzy=fuzzy):
+        result_data = None
+        if nested:
+            result_data = result.to_nested_dict(loader)
+        else:
+            result_data = result.to_dict()
+        result_data["score"] = score
+        results.append(result_data)
+    return results
+
+
 def get_freebase_types(dataset: Dataset) -> List[FreebaseType]:
     return [get_freebase_type(s) for s in get_matchable_schemata(dataset)]
 

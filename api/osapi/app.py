@@ -8,20 +8,22 @@ from followthemoney.types import registry
 from starlette.responses import RedirectResponse
 from followthemoney import model
 from followthemoney.exc import InvalidData
-from api.osapi.models import FreebaseManifest, FreebaseQueryResult
 from opensanctions.model import db
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.entity import Entity
 from opensanctions.core.logs import configure_logging
 
 from osapi import settings
+from osapi.models import HealthzResponse, IndexResponse
+from osapi.models import EntityMatchQuery, EntityMatchResponse
 from osapi.models import EntityResponse, SearchResponse
 from osapi.models import FreebaseEntitySuggestResponse
 from osapi.models import FreebasePropertySuggestResponse
 from osapi.models import FreebaseTypeSuggestResponse
-from osapi.models import HealthzResponse, IndexResponse
+from osapi.models import FreebaseManifest, FreebaseQueryResult
 from osapi.data import get_entity, get_index, resolver
 from osapi.data import get_loader, match_entities, get_datasets
+from osapi.data import query_results
 from osapi.data import get_freebase_type, get_freebase_types
 from osapi.data import get_freebase_entity, get_freebase_property
 from osapi.data import get_matchable_schemata, get_scope
@@ -29,7 +31,7 @@ from osapi.util import match_prefix
 
 log = logging.getLogger(__name__)
 app = FastAPI(
-    title="OpenSanctions Matching API",
+    title=settings.TITLE,
     description=settings.DESCRIPTION,
     version=settings.VERSION,
     contact=settings.CONTACT,
@@ -125,17 +127,84 @@ async def search(
         query = Entity(schema)
         query.add("name", q)
         query.add("notes", q)
-        results = []
-        loader = get_loader(ds)
-        for result, score in match_entities(ds, query, limit=limit, fuzzy=fuzzy):
-            result_data = None
-            if nested:
-                result_data = result.to_nested_dict(loader)
-            else:
-                result_data = result.to_dict()
-            result_data["score"] = score
-            results.append(result_data)
+        results = query_results(ds, query, limit, fuzzy, nested)
         return {"results": results}
+    finally:
+        db.session.close()
+
+
+@app.post(
+    "/match/{dataset}",
+    summary="Query by example matcher",
+    tags=["Matching"],
+    response_model=EntityMatchResponse,
+)
+async def search(
+    query: EntityMatchQuery,
+    dataset: str = PATH_DATASET,
+    limit: int = Query(5, title="Number of results to return"),
+    fuzzy: bool = Query(False, title="Enable n-gram matching of partial names"),
+    nested: bool = Query(False, title="Include adjacent entities in response"),
+):
+    """Match entities based on a complex set of criteria, like name, date of birth
+    and nationality of a person. This works by submitting a batch of entities, each
+    formatted like those returned by the API.
+
+    For example, the following would be valid query examples:
+
+    ```json
+    "queries": {
+        "entity1": {
+            "schema": "Person",
+            "properties": {
+                "name": ["John Doe"],
+                "birthDate": ["1975-04-21"],
+                "nationality": ["us"]
+            }
+        },
+        "entity2": {
+            "schema": "Company",
+            "properties": {
+                "name": ["Brilliant Amazing Limited"],
+                "jurisdiction": ["hk"],
+                "registrationNumber": ["84BA99810"]
+            }
+        }
+    }
+    ```
+    The values for `entity1`, `entity2` can be chosen freely to correlate results
+    on the client side when the request is returned. The responses will be given
+    for each submitted example like this:
+
+    ```json
+    "responses": {
+        "entity1": {
+            "results": [...]
+        },
+        "entity2": {
+            "results": [...]
+        }
+    }
+    ```
+
+    The precision of the results will be dependent on the amount of detail submitted
+    with each example. The following properties are most helpful for particular types:
+
+    * **Person**: ``name``, ``birthDate``, ``nationality``, ``idNumber``, ``address``
+    * **Organization**: ``name``, ``country``, ``registrationNumber``, ``address``
+    * **Company**: ``name``, ``jurisdiction``, ``registrationNumber``, ``address``,
+      ``incorporationDate``
+    """
+    try:
+        ds = get_dataset(dataset)
+        responses = {}
+        for name, example in query.get("queries").items():
+            entity = Entity(example.get("schema"))
+            for prop, value in example.get("properties").items():
+                entity.add(prop, value, cleaned=False)
+            results = query_results(ds, entity, limit, fuzzy, nested)
+            responses[name] = {"query": entity.to_dict(), "results": results}
+        return {"responses": responses}
     finally:
         db.session.close()
 
@@ -183,7 +252,7 @@ def reconcile(
         base_url = urljoin(settings.ENDPOINT_URL, f"/reconcile/{dataset}")
         return {
             "versions": ["0.2"],
-            "name": f"{ds.title} ({app.title})",
+            "name": f"{ds.title} ({settings.TITLE})",
             "identifierSpace": "https://opensanctions.org/reference/#schema",
             "schemaSpace": "https://opensanctions.org/reference/#schema",
             "view": {"url": ("https://opensanctions.org/entities/{{id}}/")},
@@ -289,8 +358,6 @@ def reconcile_suggest_entity(
         for result, score in match_entities(ds, query, limit=limit, fuzzy=True):
             results.append(get_freebase_entity(result, score))
         return {
-            "code": "/api/status/ok",
-            "status": "200 OK",
             "prefix": prefix,
             "result": results,
         }
@@ -322,8 +389,6 @@ def reconcile_suggest_property(
             if match_prefix(prefix, prop.name, prop.label):
                 matches.append(get_freebase_property(prop))
         return {
-            "code": "/api/status/ok",
-            "status": "200 OK",
             "prefix": prefix,
             "result": matches,
         }
@@ -351,8 +416,6 @@ def reconcile_suggest_type(
             if match_prefix(prefix, schema.name, schema.label):
                 matches.append(get_freebase_type(schema))
         return {
-            "code": "/api/status/ok",
-            "status": "200 OK",
             "prefix": prefix,
             "result": matches,
         }
