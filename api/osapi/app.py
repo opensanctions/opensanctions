@@ -1,13 +1,14 @@
 import json
 import logging
 from urllib.parse import urljoin
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 from fastapi import FastAPI, Path, Query, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from followthemoney.types import registry
 from starlette.responses import RedirectResponse
 from followthemoney import model
 from followthemoney.exc import InvalidData
+from api.osapi.models import FreebaseManifest, FreebaseQueryResult
 from opensanctions.model import db
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.entity import Entity
@@ -29,8 +30,11 @@ from osapi.util import match_prefix
 log = logging.getLogger(__name__)
 app = FastAPI(
     title="OpenSanctions Matching API",
+    description=settings.DESCRIPTION,
     version=settings.VERSION,
     contact=settings.CONTACT,
+    openapi_tags=settings.TAGS,
+    redoc_url="/",
 )
 app.add_middleware(
     CORSMiddleware,
@@ -62,9 +66,16 @@ def get_dataset(name: str) -> Dataset:
     return dataset
 
 
-@app.get("/", response_model=IndexResponse)
+@app.get(
+    "/info",
+    summary="System information",
+    tags=["System information"],
+    response_model=IndexResponse,
+)
 async def index():
-    """Get system configuration information."""
+    """Get system information: the list of available dataset names, the size of
+    the search index in memory, and the followthemoney model specification which
+    describes the types of entities and properties in use by the API."""
     try:
         index = get_index()
         return {
@@ -77,36 +88,27 @@ async def index():
         db.session.close()
 
 
-@app.get("/healthz", response_model=HealthzResponse)
+@app.get(
+    "/healthz",
+    summary="Health check",
+    tags=["System information"],
+    response_model=HealthzResponse,
+)
 async def healthz():
-    """No-op basic health check."""
+    """No-op basic health check. This is used by cluster management systems like
+    Kubernetes to verify the service is responsive."""
     try:
         return {"status": "ok"}
     finally:
         db.session.close()
 
 
-@app.get("/entities/{entity_id}", response_model=EntityResponse)
-async def fetch_entity(
-    entity_id: str = Path(None, description="ID of the entity to retrieve")
-):
-    """Retrieve a single entity by its ID."""
-    try:
-        canonical_id = resolver.get_canonical(entity_id)
-        if canonical_id != entity_id:
-            url = app.url_path_for("get_entity", entity_id=canonical_id)
-            return RedirectResponse(url=url)
-        scope = get_scope()
-        loader = get_loader(scope)
-        entity = get_entity(scope, entity_id)
-        if entity is None:
-            raise HTTPException(status_code=404, detail="No such entity!")
-        return entity.to_nested_dict(loader)
-    finally:
-        db.session.close()
-
-
-@app.get("/search/{dataset}", response_model=SearchResponse)
+@app.get(
+    "/search/{dataset}",
+    summary="Simple entity search",
+    tags=["Matching"],
+    response_model=SearchResponse,
+)
 async def search(
     q: str,
     dataset: str = PATH_DATASET,
@@ -115,7 +117,9 @@ async def search(
     fuzzy: bool = Query(False, title="Enable n-gram matching of partial names"),
     nested: bool = Query(False, title="Include adjacent entities in response"),
 ):
-    """Search matching entities based on a simple piece of text, e.g. a name."""
+    """Search endpoint for matching entities based on a simple piece of text, e.g.
+    a name. This can be used to implement a simple, user-facing search. For proper
+    entity matching, the multi-property matching API should be used instead."""
     try:
         ds = get_dataset(dataset)
         query = Entity(schema)
@@ -136,7 +140,34 @@ async def search(
         db.session.close()
 
 
-@app.get("/reconcile/{dataset}")
+@app.get("/entities/{entity_id}", tags=["Matching"], response_model=EntityResponse)
+async def fetch_entity(
+    entity_id: str = Path(None, description="ID of the entity to retrieve")
+):
+    """Retrieve a single entity by its ID. The entity will be returned in
+    full, with data from all datasets and with nested entities (adjacent
+    passport, sanction and associated entities) included."""
+    try:
+        canonical_id = resolver.get_canonical(entity_id)
+        if canonical_id != entity_id:
+            url = app.url_path_for("get_entity", entity_id=canonical_id)
+            return RedirectResponse(url=url)
+        scope = get_scope()
+        loader = get_loader(scope)
+        entity = get_entity(scope, entity_id)
+        if entity is None:
+            raise HTTPException(status_code=404, detail="No such entity!")
+        return entity.to_nested_dict(loader)
+    finally:
+        db.session.close()
+
+
+@app.get(
+    "/reconcile/{dataset}",
+    summary="Reconciliation info",
+    tags=["Reconciliation"],
+    response_model=Union[FreebaseManifest, FreebaseQueryResult],
+)
 def reconcile(
     queries: Optional[str] = None,
     dataset: str = PATH_DATASET,
@@ -144,8 +175,6 @@ def reconcile(
     """Reconciliation API, emulates Google Refine API. This endpoint can be used
     to bulk match entities against the system using an end-user application like
     [OpenRefine](https://openrefine.org).
-
-    See: [Reconciliation API docs](https://reconciliation-api.github.io/specs/latest/#structure-of-a-reconciliation-query)
     """
     try:
         ds = get_dataset(dataset)
@@ -178,12 +207,18 @@ def reconcile(
         db.session.close()
 
 
-@app.post("/reconcile/{dataset}")
+@app.post(
+    "/reconcile/{dataset}",
+    summary="Reconciliation queries",
+    tags=["Reconciliation"],
+    response_model=FreebaseQueryResult,
+)
 def reconcile_post(
     dataset: str = PATH_DATASET,
     queries: str = Form(None, description="JSON-encoded reconciliation queries"),
 ):
-    """Reconciliation API, emulates Google Refine API."""
+    """Reconciliation API, emulates Google Refine API. This endpoint is used by
+    clients for matching, refer to the discovery endpoint for details."""
     try:
         ds = get_dataset(dataset)
         return reconcile_queries(ds, queries)
@@ -230,6 +265,8 @@ def reconcile_query(dataset: Dataset, query: Dict[str, Any]):
 
 @app.get(
     "/reconcile/{dataset}/suggest/entity",
+    summary="Suggest entity",
+    tags=["Reconciliation"],
     response_model=FreebaseEntitySuggestResponse,
 )
 def reconcile_suggest_entity(
@@ -237,11 +274,9 @@ def reconcile_suggest_entity(
     prefix: str = QUERY_PREFIX,
     limit: int = Query(10, description="Number of suggestions to return"),
 ):
-    """Suggest an entity API, emulates Google Refine API.
-
-    This is functionally very similar to the basic search API, but returns
-    data in the structure assumed by the
-    [Reconciliation API](https://reconciliation-api.github.io/specs/latest/#suggest-services).
+    """Suggest an entity based on a text query. This is functionally very
+    similar to the basic search API, but returns data in the structure assumed
+    by the community specification.
 
     Searches are conducted based on name and text content, using all matchable
     entities in the system index."""
@@ -265,6 +300,8 @@ def reconcile_suggest_entity(
 
 @app.get(
     "/reconcile/{dataset}/suggest/property",
+    summary="Suggest property",
+    tags=["Reconciliation"],
     response_model=FreebasePropertySuggestResponse,
 )
 def reconcile_suggest_property(
@@ -296,9 +333,11 @@ def reconcile_suggest_property(
 
 @app.get(
     "/reconcile/{dataset}/suggest/type",
+    summary="Suggest type (schema)",
+    tags=["Reconciliation"],
     response_model=FreebaseTypeSuggestResponse,
 )
-def suggest_type(
+def reconcile_suggest_type(
     dataset: str = PATH_DATASET,
     prefix: str = QUERY_PREFIX,
 ):

@@ -28,7 +28,7 @@ def get_scope() -> Dataset:
 
 @cache
 def get_database() -> Database:
-    return Database(get_scope(), resolver, cached=True)
+    return Database(get_scope(), resolver, cached=settings.CACHED)
 
 
 @cache
@@ -70,7 +70,6 @@ def get_index() -> Index[Dataset, Entity]:
     return get_dataset_index(scope, loader)
 
 
-@cache
 def get_entity(dataset: Dataset, entity_id: str) -> Optional[Entity]:
     loader = get_loader(dataset)
     return loader.get_entity(entity_id)

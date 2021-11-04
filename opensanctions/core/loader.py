@@ -13,6 +13,9 @@ log = structlog.get_logger(__name__)
 
 
 class CachedType(object):
+    """In-memory store for an ID statement. These statements are used to
+    define entities, including their schema and provenance."""
+
     __slots__ = (
         "entity_id",
         "canonical_id",
@@ -34,6 +37,8 @@ class CachedType(object):
 
 
 class CachedProp(object):
+    """In-memory store for a property-related statement."""
+
     __slots__ = ("canonical_id", "value", "prop", "dataset")
 
     def __init__(self, stmt: Statement):
@@ -49,6 +54,12 @@ Assembler = Optional[Callable[[Entity], Entity]]
 
 
 class Database(object):
+    """A cache for entities from the database. This attempts to solve the issue of loading
+    entities in the context of multiple scopes that occurs when exporting the data or
+    when using the API. In those cases, it's useful to maintain one in-memory cache of all
+    entities and then be able to assemble them using data from only some sources on demand.
+    """
+
     def __init__(
         self, scope: Dataset, resolver: Resolver[Entity], cached: bool = False
     ):
@@ -65,6 +76,7 @@ class Database(object):
         return DatasetLoader(self, dataset, assembler)
 
     def load(self) -> None:
+        """Pre-load all entity cache objects from the given scope dataset."""
         if not self.cached:
             return
         log.info("Loading database cache...", scope=self.scope)
@@ -83,7 +95,7 @@ class Database(object):
         self, dataset: Dataset, entity_id=None, inverted_id=None
     ) -> Generator[CachedEntity, None, None]:
         """Query the statement table for the given dataset and entity ID and return
-        re-constructed entities with the given properties."""
+        an entity cache object with the given properties."""
         canonical_id = None
         if entity_id is not None:
             canonical_id = self.resolver.get_canonical(entity_id)
@@ -113,6 +125,8 @@ class Database(object):
             yield (tuple(types), tuple(props))
 
     def assemble(self, cached: CachedEntity, sources=Optional[Set[Dataset]]):
+        """Build an entity proxy from a set of cached statements, considering
+        only those statements that belong to the given sources."""
         entity = None
         for stmt in cached[0]:
             if sources is not None and stmt.dataset not in sources:
@@ -142,6 +156,9 @@ class Database(object):
 
 
 class DatasetLoader(Loader[Dataset, Entity]):
+    """This is a normal entity loader as specified in nomenklatura which uses the
+    OpenSanctions database as a backend."""
+
     def __init__(self, database: Database, dataset: Dataset, assembler: Assembler):
         self.db = database
         self.dataset = dataset
@@ -165,8 +182,7 @@ class DatasetLoader(Loader[Dataset, Entity]):
 
     def _get_inverted(self, id: str) -> Generator[Entity, None, None]:
         for cached in self.db.query(self.dataset, inverted_id=id):
-            for entity in self.assemble(cached):
-                yield entity
+            yield from self.assemble(cached)
 
     def get_inverted(self, id: str) -> Generator[Tuple[Property, Entity], None, None]:
         for entity in self._get_inverted(id):
@@ -183,8 +199,7 @@ class DatasetLoader(Loader[Dataset, Entity]):
 
     def __iter__(self) -> Iterator[Entity]:
         for cached in self._iter_entities():
-            for entity in self.assemble(cached):
-                yield entity
+            yield from self.assemble(cached)
 
     def __len__(self) -> int:
         return Statement.all_ids(self.dataset).count()
@@ -194,6 +209,9 @@ class DatasetLoader(Loader[Dataset, Entity]):
 
 
 class CachedDatasetLoader(DatasetLoader):
+    """Funky: this loader uses the cache from the `Database` object and tries to assemble
+    a partial view of the entity as needed."""
+
     def get_entity(self, id: str) -> Optional[Entity]:
         cached = self.db.entities.get(id)
         for entity in self.assemble(cached):
