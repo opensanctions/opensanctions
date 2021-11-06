@@ -39,10 +39,9 @@ class CachedType(object):
 class CachedProp(object):
     """In-memory store for a property-related statement."""
 
-    __slots__ = ("canonical_id", "value", "prop", "dataset")
+    __slots__ = ("value", "prop", "dataset")
 
     def __init__(self, stmt: Statement):
-        self.canonical_id = str(stmt.canonical_id)
         self.dataset = Dataset.require(stmt.dataset)
         schema = model.schemata[stmt.schema]
         self.prop = schema.properties[stmt.prop]
@@ -81,15 +80,15 @@ class Database(object):
             return
         log.info("Loading database cache...", scope=self.scope)
         for cached in self.query(self.scope):
-            entity_id = cached[0][0].canonical_id
-            self.entities[entity_id] = cached
+            canonical_id = cached[0][0].canonical_id
+            self.entities[canonical_id] = cached
             for stmt in cached[1]:
                 if stmt.prop.type != registry.entity:
                     continue
-                entity_id = self.resolver.get_canonical(stmt.value)
-                if entity_id not in self.inverted:
-                    self.inverted[entity_id] = set()
-                self.inverted[entity_id].add(entity_id)
+                value_id = self.resolver.get_canonical(stmt.value)
+                if value_id not in self.inverted:
+                    self.inverted[value_id] = set()
+                self.inverted[value_id].add(canonical_id)
 
     def query(
         self, dataset: Dataset, entity_id=None, inverted_id=None
@@ -167,7 +166,7 @@ class DatasetLoader(Loader[Dataset, Entity]):
     def assemble(self, cached: Optional[CachedEntity]) -> Generator[Entity, None, None]:
         if cached is None:
             return
-        entity = self.db.assemble(cached, sources=self.dataset.sources)
+        entity = self.db.assemble(cached, sources=self.dataset.datasets)
         if entity is not None:
             entity = self.db.resolver.apply(entity)
             if self.assembler is not None:
@@ -187,11 +186,7 @@ class DatasetLoader(Loader[Dataset, Entity]):
     def get_inverted(self, id: str) -> Generator[Tuple[Property, Entity], None, None]:
         for entity in self._get_inverted(id):
             for prop, value in entity.itervalues():
-                if (
-                    prop.type == registry.entity
-                    and value == id
-                    and prop.reverse is not None
-                ):
+                if value == id and prop.reverse is not None:
                     yield prop.reverse, entity
 
     def _iter_entities(self) -> Generator[CachedEntity, None, None]:
