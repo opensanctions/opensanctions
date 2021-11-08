@@ -1,6 +1,6 @@
 entry_point: opensanctions.crawlers.un_ops_vendors
 title: UNOPS Vendor Sanctions
-prefix: opensanctions.crawlers.un_ops_vendors
+prefix: unops
 summary: >
   Vendors excluded from tenders issued by UNOPS and other agencies. The list
   is hosted by the UN Global Marketplace (UNGM) and separate from the UN 
@@ -27,6 +27,7 @@ description: |
   >   investigating instances of possible proscribed practices.
 collections:
   - crime
+  - debarment
   - default
 publisher:
   name: United Nations Office for Project Services (UNOPS)

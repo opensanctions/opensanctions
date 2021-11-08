@@ -40,6 +40,7 @@ def crawl(context: Context):
             entity = context.make(schema)
             entity.id = context.make_slug(row_id)
             entity.add("name", row.pop("firmName"))
+            entity.add("topics", "debarment")
             entity.add("alias", row.pop("additionalName"))
             entity.add("notes", row.pop("title"))
             entity.add("notes", row.pop("additionalTitle"))

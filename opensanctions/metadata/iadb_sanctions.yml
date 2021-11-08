@@ -35,6 +35,7 @@ description: |
   individual directly or indirectly controls.
 collections:
   - crime
+  - debarment
   - default
 publisher:
   name: "Inter-American Development Bank"

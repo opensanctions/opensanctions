@@ -21,6 +21,7 @@ description: |
   crawl all of the involved banks and reconcile their lists.
 collections:
   - crime
+  - debarment
   - default
 publisher:
   name: World Bank
