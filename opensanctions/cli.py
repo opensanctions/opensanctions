@@ -92,7 +92,7 @@ def resolve():
 @click.argument("dataset", default=Dataset.DEFAULT, type=datasets)
 def index(dataset):
     resolver = get_resolver()
-    Statement.resolve_all(resolver)
+    # Statement.resolve_all(resolver)
     dataset = Dataset.get(dataset)
     database = Database(dataset, resolver, cached=True)
     loader = database.view(dataset)

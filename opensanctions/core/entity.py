@@ -111,7 +111,7 @@ class Entity(CompositeEntity):
         try:
             self.schema = model.common_schema(self.schema, schema)
         except InvalidData as exc:
-            raise InvalidData(f"{self.id}: {exc}")
+            raise InvalidData(f"{self.id}: {exc}") from exc
 
     def to_dict(self) -> Dict[str, Any]:
         data = super().to_dict()

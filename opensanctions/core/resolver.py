@@ -64,10 +64,9 @@ def xref_datasets(base: Dataset, candidates: Dataset, limit: int = 15):
 def xref_internal(dataset: Dataset):
     resolver = get_resolver()
     resolver.prune()
-    db = Database(dataset, resolver, cached=True)
+    db = Database(dataset, resolver)
     loader = db.view(dataset)
-    index = Index(loader)
-    index.build(fuzzy=False)
+    index = get_index(dataset, loader)
     for pair, score in index.pairs()[:5000]:
         left = loader.get_entity(str(pair[0]))
         right = loader.get_entity(str(pair[1]))
