@@ -31,17 +31,13 @@ def crawl(context: Context):
         # if schema is None:
         #     context.log.error("Unknown entity type", type=type_)
         #     continue
-        schema = "LegalEntity"
         name = cells.pop("name")
         country = cells.pop("nationality")
-        entity = context.make(schema)
+        entity = context.make("LegalEntity")
         entity.id = context.make_id(name, country)
         entity.add("name", name)
         entity.add("topics", "debarment")
-        if entity.schema.is_a("Person"):
-            entity.add("nationality", country)
-        else:
-            entity.add("jurisdiction", country)
+        entity.add("country", country)
 
         sanction = h.make_sanction(context, entity)
         sanction.add("reason", cells.pop("basis"))

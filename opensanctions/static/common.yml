@@ -25,9 +25,6 @@ country:
       contains:
         - (JVCFOR)
       value: null
-    - match:
-        - "Taiwan (Republic of China)"
-      value: TW
     - match: Macao Special Administrative Region
       value: MO
     - match:
@@ -147,8 +144,14 @@ country:
         - Possibly Ethiopian
         - エチオピアと思われる
       value: Ethiopia
-    - match: Hong Kong Special Administrative Region
+    - match:
+        - Hong Kong Special Administrative Region
+        - Hong Kong, China
       value: HK
+    - match:
+        - Taipei,China
+        - "Taiwan (Republic of China)"
+      value: Taiwan
     - match:
         - Indonesia (as at Dec. 2003)
         - Indonesian (as at Dec. 2003)
