@@ -9,7 +9,12 @@ from opensanctions.exporters.common import write_object
 from opensanctions.core.http import cleanup_cache
 from opensanctions.core.index import get_index, get_index_path
 from opensanctions.core.loader import Database
-from opensanctions.core.resolver import get_resolver, xref_datasets, xref_internal
+from opensanctions.core.resolver import (
+    export_pairs,
+    get_resolver,
+    xref_datasets,
+    xref_internal,
+)
 from opensanctions.model.statement import Statement
 from opensanctions.model.base import migrate_db
 
@@ -33,7 +38,7 @@ def cli(verbose=False, quiet=False):
 @click.argument("dataset", default=Dataset.ALL, type=datasets)
 @click.option("-o", "--outfile", type=click.File("w"), default="-")
 def dump_dataset(dataset, outfile):
-    dataset = Dataset.get(dataset)
+    dataset = Dataset.require(dataset)
     resolver = get_resolver()
     loader = Database(dataset, resolver).view(dataset)
     for entity in loader:
@@ -93,7 +98,7 @@ def resolve():
 def index(dataset):
     resolver = get_resolver()
     # Statement.resolve_all(resolver)
-    dataset = Dataset.get(dataset)
+    dataset = Dataset.require(dataset)
     database = Database(dataset, resolver, cached=True)
     loader = database.view(dataset)
     path = get_index_path(dataset)
@@ -129,7 +134,7 @@ def xref_prune(keep=0):
 @click.option("-d", "--dataset", type=datasets, default=Dataset.DEFAULT)
 def dedupe(dataset):
     resolver = get_resolver()
-    dataset = Dataset.get(dataset)
+    dataset = Dataset.require(dataset)
     db = Database(dataset, resolver)
     DedupeApp.run(
         title="OpenSanction De-duplication",
@@ -137,6 +142,15 @@ def dedupe(dataset):
         loader=db.view(dataset),
         resolver=resolver,
     )
+
+
+@cli.command("export-pairs", help="Export pairwise judgements")
+@click.argument("dataset", default=Dataset.DEFAULT, type=datasets)
+@click.option("-o", "--outfile", type=click.File("w"), default="-")
+def export_pairs_(dataset, outfile):
+    dataset = Dataset.require(dataset)
+    for obj in export_pairs(dataset):
+        write_object(outfile, obj)
 
 
 @cli.command("explode", help="Destroy a cluster of deduplication matches")
