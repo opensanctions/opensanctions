@@ -150,7 +150,7 @@ class Statement(Base):
     @classmethod
     def agg_target_by_country(cls, dataset=None):
         """Return the number of targets grouped by country."""
-        count = func.count(func.distinct(cls.entity_id))
+        count = func.count(func.distinct(cls.canonical_id))
         q = db.session.query(cls.value, count)
         # TODO: this could be generic to type values?
         q = q.filter(cls.target == True)  # noqa
@@ -166,7 +166,7 @@ class Statement(Base):
         """Return the number of targets grouped by their schema."""
         # FIXME: duplicates entities when there are statements with different schema
         # defined for the same entity.
-        count = func.count(func.distinct(cls.entity_id))
+        count = func.count(func.distinct(cls.canonical_id))
         q = db.session.query(cls.schema, count)
         q = q.filter(cls.target == True)  # noqa
         if dataset is not None:
@@ -194,7 +194,8 @@ class Statement(Base):
             return value
 
     @classmethod
-    def entities_dataset(cls, dataset=None):
+    def entities_datasets(cls, dataset=None):
+        """Return all entity IDs with the dataset they belong to."""
         q = db.session.query(cls.entity_id, cls.dataset)
         if dataset is not None:
             q = q.filter(cls.dataset.in_(dataset.source_names))
