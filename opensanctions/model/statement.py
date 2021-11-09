@@ -194,6 +194,14 @@ class Statement(Base):
             return value
 
     @classmethod
+    def entities_dataset(cls, dataset=None):
+        q = db.session.query(cls.entity_id, cls.dataset)
+        if dataset is not None:
+            q = q.filter(cls.dataset.in_(dataset.source_names))
+        q = q.distinct()
+        return q
+
+    @classmethod
     def cleanup_dataset(cls, dataset):
         db.session.flush()
         # set the entity BASE to the earliest spotting of the entity:

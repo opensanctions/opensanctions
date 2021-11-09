@@ -18,6 +18,16 @@ type IssuesListProps = {
   showDataset: boolean
 }
 
+function getDataValue(value: any): string {
+  if (value === undefined || value === null) {
+    return '-'
+  }
+  if (typeof value === 'string') {
+    return value;
+  }
+  return JSON.stringify(value)
+}
+
 function IssueCard({ issue, showDataset }: IssueProps) {
   const accentColor = issue.level == 'error' ? 'danger' : 'warning';
   const datasetLink = <Link href={`/datasets/${issue.dataset}`}>{issue.dataset}</Link>;
@@ -36,7 +46,7 @@ function IssueCard({ issue, showDataset }: IssueProps) {
                 {key}
               </th>
               <td>
-                <code className={styles.issueValue}>{issue.data[key]}</code>
+                <code className={styles.issueValue}>{getDataValue(issue.data[key])}</code>
               </td>
             </tr>
           ))}

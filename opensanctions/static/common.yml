@@ -726,6 +726,7 @@ features:
         - ETH
         - BTC
         - XBT
+        - XRP
         - DASH
         - LTC
         - ZEC

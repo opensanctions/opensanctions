@@ -4,6 +4,7 @@ import structlog
 from pathlib import Path
 from lxml.etree import _Element, tostring
 from structlog.contextvars import merge_contextvars
+from followthemoney.schema import Schema
 
 from opensanctions import settings
 from opensanctions.model import Issue
@@ -15,6 +16,8 @@ def store_event(logger, log_method, data):
             value = tostring(value, pretty_print=False, encoding=str)
         if isinstance(value, Path):
             value = str(value.relative_to(settings.DATA_PATH))
+        if isinstance(value, Schema):
+            value = value.name
         data[key] = value
 
     level_num = getattr(logging, data.get("level").upper())
