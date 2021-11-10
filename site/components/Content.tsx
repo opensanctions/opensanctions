@@ -1,12 +1,10 @@
-import Link from 'next/link'
-import { useRouter } from 'next/router';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Nav from 'react-bootstrap/Nav';
 import Container from 'react-bootstrap/Container';
 
-import { IContent } from '../lib/content'
-import { JSONLink, Markdown, Summary } from './util';
+import { IContent } from '../lib/types'
+import { JSONLink, Markdown, RoutedNavLink, Summary } from './util';
 
 import styles from '../styles/Content.module.scss';
 
@@ -16,19 +14,6 @@ type ContentProps = {
 
 function ContentBody({ content }: ContentProps) {
   return <Markdown markdown={content.content} />;
-}
-
-type RoutedNavLinkProps = {
-  href: string
-}
-
-function RoutedNavLink({ href, children }: React.PropsWithChildren<RoutedNavLinkProps>) {
-  const router = useRouter()
-  return (
-    <Link href={href} passHref>
-      <Nav.Link active={router.asPath == href}>{children}</Nav.Link>
-    </Link>
-  )
 }
 
 type ContentMenuProps = {

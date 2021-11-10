@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { Twitter, Github, HeartFill, EnvelopeFill, Slack } from 'react-bootstrap-icons';
+import { Twitter, Github, HeartFill, Slack } from 'react-bootstrap-icons';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';

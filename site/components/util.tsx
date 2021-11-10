@@ -1,5 +1,8 @@
-import filesize from 'filesize';
 import React, { ReactNode } from 'react';
+import { useRouter } from 'next/router';
+import filesize from 'filesize';
+import Link from 'next/link'
+import Nav from 'react-bootstrap/Nav';
 import Badge from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
 import { FileEarmarkCodeFill, Link45deg, QuestionCircleFill } from 'react-bootstrap-icons';
@@ -7,6 +10,21 @@ import { markdownToHtml } from '../lib/util';
 
 import styles from '../styles/util.module.scss';
 import { SPACER } from '../lib/constants';
+
+type RoutedNavLinkProps = {
+  href: string
+}
+
+
+export function RoutedNavLink({ href, children }: React.PropsWithChildren<RoutedNavLinkProps>) {
+  const router = useRouter()
+  return (
+    <Link href={href} passHref>
+      <Nav.Link active={router.asPath == href}>{children}</Nav.Link>
+    </Link>
+  )
+}
+
 
 type NumericProps = {
   value?: number | null

@@ -1,10 +1,10 @@
-import '../styles/globals.scss'
-
 import { useEffect } from 'react'
 import { useRouter } from 'next/router'
 import type { AppProps } from 'next/app'
 
 import * as gtag from '../lib/gtag'
+
+import '../styles/globals.scss'
 
 export default function OpenSanctionsApp({ Component, pageProps }: AppProps) {
   const router = useRouter()

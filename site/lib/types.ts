@@ -1,5 +1,27 @@
 import { Entity, IEntityDatum, IModelDatum, Model, Property } from "@alephdata/followthemoney"
 
+
+export interface IContent {
+  slug: string
+  content: string
+  title: string
+  summary: string | null
+}
+
+export interface IArticleInfo {
+  slug: string
+  title: string
+  date: string
+  path: string
+  url: string
+  draft: boolean
+  summary: string | null
+}
+
+export interface IArticle extends IArticleInfo {
+  content: string
+}
+
 export interface IResource {
   url: string
   path: string
@@ -117,8 +139,6 @@ export interface IIndex {
   schemata: Array<string>
   datasets: Array<IDataset>
 }
-
-
 
 export interface IOpenSanctionsEntity extends IEntityDatum {
   caption: string

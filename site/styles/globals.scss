@@ -59,4 +59,31 @@ td.numeric, th.numeric {
     max-width: $max-text-width;
     font-size: 1.1em;
     line-height: 1.4;
+
+    li {
+        line-height: 1.4;
+        padding-bottom: 0.2em;
+    }
+}
+
+// youtube embeds full-width:
+.video-container {
+    overflow: hidden;
+    position: relative;
+    width:100%;
+    margin-bottom: 1em;
+}
+
+.video-container::after {
+    padding-top: 56.25%;
+    display: block;
+    content: '';
+}
+
+.video-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
 }

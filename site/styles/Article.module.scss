@@ -1,0 +1,36 @@
+@import "./variables.scss";
+
+.sideText {
+    color: $text-muted;
+    padding-left: 1rem;
+}
+
+
+.articleList {
+    list-style-type: none;
+    margin-left: 0;
+    padding-left: 0;
+
+    li {
+        margin-bottom: 1em;
+    }
+
+    p {
+        margin-bottom: 0.2em;
+    }
+}
+
+.articleListTitle {
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.articleListDate {
+    color: $text-muted;
+    // font-size: 0.8em;
+}
+
+.articleListSummary {
+    // color: $text-muted;
+    line-height: 1.5;
+}

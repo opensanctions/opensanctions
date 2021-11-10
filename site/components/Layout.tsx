@@ -6,7 +6,7 @@ import Navbar from './Navbar';
 import Footer from './Footer';
 
 import styles from '../styles/Layout.module.scss';
-import { IContent } from '../lib/content';
+import { IContent } from '../lib/types';
 import { BASE_URL, SITE } from '../lib/constants';
 
 type LayoutBaseProps = {
