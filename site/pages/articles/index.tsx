@@ -7,18 +7,20 @@ import Container from 'react-bootstrap/Container';
 import Layout from '../../components/Layout'
 import { getArticles } from '../../lib/content'
 import { Github, Slack, Twitter } from 'react-bootstrap-icons';
+import { FormattedDate, Summary } from '../../components/util';
+import { ARTICLE_INDEX_SUMMARY } from '../../lib/constants';
 
 import styles from '../../styles/Article.module.scss';
-import { FormattedDate } from '../../components/util';
+
 
 export default function ArticleIndex({ articles }: InferGetStaticPropsType<typeof getStaticProps>) {
-  // const structured = getSchemaDataCatalog(datasets)
   return (
     <Layout.Base title="Articles" structured={undefined}>
       <Container>
         <h1>
           What's happening at OpenSanctions?
         </h1>
+        <Summary summary={ARTICLE_INDEX_SUMMARY} />
         <Row>
           <Col md={8}>
             <ul className={styles.articleList}>

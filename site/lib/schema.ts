@@ -3,7 +3,7 @@
 // https://schema.org/Dataset
 
 import { BASE_URL, LICENSE_URL, CLAIM, EMAIL, SITE } from './constants';
-import { IDataset, IResource, ISourcePublisher, isSource, OpenSanctionsEntity } from './types';
+import { IArticleInfo, IDataset, IResource, ISourcePublisher, isSource, OpenSanctionsEntity } from './types';
 
 
 export function getSchemaOpenSanctionsOrganization() {
@@ -183,5 +183,19 @@ export function getSchemaEntityPage(entity: OpenSanctionsEntity, datasets: Array
     "mainEntity": entitySchema,
     "dateCreated": entity.first_seen,
     "dateModified": entity.last_seen,
+  }
+}
+
+
+export function getSchemaArticle(article: IArticleInfo) {
+  return {
+    "@context": "https://schema.org/",
+    "@type": "BlogPosting",
+    "headline": article.title,
+    "author": getSchemaOpenSanctionsOrganization(),
+    "license": LICENSE_URL,
+    "description": article.summary,
+    "datePublished": article.date,
+    "url": article.url
   }
 }

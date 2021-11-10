@@ -1,5 +1,5 @@
 ---
-title: How we deduplicate companies and people from many lists
+title: How we deduplicate companies and people across data sources
 summary: |
     One key function of OpenSanctions is to match and de-duplicate data 
     from many sanctions lists. In this article, we discuss our approach
@@ -28,17 +28,25 @@ To avoid building supercomputer, it's common in entity resolution to use a strat
 
 Tuning OpenSanctions' blocking mechanism is both a challenging and rewarding task: the system now considers term frequencies in scoring possible candidates, handles text transliteration into the latin alphabet, and it is tolerant against spelling variations thanks to its ability to compare character fragments (so-called ngrams) in names.
 
+<a href="https://assets.pudo.org/opensanctions/images/blocking.png">
+    <img class="img-fluid" src="https://assets.pudo.org/opensanctions/images/blocking.png">
+</a>
+
 At the end of this step, we are left with a ranked set of pairwise matching candidates: *Company X on the French sanctions list looks a whole lot like Company Y on the UK list - someone should check that out.*
 
 ## Matching entity pairs
 
 With thousands of scored pairs in hand, its time to make some linkages: do two given records refer to the same logical entity? Given OpenSanctions requirement for a high level of precision, we chose a fairly radical process: manual de-duplication.
 
+<a href="https://assets.pudo.org/opensanctions/images/matching2.png">
+    <img class="img-fluid" src="https://assets.pudo.org/opensanctions/images/matching2.png">
+</a>
+
 Using the brilliant [textual](https://github.com/willmcgugan/textual) framework, we developed a text-based user interface that would present the details of two entities side-by-side and allow the user to decide if both are a match. While most of the time, the presented information is detailed enough for an analyst to make this judgement, in some cases we opted to conduct further research on the web to verify that, for example, certain members of the legislature of Venezuela are subject to US sanctions.
 
 One important decision we made relates to how we store matches: when a user decides that, for example, the records `unsc-6908589` and `ofac-20601` refer to the same logical entity, that decision is used to mint a new, *canonical*, ID - `NK-Z9kSq8KRj7uNrV5c3x2QZx` - which is going to be used to refer to the combined entity going forward. Further positive or negative decisions are then attached to the same canonical ID.
 
-his design makes it very simple to reflect and manage the merged entities without assigning priorities or preferences to specific sources. (In the future, we plan to mint a third class of entity ID that reference Wikidata, the structured data version of Wikipedia, and which assigns its own identifiers to notable people and organizations.)
+This design makes it very simple to reflect and manage the merged entities without assigning priorities or preferences to specific sources. (In the future, we plan to mint a third class of entity ID that reference Wikidata, the structured data version of Wikipedia, and which assigns its own identifiers to notable people and organizations.)
 
 Over the course of the last 8 weeks, we have used this tool to make 34,600 manual matching decisions. From the 31,000 positive outcomes contained in this, we're also able to infer another 300,000 negative pairs by assuming that certain sources (e.g. the US sanctions list) are without internal duplicates.
 
@@ -50,7 +58,11 @@ Resulting from entity resolution is a graph of entity IDs, reflecting the positi
 
 Next, we need to apply these merges to the data itself and combine the source entities into a new, combined form. This is where the unusual data model used by OpenSanctions comes into play: the system stores all entities as a set of *statements*. Each statement describes one value for a [property of the entity](/reference/#schema). For example: the entity `ofac-20601` has the property `name` with value `PAK, Han Se` according to the dataset `us_trade_csl` on `2021-10-03`.
 
-In order to export data into formats like CSV or JSON, these statements get read from the database and assembled into entities. This creates the necessary flexibility to export combined entities without modifying or destroying any of the original data - keeping the option to reverse a merge decision at a moment's notice.
+<a href="https://assets.pudo.org/opensanctions/images/statements2.png">
+    <img class="img-fluid" src="https://assets.pudo.org/opensanctions/images/statements2.png">
+</a>
+
+In order to export data into [formats like CSV or JSON](/docs/usage/), these statements get read from the database and assembled into entities. This creates the necessary flexibility to export combined entities without modifying or destroying any of the original data - keeping the option to reverse a merge decision at a moment's notice.
 
 In fact, the ability to mix and match statements from multiple sources allows OpenSanctions to export different versions of each entity. For example, a sanctions target from the US list will be published as [part of that dataset](/datasets/us_ofac_sdn/) with only the properties published by the US government. However, the entity would be merged up with properties from all other sanctions data in the version published as part of the [Consolidated Sanctioned Entities](/datasets/sanctions/) collection, and it might even be further enhanced with facts from Wikidata in the [Due Diligence](/datasets/default/) collection.
 

@@ -9,14 +9,15 @@ import Badge from 'react-bootstrap/Badge';
 import styles from '../styles/Home.module.scss'
 import Layout from '../components/Layout'
 import { getDatasets } from '../lib/data'
-import { CLAIM, SUBCLAIM, SPACER } from '../lib/constants'
+import { CLAIM, SUBCLAIM, SPACER, COLLECTIONS, ARTICLE_INDEX_SUMMARY } from '../lib/constants'
 import { getSchemaOpenSanctionsOrganization } from '../lib/schema';
 import { Search } from 'react-bootstrap-icons';
 import { FormattedDate, NumericBadge } from '../components/util';
 import { isCollection, isSource } from '../lib/types';
+import { getArticles } from '../lib/content';
 
 
-export default function Home({ datasets }: InferGetStaticPropsType<typeof getStaticProps>) {
+export default function Home({ datasets, articles }: InferGetStaticPropsType<typeof getStaticProps>) {
   const structured = getSchemaOpenSanctionsOrganization()
   const all = datasets.find((d) => d.name === 'all');
   if (all === undefined) {
@@ -25,7 +26,8 @@ export default function Home({ datasets }: InferGetStaticPropsType<typeof getSta
   const sources = datasets.filter(isSource).sort((a, b) => a.title.localeCompare(b.title))
   const oddSources = sources.filter((d, i) => i % 2 == 0)
   const evenSources = sources.filter((d, i) => i % 2 == 1)
-  const collections = datasets.filter(isCollection).filter(c => c.name !== 'all')
+  const allCollections = datasets.filter(isCollection)
+  const collections = COLLECTIONS.map((name) => allCollections.find((c) => c.name === name)).filter(c => c !== undefined)
   return (
     <Layout.Base title="Persons of interest database" description={SUBCLAIM} structured={structured}>
       <div className={styles.claimBanner}>
@@ -91,19 +93,37 @@ export default function Home({ datasets }: InferGetStaticPropsType<typeof getSta
         </Row>
         <Row>
           <Col md={4} className={styles.explainer}>
-            <h4>Collections</h4>
+            <h4>Project updates</h4>
             <p>
-              <Link href="/docs/faq/#collections">Collections</Link> are custom datasets
-              provided by OpenSanctions that combine data from
-              many sources based on a topic.
+              {ARTICLE_INDEX_SUMMARY}
             </p>
             <ul>
-              {collections.map(c => (
-                <li key={c.name}><Link href={c.link}>{c.title}</Link></li>
+              {articles.map(a => (
+                <li key={a.slug}>{a.date}: <Link href={a.path}>{a.title}</Link></li>
               ))}
             </ul>
+            <p>
+              See <Link href="/articles">all of our project updates</Link>...
+            </p>
           </Col>
           <Col md={8} className={styles.explainer}>
+            <h4>Collections</h4>
+            <Row>
+              <Col md={6}>
+                <p>
+                  <Link href="/docs/faq/#collections">Collections</Link> are custom datasets
+                  provided by OpenSanctions that combine data from
+                  many sources based on a topic.
+                </p>
+              </Col>
+              <Col md={6}>
+                <ul>
+                  {collections.map(c => (
+                    <li key={c.name}><Link href={c.link}>{c.title}</Link></li>
+                  ))}
+                </ul>
+              </Col>
+            </Row>
             <h4>Data sources</h4>
             <Row>
               <Col md={6}>
@@ -129,10 +149,11 @@ export default function Home({ datasets }: InferGetStaticPropsType<typeof getSta
 }
 
 export const getStaticProps = async (context: GetStaticPropsContext) => {
-  const datasets = await getDatasets()
+  const articles = await getArticles()
   return {
     props: {
-      datasets
+      datasets: await getDatasets(),
+      articles: articles.slice(0, 5)
     }
   }
 }

@@ -15,7 +15,7 @@ function ArticleSidebar({ article }: ArticleProps) {
   return (
     <>
       <p className={styles.sideText}>
-        <CalendarDateFill className="bsIcon" size={16} />{' '}
+        <CalendarDateFill className="bsIcon" size={18} />{' '}
         Published: <FormattedDate date={article.date} />
       </p>
       <p className={styles.sideText}>

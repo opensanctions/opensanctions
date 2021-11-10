@@ -13,14 +13,16 @@ import Content from '../../components/Content';
 import Article from '../../components/Article';
 
 import styles from '../../styles/Article.module.scss';
+import { getSchemaArticle } from '../../lib/schema';
 
 type ArticleScreenProps = {
   article: IArticle
 }
 
 export default function ArticleScreen({ article }: ArticleScreenProps) {
+  const structured = getSchemaArticle(article)
   return (
-    <Layout.Base title={article.title} description={article.summary} structured={undefined}>
+    <Layout.Base title={article.title} description={article.summary} structured={structured}>
       <Container>
         <h1>{article.title}</h1>
         <Row>
