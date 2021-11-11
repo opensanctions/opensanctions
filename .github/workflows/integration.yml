@@ -114,7 +114,5 @@ jobs:
       - name: Publish site to opensanctions.org
         if: ${{ github.ref == 'refs/heads/main' }}
         run: |
-          aws s3 sync --no-progress --cache-control "public, max-age=846000" --acl public-read out/_next s3://opensanctions.org/_next
-          aws s3 sync --no-progress --cache-control "public, max-age=423000" --acl public-read out/static s3://opensanctions.org/static
-          aws s3 sync --delete --no-progress --cache-control "public, max-age=3600" --acl public-read out s3://opensanctions.org
+          aws s3 sync --quiet --cache-control "public, max-age=3600" --acl public-read out s3://opensanctions.org
           aws cloudfront create-invalidation --distribution-id E321O1ATKKHDQT --paths "/*"
