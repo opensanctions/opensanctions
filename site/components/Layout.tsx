@@ -42,7 +42,7 @@ function LayoutBase({ title, description, structured, children }: React.PropsWit
           </>
         )}
         {structured && (
-          <script type="application/ld+json">{JSON.stringify(structured, null, 2)}</script>
+          <script type="application/ld+json" dangerouslySetInnerHTML={{ '__html': JSON.stringify(structured) }} />
         )}
         <meta property="og:image" content="/static/card.jpg" />
         <meta name="og:site" content={SITE} />
