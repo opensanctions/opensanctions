@@ -9,7 +9,7 @@ draft: false
 
 Sanctions lists are published by many institutions, including the [UN Security Council](/datasets/un_sc_sanctions/), the [US](/datasets/us_ofac_sdn/) and [UK Treasury](/gb_hmt_sanctions/), the [EU foreign service](/datasets/eu_fsf/) and many others. Between these lists, there is both overlap and disagreement: for example, 12 separate sources target [Han Se Pak](https://opensanctions.org/entities/NK-Z9kSq8KRj7uNrV5c3x2QZx/), who leads the North Korean arms trading organisation KOMID. On the other hand, [Yevgeni Prigozhin](https://opensanctions.org/entities/NK-ewCHMoMiX5iEkXoj7YxGsz/), the man behind the famous St. Petersburg troll farm "Internet Research Agency" and the private military group "Wagner", is named on only five lists.
 
-In order to provide an integrated view of all these lists, OpenSanctions needs to establish a mechanism for entity integration. In this article, we want to describe our approach to this challenge in terms of its three key steps: *blocking, matching and integration*.
+In order to provide an integrated view of such entities, OpenSanctions needs to establish a mechanism for entity integration. In this article, we want to describe our approach to this challenge in terms of its three key steps: *blocking, matching and integration*.
 
 Before we describe these steps in detail, lets first discuss our goals for de-duplications:
 
@@ -53,7 +53,7 @@ This corpus of decisions should provide a valuable resource going forward, espec
 
 ## Building an integrated dataset
 
-Resulting from entity resolution is a graph of entity IDs, reflecting the positive and negative judgements that have been made. Computing the [connected components](https://en.wikipedia.org/wiki/Component_(graph_theory)) on that graph gives us a set of all entity groups to be merged.
+Resulting from entity resolution is a graph of entity IDs, reflecting the positive and negative judgements that have been made (it's actually a [JSON file](https://github.com/pudo/opensanctions/blob/main/opensanctions/static/resolve.ijson) you can play with). Computing the [connected components](https://en.wikipedia.org/wiki/Component_(graph_theory)) on that graph gives us a set of all entity groups to be merged.
 
 Next, we need to apply these merges to the data itself and combine the source entities into a new, combined form. This is where the unusual data model used by OpenSanctions comes into play: the system stores all entities as a set of *statements*. Each statement describes one value for a [property of the entity](/reference/#schema). For example: the entity `ofac-20601` has the property `name` with value `PAK, Han Se` according to the dataset `us_trade_csl` on `2021-10-03`.
 
