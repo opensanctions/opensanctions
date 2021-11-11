@@ -9,7 +9,7 @@ draft: false
 
 Sanctions lists are published by many institutions, including the UN Security Council, the US and UK Treasury, the EU foreign service and many others. Between these lists, there is both overlap and disagreement: for example, 12 separate sources target [Han Se Pak](https://opensanctions.org/entities/NK-Z9kSq8KRj7uNrV5c3x2QZx/), who leads the North Korean arms trading organisation KOMID. On the other hand, [Yevgeni Prigozhin](https://opensanctions.org/entities/NK-ewCHMoMiX5iEkXoj7YxGsz/), the man behind the famous St. Petersburg troll farm "Internet Research Agency" and the private military group "Wagner", is named on only five lists.
 
-In order to provide an integrated view of all these lists, OpenSanctions needs to establish a mechanism for entity de-duplication. In this article, we want to describe our approach to this challenge in terms of its three key steps: blocking, matching and integration.
+In order to provide an integrated view of all these lists, OpenSanctions needs to establish a mechanism for entity de-duplication. In this article, we want to describe our approach to this challenge in terms of its three key steps: *blocking, matching and integration*.
 
 Before we describe these steps in detail, though, lets first discuss our goals for de-duplications:
 

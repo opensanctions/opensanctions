@@ -41,7 +41,7 @@ export default function ArticleScreen({ article }: ArticleScreenProps) {
               </Card.Body>
             </Card>
           </Col>
-          <Col md={4}>
+          <Col md={4} className="d-print-none">
             <Article.Sidebar article={article} />
           </Col>
         </Row>
