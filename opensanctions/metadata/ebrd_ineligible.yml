@@ -1,0 +1,25 @@
+entry_point: opensanctions.crawlers.ebrd_ineligible:crawl
+title: EBRD Ineligible entities
+prefix: ebrd
+summary: |
+  The EBRD published integrity sanctions. The entities and individuals listed
+  are ineligible to become a Bank Counterparty for the periods indicated.
+description: |
+  The EBRD presents several separate tables of ineligble entities, including 
+  one with cross-debarred entities, those originated within EBRD, and sanctions
+  resulting from third-party finding. It's unclear if these overlap.
+collections:
+  - crime
+  - debarment
+  - default
+publisher:
+  name: "European Bank for Reconstruction and Development"
+  description: |
+    The European Bank for Reconstruction and Development (EBRD) was founded in 1991
+    to create a new post-Cold War era in central and eastern Europe.
+  country: zz
+  url: https://ebrd.com/
+url: https://www.ebrd.com/ineligible-entities.html
+data:
+  url: https://www.ebrd.com/ineligible-entities.html
+  format: HTML

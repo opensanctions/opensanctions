@@ -6,7 +6,7 @@ from opensanctions.core import Context
 from opensanctions import helpers as h
 
 FORMATS = ["%d/%b/%Y"]
-REG_NRS = ["(Reg. No.:", "(Trade Register No.:"]
+REG_NRS = ["(Reg. No:", "(Reg. No.:", "(Reg. No.", "(Trade Register No.:"]
 
 
 def crawl(context: Context):
@@ -25,7 +25,7 @@ def crawl(context: Context):
         cells = dict(zip(headers, cells))
         cells.pop(None, None)
 
-        name = cells.pop("name")
+        full_name = name = cells.pop("name")
         registration_number = None
         for splitter in REG_NRS:
             if splitter in name:
@@ -36,7 +36,7 @@ def crawl(context: Context):
         country = country.replace("Non ADB Member Country", "")
         country = country.replace("Rep. of", "")
         entity = context.make("LegalEntity")
-        entity.id = context.make_id(name, country)
+        entity.id = context.make_id(full_name, country)
         entity.add("name", name)
         entity.add("alias", cells.pop("othername_logo"))
         entity.add("topics", "debarment")
