@@ -13,7 +13,7 @@ import { CLAIM, SUBCLAIM, SPACER, COLLECTIONS, ARTICLE_INDEX_SUMMARY } from '../
 import { getSchemaOpenSanctionsOrganization } from '../lib/schema';
 import { Search } from 'react-bootstrap-icons';
 import { FormattedDate, NumericBadge } from '../components/util';
-import { isCollection, isSource } from '../lib/types';
+import { ICollection, isCollection, isSource } from '../lib/types';
 import { getArticles } from '../lib/content';
 
 
@@ -27,7 +27,7 @@ export default function Home({ datasets, articles }: InferGetStaticPropsType<typ
   const oddSources = sources.filter((d, i) => i % 2 == 0)
   const evenSources = sources.filter((d, i) => i % 2 == 1)
   const allCollections = datasets.filter(isCollection)
-  const collections = COLLECTIONS.map((name) => allCollections.find((c) => c.name === name)).filter(c => c !== undefined)
+  const collections = COLLECTIONS.map((name) => allCollections.find((c) => c.name === name)) as Array<ICollection>
   return (
     <Layout.Base title="Persons of interest database" description={SUBCLAIM} structured={structured}>
       <div className={styles.claimBanner}>
