@@ -52,7 +52,8 @@ def parse_row(context, row):
     entity = context.make(base_schema)
     entity.id = context.make_slug(row.pop("GroupID"))
     if org_type is not None:
-        entity.add_cast("LegalEntity", "legalForm", org_type)
+        org_types = split_items(org_type)
+        entity.add_cast("LegalEntity", "legalForm", org_types)
 
     sanction = h.make_sanction(context, entity)
     # entity.add("position", row.pop("Position"), quiet=True)
@@ -85,9 +86,9 @@ def parse_row(context, row):
     gender = h.clean_gender(row.pop("Gender", None))
     entity.add_cast("Person", "gender", gender)
     id_number = row.pop("NationalIdNumber", None)
-    entity.add_cast("LegalEntity", "idNumber", id_number)
+    entity.add_cast("LegalEntity", "idNumber", split_items(id_number))
     passport = row.pop("PassportDetails", None)
-    entity.add_cast("Person", "passportNumber", passport)
+    entity.add_cast("Person", "passportNumber", split_items(passport))
 
     flag = row.pop("FlagOfVessel", None)
     entity.add_cast("Vessel", "flag", flag)
@@ -109,7 +110,8 @@ def parse_row(context, row):
     row.pop("LengthOfVessel", None)
 
     # entity.add("legalForm", org_type)
-    entity.add("title", row.pop("NameTitle", None), quiet=True)
+    title = split_items(row.pop("NameTitle", None))
+    entity.add("title", title, quiet=True)
     entity.add("firstName", row.pop("name1", None), quiet=True)
     entity.add("secondName", row.pop("name2", None), quiet=True)
     entity.add("middleName", row.pop("name3", None), quiet=True)
@@ -126,14 +128,16 @@ def parse_row(context, row):
 
     nationalities = parse_countries(row.pop("Nationality", None))
     entity.add("nationality", nationalities, quiet=True)
-    entity.add("position", row.pop("Position", None), quiet=True)
+    position = split_items(row.pop("Position", None))
+    entity.add("position", position, quiet=True)
 
     birth_countries = parse_countries(row.pop("CountryOfBirth", None))
     entity.add("country", birth_countries, quiet=True)
 
     countries = parse_countries(row.pop("Country", None))
     entity.add("country", countries)
-    entity.add("birthPlace", row.pop("TownOfBirth", None), quiet=True)
+    pob = split_items(row.pop("TownOfBirth", None))
+    entity.add("birthPlace", pob, quiet=True)
 
     address = h.make_address(
         context,

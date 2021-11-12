@@ -97,8 +97,8 @@ export default function Reference({ content, activeModel, schemata }: InferGetSt
           starting point, but have also included countries that have ceased to exist (e.g.
           Soviet Union, Yugoslavia) and territories whose status
           as a country is controversial (e.g. Kosovo, Artsakh). If the presence of a
-          country in this list is offensive to you, we invite you to reflect the mental
-          health impact of being angry at tables on the internet.
+          country in this list is offensive to you, we invite you to reflect on the
+          mental health impact of being angry at tables on the internet.
         </TypeReference>
       </Content.Menu>
     </Layout.Content >
