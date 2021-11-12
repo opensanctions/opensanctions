@@ -110,7 +110,7 @@ jobs:
       - name: Publish draft to beta.opensanctions.org
         if: ${{ github.ref == 'refs/heads/develop' }}
         run: |
-          aws s3 sync --delete --no-progress --acl public-read out s3://beta.opensanctions.org
+          aws s3 sync --quiet --acl public-read out s3://beta.opensanctions.org
       - name: Publish site to opensanctions.org
         if: ${{ github.ref == 'refs/heads/main' }}
         run: |
