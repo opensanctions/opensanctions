@@ -62,6 +62,19 @@ class Dataset(NomenklaturaDataset):
     def source_names(self) -> List[str]:
         return [s.name for s in self.sources]
 
+    def provided_datasets(self) -> List["Dataset"]:
+        """Return a list of datasets which are in the sources or can be built from
+        the same sources. Basically: all datasets that are smaller in scope than
+        this one."""
+        datasets: List[Dataset] = []
+        available = set(self.source_names)
+        for dataset in Dataset.all():
+            required = set(dataset.source_names)
+            matches = available.intersection(required)
+            if len(matches) == len(required):
+                datasets.append(dataset)
+        return datasets
+
     @classmethod
     def _from_metadata(cls, file_path):
         from opensanctions.core.source import Source

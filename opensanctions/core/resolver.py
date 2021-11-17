@@ -52,7 +52,7 @@ def get_resolver() -> Resolver[Entity]:
 def xref_datasets(base: Dataset, candidates: Dataset, limit: int = 15):
     resolver = get_resolver()
     resolver.prune()
-    if candidates not in base.datasets:
+    if candidates not in base.provided_datasets():
         raise RuntimeError("%r is not contained in %r" % (candidates, base))
     db = Database(base, resolver, cached=True)
     entities = db.view(candidates)
@@ -68,16 +68,21 @@ def xref_internal(dataset: Dataset):
     db = Database(dataset, resolver)
     loader = db.view(dataset)
     index = get_index(dataset, loader)
-    for pair, score in index.pairs()[:5000]:
+    suggested = 0
+    for pair, score in index.pairs():
         left = loader.get_entity(str(pair[0]))
         right = loader.get_entity(str(pair[1]))
         if left is None or right is None:
             continue
         if left.schema not in right.schema.matchable_schemata:
-            continue
+            if right.schema not in left.schema.matchable_schemata:
+                continue
         if not resolver.check_candidate(left.id, right.id):
             continue
         resolver.suggest(left.id, right.id, score)
+        if suggested > 5000:
+            break
+        suggested += 1
     resolver.save()
 
 

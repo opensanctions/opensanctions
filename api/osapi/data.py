@@ -33,14 +33,7 @@ def get_database() -> Database:
 
 @cache
 def get_datasets() -> List[Dataset]:
-    datasets: List[Dataset] = []
-    available = set(get_scope().source_names)
-    for dataset in Dataset.all():
-        required = set(dataset.source_names)
-        matches = available.intersection(required)
-        if len(matches) == len(required):
-            datasets.append(dataset)
-    return datasets
+    return get_scope().provided_datasets()
 
 
 @cache
