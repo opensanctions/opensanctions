@@ -25,7 +25,12 @@ def query_full(context: Context, full: str, countries: List[str]):
         "addressdetails": 1,
     }
     res = context.http.get(NOMINATIM, params=params)
-    context.pprint(res.json())
+    results = res.json()
+    if not len(results):
+        return
+    res0 = results[0]
+    display_name = res0["display_name"]
+    context.pprint({"original": full, "countries": countries, "display": display_name})
 
 
 def make_address(
