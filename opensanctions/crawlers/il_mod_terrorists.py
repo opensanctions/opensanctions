@@ -1,6 +1,4 @@
 import re
-from lxml import html
-from urllib.parse import urljoin
 from datetime import datetime
 from followthemoney.proxy import P
 from openpyxl import load_workbook
@@ -13,13 +11,13 @@ from opensanctions.util import multi_split
 
 ORG_URL = "https://nbctf.mod.gov.il/he/Announcements/Documents/NBCTFIsrael%20-%20Terror%20Organization%20Designation%20List_XL.xlsx"
 PEOPLE_URL = "https://nbctf.mod.gov.il/he/Announcements/Documents/NBCTF%20Israel%20designation%20Individuals_XL.xlsx"
-FORMATS = ["%d/%m/%Y", "%d.%m.%Y"]
+FORMATS = ["%d/%m/%Y", "%d.%m.%Y", "%Y-%m-%d"]
 NA_VALUE = re.compile(r"^[\-\/]+$")
 
 
 def parse_date(date):
     dates = []
-    for part in multi_split(date, ["OR", ";"]):
+    for part in multi_split(date, ["OR", ";", " - "]):
         dates.extend(h.parse_date(part, FORMATS))
     return dates
 
