@@ -12,6 +12,7 @@ country:
         - "Kuwaiti citizenship withdrawn in 2002"
         - 2002年にクウェート国籍を剥奪された。
         - "Stateless Palestinian"
+        - "особа без громадянства"
         - "-"
         - PO BOX 416
         - "02214513"
@@ -204,7 +205,9 @@ country:
       values:
         - Uzbekistan
         - Afghanistan
-    - match: "France (alt. citizen: Syri"
+    - match:
+        - "France (alt. citizen: Syri"
+        - Французька Республіка
       value: France
     - match: Saudi Arabian (this aka only, alt Citizenship Yemeni)
       values:
@@ -247,6 +250,9 @@ country:
       values:
         - "SUHH"
         - "KG"
+    - match:
+        - Киргизька Республіка
+      value: KG
     - match: Iraq,Iran
       values:
         - "Iraq"
@@ -264,11 +270,19 @@ country:
         - SUHH
         - UA
     - match:
+        - РФ
+        - Російська Федерація
+        # *cough cough*:
+        - тимчасово окупована територія Автономної Республіки Крим
+      value: RU
+    - match:
         - Ukrainian,Russian
         - Russian Federation,Ukraine
       values:
         - UA
         - RU
+    - match: Республіка Казахстан
+      value: KZ
     - match:
         - Russian SFSR (now Russian Federation)
         - Russian SFSR

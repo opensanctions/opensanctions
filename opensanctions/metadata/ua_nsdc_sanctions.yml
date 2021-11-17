@@ -1,0 +1,24 @@
+entry_point: opensanctions.crawlers.ua_nsdc_sanctions
+title: Ukraine National Security Sanctions
+prefix: ua-nsdc
+summary: >
+  List of individuals and legal entities subject to restrictive measures.
+description: |
+  This dataset is derived from the COTA system run by NSDC. The published sanctions
+  list is based on press statements by the security council and may not be fully
+  comprehensive as the system is still under development.
+collections:
+  - sanctions
+  - default
+publisher:
+  name: National Security and Defense Council
+  description: >
+    The National Security and Defense Council (Рада національної безпеки і оборони
+    України) of Ukraine is the coordinating body in matters pertaining to national
+    security and defense under the President of Ukraine.
+  url: https://www.rnbo.gov.ua/en/
+  country: ua
+url: https://sanctions-t.rnbo.gov.ua/
+data:
+  url: https://sanctions-t.rnbo.gov.ua/api/fizosoba/
+  format: JSON
