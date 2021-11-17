@@ -47,7 +47,8 @@ def crawl_physical(context: Context) -> None:
         entity.id = context.make_slug(row.pop("ukaz_id"), row.pop("index"))
         entity.add("name", row.pop("name_ukr", None))
         entity.add("name", row.pop("name_original", None))
-        entity.add("name", row.pop("name_alternative", None))
+        for alias in multi_split(row.pop("name_alternative", None), [";", "/"]):
+            entity.add("alias", alias)
         entity.add("notes", row.pop("additional", None))
         for country in multi_split(row.pop("citizenship", None), [", "]):
             entity.add("nationality", country)
@@ -68,10 +69,13 @@ def crawl_legal(context: Context) -> None:
         entity.id = context.make_slug(row.pop("ukaz_id"), row.pop("index"))
         entity.add("name", row.pop("name_ukr", None))
         entity.add("name", row.pop("name_original", None))
-        entity.add("name", row.pop("name_alternative", None))
+        for alias in multi_split(row.pop("name_alternative", None), [";", "/"]):
+            entity.add("alias", alias)
         entity.add("notes", row.pop("additional", None))
-        entity.add("taxNumber", row.pop("ipn", None))
-        entity.add("registrationNumber", row.pop("odrn_edrpou", None))
+        ipn = row.pop("ipn", "") or ""
+        entity.add("taxNumber", ipn.replace("ІПН", ""))
+        odrn = row.pop("odrn_edrpou", "") or ""
+        entity.add("registrationNumber", odrn.replace("ОДРН", ""))
 
         handle_address(context, entity, row.pop("place", None))
         handle_address(context, entity, row.pop("place_alternative", None))
