@@ -540,6 +540,7 @@ email:
     - match:
         - pac@silibank. com and kndic@co.chesin.com
         - pac@silibank.com and kndic@co.chesin.com
+        - kndic@co.chesin.com.
       values:
         - pac@silibank.com
         - kndic@co.chesin.com
@@ -609,6 +610,8 @@ gender:
         - Masculin
         - male
         - M
+      contains:
+        - мужской
       value: male
 
 features:
