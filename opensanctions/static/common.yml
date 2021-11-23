@@ -613,6 +613,9 @@ gender:
       contains:
         - мужской
       value: male
+    - match:
+        - U
+      value: unknown
 
 features:
   # Jointly used by US Trade CSL / OFAC SDN and Cons.
