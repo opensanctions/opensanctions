@@ -9,12 +9,8 @@ from opensanctions.exporters.common import write_object
 from opensanctions.core.http import cleanup_cache
 from opensanctions.core.index import get_index, get_index_path
 from opensanctions.core.loader import Database
-from opensanctions.core.resolver import (
-    export_pairs,
-    get_resolver,
-    xref_datasets,
-    xref_internal,
-)
+from opensanctions.core.resolver import export_pairs, get_resolver
+from opensanctions.core.xref import blocking_xref
 from opensanctions.model.statement import Statement
 from opensanctions.model.base import migrate_db
 
@@ -107,19 +103,12 @@ def index(dataset):
 
 
 @cli.command("xref", help="Generate dedupe candidates from the given dataset")
-@click.argument("candidates", type=datasets)
-@click.option("-b", "--base", type=datasets, default=Dataset.DEFAULT)
-@click.option("-l", "--limit", type=int, default=15)
-def xref(base, candidates, limit=15):
-    base_dataset = Dataset.require(base)
-    candidates_dataset = Dataset.require(candidates)
-    xref_datasets(base_dataset, candidates_dataset, limit=limit)
-
-
-@cli.command("xref-internal", help="Block dedupe candidates from the given dataset")
 @click.argument("dataset", default=Dataset.DEFAULT, type=datasets)
-def xref_int(dataset):
-    xref_internal(Dataset.require(dataset))
+@click.option("-f", "--fuzzy", is_flag=True, type=bool, default=False)
+@click.option("-l", "--limit", type=int, default=5000)
+def xref(dataset, fuzzy, limit):
+    dataset = Dataset.require(dataset)
+    blocking_xref(dataset, limit=limit, fuzzy=fuzzy)
 
 
 @cli.command("xref-prune", help="Remove dedupe candidates")

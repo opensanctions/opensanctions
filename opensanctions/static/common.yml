@@ -26,8 +26,6 @@ country:
       contains:
         - (JVCFOR)
       value: null
-    - match: Macao Special Administrative Region
-      value: MO
     - match:
         - "Jalisco"
         - "Guadalajara, Jalisco"
@@ -46,8 +44,6 @@ country:
     - match:
         - "Chong An District, Wuxi Jiangsu, Jiangsu Province"
       value: CN
-    - match: SAINT-KITTS-ET-NEVIS
-      value: KN
     - match:
         - "Sanaa, Yemen"
       value: YE
@@ -60,8 +56,6 @@ country:
       value: DE
     - match: Assembly of Kosovo*
       value: XK
-    - match: Socialist Federal Republic of Yugoslavia
-      value: YUCS
     - match:
         - Palestinian National Council
         - "PALESTINIAN TERRITORY, Occupied"
@@ -70,15 +64,9 @@ country:
     - match: Cyprus* [Resolution 1376 (2004)]
       value: CY
     - match:
-        - Congo DR
         - "CONGO, Democratic Republic of (was Zaire)"
         - "Kinshasa"
       value: CD
-    - match:
-        - CONGO, People's Republic of
-      value: CG
-    - match: Germany, Democratic Republic (GDR)
-      value: DD
     - match: NM # New Mexico?
       value: US
     - match: "Region: Northern Mali"
@@ -146,14 +134,6 @@ country:
         - エチオピアと思われる
       value: Ethiopia
     - match:
-        - Hong Kong Special Administrative Region
-        - Hong Kong, China
-      value: HK
-    - match:
-        - Taipei,China
-        - "Taiwan (Republic of China)"
-      value: Taiwan
-    - match:
         - Indonesia (as at Dec. 2003)
         - Indonesian (as at Dec. 2003)
         - Indonesian passport
@@ -218,11 +198,6 @@ country:
         - バーレーン（2015年1月市民権剥奪）
       value: Bahrain
     - match:
-        - Democratic People's Republic of Korea (DPRK)
-        - Democratic People's Republic of Korea,RPDC
-        - RPDC
-      value: North Korea
-    - match:
         - Ethnic Russian
         - Southern Russia
         - Chechen Republic
@@ -234,8 +209,6 @@ country:
       values:
         - SE
         - SO
-    - match: Tehran
-      value: Iran
     - match:
         - Australian citizen
         - "New South Wales"
@@ -250,9 +223,6 @@ country:
       values:
         - "SUHH"
         - "KG"
-    - match:
-        - Киргизька Республіка
-      value: KG
     - match: Iraq,Iran
       values:
         - "Iraq"
@@ -270,8 +240,6 @@ country:
         - SUHH
         - UA
     - match:
-        - РФ
-        - Російська Федерація
         # *cough cough*:
         - тимчасово окупована територія Автономної Республіки Крим
       value: RU
@@ -281,8 +249,6 @@ country:
       values:
         - UA
         - RU
-    - match: Республіка Казахстан
-      value: KZ
     - match:
         - Russian SFSR (now Russian Federation)
         - Russian SFSR
@@ -333,8 +299,6 @@ country:
       value: AF
     - match: to   Morocco
       value: Morocco
-    - match: Rawanda
-      value: RW
     - match:
         - Ramallah
       value: PS
@@ -450,6 +414,7 @@ date:
         - 1967-01-01
         - 1967-06-16
   map:
+    "0202-11-22": "2020-11-22"
     "1966-02-02-05:00": 1966-02-02T05:00
     "1960-01-01-05:00": 1960-01-01T05:00
     "1962-11-09-05:00": 1962-11-09T05:00

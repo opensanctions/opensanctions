@@ -1,17 +1,15 @@
 from functools import lru_cache
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional, Set, Tuple
 from itertools import combinations
 from collections import defaultdict
 from followthemoney.dedupe.judgement import Judgement
 from nomenklatura.resolver import Resolver, Identifier, StrIdent
-from nomenklatura.xref import xref
 
 from opensanctions import settings
 from opensanctions.model import Statement
 from opensanctions.core.entity import Entity
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.loader import Database
-from opensanctions.core.index import get_index
 
 RESOLVER_PATH = settings.STATIC_PATH.joinpath("resolve.ijson")
 Scored = Tuple[str, str, Optional[float]]
@@ -49,47 +47,10 @@ def get_resolver() -> Resolver[Entity]:
     return UniqueResolver.load(RESOLVER_PATH)
 
 
-def xref_datasets(base: Dataset, candidates: Dataset, limit: int = 15):
-    resolver = get_resolver()
-    resolver.prune()
-    if candidates not in base.provided_datasets():
-        raise RuntimeError("%r is not contained in %r" % (candidates, base))
-    db = Database(base, resolver, cached=True)
-    entities = db.view(candidates)
-    loader = db.view(base)
-    index = get_index(base, loader)
-    xref(index, resolver, entities, limit=limit)
-    resolver.save()
-
-
-def xref_internal(dataset: Dataset):
-    resolver = get_resolver()
-    resolver.prune()
-    db = Database(dataset, resolver)
-    loader = db.view(dataset)
-    index = get_index(dataset, loader)
-    suggested = 0
-    for pair, score in index.pairs():
-        left = loader.get_entity(str(pair[0]))
-        right = loader.get_entity(str(pair[1]))
-        if left is None or right is None:
-            continue
-        if left.schema not in right.schema.matchable_schemata:
-            if right.schema not in left.schema.matchable_schemata:
-                continue
-        if not resolver.check_candidate(left.id, right.id):
-            continue
-        resolver.suggest(left.id, right.id, score)
-        if suggested > 5000:
-            break
-        suggested += 1
-    resolver.save()
-
-
 def export_pairs(dataset: Dataset):
     resolver = get_resolver()
     db = Database(dataset, resolver, cached=True)
-    datasets: Dict[str, Dataset] = defaultdict(set)
+    datasets: Dict[str, Set[Dataset]] = defaultdict(set)
     for entity_id, ds in Statement.entities_datasets(dataset):
         dsa = Dataset.get(ds)
         if dsa is not None:

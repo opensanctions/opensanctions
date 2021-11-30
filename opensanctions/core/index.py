@@ -1,9 +1,5 @@
 import structlog
 from pathlib import Path
-from typing import Any, Dict, Generator, Iterable, Optional, Tuple
-from normality import normalize, WS
-from followthemoney.schema import Schema
-from followthemoney.types import registry
 from opensanctions import settings
 from nomenklatura.loader import Loader
 from nomenklatura.index import Index
