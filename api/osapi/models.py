@@ -7,6 +7,7 @@ from pydantic.networks import AnyHttpUrl
 from opensanctions.core import Dataset
 from osapi import settings
 
+MAX_LIMIT = 1000
 EntityProperties = Dict[str, List[Union[str, "EntityResponse"]]]
 
 

@@ -48,19 +48,3 @@ Finally, you can run an auto-reloading web server like this:
 ```bash
 uvicorn osapi.app:app --reload
 ```
-
-### Deployment to Fargate
-
-For the demo instance of the OpenSanctions API, we're deploying to Amazon AWS, using the
-Fargate container runtime, ELB, Route53 and CloudFormation. The deployment configuration
-is stored in this repository:
-
-```
-aws cloudformation deploy --template-file deploy.yml --stack-name OpenSanctionsAPI --capabilities CAPABILITY_NAMED_IAM
-```
-
-To delete the deployment stack, call:
-
-```
-aws cloudformation delete-stack --stack-name OpenSanctionsAPI
-```

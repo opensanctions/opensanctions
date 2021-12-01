@@ -21,8 +21,10 @@ from osapi.models import FreebaseEntitySuggestResponse
 from osapi.models import FreebasePropertySuggestResponse
 from osapi.models import FreebaseTypeSuggestResponse
 from osapi.models import FreebaseManifest, FreebaseQueryResult
+from osapi.models import MAX_LIMIT
 from osapi.data import resolver, get_datasets
-from osapi.index import get_entity, match_entities, query_results
+from osapi.index import get_entity, query_entities, query_results
+from osapi.index import text_query, entity_query
 from osapi.index import serialize_entity
 from osapi.index import get_index_status, get_index_stats
 from osapi.data import get_freebase_type, get_freebase_types
@@ -64,7 +66,7 @@ async def startup_event():
 def get_dataset(name: str) -> Dataset:
     dataset = Dataset.get(name)
     if dataset is None or dataset not in get_datasets():
-        raise HTTPException(status_code=404, detail="No such dataset.")
+        raise HTTPException(404, detail="No such dataset.")
     return dataset
 
 
@@ -100,7 +102,7 @@ async def healthz():
     try:
         ok = await get_index_status()
         if not ok:
-            raise HTTPException(status_code=500, detail="Index not ready")
+            raise HTTPException(500, detail="Index not ready")
         return {"status": "ok"}
     finally:
         db.session.close()
@@ -116,7 +118,7 @@ async def search(
     q: str,
     dataset: str = PATH_DATASET,
     schema: str = Query(settings.BASE_SCHEMA, title="Types of entities that can match"),
-    limit: int = Query(10, title="Number of results to return"),
+    limit: int = Query(10, title="Number of results to return", lt=MAX_LIMIT),
     fuzzy: bool = Query(False, title="Enable n-gram matching of partial names"),
     nested: bool = Query(False, title="Include adjacent entities in response"),
 ):
@@ -125,10 +127,11 @@ async def search(
     entity matching, the multi-property matching API should be used instead."""
     try:
         ds = get_dataset(dataset)
-        query = Entity(schema)
-        query.add("name", q)
-        query.add("notes", q)
-        results = await query_results(ds, query, limit, fuzzy, nested)
+        schema_obj = model.get(schema)
+        if schema_obj is None:
+            raise HTTPException(400, detail="Invalid schema")
+        query = text_query(ds, schema_obj, q, fuzzy=fuzzy)
+        results = await query_results(ds, query, limit, nested)
         return {"results": results}
     finally:
         db.session.close()
@@ -143,7 +146,7 @@ async def search(
 async def match(
     query: EntityMatchQuery,
     dataset: str = PATH_DATASET,
-    limit: int = Query(5, title="Number of results to return"),
+    limit: int = Query(5, title="Number of results to return", lt=MAX_LIMIT),
     fuzzy: bool = Query(False, title="Enable n-gram matching of partial names"),
     nested: bool = Query(False, title="Include adjacent entities in response"),
 ):
@@ -203,7 +206,8 @@ async def match(
             entity = Entity(example.get("schema"))
             for prop, value in example.get("properties").items():
                 entity.add(prop, value, cleaned=False)
-            results = await query_results(ds, entity, limit, fuzzy, nested)
+            query = entity_query(ds, entity, fuzzy=fuzzy)
+            results = await query_results(ds, query, limit, nested)
             responses[name] = {"query": entity.to_dict(), "results": results}
         return {"responses": responses}
     finally:
@@ -222,10 +226,11 @@ async def fetch_entity(
         if canonical_id != entity_id:
             url = app.url_path_for("get_entity", entity_id=canonical_id)
             return RedirectResponse(url=url)
-        scope = get_scope()
-        entity = await get_entity(scope, entity_id)
+
+        entity = await get_entity(entity_id)
         if entity is None:
-            raise HTTPException(status_code=404, detail="No such entity!")
+            raise HTTPException(404, detail="No such entity!")
+        scope = get_scope()
         data = await serialize_entity(scope, entity, nested=True)
         return data
     finally:
@@ -249,7 +254,7 @@ async def reconcile(
     try:
         ds = get_dataset(dataset)
         if queries is not None:
-            return reconcile_queries(ds, queries)
+            return await reconcile_queries(ds, queries)
         base_url = urljoin(settings.ENDPOINT_URL, f"/reconcile/{dataset}")
         return {
             "versions": ["0.2"],
@@ -291,7 +296,7 @@ async def reconcile_post(
     clients for matching, refer to the discovery endpoint for details."""
     try:
         ds = get_dataset(dataset)
-        return reconcile_queries(ds, queries)
+        return await reconcile_queries(ds, queries)
     finally:
         db.session.close()
 
@@ -306,13 +311,13 @@ async def reconcile_queries(dataset: Dataset, queries: str):
         # log.info("RESULTS: %r" % results)
         return results
     except ValueError:
-        raise HTTPException(status_code=400, detail="Cannot decode query")
+        raise HTTPException(400, detail="Cannot decode query")
 
 
 async def reconcile_query(dataset: Dataset, query: Dict[str, Any]):
     """Reconcile operation for a single query."""
     # log.info("Reconcile: %r", query)
-    limit = int(query.get("limit", 5))
+    limit = min(MAX_LIMIT, int(query.get("limit", 5)))
     type = query.get("type", settings.BASE_SCHEMA)
     proxy = Entity(type)
     proxy.add("name", query.get("query"))
@@ -328,7 +333,8 @@ async def reconcile_query(dataset: Dataset, query: Dict[str, Any]):
 
     results = []
     # log.info("QUERY %r %s", proxy.to_dict(), limit)
-    async for result, score in match_entities(dataset, proxy, limit=limit, fuzzy=True):
+    query = entity_query(dataset, proxy, fuzzy=True)
+    async for result, score in query_entities(query, limit=limit):
         results.append(get_freebase_entity(result, score))
     return {"result": results}
 
@@ -352,11 +358,12 @@ async def reconcile_suggest_entity(
     entities in the system index."""
     try:
         ds = get_dataset(dataset)
-        query = Entity(settings.BASE_SCHEMA)
-        query.add("name", prefix)
-        query.add("notes", prefix)
+        entity = Entity(settings.BASE_SCHEMA)
+        entity.add("name", prefix)
+        entity.add("notes", prefix)
         results = []
-        async for result, score in match_entities(ds, query, limit=limit, fuzzy=True):
+        query = entity_query(ds, entity)
+        async for result, score in query_entities(query, limit=limit):
             results.append(get_freebase_entity(result, score))
         return {
             "prefix": prefix,

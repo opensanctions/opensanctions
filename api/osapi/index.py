@@ -75,6 +75,39 @@ def filter_query(shoulds, dataset: Dataset, schema: Optional[Schema] = None):
     return {"bool": {"filter": filters, "should": shoulds, "minimum_should_match": 1}}
 
 
+def entity_query(dataset: Dataset, entity: Entity, fuzzy: bool = False):
+    terms: Dict[str, List[str]] = {}
+    texts: List[str] = []
+    for prop, value in entity.itervalues():
+        if prop.type.group is not None:
+            if prop.type not in TEXT_TYPES:
+                field = prop.type.group
+                if field not in terms:
+                    terms[field] = []
+                terms[field].append(value)
+        texts.append(value)
+
+    shoulds: List[Dict[str, Any]] = []
+    for field, texts in terms.items():
+        shoulds.append({"terms": {field: texts}})
+    for text in texts:
+        shoulds.append({"match_phrase": {"text": text}})
+    return filter_query(shoulds, dataset, entity.schema)
+
+
+def text_query(dataset: Dataset, schema: Schema, query: str, fuzzy: bool = False):
+    should = {
+        "query_string": {
+            "query": query,
+            "default_field": "text",
+            "default_operator": "and",
+            "fuzziness": 1,
+            "lenient": fuzzy,
+        }
+    }
+    return filter_query([should], dataset, schema)
+
+
 def result_entity(data) -> Tuple[Entity, float]:
     source = data.get("_source")
     source["id"] = data.get("_id")
@@ -87,32 +120,23 @@ def result_entities(result) -> Generator[Tuple[Entity, float], None, None]:
         yield result_entity(hit)
 
 
-async def match_entities(
-    dataset: Dataset, query: Entity, limit: int = 5, fuzzy: bool = False
-) -> AsyncGenerator[Tuple[Entity, float], None]:
-    terms = {}
-    texts = []
-    for prop, value in query.itervalues():
-        if prop.type.group is not None:
-            if prop.type not in TEXT_TYPES:
-                field = prop.type.group
-                if field not in terms:
-                    terms[field] = []
-                terms[field].append(value)
-        texts.append(value)
-
-    shoulds = []
-    for field, texts in terms.items():
-        shoulds.append({"terms": {field: texts}})
-    for text in texts:
-        shoulds.append({"match_phrase": {"text": text}})
-    filtered = filter_query(shoulds, dataset, query.schema)
-    resp = await es.search(index=ES_INDEX, query=filtered, size=limit)
+async def query_entities(query: Dict[Any, Any], limit: int = 5):
+    pprint(query)
+    resp = await es.search(index=ES_INDEX, query=query, size=limit)
     for entity, score in result_entities(resp):
         yield entity, score
 
 
-async def get_entity(dataset: Dataset, entity_id: str) -> Optional[Entity]:
+# async def match_entities(
+#     dataset: Dataset, query: Entity, limit: int = 5, fuzzy: bool = False
+# ) -> AsyncGenerator[Tuple[Entity, float], None]:
+#     filtered = entity_query(dataset, query)
+#     resp = await es.search(index=ES_INDEX, query=filtered, size=limit)
+#     for entity, score in result_entities(resp):
+#         yield entity, score
+
+
+async def get_entity(entity_id: str) -> Optional[Entity]:
     data = await es.get(index=ES_INDEX, id=entity_id)
     entity, _ = result_entity(data)
     return entity
@@ -168,10 +192,10 @@ async def serialize_entity(
 
 
 async def query_results(
-    dataset: Dataset, query: Entity, limit: int, fuzzy: bool, nested: bool
+    dataset: Dataset, query: Dict[Any, Any], limit: int, nested: bool
 ):
     results = []
-    async for result, score in match_entities(dataset, query, limit=limit, fuzzy=fuzzy):
+    async for result, score in query_entities(query, limit=limit):
         data = await serialize_entity(dataset, result, nested=nested)
         data["score"] = score
         results.append(data)

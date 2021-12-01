@@ -4,6 +4,8 @@ services:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.15.2
     expose:
       - "9200"
+    ports:
+      - "127.0.0.1:9200:9200"
     container_name: index
     environment:
       - node.name=index
@@ -26,11 +28,10 @@ services:
   app:
     image: pudo/opensanctions-api
     build: .
+    depends_on:
+      - index
     ports:
-      - target: 8000
-        published: 8000
-        protocol: tcp
-        mode: host
+      - "0.0.0.0:8000:8000"
     environment:
       - OSAPI_ELASTICSEARCH_URL=http://index:9200
     healthcheck:
