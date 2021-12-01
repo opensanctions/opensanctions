@@ -18,6 +18,7 @@ setup(
     zip_safe=False,
     install_requires=[
         "opensanctions",
+        "elasticsearch[async]",
         "fastapi",
         "uvicorn[standard]",
         "python-multipart",

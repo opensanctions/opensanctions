@@ -4,7 +4,7 @@ import warnings
 from pprint import pprint
 from typing import Any, AsyncGenerator, Dict, Generator, List, Optional, Tuple
 from elasticsearch import AsyncElasticsearch, TransportError
-from elasticsearch import ElasticsearchWarning
+from elasticsearch.exceptions import ElasticsearchWarning
 from elasticsearch.helpers import async_bulk
 from followthemoney import model
 from followthemoney.schema import Schema
@@ -13,11 +13,12 @@ from followthemoney.types import registry
 
 from opensanctions.core import configure_logging, Dataset
 from opensanctions.core.entity import Entity
+from opensanctions.exporters import export_assembler
 from opensanctions.model import Statement
 
 from osapi.settings import ES_INDEX, ES_URL
 from osapi.mapping import make_mapping, INDEX_SETTINGS, TEXT_TYPES
-from osapi.data import get_scope, get_loader
+from osapi.data import get_scope, get_database
 
 warnings.filterwarnings("ignore", category=ElasticsearchWarning)
 
@@ -54,7 +55,8 @@ async def index():
     mapping = make_mapping(schemata)
     log.info("Create index: %s", ES_INDEX)
     await es.indices.create(index=ES_INDEX, mappings=mapping, settings=INDEX_SETTINGS)
-    loader = get_loader(dataset, cached=True)
+    db = get_database(cached=True)
+    loader = db.view(dataset, assembler=export_assembler)
     await async_bulk(es, generate_entities(loader), stats_only=True)
     log.info("Indexing done, force merge")
     await es.indices.refresh(index=ES_INDEX)

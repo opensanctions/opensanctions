@@ -30,15 +30,6 @@ def get_database(cached=False) -> Database:
     return Database(get_scope(), resolver, cached=cached)
 
 
-def get_loader(
-    dataset: Dataset, cached: Optional[bool] = None
-) -> Loader[Dataset, Entity]:
-    if cached is None:
-        cached = settings.CACHED
-    db = get_database(cached=cached)
-    return db.view(dataset)
-
-
 @cache
 def get_datasets() -> List[Dataset]:
     return get_scope().provided_datasets()
