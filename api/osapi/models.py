@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 from pydantic import BaseModel, Field
 from followthemoney.model import ModelToDict
 from pydantic.networks import AnyHttpUrl
@@ -7,6 +7,7 @@ from pydantic.networks import AnyHttpUrl
 from opensanctions.core import Dataset
 from osapi import settings
 
+MAX_LIMIT = 1000
 EntityProperties = Dict[str, List[Union[str, "EntityResponse"]]]
 
 
@@ -31,8 +32,7 @@ class ScoredEntityResponse(EntityResponse):
 class IndexResponse(BaseModel):
     datasets: List[str] = Dataset.names()
     model: ModelToDict
-    terms: int = Field(..., example=23)
-    tokens: int = Field(..., example=42)
+    index: Dict[str, Any]
 
 
 class HealthzResponse(BaseModel):
@@ -45,7 +45,7 @@ class SearchResponse(BaseModel):
 
 class EntityExample(BaseModel):
     schema_: str = Field(..., example=settings.BASE_SCHEMA, alias="schema")
-    properties: Dict[str, List[Union[str]]]
+    properties: Dict[str, List[str]] = Field(..., example={"name": ["John Doe"]})
 
 
 class EntityMatchQuery(BaseModel):

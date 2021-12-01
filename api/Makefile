@@ -1,10 +1,20 @@
 IMAGE=pudo/opensanctions-api:latest
 
+all:
+	make index
+	make api
+
 run: build
-	docker run -ti $(IMAGE) bash 
+	docker compose run --rm app bash
 
 build:
-	docker build -t $(IMAGE) .
+	docker compose build --pull
 
-api: build
-	docker run -ti -p 8000:8000 $(IMAGE)
+services:
+	docker compose up --remove-orphans --wait -d index
+
+api: build services
+	docker compose up --remove-orphans app
+
+index: build services
+	docker compose run --rm app python3 osapi/index.py
