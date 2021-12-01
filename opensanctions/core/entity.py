@@ -4,11 +4,13 @@ from typing import Any, Dict, Optional, Union
 from followthemoney import model
 from followthemoney.exc import InvalidData
 from followthemoney.types import registry
+from followthemoney.model import Model
 from followthemoney.schema import Schema
 from followthemoney.property import Property
 from nomenklatura.entity import CompositeEntity
 
 from opensanctions.core.lookups import type_lookup
+from opensanctions.core.dataset import Dataset
 
 log = structlog.get_logger(__name__)
 
@@ -120,3 +122,22 @@ class Entity(CompositeEntity):
         data["target"] = self.target
         data["caption"] = self.caption
         return data
+
+    @classmethod
+    def from_dict(
+        cls, model: "Model", data: Dict[str, Any], cleaned: bool = True
+    ) -> "Entity":
+        obj = cls(data["schema"], target=data.get("target", False))
+        obj.id = data["id"]
+        for dataset in data.get("datasets", []):
+            obj.datasets.add(Dataset.require(dataset))
+        obj.referents.update(data.get("referents", []))
+        # TODO: first_seen, last_seen must be decoded
+        obj.first_seen = data.get("first_seen")
+        obj.last_seen = data.get("last_seen")
+        properties = data["properties"]
+        for prop_name, values in properties.items():
+            prop = obj.schema.properties[prop_name]
+            for value in values:
+                obj.unsafe_add(prop, value, cleaned=cleaned)
+        return obj

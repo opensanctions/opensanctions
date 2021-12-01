@@ -3,7 +3,6 @@ from typing import Generator, List, Optional, Set, Tuple
 from followthemoney import model
 from followthemoney.schema import Schema
 from followthemoney.property import Property
-from nomenklatura.index.index import Index
 from nomenklatura.loader import Loader
 from opensanctions.model import Statement
 from opensanctions.core.entity import Entity
@@ -27,8 +26,17 @@ def get_scope() -> Dataset:
 
 
 @cache
-def get_database() -> Database:
-    return Database(get_scope(), resolver, cached=settings.CACHED)
+def get_database(cached=False) -> Database:
+    return Database(get_scope(), resolver, cached=cached)
+
+
+def get_loader(
+    dataset: Dataset, cached: Optional[bool] = None
+) -> Loader[Dataset, Entity]:
+    if cached is None:
+        cached = settings.CACHED
+    db = get_database(cached=cached)
+    return db.view(dataset)
 
 
 @cache
@@ -53,54 +61,6 @@ def get_matchable_schemata(dataset: Dataset) -> Set[Schema]:
         if schema.matchable:
             schemata.update(schema.schemata)
     return schemata
-
-
-def get_loader(dataset: Dataset) -> Loader[Dataset, Entity]:
-    db = get_database()
-    return db.view(dataset)
-
-
-@cache
-def get_index() -> Index[Dataset, Entity]:
-    scope = get_scope()
-    loader = get_loader(scope)
-    return get_dataset_index(scope, loader)
-
-
-def get_entity(dataset: Dataset, entity_id: str) -> Optional[Entity]:
-    loader = get_loader(dataset)
-    return loader.get_entity(entity_id)
-
-
-def match_entities(
-    dataset: Dataset, query: Entity, limit: int = 5, fuzzy: bool = False
-) -> Generator[Tuple[Entity, float], None, None]:
-    index = get_index()
-    returned = 0
-    for entity_id, score in index.match(query, limit=None, fuzzy=fuzzy):
-        if returned >= limit:
-            break
-        entity = get_entity(dataset, entity_id)
-        if entity is None:
-            continue
-        yield entity, score
-        returned += 1
-
-
-def query_results(
-    dataset: Dataset, query: Entity, limit: int, fuzzy: bool, nested: bool
-):
-    results = []
-    loader = get_loader(dataset)
-    for result, score in match_entities(dataset, query, limit=limit, fuzzy=fuzzy):
-        result_data = None
-        if nested:
-            result_data = result.to_nested_dict(loader)
-        else:
-            result_data = result.to_dict()
-        result_data["score"] = score
-        results.append(result_data)
-    return results
 
 
 def get_freebase_types(dataset: Dataset) -> List[FreebaseType]:

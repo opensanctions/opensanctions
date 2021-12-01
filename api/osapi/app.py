@@ -21,9 +21,10 @@ from osapi.models import FreebaseEntitySuggestResponse
 from osapi.models import FreebasePropertySuggestResponse
 from osapi.models import FreebaseTypeSuggestResponse
 from osapi.models import FreebaseManifest, FreebaseQueryResult
-from osapi.data import get_entity, get_index, resolver
-from osapi.data import get_loader, match_entities, get_datasets
-from osapi.data import query_results
+from osapi.data import resolver, get_datasets
+from osapi.index import get_entity, match_entities, query_results
+from osapi.index import serialize_entity
+from osapi.index import get_index_status, get_index_stats
 from osapi.data import get_freebase_type, get_freebase_types
 from osapi.data import get_freebase_entity, get_freebase_property
 from osapi.data import get_matchable_schemata, get_scope
@@ -57,7 +58,6 @@ QUERY_PREFIX = Query(None, min_length=1, description="Search prefix")
 
 @app.on_event("startup")
 async def startup_event():
-    get_index()
     db.session.close()
 
 
@@ -79,12 +79,10 @@ async def index():
     the search index in memory, and the followthemoney model specification which
     describes the types of entities and properties in use by the API."""
     try:
-        index = get_index()
         return {
             "datasets": [ds.name for ds in get_datasets()],
             "model": model.to_dict(),
-            "terms": len(index.terms),
-            "tokens": len(index.inverted),
+            "index": await get_index_stats(),
         }
     finally:
         db.session.close()
@@ -100,6 +98,9 @@ async def healthz():
     """No-op basic health check. This is used by cluster management systems like
     Kubernetes to verify the service is responsive."""
     try:
+        ok = await get_index_status()
+        if not ok:
+            raise HTTPException(status_code=500, detail="Index not ready")
         return {"status": "ok"}
     finally:
         db.session.close()
@@ -127,7 +128,7 @@ async def search(
         query = Entity(schema)
         query.add("name", q)
         query.add("notes", q)
-        results = query_results(ds, query, limit, fuzzy, nested)
+        results = await query_results(ds, query, limit, fuzzy, nested)
         return {"results": results}
     finally:
         db.session.close()
@@ -139,7 +140,7 @@ async def search(
     tags=["Matching"],
     response_model=EntityMatchResponse,
 )
-async def search(
+async def match(
     query: EntityMatchQuery,
     dataset: str = PATH_DATASET,
     limit: int = Query(5, title="Number of results to return"),
@@ -202,7 +203,7 @@ async def search(
             entity = Entity(example.get("schema"))
             for prop, value in example.get("properties").items():
                 entity.add(prop, value, cleaned=False)
-            results = query_results(ds, entity, limit, fuzzy, nested)
+            results = await query_results(ds, entity, limit, fuzzy, nested)
             responses[name] = {"query": entity.to_dict(), "results": results}
         return {"responses": responses}
     finally:
@@ -222,11 +223,11 @@ async def fetch_entity(
             url = app.url_path_for("get_entity", entity_id=canonical_id)
             return RedirectResponse(url=url)
         scope = get_scope()
-        loader = get_loader(scope)
-        entity = get_entity(scope, entity_id)
+        entity = await get_entity(scope, entity_id)
         if entity is None:
             raise HTTPException(status_code=404, detail="No such entity!")
-        return entity.to_nested_dict(loader)
+        data = await serialize_entity(scope, entity, nested=True)
+        return data
     finally:
         db.session.close()
 
@@ -237,7 +238,7 @@ async def fetch_entity(
     tags=["Reconciliation"],
     response_model=Union[FreebaseManifest, FreebaseQueryResult],
 )
-def reconcile(
+async def reconcile(
     queries: Optional[str] = None,
     dataset: str = PATH_DATASET,
 ):
@@ -282,7 +283,7 @@ def reconcile(
     tags=["Reconciliation"],
     response_model=FreebaseQueryResult,
 )
-def reconcile_post(
+async def reconcile_post(
     dataset: str = PATH_DATASET,
     queries: str = Form(None, description="JSON-encoded reconciliation queries"),
 ):
@@ -295,20 +296,20 @@ def reconcile_post(
         db.session.close()
 
 
-def reconcile_queries(dataset: Dataset, queries: str):
+async def reconcile_queries(dataset: Dataset, queries: str):
     # multiple requests in one query
     try:
         queries = json.loads(queries)
         results = {}
         for k, q in queries.items():
-            results[k] = reconcile_query(dataset, q)
+            results[k] = await reconcile_query(dataset, q)
         # log.info("RESULTS: %r" % results)
         return results
     except ValueError:
         raise HTTPException(status_code=400, detail="Cannot decode query")
 
 
-def reconcile_query(dataset: Dataset, query: Dict[str, Any]):
+async def reconcile_query(dataset: Dataset, query: Dict[str, Any]):
     """Reconcile operation for a single query."""
     # log.info("Reconcile: %r", query)
     limit = int(query.get("limit", 5))
@@ -327,7 +328,7 @@ def reconcile_query(dataset: Dataset, query: Dict[str, Any]):
 
     results = []
     # log.info("QUERY %r %s", proxy.to_dict(), limit)
-    for result, score in match_entities(dataset, proxy, limit=limit, fuzzy=True):
+    async for result, score in match_entities(dataset, proxy, limit=limit, fuzzy=True):
         results.append(get_freebase_entity(result, score))
     return {"result": results}
 
@@ -338,7 +339,7 @@ def reconcile_query(dataset: Dataset, query: Dict[str, Any]):
     tags=["Reconciliation"],
     response_model=FreebaseEntitySuggestResponse,
 )
-def reconcile_suggest_entity(
+async def reconcile_suggest_entity(
     dataset: str = PATH_DATASET,
     prefix: str = QUERY_PREFIX,
     limit: int = Query(10, description="Number of suggestions to return"),
@@ -355,7 +356,7 @@ def reconcile_suggest_entity(
         query.add("name", prefix)
         query.add("notes", prefix)
         results = []
-        for result, score in match_entities(ds, query, limit=limit, fuzzy=True):
+        async for result, score in match_entities(ds, query, limit=limit, fuzzy=True):
             results.append(get_freebase_entity(result, score))
         return {
             "prefix": prefix,
@@ -371,7 +372,7 @@ def reconcile_suggest_entity(
     tags=["Reconciliation"],
     response_model=FreebasePropertySuggestResponse,
 )
-def reconcile_suggest_property(
+async def reconcile_suggest_property(
     dataset: str = PATH_DATASET,
     prefix: str = QUERY_PREFIX,
 ):
@@ -403,7 +404,7 @@ def reconcile_suggest_property(
     tags=["Reconciliation"],
     response_model=FreebaseTypeSuggestResponse,
 )
-def reconcile_suggest_type(
+async def reconcile_suggest_type(
     dataset: str = PATH_DATASET,
     prefix: str = QUERY_PREFIX,
 ):

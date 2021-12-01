@@ -64,5 +64,7 @@ TAGS = [
 
 SCOPE_DATASET = env_str("OSAPI_SCOPE_DATASET", "default")
 ENDPOINT_URL = env_str("OSAPI_ENDPOINT_URL", "http://localhost:8000")
+ES_URL = env_str("OSAPI_ELASTICSEARCH_URL", "http://localhost:9200")
+ES_INDEX = env_str("OSAPI_ELASTICSEARCH_INDEX", "opensanctions-api")
 CACHED = as_bool(env_str("OSAPI_CACHED", "false"))
 BASE_SCHEMA = "Thing"
