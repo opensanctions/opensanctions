@@ -57,6 +57,13 @@ export interface ITargetStats {
   schemata: Array<ITargetSchema>
 }
 
+export interface IDatasetDetails {
+  description?: string
+  targets: ITargetStats
+  resources: Array<IResource>
+}
+
+
 export interface IDatasetBase {
   name: string
   type: string
@@ -64,7 +71,6 @@ export interface IDatasetBase {
   link: string
   opensanctions_url: string
   summary: string
-  description?: string
   index_url: string
   last_change: string
   last_export: string
@@ -72,8 +78,6 @@ export interface IDatasetBase {
   issue_levels: IIssueType
   issues_url: string
   target_count: number
-  targets: ITargetStats
-  resources: Array<IResource>
 }
 
 export interface ISourceData {
@@ -138,6 +142,7 @@ export interface IIndex {
   issues_url: string
   schemata: Array<string>
   datasets: Array<IDataset>
+  details: { [key: string]: IDatasetDetails }
 }
 
 export interface IOpenSanctionsEntity extends IEntityDatum {

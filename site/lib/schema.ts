@@ -3,7 +3,7 @@
 // https://schema.org/Dataset
 
 import { BASE_URL, LICENSE_URL, CLAIM, EMAIL, SITE } from './constants';
-import { IArticleInfo, IDataset, IResource, ISourcePublisher, isSource, OpenSanctionsEntity } from './types';
+import { IArticleInfo, IDataset, IDatasetDetails, IResource, ISourcePublisher, isSource, OpenSanctionsEntity } from './types';
 
 
 export function getSchemaOpenSanctionsOrganization() {
@@ -50,7 +50,7 @@ function getResourceDataDownload(resource: IResource) {
   }
 }
 
-export function getSchemaDataset(dataset: IDataset) {
+export function getSchemaDataset(dataset: IDataset, details?: IDatasetDetails) {
   let schema: any = {
     "@context": "https://schema.org/",
     "@type": "Dataset",
@@ -62,7 +62,12 @@ export function getSchemaDataset(dataset: IDataset) {
     "creator": getSchemaOpenSanctionsOrganization(),
     "isAccessibleForFree": true,
     "dateModified": dataset.last_change,
-    "distribution": dataset.resources.map((r) => getResourceDataDownload(r))
+  }
+  if (details !== undefined) {
+    schema = {
+      ...schema,
+      "distribution": details.resources.map((r) => getResourceDataDownload(r))
+    }
   }
   if (isSource(dataset)) {
     schema = {

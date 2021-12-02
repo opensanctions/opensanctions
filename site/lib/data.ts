@@ -2,7 +2,7 @@ import { join } from 'path'
 import { createInterface } from 'readline';
 import { promises, createReadStream } from 'fs';
 import { IModelDatum } from "@alephdata/followthemoney"
-import { IDataset, IDatasetBase, ICollection, ISource, IIssueIndex, IIndex, IIssue, IOpenSanctionsEntity } from "./types";
+import { IDataset, IDatasetBase, ICollection, ISource, IIssueIndex, IIndex, IIssue, IOpenSanctionsEntity, IDatasetDetails } from "./types";
 import { BASE_URL } from "./constants";
 
 export type DataCache = {
@@ -21,7 +21,10 @@ async function parseJsonFile(name: string): Promise<any> {
 export async function fetchIndex(): Promise<IIndex> {
   if (CACHE.index === null) {
     const index = await parseJsonFile('index.json');
-    index.datasets = index.datasets.map((ds: IDatasetBase) => {
+    index.details = {};
+    index.datasets = index.datasets.map((raw: any) => {
+      const { description, targets, resources, ...ds } = raw;
+      index.details[ds.name] = { description, targets, resources } as IDatasetDetails
       ds.link = `/datasets/${ds.name}/`
       ds.opensanctions_url = BASE_URL + ds.link
       return ds.type === 'collection' ? ds as ICollection : ds as ISource
@@ -40,6 +43,11 @@ export async function getDatasets(): Promise<Array<IDataset>> {
 export async function getDatasetByName(name: string): Promise<IDataset | undefined> {
   const datasets = await getDatasets()
   return datasets.find((dataset) => dataset.name === name)
+}
+
+export async function getDatasetDetails(name: string): Promise<IDatasetDetails | undefined> {
+  const index = await fetchIndex()
+  return index.details[name];
 }
 
 export async function getIssues(): Promise<Array<IIssue>> {

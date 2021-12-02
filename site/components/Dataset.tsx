@@ -12,10 +12,6 @@ type DatasetProps = {
   dataset: IDataset
 }
 
-function DatasetDescription({ dataset }: DatasetProps) {
-  return <Markdown markdown={dataset.description} />;
-}
-
 type DatasetIconProps = {
   dataset: IDataset
   color?: string
@@ -64,5 +60,4 @@ function DatasetCard({ dataset }: DatasetProps) {
 export default class Dataset {
   static Card = DatasetCard
   static Icon = DatasetIcon
-  static Description = DatasetDescription
 }

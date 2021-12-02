@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import Table from 'react-bootstrap/Table'
 
-import { IDataset, ICollection, isSource } from '../lib/types'
+import { IDataset, ICollection, isSource, IDatasetDetails } from '../lib/types'
 import { FormattedDate, HelpLink, Numeric, Plural, URLLink } from './util'
 import { wordList } from '../lib/util'
 import { SPACER } from '../lib/constants'
@@ -11,11 +11,12 @@ import styles from '../styles/Dataset.module.scss'
 
 type DatasetScreenProps = {
   dataset: IDataset
+  details: IDatasetDetails
   collections?: Array<ICollection>
 }
 
-export default function DatasetMetadataTable({ dataset, collections }: DatasetScreenProps) {
-  const schemaList = wordList(dataset.targets.schemata.map((ts) =>
+export default function DatasetMetadataTable({ dataset, details, collections }: DatasetScreenProps) {
+  const schemaList = wordList(details.targets.schemata.map((ts) =>
     <span className={styles.noWrap}>
       <Plural value={ts.count} one={ts.label} many={ts.plural} />
       <HelpLink href={`/reference/#schema.${ts.name}`} />
@@ -29,8 +30,8 @@ export default function DatasetMetadataTable({ dataset, collections }: DatasetSc
             Targets<HelpLink href="/reference/#targets" />:
           </th>
           <td>
-            {dataset.targets.schemata.length == 1 && schemaList}
-            {dataset.targets.schemata.length > 1 && (
+            {details.targets.schemata.length == 1 && schemaList}
+            {details.targets.schemata.length > 1 && (
               <>
                 {schemaList}
                 <> (<Numeric value={dataset.target_count} /> total)</>
