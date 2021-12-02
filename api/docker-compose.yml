@@ -26,7 +26,7 @@ services:
         condition: on-failure
 
   app:
-    image: pudo/opensanctions-api
+    image: pudo/opensanctions-api:latest
     build: .
     depends_on:
       - index

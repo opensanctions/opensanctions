@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import warnings
+from uuid import uuid4
 from pprint import pprint
 from typing import Any, AsyncGenerator, Dict, Generator, List, Optional, Tuple
 from elasticsearch import AsyncElasticsearch, TransportError
@@ -26,10 +27,10 @@ log = logging.getLogger("osapi.index")
 es = AsyncElasticsearch(hosts=[ES_URL])
 
 
-async def generate_entities(loader):
+async def generate_entities(index, loader):
     for idx, entity in enumerate(loader):
         if idx % 1000 == 0 and idx > 0:
-            log.info("Index [%s]: %d entities...", ES_INDEX, idx)
+            log.info("Index [%s]: %d entities...", index, idx)
         data = entity.to_dict()
         for _, adj in loader.get_adjacent(entity):
             for prop, value in adj.itervalues():
@@ -41,26 +42,33 @@ async def generate_entities(loader):
                 data[field].append(value)
 
         entity_id = data.pop("id")
-        yield {"_index": ES_INDEX, "_id": entity_id, "_source": data}
+        yield {"_index": index, "_id": entity_id, "_source": data}
 
 
 async def index():
-    exists = await es.indices.exists(index=ES_INDEX)
-    if exists:
-        log.info("Delete existing index: %s", ES_INDEX)
-        await es.indices.delete(index=ES_INDEX)
-
+    prefix = f"{ES_INDEX}-"
+    next_index = f"{prefix}{uuid4().hex}"
     dataset = get_scope()
     schemata = Statement.all_schemata(dataset)
     mapping = make_mapping(schemata)
-    log.info("Create index: %s", ES_INDEX)
-    await es.indices.create(index=ES_INDEX, mappings=mapping, settings=INDEX_SETTINGS)
+    log.info("Create index: %s", next_index)
+    await es.indices.create(index=next_index, mappings=mapping, settings=INDEX_SETTINGS)
     db = get_database(cached=True)
     loader = db.view(dataset, assembler=export_assembler)
-    await async_bulk(es, generate_entities(loader), stats_only=True)
+    await async_bulk(es, generate_entities(next_index, loader), stats_only=True)
     log.info("Indexing done, force merge")
-    await es.indices.refresh(index=ES_INDEX)
-    await es.indices.forcemerge(index=ES_INDEX)
+    await es.indices.refresh(index=next_index)
+    await es.indices.forcemerge(index=next_index)
+
+    log.info("Index [%s] is now aliased to: %s", next_index, ES_INDEX)
+    await es.indices.put_alias(index=next_index, name=ES_INDEX)
+
+    indices = await es.cat.indices(format="json")
+    for index in indices:
+        name = index.get("index")
+        if name.startswith(prefix) and name != next_index:
+            log.info("Delete existing index: %s", name)
+            await es.indices.delete(index=name)
 
 
 def filter_query(shoulds, dataset: Dataset, schema: Optional[Schema] = None):

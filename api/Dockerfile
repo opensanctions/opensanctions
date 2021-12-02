@@ -14,4 +14,4 @@ COPY . /api
 RUN pip install -e /api
 
 USER app:app
-CMD ["/usr/local/bin/uvicorn", "osapi.app:app", "--port", "8000", "--host", "0.0.0.0"]
+CMD ["/usr/local/bin/uvicorn", "osapi.app:app", "--proxy-headers", "--port", "8000", "--host", "0.0.0.0"]
