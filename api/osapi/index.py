@@ -1,7 +1,6 @@
 import asyncio
 import logging
 import warnings
-from uuid import uuid4
 from pprint import pprint
 from typing import Any, AsyncGenerator, Dict, Generator, List, Optional, Tuple
 from elasticsearch import AsyncElasticsearch, TransportError
@@ -46,9 +45,16 @@ async def generate_entities(index, loader):
 
 
 async def index():
-    prefix = f"{ES_INDEX}-"
-    next_index = f"{prefix}{uuid4().hex}"
     dataset = get_scope()
+
+    latest = Statement.max_last_seen(dataset)
+    ts = latest.strftime("%Y%m%d%H%M%S")
+    prefix = f"{ES_INDEX}-"
+    next_index = f"{prefix}{ts}"
+    exists = await es.indices.exists(index=next_index)
+    if exists:
+        log.info("Index [%s] is up to date.", next_index)
+        return
     schemata = Statement.all_schemata(dataset)
     mapping = make_mapping(schemata)
     log.info("Create index: %s", next_index)
@@ -133,15 +139,6 @@ async def query_entities(query: Dict[Any, Any], limit: int = 5):
     resp = await es.search(index=ES_INDEX, query=query, size=limit)
     for entity, score in result_entities(resp):
         yield entity, score
-
-
-# async def match_entities(
-#     dataset: Dataset, query: Entity, limit: int = 5, fuzzy: bool = False
-# ) -> AsyncGenerator[Tuple[Entity, float], None]:
-#     filtered = entity_query(dataset, query)
-#     resp = await es.search(index=ES_INDEX, query=filtered, size=limit)
-#     for entity, score in result_entities(resp):
-#         yield entity, score
 
 
 async def get_entity(entity_id: str) -> Optional[Entity]:
