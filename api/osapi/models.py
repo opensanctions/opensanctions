@@ -13,6 +13,7 @@ EntityProperties = Dict[str, List[Union[str, "EntityResponse"]]]
 
 class EntityResponse(BaseModel):
     id: str = Field(..., example="NK-A7z....")
+    caption: str = Field(..., example="John Doe")
     schema_: str = Field(..., example="LegalEntity", alias="schema")
     properties: EntityProperties = Field(..., example={"name": ["John Doe"]})
     datasets: List[str] = Field([], example=["us_ofac_sdn"])

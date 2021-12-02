@@ -16,7 +16,7 @@ from opensanctions.core.entity import Entity
 from opensanctions.exporters import export_assembler
 from opensanctions.model import Statement
 
-from osapi.settings import ES_INDEX, ES_URL
+from osapi.settings import ES_INDEX, ES_URL, BASE_SCHEMA
 from osapi.mapping import make_mapping, INDEX_SETTINGS, TEXT_TYPES
 from osapi.data import get_scope, get_database
 
@@ -31,14 +31,15 @@ async def generate_entities(index, loader):
         if idx % 1000 == 0 and idx > 0:
             log.info("Index [%s]: %d entities...", index, idx)
         data = entity.to_dict()
-        for _, adj in loader.get_adjacent(entity):
-            for prop, value in adj.itervalues():
-                if prop.type in (registry.date, registry.entity):
-                    continue
-                field = prop.type.group or "text"
-                if field not in data:
-                    data[field] = []
-                data[field].append(value)
+        if entity.schema.is_a(BASE_SCHEMA):
+            for _, adj in loader.get_adjacent(entity):
+                for prop, value in adj.itervalues():
+                    if prop.type in (registry.date, registry.entity):
+                        continue
+                    field = prop.type.group or "text"
+                    if field not in data:
+                        data[field] = []
+                    data[field].append(value)
 
         entity_id = data.pop("id")
         yield {"_index": index, "_id": entity_id, "_source": data}
@@ -135,7 +136,7 @@ def result_entities(result) -> Generator[Tuple[Entity, float], None, None]:
 
 
 async def query_entities(query: Dict[Any, Any], limit: int = 5):
-    pprint(query)
+    # pprint(query)
     resp = await es.search(index=ES_INDEX, query=query, size=limit)
     for entity, score in result_entities(resp):
         yield entity, score
