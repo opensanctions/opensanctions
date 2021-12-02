@@ -1,6 +1,6 @@
 
 export const SITE = "OpenSanctions"
-export const BASE_URL = "https://opensanctions.org"
+export const BASE_URL = "https://www.opensanctions.org"
 export const INDEX_URL = "https://data.opensanctions.org/datasets/latest/index.json"
 export const ISSUES_URL = "https://data.opensanctions.org/datasets/latest/issues.json"
 export const LICENSE_URL = "https://creativecommons.org/licenses/by/4.0/"
