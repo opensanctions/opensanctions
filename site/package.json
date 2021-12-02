@@ -15,6 +15,7 @@
     "gray-matter": "^4.0.3",
     "lodash": "^4.17.21",
     "next": "12.0.4",
+    "query-string": "^7.0.1",
     "react": "17.0.2",
     "react-bootstrap": "2.0.3",
     "react-bootstrap-icons": "^1.6.1",
@@ -27,6 +28,7 @@
     "remark-parse": "^9.0.0",
     "remark-rehype": "8.1.0",
     "sass": "^1.44.0",
+    "swr": "^1.1.0",
     "unified": "9.2.2"
   },
   "devDependencies": {
