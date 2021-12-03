@@ -16,7 +16,7 @@ import Layout from '../components/Layout'
 import { ISearchAPIResponse } from '../lib/types';
 import { fetchIndex, getDatasets } from '../lib/data';
 import { GetStaticPropsContext, InferGetStaticPropsType } from 'next';
-import { SearchFacet } from '../components/Search';
+import { SearchFacet, SearchPagination } from '../components/Search';
 
 
 const SUMMARY = "Provide a search term to search across sanctions lists and other persons of interest.";
@@ -30,7 +30,12 @@ export default function Search({ modelData, datasets }: InferGetStaticPropsType<
   const apiUrl = queryString.stringifyUrl({
     // 'url': 'https://api.opensanctions.org/search/default',
     'url': 'http://localhost:8000/search/default',
-    'query': { 'q': router.query.q, 'limit': 25, 'schema': 'Thing' }
+    'query': {
+      'q': router.query.q,
+      'limit': 25,
+      'offset': router.query.offset || 0,
+      'schema': 'Thing'
+    }
   })
   const { data, error } = useSWR(apiUrl, fetcher)
   const response = data ? data as ISearchAPIResponse : undefined
@@ -65,9 +70,12 @@ export default function Search({ modelData, datasets }: InferGetStaticPropsType<
               <Spinner animation="grow" variant="primary" />
             )}
             {response && response.results && (
-              <ul>
-                {response.results.map((r) => <li key={r.id}>{r.caption} [{r.schema}]</li>)}
-              </ul>
+              <>
+                <ul>
+                  {response.results.map((r) => <li key={r.id}>{r.caption} [{r.schema}]</li>)}
+                </ul>
+                <SearchPagination response={response} />
+              </>
             )}
           </Col>
           <Col md={4}>
