@@ -123,6 +123,13 @@ def text_query(dataset: Dataset, schema: Schema, query: str, fuzzy: bool = False
     return filter_query([should], dataset, schema)
 
 
+def facet_aggregations(fields: List[str] = []) -> Dict[str, Any]:
+    aggs = {}
+    for field in fields:
+        aggs[field] = {"terms": {"field": field, "size": 1000}}
+    return aggs
+
+
 def result_entity(data) -> Tuple[Entity, float]:
     source = data.get("_source")
     source["id"] = data.get("_id")
@@ -140,6 +147,48 @@ async def query_entities(query: Dict[Any, Any], limit: int = 5):
     resp = await es.search(index=ES_INDEX, query=query, size=limit)
     for entity, score in result_entities(resp):
         yield entity, score
+
+
+async def query_results(
+    dataset: Dataset,
+    query: Dict[Any, Any],
+    limit: int,
+    nested: bool = False,
+    offset: Optional[int] = None,
+    aggregations: Optional[Dict] = None,
+):
+    results = []
+    resp = await es.search(
+        index=ES_INDEX, query=query, size=limit, from_=offset, aggregations=aggregations
+    )
+    for result, score in result_entities(resp):
+        data = await serialize_entity(dataset, result, nested=nested)
+        data["score"] = score
+        results.append(data)
+    hits = resp.get("hits", {})
+    total = hits.get("total")
+    facets = {}
+    for field, agg in resp.get("aggregations", {}).items():
+        facets[field] = {"label": field, "values": []}
+        # print(field, agg)
+        for bucket in agg.get("buckets", []):
+            key = bucket.get("key")
+            value = {"name": key, "label": key, "count": bucket.get("doc_count")}
+            if field == "datasets":
+                facets[field]["label"] = "Data sources"
+                value["label"] = Dataset.require(key).title
+            if field in registry.groups:
+                type_ = registry.groups[field]
+                facets[field]["label"] = type_.plural
+                value["label"] = type_.caption(key)
+            facets[field]["values"].append(value)
+    return {
+        "results": results,
+        "facets": facets,
+        "total": total.get("value"),
+        "limit": limit,
+        "offset": offset,
+    }
 
 
 async def get_entity(entity_id: str) -> Optional[Entity]:
@@ -195,17 +244,6 @@ async def serialize_entity(
 ) -> Dict[str, Any]:
     depth = 1 if nested else -1
     return await _to_nested_dict(dataset, entity, depth=depth, path=[])
-
-
-async def query_results(
-    dataset: Dataset, query: Dict[Any, Any], limit: int, nested: bool
-):
-    results = []
-    async for result, score in query_entities(query, limit=limit):
-        data = await serialize_entity(dataset, result, nested=nested)
-        data["score"] = score
-        results.append(data)
-    return results
 
 
 async def get_index_stats() -> Dict[str, Any]:

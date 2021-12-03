@@ -8,6 +8,7 @@ from followthemoney.types import registry
 from starlette.responses import RedirectResponse
 from followthemoney import model
 from followthemoney.exc import InvalidData
+from api.osapi.index import facet_aggregations
 from opensanctions.model import db
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.entity import Entity
@@ -119,6 +120,7 @@ async def search(
     dataset: str = PATH_DATASET,
     schema: str = Query(settings.BASE_SCHEMA, title="Types of entities that can match"),
     limit: int = Query(10, title="Number of results to return", lt=MAX_LIMIT),
+    offset: int = Query(0, title="Start at result", lt=MAX_LIMIT),
     fuzzy: bool = Query(False, title="Enable n-gram matching of partial names"),
     nested: bool = Query(False, title="Include adjacent entities in response"),
 ):
@@ -131,8 +133,10 @@ async def search(
         if schema_obj is None:
             raise HTTPException(400, detail="Invalid schema")
         query = text_query(ds, schema_obj, q, fuzzy=fuzzy)
-        results = await query_results(ds, query, limit, nested)
-        return {"results": results}
+        aggregations = facet_aggregations(["datasets", "topics", "countries"])
+        return await query_results(
+            ds, query, limit, aggregations=aggregations, nested=nested, offset=offset
+        )
     finally:
         db.session.close()
 
@@ -206,9 +210,10 @@ async def match(
             entity = Entity(example.get("schema"))
             for prop, value in example.get("properties").items():
                 entity.add(prop, value, cleaned=False)
-            query = entity_query(ds, entity, fuzzy=fuzzy)
-            results = await query_results(ds, query, limit, nested)
-            responses[name] = {"query": entity.to_dict(), "results": results}
+            entity_query = entity_query(ds, entity, fuzzy=fuzzy)
+            results = await query_results(ds, entity_query, limit, nested=nested)
+            results["query"] = entity.to_dict()
+            responses[name] = results
         return {"responses": responses}
     finally:
         db.session.close()

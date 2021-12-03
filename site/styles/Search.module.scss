@@ -1,0 +1,23 @@
+@import './variables.scss';
+
+
+// search facets
+.facet {
+    margin-bottom: 1em;
+}
+
+.facetHeader {
+    font-weight: bold;
+}
+
+.facetCount {
+    float: right;
+    color: $text-muted;
+}
+
+.facetLabel {
+    display: block;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}

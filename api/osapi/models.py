@@ -40,8 +40,23 @@ class HealthzResponse(BaseModel):
     status: str = "ok"
 
 
+class SearchFacetItem(BaseModel):
+    name: str
+    label: str
+    count: int = 1
+
+
+class SearchFacet(BaseModel):
+    label: str
+    values: List[SearchFacetItem]
+
+
 class SearchResponse(BaseModel):
     results: List[EntityResponse]
+    facets: Dict[str, SearchFacet]
+    limit: int
+    offset: int = 0
+    total: int = 0
 
 
 class EntityExample(BaseModel):

@@ -155,6 +155,25 @@ export interface IOpenSanctionsEntity extends IEntityDatum {
   properties: EntityProperties
 }
 
+export interface ISearchFacetItem {
+  name: string
+  label: string
+  count: number
+}
+
+export interface ISearchFacet {
+  label: string
+  values: Array<ISearchFacetItem>
+}
+
+export interface ISearchAPIResponse {
+  total: number
+  limit: number
+  offset: number
+  results: Array<IOpenSanctionsEntity>
+  facets: { [prop: string]: ISearchFacet }
+}
+
 export type Value = string | OpenSanctionsEntity
 export type Values = Array<Value>
 export type EntityProperties = { [prop: string]: Array<Value> }
@@ -236,3 +255,4 @@ export class OpenSanctionsEntity extends Entity {
     return new OpenSanctionsEntity(model, data)
   }
 }
+
