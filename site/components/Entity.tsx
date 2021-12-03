@@ -1,12 +1,17 @@
 import Link from 'next/link'
 import Card from 'react-bootstrap/Card';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 
-import { OpenSanctionsEntity } from '../lib/types'
+import { IDataset, OpenSanctionsEntity } from '../lib/types'
 
-import styles from '../styles/Entity.module.scss'
 import { Table } from 'react-bootstrap';
 import { PropertyValues } from './Property';
 import { Property } from '@alephdata/followthemoney';
+
+import styles from '../styles/Entity.module.scss'
+import { Summary } from './util';
+import Dataset from './Dataset';
 
 export type EntityProps = {
   entity: OpenSanctionsEntity,
@@ -46,5 +51,77 @@ export function EntityCard({ entity, via }: EntityProps) {
         </tbody>
       </Table>
     </Card>
+  );
+}
+
+export type EntitySidebarProps = {
+  entity: OpenSanctionsEntity,
+}
+
+export function EntitySidebar({ entity }: EntityProps) {
+  const properties = entity.getDisplayProperties();
+  const sidebarProperties = properties.filter((p) => p.type.name !== 'entity' && p.name !== 'notes');
+  return (
+    <>
+      <p>
+        <strong>Type</strong><br />
+        <span>{entity.schema.label}</span>
+      </p>
+      {sidebarProperties.map((prop) =>
+        <p key={prop.name}>
+          <strong>{prop.label}</strong><br />
+          <span><PropertyValues prop={prop} values={entity.getProperty(prop)} /></span>
+        </p>
+      )}
+    </>
+  );
+}
+
+export type EntityDisplayProps = {
+  entity: OpenSanctionsEntity,
+  datasets: Array<IDataset>
+}
+
+export function EntityDisplay({ entity, datasets }: EntityDisplayProps) {
+  const properties = entity.getDisplayProperties();
+  const entityProperties = properties.filter((p) => p.type.name === 'entity');
+  return (
+    <Row>
+      <Col md={3}>
+        <EntitySidebar entity={entity} />
+      </Col>
+      <Col md={9}>
+        {entity.hasProperty('notes') && (
+          <div className={styles.entityPageSection}>
+            {/* <h2>Notes</h2> */}
+            {entity.getProperty('notes').map((v, idx) => (
+              <Summary key={idx} summary={v as string} />
+            ))}
+          </div>
+        )}
+        {entityProperties.map((prop) =>
+          <div className={styles.entityPageSection} key={prop.qname}>
+            <h2>{prop.getRange().plural}</h2>
+            {entity.getProperty(prop).map((value) =>
+              <EntityCard
+                key={(value as OpenSanctionsEntity).id}
+                entity={value as OpenSanctionsEntity}
+                via={prop}
+              />
+            )}
+          </div>
+        )}
+        <div className={styles.entityPageSection}>
+          <h2>Data sources</h2>
+          <Row>
+            {datasets.map((d) => (
+              <Col md={4} key={d.name}>
+                <Dataset.Card dataset={d} />
+              </Col>
+            ))}
+          </Row>
+        </div>
+      </Col>
+    </Row>
   );
 }

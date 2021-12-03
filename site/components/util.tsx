@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Nav from 'react-bootstrap/Nav';
 import Badge from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
+import Spinner from 'react-bootstrap/Spinner';
 import { FileEarmarkCodeFill, Link45deg, QuestionCircleFill } from 'react-bootstrap-icons';
 import { markdownToHtml } from '../lib/util';
 
@@ -182,4 +183,12 @@ export function SpacedList({ values }: SpacedListProps) {
         .reduce((prev, curr) => [prev, SPACER, curr])}
     </>
   )
+}
+
+export function SectionSpinner() {
+  return (
+    <div className={styles.spinner}>
+      <Spinner animation="grow" variant="secondary" />
+    </div>
+  );
 }

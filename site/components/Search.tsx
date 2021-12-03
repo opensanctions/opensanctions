@@ -1,12 +1,21 @@
-import { ISearchAPIResponse, ISearchFacet } from "../lib/types";
+import useSWR from 'swr';
+
+import { IDataset, ISearchAPIResponse, ISearchFacet, OpenSanctionsEntity } from "../lib/types";
 import Pagination from 'react-bootstrap/Pagination';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Card from 'react-bootstrap/Card';
-import { NumericBadge } from "./util";
+import Modal from "react-bootstrap/Modal";
+import Container from 'react-bootstrap/Container';
+import { NumericBadge, SectionSpinner } from "./util";
 import { useRouter } from 'next/router';
 
 import styles from '../styles/Search.module.scss'
 import { MouseEvent } from "react";
+import { API_URL } from "../lib/constants";
+import { swrFetcher } from "../lib/util";
+import { Model } from '@alephdata/followthemoney';
+import { EntityDisplay } from './Entity';
+
 
 type SearchFacetProps = {
   facet: ISearchFacet
@@ -33,6 +42,9 @@ type SearchPaginationProps = {
 }
 
 export function SearchPagination({ response }: SearchPaginationProps) {
+  if (response.total === 0) {
+    return null;
+  }
   const router = useRouter();
   const nextOffset = response.offset + response.limit;
   const upper = Math.min(response.total, nextOffset);
@@ -61,5 +73,48 @@ export function SearchPagination({ response }: SearchPaginationProps) {
       </Pagination.Item>
       <Pagination.Next disabled={!hasNext} onClick={handleNext} />
     </Pagination>
+  );
+}
+
+
+type SearchEntityModalProps = {
+  entityId: string
+  datasets: Array<IDataset>
+  model: Model
+}
+
+export function SearchEntityModal({ entityId, datasets, model }: SearchEntityModalProps) {
+  const router = useRouter();
+  const { data, error } = useSWR(`${API_URL}/entities/${entityId}`, swrFetcher)
+
+  const handleClose = () => {
+    router.push({ query: { ...router.query, entity: undefined } });
+  }
+
+  if (!data) {
+    return (
+      <Modal show dialogClassName="wide-modal" onHide={handleClose}>
+        <Modal.Header closeButton>Loading: {entityId}</Modal.Header>
+        <Modal.Body>
+          <SectionSpinner />
+        </Modal.Body>
+      </Modal>
+    );
+  }
+
+  const entity = OpenSanctionsEntity.fromData(model, data)
+  const sources = entity.datasets
+    .map((name) => datasets.find((d) => d.name === name))
+    .filter((d) => d !== undefined)
+
+  return (
+    <Modal show dialogClassName="wide-modal" onHide={handleClose}>
+      <Modal.Header closeButton>{entity.caption}</Modal.Header>
+      <Modal.Body>
+        <Container>
+          <EntityDisplay entity={entity} datasets={sources as Array<IDataset>} />
+        </Container>
+      </Modal.Body>
+    </Modal>
   );
 }

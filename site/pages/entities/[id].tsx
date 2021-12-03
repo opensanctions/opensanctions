@@ -16,8 +16,7 @@ import { BASE_URL } from '../../lib/constants';
 import styles from '../../styles/Entity.module.scss'
 import { IModelDatum, Model } from '@alephdata/followthemoney';
 import Dataset from '../../components/Dataset';
-import { PropertyValues } from '../../components/Property';
-import { EntityCard } from '../../components/Entity';
+import { EntityCard, EntityDisplay, EntitySidebar } from '../../components/Entity';
 
 type CanonicalRedirectProps = {
   entity: IOpenSanctionsEntity
@@ -54,59 +53,14 @@ export default function EntityScreen({ id, data, modelData, datasets }: DatasetS
   const model = new Model(modelData)
   const entity = OpenSanctionsEntity.fromData(model, data)
   const structured = getSchemaEntityPage(entity, datasets)
-  const properties = entity.getDisplayProperties();
-  const sidebarProperties = properties.filter((p) => p.type.name !== 'entity' && p.name !== 'notes');
-  const entityProperties = properties.filter((p) => p.type.name === 'entity');
+
   return (
     <Layout.Base title={entity.caption} structured={structured}>
       <Container>
         <h1>
           {entity.caption}
         </h1>
-        <Row>
-          <Col md={3}>
-            <p>
-              <strong>Type</strong><br />
-              <span>{entity.schema.label}</span>
-            </p>
-            {sidebarProperties.map((prop) =>
-              <p key={prop.name}>
-                <strong>{prop.label}</strong><br />
-                <span><PropertyValues prop={prop} values={entity.getProperty(prop)} /></span>
-              </p>
-            )}
-          </Col>
-          <Col md={9}>
-            {entity.hasProperty('notes') && (
-              <div className={styles.entityPageSection}>
-                {/* <h2>Notes</h2> */}
-                {entity.getProperty('notes').map((v, idx) => <Summary key={idx} summary={v as string} />)}
-              </div>
-            )}
-            {entityProperties.map((prop) =>
-              <div className={styles.entityPageSection} key={prop.qname}>
-                <h2>{prop.getRange().plural}</h2>
-                {entity.getProperty(prop).map((value) =>
-                  <EntityCard
-                    key={(value as OpenSanctionsEntity).id}
-                    entity={value as OpenSanctionsEntity}
-                    via={prop}
-                  />
-                )}
-              </div>
-            )}
-            <div className={styles.entityPageSection}>
-              <h2>Data sources</h2>
-              <Row>
-                {datasets.map((d) => (
-                  <Col md={4} key={d.name}>
-                    <Dataset.Card dataset={d} />
-                  </Col>
-                ))}
-              </Row>
-            </div>
-          </Col>
-        </Row>
+        <EntityDisplay entity={entity} datasets={datasets} />
       </Container>
     </Layout.Base >
   )

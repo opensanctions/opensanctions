@@ -32,6 +32,8 @@ export function wordList(arr: Array<any>, sep: string): ReactElement {
     ]), [<span key={arr[0]}>{arr[0]}</span>])
 }
 
+export const swrFetcher = (url: string) => fetch(url).then(res => res.json())
+
 export function getAllParents(schemata: Array<Schema>): Array<Schema> {
   const parents = Array.from(schemata)
   for (const schema of schemata) {
