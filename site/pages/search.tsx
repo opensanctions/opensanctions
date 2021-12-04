@@ -15,7 +15,7 @@ import Layout from '../components/Layout'
 import { IOpenSanctionsEntity, ISearchAPIResponse } from '../lib/types';
 import { fetchIndex, getDatasets } from '../lib/data';
 import { GetStaticPropsContext, InferGetStaticPropsType } from 'next';
-import { SearchEntityModal, SearchFacet, SearchPagination } from '../components/Search';
+import { SearchEntityModal, SearchFacet, SearchPagination, SearchResultEntity } from '../components/Search';
 import styles from '../styles/Search.module.scss'
 import { swrFetcher } from '../lib/util';
 import { API_URL, SEARCH_DATASET } from '../lib/constants';
@@ -48,11 +48,6 @@ export default function Search({ modelData, datasets }: InferGetStaticPropsType<
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     router.push({ query: { q: realQuery, offset: 0 } });
-  }
-
-  const handleClickEntity = (e: MouseEvent<HTMLElement>, entity: IOpenSanctionsEntity) => {
-    e.preventDefault()
-    router.push({ query: { ...router.query, entity: entity.id } });
   }
 
   return (
@@ -100,13 +95,9 @@ export default function Search({ modelData, datasets }: InferGetStaticPropsType<
                     </p>
                   </Alert>
                 )}
-                <ul>
+                <ul className={styles.resultList}>
                   {response.results.map((r) => (
-                    <li key={r.id}>
-                      <a onClick={(e) => handleClickEntity(e, r)} href={`#${r.id}`}>
-                        {r.caption} [{r.schema}]
-                      </a>
-                    </li>
+                    <SearchResultEntity key={r.id} data={r} model={model} />
                   ))}
                 </ul>
                 <SearchPagination response={response} />

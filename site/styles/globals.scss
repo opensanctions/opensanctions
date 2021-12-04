@@ -37,6 +37,10 @@ td.numeric, th.numeric {
     margin-left: 1.5em;
 }
 
+.badge.bg-light {
+    color: $text-muted;
+}
+
 .card-group {
     margin-bottom: 1em;
 

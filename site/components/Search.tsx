@@ -3,18 +3,21 @@ import useSWR from 'swr';
 import { Model } from '@alephdata/followthemoney';
 import Pagination from 'react-bootstrap/Pagination';
 import ListGroup from 'react-bootstrap/ListGroup';
+import Container from 'react-bootstrap/Container';
 import Card from 'react-bootstrap/Card';
 import Modal from "react-bootstrap/Modal";
-import Container from 'react-bootstrap/Container';
+import Badge from "react-bootstrap/Badge";
 
-import { IDataset, IOpenSanctionsEntity, ISearchAPIResponse, ISearchFacet, OpenSanctionsEntity } from "../lib/types";
+import { IDataset, IOpenSanctionsEntity, ISearchAPIResponse, ISearchFacet, OpenSanctionsEntity, Values } from "../lib/types";
 import { NumericBadge, SectionSpinner } from "./util";
 import { MouseEvent } from "react";
-import { API_URL } from "../lib/constants";
+import { API_URL, SPACER } from "../lib/constants";
 import { swrFetcher } from "../lib/util";
 import { EntityDisplay } from './Entity';
 
 import styles from '../styles/Search.module.scss'
+import { TypeValues } from './Property';
+
 
 type SearchFacetProps = {
   facet: ISearchFacet
@@ -83,19 +86,36 @@ type SearchResultEntityProps = {
 export function SearchResultEntity({ data, model }: SearchResultEntityProps) {
   const router = useRouter();
   const entity = OpenSanctionsEntity.fromData(model, data);
+  const countryType = model.getType('country');
+  const countries = entity.getTypeValues(countryType) as Values;
+  const topicType = model.getType('topic');
+  const topics = entity.getTypeValues(topicType) as Values;
 
   const handleClickEntity = (e: MouseEvent<HTMLElement>) => {
     e.preventDefault()
     router.push({
-      query: {}
+      query: { ...router.query, entity: entity.id }
     });
   }
 
   return (
-    <li key={entity.id}>
-      <a onClick={(e) => handleClickEntity(e)} href={`#${entity.id}`}>
-        {entity.caption} [{entity.schema}]
-      </a>
+    <li key={entity.id} className={styles.resultItem}>
+      <div className={styles.resultTitle}>
+        <a onClick={(e) => handleClickEntity(e)} href={`/entities/${entity.id}/`}>
+          {entity.caption}
+        </a>
+      </div>
+      <p className={styles.resultDetails}>
+        <Badge bg="light">{entity.schema.label}</Badge>
+        {topics.length > 0 && (
+          <>
+            {SPACER}
+            <Badge bg="warning"><TypeValues type={topicType} values={topics} /></Badge>
+          </>
+        )}
+        {SPACER}
+        <TypeValues type={countryType} values={countries} />
+      </p>
     </li>
   );
 }

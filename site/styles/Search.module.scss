@@ -11,6 +11,25 @@
 }
 
 
+// results
+.resultList {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.resultTitle {
+    font-size: 1.2em;
+    font-weight: bold;
+    a {
+        text-decoration: none;
+    }
+}
+
+.resultDetails {
+    color: $text-muted;
+}
+
 // search facets
 .facet {
     margin-bottom: 1em;
@@ -22,7 +41,7 @@
 
 .facetCount {
     float: right;
-    color: $text-muted;
+    // color: $text-muted;
 }
 
 .facetLabel {
