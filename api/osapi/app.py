@@ -116,7 +116,7 @@ async def healthz():
     response_model=SearchResponse,
 )
 async def search(
-    q: str,
+    q: str = Query("", title="Query text"),
     dataset: str = PATH_DATASET,
     schema: str = Query(settings.BASE_SCHEMA, title="Types of entities that can match"),
     limit: int = Query(10, title="Number of results to return", lt=MAX_LIMIT),

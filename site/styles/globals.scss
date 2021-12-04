@@ -93,7 +93,13 @@ td.numeric, th.numeric {
 }
 
 // modals
-.wide-modal {
+.modal-wide {
     width: 80%;
     max-width: 80%;
+}
+
+.modal-header {
+    font-size: 1.3em;
+    font-weight: bold;
+    margin-left: 0.6em;
 }

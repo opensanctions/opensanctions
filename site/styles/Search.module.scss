@@ -2,7 +2,12 @@
 
 // main search
 .searchBox {
-    margin-bottom: 1em;
+    margin-bottom: 0.2em;
+}
+
+.searchNotice {
+    color: $text-muted;
+    font-size: 0.9em;
 }
 
 

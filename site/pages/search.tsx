@@ -8,7 +8,7 @@ import queryString from 'query-string';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
-import Spinner from 'react-bootstrap/Spinner';
+import Alert from 'react-bootstrap/Alert';
 import Container from 'react-bootstrap/Container';
 
 import Layout from '../components/Layout'
@@ -19,7 +19,7 @@ import { SearchEntityModal, SearchFacet, SearchPagination } from '../components/
 import styles from '../styles/Search.module.scss'
 import { swrFetcher } from '../lib/util';
 import { API_URL, SEARCH_DATASET } from '../lib/constants';
-import { SectionSpinner } from '../components/util';
+import { FormattedDate, SectionSpinner } from '../components/util';
 
 const SUMMARY = "Provide a search term to search across sanctions lists and other persons of interest.";
 
@@ -40,6 +40,10 @@ export default function Search({ modelData, datasets }: InferGetStaticPropsType<
   const { data, error } = useSWR(apiUrl, swrFetcher)
   const response = data ? data as ISearchAPIResponse : undefined
   const isLoading = !data && !error;
+  const all = datasets.find((d) => d.name === 'all');
+  if (all === undefined) {
+    return null;
+  }
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -52,7 +56,7 @@ export default function Search({ modelData, datasets }: InferGetStaticPropsType<
   }
 
   return (
-    <Layout.Base title="Search" description={SUMMARY} >
+    <Layout.Base title="Search" description={SUMMARY} navSearch={false}>
       {router.query.entity && (
         <SearchEntityModal
           entityId={router.query.entity as string}
@@ -70,11 +74,15 @@ export default function Search({ modelData, datasets }: InferGetStaticPropsType<
                 value={realQuery}
                 size="lg"
                 type="text"
+                autoFocus
                 onChange={(e) => setQuery(e.target.value)}
                 className={styles.searchBox}
                 placeholder="Search people, companies and other entities of interest..."
               />
             </Form>
+            <p className={styles.searchNotice}>
+              Current as at <FormattedDate date={all.last_change} />
+            </p>
           </Col>
         </Row>
         <Row>
@@ -84,6 +92,14 @@ export default function Search({ modelData, datasets }: InferGetStaticPropsType<
             )}
             {response && response.results && (
               <>
+                {response.total === 0 && (
+                  <Alert variant="warning">
+                    <Alert.Heading> No matching entities were found.</Alert.Heading>
+                    <p>
+                      Try searching a partial name, or use a different spelling.
+                    </p>
+                  </Alert>
+                )}
                 <ul>
                   {response.results.map((r) => (
                     <li key={r.id}>

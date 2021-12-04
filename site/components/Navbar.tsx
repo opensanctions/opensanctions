@@ -4,12 +4,17 @@ import { useRouter } from 'next/router';
 import { PatchCheckFill } from 'react-bootstrap-icons';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
+import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
 
 import styles from '../styles/Navbar.module.scss';
 
-export default function NavbarSection() {
+type NavbarSectionProps = {
+  navSearch: boolean
+}
+
+export default function NavbarSection({ navSearch }: NavbarSectionProps) {
   const activePath = useRouter().asPath;
   const inDataset = activePath.startsWith('/datasets/');
   const inAbout = activePath === '/docs/about/';
@@ -49,6 +54,18 @@ export default function NavbarSection() {
         </Navbar.Collapse>
         <Navbar.Collapse className="justify-content-end">
           <Nav className="justify-content-end">
+            {navSearch && (
+              <Form className="d-flex" action="/search/">
+                <Form.Control
+                  type="search"
+                  name="q"
+                  placeholder="Search entities..."
+                  className="me-4"
+                  aria-label="Search"
+                />
+                {/* <Button variant="secondary">Search</Button> */}
+              </Form>
+            )}
             <Link href="/sponsor/" passHref>
               <Button variant="primary" className={styles.sponsorCall}>
                 <PatchCheckFill className={styles.sponsorIcon} />

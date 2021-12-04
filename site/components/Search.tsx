@@ -1,21 +1,20 @@
+import { useRouter } from 'next/router';
 import useSWR from 'swr';
-
-import { IDataset, ISearchAPIResponse, ISearchFacet, OpenSanctionsEntity } from "../lib/types";
+import { Model } from '@alephdata/followthemoney';
 import Pagination from 'react-bootstrap/Pagination';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Card from 'react-bootstrap/Card';
 import Modal from "react-bootstrap/Modal";
 import Container from 'react-bootstrap/Container';
-import { NumericBadge, SectionSpinner } from "./util";
-import { useRouter } from 'next/router';
 
-import styles from '../styles/Search.module.scss'
+import { IDataset, IOpenSanctionsEntity, ISearchAPIResponse, ISearchFacet, OpenSanctionsEntity } from "../lib/types";
+import { NumericBadge, SectionSpinner } from "./util";
 import { MouseEvent } from "react";
 import { API_URL } from "../lib/constants";
 import { swrFetcher } from "../lib/util";
-import { Model } from '@alephdata/followthemoney';
 import { EntityDisplay } from './Entity';
 
+import styles from '../styles/Search.module.scss'
 
 type SearchFacetProps = {
   facet: ISearchFacet
@@ -76,6 +75,33 @@ export function SearchPagination({ response }: SearchPaginationProps) {
   );
 }
 
+type SearchResultEntityProps = {
+  data: IOpenSanctionsEntity
+  model: Model
+}
+
+export function SearchResultEntity({ data, model }: SearchResultEntityProps) {
+  const router = useRouter();
+  const entity = OpenSanctionsEntity.fromData(model, data);
+
+  const handleClickEntity = (e: MouseEvent<HTMLElement>) => {
+    e.preventDefault()
+    router.push({
+      query: {}
+    });
+  }
+
+  return (
+    <li key={entity.id}>
+      <a onClick={(e) => handleClickEntity(e)} href={`#${entity.id}`}>
+        {entity.caption} [{entity.schema}]
+      </a>
+    </li>
+  );
+}
+
+
+
 
 type SearchEntityModalProps = {
   entityId: string
@@ -93,8 +119,7 @@ export function SearchEntityModal({ entityId, datasets, model }: SearchEntityMod
 
   if (!data) {
     return (
-      <Modal show dialogClassName="wide-modal" onHide={handleClose}>
-        <Modal.Header closeButton>Loading: {entityId}</Modal.Header>
+      <Modal show dialogClassName="modal-wide" onHide={handleClose}>
         <Modal.Body>
           <SectionSpinner />
         </Modal.Body>
@@ -108,7 +133,7 @@ export function SearchEntityModal({ entityId, datasets, model }: SearchEntityMod
     .filter((d) => d !== undefined)
 
   return (
-    <Modal show dialogClassName="wide-modal" onHide={handleClose}>
+    <Modal show dialogClassName="modal-wide" onHide={handleClose}>
       <Modal.Header closeButton>{entity.caption}</Modal.Header>
       <Modal.Body>
         <Container>

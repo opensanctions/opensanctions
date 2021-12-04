@@ -13,11 +13,13 @@ type LayoutBaseProps = {
   title?: string,
   description?: string | null,
   structured?: any,
+  navSearch?: boolean
 }
 
-function LayoutBase({ title, description, structured, children }: React.PropsWithChildren<LayoutBaseProps>) {
-  const router = useRouter()
-  const url = `${BASE_URL}${router.asPath}`
+function LayoutBase({ title, description, structured, navSearch, children }: React.PropsWithChildren<LayoutBaseProps>) {
+  const router = useRouter();
+  const url = `${BASE_URL}${router.asPath}`;
+  const navSearchDef = navSearch === undefined ? true : navSearch;
   return (
     <>
       <Head>
@@ -50,7 +52,7 @@ function LayoutBase({ title, description, structured, children }: React.PropsWit
         {/* <link rel="canonical" href={url} /> */}
       </Head>
       <div className={styles.page}>
-        <Navbar />
+        <Navbar navSearch={navSearchDef} />
         {children}
       </div>
       <Footer />

@@ -24,6 +24,7 @@ warnings.filterwarnings("ignore", category=ElasticsearchWarning)
 
 log = logging.getLogger("osapi.index")
 es = AsyncElasticsearch(hosts=[ES_URL])
+SKIP_ADJACENT = (registry.date, registry.entity, registry.topic)
 
 
 async def generate_entities(index, loader):
@@ -34,7 +35,7 @@ async def generate_entities(index, loader):
         if entity.schema.is_a(BASE_SCHEMA):
             for _, adj in loader.get_adjacent(entity):
                 for prop, value in adj.itervalues():
-                    if prop.type in (registry.date, registry.entity):
+                    if prop.type in SKIP_ADJACENT:
                         continue
                     field = prop.type.group or "text"
                     if field not in data:
@@ -111,6 +112,8 @@ def entity_query(dataset: Dataset, entity: Entity, fuzzy: bool = False):
 
 
 def text_query(dataset: Dataset, schema: Schema, query: str, fuzzy: bool = False):
+    if not len(query.strip()):
+        return {"match_all": {}}
     should = {
         "query_string": {
             "query": query,

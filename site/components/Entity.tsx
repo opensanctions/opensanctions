@@ -15,6 +15,7 @@ import Dataset from './Dataset';
 
 export type EntityProps = {
   entity: OpenSanctionsEntity,
+  showEmpty?: boolean
   via?: Property
 }
 
@@ -26,9 +27,10 @@ export function EntityLink({ entity }: EntityProps) {
 }
 
 
-export function EntityCard({ entity, via }: EntityProps) {
+export function EntityCard({ entity, via, showEmpty = false }: EntityProps) {
   const props = entity.getDisplayProperties()
-    .filter((p) => via === undefined || p.qname !== via.getReverse().qname);
+    .filter((p) => via === undefined || p.qname !== via.getReverse().qname)
+    .filter((p) => showEmpty || entity.getProperty(p).length > 0)
   return (
     <Card key={entity.id} className={styles.card}>
       <Card.Header>
