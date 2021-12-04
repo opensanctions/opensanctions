@@ -8,7 +8,6 @@ from followthemoney.types import registry
 from starlette.responses import RedirectResponse
 from followthemoney import model
 from followthemoney.exc import InvalidData
-from api.osapi.index import facet_aggregations
 from opensanctions.model import db
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.entity import Entity
@@ -25,7 +24,7 @@ from osapi.models import FreebaseManifest, FreebaseQueryResult
 from osapi.models import MAX_LIMIT
 from osapi.data import resolver, get_datasets
 from osapi.index import get_entity, query_entities, query_results
-from osapi.index import text_query, entity_query
+from osapi.index import text_query, entity_query, facet_aggregations
 from osapi.index import serialize_entity
 from osapi.index import get_index_status, get_index_stats
 from osapi.data import get_freebase_type, get_freebase_types
@@ -45,7 +44,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )

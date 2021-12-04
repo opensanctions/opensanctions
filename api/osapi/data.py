@@ -1,13 +1,11 @@
 from functools import cache
-from typing import Generator, List, Optional, Set, Tuple
+from typing import List, Set
 from followthemoney import model
 from followthemoney.schema import Schema
 from followthemoney.property import Property
-from nomenklatura.loader import Loader
 from opensanctions.model import Statement
 from opensanctions.core.entity import Entity
 from opensanctions.core.dataset import Dataset
-from opensanctions.core.index import get_index as get_dataset_index
 from opensanctions.core.resolver import get_resolver
 from opensanctions.core.loader import Database
 

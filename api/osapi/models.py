@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
-from pydantic import BaseModel, Field
 from followthemoney.model import ModelToDict
+from pydantic import BaseModel, Field
 from pydantic.networks import AnyHttpUrl
 
 from opensanctions.core import Dataset
