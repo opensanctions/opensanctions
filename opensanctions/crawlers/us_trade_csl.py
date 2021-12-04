@@ -34,7 +34,9 @@ def parse_result(context, result):
         assert int(entity_number)
         entity.id = SDN.make_slug(entity_number)
 
-    entity.add("name", result.pop("name", None))
+    name = result.pop("name", None)
+    name = name.replace("and any successor, sub-unit, or subsidiary thereof", "")
+    entity.add("name", name)
     for alias in ensure_list(result.pop("alt_names", "")):
         entity.add("alias", alias.split("; "))
     entity.add("notes", result.pop("remarks", None))

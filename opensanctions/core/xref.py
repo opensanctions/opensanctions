@@ -18,7 +18,7 @@ def blocking_xref(dataset: Dataset, limit: int = 5000, fuzzy: bool = False):
     suggested = 0
     for idx, (pair, score) in enumerate(index.pairs()):
         if idx % 1000 == 0:
-            log.info("Evaluating entity pairs: %d..." % idx)
+            log.info("Evaluating pairs: %d (%d candidates)..." % (idx, suggested))
         left = loader.get_entity(str(pair[0]))
         right = loader.get_entity(str(pair[1]))
         if left is None or right is None:

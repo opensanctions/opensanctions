@@ -1,7 +1,9 @@
 import click
 import logging
+from nomenklatura.resolver import Identifier
 import structlog
 from nomenklatura.tui import DedupeApp
+from followthemoney.dedupe import Judgement
 
 from opensanctions.core import Dataset, Context, setup
 from opensanctions.exporters import export_global_index, export_dataset
@@ -9,7 +11,7 @@ from opensanctions.exporters.common import write_object
 from opensanctions.core.http import cleanup_cache
 from opensanctions.core.index import get_index, get_index_path
 from opensanctions.core.loader import Database
-from opensanctions.core.resolver import export_pairs, get_resolver
+from opensanctions.core.resolver import AUTO_USER, export_pairs, get_resolver
 from opensanctions.core.xref import blocking_xref
 from opensanctions.model.statement import Statement
 from opensanctions.model.base import migrate_db
@@ -115,6 +117,9 @@ def xref(dataset, fuzzy, limit):
 @click.option("-k", "--keep", type=int, default=0)
 def xref_prune(keep=0):
     resolver = get_resolver()
+    for edge in list(resolver.edges.values()):
+        if edge.user == AUTO_USER:
+            resolver._remove(edge)
     resolver.prune(keep=keep)
     resolver.save()
 
@@ -150,6 +155,27 @@ def explode(canonical_id):
     resolver.explode(resolved_id)
     resolver.save()
     Statement.resolve_all(resolver)
+
+
+@cli.command("merge", help="Merge multiple entities as duplicates")
+@click.argument("entity_ids", type=str, nargs=-1)
+def merge(entity_ids):
+    if len(entity_ids) < 2:
+        return
+    resolver = get_resolver()
+    canonical_id = resolver.get_canonical(entity_ids[0])
+    for other_id in entity_ids[1:]:
+        other_id = Identifier.get(other_id)
+        if other_id == canonical_id:
+            continue
+        if not resolver.check_candidate(canonical_id, other_id):
+            log.error("Cannot merge", canonical_id=canonical_id, other_id=other_id)
+            return
+        log.info("Merge: %s -> %s" % (other_id, canonical_id))
+        canonical_id = resolver.decide(canonical_id, other_id, Judgement.POSITIVE)
+    resolver.save()
+    log.info("Canonical: %s" % canonical_id)
+    Statement.resolve(resolver, str(canonical_id))
 
 
 @cli.command("cleanup", help="Clean up caches")

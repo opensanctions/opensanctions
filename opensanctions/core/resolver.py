@@ -11,6 +11,7 @@ from opensanctions.core.entity import Entity
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.loader import Database
 
+AUTO_USER = "opensanctions"
 RESOLVER_PATH = settings.STATIC_PATH.joinpath("resolve.ijson")
 Scored = Tuple[str, str, Optional[float]]
 
@@ -24,7 +25,7 @@ class UniqueResolver(Resolver[Entity]):
         lefts = [c.id for c in self.connected(left)]
         rights = [c.id for c in self.connected(right)]
         if Statement.unique_conflict(lefts, rights):
-            self.decide(left, right, Judgement.NEGATIVE, user="opensanctions")
+            self.decide(left, right, Judgement.NEGATIVE, user=AUTO_USER)
             return False
         return True
 

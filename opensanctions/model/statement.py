@@ -263,10 +263,12 @@ class Statement(Base):
 
     @classmethod
     def unique_conflict(cls, left_ids, right_ids):
-        cte = select(
+        cteq = select(
             func.distinct(cls.entity_id).label("entity_id"),
             cls.dataset.label("dataset"),
-        ).cte("uniques")
+        )
+        cteq = cteq.where(cls.unique == True)
+        cte = cteq.cte("uniques")
         # sqlite 3.35 -
         # cte = cte.prefix_with("MATERIALIZED")
         left = cte.alias("left")
@@ -275,6 +277,7 @@ class Statement(Base):
         q = q.where(left.c.dataset == right.c.dataset)
         q = q.where(left.c.entity_id.in_(left_ids))
         q = q.where(right.c.entity_id.in_(right_ids))
+        # print(q)
         for _ in db.engine.execute(q):
             return True
         return False
