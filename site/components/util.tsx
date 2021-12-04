@@ -94,8 +94,12 @@ export function FormattedDate({ date }: FormattedDateProps) {
     return <time dateTime={date}>{date}</time>
   }
   const obj = new Date(date as string);
-  const fmt = new Intl.DateTimeFormat('en-CA', { dateStyle: 'medium', timeStyle: 'short' });
-  return <time dateTime={date}>{fmt.format(obj)}</time>
+  try {
+    const fmt = new Intl.DateTimeFormat('en-CA', { dateStyle: 'medium', timeStyle: 'short' });
+    return <time dateTime={date}>{fmt.format(obj)}</time>
+  } catch {
+    return <time dateTime={date}>{date}</time>
+  }
 }
 
 type SummaryProps = {

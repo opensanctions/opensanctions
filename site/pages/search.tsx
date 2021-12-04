@@ -31,9 +31,8 @@ export default function Search({ modelData, datasets }: InferGetStaticPropsType<
   const apiUrl = queryString.stringifyUrl({
     'url': `${API_URL}/search/${SEARCH_DATASET}`,
     'query': {
-      'q': router.query.q,
+      ...router.query,
       'limit': 25,
-      'offset': router.query.offset || 0,
       'schema': 'Thing'
     }
   })
@@ -47,7 +46,7 @@ export default function Search({ modelData, datasets }: InferGetStaticPropsType<
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    router.push({ query: { q: realQuery, offset: 0 } });
+    router.push({ query: { ...router.query, q: realQuery, offset: 0 } });
   }
 
   return (
@@ -76,7 +75,7 @@ export default function Search({ modelData, datasets }: InferGetStaticPropsType<
               />
             </Form>
             <p className={styles.searchNotice}>
-              Current as at <FormattedDate date={all.last_change} />
+              Data current as of <FormattedDate date={all.last_change} />
             </p>
           </Col>
         </Row>
@@ -107,9 +106,9 @@ export default function Search({ modelData, datasets }: InferGetStaticPropsType<
           <Col md={4}>
             {response && response.facets && response.total > 0 && (
               <>
-                <SearchFacet facet={response.facets.topics} />
-                <SearchFacet facet={response.facets.datasets} />
-                <SearchFacet facet={response.facets.countries} />
+                <SearchFacet field="topics" facet={response.facets.topics} />
+                <SearchFacet field="datasets" facet={response.facets.datasets} />
+                <SearchFacet field="countries" facet={response.facets.countries} />
               </>
             )}
           </Col>

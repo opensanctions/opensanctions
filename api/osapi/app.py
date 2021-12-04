@@ -1,7 +1,7 @@
 import json
 import logging
 from urllib.parse import urljoin
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 from fastapi import FastAPI, Path, Query, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from followthemoney.types import registry
@@ -119,8 +119,11 @@ async def search(
     q: str = Query("", title="Query text"),
     dataset: str = PATH_DATASET,
     schema: str = Query(settings.BASE_SCHEMA, title="Types of entities that can match"),
-    limit: int = Query(10, title="Number of results to return", lt=MAX_LIMIT),
-    offset: int = Query(0, title="Start at result", lt=MAX_LIMIT),
+    countries: List[str] = Query([], title="Filter by country code"),
+    topics: List[str] = Query([], title="Filter by entity topics"),
+    datasets: List[str] = Query([], title="Filter by data sources"),
+    limit: int = Query(10, title="Number of results to return", max=MAX_LIMIT),
+    offset: int = Query(0, title="Start at result", max=MAX_LIMIT),
     fuzzy: bool = Query(False, title="Enable n-gram matching of partial names"),
     nested: bool = Query(False, title="Include adjacent entities in response"),
 ):
@@ -132,8 +135,9 @@ async def search(
         schema_obj = model.get(schema)
         if schema_obj is None:
             raise HTTPException(400, detail="Invalid schema")
-        query = text_query(ds, schema_obj, q, fuzzy=fuzzy)
-        aggregations = facet_aggregations(["datasets", "topics", "countries"])
+        filters = {"countries": countries, "topics": topics, "datasets": datasets}
+        query = text_query(ds, schema_obj, q, filters=filters, fuzzy=fuzzy)
+        aggregations = facet_aggregations(filters.keys())
         return await query_results(
             ds, query, limit, aggregations=aggregations, nested=nested, offset=offset
         )

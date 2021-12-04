@@ -79,16 +79,25 @@ async def index():
             await es.indices.delete(index=name)
 
 
-def filter_query(shoulds, dataset: Dataset, schema: Optional[Schema] = None):
-    filters = [{"terms": {"datasets": dataset.source_names}}]
+def filter_query(
+    shoulds,
+    dataset: Dataset,
+    schema: Optional[Schema] = None,
+    filters: Dict[str, List[str]] = {},
+):
+    filterqs = [{"terms": {"datasets": dataset.source_names}}]
     if schema is not None:
         schemata = schema.matchable_schemata
         schemata.add(schema)
         if not schema.matchable:
             schemata.update(schema.descendants)
         names = [s.name for s in schemata]
-        filters.append({"terms": {"schema": names}})
-    return {"bool": {"filter": filters, "should": shoulds, "minimum_should_match": 1}}
+        filterqs.append({"terms": {"schema": names}})
+    for field, values in filters.items():
+        values = [v for v in values if len(v)]
+        if len(values):
+            filterqs.append({"terms": {field: values}})
+    return {"bool": {"filter": filterqs, "should": shoulds, "minimum_should_match": 1}}
 
 
 def entity_query(dataset: Dataset, entity: Entity, fuzzy: bool = False):
@@ -108,22 +117,30 @@ def entity_query(dataset: Dataset, entity: Entity, fuzzy: bool = False):
         shoulds.append({"terms": {field: texts}})
     for text in texts:
         shoulds.append({"match_phrase": {"text": text}})
-    return filter_query(shoulds, dataset, entity.schema)
+    return filter_query(shoulds, dataset, schema=entity.schema)
 
 
-def text_query(dataset: Dataset, schema: Schema, query: str, fuzzy: bool = False):
+def text_query(
+    dataset: Dataset,
+    schema: Schema,
+    query: str,
+    filters: Dict[str, List[str]] = {},
+    fuzzy: bool = False,
+):
+
     if not len(query.strip()):
-        return {"match_all": {}}
-    should = {
-        "query_string": {
-            "query": query,
-            "default_field": "text",
-            "default_operator": "and",
-            "fuzziness": 1,
-            "lenient": fuzzy,
+        should = {"match_all": {}}
+    else:
+        should = {
+            "query_string": {
+                "query": query,
+                "default_field": "text",
+                "default_operator": "and",
+                "fuzziness": 2 if fuzzy else 0,
+                "lenient": fuzzy,
+            }
         }
-    }
-    return filter_query([should], dataset, schema)
+    return filter_query([should], dataset, schema=schema, filters=filters)
 
 
 def facet_aggregations(fields: List[str] = []) -> Dict[str, Any]:

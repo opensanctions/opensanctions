@@ -44,6 +44,10 @@
     // color: $text-muted;
 }
 
+.facetListItem {
+    cursor: pointer;
+}
+
 .facetLabel {
     display: block;
     text-overflow: ellipsis;

@@ -1,5 +1,6 @@
 import { useRouter } from 'next/router';
 import useSWR from 'swr';
+import { castArray } from 'lodash';
 import { Model } from '@alephdata/followthemoney';
 import Pagination from 'react-bootstrap/Pagination';
 import ListGroup from 'react-bootstrap/ListGroup';
@@ -14,22 +15,42 @@ import { MouseEvent } from "react";
 import { API_URL, SPACER } from "../lib/constants";
 import { swrFetcher } from "../lib/util";
 import { EntityDisplay } from './Entity';
+import { TypeValues } from './Property';
 
 import styles from '../styles/Search.module.scss'
-import { TypeValues } from './Property';
 
 
 type SearchFacetProps = {
+  field: string
   facet: ISearchFacet
 }
 
-export function SearchFacet({ facet }: SearchFacetProps) {
+export function SearchFacet({ field, facet }: SearchFacetProps) {
+  const router = useRouter();
+  const filters = castArray(router.query[field] || []);
+  if (!facet.values.length) {
+    return null;
+  }
+
+  const toggleFiltered = (value: string) => {
+    const idx = filters.indexOf(value);
+    const newFilters = idx === -1 ? [...filters, value] : filters.filter((e) => e !== value);
+    const param = newFilters.length ? newFilters : undefined;
+    router.push({
+      'query': { ...router.query, [field]: param }
+    })
+  }
+
   return (
     <Card className={styles.facet}>
       <Card.Header className={styles.facetHeader}>{facet.label}</Card.Header>
       <ListGroup variant="flush">
         {facet.values.map((value) => (
-          <ListGroup.Item key={value.name}>
+          <ListGroup.Item key={value.name}
+            active={filters.indexOf(value.name) !== -1}
+            onClick={(e) => toggleFiltered(value.name)}
+            className={styles.facetListItem}
+          >
             <NumericBadge value={value.count} bg="light" className={styles.facetCount} />
             <span className={styles.facetLabel}>{value.label}</span>
           </ListGroup.Item>
@@ -113,8 +134,12 @@ export function SearchResultEntity({ data, model }: SearchResultEntityProps) {
             <Badge bg="warning"><TypeValues type={topicType} values={topics} /></Badge>
           </>
         )}
-        {SPACER}
-        <TypeValues type={countryType} values={countries} />
+        {countries.length > 0 && (
+          <>
+            {SPACER}
+            <TypeValues type={countryType} values={countries} />
+          </>
+        )}
       </p>
     </li>
   );
