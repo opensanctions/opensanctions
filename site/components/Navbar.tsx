@@ -54,7 +54,7 @@ export default function NavbarSection({ navSearch }: NavbarSectionProps) {
         </Navbar.Collapse>
         <Navbar.Collapse className="justify-content-end">
           <Nav className="justify-content-end">
-            {navSearch && (
+            {navSearch && false && (
               <Form className="d-flex" action="/search/">
                 <Form.Control
                   type="search"
