@@ -32,6 +32,15 @@ export default function EntityPreview({ modelData, datasets }: InferGetStaticPro
       </Layout.Base >
     );
   }
+  if (error) {
+    return (
+      <Layout.Base title="Failed to load">
+        <Container>
+          <h2>Could not load entity.</h2>
+        </Container>
+      </Layout.Base >
+    );
+  }
   if (data.id !== entityId) {
     return <EntityRedirect entity={data} />
   }
