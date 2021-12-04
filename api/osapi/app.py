@@ -230,7 +230,7 @@ async def fetch_entity(
     full, with data from all datasets and with nested entities (adjacent
     passport, sanction and associated entities) included."""
     try:
-        canonical_id = resolver.get_canonical(entity_id)
+        canonical_id = str(resolver.get_canonical(entity_id))
         if canonical_id != entity_id:
             url = app.url_path_for("get_entity", entity_id=canonical_id)
             return RedirectResponse(url=url)
