@@ -1,10 +1,8 @@
-import React, { FormEvent, MouseEvent, useState } from 'react';
-import { Entity, Model } from '@alephdata/followthemoney';
+import React, { FormEvent, useState } from 'react';
+import { Model } from '@alephdata/followthemoney';
 import { useRouter } from 'next/router'
-import Link from 'next/link';
 import useSWR from 'swr';
 import queryString from 'query-string';
-
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
@@ -12,10 +10,10 @@ import Alert from 'react-bootstrap/Alert';
 import Container from 'react-bootstrap/Container';
 
 import Layout from '../components/Layout'
-import { IOpenSanctionsEntity, ISearchAPIResponse } from '../lib/types';
+import { ISearchAPIResponse } from '../lib/types';
 import { fetchIndex, getDatasets } from '../lib/data';
 import { GetStaticPropsContext, InferGetStaticPropsType } from 'next';
-import { SearchEntityModal, SearchFacet, SearchPagination, SearchResultEntity } from '../components/Search';
+import { SearchFacet, SearchPagination, SearchResultEntity } from '../components/Search';
 import styles from '../styles/Search.module.scss'
 import { swrFetcher } from '../lib/util';
 import { API_URL, SEARCH_DATASET } from '../lib/constants';
@@ -51,13 +49,6 @@ export default function Search({ modelData, datasets }: InferGetStaticPropsType<
 
   return (
     <Layout.Base title="Search" description={SUMMARY} navSearch={false}>
-      {router.query.entity && (
-        <SearchEntityModal
-          entityId={router.query.entity as string}
-          datasets={datasets}
-          model={model}
-        />
-      )}
       <Container>
         <Row>
           <Col md={8}>

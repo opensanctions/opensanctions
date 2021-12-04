@@ -23,13 +23,13 @@ export default function writeSitemap(datasets: Array<IDataset>, articles: Array<
   datasets.forEach((dataset) => {
     const priority = isCollection(dataset) ? 0.9 : 0.7
     const lastmod = dataset.last_change ? dataset.last_change.split('T')[0] : undefined
-    urls.push(writeUrl(`/datasets/${dataset.name}/`, lastmod, 'daily', priority))
+    urls.push(writeUrl(`/datasets/${dataset.name}/`, lastmod, 'weekly', priority))
   })
   articles.forEach((a) => {
     urls.push(writeUrl(a.path, a.date, 'weekly', 0.8))
   })
   entityIds.forEach((id) => {
-    urls.push(writeUrl(`/entities/${id}/`, undefined, 'weekly', 0.3))
+    urls.push(writeUrl(`/entities/?id=${id}`, undefined, 'monthly', 0.3))
   })
   const body = urls.join('\n')
   const xml = `<?xml version="1.0" encoding="UTF-8"?>

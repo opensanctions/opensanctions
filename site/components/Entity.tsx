@@ -1,17 +1,19 @@
+import Head from 'next/head';
 import Link from 'next/link'
-import Card from 'react-bootstrap/Card';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-
-import { IDataset, OpenSanctionsEntity } from '../lib/types'
-
-import { Table } from 'react-bootstrap';
-import { PropertyValues } from './Property';
+import Card from 'react-bootstrap/Card';
+import Table from 'react-bootstrap/Table';
 import { Property } from '@alephdata/followthemoney';
 
-import styles from '../styles/Entity.module.scss'
+import { IDataset, IOpenSanctionsEntity, OpenSanctionsEntity } from '../lib/types'
+import { PropertyValues } from './Property';
 import { Summary } from './util';
 import Dataset from './Dataset';
+import { BASE_URL } from '../lib/constants';
+
+import styles from '../styles/Entity.module.scss'
+
 
 export type EntityProps = {
   entity: OpenSanctionsEntity,
@@ -20,10 +22,7 @@ export type EntityProps = {
 }
 
 export function EntityLink({ entity }: EntityProps) {
-  if (!entity.target) {
-    return <>{entity.caption}</>
-  }
-  return <Link href={`/entities/${entity.id}/`}>{entity.caption}</Link>
+  return <Link href={`/entities/?id=${entity.id}`}>{entity.caption}</Link>
 }
 
 
@@ -125,5 +124,26 @@ export function EntityDisplay({ entity, datasets }: EntityDisplayProps) {
         </div>
       </Col>
     </Row>
+  );
+}
+
+
+type EntityRedirectProps = {
+  entity: IOpenSanctionsEntity
+}
+
+export function EntityRedirect({ entity }: EntityRedirectProps) {
+  const url = `${BASE_URL}/entities/?id=${entity.id}`
+  return (
+    <>
+      <Head>
+        <title>Redirect to {entity.caption}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta http-equiv="refresh" content={`0; url=${url}`} />
+      </Head>
+      <p>
+        See: <a href={url}>{entity.caption}</a>
+      </p>
+    </>
   );
 }

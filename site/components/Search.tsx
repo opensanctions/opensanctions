@@ -1,20 +1,16 @@
 import { useRouter } from 'next/router';
-import useSWR from 'swr';
 import { castArray } from 'lodash';
 import { Model } from '@alephdata/followthemoney';
 import Pagination from 'react-bootstrap/Pagination';
 import ListGroup from 'react-bootstrap/ListGroup';
-import Container from 'react-bootstrap/Container';
 import Card from 'react-bootstrap/Card';
-import Modal from "react-bootstrap/Modal";
 import Badge from "react-bootstrap/Badge";
 
-import { IDataset, IOpenSanctionsEntity, ISearchAPIResponse, ISearchFacet, OpenSanctionsEntity, Values } from "../lib/types";
-import { NumericBadge, SectionSpinner } from "./util";
+import { IOpenSanctionsEntity, ISearchAPIResponse, ISearchFacet, OpenSanctionsEntity, Values } from "../lib/types";
+import { NumericBadge } from "./util";
 import { MouseEvent } from "react";
-import { API_URL, SPACER } from "../lib/constants";
-import { swrFetcher } from "../lib/util";
-import { EntityDisplay } from './Entity';
+import { SPACER } from "../lib/constants";
+import { EntityLink } from './Entity';
 import { TypeValues } from './Property';
 
 import styles from '../styles/Search.module.scss'
@@ -105,26 +101,15 @@ type SearchResultEntityProps = {
 }
 
 export function SearchResultEntity({ data, model }: SearchResultEntityProps) {
-  const router = useRouter();
   const entity = OpenSanctionsEntity.fromData(model, data);
   const countryType = model.getType('country');
   const countries = entity.getTypeValues(countryType) as Values;
   const topicType = model.getType('topic');
   const topics = entity.getTypeValues(topicType) as Values;
-
-  const handleClickEntity = (e: MouseEvent<HTMLElement>) => {
-    e.preventDefault()
-    router.push({
-      query: { ...router.query, entity: entity.id }
-    });
-  }
-
   return (
     <li key={entity.id} className={styles.resultItem}>
       <div className={styles.resultTitle}>
-        <a onClick={(e) => handleClickEntity(e)} href={`/entities/${entity.id}/`}>
-          {entity.caption}
-        </a>
+        <EntityLink entity={entity} />
       </div>
       <p className={styles.resultDetails}>
         <Badge bg="light">{entity.schema.label}</Badge>
@@ -142,49 +127,5 @@ export function SearchResultEntity({ data, model }: SearchResultEntityProps) {
         )}
       </p>
     </li>
-  );
-}
-
-
-
-
-type SearchEntityModalProps = {
-  entityId: string
-  datasets: Array<IDataset>
-  model: Model
-}
-
-export function SearchEntityModal({ entityId, datasets, model }: SearchEntityModalProps) {
-  const router = useRouter();
-  const { data, error } = useSWR(`${API_URL}/entities/${entityId}`, swrFetcher)
-
-  const handleClose = () => {
-    router.push({ query: { ...router.query, entity: undefined } });
-  }
-
-  if (!data) {
-    return (
-      <Modal show dialogClassName="modal-wide" onHide={handleClose}>
-        <Modal.Body>
-          <SectionSpinner />
-        </Modal.Body>
-      </Modal>
-    );
-  }
-
-  const entity = OpenSanctionsEntity.fromData(model, data)
-  const sources = entity.datasets
-    .map((name) => datasets.find((d) => d.name === name))
-    .filter((d) => d !== undefined)
-
-  return (
-    <Modal show dialogClassName="modal-wide" onHide={handleClose}>
-      <Modal.Header closeButton>{entity.caption}</Modal.Header>
-      <Modal.Body>
-        <Container>
-          <EntityDisplay entity={entity} datasets={sources as Array<IDataset>} />
-        </Container>
-      </Modal.Body>
-    </Modal>
   );
 }

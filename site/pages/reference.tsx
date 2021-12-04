@@ -62,7 +62,9 @@ export default function Reference({ content, activeModel, schemata }: InferGetSt
         </p>
         <ul>
           {usedSchemata.map(schema => (
-            <li><code><Link href={`#schema.${schema.name}`}>{schema.name}</Link></code></li>
+            <li key={schema.name}>
+              <code><Link href={`#schema.${schema.name}`}>{schema.name}</Link></code>
+            </li>
           ))}
         </ul>
         <h3>Schema definitions in detail</h3>

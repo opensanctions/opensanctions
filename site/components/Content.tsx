@@ -26,8 +26,10 @@ function ContentMenu({ title, children, jsonLink }: React.PropsWithChildren<Cont
     <Container>
       <Row>
         <Col>
-          {jsonLink && (<JSONLink href={jsonLink} />)}
-          <h1>{title}</h1>
+          <h1>
+            {title}
+            {jsonLink && (<JSONLink href={jsonLink} />)}
+          </h1>
         </Col>
       </Row>
       <Row>
