@@ -232,7 +232,7 @@ async def fetch_entity(
     try:
         canonical_id = str(resolver.get_canonical(entity_id))
         if canonical_id != entity_id:
-            url = app.url_path_for("get_entity", entity_id=canonical_id)
+            url = app.url_path_for("fetch_entity", entity_id=canonical_id)
             return RedirectResponse(url=url)
 
         entity = await get_entity(entity_id)

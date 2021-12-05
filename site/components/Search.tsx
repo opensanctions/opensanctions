@@ -1,5 +1,6 @@
 import { useRouter } from 'next/router';
-import { castArray } from 'lodash';
+import castArray from 'lodash/castArray';
+import queryString from 'query-string';
 import { Model } from '@alephdata/followthemoney';
 import Pagination from 'react-bootstrap/Pagination';
 import ListGroup from 'react-bootstrap/ListGroup';
@@ -70,27 +71,22 @@ export function SearchPagination({ response }: SearchPaginationProps) {
   const hasPrev = response.offset > 0;
   const hasNext = response.total > nextOffset;
 
-  const handlePrev = (e: MouseEvent<HTMLElement>) => {
-    e.preventDefault()
-    router.push({ query: { ...router.query, offset: Math.max(0, response.offset - response.limit) } });
-  }
-
-  const handleNext = (e: MouseEvent<HTMLElement>) => {
-    e.preventDefault()
-    router.push({
-      query: {
-        ...router.query, offset: response.offset + response.limit
-      }
-    });
-  }
+  const prevLink = queryString.stringify({
+    ...router.query,
+    offset: Math.max(0, response.offset - response.limit)
+  })
+  const nextLink = queryString.stringify({
+    ...router.query,
+    offset: response.offset + response.limit
+  })
 
   return (
     <Pagination>
-      <Pagination.Prev disabled={!hasPrev} onClick={handlePrev} />
+      <Pagination.Prev disabled={!hasPrev} href={`?${prevLink}`} />
       <Pagination.Item disabled>
         {response.offset + 1} - {upper} of {response.total}
       </Pagination.Item>
-      <Pagination.Next disabled={!hasNext} onClick={handleNext} />
+      <Pagination.Next disabled={!hasNext} href={`?${nextLink}`} />
     </Pagination>
   );
 }
