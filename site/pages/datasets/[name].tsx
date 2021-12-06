@@ -109,7 +109,11 @@ export default function DatasetScreen({ dataset, details, issues, sources, colle
                         {details.targets.countries.map(c =>
                           <tr key={c.code}>
                             <td><code>{c.code}</code></td>
-                            <td>{c.label}</td>
+                            <td>
+                              <a href={`/search/?scope=${dataset.name}&countries=${c.code}`}>
+                                {c.label}
+                              </a>
+                            </td>
                             <td className="numeric">{c.count}</td>
                           </tr>
                         )}

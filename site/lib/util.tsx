@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react'
+import castArray from 'lodash/castArray';
 import unified from 'unified'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
@@ -30,6 +31,13 @@ export function wordList(arr: Array<any>, sep: string): ReactElement {
       <span key={`${i}_sep`} className="separator">{sep}</span>,
       <span key={i}>{x}</span>
     ]), [<span key={arr[0]}>{arr[0]}</span>])
+}
+
+export function ensureArray(value: string | string[] | null | undefined) {
+  if (value === null || value === undefined) {
+    return [];
+  }
+  return castArray(value);
 }
 
 export const swrFetcher = (url: string) => fetch(url).then(res => res.json())

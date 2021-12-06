@@ -37,6 +37,7 @@ export default function EntityPreview({ modelData, datasets }: InferGetStaticPro
       <Layout.Base title="Failed to load">
         <Container>
           <h2>Could not load entity.</h2>
+          <pre>{JSON.stringify(error)}</pre>
         </Container>
       </Layout.Base >
     );

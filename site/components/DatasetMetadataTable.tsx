@@ -18,7 +18,9 @@ type DatasetScreenProps = {
 export default function DatasetMetadataTable({ dataset, details, collections }: DatasetScreenProps) {
   const schemaList = wordList(details.targets.schemata.map((ts) =>
     <span className={styles.noWrap}>
-      <Plural value={ts.count} one={ts.label} many={ts.plural} />
+      <a href={`/search/?scope=${dataset.name}&schema=${ts.name}`}>
+        <Plural value={ts.count} one={ts.label} many={ts.plural} />
+      </a>
       <HelpLink href={`/reference/#schema.${ts.name}`} />
     </span>
   ), SPACER);
@@ -34,7 +36,9 @@ export default function DatasetMetadataTable({ dataset, details, collections }: 
             {details.targets.schemata.length > 1 && (
               <>
                 {schemaList}
-                <> (<Numeric value={dataset.target_count} /> total)</>
+                <>
+                  (<a href={`/search/?scope=${dataset.name}`}><Numeric value={dataset.target_count} /> total</a>)
+                </>
               </>
             )}
           </td>

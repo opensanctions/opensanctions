@@ -13,10 +13,10 @@ import Layout from '../components/Layout'
 import { ISearchAPIResponse } from '../lib/types';
 import { fetchIndex, getDatasets } from '../lib/data';
 import { GetStaticPropsContext, InferGetStaticPropsType } from 'next';
-import { SearchFacet, SearchPagination, SearchResultEntity } from '../components/Search';
+import { SearchFacet, SearchFilterTags, SearchPagination, SearchResultEntity } from '../components/Search';
 import styles from '../styles/Search.module.scss'
 import { swrFetcher } from '../lib/util';
-import { API_URL, SEARCH_DATASET } from '../lib/constants';
+import { API_URL, SEARCH_DATASET, SEARCH_SCHEMA } from '../lib/constants';
 import { FormattedDate, SectionSpinner } from '../components/util';
 
 const SUMMARY = "Provide a search term to search across sanctions lists and other persons of interest.";
@@ -26,21 +26,34 @@ export default function Search({ modelData, datasets }: InferGetStaticPropsType<
   const router = useRouter();
   const [query, setQuery] = useState<string | null>(null);
   const realQuery = query === null ? router.query.q || '' : query;
+  const scopeName = router.query.scope || SEARCH_DATASET;
+  const scope = datasets.find((d) => d.name === scopeName);
+  const schemaName = router.query.schema || SEARCH_SCHEMA;
   const apiUrl = queryString.stringifyUrl({
-    'url': `${API_URL}/search/${SEARCH_DATASET}`,
+    'url': `${API_URL}/search/${scopeName}`,
     'query': {
       ...router.query,
       'limit': 25,
-      'schema': 'Thing'
+      'schema': schemaName
     }
   })
   const { data, error } = useSWR(apiUrl, swrFetcher)
   const response = data ? data as ISearchAPIResponse : undefined
   const isLoading = !data && !error;
-  const all = datasets.find((d) => d.name === 'all');
-  if (all === undefined) {
-    return null;
+
+  if (scope === undefined || error) {
+    return (
+      <Layout.Base title="Failed to load">
+        <Container>
+          <h2>Could not load search function.</h2>
+        </Container>
+      </Layout.Base >
+    );
   }
+  const hasScope = scopeName !== SEARCH_DATASET;
+  // const hasSchemaFilter = schema !== SEARCH_SCHEMA;
+  // const hasFilter = hasScopeFilter || hasSchemaFilter;
+  const title = hasScope ? `Search: ${scope.title}` : 'Search';
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -48,11 +61,16 @@ export default function Search({ modelData, datasets }: InferGetStaticPropsType<
   }
 
   return (
-    <Layout.Base title="Search" description={SUMMARY} navSearch={false}>
+    <Layout.Base title={title} description={SUMMARY} navSearch={false}>
       <Container>
         <Row>
           <Col md={8}>
-            <h1>Search the OpenSanctions database</h1>
+            {!hasScope && (
+              <h1>Search the OpenSanctions database</h1>
+            )}
+            {hasScope && (
+              <h1>Search: {scope.title}</h1>
+            )}
             <Form onSubmit={handleSubmit}>
               <Form.Control
                 name="q"
@@ -65,8 +83,9 @@ export default function Search({ modelData, datasets }: InferGetStaticPropsType<
                 placeholder="Search people, companies and other entities of interest..."
               />
             </Form>
+            <SearchFilterTags scope={scope} model={model} datasets={datasets} />
             <p className={styles.searchNotice}>
-              Data current as of <FormattedDate date={all.last_change} />
+              Data current as of <FormattedDate date={scope.last_change} />
             </p>
           </Col>
         </Row>

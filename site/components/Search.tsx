@@ -1,5 +1,4 @@
-import { useRouter } from 'next/router';
-import castArray from 'lodash/castArray';
+import { NextRouter, useRouter } from 'next/router';
 import queryString from 'query-string';
 import { Model } from '@alephdata/followthemoney';
 import Pagination from 'react-bootstrap/Pagination';
@@ -7,14 +6,14 @@ import ListGroup from 'react-bootstrap/ListGroup';
 import Card from 'react-bootstrap/Card';
 import Badge from "react-bootstrap/Badge";
 
-import { IOpenSanctionsEntity, ISearchAPIResponse, ISearchFacet, OpenSanctionsEntity, Values } from "../lib/types";
+import { IDataset, IOpenSanctionsEntity, ISearchAPIResponse, ISearchFacet, OpenSanctionsEntity, Values } from "../lib/types";
 import { NumericBadge } from "./util";
-import { MouseEvent } from "react";
-import { SPACER } from "../lib/constants";
+import { SEARCH_DATASET, SEARCH_SCHEMA, SPACER } from "../lib/constants";
 import { EntityLink } from './Entity';
-import { TypeValues } from './Property';
+import { TypeValue, TypeValues } from './Property';
 
 import styles from '../styles/Search.module.scss'
+import { ensureArray } from '../lib/util';
 
 
 type SearchFacetProps = {
@@ -24,7 +23,7 @@ type SearchFacetProps = {
 
 export function SearchFacet({ field, facet }: SearchFacetProps) {
   const router = useRouter();
-  const filters = castArray(router.query[field] || []);
+  const filters = ensureArray(router.query[field]);
   if (!facet.values.length) {
     return null;
   }
@@ -33,9 +32,7 @@ export function SearchFacet({ field, facet }: SearchFacetProps) {
     const idx = filters.indexOf(value);
     const newFilters = idx === -1 ? [...filters, value] : filters.filter((e) => e !== value);
     const param = newFilters.length ? newFilters : undefined;
-    router.push({
-      'query': { ...router.query, [field]: param }
-    })
+    router.push({ 'query': { ...router.query, [field]: param } })
   }
 
   return (
@@ -55,6 +52,95 @@ export function SearchFacet({ field, facet }: SearchFacetProps) {
       </ListGroup>
     </Card>
   );
+}
+
+type SearchFilterTagsProps = {
+  model: Model
+  scope: IDataset
+  datasets: Array<IDataset>
+}
+
+export function SearchFilterTags({ scope, model, datasets }: SearchFilterTagsProps) {
+  const router = useRouter();
+
+  const unfilter = (field: string, value: string) => {
+    const values = ensureArray(router.query[field]).filter((v) => v !== value);
+    router.push({ 'query': { ...router.query, [field]: values } })
+  }
+  const filters = [];
+  const schema = router.query.schema;
+  if (schema !== undefined && schema !== SEARCH_SCHEMA) {
+    filters.push({
+      'field': 'schema',
+      'value': schema as string,
+      'label': model.getSchema(schema as string).plural
+    })
+  }
+  if (scope.name !== SEARCH_DATASET) {
+    filters.push({
+      'field': 'scope',
+      'value': scope.name,
+      'label': scope.title
+    })
+  }
+  const countries = ensureArray(router.query.countries);
+  const countryType = model.getType('country');
+  for (let country of countries) {
+    if (country.trim().length) {
+      filters.push({
+        'field': 'countries',
+        'value': country,
+        'label': <TypeValue type={countryType} value={country} />
+      })
+    }
+  }
+
+  const topics = ensureArray(router.query.topics);
+  const topicType = model.getType('topic');
+  for (let topic of topics) {
+    if (topic.trim().length) {
+      filters.push({
+        'field': 'topics',
+        'value': topic,
+        'label': <TypeValue type={topicType} value={topic} />
+      })
+    }
+  }
+
+  const datasetNames = ensureArray(router.query.datasets);
+  for (let dataset of datasetNames) {
+    const ds = datasets.find((d) => d.name == dataset)
+    if (ds !== undefined) {
+      filters.push({
+        'field': 'datasets',
+        'value': dataset,
+        'label': ds.title
+      })
+    }
+  }
+
+
+  if (filters.length === 0) {
+    return null;
+  }
+
+  return (
+    <p className={styles.tagsSection}>
+      <Badge bg="light">Filtered:</Badge>{' '}
+      {filters.map((spec) =>
+        <>
+          <Badge
+            key={`${spec.field}:${spec.value}`}
+            onClick={(e) => unfilter(spec.field, spec.value)}
+            className={styles.tagsButton}
+          >
+            {spec.label}
+          </Badge>
+          {' '}
+        </>
+      )}
+    </p>
+  )
 }
 
 type SearchPaginationProps = {

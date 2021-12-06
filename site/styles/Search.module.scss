@@ -30,6 +30,16 @@
     color: $text-muted;
 }
 
+// filter tags
+.tagsSection {
+    color: $text-muted;
+    margin-bottom: 0.2em;
+}
+
+.tagsButton {
+    cursor: pointer;
+}
+
 // search facets
 .facet {
     margin-bottom: 1em;
