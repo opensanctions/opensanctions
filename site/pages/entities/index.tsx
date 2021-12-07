@@ -23,21 +23,22 @@ export default function EntityPreview({ modelData, datasets }: InferGetStaticPro
   const entityId = router.query.id;
   const apiUrl = entityId ? `${API_URL}/entities/${entityId}` : undefined;
   const { data, error } = useSWR(apiUrl, swrFetcher);
+  if (error) {
+    return (
+      <Layout.Base title="Failed to load">
+        <Container>
+          <h1 className="errorTitle">
+            Could not load entity
+          </h1>
+        </Container>
+      </Layout.Base >
+    );
+  }
   if (!data || !apiUrl) {
     return (
       <Layout.Base title="Loading...">
         <Container>
           <SectionSpinner />
-        </Container>
-      </Layout.Base >
-    );
-  }
-  if (error) {
-    return (
-      <Layout.Base title="Failed to load">
-        <Container>
-          <h2>Could not load entity.</h2>
-          <pre>{JSON.stringify(error)}</pre>
         </Container>
       </Layout.Base >
     );

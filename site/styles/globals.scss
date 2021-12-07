@@ -107,3 +107,13 @@ td.numeric, th.numeric {
     font-weight: bold;
     margin-left: 0.6em;
 }
+
+// errors
+.errorTitle {
+    text-align: center;
+}
+
+.errorSummary {
+    text-align: center;
+    color: $text-muted;
+}
