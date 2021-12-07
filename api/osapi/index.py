@@ -4,7 +4,7 @@ import warnings
 from pprint import pprint
 from typing import Any, AsyncGenerator, Dict, Generator, List, Optional, Tuple
 from elasticsearch import AsyncElasticsearch, TransportError
-from elasticsearch.exceptions import ElasticsearchWarning
+from elasticsearch.exceptions import ElasticsearchWarning, NotFoundError
 from elasticsearch.helpers import async_bulk
 from followthemoney import model
 from followthemoney.schema import Schema
@@ -213,9 +213,12 @@ async def query_results(
 
 
 async def get_entity(entity_id: str) -> Optional[Entity]:
-    data = await es.get(index=ES_INDEX, id=entity_id)
-    entity, _ = result_entity(data)
-    return entity
+    try:
+        data = await es.get(index=ES_INDEX, id=entity_id)
+        entity, _ = result_entity(data)
+        return entity
+    except NotFoundError:
+        return None
 
 
 async def get_adjacent(
