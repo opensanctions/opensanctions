@@ -100,7 +100,7 @@ def crawl_individuals(context: Context):
         for field in ("date_of_designation_in_israel",):
             sanction.add("startDate", parse_date(record.pop(field, None)))
 
-        context.emit(entity, target=True)
+        context.emit(entity, target=True, unique=True)
         context.emit(sanction)
         if len(record):
             context.pprint(record)
@@ -175,7 +175,7 @@ def crawl_organizations(context: Context):
         ):
             sanction.add("startDate", parse_date(record.pop(field, None)))
 
-        context.emit(entity, target=True)
+        context.emit(entity, target=True, unique=True)
         context.emit(sanction)
         if len(record):
             context.pprint(record)

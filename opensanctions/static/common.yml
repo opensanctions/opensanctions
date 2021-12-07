@@ -254,6 +254,7 @@ country:
         - Russian SFSR
         - RSFSR
         - former USSR Currently Russia
+        - Former USSR, now Russian Federation
       values:
         - SUHH
         - RU
@@ -302,6 +303,8 @@ country:
     - match:
         - Ramallah
       value: PS
+    - match: Trinidad,
+      value: TT
     - match:
         - Saudi Arabian Citizen
         - al-Khafji
@@ -494,6 +497,10 @@ email:
       values:
         - Victoria.Oliver@deputies.gov.gg
         - victoria1.oliver@icloud.com
+    - match: hotelminsk@udp.gov.by ; marketing@hotelminsk.by
+      values:
+        - hotelminsk@udp.gov.by
+        - marketing@hotelminsk.by
     - match: la.khan7860@yahoo
       value: la.khan7860@yahoo.com
     - match: admin@europalforum org.uk

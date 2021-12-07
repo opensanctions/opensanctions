@@ -56,6 +56,7 @@ async def index():
     exists = await es.indices.exists(index=next_index)
     if exists:
         log.info("Index [%s] is up to date.", next_index)
+        # await es.indices.delete(index=next_index)
         return
     schemata = Statement.all_schemata(dataset)
     mapping = make_mapping(schemata)

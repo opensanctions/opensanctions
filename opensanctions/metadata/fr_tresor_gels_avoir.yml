@@ -58,6 +58,7 @@ lookups:
           - numéro d'enregistrement - société à
           - US Federal Employer Identification Number
           - Déclarée en préfecture
+          - "Date d’enregistrement"
           # why are IMO codes linked to companies?
           - n° OMI
         prop: registrationNumber
