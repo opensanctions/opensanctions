@@ -53,7 +53,7 @@ export default function Search({ modelData, datasets }: InferGetStaticPropsType<
   const hasScope = scopeName !== SEARCH_DATASET;
   // const hasSchemaFilter = schema !== SEARCH_SCHEMA;
   // const hasFilter = hasScopeFilter || hasSchemaFilter;
-  const title = hasScope ? `Search: ${scope.title}` : 'Search';
+  const title = hasScope ? `Search: ${scope.title}` : 'Search entities of interest';
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
