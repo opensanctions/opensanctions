@@ -51,7 +51,7 @@ persons. [Learn more about contributing data...](/docs/contribute/)
 
 ### Can I use this data for commercial purposes?
 
-Please be our guest. If you use OpenSanctions for your business, please consider [becoming a sponsor](/sponsor/) to guarantee the continued development and operation of the project.
+If you use OpenSanctions for your business, please [acquire a data license](/licensing/) to guarantee the continued development and operation of the project.
 
 
 ### <a id="peps"></a> What is a politically exposed person (PEP)?

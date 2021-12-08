@@ -10,12 +10,12 @@ Our objective is to continually release high-quality sanctions and persons of in
 
 We encourage companies to use OpenSanctions data in a commercial context. If you intend to do so, **please contact us at [info@opensanctions.org](/contact/)** to discuss the terms of obtaining a license. Licenses will be priced competitively, as they are only meant to cover the cost of running and maintaining the project.
 
-### Clarification on Non-Commercial Use
+### License exceptions (journalism, advocacy)
 
-For the OpenSanctions project, the definition of [non-commercial use](https://creativecommons.org/faq/#does-my-use-violate-the-noncommercial-clause-of-the-licenses) as provided by Creative Commons is expanded to expressly include the following uses:
+Beyond the definition of [non-commercial use](https://creativecommons.org/faq/#does-my-use-violate-the-noncommercial-clause-of-the-licenses) provided by Creative Commons, we also grant a zero-cost license to the groups listed below. They are entitled to use the data pursuant to the terms of [CC BY 4.0](https://creativecommons.org/licenses/by-nc/4.0/), but not to undertake any commercial redistribution of the data in bulk or in large parts.
 
 * Any person, group or organisation whose primary aim is the **production of public-interest reporting**, such as broadcast or newspaper media, or groups that meet the [GIJN membership criteria](https://gijn.org/membership-in-gijn/).
 
 * Public interest groups working to to advance [human rights](https://www.un.org/en/about-us/universal-declaration-of-human-rights) or the promotion of democratic governance. 
 
-We further reserve the right to issue specific exemptions to other individuals and groups. Please [contact us](/contact/) if you'd like to use OpenSanctions but see the required licensing as a hindrance in doing so.
+We further reserve the right to issue zero-cost licenses to other individuals and groups. Please [contact us](/contact/) if you'd like to use OpenSanctions but see the required licensing as a hindrance in doing so.
