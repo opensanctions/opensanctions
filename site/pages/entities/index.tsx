@@ -43,7 +43,7 @@ export default function EntityPreview({ modelData, datasets }: InferGetStaticPro
       </Layout.Base >
     );
   }
-  if (data.id !== entityId) {
+  if (data.id !== undefined && data.id !== entityId) {
     return <EntityRedirect entity={data} />
   }
   const entity = OpenSanctionsEntity.fromData(model, data)

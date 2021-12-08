@@ -34,12 +34,10 @@ lookups:
     options:
       - match:
           - numéro fédéral Suisse
-          - Numéro d'enregistrement national
           - (IOM)
-        contains:
-          - n° d'enregistrement national
         prop: idNumber
       - match:
+          - Numéro d'enregistrement national
           - Numéro d'enregistrement
           - Numéro d’enregistrement
           - Numéro d'enregistrement - Biélorussie
@@ -58,6 +56,7 @@ lookups:
           - numéro d'enregistrement - société à
           - US Federal Employer Identification Number
           - Déclarée en préfecture
+          - n° d'enregistrement national
           - "Date d’enregistrement"
           # why are IMO codes linked to companies?
           - n° OMI
