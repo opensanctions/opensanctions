@@ -18,6 +18,19 @@ export function getSchemaOpenSanctionsOrganization() {
   }
 }
 
+export function getSchemaActions() {
+  return {
+    "@context": "https://schema.org/",
+    "@type": "SearchAction",
+    "target": {
+      "@context": "https://schema.org/",
+      "@type": "EntryPoint",
+      "urlTemplate": `${BASE_URL}/search/?q={search_term_string}`,
+    },
+    "query-input": "required name=search_term_string"
+  }
+}
+
 export function getSchemaWebSite() {
   return {
     "@context": "https://schema.org/",
@@ -28,14 +41,7 @@ export function getSchemaWebSite() {
     "license": LICENSE_URL,
     "mainEntityOfPage": getDataCatalog(),
     "creator": getSchemaOpenSanctionsOrganization(),
-    "potentialAction": [{
-      "@type": "SearchAction",
-      "target": {
-        "@type": "EntryPoint",
-        "urlTemplate": `${BASE_URL}/search/?q={search-term}`
-      },
-      "query-input": "required name=search-term"
-    }]
+    "potentialAction": getSchemaActions(),
   }
 }
 
@@ -82,16 +88,7 @@ export function getSchemaDataset(dataset: IDataset, details?: IDatasetDetails) {
     "creator": getSchemaOpenSanctionsOrganization(),
     "isAccessibleForFree": true,
     "dateModified": dataset.last_change,
-    "potentialAction": {
-      "@context": "https://schema.org/",
-      "@type": "SearchAction",
-      "target": {
-        "@context": "https://schema.org/",
-        "@type": "EntryPoint",
-        "urlTemplate": `${BASE_URL}/search/?q={search_term_string}`,
-      },
-      "query-input": "required name=search_term_string"
-    },
+    "potentialAction": getSchemaActions(),
   }
   if (details !== undefined) {
     schema = {
