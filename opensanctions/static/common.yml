@@ -497,7 +497,8 @@ email:
       values:
         - Victoria.Oliver@deputies.gov.gg
         - victoria1.oliver@icloud.com
-    - match: hotelminsk@udp.gov.by ; marketing@hotelminsk.by
+    - match:
+        - "hotelminsk@udp.gov.by ; marketing@hotelminsk.by "
       values:
         - hotelminsk@udp.gov.by
         - marketing@hotelminsk.by
