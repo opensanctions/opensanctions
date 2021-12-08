@@ -3,33 +3,32 @@ import { join } from 'path'
 import { BASE_URL } from './constants';
 import { IArticleInfo, IDataset, isCollection } from "./types";
 
-const PAGES = ['/', '/docs/about/', '/docs/faq/', '/docs/usage/', '/reference/', '/contact/', '/sponsor/', '/datasets/', '/docs/', '/docs/contribute/']
+const PAGES = ['/', '/docs/about/', '/docs/faq/', '/docs/usage/', '/reference/', '/contact/', '/sponsor/', '/licensing/', '/docs/api/', '/datasets/', '/docs/', '/docs/contribute/']
 
 const sitemapPath = join(process.cwd(), 'public', 'sitemap.xml')
 
-function writeUrl(url: string, lastmod?: string, changefreq: string = 'weekly', priority: number = 0.5) {
+function writeUrl(url: string, lastmod?: string, changefreq?: string, priority?: number) {
   const lastmodTag = !!lastmod ? `<lastmod>${lastmod}</lastmod>` : ''
+  const changefreqTag = !!changefreq ? `<changefreq>${changefreq}</changefreq>` : ''
+  const priorityTag = !!priority ? `<priority>${priority}</priority>` : ''
   const fullUrl = BASE_URL + url
   return `<url>
     <loc>${fullUrl}</loc>
-    <priority>${priority}</priority>
-    <changefreq>${changefreq}</changefreq>
-    ${lastmodTag}
-  </url>`
+    ${priorityTag}${changefreqTag}${lastmodTag}</url>`
 }
 
 export default function writeSitemap(datasets: Array<IDataset>, articles: Array<IArticleInfo>, entityIds: Array<string>) {
-  const urls = PAGES.map(url => writeUrl(url));
+  const urls = PAGES.map(url => writeUrl(url, undefined, undefined, 0.8));
   datasets.forEach((dataset) => {
-    const priority = isCollection(dataset) ? 0.9 : 0.7
+    const priority = isCollection(dataset) ? 1.0 : 0.7
     const lastmod = dataset.last_change ? dataset.last_change.split('T')[0] : undefined
     urls.push(writeUrl(`/datasets/${dataset.name}/`, lastmod, 'weekly', priority))
   })
   articles.forEach((a) => {
-    urls.push(writeUrl(a.path, a.date, 'weekly', 0.8))
+    urls.push(writeUrl(a.path, a.date, undefined, 0.8))
   })
   entityIds.forEach((id) => {
-    urls.push(writeUrl(`/entities/?id=${id}`, undefined, 'monthly', 0.3))
+    urls.push(writeUrl(`/entities/?id=${id}`, undefined, undefined, undefined))
   })
   const body = urls.join('\n')
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
