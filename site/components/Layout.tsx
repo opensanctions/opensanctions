@@ -49,7 +49,7 @@ function LayoutBase({ title, description, structured, navSearch, children }: Rea
         <meta property="og:image" content="/static/card.jpg" />
         <meta name="og:site" content={SITE} />
         <meta property="og:url" content={url} />
-        {/* <link rel="canonical" href={url} /> */}
+        <link rel="canonical" href={url} />
       </Head>
       <div className={styles.page}>
         <Navbar navSearch={navSearchDef} />

@@ -82,14 +82,16 @@ export function getSchemaDataset(dataset: IDataset, details?: IDatasetDetails) {
     "creator": getSchemaOpenSanctionsOrganization(),
     "isAccessibleForFree": true,
     "dateModified": dataset.last_change,
-    "potentialAction": [{
+    "potentialAction": {
+      "@context": "https://schema.org/",
       "@type": "SearchAction",
       "target": {
+        "@context": "https://schema.org/",
         "@type": "EntryPoint",
-        "urlTemplate": `${BASE_URL}/search/?q={search-term}`
+        "urlTemplate": `${BASE_URL}/search/?q={search_term_string}`,
       },
-      "query-input": "required name=search-term"
-    }],
+      "query-input": "required name=search_term_string"
+    },
   }
   if (details !== undefined) {
     schema = {
