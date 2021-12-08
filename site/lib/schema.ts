@@ -11,11 +11,31 @@ export function getSchemaOpenSanctionsOrganization() {
     "@context": "https://schema.org/",
     "@type": "Organization",
     "name": SITE,
-    "url": BASE_URL,
+    "url": `${BASE_URL}/docs/about`,
     "email": EMAIL,
     "description": CLAIM,
-    "license": LICENSE_URL,
     "funder": "https://ror.org/04pz7b180"
+  }
+}
+
+export function getSchemaWebSite() {
+  return {
+    "@context": "https://schema.org/",
+    "@type": "WebSite",
+    "name": SITE,
+    "url": BASE_URL,
+    "description": CLAIM,
+    "license": LICENSE_URL,
+    "mainEntityOfPage": getDataCatalog(),
+    "creator": getSchemaOpenSanctionsOrganization(),
+    "potentialAction": [{
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": `${BASE_URL}/search/?q={search-term}`
+      },
+      "query-input": "required name=search-term"
+    }]
   }
 }
 
@@ -62,6 +82,14 @@ export function getSchemaDataset(dataset: IDataset, details?: IDatasetDetails) {
     "creator": getSchemaOpenSanctionsOrganization(),
     "isAccessibleForFree": true,
     "dateModified": dataset.last_change,
+    "potentialAction": [{
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": `${BASE_URL}/search/?q={search-term}`
+      },
+      "query-input": "required name=search-term"
+    }],
   }
   if (details !== undefined) {
     schema = {

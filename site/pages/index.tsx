@@ -10,7 +10,7 @@ import styles from '../styles/Home.module.scss'
 import Layout from '../components/Layout'
 import { getDatasets } from '../lib/data'
 import { CLAIM, SUBCLAIM, SPACER, COLLECTIONS, ARTICLE_INDEX_SUMMARY } from '../lib/constants'
-import { getSchemaOpenSanctionsOrganization } from '../lib/schema';
+import { getSchemaWebSite } from '../lib/schema';
 import { Search } from 'react-bootstrap-icons';
 import { FormattedDate, NumericBadge } from '../components/util';
 import { ICollection, isCollection, isSource } from '../lib/types';
@@ -18,7 +18,7 @@ import { getArticles } from '../lib/content';
 
 
 export default function Home({ datasets, articles }: InferGetStaticPropsType<typeof getStaticProps>) {
-  const structured = getSchemaOpenSanctionsOrganization()
+  const structured = getSchemaWebSite()
   const all = datasets.find((d) => d.name === 'all');
   if (all === undefined) {
     return null;

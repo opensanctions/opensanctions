@@ -84,10 +84,10 @@ function getEntityMap(): Promise<Map<string, IOpenSanctionsEntity>> {
   return promise;
 }
 
-export async function getEntityById(id: string): Promise<IOpenSanctionsEntity | undefined> {
-  const entities = await getEntityMap();
-  return entities.get(id)
-}
+// export async function getEntityById(id: string): Promise<IOpenSanctionsEntity | undefined> {
+//   const entities = await getEntityMap();
+//   return entities.get(id)
+// }
 
 export async function getEntityIds(): Promise<Array<string>> {
   const entities = await getEntityMap();
@@ -98,7 +98,7 @@ export async function getCanonialEntityIds(): Promise<Array<string>> {
   const entities = await getEntityMap();
   const ids = new Array<string>()
   entities.forEach((entity, id) => {
-    if (entity.id === id) {
+    if (entity.id === id && entity.target) {
       ids.push(id);
     }
   })

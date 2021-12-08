@@ -55,11 +55,6 @@ export default function EntityPreview({ modelData, datasets }: InferGetStaticPro
 
   return (
     <Layout.Base title={entity.caption} structured={structured}>
-      {(!entity.target) && (
-        <Head>
-          <meta name="robots" content="noindex" />
-        </Head>
-      )}
       <Container>
         <h1>
           {entity.caption}
