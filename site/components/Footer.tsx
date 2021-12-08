@@ -75,7 +75,7 @@ export default class Footer extends React.Component {
               <Row>
                 <p className={styles.copyright}>
                   The content and data published on this site are licensed under
-                  the terms of <Link href={LICENSE_URL}>Creative Commons Attribution 4.0</Link>.
+                  the terms of <Link href={LICENSE_URL}>Creative Commons 4.0 Attribution NonCommercial</Link>.
                 </p>
                 <p className={styles.copyright}>
                   Made with <HeartFill className={styles.love} /> in Python
