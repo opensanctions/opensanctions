@@ -26,6 +26,7 @@ import { IssuesList } from '../../components/Issue';
 import { SPACER } from '../../lib/constants';
 
 import styles from '../../styles/Dataset.module.scss'
+import { LicenseInfo } from '../../components/Policy';
 
 
 type DatasetScreenProps = {
@@ -63,9 +64,9 @@ export default function DatasetScreen({ dataset, details, issues, sources, colle
                 <Markdown markdown={details.description} />
                 {isCollection(dataset) && (
                   <Alert variant="warning">
-                    The people and companies from multiple data sources that have been
-                    aggregated into this collection are not de-duplicated. This function
-                    {' '}<Link href="https://github.com/pudo/opensanctions/issues/86">will be added</Link> in Q4 of 2021.
+                    This collection contains entities from multiple data sources. <Link href="/articles/2021-11-11-deduplication/">We have made sigificant progress</Link> on
+                    the de-duplication of entities across sources, but it is not yet complete - so individual companies or people may be
+                    contained more than once.
                   </Alert>
                 )}
               </Tab>
@@ -154,6 +155,7 @@ export default function DatasetScreen({ dataset, details, issues, sources, colle
                 {SPACER} <Link href="/reference/">reference</Link>
               </Card.Footer>
             </Card>
+            <LicenseInfo />
           </Col>
         </Row>
       </Container>
