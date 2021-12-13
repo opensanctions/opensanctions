@@ -24,7 +24,7 @@ In its current iteration, the API includes the following endpoints:
 
 * [`/match`](https://api.opensanctions.org/#operation/match_match__dataset__post) lets programmatic users submit a set of entity examples and search all of them at once. The results will be scored by considering all the supplied attributes (e.g. persons with nationality, birth dates, etc.), rather than search the name only. This endpoint should be used to implement know-your-customer (KYC) style list checks against a local set of records.
 
-* [`/reconcile`](https://api.opensanctions.org/#tag/Reconciliation) implements the [Reconciliation Service API](https://reconciliation-api.github.io/specs/latest/). This [can be used in conjunction with the OpenRefine desktop application](https://docs.openrefine.org/technical-reference/reconciliation-api) to match the rows in a spreadsheet against sanctions or PEPs lists.
+* [`/reconcile`](https://api.opensanctions.org/#tag/Reconciliation) implements the [Reconciliation Service API](https://reconciliation-api.github.io/specs/latest/). This [can be used in conjunction with the OpenRefine desktop application](https://docs.openrefine.org/manual/reconciling) to match the rows in a spreadsheet against sanctions or PEPs lists.
 
 * [`/entities/<ID>`](https://api.opensanctions.org/#operation/fetch_entity_entities__entity_id__get) gives users direct access to all the data linked to a specific entity. This includes the local graph context of the entity, i.e. any entities linked to or from the given item.
 

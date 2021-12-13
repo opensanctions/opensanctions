@@ -136,7 +136,7 @@ class FreebaseManifestSuggest(BaseModel):
 
 class FreebaseManifest(BaseModel):
     versions: List[str] = Field(..., example=["0.2"])
-    title: str = Field(..., example=settings.TITLE)
+    name: str = Field(..., example=settings.TITLE)
     identifierSpace: AnyHttpUrl
     schemaSpace: AnyHttpUrl
     view: FreebaseManifestView
