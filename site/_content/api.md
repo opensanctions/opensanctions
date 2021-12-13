@@ -8,9 +8,13 @@ The [OpenSanctions API](https://api.opensanctions.org/) is an open source search
 
 * [API documentation (ReDoc)](https://api.opensanctions.org/)
 * [API documentation (Swagger)](https://api.opensanctions.org/docs)
-* [Installation instructions](https://github.com/pudo/opensanctions/blob/main/api/README.md)
+* [Installation instructions](https://github.com/pudo/opensanctions/blob/main/api/README.md) for the API service, based on `docker-compose`.
+* [License terms](/licensing/) for the data (CC 4.0 BY NC).
 
 **Important notice:** `api.opensanctions.org` is a demo service. It shoudl only be used for experimentation or one-off projects. If you want to use the API as part of an application your are building, you should either [operate the service locally](https://github.com/pudo/opensanctions/blob/main/api/README.md), or [contact us](/contact/) to discuss a service agreement.
+
+Running the API on your own premises will guarantee privacy and security, while ensuring your independence from OpenSanctions as a service provider.
+
 
 ## Endpoints
 
