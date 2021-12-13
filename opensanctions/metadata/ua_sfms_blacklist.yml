@@ -1,5 +1,5 @@
 entry_point: opensanctions.crawlers.ua_sfms_blacklist
-title: SFMS Blacklist
+title: Ukraine SFMS Blacklist
 prefix: ua-sfms
 summary: >
   Ukraine's financial intelligence unit publishes this list of sanctioned

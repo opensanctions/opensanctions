@@ -1,7 +1,7 @@
 ---
 title: "Introducing business licenses for OpenSanctions"
 summary: |
-    We are introducing business licenses for OpenSanctions as a way that companies using the data can support our long-term sustainability as a commons for persons of interest data.
+    We are introducing business licenses for OpenSanctions as a way for companies using the data to support our long-term sustainability.
 draft: false
 ---
 
@@ -15,7 +15,7 @@ What's more, the openness and auditability of our project also creates transpare
 
 That’s why we believe that OpenSanctions will serve as **an open data commons for business users**, a shared resource that business can rely upon to build innovative and needs-driven services and products.
 
-At the same time, operating and expanding OpenSanctions - the crawlers, data normalization pipeline, and soon, an API, isn't sustainable without resources. That is why, after a thorough discussion, we've decided to adopt a licensing scheme for business users of OpenSanctions.
+At the same time, operating and expanding OpenSanctions - the crawlers, data normalization pipeline, and soon, an API, costs time and money and isn't sustainable without resources. That is why, after a thorough discussion, we've decided to adopt a licensing scheme for business users of OpenSanctions.
 
 As of today, OpenSanctions data is available under the terms of the [Creative Commons Attribution-NonCommercial 4.0 International Public License](https://creativecommons.org/licenses/by-nc/4.0/). This license allows non-commercial users to continue to freely use the data. We've also added clarifying zero-cost license terms for journalistic and human rights groups.
 

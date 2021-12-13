@@ -2,6 +2,7 @@ from banal import first
 from pprint import pprint
 from normality import stringify, collapse_spaces
 from prefixdate import parse_parts
+from pantomime.types import XML
 
 from opensanctions import helpers as h
 from opensanctions.util import remove_namespace
@@ -205,7 +206,7 @@ def make_row(el):
 
 def crawl(context):
     path = context.fetch_resource("source.xml", context.dataset.data.url)
-    context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
+    context.export_resource(path, XML, title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
     doc = remove_namespace(doc)
 
