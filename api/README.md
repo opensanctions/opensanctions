@@ -11,14 +11,20 @@ own servers or in a data center. Updated images of the API with current data are
 nightly and can be pulled from Docker hub:
 
 ```bash
-docker run -p 8000:8000 pudo/opensanctions-api:latest
+mkdir -p opensanctions-api && cd opensanctions-api
+wget https://github.com/pudo/opensanctions/blob/main/api/docker-compose.yml
+docker-compose up
+docker-compose run --rm app python3 osapi/index.py
 ```
 
 This will make the matching API available on Port 8000 of the local machine.
 
 If you run the container in a cluster management system like Kubernetes, you may want to
-find a way to restart the container every night so that a new image with updated data
-will be pulled from the Docker registry.
+find a way to pull a fresh container every night so that a new image with updated data
+will be pulled from the Docker registry. You will then also need to re-run the indexer,
+the equivalent of the last line in the example above.
+
+Please [contact the OpenSanctions team](https://www.opensanctions.org/contact/) if you are interested in exploring a hosted solution for running the API.
 
 ### Settings
 

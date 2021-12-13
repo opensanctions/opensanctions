@@ -36,11 +36,9 @@ For data sources that require screen scraping rather than publishing structured 
 
 ### <a id="api"></a> Is there an API for matching entity lists against OpenSanctions?
 
-We're focussed on offering plain data downloads. Running an API would be expensive, and raise a set of legal and administrative issues. It would also make us a competitor to many of the organisations that we hope can become OpenSanctions users.
+The core goal of OpenSanctions is providing high-quality bulk data access to its users. Besides doing so, but we also maintain an [OpenSanctions API appliance](/docs/api/) that makes it easy to search the data or to match the sanctions data against a list of customers or suspects.
 
-If you provide an API that allows matching against OpenSanctions data, we’d love to hear about it and link to it from this site.
-
-In the future, we might consider a project to provide a matching API server as free software, e.g. as a Docker container with the latest OpenSanctions data bundled inside it that users can run on their own premises.
+If you provide another API that uses the OpenSanctions data, we’d love to hear about it and link to it from this site. Please take note of the [commercial licensing](/licensing/) rules if you do so.
 
 
 ### Can I contribute a new data source?
@@ -71,7 +69,6 @@ A collection is a bundle of entities (people, companies, etc.) from multiple dat
 
 OpenSanctions is an effort to acquire relevant data from a large array of online sources and to bundle it into more useful, synthetic entity lists for our users. To provide transparency and choice, we also re-publish the entities from each data source separately.
 
-*Please note that entities from different data sources are not yet de-duplicated in collections. If two source lists mention the same individual or company, they will be included twice. De-duplication will [become available](https://github.com/pudo/opensanctions/issues/86) in Q4/2021.*
 
 ### Will you delete data about me?
 
