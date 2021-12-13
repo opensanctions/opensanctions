@@ -11,6 +11,8 @@ def crawl(context):
             context.log.info("Country: %s" % code)
             crawl_legislature(context, code, legislature)
 
+    # context.resolver.save()
+
 
 def crawl_legislature(context, country, legislature):
     lastmod = int(legislature.get("lastmod"))
@@ -55,8 +57,16 @@ def parse_common(context, entity, data, lastmod):
     for ident in data.pop("identifiers", []):
         identifier = ident.get("identifier")
         scheme = ident.get("scheme")
-        if scheme == "wikidata":
+        if scheme == "wikidata" and identifier.startswith("Q"):
             entity.add("wikidataId", identifier)
+
+            # from followthemoney.dedupe import Judgement
+            # context.resolver.decide(
+            #     entity.id,
+            #     identifier,
+            #     judgement=Judgement.POSITIVE,
+            #     user="everypolitician",
+            # )
         # else:
         #     pprint(ident)
 
