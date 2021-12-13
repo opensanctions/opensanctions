@@ -11,7 +11,7 @@ def make_entity(context: Context, el, schema, prefix):
     entity = context.make(schema, target=True)
     entity.id = context.make_slug(prefix, el.findtext("./num"))
     entity.add("notes", el.findtext("./note"))
-    entity.add("topic", "sanction")
+    entity.add("topics", "sanction")
 
     sanction = h.make_sanction(context, entity)
     sanction.add("summary", el.findtext("./correction"))
