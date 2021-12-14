@@ -3,7 +3,7 @@ import { createInterface } from 'readline';
 import { promises, createReadStream } from 'fs';
 import { IModelDatum } from "@alephdata/followthemoney"
 import { IDataset, ICollection, ISource, IIssueIndex, IIndex, IIssue, IOpenSanctionsEntity, IDatasetDetails } from "./types";
-import { BASE_URL, INDEX_URL, ISSUES_URL } from "./constants";
+import { API_URL, BASE_URL, INDEX_URL, ISSUES_URL } from "./constants";
 
 export type DataCache = {
   index: IIndex | null,
@@ -65,6 +65,16 @@ export async function getIssues(): Promise<Array<IIssue>> {
 export async function getDatasetIssues(dataset?: IDataset): Promise<Array<IIssue>> {
   const issues = await getIssues()
   return issues.filter(issue => issue.dataset === dataset?.name);
+}
+
+export async function getEntityById(id: string): Promise<IOpenSanctionsEntity | null> {
+  const url = `${API_URL}/entities/${id}`
+  const data = await fetch(url)
+  if (!data.ok) {
+    // console.log('ERROR', data);
+    return null;
+  }
+  return await data.json()
 }
 
 // function getEntityMap(): Promise<Map<string, IOpenSanctionsEntity>> {
