@@ -1,7 +1,7 @@
 import { GetStaticPropsContext } from 'next'
 import Head from 'next/head'
 
-import { getEntityIds } from '../../lib/data'
+// import { getEntityIds } from '../../lib/data'
 
 // import styles from '../../styles/Entity.module.scss'
 
@@ -29,13 +29,13 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
   return { props: { id } };
 }
 
-export async function getStaticPaths() {
-  const ids = await getEntityIds()
-  const paths = ids.map((id) => {
-    return { params: { id } }
-  })
-  return {
-    paths,
-    fallback: false
-  }
-}
+// export async function getStaticPaths() {
+//   const ids = await getEntityIds()
+//   const paths = ids.map((id) => {
+//     return { params: { id } }
+//   })
+//   return {
+//     paths,
+//     fallback: false
+//   }
+// }
