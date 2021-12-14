@@ -60,7 +60,7 @@ export default function NavbarSection({ navSearch }: NavbarSectionProps) {
                   <Form.Control
                     type="search"
                     name="q"
-                    placeholder="Sanctions, PEPs, crime..."
+                    placeholder="eg. Evgeny Prigozhin, Syria, ..."
                     className={styles.navSearchBox}
                     aria-label="Search"
                   />

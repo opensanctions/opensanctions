@@ -22,7 +22,7 @@ export type EntityProps = {
 }
 
 export function EntityLink({ entity }: EntityProps) {
-  return <Link href={`/entities/?id=${entity.id}`}>{entity.caption}</Link>
+  return <Link href={`/entities/${entity.id}/`}>{entity.caption}</Link>
 }
 
 
@@ -133,7 +133,7 @@ type EntityRedirectProps = {
 }
 
 export function EntityRedirect({ entity }: EntityRedirectProps) {
-  const url = `${BASE_URL}/entities/?id=${entity.id}`
+  const url = `${BASE_URL}/entities/${entity.id}/`
   return (
     <>
       <Head>

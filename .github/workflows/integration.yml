@@ -84,35 +84,3 @@ jobs:
           password: ${{ secrets.pypi_password }}
           packages_dir: dist/
           skip_existing: true
-  site:
-    runs-on: ubuntu-latest
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_DEFAULT_REGION: eu-central-1
-      AWS_REGION: eu-central-1
-    defaults:
-      run:
-        working-directory: ./site
-    steps:
-      - uses: actions/checkout@v2
-      - name: Install awscli
-        run: pip install -q -U awscli
-      - uses: actions/setup-node@v2
-        with:
-          node-version: 16
-      - name: Install npm dependencies
-        run: npm install
-      - name: Download opensanctions data
-        run: make data
-      - name: Build and export site
-        run: npm run build
-      - name: Publish draft to beta.opensanctions.org
-        if: ${{ github.ref == 'refs/heads/develop' }}
-        run: |
-          aws s3 sync --quiet --acl public-read out s3://beta.opensanctions.org
-      - name: Publish site to opensanctions.org
-        if: ${{ github.ref == 'refs/heads/main' }}
-        run: |
-          aws s3 sync --quiet --cache-control "public, max-age=3600" --acl public-read out s3://opensanctions.org
-          aws cloudfront create-invalidation --distribution-id E321O1ATKKHDQT --paths "/*"
