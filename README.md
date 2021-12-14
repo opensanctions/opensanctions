@@ -8,10 +8,12 @@ OpenSanctions uses [Follow the Money](https://followthemoney.readthedocs.io/en/l
     * [Datasets](https://opensanctions.org/datasets/)
     * [About the project](https://opensanctions.org/docs/about/)
     * [FAQ](https://opensanctions.org/docs/faq/)
+    * [API](https://api.opensanctions.org/)
 * [Technical documentation](https://docs.opensanctions.org/en/latest/) (readthedocs.org)
     * [Installation](https://docs.opensanctions.org/en/latest/install.html)
     * [Adding crawlers](https://opensanctions.org/docs/contribute/)
 * [Data sources roadmap](https://bit.ly/osa-sources)
+* [Data licensing](https://opensanctions.org/licensing/)
 * [Contact us](https://opensanctions.org/contact/)
 
 ### Technical overview
@@ -20,10 +22,11 @@ Repository layout:
 
 * ``opensanctions/``: Python project with data extraction and cleaning components
 * ``site/``: Next.js project web site
+* ``api/``: FastAPI appliance for the project API and on-premises KYC use
 * ``docs/``: Sphinx [technical documentation](https://opensanctions.org/docs/faq/)
 
 Daily data extraction and processing runs on GitHub Actions. Status:
 
 [![production](https://github.com/pudo/opensanctions/actions/workflows/production.yml/badge.svg)](https://github.com/pudo/opensanctions/actions/workflows/production.yml)
 
-**Licensing:** code is MIT, content & data is CC BY 4.0.
+**Licensing:** code is MIT-licensed, content & [data is CC 4.0 Attribution-NonCommercial](https://opensanctions.org/licensing/).
