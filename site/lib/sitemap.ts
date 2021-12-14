@@ -17,7 +17,7 @@ function writeUrl(url: string, lastmod?: string, changefreq?: string, priority?:
     ${priorityTag}${changefreqTag}${lastmodTag}</url>`
 }
 
-export default function writeSitemap(datasets: Array<IDataset>, articles: Array<IArticleInfo>, entityIds: Array<string>) {
+export default function writeSitemap(datasets: Array<IDataset>, articles: Array<IArticleInfo>) {
   const urls = PAGES.map(url => writeUrl(url, undefined, undefined, 0.8));
   datasets.forEach((dataset) => {
     const priority = isCollection(dataset) ? 1.0 : 0.7
@@ -27,9 +27,9 @@ export default function writeSitemap(datasets: Array<IDataset>, articles: Array<
   articles.forEach((a) => {
     urls.push(writeUrl(a.path, a.date, undefined, 0.8))
   })
-  entityIds.forEach((id) => {
-    urls.push(writeUrl(`/entities/?id=${id}`, undefined, undefined, undefined))
-  })
+  // entityIds.forEach((id) => {
+  //   urls.push(writeUrl(`/entities/?id=${id}`, undefined, undefined, undefined))
+  // })
   const body = urls.join('\n')
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
     <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
