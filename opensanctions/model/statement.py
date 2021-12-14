@@ -265,9 +265,9 @@ class Statement(Base):
     def unique_conflict(cls, left_ids, right_ids):
         cteq = select(
             func.distinct(cls.entity_id).label("entity_id"),
+            func.max(cls.unique).label("unique"),
             cls.dataset.label("dataset"),
         )
-        cteq = cteq.where(cls.unique == True)
         cte = cteq.cte("uniques")
         # sqlite 3.35 -
         # cte = cte.prefix_with("MATERIALIZED")
@@ -275,6 +275,8 @@ class Statement(Base):
         right = cte.alias("right")
         q = select([left.c.entity_id, right.c.entity_id])
         q = q.where(left.c.dataset == right.c.dataset)
+        q = q.where(left.c.unique == True)
+        q = q.where(right.c.unique == True)
         q = q.where(left.c.entity_id.in_(left_ids))
         q = q.where(right.c.entity_id.in_(right_ids))
         # print(q)

@@ -112,7 +112,7 @@ def parse_result(context, result):
     result.pop("standard_order", None)
 
     context.emit(sanction)
-    context.emit(entity, target=True)
+    context.emit(entity, target=True, unique=True)
 
     if len(result):
         context.pprint(result)
