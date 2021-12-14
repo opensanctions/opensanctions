@@ -29,13 +29,14 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
   return { props: { id } };
 }
 
-// export async function getStaticPaths() {
-//   const ids = await getEntityIds()
-//   const paths = ids.map((id) => {
-//     return { params: { id } }
-//   })
-//   return {
-//     paths,
-//     fallback: false
-//   }
-// }
+export async function getStaticPaths() {
+  // const ids = await getEntityIds()
+  // const paths = ids.map((id) => {
+  //   return { params: { id } }
+  // })
+  // paths = [{}]
+  return {
+    paths: [],
+    fallback: false
+  }
+}
