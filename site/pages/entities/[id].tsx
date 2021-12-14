@@ -68,7 +68,8 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
       sources: sources,
       entityData: entity,
       modelData: index.model
-    }
+    },
+    revalidate: 360
   };
 }
 
