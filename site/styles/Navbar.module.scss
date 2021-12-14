@@ -1,7 +1,14 @@
 @import './variables.scss';
+@import "~bootstrap/scss/mixins/_breakpoints";
 
 .brand {
     font-weight: bold;
+}
+
+.navSearchBox {
+    @include media-breakpoint-up(md) {      
+        width: 20em !important;
+    }
 }
 
 .sponsorCall {

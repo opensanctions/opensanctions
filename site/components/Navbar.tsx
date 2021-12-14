@@ -1,11 +1,11 @@
 import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { PatchCheckFill } from 'react-bootstrap-icons';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
+import InputGroup from 'react-bootstrap/InputGroup';
 import Container from 'react-bootstrap/Container';
 
 import styles from '../styles/Navbar.module.scss';
@@ -56,22 +56,24 @@ export default function NavbarSection({ navSearch }: NavbarSectionProps) {
           <Nav className="justify-content-end">
             {navSearch && (
               <Form className="d-flex" action="/search/">
-                <Form.Control
-                  type="search"
-                  name="q"
-                  placeholder="Search entities..."
-                  className="me-4"
-                  aria-label="Search"
-                />
-                {/* <Button variant="secondary">Search</Button> */}
+                <InputGroup>
+                  <Form.Control
+                    type="search"
+                    name="q"
+                    placeholder="Sanctions, PEPs, crime..."
+                    className={styles.navSearchBox}
+                    aria-label="Search"
+                  />
+                  <Button variant="dark">Search</Button>
+                </InputGroup>
               </Form>
             )}
-            <Link href="/sponsor/" passHref>
+            {/* <Link href="/sponsor/" passHref>
               <Button variant="primary" className={styles.sponsorCall}>
                 <PatchCheckFill className={styles.sponsorIcon} />
                 Sponsor
               </Button>
-            </Link>
+            </Link> */}
           </Nav>
         </Navbar.Collapse>
       </Container>
