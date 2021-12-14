@@ -27,4 +27,3 @@ In its current iteration, the API includes the following endpoints:
 * [``/reconcile``](https://api.opensanctions.org/#tag/Reconciliation) implements the [Reconciliation Service API](https://reconciliation-api.github.io/specs/latest/). This [can be used in conjunction with the OpenRefine desktop application](https://docs.openrefine.org/manual/reconciling) to match the rows in a spreadsheet against sanctions or PEPs lists.
 
 * [``/entities/<ID>``](https://api.opensanctions.org/#operation/fetch_entity_entities__entity_id__get) gives users direct access to all the data linked to a specific entity. This includes the local graph context of the entity, i.e. any entities linked to or from the given item.
-

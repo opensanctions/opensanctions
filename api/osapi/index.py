@@ -153,6 +153,8 @@ def facet_aggregations(fields: List[str] = []) -> Dict[str, Any]:
 
 def result_entity(data) -> Tuple[Entity, float]:
     source = data.get("_source")
+    if source is None:
+        return None, 0.0
     source["id"] = data.get("_id")
     return Entity.from_dict(model, source), data.get("_score")
 
@@ -160,7 +162,9 @@ def result_entity(data) -> Tuple[Entity, float]:
 def result_entities(result) -> Generator[Tuple[Entity, float], None, None]:
     hits = result.get("hits", {})
     for hit in hits.get("hits", []):
-        yield result_entity(hit)
+        entity, score = result_entity(hit)
+        if entity is not None:
+            yield entity, score
 
 
 async def query_entities(query: Dict[Any, Any], limit: int = 5):
@@ -229,6 +233,8 @@ async def get_adjacent(
         resp = await es.mget(index=ES_INDEX, body={"ids": entities})
         for raw in resp.get("docs", []):
             adj, _ = result_entity(raw)
+            if adj is None:
+                continue
             for prop, value in entity.itervalues():
                 if prop.type == registry.entity and value == adj.id:
                     yield prop, adj
