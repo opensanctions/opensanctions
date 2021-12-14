@@ -64,7 +64,7 @@ export default function NavbarSection({ navSearch }: NavbarSectionProps) {
                     className={styles.navSearchBox}
                     aria-label="Search"
                   />
-                  <Button variant="dark">Search</Button>
+                  <Button variant="dark" type="submit">Search</Button>
                 </InputGroup>
               </Form>
             )}
