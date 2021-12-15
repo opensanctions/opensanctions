@@ -250,6 +250,9 @@ country:
         - UA
         - RU
     - match:
+        - Russian Empire
+      value: RU
+    - match:
         - Russian SFSR (now Russian Federation)
         - Russian SFSR
         - RSFSR

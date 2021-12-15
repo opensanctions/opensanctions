@@ -1,14 +1,14 @@
 PROPS_FAMILY = {
     "P40": "child",
     "P26": "spouse",
-    "P25": "mother",
-    "P22": "father",
-    "P43": "stepfather",
-    "P44": "stepmother",
+    "P25": "parent",
+    "P22": "parent",
+    "P43": "stepparent",
+    "P44": "stepparent",
     "P1038": "relative",
     "P3373": "sibling",
-    "P7": "brother",
-    "P9": "sister",
+    "P7": "sibling",
+    "P9": "sibling",
     # 'P108': 'employer',
     # 'P102': 'party',
     # 'P463': 'member'
@@ -38,6 +38,11 @@ PROPS_DIRECT = {
 
 IGNORE = set(
     [
+        "P18",  # image
+        "P109",  # signature
+        "P166",  # award received
+        "P793",  # significant event
+        "P1344",  # participant in
         "P950",  # Biblioteca Nacional de España ID
         "P9629",  # Armeniapedia ID
         "P949",  # National Library of Israel ID

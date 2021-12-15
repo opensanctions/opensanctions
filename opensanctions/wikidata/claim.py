@@ -9,14 +9,14 @@ log = structlog.getLogger(__name__)
 
 class Snak(object):
     def __init__(self, data):
-        self._data = data
-        datavalue = data.pop("datavalue", None)
-        self.value_type = datavalue.pop("type")
-        self._value = datavalue.pop("value")
+        datavalue = data.pop("datavalue", {})
+        self.value_type = datavalue.pop("type", None)
+        self._value = datavalue.pop("value", None)
         data.pop("hash", None)
         self.type = data.pop("datatype", None)
         self.property = data.pop("property", None)
         self.snaktype = data.pop("snaktype", None)
+        # self._data = data
 
     @property
     def property_label(self):
@@ -29,7 +29,9 @@ class Snak(object):
 
     @property
     def text(self):
-        if self.value_type == "time":
+        if self.snaktype == "novalue":
+            return None
+        elif self.value_type == "time":
             value = self._value.get("time")
             if value is not None:
                 value = value.strip("+")
@@ -43,7 +45,17 @@ class Snak(object):
         elif isinstance(self._value, str):
             return self._value
         else:
-            print("XXXX", self.value_type, self._value)
+            log.warning("Unhandled value type", type=self.value_type, value=self._value)
+
+
+class Reference(object):
+    def __init__(self, data):
+        self.snaks = {}
+        for prop, snak_data in data.pop("snaks", {}).items():
+            self.snaks[prop] = [Snak(s) for s in snak_data]
+
+    def get(self, prop):
+        return self.snaks.get(prop, [])
 
 
 class Claim(Snak):
@@ -51,3 +63,12 @@ class Claim(Snak):
         self.id = data.pop("id")
         self.rank = data.pop("rank")
         super().__init__(data.pop("mainsnak"))
+        self.qualifiers = {}
+        for prop, snaks in data.pop("qualifiers", {}).items():
+            self.qualifiers[prop] = [Snak(s) for s in snaks]
+
+        self.references = [Reference(r) for r in data.pop("references", [])]
+        # self._claim = data
+
+    def get_qualifier(self, prop):
+        return self.qualifiers.get(prop, [])

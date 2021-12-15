@@ -3,6 +3,7 @@
 
 # snak = some notation about knowledge
 from functools import cache
+from typing import Any, Dict, Optional
 
 from opensanctions import settings
 from opensanctions.core.http import get_session
@@ -20,13 +21,13 @@ def wikibase_getentities(ids, expire_long=False, **kwargs):
         return resp.json()
 
 
-def get_entity(qid):
+def get_entity(qid: str) -> Optional[Dict[str, Any]]:
     data = wikibase_getentities(qid)
     return data.get("entities", {}).get(qid)
 
 
 @cache
-def get_label(qid):
+def get_label(qid: str) -> Optional[str]:
     data = wikibase_getentities(qid, props="labels", expire_long=True)
     entity = data.get("entities", {}).get(qid)
     # pprint(entity)
