@@ -1,0 +1,18 @@
+entry_point: opensanctions.crawlers.wd_peppercat_world_leaders
+title: Peppercat World Leaders
+prefix: wd
+summary: >
+  ...
+description: |
+  ...
+collections:
+  - default
+  - peps
+publisher:
+  name: Peppercat.org
+  description: |
+    ...
+  url: https://www.peppercat.org
+data:
+  url: "https://raw.githubusercontent.com/peppercatorg/site-build/main/repos.csv"
+  format: CSV

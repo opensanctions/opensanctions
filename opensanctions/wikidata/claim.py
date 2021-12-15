@@ -2,12 +2,12 @@ import structlog
 
 from opensanctions.wikidata.api import get_label
 
-# from opensanctions.wikidata.lang import pick_lang_text
-
 log = structlog.getLogger(__name__)
 
 
 class Snak(object):
+    """Some Notation About Knowledge (TM)."""
+
     def __init__(self, data):
         datavalue = data.pop("datavalue", {})
         self.value_type = datavalue.pop("type", None)
@@ -29,7 +29,7 @@ class Snak(object):
 
     @property
     def text(self):
-        if self.snaktype == "novalue":
+        if self.value_type is None:
             return None
         elif self.value_type == "time":
             value = self._value.get("time")

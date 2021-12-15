@@ -1,30 +1,41 @@
+# Query: https://w.wiki/4Z73
 PROPS_FAMILY = {
-    "P40": "child",
-    "P26": "spouse",
-    "P25": "parent",
-    "P22": "parent",
-    "P43": "stepparent",
-    "P44": "stepparent",
-    "P1038": "relative",
-    "P3373": "sibling",
     "P7": "sibling",
     "P9": "sibling",
-    # 'P108': 'employer',
-    # 'P102': 'party',
-    # 'P463': 'member'
+    "P22": "parent",
+    "P26": "spouse",
+    "P25": "parent",
+    "P40": "child",
+    "P43": "stepparent",
+    "P44": "stepparent",
+    "P451": "unmarried partner",
+    "P1038": "relative",
+    "P1290": "godparent",
+    "P3373": "sibling",
+    "P3448": "stepparent",
+    "P8810": "unspecified parent",
 }
 
+PROPS_ASSOCIATION = {
+    "P1327": "partner in business or sport",
+    "P3323": "significant person",
+}
+
+# https://www.wikidata.org/wiki/Wikidata:List_of_properties/human
 PROPS_DIRECT = {
-    "P1477": "alias",
-    "P1813": "alias",
-    "P1559": "name",
+    "P1477": "alias",  # birth name
+    "P1813": "alias",  # short name
+    "P2561": "alias",  # name
+    "P1559": "name",  # name in native language
     "P511": "title",
     "P735": "firstName",
     "P734": "lastName",
+    "P1950": "lastName",
     "P21": "gender",
     "P39": "position",
     "P140": "religion",
     "P569": "birthDate",
+    "P5056": "fatherName",
     "P570": "deathDate",
     "P19": "birthPlace",
     "P856": "website",
@@ -33,6 +44,7 @@ PROPS_DIRECT = {
     "P27": "nationality",
     "P742": "weakAlias",
     "P172": "ethnicity",
+    "P973": "sourceUrl",
 }
 
 

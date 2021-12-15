@@ -73,7 +73,7 @@ def entity_to_ftm(
     target: bool = True,
     depth: int = 2,
     seen: Optional[Set[str]] = None,
-    **kwargs: Dict[str, str]
+    **kwargs: Optional[str]
 ):
     if seen is None:
         seen = set()

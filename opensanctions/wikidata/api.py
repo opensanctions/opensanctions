@@ -1,7 +1,6 @@
 # https://www.mediawiki.org/wiki/Wikibase/API
 # https://www.wikidata.org/w/api.php?action=help&modules=wbgetentities
-
-# snak = some notation about knowledge
+import structlog
 from functools import cache
 from typing import Any, Dict, Optional
 
@@ -10,6 +9,7 @@ from opensanctions.core.http import get_session
 from opensanctions.wikidata.lang import pick_obj_lang
 
 WD_API = "https://www.wikidata.org/w/api.php"
+log = structlog.getLogger(__name__)
 
 
 def wikibase_getentities(ids, expire_long=False, **kwargs):
@@ -17,6 +17,8 @@ def wikibase_getentities(ids, expire_long=False, **kwargs):
     params = {**kwargs, "format": "json", "ids": ids, "action": "wbgetentities"}
     session = get_session()
     resp = session.request("GET", WD_API, params=params, expire_after=expire)
+    if not resp.from_cache:
+        log.info("Wikidata getentities...", qid=ids, **kwargs)
     if resp.ok:
         return resp.json()
 
