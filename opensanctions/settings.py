@@ -58,6 +58,9 @@ STATIC_PATH = Path(env.get("OPENSANCTIONS_STATIC_PATH", STATIC_PATH)).resolve()
 # Do not edit manually, use the release process
 VERSION = "3.1.1"
 
+# Relevance cut-off
+DEATH_CUTOFF = datetime(2010, 1, 1)
+
 # User agent
 USER_AGENT = f"Mozilla/5.0 (any) OpenSanctions/{VERSION}"
 HTTP_TIMEOUT = 60

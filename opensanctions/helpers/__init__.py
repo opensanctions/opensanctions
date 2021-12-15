@@ -6,6 +6,7 @@ from opensanctions.helpers.sanctions import make_sanction
 from opensanctions.helpers.features import apply_feature
 from opensanctions.helpers.dates import extract_years, parse_date
 from opensanctions.helpers.excel import convert_excel_cell
+from opensanctions.helpers.constraints import check_person_cutoff
 
 __all__ = [
     "clean_gender",
@@ -18,4 +19,5 @@ __all__ = [
     "parse_date",
     "apply_feature",
     "convert_excel_cell",
+    "check_person_cutoff",
 ]

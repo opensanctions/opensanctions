@@ -109,7 +109,8 @@ def entity_to_ftm(
     # TODO: get back to this later:
     entity.pop("sitelinks")
 
-    # TODO: check death date
+    if h.check_person_cutoff(proxy):
+        return
 
     # context.pprint(entity)
     context.emit(proxy, unique=True)

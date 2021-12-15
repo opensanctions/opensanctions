@@ -22,6 +22,8 @@ class UniqueResolver(Resolver[Entity]):
     def check_candidate(self, left: Identifier, right: Identifier) -> bool:
         if not super().check_candidate(left, right):
             return False
+        if Identifier.QID.match(str(left)) and Identifier.QID.match(str(right)):
+            return False
         lefts = [c.id for c in self.connected(left)]
         rights = [c.id for c in self.connected(right)]
         if Statement.unique_conflict(lefts, rights):
