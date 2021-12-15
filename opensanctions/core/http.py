@@ -2,7 +2,7 @@
 import requests
 import warnings
 import structlog
-import functools
+from functools import cache, partial
 from requests_cache import CachedSession
 
 from opensanctions import settings
@@ -17,13 +17,14 @@ requests.packages.urllib3.disable_warnings()
 requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS = "ALL:@SECLEVEL=1"
 
 
+@cache
 def get_session() -> CachedSession:
     """Make a cached session."""
     path = settings.STATE_PATH.joinpath("http").as_posix()
     session = CachedSession(cache_name=path, expire_after=settings.CACHE_EXPIRE)
     session.headers.update(HEADERS)
     # weird monkey-patch: default timeout for requests sessions
-    session.request = functools.partial(session.request, timeout=settings.HTTP_TIMEOUT)
+    session.request = partial(session.request, timeout=settings.HTTP_TIMEOUT)
     return session
 
 
