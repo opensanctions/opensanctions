@@ -1,13 +1,14 @@
-entry_point: opensanctions.crawlers.wd_peppercat_world_leaders
+entry_point: opensanctions.crawlers.wd_peppercat_leaders
 title: Peppercat World Leaders
 prefix: wd
+hidden: true
 summary: >
   ...
 description: |
   ...
-collections:
-  - default
-  - peps
+# collections:
+#   - default
+#   - peps
 publisher:
   name: Peppercat.org
   description: |

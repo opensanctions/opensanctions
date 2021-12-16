@@ -1,5 +1,5 @@
 import structlog
-
+from nomenklatura.resolver import Identifier
 from opensanctions.wikidata.api import get_label
 
 log = structlog.getLogger(__name__)
@@ -42,6 +42,16 @@ class Snak(object):
             return get_label(self._value.get("id"))
         elif self.value_type == "monolingualtext":
             return self._value.get("text")
+        elif self.value_type == "quantity":
+            # Resolve unit name and make into string:
+            value = self._value.get("amount", "")
+            value = value.lstrip("+")
+            unit = self._value.get("unit", "")
+            unit = unit.split("/")[-1]
+            if Identifier.QID.match(unit):
+                unit = get_label(unit)
+                value = f"{value} {unit}"
+            return value
         elif isinstance(self._value, str):
             return self._value
         else:

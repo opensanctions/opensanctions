@@ -10,6 +10,7 @@ CURRENT = "https://raw.githubusercontent.com/every-politician-scrapers/%s/main/h
 def crawl_country(context: Context, country: str, url: str):
     res = context.http.get(url, stream=True)
     lines = (line.decode("utf-8") for line in res.iter_lines())
+    context.log.info("Importing current leaders", country=country)
     for row in csv.DictReader(lines):
         data = get_entity(row.get("personID"))
         if data is not None:
@@ -28,4 +29,4 @@ def crawl(context: Context):
     lines = (line.decode("utf-8") for line in res.iter_lines())
     for row in csv.DictReader(lines):
         url = CURRENT % row.get("repo")
-        crawl_country(context, row.get("Country"), url)
+        crawl_country(context, row.get("country"), url)

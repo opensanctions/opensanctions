@@ -5,8 +5,15 @@ from opensanctions.core import Context, Dataset, Entity, setup
 from opensanctions import helpers as h
 from opensanctions.wikidata.api import get_entity
 from opensanctions.wikidata.lang import pick_obj_lang
-from opensanctions.wikidata.props import IGNORE, PROPS_DIRECT, PROPS_FAMILY
+from opensanctions.wikidata.props import (
+    IGNORE,
+    PROPS_ASSOCIATION,
+    PROPS_DIRECT,
+    PROPS_FAMILY,
+)
 from opensanctions.wikidata.claim import Claim
+
+# SEEN_PROPS = set()
 
 
 def apply_claim(
@@ -25,9 +32,15 @@ def apply_claim(
         other_data = get_entity(claim.qid)
         if other_data is None:
             return
-        # TODO mark RCA
+
+        props = {}
+        # Hacky: is an entity is a PEP, then by definition their relatives are
+        # RCA (relatives and close associates).
+        if "role.pep" in proxy.get("topics"):
+            props["topics"] = "role.rca"
+
         other = entity_to_ftm(
-            context, other_data, target=False, depth=depth - 1, seen=seen
+            context, other_data, target=False, depth=depth - 1, seen=seen, **props
         )
         if other is None:
             return
@@ -52,18 +65,22 @@ def apply_claim(
                 family.add("sourceUrl", snak.text)
         context.emit(family)
         return
+    if claim.property in PROPS_ASSOCIATION:
+        print("CLAIM", claim.property, claim.text)
     # TODO: memberships, employers?
     if claim.property in IGNORE:
         return
-    # if claim.type != "external-id":
+    # if claim.type != "external-id" and claim.property not in SEEN_PROPS:
     #     context.log.warning(
     #         "Claim",
+    #         item=proxy.id,
     #         prop=claim.property,
     #         prop_label=claim.property_label,
     #         type=claim.type,
     #         value_type=claim.value_type,
     #         value=claim.text,
     #     )
+    # SEEN_PROPS.add(claim.property)
 
 
 def entity_to_ftm(
@@ -85,7 +102,8 @@ def entity_to_ftm(
     for prop, value in kwargs.items():
         proxy.add(prop, value)
     labels = entity.pop("labels")
-    proxy.add("name", pick_obj_lang(labels))
+    label = pick_obj_lang(labels)
+    proxy.add("name", label)
     for obj in labels.values():
         proxy.add("alias", obj["value"])
 
@@ -98,7 +116,7 @@ def entity_to_ftm(
     claims = entity.pop("claims")
     instance_of = [Claim(c).qid for c in claims.pop("P31", [])]
     if proxy.schema.is_a("Person") and "Q5" not in instance_of:
-        context.log.error("Person is not a Q5", qid=proxy.id)
+        context.log.info("Person is not a Q5", qid=proxy.id, label=label)
         return
 
     for prop_claims in claims.values():

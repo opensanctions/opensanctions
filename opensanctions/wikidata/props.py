@@ -18,7 +18,7 @@ PROPS_FAMILY = {
 
 PROPS_ASSOCIATION = {
     "P1327": "partner in business or sport",
-    "P3323": "significant person",
+    "P3342": "significant person",
 }
 
 # https://www.wikidata.org/wiki/Wikidata:List_of_properties/human
@@ -26,7 +26,8 @@ PROPS_DIRECT = {
     "P1477": "alias",  # birth name
     "P1813": "alias",  # short name
     "P2561": "alias",  # name
-    "P1559": "name",  # name in native language
+    "P1559": "alias",  # name in native language
+    "P2562": "alias",  # married name
     "P511": "title",
     "P735": "firstName",
     "P734": "lastName",

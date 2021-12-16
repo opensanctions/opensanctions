@@ -345,7 +345,9 @@ country:
       value: AE
     - match: former Yugoslavia
       value: YUCS
-    - match: Czechoslovak Socialist Republic
+    - match:
+        - Czechoslovak Socialist Republic
+        - Czechoslovak Republic
       value: CSHH
     - match:
         - Afghanistan   Afghanistan
