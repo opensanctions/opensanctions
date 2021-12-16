@@ -24,11 +24,11 @@ class UniqueResolver(Resolver[Entity]):
             return False
         if Identifier.QID.match(str(left)) and Identifier.QID.match(str(right)):
             return False
-        lefts = [c.id for c in self.connected(left)]
-        rights = [c.id for c in self.connected(right)]
-        if Statement.unique_conflict(lefts, rights):
-            self.decide(left, right, Judgement.NEGATIVE, user=AUTO_USER)
-            return False
+        # lefts = [c.id for c in self.connected(left)]
+        # rights = [c.id for c in self.connected(right)]
+        # if Statement.unique_conflict(lefts, rights):
+        #     self.decide(left, right, Judgement.NEGATIVE, user=AUTO_USER)
+        #     return False
         return True
 
     def decide(
