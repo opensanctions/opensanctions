@@ -1,6 +1,6 @@
 import structlog
-from nomenklatura.resolver import Identifier
 from opensanctions.wikidata.api import get_label
+from opensanctions.wikidata.value import snak_value_to_string
 
 log = structlog.getLogger(__name__)
 
@@ -29,33 +29,7 @@ class Snak(object):
 
     @property
     def text(self):
-        if self.value_type is None:
-            return None
-        elif self.value_type == "time":
-            value = self._value.get("time")
-            if value is not None:
-                value = value.strip("+")
-                if "T" in value:
-                    value, _ = value.split("T", 1)
-            return value
-        elif self.value_type == "wikibase-entityid":
-            return get_label(self._value.get("id"))
-        elif self.value_type == "monolingualtext":
-            return self._value.get("text")
-        elif self.value_type == "quantity":
-            # Resolve unit name and make into string:
-            value = self._value.get("amount", "")
-            value = value.lstrip("+")
-            unit = self._value.get("unit", "")
-            unit = unit.split("/")[-1]
-            if Identifier.QID.match(unit):
-                unit = get_label(unit)
-                value = f"{value} {unit}"
-            return value
-        elif isinstance(self._value, str):
-            return self._value
-        else:
-            log.warning("Unhandled value type", type=self.value_type, value=self._value)
+        return snak_value_to_string(self.value_type, self._value)
 
 
 class Reference(object):

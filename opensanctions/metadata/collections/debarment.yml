@@ -1,5 +1,6 @@
 type: collection
 title: Debarment
+hidden: true
 summary: >
   Companies and people banned from participating in procurment tenders in 
   a particular jurisdiction, or vis a vis a certain organisation.

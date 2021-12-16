@@ -16,6 +16,53 @@ from opensanctions.wikidata.claim import Claim
 # SEEN_PROPS = set()
 
 
+def make_link(
+    context, proxy, claim, depth, seen, schema, other_schema, source_prop, target_prop
+):
+    if depth < 1 or claim.qid in seen:
+        return
+    other_data = get_entity(claim.qid)
+    if other_data is None:
+        return
+
+    props = {}
+    # Hacky: is an entity is a PEP, then by definition their relatives and
+    # associates are RCA (relatives and close associates).
+    if "role.pep" in proxy.get("topics"):
+        props["topics"] = "role.rca"
+
+    other = entity_to_ftm(
+        context,
+        other_data,
+        schema=other_schema,
+        target=False,
+        depth=depth - 1,
+        seen=seen,
+        **props
+    )
+    if other is None:
+        return
+    link = context.make(schema)
+    link.id = context.make_slug(claim.id)
+    link.add(source_prop, proxy.id)
+    link.add(target_prop, other.id)
+    link.add("relationship", claim.property_label)
+
+    for qual in claim.get_qualifier("P580"):
+        link.add("startDate", qual.text)
+
+    for qual in claim.get_qualifier("P582"):
+        link.add("endDate", qual.text)
+
+    for qual in claim.get_qualifier("P585"):
+        link.add("date", qual.text)
+
+    for ref in claim.references:
+        for snak in ref.get("P854"):
+            link.add("sourceUrl", snak.text)
+    return link
+
+
 def apply_claim(
     context: Context, proxy: Entity, claim: Claim, depth: int, seen: Set[str]
 ):
@@ -27,46 +74,39 @@ def apply_claim(
         proxy.add(prop, value)
         return
     if claim.property in PROPS_FAMILY:
-        if depth < 1 or claim.qid in seen:
-            return
-        other_data = get_entity(claim.qid)
-        if other_data is None:
-            return
-
-        props = {}
-        # Hacky: is an entity is a PEP, then by definition their relatives are
-        # RCA (relatives and close associates).
-        if "role.pep" in proxy.get("topics"):
-            props["topics"] = "role.rca"
-
-        other = entity_to_ftm(
-            context, other_data, target=False, depth=depth - 1, seen=seen, **props
+        link = make_link(
+            context,
+            proxy,
+            claim,
+            depth,
+            seen,
+            schema="Family",
+            other_schema="Person",
+            source_prop="person",
+            target_prop="relative",
         )
-        if other is None:
-            return
-        family = context.make("Family")
-        family.id = context.make_slug(claim.id)
-        family.add("person", proxy.id)
-        family.add("relative", other.id)
-        family.add("relationship", claim.property_label)
-
-        for qual in claim.get_qualifier("P580"):
-            family.add("startDate", qual.text)
-
-        for qual in claim.get_qualifier("P582"):
-            family.add("endDate", qual.text)
-
-        for qual in claim.get_qualifier("P1039"):
-            family.add("relationship", qual.text)
-
-        for ref in claim.references:
-            # print(ref.snaks)
-            for snak in ref.get("P854"):
-                family.add("sourceUrl", snak.text)
-        context.emit(family)
+        if link is not None:
+            for qual in claim.get_qualifier("P1039"):
+                link.set("relationship", qual.text)
+            context.emit(link)
         return
     if claim.property in PROPS_ASSOCIATION:
-        print("CLAIM", claim.property, claim.text)
+        link = make_link(
+            context,
+            proxy,
+            claim,
+            depth,
+            seen,
+            schema="Associate",
+            other_schema="Person",
+            source_prop="person",
+            target_prop="associate",
+        )
+        if link is not None:
+            for qual in claim.get_qualifier("P2868"):
+                link.set("relationship", qual.text)
+            context.emit(link)
+        return
     # TODO: memberships, employers?
     if claim.property in IGNORE:
         return

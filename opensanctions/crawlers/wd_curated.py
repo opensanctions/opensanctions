@@ -7,6 +7,7 @@ def crawl(context: Context):
     entities = (
         "Q7747",  # putin
         "Q567",  # merkel
+        "Q180589",  # bojo
         "Q123923",  # karadzic
         "Q456034",  # isabel dos santos
         "Q58217",  # lavrov
