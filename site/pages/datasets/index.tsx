@@ -17,7 +17,7 @@ export default function DatasetIndex({ datasets }: InferGetStaticPropsType<typeo
   const structured = getSchemaDataCatalog(datasets)
   const allCollections = datasets.filter(isCollection)
   const collections = COLLECTIONS.map(n => allCollections.find(c => c.name == n)) as Array<ICollection>
-  const sources = datasets.filter(isSource)
+  const sources = datasets.filter(isSource).filter((ds) => !ds.hidden)
   return (
     <Layout.Base title="Datasets" structured={structured}>
       <Container>

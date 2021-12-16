@@ -174,7 +174,8 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
   const props: DatasetScreenProps = { dataset, issues, details }
   if (isCollection(dataset)) {
     const sources = await Promise.all(dataset.sources.map((name) => getDatasetByName(name)))
-    props.sources = sources as Array<ISource>
+    const visibleSources = sources.filter((s) => s !== undefined && !s.hidden)
+    props.sources = visibleSources as Array<ISource>
   }
   if (isSource(dataset)) {
     const collections = await Promise.all(dataset.collections.map((name) => getDatasetByName(name)))

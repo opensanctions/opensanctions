@@ -85,11 +85,6 @@ def parse_person(context, data, country, entities, lastmod):
     person.add("nationality", country)
     parse_common(context, person, data, lastmod)
 
-    if data.get("birth_date", "9999") < "1900":
-        return
-    if data.get("death_date", "9999") < "2000":
-        return
-
     person.add("gender", h.clean_gender(data.pop("gender", None)))
     person.add("title", data.pop("honorific_prefix", None))
     person.add("title", data.pop("honorific_suffix", None))
@@ -101,6 +96,9 @@ def parse_person(context, data, country, entities, lastmod):
     person.add("email", h.clean_emails(data.pop("email", None)))
     person.add("notes", data.pop("summary", None))
     person.add("topics", "role.pep")
+
+    if h.check_person_cutoff(person):
+        return
 
     # data.pop("image", None)
     # data.pop("images", None)

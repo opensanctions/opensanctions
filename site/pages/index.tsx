@@ -23,7 +23,9 @@ export default function Home({ datasets, articles }: InferGetStaticPropsType<typ
   if (all === undefined) {
     return null;
   }
-  const sources = datasets.filter(isSource).sort((a, b) => a.title.localeCompare(b.title))
+  const sources = datasets.filter(isSource)
+    .filter((ds) => !ds.hidden)
+    .sort((a, b) => a.title.localeCompare(b.title));
   const oddSources = sources.filter((d, i) => i % 2 == 0)
   const evenSources = sources.filter((d, i) => i % 2 == 1)
   const allCollections = datasets.filter(isCollection)

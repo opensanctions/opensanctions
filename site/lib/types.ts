@@ -68,6 +68,7 @@ export interface IDatasetBase {
   name: string
   type: string
   title: string
+  hidden: boolean
   link: string
   opensanctions_url: string
   summary: string

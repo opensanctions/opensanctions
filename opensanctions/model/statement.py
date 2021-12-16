@@ -268,6 +268,7 @@ class Statement(Base):
             func.max(cls.unique).label("unique"),
             cls.dataset.label("dataset"),
         )
+        cteq = cteq.where(cls.prop == cls.BASE)
         cte = cteq.cte("uniques")
         # sqlite 3.35 -
         # cte = cte.prefix_with("MATERIALIZED")

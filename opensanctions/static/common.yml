@@ -23,9 +23,50 @@ country:
         - "Regional"
         # This is now three countries, so dropping:
         - "Netherlands Antilles"
+        - "British India"
+        - "Weimar Republic"
+        - "German Reich"
+        - "German Empire"
+        - "Grand Duchy of Mecklenburg-Schwerin"
+        - "Grand Duchy of Hesse"
+        - "Korea under Japanese rule"
+        - "United Principalities"
+        - "Kingdom of Prussia"
+        - "Kingdom of Italy"
+        - "Principality of Montenegro"
+        - "Soviet Civil Administration"
+        - "Dominion of India"
+        - "Austria-Hungary"
+        - "Austrian Empire"
+        - "Kingdom of Hungary"
+        - "Kingdom of Romania"
+        - "Ottoman Empire"
+        - "Cisleithania"
+        - "Union of South Africa"
+        - "Tuvan People's Republic"
+        - "Dutch East Indies"
+        - "Irish Free State"
+        - "British Empire"
+        - "Kingdom of Hejaz"
+        - "Emirate of Transjordan"
+        - "Pahlavi Dynasty"
+        - "Estado Novo"
       contains:
         - (JVCFOR)
       value: null
+    - match:
+        - Danish Realm
+      value: DK
+    - match:
+        - West Germany
+      value: DE
+    - match:
+        - "Kingdom of Greece"
+      value: Greece
+    - match: Socialist Republic of Romania
+      value: RO
+    - match: Empire of Japan
+      value: Japan
     - match:
         - "Jalisco"
         - "Guadalajara, Jalisco"
@@ -71,6 +112,10 @@ country:
       value: US
     - match: "Region: Northern Mali"
       value: Mali
+    - match: "Provisional People's Committee for North Korea"
+      value: North Korea
+    - match: British Hong Kong
+      value: HK
     - match: sh-hl
       value: Saint Helena
     - match:
@@ -215,6 +260,8 @@ country:
       value: Australia
     - match: Believed location - Egypt
       value: Egypt
+    - match: Azerbaijan Democratic Republic
+      value: AZ
     - match: former USSR, now Azerbaijan
       values:
         - "SUHH"
@@ -249,6 +296,9 @@ country:
       values:
         - UA
         - RU
+    - match:
+        - Russian Empire
+      value: RU
     - match:
         - Russian SFSR (now Russian Federation)
         - Russian SFSR
@@ -295,6 +345,10 @@ country:
       value: AE
     - match: former Yugoslavia
       value: YUCS
+    - match:
+        - Czechoslovak Socialist Republic
+        - Czechoslovak Republic
+      value: CSHH
     - match:
         - Afghanistan   Afghanistan
       value: AF
@@ -576,6 +630,8 @@ gender:
         - Féminin
         - F
         - female
+        - transgender female
+        - cisgender female
       value: female
     - match:
         - MALE
@@ -589,6 +645,9 @@ gender:
     - match:
         - U
       value: unknown
+    - match:
+        - non-binary
+      value: other
 
 features:
   # Jointly used by US Trade CSL / OFAC SDN and Cons.

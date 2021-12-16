@@ -33,6 +33,7 @@ class Dataset(NomenklaturaDataset):
         title = config.get("title", name)
         super().__init__(name, title)
         self.prefix = config.get("prefix", self.name)
+        self.hidden = config.get("hidden", False)
         self.summary = config.get("summary", "")
         self.description = config.get("description", "")
 
@@ -124,6 +125,7 @@ class Dataset(NomenklaturaDataset):
             "name": self.name,
             "type": self.type,
             "title": self.title,
+            "hidden": self.hidden,
             "summary": self.summary,
             "description": self.description,
         }
