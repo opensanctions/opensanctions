@@ -143,6 +143,31 @@ class Statement(Base):
             yield from batch
 
     @classmethod
+    def all_filtered(
+        cls,
+        dataset=None,
+        entity_id=None,
+        canonical_id=None,
+        prop=None,
+        value=None,
+        schema=None,
+    ):
+        q = db.session.query(cls)
+        if canonical_id is not None:
+            q = q.filter(cls.canonical_id == canonical_id)
+        if entity_id is not None:
+            q = q.filter(cls.entity_id == entity_id)
+        if prop is not None:
+            q = q.filter(cls.prop == prop)
+        if value is not None:
+            q = q.filter(cls.value == value)
+        if schema is not None:
+            q = q.filter(cls.schema == schema)
+        if dataset is not None:
+            q = q.filter(cls.dataset.in_(dataset.source_names))
+        return q
+
+    @classmethod
     def all_counts(cls, dataset=None, unique=None, target=None):
         q = cls.all_ids(dataset=dataset, unique=unique, target=target)
         return q.count()
@@ -293,7 +318,7 @@ class Statement(Base):
             "prop_type": self.prop_type,
             "schema": self.schema,
             "value": self.value,
-            "dataset": self.value,
+            "dataset": self.dataset,
             "target": self.target,
             "unique": self.unique,
             "first_seen": self.first_seen,

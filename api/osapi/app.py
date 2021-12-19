@@ -21,6 +21,7 @@ from osapi.models import FreebaseEntitySuggestResponse
 from osapi.models import FreebasePropertySuggestResponse
 from osapi.models import FreebaseTypeSuggestResponse
 from osapi.models import FreebaseManifest, FreebaseQueryResult
+from osapi.models import StatementResponse
 from osapi.models import MAX_LIMIT
 from osapi.data import resolver, get_datasets
 from osapi.index import get_entity, query_entities, query_results
@@ -31,6 +32,8 @@ from osapi.data import get_freebase_type, get_freebase_types
 from osapi.data import get_freebase_entity, get_freebase_property
 from osapi.data import get_matchable_schemata, get_scope
 from osapi.util import match_prefix
+
+from opensanctions.model.statement import Statement
 
 log = logging.getLogger(__name__)
 app = FastAPI(
@@ -222,7 +225,7 @@ async def match(
         db.session.close()
 
 
-@app.get("/entities/{entity_id}", tags=["Matching"], response_model=EntityResponse)
+@app.get("/entities/{entity_id}", tags=["Data Access"], response_model=EntityResponse)
 async def fetch_entity(
     entity_id: str = Path(None, description="ID of the entity to retrieve")
 ):
@@ -241,6 +244,55 @@ async def fetch_entity(
         scope = get_scope()
         data = await serialize_entity(scope, entity, nested=True)
         return data
+    finally:
+        db.session.close()
+
+
+@app.get(
+    "/statements",
+    summary="Statement-based records",
+    tags=["Data Access"],
+    response_model=StatementResponse,
+)
+async def statements(
+    dataset: str = Query(get_scope().name, title="Filter by dataset"),
+    entity_id: str = Query(None, title="Filter by source entity ID"),
+    canonical_id: str = Query(None, title="Filter by normalised entity ID"),
+    prop: str = Query(None, title="Filter by property name"),
+    value: str = Query(None, title="Filter by property value"),
+    schema: str = Query(None, title="Filter by schema type"),
+    limit: int = Query(1000, title="Number of results to return"),
+    offset: int = Query(0, title="Number of results to skip before returning them"),
+):
+    """Access raw entity data as statements. OpenSanctions stores all of its
+    material as a set of statements, e.g. 'the US sanctions list, as of our
+    most recent update, claims that entity X has the property `name` set to
+    the value `John Doe`'.
+
+    All other forms of the data, including the nested JSON format usually
+    returned by this API, are derived from this format and simplified for
+    easier use. Using the raw statement data offered by this API will grant
+    users access to detailed provenance information for each property value.
+    """
+    try:
+        ds = get_dataset(dataset)
+        q = Statement.all_filtered(
+            dataset=ds,
+            entity_id=entity_id,
+            canonical_id=canonical_id,
+            prop=prop,
+            value=value,
+            schema=schema,
+        )
+        total = db.session.query(q.count()).scalar()
+        q = q.offset(offset).limit(limit)
+        statements = q.all()
+        return {
+            "limit": limit,
+            "offset": offset,
+            "total": total,
+            "results": [s.to_dict() for s in statements],
+        }
     finally:
         db.session.close()
 

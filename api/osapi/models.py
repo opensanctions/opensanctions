@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from typing import Any, Dict, List, Optional, Union
 from followthemoney.model import ModelToDict
 from pydantic import BaseModel, Field
@@ -75,6 +75,27 @@ class EntityMatches(BaseModel):
 
 class EntityMatchResponse(BaseModel):
     responses: Dict[str, EntityMatches]
+
+
+class StatementModel(BaseModel):
+    entity_id: str = Field(..., example="ofac-1234")
+    canonical_id: str = Field(..., example="NK-1234")
+    prop: str = Field(..., example="alias")
+    prop_type: str = Field(..., example="name")
+    schema_: str = Field(..., example="LegalEntity", alias="schema")
+    value: str = Field(..., example="John Doe")
+    dataset: str = Field(..., example="default")
+    target: bool = Field(..., example=True)
+    unique: bool = Field(..., example=False)
+    first_seen: datetime
+    last_seen: datetime
+
+
+class StatementResponse(BaseModel):
+    results: List[StatementModel]
+    limit: int
+    offset: int = 0
+    total: int = 0
 
 
 class FreebaseType(BaseModel):
