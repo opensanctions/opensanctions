@@ -349,6 +349,8 @@ country:
         - Czechoslovak Socialist Republic
         - Czechoslovak Republic
       value: CSHH
+    - match: Turks and Caicos Islads
+      value: TC
     - match:
         - Afghanistan   Afghanistan
       value: AF
