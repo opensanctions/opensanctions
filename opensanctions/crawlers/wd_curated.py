@@ -1,25 +1,24 @@
-from opensanctions.core import Context
+import csv
+from nomenklatura.resolver import Identifier
 
+from opensanctions import settings
+from opensanctions.core import Context
 from opensanctions.wikidata import get_entity, entity_to_ftm
 
 
 def crawl(context: Context):
-    entities = (
-        "Q7747",  # putin
-        "Q567",  # merkel
-        "Q180589",  # bojo
-        "Q123923",  # karadzic
-        "Q456034",  # isabel dos santos
-        "Q58217",  # lavrov
-        "Q525666",  # sechin
-        "Q315514",  # deripaska
-        "Q1626421",  # kolomoyskiy
-        "Q818077",  # steinmetz
-        "Q20850503",  # prigozhin
-        "Q298532",  # leyla aliyeva
-        "Q4396930",  # roldugin
-        "Q22686",  # trump
-    )
-    for qid in entities:
+    params = {"_": settings.RUN_TIME}
+    res = context.http.get(context.dataset.data.url, params=params, stream=True)
+    lines = (line.decode("utf-8") for line in res.iter_lines())
+    for row in csv.DictReader(lines):
+        qid = row.get("qid").strip()
+        if not len(qid):
+            continue
+        if not Identifier.QID.match(qid):
+            context.log.warning("No valid QID", qid=qid)
+            continue
+        schema = row.get("schema") or "Person"
+        topics = [t.strip() for t in row.get("topics", "").split(";")]
+        topics = [t for t in topics if len(t)]
         data = get_entity(qid)
-        entity_to_ftm(context, data)
+        entity_to_ftm(context, data, schema=schema, topics=topics)

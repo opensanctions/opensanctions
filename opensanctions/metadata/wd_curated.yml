@@ -1,13 +1,13 @@
 entry_point: opensanctions.crawlers.wd_curated
 title: Wikidata Entities of Interest
 prefix: wd
-hidden: true
 summary: >
   Persons of interest profiles from Wikidata, the structured data version of Wikipedia.
 description: |
-  Inclusion in this list is managed by the OpenSanctions team.
-# collections:
-#   - default
+  Inclusion in this list is managed by the OpenSanctions team. It is currently used for
+  experimentation, but scheduled to become part of our integration with Wikidata.
+collections:
+  - default
 publisher:
   name: Wikidata
   description: |
@@ -15,6 +15,7 @@ publisher:
     and machines. It acts as central storage for the structured data of its Wikimedia
     sister projects including Wikipedia, Wikivoyage, Wiktionary, Wikisource, and others.
   url: https://www.wikidata.org
+url: https://docs.google.com/spreadsheets/d/1Yp51aX3tU1CezqaQZH-V2R_7P8gp82pQq2rzwumA2wU/edit#gid=0
 data:
-  url:
-  format: JSON
+  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRJGZGTZ1EZ-FSghkXqHQFNmWlPC6MkruipeSvzji4xtW_jXLay_f3px7xl_SrJII0ARqeGqxzfAF4J/pub?output=csv
+  format: CSV

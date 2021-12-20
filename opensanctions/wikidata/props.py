@@ -46,6 +46,9 @@ PROPS_DIRECT = {
     "P742": "weakAlias",
     "P172": "ethnicity",
     "P973": "sourceUrl",
+    "P17": "country",
+    "P571": "incorporationDate",
+    "P1454": "legalForm",
 }
 
 
