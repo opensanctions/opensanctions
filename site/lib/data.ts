@@ -31,10 +31,11 @@ export async function fetchIndex(): Promise<IIndex> {
     index.details = {};
     index.datasets = index.datasets.map((raw: any) => {
       const { description, targets, resources, ...ds } = raw;
-      index.details[ds.name] = { description, targets, resources } as IDatasetDetails
+      const markdown = markdownToHtml(description)
+      index.details[ds.name] = { description: markdown, targets, resources } as IDatasetDetails
       ds.link = `/datasets/${ds.name}/`
       ds.opensanctions_url = BASE_URL + ds.link
-      ds.description = markdownToHtml(ds.description)
+
       return ds.type === 'collection' ? ds as ICollection : ds as ISource
     })
     index.model = index.model as IModelDatum

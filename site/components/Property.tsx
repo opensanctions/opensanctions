@@ -43,7 +43,7 @@ type TypeValuesProps = {
 }
 
 export function TypeValues({ type, values, entity, prop }: TypeValuesProps) {
-  const elems = values.map((v) => <TypeValue type={type} value={v} entity={entity} prop={prop} />)
+  const elems = values.sort().map((v) => <TypeValue type={type} value={v} entity={entity} prop={prop} />)
   if (elems.length === 0) {
     return <span className="text-muted">not available</span>
   }

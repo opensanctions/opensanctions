@@ -47,10 +47,10 @@ def parse_common(context, entity, data, lastmod):
         url = link.get("url")
         if link.get("note") in ("website", "blog", "twitter", "facebook"):
             entity.add("website", url)
-        elif "Wikipedia (" in link.get("note") and "wikipedia.org" in url:
-            entity.add("wikipediaUrl", url)
-        elif "wikipedia" in link.get("note") and "wikipedia.org" in url:
-            entity.add("wikipediaUrl", url)
+        # elif "Wikipedia (" in link.get("note") and "wikipedia.org" in url:
+        #     entity.add("wikipediaUrl", url)
+        # elif "wikipedia" in link.get("note") and "wikipedia.org" in url:
+        #     entity.add("wikipediaUrl", url)
         # else:
         #     context.log.info("Unknown URL", url=url, note=link.get("note"))
 
