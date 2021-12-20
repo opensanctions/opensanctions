@@ -148,8 +148,8 @@ def text_query(
         should = {
             "query_string": {
                 "query": query,
-                "default_field": "text",
-                "fields": ["names^4", "text"],
+                # "default_field": "text",
+                "fields": ["names^3", "text"],
                 # "default_operator": "and",
                 "fuzziness": 2 if fuzzy else 0,
                 "lenient": fuzzy,

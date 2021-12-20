@@ -26,6 +26,7 @@ description: |
 collections:
   - peps
   - default
+  - work
 url: https://www.cia.gov/resources/world-leaders/
 publisher:
   name: Central Intelligence Agency (CIA)

@@ -1,7 +1,7 @@
 entry_point: opensanctions.crawlers.wd_peppercat_leaders
 title: Peppercat World Leaders
 prefix: wd
-hidden: true
+# hidden: true
 summary: >
   Members of national cabinets and other key senior leadership positions around the world.
 description: |
@@ -11,6 +11,7 @@ description: |
 collections:
   - default
   - peps
+  - work
 publisher:
   name: Peppercat.org
   description: |

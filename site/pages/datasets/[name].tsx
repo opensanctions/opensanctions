@@ -179,7 +179,8 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
   }
   if (isSource(dataset)) {
     const collections = await Promise.all(dataset.collections.map((name) => getDatasetByName(name)))
-    props.collections = collections.filter((d) => isCollection(d) && d.name !== 'all') as Array<ICollection>
+    const visibleCollections = collections.filter((c) => isCollection(c) && !c.hidden)
+    props.collections = visibleCollections as Array<ICollection>
   }
   return { props }
 }
