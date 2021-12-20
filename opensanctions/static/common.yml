@@ -49,6 +49,8 @@ country:
         - "British Empire"
         - "Kingdom of Hejaz"
         - "Emirate of Transjordan"
+        - "Federation of Rhodesia and Nyasaland"
+        - "Southern Rhodesia"
         - "Pahlavi Dynasty"
         - "Estado Novo"
       contains:
@@ -78,6 +80,9 @@ country:
     - match:
         - Maracaibo, Zulia
       value: VE
+    - match:
+        - Zimbabwe Rhodesia
+      value: Zimbabwe
     - match:
         - "Jordanian of Palestinian origin"
         - Zarqa
@@ -298,6 +303,7 @@ country:
         - RU
     - match:
         - Russian Empire
+        - Russian Republic
       value: RU
     - match:
         - Russian SFSR (now Russian Federation)
@@ -305,6 +311,7 @@ country:
         - RSFSR
         - former USSR Currently Russia
         - Former USSR, now Russian Federation
+        - Russian Soviet Federative Socialist Republic
       values:
         - SUHH
         - RU
