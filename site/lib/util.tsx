@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react'
 import castArray from 'lodash/castArray';
-import unified, { Plugin } from 'unified'
+import { unified } from 'unified'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
 import rehypeRaw from 'rehype-raw'
@@ -14,10 +14,10 @@ export function markdownToHtml(markdown: string): string {
     .use(remarkParse)
     .use(remarkRehype, { allowDangerousHtml: true })
     .use(rehypeRaw)
-    .use(rehypeHighlight as Plugin)
+    .use(rehypeHighlight)
     .use(rehypeStringify)
     .processSync(markdown)
-  return result.contents as string;
+  return result.value as string;
 }
 
 /*
