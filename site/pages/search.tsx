@@ -18,7 +18,7 @@ import { FormattedDate } from '../components/util';
 
 const SUMMARY = "Provide a search term to search across sanctions lists and other persons of interest.";
 
-export default function Search({ modelData, datasets, scopeName, error, response }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+export default function Search({ modelData, query, datasets, scopeName, error, response }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const model = new Model(modelData);
   const scope = datasets.find((d) => d.name === scopeName);
 
@@ -50,6 +50,7 @@ export default function Search({ modelData, datasets, scopeName, error, response
                 name="q"
                 size="lg"
                 type="text"
+                value={query}
                 autoFocus
                 className={styles.searchBox}
                 placeholder="Search people, companies and other entities of interest..."
