@@ -26,7 +26,7 @@
     "remark": "^13.0.0",
     "remark-heading-id": "^1.0.0",
     "remark-parse": "^9.0.0",
-    "remark-rehype": "8.1.0",
+    "remark-rehype": "10.1.0",
     "sass": "^1.45.0",
     "swr": "^1.1.1",
     "unified": "9.2.2"
