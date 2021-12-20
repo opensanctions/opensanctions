@@ -104,7 +104,21 @@ def filter_query(
 def entity_query(dataset: Dataset, entity: Entity, fuzzy: bool = False):
     terms: Dict[str, List[str]] = {}
     texts: List[str] = []
+    shoulds: List[Dict[str, Any]] = []
     for prop, value in entity.itervalues():
+        if prop.type == registry.name:
+            query = {
+                "match_phrase": {
+                    "names": {
+                        "query": value,
+                        "slop": 3,
+                        # "fuzziness": 1,
+                        "boost": 3.0,
+                        # "lenient": True,
+                    }
+                }
+            }
+            shoulds.append(query)
         if prop.type.group is not None:
             if prop.type not in TEXT_TYPES:
                 field = prop.type.group
@@ -113,7 +127,6 @@ def entity_query(dataset: Dataset, entity: Entity, fuzzy: bool = False):
                 terms[field].append(value)
         texts.append(value)
 
-    shoulds: List[Dict[str, Any]] = []
     for field, texts in terms.items():
         shoulds.append({"terms": {field: texts}})
     for text in texts:
@@ -136,7 +149,8 @@ def text_query(
             "query_string": {
                 "query": query,
                 "default_field": "text",
-                "default_operator": "and",
+                "fields": ["names^4", "text"],
+                # "default_operator": "and",
                 "fuzziness": 2 if fuzzy else 0,
                 "lenient": fuzzy,
             }

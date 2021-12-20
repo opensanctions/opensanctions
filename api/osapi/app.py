@@ -387,7 +387,7 @@ async def reconcile_query(dataset: Dataset, query: Dict[str, Any]):
     type = query.get("type", settings.BASE_SCHEMA)
     proxy = Entity(type)
     proxy.add("name", query.get("query"))
-    proxy.add("notes", query.get("query"))
+    # proxy.add("notes", query.get("query"))
     for p in query.get("properties", []):
         prop = model.get_qname(p.get("pid"))
         if prop is None:
