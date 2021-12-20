@@ -50,7 +50,7 @@ export default function Search({ modelData, query, datasets, scopeName, error, r
                 name="q"
                 size="lg"
                 type="text"
-                value={query}
+                defaultValue={query}
                 autoFocus
                 className={styles.searchBox}
                 placeholder="Search people, companies and other entities of interest..."
