@@ -166,7 +166,8 @@ def merge(entity_ids):
     canonical_id = resolver.get_canonical(entity_ids[0])
     for other_id in entity_ids[1:]:
         other_id = Identifier.get(other_id)
-        if other_id == canonical_id:
+        other_canonical_id = resolver.get_canonical(other_id)
+        if other_canonical_id == canonical_id:
             continue
         if not resolver.check_candidate(canonical_id, other_id):
             log.error("Cannot merge", canonical_id=canonical_id, other_id=other_id)
