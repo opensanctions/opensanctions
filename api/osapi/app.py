@@ -225,7 +225,7 @@ async def match(
         db.session.close()
 
 
-@app.get("/entities/{entity_id}", tags=["Data Access"], response_model=EntityResponse)
+@app.get("/entities/{entity_id}", tags=["Data access"], response_model=EntityResponse)
 async def fetch_entity(
     entity_id: str = Path(None, description="ID of the entity to retrieve")
 ):
@@ -251,7 +251,7 @@ async def fetch_entity(
 @app.get(
     "/statements",
     summary="Statement-based records",
-    tags=["Data Access"],
+    tags=["Data access"],
     response_model=StatementResponse,
 )
 async def statements(
@@ -285,6 +285,12 @@ async def statements(
             schema=schema,
         )
         total = db.session.query(q.count()).scalar()
+
+        # Make the order of entities stable.
+        q = q.order_by(Statement.canonical_id.desc())
+        q = q.order_by(Statement.entity_id.desc())
+        q = q.order_by(Statement.prop.desc())
+
         q = q.offset(offset).limit(limit)
         statements = q.all()
         return {

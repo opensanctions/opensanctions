@@ -51,6 +51,11 @@ TAGS = [
         "the application metadata to be used in client applications.",
     },
     {
+        "name": "Data access",
+        "description": "Endpoints for fetching data from the API, either related to "
+        "individual entities, or for bulk data access in various forms.",
+    },
+    {
         "name": "Reconciliation",
         "description": "The Reconciliation Service provides four separate endpoints"
         "that work in concert to implement the data matching API used by OpenRefine, "
