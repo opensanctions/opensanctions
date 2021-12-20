@@ -78,8 +78,8 @@ export function Markdown({ markdown }: MarkdownProps) {
   if (markdown === undefined || markdown === null) {
     return null;
   }
-  const html = markdownToHtml(markdown);
-  return <div className="text-body" dangerouslySetInnerHTML={{ __html: html }} />
+  //const html = markdownToHtml(markdown);
+  return <div className="text-body" dangerouslySetInnerHTML={{ __html: markdown }} />
 }
 
 type FormattedDateProps = {

@@ -4,6 +4,7 @@ import { promises, createReadStream } from 'fs';
 import { IModelDatum } from "@alephdata/followthemoney"
 import { IDataset, ICollection, ISource, IIssueIndex, IIndex, IIssue, IOpenSanctionsEntity, IDatasetDetails } from "./types";
 import { API_URL, BASE_URL, INDEX_URL, ISSUES_URL } from "./constants";
+import { markdownToHtml } from './util';
 
 export type DataCache = {
   index: IIndex | null,
@@ -33,6 +34,7 @@ export async function fetchIndex(): Promise<IIndex> {
       index.details[ds.name] = { description, targets, resources } as IDatasetDetails
       ds.link = `/datasets/${ds.name}/`
       ds.opensanctions_url = BASE_URL + ds.link
+      ds.description = markdownToHtml(ds.description)
       return ds.type === 'collection' ? ds as ICollection : ds as ISource
     })
     index.model = index.model as IModelDatum
@@ -76,48 +78,3 @@ export async function getEntityById(id: string): Promise<IOpenSanctionsEntity | 
   }
   return await data.json()
 }
-
-// function getEntityMap(): Promise<Map<string, IOpenSanctionsEntity>> {
-//   const promise = new Promise<Map<string, IOpenSanctionsEntity>>((resolve) => {
-//     if (CACHE.entities !== null) {
-//       return resolve(CACHE.entities);
-//     }
-//     const entities = new Map<string, any>();
-//     const fileStream = createReadStream(join(dataDirectory, 'targets.ijson'));
-//     const lineReader = createInterface(fileStream);
-//     lineReader.on('line', (line) => {
-//       const entity = JSON.parse(line) as IOpenSanctionsEntity
-//       entities.set(entity.id, entity);
-//       for (let aliasId of entity.referents) {
-//         entities.set(aliasId, entity);
-//       }
-//     });
-//     lineReader.on('close', () => {
-//       CACHE.entities = entities;
-//       // console.log("Entities loaded!", entities.size);
-//       resolve(entities);
-//     });
-//   });
-//   return promise;
-// }
-
-// export async function getEntityById(id: string): Promise<IOpenSanctionsEntity | undefined> {
-//   const entities = await getEntityMap();
-//   return entities.get(id)
-// }
-
-// export async function getEntityIds(): Promise<Array<string>> {
-//   const entities = await getEntityMap();
-//   return Array.from(entities.keys())
-// }
-
-// export async function getCanonialEntityIds(): Promise<Array<string>> {
-//   const entities = await getEntityMap();
-//   const ids = new Array<string>()
-//   entities.forEach((entity, id) => {
-//     if (entity.id === id && entity.target) {
-//       ids.push(id);
-//     }
-//   })
-//   return ids
-// }

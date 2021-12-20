@@ -3,6 +3,7 @@ import matter from 'gray-matter'
 import { promises } from 'fs';
 import { IContent, IArticleInfo, IArticle } from "./types";
 import { BASE_URL } from './constants';
+import { markdownToHtml } from './util';
 
 // derived from: https://github.com/vercel/next.js/blob/canary/examples/blog-starter/lib/api.js
 
@@ -23,7 +24,7 @@ export async function getContentBySlug(slug: string): Promise<IContent> {
   return {
     slug: realSlug,
     title: data.title,
-    content,
+    content: markdownToHtml(content),
     summary: data.summary || null,
   }
 }
@@ -39,7 +40,7 @@ export async function getArticleBySlug(slug: string): Promise<IArticle> {
     url: `${BASE_URL}/articles/${realSlug}`,
     title: data.title || realSlug,
     draft: data.draft || false,
-    content,
+    content: markdownToHtml(content),
     summary: data.summary || null,
   }
 }
