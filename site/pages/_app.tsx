@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/router'
 import type { AppProps } from 'next/app'
+import { SSRProvider } from '@react-aria/ssr';
 
 import * as gtag from '../lib/gtag'
 
@@ -18,5 +19,9 @@ export default function OpenSanctionsApp({ Component, pageProps }: AppProps) {
     }
   }, [router.events])
 
-  return <Component {...pageProps} />
+  return (
+    <SSRProvider>
+      <Component {...pageProps} />
+    </SSRProvider>
+  );
 }

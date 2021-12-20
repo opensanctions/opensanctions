@@ -1,4 +1,3 @@
-import { SSRProvider } from '@react-aria/ssr';
 import Document, { Html, Head, Main, NextScript } from 'next/document';
 
 import { GA_TRACKING_ID } from '../lib/gtag';
@@ -6,16 +5,15 @@ import { GA_TRACKING_ID } from '../lib/gtag';
 export default class SiteDocument extends Document {
   render() {
     return (
-      <SSRProvider>
-        <Html lang="en">
-          <Head>
-            <script
-              async
-              src={`https://www.googletagmanager.com/gtag/js?id=${GA_TRACKING_ID}`}
-            />
-            <script
-              dangerouslySetInnerHTML={{
-                __html: `
+      <Html lang="en">
+        <Head>
+          <script
+            async
+            src={`https://www.googletagmanager.com/gtag/js?id=${GA_TRACKING_ID}`}
+          />
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
                 window.dataLayer = window.dataLayer || [];
                 function gtag(){dataLayer.push(arguments);}
                 gtag('js', new Date());
@@ -23,15 +21,14 @@ export default class SiteDocument extends Document {
                   page_path: window.location.pathname,
                 });
               `,
-              }}
-            />
-          </Head>
-          <body>
-            <Main />
-            <NextScript />
-          </body>
-        </Html>
-      </SSRProvider>
+            }}
+          />
+        </Head>
+        <body>
+          <Main />
+          <NextScript />
+        </body>
+      </Html>
     )
   }
 }

@@ -7,7 +7,7 @@ import writeSitemap from '../lib/sitemap';
 
 export default function Sitemap({ }: InferGetStaticPropsType<typeof getStaticProps>) {
   return (
-    <p>I'm a banana!</p>
+    <p>{'I am a banana!'}</p>
   )
 }
 
