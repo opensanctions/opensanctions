@@ -3,17 +3,22 @@ title: Peppercat World Leaders
 prefix: wd
 hidden: true
 summary: >
-  ...
+  Members of national cabinets and other key senior leadership positions around the world.
 description: |
-  ...
-# collections:
-#   - default
-#   - peps
+  Peppercat World Leaders is a community-built directory of senior political officeholders
+  around the world, aiming to be more comprehensive, up-to-date, and transparent than the
+  [CIA World Leaders list](https://opensanctions.org/datasets/us_cia_world_leaders).
+collections:
+  - default
+  - peps
 publisher:
   name: Peppercat.org
   description: |
-    ...
+    Peppercat is a community project with the goal make sure that information about politicians
+    in Wikidata is always up-to-date. They maintain a fleet of hundreds of scrapers that compare
+    official web sites against the Wikidata database.
   url: https://www.peppercat.org
+url: https://peppercat.org/about.html
 data:
   url: "https://raw.githubusercontent.com/peppercatorg/site-build/main/repos.csv"
   format: CSV
