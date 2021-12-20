@@ -28,7 +28,7 @@
     "remark-parse": "^9.0.0",
     "remark-rehype": "8.1.0",
     "sass": "^1.45.0",
-    "swr": "^1.1.0",
+    "swr": "^1.1.1",
     "unified": "9.2.2"
   },
   "devDependencies": {
