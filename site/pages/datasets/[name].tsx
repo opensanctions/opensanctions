@@ -22,11 +22,10 @@ import Layout from '../../components/Layout'
 import Dataset from '../../components/Dataset'
 import { getDatasets, getDatasetByName, getDatasetIssues, getDatasetDetails } from '../../lib/data'
 import { IDataset, IIssue, ICollection, ISource, isCollection, isSource, LEVEL_ERROR, LEVEL_WARNING, IDatasetDetails } from '../../lib/types'
-import { Summary, FileSize, NumericBadge, JSONLink, HelpLink, Markdown } from '../../components/util'
+import { Summary, FileSize, NumericBadge, JSONLink, HelpLink, Markdown, Spacer } from '../../components/util'
 import DatasetMetadataTable from '../../components/DatasetMetadataTable'
 import { getSchemaDataset } from '../../lib/schema';
 import { IssuesList } from '../../components/Issue';
-import { SPACER } from '../../lib/constants';
 
 import styles from '../../styles/Dataset.module.scss'
 import { LicenseInfo } from '../../components/Policy';
@@ -103,13 +102,9 @@ export default function DatasetScreen({ dataset, details, issues, sources, colle
               )}
               {isCollection(dataset) && sources?.length && (
                 <Tab eventKey="sources" title={<>{'Data sources'} <NumericBadge value={sources.length} /></>} className={styles.viewTab}>
-                  <Row>
-                    {sources.map((d) => (
-                      <Col md={4} key={d.name}>
-                        <Dataset.Card dataset={d} />
-                      </Col>
-                    ))}
-                  </Row>
+                  {sources.map((d) => (
+                    <Dataset.Item key={d.name} dataset={d} />
+                  ))}
                 </Tab>
               )}
               {!!details.targets.countries.length && (
@@ -165,7 +160,7 @@ export default function DatasetScreen({ dataset, details, issues, sources, colle
                     </Button>
                     <div>
                       <FileSize size={resource.size} />
-                      {SPACER}
+                      <Spacer />
                       <OverlayTrigger placement="bottom" overlay={<Tooltip>{resource.mime_type_label}</Tooltip>}>
                         <code>{resource.mime_type}</code>
                       </OverlayTrigger>
@@ -176,7 +171,7 @@ export default function DatasetScreen({ dataset, details, issues, sources, colle
               </ListGroup>
               <Card.Footer className="text-muted">
                 Help: <Link href="/docs/usage">Using the data</Link>
-                {SPACER} <Link href="/reference/">reference</Link>
+                <Spacer /> <Link href="/reference/">reference</Link>
               </Card.Footer>
             </Card>
             <LicenseInfo />

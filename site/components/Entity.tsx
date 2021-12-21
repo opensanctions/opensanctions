@@ -114,16 +114,12 @@ export function EntityDisplay({ entity, datasets }: EntityDisplayProps) {
         )}
         <div className={styles.entityPageSection}>
           <h2>Data sources</h2>
-          <Row>
-            {datasets.map((d) => (
-              <Col md={4} key={d.name}>
-                <Dataset.Card dataset={d} />
-              </Col>
-            ))}
-          </Row>
+          {datasets.map((d) => (
+            <Dataset.Item key={d.name} dataset={d} />
+          ))}
         </div>
       </Col>
-    </Row>
+    </Row >
   );
 }
 

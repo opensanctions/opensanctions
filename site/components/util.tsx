@@ -191,7 +191,7 @@ export function SpacedList({ values }: SpacedListProps) {
     <>
       {values
         .map<React.ReactNode>((t, idx) => <span key={idx}>{t}</span>)
-        .reduce((prev, curr) => [prev, SPACER, curr])}
+        .reduce((prev, curr) => [prev, <Spacer />, curr])}
     </>
   )
 }
@@ -202,4 +202,10 @@ export function SectionSpinner() {
       <Spinner animation="grow" variant="secondary" />
     </div>
   );
+}
+
+export function Spacer() {
+  return (
+    <span className={styles.spacer}>{SPACER}</span>
+  )
 }

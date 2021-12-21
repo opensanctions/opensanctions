@@ -64,13 +64,9 @@ export default function DatasetIndex({ datasets }: InferGetStaticPropsType<typeo
             </p>
           </Col>
           <Col md={9}>
-            <Row>
-              {sources.map((d) => (
-                <Col sm={4} key={d.name}>
-                  <Dataset.Card dataset={d} />
-                </Col>
-              ))}
-            </Row>
+            {sources.map((d) => (
+              <Dataset.Item key={d.name} dataset={d} />
+            ))}
           </Col>
         </Row>
       </Container>

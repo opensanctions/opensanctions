@@ -7,8 +7,8 @@ import Card from 'react-bootstrap/Card';
 import Badge from "react-bootstrap/Badge";
 
 import { IDataset, IOpenSanctionsEntity, ISearchAPIResponse, ISearchFacet, OpenSanctionsEntity, Values } from "../lib/types";
-import { NumericBadge } from "./util";
-import { SEARCH_DATASET, SEARCH_SCHEMA, SPACER } from "../lib/constants";
+import { NumericBadge, Spacer } from "./util";
+import { SEARCH_DATASET, SEARCH_SCHEMA } from "../lib/constants";
 import { EntityLink } from './Entity';
 import { TypeValue, TypeValues } from './Property';
 
@@ -196,13 +196,13 @@ export function SearchResultEntity({ data, model }: SearchResultEntityProps) {
         <Badge bg="light">{entity.schema.label}</Badge>
         {topics.length > 0 && (
           <>
-            {SPACER}
+            <Spacer />
             <Badge bg="warning"><TypeValues type={topicType} values={topics} /></Badge>
           </>
         )}
         {countries.length > 0 && (
           <>
-            {SPACER}
+            <Spacer />
             <TypeValues type={countryType} values={countries} />
           </>
         )}

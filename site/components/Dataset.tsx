@@ -1,11 +1,11 @@
 import Link from 'next/link'
 import Card from 'react-bootstrap/Card';
-import { CollectionFill, MapFill } from 'react-bootstrap-icons';
+import Badge from 'react-bootstrap/Badge';
+import { FileEarmarkSpreadsheetFill, FolderFill } from 'react-bootstrap-icons';
 
 import { IDataset, isCollection, isSource } from '../lib/types'
-import { Markdown, Numeric } from './util';
+import { Numeric, NumericBadge, Spacer } from './util';
 import styles from '../styles/Dataset.module.scss'
-import { SPACER } from '../lib/constants';
 
 
 type DatasetProps = {
@@ -20,23 +20,20 @@ type DatasetIconProps = {
 
 function DatasetIcon({ dataset, ...props }: DatasetIconProps) {
   if (isCollection(dataset)) {
-    return <CollectionFill className="bsIcon" {...props} />
+    return <FolderFill className="bsIcon" {...props} />
   }
-  return <MapFill className="bsIcon" {...props} />
+  return <FileEarmarkSpreadsheetFill className="bsIcon" {...props} />
 }
 
 
 function DatasetCard({ dataset }: DatasetProps) {
   return (
     <Card key={dataset.name} className={styles.card}>
-      {isCollection(dataset) && (
-        <Card.Header>Collection</Card.Header>
-      )}
       <Card.Body>
         <Card.Title className={styles.cardTitle}>
-          <Link href={dataset.link}>
-            {dataset.title}
-          </Link>
+          <a href={dataset.link}>
+            <span><DatasetIcon dataset={dataset} /> {dataset.title}</span>
+          </a>
         </Card.Title>
         <Card.Subtitle className="mb-2 text-muted">
           {isCollection(dataset) && (
@@ -45,7 +42,7 @@ function DatasetCard({ dataset }: DatasetProps) {
           {isSource(dataset) && (
             <>{dataset.publisher.country_label}</>
           )}
-          {SPACER}
+          <Spacer />
           <Numeric value={dataset.target_count} /> targets
         </Card.Subtitle>
         <Card.Text>
@@ -57,7 +54,42 @@ function DatasetCard({ dataset }: DatasetProps) {
   )
 }
 
+
+function DatasetItem({ dataset }: DatasetProps) {
+  return (
+    <Card key={dataset.name} className={styles.item}>
+      <Card.Body>
+        <a href={dataset.link} className={styles.itemHeader}>
+          <DatasetIcon dataset={dataset} /> {dataset.title}
+          <NumericBadge value={dataset.target_count} className={styles.itemTargets} />
+        </a>
+        <p className={styles.itemDetails}>
+          {isCollection(dataset) && (
+            <>
+              <Badge bg="light">Collection</Badge>
+              <Spacer />
+              <Numeric value={dataset.sources.length} /> data sources
+            </>
+          )}
+          {isSource(dataset) && (
+            <>
+              {dataset.publisher.country_label}
+              <Spacer />
+              {dataset.publisher.name}
+            </>
+          )}
+          {/*
+          <Spacer />
+          <Numeric value={dataset.target_count} /> targets
+          */}
+        </p>
+      </Card.Body>
+    </Card>
+  )
+}
+
 export default class Dataset {
   static Card = DatasetCard
+  static Item = DatasetItem
   static Icon = DatasetIcon
 }

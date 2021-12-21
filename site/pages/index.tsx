@@ -14,24 +14,19 @@ import { getDatasets } from '../lib/data'
 import { CLAIM, SUBCLAIM, SPACER, COLLECTIONS, ARTICLE_INDEX_SUMMARY } from '../lib/constants'
 import { getSchemaWebSite } from '../lib/schema';
 import { Download, Search } from 'react-bootstrap-icons';
-import { FormattedDate, NumericBadge } from '../components/util';
+import { FormattedDate, Numeric, NumericBadge } from '../components/util';
 import { ICollection, isCollection, isSource } from '../lib/types';
 import { getArticles } from '../lib/content';
+import Dataset from '../components/Dataset';
 
 
-export default function Home({ datasets, articles }: InferGetStaticPropsType<typeof getStaticProps>) {
+export default function Home({ collections, sourceCount, articles }: InferGetStaticPropsType<typeof getStaticProps>) {
   const structured = getSchemaWebSite()
-  const all = datasets.find((d) => d.name === 'all');
+  const all = collections.find((c) => c.name === 'all');
   if (all === undefined) {
     return null;
   }
-  const sources = datasets.filter(isSource)
-    .filter((ds) => !ds.hidden)
-    .sort((a, b) => a.title.localeCompare(b.title));
-  const oddSources = sources.filter((d, i) => i % 2 == 0)
-  const evenSources = sources.filter((d, i) => i % 2 == 1)
-  const allCollections = datasets.filter(isCollection)
-  const collections = COLLECTIONS.map((name) => allCollections.find((c) => c.name === name)) as Array<ICollection>
+  const sortedCollections = COLLECTIONS.map((name) => collections.find((c) => c.name === name)) as Array<ICollection>
   return (
     <Layout.Base title="Persons of interest database" description={SUBCLAIM} structured={structured} navSearch={false}>
       <div className={styles.claimBanner}>
@@ -69,7 +64,7 @@ export default function Home({ datasets, articles }: InferGetStaticPropsType<typ
               <p className={styles.stats}>
                 <NumericBadge value={all.target_count} className={styles.statsBadge} /> targets
                 {SPACER}
-                <NumericBadge value={sources.length} className={styles.statsBadge} /> data sources
+                <NumericBadge value={sourceCount} className={styles.statsBadge} /> data sources
                 {SPACER}
                 updated{' '}
                 <Badge className={styles.statsBadge}>
@@ -127,39 +122,14 @@ export default function Home({ datasets, articles }: InferGetStaticPropsType<typ
           </Col>
           <Col md={8} className={styles.explainer}>
             <h4>Collections</h4>
-            <Row>
-              <Col md={6}>
-                <p>
-                  <Link href="/docs/faq/#collections">Collections</Link> are custom datasets
-                  provided by OpenSanctions that combine data from
-                  many sources based on a topic.
-                </p>
-              </Col>
-              <Col md={6}>
-                <ul>
-                  {collections.map(c => (
-                    <li key={c.name}><Link href={c.link}>{c.title}</Link></li>
-                  ))}
-                </ul>
-              </Col>
-            </Row>
-            <h4>Data sources</h4>
-            <Row>
-              <Col md={6}>
-                <ul>
-                  {oddSources.map(d => (
-                    <li key={d.name}><Link href={d.link}>{d.title}</Link></li>
-                  ))}
-                </ul>
-              </Col>
-              <Col md={6}>
-                <ul>
-                  {evenSources.map(d => (
-                    <li key={d.name}><Link href={d.link}>{d.title}</Link></li>
-                  ))}
-                </ul>
-              </Col>
-            </Row>
+            <p>
+              <Link href="/docs/faq/#collections">Collections</Link> are custom datasets
+              provided by OpenSanctions that combine data from <Link href="/datasets/#sources">
+                various data sources</Link> focussed on a topic.
+            </p>
+            {sortedCollections.map(c => (
+              <Dataset.Item dataset={c} key={c.name} />
+            ))}
           </Col>
         </Row>
       </Container>
@@ -169,9 +139,13 @@ export default function Home({ datasets, articles }: InferGetStaticPropsType<typ
 
 export const getStaticProps = async (context: GetStaticPropsContext) => {
   const articles = await getArticles()
+  const datasets = await getDatasets()
+  const collections = datasets.filter(isCollection)
+  const sources = datasets.filter(isSource)
   return {
     props: {
-      datasets: await getDatasets(),
+      collections,
+      sourceCount: sources.length,
       articles: articles.slice(0, 5)
     }
   }

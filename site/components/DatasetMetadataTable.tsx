@@ -2,9 +2,8 @@ import Link from 'next/link'
 import Table from 'react-bootstrap/Table'
 
 import { IDataset, ICollection, isSource, IDatasetDetails } from '../lib/types'
-import { FormattedDate, HelpLink, Numeric, Plural, URLLink } from './util'
+import { FormattedDate, HelpLink, Numeric, Plural, Spacer, URLLink } from './util'
 import { wordList } from '../lib/util'
-import { SPACER } from '../lib/constants'
 
 import styles from '../styles/Dataset.module.scss'
 
@@ -23,7 +22,7 @@ export default function DatasetMetadataTable({ dataset, details, collections }: 
       </a>
       <HelpLink href={`/reference/#schema.${ts.name}`} />
     </span>
-  ), SPACER);
+  ), <Spacer />);
   return (
     <Table responsive="md">
       <tbody>
@@ -83,7 +82,7 @@ export default function DatasetMetadataTable({ dataset, details, collections }: 
                 <Link href={collection.link}>
                   {collection.title}
                 </Link>
-              ), SPACER)}
+              ), <Spacer />)}
             </td>
           </tr>
         )}

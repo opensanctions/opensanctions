@@ -1,8 +1,8 @@
 import { Property, PropertyType, Schema } from "@alephdata/followthemoney"
 import Link from "next/link";
 import Table from 'react-bootstrap/Table';
-import { SPACER } from "../lib/constants";
 import { wordList } from "../lib/util";
+import { Spacer } from "./util";
 
 
 type TypeReferenceProps = {
@@ -80,12 +80,12 @@ export function SchemaReference({ schema, schemata }: SchemaReferenceProps) {
         <tbody>
           <tr>
             <th>Extends</th>
-            <td>{wordList(parents, SPACER)}</td>
+            <td>{wordList(parents, <Spacer />)}</td>
           </tr>
           {!!children.length && (
             <tr>
               <th>Sub-types</th>
-              <td>{wordList(children, SPACER)}</td>
+              <td>{wordList(children, <Spacer />)}</td>
             </tr>
           )}
         </tbody>

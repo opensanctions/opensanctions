@@ -23,7 +23,7 @@ export function markdownToHtml(markdown: string): string {
 /*
  * https://stackoverflow.com/questions/23618744/rendering-comma-separated-list-of-links
  */
-export function wordList(arr: Array<any>, sep: string): ReactElement {
+export function wordList(arr: Array<any>, sep: string | ReactElement): ReactElement {
   if (arr.length === 0) {
     return <></>;
   }

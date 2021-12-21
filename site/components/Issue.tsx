@@ -6,7 +6,7 @@ import Card from "react-bootstrap/Card";
 import styles from '../styles/Issue.module.scss'
 import { SPACER } from "../lib/constants";
 import { IIssue } from "../lib/types";
-import { FormattedDate } from "./util";
+import { FormattedDate, Spacer } from "./util";
 
 type IssueProps = {
   issue: IIssue
@@ -54,7 +54,7 @@ function IssueCard({ issue, showDataset }: IssueProps) {
       </Table>
       <Card.Footer className={styles.issueFooter}>
         <Badge bg={accentColor}>{issue.level}</Badge>
-        {SPACER}
+        <Spacer />
         <FormattedDate date={issue.timestamp} />
       </Card.Footer>
     </Card>

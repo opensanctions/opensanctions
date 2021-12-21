@@ -15,7 +15,7 @@
         font-weight: bold;
 
         &:hover {
-            text-decoration: underline;
+            text-decoration: none;
         }
     }
 }
@@ -37,4 +37,24 @@
 
 .noWrap {
     white-space: nowrap;
+}
+
+.item {
+    margin-bottom: 0.5em;
+}
+
+.itemHeader {
+    font-weight: bold;
+    color: inherit !important;
+    display: block;
+    text-decoration: none;
+}
+
+.itemDetails {
+    color: $text-muted;
+    margin: 0;
+}
+
+.itemTargets {
+    float: right;
 }
