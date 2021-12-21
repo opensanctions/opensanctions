@@ -71,7 +71,9 @@ export default function DatasetScreen({ dataset, details, issues, sources, colle
                   placeholder={`Search in ${dataset.title}...`}
                   aria-label="Search"
                 />
-                <Button variant="dark" type="submit">Search</Button>
+                <Button variant="secondary" type="submit">
+                  Search
+                </Button>
               </InputGroup>
             </Form>
 
@@ -149,21 +151,24 @@ export default function DatasetScreen({ dataset, details, issues, sources, colle
               <ListGroup variant="flush">
                 {details.resources.map((resource) =>
                   <ListGroup.Item key={resource.path}>
-                    <a href={resource.url} download={resource.path}>
+                    <Button
+                      variant="secondary"
+                      rel="nofollow"
+                      // @ts-expect-error
+                      download={true}
+                      href={resource.url}
+                    >
                       <FileEarmarkArrowDownFill className="bsIcon" />
-                    </a>
-                    {' '}
-                    <a href={resource.url} download={resource.path} rel="nofollow">
+                      {' '}
                       {resource.title}
-                    </a>
-                    {' '}
-                    <HelpLink href={`/docs/usage/#${resource.path}`} />
+                    </Button>
                     <div>
                       <FileSize size={resource.size} />
                       {SPACER}
                       <OverlayTrigger placement="bottom" overlay={<Tooltip>{resource.mime_type_label}</Tooltip>}>
                         <code>{resource.mime_type}</code>
                       </OverlayTrigger>
+                      <HelpLink href={`/docs/usage/#${resource.path}`} />
                     </div>
                   </ListGroup.Item>
                 )}
