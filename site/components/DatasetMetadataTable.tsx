@@ -37,7 +37,7 @@ export default function DatasetMetadataTable({ dataset, details, collections }: 
               <>
                 {schemaList}
                 <>
-                  (<a href={`/search/?scope=${dataset.name}`}><Numeric value={dataset.target_count} /> total</a>)
+                  (<Numeric value={dataset.target_count} /> total)
                 </>
               </>
             )}

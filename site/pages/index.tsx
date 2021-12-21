@@ -2,16 +2,18 @@ import { GetStaticPropsContext, InferGetStaticPropsType } from 'next'
 import Link from 'next/link'
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import Form from 'react-bootstrap/Form';
+import Badge from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
-import Badge from 'react-bootstrap/Badge';
+import InputGroup from 'react-bootstrap/InputGroup';
 
 import styles from '../styles/Home.module.scss'
 import Layout from '../components/Layout'
 import { getDatasets } from '../lib/data'
 import { CLAIM, SUBCLAIM, SPACER, COLLECTIONS, ARTICLE_INDEX_SUMMARY } from '../lib/constants'
 import { getSchemaWebSite } from '../lib/schema';
-import { Search } from 'react-bootstrap-icons';
+import { Download, Search } from 'react-bootstrap-icons';
 import { FormattedDate, NumericBadge } from '../components/util';
 import { ICollection, isCollection, isSource } from '../lib/types';
 import { getArticles } from '../lib/content';
@@ -31,19 +33,10 @@ export default function Home({ datasets, articles }: InferGetStaticPropsType<typ
   const allCollections = datasets.filter(isCollection)
   const collections = COLLECTIONS.map((name) => allCollections.find((c) => c.name === name)) as Array<ICollection>
   return (
-    <Layout.Base title="Persons of interest database" description={SUBCLAIM} structured={structured}>
+    <Layout.Base title="Persons of interest database" description={SUBCLAIM} structured={structured} navSearch={false}>
       <div className={styles.claimBanner}>
         <Container>
           <Row>
-            <Col md={4}>
-              <img
-                src="/static/home.webp"
-                width="272px"
-                height="282px"
-                alt="Welcome to OpenSanctions"
-                className={styles.logo}
-              />
-            </Col>
             <Col md={8}>
               <h1 className={styles.claim}>
                 {CLAIM}
@@ -53,10 +46,25 @@ export default function Home({ datasets, articles }: InferGetStaticPropsType<typ
                 {' '}<a href="/docs/about/" className={styles.claimLink}>Learn more...</a>
               </p>
               <div>
-                <Button href="/datasets/" variant="light" size="lg">
-                  <Search className="bsIcon" />{' '}
-                  Browse datasets
-                </Button>
+                <Form action="/search/">
+                  <InputGroup size="lg" className="mb-6">
+                    <Form.Control
+                      type="search"
+                      name="q"
+                      autoFocus={true}
+                      placeholder={`Search the open sanctions database...`}
+                      aria-label="Search"
+                    />
+                    <Button variant="secondary" type="submit">
+                      <Search className="bsIcon" />{' '}
+                      Search
+                    </Button>
+                    <Button href="/datasets/" variant="dark" size="lg">
+                      <Download className="bsIcon" />{' '}
+                      Bulk data
+                    </Button>
+                  </InputGroup>
+                </Form>
               </div>
               <p className={styles.stats}>
                 <NumericBadge value={all.target_count} className={styles.statsBadge} /> targets
@@ -68,6 +76,15 @@ export default function Home({ datasets, articles }: InferGetStaticPropsType<typ
                   <FormattedDate date={all.last_change} />
                 </Badge>
               </p>
+            </Col>
+            <Col md={4} className="d-none d-md-block">
+              <img
+                src="/static/home.webp"
+                width="272px"
+                height="282px"
+                alt="Welcome to OpenSanctions"
+                className={styles.logo}
+              />
             </Col>
           </Row>
         </Container>

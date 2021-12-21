@@ -16,7 +16,7 @@ import Tooltip from 'react-bootstrap/Tooltip';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Container from 'react-bootstrap/Container';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import { FileEarmarkArrowDownFill } from 'react-bootstrap-icons';
+import { Download, Search } from 'react-bootstrap-icons';
 
 import Layout from '../../components/Layout'
 import Dataset from '../../components/Dataset'
@@ -72,6 +72,7 @@ export default function DatasetScreen({ dataset, details, issues, sources, colle
                   aria-label="Search"
                 />
                 <Button variant="secondary" type="submit">
+                  <Search className="bsIcon" />{' '}
                   Search
                 </Button>
               </InputGroup>
@@ -158,7 +159,7 @@ export default function DatasetScreen({ dataset, details, issues, sources, colle
                       download={true}
                       href={resource.url}
                     >
-                      <FileEarmarkArrowDownFill className="bsIcon" />
+                      <Download className="bsIcon" />
                       {' '}
                       {resource.title}
                     </Button>
