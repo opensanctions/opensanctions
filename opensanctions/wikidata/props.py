@@ -51,6 +51,11 @@ PROPS_DIRECT = {
     "P1454": "legalForm",
 }
 
+PROPS_QUALIFIED = (
+    "position",
+    "education",
+)
+
 
 IGNORE = set(
     [

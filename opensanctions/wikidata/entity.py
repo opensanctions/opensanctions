@@ -10,10 +10,42 @@ from opensanctions.wikidata.props import (
     PROPS_ASSOCIATION,
     PROPS_DIRECT,
     PROPS_FAMILY,
+    PROPS_QUALIFIED,
 )
 from opensanctions.wikidata.claim import Claim
 
 # SEEN_PROPS = set()
+
+
+def qualify_value(value, claim):
+    starts = set()
+    for qual in claim.get_qualifier("P580"):
+        text = qual.text
+        if text is not None:
+            starts.add(text[:4])
+
+    start = min(starts, default="")
+
+    ends = set()
+    for qual in claim.get_qualifier("P582"):
+        text = qual.text
+        if text is not None:
+            ends.add(text[:4])
+
+    end = min(ends, default="")
+    if len(starts) or len(ends):
+        return f"{value} ({start}-{end})"
+
+    dates = set()
+    for qual in claim.get_qualifier("P585"):
+        text = qual.text
+        if text is not None:
+            dates.add(text[:4])
+
+    if len(dates):
+        dates = ", ".join(sorted(dates))
+        return f"{value} ({dates})"
+    return value
 
 
 def make_link(
@@ -38,12 +70,12 @@ def make_link(
         target=False,
         depth=depth - 1,
         seen=seen,
-        **props
+        **props,
     )
     if other is None:
         return
     link = context.make(schema)
-    link.id = context.make_slug(claim.id)
+    link.id = context.make_slug(claim.property, *sorted((proxy.id, other.id)))
     link.add(source_prop, proxy.id)
     link.add(target_prop, other.id)
     link.add("relationship", claim.property_label)
@@ -71,6 +103,8 @@ def apply_claim(
         value = claim.text
         if prop == "gender":
             value = h.clean_gender(value)
+        if prop in PROPS_QUALIFIED:
+            value = qualify_value(value, claim)
         proxy.add(prop, value)
         return
     if claim.property in PROPS_FAMILY:
@@ -130,7 +164,7 @@ def entity_to_ftm(
     target: bool = True,
     depth: int = 2,
     seen: Optional[Set[str]] = None,
-    **kwargs: Optional[str]
+    **kwargs: Optional[str],
 ):
     if seen is None:
         seen = set()

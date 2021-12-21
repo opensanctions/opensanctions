@@ -179,6 +179,15 @@ def merge(entity_ids):
     Statement.resolve(resolver, str(canonical_id))
 
 
+@cli.command("latest", help="Show the latest data timestamp")
+@click.argument("dataset", default=Dataset.DEFAULT, type=datasets)
+def latest(dataset):
+    ds = Dataset.require(dataset)
+    latest = Statement.max_last_seen(ds)
+    if latest is not None:
+        print(latest.isoformat())
+
+
 @cli.command("cleanup", help="Clean up caches")
 def cleanup():
     cleanup_cache()
