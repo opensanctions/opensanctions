@@ -15,7 +15,7 @@ collections:
 publisher:
   name: Peppercat.org
   description: |
-    Peppercat is a community project with the goal make sure that information about politicians
+    Peppercat is a community project with the goal of making sure that information about politicians
     in Wikidata is always up-to-date. They maintain a fleet of hundreds of scrapers that compare
     official web sites against the Wikidata database.
   url: https://www.peppercat.org
