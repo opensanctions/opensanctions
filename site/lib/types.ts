@@ -5,6 +5,7 @@ export interface IContent {
   slug: string
   content: string
   title: string
+  path: string
   summary: string | null
 }
 

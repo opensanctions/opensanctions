@@ -1,5 +1,6 @@
 ---
 title: Licensing OpenSanctions
+path: /licensing/
 summary: >
     Our data is freely available for non-commercial use, while business re-users
     are required to obtain a license to support the maintenance of the database

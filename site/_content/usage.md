@@ -8,13 +8,12 @@ summary: |
 > If you would like to see another file format or slice of the data included in
 > this project, please [get in touch](/contact/) to discuss your idea.
 
-Please also refer to the FAQ about [API access](/docs/faq/#api) and the
+Please also refer to the [API documentation](/docs/api/) and the
 [data structure reference](/reference/).
 
 ## <a id="formats" /> Formats
 
-Bulk data is made available in the following formats for each data source and
-[collection](/docs/faq/#collections) we maintain:
+Bulk data is made available in the following formats for each [data source](/datasets/#sources) and [collection](/docs/faq/#collections) we maintain:
 
 ### <a id="targets.simple.csv"> Simplified CSV (comma-separated values) table
 

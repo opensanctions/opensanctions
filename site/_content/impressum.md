@@ -1,5 +1,6 @@
 ---
 title: Impressum
+path: /impressum/
 summary: |
     The following contact and privacy notes for OpenSanctions reflect the
     information required under German law.

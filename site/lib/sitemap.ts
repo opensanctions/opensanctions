@@ -1,9 +1,9 @@
 import fs from 'fs'
 import { join } from 'path'
 import { BASE_URL } from './constants';
-import { IArticleInfo, IDataset, isCollection } from "./types";
+import { IArticleInfo, IContent, IDataset, isCollection } from "./types";
 
-const PAGES = ['/', '/docs/about/', '/docs/faq/', '/docs/usage/', '/reference/', '/contact/', '/sponsor/', '/licensing/', '/docs/api/', '/datasets/', '/docs/', '/docs/contribute/']
+const PAGES = ['/', '/contact/', '/sponsor/', '/datasets/', '/docs/']
 
 const sitemapPath = join(process.cwd(), 'public', 'sitemap.xml')
 
@@ -17,8 +17,11 @@ function writeUrl(url: string, lastmod?: string, changefreq?: string, priority?:
     ${priorityTag}${changefreqTag}${lastmodTag}</url>`
 }
 
-export default function writeSitemap(datasets: Array<IDataset>, articles: Array<IArticleInfo>) {
-  const urls = PAGES.map(url => writeUrl(url, undefined, undefined, 0.8));
+export default function writeSitemap(datasets: Array<IDataset>, articles: Array<IArticleInfo>, contents: Array<IContent>) {
+  const urls = PAGES.map(url => writeUrl(url, undefined, undefined, 0.9));
+  contents.forEach((content) => {
+    urls.push(writeUrl(content.path, undefined, undefined, 0.8))
+  })
   datasets.forEach((dataset) => {
     const priority = isCollection(dataset) ? 1.0 : 0.7
     const lastmod = dataset.last_change ? dataset.last_change.split('T')[0] : undefined

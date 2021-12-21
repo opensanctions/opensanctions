@@ -1,5 +1,6 @@
 ---
 title: Documentation
+path: /docs/
 summary: |
     Adopting OpenSanctions should be as simple as possible. Below you can
     find technical documentation that helps you use the data and contribute
