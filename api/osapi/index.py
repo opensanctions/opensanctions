@@ -150,7 +150,7 @@ def text_query(
                 "query": query,
                 # "default_field": "text",
                 "fields": ["names^3", "text"],
-                # "default_operator": "and",
+                "default_operator": "and",
                 "fuzziness": 2 if fuzzy else 0,
                 "lenient": fuzzy,
             }
