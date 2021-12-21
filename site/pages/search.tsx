@@ -14,12 +14,13 @@ import { GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
 import { SearchFacet, SearchFilterTags, SearchPagination, SearchResultEntity } from '../components/Search';
 import styles from '../styles/Search.module.scss'
 import { API_URL, SEARCH_DATASET, SEARCH_SCHEMA } from '../lib/constants';
-import { FormattedDate } from '../components/util';
+import { FormattedDate, JSONLink } from '../components/util';
 
 const SUMMARY = "Provide a search term to search across sanctions lists and other persons of interest.";
 
-export default function Search({ modelData, query, datasets, scopeName, error, response }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+export default function Search({ modelData, apiUrl, query, datasets, scopeName, error, response }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const model = new Model(modelData);
+  const hasScope = scopeName !== SEARCH_DATASET;
   const scope = datasets.find((d) => d.name === scopeName);
 
   if (error || scope === undefined) {
@@ -31,20 +32,26 @@ export default function Search({ modelData, query, datasets, scopeName, error, r
       </Layout.Base >
     );
   }
-  const hasScope = scopeName !== SEARCH_DATASET;
   const title = hasScope ? `Search: ${scope.title}` : 'Search entities of interest';
 
   return (
     <Layout.Base title={title} description={SUMMARY} navSearch={false}>
       <Container>
         <Row>
+          <Col md={12}>
+            <h1>
+              {!hasScope && (
+                <>Search the OpenSanctions database</>
+              )}
+              {hasScope && (
+                <>Search: {scope.title}</>
+              )}
+              <JSONLink href={apiUrl} />
+            </h1>
+          </Col>
+        </Row>
+        <Row>
           <Col md={8}>
-            {!hasScope && (
-              <h1>Search the OpenSanctions database</h1>
-            )}
-            {hasScope && (
-              <h1>Search: {scope.title}</h1>
-            )}
             <Form>
               <Form.Control
                 name="q"
@@ -117,6 +124,7 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
     props: {
       query,
       response,
+      apiUrl,
       error: !ret.ok,
       scopeName,
       datasets: datasets,

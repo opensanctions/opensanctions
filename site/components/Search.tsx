@@ -128,16 +128,15 @@ export function SearchFilterTags({ scope, model, datasets }: SearchFilterTagsPro
     <p className={styles.tagsSection}>
       <Badge bg="light">Filtered:</Badge>{' '}
       {filters.map((spec) =>
-        <>
+        <span key={`${spec.field}:${spec.value}`}>
           <Badge
-            key={`${spec.field}:${spec.value}`}
             onClick={(e) => unfilter(spec.field, spec.value)}
             className={styles.tagsButton}
           >
             {spec.label}
           </Badge>
           {' '}
-        </>
+        </span>
       )}
     </p>
   )

@@ -165,7 +165,14 @@ export function HelpLink({ href, size = 10 }: HelpLinkProps) {
 
 export function JSONLink({ href }: HelpLinkProps) {
   return (
-    <Button variant="outline-dark" size="sm" className={styles.jsonLink} href={href}>
+    <Button
+      variant="outline-dark"
+      size="sm"
+      className={styles.jsonLink}
+      href={href}
+      rel="alternate"
+      type={"application/json" as unknown as undefined}  // fuck that's hacky 
+    >
       <FileEarmarkCodeFill className="bsIcon" />
       {' '}JSON
     </Button>

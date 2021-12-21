@@ -8,6 +8,9 @@ import Card from 'react-bootstrap/Card';
 import Table from 'react-bootstrap/Table';
 import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
+import Form from 'react-bootstrap/Form';
+import Button from 'react-bootstrap/Button';
+import InputGroup from 'react-bootstrap/InputGroup';
 import Alert from 'react-bootstrap/Alert';
 import Tooltip from 'react-bootstrap/Tooltip';
 import ListGroup from 'react-bootstrap/ListGroup';
@@ -49,7 +52,7 @@ export default function DatasetScreen({ dataset, details, issues, sources, colle
   })
 
   return (
-    <Layout.Base title={dataset.title} description={dataset.summary} structured={structured}>
+    <Layout.Base title={dataset.title} description={dataset.summary} structured={structured} navSearch={false}>
       <Container>
         <JSONLink href={dataset.index_url} />
         <h1>
@@ -58,6 +61,21 @@ export default function DatasetScreen({ dataset, details, issues, sources, colle
         <Row>
           <Col sm={9}>
             <Summary summary={dataset.summary} />
+            <Form className="d-flex" action="/search/">
+              <input type="hidden" name="scope" value={dataset.name} />
+              <InputGroup className={styles.searchBox} size="lg">
+                <Form.Control
+                  type="search"
+                  name="q"
+                  autoFocus={true}
+                  placeholder={`Search in ${dataset.title}...`}
+                  aria-label="Search"
+                />
+                <Button variant="dark" type="submit">Search</Button>
+              </InputGroup>
+            </Form>
+
+
             <DatasetMetadataTable dataset={dataset} details={details} collections={collections} />
             <Tabs activeKey={view} defaultActiveKey="description" onSelect={(k) => setView(k || 'description')}>
               <Tab eventKey="description" title="Description" className={styles.viewTab}>
