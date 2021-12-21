@@ -27,7 +27,7 @@ export default function Reference({ content, activeModel, schemata }: InferGetSt
         </div>
         <h2><a id="targets"></a>Entities and targets</h2>
         <p className="text-body">
-          OpenSanctions collects data about real-world <strong>entities</strong>, such as
+          OpenSanctions collects data about real-world <strong><Link href="/docs/entities/">entities</Link></strong>, such as
           people, companies, sanctions and addresses, but also the relationships between
           them. In order to process that data, it is internally converted into an object
           graph that is defined below. Different exporters then might simplify the data
@@ -55,7 +55,8 @@ export default function Reference({ content, activeModel, schemata }: InferGetSt
         <p className="text-body">
           All entities in OpenSanctions must conform to a schema, a definition that states
           what properties they are allowed to have. Some properties also allow entities to
-          reference other entities, turning the entities into a graph.
+          reference other entities, turning the entities into a graph.{' '}
+          <Link href="/docs/entities/">Read more about the entity graph...</Link>
         </p>
         <p className="text-body">
           The following schema types are currently referenced in OpenSanctions:

@@ -11,7 +11,7 @@ summary: |
 
 ## Entities
 
-Entities are often expressed as snippets of JSON, with three standard fields: a unique ``id``, a specification of the type of the entity called ``schema``, and a set of ``properties``. ``properties`` are multi-valued and values are always strings.
+Entities are often expressed as snippets of JSON, with three standard fields: a unique ``id``, a specification of the type of the entity called ``schema``, and a set of ``properties``. All properties are multi-valued and values are always strings.
 
 ```json
 {
@@ -25,41 +25,29 @@ Entities are often expressed as snippets of JSON, with three standard fields: a 
 }
 ```
 
-Property names are defined by [schemata](/reference/#schema). For example, a 
-:ref:`schema-Person` has a `nationality`, while a :ref:`schema-Company` allows 
-for setting a `jurisdiction`. Both properties, however, have the same 
-`property type`, :ref:`type-country`.
+What properties can be set for an entity is determined by it's schema. For example, a  [Person](/reference/#schema.Person) has a `nationality`, while a [Company](/reference/#schema,Company) allows for setting a `jurisdiction`. Both properties, however, have the same *property type*, [country](/reference/#type.country). You can see a full listing of the available schemata and their properties in the [data dictionary](/reference/).
 
 
 ## References
 
-Entities can reference other entities. This is achieved via a special property
-type, :ref:`type-entity`. Properties of this type simply store the ID of another 
-entity. For example, a :ref:`schema-Passport` entity can be linked to a 
-:ref:`schema-Person` entity via its `holder` property:
+Entities can reference other entities. This is achieved via a special property type, `entity`. Properties of this type simply store the ID of another entity. For example, a [Passport](/reference/#schema.Passport) entity can be linked to a [Person](/reference/#schema.Person) entity via its `holder` property:
 
 ```json
-    {
-        "id": "passport-entity-id",
-        "schema": "Passport",
-        "properties": {
-            "holder": ["person-entity-id"],
-            "number": ["CJ 7261817"]
-        }
+{
+    "id": "passport-entity-id",
+    "schema": "Passport",
+    "properties": {
+        "holder": ["person-entity-id"],
+        "number": ["CJ 7261817"]
     }
+}
 ```
 
 ### Interstitial entities
 
-A link between two entities will have its own attributes. For example,
-an investigator looking at a person that owns a company might want to know when
-that interest was acquired, and also what percentage of shares the person holds.
+A link between two entities will have its own attributes. For example, an investigator looking at a person that owns a company might want to know when that interest was acquired, and also what percentage of shares the person holds.
 
-This is addressed by making interstitial entities. In the example above, an
-:ref:`schema-Ownership` entity would be created, with references to the person
-as its `owner` property and to the company as its `asset` property. That
-entity can then define further properties, including `startDate` and
-`percentage`:
+This is addressed by making interstitial entities. In the example above, an [Ownership](/reference/#schema.Ownership) entity would be created, with references to the person as its `owner` property and to the company as its `asset` property. That entity can then define further properties, including `startDate` and `percentage`:
 
 ```json
 {

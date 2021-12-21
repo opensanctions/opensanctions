@@ -8,8 +8,7 @@ summary: |
 > If you would like to see another file format or slice of the data included in
 > this project, please [get in touch](/contact/) to discuss your idea.
 
-Please also refer to the [API documentation](/docs/api/) and the
-[data structure reference](/reference/).
+Please also refer to the [API documentation](/docs/api/), [entity structure definition](/docs/entities/) and the [data dictionary](/reference/).
 
 ## <a id="formats" /> Formats
 
@@ -67,7 +66,7 @@ right encoding.
 
 We offer two JSON-based export formats that are both based on [the FollowTheMoney](https://followthemoney.readthedocs.io/en/latest/index.html) (FtM). They are a close representation of the [internal data structure](/reference/) of OpenSanctions. The *nested JSON* format should be the preferred import method for software-based data consumers.
 
-You can get [a basic overview of the entity data structure](https://followthemoney.readthedocs.io/en/latest/entity.html#id1) in the FtM documentation, and browse the [data dictionary](/reference/) to see details regarding the properties used by OpenSanctions.
+You can get [a basic overview of the entity data structure](/docs/entities/), and browse the [data dictionary](/reference/) to see details regarding the properties used by OpenSanctions.
 
 Both formats use [line-delimited JSON](https://en.wikipedia.org/wiki/JSON_streaming#Line-delimited_JSON): each line of the exported files is a separate entity. While the *FollowTheMoney entities* (``entities.ftm.json``) export contains one entity per line, the *nested JSON* (``targets.nested.json``) format contains one line per [target](/reference/#targets), with adjacent entities (e.g. addresses, sanctions) nested inside the properties section of the data structure.
 
