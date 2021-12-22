@@ -54,6 +54,9 @@ country:
         - "Southern Rhodesia"
         - "Pahlavi Dynasty"
         - "Estado Novo"
+        - "title of Virgin Mary"
+        - "Kingdom of Iraq"
+        - "Iraqi Republic (1958–1968)"
       contains:
         - (JVCFOR)
       value: null
@@ -284,7 +287,9 @@ country:
       values:
         - Iraq
         - Syria
-    - contains: Iraq, possible alternative
+    - contains:
+        - Iraq, possible alternative
+        - Ba'athist Iraq
       value: "Iraq"
     - match:
         - Ukrainian SSR (now Ukraine)
@@ -351,8 +356,14 @@ country:
     - match:
         - possibly United Arab Emirates
       value: AE
-    - match: former Yugoslavia
+    - match:
+        - former Yugoslavia
+        - Kingdom of Yugoslavia
       value: YUCS
+    - match: Independent State of Croatia
+      value: HR
+    - match: Socialist Republic of Bosnia and Herzegovina
+      value: BA
     - match:
         - Czechoslovak Socialist Republic
         - Czechoslovak Republic
