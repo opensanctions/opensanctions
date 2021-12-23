@@ -1,4 +1,5 @@
-import { ComponentType } from 'react';
+import Link from 'next/link'
+import { ComponentType, useState } from 'react';
 
 import { Property, PropertyType } from "@alephdata/followthemoney";
 import { OpenSanctionsEntity, Value, Values } from "../lib/types";
@@ -38,14 +39,25 @@ export function TypeValue({ type, value, entity: Entity = EntityLink, prop }: Ty
 type TypeValuesProps = {
   type: PropertyType
   values: Values
+  limit?: number
   prop?: Property
   entity?: ComponentType<EntityProps>
 }
 
-export function TypeValues({ type, values, entity, prop }: TypeValuesProps) {
+export function TypeValues({ type, values, entity, prop, limit }: TypeValuesProps) {
+  const [expanded, setExpanded] = useState(false);
   const elems = values.sort().map((v) => <TypeValue type={type} value={v} entity={entity} prop={prop} />)
   if (elems.length === 0) {
     return <span className="text-muted">not available</span>
+  }
+  if (limit !== undefined && limit < elems.length && !expanded) {
+    const shortElems = elems.slice(0, limit);
+    const moreCount = elems.length - limit;
+    const toggleMore = (
+      <a onClick={(e) => { e.preventDefault(); setExpanded(true) }} href="#">{`${moreCount} more...`}</a>
+    )
+    console.log(type.name, elems.length);
+    return <SpacedList values={[...shortElems, toggleMore]} />
   }
   return <SpacedList values={elems} />
 }
@@ -63,9 +75,18 @@ export function PropertyValue({ prop, value, entity }: PropertyValueProps) {
 type PropertyValuesProps = {
   prop: Property
   values: Values
+  limit?: number
   entity?: ComponentType<EntityProps>
 }
 
-export function PropertyValues({ prop, values, entity }: PropertyValuesProps) {
-  return <TypeValues type={prop.type} values={values} entity={entity} prop={prop} />
+export function PropertyValues({ prop, values, entity, limit }: PropertyValuesProps) {
+  return (
+    <TypeValues
+      type={prop.type}
+      values={values}
+      limit={limit}
+      entity={entity}
+      prop={prop}
+    />
+  );
 }

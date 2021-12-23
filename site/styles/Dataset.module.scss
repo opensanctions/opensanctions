@@ -51,6 +51,7 @@
 }
 
 .itemDetails {
+    @include clearfix;
     color: $text-muted;
     margin: 0;
 }

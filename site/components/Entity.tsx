@@ -71,7 +71,7 @@ export function EntitySidebar({ entity }: EntityProps) {
       {sidebarProperties.map((prop) =>
         <p key={prop.name}>
           <strong>{prop.label}</strong><br />
-          <span><PropertyValues prop={prop} values={entity.getProperty(prop)} /></span>
+          <span><PropertyValues prop={prop} values={entity.getProperty(prop)} limit={5} /></span>
         </p>
       )}
     </>
