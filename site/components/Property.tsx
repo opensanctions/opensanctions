@@ -56,7 +56,6 @@ export function TypeValues({ type, values, entity, prop, limit }: TypeValuesProp
     const toggleMore = (
       <a onClick={(e) => { e.preventDefault(); setExpanded(true) }} href="#">{`${moreCount} more...`}</a>
     )
-    console.log(type.name, elems.length);
     return <SpacedList values={[...shortElems, toggleMore]} />
   }
   return <SpacedList values={elems} />
