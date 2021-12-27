@@ -13,6 +13,7 @@ ORG_URL = "https://nbctf.mod.gov.il/he/Announcements/Documents/NBCTFIsrael%20-%2
 PEOPLE_URL = "https://nbctf.mod.gov.il/he/Announcements/Documents/NBCTF%20Israel%20designation%20Individuals_XL.xlsx"
 FORMATS = ["%d/%m/%Y", "%d.%m.%Y", "%Y-%m-%d"]
 NA_VALUE = re.compile(r"^[\-\/]+$")
+END_TAG = re.compile(r"בוטל ביום", re.U)
 
 
 def parse_date(date):
@@ -20,6 +21,17 @@ def parse_date(date):
     for part in multi_split(date, ["OR", ";", " - "]):
         dates.extend(h.parse_date(part, FORMATS))
     return dates
+
+
+def parse_interval(entity, date):
+    if date is None:
+        return
+    date = date.strip()
+    if "בוטל ביום" in date:
+        date, _ = date.rsplit(" ", 1)
+        entity.add("endDate", parse_date(date))
+    else:
+        entity.add("startDate", parse_date(date))
 
 
 def lang_pick(record, field):
@@ -98,7 +110,7 @@ def crawl_individuals(context: Context):
         record.pop("date_of_foreign_designation_date", None)
 
         for field in ("date_of_designation_in_israel",):
-            sanction.add("startDate", parse_date(record.pop(field, None)))
+            parse_interval(sanction, record.pop(field, None))
 
         context.emit(entity, target=True, unique=True)
         context.emit(sanction)
@@ -173,7 +185,7 @@ def crawl_organizations(context: Context):
             "date_of_permenant_designation",
             "date_designation_in_west_bank",
         ):
-            sanction.add("startDate", parse_date(record.pop(field, None)))
+            parse_interval(sanction, record.pop(field, None))
 
         context.emit(entity, target=True, unique=True)
         context.emit(sanction)
