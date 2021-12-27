@@ -362,7 +362,9 @@ country:
       value: YUCS
     - match: Independent State of Croatia
       value: HR
-    - match: Socialist Republic of Bosnia and Herzegovina
+    - match:
+        - Socialist Republic of Bosnia and Herzegovina
+        - Republika Srpska
       value: BA
     - match:
         - Czechoslovak Socialist Republic
@@ -668,6 +670,7 @@ gender:
       value: unknown
     - match:
         - non-binary
+        - intersex
       value: other
 
 features:
