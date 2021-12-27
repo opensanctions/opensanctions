@@ -513,6 +513,7 @@ date:
     "17 Nov1968": "1968-11-17"
     "26 Jun1959": "1959-06-26"
     "4 Apr1976": "1976-04-04"
+    "22 Sept 1978": "1978-09-22"
     "February 8,1965": "1965-02-08"
     "06.02.1974": "1974-02-06"
     "24-Apr-68": "1968-04-24"
@@ -574,8 +575,8 @@ email:
       values:
         - Victoria.Oliver@deputies.gov.gg
         - victoria1.oliver@icloud.com
-    - match:
-        - "hotelminsk@udp.gov.by ; marketing@hotelminsk.by "
+    - contains:
+        - hotelminsk@udp.gov.by ; marketing@hotelminsk.by
       values:
         - hotelminsk@udp.gov.by
         - marketing@hotelminsk.by
