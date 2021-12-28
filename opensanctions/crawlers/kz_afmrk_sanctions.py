@@ -7,9 +7,9 @@ from opensanctions.util import jointext
 FORMATS = ["%d.%m.%Y"]
 
 
-def make_entity(context: Context, el, schema, prefix):
+def make_entity(context: Context, el, schema, *keys):
     entity = context.make(schema, target=True)
-    entity.id = context.make_slug(prefix, el.findtext("./num"))
+    entity.id = context.make_slug(el.findtext("./num"), *keys)
     entity.add("notes", el.findtext("./note"))
     entity.add("topics", "sanction")
 
@@ -26,14 +26,14 @@ def crawl(context: Context):
 
     doc = context.parse_resource_xml(path)
     for el in doc.findall(".//person"):
-        entity = make_entity(context, el, "Person", "person")
         fname = el.findtext("./fname")
-        entity.add("firstName", fname)
         mname = el.findtext("./mname")
-        entity.add("middleName", mname)
         lname = el.findtext("./lname")
-        entity.add("lastName", lname)
         name = jointext(fname, mname, lname)
+        entity = make_entity(context, el, "Person", "person", name)
+        entity.add("firstName", fname)
+        entity.add("middleName", mname)
+        entity.add("lastName", lname)
         entity.add("name", name)
         entity.add("idNumber", el.findtext("./iin"))
         bdate = el.findtext("./birthdate")
@@ -41,12 +41,13 @@ def crawl(context: Context):
         context.emit(entity, target=True, unique=True)
 
     for el in doc.findall(".//org"):
-        entity = make_entity(context, el, "Organization", "org")
-
+        name = el.findtext(".//org_name")
+        entity = make_entity(context, el, "Organization", "org", name)
         for tag in (".//org_name", ".//org_name_en"):
             names = el.findtext(tag)
             if names is None:
                 continue
             names = names.split("; ")
             entity.add("name", names)
+
         context.emit(entity, target=True, unique=True)
