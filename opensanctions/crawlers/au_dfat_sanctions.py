@@ -76,8 +76,13 @@ def parse_reference(context, reference, rows):
         else:
             entity.add("name", name)
 
-        address = h.make_address(context, full=row.pop("address"))
-        h.apply_address(context, entity, address)
+        addr = row.pop("address")
+        if addr is not None:
+            if addr.lower() in ("n/a", "na"):
+                addr = None
+            print("ADDR", addr)
+            address = h.make_address(context, full=addr)
+            h.apply_address(context, entity, address)
         sanction.add("program", row.pop("committees"))
         citizen = multi_split(row.pop("citizenship"), ["a)", "b)", "c)", "d)"])
         entity.add("nationality", citizen, quiet=True)

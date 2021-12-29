@@ -83,6 +83,9 @@ def parse_person(context, data, country, entities, lastmod):
     person = context.make("Person")
     person.id = context.make_slug(person_id)
     person.add("nationality", country)
+    name = data.get("name")
+    if name is None or name.lower().strip() in ("unknown",):
+        return
     parse_common(context, person, data, lastmod)
 
     person.add("gender", h.clean_gender(data.pop("gender", None)))

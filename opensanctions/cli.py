@@ -13,6 +13,7 @@ from opensanctions.core.index import get_index, get_index_path
 from opensanctions.core.loader import Database
 from opensanctions.core.resolver import AUTO_USER, export_pairs, get_resolver
 from opensanctions.core.xref import blocking_xref
+from opensanctions.core.addresses import xref_geocode
 from opensanctions.model.statement import Statement
 from opensanctions.model.base import migrate_db
 
@@ -111,6 +112,13 @@ def index(dataset):
 def xref(dataset, fuzzy, limit):
     dataset = Dataset.require(dataset)
     blocking_xref(dataset, limit=limit, fuzzy=fuzzy)
+
+
+@cli.command("xref-geocode", help="Deduplicate addresses using geocoding")
+@click.argument("dataset", default=Dataset.DEFAULT, type=datasets)
+def xref(dataset):
+    dataset = Dataset.require(dataset)
+    xref_geocode(dataset)
 
 
 @cli.command("xref-prune", help="Remove dedupe candidates")

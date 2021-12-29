@@ -674,6 +674,25 @@ gender:
         - intersex
       value: other
 
+fulladdress:
+  lowercase: true
+  options:
+    - match:
+        - Unknown
+        - "-"
+        - "na"
+        - "n/a"
+        - "ISLE OF MAN"
+        - Qatar
+        - Lebanon
+        - Russia
+        - Philippines
+        - Peru
+        - Panama
+        - Somalia
+        - Turkey
+      value: null
+
 features:
   # Jointly used by US Trade CSL / OFAC SDN and Cons.
   options:

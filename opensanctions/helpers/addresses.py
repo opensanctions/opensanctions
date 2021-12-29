@@ -2,13 +2,13 @@ from normality import slugify
 from functools import lru_cache
 from typing import List
 from addressformatting import AddressFormatter
+from followthemoney.types import registry
 from followthemoney.util import make_entity_id
 
 from opensanctions.core.context import Context
 from opensanctions.core.entity import Entity
+from opensanctions.core.lookups import common_lookups
 from opensanctions.util import jointext
-
-NOMINATIM = "https://nominatim.openstreetmap.org/search.php"
 
 
 @lru_cache(maxsize=None)
@@ -16,21 +16,11 @@ def get_formatter() -> AddressFormatter:
     return AddressFormatter()
 
 
-def query_full(context: Context, full: str, countries: List[str]):
-    params = {
-        "q": full,
-        "countrycodes": countries,
-        "format": "jsonv2",
-        "accept-language": "en",
-        "addressdetails": 1,
-    }
-    res = context.http.get(NOMINATIM, params=params)
-    results = res.json()
-    if not len(results):
-        return
-    res0 = results[0]
-    display_name = res0["display_name"]
-    context.pprint({"original": full, "countries": countries, "display": display_name})
+def clean_address(value: str) -> List[str]:
+    lookup = common_lookups().get("fulladdress")
+    if lookup is None or value is None:
+        return [value]
+    return lookup.get_value(value, default=value)
 
 
 def make_address(
@@ -82,8 +72,17 @@ def make_address(
         }
         full = get_formatter().one_line(data, country=country_code)
         address.add("full", full)
+
+    full_country = registry.country.clean(full)
+    if full_country is not None:
+        # print("FULL COUNTRY", full, full_country)
+        address.add("country", full_country)
+        # full = None
+
+    full = clean_address(full)
+    address.set("full", full)
+
     if full:
-        # query_full(context, full, address.get("country"))
         norm_full = slugify(full)
         hash_id = make_entity_id(country_code, norm_full, key)
         if hash_id is not None:
