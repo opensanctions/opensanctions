@@ -1,4 +1,5 @@
 import xlrd
+import string
 from collections import defaultdict
 from normality import slugify
 from datetime import datetime
@@ -8,6 +9,7 @@ from pantomime.types import EXCEL
 from opensanctions import helpers as h
 from opensanctions.util import multi_split, remove_bracketed
 
+SPLITS = [" %s)" % char for char in string.ascii_lowercase]
 FORMATS = ["%d/%m/%Y", "%d %b. %Y", "%d %b.%Y", "%d %b %Y", "%d %B %Y"]
 FORMATS = FORMATS + ["%b. %Y", "%d %B. %Y", "%Y"]
 
@@ -78,11 +80,9 @@ def parse_reference(context, reference, rows):
 
         addr = row.pop("address")
         if addr is not None:
-            if addr.lower() in ("n/a", "na"):
-                addr = None
-            print("ADDR", addr)
-            address = h.make_address(context, full=addr)
-            h.apply_address(context, entity, address)
+            for part in multi_split(addr, SPLITS):
+                address = h.make_address(context, full=part)
+                h.apply_address(context, entity, address)
         sanction.add("program", row.pop("committees"))
         citizen = multi_split(row.pop("citizenship"), ["a)", "b)", "c)", "d)"])
         entity.add("nationality", citizen, quiet=True)

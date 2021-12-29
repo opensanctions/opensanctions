@@ -675,10 +675,13 @@ gender:
       value: other
 
 fulladdress:
+  # SELECT value, COUNT(entity_id) FROM statement WHERE prop = 'full' GROUP BY value ORDER BY COUNT(*) DESC;
   lowercase: true
   options:
     - match:
         - Unknown
+        - Address Unknown
+        - UNKNOWN ADDRESS
         - "-"
         - "na"
         - "n/a"
