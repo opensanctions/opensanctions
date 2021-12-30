@@ -682,6 +682,7 @@ fulladdress:
         - Unknown
         - Address Unknown
         - UNKNOWN ADDRESS
+        - "Address:"
         - "-"
         - "na"
         - "n/a"
