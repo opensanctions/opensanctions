@@ -13,16 +13,30 @@ type DatasetProps = {
 }
 
 type DatasetIconProps = {
-  dataset: IDataset
+  dataset?: IDataset
   color?: string
   size?: string
 }
 
 function DatasetIcon({ dataset, ...props }: DatasetIconProps) {
+  if (dataset === undefined) {
+    return null;
+  }
   if (isCollection(dataset)) {
     return <FolderFill className="bsIcon" {...props} />
   }
   return <FileEarmarkSpreadsheetFill className="bsIcon" {...props} />
+}
+
+function DatasetLink({ dataset, ...props }: DatasetIconProps) {
+  if (dataset === undefined) {
+    return null;
+  }
+  return (
+    <a href={dataset.link}>
+      <span><DatasetIcon dataset={dataset} {...props} /> {dataset.title}</span>
+    </a>
+  )
 }
 
 
@@ -31,9 +45,7 @@ function DatasetCard({ dataset }: DatasetProps) {
     <Card key={dataset.name} className={styles.card}>
       <Card.Body>
         <Card.Title className={styles.cardTitle}>
-          <a href={dataset.link}>
-            <span><DatasetIcon dataset={dataset} /> {dataset.title}</span>
-          </a>
+          <DatasetLink dataset={dataset} />
         </Card.Title>
         <Card.Subtitle className="mb-2 text-muted">
           {isCollection(dataset) && (
@@ -92,4 +104,5 @@ export default class Dataset {
   static Card = DatasetCard
   static Item = DatasetItem
   static Icon = DatasetIcon
+  static Link = DatasetLink
 }

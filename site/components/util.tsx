@@ -7,7 +7,6 @@ import Badge from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
 import Spinner from 'react-bootstrap/Spinner';
 import { FileEarmarkCodeFill, Link45deg, QuestionCircleFill } from 'react-bootstrap-icons';
-import { markdownToHtml } from '../lib/util';
 
 import styles from '../styles/util.module.scss';
 import { SPACER } from '../lib/constants';
@@ -90,16 +89,20 @@ export function FormattedDate({ date }: FormattedDateProps) {
   if (date === undefined || date === null) {
     return null;
   }
-  if (date.length <= 10) {
-    return <time dateTime={date}>{date}</time>
-  }
-  const obj = new Date(date as string);
-  try {
-    const fmt = new Intl.DateTimeFormat('en-CA', { dateStyle: 'medium', timeStyle: 'short' });
-    return <time dateTime={date}>{fmt.format(obj)}</time>
-  } catch {
-    return <time dateTime={date}>{date}</time>
-  }
+  // if (date.length <= 10) {
+  //   return <time dateTime={date}>{date}</time>
+  // }
+  // // const obj = new Date(date);
+  // try {
+  //   // const fmt = new Intl.DateTimeFormat('en-CA', { dateStyle: 'medium', timeStyle: 'short' });
+  //   // return <time dateTime={date}>{fmt.format(obj)}</time>
+  //   const short = date.slice(0, 16).replace('T', ' ');
+  //   return <time dateTime={date}>{short}</time>
+  // } catch {
+  //   return <time dateTime={date}>{date}</time>
+  // }
+  const short = date.slice(0, 10).replace('T', ' ');
+  return <time dateTime={date} className={styles.formattedDate}>{short}</time>
 }
 
 type SummaryProps = {
@@ -191,7 +194,7 @@ export function SpacedList({ values }: SpacedListProps) {
     <>
       {values
         .map<React.ReactNode>((t, idx) => <span key={idx}>{t}</span>)
-        .reduce((prev, curr) => [prev, <Spacer />, curr])}
+        .reduce((prev, curr, idx) => [prev, <Spacer key={`spacer-${idx}`} />, curr])}
     </>
   )
 }

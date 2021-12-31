@@ -41,14 +41,15 @@ type TypeValuesProps = {
   values: Values
   limit?: number
   prop?: Property
+  empty?: string
   entity?: ComponentType<EntityProps>
 }
 
-export function TypeValues({ type, values, entity, prop, limit }: TypeValuesProps) {
+export function TypeValues({ type, values, entity, prop, limit, empty }: TypeValuesProps) {
   const [expanded, setExpanded] = useState(false);
   const elems = values.sort().map((v) => <TypeValue type={type} value={v} entity={entity} prop={prop} />)
-  if (elems.length === 0) {
-    return <span className="text-muted">not available</span>
+  if (elems.length === 0 && empty) {
+    return <span className="text-muted">{empty}</span>
   }
   if (limit !== undefined && limit < elems.length && !expanded) {
     const shortElems = elems.slice(0, limit);
@@ -75,16 +76,18 @@ type PropertyValuesProps = {
   prop: Property
   values: Values
   limit?: number
+  empty?: string
   entity?: ComponentType<EntityProps>
 }
 
-export function PropertyValues({ prop, values, entity, limit }: PropertyValuesProps) {
+export function PropertyValues({ prop, values, entity, limit, empty }: PropertyValuesProps) {
   return (
     <TypeValues
       type={prop.type}
       values={values}
       limit={limit}
       entity={entity}
+      empty={empty}
       prop={prop}
     />
   );

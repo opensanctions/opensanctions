@@ -1,14 +1,17 @@
+import React, { useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link'
+import classNames from 'classnames';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Card from 'react-bootstrap/Card';
 import Table from 'react-bootstrap/Table';
 import { Property } from '@alephdata/followthemoney';
+import { CaretDownFill, CaretUpFill } from 'react-bootstrap-icons';
 
 import { IDataset, IOpenSanctionsEntity, OpenSanctionsEntity } from '../lib/types'
 import { PropertyValues } from './Property';
-import { Summary } from './util';
+import { HelpLink, SpacedList, Summary } from './util';
 import Dataset from './Dataset';
 import { BASE_URL } from '../lib/constants';
 
@@ -16,7 +19,8 @@ import styles from '../styles/Entity.module.scss'
 
 
 export type EntityProps = {
-  entity: OpenSanctionsEntity,
+  entity: OpenSanctionsEntity
+  datasets?: Array<IDataset>
   showEmpty?: boolean
   via?: Property
 }
@@ -25,35 +29,140 @@ export function EntityLink({ entity }: EntityProps) {
   return <Link href={`/entities/${entity.id}/`}>{entity.caption}</Link>
 }
 
-
-export function EntityCard({ entity, via, showEmpty = false }: EntityProps) {
+export function EntityPropsTable({ entity, via, datasets, showEmpty = false }: EntityProps) {
   const props = entity.getDisplayProperties()
     .filter((p) => via === undefined || p.qname !== via.getReverse().qname)
     .filter((p) => showEmpty || entity.getProperty(p).length > 0)
+
+  return (
+    <Table className={styles.cardTable} size="sm">
+      <tbody>
+        {props.map((prop) =>
+          <tr key={prop.qname}>
+            <th className={styles.cardProp}>{prop.label}</th>
+            <td>
+              <PropertyValues
+                prop={prop}
+                values={entity.getProperty(prop)}
+                empty="not available"
+                entity={EntityLink}
+              />
+            </td>
+          </tr>
+        )}
+        {datasets !== undefined && datasets.length > 0 && (
+          <tr key="datasets">
+            <th className={styles.cardProp}>Data sources</th>
+            <td>
+              <SpacedList values={entity.datasets.map((n) => datasets.find((d) => d.name === n)).map((d) => <Dataset.Link dataset={d} />)} />
+            </td>
+          </tr>
+        )}
+      </tbody>
+    </Table>
+  )
+}
+
+
+export function EntityCard({ entity, via, showEmpty = false }: EntityProps) {
   return (
     <Card key={entity.id} className={styles.card}>
       <Card.Header>
         <strong>{entity.schema.label}</strong>
       </Card.Header>
-      <Table className={styles.cardTable}>
-        <tbody>
-          {props.map((prop) =>
-            <tr key={prop.qname}>
-              <th className={styles.cardProp}>{prop.label}</th>
-              <td>
-                <PropertyValues
-                  prop={prop}
-                  values={entity.getProperty(prop)}
-                  entity={EntityLink}
-                />
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </Table>
+      <EntityPropsTable entity={entity} via={via} showEmpty={showEmpty} />
     </Card>
   );
 }
+
+export type EntitySchemaTableProps = {
+  entities: Array<OpenSanctionsEntity>,
+  datasets?: Array<IDataset>,
+  prop: Property
+}
+
+export function EntitySchemaTable({ entities, datasets, prop }: EntitySchemaTableProps) {
+  const schema = prop.getRange();
+  const reverse = prop.getReverse();
+  const [expanded, setExpanded] = useState('none');
+  let featuredNames = schema.featured;
+  ['startDate', 'endDate'].forEach((p) => {
+    if (schema.isA('Interval') && featuredNames.indexOf(p) === -1) {
+      featuredNames.push(p);
+    }
+  })
+  if (schema.isA('Address')) {
+    featuredNames = ['full', 'country'];
+  }
+  const featured = featuredNames.filter((n) => n !== reverse.name).map((n) => schema.getProperty(n));
+
+  const toggleExpand = function (e: React.MouseEvent<HTMLAnchorElement>, entity: OpenSanctionsEntity) {
+    e.preventDefault();
+    setExpanded(expanded === entity.id ? 'none' : entity.id);
+  }
+
+  return (
+    <Table bordered size="sm">
+      <thead>
+        <tr>
+          <th colSpan={featured.length + 1}>
+            {schema.plural}
+            <HelpLink href={`/reference/#schema.${schema.name}`} />
+          </th>
+        </tr>
+        <tr>
+          <th style={{ width: 0 }}></th>
+          {featured.map((prop) => (
+            <th key={prop.name} className={styles.tableHeader}>{prop.label}</th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {entities.map((entity) => (
+          <React.Fragment key={entity.id}>
+            <tr key={entity.id}>
+              <td style={{ width: 0 }}>
+                <a onClick={(e) => toggleExpand(e, entity)} className={styles.expandButton}>
+                  <>
+                    {expanded === entity.id && (
+                      <CaretUpFill />
+                    )}
+                    {expanded !== entity.id && (
+                      <CaretDownFill />
+                    )}
+                  </>
+                </a>
+              </td>
+              {featured.map((prop) => (
+                <td key={prop.name} className={`type-${prop.type.name}`}>
+                  <PropertyValues
+                    prop={prop}
+                    values={entity.getProperty(prop)}
+                    empty="-"
+                    limit={4}
+                    entity={EntityLink}
+                  />
+                </td>
+              ))}
+            </tr>
+            <tr key={`expand-${entity.id}`} className={classNames({ 'd-none': expanded !== entity.id })}>
+              <td></td>
+              <td colSpan={featured.length} className={styles.expandCell}>
+                <EntityPropsTable
+                  entity={entity}
+                  datasets={datasets}
+                  via={prop}
+                  showEmpty={true}
+                />
+              </td>
+            </tr>
+          </React.Fragment>
+        ))}
+      </tbody>
+    </Table >
+  );
+}
+
 
 export type EntitySidebarProps = {
   entity: OpenSanctionsEntity,
@@ -71,7 +180,14 @@ export function EntitySidebar({ entity }: EntityProps) {
       {sidebarProperties.map((prop) =>
         <p key={prop.name}>
           <strong>{prop.label}</strong><br />
-          <span><PropertyValues prop={prop} values={entity.getProperty(prop)} limit={5} /></span>
+          <span>
+            <PropertyValues
+              prop={prop}
+              values={entity.getProperty(prop)}
+              limit={5}
+              empty="not available"
+            />
+          </span>
         </p>
       )}
     </>
@@ -102,14 +218,11 @@ export function EntityDisplay({ entity, datasets }: EntityDisplayProps) {
         )}
         {entityProperties.map((prop) =>
           <div className={styles.entityPageSection} key={prop.qname}>
-            <h2>{prop.getRange().plural}</h2>
-            {entity.getProperty(prop).map((value) =>
-              <EntityCard
-                key={(value as OpenSanctionsEntity).id}
-                entity={value as OpenSanctionsEntity}
-                via={prop}
-              />
-            )}
+            <EntitySchemaTable
+              prop={prop}
+              entities={entity.getProperty(prop).map((v) => v as OpenSanctionsEntity)}
+              datasets={datasets}
+            />
           </div>
         )}
         <div className={styles.entityPageSection}>

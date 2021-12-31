@@ -118,3 +118,13 @@ td.numeric, th.numeric {
     text-align: center;
     color: $text-muted;
 }
+
+
+// entity tables
+.type-date {
+    width: 6em;
+}
+
+.type-country, .type-identifier {
+    width: 6em;
+}
