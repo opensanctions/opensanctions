@@ -106,7 +106,7 @@ export function EntitySchemaTable({ entities, datasets, prop }: EntitySchemaTabl
       <thead>
         <tr>
           <th colSpan={featured.length + 1}>
-            {schema.plural}
+            {prop.label}
             <HelpLink href={`/reference/#schema.${schema.name}`} />
           </th>
         </tr>
