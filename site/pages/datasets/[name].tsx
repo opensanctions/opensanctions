@@ -29,6 +29,7 @@ import { IssuesList } from '../../components/Issue';
 
 import styles from '../../styles/Dataset.module.scss'
 import { LicenseInfo } from '../../components/Policy';
+import { API_URL } from '../../lib/constants';
 
 
 type DatasetScreenProps = {
@@ -139,6 +140,31 @@ export default function DatasetScreen({ dataset, details, issues, sources, colle
                   </>
                 </Tab>
               )}
+              <Tab eventKey="api" title={'API'} className={styles.viewTab}>
+                <>
+                  <p>
+                    You can query the data in this dataset via the application programming
+                    interface (API) endpoints below. Please <Link href="/docs/api/">read
+                      the introduction</Link> for documentation and terms of service.
+                  </p>
+                  <p>
+                    Use the <Link href={`${API_URL}/#tag/Reconciliation`}>OpenRefine Reconciliation API</Link>, by entering this URL in the tool:
+                    <Form.Control readOnly value={`${API_URL}/reconcile/${dataset.name}`} />
+                  </p>
+                  <p>
+                    For <Link href={`${API_URL}/#operation/search_search__dataset__get`}>full-text search</Link>, use the <code>/search</code> endpoint:
+                    <Form.Control readOnly value={`${API_URL}/search/${dataset.name}?q=John+Doe`} />
+                  </p>
+                  <p>
+                    For <Link href={`${API_URL}/#operation/match_match__dataset__post`}>entity matching</Link>, use the <code>/match</code> endpoint:
+                    <Form.Control readOnly value={`${API_URL}/match/${dataset.name}`} />
+                  </p>
+                  <p>
+                    See also: <Link href={`${API_URL}/openapi.json`}>OpenAPI Specification</Link> (JSON)
+                  </p>
+                </>
+              </Tab>
+
             </Tabs>
           </Col>
           <Col sm={3}>
