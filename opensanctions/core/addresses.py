@@ -1,3 +1,4 @@
+from followthemoney.dedupe.judgement import Judgement
 import structlog
 from itertools import combinations
 
@@ -14,23 +15,26 @@ EXPIRE_CACHE = 84600 * 200
 
 def query_nominatim(address: Entity):
     session = get_session()
-    params = {
-        "q": address.first("full"),
-        "countrycodes": address.get("country"),
-        "format": "jsonv2",
-        "accept-language": "en",
-        "addressdetails": 1,
-    }
-    res = session.request("GET", NOMINATIM, params=params, expire_after=EXPIRE_CACHE)
-    results = res.json()
-    if not res.from_cache:
-        log.info(
-            "OpenStreetMap/Nominatim geocoded",
-            address=address.caption,
-            results=len(results),
+    for full in address.get("full"):
+        params = {
+            "q": full,
+            "countrycodes": address.get("country"),
+            "format": "jsonv2",
+            "accept-language": "en",
+            "addressdetails": 1,
+        }
+        res = session.request(
+            "GET", NOMINATIM, params=params, expire_after=EXPIRE_CACHE
         )
-    for result in results:
-        yield result
+        results = res.json()
+        if not res.from_cache:
+            log.info(
+                "OpenStreetMap/Nominatim geocoded",
+                address=address.caption,
+                results=len(results),
+            )
+        for result in results:
+            yield result
 
 
 def xref_geocode(dataset: Dataset):
@@ -71,6 +75,9 @@ def xref_geocode(dataset: Dataset):
         for (a, b) in combinations(ids, 2):
             if not resolver.check_candidate(a, b):
                 continue
-            resolver.suggest(a, b, data["importance"])
-        log.info("Suggested match", address=data["name"], forms=data["forms"])
+
+            judgement = resolver.get_judgement(a, b)
+            if judgement == Judgement.NO_JUDGEMENT:
+                resolver.suggest(a, b, data["importance"])
+                log.info("Suggested match", address=data["name"], forms=data["forms"])
     resolver.save()
