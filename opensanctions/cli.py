@@ -178,7 +178,12 @@ def merge(entity_ids):
         if other_canonical_id == canonical_id:
             continue
         if not resolver.check_candidate(canonical_id, other_id):
-            log.error("Cannot merge", canonical_id=canonical_id, other_id=other_id)
+            log.error(
+                "Cannot merge",
+                canonical_id=canonical_id,
+                other_id=other_id,
+                edge=resolver.get_resolved_edge(canonical_id, other_id),
+            )
             return
         log.info("Merge: %s -> %s" % (other_id, canonical_id))
         canonical_id = resolver.decide(canonical_id, other_id, Judgement.POSITIVE)
