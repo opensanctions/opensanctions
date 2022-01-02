@@ -15,7 +15,7 @@ from opensanctions.core.resolver import AUTO_USER, export_pairs, get_resolver
 from opensanctions.core.xref import blocking_xref
 from opensanctions.core.addresses import xref_geocode
 from opensanctions.model.statement import Statement
-from opensanctions.model.base import migrate_db
+from opensanctions.model.base import migrate_db, db
 
 log = structlog.get_logger(__name__)
 datasets = click.Choice(Dataset.names())
@@ -160,9 +160,10 @@ def export_pairs_(dataset, outfile):
 def explode(canonical_id):
     resolver = get_resolver()
     resolved_id = resolver.get_canonical(canonical_id)
-    resolver.explode(resolved_id)
+    for entity_id in resolver.explode(resolved_id):
+        Statement.resolve(resolver, entity_id)
     resolver.save()
-    Statement.resolve_all(resolver)
+    db.session.commit()
 
 
 @cli.command("merge", help="Merge multiple entities as duplicates")
@@ -190,6 +191,7 @@ def merge(entity_ids):
     resolver.save()
     log.info("Canonical: %s" % canonical_id)
     Statement.resolve(resolver, str(canonical_id))
+    db.session.commit()
 
 
 @cli.command("latest", help="Show the latest data timestamp")

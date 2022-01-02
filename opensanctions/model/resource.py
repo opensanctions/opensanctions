@@ -1,4 +1,5 @@
 from pantomime import parse_mimetype
+from sqlalchemy import delete
 from sqlalchemy import Column, Integer, Unicode, DateTime
 
 from opensanctions import settings
@@ -41,9 +42,9 @@ class Resource(Base):
 
     @classmethod
     def clear(cls, dataset):
-        pq = db.session.query(cls)
-        pq = pq.filter(cls.dataset == dataset.name)
-        pq.delete(synchronize_session=False)
+        pq = delete(cls)
+        pq = pq.where(cls.dataset == dataset.name)
+        db.session.execute(pq)
 
     @classmethod
     def query(cls, dataset=None):

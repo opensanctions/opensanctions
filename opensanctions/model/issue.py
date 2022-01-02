@@ -1,5 +1,6 @@
 from banal import is_mapping
-from sqlalchemy import func, Column, Integer, Unicode, DateTime
+from sqlalchemy.future import select
+from sqlalchemy import delete, func, Column, Integer, Unicode, DateTime
 from sqlalchemy.types import JSON
 
 from opensanctions import settings
@@ -47,9 +48,12 @@ class Issue(Base):
 
     @classmethod
     def clear(cls, dataset):
-        pq = db.session.query(cls)
-        pq = pq.filter(cls.dataset.in_(dataset.source_names))
-        pq.delete(synchronize_session=False)
+        pq = delete(cls)
+        pq = pq.where(cls.dataset.in_(dataset.source_names))
+        db.session.execute(pq)
+        # pq = db.session.query(cls)
+        # pq = pq.filter(cls.dataset.in_(dataset.source_names))
+        # pq.delete(synchronize_session=False)
 
     @classmethod
     def query(cls, dataset=None):

@@ -277,7 +277,7 @@ class Statement(Base):
         q = db.session.query(cls)
         q = q.filter(cls.entity_id.in_(referents))
         q = q.update({cls.canonical_id: canonical_id})
-        db.session.commit()
+        db.session.flush()
 
     @classmethod
     def clear(cls, dataset):
