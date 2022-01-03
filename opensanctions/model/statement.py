@@ -79,10 +79,6 @@ class Statement(Base):
         if not len(values):
             return
 
-        upsert = insert_sqlite
-        if db.engine.dialect.name == "postgresql":
-            upsert = insert_postgresql
-
         istmt = upsert(cls.__table__).values(values)
         stmt = istmt.on_conflict_do_update(
             index_elements=["entity_id", "prop", "value", "dataset"],
