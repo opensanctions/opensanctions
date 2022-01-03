@@ -1,10 +1,9 @@
 import click
-import asyncio
 import logging
 from nomenklatura.resolver import Identifier
 import structlog
-from functools import wraps
 from nomenklatura.tui import DedupeApp
+from nomenklatura.util import coro
 from followthemoney.dedupe import Judgement
 
 from opensanctions.core import Dataset, Context, setup
@@ -16,19 +15,15 @@ from opensanctions.core.loader import Database
 from opensanctions.core.resolver import AUTO_USER, export_pairs, get_resolver
 from opensanctions.core.xref import blocking_xref
 from opensanctions.core.addresses import xref_geocode
-from opensanctions.core.statements import max_last_seen
+from opensanctions.core.statements import (
+    max_last_seen,
+    resolve_all_canonical,
+    resolve_canonical,
+)
 from opensanctions.core.db import migrate_db, engine
 
 log = structlog.get_logger(__name__)
 datasets = click.Choice(Dataset.names())
-
-
-def coro(f):
-    @wraps(f)
-    def wrapper(*args, **kwargs):
-        return asyncio.run(f(*args, **kwargs))
-
-    return wrapper
 
 
 @click.group(help="OpenSanctions ETL toolkit")
@@ -49,8 +44,9 @@ def cli(verbose=False, quiet=False):
 @coro
 async def dump_dataset(dataset, outfile):
     dataset = Dataset.require(dataset)
-    resolver = get_resolver()
-    loader = Database(dataset, resolver).view(dataset)
+    resolver = await get_resolver()
+    db = Database(dataset, resolver)
+    loader = await db.view(dataset)
     for entity in loader:
         write_object(outfile, entity)
 
@@ -68,13 +64,14 @@ async def crawl(dataset):
 @click.argument("dataset", default=Dataset.ALL, type=datasets)
 @coro
 async def export(dataset):
-    resolver = get_resolver()
-    Statement.resolve_all(resolver)
+    resolver = await get_resolver()
+    async with engine.begin() as conn:
+        await resolve_all_canonical(conn, resolver)
     dataset = Dataset.require(dataset)
     database = Database(dataset, resolver, cached=True)
     for dataset_ in dataset.datasets:
-        export_dataset(dataset_, database)
-    export_global_index()
+        await export_dataset(dataset_, database)
+    await export_global_index()
 
 
 @cli.command("run", help="Run the full process for the given dataset")
@@ -82,14 +79,15 @@ async def export(dataset):
 @coro
 async def run(dataset):
     dataset = Dataset.require(dataset)
-    resolver = get_resolver()
+    resolver = await get_resolver()
     for source in dataset.sources:
         Context(source).crawl()
-    Statement.resolve_all(resolver)
+    async with engine.begin() as conn:
+        await resolve_all_canonical(conn, resolver)
     database = Database(dataset, resolver, cached=True)
     for dataset_ in dataset.datasets:
-        export_dataset(dataset_, database)
-    export_global_index()
+        await export_dataset(dataset_, database)
+    await export_global_index()
 
 
 @cli.command("clear", help="Delete all stored data for the given source")
@@ -104,8 +102,9 @@ async def clear(dataset):
 @cli.command("resolve", help="Apply de-duplication to the statements table")
 @coro
 async def resolve():
-    resolver = get_resolver()
-    Statement.resolve_all(resolver)
+    resolver = await get_resolver()
+    async with engine.begin() as conn:
+        await resolve_all_canonical(conn, resolver)
 
 
 @cli.command("index", help="Index entities from the given dataset")
@@ -129,42 +128,44 @@ async def index(dataset):
 @coro
 async def xref(dataset, fuzzy, limit):
     dataset = Dataset.require(dataset)
-    blocking_xref(dataset, limit=limit, fuzzy=fuzzy)
+    await blocking_xref(dataset, limit=limit, fuzzy=fuzzy)
 
 
 @cli.command("xref-geocode", help="Deduplicate addresses using geocoding")
 @click.argument("dataset", default=Dataset.DEFAULT, type=datasets)
 @coro
-async def xref(dataset):
+async def geocode(dataset):
     dataset = Dataset.require(dataset)
-    xref_geocode(dataset)
+    await xref_geocode(dataset)
 
 
 @cli.command("xref-prune", help="Remove dedupe candidates")
 @click.option("-k", "--keep", type=int, default=0)
 @coro
 async def xref_prune(keep=0):
-    resolver = get_resolver()
+    resolver = await get_resolver()
     for edge in list(resolver.edges.values()):
         if edge.user == AUTO_USER:
-            resolver._remove(edge)
+            resolver.remove_edge(edge)
     resolver.prune(keep=keep)
-    resolver.save()
+    await resolver.save()
 
 
 @cli.command("dedupe", help="Interactively judge xref candidates")
 @click.option("-d", "--dataset", type=datasets, default=Dataset.DEFAULT)
 @coro
 async def dedupe(dataset):
-    resolver = get_resolver()
+    resolver = await get_resolver()
     dataset = Dataset.require(dataset)
     db = Database(dataset, resolver)
-    DedupeApp.run(
-        title="OpenSanction De-duplication",
-        # log="textual.log",
-        loader=db.view(dataset),
+    loader = await db.view(dataset)
+    app = DedupeApp(
+        loader=loader,
         resolver=resolver,
-    )
+        title="OpenSanction De-duplication",
+        log="textual.log",
+    )  # type: ignore
+    await app.process_messages()
 
 
 @cli.command("export-pairs", help="Export pairwise judgements")
@@ -173,7 +174,7 @@ async def dedupe(dataset):
 @coro
 async def export_pairs_(dataset, outfile):
     dataset = Dataset.require(dataset)
-    for obj in export_pairs(dataset):
+    async for obj in export_pairs(dataset):
         write_object(outfile, obj)
 
 
@@ -181,12 +182,13 @@ async def export_pairs_(dataset, outfile):
 @click.argument("canonical_id", type=str)
 @coro
 async def explode(canonical_id):
-    resolver = get_resolver()
+    resolver = await get_resolver()
     resolved_id = resolver.get_canonical(canonical_id)
-    for entity_id in resolver.explode(resolved_id):
-        Statement.resolve(resolver, entity_id)
-    resolver.save()
-    db.session.commit()
+    async with engine.begin() as conn:
+        for entity_id in resolver.explode(resolved_id):
+            log.info("Restore separate entity", entity=entity_id)
+            await resolve_canonical(conn, resolver, entity_id)
+    await resolver.save()
 
 
 @cli.command("merge", help="Merge multiple entities as duplicates")
@@ -195,14 +197,15 @@ async def explode(canonical_id):
 async def merge(entity_ids):
     if len(entity_ids) < 2:
         return
-    resolver = get_resolver()
+    resolver = await get_resolver()
     canonical_id = resolver.get_canonical(entity_ids[0])
     for other_id in entity_ids[1:]:
         other_id = Identifier.get(other_id)
         other_canonical_id = resolver.get_canonical(other_id)
         if other_canonical_id == canonical_id:
             continue
-        if not resolver.check_candidate(canonical_id, other_id):
+        check = await resolver.check_candidate(canonical_id, other_id)
+        if not check:
             log.error(
                 "Cannot merge",
                 canonical_id=canonical_id,
@@ -211,11 +214,9 @@ async def merge(entity_ids):
             )
             return
         log.info("Merge: %s -> %s" % (other_id, canonical_id))
-        canonical_id = resolver.decide(canonical_id, other_id, Judgement.POSITIVE)
-    resolver.save()
+        canonical_id = await resolver.decide(canonical_id, other_id, Judgement.POSITIVE)
+    await resolver.save()
     log.info("Canonical: %s" % canonical_id)
-    Statement.resolve(resolver, str(canonical_id))
-    db.session.commit()
 
 
 @cli.command("latest", help="Show the latest data timestamp")

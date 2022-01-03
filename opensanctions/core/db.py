@@ -1,17 +1,10 @@
 import os
 from alembic import command
 from alembic.config import Config
-from collections import namedtuple
-from sqlalchemy import create_engine, MetaData
-from sqlalchemy.orm import sessionmaker, scoped_session
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.pool import SingletonThreadPool
+from sqlalchemy import MetaData
 from sqlalchemy.ext.asyncio import create_async_engine
-from datetime import datetime
-from typing import Any, Dict, Optional, TypedDict, cast
 from sqlalchemy.ext.asyncio.engine import AsyncConnection
 from sqlalchemy.types import JSON
-from sqlalchemy import delete, func
 from sqlalchemy import Table, Column, Integer, DateTime, Unicode, Boolean
 from sqlalchemy.dialects.sqlite import insert as insert_sqlite
 from sqlalchemy.dialects.postgresql import insert as insert_postgresql
@@ -31,12 +24,12 @@ alembic_cfg.set_main_option("sqlalchemy.url", settings.DATABASE_URI)
 assert (
     settings.DATABASE_URI is not None
 ), "Need to configure $OPENSANCTIONS_DATABASE_URI."
-engine = create_async_engine(settings.ASYNC_DATABASE_URI, poolclass=SingletonThreadPool)
+engine = create_async_engine(settings.ASYNC_DATABASE_URI)
 
 DIALECTS = ["sqlite", "postgresql"]
 assert engine.dialect.name in DIALECTS, "Unsupported database engine"
 
-metadata = MetaData(bind=engine)
+metadata = MetaData()
 
 issue_table = Table(
     "issue",

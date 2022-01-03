@@ -1,5 +1,14 @@
 import structlog
-from typing import Callable, Dict, Generator, Iterator, List, Optional, Set, Tuple
+from typing import (
+    AsyncGenerator,
+    Callable,
+    Dict,
+    Generator,
+    List,
+    Optional,
+    Set,
+    Tuple,
+)
 from followthemoney import model
 from followthemoney.types import registry
 from followthemoney.property import Property
@@ -7,7 +16,8 @@ from nomenklatura import Loader, Resolver
 
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.entity import Entity
-from opensanctions.core.statements import Statement
+from opensanctions.core.db import engine
+from opensanctions.core.statements import Statement, all_statements, count_statements
 
 log = structlog.get_logger(__name__)
 
@@ -67,19 +77,22 @@ class Database(object):
         self.resolver = resolver
         self.entities: Dict[str, CachedEntity] = {}
         self.inverted: Dict[str, Set[str]] = {}
-        self.load()
 
-    def view(self, dataset: Dataset, assembler: Assembler = None) -> "DatasetLoader":
+    async def view(
+        self, dataset: Dataset, assembler: Assembler = None
+    ) -> "DatasetLoader":
         if self.cached:
+            if not len(self.entities):
+                await self.load()
             return CachedDatasetLoader(self, dataset, assembler)
         return DatasetLoader(self, dataset, assembler)
 
-    def load(self) -> None:
+    async def load(self) -> None:
         """Pre-load all entity cache objects from the given scope dataset."""
         if not self.cached:
             return
         log.info("Loading database cache...", scope=self.scope)
-        for cached in self.query(self.scope):
+        async for cached in self.query(self.scope):
             canonical_id = cached[0][0].canonical_id
             self.entities[canonical_id] = cached
             for stmt in cached[1]:
@@ -90,9 +103,9 @@ class Database(object):
                     self.inverted[value_id] = set()
                 self.inverted[value_id].add(canonical_id)
 
-    def query(
+    async def query(
         self, dataset: Dataset, entity_id=None, inverted_id=None
-    ) -> Generator[CachedEntity, None, None]:
+    ) -> AsyncGenerator[CachedEntity, None]:
         """Query the statement table for the given dataset and entity ID and return
         an entity cache object with the given properties."""
         canonical_id = None
@@ -104,24 +117,26 @@ class Database(object):
         current_id = None
         types: List[CachedType] = []
         props: List[CachedProp] = []
-        q = Statement.all_statements(
-            dataset=dataset,
-            canonical_id=canonical_id,
-            inverted_ids=inverted_ids,
-        )
-        for stmt in q:
-            if stmt.canonical_id != current_id:
-                if len(types):
-                    yield (tuple(types), tuple(props))
-                types = []
-                props = []
-            current_id = stmt.canonical_id
-            if stmt.prop == Statement.BASE:
-                types.append(CachedType(stmt))
-            else:
-                props.append(CachedProp(stmt))
-        if len(types):
-            yield (tuple(types), tuple(props))
+        with engine.begin() as conn:
+            stmts = all_statements(
+                conn,
+                dataset=dataset,
+                canonical_id=canonical_id,
+                inverted_ids=inverted_ids,
+            )
+            for stmt in stmts:
+                if stmt.canonical_id != current_id:
+                    if len(types):
+                        yield (tuple(types), tuple(props))
+                    types = []
+                    props = []
+                current_id = stmt.canonical_id
+                if stmt.prop == Statement.BASE:
+                    types.append(CachedType(stmt))
+                else:
+                    props.append(CachedProp(stmt))
+            if len(types):
+                yield (tuple(types), tuple(props))
 
     def assemble(self, cached: CachedEntity, sources=Optional[Set[Dataset]]):
         """Build an entity proxy from a set of cached statements, considering
@@ -173,31 +188,37 @@ class DatasetLoader(Loader[Dataset, Entity]):
                 entity = self.assembler(entity)
             yield entity
 
-    def get_entity(self, id: str) -> Optional[Entity]:
-        for cached in self.db.query(self.dataset, entity_id=id):
+    async def get_entity(self, id: str) -> Optional[Entity]:
+        async for cached in self.db.query(self.dataset, entity_id=id):
             for entity in self.assemble(cached):
                 return entity
         return None
 
-    def _get_inverted(self, id: str) -> Generator[Entity, None, None]:
-        for cached in self.db.query(self.dataset, inverted_id=id):
-            yield from self.assemble(cached)
+    async def _get_inverted(self, id: str) -> AsyncGenerator[Entity, None]:
+        async for cached in self.db.query(self.dataset, inverted_id=id):
+            for entity in self.assemble(cached):
+                yield entity
 
-    def get_inverted(self, id: str) -> Generator[Tuple[Property, Entity], None, None]:
-        for entity in self._get_inverted(id):
+    async def get_inverted(
+        self, id: str
+    ) -> AsyncGenerator[Tuple[Property, Entity], None]:
+        async for entity in self._get_inverted(id):
             for prop, value in entity.itervalues():
                 if value == id and prop.reverse is not None:
                     yield prop.reverse, entity
 
-    def _iter_entities(self) -> Generator[CachedEntity, None, None]:
-        yield from self.db.query(self.dataset)
+    async def _iter_entities(self) -> AsyncGenerator[CachedEntity, None]:
+        async for cached in self.db.query(self.dataset):
+            yield cached
 
-    def __iter__(self) -> Iterator[Entity]:
-        for cached in self._iter_entities():
-            yield from self.assemble(cached)
+    async def entities(self) -> AsyncGenerator[Entity, None]:
+        async for cached in self._iter_entities():
+            for entity in self.assemble(cached):
+                yield entity
 
-    def __len__(self) -> int:
-        return Statement.all_ids(self.dataset).count()
+    async def count(self) -> int:
+        async with engine.begin() as conn:
+            return await count_statements(conn, self.dataset)
 
     def __repr__(self):
         return f"<DatasetLoader({self.dataset!r})>"
@@ -207,22 +228,24 @@ class CachedDatasetLoader(DatasetLoader):
     """Funky: this loader uses the cache from the `Database` object and tries to assemble
     a partial view of the entity as needed."""
 
-    def get_entity(self, id: str) -> Optional[Entity]:
+    async def get_entity(self, id: str) -> Optional[Entity]:
         cached = self.db.entities.get(id)
         for entity in self.assemble(cached):
             return entity
         return None
 
-    def _get_inverted(self, id: str) -> Generator[Entity, None, None]:
+    async def _get_inverted(self, id: str) -> AsyncGenerator[Entity, None]:
         inverted = self.db.inverted.get(id)
         if inverted is None:
             return
         for entity_id in inverted:
             cached = self.db.entities.get(entity_id)
-            yield from self.assemble(cached)
+            for entity in self.assemble(cached):
+                yield entity
 
-    def _iter_entities(self) -> Generator[CachedEntity, None, None]:
-        yield from self.db.entities.values()
+    async def _iter_entities(self) -> AsyncGenerator[CachedEntity, None]:
+        for cached in self.db.entities.values():
+            yield cached
 
     def __repr__(self):
         return f"<CachedDatasetLoader({self.dataset!r})>"

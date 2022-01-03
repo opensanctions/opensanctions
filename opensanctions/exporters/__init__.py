@@ -26,7 +26,7 @@ EXPORTERS = [
 ]
 
 
-def export_global_index():
+async def export_global_index():
     """Export the global index for all datasets."""
     datasets = []
     for dataset in Dataset.all():
@@ -60,13 +60,13 @@ def export_assembler(entity):
     return name_entity(entity)
 
 
-def export_dataset(dataset: Dataset, database: Database):
+async def export_dataset(dataset: Dataset, database: Database):
     """Dump the contents of the dataset to the output directory."""
     context = Context(dataset)
     context.bind()
-    loader = database.view(dataset, export_assembler)
+    loader = await database.view(dataset, export_assembler)
     exporters = [Exporter(context, loader) for Exporter in EXPORTERS]
-    for entity in loader:
+    async for entity in loader.entities():
         for exporter in exporters:
             exporter.feed(entity)
 
