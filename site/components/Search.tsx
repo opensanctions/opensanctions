@@ -1,19 +1,18 @@
-import { NextRouter, useRouter } from 'next/router';
-import queryString from 'query-string';
+import { useRouter } from 'next/router';
 import { Model } from '@alephdata/followthemoney';
-import Pagination from 'react-bootstrap/Pagination';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Card from 'react-bootstrap/Card';
 import Badge from "react-bootstrap/Badge";
 
-import { IDataset, IOpenSanctionsEntity, ISearchAPIResponse, ISearchFacet, OpenSanctionsEntity, Values } from "../lib/types";
+import { IDataset, IOpenSanctionsEntity, ISearchFacet, OpenSanctionsEntity, Values } from "../lib/types";
 import { NumericBadge, Spacer } from "./util";
 import { SEARCH_DATASET, SEARCH_SCHEMA } from "../lib/constants";
 import { EntityLink } from './Entity';
 import { TypeValue, TypeValues } from './Property';
+import { ensureArray } from '../lib/util';
 
 import styles from '../styles/Search.module.scss'
-import { ensureArray } from '../lib/util';
+
 
 
 type SearchFacetProps = {
@@ -140,40 +139,6 @@ export function SearchFilterTags({ scope, model, datasets }: SearchFilterTagsPro
       )}
     </p>
   )
-}
-
-type SearchPaginationProps = {
-  response: ISearchAPIResponse
-}
-
-export function SearchPagination({ response }: SearchPaginationProps) {
-  if (response.total === 0) {
-    return null;
-  }
-  const router = useRouter();
-  const nextOffset = response.offset + response.limit;
-  const upper = Math.min(response.total, nextOffset);
-  const hasPrev = response.offset > 0;
-  const hasNext = response.total > nextOffset;
-
-  const prevLink = queryString.stringify({
-    ...router.query,
-    offset: Math.max(0, response.offset - response.limit)
-  })
-  const nextLink = queryString.stringify({
-    ...router.query,
-    offset: response.offset + response.limit
-  })
-
-  return (
-    <Pagination>
-      <Pagination.Prev disabled={!hasPrev} href={`?${prevLink}`} />
-      <Pagination.Item disabled>
-        {response.offset + 1} - {upper} of {response.total}
-      </Pagination.Item>
-      <Pagination.Next disabled={!hasNext} href={`?${nextLink}`} />
-    </Pagination>
-  );
 }
 
 type SearchResultEntityProps = {
