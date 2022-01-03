@@ -8,7 +8,7 @@ from opensanctions.model.base import Base, db, VALUE_LEN, KEY_LEN
 
 
 class Issue(Base):
-    __tablename__ = "issue"
+    __tablename__ = "issuexxx"
 
     id = Column(Integer, primary_key=True)
     timestamp = Column(DateTime, nullable=False)

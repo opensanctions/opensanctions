@@ -7,7 +7,7 @@ from opensanctions.model.base import Base, KEY_LEN, VALUE_LEN, db
 
 
 class Resource(Base):
-    __tablename__ = "resource"
+    __tablename__ = "resourcexxx"
 
     path = Column(Unicode(KEY_LEN), primary_key=True, nullable=False)
     dataset = Column(Unicode(KEY_LEN), primary_key=True, index=True, nullable=False)
