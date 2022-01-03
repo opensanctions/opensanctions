@@ -160,6 +160,7 @@ class Context(object):
     def clear(self) -> None:
         """Delete all recorded data for a given dataset."""
         Issue.clear(self.dataset)
+        Resource.clear(self.dataset)
         Statement.clear(self.dataset)
         db.session.commit()
 

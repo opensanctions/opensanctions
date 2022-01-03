@@ -22,7 +22,6 @@ class Statement(Base):
     want to support making property-less entities.
     """
 
-    MAX = "max"
     BASE = "id"
 
     __tablename__ = "statement"

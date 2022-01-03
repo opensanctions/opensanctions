@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio.engine import AsyncConnection
 from sqlalchemy.types import JSON
 from sqlalchemy.future import select
 from sqlalchemy import delete, func
-from sqlalchemy import Table, Column, Integer, DateTime, Unicode
+from sqlalchemy import Table, Column, Integer, DateTime, Unicode, Boolean
 from sqlalchemy.dialects.sqlite import insert as insert_sqlite
 from sqlalchemy.dialects.postgresql import insert as insert_postgresql
 
@@ -35,18 +35,6 @@ issue_table = Table(
 )
 
 
-class Issue(TypedDict):
-    id: int
-    timestamp: datetime
-    level: str
-    module: Optional[str]
-    dataset: str
-    message: Optional[str]
-    entity_id: Optional[str]
-    entity_schema: Optional[str]
-    data: Dict[str, Any]
-
-
 resource_table = Table(
     "resource",
     metadata,
@@ -71,39 +59,41 @@ class Resource(TypedDict):
     size: int
 
 
+statement_table = Table(
+    "statement",
+    metadata,
+    Column("entity_id", Unicode(KEY_LEN), index=True, primary_key=True),
+    Column("canonical_id", Unicode(KEY_LEN), index=True, nullable=True),
+    Column("prop", Unicode(KEY_LEN), primary_key=True, nullable=False),
+    Column("prop_type", Unicode(KEY_LEN), nullable=False),
+    Column("schema", Unicode(KEY_LEN), nullable=False),
+    Column("value", Unicode(VALUE_LEN), index=True, primary_key=True, nullable=False),
+    Column("dataset", Unicode(KEY_LEN), primary_key=True, index=True),
+    Column("target", Boolean, default=False, nullable=False),
+    Column("unique", Boolean, default=False, nullable=False),
+    Column("first_seen", DateTime, nullable=True),
+    Column("last_seen", DateTime, index=True),
+)
+
+
+class Statement(TypedDict):
+    entity_id: str
+    canonical_id: str
+    prop: str
+    prop_type: str
+    schema: str
+    value: str
+    dataset: str
+    target: bool
+    unique: bool
+    first_seen: datetime
+    last_seen: datetime
+
+
 def upsert_func(conn: Conn):
     if conn.engine.dialect.name == "postgresql":
         return insert_postgresql
     return insert_sqlite
-
-
-async def save_issue(conn: Conn, event: Dict[str, Any]):
-    data = dict(event)
-    for key, value in data.items():
-        if hasattr(value, "to_dict"):
-            value = value.to_dict()
-        if isinstance(value, set):
-            value = list(value)
-        data[key] = value
-
-    data.pop("_record", None)
-    data.pop("timestamp", None)
-    record = {
-        "timestamp": settings.RUN_TIME,
-        "module": data.pop("logger", None),
-        "level": data.pop("level"),
-        "message": data.pop("event", None),
-        "dataset": data.pop("dataset"),
-    }
-    entity = data.pop("entity", None)
-    if is_mapping(entity):
-        record["entity_id"] = entity.get("id")
-        record["entity_schema"] = entity.get("schema")
-    elif isinstance(entity, str):
-        record["entity_id"] = entity
-    record["data"] = data
-    q = issue_table.insert().values([record])
-    await conn.execute(q)
 
 
 async def save_resource(conn: Conn, path, dataset, checksum, mime_type, size, title):

@@ -1,7 +1,9 @@
 import click
+import asyncio
 import logging
 from nomenklatura.resolver import Identifier
 import structlog
+from functools import wraps
 from nomenklatura.tui import DedupeApp
 from followthemoney.dedupe import Judgement
 
@@ -21,6 +23,14 @@ log = structlog.get_logger(__name__)
 datasets = click.Choice(Dataset.names())
 
 
+def coro(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        return asyncio.run(f(*args, **kwargs))
+
+    return wrapper
+
+
 @click.group(help="OpenSanctions ETL toolkit")
 @click.option("-v", "--verbose", is_flag=True, default=False)
 @click.option("-q", "--quiet", is_flag=True, default=False)
@@ -36,7 +46,8 @@ def cli(verbose=False, quiet=False):
 @cli.command("dump", help="Export the entities from a dataset")
 @click.argument("dataset", default=Dataset.ALL, type=datasets)
 @click.option("-o", "--outfile", type=click.File("w"), default="-")
-def dump_dataset(dataset, outfile):
+@coro
+async def dump_dataset(dataset, outfile):
     dataset = Dataset.require(dataset)
     resolver = get_resolver()
     loader = Database(dataset, resolver).view(dataset)
@@ -46,7 +57,8 @@ def dump_dataset(dataset, outfile):
 
 @cli.command("crawl", help="Crawl entities into the given dataset")
 @click.argument("dataset", default=Dataset.ALL, type=datasets)
-def crawl(dataset):
+@coro
+async def crawl(dataset):
     dataset = Dataset.require(dataset)
     for source in dataset.sources:
         Context(source).crawl()
@@ -54,7 +66,8 @@ def crawl(dataset):
 
 @cli.command("export", help="Export entities from the given dataset")
 @click.argument("dataset", default=Dataset.ALL, type=datasets)
-def export(dataset):
+@coro
+async def export(dataset):
     resolver = get_resolver()
     Statement.resolve_all(resolver)
     dataset = Dataset.require(dataset)
@@ -66,7 +79,8 @@ def export(dataset):
 
 @cli.command("run", help="Run the full process for the given dataset")
 @click.argument("dataset", default=Dataset.ALL, type=datasets)
-def run(dataset):
+@coro
+async def run(dataset):
     dataset = Dataset.require(dataset)
     resolver = get_resolver()
     for source in dataset.sources:
@@ -80,21 +94,24 @@ def run(dataset):
 
 @cli.command("clear", help="Delete all stored data for the given source")
 @click.argument("dataset", default=Dataset.ALL, type=datasets)
-def clear(dataset):
+@coro
+async def clear(dataset):
     dataset = Dataset.require(dataset)
     for source in dataset.sources:
         Context(source).clear()
 
 
 @cli.command("resolve", help="Apply de-duplication to the statements table")
-def resolve():
+@coro
+async def resolve():
     resolver = get_resolver()
     Statement.resolve_all(resolver)
 
 
 @cli.command("index", help="Index entities from the given dataset")
 @click.argument("dataset", default=Dataset.DEFAULT, type=datasets)
-def index(dataset):
+@coro
+async def index(dataset):
     resolver = get_resolver()
     # Statement.resolve_all(resolver)
     dataset = Dataset.require(dataset)
@@ -109,21 +126,24 @@ def index(dataset):
 @click.argument("dataset", default=Dataset.DEFAULT, type=datasets)
 @click.option("-f", "--fuzzy", is_flag=True, type=bool, default=False)
 @click.option("-l", "--limit", type=int, default=5000)
-def xref(dataset, fuzzy, limit):
+@coro
+async def xref(dataset, fuzzy, limit):
     dataset = Dataset.require(dataset)
     blocking_xref(dataset, limit=limit, fuzzy=fuzzy)
 
 
 @cli.command("xref-geocode", help="Deduplicate addresses using geocoding")
 @click.argument("dataset", default=Dataset.DEFAULT, type=datasets)
-def xref(dataset):
+@coro
+async def xref(dataset):
     dataset = Dataset.require(dataset)
     xref_geocode(dataset)
 
 
 @cli.command("xref-prune", help="Remove dedupe candidates")
 @click.option("-k", "--keep", type=int, default=0)
-def xref_prune(keep=0):
+@coro
+async def xref_prune(keep=0):
     resolver = get_resolver()
     for edge in list(resolver.edges.values()):
         if edge.user == AUTO_USER:
@@ -134,7 +154,8 @@ def xref_prune(keep=0):
 
 @cli.command("dedupe", help="Interactively judge xref candidates")
 @click.option("-d", "--dataset", type=datasets, default=Dataset.DEFAULT)
-def dedupe(dataset):
+@coro
+async def dedupe(dataset):
     resolver = get_resolver()
     dataset = Dataset.require(dataset)
     db = Database(dataset, resolver)
@@ -149,7 +170,8 @@ def dedupe(dataset):
 @cli.command("export-pairs", help="Export pairwise judgements")
 @click.argument("dataset", default=Dataset.DEFAULT, type=datasets)
 @click.option("-o", "--outfile", type=click.File("w"), default="-")
-def export_pairs_(dataset, outfile):
+@coro
+async def export_pairs_(dataset, outfile):
     dataset = Dataset.require(dataset)
     for obj in export_pairs(dataset):
         write_object(outfile, obj)
@@ -157,7 +179,8 @@ def export_pairs_(dataset, outfile):
 
 @cli.command("explode", help="Destroy a cluster of deduplication matches")
 @click.argument("canonical_id", type=str)
-def explode(canonical_id):
+@coro
+async def explode(canonical_id):
     resolver = get_resolver()
     resolved_id = resolver.get_canonical(canonical_id)
     for entity_id in resolver.explode(resolved_id):
@@ -168,7 +191,8 @@ def explode(canonical_id):
 
 @cli.command("merge", help="Merge multiple entities as duplicates")
 @click.argument("entity_ids", type=str, nargs=-1)
-def merge(entity_ids):
+@coro
+async def merge(entity_ids):
     if len(entity_ids) < 2:
         return
     resolver = get_resolver()
@@ -196,7 +220,8 @@ def merge(entity_ids):
 
 @cli.command("latest", help="Show the latest data timestamp")
 @click.argument("dataset", default=Dataset.DEFAULT, type=datasets)
-def latest(dataset):
+@coro
+async def latest(dataset):
     ds = Dataset.require(dataset)
     latest = Statement.max_last_seen(ds)
     if latest is not None:
@@ -204,7 +229,8 @@ def latest(dataset):
 
 
 @cli.command("cleanup", help="Clean up caches")
-def cleanup():
+@coro
+async def cleanup():
     cleanup_cache()
 
 
