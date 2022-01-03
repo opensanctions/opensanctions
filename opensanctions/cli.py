@@ -107,20 +107,6 @@ async def resolve():
         await resolve_all_canonical(conn, resolver)
 
 
-@cli.command("index", help="Index entities from the given dataset")
-@click.argument("dataset", default=Dataset.DEFAULT, type=datasets)
-@coro
-async def index(dataset):
-    resolver = get_resolver()
-    # Statement.resolve_all(resolver)
-    dataset = Dataset.require(dataset)
-    database = Database(dataset, resolver, cached=True)
-    loader = database.view(dataset)
-    path = get_index_path(dataset)
-    path.unlink(missing_ok=True)
-    get_index(dataset, loader)
-
-
 @cli.command("xref", help="Generate dedupe candidates from the given dataset")
 @click.argument("dataset", default=Dataset.DEFAULT, type=datasets)
 @click.option("-f", "--fuzzy", is_flag=True, type=bool, default=False)

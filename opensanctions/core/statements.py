@@ -153,7 +153,7 @@ async def filtered_statements_query(
     return q
 
 
-async def count_statements(
+async def count_entities(
     conn: Conn,
     dataset: Optional[Dataset] = None,
     unique: Optional[bool] = None,
