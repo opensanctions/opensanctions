@@ -259,17 +259,17 @@ async def cleanup_dataset(conn: Conn, dataset):
         await conn.execute(pq)
 
 
-async def resolve_all_statements(conn: Conn, resolver: Resolver):
+async def resolve_all_canonical(conn: Conn, resolver: Resolver):
     log.info("Resolving canonical_id in statements...", resolver=resolver)
     q = update(stmt_table)
     q = q.where(stmt_table.c.canonical_id != stmt_table.c.entity_id)
     q = q.values({stmt_table.c.canonical_id: stmt_table.c.entity_id})
     await conn.execute(q)
     for canonical in resolver.canonicals():
-        await resolve_statements(conn, resolver, canonical.id)
+        await resolve_canonical(conn, resolver, canonical.id)
 
 
-async def resolve_statements(conn: Conn, resolver, canonical_id):
+async def resolve_canonical(conn: Conn, resolver, canonical_id):
     referents = resolver.get_referents(canonical_id)
     log.debug("Resolving: %s" % canonical_id, referents=referents)
     q = update(stmt_table)

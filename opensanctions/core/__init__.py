@@ -6,7 +6,7 @@ from opensanctions.core.context import Context
 from opensanctions.core.entity import Entity
 from opensanctions.core.logs import configure_logging
 
-from opensanctions.model.base import upgrade_db
+from opensanctions.core.db import upgrade_db
 
 __all__ = ["Dataset", "Source", "Context", "Entity"]
 

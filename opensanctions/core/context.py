@@ -11,7 +11,6 @@ from followthemoney.util import make_entity_id
 from followthemoney.schema import Schema
 
 from opensanctions import settings
-from opensanctions.model import db, Statement, Issue, Resource
 from opensanctions.core.http import get_session, fetch_download
 from opensanctions.core.entity import Entity
 from opensanctions.core.resolver import get_resolver

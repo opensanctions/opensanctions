@@ -7,7 +7,7 @@ from nomenklatura import Loader, Resolver
 
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.entity import Entity
-from opensanctions.model import Statement
+from opensanctions.core.statements import Statement
 
 log = structlog.get_logger(__name__)
 

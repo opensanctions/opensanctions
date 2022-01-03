@@ -85,3 +85,11 @@ def upsert_func(conn: Conn):
     if conn.engine.dialect.name == "postgresql":
         return insert_postgresql
     return insert_sqlite
+
+
+def upgrade_db():
+    command.upgrade(alembic_cfg, "head")
+
+
+def migrate_db(message):
+    command.revision(alembic_cfg, message=message, autogenerate=True)

@@ -6,7 +6,8 @@ from followthemoney.dedupe.judgement import Judgement
 from nomenklatura.resolver import Resolver, Identifier, StrIdent
 
 from opensanctions import settings
-from opensanctions.model import Statement, db
+from opensanctions.core.db import engine
+from opensanctions.core.statements import resolve_canonical
 from opensanctions.core.entity import Entity
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.loader import Database
@@ -31,7 +32,7 @@ class UniqueResolver(Resolver[Entity]):
         #     return False
         return True
 
-    def decide(
+    async def decide(
         self,
         left_id: StrIdent,
         right_id: StrIdent,
@@ -41,8 +42,8 @@ class UniqueResolver(Resolver[Entity]):
     ) -> Identifier:
         target = super().decide(left_id, right_id, judgement, user=user, score=score)
         if judgement == Judgement.POSITIVE:
-            Statement.resolve(self, target.id)
-            db.session.commit()
+            async with engine.begin() as conn:
+                resolve_canonical(conn, self, target.id)
         return target
 
 

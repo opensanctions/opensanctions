@@ -16,8 +16,8 @@ from opensanctions.core.loader import Database
 from opensanctions.core.resolver import AUTO_USER, export_pairs, get_resolver
 from opensanctions.core.xref import blocking_xref
 from opensanctions.core.addresses import xref_geocode
-from opensanctions.model.statement import Statement
-from opensanctions.model.base import migrate_db, db
+from opensanctions.core.statements import max_last_seen
+from opensanctions.core.db import migrate_db, engine
 
 log = structlog.get_logger(__name__)
 datasets = click.Choice(Dataset.names())
@@ -223,9 +223,10 @@ async def merge(entity_ids):
 @coro
 async def latest(dataset):
     ds = Dataset.require(dataset)
-    latest = Statement.max_last_seen(ds)
-    if latest is not None:
-        print(latest.isoformat())
+    async with engine.begin() as conn:
+        latest = await max_last_seen(conn, ds)
+        if latest is not None:
+            print(latest.isoformat())
 
 
 @cli.command("cleanup", help="Clean up caches")

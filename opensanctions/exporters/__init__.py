@@ -5,7 +5,6 @@ from followthemoney.helpers import name_entity, remove_prefix_dates
 from followthemoney.helpers import simplify_provenance
 
 from opensanctions import settings
-from opensanctions.model import db, Issue, Statement
 from opensanctions.core import Context, Dataset
 from opensanctions.core.loader import Database
 from opensanctions.exporters.common import write_json

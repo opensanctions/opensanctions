@@ -9,8 +9,9 @@ from nomenklatura.dataset import Dataset as NomenklaturaDataset
 
 from opensanctions import settings
 from opensanctions.core.lookups import load_yaml
-from opensanctions.model import Issue, Statement, Resource
-from opensanctions.model.base import KEY_LEN
+
+# from opensanctions.model import Issue, Statement, Resource
+from opensanctions.core.db import KEY_LEN
 from opensanctions.util import joinslug
 
 if TYPE_CHECKING:

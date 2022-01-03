@@ -7,7 +7,6 @@ from structlog.contextvars import merge_contextvars
 from followthemoney.schema import Schema
 
 from opensanctions import settings
-from opensanctions.model import Issue
 
 
 def store_event(logger, log_method, data):
