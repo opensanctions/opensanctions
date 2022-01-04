@@ -1,6 +1,6 @@
 from banal import is_mapping
 from datetime import datetime
-from typing import Any, Dict, Generator, Optional, TypedDict, cast
+from typing import Any, AsyncGenerator, Dict, Generator, Optional, TypedDict, cast
 from sqlalchemy.future import select
 from sqlalchemy.sql.expression import delete
 from sqlalchemy.sql.functions import func
@@ -54,7 +54,7 @@ async def save_issue(conn: Conn, event: Dict[str, Any]) -> None:
 
 async def all_issues(
     conn: Conn, dataset: Optional[Dataset] = None
-) -> Generator[Issue, None, None]:
+) -> AsyncGenerator[Issue, None]:
     q = select(issue_table)
     if dataset is not None:
         q = q.filter(issue_table.c.dataset.in_(dataset.source_names))

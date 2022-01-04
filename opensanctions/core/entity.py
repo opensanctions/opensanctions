@@ -7,6 +7,8 @@ from followthemoney.types import registry
 from followthemoney.model import Model
 from followthemoney.schema import Schema
 from followthemoney.property import Property
+from followthemoney.helpers import name_entity, remove_prefix_dates
+from followthemoney.helpers import simplify_provenance
 from nomenklatura.entity import CompositeEntity
 
 from opensanctions.core.lookups import type_lookup
@@ -141,3 +143,10 @@ class Entity(CompositeEntity):
             for value in values:
                 obj.unsafe_add(prop, value, cleaned=cleaned)
         return obj
+
+    @classmethod
+    def assembler(cls, entity):
+        """Perform some user-facing cleanup when exporting the entity."""
+        entity = simplify_provenance(entity)
+        entity = remove_prefix_dates(entity)
+        return name_entity(entity)

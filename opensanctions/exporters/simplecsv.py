@@ -1,5 +1,6 @@
 import io
 import csv
+import aiocsv
 from followthemoney.types import registry
 
 from opensanctions.exporters.common import Exporter
@@ -51,11 +52,12 @@ class SimpleCSVExporter(Exporter):
             sep=" - ",
         )
 
-    def setup(self):
-        self.writer = csv.writer(self.fh, dialect=csv.unix_dialect)
-        self.writer.writerow(self.HEADERS)
+    async def setup(self):
+        await super().setup()
+        self.writer = aiocsv.AsyncWriter(self.fh, dialect=csv.unix_dialect)
+        await self.writer.writerow(self.HEADERS)
 
-    def feed(self, entity):
+    async def feed(self, entity):
         if not entity.target:
             return
         countries = set(entity.get_type_values(registry.country))
@@ -93,4 +95,4 @@ class SimpleCSVExporter(Exporter):
             entity.first_seen,
             entity.last_seen,
         ]
-        self.writer.writerow(row)
+        await self.writer.writerow(row)

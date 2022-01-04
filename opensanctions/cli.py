@@ -1,16 +1,16 @@
 import click
 import logging
-from nomenklatura.resolver import Identifier
+import asyncio
 import structlog
 from nomenklatura.tui import DedupeApp
 from nomenklatura.util import coro
 from followthemoney.dedupe import Judgement
+from nomenklatura.resolver import Identifier, Resolver
 
 from opensanctions.core import Dataset, Context, setup
-from opensanctions.exporters import export_global_index, export_dataset
+from opensanctions.exporters import export_metadata, export_dataset
 from opensanctions.exporters.common import write_object
 from opensanctions.core.http import cleanup_cache
-from opensanctions.core.index import get_index, get_index_path
 from opensanctions.core.loader import Database
 from opensanctions.core.resolver import AUTO_USER, export_pairs, get_resolver
 from opensanctions.core.xref import blocking_xref
@@ -38,56 +38,47 @@ def cli(verbose=False, quiet=False):
     setup(log_level=level)
 
 
-@cli.command("dump", help="Export the entities from a dataset")
-@click.argument("dataset", default=Dataset.ALL, type=datasets)
-@click.option("-o", "--outfile", type=click.File("w"), default="-")
-@coro
-async def dump_dataset(dataset, outfile):
-    dataset = Dataset.require(dataset)
-    resolver = await get_resolver()
-    db = Database(dataset, resolver)
-    loader = await db.view(dataset)
-    for entity in loader:
-        write_object(outfile, entity)
+async def _resolve_all(resolver: Resolver):
+    async with engine.begin() as conn:
+        await resolve_all_canonical(conn, resolver)
+
+
+async def _process(scope_name: str, crawl: bool = True, export: bool = True) -> None:
+    scope = Dataset.require(scope_name)
+    if crawl is True:
+        for source in scope.sources:
+            Context(source).crawl()
+    if export is True:
+        resolver = await get_resolver()
+        # await _resolve_all(resolver)
+        database = Database(scope, resolver, cached=True)
+        await database.view(scope)
+        exports = []
+        for dataset_ in scope.datasets:
+            exports.append(export_dataset(dataset_, database))
+        await asyncio.gather(*exports)
+        await export_metadata()
 
 
 @cli.command("crawl", help="Crawl entities into the given dataset")
 @click.argument("dataset", default=Dataset.ALL, type=datasets)
 @coro
 async def crawl(dataset):
-    dataset = Dataset.require(dataset)
-    for source in dataset.sources:
-        Context(source).crawl()
+    await _process(dataset, export=False)
 
 
 @cli.command("export", help="Export entities from the given dataset")
 @click.argument("dataset", default=Dataset.ALL, type=datasets)
 @coro
 async def export(dataset):
-    resolver = await get_resolver()
-    async with engine.begin() as conn:
-        await resolve_all_canonical(conn, resolver)
-    dataset = Dataset.require(dataset)
-    database = Database(dataset, resolver, cached=True)
-    for dataset_ in dataset.datasets:
-        await export_dataset(dataset_, database)
-    await export_global_index()
+    await _process(dataset, crawl=False)
 
 
 @cli.command("run", help="Run the full process for the given dataset")
 @click.argument("dataset", default=Dataset.ALL, type=datasets)
 @coro
 async def run(dataset):
-    dataset = Dataset.require(dataset)
-    resolver = await get_resolver()
-    for source in dataset.sources:
-        Context(source).crawl()
-    async with engine.begin() as conn:
-        await resolve_all_canonical(conn, resolver)
-    database = Database(dataset, resolver, cached=True)
-    for dataset_ in dataset.datasets:
-        await export_dataset(dataset_, database)
-    await export_global_index()
+    await _process(dataset)
 
 
 @cli.command("clear", help="Delete all stored data for the given source")
@@ -103,8 +94,7 @@ async def clear(dataset):
 @coro
 async def resolve():
     resolver = await get_resolver()
-    async with engine.begin() as conn:
-        await resolve_all_canonical(conn, resolver)
+    await _resolve_all(resolver)
 
 
 @cli.command("xref", help="Generate dedupe candidates from the given dataset")

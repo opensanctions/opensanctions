@@ -1,4 +1,5 @@
 import json
+import aiofiles
 from datetime import date, datetime
 
 from opensanctions import settings
@@ -15,18 +16,16 @@ class Exporter(object):
         self.resource_name = f"{self.NAME}.{self.EXTENSION}"
         self.path = context.get_resource_path(self.resource_name)
         self.path.parent.mkdir(exist_ok=True, parents=True)
-        self.fh = open(self.path, "w", encoding=settings.ENCODING)
         self.loader = loader
-        self.setup()
 
-    def setup(self):
-        pass
+    async def setup(self):
+        self.fh = await aiofiles.open(self.path, "w", encoding=settings.ENCODING)
 
-    def feed(self, entity):
+    async def feed(self, entity):
         raise NotImplemented
 
-    def finish(self):
-        self.fh.close()
+    async def finish(self):
+        await self.fh.close()
         resource = self.context.export_resource(
             self.path, mime_type=self.MIME_TYPE, title=self.TITLE
         )
@@ -59,12 +58,13 @@ class JSONEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
-def write_json(data, fh):
+async def write_json(data, fh):
     """Write a JSON object to the given open file handle."""
-    json.dump(data, fh, sort_keys=True, indent=2, cls=JSONEncoder)
+    json_data = json.dumps(data, sort_keys=True, indent=2, cls=JSONEncoder)
+    await fh.write(json_data)
 
 
-def write_object(stream, obj, indent=None):
+async def write_object(stream, obj, indent=None):
     """Write an object for line-based JSON format."""
     data = json.dumps(obj, sort_keys=True, indent=indent, cls=JSONEncoder)
-    stream.write(data + "\n")
+    await stream.write(data + "\n")

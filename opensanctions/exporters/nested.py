@@ -9,8 +9,8 @@ class NestedJSONExporter(Exporter):
     EXTENSION = "json"
     MIME_TYPE = "application/json"
 
-    def feed(self, entity):
+    async def feed(self, entity):
         if not entity.target:
             return
-        data = entity.to_nested_dict(self.loader)
-        write_object(self.fh, data)
+        data = await entity.to_nested_dict(self.loader)
+        await write_object(self.fh, data)

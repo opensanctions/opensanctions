@@ -14,6 +14,7 @@ class Resource(TypedDict):
     path: str
     dataset: str
     checksum: str
+    url: str
     timestamp: datetime
     mime_type: Optional[str]
     mime_type_label: Optional[str]
@@ -61,10 +62,9 @@ async def save_resource(
     await conn.execute(stmt)
 
 
-async def all_resources(conn: Conn, dataset=None):
+async def all_resources(conn: Conn, dataset: Dataset):
     q = select(resource_table)
-    if dataset is not None:
-        q = q.filter(resource_table.c.dataset == dataset.name)
+    q = q.filter(resource_table.c.dataset == dataset.name)
     q = q.order_by(resource_table.c.path.asc())
     result = await conn.stream(q)
     async for row in result:
@@ -74,10 +74,11 @@ async def all_resources(conn: Conn, dataset=None):
         if mime_type is not None:
             mime = parse_mimetype(mime_type)
             resource["mime_type_label"] = mime.label
+        resource["url"] = dataset.make_public_url(resource["path"])
         yield resource
 
 
-async def clear_resources(conn: Conn, dataset):
+async def clear_resources(conn: Conn, dataset: Dataset):
     pq = delete(resource_table)
     pq = pq.where(resource_table.c.dataset == dataset.name)
     await conn.execute(pq)

@@ -7,5 +7,5 @@ class FtMExporter(Exporter):
     EXTENSION = "json"
     MIME_TYPE = "application/json+ftm"
 
-    def feed(self, entity):
-        write_object(self.fh, entity)
+    async def feed(self, entity):
+        await write_object(self.fh, entity)

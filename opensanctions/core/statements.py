@@ -1,10 +1,11 @@
 import structlog
 from datetime import datetime
-from typing import Any, Dict, Generator, Iterable, List, Optional, TypedDict, cast
+from typing import List, Optional, TypedDict, cast
 from sqlalchemy.future import select
 from sqlalchemy.sql.expression import delete, update
 from sqlalchemy.sql.functions import func
 from nomenklatura import Resolver
+from followthemoney import model
 from followthemoney.types import registry
 
 from opensanctions import settings
@@ -160,7 +161,7 @@ async def count_entities(
     target: Optional[bool] = None,
 ) -> int:
     q = select(func.count(func.distinct(stmt_table.c.canonical_id)))
-    q = q.filter(stmt_table.c.prop == stmt_table.c.BASE)
+    q = q.filter(stmt_table.c.prop == BASE)
     if unique is not None:
         q = q.filter(stmt_table.c.unique == unique)
     if target is not None:
@@ -181,7 +182,16 @@ async def agg_targets_by_country(conn: Conn, dataset: Optional[Dataset] = None):
         q = q.filter(stmt_table.c.dataset.in_(dataset.source_names))
     q = q.group_by(stmt_table.c.value)
     q = q.order_by(count.desc())
-    return q.all()
+    res = await conn.execute(q)
+    countries = []
+    for code, count in res.all():
+        result = {
+            "code": code,
+            "count": count,
+            "label": registry.country.caption(code),
+        }
+        countries.append(result)
+    return countries
 
 
 async def agg_targets_by_schema(conn: Conn, dataset: Optional[Dataset] = None):
@@ -195,7 +205,20 @@ async def agg_targets_by_schema(conn: Conn, dataset: Optional[Dataset] = None):
         q = q.filter(stmt_table.c.dataset.in_(dataset.source_names))
     q = q.group_by(stmt_table.c.schema)
     q = q.order_by(count.desc())
-    return q.all()
+    res = await conn.execute(q)
+    schemata = []
+    for name, count in res.all():
+        schema = model.get(name)
+        if schema is None:
+            continue
+        result = {
+            "name": name,
+            "count": count,
+            "label": schema.label,
+            "plural": schema.plural,
+        }
+        schemata.append(result)
+    return schemata
 
 
 async def all_schemata(conn: Conn, dataset: Optional[Dataset] = None):
@@ -245,7 +268,7 @@ async def cleanup_dataset(conn: Conn, dataset):
     # sq = sq.limit(1)
     # q = update(table)
     # q = q.where(table.c.dataset == dataset.name)
-    # q = q.where(table.c.prop == stmt_table.c.BASE)
+    # q = q.where(table.c.prop == BASE)
     # q = q.values({table.c.first_seen: sq.scalar_subquery()})
     # # log.info("Setting BASE first_seen...", q=str(q))
     # db.session.execute(q)
@@ -291,7 +314,7 @@ async def unique_conflict(conn: Conn, left_ids, right_ids):
         func.max(stmt_table.c.unique).label("unique"),
         stmt_table.c.dataset.label("dataset"),
     )
-    cteq = cteq.where(stmt_table.c.prop == stmt_table.c.BASE)
+    cteq = cteq.where(stmt_table.c.prop == BASE)
     cte = cteq.cte("uniques")
     # sqlite 3.35 -
     # cte = cte.prefix_with("MATERIALIZED")

@@ -14,6 +14,8 @@ from opensanctions import settings
 from opensanctions.core.http import get_session, fetch_download
 from opensanctions.core.entity import Entity
 from opensanctions.core.resolver import get_resolver
+from opensanctions.core.db import engine
+from opensanctions.core.resources import save_resource
 
 
 class Context(object):
@@ -29,7 +31,7 @@ class Context(object):
         self.path = settings.DATASET_PATH.joinpath(dataset.name)
         self.http = get_session()
         self.resolver = get_resolver()
-        self.log = structlog.get_logger(dataset.name)
+        self.log = structlog.get_logger(dataset.name, dataset=self.dataset.name)
         self._statements = {}
 
     def get_resource_path(self, name):
@@ -67,7 +69,7 @@ class Context(object):
             self.log.warning("Resource is empty", path=path)
         checksum = digest.hexdigest()
         name = path.relative_to(self.path).as_posix()
-        return Resource.save(name, self.dataset, checksum, mime_type, size, title)
+        # return save_resource(name, self.dataset, checksum, mime_type, size, title)
 
     def lookup_value(self, lookup, value, default=None):
         try:
@@ -125,7 +127,8 @@ class Context(object):
         self.log.debug("Emitted", entity=entity)
 
     def bind(self) -> None:
-        bind_contextvars(dataset=self.dataset.name)
+        # bind_contextvars(dataset=self.dataset.name)
+        pass
 
     def crawl(self) -> None:
         """Run the crawler."""
@@ -166,4 +169,4 @@ class Context(object):
     def close(self) -> None:
         """Flush and tear down the context."""
         clear_contextvars()
-        db.session.commit()
+        # db.session.commit()

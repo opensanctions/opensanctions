@@ -17,7 +17,8 @@ from nomenklatura import Loader, Resolver
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.entity import Entity
 from opensanctions.core.db import engine
-from opensanctions.core.statements import Statement, all_statements, count_entities
+from opensanctions.core.statements import BASE, Statement
+from opensanctions.core.statements import all_statements, count_entities
 
 log = structlog.get_logger(__name__)
 
@@ -37,13 +38,13 @@ class CachedType(object):
     )
 
     def __init__(self, stmt: Statement):
-        self.canonical_id = str(stmt.canonical_id)
-        self.dataset = Dataset.require(stmt.dataset)
-        self.schema = model.schemata[stmt.schema]
-        self.entity_id = str(stmt.entity_id)
-        self.first_seen = stmt.first_seen
-        self.last_seen = stmt.last_seen
-        self.target = stmt.target
+        self.canonical_id = stmt["canonical_id"]
+        self.dataset = Dataset.require(stmt["dataset"])
+        self.schema = model.schemata[stmt["schema"]]
+        self.entity_id = stmt["entity_id"]
+        self.first_seen = stmt["first_seen"]
+        self.last_seen = stmt["last_seen"]
+        self.target = stmt["target"]
 
 
 class CachedProp(object):
@@ -52,10 +53,10 @@ class CachedProp(object):
     __slots__ = ("value", "prop", "dataset")
 
     def __init__(self, stmt: Statement):
-        self.dataset = Dataset.require(stmt.dataset)
-        schema = model.schemata[stmt.schema]
-        self.prop = schema.properties[stmt.prop]
-        self.value = str(stmt.value)
+        self.dataset = Dataset.require(stmt["dataset"])
+        schema = model.schemata[stmt["schema"]]
+        self.prop = schema.properties[stmt["prop"]]
+        self.value = stmt["value"]
 
 
 CachedEntity = Tuple[Tuple[CachedType, ...], Tuple[CachedProp, ...]]
@@ -124,14 +125,14 @@ class Database(object):
                 canonical_id=canonical_id,
                 inverted_ids=inverted_ids,
             )
-            for stmt in stmts:
-                if stmt.canonical_id != current_id:
+            async for stmt in stmts:
+                if stmt["canonical_id"] != current_id:
                     if len(types):
                         yield (tuple(types), tuple(props))
                     types = []
                     props = []
-                current_id = stmt.canonical_id
-                if stmt.prop == Statement.BASE:
+                current_id = stmt["canonical_id"]
+                if stmt["prop"] == BASE:
                     types.append(CachedType(stmt))
                 else:
                     props.append(CachedProp(stmt))
