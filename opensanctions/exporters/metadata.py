@@ -20,7 +20,7 @@ log = structlog.get_logger(__name__)
 
 @cache
 async def dataset_to_index(dataset: Dataset) -> Dict[str, Any]:
-    async with engine.begin() as conn:
+    async with engine.connect() as conn:
         (
             issue_levels,
             target_count,
@@ -57,7 +57,7 @@ async def export_metadata():
         dataset_tasks.append(dataset_to_index(dataset))
     datasets = await asyncio.gather(*dataset_tasks)
 
-    async with engine.begin() as conn:
+    async with engine.connect() as conn:
         issues = [i async for i in all_issues(conn)]
         schemata = await all_schemata(conn)
 

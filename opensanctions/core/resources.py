@@ -47,7 +47,7 @@ async def save_resource(
         "size": size,
         "title": title,
     }
-    upsert = upsert_func()
+    upsert = upsert_func(conn)
     istmt = upsert(resource_table).values([resource])
     stmt = istmt.on_conflict_do_update(
         index_elements=["path", "dataset"],
@@ -60,6 +60,7 @@ async def save_resource(
         ),
     )
     await conn.execute(stmt)
+    return resource
 
 
 async def all_resources(conn: Conn, dataset: Dataset):

@@ -118,7 +118,7 @@ class Database(object):
         current_id = None
         types: List[CachedType] = []
         props: List[CachedProp] = []
-        async with engine.begin() as conn:
+        async with engine.connect() as conn:
             stmts = all_statements(
                 conn,
                 dataset=dataset,

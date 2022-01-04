@@ -28,7 +28,7 @@ __all__ = ["export_dataset", "export_metadata"]
 async def export_dataset(dataset: Dataset, database: Database):
     """Dump the contents of the dataset to the output directory."""
     context = Context(dataset)
-    context.bind()
+    await context.begin()
     loader = await database.view(dataset, Entity.assembler)
     exporters = [Exporter(context, loader) for Exporter in EXPORTERS]
 
@@ -57,4 +57,4 @@ async def export_dataset(dataset: Dataset, database: Database):
         meta = await dataset_to_index(dataset)
         await write_json(meta, fh)
 
-    context.close()
+    await context.close()

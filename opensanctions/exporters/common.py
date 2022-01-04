@@ -3,6 +3,7 @@ import aiofiles
 from datetime import date, datetime
 
 from opensanctions import settings
+from opensanctions.core import Context
 
 
 class Exporter(object):
@@ -10,7 +11,7 @@ class Exporter(object):
 
     FILE_MODE = "w"
 
-    def __init__(self, context, loader):
+    def __init__(self, context: Context, loader):
         self.context = context
         self.dataset = context.dataset
         self.resource_name = f"{self.NAME}.{self.EXTENSION}"
@@ -26,7 +27,7 @@ class Exporter(object):
 
     async def finish(self):
         await self.fh.close()
-        resource = self.context.export_resource(
+        resource = await self.context.export_resource(
             self.path, mime_type=self.MIME_TYPE, title=self.TITLE
         )
         if resource is None:
@@ -38,7 +39,7 @@ class Exporter(object):
         self.context.log.info(
             "Exported: %s" % self.TITLE,
             path=self.path,
-            size=resource.size,
+            size=resource["size"],
         )
 
 

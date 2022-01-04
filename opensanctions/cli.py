@@ -46,8 +46,10 @@ async def _resolve_all(resolver: Resolver):
 async def _process(scope_name: str, crawl: bool = True, export: bool = True) -> None:
     scope = Dataset.require(scope_name)
     if crawl is True:
+        crawls = []
         for source in scope.sources:
-            Context(source).crawl()
+            crawls.append(Context(source).crawl())
+        await asyncio.gather(*crawls)
     if export is True:
         resolver = await get_resolver()
         # await _resolve_all(resolver)

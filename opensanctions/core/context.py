@@ -1,12 +1,14 @@
+import asyncio
 import hashlib
-import mimetypes
-from typing import Optional, Union
+from sqlalchemy.ext.asyncio.engine import AsyncConnection, AsyncTransaction
 import structlog
+import mimetypes
+from contextlib import asynccontextmanager
+from typing import Dict, Optional, Tuple, Union
 from lxml import etree
 from pprint import pprint
 from datapatch import LookupException
 from lxml.etree import _Element, tostring
-from structlog.contextvars import clear_contextvars, bind_contextvars
 from followthemoney.util import make_entity_id
 from followthemoney.schema import Schema
 
@@ -15,7 +17,11 @@ from opensanctions.core.http import get_session, fetch_download
 from opensanctions.core.entity import Entity
 from opensanctions.core.resolver import get_resolver
 from opensanctions.core.db import engine
-from opensanctions.core.resources import save_resource
+from opensanctions.core.issues import save_issue, clear_issues
+from opensanctions.core.resources import save_resource, clear_resources
+from opensanctions.core.statements import Statement, count_entities
+from opensanctions.core.statements import cleanup_dataset, clear_statements
+from opensanctions.core.statements import statements_from_entity, save_statements
 
 
 class Context(object):
@@ -25,6 +31,7 @@ class Context(object):
     """
 
     SOURCE_TITLE = "Source data"
+    BATCH_SIZE = 10
 
     def __init__(self, dataset):
         self.dataset = dataset
@@ -32,12 +39,34 @@ class Context(object):
         self.http = get_session()
         self.resolver = get_resolver()
         self.log = structlog.get_logger(dataset.name, dataset=self.dataset.name)
-        self._statements = {}
+        self._statements: Dict[Tuple[str, str, str], Statement] = {}
+        self.conn: Optional[AsyncConnection] = None
+
+    async def begin(self) -> None:
+        """Flush and tear down the context."""
+        self.conn = await engine.connect()
+
+    async def close(self) -> None:
+        """Flush and tear down the context."""
+        if self.conn is not None:
+            await self.conn.close()
+            self.conn = None
+
+    @asynccontextmanager
+    async def tx(self):
+        tx = await self.conn.begin()
+        try:
+            yield tx
+            await tx.commit()
+        finally:
+            await tx.close()
+
+    # self.http.close()
 
     def get_resource_path(self, name):
         return self.path.joinpath(name)
 
-    def fetch_resource(self, name, url):
+    async def fetch_resource(self, name, url):
         """Fetch a URL into a file located in the current run folder,
         if it does not exist."""
         file_path = self.get_resource_path(name)
@@ -51,7 +80,7 @@ class Context(object):
         with open(file_path, "rb") as fh:
             return etree.parse(fh)
 
-    def export_resource(self, path, mime_type=None, title=None):
+    async def export_resource(self, path, mime_type=None, title=None):
         """Register a file as a documented file exported by the dataset."""
         if mime_type is None:
             mime_type, _ = mimetypes.guess(path)
@@ -69,7 +98,12 @@ class Context(object):
             self.log.warning("Resource is empty", path=path)
         checksum = digest.hexdigest()
         name = path.relative_to(self.path).as_posix()
-        # return save_resource(name, self.dataset, checksum, mime_type, size, title)
+        if self.conn is None:
+            raise RuntimeError("Not connected to DB")
+        async with self.tx():
+            return await save_resource(
+                self.conn, name, self.dataset, checksum, mime_type, size, title
+            )
 
     def lookup_value(self, lookup, value, default=None):
         try:
@@ -99,74 +133,75 @@ class Context(object):
         else:
             pprint(obj)
 
-    def flush(self) -> None:
+    async def flush(self) -> None:
         """Emitted entities are de-constructed into statements for the database
         to store. These are inserted in batches - so the statement cache on the
         context is flushed to the store. All statements that are not flushed
         when a crawl is aborted are not persisted to the database."""
         self.log.debug("Flushing statements to database...")
-        Statement.upsert_many(list(self._statements.values()))
+        if self.conn is None:
+            raise RuntimeError("No connection upon flush")
+        async with self.tx():
+            await save_statements(self.conn, list(self._statements.values()))
         self._statements = {}
 
-    def emit(self, entity: Entity, target: Optional[bool] = None, unique: bool = False):
+    async def emit(
+        self, entity: Entity, target: Optional[bool] = None, unique: bool = False
+    ):
         """Send an FtM entity to the store."""
         if entity.id is None:
             raise ValueError("Entity has no ID: %r", entity)
         if target is not None:
             entity.target = target
-        statements = Statement.from_entity(
-            entity, self.dataset, self.resolver, unique=unique
-        )
+        statements = statements_from_entity(entity, self.dataset, unique=unique)
         if not len(statements):
             raise ValueError("Entity has no properties: %r", entity)
         for stmt in statements:
             key = (stmt["entity_id"], stmt["prop"], stmt["value"])
             self._statements[key] = stmt
-        if len(self._statements) >= db.batch_size:
-            self.flush()
+        if len(self._statements) >= self.BATCH_SIZE:
+            await self.flush()
         self.log.debug("Emitted", entity=entity)
 
-    def bind(self) -> None:
-        # bind_contextvars(dataset=self.dataset.name)
-        pass
-
-    def crawl(self) -> None:
+    async def crawl(self) -> None:
         """Run the crawler."""
+        await self.begin()
+        if self.conn is None:
+            raise RuntimeError("WTF")
         try:
-            self.bind()
-            Issue.clear(self.dataset)
-            Resource.clear(self.dataset)
-            db.session.commit()
+            async with self.tx():
+                await asyncio.gather(
+                    clear_issues(self.conn, self.dataset),
+                    clear_resources(self.conn, self.dataset),
+                )
             self.log.info("Begin crawl")
             # Run the dataset:
-            self.dataset.method(self)
-            self.flush()
-            Statement.cleanup_dataset(self.dataset)
+            await self.dataset.method(self)
+            await self.flush()
+            async with self.tx():
+                await cleanup_dataset(self.conn, self.dataset)
+
             self.log.info(
                 "Crawl completed",
-                entities=Statement.all_counts(dataset=self.dataset),
-                targets=Statement.all_counts(dataset=self.dataset, target=True),
+                entities=await count_entities(self.conn, dataset=self.dataset),
+                targets=await count_entities(
+                    self.conn, dataset=self.dataset, target=True
+                ),
             )
         except KeyboardInterrupt:
-            db.session.rollback()
             raise
         except LookupException as exc:
-            db.session.rollback()
             self.log.error(exc.message, lookup=exc.lookup.name, value=exc.value)
         except Exception:
-            db.session.rollback()
             self.log.exception("Crawl failed")
         finally:
-            self.close()
+            await self.close()
 
-    def clear(self) -> None:
+    async def clear(self) -> None:
         """Delete all recorded data for a given dataset."""
-        Issue.clear(self.dataset)
-        Resource.clear(self.dataset)
-        Statement.clear(self.dataset)
-        db.session.commit()
-
-    def close(self) -> None:
-        """Flush and tear down the context."""
-        clear_contextvars()
-        # db.session.commit()
+        async with engine.begin() as conn:
+            await asyncio.gather(
+                clear_statements(conn, self.dataset),
+                clear_issues(conn, self.dataset),
+                clear_resources(conn, self.dataset),
+            )

@@ -83,7 +83,7 @@ async def save_statements(conn: Conn, values: List[Statement]) -> None:
     if not len(values):
         return None
 
-    upsert = upsert_func()
+    upsert = upsert_func(conn)
     istmt = upsert(stmt_table).values(values)
     stmt = istmt.on_conflict_do_update(
         index_elements=["entity_id", "prop", "value", "dataset"],
@@ -278,7 +278,7 @@ async def cleanup_dataset(conn: Conn, dataset):
     if last_seen is not None:
         pq = delete(stmt_table)
         pq = pq.where(stmt_table.c.dataset == dataset.name)
-        pq = pq.where(stmt_table.c.last_seen < max_last_seen)
+        pq = pq.where(stmt_table.c.last_seen < last_seen)
         await conn.execute(pq)
 
 
