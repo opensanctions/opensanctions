@@ -1,17 +1,16 @@
-import { join } from 'path'
-import { promises as fs } from 'fs';
+// import { join } from 'path'
+// import { promises as fs } from 'fs';
 import { IModelDatum } from "@alephdata/followthemoney"
 import { IDataset, ICollection, ISource, IIssueIndex, IIndex, IIssue, IOpenSanctionsEntity, IDatasetDetails } from "./types";
 import { API_URL, BASE_URL, INDEX_URL, ISSUES_URL } from "./constants";
 import { markdownToHtml } from './util';
 
-const indexCache = join(process.cwd(), 'public', '_index.json')
+// const indexCache = join(process.cwd(), 'public', '_index.json')
 
 async function fetchJsonUrl(url: string): Promise<any> {
   const data = await fetch(url)
   return await data.json()
 }
-
 
 export async function fetchIndex(): Promise<IIndex> {
   const data = await fetch(INDEX_URL, { cache: "force-cache" })

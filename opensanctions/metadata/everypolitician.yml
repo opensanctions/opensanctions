@@ -7,15 +7,16 @@ summary: >
 description: |
   The EveryPolitician project ran until 2019 and created a mechanism for consolidating 
   data about members of parliament for 233 different countries and territories. As part
-  of the project, EveryPolitician operated a large fleet of crawlers which would update
-  politician profiles in [Wikidata](https://wikidata.org), the structured data version
-  of Wikipedia.
+  of the project, EveryPolitician operated a large fleet of crawlers which read the web
+  sites of parliaments around the world.
 
   The project was [shut down in June 2019](https://www.mysociety.org/2019/06/26/placing-everypolitician-on-hold/), 
-  leaving the contained data to slowly wither in precision. We are including
-  EveryPolitician in OpenSanctions as a stopgap measure until we can devise a better
-  plan for gathering [PEPs data](https://opensanctions.org/datasets/peps/) or ally with
-  other initiatives that do the same.
+  leaving the contained data to slowly wither in precision.
+
+  **Update, January 2022*: The [Peppercat Legislators](https://www.opensanctions.org/datasets/wd_peppercat_legislators/)
+  dataset will succeed EveryPolitician. It generates membership data from Wikidata,
+  which is currently incomplete in some jurisdictions. Going forward, the intention is
+  to use the EveryPolitician scrapers to update membership data in Wikidata.
 
   The OpenSanctions importer only includes individuals active within the past 15 years.
 collections:
