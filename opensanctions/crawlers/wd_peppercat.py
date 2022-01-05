@@ -8,7 +8,7 @@ from opensanctions.wikidata import get_entity, entity_to_ftm
 def crawl(context: Context):
     params = {"_": settings.RUN_DATE}
     res = context.http.get(context.dataset.data.url, params=params, stream=True)
-    lines = (line.decode("utf-8") for line in res.iter_lines())
+    lines = [line.decode("utf-8") for line in res.iter_lines()]
     for row in csv.DictReader(lines):
         qid = row.get("personID")
         if qid is None:
