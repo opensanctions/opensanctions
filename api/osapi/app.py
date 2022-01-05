@@ -60,6 +60,9 @@ PATH_DATASET = Path(
 )
 QUERY_PREFIX = Query(None, min_length=1, description="Search prefix")
 
+# Dependency injection of DB session:
+# https://github.com/tiangolo/full-stack-fastapi-postgresql/issues/104
+
 
 @app.on_event("startup")
 async def startup_event():

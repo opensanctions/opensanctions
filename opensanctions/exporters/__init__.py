@@ -12,6 +12,7 @@ from opensanctions.exporters.nested import NestedJSONExporter
 from opensanctions.exporters.names import NamesExporter
 from opensanctions.exporters.simplecsv import SimpleCSVExporter
 from opensanctions.exporters.metadata import export_metadata, dataset_to_index
+from opensanctions.exporters.statements import export_statements
 
 log = structlog.get_logger(__name__)
 
@@ -19,10 +20,10 @@ EXPORTERS = [
     FtMExporter,
     NestedJSONExporter,
     NamesExporter,
-    # SimpleCSVExporter,
+    SimpleCSVExporter,
 ]
 
-__all__ = ["export_dataset", "export_metadata"]
+__all__ = ["export_dataset", "export_metadata", "export_statements"]
 
 
 async def export_dataset(dataset: Dataset, database: Database):

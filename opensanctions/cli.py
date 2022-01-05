@@ -9,6 +9,7 @@ from nomenklatura.resolver import Identifier, Resolver
 
 from opensanctions.core import Dataset, Context, setup
 from opensanctions.exporters import export_metadata, export_dataset
+from opensanctions.exporters import export_statements
 from opensanctions.exporters.common import write_object
 from opensanctions.core.http import cleanup_cache
 from opensanctions.core.loader import Database
@@ -52,14 +53,17 @@ async def _process(scope_name: str, crawl: bool = True, export: bool = True) -> 
         await asyncio.gather(*crawls)
     if export is True:
         resolver = await get_resolver()
-        # await _resolve_all(resolver)
+        await _resolve_all(resolver)
         database = Database(scope, resolver, cached=True)
         await database.view(scope)
-        exports = []
+        # exports = []
+        # for dataset_ in scope.datasets:
+        #     exports.append(export_dataset(dataset_, database))
+        # await asyncio.gather(*exports)
         for dataset_ in scope.datasets:
-            exports.append(export_dataset(dataset_, database))
-        await asyncio.gather(*exports)
+            await export_dataset(dataset_, database)
         await export_metadata()
+        await export_statements()
 
 
 @cli.command("crawl", help="Crawl entities into the given dataset")

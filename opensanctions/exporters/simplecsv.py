@@ -67,7 +67,7 @@ class SimpleCSVExporter(Exporter):
         sanctions = set()
         addresses = set(entity.get("address"))
 
-        for _, adjacent in self.loader.get_adjacent(entity):
+        async for _, adjacent in self.loader.get_adjacent(entity):
             if adjacent.schema.is_a("Sanction"):
                 sanctions.add(self.sanction_text(adjacent))
 

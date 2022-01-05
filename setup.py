@@ -30,7 +30,7 @@ setup(
         "followthemoney >= 1.21.2",
         "nomenklatura >= 0.0.1",
         "pantomime",
-        "sqlalchemy[mypy]",
+        "sqlalchemy[mypy,asyncio]",
         "asyncstdlib",
         "aiocsv",
         "alembic",

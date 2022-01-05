@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio.engine import AsyncConnection, AsyncTransaction
 import structlog
 import mimetypes
 from contextlib import asynccontextmanager
-from typing import Dict, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 from lxml import etree
 from pprint import pprint
 from datapatch import LookupException
@@ -17,7 +17,7 @@ from opensanctions.core.http import get_session, fetch_download
 from opensanctions.core.entity import Entity
 from opensanctions.core.resolver import get_resolver
 from opensanctions.core.db import engine
-from opensanctions.core.issues import save_issue, clear_issues
+from opensanctions.core.issues import Issue, save_issue, clear_issues
 from opensanctions.core.resources import save_resource, clear_resources
 from opensanctions.core.statements import Statement, count_entities
 from opensanctions.core.statements import cleanup_dataset, clear_statements
@@ -31,15 +31,18 @@ class Context(object):
     """
 
     SOURCE_TITLE = "Source data"
-    BATCH_SIZE = 10
+    BATCH_SIZE = 1000
 
     def __init__(self, dataset):
         self.dataset = dataset
         self.path = settings.DATASET_PATH.joinpath(dataset.name)
         self.http = get_session()
         self.resolver = get_resolver()
-        self.log = structlog.get_logger(dataset.name, dataset=self.dataset.name)
+        self.log = structlog.get_logger(
+            dataset.name, dataset=self.dataset.name, _ctx=self
+        )
         self._statements: Dict[Tuple[str, str, str], Statement] = {}
+        self._events: List[Dict[str, Any]] = []
         self.conn: Optional[AsyncConnection] = None
 
     async def begin(self) -> None:
@@ -48,6 +51,12 @@ class Context(object):
 
     async def close(self) -> None:
         """Flush and tear down the context."""
+        if len(self._events):
+            if self.conn is None:
+                self.conn = await engine.connect()
+            async with self.tx():
+                for event in self._events:
+                    await save_issue(self.conn, event)
         if self.conn is not None:
             await self.conn.close()
             self.conn = None
