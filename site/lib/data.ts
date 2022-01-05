@@ -14,15 +14,17 @@ async function fetchJsonUrl(url: string): Promise<any> {
 
 
 async function fetchIndexData(): Promise<any> {
-  try {
-    return await fs.readFile(indexCache)
-  } catch {
-    console.log("Fetching index data...")
-    const data = await fetch(INDEX_URL)
-    const text = await data.text()
-    await fs.writeFile(indexCache, text)
-    return text
-  }
+  // try {
+  //   return await fs.readFile(indexCache)
+  // } catch {
+  //   console.log("Fetching index data...")
+  //   const data = await fetch(INDEX_URL)
+  //   const text = await data.text()
+  //   await fs.writeFile(indexCache, text)
+  //   return text
+  // }
+  const data = await fetch(INDEX_URL)
+  return await data.text()
 }
 
 export async function fetchIndex(): Promise<IIndex> {
