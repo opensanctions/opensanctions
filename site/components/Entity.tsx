@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link'
+import queryString from 'query-string';
 import classNames from 'classnames';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -17,6 +18,20 @@ import { BASE_URL } from '../lib/constants';
 
 import styles from '../styles/Entity.module.scss'
 import { LicenseInfo } from './Policy';
+
+
+export type EntityRawLinkProps = {
+  entity: OpenSanctionsEntity
+  prop: string
+}
+
+export function EntityRawLink({ entity, prop }: EntityRawLinkProps) {
+  const query = queryString.stringify({
+    canonical_id: entity.id,
+    prop: prop
+  })
+  return <a className={styles.rawLink} href={`/statements/?${query}`}>[raw]</a>
+}
 
 
 export type EntityProps = {
@@ -48,6 +63,9 @@ export function EntityPropsTable({ entity, via, datasets, showEmpty = false }: E
                 empty="not available"
                 entity={EntityLink}
               />
+            </td>
+            <td className={styles.rawColumn}>
+              <EntityRawLink entity={entity} prop={prop.name} />
             </td>
           </tr>
         )}
@@ -175,11 +193,17 @@ export function EntitySidebar({ entity }: EntityProps) {
   return (
     <>
       <p>
+        <span className={styles.rawFloat}>
+          <EntityRawLink entity={entity} prop="id" />
+        </span>
         <strong>Type</strong><br />
         <span>{entity.schema.label}</span>
       </p>
       {sidebarProperties.map((prop) =>
         <p key={prop.name}>
+          <span className={styles.rawFloat}>
+            <EntityRawLink entity={entity} prop={prop.name} />
+          </span>
           <strong>{prop.label}</strong><br />
           <span>
             <PropertyValues

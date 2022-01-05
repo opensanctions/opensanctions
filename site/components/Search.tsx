@@ -162,7 +162,7 @@ export function SearchResultEntity({ data, model }: SearchResultEntityProps) {
         {topics.length > 0 && (
           <>
             <Spacer />
-            <Badge bg="warning"><TypeValues type={topicType} values={topics} /></Badge>
+            <TypeValues type={topicType} values={topics} />
           </>
         )}
         {countries.length > 0 && (
