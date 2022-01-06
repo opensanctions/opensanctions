@@ -1,6 +1,7 @@
 from normality import collapse_spaces
 
-from opensanctions.helpers import make_address, apply_address, make_sanction
+from opensanctions.core import Context
+from opensanctions import helpers as h
 
 
 def values(node):
@@ -30,8 +31,8 @@ def parse_alias(entity, node):
             entity.add("previousName", name)
 
 
-def parse_address(context, node):
-    return make_address(
+def parse_address(context: Context, node):
+    return h.make_address(
         context,
         remarks=node.findtext("./NOTE"),
         street=node.findtext("./STREET"),
@@ -42,7 +43,7 @@ def parse_address(context, node):
     )
 
 
-def parse_entity(context, node):
+async def parse_entity(context: Context, node):
     entity = context.make("LegalEntity")
     sanction = parse_common(context, entity, node)
     entity.add("alias", node.findtext("./FIRST_NAME"))
@@ -51,13 +52,13 @@ def parse_entity(context, node):
         parse_alias(entity, alias)
 
     for addr in node.findall("./ENTITY_ADDRESS"):
-        apply_address(context, entity, parse_address(context, addr))
+        await h.apply_address(context, entity, parse_address(context, addr))
 
-    context.emit(entity, target=True, unique=True)
-    context.emit(sanction)
+    await context.emit(entity, target=True, unique=True)
+    await context.emit(sanction)
 
 
-def parse_individual(context, node):
+async def parse_individual(context: Context, node):
     person = context.make("Person")
     sanction = parse_common(context, person, node)
     person.add("title", values(node.find("./TITLE")))
@@ -70,7 +71,7 @@ def parse_individual(context, node):
         parse_alias(person, alias)
 
     for addr in node.findall("./INDIVIDUAL_ADDRESS"):
-        apply_address(context, person, parse_address(context, addr))
+        await h.apply_address(context, person, parse_address(context, addr))
 
     for doc in node.findall("./INDIVIDUAL_DOCUMENT"):
         passport = context.make("Passport")
@@ -89,7 +90,7 @@ def parse_individual(context, node):
         country = doc.findtext("./COUNTRY_OF_ISSUE")
         country = country or doc.findtext("./ISSUING_COUNTRY")
         passport.add("country", country)
-        context.emit(passport)
+        await context.emit(passport)
 
     for nat in node.findall("./NATIONALITY/VALUE"):
         person.add("nationality", nat.text)
@@ -104,11 +105,11 @@ def parse_individual(context, node):
             person.add("birthPlace", address.get("full"))
             person.add("country", address.get("country"))
 
-    context.emit(person, target=True, unique=True)
-    context.emit(sanction)
+    await context.emit(person, target=True, unique=True)
+    await context.emit(sanction)
 
 
-def parse_common(context, entity, node):
+def parse_common(context: Context, entity, node):
     entity.id = context.make_slug(node.findtext("./DATAID"))
     name = node.findtext("./NAME_ORIGINAL_SCRIPT")
     name = name or node.findtext("./FIRST_NAME")
@@ -123,7 +124,7 @@ def parse_common(context, entity, node):
     if listed_on is not None:
         entity.context["created_at"] = listed_on
 
-    sanction = make_sanction(context, entity)
+    sanction = h.make_sanction(context, entity)
     sanction.add("startDate", listed_on)
     sanction.add("modifiedAt", values(node.find("./LAST_DAY_UPDATED")))
     sanction.add("program", node.findtext("./UN_LIST_TYPE"))
@@ -131,13 +132,13 @@ def parse_common(context, entity, node):
     return sanction
 
 
-def crawl(context):
-    path = context.fetch_resource("source.xml", context.dataset.data.url)
-    context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
+async def crawl(context: Context):
+    path = await context.fetch_resource("source.xml", context.dataset.data.url)
+    await context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
 
     for node in doc.findall(".//INDIVIDUAL"):
-        parse_individual(context, node)
+        await parse_individual(context, node)
 
     for node in doc.findall(".//ENTITY"):
-        parse_entity(context, node)
+        await parse_entity(context, node)

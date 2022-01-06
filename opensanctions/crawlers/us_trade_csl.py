@@ -4,7 +4,7 @@ from functools import lru_cache
 from pantomime.types import JSON
 from requests.exceptions import TooManyRedirects
 
-from opensanctions.core import Dataset
+from opensanctions.core import Dataset, Context
 from opensanctions import helpers as h
 
 FORMATS = ["%d %b %Y", "%d %B %Y", "%Y", "%b %Y", "%B %Y"]
@@ -12,7 +12,7 @@ SDN = Dataset.require("us_ofac_sdn")
 
 
 @lru_cache(maxsize=None)
-def deref_url(context, url):
+def deref_url(context: Context, url):
     try:
         res = context.http.get(url, stream=True)
         return res.url
@@ -20,7 +20,7 @@ def deref_url(context, url):
         return url
 
 
-def parse_result(context, result):
+async def parse_result(context: Context, result):
     type_ = result.pop("type", None)
     schema = context.lookup_value("type", type_)
     if schema is None:
@@ -75,12 +75,12 @@ def parse_result(context, result):
             region=address.get("state"),
             country=address.get("country"),
         )
-        h.apply_address(context, entity, obj)
+        await h.apply_address(context, entity, obj)
 
     for ident in result.pop("ids", []):
         country = ident.pop("country")
         entity.add("country", country)
-        h.apply_feature(
+        await h.apply_feature(
             context,
             entity,
             ident.pop("type"),
@@ -111,17 +111,17 @@ def parse_result(context, result):
     # TODO: what is this?
     result.pop("standard_order", None)
 
-    context.emit(sanction)
-    context.emit(entity, target=True, unique=True)
+    await context.emit(sanction)
+    await context.emit(entity, target=True, unique=True)
 
     if len(result):
         context.pprint(result)
 
 
-def crawl(context):
-    path = context.fetch_resource("source.json", context.dataset.data.url)
-    context.export_resource(path, JSON, title=context.SOURCE_TITLE)
+async def crawl(context: Context):
+    path = await context.fetch_resource("source.json", context.dataset.data.url)
+    await context.export_resource(path, JSON, title=context.SOURCE_TITLE)
     with open(path, "r") as file:
         data = json.load(file)
         for result in data.get("results"):
-            parse_result(context, result)
+            await parse_result(context, result)

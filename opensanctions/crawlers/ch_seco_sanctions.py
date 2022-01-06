@@ -1,7 +1,8 @@
 from collections import defaultdict
 from prefixdate import parse_parts
 
-from opensanctions.helpers import make_address, apply_address, make_sanction
+from opensanctions.core import Context
+from opensanctions import helpers as h
 from opensanctions.util import jointext
 
 
@@ -19,14 +20,14 @@ def parse_address(node):
     return {k: v for (k, v) in address.items() if v is not None}
 
 
-def compose_address(context, entity, place, el):
+def compose_address(context: Context, entity, place, el):
     addr = dict(place)
     addr.update(parse_address(el))
     entity.add("country", addr.get("country"))
     po_box = addr.get("p-o-box")
     if po_box is not None:
         po_box = f"P.O. Box {po_box}"
-    return make_address(
+    return h.make_address(
         context,
         remarks=addr.get("remarks"),
         summary=addr.get("co"),
@@ -84,14 +85,14 @@ def parse_name(entity, node):
             entity.add("weakAlias", name)
 
 
-def parse_identity(context, entity, node, places):
+async def parse_identity(context: Context, entity, node, places):
     for name in node.findall(".//name"):
         parse_name(entity, name)
 
     for address in node.findall(".//address"):
         place = places.get(address.get("place-id"))
         address = compose_address(context, entity, place, address)
-        apply_address(context, entity, address)
+        await h.apply_address(context, entity, address)
 
     for bday in node.findall(".//day-month-year"):
         bval = parse_parts(bday.get("year"), bday.get("month"), bday.get("day"))
@@ -126,10 +127,10 @@ def parse_identity(context, entity, node, places):
         passport.add("summary", doc.findtext("./remark"))
         passport.add("startDate", doc.findtext("./date-of-issue"))
         passport.add("endDate", doc.findtext("./expiry-date"))
-        context.emit(passport)
+        await context.emit(passport)
 
 
-def parse_entry(context, target, programs, places, updated_at):
+async def parse_entry(context: Context, target, programs, places, updated_at):
     entity = context.make("LegalEntity")
     node = target.find("./entity")
     if node is None:
@@ -164,7 +165,7 @@ def parse_entry(context, target, programs, places, updated_at):
         else:
             entity.add("notes", value)
 
-    sanction = make_sanction(context, entity)
+    sanction = h.make_sanction(context, entity)
     sanction.add("modifiedAt", max(dates))
 
     for justification in node.findall("./justification"):
@@ -174,16 +175,16 @@ def parse_entry(context, target, programs, places, updated_at):
     sanction.add("program", programs.get(ssid))
 
     for identity in node.findall("./identity"):
-        parse_identity(context, entity, identity, places)
+        await parse_identity(context, entity, identity, places)
 
     entity.add("topics", "sanction")
-    context.emit(entity, target=True, unique=True)
-    context.emit(sanction)
+    await context.emit(entity, target=True, unique=True)
+    await context.emit(sanction)
 
 
-def crawl(context):
-    path = context.fetch_resource("source.xml", context.dataset.data.url)
-    context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
+async def crawl(context: Context):
+    path = await context.fetch_resource("source.xml", context.dataset.data.url)
+    await context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
     updated_at = doc.getroot().get("date")
 
@@ -197,4 +198,4 @@ def crawl(context):
         places[place.get("ssid")] = parse_address(place)
 
     for target in doc.findall("./target"):
-        parse_entry(context, target, programs, places, updated_at)
+        await parse_entry(context, target, programs, places, updated_at)

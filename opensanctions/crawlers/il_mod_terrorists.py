@@ -72,14 +72,14 @@ def excel_records(path):
                 headers = header_names(cells)
 
 
-def crawl(context: Context):
-    crawl_organizations(context)
-    crawl_individuals(context)
+async def crawl(context: Context):
+    await crawl_organizations(context)
+    await crawl_individuals(context)
 
 
-def crawl_individuals(context: Context):
-    path = context.fetch_resource("individuals.xlsx", PEOPLE_URL)
-    context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
+async def crawl_individuals(context: Context):
+    path = await context.fetch_resource("individuals.xlsx", PEOPLE_URL)
+    await context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
     for record in excel_records(path):
         seq_id = record.pop("internal_seq_id", None)
         if seq_id is None:
@@ -112,15 +112,15 @@ def crawl_individuals(context: Context):
         for field in ("date_of_designation_in_israel",):
             parse_interval(sanction, record.pop(field, None))
 
-        context.emit(entity, target=True, unique=True)
-        context.emit(sanction)
+        await context.emit(entity, target=True, unique=True)
+        await context.emit(sanction)
         if len(record):
             context.pprint(record)
 
 
-def crawl_organizations(context: Context):
-    path = context.fetch_resource("organizations.xlsx", ORG_URL)
-    context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
+async def crawl_organizations(context: Context):
+    path = await context.fetch_resource("organizations.xlsx", ORG_URL)
+    await context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
     seq_ids = {}
     links = []
     for record in excel_records(path):
@@ -178,7 +178,7 @@ def crawl_organizations(context: Context):
             address = h.make_address(
                 context, street=street, city=city, country_code=entity.first("country")
             )
-            h.apply_address(context, entity, address)
+            await h.apply_address(context, entity, address)
 
         for field in (
             "date_of_temporary_designation",
@@ -187,8 +187,8 @@ def crawl_organizations(context: Context):
         ):
             parse_interval(sanction, record.pop(field, None))
 
-        context.emit(entity, target=True, unique=True)
-        context.emit(sanction)
+        await context.emit(entity, target=True, unique=True)
+        await context.emit(sanction)
         if len(record):
             context.pprint(record)
 
@@ -201,4 +201,4 @@ def crawl_organizations(context: Context):
         link.id = context.make_id(subject_id, object_id)
         link.add("subject", subject_id)
         link.add("object", object_id)
-        context.emit(link)
+        await context.emit(link)

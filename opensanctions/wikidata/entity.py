@@ -48,7 +48,7 @@ def qualify_value(value, claim):
     return value
 
 
-def make_link(
+async def make_link(
     context, proxy, claim, depth, seen, schema, other_schema, source_prop, target_prop
 ):
     if depth < 1 or claim.qid in seen:
@@ -63,7 +63,7 @@ def make_link(
     if "role.pep" in proxy.get("topics"):
         props["topics"] = "role.rca"
 
-    other = entity_to_ftm(
+    other = await entity_to_ftm(
         context,
         other_data,
         schema=other_schema,
@@ -95,7 +95,7 @@ def make_link(
     return link
 
 
-def apply_claim(
+async def apply_claim(
     context: Context, proxy: Entity, claim: Claim, depth: int, seen: Set[str]
 ):
     prop = PROPS_DIRECT.get(claim.property)
@@ -108,7 +108,7 @@ def apply_claim(
         proxy.add(prop, value)
         return
     if claim.property in PROPS_FAMILY:
-        link = make_link(
+        link = await make_link(
             context,
             proxy,
             claim,
@@ -122,10 +122,10 @@ def apply_claim(
         if link is not None:
             for qual in claim.get_qualifier("P1039"):
                 link.set("relationship", qual.text)
-            context.emit(link)
+            await context.emit(link)
         return
     if claim.property in PROPS_ASSOCIATION:
-        link = make_link(
+        link = await make_link(
             context,
             proxy,
             claim,
@@ -139,7 +139,7 @@ def apply_claim(
         if link is not None:
             for qual in claim.get_qualifier("P2868"):
                 link.set("relationship", qual.text)
-            context.emit(link)
+            await context.emit(link)
         return
     # TODO: memberships, employers?
     if claim.property in IGNORE:
@@ -157,7 +157,7 @@ def apply_claim(
     # SEEN_PROPS.add(claim.property)
 
 
-def entity_to_ftm(
+async def entity_to_ftm(
     context: Context,
     entity: Dict[str, Any],
     schema: str = "Person",
@@ -196,7 +196,7 @@ def entity_to_ftm(
     for prop_claims in claims.values():
         for claim_data in prop_claims:
             claim = Claim(claim_data)
-            apply_claim(context, proxy, claim, depth, seen)
+            await apply_claim(context, proxy, claim, depth, seen)
 
     # TODO: get back to this later:
     entity.pop("sitelinks")
@@ -205,14 +205,5 @@ def entity_to_ftm(
         return
 
     # context.pprint(entity)
-    context.emit(proxy, unique=True)
+    await context.emit(proxy, unique=True)
     return proxy
-
-
-if __name__ == "__main__":
-    setup(logging.INFO)
-    context = Context(Dataset.require("everypolitician"))
-    entity = get_entity("Q7747")
-    proxy = entity_to_ftm(context, entity)
-    # if proxy is not None:
-    #     context.pprint(proxy.to_dict())

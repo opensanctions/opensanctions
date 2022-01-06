@@ -8,9 +8,9 @@ from opensanctions import helpers as h
 FORMATS = ["%d %b %Y", "%d-%b-%Y"]
 
 
-def crawl(context: Context):
-    path = context.fetch_resource("source.html", context.dataset.data.url)
-    context.export_resource(path, HTML, title=context.SOURCE_TITLE)
+async def crawl(context: Context):
+    path = await context.fetch_resource("source.html", context.dataset.data.url)
+    await context.export_resource(path, HTML, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         doc = html.parse(fh)
 
@@ -41,7 +41,7 @@ def crawl(context: Context):
 
         full = cells.pop("address")
         address = h.make_address(context, full=full, country=nationality)
-        h.apply_address(context, entity, address)
+        await h.apply_address(context, entity, address)
 
-        context.emit(entity, target=True, unique=True)
-        context.emit(sanction)
+        await context.emit(entity, target=True, unique=True)
+        await context.emit(sanction)

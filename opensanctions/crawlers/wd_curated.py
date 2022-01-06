@@ -6,7 +6,7 @@ from opensanctions.core import Context
 from opensanctions.wikidata import get_entity, entity_to_ftm
 
 
-def crawl(context: Context):
+async def crawl(context: Context):
     params = {"_": settings.RUN_TIME}
     res = context.http.get(context.dataset.data.url, params=params, stream=True)
     lines = (line.decode("utf-8") for line in res.iter_lines())
@@ -21,4 +21,4 @@ def crawl(context: Context):
         topics = [t.strip() for t in row.get("topics", "").split(";")]
         topics = [t for t in topics if len(t)]
         data = get_entity(qid)
-        entity_to_ftm(context, data, schema=schema, topics=topics)
+        await entity_to_ftm(context, data, schema=schema, topics=topics)

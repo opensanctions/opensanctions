@@ -47,7 +47,7 @@ def parse_names(names: List[str]) -> List[str]:
     return cleaned
 
 
-def fetch_xls_url(context):
+async def fetch_xls_url(context):
     params = {"_": settings.RUN_DATE}
     res = context.http.get(context.dataset.data.url, params=params)
     doc = html.fromstring(res.text)
@@ -58,7 +58,9 @@ def fetch_xls_url(context):
     context.log.error("Could not find XLS file on MoF web site")
 
 
-def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str]]):
+async def emit_row(
+    context: Context, sheet: str, section: str, row: Dict[str, List[str]]
+):
     schema = context.lookup_value("schema", section)
     if schema is None:
         context.log.warning("No schema for section", section=section, sheet=sheet)
@@ -94,11 +96,11 @@ def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str
 
     for address_full in row.pop("address", []):
         address = h.make_address(context, full=address_full)
-        h.apply_address(context, entity, address)
+        await h.apply_address(context, entity, address)
 
     for address_full in row.pop("where", []):
         address = h.make_address(context, full=address_full)
-        h.apply_address(context, entity, address)
+        await h.apply_address(context, entity, address)
 
     title = row.pop("title", [])
     if entity.schema.is_a("Person"):
@@ -122,14 +124,14 @@ def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str
     # if len(row):
     #     context.pprint(row)
     entity.add("topics", "sanction")
-    context.emit(entity, target=True)
-    context.emit(sanction)
+    await context.emit(entity, target=True)
+    await context.emit(sanction)
 
 
-def crawl(context: Context):
-    xls_url = fetch_xls_url(context)
-    path = context.fetch_resource("source.xls", xls_url)
-    context.export_resource(path, XLS, title=context.SOURCE_TITLE)
+async def crawl(context: Context):
+    xls_url = await fetch_xls_url(context)
+    path = await context.fetch_resource("source.xls", xls_url)
+    await context.export_resource(path, XLS, title=context.SOURCE_TITLE)
 
     xls = xlrd.open_workbook(path)
     for sheet in xls.sheets():
@@ -157,7 +159,7 @@ def crawl(context: Context):
                         if value is not None:
                             values.append(value)
                     data[header] = values
-                emit_row(context, sheet.name, section, data)
+                await emit_row(context, sheet.name, section, data)
 
             if not len(row) or row[0] is None:
                 continue

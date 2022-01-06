@@ -2,6 +2,7 @@ import json
 from prefixdate import parse_parts
 from pantomime.types import JSON
 
+from opensanctions.core import Context
 from opensanctions import helpers as h
 
 SCHEMATA = {
@@ -11,7 +12,7 @@ SCHEMATA = {
 }
 
 
-def apply_prop(context, entity, sanction, field, value):
+async def apply_prop(context: Context, entity, sanction, field, value):
     if field == "ALIAS":
         entity.add("alias", value.pop("Alias"))
     elif field == "SEXE":
@@ -39,7 +40,7 @@ def apply_prop(context, entity, sanction, field, value):
             full=value.pop("Adresse"),
             country=value.pop("Pays"),
         )
-        h.apply_address(context, entity, address)
+        await h.apply_address(context, entity, address)
     elif field == "LIEU_DE_NAISSANCE":
         entity.add("birthPlace", value.pop("Lieu"))
         entity.add("country", value.pop("Pays"))
@@ -74,7 +75,7 @@ def apply_prop(context, entity, sanction, field, value):
     #     print(field, value)
 
 
-def crawl_entity(context, data):
+async def crawl_entity(context: Context, data):
     nature = data.pop("Nature")
     schema = SCHEMATA.get(nature)
     entity = context.make(schema)
@@ -86,18 +87,18 @@ def crawl_entity(context, data):
     for detail in data.pop("RegistreDetail"):
         field = detail.pop("TypeChamp")
         for value in detail.pop("Valeur"):
-            apply_prop(context, entity, sanction, field, value)
+            await apply_prop(context, entity, sanction, field, value)
 
-    context.emit(entity, target=True)
+    await context.emit(entity, target=True)
 
 
-def crawl(context):
-    path = context.fetch_resource("source.json", context.dataset.data.url)
-    context.export_resource(path, JSON, title=context.SOURCE_TITLE)
+async def crawl(context):
+    path = await context.fetch_resource("source.json", context.dataset.data.url)
+    await context.export_resource(path, JSON, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         data = json.load(fh)
 
     publications = data.get("Publications")
     # date = publications.get("DatePublication")
     for detail in publications.get("PublicationDetail"):
-        crawl_entity(context, detail)
+        await crawl_entity(context, detail)

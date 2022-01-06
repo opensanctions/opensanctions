@@ -20,7 +20,7 @@ def _prepare_value(prop, values, date_formats):
     return prepared
 
 
-def apply_feature(
+async def apply_feature(
     context,
     entity,
     feature,
@@ -93,5 +93,5 @@ def apply_feature(
         adj.add("description", comment, quiet=True)
         adj.add("authority", authority, quiet=True)
 
-        context.emit(adj)
+        await context.emit(adj)
         return adj

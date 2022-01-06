@@ -2,8 +2,10 @@ from lxml import html
 from itertools import count
 from urllib.parse import urljoin
 
+from opensanctions.core import Context
 
-def crawl_entry(context, pace, href, member_url):
+
+def crawl_entry(context: Context, pace, href, member_url):
     _, slug = href.get("href").split("members/", 1)
     person = context.make("Person")
     person.id = context.make_slug(slug)
@@ -40,7 +42,7 @@ def crawl_entry(context, pace, href, member_url):
                 joined, left = joined.split(", left in")
                 member.add("endDate", left)
             member.add("startDate", joined)
-            context.emit(member)
+            await context.emit(member)
         else:
             context.log.warning("Unknown category", span=span, entity=person)
 
@@ -48,15 +50,15 @@ def crawl_entry(context, pace, href, member_url):
     person.add("topics", "role.pep")
     if not person.has("name"):
         context.log.warning("No name on entity", entity=person)
-    context.emit(person, target=True, unique=True)
+    await context.emit(person, target=True, unique=True)
 
 
-def crawl(context):
+def crawl(context: Context):
     index_url = context.dataset.data.url
     pace = context.make("PublicBody")
     pace.id = context.make_slug("pace")
     pace.add("name", "Counil of Europe Parliamentary Assembly")
-    context.emit(pace)
+    await context.emit(pace)
     for page_idx in count(1):
         context.log.debug("Members directory", page=page_idx)
         params = {"page": page_idx}

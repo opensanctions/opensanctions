@@ -2,18 +2,19 @@ from normality import collapse_spaces
 from pantomime.types import XML
 
 from opensanctions import helpers as h
+from opensanctions.core import Context
 from opensanctions.util import jointext
 
 
-def crawl(context):
-    path = context.fetch_resource("source.xml", context.dataset.data.url)
-    context.export_resource(path, XML, title=context.SOURCE_TITLE)
+async def crawl(context: Context):
+    path = await context.fetch_resource("source.xml", context.dataset.data.url)
+    await context.export_resource(path, XML, title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
     for node in doc.findall(".//record"):
-        parse_entry(context, node)
+        await parse_entry(context, node)
 
 
-def parse_entry(context, node):
+async def parse_entry(context, node):
     entity_name = node.findtext("./Entity")
     if entity_name is not None:
         entity = context.make("LegalEntity")
@@ -45,5 +46,5 @@ def parse_entry(context, node):
             entity.add("alias", name)
 
     entity.add("topics", "sanction")
-    context.emit(entity, target=True)
-    context.emit(sanction)
+    await context.emit(entity, target=True)
+    await context.emit(sanction)
