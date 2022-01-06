@@ -1,4 +1,5 @@
 import React, { ReactNode } from 'react';
+import queryString from 'query-string';
 import { useRouter } from 'next/router';
 import filesize from 'filesize';
 import Link from 'next/link'
@@ -6,10 +7,12 @@ import Nav from 'react-bootstrap/Nav';
 import Badge from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
 import Spinner from 'react-bootstrap/Spinner';
+import Pagination from 'react-bootstrap/Pagination';
 import { FileEarmarkCodeFill, Link45deg, QuestionCircleFill } from 'react-bootstrap-icons';
 
 import styles from '../styles/util.module.scss';
 import { SPACER } from '../lib/constants';
+import { IPaginatedResponse } from '../lib/types';
 
 type RoutedNavLinkProps = {
   href: string
@@ -211,4 +214,39 @@ export function Spacer() {
   return (
     <span className={styles.spacer}>{SPACER}</span>
   )
+}
+
+
+type ResponsePaginationProps = {
+  response: IPaginatedResponse
+}
+
+export function ResponsePagination({ response }: ResponsePaginationProps) {
+  if (response.total === 0) {
+    return null;
+  }
+  const router = useRouter();
+  const nextOffset = response.offset + response.limit;
+  const upper = Math.min(response.total, nextOffset);
+  const hasPrev = response.offset > 0;
+  const hasNext = response.total > nextOffset;
+
+  const prevLink = queryString.stringify({
+    ...router.query,
+    offset: Math.max(0, response.offset - response.limit)
+  })
+  const nextLink = queryString.stringify({
+    ...router.query,
+    offset: response.offset + response.limit
+  })
+
+  return (
+    <Pagination>
+      <Pagination.Prev disabled={!hasPrev} href={`?${prevLink}`} />
+      <Pagination.Item disabled>
+        {response.offset + 1} - {upper} of {response.total}
+      </Pagination.Item>
+      <Pagination.Next disabled={!hasNext} href={`?${nextLink}`} />
+    </Pagination>
+  );
 }

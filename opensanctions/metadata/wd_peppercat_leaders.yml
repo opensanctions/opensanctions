@@ -1,4 +1,4 @@
-entry_point: opensanctions.crawlers.wd_peppercat_leaders
+entry_point: opensanctions.crawlers.wd_peppercat
 title: Peppercat World Leaders
 prefix: wd
 # hidden: true
@@ -7,7 +7,7 @@ summary: >
 description: |
   Peppercat World Leaders is a community-built directory of senior political officeholders
   around the world, aiming to be more comprehensive, up-to-date, and transparent than the
-  [CIA World Leaders list](https://opensanctions.org/datasets/us_cia_world_leaders).
+  [CIA World Leaders list](https://www.opensanctions.org/datasets/us_cia_world_leaders).
 collections:
   - default
   - peps
@@ -21,5 +21,5 @@ publisher:
   url: https://www.peppercat.org
 url: https://peppercat.org/about.html
 data:
-  url: "https://raw.githubusercontent.com/peppercatorg/site-build/main/repos.csv"
+  url: "https://raw.githubusercontent.com/peppercatorg/site-build/main/everywhere-leaders.csv"
   format: CSV

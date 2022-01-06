@@ -11,10 +11,10 @@ import Layout from '../components/Layout'
 import { ISearchAPIResponse } from '../lib/types';
 import { fetchIndex, getDatasets } from '../lib/data';
 import { GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
-import { SearchFacet, SearchFilterTags, SearchPagination, SearchResultEntity } from '../components/Search';
+import { SearchFacet, SearchFilterTags, SearchResultEntity } from '../components/Search';
 import styles from '../styles/Search.module.scss'
 import { API_URL, SEARCH_DATASET, SEARCH_SCHEMA } from '../lib/constants';
-import { FormattedDate, JSONLink } from '../components/util';
+import { FormattedDate, JSONLink, ResponsePagination } from '../components/util';
 
 const SUMMARY = "Provide a search term to search across sanctions lists and other persons of interest.";
 
@@ -84,7 +84,7 @@ export default function Search({ modelData, apiUrl, query, datasets, scopeName, 
                 <SearchResultEntity key={r.id} data={r} model={model} />
               ))}
             </ul>
-            <SearchPagination response={response} />
+            <ResponsePagination response={response} />
           </Col>
           <Col md={4}>
             {response.facets && response.total > 0 && (

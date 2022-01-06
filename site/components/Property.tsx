@@ -1,5 +1,5 @@
-import Link from 'next/link'
 import { ComponentType, useState } from 'react';
+import Badge from "react-bootstrap/Badge";
 
 import { Property, PropertyType } from "@alephdata/followthemoney";
 import { OpenSanctionsEntity, Value, Values } from "../lib/types";
@@ -15,7 +15,7 @@ type TypeValueProps = {
 }
 
 export function TypeValue({ type, value, entity: Entity = EntityLink, prop }: TypeValueProps) {
-  if (['country', 'language', 'topic'].indexOf(type.name) != -1) {
+  if (['country', 'language'].indexOf(type.name) != -1) {
     return <>{type.values.get(value as string) || value}</>
   }
   if (type.name === 'date') {
@@ -26,6 +26,9 @@ export function TypeValue({ type, value, entity: Entity = EntityLink, prop }: Ty
   }
   if (type.name === 'identifier') {
     return <code>{value}</code>
+  }
+  if (type.name === 'topic') {
+    return <Badge bg="warning">{type.values.get(value as string) || value}</Badge>
   }
   if (type.name === 'entity') {
     if (typeof (value) !== 'string') {

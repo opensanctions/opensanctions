@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link'
+import queryString from 'query-string';
 import classNames from 'classnames';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -11,11 +12,26 @@ import { CaretDownFill, CaretUpFill } from 'react-bootstrap-icons';
 
 import { IDataset, IOpenSanctionsEntity, OpenSanctionsEntity } from '../lib/types'
 import { PropertyValues } from './Property';
-import { HelpLink, SpacedList, Summary } from './util';
+import { FormattedDate, HelpLink, SpacedList, Summary } from './util';
 import Dataset from './Dataset';
 import { BASE_URL } from '../lib/constants';
 
 import styles from '../styles/Entity.module.scss'
+import { LicenseInfo } from './Policy';
+
+
+export type EntityRawLinkProps = {
+  entity: OpenSanctionsEntity
+  prop: string
+}
+
+export function EntityRawLink({ entity, prop }: EntityRawLinkProps) {
+  const query = queryString.stringify({
+    canonical_id: entity.id,
+    prop: prop
+  })
+  return <a className={styles.rawLink} href={`/statements/?${query}`}>[raw]</a>
+}
 
 
 export type EntityProps = {
@@ -47,6 +63,9 @@ export function EntityPropsTable({ entity, via, datasets, showEmpty = false }: E
                 empty="not available"
                 entity={EntityLink}
               />
+            </td>
+            <td className={styles.rawColumn}>
+              <EntityRawLink entity={entity} prop={prop.name} />
             </td>
           </tr>
         )}
@@ -174,11 +193,17 @@ export function EntitySidebar({ entity }: EntityProps) {
   return (
     <>
       <p>
+        <span className={styles.rawFloat}>
+          <EntityRawLink entity={entity} prop="id" />
+        </span>
         <strong>Type</strong><br />
         <span>{entity.schema.label}</span>
       </p>
       {sidebarProperties.map((prop) =>
         <p key={prop.name}>
+          <span className={styles.rawFloat}>
+            <EntityRawLink entity={entity} prop={prop.name} />
+          </span>
           <strong>{prop.label}</strong><br />
           <span>
             <PropertyValues
@@ -226,10 +251,26 @@ export function EntityDisplay({ entity, datasets }: EntityDisplayProps) {
           </div>
         )}
         <div className={styles.entityPageSection}>
-          <h2>Data sources</h2>
+          <h3>Data sources</h3>
           {datasets.map((d) => (
             <Dataset.Item key={d.name} dataset={d} />
           ))}
+        </div>
+        <div className={styles.entityPageSection}>
+          <h3>About this page</h3>
+          <ul>
+            <li>
+              This page describes an entity ({entity.schema.label}) that is documented as
+              part of the OpenSanctions project in the public interest (<Link href="/docs/faq/">FAQ</Link>).
+            </li>
+            <li>
+              The entity was added <FormattedDate date={entity.first_seen} /> and last updated <FormattedDate date={entity.last_seen} />.
+            </li>
+            <li>
+              For experts: <Link href={`/statements/?canonical_id=${entity.id}`}>raw data explorer</Link> with per-attribute information on data provenance.
+            </li>
+          </ul>
+          <LicenseInfo />
         </div>
       </Col>
     </Row >

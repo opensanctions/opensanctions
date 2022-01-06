@@ -168,13 +168,34 @@ export interface ISearchFacet {
   values: Array<ISearchFacetItem>
 }
 
-export interface ISearchAPIResponse {
+export interface IPaginatedResponse {
   total: number
   limit: number
   offset: number
+}
+
+export interface ISearchAPIResponse extends IPaginatedResponse {
   results: Array<IOpenSanctionsEntity>
   facets: { [prop: string]: ISearchFacet }
 }
+
+
+export interface IStatement {
+  entity_id: string
+  canonical_id: string
+  prop: string
+  prop_type: string
+  schema: string
+  dataset: string
+  value: string
+  first_seen: string
+  last_seen: string
+}
+
+export interface IStatementAPIResponse extends IPaginatedResponse {
+  results: Array<IStatement>
+}
+
 
 export type Value = string | OpenSanctionsEntity
 export type Values = Array<Value>

@@ -1,23 +1,11 @@
-import { join } from 'path'
-import { createInterface } from 'readline';
-import { promises, createReadStream } from 'fs';
+// import { join } from 'path'
+// import { promises as fs } from 'fs';
 import { IModelDatum } from "@alephdata/followthemoney"
 import { IDataset, ICollection, ISource, IIssueIndex, IIndex, IIssue, IOpenSanctionsEntity, IDatasetDetails } from "./types";
 import { API_URL, BASE_URL, INDEX_URL, ISSUES_URL } from "./constants";
 import { markdownToHtml } from './util';
 
-export type DataCache = {
-  index: IIndex | null,
-  entities: Map<string, IOpenSanctionsEntity> | null
-}
-
-const dataDirectory = join(process.cwd(), '_data')
-const CACHE: DataCache = { index: null, entities: null };
-
-async function parseJsonFile(name: string): Promise<any> {
-  const data = await promises.readFile(join(dataDirectory, name), 'utf8')
-  return JSON.parse(data)
-}
+// const indexCache = join(process.cwd(), 'public', '_index.json')
 
 async function fetchJsonUrl(url: string): Promise<any> {
   const data = await fetch(url)
@@ -25,23 +13,20 @@ async function fetchJsonUrl(url: string): Promise<any> {
 }
 
 export async function fetchIndex(): Promise<IIndex> {
-  if (CACHE.index === null) {
-    // const index = await parseJsonFile('index.json');
-    const index = await fetchJsonUrl(INDEX_URL);
-    index.details = {};
-    index.datasets = index.datasets.map((raw: any) => {
-      const { description, targets, resources, ...ds } = raw;
-      const markdown = markdownToHtml(description)
-      index.details[ds.name] = { description: markdown, targets, resources } as IDatasetDetails
-      ds.link = `/datasets/${ds.name}/`
-      ds.opensanctions_url = BASE_URL + ds.link
+  const data = await fetch(INDEX_URL, { cache: "force-cache" })
+  const index = await data.json()
+  index.details = {};
+  index.datasets = index.datasets.map((raw: any) => {
+    const { description, targets, resources, ...ds } = raw;
+    const markdown = markdownToHtml(description)
+    index.details[ds.name] = { description: markdown, targets, resources } as IDatasetDetails
+    ds.link = `/datasets/${ds.name}/`
+    ds.opensanctions_url = BASE_URL + ds.link
 
-      return ds.type === 'collection' ? ds as ICollection : ds as ISource
-    })
-    index.model = index.model as IModelDatum
-    CACHE.index = index as IIndex
-  }
-  return CACHE.index;
+    return ds.type === 'collection' ? ds as ICollection : ds as ISource
+  })
+  index.model = index.model as IModelDatum
+  return index as IIndex
 }
 
 export async function getDatasets(): Promise<Array<IDataset>> {

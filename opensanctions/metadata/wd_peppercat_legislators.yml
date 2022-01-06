@@ -1,0 +1,28 @@
+entry_point: opensanctions.crawlers.wd_peppercat
+title: Peppercat Legislators
+prefix: wd
+# hidden: true
+summary: >
+  Members of national parliaments from around the world, as present in Wikidata.
+description: |
+  Peppercat Legislators collects membership information about national-level legislatures
+  from Wikidata. This dataset attempts to replicate the contents of
+  [EveryPolitician](https://www.opensanctions.org/datasets/everypolitician/) based on the
+  information uploaded to Wikidata. In the future, the crawlers that have previously been 
+  used to build EveryPolitician will be replaced by ones that will update Wikidata to
+  reflect the information presented on national parliamentary web sites.
+collections:
+  - default
+  - peps
+  - work
+publisher:
+  name: Peppercat.org
+  description: |
+    Peppercat is a community project with the goal of making sure that information about politicians
+    in Wikidata is always up-to-date. They maintain a fleet of hundreds of scrapers that compare
+    official web sites against the Wikidata database.
+  url: https://www.peppercat.org
+url: https://peppercat.org/about.html
+data:
+  url: "https://raw.githubusercontent.com/peppercatorg/site-build/main/everywhere-legislators.csv"
+  format: CSV

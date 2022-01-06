@@ -66,7 +66,7 @@ VERSION = "3.1.1"
 DEATH_CUTOFF = datetime(2010, 1, 1)
 
 # User agent
-USER_AGENT = f"Mozilla/5.0 (any) OpenSanctions/{VERSION}"
+USER_AGENT = f"Mozilla/5.0 (any) OpenSanctions/{VERSION} info@opensanctions.org"
 HTTP_TIMEOUT = 60
 
 # If you change this, all bets are off
