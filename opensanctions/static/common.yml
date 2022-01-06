@@ -1,3 +1,7 @@
+# DISCLAIMER: We go straight to hell for this file. We know. This is about complexity
+# reduction to allow computers to handle humans. If you disagree with any of the
+# political implications of the decisions made in this, please email us at
+# info@opensanctions.org. Let's keep it cool and pragmatic.
 country:
   normalize: true
   lowercase: true
@@ -23,6 +27,10 @@ country:
         - "Not Known"
         - "Not Disclosed"
         - "Regional"
+        # All the countries below are nulled out because they do not have modern
+        # equivalents. The rule of thumb here is to map countries into modern ones
+        # if they are a perfect subset (e.g. Bavaria into Germany), but to drop
+        # them if they're parts of non-overlapping empires.
         # This is now three countries, so dropping:
         - "Netherlands Antilles"
         - "British India"
@@ -58,6 +66,26 @@ country:
         - "title of Virgin Mary"
         - "Kingdom of Iraq"
         - "Iraqi Republic (1958–1968)"
+        - Republic of German-Austria
+        - Second Polish Republic
+        - Kingdom of Serbs, Croats and Slovenes
+        - State of Slovenes, Croats and Serbs
+        - Protectorate of Bohemia and Moravia
+        - First Czechoslovak Republic
+        - Kingdom of the Two Sicilies
+        - Papal States
+        - Free Territory of Trieste
+        - Kingdom of Bulgaria
+        - Mali Federation
+        - Patiala State
+        - Kingdom of Sikkim
+        - Mandatory Palestine # now very optional Palestine
+        - Americas
+        - Nazareth
+        - Insular Government of the Philippine Islands
+        - Korean Empire
+        - Joseon
+
       contains:
         - (JVCFOR)
       value: null
@@ -66,6 +94,7 @@ country:
       value: DK
     - match:
         - West Germany
+        - Nazi Germany
       value: DE
     - match:
         - "Kingdom of Greece"
@@ -74,6 +103,11 @@ country:
       value: RO
     - match: Empire of Japan
       value: Japan
+    - match:
+        - Commonwealth of the Philippines
+        - Second Philippine Republic
+        - Third Republic of the Philippines
+      value: Philippines
     - match:
         - "Jalisco"
         - "Guadalajara, Jalisco"
@@ -85,6 +119,15 @@ country:
     - match:
         - Maracaibo, Zulia
       value: VE
+    - match:
+        - Empire of Brazil
+      value: Brazil
+    - match:
+        - Italian Social Republic
+      value: Italy
+    - match:
+        - People's Republic of Bulgaria
+      value: Bulgaria
     - match:
         - Zimbabwe Rhodesia
       value: Zimbabwe
@@ -107,12 +150,16 @@ country:
       value: DE
     - match: Assembly of Kosovo*
       value: XK
+    - match: Andalusia
+      value: Spain
     - match:
         - Palestinian National Council
         - "PALESTINIAN TERRITORY, Occupied"
         - "Region: Gaza"
       value: Palestine
-    - match: Cyprus* [Resolution 1376 (2004)]
+    - match:
+        - Cyprus* [Resolution 1376 (2004)]
+        - British Cyprus
       value: CY
     - match:
         - "CONGO, Democratic Republic of (was Zaire)"
@@ -130,6 +177,7 @@ country:
       value: Saint Helena
     - match:
         - Brithish
+        - British National (Overseas)
       value: GB
     - match: British,Irish
       values:
@@ -170,6 +218,7 @@ country:
     - match:
         - Iran / unknown
         - "Branch Office 11: Iran"
+        - Pahlavi Iran
       value: IR
     - match:
         - Libyan Arab Jamahiriya
@@ -210,6 +259,9 @@ country:
       values:
         - United States
         - Iran
+    - match:
+        - Cherokee Nation
+      value: US
     - match: Uzbek; Afghan
       values:
         - Uzbekistan
@@ -218,8 +270,14 @@ country:
       values:
         - Mauritania
         - Mali
+    - match:
+        - Australiana
+      value: Australia
     - contains: Fiji (Prakash’s Australian
       value: Fiji
+    - match:
+        - Republic of China
+      value: Taiwan
     - match:
         - Baabda
         - Beirut
@@ -243,6 +301,8 @@ country:
     - match:
         - "France (alt. citizen: Syri"
         - Французька Республіка
+        - French Third Republic
+        - Vichy France
       value: France
     - match: Saudi Arabian (this aka only, alt Citizenship Yemeni)
       values:
@@ -270,16 +330,32 @@ country:
       value: Australia
     - match: Believed location - Egypt
       value: Egypt
-    - match: Azerbaijan Democratic Republic
+    - match:
+        - Azerbaijan Democratic Republic
+        - Baku
       value: AZ
-    - match: former USSR, now Azerbaijan
+    - match:
+        - Republic of Artsakh
+      value: AZ-NK
+    - match:
+        - former USSR, now Azerbaijan
+        - Azerbaijan Soviet Socialist Republic
       values:
         - "SUHH"
         - "AZ"
+    - match:
+        - Armenian Soviet Socialist Republic
+      values:
+        - "SUHH"
+        - "AM"
     - match: former USSR, now Kyrgyzstan
       values:
         - "SUHH"
         - "KG"
+    - match:
+        - State of Vietnam
+        - South Vietnam
+      value: Vietnam
     - match: Iraq,Iran
       values:
         - "Iraq"
@@ -319,15 +395,22 @@ country:
         - former USSR Currently Russia
         - Former USSR, now Russian Federation
         - Russian Soviet Federative Socialist Republic
+        - Russian Socialist Federative Soviet Republic
       values:
         - SUHH
         - RU
     - match:
         - Former USSR Currently Belarus
         - Former USSR Now Belarus
+        - Byelorussian Soviet Socialist Republic
       values:
         - SUHH
         - BY
+    - match:
+        - Estonian Soviet Socialist Republic
+      values:
+        - SUHH
+        - EE
     - match:
         - Former USSR
         - Uzbekistan SSR
@@ -360,7 +443,13 @@ country:
     - match:
         - former Yugoslavia
         - Kingdom of Yugoslavia
+        - Federal People's Republic of Yugoslavia
+        - Democratic Federal Yugoslavia
       value: YUCS
+    - match:
+        - Republic of Hungary
+        - People's Republic of Hungary
+      value: Hungary
     - match: Independent State of Croatia
       value: HR
     - match:
@@ -368,9 +457,18 @@ country:
         - Republika Srpska
       value: BA
     - match:
+        - Grand Duchy of Finland
+      value: Finland
+    - match:
+        - Polish People's Republic
+      value: Poland
+    - match:
         - Czechoslovak Socialist Republic
         - Czechoslovak Republic
       value: CSHH
+    - match:
+        - Slovak State (1939-1945)
+      value: Slovakia
     - match: Turks and Caicos Islads
       value: TC
     - match:
@@ -384,9 +482,16 @@ country:
     - match: Trinidad,
       value: TT
     - match:
+        - First Republic of Austria
+        - Federal State of Austria
+      value: AT
+    - match:
         - Saudi Arabian Citizen
         - al-Khafji
       value: Saudi Arabia
+    - match:
+        - Bangladeshis
+      value: Bangladesh
     - match:
         - פקיסטן ואפגניסטן
         - PAKISTAN AND AFGHNISTAN
@@ -400,7 +505,9 @@ country:
         - SO
     - match: ソマリア（モガディシュ）
       value: SO
-    - match: ケニア・ナイロビ
+    - match:
+        - ケニア・ナイロビ
+        - Nairobi
       value: KE
     - match:
         - Bogota
@@ -409,6 +516,7 @@ country:
     - match:
         - Faisalabad, Punjab, Pakistan
         - Pakis
+        - Pakistanis
       value: PK
 
 date:
@@ -664,6 +772,8 @@ gender:
         - Masculin
         - male
         - M
+        - transgender male
+        - cisgender male
       contains:
         - мужской
       value: male
@@ -673,6 +783,7 @@ gender:
     - match:
         - non-binary
         - intersex
+        - pangender
       value: other
 
 fulladdress:

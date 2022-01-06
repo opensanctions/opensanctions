@@ -20,6 +20,8 @@ def snak_value_to_string(value_type, value):
             time = time.strip("+")
             prec = PRECISION.get(value.get("precision"), Precision.DAY)
             time = time[: prec.value]
+            # Date limit in FtM. These will be removed by the death filter:
+            time = max("1001", time)
         return time
     elif value_type == "wikibase-entityid":
         return get_label(value.get("id"))
