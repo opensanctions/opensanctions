@@ -1,11 +1,12 @@
+import json
 import asyncio
 import hashlib
-from sqlalchemy.ext.asyncio.engine import AsyncConnection, AsyncTransaction
+import aiofiles
 import structlog
 import mimetypes
-from contextlib import asynccontextmanager
+from httpx import AsyncClient, URL
 from typing import Any, Dict, List, Optional, Tuple, Union
-from lxml import etree
+from lxml import etree, html
 from pprint import pprint
 from datapatch import LookupException
 from lxml.etree import _Element, tostring
@@ -13,15 +14,15 @@ from followthemoney.util import make_entity_id
 from followthemoney.schema import Schema
 
 from opensanctions import settings
-from opensanctions.core.http import get_session, fetch_download
+from opensanctions.core.http import get_session, HEADERS
 from opensanctions.core.entity import Entity
-from opensanctions.core.resolver import get_resolver
 from opensanctions.core.db import with_conn
 from opensanctions.core.issues import save_issue, clear_issues
 from opensanctions.core.resources import save_resource, clear_resources
 from opensanctions.core.statements import Statement, count_entities
 from opensanctions.core.statements import cleanup_dataset, clear_statements
 from opensanctions.core.statements import statements_from_entity, save_statements
+from opensanctions.util import named_semaphore
 
 
 class Context(object):
@@ -37,40 +38,37 @@ class Context(object):
         self.dataset = dataset
         self.path = settings.DATASET_PATH.joinpath(dataset.name)
         self.http = get_session()
-        self.resolver = get_resolver()
         self.log = structlog.get_logger(
             dataset.name, dataset=self.dataset.name, _ctx=self
         )
         self._statements: Dict[Tuple[str, str, str], Statement] = {}
         self._events: List[Dict[str, Any]] = []
+        self._http_client: Optional[AsyncClient] = None
+        self.http_concurrency = 10
 
     async def begin(self) -> None:
         """Flush and tear down the context."""
-        # self.conn = await engine.connect()
         pass
 
     async def close(self) -> None:
         """Flush and tear down the context."""
         if len(self._events):
-            # if self.conn is None:
-            #     self.conn = await engine.connect()
             async with with_conn() as conn:
                 for event in self._events:
                     await save_issue(conn, event)
-        # if self.conn is not None:
-        #     await self.conn.close()
-        #     self.conn = None
 
-    # @asynccontextmanager
-    # async def tx(self):
-    #     tx = await self.conn.begin()
-    #     try:
-    #         yield tx
-    #         await tx.commit()
-    #     finally:
-    #         await tx.close()
+        if self._http_client is not None:
+            await self._http_client.aclose()
 
-    # self.http.close()
+    @property
+    def http_client(self):
+        if self._http_client is None:
+            self._http_client = AsyncClient(
+                headers=HEADERS,
+                timeout=settings.HTTP_TIMEOUT,
+                follow_redirects=True,
+            )
+        return self._http_client
 
     def get_resource_path(self, name):
         return self.path.joinpath(name)
@@ -80,8 +78,36 @@ class Context(object):
         if it does not exist."""
         file_path = self.get_resource_path(name)
         if not file_path.exists():
-            fetch_download(file_path, url)
+            self.log.info("Fetching resource", path=file_path.as_posix(), url=url)
+            file_path.parent.mkdir(exist_ok=True, parents=True)
+            async with aiofiles.open(file_path, "wb") as fh:
+                async with self.http_client.stream("GET", url) as response:
+                    async for chunk in response.aiter_bytes():
+                        await fh.write(chunk)
         return file_path
+
+    async def fetch_response(self, url):
+        return await self.http_client.get(url)
+
+    async def fetch_text(self, url, params=None, headers=None, auth=None):
+        url_ = URL(url, params=params)
+        url = str(url_)
+
+        async with named_semaphore(f"http.{url_.host}", self.http_concurrency):
+            self.log.info("HTTP GET", url=url)
+            response = await self.http_client.get(url, headers=headers, auth=auth)
+            response.raise_for_status()
+            return response.text
+
+    async def fetch_json(self, url, params=None, headers=None, auth=None):
+        text = await self.fetch_text(url, params=params, headers=headers, auth=auth)
+        if text is not None and len(text):
+            return json.loads(text)
+
+    async def fetch_html(self, url, params=None, headers=None, auth=None):
+        text = await self.fetch_text(url, params=params, headers=headers, auth=auth)
+        if text is not None and len(text):
+            return html.fromstring(text)
 
     def parse_resource_xml(self, name):
         """Parse a file in the resource folder into an XML tree."""
@@ -148,10 +174,9 @@ class Context(object):
         context is flushed to the store. All statements that are not flushed
         when a crawl is aborted are not persisted to the database."""
         self.log.debug("Flushing statements to database...")
-        # if self.conn is None:
-        #     raise RuntimeError("No connection upon flush")
+        statements = list(self._statements.values())
         async with with_conn() as conn:
-            await save_statements(conn, list(self._statements.values()))
+            await save_statements(conn, statements)
         self._statements = {}
 
     async def emit(

@@ -36,9 +36,9 @@ def clean_name(text):
 async def crawl(context: Context):
     url = context.dataset.data.url
     headers = {"apikey": context.dataset.data.api_key}
-    res = context.http.get(url, headers=headers, timeout=240)
+    data = await context.fetch_json(url, headers=headers)
     # TODO write this out to a source.json
-    for data in res.json()["response"]["ZPROCSUPP"]:
+    for data in data["response"]["ZPROCSUPP"]:
         # context.pprint(data)
         entity = context.make("LegalEntity")
         name = data.get("SUPP_NAME")

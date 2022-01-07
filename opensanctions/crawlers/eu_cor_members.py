@@ -1,4 +1,3 @@
-from lxml import html
 from urllib.parse import urljoin
 from normality import stringify, collapse_spaces, slugify
 
@@ -10,8 +9,7 @@ FORMATS = ("%d/%m/%Y",)
 
 async def crawl_person(context: Context, name, url):
     context.log.debug("Crawling member", name=name, url=url)
-    res = context.http.get(url)
-    doc = html.fromstring(res.text)
+    doc = await context.fetch_html(url)
     _, person_id = url.rsplit("/", 1)
     person = context.make("Person")
     person.id = context.make_slug(person_id)
@@ -111,12 +109,11 @@ async def crawl_person(context: Context, name, url):
 
 
 async def crawl(context: Context):
-    res = context.http.get(context.dataset.data.url)
-    doc = html.fromstring(res.text)
+    doc = await context.fetch_html(context.dataset.data.url)
 
     seen = set()
     for link in doc.findall('.//div[@class="people"]//li//a[@class="_fullname"]'):
-        url = urljoin(res.url, link.get("href"))
+        url = urljoin(context.dataset.data.url, link.get("href"))
         url, _ = url.split("?", 1)
         if url in seen:
             continue

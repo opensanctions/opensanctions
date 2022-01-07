@@ -49,10 +49,9 @@ def parse_names(names: List[str]) -> List[str]:
 
 async def fetch_xls_url(context):
     params = {"_": settings.RUN_DATE}
-    res = context.http.get(context.dataset.data.url, params=params)
-    doc = html.fromstring(res.text)
+    doc = await context.fetch_html(context.dataset.data.url, params=params)
     for link in doc.findall('.//div[@class="unique-block"]//a'):
-        href = urljoin(res.url, link.get("href"))
+        href = urljoin(context.dataset.data.url, link.get("href"))
         if href.endswith(".xls"):
             return href
     context.log.error("Could not find XLS file on MoF web site")

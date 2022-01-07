@@ -45,6 +45,7 @@ setup(
         "colorama",
         "xlrd",
         "lxml",
+        "lxml-stubs",
     ],
     extras_require={
         "dev": [

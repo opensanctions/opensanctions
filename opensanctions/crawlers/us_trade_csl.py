@@ -1,6 +1,6 @@
 import json
 from banal import ensure_list
-from functools import lru_cache
+from asyncstdlib.functools import cache
 from pantomime.types import JSON
 from requests.exceptions import TooManyRedirects
 
@@ -11,11 +11,11 @@ FORMATS = ["%d %b %Y", "%d %B %Y", "%Y", "%b %Y", "%B %Y"]
 SDN = Dataset.require("us_ofac_sdn")
 
 
-@lru_cache(maxsize=None)
-def deref_url(context: Context, url):
+@cache
+async def deref_url(context: Context, url):
     try:
-        res = context.http.get(url, stream=True)
-        return res.url
+        res = await context.fetch_response(url)
+        return str(res.url)
     except TooManyRedirects:
         return url
 
@@ -104,7 +104,7 @@ async def parse_result(context: Context, result):
     sanction.add("authority", result.pop("source", None))
 
     # TODO: deref
-    source_url = deref_url(context, result.pop("source_information_url"))
+    source_url = await deref_url(context, result.pop("source_information_url"))
     sanction.add("sourceUrl", source_url)
     result.pop("source_list_url")
 

@@ -24,9 +24,9 @@ async def crawl(context: Context):
             "Accept": "application/json",
             "Referer": "https://www.iadb.org/en/transparency/sanctioned-firms-and-individuals",
         }
-        res = context.http.get(url, headers=headers)
+        page_data = await context.fetch_json(url, headers=headers)
         ids = []
-        for row in res.json():
+        for row in page_data:
             for field, value in list(row.items()):
                 if value == "N/A":
                     row[field] = ""

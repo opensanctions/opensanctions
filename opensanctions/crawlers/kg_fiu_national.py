@@ -43,10 +43,9 @@ async def parse_common(context: Context, node, entity):
     await context.emit(sanction)
 
 
-def crawl_index(context: Context):
+async def crawl_index(context: Context):
     params = {"_": settings.RUN_DATE}
-    res = context.http.get(context.dataset.url, params=params)
-    doc = html.fromstring(res.text)
+    doc = await context.fetch_html(context.dataset.url, params=params)
     for link in doc.findall(".//div[@class='sked-view']//a"):
         href = link.get("href")
         if href.endswith(".xml"):
@@ -54,7 +53,7 @@ def crawl_index(context: Context):
 
 
 async def crawl(context: Context):
-    url = crawl_index(context)
+    url = await crawl_index(context)
     if url is None:
         context.log.error("Could not locate XML file", url=context.dataset.url)
         return

@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime
 
 from opensanctions.core import Context
@@ -5,24 +6,22 @@ from opensanctions import helpers as h
 
 
 async def crawl(context: Context):
-    res = context.http.get(context.dataset.data.url)
-    for country in res.json():
+    data = await context.fetch_json(context.dataset.data.url)
+
+    for country in data:
         for legislature in country.get("legislatures", []):
             code = country.get("code").lower()
             context.log.info("Country: %s" % code)
             await crawl_legislature(context, code, legislature)
 
-    # context.resolver.save()
-
 
 async def crawl_legislature(context: Context, country, legislature):
-    lastmod = int(legislature.get("lastmod"))
-    lastmod = datetime.utcfromtimestamp(lastmod)
+    lastmod_ = int(legislature.get("lastmod"))
+    lastmod = datetime.utcfromtimestamp(lastmod_)
     entities = {}
 
     url = legislature.get("popolo_url")
-    res = context.http.get(url)
-    data = res.json()
+    data = await context.fetch_json(url)
 
     for person in data.pop("persons", []):
         await parse_person(context, person, country, entities, lastmod)

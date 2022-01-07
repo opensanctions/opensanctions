@@ -1,12 +1,13 @@
 import os
 import string
 from urllib.parse import urljoin
+from httpx import HTTPStatusError
 
 from opensanctions.core import Context
 from opensanctions import helpers as h
 
 
-class RateLimit(Exception):
+class AbortCrawl(Exception):
     pass
 
 
@@ -18,17 +19,18 @@ WEB_URL = "https://beta.companieshouse.gov.uk/register-of-disqualifications/A"
 
 
 async def http_get(context: Context, url, params=None):
-    res = context.http.get(url, params=params, auth=AUTH)
-    if res.status_code == 429:
-        raise RateLimit()
-    return res
+    try:
+        return await context.fetch_json(url, params=params, auth=AUTH)
+    except HTTPStatusError as err:
+        if err.response.status_code in (429, 416):
+            raise AbortCrawl()
+        context.log.info("HTTP error: %r", err)
 
 
 async def crawl_item(context: Context, listing):
     links = listing.get("links", {})
     url = urljoin(API_URL, links.get("self"))
-    res = await http_get(context, url)
-    data = res.json()
+    data = await http_get(context, url)
     person = context.make("Person")
     _, officer_id = url.rsplit("/", 1)
     person.id = context.make_slug(officer_id)
@@ -109,14 +111,11 @@ async def crawl(context: Context):
                     "start_index": start_index,
                     "items_per_page": 100,
                 }
-                res = await http_get(context, SEARCH_URL, params=params)
-                if res.status_code == 416:
-                    break
-                data = res.json()
+                data = await http_get(context, SEARCH_URL, params=params)
                 for item in data.pop("items", []):
                     await crawl_item(context, item)
                 start_index = data["start_index"] + data["items_per_page"]
                 if data["total_results"] < start_index:
                     break
-    except RateLimit:
+    except AbortCrawl:
         context.log.info("Rate limit exceeded, aborting.")

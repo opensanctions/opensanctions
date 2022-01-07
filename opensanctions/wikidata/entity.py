@@ -16,10 +16,10 @@ from opensanctions.wikidata.claim import Claim
 # SEEN_PROPS = set()
 
 
-def qualify_value(value, claim):
+async def qualify_value(context: Context, value: str, claim: Claim) -> str:
     starts = set()
     for qual in claim.get_qualifier("P580"):
-        text = qual.text
+        text = await qual.text(context)
         if text is not None:
             starts.add(text[:4])
 
@@ -27,7 +27,7 @@ def qualify_value(value, claim):
 
     ends = set()
     for qual in claim.get_qualifier("P582"):
-        text = qual.text
+        text = await qual.text(context)
         if text is not None:
             ends.add(text[:4])
 
@@ -37,7 +37,7 @@ def qualify_value(value, claim):
 
     dates = set()
     for qual in claim.get_qualifier("P585"):
-        text = qual.text
+        text = await qual.text(context)
         if text is not None:
             dates.add(text[:4])
 
@@ -52,7 +52,7 @@ async def make_link(
 ):
     if depth < 1 or claim.qid in seen:
         return
-    other_data = get_entity(claim.qid)
+    other_data = await get_entity(context, claim.qid)
     if other_data is None:
         return
 
@@ -77,20 +77,25 @@ async def make_link(
     link.id = context.make_slug(claim.property, *sorted((proxy.id, other.id)))
     link.add(source_prop, proxy.id)
     link.add(target_prop, other.id)
-    link.add("relationship", claim.property_label)
+    rel = await claim.property_label(context)
+    link.add("relationship", rel)
 
     for qual in claim.get_qualifier("P580"):
-        link.add("startDate", qual.text)
+        text = await qual.text(context)
+        link.add("startDate", text)
 
     for qual in claim.get_qualifier("P582"):
-        link.add("endDate", qual.text)
+        text = await qual.text(context)
+        link.add("endDate", text)
 
     for qual in claim.get_qualifier("P585"):
-        link.add("date", qual.text)
+        text = await qual.text(context)
+        link.add("date", text)
 
     for ref in claim.references:
         for snak in ref.get("P854"):
-            link.add("sourceUrl", snak.text)
+            text = await snak.text(context)
+            link.add("sourceUrl", text)
     return link
 
 
@@ -99,11 +104,11 @@ async def apply_claim(
 ):
     prop = PROPS_DIRECT.get(claim.property)
     if prop is not None:
-        value = claim.text
+        value = await claim.text(context)
         if prop == "gender":
             value = h.clean_gender(value)
         if prop in PROPS_QUALIFIED:
-            value = qualify_value(value, claim)
+            value = await qualify_value(context, value, claim)
         proxy.add(prop, value)
         return
     if claim.property in PROPS_FAMILY:
@@ -120,7 +125,8 @@ async def apply_claim(
         )
         if link is not None:
             for qual in claim.get_qualifier("P1039"):
-                link.set("relationship", qual.text)
+                text = await qual.text(context)
+                link.set("relationship", text)
             await context.emit(link)
         return
     if claim.property in PROPS_ASSOCIATION:
@@ -137,12 +143,13 @@ async def apply_claim(
         )
         if link is not None:
             for qual in claim.get_qualifier("P2868"):
-                link.set("relationship", qual.text)
+                text = await qual.text(context)
+                link.set("relationship", text)
             await context.emit(link)
         return
     # TODO: memberships, employers?
-    if claim.property in IGNORE:
-        return
+    # if claim.property in IGNORE:
+    #     return
     # if claim.type != "external-id" and claim.property not in SEEN_PROPS:
     #     context.log.warning(
     #         "Claim",

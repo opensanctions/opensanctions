@@ -34,14 +34,14 @@ def cleanup_cache():
     session.cache.remove_expired_responses(expire_after=settings.CACHE_EXPIRE)
 
 
-def fetch_download(file_path, url: str):
-    """Circumvent the cache for large file downloads."""
-    session = requests.Session()
-    session.headers.update(HEADERS)
-    log.info("Fetching resource", path=file_path.as_posix(), url=url)
-    file_path.parent.mkdir(exist_ok=True, parents=True)
-    with session.get(url, stream=True, timeout=settings.HTTP_TIMEOUT) as res:
-        res.raise_for_status()
-        with open(file_path, "wb") as handle:
-            for chunk in res.iter_content(chunk_size=8192 * 16):
-                handle.write(chunk)
+# def fetch_download(file_path, url: str):
+#     """Circumvent the cache for large file downloads."""
+#     session = requests.Session()
+#     session.headers.update(HEADERS)
+#     log.info("Fetching resource", path=file_path.as_posix(), url=url)
+#     file_path.parent.mkdir(exist_ok=True, parents=True)
+#     with session.get(url, stream=True, timeout=settings.HTTP_TIMEOUT) as res:
+#         res.raise_for_status()
+#         with open(file_path, "wb") as handle:
+#             for chunk in res.iter_content(chunk_size=8192 * 16):
+#                 handle.write(chunk)
