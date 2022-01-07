@@ -28,7 +28,8 @@ setup(
     zip_safe=False,
     install_requires=[
         "followthemoney >= 1.21.2",
-        "nomenklatura >= 0.0.1, < 2.0.0",
+        # "nomenklatura >= 0.0.1, < 2.0.0",
+        "nomenklatura >= 0.0.1",
         "pantomime",
         "sqlalchemy",
         "alembic",
