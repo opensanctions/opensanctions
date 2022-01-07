@@ -81,6 +81,9 @@ jobs:
       run:
         working-directory: ./site
     steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: main
       - name: Trigger Vercel.com build
         uses: zzzze/webhook-trigger@master
         with:
@@ -91,6 +94,8 @@ jobs:
     needs: [data]
     steps:
       - uses: actions/checkout@v2
+        with:
+          ref: main
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
       - name: Set up Docker Buildx
