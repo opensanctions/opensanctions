@@ -85,7 +85,10 @@ country:
         - Insular Government of the Philippine Islands
         - Korean Empire
         - Joseon
-
+        - Song dynasty
+        - Qing dynasty
+        - Malaya
+        - British Pakistanis
       contains:
         - (JVCFOR)
       value: null
@@ -109,12 +112,16 @@ country:
         - Third Republic of the Philippines
       value: Philippines
     - match:
+        - Kingdom of Mysore
+      value: India
+    - match:
         - "Jalisco"
         - "Guadalajara, Jalisco"
         - "Sinaloa"
         - "Culiacan, Sinaloa"
         - "Monterrey, Nuevo Leon"
         - "Tepic, Nayarit"
+        - State of Mexico
       value: MX
     - match:
         - Maracaibo, Zulia
@@ -272,6 +279,7 @@ country:
         - Mali
     - match:
         - Australiana
+        - Gold Coast
       value: Australia
     - contains: Fiji (Prakash’s Australian
       value: Fiji
@@ -371,9 +379,13 @@ country:
     - match:
         - Ukrainian SSR (now Ukraine)
         - former USSR, now Ukraine
+        - Ukrainian Soviet Socialist Republic
       values:
         - SUHH
         - UA
+    - match:
+        - Ukrainian State
+      value: Ukraine
     - match:
         # *cough cough*:
         - тимчасово окупована територія Автономної Республіки Крим
