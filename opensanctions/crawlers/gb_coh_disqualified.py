@@ -18,9 +18,14 @@ API_URL = "https://api.companieshouse.gov.uk/"
 WEB_URL = "https://beta.companieshouse.gov.uk/register-of-disqualifications/A"
 
 
-async def http_get(context: Context, url, params=None):
+async def http_get(context: Context, url, params=None, cache_days=None):
     try:
-        return await context.fetch_json(url, params=params, auth=AUTH)
+        return await context.fetch_json(
+            url,
+            params=params,
+            auth=AUTH,
+            cache_days=cache_days,
+        )
     except HTTPStatusError as err:
         if err.response.status_code in (429, 416):
             raise AbortCrawl()
@@ -30,7 +35,7 @@ async def http_get(context: Context, url, params=None):
 async def crawl_item(context: Context, listing):
     links = listing.get("links", {})
     url = urljoin(API_URL, links.get("self"))
-    data = await http_get(context, url)
+    data = await http_get(context, url, cache_days=14)
     person = context.make("Person")
     _, officer_id = url.rsplit("/", 1)
     person.id = context.make_slug(officer_id)

@@ -30,7 +30,7 @@ async def crawl_notice(context, notice):
         return
     SEEN.add(url)
     try:
-        notice = await context.fetch_json(url)
+        notice = await context.fetch_json(url, cache_days=7)
     except HTTPStatusError as err:
         context.log.warning(
             "HTTP error",
@@ -70,7 +70,6 @@ async def crawl_country(context: Context, country, age_max=120, age_min=0):
         # "arrestWarrantCountryId": country,
         "nationality": country,
         "resultPerPage": MAX_RESULTS,
-        "_": settings.RUN_DATE,
     }
     try:
         data = await context.fetch_json(context.dataset.data.url, params=params)

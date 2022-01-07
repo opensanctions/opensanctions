@@ -10,8 +10,7 @@ from opensanctions.wikidata import get_entity, entity_to_ftm
 async def crawl(context: Context):
     text = await context.fetch_text(context.dataset.data.url)
     for row in csv.DictReader(io.StringIO(text)):
-        print(text)
-        qid = row.get("qid").strip()
+        qid = row.get("qid", "").strip()
         if not len(qid):
             continue
         if not Identifier.QID.match(qid):

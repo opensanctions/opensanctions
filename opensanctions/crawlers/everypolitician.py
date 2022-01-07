@@ -21,7 +21,8 @@ async def crawl_legislature(context: Context, country, legislature):
     entities = {}
 
     url = legislature.get("popolo_url")
-    data = await context.fetch_json(url)
+    # this isn't being updated, hence long interval:
+    data = await context.fetch_json(url, cache_days=30)
 
     for person in data.pop("persons", []):
         await parse_person(context, person, country, entities, lastmod)

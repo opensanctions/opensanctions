@@ -1,22 +1,26 @@
 import json
+import math
 import asyncio
 import hashlib
 import aiofiles
 import structlog
 import mimetypes
+from random import randint
 from httpx import AsyncClient, URL
 from typing import Any, Dict, List, Optional, Tuple, Union
 from lxml import etree, html
 from pprint import pprint
+from datetime import timedelta
 from datapatch import LookupException
 from lxml.etree import _Element, tostring
 from followthemoney.util import make_entity_id
 from followthemoney.schema import Schema
 
 from opensanctions import settings
-from opensanctions.core.http import get_session, HEADERS
+from opensanctions.core.http import HEADERS
 from opensanctions.core.entity import Entity
 from opensanctions.core.db import with_conn
+from opensanctions.core.http import check_cache, save_cache
 from opensanctions.core.issues import save_issue, clear_issues
 from opensanctions.core.resources import save_resource, clear_resources
 from opensanctions.core.statements import Statement, count_entities
@@ -37,7 +41,6 @@ class Context(object):
     def __init__(self, dataset):
         self.dataset = dataset
         self.path = settings.DATASET_PATH.joinpath(dataset.name)
-        self.http = get_session()
         self.log = structlog.get_logger(
             dataset.name, dataset=self.dataset.name, _ctx=self
         )
@@ -58,7 +61,10 @@ class Context(object):
                     await save_issue(conn, event)
 
         if self._http_client is not None:
+            # try:
             await self._http_client.aclose()
+            # except RuntimeError:
+            #     pass
 
     @property
     def http_client(self):
@@ -89,23 +95,45 @@ class Context(object):
     async def fetch_response(self, url):
         return await self.http_client.get(url)
 
-    async def fetch_text(self, url, params=None, headers=None, auth=None):
+    async def fetch_text(
+        self,
+        url,
+        params=None,
+        headers=None,
+        auth=None,
+        cache_days=None,
+    ):
         url_ = URL(url, params=params)
         url = str(url_)
 
-        async with named_semaphore(f"http.{url_.host}", self.http_concurrency):
-            self.log.info("HTTP GET", url=url)
-            response = await self.http_client.get(url, headers=headers, auth=auth)
-            response.raise_for_status()
-            return response.text
+        if cache_days is not None:
+            async with with_conn() as conn:
+                min_cache = max(1, math.ceil(cache_days * 0.8))
+                max_cache = math.ceil(cache_days * 1.2)
+                cache_days = timedelta(days=randint(min_cache, max_cache))
+                text = await check_cache(conn, url, cache_days)
+                if text is not None:
+                    self.log.debug("HTTP cache hit", url=url)
+                    return text
 
-    async def fetch_json(self, url, params=None, headers=None, auth=None):
-        text = await self.fetch_text(url, params=params, headers=headers, auth=auth)
+        async with named_semaphore(f"http.{url_.host}", self.http_concurrency):
+            self.log.debug("HTTP GET", url=url)
+            response = await self.http_client.get(url, headers=headers, auth=auth)
+        response.raise_for_status()
+        if response.text is None:
+            return None
+        async with with_conn() as conn:
+            await save_cache(conn, url, response.text)
+        return response.text
+
+    async def fetch_json(self, url, **kwargs):
+        """Fetch the given URL (GET) and decode it as a JSON object."""
+        text = await self.fetch_text(url, **kwargs)
         if text is not None and len(text):
             return json.loads(text)
 
-    async def fetch_html(self, url, params=None, headers=None, auth=None):
-        text = await self.fetch_text(url, params=params, headers=headers, auth=auth)
+    async def fetch_html(self, url, **kwargs):
+        text = await self.fetch_text(url, **kwargs)
         if text is not None and len(text):
             return html.fromstring(text)
 

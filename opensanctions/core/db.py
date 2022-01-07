@@ -91,6 +91,21 @@ stmt_table = Table(
     Column("last_seen", DateTime, index=True),
 )
 
+cache_table = Table(
+    "cache",
+    metadata,
+    Column("url", Unicode(), index=True, nullable=False, unique=True),
+    Column("text", Unicode(), nullable=True),
+    Column("timestamp", DateTime, index=True),
+)
+
+canonical_table = Table(
+    "canonical",
+    metadata,
+    Column("entity_id", Unicode(KEY_LEN), index=True, nullable=False),
+    Column("canonical_id", Unicode(KEY_LEN), index=True, nullable=True),
+)
+
 
 def upgrade_db():
     command.upgrade(alembic_cfg, "head")
