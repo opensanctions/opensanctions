@@ -8,9 +8,10 @@ from followthemoney.types import registry
 from starlette.responses import RedirectResponse
 from followthemoney import model
 from followthemoney.exc import InvalidData
-from opensanctions.model import db
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.entity import Entity
+from opensanctions.core.db import with_conn
+from opensanctions.core.statements import count_statements, paged_statements
 from opensanctions.core.logs import configure_logging
 
 from osapi import settings
@@ -33,7 +34,6 @@ from osapi.data import get_freebase_entity, get_freebase_property
 from osapi.data import get_matchable_schemata, get_scope
 from osapi.util import match_prefix
 
-from opensanctions.model.statement import Statement
 
 log = logging.getLogger(__name__)
 app = FastAPI(
@@ -64,11 +64,6 @@ QUERY_PREFIX = Query(None, min_length=1, description="Search prefix")
 # https://github.com/tiangolo/full-stack-fastapi-postgresql/issues/104
 
 
-@app.on_event("startup")
-async def startup_event():
-    db.session.close()
-
-
 def get_dataset(name: str) -> Dataset:
     dataset = Dataset.get(name)
     if dataset is None or dataset not in get_datasets():
@@ -86,14 +81,11 @@ async def index():
     """Get system information: the list of available dataset names, the size of
     the search index in memory, and the followthemoney model specification which
     describes the types of entities and properties in use by the API."""
-    try:
-        return {
-            "datasets": [ds.name for ds in get_datasets()],
-            "model": model.to_dict(),
-            "index": await get_index_stats(),
-        }
-    finally:
-        db.session.close()
+    return {
+        "datasets": [ds.name for ds in get_datasets()],
+        "model": model.to_dict(),
+        "index": await get_index_stats(),
+    }
 
 
 @app.get(
@@ -105,13 +97,10 @@ async def index():
 async def healthz():
     """No-op basic health check. This is used by cluster management systems like
     Kubernetes to verify the service is responsive."""
-    try:
-        ok = await get_index_status()
-        if not ok:
-            raise HTTPException(500, detail="Index not ready")
-        return {"status": "ok"}
-    finally:
-        db.session.close()
+    ok = await get_index_status()
+    if not ok:
+        raise HTTPException(500, detail="Index not ready")
+    return {"status": "ok"}
 
 
 @app.get(
@@ -135,19 +124,16 @@ async def search(
     """Search endpoint for matching entities based on a simple piece of text, e.g.
     a name. This can be used to implement a simple, user-facing search. For proper
     entity matching, the multi-property matching API should be used instead."""
-    try:
-        ds = get_dataset(dataset)
-        schema_obj = model.get(schema)
-        if schema_obj is None:
-            raise HTTPException(400, detail="Invalid schema")
-        filters = {"countries": countries, "topics": topics, "datasets": datasets}
-        query = text_query(ds, schema_obj, q, filters=filters, fuzzy=fuzzy)
-        aggregations = facet_aggregations(filters.keys())
-        return await query_results(
-            ds, query, limit, aggregations=aggregations, nested=nested, offset=offset
-        )
-    finally:
-        db.session.close()
+    ds = get_dataset(dataset)
+    schema_obj = model.get(schema)
+    if schema_obj is None:
+        raise HTTPException(400, detail="Invalid schema")
+    filters = {"countries": countries, "topics": topics, "datasets": datasets}
+    query = text_query(ds, schema_obj, q, filters=filters, fuzzy=fuzzy)
+    aggregations = facet_aggregations(filters.keys())
+    return await query_results(
+        ds, query, limit, aggregations=aggregations, nested=nested, offset=offset
+    )
 
 
 @app.post(
@@ -212,20 +198,17 @@ async def match(
     * **Company**: ``name``, ``jurisdiction``, ``registrationNumber``, ``address``,
       ``incorporationDate``
     """
-    try:
-        ds = get_dataset(dataset)
-        responses = {}
-        for name, example in query.get("queries").items():
-            entity = Entity(example.get("schema"))
-            for prop, value in example.get("properties").items():
-                entity.add(prop, value, cleaned=False)
-            entity_query = entity_query(ds, entity, fuzzy=fuzzy)
-            results = await query_results(ds, entity_query, limit, nested=nested)
-            results["query"] = entity.to_dict()
-            responses[name] = results
-        return {"responses": responses}
-    finally:
-        db.session.close()
+    ds = get_dataset(dataset)
+    responses = {}
+    for name, example in query.get("queries").items():
+        entity = Entity(example.get("schema"))
+        for prop, value in example.get("properties").items():
+            entity.add(prop, value, cleaned=False)
+        entity_query = entity_query(ds, entity, fuzzy=fuzzy)
+        results = await query_results(ds, entity_query, limit, nested=nested)
+        results["query"] = entity.to_dict()
+        responses[name] = results
+    return {"responses": responses}
 
 
 @app.get("/entities/{entity_id}", tags=["Data access"], response_model=EntityResponse)
@@ -235,20 +218,17 @@ async def fetch_entity(
     """Retrieve a single entity by its ID. The entity will be returned in
     full, with data from all datasets and with nested entities (adjacent
     passport, sanction and associated entities) included."""
-    try:
-        canonical_id = str(resolver.get_canonical(entity_id))
-        if canonical_id != entity_id:
-            url = app.url_path_for("fetch_entity", entity_id=canonical_id)
-            return RedirectResponse(url=url)
+    canonical_id = str(resolver.get_canonical(entity_id))
+    if canonical_id != entity_id:
+        url = app.url_path_for("fetch_entity", entity_id=canonical_id)
+        return RedirectResponse(url=url)
 
-        entity = await get_entity(entity_id)
-        if entity is None:
-            raise HTTPException(404, detail="No such entity!")
-        scope = get_scope()
-        data = await serialize_entity(scope, entity, nested=True)
-        return data
-    finally:
-        db.session.close()
+    entity = await get_entity(entity_id)
+    if entity is None:
+        raise HTTPException(404, detail="No such entity!")
+    scope = get_scope()
+    data = await serialize_entity(scope, entity, nested=True)
+    return data
 
 
 @app.get(
@@ -277,9 +257,10 @@ async def statements(
     easier use. Using the raw statement data offered by this API will grant
     users access to detailed provenance information for each property value.
     """
-    try:
-        ds = get_dataset(dataset)
-        q = Statement.all_filtered(
+    ds = get_dataset(dataset)
+    async with with_conn() as conn:
+        total = await count_statements(
+            conn,
             dataset=ds,
             entity_id=entity_id,
             canonical_id=canonical_id,
@@ -287,23 +268,24 @@ async def statements(
             value=value,
             schema=schema,
         )
-        total = db.session.query(q.count()).scalar()
-
-        # Make the order of entities stable.
-        q = q.order_by(Statement.canonical_id.desc())
-        q = q.order_by(Statement.entity_id.desc())
-        q = q.order_by(Statement.prop.desc())
-
-        q = q.offset(offset).limit(limit)
-        statements = q.all()
-        return {
-            "limit": limit,
-            "offset": offset,
-            "total": total,
-            "results": [s.to_dict() for s in statements],
-        }
-    finally:
-        db.session.close()
+        stmts = paged_statements(
+            conn,
+            dataset=ds,
+            limit=limit,
+            offset=offset,
+            entity_id=entity_id,
+            canonical_id=canonical_id,
+            prop=prop,
+            value=value,
+            schema=schema,
+        )
+        statements = [s async for s in stmts]
+    return {
+        "limit": limit,
+        "offset": offset,
+        "total": total,
+        "results": [s for s in statements],
+    }
 
 
 @app.get(
@@ -320,35 +302,32 @@ async def reconcile(
     to bulk match entities against the system using an end-user application like
     [OpenRefine](https://openrefine.org).
     """
-    try:
-        ds = get_dataset(dataset)
-        if queries is not None:
-            return await reconcile_queries(ds, queries)
-        base_url = urljoin(settings.ENDPOINT_URL, f"/reconcile/{dataset}")
-        return {
-            "versions": ["0.2"],
-            "name": f"{ds.title} ({settings.TITLE})",
-            "identifierSpace": "https://opensanctions.org/reference/#schema",
-            "schemaSpace": "https://opensanctions.org/reference/#schema",
-            "view": {"url": ("https://opensanctions.org/entities/{{id}}/")},
-            "suggest": {
-                "entity": {
-                    "service_url": base_url,
-                    "service_path": "/suggest/entity",
-                },
-                "type": {
-                    "service_url": base_url,
-                    "service_path": "/suggest/type",
-                },
-                "property": {
-                    "service_url": base_url,
-                    "service_path": "/suggest/property",
-                },
+    ds = get_dataset(dataset)
+    if queries is not None:
+        return await reconcile_queries(ds, queries)
+    base_url = urljoin(settings.ENDPOINT_URL, f"/reconcile/{dataset}")
+    return {
+        "versions": ["0.2"],
+        "name": f"{ds.title} ({settings.TITLE})",
+        "identifierSpace": "https://opensanctions.org/reference/#schema",
+        "schemaSpace": "https://opensanctions.org/reference/#schema",
+        "view": {"url": ("https://opensanctions.org/entities/{{id}}/")},
+        "suggest": {
+            "entity": {
+                "service_url": base_url,
+                "service_path": "/suggest/entity",
             },
-            "defaultTypes": get_freebase_types(ds),
-        }
-    finally:
-        db.session.close()
+            "type": {
+                "service_url": base_url,
+                "service_path": "/suggest/type",
+            },
+            "property": {
+                "service_url": base_url,
+                "service_path": "/suggest/property",
+            },
+        },
+        "defaultTypes": await get_freebase_types(ds),
+    }
 
 
 @app.post(
@@ -363,14 +342,14 @@ async def reconcile_post(
 ):
     """Reconciliation API, emulates Google Refine API. This endpoint is used by
     clients for matching, refer to the discovery endpoint for details."""
-    try:
-        ds = get_dataset(dataset)
-        return await reconcile_queries(ds, queries)
-    finally:
-        db.session.close()
+    ds = get_dataset(dataset)
+    return await reconcile_queries(ds, queries)
 
 
-async def reconcile_queries(dataset: Dataset, queries: str):
+async def reconcile_queries(
+    dataset: Dataset,
+    queries: Dict[str, Any],
+):
     # multiple requests in one query
     try:
         queries = json.loads(queries)
@@ -425,21 +404,18 @@ async def reconcile_suggest_entity(
 
     Searches are conducted based on name and text content, using all matchable
     entities in the system index."""
-    try:
-        ds = get_dataset(dataset)
-        entity = Entity(settings.BASE_SCHEMA)
-        entity.add("name", prefix)
-        entity.add("notes", prefix)
-        results = []
-        query = entity_query(ds, entity)
-        async for result, score in query_entities(query, limit=limit):
-            results.append(get_freebase_entity(result, score))
-        return {
-            "prefix": prefix,
-            "result": results,
-        }
-    finally:
-        db.session.close()
+    ds = get_dataset(dataset)
+    entity = Entity(settings.BASE_SCHEMA)
+    entity.add("name", prefix)
+    entity.add("notes", prefix)
+    results = []
+    query = entity_query(ds, entity)
+    async for result, score in query_entities(query, limit=limit):
+        results.append(get_freebase_entity(result, score))
+    return {
+        "prefix": prefix,
+        "result": results,
+    }
 
 
 @app.get(
@@ -455,23 +431,20 @@ async def reconcile_suggest_property(
     """Given a search prefix, return all the type/schema properties which match
     the given text. This is used to auto-complete property selection for detail
     filters in OpenRefine."""
-    try:
-        ds = get_dataset(dataset)
-        schemata = get_matchable_schemata(ds)
-        matches = []
-        for prop in model.properties:
-            if prop.schema not in schemata:
-                continue
-            if prop.hidden or prop.type == prop.type == registry.entity:
-                continue
-            if match_prefix(prefix, prop.name, prop.label):
-                matches.append(get_freebase_property(prop))
-        return {
-            "prefix": prefix,
-            "result": matches,
-        }
-    finally:
-        db.session.close()
+    ds = get_dataset(dataset)
+    schemata = await get_matchable_schemata(ds)
+    matches = []
+    for prop in model.properties:
+        if prop.schema not in schemata:
+            continue
+        if prop.hidden or prop.type == prop.type == registry.entity:
+            continue
+        if match_prefix(prefix, prop.name, prop.label):
+            matches.append(get_freebase_property(prop))
+    return {
+        "prefix": prefix,
+        "result": matches,
+    }
 
 
 @app.get(
@@ -487,15 +460,12 @@ async def reconcile_suggest_type(
     """Given a search prefix, return all the types (i.e. schema) which match
     the given text. This is used to auto-complete type selection for the
     configuration of reconciliation in OpenRefine."""
-    try:
-        ds = get_dataset(dataset)
-        matches = []
-        for schema in get_matchable_schemata(ds):
-            if match_prefix(prefix, schema.name, schema.label):
-                matches.append(get_freebase_type(schema))
-        return {
-            "prefix": prefix,
-            "result": matches,
-        }
-    finally:
-        db.session.close()
+    ds = get_dataset(dataset)
+    matches = []
+    for schema in await get_matchable_schemata(ds):
+        if match_prefix(prefix, schema.name, schema.label):
+            matches.append(get_freebase_type(schema))
+    return {
+        "prefix": prefix,
+        "result": matches,
+    }

@@ -1,7 +1,6 @@
 import asyncio
 import logging
 import warnings
-from pprint import pprint
 from typing import Any, AsyncGenerator, Dict, Generator, List, Optional, Tuple
 from elasticsearch import AsyncElasticsearch, TransportError
 from elasticsearch.exceptions import ElasticsearchWarning, NotFoundError
@@ -12,9 +11,9 @@ from followthemoney.property import Property
 from followthemoney.types import registry
 
 from opensanctions.core import configure_logging, Dataset
+from opensanctions.core.db import with_conn
+from opensanctions.core.statements import all_schemata, max_last_seen
 from opensanctions.core.entity import Entity
-from opensanctions.exporters import export_assembler
-from opensanctions.model import Statement
 
 from osapi.settings import ES_INDEX, ES_URL, BASE_SCHEMA
 from osapi.mapping import make_mapping, INDEX_SETTINGS, TEXT_TYPES
@@ -49,7 +48,10 @@ async def generate_entities(index, loader):
 async def index():
     dataset = get_scope()
 
-    latest = Statement.max_last_seen(dataset)
+    async with with_conn() as conn:
+        schemata = await all_schemata(conn, dataset)
+        latest = await max_last_seen(conn, dataset)
+
     ts = latest.strftime("%Y%m%d%H%M%S")
     prefix = f"{ES_INDEX}-"
     next_index = f"{prefix}{ts}"
@@ -58,12 +60,12 @@ async def index():
         log.info("Index [%s] is up to date.", next_index)
         # await es.indices.delete(index=next_index)
         return
-    schemata = Statement.all_schemata(dataset)
+
     mapping = make_mapping(schemata)
     log.info("Create index: %s", next_index)
     await es.indices.create(index=next_index, mappings=mapping, settings=INDEX_SETTINGS)
     db = get_database(cached=True)
-    loader = db.view(dataset, assembler=export_assembler)
+    loader = await db.view(dataset, assembler=Entity.assembler)
     await async_bulk(es, generate_entities(next_index, loader), stats_only=True)
     log.info("Indexing done, force merge")
     await es.indices.refresh(index=next_index)

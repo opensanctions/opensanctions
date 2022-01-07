@@ -1,7 +1,6 @@
-import logging
 from typing import Any, Dict, Optional, Set
 
-from opensanctions.core import Context, Dataset, Entity, setup
+from opensanctions.core import Context, Entity
 from opensanctions import helpers as h
 from opensanctions.wikidata.api import get_entity
 from opensanctions.wikidata.lang import pick_obj_lang

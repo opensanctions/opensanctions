@@ -1,10 +1,9 @@
-import asyncio
 import structlog
 from hashlib import sha1
 from datetime import datetime
-from typing import List, Optional, TypedDict, cast
+from typing import AsyncGenerator, List, Optional, TypedDict, cast
 from sqlalchemy.future import select
-from sqlalchemy.sql.expression import delete, update
+from sqlalchemy.sql.expression import delete, update, Select
 from sqlalchemy.sql.functions import func
 from nomenklatura import Resolver
 from followthemoney import model
@@ -111,7 +110,7 @@ async def save_statements(conn: Conn, values: List[Statement]) -> None:
 
 async def all_statements(
     conn: Conn, dataset=None, canonical_id=None, inverted_ids=None
-):
+) -> AsyncGenerator[Statement, None]:
     q = select(stmt_table)
     if canonical_id is not None:
         q = q.filter(stmt_table.c.canonical_id == canonical_id)
@@ -139,15 +138,16 @@ async def all_statements(
         yield cast(Statement, row._asdict())
 
 
-async def filtered_statements_query(
-    dataset=None,
-    entity_id=None,
-    canonical_id=None,
-    prop=None,
-    value=None,
-    schema=None,
-):
-    q = select(stmt_table)
+def filtered_statements_query(
+    q: Select,
+    dataset: Optional[Dataset] = None,
+    entity_id: Optional[str] = None,
+    canonical_id: Optional[str] = None,
+    prop: Optional[str] = None,
+    value: Optional[str] = None,
+    schema: Optional[str] = None,
+) -> Select:
+
     if canonical_id is not None:
         q = q.filter(stmt_table.c.canonical_id == canonical_id)
     if entity_id is not None:
@@ -161,6 +161,60 @@ async def filtered_statements_query(
     if dataset is not None:
         q = q.filter(stmt_table.c.dataset.in_(dataset.source_names))
     return q
+
+
+async def count_statements(
+    conn: Conn,
+    dataset: Optional[Dataset] = None,
+    entity_id: Optional[str] = None,
+    canonical_id: Optional[str] = None,
+    prop: Optional[str] = None,
+    value: Optional[str] = None,
+    schema: Optional[str] = None,
+) -> int:
+    q = select(func.count(stmt_table.c.id))
+    q = filtered_statements_query(
+        q,
+        dataset=dataset,
+        entity_id=entity_id,
+        canonical_id=canonical_id,
+        prop=prop,
+        value=value,
+        schema=schema,
+    )
+    return await conn.scalar(q)
+
+
+async def paged_statements(
+    conn: Conn,
+    limit: int = 100,
+    offset: int = 0,
+    dataset: Optional[Dataset] = None,
+    entity_id: Optional[str] = None,
+    canonical_id: Optional[str] = None,
+    prop: Optional[str] = None,
+    value: Optional[str] = None,
+    schema: Optional[str] = None,
+) -> AsyncGenerator[Statement, None]:
+    # Make the order of entities stable.
+    q = select(stmt_table)
+    q = filtered_statements_query(
+        q,
+        dataset=dataset,
+        entity_id=entity_id,
+        canonical_id=canonical_id,
+        prop=prop,
+        value=value,
+        schema=schema,
+    )
+    q = q.order_by(stmt_table.c.canonical_id.desc())
+    q = q.order_by(stmt_table.c.entity_id.desc())
+    q = q.order_by(stmt_table.c.prop.desc())
+
+    q = q.offset(offset).limit(limit)
+    result = await conn.stream(q)
+    async for row in result:
+        yield cast(Statement, row._asdict())
 
 
 async def count_entities(
