@@ -1,7 +1,7 @@
-from functools import lru_cache
 from typing import Dict, Optional, Set, Tuple
 from itertools import combinations
 from collections import defaultdict
+from asyncstdlib.functools import cache
 from followthemoney.dedupe.judgement import Judgement
 from nomenklatura.resolver import Resolver, Identifier, StrIdent
 
@@ -50,7 +50,7 @@ class UniqueResolver(Resolver[Entity]):
         return target
 
 
-@lru_cache(maxsize=None)
+@cache
 async def get_resolver() -> Resolver[Entity]:
     return await UniqueResolver.load(RESOLVER_PATH)
 

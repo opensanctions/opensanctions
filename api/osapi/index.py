@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import warnings
+import asyncstdlib as a
 from typing import Any, AsyncGenerator, Dict, Generator, List, Optional, Tuple
 from elasticsearch import AsyncElasticsearch, TransportError
 from elasticsearch.exceptions import ElasticsearchWarning, NotFoundError
@@ -27,12 +28,12 @@ SKIP_ADJACENT = (registry.date, registry.entity, registry.topic)
 
 
 async def generate_entities(index, loader):
-    for idx, entity in enumerate(loader):
+    async for idx, entity in a.enumerate(loader.entities()):
         if idx % 1000 == 0 and idx > 0:
             log.info("Index [%s]: %d entities...", index, idx)
         data = entity.to_dict()
         if entity.schema.is_a(BASE_SCHEMA):
-            for _, adj in loader.get_adjacent(entity):
+            async for _, adj in loader.get_adjacent(entity):
                 for prop, value in adj.itervalues():
                     if prop.type in SKIP_ADJACENT:
                         continue
@@ -58,13 +59,13 @@ async def index():
     exists = await es.indices.exists(index=next_index)
     if exists:
         log.info("Index [%s] is up to date.", next_index)
-        # await es.indices.delete(index=next_index)
-        return
+        await es.indices.delete(index=next_index)
+        # return
 
     mapping = make_mapping(schemata)
     log.info("Create index: %s", next_index)
     await es.indices.create(index=next_index, mappings=mapping, settings=INDEX_SETTINGS)
-    db = get_database(cached=True)
+    db = await get_database(cached=True)
     loader = await db.view(dataset, assembler=Entity.assembler)
     await async_bulk(es, generate_entities(next_index, loader), stats_only=True)
     log.info("Indexing done, force merge")
@@ -167,7 +168,7 @@ def facet_aggregations(fields: List[str] = []) -> Dict[str, Any]:
     return aggs
 
 
-def result_entity(data) -> Tuple[Entity, float]:
+def result_entity(data) -> Tuple[Optional[Entity], float]:
     source = data.get("_source")
     if source is None:
         return None, 0.0

@@ -28,7 +28,6 @@ async def get_database(cached=False) -> Database:
     return Database(get_scope(), resolver, cached=cached)
 
 
-@cache
 def get_datasets() -> List[Dataset]:
     return get_scope().provided_datasets()
 

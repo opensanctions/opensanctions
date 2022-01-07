@@ -24,7 +24,7 @@ from osapi.models import FreebaseTypeSuggestResponse
 from osapi.models import FreebaseManifest, FreebaseQueryResult
 from osapi.models import StatementResponse
 from osapi.models import MAX_LIMIT
-from osapi.data import resolver, get_datasets
+from osapi.data import get_resolver, get_datasets
 from osapi.index import get_entity, query_entities, query_results
 from osapi.index import text_query, entity_query, facet_aggregations
 from osapi.index import serialize_entity
@@ -218,6 +218,7 @@ async def fetch_entity(
     """Retrieve a single entity by its ID. The entity will be returned in
     full, with data from all datasets and with nested entities (adjacent
     passport, sanction and associated entities) included."""
+    resolver = await get_resolver()
     canonical_id = str(resolver.get_canonical(entity_id))
     if canonical_id != entity_id:
         url = app.url_path_for("fetch_entity", entity_id=canonical_id)
