@@ -16,7 +16,7 @@ from nomenklatura import Loader, Resolver
 
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.entity import Entity
-from opensanctions.core.db import engine
+from opensanctions.core.db import with_conn
 from opensanctions.core.statements import BASE, Statement
 from opensanctions.core.statements import all_statements, count_entities
 
@@ -118,7 +118,7 @@ class Database(object):
         current_id = None
         types: List[CachedType] = []
         props: List[CachedProp] = []
-        async with engine.connect() as conn:
+        async with with_conn() as conn:
             stmts = all_statements(
                 conn,
                 dataset=dataset,

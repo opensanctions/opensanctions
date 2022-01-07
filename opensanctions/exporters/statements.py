@@ -2,7 +2,7 @@ import aiofiles
 import structlog
 
 from opensanctions import settings
-from opensanctions.core.db import engine
+from opensanctions.core.db import with_conn
 from opensanctions.core.statements import all_statements
 from opensanctions.exporters.common import write_object
 
@@ -14,7 +14,7 @@ async def export_statements():
     log.info("Writing global statements list", path=stmts_path)
     stmt_count = 0
     async with aiofiles.open(stmts_path, "w", encoding=settings.ENCODING) as fh:
-        async with engine.connect() as conn:
+        async with with_conn() as conn:
             async for stmt in all_statements(conn):
                 await write_object(fh, stmt)
                 stmt_count += 1

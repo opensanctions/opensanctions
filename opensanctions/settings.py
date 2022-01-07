@@ -47,6 +47,8 @@ ASYNC_DATABASE_URI = ASYNC_DATABASE_URI.replace(
     "postgresql://", "postgresql+asyncpg://"
 )
 
+DATABASE_POOL_SIZE = int(env_str("OPENSANCTIONS_POOL_SIZE", 30))
+
 # Per-run timestamp
 RUN_TIME = datetime.utcnow().replace(microsecond=0)
 RUN_DATE = RUN_TIME.date().isoformat()

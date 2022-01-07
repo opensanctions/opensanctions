@@ -1,6 +1,7 @@
 import os
 from alembic import command
 from alembic.config import Config
+from contextlib import asynccontextmanager
 from sqlalchemy import MetaData
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.ext.asyncio.engine import AsyncConnection
@@ -10,6 +11,7 @@ from sqlalchemy.dialects.sqlite import insert as insert_sqlite
 from sqlalchemy.dialects.postgresql import insert as insert_postgresql
 
 from opensanctions import settings
+from opensanctions.util import named_semaphore
 
 KEY_LEN = 255
 VALUE_LEN = 65535
@@ -24,10 +26,25 @@ alembic_cfg.set_main_option("sqlalchemy.url", settings.DATABASE_URI)
 assert (
     settings.DATABASE_URI is not None
 ), "Need to configure $OPENSANCTIONS_DATABASE_URI."
-engine = create_async_engine(settings.ASYNC_DATABASE_URI)
+engine = create_async_engine(
+    settings.ASYNC_DATABASE_URI, pool_size=settings.DATABASE_POOL_SIZE
+)
 
 DIALECTS = ["sqlite", "postgresql"]
-assert engine.dialect.name in DIALECTS, "Unsupported database engine"
+if engine.dialect.name == "sqlite":
+    upsert_func = insert_sqlite
+elif engine.dialect.name == "postgresql":
+    upsert_func = insert_postgresql
+else:
+    assert engine.dialect.name in DIALECTS, "Unsupported database engine"
+
+
+@asynccontextmanager
+async def with_conn():
+    async with named_semaphore("db", settings.DATABASE_POOL_SIZE):
+        async with engine.begin() as conn:
+            yield conn
+
 
 metadata = MetaData()
 
@@ -73,12 +90,6 @@ stmt_table = Table(
     Column("first_seen", DateTime, nullable=False),
     Column("last_seen", DateTime, index=True),
 )
-
-
-def upsert_func(conn: Conn):
-    if conn.engine.dialect.name == "postgresql":
-        return insert_postgresql
-    return insert_sqlite
 
 
 def upgrade_db():

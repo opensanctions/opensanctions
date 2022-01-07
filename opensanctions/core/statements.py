@@ -93,8 +93,7 @@ async def save_statements(conn: Conn, values: List[Statement]) -> None:
     if not len(values):
         return None
 
-    upsert = upsert_func(conn)
-    istmt = upsert(stmt_table).values(values)
+    istmt = upsert_func(stmt_table).values(values)
     stmt = istmt.on_conflict_do_update(
         index_elements=["id"],
         set_=dict(

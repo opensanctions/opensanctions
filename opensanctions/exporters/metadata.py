@@ -7,7 +7,7 @@ from urllib.parse import urljoin
 from followthemoney import model
 
 from opensanctions import settings
-from opensanctions.core.db import engine
+from opensanctions.core.db import with_conn
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.issues import all_issues, agg_issues_by_level
 from opensanctions.core.resources import all_resources
@@ -20,7 +20,7 @@ log = structlog.get_logger(__name__)
 
 @cache
 async def dataset_to_index(dataset: Dataset) -> Dict[str, Any]:
-    async with engine.connect() as conn:
+    async with with_conn() as conn:
         (
             issue_levels,
             target_count,
@@ -57,7 +57,7 @@ async def export_metadata():
         dataset_tasks.append(dataset_to_index(dataset))
     datasets = await asyncio.gather(*dataset_tasks)
 
-    async with engine.connect() as conn:
+    async with with_conn() as conn:
         issues = [i async for i in all_issues(conn)]
         schemata = await all_schemata(conn)
 

@@ -53,17 +53,13 @@ async def _process(scope_name: str, crawl: bool = True, export: bool = True) -> 
         await asyncio.gather(*crawls)
     if export is True:
         resolver = await get_resolver()
-        await _resolve_all(resolver)
+        # await _resolve_all(resolver)
         database = Database(scope, resolver, cached=True)
         await database.view(scope)
-        # exports = []
-        # for dataset_ in scope.datasets:
-        #     exports.append(export_dataset(dataset_, database))
-        # await asyncio.gather(*exports)
+        exports = []
         for dataset_ in scope.datasets:
-            await export_dataset(dataset_, database)
-        await export_metadata()
-        await export_statements()
+            exports.append(export_dataset(dataset_, database))
+        await asyncio.gather(export_metadata(), export_statements(), *exports)
 
 
 @cli.command("crawl", help="Crawl entities into the given dataset")

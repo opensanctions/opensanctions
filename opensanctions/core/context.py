@@ -16,8 +16,8 @@ from opensanctions import settings
 from opensanctions.core.http import get_session, fetch_download
 from opensanctions.core.entity import Entity
 from opensanctions.core.resolver import get_resolver
-from opensanctions.core.db import engine
-from opensanctions.core.issues import Issue, save_issue, clear_issues
+from opensanctions.core.db import with_conn
+from opensanctions.core.issues import save_issue, clear_issues
 from opensanctions.core.resources import save_resource, clear_resources
 from opensanctions.core.statements import Statement, count_entities
 from opensanctions.core.statements import cleanup_dataset, clear_statements
@@ -43,32 +43,32 @@ class Context(object):
         )
         self._statements: Dict[Tuple[str, str, str], Statement] = {}
         self._events: List[Dict[str, Any]] = []
-        self.conn: Optional[AsyncConnection] = None
 
     async def begin(self) -> None:
         """Flush and tear down the context."""
-        self.conn = await engine.connect()
+        # self.conn = await engine.connect()
+        pass
 
     async def close(self) -> None:
         """Flush and tear down the context."""
         if len(self._events):
-            if self.conn is None:
-                self.conn = await engine.connect()
-            async with self.tx():
+            # if self.conn is None:
+            #     self.conn = await engine.connect()
+            async with with_conn() as conn:
                 for event in self._events:
-                    await save_issue(self.conn, event)
-        if self.conn is not None:
-            await self.conn.close()
-            self.conn = None
+                    await save_issue(conn, event)
+        # if self.conn is not None:
+        #     await self.conn.close()
+        #     self.conn = None
 
-    @asynccontextmanager
-    async def tx(self):
-        tx = await self.conn.begin()
-        try:
-            yield tx
-            await tx.commit()
-        finally:
-            await tx.close()
+    # @asynccontextmanager
+    # async def tx(self):
+    #     tx = await self.conn.begin()
+    #     try:
+    #         yield tx
+    #         await tx.commit()
+    #     finally:
+    #         await tx.close()
 
     # self.http.close()
 
@@ -107,11 +107,11 @@ class Context(object):
             self.log.warning("Resource is empty", path=path)
         checksum = digest.hexdigest()
         name = path.relative_to(self.path).as_posix()
-        if self.conn is None:
-            raise RuntimeError("Not connected to DB")
-        async with self.tx():
+        # if self.conn is None:
+        #     raise RuntimeError("Not connected to DB")
+        async with with_conn() as conn:
             return await save_resource(
-                self.conn, name, self.dataset, checksum, mime_type, size, title
+                conn, name, self.dataset, checksum, mime_type, size, title
             )
 
     def lookup_value(self, lookup, value, default=None):
@@ -148,10 +148,10 @@ class Context(object):
         context is flushed to the store. All statements that are not flushed
         when a crawl is aborted are not persisted to the database."""
         self.log.debug("Flushing statements to database...")
-        if self.conn is None:
-            raise RuntimeError("No connection upon flush")
-        async with self.tx():
-            await save_statements(self.conn, list(self._statements.values()))
+        # if self.conn is None:
+        #     raise RuntimeError("No connection upon flush")
+        async with with_conn() as conn:
+            await save_statements(conn, list(self._statements.values()))
         self._statements = {}
 
     async def emit(
@@ -175,28 +175,28 @@ class Context(object):
     async def crawl(self) -> None:
         """Run the crawler."""
         await self.begin()
-        if self.conn is None:
-            raise RuntimeError("WTF")
+        # if self.conn is None:
+        #     raise RuntimeError("WTF")
         try:
-            async with self.tx():
+            async with with_conn() as conn:
                 await asyncio.gather(
-                    clear_issues(self.conn, self.dataset),
-                    clear_resources(self.conn, self.dataset),
+                    clear_issues(conn, self.dataset),
+                    clear_resources(conn, self.dataset),
                 )
             self.log.info("Begin crawl")
             # Run the dataset:
             await self.dataset.method(self)
             await self.flush()
-            async with self.tx():
-                await cleanup_dataset(self.conn, self.dataset)
+            async with with_conn() as conn:
+                await cleanup_dataset(conn, self.dataset)
 
-            self.log.info(
-                "Crawl completed",
-                entities=await count_entities(self.conn, dataset=self.dataset),
-                targets=await count_entities(
-                    self.conn, dataset=self.dataset, target=True
-                ),
-            )
+                self.log.info(
+                    "Crawl completed",
+                    entities=await count_entities(conn, dataset=self.dataset),
+                    targets=await count_entities(
+                        conn, dataset=self.dataset, target=True
+                    ),
+                )
         except KeyboardInterrupt:
             raise
         except LookupException as exc:
@@ -208,7 +208,7 @@ class Context(object):
 
     async def clear(self) -> None:
         """Delete all recorded data for a given dataset."""
-        async with engine.begin() as conn:
+        async with with_conn() as conn:
             await asyncio.gather(
                 clear_statements(conn, self.dataset),
                 clear_issues(conn, self.dataset),

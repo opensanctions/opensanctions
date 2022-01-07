@@ -1,12 +1,26 @@
 import re
 import logging
-from typing import Optional
+import threading
+from asyncio import Semaphore
+from typing import Dict, Optional
 from lxml import etree
 from banal import ensure_list
 from normality import stringify, slugify
+from contextlib import asynccontextmanager
 
 log = logging.getLogger(__name__)
+sema_ctx = threading.local()
 BRACKETED = re.compile(r"\(.*\)")
+
+
+@asynccontextmanager
+async def named_semaphore(name: str, size: int):
+    if not hasattr(sema_ctx, "semaphores"):
+        sema_ctx.semaphores = dict()
+    if name not in sema_ctx.semaphores:
+        sema_ctx.semaphores[name] = Semaphore(size)
+    async with sema_ctx.semaphores[name] as s:
+        yield s
 
 
 def is_empty(text: Optional[str]) -> bool:
