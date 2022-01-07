@@ -1,5 +1,6 @@
 import asyncio
 import structlog
+from hashlib import sha1
 from datetime import datetime
 from typing import List, Optional, TypedDict, cast
 from sqlalchemy.future import select
@@ -29,6 +30,7 @@ class Statement(TypedDict):
     want to support making property-less entities.
     """
 
+    id: str
     entity_id: str
     canonical_id: str
     prop: str
@@ -42,6 +44,11 @@ class Statement(TypedDict):
     last_seen: datetime
 
 
+def stmt_key(dataset, entity_id, prop, value):
+    key = f"{dataset}.{entity_id}.{prop}.{value}"
+    return sha1(key.encode("utf-8")).hexdigest()
+
+
 def statements_from_entity(
     entity: Entity, dataset: Dataset, unique: bool = False
 ) -> List[Statement]:
@@ -49,6 +56,7 @@ def statements_from_entity(
         return []
     values: List[Statement] = [
         {
+            "id": stmt_key(dataset.name, entity.id, BASE, entity.id),
             "entity_id": entity.id,
             "canonical_id": entity.id,
             "prop": BASE,
@@ -64,6 +72,7 @@ def statements_from_entity(
     ]
     for prop, value in entity.itervalues():
         stmt: Statement = {
+            "id": stmt_key(dataset.name, entity.id, prop.name, value),
             "entity_id": entity.id,
             "canonical_id": entity.id,
             "prop": prop.name,
@@ -87,7 +96,7 @@ async def save_statements(conn: Conn, values: List[Statement]) -> None:
     upsert = upsert_func(conn)
     istmt = upsert(stmt_table).values(values)
     stmt = istmt.on_conflict_do_update(
-        index_elements=["entity_id", "prop", "value", "dataset"],
+        index_elements=["id"],
         set_=dict(
             canonical_id=istmt.excluded.canonical_id,
             schema=istmt.excluded.schema,
@@ -254,7 +263,7 @@ async def entities_datasets(conn: Conn, dataset: Optional[Dataset] = None):
         yield (entity_id, dataset)
 
 
-async def cleanup_dataset(conn: Conn, dataset):
+async def cleanup_dataset(conn: Conn, dataset: Dataset):
     # set the entity BASE to the earliest spotting of the entity:
     # table = stmt_table.c.__table__
     # cte = select(
@@ -293,7 +302,7 @@ async def resolve_all_canonical(conn: Conn, resolver: Resolver):
         await resolve_canonical(conn, resolver, canonical.id)
 
 
-async def resolve_canonical(conn: Conn, resolver, canonical_id):
+async def resolve_canonical(conn: Conn, resolver: Resolver, canonical_id: str):
     referents = resolver.get_referents(canonical_id)
     log.debug("Resolving: %s" % canonical_id, referents=referents)
     q = update(stmt_table)
@@ -302,10 +311,11 @@ async def resolve_canonical(conn: Conn, resolver, canonical_id):
     await conn.execute(q)
 
 
-async def clear_statements(conn: Conn, dataset):
+async def clear_statements(conn: Conn, dataset: Optional[Dataset]):
     q = delete(stmt_table)
     # TODO: should this do collections?
-    q = q.filter(stmt_table.c.dataset == dataset.name)
+    if dataset is not None:
+        q = q.filter(stmt_table.c.dataset == dataset.name)
     await conn.execute(q)
 
 

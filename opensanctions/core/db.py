@@ -60,16 +60,17 @@ resource_table = Table(
 stmt_table = Table(
     "statement",
     metadata,
-    Column("entity_id", Unicode(KEY_LEN), index=True, primary_key=True),
+    Column("id", Unicode(KEY_LEN), primary_key=True, unique=True),
+    Column("entity_id", Unicode(KEY_LEN), index=True, nullable=False),
     Column("canonical_id", Unicode(KEY_LEN), index=True, nullable=True),
-    Column("prop", Unicode(KEY_LEN), primary_key=True, nullable=False),
+    Column("prop", Unicode(KEY_LEN), nullable=False),
     Column("prop_type", Unicode(KEY_LEN), nullable=False),
     Column("schema", Unicode(KEY_LEN), nullable=False),
-    Column("value", Unicode(VALUE_LEN), index=True, primary_key=True, nullable=False),
-    Column("dataset", Unicode(KEY_LEN), primary_key=True, index=True),
+    Column("value", Unicode(VALUE_LEN), nullable=False),
+    Column("dataset", Unicode(KEY_LEN), index=True),
     Column("target", Boolean, default=False, nullable=False),
     Column("unique", Boolean, default=False, nullable=False),
-    Column("first_seen", DateTime, nullable=True),
+    Column("first_seen", DateTime, nullable=False),
     Column("last_seen", DateTime, index=True),
 )
 
