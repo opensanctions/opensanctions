@@ -7,6 +7,7 @@ RUN chown -R app:app /opensanctions/data
 ADD --chown=app:app https://data.opensanctions.org/state/opensanctions.sqlite /opensanctions/data/state/opensanctions.sqlite
 
 ENV OPENSANCTIONS_DATA_PATH=/opensanctions/data \
+    OPENSANCTIONS_METADATA_PATH=/opensanctions/opensanctions/metadata \
     OSAPI_SCOPE_DATASET=default
 
 WORKDIR /api
