@@ -56,7 +56,7 @@ STATIC_PATH = Path(__file__).resolve().parent.joinpath("static")
 STATIC_PATH = Path(env.get("OPENSANCTIONS_STATIC_PATH", STATIC_PATH)).resolve()
 
 # Do not edit manually, use the release process
-VERSION = "3.1.1"
+VERSION = "3.2.0"
 
 # Relevance cut-off
 DEATH_CUTOFF = datetime(2010, 1, 1)

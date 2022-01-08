@@ -3,7 +3,7 @@ copyright = "2021, OpenSanctions Team"
 author = "OpenSanctions Team"
 
 # Do not modify manually
-release = "3.1.1"
+release = "3.2.0"
 
 extensions = [
     "sphinx.ext.autodoc",
