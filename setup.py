@@ -17,11 +17,11 @@ setup(
     namespace_packages=[],
     package_data={
         "opensanctions": [
-            "**/*.yml",
-            "**/*.yaml",
-            "**/*.ini",
-            "**/*.mako",
-            "**/*.ijson",
+            "*.yml",
+            "*.yaml",
+            "*.ini",
+            "*.mako",
+            "*.ijson",
             "migrate/versions/*.py",
         ]
     },
