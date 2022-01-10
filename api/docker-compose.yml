@@ -34,6 +34,7 @@ services:
       - "0.0.0.0:8000:8000"
     environment:
       - OSAPI_ELASTICSEARCH_URL=http://index:9200
+      - OSAPI_ENDPOINT_URL=https://api.opensanctions.org
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8000/healthz" ]
       interval: 30s
