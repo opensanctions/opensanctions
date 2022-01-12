@@ -32,6 +32,8 @@ setup(
         "pantomime",
         "sqlalchemy[mypy,asyncio]",
         "asyncstdlib",
+        "aiosqlite",
+        "asyncpg",
         "aiocsv",
         "alembic",
         "certifi",
