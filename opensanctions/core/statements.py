@@ -44,6 +44,7 @@ class Statement(TypedDict):
 
 
 def stmt_key(dataset, entity_id, prop, value):
+    """Hash the key properties of a statement record to make a unique ID."""
     key = f"{dataset}.{entity_id}.{prop}.{value}"
     return sha1(key.encode("utf-8")).hexdigest()
 
@@ -364,7 +365,7 @@ async def resolve_canonical(conn: Conn, resolver: Resolver, canonical_id: str):
     await conn.execute(q)
 
 
-async def clear_statements(conn: Conn, dataset: Optional[Dataset]):
+async def clear_statements(conn: Conn, dataset: Optional[Dataset] = None):
     q = delete(stmt_table)
     # TODO: should this do collections?
     if dataset is not None:

@@ -6,6 +6,7 @@ __pycache__/
 *.sqlite
 *.sqlite3
 *.perf
+*.csv
 .env
 .envrc
 .vscode
