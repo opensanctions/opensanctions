@@ -2,7 +2,6 @@ import json
 from banal import ensure_list
 from asyncstdlib.functools import cache
 from pantomime.types import JSON
-from requests.exceptions import TooManyRedirects
 
 from opensanctions.core import Dataset, Context
 from opensanctions import helpers as h
@@ -13,11 +12,8 @@ SDN = Dataset.require("us_ofac_sdn")
 
 @cache
 async def deref_url(context: Context, url):
-    try:
-        res = await context.fetch_response(url)
-        return str(res.url)
-    except TooManyRedirects:
-        return url
+    res = await context.fetch_response(url)
+    return str(res.url)
 
 
 async def parse_result(context: Context, result):

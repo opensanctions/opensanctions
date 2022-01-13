@@ -41,8 +41,6 @@ setup(
         "addressformatting",
         "prefixdate",
         "psycopg2-binary",
-        "requests[security] >= 2.25.0, < 3.0.0",
-        "requests_cache >= 0.8.1, < 0.9.0",
         "datapatch",
         "structlog",
         "colorama",
