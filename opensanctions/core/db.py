@@ -28,19 +28,17 @@ assert (
 ), "Need to configure $OPENSANCTIONS_DATABASE_URI."
 
 if settings.DATABASE_URI.startswith("sqlite"):
-    settings.DATABASE_POOL_SIZE = None
-
-engine = create_async_engine(
-    settings.ASYNC_DATABASE_URI, pool_size=settings.DATABASE_POOL_SIZE
-)
-
-DIALECTS = ["sqlite", "postgresql"]
-if engine.dialect.name == "sqlite":
+    settings.DATABASE_POOL_SIZE = 1
+    engine = create_async_engine(settings.ASYNC_DATABASE_URI)
     upsert_func = insert_sqlite
-elif engine.dialect.name == "postgresql":
+elif settings.DATABASE_URI.startswith("postgres"):
+    engine = create_async_engine(
+        settings.ASYNC_DATABASE_URI,
+        pool_size=settings.DATABASE_POOL_SIZE,
+    )
     upsert_func = insert_postgresql
 else:
-    assert engine.dialect.name in DIALECTS, "Unsupported database engine"
+    raise RuntimeError("Unsupported database engine: %s" % settings.DATABASE_URI)
 
 
 @asynccontextmanager
