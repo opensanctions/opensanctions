@@ -101,5 +101,5 @@ canonical_table = Table(
     "canonical",
     metadata,
     Column("entity_id", Unicode(KEY_LEN), index=True, nullable=False),
-    Column("canonical_id", Unicode(KEY_LEN), index=True, nullable=True),
+    Column("canonical_id", Unicode(KEY_LEN), index=False, nullable=True),
 )

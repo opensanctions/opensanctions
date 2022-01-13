@@ -3,14 +3,15 @@ from hashlib import sha1
 from datetime import datetime
 from typing import AsyncGenerator, List, Optional, TypedDict, cast
 from sqlalchemy.future import select
-from sqlalchemy.sql.expression import delete, update, Select
+from sqlalchemy.sql.expression import delete, update, insert, Select
 from sqlalchemy.sql.functions import func
 from nomenklatura import Resolver
 from followthemoney import model
 from followthemoney.types import registry
 
 from opensanctions import settings
-from opensanctions.core.db import stmt_table, Conn, upsert_func
+from opensanctions.core.db import stmt_table, canonical_table
+from opensanctions.core.db import Conn, upsert_func
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.entity import Entity
 
@@ -348,12 +349,34 @@ async def cleanup_dataset(conn: Conn, dataset: Dataset):
 
 async def resolve_all_canonical(conn: Conn, resolver: Resolver):
     log.info("Resolving canonical_id in statements...", resolver=resolver)
+    await conn.execute(delete(canonical_table))
+    mappings = []
+    for canonical in resolver.canonicals():
+        for referent in resolver.get_referents(canonical, canonicals=False):
+            mappings.append({"entity_id": referent, "canonical_id": canonical.id})
+        if len(mappings) > 5000:
+            # log.info("INSERTING mappings...")
+            stmt = insert(canonical_table).values(mappings)
+            await conn.execute(stmt)
+            mappings = []
+
+    if len(mappings):
+        stmt = insert(canonical_table).values(mappings)
+        await conn.execute(stmt)
+
     q = update(stmt_table)
     q = q.where(stmt_table.c.canonical_id != stmt_table.c.entity_id)
+    nested_q = select(canonical_table.c.entity_id)
+    nested_q = nested_q.where(canonical_table.c.entity_id == stmt_table.c.entity_id)
+    q = q.where(~nested_q.exists())
     q = q.values({stmt_table.c.canonical_id: stmt_table.c.entity_id})
     await conn.execute(q)
-    for canonical in resolver.canonicals():
-        await resolve_canonical(conn, resolver, canonical.id)
+
+    q = update(stmt_table)
+    q = q.where(stmt_table.c.entity_id == canonical_table.c.entity_id)
+    q = q.where(stmt_table.c.canonical_id != canonical_table.c.canonical_id)
+    q = q.values({stmt_table.c.canonical_id: canonical_table.c.canonical_id})
+    await conn.execute(q)
 
 
 async def resolve_canonical(conn: Conn, resolver: Resolver, canonical_id: str):
