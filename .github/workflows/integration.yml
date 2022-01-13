@@ -56,20 +56,20 @@ jobs:
           tags: pudo/opensanctions-api:latest
   test:
     runs-on: ubuntu-latest
-    # services:
-    #   db:
-    #     image: postgres:14
-    #     env:
-    #       POSTGRES_PASSWORD: opensanctions
-    #       POSTGRES_USER: opensanctions
-    #       POSTGRES_PASSWORD: opensanctions
-    #     options: >-
-    #       --health-cmd pg_isready
-    #       --health-interval 10s
-    #       --health-timeout 5s
-    #       --health-retries 5
-    #     ports:
-    #       - 5432:5432
+    services:
+      db:
+        image: postgres:14
+        env:
+          POSTGRES_PASSWORD: opensanctions
+          POSTGRES_USER: opensanctions
+          POSTGRES_DB: opensanctions
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
 
     env:
       OPENSANCTIONS_DATABASE_URI: "postgresql://opensanctions:opensanctions@localhost/opensanctions"
