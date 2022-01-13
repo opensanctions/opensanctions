@@ -2,8 +2,9 @@ import click
 import logging
 import asyncio
 import structlog
+from typing import Any
+from functools import wraps
 from nomenklatura.tui import DedupeApp
-from nomenklatura.util import coro
 from followthemoney.dedupe import Judgement
 from nomenklatura.resolver import Identifier, Resolver
 
@@ -21,10 +22,22 @@ from opensanctions.core.statements import (
     resolve_all_canonical,
     resolve_canonical,
 )
-from opensanctions.core.db import with_conn
+from opensanctions.core.db import with_conn, engine
 
 log = structlog.get_logger(__name__)
 datasets = click.Choice(Dataset.names())
+
+
+def coro(f: Any) -> Any:
+    @wraps(f)
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
+        async def run_cmd():
+            await f(*args, **kwargs)
+            await engine.dispose()
+
+        return asyncio.run(run_cmd())
+
+    return wrapper
 
 
 @click.group(help="OpenSanctions ETL toolkit")
@@ -89,7 +102,7 @@ async def run(dataset):
 async def clear(dataset):
     dataset = Dataset.require(dataset)
     for source in dataset.sources:
-        Context(source).clear()
+        await Context(source).clear()
 
 
 @cli.command("resolve", help="Apply de-duplication to the statements table")
@@ -211,7 +224,7 @@ async def latest(dataset):
 @cli.command("export-statements", help="Export statement data as a CSV file")
 @click.argument("outfile", type=click.Path(writable=True))
 @coro
-async def export_statements(outfile):
+async def export_statements_csv(outfile):
     await export_statements_path(outfile)
 
 
