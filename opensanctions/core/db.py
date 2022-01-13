@@ -26,6 +26,10 @@ alembic_cfg.set_main_option("sqlalchemy.url", settings.DATABASE_URI)
 assert (
     settings.DATABASE_URI is not None
 ), "Need to configure $OPENSANCTIONS_DATABASE_URI."
+
+if settings.DATABASE_URI.startswith("sqlite"):
+    settings.DATABASE_POOL_SIZE = None
+
 engine = create_async_engine(
     settings.ASYNC_DATABASE_URI, pool_size=settings.DATABASE_POOL_SIZE
 )
