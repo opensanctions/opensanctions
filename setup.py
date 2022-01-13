@@ -35,6 +35,7 @@ setup(
         "aiosqlite",
         "asyncpg",
         "aiocsv",
+        "httpx",
         "alembic",
         "certifi",
         "addressformatting",
