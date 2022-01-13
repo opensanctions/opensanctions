@@ -40,7 +40,6 @@ setup(
         "certifi",
         "addressformatting",
         "prefixdate",
-        "psycopg2-binary",
         "datapatch",
         "structlog",
         "colorama",
