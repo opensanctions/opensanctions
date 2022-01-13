@@ -55,26 +55,24 @@ jobs:
           push: true
           tags: pudo/opensanctions-api:latest
   test:
+    runs-on: ubuntu-latest
     services:
-      # Label used to access the service container
       db:
-        # Docker Hub image
         image: postgres:14
-        # Provide the password for postgres
         env:
           POSTGRES_PASSWORD: opensanctions
           POSTGRES_USER: opensanctions
           POSTGRES_PASSWORD: opensanctions
-        # Set health checks to wait until postgres has started
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+        ports:
+          - 5432:5432
 
-    runs-on: ubuntu-latest
     env:
-      OPENSANCTIONS_DATABASE_URI: "postgresql://opensanctions:opensanctions@db/opensanctions"
+      OPENSANCTIONS_DATABASE_URI: "postgresql://opensanctions:opensanctions@localhost/opensanctions"
 
     steps:
       - uses: actions/checkout@v2
