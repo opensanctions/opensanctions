@@ -17,12 +17,9 @@ from opensanctions.core.loader import Database
 from opensanctions.core.resolver import AUTO_USER, export_pairs, get_resolver
 from opensanctions.core.xref import blocking_xref
 from opensanctions.core.addresses import xref_geocode
-from opensanctions.core.statements import (
-    max_last_seen,
-    resolve_all_canonical,
-    resolve_canonical,
-)
-from opensanctions.core.db import with_conn, engine
+from opensanctions.core.statements import max_last_seen
+from opensanctions.core.statements import resolve_all_canonical, resolve_canonical
+from opensanctions.core.db import with_conn, engine, create_db
 
 log = structlog.get_logger(__name__)
 datasets = click.Choice(Dataset.names())
@@ -32,6 +29,7 @@ def coro(f: Any) -> Any:
     @wraps(f)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
         async def run_cmd():
+            await create_db()
             await f(*args, **kwargs)
             await engine.dispose()
 

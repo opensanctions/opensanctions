@@ -38,7 +38,6 @@ async def create_db():
 
 @asynccontextmanager
 async def with_conn():
-    await create_db()
     async with named_semaphore("db", settings.DATABASE_POOL_SIZE):
         async with engine.begin() as conn:
             yield conn

@@ -1,9 +1,8 @@
 from datetime import datetime
 from pantomime import parse_mimetype
-from typing import Any, Dict, Generator, Optional, TypedDict, cast
+from typing import Optional, TypedDict, cast
 from sqlalchemy.future import select
 from sqlalchemy.sql.expression import delete
-from sqlalchemy.sql.functions import func
 
 from opensanctions import settings
 from opensanctions.core.dataset import Dataset

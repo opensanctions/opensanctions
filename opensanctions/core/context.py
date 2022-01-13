@@ -20,7 +20,7 @@ from opensanctions import settings
 from opensanctions.core.http import HEADERS
 from opensanctions.core.entity import Entity
 from opensanctions.core.db import with_conn
-from opensanctions.core.http import check_cache, save_cache
+from opensanctions.core.http import check_cache, save_cache, clear_cache
 from opensanctions.core.issues import save_issue, clear_issues
 from opensanctions.core.resources import save_resource, clear_resources
 from opensanctions.core.statements import Statement, count_entities
@@ -263,4 +263,5 @@ class Context(object):
                 clear_statements(conn, self.dataset),
                 clear_issues(conn, self.dataset),
                 clear_resources(conn, self.dataset),
+                clear_cache(conn, self.dataset),
             )
