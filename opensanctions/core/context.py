@@ -61,10 +61,7 @@ class Context(object):
                     await save_issue(conn, event)
 
         if self._http_client is not None:
-            # try:
             await self._http_client.aclose()
-            # except RuntimeError:
-            #     pass
 
     @property
     def http_client(self):

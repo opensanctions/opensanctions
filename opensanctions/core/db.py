@@ -1,7 +1,8 @@
-import os
-from alembic import command
-from alembic.config import Config
+# import os
+# from alembic import command
+# from alembic.config import Config
 from contextlib import asynccontextmanager
+from asyncstdlib.functools import cache
 from sqlalchemy import MetaData
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.ext.asyncio.engine import AsyncConnection
@@ -16,12 +17,12 @@ from opensanctions.util import named_semaphore
 KEY_LEN = 255
 VALUE_LEN = 65535
 Conn = AsyncConnection
-alembic_dir = os.path.join(os.path.dirname(__file__), "../migrate")
-alembic_dir = os.path.abspath(alembic_dir)
-alembic_ini = os.path.join(alembic_dir, "alembic.ini")
-alembic_cfg = Config(alembic_ini)
-alembic_cfg.set_main_option("script_location", alembic_dir)
-alembic_cfg.set_main_option("sqlalchemy.url", settings.DATABASE_URI)
+# alembic_dir = os.path.join(os.path.dirname(__file__), "../migrate")
+# alembic_dir = os.path.abspath(alembic_dir)
+# alembic_ini = os.path.join(alembic_dir, "alembic.ini")
+# alembic_cfg = Config(alembic_ini)
+# alembic_cfg.set_main_option("script_location", alembic_dir)
+# alembic_cfg.set_main_option("sqlalchemy.url", settings.DATABASE_URI)
 
 assert (
     settings.DATABASE_URI is not None
@@ -41,8 +42,16 @@ else:
     raise RuntimeError("Unsupported database engine: %s" % settings.DATABASE_URI)
 
 
+@cache
+async def create_db():
+    async with engine.begin() as conn:
+        # await conn.run_sync(metadata.drop_all)
+        await conn.run_sync(metadata.create_all)
+
+
 @asynccontextmanager
 async def with_conn():
+    await create_db()
     async with named_semaphore("db", settings.DATABASE_POOL_SIZE):
         async with engine.begin() as conn:
             yield conn
@@ -98,6 +107,7 @@ cache_table = Table(
     metadata,
     Column("url", Unicode(), index=True, nullable=False, unique=True),
     Column("text", Unicode(), nullable=True),
+    Column("dataset", Unicode(), nullable=False),
     Column("timestamp", DateTime, index=True),
 )
 
@@ -107,11 +117,3 @@ canonical_table = Table(
     Column("entity_id", Unicode(KEY_LEN), index=True, nullable=False),
     Column("canonical_id", Unicode(KEY_LEN), index=True, nullable=True),
 )
-
-
-def upgrade_db():
-    command.upgrade(alembic_cfg, "head")
-
-
-def migrate_db(message):
-    command.revision(alembic_cfg, message=message, autogenerate=True)
