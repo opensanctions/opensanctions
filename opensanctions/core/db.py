@@ -1,6 +1,3 @@
-# import os
-# from alembic import command
-# from alembic.config import Config
 from contextlib import asynccontextmanager
 from asyncstdlib.functools import cache
 from sqlalchemy import MetaData
@@ -8,8 +5,7 @@ from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.ext.asyncio.engine import AsyncConnection
 from sqlalchemy.types import JSON
 from sqlalchemy import Table, Column, Integer, DateTime, Unicode, Boolean
-from sqlalchemy.dialects.sqlite import insert as insert_sqlite
-from sqlalchemy.dialects.postgresql import insert as insert_postgresql
+from sqlalchemy.dialects.postgresql import insert as upsert_func
 
 from opensanctions import settings
 from opensanctions.util import named_semaphore
@@ -17,29 +13,20 @@ from opensanctions.util import named_semaphore
 KEY_LEN = 255
 VALUE_LEN = 65535
 Conn = AsyncConnection
-# alembic_dir = os.path.join(os.path.dirname(__file__), "../migrate")
-# alembic_dir = os.path.abspath(alembic_dir)
-# alembic_ini = os.path.join(alembic_dir, "alembic.ini")
-# alembic_cfg = Config(alembic_ini)
-# alembic_cfg.set_main_option("script_location", alembic_dir)
-# alembic_cfg.set_main_option("sqlalchemy.url", settings.DATABASE_URI)
+
+__all__ = ["Conn", "with_conn", "create_db"]
 
 assert (
     settings.DATABASE_URI is not None
 ), "Need to configure $OPENSANCTIONS_DATABASE_URI."
 
-if settings.DATABASE_URI.startswith("sqlite"):
-    settings.DATABASE_POOL_SIZE = 1
-    engine = create_async_engine(settings.ASYNC_DATABASE_URI)
-    upsert_func = insert_sqlite
-elif settings.DATABASE_URI.startswith("postgres"):
-    engine = create_async_engine(
-        settings.ASYNC_DATABASE_URI,
-        pool_size=settings.DATABASE_POOL_SIZE,
-    )
-    upsert_func = insert_postgresql
-else:
+if not settings.DATABASE_URI.startswith("postgres"):
     raise RuntimeError("Unsupported database engine: %s" % settings.DATABASE_URI)
+
+engine = create_async_engine(
+    settings.ASYNC_DATABASE_URI,
+    pool_size=settings.DATABASE_POOL_SIZE,
+)
 
 
 @cache
