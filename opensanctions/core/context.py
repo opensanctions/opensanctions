@@ -6,7 +6,7 @@ import aiofiles
 import structlog
 import mimetypes
 from random import randint
-from httpx import AsyncClient, URL
+from httpx import AsyncClient, Timeout, URL
 from typing import Any, Dict, List, Optional, Tuple, Union
 from lxml import etree, html
 from pprint import pprint
@@ -66,9 +66,10 @@ class Context(object):
     @property
     def http_client(self):
         if self._http_client is None:
+            timeout = Timeout(settings.HTTP_TIMEOUT)
             self._http_client = AsyncClient(
                 headers=HEADERS,
-                timeout=settings.HTTP_TIMEOUT,
+                timeout=timeout,
                 follow_redirects=True,
             )
         return self._http_client

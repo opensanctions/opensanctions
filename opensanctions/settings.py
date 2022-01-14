@@ -59,11 +59,11 @@ STATIC_PATH = Path(env.get("OPENSANCTIONS_STATIC_PATH", STATIC_PATH)).resolve()
 VERSION = "3.2.0"
 
 # Relevance cut-off for dead people
-DEATH_CUTOFF = datetime(2010, 1, 1)
+DEATH_CUTOFF = datetime(2000, 1, 1)
 
 # User agent
 USER_AGENT = f"Mozilla/5.0 (any) OpenSanctions/{VERSION} info@opensanctions.org"
-HTTP_TIMEOUT = 60
+HTTP_TIMEOUT = 120
 
 # If you change this, all bets are off
 ENCODING = "utf-8"
