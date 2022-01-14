@@ -22,7 +22,7 @@ async def get_entity(context: Context, qid: str) -> Optional[Dict[str, Any]]:
     data = await wikibase_getentities(
         context,
         qid,
-        cache_days=7,
+        cache_days=10,
     )
     return data.get("entities", {}).get(qid)
 
@@ -32,7 +32,7 @@ async def get_label(context: Context, qid: str) -> Optional[str]:
     data = await wikibase_getentities(
         context,
         qid,
-        cache_days=30,
+        cache_days=50,
         props="labels",
     )
     entity = data.get("entities", {}).get(qid)

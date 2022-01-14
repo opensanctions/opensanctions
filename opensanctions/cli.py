@@ -66,7 +66,7 @@ async def _process(scope_name: str, crawl: bool = True, export: bool = True) -> 
         await asyncio.gather(*crawls)
     if export is True:
         resolver = await get_resolver()
-        # await _resolve_all(resolver)
+        await _resolve_all(resolver)
         database = Database(scope, resolver, cached=True)
         await database.view(scope)
         exports = []

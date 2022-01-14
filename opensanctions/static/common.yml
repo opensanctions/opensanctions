@@ -87,9 +87,12 @@ country:
         - Joseon
         - Song dynasty
         - Qing dynasty
+        - Ming dynasty
         - Malaya
         - British Pakistanis
         - United Arab Republic
+        - Kedah Sultanate
+        - French protectorate of Tunisia
       contains:
         - (JVCFOR)
       value: null
@@ -160,7 +163,9 @@ country:
       value: Somalia
     - match: Saar
       value: DE
-    - match: Assembly of Kosovo*
+    - match:
+        - Assembly of Kosovo*
+        - Republic of Kosova
       value: XK
     - match: Andalusia
       value: Spain
@@ -331,7 +336,9 @@ country:
         - Chechen Republic
         - Vedenskiy District, the Republic of Chechnya
       value: RU
-    - match: Former Ukrainian
+    - match:
+        - Former Ukrainian
+        - Donetsk People's Republic
       value: UA
     - match: スウェーデン（リンケビー、ストックホルム）、ソマリア（モガディシュ）
       values:
@@ -525,6 +532,7 @@ country:
     - match:
         - ケニア・ナイロビ
         - Nairobi
+        - Kenya Colony
       value: KE
     - match:
         - Bogota
@@ -535,6 +543,12 @@ country:
         - Pakis
         - Pakistanis
       value: PK
+    - match:
+        - Mongolian People's Republic
+      value: Mongolia
+    - match:
+        - Romanian People's Republic
+      value: RO
 
 date:
   options:
@@ -622,6 +636,7 @@ date:
   map:
     "0202-11-22": "2020-11-22"
     "1951-06-31": "1951-06"
+    "1946-02-29": "1946-02"
     "1966-02-02-05:00": 1966-02-02T05:00
     "1960-01-01-05:00": 1960-01-01T05:00
     "1962-11-09-05:00": 1962-11-09T05:00

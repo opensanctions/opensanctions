@@ -44,14 +44,6 @@ jobs:
             -e OPENSANCTIONS_DATABASE_URI \
             pudo/opensanctions \
             opensanctions crawl
-      - name: Resolve de-duplication graph
-        run: |
-          docker run \
-            -v `pwd`/data:/opensanctions/data \
-            -e OPENSANCTIONS_DATE \
-            -e OPENSANCTIONS_DATABASE_URI \
-            pudo/opensanctions \
-            opensanctions resolve
       - name: Export data dumps
         run: |
           docker run \
