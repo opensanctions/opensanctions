@@ -53,7 +53,7 @@ def stmt_key(dataset, entity_id, prop, value):
 def statements_from_entity(
     entity: Entity, dataset: Dataset, unique: bool = False
 ) -> List[Statement]:
-    if entity.id is None:
+    if entity.id is None or entity.schema is None:
         return []
     values: List[Statement] = [
         {

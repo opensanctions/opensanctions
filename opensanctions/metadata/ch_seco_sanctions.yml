@@ -29,3 +29,448 @@ url: https://www.seco.admin.ch/seco/en/home/Aussenwirtschaftspolitik_Wirtschaftl
 data:
   url: https://www.sesam.search.admin.ch/sesam-search-web/pages/downloadXmlGesamtliste.xhtml?lang=en&action=downloadXmlGesamtlisteAction
   format: XML
+
+lookups:
+  relations:
+    lowercase: true
+    options:
+      - match:
+          - Related to
+          - Related to the
+          - Close to
+          - Front Company of
+          - Splinter group of
+          - Associated with
+          - Linked to
+          - Linked to the
+          - Regional affiliate of
+          - See
+          - Supporting
+          - Affiliated with
+          - supports
+          - subsidiary-of
+          - Provides support to
+          - Used as an alias by the
+          - Cover name for
+          # TODO from here: split these into schemata
+          - controlled-by
+          - Secretary of
+          - Key assistant of
+          - Chief of staff of
+          - Deputy of
+          - Partner of
+          - Financier and bodyguard of
+          - Leader of the
+          - Overall leader of the
+          - used to be the second in command to ADF founder
+          - Head of
+          - Official of
+          - Facilitates shipments on behalf of
+          - Chief Representative for the
+          - Deputy Chief Representative for the
+          - Obtains technology, equipment and information from
+          - Works on behalf of the
+          - Representative for
+          - Facilitator for
+          - President of the
+          - Chairman of the
+          - Director-General of the External Affairs Bureau of the
+          - Close relationship with
+          - Owned and controlled by
+          - Owned by the
+          - Subsidiary of
+          - Front Company for
+          - Acted on behalf of
+          - Provided key financial support to the
+          - Close associate of
+          - Owned by
+          - Emir of
+          - Working closely with
+          - Member of
+          - Vice Admiral of
+          - Senior official of
+          - Head of Finance and Budget Department of
+          - Head of Trade and International Affairs Department of
+          - director-of
+          - Technical Adviser to
+          - Vice President of
+          - Deputy Commander of
+          - Commander of
+          - officer of
+          - Subordinate of
+          - controls
+          - part-of
+          - Operates within
+          - Branch of
+          - Front-company of
+          - Subordinate to
+          - Former Head of
+          - Deputy Head of
+          - Chief Executive Officer of
+          - executive-director-of
+          - Chairman of
+          - Chairman and Managing Director of
+          - Brigadier General of
+          - Deputy and Director General of
+          - Former Managing Director of
+          - Deputy in
+          - Former head of
+          - Regional Director of
+          - Managing Director of
+          - Member of the
+          - Chief Executive officer of
+          - Deputy Managing Director and shareholder of
+          - Board member of
+          - Deputy at
+          - Chairman of the Board and Managing Director of
+          - Deputy for Supplies and Logistics of
+          - Managing Director and shareholder of
+          - Head of
+          - Former Commander of
+          - Offical of
+          - Assistant Legal Director of
+          - Legal Director of
+          - Former head of
+          - Financial Director of
+          - Executive Director of
+          - Affiliated to
+          - Parent organisation of
+          - Owned or controlled by
+          - Owned or Controlled by
+          - Affiliate of
+          - Owned or Controlled or acting on behalf of
+          - Organisation of
+          - Run by
+          - Division of
+          - Affiliate to
+          - Acting on behalf of
+          - Acting on behind of
+          - Acts on behalf of
+          - Owned or controlled by or acting on behalf of
+          - Managed by
+          - Provides essential services to
+          - Replaced by
+          - Acts for
+          - Shares held by
+          - owner-of
+          - Member of an organization in Italy directly linked with
+          - Senior member of
+          - Financial services to
+          - Acting emir of
+          - Head of security wing of
+          - Operative and principal bomb maker of
+          - Financial support for Al Qaida in Iraq
+          - Associated of
+          - Operational commander of
+          - Bahrain based financier and facilitator for
+          - Leader of Al Qaida in Iraq
+          - Chief operational commander of
+          - Finance chief of
+          - Facilitator and communication expert of
+          - Provided assistance to
+          - Financial facilitator of
+          - Operative of
+          - Deputy to
+          - Leader of
+          - Acted on behalf of the leadership of
+          - Former member of
+          - Chief of finance of
+          - Senior leader of
+          - Leadership of
+          - Deputy head of the media committee of
+          - Financier of
+          - Member of the Council of
+          - Deputy leader to
+          - Director and spokesperson
+          - Leadership and is the finance chief of
+          - Belongs to the leadership of
+          - Belongs to the leadership and is in charge of information committee of
+          - Leader of local affiliates of
+          - Overall leader and commander of
+          - Supporter of
+          - member of
+          - Senior leader and co founder of
+          - Facilitator of
+          - Founder of
+          - Chief of operations of
+          - Spiritual leader of
+          - Provided training to
+          - Financial facilitato for
+          - Financial facilitator for
+          - Responsible in Yemen for the finances of
+          - Founder and leader of
+          - Served as director of
+          - Key commander from
+          - Treasurer to
+          - Co owner of
+          - Advisor to
+          - Secretary to
+          - Nephew of
+          - Close relations with
+          - Heading the
+          - Associated also with
+          - Spokesperson for
+          - Raising funds on behalf of
+          - Senior lieutenant to
+          - Deputy and Spokesperson and advisor for
+          - One of the deputies of
+          - Electronics and explosives expert for
+          - Member of leadership council of
+          - Transferred and delivered funds to
+          - Chief of suicide operations for the
+          - Current leader is
+          - Registered by members of
+          - Leadership included
+          - Received funds through the
+          - Leader is
+          - Founder is
+          - Legal successor of
+          - Co founded by
+          - Lead by
+          - Merged with
+          - Operates with
+          - Founded and led by
+          - Absorbed into
+          - Founded and headed by
+          - Headed by
+          - Director is
+          - Founded by
+          - Currently headed by
+          - Listed members include
+          - Coordinator of groups associated with
+          - Provided financial services to
+          - Was founded by
+          - Former top military commander of the
+          - Trained in Afghanistan in the late 1980s to make bombs with
+          - Since 2011, established
+          - Conducted MJN’s terrorist activities with support from
+          - Member of the
+          - Terrorist and paramilitary group established by
+          - Linked to the leadership of
+          - Linked to the Organization of
+          - One of the founders and a current leader of
+          - Led by
+          - Splinter group of and associated with
+          - Established
+          - Established by
+          - Senior member of the
+          - De facto head of group in the absence of
+          - Occasionally acted as a Liaison Officer between HQN and
+          - Commander under HQN leader
+          - Member and regional commander of
+          - Former senior leader of
+          - Took part to the network of
+          - Regional leader of
+          - Spokesman of
+          - Closely associated with
+          - Facilitator and financier for
+          - Recruiter and facilitator for
+          - Trained in
+          - Financier and facilitator for
+          - Administrative amir of
+          - Sharia amir of
+          - Fundraiser for
+          - Former representative of
+          - Provided financial, material, and technological support for
+          - Facilitator who provides financial support for and financial services to and in support of
+          - Syria-based senior military commander and shura council member of Islamic State in Iraq and the Levant, listed as Al-Qaida in Iraq (AQI)
+          - Facilitator who provides financial, material, and technological support for
+          - Has held leadership positions in
+          - Head of the foreign affairs division and key outreach player of
+          - Owner of
+          - Key operative in
+          - Under the direction of
+          - Member and recruiter of
+          - Fighting with
+          - Facilitator for travel of foreign terrorist fighters to join
+          - Provider of material support for
+          - Emir of
+          - Head of religious compliance police and a recruiter of foreign terrorist fighters for
+          - Former lead oil and gas division official of
+          - Supporter of
+          - Commands a suicide battalion of
+          - Leader of
+          - Senior official and a financial supporter of
+          - German foreign terrorist fighter for
+          - Splinter group of the
+          - Foreign terrorist fighter with
+          - Joined
+          - De facto leader for all indonesian supporters of
+          - Facilitating the movement of funds on behalf of
+          - Facilitating the movement of funds on behalf of
+          - English language propagandist for
+          - Former spokesperson of
+          - Pledged allegiance to
+          - Announced as an official member of
+          - Founder of
+          - Former leader of
+          - Formed by a former commander of
+          - Established by former Taliban faction commanders who swore an oath of allegiance to
+          - Founding member of
+          - Operational leader of
+          - Founder of the Katiba Macina of
+          - Executive of
+          - Formed in March 2015 by
+          - Formed in May 2015 by
+          - Business associate of
+          - Business partner of
+          - co-owner with
+          - Vice-chairman
+          - Beneficial owner is
+          - Vice-President of Finance and Administration of
+          - chairman-of
+          - Represents
+          - General Manager of
+          - Manager of
+          - Owner and Chairman of
+          - Subsidiary of the
+          - Subsidiary of
+          - Supplier
+          - Associated with and appointed by
+          - Manages affairs of
+          - Ngaïkosset was a member of the presidential guard of former President
+          - Deputy of the
+        contains:
+          - Associated with the
+        schema: UnknownLink
+        source: subject
+        target: object
+        text: role
+      - match:
+          - wife-of
+          - Mother of
+          - sister-of
+          - cousin-of
+          - daughter-of
+          - son-of
+          - Brother in law of
+          - brother-of
+          - Father of
+          - uncle-of
+          - husband-of
+          - Linked by marriage to
+          - Half Brother of
+          - Daughter in law of
+          - Child of
+          - Father in law of
+          - Brother-in-law of
+        schema: Family
+        source: person
+        target: relative
+        text: relationship
+      # - match:
+      #     - Head of
+      #     - Senior leader of
+      #     - Chief of finance of
+      #     - Member of the Council of
+      #     - Leader of
+      #     - Chief of staff of
+      #     - Overall leader of the
+      #     - Leader of the
+      #     - Official of
+      #     - Executive Director of
+      #     - executive-director-of
+      #     - Deputy Head of
+      #     - Deputy Commander of
+      #     - Brigadier General of
+      #     - Board member of
+      #     - chairman-of
+      #     - President of the
+      #     - Chairman of the
+      #     - Commander of
+      #     - officer of
+      #     - director-of
+      #     - Senior official of
+      #     - Vice Admiral of
+      #     - Former head of
+      #     - Regional Director of
+      #     - Former Managing Director of
+      #     - Chairman of
+      #     - Founder of
+      #     - Leader is
+      #     - Founder is
+      #     - Former leader of
+      #     - Vice-chairman
+      #     - Executive of
+      #     - Operational leader of
+      #     - Chairman and Managing Director of
+      #     - Chief Executive Officer of
+      #     - Head of Finance and Budget Department of
+      #     - Head of Trade and International Affairs Department of
+      #     - Former senior leader of
+      #     - Emir of
+      #     - Served as director of
+      #     - Owner and Chairman of
+      #     - General Manager of
+      #     - Chairman of the Board and Managing Director of
+      #     - Vice President of
+      #     - Deputy and Director General of
+      #     - Managing Director of
+      #     - Director and spokesperson
+      #     - Treasurer to
+      #     - Chief operational commander of
+      #     - Leader of Al Qaida in Iraq
+      #     - Leadership of
+      #     - Chief of operations of
+      #     - Member of leadership council of
+      #   contains:
+      #     - Director-General of the
+      #     - De facto leader for
+      #     - Belongs to the leadership
+      #   schema: Directorship
+      #   source: director
+      #   target: organization
+      #   text: role
+      # - match:
+      #     - Led by
+      #     - Current leader is
+      #     - Founded and headed by
+      #     - Headed by
+      #     - Director is
+      #     - Currently headed by
+      #     - Founded by
+      #     - Was founded by
+      #   schema: Directorship
+      #   source: organization
+      #   target: director
+      #   text: role
+      # - match:
+      #     - Member of
+      #     - Former member of
+      #     - Member of the
+      #     - Manager of
+      #     - Foreign terrorist fighter with
+      #     - Joined
+      #     - Founding member of
+      #     - Recruiter and facilitator for
+      #     - Senior member of
+      #     - Member and regional commander of
+      #     - Senior member of the
+      #   schema: Membership
+      #   source: member
+      #   target: organization
+      #   text: role
+      # - match:
+      #     - Listed members include
+      #   schema: Membership
+      #   source: organization
+      #   target: member
+      #   text: role
+      # - match:
+      #     - owner-of
+      #     - Owner of
+      #   schema: Ownership
+      #   source: owner
+      #   target: asset
+      #   text: role
+      # - match:
+      #     - controlled-by
+      #     - Owned by
+      #     - Beneficial owner is
+      #     - Owned by the
+      #     - Owned and controlled by
+      #     - Owned or controlled by
+      #   schema: Ownership
+      #   source: asset
+      #   target: owner
+      #   text: role

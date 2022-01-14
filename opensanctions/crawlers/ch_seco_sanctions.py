@@ -5,6 +5,8 @@ from opensanctions.core import Context
 from opensanctions import helpers as h
 from opensanctions.util import jointext
 
+# TODO: sanctions-program full parse
+
 
 def parse_address(node):
     address = {
@@ -96,7 +98,10 @@ async def parse_identity(context: Context, entity, node, places):
 
     for bday in node.findall(".//day-month-year"):
         bval = parse_parts(bday.get("year"), bday.get("month"), bday.get("day"))
-        entity.add("birthDate", bval)
+        if entity.schema.is_a("Person"):
+            entity.add("birthDate", bval)
+        else:
+            entity.add("incorporationDate", bval)
 
     for nationality in node.findall(".//nationality"):
         country = nationality.find("./country")
@@ -113,16 +118,18 @@ async def parse_identity(context: Context, entity, node, places):
         country = doc.find("./issuer")
         type_ = doc.get("document-type")
         number = doc.findtext("./number")
-        entity.add("nationality", country.get("code"), quiet=True)
-        if type_ in ["id-card"]:
+        entity.add("nationality", country.text, quiet=True)
+        schema = "Identification"
+        if type_ in ("id-card"):
             entity.add("idNumber", number)
-        if type_ in ["passport", "diplomatic-passport"]:
+        if type_ in ("passport", "diplomatic-passport"):
             entity.add("idNumber", number)
-        passport = context.make("Passport")
-        passport.id = context.make_id(entity.id, "Passport", doc.get("ssid"))
+            schema = "Passport"
+        passport = context.make(schema)
+        passport.id = context.make_id(entity.id, type_, doc.get("ssid"))
         passport.add("holder", entity)
-        passport.add("country", country.get("code"))
-        passport.add("passportNumber", number)
+        passport.add("country", country.text)
+        passport.add("number", number)
         passport.add("type", type_)
         passport.add("summary", doc.findtext("./remark"))
         passport.add("startDate", doc.findtext("./date-of-issue"))
@@ -168,17 +175,44 @@ async def parse_entry(context: Context, target, programs, places, updated_at):
     sanction = h.make_sanction(context, entity)
     sanction.add("modifiedAt", max(dates))
 
-    for justification in node.findall("./justification"):
-        entity.add("notes", justification.text)
-
     ssid = target.get("sanctions-set-id")
     sanction.add("program", programs.get(ssid))
+
+    for justification in node.findall("./justification"):
+        # TODO: should this go into sanction:reason?
+        entity.add("notes", justification.text)
+
+    for relation in node.findall("./relation"):
+        rel_type = relation.get("relation-type")
+        target_id = context.make_slug(relation.get("target-id"))
+        res = context.lookup("relations", rel_type)
+        if res is None:
+            context.log.warn(
+                "Unknown relationship type",
+                type=rel_type,
+                source=entity,
+                target=target_id,
+            )
+            continue
+
+        rel = context.make(res.schema)
+        rel.id = context.make_slug(relation.get("ssid"))
+        rel.add(res.source, entity.id)
+        rel.add(res.target, target_id)
+        rel.add(res.text, rel_type)
+
+        # rel_target = context.make(rel.schema.get(res.target).range)
+        # rel_target.id = target_id
+        # await context.emit(rel_target)
+
+        entity.add_schema(rel.schema.get(res.source).range)
+        await context.emit(rel)
 
     for identity in node.findall("./identity"):
         await parse_identity(context, entity, identity, places)
 
     entity.add("topics", "sanction")
-    await context.emit(entity, target=True, unique=True)
+    await context.emit(entity, target=True)
     await context.emit(sanction)
 
 

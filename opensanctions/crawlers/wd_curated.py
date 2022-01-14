@@ -22,4 +22,5 @@ async def crawl(context: Context):
         data = await get_entity(context, qid)
         if data is None:
             continue
-        await entity_to_ftm(context, data, schema=schema, topics=topics)
+        proxy = await entity_to_ftm(context, data, schema=schema, topics=topics)
+        context.log.info("Curated", entity=proxy)
