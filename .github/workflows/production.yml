@@ -64,7 +64,7 @@ jobs:
       #   run: |
       #     sqlite3 -version
       #     sqlite3 data/state/opensanctions.sqlite "VACUUM;"
-      # - name: Upload fetched resources to data.opensanctions.org
+      - name: Upload fetched resources to data.opensanctions.org
         if: ${{ always() }}
         run: |
           aws s3 sync --no-progress --cache-control "public, max-age=846000" --acl public-read data/datasets s3://data.opensanctions.org/datasets/$OPENSANCTIONS_DATE
