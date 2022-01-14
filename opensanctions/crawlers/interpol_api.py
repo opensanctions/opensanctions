@@ -110,4 +110,4 @@ async def crawl(context: Context):
     for country, label in countries:
         context.log.info("Crawl %r" % label, code=country)
         tasks.append(crawl_country(context, country))
-    await asyncio.gather(tasks)
+    await asyncio.gather(*tasks)
