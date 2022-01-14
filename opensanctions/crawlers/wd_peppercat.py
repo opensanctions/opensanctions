@@ -1,9 +1,7 @@
 import io
 import csv
+import asyncio
 
-from async_timeout import asyncio
-
-from opensanctions import settings
 from opensanctions.core import Context
 from opensanctions.wikidata import get_entity, entity_to_ftm
 

@@ -117,12 +117,13 @@ class Context(object):
         async with named_semaphore(f"http.{url_.host}", self.http_concurrency):
             self.log.debug("HTTP GET", url=url)
             response = await self.http_client.get(url, headers=headers, auth=auth)
-        response.raise_for_status()
-        if response.text is None:
-            return None
+            response.raise_for_status()
+            text = response.text
+            if text is None:
+                return None
         async with with_conn() as conn:
-            await save_cache(conn, url, self.dataset, response.text)
-        return response.text
+            await save_cache(conn, url, self.dataset, text)
+        return text
 
     async def fetch_json(self, url, **kwargs):
         """Fetch the given URL (GET) and decode it as a JSON object."""
