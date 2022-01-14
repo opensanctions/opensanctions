@@ -18,5 +18,5 @@ publisher:
   url: https://www.wikidata.org
 url: https://docs.google.com/spreadsheets/d/1Yp51aX3tU1CezqaQZH-V2R_7P8gp82pQq2rzwumA2wU/edit#gid=0
 data:
-  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRJGZGTZ1EZ-FSghkXqHQFNmWlPC6MkruipeSvzji4xtW_jXLay_f3px7xl_SrJII0ARqeGqxzfAF4J/pub?gid=0&single=true&output=csv
+  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRJGZGTZ1EZ-FSghkXqHQFNmWlPC6MkruipeSvzji4xtW_jXLay_f3px7xl_SrJII0ARqeGqxzfAF4J/pub?gid=0&single=true&output=csv&
   format: CSV

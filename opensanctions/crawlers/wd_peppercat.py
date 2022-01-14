@@ -11,13 +11,14 @@ async def crawl_qid(context, qid, country):
         return
     data = await get_entity(context, qid)
     if data is not None:
-        await entity_to_ftm(
+        entity = await entity_to_ftm(
             context,
             data,
             position=data.get("position"),
             topics="role.pep",
             country=country,
         )
+        context.log.info("Target entity", entity=entity)
 
 
 async def crawl(context: Context):
