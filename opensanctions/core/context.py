@@ -120,7 +120,7 @@ class Context(object):
         if response.text is None:
             return None
         async with with_conn() as conn:
-            await save_cache(conn, url, response.text)
+            await save_cache(conn, url, self.dataset, response.text)
         return response.text
 
     async def fetch_json(self, url, **kwargs):
