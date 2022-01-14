@@ -1,12 +1,8 @@
 DOCKER=
-ALEMBIC=alembic -c opensanctions/migrate/alembic.ini
 
 .PHONY: build
 
 all: run
-
-db:
-	curl -o data/state/opensanctions.sqlite https://data.opensanctions.org/state/opensanctions.sqlite
 
 workdir:
 	mkdir -p data/postgres

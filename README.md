@@ -21,9 +21,12 @@ OpenSanctions uses [Follow the Money](https://followthemoney.readthedocs.io/en/l
 Repository layout:
 
 * ``opensanctions/``: Python project with data extraction and cleaning components
-* ``site/``: Next.js project web site
-* ``api/``: FastAPI appliance for the project API and on-premises KYC use
 * ``docs/``: Sphinx [technical documentation](https://opensanctions.org/docs/faq/)
+
+Related repositories:
+
+* [opensanctions/site](https://github.com/opensanctions/site): web site for the OpenSanctions project, contains TypeScript React components for rendering FtM data.
+* [opensanctions/yente](https://github.com/opensanctions/yente): API matching and entity search service. 
 
 Daily data extraction and processing runs on GitHub Actions. Status:
 
