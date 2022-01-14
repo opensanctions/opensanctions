@@ -56,6 +56,7 @@ lookups:
           - numéro d'enregistrement - société à
           - US Federal Employer Identification Number
           - Déclarée en préfecture
+          - Immatriculé sous le numéro
           - n° d'enregistrement national
           - "Date d’enregistrement"
           # why are IMO codes linked to companies?
