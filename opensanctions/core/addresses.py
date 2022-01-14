@@ -1,12 +1,14 @@
-from followthemoney.dedupe.judgement import Judgement
+import requests
 import structlog
+from typing import Dict, Set
+from followthemoney.dedupe.judgement import Judgement
+
 from itertools import combinations
 
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.context import Context
 from opensanctions.core.loader import Database
 from opensanctions.core.entity import Entity
-from opensanctions.core.http import get_session
 
 log = structlog.getLogger(__name__)
 NOMINATIM = "https://nominatim.openstreetmap.org/search.php"
@@ -14,7 +16,7 @@ EXPIRE_CACHE = 84600 * 200
 
 
 def query_nominatim(address: Entity):
-    session = get_session()
+    session = requests.Session()
     for full in address.get("full"):
         params = {
             "q": full,
@@ -37,16 +39,16 @@ def query_nominatim(address: Entity):
             yield result
 
 
-def xref_geocode(dataset: Dataset):
+async def xref_geocode(dataset: Dataset):
     context = Context(dataset)
     resolver = context.resolver
     db = Database(dataset, resolver)
-    loader = db.view(dataset)
+    loader = await db.view(dataset)
 
-    nodes = {}
-    entities = {}
+    nodes: Dict[str, Dict[str, str]] = {}
+    entities: Dict[str, Set[str]] = {}
     try:
-        for entity in loader:
+        async for entity in loader.entities():
             if not entity.schema.is_a("Address"):
                 continue
             # log.info("Dedupe", address=entity.caption)
@@ -73,11 +75,12 @@ def xref_geocode(dataset: Dataset):
             continue
         data = nodes[osm_id]
         for (a, b) in combinations(ids, 2):
-            if not resolver.check_candidate(a, b):
+            if not await resolver.check_candidate(a, b):
                 continue
 
             judgement = resolver.get_judgement(a, b)
             if judgement == Judgement.NO_JUDGEMENT:
                 resolver.suggest(a, b, data["importance"])
                 log.info("Suggested match", address=data["name"], forms=data["forms"])
-    resolver.save()
+
+    await resolver.save()

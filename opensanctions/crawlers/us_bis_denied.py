@@ -1,12 +1,12 @@
 import csv
-from prefixdate import parse_format
 
+from opensanctions.core import Context
 from opensanctions import helpers as h
 
 FORMATS = ("%m/%d/%Y",)
 
 
-def parse_row(context, row):
+async def parse_row(context: Context, row):
     entity = context.make("LegalEntity")
     entity.id = context.make_slug(row.get("Effective_Date"), row.get("Name"))
     entity.add("name", row.get("Name"))
@@ -23,8 +23,8 @@ def parse_row(context, row):
         region=row.get("State"),
         country=row.get("Country"),
     )
-    h.apply_address(context, entity, address)
-    context.emit(entity, target=True)
+    await h.apply_address(context, entity, address)
+    await context.emit(entity, target=True)
 
     citation = row.get("FR_Citation")
     sanction = h.make_sanction(context, entity, key=citation)
@@ -32,12 +32,12 @@ def parse_row(context, row):
     sanction.add("startDate", h.parse_date(row.get("Effective_Date"), FORMATS))
     sanction.add("endDate", h.parse_date(row.get("Expiration_Date"), FORMATS))
     # pprint(row)
-    context.emit(sanction)
+    await context.emit(sanction)
 
 
-def crawl(context):
-    path = context.fetch_resource("source.tsv", context.dataset.data.url)
-    context.export_resource(path, "text/tsv", title=context.SOURCE_TITLE)
+async def crawl(context: Context):
+    path = await context.fetch_resource("source.tsv", context.dataset.data.url)
+    await context.export_resource(path, "text/tsv", title=context.SOURCE_TITLE)
     with open(path, "r") as csvfile:
         for row in csv.DictReader(csvfile, delimiter="\t"):
-            parse_row(context, row)
+            await parse_row(context, row)

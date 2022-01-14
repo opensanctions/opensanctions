@@ -1,16 +1,15 @@
-from lxml import html
 from urllib.parse import urljoin
 from normality import stringify, collapse_spaces, slugify
 
+from opensanctions.core import Context
 from opensanctions import helpers as h
 
 FORMATS = ("%d/%m/%Y",)
 
 
-def crawl_person(context, name, url):
+async def crawl_person(context: Context, name, url):
     context.log.debug("Crawling member", name=name, url=url)
-    res = context.http.get(url)
-    doc = html.fromstring(res.text)
+    doc = await context.fetch_html(url)
     _, person_id = url.rsplit("/", 1)
     person = context.make("Person")
     person.id = context.make_slug(person_id)
@@ -90,12 +89,12 @@ def crawl_person(context, name, url):
                 _, slug = slug.rsplit("(", 1)
             slug = slugify(slug, sep="-")
             group.id = f"eu-cor-group-{slug}"
-            context.emit(group)
+            await context.emit(group)
             member = context.make("Membership")
             member.id = context.make_id("Membership", person.id, group.id)
             member.add("member", person)
             member.add("organization", group)
-            context.emit(member)
+            await context.emit(member)
             continue
 
     address = h.make_address(
@@ -105,19 +104,18 @@ def crawl_person(context, name, url):
         postal_code=address.get("Posal code"),
         country=address.get("Country"),
     )
-    h.apply_address(context, person, address)
-    context.emit(person, target=True)
+    await h.apply_address(context, person, address)
+    await context.emit(person, target=True)
 
 
-def crawl(context):
-    res = context.http.get(context.dataset.data.url)
-    doc = html.fromstring(res.text)
+async def crawl(context: Context):
+    doc = await context.fetch_html(context.dataset.data.url)
 
     seen = set()
     for link in doc.findall('.//div[@class="people"]//li//a[@class="_fullname"]'):
-        url = urljoin(res.url, link.get("href"))
+        url = urljoin(context.dataset.data.url, link.get("href"))
         url, _ = url.split("?", 1)
         if url in seen:
             continue
         seen.add(url)
-        crawl_person(context, link.text, url)
+        await crawl_person(context, link.text, url)

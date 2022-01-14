@@ -1,13 +1,9 @@
 from lxml import html
 from pantomime.types import HTML
-from normality import collapse_spaces
-from followthemoney import model
-from followthemoney.types import registry
 from prefixdate import parse_format
 
 from opensanctions.core import Context
 from opensanctions import helpers as h
-from opensanctions.util import multi_split
 
 SECTIONS = {
     "russianUL": ("National part", "Organization"),
@@ -28,7 +24,7 @@ def parse_name(entity, text):
     entity.add("name", text)
 
 
-def parse_russian_orgs(context, entity, text):
+def parse_russian_orgs(context: Context, entity, text):
     while "," in text:
         text, section = text.rsplit(",", 1)
         fragment = section.strip()
@@ -49,7 +45,7 @@ def parse_russian_orgs(context, entity, text):
     parse_name(entity, text)
 
 
-def parse_russian_persons(context, entity, text):
+async def parse_russian_persons(context: Context, entity, text):
     while "," in text:
         text, section = text.rsplit(",", 1)
         fragment = section.strip()
@@ -65,7 +61,7 @@ def parse_russian_persons(context, entity, text):
             continue
 
         obj = h.make_address(context, full=fragment, country_code="ru")
-        h.apply_address(context, entity, obj)
+        await h.apply_address(context, entity, obj)
     parse_name(entity, text)
 
 
@@ -75,7 +71,7 @@ def parse_foreign_orgs(context, entity, text):
     parse_name(entity, text)
 
 
-def parse_foreign_persons(context, entity, text):
+def parse_foreign_persons(context: Context, entity, text):
     while "," in text:
         text, section = text.rsplit(",", 1)
         fragment = section.strip()
@@ -89,9 +85,9 @@ def parse_foreign_persons(context, entity, text):
     parse_name(entity, text)
 
 
-def crawl(context: Context):
-    path = context.fetch_resource("source.html", context.dataset.data.url)
-    context.export_resource(path, HTML, title=context.SOURCE_TITLE)
+async def crawl(context: Context):
+    path = await context.fetch_resource("source.html", context.dataset.data.url)
+    await context.export_resource(path, HTML, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         doc = html.parse(fh)
 
@@ -111,12 +107,12 @@ def crawl(context: Context):
             if sec_id == "russianUL":
                 parse_russian_orgs(context, entity, text)
             if sec_id == "russianFL":
-                parse_russian_persons(context, entity, text)
+                await parse_russian_persons(context, entity, text)
             if sec_id == "foreignUL":
                 parse_foreign_orgs(context, entity, text)
             if sec_id == "foreignFL":
                 parse_foreign_persons(context, entity, text)
 
             if entity.has("name"):
-                context.emit(entity, target=True)
-                context.emit(sanction)
+                await context.emit(entity, target=True)
+                await context.emit(sanction)

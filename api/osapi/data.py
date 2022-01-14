@@ -1,9 +1,10 @@
-from functools import cache
 from typing import List, Set
+from asyncstdlib.functools import cache
 from followthemoney import model
 from followthemoney.schema import Schema
 from followthemoney.property import Property
-from opensanctions.model import Statement
+from opensanctions.core.db import with_conn
+from opensanctions.core.statements import all_schemata
 from opensanctions.core.entity import Entity
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.resolver import get_resolver
@@ -12,8 +13,6 @@ from opensanctions.core.loader import Database
 from osapi import settings
 from osapi.models import FreebaseType
 from osapi.models import FreebaseEntity, FreebaseProperty
-
-resolver = get_resolver()
 
 
 def get_scope() -> Dataset:
@@ -24,19 +23,20 @@ def get_scope() -> Dataset:
 
 
 @cache
-def get_database(cached=False) -> Database:
+async def get_database(cached=False) -> Database:
+    resolver = await get_resolver()
     return Database(get_scope(), resolver, cached=cached)
 
 
-@cache
 def get_datasets() -> List[Dataset]:
     return get_scope().provided_datasets()
 
 
 @cache
-def get_schemata(dataset: Dataset) -> List[Schema]:
+async def get_schemata(dataset: Dataset) -> List[Schema]:
     schemata: List[Schema] = list()
-    names = Statement.all_schemata(dataset=dataset)
+    async with with_conn() as conn:
+        names = await all_schemata(conn, dataset=dataset)
     for name in names:
         schema = model.get(name)
         if schema is not None:
@@ -44,16 +44,17 @@ def get_schemata(dataset: Dataset) -> List[Schema]:
     return schemata
 
 
-def get_matchable_schemata(dataset: Dataset) -> Set[Schema]:
+async def get_matchable_schemata(dataset: Dataset) -> Set[Schema]:
     schemata: Set[Schema] = set()
-    for schema in get_schemata(dataset):
+    direct_schemata = await get_schemata(dataset)
+    for schema in direct_schemata:
         if schema.matchable:
             schemata.update(schema.schemata)
     return schemata
 
 
-def get_freebase_types(dataset: Dataset) -> List[FreebaseType]:
-    return [get_freebase_type(s) for s in get_matchable_schemata(dataset)]
+async def get_freebase_types(dataset: Dataset) -> List[FreebaseType]:
+    return [get_freebase_type(s) for s in await get_matchable_schemata(dataset)]
 
 
 def get_freebase_type(schema: Schema) -> FreebaseType:

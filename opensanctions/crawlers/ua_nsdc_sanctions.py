@@ -10,14 +10,14 @@ PHYSICAL_URL = "https://sanctions-t.rnbo.gov.ua/api/fizosoba/"
 LEGAL_URL = "https://sanctions-t.rnbo.gov.ua/api/jurosoba/"
 
 
-def json_resource(context, url, name):
-    path = context.fetch_resource(f"{name}.json", url)
-    context.export_resource(path, JSON, title=context.SOURCE_TITLE)
+async def json_resource(context: Context, url, name):
+    path = await context.fetch_resource(f"{name}.json", url)
+    await context.export_resource(path, JSON, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         return json.load(fh)
 
 
-def handle_address(context, entity, text):
+async def handle_address(context: Context, entity, text):
     if text is None:
         return
     country = text
@@ -27,21 +27,21 @@ def handle_address(context, entity, text):
     if code is not None:
         entity.add("country", code)
     address = h.make_address(context, full=text, country_code=code)
-    h.apply_address(context, entity, address)
+    await h.apply_address(context, entity, address)
 
 
-def handle_sanction(context, entity, row):
+async def handle_sanction(context, entity, row):
     sanction = h.make_sanction(context, entity)
     sanction.add("status", row.pop("action", None))
     sanction.add("summary", row.pop("restriction_period", None))
     sanction.add("program", row.pop("restriction_type", None))
     sanction.add("startDate", row.pop("ukaz_date", None))
     sanction.add("endDate", row.pop("restriction_end_date", None))
-    context.emit(sanction)
+    await context.emit(sanction)
 
 
-def crawl_physical(context: Context) -> None:
-    data = json_resource(context, PHYSICAL_URL, "physical")
+async def crawl_physical(context: Context) -> None:
+    data = await json_resource(context, PHYSICAL_URL, "physical")
     for row in data:
         entity = context.make("Person")
         entity.id = context.make_slug(row.pop("ukaz_id"), row.pop("index"))
@@ -55,15 +55,15 @@ def crawl_physical(context: Context) -> None:
         entity.add("birthDate", row.pop("birthdate", None))
         entity.add("birthPlace", row.pop("birthplace", None))
         entity.add("position", row.pop("occupation", None))
-        handle_address(context, entity, row.pop("livingplace", None))
-        handle_sanction(context, entity, row)
+        await handle_address(context, entity, row.pop("livingplace", None))
+        await handle_sanction(context, entity, row)
 
-        context.emit(entity, target=True)
+        await context.emit(entity, target=True)
         # context.pprint(row)
 
 
-def crawl_legal(context: Context) -> None:
-    data = json_resource(context, LEGAL_URL, "legal")
+async def crawl_legal(context: Context) -> None:
+    data = await json_resource(context, LEGAL_URL, "legal")
     for row in data:
         entity = context.make("Organization")
         entity.id = context.make_slug(row.pop("ukaz_id"), row.pop("index"))
@@ -77,13 +77,13 @@ def crawl_legal(context: Context) -> None:
         odrn = row.pop("odrn_edrpou", "") or ""
         entity.add("registrationNumber", odrn.replace("ОДРН", ""))
 
-        handle_address(context, entity, row.pop("place", None))
-        handle_address(context, entity, row.pop("place_alternative", None))
-        handle_sanction(context, entity, row)
+        await handle_address(context, entity, row.pop("place", None))
+        await handle_address(context, entity, row.pop("place_alternative", None))
+        await handle_sanction(context, entity, row)
         # context.pprint(row)
-        context.emit(entity, target=True, unique=True)
+        await context.emit(entity, target=True, unique=True)
 
 
-def crawl(context: Context) -> None:
-    crawl_physical(context)
-    crawl_legal(context)
+async def crawl(context: Context) -> None:
+    await crawl_physical(context)
+    await crawl_legal(context)

@@ -1,7 +1,6 @@
-import logging
 from typing import Any, Dict, Optional, Set
 
-from opensanctions.core import Context, Dataset, Entity, setup
+from opensanctions.core import Context, Entity
 from opensanctions import helpers as h
 from opensanctions.wikidata.api import get_entity
 from opensanctions.wikidata.lang import pick_obj_lang
@@ -17,10 +16,10 @@ from opensanctions.wikidata.claim import Claim
 # SEEN_PROPS = set()
 
 
-def qualify_value(value, claim):
+async def qualify_value(context: Context, value: str, claim: Claim) -> str:
     starts = set()
     for qual in claim.get_qualifier("P580"):
-        text = qual.text
+        text = await qual.text(context)
         if text is not None:
             starts.add(text[:4])
 
@@ -28,7 +27,7 @@ def qualify_value(value, claim):
 
     ends = set()
     for qual in claim.get_qualifier("P582"):
-        text = qual.text
+        text = await qual.text(context)
         if text is not None:
             ends.add(text[:4])
 
@@ -38,7 +37,7 @@ def qualify_value(value, claim):
 
     dates = set()
     for qual in claim.get_qualifier("P585"):
-        text = qual.text
+        text = await qual.text(context)
         if text is not None:
             dates.add(text[:4])
 
@@ -48,12 +47,12 @@ def qualify_value(value, claim):
     return value
 
 
-def make_link(
+async def make_link(
     context, proxy, claim, depth, seen, schema, other_schema, source_prop, target_prop
 ):
     if depth < 1 or claim.qid in seen:
         return
-    other_data = get_entity(claim.qid)
+    other_data = await get_entity(context, claim.qid)
     if other_data is None:
         return
 
@@ -63,7 +62,7 @@ def make_link(
     if "role.pep" in proxy.get("topics"):
         props["topics"] = "role.rca"
 
-    other = entity_to_ftm(
+    other = await entity_to_ftm(
         context,
         other_data,
         schema=other_schema,
@@ -78,37 +77,42 @@ def make_link(
     link.id = context.make_slug(claim.property, *sorted((proxy.id, other.id)))
     link.add(source_prop, proxy.id)
     link.add(target_prop, other.id)
-    link.add("relationship", claim.property_label)
+    rel = await claim.property_label(context)
+    link.add("relationship", rel)
 
     for qual in claim.get_qualifier("P580"):
-        link.add("startDate", qual.text)
+        text = await qual.text(context)
+        link.add("startDate", text)
 
     for qual in claim.get_qualifier("P582"):
-        link.add("endDate", qual.text)
+        text = await qual.text(context)
+        link.add("endDate", text)
 
     for qual in claim.get_qualifier("P585"):
-        link.add("date", qual.text)
+        text = await qual.text(context)
+        link.add("date", text)
 
     for ref in claim.references:
         for snak in ref.get("P854"):
-            link.add("sourceUrl", snak.text)
+            text = await snak.text(context)
+            link.add("sourceUrl", text)
     return link
 
 
-def apply_claim(
+async def apply_claim(
     context: Context, proxy: Entity, claim: Claim, depth: int, seen: Set[str]
 ):
     prop = PROPS_DIRECT.get(claim.property)
     if prop is not None:
-        value = claim.text
+        value = await claim.text(context)
         if prop == "gender":
             value = h.clean_gender(value)
         if prop in PROPS_QUALIFIED:
-            value = qualify_value(value, claim)
+            value = await qualify_value(context, value, claim)
         proxy.add(prop, value)
         return
     if claim.property in PROPS_FAMILY:
-        link = make_link(
+        link = await make_link(
             context,
             proxy,
             claim,
@@ -121,11 +125,12 @@ def apply_claim(
         )
         if link is not None:
             for qual in claim.get_qualifier("P1039"):
-                link.set("relationship", qual.text)
-            context.emit(link)
+                text = await qual.text(context)
+                link.set("relationship", text)
+            await context.emit(link)
         return
     if claim.property in PROPS_ASSOCIATION:
-        link = make_link(
+        link = await make_link(
             context,
             proxy,
             claim,
@@ -138,12 +143,13 @@ def apply_claim(
         )
         if link is not None:
             for qual in claim.get_qualifier("P2868"):
-                link.set("relationship", qual.text)
-            context.emit(link)
+                text = await qual.text(context)
+                link.set("relationship", text)
+            await context.emit(link)
         return
     # TODO: memberships, employers?
-    if claim.property in IGNORE:
-        return
+    # if claim.property in IGNORE:
+    #     return
     # if claim.type != "external-id" and claim.property not in SEEN_PROPS:
     #     context.log.warning(
     #         "Claim",
@@ -157,7 +163,7 @@ def apply_claim(
     # SEEN_PROPS.add(claim.property)
 
 
-def entity_to_ftm(
+async def entity_to_ftm(
     context: Context,
     entity: Dict[str, Any],
     schema: str = "Person",
@@ -196,7 +202,7 @@ def entity_to_ftm(
     for prop_claims in claims.values():
         for claim_data in prop_claims:
             claim = Claim(claim_data)
-            apply_claim(context, proxy, claim, depth, seen)
+            await apply_claim(context, proxy, claim, depth, seen)
 
     # TODO: get back to this later:
     entity.pop("sitelinks")
@@ -205,14 +211,5 @@ def entity_to_ftm(
         return
 
     # context.pprint(entity)
-    context.emit(proxy, unique=True)
+    await context.emit(proxy, unique=True)
     return proxy
-
-
-if __name__ == "__main__":
-    setup(logging.INFO)
-    context = Context(Dataset.require("everypolitician"))
-    entity = get_entity("Q7747")
-    proxy = entity_to_ftm(context, entity)
-    # if proxy is not None:
-    #     context.pprint(proxy.to_dict())

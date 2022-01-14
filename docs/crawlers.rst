@@ -128,13 +128,13 @@ uploaded and published to the web.
 
    def crawl(context):
        # Fetch the source data URL specified in the metadata to a local path:
-       source_path = context.fetch_resource('source.xml', context.dataset.data.url)
+       source_path   await context.fetch_resource('source.xml', context.dataset.data.url)
        with open(source_path, 'r') as fh:
            print(len(fh.read()))
 
        # You can also register the file as a resource with the dataset that
        # will be included in the exported metadata index:
-       context.export_resource(source_path, title="Source data XML file")
+       await context.export_resource(source_path, title="Source data XML file")
 
 Other crawlers might not be as lucky: instead of fetching their source data as a
 single bulk file, they might need to crawl a large number of web pages to collect
@@ -187,7 +187,7 @@ that construct and store :ref:`entities <entities>`:
        entity.add('deathDate', 'never')
        
        # Store or update the entity in the database:
-       context.emit(entity, target=True)
+       await context.emit(entity, target=True)
 
 The entity object is based on the entity proxy in FollowTheMoney, so we suggest you
 also check out the :ref:`FtM documentation <followthemoney:api>` on entity

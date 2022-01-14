@@ -54,7 +54,7 @@ publisher:
   url: https://eeas.europa.eu/
 url: https://eeas.europa.eu/topics/sanctions-policy/8442/consolidated-list-of-sanctions_en
 data:
-  url: https://webgate.ec.europa.eu/europeaid/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=n00378os
+  url: https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=n00378os
   format: XML
 
 lookups:

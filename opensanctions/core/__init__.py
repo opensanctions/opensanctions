@@ -1,3 +1,4 @@
+import asyncio
 import structlog
 from opensanctions import settings
 from opensanctions.core.dataset import Dataset
@@ -6,7 +7,7 @@ from opensanctions.core.context import Context
 from opensanctions.core.entity import Entity
 from opensanctions.core.logs import configure_logging
 
-from opensanctions.model.base import upgrade_db
+from opensanctions.core.db import create_db
 
 __all__ = ["Dataset", "Source", "Context", "Entity"]
 
@@ -21,4 +22,4 @@ def setup(log_level=None):
         data_path=str(settings.DATA_PATH),
         datasets=Dataset.names(),
     )
-    upgrade_db()
+    # asyncio.run(create_db())

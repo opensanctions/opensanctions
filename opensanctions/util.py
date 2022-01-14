@@ -1,12 +1,31 @@
 import re
 import logging
-from typing import Optional
+import threading
 from lxml import etree
+from typing import Optional
 from banal import ensure_list
+from asyncio import Semaphore
+from datetime import datetime
 from normality import stringify, slugify
+from contextlib import asynccontextmanager
 
 log = logging.getLogger(__name__)
+sema_ctx = threading.local()
 BRACKETED = re.compile(r"\(.*\)")
+
+
+@asynccontextmanager
+async def named_semaphore(name: str, size: int):
+    if not hasattr(sema_ctx, "semaphores"):
+        sema_ctx.semaphores = dict()
+    if name not in sema_ctx.semaphores:
+        sema_ctx.semaphores[name] = Semaphore(size)
+    async with sema_ctx.semaphores[name] as s:
+        yield s
+
+
+def iso_datetime(value: str) -> datetime:
+    return datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
 
 
 def is_empty(text: Optional[str]) -> bool:

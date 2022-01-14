@@ -1,6 +1,6 @@
 import re
-from prefixdate import parse_format  # noqa
 
+from opensanctions.core import Context
 from opensanctions import helpers as h
 
 SPLITS = r"(a\.k\.a\.?|aka|f/k/a|also known as|\(formerly |, also d\.b\.a\.|\(currently (d/b/a)?|d/b/a|\(name change from|, as the successor or assign to)"  # noqa
@@ -33,12 +33,12 @@ def clean_name(text):
     return clean_names
 
 
-def crawl(context):
+async def crawl(context: Context):
     url = context.dataset.data.url
     headers = {"apikey": context.dataset.data.api_key}
-    res = context.http.get(url, headers=headers, timeout=240)
+    data = await context.fetch_json(url, headers=headers)
     # TODO write this out to a source.json
-    for data in res.json()["response"]["ZPROCSUPP"]:
+    for data in data["response"]["ZPROCSUPP"]:
         # context.pprint(data)
         entity = context.make("LegalEntity")
         name = data.get("SUPP_NAME")
@@ -58,11 +58,11 @@ def crawl(context):
             country=data.get("COUNTRY_NAME"),
             key=entity.id,
         )
-        h.apply_address(context, entity, address)
+        await h.apply_address(context, entity, address)
 
         sanction = h.make_sanction(context, entity)
         sanction.add("program", data.get("DEBAR_REASON"))
         sanction.add("startDate", h.parse_date(data.get("DEBAR_FROM_DATE"), FORMATS))
         sanction.add("endDate", h.parse_date(data.get("DEBAR_TO_DATE"), FORMATS))
-        context.emit(entity, target=True)
-        context.emit(sanction)
+        await context.emit(entity, target=True)
+        await context.emit(sanction)

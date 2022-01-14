@@ -1,42 +1,43 @@
+import asyncio
 from datetime import datetime
 
+from opensanctions.core import Context
 from opensanctions import helpers as h
 
 
-def crawl(context):
-    res = context.http.get(context.dataset.data.url)
-    for country in res.json():
+async def crawl(context: Context):
+    data = await context.fetch_json(context.dataset.data.url)
+
+    for country in data:
         for legislature in country.get("legislatures", []):
             code = country.get("code").lower()
             context.log.info("Country: %s" % code)
-            crawl_legislature(context, code, legislature)
-
-    # context.resolver.save()
+            await crawl_legislature(context, code, legislature)
 
 
-def crawl_legislature(context, country, legislature):
-    lastmod = int(legislature.get("lastmod"))
-    lastmod = datetime.utcfromtimestamp(lastmod)
+async def crawl_legislature(context: Context, country, legislature):
+    lastmod_ = int(legislature.get("lastmod"))
+    lastmod = datetime.utcfromtimestamp(lastmod_)
     entities = {}
 
     url = legislature.get("popolo_url")
-    res = context.http.get(url)
-    data = res.json()
+    # this isn't being updated, hence long interval:
+    data = await context.fetch_json(url, cache_days=30)
 
     for person in data.pop("persons", []):
-        parse_person(context, person, country, entities, lastmod)
+        await parse_person(context, person, country, entities, lastmod)
 
     for organization in data.pop("organizations", []):
-        parse_organization(context, organization, country, entities, lastmod)
+        await parse_organization(context, organization, country, entities, lastmod)
 
     events = data.pop("events", [])
     events = {e.get("id"): e for e in events}
 
     for membership in data.pop("memberships", []):
-        parse_membership(context, membership, entities, events)
+        await parse_membership(context, membership, entities, events)
 
 
-def parse_common(context, entity, data, lastmod):
+def parse_common(context: Context, entity, data, lastmod):
     entity.context["updated_at"] = lastmod.isoformat()
     entity.add("name", data.pop("name", None))
     entity.add("alias", data.pop("sort_name", None))
@@ -78,7 +79,7 @@ def parse_common(context, entity, data, lastmod):
             entity.add("phone", h.clean_phones(value))
 
 
-def parse_person(context, data, country, entities, lastmod):
+async def parse_person(context: Context, data, country, entities, lastmod):
     person_id = data.pop("id", None)
     person = context.make("Person")
     person.id = context.make_slug(person_id)
@@ -107,11 +108,11 @@ def parse_person(context, data, country, entities, lastmod):
     # data.pop("images", None)
     # if len(data):
     #     pprint(data)
-    context.emit(person, target=True, unique=True)
+    await context.emit(person, target=True, unique=True)
     entities[person_id] = person.id
 
 
-def parse_organization(context, data, country, entities, lastmod):
+async def parse_organization(context: Context, data, country, entities, lastmod):
     org_id = data.pop("id", None)
     org_id = context.lookup_value("org_id", org_id, org_id)
     if org_id is None:
@@ -149,11 +150,11 @@ def parse_organization(context, data, country, entities, lastmod):
     # data.pop("seats", None)
     # if len(data):
     #     pprint(data)
-    context.emit(organization)
+    await context.emit(organization)
     entities[org_id] = organization.id
 
 
-def parse_membership(context, data, entities, events):
+async def parse_membership(context: Context, data, entities, events):
     person_id = entities.get(data.pop("person_id", None))
     organization_id = entities.get(data.pop("organization_id", None))
 
@@ -176,7 +177,7 @@ def parse_membership(context, data, entities, events):
             membership.add("sourceUrl", source.get("url"))
 
         # pprint(data)
-        context.emit(membership)
+        await context.emit(membership)
 
     on_behalf_of_id = entities.get(data.pop("on_behalf_of_id", None))
 
@@ -189,4 +190,4 @@ def parse_membership(context, data, entities, events):
         for source in data.get("sources", []):
             membership.add("sourceUrl", source.get("url"))
 
-        context.emit(membership)
+        await context.emit(membership)

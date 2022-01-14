@@ -1,12 +1,13 @@
-from functools import lru_cache
 from typing import Dict, Optional, Set, Tuple
 from itertools import combinations
 from collections import defaultdict
+from asyncstdlib.functools import cache
 from followthemoney.dedupe.judgement import Judgement
 from nomenklatura.resolver import Resolver, Identifier, StrIdent
 
 from opensanctions import settings
-from opensanctions.model import Statement, db
+from opensanctions.core.db import engine
+from opensanctions.core.statements import resolve_canonical, entities_datasets
 from opensanctions.core.entity import Entity
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.loader import Database
@@ -19,8 +20,9 @@ Scored = Tuple[str, str, Optional[float]]
 class UniqueResolver(Resolver[Entity]):
     """OpenSanctions semantics for the entity resolver graph."""
 
-    def check_candidate(self, left: Identifier, right: Identifier) -> bool:
-        if not super().check_candidate(left, right):
+    async def check_candidate(self, left: Identifier, right: Identifier) -> bool:
+        check = await super().check_candidate(left, right)
+        if not check:
             return False
         if Identifier.QID.match(str(left)) and Identifier.QID.match(str(right)):
             return False
@@ -31,7 +33,7 @@ class UniqueResolver(Resolver[Entity]):
         #     return False
         return True
 
-    def decide(
+    async def decide(
         self,
         left_id: StrIdent,
         right_id: StrIdent,
@@ -39,26 +41,29 @@ class UniqueResolver(Resolver[Entity]):
         user: Optional[str] = None,
         score: Optional[float] = None,
     ) -> Identifier:
-        target = super().decide(left_id, right_id, judgement, user=user, score=score)
+        target = await super().decide(
+            left_id, right_id, judgement, user=user, score=score
+        )
         if judgement == Judgement.POSITIVE:
-            Statement.resolve(self, target.id)
-            db.session.commit()
+            async with engine.begin() as conn:
+                await resolve_canonical(conn, self, target.id)
         return target
 
 
-@lru_cache(maxsize=None)
-def get_resolver() -> Resolver[Entity]:
-    return UniqueResolver.load(RESOLVER_PATH)
+@cache
+async def get_resolver() -> Resolver[Entity]:
+    return await UniqueResolver.load(RESOLVER_PATH)
 
 
-def export_pairs(dataset: Dataset):
-    resolver = get_resolver()
+async def export_pairs(dataset: Dataset):
+    resolver = await get_resolver()
     db = Database(dataset, resolver, cached=True)
     datasets: Dict[str, Set[Dataset]] = defaultdict(set)
-    for entity_id, ds in Statement.entities_datasets(dataset):
-        dsa = Dataset.get(ds)
-        if dsa is not None:
-            datasets[entity_id].add(dsa)
+    async with engine.begin() as conn:
+        async for entity_id, ds in entities_datasets(conn, dataset):
+            dsa = Dataset.get(ds)
+            if dsa is not None:
+                datasets[entity_id].add(dsa)
 
     def get_parts(id):
         canonical_id = resolver.get_canonical(id)

@@ -1,3 +1,6 @@
+from opensanctions.core import Context
+
+
 def split_name(name):
     for i in range(len(name)):
         last_name = name[i:].strip()
@@ -7,7 +10,7 @@ def split_name(name):
             return first_name, last_name
 
 
-def crawl_node(context, node):
+async def crawl_node(context: Context, node):
     mep_id = node.findtext(".//id")
     person = context.make("Person")
     person.id = context.make_slug(mep_id)
@@ -20,7 +23,7 @@ def crawl_node(context, node):
     person.add("lastName", last_name)
     person.add("nationality", node.findtext(".//country"))
     person.add("topics", "role.pep")
-    context.emit(person, target=True, unique=True)
+    await context.emit(person, target=True, unique=True)
 
     party_name = node.findtext(".//nationalPoliticalGroup")
     if party_name not in ["Independent"]:
@@ -29,12 +32,12 @@ def crawl_node(context, node):
         if party.id is not None:
             party.add("name", party_name)
             party.add("country", node.findtext(".//country"))
-            context.emit(party)
+            await context.emit(party)
             membership = context.make("Membership")
             membership.id = context.make_id(person.id, party.id)
             membership.add("member", person)
             membership.add("organization", party)
-            context.emit(membership)
+            await context.emit(membership)
 
     group_name = node.findtext(".//politicalGroup")
     group = context.make("Organization")
@@ -42,17 +45,17 @@ def crawl_node(context, node):
     if group.id is not None:
         group.add("name", group_name)
         group.add("country", "eu")
-        context.emit(group)
+        await context.emit(group)
         membership = context.make("Membership")
         membership.id = context.make_id(person.id, group.id)
         membership.add("member", person)
         membership.add("organization", group)
-        context.emit(membership)
+        await context.emit(membership)
 
 
-def crawl(context):
-    path = context.fetch_resource("source.xml", context.dataset.data.url)
-    context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
+async def crawl(context: Context):
+    path = await context.fetch_resource("source.xml", context.dataset.data.url)
+    await context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
     for node in doc.findall(".//mep"):
-        crawl_node(context, node)
+        await crawl_node(context, node)

@@ -7,6 +7,7 @@ from followthemoney import model
 from pantomime.types import EXCEL
 
 from opensanctions import helpers as h
+from opensanctions.core import Context
 from opensanctions.util import multi_split, remove_bracketed
 
 SPLITS = [" %s)" % char for char in string.ascii_lowercase]
@@ -62,7 +63,7 @@ def clean_reference(ref):
     raise ValueError()
 
 
-def parse_reference(context, reference, rows):
+async def parse_reference(context: Context, reference, rows):
     entity = context.make("LegalEntity")
     entity.id = context.make_slug(reference)
     # entity.add("sourceUrl", context.dataset.url)
@@ -82,7 +83,7 @@ def parse_reference(context, reference, rows):
         if addr is not None:
             for part in multi_split(addr, SPLITS):
                 address = h.make_address(context, full=part)
-                h.apply_address(context, entity, address)
+                await h.apply_address(context, entity, address)
         sanction.add("program", row.pop("committees"))
         citizen = multi_split(row.pop("citizenship"), ["a)", "b)", "c)", "d)"])
         entity.add("nationality", citizen, quiet=True)
@@ -97,13 +98,13 @@ def parse_reference(context, reference, rows):
         entity.add("modifiedAt", control_date)
 
     entity.add("topics", "sanction")
-    context.emit(entity, target=True)
-    context.emit(sanction)
+    await context.emit(entity, target=True)
+    await context.emit(sanction)
 
 
-def crawl(context):
-    path = context.fetch_resource("source.xls", context.dataset.data.url)
-    context.export_resource(path, EXCEL, title=context.SOURCE_TITLE)
+async def crawl(context: Context):
+    path = await context.fetch_resource("source.xls", context.dataset.data.url)
+    await context.export_resource(path, EXCEL, title=context.SOURCE_TITLE)
     xls = xlrd.open_workbook(path)
     ws = xls.sheet_by_index(0)
     headers = [slugify(h, sep="_") for h in ws.row_values(0)]
@@ -115,4 +116,4 @@ def crawl(context):
         references[reference].append(row)
 
     for ref, rows in references.items():
-        parse_reference(context, ref, rows)
+        await parse_reference(context, ref, rows)

@@ -78,6 +78,7 @@ class EntityMatchResponse(BaseModel):
 
 
 class StatementModel(BaseModel):
+    id: str = Field(..., example="0000ad52d4d91a8...")
     entity_id: str = Field(..., example="ofac-1234")
     canonical_id: str = Field(..., example="NK-1234")
     prop: str = Field(..., example="alias")

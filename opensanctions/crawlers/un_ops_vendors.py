@@ -13,9 +13,9 @@ def parse_date(date):
     return h.parse_date(date, ["%d-%b-%y", "%d-%b-%Y"])
 
 
-def crawl(context: Context):
-    path = context.fetch_resource("source.html", context.dataset.data.url)
-    context.export_resource(path, HTML, title=context.SOURCE_TITLE)
+async def crawl(context: Context):
+    path = await context.fetch_resource("source.html", context.dataset.data.url)
+    await context.export_resource(path, HTML, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         doc = html.parse(fh)
 
@@ -36,7 +36,7 @@ def crawl(context: Context):
 
             cc = entity.first("country")
             address = h.make_address(context, full=cells[2], country_code=cc)
-            h.apply_address(context, entity, address)
+            await h.apply_address(context, entity, address)
 
             sanction = h.make_sanction(context, entity)
             sanction.add("reason", cells[3])
@@ -44,6 +44,5 @@ def crawl(context: Context):
             sanction.add("startDate", parse_date(cells[5]))
             sanction.add("endDate", parse_date(cells[6]))
 
-            context.emit(sanction)
-
-            context.emit(entity, target=True)
+            await context.emit(sanction)
+            await context.emit(entity, target=True)

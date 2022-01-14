@@ -18,18 +18,16 @@ class Snak(object):
         self.snaktype = data.pop("snaktype", None)
         # self._data = data
 
-    @property
-    def property_label(self):
-        return get_label(self.property)
+    async def property_label(self, context):
+        return await get_label(context, self.property)
 
     @property
     def qid(self):
         if self.value_type == "wikibase-entityid":
             return self._value.get("id")
 
-    @property
-    def text(self):
-        return snak_value_to_string(self.value_type, self._value)
+    async def text(self, context):
+        return await snak_value_to_string(context, self.value_type, self._value)
 
 
 class Reference(object):

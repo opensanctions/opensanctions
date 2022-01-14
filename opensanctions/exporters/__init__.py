@@ -1,20 +1,18 @@
+import aiofiles
 import structlog
-from urllib.parse import urljoin
-from followthemoney import model
-from followthemoney.helpers import name_entity, remove_prefix_dates
-from followthemoney.helpers import simplify_provenance
 
 from opensanctions import settings
-from opensanctions.model import db, Issue, Statement
-from opensanctions.core import Context, Dataset
+from opensanctions.core import Context, Dataset, Entity
 from opensanctions.core.loader import Database
+from opensanctions.core.db import engine
+from opensanctions.core.issues import all_issues
 from opensanctions.exporters.common import write_json
 from opensanctions.exporters.ftm import FtMExporter
 from opensanctions.exporters.nested import NestedJSONExporter
 from opensanctions.exporters.names import NamesExporter
 from opensanctions.exporters.simplecsv import SimpleCSVExporter
-
-# from opensanctions.exporters.widecsv import WideCSVExporter
+from opensanctions.exporters.metadata import export_metadata, dataset_to_index
+from opensanctions.exporters.statements import export_statements
 
 log = structlog.get_logger(__name__)
 
@@ -23,72 +21,41 @@ EXPORTERS = [
     NestedJSONExporter,
     NamesExporter,
     SimpleCSVExporter,
-    # WideCSVExporter,
 ]
 
-
-def export_global_index():
-    """Export the global index for all datasets."""
-    datasets = []
-    for dataset in Dataset.all():
-        datasets.append(dataset.to_index())
-
-    issues_path = settings.DATASET_PATH.joinpath("issues.json")
-    log.info("Writing global issues list", path=issues_path)
-    with open(issues_path, "w", encoding=settings.ENCODING) as fh:
-        data = {"issues": Issue.query().all()}
-        write_json(data, fh)
-
-    index_path = settings.DATASET_PATH.joinpath("index.json")
-    log.info("Writing global index", datasets=len(datasets), path=index_path)
-    with open(index_path, "w", encoding=settings.ENCODING) as fh:
-        meta = {
-            "datasets": datasets,
-            "run_time": settings.RUN_TIME,
-            "dataset_url": settings.DATASET_URL,
-            "issues_url": urljoin(settings.DATASET_URL, "issues.json"),
-            "model": model,
-            "schemata": Statement.all_schemata(),
-            "app": "opensanctions",
-            "version": settings.VERSION,
-        }
-        write_json(meta, fh)
+__all__ = ["export_dataset", "export_metadata", "export_statements"]
 
 
-def export_assembler(entity):
-    entity = simplify_provenance(entity)
-    entity = remove_prefix_dates(entity)
-    return name_entity(entity)
-
-
-def export_dataset(dataset: Dataset, database: Database):
+async def export_dataset(dataset: Dataset, database: Database):
     """Dump the contents of the dataset to the output directory."""
     context = Context(dataset)
-    context.bind()
-    loader = database.view(dataset, export_assembler)
+    await context.begin()
+    loader = await database.view(dataset, Entity.assembler)
     exporters = [Exporter(context, loader) for Exporter in EXPORTERS]
-    for entity in loader:
-        for exporter in exporters:
-            exporter.feed(entity)
 
     for exporter in exporters:
-        exporter.finish()
+        await exporter.setup()
 
-    # Make sure the exported resources are visible in the database
-    db.session.commit()
+    async for entity in loader.entities():
+        for exporter in exporters:
+            await exporter.feed(entity)
+
+    for exporter in exporters:
+        await exporter.finish()
 
     # Export list of data issues from crawl stage
     issues_path = context.get_resource_path("issues.json")
     context.log.info("Writing dataset issues list", path=issues_path)
-    with open(issues_path, "w", encoding=settings.ENCODING) as fh:
-        data = {"issues": Issue.query(dataset=dataset).all()}
-        write_json(data, fh)
+    async with engine.begin() as conn:
+        async with aiofiles.open(issues_path, "w", encoding=settings.ENCODING) as fh:
+            data = {"issues": [i async for i in all_issues(conn, dataset)]}
+            await write_json(data, fh)
 
     # Export full metadata
     index_path = context.get_resource_path("index.json")
     context.log.info("Writing dataset index", path=index_path)
-    with open(index_path, "w", encoding=settings.ENCODING) as fh:
-        meta = dataset.to_index()
-        write_json(meta, fh)
+    async with aiofiles.open(index_path, "w", encoding=settings.ENCODING) as fh:
+        meta = await dataset_to_index(dataset)
+        await write_json(meta, fh)
 
-    context.close()
+    await context.close()

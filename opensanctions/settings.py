@@ -39,9 +39,9 @@ STATE_PATH = Path(STATE_PATH_).resolve()
 STATE_PATH.mkdir(parents=True, exist_ok=True)
 
 # SQL database URI for structured data
-DATABASE_SQLITE = STATE_PATH.joinpath("opensanctions.sqlite")
-DATABASE_URI = f"sqlite:///{DATABASE_SQLITE}"
-DATABASE_URI = env_str("OPENSANCTIONS_DATABASE_URI", DATABASE_URI)
+DATABASE_URI = env_str("OPENSANCTIONS_DATABASE_URI", None)
+ASYNC_DATABASE_URI = DATABASE_URI.replace("postgresql://", "postgresql+asyncpg://")
+DATABASE_POOL_SIZE = int(env_str("OPENSANCTIONS_POOL_SIZE", "30"))
 
 # Per-run timestamp
 RUN_TIME = datetime.utcnow().replace(microsecond=0)
@@ -58,7 +58,7 @@ STATIC_PATH = Path(env.get("OPENSANCTIONS_STATIC_PATH", STATIC_PATH)).resolve()
 # Do not edit manually, use the release process
 VERSION = "3.2.0"
 
-# Relevance cut-off
+# Relevance cut-off for dead people
 DEATH_CUTOFF = datetime(2010, 1, 1)
 
 # User agent

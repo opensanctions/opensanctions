@@ -16,7 +16,7 @@ def parse_countries(countries):
     return parsed
 
 
-def crawl(context: Context):
+async def crawl(context: Context):
     for page in count(1):
         url = str(context.dataset.data.url)
         url = url.replace("pPageNumber=1", "pPageNumber=%s" % page)
@@ -24,9 +24,9 @@ def crawl(context: Context):
             "Accept": "application/json",
             "Referer": "https://www.iadb.org/en/transparency/sanctioned-firms-and-individuals",
         }
-        res = context.http.get(url, headers=headers)
+        page_data = await context.fetch_json(url, headers=headers)
         ids = []
-        for row in res.json():
+        for row in page_data:
             for field, value in list(row.items()):
                 if value == "N/A":
                     row[field] = ""
@@ -57,7 +57,7 @@ def crawl(context: Context):
                 link.id = context.make_id(row_id, affiliated)
                 link.add("subject", entity.id)
                 link.add("object", context.make_slug(affiliated))
-                context.emit(link)
+                await context.emit(link)
 
             sanction = h.make_sanction(context, entity)
             sanction.add("status", row.pop("statusName"))
@@ -69,8 +69,8 @@ def crawl(context: Context):
             sanction.add("endDate", h.parse_date(row.pop("dateto"), FORMATS))
             # context.pprint(row)
 
-            context.emit(sanction)
-            context.emit(entity, target=True)
+            await context.emit(sanction)
+            await context.emit(entity, target=True)
 
         if min(ids) == 1:
             return

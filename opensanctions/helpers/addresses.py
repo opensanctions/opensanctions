@@ -90,11 +90,11 @@ def make_address(
     return address
 
 
-def apply_address(context: Context, entity: Entity, address: Entity):
+async def apply_address(context: Context, entity: Entity, address: Entity):
     """Link the given entity to the given address."""
     if address is None:
         return
     entity.add("country", address.get("country"))
     if address.id is not None:
         entity.add("addressEntity", address)
-        context.emit(address)
+        await context.emit(address)

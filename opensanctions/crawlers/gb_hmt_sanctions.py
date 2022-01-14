@@ -4,6 +4,7 @@ from normality import stringify, collapse_spaces
 from prefixdate import parse_parts
 from pantomime.types import XML
 
+from opensanctions.core import Context
 from opensanctions import helpers as h
 from opensanctions.util import remove_namespace
 from opensanctions.util import multi_split, remove_bracketed
@@ -38,7 +39,7 @@ def split_items(text, comma=False):
     return items
 
 
-def parse_row(context, row):
+async def parse_row(context: Context, row):
     group_type = row.pop("GroupTypeDescription")
     org_type = row.pop("OrgType", None)
     if group_type == "Individual":
@@ -152,7 +153,7 @@ def parse_row(context, row):
         postal_code=row.pop("PostCode", None),
         country=first(countries),
     )
-    h.apply_address(context, entity, address)
+    await h.apply_address(context, entity, address)
 
     reg_number = row.pop("BusinessRegNumber", None)
     entity.add_cast("LegalEntity", "registrationNumber", reg_number)
@@ -187,8 +188,8 @@ def parse_row(context, row):
         pprint(row)
 
     entity.add("topics", "sanction")
-    context.emit(entity, target=True, unique=True)
-    context.emit(sanction)
+    await context.emit(entity, target=True, unique=True)
+    await context.emit(sanction)
 
 
 def make_row(el):
@@ -204,11 +205,11 @@ def make_row(el):
     return row
 
 
-def crawl(context):
-    path = context.fetch_resource("source.xml", context.dataset.data.url)
-    context.export_resource(path, XML, title=context.SOURCE_TITLE)
+async def crawl(context: Context):
+    path = await context.fetch_resource("source.xml", context.dataset.data.url)
+    await context.export_resource(path, XML, title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
     doc = remove_namespace(doc)
 
     for el in doc.findall(".//ConsolidatedList"):
-        parse_row(context, make_row(el))
+        await parse_row(context, make_row(el))

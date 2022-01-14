@@ -1,10 +1,11 @@
 from prefixdate import parse_parts
 
+from opensanctions.core import Context
 from opensanctions import helpers as h
 from opensanctions.util import remove_namespace
 
 
-def parse_address(context, el):
+def parse_address(context: Context, el):
     country = el.get("countryDescription")
     if country == "UNKNOWN":
         country = None
@@ -22,7 +23,7 @@ def parse_address(context, el):
     )
 
 
-def parse_entry(context, entry):
+async def parse_entry(context: Context, entry):
     subject_type = entry.find("./subjectType")
     schema = context.lookup_value("subject_type", subject_type.get("code"))
     if schema is None:
@@ -72,11 +73,11 @@ def parse_entry(context, entry):
         passport.add("country", node.get("countryDescription"))
         for remark in node.findall("./remark"):
             passport.add("summary", remark.text)
-        context.emit(passport)
+        await context.emit(passport)
 
     for node in entry.findall("./address"):
         address = parse_address(context, node)
-        h.apply_address(context, entity, address)
+        await h.apply_address(context, entity, address)
 
         for child in node.getchildren():
             if child.tag in ("regulationSummary"):
@@ -107,14 +108,14 @@ def parse_entry(context, entry):
         entity.add("nationality", node.get("countryIso2Code"), quiet=True)
         entity.add("nationality", node.get("countryDescription"), quiet=True)
 
-    context.emit(entity, target=True, unique=True)
-    context.emit(sanction)
+    await context.emit(entity, target=True, unique=True)
+    await context.emit(sanction)
 
 
-def crawl(context):
-    path = context.fetch_resource("source.xml", context.dataset.data.url)
-    context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
+async def crawl(context: Context):
+    path = await context.fetch_resource("source.xml", context.dataset.data.url)
+    await context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
     doc = remove_namespace(doc)
     for entry in doc.findall(".//sanctionEntity"):
-        parse_entry(context, entry)
+        await parse_entry(context, entry)

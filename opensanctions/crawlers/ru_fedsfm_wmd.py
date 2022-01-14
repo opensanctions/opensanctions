@@ -35,9 +35,9 @@ def maybe_rsplit(text, splitter):
     return text, remain
 
 
-def crawl(context: Context):
-    path = context.fetch_resource("source.html", context.dataset.data.url)
-    context.export_resource(path, HTML, title=context.SOURCE_TITLE)
+async def crawl(context: Context):
+    path = await context.fetch_resource("source.html", context.dataset.data.url)
+    await context.export_resource(path, HTML, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         doc = html.parse(fh)
     tables = doc.findall(".//table")
@@ -93,7 +93,7 @@ def crawl(context: Context):
                 country = address.rsplit(", ", 1)
             code = registry.country.clean(country, fuzzy=True)
             obj = h.make_address(context, full=address, country_code=code)
-            h.apply_address(context, entity, obj)
+            await h.apply_address(context, entity, obj)
             entity.add("country", code)
         body, national_ids = maybe_rsplit(body, "Национальный идентификационный номер:")
         for national_id in letter_split(national_ids):
@@ -134,5 +134,5 @@ def crawl(context: Context):
         if entity.schema.name == "Thing":
             entity.schema = model.get("LegalEntity")
 
-        context.emit(entity, target=True)
-        context.emit(sanction)
+        await context.emit(entity, target=True)
+        await context.emit(sanction)

@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from opensanctions.core import Context
 from opensanctions import helpers as h
 from opensanctions.util import jointext, remove_bracketed, multi_split
 
@@ -16,7 +17,7 @@ def parse_date(date):
     return h.parse_date(date, FORMATS)
 
 
-def parse_entry(context, entry):
+async def parse_entry(context: Context, entry):
     entity = context.make("LegalEntity")
     if entry.findtext("./type-entry") == "2":
         entity = context.make("Person")
@@ -62,14 +63,14 @@ def parse_entry(context, entry):
         passport.add("passportNumber", number)
         passport.add("summary", reg)
         passport.add("country", country)
-        context.emit(passport)
+        await context.emit(passport)
 
     for doc in entry.findall("./id-number-list"):
         entity.add("idNumber", doc.text)
 
     for node in entry.findall("./address-list"):
         address = h.make_address(context, full=node.findtext("./address"))
-        h.apply_address(context, entity, address)
+        await h.apply_address(context, entity, address)
 
     for pob in entry.findall("./place-of-birth-list"):
         entity.add_cast("Person", "birthPlace", pob.text)
@@ -84,13 +85,13 @@ def parse_entry(context, entry):
             entity.add("nationality", country, quiet=True)
 
     entity.add("topics", "sanction")
-    context.emit(entity, target=True, unique=True)
-    context.emit(sanction)
+    await context.emit(entity, target=True, unique=True)
+    await context.emit(sanction)
 
 
-def crawl(context):
-    path = context.fetch_resource("source.xml", context.dataset.data.url)
-    context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
+async def crawl(context: Context):
+    path = await context.fetch_resource("source.xml", context.dataset.data.url)
+    await context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
     for entry in doc.findall(".//acount-list"):
-        parse_entry(context, entry)
+        await parse_entry(context, entry)

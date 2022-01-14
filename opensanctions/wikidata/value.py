@@ -3,6 +3,8 @@ from prefixdate import Precision
 from nomenklatura.resolver import Identifier
 from opensanctions.wikidata.api import get_label
 
+from opensanctions.core import Context
+
 log = structlog.getLogger(__name__)
 PRECISION = {
     11: Precision.DAY,
@@ -11,7 +13,7 @@ PRECISION = {
 }
 
 
-def snak_value_to_string(value_type, value):
+async def snak_value_to_string(context: Context, value_type, value):
     if value_type is None:
         return None
     elif value_type == "time":
@@ -24,7 +26,7 @@ def snak_value_to_string(value_type, value):
             time = max("1001", time)
         return time
     elif value_type == "wikibase-entityid":
-        return get_label(value.get("id"))
+        return await get_label(context, value.get("id"))
     elif value_type == "monolingualtext":
         return value.get("text")
     elif value_type == "quantity":
@@ -34,7 +36,7 @@ def snak_value_to_string(value_type, value):
         unit = value.get("unit", "")
         unit = unit.split("/")[-1]
         if Identifier.QID.match(unit):
-            unit = get_label(unit)
+            unit = await get_label(context, unit)
             value = f"{value} {unit}"
         return value
     elif isinstance(value, str):

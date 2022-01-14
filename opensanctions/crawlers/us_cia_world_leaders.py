@@ -1,17 +1,18 @@
 from lxml import html
 
 from opensanctions import settings
+from opensanctions.core import Context
 from opensanctions.util import is_empty
 
 UI_URL = "https://www.cia.gov%s"
 DATA_URL = "https://www.cia.gov/page-data%spage-data.json"
 
 
-def crawl_country(context, params, path, country):
+async def crawl_country(context: Context, params, path, country):
     source_url = UI_URL % path
     context.log.debug("Crawling country: %s" % country)
-    res = context.http.get(DATA_URL % path, params=params)
-    data = res.json().get("result", {}).get("data", {}).get("page", {})
+    res = await context.fetch_json(DATA_URL % path, params=params)
+    data = res.get("result", {}).get("data", {}).get("page", {})
     blocks = data.get("acf", {}).get("blocks", [{}])[0]
     content = blocks.get("free_form_content", []).get("content")
     doc = html.fromstring(content)
@@ -43,13 +44,13 @@ def crawl_country(context, params, path, country):
         person.add("position", function)
         person.add("sourceUrl", source_url)
         person.add("topics", "role.pep")
-        context.emit(person, target=True)
+        await context.emit(person, target=True)
 
 
-def crawl(context):
+async def crawl(context: Context):
     params = {"_": settings.RUN_DATE}
-    res = context.http.get(context.dataset.data.url, params=params)
-    data = res.json().get("result", {}).get("data", {})
+    res = await context.fetch_json(context.dataset.data.url, params=params)
+    data = res.get("result", {}).get("data", {})
     for edge in data.get("governments", {}).get("edges", []):
         node = edge.get("node", {})
-        crawl_country(context, params, node.get("path"), node.get("title"))
+        await crawl_country(context, params, node.get("path"), node.get("title"))

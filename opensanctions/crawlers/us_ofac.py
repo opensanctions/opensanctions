@@ -8,7 +8,7 @@ from followthemoney.types import registry
 from followthemoney.exc import InvalidData
 from prefixdate import parse_parts
 
-from opensanctions.core.dataset import Dataset
+from opensanctions.core import Context, Dataset
 from opensanctions import helpers as h
 from opensanctions.util import jointext, remove_namespace
 
@@ -118,7 +118,7 @@ def parse_date_period(date):
     return (start, end)
 
 
-def load_locations(context, doc):
+async def load_locations(context: Context, doc):
     locations = {}
     for location in doc.findall("./Locations/Location"):
         location_id = location.get("ID")
@@ -161,7 +161,7 @@ def load_locations(context, doc):
             country=country,
         )
         if address.id is not None:
-            context.emit(address)
+            await context.emit(address)
             locations[location_id] = address
     return locations
 
@@ -204,12 +204,12 @@ def parse_alias(party, parts, alias):
             party.add("alias", name)
 
 
-def parse_feature(context, feature, party, locations):
+async def parse_feature(context: Context, feature, party, locations):
     feature_id = feature.get("FeatureTypeID")
     location = feature.find(".//VersionLocation")
     if location is not None:
         address = locations.get(location.get("LocationID"))
-        h.apply_address(context, party, address)
+        await h.apply_address(context, party, address)
         return
 
     feature_label = ref_value("FeatureType", feature_id)
@@ -218,7 +218,7 @@ def parse_feature(context, feature, party, locations):
     period = feature.find(".//DatePeriod")
     if period is not None:
         value = parse_date_period(period)
-        h.apply_feature(context, party, feature_label, value)
+        await h.apply_feature(context, party, feature_label, value)
 
     detail = feature.find(".//VersionDetail")
     if detail is not None:
@@ -228,10 +228,10 @@ def parse_feature(context, feature, party, locations):
             value = ref_value("DetailReference", reference_id)
         else:
             value = detail.text
-        h.apply_feature(context, party, feature_label, value)
+        await h.apply_feature(context, party, feature_label, value)
 
 
-def parse_registration_doc(context, party, regdoc):
+async def parse_registration_doc(context: Context, party, regdoc):
     authority = regdoc.findtext("./IssuingAuthority")
     number = regdoc.findtext("./IDRegistrationNo")
     comment = regdoc.findtext("./Comment")
@@ -255,7 +255,7 @@ def parse_registration_doc(context, party, regdoc):
     if authority in ("INN", "OGRN", "IMO"):
         feature = authority
 
-    h.apply_feature(
+    await h.apply_feature(
         context,
         party,
         feature,
@@ -268,7 +268,7 @@ def parse_registration_doc(context, party, regdoc):
     )
 
 
-def parse_party(context, distinct_party, locations, documents):
+async def parse_party(context: Context, distinct_party, locations, documents):
     profile = distinct_party.find("Profile")
     sub_type = ref_get("PartySubType", profile.get("PartySubTypeID"))
     schema = TYPES.get(sub_type.get("Value"))
@@ -293,18 +293,18 @@ def parse_party(context, distinct_party, locations, documents):
             parse_alias(party, parts, alias)
 
         for regdoc in documents.get(identity.get("ID"), []):
-            parse_registration_doc(context, party, regdoc)
+            await parse_registration_doc(context, party, regdoc)
 
     for feature in profile.findall("./Feature"):
-        parse_feature(context, feature, party, locations)
+        await parse_feature(context, feature, party, locations)
 
-    context.emit(party, target=True, unique=True)
+    await context.emit(party, target=True, unique=True)
     # pprint(party.to_dict())
     # context.log.info("[%s] %s" % (party.schema.name, party.caption))
     return party
 
 
-def parse_entry(context, entry):
+async def parse_entry(context: Context, entry):
     party = context.make("Thing")
     party.id = context.make_slug(entry.get("ProfileID"))
 
@@ -329,11 +329,11 @@ def parse_entry(context, entry):
         type_id = measure.get("SanctionsTypeID")
         sanction.add("program", ref_value("SanctionsType", type_id))
 
-    context.emit(sanction)
+    await context.emit(sanction)
     # pprint(sanction.to_dict())
 
 
-def parse_relation(context, el, parties):
+async def parse_relation(context: Context, el, parties):
     type_id = el.get("RelationTypeID")
     type_ = ref_value("RelationType", el.get("RelationTypeID"))
     from_id = context.dataset.make_slug(el.get("From-ProfileID"))
@@ -385,37 +385,37 @@ def parse_relation(context, el, parties):
 
     add_schema(from_party, from_range)
     add_schema(to_party, to_range)
-    context.emit(from_party, target=True, unique=True)
-    context.emit(to_party, target=True, unique=True)
+    await context.emit(from_party, target=True, unique=True)
+    await context.emit(to_party, target=True, unique=True)
     entity.id = context.make_id("Relation", from_party.id, to_party.id, el.get("ID"))
     entity.add(relation.from_prop, from_party)
     entity.add(relation.to_prop, to_party)
     entity.add(relation.description_prop, type_)
     entity.add("summary", el.findtext("./Comment"))
-    context.emit(entity)
+    await context.emit(entity)
     context.log.debug("Relation", from_=from_party, type=type_, to=to_party)
     # pprint(entity.to_dict())
 
 
-def crawl(context):
-    path = context.fetch_resource("source.xml", context.dataset.data.url)
-    context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
+async def crawl(context: Context):
+    path = await context.fetch_resource("source.xml", context.dataset.data.url)
+    await context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
     doc = remove_namespace(doc)
     context.log.info("Loading reference values...")
     load_ref_values(doc)
     context.log.info("Loading locations...")
-    locations = load_locations(context, doc)
+    locations = await load_locations(context, doc)
     context.log.info("Loading ID reg documents...")
     documents = load_documents(doc)
 
     parties = {}
     for distinct_party in doc.findall(".//DistinctParty"):
-        party = parse_party(context, distinct_party, locations, documents)
+        party = await parse_party(context, distinct_party, locations, documents)
         parties[party.id] = party
 
     for entry in doc.findall(".//SanctionsEntry"):
-        parse_entry(context, entry)
+        await parse_entry(context, entry)
 
     for relation in doc.findall(".//ProfileRelationship"):
-        parse_relation(context, relation, parties)
+        await parse_relation(context, relation, parties)

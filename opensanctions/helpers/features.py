@@ -1,12 +1,9 @@
-import structlog
 from banal import ensure_list
 from followthemoney.types import registry
 
 from opensanctions.core.lookups import common_lookups
 from opensanctions.helpers.dates import parse_date
 from opensanctions.helpers.gender import clean_gender
-
-log = structlog.get_logger(__name__)
 
 
 def _prepare_value(prop, values, date_formats):
@@ -23,7 +20,7 @@ def _prepare_value(prop, values, date_formats):
     return prepared
 
 
-def apply_feature(
+async def apply_feature(
     context,
     entity,
     feature,
@@ -40,7 +37,7 @@ def apply_feature(
     lookup = common_lookups().get("features")
     result = lookup.match(feature)
     if result is None:
-        log.warning(
+        context.log.warning(
             "Missing feature",
             entity=entity,
             schema=entity.schema,
@@ -96,5 +93,5 @@ def apply_feature(
         adj.add("description", comment, quiet=True)
         adj.add("authority", authority, quiet=True)
 
-        context.emit(adj)
+        await context.emit(adj)
         return adj
