@@ -24,21 +24,24 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           OPENSANCTIONS_COH_API_KEY: ${{ secrets.OPENSANCTIONS_COH_API_KEY }}
+          OPENSANCTIONS_DATABASE_URI: ${{ secrets.PRODUCTION_DB_URI }}
         run: |
           echo "OPENSANCTIONS_DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
           echo "OPENSANCTIONS_COH_API_KEY=$OPENSANCTIONS_COH_API_KEY" >> $GITHUB_ENV
+          echo "OPENSANCTIONS_DATABASE_URI=$OPENSANCTIONS_DATABASE_URI" >> $GITHUB_ENV
           echo "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" >> $GITHUB_ENV
           echo "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> $GITHUB_ENV
-      - name: Fetch database state from data.opensanctions.org
-        run: |
-          mkdir -p data/state
-          aws s3 sync --no-progress s3://data.opensanctions.org/state data/state
+      # - name: Fetch database state from data.opensanctions.org
+      #   run: |
+      #     mkdir -p data/state
+      #     aws s3 sync --no-progress s3://data.opensanctions.org/state data/state
       - name: Crawl data sources
         run: |
           docker run \
             -v `pwd`/data:/opensanctions/data \
             -e OPENSANCTIONS_COH_API_KEY \
             -e OPENSANCTIONS_DATE \
+            -e OPENSANCTIONS_DATABASE_URI \
             pudo/opensanctions \
             opensanctions crawl
       - name: Resolve de-duplication graph
@@ -46,6 +49,7 @@ jobs:
           docker run \
             -v `pwd`/data:/opensanctions/data \
             -e OPENSANCTIONS_DATE \
+            -e OPENSANCTIONS_DATABASE_URI \
             pudo/opensanctions \
             opensanctions resolve
       - name: Export data dumps
@@ -53,19 +57,20 @@ jobs:
           docker run \
             -v `pwd`/data:/opensanctions/data \
             -e OPENSANCTIONS_DATE \
+            -e OPENSANCTIONS_DATABASE_URI \
             pudo/opensanctions \
             opensanctions export
-      - name: Compress database
-        run: |
-          sqlite3 -version
-          sqlite3 data/state/opensanctions.sqlite "VACUUM;"
-      - name: Upload fetched resources to data.opensanctions.org
+      # - name: Compress database
+      #   run: |
+      #     sqlite3 -version
+      #     sqlite3 data/state/opensanctions.sqlite "VACUUM;"
+      # - name: Upload fetched resources to data.opensanctions.org
         if: ${{ always() }}
         run: |
           aws s3 sync --no-progress --cache-control "public, max-age=846000" --acl public-read data/datasets s3://data.opensanctions.org/datasets/$OPENSANCTIONS_DATE
       - name: Publish data to data.opensanctions.org
+        # aws s3 sync --delete --no-progress --acl public-read data/state s3://data.opensanctions.org/state
         run: |
-          aws s3 sync --delete --no-progress --acl public-read data/state s3://data.opensanctions.org/state
           aws s3 sync --quiet --no-progress --cache-control "public, max-age=84600" --metadata-directive REPLACE --acl public-read data/datasets s3://data.opensanctions.org/datasets/latest
           aws s3 sync --quiet --delete --no-progress --cache-control "public, max-age=84600" --metadata-directive REPLACE --acl public-read data/datasets s3://data.opensanctions.org/datasets/$OPENSANCTIONS_DATE
           aws cloudfront create-invalidation --distribution-id ETROMAQBEJS91 --paths "/datasets/latest/*"
@@ -89,28 +94,28 @@ jobs:
         with:
           webhook_url: ${{ secrets.VERCEL_WEBHOOK }}
           options: "-X POST"
-  api:
-    runs-on: ubuntu-latest
-    needs: [data]
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          ref: main
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-        with:
-          install: true
-      - name: Login to DockerHub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.docker_user }}
-          password: ${{ secrets.docker_password }}
-      - name: Build and push release
-        uses: docker/build-push-action@v2
-        with:
-          context: api
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: pudo/opensanctions-api:latest
+  # api:
+  #   runs-on: ubuntu-latest
+  #   needs: [data]
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #       with:
+  #         ref: main
+  #     - name: Set up QEMU
+  #       uses: docker/setup-qemu-action@v1
+  #     - name: Set up Docker Buildx
+  #       uses: docker/setup-buildx-action@v1
+  #       with:
+  #         install: true
+  #     - name: Login to DockerHub
+  #       uses: docker/login-action@v1
+  #       with:
+  #         username: ${{ secrets.docker_user }}
+  #         password: ${{ secrets.docker_password }}
+  #     - name: Build and push release
+  #       uses: docker/build-push-action@v2
+  #       with:
+  #         context: api
+  #         platforms: linux/amd64,linux/arm64
+  #         push: true
+  #         tags: pudo/opensanctions-api:latest
