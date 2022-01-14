@@ -30,8 +30,10 @@ def coro(f: Any) -> Any:
     def wrapper(*args: Any, **kwargs: Any) -> Any:
         async def run_cmd():
             await create_db()
-            await f(*args, **kwargs)
-            await engine.dispose()
+            try:
+                await f(*args, **kwargs)
+            finally:
+                await engine.dispose()
 
         return asyncio.run(run_cmd())
 

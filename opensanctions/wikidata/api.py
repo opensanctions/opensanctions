@@ -32,9 +32,8 @@ async def get_label(context: Context, qid: str) -> Optional[str]:
     data = await wikibase_getentities(
         context,
         qid,
-        cache_days=100,
+        cache_days=30,
         props="labels",
-        expire_long=True,
     )
     entity = data.get("entities", {}).get(qid)
     # pprint(entity)
