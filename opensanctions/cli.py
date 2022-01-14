@@ -233,39 +233,5 @@ async def import_statements(infile):
     await import_statements_path(infile)
 
 
-@cli.command("export-statements", help="Export statement data as a CSV file")
-@click.option("-o", "--outfile", type=click.File("w"), default="-")
-def export_statements(outfile):
-    import csv
-
-    writer = csv.writer(outfile, dialect=csv.unix_dialect)
-    writer.writerow(
-        [
-            "entity_id",
-            "prop",
-            "prop_type",
-            "schema",
-            "value",
-            "dataset",
-            "first_seen",
-            "last_seen",
-            "canonical_id",
-        ]
-    )
-    for stmt in Statement.all_statements():
-        row = [
-            stmt.entity_id,
-            stmt.prop,
-            stmt.prop_type,
-            stmt.schema,
-            stmt.value,
-            stmt.dataset,
-            stmt.first_seen,
-            stmt.last_seen,
-            stmt.canonical_id,
-        ]
-        writer.writerow(row)
-
-
 if __name__ == "__main__":
     cli()
