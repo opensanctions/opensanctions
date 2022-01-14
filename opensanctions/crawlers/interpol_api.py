@@ -104,6 +104,7 @@ async def crawl_country(context: Context, country, age_max=120, age_min=0):
 
 
 async def crawl(context: Context):
+    context.http_concurrency = 5
     countries = await get_countries(context)
     tasks = []
     for country, label in countries:
