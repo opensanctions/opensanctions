@@ -39,15 +39,9 @@ STATE_PATH = Path(STATE_PATH_).resolve()
 STATE_PATH.mkdir(parents=True, exist_ok=True)
 
 # SQL database URI for structured data
-DATABASE_SQLITE = STATE_PATH.joinpath("opensanctions.sqlite")
-DATABASE_URI = f"sqlite:///{DATABASE_SQLITE}"
-DATABASE_URI = env_str("OPENSANCTIONS_DATABASE_URI", DATABASE_URI)
-ASYNC_DATABASE_URI = DATABASE_URI.replace("sqlite://", "sqlite+aiosqlite://")
-ASYNC_DATABASE_URI = ASYNC_DATABASE_URI.replace(
-    "postgresql://", "postgresql+asyncpg://"
-)
-
-DATABASE_POOL_SIZE = int(env_str("OPENSANCTIONS_POOL_SIZE", 30))
+DATABASE_URI = env_str("OPENSANCTIONS_DATABASE_URI", None)
+ASYNC_DATABASE_URI = DATABASE_URI.replace("postgresql://", "postgresql+asyncpg://")
+DATABASE_POOL_SIZE = int(env_str("OPENSANCTIONS_POOL_SIZE", "30"))
 
 # Per-run timestamp
 RUN_TIME = datetime.utcnow().replace(microsecond=0)
