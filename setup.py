@@ -33,6 +33,7 @@ setup(
         "sqlalchemy[mypy,asyncio]",
         "asyncstdlib",
         "aiosqlite",
+        "aiofiles",
         "asyncpg",
         "aiocsv",
         "httpx",
