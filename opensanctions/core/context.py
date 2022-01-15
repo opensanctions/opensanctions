@@ -37,7 +37,7 @@ class Context(object):
 
     SOURCE_TITLE = "Source data"
     BATCH_SIZE = 1000
-    BATCH_CONCURRENT = 10
+    BATCH_CONCURRENT = 5
 
     def __init__(self, dataset):
         self.dataset = dataset
@@ -161,8 +161,6 @@ class Context(object):
             self.log.warning("Resource is empty", path=path)
         checksum = digest.hexdigest()
         name = path.relative_to(self.path).as_posix()
-        # if self.conn is None:
-        #     raise RuntimeError("Not connected to DB")
         async with with_conn() as conn:
             return await save_resource(
                 conn, name, self.dataset, checksum, mime_type, size, title
@@ -226,8 +224,6 @@ class Context(object):
     async def crawl(self) -> None:
         """Run the crawler."""
         await self.begin()
-        # if self.conn is None:
-        #     raise RuntimeError("WTF")
         try:
             async with with_conn() as conn:
                 await asyncio.gather(
@@ -240,14 +236,10 @@ class Context(object):
             await self.flush()
             async with with_conn() as conn:
                 await cleanup_dataset(conn, self.dataset)
+                entities = await count_entities(conn, dataset=self.dataset)
+                targets = await count_entities(conn, dataset=self.dataset, target=True)
 
-                self.log.info(
-                    "Crawl completed",
-                    entities=await count_entities(conn, dataset=self.dataset),
-                    targets=await count_entities(
-                        conn, dataset=self.dataset, target=True
-                    ),
-                )
+            self.log.info("Crawl completed", entities=entities, targets=targets)
         except KeyboardInterrupt:
             raise
         except LookupException as exc:
