@@ -61,7 +61,7 @@ async def crawl_notice(context, notice):
         entity.add("program", warrant["issuing_country_id"])
         entity.add("notes", warrant["charge"])
 
-    await context.emit(entity, target=True, unique=True)
+    await context.emit(entity, target=True)
 
 
 async def crawl_country(context: Context, country, age_max=120, age_min=0):

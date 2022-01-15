@@ -38,7 +38,7 @@ async def crawl(context: Context):
         entity.add("idNumber", el.findtext("./iin"))
         bdate = el.findtext("./birthdate")
         entity.add("birthDate", h.parse_date(bdate, FORMATS, bdate))
-        await context.emit(entity, target=True, unique=True)
+        await context.emit(entity, target=True)
 
     for el in doc.findall(".//org"):
         name = el.findtext(".//org_name")
@@ -50,4 +50,4 @@ async def crawl(context: Context):
             names = names.split("; ")
             entity.add("name", names)
 
-        await context.emit(entity, target=True, unique=True)
+        await context.emit(entity, target=True)

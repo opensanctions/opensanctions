@@ -55,5 +55,5 @@ async def crawl(context: Context):
         address = h.make_address(context, full=cells.pop("address"), country=country)
         await h.apply_address(context, entity, address)
 
-        await context.emit(entity, target=True, unique=True)
+        await context.emit(entity, target=True)
         await context.emit(sanction)

@@ -188,7 +188,7 @@ async def parse_row(context: Context, row):
         pprint(row)
 
     entity.add("topics", "sanction")
-    await context.emit(entity, target=True, unique=True)
+    await context.emit(entity, target=True)
     await context.emit(sanction)
 
 

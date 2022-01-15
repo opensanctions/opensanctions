@@ -85,7 +85,7 @@ async def parse_entry(context: Context, entry):
             entity.add("nationality", country, quiet=True)
 
     entity.add("topics", "sanction")
-    await context.emit(entity, target=True, unique=True)
+    await context.emit(entity, target=True)
     await context.emit(sanction)
 
 

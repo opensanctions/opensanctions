@@ -385,8 +385,8 @@ async def parse_relation(context: Context, el, parties):
 
     add_schema(from_party, from_range)
     add_schema(to_party, to_range)
-    await context.emit(from_party, target=True, unique=True)
-    await context.emit(to_party, target=True, unique=True)
+    await context.emit(from_party, target=True)
+    await context.emit(to_party, target=True)
     entity.id = context.make_id("Relation", from_party.id, to_party.id, el.get("ID"))
     entity.add(relation.from_prop, from_party)
     entity.add(relation.to_prop, to_party)

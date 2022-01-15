@@ -112,7 +112,7 @@ async def crawl_individuals(context: Context):
         for field in ("date_of_designation_in_israel",):
             parse_interval(sanction, record.pop(field, None))
 
-        await context.emit(entity, target=True, unique=True)
+        await context.emit(entity, target=True)
         await context.emit(sanction)
         if len(record):
             context.pprint(record)
@@ -187,7 +187,7 @@ async def crawl_organizations(context: Context):
         ):
             parse_interval(sanction, record.pop(field, None))
 
-        await context.emit(entity, target=True, unique=True)
+        await context.emit(entity, target=True)
         await context.emit(sanction)
         if len(record):
             context.pprint(record)

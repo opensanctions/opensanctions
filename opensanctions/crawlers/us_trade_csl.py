@@ -108,7 +108,7 @@ async def parse_result(context: Context, result):
     result.pop("standard_order", None)
 
     await context.emit(sanction)
-    await context.emit(entity, target=True, unique=True)
+    await context.emit(entity, target=True)
 
     if len(result):
         context.pprint(result)

@@ -44,5 +44,5 @@ async def crawl(context: Context):
         sanction.add("startDate", h.parse_date(cells.pop("from"), FORMATS))
         sanction.add("endDate", h.parse_date(cells.pop("to"), FORMATS))
 
-        await context.emit(entity, target=True, unique=True)
+        await context.emit(entity, target=True)
         await context.emit(sanction)

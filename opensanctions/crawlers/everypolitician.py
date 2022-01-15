@@ -108,7 +108,7 @@ async def parse_person(context: Context, data, country, entities, lastmod):
     # data.pop("images", None)
     # if len(data):
     #     pprint(data)
-    await context.emit(person, target=True, unique=True)
+    await context.emit(person, target=True)
     entities[person_id] = person.id
 
 
