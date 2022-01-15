@@ -63,6 +63,7 @@ DEATH_CUTOFF = datetime(2000, 1, 1)
 
 # User agent
 USER_AGENT = f"Mozilla/5.0 (any) OpenSanctions/{VERSION} info@opensanctions.org"
+HEADERS = {"User-Agent": USER_AGENT}
 HTTP_TIMEOUT = 120
 
 # If you change this, all bets are off

@@ -36,7 +36,7 @@ async def parse_row(context: Context, row):
 
 
 async def crawl(context: Context):
-    path = await context.fetch_resource("source.tsv", context.dataset.data.url)
+    path = context.fetch_resource("source.tsv", context.dataset.data.url)
     await context.export_resource(path, "text/tsv", title=context.SOURCE_TITLE)
     with open(path, "r") as csvfile:
         for row in csv.DictReader(csvfile, delimiter="\t"):

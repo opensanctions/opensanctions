@@ -14,7 +14,7 @@ def parse_date(date):
 
 
 async def crawl(context: Context):
-    path = await context.fetch_resource("source.html", context.dataset.data.url)
+    path = context.fetch_resource("source.html", context.dataset.data.url)
     await context.export_resource(path, HTML, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         doc = html.parse(fh)

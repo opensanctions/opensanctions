@@ -1,6 +1,5 @@
 import io
 import csv
-import asyncio
 import requests
 from nomenklatura.resolver import Identifier
 
@@ -28,7 +27,5 @@ async def crawl_row(context, row):
 async def crawl(context: Context):
     # text = await context.fetch_text(context.dataset.data.url)
     res = requests.get(context.dataset.data.url)
-    tasks = []
     for row in csv.DictReader(io.StringIO(res.text)):
-        tasks.append(crawl_row(context, row))
-    await asyncio.gather(*tasks)
+        await crawl_row(context, row)

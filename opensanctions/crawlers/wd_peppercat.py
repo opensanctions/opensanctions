@@ -1,6 +1,5 @@
 import io
 import csv
-import asyncio
 
 from opensanctions.core import Context
 from opensanctions.wikidata import get_entity, entity_to_ftm
@@ -22,13 +21,8 @@ async def crawl_qid(context, qid, country):
 
 
 async def crawl(context: Context):
-    # return
     text = await context.fetch_text(context.dataset.data.url)
-    tasks = []
     for row in csv.DictReader(io.StringIO(text)):
         qid = row.get("personID")
         country = row.get("catalog")
-        tasks.append(crawl_qid(context, qid, country))
-
-    if len(tasks):
-        await asyncio.gather(*tasks)
+        await crawl_qid(context, qid, country)

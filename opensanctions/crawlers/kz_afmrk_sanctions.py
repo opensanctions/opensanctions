@@ -21,7 +21,7 @@ async def make_entity(context: Context, el, schema, *keys):
 
 
 async def crawl(context: Context):
-    path = await context.fetch_resource("source.xml", context.dataset.data.url)
+    path = context.fetch_resource("source.xml", context.dataset.data.url)
     await context.export_resource(path, XML, title=context.SOURCE_TITLE)
 
     doc = context.parse_resource_xml(path)

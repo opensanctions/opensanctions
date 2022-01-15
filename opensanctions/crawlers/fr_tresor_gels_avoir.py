@@ -93,7 +93,7 @@ async def crawl_entity(context: Context, data):
 
 
 async def crawl(context):
-    path = await context.fetch_resource("source.json", context.dataset.data.url)
+    path = context.fetch_resource("source.json", context.dataset.data.url)
     await context.export_resource(path, JSON, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         data = json.load(fh)

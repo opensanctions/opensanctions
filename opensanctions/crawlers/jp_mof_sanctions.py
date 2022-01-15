@@ -129,7 +129,7 @@ async def emit_row(
 
 async def crawl(context: Context):
     xls_url = await fetch_xls_url(context)
-    path = await context.fetch_resource("source.xls", xls_url)
+    path = context.fetch_resource("source.xls", xls_url)
     await context.export_resource(path, XLS, title=context.SOURCE_TITLE)
 
     xls = xlrd.open_workbook(path)

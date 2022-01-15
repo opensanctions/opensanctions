@@ -9,7 +9,6 @@ from opensanctions.core.dataset import Dataset
 from opensanctions.core.db import Conn, upsert_func, cache_table
 
 log = structlog.get_logger("http")
-HEADERS = {"User-Agent": settings.USER_AGENT}
 
 
 async def save_cache(

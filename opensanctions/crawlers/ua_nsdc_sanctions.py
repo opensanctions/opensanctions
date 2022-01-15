@@ -11,7 +11,7 @@ LEGAL_URL = "https://sanctions-t.rnbo.gov.ua/api/jurosoba/"
 
 
 async def json_resource(context: Context, url, name):
-    path = await context.fetch_resource(f"{name}.json", url)
+    path = context.fetch_resource(f"{name}.json", url)
     await context.export_resource(path, JSON, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         return json.load(fh)

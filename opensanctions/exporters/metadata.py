@@ -1,4 +1,3 @@
-import asyncio
 import aiofiles
 import structlog
 from typing import Any, Dict
@@ -21,19 +20,11 @@ log = structlog.get_logger(__name__)
 @cache
 async def dataset_to_index(dataset: Dataset) -> Dict[str, Any]:
     async with with_conn() as conn:
-        (
-            issue_levels,
-            target_count,
-            last_change,
-            target_countries,
-            target_schemata,
-        ) = await asyncio.gather(
-            agg_issues_by_level(conn, dataset),
-            count_entities(conn, dataset=dataset, target=True),
-            max_last_seen(conn, dataset),
-            agg_targets_by_country(conn, dataset),
-            agg_targets_by_schema(conn, dataset),
-        )
+        issue_levels = await agg_issues_by_level(conn, dataset)
+        target_count = await count_entities(conn, dataset=dataset, target=True)
+        last_change = await max_last_seen(conn, dataset)
+        target_countries = await agg_targets_by_country(conn, dataset)
+        target_schemata = await agg_targets_by_schema(conn, dataset)
         meta = dataset.to_dict()
         meta["index_url"] = dataset.make_public_url("index.json")
         meta["issues_url"] = dataset.make_public_url("issues.json")
@@ -53,10 +44,9 @@ async def dataset_to_index(dataset: Dataset) -> Dict[str, Any]:
 
 async def export_metadata():
     """Export the global index for all datasets."""
-    dataset_tasks = []
+    datasets = []
     for dataset in Dataset.all():
-        dataset_tasks.append(dataset_to_index(dataset))
-    datasets = await asyncio.gather(*dataset_tasks)
+        datasets.append(await dataset_to_index(dataset))
 
     async with with_conn() as conn:
         issues = [i async for i in all_issues(conn)]

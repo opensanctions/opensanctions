@@ -133,7 +133,7 @@ def parse_common(context: Context, entity, node):
 
 
 async def crawl(context: Context):
-    path = await context.fetch_resource("source.xml", context.dataset.data.url)
+    path = context.fetch_resource("source.xml", context.dataset.data.url)
     await context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
 

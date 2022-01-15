@@ -103,7 +103,7 @@ async def parse_reference(context: Context, reference, rows):
 
 
 async def crawl(context: Context):
-    path = await context.fetch_resource("source.xls", context.dataset.data.url)
+    path = context.fetch_resource("source.xls", context.dataset.data.url)
     await context.export_resource(path, EXCEL, title=context.SOURCE_TITLE)
     xls = xlrd.open_workbook(path)
     ws = xls.sheet_by_index(0)

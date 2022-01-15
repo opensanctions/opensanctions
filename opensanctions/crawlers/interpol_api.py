@@ -1,9 +1,7 @@
-import asyncio
 from httpx import HTTPStatusError
 from normality import collapse_spaces, stringify
 
 from opensanctions.core import Context
-from opensanctions import settings
 from opensanctions import helpers as h
 
 MAX_RESULTS = 160
@@ -104,10 +102,7 @@ async def crawl_country(context: Context, country, age_max=120, age_min=0):
 
 
 async def crawl(context: Context):
-    context.http_concurrency = 5
     countries = await get_countries(context)
-    tasks = []
     for country, label in countries:
         context.log.info("Crawl %r" % label, code=country)
-        tasks.append(crawl_country(context, country))
-    await asyncio.gather(*tasks)
+        await crawl_country(context, country)

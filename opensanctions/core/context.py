@@ -1,13 +1,11 @@
 import json
 import math
-import asyncio
 import hashlib
-import aiofiles
+import requests
 import structlog
 import mimetypes
 from random import randint
-from httpx import AsyncClient, Timeout, URL
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Union
 from lxml import etree, html
 from pprint import pprint
 from datetime import timedelta
@@ -17,7 +15,6 @@ from followthemoney.util import make_entity_id
 from followthemoney.schema import Schema
 
 from opensanctions import settings
-from opensanctions.core.http import HEADERS
 from opensanctions.core.entity import Entity
 from opensanctions.core.db import with_conn
 from opensanctions.core.http import check_cache, save_cache, clear_cache
@@ -47,8 +44,7 @@ class Context(object):
         )
         self._statements: List[Statement] = []
         self._events: List[Dict[str, Any]] = []
-        self._http_client: Optional[AsyncClient] = None
-        self.http_concurrency = 10
+        self.http = requests.Session(headers=settings.HEADERS)
 
     async def begin(self) -> None:
         """Flush and tear down the context."""
@@ -60,9 +56,6 @@ class Context(object):
             async with with_conn() as conn:
                 for event in self._events:
                     await save_issue(conn, event)
-
-        if self._http_client is not None:
-            await self._http_client.aclose()
 
     @property
     def http_client(self):
@@ -78,17 +71,18 @@ class Context(object):
     def get_resource_path(self, name):
         return self.path.joinpath(name)
 
-    async def fetch_resource(self, name, url):
+    def fetch_resource(self, name, url):
         """Fetch a URL into a file located in the current run folder,
         if it does not exist."""
         file_path = self.get_resource_path(name)
         if not file_path.exists():
             self.log.info("Fetching resource", path=file_path.as_posix(), url=url)
             file_path.parent.mkdir(exist_ok=True, parents=True)
-            async with aiofiles.open(file_path, "wb") as fh:
-                async with self.http_client.stream("GET", url) as response:
-                    async for chunk in response.aiter_bytes():
-                        await fh.write(chunk)
+            with self.http.get(url, stream=True, timeout=settings.HTTP_TIMEOUT) as res:
+                res.raise_for_status()
+                with open(file_path, "wb") as handle:
+                    for chunk in res.iter_content(chunk_size=8192 * 16):
+                        handle.write(chunk)
         return file_path
 
     async def fetch_response(self, url):
@@ -226,10 +220,8 @@ class Context(object):
         await self.begin()
         try:
             async with with_conn() as conn:
-                await asyncio.gather(
-                    clear_issues(conn, self.dataset),
-                    clear_resources(conn, self.dataset),
-                )
+                await clear_issues(conn, self.dataset)
+                await clear_resources(conn, self.dataset)
             self.log.info("Begin crawl")
             # Run the dataset:
             await self.dataset.method(self)
@@ -252,9 +244,7 @@ class Context(object):
     async def clear(self) -> None:
         """Delete all recorded data for a given dataset."""
         async with with_conn() as conn:
-            await asyncio.gather(
-                clear_statements(conn, self.dataset),
-                clear_issues(conn, self.dataset),
-                clear_resources(conn, self.dataset),
-                clear_cache(conn, self.dataset),
-            )
+            await clear_statements(conn, self.dataset)
+            await clear_issues(conn, self.dataset)
+            await clear_resources(conn, self.dataset)
+            await clear_cache(conn, self.dataset)

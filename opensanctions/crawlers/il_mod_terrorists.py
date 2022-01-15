@@ -78,7 +78,7 @@ async def crawl(context: Context):
 
 
 async def crawl_individuals(context: Context):
-    path = await context.fetch_resource("individuals.xlsx", PEOPLE_URL)
+    path = context.fetch_resource("individuals.xlsx", PEOPLE_URL)
     await context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
     for record in excel_records(path):
         seq_id = record.pop("internal_seq_id", None)
@@ -119,7 +119,7 @@ async def crawl_individuals(context: Context):
 
 
 async def crawl_organizations(context: Context):
-    path = await context.fetch_resource("organizations.xlsx", ORG_URL)
+    path = context.fetch_resource("organizations.xlsx", ORG_URL)
     await context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
     seq_ids = {}
     links = []

@@ -10,7 +10,7 @@ REG_NRS = ["(Reg. No:", "(Reg. No.:", "(Reg. No.", "(Trade Register No.:"]
 
 
 async def crawl(context: Context):
-    path = await context.fetch_resource("source.html", context.dataset.data.url)
+    path = context.fetch_resource("source.html", context.dataset.data.url)
     await context.export_resource(path, HTML, title=context.SOURCE_TITLE)
     with open(path, "r", encoding="ISO-8859-1") as fh:
         doc = html.parse(fh)
