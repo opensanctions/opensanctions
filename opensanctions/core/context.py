@@ -23,7 +23,7 @@ from opensanctions.core.resources import save_resource, clear_resources
 from opensanctions.core.statements import Statement, count_entities
 from opensanctions.core.statements import cleanup_dataset, clear_statements
 from opensanctions.core.statements import statements_from_entity, save_statements
-from opensanctions.util import named_semaphore
+from opensanctions.util import named_semaphore, normalize_url
 
 
 class Context(object):
@@ -44,7 +44,8 @@ class Context(object):
         )
         self._statements: List[Statement] = []
         self._events: List[Dict[str, Any]] = []
-        self.http = requests.Session(headers=settings.HEADERS)
+        self.http = requests.Session()
+        self.http.headers = dict(settings.HEADERS)
 
     async def begin(self) -> None:
         """Flush and tear down the context."""
@@ -56,17 +57,6 @@ class Context(object):
             async with with_conn() as conn:
                 for event in self._events:
                     await save_issue(conn, event)
-
-    @property
-    def http_client(self):
-        if self._http_client is None:
-            timeout = Timeout(settings.HTTP_TIMEOUT)
-            self._http_client = AsyncClient(
-                headers=HEADERS,
-                timeout=timeout,
-                follow_redirects=True,
-            )
-        return self._http_client
 
     def get_resource_path(self, name):
         return self.path.joinpath(name)
@@ -96,9 +86,7 @@ class Context(object):
         auth=None,
         cache_days=None,
     ):
-        url_ = URL(url, params=params)
-        url = str(url_)
-
+        url = normalize_url(url, params)
         if cache_days is not None:
             async with with_conn() as conn:
                 min_cache = max(1, math.ceil(cache_days * 0.8))
@@ -109,13 +97,19 @@ class Context(object):
                     self.log.debug("HTTP cache hit", url=url)
                     return text
 
-        async with named_semaphore(f"http.{url_.host}", self.http_concurrency):
-            self.log.debug("HTTP GET", url=url)
-            response = await self.http_client.get(url, headers=headers, auth=auth)
-            response.raise_for_status()
-            text = response.text
-            if text is None:
-                return None
+        self.log.debug("HTTP GET", url=url)
+        response = self.http.get(
+            url,
+            headers=headers,
+            auth=auth,
+            timeout=settings.HTTP_TIMEOUT,
+            allow_redirects=True,
+        )
+        response.raise_for_status()
+        text = response.text
+        if text is None:
+            return None
+
         async with with_conn() as conn:
             await save_cache(conn, url, self.dataset, text)
         return text

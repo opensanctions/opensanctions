@@ -2,7 +2,8 @@ import re
 import logging
 import threading
 from lxml import etree
-from typing import Optional
+from urllib.parse import urlparse, urlunparse, parse_qsl, urlencode
+from typing import Dict, Optional
 from banal import ensure_list
 from asyncio import Semaphore
 from datetime import datetime
@@ -108,3 +109,16 @@ def multi_split(text, splitters):
                     out.append(frag)
         fragments = out
     return fragments
+
+
+def normalize_url(url: str, params) -> str:
+    parsed = urlparse(url)
+    query = parse_qsl(parsed.query, keep_blank_values=True)
+    if params is not None:
+        try:
+            params = params.items()
+        except AttributeError:
+            pass
+        query.extend(sorted(params))
+    parsed = parsed._replace(query=urlencode(query))
+    return urlunparse(parsed)
