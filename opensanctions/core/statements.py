@@ -95,7 +95,7 @@ async def save_statements(conn: Conn, values: List[Statement]) -> None:
     values = list(unique.values())
     if not len(values):
         return None
-    log.info("Saving statements", size=len(values))
+    log.debug("Saving statements", size=len(values))
 
     istmt = upsert_func(stmt_table).values(values)
     stmt = istmt.on_conflict_do_update(
@@ -124,17 +124,7 @@ async def all_statements(
         sq = select(func.distinct(alias.c.canonical_id))
         sq = sq.filter(alias.c.prop_type == registry.entity.name)
         sq = sq.filter(alias.c.value.in_(inverted_ids))
-        # sq = sq.subquery()
-        # cte = select(func.distinct(stmt_table.c.canonical_id).label("canonical_id"))
-        # cte = cte.where(stmt_table.c.prop_type == registry.entity.name)
-        # cte = cte.where(stmt_table.c.value.in_(inverted_ids))
-        # cte = cte.cte("inverted")
-        # Find entities which refer to the given entity in one of their
-        # property values.
-        # inverted = aliased(cls)
         q = q.filter(stmt_table.c.canonical_id.in_(sq))
-        # q = q.filter(inverted.prop_type == registry.entity.name)
-        # q = q.filter(inverted.value.in_(inverted_ids))
     if dataset is not None:
         q = q.filter(stmt_table.c.dataset.in_(dataset.source_names))
     q = q.order_by(stmt_table.c.canonical_id.asc())
