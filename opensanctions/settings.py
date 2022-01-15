@@ -41,7 +41,7 @@ STATE_PATH.mkdir(parents=True, exist_ok=True)
 # SQL database URI for structured data
 DATABASE_URI = env_str("OPENSANCTIONS_DATABASE_URI", None)
 ASYNC_DATABASE_URI = DATABASE_URI.replace("postgresql://", "postgresql+asyncpg://")
-DATABASE_POOL_SIZE = int(env_str("OPENSANCTIONS_POOL_SIZE", "20"))
+DATABASE_POOL_SIZE = int(env_str("OPENSANCTIONS_POOL_SIZE", "10"))
 
 # Per-run timestamp
 RUN_TIME = datetime.utcnow().replace(microsecond=0)

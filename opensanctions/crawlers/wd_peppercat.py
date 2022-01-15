@@ -22,6 +22,7 @@ async def crawl_qid(context, qid, country):
 
 
 async def crawl(context: Context):
+    return
     text = await context.fetch_text(context.dataset.data.url)
     tasks = []
     for row in csv.DictReader(io.StringIO(text)):
