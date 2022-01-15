@@ -45,7 +45,7 @@ class Context(object):
         self.log = structlog.get_logger(
             dataset.name, dataset=self.dataset.name, _ctx=self
         )
-        self._statements: Dict[Tuple[str, str, str], Statement] = {}
+        self._statements: List[Statement] = []
         self._events: List[Dict[str, Any]] = []
         self._http_client: Optional[AsyncClient] = None
         self.http_concurrency = 10
@@ -201,12 +201,12 @@ class Context(object):
         to store. These are inserted in batches - so the statement cache on the
         context is flushed to the store. All statements that are not flushed
         when a crawl is aborted are not persisted to the database."""
-        async with named_semaphore("stmt.upsert", self.BATCH_CONCURRENT):
-            self.log.debug("Flushing statements to database...")
-            statements = list(self._statements.values())
-            async with with_conn() as conn:
-                await save_statements(conn, statements)
-            self._statements = {}
+        while len(self._statements) > self.BATCH_SIZE:
+            batch = self._statements[: self.BATCH_SIZE]
+            self._statements = self._statements[self.BATCH_SIZE :]
+            async with named_semaphore("stmt.upsert", self.BATCH_CONCURRENT):
+                async with with_conn() as conn:
+                    await save_statements(conn, batch)
 
     async def emit(
         self, entity: Entity, target: Optional[bool] = None, unique: bool = False
@@ -219,12 +219,9 @@ class Context(object):
         statements = statements_from_entity(entity, self.dataset, unique=unique)
         if not len(statements):
             raise ValueError("Entity has no properties: %r", entity)
-        for stmt in statements:
-            key = (stmt["entity_id"], stmt["prop"], stmt["value"])
-            self._statements[key] = stmt
-        if len(self._statements) >= self.BATCH_SIZE:
-            await self.flush()
+        self._statements.extend(statements)
         self.log.debug("Emitted", entity=entity)
+        await self.flush()
 
     async def crawl(self) -> None:
         """Run the crawler."""

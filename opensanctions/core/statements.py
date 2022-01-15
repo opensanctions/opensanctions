@@ -91,8 +91,11 @@ def statements_from_entity(
 
 
 async def save_statements(conn: Conn, values: List[Statement]) -> None:
+    unique = {s["id"]: s for s in values}
+    values = list(unique.values())
     if not len(values):
         return None
+    log.info("Saving statements", size=len(values))
 
     istmt = upsert_func(stmt_table).values(values)
     stmt = istmt.on_conflict_do_update(
