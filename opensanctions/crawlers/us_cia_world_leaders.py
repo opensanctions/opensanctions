@@ -44,7 +44,7 @@ async def crawl_country(context: Context, params, path, country):
         person.add("position", function)
         person.add("sourceUrl", source_url)
         person.add("topics", "role.pep")
-        await context.emit(person, target=True)
+        context.emit(person, target=True)
 
 
 async def crawl(context: Context):

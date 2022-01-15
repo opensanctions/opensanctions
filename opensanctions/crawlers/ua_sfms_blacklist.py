@@ -63,7 +63,7 @@ async def parse_entry(context: Context, entry):
         passport.add("passportNumber", number)
         passport.add("summary", reg)
         passport.add("country", country)
-        await context.emit(passport)
+        context.emit(passport)
 
     for doc in entry.findall("./id-number-list"):
         entity.add("idNumber", doc.text)
@@ -85,13 +85,13 @@ async def parse_entry(context: Context, entry):
             entity.add("nationality", country, quiet=True)
 
     entity.add("topics", "sanction")
-    await context.emit(entity, target=True)
-    await context.emit(sanction)
+    context.emit(entity, target=True)
+    context.emit(sanction)
 
 
 async def crawl(context: Context):
     path = context.fetch_resource("source.xml", context.dataset.data.url)
-    await context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
+    context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
     for entry in doc.findall(".//acount-list"):
         await parse_entry(context, entry)

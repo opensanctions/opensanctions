@@ -15,14 +15,14 @@ async def make_entity(context: Context, el, schema, *keys):
 
     sanction = h.make_sanction(context, entity)
     sanction.add("summary", el.findtext("./correction"))
-    await context.emit(sanction)
+    context.emit(sanction)
 
     return entity
 
 
 async def crawl(context: Context):
     path = context.fetch_resource("source.xml", context.dataset.data.url)
-    await context.export_resource(path, XML, title=context.SOURCE_TITLE)
+    context.export_resource(path, XML, title=context.SOURCE_TITLE)
 
     doc = context.parse_resource_xml(path)
     for el in doc.findall(".//person"):
@@ -38,7 +38,7 @@ async def crawl(context: Context):
         entity.add("idNumber", el.findtext("./iin"))
         bdate = el.findtext("./birthdate")
         entity.add("birthDate", h.parse_date(bdate, FORMATS, bdate))
-        await context.emit(entity, target=True)
+        context.emit(entity, target=True)
 
     for el in doc.findall(".//org"):
         name = el.findtext(".//org_name")
@@ -50,4 +50,4 @@ async def crawl(context: Context):
             names = names.split("; ")
             entity.add("name", names)
 
-        await context.emit(entity, target=True)
+        context.emit(entity, target=True)

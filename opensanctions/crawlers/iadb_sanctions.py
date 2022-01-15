@@ -57,7 +57,7 @@ async def crawl(context: Context):
                 link.id = context.make_id(row_id, affiliated)
                 link.add("subject", entity.id)
                 link.add("object", context.make_slug(affiliated))
-                await context.emit(link)
+                context.emit(link)
 
             sanction = h.make_sanction(context, entity)
             sanction.add("status", row.pop("statusName"))
@@ -69,8 +69,8 @@ async def crawl(context: Context):
             sanction.add("endDate", h.parse_date(row.pop("dateto"), FORMATS))
             # context.pprint(row)
 
-            await context.emit(sanction)
-            await context.emit(entity, target=True)
+            context.emit(sanction)
+            context.emit(entity, target=True)
 
         if min(ids) == 1:
             return

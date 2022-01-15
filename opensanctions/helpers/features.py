@@ -93,5 +93,5 @@ async def apply_feature(
         adj.add("description", comment, quiet=True)
         adj.add("authority", authority, quiet=True)
 
-        await context.emit(adj)
+        context.emit(adj)
         return adj

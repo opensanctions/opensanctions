@@ -161,7 +161,7 @@ async def load_locations(context: Context, doc):
             country=country,
         )
         if address.id is not None:
-            await context.emit(address)
+            context.emit(address)
             locations[location_id] = address
     return locations
 
@@ -298,7 +298,7 @@ async def parse_party(context: Context, distinct_party, locations, documents):
     for feature in profile.findall("./Feature"):
         await parse_feature(context, feature, party, locations)
 
-    await context.emit(party, target=True, unique=True)
+    context.emit(party, target=True, unique=True)
     # pprint(party.to_dict())
     # context.log.info("[%s] %s" % (party.schema.name, party.caption))
     return party
@@ -329,7 +329,7 @@ async def parse_entry(context: Context, entry):
         type_id = measure.get("SanctionsTypeID")
         sanction.add("program", ref_value("SanctionsType", type_id))
 
-    await context.emit(sanction)
+    context.emit(sanction)
     # pprint(sanction.to_dict())
 
 
@@ -385,21 +385,21 @@ async def parse_relation(context: Context, el, parties):
 
     add_schema(from_party, from_range)
     add_schema(to_party, to_range)
-    await context.emit(from_party, target=True)
-    await context.emit(to_party, target=True)
+    context.emit(from_party, target=True)
+    context.emit(to_party, target=True)
     entity.id = context.make_id("Relation", from_party.id, to_party.id, el.get("ID"))
     entity.add(relation.from_prop, from_party)
     entity.add(relation.to_prop, to_party)
     entity.add(relation.description_prop, type_)
     entity.add("summary", el.findtext("./Comment"))
-    await context.emit(entity)
+    context.emit(entity)
     context.log.debug("Relation", from_=from_party, type=type_, to=to_party)
     # pprint(entity.to_dict())
 
 
 async def crawl(context: Context):
     path = context.fetch_resource("source.xml", context.dataset.data.url)
-    await context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
+    context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
     doc = remove_namespace(doc)
     context.log.info("Loading reference values...")

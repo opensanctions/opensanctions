@@ -85,22 +85,22 @@ async def crawl_item(context: Context, listing):
             reason = f"{key}: {value}"
             sanction.add("reason", reason)
         sanction.add("country", "gb")
-        await context.emit(sanction)
+        context.emit(sanction)
 
         for company_name in disqual.get("company_names", []):
             company = context.make("Company")
             company.id = context.make_slug("named", company_name)
             company.add("name", company_name)
             company.add("jurisdiction", "gb")
-            await context.emit(company)
+            context.emit(company)
 
             directorship = context.make("Directorship")
             directorship.id = context.make_id(person.id, company.id)
             directorship.add("director", person)
             directorship.add("organization", company)
-            await context.emit(directorship)
+            context.emit(directorship)
 
-    await context.emit(person, target=True)
+    context.emit(person, target=True)
 
 
 async def crawl(context: Context):

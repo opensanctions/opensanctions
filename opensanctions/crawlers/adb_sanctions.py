@@ -11,7 +11,7 @@ REG_NRS = ["(Reg. No:", "(Reg. No.:", "(Reg. No.", "(Trade Register No.:"]
 
 async def crawl(context: Context):
     path = context.fetch_resource("source.html", context.dataset.data.url)
-    await context.export_resource(path, HTML, title=context.SOURCE_TITLE)
+    context.export_resource(path, HTML, title=context.SOURCE_TITLE)
     with open(path, "r", encoding="ISO-8859-1") as fh:
         doc = html.parse(fh)
 
@@ -55,5 +55,5 @@ async def crawl(context: Context):
         address = h.make_address(context, full=cells.pop("address"), country=country)
         await h.apply_address(context, entity, address)
 
-        await context.emit(entity, target=True)
-        await context.emit(sanction)
+        context.emit(entity, target=True)
+        context.emit(sanction)

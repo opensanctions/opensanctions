@@ -97,4 +97,4 @@ async def apply_address(context: Context, entity: Entity, address: Entity):
     entity.add("country", address.get("country"))
     if address.id is not None:
         entity.add("addressEntity", address)
-        await context.emit(address)
+        context.emit(address)

@@ -19,15 +19,15 @@ class Exporter(object):
         self.path.parent.mkdir(exist_ok=True, parents=True)
         self.loader = loader
 
-    async def setup(self):
-        self.fh = await aiofiles.open(self.path, "w", encoding=settings.ENCODING)
+    def setup(self):
+        self.fh = open(self.path, "w", encoding=settings.ENCODING)
 
-    async def feed(self, entity):
+    def feed(self, entity):
         raise NotImplemented
 
     async def finish(self):
-        await self.fh.close()
-        resource = await self.context.export_resource(
+        self.fh.close()
+        resource = self.context.export_resource(
             self.path, mime_type=self.MIME_TYPE, title=self.TITLE
         )
         if resource is None:
@@ -59,13 +59,13 @@ class JSONEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
-async def write_json(data, fh):
+def write_json(data, fh):
     """Write a JSON object to the given open file handle."""
     json_data = json.dumps(data, sort_keys=True, indent=2, cls=JSONEncoder)
-    await fh.write(json_data)
+    fh.write(json_data)
 
 
-async def write_object(stream, obj, indent=None):
+def write_object(stream, obj, indent=None):
     """Write an object for line-based JSON format."""
     data = json.dumps(obj, sort_keys=True, indent=indent, cls=JSONEncoder)
-    await stream.write(data + "\n")
+    stream.write(data + "\n")

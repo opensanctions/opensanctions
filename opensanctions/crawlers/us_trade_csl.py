@@ -107,8 +107,8 @@ async def parse_result(context: Context, result):
     # TODO: what is this?
     result.pop("standard_order", None)
 
-    await context.emit(sanction)
-    await context.emit(entity, target=True)
+    context.emit(sanction)
+    context.emit(entity, target=True)
 
     if len(result):
         context.pprint(result)
@@ -116,7 +116,7 @@ async def parse_result(context: Context, result):
 
 async def crawl(context: Context):
     path = context.fetch_resource("source.json", context.dataset.data.url)
-    await context.export_resource(path, JSON, title=context.SOURCE_TITLE)
+    context.export_resource(path, JSON, title=context.SOURCE_TITLE)
     with open(path, "r") as file:
         data = json.load(file)
         for result in data.get("results"):

@@ -23,7 +23,7 @@ async def crawl_node(context: Context, node):
     person.add("lastName", last_name)
     person.add("nationality", node.findtext(".//country"))
     person.add("topics", "role.pep")
-    await context.emit(person, target=True, unique=True)
+    context.emit(person, target=True, unique=True)
 
     party_name = node.findtext(".//nationalPoliticalGroup")
     if party_name not in ["Independent"]:
@@ -32,12 +32,12 @@ async def crawl_node(context: Context, node):
         if party.id is not None:
             party.add("name", party_name)
             party.add("country", node.findtext(".//country"))
-            await context.emit(party)
+            context.emit(party)
             membership = context.make("Membership")
             membership.id = context.make_id(person.id, party.id)
             membership.add("member", person)
             membership.add("organization", party)
-            await context.emit(membership)
+            context.emit(membership)
 
     group_name = node.findtext(".//politicalGroup")
     group = context.make("Organization")
@@ -45,17 +45,17 @@ async def crawl_node(context: Context, node):
     if group.id is not None:
         group.add("name", group_name)
         group.add("country", "eu")
-        await context.emit(group)
+        context.emit(group)
         membership = context.make("Membership")
         membership.id = context.make_id(person.id, group.id)
         membership.add("member", person)
         membership.add("organization", group)
-        await context.emit(membership)
+        context.emit(membership)
 
 
 async def crawl(context: Context):
     path = context.fetch_resource("source.xml", context.dataset.data.url)
-    await context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
+    context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
     for node in doc.findall(".//mep"):
         await crawl_node(context, node)

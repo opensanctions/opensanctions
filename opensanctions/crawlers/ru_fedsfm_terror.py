@@ -87,7 +87,7 @@ def parse_foreign_persons(context: Context, entity, text):
 
 async def crawl(context: Context):
     path = context.fetch_resource("source.html", context.dataset.data.url)
-    await context.export_resource(path, HTML, title=context.SOURCE_TITLE)
+    context.export_resource(path, HTML, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         doc = html.parse(fh)
 
@@ -114,5 +114,5 @@ async def crawl(context: Context):
                 parse_foreign_persons(context, entity, text)
 
             if entity.has("name"):
-                await context.emit(entity, target=True)
-                await context.emit(sanction)
+                context.emit(entity, target=True)
+                context.emit(sanction)

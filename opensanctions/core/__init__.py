@@ -22,4 +22,4 @@ def setup(log_level=None):
         data_path=str(settings.DATA_PATH),
         datasets=Dataset.names(),
     )
-    # asyncio.run(create_db())
+    create_db()

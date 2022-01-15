@@ -52,12 +52,12 @@ class SimpleCSVExporter(Exporter):
             sep=" - ",
         )
 
-    async def setup(self):
-        await super().setup()
-        self.writer = aiocsv.AsyncWriter(self.fh, dialect=csv.unix_dialect)
-        await self.writer.writerow(self.HEADERS)
+    def setup(self):
+        super().setup()
+        self.writer = csv.writer(self.fh, dialect=csv.unix_dialect)
+        self.writer.writerow(self.HEADERS)
 
-    async def feed(self, entity):
+    def feed(self, entity):
         if not entity.target:
             return
         countries = set(entity.get_type_values(registry.country))
@@ -67,7 +67,7 @@ class SimpleCSVExporter(Exporter):
         sanctions = set()
         addresses = set(entity.get("address"))
 
-        async for _, adjacent in self.loader.get_adjacent(entity):
+        for _, adjacent in self.loader.get_adjacent(entity):
             if adjacent.schema.is_a("Sanction"):
                 sanctions.add(self.sanction_text(adjacent))
 
@@ -95,4 +95,4 @@ class SimpleCSVExporter(Exporter):
             entity.first_seen,
             entity.last_seen,
         ]
-        await self.writer.writerow(row)
+        self.writer.writerow(row)

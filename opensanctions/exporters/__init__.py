@@ -29,14 +29,13 @@ __all__ = ["export_dataset", "export_metadata", "export_statements"]
 async def export_dataset(dataset: Dataset, database: Database):
     """Dump the contents of the dataset to the output directory."""
     context = Context(dataset)
-    await context.begin()
-    loader = await database.view(dataset, Entity.assembler)
+    loader = database.view(dataset, Entity.assembler)
     exporters = [Exporter(context, loader) for Exporter in EXPORTERS]
 
     for exporter in exporters:
         await exporter.setup()
 
-    async for entity in loader.entities():
+    for entity in loader.entities():
         for exporter in exporters:
             await exporter.feed(entity)
 
@@ -46,16 +45,16 @@ async def export_dataset(dataset: Dataset, database: Database):
     # Export list of data issues from crawl stage
     issues_path = context.get_resource_path("issues.json")
     context.log.info("Writing dataset issues list", path=issues_path)
-    async with engine.begin() as conn:
-        async with aiofiles.open(issues_path, "w", encoding=settings.ENCODING) as fh:
-            data = {"issues": [i async for i in all_issues(conn, dataset)]}
-            await write_json(data, fh)
+    with engine.begin() as conn:
+        with open(issues_path, "w", encoding=settings.ENCODING) as fh:
+            data = {"issues": list(all_issues(conn, dataset))}
+            write_json(data, fh)
 
     # Export full metadata
     index_path = context.get_resource_path("index.json")
     context.log.info("Writing dataset index", path=index_path)
-    async with aiofiles.open(index_path, "w", encoding=settings.ENCODING) as fh:
-        meta = await dataset_to_index(dataset)
-        await write_json(meta, fh)
+    with open(index_path, "w", encoding=settings.ENCODING) as fh:
+        meta = dataset_to_index(dataset)
+        write_json(meta, fh)
 
-    await context.close()
+    context.close()

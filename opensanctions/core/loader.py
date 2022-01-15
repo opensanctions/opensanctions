@@ -118,7 +118,7 @@ class Database(object):
         current_id = None
         types: List[CachedType] = []
         props: List[CachedProp] = []
-        async with with_conn() as conn:
+        with with_conn() as conn:
             stmts = all_statements(
                 conn,
                 dataset=dataset,

@@ -1,5 +1,3 @@
-from followthemoney.types import registry
-
 from opensanctions.exporters.common import Exporter, write_object
 
 
@@ -9,8 +7,8 @@ class NestedJSONExporter(Exporter):
     EXTENSION = "json"
     MIME_TYPE = "application/json"
 
-    async def feed(self, entity):
+    def feed(self, entity):
         if not entity.target:
             return
-        data = await entity.to_nested_dict(self.loader)
-        await write_object(self.fh, data)
+        data = entity.to_nested_dict(self.loader)
+        write_object(self.fh, data)

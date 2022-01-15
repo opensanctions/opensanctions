@@ -89,12 +89,12 @@ async def crawl_entity(context: Context, data):
         for value in detail.pop("Valeur"):
             await apply_prop(context, entity, sanction, field, value)
 
-    await context.emit(entity, target=True)
+    context.emit(entity, target=True)
 
 
 async def crawl(context):
     path = context.fetch_resource("source.json", context.dataset.data.url)
-    await context.export_resource(path, JSON, title=context.SOURCE_TITLE)
+    context.export_resource(path, JSON, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         data = json.load(fh)
 

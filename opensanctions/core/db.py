@@ -1,20 +1,18 @@
-from contextlib import asynccontextmanager
-from asyncstdlib.functools import cache
+from contextlib import contextmanager
 from sqlalchemy import MetaData
-from sqlalchemy.ext.asyncio import create_async_engine
-from sqlalchemy.ext.asyncio.engine import AsyncConnection
+from sqlalchemy import create_engine
+from sqlalchemy.engine import Connection
 from sqlalchemy.types import JSON
 from sqlalchemy import Table, Column, Integer, DateTime, Unicode, Boolean
 from sqlalchemy.dialects.postgresql import insert as upsert_func
 
 from opensanctions import settings
-from opensanctions.util import named_semaphore
 
 KEY_LEN = 255
 VALUE_LEN = 65535
-Conn = AsyncConnection
+Conn = Connection
 
-__all__ = ["Conn", "with_conn", "create_db"]
+__all__ = ["Conn", "with_conn", "create_db", "upsert_func"]
 
 assert (
     settings.DATABASE_URI is not None
@@ -23,24 +21,20 @@ assert (
 if not settings.DATABASE_URI.startswith("postgres"):
     raise RuntimeError("Unsupported database engine: %s" % settings.DATABASE_URI)
 
-engine = create_async_engine(
-    settings.ASYNC_DATABASE_URI,
+engine = create_engine(
+    settings.DATABASE_URI,
     pool_size=settings.DATABASE_POOL_SIZE,
 )
 
 
-@cache
-async def create_db():
-    async with engine.begin() as conn:
-        # await conn.run_sync(metadata.drop_all)
-        await conn.run_sync(metadata.create_all)
+def create_db():
+    metadata.create_all(bind=engine)
 
 
-@asynccontextmanager
-async def with_conn():
-    async with named_semaphore("db", settings.DATABASE_POOL_SIZE):
-        async with engine.begin() as conn:
-            yield conn
+@contextmanager
+def with_conn():
+    with engine.begin() as conn:
+        yield conn
 
 
 metadata = MetaData()

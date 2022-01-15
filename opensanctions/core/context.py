@@ -23,7 +23,7 @@ from opensanctions.core.resources import save_resource, clear_resources
 from opensanctions.core.statements import Statement, count_entities
 from opensanctions.core.statements import cleanup_dataset, clear_statements
 from opensanctions.core.statements import statements_from_entity, save_statements
-from opensanctions.util import named_semaphore, normalize_url
+from opensanctions.util import normalize_url
 
 
 class Context(object):
@@ -47,16 +47,12 @@ class Context(object):
         self.http = requests.Session()
         self.http.headers = dict(settings.HEADERS)
 
-    async def begin(self) -> None:
-        """Flush and tear down the context."""
-        pass
-
     async def close(self) -> None:
         """Flush and tear down the context."""
         if len(self._events):
-            async with with_conn() as conn:
+            with with_conn() as conn:
                 for event in self._events:
-                    await save_issue(conn, event)
+                    save_issue(conn, event)
 
     def get_resource_path(self, name):
         return self.path.joinpath(name)
@@ -88,11 +84,11 @@ class Context(object):
     ):
         url = normalize_url(url, params)
         if cache_days is not None:
-            async with with_conn() as conn:
+            with with_conn() as conn:
                 min_cache = max(1, math.ceil(cache_days * 0.8))
                 max_cache = math.ceil(cache_days * 1.2)
                 cache_days = timedelta(days=randint(min_cache, max_cache))
-                text = await check_cache(conn, url, cache_days)
+                text = check_cache(conn, url, cache_days)
                 if text is not None:
                     self.log.debug("HTTP cache hit", url=url)
                     return text
@@ -110,8 +106,8 @@ class Context(object):
         if text is None:
             return None
 
-        async with with_conn() as conn:
-            await save_cache(conn, url, self.dataset, text)
+        with with_conn() as conn:
+            save_cache(conn, url, self.dataset, text)
         return text
 
     async def fetch_json(self, url, **kwargs):
@@ -131,7 +127,7 @@ class Context(object):
         with open(file_path, "rb") as fh:
             return etree.parse(fh)
 
-    async def export_resource(self, path, mime_type=None, title=None):
+    def export_resource(self, path, mime_type=None, title=None):
         """Register a file as a documented file exported by the dataset."""
         if mime_type is None:
             mime_type, _ = mimetypes.guess(path)
@@ -149,8 +145,8 @@ class Context(object):
             self.log.warning("Resource is empty", path=path)
         checksum = digest.hexdigest()
         name = path.relative_to(self.path).as_posix()
-        async with with_conn() as conn:
-            return await save_resource(
+        with with_conn() as conn:
+            return save_resource(
                 conn, name, self.dataset, checksum, mime_type, size, title
             )
 
@@ -182,7 +178,7 @@ class Context(object):
         else:
             pprint(obj)
 
-    async def flush(self) -> None:
+    def flush(self) -> None:
         """Emitted entities are de-constructed into statements for the database
         to store. These are inserted in batches - so the statement cache on the
         context is flushed to the store. All statements that are not flushed
@@ -190,13 +186,10 @@ class Context(object):
         while len(self._statements) > self.BATCH_SIZE:
             batch = self._statements[: self.BATCH_SIZE]
             self._statements = self._statements[self.BATCH_SIZE :]
-            async with named_semaphore("stmt.upsert", self.BATCH_CONCURRENT):
-                async with with_conn() as conn:
-                    await save_statements(conn, batch)
+            with with_conn() as conn:
+                save_statements(conn, batch)
 
-    async def emit(
-        self, entity: Entity, target: Optional[bool] = None, unique: bool = False
-    ):
+    def emit(self, entity: Entity, target: Optional[bool] = None, unique: bool = False):
         """Send an FtM entity to the store."""
         if entity.id is None:
             raise ValueError("Entity has no ID: %r", entity)
@@ -207,23 +200,22 @@ class Context(object):
             raise ValueError("Entity has no properties: %r", entity)
         self._statements.extend(statements)
         self.log.debug("Emitted", entity=entity)
-        await self.flush()
+        self.flush()
 
     async def crawl(self) -> None:
         """Run the crawler."""
-        await self.begin()
         try:
-            async with with_conn() as conn:
-                await clear_issues(conn, self.dataset)
-                await clear_resources(conn, self.dataset)
+            with with_conn() as conn:
+                clear_issues(conn, self.dataset)
+                clear_resources(conn, self.dataset)
             self.log.info("Begin crawl")
             # Run the dataset:
             await self.dataset.method(self)
-            await self.flush()
-            async with with_conn() as conn:
-                await cleanup_dataset(conn, self.dataset)
-                entities = await count_entities(conn, dataset=self.dataset)
-                targets = await count_entities(conn, dataset=self.dataset, target=True)
+            self.flush()
+            with with_conn() as conn:
+                cleanup_dataset(conn, self.dataset)
+                entities = count_entities(conn, dataset=self.dataset)
+                targets = count_entities(conn, dataset=self.dataset, target=True)
 
             self.log.info("Crawl completed", entities=entities, targets=targets)
         except KeyboardInterrupt:
@@ -237,8 +229,8 @@ class Context(object):
 
     async def clear(self) -> None:
         """Delete all recorded data for a given dataset."""
-        async with with_conn() as conn:
-            await clear_statements(conn, self.dataset)
-            await clear_issues(conn, self.dataset)
-            await clear_resources(conn, self.dataset)
-            await clear_cache(conn, self.dataset)
+        with with_conn() as conn:
+            clear_statements(conn, self.dataset)
+            clear_issues(conn, self.dataset)
+            clear_resources(conn, self.dataset)
+            clear_cache(conn, self.dataset)

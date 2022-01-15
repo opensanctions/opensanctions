@@ -107,7 +107,7 @@ async def parse_person(context: Context, data, country, entities, lastmod):
     # data.pop("images", None)
     # if len(data):
     #     pprint(data)
-    await context.emit(person, target=True)
+    context.emit(person, target=True)
     entities[person_id] = person.id
 
 
@@ -149,7 +149,7 @@ async def parse_organization(context: Context, data, country, entities, lastmod)
     # data.pop("seats", None)
     # if len(data):
     #     pprint(data)
-    await context.emit(organization)
+    context.emit(organization)
     entities[org_id] = organization.id
 
 
@@ -176,7 +176,7 @@ async def parse_membership(context: Context, data, entities, events):
             membership.add("sourceUrl", source.get("url"))
 
         # pprint(data)
-        await context.emit(membership)
+        context.emit(membership)
 
     on_behalf_of_id = entities.get(data.pop("on_behalf_of_id", None))
 
@@ -189,4 +189,4 @@ async def parse_membership(context: Context, data, entities, events):
         for source in data.get("sources", []):
             membership.add("sourceUrl", source.get("url"))
 
-        await context.emit(membership)
+        context.emit(membership)

@@ -12,7 +12,7 @@ LEGAL_URL = "https://sanctions-t.rnbo.gov.ua/api/jurosoba/"
 
 async def json_resource(context: Context, url, name):
     path = context.fetch_resource(f"{name}.json", url)
-    await context.export_resource(path, JSON, title=context.SOURCE_TITLE)
+    context.export_resource(path, JSON, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         return json.load(fh)
 
@@ -37,7 +37,7 @@ async def handle_sanction(context, entity, row):
     sanction.add("program", row.pop("restriction_type", None))
     sanction.add("startDate", row.pop("ukaz_date", None))
     sanction.add("endDate", row.pop("restriction_end_date", None))
-    await context.emit(sanction)
+    context.emit(sanction)
 
 
 async def crawl_physical(context: Context) -> None:
@@ -58,7 +58,7 @@ async def crawl_physical(context: Context) -> None:
         await handle_address(context, entity, row.pop("livingplace", None))
         await handle_sanction(context, entity, row)
 
-        await context.emit(entity, target=True)
+        context.emit(entity, target=True)
         # context.pprint(row)
 
 
@@ -81,7 +81,7 @@ async def crawl_legal(context: Context) -> None:
         await handle_address(context, entity, row.pop("place_alternative", None))
         await handle_sanction(context, entity, row)
         # context.pprint(row)
-        await context.emit(entity, target=True)
+        context.emit(entity, target=True)
 
 
 async def crawl(context: Context) -> None:

@@ -64,5 +64,5 @@ async def crawl(context: Context):
         sanction.add("program", data.get("DEBAR_REASON"))
         sanction.add("startDate", h.parse_date(data.get("DEBAR_FROM_DATE"), FORMATS))
         sanction.add("endDate", h.parse_date(data.get("DEBAR_TO_DATE"), FORMATS))
-        await context.emit(entity, target=True)
-        await context.emit(sanction)
+        context.emit(entity, target=True)
+        context.emit(sanction)

@@ -3,8 +3,6 @@ from banal import ensure_list
 from urllib.parse import urljoin
 from datapatch import get_lookups
 from functools import cached_property
-from followthemoney import model
-from followthemoney.types import registry
 from nomenklatura.dataset import Dataset as NomenklaturaDataset
 
 from opensanctions import settings

@@ -1,7 +1,7 @@
 import aiofiles
 import structlog
 from typing import Any, Dict
-from asyncstdlib.functools import cache
+from functools import cache
 from urllib.parse import urljoin
 from followthemoney import model
 
@@ -18,13 +18,13 @@ log = structlog.get_logger(__name__)
 
 
 @cache
-async def dataset_to_index(dataset: Dataset) -> Dict[str, Any]:
-    async with with_conn() as conn:
-        issue_levels = await agg_issues_by_level(conn, dataset)
-        target_count = await count_entities(conn, dataset=dataset, target=True)
-        last_change = await max_last_seen(conn, dataset)
-        target_countries = await agg_targets_by_country(conn, dataset)
-        target_schemata = await agg_targets_by_schema(conn, dataset)
+def dataset_to_index(dataset: Dataset) -> Dict[str, Any]:
+    with with_conn() as conn:
+        issue_levels = agg_issues_by_level(conn, dataset)
+        target_count = count_entities(conn, dataset=dataset, target=True)
+        last_change = max_last_seen(conn, dataset)
+        target_countries = agg_targets_by_country(conn, dataset)
+        target_schemata = agg_targets_by_schema(conn, dataset)
         meta = dataset.to_dict()
         meta["index_url"] = dataset.make_public_url("index.json")
         meta["issues_url"] = dataset.make_public_url("issues.json")
@@ -38,29 +38,29 @@ async def dataset_to_index(dataset: Dataset) -> Dict[str, Any]:
             "countries": target_countries,
             "schemata": target_schemata,
         }
-        meta["resources"] = [r async for r in all_resources(conn, dataset)]
+        meta["resources"] = list(all_resources(conn, dataset))
         return meta
 
 
-async def export_metadata():
+def export_metadata():
     """Export the global index for all datasets."""
     datasets = []
     for dataset in Dataset.all():
-        datasets.append(await dataset_to_index(dataset))
+        datasets.append(dataset_to_index(dataset))
 
-    async with with_conn() as conn:
-        issues = [i async for i in all_issues(conn)]
-        schemata = await all_schemata(conn)
+    with with_conn() as conn:
+        issues = list(all_issues(conn))
+        schemata = all_schemata(conn)
 
     issues_path = settings.DATASET_PATH.joinpath("issues.json")
     log.info("Writing global issues list", path=issues_path)
-    async with aiofiles.open(issues_path, "w", encoding=settings.ENCODING) as fh:
+    with open(issues_path, "w", encoding=settings.ENCODING) as fh:
         data = {"issues": issues}
-        await write_json(data, fh)
+        write_json(data, fh)
 
     index_path = settings.DATASET_PATH.joinpath("index.json")
     log.info("Writing global index", datasets=len(datasets), path=index_path)
-    async with aiofiles.open(index_path, "w", encoding=settings.ENCODING) as fh:
+    with open(index_path, "w", encoding=settings.ENCODING) as fh:
         meta = {
             "datasets": datasets,
             "run_time": settings.RUN_TIME,
@@ -71,4 +71,4 @@ async def export_metadata():
             "app": "opensanctions",
             "version": settings.VERSION,
         }
-        await write_json(meta, fh)
+        write_json(meta, fh)

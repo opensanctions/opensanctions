@@ -1,6 +1,6 @@
 from banal import is_mapping
 from datetime import datetime
-from typing import Any, AsyncGenerator, Dict, Generator, Optional, TypedDict, cast
+from typing import Any, Dict, Generator, Optional, TypedDict, cast
 from sqlalchemy.future import select
 from sqlalchemy.sql.expression import delete
 from sqlalchemy.sql.functions import func
@@ -22,7 +22,7 @@ class Issue(TypedDict):
     data: Dict[str, Any]
 
 
-async def save_issue(conn: Conn, event: Dict[str, Any]) -> None:
+def save_issue(conn: Conn, event: Dict[str, Any]) -> None:
     data = dict(event)
     for key, value in data.items():
         if hasattr(value, "to_dict"):
@@ -48,35 +48,35 @@ async def save_issue(conn: Conn, event: Dict[str, Any]) -> None:
         record["entity_id"] = entity
     record["data"] = data
     q = issue_table.insert().values([record])
-    await conn.execute(q)
+    conn.execute(q)
     return None
 
 
-async def all_issues(
+def all_issues(
     conn: Conn, dataset: Optional[Dataset] = None
-) -> AsyncGenerator[Issue, None]:
+) -> Generator[Issue, None, None]:
     q = select(issue_table)
     if dataset is not None:
         q = q.filter(issue_table.c.dataset.in_(dataset.source_names))
     q = q.order_by(issue_table.c.id.asc())
-    result = await conn.stream(q)
-    async for row in result:
+    result = conn.execute(q)
+    for row in result.fetchall():
         yield cast(Issue, row._asdict())
 
 
-async def agg_issues_by_level(
+def agg_issues_by_level(
     conn: Conn, dataset: Optional[Dataset] = None
 ) -> Dict[str, int]:
     q = select(issue_table.c.level, func.count(issue_table.c.id))
     if dataset is not None:
         q = q.filter(issue_table.c.dataset.in_(dataset.source_names))
     q = q.group_by(issue_table.c.level)
-    res = await conn.execute(q)
+    res = conn.execute(q)
     return {l: c for (l, c) in res.all()}
 
 
-async def clear_issues(conn: Conn, dataset: Dataset) -> None:
+def clear_issues(conn: Conn, dataset: Dataset) -> None:
     pq = delete(issue_table)
     pq = pq.where(issue_table.c.dataset.in_(dataset.source_names))
-    await conn.execute(pq)
+    conn.execute(pq)
     return None

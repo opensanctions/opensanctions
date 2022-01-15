@@ -1,9 +1,9 @@
 import structlog
 from hashlib import sha1
 from datetime import datetime
-from typing import AsyncGenerator, List, Optional, TypedDict, cast
+from typing import Generator, List, Optional, TypedDict, cast
 from sqlalchemy.future import select
-from sqlalchemy.sql.expression import delete, update, insert, Select
+from sqlalchemy.sql.expression import delete, update, insert
 from sqlalchemy.sql.functions import func
 from nomenklatura import Resolver
 from followthemoney import model
@@ -90,7 +90,7 @@ def statements_from_entity(
     return values
 
 
-async def save_statements(conn: Conn, values: List[Statement]) -> None:
+def save_statements(conn: Conn, values: List[Statement]) -> None:
     unique = {s["id"]: s for s in values}
     values = list(unique.values())
     if not len(values):
@@ -109,13 +109,13 @@ async def save_statements(conn: Conn, values: List[Statement]) -> None:
             last_seen=istmt.excluded.last_seen,
         ),
     )
-    await conn.execute(stmt)
+    conn.execute(stmt)
     return None
 
 
-async def all_statements(
+def all_statements(
     conn: Conn, dataset=None, canonical_id=None, inverted_ids=None
-) -> AsyncGenerator[Statement, None]:
+) -> Generator[Statement, None, None]:
     q = select(stmt_table)
     if canonical_id is not None:
         q = q.filter(stmt_table.c.canonical_id == canonical_id)
@@ -128,91 +128,12 @@ async def all_statements(
     if dataset is not None:
         q = q.filter(stmt_table.c.dataset.in_(dataset.source_names))
     q = q.order_by(stmt_table.c.canonical_id.asc())
-    result = await conn.stream(q)
-    async for row in result:
+    result = conn.execution_options(stream_results=True).execute(q)
+    for row in result:
         yield cast(Statement, row._asdict())
 
 
-def filtered_statements_query(
-    q: Select,
-    dataset: Optional[Dataset] = None,
-    entity_id: Optional[str] = None,
-    canonical_id: Optional[str] = None,
-    prop: Optional[str] = None,
-    value: Optional[str] = None,
-    schema: Optional[str] = None,
-) -> Select:
-
-    if canonical_id is not None:
-        q = q.filter(stmt_table.c.canonical_id == canonical_id)
-    if entity_id is not None:
-        q = q.filter(stmt_table.c.entity_id == entity_id)
-    if prop is not None:
-        q = q.filter(stmt_table.c.prop == prop)
-    if value is not None:
-        q = q.filter(stmt_table.c.value == value)
-    if schema is not None:
-        q = q.filter(stmt_table.c.schema == schema)
-    if dataset is not None:
-        q = q.filter(stmt_table.c.dataset.in_(dataset.source_names))
-    return q
-
-
-async def count_statements(
-    conn: Conn,
-    dataset: Optional[Dataset] = None,
-    entity_id: Optional[str] = None,
-    canonical_id: Optional[str] = None,
-    prop: Optional[str] = None,
-    value: Optional[str] = None,
-    schema: Optional[str] = None,
-) -> int:
-    q = select(func.count(stmt_table.c.id))
-    q = filtered_statements_query(
-        q,
-        dataset=dataset,
-        entity_id=entity_id,
-        canonical_id=canonical_id,
-        prop=prop,
-        value=value,
-        schema=schema,
-    )
-    return await conn.scalar(q)
-
-
-async def paged_statements(
-    conn: Conn,
-    limit: int = 100,
-    offset: int = 0,
-    dataset: Optional[Dataset] = None,
-    entity_id: Optional[str] = None,
-    canonical_id: Optional[str] = None,
-    prop: Optional[str] = None,
-    value: Optional[str] = None,
-    schema: Optional[str] = None,
-) -> AsyncGenerator[Statement, None]:
-    # Make the order of entities stable.
-    q = select(stmt_table)
-    q = filtered_statements_query(
-        q,
-        dataset=dataset,
-        entity_id=entity_id,
-        canonical_id=canonical_id,
-        prop=prop,
-        value=value,
-        schema=schema,
-    )
-    q = q.order_by(stmt_table.c.canonical_id.desc())
-    q = q.order_by(stmt_table.c.entity_id.desc())
-    q = q.order_by(stmt_table.c.prop.desc())
-
-    q = q.offset(offset).limit(limit)
-    result = await conn.stream(q)
-    async for row in result:
-        yield cast(Statement, row._asdict())
-
-
-async def count_entities(
+def count_entities(
     conn: Conn,
     dataset: Optional[Dataset] = None,
     unique: Optional[bool] = None,
@@ -226,10 +147,10 @@ async def count_entities(
         q = q.filter(stmt_table.c.target == target)
     if dataset is not None:
         q = q.filter(stmt_table.c.dataset.in_(dataset.source_names))
-    return await conn.scalar(q)
+    return conn.scalar(q)
 
 
-async def agg_targets_by_country(conn: Conn, dataset: Optional[Dataset] = None):
+def agg_targets_by_country(conn: Conn, dataset: Optional[Dataset] = None):
     """Return the number of targets grouped by country."""
     count = func.count(func.distinct(stmt_table.c.canonical_id))
     q = select(stmt_table.c.value, count)
@@ -240,9 +161,9 @@ async def agg_targets_by_country(conn: Conn, dataset: Optional[Dataset] = None):
         q = q.filter(stmt_table.c.dataset.in_(dataset.source_names))
     q = q.group_by(stmt_table.c.value)
     q = q.order_by(count.desc())
-    res = await conn.execute(q)
+    res = conn.execute(q)
     countries = []
-    for code, count in res.all():
+    for code, count in res.fetchall():
         result = {
             "code": code,
             "count": count,
@@ -252,7 +173,7 @@ async def agg_targets_by_country(conn: Conn, dataset: Optional[Dataset] = None):
     return countries
 
 
-async def agg_targets_by_schema(conn: Conn, dataset: Optional[Dataset] = None):
+def agg_targets_by_schema(conn: Conn, dataset: Optional[Dataset] = None):
     """Return the number of targets grouped by their schema."""
     # FIXME: duplicates entities when there are statements with different schema
     # defined for the same entity.
@@ -263,9 +184,9 @@ async def agg_targets_by_schema(conn: Conn, dataset: Optional[Dataset] = None):
         q = q.filter(stmt_table.c.dataset.in_(dataset.source_names))
     q = q.group_by(stmt_table.c.schema)
     q = q.order_by(count.desc())
-    res = await conn.execute(q)
+    res = conn.execute(q)
     schemata = []
-    for name, count in res.all():
+    for name, count in res.fetchall():
         schema = model.get(name)
         if schema is None:
             continue
@@ -279,39 +200,37 @@ async def agg_targets_by_schema(conn: Conn, dataset: Optional[Dataset] = None):
     return schemata
 
 
-async def all_schemata(conn: Conn, dataset: Optional[Dataset] = None):
+def all_schemata(conn: Conn, dataset: Optional[Dataset] = None):
     """Return all schemata present in the dataset"""
     q = select(func.distinct(stmt_table.c.schema))
     if dataset is not None:
         q = q.filter(stmt_table.c.dataset.in_(dataset.source_names))
     q = q.group_by(stmt_table.c.schema)
-    res = await conn.execute(q)
+    res = conn.execute(q)
     return [s for (s,) in res.all()]
 
 
-async def max_last_seen(
-    conn: Conn, dataset: Optional[Dataset] = None
-) -> Optional[datetime]:
+def max_last_seen(conn: Conn, dataset: Optional[Dataset] = None) -> Optional[datetime]:
     """Return the latest date of the data."""
     q = select(func.max(stmt_table.c.last_seen))
     if dataset is not None:
         q = q.filter(stmt_table.c.dataset.in_(dataset.source_names))
-    return await conn.scalar(q)
+    return conn.scalar(q)
 
 
-async def entities_datasets(conn: Conn, dataset: Optional[Dataset] = None):
+def entities_datasets(conn: Conn, dataset: Optional[Dataset] = None):
     """Return all entity IDs with the dataset they belong to."""
     q = select(stmt_table.c.entity_id, stmt_table.c.dataset)
     if dataset is not None:
         q = q.filter(stmt_table.c.dataset.in_(dataset.source_names))
     q = q.distinct()
-    result = await conn.stream(q)
-    async for row in result:
+    result = conn.execution_options(stream_results=True).execute(q)
+    for row in result:
         entity_id, dataset = row
         yield (entity_id, dataset)
 
 
-async def cleanup_dataset(conn: Conn, dataset: Dataset):
+def cleanup_dataset(conn: Conn, dataset: Dataset):
     # set the entity BASE to the earliest spotting of the entity:
     # table = stmt_table.c.__table__
     # cte = select(
@@ -332,17 +251,17 @@ async def cleanup_dataset(conn: Conn, dataset: Dataset):
     # db.session.execute(q)
 
     # remove non-current statements (in the future we may want to keep them?)
-    last_seen = await max_last_seen(conn, dataset=dataset)
+    last_seen = max_last_seen(conn, dataset=dataset)
     if last_seen is not None:
         pq = delete(stmt_table)
         pq = pq.where(stmt_table.c.dataset == dataset.name)
         pq = pq.where(stmt_table.c.last_seen < last_seen)
-        await conn.execute(pq)
+        conn.execute(pq)
 
 
-async def resolve_all_canonical(conn: Conn, resolver: Resolver):
+def resolve_all_canonical(conn: Conn, resolver: Resolver):
     log.info("Resolving canonical_id in statements...", resolver=resolver)
-    await conn.execute(delete(canonical_table))
+    conn.execute(delete(canonical_table))
     mappings = []
     for canonical in resolver.canonicals():
         for referent in resolver.get_referents(canonical, canonicals=False):
@@ -350,12 +269,12 @@ async def resolve_all_canonical(conn: Conn, resolver: Resolver):
         if len(mappings) > 5000:
             # log.info("INSERTING mappings...")
             stmt = insert(canonical_table).values(mappings)
-            await conn.execute(stmt)
+            conn.execute(stmt)
             mappings = []
 
     if len(mappings):
         stmt = insert(canonical_table).values(mappings)
-        await conn.execute(stmt)
+        conn.execute(stmt)
 
     q = update(stmt_table)
     q = q.where(stmt_table.c.canonical_id != stmt_table.c.entity_id)
@@ -363,33 +282,33 @@ async def resolve_all_canonical(conn: Conn, resolver: Resolver):
     nested_q = nested_q.where(canonical_table.c.entity_id == stmt_table.c.entity_id)
     q = q.where(~nested_q.exists())
     q = q.values({stmt_table.c.canonical_id: stmt_table.c.entity_id})
-    await conn.execute(q)
+    conn.execute(q)
 
     q = update(stmt_table)
     q = q.where(stmt_table.c.entity_id == canonical_table.c.entity_id)
     q = q.where(stmt_table.c.canonical_id != canonical_table.c.canonical_id)
     q = q.values({stmt_table.c.canonical_id: canonical_table.c.canonical_id})
-    await conn.execute(q)
+    conn.execute(q)
 
 
-async def resolve_canonical(conn: Conn, resolver: Resolver, canonical_id: str):
+def resolve_canonical(conn: Conn, resolver: Resolver, canonical_id: str):
     referents = resolver.get_referents(canonical_id)
     log.debug("Resolving: %s" % canonical_id, referents=referents)
     q = update(stmt_table)
     q = q.where(stmt_table.c.entity_id.in_(referents))
     q = q.values({stmt_table.c.canonical_id: canonical_id})
-    await conn.execute(q)
+    conn.execute(q)
 
 
-async def clear_statements(conn: Conn, dataset: Optional[Dataset] = None):
+def clear_statements(conn: Conn, dataset: Optional[Dataset] = None):
     q = delete(stmt_table)
     # TODO: should this do collections?
     if dataset is not None:
         q = q.filter(stmt_table.c.dataset == dataset.name)
-    await conn.execute(q)
+    conn.execute(q)
 
 
-async def unique_conflict(conn: Conn, left_ids, right_ids):
+def unique_conflict(conn: Conn, left_ids, right_ids):
     cteq = select(
         func.distinct(stmt_table.c.entity_id).label("entity_id"),
         func.max(stmt_table.c.unique).label("unique"),
@@ -408,8 +327,8 @@ async def unique_conflict(conn: Conn, left_ids, right_ids):
     q = q.where(left.c.entity_id.in_(left_ids))
     q = q.where(right.c.entity_id.in_(right_ids))
     # print(q)
-    res = await conn.execute(q)
-    data = await res.fetchone()
+    res = conn.execute(q)
+    data = res.fetchone()
     if data is not None:
         return True
     return False

@@ -24,7 +24,7 @@ async def parse_row(context: Context, row):
         country=row.get("Country"),
     )
     await h.apply_address(context, entity, address)
-    await context.emit(entity, target=True)
+    context.emit(entity, target=True)
 
     citation = row.get("FR_Citation")
     sanction = h.make_sanction(context, entity, key=citation)
@@ -32,12 +32,12 @@ async def parse_row(context: Context, row):
     sanction.add("startDate", h.parse_date(row.get("Effective_Date"), FORMATS))
     sanction.add("endDate", h.parse_date(row.get("Expiration_Date"), FORMATS))
     # pprint(row)
-    await context.emit(sanction)
+    context.emit(sanction)
 
 
 async def crawl(context: Context):
     path = context.fetch_resource("source.tsv", context.dataset.data.url)
-    await context.export_resource(path, "text/tsv", title=context.SOURCE_TITLE)
+    context.export_resource(path, "text/tsv", title=context.SOURCE_TITLE)
     with open(path, "r") as csvfile:
         for row in csv.DictReader(csvfile, delimiter="\t"):
             await parse_row(context, row)

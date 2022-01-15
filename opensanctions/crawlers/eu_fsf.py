@@ -73,7 +73,7 @@ async def parse_entry(context: Context, entry):
         passport.add("country", node.get("countryDescription"))
         for remark in node.findall("./remark"):
             passport.add("summary", remark.text)
-        await context.emit(passport)
+        context.emit(passport)
 
     for node in entry.findall("./address"):
         address = parse_address(context, node)
@@ -108,13 +108,13 @@ async def parse_entry(context: Context, entry):
         entity.add("nationality", node.get("countryIso2Code"), quiet=True)
         entity.add("nationality", node.get("countryDescription"), quiet=True)
 
-    await context.emit(entity, target=True, unique=True)
-    await context.emit(sanction)
+    context.emit(entity, target=True, unique=True)
+    context.emit(sanction)
 
 
 async def crawl(context: Context):
     path = context.fetch_resource("source.xml", context.dataset.data.url)
-    await context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
+    context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
     doc = remove_namespace(doc)
     for entry in doc.findall(".//sanctionEntity"):

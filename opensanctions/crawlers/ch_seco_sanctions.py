@@ -134,7 +134,7 @@ async def parse_identity(context: Context, entity, node, places):
         passport.add("summary", doc.findtext("./remark"))
         passport.add("startDate", doc.findtext("./date-of-issue"))
         passport.add("endDate", doc.findtext("./expiry-date"))
-        await context.emit(passport)
+        context.emit(passport)
 
 
 async def parse_entry(context: Context, target, programs, places, updated_at):
@@ -203,22 +203,22 @@ async def parse_entry(context: Context, target, programs, places, updated_at):
 
         # rel_target = context.make(rel.schema.get(res.target).range)
         # rel_target.id = target_id
-        # await context.emit(rel_target)
+        # context.emit(rel_target)
 
         entity.add_schema(rel.schema.get(res.source).range)
-        await context.emit(rel)
+        context.emit(rel)
 
     for identity in node.findall("./identity"):
         await parse_identity(context, entity, identity, places)
 
     entity.add("topics", "sanction")
-    await context.emit(entity, target=True)
-    await context.emit(sanction)
+    context.emit(entity, target=True)
+    context.emit(sanction)
 
 
 async def crawl(context: Context):
     path = context.fetch_resource("source.xml", context.dataset.data.url)
-    await context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
+    context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
     updated_at = doc.getroot().get("date")
 

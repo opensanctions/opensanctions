@@ -89,12 +89,12 @@ async def crawl_person(context: Context, name, url):
                 _, slug = slug.rsplit("(", 1)
             slug = slugify(slug, sep="-")
             group.id = f"eu-cor-group-{slug}"
-            await context.emit(group)
+            context.emit(group)
             member = context.make("Membership")
             member.id = context.make_id("Membership", person.id, group.id)
             member.add("member", person)
             member.add("organization", group)
-            await context.emit(member)
+            context.emit(member)
             continue
 
     address = h.make_address(
@@ -105,7 +105,7 @@ async def crawl_person(context: Context, name, url):
         country=address.get("Country"),
     )
     await h.apply_address(context, person, address)
-    await context.emit(person, target=True)
+    context.emit(person, target=True)
 
 
 async def crawl(context: Context):

@@ -10,7 +10,7 @@ FORMATS = ["%d %b %Y", "%d-%b-%Y"]
 
 async def crawl(context: Context):
     path = context.fetch_resource("source.html", context.dataset.data.url)
-    await context.export_resource(path, HTML, title=context.SOURCE_TITLE)
+    context.export_resource(path, HTML, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         doc = html.parse(fh)
 
@@ -43,5 +43,5 @@ async def crawl(context: Context):
         address = h.make_address(context, full=full, country=nationality)
         await h.apply_address(context, entity, address)
 
-        await context.emit(entity, target=True)
-        await context.emit(sanction)
+        context.emit(entity, target=True)
+        context.emit(sanction)

@@ -39,8 +39,8 @@ async def parse_common(context: Context, node, entity):
     if inclusion_date is not None:
         entity.context["created_at"] = inclusion_date
     entity.add("topics", "sanction")
-    await context.emit(entity, target=True)
-    await context.emit(sanction)
+    context.emit(entity, target=True)
+    context.emit(sanction)
 
 
 async def crawl_index(context: Context):
@@ -58,7 +58,7 @@ async def crawl(context: Context):
         context.log.error("Could not locate XML file", url=context.dataset.url)
         return
     path = context.fetch_resource("source.xml", url)
-    await context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
+    context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     xml = context.parse_resource_xml(path)
 
     for person in xml.findall(".//KyrgyzPhysicPerson"):

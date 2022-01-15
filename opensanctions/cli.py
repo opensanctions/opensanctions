@@ -19,7 +19,7 @@ from opensanctions.core.xref import blocking_xref
 from opensanctions.core.addresses import xref_geocode
 from opensanctions.core.statements import max_last_seen
 from opensanctions.core.statements import resolve_all_canonical, resolve_canonical
-from opensanctions.core.db import with_conn, engine, create_db
+from opensanctions.core.db import with_conn, engine
 
 log = structlog.get_logger(__name__)
 datasets = click.Choice(Dataset.names())
@@ -29,11 +29,10 @@ def coro(f: Any) -> Any:
     @wraps(f)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
         async def run_cmd():
-            await create_db()
             try:
                 await f(*args, **kwargs)
             finally:
-                await engine.dispose()
+                engine.dispose()
 
         return asyncio.run(run_cmd())
 
@@ -53,7 +52,7 @@ def cli(verbose=False, quiet=False):
 
 
 async def _resolve_all(resolver: Resolver):
-    async with with_conn() as conn:
+    with with_conn() as conn:
         await resolve_all_canonical(conn, resolver)
 
 
@@ -174,7 +173,7 @@ async def export_pairs_(dataset, outfile):
 async def explode(canonical_id):
     resolver = await get_resolver()
     resolved_id = resolver.get_canonical(canonical_id)
-    async with with_conn() as conn:
+    with with_conn() as conn:
         for entity_id in resolver.explode(resolved_id):
             log.info("Restore separate entity", entity=entity_id)
             await resolve_canonical(conn, resolver, entity_id)
@@ -214,7 +213,7 @@ async def merge(entity_ids):
 @coro
 async def latest(dataset):
     ds = Dataset.require(dataset)
-    async with with_conn() as conn:
+    with with_conn() as conn:
         latest = await max_last_seen(conn, ds)
         if latest is not None:
             print(latest.isoformat())

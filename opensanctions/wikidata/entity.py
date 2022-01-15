@@ -127,7 +127,7 @@ async def apply_claim(
             for qual in claim.get_qualifier("P1039"):
                 text = await qual.text(context)
                 link.set("relationship", text)
-            await context.emit(link)
+            context.emit(link)
         return
     if claim.property in PROPS_ASSOCIATION:
         link = await make_link(
@@ -145,7 +145,7 @@ async def apply_claim(
             for qual in claim.get_qualifier("P2868"):
                 text = await qual.text(context)
                 link.set("relationship", text)
-            await context.emit(link)
+            context.emit(link)
         return
     # TODO: memberships, employers?
     # if claim.property in IGNORE:
@@ -211,5 +211,5 @@ async def entity_to_ftm(
         return
 
     # context.pprint(entity)
-    await context.emit(proxy, unique=True)
+    context.emit(proxy, unique=True)
     return proxy

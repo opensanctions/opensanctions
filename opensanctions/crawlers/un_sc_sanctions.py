@@ -54,8 +54,8 @@ async def parse_entity(context: Context, node):
     for addr in node.findall("./ENTITY_ADDRESS"):
         await h.apply_address(context, entity, parse_address(context, addr))
 
-    await context.emit(entity, target=True, unique=True)
-    await context.emit(sanction)
+    context.emit(entity, target=True, unique=True)
+    context.emit(sanction)
 
 
 async def parse_individual(context: Context, node):
@@ -90,7 +90,7 @@ async def parse_individual(context: Context, node):
         country = doc.findtext("./COUNTRY_OF_ISSUE")
         country = country or doc.findtext("./ISSUING_COUNTRY")
         passport.add("country", country)
-        await context.emit(passport)
+        context.emit(passport)
 
     for nat in node.findall("./NATIONALITY/VALUE"):
         person.add("nationality", nat.text)
@@ -105,8 +105,8 @@ async def parse_individual(context: Context, node):
             person.add("birthPlace", address.get("full"))
             person.add("country", address.get("country"))
 
-    await context.emit(person, target=True, unique=True)
-    await context.emit(sanction)
+    context.emit(person, target=True, unique=True)
+    context.emit(sanction)
 
 
 def parse_common(context: Context, entity, node):
@@ -134,7 +134,7 @@ def parse_common(context: Context, entity, node):
 
 async def crawl(context: Context):
     path = context.fetch_resource("source.xml", context.dataset.data.url)
-    await context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
+    context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
 
     for node in doc.findall(".//INDIVIDUAL"):

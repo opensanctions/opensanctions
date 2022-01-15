@@ -1,34 +1,14 @@
 import re
 import logging
-import threading
 from lxml import etree
 from urllib.parse import urlparse, urlunparse, parse_qsl, urlencode
-from typing import Dict, Optional
+from typing import Optional
 from banal import ensure_list
-from asyncio import Semaphore
 from datetime import datetime
 from normality import stringify, slugify
-from contextlib import asynccontextmanager
 
 log = logging.getLogger(__name__)
-sema_ctx = threading.local()
 BRACKETED = re.compile(r"\(.*\)")
-
-
-@asynccontextmanager
-async def named_semaphore(name: str, size: int):
-    if not hasattr(sema_ctx, "semaphores"):
-        sema_ctx.semaphores = dict()
-    if name not in sema_ctx.semaphores:
-        # log.warning("New semaphore: %s, limit: %s", name, size)
-        sema_ctx.semaphores[name] = Semaphore(size)
-
-    # if sema_ctx.semaphores[name].locked():
-    #     log.warning("Semaphore locked: %s, limit: %s", name, size)
-
-    async with sema_ctx.semaphores[name] as s:
-        # log.warning("Acquired semaphore: %s, limit: %s", name, size)
-        yield s
 
 
 def iso_datetime(value: str) -> datetime:

@@ -10,7 +10,7 @@ FORMATS = ["%d-%b-%Y"]
 
 async def crawl(context: Context):
     path = context.fetch_resource("source.html", context.dataset.data.url)
-    await context.export_resource(path, HTML, title=context.SOURCE_TITLE)
+    context.export_resource(path, HTML, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         doc = html.parse(fh)
 
@@ -44,5 +44,5 @@ async def crawl(context: Context):
         sanction.add("startDate", h.parse_date(cells.pop("from"), FORMATS))
         sanction.add("endDate", h.parse_date(cells.pop("to"), FORMATS))
 
-        await context.emit(entity, target=True)
-        await context.emit(sanction)
+        context.emit(entity, target=True)
+        context.emit(sanction)

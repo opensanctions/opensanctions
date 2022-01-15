@@ -123,14 +123,14 @@ async def emit_row(
     # if len(row):
     #     context.pprint(row)
     entity.add("topics", "sanction")
-    await context.emit(entity, target=True)
-    await context.emit(sanction)
+    context.emit(entity, target=True)
+    context.emit(sanction)
 
 
 async def crawl(context: Context):
     xls_url = await fetch_xls_url(context)
     path = context.fetch_resource("source.xls", xls_url)
-    await context.export_resource(path, XLS, title=context.SOURCE_TITLE)
+    context.export_resource(path, XLS, title=context.SOURCE_TITLE)
 
     xls = xlrd.open_workbook(path)
     for sheet in xls.sheets():

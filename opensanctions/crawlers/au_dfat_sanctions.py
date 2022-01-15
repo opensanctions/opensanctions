@@ -98,13 +98,13 @@ async def parse_reference(context: Context, reference, rows):
         entity.add("modifiedAt", control_date)
 
     entity.add("topics", "sanction")
-    await context.emit(entity, target=True)
-    await context.emit(sanction)
+    context.emit(entity, target=True)
+    context.emit(sanction)
 
 
 async def crawl(context: Context):
     path = context.fetch_resource("source.xls", context.dataset.data.url)
-    await context.export_resource(path, EXCEL, title=context.SOURCE_TITLE)
+    context.export_resource(path, EXCEL, title=context.SOURCE_TITLE)
     xls = xlrd.open_workbook(path)
     ws = xls.sheet_by_index(0)
     headers = [slugify(h, sep="_") for h in ws.row_values(0)]

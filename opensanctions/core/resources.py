@@ -1,6 +1,6 @@
 from datetime import datetime
 from pantomime import parse_mimetype
-from typing import Optional, TypedDict, cast
+from typing import Optional, TypedDict, Generator, cast
 from sqlalchemy.future import select
 from sqlalchemy.sql.expression import delete
 
@@ -21,7 +21,7 @@ class Resource(TypedDict):
     size: int
 
 
-async def save_resource(
+def save_resource(
     conn: Conn,
     path: str,
     dataset: Dataset,
@@ -34,7 +34,7 @@ async def save_resource(
         q = delete(resource_table)
         q = q.where(resource_table.c.dataset == dataset.name)
         q = q.where(resource_table.c.path == path)
-        await conn.execute(q)
+        conn.execute(q)
         return
 
     resource: Resource = {
@@ -57,16 +57,16 @@ async def save_resource(
             title=istmt.excluded.title,
         ),
     )
-    await conn.execute(stmt)
+    conn.execute(stmt)
     return resource
 
 
-async def all_resources(conn: Conn, dataset: Dataset):
+def all_resources(conn: Conn, dataset: Dataset) -> Generator[Resource, None, None]:
     q = select(resource_table)
     q = q.filter(resource_table.c.dataset == dataset.name)
     q = q.order_by(resource_table.c.path.asc())
-    result = await conn.stream(q)
-    async for row in result:
+    result = conn.execute(q)
+    for row in result.fetchall():
         resource = cast(Resource, row._asdict())
         # Add mime type label for the web UI. Should this live here?
         mime_type = resource.get("mime_type")
@@ -77,7 +77,7 @@ async def all_resources(conn: Conn, dataset: Dataset):
         yield resource
 
 
-async def clear_resources(conn: Conn, dataset: Dataset):
+def clear_resources(conn: Conn, dataset: Dataset):
     pq = delete(resource_table)
     pq = pq.where(resource_table.c.dataset == dataset.name)
-    await conn.execute(pq)
+    conn.execute(pq)

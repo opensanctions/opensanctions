@@ -79,7 +79,7 @@ async def crawl(context: Context):
 
 async def crawl_individuals(context: Context):
     path = context.fetch_resource("individuals.xlsx", PEOPLE_URL)
-    await context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
+    context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
     for record in excel_records(path):
         seq_id = record.pop("internal_seq_id", None)
         if seq_id is None:
@@ -112,15 +112,15 @@ async def crawl_individuals(context: Context):
         for field in ("date_of_designation_in_israel",):
             parse_interval(sanction, record.pop(field, None))
 
-        await context.emit(entity, target=True)
-        await context.emit(sanction)
+        context.emit(entity, target=True)
+        context.emit(sanction)
         if len(record):
             context.pprint(record)
 
 
 async def crawl_organizations(context: Context):
     path = context.fetch_resource("organizations.xlsx", ORG_URL)
-    await context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
+    context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
     seq_ids = {}
     links = []
     for record in excel_records(path):
@@ -187,8 +187,8 @@ async def crawl_organizations(context: Context):
         ):
             parse_interval(sanction, record.pop(field, None))
 
-        await context.emit(entity, target=True)
-        await context.emit(sanction)
+        context.emit(entity, target=True)
+        context.emit(sanction)
         if len(record):
             context.pprint(record)
 
@@ -201,4 +201,4 @@ async def crawl_organizations(context: Context):
         link.id = context.make_id(subject_id, object_id)
         link.add("subject", subject_id)
         link.add("object", object_id)
-        await context.emit(link)
+        context.emit(link)

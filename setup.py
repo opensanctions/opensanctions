@@ -31,6 +31,8 @@ setup(
         "nomenklatura > 2.0.0, < 3.0.0",
         "pantomime",
         "sqlalchemy[mypy,asyncio]",
+        "requests",
+        "types-requests",
         "asyncstdlib",
         "aiosqlite",
         "aiofiles",
