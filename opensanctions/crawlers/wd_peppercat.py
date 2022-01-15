@@ -22,16 +22,13 @@ async def crawl_qid(context, qid, country):
 
 
 async def crawl(context: Context):
-    return
+    # return
     text = await context.fetch_text(context.dataset.data.url)
     tasks = []
     for row in csv.DictReader(io.StringIO(text)):
         qid = row.get("personID")
         country = row.get("catalog")
         tasks.append(crawl_qid(context, qid, country))
-        # if len(tasks) > 10:
-        #     await asyncio.gather(*tasks)
-        #     tasks = []
 
     if len(tasks):
         await asyncio.gather(*tasks)

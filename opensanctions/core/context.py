@@ -37,6 +37,7 @@ class Context(object):
 
     SOURCE_TITLE = "Source data"
     BATCH_SIZE = 1000
+    BATCH_CONCURRENT = 10
 
     def __init__(self, dataset):
         self.dataset = dataset
@@ -200,11 +201,12 @@ class Context(object):
         to store. These are inserted in batches - so the statement cache on the
         context is flushed to the store. All statements that are not flushed
         when a crawl is aborted are not persisted to the database."""
-        self.log.debug("Flushing statements to database...")
-        statements = list(self._statements.values())
-        async with with_conn() as conn:
-            await save_statements(conn, statements)
-        self._statements = {}
+        async with named_semaphore("stmt.upsert", self.BATCH_CONCURRENT):
+            self.log.debug("Flushing statements to database...")
+            statements = list(self._statements.values())
+            async with with_conn() as conn:
+                await save_statements(conn, statements)
+            self._statements = {}
 
     async def emit(
         self, entity: Entity, target: Optional[bool] = None, unique: bool = False
