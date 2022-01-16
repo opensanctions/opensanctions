@@ -17,7 +17,7 @@ def crawl_qid(context, qid, country):
             topics="role.pep",
             country=country,
         )
-        context.log.info("Target entity", entity=entity)
+        # context.log.info("Target entity", entity=entity)
 
 
 def crawl(context: Context):
