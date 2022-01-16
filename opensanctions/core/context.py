@@ -190,11 +190,6 @@ class Context(object):
             for i in range(0, len(statements), self.BATCH_SIZE):
                 batch = statements[i : i + self.BATCH_SIZE]
                 save_statements(conn, batch)
-        # while len(self._statements) > self.BATCH_SIZE:
-        #     batch = self._statements[: self.BATCH_SIZE]
-        #     self._statements = self._statements[self.BATCH_SIZE :]
-        #     with with_conn() as conn:
-        #         save_statements(conn, batch)
         self._statements = {}
 
     def emit(self, entity: Entity, target: Optional[bool] = None, unique: bool = False):

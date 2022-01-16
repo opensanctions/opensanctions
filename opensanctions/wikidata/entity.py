@@ -168,7 +168,7 @@ def entity_to_ftm(
     entity: Dict[str, Any],
     schema: str = "Person",
     target: bool = True,
-    depth: int = 2,
+    depth: int = 1,
     seen: Optional[Set[str]] = None,
     **kwargs: Optional[str],
 ):

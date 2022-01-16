@@ -2,6 +2,7 @@ import json
 from banal import ensure_list
 from functools import cache
 from pantomime.types import JSON
+from requests.exceptions import RequestException
 
 from opensanctions.core import Dataset, Context
 from opensanctions import helpers as h
@@ -12,8 +13,11 @@ SDN = Dataset.require("us_ofac_sdn")
 
 @cache
 def deref_url(context: Context, url):
-    res = context.fetch_response(url)
-    return str(res.url)
+    try:
+        res = context.fetch_response(url)
+        return str(res.url)
+    except RequestException:
+        return url
 
 
 def parse_result(context: Context, result):
