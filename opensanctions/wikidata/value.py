@@ -13,7 +13,7 @@ PRECISION = {
 }
 
 
-async def snak_value_to_string(context: Context, value_type, value):
+def snak_value_to_string(context: Context, value_type, value):
     if value_type is None:
         return None
     elif value_type == "time":
@@ -26,7 +26,7 @@ async def snak_value_to_string(context: Context, value_type, value):
             time = max("1001", time)
         return time
     elif value_type == "wikibase-entityid":
-        return await get_label(context, value.get("id"))
+        return get_label(context, value.get("id"))
     elif value_type == "monolingualtext":
         return value.get("text")
     elif value_type == "quantity":
@@ -36,7 +36,7 @@ async def snak_value_to_string(context: Context, value_type, value):
         unit = value.get("unit", "")
         unit = unit.split("/")[-1]
         if Identifier.QID.match(unit):
-            unit = await get_label(context, unit)
+            unit = get_label(context, unit)
             value = f"{value} {unit}"
         return value
     elif isinstance(value, str):

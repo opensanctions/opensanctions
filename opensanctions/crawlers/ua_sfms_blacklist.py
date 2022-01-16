@@ -17,7 +17,7 @@ def parse_date(date):
     return h.parse_date(date, FORMATS)
 
 
-async def parse_entry(context: Context, entry):
+def parse_entry(context: Context, entry):
     entity = context.make("LegalEntity")
     if entry.findtext("./type-entry") == "2":
         entity = context.make("Person")
@@ -70,7 +70,7 @@ async def parse_entry(context: Context, entry):
 
     for node in entry.findall("./address-list"):
         address = h.make_address(context, full=node.findtext("./address"))
-        await h.apply_address(context, entity, address)
+        h.apply_address(context, entity, address)
 
     for pob in entry.findall("./place-of-birth-list"):
         entity.add_cast("Person", "birthPlace", pob.text)
@@ -89,9 +89,9 @@ async def parse_entry(context: Context, entry):
     context.emit(sanction)
 
 
-async def crawl(context: Context):
+def crawl(context: Context):
     path = context.fetch_resource("source.xml", context.dataset.data.url)
     context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
     for entry in doc.findall(".//acount-list"):
-        await parse_entry(context, entry)
+        parse_entry(context, entry)

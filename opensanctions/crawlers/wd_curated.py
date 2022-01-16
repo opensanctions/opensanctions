@@ -7,7 +7,7 @@ from opensanctions.core import Context
 from opensanctions.wikidata import get_entity, entity_to_ftm
 
 
-async def crawl_row(context, row):
+def crawl_row(context, row):
     qid = row.get("qid", "").strip()
     if not len(qid):
         return
@@ -17,15 +17,14 @@ async def crawl_row(context, row):
     schema = row.get("schema") or "Person"
     topics = [t.strip() for t in row.get("topics", "").split(";")]
     topics = [t for t in topics if len(t)]
-    data = await get_entity(context, qid)
+    data = get_entity(context, qid)
     if data is None:
         return
-    proxy = await entity_to_ftm(context, data, schema=schema, topics=topics)
+    proxy = entity_to_ftm(context, data, schema=schema, topics=topics)
     context.log.info("Curated entity", entity=proxy)
 
 
-async def crawl(context: Context):
-    # text = await context.fetch_text(context.dataset.data.url)
-    res = requests.get(context.dataset.data.url)
-    for row in csv.DictReader(io.StringIO(res.text)):
-        await crawl_row(context, row)
+def crawl(context: Context):
+    text = context.fetch_text(context.dataset.data.url)
+    for row in csv.DictReader(io.StringIO(text)):
+        crawl_row(context, row)

@@ -7,7 +7,7 @@ from opensanctions.util import jointext
 FORMATS = ["%d.%m.%Y"]
 
 
-async def make_entity(context: Context, el, schema, *keys):
+def make_entity(context: Context, el, schema, *keys):
     entity = context.make(schema, target=True)
     entity.id = context.make_slug(el.findtext("./num"), *keys)
     entity.add("notes", el.findtext("./note"))
@@ -20,7 +20,7 @@ async def make_entity(context: Context, el, schema, *keys):
     return entity
 
 
-async def crawl(context: Context):
+def crawl(context: Context):
     path = context.fetch_resource("source.xml", context.dataset.data.url)
     context.export_resource(path, XML, title=context.SOURCE_TITLE)
 
@@ -30,7 +30,7 @@ async def crawl(context: Context):
         mname = el.findtext("./mname")
         lname = el.findtext("./lname")
         name = jointext(fname, mname, lname)
-        entity = await make_entity(context, el, "Person", "person", name)
+        entity = make_entity(context, el, "Person", "person", name)
         entity.add("firstName", fname)
         entity.add("middleName", mname)
         entity.add("lastName", lname)
@@ -42,7 +42,7 @@ async def crawl(context: Context):
 
     for el in doc.findall(".//org"):
         name = el.findtext(".//org_name")
-        entity = await make_entity(context, el, "Organization", "org", name)
+        entity = make_entity(context, el, "Organization", "org", name)
         for tag in (".//org_name", ".//org_name_en"):
             names = el.findtext(tag)
             if names is None:

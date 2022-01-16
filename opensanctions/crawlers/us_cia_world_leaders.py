@@ -8,10 +8,10 @@ UI_URL = "https://www.cia.gov%s"
 DATA_URL = "https://www.cia.gov/page-data%spage-data.json"
 
 
-async def crawl_country(context: Context, params, path, country):
+def crawl_country(context: Context, params, path, country):
     source_url = UI_URL % path
     context.log.debug("Crawling country: %s" % country)
-    res = await context.fetch_json(DATA_URL % path, params=params)
+    res = context.fetch_json(DATA_URL % path, params=params)
     data = res.get("result", {}).get("data", {}).get("page", {})
     blocks = data.get("acf", {}).get("blocks", [{}])[0]
     content = blocks.get("free_form_content", []).get("content")
@@ -47,10 +47,10 @@ async def crawl_country(context: Context, params, path, country):
         context.emit(person, target=True)
 
 
-async def crawl(context: Context):
+def crawl(context: Context):
     params = {"_": settings.RUN_DATE}
-    res = await context.fetch_json(context.dataset.data.url, params=params)
+    res = context.fetch_json(context.dataset.data.url, params=params)
     data = res.get("result", {}).get("data", {})
     for edge in data.get("governments", {}).get("edges", []):
         node = edge.get("node", {})
-        await crawl_country(context, params, node.get("path"), node.get("title"))
+        crawl_country(context, params, node.get("path"), node.get("title"))

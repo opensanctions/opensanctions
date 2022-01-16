@@ -1,6 +1,6 @@
 import json
 from banal import ensure_list
-from asyncstdlib.functools import cache
+from functools import cache
 from pantomime.types import JSON
 
 from opensanctions.core import Dataset, Context
@@ -11,12 +11,12 @@ SDN = Dataset.require("us_ofac_sdn")
 
 
 @cache
-async def deref_url(context: Context, url):
-    res = await context.fetch_response(url)
+def deref_url(context: Context, url):
+    res = context.fetch_response(url)
     return str(res.url)
 
 
-async def parse_result(context: Context, result):
+def parse_result(context: Context, result):
     type_ = result.pop("type", None)
     schema = context.lookup_value("type", type_)
     if schema is None:
@@ -71,12 +71,12 @@ async def parse_result(context: Context, result):
             region=address.get("state"),
             country=address.get("country"),
         )
-        await h.apply_address(context, entity, obj)
+        h.apply_address(context, entity, obj)
 
     for ident in result.pop("ids", []):
         country = ident.pop("country")
         entity.add("country", country)
-        await h.apply_feature(
+        h.apply_feature(
             context,
             entity,
             ident.pop("type"),
@@ -100,7 +100,7 @@ async def parse_result(context: Context, result):
     sanction.add("authority", result.pop("source", None))
 
     # TODO: deref
-    source_url = await deref_url(context, result.pop("source_information_url"))
+    source_url = deref_url(context, result.pop("source_information_url"))
     sanction.add("sourceUrl", source_url)
     result.pop("source_list_url")
 
@@ -114,10 +114,10 @@ async def parse_result(context: Context, result):
         context.pprint(result)
 
 
-async def crawl(context: Context):
+def crawl(context: Context):
     path = context.fetch_resource("source.json", context.dataset.data.url)
     context.export_resource(path, JSON, title=context.SOURCE_TITLE)
     with open(path, "r") as file:
         data = json.load(file)
         for result in data.get("results"):
-            await parse_result(context, result)
+            parse_result(context, result)

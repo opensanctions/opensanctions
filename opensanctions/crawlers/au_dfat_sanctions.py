@@ -63,7 +63,7 @@ def clean_reference(ref):
     raise ValueError()
 
 
-async def parse_reference(context: Context, reference, rows):
+def parse_reference(context: Context, reference, rows):
     entity = context.make("LegalEntity")
     entity.id = context.make_slug(reference)
     # entity.add("sourceUrl", context.dataset.url)
@@ -83,7 +83,7 @@ async def parse_reference(context: Context, reference, rows):
         if addr is not None:
             for part in multi_split(addr, SPLITS):
                 address = h.make_address(context, full=part)
-                await h.apply_address(context, entity, address)
+                h.apply_address(context, entity, address)
         sanction.add("program", row.pop("committees"))
         citizen = multi_split(row.pop("citizenship"), ["a)", "b)", "c)", "d)"])
         entity.add("nationality", citizen, quiet=True)
@@ -102,7 +102,7 @@ async def parse_reference(context: Context, reference, rows):
     context.emit(sanction)
 
 
-async def crawl(context: Context):
+def crawl(context: Context):
     path = context.fetch_resource("source.xls", context.dataset.data.url)
     context.export_resource(path, EXCEL, title=context.SOURCE_TITLE)
     xls = xlrd.open_workbook(path)
@@ -116,4 +116,4 @@ async def crawl(context: Context):
         references[reference].append(row)
 
     for ref, rows in references.items():
-        await parse_reference(context, ref, rows)
+        parse_reference(context, ref, rows)

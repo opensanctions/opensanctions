@@ -2,8 +2,6 @@ import click
 import logging
 import asyncio
 import structlog
-from typing import Any
-from functools import wraps
 from nomenklatura.tui import DedupeApp
 from followthemoney.dedupe import Judgement
 from nomenklatura.resolver import Identifier, Resolver
@@ -19,24 +17,10 @@ from opensanctions.core.xref import blocking_xref
 from opensanctions.core.addresses import xref_geocode
 from opensanctions.core.statements import max_last_seen
 from opensanctions.core.statements import resolve_all_canonical, resolve_canonical
-from opensanctions.core.db import with_conn, engine
+from opensanctions.core.db import with_conn
 
 log = structlog.get_logger(__name__)
 datasets = click.Choice(Dataset.names())
-
-
-def coro(f: Any) -> Any:
-    @wraps(f)
-    def wrapper(*args: Any, **kwargs: Any) -> Any:
-        async def run_cmd():
-            try:
-                await f(*args, **kwargs)
-            finally:
-                engine.dispose()
-
-        return asyncio.run(run_cmd())
-
-    return wrapper
 
 
 @click.group(help="OpenSanctions ETL toolkit")
@@ -56,11 +40,11 @@ def _resolve_all(resolver: Resolver):
         resolve_all_canonical(conn, resolver)
 
 
-async def _process(scope_name: str, crawl: bool = True, export: bool = True) -> None:
+def _process(scope_name: str, crawl: bool = True, export: bool = True) -> None:
     scope = Dataset.require(scope_name)
     if crawl is True:
         for source in scope.sources:
-            await Context(source).crawl()
+            Context(source).crawl()
 
     if export is True:
         resolver = get_resolver()
@@ -75,23 +59,20 @@ async def _process(scope_name: str, crawl: bool = True, export: bool = True) -> 
 
 @cli.command("crawl", help="Crawl entities into the given dataset")
 @click.argument("dataset", default=Dataset.ALL, type=datasets)
-@coro
-async def crawl(dataset):
-    await _process(dataset, export=False)
+def crawl(dataset):
+    _process(dataset, export=False)
 
 
 @cli.command("export", help="Export entities from the given dataset")
 @click.argument("dataset", default=Dataset.ALL, type=datasets)
-@coro
-async def export(dataset):
-    await _process(dataset, crawl=False)
+def export(dataset):
+    _process(dataset, crawl=False)
 
 
 @cli.command("run", help="Run the full process for the given dataset")
 @click.argument("dataset", default=Dataset.ALL, type=datasets)
-@coro
-async def run(dataset):
-    await _process(dataset)
+def run(dataset):
+    _process(dataset)
 
 
 @cli.command("clear", help="Delete all stored data for the given source")
@@ -143,14 +124,14 @@ def dedupe(dataset):
     db = Database(dataset, resolver)
     loader = db.view(dataset)
 
-    async def run_app() -> None:
+    def run_app() -> None:
         app = DedupeApp(
             loader=loader,
             resolver=resolver,
             title="OpenSanction De-duplication",
             log="textual.log",
         )  # type: ignore
-        await app.process_messages()
+        app.process_messages()
 
     asyncio.run(run_app())
 
@@ -178,18 +159,17 @@ def explode(canonical_id):
 
 @cli.command("merge", help="Merge multiple entities as duplicates")
 @click.argument("entity_ids", type=str, nargs=-1)
-@coro
-async def merge(entity_ids):
+def merge(entity_ids):
     if len(entity_ids) < 2:
         return
-    resolver = await get_resolver()
+    resolver = get_resolver()
     canonical_id = resolver.get_canonical(entity_ids[0])
     for other_id in entity_ids[1:]:
         other_id = Identifier.get(other_id)
         other_canonical_id = resolver.get_canonical(other_id)
         if other_canonical_id == canonical_id:
             continue
-        check = await resolver.check_candidate(canonical_id, other_id)
+        check = resolver.check_candidate(canonical_id, other_id)
         if not check:
             log.error(
                 "Cannot merge",
@@ -199,8 +179,8 @@ async def merge(entity_ids):
             )
             return
         log.info("Merge: %s -> %s" % (other_id, canonical_id))
-        canonical_id = await resolver.decide(canonical_id, other_id, Judgement.POSITIVE)
-    await resolver.save()
+        canonical_id = resolver.decide(canonical_id, other_id, Judgement.POSITIVE)
+    resolver.save()
     log.info("Canonical: %s" % canonical_id)
 
 

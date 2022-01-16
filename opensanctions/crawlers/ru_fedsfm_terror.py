@@ -45,7 +45,7 @@ def parse_russian_orgs(context: Context, entity, text):
     parse_name(entity, text)
 
 
-async def parse_russian_persons(context: Context, entity, text):
+def parse_russian_persons(context: Context, entity, text):
     while "," in text:
         text, section = text.rsplit(",", 1)
         fragment = section.strip()
@@ -61,7 +61,7 @@ async def parse_russian_persons(context: Context, entity, text):
             continue
 
         obj = h.make_address(context, full=fragment, country_code="ru")
-        await h.apply_address(context, entity, obj)
+        h.apply_address(context, entity, obj)
     parse_name(entity, text)
 
 
@@ -85,7 +85,7 @@ def parse_foreign_persons(context: Context, entity, text):
     parse_name(entity, text)
 
 
-async def crawl(context: Context):
+def crawl(context: Context):
     path = context.fetch_resource("source.html", context.dataset.data.url)
     context.export_resource(path, HTML, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
@@ -107,7 +107,7 @@ async def crawl(context: Context):
             if sec_id == "russianUL":
                 parse_russian_orgs(context, entity, text)
             if sec_id == "russianFL":
-                await parse_russian_persons(context, entity, text)
+                parse_russian_persons(context, entity, text)
             if sec_id == "foreignUL":
                 parse_foreign_orgs(context, entity, text)
             if sec_id == "foreignFL":

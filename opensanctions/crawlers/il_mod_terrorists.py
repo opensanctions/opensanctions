@@ -72,12 +72,12 @@ def excel_records(path):
                 headers = header_names(cells)
 
 
-async def crawl(context: Context):
-    await crawl_organizations(context)
-    await crawl_individuals(context)
+def crawl(context: Context):
+    crawl_organizations(context)
+    crawl_individuals(context)
 
 
-async def crawl_individuals(context: Context):
+def crawl_individuals(context: Context):
     path = context.fetch_resource("individuals.xlsx", PEOPLE_URL)
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
     for record in excel_records(path):
@@ -118,7 +118,7 @@ async def crawl_individuals(context: Context):
             context.pprint(record)
 
 
-async def crawl_organizations(context: Context):
+def crawl_organizations(context: Context):
     path = context.fetch_resource("organizations.xlsx", ORG_URL)
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
     seq_ids = {}
@@ -178,7 +178,7 @@ async def crawl_organizations(context: Context):
             address = h.make_address(
                 context, street=street, city=city, country_code=entity.first("country")
             )
-            await h.apply_address(context, entity, address)
+            h.apply_address(context, entity, address)
 
         for field in (
             "date_of_temporary_designation",

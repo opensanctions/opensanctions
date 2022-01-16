@@ -39,7 +39,7 @@ def split_items(text, comma=False):
     return items
 
 
-async def parse_row(context: Context, row):
+def parse_row(context: Context, row):
     group_type = row.pop("GroupTypeDescription")
     org_type = row.pop("OrgType", None)
     if group_type == "Individual":
@@ -153,7 +153,7 @@ async def parse_row(context: Context, row):
         postal_code=row.pop("PostCode", None),
         country=first(countries),
     )
-    await h.apply_address(context, entity, address)
+    h.apply_address(context, entity, address)
 
     reg_number = row.pop("BusinessRegNumber", None)
     entity.add_cast("LegalEntity", "registrationNumber", reg_number)
@@ -205,11 +205,11 @@ def make_row(el):
     return row
 
 
-async def crawl(context: Context):
+def crawl(context: Context):
     path = context.fetch_resource("source.xml", context.dataset.data.url)
     context.export_resource(path, XML, title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
     doc = remove_namespace(doc)
 
     for el in doc.findall(".//ConsolidatedList"):
-        await parse_row(context, make_row(el))
+        parse_row(context, make_row(el))

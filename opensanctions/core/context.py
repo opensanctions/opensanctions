@@ -33,7 +33,7 @@ class Context(object):
     """
 
     SOURCE_TITLE = "Source data"
-    BATCH_SIZE = 1000
+    BATCH_SIZE = 5000
     BATCH_CONCURRENT = 5
 
     def __init__(self, dataset):
@@ -42,13 +42,14 @@ class Context(object):
         self.log = structlog.get_logger(
             dataset.name, dataset=self.dataset.name, _ctx=self
         )
-        self._statements: List[Statement] = []
+        self._statements: Dict[str, Statement] = {}
         self._events: List[Dict[str, Any]] = []
         self.http = requests.Session()
         self.http.headers = dict(settings.HEADERS)
 
     def close(self) -> None:
         """Flush and tear down the context."""
+        self.http.close()
         if len(self._events):
             with with_conn() as conn:
                 for event in self._events:
@@ -71,10 +72,19 @@ class Context(object):
                         handle.write(chunk)
         return file_path
 
-    async def fetch_response(self, url):
-        return await self.http_client.get(url)
+    def fetch_response(self, url, headers=None, auth=None):
+        self.log.debug("HTTP GET", url=url)
+        response = self.http.get(
+            url,
+            headers=headers,
+            auth=auth,
+            timeout=settings.HTTP_TIMEOUT,
+            allow_redirects=True,
+        )
+        response.raise_for_status()
+        return response
 
-    async def fetch_text(
+    def fetch_text(
         self,
         url,
         params=None,
@@ -93,15 +103,7 @@ class Context(object):
                     self.log.debug("HTTP cache hit", url=url)
                     return text
 
-        self.log.debug("HTTP GET", url=url)
-        response = self.http.get(
-            url,
-            headers=headers,
-            auth=auth,
-            timeout=settings.HTTP_TIMEOUT,
-            allow_redirects=True,
-        )
-        response.raise_for_status()
+        response = self.fetch_response(url, headers=headers, auth=auth)
         text = response.text
         if text is None:
             return None
@@ -110,14 +112,14 @@ class Context(object):
             save_cache(conn, url, self.dataset, text)
         return text
 
-    async def fetch_json(self, url, **kwargs):
+    def fetch_json(self, url, **kwargs):
         """Fetch the given URL (GET) and decode it as a JSON object."""
-        text = await self.fetch_text(url, **kwargs)
+        text = self.fetch_text(url, **kwargs)
         if text is not None and len(text):
             return json.loads(text)
 
-    async def fetch_html(self, url, **kwargs):
-        text = await self.fetch_text(url, **kwargs)
+    def fetch_html(self, url, **kwargs):
+        text = self.fetch_text(url, **kwargs)
         if text is not None and len(text):
             return html.fromstring(text)
 
@@ -183,11 +185,17 @@ class Context(object):
         to store. These are inserted in batches - so the statement cache on the
         context is flushed to the store. All statements that are not flushed
         when a crawl is aborted are not persisted to the database."""
-        while len(self._statements) > self.BATCH_SIZE:
-            batch = self._statements[: self.BATCH_SIZE]
-            self._statements = self._statements[self.BATCH_SIZE :]
-            with with_conn() as conn:
+        statements = list(self._statements.values())
+        with with_conn() as conn:
+            for i in range(0, len(statements), self.BATCH_SIZE):
+                batch = statements[i : i + self.BATCH_SIZE]
                 save_statements(conn, batch)
+        # while len(self._statements) > self.BATCH_SIZE:
+        #     batch = self._statements[: self.BATCH_SIZE]
+        #     self._statements = self._statements[self.BATCH_SIZE :]
+        #     with with_conn() as conn:
+        #         save_statements(conn, batch)
+        self._statements = {}
 
     def emit(self, entity: Entity, target: Optional[bool] = None, unique: bool = False):
         """Send an FtM entity to the store."""
@@ -198,11 +206,12 @@ class Context(object):
         statements = statements_from_entity(entity, self.dataset, unique=unique)
         if not len(statements):
             raise ValueError("Entity has no properties: %r", entity)
-        self._statements.extend(statements)
+        self._statements.update({s["id"]: s for s in statements})
         self.log.debug("Emitted", entity=entity)
-        self.flush()
+        if len(self._statements) >= (self.BATCH_SIZE * 10):
+            self.flush()
 
-    async def crawl(self) -> None:
+    def crawl(self) -> None:
         """Run the crawler."""
         try:
             with with_conn() as conn:
@@ -210,7 +219,7 @@ class Context(object):
                 clear_resources(conn, self.dataset)
             self.log.info("Begin crawl")
             # Run the dataset:
-            await self.dataset.method(self)
+            self.dataset.method(self)
             self.flush()
             with with_conn() as conn:
                 cleanup_dataset(conn, self.dataset)

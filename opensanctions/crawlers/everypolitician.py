@@ -4,36 +4,36 @@ from opensanctions.core import Context
 from opensanctions import helpers as h
 
 
-async def crawl(context: Context):
-    data = await context.fetch_json(context.dataset.data.url)
+def crawl(context: Context):
+    data = context.fetch_json(context.dataset.data.url)
 
     for country in data:
         for legislature in country.get("legislatures", []):
             code = country.get("code").lower()
             context.log.info("Country: %s" % code)
-            await crawl_legislature(context, code, legislature)
+            crawl_legislature(context, code, legislature)
 
 
-async def crawl_legislature(context: Context, country, legislature):
+def crawl_legislature(context: Context, country, legislature):
     lastmod_ = int(legislature.get("lastmod"))
     lastmod = datetime.utcfromtimestamp(lastmod_)
     entities = {}
 
     url = legislature.get("popolo_url")
     # this isn't being updated, hence long interval:
-    data = await context.fetch_json(url, cache_days=30)
+    data = context.fetch_json(url, cache_days=30)
 
     for person in data.pop("persons", []):
-        await parse_person(context, person, country, entities, lastmod)
+        parse_person(context, person, country, entities, lastmod)
 
     for organization in data.pop("organizations", []):
-        await parse_organization(context, organization, country, entities, lastmod)
+        parse_organization(context, organization, country, entities, lastmod)
 
     events = data.pop("events", [])
     events = {e.get("id"): e for e in events}
 
     for membership in data.pop("memberships", []):
-        await parse_membership(context, membership, entities, events)
+        parse_membership(context, membership, entities, events)
 
 
 def parse_common(context: Context, entity, data, lastmod):
@@ -78,7 +78,7 @@ def parse_common(context: Context, entity, data, lastmod):
             entity.add("phone", h.clean_phones(value))
 
 
-async def parse_person(context: Context, data, country, entities, lastmod):
+def parse_person(context: Context, data, country, entities, lastmod):
     person_id = data.pop("id", None)
     person = context.make("Person")
     person.id = context.make_slug(person_id)
@@ -111,7 +111,7 @@ async def parse_person(context: Context, data, country, entities, lastmod):
     entities[person_id] = person.id
 
 
-async def parse_organization(context: Context, data, country, entities, lastmod):
+def parse_organization(context: Context, data, country, entities, lastmod):
     org_id = data.pop("id", None)
     org_id = context.lookup_value("org_id", org_id, org_id)
     if org_id is None:
@@ -153,7 +153,7 @@ async def parse_organization(context: Context, data, country, entities, lastmod)
     entities[org_id] = organization.id
 
 
-async def parse_membership(context: Context, data, entities, events):
+def parse_membership(context: Context, data, entities, events):
     person_id = entities.get(data.pop("person_id", None))
     organization_id = entities.get(data.pop("organization_id", None))
 

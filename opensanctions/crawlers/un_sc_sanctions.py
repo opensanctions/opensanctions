@@ -43,7 +43,7 @@ def parse_address(context: Context, node):
     )
 
 
-async def parse_entity(context: Context, node):
+def parse_entity(context: Context, node):
     entity = context.make("LegalEntity")
     sanction = parse_common(context, entity, node)
     entity.add("alias", node.findtext("./FIRST_NAME"))
@@ -52,13 +52,13 @@ async def parse_entity(context: Context, node):
         parse_alias(entity, alias)
 
     for addr in node.findall("./ENTITY_ADDRESS"):
-        await h.apply_address(context, entity, parse_address(context, addr))
+        h.apply_address(context, entity, parse_address(context, addr))
 
     context.emit(entity, target=True, unique=True)
     context.emit(sanction)
 
 
-async def parse_individual(context: Context, node):
+def parse_individual(context: Context, node):
     person = context.make("Person")
     sanction = parse_common(context, person, node)
     person.add("title", values(node.find("./TITLE")))
@@ -71,7 +71,7 @@ async def parse_individual(context: Context, node):
         parse_alias(person, alias)
 
     for addr in node.findall("./INDIVIDUAL_ADDRESS"):
-        await h.apply_address(context, person, parse_address(context, addr))
+        h.apply_address(context, person, parse_address(context, addr))
 
     for doc in node.findall("./INDIVIDUAL_DOCUMENT"):
         passport = context.make("Passport")
@@ -132,13 +132,13 @@ def parse_common(context: Context, entity, node):
     return sanction
 
 
-async def crawl(context: Context):
+def crawl(context: Context):
     path = context.fetch_resource("source.xml", context.dataset.data.url)
     context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
 
     for node in doc.findall(".//INDIVIDUAL"):
-        await parse_individual(context, node)
+        parse_individual(context, node)
 
     for node in doc.findall(".//ENTITY"):
-        await parse_entity(context, node)
+        parse_entity(context, node)

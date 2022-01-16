@@ -1,7 +1,7 @@
 import os
 import string
 from urllib.parse import urljoin
-from httpx import HTTPStatusError
+from requests.exceptions import HTTPError
 
 from opensanctions.core import Context
 from opensanctions import helpers as h
@@ -18,24 +18,24 @@ API_URL = "https://api.companieshouse.gov.uk/"
 WEB_URL = "https://beta.companieshouse.gov.uk/register-of-disqualifications/A"
 
 
-async def http_get(context: Context, url, params=None, cache_days=None):
+def http_get(context: Context, url, params=None, cache_days=None):
     try:
-        return await context.fetch_json(
+        return context.fetch_json(
             url,
             params=params,
             auth=AUTH,
             cache_days=cache_days,
         )
-    except HTTPStatusError as err:
+    except HTTPError as err:
         if err.response.status_code in (429, 416):
             raise AbortCrawl()
         context.log.info("HTTP error: %r", err)
 
 
-async def crawl_item(context: Context, listing):
+def crawl_item(context: Context, listing):
     links = listing.get("links", {})
     url = urljoin(API_URL, links.get("self"))
-    data = await http_get(context, url, cache_days=14)
+    data = http_get(context, url, cache_days=14)
     person = context.make("Person")
     _, officer_id = url.rsplit("/", 1)
     person.id = context.make_slug(officer_id)
@@ -71,7 +71,7 @@ async def crawl_item(context: Context, listing):
         region=address.get("region"),
         # country_code=person.first("nationality"),
     )
-    await h.apply_address(context, person, address)
+    h.apply_address(context, person, address)
 
     for disqual in data.pop("disqualifications", []):
         case_id = disqual.get("case_identifier")
@@ -103,7 +103,7 @@ async def crawl_item(context: Context, listing):
     context.emit(person, target=True)
 
 
-async def crawl(context: Context):
+def crawl(context: Context):
     if API_KEY is None:
         context.log.error("Please set $OPENSANCTIONS_COH_API_KEY.")
         return
@@ -116,9 +116,9 @@ async def crawl(context: Context):
                     "start_index": start_index,
                     "items_per_page": 100,
                 }
-                data = await http_get(context, SEARCH_URL, params=params)
+                data = http_get(context, SEARCH_URL, params=params)
                 for item in data.pop("items", []):
-                    await crawl_item(context, item)
+                    crawl_item(context, item)
                 start_index = data["start_index"] + data["items_per_page"]
                 if data["total_results"] < start_index:
                     break

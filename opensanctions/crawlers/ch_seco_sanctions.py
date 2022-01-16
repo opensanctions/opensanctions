@@ -87,14 +87,14 @@ def parse_name(entity, node):
             entity.add("weakAlias", name)
 
 
-async def parse_identity(context: Context, entity, node, places):
+def parse_identity(context: Context, entity, node, places):
     for name in node.findall(".//name"):
         parse_name(entity, name)
 
     for address in node.findall(".//address"):
         place = places.get(address.get("place-id"))
         address = compose_address(context, entity, place, address)
-        await h.apply_address(context, entity, address)
+        h.apply_address(context, entity, address)
 
     for bday in node.findall(".//day-month-year"):
         bval = parse_parts(bday.get("year"), bday.get("month"), bday.get("day"))
@@ -137,7 +137,7 @@ async def parse_identity(context: Context, entity, node, places):
         context.emit(passport)
 
 
-async def parse_entry(context: Context, target, programs, places, updated_at):
+def parse_entry(context: Context, target, programs, places, updated_at):
     entity = context.make("LegalEntity")
     node = target.find("./entity")
     if node is None:
@@ -209,14 +209,14 @@ async def parse_entry(context: Context, target, programs, places, updated_at):
         context.emit(rel)
 
     for identity in node.findall("./identity"):
-        await parse_identity(context, entity, identity, places)
+        parse_identity(context, entity, identity, places)
 
     entity.add("topics", "sanction")
     context.emit(entity, target=True)
     context.emit(sanction)
 
 
-async def crawl(context: Context):
+def crawl(context: Context):
     path = context.fetch_resource("source.xml", context.dataset.data.url)
     context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
@@ -232,4 +232,4 @@ async def crawl(context: Context):
         places[place.get("ssid")] = parse_address(place)
 
     for target in doc.findall("./target"):
-        await parse_entry(context, target, programs, places, updated_at)
+        parse_entry(context, target, programs, places, updated_at)

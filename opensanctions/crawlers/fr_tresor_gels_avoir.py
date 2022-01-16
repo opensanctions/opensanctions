@@ -12,7 +12,7 @@ SCHEMATA = {
 }
 
 
-async def apply_prop(context: Context, entity, sanction, field, value):
+def apply_prop(context: Context, entity, sanction, field, value):
     if field == "ALIAS":
         entity.add("alias", value.pop("Alias"))
     elif field == "SEXE":
@@ -40,7 +40,7 @@ async def apply_prop(context: Context, entity, sanction, field, value):
             full=value.pop("Adresse"),
             country=value.pop("Pays"),
         )
-        await h.apply_address(context, entity, address)
+        h.apply_address(context, entity, address)
     elif field == "LIEU_DE_NAISSANCE":
         entity.add("birthPlace", value.pop("Lieu"))
         entity.add("country", value.pop("Pays"))
@@ -75,7 +75,7 @@ async def apply_prop(context: Context, entity, sanction, field, value):
     #     print(field, value)
 
 
-async def crawl_entity(context: Context, data):
+def crawl_entity(context: Context, data):
     nature = data.pop("Nature")
     schema = SCHEMATA.get(nature)
     entity = context.make(schema)
@@ -87,12 +87,12 @@ async def crawl_entity(context: Context, data):
     for detail in data.pop("RegistreDetail"):
         field = detail.pop("TypeChamp")
         for value in detail.pop("Valeur"):
-            await apply_prop(context, entity, sanction, field, value)
+            apply_prop(context, entity, sanction, field, value)
 
     context.emit(entity, target=True)
 
 
-async def crawl(context):
+def crawl(context):
     path = context.fetch_resource("source.json", context.dataset.data.url)
     context.export_resource(path, JSON, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
@@ -101,4 +101,4 @@ async def crawl(context):
     publications = data.get("Publications")
     # date = publications.get("DatePublication")
     for detail in publications.get("PublicationDetail"):
-        await crawl_entity(context, detail)
+        crawl_entity(context, detail)

@@ -16,7 +16,7 @@ def parse_countries(countries):
     return parsed
 
 
-async def crawl(context: Context):
+def crawl(context: Context):
     for page in count(1):
         url = str(context.dataset.data.url)
         url = url.replace("pPageNumber=1", "pPageNumber=%s" % page)
@@ -24,7 +24,7 @@ async def crawl(context: Context):
             "Accept": "application/json",
             "Referer": "https://www.iadb.org/en/transparency/sanctioned-firms-and-individuals",
         }
-        page_data = await context.fetch_json(url, headers=headers)
+        page_data = context.fetch_json(url, headers=headers)
         ids = []
         for row in page_data:
             for field, value in list(row.items()):

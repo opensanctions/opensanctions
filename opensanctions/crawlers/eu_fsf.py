@@ -23,7 +23,7 @@ def parse_address(context: Context, el):
     )
 
 
-async def parse_entry(context: Context, entry):
+def parse_entry(context: Context, entry):
     subject_type = entry.find("./subjectType")
     schema = context.lookup_value("subject_type", subject_type.get("code"))
     if schema is None:
@@ -77,7 +77,7 @@ async def parse_entry(context: Context, entry):
 
     for node in entry.findall("./address"):
         address = parse_address(context, node)
-        await h.apply_address(context, entity, address)
+        h.apply_address(context, entity, address)
 
         for child in node.getchildren():
             if child.tag in ("regulationSummary"):
@@ -112,10 +112,10 @@ async def parse_entry(context: Context, entry):
     context.emit(sanction)
 
 
-async def crawl(context: Context):
+def crawl(context: Context):
     path = context.fetch_resource("source.xml", context.dataset.data.url)
     context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
     doc = remove_namespace(doc)
     for entry in doc.findall(".//sanctionEntity"):
-        await parse_entry(context, entry)
+        parse_entry(context, entry)

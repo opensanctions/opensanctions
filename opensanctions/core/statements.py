@@ -91,8 +91,8 @@ def statements_from_entity(
 
 
 def save_statements(conn: Conn, values: List[Statement]) -> None:
-    unique = {s["id"]: s for s in values}
-    values = list(unique.values())
+    # unique = {s["id"]: s for s in values}
+    # values = list(unique.values())
     if not len(values):
         return None
     log.debug("Saving statements", size=len(values))

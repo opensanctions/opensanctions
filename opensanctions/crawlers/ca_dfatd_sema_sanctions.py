@@ -6,15 +6,15 @@ from opensanctions.core import Context
 from opensanctions.util import jointext
 
 
-async def crawl(context: Context):
+def crawl(context: Context):
     path = context.fetch_resource("source.xml", context.dataset.data.url)
     context.export_resource(path, XML, title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
     for node in doc.findall(".//record"):
-        await parse_entry(context, node)
+        parse_entry(context, node)
 
 
-async def parse_entry(context, node):
+def parse_entry(context, node):
     entity_name = node.findtext("./Entity")
     if entity_name is not None:
         entity = context.make("LegalEntity")

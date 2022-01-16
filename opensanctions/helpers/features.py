@@ -20,7 +20,7 @@ def _prepare_value(prop, values, date_formats):
     return prepared
 
 
-async def apply_feature(
+def apply_feature(
     context,
     entity,
     feature,

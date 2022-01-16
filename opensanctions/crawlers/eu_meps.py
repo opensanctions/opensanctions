@@ -10,7 +10,7 @@ def split_name(name):
             return first_name, last_name
 
 
-async def crawl_node(context: Context, node):
+def crawl_node(context: Context, node):
     mep_id = node.findtext(".//id")
     person = context.make("Person")
     person.id = context.make_slug(mep_id)
@@ -53,9 +53,9 @@ async def crawl_node(context: Context, node):
         context.emit(membership)
 
 
-async def crawl(context: Context):
+def crawl(context: Context):
     path = context.fetch_resource("source.xml", context.dataset.data.url)
     context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
     for node in doc.findall(".//mep"):
-        await crawl_node(context, node)
+        crawl_node(context, node)

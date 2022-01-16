@@ -6,7 +6,7 @@ from opensanctions import helpers as h
 FORMATS = ("%m/%d/%Y",)
 
 
-async def parse_row(context: Context, row):
+def parse_row(context: Context, row):
     entity = context.make("LegalEntity")
     entity.id = context.make_slug(row.get("Effective_Date"), row.get("Name"))
     entity.add("name", row.get("Name"))
@@ -23,7 +23,7 @@ async def parse_row(context: Context, row):
         region=row.get("State"),
         country=row.get("Country"),
     )
-    await h.apply_address(context, entity, address)
+    h.apply_address(context, entity, address)
     context.emit(entity, target=True)
 
     citation = row.get("FR_Citation")
@@ -35,9 +35,9 @@ async def parse_row(context: Context, row):
     context.emit(sanction)
 
 
-async def crawl(context: Context):
+def crawl(context: Context):
     path = context.fetch_resource("source.tsv", context.dataset.data.url)
     context.export_resource(path, "text/tsv", title=context.SOURCE_TITLE)
     with open(path, "r") as csvfile:
         for row in csv.DictReader(csvfile, delimiter="\t"):
-            await parse_row(context, row)
+            parse_row(context, row)

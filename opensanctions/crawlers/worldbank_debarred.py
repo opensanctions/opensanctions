@@ -33,10 +33,10 @@ def clean_name(text):
     return clean_names
 
 
-async def crawl(context: Context):
+def crawl(context: Context):
     url = context.dataset.data.url
     headers = {"apikey": context.dataset.data.api_key}
-    data = await context.fetch_json(url, headers=headers)
+    data = context.fetch_json(url, headers=headers)
     # TODO write this out to a source.json
     for data in data["response"]["ZPROCSUPP"]:
         # context.pprint(data)
@@ -58,7 +58,7 @@ async def crawl(context: Context):
             country=data.get("COUNTRY_NAME"),
             key=entity.id,
         )
-        await h.apply_address(context, entity, address)
+        h.apply_address(context, entity, address)
 
         sanction = h.make_sanction(context, entity)
         sanction.add("program", data.get("DEBAR_REASON"))

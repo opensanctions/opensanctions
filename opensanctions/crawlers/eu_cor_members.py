@@ -7,9 +7,9 @@ from opensanctions import helpers as h
 FORMATS = ("%d/%m/%Y",)
 
 
-async def crawl_person(context: Context, name, url):
+def crawl_person(context: Context, name, url):
     context.log.debug("Crawling member", name=name, url=url)
-    doc = await context.fetch_html(url)
+    doc = context.fetch_html(url)
     _, person_id = url.rsplit("/", 1)
     person = context.make("Person")
     person.id = context.make_slug(person_id)
@@ -104,12 +104,12 @@ async def crawl_person(context: Context, name, url):
         postal_code=address.get("Posal code"),
         country=address.get("Country"),
     )
-    await h.apply_address(context, person, address)
+    h.apply_address(context, person, address)
     context.emit(person, target=True)
 
 
-async def crawl(context: Context):
-    doc = await context.fetch_html(context.dataset.data.url)
+def crawl(context: Context):
+    doc = context.fetch_html(context.dataset.data.url)
 
     seen = set()
     for link in doc.findall('.//div[@class="people"]//li//a[@class="_fullname"]'):
@@ -118,4 +118,4 @@ async def crawl(context: Context):
         if url in seen:
             continue
         seen.add(url)
-        await crawl_person(context, link.text, url)
+        crawl_person(context, link.text, url)
