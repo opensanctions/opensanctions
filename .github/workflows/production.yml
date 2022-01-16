@@ -7,82 +7,97 @@ on:
 
 jobs:
   data:
+    services:
+      db:
+        image: postgres:14
+        env:
+          POSTGRES_PASSWORD: opensanctions
+          POSTGRES_USER: opensanctions
+          POSTGRES_DB: opensanctions
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    env:
+      OPENSANCTIONS_DATABASE_URI: "postgresql://opensanctions:opensanctions@localhost/opensanctions"
+
     runs-on: ubuntu-latest
+    container: pudo/opensanctions
     steps:
-      - uses: actions/checkout@v2
-        with:
-          ref: main
-      - name: Set up Python
-        uses: actions/setup-python@v1
-        with:
-          python-version: "3.9"
+      # - uses: actions/checkout@v2
+      #   with:
+      #     ref: main
+      # - name: Set up Python
+      #   uses: actions/setup-python@v1
+      #   with:
+      #     python-version: "3.9"
       - name: Install awscli
         run: |
           pip install --upgrade -q awscli
-      - name: Set env
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          OPENSANCTIONS_COH_API_KEY: ${{ secrets.OPENSANCTIONS_COH_API_KEY }}
-          OPENSANCTIONS_DATABASE_URI: ${{ secrets.PRODUCTION_DB_URI }}
-        run: |
-          echo "OPENSANCTIONS_DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
-          echo "OPENSANCTIONS_COH_API_KEY=$OPENSANCTIONS_COH_API_KEY" >> $GITHUB_ENV
-          echo "OPENSANCTIONS_DATABASE_URI=$OPENSANCTIONS_DATABASE_URI" >> $GITHUB_ENV
-          echo "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" >> $GITHUB_ENV
-          echo "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> $GITHUB_ENV
+      # - name: Set env
+      #   env:
+      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     OPENSANCTIONS_COH_API_KEY: ${{ secrets.OPENSANCTIONS_COH_API_KEY }}
+      #   run: |
+      #     echo "OPENSANCTIONS_DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
+      #     echo "OPENSANCTIONS_COH_API_KEY=$OPENSANCTIONS_COH_API_KEY" >> $GITHUB_ENV
+      #     echo "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" >> $GITHUB_ENV
+      #     echo "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> $GITHUB_ENV
       # - name: Fetch database state from data.opensanctions.org
       #   run: |
       #     mkdir -p data/state
       #     aws s3 sync --no-progress s3://data.opensanctions.org/state data/state
-      - name: Crawl data sources
+      - name: Crawl test
+        env:
+          # AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          # AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          OPENSANCTIONS_COH_API_KEY: ${{ secrets.OPENSANCTIONS_COH_API_KEY }}
         run: |
-          docker run \
-            -v `pwd`/data:/opensanctions/data \
-            -e OPENSANCTIONS_COH_API_KEY \
-            -e OPENSANCTIONS_DATE \
-            -e OPENSANCTIONS_DATABASE_URI \
-            pudo/opensanctions \
-            opensanctions crawl
-      - name: Export data dumps
-        run: |
-          docker run \
-            -v `pwd`/data:/opensanctions/data \
-            -e OPENSANCTIONS_DATE \
-            -e OPENSANCTIONS_DATABASE_URI \
-            pudo/opensanctions \
-            opensanctions export
+          opensanctions run us_ofac_sdn
+      # - name: Export data dumps
+      #   run: |
+      #     docker run \
+      #       -v `pwd`/data:/opensanctions/data \
+      #       -e OPENSANCTIONS_DATE \
+      #       -e OPENSANCTIONS_DATABASE_URI \
+      #       pudo/opensanctions \
+      #       opensanctions export
       # - name: Compress database
       #   run: |
       #     sqlite3 -version
       #     sqlite3 data/state/opensanctions.sqlite "VACUUM;"
-      - name: Upload fetched resources to data.opensanctions.org
-        if: ${{ always() }}
-        run: |
-          aws s3 sync --no-progress --cache-control "public, max-age=846000" --acl public-read data/datasets s3://data.opensanctions.org/datasets/$OPENSANCTIONS_DATE
-      - name: Publish data to data.opensanctions.org
-        # aws s3 sync --delete --no-progress --acl public-read data/state s3://data.opensanctions.org/state
-        run: |
-          aws s3 sync --quiet --no-progress --cache-control "public, max-age=84600" --metadata-directive REPLACE --acl public-read data/datasets s3://data.opensanctions.org/datasets/latest
-          aws s3 sync --quiet --delete --no-progress --cache-control "public, max-age=84600" --metadata-directive REPLACE --acl public-read data/datasets s3://data.opensanctions.org/datasets/$OPENSANCTIONS_DATE
-          aws cloudfront create-invalidation --distribution-id ETROMAQBEJS91 --paths "/datasets/latest/*"
-  site:
-    needs: [data]
-    runs-on: ubuntu-latest
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_DEFAULT_REGION: eu-central-1
-      AWS_REGION: eu-central-1
-    defaults:
-      run:
-        working-directory: ./site
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          ref: main
-      - name: Trigger Vercel build of opensanctions/site
-        uses: zzzze/webhook-trigger@master
-        with:
-          webhook_url: ${{ secrets.VERCEL_WEBHOOK }}
-          options: "-X POST"
+      # - name: Upload fetched resources to data.opensanctions.org
+      #   if: ${{ always() }}
+      #   run: |
+      #     aws s3 sync --no-progress --cache-control "public, max-age=846000" --acl public-read data/datasets s3://data.opensanctions.org/datasets/$OPENSANCTIONS_DATE
+      # - name: Publish data to data.opensanctions.org
+      #   # aws s3 sync --delete --no-progress --acl public-read data/state s3://data.opensanctions.org/state
+      #   run: |
+      #     aws s3 sync --quiet --no-progress --cache-control "public, max-age=84600" --metadata-directive REPLACE --acl public-read data/datasets s3://data.opensanctions.org/datasets/latest
+      #     aws s3 sync --quiet --delete --no-progress --cache-control "public, max-age=84600" --metadata-directive REPLACE --acl public-read data/datasets s3://data.opensanctions.org/datasets/$OPENSANCTIONS_DATE
+      #     aws cloudfront create-invalidation --distribution-id ETROMAQBEJS91 --paths "/datasets/latest/*"
+  # site:
+  #   needs: [data]
+  #   runs-on: ubuntu-latest
+  #   env:
+  #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #     AWS_DEFAULT_REGION: eu-central-1
+  #     AWS_REGION: eu-central-1
+  #   defaults:
+  #     run:
+  #       working-directory: ./site
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #       with:
+  #         ref: main
+  #     - name: Trigger Vercel build of opensanctions/site
+  #       uses: zzzze/webhook-trigger@master
+  #       with:
+  #         webhook_url: ${{ secrets.VERCEL_WEBHOOK }}
+  #         options: "-X POST"
