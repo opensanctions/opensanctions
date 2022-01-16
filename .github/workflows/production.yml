@@ -28,16 +28,6 @@ jobs:
     runs-on: ubuntu-latest
     container: pudo/opensanctions
     steps:
-      # - uses: actions/checkout@v2
-      #   with:
-      #     ref: main
-      # - name: Set up Python
-      #   uses: actions/setup-python@v1
-      #   with:
-      #     python-version: "3.9"
-      # - name: Install awscli
-      #   run: |
-      #     pip install --upgrade -q awscli
       - name: Set env
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -48,26 +38,17 @@ jobs:
           echo "OPENSANCTIONS_COH_API_KEY=$OPENSANCTIONS_COH_API_KEY" >> $GITHUB_ENV
           echo "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" >> $GITHUB_ENV
           echo "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> $GITHUB_ENV
-      - name: Fetch and restore database
+      - name: Fetch and restore database from data.opensanctions.org
         run: |
-          aws s3 cp s3://data.opensanctions.org/state/opensanctions.sql.gz previous.sql.gz
+          aws s3 cp --quiet s3://data.opensanctions.org/state/opensanctions.sql.gz previous.sql.gz
           gunzip -c previous.sql.gz | psql $OPENSANCTIONS_DATABASE_URI
           rm -f previous.sql.gz
-      # - name: Fetch database state from data.opensanctions.org
-      #   run: |
-      #     mkdir -p data/state
-      #     aws s3 sync --no-progress s3://data.opensanctions.org/state data/state
       - name: Crawl data sources
         run: |
-          opensanctions crawl us_ofac_sdn
-      # - name: Export data dumps
-      #   run: |
-      #     docker run \
-      #       -v `pwd`/data:/opensanctions/data \
-      #       -e OPENSANCTIONS_DATE \
-      #       -e OPENSANCTIONS_DATABASE_URI \
-      #       pudo/opensanctions \
-      #       opensanctions export
+          opensanctions crawl
+      - name: Export static dump files
+        run: |
+          opensanctions export
       - name: Export database
         run: |
           mkdir -p $OPENSANCTIONS_DATA_PATH/state
@@ -79,9 +60,9 @@ jobs:
       - name: Publish data to data.opensanctions.org
         run: |
           aws s3 sync --no-progress --acl public-read $OPENSANCTIONS_DATA_PATH/state s3://data.opensanctions.org/state
-      #     aws s3 sync --quiet --no-progress --cache-control "public, max-age=84600" --metadata-directive REPLACE --acl public-read data/datasets s3://data.opensanctions.org/datasets/latest
-      #     aws s3 sync --quiet --delete --no-progress --cache-control "public, max-age=84600" --metadata-directive REPLACE --acl public-read data/datasets s3://data.opensanctions.org/datasets/$OPENSANCTIONS_DATE
-      #     aws cloudfront create-invalidation --distribution-id ETROMAQBEJS91 --paths "/datasets/latest/*"
+          aws s3 sync --quiet --no-progress --cache-control "public, max-age=84600" --metadata-directive REPLACE --acl public-read data/datasets s3://data.opensanctions.org/datasets/latest
+          aws s3 sync --quiet --no-progress --cache-control "public, max-age=84600" --metadata-directive REPLACE --acl public-read data/datasets s3://data.opensanctions.org/datasets/$OPENSANCTIONS_DATE
+          aws cloudfront create-invalidation --distribution-id ETROMAQBEJS91 --paths "/datasets/latest/*"
   # site:
   #   needs: [data]
   #   runs-on: ubuntu-latest
