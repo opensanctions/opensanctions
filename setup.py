@@ -43,6 +43,7 @@ setup(
         "xlrd",
         "lxml",
         "lxml-stubs",
+        "awscli",
     ],
     extras_require={
         "dev": [

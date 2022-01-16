@@ -23,7 +23,7 @@ jobs:
           - 5432:5432
 
     env:
-      OPENSANCTIONS_DATABASE_URI: "postgresql://opensanctions:opensanctions@localhost/opensanctions"
+      OPENSANCTIONS_DATABASE_URI: "postgresql://opensanctions:opensanctions@db/opensanctions"
 
     runs-on: ubuntu-latest
     container: pudo/opensanctions
