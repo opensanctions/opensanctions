@@ -35,11 +35,6 @@ def cli(verbose=False, quiet=False):
     setup(log_level=level)
 
 
-def _resolve_all(resolver: Resolver):
-    with engine_tx() as conn:
-        resolve_all_canonical(conn, resolver)
-
-
 def _process(scope_name: str, crawl: bool = True, export: bool = True) -> None:
     scope = Dataset.require(scope_name)
     if crawl is True:
@@ -48,7 +43,8 @@ def _process(scope_name: str, crawl: bool = True, export: bool = True) -> None:
 
     if export is True:
         resolver = get_resolver()
-        _resolve_all(resolver)
+        with engine_tx() as conn:
+            resolve_all_canonical(conn, resolver)
         database = Database(scope, resolver, cached=True)
         database.view(scope)
         for dataset_ in scope.datasets:
@@ -86,7 +82,8 @@ def clear(dataset):
 @cli.command("resolve", help="Apply de-duplication to the statements table")
 def resolve():
     resolver = get_resolver()
-    _resolve_all(resolver)
+    with engine_tx() as conn:
+        resolve_all_canonical(conn, resolver)
 
 
 @cli.command("xref", help="Generate dedupe candidates from the given dataset")
