@@ -16,7 +16,7 @@ from followthemoney.schema import Schema
 
 from opensanctions import settings
 from opensanctions.core.entity import Entity
-from opensanctions.core.db import with_conn
+from opensanctions.core.db import engine_tx, engine_read
 from opensanctions.core.http import check_cache, save_cache, clear_cache
 from opensanctions.core.issues import save_issue, clear_issues
 from opensanctions.core.resources import save_resource, clear_resources
@@ -51,7 +51,7 @@ class Context(object):
         """Flush and tear down the context."""
         self.http.close()
         if len(self._events):
-            with with_conn() as conn:
+            with engine_tx() as conn:
                 for event in self._events:
                     save_issue(conn, event)
 
@@ -94,7 +94,7 @@ class Context(object):
     ):
         url = normalize_url(url, params)
         if cache_days is not None:
-            with with_conn() as conn:
+            with engine_read() as conn:
                 min_cache = max(1, math.ceil(cache_days * 0.8))
                 max_cache = math.ceil(cache_days * 1.2)
                 cache_days = timedelta(days=randint(min_cache, max_cache))
@@ -108,7 +108,7 @@ class Context(object):
         if text is None:
             return None
 
-        with with_conn() as conn:
+        with engine_tx() as conn:
             save_cache(conn, url, self.dataset, text)
         return text
 
@@ -147,7 +147,7 @@ class Context(object):
             self.log.warning("Resource is empty", path=path)
         checksum = digest.hexdigest()
         name = path.relative_to(self.path).as_posix()
-        with with_conn() as conn:
+        with engine_tx() as conn:
             return save_resource(
                 conn, name, self.dataset, checksum, mime_type, size, title
             )
@@ -186,7 +186,7 @@ class Context(object):
         context is flushed to the store. All statements that are not flushed
         when a crawl is aborted are not persisted to the database."""
         statements = list(self._statements.values())
-        with with_conn() as conn:
+        with engine_tx() as conn:
             for i in range(0, len(statements), self.BATCH_SIZE):
                 batch = statements[i : i + self.BATCH_SIZE]
                 save_statements(conn, batch)
@@ -209,14 +209,14 @@ class Context(object):
     def crawl(self) -> None:
         """Run the crawler."""
         try:
-            with with_conn() as conn:
+            with engine_tx() as conn:
                 clear_issues(conn, self.dataset)
                 clear_resources(conn, self.dataset)
             self.log.info("Begin crawl")
             # Run the dataset:
             self.dataset.method(self)
             self.flush()
-            with with_conn() as conn:
+            with engine_tx() as conn:
                 cleanup_dataset(conn, self.dataset)
                 entities = count_entities(conn, dataset=self.dataset)
                 targets = count_entities(conn, dataset=self.dataset, target=True)
@@ -233,7 +233,7 @@ class Context(object):
 
     def clear(self) -> None:
         """Delete all recorded data for a given dataset."""
-        with with_conn() as conn:
+        with engine_tx() as conn:
             clear_statements(conn, self.dataset)
             clear_issues(conn, self.dataset)
             clear_resources(conn, self.dataset)

@@ -5,7 +5,7 @@ from urllib.parse import urljoin
 from followthemoney import model
 
 from opensanctions import settings
-from opensanctions.core.db import with_conn
+from opensanctions.core.db import engine_read
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.issues import all_issues, agg_issues_by_level
 from opensanctions.core.resources import all_resources
@@ -18,7 +18,7 @@ log = structlog.get_logger(__name__)
 
 @cache
 def dataset_to_index(dataset: Dataset) -> Dict[str, Any]:
-    with with_conn() as conn:
+    with engine_read() as conn:
         issue_levels = agg_issues_by_level(conn, dataset)
         target_count = count_entities(conn, dataset=dataset, target=True)
         last_change = max_last_seen(conn, dataset)
@@ -47,7 +47,7 @@ def export_metadata():
     for dataset in Dataset.all():
         datasets.append(dataset_to_index(dataset))
 
-    with with_conn() as conn:
+    with engine_read() as conn:
         issues = list(all_issues(conn))
         schemata = all_schemata(conn)
 

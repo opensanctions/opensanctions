@@ -4,7 +4,7 @@ from os import PathLike
 from banal import as_bool
 
 from opensanctions import settings
-from opensanctions.core.db import with_conn
+from opensanctions.core.db import engine_tx, engine_read
 from opensanctions.core.statements import all_statements, clear_statements
 from opensanctions.core.statements import save_statements, stmt_key
 from opensanctions.util import iso_datetime
@@ -34,7 +34,7 @@ def export_statements():
 def export_statements_path(path: PathLike):
     stmt_count = 0
     with open(path, "w", encoding=settings.ENCODING) as fh:
-        with with_conn() as conn:
+        with engine_read() as conn:
             writer = csv.writer(fh, dialect=csv.unix_dialect)
             writer.writerow(COLUMNS)
             buffer = []
@@ -64,7 +64,7 @@ def export_statements_path(path: PathLike):
 
 
 def import_statements_path(path: PathLike):
-    with with_conn() as conn:
+    with engine_tx() as conn:
         clear_statements(conn)
         stmt_count = 0
         with open(path, "r", encoding=settings.ENCODING) as fh:

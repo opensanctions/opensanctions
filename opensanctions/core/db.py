@@ -12,7 +12,7 @@ KEY_LEN = 255
 VALUE_LEN = 65535
 Conn = Connection
 
-__all__ = ["Conn", "with_conn", "create_db", "upsert_func"]
+__all__ = ["Conn", "engine_tx", "create_db", "upsert_func"]
 
 assert (
     settings.DATABASE_URI is not None
@@ -32,8 +32,14 @@ def create_db():
 
 
 @contextmanager
-def with_conn():
+def engine_tx():
     with engine.begin() as conn:
+        yield conn
+
+
+@contextmanager
+def engine_read():
+    with engine.connect() as conn:
         yield conn
 
 

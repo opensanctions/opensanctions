@@ -17,7 +17,7 @@ from opensanctions.core.xref import blocking_xref
 from opensanctions.core.addresses import xref_geocode
 from opensanctions.core.statements import max_last_seen
 from opensanctions.core.statements import resolve_all_canonical, resolve_canonical
-from opensanctions.core.db import with_conn
+from opensanctions.core.db import engine_tx
 
 log = structlog.get_logger(__name__)
 datasets = click.Choice(Dataset.names())
@@ -36,7 +36,7 @@ def cli(verbose=False, quiet=False):
 
 
 def _resolve_all(resolver: Resolver):
-    with with_conn() as conn:
+    with engine_tx() as conn:
         resolve_all_canonical(conn, resolver)
 
 
@@ -150,7 +150,7 @@ def export_pairs_(dataset, outfile):
 def explode(canonical_id):
     resolver = get_resolver()
     resolved_id = resolver.get_canonical(canonical_id)
-    with with_conn() as conn:
+    with engine_tx() as conn:
         for entity_id in resolver.explode(resolved_id):
             log.info("Restore separate entity", entity=entity_id)
             resolve_canonical(conn, resolver, entity_id)
@@ -188,7 +188,7 @@ def merge(entity_ids):
 @click.argument("dataset", default=Dataset.DEFAULT, type=datasets)
 def latest(dataset):
     ds = Dataset.require(dataset)
-    with with_conn() as conn:
+    with engine_tx() as conn:
         latest = max_last_seen(conn, ds)
         if latest is not None:
             print(latest.isoformat())

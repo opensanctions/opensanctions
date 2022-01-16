@@ -4,9 +4,10 @@ from itertools import combinations
 from collections import defaultdict
 from followthemoney.dedupe.judgement import Judgement
 from nomenklatura.resolver import Resolver, Identifier, StrIdent
+from nomenklatura.util import is_qid
 
 from opensanctions import settings
-from opensanctions.core.db import engine
+from opensanctions.core.db import engine_read, engine_tx
 from opensanctions.core.statements import resolve_canonical, entities_datasets
 from opensanctions.core.entity import Entity
 from opensanctions.core.dataset import Dataset
@@ -24,7 +25,7 @@ class UniqueResolver(Resolver[Entity]):
         check = super().check_candidate(left, right)
         if not check:
             return False
-        if Identifier.QID.match(str(left)) and Identifier.QID.match(str(right)):
+        if is_qid(str(left)) and is_qid(str(right)):
             return False
         # lefts = [c.id for c in self.connected(left)]
         # rights = [c.id for c in self.connected(right)]
@@ -43,7 +44,7 @@ class UniqueResolver(Resolver[Entity]):
     ) -> Identifier:
         target = super().decide(left_id, right_id, judgement, user=user, score=score)
         if judgement == Judgement.POSITIVE:
-            with engine.begin() as conn:
+            with engine_tx() as conn:
                 resolve_canonical(conn, self, target.id)
         return target
 
@@ -57,7 +58,7 @@ def export_pairs(dataset: Dataset):
     resolver = get_resolver()
     db = Database(dataset, resolver, cached=True)
     datasets: Dict[str, Set[Dataset]] = defaultdict(set)
-    with engine.begin() as conn:
+    with engine_read() as conn:
         for entity_id, ds in entities_datasets(conn, dataset):
             dsa = Dataset.get(ds)
             if dsa is not None:

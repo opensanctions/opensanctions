@@ -1,9 +1,9 @@
 import structlog
 from prefixdate import Precision
-from nomenklatura.resolver import Identifier
-from opensanctions.wikidata.api import get_label
+from nomenklatura.util import is_qid
 
 from opensanctions.core import Context
+from opensanctions.wikidata.api import get_label
 
 log = structlog.getLogger(__name__)
 PRECISION = {
@@ -35,7 +35,7 @@ def snak_value_to_string(context: Context, value_type, value):
         value = value.lstrip("+")
         unit = value.get("unit", "")
         unit = unit.split("/")[-1]
-        if Identifier.QID.match(unit):
+        if is_qid(unit):
             unit = get_label(context, unit)
             value = f"{value} {unit}"
         return value
