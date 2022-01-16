@@ -22,7 +22,11 @@ def crawl_qid(context, qid, country):
 
 def crawl(context: Context):
     text = context.fetch_text(context.dataset.data.url)
+    prev_country = None
     for row in csv.DictReader(io.StringIO(text)):
         qid = row.get("personID")
         country = row.get("catalog")
+        if country != prev_country:
+            context.log.info("Crawl country", country=country)
+            prev_country = country
         crawl_qid(context, qid, country)
