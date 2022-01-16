@@ -28,14 +28,14 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: pudo/opensanctions:latest
-          cache-from: type=registry,ref=pudo/opensanctions:latest
-          cache-to: type=inline
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   test:
     runs-on: ubuntu-latest
     services:
       db:
-        image: postgres:14
+        image: postgres:13
         env:
           POSTGRES_PASSWORD: opensanctions
           POSTGRES_USER: opensanctions

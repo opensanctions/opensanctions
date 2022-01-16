@@ -9,7 +9,7 @@ jobs:
   data:
     services:
       db:
-        image: postgres:14
+        image: postgres:13
         env:
           POSTGRES_PASSWORD: opensanctions
           POSTGRES_USER: opensanctions
