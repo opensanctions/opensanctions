@@ -20,6 +20,9 @@ INTERVAL = 84600
 # HTTP cache expiry may last multiple runs
 CACHE_EXPIRE = INTERVAL * 7
 
+# Processing threads
+THREADS = 4
+
 # All data storage (e.g. a Docker volume mount)
 DATA_PATH = Path.cwd().joinpath("data")
 DATA_PATH = Path(env.get("OPENSANCTIONS_DATA_PATH", DATA_PATH)).resolve()

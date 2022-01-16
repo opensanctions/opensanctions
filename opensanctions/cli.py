@@ -4,8 +4,10 @@ import asyncio
 import structlog
 from nomenklatura.tui import DedupeApp
 from followthemoney.dedupe import Judgement
-from nomenklatura.resolver import Identifier, Resolver
+from nomenklatura.resolver import Identifier
+from concurrent.futures import wait, ThreadPoolExecutor
 
+from opensanctions import settings
 from opensanctions.core import Dataset, Context, setup
 from opensanctions.exporters import export_metadata, export_dataset
 from opensanctions.exporters.statements import export_statements, export_statements_path
@@ -35,40 +37,56 @@ def cli(verbose=False, quiet=False):
     setup(log_level=level)
 
 
-def _process(scope_name: str, crawl: bool = True, export: bool = True) -> None:
-    scope = Dataset.require(scope_name)
-    if crawl is True:
-        for source in scope.sources:
-            Context(source).crawl()
+def _process(
+    scope_name: str,
+    crawl: bool = True,
+    export: bool = True,
+    threads: int = settings.THREADS,
+) -> None:
+    with ThreadPoolExecutor(max_workers=threads) as executor:
+        scope = Dataset.require(scope_name)
+        if crawl is True:
+            futures = []
+            for source in scope.sources:
+                ctx = Context(source)
+                # ctx.crawl()
+                futures.append(executor.submit(ctx.crawl))
+            wait(futures)
 
-    if export is True:
-        resolver = get_resolver()
-        with engine_tx() as conn:
-            resolve_all_canonical(conn, resolver)
-        database = Database(scope, resolver, cached=True)
-        database.view(scope)
-        for dataset_ in scope.datasets:
-            export_dataset(dataset_, database)
-        export_statements()
-        export_metadata()
+        if export is True:
+            resolver = get_resolver()
+            with engine_tx() as conn:
+                resolve_all_canonical(conn, resolver)
+            database = Database(scope, resolver, cached=True)
+            database.view(scope)
+            futures = []
+            for dataset_ in scope.datasets:
+                # export_dataset(dataset_, database)
+                futures.append(executor.submit(export_dataset, dataset_, database))
+            futures.append(executor.submit(export_statements))
+            futures.append(executor.submit(export_metadata))
+            wait(futures)
 
 
 @cli.command("crawl", help="Crawl entities into the given dataset")
 @click.argument("dataset", default=Dataset.ALL, type=datasets)
-def crawl(dataset):
-    _process(dataset, export=False)
+@click.option("-t", "--threads", type=int, default=settings.THREADS)
+def crawl(dataset, threads):
+    _process(dataset, export=False, threads=threads)
 
 
 @cli.command("export", help="Export entities from the given dataset")
 @click.argument("dataset", default=Dataset.ALL, type=datasets)
-def export(dataset):
-    _process(dataset, crawl=False)
+@click.option("-t", "--threads", type=int, default=settings.THREADS)
+def export(dataset, threads):
+    _process(dataset, crawl=False, threads=threads)
 
 
 @cli.command("run", help="Run the full process for the given dataset")
 @click.argument("dataset", default=Dataset.ALL, type=datasets)
-def run(dataset):
-    _process(dataset)
+@click.option("-t", "--threads", type=int, default=settings.THREADS)
+def run(dataset, threads):
+    _process(dataset, threads=threads)
 
 
 @cli.command("clear", help="Delete all stored data for the given source")
