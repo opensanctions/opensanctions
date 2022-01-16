@@ -35,9 +35,9 @@ jobs:
       #   uses: actions/setup-python@v1
       #   with:
       #     python-version: "3.9"
-      - name: Install awscli
-        run: |
-          pip install --upgrade -q awscli
+      # - name: Install awscli
+      #   run: |
+      #     pip install --upgrade -q awscli
       - name: Set env
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -48,15 +48,15 @@ jobs:
           echo "OPENSANCTIONS_COH_API_KEY=$OPENSANCTIONS_COH_API_KEY" >> $GITHUB_ENV
           echo "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" >> $GITHUB_ENV
           echo "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> $GITHUB_ENV
+      # - name: Fetch and restore database
+      #   run: |
+      #     aws s3 sync --no-progress s3://data.opensanctions.org/state/opensanctions.sql.gz previous.sql.gz
+      #     gunzip -c previous.sql.gz | psql $OPENSANCTIONS_DATABASE_URI
       # - name: Fetch database state from data.opensanctions.org
       #   run: |
       #     mkdir -p data/state
       #     aws s3 sync --no-progress s3://data.opensanctions.org/state data/state
       - name: Crawl test
-        env:
-          # AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          # AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          OPENSANCTIONS_COH_API_KEY: ${{ secrets.OPENSANCTIONS_COH_API_KEY }}
         run: |
           opensanctions crawl us_ofac_sdn
       # - name: Export data dumps
@@ -70,7 +70,7 @@ jobs:
       - name: Export database
         run: |
           mkdir -p $OPENSANCTIONS_DATA_PATH/state
-          pg_dump -c -O -x --compress=3 $OPENSANCTIONS_DATABASE_URI >data/state/opensanctions.sql.gz
+          pg_dump -c -O -x --compress=3 -f $OPENSANCTIONS_DATA_PATH/state/opensanctions.sql.gz $OPENSANCTIONS_DATABASE_URI
       - name: Upload fetched resources to data.opensanctions.org
         if: ${{ always() }}
         run: |
