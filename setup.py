@@ -33,6 +33,7 @@ setup(
         "sqlalchemy[mypy]",
         "requests[security]",
         "types-requests",
+        "psycopg2-binary",
         "certifi",
         "addressformatting",
         "prefixdate",
