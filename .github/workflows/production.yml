@@ -2,7 +2,7 @@ name: production
 
 on:
   schedule:
-    - cron: "0 3 * * *"
+    - cron: "0 1 * * *"
   workflow_dispatch: {}
 
 jobs:
@@ -63,23 +63,23 @@ jobs:
           aws s3 sync --quiet --no-progress --cache-control "public, max-age=84600" --metadata-directive REPLACE --acl public-read data/datasets s3://data.opensanctions.org/datasets/latest
           aws s3 sync --quiet --no-progress --cache-control "public, max-age=84600" --metadata-directive REPLACE --acl public-read data/datasets s3://data.opensanctions.org/datasets/$OPENSANCTIONS_DATE
           aws cloudfront create-invalidation --distribution-id ETROMAQBEJS91 --paths "/datasets/latest/*"
-  # site:
-  #   needs: [data]
-  #   runs-on: ubuntu-latest
-  #   env:
-  #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  #     AWS_DEFAULT_REGION: eu-central-1
-  #     AWS_REGION: eu-central-1
-  #   defaults:
-  #     run:
-  #       working-directory: ./site
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #       with:
-  #         ref: main
-  #     - name: Trigger Vercel build of opensanctions/site
-  #       uses: zzzze/webhook-trigger@master
-  #       with:
-  #         webhook_url: ${{ secrets.VERCEL_WEBHOOK }}
-  #         options: "-X POST"
+  site:
+    needs: [data]
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: eu-central-1
+      AWS_REGION: eu-central-1
+    defaults:
+      run:
+        working-directory: ./site
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: main
+      - name: Trigger Vercel build of opensanctions/site
+        uses: zzzze/webhook-trigger@master
+        with:
+          webhook_url: ${{ secrets.VERCEL_WEBHOOK }}
+          options: "-X POST"
