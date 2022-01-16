@@ -58,7 +58,7 @@ jobs:
           # AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           OPENSANCTIONS_COH_API_KEY: ${{ secrets.OPENSANCTIONS_COH_API_KEY }}
         run: |
-          opensanctions run us_ofac_sdn
+          opensanctions crawl us_ofac_sdn
       # - name: Export data dumps
       #   run: |
       #     docker run \
@@ -69,12 +69,12 @@ jobs:
       #       opensanctions export
       - name: Export database
         run: |
-          mkdir -p data/state
+          mkdir -p $OPENSANCTIONS_DATA_PATH/state
           pg_dump -c -O -x --compress=3 $OPENSANCTIONS_DATABASE_URI >data/state/opensanctions.sql.gz
       - name: Upload fetched resources to data.opensanctions.org
         if: ${{ always() }}
         run: |
-          aws s3 sync --no-progress --cache-control "public, max-age=846000" --acl public-read data/datasets s3://data.opensanctions.org/datasets/$OPENSANCTIONS_DATE
+          aws s3 sync --no-progress --cache-control "public, max-age=846000" --acl public-read $OPENSANCTIONS_DATA_PATH/datasets s3://data.opensanctions.org/datasets/$OPENSANCTIONS_DATE
       # - name: Publish data to data.opensanctions.org
       #   # aws s3 sync --delete --no-progress --acl public-read data/state s3://data.opensanctions.org/state
       #   run: |
