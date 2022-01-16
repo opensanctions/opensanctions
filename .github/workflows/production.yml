@@ -48,15 +48,16 @@ jobs:
           echo "OPENSANCTIONS_COH_API_KEY=$OPENSANCTIONS_COH_API_KEY" >> $GITHUB_ENV
           echo "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" >> $GITHUB_ENV
           echo "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> $GITHUB_ENV
-      # - name: Fetch and restore database
-      #   run: |
-      #     aws s3 sync --no-progress s3://data.opensanctions.org/state/opensanctions.sql.gz previous.sql.gz
-      #     gunzip -c previous.sql.gz | psql $OPENSANCTIONS_DATABASE_URI
+      - name: Fetch and restore database
+        run: |
+          aws s3 sync --no-progress s3://data.opensanctions.org/state/opensanctions.sql.gz previous.sql.gz
+          gunzip -c previous.sql.gz | psql $OPENSANCTIONS_DATABASE_URI
+          rm -f previous.sql.gz
       # - name: Fetch database state from data.opensanctions.org
       #   run: |
       #     mkdir -p data/state
       #     aws s3 sync --no-progress s3://data.opensanctions.org/state data/state
-      - name: Crawl test
+      - name: Crawl data sources
         run: |
           opensanctions crawl us_ofac_sdn
       # - name: Export data dumps
@@ -77,7 +78,7 @@ jobs:
           aws s3 sync --no-progress --cache-control "public, max-age=846000" --acl public-read $OPENSANCTIONS_DATA_PATH/datasets s3://data.opensanctions.org/datasets/$OPENSANCTIONS_DATE
       - name: Publish data to data.opensanctions.org
         run: |
-          aws s3 sync --delete --no-progress --acl public-read $OPENSANCTIONS_DATA_PATH/state s3://data.opensanctions.org/state
+          aws s3 sync --no-progress --acl public-read $OPENSANCTIONS_DATA_PATH/state s3://data.opensanctions.org/state
       #     aws s3 sync --quiet --no-progress --cache-control "public, max-age=84600" --metadata-directive REPLACE --acl public-read data/datasets s3://data.opensanctions.org/datasets/latest
       #     aws s3 sync --quiet --delete --no-progress --cache-control "public, max-age=84600" --metadata-directive REPLACE --acl public-read data/datasets s3://data.opensanctions.org/datasets/$OPENSANCTIONS_DATE
       #     aws cloudfront create-invalidation --distribution-id ETROMAQBEJS91 --paths "/datasets/latest/*"
