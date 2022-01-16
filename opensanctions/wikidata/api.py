@@ -21,7 +21,7 @@ def get_entity(context: Context, qid: str) -> Optional[Dict[str, Any]]:
     data = wikibase_getentities(
         context,
         qid,
-        cache_days=10,
+        cache_days=14,
     )
     return data.get("entities", {}).get(qid)
 
@@ -31,7 +31,7 @@ def get_label(context: Context, qid: str) -> Optional[str]:
     data = wikibase_getentities(
         context,
         qid,
-        cache_days=50,
+        cache_days=100,
         props="labels",
     )
     entity = data.get("entities", {}).get(qid)

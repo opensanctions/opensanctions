@@ -10,7 +10,7 @@ def crawl_qid(context, qid, country):
         return
     data = get_entity(context, qid)
     if data is not None:
-        entity = entity_to_ftm(
+        entity_to_ftm(
             context,
             data,
             position=data.get("position"),

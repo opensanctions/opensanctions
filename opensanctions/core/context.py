@@ -95,8 +95,8 @@ class Context(object):
         url = normalize_url(url, params)
         if cache_days is not None:
             with engine_read() as conn:
-                min_cache = max(1, math.ceil(cache_days * 0.8))
-                max_cache = math.ceil(cache_days * 1.2)
+                min_cache = max(1, math.ceil(cache_days * 0.7))
+                max_cache = math.ceil(cache_days * 1.3)
                 cache_days = timedelta(days=randint(min_cache, max_cache))
                 text = check_cache(conn, url, cache_days)
                 if text is not None:
