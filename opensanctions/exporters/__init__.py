@@ -1,4 +1,3 @@
-import aiofiles
 import structlog
 
 from opensanctions import settings

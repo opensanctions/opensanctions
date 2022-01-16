@@ -1,5 +1,4 @@
 import json
-import aiofiles
 from datetime import date, datetime
 
 from opensanctions import settings

@@ -1,6 +1,5 @@
 import io
 import csv
-import aiocsv
 from followthemoney.types import registry
 
 from opensanctions.exporters.common import Exporter

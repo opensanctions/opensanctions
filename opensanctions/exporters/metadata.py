@@ -1,4 +1,3 @@
-import aiofiles
 import structlog
 from typing import Any, Dict
 from functools import cache

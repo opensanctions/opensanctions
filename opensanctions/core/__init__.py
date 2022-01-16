@@ -1,4 +1,3 @@
-import asyncio
 import structlog
 from opensanctions import settings
 from opensanctions.core.dataset import Dataset
