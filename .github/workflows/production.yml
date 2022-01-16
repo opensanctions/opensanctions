@@ -50,7 +50,7 @@ jobs:
           echo "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> $GITHUB_ENV
       - name: Fetch and restore database
         run: |
-          aws s3 sync --no-progress s3://data.opensanctions.org/state/opensanctions.sql.gz previous.sql.gz
+          aws s3 cp s3://data.opensanctions.org/state/opensanctions.sql.gz previous.sql.gz
           gunzip -c previous.sql.gz | psql $OPENSANCTIONS_DATABASE_URI
           rm -f previous.sql.gz
       # - name: Fetch database state from data.opensanctions.org
