@@ -51,9 +51,9 @@ def cli(verbose=False, quiet=False):
     setup(log_level=level)
 
 
-async def _resolve_all(resolver: Resolver):
+def _resolve_all(resolver: Resolver):
     with with_conn() as conn:
-        await resolve_all_canonical(conn, resolver)
+        resolve_all_canonical(conn, resolver)
 
 
 async def _process(scope_name: str, crawl: bool = True, export: bool = True) -> None:
@@ -63,14 +63,14 @@ async def _process(scope_name: str, crawl: bool = True, export: bool = True) -> 
             await Context(source).crawl()
 
     if export is True:
-        resolver = await get_resolver()
-        await _resolve_all(resolver)
+        resolver = get_resolver()
+        _resolve_all(resolver)
         database = Database(scope, resolver, cached=True)
-        await database.view(scope)
+        database.view(scope)
         for dataset_ in scope.datasets:
-            await export_dataset(dataset_, database)
-        await export_statements()
-        await export_metadata()
+            export_dataset(dataset_, database)
+        export_statements()
+        export_metadata()
 
 
 @cli.command("crawl", help="Crawl entities into the given dataset")
@@ -96,88 +96,84 @@ async def run(dataset):
 
 @cli.command("clear", help="Delete all stored data for the given source")
 @click.argument("dataset", default=Dataset.ALL, type=datasets)
-@coro
-async def clear(dataset):
+def clear(dataset):
     dataset = Dataset.require(dataset)
     for source in dataset.sources:
-        await Context(source).clear()
+        Context(source).clear()
 
 
 @cli.command("resolve", help="Apply de-duplication to the statements table")
-@coro
-async def resolve():
-    resolver = await get_resolver()
-    await _resolve_all(resolver)
+def resolve():
+    resolver = get_resolver()
+    _resolve_all(resolver)
 
 
 @cli.command("xref", help="Generate dedupe candidates from the given dataset")
 @click.argument("dataset", default=Dataset.DEFAULT, type=datasets)
 @click.option("-f", "--fuzzy", is_flag=True, type=bool, default=False)
 @click.option("-l", "--limit", type=int, default=5000)
-@coro
-async def xref(dataset, fuzzy, limit):
+def xref(dataset, fuzzy, limit):
     dataset = Dataset.require(dataset)
-    await blocking_xref(dataset, limit=limit, fuzzy=fuzzy)
+    blocking_xref(dataset, limit=limit, fuzzy=fuzzy)
 
 
 @cli.command("xref-geocode", help="Deduplicate addresses using geocoding")
 @click.argument("dataset", default=Dataset.DEFAULT, type=datasets)
-@coro
-async def geocode(dataset):
+def geocode(dataset):
     dataset = Dataset.require(dataset)
-    await xref_geocode(dataset)
+    resolver = get_resolver()
+    xref_geocode(dataset, resolver)
 
 
 @cli.command("xref-prune", help="Remove dedupe candidates")
 @click.option("-k", "--keep", type=int, default=0)
-@coro
-async def xref_prune(keep=0):
-    resolver = await get_resolver()
+def xref_prune(keep=0):
+    resolver = get_resolver()
     for edge in list(resolver.edges.values()):
         if edge.user == AUTO_USER:
             resolver.remove_edge(edge)
     resolver.prune(keep=keep)
-    await resolver.save()
 
 
 @cli.command("dedupe", help="Interactively judge xref candidates")
 @click.option("-d", "--dataset", type=datasets, default=Dataset.DEFAULT)
-@coro
-async def dedupe(dataset):
-    resolver = await get_resolver()
+def dedupe(dataset):
+    resolver = get_resolver()
     dataset = Dataset.require(dataset)
     db = Database(dataset, resolver)
-    loader = await db.view(dataset)
-    app = DedupeApp(
-        loader=loader,
-        resolver=resolver,
-        title="OpenSanction De-duplication",
-        log="textual.log",
-    )  # type: ignore
-    await app.process_messages()
+    loader = db.view(dataset)
+
+    async def run_app() -> None:
+        app = DedupeApp(
+            loader=loader,
+            resolver=resolver,
+            title="OpenSanction De-duplication",
+            log="textual.log",
+        )  # type: ignore
+        await app.process_messages()
+
+    asyncio.run(run_app())
 
 
 @cli.command("export-pairs", help="Export pairwise judgements")
 @click.argument("dataset", default=Dataset.DEFAULT, type=datasets)
 @click.option("-o", "--outfile", type=click.File("w"), default="-")
-@coro
-async def export_pairs_(dataset, outfile):
+def export_pairs_(dataset, outfile):
     dataset = Dataset.require(dataset)
-    async for obj in export_pairs(dataset):
+    for obj in export_pairs(dataset):
         write_object(outfile, obj)
 
 
 @cli.command("explode", help="Destroy a cluster of deduplication matches")
 @click.argument("canonical_id", type=str)
-@coro
-async def explode(canonical_id):
-    resolver = await get_resolver()
+def explode(canonical_id):
+    resolver = get_resolver()
     resolved_id = resolver.get_canonical(canonical_id)
     with with_conn() as conn:
         for entity_id in resolver.explode(resolved_id):
             log.info("Restore separate entity", entity=entity_id)
-            await resolve_canonical(conn, resolver, entity_id)
-    await resolver.save()
+            resolve_canonical(conn, resolver, entity_id)
+    resolver.save()
 
 
 @cli.command("merge", help="Merge multiple entities as duplicates")
@@ -210,27 +206,24 @@ async def merge(entity_ids):
 
 @cli.command("latest", help="Show the latest data timestamp")
 @click.argument("dataset", default=Dataset.DEFAULT, type=datasets)
-@coro
-async def latest(dataset):
+def latest(dataset):
     ds = Dataset.require(dataset)
     with with_conn() as conn:
-        latest = await max_last_seen(conn, ds)
+        latest = max_last_seen(conn, ds)
         if latest is not None:
             print(latest.isoformat())
 
 
 @cli.command("export-statements", help="Export statement data as a CSV file")
 @click.argument("outfile", type=click.Path(writable=True))
-@coro
-async def export_statements_csv(outfile):
-    await export_statements_path(outfile)
+def export_statements_csv(outfile):
+    export_statements_path(outfile)
 
 
 @cli.command("import-statements", help="Import statement data from a CSV file")
 @click.argument("infile", type=click.Path(readable=True, exists=True))
-@coro
-async def import_statements(infile):
-    await import_statements_path(infile)
+def import_statements(infile):
+    import_statements_path(infile)
 
 
 if __name__ == "__main__":

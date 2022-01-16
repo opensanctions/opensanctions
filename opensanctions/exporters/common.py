@@ -25,7 +25,7 @@ class Exporter(object):
     def feed(self, entity):
         raise NotImplemented
 
-    async def finish(self):
+    def finish(self):
         self.fh.close()
         resource = self.context.export_resource(
             self.path, mime_type=self.MIME_TYPE, title=self.TITLE

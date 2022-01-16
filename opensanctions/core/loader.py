@@ -79,21 +79,19 @@ class Database(object):
         self.entities: Dict[str, CachedEntity] = {}
         self.inverted: Dict[str, Set[str]] = {}
 
-    async def view(
-        self, dataset: Dataset, assembler: Assembler = None
-    ) -> "DatasetLoader":
+    def view(self, dataset: Dataset, assembler: Assembler = None) -> "DatasetLoader":
         if self.cached:
             if not len(self.entities):
-                await self.load()
+                self.load()
             return CachedDatasetLoader(self, dataset, assembler)
         return DatasetLoader(self, dataset, assembler)
 
-    async def load(self) -> None:
+    def load(self) -> None:
         """Pre-load all entity cache objects from the given scope dataset."""
         if not self.cached:
             return
         log.info("Loading database cache...", scope=self.scope)
-        async for cached in self.query(self.scope):
+        for cached in self.query(self.scope):
             canonical_id = cached[0][0].canonical_id
             self.entities[canonical_id] = cached
             for stmt in cached[1]:
@@ -104,9 +102,9 @@ class Database(object):
                     self.inverted[value_id] = set()
                 self.inverted[value_id].add(canonical_id)
 
-    async def query(
+    def query(
         self, dataset: Dataset, entity_id=None, inverted_id=None
-    ) -> AsyncGenerator[CachedEntity, None]:
+    ) -> Generator[CachedEntity, None, None]:
         """Query the statement table for the given dataset and entity ID and return
         an entity cache object with the given properties."""
         canonical_id = None
@@ -125,7 +123,7 @@ class Database(object):
                 canonical_id=canonical_id,
                 inverted_ids=inverted_ids,
             )
-            async for stmt in stmts:
+            for stmt in stmts:
                 if stmt["canonical_id"] != current_id:
                     if len(types):
                         yield (tuple(types), tuple(props))
@@ -189,37 +187,35 @@ class DatasetLoader(Loader[Dataset, Entity]):
                 entity = self.assembler(entity)
             yield entity
 
-    async def get_entity(self, id: str) -> Optional[Entity]:
-        async for cached in self.db.query(self.dataset, entity_id=id):
+    def get_entity(self, id: str) -> Optional[Entity]:
+        for cached in self.db.query(self.dataset, entity_id=id):
             for entity in self.assemble(cached):
                 return entity
         return None
 
-    async def _get_inverted(self, id: str) -> AsyncGenerator[Entity, None]:
-        async for cached in self.db.query(self.dataset, inverted_id=id):
+    def _get_inverted(self, id: str) -> Generator[Entity, None, None]:
+        for cached in self.db.query(self.dataset, inverted_id=id):
             for entity in self.assemble(cached):
                 yield entity
 
-    async def get_inverted(
-        self, id: str
-    ) -> AsyncGenerator[Tuple[Property, Entity], None]:
-        async for entity in self._get_inverted(id):
+    def get_inverted(self, id: str) -> Generator[Tuple[Property, Entity], None, None]:
+        for entity in self._get_inverted(id):
             for prop, value in entity.itervalues():
                 if value == id and prop.reverse is not None:
                     yield prop.reverse, entity
 
-    async def _iter_entities(self) -> AsyncGenerator[CachedEntity, None]:
-        async for cached in self.db.query(self.dataset):
+    def _iter_entities(self) -> Generator[CachedEntity, None, None]:
+        for cached in self.db.query(self.dataset):
             yield cached
 
-    async def entities(self) -> AsyncGenerator[Entity, None]:
-        async for cached in self._iter_entities():
+    def __iter__(self) -> Generator[Entity, None, None]:
+        for cached in self._iter_entities():
             for entity in self.assemble(cached):
                 yield entity
 
-    async def count(self) -> int:
-        async with engine.begin() as conn:
-            return await count_entities(conn, self.dataset)
+    def __ken__(self) -> int:
+        with with_conn() as conn:
+            return count_entities(conn, self.dataset)
 
     def __repr__(self):
         return f"<DatasetLoader({self.dataset!r})>"
@@ -229,13 +225,13 @@ class CachedDatasetLoader(DatasetLoader):
     """Funky: this loader uses the cache from the `Database` object and tries to assemble
     a partial view of the entity as needed."""
 
-    async def get_entity(self, id: str) -> Optional[Entity]:
+    def get_entity(self, id: str) -> Optional[Entity]:
         cached = self.db.entities.get(id)
         for entity in self.assemble(cached):
             return entity
         return None
 
-    async def _get_inverted(self, id: str) -> AsyncGenerator[Entity, None]:
+    def _get_inverted(self, id: str) -> Generator[Entity, None, None]:
         inverted = self.db.inverted.get(id)
         if inverted is None:
             return
@@ -244,7 +240,7 @@ class CachedDatasetLoader(DatasetLoader):
             for entity in self.assemble(cached):
                 yield entity
 
-    async def _iter_entities(self) -> AsyncGenerator[CachedEntity, None]:
+    def _iter_entities(self) -> Generator[CachedEntity, None, None]:
         for cached in self.db.entities.values():
             yield cached
 

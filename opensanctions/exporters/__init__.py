@@ -26,21 +26,21 @@ EXPORTERS = [
 __all__ = ["export_dataset", "export_metadata", "export_statements"]
 
 
-async def export_dataset(dataset: Dataset, database: Database):
+def export_dataset(dataset: Dataset, database: Database):
     """Dump the contents of the dataset to the output directory."""
     context = Context(dataset)
     loader = database.view(dataset, Entity.assembler)
     exporters = [Exporter(context, loader) for Exporter in EXPORTERS]
 
     for exporter in exporters:
-        await exporter.setup()
+        exporter.setup()
 
-    for entity in loader.entities():
+    for entity in loader:
         for exporter in exporters:
-            await exporter.feed(entity)
+            exporter.feed(entity)
 
     for exporter in exporters:
-        await exporter.finish()
+        exporter.finish()
 
     # Export list of data issues from crawl stage
     issues_path = context.get_resource_path("issues.json")

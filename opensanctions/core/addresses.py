@@ -1,3 +1,4 @@
+from nomenklatura import Resolver
 import requests
 import structlog
 from typing import Dict, Set
@@ -39,16 +40,15 @@ def query_nominatim(address: Entity):
             yield result
 
 
-async def xref_geocode(dataset: Dataset):
+def xref_geocode(dataset: Dataset, resolver: Resolver):
     context = Context(dataset)
-    resolver = context.resolver
     db = Database(dataset, resolver)
-    loader = await db.view(dataset)
+    loader = db.view(dataset)
 
     nodes: Dict[str, Dict[str, str]] = {}
     entities: Dict[str, Set[str]] = {}
     try:
-        async for entity in loader.entities():
+        for entity in loader:
             if not entity.schema.is_a("Address"):
                 continue
             # log.info("Dedupe", address=entity.caption)
@@ -75,7 +75,7 @@ async def xref_geocode(dataset: Dataset):
             continue
         data = nodes[osm_id]
         for (a, b) in combinations(ids, 2):
-            if not await resolver.check_candidate(a, b):
+            if not resolver.check_candidate(a, b):
                 continue
 
             judgement = resolver.get_judgement(a, b)
@@ -83,4 +83,4 @@ async def xref_geocode(dataset: Dataset):
                 resolver.suggest(a, b, data["importance"])
                 log.info("Suggested match", address=data["name"], forms=data["forms"])
 
-    await resolver.save()
+    resolver.save()

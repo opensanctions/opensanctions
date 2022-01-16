@@ -47,7 +47,7 @@ class Context(object):
         self.http = requests.Session()
         self.http.headers = dict(settings.HEADERS)
 
-    async def close(self) -> None:
+    def close(self) -> None:
         """Flush and tear down the context."""
         if len(self._events):
             with with_conn() as conn:
@@ -225,9 +225,9 @@ class Context(object):
         except Exception:
             self.log.exception("Crawl failed")
         finally:
-            await self.close()
+            self.close()
 
-    async def clear(self) -> None:
+    def clear(self) -> None:
         """Delete all recorded data for a given dataset."""
         with with_conn() as conn:
             clear_statements(conn, self.dataset)
