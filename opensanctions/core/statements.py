@@ -263,11 +263,11 @@ def resolve_all_canonical(conn: Conn, resolver: Resolver):
     log.info("Resolving canonical_id in statements...", resolver=resolver)
     conn.execute(delete(canonical_table))
     mappings = []
+    log.debug("Building canonical table mapping...")
     for canonical in resolver.canonicals():
         for referent in resolver.get_referents(canonical, canonicals=False):
             mappings.append({"entity_id": referent, "canonical_id": canonical.id})
         if len(mappings) > 5000:
-            # log.info("INSERTING mappings...")
             stmt = insert(canonical_table).values(mappings)
             conn.execute(stmt)
             mappings = []
@@ -276,6 +276,7 @@ def resolve_all_canonical(conn: Conn, resolver: Resolver):
         stmt = insert(canonical_table).values(mappings)
         conn.execute(stmt)
 
+    log.debug("Removing exploded canonical IDs...")
     q = update(stmt_table)
     q = q.where(stmt_table.c.canonical_id != stmt_table.c.entity_id)
     nested_q = select(canonical_table.c.entity_id)
@@ -284,6 +285,7 @@ def resolve_all_canonical(conn: Conn, resolver: Resolver):
     q = q.values({stmt_table.c.canonical_id: stmt_table.c.entity_id})
     conn.execute(q)
 
+    log.debug("Applying canonical IDs from canonical table to statements...")
     q = update(stmt_table)
     q = q.where(stmt_table.c.entity_id == canonical_table.c.entity_id)
     q = q.where(stmt_table.c.canonical_id != canonical_table.c.canonical_id)
