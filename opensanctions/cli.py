@@ -129,6 +129,7 @@ def xref_prune(keep=0):
         if edge.user == AUTO_USER:
             resolver.remove_edge(edge)
     resolver.prune(keep=keep)
+    resolver.save()
 
 
 @cli.command("dedupe", help="Interactively judge xref candidates")
@@ -139,14 +140,14 @@ def dedupe(dataset):
     db = Database(dataset, resolver)
     loader = db.view(dataset)
 
-    def run_app() -> None:
+    async def run_app() -> None:
         app = DedupeApp(
             loader=loader,
             resolver=resolver,
             title="OpenSanction De-duplication",
             log="textual.log",
         )  # type: ignore
-        app.process_messages()
+        await app.process_messages()
 
     asyncio.run(run_app())
 
