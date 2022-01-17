@@ -39,21 +39,14 @@ class Context(object):
     def __init__(self, dataset):
         self.dataset = dataset
         self.path = settings.DATASET_PATH.joinpath(dataset.name)
-        self.log = structlog.get_logger(
-            dataset.name, dataset=self.dataset.name, _ctx=self
-        )
+        self.log = structlog.get_logger(dataset.name, dataset=self.dataset.name)
         self._statements: Dict[str, Statement] = {}
-        self._events: List[Dict[str, Any]] = []
         self.http = requests.Session()
         self.http.headers = dict(settings.HEADERS)
 
     def close(self) -> None:
         """Flush and tear down the context."""
         self.http.close()
-        if len(self._events):
-            with engine_tx() as conn:
-                for event in self._events:
-                    save_issue(conn, event)
 
     def get_resource_path(self, name):
         return self.path.joinpath(name)

@@ -7,6 +7,8 @@ from structlog.contextvars import merge_contextvars
 from followthemoney.schema import Schema
 
 from opensanctions import settings
+from opensanctions.core.db import engine_tx
+from opensanctions.core.issues import save_issue
 
 
 def store_event(logger, log_method, data):
@@ -19,10 +21,11 @@ def store_event(logger, log_method, data):
             value = value.name
         data[key] = value
 
-    ctx = data.pop("_ctx", None)
+    dataset = data.get("dataset", None)
     level_num = getattr(logging, data.get("level").upper())
-    if level_num > logging.INFO and ctx is not None:
-        ctx._events.append(data)
+    if level_num > logging.INFO and dataset is not None:
+        with engine_tx() as conn:
+            save_issue(conn, data)
     return data
 
 
