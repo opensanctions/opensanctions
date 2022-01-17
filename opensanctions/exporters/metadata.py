@@ -27,7 +27,6 @@ def dataset_to_index(dataset: Dataset) -> Dict[str, Any]:
         meta = dataset.to_dict()
         meta["index_url"] = dataset.make_public_url("index.json")
         meta["issues_url"] = dataset.make_public_url("issues.json")
-        meta["statements_url"] = dataset.make_public_url("statements.csv")
         meta["issue_levels"] = issue_levels
         meta["issue_count"] = sum(meta["issue_levels"].values())
         meta["target_count"] = target_count
@@ -65,6 +64,7 @@ def export_metadata():
             "run_time": settings.RUN_TIME,
             "dataset_url": settings.DATASET_URL,
             "issues_url": urljoin(settings.DATASET_URL, "issues.json"),
+            "statements_url": urljoin(settings.DATASET_URL, "statements.csv"),
             "model": model,
             "schemata": schemata,
             "app": "opensanctions",
