@@ -1,0 +1,35 @@
+# The point of this job is to re-build docker base images once a day so
+# that upstream package updates are reflected and dependency security
+# vulns don't become an issue.
+name: daily
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch: {}
+
+jobs:
+  docker:
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          install: true
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.docker_user }}
+          password: ${{ secrets.docker_password }}
+      - name: Build and push release
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: pudo/opensanctions:latest
+          cache-to: type=gha,mode=max
