@@ -43,9 +43,9 @@ jobs:
           aws s3 cp --quiet s3://data.opensanctions.org/state/opensanctions.sql.gz previous.sql.gz
           gunzip -c previous.sql.gz | psql $OPENSANCTIONS_DATABASE_URI
           rm -f previous.sql.gz
-      - name: Crawl data sources
-        run: |
-          opensanctions crawl
+      # - name: Crawl data sources
+      #   run: |
+      #     opensanctions crawl
       - name: Export static dump files
         run: |
           opensanctions export
