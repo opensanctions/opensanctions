@@ -11,6 +11,7 @@ from opensanctions.util import iso_datetime
 
 log = structlog.get_logger(__name__)
 COLUMNS = [
+    "id",
     "entity_id",
     "prop",
     "prop_type",
@@ -40,6 +41,7 @@ def export_statements_path(path: PathLike):
             buffer = []
             for stmt in all_statements(conn):
                 row = [
+                    stmt["id"],
                     stmt["entity_id"],
                     stmt["prop"],
                     stmt["prop_type"],
