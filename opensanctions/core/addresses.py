@@ -27,6 +27,7 @@ def query_nominatim(context: Context, address: Entity):
         log.info(
             "OpenStreetMap/Nominatim geocoded",
             address=address.caption,
+            text=full,
             results=len(results),
         )
         for result in results:
