@@ -29,7 +29,7 @@ def parse_entry(context: Context, entry):
     date_entry = entry.findtext("./date-entry")
     if date_entry:
         date = datetime.strptime(date_entry, "%Y%m%d")
-        entity.context["created_at"] = date.isoformat()
+        entity.add("createdAt", date.date())
         sanction.add("startDate", date.date())
 
     for aka in entry.findall("./aka-list"):

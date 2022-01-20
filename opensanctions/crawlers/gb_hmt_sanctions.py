@@ -72,9 +72,7 @@ def parse_row(context: Context, row):
     last_updated = h.parse_date(row.pop("LastUpdated"), FORMATS)
     if last_updated is not None:
         sanction.add("modifiedAt", last_updated)
-        sanction.context["updated_at"] = last_updated
         entity.add("modifiedAt", last_updated)
-        entity.context["updated_at"] = last_updated
 
     # DoB is sometimes a year only
     row.pop("DateOfBirth", None)

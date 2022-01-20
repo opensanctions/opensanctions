@@ -321,8 +321,8 @@ def parse_entry(context: Context, entry):
         sanction.add("reason", basis)
 
     if len(dates):
-        party.context["created_at"] = min(dates)
-        party.context["updated_at"] = max(dates)
+        party.add("createdAt", min(dates))
+        party.add("modifiedAt", max(dates))
 
     for measure in entry.findall("./SanctionsMeasure"):
         sanction.add("summary", measure.findtext("./Comment"))

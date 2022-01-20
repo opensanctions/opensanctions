@@ -117,12 +117,9 @@ def parse_common(context: Context, entity, node):
     entity.add("notes", node.findtext("./COMMENTS1"))
     entity.add("topics", "sanction")
     updated_at = values(node.find("./LAST_DAY_UPDATED"))
-    if len(updated_at):
-        entity.add("modifiedAt", updated_at)
-        entity.context["updated_at"] = max(updated_at)
+    entity.add("modifiedAt", updated_at)
     listed_on = node.findtext("./LISTED_ON")
-    if listed_on is not None:
-        entity.context["created_at"] = listed_on
+    entity.add("createdAt", listed_on)
 
     sanction = h.make_sanction(context, entity)
     sanction.add("startDate", listed_on)

@@ -37,7 +37,7 @@ def crawl_legislature(context: Context, country, legislature):
 
 
 def parse_common(context: Context, entity, data, lastmod):
-    entity.context["updated_at"] = lastmod.isoformat()
+    entity.add("modifiedAt", lastmod.date())
     entity.add("name", data.pop("name", None))
     entity.add("alias", data.pop("sort_name", None))
     for other in data.pop("other_names", []):

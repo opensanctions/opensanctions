@@ -159,8 +159,8 @@ def parse_entry(context: Context, target, programs, places, updated_at):
             dates.add(date)
     if not len(dates):
         dates.add(updated_at)
-    entity.context["created_at"] = min(dates)
-    entity.context["updated_at"] = max(dates)
+    entity.add("createdAt", min(dates))
+    entity.add("modifiedAt", max(dates))
 
     entity.id = context.make_slug(target.get("ssid"))
     entity.add("gender", node.get("sex"), quiet=True)

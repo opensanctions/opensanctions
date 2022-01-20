@@ -56,7 +56,7 @@ def crawl_person(context: Context, name, url):
             continue
         if "Regions since:" in title_text:
             date = h.parse_date(value, FORMATS)
-            person.context["created_at"] = date
+            person.add("createdAt", date)
             continue
         if "Date of birth:" in title_text:
             person.add("birthDate", h.parse_date(value, FORMATS))

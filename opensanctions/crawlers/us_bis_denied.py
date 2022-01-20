@@ -13,7 +13,6 @@ def parse_row(context: Context, row):
     entity.add("notes", row.get("Action"))
     entity.add("country", row.get("Country"))
     entity.add("modifiedAt", row.get("Last_Update"))
-    entity.context["updated_at"] = row.get("Last_Update")
 
     address = h.make_address(
         context,
