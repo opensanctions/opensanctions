@@ -1,10 +1,8 @@
-from nomenklatura import Resolver
-import requests
 import structlog
 from typing import Dict, Set
-from followthemoney.dedupe.judgement import Judgement
-
 from itertools import combinations
+from followthemoney.dedupe.judgement import Judgement
+from nomenklatura import Resolver
 
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.context import Context
@@ -16,8 +14,7 @@ NOMINATIM = "https://nominatim.openstreetmap.org/search.php"
 EXPIRE_CACHE = 84600 * 200
 
 
-def query_nominatim(address: Entity):
-    session = requests.Session()
+def query_nominatim(context: Context, address: Entity):
     for full in address.get("full"):
         params = {
             "q": full,
@@ -26,16 +23,12 @@ def query_nominatim(address: Entity):
             "accept-language": "en",
             "addressdetails": 1,
         }
-        res = session.request(
-            "GET", NOMINATIM, params=params, expire_after=EXPIRE_CACHE
+        results = context.fetch_json(NOMINATIM, params=params, cache_days=180)
+        log.info(
+            "OpenStreetMap/Nominatim geocoded",
+            address=address.caption,
+            results=len(results),
         )
-        results = res.json()
-        if not res.from_cache:
-            log.info(
-                "OpenStreetMap/Nominatim geocoded",
-                address=address.caption,
-                results=len(results),
-            )
         for result in results:
             yield result
 
@@ -52,7 +45,7 @@ def xref_geocode(dataset: Dataset, resolver: Resolver):
             if not entity.schema.is_a("Address"):
                 continue
             # log.info("Dedupe", address=entity.caption)
-            for result in query_nominatim(entity):
+            for result in query_nominatim(context, entity):
                 # osm_id = result.get("osm_id")
                 osm_id = result.get("display_name")
                 if osm_id not in entities:
