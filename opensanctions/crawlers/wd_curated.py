@@ -1,5 +1,5 @@
-import io
 import csv
+from pantomime.types import CSV
 from nomenklatura.util import is_qid
 
 from opensanctions.core import Context
@@ -24,6 +24,8 @@ def crawl_row(context, row):
 
 
 def crawl(context: Context):
-    text = context.fetch_text(context.dataset.data.url)
-    for row in csv.DictReader(io.StringIO(text)):
-        crawl_row(context, row)
+    path = context.fetch_resource("source.csv", context.dataset.data.url)
+    context.export_resource(path, CSV, title=context.SOURCE_TITLE)
+    with open(path, "r") as fh:
+        for row in csv.DictReader(fh):
+            crawl_row(context, row)

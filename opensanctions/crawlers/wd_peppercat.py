@@ -1,5 +1,5 @@
-import io
 import csv
+from pantomime.types import CSV
 
 from opensanctions.core import Context
 from opensanctions.wikidata import get_entity, entity_to_ftm
@@ -21,12 +21,14 @@ def crawl_qid(context, qid, country):
 
 
 def crawl(context: Context):
-    text = context.fetch_text(context.dataset.data.url)
+    path = context.fetch_resource("source.csv", context.dataset.data.url)
+    context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     prev_country = None
-    for row in csv.DictReader(io.StringIO(text)):
-        qid = row.get("personID")
-        country = row.get("catalog")
-        if country != prev_country:
-            context.log.info("Crawl country", country=country)
-            prev_country = country
-        crawl_qid(context, qid, country)
+    with open(path, "r") as fh:
+        for row in csv.DictReader(fh):
+            qid = row.get("personID")
+            country = row.get("catalog")
+            if country != prev_country:
+                context.log.info("Crawl country", country=country)
+                prev_country = country
+            crawl_qid(context, qid, country)
