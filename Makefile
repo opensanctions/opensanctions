@@ -15,10 +15,13 @@ db:
 build:
 	docker-compose build --pull
 
-shell: build workdir	
+services:
+	docker-compose up -d --remove-orphans db
+
+shell: build workdir services
 	docker-compose run --rm app bash
 
-run: build workdir
+run: build workdir services
 	docker-compose run --rm app opensanctions run
 
 stop:

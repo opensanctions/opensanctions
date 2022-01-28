@@ -1,11 +1,53 @@
-version: "2"
+version: "3.9"
 
 services:
+  db:
+    image: postgres:13
+    expose:
+      - "5432"
+    # ports:
+    #   - "127.0.0.1:5432:5432"
+    container_name: db
+    environment:
+      POSTGRES_USER: os
+      POSTGRES_PASSWORD: os
+      POSTGRES_DB: opensanctions
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - "./data/postgres/db:/var/lib/postgresql/data"
+      - "./data/postgres/logs:/var/log/postgresql"
+    tmpfs:
+      - "/tmp"
+    command:
+      - postgres
+      - "-c"
+      - "max_connections=500"
+      # - "-c"
+      # - "shared_buffers=1GB"
+      # - "-c"
+      # - "effective_cache_size=4GB"
+      # - "-c"
+      # - "maintenance_work_mem=500MB"
+      # - "-c"
+      # - "work_mem=1048kB"
+      # - "-c"
+      # - "max_wal_size=1GB"
+      # - "-c"
+      # - "wal_buffers=4MB"
+    deploy:
+      restart_policy:
+        condition: on-failure
+
   app:
     build: .
     image: pudo/opensanctions:latest
-    command: opensanctions run
+    command: bash -c 'while !</dev/tcp/db/5432; do sleep 2; done; opensanctions run'
     hostname: work
+    environment:
+      OPENSANCTIONS_DATABASE_URI: postgresql://os:os@db/opensanctions
     volumes:
       - "./data:/opensanctions/data"
       - "./opensanctions:/opensanctions/opensanctions"
