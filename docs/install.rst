@@ -21,7 +21,7 @@ repository to your computer:
 
 .. code-block:: bash
 
-    $ git clone https://github.com/pudo/opensanctions.git
+    $ git clone https://github.com/opensanctions/opensanctions.git
     $ cd opensanctions
 
 The steps below assume you're working within a checkout of that repository.

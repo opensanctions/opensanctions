@@ -30,6 +30,6 @@ Related repositories:
 
 Daily data extraction and processing runs on GitHub Actions. Status:
 
-[![production](https://github.com/pudo/opensanctions/actions/workflows/production.yml/badge.svg)](https://github.com/pudo/opensanctions/actions/workflows/production.yml)
+[![production](https://github.com/opensanctions/opensanctions/actions/workflows/production.yml/badge.svg)](https://github.com/opensanctions/opensanctions/actions/workflows/production.yml)
 
 **Licensing:** code is MIT-licensed, content & [data is CC 4.0 Attribution-NonCommercial](https://opensanctions.org/licensing/).

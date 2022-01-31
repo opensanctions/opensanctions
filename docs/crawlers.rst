@@ -7,13 +7,13 @@ Developing a crawler
    Please consult the `contribution guidelines`_ before developing new crawlers to
    learn about inclusion criteria for new data sources.
 
-.. _contribution guidelines: https://github.com/pudo/opensanctions/blob/main/CONTRIBUTING.md
+.. _contribution guidelines: https://github.com/opensanctions/opensanctions/blob/main/CONTRIBUTING.md
 
 A crawler is a small Python script that will import data from a web origin and store
 it as entities as a :ref:`source dataset <datasets>`. The basic process for creating a
 new crawler is as follows:
 
-1. File a `GitHub issue <https://github.com/pudo/opensanctions/issues>`_ to discuss the
+1. File a `GitHub issue <https://github.com/opensanctions/opensanctions/issues>`_ to discuss the
    suggested source
 2. Create a YAML metadata description for the new source
 3. Create a Python script to fetch and process the data

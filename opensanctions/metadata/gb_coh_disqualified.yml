@@ -8,7 +8,7 @@ description: |
   **NOTE:** This crawler retrieves incomplete data because of the way the source
   web site returns results. While a work-around is available, it involves signing 
   an agreement that further limits how data can be retained and processed on our
-  end. [Issue discussion](https://github.com/pudo/opensanctions/issues/123).
+  end. [Issue discussion](https://github.com/opensanctions/opensanctions/issues/123).
 
   UK company directors can be banned (‘disqualified’) from being a company director
   if they don’t meet your legal responsibilities.
