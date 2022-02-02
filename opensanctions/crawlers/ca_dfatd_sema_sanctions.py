@@ -3,7 +3,6 @@ from pantomime.types import XML
 
 from opensanctions import helpers as h
 from opensanctions.core import Context
-from opensanctions.util import jointext
 
 
 def crawl(context: Context):
@@ -21,11 +20,11 @@ def parse_entry(context, node):
         entity.add("name", entity_name.split("/"))
     else:
         entity = context.make("Person")
-        given_name = node.findtext("./GivenName")
-        entity.add("firstName", given_name)
-        last_name = node.findtext("./LastName")
-        entity.add("lastName", last_name)
-        entity.add("name", jointext(given_name, last_name))
+        h.apply_name(
+            entity,
+            given_name=node.findtext("./GivenName"),
+            last_name=node.findtext("./LastName"),
+        )
         entity.add("birthDate", node.findtext("./DateOfBirth"))
 
     # ids are per country and entry type (individual/entity)

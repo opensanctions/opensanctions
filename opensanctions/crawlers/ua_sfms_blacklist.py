@@ -33,22 +33,16 @@ def parse_entry(context: Context, entry):
         sanction.add("startDate", date.date())
 
     for aka in entry.findall("./aka-list"):
-        first_name = aka.findtext("./aka-name1")
-        entity.add("firstName", first_name, quiet=True)
-        second_name = aka.findtext("./aka-name2")
-        entity.add("secondName", second_name, quiet=True)
-        third_name = aka.findtext("./aka-name3")
-        entity.add("middleName", third_name, quiet=True)
-        last_name = aka.findtext("./aka-name4")
-        entity.add("lastName", last_name, quiet=True)
-        name = jointext(first_name, second_name, third_name, last_name)
-        if aka.findtext("type-aka") == "N":
-            entity.add("name", name)
-        else:
-            if aka.findtext("./quality-aka") == "2":
-                entity.add("weakAlias", name)
-            else:
-                entity.add("alias", name)
+        h.apply_name(
+            entity,
+            name1=aka.findtext("./aka-name1"),
+            name2=aka.findtext("./aka-name2"),
+            name3=aka.findtext("./aka-name3"),
+            tail_name=aka.findtext("./aka-name4"),
+            alias=aka.findtext("type-aka") != "N",
+            is_weak=aka.findtext("./quality-aka") == "2",
+            quiet=True,
+        )
 
     for node in entry.findall("./title-list"):
         entity.add("title", node.text, quiet=True)

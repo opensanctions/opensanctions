@@ -2,7 +2,6 @@ from pantomime.types import XML
 
 from opensanctions.core import Context
 from opensanctions import helpers as h
-from opensanctions.util import jointext
 
 FORMATS = ["%d.%m.%Y"]
 
@@ -29,12 +28,9 @@ def crawl(context: Context):
         fname = el.findtext("./fname")
         mname = el.findtext("./mname")
         lname = el.findtext("./lname")
-        name = jointext(fname, mname, lname)
+        name = h.make_name(given_name=fname, middle_name=mname, last_name=lname)
         entity = make_entity(context, el, "Person", "person", name)
-        entity.add("firstName", fname)
-        entity.add("middleName", mname)
-        entity.add("lastName", lname)
-        entity.add("name", name)
+        h.apply_name(entity, given_name=fname, middle_name=mname, last_name=lname)
         entity.add("idNumber", el.findtext("./iin"))
         bdate = el.findtext("./birthdate")
         entity.add("birthDate", h.parse_date(bdate, FORMATS, bdate))

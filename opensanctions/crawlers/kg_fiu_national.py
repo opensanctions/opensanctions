@@ -1,22 +1,21 @@
+from banal import first
 from lxml import html
 
 from opensanctions import settings
 from opensanctions.core import Context
 from opensanctions import helpers as h
-from opensanctions.util import jointext
 
 FORMATS = ["%d.%m.%Y", "%Y%m%d", "%Y-%m-%d"]
 
 
 def parse_person(context: Context, node):
     entity = context.make("Person")
-    last_name = node.findtext("./Surname")
-    entity.add("lastName", last_name)
-    first_name = node.findtext("./Name")
-    entity.add("firstName", first_name)
-    patronymic = node.findtext("./Patronomic")
-    entity.add("fatherName", patronymic)
-    entity.add("name", jointext(first_name, patronymic, last_name))
+    h.apply_name(
+        entity,
+        given_name=node.findtext("./Name"),
+        patronymic=node.findtext("./Patronomic"),
+        last_name=node.findtext("./Surname"),
+    )
     entity.add("birthDate", h.parse_date(node.findtext("./DataBirth"), FORMATS))
     entity.add("birthPlace", node.findtext("./PlaceBirth"))
     parse_common(context, node, entity)

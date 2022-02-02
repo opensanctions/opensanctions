@@ -503,6 +503,7 @@ country:
       value: Morocco
     - match:
         - Ramallah
+        - Occupied Palestinian Territories
       value: PS
     - match: Trinidad,
       value: TT

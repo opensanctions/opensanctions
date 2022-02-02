@@ -3,6 +3,14 @@ from normality import collapse_spaces
 from opensanctions.core import Context
 from opensanctions import helpers as h
 
+NAME_QUALITY = {
+    "Low": "weakAlias",
+    "Good": "alias",
+    "a.k.a.": "alias",
+    "f.k.a.": "previousName",
+    "": None,
+}
+
 
 def values(node):
     if node is None:
@@ -13,22 +21,15 @@ def values(node):
 def parse_alias(entity, node):
     names = node.findtext("./ALIAS_NAME")
     quality = node.findtext("./QUALITY")
-    if names is None:
+    name_prop = NAME_QUALITY[quality]
+    if names is None or name_prop is None:
         return
 
     for name in names.split("; "):
         name = collapse_spaces(name)
         if not len(name):
             continue
-
-        if quality == "Low":
-            entity.add("weakAlias", name)
-        elif quality == "Good":
-            entity.add("alias", name)
-        elif quality == "a.k.a.":
-            entity.add("alias", name)
-        elif quality == "f.k.a.":
-            entity.add("previousName", name)
+        entity.add(name_prop, name)
 
 
 def parse_address(context: Context, node):
@@ -62,9 +63,12 @@ def parse_individual(context: Context, node):
     person = context.make("Person")
     sanction = parse_common(context, person, node)
     person.add("title", values(node.find("./TITLE")))
-    person.add("firstName", node.findtext("./FIRST_NAME"))
-    person.add("secondName", node.findtext("./SECOND_NAME"))
-    person.add("middleName", node.findtext("./THIRD_NAME"))
+    h.apply_name(
+        person,
+        given_name=node.findtext("./FIRST_NAME"),
+        second_name=node.findtext("./SECOND_NAME"),
+        tail_name=node.findtext("./THIRD_NAME"),
+    )
     person.add("position", values(node.find("./DESIGNATION")))
 
     for alias in node.findall("./INDIVIDUAL_ALIAS"):
