@@ -6,11 +6,30 @@ from pantomime.types import XML
 
 from opensanctions.core import Context
 from opensanctions import helpers as h
-from opensanctions.util import remove_namespace
+from opensanctions.util import remove_namespace, jointext
 from opensanctions.util import multi_split, remove_bracketed
 
-FORMATS = ["%d/%m/%Y", "00/%m/%Y", "00/00/%Y", "%Y"]
-COUNTRY_SPLIT = ["(1)", "(2)", "(3)"]
+FORMATS = ["%d/%m/%Y", "00/%m/%Y", "%m/%Y", "00/00/%Y", "%Y"]
+COUNTRY_SPLIT = ["(1)", "(2)", "(3)", ". "]
+
+TYPES = {
+    "Individual": "Person",
+    "Entity": "LegalEntity",
+    "Ship": "Vessel",
+}
+
+WEAK_QUALITY = {
+    "Good quality": False,
+    "Low quality": True,
+    None: False,
+}
+
+NAME_TYPES = {
+    "Primary name": "name",
+    "Primary name variation": "alias",
+    "AKA": "alias",
+    "FKA": "previousName",
+}
 
 
 def parse_countries(text):
@@ -39,151 +58,152 @@ def split_items(text, comma=False):
     return items
 
 
+def split_new(text):
+    # It's 2022 and they can't multi-value a thing...
+    return multi_split(text, [". ", ", "])
+
+
 def parse_row(context: Context, row):
     group_type = row.pop("GroupTypeDescription")
-    org_type = row.pop("OrgType", None)
-    if group_type == "Individual":
-        base_schema = "Person"
-    elif row.get("TypeOfVessel") is not None:
-        base_schema = "Vessel"
-    elif group_type == "Entity":
-        base_schema = context.lookup_value("org_type", org_type, "Organization")
-    else:
-        context.log.error("Unknown entity type", group_type=group_type)
+    schema = TYPES.get(group_type)
+    if schema is None:
+        context.log.error("Unknown group type", group_type=group_type)
         return
-    entity = context.make(base_schema)
+    entity = context.make(schema)
     entity.id = context.make_slug(row.pop("GroupID"))
-    if org_type is not None:
-        org_types = split_items(org_type)
-        entity.add_cast("LegalEntity", "legalForm", org_types)
-
     sanction = h.make_sanction(context, entity)
-    # entity.add("position", row.pop("Position"), quiet=True)
-    entity.add("notes", row.pop("OtherInformation", None), quiet=True)
-    entity.add("notes", row.pop("FurtherIdentifiyingInformation", None), quiet=True)
-
     sanction.add("program", row.pop("RegimeName"))
     sanction.add("authority", row.pop("ListingType", None))
     sanction.add("startDate", h.parse_date(row.pop("DateListed"), FORMATS))
-    sanction.add("recordId", row.pop("FCOId", None))
+    sanction.add("authorityId", row.pop("UKSanctionsListRef", None))
+    sanction.add("unscId", row.pop("UNRef", None))
     sanction.add("status", row.pop("GroupStatus", None))
     sanction.add("reason", row.pop("UKStatementOfReasons", None))
 
     last_updated = h.parse_date(row.pop("LastUpdated"), FORMATS)
-    if last_updated is not None:
-        sanction.add("modifiedAt", last_updated)
-        entity.add("modifiedAt", last_updated)
+    sanction.add("modifiedAt", last_updated)
+    entity.add("modifiedAt", last_updated)
 
-    # DoB is sometimes a year only
-    row.pop("DateOfBirth", None)
-    dob = parse_parts(
-        row.pop("YearOfBirth", 0),
-        row.pop("MonthOfBirth", 0),
-        row.pop("DayOfBirth", 0),
-    )
-    entity.add_cast("Person", "birthDate", dob)
+    entity.add("createdAt", h.parse_date(row.pop("DateDesignated"), FORMATS))
 
-    gender = h.clean_gender(row.pop("Gender", None))
-    entity.add_cast("Person", "gender", gender)
-    id_number = row.pop("NationalIdNumber", None)
-    entity.add_cast("LegalEntity", "idNumber", split_items(id_number))
-    passport = row.pop("PassportDetails", None)
-    entity.add_cast("Person", "passportNumber", split_items(passport))
+    # TODO: derive topics and schema from this??
+    entity_type = row.pop("Entity_Type", None)
+    entity.add_cast("LegalEntity", "legalForm", entity_type)
 
-    flag = row.pop("FlagOfVessel", None)
-    entity.add_cast("Vessel", "flag", flag)
+    reg_number = row.pop("Entity_BusinessRegNumber", None)
+    entity.add_cast("LegalEntity", "registrationNumber", reg_number)
 
-    prev_flag = row.pop("PreviousFlags", None)
-    entity.add_cast("Vessel", "pastFlags", prev_flag)
-
-    year = row.pop("YearBuilt", None)
-    entity.add_cast("Vehicle", "buildDate", year)
-
-    type_ = row.pop("TypeOfVessel", None)
-    entity.add_cast("Vehicle", "type", type_)
-
-    imo = row.pop("IMONumber", None)
-    entity.add_cast("Vessel", "imoNumber", imo)
-
-    tonnage = row.pop("TonnageOfVessel", None)
-    entity.add_cast("Vessel", "tonnage", tonnage)
-    row.pop("LengthOfVessel", None)
-
-    # entity.add("legalForm", org_type)
-    title = split_items(row.pop("NameTitle", None))
-    entity.add("title", title, quiet=True)
-    entity.add("firstName", row.pop("name1", None), quiet=True)
-    entity.add("secondName", row.pop("name2", None), quiet=True)
-    entity.add("middleName", row.pop("name3", None), quiet=True)
-    entity.add("middleName", row.pop("name4", None), quiet=True)
-    entity.add("middleName", row.pop("name5", None), quiet=True)
-    name6 = row.pop("Name6", None)
-    entity.add("lastName", name6, quiet=True)
-    full_name = row.pop("FullName", name6)
-    row.pop("AliasTypeName")
-    if row.pop("AliasType") == "AKA":
-        entity.add("alias", full_name)
-    else:
-        entity.add("name", full_name)
-
-    nationalities = parse_countries(row.pop("Nationality", None))
-    entity.add("nationality", nationalities, quiet=True)
-    position = split_items(row.pop("Position", None))
-    entity.add("position", position, quiet=True)
-
-    birth_countries = parse_countries(row.pop("CountryOfBirth", None))
-    entity.add("country", birth_countries, quiet=True)
+    row.pop("Ship_Length", None)
+    entity.add_cast("Vessel", "flag", row.pop("Ship_Flag", None))
+    flags = split_new(row.pop("Ship_PreviousFlags", None))
+    entity.add_cast("Vessel", "pastFlags", flags)
+    entity.add_cast("Vessel", "type", row.pop("Ship_Type", None))
+    entity.add_cast("Vessel", "tonnage", row.pop("Ship_Tonnage", None))
+    entity.add_cast("Vessel", "buildDate", row.pop("Ship_YearBuilt", None))
+    entity.add_cast("Vessel", "imoNumber", row.pop("Ship_IMONumber", None))
 
     countries = parse_countries(row.pop("Country", None))
     entity.add("country", countries)
-    pob = split_items(row.pop("TownOfBirth", None))
-    entity.add("birthPlace", pob, quiet=True)
+
+    title = split_items(row.pop("Title", None))
+    entity.add("title", title, quiet=True)
+
+    pobs = split_items(row.pop("Individual_TownOfBirth", None))
+    entity.add_cast("Person", "birthPlace", pobs)
+
+    dob = h.parse_date(row.pop("Individual_DateOfBirth", None), FORMATS)
+    entity.add_cast("Person", "birthDate", dob)
+
+    cob = parse_countries(row.pop("Individual_CountryOfBirth", None))
+    entity.add_cast("Person", "country", cob)
+
+    nationalities = parse_countries(row.pop("Individual_Nationality", None))
+    entity.add_cast("Person", "nationality", nationalities)
+
+    positions = split_items(row.pop("Individual_Position", None))
+    entity.add_cast("Person", "position", positions)
+
+    gender = h.clean_gender(row.pop("Individual_Gender", None))
+    entity.add_cast("Person", "gender", gender)
+
+    name_type = row.pop("AliasType", None)
+    name_prop = NAME_TYPES.get(name_type)
+    if name_prop is None:
+        context.log.warning("Unknown name type", type=name_type)
+        return
+    name_quality = row.pop("AliasQuality", None)
+    is_weak = WEAK_QUALITY.get(name_quality)
+    if is_weak is None:
+        context.log.warning("Unknown name quality", quality=name_quality)
+        return
+
+    h.apply_name(
+        entity,
+        name1=row.pop("name1", None),
+        name2=row.pop("name2", None),
+        name3=row.pop("name3", None),
+        name4=row.pop("name4", None),
+        name5=row.pop("name5", None),
+        tail_name=row.pop("Name6", None),
+        name_prop=name_prop,
+        is_weak=is_weak,
+        quiet=True,
+    )
+    entity.add("alias", row.pop("NameNonLatinScript", None))
+
+    full_address = jointext(
+        row.pop("Address1", None),
+        row.pop("Address2", None),
+        row.pop("Address3", None),
+        row.pop("Address4", None),
+        row.pop("Address5", None),
+        row.pop("Address6", None),
+        sep=", ",
+    )
 
     address = h.make_address(
         context,
-        full=row.pop("FullAddress", None),
-        street=row.pop("address1", None),
-        street2=row.pop("address2", None),
-        street3=row.pop("address3", None),
-        city=row.pop("address4", None),
-        place=row.pop("address5", None),
-        region=row.pop("address6", None),
+        full=full_address,
         postal_code=row.pop("PostCode", None),
         country=first(countries),
     )
     h.apply_address(context, entity, address)
 
-    reg_number = row.pop("BusinessRegNumber", None)
-    entity.add_cast("LegalEntity", "registrationNumber", reg_number)
+    passport_number = row.pop("Individual_PassportNumber", None)
+    passport_numbers = split_items(passport_number)
+    entity.add_cast("Person", "passportNumber", passport_numbers)
+    passport_detail = row.pop("Individual_PassportDetails", None)
+    # passport_details = split_items(passport_detail)
+    # TODO: where do I stuff this?
 
-    phones = split_items(row.pop("PhoneNumber", None), comma=True)
-    phones = h.clean_phones(phones)
-    entity.add_cast("LegalEntity", "phone", phones)
+    ni_number = row.pop("Individual_NINumber", None)
+    ni_numbers = split_items(ni_number)
+    entity.add_cast("Person", "idNumber", ni_numbers)
+    ni_detail = row.pop("Individual_NIDetails", None)
+    # ni_details = split_items(ni_detail)
+    # TODO: where do I stuff this?
 
-    website = split_items(row.pop("Website", None), comma=True)
-    entity.add_cast("LegalEntity", "website", website)
+    for phone in split_new(row.pop("PhoneNumber", None)):
+        entity.add_cast("LegalEntity", "phone", phone)
 
-    emails = split_items(row.pop("EmailAddress", None), comma=True)
-    emails = h.clean_emails(emails)
-    entity.add_cast("LegalEntity", "email", emails)
+    for email in split_new(row.pop("EmailAddress", None)):
+        entity.add_cast("LegalEntity", "email", email)
 
-    # TODO: graph
-    row.pop("Subsidiaries", None)
-    row.pop("ParentCompany", None)
-    row.pop("CurrentOwners", None)
+    for website in split_new(row.pop("Website", None)):
+        entity.add_cast("LegalEntity", "website", website)
 
-    row.pop("DateListedDay", None)
-    row.pop("DateListedMonth", None)
-    row.pop("DateListedYear", None)
-    row.pop("LastUpdatedDay", None)
-    row.pop("LastUpdatedMonth", None)
-    row.pop("LastUpdatedYear", None)
-    row.pop("GrpStatus", None)
-    row.pop("ID", None)
-    row.pop("DateOfBirthId", None)
-    row.pop("DateListedDay", None)
-    if len(row):
-        pprint(row)
+    # # TODO: graph
+    row.pop("Entity_ParentCompany", None)
+    row.pop("Entity_Subsidiaries", None)
+    # row.pop("Entity_Subsidiaries", None)
+    # row.pop("CurrentOwners", None)
+
+    grp_status = row.pop("GrpStatus", None)
+    if grp_status != "A":
+        context.log.warning("Unknown GrpStatus", value=grp_status)
+
+    entity.add("notes", row.pop("OtherInformation", None))
+    h.audit_data(row)
 
     entity.add("topics", "sanction")
     context.emit(entity, target=True)
@@ -193,7 +213,8 @@ def parse_row(context: Context, row):
 def make_row(el):
     row = {}
     for cell in el.getchildren():
-        if cell.text is None:
+        nil = cell.get("{http://www.w3.org/2001/XMLSchema-instance}nil")
+        if cell.text is None or nil == "true":
             continue
         value = cell.text.strip()
         if not len(value):
@@ -209,5 +230,5 @@ def crawl(context: Context):
     doc = context.parse_resource_xml(path)
     doc = remove_namespace(doc)
 
-    for el in doc.findall(".//ConsolidatedList"):
+    for el in doc.findall(".//FinancialSanctionsTarget"):
         parse_row(context, make_row(el))

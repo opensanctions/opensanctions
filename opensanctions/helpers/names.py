@@ -43,9 +43,11 @@ def set_name_part(entity: Entity, prop: str, value: Optional[str], quiet: bool):
     if value is None:
         return
     prop_ = entity.schema.get(prop)
-    if prop_ is None and quiet:
-        return
-    entity.add(prop_, value, quiet=quiet)
+    if prop_ is None:
+        if quiet:
+            return
+        raise TypeError("Invalid prop: %s [value: %r]" % (prop, value))
+    entity.add(prop, value, quiet=quiet)
 
 
 def apply_name(

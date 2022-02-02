@@ -24,73 +24,74 @@ publisher:
   country: gb
 url: https://www.gov.uk/government/publications/financial-sanctions-consolidated-list-of-targets
 data:
-  url: https://ofsistorage.blob.core.windows.net/publishlive/ConList.xml
-  format: xml
+  url: https://ofsistorage.blob.core.windows.net/publishlive/2022format/ConList.xml
+  format: XML
 
 lookups:
   org_type:
     normalize: true
     required: true
-    options:
-      - match:
-          - Armed Separatist Group
-          - Armed Seperatist Group
-          - Public Movement
-          - University
-          - Foundation
-        value: Organization
-      - match:
-          - Enterprise
-          - Railway
-          - Private
-          - Real Estate Development
-          - Shipping company
-          - Private, Investment
-          - Private,Investment
-          - Public Joint-Stock
-          - Private, Transport, Oil and Petroleum
-          - Aluminium Supplier
-          - Company
-          - Shipping company
-          - Public
-          - Private sector development group
-          - Exporter
-          - Insurance
-          - Finance
-          - Private,Real Estate
-          - Manufacturing/Proliferation
-          - Enterprise - Police Agency
-        contains:
-          - Military Holding Company
-          - Import/export
-          - State Owned Enterprise
-          - State-owned
-          - Manufacturer
-          - Banking
-          - Private Joint Stock Company
-          - Joint Stock Company
-          - Port operator
-          - Airline Company
-          - Subsidiary of
-          - Leading corporate group
-          - construction company
-          - General Corporation for Refining
-          - Manufacturing and supplying anti-aircraft
-        value: Company
-      - match:
-          - Government
-          - Public Security Body
-          - Public Government Body
-          - (1) Military (2) Militia
-          - Government, Ministry
-          - Government department
-          - Special Police Unit
-          - Military
-        contains:
-          - Government department
-          - Government Entity
-          - Government agency
-          - Department within Government
-          - Military Government
-        # value: PublicBody
-        value: Organization
+    options: {}
+  #   options:
+  #     - match:
+  #         - Armed Separatist Group
+  #         - Armed Seperatist Group
+  #         - Public Movement
+  #         - University
+  #         - Foundation
+  #       value: Organization
+  #     - match:
+  #         - Enterprise
+  #         - Railway
+  #         - Private
+  #         - Real Estate Development
+  #         - Shipping company
+  #         - Private, Investment
+  #         - Private,Investment
+  #         - Public Joint-Stock
+  #         - Private, Transport, Oil and Petroleum
+  #         - Aluminium Supplier
+  #         - Company
+  #         - Shipping company
+  #         - Public
+  #         - Private sector development group
+  #         - Exporter
+  #         - Insurance
+  #         - Finance
+  #         - Private,Real Estate
+  #         - Manufacturing/Proliferation
+  #         - Enterprise - Police Agency
+  #       contains:
+  #         - Military Holding Company
+  #         - Import/export
+  #         - State Owned Enterprise
+  #         - State-owned
+  #         - Manufacturer
+  #         - Banking
+  #         - Private Joint Stock Company
+  #         - Joint Stock Company
+  #         - Port operator
+  #         - Airline Company
+  #         - Subsidiary of
+  #         - Leading corporate group
+  #         - construction company
+  #         - General Corporation for Refining
+  #         - Manufacturing and supplying anti-aircraft
+  #       value: Company
+  #     - match:
+  #         - Government
+  #         - Public Security Body
+  #         - Public Government Body
+  #         - (1) Military (2) Militia
+  #         - Government, Ministry
+  #         - Government department
+  #         - Special Police Unit
+  #         - Military
+  #       contains:
+  #         - Government department
+  #         - Government Entity
+  #         - Government agency
+  #         - Department within Government
+  #         - Military Government
+  #       # value: PublicBody
+  #       value: Organization

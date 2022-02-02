@@ -684,6 +684,7 @@ email:
         - www.surena gc.com
         - 43294
         - janak.ram@sansad
+        - www.140zavod.by
         - com
         - vk.com
         - "https:"
@@ -704,6 +705,10 @@ email:
       value: PRIYEMNAYA@ygdu_gazprom.ru
     - match: "Email: info@gpc-sy.com"
       value: info@gpc-sy.com
+    - match: and millim@silibank.com
+      value: millim@silibank.com
+    - match: "Email: scot50@scn-net.org"
+      value: scot50@scn-net.org
     - match: request@mehr fci.ir
       value: request@mehr-fci.ir
     - match: info@etemad mobin.com
