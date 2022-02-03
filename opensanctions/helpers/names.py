@@ -70,17 +70,18 @@ def apply_name(
     is_weak: bool = False,
     quiet: bool = False,
 ):
-    set_name_part(entity, "firstName", given_name, quiet)
-    set_name_part(entity, "firstName", first_name, quiet)
-    set_name_part(entity, "secondName", second_name, quiet)
-    set_name_part(entity, "fatherName", patronymic, quiet)
-    set_name_part(entity, "lastName", last_name, quiet)
-    set_name_part(entity, "firstName", name1, quiet)
-    set_name_part(entity, "secondName", name2, quiet)
-    set_name_part(entity, "middleName", name3, quiet)
-    set_name_part(entity, "middleName", name4, quiet)
-    set_name_part(entity, "middleName", name5, quiet)
-    set_name_part(entity, "lastName", tail_name, quiet)
+    if not is_weak:
+        set_name_part(entity, "firstName", given_name, quiet)
+        set_name_part(entity, "firstName", first_name, quiet)
+        set_name_part(entity, "secondName", second_name, quiet)
+        set_name_part(entity, "fatherName", patronymic, quiet)
+        set_name_part(entity, "lastName", last_name, quiet)
+        set_name_part(entity, "firstName", name1, quiet)
+        set_name_part(entity, "secondName", name2, quiet)
+        set_name_part(entity, "middleName", name3, quiet)
+        set_name_part(entity, "middleName", name4, quiet)
+        set_name_part(entity, "middleName", name5, quiet)
+        set_name_part(entity, "lastName", tail_name, quiet)
     if alias:
         name_prop = "alias"
     if is_weak:
