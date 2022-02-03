@@ -40,6 +40,18 @@ def parse_countries(text):
     return countries
 
 
+def parse_companies(context, value):
+    if value is None:
+        return []
+    result = context.lookup("companies", value)
+    if result is None:
+        context.log.warning("Company name not mapped", value=value)
+        return []
+    if result.value == "SAME":
+        return [value]
+    return list(result.values)
+
+
 def split_items(text, comma=False):
     text = stringify(text)
     if text is None:
@@ -101,6 +113,19 @@ def parse_row(context: Context, row):
     entity.add_cast("Vessel", "tonnage", row.pop("Ship_Tonnage", None))
     entity.add_cast("Vessel", "buildDate", row.pop("Ship_YearBuilt", None))
     entity.add_cast("Vessel", "imoNumber", row.pop("Ship_IMONumber", None))
+
+    ship_owner = row.pop("Ship_CurrentOwners", None)
+    if ship_owner is not None:
+        owner = context.make("LegalEntity")
+        owner.id = context.make_slug("named", ship_owner)
+        owner.add("name", ship_owner)
+        context.emit(owner)
+
+        ownership = context.make("Ownership")
+        ownership.id = context.make_id(entity.id, "owns", owner.id)
+        ownership.add("owner", owner)
+        ownership.add("asset", entity)
+        context.emit(ownership)
 
     countries = parse_countries(row.pop("Country", None))
     entity.add("country", countries)
@@ -192,11 +217,29 @@ def parse_row(context: Context, row):
     for website in split_new(row.pop("Website", None)):
         entity.add_cast("LegalEntity", "website", website)
 
-    # # TODO: graph
-    row.pop("Entity_ParentCompany", None)
-    row.pop("Entity_Subsidiaries", None)
-    # row.pop("Entity_Subsidiaries", None)
-    # row.pop("CurrentOwners", None)
+    for name in parse_companies(context, row.pop("Entity_ParentCompany", None)):
+        parent = context.make("LegalEntity")
+        parent.id = context.make_slug("named", name)
+        parent.add("name", name)
+        context.emit(parent)
+
+        ownership = context.make("Ownership")
+        ownership.id = context.make_id(entity.id, "owns", parent.id)
+        ownership.add("owner", parent)
+        ownership.add("asset", entity)
+        context.emit(ownership)
+
+    for name in parse_companies(context, row.pop("Entity_Subsidiaries", None)):
+        subsidiary = context.make("LegalEntity")
+        subsidiary.id = context.make_slug("named", name)
+        subsidiary.add("name", name)
+        context.emit(subsidiary)
+
+        ownership = context.make("Ownership")
+        ownership.id = context.make_id(entity.id, "owns", subsidiary.id)
+        ownership.add("owner", entity)
+        ownership.add("asset", subsidiary)
+        context.emit(ownership)
 
     grp_status = row.pop("GrpStatus", None)
     if grp_status != "A":
