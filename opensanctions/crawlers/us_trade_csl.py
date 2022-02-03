@@ -108,14 +108,10 @@ def parse_result(context: Context, result):
     sanction.add("sourceUrl", source_url)
     result.pop("source_list_url")
 
-    # TODO: what is this?
-    result.pop("standard_order", None)
-
     context.emit(sanction)
     context.emit(entity, target=True)
 
-    if len(result):
-        context.pprint(result)
+    h.audit_data(result, ignore=["standard_order"])
 
 
 def crawl(context: Context):

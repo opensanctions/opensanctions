@@ -80,15 +80,20 @@ def crawl_entity(context: Context, data):
     schema = SCHEMATA.get(nature)
     entity = context.make(schema)
     entity.id = context.make_slug(data.pop("IdRegistre"))
-    entity.add("name", data.pop("Nom"))
-    entity.add("topics", "sanction")
-
     sanction = h.make_sanction(context, entity)
     for detail in data.pop("RegistreDetail"):
         field = detail.pop("TypeChamp")
         for value in detail.pop("Valeur"):
             apply_prop(context, entity, sanction, field, value)
 
+    name = data.pop("Nom")
+    h.apply_name(
+        entity,
+        first_name=entity.first("firstName", quiet=True),
+        tail_name=name,
+        quiet=True,
+    )
+    entity.add("topics", "sanction")
     context.emit(entity, target=True)
 
 
