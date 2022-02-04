@@ -1,3 +1,4 @@
+from banal import as_bool
 from prefixdate import parse_parts
 
 from opensanctions.core import Context
@@ -45,14 +46,17 @@ def parse_entry(context: Context, entry):
     sanction.add("listingDate", regulation.get("publicationDate"))
 
     for name in entry.findall("./nameAlias"):
-        if entry.get("strong") == "false":
-            entity.add("weakAlias", name.get("wholeName"))
-        else:
-            entity.add("name", name.get("wholeName"))
+        is_weak = not as_bool(entry.get("strong"))
+        h.apply_name(
+            entity,
+            full=name.get("wholeName"),
+            first_name=name.get("firstName"),
+            middle_name=name.get("middleName"),
+            last_name=name.get("lastName"),
+            is_weak=is_weak,
+            quiet=True,
+        )
         entity.add("title", name.get("title"), quiet=True)
-        entity.add("firstName", name.get("firstName"), quiet=True)
-        entity.add("middleName", name.get("middleName"), quiet=True)
-        entity.add("lastName", name.get("lastName"), quiet=True)
         entity.add("position", name.get("function"), quiet=True)
         gender = h.clean_gender(name.get("gender"))
         entity.add("gender", gender, quiet=True)
