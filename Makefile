@@ -1,4 +1,5 @@
 DOCKER=
+TS=$(shell date +%Y%m%d%H%M)
 
 .PHONY: build
 
@@ -9,7 +10,7 @@ workdir:
 
 db:
 	mkdir -p data/state
-	curl -o data/state/opensanctions.sql.gz https://data.opensanctions.org/state/opensanctions.sql.gz
+	curl -o data/state/opensanctions.sql.gz https://data.opensanctions.org/state/opensanctions.sql.gz?__xxx=$(TS)
 	gunzip -c data/state/opensanctions.sql.gz | psql $(OPENSANCTIONS_DATABASE_URI)
 
 build:
