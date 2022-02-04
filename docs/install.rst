@@ -62,7 +62,12 @@ directory.
 Python virtual environment
 ----------------------------
 
-OpenSanctions functions as a fairly stand-alone Python application, albeit with a
+If you want to run OpenSanctions outside of Docker, please first make sure you have
+access to a PostgreSQL database instance (this can easily be installed using most
+package managers). You will need to expose a connection string URL as an environment
+variable (see below: Configuration).
+
+The application is a fairly stand-alone Python application, albeit with a
 large number of library dependencies. That's why we'd suggest that you should
 never install OpenSanctions directly into your system Python, and instead always
 use a `virtual environment <https://docs.python.org/3/tutorial/venv.html>`_.
@@ -105,8 +110,8 @@ OpenSanctions is inspired by the `twelve factor model <https://12factor.net/>`_ 
 to configure the operation of the system. Some of the key settings include:
 
 * ``OPENSANCTIONS_DATABASE_URI`` is a database connection string, such as
-  ``sqlite:///filename.sqlite`` or ``postgresql://user:pass@host/database``. Only
-  PostgreSQL and SQLite are supported as backends.
+  ``postgresql://user:pass@host/database``. Only PostgreSQL is supported as a
+  database backend.
 
 * ``OPENSANCTIONS_DATA_PATH`` is the main working directory for the system. By
   default it will contain cached artifacts and the generated output data. This
