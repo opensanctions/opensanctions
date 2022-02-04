@@ -201,6 +201,9 @@ class Context(object):
 
     def crawl(self) -> None:
         """Run the crawler."""
+        if self.dataset.disabled:
+            self.log.info("Source is disabled")
+            return
         try:
             with engine_tx() as conn:
                 clear_issues(conn, self.dataset)

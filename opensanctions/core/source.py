@@ -53,6 +53,7 @@ class Source(Dataset):
         super().__init__(self.TYPE, file_path, config)
         self.url = config.get("url", "")
         self.category = config.get("category", "other")
+        self.disabled = config.get("disabled", False)
         self.entry_point = config.get("entry_point")
         self.data = SourceData(config.get("data", {}))
         self.publisher = SourcePublisher(config.get("publisher", {}))
@@ -79,6 +80,7 @@ class Source(Dataset):
             {
                 "url": self.url,
                 "entry_point": self.entry_point,
+                "disabled": self.disabled,
                 "data": self.data.to_dict(),
                 "publisher": self.publisher.to_dict(),
                 "collections": self.collections,

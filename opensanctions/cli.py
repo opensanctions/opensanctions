@@ -49,7 +49,6 @@ def _process(
             futures = []
             for source in scope.sources:
                 ctx = Context(source)
-                # ctx.crawl()
                 futures.append(executor.submit(ctx.crawl))
             wait(futures)
 
@@ -61,7 +60,6 @@ def _process(
             database.view(scope)
             futures = []
             for dataset_ in scope.datasets:
-                # export_dataset(dataset_, database)
                 futures.append(executor.submit(export_dataset, dataset_, database))
             futures.append(executor.submit(export_statements))
             futures.append(executor.submit(export_metadata))
