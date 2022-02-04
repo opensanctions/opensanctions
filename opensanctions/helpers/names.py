@@ -108,5 +108,5 @@ def apply_name(
         tail_name=tail_name,
         last_name=last_name,
     )
-    if full is not None:
+    if full is not None and len(full):
         entity.add(name_prop, full, quiet=quiet)

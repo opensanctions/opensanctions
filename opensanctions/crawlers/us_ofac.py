@@ -1,7 +1,7 @@
 # cf.
 # https://github.com/archerimpact/SanctionsExplorer/blob/master/data/sdn_parser.py
 # https://home.treasury.gov/system/files/126/sdn_advanced_notes.pdf
-from banal import first
+from banal import first, as_bool
 from os.path import commonprefix
 from followthemoney import model
 from followthemoney.types import registry
@@ -28,20 +28,12 @@ TYPES = {
     "Vessel": "Vessel",
     "Aircraft": "Airplane",
 }
-
-NAMES = {
-    "Last Name": "lastName",
-    "First Name": "firstName",
-    "Middle Name": "middleName",
-    "Maiden Name": "lastName",
-    "Aircraft Name": "registrationNumber",
-    "Entity Name": "name",
-    "Vessel Name": "name",
-    "Nickname": "weakAlias",
-    "Patronymic": "fatherName",
-    "Matronymic": "motherName",
+ALIAS_TYPES = {
+    "Name": "name",
+    "A.K.A.": "alias",
+    "F.K.A.": "previousName",
+    "N.K.A.": "name",
 }
-
 URL = "https://sanctionssearch.ofac.treas.gov/Details.aspx?id=%s"
 
 
@@ -176,32 +168,32 @@ def load_documents(doc):
 
 
 def parse_alias(party, parts, alias):
-    primary = alias.get("Primary") == "true"
-    weak = alias.get("LowQuality") == "true"
+    # primary = as_bool(alias.get("Primary"))
+    is_weak = as_bool(alias.get("LowQuality"))
     alias_type = ref_value("AliasType", alias.get("AliasTypeID"))
+    name_prop = ALIAS_TYPES[alias_type]
     for name in alias.findall("./DocumentedName"):
-        data = {}
-        for name_part in name.findall("./DocumentedNamePart"):
-            value = name_part.find("./NamePartValue")
+        names = {}
+        for value in name.findall("./DocumentedNamePart/NamePartValue"):
             type_ = parts.get(value.get("NamePartGroupID"))
-            field = NAMES[type_]
-            data[field] = value.text
-            if field != "name" and not weak:
-                party.add(field, value.text)
-            # print(field, value.text)
-        name = jointext(
-            data.get("firstName"),
-            data.get("middleName"),
-            data.get("fatherName"),
-            data.get("lastName"),
-            data.get("name"),
+            names[type_] = value.text
+
+        party.add(name_prop, names.pop("Entity Name", None))
+        party.add("name", names.pop("Vessel Name", None))
+        party.add("weakAlias", names.pop("Nickname", None))
+        party.add("registrationNumber", names.pop("Aircraft Name", None))
+        h.apply_name(
+            party,
+            first_name=names.pop("First Name", None),
+            middle_name=names.pop("Middle Name", None),
+            maiden_name=names.pop("Maiden Name", None),
+            last_name=names.pop("Last Name", None),
+            matronymic=names.pop("Matronymic", None),
+            patronymic=names.pop("Patronymic", None),
+            is_weak=is_weak,
+            name_prop=name_prop,
         )
-        if primary:
-            party.add("name", name)
-        elif alias_type == "F.K.A.":
-            party.add("previousName", name)
-        else:
-            party.add("alias", name)
+        h.audit_data(names)
 
 
 def parse_feature(context: Context, feature, party, locations):

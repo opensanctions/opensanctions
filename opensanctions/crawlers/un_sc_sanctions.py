@@ -47,7 +47,6 @@ def parse_address(context: Context, node):
 def parse_entity(context: Context, node):
     entity = context.make("LegalEntity")
     sanction = parse_common(context, entity, node)
-    entity.add("alias", node.findtext("./FIRST_NAME"))
 
     for alias in node.findall("./ENTITY_ALIAS"):
         parse_alias(entity, alias)
@@ -63,12 +62,6 @@ def parse_individual(context: Context, node):
     person = context.make("Person")
     sanction = parse_common(context, person, node)
     person.add("title", values(node.find("./TITLE")))
-    h.apply_name(
-        person,
-        given_name=node.findtext("./FIRST_NAME"),
-        second_name=node.findtext("./SECOND_NAME"),
-        tail_name=node.findtext("./THIRD_NAME"),
-    )
     person.add("position", values(node.find("./DESIGNATION")))
 
     for alias in node.findall("./INDIVIDUAL_ALIAS"):
@@ -115,21 +108,25 @@ def parse_individual(context: Context, node):
 
 def parse_common(context: Context, entity, node):
     entity.id = context.make_slug(node.findtext("./DATAID"))
-    name = node.findtext("./NAME_ORIGINAL_SCRIPT")
-    name = name or node.findtext("./FIRST_NAME")
-    entity.add("name", name)
+    h.apply_name(
+        entity,
+        given_name=node.findtext("./FIRST_NAME"),
+        second_name=node.findtext("./SECOND_NAME"),
+        name3=node.findtext("./THIRD_NAME"),
+        name4=node.findtext("./FOURTH_NAME"),
+        quiet=True,
+    )
+    entity.add("alias", node.findtext("./NAME_ORIGINAL_SCRIPT"))
     entity.add("notes", node.findtext("./COMMENTS1"))
     entity.add("topics", "sanction")
-    updated_at = values(node.find("./LAST_DAY_UPDATED"))
-    entity.add("modifiedAt", updated_at)
-    listed_on = node.findtext("./LISTED_ON")
-    entity.add("createdAt", listed_on)
 
     sanction = h.make_sanction(context, entity)
-    sanction.add("startDate", listed_on)
+    entity.add("createdAt", node.findtext("./LISTED_ON"))
+    sanction.add("startDate", node.findtext("./LISTED_ON"))
     sanction.add("modifiedAt", values(node.find("./LAST_DAY_UPDATED")))
+    entity.add("modifiedAt", values(node.find("./LAST_DAY_UPDATED")))
     sanction.add("program", node.findtext("./UN_LIST_TYPE"))
-    sanction.add("recordId", node.findtext("./REFERENCE_NUMBER"))
+    sanction.add("unscId", node.findtext("./REFERENCE_NUMBER"))
     return sanction
 
 
