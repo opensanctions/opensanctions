@@ -3,9 +3,15 @@ from prefixdate import parse_parts
 
 from opensanctions.core import Context
 from opensanctions import helpers as h
-from opensanctions.util import jointext
 
 # TODO: sanctions-program full parse
+
+NAME_QUALITY_WEAK = {"good": False, "low": True}
+NAME_TYPE = {
+    "primary-name": "name",
+    "alias": "alias",
+    "formerly-known-as": "previousName",
+}
 
 
 def parse_address(node):
@@ -42,23 +48,10 @@ def compose_address(context: Context, entity, place, el):
     )
 
 
-def whole_name(parts):
-    name = (
-        parts.get("given-name"),
-        parts.get("further-given-name"),
-        parts.get("father-name"),
-        parts.get("family-name"),
-        parts.get("grand-father-name"),
-        parts.get("tribal-name"),
-        parts.get("whole-name"),
-        parts.get("other"),
-    )
-    return jointext(*name, sep=" ")
-
-
 def parse_name(entity, node):
-    name_type = node.get("name-type")
-    quality = node.get("quality")
+    name_prop = NAME_TYPE[node.get("name-type")]
+    is_weak = NAME_QUALITY_WEAK[node.get("quality")]
+
     parts = defaultdict(dict)
     for part in node.findall("./name-part"):
         part_type = part.get("name-part-type")
@@ -70,21 +63,24 @@ def parse_name(entity, node):
             parts[key][part_type] = spelling.text
 
     for key, parts in parts.items():
-        name = whole_name(parts)
-        if quality != "low":
-            # TODO: suffix
-            entity.add("title", parts.get("title"), quiet=True)
-            entity.add("firstName", parts.get("given-name"), quiet=True)
-            entity.add("secondName", parts.get("further-given-name"), quiet=True)
-            entity.add("lastName", parts.get("family-name"), quiet=True)
-            entity.add("lastName", parts.get("maiden-name"), quiet=True)
-            entity.add("fatherName", parts.get("father-name"), quiet=True)
-            if name_type == "primary-name" and key is None:
-                entity.add("name", name)
-            else:
-                entity.add("alias", name)
-        else:
-            entity.add("weakAlias", name)
+        entity.add("title", parts.pop("title", None), quiet=True)
+        entity.add("title", parts.pop("suffix", None), quiet=True)
+        entity.add("weakAlias", parts.pop("other", None), quiet=True)
+        entity.add("weakAlias", parts.pop("tribal-name", None), quiet=True)
+        entity.add("fatherName", parts.pop("grand-father-name", None), quiet=True)
+        h.apply_name(
+            entity,
+            full=parts.pop("whole-name", None),
+            given_name=parts.pop("given-name", None),
+            second_name=parts.pop("further-given-name", None),
+            patronymic=parts.pop("father-name", None),
+            last_name=parts.pop("family-name", None),
+            maiden_name=parts.pop("maiden-name", None),
+            is_weak=is_weak,
+            name_prop=name_prop,
+            quiet=True,
+        )
+        h.audit_data(parts)
 
 
 def parse_identity(context: Context, entity, node, places):
