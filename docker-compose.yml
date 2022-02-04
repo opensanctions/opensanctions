@@ -43,7 +43,7 @@ services:
 
   app:
     build: .
-    image: pudo/opensanctions:latest
+    image: ghcr.io/opensanctions/opensanctions:latest
     command: bash -c 'while !</dev/tcp/db/5432; do sleep 2; done; opensanctions run'
     hostname: work
     environment:

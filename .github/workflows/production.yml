@@ -26,7 +26,7 @@ jobs:
       OPENSANCTIONS_DATABASE_URI: "postgresql://opensanctions:opensanctions@db/opensanctions"
 
     runs-on: ubuntu-latest
-    container: pudo/opensanctions
+    container: ghcr.io/opensanctions/opensanctions
     steps:
       - name: Set env
         env:
@@ -66,14 +66,6 @@ jobs:
   site:
     needs: [data]
     runs-on: ubuntu-latest
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_DEFAULT_REGION: eu-central-1
-      AWS_REGION: eu-central-1
-    defaults:
-      run:
-        working-directory: ./site
     steps:
       - uses: actions/checkout@v2
         with:
