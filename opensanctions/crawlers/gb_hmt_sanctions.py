@@ -218,7 +218,7 @@ def parse_row(context: Context, row):
         entity.add_cast("LegalEntity", "website", website)
 
     for name in parse_companies(context, row.pop("Entity_ParentCompany", None)):
-        parent = context.make("LegalEntity")
+        parent = context.make("Company")
         parent.id = context.make_slug("named", name)
         parent.add("name", name)
         context.emit(parent)
@@ -230,7 +230,7 @@ def parse_row(context: Context, row):
         context.emit(ownership)
 
     for name in parse_companies(context, row.pop("Entity_Subsidiaries", None)):
-        subsidiary = context.make("LegalEntity")
+        subsidiary = context.make("Company")
         subsidiary.id = context.make_slug("named", name)
         subsidiary.add("name", name)
         context.emit(subsidiary)
