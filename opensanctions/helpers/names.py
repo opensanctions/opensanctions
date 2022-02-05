@@ -22,7 +22,7 @@ def make_name(
 ) -> str:
     """Provides a standardised way of assembling the components of a human name.
     This does a whole lot of cultural ignorance work, so YMMV."""
-    if full is not None:
+    if full is not None and len(full.strip()):
         return full
     return jointext(
         name1,
