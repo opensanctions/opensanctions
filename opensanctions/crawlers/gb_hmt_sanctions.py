@@ -218,7 +218,7 @@ def parse_row(context: Context, row):
         entity.add_cast("LegalEntity", "website", website)
 
     for name in parse_companies(context, row.pop("Entity_ParentCompany", None)):
-        parent = context.make("Company")
+        parent = context.make("Organization")
         parent.id = context.make_slug("named", name)
         parent.add("name", name)
         context.emit(parent)
