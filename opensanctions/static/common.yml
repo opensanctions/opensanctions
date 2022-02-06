@@ -94,6 +94,9 @@ country:
         - Kedah Sultanate
         - French protectorate of Tunisia
         - Republic of Mahabad
+        # Ukraine SFMS:
+        - 27 May 1973
+        - 1 Jan. 1975
       contains:
         - (JVCFOR)
       value: null
@@ -280,10 +283,6 @@ country:
     - match:
         - Cherokee Nation
       value: US
-    - match: Uzbek; Afghan
-      values:
-        - Uzbekistan
-        - Afghanistan
     - match: Malian / Mauritanian
       values:
         - Mauritania
@@ -313,7 +312,9 @@ country:
       values:
         - Saudi Arabia
         - Philippines
-    - match: אוזבקיסטן / אפגניסטן
+    - match:
+        - אוזבקיסטן / אפגניסטן
+        - Uzbek; Afghan
       values:
         - Uzbekistan
         - Afghanistan
@@ -440,7 +441,6 @@ country:
         - Former USSR
         - Uzbekistan SSR
         - Moldovan SSR
-        - Kazakh Soviet Socialist Republic
         - Komi ASSR,
         - Yakut Autonomous SSR
         - Belarusian SSR,
@@ -448,6 +448,12 @@ country:
         - USSR (until 1991)
         - ソビエト社会主義共和国連邦（1991年まで）
       value: SUHH
+    - match:
+        - Kazakhstan   Soviet Union
+        - Kazakh Soviet Socialist Republic
+      values:
+        - SUHH
+        - KZ
     - match: DRC,Belgium
       values:
         - DR Congo

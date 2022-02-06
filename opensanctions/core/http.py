@@ -1,3 +1,4 @@
+import urllib3
 from typing import Optional
 from datetime import timedelta
 from sqlalchemy.future import select
@@ -6,6 +7,8 @@ from sqlalchemy.sql.expression import delete
 from opensanctions import settings
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.db import Conn, upsert_func, cache_table
+
+urllib3.disable_warnings()
 
 
 def save_cache(conn: Conn, url: str, dataset: Dataset, text: Optional[str]) -> None:
