@@ -76,6 +76,7 @@ def crawl_row(context: Context, data: Dict[str, str]):
     sanction.add("reason", data.pop("SUBMITTED_BY", None))
     sanction.add("unscId", data.pop("REFERENCE_NUMBER", None))
 
+    entity.add("topics", "sanction")
     h.audit_data(data, ignore=["VERSIONNUM", "TYPE_OF_DATE"])
     context.emit(entity, target=True)
 

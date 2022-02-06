@@ -1,0 +1,47 @@
+entry_point: opensanctions.crawlers.ar_repet
+title: Argentine RePET
+prefix: zafic
+summary: >
+  Public Registry of Persons and Entities linked to acts of Terrorism and their Financing
+description: |
+  The RePET registry does not provide much in the way of a policy background, but the data
+  structure is a perfect reproduction of the [UN Security Council sanctions
+  list](https://www.opensanctions.org/datasets/un_sc_sanctions/), so it is tempting to
+  assume it is a simple reproduction of that list.
+collections:
+  - sanctions
+  - default
+publisher:
+  name: Ministry of Justice and Human Rights
+  description: |
+    The Ministerio de Justicia y Derechos Humanos
+  url: "https://www.argentina.gob.ar/justicia/institucional"
+url: "https://repet.jus.gob.ar/"
+data:
+  url: https://repet.jus.gob.ar/
+  format: JSON
+
+lookups:
+  doc_types:
+    lowercase: true
+    options:
+      - match:
+          - Passport
+        contains:
+          - Pasaporte
+        value: Passport
+      - match:
+          - National Identification Number
+          - ""
+          - "6537022"
+          - DNI
+          - CDI
+          - D.N.I
+          - DNI Argentino para Extranjero
+          - CC Colombiana
+          - CI Paraguaya
+        contains:
+          - cédula de identidad
+          - cedula de identidad
+          - Registro Nacional para
+        value: Identification

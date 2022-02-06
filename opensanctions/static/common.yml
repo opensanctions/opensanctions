@@ -136,7 +136,13 @@ country:
       value: VE
     - match:
         - Empire of Brazil
+        - República Federativa del Brasi
+        - República Federativa del Brasil
       value: Brazil
+    - match: Paraguay / Brasil
+      values:
+        - Paraguay
+        - Brazil
     - match:
         - Italian Social Republic
       value: Italy
@@ -245,6 +251,7 @@ country:
         - Libyan Arab Jamahiriya
         - Libya (in custody)
         - South Libya
+        - LIBANÉS
         - BENGHAZI
         - בנגאזי
         - DERNA
@@ -576,6 +583,7 @@ date:
         - "おおむね30~35歳"
         - "おおむね30～35歳"
         - "59"
+        - "2"
         - "0"
       value: null
     - match: 1972-08-10 or 1972-08-11
@@ -836,6 +844,7 @@ gender:
     - match:
         - U
         - Unknown
+        - ""
       value: unknown
     - match:
         - non-binary
