@@ -557,6 +557,14 @@ country:
     - match:
         - Romanian People's Republic
       value: RO
+    - match:
+        - Cenral African Republic
+      value: CF
+    - match: a) Chad b) Central African Republic c) Congo
+      values:
+        - Chad
+        - Central African Republic
+        - DR Congo
 
 date:
   options:
@@ -568,6 +576,7 @@ date:
         - "おおむね30~35歳"
         - "おおむね30～35歳"
         - "59"
+        - "0"
       value: null
     - match: 1972-08-10 or 1972-08-11
       values:
@@ -826,6 +835,7 @@ gender:
       value: male
     - match:
         - U
+        - Unknown
       value: unknown
     - match:
         - non-binary
