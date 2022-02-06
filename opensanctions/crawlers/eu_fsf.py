@@ -44,9 +44,11 @@ def parse_entry(context: Context, entry):
     sanction.add("reason", regulation.get("numberTitle"))
     sanction.add("startDate", regulation.get("entryIntoForceDate"))
     sanction.add("listingDate", regulation.get("publicationDate"))
+    sanction.add("unscId", entry.get("unitedNationId"))
+    sanction.add("authorityId", entry.get("euReferenceNumber"))
 
     for name in entry.findall("./nameAlias"):
-        is_weak = not as_bool(entry.get("strong"))
+        is_weak = not as_bool(name.get("strong"))
         h.apply_name(
             entity,
             full=name.get("wholeName"),

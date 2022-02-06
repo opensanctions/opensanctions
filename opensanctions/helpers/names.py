@@ -1,5 +1,7 @@
 from typing import Optional
 
+from normality import collapse_spaces
+
 from opensanctions.core import Entity
 from opensanctions.util import jointext
 
@@ -22,7 +24,8 @@ def make_name(
 ) -> str:
     """Provides a standardised way of assembling the components of a human name.
     This does a whole lot of cultural ignorance work, so YMMV."""
-    if full is not None and len(full.strip()):
+    full = collapse_spaces(full)
+    if full is not None and len(full) > 1:
         return full
     return jointext(
         name1,
