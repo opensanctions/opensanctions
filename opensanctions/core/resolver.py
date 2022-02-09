@@ -28,8 +28,8 @@ class UniqueResolver(Resolver[Entity]):
             return False
         if is_qid(str(left)) and is_qid(str(right)):
             return False
-        lefts = [c.id for c in self.connected(left)]
-        rights = [c.id for c in self.connected(right)]
+        # lefts = [c.id for c in self.connected(left)]
+        # rights = [c.id for c in self.connected(right)]
         # with engine_read() as conn:
         #     if unique_conflict(conn, lefts, rights):
         #         self.decide(left, right, Judgement.NEGATIVE, user=AUTO_USER)

@@ -125,7 +125,7 @@ def xref_prune(keep=0):
     resolver = get_resolver()
     for edge in list(resolver.edges.values()):
         if edge.user == AUTO_USER:
-            resolver.remove_edge(edge)
+            resolver._remove(edge)
     resolver.prune(keep=keep)
     resolver.save()
 
