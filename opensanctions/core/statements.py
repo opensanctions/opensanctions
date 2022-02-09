@@ -313,22 +313,20 @@ def clear_statements(conn: Conn, dataset: Optional[Dataset] = None):
 def unique_conflict(conn: Conn, left_ids, right_ids):
     cteq = select(
         func.distinct(stmt_table.c.entity_id).label("entity_id"),
-        func.max(stmt_table.c.unique).label("unique"),
         stmt_table.c.dataset.label("dataset"),
     )
     cteq = cteq.where(stmt_table.c.prop == BASE)
+    cteq = cteq.where(stmt_table.c.unique == True)
     cte = cteq.cte("uniques")
-    # sqlite 3.35 -
     # cte = cte.prefix_with("MATERIALIZED")
     left = cte.alias("left")
     right = cte.alias("right")
-    q = select([left.c.entity_id, right.c.entity_id])
+    q = select(left.c.entity_id, right.c.entity_id)
     q = q.where(left.c.dataset == right.c.dataset)
-    q = q.where(left.c.unique == True)
-    q = q.where(right.c.unique == True)
+    # q = q.where(left.c.unique == True)
+    # q = q.where(right.c.unique == True)
     q = q.where(left.c.entity_id.in_(left_ids))
     q = q.where(right.c.entity_id.in_(right_ids))
-    # print(q)
     res = conn.execute(q)
     data = res.fetchone()
     if data is not None:
