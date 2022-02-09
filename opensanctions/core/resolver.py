@@ -9,6 +9,7 @@ from nomenklatura.util import is_qid
 from opensanctions import settings
 from opensanctions.core.db import engine_read, engine_tx
 from opensanctions.core.statements import resolve_canonical, entities_datasets
+from opensanctions.core.statements import unique_conflict
 from opensanctions.core.entity import Entity
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.loader import Database
@@ -27,11 +28,12 @@ class UniqueResolver(Resolver[Entity]):
             return False
         if is_qid(str(left)) and is_qid(str(right)):
             return False
-        # lefts = [c.id for c in self.connected(left)]
-        # rights = [c.id for c in self.connected(right)]
-        # if Statement.unique_conflict(lefts, rights):
-        #     self.decide(left, right, Judgement.NEGATIVE, user=AUTO_USER)
-        #     return False
+        lefts = [c.id for c in self.connected(left)]
+        rights = [c.id for c in self.connected(right)]
+        # with engine_read() as conn:
+        #     if unique_conflict(conn, lefts, rights):
+        #         self.decide(left, right, Judgement.NEGATIVE, user=AUTO_USER)
+        #         return False
         return True
 
     def decide(
@@ -67,6 +69,8 @@ def export_pairs(dataset: Dataset):
     def get_parts(id):
         canonical_id = resolver.get_canonical(id)
         for ref in resolver.get_referents(canonical_id):
+            if ref.startswith(Identifier.PREFIX):
+                continue
             for ds in datasets.get(ref, []):
                 yield ref, ds
 
@@ -77,21 +81,23 @@ def export_pairs(dataset: Dataset):
             left, right = max(left, right), min(left, right)
             pairs[(left, right)] = Judgement.POSITIVE
         for edge in resolver.nodes[canonical_id]:
-            if edge.judgement == Judgement.NEGATIVE:
+            if edge.judgement in (Judgement.NEGATIVE, Judgement.UNSURE):
                 source_canonical = resolver.get_canonical(edge.source)
                 other = edge.target if source_canonical == canonical_id else edge.source
                 for other_part in get_parts(other):
                     for part in parts:
                         part, other_part = max(part, other_part), min(part, other_part)
-                        pairs[(part, other_part)] = Judgement.NEGATIVE
+                        pairs[(part, other_part)] = edge.judgement
 
-    def get_partial(spec):
+    def get_partial(spec: Tuple[str, Dataset]) -> Optional[Entity]:
         id, ds = spec
         loader = db.view(ds)
         canonical = resolver.get_canonical(id)
         entity = loader.get_entity(canonical)
-        if entity is not None:
-            return entity.to_nested_dict(loader)
+        if entity is None:
+            return None
+        entity.id = id
+        return entity
 
     for (left, right), judgement in pairs.items():
         # yield [left[0], right[0], judgement]
