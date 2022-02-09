@@ -10,6 +10,8 @@ from nomenklatura.matching.pairs import JudgedPair
 from nomenklatura.matching.predicates import PREDICATES
 from opensanctions.core import Entity, configure_logging
 
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn import metrics
@@ -28,7 +30,9 @@ def apply_predicates(pair: JudgedPair):
 def pairs_to_arrays(pairs: List[JudgedPair]):
     xrows = []
     yrows = []
-    for pair in pairs:
+    for idx, pair in enumerate(pairs):
+        if idx > 0 and idx % 10000 == 0:
+            print("computing features: %s...." % idx)
         preds = apply_predicates(pair)
         xvals = list(preds.values())
         xrows.append(xvals)
@@ -66,21 +70,23 @@ def train_matcher(pairs_file):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33)
     print("built training data")
     # based on: https://www.datacamp.com/community/tutorials/understanding-logistic-regression-python
-    logreg = LogisticRegression()
-    logreg.fit(X_train, y_train)
+    logreg = LogisticRegression(class_weight={0: 0.95, 1: 0.05})
+    print("training model...")
+    pipe = make_pipeline(StandardScaler(), logreg)
+    pipe.fit(X_train, y_train)
     coef = logreg.coef_[0]
     coef_named = {n.__name__: c for n, c in zip(PREDICATES, coef)}
     print("Coefficients:")
     pprint(coef_named)
 
-    y_pred = logreg.predict(X_test)
+    y_pred = pipe.predict(X_test)
     cnf_matrix = metrics.confusion_matrix(y_test, y_pred)
     print("Confusion matrix:\n", cnf_matrix)
     print("Accuracy:", metrics.accuracy_score(y_test, y_pred))
     print("Precision:", metrics.precision_score(y_test, y_pred))
     print("Recall:", metrics.recall_score(y_test, y_pred))
 
-    y_pred_proba = logreg.predict_proba(X_test)[::, 1]
+    y_pred_proba = pipe.predict_proba(X_test)[::, 1]
     auc = metrics.roc_auc_score(y_test, y_pred_proba)
     print("AUC:", auc)
 
