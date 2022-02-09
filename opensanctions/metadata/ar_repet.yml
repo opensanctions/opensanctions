@@ -1,6 +1,6 @@
 entry_point: opensanctions.crawlers.ar_repet
 title: Argentine RePET
-prefix: zafic
+prefix: arpet
 summary: >
   Public Registry of Persons and Entities linked to acts of Terrorism and their Financing
 description: |
