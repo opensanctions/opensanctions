@@ -1,0 +1,23 @@
+entry_point: opensanctions.crawlers.ransomwhere
+title: ransomwhe.re ransomware addresses
+prefix: rwre
+summary: >
+  Cryptocurrency addresses linked to payments for ransomware attacks
+description: |
+  Ransomware is a form of malware designed to encrypt files on a device, rendering
+  any files and the systems that rely on them unusable. Malicious actors then demand
+  ransom in exchange for decryption.
+
+  Cryptocurrencies have, in recent years, become a common method to transact ransom
+  payments in such attacks. The [ransomwhe.re](https://ransomwhe.re) site collects
+  addresses (accounts) that are known to be linked to these payments.
+collections:
+  - crime
+  - default
+publisher:
+  name: ransomwhe.re / Jack Cable
+  url: https://cablej.io/
+url: https://ransomwhe.re/#browse
+data:
+  url: https://api.ransomwhe.re/export
+  format: JSON
