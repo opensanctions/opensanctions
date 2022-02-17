@@ -166,7 +166,7 @@ def parse_entry(context: Context, target, programs, places, updated_at):
             _, imo_num = value.split(":", 1)
             entity.add("imoNumber", imo_num)
         else:
-            entity.add("notes", value)
+            entity.add("notes", h.clean_note(value))
 
     sanction = h.make_sanction(context, entity)
     sanction.add("modifiedAt", max(dates))
@@ -176,7 +176,7 @@ def parse_entry(context: Context, target, programs, places, updated_at):
 
     for justification in node.findall("./justification"):
         # TODO: should this go into sanction:reason?
-        entity.add("notes", justification.text)
+        entity.add("notes", h.clean_note(justification.text))
 
     for relation in node.findall("./relation"):
         rel_type = relation.get("relation-type")

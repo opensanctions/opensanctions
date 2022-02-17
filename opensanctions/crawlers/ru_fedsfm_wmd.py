@@ -52,7 +52,7 @@ def crawl(context: Context):
         listing_date = cells[4]
         entity = context.make("Thing")
         entity.id = context.make_slug(index, un_id)
-        entity.add("notes", cells[5])
+        entity.add("notes", h.clean_note(cells[5]))
 
         sanction = h.make_sanction(context, entity)
         sanction.add("listingDate", clean_date(listing_date))

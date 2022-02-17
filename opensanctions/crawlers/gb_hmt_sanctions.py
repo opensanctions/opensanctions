@@ -245,7 +245,7 @@ def parse_row(context: Context, row):
     if grp_status != "A":
         context.log.warning("Unknown GrpStatus", value=grp_status)
 
-    entity.add("notes", row.pop("OtherInformation", None))
+    entity.add("notes", h.clean_note(row.pop("OtherInformation", None)))
     h.audit_data(row)
 
     entity.add("topics", "sanction")

@@ -33,7 +33,7 @@ def parse_entry(context: Context, entry):
 
     entity = context.make(schema)
     entity.id = context.make_slug(entry.get("euReferenceNumber"))
-    entity.add("notes", entry.findtext("./remark"))
+    entity.add("notes", h.clean_note(entry.findtext("./remark")))
     entity.add("topics", "sanction")
 
     sanction = h.make_sanction(context, entity)

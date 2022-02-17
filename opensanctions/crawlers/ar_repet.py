@@ -68,8 +68,8 @@ def crawl_common(context: Context, data: Dict[str, str], part: str, schema: str)
     entity = context.make(schema)
     entity.id = context.make_slug(part, data.pop("DATAID"))
     entity.add("topics", "sanction")
-    entity.add("notes", data.pop("COMMENTS1"))
-    entity.add("notes", data.pop("NOTE", None))
+    entity.add("notes", h.clean_note(data.pop("COMMENTS1")))
+    entity.add("notes", h.clean_note(data.pop("NOTE", None)))
     entity.add("alias", data.pop("NAME_ORIGINAL_SCRIPT"))
 
     h.apply_name(

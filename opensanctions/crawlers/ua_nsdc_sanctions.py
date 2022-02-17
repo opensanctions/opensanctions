@@ -49,7 +49,7 @@ def crawl_physical(context: Context) -> None:
         entity.add("name", row.pop("name_original", None))
         for alias in multi_split(row.pop("name_alternative", None), [";", "/"]):
             entity.add("alias", alias)
-        entity.add("notes", row.pop("additional", None))
+        entity.add("notes", h.clean_note(row.pop("additional", None)))
         for country in multi_split(row.pop("citizenship", None), [", "]):
             entity.add("nationality", country)
         entity.add("birthDate", row.pop("birthdate", None))

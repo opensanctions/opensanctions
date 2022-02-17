@@ -784,7 +784,9 @@ email:
       values:
         - s.bank@scs‐net.org
         - post‐gm@net.sy
-    - match: spccom2@scs‐net.org or spccom1@scsnet.org
+    - match:
+        - spccom2@scs‐net.org or spccom1@scsnet.org
+        - (1) spccom1@scs-net.org (2) spccom2@scs-net.org
       values:
         - spccom2@scs‐net.org
         - spccom1@scsnet.org

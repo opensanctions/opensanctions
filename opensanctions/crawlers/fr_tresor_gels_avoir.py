@@ -60,7 +60,7 @@ def apply_prop(context: Context, entity, sanction, field, value):
             schema = result.schema or entity.schema
             entity.add_cast(schema, result.prop, content)
             if result.prop == "notes":
-                entity.add(result.prop, comment)
+                entity.add(result.prop, h.clean_note(comment))
     elif field == "AUTRE_IDENTITE":
         entity.add("idNumber", value.pop("NumeroCarte"))
     elif field == "REFERENCE_UE":

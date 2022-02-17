@@ -81,7 +81,7 @@ def parse_foreign_persons(context: Context, entity, text):
         if date.text is not None:
             entity.add("birthDate", date)
             continue
-        entity.add("notes", fragment)
+        entity.add("notes", h.clean_note(fragment))
     parse_name(entity, text)
 
 

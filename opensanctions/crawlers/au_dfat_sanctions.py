@@ -66,7 +66,6 @@ def clean_reference(ref):
 def parse_reference(context: Context, reference, rows):
     entity = context.make("LegalEntity")
     entity.id = context.make_slug(reference)
-    # entity.add("sourceUrl", context.dataset.url)
     sanction = h.make_sanction(context, entity)
 
     for row in rows:
@@ -90,8 +89,11 @@ def parse_reference(context: Context, reference, rows):
         dates = clean_date(row.pop("date_of_birth"))
         entity.add("birthDate", dates, quiet=True)
         entity.add("birthPlace", row.pop("place_of_birth"), quiet=True)
-        entity.add("notes", row.pop("additional_information"))
-        entity.add("notes", row.pop("listing_information"), quiet=True)
+        entity.add("notes", h.clean_note(row.pop("additional_information")))
+        listing_info = row.pop("listing_information")
+        if isinstance(listing_info, datetime):
+            entity.add("createdAt", listing_info)
+        # TODO: consider parsing if it's not a datetime?
 
         control_date = row.pop("control_date")
         sanction.add("modifiedAt", control_date)

@@ -86,8 +86,8 @@ def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str
     entity.add_cast("Person", "passportNumber", row.pop("passport_number", []))
     entity.add("idNumber", row.pop("id_number", []))
     entity.add("idNumber", row.pop("identification_number", []))
-    entity.add("notes", row.pop("other_information", []))
-    entity.add("notes", row.pop("details", []))
+    entity.add("notes", h.clean_note(row.pop("other_information", None)))
+    entity.add("notes", h.clean_note(row.pop("details", None)))
     entity.add("phone", row.pop("phone", []))
     entity.add("phone", row.pop("fax", []))
 

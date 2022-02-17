@@ -3,6 +3,7 @@ from followthemoney.types import registry
 
 from opensanctions.core.lookups import common_lookups
 from opensanctions.helpers.dates import parse_date
+from opensanctions.helpers.text import clean_note
 from opensanctions.helpers.gender import clean_gender
 
 
@@ -11,6 +12,10 @@ def _prepare_value(prop, values, date_formats):
     for value in ensure_list(values):
         if prop.name == "gender":
             prepared.extend(clean_gender(value))
+            continue
+
+        if prop.name == "notes":
+            prepared.extend(clean_note(value))
             continue
 
         if prop.type == registry.date:
