@@ -17,7 +17,7 @@ def crawl(context: Context):
         wallet.add("topics", "crime.theft")
         wallet.add("createdAt", entry.pop("createdAt"))
         wallet.add("modifiedAt", entry.pop("updatedAt"))
-        wallet.add("name", entry.pop("family"))
+        wallet.add("alias", entry.pop("family"))
         wallet.add("balance", entry.pop("balance"))
         wallet.add("amountUsd", entry.pop("balanceUSD"))
         wallet.add("currency", entry.pop("blockchain"))
