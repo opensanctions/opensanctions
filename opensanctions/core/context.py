@@ -59,7 +59,10 @@ class Context(object):
             self.log.info("Fetching resource", path=file_path.as_posix(), url=url)
             file_path.parent.mkdir(exist_ok=True, parents=True)
             with self.http.get(
-                url, stream=True, timeout=settings.HTTP_TIMEOUT, verify=False
+                url,
+                stream=True,
+                timeout=settings.HTTP_TIMEOUT,
+                verify=False,
             ) as res:
                 res.raise_for_status()
                 with open(file_path, "wb") as handle:
