@@ -6,10 +6,10 @@ from followthemoney.dedupe.judgement import Judgement
 from nomenklatura.resolver import Resolver, Identifier, StrIdent
 from nomenklatura.util import is_qid
 
+# from opensanctions.core.statements import unique_conflict
 from opensanctions import settings
 from opensanctions.core.db import engine_read, engine_tx
 from opensanctions.core.statements import resolve_canonical, entities_datasets
-from opensanctions.core.statements import unique_conflict
 from opensanctions.core.entity import Entity
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.loader import Database

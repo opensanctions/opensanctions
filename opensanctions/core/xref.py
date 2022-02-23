@@ -14,7 +14,7 @@ def blocking_xref(dataset: Dataset, limit: int = 5000, fuzzy: bool = False):
     db = Database(dataset, resolver, cached=True)
     loader = db.view(dataset)
     index = Index(loader)
-    index.build(fuzzy=fuzzy)
+    index.build(fuzzy=fuzzy, adjacent=False)
     suggested = 0
     for idx, (pair, score) in enumerate(index.pairs()):
         if idx % 1000 == 0:
