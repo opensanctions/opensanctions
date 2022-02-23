@@ -295,9 +295,9 @@ def parse_party(context: Context, distinct_party, locations, documents):
     return party
 
 
-def parse_entry(context: Context, entry):
-    party = context.make("Thing")
-    party.id = context.make_slug(entry.get("ProfileID"))
+def parse_entry(context: Context, entry, parties):
+    party_id = context.make_slug(entry.get("ProfileID"))
+    party = parties[party_id]
 
     sanction = h.make_sanction(context, party, key=entry.get("ID"))
     sanction.add("program", ref_value("List", entry.get("ListID")))
@@ -409,7 +409,7 @@ def crawl(context: Context):
         parties[party.id] = party
 
     for entry in doc.findall(".//SanctionsEntry"):
-        parse_entry(context, entry)
+        parse_entry(context, entry, parties)
 
     for relation in doc.findall(".//ProfileRelationship"):
         parse_relation(context, relation, parties)
