@@ -273,7 +273,6 @@ def parse_party(context: Context, distinct_party, locations, documents):
     party.id = context.make_slug(profile.get("ID"))
     party.add("notes", h.clean_note(distinct_party.findtext("Comment")))
     party.add("sourceUrl", URL % profile.get("ID"))
-    party.add("topics", "sanction")
 
     for identity in profile.findall("./Identity"):
         parts = {}
@@ -316,12 +315,15 @@ def parse_entry(context: Context, entry):
         party.add("createdAt", min(dates))
         party.add("modifiedAt", max(dates))
 
+    party.add("topics", "sanction")
+
     for measure in entry.findall("./SanctionsMeasure"):
         sanction.add("summary", measure.findtext("./Comment"))
         type_id = measure.get("SanctionsTypeID")
         sanction.add("program", ref_value("SanctionsType", type_id))
 
     context.emit(sanction)
+    context.emit(party, target=True)
     # pprint(sanction.to_dict())
 
 
