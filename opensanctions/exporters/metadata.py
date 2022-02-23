@@ -9,7 +9,8 @@ from opensanctions.core.db import engine_read
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.issues import all_issues, agg_issues_by_level
 from opensanctions.core.resources import all_resources
-from opensanctions.core.statements import all_schemata, max_last_seen, count_entities
+from opensanctions.core.statements import all_schemata, max_last_seen
+from opensanctions.core.statements import count_entities, recent_targets
 from opensanctions.core.statements import agg_targets_by_country, agg_targets_by_schema
 from opensanctions.exporters.common import write_json
 
@@ -19,22 +20,19 @@ log = structlog.get_logger(__name__)
 @cache
 def dataset_to_index(dataset: Dataset) -> Dict[str, Any]:
     with engine_read() as conn:
-        issue_levels = agg_issues_by_level(conn, dataset)
-        target_count = count_entities(conn, dataset=dataset, target=True)
-        last_change = max_last_seen(conn, dataset)
-        target_countries = agg_targets_by_country(conn, dataset)
-        target_schemata = agg_targets_by_schema(conn, dataset)
         meta = dataset.to_dict()
         meta["index_url"] = dataset.make_public_url("index.json")
         meta["issues_url"] = dataset.make_public_url("issues.json")
-        meta["issue_levels"] = issue_levels
+        meta["issue_levels"] = agg_issues_by_level(conn, dataset)
         meta["issue_count"] = sum(meta["issue_levels"].values())
-        meta["target_count"] = target_count
-        meta["last_change"] = last_change
+        meta["target_count"] = count_entities(conn, dataset=dataset, target=True)
+        meta["entity_count"] = count_entities(conn, dataset=dataset)
+        meta["recent_targets"] = recent_targets(conn, dataset)
+        meta["last_change"] = max_last_seen(conn, dataset)
         meta["last_export"] = settings.RUN_TIME
         meta["targets"] = {
-            "countries": target_countries,
-            "schemata": target_schemata,
+            "countries": agg_targets_by_country(conn, dataset),
+            "schemata": agg_targets_by_schema(conn, dataset),
         }
         meta["resources"] = list(all_resources(conn, dataset))
         return meta
