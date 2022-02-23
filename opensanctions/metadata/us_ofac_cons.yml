@@ -17,6 +17,7 @@ description: |
 collections:
   - sanctions
   - default
+  - work
 publisher:
   name: Office of Foreign Assets Control (OFAC)
   description: >

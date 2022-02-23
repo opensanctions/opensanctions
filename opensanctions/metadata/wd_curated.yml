@@ -8,7 +8,6 @@ description: |
   experimentation, but scheduled to become part of our integration with Wikidata.
 collections:
   - default
-  - work
 publisher:
   name: Wikidata
   description: |
