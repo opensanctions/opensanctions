@@ -891,6 +891,8 @@ features:
     - match:
         - "Additional Sanctions Information -"
         - "Executive Order 13662 Directive Determination -"
+        - "Executive Order 14024 Directive Information"
+        - "Executive Order 14024 Directive Information -"
         - "Executive Order 13846 information:"
         - "Secondary sanctions risk:"
         - "IFCA Determination -"
@@ -1158,3 +1160,7 @@ features:
       # TODO: patch these into FtM, investigate CMIC further
     - match: Issuer Name
       prop: name
+    - match:
+        - "Effective Date (EO 14024 Directive 1a):"
+        - "Listing Date (EO 14024 Directive 1a):"
+      prop: createdAt
