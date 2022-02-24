@@ -10,7 +10,7 @@ from opensanctions.core.dataset import Dataset
 from opensanctions.core.issues import all_issues, agg_issues_by_level
 from opensanctions.core.resources import all_resources
 from opensanctions.core.statements import all_schemata, max_last_seen
-from opensanctions.core.statements import count_entities, recent_targets
+from opensanctions.core.statements import count_entities
 from opensanctions.core.statements import agg_targets_by_country, agg_targets_by_schema
 from opensanctions.exporters.common import write_json
 
@@ -27,7 +27,7 @@ def dataset_to_index(dataset: Dataset) -> Dict[str, Any]:
         meta["issue_count"] = sum(meta["issue_levels"].values())
         meta["target_count"] = count_entities(conn, dataset=dataset, target=True)
         meta["entity_count"] = count_entities(conn, dataset=dataset)
-        meta["recent_targets"] = recent_targets(conn, dataset)
+        # meta["recent_targets"] = recent_targets(conn, dataset)
         meta["last_change"] = max_last_seen(conn, dataset)
         meta["last_export"] = settings.RUN_TIME
         meta["targets"] = {

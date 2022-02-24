@@ -200,25 +200,25 @@ def agg_targets_by_schema(conn: Conn, dataset: Optional[Dataset] = None):
     return schemata
 
 
-def recent_targets(conn: Conn, dataset: Optional[Dataset] = None, limit: int = 100):
-    """Return the N most recently added entities."""
-    q = select(stmt_table)
-    q = q.filter(stmt_table.c.target == True)  # noqa
-    q = q.filter(stmt_table.c.prop == "createdAt")
-    if dataset is not None:
-        q = q.filter(stmt_table.c.dataset.in_(dataset.source_names))
-    q = q.order_by(stmt_table.c.value.desc())
-    q = q.limit(limit)
-    res = conn.execute(q)
-    targets = []
-    for row in res.fetchall():
-        result = {
-            "canonical_id": row.canonical_id,
-            "created_at": row.value,
-            "dataset": row.dataset,
-        }
-        targets.append(result)
-    return targets
+# def recent_targets(conn: Conn, dataset: Optional[Dataset] = None, limit: int = 100):
+#     """Return the N most recently added entities."""
+#     q = select(stmt_table)
+#     q = q.filter(stmt_table.c.target == True)  # noqa
+#     q = q.filter(stmt_table.c.prop == "createdAt")
+#     if dataset is not None:
+#         q = q.filter(stmt_table.c.dataset.in_(dataset.source_names))
+#     q = q.order_by(stmt_table.c.value.desc())
+#     q = q.limit(limit)
+#     res = conn.execute(q)
+#     targets = []
+#     for row in res.fetchall():
+#         result = {
+#             "canonical_id": row.canonical_id,
+#             "created_at": row.value,
+#             "dataset": row.dataset,
+#         }
+#         targets.append(result)
+#     return targets
 
 
 def all_schemata(conn: Conn, dataset: Optional[Dataset] = None):
