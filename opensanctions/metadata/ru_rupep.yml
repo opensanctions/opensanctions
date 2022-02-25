@@ -1,0 +1,237 @@
+entry_point: opensanctions.crawlers.ru_rupep
+title: RuPEP Public Database of PEPs in Russia and Belarus
+prefix: rupep
+summary: >
+  RuPEP is a detailed database of politically exposed persons in Russia and
+  Belarus maintained by qualified researchers
+description: |
+  From the RuPEP site:
+
+  > The database of public officials of Russia (PEP, Politically exposed person) –
+  > is the database created for financial monitoring subjects (banks, payment
+  > organizations, exchanges, etc.) in order to detect Russian PEP and its related
+  > persons, and to assess the level of risk associated with servicing such clients.
+
+  > The site is public and free to use for non-commercial purposes if it references
+  > to the site.
+
+  > Financial monitoring subjects can also obtain information from the database in
+  > JSON or XML format and receive regular updates for financial monitoring purposes.
+
+  > The use of information obtained from this site for further resale in the form
+  > of various analytical products or for other commercial purposes is prohibited.
+  > The exception is the use of information by journalists, public figures and
+  > analysts to prepare materials for the media, scientific research, etc.
+collections:
+  - peps
+  - default
+publisher:
+  name: RuPEP
+  description: |
+    The group maintaining this database is not publicly identified. The OpenSanctions
+    team is happy to create introductions for those interested in the commercial
+    reuse of the material.
+  url: "https://rupep.org/"
+url: "https://rupep.org/en/%D0%B2%D0%BE%D0%BF%D1%80%D0%BE%D1%81%D1%8B-%D0%B8-%D0%BE%D1%82%D0%B2%D0%B5%D1%82%D1%8B/"
+data:
+  url: https://rupep.org/en/%D0%B2%D0%BE%D0%BF%D1%80%D0%BE%D1%81%D1%8B-%D0%B8-%D0%BE%D1%82%D0%B2%D0%B5%D1%82%D1%8B/
+  format: CSV
+
+lookups:
+  country_links:
+    normalize: true
+    options:
+      - match: citizenship
+        prop: nationality
+      - match:
+          - lived_in
+          - born_in
+          - registered_in
+        prop: country
+      - match:
+          - under_sanctions
+          - business
+          - realty
+        prop: null
+  person_links:
+    normalize: true
+    lowercase: true
+    options:
+      - contains:
+          - мачуха
+          - пасинок
+          - племінниця
+          - баба
+          - дядько
+          - племінниця
+          - невістка
+          - дід
+          - зять
+          - батько
+          - рідний брат
+          - рідна сестра
+          - дочка
+          - мати
+          - тітка
+          - племінник
+          - усиновлений
+          - пов'язані спільним побутом і мають взаємні права та
+          - вітчим / падчерка
+        schema: Family
+        from_prop: person
+        to_prop: relative
+        desc_prop: relationship
+      - contains:
+          - ділові зв'язки
+          - особисті зв'язки
+        schema: Associate
+        from_prop: person
+        to_prop: associate
+        desc_prop: relationship
+      - contains:
+          - чоловік / дружина
+          - дружина / чоловік
+          - падчерка / вітчим
+        schema: UnknownLink
+        from_prop: subject
+        to_prop: object
+        desc_prop: role
+  company_person_links:
+    normalize: true
+    lowercase: true
+    options:
+      - contains:
+          - co-owner
+          - owner
+          - founder
+          - co-founder
+          - shareholder
+          - beneficiary
+        schema: Ownership
+        from_prop: owner
+        to_prop: asset
+        desc_prop: role
+      - match:
+          - the president
+          - Deputy Director
+          - director
+          - the minister
+          - CEO
+          - deputy
+          - the chairman
+          - board member
+          - Deputy Minister
+          - First Deputy Minister
+          - chairman of the board
+          - Deputy Director
+          - deputy general director
+          - deputy, chairperson
+          - deputy, deputy chairman
+          - member of the board of trustees
+          - secretary
+          - governor
+          - Acting Governor
+          - lieutenant governor
+          - Executive Director
+          - vice president
+          - member of the supervisory board
+          - First Deputy Chairperson
+          - First Deputy CEO
+          - rector
+        schema: Directorship
+        from_prop: director
+        to_prop: organization
+        desc_prop: role
+      - match:
+          - member of the Commission
+          - senator
+          - assistant to the senator
+          - member of the Commission, Chairperson
+          - member of the commission, Vice Chairperson
+          - member of the chamber
+          - member of parliament
+        contains:
+          - deputy, member of the
+          # - deputy, Deputy Chairperson of the
+        schema: Membership
+        from_prop: member
+        to_prop: organization
+        desc_prop: role
+      - match:
+          - employee
+          - judge
+          - ambassador
+          - serviceperson
+          - judge, Chairperson
+          - Head of Department
+          - first deputy head
+          - Deputy Head
+          - the head of administration
+          - prosecutor of the region
+          - teacher
+          - head
+          - chief doctor
+          - lawyer
+          - Advisor
+          - manager
+          - deputy prosecutor
+          # - advisor to the minister
+          # - Adviser to the Chairperson
+          - chief of staff
+          - coordinator
+        contains:
+          - advisor to the
+          - Head of the
+        schema: Employment
+        from_prop: employee
+        to_prop: employer
+        desc_prop: role
+  company_links:
+    normalize: true
+    options:
+      - match:
+          - null
+          # State Contracts / Customer
+          - ДержКонтракти/Замовник
+          # Assignee:
+          - Правонаступник
+          # Management company
+          - Керуюча компанія
+          # independent unit:
+          - Самостійний структурний підрозділ
+          - Філія
+          - Клієнт банку
+          - Споріднена
+          - Кредитор (фінансовий партнер)
+          - Надавач професійних послуг
+          - Правовласник
+          - Клієнт
+          - Контрагент
+          - Постачальник
+          - Член наглядового органу
+        schema: UnknownLink
+        from_prop: subject
+        to_prop: object
+        desc_prop: role
+      - match:
+          - Директор
+          - Секретар
+        schema: Directorship
+        from_prop: director
+        to_prop: organization
+        desc_prop: role
+      - match:
+          - Засновник
+          - Співвласник
+          - Власник
+          - Акціонер
+          - Співзасновник
+          - Материнська компанія
+          - Дочірня компанія
+          - Головне підприємство
+          - Головна компанія
+          - Колишній співвласник/співзасновник
+        schema: Ownership
+        from_prop: owner
+        to_prop: asset
+        desc_prop: role
