@@ -86,7 +86,15 @@ def parse_row(context: Context, row):
     sanction = h.make_sanction(context, entity)
     sanction.add("program", row.pop("RegimeName"))
     sanction.add("authority", row.pop("ListingType", None))
-    sanction.add("startDate", h.parse_date(row.pop("DateListed"), FORMATS))
+    listed_date = h.parse_date(row.pop("DateListed"), FORMATS)
+    sanction.add("listingDate", listed_date)
+    designated_date = h.parse_date(row.pop("DateDesignated"), FORMATS)
+    sanction.add("startDate", designated_date)
+
+    entity.add("createdAt", listed_date)
+    if not entity.has("createdAt"):
+        entity.add("createdAt", designated_date)
+
     sanction.add("authorityId", row.pop("UKSanctionsListRef", None))
     sanction.add("unscId", row.pop("UNRef", None))
     sanction.add("status", row.pop("GroupStatus", None))
@@ -95,8 +103,6 @@ def parse_row(context: Context, row):
     last_updated = h.parse_date(row.pop("LastUpdated"), FORMATS)
     sanction.add("modifiedAt", last_updated)
     entity.add("modifiedAt", last_updated)
-
-    entity.add("createdAt", h.parse_date(row.pop("DateDesignated"), FORMATS))
 
     # TODO: derive topics and schema from this??
     entity_type = row.pop("Entity_Type", None)

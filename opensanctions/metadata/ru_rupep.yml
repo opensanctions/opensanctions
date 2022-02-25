@@ -25,6 +25,7 @@ description: |
 collections:
   - peps
   - default
+  - work
 publisher:
   name: RuPEP
   description: |

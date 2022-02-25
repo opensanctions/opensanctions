@@ -122,7 +122,7 @@ def parse_common(context: Context, entity, node):
 
     sanction = h.make_sanction(context, entity)
     entity.add("createdAt", node.findtext("./LISTED_ON"))
-    sanction.add("startDate", node.findtext("./LISTED_ON"))
+    sanction.add("listingDate", node.findtext("./LISTED_ON"))
     sanction.add("modifiedAt", values(node.find("./LAST_DAY_UPDATED")))
     entity.add("modifiedAt", values(node.find("./LAST_DAY_UPDATED")))
     sanction.add("program", node.findtext("./UN_LIST_TYPE"))

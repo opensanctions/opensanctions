@@ -148,16 +148,6 @@ def parse_entry(context: Context, target, programs, places, updated_at):
             )
         entity = context.make("Vessel")
 
-    dates = set()
-    for mod in target.findall("./modification"):
-        date = mod.get("publication-date")
-        if date is not None:
-            dates.add(date)
-    if not len(dates):
-        dates.add(updated_at)
-    entity.add("createdAt", min(dates))
-    entity.add("modifiedAt", max(dates))
-
     entity.id = context.make_slug(target.get("ssid"))
     entity.add("gender", node.get("sex"), quiet=True)
     for other in node.findall("./other-information"):
@@ -169,7 +159,15 @@ def parse_entry(context: Context, target, programs, places, updated_at):
             entity.add("notes", h.clean_note(value))
 
     sanction = h.make_sanction(context, entity)
-    sanction.add("modifiedAt", max(dates))
+    dates = set()
+    for mod in target.findall("./modification"):
+        dates.add(mod.get("publication-date"))
+        sanction.add("listingDate", mod.get("publication-date"))
+        sanction.add("startDate", mod.get("effective-date"))
+    dates_ = [d for d in dates if d is not None]
+    if len(dates_):
+        entity.add("createdAt", min(dates_))
+        entity.add("modifiedAt", max(dates_))
 
     ssid = target.get("sanctions-set-id")
     sanction.add("program", programs.get(ssid))

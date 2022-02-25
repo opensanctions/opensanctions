@@ -784,6 +784,13 @@ email:
         - sjc117@hotmail.com
         - millim@silibank.com
     - match:
+        - (1) magnolia.byx@yandex.ua (2) sicomplit@i.ua (3) t_c82@inbox.ru (4) zakupkj@chbrr.crimea.com
+      values:
+        - magnolia.byx@yandex.ua
+        - sicomplit@i.ua
+        - t_c82@inbox.ru
+        - zakupkj@chbrr.crimea.com
+    - match:
         - s.bank@scs‐net.org, post‐gm@net.sy
       values:
         - s.bank@scs‐net.org

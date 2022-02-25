@@ -37,13 +37,17 @@ def parse_entry(context: Context, entry):
     entity.add("topics", "sanction")
 
     sanction = h.make_sanction(context, entity)
-    regulation = entry.find("./regulation")
+    regulations = entry.findall("./regulation")
+    if len(regulations) != 1:
+        context.log.warning("Multiple regulations on entity", entity=entity)
+    regulation = regulations[0]
     source_url = regulation.findtext("./publicationUrl", "")
     sanction.set("sourceUrl", source_url)
     sanction.add("program", regulation.get("programme"))
     sanction.add("reason", regulation.get("numberTitle"))
     sanction.add("startDate", regulation.get("entryIntoForceDate"))
     sanction.add("listingDate", regulation.get("publicationDate"))
+    entity.add("createdAt", regulation.get("publicationDate"))
     sanction.add("unscId", entry.get("unitedNationId"))
     sanction.add("authorityId", entry.get("euReferenceNumber"))
 

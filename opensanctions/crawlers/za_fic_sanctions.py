@@ -68,8 +68,10 @@ def crawl_row(context: Context, data: Dict[str, str]):
     h.apply_address(context, entity, address)
 
     sanction = h.make_sanction(context, entity)
-    entity.add("createdAt", parse_date(data.pop("DateInserted", None)))
-    sanction.add("startDate", parse_date(data.pop("ListedON", None)))
+    inserted_at = parse_date(data.pop("DateInserted", None))
+    listed_at = parse_date(data.pop("ListedON", None))
+    entity.add("createdAt", inserted_at or listed_at)
+    sanction.add("listingDate", listed_at)
     sanction.add("startDate", data.pop("FROM_YEAR", None))
     sanction.add("endDate", data.pop("TO_YEAR", None))
     sanction.add("program", data.pop("UN_LIST_TYPE", None))

@@ -93,6 +93,7 @@ def parse_reference(context: Context, reference, rows):
         listing_info = row.pop("listing_information")
         if isinstance(listing_info, datetime):
             entity.add("createdAt", listing_info)
+            sanction.add("listingDate", listing_info)
         # TODO: consider parsing if it's not a datetime?
 
         control_date = row.pop("control_date")
