@@ -1162,5 +1162,9 @@ features:
       prop: name
     - match:
         - "Effective Date (EO 14024 Directive 1a):"
+        - "Effective Date (EO 14024 Directive 2):"
+        - "Effective Date (EO 14024 Directive 3):"
         - "Listing Date (EO 14024 Directive 1a):"
+        - "Listing Date (EO 14024 Directive 2):"
+        - "Listing Date (EO 14024 Directive 3):"
       prop: createdAt
