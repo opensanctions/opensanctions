@@ -259,10 +259,10 @@ def crawl_companies(context: Context, countries):
         h.apply_address(context, entity, addr)
 
         context.emit(entity)
-        h.audit_data(row)
+        # h.audit_data(row)
 
 
 def crawl(context: Context):
     countries = get_countries(context)
     crawl_people(context, countries)
-    crawl_companies(context, countries)
+    # crawl_companies(context, countries)
