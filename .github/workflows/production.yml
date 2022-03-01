@@ -12,6 +12,8 @@ jobs:
     env:
       OPENSANCTIONS_COH_API_KEY: ${{ secrets.OPENSANCTIONS_COH_API_KEY }}
       OPENSANCTIONS_DATABASE_URI: ${{ secrets.OPENSANCTIONS_DATABASE_URI }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     strategy:
       fail-fast: false
       matrix:
@@ -33,7 +35,7 @@ jobs:
           - gb_hmt_sanctions
           - iadb_sanctions
           - il_mod_terrorists
-          - interpol_red_notices
+          # - interpol_red_notices
           # - interpol_yellow_notices
           - jp_mof_sanctions
           - kg_fiu_national
@@ -54,19 +56,20 @@ jobs:
           - us_ofac_sdn
           - us_trade_csl
           - wd_curated
-          - wd_peppercat_leaders
-          - wd_peppercat_legislators
+          # - wd_peppercat_leaders
+          # - wd_peppercat_legislators
           - worldbank_debarred
           - za_fic_sanctions
     steps:
-      - name: Set env
-        run: |
-          echo "OPENSANCTIONS_DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
       - name: Crawl data sources
         env:
           CRAWLER: ${{ matrix.crawler }}
         run: |
           opensanctions crawl $CRAWLER
+      - name: Upload fetched resources to data.opensanctions.org
+        if: ${{ always() }}
+        run: |
+          aws s3 sync --no-progress --cache-control "public, max-age=846000" --acl public-read $OPENSANCTIONS_DATA_PATH/datasets s3://data.opensanctions.org/datasets/$OPENSANCTIONS_DATE
   resolve:
     needs: [crawl]
     runs-on: ubuntu-latest
@@ -77,7 +80,24 @@ jobs:
       - name: Export static dump files
         run: |
           opensanctions resolve
-  export:
+  export-db:
+    needs: [resolve]
+    runs-on: ubuntu-latest
+    container: ghcr.io/opensanctions/opensanctions
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      OPENSANCTIONS_DATABASE_URI: ${{ secrets.OPENSANCTIONS_DATABASE_URI }}
+    steps:
+      - name: Export database
+        run: |
+          mkdir -p $OPENSANCTIONS_DATA_PATH/state
+          pg_dump -c -O -x --compress=3 -f $OPENSANCTIONS_DATA_PATH/state/opensanctions.sql.gz $OPENSANCTIONS_DATABASE_URI
+      - name: Publish data to data.opensanctions.org
+        run: |
+          aws s3 sync --no-progress --acl public-read $OPENSANCTIONS_DATA_PATH/state s3://data.opensanctions.org/state
+          aws cloudfront create-invalidation --distribution-id ETROMAQBEJS91 --paths "/state/*"
+  export-data:
     needs: [resolve]
     runs-on: ubuntu-latest
     container: ghcr.io/opensanctions/opensanctions
@@ -92,14 +112,6 @@ jobs:
       - name: Export static dump files
         run: |
           opensanctions export
-      # - name: Export database
-      #   run: |
-      #     mkdir -p $OPENSANCTIONS_DATA_PATH/state
-      #     pg_dump -c -O -x --compress=3 -f $OPENSANCTIONS_DATA_PATH/state/opensanctions.sql.gz $OPENSANCTIONS_DATABASE_URI
-      - name: Upload fetched resources to data.opensanctions.org
-        if: ${{ always() }}
-        run: |
-          aws s3 sync --no-progress --cache-control "public, max-age=846000" --acl public-read $OPENSANCTIONS_DATA_PATH/datasets s3://data.opensanctions.org/datasets/$OPENSANCTIONS_DATE
       - name: Publish data to data.opensanctions.org
         # aws s3 sync --no-progress --acl public-read $OPENSANCTIONS_DATA_PATH/state s3://data.opensanctions.org/state
         # aws cloudfront create-invalidation --distribution-id ETROMAQBEJS91 --paths "/state/*"
