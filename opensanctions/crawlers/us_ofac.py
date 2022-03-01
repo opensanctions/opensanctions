@@ -302,20 +302,16 @@ def parse_entry(context: Context, entry, parties):
     sanction = h.make_sanction(context, party, key=entry.get("ID"))
     sanction.add("program", ref_value("List", entry.get("ListID")))
 
-    dates = set()
     for event in entry.findall("./EntryEvent"):
         date = parse_date(event.find("./Date"))
-        dates.add(date)
-        sanction.add("startDate", date)
+        party.add("createdAt", date)
         sanction.add("summary", event.findtext("./Comment"))
         basis = ref_value("LegalBasis", event.get("LegalBasisID"))
         sanction.add("reason", basis)
 
-    if len(dates):
-        party.add("createdAt", min(dates))
-        party.add("modifiedAt", max(dates))
-
     party.add("topics", "sanction")
+    sanction.add("listingDate", party.get("createdAt"))
+    sanction.add("startDate", party.get("modifiedAt"))
 
     for measure in entry.findall("./SanctionsMeasure"):
         sanction.add("summary", measure.findtext("./Comment"))

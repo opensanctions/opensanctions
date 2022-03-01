@@ -1182,23 +1182,22 @@ features:
         backref: issuer
         singleton: true
         country: country
-    - match: Listing Date (CMIC)
-      nested:
-        schema: Security
-        value: issueDate
-        backref: issuer
-        singleton: true
+    # HACK HACK this needs to go on the "Sanction" so I'm pushing
+    # it into modifiedAt and then picking it up later to put into
+    # the sanction.
     - match:
         - Effective Date (CMIC)
         - Purchase/Sales For Divestment Date (CMIC)
+        - "Effective Date (EO 14024 Directive 1a):"
+        - "Effective Date (EO 14024 Directive 2):"
+        - "Effective Date (EO 14024 Directive 3):"
+      prop: modifiedAt
       # TODO: patch these into FtM, investigate CMIC further
     - match: Issuer Name
       prop: name
     - match:
-        - "Effective Date (EO 14024 Directive 1a):"
-        - "Effective Date (EO 14024 Directive 2):"
-        - "Effective Date (EO 14024 Directive 3):"
         - "Listing Date (EO 14024 Directive 1a):"
         - "Listing Date (EO 14024 Directive 2):"
         - "Listing Date (EO 14024 Directive 3):"
+        - "Listing Date (CMIC)"
       prop: createdAt
