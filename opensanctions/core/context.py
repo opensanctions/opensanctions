@@ -5,7 +5,7 @@ import requests
 import structlog
 import mimetypes
 from random import randint
-from typing import Any, Dict, List, Optional, Union
+from typing import Dict, Optional, Union
 from lxml import etree, html
 from pprint import pprint
 from datetime import timedelta
@@ -13,12 +13,13 @@ from datapatch import LookupException
 from lxml.etree import _Element, tostring
 from followthemoney.util import make_entity_id
 from followthemoney.schema import Schema
+from structlog.contextvars import clear_contextvars, bind_contextvars
 
 from opensanctions import settings
 from opensanctions.core.entity import Entity
 from opensanctions.core.db import engine_tx, engine_read
 from opensanctions.core.http import check_cache, save_cache, clear_cache
-from opensanctions.core.issues import save_issue, clear_issues
+from opensanctions.core.issues import clear_issues
 from opensanctions.core.resources import save_resource, clear_resources
 from opensanctions.core.statements import Statement, count_entities
 from opensanctions.core.statements import cleanup_dataset, clear_statements
@@ -39,14 +40,18 @@ class Context(object):
     def __init__(self, dataset):
         self.dataset = dataset
         self.path = settings.DATASET_PATH.joinpath(dataset.name)
-        self.log = structlog.get_logger(dataset.name, dataset=self.dataset.name)
+        self.log = structlog.get_logger(dataset.name)
         self._statements: Dict[str, Statement] = {}
         self.http = requests.Session()
         self.http.headers = dict(settings.HEADERS)
 
+    def bind(self) -> None:
+        bind_contextvars(dataset=self.dataset.name)
+
     def close(self) -> None:
         """Flush and tear down the context."""
         self.http.close()
+        clear_contextvars()
 
     def get_resource_path(self, name):
         return self.path.joinpath(name)
@@ -206,6 +211,7 @@ class Context(object):
 
     def crawl(self) -> None:
         """Run the crawler."""
+        self.bind()
         with engine_tx() as conn:
             clear_issues(conn, self.dataset)
         if self.dataset.disabled:
