@@ -72,6 +72,7 @@ jobs:
       - name: Upload fetched resources to data.opensanctions.org
         if: ${{ always() }}
         run: |
+          mkdir -p $OPENSANCTIONS_DATA_PATH/datasets
           aws s3 sync --no-progress --cache-control "public, max-age=846000" --acl public-read $OPENSANCTIONS_DATA_PATH/datasets s3://data.opensanctions.org/datasets/$OPENSANCTIONS_DATE
   resolve:
     needs: [crawl]
