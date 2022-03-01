@@ -120,7 +120,7 @@ jobs:
           aws s3 sync --quiet --no-progress --cache-control "public, max-age=84600" --metadata-directive REPLACE --acl public-read $OPENSANCTIONS_DATA_PATH/datasets s3://data.opensanctions.org/datasets/$OPENSANCTIONS_DATE
           aws cloudfront create-invalidation --distribution-id ETROMAQBEJS91 --paths "/datasets/latest/*"
   site:
-    needs: [export]
+    needs: [export-data]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -132,7 +132,7 @@ jobs:
           webhook_url: ${{ secrets.VERCEL_WEBHOOK }}
           options: "-X POST"
   api:
-    needs: [export]
+    needs: [export-data]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
