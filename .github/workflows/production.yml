@@ -48,7 +48,7 @@ jobs:
           # - ua_sfms_blacklist
           - un_ops_vendors
           - un_sc_sanctions
-          - un_bis_denied
+          - us_bis_denied
           # - us_cia_world_leaders
           - us_ofac_cons
           - us_ofac_sdn
