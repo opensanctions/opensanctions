@@ -61,6 +61,9 @@ jobs:
           - worldbank_debarred
           - za_fic_sanctions
     steps:
+      - name: Set env
+        run: |
+          echo "OPENSANCTIONS_DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
       - name: Crawl data sources
         env:
           CRAWLER: ${{ matrix.crawler }}
