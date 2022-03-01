@@ -488,7 +488,12 @@ country:
         - Republic of Hungary
         - People's Republic of Hungary
       value: Hungary
-    - match: Independent State of Croatia
+    - match:
+        - Republic of Abkhazia
+      value: GE-AB
+    - match:
+        - Independent State of Croatia
+        - Republic of Serbian Krajina
       value: HR
     - match:
         - Socialist Republic of Bosnia and Herzegovina
@@ -667,6 +672,10 @@ date:
     "3005-03-24": "2005-03-24"
     "3006-02-13": "2006-02-13"
     "3003-02-20": "2003-02-20"
+    "22-Fev-2022": "2022-02-22"
+    "22-Fev-2023": "2023-02-22"
+    "22-Fev-2027": "2027-02-22"
+    "05.09.1990": "1990-09-05"
     "1966-02-02-05:00": 1966-02-02T05:00
     "1960-01-01-05:00": 1960-01-01T05:00
     "1962-11-09-05:00": 1962-11-09T05:00
@@ -761,6 +770,20 @@ email:
       value: la.khan7860@yahoo.com
     - match: admin@europalforum org.uk
       value: admin@europalforum.org.uk
+    - match: sogaz@sogaz.ru ;  cf@sogaz.ru
+      values:
+        - sogaz@sogaz.ru
+        - cf@sogaz.ru
+    - match: office@grodno-khim.by; market@grodno-khim.by; ppm@grodno-khim.by; tnp@grodno-khim.by
+      values:
+        - office@grodno-khim.by
+        - market@grodno-khim.by
+        - ppm@grodno-khim.by
+        - tnp@grodno-khim.by
+    - match: office@bremino.by; marketing@bremino.by
+      values:
+        - office@bremino.by
+        - marketing@bremino.by
     - match: knaru@morobe.gov.pg or knarumpg@gmail.com
       values:
         - knaru@morobe.gov.pg
