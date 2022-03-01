@@ -13,11 +13,11 @@ jobs:
       OPENSANCTIONS_COH_API_KEY: ${{ secrets.OPENSANCTIONS_COH_API_KEY }}
       OPENSANCTIONS_DATABASE_URI: ${{ secrets.OPENSANCTIONS_DATABASE_URI }}
     strategy:
-      # fail-fast: true
+      fail-fast: false
       matrix:
         crawler:
           - adb_sanctions
-          - adfb_sanctions
+          - afdb_sanctions
           - ar_repet
           - au_dfat_sanctions
           - ca_dfatd_sema_sanctions
