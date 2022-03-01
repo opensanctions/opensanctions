@@ -7,23 +7,22 @@ on:
 
 jobs:
   data:
-    services:
-      db:
-        image: postgres:13
-        env:
-          POSTGRES_PASSWORD: opensanctions
-          POSTGRES_USER: opensanctions
-          POSTGRES_DB: opensanctions
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
-
-    env:
-      OPENSANCTIONS_DATABASE_URI: "postgresql://opensanctions:opensanctions@db/opensanctions"
+    # services:
+    #   db:
+    #     image: postgres:13
+    #     env:
+    #       POSTGRES_PASSWORD: opensanctions
+    #       POSTGRES_USER: opensanctions
+    #       POSTGRES_DB: opensanctions
+    #     options: >-
+    #       --health-cmd pg_isready
+    #       --health-interval 10s
+    #       --health-timeout 5s
+    #       --health-retries 5
+    #     ports:
+    #       - 5432:5432
+    # env:
+    #   OPENSANCTIONS_DATABASE_URI: "postgresql://opensanctions:opensanctions@db/opensanctions"
 
     runs-on: ubuntu-latest
     container: ghcr.io/opensanctions/opensanctions
@@ -33,34 +32,36 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           OPENSANCTIONS_COH_API_KEY: ${{ secrets.OPENSANCTIONS_COH_API_KEY }}
+          OPENSANCTIONS_DATABASE_URI: ${{ secrets.OPENSANCTIONS_DATABASE_URI }}
         run: |
           echo "OPENSANCTIONS_DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
           echo "OPENSANCTIONS_COH_API_KEY=$OPENSANCTIONS_COH_API_KEY" >> $GITHUB_ENV
+          echo "OPENSANCTIONS_DATABASE_URI=$OPENSANCTIONS_DATABASE_URI" >> $GITHUB_ENV
           echo "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" >> $GITHUB_ENV
           echo "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> $GITHUB_ENV
-      - name: Fetch and restore database from data.opensanctions.org
-        run: |
-          aws s3 cp --quiet s3://data.opensanctions.org/state/opensanctions.sql.gz previous.sql.gz
-          gunzip -c previous.sql.gz | psql $OPENSANCTIONS_DATABASE_URI
-          rm -f previous.sql.gz
+      # - name: Fetch and restore database from data.opensanctions.org
+      #   run: |
+      #     aws s3 cp --quiet s3://data.opensanctions.org/state/opensanctions.sql.gz previous.sql.gz
+      #     gunzip -c previous.sql.gz | psql $OPENSANCTIONS_DATABASE_URI
+      #     rm -f previous.sql.gz
       - name: Crawl data sources
         run: |
           opensanctions crawl
       - name: Export static dump files
         run: |
           opensanctions export
-      - name: Export database
-        run: |
-          mkdir -p $OPENSANCTIONS_DATA_PATH/state
-          pg_dump -c -O -x --compress=3 -f $OPENSANCTIONS_DATA_PATH/state/opensanctions.sql.gz $OPENSANCTIONS_DATABASE_URI
+      # - name: Export database
+      #   run: |
+      #     mkdir -p $OPENSANCTIONS_DATA_PATH/state
+      #     pg_dump -c -O -x --compress=3 -f $OPENSANCTIONS_DATA_PATH/state/opensanctions.sql.gz $OPENSANCTIONS_DATABASE_URI
       - name: Upload fetched resources to data.opensanctions.org
         if: ${{ always() }}
         run: |
           aws s3 sync --no-progress --cache-control "public, max-age=846000" --acl public-read $OPENSANCTIONS_DATA_PATH/datasets s3://data.opensanctions.org/datasets/$OPENSANCTIONS_DATE
       - name: Publish data to data.opensanctions.org
+        # aws s3 sync --no-progress --acl public-read $OPENSANCTIONS_DATA_PATH/state s3://data.opensanctions.org/state
+        # aws cloudfront create-invalidation --distribution-id ETROMAQBEJS91 --paths "/state/*"
         run: |
-          aws s3 sync --no-progress --acl public-read $OPENSANCTIONS_DATA_PATH/state s3://data.opensanctions.org/state
-          aws cloudfront create-invalidation --distribution-id ETROMAQBEJS91 --paths "/state/*"
           aws s3 sync --quiet --no-progress --cache-control "public, max-age=84600" --metadata-directive REPLACE --acl public-read $OPENSANCTIONS_DATA_PATH/datasets s3://data.opensanctions.org/datasets/latest
           aws s3 sync --quiet --no-progress --cache-control "public, max-age=84600" --metadata-directive REPLACE --acl public-read $OPENSANCTIONS_DATA_PATH/datasets s3://data.opensanctions.org/datasets/$OPENSANCTIONS_DATE
           aws cloudfront create-invalidation --distribution-id ETROMAQBEJS91 --paths "/datasets/latest/*"
