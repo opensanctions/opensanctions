@@ -6,76 +6,76 @@ on:
   workflow_dispatch: {}
 
 jobs:
-  # crawl:
-  #   runs-on: ubuntu-latest
-  #   container: ghcr.io/opensanctions/opensanctions
-  #   env:
-  #     OPENSANCTIONS_COH_API_KEY: ${{ secrets.OPENSANCTIONS_COH_API_KEY }}
-  #     OPENSANCTIONS_DATABASE_URI: ${{ secrets.OPENSANCTIONS_DATABASE_URI }}
-  #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       crawler:
-  #         - adb_sanctions
-  #         - afdb_sanctions
-  #         - ar_repet
-  #         - au_dfat_sanctions
-  #         - ca_dfatd_sema_sanctions
-  #         - ca_listed_terrorists
-  #         - ch_seco_sanctions
-  #         - ebrd_ineligible
-  #         - eu_cor_members
-  #         - eu_fsf
-  #         - eu_meps
-  #         # - everypolitician
-  #         - fr_tresor_gels_avoir
-  #         - gb_coh_disqualified
-  #         - gb_hmt_sanctions
-  #         - iadb_sanctions
-  #         - il_mod_terrorists
-  #         # - interpol_red_notices
-  #         # - interpol_yellow_notices
-  #         - jp_mof_sanctions
-  #         - kg_fiu_national
-  #         - kz_afmrk_sanctions
-  #         - ransomwhere
-  #         - ru_billionaires_2021
-  #         # - ru_fedsdm_terror
-  #         # - ru_fedsdm_wmd
-  #         - ru_navalny35
-  #         # - ru_rupep
-  #         # - ua_nsdc_sanctions
-  #         # - ua_sfms_blacklist
-  #         - un_ops_vendors
-  #         - un_sc_sanctions
-  #         - us_bis_denied
-  #         # - us_cia_world_leaders
-  #         - us_ofac_cons
-  #         - us_ofac_sdn
-  #         - us_trade_csl
-  #         - wd_curated
-  #         # - wd_peppercat_leaders
-  #         # - wd_peppercat_legislators
-  #         - worldbank_debarred
-  #         - za_fic_sanctions
-  #   steps:
-  #     - name: Set env
-  #       run: |
-  #         echo "OPENSANCTIONS_DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
-  #     - name: Crawl data sources
-  #       env:
-  #         CRAWLER: ${{ matrix.crawler }}
-  #       run: |
-  #         opensanctions crawl $CRAWLER
-  #     - name: Upload fetched resources to data.opensanctions.org
-  #       if: ${{ always() }}
-  #       run: |
-  #         mkdir -p $OPENSANCTIONS_DATA_PATH/datasets
-  #         aws s3 sync --no-progress --cache-control "public, max-age=846000" --acl public-read $OPENSANCTIONS_DATA_PATH/datasets s3://data.opensanctions.org/datasets/$OPENSANCTIONS_DATE
+  crawl:
+    runs-on: ubuntu-latest
+    container: ghcr.io/opensanctions/opensanctions
+    env:
+      OPENSANCTIONS_COH_API_KEY: ${{ secrets.OPENSANCTIONS_COH_API_KEY }}
+      OPENSANCTIONS_DATABASE_URI: ${{ secrets.OPENSANCTIONS_DATABASE_URI }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    strategy:
+      fail-fast: false
+      matrix:
+        crawler:
+          - adb_sanctions
+          - afdb_sanctions
+          - ar_repet
+          - au_dfat_sanctions
+          - ca_dfatd_sema_sanctions
+          - ca_listed_terrorists
+          - ch_seco_sanctions
+          - ebrd_ineligible
+          - eu_cor_members
+          - eu_fsf
+          - eu_meps
+          # - everypolitician
+          - fr_tresor_gels_avoir
+          - gb_coh_disqualified
+          - gb_hmt_sanctions
+          - iadb_sanctions
+          - il_mod_terrorists
+          # - interpol_red_notices
+          # - interpol_yellow_notices
+          - jp_mof_sanctions
+          - kg_fiu_national
+          - kz_afmrk_sanctions
+          - ransomwhere
+          - ru_billionaires_2021
+          # - ru_fedsdm_terror
+          # - ru_fedsdm_wmd
+          - ru_navalny35
+          # - ru_rupep
+          # - ua_nsdc_sanctions
+          # - ua_sfms_blacklist
+          - un_ops_vendors
+          - un_sc_sanctions
+          - us_bis_denied
+          # - us_cia_world_leaders
+          - us_ofac_cons
+          - us_ofac_sdn
+          - us_trade_csl
+          - wd_curated
+          # - wd_peppercat_leaders
+          # - wd_peppercat_legislators
+          - worldbank_debarred
+          - za_fic_sanctions
+    steps:
+      - name: Set env
+        run: |
+          echo "OPENSANCTIONS_DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
+      - name: Crawl data sources
+        env:
+          CRAWLER: ${{ matrix.crawler }}
+        run: |
+          opensanctions crawl $CRAWLER
+      - name: Upload fetched resources to data.opensanctions.org
+        if: ${{ always() }}
+        run: |
+          mkdir -p $OPENSANCTIONS_DATA_PATH/datasets
+          aws s3 sync --no-progress --cache-control "public, max-age=846000" --acl public-read $OPENSANCTIONS_DATA_PATH/datasets s3://data.opensanctions.org/datasets/$OPENSANCTIONS_DATE
   resolve:
-    # needs: [crawl]
+    needs: [crawl]
     runs-on: ubuntu-latest
     container: ghcr.io/opensanctions/opensanctions
     env:
