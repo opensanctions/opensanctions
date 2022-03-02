@@ -3,6 +3,7 @@ from pantomime.types import CSV
 
 from opensanctions.core import Context
 from opensanctions.wikidata import get_entity, entity_to_ftm
+from opensanctions.wikidata.api import load_labels
 
 
 def crawl_qid(context, qid, country):
@@ -23,6 +24,7 @@ def crawl_qid(context, qid, country):
 def crawl(context: Context):
     path = context.fetch_resource("source.csv", context.dataset.data.url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
+    load_labels(context)
     prev_country = None
     with open(path, "r") as fh:
         for row in csv.DictReader(fh):

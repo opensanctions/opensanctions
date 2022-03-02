@@ -1,5 +1,5 @@
 import urllib3
-from typing import Optional
+from typing import Optional, Generator
 from datetime import timedelta
 from sqlalchemy.future import select
 from sqlalchemy.sql.expression import delete
@@ -41,6 +41,15 @@ def check_cache(conn: Conn, url: str, max_age: timedelta) -> Optional[str]:
     if row is not None:
         return row.text
     return None
+
+
+def all_cached(conn: Conn, like: str, max_age: timedelta) -> Generator[str, None, None]:
+    q = select(cache_table.c.text)
+    q = q.filter(cache_table.c.url.like(like))
+    q = q.filter(cache_table.c.timestamp > (settings.RUN_TIME - max_age))
+    result = conn.execution_options(stream_results=True).execute(q)
+    for row in result:
+        yield row.text
 
 
 def clear_cache(conn: Conn, dataset: Dataset):
