@@ -18,6 +18,7 @@ description: |
 collections:
   - sanctions
   - default
+  - work
 publisher:
   name: Ministry of Economy, Finance, and Recovery
   country: fr

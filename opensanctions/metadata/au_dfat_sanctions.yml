@@ -20,6 +20,7 @@ description: |
 collections:
   - sanctions
   - default
+  - work
 url: https://www.dfat.gov.au/international-relations/security/sanctions/Pages/sanctions
 publisher:
   name: "Department of Foreign Affairs and Trade (DFAT)"

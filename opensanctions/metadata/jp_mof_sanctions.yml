@@ -30,6 +30,7 @@ description: |
 collections:
   - sanctions
   - default
+  - work
 publisher:
   name: "Ministry of Finance"
   description: |

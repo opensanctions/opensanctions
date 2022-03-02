@@ -22,7 +22,7 @@ description: |
 collections:
   - peps
   - default
-  - work
+  # - work
 publisher:
   name: MySociety (UK Citizens Online Democracy)
   description: |
