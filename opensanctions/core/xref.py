@@ -28,6 +28,8 @@ def blocking_xref(dataset: Dataset, limit: int = 5000, fuzzy: bool = False):
                 continue
         if not resolver.check_candidate(left.id, right.id):
             continue
+        if len(left.datasets.intersection(right.datasets)) > 0:
+            score = score * 0.5
         resolver.suggest(left.id, right.id, score)
         if suggested > limit:
             break
