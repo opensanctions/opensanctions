@@ -16,7 +16,7 @@ from opensanctions import settings
 from opensanctions.core.entity import Entity
 from opensanctions.core.db import engine_tx, engine_read
 from opensanctions.core.cache import save_cache, clear_cache
-from opensanctions.core.cache import check_cache, randomize_cache
+from opensanctions.core.cache import check_cache
 from opensanctions.core.issues import clear_issues
 from opensanctions.core.resources import save_resource, clear_resources
 from opensanctions.core.statements import Statement, count_entities
@@ -96,8 +96,7 @@ class Context(object):
         url = normalize_url(url, params)
         if cache_days is not None:
             with engine_read() as conn:
-                cache_td = randomize_cache(cache_days)
-                text = check_cache(conn, url, cache_td)
+                text = check_cache(conn, url, cache_days)
                 if text is not None:
                     self.log.debug("HTTP cache hit", url=url)
                     return text

@@ -2,6 +2,7 @@ import csv
 from pantomime.types import CSV
 
 from opensanctions.core import Context
+from opensanctions.core.cache import warm_cache
 from opensanctions.wikidata import get_entity, entity_to_ftm
 from opensanctions.wikidata.api import load_api_cache
 
@@ -24,7 +25,8 @@ def crawl_qid(context, qid, country):
 def crawl(context: Context):
     path = context.fetch_resource("source.csv", context.dataset.data.url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
-    load_api_cache(context)
+    context.log.info("Loading wikidata API cache...")
+    warm_cache("https://www.wikidata.org/w/api.php%")
     prev_country = None
     with open(path, "r") as fh:
         for row in csv.DictReader(fh):
