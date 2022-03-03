@@ -1,8 +1,8 @@
 import math
 import urllib3
 from random import randint
-from typing import Optional, Generator
-from datetime import timedelta
+from typing import cast, Optional, Generator, TypedDict
+from datetime import datetime, timedelta
 from sqlalchemy.future import select
 from sqlalchemy.sql.expression import delete
 
@@ -13,8 +13,15 @@ from opensanctions.core.db import Conn, upsert_func, cache_table
 urllib3.disable_warnings()
 
 
+class Cache(TypedDict):
+    url: str
+    dataset: str
+    text: str
+    timestamp: datetime
+
+
 def save_cache(conn: Conn, url: str, dataset: Dataset, text: Optional[str]) -> None:
-    cache = {
+    cache: Cache = {
         "timestamp": settings.RUN_TIME,
         "url": url,
         "dataset": dataset.name,
@@ -45,13 +52,13 @@ def check_cache(conn: Conn, url: str, max_age: timedelta) -> Optional[str]:
     return None
 
 
-def all_cached(conn: Conn, like: str, max_age: timedelta) -> Generator[str, None, None]:
-    q = select(cache_table.c.text)
+def all_cached(conn: Conn, like: str) -> Generator[Cache, None, None]:
+    q = select(cache_table)
     q = q.filter(cache_table.c.url.like(like))
-    q = q.filter(cache_table.c.timestamp > (settings.RUN_TIME - max_age))
+    # q = q.filter(cache_table.c.timestamp > (settings.RUN_TIME - max_age))
     result = conn.execution_options(stream_results=True).execute(q)
     for row in result:
-        yield row.text
+        yield cast(Cache, row._asdict())
 
 
 def clear_cache(conn: Conn, dataset: Dataset):
