@@ -1,5 +1,6 @@
 import structlog
 from nomenklatura.index import Index
+from nomenklatura.util import is_qid
 
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.loader import Database
@@ -27,6 +28,8 @@ def blocking_xref(dataset: Dataset, limit: int = 5000, fuzzy: bool = False):
             if right.schema not in left.schema.matchable_schemata:
                 continue
         if not resolver.check_candidate(left.id, right.id):
+            continue
+        if is_qid(left.id) and is_qid(right.id):
             continue
         if len(left.datasets.intersection(right.datasets)) > 0:
             score = score * 0.5
