@@ -1,14 +1,11 @@
 import json
-import math
 import hashlib
 import requests
 import structlog
 import mimetypes
-from random import randint
 from typing import Dict, Optional, Union
 from lxml import etree, html
 from pprint import pprint
-from datetime import timedelta
 from datapatch import LookupException
 from lxml.etree import _Element, tostring
 from followthemoney.util import make_entity_id
@@ -18,7 +15,8 @@ from structlog.contextvars import clear_contextvars, bind_contextvars
 from opensanctions import settings
 from opensanctions.core.entity import Entity
 from opensanctions.core.db import engine_tx, engine_read
-from opensanctions.core.http import check_cache, save_cache, clear_cache
+from opensanctions.core.cache import save_cache, clear_cache
+from opensanctions.core.cache import check_cache, randomize_cache
 from opensanctions.core.issues import clear_issues
 from opensanctions.core.resources import save_resource, clear_resources
 from opensanctions.core.statements import Statement, count_entities
@@ -98,10 +96,8 @@ class Context(object):
         url = normalize_url(url, params)
         if cache_days is not None:
             with engine_read() as conn:
-                min_cache = max(1, math.ceil(cache_days * 0.7))
-                max_cache = math.ceil(cache_days * 1.3)
-                cache_days = timedelta(days=randint(min_cache, max_cache))
-                text = check_cache(conn, url, cache_days)
+                cache_td = randomize_cache(cache_days)
+                text = check_cache(conn, url, cache_td)
                 if text is not None:
                     self.log.debug("HTTP cache hit", url=url)
                     return text

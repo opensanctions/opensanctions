@@ -7,7 +7,7 @@ from typing import Any, Dict, Optional
 
 from opensanctions.core import Context
 from opensanctions.core.db import engine_read
-from opensanctions.core.http import all_cached
+from opensanctions.core.cache import all_cached
 from opensanctions.wikidata.lang import pick_obj_lang
 
 WD_API = "https://www.wikidata.org/w/api.php"

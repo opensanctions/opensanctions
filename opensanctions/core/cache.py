@@ -1,4 +1,6 @@
+import math
 import urllib3
+from random import randint
 from typing import Optional, Generator
 from datetime import timedelta
 from sqlalchemy.future import select
@@ -56,3 +58,9 @@ def clear_cache(conn: Conn, dataset: Dataset):
     pq = delete(cache_table)
     pq = pq.where(cache_table.c.dataset == dataset.name)
     conn.execute(pq)
+
+
+def randomize_cache(days: int) -> timedelta:
+    min_cache = max(1, math.ceil(days * 0.7))
+    max_cache = math.ceil(days * 1.3)
+    return timedelta(days=randint(min_cache, max_cache))
