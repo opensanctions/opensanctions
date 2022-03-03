@@ -135,15 +135,15 @@ jobs:
         with:
           webhook_url: ${{ secrets.VERCEL_WEBHOOK }}
           options: "-X POST"
-  api:
-    needs: [export-data]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          ref: main
-      - name: Trigger API update on api.opensanctions.org
-        uses: zzzze/webhook-trigger@master
-        with:
-          webhook_url: ${{ secrets.API_WEBHOOK }}
-          options: "-X POST"
+  # api:
+  #   needs: [export-data]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #       with:
+  #         ref: main
+  #     - name: Trigger API update on api.opensanctions.org
+  #       uses: zzzze/webhook-trigger@master
+  #       with:
+  #         webhook_url: ${{ secrets.API_WEBHOOK }}
+  #         options: "-X POST"
