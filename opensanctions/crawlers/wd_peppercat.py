@@ -4,7 +4,6 @@ from pantomime.types import CSV
 from opensanctions.core import Context
 from opensanctions.core.cache import warm_cache
 from opensanctions.wikidata import get_entity, entity_to_ftm
-from opensanctions.wikidata.api import load_api_cache
 
 
 def crawl_qid(context, qid, country):
