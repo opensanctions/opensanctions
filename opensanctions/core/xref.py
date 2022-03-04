@@ -34,8 +34,8 @@ def blocking_xref(dataset: Dataset, limit: int = 5000, fuzzy: bool = False):
             continue
         countries = left.get_type_values(registry.country)
         countries.extend(right.get_type_values(registry.country))
-        if "ru" in countries or "by" in countries or "ua" in countries:
-            score = score * 10
+        # if "ru" in countries or "by" in countries or "ua" in countries:
+        #     score = score * 10
         if len(left.datasets.intersection(right.datasets)) > 0:
             score = score * 0.5
         resolver.suggest(left.id, right.id, score)
