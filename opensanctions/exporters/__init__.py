@@ -3,6 +3,7 @@ import structlog
 from opensanctions import settings
 from opensanctions.core import Context, Dataset, Entity
 from opensanctions.core.loader import Database
+from opensanctions.core.assembly import assemble
 from opensanctions.core.db import engine
 from opensanctions.core.issues import all_issues
 from opensanctions.exporters.common import write_json
@@ -28,7 +29,7 @@ __all__ = ["export_dataset", "export_metadata", "export_statements"]
 def export_dataset(dataset: Dataset, database: Database):
     """Dump the contents of the dataset to the output directory."""
     context = Context(dataset)
-    loader = database.view(dataset, Entity.assembler)
+    loader = database.view(dataset, assemble)
     exporters = [Exporter(context, loader) for Exporter in EXPORTERS]
 
     for exporter in exporters:

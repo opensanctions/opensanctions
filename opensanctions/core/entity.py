@@ -143,10 +143,3 @@ class Entity(CompositeEntity):
             for value in values:
                 obj.unsafe_add(prop, value, cleaned=cleaned)
         return obj
-
-    @classmethod
-    def assembler(cls, entity):
-        """Perform some user-facing cleanup when exporting the entity."""
-        entity = simplify_provenance(entity)
-        entity = remove_prefix_dates(entity)
-        return name_entity(entity)

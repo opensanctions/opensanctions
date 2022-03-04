@@ -1,6 +1,7 @@
 import structlog
 from nomenklatura.index import Index
 from nomenklatura.util import is_qid
+from followthemoney.types import registry
 
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.loader import Database
@@ -31,6 +32,10 @@ def blocking_xref(dataset: Dataset, limit: int = 5000, fuzzy: bool = False):
             continue
         if is_qid(left.id) and is_qid(right.id):
             continue
+        countries = left.get_type_values(registry.country)
+        countries.extend(right.get_type_values(registry.country))
+        if "ru" in countries or "by" in countries or "ua" in countries:
+            score = score * 10
         if len(left.datasets.intersection(right.datasets)) > 0:
             score = score * 0.5
         resolver.suggest(left.id, right.id, score)
