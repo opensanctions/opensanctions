@@ -111,7 +111,6 @@ country:
         - Danish Realm
       value: DK
     - match:
-        - West Germany
         - Nazi Germany
       value: DE
     - match:
@@ -183,7 +182,6 @@ country:
       value: DE
     - match:
         - Assembly of Kosovo*
-        - Republic of Kosova
       value: XK
     - match: Andalusia
       value: Spain
@@ -360,7 +358,6 @@ country:
       value: RU
     - match:
         - Former Ukrainian
-        - Donetsk People's Republic
       value: UA
     - match: スウェーデン（リンケビー、ストックホルム）、ソマリア（モガディシュ）
       values:
@@ -417,9 +414,6 @@ country:
       values:
         - SUHH
         - UA
-    - match:
-        - Ukrainian State
-      value: Ukraine
     - match:
         # *cough cough*:
         - тимчасово окупована територія Автономної Республіки Крим
@@ -521,10 +515,6 @@ country:
         - Polish People's Republic
       value: Poland
     - match:
-        - Czechoslovak Socialist Republic
-        - Czechoslovak Republic
-      value: CSHH
-    - match:
         - Slovak State (1939-1945)
       value: Slovakia
     - match: Turks and Caicos Islads
@@ -582,9 +572,6 @@ country:
         - Pakis
         - Pakistanis
       value: PK
-    - match:
-        - Mongolian People's Republic
-      value: Mongolia
     - match:
         - Romanian People's Republic
       value: RO
