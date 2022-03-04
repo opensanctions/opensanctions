@@ -84,11 +84,18 @@ country:
         - Nazareth
         - Insular Government of the Philippine Islands
         - Korean Empire
+        - Congress Poland
+        - Romanov Empire
         - Joseon
         - Song dynasty
         - Qing dynasty
         - Ming dynasty
         - Malaya
+        - Tapia
+        - Alkatraz
+        - Tilted Towers
+        - Fortnite
+        - Korean Peninsula
         - British Pakistanis
         - United Arab Republic
         - Kedah Sultanate
@@ -130,6 +137,7 @@ country:
         - "Monterrey, Nuevo Leon"
         - "Tepic, Nayarit"
         - State of Mexico
+        - Oaxaca State
       value: MX
     - match:
         - Maracaibo, Zulia
@@ -194,6 +202,8 @@ country:
       value: CD
     - match: NM # New Mexico?
       value: US
+    - match: Trucial States
+      value: AE
     - match: "Region: Northern Mali"
       value: Mali
     - match: "Provisional People's Committee for North Korea"
@@ -270,6 +280,7 @@ country:
         - Indonesian (as at Dec. 2003)
         - Indonesian passport
         - インドネシア（2003年12月時点）
+        - Aceh
       value: Indonesia
     - match: Afghan  Pakistani
       values:
@@ -289,6 +300,8 @@ country:
         - Iran
     - match:
         - Cherokee Nation
+        - Chickasaw Nation
+        - Americans
       value: US
     - match: Malian / Mauritanian
       values:
@@ -420,6 +433,8 @@ country:
     - match:
         - Russian Empire
         - Russian Republic
+        - Chechen Republic of Ichkeria
+        - Chechen
       value: RU
     - match:
         - Russian SFSR (now Russian Federation)
@@ -528,10 +543,14 @@ country:
     - match:
         - First Republic of Austria
         - Federal State of Austria
+        - Austrians
       value: AT
+    - match: Canadians
+      value: CA
     - match:
         - Saudi Arabian Citizen
         - al-Khafji
+        - Kingdom of Nejd and Hejaz
       value: Saudi Arabia
     - match:
         - Bangladeshis
@@ -582,6 +601,7 @@ date:
   options:
     - match:
         - 3030-03-09
+        - "00/00/0"
         - "Approximately (30-35 years old)"
         - "Not yet reviewed"
         - "הכרזה בוטלה ביום 29.8.21"
@@ -887,6 +907,7 @@ gender:
         - non-binary
         - intersex
         - pangender
+        - kathoey
       value: other
 
 fulladdress:
