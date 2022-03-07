@@ -42,6 +42,7 @@ lookups:
           - (1) Brest branch (2) Gomel branch (3) Grodno branch (4) Mogilev branch (5) Vitsebsk branch
           - Aerial Defence. Air Force. Civil Defence Forces. Coastal Defence. Ground Forces. Internal Security Forces. Navy. Popular Army. Syrian Arab Army
           - Saccal System companies
+          - "11203"
         values: []
       - match:
           - Kaveh Cutting Tools
@@ -249,11 +250,16 @@ lookups:
         value: Libyan Investment Authority
       - match: Libyan subsidiary of the Central Bank of Libya.
         value: Central Bank of Libya
+      - match: (1) Basij Cooperative Foundation (BCF) (2) Bank Sepah
+        values:
+          - Basij Cooperative Foundation (BCF)
+          - Bank Sepah
       - match: Established by Bonyad Taavon Sepah (aka IRGC Cooperative Foundation)
         value: Bonyad Taavon Sepah
       - match:
           - IRGC
           - Iranian Revolutionary Guard Corps
+          - Islamic Revolutionary Guard Corps
         value: Islamic Revolutionary Guard Corps (IRGC)
       - match:
           - Iran Aviation Industries Organisation (IAIO) (a subsidiary of MODAFL)
@@ -335,3 +341,9 @@ lookups:
           - Ammunition Industries Group (AMIG)
           - Defence Industries Organisation (DIO)
           - Ministry of Defence and Armed Force Logistics (MODAFL)
+      - match: Hoda Trading
+        value: Hoda Trading
+      - match: (1) Novin Energy (2) TAMAS
+        values:
+          - Novin Energy
+          - TAMAS

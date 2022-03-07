@@ -827,6 +827,33 @@ email:
       values:
         - s.bank@scs‐net.org
         - post‐gm@net.sy
+    - match: (1) dashtabadi@partosanat.com (2) Info@partosanat.com
+      values:
+        - dashtabadi@partosanat.com
+        - Info@partosanat.com
+    - match: "(1) www.farhang gostar.net/gtb (2) www.gtbir.com (3) www.taghtiran.ir (Email address): (1) gtb@farhanggostar.net (2) hnourib@yahoo.com (3) office@taghtiran.ir (4) taghtiran@gtbir.com"
+      values:
+        - gtb@farhanggostar.net
+        - hnourib@yahoo.com
+        - office@taghtiran.ir
+        - taghtiran@gtbir.com
+    - match: (1) info@stepfasteners.com (2) miladjafari@ekolay.net (3) purchase@stepfasteners.com (4) sales@stepfasteners.com
+      values:
+        - info@stepfasteners.com
+        - miladjafari@ekolay.net
+        - purchase@stepfasteners.com
+        - sales@stepfasteners.com
+    - match: (1) H.S@nvco.com (2) H.Sharifi@nvco.com (3) info@nvco.com (4) Marketing@nvco.com (5) Mostafavi@nvco.com
+      values:
+        - H.S@nvco.com
+        - H.Sharifi@nvco.com
+        - info@nvco.com
+        - Marketing@nvco.com
+        - Mostafavi@nvco.com
+    - match: (1) mohammadreza.alizadeh@schillernovin.ir (2) schniller@dpimail.net
+      values:
+        - mohammadreza.alizadeh@schillernovin.ir
+        - schniller@dpimail.net
     - match:
         - spccom2@scs‐net.org or spccom1@scsnet.org
         - (1) spccom1@scs-net.org (2) spccom2@scs-net.org
