@@ -127,7 +127,7 @@ jobs:
     needs: [export-data]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           ref: main
       - name: Trigger Vercel build of opensanctions/site
@@ -139,7 +139,7 @@ jobs:
   #   needs: [export-data]
   #   runs-on: ubuntu-latest
   #   steps:
-  #     - uses: actions/checkout@v2
+  #     - uses: actions/checkout@v3
   #       with:
   #         ref: main
   #     - name: Trigger API update on api.opensanctions.org
