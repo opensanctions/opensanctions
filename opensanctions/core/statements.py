@@ -180,6 +180,7 @@ def agg_targets_by_schema(conn: Conn, dataset: Optional[Dataset] = None):
     count = func.count(func.distinct(stmt_table.c.canonical_id))
     q = select(stmt_table.c.schema, count)
     q = q.filter(stmt_table.c.target == True)  # noqa
+    q = q.filter(stmt_table.c.prop == BASE)
     if dataset is not None:
         q = q.filter(stmt_table.c.dataset.in_(dataset.source_names))
     q = q.group_by(stmt_table.c.schema)
@@ -224,6 +225,7 @@ def agg_targets_by_schema(conn: Conn, dataset: Optional[Dataset] = None):
 def all_schemata(conn: Conn, dataset: Optional[Dataset] = None):
     """Return all schemata present in the dataset"""
     q = select(func.distinct(stmt_table.c.schema))
+    q = q.filter(stmt_table.c.prop == BASE)
     if dataset is not None:
         q = q.filter(stmt_table.c.dataset.in_(dataset.source_names))
     q = q.group_by(stmt_table.c.schema)
@@ -234,6 +236,7 @@ def all_schemata(conn: Conn, dataset: Optional[Dataset] = None):
 def max_last_seen(conn: Conn, dataset: Optional[Dataset] = None) -> Optional[datetime]:
     """Return the latest date of the data."""
     q = select(func.max(stmt_table.c.last_seen))
+    q = q.filter(stmt_table.c.prop == BASE)
     if dataset is not None:
         q = q.filter(stmt_table.c.dataset.in_(dataset.source_names))
     return conn.scalar(q)
@@ -242,6 +245,7 @@ def max_last_seen(conn: Conn, dataset: Optional[Dataset] = None) -> Optional[dat
 def entities_datasets(conn: Conn, dataset: Optional[Dataset] = None):
     """Return all entity IDs with the dataset they belong to."""
     q = select(stmt_table.c.entity_id, stmt_table.c.dataset)
+    q = q.filter(stmt_table.c.prop == BASE)
     if dataset is not None:
         q = q.filter(stmt_table.c.dataset.in_(dataset.source_names))
     q = q.distinct()
