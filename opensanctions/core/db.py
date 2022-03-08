@@ -4,6 +4,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.engine import Connection
 from sqlalchemy.types import JSON
 from sqlalchemy import Table, Column, Integer, DateTime, Unicode, Boolean
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.dialects.postgresql import insert as upsert_func
 
 from opensanctions import settings
@@ -102,4 +103,31 @@ canonical_table = Table(
     metadata,
     Column("entity_id", Unicode(KEY_LEN), index=True, nullable=False),
     Column("canonical_id", Unicode(KEY_LEN), index=False, nullable=True),
+)
+
+
+analytics_entity_table = Table(
+    "analytics_entity",
+    metadata,
+    Column("id", Unicode(KEY_LEN), index=True, nullable=False),
+    Column("schema", Unicode(KEY_LEN), nullable=False),
+    Column("caption", Unicode(VALUE_LEN), nullable=False),
+    Column("target", Boolean),
+    Column("properties", JSONB),
+    Column("first_seen", DateTime),
+    Column("last_seen", DateTime),
+)
+
+analytics_dataset_table = Table(
+    "analytics_dataset",
+    metadata,
+    Column("entity_id", Unicode(KEY_LEN), index=True, nullable=False),
+    Column("dataset", Unicode(KEY_LEN), index=True, nullable=False),
+)
+
+analytics_country_table = Table(
+    "analytics_country",
+    metadata,
+    Column("entity_id", Unicode(KEY_LEN), index=True, nullable=False),
+    Column("country", Unicode(KEY_LEN), index=True, nullable=False),
 )
