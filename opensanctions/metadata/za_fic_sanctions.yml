@@ -18,7 +18,7 @@ description: |
 collections:
   - sanctions
   - default
-  - work
+  # - work
 publisher:
   name: Financial Intelligence Centre (FIC)
   description: |

@@ -30,7 +30,7 @@ description: |
 collections:
   - sanctions
   - default
-  - work
+  # - work
 publisher:
   name: "Ministry of Finance"
   description: |
@@ -73,6 +73,8 @@ lookups:
           - 北朝鮮のミサイル又は大量破壊兵器計画に関連する者
           - テロリスト等 / 米国等が資産凍結等の措置を実施した個人及び団体
           - テロリスト等 / 先進主要７か国（米、加、英、仏、独、伊、日）が協調して資産凍結の措置を実施する対象となるテロリスト等の個人及び団体
+          - 資産凍結等の措置の対象となるロシア連邦の団体及び個人（団体（特定銀行を除く））
+          - 資産凍結等の措置の対象となるロシア連邦の団体及び個人（特定銀行）
         value: LegalEntity
   columns:
     options:
