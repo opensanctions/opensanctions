@@ -11,12 +11,16 @@ from opensanctions.core import Context
 from opensanctions import helpers as h
 
 TYPE_OF_OFFICIAL = {
-    "": "",
-    "1": "Національний публічний діяч",
-    "2": "Іноземний публічний діяч",
-    "3": "Діяч, що виконуює значні функції в міжнародній організації",
-    "4": "Пов'язана особа",
-    "5": "Член сім'ї",
+    "": (None, None),
+    # Національний публічний діяч - National public figure
+    "1": ("Національний публічний діяч", "role.pep"),
+    # Іноземний публічний діяч - Foreign public figure
+    "2": ("Іноземний публічний діяч", "role.pep"),
+    "3": ("Діяч, що виконуює значні функції в міжнародній організації", "gov.igo"),
+    # "Пов'язана особа"
+    "4": (None, "poi"),
+    # "Член сім'ї" - family:
+    "5": (None, "role.rca"),
 }
 
 
@@ -65,42 +69,42 @@ def company_id(context: Context, id: str):
 
 
 def crawl_people(context: Context, countries):
-    for row in stream_csv("core_person2country"):
-        entity = context.make("Person")
-        entity.id = person_id(context, row.pop("from_person_id"))
-        type_ = row.pop("relationship_type")
-        type_res = context.lookup("country_links", type_)
-        if type_res is None:
-            context.log.warning("Unknown country/person relation", type_=type_)
-            continue
-        if type_res.prop is None:
-            continue
-        country_code = countries.get(row.pop("to_country_id"))
-        entity.add(type_res.prop, country_code)
-        context.emit(entity)
-        # h.audit_data(row)
+    # for row in stream_csv("core_person2country"):
+    #     entity = context.make("Person")
+    #     entity.id = person_id(context, row.pop("from_person_id"))
+    #     type_ = row.pop("relationship_type")
+    #     type_res = context.lookup("country_links", type_)
+    #     if type_res is None:
+    #         context.log.warning("Unknown country/person relation", type_=type_)
+    #         continue
+    #     if type_res.prop is None:
+    #         continue
+    #     country_code = countries.get(row.pop("to_country_id"))
+    #     entity.add(type_res.prop, country_code)
+    #     context.emit(entity)
+    #     # h.audit_data(row)
 
-    for row in stream_csv("core_person2person"):
-        from_type = row.pop("from_relationship_type")
-        to_type = row.pop("to_relationship_type")
-        type_ = "%s / %s" % (from_type, to_type)
-        type_res = context.lookup("person_links", type_)
-        if type_res is None:
-            context.log.warning("Unknown person/person relation", type_=type_)
-            continue
-        from_person_id = person_id(context, row.pop("from_person_id"))
-        to_person_id = person_id(context, row.pop("to_person_id"))
-        entity = context.make(type_res.schema)
-        entity.id = context.make_slug("p2p", row.pop("id"))
-        entity.add(type_res.from_prop, from_person_id)
-        entity.add(type_res.to_prop, to_person_id)
-        entity.add(type_res.desc_prop, type_)
-        entity.add("summary", strip_html(row.pop("relationship_details")))
-        entity.add("summary", strip_html(row.pop("relationship_details_ru")))
-        entity.add("startDate", row.pop("date_established"))
-        entity.add("endDate", row.pop("date_finished"))
-        context.emit(entity)
-        # h.audit_data(row)
+    # for row in stream_csv("core_person2person"):
+    #     from_type = row.pop("from_relationship_type")
+    #     to_type = row.pop("to_relationship_type")
+    #     type_ = "%s / %s" % (from_type, to_type)
+    #     type_res = context.lookup("person_links", type_)
+    #     if type_res is None:
+    #         context.log.warning("Unknown person/person relation", type_=type_)
+    #         continue
+    #     from_person_id = person_id(context, row.pop("from_person_id"))
+    #     to_person_id = person_id(context, row.pop("to_person_id"))
+    #     entity = context.make(type_res.schema)
+    #     entity.id = context.make_slug("p2p", row.pop("id"))
+    #     entity.add(type_res.from_prop, from_person_id)
+    #     entity.add(type_res.to_prop, to_person_id)
+    #     entity.add(type_res.desc_prop, type_)
+    #     entity.add("summary", strip_html(row.pop("relationship_details")))
+    #     entity.add("summary", strip_html(row.pop("relationship_details_ru")))
+    #     entity.add("startDate", row.pop("date_established"))
+    #     entity.add("endDate", row.pop("date_finished"))
+    #     context.emit(entity)
+    #     # h.audit_data(row)
 
     for row in stream_csv("core_person"):
         entity = context.make("Person")
@@ -132,11 +136,17 @@ def crawl_people(context: Context, countries):
             patronymic=row.pop("patronymic_ru"),
             last_name=row.pop("last_name_ru"),
         )
-        official_type = TYPE_OF_OFFICIAL[row.pop("type_of_official")]
-        entity.add("position", official_type)
+        (type_text, type_topic) = TYPE_OF_OFFICIAL[row.pop("type_of_official")]
+        entity.add("position", type_text)
+        entity.add("topics", type_topic)
 
         # TODO: can these be split somehow?
-        entity.add("weakAlias", row.pop("names"))
+        aliases = row.pop("names")
+        if aliases is not None:
+            if "\u200b" in aliases:
+                entity.add("alias", aliases.split("\u200b"))
+            else:
+                entity.add("weakAlias", aliases)
 
         context.emit(entity, target=target)
         # h.audit_data(row)
