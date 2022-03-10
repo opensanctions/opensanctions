@@ -21,7 +21,7 @@ def crawl_row(context, row):
     if data is None:
         return
     proxy = entity_to_ftm(context, data, schema=schema, topics=topics, depth=2)
-    context.log.info("Curated entity", entity=proxy)
+    context.log.info("Oligarch", entity=proxy)
 
 
 def crawl(context: Context):

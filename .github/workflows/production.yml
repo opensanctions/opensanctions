@@ -56,6 +56,7 @@ jobs:
           - us_ofac_sdn
           - us_trade_csl
           - wd_curated
+          - wd_oligarchs
           # - wd_peppercat_leaders
           # - wd_peppercat_legislators
           - worldbank_debarred
