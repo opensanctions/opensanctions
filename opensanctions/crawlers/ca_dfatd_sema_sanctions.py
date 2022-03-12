@@ -30,13 +30,16 @@ def parse_entry(context, node):
     # ids are per country and entry type (individual/entity)
     item = node.findtext("./Item")
     schedule = node.findtext("./Schedule")
-    country = node.findtext("./Country")
+    program = country = node.findtext("./Country")
     if "/" in country:
         country, _ = country.split("/")
     entity.id = context.make_slug(country, schedule, item, strict=False)
     entity.add("country", country)
+
     sanction = h.make_sanction(context, entity)
-    sanction.add("program", schedule)
+    sanction.add("program", program)
+    sanction.add("reason", schedule)
+    sanction.add("authorityId", item)
 
     names = node.findtext("./Aliases")
     if names is not None:

@@ -116,13 +116,13 @@ def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str
     sanction.add("program", section)
     sanction.add("reason", row.pop("root_nomination", None))
     sanction.add("reason", row.pop("reason_res1483", None))
-    sanction.add("recordId", row.pop("notification_number", None))
+    sanction.add("authorityId", row.pop("notification_number", None))
+    sanction.add("unscId", row.pop("designated_un", None))
 
     sanction.add("startDate", parse_date(row.pop("notification_date", [])))
     sanction.add("startDate", parse_date(row.pop("designated_date", [])))
     sanction.add("listingDate", parse_date(row.pop("publication_date", [])))
 
-    row.pop("designated_un", None)
     # if len(row):
     #     context.pprint(row)
     entity.add("topics", "sanction")

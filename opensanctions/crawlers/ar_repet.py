@@ -1,6 +1,5 @@
 import json
 from typing import Dict
-from normality import collapse_spaces
 from pantomime.types import JSON
 
 from opensanctions.core import Context, Entity
@@ -88,12 +87,12 @@ def crawl_common(context: Context, data: Dict[str, str], part: str, schema: str)
     entity.add("createdAt", submitted_on or listed_on or modified_at)
     entity.add("modifiedAt", modified_at)
 
-    sanction.add("listingDate", listed_on)
+    sanction.add("listingDate", submitted_on or listed_on)
     sanction.add("startDate", listed_on)
     sanction.add("program", data.pop("UN_LIST_TYPE"))
     sanction.add("program", data.pop("LIST_TYPE"))
     sanction.add("unscId", data.pop("REFERENCE_NUMBER"))
-    sanction.add("reason", data.pop("SUBMITTED_BY", None))
+    sanction.add("authority", data.pop("SUBMITTED_BY", None))
     context.emit(sanction)
     return entity
 

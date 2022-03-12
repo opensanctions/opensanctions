@@ -17,6 +17,7 @@ jobs:
       matrix:
         crawler:
           - interpol_red_notices
+          - interpol_yellow_notices
           - wd_peppercat_leaders
           - wd_peppercat_legislators
           - ru_rupep

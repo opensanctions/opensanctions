@@ -103,7 +103,7 @@ def crawl(context: Context):
             entity.id = context.make_id(text)
             sanction = h.make_sanction(context, entity)
             sanction.add("program", section)
-            sanction.add("recordId", index)
+            sanction.add("authorityId", index)
             if sec_id == "russianUL":
                 parse_russian_orgs(context, entity, text)
             if sec_id == "russianFL":

@@ -1,6 +1,4 @@
 from typing import Dict
-from normality import collapse_spaces
-from prefixdate import parse
 
 from opensanctions.core import Context
 from opensanctions import helpers as h
@@ -71,12 +69,12 @@ def crawl_row(context: Context, data: Dict[str, str]):
     inserted_at = parse_date(data.pop("DateInserted", None))
     listed_at = parse_date(data.pop("ListedON", None))
     entity.add("createdAt", inserted_at or listed_at)
-    sanction.add("listingDate", listed_at)
+    sanction.add("listingDate", listed_at or inserted_at)
     sanction.add("startDate", data.pop("FROM_YEAR", None))
     sanction.add("endDate", data.pop("TO_YEAR", None))
     sanction.add("program", data.pop("UN_LIST_TYPE", None))
-    sanction.add("reason", data.pop("SUBMITTED_BY", None))
     sanction.add("unscId", data.pop("REFERENCE_NUMBER", None))
+    sanction.add("authority", data.pop("SUBMITTED_BY", None))
 
     entity.add("topics", "sanction")
     h.audit_data(data, ignore=["VERSIONNUM", "TYPE_OF_DATE"])

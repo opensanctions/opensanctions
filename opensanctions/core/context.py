@@ -38,7 +38,7 @@ class Context(object):
     def __init__(self, dataset):
         self.dataset = dataset
         self.path = settings.DATASET_PATH.joinpath(dataset.name)
-        self.log = structlog.get_logger(dataset.name)
+        self.log: structlog.stdlib.BoundLogger = structlog.get_logger(dataset.name)
         self._statements: Dict[str, Statement] = {}
         self.http = requests.Session()
         self.http.headers = dict(settings.HEADERS)

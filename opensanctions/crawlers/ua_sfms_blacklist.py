@@ -30,6 +30,7 @@ def parse_entry(context: Context, entry):
     if date_entry:
         date = datetime.strptime(date_entry, "%Y%m%d")
         entity.add("createdAt", date.date())
+        sanction.add("listingDate", date.date())
         sanction.add("startDate", date.date())
 
     for aka in entry.findall("./aka-list"):

@@ -41,8 +41,7 @@ def parse_entry(context: Context, entry):
     if len(regulations) != 1:
         context.log.warning("Multiple regulations on entity", entity=entity)
     regulation = regulations[0]
-    source_url = regulation.findtext("./publicationUrl", "")
-    sanction.set("sourceUrl", source_url)
+    sanction.set("sourceUrl", regulation.findtext("./publicationUrl"))
     sanction.add("program", regulation.get("programme"))
     sanction.add("reason", regulation.get("numberTitle"))
     sanction.add("startDate", regulation.get("entryIntoForceDate"))

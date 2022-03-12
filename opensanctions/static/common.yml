@@ -879,6 +879,10 @@ url:
   options:
     - contains: /het-politiek-college/
       value: null
+    - contains: Samidoun.net
+      values:
+        - http://samidoun.net
+        - http://palestinevaincra.com
     - match: ttp://www.koutsoukosgiannis.gr
       value: http://www.koutsoukosgiannis.gr
     - match: "טוויטר: Addameer"

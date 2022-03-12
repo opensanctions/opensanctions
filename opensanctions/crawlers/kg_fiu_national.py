@@ -35,6 +35,7 @@ def parse_common(context: Context, node, entity):
     sanction.add("program", node.findtext("./CategoryPerson"))
     inclusion_date = h.parse_date(node.findtext("./DateInclusion"), FORMATS)
     sanction.add("startDate", inclusion_date)
+    sanction.add("listingDate", inclusion_date)
     entity.add("createdAt", inclusion_date)
     entity.add("topics", "sanction")
     context.emit(entity, target=True)

@@ -64,18 +64,22 @@ def apply_prop(context: Context, entity, sanction, field, value):
     elif field == "AUTRE_IDENTITE":
         entity.add("idNumber", value.pop("NumeroCarte"))
     elif field == "REFERENCE_UE":
-        sanction.add("program", value.pop("ReferenceUe"))
+        sanction.add("authorityId", value.pop("ReferenceUe"))
     elif field == "REFERENCE_ONU":
-        sanction.add("program", value.pop("ReferenceOnu"))
+        sanction.add("unscId", value.pop("ReferenceOnu"))
     elif field == "FONDEMENT_JURIDIQUE":
-        sanction.add("reason", value.pop("FondementJuridiqueLabel"))
+        sanction.add("program", value.pop("FondementJuridiqueLabel"))
+        # TODO: derive target countries?
     elif field == "MOTIFS":
-        sanction.add("reason", value.pop("Motifs"))
-    # else:
-    #     print(field, value)
+        motifs = value.pop("Motifs")
+        sanction.add("reason", motifs)
+        entity.add("notes", motifs)
+    else:
+        context.log.warning("Unknown field", field=field, value=value)
 
 
 def crawl_entity(context: Context, data):
+    # context.pprint(data)
     nature = data.pop("Nature")
     schema = SCHEMATA.get(nature)
     entity = context.make(schema)
