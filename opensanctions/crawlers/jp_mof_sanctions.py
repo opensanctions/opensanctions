@@ -2,12 +2,12 @@ from typing import Dict, List, Optional
 import re
 import xlrd
 import string
-from lxml import html
 from datetime import datetime
 from urllib.parse import urljoin
 from pantomime.types import XLS
 from normality import collapse_spaces, stringify
 from normality.cleaning import decompose_nfkd
+from fingerprints.constants import BRACKETED
 
 from opensanctions.core import Context
 from opensanctions import settings
@@ -44,6 +44,9 @@ def parse_names(names: List[str]) -> List[str]:
         name = name.replace("(previously listed as", "")
         # name = name.replace(")", "")
         cleaned.append(name)
+        no_brackets = BRACKETED.sub(" ", name).strip()
+        if no_brackets != name and len(no_brackets):
+            cleaned.append(name)
     return cleaned
 
 
@@ -63,15 +66,17 @@ def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str
         context.log.warning("No schema for section", section=section, sheet=sheet)
         return
     entity = context.make(schema)
-    entity.id = context.make_id(*row.get("name_english"), *row.get("name_japanese"))
+    name_english = row.pop("name_english")
+    name_japanese = row.pop("name_japanese")
+    entity.id = context.make_id(*name_english, *name_japanese)
     if entity.id is None:
         # context.pprint((sheet, row))
         return
-    entity.add("name", parse_names(row.pop("name_english")))
+    entity.add("name", parse_names(name_english))
     if not entity.has("name"):
-        entity.add("name", parse_names(row.pop("name_japanese")))
+        entity.add("name", parse_names(name_japanese))
     else:
-        entity.add("alias", parse_names(row.pop("name_japanese")))
+        entity.add("alias", parse_names(name_japanese))
 
     entity.add("alias", parse_names(row.pop("alias", [])))
     entity.add("alias", parse_names(row.pop("known_alias", [])))
