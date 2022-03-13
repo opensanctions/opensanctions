@@ -2,7 +2,7 @@ from normality import normalize
 from collections import defaultdict
 from followthemoney.types import registry
 
-from opensanctions.exporters.common import Exporter, write_object
+from opensanctions.exporters.common import Exporter
 
 
 class NamesExporter(Exporter):
@@ -23,7 +23,17 @@ class NamesExporter(Exporter):
                 self.names[norm].add(name)
 
     def finish(self):
+        batch = []
         for norm in sorted(self.names):
             for name in sorted(self.names[norm]):
-                self.fh.write(f"{name}\n")
+                batch.append(name)
+
+            if len(batch) > 10000:
+                text = "\n".join(batch)
+                self.fh.write(f"{text}\n")
+                batch = []
+
+        if len(batch):
+            text = "\n".join(batch)
+            self.fh.write(f"{text}\n")
         super().finish()

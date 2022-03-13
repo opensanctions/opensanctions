@@ -55,7 +55,7 @@ def export_statements_path(path: PathLike):
                     stmt["canonical_id"],
                 ]
                 buffer.append(row)
-                if len(buffer) > 1000:
+                if len(buffer) > 5000:
                     writer.writerows(buffer)
                     buffer = []
                 stmt_count += 1
