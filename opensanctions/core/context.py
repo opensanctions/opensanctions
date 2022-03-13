@@ -13,6 +13,7 @@ from followthemoney.schema import Schema
 from structlog.contextvars import clear_contextvars, bind_contextvars
 
 from opensanctions import settings
+from opensanctions.core.dataset import Dataset
 from opensanctions.core.entity import Entity
 from opensanctions.core.db import engine_tx, engine_read
 from opensanctions.core.cache import save_cache, clear_cache
@@ -35,7 +36,7 @@ class Context(object):
     BATCH_SIZE = 5000
     BATCH_CONCURRENT = 5
 
-    def __init__(self, dataset):
+    def __init__(self, dataset: Dataset):
         self.dataset = dataset
         self.path = settings.DATASET_PATH.joinpath(dataset.name)
         self.log: structlog.stdlib.BoundLogger = structlog.get_logger(dataset.name)
