@@ -35,8 +35,8 @@ publisher:
   url: "https://rupep.org/"
 url: "https://rupep.org/en/%D0%B2%D0%BE%D0%BF%D1%80%D0%BE%D1%81%D1%8B-%D0%B8-%D0%BE%D1%82%D0%B2%D0%B5%D1%82%D1%8B/"
 data:
-  url: https://rupep.org/en/%D0%B2%D0%BE%D0%BF%D1%80%D0%BE%D1%81%D1%8B-%D0%B8-%D0%BE%D1%82%D0%B2%D0%B5%D1%82%D1%8B/
-  format: CSV
+  url: "https://rupep.org/opendata/persons/json"
+  format: JSON
 
 lookups:
   country_links:
@@ -54,185 +54,67 @@ lookups:
           - business
           - realty
         prop: null
-  person_links:
-    normalize: true
-    lowercase: true
+  person_type:
     options:
-      - contains:
-          - мачуха
-          - пасинок
-          - племінниця
-          - баба
-          - дядько
-          - племінниця
-          - невістка
-          - дід
-          - зять
-          - батько
-          - рідний брат
-          - рідна сестра
-          - дочка
-          - мати
-          - тітка
-          - племінник
-          - усиновлений
-          - пов'язані спільним побутом і мають взаємні права та
-          - вітчим / падчерка
+      - match: ""
+        value: ""
+      - match:
+          - Close associate
+          - Family member
+        value: role.rca
+      - match:
+          - Domestic Politically Exposed Person
+          - Foreign Politically Exposed Person
+        value: role.pep
+      - match: International organization Politically Exposed Person
+        value: gov.igo
+
+  person_relations:
+    options:
+      - match:
+          - husband
+          - wife
+          - father
+          - daughter
+          - sibling
+          - son
+          - mother
+          - daughter in law
+          - father in law
+          - mother in law
+          - son in law
+          - grandson
+          - uncle
+          - aunt
+          - niece
+          - nephew
+          - granddaughter
+          - grandfather
+          - grandmother
+          - adoptive parent
+          - stepdaughter
+          - stepfather
+          - stepmother
+          - stepson
+          - great-granddaughter
+          - great-grandmother
+          - great-grandson
+          - associated with the common life and mutual rights and obligations
+          - father/mother
         schema: Family
         from_prop: person
         to_prop: relative
         desc_prop: relationship
-      - contains:
-          - ділові зв'язки
-          - особисті зв'язки
+      - match:
+          - business relationships
+          - personal relationships
         schema: Associate
         from_prop: person
         to_prop: associate
         desc_prop: relationship
-      - contains:
-          - чоловік / дружина
-          - дружина / чоловік
-          - падчерка / вітчим
+      - match:
+          - ""
         schema: UnknownLink
         from_prop: subject
         to_prop: object
-        desc_prop: role
-  company_person_links:
-    normalize: true
-    lowercase: true
-    options:
-      - contains:
-          - co-owner
-          - owner
-          - founder
-          - co-founder
-          - shareholder
-          - beneficiary
-        schema: Ownership
-        from_prop: owner
-        to_prop: asset
-        desc_prop: role
-      - match:
-          - the president
-          - Deputy Director
-          - director
-          - the minister
-          - CEO
-          - deputy
-          - the chairman
-          - board member
-          - Deputy Minister
-          - First Deputy Minister
-          - chairman of the board
-          - Deputy Director
-          - deputy general director
-          - deputy, chairperson
-          - deputy, deputy chairman
-          - member of the board of trustees
-          - secretary
-          - governor
-          - Acting Governor
-          - lieutenant governor
-          - Executive Director
-          - vice president
-          - member of the supervisory board
-          - First Deputy Chairperson
-          - First Deputy CEO
-          - rector
-        schema: Directorship
-        from_prop: director
-        to_prop: organization
-        desc_prop: role
-      - match:
-          - member of the Commission
-          - senator
-          - assistant to the senator
-          - member of the Commission, Chairperson
-          - member of the commission, Vice Chairperson
-          - member of the chamber
-          - member of parliament
-        contains:
-          - deputy, member of the
-          # - deputy, Deputy Chairperson of the
-        schema: Membership
-        from_prop: member
-        to_prop: organization
-        desc_prop: role
-      - match:
-          - employee
-          - judge
-          - ambassador
-          - serviceperson
-          - judge, Chairperson
-          - Head of Department
-          - first deputy head
-          - Deputy Head
-          - the head of administration
-          - prosecutor of the region
-          - teacher
-          - head
-          - chief doctor
-          - lawyer
-          - Advisor
-          - manager
-          - deputy prosecutor
-          # - advisor to the minister
-          # - Adviser to the Chairperson
-          - chief of staff
-          - coordinator
-        contains:
-          - advisor to the
-          - Head of the
-        schema: Employment
-        from_prop: employee
-        to_prop: employer
-        desc_prop: role
-  company_links:
-    normalize: true
-    options:
-      - match:
-          - null
-          # State Contracts / Customer
-          - ДержКонтракти/Замовник
-          # Assignee:
-          - Правонаступник
-          # Management company
-          - Керуюча компанія
-          # independent unit:
-          - Самостійний структурний підрозділ
-          - Філія
-          - Клієнт банку
-          - Споріднена
-          - Кредитор (фінансовий партнер)
-          - Надавач професійних послуг
-          - Правовласник
-          - Клієнт
-          - Контрагент
-          - Постачальник
-          - Член наглядового органу
-        schema: UnknownLink
-        from_prop: subject
-        to_prop: object
-        desc_prop: role
-      - match:
-          - Директор
-          - Секретар
-        schema: Directorship
-        from_prop: director
-        to_prop: organization
-        desc_prop: role
-      - match:
-          - Засновник
-          - Співвласник
-          - Власник
-          - Акціонер
-          - Співзасновник
-          - Материнська компанія
-          - Дочірня компанія
-          - Головне підприємство
-          - Головна компанія
-          - Колишній співвласник/співзасновник
-        schema: Ownership
-        from_prop: owner
-        to_prop: asset
         desc_prop: role
