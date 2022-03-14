@@ -1,15 +1,24 @@
 entry_point: opensanctions.crawlers.wd_oligarchs
-title: Oligarch Database
+title: Russian Oligarch Database
 prefix: wdoli
 summary: >
-  A list of Oligarchs from CIS countries, most notably the Russian
+  A list of oiligarchs from CIS countries, most notably the Russian
   Federation.
 description: |
-  This list includes persons based on the following sources:
+  This list was developed by the OpenSanctions team in cooperation with
+  [CORRECT!V](https://correctiv.org/) and [Lighthouse Reports](https://www.lighthousereports.nl/).
+  It is intended as a starting point for research into oligarch holdings, and a
+  benchmark against which sanctions in response to the invasion of Ukraine can
+  be evaluated.
+
+  While some of the entries are imported simply on the base of internet research,
+  the bulk of the list is sourced from existing lists of key Russian businesspeople
+  and political power brokers. It includes persons based on the following sources:
 
   * US Section 241 CAATSA Report from 2018
   * The [Navalny 35](https://www.opensanctions.org/dataset/ru_navalny35/)
   * Forbes List of Russian Billionaires 2021
+  * Forbes List of Ukrainian Billionaires
 collections:
   - default
   - work
