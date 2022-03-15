@@ -74,7 +74,9 @@ def make_link(
     if other is None:
         return
     link = context.make(schema)
-    link.id = context.make_slug(claim.property, *sorted((proxy.id, other.id)))
+    min_id, max_id = sorted((proxy.id, other.id))
+    link.id = f"wd-{claim.property}-{min_id}-{max_id}"
+    link.id = link.id.lower()
     link.add(source_prop, proxy.id)
     link.add(target_prop, other.id)
     rel = claim.property_label(context)
