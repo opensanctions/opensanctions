@@ -1,5 +1,6 @@
 import structlog
 from banal import ensure_list
+from prefixdate.precision import Precision
 from typing import Any, Dict, Optional, Union
 from followthemoney import model
 from followthemoney.exc import InvalidData
@@ -49,7 +50,7 @@ class Entity(CompositeEntity):
             return clean
         if prop.type == registry.date:
             # none of the information in OpenSanctions is time-critical
-            clean = clean[:10]
+            clean = clean[: Precision.DAY]
         log.warning(
             "Rejected property value",
             entity=self,

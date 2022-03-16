@@ -1,7 +1,7 @@
 import Levenshtein
 from functools import cache
 from collections import defaultdict
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, Iterable, List, Optional, Tuple
 from itertools import combinations
 from normality import latinize_text
 from followthemoney.types import registry
@@ -62,7 +62,7 @@ def remove_prefix_dates(entity: Entity) -> Entity:
 
 
 @cache
-def remove_prefix_date_values(values: Tuple[str]) -> List[str]:
+def remove_prefix_date_values(values: Tuple[str]) -> Iterable[str]:
     """See ``remove_prefix_dates``."""
     if len(values) < 2:
         return values

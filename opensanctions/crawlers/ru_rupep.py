@@ -81,7 +81,12 @@ def crawl_person(context: Context, data: Dict[str, Any]):
     for suffix in ("", "_en", "_ru"):
         role = data.pop(f"last_job_title{suffix}", None)
         org = data.pop(f"last_workplace{suffix}", None)
-        entity.add("position", f"{org} ({role})")
+        if org is None or not len(org.strip()):
+            continue
+        position = org
+        if role is not None and len(role.strip()):
+            position = f"{org} ({role})"
+        entity.add("position", position)
 
     for country_data in data.pop("related_countries", []):
         rel_type = country_data.pop("relationship_type")
