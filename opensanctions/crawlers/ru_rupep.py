@@ -17,7 +17,7 @@ def clean_wdid(wikidata_id: Optional[str]):
     if wikidata_id is None:
         return None
     wikidata_id = wikidata_id.strip().upper()
-    if len(wikidata_id) == 0 or wikidata_id != "NONE":
+    if len(wikidata_id) == 0 or wikidata_id == "NONE":
         return None
     return wikidata_id
 
