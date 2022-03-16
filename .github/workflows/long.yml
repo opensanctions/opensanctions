@@ -20,7 +20,7 @@ jobs:
           - interpol_yellow_notices
           - wd_peppercat_leaders
           - wd_peppercat_legislators
-          - ru_rupep
+          # - ru_rupep
     steps:
       - name: Crawl data sources
         env:

@@ -45,7 +45,7 @@ jobs:
           # - ru_fedsdm_terror
           # - ru_fedsdm_wmd
           - ru_navalny35
-          # - ru_rupep
+          - ru_rupep
           - ua_nsdc_sanctions
           - ua_sfms_blacklist
           - un_ops_vendors
