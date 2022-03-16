@@ -47,6 +47,9 @@ class Entity(CompositeEntity):
             return clean
         if prop.type == registry.phone:
             return clean
+        if prop.type == registry.date:
+            # none of the information in OpenSanctions is time-critical
+            clean = clean[:10]
         log.warning(
             "Rejected property value",
             entity=self,
