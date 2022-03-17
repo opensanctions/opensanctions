@@ -8,8 +8,6 @@ from followthemoney.types import registry
 from followthemoney.model import Model
 from followthemoney.schema import Schema
 from followthemoney.property import Property
-from followthemoney.helpers import name_entity, remove_prefix_dates
-from followthemoney.helpers import simplify_provenance
 from nomenklatura.entity import CompositeEntity
 
 from opensanctions.core.lookups import type_lookup

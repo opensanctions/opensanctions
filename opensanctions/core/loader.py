@@ -1,14 +1,5 @@
 import structlog
-from typing import (
-    AsyncGenerator,
-    Callable,
-    Dict,
-    Generator,
-    List,
-    Optional,
-    Set,
-    Tuple,
-)
+from typing import Callable, Dict, Generator, List, Optional, Set, Tuple
 from followthemoney import model
 from followthemoney.types import registry
 from followthemoney.property import Property
@@ -156,7 +147,6 @@ class Database(object):
                 entity.last_seen = max(entity.last_seen, stmt.last_seen)
                 entity.target = max(entity.target, stmt.target)
             entity.datasets.add(stmt.dataset)
-            entity.referents.add(stmt.entity_id)
 
         if entity is None:
             return None
@@ -165,6 +155,8 @@ class Database(object):
             if sources is not None and prop.dataset not in sources:
                 continue
             entity.unsafe_add(prop.prop, prop.value, cleaned=True)
+
+        entity.referents.update(self.resolver.get_referents(entity.id))
         return entity
 
 
