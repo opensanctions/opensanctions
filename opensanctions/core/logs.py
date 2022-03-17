@@ -37,7 +37,7 @@ def configure_logging(level=logging.DEBUG):
         structlog.processors.TimeStamper(fmt="%Y-%m-%d %H:%M:%S"),
         structlog.processors.StackInfoRenderer(),
         structlog.dev.set_exc_info,
-        # structlog.processors.format_exc_info,
+        structlog.processors.format_exc_info,
         structlog.processors.UnicodeDecoder(),
         merge_contextvars,
         store_event,

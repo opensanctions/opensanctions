@@ -8,6 +8,7 @@ def split_name(name):
             last_name = last_name.strip()
             first_name = name[:i].strip()
             return first_name, last_name
+    return None, None
 
 
 def crawl_node(context: Context, node):
