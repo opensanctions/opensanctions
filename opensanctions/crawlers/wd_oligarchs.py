@@ -13,14 +13,16 @@ def crawl_row(context, row):
     if not is_qid(qid):
         context.log.warning("No valid QID", qid=qid)
         return
-    schema = "Person"
-    # topics = [t.strip() for t in row.get("topics", "").split(";")]
-    # topics = [t for t in topics if len(t)]
-    topics = ["poi"]
     data = get_entity(context, qid)
     if data is None:
         return
-    proxy = entity_to_ftm(context, data, schema=schema, topics=topics, depth=2)
+    proxy = entity_to_ftm(
+        context,
+        data,
+        schema="Person",
+        topics=["role.oligarch"],
+        depth=2,
+    )
     context.log.info("Oligarch", entity=proxy)
 
 
