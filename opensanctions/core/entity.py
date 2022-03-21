@@ -43,12 +43,12 @@ class Entity(CompositeEntity):
             return None
         clean = prop.type.clean(value, proxy=self, fuzzy=fuzzy, format=format)
         if clean is not None:
+            if prop.type == registry.date:
+                # none of the information in OpenSanctions is time-critical
+                clean = clean[: Precision.DAY.value]
             return clean
         if prop.type == registry.phone:
             return clean
-        if prop.type == registry.date:
-            # none of the information in OpenSanctions is time-critical
-            clean = clean[: Precision.DAY]
         log.warning(
             "Rejected property value",
             entity=self,

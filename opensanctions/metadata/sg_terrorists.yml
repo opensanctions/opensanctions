@@ -1,0 +1,40 @@
+entry_point: opensanctions.crawlers.sg_terrorists
+title: Singapore Targeted Financial Sanctions
+prefix: sgtfs
+summary: >
+  Terrorists and terrorist entities designated by the Singapore government on top
+  of the UN security council set of sanctions.
+description: |
+  Singapore seems to mostly enforce the use of the UN SC sanctions list, but adds a very
+  small number of individuals that financial institutions have to screen for additonally.
+
+  These additional entities are specified in the [Terrorism (Suppression of Financing)
+  Act 2002](https://sso.agc.gov.sg/Act/TSFA2002?WholeDoc=1), first schedule.
+collections:
+  - sanctions
+  - default
+publisher:
+  name: Monetary Authority of Singapore
+  description: |
+    The Monetary Authority of Singapore (MAS) is Singapore’s central bank and
+    integrated financial regulator. MAS also works with the financial industry
+    to develop Singapore as a dynamic international financial centre.
+  url: https://www.mas.gov.sg/who-we-are
+  country: sg
+url: https://www.mas.gov.sg/regulation/anti-money-laundering/targeted-financial-sanctions/lists-of-designated-individuals-and-entities
+data:
+  url: https://sso.agc.gov.sg/Act/TSFA2002?ProvIds=Sc1-#Sc1-
+  format: HTML
+
+lookups:
+  props:
+    normalize: true
+    options:
+      - match: "Passport No. 0B6594543 stating Date of Birth: 10 April 1987"
+        props:
+          passportNumber: 0B6594543
+          birthDate: "1987-04-10"
+      - contains: "G6545158T"
+        props:
+          passportNumber: G6545158T
+          birthDate: "1986-04-10"
