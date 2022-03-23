@@ -25,8 +25,8 @@ class SimpleCSVExporter(Exporter):
         "phones",
         "emails",
         "dataset",
-        "last_seen",
         "first_seen",
+        "last_seen",
     ]
 
     def concat_values(self, values):
