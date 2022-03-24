@@ -76,3 +76,86 @@ jobs:
         run: |
           mkdir -p $OPENSANCTIONS_DATA_PATH/datasets
           aws s3 sync --no-progress --cache-control "public, max-age=846000" --acl public-read $OPENSANCTIONS_DATA_PATH/datasets s3://data.opensanctions.org/datasets/$OPENSANCTIONS_DATE
+  resolve:
+    runs-on: ubuntu-latest
+    needs: [crawl]
+    container: ghcr.io/opensanctions/opensanctions
+    env:
+      OPENSANCTIONS_DATABASE_URI: ${{ secrets.OPENSANCTIONS_DATABASE_URI }}
+    steps:
+      - name: Export static dump files
+        run: |
+          opensanctions resolve
+  export-data:
+    needs: [resolve]
+    runs-on: ubuntu-latest
+    container: ghcr.io/opensanctions/opensanctions
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      OPENSANCTIONS_DATABASE_URI: ${{ secrets.OPENSANCTIONS_DATABASE_URI }}
+    steps:
+      - name: Set env
+        run: |
+          echo "OPENSANCTIONS_DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
+      - name: Export static dump files
+        run: |
+          opensanctions export
+      - name: Publish data to data.opensanctions.org
+        # aws s3 sync --no-progress --acl public-read $OPENSANCTIONS_DATA_PATH/state s3://data.opensanctions.org/state
+        # aws cloudfront create-invalidation --distribution-id ETROMAQBEJS91 --paths "/state/*"
+        run: |
+          aws s3 sync --quiet --no-progress --cache-control "public, max-age=84600" --metadata-directive REPLACE --acl public-read $OPENSANCTIONS_DATA_PATH/datasets s3://data.opensanctions.org/datasets/latest
+          aws s3 sync --quiet --no-progress --cache-control "public, max-age=84600" --metadata-directive REPLACE --acl public-read $OPENSANCTIONS_DATA_PATH/datasets s3://data.opensanctions.org/datasets/$OPENSANCTIONS_DATE
+          aws cloudfront create-invalidation --distribution-id ETROMAQBEJS91 --paths "/datasets/latest/*"
+  build-analytics:
+    needs: [export-data]
+    runs-on: ubuntu-latest
+    container: ghcr.io/opensanctions/opensanctions
+    env:
+      OPENSANCTIONS_DATABASE_URI: ${{ secrets.OPENSANCTIONS_DATABASE_URI }}
+    steps:
+      - name: Build analytics data
+        run: |
+          opensanctions build-analytics
+  export-db:
+    needs: [build-analytics]
+    runs-on: ubuntu-latest
+    container: ghcr.io/opensanctions/opensanctions
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      OPENSANCTIONS_DATABASE_URI: ${{ secrets.OPENSANCTIONS_DATABASE_URI }}
+    steps:
+      - name: Export database
+        run: |
+          mkdir -p $OPENSANCTIONS_DATA_PATH/state
+          pg_dump -c -O -x --compress=3 -f $OPENSANCTIONS_DATA_PATH/state/opensanctions.sql.gz $OPENSANCTIONS_DATABASE_URI
+      - name: Publish data to data.opensanctions.org
+        run: |
+          aws s3 sync --no-progress --acl public-read $OPENSANCTIONS_DATA_PATH/state s3://data.opensanctions.org/state
+          aws cloudfront create-invalidation --distribution-id ETROMAQBEJS91 --paths "/state/*"
+  site:
+    needs: [export-data]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: main
+      - name: Trigger Vercel build of opensanctions/site
+        uses: zzzze/webhook-trigger@master
+        with:
+          webhook_url: ${{ secrets.VERCEL_WEBHOOK }}
+          options: "-X POST"
+  # api:
+  #   needs: [export-data]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #       with:
+  #         ref: main
+  #     - name: Trigger API update on api.opensanctions.org
+  #       uses: zzzze/webhook-trigger@master
+  #       with:
+  #         webhook_url: ${{ secrets.API_WEBHOOK }}
+  #         options: "-X POST"
