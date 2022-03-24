@@ -107,18 +107,19 @@ class Context(object):
         if text is None:
             return None
 
-        with engine_tx() as conn:
-            save_cache(conn, url, self.dataset, text)
+        if cache_days is not None:
+            with engine_tx() as conn:
+                save_cache(conn, url, self.dataset, text)
         return text
 
-    def fetch_json(self, url, **kwargs):
+    def fetch_json(self, *args, **kwargs):
         """Fetch the given URL (GET) and decode it as a JSON object."""
-        text = self.fetch_text(url, **kwargs)
+        text = self.fetch_text(*args, **kwargs)
         if text is not None and len(text):
             return json.loads(text)
 
-    def fetch_html(self, url, **kwargs):
-        text = self.fetch_text(url, **kwargs)
+    def fetch_html(self, *args, **kwargs):
+        text = self.fetch_text(*args, **kwargs)
         if text is not None and len(text):
             return html.fromstring(text)
 

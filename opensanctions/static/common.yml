@@ -99,7 +99,6 @@ country:
         - British Pakistanis
         - United Arab Republic
         - Kedah Sultanate
-        - French protectorate of Tunisia
         - Republic of Mahabad
         # Ukraine SFMS:
         - 27 May 1973
@@ -110,6 +109,10 @@ country:
     - match:
         - Danish Realm
       value: DK
+    - match:
+        - Beylik of Tunis
+        - French protectorate of Tunisia
+      value: Tunisia
     - match:
         - Nazi Germany
       value: DE

@@ -2,7 +2,7 @@ import re
 import logging
 from lxml import etree
 from urllib.parse import urlparse, urlunparse, parse_qsl, urlencode
-from typing import Optional
+from typing import Any, List, Optional, Tuple
 from banal import ensure_list
 from datetime import datetime
 from normality import stringify, slugify
@@ -39,10 +39,13 @@ def remove_namespace(doc):
     return doc
 
 
-def jointext(*parts, sep=" "):
-    parts = [stringify(p) for p in parts]
-    parts = [p for p in parts if p is not None]
-    return sep.join(parts)
+def jointext(*parts: Tuple[Any], sep=" ") -> str:
+    texts: List[str] = []
+    for part in parts:
+        text = stringify(part)
+        if text is not None:
+            texts.append(text)
+    return sep.join(texts)
 
 
 def joinslug(*parts, prefix=None, sep="-", strict=True):
@@ -51,7 +54,7 @@ def joinslug(*parts, prefix=None, sep="-", strict=True):
     if strict and None in parts:
         return None
     parts = [p for p in parts if p is not None]
-    if len(parts) < 1:
+    if not len(parts):
         return None
     if prefix is not None:
         prefix = slugify(prefix, sep=sep)

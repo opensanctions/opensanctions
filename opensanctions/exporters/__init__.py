@@ -28,33 +28,36 @@ __all__ = ["export_dataset", "export_metadata", "export_statements"]
 
 def export_dataset(dataset: Dataset, database: Database):
     """Dump the contents of the dataset to the output directory."""
-    context = Context(dataset)
-    loader = database.view(dataset, assemble)
-    exporters = [Exporter(context, loader) for Exporter in EXPORTERS]
+    try:
+        context = Context(dataset)
+        loader = database.view(dataset, assemble)
+        exporters = [Exporter(context, loader) for Exporter in EXPORTERS]
 
-    for exporter in exporters:
-        exporter.setup()
-
-    for entity in loader:
         for exporter in exporters:
-            exporter.feed(entity)
+            exporter.setup()
 
-    for exporter in exporters:
-        exporter.finish()
+        for entity in loader:
+            for exporter in exporters:
+                exporter.feed(entity)
 
-    # Export list of data issues from crawl stage
-    issues_path = context.get_resource_path("issues.json")
-    context.log.info("Writing dataset issues list", path=issues_path)
-    with engine.begin() as conn:
-        with open(issues_path, "w", encoding=settings.ENCODING) as fh:
-            data = {"issues": list(all_issues(conn, dataset))}
-            write_json(data, fh)
+        for exporter in exporters:
+            exporter.finish()
 
-    # Export full metadata
-    index_path = context.get_resource_path("index.json")
-    context.log.info("Writing dataset index", path=index_path)
-    with open(index_path, "w", encoding=settings.ENCODING) as fh:
-        meta = dataset_to_index(dataset)
-        write_json(meta, fh)
+        # Export list of data issues from crawl stage
+        issues_path = context.get_resource_path("issues.json")
+        context.log.info("Writing dataset issues list", path=issues_path)
+        with engine.begin() as conn:
+            with open(issues_path, "w", encoding=settings.ENCODING) as fh:
+                data = {"issues": list(all_issues(conn, dataset))}
+                write_json(data, fh)
 
-    context.close()
+        # Export full metadata
+        index_path = context.get_resource_path("index.json")
+        context.log.info("Writing dataset index", path=index_path)
+        with open(index_path, "w", encoding=settings.ENCODING) as fh:
+            meta = dataset_to_index(dataset)
+            write_json(meta, fh)
+    except Exception as exc:
+        log.error("Error: %s" % exc)
+    finally:
+        context.close()
