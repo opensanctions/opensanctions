@@ -1,7 +1,7 @@
 # The point of this job is to re-build docker base images once a day so
 # that upstream package updates are reflected and dependency security
 # vulns don't become an issue.
-name: daily
+name: docker
 
 on:
   schedule:
