@@ -28,12 +28,14 @@ def parse_entry(context, node):
         entity.add("birthDate", node.findtext("./DateOfBirth"))
 
     # ids are per country and entry type (individual/entity)
-    item = node.findtext("./Item")
+    key = item = node.findtext("./Item")
+    if key is None:
+        key = entity.first("name")
     schedule = node.findtext("./Schedule")
     program = country = node.findtext("./Country")
     if "/" in country:
         country, _ = country.split("/")
-    entity.id = context.make_slug(country, schedule, item, strict=False)
+    entity.id = context.make_slug(country, schedule, key, strict=False)
     entity.add("country", country)
 
     sanction = h.make_sanction(context, entity)
