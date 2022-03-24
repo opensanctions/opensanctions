@@ -16,6 +16,13 @@ def parse_person(context: Context, node):
         patronymic=node.findtext("./Patronomic"),
         last_name=node.findtext("./Surname"),
     )
+    entity.id = context.make_id(
+        node.tag,
+        node.findtext("./Number"),
+        node.findtext("./Name"),
+        node.findtext("./Patronomic"),
+        node.findtext("./Surname"),
+    )
     entity.add("birthDate", h.parse_date(node.findtext("./DataBirth"), FORMATS))
     entity.add("birthPlace", node.findtext("./PlaceBirth"))
     parse_common(context, node, entity)
@@ -24,12 +31,12 @@ def parse_person(context: Context, node):
 def parse_legal(context: Context, node):
     entity = context.make("LegalEntity")
     names = node.findtext("./Name")
+    entity.id = context.make_id(node.tag, node.findtext("./Number"), names)
     entity.add("name", names.split(", "))
     parse_common(context, node, entity)
 
 
 def parse_common(context: Context, node, entity):
-    entity.id = context.make_slug(node.tag, node.findtext("./Number"))
     sanction = h.make_sanction(context, entity)
     sanction.add("reason", node.findtext("./BasicInclusion"))
     sanction.add("program", node.findtext("./CategoryPerson"))

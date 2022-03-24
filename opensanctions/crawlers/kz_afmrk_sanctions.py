@@ -6,9 +6,9 @@ from opensanctions import helpers as h
 FORMATS = ["%d.%m.%Y"]
 
 
-def make_entity(context: Context, el, schema, *keys):
+def make_entity(context: Context, el, schema, entity_id):
     entity = context.make(schema, target=True)
-    entity.id = context.make_slug(el.findtext("./num"), *keys)
+    entity.id = entity_id
     entity.add("notes", h.clean_note(el.findtext("./note")))
     entity.add("topics", "sanction")
 
@@ -29,7 +29,8 @@ def crawl(context: Context):
         mname = el.findtext("./mname")
         lname = el.findtext("./lname")
         name = h.make_name(given_name=fname, middle_name=mname, last_name=lname)
-        entity = make_entity(context, el, "Person", "person", name)
+        entity_id = context.make_id(el.findtext("./num"), fname, mname, lname)
+        entity = make_entity(context, el, "Person", entity_id)
         h.apply_name(entity, given_name=fname, middle_name=mname, last_name=lname)
         entity.add("idNumber", el.findtext("./iin"))
         bdate = el.findtext("./birthdate")
@@ -38,7 +39,8 @@ def crawl(context: Context):
 
     for el in doc.findall(".//org"):
         name = el.findtext(".//org_name")
-        entity = make_entity(context, el, "Organization", "org", name)
+        entity_id = context.make_id(el.findtext("./num"), name)
+        entity = make_entity(context, el, "Organization", entity_id)
         for tag in (".//org_name", ".//org_name_en"):
             names = el.findtext(tag)
             if names is None:
