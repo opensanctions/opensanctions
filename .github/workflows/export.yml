@@ -37,8 +37,18 @@ jobs:
           aws s3 sync --quiet --no-progress --cache-control "public, max-age=84600" --metadata-directive REPLACE --acl public-read $OPENSANCTIONS_DATA_PATH/datasets s3://data.opensanctions.org/datasets/latest
           aws s3 sync --quiet --no-progress --cache-control "public, max-age=84600" --metadata-directive REPLACE --acl public-read $OPENSANCTIONS_DATA_PATH/datasets s3://data.opensanctions.org/datasets/$OPENSANCTIONS_DATE
           aws cloudfront create-invalidation --distribution-id ETROMAQBEJS91 --paths "/datasets/latest/*"
-  export-db:
+  build-analytics:
     needs: [export-data]
+    runs-on: ubuntu-latest
+    container: ghcr.io/opensanctions/opensanctions
+    env:
+      OPENSANCTIONS_DATABASE_URI: ${{ secrets.OPENSANCTIONS_DATABASE_URI }}
+    steps:
+      - name: Build analytics data
+        run: |
+          opensanctions build-analytics
+  export-db:
+    needs: [build-analytics]
     runs-on: ubuntu-latest
     container: ghcr.io/opensanctions/opensanctions
     env:
