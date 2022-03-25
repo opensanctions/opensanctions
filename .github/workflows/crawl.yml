@@ -42,8 +42,8 @@ jobs:
           - kz_afmrk_sanctions
           - ransomwhere
           - ru_billionaires_2021
-          - ru_fedsdm_terror
-          - ru_fedsdm_wmd
+          - ru_fedsfm_wmd
+          - ru_fedsfm_terror
           - ru_navalny35
           - ru_rupep
           - sg_terrorists
