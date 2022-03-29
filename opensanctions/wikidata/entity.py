@@ -107,8 +107,6 @@ def apply_claim(
     prop = PROPS_DIRECT.get(claim.property)
     if prop is not None:
         value = claim.text(context)
-        if prop == "gender":
-            value = h.clean_gender(value)
         if prop in PROPS_QUALIFIED:
             value = qualify_value(context, value, claim)
         proxy.add(prop, value)

@@ -16,7 +16,7 @@ def apply_prop(context: Context, entity, sanction, field, value):
     if field == "ALIAS":
         entity.add("alias", value.pop("Alias"))
     elif field == "SEXE":
-        entity.add("gender", h.clean_gender(value.pop("Sexe")))
+        entity.add("gender", value.pop("Sexe"))
     elif field == "PRENOM":
         entity.add("firstName", value.pop("Prenom"))
     elif field == "NATIONALITE":

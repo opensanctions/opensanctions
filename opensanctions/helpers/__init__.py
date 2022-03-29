@@ -1,4 +1,3 @@
-from opensanctions.helpers.gender import clean_gender
 from opensanctions.helpers.emails import clean_emails
 from opensanctions.helpers.phones import clean_phones
 from opensanctions.helpers.addresses import make_address, apply_address
@@ -12,7 +11,6 @@ from opensanctions.helpers.text import clean_note
 from opensanctions.helpers.util import audit_data
 
 __all__ = [
-    "clean_gender",
     "clean_emails",
     "clean_phones",
     "clean_note",

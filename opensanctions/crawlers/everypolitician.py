@@ -88,7 +88,7 @@ def parse_person(context: Context, data, country, entities, lastmod):
         return
     parse_common(context, person, data, lastmod)
 
-    person.add("gender", h.clean_gender(data.pop("gender", None)))
+    person.add("gender", data.pop("gender", None))
     person.add("title", data.pop("honorific_prefix", None))
     person.add("title", data.pop("honorific_suffix", None))
     person.add("firstName", data.pop("given_name", None))

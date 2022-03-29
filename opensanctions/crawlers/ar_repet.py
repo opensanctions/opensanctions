@@ -103,7 +103,7 @@ def crawl_persons(context: Context):
         entity.add("title", values(data.pop("TITLE", None)))
         entity.add("nationality", values(data.pop("NATIONALITY", None)))
         entity.add("position", values(data.pop("DESIGNATION", None)))
-        entity.add("gender", h.clean_gender(data.pop("GENDER", None)))
+        entity.add("gender", data.pop("GENDER", None))
         entity.add("birthDate", data.pop("DATE_OF_BIRTH", None))
         entity.add("birthDate", data.pop("YEAR", None))
         entity.add("birthPlace", data.pop("CITY_OF_BIRTH", None))

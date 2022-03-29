@@ -154,8 +154,7 @@ def parse_row(context: Context, row):
     positions = split_items(row.pop("Individual_Position", None))
     entity.add_cast("Person", "position", positions)
 
-    gender = h.clean_gender(row.pop("Individual_Gender", None))
-    entity.add_cast("Person", "gender", gender)
+    entity.add_cast("Person", "gender", row.pop("Individual_Gender", None))
 
     name_type = row.pop("AliasType", None)
     name_prop = NAME_TYPES.get(name_type)

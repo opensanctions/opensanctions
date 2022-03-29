@@ -60,9 +60,9 @@ def crawl(context: Context):
         sanction.add("recordId", un_id)
 
         body, gender = maybe_rsplit(body, "пол:")
-        entity.add_cast("Person", "gender", h.clean_gender(gender))
+        entity.add_cast("Person", "gender", gender)
         body, gender = maybe_rsplit(body, "Пол:")
-        entity.add_cast("Person", "gender", h.clean_gender(gender))
+        entity.add_cast("Person", "gender", gender)
         body, location = maybe_rsplit(body, "местонахождение:")
         entity.add_cast("LegalEntity", "country", location)
         body, imo_num = maybe_rsplit(body, "Присвоенный ИМО номер компании:")

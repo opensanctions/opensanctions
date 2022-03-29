@@ -924,7 +924,7 @@ gender:
         - U
         - Unknown
         - ""
-      value: unknown
+      value: null
     - match:
         - non-binary
         - intersex

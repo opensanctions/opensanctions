@@ -23,7 +23,7 @@ def crawl_row(context: Context, data: Dict[str, str]):
     entity.add_cast("Person", "birthPlace", data.pop("PLACEOFBIRTH", None))
     entity.add_cast("Person", "birthPlace", data.pop("CITY_OF_BIRTH", None))
     entity.add_cast("Person", "birthDate", data.pop("YEAR", None))
-    entity.add_cast("Person", "gender", h.clean_gender(data.pop("GENDER", None)))
+    entity.add_cast("Person", "gender", data.pop("GENDER", None))
     entity.add_cast("Person", "birthDate", parse_date(data.pop("DATE", None)))
     entity.add_cast("Person", "birthDate", parse_date(data.pop("DATE_OF_BIRTH", None)))
 

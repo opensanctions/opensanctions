@@ -63,8 +63,7 @@ def parse_entry(context: Context, entry):
         )
         entity.add("title", name.get("title"), quiet=True)
         entity.add("position", name.get("function"), quiet=True)
-        gender = h.clean_gender(name.get("gender"))
-        entity.add("gender", gender, quiet=True)
+        entity.add("gender", name.get("gender"), quiet=True)
 
     for node in entry.findall("./identification"):
         type = node.get("identificationTypeCode")

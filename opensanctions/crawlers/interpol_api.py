@@ -47,7 +47,7 @@ def crawl_notice(context, notice):
     entity.add("lastName", last_name)
     entity.add("sourceUrl", url)
     entity.add("nationality", notice.get("nationalities"))
-    entity.add("gender", h.clean_gender(notice.get("sex_id")))
+    entity.add("gender", notice.get("sex_id"))
     entity.add("birthPlace", notice.get("place_of_birth"))
 
     dob_raw = notice["date_of_birth"]
