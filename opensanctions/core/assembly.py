@@ -5,9 +5,11 @@ from typing import Dict, Iterable, List, Optional, Tuple
 from itertools import combinations
 from normality import latinize_text
 from followthemoney.types import registry
-from followthemoney.helpers import simplify_provenance
 
 from opensanctions.core.entity import Entity
+
+PROV_MIN_DATES = ("createdAt", "authoredAt", "publishedAt")
+PROV_MAX_DATES = ("modifiedAt", "retrievedAt")
 
 
 @cache
@@ -43,21 +45,27 @@ def name_entity(entity: Entity) -> Entity:
             name = _pick_name(tuple(names), tuple(all_names))
             if name in names:
                 names.remove(name)
-            entity.set("name", name)
-            entity.add("alias", names)
+            entity.set("name", name, cleaned=True)
+            entity.add("alias", names, cleaned=True)
     return entity
 
 
-def remove_prefix_dates(entity: Entity) -> Entity:
+def simplify_dates(entity: Entity) -> Entity:
     """If an entity has multiple values for a date field, you may
     want to remove all those that are prefixes of others. For example,
     if a Person has both a birthDate of 1990 and of 1990-05-01, we'd
     want to drop the mention of 1990."""
     for prop in entity.iterprops():
         if prop.type == registry.date:
-            dates = tuple(entity.get(prop))
+            dates = tuple(entity.pop(prop))
             values = remove_prefix_date_values(dates)
-            entity.set(prop, values)
+            if prop.name in PROV_MAX_DATES:
+                entity.unsafe_add(prop, max(values), cleaned=True)
+            elif prop.name in PROV_MIN_DATES:
+                entity.unsafe_add(prop, min(values), cleaned=True)
+            else:
+                for value in values:
+                    entity.unsafe_add(prop, value, cleaned=True)
     return entity
 
 
@@ -79,6 +87,6 @@ def remove_prefix_date_values(values: Tuple[str]) -> Iterable[str]:
 
 def assemble(entity: Entity) -> Entity:
     """Perform some user-facing cleanup when exporting the entity."""
-    entity = simplify_provenance(entity)
-    entity = remove_prefix_dates(entity)
-    return name_entity(entity)
+    entity = simplify_dates(entity)
+    entity = name_entity(entity)
+    return entity

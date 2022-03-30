@@ -136,13 +136,10 @@ def all_statements(
 def count_entities(
     conn: Conn,
     dataset: Optional[Dataset] = None,
-    unique: Optional[bool] = None,
     target: Optional[bool] = None,
 ) -> int:
     q = select(func.count(func.distinct(stmt_table.c.canonical_id)))
     q = q.filter(stmt_table.c.prop == BASE)
-    if unique is not None:
-        q = q.filter(stmt_table.c.unique == unique)
     if target is not None:
         q = q.filter(stmt_table.c.target == target)
     if dataset is not None:
