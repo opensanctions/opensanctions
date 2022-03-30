@@ -1,4 +1,4 @@
-name: integration
+name: build
 
 on:
   push: {}
