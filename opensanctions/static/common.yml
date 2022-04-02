@@ -397,6 +397,7 @@ country:
     - match:
         - State of Vietnam
         - South Vietnam
+        - Republic of Vietnam
       value: Vietnam
     - match: Iraq,Iran
       values:
