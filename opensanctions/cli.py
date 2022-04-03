@@ -62,7 +62,6 @@ def _process(
             futures = []
             for dataset_ in scope.datasets:
                 futures.append(executor.submit(export_dataset, dataset_, database))
-            futures.append(executor.submit(export_statements))
             futures.append(executor.submit(export_metadata))
             wait(futures)
 
