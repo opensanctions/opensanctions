@@ -3,6 +3,7 @@ from typing import Any, Dict
 from functools import cache
 from urllib.parse import urljoin
 from followthemoney import model
+from nomenklatura.matching import explain_matcher
 
 from opensanctions import settings
 from opensanctions.core.db import engine_read
@@ -65,6 +66,7 @@ def export_metadata():
             "statements_url": urljoin(settings.DATASET_URL, "statements.csv"),
             "model": model,
             "schemata": schemata,
+            "matcher": explain_matcher(),
             "app": "opensanctions",
             "version": settings.VERSION,
         }
