@@ -57,7 +57,5 @@ def export_dataset(dataset: Dataset, database: Database):
         with open(index_path, "w", encoding=settings.ENCODING) as fh:
             meta = dataset_to_index(dataset)
             write_json(meta, fh)
-    except Exception as exc:
-        log.error("Error: %s" % exc)
     finally:
         context.close()
