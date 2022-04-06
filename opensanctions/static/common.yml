@@ -433,6 +433,7 @@ country:
         - Russian Republic
         - Chechen Republic of Ichkeria
         - Chechen
+        - Moscow
       value: RU
     - match:
         - Russian SFSR (now Russian Federation)
