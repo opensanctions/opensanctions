@@ -44,7 +44,7 @@ def crawl_physical(context: Context) -> None:
     data = json_resource(context, PHYSICAL_URL, "physical")
     for row in data:
         entity = context.make("Person")
-        entity.id = context.make_slug(row.pop("ukaz_id"), row.pop("index"))
+        entity.id = context.make_slug("person", row.pop("ukaz_id"), row.pop("index"))
         entity.add("name", row.pop("name_ukr", None))
         entity.add("name", row.pop("name_original", None))
         for alias in multi_split(row.pop("name_alternative", None), [";", "/"]):
@@ -66,7 +66,7 @@ def crawl_legal(context: Context) -> None:
     data = json_resource(context, LEGAL_URL, "legal")
     for row in data:
         entity = context.make("Organization")
-        entity.id = context.make_slug(row.pop("ukaz_id"), row.pop("index"))
+        entity.id = context.make_slug("org", row.pop("ukaz_id"), row.pop("index"))
         entity.add("name", row.pop("name_ukr", None))
         entity.add("name", row.pop("name_original", None))
         for alias in multi_split(row.pop("name_alternative", None), [";", "/"]):
