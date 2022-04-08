@@ -75,7 +75,9 @@ def crawl_legal(context: Context) -> None:
         ipn = row.pop("ipn", "") or ""
         entity.add("taxNumber", ipn.replace("ІПН", ""))
         odrn = row.pop("odrn_edrpou", "") or ""
-        entity.add("registrationNumber", odrn.replace("ОДРН", ""))
+        odrn = odrn.replace("ОДРН", "")
+        odrn = odrn.replace("ЄДРПОУ", "")
+        entity.add("registrationNumber", odrn)
 
         handle_address(context, entity, row.pop("place", None))
         handle_address(context, entity, row.pop("place_alternative", None))
