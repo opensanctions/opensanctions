@@ -254,6 +254,11 @@ country:
         - US
         - SY
     - match:
+        - U.S. state
+        - Northern Cheyenne Indian Reservation
+      value:
+        - US
+    - match:
         - Iran / unknown
         - "Branch Office 11: Iran"
         - Pahlavi Iran
@@ -574,6 +579,7 @@ country:
       value: CO
     - match:
         - Faisalabad, Punjab, Pakistan
+        - Azad Kashmir
         - Pakis
         - Pakistanis
         - پاڪستاني
@@ -925,6 +931,7 @@ gender:
     - match:
         - U
         - Unknown
+        - transgender person
         - ""
       value: null
     - match:
