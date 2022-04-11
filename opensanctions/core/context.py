@@ -231,8 +231,10 @@ class Context(object):
             raise
         except LookupException as exc:
             self.log.error(exc.message, lookup=exc.lookup.name, value=exc.value)
+            raise
         except Exception:
             self.log.exception("Crawl failed")
+            raise
         finally:
             self.close()
 
