@@ -1,7 +1,6 @@
 from banal import first
 from pprint import pprint
 from normality import stringify, collapse_spaces
-from prefixdate import parse_parts
 from pantomime.types import XML
 
 from opensanctions.core import Context

@@ -1,6 +1,7 @@
 entry_point: opensanctions.crawlers.ru_fedsfm_terror
 title: Rosfinmonitoring List of terrorists and extremists
 prefix: ruterr
+disabled: true
 summary: >
   List of organizations and individuals involved in extremist or 
   terrorist activities.

@@ -404,6 +404,9 @@ country:
         - South Vietnam
         - Republic of Vietnam
       value: Vietnam
+    - match:
+        - North Macedonia, The Republic of
+      value: MK
     - match: Iraq,Iran
       values:
         - "Iraq"

@@ -1,6 +1,7 @@
 entry_point: opensanctions.crawlers.ru_fedsfm_wmd
 title: Rosfinmonitoring WMD-related entities
 prefix: ru-wmd
+disabled: true
 summary: >
   List of organizations and individuals in relation to which there is
   information about their involvement in the proliferation of weapons
