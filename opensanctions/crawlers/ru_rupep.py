@@ -1,16 +1,13 @@
+import os
 import json
-import requests
-from lxml import html
 from typing import Any, Dict, Optional
-from contextlib import closing
-from codecs import iterdecode
-from datapatch.result import Result
-from followthemoney.types import registry
 from pantomime.types import JSON
 
 from opensanctions.core import Context
 from opensanctions import helpers as h
 from opensanctions.util import multi_split
+
+PASSWORD = os.environ.get("OPENSANCTIONS_RUPEP_PASSWORD")
 
 
 def clean_wdid(wikidata_id: Optional[str]):
@@ -41,11 +38,12 @@ def parse_date(date):
 
 
 def fetch(context: Context):
-    companies_url = "https://rupep.org/opendata/companies/json"
-    path = context.fetch_resource("companies.json", companies_url)
-    context.export_resource(path, JSON, title=context.SOURCE_TITLE)
-    path = context.fetch_resource("persons.json", context.dataset.data.url)
-    context.export_resource(path, JSON, title=context.SOURCE_TITLE)
+    # companies_url = "https://rupep.org/opendata/companies/json"
+    # path = context.fetch_resource("companies.json", companies_url)
+    # context.export_resource(path, JSON, title=context.SOURCE_TITLE)
+    auth = ("opensanctions", PASSWORD)
+    path = context.fetch_resource("persons.json", context.dataset.data.url, auth=auth)
+    # context.export_resource(path, JSON, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         return json.load(fh)
 

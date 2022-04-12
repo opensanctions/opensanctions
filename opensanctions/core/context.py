@@ -55,7 +55,7 @@ class Context(object):
     def get_resource_path(self, name):
         return self.path.joinpath(name)
 
-    def fetch_resource(self, name, url):
+    def fetch_resource(self, name, url, auth=None, headers=None):
         """Fetch a URL into a file located in the current run folder,
         if it does not exist."""
         file_path = self.get_resource_path(name)
@@ -65,6 +65,8 @@ class Context(object):
             with self.http.get(
                 url,
                 stream=True,
+                auth=auth,
+                headers=headers,
                 timeout=settings.HTTP_TIMEOUT,
                 verify=False,
             ) as res:
