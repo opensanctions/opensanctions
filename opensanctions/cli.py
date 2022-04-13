@@ -75,11 +75,10 @@ def resolve():
 
 @cli.command("xref", help="Generate dedupe candidates from the given dataset")
 @click.argument("dataset", default=Dataset.DEFAULT, type=datasets)
-@click.option("-f", "--fuzzy", is_flag=True, type=bool, default=False)
 @click.option("-l", "--limit", type=int, default=5000)
-def xref(dataset, fuzzy, limit):
+def xref(dataset, limit):
     dataset = Dataset.require(dataset)
-    blocking_xref(dataset, limit=limit, fuzzy=fuzzy)
+    blocking_xref(dataset, limit=limit)
 
 
 @cli.command("xref-geocode", help="Deduplicate addresses using geocoding")

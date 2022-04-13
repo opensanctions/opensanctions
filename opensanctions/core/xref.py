@@ -12,7 +12,7 @@ log = structlog.get_logger(__name__)
 def blocking_xref(dataset: Dataset, limit: int = 5000):
     resolver = get_resolver()
     resolver.prune()
-    db = Database(dataset, resolver, cached=False)
+    db = Database(dataset, resolver, cached=True)
     loader = db.view(dataset)
     xref(loader, resolver, limit=limit, scored=True)
     resolver.save()
