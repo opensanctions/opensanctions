@@ -289,7 +289,7 @@ def parse_party(context: Context, distinct_party, locations, documents):
     for feature in profile.findall("./Feature"):
         parse_feature(context, feature, party, locations)
 
-    context.emit(party, target=True, unique=True)
+    context.emit(party, target=True)
     # pprint(party.to_dict())
     # context.log.info("[%s] %s" % (party.schema.name, party.caption))
     return party

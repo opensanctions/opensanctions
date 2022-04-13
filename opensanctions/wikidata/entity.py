@@ -211,5 +211,5 @@ def entity_to_ftm(
         return
 
     # context.pprint(entity)
-    context.emit(proxy, unique=True)
+    context.emit(proxy)
     return proxy

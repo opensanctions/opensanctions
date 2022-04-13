@@ -39,7 +39,6 @@ class Statement(TypedDict):
     value: str
     dataset: str
     target: bool
-    unique: bool
     first_seen: datetime
     last_seen: datetime
 
@@ -50,9 +49,7 @@ def stmt_key(dataset, entity_id, prop, value):
     return sha1(key.encode("utf-8")).hexdigest()
 
 
-def statements_from_entity(
-    entity: Entity, dataset: Dataset, unique: bool = False
-) -> List[Statement]:
+def statements_from_entity(entity: Entity, dataset: Dataset) -> List[Statement]:
     if entity.id is None or entity.schema is None:
         return []
     values: List[Statement] = [
@@ -66,7 +63,6 @@ def statements_from_entity(
             "value": entity.id,
             "dataset": dataset.name,
             "target": entity.target,
-            "unique": unique,
             "first_seen": settings.RUN_TIME,
             "last_seen": settings.RUN_TIME,
         }
@@ -82,7 +78,6 @@ def statements_from_entity(
             "value": value,
             "dataset": dataset.name,
             "target": entity.target,
-            "unique": unique,
             "first_seen": settings.RUN_TIME,
             "last_seen": settings.RUN_TIME,
         }
@@ -105,7 +100,6 @@ def save_statements(conn: Conn, values: List[Statement]) -> None:
             schema=istmt.excluded.schema,
             prop_type=istmt.excluded.prop_type,
             target=istmt.excluded.target,
-            unique=istmt.excluded.unique,
             last_seen=istmt.excluded.last_seen,
         ),
     )
@@ -330,27 +324,3 @@ def clear_statements(conn: Conn, dataset: Optional[Dataset] = None):
     if dataset is not None:
         q = q.filter(stmt_table.c.dataset == dataset.name)
     conn.execute(q)
-
-
-def unique_conflict(conn: Conn, left_ids, right_ids):
-    cteq = select(
-        func.distinct(stmt_table.c.entity_id).label("entity_id"),
-        stmt_table.c.dataset.label("dataset"),
-    )
-    cteq = cteq.where(stmt_table.c.prop == BASE)
-    cteq = cteq.where(stmt_table.c.unique == True)
-    cte = cteq.cte("uniques")
-    # cte = cte.prefix_with("MATERIALIZED")
-    left = cte.alias("left")
-    right = cte.alias("right")
-    q = select(left.c.entity_id, right.c.entity_id)
-    q = q.where(left.c.dataset == right.c.dataset)
-    # q = q.where(left.c.unique == True)
-    # q = q.where(right.c.unique == True)
-    q = q.where(left.c.entity_id.in_(left_ids))
-    q = q.where(right.c.entity_id.in_(right_ids))
-    res = conn.execute(q)
-    data = res.fetchone()
-    if data is not None:
-        return True
-    return False

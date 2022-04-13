@@ -194,13 +194,13 @@ class Context(object):
                 save_statements(conn, batch)
         self._statements = {}
 
-    def emit(self, entity: Entity, target: Optional[bool] = None, unique: bool = False):
+    def emit(self, entity: Entity, target: Optional[bool] = None):
         """Send an FtM entity to the store."""
         if entity.id is None:
             raise ValueError("Entity has no ID: %r", entity)
         if target is not None:
             entity.target = target
-        statements = statements_from_entity(entity, self.dataset, unique=unique)
+        statements = statements_from_entity(entity, self.dataset)
         if not len(statements):
             raise ValueError("Entity has no properties: %r", entity)
         self._statements.update({s["id"]: s for s in statements})

@@ -54,7 +54,7 @@ def parse_entity(context: Context, node):
     for addr in node.findall("./ENTITY_ADDRESS"):
         h.apply_address(context, entity, parse_address(context, addr))
 
-    context.emit(entity, target=True, unique=True)
+    context.emit(entity, target=True)
     context.emit(sanction)
 
 
@@ -102,7 +102,7 @@ def parse_individual(context: Context, node):
             person.add("birthPlace", address.get("full"))
             person.add("country", address.get("country"))
 
-    context.emit(person, target=True, unique=True)
+    context.emit(person, target=True)
     context.emit(sanction)
 
 

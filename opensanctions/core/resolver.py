@@ -4,9 +4,7 @@ from itertools import combinations
 from collections import defaultdict
 from followthemoney.dedupe.judgement import Judgement
 from nomenklatura.resolver import Resolver, Identifier, StrIdent
-from nomenklatura.util import is_qid
 
-# from opensanctions.core.statements import unique_conflict
 from opensanctions import settings
 from opensanctions.core.db import engine_read, engine_tx
 from opensanctions.core.statements import resolve_canonical, entities_datasets
@@ -21,20 +19,6 @@ Scored = Tuple[str, str, Optional[float]]
 
 class UniqueResolver(Resolver[Entity]):
     """OpenSanctions semantics for the entity resolver graph."""
-
-    def check_candidate(self, left: Identifier, right: Identifier) -> bool:
-        check = super().check_candidate(left, right)
-        if not check:
-            return False
-        if is_qid(str(left)) and is_qid(str(right)):
-            return False
-        # lefts = [c.id for c in self.connected(left)]
-        # rights = [c.id for c in self.connected(right)]
-        # with engine_read() as conn:
-        #     if unique_conflict(conn, lefts, rights):
-        #         self.decide(left, right, Judgement.NEGATIVE, user=AUTO_USER)
-        #         return False
-        return True
 
     def decide(
         self,

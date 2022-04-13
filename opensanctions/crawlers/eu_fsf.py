@@ -116,7 +116,7 @@ def parse_entry(context: Context, entry):
         entity.add("nationality", node.get("countryIso2Code"), quiet=True)
         entity.add("nationality", node.get("countryDescription"), quiet=True)
 
-    context.emit(entity, target=True, unique=True)
+    context.emit(entity, target=True)
     context.emit(sanction)
 
 
