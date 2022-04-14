@@ -18,12 +18,12 @@ SELECT ae.id AS id, ae.schema AS type, ac.country AS country, ae.caption AS main
 	(SELECT string_agg(x, '; ') FROM jsonb_array_elements_text(sanc.properties->'listingDate') AS x) AS listing_date,
 	(SELECT string_agg(x, '; ') FROM jsonb_array_elements_text(sanc.properties->'reason') AS x) AS reason,
 	(SELECT string_agg(x, '; ') FROM jsonb_array_elements_text(sanc.properties->'program') AS x) AS program
-	FROM analytics_entity ae, analytics_country ac, analytics_dataset ad, statement sa, statement ss, analytics_entity sanc
+	FROM analytics_entity ae, analytics_country ac, analytics_dataset ad, statement sa, statement ss, analytics_entity sanc, analytics_dataset sancds
 	WHERE
 		ae.id = ac.entity_id
 		AND ac.country IN ('ru', 'by', 'suhh')
 		AND ad.entity_id = ae.id
-		AND ad.dataset = 'sanctions'
+		AND ad.dataset = 'eu_fsf'
 		AND sa.canonical_id = ae.id
 		AND sa.prop = 'id'
 		AND ss.value = sa.entity_id
@@ -31,7 +31,8 @@ SELECT ae.id AS id, ae.schema AS type, ac.country AS country, ae.caption AS main
 		AND ss.prop = 'entity'
 		AND ae.target = true
 		AND sanc.id = ss.canonical_id
-		AND sanc.first_seen > '2022-02-20'
+		AND sancds.entity_id = sanc.id
+		AND sancds.dataset = 'eu_fsf'
 	ORDER BY sanc.first_seen DESC, ae.id
 ;
 ```
