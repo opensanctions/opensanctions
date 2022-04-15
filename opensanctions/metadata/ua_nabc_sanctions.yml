@@ -1,0 +1,34 @@
+entry_point: opensanctions.crawlers.ua_nabc_sanctions
+title: Ukraine NABC Sanctions Tracker
+prefix: ua-nabc
+summary: >
+  A list of suggested Russia-related sanctions targets composed by the
+  Ukrainian anti-corruption agency.
+description: |
+  > The War and Sanctions website engages citizens in the sanctioning process, and
+  > gives people power to hold accountable the people fueling Russia's war against
+  > Ukraine. It follows in the epistolary tradition of the classic novel that shares
+  > a similar name.
+
+  (That'sa pretty amazing mission statement for a government project!)
+
+  The dataset contains information on individuals and entities subject to sanctions
+  as well information on individuals and entities that are likely to be subjected to
+  sanctions. In the future, the agency plans to include information on assets of
+  sanctioned individuals.
+collections:
+  - sanctions
+  - default
+publisher:
+  name: National Agency on Corruption Prevention
+  description: >
+    The National Agency on Corruption Prevention is a central executive body with a
+    special status. It is responsible for the development of anti-corruption
+    policy and prevention of corruption. The National Agency was established
+    in accordance with the Law of Ukraine on Prevention of Corruption.
+  url: https://nazk.gov.ua/en/
+  country: ua
+url: https://sanctions.nazk.gov.ua/
+data:
+  url: https://sanctions.nazk.gov.ua/api/
+  format: JSON

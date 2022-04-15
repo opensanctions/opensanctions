@@ -2,7 +2,7 @@ from datetime import datetime
 
 from opensanctions.core import Context
 from opensanctions import helpers as h
-from opensanctions.util import jointext, remove_bracketed, multi_split
+from opensanctions.util import remove_bracketed, multi_split
 
 FORMATS = ["%d %b %Y", "%d %B %Y", "%Y", "%b %Y", "%B %Y"]
 
