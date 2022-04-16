@@ -10,7 +10,7 @@ COUNTRIES = {
     1: "RU",
     2: "BY",
     3: "UA",
-    4: "BE",
+    4: None,
     None: None,
 }
 
