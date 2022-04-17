@@ -18,7 +18,10 @@ COUNTRIES = {
 def parse_date(date):
     if date is not None:
         date = date.strip()
-    return h.parse_date(date, ["%d.%m.%Y"])
+    dates = set()
+    for part in date.split(","):
+        dates.update(h.parse_date(part, ["%d.%m.%Y"]))
+    return dates
 
 
 def json_resource(context: Context, url, name):

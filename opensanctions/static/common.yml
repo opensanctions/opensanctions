@@ -92,6 +92,8 @@ country:
         - Ming dynasty
         - Malaya
         - Tapia
+        - Savoy
+        - politician
         - Alkatraz
         - Tilted Towers
         - Fortnite
@@ -612,6 +614,8 @@ date:
         - "59"
         - "2"
         - "0"
+        - "10/10"
+        - "28/09"
       value: null
     - match: 1972-08-10 or 1972-08-11
       values:
@@ -976,6 +980,7 @@ gender:
         - intersex
         - pangender
         - kathoey
+        - two-spirit
       value: other
 
 fulladdress:
