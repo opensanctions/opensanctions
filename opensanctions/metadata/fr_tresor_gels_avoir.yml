@@ -33,6 +33,9 @@ lookups:
     lowercase: true
     normalize: true
     options:
+      - contains:
+          - "1027739019208"
+        prop: null
       - match:
           - numéro fédéral Suisse
           - (IOM)

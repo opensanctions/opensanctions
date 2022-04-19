@@ -56,7 +56,7 @@ def apply_prop(context: Context, entity, sanction, field, value):
                 comment=comment,
                 content=content,
             )
-        else:
+        elif result.prop is not None:
             schema = result.schema or entity.schema
             entity.add_cast(schema, result.prop, content)
             if result.prop == "notes":
@@ -82,6 +82,9 @@ def crawl_entity(context: Context, data):
     # context.pprint(data)
     nature = data.pop("Nature")
     schema = SCHEMATA.get(nature)
+    if schema is None:
+        context.log.error("Unknown entity type", nature=nature)
+        return
     entity = context.make(schema)
     entity.id = context.make_slug(data.pop("IdRegistre"))
     sanction = h.make_sanction(context, entity)
