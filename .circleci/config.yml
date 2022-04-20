@@ -18,7 +18,7 @@ commands:
                   echo "qa" > ~/tag.file
                 elif [[ "${CIRCLE_BRANCH}" =~ ^release\/.* ]]; then
                   echo "uat" > ~/tag.file
-                elif [ "${CIRCLE_BRANCH}" == "master" ]; then
+                elif [ "${CIRCLE_BRANCH}" == "main" ]; then
                   echo "prod" > ~/tag.file
                 elif [[ "${CIRCLE_TAG}" =~ ^[0-9].* ]]; then
                   echo "prod" > ~/tag.file                       
