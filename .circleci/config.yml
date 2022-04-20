@@ -1,0 +1,158 @@
+# Python CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-python/ for more details
+#
+version: 2.1
+commands:
+  # Based on the branch, identifies the correct IMAGE_TAG to be used
+  # develop -> qa
+  # uat -> uat
+  # master -> production
+  identify_package_tag:
+    description: "Identify the correct tag based on the current branch"
+    steps:
+      - run:
+          name: Identify Package Tag
+          command: |
+                if [ "${CIRCLE_BRANCH}" == "develop" ]; then
+                  echo "qa" > ~/tag.file
+                elif [[ "${CIRCLE_BRANCH}" =~ ^release\/.* ]]; then
+                  echo "uat" > ~/tag.file
+                elif [ "${CIRCLE_BRANCH}" == "master" ]; then
+                  echo "prod" > ~/tag.file
+                elif [[ "${CIRCLE_TAG}" =~ ^[0-9].* ]]; then
+                  echo "prod" > ~/tag.file                       
+                else
+                  echo "unknown branch ${CIRCLE_BRANCH}"
+                  exit 1
+                fi
+
+jobs:
+  build:
+    docker:
+      - image: circleci/buildpack-deps:stretch
+    steps:
+      - run: mkdir -p /tmp/workspace
+      # Checkout code
+      - checkout
+      # Identify tag
+      #- identify_package_tag
+      - setup_remote_docker
+      - run:
+          command: |
+                docker build -t "image:latest" .
+                docker save -o /tmp/workspace/image image:latest
+          name: Build container
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths:
+            - image
+
+  # Publish docker image
+  # Shared steps among all image publish jobs
+  publish_docker_untagged_image: &publish_docker_untagged_image
+    parameters:
+      # Image name for the published docker image
+      repo_name:
+        type: string
+      image:
+        type: string
+    docker:
+      - image: circleci/buildpack-deps:stretch
+    steps:
+      - attach_workspace:
+          # Must be absolute path or relative path from working_directory
+          at: /tmp/workspace
+      # Checkout code
+      - checkout
+      # Identify tag
+      - identify_package_tag
+      - setup_remote_docker
+      # Build Docker Image
+      - run:
+          name: "Load Docker Image"
+          command: docker load -i /tmp/workspace/image && docker image tag image:latest "ghcr.io/<< parameters.repo_name >>/<< parameters.image >>:`cat ~/tag.file`_latest" || docker build -t "ghcr.io/<< parameters.repo_name >>/<< parameters.image >>:`cat ~/tag.file`_latest" .
+      # Publish Docker Image
+      - run:
+          name: "Publish Latest Image to GitHub"
+          command: |
+                echo "$GITHUB_PASS" | docker login ghcr.io -u "$GITHUB_USER" --password-stdin
+                docker push ghcr.io/<< parameters.repo_name >>/<< parameters.image >>:`cat ~/tag.file`_latest
+      - run:
+          name: "Additional image tag for Next Genv2"
+          command: |
+                echo "$GITHUB_PASS" | docker login ghcr.io -u "$GITHUB_USER" --password-stdin
+                docker image tag "ghcr.io/<< parameters.repo_name >>/<< parameters.image >>:`cat ~/tag.file`_latest" "ghcr.io/<< parameters.repo_name >>/<< parameters.image >>:${CIRCLE_SHA1:0:7}-$(date +%s)"
+                docker push ghcr.io/<< parameters.repo_name >>/<< parameters.image >>:${CIRCLE_SHA1:0:7}-$(date +%s)
+
+  publish_docker_tagged_image: &publish_docker_tagged_image
+    parameters:
+      # Image name for the published docker image
+      repo_name:
+        type: string
+      image:
+        type: string
+    docker:
+      - image: circleci/buildpack-deps:stretch
+    steps:
+      - attach_workspace:
+          # Must be absolute path or relative path from working_directory
+          at: /tmp/workspace
+      # Checkout code
+      - checkout
+      # Identify tag
+      - identify_package_tag
+      - setup_remote_docker
+      # Build Docker Image
+      - run:
+          name: "Load Docker Image"
+          command: docker load -i /tmp/workspace/image && docker image tag image:latest "ghcr.io/<< parameters.repo_name >>/<< parameters.image >>:`cat ~/tag.file`_latest" || docker build -t "ghcr.io/<< parameters.repo_name >>/<< parameters.image >>:`cat ~/tag.file`_latest" .
+      # Publish Docker Image
+      - run:
+          name: "Publish Latest Image to GitHub"
+          command: |
+                echo "$GITHUB_PASS" | docker login ghcr.io -u "$GITHUB_USER" --password-stdin
+                docker push ghcr.io/<< parameters.repo_name >>/<< parameters.image >>:`cat ~/tag.file`_latest
+      - run:
+          name: "Additional image tag for Next Genv2"
+          command: |
+                echo "$GITHUB_PASS" | docker login ghcr.io -u "$GITHUB_USER" --password-stdin
+                docker image tag "ghcr.io/<< parameters.repo_name >>/<< parameters.image >>:`cat ~/tag.file`_latest" "ghcr.io/<< parameters.repo_name >>/<< parameters.image >>:${CIRCLE_TAG}"
+                docker push ghcr.io/<< parameters.repo_name >>/<< parameters.image >>:${CIRCLE_TAG}
+
+  publish_untagged:
+    <<: *publish_docker_untagged_image
+    working_directory: ~/repo
+  publish_tagged:
+    <<: *publish_docker_tagged_image
+    working_directory: ~/repo
+
+orbs:
+  slack: circleci/slack@3.4.2
+workflows:
+  version: 2.1
+  build_push_deploy:
+    jobs:
+      - build:
+          filters:
+            tags:
+              only: /^[0-9].*/          
+      - publish_untagged:
+          repo_name: opensanctions/opensanctions
+          image: opensanctions
+          filters:
+            branches:
+              only:
+                - develop
+          requires:
+            - build
+      - publish_tagged:
+          repo_name: opensanctions/opensanctions
+          image: opensanctions
+          filters:
+            tags:
+              only: /^[0-9].*/
+            branches:
+              ignore: /.*/
+          requires:
+            - build
