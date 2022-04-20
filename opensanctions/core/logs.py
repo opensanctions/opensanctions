@@ -44,7 +44,7 @@ def configure_logging(level=logging.DEBUG):
     ]
     formatter = structlog.stdlib.ProcessorFormatter(
         foreign_pre_chain=list(processors),
-        processor=structlog.dev.ConsoleRenderer(),
+        processor=structlog.dev.ConsoleRenderer(colors=False),
     )
 
     processors.append(structlog.stdlib.ProcessorFormatter.wrap_for_formatter)
