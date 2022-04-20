@@ -8,6 +8,7 @@ from lxml import etree, html
 from pprint import pprint
 from datapatch import LookupException
 from lxml.etree import _Element, tostring
+from followthemoney import model
 from followthemoney.util import make_entity_id
 from followthemoney.schema import Schema
 from structlog.contextvars import clear_contextvars, bind_contextvars
@@ -165,7 +166,7 @@ class Context(object):
 
     def make(self, schema: Union[str, Schema], target=False) -> Entity:
         """Make a new entity with some dataset context set."""
-        return Entity(schema, target=target)
+        return Entity(model, {"schema": schema, "target": target})
 
     def make_slug(self, *parts, strict=True) -> Optional[str]:
         return self.dataset.make_slug(*parts, strict=strict)

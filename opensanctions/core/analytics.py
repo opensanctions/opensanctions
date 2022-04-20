@@ -34,10 +34,9 @@ def build_analytics(dataset: Dataset):
                 log.info("Denormalised %d entities..." % idx)
 
             datasets: Set[Dataset] = set()
-            for dataset in entity.datasets:
-                datasets.add(dataset)
-                for coll in dataset.collections:
-                    datasets.add(Dataset.require(coll))
+            for dataset_name in entity.datasets:
+                dataset = Dataset.require(dataset_name)
+                datasets.update(dataset.datasets)
 
             for dataset in datasets:
                 members.append({"entity_id": entity.id, "dataset": dataset.name})

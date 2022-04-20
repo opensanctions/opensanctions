@@ -136,17 +136,20 @@ class Database(object):
             if sources is not None and stmt.dataset not in sources:
                 continue
             if entity is None:
-                entity = Entity(stmt.schema)
-                entity.id = stmt.canonical_id
-                entity.first_seen = stmt.first_seen
-                entity.last_seen = stmt.last_seen
-                entity.target = stmt.target
+                data = {
+                    "schema": stmt.schema,
+                    "id": stmt.canonical_id,
+                    "target": stmt.target,
+                    "first_seen": stmt.first_seen,
+                    "last_seen": stmt.last_seen,
+                }
+                entity = Entity(model, data)
             else:
                 entity.add_schema(stmt.schema)
                 entity.first_seen = min(entity.first_seen, stmt.first_seen)
                 entity.last_seen = max(entity.last_seen, stmt.last_seen)
                 entity.target = max(entity.target, stmt.target)
-            entity.datasets.add(stmt.dataset)
+            entity.datasets.add(stmt.dataset.name)
 
         if entity is None:
             return None

@@ -1,8 +1,9 @@
 import json
 from datetime import date, datetime
+from nomenklatura.loader import Loader
 
 from opensanctions import settings
-from opensanctions.core import Context
+from opensanctions.core import Context, Dataset, Entity
 
 
 class Exporter(object):
@@ -10,7 +11,7 @@ class Exporter(object):
 
     FILE_MODE = "w"
 
-    def __init__(self, context: Context, loader):
+    def __init__(self, context: Context, loader: Loader[Dataset, Entity]):
         self.context = context
         self.dataset = context.dataset
         self.resource_name = f"{self.NAME}.{self.EXTENSION}"
@@ -21,7 +22,7 @@ class Exporter(object):
     def setup(self):
         self.fh = open(self.path, "w", encoding=settings.ENCODING)
 
-    def feed(self, entity):
+    def feed(self, entity: Entity):
         raise NotImplemented
 
     def finish(self):

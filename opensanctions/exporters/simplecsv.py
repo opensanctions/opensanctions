@@ -1,7 +1,9 @@
 import io
 import csv
+from typing import List
 from followthemoney.types import registry
 
+from opensanctions.core import Dataset, Entity
 from opensanctions.exporters.common import Exporter
 from opensanctions.util import jointext
 
@@ -56,7 +58,7 @@ class SimpleCSVExporter(Exporter):
         self.writer = csv.writer(self.fh, dialect=csv.unix_dialect)
         self.writer.writerow(self.HEADERS)
 
-    def feed(self, entity):
+    def feed(self, entity: Entity):
         if not entity.target:
             return
         countries = set(entity.get_type_values(registry.country))
@@ -77,7 +79,10 @@ class SimpleCSVExporter(Exporter):
                 identifiers.update(adjacent.get("number"))
                 countries.update(adjacent.get("country"))
 
-        datasets = [ds.title for ds in entity.datasets]
+        datasets: List[str] = []
+        for dataset in entity.datasets:
+            ds = Dataset.require(dataset)
+            datasets.append(ds.title)
         row = [
             entity.id,
             entity.schema.name,
