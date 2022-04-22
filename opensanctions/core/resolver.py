@@ -13,7 +13,6 @@ from opensanctions.core.dataset import Dataset
 from opensanctions.core.loader import Database
 
 AUTO_USER = "opensanctions"
-RESOLVER_PATH = settings.STATIC_PATH.joinpath("resolve.ijson")
 Scored = Tuple[str, str, Optional[float]]
 
 
@@ -37,7 +36,7 @@ class UniqueResolver(Resolver[Entity]):
 
 @cache
 def get_resolver() -> Resolver[Entity]:
-    return UniqueResolver.load(RESOLVER_PATH)
+    return UniqueResolver.load(settings.RESOLVER_PATH)
 
 
 def export_pairs(dataset: Dataset):

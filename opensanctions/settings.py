@@ -36,11 +36,6 @@ DATASET_PATH = Path(env.get("OPENSANCTIONS_DATASET_PATH", DATASET_PATH)).resolve
 DATASET_URL = "https://data.opensanctions.org/datasets/latest/"
 DATASET_URL = env_str("OPENSANCTIONS_DATASET_URL", DATASET_URL)
 
-# Used to keep the HTTP cache
-STATE_PATH_ = env.get("OPENSANCTIONS_STATE_PATH", DATA_PATH.joinpath("state"))
-STATE_PATH = Path(STATE_PATH_).resolve()
-STATE_PATH.mkdir(parents=True, exist_ok=True)
-
 # SQL database URI for structured data
 DATABASE_URI = env_str("OPENSANCTIONS_DATABASE_URI", None)
 DATABASE_POOL_SIZE = int(env_str("OPENSANCTIONS_POOL_SIZE", "5"))
@@ -56,6 +51,9 @@ METADATA_PATH = Path(env.get("OPENSANCTIONS_METADATA_PATH", METADATA_PATH)).reso
 # Storage for static reference data
 STATIC_PATH = Path(__file__).resolve().parent.joinpath("static")
 STATIC_PATH = Path(env.get("OPENSANCTIONS_STATIC_PATH", STATIC_PATH)).resolve()
+
+# Resolver file path
+RESOLVER_PATH = STATIC_PATH.joinpath("resolve.ijson")
 
 # Do not edit manually, use the release process
 VERSION = "3.2.0"
