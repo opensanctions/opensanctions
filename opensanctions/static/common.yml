@@ -165,6 +165,9 @@ country:
         - Zimbabwe Rhodesia
       value: Zimbabwe
     - match:
+        - Bechuanaland Protectorate
+      value: Botswana
+    - match:
         - "Jordanian of Palestinian origin"
         - Zarqa
       value: JO

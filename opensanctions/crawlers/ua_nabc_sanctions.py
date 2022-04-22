@@ -17,7 +17,7 @@ COUNTRIES = {
 
 def parse_date(date):
     if date is not None:
-        date = date.strip()
+        date = date.replace(" ", "")
     dates = set()
     for part in date.split(","):
         dates.update(h.parse_date(part, ["%d.%m.%Y"]))
