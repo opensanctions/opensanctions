@@ -35,6 +35,8 @@ lookups:
     options:
       - contains:
           - "1027739019208"
+          - "1027739075891"
+        weight: 100
         prop: null
       - match:
           - numéro fédéral Suisse
@@ -90,8 +92,10 @@ lookups:
           - KPP
         schema: Company
         prop: kppCode
-      - contains:
+      - match:
+          - SWIFT/BIC
           - SWIFT
+          - SWIFT/BIC (Libye)
         schema: Company
         prop: swiftBic
       - match:
