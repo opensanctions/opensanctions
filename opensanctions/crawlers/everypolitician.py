@@ -25,8 +25,8 @@ def crawl_legislature(context: Context, country, legislature):
 
     persons: Dict[str, Optional[str]] = {}
     for person in data.pop("persons", []):
-        source_id = person.get("id")
-        persons[source_id] = parse_person(context, person, country, lastmod)
+        pid = person.get("id")
+        persons[pid] = parse_person(context, person, country, lastmod)
 
     organizations: Dict[str, Optional[str]] = {}
     for org in data.pop("organizations", []):
@@ -124,4 +124,4 @@ def parse_membership(context: Context, data, persons, organizations, events):
         person = context.make("Person")
         person.id = person_id
         person.add("position", position)
-        context.emit(person)
+        context.emit(person, target=True)
