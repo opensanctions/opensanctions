@@ -19,32 +19,17 @@ from opensanctions.wikidata.claim import Claim
 def qualify_value(context: Context, value: str, claim: Claim) -> str:
     starts = set()
     for qual in claim.get_qualifier("P580"):
-        text = qual.text(context)
-        if text is not None:
-            starts.add(text[:4])
-
-    start = min(starts, default="")
+        starts.add(qual.text(context))
 
     ends = set()
     for qual in claim.get_qualifier("P582"):
-        text = qual.text(context)
-        if text is not None:
-            ends.add(text[:4])
-
-    end = min(ends, default="")
-    if len(starts) or len(ends):
-        return f"{value} ({start}-{end})"
+        ends.add(qual.text(context))
 
     dates = set()
     for qual in claim.get_qualifier("P585"):
-        text = qual.text(context)
-        if text is not None:
-            dates.add(text[:4])
+        dates.add(qual.text(context))
 
-    if len(dates):
-        dates = ", ".join(sorted(dates))
-        return f"{value} ({dates})"
-    return value
+    return h.make_position(value, None, starts, ends, [])
 
 
 def make_link(
