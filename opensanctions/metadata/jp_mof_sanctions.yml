@@ -122,6 +122,8 @@ lookups:
           - 住所・所在地
           - 住 所 ・ 所 在 地
           - 住 所・所在地
+          # activity area - residence:
+          - 活 動 地 域 ・ 住 所
           - 所在地・住所 登録された事務所の住所
           - 所在地
         value: address
