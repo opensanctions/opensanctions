@@ -33,13 +33,9 @@ def build_analytics(dataset: Dataset):
             if idx > 0 and idx % 10000 == 0:
                 log.info("Denormalised %d entities..." % idx)
 
-            datasets: Set[Dataset] = set()
-            for dataset_name in entity.datasets:
-                dataset = Dataset.require(dataset_name)
-                datasets.update(dataset.datasets)
-
-            for dataset in datasets:
-                members.append({"entity_id": entity.id, "dataset": dataset.name})
+            for dataset in Dataset.all():
+                if len(entity.datasets.intersection(dataset.source_names)) > 0:
+                    members.append({"entity_id": entity.id, "dataset": dataset.name})
 
             if len(members) >= BATCH_SIZE:
                 stmt = insert(analytics_dataset_table).values(members)
