@@ -63,21 +63,35 @@ def clean_reference(ref):
     raise ValueError()
 
 
-def parse_reference(context: Context, reference, rows):
-    entity = context.make("LegalEntity")
-    entity.id = context.make_slug(reference)
+def parse_reference(context: Context, reference: int, rows):
+    schemata = set()
+    for row in rows:
+        type_ = row.pop("type")
+        schema = context.lookup_value("type", type_)
+        if schema is None:
+            context.log.warning("Unknown entity type", type=type_)
+            return
+        schemata.add(schema)
+    assert len(schemata) == 1, schemata
+    entity = context.make(schemata.pop())
+
+    primary_name = None
+    for row in rows:
+        name = row.pop("name_of_individual_or_entity", None)
+        name_type = row.pop("name_type")
+        name_prop = context.lookup_value("name_type", name_type)
+        if name_prop is None:
+            context.log.warning("Unknown name type", name_type=name_type)
+            return
+        entity.add(name_prop, name)
+        if name_prop == "name":
+            primary_name = name
+
+    entity.id = context.make_slug(reference, primary_name)
     sanction = h.make_sanction(context, entity)
 
+    primary_name = None
     for row in rows:
-        if row.pop("type") == "Individual":
-            entity.schema = model.get("Person")
-
-        name = row.pop("name_of_individual_or_entity", None)
-        if row.pop("name_type") == "aka":
-            entity.add("alias", name)
-        else:
-            entity.add("name", name)
-
         addr = row.pop("address")
         if addr is not None:
             for part in multi_split(addr, SPLITS):
