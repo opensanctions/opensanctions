@@ -5,7 +5,7 @@ from pantomime.types import XML
 
 from opensanctions.core import Context
 from opensanctions import helpers as h
-from opensanctions.util import remove_namespace, jointext
+from opensanctions.util import jointext
 from opensanctions.util import multi_split, remove_bracketed
 
 FORMATS = ["%d/%m/%Y", "00/%m/%Y", "%m/%Y", "00/00/%Y", "%Y"]
@@ -275,7 +275,7 @@ def crawl(context: Context):
     path = context.fetch_resource("source.xml", context.dataset.data.url)
     context.export_resource(path, XML, title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
-    doc = remove_namespace(doc)
+    doc = h.remove_namespace(doc)
 
     for el in doc.findall(".//FinancialSanctionsTarget"):
         parse_row(context, make_row(el))

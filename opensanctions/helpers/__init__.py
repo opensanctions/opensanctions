@@ -6,6 +6,7 @@ from opensanctions.helpers.features import apply_feature
 from opensanctions.helpers.dates import extract_years, parse_date
 from opensanctions.helpers.names import make_name, apply_name
 from opensanctions.helpers.excel import convert_excel_cell
+from opensanctions.helpers.xml import remove_namespace
 from opensanctions.helpers.constraints import check_person_cutoff
 from opensanctions.helpers.text import clean_note, make_position
 from opensanctions.helpers.util import audit_data

@@ -2,14 +2,13 @@ from pantomime.types import XML
 
 from opensanctions import helpers as h
 from opensanctions.core import Context
-from opensanctions.util import remove_namespace
 
 
 def crawl(context: Context):
     path = context.fetch_resource("source.xml", context.dataset.data.url)
     context.export_resource(path, XML, title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
-    doc = remove_namespace(doc)
+    doc = h.remove_namespace(doc)
     for node in doc.findall("./entry"):
         entity = context.make("Organization")
         name = node.findtext("./title")

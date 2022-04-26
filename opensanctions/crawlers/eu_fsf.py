@@ -3,7 +3,6 @@ from prefixdate import parse_parts
 
 from opensanctions.core import Context
 from opensanctions import helpers as h
-from opensanctions.util import remove_namespace
 
 
 def parse_address(context: Context, el):
@@ -124,6 +123,6 @@ def crawl(context: Context):
     path = context.fetch_resource("source.xml", context.dataset.data.url)
     context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
-    doc = remove_namespace(doc)
+    doc = h.remove_namespace(doc)
     for entry in doc.findall(".//sanctionEntity"):
         parse_entry(context, entry)
