@@ -3,7 +3,6 @@ import string
 from collections import defaultdict
 from normality import slugify
 from datetime import datetime
-from followthemoney import model
 from pantomime.types import EXCEL
 
 from opensanctions import helpers as h
@@ -129,8 +128,8 @@ def crawl(context: Context):
     headers = [slugify(h, sep="_") for h in ws.row_values(0)]
     references = defaultdict(list)
     for r in range(1, ws.nrows):
-        row = [h.convert_excel_cell(xls, c) for c in ws.row(r)]
-        row = dict(zip(headers, row))
+        cells = [h.convert_excel_cell(xls, c) for c in ws.row(r)]
+        row = dict(zip(headers, cells))
         reference = clean_reference(row.get("reference"))
         references[reference].append(row)
 
