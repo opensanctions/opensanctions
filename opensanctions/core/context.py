@@ -155,25 +155,30 @@ class Context(object):
                 conn, name, self.dataset, checksum, mime_type, size, title
             )
 
-    def lookup_value(self, lookup, value, default=None):
+    def lookup_value(self, lookup, value, default=None, dataset=None):
+        ds = Dataset.require(dataset) if dataset is not None else self.dataset
         try:
-            return self.dataset.lookups[lookup].get_value(value, default=default)
+            return ds.lookups[lookup].get_value(value, default=default)
         except LookupException:
             return default
 
-    def lookup(self, lookup, value):
-        return self.dataset.lookups[lookup].match(value)
+    def lookup(self, lookup, value, dataset=None):
+        ds = Dataset.require(dataset) if dataset is not None else self.dataset
+        return ds.lookups[lookup].match(value)
 
     def make(self, schema: Union[str, Schema], target=False) -> Entity:
         """Make a new entity with some dataset context set."""
         return Entity(model, {"schema": schema, "target": target})
 
-    def make_slug(self, *parts, strict=True) -> Optional[str]:
-        return self.dataset.make_slug(*parts, strict=strict)
+    def make_slug(
+        self, *parts, strict: bool = True, dataset: Optional[str] = None
+    ) -> Optional[str]:
+        ds = Dataset.require(dataset) if dataset is not None else self.dataset
+        return ds.make_slug(*parts, strict=strict)
 
-    def make_id(self, *parts: str) -> Optional[str]:
+    def make_id(self, *parts: str, dataset: Optional[str] = None) -> Optional[str]:
         hashed = make_entity_id(*parts, key_prefix=self.dataset.name)
-        return self.make_slug(hashed)
+        return self.make_slug(hashed, dataset=dataset)
 
     def pprint(self, obj) -> None:
         """Utility to avoid dumb imports."""

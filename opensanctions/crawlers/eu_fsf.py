@@ -25,13 +25,21 @@ def parse_address(context: Context, el):
 
 def parse_entry(context: Context, entry):
     subject_type = entry.find("./subjectType")
-    schema = context.lookup_value("subject_type", subject_type.get("code"))
+    schema = context.lookup_value(
+        "subject_type",
+        subject_type.get("code"),
+        dataset="eu_fsf",
+    )
     if schema is None:
         context.log.warning("Unknown subject type", type=subject_type)
         return
 
     entity = context.make(schema)
-    entity.id = context.make_slug(entry.get("euReferenceNumber"))
+    eu_ref = entry.get("euReferenceNumber")
+    if eu_ref is not None:
+        entity.id = context.make_slug(eu_ref, dataset="eu_fsf")
+    else:
+        entity.id = context.make_slug("logical", entry.get("logicalId"))
     entity.add("notes", h.clean_note(entry.findtext("./remark")))
     entity.add("topics", "sanction")
 
@@ -92,7 +100,11 @@ def parse_entry(context: Context, entry):
             elif child.tag == "remark":
                 entity.add("notes", child.text)
             elif child.tag == "contactInfo":
-                prop = context.lookup_value("contact_info", child.get("key"))
+                prop = context.lookup_value(
+                    "contact_info",
+                    child.get("key"),
+                    dataset="eu_fsf",
+                )
                 if prop is None:
                     context.log.warning("Unknown contact info", node=child)
                 else:

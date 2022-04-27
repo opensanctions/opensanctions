@@ -8,7 +8,6 @@ from opensanctions.core import Dataset, Context
 from opensanctions import helpers as h
 
 FORMATS = ["%d %b %Y", "%d %B %Y", "%Y", "%b %Y", "%B %Y"]
-SDN = Dataset.require("us_ofac_sdn")
 
 
 @cache
@@ -32,7 +31,7 @@ def parse_result(context: Context, result):
     entity_number = result.pop("entity_number", None)
     if entity_number is not None:
         assert int(entity_number)
-        entity.id = SDN.make_slug(entity_number)
+        entity.id = context.make_slug(entity_number, dataset="us_ofac_sdn")
 
     name = result.pop("name", None)
     name = name.replace("and any successor, sub-unit, or subsidiary thereof", "")
