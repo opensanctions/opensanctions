@@ -1,0 +1,36 @@
+entry_point: opensanctions.crawlers.be_fod_sanctions
+title: "Belgian Financial Sanctions"
+prefix: be-fod
+summary: |
+  Belgium extends the European FSF sanctions list on the basis of a national terrorist
+  list, issued by the National Security Council.
+description: |
+  Financial sanctions are restrictive measures that are taken in respect of countries,
+  individuals or entities with the aim of putting an end to breaches of international
+  peace and security such as terrorism, human rights violations, the destabilisation
+  of sovereign states and the proliferation of weapons of mass destruction.
+
+  These financial sanctions generally form part of a more comprehensive sanctions
+  regime that also contains other restrictive measures, such as embargos on exports
+  or imports of certain products (e.g. weapons, oil and technologies) or restrictions
+  in terms of travel and visas.
+
+  Financial sanctions include:
+
+  * freezing measures
+  * bans on investment, loans or insurance in certain sectors
+  * financing the import or export of specific goods…
+collections:
+  - sanctions
+  - default
+  - work
+url: https://finance.belgium.be/en/treasury/financial-sanctions
+publisher:
+  name: "Federal Public Service Finance"
+  description: |
+    The Federale Overheidsdienst Financien (FOD) is the finance ministry of Belgium.
+  country: be
+  url: https://financien.belgium.be/nl/over_de_fod
+data:
+  url: "https://financien.belgium.be/sites/default/files/thesaurie/Consolidated%20list.zip"
+  format: ZIP/XML
