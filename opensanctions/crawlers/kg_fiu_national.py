@@ -1,6 +1,3 @@
-from banal import first
-from lxml import html
-
 from opensanctions import settings
 from opensanctions.core import Context
 from opensanctions import helpers as h
