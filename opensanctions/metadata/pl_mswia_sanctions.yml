@@ -1,0 +1,41 @@
+entry_point: opensanctions.crawlers.pl_mswia_sanctions
+title: Polish list of persons and entities subject to sanctions
+prefix: plmswia
+summary: >
+  Decisions by the Polish Interior Ministry regarding entities linked
+  to the aggression in Ukraine.
+description: |
+  > Decisions of the Minister of Interior and Administration on entry
+  > on the list of persons and entities to whom the measures referred
+  > to in the Act on special solutions in the field of counteracting
+  > supporting aggression against Ukraine and serving to protect
+  > national security are applied
+collections:
+  - sanctions
+  - default
+publisher:
+  name: Ministerstwo Spraw Wewnętrznych i Administracji
+  description: |
+    Department of Public Order within the Ministry of the Interior of Poland.
+  url: https://www.gov.pl/web/mswia
+  country: pl
+url: https://www.gov.pl/web/mswia/decyzje-ministra-swia-w-sprawie-wpisu-na-liste-sankcyjna
+data:
+  url: https://www.gov.pl/web/mswia/lista-osob-i-podmiotow-objetych-sankcjami
+  format: HTML
+
+lookups:
+  details:
+    normalize: true
+    lowercase: true
+    options:
+      - match: urodzona 16 października 1975 r.
+        props:
+          birthDate: 1975-08-16
+      - match: urodzony 2 stycznia 1968 r. w Dzierżyńsku
+        props:
+          birthDate: 1968-01-02
+          birthPlace: Dzierżyńsku
+      - match: ul. Udalcowa 2, Moskwa, Federacja Rosyjska
+        props:
+          address: ul. Udalcowa 2, Moskwa, Federacja Rosyjska
