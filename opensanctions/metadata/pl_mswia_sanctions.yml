@@ -5,6 +5,13 @@ summary: >
   Decisions by the Polish Interior Ministry regarding entities linked
   to the aggression in Ukraine.
 description: |
+  Sanctions list published by Polish Ministry of Internal Affairs (MSWiA) following
+  the introduction of the "Act on special solutions in the field of counteracting
+  supporting aggression against Ukraine and serving to protect national security".
+  It includes Russian oligarchs and entities which if sanctioned may indirectly
+  contribute to reducing the benefits that the Russian economy and the Russian
+  Federation authorities derive from their activities.
+
   > Decisions of the Minister of Interior and Administration on entry
   > on the list of persons and entities to whom the measures referred
   > to in the Act on special solutions in the field of counteracting
@@ -29,13 +36,63 @@ lookups:
     normalize: true
     lowercase: true
     options:
-      - match: urodzona 16 października 1975 r.
-        props:
-          birthDate: 1975-08-16
-      - match: urodzony 2 stycznia 1968 r. w Dzierżyńsku
-        props:
-          birthDate: 1968-01-02
-          birthPlace: Dzierżyńsku
       - match: ul. Udalcowa 2, Moskwa, Federacja Rosyjska
         props:
           address: ul. Udalcowa 2, Moskwa, Federacja Rosyjska
+      - match: siedziba ul. Garncarska 34 42-200 Częstochowa
+        props:
+          address: ul. Garncarska 34 42-200 Częstochowa
+      - match: 39A/2 Leningradskoje Szosse 125212 Moskwa, Rosja
+        props:
+          address: 39A/2 Leningradskoje Szosse 125212 Moskwa, Rosja
+      - match: urodzona 16 października 1975 r.
+        props:
+          birthDate: 1975-10-16
+      - match: urodzony 2 stycznia 1968 r. w Dzierżyńsku
+        props:
+          birthDate: 1968-01-02
+          birthPlace: Dzerzhinsk
+      - match: urodzony 21 kwietnia 1964 r. we Lwowie
+        props:
+          birthDate: 1964-04-21
+          birthPlace: Lviv
+      - match: urodzony 9 marca 1958 r.
+        props:
+          birthDate: 1958-03-09
+      - match: urodzony 25 lipca 1959 r.
+        props:
+          birthDate: 1959-07-25
+      - match: urodzony 8 września 1953 r. w Moskwie
+        props:
+          birthDate: 1953-09-08
+          birthPlace: Moscow
+      - match: urodzony 4 października 1965 r.
+        props:
+          birthDate: 1965-10-04
+      - match: urodzona 21 kwietnia 1977 r.
+        props:
+          birthDate: 1959-04-21
+      - match: urodzony 8 marca 1972 r.
+        props:
+          birthDate: 1972-03-08
+      - match: urodzony 26 września 1965 r.
+        props:
+          birthDate: 1965-09-26
+      - match: urodzony 30 sierpnia 1966 r.
+        props:
+          birthDate: 1966-08-30
+      - match: urodzony 18 lipca 1958 r. ob. Federacji Rosyjskiej
+        props:
+          birthDate: 1958-07-18
+          country: ru
+      - match: urodzony 5 marca 1983 r.
+        props:
+          birthDate: 1983-03-05
+      - match: urodzony 7 września 1960 r. w Leningradzie
+        props:
+          birthDate: 1960-09-07
+          birthPlace: Leningrad
+      - match: urodzony 14 kwietnia 1957 r. w Drohobyczu
+        props:
+          birthDate: 1957-04-14
+          birthPlace: Drohobych

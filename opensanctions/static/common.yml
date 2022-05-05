@@ -159,6 +159,12 @@ country:
         - Italian Social Republic
       value: Italy
     - match:
+        - Ecuatorial Guinaea-
+      value: Equatorial Guinea
+    - match:
+        - Guinaea-
+      value: Guinea
+    - match:
         - People's Republic of Bulgaria
       value: Bulgaria
     - match:
@@ -261,6 +267,7 @@ country:
     - match:
         - U.S. state
         - Northern Cheyenne Indian Reservation
+        - Seminole Nation of Oklahoma
       value:
         - US
     - match:
@@ -404,6 +411,10 @@ country:
       values:
         - "SUHH"
         - "KG"
+    - match: Uzbek SSR
+      value:
+        - SUHH
+        - UZ
     - match:
         - State of Vietnam
         - South Vietnam
