@@ -20,7 +20,7 @@ def crawl_row(context: Context, row):
     entity.add("alias", row.get("Name_ru"))
     entity.add("birthDate", parse_date(dob))
     entity.add("notes", collapse_spaces(row.get("Description")))
-    entity.add("keywords", tag.split("\n"))
+    entity.add("position", tag.split("\n"))
     entity.add("gender", row.get("Gender"))
 
     context.emit(entity, target=True)

@@ -412,7 +412,7 @@ country:
         - "SUHH"
         - "KG"
     - match: Uzbek SSR
-      value:
+      values:
         - SUHH
         - UZ
     - match:
