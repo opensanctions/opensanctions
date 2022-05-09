@@ -1,0 +1,24 @@
+entry_point: opensanctions.crawlers.eu_sanctions_map
+title: EU Sanctions Map
+prefix: eu-sancmap
+summary: >
+  The EU Sanctions map is a visualisation of EU sanctions policy. It includes a broader
+  set of policies and entities than the EU consolidated sanctions list.
+description: |
+  > The EU Sanctions Map provides information on restrictive measures (sanctions) adopted
+  > by the European Union - either to transpose measures imposed by the United Nations
+  > Security Council or autonomously. The EU Sanctions Map does not provide information on
+  > national sanctions of the EU Member States or any other sanctions imposed by third states.
+collections:
+  - sanctions
+  - default
+publisher:
+  name: Estonian Presidency of the Council of the EU
+  description: |
+    The Sanctions Map was created by the Estonian Presidency of the EU in 2017.
+  url: https://www.sanctionsmap.eu/
+  country: eu
+url: https://www.sanctionsmap.eu/
+data:
+  url: https://www.sanctionsmap.eu/api/v1/data?
+  format: JSON
