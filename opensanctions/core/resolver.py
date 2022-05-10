@@ -2,7 +2,8 @@ from functools import cache
 from typing import Dict, Optional, Set, Tuple
 from itertools import combinations
 from collections import defaultdict
-from followthemoney.dedupe.judgement import Judgement
+
+from nomenklatura.judgement import Judgement
 from nomenklatura.resolver import Resolver, Identifier, StrIdent
 
 from opensanctions import settings

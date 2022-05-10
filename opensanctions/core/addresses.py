@@ -1,9 +1,9 @@
 import structlog
 from typing import Dict, Set
 from itertools import combinations
-from followthemoney.dedupe.judgement import Judgement
 from nomenklatura import Resolver
 
+from nomenklatura.judgement import Judgement
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.context import Context
 from opensanctions.core.loader import Database
