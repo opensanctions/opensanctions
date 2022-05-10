@@ -88,7 +88,7 @@ def crawl_person(context: Context, data: Dict[str, Any]):
 
     for country_data in data.pop("related_countries", []):
         rel_type = country_data.pop("relationship_type")
-        country_name = country_data.pop("to_country_en")
+        country_name = country_data.pop("to_country_en", None)
         country_name = country_name or country_data.pop("to_country_ru")
         # print(country_name)
         res = context.lookup("country_links", rel_type)

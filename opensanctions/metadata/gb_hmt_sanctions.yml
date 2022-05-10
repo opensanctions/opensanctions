@@ -347,3 +347,5 @@ lookups:
         values:
           - Novin Energy
           - TAMAS
+      - match: Russian Academy of Science’s Institute of Oriental Studies
+        value: Russian Academy of Science’s Institute of Oriental Studies

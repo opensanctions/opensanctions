@@ -36,8 +36,9 @@ lookups:
       - contains:
           - "1027739019208"
           - "1027739075891"
+          - "1027739019208"
         weight: 100
-        prop: null
+        prop: notes
       - match:
           - numéro fédéral Suisse
           - (IOM)
