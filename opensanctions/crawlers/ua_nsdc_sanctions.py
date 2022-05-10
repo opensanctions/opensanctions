@@ -6,8 +6,8 @@ from opensanctions.core import Context
 from opensanctions import helpers as h
 from opensanctions.util import multi_split
 
-PHYSICAL_URL = "https://sanctions-t.rnbo.gov.ua/api/fizosoba/"
-LEGAL_URL = "https://sanctions-t.rnbo.gov.ua/api/jurosoba/"
+PHYSICAL_URL = "https://sanctions-t.rnbo.gov.ua/apis/fizosoba/"
+LEGAL_URL = "https://sanctions-t.rnbo.gov.ua/apis/jurosoba/"
 
 
 def json_resource(context: Context, url, name):
