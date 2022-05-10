@@ -10,8 +10,8 @@ description: |
   indirectly responsible for the attack.
 collections:
   - default
-  # - work
-  - sanctions
+  - work
+  # - sanctions
 publisher:
   name: Anti-Corruption Foundation (FBK)
   description: |
