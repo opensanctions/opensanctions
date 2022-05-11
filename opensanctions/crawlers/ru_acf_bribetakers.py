@@ -7,7 +7,7 @@ from opensanctions import helpers as h
 
 
 def parse_date(date):
-    return h.parse_date(date, ["%d.%m.%Y"])
+    return h.parse_date(date.strip(), ["%d.%m.%Y"])
 
 
 def crawl_row(context: Context, row):
