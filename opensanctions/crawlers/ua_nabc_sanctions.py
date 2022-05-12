@@ -20,7 +20,7 @@ def parse_date(date):
         date = date.replace(" ", "")
     dates = set()
     for part in date.split(","):
-        dates.update(h.parse_date(part, ["%d.%m.%Y"]))
+        dates.update(h.parse_date(part, ["%d.%m.%Y", "dd.%m.%Y"]))
     return dates
 
 

@@ -8,18 +8,21 @@ TYPES = {"E": "LegalEntity", "P": "Person"}
 
 
 def crawl(context: Context):
-    regime = context.fetch_json(REGIME_URL, cache_days=10)
-    for item in regime["response"]:
+    regime = context.fetch_json(REGIME_URL)
+    for item in regime["data"]:
         regime_url = f"{REGIME_URL}/{item['id']}"
-        regime_data = context.fetch_json(regime_url, cache_days=2)["response"]
+        regime_data = context.fetch_json(regime_url)["data"]
         measures = regime_data.pop("measures")
         regime_data.pop("legal_acts", None)
         regime_data.pop("general_guidances", None)
         regime_data.pop("guidances", None)
+        authority = regime_data["adopted_by"]["data"]["title"]
 
-        for measure in measures:
-            for measure_list in measure["lists"]:
-                for member in measure_list["members"]:
+        for measure in measures["data"]:
+            for measure_list in measure["lists"]["data"]:
+                for member in measure_list["members"]["data"]:
+                    if "FSD_ID" not in member:
+                        member = member["data"]
                     if member["FSD_ID"] is not None:
                         continue
                     schema = TYPES[member["type"]]
@@ -43,7 +46,7 @@ def crawl(context: Context):
                                 entity.add("mmsi", value)
 
                     sanction = h.make_sanction(context, entity, key=regime_data["id"])
-                    sanction.set("authority", regime_data["adopted_by"]["title"])
+                    sanction.set("authority", authority)
                     sanction.set("reason", member["reason"])
                     sanction.add("summary", regime_data["specification"])
                     # context.pprint(id_code)
