@@ -415,6 +415,8 @@ country:
       values:
         - SUHH
         - UZ
+    - match: Uzbekhistan
+      value: UZ
     - match:
         - State of Vietnam
         - South Vietnam
