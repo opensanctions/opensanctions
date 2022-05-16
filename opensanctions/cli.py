@@ -14,7 +14,6 @@ from opensanctions.exporters.common import write_object
 from opensanctions.core.loader import Database
 from opensanctions.core.resolver import AUTO_USER, export_pairs, get_resolver
 from opensanctions.core.xref import blocking_xref
-from opensanctions.core.addresses import xref_geocode
 from opensanctions.core.statements import max_last_seen
 from opensanctions.core.statements import resolve_all_canonical, resolve_canonical
 from opensanctions.core.analytics import build_analytics
@@ -79,14 +78,6 @@ def resolve():
 def xref(dataset, limit):
     dataset = Dataset.require(dataset)
     blocking_xref(dataset, limit=limit)
-
-
-@cli.command("xref-geocode", help="Deduplicate addresses using geocoding")
-@click.argument("dataset", default=Dataset.DEFAULT, type=datasets)
-def geocode(dataset):
-    dataset = Dataset.require(dataset)
-    resolver = get_resolver()
-    xref_geocode(dataset, resolver)
 
 
 @cli.command("xref-prune", help="Remove dedupe candidates")
