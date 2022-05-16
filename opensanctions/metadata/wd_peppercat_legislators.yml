@@ -7,7 +7,7 @@ summary: >
 description: |
   Peppercat Legislators collects membership information about national-level legislatures
   from Wikidata. This dataset attempts to replicate the contents of
-  [EveryPolitician](https://www.opensanctions.org/datasets/everypolitician/) based on the
+  [EveryPolitician](/datasets/everypolitician/) based on the
   information uploaded to Wikidata. In the future, the crawlers that have previously been 
   used to build EveryPolitician will be replaced by ones that will update Wikidata to
   reflect the information presented on national parliamentary web sites.

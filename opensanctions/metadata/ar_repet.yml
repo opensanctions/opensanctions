@@ -6,7 +6,7 @@ summary: >
 description: |
   The RePET registry does not provide much in the way of a policy background, but the data
   structure is a perfect reproduction of the [UN Security Council sanctions
-  list](https://www.opensanctions.org/datasets/un_sc_sanctions/), so it is tempting to
+  list](/datasets/un_sc_sanctions/), so it is tempting to
   assume it is a simple reproduction of that list.
 collections:
   - sanctions

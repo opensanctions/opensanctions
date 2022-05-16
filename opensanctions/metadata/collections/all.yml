@@ -7,7 +7,7 @@ summary: >
   mainly for technical reasons - in practice you probably want to use
   a more specific collection instead.
 description: |
-  Please consider using the [Due Diligence List](https://opensanctions.org/datasets/default/)
+  Please consider using the [Due Diligence List](/datasets/default/)
   instead of this dataset. While this dataset is more comprehensive, it may
   include entities from sources that have not yet passed all quality checks
   or are not directly related to screening tasks.

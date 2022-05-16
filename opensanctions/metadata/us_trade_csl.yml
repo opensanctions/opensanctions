@@ -8,7 +8,7 @@ summary: |
 description: |
   Sources included:
 
-  * [Denied Persons List](https://opensanctions.org/datasets/us_bis_denied/) -
+  * [Denied Persons List](/datasets/us_bis_denied/) -
     Individuals and entities that have been denied export privileges. Any
     dealings with a party on this list that would violate the terms
     of its denial order are prohibited. 
