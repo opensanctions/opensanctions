@@ -62,6 +62,9 @@ lookups:
       - match: urodzony 25 lipca 1959 r.
         props:
           birthDate: 1959-07-25
+      - match: 13.05.2022 r.
+        props:
+          modifiedAt: 2022-05-13
       - match: urodzony 8 września 1953 r. w Moskwie
         props:
           birthDate: 1953-09-08
@@ -96,3 +99,9 @@ lookups:
         props:
           birthDate: 1957-04-14
           birthPlace: Drohobych
+      - match: "urodzony 15 listopada 1963 r. w Wilnie (Litwa) obywatel rosyjski nr PESEL: 63111513931"
+        props:
+          birthDate: 1963-11-15
+          birthPlace: Vilnius
+          nationality: RU
+          idNumber: "63111513931"

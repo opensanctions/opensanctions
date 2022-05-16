@@ -4,6 +4,7 @@ from pantomime.types import JSON
 
 from opensanctions.core import Context
 from opensanctions import helpers as h
+from opensanctions.util import multi_split
 
 COUNTRIES = {
     0: "RU",
@@ -19,7 +20,7 @@ def parse_date(date):
     if date is not None:
         date = date.replace(" ", "")
     dates = set()
-    for part in date.split(","):
+    for part in multi_split(date, [",", "\n"]):
         dates.update(h.parse_date(part, ["%d.%m.%Y", "dd.%m.%Y"]))
     return dates
 
