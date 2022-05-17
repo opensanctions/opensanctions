@@ -1,17 +1,11 @@
 # https://www.mediawiki.org/wiki/Wikibase/API
 # https://www.wikidata.org/w/api.php?action=help&modules=wbgetentities
-import json
 import structlog
 from functools import cache
-from datetime import timedelta
 from typing import Any, Dict, Optional
 
-from opensanctions import settings
 from opensanctions.core import Context
-from opensanctions.core.db import engine_read
-from opensanctions.core.cache import all_cached, Cache, randomize_cache
 from opensanctions.wikidata.lang import pick_obj_lang
-from opensanctions.util import normalize_url
 
 WD_API = "https://www.wikidata.org/w/api.php"
 log = structlog.getLogger(__name__)

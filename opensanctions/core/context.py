@@ -12,6 +12,7 @@ from followthemoney import model
 from followthemoney.util import make_entity_id
 from followthemoney.schema import Schema
 from structlog.contextvars import clear_contextvars, bind_contextvars
+from nomenklatura.util import normalize_url
 
 from opensanctions import settings
 from opensanctions.core.dataset import Dataset
@@ -24,7 +25,6 @@ from opensanctions.core.resources import save_resource, clear_resources
 from opensanctions.core.statements import Statement, count_entities
 from opensanctions.core.statements import cleanup_dataset, clear_statements
 from opensanctions.core.statements import statements_from_entity, save_statements
-from opensanctions.util import normalize_url
 
 
 class Context(object):

@@ -1,6 +1,5 @@
 import re
 import logging
-from urllib.parse import urlparse, urlunparse, parse_qsl, urlencode
 from typing import Any, List, Optional, Tuple
 from banal import ensure_list
 from datetime import datetime
@@ -78,16 +77,3 @@ def multi_split(text, splitters):
                     out.append(frag)
         fragments = out
     return fragments
-
-
-def normalize_url(url: str, params) -> str:
-    parsed = urlparse(url)
-    query = parse_qsl(parsed.query, keep_blank_values=True)
-    if params is not None:
-        try:
-            params = params.items()
-        except AttributeError:
-            pass
-        query.extend(sorted(params))
-    parsed = parsed._replace(query=urlencode(query))
-    return urlunparse(parsed)
