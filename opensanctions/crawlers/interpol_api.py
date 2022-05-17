@@ -2,7 +2,6 @@ from requests.exceptions import HTTPError
 from normality import collapse_spaces, stringify
 
 from opensanctions.core import Context
-from opensanctions.core.cache import warm_cache
 from opensanctions import helpers as h
 
 MAX_RESULTS = 160
@@ -105,7 +104,7 @@ def crawl_country(context: Context, country, age_max=120, age_min=0):
 def crawl(context: Context):
     countries = get_countries(context)
     context.log.info("Loading interpol API cache...")
-    warm_cache("https://ws-public.interpol.int/notices/%")
+    context.cache.preload("https://ws-public.interpol.int/notices/%")
     for country, label in countries:
         context.log.info("Crawl %r" % label, code=country)
         crawl_country(context, country)

@@ -108,3 +108,7 @@ CREATE INDEX ix_statement_last_seen ON statement USING btree (last_seen);
 
 DROP TABLE alembic_version;
 ALTER TABLE "statement" DROP COLUMN "unique";
+
+--- 2022-05-18: rename url to key in cache table.
+
+ALTER TABLE "cache" RENAME COLUMN "url" TO "key";
