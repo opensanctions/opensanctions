@@ -7,6 +7,7 @@ from typing import Dict, Optional, Union
 from lxml import etree, html
 from pprint import pprint
 from datapatch import LookupException
+from sqlalchemy import MetaData
 from lxml.etree import _Element, tostring
 from followthemoney import model
 from followthemoney.util import make_entity_id
@@ -18,7 +19,7 @@ from nomenklatura.util import normalize_url
 from opensanctions import settings
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.entity import Entity
-from opensanctions.core.db import engine, metadata, engine_tx
+from opensanctions.core.db import engine, engine_tx
 from opensanctions.core.issues import clear_issues
 from opensanctions.core.resources import save_resource, clear_resources
 from opensanctions.core.statements import Statement, count_entities
@@ -40,7 +41,7 @@ class Context(object):
         self.dataset = dataset
         self.path = settings.DATASET_PATH.joinpath(dataset.name)
         self.log: structlog.stdlib.BoundLogger = structlog.get_logger(dataset.name)
-        self.cache = Cache(engine, metadata, dataset)
+        self.cache = Cache(engine, MetaData(bind=engine), dataset)
         self._statements: Dict[str, Statement] = {}
         self.http = requests.Session()
         self.http.headers.update(settings.HEADERS)

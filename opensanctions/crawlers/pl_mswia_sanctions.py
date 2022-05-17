@@ -66,6 +66,7 @@ def crawl(context: Context):
             sanction.add("provisions", provisions)
 
             start_date = row.pop("data_umieszczenia_na_liscie")
+            start_date = start_date.replace(" r.", "")
             sanction.add("startDate", h.parse_date(start_date, ["%d.%m.%Y"]))
 
             h.audit_data(row)
