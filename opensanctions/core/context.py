@@ -3,7 +3,7 @@ import hashlib
 import requests
 import structlog
 import mimetypes
-from typing import Dict, Optional, Union
+from typing import Iterable, cast, Dict, Optional, Union
 from lxml import etree, html
 from pprint import pprint
 from datapatch import LookupException
@@ -15,11 +15,14 @@ from followthemoney.schema import Schema
 from structlog.contextvars import clear_contextvars, bind_contextvars
 from nomenklatura.cache import Cache
 from nomenklatura.util import normalize_url
+from nomenklatura.matching import compare_scored
+from nomenklatura.resolver import Resolver
 
 from opensanctions import settings
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.entity import Entity
 from opensanctions.core.db import engine, engine_tx
+from opensanctions.core.external import External
 from opensanctions.core.issues import clear_issues
 from opensanctions.core.resources import save_resource, clear_resources
 from opensanctions.core.statements import Statement, count_entities
@@ -243,6 +246,31 @@ class Context(object):
             self.log.exception("Crawl failed")
             raise
         finally:
+            self.close()
+
+    def match(self, resolver: Resolver, entities: Iterable[Entity]):
+        """Try to match a set of entities against an external source."""
+        self.bind()
+        external = cast(External, self.dataset)
+        enricher = external.get_enricher(self.cache)
+        try:
+            for entity in entities:
+                for match in enricher.match(entity):
+                    if not resolver.check_candidate(entity.id, match.id):
+                        continue
+                    if not entity.schema.can_match(match.schema):
+                        continue
+                    result = compare_scored(entity, match)
+                    score = result["score"]
+                    self.log.info("Match [%s]: %.2f -> %s" % (entity, score, match))
+                    resolver.suggest(entity.id, match.id, score)
+                    self.emit(match)
+        except KeyboardInterrupt:
+            self.flush()
+            raise
+        finally:
+            enricher.close()
+            resolver.save()
             self.close()
 
     def clear(self) -> None:

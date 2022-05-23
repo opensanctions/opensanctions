@@ -120,7 +120,8 @@ def all_statements(
         sq = sq.filter(alias.c.value.in_(inverted_ids))
         q = q.filter(stmt_table.c.canonical_id.in_(sq))
     if dataset is not None:
-        q = q.filter(stmt_table.c.dataset.in_(dataset.source_names))
+        print("SCOPES", dataset.scope_names)
+        q = q.filter(stmt_table.c.dataset.in_(dataset.scope_names))
     q = q.order_by(stmt_table.c.canonical_id.asc())
     result = conn.execution_options(stream_results=True).execute(q)
     for row in result:
@@ -137,7 +138,7 @@ def count_entities(
     if target is not None:
         q = q.filter(stmt_table.c.target == target)
     if dataset is not None:
-        q = q.filter(stmt_table.c.dataset.in_(dataset.source_names))
+        q = q.filter(stmt_table.c.dataset.in_(dataset.scope_names))
     return conn.scalar(q)
 
 
@@ -149,7 +150,7 @@ def agg_targets_by_country(conn: Conn, dataset: Optional[Dataset] = None):
     q = q.filter(stmt_table.c.target == True)  # noqa
     q = q.filter(stmt_table.c.prop_type == registry.country.name)
     if dataset is not None:
-        q = q.filter(stmt_table.c.dataset.in_(dataset.source_names))
+        q = q.filter(stmt_table.c.dataset.in_(dataset.scope_names))
     q = q.group_by(stmt_table.c.value)
     q = q.order_by(count.desc())
     res = conn.execute(q)
@@ -173,7 +174,7 @@ def agg_targets_by_schema(conn: Conn, dataset: Optional[Dataset] = None):
     q = q.filter(stmt_table.c.target == True)  # noqa
     q = q.filter(stmt_table.c.prop == BASE)
     if dataset is not None:
-        q = q.filter(stmt_table.c.dataset.in_(dataset.source_names))
+        q = q.filter(stmt_table.c.dataset.in_(dataset.scope_names))
     q = q.group_by(stmt_table.c.schema)
     q = q.order_by(count.desc())
     res = conn.execute(q)
@@ -198,7 +199,7 @@ def agg_targets_by_schema(conn: Conn, dataset: Optional[Dataset] = None):
 #     q = q.filter(stmt_table.c.target == True)  # noqa
 #     q = q.filter(stmt_table.c.prop == "createdAt")
 #     if dataset is not None:
-#         q = q.filter(stmt_table.c.dataset.in_(dataset.source_names))
+#         q = q.filter(stmt_table.c.dataset.in_(dataset.scope_names))
 #     q = q.order_by(stmt_table.c.value.desc())
 #     q = q.limit(limit)
 #     res = conn.execute(q)
@@ -218,7 +219,7 @@ def all_schemata(conn: Conn, dataset: Optional[Dataset] = None):
     q = select(func.distinct(stmt_table.c.schema))
     q = q.filter(stmt_table.c.prop == BASE)
     if dataset is not None:
-        q = q.filter(stmt_table.c.dataset.in_(dataset.source_names))
+        q = q.filter(stmt_table.c.dataset.in_(dataset.scope_names))
     q = q.group_by(stmt_table.c.schema)
     res = conn.execute(q)
     return [s for (s,) in res.all()]
@@ -229,7 +230,7 @@ def max_last_seen(conn: Conn, dataset: Optional[Dataset] = None) -> Optional[dat
     q = select(func.max(stmt_table.c.last_seen))
     q = q.filter(stmt_table.c.prop == BASE)
     if dataset is not None:
-        q = q.filter(stmt_table.c.dataset.in_(dataset.source_names))
+        q = q.filter(stmt_table.c.dataset.in_(dataset.scope_names))
     return conn.scalar(q)
 
 
@@ -238,7 +239,7 @@ def entities_datasets(conn: Conn, dataset: Optional[Dataset] = None):
     q = select(stmt_table.c.entity_id, stmt_table.c.dataset)
     q = q.filter(stmt_table.c.prop == BASE)
     if dataset is not None:
-        q = q.filter(stmt_table.c.dataset.in_(dataset.source_names))
+        q = q.filter(stmt_table.c.dataset.in_(dataset.scope_names))
     q = q.distinct()
     result = conn.execution_options(stream_results=True).execute(q)
     for row in result:
