@@ -248,9 +248,13 @@ class Context(object):
         finally:
             self.close()
 
-    def match(self, resolver: Resolver, entities: Iterable[Entity]):
+    def match(
+        self,
+        resolver: Resolver,
+        entities: Iterable[Entity],
+        threshold: Optional[float] = None,
+    ):
         """Try to match a set of entities against an external source."""
-        # TODO: threshold?
         self.bind()
         external = cast(External, self.dataset)
         enricher = external.get_enricher(self.cache)
@@ -264,6 +268,8 @@ class Context(object):
                             continue
                         result = compare_scored(entity, match)
                         score = result["score"]
+                        if threshold is not None and score < threshold:
+                            continue
                         self.log.info("Match [%s]: %.2f -> %s" % (entity, score, match))
                         resolver.suggest(entity.id, match.id, score)
                         self.emit(match)

@@ -44,11 +44,11 @@ def run_pipeline(
             _compute_futures(futures)
 
 
-def run_matching(scope_name: str, external_name: str):
+def run_matching(scope_name: str, external_name: str, threshold: float):
     scope = Dataset.require(scope_name)
     external = Dataset.require(external_name)
     ctx = Context(external)
     resolver = get_resolver()
     database = Database(scope, resolver, cached=False)
     loader = database.view(scope)
-    ctx.match(resolver, loader)
+    ctx.match(resolver, loader, threshold=threshold)

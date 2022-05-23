@@ -60,8 +60,9 @@ def run(dataset, threads):
 @cli.command("match", help="Match the entities in dataset against an external source")
 @click.argument("dataset", type=datasets)
 @click.argument("external", type=datasets)
-def match(dataset, external):
-    run_matching(dataset, external)
+@click.option("-t", "--threshold", type=click.FLOAT, default=0.5)
+def match(dataset, external, threshold):
+    run_matching(dataset, external, threshold)
 
 
 @cli.command("clear", help="Delete all stored data for the given source")
