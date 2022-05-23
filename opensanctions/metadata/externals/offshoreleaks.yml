@@ -7,7 +7,7 @@ url: https://offshoreleaks.icij.org/
 collections:
   - default
 config:
-  type: yente
+  type: nomenklatura.enrich.yente:YenteEnricher
   api: https://api.opensanctions.org/
   dataset: offshoreleaks
   token: opensanctions

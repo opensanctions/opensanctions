@@ -120,7 +120,6 @@ def all_statements(
         sq = sq.filter(alias.c.value.in_(inverted_ids))
         q = q.filter(stmt_table.c.canonical_id.in_(sq))
     if dataset is not None:
-        print("SCOPES", dataset.scope_names)
         q = q.filter(stmt_table.c.dataset.in_(dataset.scope_names))
     q = q.order_by(stmt_table.c.canonical_id.asc())
     result = conn.execution_options(stream_results=True).execute(q)

@@ -250,21 +250,25 @@ class Context(object):
 
     def match(self, resolver: Resolver, entities: Iterable[Entity]):
         """Try to match a set of entities against an external source."""
+        # TODO: threshold?
         self.bind()
         external = cast(External, self.dataset)
         enricher = external.get_enricher(self.cache)
         try:
             for entity in entities:
-                for match in enricher.match(entity):
-                    if not resolver.check_candidate(entity.id, match.id):
-                        continue
-                    if not entity.schema.can_match(match.schema):
-                        continue
-                    result = compare_scored(entity, match)
-                    score = result["score"]
-                    self.log.info("Match [%s]: %.2f -> %s" % (entity, score, match))
-                    resolver.suggest(entity.id, match.id, score)
-                    self.emit(match)
+                try:
+                    for match in enricher.match(entity):
+                        if not resolver.check_candidate(entity.id, match.id):
+                            continue
+                        if not entity.schema.can_match(match.schema):
+                            continue
+                        result = compare_scored(entity, match)
+                        score = result["score"]
+                        self.log.info("Match [%s]: %.2f -> %s" % (entity, score, match))
+                        resolver.suggest(entity.id, match.id, score)
+                        self.emit(match)
+                except Exception:
+                    self.log.exception("Could not match: %r" % entity)
         except KeyboardInterrupt:
             self.flush()
             raise
