@@ -71,7 +71,9 @@ def export_pairs(dataset: Dataset):
                 for other_part in get_parts(other):
                     for part in parts:
                         part, other_part = max(part, other_part), min(part, other_part)
-                        pairs[(part, other_part)] = edge.judgement
+                        # pairs[(part, other_part)] = edge.judgement
+                        # Export unsure as negative:
+                        pairs[(part, other_part)] = Judgement.NEGATIVE
 
     def get_partial(spec: Tuple[str, Dataset]) -> Optional[Entity]:
         id, ds = spec
