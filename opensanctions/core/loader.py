@@ -62,10 +62,15 @@ class Database(object):
     """
 
     def __init__(
-        self, scope: Dataset, resolver: Resolver[Entity], cached: bool = False
+        self,
+        scope: Dataset,
+        resolver: Resolver[Entity],
+        cached: bool = False,
+        external: bool = False,
     ):
         self.scope = scope
         self.cached = cached
+        self.external = external
         self.resolver = resolver
         self.entities: Dict[str, CachedEntity] = {}
         self.inverted: Dict[str, Set[str]] = {}
@@ -113,6 +118,7 @@ class Database(object):
                 dataset=dataset,
                 canonical_id=canonical_id,
                 inverted_ids=inverted_ids,
+                external=self.external,
             )
             for stmt in stmts:
                 if stmt["canonical_id"] != current_id:

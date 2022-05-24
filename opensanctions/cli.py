@@ -104,7 +104,7 @@ def xref_prune(keep=0):
 def dedupe(dataset):
     resolver = get_resolver()
     dataset = Dataset.require(dataset)
-    db = Database(dataset, resolver)
+    db = Database(dataset, resolver, external=True)
     loader = db.view(dataset)
 
     async def run_app() -> None:

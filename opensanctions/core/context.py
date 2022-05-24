@@ -12,6 +12,7 @@ from lxml.etree import _Element, tostring
 from followthemoney import model
 from followthemoney.util import make_entity_id
 from followthemoney.schema import Schema
+from followthemoney.namespace import Namespace
 from structlog.contextvars import clear_contextvars, bind_contextvars
 from nomenklatura.cache import Cache
 from nomenklatura.util import normalize_url
@@ -202,13 +203,18 @@ class Context(object):
                 save_statements(conn, batch)
         self._statements = {}
 
-    def emit(self, entity: Entity, target: Optional[bool] = None):
+    def emit(
+        self,
+        entity: Entity,
+        target: Optional[bool] = None,
+        external: bool = False,
+    ):
         """Send an FtM entity to the store."""
         if entity.id is None:
             raise ValueError("Entity has no ID: %r", entity)
         if target is not None:
             entity.target = target
-        statements = statements_from_entity(entity, self.dataset)
+        statements = statements_from_entity(entity, self.dataset, external=external)
         if not len(statements):
             raise ValueError("Entity has no properties: %r", entity)
         self._statements.update({s["id"]: s for s in statements})
@@ -258,10 +264,12 @@ class Context(object):
         self.bind()
         external = cast(External, self.dataset)
         enricher = external.get_enricher(self.cache)
+        ns = Namespace()
         try:
             for entity in entities:
                 try:
                     for match in enricher.match(entity):
+                        match = ns.apply(match)
                         if not resolver.check_candidate(entity.id, match.id):
                             continue
                         if not entity.schema.can_match(match.schema):
@@ -272,7 +280,7 @@ class Context(object):
                             continue
                         self.log.info("Match [%s]: %.2f -> %s" % (entity, score, match))
                         resolver.suggest(entity.id, match.id, score)
-                        self.emit(match)
+                        self.emit(match, external=True)
                 except Exception:
                     self.log.exception("Could not match: %r" % entity)
         except KeyboardInterrupt:

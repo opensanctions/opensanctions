@@ -112,3 +112,7 @@ ALTER TABLE "statement" DROP COLUMN "unique";
 --- 2022-05-18: rename url to key in cache table.
 
 ALTER TABLE "cache" RENAME COLUMN "url" TO "key";
+
+--- 2022-05-23: add external column for pre-prod facts.
+
+ALTER TABLE "statement" ADD COLUMN "external" boolean DEFAULT false;

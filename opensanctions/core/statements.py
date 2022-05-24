@@ -39,6 +39,7 @@ class Statement(TypedDict):
     value: str
     dataset: str
     target: bool
+    external: bool
     first_seen: datetime
     last_seen: datetime
 
@@ -49,7 +50,9 @@ def stmt_key(dataset, entity_id, prop, value):
     return sha1(key.encode("utf-8")).hexdigest()
 
 
-def statements_from_entity(entity: Entity, dataset: Dataset) -> List[Statement]:
+def statements_from_entity(
+    entity: Entity, dataset: Dataset, external: bool = False
+) -> List[Statement]:
     if entity.id is None or entity.schema is None:
         return []
     values: List[Statement] = [
@@ -63,6 +66,7 @@ def statements_from_entity(entity: Entity, dataset: Dataset) -> List[Statement]:
             "value": entity.id,
             "dataset": dataset.name,
             "target": entity.target,
+            "external": external,
             "first_seen": settings.RUN_TIME,
             "last_seen": settings.RUN_TIME,
         }
@@ -78,6 +82,7 @@ def statements_from_entity(entity: Entity, dataset: Dataset) -> List[Statement]:
             "value": value,
             "dataset": dataset.name,
             "target": entity.target,
+            "external": external,
             "first_seen": settings.RUN_TIME,
             "last_seen": settings.RUN_TIME,
         }
@@ -100,6 +105,7 @@ def save_statements(conn: Conn, values: List[Statement]) -> None:
             schema=istmt.excluded.schema,
             prop_type=istmt.excluded.prop_type,
             target=istmt.excluded.target,
+            external=istmt.excluded.external,
             last_seen=istmt.excluded.last_seen,
         ),
     )
@@ -108,7 +114,7 @@ def save_statements(conn: Conn, values: List[Statement]) -> None:
 
 
 def all_statements(
-    conn: Conn, dataset=None, canonical_id=None, inverted_ids=None
+    conn: Conn, dataset=None, canonical_id=None, inverted_ids=None, external=False
 ) -> Generator[Statement, None, None]:
     q = select(stmt_table)
     if canonical_id is not None:
@@ -121,6 +127,8 @@ def all_statements(
         q = q.filter(stmt_table.c.canonical_id.in_(sq))
     if dataset is not None:
         q = q.filter(stmt_table.c.dataset.in_(dataset.scope_names))
+    if not external:
+        q = q.filter(stmt_table.c.external == False)
     q = q.order_by(stmt_table.c.canonical_id.asc())
     result = conn.execution_options(stream_results=True).execute(q)
     for row in result:
@@ -134,6 +142,7 @@ def count_entities(
 ) -> int:
     q = select(func.count(func.distinct(stmt_table.c.canonical_id)))
     q = q.filter(stmt_table.c.prop == BASE)
+    q = q.filter(stmt_table.c.external == False)  # noqa
     if target is not None:
         q = q.filter(stmt_table.c.target == target)
     if dataset is not None:
@@ -147,6 +156,7 @@ def agg_targets_by_country(conn: Conn, dataset: Optional[Dataset] = None):
     q = select(stmt_table.c.value, count)
     # TODO: this could be generic to type values?
     q = q.filter(stmt_table.c.target == True)  # noqa
+    q = q.filter(stmt_table.c.external == False)  # noqa
     q = q.filter(stmt_table.c.prop_type == registry.country.name)
     if dataset is not None:
         q = q.filter(stmt_table.c.dataset.in_(dataset.scope_names))
@@ -171,6 +181,7 @@ def agg_targets_by_schema(conn: Conn, dataset: Optional[Dataset] = None):
     count = func.count(func.distinct(stmt_table.c.canonical_id))
     q = select(stmt_table.c.schema, count)
     q = q.filter(stmt_table.c.target == True)  # noqa
+    q = q.filter(stmt_table.c.external == False)  # noqa
     q = q.filter(stmt_table.c.prop == BASE)
     if dataset is not None:
         q = q.filter(stmt_table.c.dataset.in_(dataset.scope_names))
@@ -192,31 +203,11 @@ def agg_targets_by_schema(conn: Conn, dataset: Optional[Dataset] = None):
     return schemata
 
 
-# def recent_targets(conn: Conn, dataset: Optional[Dataset] = None, limit: int = 100):
-#     """Return the N most recently added entities."""
-#     q = select(stmt_table)
-#     q = q.filter(stmt_table.c.target == True)  # noqa
-#     q = q.filter(stmt_table.c.prop == "createdAt")
-#     if dataset is not None:
-#         q = q.filter(stmt_table.c.dataset.in_(dataset.scope_names))
-#     q = q.order_by(stmt_table.c.value.desc())
-#     q = q.limit(limit)
-#     res = conn.execute(q)
-#     targets = []
-#     for row in res.fetchall():
-#         result = {
-#             "canonical_id": row.canonical_id,
-#             "created_at": row.value,
-#             "dataset": row.dataset,
-#         }
-#         targets.append(result)
-#     return targets
-
-
 def all_schemata(conn: Conn, dataset: Optional[Dataset] = None):
     """Return all schemata present in the dataset"""
     q = select(func.distinct(stmt_table.c.schema))
     q = q.filter(stmt_table.c.prop == BASE)
+    q = q.filter(stmt_table.c.external == False)  # noqa
     if dataset is not None:
         q = q.filter(stmt_table.c.dataset.in_(dataset.scope_names))
     q = q.group_by(stmt_table.c.schema)
@@ -228,6 +219,7 @@ def max_last_seen(conn: Conn, dataset: Optional[Dataset] = None) -> Optional[dat
     """Return the latest date of the data."""
     q = select(func.max(stmt_table.c.last_seen))
     q = q.filter(stmt_table.c.prop == BASE)
+    q = q.filter(stmt_table.c.external == False)  # noqa
     if dataset is not None:
         q = q.filter(stmt_table.c.dataset.in_(dataset.scope_names))
     return conn.scalar(q)
