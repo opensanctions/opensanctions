@@ -20,6 +20,7 @@ COLUMNS = [
     "dataset",
     "target",
     "unique",
+    "external",
     "first_seen",
     "last_seen",
     "canonical_id",
@@ -50,6 +51,7 @@ def export_statements_path(path: PathLike):
                     stmt["dataset"],
                     stmt["target"],
                     False,
+                    stmt["external"],
                     stmt["first_seen"].isoformat(),
                     stmt["last_seen"].isoformat(),
                     stmt["canonical_id"],
@@ -81,6 +83,7 @@ def import_statements_path(path: PathLike):
                     row["value"],
                 )
                 row["target"] = as_bool(row["target"])
+                row["external"] = as_bool(row["external"])
                 row["last_seen"] = iso_datetime(row["last_seen"])
                 row["first_seen"] = iso_datetime(row["first_seen"])
                 # TODO do we want to do more validation?
