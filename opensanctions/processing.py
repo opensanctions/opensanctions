@@ -52,3 +52,14 @@ def run_matching(scope_name: str, external_name: str, threshold: float):
     database = Database(scope, resolver, cached=False)
     loader = database.view(scope)
     ctx.match(resolver, loader, threshold=threshold)
+    resolver.save()
+
+
+def run_enrich(scope_name: str, external_name: str):
+    scope = Dataset.require(scope_name)
+    external = Dataset.require(external_name)
+    ctx = Context(external)
+    resolver = get_resolver()
+    database = Database(scope, resolver, cached=False)
+    loader = database.view(scope)
+    ctx.enrich(resolver, loader)

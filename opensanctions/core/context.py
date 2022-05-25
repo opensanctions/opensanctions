@@ -16,8 +16,9 @@ from followthemoney.namespace import Namespace
 from structlog.contextvars import clear_contextvars, bind_contextvars
 from nomenklatura.cache import Cache
 from nomenklatura.util import normalize_url
+from nomenklatura.judgement import Judgement
 from nomenklatura.matching import compare_scored
-from nomenklatura.resolver import Resolver
+from nomenklatura.resolver import Resolver, Identifier
 
 from opensanctions import settings
 from opensanctions.core.dataset import Dataset
@@ -285,10 +286,41 @@ class Context(object):
                     self.log.exception("Could not match: %r" % entity)
         except KeyboardInterrupt:
             self.flush()
-            raise
         finally:
             enricher.close()
-            resolver.save()
+            self.close()
+
+    def enrich(self, resolver: Resolver, entities: Iterable[Entity]):
+        """Try to match a set of entities against an external source."""
+        self.bind()
+        external = cast(External, self.dataset)
+        enricher = external.get_enricher(self.cache)
+        try:
+            for entity in entities:
+                try:
+                    # Check if any positive matches:
+                    entity_id = Identifier.get(entity.id)
+                    connected = resolver.connected(entity_id)
+                    if len(connected) == 1:
+                        continue
+
+                    for match in enricher.match(entity):
+                        judgement = resolver.get_judgement(match.id, entity_id)
+                        print(match.id, entity_id, judgement)
+                        if judgement != Judgement.POSITIVE:
+                            continue
+
+                        self.log.info("Enrich [%s]: %r" % (entity, match))
+                        for adjacent in enricher.expand(match):
+                            # TODO: death cut-off
+                            adjacent.datasets.add(enricher.dataset.name)
+                            self.emit(adjacent)
+                except Exception:
+                    self.log.exception("Could not enrich: %r" % entity)
+        except KeyboardInterrupt:
+            self.flush()
+        finally:
+            enricher.close()
             self.close()
 
     def clear(self) -> None:

@@ -31,10 +31,10 @@ class Entity(CompositeEntity):
         key_prefix: Optional[str] = None,
         cleaned: bool = True,
     ) -> None:
-        super().__init__(model, data, key_prefix=key_prefix, cleaned=cleaned)
         self.target = data.get("target", False)
         self.first_seen = data.get("first_seen", None)
         self.last_seen = data.get("last_seen", None)
+        super().__init__(model, data, key_prefix=key_prefix, cleaned=cleaned)
 
     def make_id(self, *parts: Any) -> str:
         raise NotImplementedError

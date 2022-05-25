@@ -127,7 +127,7 @@ def all_statements(
         q = q.filter(stmt_table.c.canonical_id.in_(sq))
     if dataset is not None:
         q = q.filter(stmt_table.c.dataset.in_(dataset.scope_names))
-    if not external:
+    if external is False:
         q = q.filter(stmt_table.c.external == False)
     q = q.order_by(stmt_table.c.canonical_id.asc())
     result = conn.execution_options(stream_results=True).execute(q)

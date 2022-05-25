@@ -5,7 +5,6 @@ from opensanctions import helpers as h
 from opensanctions.wikidata.api import get_entity
 from opensanctions.wikidata.lang import pick_obj_lang
 from opensanctions.wikidata.props import (
-    IGNORE,
     PROPS_ASSOCIATION,
     PROPS_DIRECT,
     PROPS_FAMILY,
