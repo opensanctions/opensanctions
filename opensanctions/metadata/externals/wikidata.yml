@@ -1,0 +1,19 @@
+type: external
+title: Wikidata
+summary: |
+  Wikidata is the structured data project of the Wikipedia community,
+  providing fact-based information edited by humans and machines.
+description: |
+  Wikidata serves as the source of much of the OpenSanctions data related to
+  politically exposed persons (PEPs). We also link up entities that are 
+  sanctioned whenever a relevant Wikidata item is available.
+
+  There is no attempt to link companies and organizations from sanctions lists
+  to Wikidata, as the way that an encyclopedia describes such legal entities is
+  not granular enough for due diligence use cases.
+prefix: wd
+url: https://www.wikidata.org/wiki/Wikidata:Main_Page
+collections:
+  - default
+config:
+  type: nomenklatura.enrich.wikidata:WikidataEnricher
