@@ -76,16 +76,17 @@ def import_statements_path(path: PathLike):
             buffer = []
             for row in reader:
                 stmt_count += 1
+                row["target"] = as_bool(row["target"])
+                row["external"] = as_bool(row["external"])
+                row["last_seen"] = iso_datetime(row["last_seen"])
+                row["first_seen"] = iso_datetime(row["first_seen"])
                 row["id"] = stmt_key(
                     row["dataset"],
                     row["entity_id"],
                     row["prop"],
                     row["value"],
+                    row["external"],
                 )
-                row["target"] = as_bool(row["target"])
-                row["external"] = as_bool(row["external"])
-                row["last_seen"] = iso_datetime(row["last_seen"])
-                row["first_seen"] = iso_datetime(row["first_seen"])
                 # TODO do we want to do more validation?
                 buffer.append(row)
                 if len(buffer) >= 1000:

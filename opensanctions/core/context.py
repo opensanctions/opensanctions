@@ -267,13 +267,10 @@ class Context(object):
         self.bind()
         external = cast(External, self.dataset)
         enricher = external.get_enricher(self.cache)
-        ns = Namespace()
         try:
             for entity in entities:
                 try:
-                    for match in enricher.match(entity):
-                        # HACK HACK HACK remove
-                        match = ns.apply(match)
+                    for match in enricher.match_wrapped(entity):
                         judgement = resolver.get_judgement(match.id, entity.id)
 
                         # For unjudged candidates, compute a score and put it in the
@@ -294,10 +291,9 @@ class Context(object):
                         # them visible:
                         if judgement == Judgement.POSITIVE:
                             self.log.info("Enrich [%s]: %r" % (entity, match))
-                            for adjacent in enricher.expand(match):
+                            for adjacent in enricher.expand_wrapped(entity, match):
                                 if check_person_cutoff(adjacent):
                                     continue
-                                # adjacent.datasets.add(enricher.dataset.name)
                                 # self.log.info("Added", entity=adjacent)
                                 self.emit(adjacent)
                 except Exception:
