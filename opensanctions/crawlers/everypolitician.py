@@ -1,5 +1,6 @@
 from datetime import datetime
-from typing import Dict, Optional, Set
+from typing import Dict, Optional
+from nomenklatura.enrich.wikidata.qualified import make_position
 
 from opensanctions.core import Context
 from opensanctions import helpers as h
@@ -120,7 +121,7 @@ def parse_membership(context: Context, data, persons, organizations, events):
         # for source in data.get("sources", []):
         #     membership.add("sourceUrl", source.get("url"))
 
-        position = h.make_position(org_name, comment, starts, ends, [])
+        position = make_position(org_name, comment, starts, ends, [])
         person = context.make("Person")
         person.id = person_id
         person.add("position", position)
