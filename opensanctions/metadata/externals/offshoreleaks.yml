@@ -9,5 +9,8 @@ collections:
 config:
   type: nomenklatura.enrich.yente:YenteEnricher
   api: https://api.opensanctions.org/
-  dataset: offshoreleaks
+  dataset: external_offshoreleaks
   token: opensanctions
+  schemata:
+    - Company
+    - Organization

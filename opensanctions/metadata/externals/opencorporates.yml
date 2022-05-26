@@ -10,3 +10,6 @@ collections:
   - default
 config:
   type: nomenklatura.enrich.opencorporates:OpenCorporatesEnricher
+  schemata:
+    - Company
+    - Organization

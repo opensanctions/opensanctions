@@ -16,3 +16,5 @@ collections:
   - default
 config:
   type: nomenklatura.enrich.nominatim:NominatimEnricher
+  schemata:
+    - Address
