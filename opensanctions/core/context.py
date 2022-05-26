@@ -255,13 +255,15 @@ class Context(object):
         finally:
             self.close()
 
-    def match(
+    def enrich(
         self,
         resolver: Resolver,
         entities: Iterable[Entity],
         threshold: Optional[float] = None,
     ):
         """Try to match a set of entities against an external source."""
+        from opensanctions.helpers.constraints import check_person_cutoff
+
         self.bind()
         external = cast(External, self.dataset)
         enricher = external.get_enricher(self.cache)
@@ -270,56 +272,40 @@ class Context(object):
             for entity in entities:
                 try:
                     for match in enricher.match(entity):
+                        # HACK HACK HACK remove
                         match = ns.apply(match)
-                        if not resolver.check_candidate(entity.id, match.id):
-                            continue
-                        if not entity.schema.can_match(match.schema):
-                            continue
-                        result = compare_scored(entity, match)
-                        score = result["score"]
-                        if threshold is not None and score < threshold:
-                            continue
-                        self.log.info("Match [%s]: %.2f -> %s" % (entity, score, match))
-                        resolver.suggest(entity.id, match.id, score)
-                        self.emit(match, external=True)
+                        judgement = resolver.get_judgement(match.id, entity.id)
+
+                        # For unjudged candidates, compute a score and put it in the
+                        # xref cache so the user can decide:
+                        if judgement == Judgement.NO_JUDGEMENT:
+                            if not entity.schema.can_match(match.schema):
+                                continue
+                            result = compare_scored(entity, match)
+                            score = result["score"]
+                            if threshold is None or score >= threshold:
+                                self.log.info(
+                                    "Match [%s]: %.2f -> %s" % (entity, score, match)
+                                )
+                                resolver.suggest(entity.id, match.id, score)
+                                self.emit(match, external=True)
+
+                        # Store previously confirmed matches to the database and make
+                        # them visible:
+                        if judgement == Judgement.POSITIVE:
+                            self.log.info("Enrich [%s]: %r" % (entity, match))
+                            for adjacent in enricher.expand(match):
+                                if check_person_cutoff(adjacent):
+                                    continue
+                                # adjacent.datasets.add(enricher.dataset.name)
+                                # self.log.info("Added", entity=adjacent)
+                                self.emit(adjacent)
                 except Exception:
                     self.log.exception("Could not match: %r" % entity)
         except KeyboardInterrupt:
-            self.flush()
+            pass
         finally:
-            enricher.close()
-            self.close()
-
-    def enrich(self, resolver: Resolver, entities: Iterable[Entity]):
-        """Try to match a set of entities against an external source."""
-        self.bind()
-        external = cast(External, self.dataset)
-        enricher = external.get_enricher(self.cache)
-        try:
-            for entity in entities:
-                try:
-                    # Check if any positive matches:
-                    entity_id = Identifier.get(entity.id)
-                    connected = resolver.connected(entity_id)
-                    if len(connected) == 1:
-                        continue
-
-                    for match in enricher.match(entity):
-                        judgement = resolver.get_judgement(match.id, entity_id)
-                        print(match.id, entity_id, judgement)
-                        if judgement != Judgement.POSITIVE:
-                            continue
-
-                        self.log.info("Enrich [%s]: %r" % (entity, match))
-                        for adjacent in enricher.expand(match):
-                            # TODO: death cut-off
-                            adjacent.datasets.add(enricher.dataset.name)
-                            self.emit(adjacent)
-                except Exception:
-                    self.log.exception("Could not enrich: %r" % entity)
-        except KeyboardInterrupt:
             self.flush()
-        finally:
             enricher.close()
             self.close()
 
