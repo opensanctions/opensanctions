@@ -24,6 +24,7 @@ __all__ = [
     "apply_feature",
     "convert_excel_cell",
     "check_person_cutoff",
+    "remove_namespace",
     "audit_data",
     "make_name",
     "apply_name",

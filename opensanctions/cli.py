@@ -18,7 +18,7 @@ from opensanctions.core.statements import max_last_seen
 from opensanctions.core.statements import resolve_all_canonical, resolve_canonical
 from opensanctions.core.analytics import build_analytics
 from opensanctions.core.db import engine_tx
-from opensanctions.processing import run_enrich, run_matching, run_pipeline
+from opensanctions.processing import run_enrich, run_pipeline
 
 log = structlog.get_logger(__name__)
 datasets = click.Choice(Dataset.names())
@@ -57,19 +57,12 @@ def run(dataset, threads):
     run_pipeline(dataset, threads=threads)
 
 
-@cli.command("match", help="Match the entities in dataset against an external source")
-@click.argument("dataset", type=datasets)
-@click.argument("external", type=datasets)
-@click.option("-t", "--threshold", type=click.FLOAT, default=0.5)
-def match(dataset, external, threshold):
-    run_matching(dataset, external, threshold)
-
-
 @cli.command("enrich", help="Import matched entities from an external source")
 @click.argument("dataset", type=datasets)
 @click.argument("external", type=datasets)
-def enrich(dataset, external):
-    run_enrich(dataset, external)
+@click.option("-t", "--threshold", type=click.FLOAT, default=0.5)
+def enrich(dataset, external, threshold):
+    run_enrich(dataset, external, threshold)
 
 
 @cli.command("clear", help="Delete all stored data for the given source")

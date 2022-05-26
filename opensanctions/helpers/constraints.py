@@ -7,6 +7,8 @@ BIRTH_CUTOFF = settings.DEATH_CUTOFF - timedelta(days=100 * 365)
 
 
 def check_person_cutoff(entity: Entity):
+    if not entity.schema.is_a("Person"):
+        return False
     death_dates = entity.get("deathDate", quiet=True)
     # print("DEATH_DATES", death_dates)
     death_cutoff = settings.DEATH_CUTOFF.isoformat()
