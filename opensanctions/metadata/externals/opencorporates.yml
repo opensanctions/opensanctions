@@ -1,4 +1,6 @@
 type: external
+disabled: true
+hidden: true
 title: OpenCorporates.com
 summary: |
   The world's largest database of open company details.
