@@ -42,3 +42,14 @@ def run_pipeline(
                 futures.append(executor.submit(export_dataset, dataset_, database))
             futures.append(executor.submit(export_metadata))
             _compute_futures(futures)
+
+
+def run_enrich(scope_name: str, external_name: str, threshold: float):
+    scope = Dataset.require(scope_name)
+    external = Dataset.require(external_name)
+    ctx = Context(external)
+    resolver = get_resolver()
+    database = Database(scope, resolver, cached=False)
+    loader = database.view(scope)
+    ctx.enrich(resolver, loader, threshold=threshold)
+    resolver.save()

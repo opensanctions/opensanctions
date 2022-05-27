@@ -1,0 +1,16 @@
+type: external
+title: ICIJ OffshoreLeaks
+summary: |
+  Combined data from the Panama Papers, Paradise Papers, Pandora Papers
+  and other cross-border investigations conducted by ICIJ and its partners.
+url: https://offshoreleaks.icij.org/
+collections:
+  - default
+config:
+  type: nomenklatura.enrich.yente:YenteEnricher
+  api: https://api.opensanctions.org/
+  dataset: external_offshoreleaks
+  token: opensanctions
+  schemata:
+    - Company
+    - Organization

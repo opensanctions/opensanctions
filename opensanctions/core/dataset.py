@@ -53,12 +53,20 @@ class Dataset(NomenklaturaDataset):
         return set([self])
 
     @cached_property
+    def scopes(self) -> Set["Dataset"]:
+        return set([self])
+
+    @cached_property
     def sources(self) -> Set["Source"]:
         return set()
 
     @property
     def source_names(self) -> List[str]:
         return [s.name for s in self.sources]
+
+    @property
+    def scope_names(self) -> List[str]:
+        return [s.name for s in self.scopes]
 
     def provided_datasets(self) -> List["Dataset"]:
         """Return a list of datasets which are in the sources or can be built from
@@ -76,6 +84,7 @@ class Dataset(NomenklaturaDataset):
     @classmethod
     def _from_metadata(cls, file_path):
         from opensanctions.core.source import Source
+        from opensanctions.core.external import External
         from opensanctions.core.collection import Collection
 
         config = load_yaml(file_path)
@@ -85,6 +94,8 @@ class Dataset(NomenklaturaDataset):
             return Collection(file_path, config)
         if type_ == Source.TYPE:
             return Source(file_path, config)
+        if type_ == External.TYPE:
+            return External(file_path, config)
 
     @classmethod
     def _load_cache(cls):

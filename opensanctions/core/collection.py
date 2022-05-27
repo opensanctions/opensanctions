@@ -2,6 +2,7 @@ from typing import Any, Dict, Set, cast
 from functools import cached_property
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.source import Source
+from opensanctions.core.external import External
 
 
 class Collection(Dataset):
@@ -24,6 +25,10 @@ class Collection(Dataset):
     @cached_property
     def sources(self) -> Set[Source]:
         return set([cast(Source, t) for t in self.datasets if t.TYPE == Source.TYPE])
+
+    @cached_property
+    def scopes(self) -> Set[Dataset]:
+        return set([t for t in self.datasets if t.TYPE in (Source.TYPE, External.TYPE)])
 
     def to_dict(self) -> Dict[str, Any]:
         data = super().to_dict()

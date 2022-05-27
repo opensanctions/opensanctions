@@ -8,7 +8,7 @@ from opensanctions.helpers.names import make_name, apply_name
 from opensanctions.helpers.excel import convert_excel_cell
 from opensanctions.helpers.xml import remove_namespace
 from opensanctions.helpers.constraints import check_person_cutoff
-from opensanctions.helpers.text import clean_note, make_position
+from opensanctions.helpers.text import clean_note
 from opensanctions.helpers.util import audit_data
 
 __all__ = [
@@ -16,7 +16,6 @@ __all__ = [
     "clean_phones",
     "clean_note",
     "make_address",
-    "make_position",
     "apply_address",
     "make_sanction",
     "extract_years",
@@ -24,6 +23,7 @@ __all__ = [
     "apply_feature",
     "convert_excel_cell",
     "check_person_cutoff",
+    "remove_namespace",
     "audit_data",
     "make_name",
     "apply_name",

@@ -84,6 +84,7 @@ stmt_table = Table(
     Column("value", Unicode(VALUE_LEN), nullable=False),
     Column("dataset", Unicode(KEY_LEN), index=True),
     Column("target", Boolean, default=False, nullable=False),
+    Column("external", Boolean, default=False, nullable=False),
     Column("first_seen", DateTime, nullable=False),
     Column("last_seen", DateTime, index=True),
 )

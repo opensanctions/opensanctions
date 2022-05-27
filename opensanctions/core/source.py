@@ -52,7 +52,6 @@ class Source(Dataset):
     def __init__(self, file_path, config):
         super().__init__(self.TYPE, file_path, config)
         self.url = config.get("url", "")
-        self.category = config.get("category", "other")
         self.disabled = config.get("disabled", False)
         self.entry_point = config.get("entry_point")
         self.data = SourceData(config.get("data", {}))

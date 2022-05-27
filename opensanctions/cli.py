@@ -18,7 +18,7 @@ from opensanctions.core.statements import max_last_seen
 from opensanctions.core.statements import resolve_all_canonical, resolve_canonical
 from opensanctions.core.analytics import build_analytics
 from opensanctions.core.db import engine_tx
-from opensanctions.processing import run_pipeline
+from opensanctions.processing import run_enrich, run_pipeline
 
 log = structlog.get_logger(__name__)
 datasets = click.Choice(Dataset.names())
@@ -55,6 +55,14 @@ def export(dataset, threads):
 @click.option("-t", "--threads", type=int, default=settings.THREADS)
 def run(dataset, threads):
     run_pipeline(dataset, threads=threads)
+
+
+@cli.command("enrich", help="Import matched entities from an external source")
+@click.argument("dataset", type=datasets)
+@click.argument("external", type=datasets)
+@click.option("-t", "--threshold", type=click.FLOAT, default=0.5)
+def enrich(dataset, external, threshold):
+    run_enrich(dataset, external, threshold)
 
 
 @cli.command("clear", help="Delete all stored data for the given source")
@@ -96,7 +104,7 @@ def xref_prune(keep=0):
 def dedupe(dataset):
     resolver = get_resolver()
     dataset = Dataset.require(dataset)
-    db = Database(dataset, resolver)
+    db = Database(dataset, resolver, external=True)
     loader = db.view(dataset)
 
     async def run_app() -> None:

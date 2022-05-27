@@ -1,0 +1,15 @@
+type: external
+disabled: true
+hidden: true
+title: OpenCorporates.com
+summary: |
+  The world's largest database of open company details.
+prefix: oc
+url: https://opencorporates.com/info/about/
+collections:
+  - default
+config:
+  type: nomenklatura.enrich.opencorporates:OpenCorporatesEnricher
+  schemata:
+    - Company
+    - Organization

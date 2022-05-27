@@ -1,29 +1,22 @@
 import csv
+from typing import Dict
 from pantomime.types import CSV
 from nomenklatura.util import is_qid
 
 from opensanctions.core import Context
-from opensanctions.wikidata import get_entity, entity_to_ftm
 
 
-def crawl_row(context, row):
+def crawl_row(context: Context, row: Dict[str, str]):
     qid = row.get("qid", "").strip()
     if not len(qid):
         return
     if not is_qid(qid):
         context.log.warning("No valid QID", qid=qid)
         return
-    data = get_entity(context, qid)
-    if data is None:
-        return
-    proxy = entity_to_ftm(
-        context,
-        data,
-        schema="Person",
-        topics=["role.oligarch"],
-        depth=2,
-    )
-    context.log.info("Oligarch", entity=proxy)
+    entity = context.make("Person")
+    entity.id = qid
+    entity.add("topics", "role.oligarch")
+    context.emit(entity, target=True)
 
 
 def crawl(context: Context):

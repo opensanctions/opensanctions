@@ -3,7 +3,7 @@ import hashlib
 import requests
 import structlog
 import mimetypes
-from typing import Dict, Optional, Union
+from typing import Iterable, cast, Dict, Optional, Union
 from lxml import etree, html
 from pprint import pprint
 from datapatch import LookupException
@@ -12,14 +12,19 @@ from lxml.etree import _Element, tostring
 from followthemoney import model
 from followthemoney.util import make_entity_id
 from followthemoney.schema import Schema
+from followthemoney.namespace import Namespace
 from structlog.contextvars import clear_contextvars, bind_contextvars
 from nomenklatura.cache import Cache
 from nomenklatura.util import normalize_url
+from nomenklatura.judgement import Judgement
+from nomenklatura.matching import compare_scored
+from nomenklatura.resolver import Resolver, Identifier
 
 from opensanctions import settings
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.entity import Entity
 from opensanctions.core.db import engine, engine_tx
+from opensanctions.core.external import External
 from opensanctions.core.issues import clear_issues
 from opensanctions.core.resources import save_resource, clear_resources
 from opensanctions.core.statements import Statement, count_entities
@@ -199,13 +204,18 @@ class Context(object):
                 save_statements(conn, batch)
         self._statements = {}
 
-    def emit(self, entity: Entity, target: Optional[bool] = None):
+    def emit(
+        self,
+        entity: Entity,
+        target: Optional[bool] = None,
+        external: bool = False,
+    ):
         """Send an FtM entity to the store."""
         if entity.id is None:
             raise ValueError("Entity has no ID: %r", entity)
         if target is not None:
             entity.target = target
-        statements = statements_from_entity(entity, self.dataset)
+        statements = statements_from_entity(entity, self.dataset, external=external)
         if not len(statements):
             raise ValueError("Entity has no properties: %r", entity)
         self._statements.update({s["id"]: s for s in statements})
@@ -243,6 +253,56 @@ class Context(object):
             self.log.exception("Crawl failed")
             raise
         finally:
+            self.close()
+
+    def enrich(
+        self,
+        resolver: Resolver,
+        entities: Iterable[Entity],
+        threshold: Optional[float] = None,
+    ):
+        """Try to match a set of entities against an external source."""
+        from opensanctions.helpers.constraints import check_person_cutoff
+
+        self.bind()
+        external = cast(External, self.dataset)
+        enricher = external.get_enricher(self.cache)
+        try:
+            for entity in entities:
+                try:
+                    for match in enricher.match_wrapped(entity):
+                        judgement = resolver.get_judgement(match.id, entity.id)
+
+                        # For unjudged candidates, compute a score and put it in the
+                        # xref cache so the user can decide:
+                        if judgement == Judgement.NO_JUDGEMENT:
+                            if not entity.schema.can_match(match.schema):
+                                continue
+                            result = compare_scored(entity, match)
+                            score = result["score"]
+                            if threshold is None or score >= threshold:
+                                self.log.info(
+                                    "Match [%s]: %.2f -> %s" % (entity, score, match)
+                                )
+                                resolver.suggest(entity.id, match.id, score)
+                                self.emit(match, external=True)
+
+                        # Store previously confirmed matches to the database and make
+                        # them visible:
+                        if judgement == Judgement.POSITIVE:
+                            self.log.info("Enrich [%s]: %r" % (entity, match))
+                            for adjacent in enricher.expand_wrapped(entity, match):
+                                if check_person_cutoff(adjacent):
+                                    continue
+                                # self.log.info("Added", entity=adjacent)
+                                self.emit(adjacent)
+                except Exception:
+                    self.log.exception("Could not match: %r" % entity)
+        except KeyboardInterrupt:
+            pass
+        finally:
+            self.flush()
+            enricher.close()
             self.close()
 
     def clear(self) -> None:
