@@ -1,8 +1,10 @@
-from typing import List, Type
 import structlog
+from typing import List, Type
+from nomenklatura.loader import Loader
 
 from opensanctions import settings
-from opensanctions.core import Context, Dataset
+from opensanctions.core import Context, Dataset, Entity
+from opensanctions.core.external import External
 from opensanctions.core.loader import Database
 from opensanctions.core.assembly import assemble
 from opensanctions.core.db import engine
@@ -27,22 +29,27 @@ EXPORTERS: List[Type[Exporter]] = [
 __all__ = ["export_dataset", "export_metadata", "export_statements"]
 
 
+def export_data(context: Context, loader: Loader[Dataset, Entity]):
+    exporters = [Exporter(context, loader) for Exporter in EXPORTERS]
+
+    for exporter in exporters:
+        exporter.setup()
+
+    for entity in loader:
+        for exporter in exporters:
+            exporter.feed(entity)
+
+    for exporter in exporters:
+        exporter.finish()
+
+
 def export_dataset(dataset: Dataset, database: Database):
     """Dump the contents of the dataset to the output directory."""
     try:
         context = Context(dataset)
         loader = database.view(dataset, assemble)
-        exporters = [Exporter(context, loader) for Exporter in EXPORTERS]
-
-        for exporter in exporters:
-            exporter.setup()
-
-        for entity in loader:
-            for exporter in exporters:
-                exporter.feed(entity)
-
-        for exporter in exporters:
-            exporter.finish()
+        if dataset.type != External.TYPE:
+            export_data(context, loader)
 
         # Export list of data issues from crawl stage
         issues_path = context.get_resource_path("issues.json")
