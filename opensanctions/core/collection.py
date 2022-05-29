@@ -33,4 +33,5 @@ class Collection(Dataset):
     def to_dict(self) -> Dict[str, Any]:
         data = super().to_dict()
         data["sources"] = [s.name for s in self.sources]
+        data["scopes"] = [s.name for s in self.scopes]
         return data

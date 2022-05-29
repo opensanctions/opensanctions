@@ -1,12 +1,13 @@
+from typing import List, Type
 import structlog
 
 from opensanctions import settings
-from opensanctions.core import Context, Dataset, Entity
+from opensanctions.core import Context, Dataset
 from opensanctions.core.loader import Database
 from opensanctions.core.assembly import assemble
 from opensanctions.core.db import engine
 from opensanctions.core.issues import all_issues
-from opensanctions.exporters.common import write_json
+from opensanctions.exporters.common import Exporter, write_json
 from opensanctions.exporters.ftm import FtMExporter
 from opensanctions.exporters.nested import NestedJSONExporter
 from opensanctions.exporters.names import NamesExporter
@@ -16,7 +17,7 @@ from opensanctions.exporters.statements import export_statements
 
 log = structlog.get_logger(__name__)
 
-EXPORTERS = [
+EXPORTERS: List[Type[Exporter]] = [
     FtMExporter,
     NestedJSONExporter,
     NamesExporter,
