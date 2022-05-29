@@ -92,6 +92,8 @@ country:
         - Song dynasty
         - Qing dynasty
         - Ming dynasty
+        - Tang dynasty
+        - Yuan dynasty
         - Malaya
         - Tapia
         - Savoy
@@ -104,6 +106,11 @@ country:
         - United Arab Republic
         - Kedah Sultanate
         - Republic of Mahabad
+        - Taiwan under Japanese rule
+        - Abbasid Caliphate
+        - Rashidun Caliphate
+        - Caucasus Emirate
+        - Egypt Eyalet
         # Ukraine SFMS:
         - 27 May 1973
         - 1 Jan. 1975
@@ -188,6 +195,7 @@ country:
       value: Egypt
     - match:
         - "Sanaa, Yemen"
+        - Yemen Arab Republic
       value: YE
     - match:
         - "Somali Location"
@@ -259,6 +267,8 @@ country:
     - contains:
         - United Kingdom of Great Britain
         - Uk/British
+        - Grande-Bretagne
+        - Kingdom of England
       value: GB
     - match:
         - United States. Also believed to hold Syrian nationality
@@ -513,6 +523,8 @@ country:
         - Syria
     - match: United Kingdom, previous address
       value: United Kingdom
+    - match: Kingdom of Portugal
+      value: Portugal
     - contains:
         - Syrian Arab Republic
         - Damascus
@@ -554,6 +566,11 @@ country:
       value: TC
     - match:
         - Afghanistan   Afghanistan
+        - Islamic Emirate of Afghanistan
+        - Republic of Afghanistan
+        - Islamic State of Afghanistan
+        - Democratic Republic of Afghanistan
+        - Kingdom of Afghanistan
       value: AF
     - match: to   Morocco
       value: Morocco
@@ -574,7 +591,11 @@ country:
         - Saudi Arabian Citizen
         - al-Khafji
         - Kingdom of Nejd and Hejaz
+        - Saud
       value: Saudi Arabia
+    - match:
+        - Second Syrian Republic
+      value: Syria
     - match:
         - Bangladeshis
       value: Bangladesh
@@ -1033,6 +1054,7 @@ gender:
         - intersex
         - pangender
         - genderqueer
+        - genderfluid
         - kathoey
         - two-spirit
       value: other
