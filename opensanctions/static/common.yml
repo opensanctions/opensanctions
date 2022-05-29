@@ -128,6 +128,10 @@ country:
         - Nazi Germany
       value: DE
     - match:
+        - TCHEQUE (REPUBLIQUE)
+      value:
+        - Czech Republic
+    - match:
         - "Kingdom of Greece"
       value: Greece
     - match: Socialist Republic of Romania
@@ -207,7 +211,9 @@ country:
     - match:
         - Assembly of Kosovo*
       value: XK
-    - match: Andalusia
+    - match:
+        - Andalusia
+        - Catalonia
       value: Spain
     - match:
         - Palestinian National Council
@@ -347,6 +353,9 @@ country:
         - Republic of China
       value: Taiwan
     - match:
+        - P.R. China
+      value: China
+    - match:
         - Baabda
         - Beirut
       contains:
@@ -387,6 +396,8 @@ country:
         - Southern Russia
         - Chechen Republic
         - Vedenskiy District, the Republic of Chechnya
+        - Tsardom of Russia
+        - Russie ( Fédération de )
       value: RU
     - match:
         - Former Ukrainian
@@ -488,6 +499,8 @@ country:
         - Former USSR Currently Belarus
         - Former USSR Now Belarus
         - Byelorussian Soviet Socialist Republic
+        - Socialist Soviet Republic of Byelorussia
+        - Belarusian People's Republic
       values:
         - SUHH
         - BY
@@ -503,6 +516,7 @@ country:
         - Komi ASSR,
         - Yakut Autonomous SSR
         - Belarusian SSR,
+        - Union d.Rép.Soc.Soviét.
         - Kyrgyz SSR
         - USSR (until 1991)
         - ソビエト社会主義共和国連邦（1991年まで）
@@ -571,6 +585,7 @@ country:
         - Islamic State of Afghanistan
         - Democratic Republic of Afghanistan
         - Kingdom of Afghanistan
+        - Emirate of Afghanistan
       value: AF
     - match: to   Morocco
       value: Morocco
@@ -592,6 +607,7 @@ country:
         - al-Khafji
         - Kingdom of Nejd and Hejaz
         - Saud
+        - Riyadh
       value: Saudi Arabia
     - match:
         - Second Syrian Republic
@@ -909,6 +925,11 @@ email:
       values:
         - sogaz@sogaz.ru
         - cf@sogaz.ru
+    - match: (1) bk@smpbank.ru (2) Money@smpbank.ru (3) smpbank@smpbank.ru
+      values:
+        - bk@smpbank.ru
+        - Money@smpbank.ru
+        - smpbank@smpbank.ru
     - match: office@grodno-khim.by; market@grodno-khim.by; ppm@grodno-khim.by; tnp@grodno-khim.by
       values:
         - office@grodno-khim.by
@@ -1055,6 +1076,7 @@ gender:
         - pangender
         - genderqueer
         - genderfluid
+        - neutrois
         - kathoey
         - two-spirit
       value: other
