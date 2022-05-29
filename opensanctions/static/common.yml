@@ -11,6 +11,8 @@ country:
         - "00"
         - "UNKNOWN"
         - "UNK"
+        - "U"
+        - "YYY"
         - "N/A"
         - "None Identified"
         - "undetermined"
@@ -621,6 +623,8 @@ date:
   options:
     - match:
         - 3030-03-09
+        - 0001-01-03
+        - 0222-05-18
         - "00/00/0"
         - "Approximately (30-35 years old)"
         - "Not yet reviewed"
@@ -1028,6 +1032,7 @@ gender:
         - non-binary
         - intersex
         - pangender
+        - genderqueer
         - kathoey
         - two-spirit
       value: other
