@@ -315,8 +315,12 @@ def resolve_canonical(conn: Conn, resolver: Resolver, canonical_id: str):
     conn.execute(q)
 
 
-def clear_statements(conn: Conn, dataset: Optional[Dataset] = None):
+def clear_statements(
+    conn: Conn, dataset: Optional[Dataset] = None, external: Optional[bool] = None
+):
     q = delete(stmt_table)
+    if external is not None:
+        q = q.filter(stmt_table.c.external == external)
     # TODO: should this do collections?
     if dataset is not None:
         q = q.filter(stmt_table.c.dataset == dataset.name)

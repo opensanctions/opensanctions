@@ -12,13 +12,12 @@ from lxml.etree import _Element, tostring
 from followthemoney import model
 from followthemoney.util import make_entity_id
 from followthemoney.schema import Schema
-from followthemoney.namespace import Namespace
 from structlog.contextvars import clear_contextvars, bind_contextvars
 from nomenklatura.cache import Cache
 from nomenklatura.util import normalize_url
 from nomenklatura.judgement import Judgement
 from nomenklatura.matching import compare_scored
-from nomenklatura.resolver import Resolver, Identifier
+from nomenklatura.resolver import Resolver
 
 from opensanctions import settings
 from opensanctions.core.dataset import Dataset
@@ -27,7 +26,8 @@ from opensanctions.core.db import engine, engine_tx
 from opensanctions.core.external import External
 from opensanctions.core.issues import clear_issues
 from opensanctions.core.resources import save_resource, clear_resources
-from opensanctions.core.statements import Statement, count_entities
+from opensanctions.core.statements import Statement
+from opensanctions.core.statements import count_entities
 from opensanctions.core.statements import cleanup_dataset, clear_statements
 from opensanctions.core.statements import statements_from_entity, save_statements
 
@@ -265,6 +265,9 @@ class Context(object):
         from opensanctions.helpers.constraints import check_person_cutoff
 
         self.bind()
+        with engine_tx() as conn:
+            clear_issues(conn, self.dataset)
+            clear_statements(conn, self.dataset, external=True)
         external = cast(External, self.dataset)
         enricher = external.get_enricher(self.cache)
         try:
