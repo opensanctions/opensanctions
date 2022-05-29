@@ -73,9 +73,9 @@ class Dataset(NomenklaturaDataset):
         the same sources. Basically: all datasets that are smaller in scope than
         this one."""
         datasets: List[Dataset] = []
-        available = set(self.source_names)
+        available = set(self.scope_names)
         for dataset in Dataset.all():
-            required = set(dataset.source_names)
+            required = set(dataset.scope_names)
             matches = available.intersection(required)
             if len(matches) == len(required):
                 datasets.append(dataset)

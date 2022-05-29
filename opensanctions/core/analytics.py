@@ -34,7 +34,7 @@ def build_analytics(dataset: Dataset):
                 log.info("Denormalised %d entities..." % idx)
 
             for dataset in Dataset.all():
-                if len(entity.datasets.intersection(dataset.source_names)) > 0:
+                if len(entity.datasets.intersection(dataset.scope_names)) > 0:
                     members.append({"entity_id": entity.id, "dataset": dataset.name})
 
             if len(members) >= BATCH_SIZE:

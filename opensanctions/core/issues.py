@@ -57,7 +57,7 @@ def all_issues(
 ) -> Generator[Issue, None, None]:
     q = select(issue_table)
     if dataset is not None:
-        q = q.filter(issue_table.c.dataset.in_(dataset.source_names))
+        q = q.filter(issue_table.c.dataset.in_(dataset.scope_names))
     q = q.order_by(issue_table.c.id.asc())
     result = conn.execute(q)
     for row in result.fetchall():
@@ -69,7 +69,7 @@ def agg_issues_by_level(
 ) -> Dict[str, int]:
     q = select(issue_table.c.level, func.count(issue_table.c.id))
     if dataset is not None:
-        q = q.filter(issue_table.c.dataset.in_(dataset.source_names))
+        q = q.filter(issue_table.c.dataset.in_(dataset.scope_names))
     q = q.group_by(issue_table.c.level)
     res = conn.execute(q)
     return {l: c for (l, c) in res.all()}
@@ -77,6 +77,6 @@ def agg_issues_by_level(
 
 def clear_issues(conn: Conn, dataset: Dataset) -> None:
     pq = delete(issue_table)
-    pq = pq.where(issue_table.c.dataset.in_(dataset.source_names))
+    pq = pq.where(issue_table.c.dataset.in_(dataset.scope_names))
     conn.execute(pq)
     return None
