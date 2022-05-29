@@ -1279,6 +1279,7 @@ features:
         - Enterprise Number
         - Istanbul Chamber of Comm. No.
         - RSIN
+        - Organization Code
       prop: registrationNumber
     - match:
         - National Foreign ID Number

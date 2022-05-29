@@ -108,6 +108,7 @@ lookups:
       - match:
           - business relationships
           - personal relationships
+          - cohabitants
         schema: Associate
         from_prop: person
         to_prop: associate

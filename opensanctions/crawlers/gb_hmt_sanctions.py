@@ -250,7 +250,7 @@ def parse_row(context: Context, row):
         context.log.warning("Unknown GrpStatus", value=grp_status)
 
     entity.add("notes", h.clean_note(row.pop("OtherInformation", None)))
-    h.audit_data(row)
+    h.audit_data(row, ignore=["NonLatinScriptLanguage", "NonLatinScriptType"])
 
     entity.add("topics", "sanction")
     context.emit(entity, target=True)

@@ -92,6 +92,21 @@ lookups:
           - LLC ”NGKM”
       - match: Limited Liability Company <<STROYGAZMONTAZH>>
         value: Limited Liability Company STROYGAZMONTAZH
+      - match: PJSC Aeroflot
+        value: PJSC Aeroflot
+      - match: Ural Wings
+        value: Ural Wings
+      - match: Federal Agency for State Property Management
+        value: Federal Agency for State Property Management
+      - match: (1) Pobeda Airlines Limited Liability Company (2) Rossiya Airlines Joint-Stock Company (3) Sherotel Joint-Stock Company (4) Aeromar Joint-Stock Company (5) Aeroflot Aviation School, Private Professional Educational Organisation (6) Aeroflot – Finance Limited Liability Company (7) A-Technics Limited Liability Company
+        values:
+          - Pobeda Airlines Limited Liability Company
+          - Rossiya Airlines Joint-Stock Company
+          - Sherotel Joint-Stock Company
+          - Aeromar Joint-Stock Company
+          - Aeroflot Aviation School, Private Professional Educational Organisation
+          - Aeroflot – Finance Limited Liability Company
+          - A-Technics Limited Liability Company
       - match: Electro Sanam Company. Ettehad Technical Group. Fajr Industrial Group. Indsutrial Factories of Precision (IFP). Joza Industrial Co. M Babaei Indsutries. Machinery. Safety Equipment Procurement (SEP). Sanam Industrial Group. Shahid Bagheri Industrial Group (SBIG). Shahid Hemmat Industrial Group (SHIG). Ya Mahdi Industries Group
         values:
           - Electro Sanam Company
