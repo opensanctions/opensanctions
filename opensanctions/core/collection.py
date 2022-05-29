@@ -34,4 +34,5 @@ class Collection(Dataset):
         data = super().to_dict()
         data["sources"] = [s.name for s in self.sources]
         data["scopes"] = [s.name for s in self.scopes]
+        data["externals"] = [s.name for s in self.datasets if s.TYPE == External.TYPE]
         return data
