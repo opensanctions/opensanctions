@@ -47,7 +47,6 @@ def export_dataset(dataset: Dataset, database: Database):
     """Dump the contents of the dataset to the output directory."""
     try:
         context = Context(dataset)
-        context.path.mkdir(parents=True, exist_ok=True)
         loader = database.view(dataset, assemble)
         if dataset.type != External.TYPE:
             export_data(context, loader)
@@ -55,10 +54,10 @@ def export_dataset(dataset: Dataset, database: Database):
         # Export list of data issues from crawl stage
         issues_path = context.get_resource_path("issues.json")
         context.log.info("Writing dataset issues list", path=issues_path)
-        with engine.begin() as conn:
-            with open(issues_path, "w", encoding=settings.ENCODING) as fh:
+        with open(issues_path, "w", encoding=settings.ENCODING) as fh:
+            with engine.begin() as conn:
                 data = {"issues": list(all_issues(conn, dataset))}
-                write_json(data, fh)
+            write_json(data, fh)
 
         # Export full metadata
         index_path = context.get_resource_path("index.json")

@@ -60,6 +60,7 @@ class Context(object):
         clear_contextvars()
 
     def get_resource_path(self, name):
+        self.path.mkdir(parents=True, exist_ok=True)
         return self.path.joinpath(name)
 
     def fetch_resource(self, name, url, auth=None, headers=None):
