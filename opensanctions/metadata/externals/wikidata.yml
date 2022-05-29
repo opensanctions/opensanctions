@@ -15,5 +15,6 @@ prefix: wd
 url: https://www.wikidata.org/wiki/Wikidata:Main_Page
 collections:
   - default
+  - peps
 config:
   type: nomenklatura.enrich.wikidata:WikidataEnricher
