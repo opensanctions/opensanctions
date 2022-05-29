@@ -18,3 +18,4 @@ config:
   type: nomenklatura.enrich.nominatim:NominatimEnricher
   schemata:
     - Address
+  cache_days: 90
