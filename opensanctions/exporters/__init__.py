@@ -47,6 +47,7 @@ def export_dataset(dataset: Dataset, database: Database):
     """Dump the contents of the dataset to the output directory."""
     try:
         context = Context(dataset)
+        context.path.mkdir(parents=True, exist_ok=True)
         loader = database.view(dataset, assemble)
         if dataset.type != External.TYPE:
             export_data(context, loader)
