@@ -1,0 +1,18 @@
+type: external
+title: Global Legal Entity Identifier Foundation (GLEIF) Data
+summary: |
+  A concatenated data file of all entities which have been issued Legal
+  Entity Identifier (LEI) codes.
+url: https://www.gleif.org/en/lei-data/gleif-concatenated-file
+collections:
+  - default
+config:
+  type: nomenklatura.enrich.yente:YenteEnricher
+  api: https://api.opensanctions.org/
+  dataset: external_gleif
+  token: opensanctions
+  strip_namespace: true
+  schemata:
+    - Company
+    - Organization
+  cache_days: 120
