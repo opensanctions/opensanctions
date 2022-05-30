@@ -27,8 +27,8 @@ setup(
     },
     zip_safe=False,
     install_requires=[
-        "followthemoney >= 1.21.2",
-        "nomenklatura >= 2.4.0, < 3.0.0",
+        "followthemoney >= 2.9.4",
+        "nomenklatura >= 2.4.2, < 3.0.0",
         "pantomime",
         "sqlalchemy[mypy]",
         "requests[security]",

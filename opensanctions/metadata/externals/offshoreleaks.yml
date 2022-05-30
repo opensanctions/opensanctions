@@ -11,6 +11,7 @@ config:
   api: https://api.opensanctions.org/
   dataset: external_offshoreleaks
   token: opensanctions
+  strip_namespace: true
   schemata:
     - Company
     - Organization

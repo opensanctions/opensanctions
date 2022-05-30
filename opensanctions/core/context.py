@@ -269,7 +269,8 @@ class Context(object):
         with engine_tx() as conn:
             clear_issues(conn, self.dataset)
             clear_resources(conn, self.dataset)
-            clear_statements(conn, self.dataset, external=True)
+            clear_statements(conn, self.dataset)
+            # clear_statements(conn, self.dataset, external=True)
         external = cast(External, self.dataset)
         enricher = external.get_enricher(self.cache)
         try:
