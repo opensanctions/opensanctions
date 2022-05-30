@@ -177,7 +177,12 @@ def parse_alias(party, parts, alias):
             type_ = parts.get(value.get("NamePartGroupID"))
             names[type_] = value.text
 
-        party.add(name_prop, names.pop("Entity Name", None))
+        h.apply_name(
+            party,
+            full=names.pop("Entity Name", None),
+            name_prop=name_prop,
+            is_weak=is_weak,
+        )
         party.add("name", names.pop("Vessel Name", None))
         party.add("weakAlias", names.pop("Nickname", None))
         party.add("registrationNumber", names.pop("Aircraft Name", None))
