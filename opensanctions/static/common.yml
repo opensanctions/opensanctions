@@ -1273,14 +1273,16 @@ features:
         - C.R. No.
         - Chamber of Commerce Number
         - Serial No.
-        - Legal Entity Number
-        - LE Number
         - Public Registration Number
         - Enterprise Number
         - Istanbul Chamber of Comm. No.
         - RSIN
         - Organization Code
       prop: registrationNumber
+    - match:
+        - Legal Entity Number
+        - LE Number
+      prop: leiCode
     - match:
         - National Foreign ID Number
         - National ID No.
