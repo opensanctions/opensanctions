@@ -111,6 +111,108 @@ country:
         - Rashidun Caliphate
         - Caucasus Emirate
         - Egypt Eyalet
+        - Spanish State
+        - Qajar Iran
+        - Cao Wei
+        - Eastern Han
+        - Assyrian Empire
+        - Mutawakkilite Kingdom of Yemen
+        - Great Socialist People's Libyan Arab Jamahiriya
+        - Seljuk Empire
+        - Libyan Arab Republic
+        - Kingdom of Libya
+        - Safavid Empire
+        - French mandate of Lebanon
+        - Khedivate of Egypt
+        - Marinid Dynasty
+        - Ancient Rome
+        - Western Han
+        - al-Andalus
+        - Emirate of Cyrenaica
+        - Umayyad Caliphate
+        - French Indochina
+        - Caliphate of Córdoba
+        - Buyid dynasty
+        - State of Cambodia
+        - Liang dynasty
+        - First Saudi State
+        - People's Republic of Kampuchea
+        - Bengal
+        - State of Greater Lebanon
+        - Đại Việt
+        - Chen dynasty
+        - Jordanian annexation of the West Bank
+        - Holy Roman Empire
+        - mandatory Lebanese Republic
+        - Almoravid dynasty
+        - Babylon
+        - Idrisid dynasty
+        - Samanid Empire
+        - Democratic Kampuchea
+        - Russian state 1918-1920
+        - Sui dynasty
+        - Mahdist Sudan
+        - Sultanate of Darfur
+        - Polish–Lithuanian Commonwealth
+        - Khwarezmian Empire
+        - Sultanate of Bengal
+        - Delhi Sultanate
+        - Khmer Republic
+        - Shu Han
+        - emirate of Córdoba
+        - Mali Empire
+        - Arabs
+        - Second East Turkestan Republic
+        - Republic of Venice
+        - Lithuanian–Belorussian Soviet Socialist Republic
+        - British Burma
+        - Republic of the Congo (Léopoldville)
+        - Emirate of Granada
+        - Kingdom of Hanover
+        - Kingdom of Poland (1025-1385)
+        - Northern Qi
+        - Ziyarid dynasty
+        - Taifa of Dénia
+        - Safavid dynasty
+        # TODO:
+        - Kurdistan
+        - Kingdom of Tlemcen
+        - Mughal Empire
+        - East Pakistan
+        - Timurid Empire
+        - Portuguese Macau
+        - Jin dynasty
+        - Western Wei
+        - Qajar dynasty
+        - Portuguese Guinea
+        - Grand Duchy of Moscow
+        - Parthian Empire
+        - Kingdom of Castile
+        - Udaipur State
+        - China Hong Kong City
+        - Arab Kingdom of Syria
+        - Palestinian National Authority
+        - Portuguese Cape Verde
+        - Johor Sultanate
+        - Sultanate of Egypt
+        - German Confederation
+        - Far Eastern Republic
+        - Northern Zhou
+        - Hatay State
+        - People's Republic of the Congo
+        - Central African Empire
+        - Southern Tang
+        - Ghaznavid Empire
+        - Southern Qi
+        - Crown of Aragon
+        - Spanish Empire
+        - Zand dynasty
+        - Margraviate of Moravia
+        - Sheikhdom of Kuwait
+        - CHANNEL ISLANDS
+        - Wu guo
+        - Hyderabad State
+        - Denmark-Norway
         # Ukraine SFMS:
         - 27 May 1973
         - 1 Jan. 1975
@@ -123,6 +225,7 @@ country:
     - match:
         - Beylik of Tunis
         - French protectorate of Tunisia
+        - Kingdom of Tunisia
       value: Tunisia
     - match:
         - Nazi Germany
@@ -145,6 +248,8 @@ country:
       value: Philippines
     - match:
         - Kingdom of Mysore
+        - Pondicherry
+        - Provinces of India
       value: India
     - match:
         - "Jalisco"
@@ -173,13 +278,22 @@ country:
       value: Italy
     - match:
         - Ecuatorial Guinaea-
+        - Ecuatorial Guinea
       value: Equatorial Guinea
     - match:
         - Guinaea-
+        - Guinée Conakry
       value: Guinea
     - match:
         - People's Republic of Bulgaria
       value: Bulgaria
+    - match:
+        - Principality of Serbia
+        - Kingdom of Serbia
+      value: Serbia
+    - match:
+        - Southern Netherlands
+      value: Netherlands
     - match:
         - Zimbabwe Rhodesia
       value: Zimbabwe
@@ -200,12 +314,20 @@ country:
     - match:
         - "Sanaa, Yemen"
         - Yemen Arab Republic
+        - South Yemen
       value: YE
+    - match:
+        - Democratic Republic of Georgia
+      value: Georgia
     - match:
         - "Somali Location"
         - "Somalia Alt."
         - "Somali citizen"
       value: Somalia
+    - match:
+        - State of Somaliland
+        - British Somaliland
+      value: so-som
     - match: Saar
       value: DE
     - match:
@@ -256,6 +378,11 @@ country:
       values:
         - DE
         - GB
+    - match:
+        - Allemagne (Rép.féd.)
+        - Saxe-Eisenach
+      value:
+        - DE
     - match:
         - Sudan/South Sudan
         - Sudan/or South Sudan
@@ -447,6 +574,7 @@ country:
       value: Vietnam
     - match:
         - North Macedonia, The Republic of
+        - Socialist Republic of Macedonia
       value: MK
     - match: Iraq,Iran
       values:
@@ -464,9 +592,15 @@ country:
         - Ukrainian SSR (now Ukraine)
         - former USSR, now Ukraine
         - Ukrainian Soviet Socialist Republic
+        - Ukrainian People's Republic
       values:
         - SUHH
         - UA
+    - match:
+        - Latvian Soviet Socialist Republic
+      value:
+        - SUHH
+        - Latvia
     - match:
         # *cough cough*:
         - тимчасово окупована територія Автономної Республіки Крим
@@ -566,6 +700,7 @@ country:
     - match:
         - Socialist Republic of Bosnia and Herzegovina
         - Republika Srpska
+        - Bosniaks
       value: BA
     - match:
         - Grand Duchy of Finland
@@ -584,6 +719,7 @@ country:
         - Republic of Afghanistan
         - Islamic State of Afghanistan
         - Democratic Republic of Afghanistan
+        - Transitional Islamic State of Afghanistan
         - Kingdom of Afghanistan
         - Emirate of Afghanistan
       value: AF
