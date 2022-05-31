@@ -1,5 +1,6 @@
 import structlog
 from banal import ensure_list
+from functools import cached_property
 from prefixdate.precision import Precision
 from typing import Any, Dict, Optional, Union
 from followthemoney import model
@@ -11,7 +12,7 @@ from followthemoney.property import Property
 from nomenklatura.entity import CompositeEntity
 
 from opensanctions.core.lookups import type_lookup
-from opensanctions.core.dataset import Dataset
+from opensanctions.util import pick_name
 
 log = structlog.get_logger(__name__)
 
@@ -35,6 +36,23 @@ class Entity(CompositeEntity):
         self.first_seen = data.get("first_seen", None)
         self.last_seen = data.get("last_seen", None)
         super().__init__(model, data, key_prefix=key_prefix, cleaned=cleaned)
+
+    @cached_property
+    def caption(self) -> str:
+        """The user-facing label to be used for this entity. This checks a list
+        of properties defined by the schema (caption) and returns the first
+        available value. If no caption is available, return the schema label."""
+        is_thing = self.schema.is_a("Thing")
+        for prop in self.schema.caption:
+            values = self.get(prop)
+            if is_thing and prop == "name" and len(values) > 1:
+                all_names = self.get_type_values(registry.name)
+                name = pick_name(tuple(values), tuple(all_names))
+                if name is not None:
+                    return name
+            for value in values:
+                return value
+        return self.schema.label
 
     def make_id(self, *parts: Any) -> str:
         raise NotImplementedError
