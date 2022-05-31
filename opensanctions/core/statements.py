@@ -244,25 +244,6 @@ def entities_datasets(conn: Conn, dataset: Optional[Dataset] = None):
 
 
 def cleanup_dataset(conn: Conn, dataset: Dataset):
-    # set the entity BASE to the earliest spotting of the entity:
-    # table = stmt_table.c.__table__
-    # cte = select(
-    #     func.min(table.c.first_seen).label("first_seen"),
-    #     table.c.entity_id.label("entity_id"),
-    # )
-    # cte = cte.where(table.c.dataset == dataset.name)
-    # cte = cte.group_by(table.c.entity_id)
-    # cte = cte.cte("seen")
-    # sq = select(cte.c.first_seen)
-    # sq = sq.where(cte.c.entity_id == table.c.entity_id)
-    # sq = sq.limit(1)
-    # q = update(table)
-    # q = q.where(table.c.dataset == dataset.name)
-    # q = q.where(table.c.prop == BASE)
-    # q = q.values({table.c.first_seen: sq.scalar_subquery()})
-    # # log.info("Setting BASE first_seen...", q=str(q))
-    # db.session.execute(q)
-
     # remove non-current statements (in the future we may want to keep them?)
     last_seen = max_last_seen(conn, dataset=dataset)
     if last_seen is not None:
