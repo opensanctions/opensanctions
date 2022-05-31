@@ -144,6 +144,7 @@ def count_entities(
     conn: Conn,
     dataset: Optional[Dataset] = None,
     target: Optional[bool] = None,
+    schemata: Optional[List[str]] = None,
 ) -> int:
     q = select(func.count(func.distinct(stmt_table.c.canonical_id)))
     q = q.filter(stmt_table.c.prop == BASE)
@@ -152,19 +153,29 @@ def count_entities(
         q = q.filter(stmt_table.c.target == target)
     if dataset is not None:
         q = q.filter(stmt_table.c.dataset.in_(dataset.scope_names))
+    if schemata is not None and len(schemata):
+        q = q.filter(stmt_table.c.schema.in_(schemata))
     return conn.scalar(q)
 
 
-def agg_targets_by_country(conn: Conn, dataset: Optional[Dataset] = None):
+def agg_entities_by_country(
+    conn: Conn,
+    dataset: Optional[Dataset] = None,
+    target: Optional[bool] = None,
+    schemata: Optional[List[str]] = None,
+):
     """Return the number of targets grouped by country."""
     count = func.count(func.distinct(stmt_table.c.canonical_id))
     q = select(stmt_table.c.value, count)
     # TODO: this could be generic to type values?
-    q = q.filter(stmt_table.c.target == True)  # noqa
     q = q.filter(stmt_table.c.external == False)  # noqa
     q = q.filter(stmt_table.c.prop_type == registry.country.name)
     if dataset is not None:
         q = q.filter(stmt_table.c.dataset.in_(dataset.scope_names))
+    if target is not None:
+        q = q.filter(stmt_table.c.target == target)
+    if schemata is not None and len(schemata):
+        q = q.filter(stmt_table.c.schema.in_(schemata))
     q = q.group_by(stmt_table.c.value)
     q = q.order_by(count.desc())
     res = conn.execute(q)
@@ -179,24 +190,32 @@ def agg_targets_by_country(conn: Conn, dataset: Optional[Dataset] = None):
     return countries
 
 
-def agg_targets_by_schema(conn: Conn, dataset: Optional[Dataset] = None):
+def agg_entities_by_schema(
+    conn: Conn,
+    dataset: Optional[Dataset] = None,
+    target: Optional[bool] = None,
+    schemata: Optional[List[str]] = None,
+):
     """Return the number of targets grouped by their schema."""
     # FIXME: duplicates entities when there are statements with different schema
     # defined for the same entity.
     count = func.count(func.distinct(stmt_table.c.canonical_id))
     q = select(stmt_table.c.schema, count)
-    q = q.filter(stmt_table.c.target == True)  # noqa
     q = q.filter(stmt_table.c.external == False)  # noqa
     q = q.filter(stmt_table.c.prop == BASE)
     if dataset is not None:
         q = q.filter(stmt_table.c.dataset.in_(dataset.scope_names))
+    if target is not None:
+        q = q.filter(stmt_table.c.target == target)
+    if schemata is not None and len(schemata):
+        q = q.filter(stmt_table.c.schema.in_(schemata))
     q = q.group_by(stmt_table.c.schema)
     q = q.order_by(count.desc())
     res = conn.execute(q)
-    schemata = []
+    results = []
     for name, count in res.fetchall():
         schema = model.get(name)
-        if schema is None:
+        if schema is None or schema.hidden:
             continue
         result = {
             "name": name,
@@ -204,8 +223,8 @@ def agg_targets_by_schema(conn: Conn, dataset: Optional[Dataset] = None):
             "label": schema.label,
             "plural": schema.plural,
         }
-        schemata.append(result)
-    return schemata
+        results.append(result)
+    return results
 
 
 def all_schemata(conn: Conn, dataset: Optional[Dataset] = None):
@@ -297,7 +316,9 @@ def resolve_canonical(conn: Conn, resolver: Resolver, canonical_id: str):
 
 
 def clear_statements(
-    conn: Conn, dataset: Optional[Dataset] = None, external: Optional[bool] = None
+    conn: Conn,
+    dataset: Optional[Dataset] = None,
+    external: Optional[bool] = None,
 ):
     q = delete(stmt_table)
     if external is not None:

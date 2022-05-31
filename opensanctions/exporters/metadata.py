@@ -10,30 +10,41 @@ from opensanctions.core.db import engine_read
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.issues import all_issues, agg_issues_by_level
 from opensanctions.core.resources import all_resources
-from opensanctions.core.statements import all_schemata, max_last_seen
-from opensanctions.core.statements import count_entities
-from opensanctions.core.statements import agg_targets_by_country, agg_targets_by_schema
+from opensanctions.core.statements import (
+    all_schemata,
+    max_last_seen,
+    count_entities,
+    agg_entities_by_country,
+    agg_entities_by_schema,
+)
 from opensanctions.exporters.common import write_json
 
 log = structlog.get_logger(__name__)
+THINGS = [s.name for s in model if s.is_a("Thing")]
 
 
 @cache
 def dataset_to_index(dataset: Dataset) -> Dict[str, Any]:
     with engine_read() as conn:
         meta = dataset.to_dict()
+        meta["last_change"] = max_last_seen(conn, dataset)
+        meta["last_export"] = settings.RUN_TIME
         meta["index_url"] = dataset.make_public_url("index.json")
         meta["issues_url"] = dataset.make_public_url("issues.json")
         meta["issue_levels"] = agg_issues_by_level(conn, dataset)
         meta["issue_count"] = sum(meta["issue_levels"].values())
-        meta["target_count"] = count_entities(conn, dataset=dataset, target=True)
         meta["entity_count"] = count_entities(conn, dataset=dataset)
-        # meta["recent_targets"] = recent_targets(conn, dataset)
-        meta["last_change"] = max_last_seen(conn, dataset)
-        meta["last_export"] = settings.RUN_TIME
+        target_count = count_entities(conn, dataset=dataset, target=True)
+        meta["target_count"] = target_count
         meta["targets"] = {
-            "countries": agg_targets_by_country(conn, dataset),
-            "schemata": agg_targets_by_schema(conn, dataset),
+            "total": target_count,
+            "countries": agg_entities_by_country(conn, dataset, target=True),
+            "schemata": agg_entities_by_schema(conn, dataset, target=True),
+        }
+        meta["things"] = {
+            "total": count_entities(conn, dataset=dataset, schemata=THINGS),
+            "countries": agg_entities_by_country(conn, dataset, schemata=THINGS),
+            "schemata": agg_entities_by_schema(conn, dataset, schemata=THINGS),
         }
         meta["resources"] = list(all_resources(conn, dataset))
         return meta
