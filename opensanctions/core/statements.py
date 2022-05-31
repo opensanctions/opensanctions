@@ -110,7 +110,6 @@ def save_statements(conn: Conn, values: List[Statement]) -> None:
             schema=istmt.excluded.schema,
             prop_type=istmt.excluded.prop_type,
             target=istmt.excluded.target,
-            external=istmt.excluded.external,
             last_seen=istmt.excluded.last_seen,
         ),
     )
