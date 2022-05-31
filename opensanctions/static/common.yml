@@ -598,7 +598,7 @@ country:
         - UA
     - match:
         - Latvian Soviet Socialist Republic
-      value:
+      values:
         - SUHH
         - Latvia
     - match:
@@ -686,6 +686,9 @@ country:
         - Federal People's Republic of Yugoslavia
         - Democratic Federal Yugoslavia
       value: YUCS
+    - match:
+        - Yougoslavie (Serbie-Montenegro)
+      value: CSXX
     - match:
         - Republic of Hungary
         - People's Republic of Hungary
