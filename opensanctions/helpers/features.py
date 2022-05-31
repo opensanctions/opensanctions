@@ -13,6 +13,9 @@ def _prepare_value(prop, values, date_formats):
             prepared.extend(clean_note(value))
             continue
 
+        if prop.name == "dunsCode" and value is not None:
+            value = value.strip().replace("-", "")
+
         if prop.type == registry.date:
             prepared.extend(parse_date(value, date_formats))
             continue
