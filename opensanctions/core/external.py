@@ -1,11 +1,8 @@
-import os
 from functools import cache
-from typing import Set
-from followthemoney.types import registry
 from nomenklatura.cache import Cache
 from nomenklatura.enrich import Enricher, get_enricher
 
-from opensanctions.core.dataset import Dataset
+from opensanctions.core.dataset import Dataset, DatasetPublisher
 
 
 class External(Dataset):
@@ -18,6 +15,7 @@ class External(Dataset):
         self.url = config.get("url", "")
         self.disabled = config.get("disabled", False)
         self.enricher_config = config.get("config", {})
+        self.publisher = DatasetPublisher(config.get("publisher", {}))
 
     @cache
     def get_enricher(self, cache: Cache) -> Enricher:
@@ -35,6 +33,7 @@ class External(Dataset):
             {
                 "url": self.url,
                 "disabled": self.disabled,
+                "publisher": self.publisher.to_dict(),
                 "collections": self.collections,
             }
         )

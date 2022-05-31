@@ -4,6 +4,13 @@ summary: |
   Combined data from the Panama Papers, Paradise Papers, Pandora Papers
   and other cross-border investigations conducted by ICIJ and its partners.
 url: https://offshoreleaks.icij.org/
+publisher:
+  name: International Consortium of Investigative Journalists (ICIJ)
+  description: |
+    ICIJ is a global network of reporters and media organizations that cooperate on
+    large-scale cross-border investigations. Its core team is a group of editors, 
+    fact-checkers and data journalists who maintain the OffshoreLeaks database.
+  url: https://www.icij.org/about/
 collections:
   - default
 config:

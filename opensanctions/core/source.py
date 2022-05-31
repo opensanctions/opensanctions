@@ -2,9 +2,8 @@ import os
 from importlib import import_module
 from functools import cached_property
 from typing import Set
-from followthemoney.types import registry
 
-from opensanctions.core.dataset import Dataset
+from opensanctions.core.dataset import Dataset, DatasetPublisher
 
 
 class SourceData(object):
@@ -22,26 +21,6 @@ class SourceData(object):
         return {"url": self.url, "format": self.format, "mode": self.mode}
 
 
-class SourcePublisher(object):
-    """Publisher information, eg. the government authority."""
-
-    def __init__(self, config):
-        self.url = config.get("url")
-        self.name = config.get("name")
-        self.description = config.get("description")
-        self.country = config.get("country", "zz")
-        assert registry.country.validate(self.country), "Invalid publisher country"
-
-    def to_dict(self):
-        return {
-            "url": self.url,
-            "name": self.name,
-            "description": self.description,
-            "country": self.country,
-            "country_label": registry.country.caption(self.country),
-        }
-
-
 class Source(Dataset):
     """A source to be included in OpenSanctions, backed by a crawler that can
     acquire and transform the data.
@@ -55,7 +34,7 @@ class Source(Dataset):
         self.disabled = config.get("disabled", False)
         self.entry_point = config.get("entry_point")
         self.data = SourceData(config.get("data", {}))
-        self.publisher = SourcePublisher(config.get("publisher", {}))
+        self.publisher = DatasetPublisher(config.get("publisher", {}))
 
     @cached_property
     def sources(self) -> Set["Source"]:

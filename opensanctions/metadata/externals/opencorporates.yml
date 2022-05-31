@@ -17,7 +17,13 @@ description: |
   In the future, we also hope to create links regarding directors and beneficial owners of
   companies, for example in cases where the owner is a politicially exposed person (PEP).
 prefix: oc
-url: https://opencorporates.com/info/about/
+url: https://opencorporates.com/
+publisher:
+  name: OpenCorporates.com
+  description: |
+    OpenCorporates, is the largest open database of company data in the world, with data
+    from over 140 registries.
+  url: https://opencorporates.com/info/about/
 collections:
   - default
 config:

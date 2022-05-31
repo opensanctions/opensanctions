@@ -1,5 +1,5 @@
 type: external
-title: Global Legal Entity Identifier Foundation (GLEIF) Data
+title: Legal Entity Identifier (LEI) Reference Data
 summary: |
   A concatenated data file of all entities which have been issued Legal
   Entity Identifier (LEI) codes.
@@ -20,6 +20,17 @@ description: |
   * https://github.com/opensanctions/gleif
 
 url: https://www.gleif.org/en/lei-data/gleif-concatenated-file
+publisher:
+  name: Global Legal Entity Identifier Foundation (GLEIF)
+  description: |
+    Established by the Financial Stability Board in June 2014, the Global Legal Entity
+    Identifier Foundation (GLEIF) is tasked to support the implementation and use
+    of the Legal Entity Identifier (LEI). The foundation is backed and overseen by
+    the Regulatory Oversight Committee, representing public authorities from around
+    the globe that have come together to jointly drive forward transparency within
+    the global financial markets. GLEIF is a supra-national not-for-profit
+    organization headquartered in Basel, Switzerland.
+  url: https://www.gleif.org/en/about/this-is-gleif
 collections:
   - default
 config:

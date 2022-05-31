@@ -3,6 +3,7 @@ from banal import ensure_list
 from urllib.parse import urljoin
 from datapatch import get_lookups
 from functools import cached_property
+from followthemoney.types import registry
 from nomenklatura.dataset import Dataset as NomenklaturaDataset
 
 from opensanctions import settings
@@ -12,6 +13,26 @@ from opensanctions.util import joinslug
 
 if TYPE_CHECKING:
     from opensanctions.core.source import Source
+
+
+class DatasetPublisher(object):
+    """Publisher information, eg. the government authority."""
+
+    def __init__(self, config):
+        self.url = config.get("url")
+        self.name = config.get("name")
+        self.description = config.get("description")
+        self.country = config.get("country", "zz")
+        assert registry.country.validate(self.country), "Invalid publisher country"
+
+    def to_dict(self):
+        return {
+            "url": self.url,
+            "name": self.name,
+            "description": self.description,
+            "country": self.country,
+            "country_label": registry.country.caption(self.country),
+        }
 
 
 class Dataset(NomenklaturaDataset):

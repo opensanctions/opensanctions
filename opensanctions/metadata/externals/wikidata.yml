@@ -23,6 +23,13 @@ description: |
   positives.
 prefix: wd
 url: https://www.wikidata.org/wiki/Wikidata:Main_Page
+publisher:
+  name: Wikidata
+  description: |
+    Wikidata is a free and open knowledge base that can be read and edited by both humans
+    and machines. It acts as central storage for the structured data of its Wikimedia
+    sister projects including Wikipedia, Wikivoyage, Wiktionary, Wikisource, and others.
+  url: https://www.wikidata.org
 collections:
   - default
   - peps
