@@ -3,6 +3,22 @@ title: Global Legal Entity Identifier Foundation (GLEIF) Data
 summary: |
   A concatenated data file of all entities which have been issued Legal
   Entity Identifier (LEI) codes.
+description: |
+  Legal Entity Identifiers (LEIs) are global company identification numbers. It is
+  meant to be used in international transactions in the future, backed by an
+  ISO-developed standard.
+
+  The GLEIF group assembles a database of all entities which have been issued an
+  LEI and is published as open data on the web.
+
+  ### Using the full data
+
+  In order to match GLEIF data with OpenSanctions, we've converted the full GLEIF
+  database to the FollowTheMoney data format used by our system. You can download
+  the raw data below and use it in full, if you like (updated daily):
+
+  * https://github.com/opensanctions/gleif
+
 url: https://www.gleif.org/en/lei-data/gleif-concatenated-file
 collections:
   - default
