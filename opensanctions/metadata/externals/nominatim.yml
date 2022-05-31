@@ -8,8 +8,7 @@ description: |
   in OpenSanctions in order to create fewer and cleaner entries for addresses.
 
   Currently, the imported data does not include latitude/longitude coordinates in
-  order to not produce a false sense of precision. Lat/lons can be provided upon
-  demand.
+  order to avoid a false sense of precision. Lat/lons can be provided upon demand.
 prefix: osm
 url: https://wiki.openstreetmap.org/wiki/Nominatim
 collections:

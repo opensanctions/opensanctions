@@ -8,9 +8,19 @@ description: |
   politically exposed persons (PEPs). We also link up entities that are 
   sanctioned whenever a relevant Wikidata item is available.
 
+  The Wikidata importer will also traverse family and personal relationships
+  that are documented in the database and import relatives and close associates
+  whereever these are stated.
+
+  ### Limitations
+
   There is no attempt to link companies and organizations from sanctions lists
   to Wikidata, as the way that an encyclopedia describes such legal entities is
   not granular enough for due diligence use cases.
+
+  We also remove any person born before 1900, or who has died before 2000 from
+  the dataset in order to avoid outdated profiles that could lead to false
+  positives.
 prefix: wd
 url: https://www.wikidata.org/wiki/Wikidata:Main_Page
 collections:
