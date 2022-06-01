@@ -23,7 +23,7 @@ description: |
 collections:
   - sanctions
   - default
-  # - work
+  - work
 publisher:
   name: United Nations Security Council (UN SC)
   description: |

@@ -14,7 +14,7 @@ description: |
 collections:
   - default
   - peps
-  - work
+  # - work
 publisher:
   name: Peppercat.org
   description: |

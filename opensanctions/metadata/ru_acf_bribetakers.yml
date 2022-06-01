@@ -13,7 +13,7 @@ description: |
   > yachts and mansions, which, we hope, they will soon be deprived of.
 collections:
   - default
-  - work
+  # - work
 publisher:
   name: Anti-Corruption Foundation (ACF)
   description: |
