@@ -74,7 +74,7 @@ lookups:
           birthDate: 1965-10-04
       - match: urodzona 21 kwietnia 1977 r.
         props:
-          birthDate: 1959-04-21
+          birthDate: 1977-04-21
       - match: urodzony 8 marca 1972 r.
         props:
           birthDate: 1972-03-08
