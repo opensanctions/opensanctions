@@ -2,6 +2,7 @@
 # https://github.com/archerimpact/SanctionsExplorer/blob/master/data/sdn_parser.py
 # https://home.treasury.gov/system/files/126/sdn_advanced_notes.pdf
 from banal import first, as_bool
+from collections import defaultdict
 from os.path import commonprefix
 from followthemoney import model
 from followthemoney.types import registry
@@ -172,10 +173,10 @@ def parse_alias(party, parts, alias):
     alias_type = ref_value("AliasType", alias.get("AliasTypeID"))
     name_prop = ALIAS_TYPES[alias_type]
     for name in alias.findall("./DocumentedName"):
-        names = {}
+        names = defaultdict(lambda: "")
         for value in name.findall("./DocumentedNamePart/NamePartValue"):
             type_ = parts.get(value.get("NamePartGroupID"))
-            names[type_] = value.text
+            names[type_] = " ".join([names[type_], value.text]).strip()
 
         h.apply_name(
             party,
