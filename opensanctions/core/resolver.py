@@ -78,7 +78,14 @@ def export_pairs(dataset: Dataset):
     def get_partial(spec: Tuple[str, Dataset]) -> Optional[Entity]:
         id, ds = spec
         # HACK: EP is messing up phone and email-based matching
-        if ds.name == "everypolitician":
+        if ds.name in (
+            "everypolitician",
+            "wd_curated",
+            "wd_peppercat_leaders",
+            "wd_peppercat_legislators",
+            "ru_navalny35",
+            "wd_oligarchs",
+        ):
             return None
         loader = db.view(ds)
         canonical = resolver.get_canonical(id)
