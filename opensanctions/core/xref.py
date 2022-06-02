@@ -14,5 +14,5 @@ def blocking_xref(dataset: Dataset, limit: int = 5000):
     resolver.prune()
     db = Database(dataset, resolver, cached=True, external=True)
     loader = db.view(dataset)
-    xref(loader, resolver, limit=limit, scored=True)
+    xref(loader, resolver, limit=limit, scored=True, auto_threshold=0.990)
     resolver.save()

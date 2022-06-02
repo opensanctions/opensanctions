@@ -42,7 +42,7 @@ def get_resolver() -> Resolver[Entity]:
 
 def export_pairs(dataset: Dataset):
     resolver = get_resolver()
-    db = Database(dataset, resolver, cached=True)
+    db = Database(dataset, resolver, cached=True, external=True)
     datasets: Dict[str, Set[Dataset]] = defaultdict(set)
     with engine_read() as conn:
         for entity_id, ds in entities_datasets(conn, dataset):
