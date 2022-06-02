@@ -1,8 +1,10 @@
+from lxml import etree
 from banal import as_bool
 from prefixdate import parse_parts
 
 from opensanctions.core import Context
 from opensanctions import helpers as h
+from opensanctions.core.entity import Entity
 
 
 def parse_address(context: Context, el):
@@ -21,6 +23,31 @@ def parse_address(context: Context, el):
         country=country,
         country_code=el.get("countryIso2Code"),
     )
+
+
+def parse_sanctions(context: Context, entity: Entity, entry):
+
+    regulations = entry.findall("./regulation")
+    # if len(regulations) == 0:
+    #     context.log.warning(
+    #         "No regulations on entity",
+    #         entity=entity,
+    #         regulations=len(regulations),
+    #     )
+
+    for regulation in regulations:
+        url = regulation.findtext("./publicationUrl")
+        assert url is not None, etree.tostring(regulation)
+        sanction = h.make_sanction(context, entity, key=url)
+        sanction.set("sourceUrl", url)
+        sanction.add("program", regulation.get("programme"))
+        sanction.add("reason", regulation.get("numberTitle"))
+        sanction.add("startDate", regulation.get("entryIntoForceDate"))
+        sanction.add("listingDate", regulation.get("publicationDate"))
+        entity.add("createdAt", regulation.get("publicationDate"))
+        sanction.add("unscId", entry.get("unitedNationId"))
+        sanction.add("authorityId", entry.get("euReferenceNumber"))
+        context.emit(sanction)
 
 
 def parse_entry(context: Context, entry):
@@ -42,20 +69,7 @@ def parse_entry(context: Context, entry):
         entity.id = context.make_slug("logical", entry.get("logicalId"))
     entity.add("notes", h.clean_note(entry.findtext("./remark")))
     entity.add("topics", "sanction")
-
-    sanction = h.make_sanction(context, entity)
-    regulations = entry.findall("./regulation")
-    if len(regulations) != 1:
-        context.log.warning("Multiple regulations on entity", entity=entity)
-    regulation = regulations[0]
-    sanction.set("sourceUrl", regulation.findtext("./publicationUrl"))
-    sanction.add("program", regulation.get("programme"))
-    sanction.add("reason", regulation.get("numberTitle"))
-    sanction.add("startDate", regulation.get("entryIntoForceDate"))
-    sanction.add("listingDate", regulation.get("publicationDate"))
-    entity.add("createdAt", regulation.get("publicationDate"))
-    sanction.add("unscId", entry.get("unitedNationId"))
-    sanction.add("authorityId", entry.get("euReferenceNumber"))
+    parse_sanctions(context, entity, entry)
 
     for name in entry.findall("./nameAlias"):
         is_weak = not as_bool(name.get("strong"))
@@ -128,7 +142,6 @@ def parse_entry(context: Context, entry):
         entity.add("nationality", node.get("countryDescription"), quiet=True)
 
     context.emit(entity, target=True)
-    context.emit(sanction)
 
 
 def crawl(context: Context):
