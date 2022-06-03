@@ -1,0 +1,3 @@
+```sql
+SELECT ae.caption AS name, nsdc.value AS nsdc_bday, nabc.value AS nabc_bday, CONCAT('https://www.opensanctions.org/statements?canonical_id=', ae.id, '&prop=birthDate') AS opensanctions_url FROM statement nsdc, statement nabc, analytics_entity ae WHERE nsdc.canonical_id = nabc.canonical_id AND nsdc.dataset = 'ua_nsdc_sanctions' AND  nabc.dataset = 'ua_nabc_sanctions' AND nsdc.prop = 'birthDate' AND nabc.prop = 'birthDate' AND nabc.value <> nsdc.value AND ae.id = nsdc.canonical_id;
+```
