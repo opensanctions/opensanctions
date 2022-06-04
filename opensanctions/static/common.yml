@@ -17,6 +17,7 @@ country:
         - "None Identified"
         - "undetermined"
         - "statelessness"
+        - United Nations
         - "Kuwaiti citizenship withdrawn in 2002"
         - 2002年にクウェート国籍を剥奪された。
         - "Stateless Palestinian"
@@ -695,6 +696,7 @@ country:
       value: Hungary
     - match:
         - Republic of Abkhazia
+        - Республика Абхазия
       value: GE-AB
     - match:
         - Independent State of Croatia
@@ -1003,6 +1005,9 @@ date:
     "10.022.1952": "1952-02-10"
     "122.04.1958": "1958-04-12"
     "29.02.1963": "1963-02"
+    "3006-03-22": "2006-03-22"
+    "3013-06-14": "2013-06-14"
+    "3013-12-25": "2013-12-25"
 
 email:
   options:
