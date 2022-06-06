@@ -1,4 +1,4 @@
-entry_point: opensanctions.crawlers.ru_rupep
+entry_point: opensanctions.crawlers.ru_rupep:crawl_peps
 title: RuPEP Public Database of PEPs in Russia and Belarus
 prefix: rupep
 summary: >

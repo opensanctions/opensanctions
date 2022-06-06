@@ -1080,6 +1080,14 @@ email:
         - market@grodno-khim.by
         - ppm@grodno-khim.by
         - tnp@grodno-khim.by
+    - match: uav@kronshtadt.ru; office@kronshtadt.ru
+      values:
+        - uav@kronshtadt.ru
+        - office@kronshtadt.ru
+    - match: info@metallic-sy.com / shaamco@mail.sy
+      values:
+        - info@metallic-sy.com
+        - shaamco@mail.sy
     - match: office@bremino.by; marketing@bremino.by
       values:
         - office@bremino.by

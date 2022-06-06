@@ -12,6 +12,7 @@ COUNTRIES = {
     2: "BY",
     3: "UA",
     4: None,
+    5: "UA-CRI",
     None: None,
 }
 
@@ -70,11 +71,21 @@ def crawl_person(context: Context) -> None:
 def crawl_company(context: Context) -> None:
     data = json_resource(context, context.dataset.data.url, "company")
     for row in data["data"]:
+        # context.pprint(row)
         company_id = row.pop("company_id")
         name = row.pop("name")
         entity = context.make("Organization")
         entity.id = context.make_slug("company", company_id, name)
+        if entity.id is None:
+            entity.id = context.make_slug(
+                "company",
+                company_id,
+                row.get("ogrn"),
+                strict=False,
+            )
         entity.add("name", name)
+        entity.add("innCode", row.pop("inn"))
+        entity.add_cast("Company", "ogrnCode", row.pop("ogrn"))
 
         country = row.get("country", None)
         entity.add("country", COUNTRIES[country])

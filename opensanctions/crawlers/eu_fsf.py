@@ -7,6 +7,13 @@ from opensanctions import helpers as h
 from opensanctions.core.entity import Entity
 
 
+def parse_country(node):
+    code = node.get("countryIso2Code")
+    if code == "CS":
+        return "RS"
+    return code
+
+
 def parse_address(context: Context, el):
     country = el.get("countryDescription")
     if country == "UNKNOWN":
@@ -21,7 +28,7 @@ def parse_address(context: Context, el):
         postal_code=el.get("zipCode"),
         region=el.get("region"),
         country=country,
-        country_code=el.get("countryIso2Code"),
+        country_code=parse_country(el),
     )
 
 
@@ -98,7 +105,7 @@ def parse_entry(context: Context, entry):
         passport.add("number", node.get("latinNumber"))
         passport.add("startDate", node.get("issueDate"))
         passport.add("startDate", node.get("issueDate"))
-        passport.add("country", node.get("countryIso2Code"))
+        passport.add("country", parse_country(node))
         passport.add("country", node.get("countryDescription"))
         for remark in node.findall("./remark"):
             passport.add("summary", remark.text)
@@ -138,7 +145,7 @@ def parse_entry(context: Context, entry):
             entity.add("country", address.get("country"))
 
     for node in entry.findall("./citizenship"):
-        entity.add("nationality", node.get("countryIso2Code"), quiet=True)
+        entity.add("nationality", parse_country(node), quiet=True)
         entity.add("nationality", node.get("countryDescription"), quiet=True)
 
     context.emit(entity, target=True)

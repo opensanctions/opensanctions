@@ -88,3 +88,9 @@ lookups:
         from_prop: owner
         to_prop: asset
         description_prop: role
+      - label: Property in the interest of
+        match: 92122
+        schema: Ownership
+        from_prop: asset
+        to_prop: owner
+        description_prop: role
