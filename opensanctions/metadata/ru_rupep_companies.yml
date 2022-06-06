@@ -1,0 +1,87 @@
+entry_point: opensanctions.crawlers.ru_rupep:crawl_companies
+title: RuPEP Public Database of PEPs in Russia and Belarus (company part)
+prefix: rupep
+hidden: true
+summary: >
+  RuPEP is a detailed database of companies linked to politically exposed persons
+  in Russia and Belarus maintained by qualified researchers
+description: |
+  This is the second part of the [RuPEP dataset](/datasets/ru_rupep) which lists
+  companies and assets linked to the listed politically exposed people. It is
+  not included in the default dataset because its less directly sourced.
+collections:
+  # - peps
+  # - default
+  - work
+publisher:
+  name: RuPEP
+  description: |
+    The group maintaining this database is not publicly identified. The OpenSanctions
+    team is happy to create introductions for those interested in the commercial
+    reuse of the material.
+  url: "https://rupep.org/"
+url: "https://rupep.org/en/%D0%B2%D0%BE%D0%BF%D1%80%D0%BE%D1%81%D1%8B-%D0%B8-%D0%BE%D1%82%D0%B2%D0%B5%D1%82%D1%8B/"
+data:
+  url: "https://rupep.org/opendata/companies/json"
+  format: JSON
+
+lookups:
+  country_links:
+    normalize: true
+    options:
+      - match: citizenship
+        prop: nationality
+      - match:
+          - registered_in
+        prop: jurisdiction
+      - match:
+          - under_sanctions
+          # - business
+          - realty
+        prop: null
+  person_relations:
+    options:
+      - match:
+          - owner
+          - co-owner
+          - founder
+          - co-founder
+          - beneficiary
+          - shareholder
+        schema: Ownership
+        from_prop: asset
+        to_prop: owner
+        desc_prop: role
+      - match:
+          - director
+          - head
+          - Chairman of the Board
+          - board member
+          - the president
+          - secretary
+          - CEO
+          - governor
+          - lieutenant governor
+          - vice-chairman
+          - chairman
+          - the chairman
+          - Deputy Director
+          - First Deputy Director
+          - chairman of the board
+          - vice president
+          - deputy general director
+        schema: Directorship
+        from_prop: organization
+        to_prop: director
+        desc_prop: role
+      - match:
+          - employee
+        schema: Employment
+        from_prop: employer
+        to_prop: employee
+        desc_prop: role
+      - match:
+          - chief veterinarian
+        contains:
+          - member of the Commission
+        schema: null
