@@ -1,16 +1,17 @@
 import click
 import logging
 import asyncio
-import structlog
 from nomenklatura.tui import DedupeApp
 from followthemoney.dedupe import Judgement
 from nomenklatura.resolver import Identifier
 
 from opensanctions import settings
 from opensanctions.core import Dataset, Context, setup
+from opensanctions.core.logs import get_logger
 from opensanctions.exporters.statements import export_statements_path
 from opensanctions.exporters.statements import import_statements_path
 from opensanctions.exporters.common import write_object
+from opensanctions.core.audit import audit_resolver
 from opensanctions.core.loader import Database
 from opensanctions.core.resolver import AUTO_USER, export_pairs, get_resolver
 from opensanctions.core.xref import blocking_xref
@@ -20,7 +21,7 @@ from opensanctions.core.analytics import build_analytics
 from opensanctions.core.db import engine_tx
 from opensanctions.processing import run_enrich, run_pipeline
 
-log = structlog.get_logger(__name__)
+log = get_logger(__name__)
 datasets = click.Choice(Dataset.names())
 
 
@@ -165,6 +166,11 @@ def merge(entity_ids):
         canonical_id = resolver.decide(canonical_id, other_id, Judgement.POSITIVE)
     resolver.save()
     log.info("Canonical: %s" % canonical_id)
+
+
+@cli.command("audit", help="Sanity-check the resolver configuration")
+def audit():
+    audit_resolver()
 
 
 @cli.command("latest", help="Show the latest data timestamp")
