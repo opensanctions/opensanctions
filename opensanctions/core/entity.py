@@ -1,4 +1,3 @@
-import structlog
 from banal import ensure_list
 from functools import cached_property
 from prefixdate.precision import Precision
@@ -12,9 +11,10 @@ from followthemoney.property import Property
 from nomenklatura.entity import CompositeEntity
 
 from opensanctions.core.lookups import type_lookup
+from opensanctions.core.logs import get_logger
 from opensanctions.util import pick_name
 
-log = structlog.get_logger(__name__)
+log = get_logger(__name__)
 
 
 class Entity(CompositeEntity):

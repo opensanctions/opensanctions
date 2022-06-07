@@ -1,8 +1,8 @@
-import structlog
 from typing import List, Type
 from nomenklatura.loader import Loader
 
 from opensanctions import settings
+from opensanctions.core.logs import get_logger
 from opensanctions.core import Context, Dataset, Entity
 from opensanctions.core.external import External
 from opensanctions.core.loader import Database
@@ -17,7 +17,7 @@ from opensanctions.exporters.simplecsv import SimpleCSVExporter
 from opensanctions.exporters.metadata import export_metadata, dataset_to_index
 from opensanctions.exporters.statements import export_statements
 
-log = structlog.get_logger(__name__)
+log = get_logger(__name__)
 
 EXPORTERS: List[Type[Exporter]] = [
     FtMExporter,

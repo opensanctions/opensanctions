@@ -1,9 +1,8 @@
-import structlog
-from typing import Any, Dict, List, Set
+from typing import Any, Dict, List
 from sqlalchemy.sql.expression import delete, insert
-from sqlalchemy.sql.functions import func
 from followthemoney.types import registry
 
+from opensanctions.core.logs import get_logger
 from opensanctions.core.db import engine_tx, analytics_country_table
 from opensanctions.core.db import analytics_dataset_table, analytics_entity_table
 from opensanctions.core.dataset import Dataset
@@ -11,7 +10,7 @@ from opensanctions.core.loader import Database
 from opensanctions.core.resolver import get_resolver
 from opensanctions.core.statements import resolve_all_canonical
 
-log = structlog.get_logger(__name__)
+log = get_logger(__name__)
 BATCH_SIZE = 5000
 
 

@@ -1,15 +1,15 @@
 import csv
-import structlog
 from os import PathLike
 from banal import as_bool
 
 from opensanctions import settings
+from opensanctions.core.logs import get_logger
 from opensanctions.core.db import engine_tx, engine_read
 from opensanctions.core.statements import all_statements, clear_statements
 from opensanctions.core.statements import save_statements, stmt_key
 from opensanctions.util import iso_datetime
 
-log = structlog.get_logger(__name__)
+log = get_logger(__name__)
 COLUMNS = [
     "id",
     "entity_id",

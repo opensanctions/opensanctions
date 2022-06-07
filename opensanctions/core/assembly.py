@@ -3,7 +3,6 @@ from typing import Iterable, List, Tuple
 from followthemoney.types import registry
 
 from opensanctions.core.entity import Entity
-from opensanctions.util import pick_name
 
 PROV_MIN_DATES = ("createdAt", "authoredAt", "publishedAt")
 PROV_MAX_DATES = ("modifiedAt", "retrievedAt")

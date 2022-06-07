@@ -62,3 +62,7 @@ def configure_logging(level=logging.DEBUG):
     logger = logging.getLogger()
     logger.setLevel(level)
     logger.addHandler(handler)
+
+
+def get_logger(name: str) -> structlog.stdlib.BoundLogger:
+    return structlog.get_logger(name)

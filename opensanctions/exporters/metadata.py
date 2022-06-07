@@ -1,4 +1,3 @@
-import structlog
 from typing import Any, Dict
 from functools import cache
 from urllib.parse import urljoin
@@ -6,6 +5,7 @@ from followthemoney import model
 from nomenklatura.matching import explain_matcher
 
 from opensanctions import settings
+from opensanctions.core.logs import get_logger
 from opensanctions.core.db import engine_read
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.issues import all_issues, agg_issues_by_level
@@ -19,7 +19,7 @@ from opensanctions.core.statements import (
 )
 from opensanctions.exporters.common import write_json
 
-log = structlog.get_logger(__name__)
+log = get_logger(__name__)
 THINGS = [s.name for s in model if s.is_a("Thing")]
 
 

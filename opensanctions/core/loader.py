@@ -1,17 +1,17 @@
-import structlog
 from typing import Callable, Dict, Generator, List, Optional, Set, Tuple
 from followthemoney import model
 from followthemoney.types import registry
 from followthemoney.property import Property
 from nomenklatura import Loader, Resolver
 
+from opensanctions.core.logs import get_logger
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.entity import Entity
 from opensanctions.core.db import engine_read
 from opensanctions.core.statements import BASE, Statement
 from opensanctions.core.statements import all_statements, count_entities
 
-log = structlog.get_logger(__name__)
+log = get_logger(__name__)
 
 
 class CachedType(object):
