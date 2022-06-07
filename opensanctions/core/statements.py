@@ -1,7 +1,6 @@
-import structlog
 from hashlib import sha1
 from datetime import datetime
-from typing import Generator, List, Optional, TypedDict, cast
+from typing import Generator, List, Optional, Tuple, TypedDict, cast
 from sqlalchemy.future import select
 from sqlalchemy.sql.expression import delete, update, insert
 from sqlalchemy.sql.functions import func
@@ -10,12 +9,13 @@ from followthemoney import model
 from followthemoney.types import registry
 
 from opensanctions import settings
+from opensanctions.core.logs import get_logger
 from opensanctions.core.db import stmt_table, canonical_table
 from opensanctions.core.db import Conn, upsert_func
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.entity import Entity
 
-log = structlog.get_logger(__name__)
+log = get_logger(__name__)
 BASE = "id"
 
 
@@ -248,7 +248,9 @@ def max_last_seen(conn: Conn, dataset: Optional[Dataset] = None) -> Optional[dat
     return conn.scalar(q)
 
 
-def entities_datasets(conn: Conn, dataset: Optional[Dataset] = None):
+def entities_datasets(
+    conn: Conn, dataset: Optional[Dataset] = None
+) -> Generator[Tuple[str, str], None, None]:
     """Return all entity IDs with the dataset they belong to."""
     q = select(stmt_table.c.entity_id, stmt_table.c.dataset)
     q = q.filter(stmt_table.c.prop == BASE)
@@ -257,8 +259,8 @@ def entities_datasets(conn: Conn, dataset: Optional[Dataset] = None):
     q = q.distinct()
     result = conn.execution_options(stream_results=True).execute(q)
     for row in result:
-        entity_id, dataset = row
-        yield (entity_id, dataset)
+        entity_id, scope = row
+        yield (entity_id, scope)
 
 
 def cleanup_dataset(conn: Conn, dataset: Dataset):

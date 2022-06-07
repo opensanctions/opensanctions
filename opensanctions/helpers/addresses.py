@@ -3,12 +3,11 @@ from functools import lru_cache
 from typing import List
 from addressformatting import AddressFormatter
 from followthemoney.types import registry
-from followthemoney.util import make_entity_id
+from followthemoney.util import make_entity_id, join_text
 
 from opensanctions.core.context import Context
 from opensanctions.core.entity import Entity
 from opensanctions.core.lookups import common_lookups
-from opensanctions.util import jointext
 
 
 @lru_cache(maxsize=None)
@@ -43,8 +42,8 @@ def make_address(
 ):
     """Generate an address schema object adjacent to the main entity."""
 
-    city = jointext(place, city, sep=", ")
-    street = jointext(street, street2, street3, sep=", ")
+    city = join_text(place, city, sep=", ")
+    street = join_text(street, street2, street3, sep=", ")
 
     address = context.make("Address")
     address.add("full", full)
@@ -67,7 +66,7 @@ def make_address(
             "road": street,
             "postcode": postal_code,
             "city": city,
-            "state": jointext(region, state, sep=", "),
+            "state": join_text(region, state, sep=", "),
             # "country": country,
         }
         full = get_formatter().one_line(data, country=country_code)

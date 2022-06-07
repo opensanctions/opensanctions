@@ -2,10 +2,10 @@ from banal import first
 from pprint import pprint
 from normality import stringify, collapse_spaces
 from pantomime.types import XML
+from followthemoney.util import join_text
 
 from opensanctions.core import Context
 from opensanctions import helpers as h
-from opensanctions.util import jointext
 from opensanctions.util import multi_split, remove_bracketed
 
 FORMATS = ["%d/%m/%Y", "00/%m/%Y", "%m/%Y", "00/00/%Y", "%Y"]
@@ -180,7 +180,7 @@ def parse_row(context: Context, row):
     )
     entity.add("alias", row.pop("NameNonLatinScript", None))
 
-    full_address = jointext(
+    full_address = join_text(
         row.pop("Address1", None),
         row.pop("Address2", None),
         row.pop("Address3", None),

@@ -2,10 +2,10 @@ import io
 import csv
 from typing import List
 from followthemoney.types import registry
+from followthemoney.util import join_text
 
 from opensanctions.core import Dataset, Entity
 from opensanctions.exporters.common import Exporter
-from opensanctions.util import jointext
 
 
 class SimpleCSVExporter(Exporter):
@@ -44,7 +44,7 @@ class SimpleCSVExporter(Exporter):
         return output.getvalue()
 
     def sanction_text(self, sanction):
-        return jointext(
+        return join_text(
             *sanction.get("program"),
             *sanction.get("reason"),
             *sanction.get("status"),

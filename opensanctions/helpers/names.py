@@ -1,9 +1,8 @@
 from typing import Optional
-
 from normality import collapse_spaces
+from followthemoney.util import join_text
 
 from opensanctions.core import Entity
-from opensanctions.util import jointext
 
 
 def make_name(
@@ -27,7 +26,7 @@ def make_name(
     full = collapse_spaces(full)
     if full is not None and len(full) > 1:
         return full
-    return jointext(
+    return join_text(
         name1,
         first_name,
         given_name,

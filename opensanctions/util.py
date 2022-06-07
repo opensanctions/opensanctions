@@ -28,15 +28,6 @@ def is_empty(text: Optional[str]) -> bool:
     return False
 
 
-def jointext(*parts: Tuple[Any], sep=" ") -> str:
-    texts: List[str] = []
-    for part in parts:
-        text = stringify(part)
-        if text is not None:
-            texts.append(text)
-    return sep.join(texts)
-
-
 def joinslug(*parts, prefix=None, sep="-", strict=True):
     # SLUG_REMOVE = re.compile(r"[<>\\\'\\\"’‘]")
     parts = [slugify(p, sep=sep) for p in parts]
