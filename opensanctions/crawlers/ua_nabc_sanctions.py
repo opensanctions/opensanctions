@@ -1,4 +1,5 @@
 import json
+from typing import Any, Dict
 from urllib.parse import urljoin
 from pantomime.types import JSON
 
@@ -15,6 +16,21 @@ COUNTRIES = {
     5: "UA-CRI",
     None: None,
 }
+
+
+def clean_row(row: Dict[str, Any]) -> Dict[str, str]:
+    data = {}
+    for k, v in row.items():
+        if v is None:
+            continue
+        if isinstance(v, int):
+            data[k] = v
+            continue
+        v = v.strip()
+        if v in ("", "-"):
+            continue
+        data[k] = v
+    return data
 
 
 def parse_date(date):
@@ -37,6 +53,7 @@ def json_resource(context: Context, url, name):
 def crawl_person(context: Context) -> None:
     data = json_resource(context, context.dataset.data.url, "person")
     for row in data["data"]:
+        row = clean_row(row)
         person_id = row.pop("person_id")
         name_en = row.pop("name_en", None)
         name_ru = row.pop("name_ru", None)
@@ -71,9 +88,10 @@ def crawl_person(context: Context) -> None:
 def crawl_company(context: Context) -> None:
     data = json_resource(context, context.dataset.data.url, "company")
     for row in data["data"]:
+        row = clean_row(row)
         # context.pprint(row)
         company_id = row.pop("company_id")
-        name = row.pop("name")
+        name = row.pop("name", None)
         entity = context.make("Organization")
         entity.id = context.make_slug("company", company_id, name)
         if entity.id is None:
@@ -84,8 +102,8 @@ def crawl_company(context: Context) -> None:
                 strict=False,
             )
         entity.add("name", name)
-        entity.add("innCode", row.pop("inn"))
-        entity.add_cast("Company", "ogrnCode", row.pop("ogrn"))
+        entity.add("innCode", row.pop("inn", None))
+        entity.add_cast("Company", "ogrnCode", row.pop("ogrn", None))
 
         country = row.get("country", None)
         entity.add("country", COUNTRIES[country])
