@@ -1,11 +1,11 @@
-import structlog
 from nomenklatura.xref import xref
 
+from opensanctions.core.logs import get_logger
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.loader import Database
 from opensanctions.core.resolver import AUTO_USER, get_resolver
 
-log = structlog.get_logger(__name__)
+log = get_logger(__name__)
 
 
 def blocking_xref(dataset: Dataset, limit: int = 5000):
