@@ -37,7 +37,9 @@ config:
   dataset: external_gleif
   token: opensanctions
   strip_namespace: true
+  threshold: 0.5
   schemata:
     - Company
     - Organization
+    - LegalEntity
   cache_days: 120
