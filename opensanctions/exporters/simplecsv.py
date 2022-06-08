@@ -44,7 +44,7 @@ class SimpleCSVExporter(Exporter):
         return output.getvalue()
 
     def sanction_text(self, sanction):
-        return join_text(
+        value = join_text(
             *sanction.get("program"),
             *sanction.get("reason"),
             *sanction.get("status"),
@@ -52,6 +52,7 @@ class SimpleCSVExporter(Exporter):
             *sanction.get("endDate"),
             sep=" - ",
         )
+        return value or ""
 
     def setup(self):
         super().setup()
