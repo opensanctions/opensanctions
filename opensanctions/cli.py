@@ -90,10 +90,9 @@ def xref(dataset, limit):
 
 
 @cli.command("xref-prune", help="Remove dedupe candidates")
-@click.option("-k", "--keep", type=int, default=0)
-def xref_prune(keep=0):
+def xref_prune():
     resolver = get_resolver()
-    resolver.prune(keep=keep)
+    resolver.prune()
     resolver.save()
 
 
