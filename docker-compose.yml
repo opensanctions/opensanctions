@@ -19,6 +19,7 @@ services:
     volumes:
       - "./data/postgres/db:/var/lib/postgresql/data"
       - "./data/postgres/logs:/var/log/postgresql"
+      - "./schema.sql:/docker-entrypoint-initdb.d/opensanctions-schema.sql"
     tmpfs:
       - "/tmp"
     command:
