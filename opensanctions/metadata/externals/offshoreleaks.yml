@@ -41,5 +41,5 @@ config:
     - Company
     - Organization
     - LegalEntity
-    - Person
+    # - Person
   cache_days: 90
