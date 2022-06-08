@@ -94,8 +94,8 @@ def xref(dataset, limit):
 def xref_prune(keep=0):
     resolver = get_resolver()
     for edge in list(resolver.edges.values()):
-        if edge.user == AUTO_USER:
-            resolver._remove(edge)
+        if edge.judgement == Judgement.NO_JUDGEMENT:
+            resolver._remove_edge(edge)
     resolver.prune(keep=keep)
     resolver.save()
 
