@@ -13,7 +13,7 @@ from opensanctions.core.entity import Entity
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.loader import Database
 
-AUTO_USER = "opensanctions"
+AUTO_USER = "opensanctions/xref"
 Scored = Tuple[str, str, Optional[float]]
 
 

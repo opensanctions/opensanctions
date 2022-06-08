@@ -93,9 +93,6 @@ def xref(dataset, limit):
 @click.option("-k", "--keep", type=int, default=0)
 def xref_prune(keep=0):
     resolver = get_resolver()
-    for edge in list(resolver.edges.values()):
-        if edge.user == AUTO_USER:
-            resolver._remove_edge(edge)
     resolver.prune(keep=keep)
     resolver.save()
 

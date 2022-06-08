@@ -1,10 +1,9 @@
 import structlog
 from nomenklatura.xref import xref
-from followthemoney.types import registry
 
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.loader import Database
-from opensanctions.core.resolver import get_resolver
+from opensanctions.core.resolver import AUTO_USER, get_resolver
 
 log = structlog.get_logger(__name__)
 
@@ -14,5 +13,12 @@ def blocking_xref(dataset: Dataset, limit: int = 5000):
     resolver.prune()
     db = Database(dataset, resolver, cached=True, external=True)
     loader = db.view(dataset)
-    xref(loader, resolver, limit=limit, scored=True, auto_threshold=0.990)
+    xref(
+        loader,
+        resolver,
+        limit=limit,
+        scored=True,
+        auto_threshold=0.990,
+        user=AUTO_USER,
+    )
     resolver.save()

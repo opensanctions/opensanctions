@@ -25,6 +25,7 @@ from opensanctions.core.entity import Entity
 from opensanctions.core.db import engine, engine_tx
 from opensanctions.core.external import External
 from opensanctions.core.issues import clear_issues
+from opensanctions.core.resolver import AUTO_USER
 from opensanctions.core.resources import save_resource, clear_resources
 from opensanctions.core.statements import Statement
 from opensanctions.core.statements import count_entities
@@ -289,7 +290,12 @@ class Context(object):
                                 self.log.info(
                                     "Match [%s]: %.2f -> %s" % (entity, score, match)
                                 )
-                                resolver.suggest(entity.id, match.id, score)
+                                resolver.suggest(
+                                    entity.id,
+                                    match.id,
+                                    score,
+                                    user=AUTO_USER,
+                                )
 
                         if judgement != Judgement.POSITIVE:
                             self.emit(match, external=True)
