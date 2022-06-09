@@ -108,6 +108,7 @@ def dedupe(dataset):
         app = DedupeApp(
             loader=loader,
             resolver=resolver,
+            url_base="https://opensanctions.org/entities/%s/",
             title="OpenSanction De-duplication",
             log="textual.log",
         )  # type: ignore
