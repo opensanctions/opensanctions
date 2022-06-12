@@ -331,12 +331,12 @@ def parse_entry(context: Context, entry, parties):
 def parse_relation(context: Context, el, parties):
     type_id = el.get("RelationTypeID")
     type_ = ref_value("RelationType", el.get("RelationTypeID"))
-    from_id = context.dataset.make_slug(el.get("From-ProfileID"))
+    from_id = context.make_slug(el.get("From-ProfileID"))
     from_party = parties.get(from_id)
     if from_party is None:
         context.log.warn("Missing relation 'from' party", entity_id=from_id, type=type_)
         return
-    to_id = context.dataset.make_slug(el.get("To-ProfileID"))
+    to_id = context.make_slug(el.get("To-ProfileID"))
     to_party = parties.get(to_id)
     if to_party is None:
         context.log.warn("Missing relation 'to' party", entity_id=to_id, type=type_)
