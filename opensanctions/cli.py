@@ -2,7 +2,7 @@ import click
 import logging
 import asyncio
 from nomenklatura.tui import DedupeApp
-from followthemoney.dedupe import Judgement
+from nomenklatura.judgement import Judgement
 from nomenklatura.resolver import Identifier
 
 from opensanctions import settings
