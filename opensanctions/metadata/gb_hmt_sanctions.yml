@@ -96,6 +96,8 @@ lookups:
         value: PJSC Aeroflot
       - match: Ural Wings
         value: Ural Wings
+      - match: Roscosmos
+        value: Roscosmos
       - match: Federal Agency for State Property Management
         value: Federal Agency for State Property Management
       - match: (1) Pobeda Airlines Limited Liability Company (2) Rossiya Airlines Joint-Stock Company (3) Sherotel Joint-Stock Company (4) Aeromar Joint-Stock Company (5) Aeroflot Aviation School, Private Professional Educational Organisation (6) Aeroflot – Finance Limited Liability Company (7) A-Technics Limited Liability Company

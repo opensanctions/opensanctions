@@ -25,6 +25,7 @@ data:
 lookups:
   doc_types:
     lowercase: true
+    normalize: true
     options:
       - match:
           - Passport

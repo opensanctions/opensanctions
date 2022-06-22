@@ -10,6 +10,7 @@ from opensanctions import helpers as h
 from opensanctions.util import multi_split
 
 PASSWORD = os.environ.get("OPENSANCTIONS_RUPEP_PASSWORD")
+FORMATS = ["%d.%m.%Y", "%m.%Y", "%Y", "%b. %d, %Y", "%B %d, %Y"]
 
 
 def clean_wdid(wikidata_id: Optional[str]):
@@ -42,7 +43,9 @@ def split_names(names):
 
 
 def parse_date(date):
-    return h.parse_date(date, ["%d.%m.%Y", "%m.%Y", "%Y"])
+    if date is not None:
+        date = date.replace("Sept.", "Sep.")
+    return h.parse_date(date, FORMATS)
 
 
 def crawl_person(context: Context, data: Dict[str, Any]):

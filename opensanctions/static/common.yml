@@ -95,7 +95,6 @@ country:
         - Ming dynasty
         - Tang dynasty
         - Yuan dynasty
-        - Malaya
         - Tapia
         - Savoy
         - politician
@@ -295,6 +294,10 @@ country:
     - match:
         - Southern Netherlands
       value: Netherlands
+    - match:
+        - Federation of Malaya
+        - Malaya
+      value: Malaysia
     - match:
         - Zimbabwe Rhodesia
       value: Zimbabwe
@@ -1084,6 +1087,10 @@ email:
       values:
         - uav@kronshtadt.ru
         - office@kronshtadt.ru
+    - match: (1) info@radioautomatic.ru (2) sale@radioautomatic.ru
+      values:
+        - info@radioautomatic.ru
+        - sale@radioautomatic.ru
     - match: info@metallic-sy.com / shaamco@mail.sy
       values:
         - info@metallic-sy.com
