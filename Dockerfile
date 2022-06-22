@@ -19,17 +19,17 @@ RUN localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
     && groupadd -g 1000 -r app \
     && useradd -m -u 1000 -s /bin/false -g app app
 
-ENV LANG='en_US.UTF-8' \
+ENV LANG="en_US.UTF-8" \
     TZ="UTC"
 
-RUN pip3 install -q --no-cache-dir -U pip six setuptools \
-    && python3 --version
+RUN pip3 install -q --no-cache-dir -U pip six setuptools
 
 COPY . /opensanctions
 WORKDIR /opensanctions
 RUN pip install -q --no-cache-dir -e /opensanctions \
     && pip freeze
 
-ENV OPENSANCTIONS_DATA_PATH /opensanctions/data
+ENV OPENSANCTIONS_DATA_PATH="/opensanctions/data" \
+    OPENSSL_CONF="/opensanctions/contrib/openssl.cnf"
 
 CMD ["opensanctions", "run"]
