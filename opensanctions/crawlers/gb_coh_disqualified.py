@@ -87,12 +87,25 @@ def crawl_item(context: Context, listing):
         sanction.add("country", "gb")
         context.emit(sanction)
 
+        address = disqual.get("address", {})
+        address = h.make_address(
+            context,
+            full=listing.get("address_snippet"),
+            street=address.get("address_line_1"),
+            street2=address.get("premises"),
+            city=address.get("locality"),
+            postal_code=address.get("postal_code"),
+            region=address.get("region"),
+            # country_code=person.first("nationality"),
+        )
+
         for company_name in disqual.get("company_names", []):
             company = context.make("Company")
             company.id = context.make_slug("named", company_name)
             company.add("name", company_name)
             company.add("jurisdiction", "gb")
             context.emit(company)
+            h.apply_address(context, company, address)
 
             directorship = context.make("Directorship")
             directorship.id = context.make_id(person.id, company.id)
