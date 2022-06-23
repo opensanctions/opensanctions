@@ -11,3 +11,5 @@ description: |
 
   Virtually all sanctions lists are based on the [UN Security Council List](/datasets/un_sc_sanctions/), 
   and add further listings based on national policies.
+collections:
+  - work
