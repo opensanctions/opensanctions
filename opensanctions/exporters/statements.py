@@ -1,9 +1,9 @@
 import csv
 from os import PathLike
 from banal import as_bool
+from zavod.logs import get_logger
 
 from opensanctions import settings
-from opensanctions.core.logs import get_logger
 from opensanctions.core.db import engine_tx, engine_read
 from opensanctions.core.statements import all_statements, clear_statements
 from opensanctions.core.statements import save_statements, stmt_key

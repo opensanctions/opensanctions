@@ -1,7 +1,6 @@
 import json
 import hashlib
 import requests
-import structlog
 import mimetypes
 from typing import Iterable, cast, Dict, Optional, Union
 from lxml import etree, html
@@ -12,7 +11,9 @@ from lxml.etree import _Element, tostring
 from followthemoney import model
 from followthemoney.util import make_entity_id
 from followthemoney.schema import Schema
+from followthemoney.helpers import check_person_cutoff
 from structlog.contextvars import clear_contextvars, bind_contextvars
+from zavod.logs import get_logger
 from nomenklatura.cache import Cache
 from nomenklatura.util import normalize_url
 from nomenklatura.judgement import Judgement
@@ -46,7 +47,7 @@ class Context(object):
     def __init__(self, dataset: Dataset):
         self.dataset = dataset
         self.path = settings.DATASET_PATH.joinpath(dataset.name)
-        self.log: structlog.stdlib.BoundLogger = structlog.get_logger(dataset.name)
+        self.log: get_logger(dataset.name)
         self.cache = Cache(engine, MetaData(bind=engine), dataset)
         self._statements: Dict[str, Statement] = {}
         self.http = requests.Session()
@@ -264,8 +265,6 @@ class Context(object):
         threshold: Optional[float] = None,
     ):
         """Try to match a set of entities against an external source."""
-        from opensanctions.helpers.constraints import check_person_cutoff
-
         self.bind()
         with engine_tx() as conn:
             clear_issues(conn, self.dataset)

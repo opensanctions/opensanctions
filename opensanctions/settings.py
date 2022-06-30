@@ -58,9 +58,6 @@ RESOLVER_PATH = STATIC_PATH.joinpath("resolve.ijson")
 # Do not edit manually, use the release process
 VERSION = "3.2.0"
 
-# Relevance cut-off for dead people
-DEATH_CUTOFF = datetime(2000, 1, 1)
-
 # User agent
 USER_AGENT = f"Mozilla/5.0 (any) OpenSanctions/{VERSION} info@opensanctions.org"
 HEADERS = {"User-Agent": USER_AGENT}

@@ -33,10 +33,10 @@ def remove_prefix_date_values(values: Tuple[str]) -> Iterable[str]:
     if len(values) < 2:
         return values
     kept: List[str] = []
-    values = sorted(values, reverse=True)
-    for index, value in enumerate(values):
+    values_list = sorted(values, reverse=True)
+    for index, value in enumerate(values_list):
         if index > 0:
-            longer = values[index - 1]
+            longer = values_list[index - 1]
             if longer.startswith(value):
                 continue
         kept.append(value)

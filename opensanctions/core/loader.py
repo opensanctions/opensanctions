@@ -2,9 +2,9 @@ from typing import Callable, Dict, Generator, List, Optional, Set, Tuple
 from followthemoney import model
 from followthemoney.types import registry
 from followthemoney.property import Property
+from zavod.logs import get_logger
 from nomenklatura import Loader, Resolver
 
-from opensanctions.core.logs import get_logger
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.entity import Entity
 from opensanctions.core.db import engine_read
@@ -46,7 +46,10 @@ class CachedProp(object):
     def __init__(self, stmt: Statement):
         self.dataset = Dataset.require(stmt["dataset"])
         schema = model.schemata[stmt["schema"]]
-        self.prop = schema.properties[stmt["prop"]]
+        try:
+            self.prop: Optional[Property] = schema.properties[stmt["prop"]]
+        except KeyError:
+            self.prop = None
         self.value = stmt["value"]
 
 
@@ -91,7 +94,7 @@ class Database(object):
             canonical_id = cached[0][0].canonical_id
             self.entities[canonical_id] = cached
             for stmt in cached[1]:
-                if stmt.prop.type != registry.entity:
+                if stmt.prop is None or stmt.prop.type != registry.entity:
                     continue
                 value_id = self.resolver.get_canonical(stmt.value)
                 if value_id not in self.inverted:
@@ -162,6 +165,8 @@ class Database(object):
 
         for prop in cached[1]:
             if sources is not None and prop.dataset not in sources:
+                continue
+            if prop.prop is None:
                 continue
             entity.unsafe_add(prop.prop, prop.value, cleaned=True)
 

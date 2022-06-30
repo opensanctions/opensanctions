@@ -8,10 +8,10 @@ from followthemoney.types import registry
 from followthemoney.model import Model
 from followthemoney.schema import Schema
 from followthemoney.property import Property
+from zavod.logs import get_logger
 from nomenklatura.entity import CompositeEntity
 
 from opensanctions.core.lookups import type_lookup
-from opensanctions.core.logs import get_logger
 from opensanctions.util import pick_name
 
 log = get_logger(__name__)

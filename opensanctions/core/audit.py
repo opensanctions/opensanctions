@@ -1,11 +1,9 @@
-from operator import is_
+from zavod.logs import get_logger
 from nomenklatura.cache import Cache
 from nomenklatura.util import is_qid
 from nomenklatura.enrich.wikidata import WikidataEnricher
-from nomenklatura.resolver import Identifier
 from nomenklatura.judgement import Judgement
 
-from opensanctions.core.logs import get_logger
 from opensanctions.core.db import engine, metadata, engine_read
 from opensanctions.core.statements import entities_datasets
 from opensanctions.core.resolver import get_resolver

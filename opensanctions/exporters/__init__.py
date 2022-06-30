@@ -1,8 +1,8 @@
 from typing import List, Type
+from zavod.logs import get_logger
 from nomenklatura.loader import Loader
 
 from opensanctions import settings
-from opensanctions.core.logs import get_logger
 from opensanctions.core import Context, Dataset, Entity
 from opensanctions.core.external import External
 from opensanctions.core.loader import Database

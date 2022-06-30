@@ -4,12 +4,12 @@ from typing import Generator, List, Optional, Tuple, TypedDict, cast
 from sqlalchemy.future import select
 from sqlalchemy.sql.expression import delete, update, insert
 from sqlalchemy.sql.functions import func
+from zavod.logs import get_logger
 from nomenklatura import Resolver
 from followthemoney import model
 from followthemoney.types import registry
 
 from opensanctions import settings
-from opensanctions.core.logs import get_logger
 from opensanctions.core.db import stmt_table, canonical_table
 from opensanctions.core.db import Conn, upsert_func
 from opensanctions.core.dataset import Dataset

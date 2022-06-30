@@ -1,11 +1,16 @@
+import logging
+from pathlib import Path
 from banal import is_mapping
 from datetime import datetime
+from lxml.etree import _Element, tostring
 from typing import Any, Dict, Generator, Optional, TypedDict, cast
 from sqlalchemy.future import select
 from sqlalchemy.sql.expression import delete
 from sqlalchemy.sql.functions import func
+from followthemoney.schema import Schema
 
 from opensanctions import settings
+from opensanctions.core.db import engine_tx
 from opensanctions.core.db import issue_table, Conn
 from opensanctions.core.dataset import Dataset
 
@@ -50,6 +55,26 @@ def save_issue(conn: Conn, event: Dict[str, Any]) -> None:
     q = issue_table.insert().values([record])
     conn.execute(q)
     return None
+
+
+def store_log_event(logger, log_method, data: Dict[str, Any]) -> Dict[str, Any]:
+    for key, value in data.items():
+        if isinstance(value, _Element):
+            value = tostring(value, pretty_print=False, encoding=str)
+        if isinstance(value, Path):
+            value = str(value.relative_to(settings.DATA_PATH))
+        if isinstance(value, Schema):
+            value = value.name
+        data[key] = value
+
+    dataset = data.get("dataset", None)
+    level = data.get("level")
+    if level is not None:
+        level_num = getattr(logging, level.upper())
+        if level_num > logging.INFO and dataset is not None:
+            with engine_tx() as conn:
+                save_issue(conn, data)
+    return data
 
 
 def all_issues(

@@ -1,13 +1,13 @@
 import click
 import logging
 import asyncio
+from zavod.logs import get_logger
 from nomenklatura.tui import DedupeApp
 from nomenklatura.judgement import Judgement
 from nomenklatura.resolver import Identifier
 
 from opensanctions import settings
 from opensanctions.core import Dataset, Context, setup
-from opensanctions.core.logs import get_logger
 from opensanctions.exporters.statements import export_statements_path
 from opensanctions.exporters.statements import import_statements_path
 from opensanctions.exporters.common import write_object

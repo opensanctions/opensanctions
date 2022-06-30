@@ -1,6 +1,6 @@
+from zavod.logs import get_logger
 from nomenklatura.xref import xref
 
-from opensanctions.core.logs import get_logger
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.loader import Database
 from opensanctions.core.resolver import AUTO_USER, get_resolver

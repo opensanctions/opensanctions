@@ -1,6 +1,8 @@
 from datetime import datetime
 from typing import Dict, Optional
+from followthemoney.helpers import check_person_cutoff
 from nomenklatura.enrich.wikidata.qualified import make_position
+
 
 from opensanctions.core import Context
 from opensanctions import helpers as h
@@ -95,7 +97,7 @@ def parse_person(context: Context, data, country, lastmod):
         if "phone" == contact_detail.get("type"):
             person.add("phone", h.clean_phones(value))
 
-    if h.check_person_cutoff(person):
+    if check_person_cutoff(person):
         return
 
     # data.pop("image", None)

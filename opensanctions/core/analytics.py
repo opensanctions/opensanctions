@@ -1,8 +1,8 @@
 from typing import Any, Dict, List
 from sqlalchemy.sql.expression import delete, insert
+from zavod.logs import get_logger
 from followthemoney.types import registry
 
-from opensanctions.core.logs import get_logger
 from opensanctions.core.db import engine_tx, analytics_country_table
 from opensanctions.core.db import analytics_dataset_table, analytics_entity_table
 from opensanctions.core.dataset import Dataset
