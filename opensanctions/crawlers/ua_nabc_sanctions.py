@@ -37,7 +37,7 @@ def parse_date(date):
     if date is not None:
         date = date.replace(" ", "")
     dates = set()
-    for part in multi_split(date, [",", "\n"]):
+    for part in multi_split(date, [",", "\n", ";"]):
         dates.update(h.parse_date(part, ["%d.%m.%Y", "dd.%m.%Y"]))
     return dates
 
