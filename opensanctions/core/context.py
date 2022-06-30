@@ -47,7 +47,7 @@ class Context(object):
     def __init__(self, dataset: Dataset):
         self.dataset = dataset
         self.path = settings.DATASET_PATH.joinpath(dataset.name)
-        self.log: get_logger(dataset.name)
+        self.log = get_logger(dataset.name)
         self.cache = Cache(engine, MetaData(bind=engine), dataset)
         self._statements: Dict[str, Statement] = {}
         self.http = requests.Session()
