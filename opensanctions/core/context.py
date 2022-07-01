@@ -77,7 +77,7 @@ class Context(object):
                 stream=True,
                 auth=auth,
                 headers=headers,
-                timeout=settings.HTTP_TIMEOUT,
+                timeout=(settings.HTTP_TIMEOUT, settings.HTTP_TIMEOUT),
                 verify=False,
             ) as res:
                 res.raise_for_status()
@@ -92,7 +92,7 @@ class Context(object):
             url,
             headers=headers,
             auth=auth,
-            timeout=settings.HTTP_TIMEOUT,
+            timeout=(settings.HTTP_TIMEOUT, settings.HTTP_TIMEOUT),
             allow_redirects=True,
         )
         response.raise_for_status()

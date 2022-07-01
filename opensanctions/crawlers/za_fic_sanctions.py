@@ -10,22 +10,30 @@ def parse_date(date):
 
 def crawl_row(context: Context, data: Dict[str, str]):
     entity = context.make("LegalEntity")
-    entity.id = context.make_slug(data.pop("INDIVIDUAL_Id"))
+    ind_id = data.pop("INDIVIDUAL_Id", data.pop("IndividualID"))
+    entity.id = context.make_slug(ind_id)
     assert entity.id, data
     entity.add("notes", h.clean_note(data.pop("COMMENTS", None)))
+    entity.add("notes", h.clean_note(data.pop("Comments", None)))
     entity.add("notes", h.clean_note(data.pop("NOTE", None)))
     entity.add("notes", h.clean_note(data.pop("NOTE1", None)))
     entity.add("notes", h.clean_note(data.pop("NOTE2", None)))
     entity.add("notes", h.clean_note(data.pop("NOTE3", None)))
     entity.add_cast("Person", "nationality", data.pop("NATIONALITY", None))
+    entity.add_cast("Person", "nationality", data.pop("Nationality", None))
     entity.add_cast("Person", "title", data.pop("TITLE", None))
+    entity.add_cast("Person", "title", data.pop("Title", None))
     entity.add_cast("Person", "position", data.pop("DESIGNATION", None))
+    entity.add_cast("Person", "position", data.pop("Designation", None))
     entity.add_cast("Person", "birthPlace", data.pop("PLACEOFBIRTH", None))
+    entity.add_cast("Person", "birthPlace", data.pop("IndividualPlaceOfBirth", None))
     entity.add_cast("Person", "birthPlace", data.pop("CITY_OF_BIRTH", None))
     entity.add_cast("Person", "birthDate", data.pop("YEAR", None))
     entity.add_cast("Person", "gender", data.pop("GENDER", None))
     entity.add_cast("Person", "birthDate", parse_date(data.pop("DATE", None)))
     entity.add_cast("Person", "birthDate", parse_date(data.pop("DATE_OF_BIRTH", None)))
+    dob = parse_date(data.pop("IndividualDateOfBirth", None))
+    entity.add_cast("Person", "birthDate", dob)
 
     data.pop("BIRTHPLACE_x0020_CITY", None)
     data.pop("BIRTHPLACE_x0020_STATE_PROVINCE", None)
@@ -47,8 +55,10 @@ def crawl_row(context: Context, data: Dict[str, str]):
     if alias is not None and "?" not in alias:
         entity.add("alias", alias)
     entity.add("alias", data.pop("SORT_KEY", None))
+    data.pop("IndividualAlias", None)
 
     entity.add_cast("Person", "passportNumber", data.pop("PASSPORT", None))
+    entity.add_cast("Person", "passportNumber", data.pop("IndividualDocument", None))
     data.pop("DATE_OF_ISSUE", None)
     data.pop("CITY_OF_ISSUE", None)
     entity.add("country", data.pop("COUNTRY_OF_ISSUE", None))
@@ -57,6 +67,7 @@ def crawl_row(context: Context, data: Dict[str, str]):
     address = h.make_address(
         context,
         # remarks=data.pop("NOTE"),
+        full=data.pop("IndividualAddress", None),
         street=data.pop("STREET", None),
         city=data.pop("CITY", None),
         region=data.pop("STATE_PROVINCE", None),
@@ -67,18 +78,21 @@ def crawl_row(context: Context, data: Dict[str, str]):
 
     sanction = h.make_sanction(context, entity)
     inserted_at = parse_date(data.pop("DateInserted", None))
-    listed_at = parse_date(data.pop("ListedON", None))
+    listed_on = data.pop("ListedON", data.pop("ListedOn", None))
+    listed_at = parse_date(listed_on)
     entity.add("createdAt", inserted_at or listed_at)
     sanction.add("listingDate", listed_at or inserted_at)
     sanction.add("startDate", data.pop("FROM_YEAR", None))
     sanction.add("endDate", data.pop("TO_YEAR", None))
     sanction.add("program", data.pop("UN_LIST_TYPE", None))
     sanction.add("unscId", data.pop("REFERENCE_NUMBER", None))
+    sanction.add("unscId", data.pop("ReferenceNumber", None))
     sanction.add("authority", data.pop("SUBMITTED_BY", None))
 
     entity.add("topics", "sanction")
-    h.audit_data(data, ignore=["VERSIONNUM", "TYPE_OF_DATE"])
+    h.audit_data(data, ignore=["VERSIONNUM", "TYPE_OF_DATE", "ApplicationStatus"])
     context.emit(entity, target=True)
+    context.emit(sanction)
 
 
 def crawl(context: Context):

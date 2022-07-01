@@ -344,6 +344,26 @@ lookups:
           - Shiraz Electronics Industries (Sara Shiraz)
           - Telecommunication Industries of Iran (SAMA)
           - The Institute of Isayran Co
+      - match: Agropromyshlenny Kompleks Voronezhski OOO Anninskii Elevator OOO Auditkonsalt OOO Belinveststroi OOO Dve Stolitsy OOO Kontrakt OOO Ladoga OOO Nekommercheskaya Organizatsiya Fond Khimicheskoe Razoruzhenie I Konversiya Azovskaya Zernovaya Kompaniya OOO Ekspluatiruyushchaya Kompaniya Tsentr OOO
+        values:
+          - Agropromyshlenny Kompleks Voronezhski OOO
+          - Anninskii Elevator OOO
+          - Auditkonsalt OOO
+          - Belinveststroi OOO
+          - Dve Stolitsy OOO
+          - Kontrakt OOO
+          - Ladoga OOO
+          - Nekommercheskaya Organizatsiya Fond Khimicheskoe Razoruzhenie I Konversiya
+          - Azovskaya Zernovaya Kompaniya OOO
+          - Ekspluatiruyushchaya Kompaniya Tsentr OOO
+      - match: Kolmar Prodazhi I Logistika LLC Kolmar-Tour LLC SibProektGrupp LLC Kolmar Administration Company LLC JSC Mining and Processing Complex Inaglinsky JSC Mining and Processing Complex Denisovsky
+        values:
+          - Kolmar Prodazhi I Logistika LLC
+          - Kolmar-Tour LLC
+          - SibProektGrupp LLC
+          - Kolmar Administration Company LLC
+          - JSC Mining and Processing Complex Inaglinsky
+          - JSC Mining and Processing Complex Denisovsky
       - match: Bena Properties (subsidiary), Cham Holding Building, Daraa Highway, Ashrafiyat Sahnaya Rif Dimashq, Syria, P.O. Box 9525. Higher Institute for Applied Sciences and Technology. HISAT. National Standards & Calibration Laboratory. NSCL
         values:
           - Bena Properties
