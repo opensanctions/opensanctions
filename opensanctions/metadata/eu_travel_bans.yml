@@ -37,5 +37,5 @@ publisher:
   country: eu
 url: https://www.sanctionsmap.eu/#/main/travel/ban
 data:
-  url: https://www.sanctionsmap.eu/api/v1/travelbans/file/13
+  url: https://www.sanctionsmap.eu/api/v1/data?
   format: JSON
