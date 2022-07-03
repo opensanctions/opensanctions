@@ -22,12 +22,11 @@ RUN localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 ENV LANG="en_US.UTF-8" \
     TZ="UTC"
 
-RUN pip3 install -q --no-cache-dir -U pip six setuptools
+RUN pip3 install --no-cache-dir -U pip six setuptools
 
 COPY . /opensanctions
 WORKDIR /opensanctions
-RUN pip install -q --no-cache-dir -e /opensanctions \
-    && pip freeze
+RUN pip install --no-cache-dir -e /opensanctions
 
 ENV OPENSANCTIONS_DATA_PATH="/opensanctions/data" \
     OPENSSL_CONF="/opensanctions/contrib/openssl.cnf"
