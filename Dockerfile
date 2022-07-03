@@ -8,7 +8,7 @@ RUN apt-get -qq -y update \
     && apt-get -qq -y upgrade \
     && apt-get -qq -y install locales ca-certificates tzdata curl python3-pip \
     python3-icu python3-cryptography libicu-dev postgresql-client-common \
-    postgresql-client libxml2-dev libxslt1-dev python3-dev \
+    postgresql-client libxml2-dev libxslt1-dev python3-dev cargo \
     && apt-get -qq -y autoremove \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
