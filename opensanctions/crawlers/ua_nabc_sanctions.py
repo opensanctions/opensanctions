@@ -91,24 +91,34 @@ def crawl_company(context: Context) -> None:
         row = clean_row(row)
         # context.pprint(row)
         company_id = row.pop("company_id")
-        name = row.pop("name", None)
+        name_en = row.pop("name_en", None)
+        name = row.pop("name", None) or name_en
         entity = context.make("Organization")
         entity.id = context.make_slug("company", company_id, name)
         if entity.id is None:
             entity.id = context.make_slug(
                 "company",
                 company_id,
-                row.get("ogrn"),
+                row.pop("ogrn", None),
                 strict=False,
             )
         entity.add("name", name)
+        entity.add("name", name_en)
+        entity.add("name", row.pop("name_uk", None))
+        entity.add("name", row.pop("name_ru", None))
         entity.add("innCode", row.pop("inn", None))
         entity.add_cast("Company", "ogrnCode", row.pop("ogrn", None))
 
-        country = row.get("country", None)
+        country = row.pop("country", None)
         entity.add("country", COUNTRIES[country])
         entity.add("topics", "sanction")
+        entity.add("notes", row.pop("reasoning_en", None))
+        entity.add("notes", row.pop("reasoning_ru", None))
+        entity.add("notes", row.pop("reasoning_uk", None))
+
         context.emit(entity, target=True)
+        row.pop("logo_en", None)
+        # context.pprint(row)
 
 
 def crawl(context: Context) -> None:
