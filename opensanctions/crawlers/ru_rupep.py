@@ -211,8 +211,6 @@ def crawl_company(context: Context, data: Dict[str, Any]):
             entity.add(res.prop, country_name)
         # h.audit_data(country_data)
 
-    links = 0
-
     for rel_data in data.pop("related_persons", []):
         other_wdid = clean_wdid(rel_data.pop("person_wikidata_id"))
         other_id = person_id(context, rel_data.pop("person_id"), other_wdid)
@@ -247,7 +245,6 @@ def crawl_company(context: Context, data: Dict[str, Any]):
         rel.add("startDate", parse_date(rel_data.pop("date_established")))
         rel.add("endDate", parse_date(rel_data.pop("date_finished")))
         context.emit(rel)
-        links += 1
 
     for rel_data in data.pop("related_companies", []):
         # pprint(rel_data)
@@ -283,11 +280,7 @@ def crawl_company(context: Context, data: Dict[str, Any]):
         # rel.add("startDate", parse_date(rel_data.pop("date_established")))
         # rel.add("endDate", parse_date(rel_data.pop("date_finished")))
         # context.emit(rel)
-        # links += 1
         pass
-
-    if links == 0:
-        return
 
     address = h.make_address(
         context,
@@ -308,6 +301,7 @@ def crawl_company(context: Context, data: Dict[str, Any]):
         "other_recipient",
     ]
     h.audit_data(data, ignore=ignore)
+    # print(entity.to_dict())
     context.emit(entity)
 
 
