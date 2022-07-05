@@ -23,7 +23,7 @@ description: |
 collections:
   - sanctions
   - default
-  - work
+  # - work
 url: https://www.international.gc.ca/world-monde/international_relations-relations_internationales/sanctions/consolidated-consolide.aspx?lang=eng
 publisher:
   name: "Global Affairs Canada"
