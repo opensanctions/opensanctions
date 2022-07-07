@@ -31,11 +31,11 @@ publisher:
   url: https://www.icij.org/about/
 collections:
   - default
-  - work
+  # - work
 config:
   type: nomenklatura.enrich.yente:YenteEnricher
-  api: https://api.opensanctions.org/
-  dataset: external_offshoreleaks
+  api: https://externals.opensanctions.org/
+  dataset: offshoreleaks
   token: opensanctions
   strip_namespace: true
   schemata:

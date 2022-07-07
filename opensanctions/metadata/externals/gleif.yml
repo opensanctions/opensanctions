@@ -31,11 +31,11 @@ publisher:
   url: https://www.gleif.org/en/about/this-is-gleif
 collections:
   - default
-  - work
+  # - work
 config:
   type: nomenklatura.enrich.yente:YenteEnricher
-  api: https://api.opensanctions.org/
-  dataset: external_gleif
+  api: https://externals.opensanctions.org/
+  dataset: gleif
   token: opensanctions
   strip_namespace: true
   threshold: 0.5
