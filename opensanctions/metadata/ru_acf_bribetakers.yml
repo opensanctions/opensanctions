@@ -6,14 +6,14 @@ summary: >
   composed by ACF/FBK, the anti-corruption investigative organization
   founded by Alexei Navalny
 description: |
-  Note: this is a static extract of the ACF list, dated 7. May 2022, representing
+  Note: this is a static extract of the ACF list, dated 8. July 2022, representing
   the second revision of the Bribetakers list.
 
   > Putin and his accomplices (officials, oligarchs, propagandists), as well as
   > yachts and mansions, which, we hope, they will soon be deprived of.
 collections:
   - default
-  # - work
+  - work
 publisher:
   name: Anti-Corruption Foundation (ACF)
   description: |
@@ -23,5 +23,6 @@ publisher:
 url: https://acf.international/bribetakers-list
 data:
   # url: https://docs.google.com/spreadsheets/d/e/2PACX-1vSBGoYY4E07QoQIWltgJqT985zJKCpsT0Pcdapny7kd9tcWrkeEWdQDIDBR2uHwCJbnuwAuF2PAoZjd/pub?gid=0&single=true&output=csv
-  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vSBGoYY4E07QoQIWltgJqT985zJKCpsT0Pcdapny7kd9tcWrkeEWdQDIDBR2uHwCJbnuwAuF2PAoZjd/pub?gid=1517448514&single=true&output=csv
+  # url: https://docs.google.com/spreadsheets/d/e/2PACX-1vSBGoYY4E07QoQIWltgJqT985zJKCpsT0Pcdapny7kd9tcWrkeEWdQDIDBR2uHwCJbnuwAuF2PAoZjd/pub?gid=1517448514&single=true&output=csv
+  url: https://acf.international/acf-media/Full_sanctions_list_CSV_DrDGtpC.csv
   format: CSV

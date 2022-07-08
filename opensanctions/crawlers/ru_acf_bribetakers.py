@@ -13,11 +13,11 @@ def parse_date(date):
 def crawl_row(context: Context, row):
     entity = context.make("Person")
     tag = row.pop("Tag")
-    name_en = row.pop("Name_en")
+    name_en = row.pop("Name eng")
     dob = row.pop("DOB")
     entity.id = context.make_id(name_en, tag, dob)
     entity.add("name", name_en)
-    entity.add("alias", row.get("Name_ru"))
+    entity.add("alias", row.get("Name cyrillic"))
     entity.add("birthDate", parse_date(dob))
     entity.add("notes", collapse_spaces(row.get("Description")))
     entity.add("position", tag.split("\n"))
