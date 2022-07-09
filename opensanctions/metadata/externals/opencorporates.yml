@@ -1,6 +1,4 @@
 type: external
-disabled: true
-hidden: true
 title: OpenCorporates
 summary: |
   The largest open database of company data in the world, with data from over 140 registries.
@@ -26,9 +24,10 @@ publisher:
   url: https://opencorporates.com/info/about/
 collections:
   - default
-  - work
+  # - work
 config:
   type: nomenklatura.enrich.opencorporates:OpenCorporatesEnricher
   schemata:
     - Company
     - Organization
+    - LegalEntity
