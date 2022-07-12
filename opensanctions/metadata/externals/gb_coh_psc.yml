@@ -1,11 +1,17 @@
 type: external
-hidden: true
 title: UK Companies House People with Significant Control
 summary: |
   The database of beneficial owners of companies incorporated in England, Wales,
   Scotland and Northern Ireland.
 description: |
-  tbd.
+  The beneficial ownership registry of the United Kingdom.
+
+  > A person with significant control (PSC) is someone who owns or controls
+  > your company. They’re sometimes called ‘beneficial owners’.
+
+  This includes major shareholders (25%+) in any UK company, identified by
+  name, date of birth and nationality. Companies House may not enforce the 
+  correct filing of PSC reports, so errors in the data must be assumed.
 url: https://www.gov.uk/guidance/people-with-significant-control-pscs
 publisher:
   name: UK Companies House
@@ -28,4 +34,5 @@ config:
     - Company
     - Organization
     - LegalEntity
+    # - Person
   cache_days: 90
