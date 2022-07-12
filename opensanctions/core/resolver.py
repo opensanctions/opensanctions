@@ -83,6 +83,9 @@ def export_pairs(dataset: Dataset):
             "wd_curated",
             "wd_peppercat_leaders",
             "wd_peppercat_legislators",
+            "us_cia_world_leaders",
+            "eu_sanctions_map",
+            "ca_dfatd_sema_sanctions",
             "ru_navalny35",
             "wd_oligarchs",
         ):
