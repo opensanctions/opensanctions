@@ -305,6 +305,8 @@ lookups:
           - Belneftekhim
           - Belorusneft
           - CJSC Belarusian Oil Company
+      - match: The Gorev Foundation
+        value: The Gorev Foundation
       - match:
           - Cham Holding
           - Cham Holdings
@@ -356,6 +358,17 @@ lookups:
           - Nekommercheskaya Organizatsiya Fond Khimicheskoe Razoruzhenie I Konversiya
           - Azovskaya Zernovaya Kompaniya OOO
           - Ekspluatiruyushchaya Kompaniya Tsentr OOO
+      - match: (1) OOO SCF Arctic (2) SCF Management Services (Cyprus) Ltd (3) PAO Novoship; (4) SCF management Services (St. Petersburg) Ltd (5) Sovcomflot (UK) Ltd (6) SCF Management Services (St. Petersburg) Ltd  subdivision in Yuzhno-Sakhalinsk (7) Sovcomflot (Cyprus) Ltd; (8) SCF Management Services (Novorossiysk) Ltd (9) SCF GEO
+        values:
+          - OOO SCF Arctic
+          - SCF Management Services (Cyprus) Ltd
+          - PAO Novoship;
+          - SCF management Services (St. Petersburg) Ltd
+          - Sovcomflot (UK) Ltd
+          - SCF Management Services (St. Petersburg) Ltd  subdivision in Yuzhno-Sakhalinsk
+          - Sovcomflot (Cyprus) Ltd
+          - SCF Management Services (Novorossiysk) Ltd
+          - SCF GEO
       - match: Kolmar Prodazhi I Logistika LLC Kolmar-Tour LLC SibProektGrupp LLC Kolmar Administration Company LLC JSC Mining and Processing Complex Inaglinsky JSC Mining and Processing Complex Denisovsky
         values:
           - Kolmar Prodazhi I Logistika LLC

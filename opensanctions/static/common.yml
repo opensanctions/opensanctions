@@ -13,6 +13,7 @@ country:
         - "UNK"
         - "U"
         - "YYY"
+        - "NULL"
         - "N/A"
         - "None Identified"
         - "undetermined"
@@ -82,6 +83,9 @@ country:
         - Mali Federation
         - Patiala State
         - Kingdom of Sikkim
+        - Portuguese Empire
+        - Provisional Government of Mexico
+        - First Mexican Empire
         - Mandatory Palestine # now very optional Palestine
         - Americas
         - Nazareth
@@ -295,6 +299,10 @@ country:
         - Southern Netherlands
       value: Netherlands
     - match:
+        - Luxembourg (Grand-Duché)
+      values:
+        - LU
+    - match:
         - Federation of Malaya
         - Malaya
       value: Malaysia
@@ -315,6 +323,10 @@ country:
         - Kingdom of Egypt
         - Republic of Egypt (1953–1958)
       value: Egypt
+    - match:
+        - Siam
+      value:
+        - Thailand
     - match:
         - "Sanaa, Yemen"
         - Yemen Arab Republic
@@ -406,6 +418,7 @@ country:
         - Uk/British
         - Grande-Bretagne
         - Kingdom of England
+        - Kingdom of Scotland
       value: GB
     - match:
         - United States. Also believed to hold Syrian nationality
@@ -417,6 +430,9 @@ country:
         - U.S. state
         - Northern Cheyenne Indian Reservation
         - Seminole Nation of Oklahoma
+        - Etats-Unis d'Amérique
+        - The United States Of America
+        - Confederate States of America
       value:
         - US
     - match:
@@ -485,6 +501,7 @@ country:
       value: Taiwan
     - match:
         - P.R. China
+        - Chine /Rép. pop./
       value: China
     - match:
         - Baabda
@@ -641,6 +658,10 @@ country:
         - Belarusian People's Republic
       values:
         - SUHH
+        - BY
+    - match:
+        - Belrus
+      values:
         - BY
     - match:
         - Estonian Soviet Socialist Republic
@@ -823,6 +844,10 @@ date:
         - "20.03"
         - "13.10."
         - "12.05."
+        - "18.04"
+        - "01.01"
+        - "30.05"
+        - "18.02"
         - "05.11.YYYY"
         - "16.12.YYYY"
         - "23.05.197"
@@ -831,6 +856,10 @@ date:
       values:
         - 1972-08-10
         - 1972-08-11
+    - match: 27.11.1961/1965
+      values:
+        - "1965-11-27"
+        - "1961-11-27"
     - match: c 1957 or 14 March 1942
       values:
         - "1957"
@@ -1026,6 +1055,7 @@ date:
     "16.11.1956??": "1956"
     "8 марта 1959": "1959-03-08"
     "9 августа 1976": "1976-08-09"
+    "07.16.1962": "1962-07-16"
 
 email:
   options:
@@ -1092,6 +1122,11 @@ email:
         - bk@smpbank.ru
         - Money@smpbank.ru
         - smpbank@smpbank.ru
+    - match: (1) info@scf-group.ru (2) pr@scf-group.ru (3) ir@scf-group.ru
+      values:
+        - info@scf-group.ru
+        - pr@scf-group.ru
+        - ir@scf-group.ru
     - match: office@grodno-khim.by; market@grodno-khim.by; ppm@grodno-khim.by; tnp@grodno-khim.by
       values:
         - office@grodno-khim.by
@@ -1254,6 +1289,7 @@ gender:
         - neutrois
         - kathoey
         - two-spirit
+        - agender
       value: other
 
 fulladdress:
@@ -1453,6 +1489,7 @@ features:
         - Istanbul Chamber of Comm. No.
         - RSIN
         - Organization Code
+        - Economic Register Number (CBLS)
       prop: registrationNumber
     - match:
         - Legal Entity Number
