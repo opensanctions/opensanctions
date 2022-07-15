@@ -1,4 +1,5 @@
 from lxml import etree
+from lxml.etree import _Element as Element
 from banal import as_bool
 from prefixdate import parse_parts
 
@@ -57,7 +58,7 @@ def parse_sanctions(context: Context, entity: Entity, entry):
         context.emit(sanction)
 
 
-def parse_entry(context: Context, entry):
+def parse_entry(context: Context, entry: Element):
     subject_type = entry.find("./subjectType")
     schema = context.lookup_value(
         "subject_type",
