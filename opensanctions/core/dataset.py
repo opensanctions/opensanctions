@@ -63,7 +63,7 @@ class Dataset(NomenklaturaDataset):
 
         self.lookups = get_lookups(config.get("lookups", {}))
 
-    def make_slug(self, *parts: str, strict: bool = True) -> Optional[str]:
+    def make_slug(self, *parts: Optional[str], strict: bool = True) -> Optional[str]:
         slug = joinslug(*parts, prefix=self.prefix, strict=strict)
         if slug is not None:
             return slug[:KEY_LEN]

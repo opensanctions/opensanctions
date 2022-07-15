@@ -178,12 +178,14 @@ class Context(object):
         return Entity(model, {"schema": schema, "target": target})
 
     def make_slug(
-        self, *parts, strict: bool = True, dataset: Optional[str] = None
+        self, *parts: Optional[str], strict: bool = True, dataset: Optional[str] = None
     ) -> Optional[str]:
         ds = Dataset.require(dataset) if dataset is not None else self.dataset
         return ds.make_slug(*parts, strict=strict)
 
-    def make_id(self, *parts: str, dataset: Optional[str] = None) -> Optional[str]:
+    def make_id(
+        self, *parts: Optional[str], dataset: Optional[str] = None
+    ) -> Optional[str]:
         hashed = make_entity_id(*parts, key_prefix=self.dataset.name)
         return self.make_slug(hashed, dataset=dataset)
 

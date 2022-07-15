@@ -1,3 +1,4 @@
+from lxml.etree import _Element
 from normality import collapse_spaces
 from pantomime.types import XML
 
@@ -13,30 +14,37 @@ def crawl(context: Context):
         parse_entry(context, node)
 
 
-def parse_entry(context, node):
+def parse_entry(context: Context, node: _Element):
     entity_name = node.findtext("./Entity")
+    dob = node.findtext("./DateOfBirth")
+    schedule = node.findtext("./Schedule")
+    if schedule == "N/A":
+        schedule = ""
+    program = node.findtext("./Country")
+    item = node.findtext("./Item")
     if entity_name is not None:
         entity = context.make("LegalEntity")
         entity.add("name", entity_name.split("/"))
     else:
         entity = context.make("Person")
-        h.apply_name(
-            entity,
-            given_name=node.findtext("./GivenName"),
-            last_name=node.findtext("./LastName"),
-        )
-        entity.add("birthDate", node.findtext("./DateOfBirth"))
+        given_name = node.findtext("./GivenName")
+        last_name = node.findtext("./LastName")
+        entity_name = h.make_name(given_name=given_name, last_name=last_name)
+        entity.add("name", entity_name)
+        entity.add("birthDate", dob)
 
-    # ids are per country and entry type (individual/entity)
-    key = item = node.findtext("./Item")
-    if key is None:
-        key = entity.first("name")
-    schedule = node.findtext("./Schedule")
-    program = country = node.findtext("./Country")
-    if "/" in country:
-        country, _ = country.split("/")
-    entity.id = context.make_slug(country, schedule, key, strict=False)
+    country = program
+    if program is not None and "/" in program:
+        country, _ = program.split("/")
     entity.add("country", country)
+
+    entity.id = context.make_slug(
+        schedule,
+        item,
+        entity.first("country"),
+        entity_name,
+        strict=False,
+    )
 
     sanction = h.make_sanction(context, entity)
     sanction.add("program", program)
