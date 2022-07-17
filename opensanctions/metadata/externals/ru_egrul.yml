@@ -1,0 +1,30 @@
+type: external
+hidden: true
+title: Russian company tax database (EGRUL)
+summary: |
+  ...
+description: |
+  ...
+url: https://egrul.itsoft.ru/
+publisher:
+  name: Federal Tax Service of Russia
+  description: |
+    ...
+  url: https://www.nalog.gov.ru/rn77/service/egrip2/egrip_vzayim/
+  country: ru
+collections:
+  - default
+  # - work
+config:
+  type: nomenklatura.enrich.yente:YenteEnricher
+  api: https://externals.opensanctions.org/
+  dataset: ru_egrul
+  token: opensanctions
+  strip_namespace: true
+  threshold: 0.5
+  schemata:
+    - Company
+    - Organization
+    - LegalEntity
+    # - Person
+  cache_days: 90
