@@ -2,6 +2,7 @@ data/
 docs/
 dist/
 site/
+build/
 api/
 .envrc
 Makefile
