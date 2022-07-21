@@ -1,0 +1,30 @@
+type: external
+hidden: true
+title: Ukraine Consolidated State Registry
+summary: |
+  ...
+description: |
+  ...
+url: https://
+publisher:
+  name: ...
+  description: |
+    ....
+  url: https://
+  country: ua
+collections:
+  - default
+  # - work
+config:
+  type: nomenklatura.enrich.yente:YenteEnricher
+  api: https://externals.opensanctions.org/
+  dataset: ua_edr
+  token: opensanctions
+  strip_namespace: true
+  threshold: 0.5
+  schemata:
+    - Company
+    - Organization
+    # - LegalEntity
+    # - Person
+  cache_days: 90
