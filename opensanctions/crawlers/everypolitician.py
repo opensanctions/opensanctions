@@ -1,7 +1,6 @@
 from datetime import datetime
 from typing import Dict, Optional
-from followthemoney.helpers import check_person_cutoff
-from nomenklatura.enrich.wikidata.qualified import make_position
+from followthemoney.helpers import check_person_cutoff, post_summary
 
 
 from opensanctions.core import Context
@@ -123,7 +122,7 @@ def parse_membership(context: Context, data, persons, organizations, events):
         # for source in data.get("sources", []):
         #     membership.add("sourceUrl", source.get("url"))
 
-        position = make_position(org_name, comment, starts, ends, [])
+        position = post_summary(org_name, comment, starts, ends, [])
         person = context.make("Person")
         person.id = person_id
         person.add("position", position)
