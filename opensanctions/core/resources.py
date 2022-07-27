@@ -69,7 +69,7 @@ def all_resources(conn: Conn, dataset: Dataset) -> Generator[Resource, None, Non
     for row in result.fetchall():
         resource = cast(Resource, row._asdict())
         # Add mime type label for the web UI. Should this live here?
-        mime_type = resource.get("mime_type")
+        mime_type = resource["mime_type"]
         if mime_type is not None:
             mime = parse_mimetype(mime_type)
             resource["mime_type_label"] = mime.label

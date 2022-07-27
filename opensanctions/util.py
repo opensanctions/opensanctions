@@ -8,7 +8,7 @@ from datetime import datetime
 from itertools import combinations
 from collections import defaultdict
 from typing import IO, Any, Dict, List, Optional, Tuple
-from normality import latinize_text, stringify, slugify
+from normality import latinize_text, slugify
 
 log = logging.getLogger(__name__)
 BRACKETED = re.compile(r"\(.*\)")
@@ -97,6 +97,13 @@ def pick_name(names: Tuple[str], all_names: Tuple[str]) -> Optional[str]:
     return None
 
 
+def json_default(obj: Any) -> Any:
+    if isinstance(obj, (tuple, set)):
+        return list(obj)
+    raise TypeError
+
+
 def write_json(data: Dict[str, Any], fh: IO[bytes]) -> None:
     """Write a JSON object to the given open file handle."""
-    fh.write(orjson.dumps(data, option=orjson.OPT_APPEND_NEWLINE))
+    opt = orjson.OPT_APPEND_NEWLINE | orjson.OPT_NON_STR_KEYS
+    fh.write(orjson.dumps(data, option=opt, default=json_default))
