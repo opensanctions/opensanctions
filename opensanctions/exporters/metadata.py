@@ -75,7 +75,7 @@ def export_metadata():
             "dataset_url": settings.DATASET_URL,
             "issues_url": urljoin(settings.DATASET_URL, "issues.json"),
             "statements_url": urljoin(settings.DATASET_URL, "statements.csv"),
-            "model": model,
+            "model": model.to_dict(),
             "schemata": schemata,
             "matcher": explain_matcher(),
             "app": "opensanctions",

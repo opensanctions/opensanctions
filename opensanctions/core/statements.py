@@ -1,6 +1,6 @@
 from hashlib import sha1
 from datetime import datetime
-from typing import Generator, List, Optional, Tuple, TypedDict, cast
+from typing import Dict, Generator, List, Optional, Tuple, TypedDict, Union, cast
 from sqlalchemy.future import select
 from sqlalchemy.sql.expression import delete, update, insert
 from sqlalchemy.sql.functions import func
@@ -44,7 +44,9 @@ class Statement(TypedDict):
     last_seen: datetime
 
 
-def stmt_key(dataset, entity_id, prop, value, external):
+def stmt_key(
+    dataset: str, entity_id: str, prop: str, value: str, external: bool
+) -> str:
     """Hash the key properties of a statement record to make a unique ID."""
     key = f"{dataset}.{entity_id}.{prop}.{value}"
     if external is not False:
@@ -162,7 +164,7 @@ def agg_entities_by_country(
     dataset: Optional[Dataset] = None,
     target: Optional[bool] = None,
     schemata: Optional[List[str]] = None,
-):
+) -> List[Dict[str, Union[str, int]]]:
     """Return the number of targets grouped by country."""
     count = func.count(func.distinct(stmt_table.c.canonical_id))
     q = select(stmt_table.c.value, count)
@@ -194,7 +196,7 @@ def agg_entities_by_schema(
     dataset: Optional[Dataset] = None,
     target: Optional[bool] = None,
     schemata: Optional[List[str]] = None,
-):
+) -> List[Dict[str, Union[str, int]]]:
     """Return the number of targets grouped by their schema."""
     # FIXME: duplicates entities when there are statements with different schema
     # defined for the same entity.
@@ -226,7 +228,7 @@ def agg_entities_by_schema(
     return results
 
 
-def all_schemata(conn: Conn, dataset: Optional[Dataset] = None):
+def all_schemata(conn: Conn, dataset: Optional[Dataset] = None) -> List[str]:
     """Return all schemata present in the dataset"""
     q = select(func.distinct(stmt_table.c.schema))
     q = q.filter(stmt_table.c.prop == BASE)

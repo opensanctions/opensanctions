@@ -100,6 +100,10 @@ def pick_name(names: Tuple[str], all_names: Tuple[str]) -> Optional[str]:
 def json_default(obj: Any) -> Any:
     if isinstance(obj, (tuple, set)):
         return list(obj)
+    try:
+        return obj.to_dict()
+    except AttributeError:
+        pass
     raise TypeError
 
 
