@@ -1,5 +1,5 @@
-import orjson
 from opensanctions.exporters.common import Exporter
+from opensanctions.util import write_json
 
 
 class NestedJSONExporter(Exporter):
@@ -16,8 +16,7 @@ class NestedJSONExporter(Exporter):
         if not entity.target:
             return
         data = entity.to_nested_dict(self.loader)
-        out = orjson.dumps(data, option=orjson.OPT_APPEND_NEWLINE)
-        self.fh.write(out)
+        write_json(data, self.fh)
 
     def finish(self):
         self.fh.close()

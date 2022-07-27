@@ -17,7 +17,7 @@ from opensanctions.core.statements import (
     agg_entities_by_country,
     agg_entities_by_schema,
 )
-from opensanctions.exporters.common import write_json
+from opensanctions.util import write_json
 
 log = get_logger(__name__)
 THINGS = [s.name for s in model if s.is_a("Thing")]
@@ -62,13 +62,13 @@ def export_metadata():
 
     issues_path = settings.DATASET_PATH.joinpath("issues.json")
     log.info("Writing global issues list", path=issues_path)
-    with open(issues_path, "w", encoding=settings.ENCODING) as fh:
+    with open(issues_path, "wb") as fh:
         data = {"issues": issues}
         write_json(data, fh)
 
     index_path = settings.DATASET_PATH.joinpath("index.json")
     log.info("Writing global index", datasets=len(datasets), path=index_path)
-    with open(index_path, "w", encoding=settings.ENCODING) as fh:
+    with open(index_path, "wb") as fh:
         meta = {
             "datasets": datasets,
             "run_time": settings.RUN_TIME,

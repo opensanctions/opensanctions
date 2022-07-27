@@ -1,4 +1,5 @@
 import re
+import orjson
 import logging
 import Levenshtein
 from functools import cache
@@ -6,7 +7,7 @@ from banal import ensure_list
 from datetime import datetime
 from itertools import combinations
 from collections import defaultdict
-from typing import Any, Dict, List, Optional, Tuple
+from typing import IO, Any, Dict, List, Optional, Tuple
 from normality import latinize_text, stringify, slugify
 
 log = logging.getLogger(__name__)
@@ -94,3 +95,8 @@ def pick_name(names: Tuple[str], all_names: Tuple[str]) -> Optional[str]:
         if cand in names:
             return cand
     return None
+
+
+def write_json(data: Dict[str, Any], fh: IO[bytes]) -> None:
+    """Write a JSON object to the given open file handle."""
+    fh.write(orjson.dumps(data, option=orjson.OPT_APPEND_NEWLINE))

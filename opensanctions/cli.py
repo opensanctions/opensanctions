@@ -1,5 +1,4 @@
 import click
-import orjson
 import logging
 import asyncio
 from zavod.logs import get_logger
@@ -20,6 +19,7 @@ from opensanctions.core.statements import resolve_all_canonical, resolve_canonic
 from opensanctions.core.analytics import build_analytics
 from opensanctions.core.db import engine_tx
 from opensanctions.processing import run_enrich, run_pipeline
+from opensanctions.util import write_json
 
 log = get_logger(__name__)
 datasets = click.Choice(Dataset.names())
@@ -123,7 +123,7 @@ def dedupe(dataset):
 def export_pairs_(dataset, outfile):
     dataset = Dataset.require(dataset)
     for obj in export_pairs(dataset):
-        outfile.write(orjson.dumps(obj, option=orjson.OPT_APPEND_NEWLINE))
+        write_json(obj, outfile)
 
 
 @cli.command("explode", help="Destroy a cluster of deduplication matches")
