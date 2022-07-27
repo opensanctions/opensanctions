@@ -1,5 +1,5 @@
 from functools import cache
-from typing import Dict, Optional, Set, Tuple
+from typing import Any, Dict, Optional, Set, Tuple
 from itertools import combinations
 from collections import defaultdict
 
@@ -75,7 +75,7 @@ def export_pairs(dataset: Dataset):
                         # Export unsure as negative:
                         pairs[(part, other_part)] = Judgement.NEGATIVE
 
-    def get_partial(spec: Tuple[str, Dataset]) -> Optional[Entity]:
+    def get_partial(spec: Tuple[str, Dataset]) -> Optional[Dict[str, Any]]:
         id, ds = spec
         # HACK: EP is messing up phone and email-based matching
         if ds.name in (
@@ -96,7 +96,7 @@ def export_pairs(dataset: Dataset):
         if entity is None:
             return None
         entity.id = id
-        return entity
+        return entity.to_dict()
 
     for (left, right), judgement in pairs.items():
         # yield [left[0], right[0], judgement]

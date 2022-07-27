@@ -24,16 +24,17 @@ class NamesExporter(Exporter):
 
     def finish(self):
         batch = []
-        for norm in sorted(self.names):
-            for name in sorted(self.names[norm]):
-                batch.append(name)
+        with open(self.path, "w") as fh:
+            for norm in sorted(self.names):
+                for name in sorted(self.names[norm]):
+                    batch.append(name)
 
-            if len(batch) > 10000:
+                if len(batch) > 10000:
+                    text = "\n".join(batch)
+                    fh.write(f"{text}\n")
+                    batch = []
+
+            if len(batch):
                 text = "\n".join(batch)
-                self.fh.write(f"{text}\n")
-                batch = []
-
-        if len(batch):
-            text = "\n".join(batch)
-            self.fh.write(f"{text}\n")
+                fh.write(f"{text}\n")
         super().finish()

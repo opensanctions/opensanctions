@@ -1,4 +1,5 @@
 import click
+import orjson
 import logging
 import asyncio
 from zavod.logs import get_logger
@@ -10,7 +11,6 @@ from opensanctions import settings
 from opensanctions.core import Dataset, Context, setup
 from opensanctions.exporters.statements import export_statements_path
 from opensanctions.exporters.statements import import_statements_path
-from opensanctions.exporters.common import write_object
 from opensanctions.core.audit import audit_resolver
 from opensanctions.core.loader import Database
 from opensanctions.core.resolver import AUTO_USER, export_pairs, get_resolver
@@ -119,11 +119,11 @@ def dedupe(dataset):
 
 @cli.command("export-pairs", help="Export pairwise judgements")
 @click.argument("dataset", default=Dataset.DEFAULT, type=datasets)
-@click.option("-o", "--outfile", type=click.File("w"), default="-")
+@click.option("-o", "--outfile", type=click.File("wb"), default="-")
 def export_pairs_(dataset, outfile):
     dataset = Dataset.require(dataset)
     for obj in export_pairs(dataset):
-        write_object(outfile, obj)
+        outfile.write(orjson.dumps(obj, option=orjson.OPT_APPEND_NEWLINE))
 
 
 @cli.command("explode", help="Destroy a cluster of deduplication matches")

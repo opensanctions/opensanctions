@@ -20,13 +20,12 @@ class Exporter(object):
         self.loader = loader
 
     def setup(self):
-        self.fh = open(self.path, "w", encoding=settings.ENCODING)
+        pass
 
     def feed(self, entity: Entity):
         raise NotImplemented
 
     def finish(self):
-        self.fh.close()
         resource = self.context.export_resource(
             self.path, mime_type=self.MIME_TYPE, title=self.TITLE
         )
@@ -63,9 +62,3 @@ def write_json(data, fh):
     """Write a JSON object to the given open file handle."""
     json_data = json.dumps(data, sort_keys=True, indent=2, cls=JSONEncoder)
     fh.write(json_data)
-
-
-def write_object(stream, obj, indent=None):
-    """Write an object for line-based JSON format."""
-    data = json.dumps(obj, sort_keys=True, indent=indent, cls=JSONEncoder)
-    stream.write(data + "\n")

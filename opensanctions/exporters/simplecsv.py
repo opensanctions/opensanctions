@@ -56,6 +56,7 @@ class SimpleCSVExporter(Exporter):
 
     def setup(self):
         super().setup()
+        self.fh = open(self.path, "w")
         self.writer = csv.writer(self.fh, dialect=csv.unix_dialect)
         self.writer.writerow(self.HEADERS)
 
@@ -101,3 +102,7 @@ class SimpleCSVExporter(Exporter):
             entity.last_seen,
         ]
         self.writer.writerow(row)
+
+    def finish(self):
+        self.fh.close()
+        super().finish()
