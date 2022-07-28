@@ -31,7 +31,7 @@ publisher:
   url: https://www.icij.org/about/
 collections:
   - default
-  # - work
+  - work
 config:
   type: nomenklatura.enrich.yente:YenteEnricher
   api: https://externals.opensanctions.org/
