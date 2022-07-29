@@ -1,6 +1,6 @@
-# OpenSanctions.org
+# opensanctions data pipeline
 
-The codebase for OpenSanctions, an open-source repository of sanctions data, politically exposed persons, and other entities of interest.
+The codebase for OpenSanctions, an open-source database of sanctions data, politically exposed persons, and other entities of interest. This repository contains the code used to parse, clean, and deduplicate source data and build the combined database.
 
 OpenSanctions uses [Follow the Money](https://followthemoney.readthedocs.io/en/latest/index.html), a JSON-based anti-corruption data model, as a common target for all crawlers. Additonal exports into CSV and JSON formats are planned.
 
