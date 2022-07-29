@@ -1,4 +1,5 @@
 import json
+from normality.cleaning import remove_control_chars
 from pantomime.types import JSON
 from followthemoney.types import registry
 
@@ -54,7 +55,7 @@ def crawl_physical(context: Context) -> None:
             entity.add("nationality", country)
         entity.add("birthDate", row.pop("birthdate", None))
         entity.add("birthPlace", row.pop("birthplace", None))
-        entity.add("position", row.pop("occupation", None))
+        entity.add("position", remove_control_chars(row.pop("occupation", None)))
         handle_address(context, entity, row.pop("livingplace", None))
         handle_sanction(context, entity, row)
 
