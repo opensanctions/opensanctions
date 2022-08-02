@@ -1,5 +1,6 @@
 import xlrd
 import string
+import requests
 from collections import defaultdict
 from normality import slugify
 from datetime import datetime
@@ -121,7 +122,14 @@ def parse_reference(context: Context, reference: int, rows):
 
 
 def crawl(context: Context):
-    path = context.fetch_resource("source.xls", context.dataset.data.url)
+    path = context.get_resource_path("source.xls")
+
+    # TODO: why does this work and the fetch call does not?
+    res = requests.get(context.dataset.data.url, verify=False)
+    with open(path, 'wb') as fh:
+        fh.write(res.content)
+    # path = context.fetch_resource("source.xls", context.dataset.data.url)
+
     context.export_resource(path, EXCEL, title=context.SOURCE_TITLE)
     xls = xlrd.open_workbook(path)
     ws = xls.sheet_by_index(0)

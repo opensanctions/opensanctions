@@ -59,9 +59,10 @@ RESOLVER_PATH = STATIC_PATH.joinpath("resolve.ijson")
 VERSION = "3.2.0"
 
 # User agent
-USER_AGENT = f"Mozilla/5.0 (any) OpenSanctions/{VERSION} info@opensanctions.org"
+USER_AGENT = f"Mozilla/5.0 (any)"
+USER_AGENT = env_str("OPENSANCTIONS_USER_AGENT", USER_AGENT)
 HEADERS = {"User-Agent": USER_AGENT}
-HTTP_TIMEOUT = 120
+HTTP_TIMEOUT = 240
 
 # If you change this, all bets are off
 ENCODING = "utf-8"

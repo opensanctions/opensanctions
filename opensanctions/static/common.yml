@@ -17,6 +17,7 @@ country:
         - "N/A"
         - "None Identified"
         - "undetermined"
+        - terrorist
         - "statelessness"
         - United Nations
         - "Kuwaiti citizenship withdrawn in 2002"
@@ -31,6 +32,8 @@ country:
         - "Not Known"
         - "Not Disclosed"
         - "Regional"
+        - Shigeharu Ueki
+        - Genshin Impact
         # All the countries below are nulled out because they do not have modern
         # equivalents. The rule of thumb here is to map countries into modern ones
         # if they are a perfect subset (e.g. Bavaria into Germany), but to drop
@@ -217,6 +220,9 @@ country:
         - Wu guo
         - Hyderabad State
         - Denmark-Norway
+        - West Ukrainian People's Republic
+        - Pueblo of Laguna
+
         # Ukraine SFMS:
         - 27 May 1973
         - 1 Jan. 1975
@@ -233,6 +239,7 @@ country:
       value: Tunisia
     - match:
         - Nazi Germany
+        - Kingdom of Bavaria
       value: DE
     - match:
         - TCHEQUE (REPUBLIQUE)
@@ -241,7 +248,9 @@ country:
     - match:
         - "Kingdom of Greece"
       value: Greece
-    - match: Socialist Republic of Romania
+    - match:
+        - Socialist Republic of Romania
+        - Hunedoara County
       value: RO
     - match: Empire of Japan
       value: Japan
@@ -372,7 +381,9 @@ country:
       value: AE
     - match: "Region: Northern Mali"
       value: Mali
-    - match: "Provisional People's Committee for North Korea"
+    - match:
+        - "Provisional People's Committee for North Korea"
+        - Democratic People`s Republic of Korea
       value: North Korea
     - match: British Hong Kong
       value: HK
@@ -430,6 +441,7 @@ country:
         - U.S. state
         - Northern Cheyenne Indian Reservation
         - Seminole Nation of Oklahoma
+        - Ho-Chunk Nation of Wisconsin
         - Etats-Unis d'Amérique
         - The United States Of America
         - Confederate States of America
@@ -589,6 +601,9 @@ country:
     - match: Uzbekhistan
       value: UZ
     - match:
+        - British Ceylon
+      value: Sri Lanka
+    - match:
         - State of Vietnam
         - South Vietnam
         - Republic of Vietnam
@@ -739,6 +754,7 @@ country:
       value: Poland
     - match:
         - Slovak State (1939-1945)
+        - SLOVAKIA (Slovak Republic)
       value: Slovakia
     - match: Turks and Caicos Islads
       value: TC
@@ -849,6 +865,9 @@ date:
         - "30.05"
         - "18.02"
         - "02.08"
+        - "25.09"
+        - "04.11"
+        - "06.02"
         - "05.11.YYYY"
         - "16.12.YYYY"
         - "23.05.197"
@@ -986,6 +1005,10 @@ date:
       values:
         - 1958-08-24
         - 1958-08-28
+    - match: "15.05.1960(07.07.1977)"
+      values:
+        - 1960-05-15
+        - 1966-07-07
     - match: "29.02.1963 24.02.1963"
       values:
         - 1963-02-24
@@ -999,6 +1022,7 @@ date:
     "3006-02-13": "2006-02-13"
     "3003-02-20": "2003-02-20"
     "22-Fev-2022": "2022-02-22"
+    "29.02.1987": "1987-02"
     "22-Fev-2023": "2023-02-22"
     "22-Fev-2025": "2025-02-22"
     "22-Fev-2027": "2027-02-22"

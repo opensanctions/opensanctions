@@ -79,7 +79,7 @@ def crawl_person(context: Context) -> None:
         entity.add("notes", row.pop("reasoning_uk", None))
 
         country = row.get("country", None)
-        entity.add("country", COUNTRIES[country])
+        entity.add("country", COUNTRIES.get(country, country))
         entity.add("topics", "sanction")
         context.emit(entity, target=True)
         # h.audit_data(row)
@@ -110,7 +110,7 @@ def crawl_company(context: Context) -> None:
         entity.add_cast("Company", "ogrnCode", row.pop("ogrn", None))
 
         country = row.pop("country", None)
-        entity.add("country", COUNTRIES[country])
+        entity.add("country", COUNTRIES.get(country, country))
         entity.add("topics", "sanction")
         entity.add("notes", row.pop("reasoning_en", None))
         entity.add("notes", row.pop("reasoning_ru", None))
