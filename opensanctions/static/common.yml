@@ -222,7 +222,8 @@ country:
         - Denmark-Norway
         - West Ukrainian People's Republic
         - Pueblo of Laguna
-
+        - Gran Colombia
+        - Saudi Arabia national football team
         # Ukraine SFMS:
         - 27 May 1973
         - 1 Jan. 1975
@@ -715,6 +716,7 @@ country:
       value: Portugal
     - contains:
         - Syrian Arab Republic
+        - State of Syria
         - Damascus
       value: Syria
     - match:
@@ -857,19 +859,19 @@ date:
         - "６月14"
         - "10月10"
         - "９月28"
-        - "20.03"
-        - "13.10."
-        - "12.05."
-        - "18.04"
-        - "01.01"
-        - "30.05"
-        - "18.02"
-        - "02.08"
-        - "25.09"
-        - "04.11"
-        - "06.02"
-        - "05.11.YYYY"
-        - "16.12.YYYY"
+        # - "20.03"
+        # - "13.10."
+        # - "12.05."
+        # - "18.04"
+        # - "01.01"
+        # - "30.05"
+        # - "18.02"
+        # - "02.08"
+        # - "25.09"
+        # - "04.11"
+        # - "06.02"
+        # - "05.11.YYYY"
+        # - "16.12.YYYY"
         - "23.05.197"
       value: null
     - match: 1972-08-10 or 1972-08-11
@@ -1081,6 +1083,8 @@ date:
     "8 марта 1959": "1959-03-08"
     "9 августа 1976": "1976-08-09"
     "07.16.1962": "1962-07-16"
+    "1982-25-09": "1982-09-25"
+    "09/11/ 1954": "1954-11-09"
 
 email:
   options:
@@ -1437,6 +1441,9 @@ features:
         - Other Vessel Call Sign
         - Vessel Call Sign
       prop: callSign
+    - match:
+        - Vessel Year of Build
+      prop: buildDate
     - match:
         - "Aircraft Manufacturer's Serial Number (MSN)"
         - "Aircraft Manufacturer’s Serial Number (MSN)"

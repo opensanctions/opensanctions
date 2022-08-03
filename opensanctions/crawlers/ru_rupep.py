@@ -1,4 +1,5 @@
 import os
+import re
 import json
 from pprint import pprint
 from typing import Any, Dict, Optional
@@ -9,6 +10,7 @@ from opensanctions.core import Context
 from opensanctions import helpers as h
 from opensanctions.util import multi_split
 
+DAY_MONTH = re.compile(r'^\d\d?\.\d\d?\.?(YYYY)?$')
 PASSWORD = os.environ.get("OPENSANCTIONS_RUPEP_PASSWORD")
 FORMATS = ["%d.%m.%Y", "%m.%Y", "%Y", "%b. %d, %Y", "%B %d, %Y"]
 
@@ -44,6 +46,8 @@ def split_names(names):
 
 def parse_date(date):
     if date is not None:
+        if DAY_MONTH.match(date):
+            return None
         date = date.replace("Sept.", "Sep.")
     return h.parse_date(date, FORMATS)
 

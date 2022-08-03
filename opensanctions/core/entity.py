@@ -74,7 +74,7 @@ class Entity(CompositeEntity):
             return clean
         log.warning(
             "Rejected property value",
-            entity=self,
+            entity_id=self.id,
             prop=prop.name,
             value=value,
         )
