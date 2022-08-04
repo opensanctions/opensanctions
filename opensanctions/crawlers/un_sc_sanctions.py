@@ -71,23 +71,33 @@ def parse_individual(context: Context, node):
         h.apply_address(context, person, parse_address(context, addr))
 
     for doc in node.findall("./INDIVIDUAL_DOCUMENT"):
-        passport = context.make("Passport")
-        number = doc.findtext("./NUMBER")
-        date = doc.findtext("./DATE_OF_ISSUE")
-        type_ = doc.findtext("./TYPE_OF_DOCUMENT")
-        if number is None and date is None and type_ is None:
-            continue
-        passport.id = context.make_id(person.id, number, date, type_)
-        passport.add("holder", person)
-        passport.add("passportNumber", number)
-        passport.add("startDate", date)
-        passport.add("type", type_)
-        passport.add("type", doc.findtext("./TYPE_OF_DOCUMENT2"))
-        passport.add("summary", doc.findtext("./NOTE"))
         country = doc.findtext("./COUNTRY_OF_ISSUE")
         country = country or doc.findtext("./ISSUING_COUNTRY")
-        passport.add("country", country)
-        context.emit(passport)
+        doc_type = doc.findtext("./TYPE_OF_DOCUMENT")
+        if doc_type is None:
+            continue
+        result = context.lookup("document_type", doc_type)
+        if result is None:
+            context.log.warning(
+                "Unknown individual document type",
+                doc_type=doc_type,
+                number=doc.findtext("./NUMBER"),
+                country=country,
+            )
+            continue
+        passport = h.make_identification(
+            context,
+            person,
+            number=doc.findtext("./NUMBER"),
+            doc_type=doc_type,
+            summary=doc.findtext("./NOTE"),
+            start_date=doc.findtext("./DATE_OF_ISSUE"),
+            country=country,
+            passport=result.passport,
+        )
+        if passport is not None:
+            passport.add("type", doc.findtext("./TYPE_OF_DOCUMENT2"))
+            context.emit(passport)
 
     for nat in node.findall("./NATIONALITY/VALUE"):
         person.add("nationality", nat.text)

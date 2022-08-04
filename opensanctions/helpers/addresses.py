@@ -1,6 +1,6 @@
 from normality import slugify
 from functools import lru_cache
-from typing import List
+from typing import List, Optional
 from addressformatting import AddressFormatter
 from followthemoney.types import registry
 from followthemoney.util import make_entity_id, join_text
@@ -15,10 +15,12 @@ def get_formatter() -> AddressFormatter:
     return AddressFormatter()
 
 
-def clean_address(value: str) -> List[str]:
+def clean_address(value: Optional[str]) -> Optional[str]:
+    if value is None:
+        return None
     lookup = common_lookups().get("fulladdress")
-    if lookup is None or value is None:
-        return [value]
+    if lookup is None:
+        raise RuntimeError("No fulladdress datapatches are configured.")
     return lookup.get_value(value, default=value)
 
 
@@ -39,7 +41,7 @@ def make_address(
     country=None,
     country_code=None,
     key=None,
-):
+) -> Entity:
     """Generate an address schema object adjacent to the main entity."""
 
     city = join_text(place, city, sep=", ")

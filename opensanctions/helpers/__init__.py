@@ -4,6 +4,7 @@ from opensanctions.helpers.emails import clean_emails
 from opensanctions.helpers.phones import clean_phones
 from opensanctions.helpers.addresses import make_address, apply_address
 from opensanctions.helpers.sanctions import make_sanction
+from opensanctions.helpers.identification import make_identification
 from opensanctions.helpers.features import apply_feature
 from opensanctions.helpers.dates import extract_years, parse_date
 from opensanctions.helpers.names import make_name, apply_name
@@ -18,6 +19,7 @@ __all__ = [
     "make_address",
     "apply_address",
     "make_sanction",
+    "make_identification",
     "extract_years",
     "parse_date",
     "apply_feature",

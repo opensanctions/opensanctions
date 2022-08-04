@@ -1528,6 +1528,33 @@ features:
         - LE Number
       prop: leiCode
     - match:
+        - Travel Document Number
+        - Stateless Person ID Card
+        - Seafarer's Identification Document
+        - Cartilla de Servicio Militar Nacional
+        - Driver's License No.
+        - Electoral Registry No.
+        - Trade License No.
+        - Tourism License No.
+        - Pilot License Number
+        - Tarjeta Profesional
+        - License
+        - Birth Certificate Number
+        - Public Security and Immigration No.
+        - Afghan Money Service Provider License Number
+        - MSB Registration Number
+        - SRE Permit No
+        - SRE Permit No.
+        - Immigration No.
+        - SSN
+        - VisaNumberID
+        - Refugee ID Card
+        - File Number
+        - US FEIN
+        - Government Gazette Number
+        - Folio Mercantil No.
+        - Central Registration System Number
+        # previously inlined:
         - National Foreign ID Number
         - National ID No.
         - "Identification Number"
@@ -1559,6 +1586,12 @@ features:
         - UAE Identification
         - Romanian C.R.
       prop: idNumber
+      nested:
+        schema: Identification
+        feature: type
+        value: number
+        backref: holder
+        country: country
     - # taxNumber only, no adjacent object
       match:
         - Tax ID No.
@@ -1573,40 +1606,6 @@ features:
         - Romanian Tax Registration
         - C.I.F.
       prop: taxNumber
-    - # Identification only, no direct propery
-      match:
-        - Travel Document Number
-        - Stateless Person ID Card
-        - Seafarer's Identification Document
-        - Cartilla de Servicio Militar Nacional
-        - Driver's License No.
-        - Electoral Registry No.
-        - Trade License No.
-        - Tourism License No.
-        - Pilot License Number
-        - Tarjeta Profesional
-        - License
-        - Birth Certificate Number
-        - Public Security and Immigration No.
-        - Afghan Money Service Provider License Number
-        - MSB Registration Number
-        - SRE Permit No
-        - SRE Permit No.
-        - Immigration No.
-        - SSN
-        - VisaNumberID
-        - Refugee ID Card
-        - File Number
-        - US FEIN
-        - Government Gazette Number
-        - Folio Mercantil No.
-        - Central Registration System Number
-      nested:
-        schema: Identification
-        feature: type
-        value: number
-        backref: holder
-        country: country
     # Extra funky: securities
     - match: ISIN
       nested:

@@ -35,3 +35,17 @@ url: "https://www.un.org/securitycouncil/sanctions/information"
 data:
   url: https://scsanctions.un.org/resources/xml/en/consolidated.xml
   format: XML
+
+lookups:
+  document_type:
+    normalize: true
+    options:
+      - match:
+          - National Identification Number
+          - National identification no.
+        passport: false
+      - match:
+          - Passport
+          - Numéro de passeport
+          - Número de pasaporte
+        passport: true

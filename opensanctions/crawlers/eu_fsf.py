@@ -2,6 +2,7 @@ from lxml import etree
 from lxml.etree import _Element as Element
 from banal import as_bool
 from prefixdate import parse_parts
+from followthemoney.types import registry
 
 from opensanctions.core import Context
 from opensanctions import helpers as h
@@ -9,6 +10,12 @@ from opensanctions.core.entity import Entity
 
 
 def parse_country(node):
+    description = node.get("countryDescription")
+    if description == "UNKNOWN":
+        return None
+    code = registry.country.clean(description)
+    if code is not None:
+        return code
     code = node.get("countryIso2Code")
     if code == "CS":
         return "RS"
@@ -95,22 +102,40 @@ def parse_entry(context: Context, entry: Element):
         entity.add("gender", name.get("gender"), quiet=True)
 
     for node in entry.findall("./identification"):
-        type = node.get("identificationTypeCode")
-        schema = "Passport" if type == "passport" else "Identification"
-        passport = context.make(schema)
-        passport.id = context.make_id("ID", entity.id, node.get("logicalId"))
-        passport.add("holder", entity)
-        passport.add("authority", node.get("issuedBy"))
-        passport.add("type", node.get("identificationTypeDescription"))
-        passport.add("number", node.get("number"))
-        passport.add("number", node.get("latinNumber"))
-        passport.add("startDate", node.get("issueDate"))
-        passport.add("startDate", node.get("issueDate"))
-        passport.add("country", parse_country(node))
-        passport.add("country", node.get("countryDescription"))
-        for remark in node.findall("./remark"):
-            passport.add("summary", remark.text)
-        context.emit(passport)
+        doc_type = node.get("identificationTypeCode")
+        country = parse_country(node)
+        latin_number = node.get("latinNumber")
+        number = node.get("number") or latin_number
+        result = context.lookup("identification_type", doc_type, dataset="eu_fsf")
+        if result is None:
+            context.log.warning(
+                "Unknown identification type",
+                doc_type=doc_type,
+                description=node.get("identificationTypeDescription"),
+                number=number,
+                country=country,
+            )
+            continue
+        if result.prop is not None:
+            entity.add(result.prop, number, quiet=True)
+            entity.add(result.prop, latin_number, quiet=True)
+            entity.add("country", country, quiet=True)
+        if result.schema is not None:
+            passport = h.make_identification(
+                context,
+                entity,
+                number=number,
+                doc_type=node.get("identificationTypeDescription"),
+                authority=node.get("issuedBy"),
+                start_date=node.get("issueDate"),
+                country=country,
+                key=node.get("logicalId"),
+            )
+            if passport is not None:
+                passport.add("number", latin_number)
+                for remark in node.findall("./remark"):
+                    passport.add("summary", remark.text)
+                context.emit(passport)
 
     for node in entry.findall("./address"):
         address = parse_address(context, node)

@@ -49,16 +49,16 @@ def parse_entry(context: Context, entry):
         entity.add("title", node.text, quiet=True)
 
     for doc in entry.findall("./document-list"):
-        reg = doc.findtext("./document-reg")
-        number = doc.findtext("./document-id")
-        country = doc.findtext("./document-country")
-        passport = context.make("Passport")
-        passport.id = context.make_id("Passport", entity.id, reg, number, country)
-        passport.add("holder", entity)
-        passport.add("passportNumber", number)
-        passport.add("summary", reg)
-        passport.add("country", country)
-        context.emit(passport)
+        passport = h.make_identification(
+            context,
+            entity,
+            number=doc.findtext("./document-id"),
+            summary=doc.findtext("./document-reg"),
+            country=doc.findtext("./document-country"),
+            passport=True,
+        )
+        if passport is not None:
+            context.emit(passport)
 
     for doc in entry.findall("./id-number-list"):
         entity.add("idNumber", doc.text)

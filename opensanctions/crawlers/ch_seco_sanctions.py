@@ -111,26 +111,24 @@ def parse_identity(context: Context, entity, node, places):
         entity.add("birthPlace", address.get("full"))
 
     for doc in node.findall(".//identification-document"):
-        country = doc.find("./issuer")
         type_ = doc.get("document-type")
-        number = doc.findtext("./number")
+        is_passport = type_ in ("passport", "diplomatic-passport")
+        country = doc.find("./issuer")
         entity.add("nationality", country.text, quiet=True)
-        schema = "Identification"
-        if type_ in ("id-card"):
-            entity.add("idNumber", number)
-        if type_ in ("passport", "diplomatic-passport"):
-            entity.add("idNumber", number)
-            schema = "Passport"
-        passport = context.make(schema)
-        passport.id = context.make_id(entity.id, type_, doc.get("ssid"))
-        passport.add("holder", entity)
-        passport.add("country", country.text)
-        passport.add("number", number)
-        passport.add("type", type_)
-        passport.add("summary", doc.findtext("./remark"))
-        passport.add("startDate", doc.findtext("./date-of-issue"))
-        passport.add("endDate", doc.findtext("./expiry-date"))
-        context.emit(passport)
+        passport = h.make_identification(
+            context,
+            entity,
+            number=doc.findtext("./number"),
+            doc_type=type_,
+            country=country.text,
+            summary=doc.findtext("./remark"),
+            start_date=doc.findtext("./date-of-issue"),
+            end_date=doc.findtext("./expiry-date"),
+            key=doc.get("ssid"),
+            passport=is_passport,
+        )
+        if passport is not None:
+            context.emit(passport)
 
 
 def parse_entry(context: Context, target, programs, places, updated_at):
