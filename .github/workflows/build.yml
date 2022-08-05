@@ -77,7 +77,6 @@ jobs:
           opensanctions build-analytics
       - name: Clear all data
         run: |
-          opensanctions clear all
           opensanctions clear-workdir all
       - name: Build a distribution
         run: |
