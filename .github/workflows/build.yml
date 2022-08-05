@@ -66,9 +66,19 @@ jobs:
           pip install --no-cache-dir -q pyicu awscli
           pip install --no-cache-dir -q -e ".[dev]"
           pip freeze
-      - name: Run a single dataset
+      - name: Crawl a single dataset
         run: |
-          opensanctions run us_ofac_cons
+          opensanctions crawl us_ofac_cons
+      - name: Export a single dataset
+        run: |
+          opensanctions export us_ofac_cons
+      - name: Build analytics data
+        run: |
+          opensanctions build-analytics
+      - name: Clear all data
+        run: |
+          opensanctions clear all
+          opensanctions clear-workdir all
       - name: Build a distribution
         run: |
           python setup.py sdist bdist_wheel
