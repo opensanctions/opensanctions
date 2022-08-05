@@ -33,13 +33,13 @@ def run_export(
 ) -> None:
     """Export dump files for all datasets in the given scope."""
     scope = Dataset.require(scope_name)
+    resolver = get_resolver()
+    with engine_tx() as conn:
+        resolve_all_canonical(conn, resolver)
+    database = Database(scope, resolver, cached=True)
+    database.view(scope)
     with ThreadPoolExecutor(max_workers=threads) as executor:
         futures: List[Future] = []
-        resolver = get_resolver()
-        with engine_tx() as conn:
-            resolve_all_canonical(conn, resolver)
-        database = Database(scope, resolver, cached=True)
-        database.view(scope)
         futures = []
         for dataset_ in scope.datasets:
             futures.append(executor.submit(export_dataset, dataset_, database))
