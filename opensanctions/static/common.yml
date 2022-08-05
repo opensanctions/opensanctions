@@ -8,15 +8,10 @@ country:
   options:
     - match:
         - Council of Europe
-        - "00"
-        - "UNKNOWN"
-        - "UNK"
         - "U"
         - "YYY"
-        - "NULL"
         - "N/A"
         - "None Identified"
-        - "undetermined"
         - terrorist
         - "statelessness"
         - United Nations
@@ -28,9 +23,6 @@ country:
         - PO BOX 416
         - "02214513"
         - "220030"
-        - "Other"
-        - "Not Known"
-        - "Not Disclosed"
         - "Regional"
         - Shigeharu Ueki
         - Genshin Impact
@@ -234,18 +226,9 @@ country:
         - Danish Realm
       value: DK
     - match:
-        - Beylik of Tunis
-        - French protectorate of Tunisia
-        - Kingdom of Tunisia
-      value: Tunisia
-    - match:
         - Nazi Germany
         - Kingdom of Bavaria
       value: DE
-    - match:
-        - TCHEQUE (REPUBLIQUE)
-      value:
-        - Czech Republic
     - match:
         - "Kingdom of Greece"
       value: Greece
@@ -253,18 +236,11 @@ country:
         - Socialist Republic of Romania
         - Hunedoara County
       value: RO
-    - match: Empire of Japan
-      value: Japan
     - match:
         - Commonwealth of the Philippines
         - Second Philippine Republic
         - Third Republic of the Philippines
       value: Philippines
-    - match:
-        - Kingdom of Mysore
-        - Pondicherry
-        - Provinces of India
-      value: India
     - match:
         - "Jalisco"
         - "Guadalajara, Jalisco"
@@ -272,7 +248,6 @@ country:
         - "Culiacan, Sinaloa"
         - "Monterrey, Nuevo Leon"
         - "Tepic, Nayarit"
-        - State of Mexico
         - Oaxaca State
       value: MX
     - match:
@@ -292,7 +267,6 @@ country:
       value: Italy
     - match:
         - Ecuatorial Guinaea-
-        - Ecuatorial Guinea
       value: Equatorial Guinea
     - match:
         - Guinaea-
@@ -309,19 +283,9 @@ country:
         - Southern Netherlands
       value: Netherlands
     - match:
-        - Luxembourg (Grand-Duché)
-      values:
-        - LU
-    - match:
         - Federation of Malaya
         - Malaya
       value: Malaysia
-    - match:
-        - Zimbabwe Rhodesia
-      value: Zimbabwe
-    - match:
-        - Bechuanaland Protectorate
-      value: Botswana
     - match:
         - "Jordanian of Palestinian origin"
         - Zarqa
@@ -334,38 +298,22 @@ country:
         - Republic of Egypt (1953–1958)
       value: Egypt
     - match:
-        - Siam
-      value:
-        - Thailand
-    - match:
         - "Sanaa, Yemen"
         - Yemen Arab Republic
         - South Yemen
       value: YE
     - match:
-        - Democratic Republic of Georgia
-      value: Georgia
-    - match:
         - "Somali Location"
         - "Somalia Alt."
         - "Somali citizen"
       value: Somalia
-    - match:
-        - State of Somaliland
-        - British Somaliland
-      value: so-som
     - match: Saar
       value: DE
     - match:
         - Assembly of Kosovo*
       value: XK
     - match:
-        - Andalusia
-        - Catalonia
-      value: Spain
-    - match:
         - Palestinian National Council
-        - "PALESTINIAN TERRITORY, Occupied"
         - "Region: Gaza"
       value: Palestine
     - match:
@@ -373,7 +321,6 @@ country:
         - British Cyprus
       value: CY
     - match:
-        - "CONGO, Democratic Republic of (was Zaire)"
         - "Kinshasa"
       value: CD
     - match: NM # New Mexico?
@@ -384,10 +331,7 @@ country:
       value: Mali
     - match:
         - "Provisional People's Committee for North Korea"
-        - Democratic People`s Republic of Korea
       value: North Korea
-    - match: British Hong Kong
-      value: HK
     - match: sh-hl
       value: Saint Helena
     - match:
@@ -407,7 +351,6 @@ country:
         - DE
         - GB
     - match:
-        - Allemagne (Rép.féd.)
         - Saxe-Eisenach
       value:
         - DE
@@ -426,11 +369,7 @@ country:
         - Juba
       value: South Sudan
     - contains:
-        - United Kingdom of Great Britain
         - Uk/British
-        - Grande-Bretagne
-        - Kingdom of England
-        - Kingdom of Scotland
       value: GB
     - match:
         - United States. Also believed to hold Syrian nationality
@@ -443,9 +382,6 @@ country:
         - Northern Cheyenne Indian Reservation
         - Seminole Nation of Oklahoma
         - Ho-Chunk Nation of Wisconsin
-        - Etats-Unis d'Amérique
-        - The United States Of America
-        - Confederate States of America
       value:
         - US
     - match:
@@ -555,10 +491,8 @@ country:
     - match:
         - Ethnic Russian
         - Southern Russia
-        - Chechen Republic
         - Vedenskiy District, the Republic of Chechnya
         - Tsardom of Russia
-        - Russie ( Fédération de )
       value: RU
     - match:
         - Former Ukrainian
@@ -599,18 +533,12 @@ country:
       values:
         - SUHH
         - UZ
-    - match: Uzbekhistan
-      value: UZ
-    - match:
-        - British Ceylon
-      value: Sri Lanka
     - match:
         - State of Vietnam
         - South Vietnam
         - Republic of Vietnam
       value: Vietnam
     - match:
-        - North Macedonia, The Republic of
         - Socialist Republic of Macedonia
       value: MK
     - match: Iraq,Iran
@@ -639,22 +567,11 @@ country:
         - SUHH
         - Latvia
     - match:
-        # *cough cough*:
-        - тимчасово окупована територія Автономної Республіки Крим
-      value: RU
-    - match:
         - Ukrainian,Russian
         - Russian Federation,Ukraine
       values:
         - UA
         - RU
-    - match:
-        - Russian Empire
-        - Russian Republic
-        - Chechen Republic of Ichkeria
-        - Chechen
-        - Moscow
-      value: RU
     - match:
         - Russian SFSR (now Russian Federation)
         - Russian SFSR
@@ -674,10 +591,6 @@ country:
         - Belarusian People's Republic
       values:
         - SUHH
-        - BY
-    - match:
-        - Belrus
-      values:
         - BY
     - match:
         - Estonian Soviet Socialist Republic
@@ -725,41 +638,17 @@ country:
     - match:
         - former Yugoslavia
         - Kingdom of Yugoslavia
-        - Federal People's Republic of Yugoslavia
-        - Democratic Federal Yugoslavia
       value: YUCS
-    - match:
-        - Yougoslavie (Serbie-Montenegro)
-      value: CSXX
-    - match:
-        - Republic of Hungary
-        - People's Republic of Hungary
-      value: Hungary
-    - match:
-        - Republic of Abkhazia
-        - Республика Абхазия
-      value: GE-AB
     - match:
         - Independent State of Croatia
         - Republic of Serbian Krajina
       value: HR
     - match:
-        - Socialist Republic of Bosnia and Herzegovina
-        - Republika Srpska
-        - Bosniaks
-      value: BA
-    - match:
-        - Grand Duchy of Finland
-      value: Finland
-    - match:
         - Polish People's Republic
       value: Poland
     - match:
         - Slovak State (1939-1945)
-        - SLOVAKIA (Slovak Republic)
       value: Slovakia
-    - match: Turks and Caicos Islads
-      value: TC
     - match:
         - Afghanistan   Afghanistan
         - Islamic Emirate of Afghanistan
@@ -781,10 +670,7 @@ country:
     - match:
         - First Republic of Austria
         - Federal State of Austria
-        - Austrians
       value: AT
-    - match: Canadians
-      value: CA
     - match:
         - Saudi Arabian Citizen
         - al-Khafji
@@ -792,12 +678,6 @@ country:
         - Saud
         - Riyadh
       value: Saudi Arabia
-    - match:
-        - Second Syrian Republic
-      value: Syria
-    - match:
-        - Bangladeshis
-      value: Bangladesh
     - match:
         - פקיסטן ואפגניסטן
         - PAKISTAN AND AFGHNISTAN
@@ -824,7 +704,6 @@ country:
         - Faisalabad, Punjab, Pakistan
         - Azad Kashmir
         - Pakis
-        - Pakistanis
         - پاڪستاني
       value: PK
     - match:
