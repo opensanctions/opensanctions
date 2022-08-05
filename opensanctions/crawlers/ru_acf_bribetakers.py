@@ -7,6 +7,8 @@ from opensanctions import helpers as h
 
 
 def parse_date(date):
+    if h.check_no_year(date):
+        return None
     return h.parse_date(date.strip(), ["%d.%m.%Y"])
 
 

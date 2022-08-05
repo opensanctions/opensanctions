@@ -2,6 +2,7 @@ import re
 from typing import Iterable, List, Optional, Set
 from prefixdate import parse_formats
 
+DAY_MONTH = re.compile(r"^\d\d?\.\d\d?\.?(YYYY)?$")
 NUMBERS = re.compile("\d+")
 
 
@@ -19,6 +20,16 @@ def extract_years(text: str, default: Optional[str] = None) -> Set[str]:
             return set()
         years.add(year)
     return years
+
+
+def check_no_year(text: str) -> bool:
+    """Check for a few formats in which dates are given as day/month, with no year
+    specified."""
+    if text is None:
+        return True
+    if DAY_MONTH.match(text) is not None:
+        return True
+    return False
 
 
 def parse_date(
