@@ -54,6 +54,11 @@ Once you've successfully :ref:`installed <install>` OpenSanctions, you can use t
 built-in command-line tool to run parts of the system:
 
 .. code-block:: bash
+    # Before everything else, flush away cached source data. If you don't 
+    # do this, you'll essentially work in developer mode where a local
+    # cached copy of the source data is used instead of fetching fresh
+    # files:
+    $ opensanctions clear-workdir
 
     # Crawl and export the US consolidated list:
     $ opensanctions crawl us_ofac_cons
