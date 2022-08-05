@@ -1,6 +1,8 @@
 import click
+import shutil
 import logging
 import asyncio
+from typing import Optional
 from zavod.logs import get_logger
 from nomenklatura.tui import DedupeApp
 from nomenklatura.judgement import Judgement
@@ -18,7 +20,7 @@ from opensanctions.core.statements import max_last_seen
 from opensanctions.core.statements import resolve_all_canonical, resolve_canonical
 from opensanctions.core.analytics import build_analytics
 from opensanctions.core.db import engine_tx
-from opensanctions.processing import run_enrich, run_pipeline
+from opensanctions.processing import run_enrich, run_crawl, run_export
 from opensanctions.util import write_json
 
 log = get_logger(__name__)
@@ -41,21 +43,14 @@ def cli(verbose=False, quiet=False):
 @click.argument("dataset", default=Dataset.ALL, type=datasets)
 @click.option("-t", "--threads", type=int, default=settings.THREADS)
 def crawl(dataset, threads):
-    run_pipeline(dataset, export=False, threads=threads)
+    run_crawl(dataset, threads=threads)
 
 
 @cli.command("export", help="Export entities from the given dataset")
 @click.argument("dataset", default=Dataset.ALL, type=datasets)
 @click.option("-t", "--threads", type=int, default=settings.THREADS)
 def export(dataset, threads):
-    run_pipeline(dataset, crawl=False, threads=threads)
-
-
-@cli.command("run", help="Run the full process for the given dataset")
-@click.argument("dataset", default=Dataset.ALL, type=datasets)
-@click.option("-t", "--threads", type=int, default=settings.THREADS)
-def run(dataset, threads):
-    run_pipeline(dataset, threads=threads)
+    run_export(dataset, threads=threads)
 
 
 @cli.command("enrich", help="Import matched entities from an external source")
@@ -74,6 +69,18 @@ def clear(dataset):
         Context(source).clear()
 
 
+@cli.command("clear-workdir", help="Delete the working path and cached source data")
+@click.argument("dataset", default=Dataset.ALL, type=datasets)
+def clear_workdir(dataset: Optional[str] = None):
+    ds = Dataset.require(dataset)
+    for part in ds.datasets:
+        path = settings.DATASET_PATH.joinpath(part.name)
+        if not path.exists():
+            continue
+        log.info("Clear path: %s" % path)
+        shutil.rmtree(path)
+
+
 @cli.command("resolve", help="Apply de-duplication to the statements table")
 def resolve():
     resolver = get_resolver()
@@ -83,7 +90,7 @@ def resolve():
 
 @cli.command("xref", help="Generate dedupe candidates from the given dataset")
 @click.argument("dataset", default=Dataset.DEFAULT, type=datasets)
-@click.option("-l", "--limit", type=int, default=5000)
+@click.option("-l", "--limit", type=int, default=10000)
 def xref(dataset, limit):
     dataset = Dataset.require(dataset)
     blocking_xref(dataset, limit=limit)

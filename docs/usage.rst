@@ -56,16 +56,18 @@ built-in command-line tool to run parts of the system:
 .. code-block:: bash
 
     # Crawl and export the US consolidated list:
-    $ opensanctions run us_ofac_cons
+    $ opensanctions crawl us_ofac_cons
+    $ opensanctions export us_ofac_cons
 
     # This works for both sources and collections. Running a collection will
     # crawl all related sources and then export the collection data:
-    $ opensanctions run sanctions
+    $ opensanctions crawl sanctions
+    $ opensanctions export sanctions
 
-    # Running without a specified dataset name will default to using the
+    # Crawling without a specified dataset name will default to using the
     # `all` collection which contains all sources:
-    $ opensanctions run
-    $ opensanctions run all
+    $ opensanctions crawl
+    $ opensanctions crawl all
 
     # If you're developing the crawler, you can skip generating the exports and
     # only run the crawl stage:

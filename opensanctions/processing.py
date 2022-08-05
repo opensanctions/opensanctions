@@ -16,32 +16,35 @@ def _compute_futures(futures: List[Future]):
         future.result()
 
 
-def run_pipeline(
-    scope_name: str,
-    crawl: bool = True,
-    export: bool = True,
-    threads: int = settings.THREADS,
-) -> None:
+def run_crawl(scope_name: str, threads: int = settings.THREADS) -> None:
+    """Crawl all datasets within the given scope."""
     scope = Dataset.require(scope_name)
     with ThreadPoolExecutor(max_workers=threads) as executor:
         futures: List[Future] = []
-        if crawl is True:
-            for source in scope.sources:
-                ctx = Context(source)
-                futures.append(executor.submit(ctx.crawl))
-            _compute_futures(futures)
+        for source in scope.sources:
+            ctx = Context(source)
+            futures.append(executor.submit(ctx.crawl))
+        _compute_futures(futures)
 
-        if export is True:
-            resolver = get_resolver()
-            with engine_tx() as conn:
-                resolve_all_canonical(conn, resolver)
-            database = Database(scope, resolver, cached=True)
-            database.view(scope)
-            futures = []
-            for dataset_ in scope.datasets:
-                futures.append(executor.submit(export_dataset, dataset_, database))
-            futures.append(executor.submit(export_metadata))
-            _compute_futures(futures)
+
+def run_export(
+    scope_name: str,
+    threads: int = settings.THREADS,
+) -> None:
+    """Export dump files for all datasets in the given scope."""
+    scope = Dataset.require(scope_name)
+    with ThreadPoolExecutor(max_workers=threads) as executor:
+        futures: List[Future] = []
+        resolver = get_resolver()
+        with engine_tx() as conn:
+            resolve_all_canonical(conn, resolver)
+        database = Database(scope, resolver, cached=True)
+        database.view(scope)
+        futures = []
+        for dataset_ in scope.datasets:
+            futures.append(executor.submit(export_dataset, dataset_, database))
+        futures.append(executor.submit(export_metadata))
+        _compute_futures(futures)
 
 
 def run_enrich(scope_name: str, external_name: str, threshold: float):
