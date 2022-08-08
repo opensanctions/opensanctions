@@ -26,6 +26,8 @@ country:
         - "Regional"
         - Shigeharu Ueki
         - Genshin Impact
+        - Other
+        - "NULL"
         # All the countries below are nulled out because they do not have modern
         # equivalents. The rule of thumb here is to map countries into modern ones
         # if they are a perfect subset (e.g. Bavaria into Germany), but to drop
@@ -173,6 +175,7 @@ country:
         - Ziyarid dynasty
         - Taifa of Dénia
         - Safavid dynasty
+        - Republic of Upper Volta
         # TODO:
         - Kurdistan
         - Kingdom of Tlemcen
@@ -964,6 +967,7 @@ date:
     "07.16.1962": "1962-07-16"
     "1982-25-09": "1982-09-25"
     "09/11/ 1954": "1954-11-09"
+    "-07.07.1974": "1974-07-07"
 
 email:
   options:
