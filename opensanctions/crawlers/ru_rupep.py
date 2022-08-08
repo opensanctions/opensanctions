@@ -50,7 +50,7 @@ def parse_date(date):
 
 def crawl_person(context: Context, data: Dict[str, Any]):
     is_pep = data.pop("is_pep", False)
-    entity = context.make("Person", target=is_pep)
+    entity = context.make("Person")
     wikidata_id = clean_wdid(data.pop("wikidata_id", None))
     entity.id = person_id(context, data.pop("id"), wikidata_id)
     entity.add("sourceUrl", data.pop("url_en", None))
