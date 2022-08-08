@@ -22,7 +22,7 @@ def make_identification(
     if number is None:
         return None
     proxy.id = context.make_id(entity.id, number, doc_type, key)
-    proxy.add("holder", entity)
+    proxy.add("holder", entity.id)
     proxy.add("number", number)
     proxy.add("type", doc_type)
     proxy.add("country", country)
@@ -31,4 +31,8 @@ def make_identification(
     proxy.add("startDate", start_date)
     proxy.add("endDate", end_date)
     # context.inspect(proxy.to_dict())
+    if passport:
+        entity.add("passportNumber", number)
+    else:
+        entity.add("idNumber", number)
     return proxy
