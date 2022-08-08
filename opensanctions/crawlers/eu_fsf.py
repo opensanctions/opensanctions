@@ -79,7 +79,7 @@ def parse_entry(context: Context, entry: Element):
     entity = context.make(schema)
     eu_ref = entry.get("euReferenceNumber")
     if eu_ref is not None:
-        entity.id = context.make_slug(eu_ref, dataset="eu_fsf")
+        entity.id = context.make_slug(eu_ref, prefix="eu-fsf")
     else:
         entity.id = context.make_slug("logical", entry.get("logicalId"))
     entity.add("notes", h.clean_note(entry.findtext("./remark")))
@@ -172,8 +172,8 @@ def parse_entry(context: Context, entry: Element):
 
     for node in entry.findall("./citizenship"):
         entity.add("nationality", parse_country(node), quiet=True)
-        entity.add("nationality", node.get("countryDescription"), quiet=True)
 
+    context.inspect(entry)
     context.emit(entity, target=True)
 
 

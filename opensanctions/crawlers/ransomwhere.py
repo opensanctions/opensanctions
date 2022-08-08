@@ -16,7 +16,7 @@ def crawl(context: Context):
     with open(path, "r") as fh:
         data = json.load(fh)
     for entry in data.get("result", []):
-        wallet = context.make("CryptoWallet", target=True)
+        wallet = context.make("CryptoWallet")
         wallet.id = context.make_slug(entry.get("address"))
         wallet.add("publicKey", entry.pop("address"))
         wallet.add("topics", "crime.theft")
@@ -27,4 +27,4 @@ def crawl(context: Context):
         wallet.add("amountUsd", format_number(entry.pop("balanceUSD")))
         wallet.add("currency", entry.pop("blockchain"))
         h.audit_data(entry, ignore=["transactions"])
-        context.emit(wallet)
+        context.emit(wallet, target=True)

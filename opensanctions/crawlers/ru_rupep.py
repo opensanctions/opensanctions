@@ -107,7 +107,7 @@ def crawl_person(context: Context, data: Dict[str, Any]):
     for rel_data in data.pop("related_persons", []):
         other_pep = rel_data.pop("is_pep", False)
         other_wdid = clean_wdid(rel_data.pop("person_wikidata_id"))
-        other = context.make("Person", target=other_pep)
+        other = context.make("Person")
         other.id = person_id(context, rel_data.pop("person_id"), other_wdid)
         other.add("name", rel_data.pop("person_en", None))
         other.add("name", rel_data.pop("person_ru", None))

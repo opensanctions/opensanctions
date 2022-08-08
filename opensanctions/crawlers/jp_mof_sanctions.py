@@ -70,7 +70,7 @@ def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str
     name_japanese = row.pop("name_japanese")
     entity.id = context.make_id(*name_english, *name_japanese)
     if entity.id is None:
-        # context.pprint((sheet, row))
+        # context.inspect((sheet, row))
         return
     entity.add("name", parse_names(name_english))
     if not entity.has("name"):
@@ -124,7 +124,7 @@ def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str
     sanction.add("listingDate", parse_date(row.pop("publication_date", [])))
 
     # if len(row):
-    #     context.pprint(row)
+    #     context.inspect(row)
     entity.add("topics", "sanction")
     context.emit(entity, target=True)
     context.emit(sanction)

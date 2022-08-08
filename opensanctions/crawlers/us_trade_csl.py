@@ -31,7 +31,7 @@ def parse_result(context: Context, result):
     entity_number = result.pop("entity_number", None)
     if entity_number is not None:
         assert int(entity_number)
-        entity.id = context.make_slug(entity_number, dataset="us_ofac_sdn")
+        entity.id = context.make_slug(entity_number, prefix="ofac")
 
     name = result.pop("name", None)
     name = name.replace("and any successor, sub-unit, or subsidiary thereof", "")

@@ -9,7 +9,6 @@ from nomenklatura.dataset import Dataset as NomenklaturaDataset
 from opensanctions import settings
 from opensanctions.core.lookups import load_yaml
 from opensanctions.core.db import KEY_LEN
-from opensanctions.util import joinslug
 
 if TYPE_CHECKING:
     from opensanctions.core.source import Source
@@ -62,12 +61,6 @@ class Dataset(NomenklaturaDataset):
         self.collections = set(collections)
 
         self.lookups = get_lookups(config.get("lookups", {}))
-
-    def make_slug(self, *parts: Optional[str], strict: bool = True) -> Optional[str]:
-        slug = joinslug(*parts, prefix=self.prefix, strict=strict)
-        if slug is not None:
-            return slug[:KEY_LEN]
-        return None
 
     @cached_property
     def datasets(self) -> Set["Dataset"]:

@@ -60,7 +60,7 @@ def crawl_physical(context: Context) -> None:
         handle_sanction(context, entity, row)
 
         context.emit(entity, target=True)
-        # context.pprint(row)
+        # context.inspect(row)
 
 
 def crawl_legal(context: Context) -> None:
@@ -83,7 +83,7 @@ def crawl_legal(context: Context) -> None:
         handle_address(context, entity, row.pop("place", None))
         handle_address(context, entity, row.pop("place_alternative", None))
         handle_sanction(context, entity, row)
-        # context.pprint(row)
+        # context.inspect(row)
         context.emit(entity, target=True)
 
 

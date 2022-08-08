@@ -79,7 +79,7 @@ def apply_prop(context: Context, entity, sanction, field, value):
 
 
 def crawl_entity(context: Context, data):
-    # context.pprint(data)
+    # context.inspect(data)
     nature = data.pop("Nature")
     schema = SCHEMATA.get(nature)
     if schema is None:

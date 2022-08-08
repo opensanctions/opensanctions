@@ -89,7 +89,7 @@ def crawl_company(context: Context) -> None:
     data = json_resource(context, context.dataset.data.url, "company")
     for row in data["data"]:
         row = clean_row(row)
-        # context.pprint(row)
+        # context.inspect(row)
         company_id = row.pop("company_id")
         name_en = row.pop("name_en", None)
         name = row.pop("name", None) or name_en
@@ -118,7 +118,7 @@ def crawl_company(context: Context) -> None:
 
         context.emit(entity, target=True)
         row.pop("logo_en", None)
-        # context.pprint(row)
+        # context.inspect(row)
 
 
 def crawl(context: Context) -> None:

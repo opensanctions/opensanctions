@@ -49,6 +49,6 @@ def crawl(context: Context):
                     sanction.set("authority", authority)
                     sanction.set("reason", member["reason"])
                     sanction.add("summary", regime_data["specification"])
-                    # context.pprint(id_code)
+                    # context.inspect(id_code)
                     context.emit(entity, target=True)
                     context.emit(sanction)

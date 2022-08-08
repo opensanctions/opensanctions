@@ -26,7 +26,7 @@ def crawl_row(context: Context, row):
     entity.add("gender", row.get("Gender"))
 
     context.emit(entity, target=True)
-    # context.pprint(row)
+    # context.inspect(row)
 
 
 def crawl(context: Context):

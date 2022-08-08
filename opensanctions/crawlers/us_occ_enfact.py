@@ -55,6 +55,6 @@ def crawl(context: Context):
         sanction.add("endDate", record.pop("TerminationDate", None))
         sanction.add("program", record.pop("EnforcementTypeDescription", None))
         sanction.add("authorityId", record.pop("DocketNumber", None))
-        # context.pprint(record)
+        # context.inspect(record)
         context.emit(entity, target=True)
         context.emit(sanction)

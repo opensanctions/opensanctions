@@ -39,7 +39,7 @@ def crawl(context: Context):
     data = context.fetch_json(url, headers=headers)
     # TODO write this out to a source.json
     for data in data["response"]["ZPROCSUPP"]:
-        # context.pprint(data)
+        # context.inspect(data)
         entity = context.make("LegalEntity")
         name = data.get("SUPP_NAME")
         ent_id = data.get("SUPP_ID")

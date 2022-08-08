@@ -67,7 +67,7 @@ def crawl(context: Context):
             sanction.add("program", row.pop("idBinstType"))
             sanction.add("startDate", h.parse_date(row.pop("datefrom"), FORMATS))
             sanction.add("endDate", h.parse_date(row.pop("dateto"), FORMATS))
-            # context.pprint(row)
+            # context.inspect(row)
 
             context.emit(sanction)
             context.emit(entity, target=True)

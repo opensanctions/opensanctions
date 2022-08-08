@@ -129,7 +129,7 @@ def crawl(context: Context):
 
         names = body.split(", ")
         entity.add("name", names)
-        # context.pprint(names)
+        # context.inspect(names)
 
         if entity.schema.name == "Thing":
             entity.schema = model.get("LegalEntity")

@@ -1,19 +1,19 @@
 import json
 import hashlib
-import requests
 import mimetypes
 from typing import Iterable, cast, Dict, Optional, Union
 from lxml import etree, html
 from pprint import pprint
+from requests.exceptions import RequestException
 from datapatch import LookupException
 from sqlalchemy import MetaData
 from lxml.etree import _Element, tostring
+from zavod.context import GenericZavod
 from followthemoney import model
 from followthemoney.util import make_entity_id
 from followthemoney.schema import Schema
 from followthemoney.helpers import check_person_cutoff
 from structlog.contextvars import clear_contextvars, bind_contextvars
-from zavod.logs import get_logger
 from nomenklatura.cache import Cache
 from nomenklatura.util import normalize_url
 from nomenklatura.judgement import Judgement
@@ -34,7 +34,7 @@ from opensanctions.core.statements import cleanup_dataset, clear_statements
 from opensanctions.core.statements import statements_from_entity, save_statements
 
 
-class Context(object):
+class Context(GenericZavod[Entity]):
     """A utility object to be passed into crawlers which supports
     emitting entities, accessing metadata and logging errors and
     warnings.
@@ -45,46 +45,24 @@ class Context(object):
     BATCH_CONCURRENT = 5
 
     def __init__(self, dataset: Dataset):
+        data_path = settings.DATASET_PATH.joinpath(dataset.name)
+        super().__init__(
+            dataset.name,
+            Entity,
+            prefix=dataset.prefix,
+            data_path=data_path,
+        )
         self.dataset = dataset
-        self.path = settings.DATASET_PATH.joinpath(dataset.name)
-        self.log = get_logger(dataset.name)
         self.cache = Cache(engine, MetaData(bind=engine), dataset)
         self._statements: Dict[str, Statement] = {}
-        self.http = requests.Session()
-        self.http.headers.update(settings.HEADERS)
 
     def bind(self) -> None:
         bind_contextvars(dataset=self.dataset.name)
 
     def close(self) -> None:
         """Flush and tear down the context."""
-        self.http.close()
+        super().close()
         clear_contextvars()
-
-    def get_resource_path(self, name):
-        self.path.mkdir(parents=True, exist_ok=True)
-        return self.path.joinpath(name)
-
-    def fetch_resource(self, name, url, auth=None, headers=None):
-        """Fetch a URL into a file located in the current run folder,
-        if it does not exist."""
-        file_path = self.get_resource_path(name)
-        if not file_path.exists():
-            self.log.info("Fetching resource", path=file_path.as_posix(), url=url)
-            file_path.parent.mkdir(exist_ok=True, parents=True)
-            with self.http.get(
-                url,
-                stream=True,
-                auth=auth,
-                headers=headers,
-                timeout=(settings.HTTP_TIMEOUT, settings.HTTP_TIMEOUT),
-                verify=False,
-            ) as res:
-                res.raise_for_status()
-                with open(file_path, "wb") as handle:
-                    for chunk in res.iter_content(chunk_size=8192 * 16):
-                        handle.write(chunk)
-        return file_path
 
     def fetch_response(self, url, headers=None, auth=None):
         self.log.debug("HTTP GET", url=url)
@@ -173,30 +151,6 @@ class Context(object):
         ds = Dataset.require(dataset) if dataset is not None else self.dataset
         return ds.lookups[lookup].match(value)
 
-    def make(self, schema: Union[str, Schema], target=False) -> Entity:
-        """Make a new entity with some dataset context set."""
-        return Entity(model, {"schema": schema, "target": target})
-
-    def make_slug(
-        self, *parts: Optional[str], strict: bool = True, dataset: Optional[str] = None
-    ) -> Optional[str]:
-        ds = Dataset.require(dataset) if dataset is not None else self.dataset
-        return ds.make_slug(*parts, strict=strict)
-
-    def make_id(
-        self, *parts: Optional[str], dataset: Optional[str] = None
-    ) -> Optional[str]:
-        hashed = make_entity_id(*parts, key_prefix=self.dataset.name)
-        return self.make_slug(hashed, dataset=dataset)
-
-    def pprint(self, obj) -> None:
-        """Utility to avoid dumb imports."""
-        if isinstance(obj, _Element):
-            obj = tostring(obj, pretty_print=True, encoding=str)
-            print(obj)
-        else:
-            pprint(obj)
-
     def flush(self) -> None:
         """Emitted entities are de-constructed into statements for the database
         to store. These are inserted in batches - so the statement cache on the
@@ -228,7 +182,7 @@ class Context(object):
         if len(self._statements) >= (self.BATCH_SIZE * 10):
             self.flush()
 
-    def crawl(self) -> None:
+    def crawl(self) -> bool:
         """Run the crawler."""
         self.bind()
         with engine_tx() as conn:
@@ -249,13 +203,18 @@ class Context(object):
                 targets = count_entities(conn, dataset=self.dataset, target=True)
 
             self.log.info("Crawl completed", entities=entities, targets=targets)
+            return True
         except KeyboardInterrupt:
-            raise
-        except LookupException as exc:
-            self.log.error(exc.message, lookup=exc.lookup.name, value=exc.value)
-            raise
-        except Exception:
-            self.log.exception("Crawl failed")
+            self.log.warning("Aborted by user (SIGINT)")
+            return False
+        except LookupException as lexc:
+            self.log.error(lexc.message, lookup=lexc.lookup.name, value=lexc.value)
+            return False
+        except RequestException as rexc:
+            self.log.error(str(rexc), url=rexc.request.url, resp=repr(rexc.response))
+            return False
+        except Exception as exc:
+            self.log.exception("Crawl failed", error=str(exc))
             raise
         finally:
             self.close()

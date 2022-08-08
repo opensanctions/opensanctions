@@ -7,7 +7,7 @@ FORMATS = ["%d.%m.%Y"]
 
 
 def make_entity(context: Context, el, schema, entity_id):
-    entity = context.make(schema, target=True)
+    entity = context.make(schema)
     entity.id = entity_id
     entity.add("notes", h.clean_note(el.findtext("./note")))
     entity.add("topics", "sanction")
