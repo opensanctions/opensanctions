@@ -211,7 +211,8 @@ class Context(GenericZavod[Entity]):
             self.log.error(lexc.message, lookup=lexc.lookup.name, value=lexc.value)
             return False
         except RequestException as rexc:
-            self.log.error(str(rexc), url=rexc.request.url, resp=repr(rexc.response))
+            resp = repr(rexc.response)
+            self.log.error(str(rexc), url=rexc.request.url, response=resp)
             return False
         except Exception as exc:
             self.log.exception("Crawl failed", error=str(exc))
