@@ -1375,6 +1375,7 @@ features:
         - ETC
         - XVG
         - USDT
+        - USDC
       nested:
         schema: CryptoWallet
         feature: currency
