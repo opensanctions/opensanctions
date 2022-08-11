@@ -43,4 +43,4 @@ config:
     - Organization
     - LegalEntity
     # - Person
-  cache_days: 90
+  cache_days: 30
