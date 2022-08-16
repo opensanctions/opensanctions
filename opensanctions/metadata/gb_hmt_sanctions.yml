@@ -314,6 +314,8 @@ lookups:
           - Cham Holding (parent)
           - Cham Holdings (parent)
         value: Cham Holdings
+      - match: Rosatom
+        value: Rosatom
       - match: DTRSC. Ministry of Defence and Armed Force Logistics (MODAFL)
         values:
           - Ministry of Defence and Armed Force Logistics (MODAFL)

@@ -219,12 +219,19 @@ country:
         - Pueblo of Laguna
         - Gran Colombia
         - Saudi Arabia national football team
+        - Transcaucasian Commissariat
+        - Transcaucasian Democratic Federative Republic
+        - Beiyang Government
         # Ukraine SFMS:
         - 27 May 1973
         - 1 Jan. 1975
       contains:
         - (JVCFOR)
       value: null
+    - match:
+        - Chinese Soviet Republic
+        - Китайська Народна Республіка
+      value: China
     - match:
         - Danish Realm
       value: DK
@@ -239,6 +246,9 @@ country:
         - Socialist Republic of Romania
         - Hunedoara County
       value: RO
+    - match:
+        - Socialist Soviet Republic Of Georgia
+      value: GE
     - match:
         - Commonwealth of the Philippines
         - Second Philippine Republic
@@ -345,6 +355,9 @@ country:
       values:
         - GB
         - IE
+    - match:
+        - Шотландія
+      value: GB-SCT
     - match: British Pakistani
       values:
         - GB
