@@ -33,4 +33,4 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ghcr.io/opensanctions/opensanctions:latest
-          cache-to: type=registry,ref=ghcr.io/opensanctions/opensanctions:buildcache,mode=max
+          cache-to: type=gha,mode=max
