@@ -168,6 +168,9 @@ class Database(object):
                 continue
             if prop.prop is None:
                 continue
+            if prop.prop.name not in entity.schema.properties:
+                msg = "Entity %r has invalid property: %r" % (entity, prop.prop)
+                raise ValueError(msg)
             entity.unsafe_add(prop.prop, prop.value, cleaned=True)
 
         entity.referents.update(self.resolver.get_referents(entity.id))
