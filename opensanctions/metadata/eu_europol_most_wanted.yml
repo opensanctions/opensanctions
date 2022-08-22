@@ -1,0 +1,29 @@
+title: "Europe's most wanted fugitives"
+url: https://eumostwanted.eu/
+
+description: >
+    Europe's most wanted fugitives is a collaboration of several Fugitive Active Search Teams (ENFAST)  in EU Member States.
+    Whose administrators upload their countries’ most wanted fugitives, and will directly receive any leads about them.
+    The ENFAST (European Network of Fugitive Active Search Teams) project aims to increase security within the European 
+    Union by improving efficiency in tracing and arresting internationally wanted criminals, who committed serious crimes. 
+    ENFAST is a network of police officers available 24/7 who can immediately undertake action to locate and arrest fugitives.
+    
+
+entry_point: opensanctions.crawlers.eu_europol_most_wanted
+
+prefix: eu-europol-most-wanted
+
+collections:
+    - crime
+
+# I don't know enough about this
+publisher:
+    organization: ENFAST
+    authority: European Union 
+    acronym: ENFAST
+    country: eu
+    url: https://eumostwanted.eu/enfast
+
+data:
+    url: https://eumostwanted.eu/
+    format: html
