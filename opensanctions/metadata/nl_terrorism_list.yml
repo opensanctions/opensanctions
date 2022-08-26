@@ -16,6 +16,7 @@ description: |
   operating in the Kingdom of the Netherlands.
 collections:
   - sanctions
+  - default
 url: https://www.government.nl/documents/reports/2016/01/15/national-terrorism-list
 publisher:
   name: Ministry of Foreign Affairs
