@@ -222,6 +222,7 @@ country:
         - Transcaucasian Commissariat
         - Transcaucasian Democratic Federative Republic
         - Beiyang Government
+        - British Raj
         # Ukraine SFMS:
         - 27 May 1973
         - 1 Jan. 1975
@@ -459,6 +460,29 @@ country:
         - Australiana
         - Gold Coast
       value: Australia
+    - match:
+        - פלסטין
+      value: Palestine
+    - match:
+        - תורכיה
+      value: Turkey
+    - match:
+        - תורכיה ירדן ערב הסעודית
+      values:
+        - Turkey
+        - Jordan
+        - Saudi Arabia
+    - match:
+        - אלג'ריה
+      value: Algeria
+    - match:
+        - מאע"מ
+      value: United Arab Emirates
+    - match:
+        - ירדן, כווית
+      values:
+        - Jordan
+        - Kuweit
     - contains: Fiji (Prakash’s Australian
       value: Fiji
     - match:
@@ -1048,6 +1072,10 @@ email:
         - bk@smpbank.ru
         - Money@smpbank.ru
         - smpbank@smpbank.ru
+    - match: (1) dalzavod@dcss.ru (2) ok@csdalzavod.ru
+      values:
+        - dalzavod@dcss.ru
+        - ok@csdalzavod.ru
     - match: (1) info@scf-group.ru (2) pr@scf-group.ru (3) ir@scf-group.ru
       values:
         - info@scf-group.ru

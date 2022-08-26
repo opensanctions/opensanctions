@@ -307,6 +307,16 @@ lookups:
           - CJSC Belarusian Oil Company
       - match: The Gorev Foundation
         value: The Gorev Foundation
+      - match: JSC Military Industrial Corporation NPO Mashinostroyenia
+        value: JSC Military Industrial Corporation NPO Mashinostroyenia
+      - match: (1) CHEAZ Group (2) TsUP CHEAZ (3) ChEAZ-ELPRY (4) CHEAZ-Siberia (5) ERA Engineering (6) IZVA
+        values:
+          - CHEAZ Group
+          - TsUP CHEAZ
+          - ChEAZ-ELPRY
+          - CHEAZ-Siberia
+          - ERA Engineering
+          - IZVA
       - match:
           - Cham Holding
           - Cham Holdings
@@ -316,6 +326,18 @@ lookups:
         value: Cham Holdings
       - match: Rosatom
         value: Rosatom
+      - match: Rostec
+        value: Rostec
+      - match: JSC INTEGRAL
+        value: JSC INTEGRAL
+      - match: Convoy Africa SARL
+        value: Convoy Africa SARL
+      - match: (1) Kurort Livadiia (2) OOO Analitichesky Tsentr Katekhon (3) OOO TSARGRAD Media (4) OOO Imenie TSARGRAD
+        values:
+          - Kurort Livadiia
+          - OOO Analitichesky Tsentr Katekhon
+          - OOO TSARGRAD Media
+          - OOO Imenie TSARGRAD
       - match: DTRSC. Ministry of Defence and Armed Force Logistics (MODAFL)
         values:
           - Ministry of Defence and Armed Force Logistics (MODAFL)

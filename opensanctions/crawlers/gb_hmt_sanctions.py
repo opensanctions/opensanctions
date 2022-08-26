@@ -221,7 +221,8 @@ def parse_row(context: Context, row):
     for website in split_new(row.pop("Website", None)):
         entity.add_cast("LegalEntity", "website", website)
 
-    for name in parse_companies(context, row.pop("Entity_ParentCompany", None)):
+    parent_names = row.pop("Entity_ParentCompany", None)
+    for name in parse_companies(context, parent_names):
         parent = context.make("Organization")
         parent.id = context.make_slug("named", name)
         parent.add("name", name)
