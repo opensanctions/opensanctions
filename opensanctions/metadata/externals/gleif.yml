@@ -31,7 +31,7 @@ publisher:
   url: https://www.gleif.org/en/about/this-is-gleif
 collections:
   - default
-  # - work
+  - work
 config:
   type: nomenklatura.enrich.yente:YenteEnricher
   api: https://externals.opensanctions.org/
