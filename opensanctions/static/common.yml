@@ -483,6 +483,8 @@ country:
       values:
         - Jordan
         - Kuweit
+    - match: Bosnian/Herzegovinian
+      value: Bosnia
     - contains: Fiji (Prakash’s Australian
       value: Fiji
     - match:

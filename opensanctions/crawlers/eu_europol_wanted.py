@@ -1,48 +1,39 @@
 import re
-from datetime import datetime
-
-from lxml import html
 from normality.cleaning import remove_unsafe_chars
+
+from opensanctions import helpers as h
+
+
+def parse_date(datestring):
+    return h.parse_date(datestring, ["%b %d, %Y"])
 
 
 def crawl(context):
-    base_url = context.dataset.data.url  # "https://eumostwanted.eu/"
-    response = context.http.get(base_url)
-    doc = html.fromstring(response.text)
-    # Find all link on page
-    all_links = doc.findall(".//a")
-    # remove all other links
-    most_wanted = [
-        a.get("href") for a in all_links if a.get("href", "").startswith("http")
-    ]
-    # filter out other links so we have only links to most_wanted peoples
-    most_wanted_cleaned = [link.replace(base_url, "") for link in most_wanted]
-    most_wanted_cleaned = [
-        link
-        for link in most_wanted_cleaned
-        if link not in ("legal-notice", "https://www.europol.europa.eu")
-    ]
-    context.log.debug(
-        f"Found {len(most_wanted_cleaned)} people on the eu-most-wanted list"
-    )
-    # crawl every pages and create a new person
-    for person_id in most_wanted_cleaned:
-        context.log.info(f"crawling {person_id}")
-        crawl_person(context, person_id, base_url)
+    base_url = context.dataset.data.url
+    doc = context.fetch_html(base_url)
+    for link in doc.findall(".//a"):
+        url = link.get("href")
+        if url is None or not url.startswith("https:"):
+            continue
+        if "legal-notice" in url:
+            continue
+        person_id = url.replace(base_url, "")
+        if person_id == url:
+            continue
+        crawl_person(context, person_id, url)
 
 
-def crawl_person(context, person_id, base_url):
+def crawl_person(context, person_id, url):
     """read and parse every person-page"""
-    new_url = base_url + person_id
-    p_response = context.http.get(new_url)
-    p_doc = html.fromstring(p_response.text)
+    doc = context.fetch_html(url)
     xpath_infofield = '//*[contains(concat( " ", @class, " " ), concat( " ", "wanted_top_right", " " ))]'
-    infofields = p_doc.xpath(xpath_infofield)[0]
+    infofields = doc.xpath(xpath_infofield)[0]
     # use values and keys() to filter, there is propably a better way to do
     # this but at least it workeds.
     person = context.make("Person")
     person.id = context.make_slug(person_id)
     person.add("topics", "crime")
+    person.add("sourceUrl", url)
     for field in infofields.getchildren():
         # some of the fields don't have values, so skipped them
         if len(field.values()) > 0:
@@ -70,7 +61,7 @@ def crawl_person(context, person_id, base_url):
                 for aliasstring in split_string:
                     # remove ' and "
                     aliasstring = re.sub("[\"']", "", aliasstring)
-                    person.add("name", aliasstring.strip())
+                    person.add("alias", aliasstring.strip())
             if "field-name-field-gender" in field.values()[0]:
                 gender_ = field.getchildren()[1].text_content()
                 context.log.debug(f"adding gender {gender_} to gender")
@@ -84,14 +75,4 @@ def crawl_person(context, person_id, base_url):
                 context.log.debug(f"adding nationality {nationality_} to nationality")
                 person.add("nationality", nationality_)
 
-    context.log.debug(f"created entity {person.to_dict()}")
     context.emit(person, target=True)
-
-
-def parse_date(datestring):
-    # examples
-    # time1="Mar 22, 1983"
-    # time2="Apr 25, 1974"
-    # this is format "%b %d, %Y"
-    format = "%b %d, %Y"
-    return datetime.strptime(datestring, format)
