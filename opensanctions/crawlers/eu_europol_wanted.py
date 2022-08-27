@@ -1,6 +1,7 @@
 import re
 from normality.cleaning import remove_unsafe_chars
 
+from opensanctions.core import Context
 from opensanctions import helpers as h
 
 
@@ -8,7 +9,7 @@ def parse_date(datestring):
     return h.parse_date(datestring, ["%b %d, %Y"])
 
 
-def crawl(context):
+def crawl(context: Context):
     base_url = context.dataset.data.url
     doc = context.fetch_html(base_url)
     for link in doc.findall(".//a"):
@@ -23,7 +24,7 @@ def crawl(context):
         crawl_person(context, person_id, url)
 
 
-def crawl_person(context, person_id, url):
+def crawl_person(context: Context, person_id: str, url: str):
     """read and parse every person-page"""
     doc = context.fetch_html(url)
     xpath_infofield = '//*[contains(concat( " ", @class, " " ), concat( " ", "wanted_top_right", " " ))]'
