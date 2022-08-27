@@ -17,6 +17,7 @@ prefix: europol
 collections:
     - default
     - crime
+    - work
 url: https://eumostwanted.eu/
 publisher:
     name: European Network of Fugitive Active Search Teams
