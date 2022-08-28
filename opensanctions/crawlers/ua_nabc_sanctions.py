@@ -65,8 +65,8 @@ def crawl_person(context: Context) -> None:
         entity.add("alias", name_ru)
         entity.add("alias", name_uk)
         entity.add("birthDate", parse_date(row.pop("date_bd", None)))
-        url = "https://sanctions.nazk.gov.ua/sanction-person/%s/"
-        entity.add("sourceUrl", url % person_id)
+        url = f"https://sanctions.nazk.gov.ua/sanction-person/{person_id}/"
+        entity.add("sourceUrl", url)
         if row.get("city_bd_en") != "N/A":
             entity.add("birthPlace", row.pop("city_bd_en", None))
             entity.add("birthPlace", row.pop("city_bd_ru", None))
@@ -107,6 +107,8 @@ def crawl_company(context: Context) -> None:
         entity.add("name", row.pop("name_uk", None))
         entity.add("name", row.pop("name_ru", None))
         entity.add("innCode", row.pop("inn", None))
+        url = f"https://sanctions.nazk.gov.ua/en/sanction-company/{company_id}/"
+        entity.add("sourceUrl", url)
         entity.add_cast("Company", "ogrnCode", row.pop("ogrn", None))
 
         country = row.pop("country", None)
