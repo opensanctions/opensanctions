@@ -1,0 +1,21 @@
+entry_point: opensanctions.crawlers.bg_omnio_poi
+title: Bulgarian Persons of Interest
+prefix: omnio
+hidden: true
+summary: >
+  A list of persons of interest compiled by a compliance firm in Bulgaria. Includes
+  PEPs and the national sanctions list.
+description: |
+  ...
+# collections:
+#   - default
+publisher:
+  name: OMNIO Compliance
+  description: |
+    OMNIO is a startup building an all-in-one financial crime CRM.
+  url: https://omniocompliance.com/
+  country: bg
+url: https://docs.google.com/spreadsheets/d/1CLWK2TtmmVLhqkQFzxivwxIjBhwhYDnBYhCcAIx-WG8/edit#gid=486983029
+data:
+  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vT3Cn2DtUWUbo9aBH_n60jOrlhITqgAZePRKwBCEafo_7VjPLBfBTmY3zHl4ixYT0a7RiaCu9HS3odV/pub?gid=486983029&single=true&output=csv
+  format: JSON
