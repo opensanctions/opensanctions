@@ -223,6 +223,7 @@ country:
         - Transcaucasian Democratic Federative Republic
         - Beiyang Government
         - British Raj
+        - presidencies and provinces of British India
         # Ukraine SFMS:
         - 27 May 1973
         - 1 Jan. 1975
@@ -236,6 +237,9 @@ country:
     - match:
         - Danish Realm
       value: DK
+    - match: Santo Domingo
+      values:
+        - Dominican Republic
     - match:
         - Nazi Germany
         - Kingdom of Bavaria
