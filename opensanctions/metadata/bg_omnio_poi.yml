@@ -7,8 +7,9 @@ summary: >
   PEPs and the national sanctions list.
 description: |
   ...
-# collections:
-#   - default
+collections:
+  - work
+  # - default
 publisher:
   name: OMNIO Compliance
   description: |
