@@ -498,6 +498,10 @@ country:
       values:
         - Saudi Arabia
         - Yemen
+    - match: Саудитско гражданство /  афганско гражданство
+      values:
+        - Saudi Arabia
+        - Afghanistan
     - match:
         - Bahrain (citizenship revoked in Jan. 2015)
         - バーレーン（2015年1月市民権剥奪）
