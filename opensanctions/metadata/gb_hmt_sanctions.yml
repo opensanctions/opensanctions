@@ -90,6 +90,10 @@ lookups:
           - JSC “Lengazpetstroy”
           - JSC “Volgogaz”
           - LLC ”NGKM”
+      - match: Yuzhny Proyect (Southern Project),  affiliated with the Saint Petersburg-based Rossiya bank, which is co-owned by oligarch Yury KOVALCHUK (RUS0007)
+        value:
+          - Yuzhny Proyect
+          - Rossiya bank
       - match: Limited Liability Company <<STROYGAZMONTAZH>>
         value: Limited Liability Company STROYGAZMONTAZH
       - match: PJSC Aeroflot

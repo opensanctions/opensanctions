@@ -8,6 +8,11 @@ from opensanctions import helpers as h
 FORMATS = ["%d %b %Y", "%d-%b-%Y"]
 
 
+def parse_date(text):
+    text = text.replace("Sept", "Sep")
+    return h.parse_date(text, FORMATS)
+
+
 def crawl(context: Context):
     path = context.fetch_resource("source.html", context.dataset.data.url)
     context.export_resource(path, HTML, title=context.SOURCE_TITLE)
@@ -36,8 +41,8 @@ def crawl(context: Context):
 
         sanction = h.make_sanction(context, entity)
         sanction.add("reason", cells.pop("prohibited_practice"))
-        sanction.add("startDate", h.parse_date(cells.pop("from"), FORMATS))
-        sanction.add("endDate", h.parse_date(cells.pop("to"), FORMATS))
+        sanction.add("startDate", parse_date(cells.pop("from")))
+        sanction.add("endDate", parse_date(cells.pop("to")))
 
         full = cells.pop("address")
         address = h.make_address(context, full=full, country=nationality)

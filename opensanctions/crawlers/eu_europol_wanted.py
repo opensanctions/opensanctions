@@ -1,12 +1,12 @@
 import re
-from normality.cleaning import remove_unsafe_chars
+from normality.cleaning import remove_unsafe_chars, compose_nfkc
 
 from opensanctions.core import Context
 from opensanctions import helpers as h
 
 
-def parse_date(datestring):
-    return h.parse_date(datestring, ["%b %d, %Y"])
+def parse_date(text):
+    return h.parse_date(text, ["%b %d, %Y", "%B %d, %Y"])
 
 
 def crawl(context: Context):
@@ -55,25 +55,23 @@ def crawl_person(context: Context, person_id: str, url: str):
             if "field-name-field-alias" in field.values()[0]:
                 # there are weird \xa characters in the field.
                 alias_ = remove_unsafe_chars(field.text_content())
-                alias_ = alias_.replace("Alias:", "").strip()
-                context.log.debug(f"adding alias {alias_} to name")
-                # split on [-,;]
-                split_string = re.split(r",|-|;", alias_)
-                for aliasstring in split_string:
-                    # remove ' and "
-                    aliasstring = re.sub("[\"']", "", aliasstring)
-                    person.add("alias", aliasstring.strip())
+                if alias_ is not None:
+                    alias_ = alias_.replace("Alias:", "").strip()
+                    # split on [-,;]
+                    split_string = re.split(r",|-|;", alias_)
+                    for aliasstring in split_string:
+                        # remove ' and "
+                        aliasstring = re.sub("[\"']", "", aliasstring)
+                        person.add("alias", aliasstring.strip())
             if "field-name-field-gender" in field.values()[0]:
                 gender_ = field.getchildren()[1].text_content()
-                context.log.debug(f"adding gender {gender_} to gender")
                 person.add("gender", gender_)
             if "field-name-field-date-of-birth" in field.values()[0]:
                 dob_ = field.getchildren()[1].text
-                context.log.debug(f"adding dob {dob_} to birthDate")
+                dob_ = dob_.rsplit("(", 1)[0].strip()
                 person.add("birthDate", parse_date(dob_))
             if "field-name-field-nationality" in field.values()[0]:
                 nationality_ = field.getchildren()[1].getchildren()[0].text
-                context.log.debug(f"adding nationality {nationality_} to nationality")
                 person.add("nationality", nationality_)
 
     context.emit(person, target=True)

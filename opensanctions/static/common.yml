@@ -979,6 +979,9 @@ date:
     "-07.07.1974": "1974-07-07"
     "1973-09-31": "1973-09"
     "05.25.1969": "1969-05-25"
+    "16/092022": "2022-09-16"
+    "0020-08-20": "2020-08-20"
+    "0019-05-21": "2019-05-21"
 
 email:
   options:
@@ -1060,6 +1063,16 @@ email:
         - market@grodno-khim.by
         - ppm@grodno-khim.by
         - tnp@grodno-khim.by
+    - match: (1) mobilisation@novorossia.co (2) novoross24@mail.ru (3) voenkom.dnr@mail.ru
+      values:
+        - mobilisation@novorossia.co
+        - novoross24@mail.ru
+        - voenkom.dnr@mail.ru
+    - match: (1) press@zalivkerch.com (2) sess@zalivkerch.com (3) uzis@zalivkerch.com
+      values:
+        - press@zalivkerch.com
+        - sess@zalivkerch.com
+        - uzis@zalivkerch.com
     - match: uav@kronshtadt.ru; office@kronshtadt.ru
       values:
         - uav@kronshtadt.ru
