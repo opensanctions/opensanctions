@@ -32,10 +32,6 @@ DATA_PATH.mkdir(parents=True, exist_ok=True)
 DATASET_PATH = DATA_PATH.joinpath("datasets")
 DATASET_PATH = Path(env.get("OPENSANCTIONS_DATASET_PATH", DATASET_PATH)).resolve()
 
-# Public URL version
-DATASET_URL = "https://data.opensanctions.org/datasets/latest/"
-DATASET_URL = env_str("OPENSANCTIONS_DATASET_URL", DATASET_URL)
-
 # SQL database URI for structured data
 DATABASE_URI = env_str("OPENSANCTIONS_DATABASE_URI", None)
 DATABASE_POOL_SIZE = int(env_str("OPENSANCTIONS_POOL_SIZE", "5"))
@@ -43,6 +39,11 @@ DATABASE_POOL_SIZE = int(env_str("OPENSANCTIONS_POOL_SIZE", "5"))
 # Per-run timestamp
 RUN_TIME = datetime.utcnow().replace(microsecond=0)
 RUN_DATE = RUN_TIME.date().isoformat()
+
+# Public URL version
+DATASET_FOLDER = RUN_TIME.strftime("%Y%m%d")
+DATASET_URL = "https://data.opensanctions.org/datasets/%s/" % DATASET_FOLDER
+DATASET_URL = env_str("OPENSANCTIONS_DATASET_URL", DATASET_URL)
 
 # Directory with metadata specifications for each crawler
 METADATA_PATH = Path(__file__).resolve().parent.joinpath("metadata")
