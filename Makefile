@@ -9,9 +9,8 @@ workdir:
 	mkdir -p data/postgres
 
 db:
-	echo "WARNING: Loading production database; non-commercial terms apply."
 	mkdir -p data/state
-	curl -o data/state/opensanctions.sql.gz https://data.opensanctions.org/state/opensanctions.sql.gz?__xxx=$(TS)
+	aws s3 cp s3://data.opensanctions.org/state/opensanctions.sql.gz data/state/opensanctions.sql.gz
 	gunzip -c data/state/opensanctions.sql.gz | psql $(OPENSANCTIONS_DATABASE_URI)
 
 build:
