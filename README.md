@@ -10,8 +10,6 @@ OpenSanctions uses [Follow the Money](https://followthemoney.readthedocs.io/en/l
     * [FAQ](https://opensanctions.org/docs/faq/)
     * [API](https://api.opensanctions.org/)
 * [Technical documentation](https://docs.opensanctions.org/en/latest/) (readthedocs.org)
-    * [Installation](https://docs.opensanctions.org/en/latest/install.html)
-    * [Adding crawlers](https://opensanctions.org/docs/contribute/)
 * [Data sources roadmap](https://bit.ly/osa-sources)
 * [Data licensing](https://opensanctions.org/licensing/)
 * [Contact us](https://opensanctions.org/contact/)
@@ -27,9 +25,5 @@ Related repositories:
 
 * [opensanctions/site](https://github.com/opensanctions/site): web site for the OpenSanctions project, contains TypeScript React components for rendering FtM data.
 * [opensanctions/yente](https://github.com/opensanctions/yente): API matching and entity search service. 
-
-Daily data extraction and processing runs on GitHub Actions. Status:
-
-[![production](https://github.com/opensanctions/opensanctions/actions/workflows/production.yml/badge.svg)](https://github.com/opensanctions/opensanctions/actions/workflows/production.yml)
 
 **Licensing:** code is MIT-licensed, content & [data is CC 4.0 Attribution-NonCommercial](https://opensanctions.org/licensing/).
