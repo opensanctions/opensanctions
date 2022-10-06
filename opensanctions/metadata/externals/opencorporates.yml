@@ -30,4 +30,4 @@ config:
   schemata:
     - Company
     - Organization
-    - LegalEntity
+    # - LegalEntity

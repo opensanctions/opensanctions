@@ -33,6 +33,6 @@ publisher:
 collections:
   - default
   - peps
-  - work
+  # - work
 config:
   type: nomenklatura.enrich.wikidata:WikidataEnricher
