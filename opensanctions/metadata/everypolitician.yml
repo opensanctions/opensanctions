@@ -28,6 +28,7 @@ publisher:
     MySociety is a non-profit group developing online technologies that empower citizens
     to participate in politics and civic life.
   url: https://www.mysociety.org/
+  official: false
 url: http://everypolitician.org
 data:
   url: https://github.com/everypolitician/everypolitician-data/raw/master/countries.json

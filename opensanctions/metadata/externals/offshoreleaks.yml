@@ -29,6 +29,7 @@ publisher:
     large-scale cross-border investigations. Its core team is a group of editors, 
     fact-checkers and data journalists who maintain the OffshoreLeaks database.
   url: https://www.icij.org/about/
+  official: false
 collections:
   - default
   - work

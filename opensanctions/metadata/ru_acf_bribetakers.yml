@@ -20,6 +20,7 @@ publisher:
     ACF is the international division of Фонд борьбы с коррупцией (FBK), the anti-corruption
     investigative team founded by Alexei Navalny.
   url: https://acf.international/
+  official: false
 url: https://acf.international/bribetakers-list
 data:
   # url: https://docs.google.com/spreadsheets/d/e/2PACX-1vSBGoYY4E07QoQIWltgJqT985zJKCpsT0Pcdapny7kd9tcWrkeEWdQDIDBR2uHwCJbnuwAuF2PAoZjd/pub?gid=0&single=true&output=csv

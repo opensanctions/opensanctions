@@ -23,6 +23,7 @@ class DatasetPublisher(object):
         self.description = config.get("description")
         self.country = config.get("country", "zz")
         assert registry.country.validate(self.country), "Invalid publisher country"
+        self.official = config.get("official", True)
 
     def to_dict(self):
         return {
@@ -31,6 +32,7 @@ class DatasetPublisher(object):
             "description": self.description,
             "country": self.country,
             "country_label": registry.country.caption(self.country),
+            "official": self.official,
         }
 
 

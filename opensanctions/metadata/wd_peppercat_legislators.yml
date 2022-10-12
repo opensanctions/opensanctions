@@ -22,6 +22,7 @@ publisher:
     in Wikidata is always up-to-date. They maintain a fleet of hundreds of scrapers that compare
     official web sites against the Wikidata database.
   url: https://www.peppercat.org
+  official: false
 url: https://peppercat.org/about.html
 data:
   url: "https://raw.githubusercontent.com/peppercatorg/site-build/main/everywhere-legislators.csv"

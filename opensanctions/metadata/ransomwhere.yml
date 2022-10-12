@@ -17,6 +17,7 @@ collections:
 publisher:
   name: ransomwhe.re / Jack Cable
   url: https://cablej.io/
+  official: false
 url: https://ransomwhe.re/#browse
 data:
   url: https://api.ransomwhe.re/export
