@@ -20,7 +20,7 @@ def crawl(context: Context):
     context.export_resource(path, HTML, title=context.SOURCE_TITLE)
     with open(path, "r", encoding="utf-8") as fh:
         doc = html.fromstring(fh.read())
-    for table in doc.findall('.//div[@class="editor-content"]//table'):
+    for table in doc.findall('.//div[@class="editor-content"]//table//table'):
         headers = None
         schema = None
         for row in table.findall(".//tr"):
