@@ -281,6 +281,8 @@ country:
     - match:
         - Italian Social Republic
       value: Italy
+    - match: SPA
+      value: Spain
     - match:
         - Ecuatorial Guinaea-
       value: Equatorial Guinea
@@ -763,6 +765,7 @@ date:
         - "2"
         - "0"
         - "31801"
+        - "31948"
         - "10/10"
         - "28/09"
         - "６月14"
@@ -782,6 +785,8 @@ date:
         # - "05.11.YYYY"
         # - "16.12.YYYY"
         - "23.05.197"
+        - "3030-03-09"
+        - "3033-09-30"
       value: null
     - match: 1972-08-10 or 1972-08-11
       values:
@@ -1000,7 +1005,6 @@ date:
     "16/092022": "2022-09-16"
     "0020-08-20": "2020-08-20"
     "0019-05-21": "2019-05-21"
-    "3030-03-09": "2030-03-09"
 
 email:
   options:

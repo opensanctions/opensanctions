@@ -5,6 +5,9 @@ from pantomime.types import XML
 from opensanctions import helpers as h
 from opensanctions.core import Context
 
+def parse_date(date):
+    return h.parse_date(date.strip(), ["%Y", "%d-%m-%Y"])
+
 
 def crawl(context: Context):
     path = context.fetch_resource("source.xml", context.dataset.data.url)
@@ -31,7 +34,7 @@ def parse_entry(context: Context, node: _Element):
         last_name = node.findtext("./LastName")
         entity_name = h.make_name(given_name=given_name, last_name=last_name)
         entity.add("name", entity_name)
-        entity.add("birthDate", dob)
+        entity.add("birthDate", parse_date(dob))
 
     country = program
     if program is not None and "/" in program:
