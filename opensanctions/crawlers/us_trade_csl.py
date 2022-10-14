@@ -1,11 +1,13 @@
 import json
+from typing import Any, Dict, List, Optional
 from banal import ensure_list
 from functools import cache
 from pantomime.types import JSON
 from requests.exceptions import RequestException
 
-from opensanctions.core import Dataset, Context
+from opensanctions.core import Context
 from opensanctions import helpers as h
+from opensanctions.util import multi_split
 
 FORMATS = ["%d %b %Y", "%d %B %Y", "%Y", "%b %Y", "%B %Y"]
 
@@ -19,7 +21,22 @@ def deref_url(context: Context, url):
         return url
 
 
-def parse_result(context: Context, result):
+def parse_date(text: Optional[str]):
+    if text is None or not len(text):
+        return []
+    text = text.replace("circa", "")
+    text = text.strip()
+    dates: List[str] = []
+    for part in multi_split(text, [" to "]):
+        dates.extend(h.parse_date(part, FORMATS))
+    return dates
+
+
+def parse_result(context: Context, result: Dict[str, Any]):
+    for k, v in list(result.items()):
+        if isinstance(v, str) and len(v.strip()) == 0:
+            result.pop(k)
+
     type_ = result.pop("type", None)
     schema = context.lookup_value("type", type_)
     if schema is None:
@@ -45,7 +62,7 @@ def parse_result(context: Context, result):
         entity.add("nationality", result.pop("nationalities", None))
         entity.add("nationality", result.pop("citizenships", None))
         for dob in result.pop("dates_of_birth", []):
-            entity.add("birthDate", h.parse_date(dob, FORMATS))
+            entity.add("birthDate", parse_date(dob))
         entity.add("birthPlace", result.pop("places_of_birth", None))
     elif entity.schema.is_a("Vessel"):
         entity.add("flag", result.pop("vessel_flag", None))
@@ -60,10 +77,17 @@ def parse_result(context: Context, result):
         result.pop("vessel_owner", None)
 
     assert result.pop("title", None) is None
-    assert not len(result.pop("nationalities", []))
-    assert not len(result.pop("citizenships", []))
-    assert not len(result.pop("dates_of_birth", []))
-    assert not len(result.pop("places_of_birth", []))
+    # print(result)
+    assert not result.pop("nationalities", None)
+    assert not result.pop("citizenships", None)
+    assert not result.pop("dates_of_birth", None)
+    assert not result.pop("places_of_birth", None)
+    result.pop("call_sign", None)
+    assert not result.pop("gross_tonnage", None)
+    assert not result.pop("gross_registered_tonnage", None)
+    assert not result.pop("vessel_flag", None)
+    assert not result.pop("vessel_owner", None)
+    assert not result.pop("vessel_type", None)
 
     for address in result.pop("addresses", []):
         obj = h.make_address(
@@ -77,7 +101,8 @@ def parse_result(context: Context, result):
         h.apply_address(context, entity, obj)
 
     for ident in result.pop("ids", []):
-        country = ident.pop("country")
+        # print(ident)
+        country = ident.pop("country", None)
         entity.add("country", country)
         h.apply_feature(
             context,
@@ -109,7 +134,6 @@ def parse_result(context: Context, result):
 
     context.emit(sanction)
     context.emit(entity, target=True)
-
     h.audit_data(result, ignore=["standard_order"])
 
 

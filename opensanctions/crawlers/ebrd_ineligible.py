@@ -10,6 +10,7 @@ FORMATS = ["%d %b %Y", "%d-%b-%Y"]
 
 def parse_date(text):
     text = text.replace("Sept", "Sep")
+    text = text.replace("July", "Jul")
     return h.parse_date(text, FORMATS)
 
 

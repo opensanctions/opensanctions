@@ -14,6 +14,7 @@ country:
         - "None Identified"
         - terrorist
         - "statelessness"
+        - undetermined
         - United Nations
         - "Kuwaiti citizenship withdrawn in 2002"
         - 2002年にクウェート国籍を剥奪された。
@@ -34,6 +35,8 @@ country:
         # them if they're parts of non-overlapping empires.
         # This is now three countries, so dropping:
         - "Netherlands Antilles"
+        # netherlands antilles:
+        - AN
         - "British India"
         - "Weimar Republic"
         - "German Reich"
@@ -227,6 +230,11 @@ country:
         # Ukraine SFMS:
         - 27 May 1973
         - 1 Jan. 1975
+        - "region: commonwealth of independent states"
+        - Restored Hanthawaddy Kingdom
+        - "Newcastle United F.C."
+        - "Dominion of Ghana"
+        - "Sweden-Finland"
       contains:
         - (JVCFOR)
       value: null
@@ -374,6 +382,7 @@ country:
     - match:
         - "South Sudan number"
         - Juba
+        - "region: kafia kingi"
       value: South Sudan
     - contains:
         - Uk/British
@@ -729,11 +738,18 @@ country:
         - Chad
         - Central African Republic
         - DR Congo
+    - match: Guinea-Bissua
+      value: Guinea-Bissau
+    - match: Slovene
+      value: Slovenia
+    - match: crimea (occupied)
+      value: ua-cri
+    - match: Piribebuy
+      value: Paraguay
 
 date:
   options:
     - match:
-        - 3030-03-09
         - 0001-01-03
         - 0222-05-18
         - "00/00/0"
@@ -745,6 +761,7 @@ date:
         - "59"
         - "2"
         - "0"
+        - "31801"
         - "10/10"
         - "28/09"
         - "６月14"
@@ -982,6 +999,7 @@ date:
     "16/092022": "2022-09-16"
     "0020-08-20": "2020-08-20"
     "0019-05-21": "2019-05-21"
+    "3030-03-09": "2030-03-09"
 
 email:
   options:

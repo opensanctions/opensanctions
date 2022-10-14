@@ -427,3 +427,5 @@ lookups:
           - TAMAS
       - match: Russian Academy of Science’s Institute of Oriental Studies
         value: Russian Academy of Science’s Institute of Oriental Studies
+      - match: Russian Federation Federal Agency for State Property Management
+        value: Russian Federation Federal Agency for State Property Management
