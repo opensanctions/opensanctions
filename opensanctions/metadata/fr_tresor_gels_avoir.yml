@@ -67,6 +67,7 @@ lookups:
           - Immatriculée sous le numéro
           - n° d'enregistrement national
           - "Date d’enregistrement"
+          - "Numéro d'enregistrement - lieu d'enregistrement : Fédération de Russie"
           # why are IMO codes linked to companies?
           - n° OMI
         prop: registrationNumber
