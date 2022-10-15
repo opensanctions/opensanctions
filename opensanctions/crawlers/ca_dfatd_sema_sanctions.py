@@ -6,6 +6,8 @@ from opensanctions import helpers as h
 from opensanctions.core import Context
 
 def parse_date(date):
+    if date is None:
+        return None
     return h.parse_date(date.strip(), ["%Y", "%d-%m-%Y"])
 
 
