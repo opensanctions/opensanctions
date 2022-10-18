@@ -110,6 +110,8 @@ lookups:
           - business relationships
           - personal relationships
           - cohabitants
+          - guardian or trustee
+          - a person who is under guardianship or trusteeship
         schema: Associate
         from_prop: person
         to_prop: associate
