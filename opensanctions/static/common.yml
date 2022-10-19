@@ -238,7 +238,6 @@ country:
         - "Sweden-Finland"
         - Habsburg Netherlands
         - Dutch Republic
-
       contains:
         - (JVCFOR)
       value: null
@@ -1014,6 +1013,7 @@ date:
     "0020-08-20": "2020-08-20"
     "0019-05-21": "2019-05-21"
     "3013-05-23": "2013-05-23"
+    "05/04.08.1980": "1980-08-04"
 
 email:
   options:
