@@ -55,6 +55,7 @@ STATIC_PATH = Path(env.get("OPENSANCTIONS_STATIC_PATH", STATIC_PATH)).resolve()
 
 # Resolver file path
 RESOLVER_PATH = STATIC_PATH.joinpath("resolve.ijson")
+RESOLVER_PATH = Path(env.get("OPENSANCTIONS_RESOLVER_PATH", RESOLVER_PATH)).resolve()
 
 # Do not edit manually, use the release process
 VERSION = "3.2.0"
