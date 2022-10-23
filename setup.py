@@ -42,7 +42,7 @@ setup(
         "datapatch",
         "structlog",
         "colorama",
-        "textualize < 0.2.0",
+        "textual < 0.2.0",
         "xlrd",
         "lxml",
         "lxml-stubs",
