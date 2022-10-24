@@ -43,6 +43,7 @@ setup(
         "structlog",
         "colorama",
         "textual < 0.2.0",
+        "pyicu < 2.10.0",
         "xlrd",
         "lxml",
         "lxml-stubs",

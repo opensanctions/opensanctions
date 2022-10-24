@@ -64,7 +64,6 @@ jobs:
           DEBIAN_FRONTEND: noninteractive
         run: |
           sudo apt-get install -y -qq libicu-dev
-          pip install --no-cache-dir -q pyicu awscli
           pip install --no-cache-dir -q -e ".[dev]"
           pip freeze
       - name: Crawl a single dataset
