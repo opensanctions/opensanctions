@@ -1,4 +1,5 @@
 from functools import cache
+from pathlib import Path
 from typing import Any, Dict, Optional, Set, Tuple
 from itertools import combinations
 from collections import defaultdict
@@ -37,7 +38,7 @@ class UniqueResolver(Resolver[Entity]):
 
 @cache
 def get_resolver() -> Resolver[Entity]:
-    return UniqueResolver.load(settings.RESOLVER_PATH)
+    return UniqueResolver.load(Path(settings.RESOLVER_PATH))
 
 
 def export_pairs(dataset: Dataset):

@@ -15,17 +15,7 @@ Conn = Connection
 
 __all__ = ["Conn", "engine_tx", "create_db", "upsert_func"]
 
-assert (
-    settings.DATABASE_URI is not None
-), "Need to configure $OPENSANCTIONS_DATABASE_URI."
-
-if not settings.DATABASE_URI.startswith("postgres"):
-    raise RuntimeError("Unsupported database engine: %s" % settings.DATABASE_URI)
-
-engine = create_engine(
-    settings.DATABASE_URI,
-    pool_size=settings.DATABASE_POOL_SIZE,
-)
+engine = create_engine(settings.DATABASE_URI, pool_size=settings.DATABASE_POOL_SIZE)
 
 
 def create_db():

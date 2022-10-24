@@ -33,7 +33,12 @@ DATASET_PATH = DATA_PATH.joinpath("datasets")
 DATASET_PATH = Path(env.get("OPENSANCTIONS_DATASET_PATH", DATASET_PATH)).resolve()
 
 # SQL database URI for structured data
-DATABASE_URI = env_str("OPENSANCTIONS_DATABASE_URI", None)
+DATABASE_URI = env.get("OPENSANCTIONS_DATABASE_URI")
+if DATABASE_URI is None:
+    raise RuntimeError("Please set $OPENSANCTIONS_DATABASE_URI.")
+if not DATABASE_URI.startswith("postgres"):
+    raise RuntimeError("Unsupported database engine: %s" % DATABASE_URI)
+
 DATABASE_POOL_SIZE = int(env_str("OPENSANCTIONS_POOL_SIZE", "5"))
 
 # Per-run timestamp
@@ -54,8 +59,9 @@ STATIC_PATH = Path(__file__).resolve().parent.joinpath("static")
 STATIC_PATH = Path(env.get("OPENSANCTIONS_STATIC_PATH", STATIC_PATH)).resolve()
 
 # Resolver file path
-RESOLVER_PATH = STATIC_PATH.joinpath("resolve.ijson")
-RESOLVER_PATH = Path(env.get("OPENSANCTIONS_RESOLVER_PATH", RESOLVER_PATH)).resolve()
+RESOLVER_PATH = env.get("OPENSANCTIONS_RESOLVER_PATH")
+if RESOLVER_PATH is None:
+    raise RuntimeError("Please set $OPENSANCTIONS_RESOLVER_PATH.")
 
 # Do not edit manually, use the release process
 VERSION = "3.2.0"
