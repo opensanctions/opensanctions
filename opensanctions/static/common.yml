@@ -286,6 +286,9 @@ country:
     - match: SPA
       value: Spain
     - match:
+        - British rule in Myanmar
+      value: Myanmar
+    - match:
         - Ecuatorial Guinaea-
       value: Equatorial Guinea
     - match:
@@ -676,6 +679,7 @@ country:
       value: HR
     - match:
         - Polish People's Republic
+        - Kingdom of Poland
       value: Poland
     - match:
         - Slovak State (1939-1945)
@@ -794,6 +798,8 @@ date:
         - "23.05.197"
         - "3030-03-09"
         - "3033-09-30"
+        - 19.10.yyyy
+        - 09.07.yyyy
       value: null
     - match: 1972-08-10 or 1972-08-11
       values:
@@ -936,6 +942,18 @@ date:
       values:
         - 1963-02-24
         # - 1963-02-29 - not a thing
+    - match: "01.02.1979/01.02.1980"
+      values:
+        - 1979-02-01
+        - 1980-02-01
+    - match: 06.01.1996/07.01.1996
+      values:
+        - 1996-01-07
+        - 1996-01-06
+    - match: 07.05.1981/07.05.1979
+      values:
+        - 1981-05-07
+        - 1979-05-07
   map:
     "0202-11-22": "2020-11-22"
     "1951-06-31": "1951-06"
