@@ -800,6 +800,7 @@ date:
         - "3033-09-30"
         - 19.10.yyyy
         - 09.07.yyyy
+        - 29.07.yyyy
       value: null
     - match: 1972-08-10 or 1972-08-11
       values:
@@ -1051,6 +1052,7 @@ email:
         - j
         - No tiene
         - ministersecrcasapng.gov.pg
+        - "מזהה פייסבוק: 101193998017268@facebook.com"
       contains:
         - https://vk.com/
         - http://vk.com/

@@ -105,3 +105,18 @@ lookups:
           birthPlace: Vilnius
           nationality: RU
           idNumber: "63111513931"
+      - match: urodzony 5 października 1973 r.
+        props:
+          birthDate: 1973-10-05
+      - match: urodzony 26 lutego 1980 r.
+        props:
+          birthDate: 1980-08-26
+      - match: urodzony 19 września 1983 r.,
+        props:
+          birthDate: 1983-09-19
+      - match: urodzona 20 czerwca 1979 r.
+        props:
+          birthDate: 1979-06-20
+      - match: Plac Dąbrowskiego 1, 00-057 Warszawa,
+        props:
+          address: Plac Dąbrowskiego 1, 00-057 Warszawa
