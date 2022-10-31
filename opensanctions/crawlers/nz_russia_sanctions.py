@@ -56,7 +56,9 @@ def crawl_entity(context: Context, data: Dict[str, Any]) -> None:
         quiet=True,
     )
 
-    entity.add("alias", data.pop("Alias/Alternate Spellings"))
+    aliases = data.pop("Alias/Alternate Spellings")
+    if aliases is not None:
+        entity.add("alias", aliases.split(";"))
     entity.add("address", data.pop("Address"))
     dob = parse_date(data.pop("DOB"))
     if entity.schema.is_a("Person"):
