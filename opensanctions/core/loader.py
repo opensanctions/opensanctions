@@ -1,5 +1,4 @@
 from typing import Callable, Dict, Generator, Iterable, List, Optional, Set, Tuple
-from followthemoney import model
 from followthemoney.types import registry
 from followthemoney.property import Property
 from followthemoney.exc import InvalidData
