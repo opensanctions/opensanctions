@@ -2,6 +2,7 @@ from typing import Callable, Dict, Generator, Iterable, List, Optional, Set, Tup
 from followthemoney import model
 from followthemoney.types import registry
 from followthemoney.property import Property
+from followthemoney.exc import InvalidData
 from zavod.logs import get_logger
 from nomenklatura import Loader, Resolver
 from nomenklatura.statement import Statement
@@ -84,7 +85,6 @@ class Database(object):
             ):
                 if stmt.canonical_id != current_id:
                     if len(entity):
-                        print(entity)
                         yield tuple(sorted(entity))
                     entity = []
                 current_id = stmt.canonical_id
@@ -92,7 +92,7 @@ class Database(object):
             if len(entity):
                 yield tuple(sorted(entity))
 
-    def assemble(self, statements: Iterable[Statement], sources=Optional[Set[Dataset]]):
+    def assemble(self, statements: Iterable[Statement], sources=Set[str]):
         """Build an entity proxy from a set of cached statements, considering
         only those statements that belong to the given sources."""
         if sources is not None:
@@ -100,6 +100,9 @@ class Database(object):
         try:
             entity = Entity.from_statements(statements)
         except ValueError:
+            return None
+        except InvalidData as inv:
+            log.error("Assemble error: %s" % inv)
             return None
         entity.referents.update(self.resolver.get_referents(entity.id))
         return entity
@@ -112,6 +115,7 @@ class DatasetLoader(Loader[Dataset, Entity]):
     def __init__(self, database: Database, dataset: Dataset, assembler: Assembler):
         self.db = database
         self.dataset = dataset
+        self.scopes = set(self.dataset.scope_names)
         self.assembler = assembler
 
     def assemble(
@@ -119,7 +123,7 @@ class DatasetLoader(Loader[Dataset, Entity]):
     ) -> Generator[Entity, None, None]:
         if statements is None:
             return
-        entity = self.db.assemble(statements, sources=self.dataset.datasets)
+        entity = self.db.assemble(statements, sources=self.scopes)
         if entity is not None:
             entity = self.db.resolver.apply(entity)
             if self.assembler is not None:
