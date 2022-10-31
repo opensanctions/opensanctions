@@ -169,10 +169,19 @@ class Context(GenericZavod[Entity]):
             raise ValueError("Entity has no ID: %r", entity)
         for stmt in entity.statements:
             stmt.dataset = self.dataset.name
+            stmt.entity_id = entity.id
+            stmt.canonical_id = entity.id
             stmt.first_seen = settings.RUN_TIME
             stmt.last_seen = settings.RUN_TIME
             stmt.target = target or False
             stmt.external = external
+            stmt.id = Statement.make_key(
+                stmt.dataset,
+                stmt.entity_id,
+                stmt.prop,
+                stmt.value,
+                external,
+            )
             self._statements[stmt.id] = stmt
         self.log.debug("Emitted", entity=entity)
         if len(self._statements) >= (self.BATCH_SIZE * 10):
