@@ -1,17 +1,12 @@
 import json
 import hashlib
 import mimetypes
-from typing import Iterable, cast, Dict, Optional, Union
+from typing import Iterable, cast, Dict, Optional
 from lxml import etree, html
-from pprint import pprint
 from requests.exceptions import RequestException
 from datapatch import LookupException
 from sqlalchemy import MetaData
-from lxml.etree import _Element, tostring
 from zavod.context import GenericZavod
-from followthemoney import model
-from followthemoney.util import make_entity_id
-from followthemoney.schema import Schema
 from followthemoney.helpers import check_person_cutoff
 from structlog.contextvars import clear_contextvars, bind_contextvars
 from nomenklatura.cache import Cache
@@ -19,6 +14,7 @@ from nomenklatura.util import normalize_url
 from nomenklatura.judgement import Judgement
 from nomenklatura.matching import compare_scored
 from nomenklatura.resolver import Resolver
+from nomenklatura.statement import Statement
 
 from opensanctions import settings
 from opensanctions.core.dataset import Dataset
@@ -28,10 +24,9 @@ from opensanctions.core.external import External
 from opensanctions.core.issues import clear_issues
 from opensanctions.core.resolver import AUTO_USER
 from opensanctions.core.resources import save_resource, clear_resources
-from opensanctions.core.statements import Statement
 from opensanctions.core.statements import count_entities
 from opensanctions.core.statements import cleanup_dataset, clear_statements
-from opensanctions.core.statements import statements_from_entity, save_statements
+from opensanctions.core.statements import save_statements
 
 
 class Context(GenericZavod[Entity]):
@@ -172,12 +167,13 @@ class Context(GenericZavod[Entity]):
         """Send an FtM entity to the store."""
         if entity.id is None:
             raise ValueError("Entity has no ID: %r", entity)
-        if target is not None:
-            entity.target = target
-        statements = statements_from_entity(entity, self.dataset, external=external)
-        if not len(statements):
-            raise ValueError("Entity has no properties: %r", entity)
-        self._statements.update({s["id"]: s for s in statements})
+        for stmt in entity.statements:
+            stmt.dataset = self.dataset.name
+            stmt.first_seen = settings.RUN_TIME
+            stmt.last_seen = settings.RUN_TIME
+            stmt.target = target or False
+            stmt.external = external
+            self._statements[stmt.id] = stmt
         self.log.debug("Emitted", entity=entity)
         if len(self._statements) >= (self.BATCH_SIZE * 10):
             self.flush()

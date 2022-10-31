@@ -5,11 +5,10 @@ from typing import Any, Dict, Optional, Union
 from followthemoney import model
 from followthemoney.exc import InvalidData
 from followthemoney.types import registry
-from followthemoney.model import Model
 from followthemoney.schema import Schema
 from followthemoney.property import Property
 from zavod.logs import get_logger
-from nomenklatura.entity import CompositeEntity
+from nomenklatura.statement import StatementProxy
 
 from opensanctions.core.lookups import type_lookup
 from opensanctions.util import pick_name
@@ -17,25 +16,13 @@ from opensanctions.util import pick_name
 log = get_logger(__name__)
 
 
-class Entity(CompositeEntity):
+class Entity(StatementProxy):
     """Entity for sanctions list entries and adjacent objects.
 
     Add utility methods to the :py:class:`followthemoney.proxy:EntityProxy` for
     extracting data from sanctions lists and for auditing parsing errors to
     structured logging.
     """
-
-    def __init__(
-        self,
-        model: Model,
-        data: Dict[str, Any],
-        key_prefix: Optional[str] = None,
-        cleaned: bool = True,
-    ) -> None:
-        self.target = data.get("target", False)
-        self.first_seen = data.get("first_seen", None)
-        self.last_seen = data.get("last_seen", None)
-        super().__init__(model, data, key_prefix=key_prefix, cleaned=cleaned)
 
     @cached_property
     def caption(self) -> str:
@@ -144,8 +131,5 @@ class Entity(CompositeEntity):
 
     def to_dict(self) -> Dict[str, Any]:
         data = super().to_dict()
-        data["first_seen"] = self.first_seen
-        data["last_seen"] = self.last_seen
-        data["target"] = self.target
         data["caption"] = self.caption
         return data
