@@ -1052,10 +1052,10 @@ email:
         - j
         - No tiene
         - ministersecrcasapng.gov.pg
-        - "מזהה פייסבוק: 101193998017268@facebook.com"
       contains:
         - https://vk.com/
         - http://vk.com/
+        - "101193998017268"
       value: null
     # https://subchik.ru/organisations/7005
     - match: PRIYEMNAYA@YGDU
