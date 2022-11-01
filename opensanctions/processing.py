@@ -16,17 +16,6 @@ def _compute_futures(futures: List[Future]):
         future.result()
 
 
-def run_crawl(scope_name: str, threads: int = settings.THREADS) -> None:
-    """Crawl all datasets within the given scope."""
-    scope = Dataset.require(scope_name)
-    with ThreadPoolExecutor(max_workers=threads) as executor:
-        futures: List[Future] = []
-        for source in scope.sources:
-            ctx = Context(source)
-            futures.append(executor.submit(ctx.crawl))
-        _compute_futures(futures)
-
-
 def run_export(
     scope_name: str,
     threads: int = settings.THREADS,
