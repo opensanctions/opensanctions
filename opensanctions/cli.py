@@ -1,10 +1,9 @@
 import click
 import shutil
 import logging
-import asyncio
 from typing import Optional
 from zavod.logs import get_logger
-from nomenklatura.tui import DedupeApp
+from nomenklatura.tui import dedupe_ui
 from nomenklatura.judgement import Judgement
 from nomenklatura.resolver import Identifier
 
@@ -14,7 +13,7 @@ from opensanctions.exporters.statements import export_statements_path
 from opensanctions.exporters.statements import import_statements_path
 from opensanctions.core.audit import audit_resolver
 from opensanctions.core.loader import Database
-from opensanctions.core.resolver import AUTO_USER, export_pairs, get_resolver
+from opensanctions.core.resolver import export_pairs, get_resolver
 from opensanctions.core.xref import blocking_xref
 from opensanctions.core.statements import max_last_seen
 from opensanctions.core.statements import resolve_all_canonical, resolve_canonical
@@ -41,9 +40,12 @@ def cli(verbose=False, quiet=False):
 
 @cli.command("crawl", help="Crawl entities into the given dataset")
 @click.argument("dataset", default=Dataset.ALL, type=datasets)
-@click.option("-t", "--threads", type=int, default=settings.THREADS)
-def crawl(dataset, threads):
-    run_crawl(dataset, threads=threads)
+def crawl(dataset):
+    """Crawl all datasets within the given scope."""
+    scope = Dataset.require(dataset)
+    for source in scope.sources:
+        ctx = Context(source)
+        ctx.crawl()
 
 
 @cli.command("export", help="Export entities from the given dataset")
@@ -110,18 +112,7 @@ def dedupe(dataset):
     dataset = Dataset.require(dataset)
     db = Database(dataset, resolver, external=True)
     loader = db.view(dataset)
-
-    async def run_app() -> None:
-        app = DedupeApp(
-            loader=loader,
-            resolver=resolver,
-            url_base="https://opensanctions.org/entities/%s/",
-            title="OpenSanction De-duplication",
-            log="textual.log",
-        )  # type: ignore
-        await app.process_messages()
-
-    asyncio.run(run_app())
+    dedupe_ui(resolver, loader, url_base="https://opensanctions.org/entities/%s/")
 
 
 @cli.command("export-pairs", help="Export pairwise judgements")
