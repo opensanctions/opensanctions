@@ -19,7 +19,7 @@ from opensanctions.core.statements import max_last_seen
 from opensanctions.core.statements import resolve_all_canonical, resolve_canonical
 from opensanctions.core.analytics import build_analytics
 from opensanctions.core.db import engine_tx
-from opensanctions.processing import run_enrich, run_crawl, run_export
+from opensanctions.processing import run_enrich, run_export
 from opensanctions.util import write_json
 
 log = get_logger(__name__)
