@@ -1,6 +1,8 @@
+from typing import Any, List
 import yaml
 from functools import lru_cache
 from datapatch import get_lookups
+from followthemoney.types.common import PropertyType
 
 from opensanctions import settings
 
@@ -17,7 +19,8 @@ def common_lookups():
     return get_lookups(load_yaml(common_path))
 
 
-def type_lookup(type_, value):
+@lru_cache(maxsize=None)
+def type_lookup(type_: PropertyType, value: str) -> List[Any]:
     """Given a value and a certain property type, check to see if there is a
     normalised override available. This uses the lookups defined in
     `common.yml`.
