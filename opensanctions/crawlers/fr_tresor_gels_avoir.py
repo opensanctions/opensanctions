@@ -102,6 +102,7 @@ def crawl_entity(context: Context, data):
     )
     entity.add("topics", "sanction")
     context.emit(entity, target=True)
+    context.emit(sanction)
 
 
 def crawl(context):
