@@ -42,7 +42,6 @@ setup(
         "datapatch",
         "structlog",
         "colorama",
-        "textual < 0.2.0",
         "pyicu < 2.11.0",
         "xlrd",
         "lxml",
