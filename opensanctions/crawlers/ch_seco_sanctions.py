@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Dict, Tuple
+from typing import Dict, Optional, Tuple
 from prefixdate import parse_parts
 from lxml.etree import _Element as Element
 
@@ -7,6 +7,7 @@ from opensanctions.core import Context, Entity
 from opensanctions import helpers as h
 
 # TODO: sanctions-program full parse
+MayStr = Optional[str]
 
 NAME_QUALITY_WEAK = {"good": False, "low": True}
 NAME_TYPE = {
@@ -54,13 +55,13 @@ def parse_name(entity: Entity, node: Element):
     name_prop = NAME_TYPE[node.get("name-type")]
     is_weak = NAME_QUALITY_WEAK[node.get("quality")]
 
-    parts: Dict[Tuple[str, str], Dict[str, str]] = defaultdict(dict)
-    for part in node.findall("./name-part"):
-        part_type = part.get("name-part-type")
-        value = part.findtext("./value")
-        parts[None][part_type] = value
+    parts: Dict[Tuple[MayStr, MayStr], Dict[MayStr, MayStr]] = defaultdict(dict)
+    for part_node in node.findall("./name-part"):
+        part_type = part_node.get("name-part-type")
+        value = part_node.findtext("./value")
+        parts[(None, None)][part_type] = value
 
-        for spelling in part.findall("./spelling-variant"):
+        for spelling in part_node.findall("./spelling-variant"):
             key = (spelling.get("lang"), spelling.get("script"))
             parts[key][part_type] = spelling.text
 
@@ -82,7 +83,7 @@ def parse_name(entity: Entity, node: Element):
             name_prop=name_prop,
             quiet=True,
         )
-        h.audit_data(parts)
+        h.audit_data(part)
 
 
 def parse_identity(context: Context, entity: Entity, node: Element, places):
