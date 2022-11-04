@@ -23,7 +23,7 @@ def common_lookups():
 def type_lookup(type_: PropertyType, value: str) -> List[Any]:
     """Given a value and a certain property type, check to see if there is a
     normalised override available. This uses the lookups defined in
-    `types.yml`.
+    `common.yml`.
 
     The override value is then cleaned again and applied to the entity."""
     lookup = common_lookups().get(type_.name)

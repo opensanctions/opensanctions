@@ -116,3 +116,8 @@ ALTER TABLE "cache" RENAME COLUMN "url" TO "key";
 --- 2022-05-23: add external column for pre-prod facts.
 
 ALTER TABLE "statement" ADD COLUMN "external" boolean DEFAULT false;
+
+--- 2022-10-31: add extra properties on statements
+
+ALTER TABLE "statement" ADD COLUMN "lang" character varying(255) DEFAULT NULL;
+ALTER TABLE "statement" ADD COLUMN "original_value" character varying(65535) DEFAULT NULL;

@@ -1,15 +1,16 @@
-from banal import ensure_list
+from normality import stringify
+from zavod.logs import get_logger
 from functools import cached_property
 from prefixdate.precision import Precision
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Generator, List, Optional, Tuple, Union
 from followthemoney import model
 from followthemoney.exc import InvalidData
+from followthemoney.util import value_list
 from followthemoney.types import registry
-from followthemoney.model import Model
+from followthemoney.proxy import P
 from followthemoney.schema import Schema
 from followthemoney.property import Property
-from zavod.logs import get_logger
-from nomenklatura.entity import CompositeEntity
+from nomenklatura.statement import StatementProxy
 
 from opensanctions.core.lookups import type_lookup
 from opensanctions.util import pick_name
@@ -17,25 +18,13 @@ from opensanctions.util import pick_name
 log = get_logger(__name__)
 
 
-class Entity(CompositeEntity):
+class Entity(StatementProxy):
     """Entity for sanctions list entries and adjacent objects.
 
     Add utility methods to the :py:class:`followthemoney.proxy:EntityProxy` for
     extracting data from sanctions lists and for auditing parsing errors to
     structured logging.
     """
-
-    def __init__(
-        self,
-        model: Model,
-        data: Dict[str, Any],
-        key_prefix: Optional[str] = None,
-        cleaned: bool = True,
-    ) -> None:
-        self.target = data.get("target", False)
-        self.first_seen = data.get("first_seen", None)
-        self.last_seen = data.get("last_seen", None)
-        super().__init__(model, data, key_prefix=key_prefix, cleaned=cleaned)
 
     @cached_property
     def caption(self) -> str:
@@ -57,57 +46,94 @@ class Entity(CompositeEntity):
     def make_id(self, *parts: Any) -> str:
         raise NotImplementedError
 
-    def _lookup_values(self, prop, values):
-        for value in ensure_list(values):
-            yield from type_lookup(prop.type, value)
+    def clean_value(
+        self,
+        prop: Property,
+        value: Any,
+        cleaned: bool = False,
+        fuzzy: bool = False,
+        format: Optional[str] = None,
+    ) -> List[str]:
+        results: List[str] = []
+        if value is None:
+            return results
+        if cleaned:
+            return [value]
+        for form in type_lookup(prop.type, value):
+            if form is None or len(str(form).strip()) == 0:
+                continue
+            clean = prop.type.clean(
+                form,
+                proxy=self,
+                fuzzy=fuzzy,
+                format=format,
+            )
+            if clean is not None:
+                if prop.type == registry.date:
+                    # none of the information in OpenSanctions is time-critical
+                    clean = clean[: Precision.DAY.value]
+                results.append(clean)
+                continue
+            if prop.type == registry.phone:
+                results.append(value)
+                continue
+            log.warning(
+                "Rejected property value",
+                entity_id=self.id,
+                prop=prop.name,
+                value=value,
+            )
+        return results
 
-    def _verbose_clean(self, prop, value, fuzzy, format):
-        if value is None or len(str(value).strip()) == 0:
-            return None
-        clean = prop.type.clean(value, proxy=self, fuzzy=fuzzy, format=format)
-        if clean is not None:
-            if prop.type == registry.date:
-                # none of the information in OpenSanctions is time-critical
-                clean = clean[: Precision.DAY.value]
-            return clean
-        if prop.type == registry.phone:
-            return clean
-        log.warning(
-            "Rejected property value",
-            entity_id=self.id,
-            prop=prop.name,
-            value=value,
-        )
-        return None
+    def clean_values(
+        self,
+        prop: Property,
+        values: Any,
+        cleaned: bool = False,
+        fuzzy: bool = False,
+        format: Optional[str] = None,
+    ) -> Generator[Tuple[str, str], None, None]:
+        if values is None:
+            return
+        for val in value_list(values):
+            for clean in self.clean_value(
+                prop, val, cleaned=cleaned, fuzzy=fuzzy, format=format
+            ):
+                if prop.type == registry.entity:
+                    val = None
+                else:
+                    val = stringify(val)
+                    if val == clean:
+                        val = None
+                yield (val, clean)
 
     def add(
         self,
-        prop: Union[str, Property],
+        prop: P,
         values: Any,
         cleaned: bool = False,
         quiet: bool = False,
         fuzzy: bool = False,
         format: Optional[str] = None,
-    ):
-        if cleaned:
-            super().add(
-                prop, values, cleaned=True, quiet=quiet, fuzzy=fuzzy, format=format
-            )
-            return
-
+    ) -> None:
         prop_name = self._prop_name(prop, quiet=quiet)
         if prop_name is None:
-            return
+            return None
         prop = self.schema.properties[prop_name]
-
-        for value in self._lookup_values(prop, values):
-            clean = self._verbose_clean(prop, value, fuzzy, format)
-            self.unsafe_add(prop, clean, cleaned=True)
+        for original, value in self.clean_values(
+            prop,
+            values,
+            cleaned=cleaned,
+            fuzzy=fuzzy,
+            format=format,
+        ):
+            self.claim(prop, value, original_value=original, cleaned=True)
+        return None
 
     def add_cast(
         self,
-        schema: Union[str, Schema],
-        prop: Union[str, Property],
+        schema: str,
+        prop: str,
         values: Any,
         cleaned: bool = False,
         fuzzy: bool = False,
@@ -127,11 +153,15 @@ class Entity(CompositeEntity):
         prop_ = schema_.get(prop)
         if prop_ is None:
             raise RuntimeError("Invalid prop: %s" % prop)
-        for value in self._lookup_values(prop_, values):
-            clean = self._verbose_clean(prop_, value, fuzzy, format)
-            if clean is not None:
-                self.add_schema(schema)
-                self.unsafe_add(prop_, clean, cleaned=True)
+        for original, value in self.clean_values(
+            prop_,
+            values,
+            cleaned=cleaned,
+            fuzzy=fuzzy,
+            format=format,
+        ):
+            self.add_schema(schema)
+            self.claim(prop_, value, original_value=original, cleaned=True)
 
     def add_schema(self, schema: Union[str, Schema]) -> None:
         """Try to apply the given schema to the current entity, making it more
@@ -144,8 +174,5 @@ class Entity(CompositeEntity):
 
     def to_dict(self) -> Dict[str, Any]:
         data = super().to_dict()
-        data["first_seen"] = self.first_seen
-        data["last_seen"] = self.last_seen
-        data["target"] = self.target
         data["caption"] = self.caption
         return data

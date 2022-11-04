@@ -46,7 +46,7 @@ def crawl_entity(context: Context, data: Dict[str, Any]) -> None:
     if entity_type == "Bank":
         entity.add("topics", "fin.bank")
     entity.add("notes", data.pop("Title"))
-    entity.add("notes", data.pop("Additional Information"))
+    entity.add("notes", data.pop("Additional Information", None))
 
     h.apply_name(
         entity,

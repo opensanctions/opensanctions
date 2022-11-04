@@ -1,8 +1,9 @@
 import json
+from typing import Any, Dict
 from prefixdate import parse_parts
 from pantomime.types import JSON
 
-from opensanctions.core import Context
+from opensanctions.core import Context, Entity
 from opensanctions import helpers as h
 
 SCHEMATA = {
@@ -12,7 +13,7 @@ SCHEMATA = {
 }
 
 
-def apply_prop(context: Context, entity, sanction, field, value):
+def apply_prop(context: Context, entity: Entity, sanction: Entity, field: str, value):
     if field == "ALIAS":
         entity.add("alias", value.pop("Alias"))
     elif field == "SEXE":
@@ -57,7 +58,7 @@ def apply_prop(context: Context, entity, sanction, field, value):
                 content=content,
             )
         elif result.prop is not None:
-            schema = result.schema or entity.schema
+            schema = result.schema or entity.schema.name
             entity.add_cast(schema, result.prop, content)
             if result.prop == "notes":
                 entity.add(result.prop, h.clean_note(comment))
@@ -78,7 +79,7 @@ def apply_prop(context: Context, entity, sanction, field, value):
         context.log.warning("Unknown field", field=field, value=value)
 
 
-def crawl_entity(context: Context, data):
+def crawl_entity(context: Context, data: Dict[str, Any]):
     # context.inspect(data)
     nature = data.pop("Nature")
     schema = SCHEMATA.get(nature)

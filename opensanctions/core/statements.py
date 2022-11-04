@@ -5,9 +5,10 @@ from sqlalchemy.future import select
 from sqlalchemy.sql.expression import delete, update, insert
 from sqlalchemy.sql.functions import func
 from zavod.logs import get_logger
-from nomenklatura import Resolver
 from followthemoney import model
 from followthemoney.types import registry
+from nomenklatura.resolver import Resolver
+from nomenklatura.statement import Statement
 
 from opensanctions import settings
 from opensanctions.core.db import stmt_table, canonical_table
@@ -16,94 +17,15 @@ from opensanctions.core.dataset import Dataset
 from opensanctions.core.entity import Entity
 
 log = get_logger(__name__)
-BASE = "id"
 
 
-class Statement(TypedDict):
-    """A single statement about a property relevant to an entity.
-
-    For example, this could be useddocker to say: "In dataset A, entity X has the
-    property `name` set to 'John Smith'. I first observed this at K, and last
-    saw it at L."
-
-    Null property values are not supported. This might need to change if we
-    want to support making property-less entities.
-    """
-
-    id: str
-    entity_id: str
-    canonical_id: str
-    prop: str
-    prop_type: str
-    schema: str
-    value: str
-    dataset: str
-    target: bool
-    external: bool
-    first_seen: datetime
-    last_seen: datetime
-
-
-def stmt_key(
-    dataset: str, entity_id: str, prop: str, value: str, external: bool
-) -> str:
-    """Hash the key properties of a statement record to make a unique ID."""
-    key = f"{dataset}.{entity_id}.{prop}.{value}"
-    if external is not False:
-        # We consider the external flag in key composition to avoid race conditions where
-        # a certain entity might be emitted as external while it is already linked in to
-        # the graph via another route.
-        key = f"{key}.ext"
-    return sha1(key.encode("utf-8")).hexdigest()
-
-
-def statements_from_entity(
-    entity: Entity, dataset: Dataset, external: bool = False
-) -> List[Statement]:
-    if entity.id is None or entity.schema is None:
-        return []
-    values: List[Statement] = [
-        {
-            "id": stmt_key(dataset.name, entity.id, BASE, entity.id, external),
-            "entity_id": entity.id,
-            "canonical_id": entity.id,
-            "prop": BASE,
-            "prop_type": BASE,
-            "schema": entity.schema.name,
-            "value": entity.id,
-            "dataset": dataset.name,
-            "target": entity.target,
-            "external": external,
-            "first_seen": settings.RUN_TIME,
-            "last_seen": settings.RUN_TIME,
-        }
-    ]
-    for prop, value in entity.itervalues():
-        stmt: Statement = {
-            "id": stmt_key(dataset.name, entity.id, prop.name, value, external),
-            "entity_id": entity.id,
-            "canonical_id": entity.id,
-            "prop": prop.name,
-            "prop_type": prop.type.name,
-            "schema": entity.schema.name,
-            "value": value,
-            "dataset": dataset.name,
-            "target": entity.target,
-            "external": external,
-            "first_seen": settings.RUN_TIME,
-            "last_seen": settings.RUN_TIME,
-        }
-        values.append(stmt)
-    return values
-
-
-def save_statements(conn: Conn, values: List[Statement]) -> None:
+def save_statements(conn: Conn, statements: List[Statement]) -> None:
     # unique = {s["id"]: s for s in values}
     # values = list(unique.values())
-    if not len(values):
+    if not len(statements):
         return None
-    log.debug("Saving statements", size=len(values))
-
+    log.debug("Saving statements", size=len(statements))
+    values = [s.to_dict() for s in statements]
     istmt = upsert_func(stmt_table).values(values)
     stmt = istmt.on_conflict_do_update(
         index_elements=["id"],
@@ -112,6 +34,8 @@ def save_statements(conn: Conn, values: List[Statement]) -> None:
             schema=istmt.excluded.schema,
             prop_type=istmt.excluded.prop_type,
             target=istmt.excluded.target,
+            lang=istmt.excluded.lang,
+            original_value=istmt.excluded.original_value,
             last_seen=istmt.excluded.last_seen,
         ),
     )
@@ -138,7 +62,7 @@ def all_statements(
     q = q.order_by(stmt_table.c.canonical_id.asc())
     result = conn.execution_options(stream_results=True).execute(q)
     for row in result:
-        yield cast(Statement, row._asdict())
+        yield Statement.from_dict(row._asdict())
 
 
 def count_entities(
@@ -148,7 +72,7 @@ def count_entities(
     schemata: Optional[List[str]] = None,
 ) -> int:
     q = select(func.count(func.distinct(stmt_table.c.canonical_id)))
-    q = q.filter(stmt_table.c.prop == BASE)
+    q = q.filter(stmt_table.c.prop == Statement.BASE)
     q = q.filter(stmt_table.c.external == False)  # noqa
     if target is not None:
         q = q.filter(stmt_table.c.target == target)
@@ -203,7 +127,7 @@ def agg_entities_by_schema(
     count = func.count(func.distinct(stmt_table.c.canonical_id))
     q = select(stmt_table.c.schema, count)
     q = q.filter(stmt_table.c.external == False)  # noqa
-    q = q.filter(stmt_table.c.prop == BASE)
+    q = q.filter(stmt_table.c.prop == Statement.BASE)
     if dataset is not None:
         q = q.filter(stmt_table.c.dataset.in_(dataset.scope_names))
     if target is not None:
@@ -231,7 +155,7 @@ def agg_entities_by_schema(
 def all_schemata(conn: Conn, dataset: Optional[Dataset] = None) -> List[str]:
     """Return all schemata present in the dataset"""
     q = select(func.distinct(stmt_table.c.schema))
-    q = q.filter(stmt_table.c.prop == BASE)
+    q = q.filter(stmt_table.c.prop == Statement.BASE)
     q = q.filter(stmt_table.c.external == False)  # noqa
     if dataset is not None:
         q = q.filter(stmt_table.c.dataset.in_(dataset.scope_names))
@@ -243,7 +167,7 @@ def all_schemata(conn: Conn, dataset: Optional[Dataset] = None) -> List[str]:
 def max_last_seen(conn: Conn, dataset: Optional[Dataset] = None) -> Optional[datetime]:
     """Return the latest date of the data."""
     q = select(func.max(stmt_table.c.last_seen))
-    q = q.filter(stmt_table.c.prop == BASE)
+    q = q.filter(stmt_table.c.prop == Statement.BASE)
     q = q.filter(stmt_table.c.external == False)  # noqa
     if dataset is not None:
         q = q.filter(stmt_table.c.dataset.in_(dataset.scope_names))
@@ -255,7 +179,7 @@ def entities_datasets(
 ) -> Generator[Tuple[str, str], None, None]:
     """Return all entity IDs with the dataset they belong to."""
     q = select(stmt_table.c.entity_id, stmt_table.c.dataset)
-    q = q.filter(stmt_table.c.prop == BASE)
+    q = q.filter(stmt_table.c.prop == Statement.BASE)
     if dataset is not None:
         q = q.filter(stmt_table.c.dataset.in_(dataset.scope_names))
     q = q.distinct()

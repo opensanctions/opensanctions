@@ -33,6 +33,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
         row.get("Place_of_birth_BG"),
     )
     if entity.id is None:
+        context.log.warning("Skip row", row=row)
         return
 
     h.apply_name(
