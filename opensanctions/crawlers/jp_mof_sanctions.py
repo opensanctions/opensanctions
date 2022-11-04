@@ -72,12 +72,8 @@ def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str
     if entity.id is None:
         # context.inspect((sheet, row))
         return
-    entity.add("name", parse_names(name_english))
-    if not entity.has("name"):
-        entity.add("name", parse_names(name_japanese))
-    else:
-        entity.add("alias", parse_names(name_japanese))
-
+    entity.add("name", parse_names(name_english), lang="eng")
+    entity.add("name", parse_names(name_japanese))
     entity.add("alias", parse_names(row.pop("alias", [])))
     entity.add("alias", parse_names(row.pop("known_alias", [])))
     entity.add("weakAlias", parse_names(row.pop("weak_alias", [])))
