@@ -80,7 +80,7 @@ def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str
     entity.add("weakAlias", parse_names(row.pop("nickname", [])))
     entity.add("previousName", parse_names(row.pop("past_alias", [])))
     entity.add("previousName", parse_names(row.pop("old_name", [])))
-    entity.add_cast("Person", "position", row.pop("position", []))
+    entity.add_cast("Person", "position", row.pop("position", []), lang="eng")
     birth_date = parse_date(row.pop("birth_date", []))
     entity.add_cast("Person", "birthDate", birth_date)
     entity.add_cast("Person", "birthPlace", row.pop("birth_place", []))
