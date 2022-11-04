@@ -42,6 +42,7 @@ url: https://www.mof.go.jp/policy/international_policy/gaitame_kawase/gaitame/ec
 data:
   url: https://www.mof.go.jp/policy/international_policy/gaitame_kawase/gaitame/economic_sanctions/list.html
   format: XLS
+  lang: jpn
 
 lookups:
   schema:
