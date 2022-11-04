@@ -1,7 +1,9 @@
 from collections import defaultdict
+from typing import Dict, Tuple
 from prefixdate import parse_parts
+from lxml.etree import _Element as Element
 
-from opensanctions.core import Context
+from opensanctions.core import Context, Entity
 from opensanctions import helpers as h
 
 # TODO: sanctions-program full parse
@@ -14,7 +16,7 @@ NAME_TYPE = {
 }
 
 
-def parse_address(node):
+def parse_address(node: Element):
     address = {
         "remarks": node.findtext("./remarks"),
         "co": node.findtext("./c-o"),
@@ -28,7 +30,7 @@ def parse_address(node):
     return {k: v for (k, v) in address.items() if v is not None}
 
 
-def compose_address(context: Context, entity, place, el):
+def compose_address(context: Context, entity: Entity, place, el: Element):
     addr = dict(place)
     addr.update(parse_address(el))
     entity.add("country", addr.get("country"))
@@ -48,11 +50,11 @@ def compose_address(context: Context, entity, place, el):
     )
 
 
-def parse_name(entity, node):
+def parse_name(entity: Entity, node: Element):
     name_prop = NAME_TYPE[node.get("name-type")]
     is_weak = NAME_QUALITY_WEAK[node.get("quality")]
 
-    parts = defaultdict(dict)
+    parts: Dict[Tuple[str, str], Dict[str, str]] = defaultdict(dict)
     for part in node.findall("./name-part"):
         part_type = part.get("name-part-type")
         value = part.findtext("./value")
@@ -62,20 +64,20 @@ def parse_name(entity, node):
             key = (spelling.get("lang"), spelling.get("script"))
             parts[key][part_type] = spelling.text
 
-    for key, parts in parts.items():
-        entity.add("title", parts.pop("title", None), quiet=True)
-        entity.add("title", parts.pop("suffix", None), quiet=True)
-        entity.add("weakAlias", parts.pop("other", None), quiet=True)
-        entity.add("weakAlias", parts.pop("tribal-name", None), quiet=True)
-        entity.add("fatherName", parts.pop("grand-father-name", None), quiet=True)
+    for key, part in parts.items():
+        entity.add("title", part.pop("title", None), quiet=True)
+        entity.add("title", part.pop("suffix", None), quiet=True)
+        entity.add("weakAlias", part.pop("other", None), quiet=True)
+        entity.add("weakAlias", part.pop("tribal-name", None), quiet=True)
+        entity.add("fatherName", part.pop("grand-father-name", None), quiet=True)
         h.apply_name(
             entity,
-            full=parts.pop("whole-name", None),
-            given_name=parts.pop("given-name", None),
-            second_name=parts.pop("further-given-name", None),
-            patronymic=parts.pop("father-name", None),
-            last_name=parts.pop("family-name", None),
-            maiden_name=parts.pop("maiden-name", None),
+            full=part.pop("whole-name", None),
+            given_name=part.pop("given-name", None),
+            second_name=part.pop("further-given-name", None),
+            patronymic=part.pop("father-name", None),
+            last_name=part.pop("family-name", None),
+            maiden_name=part.pop("maiden-name", None),
             is_weak=is_weak,
             name_prop=name_prop,
             quiet=True,
@@ -83,13 +85,13 @@ def parse_name(entity, node):
         h.audit_data(parts)
 
 
-def parse_identity(context: Context, entity, node, places):
+def parse_identity(context: Context, entity: Entity, node: Element, places):
     for name in node.findall(".//name"):
         parse_name(entity, name)
 
-    for address in node.findall(".//address"):
-        place = places.get(address.get("place-id"))
-        address = compose_address(context, entity, place, address)
+    for address_node in node.findall(".//address"):
+        place = places.get(address_node.get("place-id"))
+        address = compose_address(context, entity, place, address_node)
         h.apply_address(context, entity, address)
 
     for bday in node.findall(".//day-month-year"):
