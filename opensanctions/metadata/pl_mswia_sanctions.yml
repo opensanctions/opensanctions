@@ -30,6 +30,7 @@ url: https://www.gov.pl/web/mswia/decyzje-ministra-swia-w-sprawie-wpisu-na-liste
 data:
   url: https://www.gov.pl/web/mswia/lista-osob-i-podmiotow-objetych-sankcjami
   format: HTML
+  lang: pol
 
 lookups:
   details:

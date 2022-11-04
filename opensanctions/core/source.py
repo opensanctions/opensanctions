@@ -2,6 +2,7 @@ import os
 from importlib import import_module
 from functools import cached_property
 from typing import Set
+from followthemoney.types import registry
 
 from opensanctions.core.dataset import Dataset, DatasetPublisher
 
@@ -14,6 +15,7 @@ class SourceData(object):
         self.mode = config.get("mode")
         self.format = config.get("format")
         self.api_key = config.get("api_key")
+        self.lang = registry.language.clean(config.get("lang"))
         if self.api_key is not None:
             self.api_key = os.path.expandvars(self.api_key)
 

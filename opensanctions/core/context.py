@@ -24,6 +24,7 @@ from opensanctions.core.external import External
 from opensanctions.core.issues import clear_issues
 from opensanctions.core.resolver import AUTO_USER
 from opensanctions.core.resources import save_resource, clear_resources
+from opensanctions.core.source import Source
 from opensanctions.core.statements import count_entities
 from opensanctions.core.statements import cleanup_dataset, clear_statements
 from opensanctions.core.statements import save_statements
@@ -48,6 +49,7 @@ class Context(GenericZavod[Entity]):
             data_path=data_path,
         )
         self.dataset = dataset
+        self.source: Optional[Source] = dataset if isinstance(dataset, Source) else None
         self.cache = Cache(engine, MetaData(bind=engine), dataset)
         self._statements: Dict[str, Statement] = {}
 
@@ -175,6 +177,8 @@ class Context(GenericZavod[Entity]):
             stmt.last_seen = settings.RUN_TIME
             stmt.target = target or False
             stmt.external = external
+            if stmt.lang is None and self.source is not None:
+                stmt.lang = self.source.data.lang
             stmt.id = Statement.make_key(
                 stmt.dataset,
                 stmt.entity_id,
@@ -192,15 +196,15 @@ class Context(GenericZavod[Entity]):
         self.bind()
         with engine_tx() as conn:
             clear_issues(conn, self.dataset)
-        if self.dataset.disabled:
+        if self.source is None or self.source.disabled:
             self.log.info("Source is disabled")
-            return
+            return False
         with engine_tx() as conn:
             clear_resources(conn, self.dataset)
         self.log.info("Begin crawl")
         try:
             # Run the dataset:
-            self.dataset.method(self)
+            self.source.method(self)
             self.flush()
             with engine_tx() as conn:
                 cleanup_dataset(conn, self.dataset)

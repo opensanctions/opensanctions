@@ -26,3 +26,4 @@ publisher:
 data:
   url: "http://www.fiu.az/en/sanctions/internal-sanctioned"
   format: XLS
+  lang: aze

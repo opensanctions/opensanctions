@@ -27,6 +27,7 @@ url: https://gels-avoirs.dgtresor.gouv.fr/
 data:
   url: https://gels-avoirs.dgtresor.gouv.fr/ApiPublic/api/v1/publication/derniere-publication-fichier-json
   format: JSON
+  lang: fra
 
 lookups:
   identification:

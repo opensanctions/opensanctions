@@ -115,6 +115,8 @@ class Entity(StatementProxy):
         quiet: bool = False,
         fuzzy: bool = False,
         format: Optional[str] = None,
+        lang: Optional[str] = None,
+        original_value: Optional[str] = None,
     ) -> None:
         prop_name = self._prop_name(prop, quiet=quiet)
         if prop_name is None:
@@ -127,7 +129,14 @@ class Entity(StatementProxy):
             fuzzy=fuzzy,
             format=format,
         ):
-            self.claim(prop, value, original_value=original, cleaned=True)
+            self.claim(
+                prop,
+                value,
+                quiet=quiet,
+                cleaned=True,
+                original_value=original_value or original,
+                lang=lang,
+            )
         return None
 
     def add_cast(
@@ -138,6 +147,8 @@ class Entity(StatementProxy):
         cleaned: bool = False,
         fuzzy: bool = False,
         format: Optional[str] = None,
+        lang: Optional[str] = None,
+        original_value: Optional[str] = None,
     ):
         """Set a property on an entity. If the entity is of a schema that doesn't
         have the given property, also modify the schema (e.g. if something has a
@@ -161,7 +172,13 @@ class Entity(StatementProxy):
             format=format,
         ):
             self.add_schema(schema)
-            self.claim(prop_, value, original_value=original, cleaned=True)
+            self.claim(
+                prop_,
+                value,
+                original_value=original_value or original,
+                cleaned=True,
+                lang=lang,
+            )
 
     def add_schema(self, schema: Union[str, Schema]) -> None:
         """Try to apply the given schema to the current entity, making it more

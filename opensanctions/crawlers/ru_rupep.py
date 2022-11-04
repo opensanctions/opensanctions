@@ -57,26 +57,26 @@ def crawl_person(context: Context, data: Dict[str, Any]):
     data.pop("url_ru", None)
     entity.add("modifiedAt", data.pop("last_change", None))
     entity.add("wikidataId", wikidata_id)
-    entity.add("name", data.pop("full_name_en", None))
-    entity.add("name", data.pop("full_name_ru", None))
-    entity.add("alias", data.pop("inversed_full_name_en", None))
-    entity.add("alias", data.pop("inversed_full_name_ru", None))
-    entity.add("alias", data.pop("also_known_as_en", None))
-    entity.add("alias", data.pop("also_known_as_ru", None))
+    entity.add("name", data.pop("full_name_en", None), lang="eng")
+    entity.add("name", data.pop("full_name_ru", None), lang="rus")
+    entity.add("alias", data.pop("inversed_full_name_en", None), lang="eng")
+    entity.add("alias", data.pop("inversed_full_name_ru", None), lang="rus")
+    entity.add("alias", data.pop("also_known_as_en", None), lang="eng")
+    entity.add("alias", data.pop("also_known_as_ru", None), lang="rus")
     entity.add("alias", split_names(data.pop("names", [])))
     entity.add("birthDate", parse_date(data.pop("date_of_birth", None)))
     entity.add("deathDate", parse_date(data.pop("termination_date_human", None)))
-    entity.add("birthPlace", data.pop("city_of_birth_ru", None))
-    entity.add("birthPlace", data.pop("city_of_birth_en", None))
+    entity.add("birthPlace", data.pop("city_of_birth_ru", None), lang="rus")
+    entity.add("birthPlace", data.pop("city_of_birth_en", None), lang="eng")
     entity.add("innCode", data.pop("inn", None))
-    entity.add("firstName", data.pop("first_name_en", None))
-    entity.add("firstName", data.pop("first_name_ru", None))
-    entity.add("fatherName", data.pop("patronymic_en", None))
-    entity.add("fatherName", data.pop("patronymic_ru", None))
-    entity.add("lastName", data.pop("last_name_en", None))
-    entity.add("lastName", data.pop("last_name_ru", None))
+    entity.add("firstName", data.pop("first_name_en", None), lang="eng")
+    entity.add("firstName", data.pop("first_name_ru", None), lang="rus")
+    entity.add("fatherName", data.pop("patronymic_en", None), lang="eng")
+    entity.add("fatherName", data.pop("patronymic_ru", None), lang="rus")
+    entity.add("lastName", data.pop("last_name_en", None), lang="eng")
+    entity.add("lastName", data.pop("last_name_ru", None), lang="rus")
 
-    for suffix in ("", "_en", "_ru"):
+    for lang, suffix in ((None, ""), ("eng", "_en"), ("rus", "_ru")):
         role = data.pop(f"last_job_title{suffix}", None)
         org = data.pop(f"last_workplace{suffix}", None)
         if org is None or not len(org.strip()):
@@ -84,7 +84,7 @@ def crawl_person(context: Context, data: Dict[str, Any]):
         position = org
         if role is not None and len(role.strip()):
             position = f"{org} ({role})"
-        entity.add("position", position)
+        entity.add("position", position, lang=lang)
 
     for country_data in data.pop("related_countries", []):
         rel_type = country_data.pop("relationship_type")
@@ -101,7 +101,7 @@ def crawl_person(context: Context, data: Dict[str, Any]):
             )
             continue
         if res.prop is not None:
-            entity.add(res.prop, country_name)
+            entity.add(res.prop, country_name, original_value=country_name)
         # h.audit_data(country_data)
 
     for rel_data in data.pop("related_persons", []):
@@ -109,8 +109,8 @@ def crawl_person(context: Context, data: Dict[str, Any]):
         other_wdid = clean_wdid(rel_data.pop("person_wikidata_id"))
         other = context.make("Person")
         other.id = person_id(context, rel_data.pop("person_id"), other_wdid)
-        other.add("name", rel_data.pop("person_en", None))
-        other.add("name", rel_data.pop("person_ru", None))
+        other.add("name", rel_data.pop("person_en", None), lang="eng")
+        other.add("name", rel_data.pop("person_ru", None), lang="rus")
         other.add("wikidataId", other_wdid)
 
         rel_type = rel_data.pop("relationship_type_en", None)
@@ -148,7 +148,7 @@ def crawl_person(context: Context, data: Dict[str, Any]):
     person_topic = context.lookup_value("person_type", person_type)
     if person_topic is None:
         context.log.warn("Unknown type of official", type=person_type)
-    entity.add("topics", person_topic)
+    entity.add("topics", person_topic, original_value=person_type)
     if is_pep:
         entity.add("topics", "role.pep")
     entity.add("status", person_type)

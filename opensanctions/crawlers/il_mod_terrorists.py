@@ -1,6 +1,5 @@
 import re
 from datetime import datetime
-from followthemoney.proxy import P
 from openpyxl import load_workbook
 from pantomime.types import XLSX
 from normality import slugify, stringify
@@ -91,9 +90,9 @@ def crawl_individuals(context: Context):
         entity.id = context.make_id(name_en, name_he, name_ar)
         if entity.id is None:
             continue
-        entity.add("name", name_en or name_he or name_ar)
-        entity.add("alias", name_he)
-        entity.add("alias", name_ar)
+        entity.add("name", name_en, lang="eng")
+        entity.add("name", name_he, lang="heb")
+        entity.add("name", name_ar, lang="ara")
         entity.add("topics", "crime.terror")
         entity.add("birthDate", parse_date(record.pop("d_o_b", None)))
         entity.add("nationality", record.pop("nationality_residency", None))
@@ -132,14 +131,14 @@ def crawl_organizations(context: Context):
             continue
         if seq_id is not None:
             seq_ids[seq_id] = entity.id
-        entity.add("name", name_en)
-        entity.add("name", name_he)
+        entity.add("name", name_en, lang="eng")
+        entity.add("name", name_he, lang="heb")
         entity.add("topics", "crime.terror")
         entity.add("notes", h.clean_note(lang_pick(record, "comments")))
         entity.add("notes", h.clean_note(record.pop("column_42", None)))
         entity.add("email", record.pop("email", None))
-        entity.add("country", record.pop("country_hebrew", None))
-        entity.add("country", record.pop("country_english", None))
+        entity.add("country", record.pop("country_hebrew", None), lang="heb")
+        entity.add("country", record.pop("country_english", None), lang="eng")
         entity.add("registrationNumber", record.pop("corporation_id", None))
         entity.add("legalForm", lang_pick(record, "corporation_type"))
         entity.add("jurisdiction", lang_pick(record, "location_of_formation"))
