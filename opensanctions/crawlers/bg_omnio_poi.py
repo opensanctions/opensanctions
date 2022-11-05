@@ -58,12 +58,9 @@ def crawl_row(context: Context, row: Dict[str, str]):
     entity.add(
         "country", row.pop("Countries_of_Residence_BG", "").split(";"), lang="bul"
     )
-    citizenships = row.pop("Citizenships", "").split(";")
-    citizenships.extend(row.pop("Citizenships_BG", "").split(";"), lang="bul")
-    if entity.schema.is_a("Person"):
-        entity.add("nationality", citizenships)
-    else:
-        entity.add("jurisdiction", citizenships)
+    cit_prop = "nationality" if entity.schema.is_a("Person") else "jurisdiction"
+    entity.add(cit_prop, row.pop("Citizenships", "").split(";"), lang="eng")
+    entity.add(cit_prop, row.pop("Citizenships_BG", "").split(";"), lang="bul")
     entity.add("birthPlace", row.pop("Place_of_birth"), quiet=True)
     entity.add("birthPlace", row.pop("Place_of_birth_BG"), quiet=True, lang="bul")
     for part in multi_split([row.pop("DOB"), row.pop("DOB_BG")], [";", "/"]):
