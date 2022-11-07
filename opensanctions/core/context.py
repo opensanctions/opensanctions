@@ -173,6 +173,7 @@ class Context(GenericZavod[Entity]):
             stmt.dataset = self.dataset.name
             stmt.entity_id = entity.id
             stmt.canonical_id = entity.id
+            stmt.schema = entity.schema.name
             stmt.first_seen = settings.RUN_TIME
             stmt.last_seen = settings.RUN_TIME
             stmt.target = target or False

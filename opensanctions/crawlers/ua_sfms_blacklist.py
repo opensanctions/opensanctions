@@ -22,6 +22,8 @@ def parse_entry(context: Context, entry):
     if entry.findtext("./type-entry") == "2":
         entity = context.make("Person")
     entry_id = entry.findtext("number-entry")
+    if entry_id == "1460":
+        entity = context.make("LegalEntity")
     entity.id = context.make_slug(entry_id)
 
     sanction = h.make_sanction(context, entity)

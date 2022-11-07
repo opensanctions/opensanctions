@@ -30,6 +30,8 @@ def crawl(context: Context):
                     id_code = member["id_code"]
                     if id_code is not None and "IMO:" in id_code:
                         schema = "Vessel"
+                    if id_code == "8405311":
+                        schema = "Vessel"
 
                     entity = context.make(schema)
                     entity.id = context.make_id(name, member["creation_date"])
@@ -39,6 +41,9 @@ def crawl(context: Context):
                         entity.add("notes", id_code)
                     else:
                         for code in id_code.split("."):
+                            if ":" not in code:
+                                entity.add("imoNumber", code)
+                                continue
                             type_, value = code.split(": ", 1)
                             if "IMO" in type_:
                                 entity.add("imoNumber", value)
