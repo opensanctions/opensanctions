@@ -84,12 +84,12 @@ class Database(object):
             ):
                 if stmt.canonical_id != current_id:
                     if len(entity):
-                        yield tuple(sorted(entity))
+                        yield tuple(entity)
                     entity = []
                 current_id = stmt.canonical_id
                 entity.append(stmt)
             if len(entity):
-                yield tuple(sorted(entity))
+                yield tuple(entity)
 
     def assemble(self, statements: Iterable[Statement], sources=Set[str]):
         """Build an entity proxy from a set of cached statements, considering
@@ -124,7 +124,7 @@ class DatasetLoader(Loader[Dataset, Entity]):
             return
         entity = self.db.assemble(statements, sources=self.scopes)
         if entity is not None:
-            entity = self.db.resolver.apply(entity)
+            entity = self.db.resolver.apply_statement_proxy(entity)
             if self.assembler is not None:
                 entity = self.assembler(entity)
             yield entity
