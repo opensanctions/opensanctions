@@ -60,7 +60,7 @@ def all_statements(
     if external is False:
         q = q.filter(stmt_table.c.external == False)
     q = q.order_by(stmt_table.c.canonical_id.asc())
-    result = conn.execution_options(stream_results=True).execute(q)
+    result = conn.execute(q)
     for row in result:
         yield Statement.from_dict(row._asdict())
 
