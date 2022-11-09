@@ -57,7 +57,9 @@ lookups:
         prop: null
   person_type:
     options:
-      - match: ""
+      - match:
+          - ""
+          - "-"
         value: ""
       - match:
           - Close associate
