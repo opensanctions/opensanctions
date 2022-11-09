@@ -67,6 +67,9 @@ def parse_sanctions(context: Context, entity: Entity, entry):
 
 def parse_entry(context: Context, entry: Element):
     subject_type = entry.find("./subjectType")
+    if subject_type is None:
+        context.log.warning("Unknown subject type", entry=entry)
+        return
     schema = context.lookup_value(
         "subject_type",
         subject_type.get("code"),
@@ -173,7 +176,7 @@ def parse_entry(context: Context, entry: Element):
     for node in entry.findall("./citizenship"):
         entity.add("nationality", parse_country(node), quiet=True)
 
-    context.inspect(entry)
+    # context.inspect(entry)
     context.emit(entity, target=True)
 
 
