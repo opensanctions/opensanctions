@@ -4,7 +4,7 @@ import mimetypes
 from typing import Iterable, cast, Dict, Optional
 from lxml import etree, html
 from requests.exceptions import RequestException
-from datapatch import LookupException
+from datapatch import LookupException, Result
 from sqlalchemy import MetaData
 from zavod.context import GenericZavod
 from followthemoney.helpers import check_person_cutoff
@@ -137,14 +137,22 @@ class Context(GenericZavod[Entity]):
                 conn, name, self.dataset, checksum, mime_type, size, title
             )
 
-    def lookup_value(self, lookup, value, default=None, dataset=None):
+    def lookup_value(
+        self,
+        lookup: str,
+        value: Optional[str],
+        default: Optional[str] = None,
+        dataset: Optional[str] = None,
+    ) -> Optional[str]:
         ds = Dataset.require(dataset) if dataset is not None else self.dataset
         try:
             return ds.lookups[lookup].get_value(value, default=default)
         except LookupException:
             return default
 
-    def lookup(self, lookup, value, dataset=None):
+    def lookup(
+        self, lookup: str, value: Optional[str], dataset: Optional[str] = None
+    ) -> Optional[Result]:
         ds = Dataset.require(dataset) if dataset is not None else self.dataset
         return ds.lookups[lookup].match(value)
 

@@ -60,7 +60,7 @@ class Entity(StatementProxy):
         if cleaned:
             return [value]
         for form in type_lookup(prop.type, value):
-            if form is None or len(str(form).strip()) == 0:
+            if len(str(form).strip()) == 0:
                 continue
             clean = prop.type.clean(
                 form,
@@ -75,7 +75,7 @@ class Entity(StatementProxy):
                 results.append(clean)
                 continue
             if prop.type == registry.phone:
-                results.append(value)
+                results.append(form)
                 continue
             log.warning(
                 "Rejected property value",

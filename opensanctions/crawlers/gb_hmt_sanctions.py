@@ -1,3 +1,4 @@
+from typing import Optional
 from banal import first
 from pprint import pprint
 from normality import stringify, collapse_spaces
@@ -39,7 +40,7 @@ def parse_countries(text):
     return countries
 
 
-def parse_companies(context, value):
+def parse_companies(context: Context, value: Optional[str]):
     if value is None:
         return []
     result = context.lookup("companies", value)
@@ -48,7 +49,7 @@ def parse_companies(context, value):
         return []
     if result.value == "SAME":
         return [value]
-    return list(result.values)
+    return result.values
 
 
 def split_items(text, comma=False):
