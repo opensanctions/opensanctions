@@ -1,5 +1,5 @@
-from typing import Any, List
 import yaml
+from typing import Any, List
 from functools import lru_cache
 from datapatch import get_lookups
 from followthemoney.types.common import PropertyType
@@ -20,13 +20,23 @@ def common_lookups():
 
 
 @lru_cache(maxsize=None)
-def type_lookup(type_: PropertyType, value: str) -> List[Any]:
+def _type_lookup(type_: PropertyType, value: Any) -> List[Any]:
+    lookup = common_lookups().get(type_.name)
+    if lookup is None:
+        return [value]
+    return lookup.get_values(value, default=[value])
+
+
+def type_lookup(type_: PropertyType, value: Any) -> List[Any]:
     """Given a value and a certain property type, check to see if there is a
     normalised override available. This uses the lookups defined in
     `common.yml`.
 
     The override value is then cleaned again and applied to the entity."""
-    lookup = common_lookups().get(type_.name)
-    if lookup is None:
+    if value is None:
+        return []
+    try:
+        hash(value)
+    except TypeError:
         return [value]
-    return lookup.get_values(value, default=[value])
+    return _type_lookup(type_, value)
