@@ -10,11 +10,12 @@ from opensanctions.core.resolver import AUTO_USER, get_resolver
 log = get_logger(__name__)
 
 
-def blocking_xref(dataset: Dataset, limit: int = 5000):
+def blocking_xref(dataset: Dataset, limit: int = 5000, auto_threshold: float = 0.990):
     resolver = get_resolver()
     with engine_tx() as conn:
         resolve_all_canonical(conn, resolver)
     resolver.prune()
+    log.info("Xref running, auto merge threshold: %f" % auto_threshold)
     db = Database(dataset, resolver, cached=True, external=True)
     loader = db.view(dataset)
     xref(
@@ -22,7 +23,7 @@ def blocking_xref(dataset: Dataset, limit: int = 5000):
         resolver,
         limit=limit,
         scored=True,
-        auto_threshold=0.990,
+        auto_threshold=auto_threshold,
         user=AUTO_USER,
     )
     resolver.save()
