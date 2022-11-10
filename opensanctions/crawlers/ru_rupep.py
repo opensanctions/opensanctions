@@ -145,10 +145,11 @@ def crawl_person(context: Context, data: Dict[str, Any]):
 
     data.pop("type_of_official_ru", None)
     person_type = data.pop("type_of_official_en", None)
-    person_topic = context.lookup_value("person_type", person_type)
+    person_topic = context.lookup("person_type", person_type)
     if person_topic is None:
         context.log.warn("Unknown type of official", type=person_type)
-    entity.add("topics", person_topic, original_value=person_type)
+    else:
+        entity.add("topics", person_topic.value, original_value=person_type)
     if is_pep:
         entity.add("topics", "role.pep")
     entity.add("status", person_type)
