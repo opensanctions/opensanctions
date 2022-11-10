@@ -41,8 +41,13 @@ lookups:
         weight: 100
         prop: notes
       - match:
-          - numéro fédéral Suisse
+          # why are IMO codes linked to companies?
+          - Numéro OMI
           - (IOM)
+          - n° OMI
+        value: registrationNumber
+      - match:
+          - numéro fédéral Suisse
         prop: idNumber
       - match:
           - Numéro d'enregistrement national
@@ -69,8 +74,6 @@ lookups:
           - n° d'enregistrement national
           - "Date d’enregistrement"
           - "Numéro d'enregistrement - lieu d'enregistrement : Fédération de Russie"
-          # why are IMO codes linked to companies?
-          - n° OMI
         prop: registrationNumber
       - match:
           - Numéro d'identification fiscale (INN)
