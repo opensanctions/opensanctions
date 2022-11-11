@@ -9,12 +9,12 @@ from opensanctions import helpers as h
 from opensanctions.core import Context
 
 FORMATS = ("%d/%m/%Y",)
-FBI_URL = 'https://www.fbi.gov/wanted/%s/@@castle.cms.querylisting/%s?page=%s'
+FBI_URL = "https://www.fbi.gov/wanted/%s/@@castle.cms.querylisting/%s?page=%s"
 
 types = {
-    'fugitives': 'f7f80a1681ac41a08266bd0920c9d9d8',
-    'terrorism': '55d8265003c84ff2a7688d7acd8ebd5a',
-    'bank-robbers': '2514fe8f611f47d1b2c1aa18f0f6f01b',
+    "fugitives": "f7f80a1681ac41a08266bd0920c9d9d8",
+    "terrorism": "55d8265003c84ff2a7688d7acd8ebd5a",
+    "bank-robbers": "2514fe8f611f47d1b2c1aa18f0f6f01b",
 }
 
 
@@ -37,7 +37,7 @@ def crawl_person(context, url):
         person.add("lastName", last_name)
 
         # Add aditional information
-        rows = table.findall('.//tr')
+        rows = table.findall(".//tr")
         for item in rows:
             key, value = list(filter(str.strip, item.text_content().split("\n")))
             if "Nationality" in key and value:
@@ -49,9 +49,9 @@ def crawl_person(context, url):
             if "Sex" in key and value:
                 person.add("gender", value)
             if "Date(s) of Birth Used" in key and value:
-                first_date = ', '.join(value.split(', ')[:2])
+                first_date = ", ".join(value.split(", ")[:2])
                 try:
-                    parsed_date = parse(first_date).strftime('%d/%m/%Y')
+                    parsed_date = parse(first_date).strftime("%d/%m/%Y")
                     person.add("birthDate", h.parse_date(parsed_date, FORMATS))
                 except ParserError:
                     # Sometimes they add a range of dates
@@ -68,8 +68,8 @@ def crawl_pages(context, type, amount):
         page_url = FBI_URL % (type, types.get(type), page)
         doc = context.fetch_html(page_url)
         details = doc.find('.//div[@class="query-results pat-pager"]')
-        for row in details.findall('.//ul/li'):
-            href = row.xpath('.//a')[0].get('href')
+        for row in details.findall(".//ul/li"):
+            href = row.xpath(".//a")[0].get("href")
             crawl_person(context, href)
 
 
@@ -84,13 +84,11 @@ def crawl(context: Context):
 
         # Get total results count
         total_results = int(
-            re.search(r'\d+', doc.find('//div[@class="row top-total"]').text_content()).group()
+            re.search(
+                r"\d+", doc.find('//div[@class="row top-total"]').text_content()
+            ).group()
         )
-        context.log.debug(
-            "Total results",
-            total_results=total_results,
-            url=url
-        )
+        context.log.debug("Total results", total_results=total_results, url=url)
 
         # Get total pages count
         total_pages = math.ceil(total_results / 40)

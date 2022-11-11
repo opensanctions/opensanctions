@@ -23,6 +23,9 @@ collections:
 url: https://www.fbi.gov/wanted
 publisher:
   name: Federal Bureau of Investigation (FBI)
+  description: >
+    The Federal Bureau of Investigation is the domestic intelligence and security service of
+    the United States and its principal federal law enforcement agency.
   url: https://www.fbi.gov/
   country: us
 data:
