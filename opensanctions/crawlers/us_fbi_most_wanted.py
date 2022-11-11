@@ -46,6 +46,8 @@ def crawl_person(context, url):
                 person.add("birthPlace", value)
             if "Occupation" in key and value:
                 person.add("position", value)
+            if "Sex" in key and value:
+                person.add("gender", value)
             if "Date(s) of Birth Used" in key and value:
                 first_date = ', '.join(value.split(', ')[:2])
                 try:
