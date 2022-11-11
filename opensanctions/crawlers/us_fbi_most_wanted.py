@@ -29,6 +29,7 @@ def crawl_person(context, url):
     if table is not None and name:
         # Add the person
         person = context.make("Person")
+        person.add("topics", "crime")
         person.id = context.make_slug(name)
         person.add("sourceUrl", url)
         last_name, first_name = name.split(" ", 1)
