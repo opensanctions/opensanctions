@@ -56,6 +56,7 @@ def crawl_person(context, url):
                     # And currenly we can not parse them
                     # TODO: find a way to parse them
                     pass
+        context.emit(person, target=True)
 
 
 def crawl_pages(context, type, amount):
