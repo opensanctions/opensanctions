@@ -348,6 +348,26 @@ country:
     - match:
         - "Kinshasa"
       value: CD
+    - match: Haitian
+      value: Haiti
+    - match: Cambodian
+      value: Cambodia
+    - match: Salvadoran
+      value: El Salvador
+    - match: Laotian
+      value: Laos
+    - match: Dual American and Russian
+      values:
+        - US
+        - RU
+    - match: Palestinian and possibly Lebanese
+      values:
+        - PS
+        - Lebanon
+    - match: Palestinian and possibly Iraqi
+      values:
+        - PS
+        - IQ
     - match: NM # New Mexico?
       value: US
     - match: Trucial States

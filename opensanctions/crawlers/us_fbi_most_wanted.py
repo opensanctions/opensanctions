@@ -1,15 +1,27 @@
-import math
 import re
-
-from dateutil.parser import ParserError, parse
-from lxml import html
-from pantomime.types import HTML
+import math
 
 from opensanctions import helpers as h
 from opensanctions.core import Context
 
-FORMATS = ("%d/%m/%Y",)
+FORMATS = (
+    "%B %d, %Y",
+    "%d/%m/%Y",
+)
 FBI_URL = "https://www.fbi.gov/wanted/%s/@@castle.cms.querylisting/%s?page=%s"
+IGNORE_FIELDS = (
+    "Age",
+    "Weight",
+    "Height",
+    "NCIC",
+    "Eyes",
+    "Hair",
+    "Complexion",
+    "Languages",
+    "Build",
+    "Scars and Marks",
+)
+SPLIT_DATES = re.compile("([^,]+,[^,]+)")
 
 types = {
     "fugitives": "f7f80a1681ac41a08266bd0920c9d9d8",
@@ -18,53 +30,66 @@ types = {
 }
 
 
-def crawl_person(context, url):
-    doc = context.fetch_html(url)
-
-    name = doc.find('.//h1[@class="documentFirstHeading"]').text_content().title()
+def crawl_person(context: Context, url: str) -> None:
+    doc = context.fetch_html(url, cache_days=7)
+    name = doc.findtext('.//h1[@class="documentFirstHeading"]')
+    if name is None:
+        context.log.error("Cannot find name table", url=url)
+        return
     table = doc.find('.//table[@class="table table-striped wanted-person-description"]')
-
     # Detect if the table with person information exists or do not make a person
     # Because sometimes they add also groups for example the whole gru group
-    if table is not None and name:
-        # Add the person
-        person = context.make("Person")
-        person.add("topics", "crime")
-        person.id = context.make_slug(name)
-        person.add("sourceUrl", url)
-        last_name, first_name = name.split(" ", 1)
-        person.add("firstName", first_name)
-        person.add("lastName", last_name)
+    if table is None:
+        context.log.debug("Cannot find fact table", url=url)
+        return
 
-        # Add aditional information
-        rows = table.findall(".//tr")
-        for item in rows:
-            key, value = list(filter(str.strip, item.text_content().split("\n")))
-            if "Nationality" in key and value:
-                person.add("nationality", value)
-            if "Place of Birth" in key and value:
-                person.add("birthPlace", value)
-            if "Occupation" in key and value:
-                person.add("position", value)
-            if "Sex" in key and value:
-                person.add("gender", value)
-            if "Date(s) of Birth Used" in key and value:
-                first_date = ", ".join(value.split(", ")[:2])
-                try:
-                    parsed_date = parse(first_date).strftime("%d/%m/%Y")
-                    person.add("birthDate", h.parse_date(parsed_date, FORMATS))
-                except ParserError:
-                    # Sometimes they add a range of dates
-                    # With Approximately 1970 to 1971 or different formats
-                    # And currenly we can not parse them
-                    # TODO: find a way to parse them
-                    pass
-        context.emit(person, target=True)
+    person = context.make("Person")
+    person.add("topics", "crime")
+    person.add("name", name)
+    person.id = context.make_slug(name)
+    person.add("sourceUrl", url)
+    # last_name, first_name = name.split(" ", 1)
+    # person.add("firstName", first_name)
+    # person.add("lastName", last_name)
+
+    # Add aditional information
+    rows = table.findall(".//tr")
+    for item in rows:
+        cells = [c.text.strip() for c in item.findall("./td")]
+        if len(cells) != 2:
+            context.log.error("Invalid fact table entry", cells=cells)
+            continue
+        key, value = cells
+        if value is None or not len(value.strip()):
+            continue
+        if "Nationality" in key:
+            person.add("nationality", value)
+        elif "Citizenship" in key:
+            person.add("nationality", value.split(","))
+        elif "Place of Birth" in key:
+            person.add("birthPlace", value)
+        elif "Occupation" in key:
+            person.add("position", value)
+        elif "Sex" in key:
+            person.add("gender", value)
+        elif "Race" in key:
+            person.add("ethnicity", value)
+        elif "Date(s) of Birth Used" in key:
+            dates = SPLIT_DATES.split(value)
+            for date in dates:
+                date = date.replace("(True)", "").strip()
+                if len(date) > 1:
+                    person.add("birthDate", h.parse_date(date, FORMATS))
+        elif key in IGNORE_FIELDS:
+            continue
+        else:
+            context.inspect(item)
+    context.emit(person, target=True)
 
 
-def crawl_pages(context, type, amount):
+def crawl_pages(context: Context, type: str, total_pages: int):
     # Crawl every page
-    for page in range(1, amount + 1):
+    for page in range(1, total_pages + 1):
         page_url = FBI_URL % (type, types.get(type), page)
         doc = context.fetch_html(page_url)
         details = doc.find('.//div[@class="query-results pat-pager"]')
@@ -76,21 +101,22 @@ def crawl_pages(context, type, amount):
 def crawl(context: Context):
     for type in types:
         url = FBI_URL % (type, types[type], 1)
-        resource = "source_%s.html" % type
-        path = context.fetch_resource(resource, url)
-        context.export_resource(path, HTML, title=context.SOURCE_TITLE)
-        with open(path, "r") as fh:
-            doc = html.parse(fh)
+        doc = context.fetch_html(url)
 
         # Get total results count
-        total_results = int(
-            re.search(
-                r"\d+", doc.find('//div[@class="row top-total"]').text_content()
-            ).group()
-        )
+        total_text = doc.findtext('.//div[@class="row top-total"]//p')
+        if total_text is None:
+            context.log.error("Could not find result count", url=url)
+            continue
+        # context.inspect(total_el)
+        # total_text = total_el.text_content()
+        match = re.search(r"\d+", total_text)
+        if match is None:
+            context.log.error("Could not find result count", text=total_text)
+            continue
+        total_results = int(match.group())
         context.log.debug("Total results", total_results=total_results, url=url)
 
         # Get total pages count
         total_pages = math.ceil(total_results / 40)
-
         crawl_pages(context, type, total_pages)
