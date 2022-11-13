@@ -71,7 +71,7 @@ def crawl_country(context: Context, country, age_max=120, age_min=0):
         "resultPerPage": MAX_RESULTS,
     }
     try:
-        data = context.fetch_json(context.dataset.data.url, params=params)
+        data = context.fetch_json(context.source.data.url, params=params)
     except HTTPError as err:
         context.log.warning(
             "HTTP error",

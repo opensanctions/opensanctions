@@ -109,11 +109,11 @@ def crawl_person(context: Context, name, url):
 
 
 def crawl(context: Context):
-    doc = context.fetch_html(context.dataset.data.url)
+    doc = context.fetch_html(context.source.data.url)
 
     seen = set()
     for link in doc.findall('.//div[@class="people"]//li//a[@class="_fullname"]'):
-        url = urljoin(context.dataset.data.url, link.get("href"))
+        url = urljoin(context.source.data.url, link.get("href"))
         url, _ = url.split("?", 1)
         if url in seen:
             continue

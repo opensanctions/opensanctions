@@ -8,7 +8,7 @@ from opensanctions import helpers as h
 
 
 def crawl(context: Context):
-    data = context.fetch_json(context.dataset.data.url)
+    data = context.fetch_json(context.source.data.url)
 
     for country in data:
         for legislature in country.get("legislatures", []):

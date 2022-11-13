@@ -86,7 +86,7 @@ def crawl_entity(context: Context, data: Dict[str, Any]) -> None:
 
 
 def crawl(context: Context):
-    path = context.fetch_resource("source.xlsx", context.dataset.data.url)
+    path = context.fetch_resource("source.xlsx", context.source.data.url)
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
     workbook = openpyxl.load_workbook(path, read_only=True)
     sheet = workbook["Russia Sanctions Register"]

@@ -49,7 +49,7 @@ def crawl_country(context: Context, params, path, country):
 
 def crawl(context: Context):
     params = {"_": settings.RUN_DATE}
-    res = context.fetch_json(context.dataset.data.url, params=params)
+    res = context.fetch_json(context.source.data.url, params=params)
     data = res.get("result", {}).get("data", {})
     for edge in data.get("governments", {}).get("edges", []):
         node = edge.get("node", {})

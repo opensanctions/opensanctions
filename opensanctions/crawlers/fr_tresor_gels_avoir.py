@@ -107,7 +107,7 @@ def crawl_entity(context: Context, data: Dict[str, Any]):
 
 
 def crawl(context):
-    path = context.fetch_resource("source.json", context.dataset.data.url)
+    path = context.fetch_resource("source.json", context.source.data.url)
     context.export_resource(path, JSON, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         data = json.load(fh)

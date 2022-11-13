@@ -58,7 +58,7 @@ def parse_sheet(path: Path) -> Generator[Tuple[Tuple[str, CellValue], ...], None
 
 def crawl(context: Context):
     # this file is ods (open document sheet)
-    path = context.fetch_resource("source.ods", context.dataset.data.url)
+    path = context.fetch_resource("source.ods", context.source.data.url)
     context.export_resource(path, ODS, title=context.SOURCE_TITLE)
     for row in parse_sheet(path):
         entity = context.make("LegalEntity")

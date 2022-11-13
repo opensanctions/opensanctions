@@ -10,7 +10,7 @@ def parse_date(text):
 
 
 def crawl(context: Context):
-    base_url = context.dataset.data.url
+    base_url = context.source.data.url
     doc = context.fetch_html(base_url)
     for link in doc.findall(".//a"):
         url = link.get("href")

@@ -108,7 +108,7 @@ def crawl_common(context: Context, entity: Entity, row: Dict[str, Any]):
 
 
 def crawl_person(context: Context) -> None:
-    data = json_resource(context, context.dataset.data.url, "person")
+    data = json_resource(context, context.source.data.url, "person")
     for row in data["data"]:
         row = clean_row(row)
         person_id = row.pop("person_id")
@@ -142,7 +142,7 @@ def crawl_person(context: Context) -> None:
 
 
 def crawl_company(context: Context) -> None:
-    data = json_resource(context, context.dataset.data.url, "company")
+    data = json_resource(context, context.source.data.url, "company")
     for row in data["data"]:
         row = clean_row(row)
         company_id = row.pop("company_id")

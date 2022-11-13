@@ -125,10 +125,10 @@ def crawl(context: Context):
     path = context.get_resource_path("source.xls")
 
     # TODO: why does this work and the fetch call does not?
-    res = requests.get(context.dataset.data.url, verify=False)
-    with open(path, 'wb') as fh:
+    res = requests.get(context.source.data.url, verify=False)
+    with open(path, "wb") as fh:
         fh.write(res.content)
-    # path = context.fetch_resource("source.xls", context.dataset.data.url)
+    # path = context.fetch_resource("source.xls", context.source.data.url)
 
     context.export_resource(path, EXCEL, title=context.SOURCE_TITLE)
     xls = xlrd.open_workbook(path)

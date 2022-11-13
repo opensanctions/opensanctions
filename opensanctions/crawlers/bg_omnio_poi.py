@@ -84,7 +84,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
 
 
 def crawl(context: Context):
-    path = context.fetch_resource("source.csv", context.dataset.data.url)
+    path = context.fetch_resource("source.csv", context.source.data.url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         for row in csv.DictReader(fh):

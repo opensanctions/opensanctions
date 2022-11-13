@@ -1,6 +1,7 @@
 import json
 import hashlib
 import mimetypes
+from functools import cached_property
 from typing import Iterable, cast, Dict, Optional
 from lxml import etree, html
 from requests.exceptions import RequestException
@@ -49,9 +50,20 @@ class Context(GenericZavod[Entity]):
             data_path=data_path,
         )
         self.dataset = dataset
-        self.source: Optional[Source] = dataset if isinstance(dataset, Source) else None
         self.cache = Cache(engine, MetaData(bind=engine), dataset)
         self._statements: Dict[str, Statement] = {}
+
+    @property
+    def source(self) -> Source:
+        if isinstance(self.dataset, Source):
+            return self.dataset
+        raise RuntimeError("Dataset is not a source: %s" % self.dataset.name)
+
+    @cached_property
+    def lang(self) -> Optional[str]:
+        if isinstance(self.dataset, Source):
+            return self.dataset.data.lang
+        return None
 
     def bind(self) -> None:
         bind_contextvars(dataset=self.dataset.name)
@@ -186,8 +198,8 @@ class Context(GenericZavod[Entity]):
             stmt.last_seen = settings.RUN_TIME
             stmt.target = target or False
             stmt.external = external
-            if stmt.lang is None and self.source is not None:
-                stmt.lang = self.source.data.lang
+            if stmt.lang is None and self.lang is not None:
+                stmt.lang = self.lang
             stmt.id = Statement.make_key(
                 stmt.dataset,
                 stmt.entity_id,
@@ -205,7 +217,7 @@ class Context(GenericZavod[Entity]):
         self.bind()
         with engine_tx() as conn:
             clear_issues(conn, self.dataset)
-        if self.source is None or self.source.disabled:
+        if self.source.disabled:
             self.log.info("Source is disabled")
             return False
         with engine_tx() as conn:

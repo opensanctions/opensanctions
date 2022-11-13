@@ -5,7 +5,7 @@ from opensanctions.core import Context, Entity
 
 
 def crawl(context: Context):
-    path = context.fetch_resource("source.json", context.dataset.data.url)
+    path = context.fetch_resource("source.json", context.source.data.url)
     context.export_resource(path, JSON, title=context.SOURCE_TITLE)
     with open(path, "rb") as fh:
         for entity in binary_entities(fh, Entity):
