@@ -1,4 +1,3 @@
-from stringcase import constcase
 from nomenklatura.senzing import senzing_record
 
 from opensanctions.core import Entity
@@ -15,7 +14,7 @@ class SenzingExporter(Exporter):
     def setup(self):
         super().setup()
         self.fh = open(self.path, "wb")
-        self.source_name = constcase(f"OS_{self.dataset.name}")
+        self.source_name = f"OS_{self.dataset.name.upper()}"
         if self.dataset.name in ("all", "default"):
             self.source_name = "OPENSANCTIONS"
 
