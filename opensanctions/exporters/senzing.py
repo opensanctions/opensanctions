@@ -15,7 +15,9 @@ class SenzingExporter(Exporter):
     def setup(self):
         super().setup()
         self.fh = open(self.path, "wb")
-        self.source_name = constcase(f"OPENSANCTIONS_{self.dataset.name}")
+        self.source_name = constcase(f"OS_{self.dataset.name}")
+        if self.dataset.name in ("all", "default"):
+            self.source_name = "OPENSANCTIONS"
 
     def feed(self, entity: Entity):
         record = senzing_record(self.source_name, entity, self.loader)
