@@ -29,6 +29,7 @@ country:
         - Shigeharu Ueki
         - Genshin Impact
         - Other
+        - World
         - "NULL"
         # All the countries below are nulled out because they do not have modern
         # equivalents. The rule of thumb here is to map countries into modern ones
