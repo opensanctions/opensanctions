@@ -70,7 +70,9 @@ def crawl_item(context: Context, url: str):
         return
     security = context.make("Security")
     security.add("sourceUrl", url)
+    security.add("country", "ru")
     issuer = context.make("LegalEntity")
+    issuer.add("country", "ru")
     isin_code = None
     for row in table[0].findall(".//tr"):
         if row is None:
