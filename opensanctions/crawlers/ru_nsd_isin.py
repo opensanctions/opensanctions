@@ -66,7 +66,7 @@ def crawl_item(context: Context, url: str):
         return
     table = html.findall('.//td[@class="content"]//table')
     if len(table) != 1:
-        context.log.warn("ISIN announcement table not found", url=url)
+        context.log.info("ISIN announcement table not found", url=url)
         return
     security = context.make("Security")
     security.add("sourceUrl", url)
@@ -102,20 +102,20 @@ def crawl_item(context: Context, url: str):
         elif key in (
             "Полное наименование индекса на английском языке",  # Full name of the index in English
             "Полное наименование индекса",  # Full name of the index
-            "Наименование ипотечного сертификата участия с ипотечным покрытием",  # Name of the mortgage participation certificate with mortgage coverage
-            "Наименование ипотечных сертификатов участия с ипотечным покрытием",  # Name of mortgage participation certificates with mortgage coverage
-            "Полное наименование депозитной ставки",  # Full name of the deposit rate
-        ):
-            security.add("name", value)
-        elif key == "Тип фонда":
-            issuer.add("legalForm", value)
-        elif key in (
             "Наименование выпуска/транша",
             "Полное наименование финансового инструмента",
             "Наименование выпуска/транша",
             "Наименование имущественного пула",
+            "Наименование ипотечного сертификата участия с ипотечным покрытием",  # Name of the mortgage participation certificate with mortgage coverage
+            "Наименование ипотечных сертификатов участия с ипотечным покрытием",  # Name of mortgage participation certificates with mortgage coverage
+            "Наименование ипотечных сертификатов участия",  # Name of mortgage participation certificates
+            "Полное наименование депозитной ставки",  # Full name of the deposit rate
+            "Полное наименование инструмента",  # Full name of the tool
+            "Наименование финансового инструмента",  # Name of the financial instrument
         ):
             security.add("name", value)
+        elif key == "Тип фонда":
+            issuer.add("legalForm", value)
         elif key in (
             "Номинал",
             "Номинальная стоимость каждой ценной бумаги",
@@ -131,6 +131,7 @@ def crawl_item(context: Context, url: str):
             "Краткое наименование депозитной ставки",  # Short name of the deposit rate
             "Краткое наименование индекса",  # Short name of the index
             "Краткое наименование индекса на английском языке",  # Short name of the index in English
+            "Краткое наименование инструмента",  # Short name of the tool
             "Краткое наименование финансового инструмента",
             "Идентификационный номер выпуска",
             "Государственный регистрационный номер выпуска",  # State registration number of the issue
