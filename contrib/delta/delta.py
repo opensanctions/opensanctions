@@ -8,6 +8,7 @@ from collections import Counter
 from typing import Any, BinaryIO, Dict, Generator
 from pathlib import Path
 from datetime import datetime, timedelta
+from requests.exceptions import RequestException
 
 log = logging.getLogger("delta")
 DATE_FORMAT = "%Y%m%d"
@@ -80,10 +81,18 @@ def write_entity(fh: BinaryIO, data: Dict[str, Any], op: str):
 def generate_delta(scope: str, dt: datetime):
     db = dt - timedelta(hours=24)
     cur_ts = dt.strftime(DATE_FORMAT)
-    cur_path = fetch_release(scope, cur_ts)
+    try:
+        cur_path = fetch_release(scope, cur_ts)
+    except RequestException as re:
+        log.error("Cannot fetch file [%s]: %s" % (cur_ts, re))
+        return
     cur_hashes = compute_hashes(cur_path)
     prev_ts = db.strftime(DATE_FORMAT)
-    prev_path = fetch_release(scope, prev_ts)
+    try:
+        prev_path = fetch_release(scope, prev_ts)
+    except RequestException as re:
+        log.error("Cannot fetch file [%s]: %s" % (prev_ts, re))
+        return
     prev_hashes = compute_hashes(prev_path)
     entities = set(cur_hashes.keys())
     entities.update(prev_hashes.keys())
