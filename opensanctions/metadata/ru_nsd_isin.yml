@@ -2,7 +2,7 @@
 entry_point: opensanctions.crawlers.ru_nsd_isin
 title: National Settlement Depository (NSD Russia) ISIN Assignment
 prefix: ru-nsd
-hidden: true
+# hidden: true
 summary: >
   ISIN security identifiers assigned in Russia and subject to a US investment
   ban.
@@ -14,7 +14,7 @@ description: |
 
   This data source is based on [prior work by Owais A. Z.](https://github.com/DtorrX/effective-bassoon).
 collections:
-  # - default
+  - default
   - work
   # - sanctions
 publisher:
