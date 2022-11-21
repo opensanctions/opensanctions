@@ -44,10 +44,14 @@ MONTHS = {
     "января": "Jan",
 }
 
+NO_DATES = ["Без срока погашения", "не установлена"]
+
 
 def parse_date(text: str) -> str:
     for ru, en in MONTHS.items():
         text = text.replace(ru, en)
+    if text in NO_DATES:
+        return ""
     text = text.replace("\xa0", " ").replace("г.", "").strip()
     dt = datetime.strptime(text, "%d %b %Y")
     return dt.date().isoformat()
@@ -143,7 +147,7 @@ def crawl_item(context: Context, url: str):
         ):
             security.add("registrationNumber", value)
         elif key in ("Дата погашения",):
-            security.add("maturityDate", value)
+            security.add("maturityDate", parse_date(value))
         elif key in (
             "Дата регистрации",
             "Дата допуска к торгам на фондовой бирже в процессе размещения",
@@ -176,7 +180,10 @@ def crawl_item(context: Context, url: str):
         context.emit(security, target=True)
     else:
         context.log.warn(
-            "Security has no ISIN", security=security, isin=isin_code, url=url
+            "Security has no ISIN",
+            security=security,
+            isin=isin_code,
+            url=url,
         )
 
 
