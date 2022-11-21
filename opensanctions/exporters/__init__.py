@@ -36,12 +36,8 @@ def export_data(context: Context, loader: Loader[Dataset, Entity]):
 
     for exporter in exporters:
         exporter.setup()
-
-    for entity in loader:
-        for exporter in exporters:
+        for entity in loader:
             exporter.feed(entity)
-
-    for exporter in exporters:
         exporter.finish()
 
 

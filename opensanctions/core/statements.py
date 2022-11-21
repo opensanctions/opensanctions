@@ -167,10 +167,11 @@ def all_schemata(conn: Conn, dataset: Optional[Dataset] = None) -> List[str]:
 def max_last_seen(conn: Conn, dataset: Optional[Dataset] = None) -> Optional[datetime]:
     """Return the latest date of the data."""
     q = select(func.max(stmt_table.c.last_seen))
-    q = q.filter(stmt_table.c.prop == Statement.BASE)
-    q = q.filter(stmt_table.c.external == False)  # noqa
+    # q = q.filter(stmt_table.c.prop == Statement.BASE)
+    # q = q.filter(stmt_table.c.external == False)  # noqa
     if dataset is not None:
-        q = q.filter(stmt_table.c.dataset.in_(dataset.scope_names))
+        q = q.filter(stmt_table.c.dataset.in_(dataset.source_names))
+    print("XXXX", q)
     return conn.scalar(q)
 
 
