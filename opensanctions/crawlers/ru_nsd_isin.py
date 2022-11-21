@@ -22,15 +22,11 @@ IGNORE_FIELDS = [
     "Регистратор",
     "Управляющий ипотечным покрытием",  # Mortgage coverage manager
     "Порядок хранения/учета",
-    "Дата погашения",
     "Дата принятия решения",
     "Финансовый инструмент",
     "Коэффициент (ДР : Представляемые ценные бумаги)",
-    "Государственный регистрационный номер правил Д.У.",  # State registration number of the rules D.U.
     "Номер решения о формировании имущественного пула",  # Number of the decision on the formation of the property pool
-    "Государственный регистрационный номер правил фонда",  # State registration number of the rules of the fund
     "Дата государственной регистрации правил фонда",  # Date of state registration of fund rules
-    "Государственный регистрационный номер правил",  # State registration number of the rules
 ]
 
 MONTHS = {
@@ -128,18 +124,26 @@ def crawl_item(context: Context, url: str):
         elif key == "Форма выпуска ценной бумаги":
             security.add("classification", value)
         elif key in (
-            "Pегистрационный номер",
-            "Регистрационный номер",
             "Краткое наименование депозитной ставки",  # Short name of the deposit rate
             "Краткое наименование индекса",  # Short name of the index
             "Краткое наименование индекса на английском языке",  # Short name of the index in English
             "Краткое наименование инструмента",  # Short name of the tool
-            "Краткое наименование финансового инструмента",
-            "Идентификационный номер выпуска",
-            "Государственный регистрационный номер выпуска",  # State registration number of the issue
-            "Регистрационный номер выпуска",  # Issue registration number
+            "Краткое наименование финансового инструмента",  # Short name of the financial instrument
         ):
             security.add("ticker", value)
+        elif key in (
+            "Pегистрационный номер",
+            "Регистрационный номер",
+            "Идентификационный номер выпуска",
+            "Регистрационный номер выпуска",  # Issue registration number
+            "Государственный регистрационный номер выпуска",  # State registration number of the issue
+            "Государственный регистрационный номер правил Д.У.",  # State registration number of the rules D.U.
+            "Государственный регистрационный номер правил фонда",  # State registration number of the rules of the fund
+            "Государственный регистрационный номер правил",  # State registration number of the rules
+        ):
+            security.add("registrationNumber", value)
+        elif key in ("Дата погашения",):
+            security.add("maturityDate", value)
         elif key in (
             "Дата регистрации",
             "Дата допуска к торгам на фондовой бирже в процессе размещения",
