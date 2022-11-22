@@ -107,7 +107,7 @@ class Database(object):
         except InvalidData as inv:
             log.error("Assemble error: %s" % inv)
             return None
-        if entity is not None:
+        if entity is not None and entity.id is not None:
             entity.referents.update(self.resolver.get_referents(entity.id))
         return entity
 
