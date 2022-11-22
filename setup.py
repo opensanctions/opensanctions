@@ -29,7 +29,7 @@ setup(
     install_requires=[
         "followthemoney >= 3.0.8",
         "nomenklatura >= 2.6.6, < 3.0.0",
-        "orjson == 3.8.1",
+        "orjson == 3.8.2",
         "zavod >= 0.4.0",
         "pantomime",
         "sqlalchemy[mypy]",
