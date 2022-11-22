@@ -15,23 +15,30 @@ def simplify_dates(entity: Entity) -> Entity:
     want to drop the mention of 1990."""
     for prop in entity.iterprops():
         if prop.type == registry.date:
-            dates = tuple(entity.pop(prop))
-            values = remove_prefix_date_values(dates)
+            # This is super unrolled in order to make it fast, its called
+            # a lot during data exports. We shouldn't re-use this function
+            # code in less perf critical contexts.
+            stmts = entity._statements[prop.name]
+            if len(stmts) < 2:
+                continue
+            values_in = tuple({s.value for s in stmts})
+            if len(values_in) < 2:
+                continue
+            values = remove_prefix_date_values(values_in)
             if prop.name in PROV_MAX_DATES:
-                entity.unsafe_add(prop, max(values), cleaned=True)
+                values = (max(values),)
             elif prop.name in PROV_MIN_DATES:
-                entity.unsafe_add(prop, min(values), cleaned=True)
-            else:
-                for value in values:
-                    entity.unsafe_add(prop, value, cleaned=True)
+                values = (min(values),)
+
+            for stmt in list(stmts):
+                if stmt.value not in values:
+                    entity._statements[prop.name].remove(stmt)
     return entity
 
 
 @cache
 def remove_prefix_date_values(values: Tuple[str]) -> Iterable[str]:
     """See ``remove_prefix_dates``."""
-    if len(values) < 2:
-        return values
     kept: List[str] = []
     values_list = sorted(values, reverse=True)
     for index, value in enumerate(values_list):

@@ -2,6 +2,7 @@ from typing import Callable, Dict, Generator, Iterable, List, Optional, Set, Tup
 from followthemoney.types import registry
 from followthemoney.property import Property
 from followthemoney.exc import InvalidData
+from followthemoney import model
 from zavod.logs import get_logger
 from nomenklatura import Loader, Resolver
 from nomenklatura.statement import Statement
@@ -94,16 +95,20 @@ class Database(object):
     def assemble(self, statements: Iterable[Statement], sources=Set[str]):
         """Build an entity proxy from a set of cached statements, considering
         only those statements that belong to the given sources."""
-        if sources is not None:
-            statements = [s for s in statements if s.dataset in sources]
+        entity: Optional[Entity] = None
         try:
-            entity = Entity.from_statements(statements)
-        except ValueError:
-            return None
+            for stmt in statements:
+                if stmt.dataset not in sources:
+                    continue
+                if entity is None:
+                    data = {"schema": stmt.schema, "id": stmt.canonical_id}
+                    entity = Entity(model, data, default_dataset=stmt.dataset)
+                entity.add_statement(stmt)
         except InvalidData as inv:
             log.error("Assemble error: %s" % inv)
             return None
-        entity.referents.update(self.resolver.get_referents(entity.id))
+        if entity is not None:
+            entity.referents.update(self.resolver.get_referents(entity.id))
         return entity
 
 
