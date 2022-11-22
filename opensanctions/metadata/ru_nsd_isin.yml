@@ -12,7 +12,7 @@ description: |
   the Office of Foreign Assets Control (OFAC) has indicated that U.S. persons
   are prohibited from purchasing any Russian securities such as debt and equity.
 
-  This data source is based on [prior work by Owais A. Z.](https://github.com/DtorrX/effective-bassoon).
+  This data source is based on [prior work by Owais Arshad](https://github.com/DtorrX/effective-bassoon).
 collections:
   - default
   - work
