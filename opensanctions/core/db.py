@@ -18,6 +18,20 @@ __all__ = ["Conn", "engine_tx", "create_db", "upsert_func"]
 engine = create_engine(settings.DATABASE_URI, pool_size=settings.DATABASE_POOL_SIZE)
 
 
+class ConnCache(object):
+    def __init__(self, conn: Conn):
+        self.conn = conn
+
+    def __hash__(self) -> int:
+        return -1
+
+    def __repr__(self) -> str:
+        return "<ConnCache()>"
+
+    def __eq__(self, other) -> bool:
+        return True
+
+
 def create_db():
     metadata.create_all(bind=engine)
 

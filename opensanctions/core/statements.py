@@ -1,6 +1,6 @@
-from hashlib import sha1
+from functools import cache
 from datetime import datetime
-from typing import Dict, Generator, List, Optional, Tuple, TypedDict, Union, cast
+from typing import Dict, Generator, List, Optional, Tuple, Union
 from sqlalchemy.future import select
 from sqlalchemy.sql.expression import delete, update, insert
 from sqlalchemy.sql.functions import func
@@ -10,11 +10,9 @@ from followthemoney.types import registry
 from nomenklatura.resolver import Resolver
 from nomenklatura.statement import Statement
 
-from opensanctions import settings
 from opensanctions.core.db import stmt_table, canonical_table
-from opensanctions.core.db import Conn, upsert_func
+from opensanctions.core.db import Conn, ConnCache, upsert_func
 from opensanctions.core.dataset import Dataset
-from opensanctions.core.entity import Entity
 
 log = get_logger(__name__)
 
@@ -164,15 +162,33 @@ def all_schemata(conn: Conn, dataset: Optional[Dataset] = None) -> List[str]:
     return [s for (s,) in res.all()]
 
 
+@cache
+def _last_seen_by_dataset(conncache: ConnCache) -> Dict[str, datetime]:
+    q = select(
+        stmt_table.c.dataset.label("dataset"),
+        func.max(stmt_table.c.last_seen).label("last_seen"),
+    )
+    q = q.filter(stmt_table.c.prop == Statement.BASE)
+    q = q.filter(stmt_table.c.external == False)  # noqa
+    q = q.group_by(stmt_table.c.dataset)
+    cursor = conncache.conn.execute(q)
+    return {r["dataset"]: r["last_seen"] for r in cursor}
+
+
 def max_last_seen(conn: Conn, dataset: Optional[Dataset] = None) -> Optional[datetime]:
     """Return the latest date of the data."""
-    q = select(func.max(stmt_table.c.last_seen))
+    last_seens = _last_seen_by_dataset(ConnCache(conn))
+    if dataset is None:
+        times = list(last_seens.values())
+    else:
+        times = [last_seens[d] for d in dataset.source_names if d in last_seens]
+    return max(times, default=None)
+    # q = select(func.max(stmt_table.c.last_seen))
     # q = q.filter(stmt_table.c.prop == Statement.BASE)
     # q = q.filter(stmt_table.c.external == False)  # noqa
-    if dataset is not None:
-        q = q.filter(stmt_table.c.dataset.in_(dataset.source_names))
-    print("XXXX", q)
-    return conn.scalar(q)
+    # if dataset is not None:
+    #     q = q.filter(stmt_table.c.dataset.in_(dataset.source_names))
+    # return conn.scalar(q)
 
 
 def entities_datasets(
@@ -192,7 +208,13 @@ def entities_datasets(
 
 def cleanup_dataset(conn: Conn, dataset: Dataset):
     # remove non-current statements (in the future we may want to keep them?)
-    last_seen = max_last_seen(conn, dataset=dataset)
+    q = select(func.max(stmt_table.c.last_seen))
+    q = q.filter(stmt_table.c.prop == Statement.BASE)
+    q = q.filter(stmt_table.c.external == False)  # noqa
+    q = q.filter(stmt_table.c.dataset == dataset.name)
+    q = q.group_by(stmt_table.c.dataset)
+    cursor = conn.execute(q)
+    last_seen = cursor.scalar()
     if last_seen is not None:
         pq = delete(stmt_table)
         pq = pq.where(stmt_table.c.dataset == dataset.name)
