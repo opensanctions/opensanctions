@@ -1,20 +1,20 @@
-from urllib import parse
 import re
+from urllib import parse
 
 from lxml.html import HtmlElement
+
 from opensanctions.core import Context
 
 NCA_URL = "https://www.nationalcrimeagency.gov.uk"
 
-FIELD_NAMES = (
-    "basic",
-    "description",
-    "additional"
-)
+FIELD_NAMES = ("basic", "description", "additional")
+
 
 def fix_label(label: str):
-    text = re.sub(r'(?<=[a-z])(?=[A-Z])|[^a-zA-Z]', ' ', label).strip().replace(' ', '-')
-    return ''.join(text.lower())
+    text = (
+        re.sub(r"(?<=[a-z])(?=[A-Z])|[^a-zA-Z]", " ", label).strip().replace(" ", "-")
+    )
+    return "".join(text.lower())
 
 
 def crawl_person(context: Context, item: HtmlElement, url: str) -> None:
@@ -23,24 +23,26 @@ def crawl_person(context: Context, item: HtmlElement, url: str) -> None:
         context.log.error("Cannot find name row", url=url)
         return
 
-    # Person page
-    person_url = parse.urljoin(url, name.get("href"))
-    person.add("sourceUrl", person_url)
-    person.add("topics", "crime")
-    doc = context.fetch_html(person_url, cache_days=7)
-    
-    # Person
+    # Person create
     person = context.make("Person")
+    person.add("topics", "crime")
     person.add("name", name.text.strip())
     person.id = context.make_slug(name.text.strip())
 
+    # Person page
+    person_url = parse.urljoin(url, name.get("href"))
+    person.add("sourceUrl", person_url)
+    doc = context.fetch_html(person_url, cache_days=7)
+
     # Article
-    article = doc.find('.//div[@itemprop="articleBody"]').find('.//p')
+    article = doc.find('.//div[@itemprop="articleBody"]').find(".//p")
     person.add("notes", article.text.strip())
-    
+
     # Fields
     for field_name in FIELD_NAMES:
-        column = doc.find(f'.//div[@class="span4 most-wanted-customfields most-wanted-{field_name}"]')
+        column = doc.find(
+            f'.//div[@class="span4 most-wanted-customfields most-wanted-{field_name}"]'
+        )
         labels = column.findall('./span[@class="field-label "]')
         values = column.findall('./span[@class="field-value "]')
 
