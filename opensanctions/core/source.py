@@ -1,10 +1,11 @@
 import os
 from importlib import import_module
 from functools import cached_property
-from typing import Set
+from typing import Set, Dict, Any
 from followthemoney.types import registry
+from nomenklatura.dataset import DataPublisher, DataCatalog
 
-from opensanctions.core.dataset import Dataset, DatasetPublisher
+from opensanctions.core.dataset import Dataset
 
 
 class SourceData(object):
@@ -30,13 +31,12 @@ class Source(Dataset):
 
     TYPE = "source"
 
-    def __init__(self, file_path, config):
-        super().__init__(self.TYPE, file_path, config)
-        self.url = config.get("url", "")
+    def __init__(self, catalog: DataCatalog, config: Dict[str, Any]):
+        super().__init__(catalog, self.TYPE, config)
         self.disabled = config.get("disabled", False)
         self.entry_point = config.get("entry_point")
         self.data = SourceData(config.get("data", {}))
-        self.publisher = DatasetPublisher(config.get("publisher", {}))
+        self.publisher = DataPublisher(config.get("publisher", {}))
 
     @cached_property
     def sources(self) -> Set["Source"]:
@@ -63,7 +63,7 @@ class Source(Dataset):
                 "disabled": self.disabled,
                 "data": self.data.to_dict(),
                 "publisher": self.publisher.to_dict(),
-                "collections": self.collections,
+                "collections": [p.name for p in self.parents],
             }
         )
         return data

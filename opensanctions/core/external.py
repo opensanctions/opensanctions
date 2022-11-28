@@ -1,8 +1,9 @@
 from functools import cache
 from nomenklatura.cache import Cache
 from nomenklatura.enrich import Enricher, get_enricher
+from nomenklatura.dataset import DataPublisher
 
-from opensanctions.core.dataset import Dataset, DatasetPublisher
+from opensanctions.core.dataset import Dataset
 
 
 class External(Dataset):
@@ -10,12 +11,12 @@ class External(Dataset):
 
     TYPE = "external"
 
-    def __init__(self, file_path, config):
-        super().__init__(self.TYPE, file_path, config)
-        self.url = config.get("url", "")
+    def __init__(self, catalog, config):
+        super().__init__(catalog, self.TYPE, config)
         self.disabled = config.get("disabled", False)
         self.enricher_config = config.get("config", {})
-        self.publisher = DatasetPublisher(config.get("publisher", {}))
+        assert self.publisher is not None, "No publisher information!"
+        # self.publisher = DataPublisher(config.get("publisher", {}))
 
     @cache
     def get_enricher(self, cache: Cache) -> Enricher:
@@ -34,7 +35,7 @@ class External(Dataset):
                 "url": self.url,
                 "disabled": self.disabled,
                 "publisher": self.publisher.to_dict(),
-                "collections": self.collections,
+                "collections": [p.name for p in self.parents],
             }
         )
         return data

@@ -8,7 +8,7 @@ from datetime import datetime
 from itertools import combinations
 from collections import defaultdict
 from typing import IO, Any, Dict, List, Optional, Tuple
-from normality import latinize_text, slugify
+from normality import latinize_text
 
 log = logging.getLogger(__name__)
 BRACKETED = re.compile(r"\(.*\)")

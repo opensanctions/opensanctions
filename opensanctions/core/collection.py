@@ -1,5 +1,7 @@
 from typing import Any, Dict, Set, cast
 from functools import cached_property
+from nomenklatura.dataset import DataCatalog
+
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.source import Source
 from opensanctions.core.external import External
@@ -11,16 +13,8 @@ class Collection(Dataset):
 
     TYPE = "collection"
 
-    def __init__(self, file_path, config):
-        super().__init__(self.TYPE, file_path, config)
-
-    @cached_property
-    def datasets(self) -> Set[Dataset]:
-        datasets: Set[Dataset] = set([self])
-        for dataset in Dataset.all():
-            if self.name in dataset.collections:
-                datasets.update(dataset.datasets)
-        return datasets
+    def __init__(self, catalog: DataCatalog, config: Dict[str, Any]):
+        super().__init__(catalog, self.TYPE, config)
 
     @cached_property
     def sources(self) -> Set[Source]:

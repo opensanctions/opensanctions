@@ -3,37 +3,14 @@ from banal import ensure_list
 from urllib.parse import urljoin
 from datapatch import get_lookups
 from functools import cached_property
-from followthemoney.types import registry
 from nomenklatura.dataset import Dataset as NomenklaturaDataset
+from nomenklatura.dataset import DataCatalog
 
 from opensanctions import settings
 from opensanctions.core.lookups import load_yaml
-from opensanctions.core.db import KEY_LEN
 
 if TYPE_CHECKING:
     from opensanctions.core.source import Source
-
-
-class DatasetPublisher(object):
-    """Publisher information, eg. the government authority."""
-
-    def __init__(self, config):
-        self.url = config.get("url")
-        self.name = config.get("name")
-        self.description = config.get("description")
-        self.country = config.get("country", "zz")
-        assert registry.country.validate(self.country), "Invalid publisher country"
-        self.official = config.get("official", True)
-
-    def to_dict(self):
-        return {
-            "url": self.url,
-            "name": self.name,
-            "description": self.description,
-            "country": self.country,
-            "country_label": registry.country.caption(self.country),
-            "official": self.official,
-        }
 
 
 class Dataset(NomenklaturaDataset):
@@ -45,28 +22,14 @@ class Dataset(NomenklaturaDataset):
     DEFAULT = "default"
     TYPE = "default"
 
-    def __init__(self, type_, file_path, config):
+    def __init__(self, catalog: DataCatalog, type_: str, config: Dict[str, Any]):
         self.type = type_
-        self.file_path = file_path
-        name = config.get("name", file_path.stem)
-        title = config.get("title", name)
-        super().__init__(name, title)
-        self.prefix = config.get("prefix", self.name)
-        self.hidden = config.get("hidden", False)
-        self.summary = config.get("summary", "")
-        self.description = config.get("description", "")
-
-        # Collections can be part of other collections.
-        collections = ensure_list(config.get("collections"))
+        super().__init__(catalog, config)
+        self.prefix: str = config.get("prefix", self.name)
+        self.hidden: bool = config.get("hidden", False)
         if self.name != self.ALL:
-            collections.append(self.ALL)
-        self.collections = set(collections)
-
+            self._parents.add(self.ALL)
         self.lookups = get_lookups(config.get("lookups", {}))
-
-    @cached_property
-    def datasets(self) -> Set["Dataset"]:
-        return set([self])
 
     @cached_property
     def scopes(self) -> Set["Dataset"]:
@@ -98,46 +61,44 @@ class Dataset(NomenklaturaDataset):
         return datasets
 
     @classmethod
-    def _from_metadata(cls, file_path):
+    def _from_metadata(cls, catalog, file_path):
         from opensanctions.core.source import Source
         from opensanctions.core.external import External
         from opensanctions.core.collection import Collection
 
-        config = load_yaml(file_path)
-        type_ = config.get("type", Source.TYPE)
+        config: Dict[str, Any] = load_yaml(file_path)
+        if "name" not in config:
+            config["name"] = file_path.stem
+        type_: str = config.get("type", Source.TYPE)
         type_ = type_.lower().strip()
         if type_ == Collection.TYPE:
-            return Collection(file_path, config)
+            return Collection(catalog, config)
         if type_ == Source.TYPE:
-            return Source(file_path, config)
+            return Source(catalog, config)
         if type_ == External.TYPE:
-            return External(file_path, config)
+            return External(catalog, config)
 
     @classmethod
-    def _load_cache(cls):
-        if not hasattr(cls, "_cache"):
-            cls._cache: Dict[str, Dataset] = {}
+    def _load_catalog(cls) -> DataCatalog:
+        if not len(CATALOG.datasets):
             for glob in ("**/*.yml", "**/*.yaml"):
                 for file_path in settings.METADATA_PATH.glob(glob):
-                    dataset = cls._from_metadata(file_path)
+                    dataset = cls._from_metadata(CATALOG, file_path)
                     if dataset is not None:
-                        cls._cache[dataset.name] = dataset
-        return cls._cache
+                        CATALOG.add(dataset)
+        return CATALOG
 
     @classmethod
     def all(cls) -> List["Dataset"]:
-        return sorted(cls._load_cache().values())
+        return sorted(cls._load_catalog().datasets)
 
     @classmethod
     def get(cls, name) -> Optional["Dataset"]:
-        return cls._load_cache().get(name)
+        return cls._load_catalog().get(name)
 
     @classmethod
     def require(cls, name) -> "Dataset":
-        dataset = cls.get(name)
-        if dataset is None:
-            raise ValueError("No such dataset: %s" % name)
-        return dataset
+        return cls._load_catalog().require(name)
 
     @classmethod
     def names(cls) -> List[str]:
@@ -158,3 +119,6 @@ class Dataset(NomenklaturaDataset):
         """Generate a public URL for a file within the dataset context."""
         url = urljoin(settings.DATASET_URL, f"{self.name}/")
         return urljoin(url, path)
+
+
+CATALOG = DataCatalog(Dataset, {})
