@@ -1,20 +1,13 @@
-import re
 from urllib import parse
 
 from lxml.html import HtmlElement
+from normality import slugify
 
 from opensanctions.core import Context
 
 NCA_URL = "https://www.nationalcrimeagency.gov.uk"
 
 FIELD_NAMES = ("basic", "description", "additional")
-
-
-def fix_label(label: str):
-    text = (
-        re.sub(r"(?<=[a-z])(?=[A-Z])|[^a-zA-Z]", " ", label).strip().replace(" ", "-")
-    )
-    return "".join(text.lower())
 
 
 def crawl_person(context: Context, item: HtmlElement, url: str) -> None:
@@ -47,11 +40,12 @@ def crawl_person(context: Context, item: HtmlElement, url: str) -> None:
         values = column.findall('./span[@class="field-value "]')
 
         for label, value in dict(zip(labels, values)).items():
-            if fix_label(label.text) == "sex":
+            label_text = slugify(label.text)
+            if label_text == "sex":
                 person.add("gender", value.text.strip())
-            elif fix_label(label.text) == "ethnic-appearance":
+            elif label_text == "ethnic-appearance":
                 person.add("ethnicity", value.text.strip())
-            elif fix_label(label.text) == "additional-information":
+            elif label_text == "additional-information":
                 person.add("notes", [article.text.strip(), value.text.strip()])
 
     context.emit(person, target=True)
