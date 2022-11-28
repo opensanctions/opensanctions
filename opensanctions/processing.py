@@ -27,16 +27,16 @@ def run_export(
         resolve_all_canonical(conn, resolver)
     database = Database(scope, resolver, cached=True)
     database.view(scope)
-    for dataset_ in scope.datasets:
-        export_dataset(dataset_, database)
-    export_metadata()
-    # with ThreadPoolExecutor(max_workers=threads) as executor:
-    #     futures: List[Future] = []
-    #     futures = []
-    #     for dataset_ in scope.datasets:
-    #         futures.append(executor.submit(export_dataset, dataset_, database))
-    #     futures.append(executor.submit(export_metadata))
-    #     _compute_futures(futures)
+    # for dataset_ in scope.datasets:
+    #     export_dataset(dataset_, database)
+    # export_metadata()
+    with ThreadPoolExecutor(max_workers=threads) as executor:
+        futures: List[Future] = []
+        futures = []
+        for dataset_ in scope.datasets:
+            futures.append(executor.submit(export_dataset, dataset_, database))
+        futures.append(executor.submit(export_metadata))
+        _compute_futures(futures)
 
 
 def run_enrich(scope_name: str, external_name: str, threshold: float):
