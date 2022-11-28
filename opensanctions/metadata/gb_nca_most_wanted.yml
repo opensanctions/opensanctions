@@ -3,13 +3,14 @@ title: NCA Most Wanted
 prefix: gb-nca
 disabled: false
 summary: >
-  The NCA Most Wanted Fugitives is a most wanted list
+  Most wanted list of criminals and fugitives in Britain,
   maintained by the United Kingdom's National Crime Agency (NCA).
 description: |
   From the NCA page [NCA](https://www.nationalcrimeagency.gov.uk/most-wanted):
 
   > We pursue criminals and bring them to justice. 
-  > By informing communities and supporting other agencies, we can help identify criminals and speed the law enforcement process.
+  > By informing communities and supporting other agencies, we can help identify
+  > criminals and speed the law enforcement process.
 collections:
   - default
   - crime

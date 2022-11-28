@@ -1,18 +1,15 @@
-from urllib import parse
-
-from lxml.html import HtmlElement
+from urllib.parse import urljoin
+from lxml.etree import _Element
 from normality import slugify
 
 from opensanctions.core import Context
 
-NCA_URL = "https://www.nationalcrimeagency.gov.uk"
-
 FIELD_NAMES = ("basic", "description", "additional")
 
 
-def crawl_person(context: Context, item: HtmlElement, url: str) -> None:
+def crawl_person(context: Context, item: _Element, url: str) -> None:
     name = item.find('.//a[@itemprop="url"]')
-    if name is None:
+    if name is None or name.text is None:
         context.log.error("Cannot find name row", url=url)
         return
 
@@ -23,7 +20,7 @@ def crawl_person(context: Context, item: HtmlElement, url: str) -> None:
     person.id = context.make_slug(name.text.strip())
 
     # Person page
-    person_url = parse.urljoin(url, name.get("href"))
+    person_url = urljoin(url, name.get("href"))
     person.add("sourceUrl", person_url)
     doc = context.fetch_html(person_url, cache_days=7)
 
@@ -51,8 +48,9 @@ def crawl_person(context: Context, item: HtmlElement, url: str) -> None:
     context.emit(person, target=True)
 
 
-def crawl_page(context: Context, url: str) -> None:
-    doc = context.fetch_html(url, cache_days=7)
+def crawl(context: Context):
+    url = context.source.data.url
+    doc = context.fetch_html(url)
     mw_grid = doc.find('.//div[@class="blog most-wanted-grid"]')
     if mw_grid is None:
         context.log.debug("Cannot find fact detailed list", url=url)
@@ -66,8 +64,3 @@ def crawl_page(context: Context, url: str) -> None:
     for item_row in items_rows:
         for item in item_row.findall("./div"):
             crawl_person(context, item, url)
-
-
-def crawl(context: Context):
-    url = parse.urljoin(NCA_URL, "/most-wanted")
-    crawl_page(context, url)
