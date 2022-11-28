@@ -249,6 +249,7 @@ country:
     - match:
         - Chinese Soviet Republic
         - Китайська Народна Республіка
+        - china (prc)
       value: China
     - match:
         - Danish Realm
@@ -379,7 +380,12 @@ country:
       value: Mali
     - match:
         - "Provisional People's Committee for North Korea"
+        - north korea (dprk)
       value: North Korea
+    - match:
+        - Crown Colony of Malta
+        - State of Malta
+      value: mt
     - match: sh-hl
       value: Saint Helena
     - match:
@@ -1294,7 +1300,9 @@ gender:
     - match:
         - U
         - Unknown
+        - undisclosed gender
         - transgender person
+        - transgender
         - ""
       value: null
     - match:
