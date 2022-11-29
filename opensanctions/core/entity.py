@@ -34,9 +34,8 @@ class Entity(StatementProxy):
         is_thing = self.schema.is_a("Thing")
         for prop in self.schema.caption:
             values = self.get(prop)
-            if is_thing and prop == "name" and len(values) > 1:
-                all_names = self.get_type_values(registry.name)
-                name = pick_name(tuple(values), tuple(all_names))
+            if is_thing and len(values) > 1:
+                name = pick_name(values)
                 if name is not None:
                     return name
             for value in values:

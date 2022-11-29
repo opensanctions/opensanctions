@@ -2,13 +2,12 @@ import re
 import orjson
 import logging
 import Levenshtein
-from functools import cache
 from banal import ensure_list
 from datetime import datetime
 from itertools import combinations
 from collections import defaultdict
-from typing import IO, Any, Dict, List, Optional, Tuple
 from normality import latinize_text
+from typing import IO, Any, Dict, Optional, Iterable, List
 
 log = logging.getLogger(__name__)
 BRACKETED = re.compile(r"\(.*\)")
@@ -27,6 +26,27 @@ def is_empty(text: Optional[str]) -> bool:
         text = text.strip()
         return len(text) == 0
     return False
+
+
+def pick_name(names: Iterable[str]) -> Optional[str]:
+    candidates: List[str] = []
+    for name in names:
+        candidates.append(name)
+        latin = latinize_text(name)
+        if latin is not None:
+            candidates.append(latin.title())
+
+    scores: Dict[str, int] = defaultdict(int)
+    for pair in combinations(candidates, 2):
+        left, right = sorted(pair)
+        dist = Levenshtein.distance(left[:128], right[:128])
+        scores[left] += dist
+        scores[right] += dist
+
+    for cand, _ in sorted(scores.items(), key=lambda x: x[1]):
+        if cand in names:
+            return cand
+    return None
 
 
 def remove_bracketed(text):
@@ -59,28 +79,6 @@ def multi_split(text, splitters):
                     out.append(frag)
         fragments = out
     return fragments
-
-
-@cache
-def pick_name(names: Tuple[str], all_names: Tuple[str]) -> Optional[str]:
-    candidates: List[str] = []
-    for name in all_names:
-        candidates.append(name)
-        latin = latinize_text(name)
-        if latin is not None:
-            candidates.append(latin.title())
-
-    scores: Dict[str, int] = defaultdict(int)
-    for pair in combinations(candidates, 2):
-        left, right = sorted(pair)
-        dist = Levenshtein.distance(left[:128], right[:128])
-        scores[left] += dist
-        scores[right] += dist
-
-    for cand, _ in sorted(scores.items(), key=lambda x: x[1]):
-        if cand in names:
-            return cand
-    return None
 
 
 def json_default(obj: Any) -> Any:
