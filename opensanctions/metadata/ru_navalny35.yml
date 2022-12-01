@@ -1,6 +1,7 @@
 entry_point: opensanctions.crawlers.wd_curated
 title: FBK Recommended List of Individuals for Sanctioning (Navalny 35)
 prefix: nv
+export: false
 summary: >
   A list of suggested sanctions targets published by Navalny's FBK in a letter
   to Dominic Raab.

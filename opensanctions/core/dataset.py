@@ -27,6 +27,7 @@ class Dataset(NomenklaturaDataset):
         super().__init__(catalog, config)
         self.prefix: str = config.get("prefix", self.name)
         self.hidden: bool = config.get("hidden", False)
+        self.export: bool = config.get("export", True)
         if self.name != self.ALL:
             self._parents.add(self.ALL)
         self.lookups = get_lookups(config.get("lookups", {}))
@@ -111,6 +112,7 @@ class Dataset(NomenklaturaDataset):
             "type": self.type,
             "title": self.title,
             "hidden": self.hidden,
+            "export": self.export,
             "summary": self.summary,
             "description": self.description,
         }

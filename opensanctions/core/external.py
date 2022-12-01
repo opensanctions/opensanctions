@@ -14,6 +14,7 @@ class External(Dataset):
     def __init__(self, catalog, config):
         super().__init__(catalog, self.TYPE, config)
         self.disabled = config.get("disabled", False)
+        self.export = False
         self.enricher_config = config.get("config", {})
         assert self.publisher is not None, "No publisher information!"
         # self.publisher = DataPublisher(config.get("publisher", {}))

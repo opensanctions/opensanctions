@@ -46,7 +46,7 @@ def export_dataset(dataset: Dataset, database: Database):
     try:
         context = Context(dataset)
         loader = database.view(dataset, assemble)
-        if dataset.type != External.TYPE:
+        if dataset.export:
             export_data(context, loader)
 
         # Export list of data issues from crawl stage
