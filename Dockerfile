@@ -31,4 +31,4 @@ RUN pip install --no-cache-dir -e /opensanctions
 ENV OPENSANCTIONS_DATA_PATH="/opensanctions/data" \
     OPENSSL_CONF="/opensanctions/contrib/openssl.cnf"
 
-CMD ["opensanctions", "run"]
+CMD ["opensanctions", "crawl"]

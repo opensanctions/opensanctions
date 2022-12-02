@@ -113,6 +113,11 @@ to configure the operation of the system. Some of the key settings include:
   ``postgresql://user:pass@host/database``. Only PostgreSQL is supported as a
   database backend.
 
+* ``OPENSANCTIONS_RESOLVER_PATH`` is a JSON file that contains deduplication
+  judgements. You can set this to an empty file if you have not performed any
+  deduplication, or create an file in the `/data` volume mount of the docker
+  installation.
+
 * ``OPENSANCTIONS_DATA_PATH`` is the main working directory for the system. By
   default it will contain cached artifacts and the generated output data. This
   defaults to the ``data/`` subdirectory of the current working directory when the
