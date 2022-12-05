@@ -517,6 +517,9 @@ country:
     - match:
         - TÃ¼rkiye
       value: Turkey
+    - march:
+        - French Cameroons
+      value: Cameroon
     - match:
         - ירדן, כווית
       values:
@@ -683,6 +686,7 @@ country:
         - Kyrgyz SSR
         - USSR (until 1991)
         - ソビエト社会主義共和国連邦（1991年まで）
+        - Transcaucasian Socialist Federative Soviet Republic
       value: SUHH
     - match:
         - Kazakhstan   Soviet Union
