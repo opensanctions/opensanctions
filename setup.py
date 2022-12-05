@@ -27,10 +27,10 @@ setup(
     },
     zip_safe=False,
     install_requires=[
-        "followthemoney >= 3.0.8",
-        "nomenklatura >= 2.7.3, < 3.0.0",
+        "followthemoney >= 3.2.0",
+        "nomenklatura >= 2.7.5, < 3.0.0",
         "orjson == 3.8.2",
-        "zavod >= 0.4.0",
+        "zavod >= 0.5.0",
         "pantomime",
         "sqlalchemy[mypy]",
         "requests[security]",

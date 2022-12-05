@@ -1,10 +1,9 @@
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set
-from banal import ensure_list
 from urllib.parse import urljoin
 from datapatch import get_lookups
 from functools import cached_property
-from nomenklatura.dataset import Dataset as NomenklaturaDataset
 from nomenklatura.dataset import DataCatalog
+from zavod.dataset import ZavodDataset
 
 from opensanctions import settings
 from opensanctions.core.lookups import load_yaml
@@ -13,7 +12,7 @@ if TYPE_CHECKING:
     from opensanctions.core.source import Source
 
 
-class Dataset(NomenklaturaDataset):
+class Dataset(ZavodDataset):
     """A dataset is a unit of execution of crawlers, and a grouping of entities.
     There are two types: sources (which relate to a specific crawlers), and
     collections (which group sources into more useful units)."""
@@ -25,7 +24,6 @@ class Dataset(NomenklaturaDataset):
     def __init__(self, catalog: DataCatalog, type_: str, config: Dict[str, Any]):
         self.type = type_
         super().__init__(catalog, config)
-        self.prefix: str = config.get("prefix", self.name)
         self.hidden: bool = config.get("hidden", False)
         self.export: bool = config.get("export", True)
         if self.name != self.ALL:

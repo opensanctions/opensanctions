@@ -31,7 +31,7 @@ from opensanctions.core.statements import cleanup_dataset, clear_statements
 from opensanctions.core.statements import save_statements
 
 
-class Context(GenericZavod[Entity]):
+class Context(GenericZavod[Entity, Dataset]):
     """A utility object to be passed into crawlers which supports
     emitting entities, accessing metadata and logging errors and
     warnings.
@@ -43,13 +43,7 @@ class Context(GenericZavod[Entity]):
 
     def __init__(self, dataset: Dataset):
         data_path = settings.DATASET_PATH.joinpath(dataset.name)
-        super().__init__(
-            dataset.name,
-            Entity,
-            prefix=dataset.prefix,
-            data_path=data_path,
-        )
-        self.dataset = dataset
+        super().__init__(dataset, Entity, data_path=data_path)
         self.cache = Cache(engine, MetaData(bind=engine), dataset)
         self._statements: Dict[str, Statement] = {}
 
