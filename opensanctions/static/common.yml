@@ -383,6 +383,13 @@ country:
         - north korea (dprk)
       value: North Korea
     - match:
+        - First Republic of South Korea
+        - Second Republic of South Korea
+        - Third Republic of South Korea
+        - Fourth Republic of South Korea
+        - Fifth Republic of South Korea
+      value: KR
+    - match:
         - Crown Colony of Malta
         - State of Malta
       value: mt
@@ -507,6 +514,9 @@ country:
         - Turkey
         - Jordan
         - Saudi Arabia
+    - match:
+        - TÃ¼rkiye
+      value: Turkey
     - match:
         - ירדן, כווית
       values:
@@ -1294,6 +1304,7 @@ gender:
         - M
         - transgender male
         - cisgender male
+        - trans man
       contains:
         - мужской
       value: male
