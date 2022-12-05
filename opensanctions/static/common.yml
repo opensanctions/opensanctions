@@ -517,7 +517,7 @@ country:
     - match:
         - TÃ¼rkiye
       value: Turkey
-    - march:
+    - match:
         - French Cameroons
       value: Cameroon
     - match:
