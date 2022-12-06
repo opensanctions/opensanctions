@@ -25,6 +25,7 @@ publisher:
     Federal Financial Markets Service of Russia. It has the sole authority to issue
     ISIN numbers for use by Russian securities.
   url: https://www.nsd.ru/
+  country: ru
   official: false
 url: https://www.isin.ru/ru/ru_isin/news_c/
 data:

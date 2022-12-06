@@ -18,6 +18,7 @@ publisher:
     source.
   url: https://fbk.info
   official: false
+  country: ru
 url: https://en.wikipedia.org/wiki/List_of_Russian_billionaires
 data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRJGZGTZ1EZ-FSghkXqHQFNmWlPC6MkruipeSvzji4xtW_jXLay_f3px7xl_SrJII0ARqeGqxzfAF4J/pub?gid=209370162&single=true&output=csv

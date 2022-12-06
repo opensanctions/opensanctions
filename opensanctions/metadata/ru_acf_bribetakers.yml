@@ -21,6 +21,7 @@ publisher:
     investigative team founded by Alexei Navalny.
   url: https://acf.international/
   official: false
+  country: ru
 url: https://acf.international/bribetakers-list
 data:
   # url: https://docs.google.com/spreadsheets/d/e/2PACX-1vSBGoYY4E07QoQIWltgJqT985zJKCpsT0Pcdapny7kd9tcWrkeEWdQDIDBR2uHwCJbnuwAuF2PAoZjd/pub?gid=0&single=true&output=csv
