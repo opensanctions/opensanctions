@@ -16,7 +16,6 @@ description: |
 collections:
   - crime
   - default
-  # - work
 url: https://apps.occ.gov/EASearch/
 publisher:
   name: "Office of the Comptroller of the Currency"

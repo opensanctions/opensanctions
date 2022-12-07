@@ -23,7 +23,6 @@ description: |
 collections:
   - sanctions
   - default
-  # - work
 url: https://finance.belgium.be/en/treasury/financial-sanctions
 publisher:
   name: "Federal Public Service Finance"

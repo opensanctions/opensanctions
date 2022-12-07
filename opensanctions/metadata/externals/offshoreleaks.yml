@@ -32,7 +32,6 @@ publisher:
   official: false
 collections:
   - default
-  - work
 config:
   type: nomenklatura.enrich.yente:YenteEnricher
   api: https://externals.opensanctions.org/
@@ -42,6 +41,6 @@ config:
   schemata:
     - Company
     - Organization
-    - LegalEntity
+    # - LegalEntity
     # - Person
   cache_days: 30

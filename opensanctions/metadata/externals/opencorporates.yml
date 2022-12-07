@@ -24,7 +24,6 @@ publisher:
   url: https://opencorporates.com/info/about/
 collections:
   - default
-  # - work
 config:
   type: nomenklatura.enrich.opencorporates:OpenCorporatesEnricher
   schemata:

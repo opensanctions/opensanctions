@@ -19,7 +19,6 @@ description: |
 collections:
   - sanctions
   - default
-  # - work
 publisher:
   name: National Agency on Corruption Prevention
   description: >

@@ -11,7 +11,6 @@ description: |
   functioning of the OpenSanctions data delivery mechanism.
 collections:
   # - default
-  - work
 publisher:
   name: OpenSanctions
   description: |

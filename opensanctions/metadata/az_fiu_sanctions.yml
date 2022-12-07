@@ -12,7 +12,6 @@ description: |
 collections:
   - sanctions
   - default
-  # - work
 url: http://www.fiu.az/en/sanctions/internal-sanctioned
 publisher:
   name: "Azerbaijan Financial Monitoring Service"

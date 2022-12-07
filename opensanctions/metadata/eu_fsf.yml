@@ -44,7 +44,6 @@ description: |
 collections:
   - sanctions
   - default
-  # - work
 publisher:
   name: European External Action Service
   description: |

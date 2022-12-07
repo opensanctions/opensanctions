@@ -2,3 +2,6 @@ type: collection
 title: Working set
 hidden: true
 export: false
+children:
+  - sanctions
+  - opencorporates

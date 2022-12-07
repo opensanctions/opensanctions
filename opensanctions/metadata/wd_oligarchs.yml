@@ -22,7 +22,6 @@ description: |
   * Forbes List of Ukrainian Billionaires
 collections:
   - default
-  # - work
 publisher:
   name: OpenSanctions
   description: |

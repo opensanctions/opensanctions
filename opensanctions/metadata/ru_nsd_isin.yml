@@ -15,8 +15,6 @@ description: |
   This data source is based on [prior work by Owais Arshad](https://github.com/DtorrX/effective-bassoon).
 collections:
   - default
-  - work
-  # - sanctions
 publisher:
   name: National Settlement Depository
   description: |

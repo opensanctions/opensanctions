@@ -15,7 +15,6 @@ description: |
 collections:
   - sanctions
   - default
-  - work
 publisher:
   name: Office of Financial Sanctions Implementation
   description: >

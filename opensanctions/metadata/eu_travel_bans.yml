@@ -28,7 +28,6 @@ description: |
 collections:
   - sanctions
   - default
-  # - work
 publisher:
   name: Estonian Presidency of the Council of the EU
   description: |
