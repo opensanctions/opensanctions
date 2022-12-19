@@ -5,3 +5,5 @@ export: false
 children:
   - sanctions
   - opencorporates
+  # - offshoreleaks
+  - wikidata
