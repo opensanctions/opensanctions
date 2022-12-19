@@ -11,6 +11,7 @@ from opensanctions.core.db import Conn, upsert_func, resource_table
 
 class Resource(TypedDict):
     path: str
+    name: str
     dataset: str
     checksum: str
     url: str
@@ -73,6 +74,7 @@ def all_resources(conn: Conn, dataset: Dataset) -> Generator[Resource, None, Non
         if mime_type is not None:
             mime = parse_mimetype(mime_type)
             resource["mime_type_label"] = mime.label
+        resource["name"] = resource["path"]
         resource["url"] = dataset.make_public_url(resource["path"])
         yield resource
 
