@@ -20,7 +20,6 @@ description: |
   database to the FollowTheMoney data format used by our system. You can download
   the [raw data and use it in full](https://github.com/opensanctions/icij-offshoreleaks)
   and audit the mechanism by which we have aligned the data.
-
 url: https://offshoreleaks.icij.org/
 publisher:
   name: International Consortium of Investigative Journalists (ICIJ)
@@ -34,9 +33,9 @@ collections:
   - default
 config:
   type: nomenklatura.enrich.yente:YenteEnricher
-  api: https://externals.opensanctions.org/
-  dataset: offshoreleaks
-  token: opensanctions
+  api: https://api.graph.opensanctions.org/
+  dataset: icij_offshoreleaks
+  api_key: ${OPENSANCTIONS_GRAPH_API_KEY}
   strip_namespace: true
   schemata:
     - Company

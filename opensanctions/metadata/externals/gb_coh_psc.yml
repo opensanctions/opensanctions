@@ -24,9 +24,9 @@ collections:
   - default
 config:
   type: nomenklatura.enrich.yente:YenteEnricher
-  api: https://externals.opensanctions.org/
+  api: https://api.graph.opensanctions.org/
   dataset: gb_coh_psc
-  token: opensanctions
+  api_key: ${OPENSANCTIONS_GRAPH_API_KEY}
   strip_namespace: true
   threshold: 0.5
   schemata:
