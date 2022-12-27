@@ -1,0 +1,22 @@
+entry_point: opensanctions.crawlers.wikidata_peps
+title: Wikidata Politically Exposed Persons
+prefix: wd
+hidden: true
+summary: >
+  Politically exposed persons profiles from Wikidata, the structured data version of 
+  Wikipedia.
+description: |
+  ...
+collections:
+  - work
+  # - peps
+publisher:
+  name: OpenSanctions via Wikidata
+  description: |
+    This dataset is curated from the Wikidata system by the OpenSanctions team.
+  url: https://www.opensanctions.org
+  official: false
+url: https://www.opensanctions.org/datasets/peps
+data:
+  url: https://data.opensanctions.org/contrib/pepdb/holders.csv
+  format: CSV
