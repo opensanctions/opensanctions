@@ -20,7 +20,7 @@ def crawl(context: Context):
             if qid is None or not is_qid(qid):
                 continue
             entity.id = qid
-            entity.add("name", row.get("person_qid"))
+            entity.add("name", row.get("person_label"))
             entity.add("topics", "role.pep")
             # entity.add("country", country)
             context.emit(entity, target=True)
