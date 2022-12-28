@@ -3,18 +3,40 @@ title: Wikidata Politically Exposed Persons
 prefix: wd
 hidden: true
 summary: >
-  Politically exposed persons profiles from Wikidata, the structured data version of 
+  Profiles of politically exposed persons from Wikidata, the structured data version of 
   Wikipedia.
 description: |
-  ...
+  This dataset includes the profiles of politically exposed persons from Wikidata into
+  OpenSanctions. It does so by monitoring the Wikidata items describing a broad range
+  of political positions (e.g.: [member of the German Bundestag](https://www.wikidata.org/wiki/Q1939555),
+  or [German Federal Minister for Foreign Affairs](https://www.wikidata.org/wiki/Q568605))
+  and tracking the individuals who hold this post at different times.
+
+  The set of posts and positions that are tracked are curated by the OpenSanctions team
+  and will include:
+
+  * National legislatures
+  * National cabinets and ministerial positions
+  * Some senior administrative positions
+  * Diplomatic and military leadership
+  * Supreme court judges
+  * Central bank governors
+
+  Going forward, we will also include sub-national positions, include state legislatures 
+  in federally organized countries, as well as state-level senior executives.
+
+  Politically exposed persons are included after they retire from public office if they
+  are within five years of leaving office.
 collections:
-  - work
-  # - peps
+  - default
+  - peps
 publisher:
-  name: OpenSanctions via Wikidata
+  name: Wikidata
   description: |
-    This dataset is curated from the Wikidata system by the OpenSanctions team.
-  url: https://www.opensanctions.org
+    Wikidata is a free and open knowledge base that can be read and edited by both humans
+    and machines. It acts as central storage for the structured data of its Wikimedia
+    sister projects including Wikipedia, Wikivoyage, Wiktionary, Wikisource, and others.
+  url: https://www.wikidata.org
   official: false
 url: https://www.opensanctions.org/datasets/peps
 data:
