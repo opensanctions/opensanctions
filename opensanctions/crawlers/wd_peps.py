@@ -55,7 +55,13 @@ def check_qualified(row: Dict[str, Any]) -> bool:
 
     # TODO: decide all entities with no P39 dates as false?
     # print(holder.person_qid, death, start_date, end_date)
-    return True
+    has_date = (
+        death is not None
+        or birth is not None
+        or end_date is not None
+        or start_date is not None
+    )
+    return has_date
 
 
 def crawl(context: Context):

@@ -84,7 +84,7 @@ def parse_reference(context: Context, reference: int, rows):
             context.log.warning("Unknown name type", name_type=name_type)
             return
         entity.add(name_prop, name)
-        if name_prop == "name":
+        if name_prop == "name" or primary_name is None:
             primary_name = name
 
     entity.id = context.make_slug(reference, primary_name)

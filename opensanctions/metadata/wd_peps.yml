@@ -1,7 +1,7 @@
 entry_point: opensanctions.crawlers.wd_peps
 title: Wikidata Politically Exposed Persons
 prefix: wd
-hidden: true
+# hidden: true
 summary: >
   Profiles of politically exposed persons from Wikidata, the structured data version of 
   Wikipedia.

@@ -243,6 +243,16 @@ country:
         - Dutch Republic
         - Afsharid Empire
         - Eldiguzids
+        - Al Ain
+        - Grand Duchy of Lithuania
+        - Gorkha Kingdom
+        - Marocaine
+        - Kingdom of Funan
+        - Kingdom of Chenla
+        - Khmer Empire
+        - Tahiti
+        - Principality of Sperlinga
+        - Classical Athens
       contains:
         - (JVCFOR)
       value: null
@@ -254,6 +264,9 @@ country:
     - match:
         - Danish Realm
       value: DK
+    - match:
+        - Kingdom of Nepal
+      value: NP
     - match: Santo Domingo
       values:
         - Dominican Republic
@@ -288,6 +301,7 @@ country:
         - Brazil
     - match:
         - Italian Social Republic
+        - Republic of Florence
       value: Italy
     - match: SPA
       value: Spain
@@ -341,6 +355,9 @@ country:
     - match:
         - Assembly of Kosovo*
       value: XK
+    - match:
+        - Georgian Soviet Socialist Republic
+      value: GE
     - match:
         - Palestinian National Council
         - "Region: Gaza"
@@ -497,6 +514,13 @@ country:
         - Chickasaw Nation
         - Americans
       value: US
+    - match:
+        - Repubic of Moldova
+        - Gagauzia
+      value: MD
+    - match:
+        - Pridnestrovian Moldavian Soviet Socialist Republic
+      value: MD-PMR
     - match: Malian / Mauritanian
       values:
         - Mauritania
@@ -554,6 +578,7 @@ country:
         - Французька Республіка
         - French Third Republic
         - Vichy France
+        - Kingdom of France
       value: France
     - match: Saudi Arabian (this aka only, alt Citizenship Yemeni)
       values:
@@ -708,6 +733,7 @@ country:
       value: Portugal
     - contains:
         - Syrian Arab Republic
+        - First Syrian Republic
         - State of Syria
         - Damascus
       value: Syria
@@ -724,6 +750,7 @@ country:
       value: HR
     - match:
         - Polish People's Republic
+        - Crown of the Kingdom of Poland
         - Kingdom of Poland
       value: Poland
     - match:
@@ -1298,6 +1325,7 @@ gender:
         - female
         - femail
         - transgender female
+        - trans woman
         - cisgender female
       value: female
     - match:

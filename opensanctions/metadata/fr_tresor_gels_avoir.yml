@@ -45,6 +45,7 @@ lookups:
           - (IOM)
           - n° OMI
           - n° OMI de la société
+          - OMI
         value: registrationNumber
       - match:
           - numéro fédéral Suisse
