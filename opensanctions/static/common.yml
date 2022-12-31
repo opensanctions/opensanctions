@@ -253,6 +253,8 @@ country:
         - Tahiti
         - Principality of Sperlinga
         - Classical Athens
+        - Imperial China
+        - Oudh State
       contains:
         - (JVCFOR)
       value: null
@@ -838,6 +840,8 @@ date:
     - match:
         - 0001-01-03
         - 0222-05-18
+        - 0002-02-20
+        - 0002-10-20
         - "00/00/0"
         - "Approximately (30-35 years old)"
         - "Not yet reviewed"
@@ -1105,6 +1109,7 @@ date:
     "0019-05-21": "2019-05-21"
     "3013-05-23": "2013-05-23"
     "05/04.08.1980": "1980-08-04"
+    "0007-01-19": "2007-01-19"
 
 email:
   options:
@@ -1317,6 +1322,7 @@ url:
 gender:
   # Welcome to the wonderful world of police databases:
   lowercase: true
+  normalize: true
   options:
     - match:
         - Female
