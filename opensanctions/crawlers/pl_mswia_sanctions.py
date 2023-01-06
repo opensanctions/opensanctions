@@ -1,11 +1,13 @@
 from lxml import html
+from datetime import datetime
 from normality import collapse_spaces, slugify
 from pantomime.types import HTML
 
-from opensanctions.core import Context
+from opensanctions.core import Context, Entity
 from opensanctions import helpers as h
 
 TYPES = {"OSOBY": "Person", "PODMIOTY": "Company"}
+BDAY_FORMATS = ("urodzona %d.%m.%Y r.", "urodzony %d.%m.%Y r.")
 CHOPSKA = [
     ("Nr NIP", "taxNumber"),
     ("NIP", "taxNumber"),
@@ -13,6 +15,35 @@ CHOPSKA = [
     ("KRS", "registrationNumber"),
     ("siedziba:", "address"),
 ]
+
+
+def parse_details(context: Context, entity: Entity, text: str):
+    for (chop, prop) in CHOPSKA:
+        parts = text.rsplit(chop, 1)
+        text = parts[0]
+        if len(parts) > 1:
+            if prop == "address":
+                addr = h.make_address(context, full=parts[1])
+                h.apply_address(context, entity, addr)
+            else:
+                entity.add(prop, parts[1])
+
+    if not len(text.strip()):
+        return
+    for bday in BDAY_FORMATS:
+        try:
+            dt = datetime.strptime(text, bday)
+            entity.add("birthDate", dt.date())
+            return
+        except ValueError:
+            pass
+
+    result = context.lookup("details", text)
+    if result is None:
+        context.log.warning("Unhandled details", details=text)
+    else:
+        for prop, value in result.props.items():
+            entity.add(prop, value)
 
 
 def crawl(context: Context):
@@ -44,22 +75,7 @@ def crawl(context: Context):
             entity.add("notes", notes)
 
             details = row.pop("dane_identyfikacyjne_osoby_podmiotu")
-            for (chop, prop) in CHOPSKA:
-                parts = details.rsplit(chop, 1)
-                details = parts[0]
-                if len(parts) > 1:
-                    if prop == "address":
-                        addr = h.make_address(context, full=parts[1])
-                        h.apply_address(context, entity, addr)
-                    else:
-                        entity.add(prop, parts[1])
-            if len(details.strip()):
-                result = context.lookup("details", details)
-                if result is None:
-                    context.log.warning("Unhandled details", details=details)
-                else:
-                    for prop, value in result.props.items():
-                        entity.add(prop, value)
+            parse_details(context, entity, details)
 
             sanction = h.make_sanction(context, entity)
             provisions = row.pop("zastosowane_srodki_sankcyjne")

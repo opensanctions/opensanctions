@@ -77,6 +77,9 @@ lookups:
           - "Numéro d'enregistrement - lieu d'enregistrement : Fédération de Russie"
         prop: registrationNumber
       - match:
+          - "Type d’entité: société par actions. Principal établissement: Russie"
+        prop: legalForm
+      - match:
           - Numéro d'identification fiscale (INN)
           - Immatriculation Russie
           - Numéro d'enregistrement - Russie
