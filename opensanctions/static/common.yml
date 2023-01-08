@@ -477,6 +477,9 @@ country:
       value:
         - US
     - match:
+        - Gujarat
+      value: India
+    - match:
         - Republic of Upper Volta (current Burkina Faso)
       value:
         - Burkina Faso
@@ -859,6 +862,10 @@ date:
         - 0222-05-18
         - 0002-02-20
         - 0002-10-20
+        - 8034-06-14
+        - 0009-10-20
+        - 0011-09-20
+        - 0011-01-20
         - "00/00/0"
         - "Approximately (30-35 years old)"
         - "Not yet reviewed"
