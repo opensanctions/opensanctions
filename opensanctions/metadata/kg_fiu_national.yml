@@ -19,5 +19,5 @@ publisher:
   country: kg
 url: https://fiu.gov.kg/sked/9
 data:
-  url: https://fiu.gov.kg/sked/9
+  url: https://fiu.gov.kg/sked/9?language=ru
   format: xml

@@ -58,12 +58,17 @@ def url_split(urls):
     return urls
 
 
-def json_resource(context: Context, url, name):
+def json_listing(context: Context, url, name):
     full_url = urljoin(url, name)
     path = context.fetch_resource(f"{name}.json", full_url)
     context.export_resource(path, JSON, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
-        return json.load(fh)
+        resp_data = json.load(fh)
+    data = resp_data["data"]
+    if isinstance(data, dict):
+        raise ValueError("Listing did not return an array: %s" % full_url)
+    for item in data:
+        yield clean_row(item)
 
 
 def crawl_common(context: Context, entity: Entity, row: Dict[str, Any]):
@@ -108,8 +113,7 @@ def crawl_common(context: Context, entity: Entity, row: Dict[str, Any]):
 
 
 def crawl_person(context: Context) -> None:
-    data = json_resource(context, context.source.data.url, "person")
-    for row in data["data"]:
+    for row in json_listing(context, context.source.data.url, "person"):
         row = clean_row(row)
         person_id = row.pop("person_id")
         name_en = row.pop("name_en", None)
@@ -142,8 +146,7 @@ def crawl_person(context: Context) -> None:
 
 
 def crawl_company(context: Context) -> None:
-    data = json_resource(context, context.source.data.url, "company")
-    for row in data["data"]:
+    for row in json_listing(context, context.source.data.url, "person"):
         row = clean_row(row)
         company_id = row.pop("company_id")
         name_en = row.pop("name_en", None)

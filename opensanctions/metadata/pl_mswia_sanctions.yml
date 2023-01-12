@@ -70,6 +70,10 @@ lookups:
         props:
           birthDate: 1953-09-08
           birthPlace: Moscow
+      - match: urodzony 27 sierpnia 1969 r. w Kaliningradzie (Federacja Rosyjska)
+        props:
+          birthDate: 1969-08-27
+          birthPlace: Kaliningrad
       - match: urodzony 4 października 1965 r.
         props:
           birthDate: 1965-10-04
