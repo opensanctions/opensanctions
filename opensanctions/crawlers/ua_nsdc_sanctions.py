@@ -1,4 +1,7 @@
+import os
 import json
+from itertools import count
+from typing import Dict, Any
 from normality.cleaning import remove_control_chars
 from pantomime.types import JSON
 from followthemoney.types import registry
@@ -7,86 +10,98 @@ from opensanctions.core import Context
 from opensanctions import helpers as h
 from opensanctions.util import multi_split
 
-PHYSICAL_URL = "https://sanctions-t.rnbo.gov.ua/apis/fizosoba/"
-LEGAL_URL = "https://sanctions-t.rnbo.gov.ua/apis/jurosoba/"
+PASSWORD = os.environ.get("OPENSANCTIONS_NSDC_PASSWORD")
+AUTH = ("rnbo", PASSWORD)
+
+CODES = {"DN": "UA-DPR", "LN": "UA-LPR"}
 
 
-def json_resource(context: Context, url, name):
-    path = context.fetch_resource(f"{name}.json", url)
-    context.export_resource(path, JSON, title=context.SOURCE_TITLE)
-    with open(path, "r") as fh:
-        return json.load(fh)
-
-
-def handle_address(context: Context, entity, text):
-    if text is None:
+def crawl_item(context: Context, item: Dict[str, Any]):
+    subject_type = item.pop("subjectType")
+    schema = context.lookup_value("subject_types", subject_type)
+    if schema is None:
+        context.log.warn("Unknown subject type", subject_type=subject_type)
         return
-    country = text
-    if "," in country:
-        country, _ = country.split(",", 1)
-    code = registry.country.clean(country, fuzzy=True)
-    if code is not None:
-        entity.add("country", code)
-    address = h.make_address(context, full=text, country_code=code)
-    h.apply_address(context, entity, address)
 
+    entity = context.make(schema)
+    subject_id = item.pop("subjectId")
+    subject_name = item.pop("subjectName")
+    entity.id = context.make_slug(subject_id, subject_name)
+    entity.add("name", subject_name)
+    entity.add("alias", item.pop("subjectAliases"))
 
-def handle_sanction(context, entity, row):
+    dob = item.pop("subjectBirthDate", None)
+    if entity.schema.is_a("Person"):
+        entity.add("birthDate", dob)
+    else:
+        entity.add("incorporationDate", dob)
+
+    for citz in item.pop("subjectCitizenships", None) or []:
+        code = citz.pop("code", None)
+        if code is None:
+            context.log.info("Invalid citizenship", data=citz)
+            continue
+
+        code = CODES.get(code, code)
+        if entity.schema.is_a("Person"):
+            entity.add("nationality", code)
+        else:
+            entity.add("jurisdiction", code)
+
+    for ident in item.pop("subjectIdentifiers", None) or []:
+        ident_type = ident.pop("type", None)
+        ident_code = ident.pop("code", None)
+        result = context.lookup("ident_types", ident_type)
+        if result is None:
+            context.log.warning(
+                "Unknown identifier type",
+                type=ident_type,
+                code=ident_code,
+                country=ident.get("country"),
+            )
+            continue
+        if result.schema:
+            entity.add_schema(result.schema)
+        if result.value is not None:
+            entity.add(result.value, ident_code)
+
     sanction = h.make_sanction(context, entity)
-    sanction.add("status", row.pop("action", None))
-    sanction.add("summary", row.pop("restriction_period", None))
-    sanction.add("program", row.pop("restriction_type", None))
-    sanction.add("startDate", row.pop("ukaz_date", None))
-    sanction.add("endDate", row.pop("restriction_end_date", None))
+    sanction.add("listingDate", item.pop("decreeDate"))
+    sanction.add("startDate", item.pop("decreeActDate"))
+    sanction.add("endDate", item.pop("actionEndDate"))
+    sanction.add("sourceUrl", item.pop("decreeActLink"))
+    sanction.add("sourceUrl", item.pop("decreeLink"))
+    sanction.add("authorityId", item.pop("actionId"))
+    sanction.add("program", item.pop("decreeNumber"))
+    item.pop("actionType")
+    item.pop("actionTypeName")
+    sanction.add("status", item.pop("actionStatus"))
+    sanction.add("duration", item.pop("actionTerm"))
+
+    decree = item.pop("targetDecree", None) or {}
+    sanction.add("sourceUrl", decree.pop("link", None))
+    sanction.add("program", decree.pop("number", None))
+
+    item.pop("internationalSanctions", None)
+    h.audit_data(item)
+
+    context.emit(entity, target=True)
     context.emit(sanction)
 
 
-def crawl_physical(context: Context) -> None:
-    data = json_resource(context, PHYSICAL_URL, "physical")
-    for row in data:
-        entity = context.make("Person")
-        entity.id = context.make_slug("person", row.pop("ukaz_id"), row.pop("index"))
-        entity.add("name", row.pop("name_ukr", None))
-        entity.add("name", row.pop("name_original", None))
-        for alias in multi_split(row.pop("name_alternative", None), [";", "/"]):
-            entity.add("alias", alias)
-        entity.add("notes", h.clean_note(row.pop("additional", None)))
-        for country in multi_split(row.pop("citizenship", None), [", "]):
-            entity.add("nationality", country)
-        entity.add("birthDate", row.pop("birthdate", None))
-        entity.add("birthPlace", row.pop("birthplace", None))
-        entity.add("position", remove_control_chars(row.pop("occupation", None)))
-        handle_address(context, entity, row.pop("livingplace", None))
-        handle_sanction(context, entity, row)
-
-        context.emit(entity, target=True)
-        # context.inspect(row)
-
-
-def crawl_legal(context: Context) -> None:
-    data = json_resource(context, LEGAL_URL, "legal")
-    for row in data:
-        entity = context.make("Organization")
-        entity.id = context.make_slug("org", row.pop("ukaz_id"), row.pop("index"))
-        entity.add("name", row.pop("name_ukr", None))
-        entity.add("name", row.pop("name_original", None))
-        for alias in multi_split(row.pop("name_alternative", None), [";", "/"]):
-            entity.add("alias", alias)
-        entity.add("notes", row.pop("additional", None))
-        ipn = row.pop("ipn", "") or ""
-        entity.add("taxNumber", ipn.replace("ІПН", ""))
-        odrn = row.pop("odrn_edrpou", "") or ""
-        odrn = odrn.replace("ОДРН", "")
-        odrn = odrn.replace("ЄДРПОУ", "")
-        entity.add("registrationNumber", odrn)
-
-        handle_address(context, entity, row.pop("place", None))
-        handle_address(context, entity, row.pop("place_alternative", None))
-        handle_sanction(context, entity, row)
-        # context.inspect(row)
-        context.emit(entity, target=True)
-
-
 def crawl(context: Context) -> None:
-    crawl_physical(context)
-    crawl_legal(context)
+    for page in count(1):
+        params = {"perPage": 100, "page": page}
+        response = context.fetch_json(
+            context.source.data.url,
+            auth=AUTH,
+            params=params,
+            # cache_days=1,
+        )
+        for item in response["data"]:
+            crawl_item(context, item)
+        if page == response["pages"]:
+            break
+
+    # crawl_physical(context)
+    # crawl_legal(context)

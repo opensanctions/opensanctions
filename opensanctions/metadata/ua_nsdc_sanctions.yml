@@ -18,7 +18,59 @@ publisher:
     security and defense under the President of Ukraine.
   url: https://www.rnbo.gov.ua/en/
   country: ua
-url: https://sanctions-t.rnbo.gov.ua/
+url: https://sanctions.nsdc.gov.ua/
 data:
-  url: https://sanctions-t.rnbo.gov.ua/apis/fizosoba/
+  url: https://sanctions.nsdc.gov.ua/api/sanctions/
   format: JSON
+
+lookups:
+  subject_types:
+    map:
+      individual: Person
+      legal: Organization
+  ident_types:
+    options:
+      - match:
+          - ІПН
+        value: innCode
+      - match:
+          - ОДРН
+        value: ogrnCode
+      - match:
+          - ОКПО
+        value: okpoCode
+      - match:
+          - КПП
+        value: kppCode
+        schema: Company
+      - match:
+          - Номер телефону
+        value: phone
+      - match:
+          - Паспорт
+          - Дипломатичний паспорт
+          - Закордонний паспорт
+          - Службовий паспорт
+        value: passportNumber
+      - match:
+          - Permanent residence permit - посвідка на постійне проживання
+          - Особистий номер офіцера
+        value: idNumber
+      - match:
+          - ЄДРПОУ
+          - ЄДРЮО
+          - УНЗР
+          - Реєстраційний номер
+          - Реєстраційний номер адвокатської діяльності
+          - МФО
+          - KRS (Krajowy Rejestr Sądowy)
+          - REGON (Rejestr Gospodarki Narodowej)
+          - ОКАТО
+        value: registrationNumber
+      - match:
+          - Генеральна ліцензія на здійснення банківських операцій
+          - Кореспондентський рахунок
+          - Розрахунковий рахунок
+          - Абонентська скринька
+          - Посвідчення адвокатської діяльності
+        value: null
