@@ -23,6 +23,7 @@ publisher:
     The list is composed by the Ministers of Foreign Affairs and Trade in New Zealand
   country: nz
   url: https://www.government.nl/ministries/ministry-of-foreign-affairs
+  official: true
 data:
   url: https://www.mfat.govt.nz/assets/Countries-and-Regions/Europe/Ukraine/Russia-Sanctions-Register.xlsx
   format: XLSX

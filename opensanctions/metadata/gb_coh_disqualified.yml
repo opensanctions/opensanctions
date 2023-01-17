@@ -43,6 +43,7 @@ publisher:
     bankruptcies, but also the handling of financial wrong-doing.
   url: https://www.gov.uk/government/organisations/insolvency-service
   country: gb
+  official: true
 url: https://find-and-update.company-information.service.gov.uk/register-of-disqualifications/A
 data:
   url: https://api.companieshouse.gov.uk/search/disqualified-officers

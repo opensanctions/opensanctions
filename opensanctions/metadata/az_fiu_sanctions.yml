@@ -22,6 +22,7 @@ publisher:
     policymaking in this area.
   country: az
   url: http://www.fiu.az/en/info
+  official: true
 data:
   url: "http://www.fiu.az/en/sanctions/internal-sanctioned"
   format: XLS

@@ -24,7 +24,7 @@ publisher:
     ISIN numbers for use by Russian securities.
   url: https://www.nsd.ru/
   country: ru
-  official: false
+  official: true
 url: https://www.isin.ru/ru/ru_isin/news_c/
 data:
   url: https://www.isin.ru/ru/ru_isin/news_c/

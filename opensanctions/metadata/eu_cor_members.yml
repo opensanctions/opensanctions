@@ -17,6 +17,7 @@ publisher:
   name: European Committee of the Regions
   country: eu
   url: https://cor.europa.eu/en
+  official: true
 url: https://cor.europa.eu/en
 data:
   url: https://memberspage.cor.europa.eu/

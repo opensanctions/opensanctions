@@ -24,6 +24,7 @@ publisher:
     The list is composed by the Ministers of Foreign Affairs, Finance and Justice.
   country: nl
   url: https://www.government.nl/ministries/ministry-of-foreign-affairs
+  official: true
 data:
   url: https://www.government.nl/binaries/government/documenten/reports/2016/01/15/national-terrorism-list/eng-terrorismelijst.ods
   format: ODS

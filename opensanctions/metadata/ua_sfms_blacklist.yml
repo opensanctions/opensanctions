@@ -26,6 +26,7 @@ publisher:
     the results of this analysis.
   url: https://fiu.gov.ua/
   country: ua
+  official: true
 url: https://fiu.gov.ua/en/pages/dijalnist/protidija-terorizmu/perelik-teroristiv
 data:
   url: https://fiu.gov.ua/assets/userfiles/Terror/zBlackListFull.xml

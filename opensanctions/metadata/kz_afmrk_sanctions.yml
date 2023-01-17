@@ -24,6 +24,7 @@ publisher:
     Republic of Kazakhstan.
   url: https://www.gov.kz/memleket/entities/afm
   country: kz
+  official: true
 url: https://afmrk.gov.kz/ru/the-list-of-organizations-and-individuals-associa/
 data:
   url: https://afmrk.gov.kz/blacklist/export/active/xml

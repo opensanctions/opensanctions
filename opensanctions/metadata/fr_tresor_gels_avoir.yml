@@ -22,6 +22,7 @@ publisher:
   name: Ministry of Economy, Finance, and Recovery
   country: fr
   url: https://www.tresor.economie.gouv.fr/
+  official: true
 url: https://gels-avoirs.dgtresor.gouv.fr/
 data:
   url: https://gels-avoirs.dgtresor.gouv.fr/ApiPublic/api/v1/publication/derniere-publication-fichier-json

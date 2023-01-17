@@ -35,6 +35,7 @@ publisher:
     UNOPS provides infrastructure, procurement and project management services
     for a more sustainable world.
   url: "https://www.unops.org/about"
+  official: true
 url: https://www.unops.org/business-opportunities/vendor-sanctions
 data:
   url: https://www.unops.org/business-opportunities/vendor-sanctions

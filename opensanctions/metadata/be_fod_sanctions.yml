@@ -30,6 +30,7 @@ publisher:
     The Federale Overheidsdienst Financien (FOD) is the finance ministry of Belgium.
   country: be
   url: https://financien.belgium.be/nl/over_de_fod
+  official: true
 data:
   url: "https://financien.belgium.be/sites/default/files/thesaurie/Consolidated%20list.zip"
   format: ZIP/XML

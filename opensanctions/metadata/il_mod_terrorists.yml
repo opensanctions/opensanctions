@@ -28,6 +28,7 @@ publisher:
     in Terror Financing.
   country: il
   url: https://nbctf.mod.gov.il/en/aboutus/Pages/mandate.aspx
+  official: true
 url: https://nbctf.mod.gov.il/en/designations/Pages/designationProcess.aspx
 data:
   url: https://nbctf.mod.gov.il/en/designations/Pages/downloads.aspx

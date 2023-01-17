@@ -19,6 +19,7 @@ publisher:
     to create a new post-Cold War era in central and eastern Europe.
   country: zz
   url: https://ebrd.com/
+  official: true
 url: https://www.ebrd.com/ineligible-entities.html
 data:
   url: https://www.ebrd.com/ineligible-entities.html

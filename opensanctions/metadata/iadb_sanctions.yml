@@ -44,6 +44,7 @@ publisher:
     in Latin America and the Caribbean. It was established in 1959.
   country: zz
   url: https://www.iadb.org/
+  official: true
 url: https://www.iadb.org/en/transparency/sanctioned-firms-and-individuals
 data:
   url: https://www.iadb.org/en/sanctioned-firms/get-santions/pPageNumber=1&pPageSize=100&pLang=en

@@ -31,6 +31,7 @@ publisher:
     international development.
   country: ca
   url: https://www.international.gc.ca/global-affairs-affaires-mondiales/home-accueil.aspx?lang=eng
+  official: true
 data:
   url: "https://www.international.gc.ca/world-monde/assets/office_docs/international_relations-relations_internationales/sanctions/sema-lmes.xml"
   format: XML

@@ -32,6 +32,7 @@ publisher:
   name: Central Intelligence Agency (CIA)
   url: https://www.cia.gov/
   country: us
+  official: true
 data:
   url: "https://www.cia.gov/page-data/resources/world-leaders/foreign-governments/page-data.json"
   format: JSON

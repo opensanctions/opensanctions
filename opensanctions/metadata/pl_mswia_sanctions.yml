@@ -26,6 +26,7 @@ publisher:
     Department of Public Order within the Ministry of the Interior of Poland.
   url: https://www.gov.pl/web/mswia
   country: pl
+  official: true
 url: https://www.gov.pl/web/mswia/decyzje-ministra-swia-w-sprawie-wpisu-na-liste-sankcyjna
 data:
   url: https://www.gov.pl/web/mswia/lista-osob-i-podmiotow-objetych-sankcjami

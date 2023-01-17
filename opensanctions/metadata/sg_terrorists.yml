@@ -21,6 +21,7 @@ publisher:
     to develop Singapore as a dynamic international financial centre.
   url: https://www.mas.gov.sg/who-we-are
   country: sg
+  official: true
 url: https://www.mas.gov.sg/regulation/anti-money-laundering/targeted-financial-sanctions/lists-of-designated-individuals-and-entities
 data:
   url: https://sso.agc.gov.sg/Act/TSFA2002?ProvIds=Sc1-#Sc1-

@@ -18,6 +18,7 @@ publisher:
     security and defense under the President of Ukraine.
   url: https://www.rnbo.gov.ua/en/
   country: ua
+  official: true
 url: https://sanctions.nsdc.gov.ua/
 data:
   url: https://sanctions.nsdc.gov.ua/api/sanctions/

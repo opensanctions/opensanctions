@@ -30,6 +30,7 @@ publisher:
     ensuring international peace and security. Its powers include establishing peacekeeping
     operations, enacting international sanctions, and authorizing military action.
   url: "https://www.un.org/en/sc/"
+  official: true
 url: "https://www.un.org/securitycouncil/sanctions/information"
 data:
   url: https://scsanctions.un.org/resources/xml/en/consolidated.xml

@@ -37,6 +37,7 @@ publisher:
   name: Department of the Commerce - International Trade Administration
   country: us
   url: https://www.trade.gov/
+  official: true
 url: https://www.trade.gov/consolidated-screening-list
 data:
   url: https://api.trade.gov/static/consolidated_screening_list/consolidated.json

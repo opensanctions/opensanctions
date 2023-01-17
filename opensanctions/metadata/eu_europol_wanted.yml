@@ -22,6 +22,7 @@ publisher:
     name: European Network of Fugitive Active Search Teams
     country: eu
     url: https://eumostwanted.eu/enfast
+    official: true
 data:
     url: https://eumostwanted.eu/
     format: HTML

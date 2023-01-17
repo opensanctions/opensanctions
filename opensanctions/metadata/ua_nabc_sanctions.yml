@@ -28,6 +28,7 @@ publisher:
     in accordance with the Law of Ukraine on Prevention of Corruption.
   url: https://nazk.gov.ua/en/
   country: ua
+  official: true
 url: https://sanctions.nazk.gov.ua/
 data:
   url: https://sanctions.nazk.gov.ua/api/

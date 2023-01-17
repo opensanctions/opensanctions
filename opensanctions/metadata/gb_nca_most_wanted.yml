@@ -22,6 +22,7 @@ publisher:
     by disrupting and bringing to justice those serious and organised criminals who pose the highest risk to the UK.
   url: https://www.nationalcrimeagency.gov.uk/
   country: gb
+  official: true
 data:
   url: "https://www.nationalcrimeagency.gov.uk/most-wanted"
   format: HTML

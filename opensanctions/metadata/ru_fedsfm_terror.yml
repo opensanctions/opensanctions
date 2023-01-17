@@ -42,6 +42,7 @@ publisher:
     these threats.
   url: https://www.fedsfm.ru/
   country: ru
+  official: true
 url: https://www.fedsfm.ru/documents/terrorists-catalog-portal-act
 data:
   url: https://www.fedsfm.ru/documents/terrorists-catalog-portal-act

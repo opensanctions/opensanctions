@@ -22,6 +22,7 @@ publisher:
     sanctions are properly understood, implemented and enforced in the United Kingdom.
   url: https://www.gov.uk/government/organisations/office-of-financial-sanctions-implementation
   country: gb
+  official: true
 url: https://www.gov.uk/government/publications/financial-sanctions-consolidated-list-of-targets
 data:
   url: https://ofsistorage.blob.core.windows.net/publishlive/2022format/ConList.xml

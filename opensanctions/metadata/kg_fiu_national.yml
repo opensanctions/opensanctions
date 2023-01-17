@@ -17,6 +17,7 @@ publisher:
   name: ФИНАНСОВОЙ РАЗВЕДКИ ПРИ ПРАВИТЕЛЬСТВЕ КЫРГЫЗСКОЙ РЕСПУБЛИКИ (ГСФР)
   url: https://fiu.gov.kg/
   country: kg
+  official: true
 url: https://fiu.gov.kg/sked/9
 data:
   url: https://fiu.gov.kg/sked/9?language=ru

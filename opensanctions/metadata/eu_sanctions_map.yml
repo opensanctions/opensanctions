@@ -34,6 +34,7 @@ publisher:
     The Sanctions Map was created by the Estonian Presidency of the EU in 2017.
   url: https://www.sanctionsmap.eu/
   country: eu
+  official: true
 url: https://www.sanctionsmap.eu/
 data:
   url: https://www.sanctionsmap.eu/api/v1/data?

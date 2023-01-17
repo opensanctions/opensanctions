@@ -30,6 +30,7 @@ publisher:
     Nigeria Trust Fund (NTF).
   country: zz
   url: https://www.afdb.org/
+  official: true
 url: https://www.afdb.org/en/projects-operations/debarment-and-sanctions-procedures
 data:
   url: https://www.afdb.org/en/projects-operations/debarment-and-sanctions-procedures

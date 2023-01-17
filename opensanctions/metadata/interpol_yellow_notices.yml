@@ -21,6 +21,7 @@ description: |
 publisher:
   name: INTERPOL
   url: https://www.interpol.int/
+  official: true
 url: https://www.interpol.int/INTERPOL-expertise/Notices
 data:
   url: https://ws-public.interpol.int/notices/v1/yellow

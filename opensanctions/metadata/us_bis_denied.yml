@@ -23,6 +23,7 @@ publisher:
     business and the foreign policy and security interests of the U.S.
   url: https://www.bis.doc.gov/
   country: us
+  official: true
 url: https://www.bis.doc.gov/index.php/policy-guidance/lists-of-parties-of-concern/denied-persons-list
 data:
   url: https://www.bis.doc.gov/dpl/dpl.txt

@@ -17,6 +17,7 @@ publisher:
     The Ministerio de Justicia y Derechos Humanos
   country: ar
   url: "https://www.argentina.gob.ar/justicia/institucional"
+  official: true
 url: "https://repet.jus.gob.ar/"
 data:
   url: https://repet.jus.gob.ar/

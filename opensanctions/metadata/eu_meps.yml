@@ -20,6 +20,7 @@ publisher:
     European legislation.
   url: http://www.europarl.europa.eu/
   country: eu
+  official: true
 url: http://www.europarl.europa.eu/meps/
 data:
   url: http://www.europarl.europa.eu/meps/en/full-list/xml
