@@ -36,3 +36,5 @@ collections:
   - peps
 config:
   type: nomenklatura.enrich.wikidata:WikidataEnricher
+  label_cache_days: 90
+  cache_days: 14
