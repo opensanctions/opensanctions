@@ -1,5 +1,7 @@
 import re
 import math
+from itertools import count
+from typing import Optional
 
 from opensanctions import helpers as h
 from opensanctions.core import Context
@@ -22,12 +24,6 @@ IGNORE_FIELDS = (
     "Scars and Marks",
 )
 SPLIT_DATES = re.compile("([^,]+,[^,]+)")
-
-types = {
-    "fugitives": "f7f80a1681ac41a08266bd0920c9d9d8",
-    "terrorism": "55d8265003c84ff2a7688d7acd8ebd5a",
-    "bank-robbers": "2514fe8f611f47d1b2c1aa18f0f6f01b",
-}
 
 
 def crawl_person(context: Context, url: str) -> None:
@@ -87,11 +83,33 @@ def crawl_person(context: Context, url: str) -> None:
     context.emit(person, target=True)
 
 
-def crawl_pages(context: Context, type: str, total_pages: int):
-    # Crawl every page
-    for page in range(1, total_pages + 1):
-        page_url = FBI_URL % (type, types.get(type), page)
-        doc = context.fetch_html(page_url)
+def crawl_type(context: Context, type: str, query_id: str):
+    total_pages: Optional[int] = None
+    for page in count(1):
+        if total_pages is not None and page > total_pages:
+            break
+        url = FBI_URL % (type, query_id, page)
+        print(url)
+        doc = context.fetch_html(url)
+
+        if total_pages is None:
+            # Get total results count
+            total_text = doc.findtext('.//div[@class="row top-total"]//p')
+            if total_text is None:
+                context.log.error("Could not find result count", url=url)
+                continue
+            # context.inspect(total_el)
+            # total_text = total_el.text_content()
+            match = re.search(r"\d+", total_text)
+            if match is None:
+                context.log.error("Could not find result count", url=url)
+                continue
+            total_results = int(match.group())
+            context.log.debug("Total results", total_results=total_results, url=url)
+
+            # Get total pages count
+            total_pages = math.ceil(total_results / 40)
+
         details = doc.find('.//div[@class="query-results pat-pager"]')
         for row in details.findall(".//ul/li"):
             href = row.xpath(".//a")[0].get("href")
@@ -99,24 +117,7 @@ def crawl_pages(context: Context, type: str, total_pages: int):
 
 
 def crawl(context: Context):
-    for type in types:
-        url = FBI_URL % (type, types[type], 1)
-        doc = context.fetch_html(url)
-
-        # Get total results count
-        total_text = doc.findtext('.//div[@class="row top-total"]//p')
-        if total_text is None:
-            context.log.error("Could not find result count", url=url)
-            continue
-        # context.inspect(total_el)
-        # total_text = total_el.text_content()
-        match = re.search(r"\d+", total_text)
-        if match is None:
-            context.log.error("Could not find result count", text=total_text)
-            continue
-        total_results = int(match.group())
-        context.log.debug("Total results", total_results=total_results, url=url)
-
-        # Get total pages count
-        total_pages = math.ceil(total_results / 40)
-        crawl_pages(context, type, total_pages)
+    crawl_type(context, "topten", "0f737222c5054a81a120bce207b0446a")
+    crawl_type(context, "fugitives", "f7f80a1681ac41a08266bd0920c9d9d8")
+    crawl_type(context, "terrorism", "55d8265003c84ff2a7688d7acd8ebd5a")
+    crawl_type(context, "bank-robbers", "2514fe8f611f47d1b2c1aa18f0f6f01b")
