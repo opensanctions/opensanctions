@@ -139,7 +139,8 @@ def explode(canonical_id):
 
 @cli.command("merge", help="Merge multiple entities as duplicates")
 @click.argument("entity_ids", type=str, nargs=-1)
-def merge(entity_ids):
+@click.option("-f", "--force", is_flag=True, default=False)
+def merge(entity_ids, force: bool = False):
     if len(entity_ids) < 2:
         return
     resolver = get_resolver()
@@ -151,13 +152,19 @@ def merge(entity_ids):
             continue
         check = resolver.check_candidate(canonical_id, other_id)
         if not check:
-            log.error(
-                "Cannot merge",
-                canonical_id=canonical_id,
-                other_id=other_id,
-                edge=resolver.get_resolved_edge(canonical_id, other_id),
-            )
-            return
+            edge = resolver.get_resolved_edge(canonical_id, other_id)
+            if force is True:
+                if edge is not None:
+                    log.warn("Removing existing edge", edge=edge)
+                    resolver._remove_edge(edge)
+            else:
+                log.error(
+                    "Cannot merge",
+                    canonical_id=canonical_id,
+                    other_id=other_id,
+                    edge=edge,
+                )
+                return
         log.info("Merge: %s -> %s" % (other_id, canonical_id))
         canonical_id = resolver.decide(canonical_id, other_id, Judgement.POSITIVE)
     resolver.save()
