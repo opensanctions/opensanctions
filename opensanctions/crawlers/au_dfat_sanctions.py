@@ -1,10 +1,10 @@
-import xlrd
 import string
-import requests
+import openpyxl
+from typing import List, Optional
 from collections import defaultdict
 from normality import slugify
 from datetime import datetime
-from pantomime.types import EXCEL
+from pantomime.types import XLSX
 
 from opensanctions import helpers as h
 from opensanctions.core import Context
@@ -39,6 +39,8 @@ def clean_date(date):
         date = str(int(date))
     if isinstance(date, datetime):
         date = date.date().isoformat()
+    if isinstance(date, int):
+        date = str(date)
     date = remove_bracketed(date)
     if date is None:
         return dates
@@ -122,24 +124,36 @@ def parse_reference(context: Context, reference: int, rows):
 
 
 def crawl(context: Context):
-    path = context.get_resource_path("source.xls")
-
     # TODO: why does this work and the fetch call does not?
-    res = requests.get(context.source.data.url, verify=False)
-    with open(path, "wb") as fh:
-        fh.write(res.content)
-    # path = context.fetch_resource("source.xls", context.source.data.url)
+    # path = context.get_resource_path("source.xlsx")
+    # res = requests.get(context.source.data.url, verify=False)
+    # with open(path, "wb") as fh:
+    #     fh.write(res.content)
+    path = context.fetch_resource("source.xlsx", context.source.data.url)
+    context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
-    context.export_resource(path, EXCEL, title=context.SOURCE_TITLE)
-    xls = xlrd.open_workbook(path)
-    ws = xls.sheet_by_index(0)
-    headers = [slugify(h, sep="_") for h in ws.row_values(0)]
+    workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
     references = defaultdict(list)
-    for r in range(1, ws.nrows):
-        cells = [h.convert_excel_cell(xls, c) for c in ws.row(r)]
-        row = dict(zip(headers, cells))
-        reference = clean_reference(row.get("reference"))
-        references[reference].append(row)
+    for sheet in workbook.worksheets:
+        headers: Optional[List[str]] = None
+        for row in sheet.rows:
+            cells = [c.value for c in row]
+            if headers is None:
+                headers = [slugify(h, sep="_") for h in cells]
+                continue
+            row = dict(zip(headers, cells))
+            reference = clean_reference(row.get("reference"))
+            references[reference].append(row)
+
+    # xls = xlrd.open_workbook(path)
+    # ws = xls.sheet_by_index(0)
+    # headers = [slugify(h, sep="_") for h in ws.row_values(0)]
+    # references = defaultdict(list)
+    # for r in range(1, ws.nrows):
+    #     cells = [h.convert_excel_cell(xls, c) for c in ws.row(r)]
+    #     row = dict(zip(headers, cells))
+    #     reference = clean_reference(row.get("reference"))
+    #     references[reference].append(row)
 
     for ref, rows in references.items():
         parse_reference(context, ref, rows)

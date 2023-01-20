@@ -31,8 +31,8 @@ publisher:
   url: http://dfat.gov.au/
   official: true
 data:
-  url: "https://www.dfat.gov.au/sites/default/files/regulation8_consolidated.xls"
-  format: XLS
+  url: "https://www.dfat.gov.au/sites/default/files/regulation8_consolidated.xlsx"
+  format: XLSX
 
 lookups:
   type:

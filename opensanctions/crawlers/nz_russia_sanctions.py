@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import datetime
 import openpyxl
 from banal import as_bool
 from typing import Any, Dict
