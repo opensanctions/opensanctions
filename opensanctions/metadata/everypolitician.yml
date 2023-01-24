@@ -30,7 +30,7 @@ publisher:
   official: false
 url: http://everypolitician.org
 data:
-  url: https://github.com/everypolitician/everypolitician-data/raw/master/countries.json
+  url: https://data.opensanctions.org/contrib/everypolitician/countries.json
   format: JSON
 
 lookups:

@@ -1,4 +1,5 @@
 from datetime import datetime
+from urllib.parse import urljoin
 from typing import Dict, Optional
 from followthemoney.helpers import check_person_cutoff, post_summary
 
@@ -17,11 +18,12 @@ def crawl(context: Context):
             crawl_legislature(context, code, legislature)
 
 
-def crawl_legislature(context: Context, country, legislature):
+def crawl_legislature(context: Context, country: str, legislature):
     lastmod_ = int(legislature.get("lastmod"))
     lastmod = datetime.utcfromtimestamp(lastmod_)
 
-    url = legislature.get("popolo_url")
+    url = urljoin(context.source.data.url, legislature.get("popolo"))
+    # print(url)
     # this isn't being updated, hence long interval:
     data = context.fetch_json(url, cache_days=30)
 
