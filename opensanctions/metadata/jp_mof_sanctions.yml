@@ -33,8 +33,10 @@ collections:
 publisher:
   name: "Ministry of Finance"
   description: |
-    The State Secretariat for Economic Affairs is the Swiss governments 
-    center of competence for economic, labour and trade matters.
+    The Ministry of Finance (財務省) is the Japanese ministry that has
+    jurisdiction over ensuring sound finances, realizing fair taxation,
+    managing national treasury, managing customs operations, and 
+    maintaining confidence in currency.
   country: jp
   url: https://www.mof.go.jp/
   official: true
