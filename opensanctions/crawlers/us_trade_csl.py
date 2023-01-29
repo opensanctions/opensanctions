@@ -1,6 +1,6 @@
 import json
 from typing import Any, Dict, List, Optional
-ffrom banal import ensure_list
+from banal import ensure_list
 from functools import cache
 from pantomime.types import JSON
 from requests.exceptions import RequestException
