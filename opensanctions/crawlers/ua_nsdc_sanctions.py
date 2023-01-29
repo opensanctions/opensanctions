@@ -27,6 +27,7 @@ def crawl_item(context: Context, item: Dict[str, Any]):
     subject_id = item.pop("subjectId")
     subject_name = item.pop("subjectName")
     entity.id = context.make_slug(subject_id, subject_name)
+    entity.add("topics", "sanction")
     entity.add("name", subject_name)
     entity.add("alias", item.pop("subjectAliases"))
 
