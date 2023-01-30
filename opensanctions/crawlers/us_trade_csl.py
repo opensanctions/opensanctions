@@ -61,7 +61,7 @@ def parse_result(context: Context, result: Dict[str, Any]):
         entity.add("position", result.pop("title", None))
         entity.add("nationality", result.pop("nationalities", None))
         entity.add("nationality", result.pop("citizenships", None))
-        for dob in result.pop("dates_of_birth", []):
+        for dob in ensure_list(result.pop("dates_of_birth", "")):
             entity.add("birthDate", parse_date(dob))
         entity.add("birthPlace", result.pop("places_of_birth", None))
     elif entity.schema.is_a("Vessel"):
