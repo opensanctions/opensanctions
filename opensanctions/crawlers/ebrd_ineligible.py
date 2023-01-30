@@ -5,7 +5,7 @@ from pantomime.types import HTML
 from opensanctions.core import Context
 from opensanctions import helpers as h
 
-FORMATS = ["%d %b %Y", "%d-%b-%Y"]
+FORMATS = ["%d %b %Y", "%d-%b-%Y", "%d %B %Y"]
 
 
 def parse_date(text):
