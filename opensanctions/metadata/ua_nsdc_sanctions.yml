@@ -37,6 +37,7 @@ lookups:
       - match:
           - ОДРН
           - ОДРНІП
+          - ОДРНПП
         value: ogrnCode
       - match:
           - ОКПО
