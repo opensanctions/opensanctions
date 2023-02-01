@@ -19,13 +19,17 @@ NAME_TYPE = {
 # Some metadata is dirty text in <other-information> tags
 # TODO: take in charge multiple values
 REGEX_WEBSITE = re.compile("Website ?: ((https?:|www\.)\S*)")
-REGEX_EMAIL = re.compile("E-?mail( address)? ?: ([A-Za-z0-9._-]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+)")
+REGEX_EMAIL = re.compile(
+    "E-?mail( address)? ?: ([A-Za-z0-9._-]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+)"
+)
 REGEX_PHONE = re.compile("(Tel\.|Telephone)( number)? ?: (\+?[0-9- ()]+)")
 REGEX_INN = re.compile("Taxpayer [Ii]dentification [Nn]umber ?: (\d+)\.?")
-REGEX_REGNUM = re.compile("(ОГРН/main )?([Ss]tate |Business )?[Rr]egistration number ?: (\d+)\.?")
+REGEX_REGNUM = re.compile(
+    "(ОГРН/main )?([Ss]tate |Business )?[Rr]egistration number ?: (\d+)\.?"
+)
 REGEX_TAX = re.compile("Tax [Rr]egistration [Nn]umber ?: (\d+)\.?")
 REGEX_IMO = re.compile("IMO [Nn]umber ?: (\d+)\.?")
-FORMATS = ["%d.%m.%Y", "%Y", "%b %Y", "%d %B %Y", "%b, %Y"]
+FORMATS = ["%d.%m.%Y", "%Y", "%b %Y", "%d %B %Y", "%d %b %Y", "%b, %Y"]
 
 
 def parse_address(node: Element):
@@ -164,18 +168,24 @@ def parse_entry(context: Context, target, programs, places, updated_at):
     entity.add("gender", node.get("sex"), quiet=True)
     for other in node.findall("./other-information"):
         value = other.text.strip()
-        if entity.schema.is_a("Vessel") and imo_num := REGEX_IMO.fullmatch(value):
+        imo_num = REGEX_IMO.fullmatch(value)
+        reg_num = REGEX_REGNUM.fullmatch(value)
+        inn_match = REGEX_INN.fullmatch(value)
+        if entity.schema.is_a("Vessel") and imo_num:
             entity.add("imoNumber", imo_num.group(1))
-        elif entity.schema.is_a("LegalEntity") and value.startswith("Date of registration"):
+        elif entity.schema.is_a("LegalEntity") and value.startswith(
+            "Date of registration"
+        ):
             _, reg_date = value.split(":", 1)
+            reg_date = reg_date.strip()
             entity.add("incorporationDate", h.parse_date(reg_date, FORMATS))
         elif entity.schema.is_a("LegalEntity") and value.startswith("Type of entity"):
             _, legalform = value.split(":", 1)
             entity.add("legalForm", legalform)
-        elif entity.schema.is_a("LegalEntity") and reg_num := REGEX_REGNUM.fullmatch(value):
+        elif entity.schema.is_a("LegalEntity") and reg_num:
             entity.add("registrationNumber", reg_num.group(3))
-        elif inn := REGEX_INN.fullmatch(value):
-            entity.add("innCode", inn.group(1))
+        elif inn_match:
+            entity.add("innCode", inn_match.group(1))
         elif tax := REGEX_TAX.fullmatch(value):
             entity.add("taxNumber", tax.group(1))
         elif website := REGEX_WEBSITE.fullmatch(value):

@@ -1068,6 +1068,16 @@ date:
       values:
         - 1981-05-07
         - 1979-05-07
+    - match: 1.2.1994/6.3.2000
+      values:
+        - 1994-02-01
+        - 2000-03-06
+    - match: 26.12.2016/3.4.2017
+      values:
+        - 2016-12-26
+        - 2017-04-03
+    - match: Founded in 1997 as a State owned company, registered as a private company on 9 January 2019
+      value: 2019-01-09
   map:
     "0202-11-22": "2020-11-22"
     "1951-06-31": "1951-06"
