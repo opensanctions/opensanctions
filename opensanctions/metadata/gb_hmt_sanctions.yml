@@ -429,3 +429,5 @@ lookups:
         value: Russian Academy of Science’s Institute of Oriental Studies
       - match: Russian Federation Federal Agency for State Property Management
         value: Russian Federation Federal Agency for State Property Management
+      - match: Cargo Link Petroleum Logistics Company Ltd
+        value: Cargo Link Petroleum Logistics Company Ltd
