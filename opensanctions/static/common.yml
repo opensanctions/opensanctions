@@ -257,7 +257,8 @@ country:
         - Oudh State
         - Virgin Islands
         - United States occupation of the Ryukyu Islands
-
+        - Republic of Geneva
+        - County of Mark
       contains:
         - (JVCFOR)
       value: null
@@ -480,6 +481,9 @@ country:
         - Gujarat
       value: India
     - match:
+        - Vanuata
+      value: Vanuatu
+    - match:
         - Republic of Upper Volta (current Burkina Faso)
       value:
         - Burkina Faso
@@ -502,6 +506,9 @@ country:
         - Tunisian passport
         - תוניס
       value: Tunisia
+    - match:
+        - Captaincy General of Cuba
+      value: Cuba
     - match:
         - Possibly Ethiopian
         - エチオピアと思われる
@@ -599,6 +606,8 @@ country:
         - French Third Republic
         - Vichy France
         - Kingdom of France
+        - French First Republic
+        - First French Empire
       value: France
     - match: Saudi Arabian (this aka only, alt Citizenship Yemeni)
       values:
@@ -866,6 +875,7 @@ date:
         - 0009-10-20
         - 0011-09-20
         - 0011-01-20
+        - 0010-10-20
         - "00/00/0"
         - "Approximately (30-35 years old)"
         - "Not yet reviewed"

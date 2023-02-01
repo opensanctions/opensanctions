@@ -27,5 +27,5 @@ publisher:
   official: false
 url: https://www.opensyr.com/
 data:
-  url: https://data.opensanctions.org/contrib/opensyr/sy_obsalytics_opensyr_20230131.json
+  url: https://data.opensanctions.org/contrib/opensyr/sy_obsalytics_opensyr_20230201.json
   format: FTM

@@ -12,7 +12,7 @@ from opensanctions.util import multi_split, remove_bracketed
 
 SPLITS = [" %s)" % char for char in string.ascii_lowercase]
 FORMATS = ["%d/%m/%Y", "%d %b. %Y", "%d %b.%Y", "%d %b %Y", "%d %B %Y"]
-FORMATS = FORMATS + ["%b. %Y", "%d %B. %Y", "%Y"]
+FORMATS = FORMATS + ["%b. %Y", "%d %B. %Y", "%Y", "%m/%Y"]
 
 
 def clean_date(date):
