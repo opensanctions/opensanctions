@@ -82,9 +82,9 @@ def crawl_common(context: Context, entity: Entity, row: Dict[str, Any]):
 
     entity.add("website", url_split(row.pop("link", "")))
     entity.add("innCode", row.pop("itn", None))
-    entity.add("address", row.pop("address_ru", None))
-    entity.add("address", row.pop("address_uk", None))
-    entity.add("address", row.pop("address_en", None))
+    entity.add("address", row.pop("address_ru", None), lang="rus")
+    entity.add("address", row.pop("address_uk", None), lang="ukr")
+    entity.add("address", row.pop("address_en", None), lang="eng")
 
     sanction = h.make_sanction(context, entity)
     sanction.add("startDate", row.pop("sanctions_ua_date", None))
@@ -93,9 +93,9 @@ def crawl_common(context: Context, entity: Entity, row: Dict[str, Any]):
 
     sanction.add("sourceUrl", url_split(row.pop("url_ua", "")))
 
-    sanction.add("reason", row.pop("reasoning_en", None))
-    sanction.add("reason", row.pop("reasoning_ru", None))
-    sanction.add("reason", row.pop("reasoning_uk", None))
+    sanction.add("reason", row.pop("reasoning_en", None), lang="eng")
+    sanction.add("reason", row.pop("reasoning_ru", None), lang="rus")
+    sanction.add("reason", row.pop("reasoning_uk", None), lang="ukr")
 
     row.pop("status", None)
     row.pop("synchron", None)
@@ -121,21 +121,21 @@ def crawl_person(context: Context) -> None:
         name_uk = row.pop("name_uk", None)
         name = name_en or name_ru or name_uk
         entity = context.make("Person")
-        entity.id = context.make_slug("person", person_id, name)
-        entity.add("name", name)
-        entity.add("alias", name_ru)
-        entity.add("alias", name_uk)
+        entity.id = context.make_slug("person", person_id, name or name_en)
+        entity.add("name", name_en, lang="eng")
+        entity.add("name", name_ru, lang="rus")
+        entity.add("name", name_uk, lang="ukr")
         entity.add("birthDate", parse_date(row.pop("date_bd", None)))
         entity.add("deathDate", parse_date(row.pop("date_dead", None)))
         url = f"https://sanctions.nazk.gov.ua/sanction-person/{person_id}/"
         entity.add("sourceUrl", url)
         if row.get("city_bd_en") != "N/A":
-            entity.add("birthPlace", row.pop("city_bd_en", None))
-            entity.add("birthPlace", row.pop("city_bd_ru", None))
-            entity.add("birthPlace", row.pop("city_bd_uk", None))
-        entity.add("position", row.pop("position_en", None))
-        entity.add("position", row.pop("position_ru", None))
-        entity.add("position", row.pop("position_uk", None))
+            entity.add("birthPlace", row.pop("city_bd_en", None), lang="eng")
+            entity.add("birthPlace", row.pop("city_bd_ru", None), lang="rus")
+            entity.add("birthPlace", row.pop("city_bd_uk", None), lang="ukr")
+        entity.add("position", row.pop("position_en", None), lang="eng")
+        entity.add("position", row.pop("position_ru", None), lang="rus")
+        entity.add("position", row.pop("position_uk", None), lang="ukr")
 
         # TODO: emit image
         photo_url = row.pop("photo_name", None)
@@ -146,13 +146,13 @@ def crawl_person(context: Context) -> None:
 
 
 def crawl_company(context: Context) -> None:
-    for row in json_listing(context, context.source.data.url, "person"):
+    for row in json_listing(context, context.source.data.url, "company"):
         row = clean_row(row)
         company_id = row.pop("company_id")
         name_en = row.pop("name_en", None)
-        name = row.pop("name", None) or name_en
+        name = row.pop("name", None)
         entity = context.make("Organization")
-        entity.id = context.make_slug("company", company_id, name)
+        entity.id = context.make_slug("company", company_id, name or name_en)
         if entity.id is None:
             entity.id = context.make_slug(
                 "company",
@@ -161,9 +161,9 @@ def crawl_company(context: Context) -> None:
                 strict=False,
             )
         entity.add("name", name)
-        entity.add("name", name_en)
-        entity.add("name", row.pop("name_uk", None))
-        entity.add("name", row.pop("name_ru", None))
+        entity.add("name", name_en, lang="eng")
+        entity.add("name", row.pop("name_uk", None), lang="ukr")
+        entity.add("name", row.pop("name_ru", None), lang="rus")
         entity.add("innCode", row.pop("inn", None))
         url = f"https://sanctions.nazk.gov.ua/en/sanction-company/{company_id}/"
         entity.add("sourceUrl", url)

@@ -36,6 +36,7 @@ lookups:
         value: innCode
       - match:
           - ОДРН
+          - ОДРНІП
         value: ogrnCode
       - match:
           - ОКПО
