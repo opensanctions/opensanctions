@@ -23,6 +23,7 @@ publisher:
     credit institutions)
   url: https://www.nalog.gov.ru/rn77/service/egrip2/egrip_vzayim/
   country: ru
+  official: true
 collections:
   - default
 config:
