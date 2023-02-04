@@ -36,6 +36,7 @@ publisher:
     for State Registration and Notariat.
   url: https://usr.minjust.gov.ua/
   country: ua
+  official: true
 collections:
   - default
 config:
