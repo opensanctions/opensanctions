@@ -20,6 +20,7 @@ publisher:
     limited companies, and the maintenance of their records.
   url: https://www.gov.uk/government/organisations/companies-house
   country: gb
+  official: true
 collections:
   - default
 config:
