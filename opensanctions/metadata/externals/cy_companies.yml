@@ -26,6 +26,7 @@ publisher:
     Industrial Designs, etc.
   url: https://www.companies.gov.cy/en/
   country: cy
+  official: true
 collections:
   - default
 config:
