@@ -1,12 +1,14 @@
 entry_point: opensanctions.crawlers.nl_most_wanted
-title: "NL Most Wanted"
-prefix: nl-mw
+title: "Netherlands Police Nationale Opsporingslijst (Wanted)"
+prefix: nl-wanted
 summary: |
-  Most wanted list of criminals and fugitives in The Netherlands.
+  The most wanted persons are suspected of serious crimes and are ranked
+  high on the police's hit list.
 description: |
   From the dutch police page [politie](https://www.politie.nl/en/wanted-and-missing/most-wanted):
 
-  > The most wanted persons are suspected of serious crimes and are ranked high on the police's hit list. 
+  > The most wanted persons are suspected of serious crimes and are ranked high on the
+  > police's hit list.
 collections:
   - default
   - crime
