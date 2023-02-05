@@ -1,4 +1,3 @@
-from io import BytesIO
 from lxml import html
 from normality import slugify, collapse_spaces
 from pantomime.types import HTML
@@ -9,7 +8,8 @@ from opensanctions import helpers as h
 FORMATS = ["%d/%b/%Y"]
 REG_NRS = ["(Reg. No:", "(Reg. No.:", "(Reg. No.", "(Trade Register No.:"]
 
-MIRROR_URL = 'https://data.opensanctions.org/contrib/adb_sanctions/data.html'
+MIRROR_URL = "https://data.opensanctions.org/contrib/adb_sanctions/data.html"
+
 
 def crawl(context: Context):
     path = context.fetch_resource("source.html", MIRROR_URL)

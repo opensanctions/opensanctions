@@ -1,7 +1,5 @@
 import json
-from lxml import html
 from pantomime.types import JSON
-from normality import slugify, collapse_spaces
 
 from opensanctions.core import Context
 from opensanctions import helpers as h
