@@ -1,12 +1,11 @@
 entry_point: opensanctions.crawlers.us_cia_world_leaders:crawl
 title: CIA World Leaders
 prefix: us-cia
-disabled: true
 summary: >
   An index of most national-level cabinet members in world governments that
   is publicly maintained by the CIA.
 description: |
-  From the CIA [web site](https://www.cia.gov/resources/world-leaders/):
+  From the CIA [web site](https://www.cia.gov/resources/world-leaders/foreign-governments/):
 
   > The CIA publishes and updates the online directory of World Leaders and
   > Cabinet Members of Foreign Governments weekly. The directory is intended
@@ -27,12 +26,12 @@ description: |
 collections:
   - peps
   - default
-url: https://www.cia.gov/resources/world-leaders/
+url: https://www.cia.gov/resources/world-leaders/foreign-governments/
 publisher:
   name: Central Intelligence Agency (CIA)
   url: https://www.cia.gov/
   country: us
   official: true
 data:
-  url: "https://www.cia.gov/page-data/resources/world-leaders/foreign-governments/page-data.json"
+  url: "https://www.cia.gov/resources/world-leaders/page-data/sq/d/1267501927.json"
   format: JSON
