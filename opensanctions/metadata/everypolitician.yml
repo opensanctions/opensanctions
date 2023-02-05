@@ -1,6 +1,7 @@
 entry_point: opensanctions.crawlers.everypolitician
 title: Every Politician
 prefix: evpo
+disabled: true
 summary: >
   All members of national parliament in the world, collected from hundreds of
   government web sites and consolidated via Wikidata.
@@ -18,6 +19,8 @@ description: |
   EveryPolitician scrapers to update membership data in Wikidata.
 
   The OpenSanctions importer only includes individuals active since the year 2000.
+coverage:
+  end: 2019-05-21
 collections:
   - peps
   - default
