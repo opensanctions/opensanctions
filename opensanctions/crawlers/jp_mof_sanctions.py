@@ -7,12 +7,13 @@ from urllib.parse import urljoin
 from pantomime.types import XLS
 from normality import collapse_spaces, stringify
 from normality.cleaning import decompose_nfkd
-from fingerprints.constants import BRACKETED
 
 from opensanctions.core import Context
 from opensanctions import settings
 from opensanctions import helpers as h
 from opensanctions.util import multi_split
+
+BRACKETED = re.compile(r"(\([^\(\)]*\)|\[[^\[\]]*\])")
 
 SPLITS = ["(%s)" % char for char in string.ascii_lowercase]
 SPLITS = SPLITS + ["（%s）" % char for char in string.ascii_lowercase]
