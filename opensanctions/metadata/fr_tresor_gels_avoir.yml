@@ -32,89 +32,915 @@ data:
 lookups:
   identification:
     lowercase: true
-    normalize: true
     options:
-      - contains:
-          - "1027739019208"
-          - "1027739075891"
-          - "1027739019208"
-        weight: 100
-        prop: notes
+      - match: ""
+        props: {}
+      - match: "Numéro d'enregistrement - Date d'enregistrement : 04/01/1996: 600390798"
+        props:
+          registrationNumber: 600390798
+          incorporationDate: 1996-01-04
+      - match: "Numéro d'enregistrement:: 1209100012648"
+        props:
+          registrationNumber: 1209100012648
+      - match: "OMI: 8514306"
+        props:
+          # imoNumber: 8514306
+          registrationNumber: 8514306
       - match:
-          # why are IMO codes linked to companies?
-          - Numéro OMI
-          - (IOM)
-          - n° OMI
-          - n° OMI de la société
-          - OMI
-        value: registrationNumber
+          "Type d’entité: Unité militaire du Corps des gardiens de la révolution islamique
+          (IRGC)  - Lieu d’enregistrement: Kermanshah, Iran  - Principal lieu d’activité:
+          Iran: /"
+        props:
+          jurisdiction: IR
+          legalForm: Unité militaire du Corps des gardiens de la révolution islamique (IRGC)
       - match:
-          - numéro fédéral Suisse
-        prop: idNumber
+          "Type d'entité: Unité militaire du Corps des gardiens de la révolution islamique
+          (IRGC) - Principal lieu d'activité: Iran: /"
+        props:
+          jurisdiction: IR
+          legalForm: Unité militaire du Corps des gardiens de la révolution islamique (IRGC)
       - match:
-          - Numéro d'enregistrement national
-          - Numéro d'enregistrement
-          - Numéro d’enregistrement
-          - Numéro d'enregistrement - Biélorussie
-          - Numéro d'enregistement
-          - numéro d'enregistrement -
-          - N° d'enregistrement
-          - "Numéro d'enregistrement: Dana Astra"
-          - "date de constitution: le 04/07/2000"
-          - (BVI)
-          - Suisse
-          - PSRN
-        contains:
-          - n° d'inscription au registre de commerce
-          - en sous-préfecture
-          - numéro d'identification d'entreprise
-          - numéro d'enregistrement - société à
-          - US Federal Employer Identification Number
-          - Déclarée en préfecture
-          - Immatriculé sous le numéro
-          - Immatriculée sous le numéro
-          - n° d'enregistrement national
-          - "Date d’enregistrement"
-          - "Numéro d'enregistrement - lieu d'enregistrement : Fédération de Russie"
-        prop: registrationNumber
+          "Type d'entité: Unité militaire du Corps des gardiens de la révolution islamique
+          (IRGC) - Lieu d'enregistrement: Mazandaran, Iran - Principal lieu d'activité:
+          Iran: /"
+        props:
+          jurisdiction: IR
+          legalForm: Unité militaire du Corps des gardiens de la révolution islamique (IRGC)
       - match:
-          - "Type d’entité: société par actions. Principal établissement: Russie"
-        prop: legalForm
+          "numéro d'enregistrement - société à responsabilité limitée par actions
+          enregistrée à Yangon, Myanmar/Birmanie, fondée en 1997 sous la forme d'un entreprise
+          d'État, enregistrée en tant qu'entreprise privée le 9 janvier 2019: 105444192"
+        props:
+          jurisdiction: Myanmar
+          legalForm: société à responsabilité limitée par actions
+          incorporationDate: 2019-01-09
+          registrationNumber: 105444192
       - match:
-          - Numéro d'identification fiscale (INN)
-          - Immatriculation Russie
-          - Numéro d'enregistrement - Russie
-          - Numéro d'enregistrement- Russie
-          - INN
-        prop: innCode
+          "Lieu d'enregistrement: str. Fadeeva, 7 bâtiment 1, bureau 2, 125047, Moscou,
+          Fédération de Russie. Date d'enregistrement: 27.8.2015. Numéro d'identification
+          fiscale: 9710001943. Numéro d'immatriculation national: 1157700015065: 1157700015065"
+        props:
+          jurisdiction: ru
+          innCode: 9710001943
+          address: str. Fadeeva, 7 bâtiment 1, bureau 2, 125047, Moscou, Fédération de Russie
+          incorporationDate: 2015-08-27
+          ogrnCode: 1157700015065
       - match:
-          - N ° d'identification fiscale
-          - Numéro d'identification fiscale
-          - Numéro de taxe nationale pakistanaise
-          - numéro d'identification fiscal
-        contains:
-          - n° d'identification fiscale
-        prop: taxNumber
+          "Numéro d’enregistrement  - Date d’enregistrement: 2019  - Lieu d’enregistrement:
+          Téhéran, Iran  - Principal établissement: Deuxième étage, n° 36 rue Naqdi, rue
+          Sohrevardi nord, quartier de Shahid Ghandi-Niloufar, Téhéran, Iran: 49135"
+        props:
+          jurisdiction: ir
+          registrationNumber: 49135
+          address: sDeuxième étage, n° 36 rue Naqdi, rue Sohrevardi nord, quartier de Shahid Ghandi-Niloufar, Téhéran, Iran
+          incorporationDate: 2019
+      - match: "Numéro d’enregistrement - Date d’enregistrement : 14.9.1994: 100717729"
+        props:
+          registrationNumber: 100717729
+          incorporationDate: 1994-09-14
       - match:
-          - Immatriculation (numéro OGRN)
-        schema: Company
-        prop: ogrnCode
+          "Type d’entité: Unité militaire du Corps des gardiens de la révolution islamique
+          (IRGC)  - Principal lieu d’activité: Iran: /"
+        props:
+          jurisdiction: IR
+          legalForm: Unité militaire du Corps des gardiens de la révolution islamique (IRGC)
       - match:
-          - KPP
-        schema: Company
-        prop: kppCode
+          "Type d’entité: société par actions. Lieu d’enregistrement: Fédération de
+          Russie. Date d’enregistrement: 6.6.2003. Numéro d’enregistrement: 1031632202227.
+          Principal établissement: Russie: uméro d’enregistrement: 1031632202227"
+        props:
+          jurisdiction: ru
+          incorporationDate: 2003-06-06
+          ogrnCode: 1031632202227
+      - match: "n° d'enregistrement national, Date d'enregistrement : 08/05/2014: 1147746527279"
+        props:
+          registrationNumber: 1147746527279
+          incorporationDate: 2014-05-08
+      - match: "n° d'identification fiscale: 7704863782"
+        props:
+          taxNumber: 7704863782
       - match:
-          - SWIFT/BIC
-          - SWIFT
-          - SWIFT/BIC (Libye)
-        schema: Company
-        prop: swiftBic
+          "Lieu d’enregistrement: Saint-Pétersbourg, Fédération de Russie (boîte postale
+          128, Saint-Pétersbourg 197022). Date d’enregistrement: 2002: Date d’enregistrement:
+          2002"
+        props:
+          incorporationDate: 2002
+          address: Saint-Pétersbourg, Fédération de Russie (boîte postale 128, Saint-Pétersbourg 197022)
+          jurisdiction: ru
+      - match: "Numéro d’enregistrement - Date d’enregistrement : 9.6.1999: 101561144"
+        props:
+          registrationNumber: 101561144
+          incorporationDate: 1999-06-09
+      - match: "numéro d'enregistrement: 1159102130857"
+        props:
+          registrationNumber: 1159102130857
+      - match: "Numéro d'identification - Date d'enregistrement : 10/01/1994: 700016217"
+        props:
+          registrationNumber: 700016217
+          incorporationDate: 1994-01-10
       - match:
-          - ""
-        contains:
-          - Secteur d'activité
-          - Val-d'Oise
-          - licence afghan de fournisseur
-          - Créé sous le nom
-          - Déclaré en préfecture
-        prop: notes
+          "Type d’entité: Unité militaire du Corps des gardiens de la révolution islamique
+          (IRGC) - Lieu d’enregistrement: Lorestan, Iran - Principal lieu d’activité: Iran:
+          /"
+        props:
+          jurisdiction: IR
+          legalForm: Unité militaire du Corps des gardiens de la révolution islamique (IRGC)
+      - match:
+          "Type d’entité: Unité militaire du Corps des gardiens de la révolution islamique
+          (IRGC) - Lieu d’enregistrement: Kurdistan, Iran - Principal lieu d’activité: Iran:
+          /"
+        props:
+          jurisdiction: IR
+          legalForm: Unité militaire du Corps des gardiens de la révolution islamique (IRGC)
+      - match: "numéro d'enregistrement: 10540976"
+        props:
+          registrationNumber: 10540976
+      - match:
+          "Type d’entité: Unité militaire du Corps des gardiens de la révolution islamique
+          (IRGC)  - Lieu d’enregistrement: Sistan et Baloutchistan, Iran - Principal lieu
+          d’activité: Iran: /"
+        props:
+          jurisdiction: IR
+          legalForm: Unité militaire du Corps des gardiens de la révolution islamique (IRGC)
+      - match:
+          "Type d’entité: société à responsabilité limitée. Lieu d’enregistrement:
+          Région de Volgograd, Volgograd, Fédération de Russie. Date d’enregistrement: 28.11.2002.
+          Numéro d’enregistrement: 1023402461752. Principal établissement: Russie: Numéro
+          d’enregistrement: 1023402461752"
+        props:
+          jurisdiction: ru
+          address: Région de Volgograd, Volgograd, Fédération de Russie
+          incorporationDate: 2002-11-28
+          ogrnCode: 1023402461752
+      - match:
+          "Lieu d'enregistrement : Moscou - Date d'enregistrement : 2001 - Principal
+          établissement : Fédération de Russie - Entités associées : GTLK Europe, GTLK Asia,
+          GTLK Middle East: Société de transport"
+        props:
+          jurisdiction: ru
+          incorporationDate: 2001
+          notes: "Entités associées : GTLK Europe, GTLK Asia, GTLK Middle East: Société de transport"
+      - match: "Numéro d'enregistrement national: 1027739167246"
+        props:
+          registrationNumber: 1027739167246
+      - match: "Numéro d'identification fiscale: 7701045732"
+        props:
+          taxNumber: 7701045732
+      - match: "N° d'enregistrement: 1157746088170"
+        props:
+          registrationNumber: 1157746088170
+      - match: "N ° d'identification fiscale: 7730018980"
+        props:
+          taxNumber: 7730018980
+      - match: "SWIFT: ILSIKPPY"
+        props:
+          swiftBic: ILSIKPPY
+      - match: "(IOM): 59058C"
+        props:
+          # imoNumber: 59058C
+          registrationNumber: 59058C
+      - match:
+          "Numéro d'enregistrement  - lieu d'enregistrement : Fédération de Russie  -
+          société par actions - Principal établissement: Moscou, Fédération de Russie: 621628"
+        props:
+          jurisdiction: ru
+          registrationNumber: 621628
+      - match: "SWIFT/BIC (Libye): AGRULYLT "
+        props:
+          swiftBic: AGRULYLT
+      - match: "Numéro OMI: 5905801"
+        props:
+          # imoNumber: 5905801
+          registrationNumber: 5905801
+      - match:
+          "Type d’entité: société par actions. Lieu d’enregistrement: Région de Bryansk,
+          Bryansk, Fédération de Russie. Date d’enregistrement: 4.4.2008. Numéro d’enregistrement:
+          1083254005141. Principal établissement: Russie: Numéro d’enregistrement: 1083254005141"
+        props:
+          jurisdiction: ru
+          address: Région de Bryansk, Bryansk, Fédération de Russie
+          incorporationDate: 2008-04-04
+          ogrnCode: 1083254005141
+      - match: "Immatriculation (numéro OGRN): 1149102007933"
+        props:
+          ogrnCode: 1149102007933
+      - match: "Numéro d'identification fiscale (INN): 9102006047"
+        props:
+          innCode: 9102006047
+      - match:
+          "Type d’entité: Forces de police  - Lieu d’enregistrement: Iran  - Principal
+          lieu d’activité: Iran: /"
+        props:
+          jurisdiction: IR
+          legalForm: Forces de police
+      - match: "Numéro d’enregistrement: 191295361"
+        props:
+          registrationNumber: 191295361
+      - match: "Numéro d'enregistement: 1159102026742"
+        props:
+          registrationNumber: 1159102026742
+      - match:
+          "Numéro d'enregistrement - Date d'enregistrement: 13.9.2013 - Société par
+          actions: 192050251"
+        props:
+          incorporationDate: 2013-09-13
+          registrationNumber: 192050251
+          legalForm: Société par actions
+      - match: "Numéro d'enregistrement - Date d'enregistrement : 10.10.2002: 808000714"
+        props:
+          registrationNumber: 808000714
+          incorporationDate: 2002-10-10
+      - match: "n° d'identification “US Federal Employer Identification Number”: 36-3804626"
+        props:
+          jurisdiction: US
+          registrationNumber: 36-3804626
+      - match:
+          "Type d'entité: société anonyme publique - Lieu d'enregistrement: 19 rue
+          Vavilova, 117997 Moscou, Fédération de Russie. Date d'enregistrement: 22.3.1991:
+          Numéro d'enregistrement: 1027700132195"
+        props:
+          jurisdiction: ru
+          ogrnCode: 1027700132195
+          incorporationDate: 1991-03-22
+          address: 19 rue Vavilova, 117997 Moscou, Fédération de Russie
+      - match: "Numéro d'enregistrement national: 1149102028602"
+        props:
+          registrationNumber: 1149102028602
+      - match: "Numéro d'identification fiscale: 9111001119"
+        props:
+          taxNumber: 9111001119
+      - match: "numéro d'enregistrement: 1149204004707"
+        props:
+          registrationNumber: 1149204004707
+      - match:
+          "Numéro d’enregistrement - Date d’enregistrement: 1992 - Société par actions
+          ouverte: 300042199"
+        props:
+          registrationNumber: 300042199
+          incorporationDate: 1992
+          legalForm: Société par actions ouverte
+      - match: "Numéro d'enregistrement: 193299162"
+        props:
+          registrationNumber: 193299162
+      - match:
+          "Date d'enregistrement: 31.8.2007: Type d'entité: agence du gouvernement
+          fédéral russe"
+        props:
+          jurisdiction: ru
+          incorporationDate: 2007-08-31
+          legalForm: agence du gouvernement fédéral russe
+      - match: "Numéro d'enregistrement: 1027700381290"
+        props:
+          registrationNumber: 1027700381290
+      - match:
+          "Type d’entité: Unité militaire du Corps des gardiens de la révolution islamique
+          (IRGC)  - Lieu d’enregistrement: Azerbaïdjan occidental, Iran - Principal lieu
+          d’activité: Iran: /"
+        props:
+          jurisdiction: IR
+          legalForm: Unité militaire du Corps des gardiens de la révolution islamique (IRGC)
+      - match: "Numéro d'enregistrement  - Date d'enregistrement : 1965: 500036524"
+        props:
+          incorporationDate: 1965
+          registrationNumber: 500036524
+      - match: "Numéro d'enregistrement - Date d'enregistrement : 12.05.2000: 590046884"
+        props:
+          incorporationDate: 2000-05-12
+          registrationNumber: 590046884
+      - match:
+          "Lieu d'enregistrement: Degtyarnyy - Pereulok, 11a, Saint Pétersbourg, 191144,
+          - Fédération de Russie - Date d'enregistrement: 17.10.1990 - Numéro d'enregistrement:
+          1027739609391 - Personnes associées: Andrei Leonidowitsch KOSTIN (président du
+          conseil de direction); Anton SILUANOV (président du conseil de surveillance) -
+          Entité associée: Agence fédérale pour la gestion des biens publics (la subdivision
+          du ministère russe du développement économique est l'un des principaux actionnaires):
+          Société anonyme publique"
+        note: true
+        props:
+          jurisdiction: ru
+          address: Degtyarnyy - Pereulok, 11a, Saint Pétersbourg, 191144, Fédération de Russie
+          incorporationDate: 1990-10-17
+          registrationNumber: 1027739609391
+      - match: "Numéro d'enregistrement national: 1037828021660"
+        props:
+          registrationNumber: 1037828021660
+      - match: "Numéro d'identification fiscale: 7826717210"
+        props:
+          taxNumber: 7826717210
+      - match: "Numéro d'enregistrement: 1149102099717"
+        props:
+          registrationNumber: 1149102099717
+      - match: "Numéro d'enregistrement: 192363182"
+        props:
+          registrationNumber: 192363182
+      - match: "Numéro de taxe nationale pakistanaise: 1774308"
+        props:
+          taxNumber: 1774308
+          jurisdiction: PK
+      - match: "numéro de taxe nationale pakistanaise: 0980338"
+        props:
+          taxNumber: 0980338
+          jurisdiction: PK
+      - match: "numéro de taxe nationale pakistanaise: 3187777"
+        props:
+          taxNumber: 3187777
+          jurisdiction: PK
+      - match: "numéro de licence afghan de fournisseur de services monétaires: 044"
+        props:
+          registrationNumber: 044
+      - match: "Numéro d'enregistrement: 1179102021460"
+        props:
+          registrationNumber: 1179102021460
+      - match: "date de constitution : le 04/07/2000: 394678"
+        props:
+          registrationNumber: 394678
+          incorporationDate: 2000-07-04
+      - match:
+          "Type d’entité: société par actions cotée. Lieu d’enregistrement: Fédération
+          de Russie. Date d’enregistrement: 1992. Numéro d’enregistrement: 1027739555282.
+          Principal établissement: Fédération de Russie: Numéro d’enregistrement: 1027739555282"
+        props:
+          legalForm: société par actions cotée
+          jurisdiction: ru
+          incorporationDate: 1992
+          ogrnCode: 1027739555282
+      - match:
+          "Type d’entité: Unité militaire du Corps des gardiens de la révolution islamique
+          (IRGC) - Lieu d’enregistrement: Khuzestan, Iran - Principal lieu d’activité: Iran:
+          /"
+        props:
+          jurisdiction: IR
+          legalForm: Unité militaire du Corps des gardiens de la révolution islamique (IRGC)
+      - match: "SWIFT/BIC: KUDBKPPY"
+        props:
+          swiftBic: KUDBKPPY
+      - match: "déclarée le 9 janvier 2010 à la préfecture du Val-d'Oise: W952001402"
+        props:
+          registrationNumber: W952001402
+          incorporationDate: 2010-01-09
+      - match: "Numéro d'enregistrement: 690611860"
+        props:
+          registrationNumber:
+      - match: "Numéro d'enregistrement - Date d'enregistrement : 25/02/1966: 400051902"
+        props:
+          registrationNumber:
+      - match:
+          "n° d'enregistrement national - Date d'enregistrement : 31.01.1994 - En
+          cours de liquidation - Liquidateur: Alexey Anatolievich Ananyev: 1037739044111"
+        props:
+          registrationNumber: 1037739044111
+          incorporationDate: 1994-01-31
+          status: "En cours de liquidation - Liquidateur: Alexey Anatolievich Ananyev"
+      - match: "n° d'identification fiscale: 7725056162"
+        props:
+          taxNumber: 7725056162
+      - match: "n° d'enregistrement national  à la date du  27/07/1992: 1067746244026"
+        props:
+          registrationNumber: 1067746244026
+          incorporationDate: 1992-07-27
+      - match: "numéro d'identification fiscal: 7705713236"
+        props:
+          taxNumber: 7705713236
+      - match:
+          "Type d’entité: Constructeur aérospatial - Établissement public - Lieu d’enregistrement:
+          Ispahan, Iran - Date d’enregistrement: 1977: /"
+        props:
+          jurisdiction: ir
+          incorporationDate: 1977
+      - match: "Numéro d'enregistrement  - Date d'enregistrement: 12/08/2003: 100726604"
+        props:
+          registrationNumber: 100726604
+          incorporationDate: 2003-08-12
+      - match:
+          "Date d'enregistrement: 15.12.1999 - Numéro d'enregistrement: 1027739019208
+          - Numéro d'identification fiscale: 7706092528 - SWIFT/BIC: JSNMRUMM - Personne
+          associée: Igor Finogenov, cofondateur (aujourd'hui PDG de la Banque eurasienne
+          de développement) - Associés: Banque centrale de Russie; gouvernement de la Fédération
+          de Russie: société anonyme  publique"
+        note: true
+        props:
+          incorporationDate: 1999-12-15
+          registrationNumber: 1027739019208
+          taxNumber: 7706092528
+          swiftBic: JSNMRUMM
+      - match:
+          "Secteur d'activité : import/export ; transport routier ; fourniture de
+          pétrole et de marchandises .Nom du directeur/direction : Hussam AL-QATIRJI, directeur
+          général -  Parents/associés/entités ou partenaires d'affaires/liens : Arvada/Arfada
+          Petroleum Company JSC: entreprise privée"
+        note: true
+      - match:
+          "Type d’entité: fournisseur de sécurité physique, entreprise privée  - Principal
+          établissement: Iran: /"
+        props:
+          jurisdiction: ir
+          sector: fournisseur de sécurité physique
+          legalForm: entreprise privée
+      - match:
+          "Lieu d'enregistrement: Moscou, Fédération de Russie - Numéro d'enregistrement:
+          1027739075891 - Personnes associées: Georgieva Elena ALEKSANDROVNA (présidente
+          du conseil de direction) - Andrey Valeryevich KONDRATYEV (président du conseil
+          d'administration) - Entité associée: Rostec (société d'État russe du domaine
+          des technologies): Banque commerciale anonyme"
+        note: true
+        props:
+          registrationNumber: 1027739075891
+      - match: "n° d'inscription au registre de commerce (Royaume-Uni): 02150590"
+        props:
+          registrationNumber: 02150590
+          jurisdiction: GB
+      - match: "Numéro d'enregistrement - Date d'enregistrement : 18/10/2016: 192721937"
+        props:
+          registrationNumber: 192721937
+          incorporationDate: 2016-10-18
+      - match: "(BVI): 1534407"
+        props:
+          registrationNumber: 1534407
+          jurisdiction: BVI
+      - match: "Numéro d'enregistrement: 691598938"
+        props:
+          registrationNumber: 691598938
+      - match: "SWIFT/BIC: KDBKKPPY"
+        props:
+          swiftBic: KDBKKPPY
+      - match:
+          "Type d’entité: société à responsabilité limitée. Lieu d’enregistrement:
+          rue Bolshaya Polyanka, 50/1 STR.1, 119180, Moscou, Russie. Date d’enregistrement:
+          21.2.2005. Numéro d’enregistrement: 1057746290469. Numéro d’identification du
+          contribuable: 7706569306. Principal établissement: Moscou, Russie: Numéro d’enregistrement:
+          1057746290469"
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          ogrnCode: 1057746290469
+          incorporationDate: 2005-02-21
+          innCode: 7706569306
+          address: rue Bolshaya Polyanka, 50/1 STR.1, 119180, Moscou, Russie
+      - match: "SWIFT/BIC: CMSYSYDA"
+        props:
+          swiftBic: CMSYSYDA
+      - match:
+          "Type d'entité: société à responsabilité limitée. Lieu d'enregistrement:
+          passage piéton, propriété 3. bâtiment 2, 125373, Moscou, Fédération de Russie.
+          Date d'enregistrement: 10.12.2021; Numéro d'enregistrement: 1217700605209: 1217700605209"
+        props:
+          incorporationDate: 2021-12-10
+          ogrnCode: 1217700605209
+          legalForm: société à responsabilité limitée
+          address: passage piéton, propriété 3. bâtiment 2, 125373, Moscou, Fédération de Russie
+          jurisdiction: ru
+      - match:
+          "Type d’entité: société par actions. Date d’enregistrement: 26.9.2011. Lieu
+          d’enregistrement: région de Nizhny Novgorod, Russie. Principal établissement:
+          Russie: Date d’enregistrement: 26.9.2011"
+        props:
+          incorporationDate: 2011-09-26
+          legalForm: société par actions
+          address: région de Nizhny Novgorod, Russie
+          jurisdiction: ru
+      - match: "OMI: 9036387"
+        props:
+          # imoNumber: 9036387
+          registrationNumber: 9036387
+      - match:
+          "numéro d'enregistrement - société anonyme enregistrée à Yangon, Myanmar/
+          Birmanie, le 27/04/1990: 156387282"
+        props:
+          registrationNumber: 156387282
+          jurisdiction: Myanmar
+          incorporationDate: 1990-04-27
+      - match:
+          "Numéro d'enregistrement - Date d'enregistrement: 26.12.2016/03.04.2017:
+          192750964"
+        props:
+          registrationNumber: 192750964
+          incorporationDate: 2016-12-26
+      - match:
+          "Lieu d'enregistrement: Fédération de Russie, 119019, Moscou, rue Vozdvizhenka
+          18/9. Date d'enregistrement: 6.9.2008: Type d'entité: agence du gouvernement
+          fédéral russe"
+        props:
+          address: Fédération de Russie, 119019, Moscou, rue Vozdvizhenka 18/9
+          incorporationDate: 2008-09-06
+          legalForm: agence du gouvernement fédéral russe
+      - match: "Numéro d'enregistrement: 1027739001993"
+        props:
+          registrationNumber: 1027739001993
+      - match: "SWIFT: DCBK KPPY"
+        props:
+          swiftBic: DCBKKPPY
+      - match:
+          "Type d’entité: société par actions. Principal établissement: Russie: Société
+          par actions"
+        props:
+          legalForm: société par actions
+          jurisdiction: ru
+      - match:
+          "Numéro d'enregistrement - Date d'enregistrement : 01/02/1994 - 06/03/2000:
+          100135173"
+        props:
+          registrationNumber: 100135173
+          incorporationDate: 1994-02-01
+      - match: "n° OMI de la société: 5434358"
+        props:
+          # imoNumber: 9036387
+          registrationNumber: 9036387
+      - match: "Numéro d'enregistrement: 193402282"
+        props:
+          registrationNumber: 193402282
+      - match: "Immatriculation (numéro OGRN): 1027809210054"
+        props:
+          ogrnCode: 1027809210054
+      - match: "Numéro d'identification fiscale (INN): 7825064262"
+        props:
+          innCode: 7825064262
+      - match: "Numéro d'enregistrement: 1149102054221"
+        props:
+          registrationNumber: 1149102054221
+      - match:
+          "Numéro de pièce nationale d’identité (Iran)  - Numéro d’inscription au registre
+          du commerce: 369541 (Iran) - Principal établissement: Iran  - Type d’entité: société
+          privée  - Lieu d’enregistrement: Iran  - Date d’enregistrement: 2010: 103201991293"
+        props:
+          registrationNumber:
+            - 103201991293
+            - 369541
+          legalForm: société privée
+          incorporationDate: 2010
+          jurisdiction: ir
+      - match:
+          "Type d’entité: société par actions. Lieu d’enregistrement: Oblast de Tcheliabinsk,
+          Fédération de Russie. Date d’enregistrement: 22.6.2000. Numéro d’enregistrement:
+          1027400870826. Principal établissement: Russie: Numéro d’enregistrement: 1027400870826"
+        props:
+          legalForm: société par actions
+          registrationNumber: 1027400870826
+          jurisdiction: ru
+          incorporationDate: 2000-06-22
+      - match:
+          "Type d’entité: société par actions cotée. Lieu d’enregistrement: str. M.
+          Gorky 6, 300002, city of Tula, Tula region, Fédération de Russie. Date d’enregistrement:
+          23.9.2002. Numéro d’enregistrement national: 1027100517256. Numéro d’identification
+          fiscale: 7103028233: Numéro d’enregistrement national: 1027100517256"
+        props:
+          legalForm: société par actions cotée
+          address: str. M. Gorky 6, 300002, city of Tula, Tula region, Fédération de Russie
+          jurisdiction: ru
+          innCode: 7103028233
+          ogrnCode: 1027100517256
+      - match:
+          "Numéro d'enregistrement - Date d'enregistrement : 30.12.1996 - Société
+          par actions ouverte: 500047627"
+        props:
+          legalForm: Société par actions ouverte
+          incorporationDate: 1996-12-30
+          registrationNumber: 500047627
+      - match:
+          "Type d’entité: société anonyme. Lieu d’enregistrement: Votkinsk, République
+          d’Oudmurtie, Russie. Date d’enregistrement: 1.10.2010. Numéro d’enregistrement:
+          ИНН/Numéro d’identification fiscale: 1828020110. ОГРН/Numéro d’enregistrement
+          national principal: 1101828001000. Principal établissement: Russie: Numéro d’enregistrement:
+          ИНН"
+        props:
+          legalForm: société anonyme
+          address: Votkinsk, République d’Oudmurtie, Russie
+          incorporationDate: 2010-10-01
+          innCode: 1828020110
+          ogrnCode: 1101828001000
+          jurisdiction: ru
+      - match:
+          "Type d’entité: société par actions cotée. Date d’enregistrement: 16.8.2002.  Lieu
+          d’enregistrement: Tula, Russie. Numéro d’enregistrement: 1027100592210. Principal
+          établissement: Russie: Numéro d’enregistrement: 1027100592210"
+        props:
+          legalForm: société par actions cotée
+          incorporationDate: 2002-08-16
+          jurisdiction: ru
+          ogrnCode: 1027100592210
+      - match: "Immatriculation (numéro OGRN): 1159102022738"
+        props:
+          ogrnCode: 1159102022738
+      - match: "Numéro d'identification fiscale (INN): 9102157783"
+        props:
+          innCode: 9102157783
+      - match: "Lieu d’enregistrement: Téhéran, Iran: /"
+        props:
+          jurisdiction: ir
+      - match: "Numéro d'enregistrement: 192695465"
+        props:
+          registrationNumber:
+      - match:
+          "Secteur d'activité: promotion immobilière: entreprise publique de droit
+          privé"
+        note: true
+      - match:
+          "Type d’entité: société par actions. Lieu d’enregistrement: Nijni Novgorod,
+          Russie. Date d’enregistrement: 26.8.2014. Numéro d’enregistrement: ИНН/Numéro
+          d’identification fiscale: 5259113339 ОГРН/Numéro d’enregistrement national principal:
+          1145259004296 Principal établissement: Russie: Numéro d’enregistrement: ИНН"
+        props:
+          legalForm: société par actions
+          address: Nijni Novgorod, Russie
+          incorporationDate: 2014-08-26
+          innCode: 5259113339
+          ogrnCode: 1145259004296
+          jurisdiction: ru
+      - match:
+          "Date d'enregistrement:  01.09.2014 - Numéro d'enregistrement: 1144400000425
+          - Numéro d'identification fiscale: 4401116480 - Entité associée: gouvernement
+          de la Fédération de Russie: Société anonyme publique"
+        props:
+          incorporationDate: 2014-09-01
+          ogrnCode: 1144400000425
+          innCode: 4401116480
+          legalForm: Société anonyme publique
+      - match:
+          "Type d'entité: société par actions. Date d'enregistrement: 23.4.2002.
+          Principal établissement: Russie: société par actions"
+        props:
+          incorporationDate: 2002-04-23
+          legalForm: société par actions
+      - match: "Numéro d'identification fiscale: 9111000450"
+        props:
+          taxNumber: 9111000450
+      - match: "Numéro d'enregistrement national: 1149102012620"
+        props:
+          registrationNumber: 1149102012620
+      - match: "Suisse: CH-2 17-0-431-423-3"
+        props:
+          registrationNumber: CH-2 17-0-431-423-3
+          jurisdiction: ch
+      - match:
+          "Numéro d'enregistrement - date d'enregistrement 23.12.1996 - Société par
+          actions ouverte: 600122610"
+        props:
+          registrationNumber: 600122610
+          incorporationDate: 1996-12-23
+          legalForm: Société par actions ouverte
+      - match: "Immatriculation Russie: 1037804006811"
+        props:
+          ogrnCode: 1037804006811
+      - match: "N ° d'identification fiscale: 7802059185"
+        props:
+          taxNumber: 7802059185
+      - match:
+          "Type d’entité: Unité militaire du Corps des gardiens de la révolution islamique
+          (IRGC)  - Lieu d’enregistrement: Gilan, Iran  - Principal lieu d’activité: Iran:
+          /"
+        props:
+          jurisdiction: IR
+          legalForm: Unité militaire du Corps des gardiens de la révolution islamique (IRGC)
+      - match: "Numéro d'enregistrement national: 1077762942212"
+        props:
+          registrationNumber: 1077762942212
+      - match: "Numéro d'identification fiscale: 7729588440"
+        props:
+          taxNumber: 7729588440
+      - match: "INN: 9729299794"
+        props:
+          innCode: 9729299794
+      - match: "PSRN: 1207700324941"
+        props:
+          registrationNumber: 1207700324941
+      - match: "KPP: 772901001"
+        props:
+          registrationNumber: 772901001
+      - match:
+          "Type d’entité: Unité militaire du Corps des gardiens de la révolution islamique
+          (IRGC) - Lieu d’enregistrement: Téhéran, Iran  - Principal lieu d’activité: Iran:
+          /"
+        props:
+          jurisdiction: IR
+          legalForm: Unité militaire du Corps des gardiens de la révolution islamique (IRGC)
+      - match:
+          "Type d’entité: société par actions. Date d’enregistrement: 6.8.1994. Numéro
+          d’enregistrement: 1022501797064. Principal établissement: Russie: Numéro d’enregistrement:
+          1022501797064"
+        props:
+          legalForm: société par actions
+          incorporationDate: 1994-08-06
+          ogrnCode: 1022501797064
+          jurisdiction: ru
+      - match:
+          "Type d’entité: institution gouvernementale  - Lieu d’enregistrement: Iran
+          - Principal établissement: Iran: /"
+        props:
+          jurisdiction: ir
+          legalForm: institution gouvernementale
+      - match: "numéro d'identification d'entreprise (États-Unis d'Amérique): 36-3823186"
+        props:
+          jurisdiction: us
+          registrationNumber: 36-3823186
+      - match:
+          "Type d’entité: société par actions cotée. Lieu d’enregistrement: Perm, Fédération
+          de Russie. Date d’enregistrement: 11.12.1992. Numéro d’enregistrement: 1025901364708.
+          Principal établissement: Russie: Numéro d’enregistrement: 1025901364708"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions cotée
+          incorporationDate: 1992-12-11
+          ogrnCode: 1025901364708
+      - match:
+          "Numéro d’enregistrement - Date d’enregistrement: 13.8.1991 - Société par
+          actions ouverte: 100205408"
+        props:
+          legalForm: Société par actions ouverte
+          registrationNumber: 100205408
+      - match:
+          "Type d’entité: entreprise unitaire publique fédérale. Lieu d’enregistrement:
+          Pokhodnyy Proyezd 3- 2, 125373, Moscou, Russie. Date d’enregistrement: 14.10.2002.
+          Numéro d’enregistrement: 1027700310076. Principal établissement: Moscou, Russie:
+          Numéro d’enregistrement: 1027700310076"
+        props:
+          legalForm: entreprise unitaire publique fédérale
+          address: Pokhodnyy Proyezd 3- 2, 125373, Moscou, Russie
+          incorporationDate: 2002-10-14
+          jurisdiction: ru
+          ogrnCode: 1027700310076
+      - match:
+          "Type d’entité: société à responsabilité limitée. Lieu d’enregistrement:
+          str. Butlerova, 13, letter A, room. 20Н, 195256, St. Petersburg, Fédération de
+          Russie. Date d’enregistrement: 10.10.1997. Numéro d’enregistrement national: 1027802486580.Numéro
+          d’identification fiscale: 7804070635: Numéro d’enregistrement national: 1027802486580"
+        props:
+          legalForm: société à responsabilité limitée
+          address: str. Butlerova, 13, letter A, room. 20Н, 195256, St. Petersburg, Fédération de Russie
+          incorporationDate: 1997-10-10
+          ogrnCode: 1027802486580
+          innCode: 7804070635
+      - match:
+          "Type d’entité: Unité militaire du Corps des gardiens de la révolution islamique
+          (IRGC) - Principal lieu d’activité: Iran: /"
+        props:
+          legalForm: Unité militaire du Corps des gardiens de la révolution islamique (IRGC)
+          jurisdiction: IR
+      - match: "(BVI): 1510484"
+        props:
+          registrationNumber: 1510484
+          jurisdiction: BVI
+      - match:
+          "Type d'entité: organisation non gouvernementale. Lieu d'enregistrement:
+          Moscou. Date d'enregistrement: février 2010: Numéro d'enregistrement: 1107799026752"
+        props:
+          registrationNumber: 1107799026752
+          legalForm: organisation non gouvernementale
+          jurisdiction: ru
+      - match: "n° d'inscription au registre de commerce: 02142819"
+        props:
+          registrationNumber: 02142819
+      - match: "n° OMI: 5342883"
+        props:
+          # imoNumber: 5342883
+          registrationNumber: 5342883
+      - match: "Numéro d'enregistrement - Biélorussie: 190950894"
+        props:
+          innCode: 190950894
+          jurisdiction: by
+      - match: "Numéro d'enregistrement - Russie: 7704734000"
+        props:
+          innCode: 7704734000
+          jurisdiction: ru
+      - match: "Numéro d'enregistrement- Russie: 770301001"
+        props:
+          innCode: 7704734000
+          jurisdiction: ru
+      - match: "Immatriculation (numéro OGRN): 1121402000213"
+        props:
+          ogrnCode: 7704734000
+          jurisdiction: ru
+      - match: "Numéro d'identification fiscale (INN): 1402015986"
+        props:
+          innCode: 7704734000
+          jurisdiction: ru
+      - match:
+          "Type d’entité: société par actions. Lieu d’enregistrement: Fédération de
+          Russie. Date d’enregistrement: 20.11.1990. Numéro d’enregistrement: 1022500000786.
+          Principal établissement: Fédération de Russie: Numéro d’enregistrement: 1022500000786"
+        props:
+          registrationNumber: 1022500000786
+          jurisdiction: ru
+          incorporationDate: 1990-11-20
+          legalForm: société par actions
+      - match:
+          "Numéro d'enregistrement - Lieu d'enregistrement: Fédération de Russie
+          - Date d'enregistrement:22.9.2008 - Principal établissement: Fédération de Russie:
+          5087746137023"
+        props:
+          registrationNumber: 5087746137023
+          jurisdiction: ru
+          incorporationDate: 2008-09-22
+      - match:
+          "Lieu d’enregistrement: Téhéran, Iran - Principal établissement: Téhéran,
+          n° 22 rue Khorramshahr Téhéran, rue Shohvardi nord, rue Korramshahr, numéro 24,
+          1er étage: /"
+        props:
+          jurisdiction: IR
+          address: Téhéran, n° 22 rue Khorramshahr Téhéran, rue Shohvardi nord, rue Korramshahr, numéro 24, 1er étage
+      - match:
+          "Type d’entité: société par actions Date d’enregistrement: 1.2.2008. Numéro
+          d’enregistrement: 1087746152207. Numéro d’identification fiscale: 7704676655:
+          Numéro d’enregistrement: 1087746152207"
+        props:
+          legalForm: société par actions
+          incorporationDate: 2008-02-01
+          registrationNumber: 1087746152207
+          taxNumber: 7704676655
+      - match: "Numéro d'enregistrement: 1209100012648"
+        props:
+          registrationNumber: 1209100012648
+      - match: "Date d’enregistrement: 2002"
+        props:
+          incorporationDate: 2002
+      - match: "Type d’entité: société par actions"
+        props:
+          legalForm: société par actions
+      - match: "Lieu d’enregistrement: Téhéran, Iran"
+        props:
+          address: Téhéran, Iran
+          jurisdiction: IR
+      - match: "Date d’enregistrement: 1993"
+        props:
+          incorporationDate: 1993
+      - match: Société par actions  ouverte
+        props:
+          legalForm: Société par actions ouverte
+      - match: "OMI : 5145892"
+        props:
+          # imoNumber: 5145892
+          registrationNumber: 5145892
+      - match: "Numéro OMI : 5676084"
+        props:
+          # imoNumber: 5676084
+          registrationNumber: 5676084
+      - match: "SWIFT/BIC: FTBDKPPY."
+        props:
+          swiftBic: FTBDKPPY
+      - match: "OMI : 5954061"
+        props:
+          # imoNumber: 5954061
+          registrationNumber: 5954061
+      - match: "Numéro OMI : 5787684"
+        props:
+          # imoNumber: 5787684
+          registrationNumber: 5787684
+      - match: Société par actions ouverte
+        props:
+          legalForm: Société par actions ouverte
+      - match: "Numéro OMI :  5963351"
+        props:
+          # imoNumber: 5963351
+          registrationNumber: 5963351
+      - match: "Numéro OMI : 5987860"
+        props:
+          # imoNumber: 5987860
+          registrationNumber: 5987860
+      - match: 01794877 (UK)
+        props:
+          registrationNumber: 01794877
+          jurisdiction: GB
+      - match: "OMI : 5982254"
+        props:
+          # imoNumber: 5982254
+          registrationNumber: 5982254
+      - match: "Numéro OMI : 5878561"
+        props:
+          # imoNumber: 5878561
+          registrationNumber: 5878561
+      - match: Filiale de Cham Holding - Sehanya Daraa Highway, P.O. Box 9525
+        note: true
+        props:
+          address: Sehanya Daraa Highway, P.O. Box 9525
+      - match: "Numéro OMI : 5988369"
+        props:
+          # imoNumber: 5988369
+          registrationNumber: 5988369
+      - match:
+          "Bénéficiaire effectif ultime: Hussam al-Qatirji, directeur général (désigné
+          par le Conseil)"
+        note: true
+      - match: "Date d'enregistrement: 2014"
+        props:
+          incorporationDate: 2014
+      - match: "Numéro d'enregistrement:  14005160213"
+        props:
+          registrationNumber: 14005160213
+      - match: "Numéro OMI : 5571322"
+        props:
+          # imoNumber: 5571322
+          registrationNumber: 5571322
+      - match:
+          "Nom du directeur/direction: Adel Anwar al-Olabi, président du conseil d'administration
+          et gouverneur de Damas (désigné par le Conseil)"
+        note: true
+      - match: "Bénéficiaire effectif ultime: gouvernorat de Damas"
+        note: true
+      - match: Dirigé par le général de  division Abraha Kassa
+        note: true
+      - match: "Numéro OMI : 5936312"
+        props:
+          # imoNumber: 5936312
+          registrationNumber: 5936312
+      - match: "Numéro OMI : 5985863"
+        props:
+          # imoNumber: 5985863
+          registrationNumber: 5985863

@@ -15,15 +15,15 @@ SCHEMATA = {
 
 def apply_prop(context: Context, entity: Entity, sanction: Entity, field: str, value):
     if field == "ALIAS":
-        entity.add("alias", value.pop("Alias"))
+        entity.add("alias", value.pop("Alias"), lang="fra")
     elif field == "SEXE":
-        entity.add("gender", value.pop("Sexe"))
+        entity.add("gender", value.pop("Sexe"), lang="fra")
     elif field == "PRENOM":
-        entity.add("firstName", value.pop("Prenom"))
+        entity.add("firstName", value.pop("Prenom"), lang="fra")
     elif field == "NATIONALITE":
-        entity.add("nationality", value.pop("Pays"))
+        entity.add("nationality", value.pop("Pays"), lang="fra")
     elif field == "TITRE":
-        entity.add("position", value.pop("Titre"))
+        entity.add("position", value.pop("Titre"), lang="fra")
     elif field == "SITE_INTERNET":
         entity.add("website", value.pop("SiteInternet"))
     elif field == "TELEPHONE":
@@ -43,25 +43,25 @@ def apply_prop(context: Context, entity: Entity, sanction: Entity, field: str, v
         )
         h.apply_address(context, entity, address)
     elif field == "LIEU_DE_NAISSANCE":
-        entity.add("birthPlace", value.pop("Lieu"))
-        entity.add("country", value.pop("Pays"))
+        entity.add("birthPlace", value.pop("Lieu"), lang="fra")
+        entity.add("country", value.pop("Pays"), lang="fra")
     elif field == "PASSEPORT":
         entity.add("passportNumber", value.pop("NumeroPasseport"))
     elif field == "IDENTIFICATION":
         comment = value.pop("Commentaire")
         content = value.pop("Identification")
-        result = context.lookup("identification", comment)
+        full = f"{comment}: {content}".replace("::", ":").strip().strip(":").strip()
+        result = context.lookup("identification", full)
         if result is None:
-            context.log.warning(
-                "Unknown Identification type",
-                comment=comment,
-                content=content,
-            )
-        elif result.prop is not None:
-            schema = result.schema or entity.schema.name
-            entity.add_cast(schema, result.prop, content)
-            if result.prop == "notes":
-                entity.add(result.prop, h.clean_note(comment))
+            context.log.warning("Unknown identification type", identification=full)
+            return
+        if result.schema is not None:
+            entity.add_schema(result.schema)
+        if result.note:
+            entity.add("notes", full, lang="fra")
+        if result.props:
+            for prop, value in result.props.items():
+                entity.add(prop, value, lang="fra", original_value=full)
     elif field == "AUTRE_IDENTITE":
         entity.add("idNumber", value.pop("NumeroCarte"))
     elif field == "REFERENCE_UE":
@@ -69,12 +69,12 @@ def apply_prop(context: Context, entity: Entity, sanction: Entity, field: str, v
     elif field == "REFERENCE_ONU":
         sanction.add("unscId", value.pop("ReferenceOnu"))
     elif field == "FONDEMENT_JURIDIQUE":
-        sanction.add("program", value.pop("FondementJuridiqueLabel"))
+        sanction.add("program", value.pop("FondementJuridiqueLabel"), lang="fra")
         # TODO: derive target countries?
     elif field == "MOTIFS":
         motifs = value.pop("Motifs")
-        sanction.add("reason", motifs)
-        entity.add("notes", motifs)
+        sanction.add("reason", motifs, lang="fra")
+        entity.add("notes", motifs, lang="fra")
     else:
         context.log.warning("Unknown field", field=field, value=value)
 
