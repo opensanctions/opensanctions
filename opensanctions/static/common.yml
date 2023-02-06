@@ -259,6 +259,10 @@ country:
         - United States occupation of the Ryukyu Islands
         - Republic of Geneva
         - County of Mark
+        - Principality of Transylvania
+        - Kingdom of Navarre
+        - Kingdom of Naples
+        - Former Liang
       contains:
         - (JVCFOR)
       value: null
@@ -1393,6 +1397,7 @@ gender:
         - transgender male
         - cisgender male
         - trans man
+        - assigned male at birth
       contains:
         - мужской
       value: male
