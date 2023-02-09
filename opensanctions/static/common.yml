@@ -845,6 +845,7 @@ country:
     - match:
         - Faisalabad, Punjab, Pakistan
         - Azad Kashmir
+        - "&#x0D; Pakistan"
         - Pakis
         - پاڪستاني
       value: PK

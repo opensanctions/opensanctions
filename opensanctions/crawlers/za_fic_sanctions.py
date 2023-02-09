@@ -10,8 +10,9 @@ def parse_date(date):
 
 def crawl_row(context: Context, data: Dict[str, str]):
     entity = context.make("LegalEntity")
+    full_name = data.pop("FullName", None)
     ind_id = data.pop("INDIVIDUAL_Id", data.pop("IndividualID"))
-    entity.id = context.make_slug(ind_id)
+    entity.id = context.make_slug(ind_id, full_name)
     assert entity.id, data
     entity.add("notes", h.clean_note(data.pop("COMMENTS", None)))
     entity.add("notes", h.clean_note(data.pop("Comments", None)))
@@ -43,7 +44,7 @@ def crawl_row(context: Context, data: Dict[str, str]):
 
     h.apply_name(
         entity,
-        full=data.pop("FullName", None),
+        full=full_name,
         given_name=data.pop("FIRST_NAME", None),
         second_name=data.pop("SECOND_NAME", None),
         name3=data.pop("THIRD_NAME", None),
