@@ -172,7 +172,7 @@ def _last_seen_by_dataset(conncache: ConnCache) -> Dict[str, datetime]:
     q = q.filter(stmt_table.c.external == False)  # noqa
     q = q.group_by(stmt_table.c.dataset)
     cursor = conncache.conn.execute(q)
-    return {r["dataset"]: r["last_seen"] for r in cursor}
+    return {r._mapping["dataset"]: r._mapping["last_seen"] for r in cursor}
 
 
 def max_last_seen(conn: Conn, dataset: Optional[Dataset] = None) -> Optional[datetime]:
