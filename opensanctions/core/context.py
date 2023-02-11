@@ -44,7 +44,7 @@ class Context(GenericZavod[Entity, Dataset]):
     def __init__(self, dataset: Dataset):
         data_path = settings.DATASET_PATH.joinpath(dataset.name)
         super().__init__(dataset, Entity, data_path=data_path)
-        self.cache = Cache(engine, MetaData(bind=engine), dataset)
+        self.cache = Cache(engine, MetaData(), dataset)
         self._statements: Dict[str, Statement] = {}
 
     @property
