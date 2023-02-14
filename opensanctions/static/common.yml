@@ -263,6 +263,8 @@ country:
         - Kingdom of Navarre
         - Kingdom of Naples
         - Former Liang
+        - Portuguese India
+        - Grand Duchy of Oldenburg
       contains:
         - (JVCFOR)
       value: null
@@ -430,6 +432,7 @@ country:
     - match:
         - Brithish
         - British National (Overseas)
+        - British Overseas citizen
       value: GB
     - match: British,Irish
       values:
@@ -1257,6 +1260,10 @@ email:
         - press@zalivkerch.com
         - sess@zalivkerch.com
         - uzis@zalivkerch.com
+    - match: (1) info@zala.aero (2) 20shrhrabota@gmail.com
+      values:
+        - info@zala.aero
+        - 20shrhrabota@gmail.com
     - match: uav@kronshtadt.ru; office@kronshtadt.ru
       values:
         - uav@kronshtadt.ru

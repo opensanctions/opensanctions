@@ -98,6 +98,12 @@ lookups:
         value: Limited Liability Company STROYGAZMONTAZH
       - match: PJSC Aeroflot
         value: PJSC Aeroflot
+      - match: PJSC KIROVSKY PLANT
+        value: PJSC KIROVSKY PLANT
+      - match: Kalashnikov Concern JSC (49%)
+        value: Kalashnikov Concern JSC
+      - match: Ministry of Defence of the Russian Federation
+        value: Ministry of Defence of the Russian Federation
       - match: Ural Wings
         value: Ural Wings
       - match: Roscosmos

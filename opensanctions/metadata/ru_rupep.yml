@@ -106,6 +106,8 @@ lookups:
           - great-grandson
           - associated with the common life and mutual rights and obligations
           - father/mother
+          - ex-husband
+          - ex-wife
         schema: Family
         from_prop: person
         to_prop: relative

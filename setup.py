@@ -43,6 +43,7 @@ setup(
         "structlog",
         "colorama",
         "pyicu < 2.11.0",
+        "openpyxl == 3.1.0",
         "xlrd",
         "lxml",
         "lxml-stubs",
