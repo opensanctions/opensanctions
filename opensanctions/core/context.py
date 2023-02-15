@@ -295,8 +295,7 @@ class Context(GenericZavod[Entity, Dataset]):
                                 # self.log.info("Added", entity=adjacent)
                                 self.emit(adjacent)
                 except RequestException as rexc:
-                    resp = repr(rexc.response)
-                    self.log.error("Enrichment error [%r]: %s" % (entity, resp))
+                    self.log.error("Enrichment error %r: %s" % (entity, str(rexc)))
                 except Exception:
                     self.log.exception("Could not match: %r" % entity)
         except KeyboardInterrupt:
