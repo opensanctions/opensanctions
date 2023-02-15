@@ -33,7 +33,7 @@ def parse_result(context: Context, row: Dict[str, Any]):
         if tl:
             entity.add("alias", tl)
     entity.add("birthDate", dob)
-    entity.add("gender", row.pop("Gender"))
+    entity.add("gender", row.pop("gender"))
 
     context.emit(entity, target=True)
     # context.inspect(row)
