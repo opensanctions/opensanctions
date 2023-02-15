@@ -5,10 +5,8 @@ summary: >
   A list of key Russian decision-makers from government and business
   composed by ACF/FBK, the anti-corruption investigative organization
   founded by Alexei Navalny
-description: |
-  Note: this is a static extract of the ACF list, dated 10. February 2023.
-
-  > Putin and his accomplices (officials, oligarchs, propagandists), as well as
+description: >
+  Putin and his accomplices (officials, oligarchs, propagandists), as well as
   > yachts and mansions, which, we hope, they will soon be deprived of.
 collections:
   - default
@@ -22,11 +20,8 @@ publisher:
   country: ru
 url: https://acf.international/bribetakers-list
 data:
-  # url: https://docs.google.com/spreadsheets/d/e/2PACX-1vSBGoYY4E07QoQIWltgJqT985zJKCpsT0Pcdapny7kd9tcWrkeEWdQDIDBR2uHwCJbnuwAuF2PAoZjd/pub?gid=0&single=true&output=csv
-  # url: https://docs.google.com/spreadsheets/d/e/2PACX-1vSBGoYY4E07QoQIWltgJqT985zJKCpsT0Pcdapny7kd9tcWrkeEWdQDIDBR2uHwCJbnuwAuF2PAoZjd/pub?gid=1517448514&single=true&output=csv
-  url: https://acf.international/acf-media/Contributors_to_the_war_csv_0nJAzKh.csv
-  # url: https://acf.international/acf-media/6000_%D1%81%D0%B2%D0%BE%D0%B4%D0%BD%D1%8B%D0%B8_%D0%9F%D0%BE%D0%BB%D0%BD%D1%8B%D0%B8_%D1%81%D0%BF%D0%B8%D1%81%D0%BE%D0%BA_%D0%BD%D0%B0_09_09_2022_vKc23T8.csv
-  format: CSV
+  url: https://sanctions.acf.international/api/villains/
+  format: JSON
 
 lookups:
   descriptions:
