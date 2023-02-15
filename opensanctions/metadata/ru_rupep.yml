@@ -61,6 +61,7 @@ lookups:
       - match:
           - ""
           - "-"
+          - "A person with significant political or public influence"
           - null
         value: null
       - match:

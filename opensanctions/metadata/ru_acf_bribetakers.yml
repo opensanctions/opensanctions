@@ -30,3 +30,13 @@ lookups:
       - contains:
           - he remains involved in the system
         value: null
+
+  tags:
+    lowercase: true
+    options:
+      - match:
+          - war-arrangers
+          - individuals-involved-in-corruption
+          - sellout-opinion-leaders
+          - Top-bribetakers-and-warmongers
+        value: null
