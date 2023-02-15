@@ -36,6 +36,7 @@ lookups:
     options:
       - match:
           - war-arrangers
+          - warmongers
           - individuals-involved-in-corruption
           - sellout-opinion-leaders
           - Top-bribetakers-and-warmongers

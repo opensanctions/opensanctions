@@ -34,6 +34,7 @@ def parse_result(context: Context, row: Dict[str, Any]):
     published_at = row.pop('published_at')
     entity.id = context.make_id(name_en, name_ru, published_at, dob)
     entity.add("name", name_en, lang='eng')
+    entity.add("name", remove_bracketed(name_en), lang='eng')
     entity.add("alias", name_ru, lang='rus')
     transliterations = row.pop("transliterations")
     for tl in transliterations.split("\n"):
