@@ -353,6 +353,7 @@ country:
     - match:
         - Kingdom of Egypt
         - Republic of Egypt (1953–1958)
+        - مصر - مسجون
       value: Egypt
     - match:
         - "Sanaa, Yemen"
@@ -371,7 +372,9 @@ country:
       value: XK
     - match:
         - Georgian Soviet Socialist Republic
-      value: GE
+      values:
+        - GE
+        - SU
     - match:
         - Palestinian National Council
         - "Region: Gaza"
@@ -380,16 +383,6 @@ country:
         - Cyprus* [Resolution 1376 (2004)]
         - British Cyprus
       value: CY
-    - match:
-        - Oyo State
-      value: Nigeria
-    - match:
-        - "Kinshasa"
-      value: CD
-    - match: Haitian
-      value: Haiti
-    - match: Cambodian
-      value: Cambodia
     - match: Salvadoran
       value: El Salvador
     - match: Laotian
@@ -423,10 +416,6 @@ country:
         - Fourth Republic of South Korea
         - Fifth Republic of South Korea
       value: KR
-    - match:
-        - Crown Colony of Malta
-        - State of Malta
-      value: mt
     - match: sh-hl
       value: Saint Helena
     - match:
@@ -487,9 +476,6 @@ country:
     - match:
         - Gujarat
       value: India
-    - match:
-        - Vanuata
-      value: Vanuatu
     - match:
         - Republic of Upper Volta (current Burkina Faso)
       value:
@@ -564,17 +550,11 @@ country:
         - Gold Coast
       value: Australia
     - match:
-        - פלסטין
-      value: Palestine
-    - match:
         - תורכיה ירדן ערב הסעודית
       values:
         - Turkey
         - Jordan
         - Saudi Arabia
-    - match:
-        - TÃ¼rkiye
-      value: Turkey
     - match:
         - French Cameroons
       value: Cameroon
@@ -582,6 +562,10 @@ country:
         - ירדן, כווית
       values:
         - Jordan
+        - Kuweit
+    - match: السعودية / الكويت
+      values:
+        - Saudi Arabia
         - Kuweit
     - contains: Fiji (Prakash’s Australian
       value: Fiji
@@ -675,7 +659,6 @@ country:
         - South Vietnam
         - Republic of Vietnam
         - North Vietnam
-
       value: Vietnam
     - match: Iraq,Iran
       values:
@@ -1161,6 +1144,8 @@ date:
     "1949-02-29": "1949-02"
     "1935-06-31": "1935-06"
     "29-Aprl-1967": "1967-04-29"
+    "16/05/2011": "2011-05-16"
+    "26/03/2012": "2012-03-26"
 
 email:
   options:

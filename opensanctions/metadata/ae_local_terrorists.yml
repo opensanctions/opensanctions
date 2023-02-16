@@ -1,0 +1,133 @@
+entry_point: opensanctions.crawlers.ae_local_terrorists
+title: "United Arab Emirates Local Terrorist List"
+prefix: ae-lt
+summary: |
+  The UAE's asset freeze list of individuals and legal entities that are
+  suspected of, attempt to, or commit terrorist acts.
+description: |
+  > All UN member states must implement freezing measures with regards
+  > to individuals or legal entities designated by the UNSC. In addition,
+  > UNSC Resolution 1373 (2001) mandates each UN member state to develop
+  > the procedures to identify and apply freezing measures with regards
+  > to individuals or legal entities that are suspected of, attempt to,
+  > and/or commit terrorist acts.
+
+  > In the UAE, the Supreme Council for National Security (Supreme Council)
+  > prepares such designations. Specifically, the Supreme Council proposes
+  > a Local List that meets the designation criteria required by UNSC
+  > Resolution 1373 (2001). The Supreme Council can include individuals or
+  > legal entities in that list without prior notice, and irrespective of
+  > whether criminal proceedings exist. Each listing must be approved by
+  > the Cabinet of the UAE.
+collections:
+  - sanctions
+  - default
+url: https://www.uaeiec.gov.ae/en-us/un-page?p=1#
+publisher:
+  name: "Executive Office for Control & Non-proliferation"
+  description: |
+    The EOCN was established in the United Arab Emirates in 2009 as a body
+    responsible for preventing the illegal and unauthorized circulation of
+    dual-use goods that contribute to the production or development of
+    weapons of mass destruction, along with their associated technology
+    and means of delivery. EOCN also coordinates to and supervises the
+    application of targeted financial sanctions relating to terrorist lists
+    system, as well as the implementation of Security Council resolutions
+    on the prevention and suppression of terrorism, its financing, the
+    cessation of arms proliferation and financing, in addition to other
+    relevant resolutions in coordination with competent stakeholders.
+  country: ae
+  url: https://www.uaeiec.gov.ae/en-us/
+  official: true
+data:
+  url: "https://www.uaeiec.gov.ae/en-us/un-page?p=1#"
+  format: HTML
+
+lookups:
+  categories:
+    options:
+      - match:
+          - كيان إرهابي
+          - تنظيم إرهابي
+        value: Organization
+      - match: شخص إرهابي
+        value: Person
+  headers:
+    normalize: true
+    options:
+      - match: "#"
+        value: index
+      - match: التصنيف
+        value: category
+      - match: الجنسية
+        value: nationality
+        lang: ara
+      - match: اسم العائلة (بالحروف العربية)
+        value: lastName
+        lang: ara
+      - match: "اسم العائلة (بالحروف اللاتينية)"
+        value: lastName
+        lang: eng
+      - match:
+          - الاسم الكامل (باللغة العربية)
+          - الاسم الكامل (بالحروف العربية)
+        value: name
+        lang: ara
+      - match: تاريخ الميلاد
+        value: birthDate
+      - match: مكان الميلاد
+        value: birthPlace
+        lang: ara
+      - match: الشارع
+        value: street
+        lang: ara
+      - match: المدينة
+        value: city
+        lang: ara
+      - match: النوع
+        # looks like: type of ban
+        value: provisions
+        lang: ara
+      - match: رقم الوثيقة
+        # document number
+        value: passportNumber
+        lang: ara
+      - match: جهة الإصدار
+        value: issuer
+        lang: ara
+      - match: تاريخ الإصدار
+        # release date
+        value: listingDate
+      - match: تاريخ الانتهاء
+        # expiry date
+        value: endDate
+        lang: ara
+      - match: الدولة
+        value: country
+        lang: ara
+      - match: الاسم الكامل (بالحروف اللاتينية)
+        value: name
+        lang: eng
+      - match: الاسم
+        value: name
+        lang: ara
+      - match: معلومات أخرى
+        # other information
+        value: program
+        lang: ara
+      - match: ملاحظات
+        # comments
+        value: notes
+        lang: ara
+      - match: المقر
+        # headquarters
+        value: address
+        lang: ara
+      - match: انتهاء الترخيص
+        # license expiry
+        value: dissolutionDate
+        lang: ara
+      - match: رقم الرخصة
+        # license number
+        value: registrationNumber
+        lang: ara
