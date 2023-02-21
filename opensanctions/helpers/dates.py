@@ -1,5 +1,5 @@
 import re
-from typing import Iterable, List, Optional, Set
+from typing import Iterable, Optional, Set
 from prefixdate import parse_formats
 
 DAY_MONTH = re.compile(r"^\d\d?\.\d\d?\.?(YYYY)?$")

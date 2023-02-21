@@ -1,6 +1,6 @@
 from normality import slugify
 from functools import lru_cache
-from typing import List, Optional
+from typing import Optional
 from addressformatting import AddressFormatter
 from followthemoney.types import registry
 from followthemoney.util import make_entity_id, join_text
