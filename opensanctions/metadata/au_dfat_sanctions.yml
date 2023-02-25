@@ -61,4 +61,5 @@ lookups:
         value: previousName
       - match:
           - Primary name
+          - Primary
         value: name
