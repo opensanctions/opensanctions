@@ -100,7 +100,10 @@ def parse_reference(context: Context, reference: int, rows):
                 address = h.make_address(context, full=part)
                 h.apply_address(context, entity, address)
         sanction.add("program", row.pop("committees"))
-        citizen = multi_split(row.pop("citizenship"), ["a)", "b)", "c)", "d)"])
+        citizen = multi_split(
+            row.pop("citizenship"), 
+            ["a)", "b)", "c)", "d)", ";", ","]
+        )
         entity.add("nationality", citizen, quiet=True)
         dates = clean_date(row.pop("date_of_birth"))
         entity.add("birthDate", dates, quiet=True)
