@@ -14,12 +14,14 @@ def parse_row(context: Context, headers: List[str], row: List[str]):
     entity.id = context.make_id(*row)
     sanction = h.make_sanction(context, entity)
     address = {}
-    for (header, lang), value in zip(headers, row):
+    for (header, lang, type_), value in zip(headers, row):
         value = collapse_spaces(value)
         if value is None or value == "-":
             continue
         if header in ["index", "issuer"]:
             continue
+        if type_ == "date":
+            value = h.parse_date(value, ["%d/%m/%Y"])
         if header == "category":
             schema = context.lookup_value("categories", value)
             if schema is None:
@@ -57,7 +59,7 @@ def parse_excel(context: Context, path: Path):
                     if result is None:
                         context.log.error("Unknown column", arabic=ara)
                         continue
-                    headers.append((result.value, result.lang))
+                    headers.append((result.value, result.lang, result.type))
                 # print(headers)
                 continue
             if headers is None:

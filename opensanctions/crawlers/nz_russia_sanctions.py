@@ -1,5 +1,6 @@
 from datetime import datetime
 import openpyxl
+from openpyxl import Workbook
 from banal import as_bool
 from typing import Any, Dict
 from pantomime.types import XLSX
@@ -88,16 +89,21 @@ def crawl_entity(context: Context, data: Dict[str, Any]) -> None:
 def crawl(context: Context):
     path = context.fetch_resource("source.xlsx", context.source.data.url)
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
-    workbook = openpyxl.load_workbook(path, read_only=True)
-    sheet = workbook["Russia Sanctions Register"]
-    headers = None
-    for row in sheet.rows:
-        cells = [c.value for c in row]
-        if "Unique Identifier" in cells and "DOB" in cells:
-            headers = cells
-            continue
-        if headers is None:
-            continue
-        data = dict(zip(headers, cells))
-        data.pop(None, None)
-        crawl_entity(context, data)
+    workbook: Workbook = openpyxl.load_workbook(path, read_only=True)
+    has_listing = False
+    for sheet in workbook.worksheets:
+        headers = None
+        for row in sheet.rows:
+            cells = [c.value for c in row]
+            if "Unique Identifier" in cells and "DOB" in cells:
+                headers = cells
+                has_listing = True
+                continue
+            if headers is None:
+                continue
+            data = dict(zip(headers, cells))
+            data.pop(None, None)
+            crawl_entity(context, data)
+
+    if not has_listing:
+        context.log.error("Could not identify data sheet", sheets=workbook.sheetnames)

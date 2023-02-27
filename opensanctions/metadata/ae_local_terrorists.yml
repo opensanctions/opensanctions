@@ -75,6 +75,7 @@ lookups:
         lang: ara
       - match: تاريخ الميلاد
         value: birthDate
+        type: date
       - match: مكان الميلاد
         value: birthPlace
         lang: ara
@@ -98,10 +99,12 @@ lookups:
       - match: تاريخ الإصدار
         # release date
         value: listingDate
+        type: date
       - match: تاريخ الانتهاء
         # expiry date
         value: endDate
         lang: ara
+        type: date
       - match: الدولة
         value: country
         lang: ara
@@ -127,6 +130,7 @@ lookups:
         # license expiry
         value: dissolutionDate
         lang: ara
+        type: date
       - match: رقم الرخصة
         # license number
         value: registrationNumber

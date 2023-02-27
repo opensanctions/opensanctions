@@ -265,6 +265,7 @@ country:
         - Former Liang
         - Portuguese India
         - Grand Duchy of Oldenburg
+        - Julian March
       contains:
         - (JVCFOR)
       value: null
@@ -721,6 +722,10 @@ country:
       values:
         - SUHH
         - EE
+    - match: Estonia, Russia
+      values:
+        - EE
+        - RU
     - match:
         - Former USSR
         - Uzbekistan SSR
@@ -734,6 +739,9 @@ country:
         - ソビエト社会主義共和国連邦（1991年まで）
         - Transcaucasian Socialist Federative Soviet Republic
       value: SUHH
+    - match:
+        - Kyrgzstan
+      value: KG
     - match:
         - Kazakhstan   Soviet Union
         - Kazakh Soviet Socialist Republic
@@ -867,6 +875,7 @@ date:
         - 0011-09-20
         - 0011-01-20
         - 0010-10-20
+        - 0011-01-19
         - "0001-01-20"
         - "3030-03-09"
         - "3033-09-30"
