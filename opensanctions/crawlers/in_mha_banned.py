@@ -29,6 +29,7 @@ def crawl(context: Context):
             continue
         entity = context.make("Organization")
         entity.id = context.make_id(serial, name)
+        entity.add("topics", "sanction")
         for alias in name.split("/"):
             for clean in CLEAN:
                 alias = alias.replace(clean, " ")

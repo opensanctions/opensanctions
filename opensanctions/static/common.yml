@@ -268,6 +268,8 @@ country:
         - Julian March
       contains:
         - (JVCFOR)
+        - with effect from
+        - as a result of being in the service of declared terrorist organisation
       value: null
     - match:
         - Chinese Soviet Republic
@@ -360,6 +362,7 @@ country:
         - "Sanaa, Yemen"
         - Yemen Arab Republic
         - South Yemen
+        - alt Citizenship Yemeni)
       value: YE
     - match:
         - "Somali Location"
@@ -809,6 +812,7 @@ country:
       value: AT
     - match:
         - Saudi Arabian Citizen
+        - Saudi Arabian (this aka only
         - al-Khafji
         - Kingdom of Nejd and Hejaz
         - Saud
@@ -1156,6 +1160,7 @@ date:
     "29-Aprl-1967": "1967-04-29"
     "16/05/2011": "2011-05-16"
     "26/03/2012": "2012-03-26"
+    "01 Sep 1990 to 30 Sep 1990": "1990-09"
 
 email:
   options:

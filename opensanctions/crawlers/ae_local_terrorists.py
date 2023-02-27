@@ -12,6 +12,7 @@ from opensanctions import helpers as h
 def parse_row(context: Context, headers: List[str], row: List[str]):
     entity = context.make("LegalEntity")
     entity.id = context.make_id(*row)
+    entity.add("topics", "sanction")
     sanction = h.make_sanction(context, entity)
     address = {}
     for (header, lang, type_), value in zip(headers, row):

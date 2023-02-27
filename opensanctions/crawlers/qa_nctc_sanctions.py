@@ -55,6 +55,7 @@ def crawl(context: Context):
         entity.add("name", full_name_en, lang="eng")
         entity.add("name", item.pop("fullNameAr"), lang="ara")
         entity.add("alias", item.pop("aliases", None))
+        entity.add("topics", "sanction")
 
         first_name_ar = item.pop("firstNameAR")
         first_name_en = item.pop("firstNameEN")
