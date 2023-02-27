@@ -944,3 +944,67 @@ lookups:
         props:
           # imoNumber: 5985863
           registrationNumber: 5985863
+      - match: "Numéro de journal officiel: 06513574"
+        props:
+          registrationNumber: 06513574
+      - match: "No d’identification fiscale: 7811636632"
+        props:
+          taxNumber: 7811636632
+      - match: "Numéro d’enregistrement - Lieu d’enregistrement: d. 76 korp. 4 litera A ofis N620, prospekt Obukhovskoi Oborony Saint-Pétersbourg, Fédération de Russie - Principal établissement: Khartoum, Soudan: 1177847044066"
+        props:
+          address: d. 76 korp. 4 litera A ofis N620, prospekt Obukhovskoi Oborony Saint-Pétersbourg, Fédération de Russie
+          jurisdiction:
+            - RU
+            - Sudan
+          ogrnCode: 1177847044066
+      - match: "Lieu d’enregistrement: Moscou (64 Zemlyanoy Val, bâtiment 2, bureau 201, Moscou, Fédération de Russie): /"
+        props:
+          address: "64 Zemlyanoy Val, bâtiment 2, bureau 201, Moscou, Fédération de Russie"
+          jurisdiction: RU
+      - match: "Lieu d’enregistrement: Myanmar: /"
+        props:
+          jurisdiction: Myanmar
+      - match: "Type d’entité: publique  - Lieu d’enregistrement: Myanmar: /"
+        props:
+          jurisdiction: Myanmar
+          legalForm: publique
+      - match: "Type d’entité: service administratif  - Lieu d’enregistrement: Myanmar: /"
+        props:
+          jurisdiction: Myanmar
+          legalForm: service administratif
+      - match: "Type d’entité: fondation de coopération associée aux forces de l’ordre de la République islamique: /"
+        props:
+          legalForm: fondation de coopération associée aux forces de l’ordre de la République islamique
+      - match: "Lieu d'enregistrement: Myanmar: /"
+        props:
+          jurisdiction: Myanmar
+      - match: "Lieu d’enregistrement: Al-jref Gharb Plot 134 Blok 1 h, Khartoum, Sudan: /"
+        props:
+          jurisdiction: Sudan
+          address: "Al-jref Gharb Plot 134 Blok 1 h, Khartoum, Sudan"
+      - match: "Type d’entité: entreprise d’État - Lieu d’enregistrement: Myanmar: /"
+        props:
+          jurisdiction: Myanmar
+          legalForm: entreprise d’État
+      - match: "Lieu d’enregistrement: Bangui, République centrafricaine - Date d’enregistrement: Novembre 2018 - Principal établissement: Galabadja  Bangui, Commune de Bangui - Galabadja, 8e Arr. - [GPS]-> 4.4070, 18.5465: /"
+        props:
+          jurisdiction: Central African Republic
+          incorporationDate: 2018-11
+          address: Galabadja  Bangui, Commune de Bangui - Galabadja, 8e Arr. - [GPS]-> 4.4070, 18.5465
+      - match: "NIF, numéro d’identification fiscale - Lieu d’enregistrement: Bangui (République centrafricaine) - Date d’enregistrement: 24.10.2017: M 354838 D 0001"
+        props:
+          jurisdiction: Central African Republic
+          incorporationDate: 2017-10-24
+          registrationNumber: M 354838 D 0001
+      - match: "Lieu d’enregistrement: Téhéran, Iran - Type d’entité: institut associé aux forces de l’ordre de la République islamique d’Iran: /"
+        props:
+          jurisdiction: Iran
+          legalForm: institut associé aux forces de l’ordre de la République islamique d’Iran
+      - match: "Date d’enregistrement: 28.3.2019: CA/BG2019B519"
+        props:
+          incorporationDate: 2019-03-28
+          registrationNumber: CA/BG2019B519
+      - match: "Lieu d’enregistrement: Bangui (République centrafricaine)  - Principal établissement: République centrafricaine: /"
+        props:
+          jurisdiction: Central African Republic
+          address: Bangui
