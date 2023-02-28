@@ -106,7 +106,7 @@ def crawl_entity(context: Context, data: Dict[str, Any]):
     context.emit(sanction)
 
 
-def crawl(context):
+def crawl(context: Context):
     path = context.fetch_resource("source.json", context.source.data.url)
     context.export_resource(path, JSON, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
@@ -116,3 +116,5 @@ def crawl(context):
     # date = publications.get("DatePublication")
     for detail in publications.get("PublicationDetail"):
         crawl_entity(context, detail)
+
+    # print(context.get_lookup("identification").unmatched_yaml({"props": {}}))

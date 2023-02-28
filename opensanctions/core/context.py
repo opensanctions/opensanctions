@@ -5,7 +5,7 @@ from functools import cached_property
 from typing import Iterable, cast, Dict, Optional
 from lxml import etree, html
 from requests.exceptions import RequestException
-from datapatch import LookupException, Result
+from datapatch import LookupException, Result, Lookup
 from sqlalchemy import MetaData
 from zavod.context import GenericZavod
 from followthemoney.helpers import check_person_cutoff
@@ -150,17 +150,20 @@ class Context(GenericZavod[Entity, Dataset]):
         default: Optional[str] = None,
         dataset: Optional[str] = None,
     ) -> Optional[str]:
-        ds = Dataset.require(dataset) if dataset is not None else self.dataset
         try:
-            return ds.lookups[lookup].get_value(value, default=default)
+            lookup = self.get_lookup(lookup, dataset=dataset)
+            return lookup.get_value(value, default=default)
         except LookupException:
             return default
+
+    def get_lookup(self, lookup: str, dataset: Optional[str] = None) -> Lookup:
+        ds = Dataset.require(dataset) if dataset is not None else self.dataset
+        return ds.lookups[lookup]
 
     def lookup(
         self, lookup: str, value: Optional[str], dataset: Optional[str] = None
     ) -> Optional[Result]:
-        ds = Dataset.require(dataset) if dataset is not None else self.dataset
-        return ds.lookups[lookup].match(value)
+        return self.get_lookup(lookup, dataset=dataset).match(value)
 
     def flush(self) -> None:
         """Emitted entities are de-constructed into statements for the database
