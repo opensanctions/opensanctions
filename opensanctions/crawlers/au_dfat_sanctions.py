@@ -8,7 +8,7 @@ from pantomime.types import XLSX
 
 from opensanctions import helpers as h
 from opensanctions.core import Context
-from opensanctions.util import multi_split, remove_bracketed
+from opensanctions.util import multi_split
 
 SPLITS = [" %s)" % char for char in string.ascii_lowercase]
 FORMATS = ["%d/%m/%Y", "%d %b. %Y", "%d %b.%Y", "%d %b %Y", "%d %B %Y"]
@@ -41,7 +41,7 @@ def clean_date(date):
         date = date.date().isoformat()
     if isinstance(date, int):
         date = str(date)
-    date = remove_bracketed(date)
+    date = h.remove_bracketed(date)
     if date is None:
         return dates
     date = date.replace("\n", " ")
@@ -101,8 +101,7 @@ def parse_reference(context: Context, reference: int, rows):
                 h.apply_address(context, entity, address)
         sanction.add("program", row.pop("committees"))
         citizen = multi_split(
-            row.pop("citizenship"), 
-            ["a)", "b)", "c)", "d)", ";", ","]
+            row.pop("citizenship"), ["a)", "b)", "c)", "d)", ";", ","]
         )
         entity.add("nationality", citizen, quiet=True)
         dates = clean_date(row.pop("date_of_birth"))

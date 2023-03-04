@@ -1,6 +1,5 @@
 from normality import stringify
 from zavod.logs import get_logger
-from functools import cached_property
 from prefixdate.precision import Precision
 from typing import Any, Dict, Generator, List, Optional, Tuple, Union
 from followthemoney import model
@@ -13,7 +12,6 @@ from followthemoney.property import Property
 from nomenklatura.statement import StatementProxy
 
 from opensanctions.core.lookups import type_lookup
-from opensanctions.util import pick_name
 
 log = get_logger(__name__)
 
@@ -25,22 +23,6 @@ class Entity(StatementProxy):
     extracting data from sanctions lists and for auditing parsing errors to
     structured logging.
     """
-
-    @cached_property
-    def caption(self) -> str:
-        """The user-facing label to be used for this entity. This checks a list
-        of properties defined by the schema (caption) and returns the first
-        available value. If no caption is available, return the schema label."""
-        is_thing = self.schema.is_a("Thing")
-        for prop in self.schema.caption:
-            values = self.get(prop)
-            if is_thing and len(values) > 1:
-                name = pick_name(values)
-                if name is not None:
-                    return name
-            for value in values:
-                return value
-        return self.schema.label
 
     def make_id(self, *parts: Any) -> str:
         raise NotImplementedError

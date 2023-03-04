@@ -1,11 +1,10 @@
 from typing import List, Type
 from zavod.logs import get_logger
 from nomenklatura.loader import Loader
+from nomenklatura.publish.dates import simplify_dates
 
 from opensanctions.core import Context, Dataset, Entity
-from opensanctions.core.external import External
 from opensanctions.core.loader import Database
-from opensanctions.core.assembly import assemble
 from opensanctions.core.db import engine
 from opensanctions.core.issues import all_issues
 from opensanctions.exporters.common import Exporter
@@ -29,6 +28,10 @@ EXPORTERS: List[Type[Exporter]] = [
 ]
 
 __all__ = ["export_dataset", "export_metadata", "export_statements"]
+
+
+def assemble(entity: Entity) -> Entity:
+    return simplify_dates(entity)
 
 
 def export_data(context: Context, loader: Loader[Dataset, Entity]):

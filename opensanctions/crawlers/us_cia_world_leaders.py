@@ -1,6 +1,7 @@
 from normality import slugify
 
 from opensanctions.core import Context
+from opensanctions import helpers as h
 from opensanctions.util import is_empty
 
 WEB_URL = "https://www.cia.gov/resources/world-leaders/foreign-governments/%s"
@@ -19,7 +20,7 @@ def crawl_country(context: Context, country: str):
         name = leader["name"]
         name = name.replace("(Acting)", "")
         function = leader["title"]
-        if is_empty(name):
+        if h.is_empty(name):
             continue
         context.log.debug(
             "Person",

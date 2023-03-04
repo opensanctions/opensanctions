@@ -4,20 +4,20 @@ from pantomime.types import JSON
 
 from opensanctions.core import Context
 from opensanctions import helpers as h
-from opensanctions.util import remove_bracketed
 
 DATE_FORMATS = ["%d.%m.%Y", "%d-%m-%Y"]
+
 
 def parse_result(context: Context, row: Dict[str, Any]):
     entity = context.make("Person")
     # context.inspect(row)
     for tag in row.pop("tags"):
-        result = context.lookup("tags", tag['slug'])
+        result = context.lookup("tags", tag["slug"])
         if result is not None:
             entity.add("position", result.value)
         else:
-            entity.add("position", tag["name_en"], lang='eng')
-            entity.add("position", tag["name_ru"], lang='rus')
+            entity.add("position", tag["name_en"], lang="eng")
+            entity.add("position", tag["name_ru"], lang="rus")
 
         for leaf in tag["leaf_nodes"]:
             if leaf["slug"] == "oligarchs":
@@ -29,16 +29,16 @@ def parse_result(context: Context, row: Dict[str, Any]):
             entity.add("notes", description)
 
     name_en = row.pop("name_en")
-    name_ru = row.pop('name_ru')
+    name_ru = row.pop("name_ru")
     dob = row.pop("birthdate")
-    published_at = row.pop('published_at')
+    published_at = row.pop("published_at")
     entity.id = context.make_id(name_en, name_ru, published_at, dob)
-    entity.add("name", name_en, lang='eng')
-    entity.add("name", remove_bracketed(name_en), lang='eng')
-    entity.add("alias", name_ru, lang='rus')
+    entity.add("name", name_en, lang="eng")
+    entity.add("name", h.remove_bracketed(name_en), lang="eng")
+    entity.add("alias", name_ru, lang="rus")
     transliterations = row.pop("transliterations")
     for tl in transliterations.split("\n"):
-        tl = remove_bracketed(tl).strip()
+        tl = h.remove_bracketed(tl).strip()
         entity.add("alias", tl)
     entity.add("birthDate", h.parse_date(dob, DATE_FORMATS), original_value=dob)
     entity.add("gender", row.pop("gender"))

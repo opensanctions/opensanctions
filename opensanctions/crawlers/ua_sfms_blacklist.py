@@ -2,7 +2,7 @@ from datetime import datetime
 
 from opensanctions.core import Context
 from opensanctions import helpers as h
-from opensanctions.util import remove_bracketed, multi_split
+from opensanctions.util import multi_split
 
 FORMATS = ["%d %b %Y", "%d %B %Y", "%Y", "%b %Y", "%B %Y"]
 
@@ -78,7 +78,7 @@ def parse_entry(context: Context, entry):
 
     for nat in entry.findall("./nationality-list"):
         for country in multi_split(nat.text, [";", ","]):
-            country = remove_bracketed(country)
+            country = h.remove_bracketed(country)
             entity.add("nationality", country, quiet=True)
 
     entity.add("topics", "sanction")

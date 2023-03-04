@@ -14,7 +14,7 @@ description: |
   * [Enforcement Action Types](https://occ.gov/topics/laws-and-regulations/enforcement-actions/enforcement-action-types/index-enforcement-action-types.html)
   * [Data dictionary](https://occ.gov/static/ots/enforcement/enforcement-order-definitions.pdf)
 collections:
-  - crime
+  # - crime
   - default
 url: https://apps.occ.gov/EASearch/
 publisher:

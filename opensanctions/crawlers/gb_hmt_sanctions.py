@@ -7,7 +7,7 @@ from followthemoney.util import join_text
 
 from opensanctions.core import Context
 from opensanctions import helpers as h
-from opensanctions.util import multi_split, remove_bracketed
+from opensanctions.util import multi_split
 
 FORMATS = ["%d/%m/%Y", "00/%m/%Y", "%m/%Y", "00/00/%Y", "%Y"]
 COUNTRY_SPLIT = ["(1)", "(2)", "(3)", ". "]
@@ -35,7 +35,7 @@ NAME_TYPES = {
 def parse_countries(text):
     countries = set()
     for country in multi_split(text, COUNTRY_SPLIT):
-        country = remove_bracketed(country)
+        country = h.remove_bracketed(country)
         countries.add(country)
     return countries
 
