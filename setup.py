@@ -48,6 +48,7 @@ setup(
         "lxml",
         "lxml-stubs",
         "awscli",
+        "gsutil",
     ],
     extras_require={
         "dev": [
