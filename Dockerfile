@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM ubuntu:23.04
 LABEL org.opencontainers.image.title "OpenSanctions ETL"
 LABEL org.opencontainers.image.licenses MIT
 LABEL org.opencontainers.image.source https://github.com/opensanctions/opensanctions
