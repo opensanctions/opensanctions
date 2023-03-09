@@ -16,8 +16,8 @@ RUN apt-get -qq -y update \
 RUN localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8 \
     && ln -fs /usr/share/zoneinfo/Etc/UTC /etc/localtime \
     && dpkg-reconfigure -f noninteractive tzdata \
-    && groupadd -g 1000 -r app \
-    && useradd -m -u 1000 -s /bin/false -g app app
+    && groupadd -g 10023 -r app \
+    && useradd -m -u 10023 -s /bin/false -g app app
 
 ENV LANG="en_US.UTF-8" \
     TZ="UTC"
