@@ -24,6 +24,7 @@ description: |
 collections:
   - crime
   - default
+  - wanted
 publisher:
   name: INTERPOL
   url: https://www.interpol.int/

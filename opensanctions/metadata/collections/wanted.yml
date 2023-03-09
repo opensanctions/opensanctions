@@ -1,0 +1,7 @@
+type: collection
+title: Wanted lists
+hidden: true
+summary: >
+  All wanted individuals from national or international lists of wanted persons.
+description: |
+  Used internally for de-duplication.

@@ -12,6 +12,7 @@ description: |
 collections:
   - default
   - crime
+  - wanted
 url: https://www.politie.nl/en/wanted-and-missing/most-wanted
 publisher:
   name: Korps Nationale Politie

@@ -23,6 +23,7 @@ description: |
 collections:
   - sanctions
   - default
+  - wanted
 url: https://www.publicsafety.gc.ca/cnt/ntnl-scrt/cntr-trrrsm/lstd-ntts/crrnt-lstd-ntts-en.aspx
 publisher:
   name: "Public Safety Canada"

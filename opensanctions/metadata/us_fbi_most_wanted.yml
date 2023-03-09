@@ -20,6 +20,7 @@ description: |
 collections:
   - default
   - crime
+  - wanted
 url: https://www.fbi.gov/wanted
 publisher:
   name: Federal Bureau of Investigation (FBI)

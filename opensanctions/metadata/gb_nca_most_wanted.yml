@@ -14,6 +14,7 @@ description: |
 collections:
   - default
   - crime
+  - wanted
 url: https://www.nationalcrimeagency.gov.uk/most-wanted
 publisher:
   name: National Crime Agency (NCA)
