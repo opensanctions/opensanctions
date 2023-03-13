@@ -17,7 +17,7 @@ COUNTRIES = {
     None: None,
 }
 
-TRACK_COUNTRIES = ["ua", "us", "au", "ca", "ch", "es", "gb", "jp", "nz", "pl"]
+TRACK_COUNTRIES = ["ua", "eu", "us", "au", "ca", "ch", "es", "gb", "jp", "nz", "pl"]
 
 
 def clean_row(row: Dict[str, Any]) -> Dict[str, Union[str, Dict[str, str]]]:
@@ -113,9 +113,12 @@ def crawl_common(context: Context, entity: Entity, row: Dict[str, Any]):
 
 
 def crawl_person(context: Context) -> None:
-    for row in json_listing(context, context.source.data.url, "person"):
+    for row in json_listing(context, context.source.data.url, "v2/person"):
         row = clean_row(row)
-        person_id = row.pop("person_id")
+        person_id = row.pop("person_id", None)
+        if person_id is None:
+            context.log.error("No person_id", data=row)
+            continue
         name_en = row.pop("name_en", None)
         name_ru = row.pop("name_ru", None)
         name_uk = row.pop("name_uk", None)
@@ -146,7 +149,7 @@ def crawl_person(context: Context) -> None:
 
 
 def crawl_company(context: Context) -> None:
-    for row in json_listing(context, context.source.data.url, "company"):
+    for row in json_listing(context, context.source.data.url, "v2/company"):
         row = clean_row(row)
         company_id = row.pop("company_id")
         name_en = row.pop("name_en", None)
