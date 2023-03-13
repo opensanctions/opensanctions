@@ -2,7 +2,6 @@ from normality import slugify
 
 from opensanctions.core import Context
 from opensanctions import helpers as h
-from opensanctions.util import is_empty
 
 WEB_URL = "https://www.cia.gov/resources/world-leaders/foreign-governments/%s"
 DATA_URL = "https://www.cia.gov/resources/world-leaders/page-data/foreign-governments/%s/page-data.json"
