@@ -8,9 +8,10 @@ all: run
 workdir:
 	mkdir -p data/postgres
 
+# aws s3 cp s3://data.opensanctions.org/state/opensanctions.sql.gz data/state/opensanctions.sql.gz
 db:
 	mkdir -p data/state
-	aws s3 cp s3://data.opensanctions.org/state/opensanctions.sql.gz data/state/opensanctions.sql.gz
+	wget -O data/state/opensanctions.sql.gz https://data.opensanctions.org/state/opensanctions.sql.gz
 	gunzip -c data/state/opensanctions.sql.gz | psql $(OPENSANCTIONS_DATABASE_URI)
 
 build:
