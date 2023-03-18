@@ -8,12 +8,7 @@ from opensanctions import helpers as h
 from opensanctions.util import multi_split
 
 COUNTRIES = {
-    0: "RU",
-    1: "RU",
-    2: "BY",
-    3: "UA",
-    4: None,
-    5: "UA-CRI",
+    "SCT": "GB-SCT",
     None: None,
 }
 
@@ -113,7 +108,7 @@ def crawl_common(context: Context, entity: Entity, row: Dict[str, Any]):
 
 
 def crawl_person(context: Context) -> None:
-    for row in json_listing(context, context.source.data.url, "v2/person"):
+    for row in json_listing(context, context.source.data.url, "v3/person"):
         row = clean_row(row)
         person_id = row.pop("person_id", None)
         if person_id is None:
@@ -149,7 +144,7 @@ def crawl_person(context: Context) -> None:
 
 
 def crawl_company(context: Context) -> None:
-    for row in json_listing(context, context.source.data.url, "v2/company"):
+    for row in json_listing(context, context.source.data.url, "v3/company"):
         row = clean_row(row)
         company_id = row.pop("company_id")
         name_en = row.pop("name_en", None)

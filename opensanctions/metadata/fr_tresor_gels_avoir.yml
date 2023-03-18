@@ -1265,3 +1265,221 @@ lookups:
           jurisdiction: RU
           incorporationDate: 2009-07-14
           innCode: 5110002377
+      - match: "Lieu d’enregistrement: Naypyitaw, Myanmar/Birmanie: /"
+        props:
+          jurisdiction: Myanmar
+      - match: "Numéro fiscal: 7703602065"
+        props:
+          taxNumber: 7703602065
+      - match: "Numéro d’identification fiscale: 366127502"
+        props:
+          taxNumber: 366127502
+      - match: "Lieu d’enregistrement: Syrie: /"
+        props:
+          jurisdiction: Syria
+      - match: NIF/INN 1651049488
+        props:
+          innCode: 1651049488
+      - match: "Numéro fiscal: 9108124167"
+        props:
+          taxNumber: 9108124167
+      - match: "Numéro d’identification fiscale: 7731559044"
+        props:
+          taxNumber: 7731559044
+      - match: "Numéro fiscal: 7705843041"
+        props:
+          taxNumber: 7705843041
+      - match: "Numéro fiscal: 7710277994"
+        props:
+          taxNumber: 7710277994
+      - match: NIF/INN 1651000027
+        props:
+          innCode: 1651000027
+      - match: "Numéro d’enregistrement national: 1027739000475"
+        props:
+          registrationNumber: 1027739000475
+      - match: "Numéro fiscal: 1648013442"
+        props:
+          taxNumber: 1648013442
+      - match: NIF/INN 1651024807
+        props:
+          innCode: 1651024807
+      - match:
+          "Lieu d'enregistrement: Fédération de Russie (197046, Saint-Pétersbourg,
+          ul. Malaia Posadskaia, 30). Date d'enregistrement: 26.2.2009. Principal établissement:
+          Fédération de Russie: No d'identification fiscale: 7813438763"
+        props:
+          jurisdiction: Russia
+          address: 197046, Saint-Pétersbourg, ul. Malaia Posadskaia, 30
+          incorporationDate: 2009-02-26
+          innCode: 7813438763
+      - match: "Numéro d’enregistrement national: 1024500521682"
+        props:
+          registrationNumber: 1024500521682
+      - match: "Numéro d’enregistrement national: 1097746068012"
+        props:
+          registrationNumber: 1097746068012
+      - match: "Numéro d’enregistrement national: 1085543060734"
+        props:
+          registrationNumber: 1085543060734
+      - match:
+          "Lieu d’enregistrement: 423580, Nizhnekamsk, zone industrielle, République
+          du Tatarstan, Russie - Date d’enregistrement: 15.1.2007: Numéro d’enregistrement:
+          SRN/OGRN 1071651000035"
+        props:
+          jurisdiction: RU
+          address: 423580, Nizhnekamsk, zone industrielle, République du Tatarstan, Russie
+          incorporationDate: 2007-01-15
+          ogrnCode: 1071651000035
+      - match: "Numéro d’identification fiscale: 7731644035"
+        props:
+          taxNumber: 7731644035
+      - match: "Numéro d’enregistrement: 1117746521452"
+        props:
+          registrationNumber: 1117746521452
+      - match: "INN: 7831000122"
+        props:
+          innCode: 7831000122
+      - match: "Numéro d’enregistrement national: 1086623002190"
+        props:
+          registrationNumber: 1086623002190
+      - match: KPP 165101001
+        schema: Company
+        props:
+          kppCode: 165101001
+      - match: "Numéro fiscal: 7718852163"
+        props:
+          taxNumber: 7718852163
+      - match:
+          "Type d’entité: groupe de moto  Lieu d’enregistrement: Fédération de Russie  Date
+          d’enregistrement: 1989"
+        props:
+          legalForm: groupe de moto
+          jurisdiction: Russia
+          incorporationDate: 1989
+      - match: "Numéro d’identification fiscale: 3900000111"
+        props:
+          taxNumber: 3900000111
+      - match: "Date d’enregistrement: 20.9.2001: Numéro d’enregistrement: SRN/OGRN  1021602498114"
+        props:
+          incorporationDate: 2001-09-20
+          ogrnCode: 1021602498114
+      - match: "Numéro d’enregistrement national: 1053600445337"
+        props:
+          registrationNumber: 1053600445337
+      - match: "Numéro d’enregistrement national: 1111832003018"
+        props:
+          registrationNumber: 1111832003018
+      - match:
+          "Entités associées:  Tatneft-Neftekhim;  Nizhnekamskshina;  Nizhnekamsk All-Steel
+          Tyre Plant"
+        note: true
+      - match:
+          "Entités associées:  Trading House KAMA  Management Company Tatneft-Neftekhim  Nizhnekamsk
+          All-Steel Tyre Plant"
+        note: true
+      - match: "Entités associées: Trading House KAMA  Management Company Tatneft-Neftekhim  Nizhnekamskshina"
+        note: true
+      - match: "Numéro d’enregistrement national: 1025201335730"
+        props:
+          registrationNumber: 1025201335730
+      - match: "Numéro d’enregistrement national: 1067746915191"
+        props:
+          registrationNumber: 1067746915191
+      - match: "Numéro fiscal: 7838395215"
+        props:
+          taxNumber: 7838395215
+      - match: "Numéro d’enregistrement national: 1023901861213"
+        props:
+          registrationNumber: 1023901861213
+      - match: "Numéro fiscal: 5099000013"
+        props:
+          taxNumber: 5099000013
+      - match: "Date d’enregistrement: 18.12.2022: Numéro d’enregistrement: SRN/OGRN 1021602510533"
+        props:
+          incorporationDate: 2022-12-18
+          ogrnCode: 1021602510533
+      - match:
+          "Date d'enregistrement:  01.09.2014 - Numéro d'enregistrement: 1144400000425
+          - Numéro d'identification fiscale: 4401116480 - Entité associée: gouvernement
+          de la Fédération de Russie: Société anonyme publique “Sovcombank”"
+        props:
+          incorporationDate: 2014-09-01
+          ogrnCode: 1144400000425
+          taxNumber: 4401116480
+          notes: "Entité associée: gouvernement de la Fédération de Russie: Société anonyme publique “Sovcombank”'"
+      - match: "Numéro d’enregistrement national: 1035003364021"
+        props:
+          registrationNumber: 1035003364021
+      - match: "Numéro d’enregistrement national: 1031644204514"
+        props:
+          registrationNumber: 1031644204514
+      - match: "Numéro d’enregistrement national: 1112373000596"
+        props:
+          registrationNumber: 1112373000596
+      - match: "Numéro d’enregistrement national: 1117746260477"
+        props:
+          registrationNumber: 1117746260477
+      - match: "Numéro fiscal: 6623029538"
+        props:
+          taxNumber: 6623029538
+      - match: "Numéro d’enregistrement national: 1087746656711"
+        props:
+          registrationNumber: 1087746656711
+      - match: "Numéro fiscal: 2373000582"
+        props:
+          taxNumber: 2373000582
+      - match: "Numéro d’enregistrement national: 1107746081717"
+        props:
+          registrationNumber: 1107746081717
+      - match: "NIF: 7736035485"
+        props:
+          taxNumber: 7736035485
+      - match: "Numéro fiscal: 1832090230"
+        props:
+          taxNumber: 1832090230
+      - match: OGRN:1027739019142
+        props:
+          ogrnCode: 1027739019142
+      - match: "Numéro de licence : 328"
+        note: true
+      - match: "Numéro fiscal: 5243001767"
+        props:
+          taxNumber: 5243001767
+      - match: "Numéro fiscal: 5505204171"
+        props:
+          taxNumber: 5505204171
+      - match: "Numéro fiscal: 7704721192"
+        props:
+          taxNumber: 7704721192
+      - match: "Numéro d’enregistrement national: 1199112021140"
+        props:
+          registrationNumber: 1199112021140
+      - match: "Numéro d’enregistrement national: 1077746003334"
+        props:
+          registrationNumber: 1077746003334
+      - match:
+          "Lieu d’enregistrement: Comté de Varamin, province de Téhéran, Iran - Date
+          d’enregistrement: 2010: /"
+        props:
+          jurisdiction: Iran
+          address: Comté de Varamin, province de Téhéran, Iran
+          incorporationDate: 2010
+      - match: "OGRN: 1027739820921"
+        props:
+          ogrnCode: 1027739820921
+      - match: "Numéro d’identification fiscale: 7743813961"
+        props:
+          taxNumber: 7743813961
+      - match: "Numéro d’enregistrement national: 1079847085966"
+        props:
+          registrationNumber: 1079847085966
+      - match: "OGRN: 1027800000084"
+        props:
+          ogrnCode: 1027800000084
+      - match: "INN: 7744000912"
+        props:
+          innCode: 7744000912
+      - match: "Numéro fiscal: 4501008142"
+        props:
+          taxNumber: 4501008142
