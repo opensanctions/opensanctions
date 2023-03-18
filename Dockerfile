@@ -22,6 +22,8 @@ RUN localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 ENV LANG="en_US.UTF-8" \
     TZ="UTC"
 
+RUN python3 -m venv /venv
+ENV PATH="/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 RUN pip3 install --no-cache-dir -U pip six setuptools
 
 COPY . /opensanctions
