@@ -426,6 +426,7 @@ country:
         - Brithish
         - British National (Overseas)
         - British Overseas citizen
+        - United Kingdom of Great Britain and Northern Irela
       value: GB
     - match: British,Irish
       values:
@@ -1175,6 +1176,8 @@ date:
     "8серпня1948": "1948-08-08"
     "24.11.1988р": "1988-11-24"
     ".05.1959": "1959-05"
+    "05021981": "1981-02-05"
+    "01011964": "1964-01-01"
 
 email:
   options:
