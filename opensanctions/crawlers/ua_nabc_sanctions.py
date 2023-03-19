@@ -110,6 +110,7 @@ def crawl_common(context: Context, entity: Entity, row: Dict[str, Any]):
     sanction.add("reason", row.pop("reasoning_en", None), lang="eng")
     sanction.add("reason", row.pop("reasoning_ru", None), lang="rus")
     sanction.add("reason", row.pop("reasoning_uk", None), lang="ukr")
+    context.emit(sanction)
 
     row.pop("status", None)
     row.pop("synchron", None)
