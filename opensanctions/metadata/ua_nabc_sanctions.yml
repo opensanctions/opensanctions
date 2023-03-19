@@ -1,6 +1,6 @@
 entry_point: opensanctions.crawlers.ua_nabc_sanctions
 title: Ukraine NABC Sanctions Tracker
-prefix: ua-nabc
+prefix: ua-nazk
 summary: >
   A list of suggested Russia-related sanctions targets composed by the
   Ukrainian anti-corruption agency.
@@ -33,3 +33,135 @@ url: https://sanctions.nazk.gov.ua/
 data:
   url: https://sanctions.nazk.gov.ua/api/
   format: JSON
+
+lookups:
+  relations:
+    options:
+      - match:
+          - "NULL"
+          - друг
+          - кандидат в президенти
+          - засновник
+        schema: UnknownLink
+        local: subject
+        remote: object
+      - match:
+          - місце роботи
+        schema: Employment
+        local: employee
+        remote: employer
+      - match:
+          - працівник
+        schema: Employment
+        local: employer
+        remote: employee
+      - match:
+          - підконтрольна компанія
+        schema: Directorship
+        local: director
+        remote: organization
+      - match:
+          - перший заступник голови
+          - в.о. директора департаменту
+          - член ради директорів
+          - начальник департаменту
+          - перший заступник начальника департаменту
+          - заступник голови
+          - член національної фінансової ради
+          - голова
+          - "статс-секретар"
+          - "статс-секретар - заступник голови"
+          - т.в.о.керівника
+          - директор департаменту
+          - головний аудитор
+          - заступник начальника управління
+        schema: Directorship
+        local: organization
+        remote: director
+      - match:
+          - бізнес партнер
+          - колега
+          - ділові відносини
+          - керівник
+          - підлеглий
+          - підлегла
+          - помічник
+          - колишній підлеглий
+          - знайомий
+          - сват
+          - соратник
+          - колишній керівник
+          - довірена особа
+          - соратниця
+          - наступник
+          - сваха
+          - попередник
+          - колеги
+          - знайома
+          - радник
+          - сораник
+          - помічниця
+          - дружинапідлеглого
+          - пдлеглий
+          - вчитель
+          - бізнес патнер
+          - нступник
+        schema: Associate
+        local: person
+        remote: associate
+      - match:
+          - батько
+          - сестра
+          - брат
+          - син
+          - дружина
+          - дядько
+          - мати
+          - чоловік
+          - дочка
+          - племінник
+          - шурин
+          - онук
+          - онучка
+          - невістка
+          - теща
+          - тітка
+          - коханка
+          - зять
+          - тесть
+          - родич
+          - свекор
+          - падчерка
+          - племінниця
+          - двоюрідний дядько
+          - колишній чоловік
+          - дід
+          - цивільна дружина
+          - хрещений батько
+          - коханець
+          - родичка
+          - родич
+          - кум
+          - кума
+          - вітчим
+          - своячка
+          - свояк
+          - донька
+          - пасинок
+          - двоюрідний брат
+          - колишня дружина
+          - колишній тесть
+          - колишній зять
+          - двоюрідна племінниця
+          - брат невістки
+          - мачуха
+          - дівер
+          - хрещениця
+          - двоюрідний племінник
+          - відчим
+          - двоюрідна сестра
+          - цивільний чоловік
+          - зовиця
+        schema: Family
+        local: person
+        remote: relative

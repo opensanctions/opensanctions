@@ -53,6 +53,25 @@ def url_split(urls):
     return urls
 
 
+def iter_relations(context, data):
+    if isinstance(data, list):
+        if len(data) > 0:
+            context.log.warning("Relations are a list", rel=data)
+    elif isinstance(data, dict):
+        for rel in data.values():
+            yield rel
+    else:
+        context.log.warning("Relations are other", rel=data)
+
+
+def make_person_id(id: str) -> str:
+    return f"ua-nazk-person-{id}"
+
+
+def make_company_id(id: str) -> str:
+    return f"ua-nazk-company-{id}"
+
+
 def json_listing(context: Context, url, name):
     full_url = urljoin(url, name)
     path = context.fetch_resource(f"{name}.json", full_url)
@@ -98,8 +117,38 @@ def crawl_common(context: Context, entity: Entity, row: Dict[str, Any]):
     row.pop("link_archive", None)
     row.pop("sort_order", None)
 
-    row.pop("relations_person", None)
-    row.pop("relations_company", None)
+    for rel in iter_relations(context, row.pop("relations_company", [])):
+        rel_name = rel.get("relation_name")
+        rel_company_id = make_company_id(rel.get("company_id"))
+        rel = context.lookup("relations", rel_name)
+        if rel is None:
+            context.log.warn(
+                "Unknown relation type",
+                name=rel_name,
+                local=entity.id,
+                remote=rel_company_id,
+            )
+            continue
+        rel_obj = context.make(rel.schema)
+        rel_obj.id = context.make_id(rel_name, entity.id, rel_company_id)
+        rel_obj.add(rel.local, entity.id)
+        rel_obj.add(rel.remote, rel_company_id)
+        rel_obj.add("role", rel_name)
+        context.emit(rel_obj)
+        # print(entity.id, rel_name, rel_company_id)
+
+    for rel in iter_relations(context, row.pop("relations_person", None)):
+        rel_name = rel.get("relation_name")
+        rel_person_id = make_person_id(rel.get("person_id"))
+        rel = context.lookup("relations", rel_name)
+        if rel is None:
+            context.log.warn(
+                "Unknown relation type",
+                name=rel_name,
+                local=entity.id,
+                remote=rel_person_id,
+            )
+            continue
 
     for cc in TRACK_COUNTRIES:
         row.pop(f"sanctions_{cc}", None)
@@ -114,15 +163,11 @@ def crawl_person(context: Context) -> None:
         if person_id is None:
             context.log.error("No person_id", data=row)
             continue
-        name_en = row.pop("name_en", None)
-        name_ru = row.pop("name_ru", None)
-        name_uk = row.pop("name_uk", None)
-        name = name_en or name_ru or name_uk
         entity = context.make("Person")
-        entity.id = context.make_slug("person", person_id, name or name_en)
-        entity.add("name", name_en, lang="eng")
-        entity.add("name", name_ru, lang="rus")
-        entity.add("name", name_uk, lang="ukr")
+        entity.id = make_person_id(person_id)
+        entity.add("name", row.pop("name_en", None), lang="eng")
+        entity.add("name", row.pop("name_ru", None), lang="rus")
+        entity.add("name", row.pop("name_uk", None), lang="ukr")
         entity.add("birthDate", parse_date(row.pop("date_bd", None)))
         entity.add("deathDate", parse_date(row.pop("date_dead", None)))
         url = f"https://sanctions.nazk.gov.ua/sanction-person/{person_id}/"
@@ -147,19 +192,9 @@ def crawl_company(context: Context) -> None:
     for row in json_listing(context, context.source.data.url, "v3/company"):
         row = clean_row(row)
         company_id = row.pop("company_id")
-        name_en = row.pop("name_en", None)
-        name = row.pop("name", None)
         entity = context.make("Organization")
-        entity.id = context.make_slug("company", company_id, name or name_en)
-        if entity.id is None:
-            entity.id = context.make_slug(
-                "company",
-                company_id,
-                row.pop("ogrn", None),
-                strict=False,
-            )
-        entity.add("name", name)
-        entity.add("name", name_en, lang="eng")
+        entity.id = make_company_id(company_id)
+        entity.add("name", row.pop("name_en", None), lang="eng")
         entity.add("name", row.pop("name_uk", None), lang="ukr")
         entity.add("name", row.pop("name_ru", None), lang="rus")
         entity.add("innCode", row.pop("inn", None))
