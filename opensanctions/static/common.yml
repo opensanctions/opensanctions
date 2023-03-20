@@ -273,6 +273,7 @@ country:
       value: null
     - match:
         - Chinese Soviet Republic
+        - Beijing
         - Китайська Народна Республіка
         - china (prc)
       value: China
