@@ -230,7 +230,7 @@ def parse_row(context: Context, row):
         context.emit(parent)
 
         ownership = context.make("Ownership")
-        ownership.id = context.make_id(entity.id, "owns", parent.id)
+        ownership.id = context.make_id(parent.id, "owns", entity.id)
         ownership.add("owner", parent)
         ownership.add("asset", entity)
         context.emit(ownership)
