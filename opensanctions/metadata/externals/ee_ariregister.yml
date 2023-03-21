@@ -18,7 +18,7 @@ collections:
 config:
   type: nomenklatura.enrich.yente:YenteEnricher
   api: https://api.graph.opensanctions.org/
-  dataset: md_companies
+  dataset: ee_ariregister
   api_key: ${OPENSANCTIONS_GRAPH_API_KEY}
   strip_namespace: true
   threshold: 0.5
