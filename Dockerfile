@@ -23,7 +23,7 @@ ENV LANG="en_US.UTF-8" \
     TZ="UTC"
 
 RUN python3 -m venv /venv
-ENV PATH="/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+ENV PATH="/venv/bin:$PATH"
 RUN pip3 install --no-cache-dir -U pip six setuptools
 
 COPY . /opensanctions
