@@ -6,7 +6,7 @@ from typing import Iterable, cast, Dict, Optional
 from lxml import etree, html
 from requests.exceptions import RequestException
 from datapatch import LookupException, Result, Lookup
-from sqlalchemy import MetaData
+from sqlalchemy.engine import Transaction
 from zavod.context import GenericZavod
 from followthemoney.helpers import check_person_cutoff
 from structlog.contextvars import clear_contextvars, bind_contextvars
@@ -20,7 +20,8 @@ from nomenklatura.statement import Statement
 from opensanctions import settings
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.entity import Entity
-from opensanctions.core.db import engine, engine_tx
+from opensanctions.core.db import engine, engine_tx, metadata
+from opensanctions.core.db import Conn
 from opensanctions.core.external import External
 from opensanctions.core.issues import clear_issues
 from opensanctions.core.resolver import AUTO_USER
@@ -44,8 +45,10 @@ class Context(GenericZavod[Entity, Dataset]):
     def __init__(self, dataset: Dataset):
         data_path = settings.DATASET_PATH.joinpath(dataset.name)
         super().__init__(dataset, Entity, data_path=data_path)
-        self.cache = Cache(engine, MetaData(), dataset)
+        self.cache = Cache(engine, metadata, dataset)
         self._statements: Dict[str, Statement] = {}
+        self._data_conn: Optional[Conn] = None
+        self._data_tx: Optional[Transaction] = None
 
     @property
     def source(self) -> Source:
@@ -62,8 +65,27 @@ class Context(GenericZavod[Entity, Dataset]):
     def bind(self) -> None:
         bind_contextvars(dataset=self.dataset.name)
 
+    @property
+    def data_conn(self) -> Conn:
+        if self._data_conn is None:
+            self._data_conn = engine.connect()
+        if self._data_tx is None:
+            self._data_tx = self._data_conn.begin()
+        return self._data_conn
+
+    def commit(self):
+        if self._data_tx is not None:
+            self._data_tx.commit()
+        self._data_tx = None
+
     def close(self) -> None:
         """Flush and tear down the context."""
+        if self._data_tx is not None:
+            self._data_tx.rollback()
+            self._data_tx = None
+        if self._data_conn is not None:
+            self._data_conn.close()
+            self._data_conn = None
         super().close()
         clear_contextvars()
 
@@ -171,10 +193,9 @@ class Context(GenericZavod[Entity, Dataset]):
         context is flushed to the store. All statements that are not flushed
         when a crawl is aborted are not persisted to the database."""
         statements = list(self._statements.values())
-        with engine_tx() as conn:
-            for i in range(0, len(statements), self.BATCH_SIZE):
-                batch = statements[i : i + self.BATCH_SIZE]
-                save_statements(conn, batch)
+        for i in range(0, len(statements), self.BATCH_SIZE):
+            batch = statements[i : i + self.BATCH_SIZE]
+            save_statements(self.data_conn, batch)
         self._statements = {}
 
     def emit(
@@ -224,11 +245,11 @@ class Context(GenericZavod[Entity, Dataset]):
             # Run the dataset:
             self.source.method(self)
             self.flush()
-            with engine_tx() as conn:
-                cleanup_dataset(conn, self.dataset)
-                entities = count_entities(conn, dataset=self.dataset)
-                targets = count_entities(conn, dataset=self.dataset, target=True)
+            cleanup_dataset(self.data_conn, self.dataset)
+            entities = count_entities(self.data_conn, dataset=self.dataset)
+            targets = count_entities(self.data_conn, dataset=self.dataset, target=True)
 
+            self.commit()
             self.log.info("Crawl completed", entities=entities, targets=targets)
             return True
         except KeyboardInterrupt:
@@ -258,7 +279,7 @@ class Context(GenericZavod[Entity, Dataset]):
         with engine_tx() as conn:
             clear_issues(conn, self.dataset)
             clear_resources(conn, self.dataset)
-            clear_statements(conn, self.dataset)
+        clear_statements(self.data_conn, self.dataset)
         external = cast(External, self.dataset)
         enricher = external.get_enricher(self.cache)
         try:
@@ -301,6 +322,7 @@ class Context(GenericZavod[Entity, Dataset]):
                     self.log.error("Enrichment error %r: %s" % (entity, str(rexc)))
                 except Exception:
                     self.log.exception("Could not match: %r" % entity)
+            self.commit()
         except KeyboardInterrupt:
             pass
         finally:
