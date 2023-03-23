@@ -74,6 +74,7 @@ class Context(GenericZavod[Entity, Dataset]):
         return self._data_conn
 
     def commit(self):
+        self.flush()
         if self._data_tx is not None:
             self._data_tx.commit()
         self._data_tx = None
@@ -279,7 +280,7 @@ class Context(GenericZavod[Entity, Dataset]):
         with engine_tx() as conn:
             clear_issues(conn, self.dataset)
             clear_resources(conn, self.dataset)
-        clear_statements(self.data_conn, self.dataset)
+            # clear_statements(conn, self.dataset)
         external = cast(External, self.dataset)
         enricher = external.get_enricher(self.cache)
         try:
@@ -322,11 +323,14 @@ class Context(GenericZavod[Entity, Dataset]):
                     self.log.error("Enrichment error %r: %s" % (entity, str(rexc)))
                 except Exception:
                     self.log.exception("Could not match: %r" % entity)
+
+                self.commit()
+
+            cleanup_dataset(self.data_conn, self.dataset)
             self.commit()
         except KeyboardInterrupt:
             pass
         finally:
-            self.flush()
             enricher.close()
             self.close()
 
