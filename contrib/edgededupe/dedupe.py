@@ -1,4 +1,7 @@
+import itertools
 from nomenklatura.resolver import Identifier
+from followthemoney import model
+from followthemoney.compare import compare
 
 from opensanctions.core import Dataset, Entity
 from opensanctions.core.resolver import get_resolver
@@ -16,6 +19,7 @@ from followthemoney.cli.util import path_entities
 
 
 def load_file(filename: str):
+    resolver = get_resolver()
     keys = {}
     for entity in path_entities(filename, Entity):
         if not entity.schema.edge:
@@ -36,7 +40,12 @@ def load_file(filename: str):
     for key, values in keys.items():
         if len(values) == 1:
             continue
+        for a, b in itertools.combinations(values, 2):
+            score = compare(model, a, b)
+            resolver.suggest(a.id, b.id, score=score, user="edge-dedupe")
         print(values)
+
+    resolver.save()
 
 
 if __name__ == "__main__":
