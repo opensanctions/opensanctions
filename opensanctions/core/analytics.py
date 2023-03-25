@@ -8,7 +8,6 @@ from opensanctions.core.db import analytics_dataset_table, analytics_entity_tabl
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.loader import Database
 from opensanctions.core.resolver import get_resolver
-from opensanctions.core.statements import resolve_all_canonical
 
 log = get_logger(__name__)
 BATCH_SIZE = 5000
@@ -16,8 +15,6 @@ BATCH_SIZE = 5000
 
 def build_analytics(dataset: Dataset):
     resolver = get_resolver()
-    with engine_tx() as conn:
-        resolve_all_canonical(conn, resolver)
     db = Database(dataset, resolver)
     loader = db.view(dataset)
     with engine_tx() as conn:
