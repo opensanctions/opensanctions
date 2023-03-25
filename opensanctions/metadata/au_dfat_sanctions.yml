@@ -42,6 +42,8 @@ lookups:
     options:
       - match:
           - Individual
+          - Person
+          - Aka
         value: Person
       - match:
           - Entity
@@ -61,5 +63,7 @@ lookups:
         value: previousName
       - match:
           - Primary name
+          - Primay Name
           - Primary
+          - null
         value: name

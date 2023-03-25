@@ -53,7 +53,9 @@ def clean_date(date):
     return dates
 
 
-def clean_reference(ref):
+def clean_reference(ref) -> Optional[int]:
+    if ref is None:
+        return None
     if isinstance(ref, (int, float)):
         return int(ref)
     number = ref
@@ -145,7 +147,8 @@ def crawl(context: Context):
                 continue
             row = dict(zip(headers, cells))
             reference = clean_reference(row.get("reference"))
-            references[reference].append(row)
+            if reference is not None:
+                references[reference].append(row)
 
     # xls = xlrd.open_workbook(path)
     # ws = xls.sheet_by_index(0)
