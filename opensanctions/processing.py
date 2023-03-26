@@ -42,5 +42,5 @@ def run_enrich(scope_name: str, external_name: str, threshold: float):
     resolver = get_resolver()
     database = Database(scope, resolver, cached=False)
     loader = database.view(scope)
-    ctx.enrich(resolver, loader, threshold=threshold)
+    ctx.enrich(loader, threshold=threshold)
     resolver.save()

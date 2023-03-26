@@ -24,10 +24,10 @@ from opensanctions.core.db import engine, engine_tx, metadata
 from opensanctions.core.db import Conn
 from opensanctions.core.external import External
 from opensanctions.core.issues import clear_issues
-from opensanctions.core.resolver import AUTO_USER
+from opensanctions.core.resolver import get_resolver, AUTO_USER
 from opensanctions.core.resources import save_resource, clear_resources
 from opensanctions.core.source import Source
-from opensanctions.core.statements import count_entities
+from opensanctions.core.statements import count_entities, lock_dataset
 from opensanctions.core.statements import cleanup_dataset, clear_statements
 from opensanctions.core.statements import save_statements
 
@@ -55,6 +55,10 @@ class Context(GenericZavod[Entity, Dataset]):
         if isinstance(self.dataset, Source):
             return self.dataset
         raise RuntimeError("Dataset is not a source: %s" % self.dataset.name)
+
+    @property
+    def resolver(self) -> Resolver:
+        return get_resolver()
 
     @cached_property
     def lang(self) -> Optional[str]:
@@ -208,10 +212,11 @@ class Context(GenericZavod[Entity, Dataset]):
         """Send an FtM entity to the store."""
         if entity.id is None:
             raise ValueError("Entity has no ID: %r", entity)
+        canonical_id = self.resolver.get_canonical(entity.id)
         for stmt in entity.statements:
             stmt.dataset = self.dataset.name
             stmt.entity_id = entity.id
-            stmt.canonical_id = entity.id
+            stmt.canonical_id = canonical_id
             stmt.schema = entity.schema.name
             stmt.first_seen = settings.RUN_TIME
             stmt.last_seen = settings.RUN_TIME
@@ -243,6 +248,7 @@ class Context(GenericZavod[Entity, Dataset]):
             clear_resources(conn, self.dataset)
         self.log.info("Begin crawl")
         try:
+            lock_dataset(self.data_conn, self.dataset)
             # Run the dataset:
             self.source.method(self)
             self.flush()
@@ -271,7 +277,6 @@ class Context(GenericZavod[Entity, Dataset]):
 
     def enrich(
         self,
-        resolver: Resolver,
         entities: Iterable[Entity],
         threshold: Optional[float] = None,
     ):
@@ -283,11 +288,12 @@ class Context(GenericZavod[Entity, Dataset]):
             # clear_statements(conn, self.dataset)
         external = cast(External, self.dataset)
         enricher = external.get_enricher(self.cache)
+        lock_dataset(self.data_conn, self.dataset)
         try:
             for entity in entities:
                 try:
                     for match in enricher.match_wrapped(entity):
-                        judgement = resolver.get_judgement(match.id, entity.id)
+                        judgement = self.resolver.get_judgement(match.id, entity.id)
 
                         # For unjudged candidates, compute a score and put it in the
                         # xref cache so the user can decide:
@@ -300,14 +306,14 @@ class Context(GenericZavod[Entity, Dataset]):
                                 self.log.info(
                                     "Match [%s]: %.2f -> %s" % (entity, score, match)
                                 )
-                                resolver.suggest(
+                                self.resolver.suggest(
                                     entity.id,
                                     match.id,
                                     score,
                                     user=AUTO_USER,
                                 )
 
-                        if judgement != Judgement.POSITIVE:
+                        if judgement not in (Judgement.NEGATIVE, Judgement.POSITIVE):
                             self.emit(match, external=True)
 
                         # Store previously confirmed matches to the database and make
@@ -323,8 +329,6 @@ class Context(GenericZavod[Entity, Dataset]):
                     self.log.error("Enrichment error %r: %s" % (entity, str(rexc)))
                 except Exception:
                     self.log.exception("Could not match: %r" % entity)
-
-                self.commit()
 
             cleanup_dataset(self.data_conn, self.dataset)
             self.commit()

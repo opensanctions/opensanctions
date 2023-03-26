@@ -222,7 +222,14 @@ def cleanup_dataset(conn: Conn, dataset: Dataset):
         conn.execute(pq)
 
 
-def resolve_all_canonical(conn: Conn, resolver: Resolver):
+def lock_dataset(conn: Conn, dataset: Dataset):
+    q = select(stmt_table.c.id)
+    q = q.with_for_update()
+    q = q.filter(stmt_table.c.dataset == dataset.name)
+    conn.execute(q)
+
+
+def resolve_all_canonical_via_table(conn: Conn, resolver: Resolver):
     log.info("Resolving canonical_id in statements...", resolver=resolver)
     conn.execute(delete(canonical_table))
     mappings = []
@@ -254,6 +261,30 @@ def resolve_all_canonical(conn: Conn, resolver: Resolver):
     q = q.where(stmt_table.c.canonical_id != canonical_table.c.canonical_id)
     q = q.values({stmt_table.c.canonical_id: canonical_table.c.canonical_id})
     conn.execute(q)
+
+
+def resolve_all_canonical(conn: Conn, resolver: Resolver):
+    log.info("Getting all canonical value pairs...")
+    q = select(stmt_table.c.entity_id, stmt_table.c.canonical_id)
+    q = q.distinct()
+    # updated = 0
+    pairs = conn.execute(q).fetchall()
+    for (entity_id, current_id) in pairs:
+        canonical_id = resolver.get_canonical(entity_id)
+        if canonical_id != current_id:
+            log.info("Resolve: %s -> %s", entity_id, canonical_id)
+            # print("MISMATCH", entity_id, current_id, canonical_id)
+            q = update(stmt_table)
+            q = q.where(stmt_table.c.entity_id == entity_id)
+            q = q.where(stmt_table.c.canonical_id != canonical_id)
+            q = q.values({stmt_table.c.canonical_id: canonical_id})
+            # print(q)
+            conn.execute(q)
+            # updated += 1
+
+        # if updated > 0 and updated % 100 == 0:
+        #     # conn.commit()
+        #     pass
 
 
 def resolve_canonical(conn: Conn, resolver: Resolver, canonical_id: str):
