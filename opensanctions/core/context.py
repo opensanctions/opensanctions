@@ -288,7 +288,7 @@ class Context(GenericZavod[Entity, Dataset]):
             # clear_statements(conn, self.dataset)
         external = cast(External, self.dataset)
         enricher = external.get_enricher(self.cache)
-        lock_dataset(self.data_conn, self.dataset)
+        # lock_dataset(self.data_conn, self.dataset)
         try:
             for entity in entities:
                 try:
@@ -313,8 +313,8 @@ class Context(GenericZavod[Entity, Dataset]):
                                     user=AUTO_USER,
                                 )
 
-                        if judgement not in (Judgement.NEGATIVE, Judgement.POSITIVE):
-                            self.emit(match, external=True)
+                        # if judgement not in (Judgement.NEGATIVE, Judgement.POSITIVE):
+                        #     self.emit(match, external=True)
 
                         # Store previously confirmed matches to the database and make
                         # them visible:
@@ -324,14 +324,14 @@ class Context(GenericZavod[Entity, Dataset]):
                                 if check_person_cutoff(adjacent):
                                     continue
                                 # self.log.info("Added", entity=adjacent)
-                                self.emit(adjacent)
+                                # self.emit(adjacent)
                 except RequestException as rexc:
                     self.log.error("Enrichment error %r: %s" % (entity, str(rexc)))
                 except Exception:
                     self.log.exception("Could not match: %r" % entity)
 
-            cleanup_dataset(self.data_conn, self.dataset)
-            self.commit()
+            # cleanup_dataset(self.data_conn, self.dataset)
+            # self.commit()
         except KeyboardInterrupt:
             pass
         finally:
