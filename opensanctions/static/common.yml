@@ -433,6 +433,10 @@ country:
       values:
         - GB
         - IE
+    - match:
+        - IRLANDE, ou EIRE
+      values:
+        - IE
     - match: British Pakistani
       values:
         - GB
