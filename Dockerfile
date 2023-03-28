@@ -24,7 +24,7 @@ ENV LANG="en_US.UTF-8" \
 
 RUN python3 -m venv /venv
 ENV PATH="/venv/bin:$PATH"
-RUN pip3 install --no-cache-dir -U pip six setuptools
+RUN pip3 install --no-cache-dir -U pip six setuptools wheel
 RUN pip3 install --no-cache-dir -U psycopg2-binary pyicu<2.11.0 lxml lxml-stubs
 
 COPY . /opensanctions
