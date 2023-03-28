@@ -12,7 +12,7 @@ def blocking_xref(dataset: Dataset, limit: int = 5000, auto_threshold: float = 0
     resolver = get_resolver()
     resolver.prune()
     log.info("Xref running, auto merge threshold: %f" % auto_threshold)
-    db = Database(dataset, resolver, cached=True, external=True)
+    db = Database(dataset, resolver, cached=False, external=True)
     loader = db.view(dataset)
     xref(
         loader,

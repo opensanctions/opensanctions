@@ -1,13 +1,10 @@
 from contextlib import contextmanager
-from sqlalchemy import MetaData
-from sqlalchemy import create_engine
 from sqlalchemy.engine import Connection
 from sqlalchemy.types import JSON
 from sqlalchemy import Table, Column, Integer, DateTime, Unicode, Boolean
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.dialects.postgresql import insert as upsert_func
-
-from opensanctions import settings
+from nomenklatura.db import get_engine, get_metadata
 
 KEY_LEN = 255
 VALUE_LEN = 65535
@@ -15,7 +12,8 @@ Conn = Connection
 
 __all__ = ["Conn", "engine_tx", "create_db", "upsert_func"]
 
-engine = create_engine(settings.DATABASE_URI, pool_size=settings.DATABASE_POOL_SIZE)
+engine = get_engine()
+metadata = get_metadata()
 
 
 class ConnCache(object):
@@ -47,8 +45,6 @@ def engine_read():
     with engine.connect() as conn:
         yield conn
 
-
-metadata = MetaData()
 
 issue_table = Table(
     "issue",

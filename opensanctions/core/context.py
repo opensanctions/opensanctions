@@ -10,7 +10,7 @@ from sqlalchemy.engine import Transaction
 from zavod.context import GenericZavod
 from followthemoney.helpers import check_person_cutoff
 from structlog.contextvars import clear_contextvars, bind_contextvars
-from nomenklatura.cache import Cache
+from nomenklatura.cache import Cache, ConnCache
 from nomenklatura.util import normalize_url
 from nomenklatura.judgement import Judgement
 from nomenklatura.matching import compare_scored
@@ -116,7 +116,7 @@ class Context(GenericZavod[Entity, Dataset]):
     ):
         url = normalize_url(url, params)
         if cache_days is not None:
-            text = self.cache.get(url, max_age=cache_days)
+            text = self.cache.get(url, max_age=cache_days, conn=self.data_conn)
             if text is not None:
                 self.log.debug("HTTP cache hit", url=url)
                 return text
@@ -127,7 +127,7 @@ class Context(GenericZavod[Entity, Dataset]):
             return None
 
         if cache_days is not None:
-            self.cache.set(url, text)
+            self.cache.set(url, text, conn=self.data_conn)
         return text
 
     def fetch_json(self, *args, **kwargs):
@@ -244,8 +244,7 @@ class Context(GenericZavod[Entity, Dataset]):
         if self.source.disabled:
             self.log.info("Source is disabled")
             return False
-        with engine_tx() as conn:
-            clear_resources(conn, self.dataset)
+        clear_resources(self.data_conn, self.dataset)
         self.log.info("Begin crawl")
         try:
             lock_dataset(self.data_conn, self.dataset)
@@ -286,11 +285,13 @@ class Context(GenericZavod[Entity, Dataset]):
             clear_issues(conn, self.dataset)
             clear_resources(conn, self.dataset)
             # clear_statements(conn, self.dataset)
+        conn_cache = ConnCache(self.cache, self.data_conn)
         external = cast(External, self.dataset)
-        enricher = external.get_enricher(self.cache)
+        enricher = external.get_enricher(conn_cache)
         # lock_dataset(self.data_conn, self.dataset)
         try:
             for entity in entities:
+                self.log.debug("Enrich query: %r" % entity)
                 try:
                     for match in enricher.match_wrapped(entity):
                         judgement = self.resolver.get_judgement(match.id, entity.id)
@@ -344,4 +345,4 @@ class Context(GenericZavod[Entity, Dataset]):
             clear_statements(conn, self.dataset)
             clear_issues(conn, self.dataset)
             clear_resources(conn, self.dataset)
-        self.cache.clear()
+            self.cache.clear(conn=conn)
