@@ -2,18 +2,15 @@ import json
 import hashlib
 import mimetypes
 from functools import cached_property
-from typing import Iterable, cast, Dict, Optional
+from typing import Dict, Optional
 from lxml import etree, html
 from requests.exceptions import RequestException
 from datapatch import LookupException, Result, Lookup
 from sqlalchemy.engine import Transaction
 from zavod.context import GenericZavod
-from followthemoney.helpers import check_person_cutoff
 from structlog.contextvars import clear_contextvars, bind_contextvars
-from nomenklatura.cache import Cache, ConnCache
+from nomenklatura.cache import Cache
 from nomenklatura.util import normalize_url
-from nomenklatura.judgement import Judgement
-from nomenklatura.matching import compare_scored
 from nomenklatura.resolver import Resolver
 from nomenklatura.statement import Statement
 
@@ -22,9 +19,8 @@ from opensanctions.core.dataset import Dataset
 from opensanctions.core.entity import Entity
 from opensanctions.core.db import engine, engine_tx, metadata
 from opensanctions.core.db import Conn
-from opensanctions.core.external import External
 from opensanctions.core.issues import clear_issues
-from opensanctions.core.resolver import get_resolver, AUTO_USER
+from opensanctions.core.resolver import get_resolver
 from opensanctions.core.resources import save_resource, clear_resources
 from opensanctions.core.source import Source
 from opensanctions.core.statements import count_entities, lock_dataset
@@ -274,75 +270,11 @@ class Context(GenericZavod[Entity, Dataset]):
         finally:
             self.close()
 
-    def enrich(
-        self,
-        entities: Iterable[Entity],
-        threshold: Optional[float] = None,
-    ):
-        """Try to match a set of entities against an external source."""
-        self.bind()
-        with engine_tx() as conn:
-            clear_issues(conn, self.dataset)
-            clear_resources(conn, self.dataset)
-            # clear_statements(conn, self.dataset)
-        conn_cache = ConnCache(self.cache, self.data_conn)
-        external = cast(External, self.dataset)
-        enricher = external.get_enricher(conn_cache)
-        # lock_dataset(self.data_conn, self.dataset)
-        try:
-            for entity in entities:
-                self.log.debug("Enrich query: %r" % entity)
-                try:
-                    for match in enricher.match_wrapped(entity):
-                        judgement = self.resolver.get_judgement(match.id, entity.id)
-
-                        # For unjudged candidates, compute a score and put it in the
-                        # xref cache so the user can decide:
-                        if judgement == Judgement.NO_JUDGEMENT:
-                            if not entity.schema.can_match(match.schema):
-                                continue
-                            result = compare_scored(entity, match)
-                            score = result["score"]
-                            if threshold is None or score >= threshold:
-                                self.log.info(
-                                    "Match [%s]: %.2f -> %s" % (entity, score, match)
-                                )
-                                self.resolver.suggest(
-                                    entity.id,
-                                    match.id,
-                                    score,
-                                    user=AUTO_USER,
-                                )
-
-                        # if judgement not in (Judgement.NEGATIVE, Judgement.POSITIVE):
-                        #     self.emit(match, external=True)
-
-                        # Store previously confirmed matches to the database and make
-                        # them visible:
-                        if judgement == Judgement.POSITIVE:
-                            self.log.info("Enrich [%s]: %r" % (entity, match))
-                            for adjacent in enricher.expand_wrapped(entity, match):
-                                if check_person_cutoff(adjacent):
-                                    continue
-                                # self.log.info("Added", entity=adjacent)
-                                # self.emit(adjacent)
-                except RequestException as rexc:
-                    self.log.error("Enrichment error %r: %s" % (entity, str(rexc)))
-                except Exception:
-                    self.log.exception("Could not match: %r" % entity)
-
-            # cleanup_dataset(self.data_conn, self.dataset)
-            # self.commit()
-        except KeyboardInterrupt:
-            pass
-        finally:
-            enricher.close()
-            self.close()
-
-    def clear(self) -> None:
+    def clear(self, data: bool = True) -> None:
         """Delete all recorded data for a given dataset."""
         with engine_tx() as conn:
             clear_statements(conn, self.dataset)
             clear_issues(conn, self.dataset)
-            clear_resources(conn, self.dataset)
-            self.cache.clear(conn=conn)
+            if data:
+                clear_resources(conn, self.dataset)
+                self.cache.clear(conn=conn)

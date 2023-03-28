@@ -1,7 +1,6 @@
 from functools import cache
 from nomenklatura.cache import Cache
 from nomenklatura.enrich import Enricher, get_enricher
-from nomenklatura.dataset import DataPublisher
 
 from opensanctions.core.dataset import Dataset
 
