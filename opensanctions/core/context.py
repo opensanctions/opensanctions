@@ -161,10 +161,9 @@ class Context(GenericZavod[Entity, Dataset]):
             self.log.warning("Resource is empty", path=path)
         checksum = digest.hexdigest()
         name = path.relative_to(self.path).as_posix()
-        with engine_tx() as conn:
-            return save_resource(
-                conn, name, self.dataset, checksum, mime_type, size, title
-            )
+        return save_resource(
+            self.data_conn, name, self.dataset, checksum, mime_type, size, title
+        )
 
     def lookup_value(
         self,
@@ -250,7 +249,6 @@ class Context(GenericZavod[Entity, Dataset]):
             cleanup_dataset(self.data_conn, self.dataset)
             entities = count_entities(self.data_conn, dataset=self.dataset)
             targets = count_entities(self.data_conn, dataset=self.dataset, target=True)
-
             self.commit()
             self.log.info("Crawl completed", entities=entities, targets=targets)
             return True

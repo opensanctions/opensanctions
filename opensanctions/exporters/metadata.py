@@ -25,6 +25,7 @@ THINGS = [s.name for s in model if s.is_a("Thing")]
 
 @cache
 def dataset_to_index(dataset: Dataset) -> Dict[str, Any]:
+    log.info("Computing metadata stats...", dataset=dataset.name)
     with engine_read() as conn:
         meta = dataset.to_dict()
         meta["last_change"] = max_last_seen(conn, dataset)

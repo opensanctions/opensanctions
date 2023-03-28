@@ -5,8 +5,8 @@ from nomenklatura.publish.dates import simplify_dates
 
 from opensanctions.core import Context, Dataset, Entity
 from opensanctions.core.loader import Database
-from opensanctions.core.db import engine
 from opensanctions.core.issues import all_issues
+from opensanctions.core.resolver import get_resolver
 from opensanctions.exporters.common import Exporter
 from opensanctions.exporters.ftm import FtMExporter
 from opensanctions.exporters.nested import NestedJSONExporter
@@ -51,13 +51,13 @@ def export_dataset(dataset: Dataset, database: Database):
         loader = database.view(dataset, assemble)
         if dataset.export:
             export_data(context, loader)
+        context.commit()
 
         # Export list of data issues from crawl stage
         issues_path = context.get_resource_path("issues.json")
         context.log.info("Writing dataset issues list", path=issues_path)
         with open(issues_path, "wb") as fh:
-            with engine.begin() as conn:
-                data = {"issues": list(all_issues(conn, dataset))}
+            data = {"issues": list(all_issues(context.data_conn, dataset))}
             write_json(data, fh)
 
         # Export full metadata
@@ -68,3 +68,14 @@ def export_dataset(dataset: Dataset, database: Database):
             write_json(meta, fh)
     finally:
         context.close()
+
+
+def export(scope_name: str) -> None:
+    """Export dump files for all datasets in the given scope."""
+    scope = Dataset.require(scope_name)
+    resolver = get_resolver()
+    database = Database(scope, resolver, cached=True)
+    database.view(scope)
+    for dataset_ in scope.datasets:
+        export_dataset(dataset_, database)
+    export_metadata()
