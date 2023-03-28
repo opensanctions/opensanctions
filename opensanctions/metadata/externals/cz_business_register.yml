@@ -26,6 +26,6 @@ config:
   schemata:
     - Company
     - Organization
-    - LegalEntity
+    # - LegalEntity
     # - Person
   cache_days: 30

@@ -2,16 +2,16 @@ from typing import List
 from concurrent.futures import Future, wait, ThreadPoolExecutor
 
 from opensanctions import settings
-from opensanctions.core import Dataset, Context
+from opensanctions.core import Dataset
 from opensanctions.core.resolver import get_resolver
 from opensanctions.exporters import export_metadata, export_dataset
 from opensanctions.core.loader import Database
 
 
-def _compute_futures(futures: List[Future]):
-    wait(futures)
-    for future in futures:
-        future.result()
+# def _compute_futures(futures: List[Future]):
+#     wait(futures)
+#     for future in futures:
+#         future.result()
 
 
 def run_export(
@@ -33,14 +33,3 @@ def run_export(
     #         futures.append(executor.submit(export_dataset, dataset_, database))
     #     futures.append(executor.submit(export_metadata))
     #     _compute_futures(futures)
-
-
-def run_enrich(scope_name: str, external_name: str, threshold: float):
-    scope = Dataset.require(scope_name)
-    external = Dataset.require(external_name)
-    ctx = Context(external)
-    resolver = get_resolver()
-    database = Database(scope, resolver, cached=False)
-    loader = database.view(scope)
-    ctx.enrich(loader, threshold=threshold)
-    resolver.save()

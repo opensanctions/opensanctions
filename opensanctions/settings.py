@@ -6,6 +6,8 @@ from datetime import datetime
 from os import environ as env
 from normality import stringify
 
+from nomenklatura import db
+
 
 def env_str(name: str, default: str) -> str:
     """Ensure the env returns a string even on Windows (#100)."""
@@ -38,8 +40,8 @@ if DATABASE_URI is None:
     raise RuntimeError("Please set $OPENSANCTIONS_DATABASE_URI.")
 if not DATABASE_URI.startswith("postgres"):
     raise RuntimeError("Unsupported database engine: %s" % DATABASE_URI)
-
-DATABASE_POOL_SIZE = int(env_str("OPENSANCTIONS_POOL_SIZE", "5"))
+db.DB_URL = DATABASE_URI
+db.POOL_SIZE = int(env_str("OPENSANCTIONS_POOL_SIZE", db.POOL_SIZE))
 
 # Per-run timestamp
 RUN_TIME = datetime.utcnow().replace(microsecond=0)

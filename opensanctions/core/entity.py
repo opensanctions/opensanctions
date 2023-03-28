@@ -9,14 +9,14 @@ from followthemoney.types import registry
 from followthemoney.proxy import P
 from followthemoney.schema import Schema
 from followthemoney.property import Property
-from nomenklatura.statement import StatementProxy
+from nomenklatura.entity import CompositeEntity
 
 from opensanctions.core.lookups import type_lookup
 
 log = get_logger(__name__)
 
 
-class Entity(StatementProxy):
+class Entity(CompositeEntity):
     """Entity for sanctions list entries and adjacent objects.
 
     Add utility methods to the :py:class:`followthemoney.proxy:EntityProxy` for

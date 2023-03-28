@@ -59,8 +59,8 @@ def all_statements(
         q = q.filter(stmt_table.c.external == False)
     q = q.order_by(stmt_table.c.canonical_id.asc())
     result = conn.execute(q)
-    for row in result:
-        yield Statement.from_dict(row._asdict())
+    for row in result.yield_per(20000):
+        yield Statement.from_db_row(row)
 
 
 def count_entities(

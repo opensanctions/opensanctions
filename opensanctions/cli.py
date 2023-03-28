@@ -17,9 +17,10 @@ from opensanctions.core.resolver import export_pairs, get_resolver
 from opensanctions.core.xref import blocking_xref
 from opensanctions.core.statements import max_last_seen
 from opensanctions.core.statements import resolve_all_canonical, resolve_canonical
+from opensanctions.core.enrich import enrich
 from opensanctions.core.analytics import build_analytics
 from opensanctions.core.db import engine_tx
-from opensanctions.processing import run_enrich, run_export
+from opensanctions.processing import run_export
 from opensanctions.util import write_json
 
 log = get_logger(__name__)
@@ -58,9 +59,9 @@ def export(dataset, threads):
 @cli.command("enrich", help="Import matched entities from an external source")
 @click.argument("dataset", type=datasets)
 @click.argument("external", type=datasets)
-@click.option("-t", "--threshold", type=click.FLOAT, default=0.5)
-def enrich(dataset, external, threshold):
-    run_enrich(dataset, external, threshold)
+@click.option("-t", "--threshold", type=click.FLOAT, default=0.6)
+def enrich_(dataset: str, external: str, threshold: float):
+    enrich(dataset, external, threshold)
 
 
 @cli.command("clear", help="Delete all stored data for the given source")

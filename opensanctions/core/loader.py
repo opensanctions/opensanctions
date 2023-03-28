@@ -129,7 +129,7 @@ class DatasetLoader(Loader[Dataset, Entity]):
             return
         entity = self.db.assemble(statements, sources=self.scopes)
         if entity is not None:
-            entity = self.db.resolver.apply_statement_proxy(entity)
+            entity = self.db.resolver.apply_properties(entity)
             if self.assembler is not None:
                 entity = self.assembler(entity)
             yield entity
