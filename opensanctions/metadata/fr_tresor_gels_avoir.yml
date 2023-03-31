@@ -1483,3 +1483,8 @@ lookups:
       - match: "Numéro fiscal: 4501008142"
         props:
           taxNumber: 4501008142
+      - match: "Numéro d'enregistrement - Date d'enregistrement: 1992 - Société par actions ouverte: 300042199"
+        props:
+          legalForm: Société par actions ouverte
+          incorporationDate: 1992
+          registrationNumber: 300042199

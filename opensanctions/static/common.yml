@@ -747,6 +747,7 @@ country:
         - USSR (until 1991)
         - ソビエト社会主義共和国連邦（1991年まで）
         - Transcaucasian Socialist Federative Soviet Republic
+        - CCCP
       value: SUHH
     - match:
         - Kyrgzstan
@@ -886,6 +887,9 @@ date:
         - 0011-01-20
         - 0010-10-20
         - 0011-01-19
+        - 0004-08-19
+        - 0005-03-20
+        - 0002-01-20
         - "0001-01-20"
         - "3030-03-09"
         - "3033-09-30"
