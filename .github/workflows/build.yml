@@ -31,6 +31,12 @@ jobs:
           tags: ghcr.io/opensanctions/opensanctions:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+      - name: Dispatch add-on build
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.OPERATIONS_PAT }}
+          repository: opensanctions/operations
+          event-type: build-etl
 
   test:
     runs-on: ubuntu-latest
