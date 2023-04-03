@@ -31,6 +31,12 @@ jobs:
           tags: ghcr.io/opensanctions/opensanctions:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  dispatch:
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    needs: [docker]
+    steps:
       - name: Dispatch add-on build
         uses: peter-evans/repository-dispatch@v2
         with:
