@@ -183,6 +183,7 @@ country:
         - Republic of Upper Volta
         # TODO:
         - Kurdistan
+        - Tibetan Plateau
         - Kingdom of Tlemcen
         - Mughal Empire
         - East Pakistan
@@ -550,6 +551,7 @@ country:
       value: MD
     - match:
         - Pridnestrovian Moldavian Soviet Socialist Republic
+        - Оккупированная Россией территория Молдовы
       value: MD-PMR
     - match: Malian / Mauritanian
       values:
@@ -1094,6 +1096,7 @@ date:
   map:
     "0202-11-22": "2020-11-22"
     "1951-06-31": "1951-06"
+    "1985-02-29": "1985-02"
     "1946-02-29": "1946-02"
     "3012-01-01": "2012-01-01"
     "3005-03-24": "2005-03-24"

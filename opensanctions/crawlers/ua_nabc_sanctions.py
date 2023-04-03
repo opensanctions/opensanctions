@@ -162,7 +162,7 @@ def crawl_person(context: Context) -> None:
         row = clean_row(row)
         person_id = row.pop("person_id", None)
         if person_id is None:
-            context.log.error("No person_id", data=row)
+            context.log.error("No person_id", name=row.get("name_en"))
             continue
         entity = context.make("Person")
         entity.id = make_person_id(person_id)
