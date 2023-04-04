@@ -34,7 +34,7 @@ def parse_date(value: Any):
 
 def crawl_entity(context: Context, data: Dict[str, Any]) -> None:
     unique_id = data.pop("Unique Identifier")
-    entity_type = data.pop("Type")
+    entity_type = data.pop("Type").strip()
     if entity_type in ("Asset", "Total"):
         # Assets are not granular enough to be worth importing
         return None
