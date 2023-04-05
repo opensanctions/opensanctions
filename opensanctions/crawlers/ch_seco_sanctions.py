@@ -1,8 +1,9 @@
+import re
+from prefixdate import parse_parts
 from collections import defaultdict
 from typing import Dict, Optional, Tuple
-from prefixdate import parse_parts
+from followthemoney.types import registry
 from lxml.etree import _Element as Element
-import re
 
 from opensanctions.core import Context, Entity
 from opensanctions import helpers as h
@@ -80,12 +81,15 @@ def parse_name(entity: Entity, node: Element):
             key = (spelling.get("lang"), spelling.get("script"))
             parts[key][part_type] = spelling.text
 
-    for key, part in parts.items():
-        entity.add("title", part.pop("title", None), quiet=True)
-        entity.add("title", part.pop("suffix", None), quiet=True)
-        entity.add("weakAlias", part.pop("other", None), quiet=True)
-        entity.add("weakAlias", part.pop("tribal-name", None), quiet=True)
-        entity.add("fatherName", part.pop("grand-father-name", None), quiet=True)
+    for (lang, _), part in parts.items():
+        lang = registry.language.clean(lang)
+        entity.add("title", part.pop("title", None), quiet=True, lang=lang)
+        entity.add("title", part.pop("suffix", None), quiet=True, lang=lang)
+        entity.add("weakAlias", part.pop("other", None), quiet=True, lang=lang)
+        entity.add("weakAlias", part.pop("tribal-name", None), quiet=True, lang=lang)
+        entity.add(
+            "fatherName", part.pop("grand-father-name", None), quiet=True, lang=lang
+        )
         h.apply_name(
             entity,
             full=part.pop("whole-name", None),
@@ -97,6 +101,7 @@ def parse_name(entity: Entity, node: Element):
             is_weak=is_weak,
             name_prop=name_prop,
             quiet=True,
+            lang=lang,
         )
         h.audit_data(part)
 

@@ -227,7 +227,7 @@ class Context(GenericZavod[Entity, Dataset]):
                 external,
             )
             self._statements[stmt.id] = stmt
-        self.log.debug("Emitted", entity=entity)
+        self.log.debug("Emitted", entity=entity.id, schema=entity.schema.name)
         if len(self._statements) >= (self.BATCH_SIZE * 10):
             self.flush()
 
