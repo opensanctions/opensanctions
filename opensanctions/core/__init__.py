@@ -17,7 +17,6 @@ def setup(log_level=None):
     log = get_logger(__name__)
     log.debug(
         "OpenSanctions starting",
-        database_uri=settings.DATABASE_URI,
         data_path=str(settings.DATA_PATH),
         datasets=Dataset.names(),
     )
