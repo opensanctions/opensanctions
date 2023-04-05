@@ -4,10 +4,17 @@ hidden: true
 export: false
 children:
   - sanctions
-  # - offshoreleaks
+  # - icij_offshoreleaks
   # - wikidata
+  - md_companies
   - ru_egrul
-  - opencorporates
+  # - opencorporates
+  # - wikidata
+  # - us_cia_world_leaders
   # - ru_rupep_companies
   # - ru_acf_bribetakers
   # - gb_coh_psc
+  # - cy_companies
+  # - us_ofac_sdn
+  # - ch_seco_sanctions
+  # - eu_fsf
