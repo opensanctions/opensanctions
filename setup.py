@@ -30,7 +30,7 @@ setup(
         "followthemoney == 3.3.0",
         "nomenklatura == 2.9.1",
         "orjson == 3.8.9",
-        "zavod == 0.6.0",
+        "zavod == 0.6.1",
         "pantomime == 0.6.0",
         "sqlalchemy[mypy]",
         "requests[security]",
