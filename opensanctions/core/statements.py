@@ -58,9 +58,17 @@ def all_statements(
     if external is False:
         q = q.filter(stmt_table.c.external == False)
     q = q.order_by(stmt_table.c.canonical_id.asc())
+    if canonical_id is None and inverted_ids is None:
+        conn = conn.execution_options(stream_results=True)
     result = conn.execute(q)
-    for row in result.yield_per(20000):
-        yield Statement.from_db_row(row)
+    while True:
+        rows = result.fetchmany(20000)
+        if not rows:
+            break
+        for row in rows:
+            yield Statement.from_db_row(row)
+    # for row in result.yield_per(20000):
+    #     yield Statement.from_db_row(row)
 
 
 def count_entities(
