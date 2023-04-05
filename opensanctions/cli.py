@@ -20,7 +20,7 @@ from opensanctions.core.statements import resolve_all_canonical, resolve_canonic
 from opensanctions.core.enrich import enrich
 from opensanctions.core.analytics import build_analytics
 from opensanctions.core.db import engine_tx
-from opensanctions.exporters import export
+from opensanctions.exporters import export, export_metadata
 from opensanctions.util import write_json
 
 log = get_logger(__name__)
@@ -51,8 +51,17 @@ def crawl(dataset):
 
 @cli.command("export", help="Export entities from the given dataset")
 @click.argument("dataset", default=Dataset.ALL, type=datasets)
-def export_(dataset: str):
-    export(dataset)
+@click.option("-i", "--index", is_flag=True, default=False)
+@click.option("-r", "--recurse", is_flag=True, default=False)
+def export_(dataset: str, index: bool = False, recurse: bool = False):
+    export(dataset, recurse=recurse)
+    if index:
+        export_metadata()
+
+
+@cli.command("export-index", help="Export global dataset index")
+def export_metadata_():
+    export_metadata()
 
 
 @cli.command("enrich", help="Import matched entities from an external source")

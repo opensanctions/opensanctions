@@ -70,12 +70,12 @@ def export_dataset(dataset: Dataset, database: Database):
         context.close()
 
 
-def export(scope_name: str) -> None:
+def export(scope_name: str, recurse: bool = False) -> None:
     """Export dump files for all datasets in the given scope."""
     scope = Dataset.require(scope_name)
     resolver = get_resolver()
     database = Database(scope, resolver, cached=True)
     database.view(scope)
-    for dataset_ in scope.datasets:
+    exports = scope.datasets if recurse else [scope]
+    for dataset_ in exports:
         export_dataset(dataset_, database)
-    export_metadata()
