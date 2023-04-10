@@ -41,7 +41,7 @@ class Context(GenericZavod[Entity, Dataset]):
     def __init__(self, dataset: Dataset):
         data_path = settings.DATASET_PATH.joinpath(dataset.name)
         super().__init__(dataset, Entity, data_path=data_path)
-        self.cache = Cache(engine, metadata, dataset)
+        self.cache = Cache(engine, metadata, dataset, create=True)
         self._statements: Dict[str, Statement] = {}
         self._data_conn: Optional[Conn] = None
         self._data_tx: Optional[Transaction] = None
