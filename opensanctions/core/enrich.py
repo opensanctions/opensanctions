@@ -58,12 +58,12 @@ def enrich(scope_name: str, external_name: str, threshold: float):
     loader = database.view(scope)
     conn_cache = ConnCache(context.cache, context.data_conn)
     enricher = external.get_enricher(conn_cache)
-    lock_dataset(context.data_conn, external)
+    # lock_dataset(context.data_conn, external)
     try:
         for entity_idx, entity in enumerate(loader):
             if entity_idx > 0 and entity_idx % 1000 == 0:
                 context.commit()
-                lock_dataset(context.data_conn, external)
+                # lock_dataset(context.data_conn, external)
             context.log.debug("Enrich query: %r" % entity)
             try:
                 for match in enricher.match_wrapped(entity):
