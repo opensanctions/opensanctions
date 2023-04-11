@@ -99,6 +99,7 @@ CREATE INDEX ix_canonical_entity_id ON canonical USING btree (entity_id);
 CREATE INDEX ix_issue_dataset ON issue USING btree (dataset);
 CREATE INDEX ix_issue_entity_id ON issue USING btree (entity_id);
 CREATE INDEX ix_resource_dataset ON resource USING btree (dataset);
+
 CREATE INDEX ix_statement_canonical_id ON statement USING btree (canonical_id);
 CREATE INDEX ix_statement_dataset ON statement USING btree (dataset);
 CREATE INDEX ix_statement_entity_id ON statement USING btree (entity_id);
@@ -121,3 +122,9 @@ ALTER TABLE "statement" ADD COLUMN "external" boolean DEFAULT false;
 
 ALTER TABLE "statement" ADD COLUMN "lang" character varying(255) DEFAULT NULL;
 ALTER TABLE "statement" ADD COLUMN "original_value" character varying(65535) DEFAULT NULL;
+
+--- 2023-04-11: swap out last seen index
+
+DROP INDEX ix_statement_last_seen;
+CREATE INDEX ix_statement_last_seen_dataset ON statement (last_seen, dataset);
+CREATE INDEX ix_statement_type_external ON statement (prop_type, external);

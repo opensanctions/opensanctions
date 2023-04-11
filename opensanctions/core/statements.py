@@ -78,7 +78,7 @@ def count_entities(
     schemata: Optional[List[str]] = None,
 ) -> int:
     q = select(func.count(func.distinct(stmt_table.c.canonical_id)))
-    q = q.filter(stmt_table.c.prop == Statement.BASE)
+    q = q.filter(stmt_table.c.prop_type == Statement.BASE)
     q = q.filter(stmt_table.c.external == False)  # noqa
     if target is not None:
         q = q.filter(stmt_table.c.target == target)
@@ -133,7 +133,7 @@ def agg_entities_by_schema(
     count = func.count(func.distinct(stmt_table.c.canonical_id))
     q = select(stmt_table.c.schema, count)
     q = q.filter(stmt_table.c.external == False)  # noqa
-    q = q.filter(stmt_table.c.prop == Statement.BASE)
+    q = q.filter(stmt_table.c.prop_type == Statement.BASE)
     if dataset is not None:
         q = q.filter(stmt_table.c.dataset.in_(dataset.scope_names))
     if target is not None:
@@ -161,7 +161,7 @@ def agg_entities_by_schema(
 def all_schemata(conn: Conn, dataset: Optional[Dataset] = None) -> List[str]:
     """Return all schemata present in the dataset"""
     q = select(func.distinct(stmt_table.c.schema))
-    q = q.filter(stmt_table.c.prop == Statement.BASE)
+    q = q.filter(stmt_table.c.prop_type == Statement.BASE)
     q = q.filter(stmt_table.c.external == False)  # noqa
     if dataset is not None:
         q = q.filter(stmt_table.c.dataset.in_(dataset.scope_names))
@@ -170,33 +170,14 @@ def all_schemata(conn: Conn, dataset: Optional[Dataset] = None) -> List[str]:
     return [s for (s,) in res.all()]
 
 
-@cache
-def _last_seen_by_dataset(conncache: ConnCache) -> Dict[str, datetime]:
-    q = select(
-        stmt_table.c.dataset.label("dataset"),
-        func.max(stmt_table.c.last_seen).label("last_seen"),
-    )
-    q = q.filter(stmt_table.c.prop == Statement.BASE)
-    q = q.filter(stmt_table.c.external == False)  # noqa
-    q = q.group_by(stmt_table.c.dataset)
-    cursor = conncache.conn.execute(q)
-    return {r._mapping["dataset"]: r._mapping["last_seen"] for r in cursor}
-
-
 def max_last_seen(conn: Conn, dataset: Optional[Dataset] = None) -> Optional[datetime]:
     """Return the latest date of the data."""
-    last_seens = _last_seen_by_dataset(ConnCache(conn))
-    if dataset is None:
-        times = list(last_seens.values())
-    else:
-        times = [last_seens[d] for d in dataset.source_names if d in last_seens]
-    return max(times, default=None)
-    # q = select(func.max(stmt_table.c.last_seen))
-    # q = q.filter(stmt_table.c.prop == Statement.BASE)
-    # q = q.filter(stmt_table.c.external == False)  # noqa
-    # if dataset is not None:
-    #     q = q.filter(stmt_table.c.dataset.in_(dataset.source_names))
-    # return conn.scalar(q)
+    q = select(func.max(stmt_table.c.last_seen))
+    q = q.filter(stmt_table.c.prop_type == Statement.BASE)
+    q = q.filter(stmt_table.c.external == False)  # noqa
+    if dataset is not None:
+        q = q.filter(stmt_table.c.dataset.in_(dataset.scope_names))
+    return conn.scalar(q)
 
 
 def entities_datasets(
@@ -204,7 +185,7 @@ def entities_datasets(
 ) -> Generator[Tuple[str, str], None, None]:
     """Return all entity IDs with the dataset they belong to."""
     q = select(stmt_table.c.entity_id, stmt_table.c.dataset)
-    q = q.filter(stmt_table.c.prop == Statement.BASE)
+    q = q.filter(stmt_table.c.prop_type == Statement.BASE)
     if dataset is not None:
         q = q.filter(stmt_table.c.dataset.in_(dataset.scope_names))
     q = q.distinct()
@@ -280,7 +261,12 @@ def resolve_all_canonical(conn: Conn, resolver: Resolver):
     for (entity_id, current_id) in pairs:
         canonical_id = resolver.get_canonical(entity_id)
         if canonical_id != current_id:
-            log.info("Resolve: %s -> %s", entity_id, canonical_id)
+            log.info(
+                "Resolve",
+                entity_id=entity_id,
+                canonical_id=canonical_id,
+                current_id=current_id,
+            )
             # print("MISMATCH", entity_id, current_id, canonical_id)
             q = update(stmt_table)
             q = q.where(stmt_table.c.entity_id == entity_id)
@@ -297,7 +283,7 @@ def resolve_all_canonical(conn: Conn, resolver: Resolver):
 
 def resolve_canonical(conn: Conn, resolver: Resolver, canonical_id: str):
     referents = resolver.get_referents(canonical_id)
-    log.debug("Resolving: %s" % canonical_id, referents=referents)
+    log.debug("Resolving", canonical=canonical_id, referents=referents)
     q = update(stmt_table)
     q = q.where(stmt_table.c.entity_id.in_(referents))
     q = q.values({stmt_table.c.canonical_id: canonical_id})

@@ -44,7 +44,6 @@ class Context(GenericZavod[Entity, Dataset]):
         self.cache = Cache(engine, metadata, dataset, create=True)
         self._statements: Dict[str, Statement] = {}
         self._data_conn: Optional[Conn] = None
-        self._data_tx: Optional[Transaction] = None
 
     @property
     def source(self) -> Source:
@@ -69,22 +68,17 @@ class Context(GenericZavod[Entity, Dataset]):
     def data_conn(self) -> Conn:
         if self._data_conn is None:
             self._data_conn = engine.connect()
-        if self._data_tx is None:
-            self._data_tx = self._data_conn.begin()
         return self._data_conn
 
     def commit(self):
         self.flush()
-        if self._data_tx is not None:
-            self._data_tx.commit()
-        self._data_tx = None
+        if self._data_conn is not None:
+            self._data_conn.commit()
 
     def close(self) -> None:
         """Flush and tear down the context."""
-        if self._data_tx is not None:
-            self._data_tx.rollback()
-            self._data_tx = None
         if self._data_conn is not None:
+            self._data_conn.rollback()
             self._data_conn.close()
             self._data_conn = None
         super().close()
@@ -228,7 +222,7 @@ class Context(GenericZavod[Entity, Dataset]):
             )
             self._statements[stmt.id] = stmt
         self.log.debug("Emitted", entity=entity.id, schema=entity.schema.name)
-        if len(self._statements) >= (self.BATCH_SIZE * 10):
+        if len(self._statements) >= (self.BATCH_SIZE * 5):
             self.flush()
 
     def crawl(self) -> bool:
