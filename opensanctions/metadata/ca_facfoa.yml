@@ -1,0 +1,29 @@
+entry_point: opensanctions.crawlers.ca_facfoa
+title: "Freezing Assets of Corrupt Foreign Officials Act"
+prefix: ca-facfoa
+summary: |
+  The Canadian governments maintains a small, Magnitsky-style list of government
+  officials that it alleges to be involved in corruption.
+description: |
+  * [Freezing Assets of Corrupt Foreign Officials Act (S.C. 2011, c. 10)](https://laws-lois.justice.gc.ca/eng/acts/F-31.6/)
+
+  Implemented regimes:
+  * [Tunisia](https://laws-lois.justice.gc.ca/eng/regulations/SOR-2011-78/index.html)
+  * [Ukraine](https://laws-lois.justice.gc.ca/eng/regulations/SOR-2014-44/index.html)
+
+  **This data is static, current as at 12 April 2023.**
+collections:
+  - sanctions
+  - default
+  - wanted
+url: https://www.publicsafety.gc.ca/cnt/ntnl-scrt/cntr-trrrsm/lstd-ntts/crrnt-lstd-ntts-en.aspx
+publisher:
+  name: "Government of Canada"
+  description: |
+    The lists are composed by the government of Canada and published as a regulation.
+  country: ca
+  url: https://laws-lois.justice.gc.ca/eng/regulations/
+  official: true
+data:
+  url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQDp-SsjvnupFtsQXsBsUddV-lz20mmIzcJ0UzJYZLphXGc0Pnt9htPkWO3ZxGmDdNqUeheYfArQr0G/pub?gid=0&single=true&output=csv"
+  format: CSV
