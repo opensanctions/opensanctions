@@ -253,7 +253,7 @@ def resolve_all_canonical_via_table(conn: Conn, resolver: Resolver):
 
 
 def resolve_all_canonical(conn: Conn, resolver: Resolver):
-    log.info("Getting all canonical value pairs...")
+    log.info("Getting all canonical value pairs...", resolver=resolver)
     q = select(stmt_table.c.entity_id, stmt_table.c.canonical_id)
     q = q.distinct()
     # updated = 0
@@ -283,7 +283,12 @@ def resolve_all_canonical(conn: Conn, resolver: Resolver):
 
 def resolve_canonical(conn: Conn, resolver: Resolver, canonical_id: str):
     referents = resolver.get_referents(canonical_id)
-    log.debug("Resolving", canonical=canonical_id, referents=referents)
+    log.debug(
+        "Resolving",
+        canonical=canonical_id,
+        referents=referents,
+        resolver=resolver,
+    )
     q = update(stmt_table)
     q = q.where(stmt_table.c.entity_id.in_(referents))
     q = q.values({stmt_table.c.canonical_id: canonical_id})
