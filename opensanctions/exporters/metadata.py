@@ -29,7 +29,7 @@ def dataset_to_index(dataset: Dataset) -> Dict[str, Any]:
     cache = Cache(engine, metadata, dataset)
     with engine_tx() as conn:
         last_seen = max_last_seen(conn, dataset)
-        stats_key = f"dataset:stats:{datetime_iso(last_seen)}"
+        stats_key = f"{dataset.name}:stats:{datetime_iso(last_seen)}"
         stats = cache.get_json(stats_key, max_age=3, conn=conn)
         if stats is None:
             target_count = count_entities(conn, dataset=dataset, target=True)

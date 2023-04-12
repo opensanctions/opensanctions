@@ -6,7 +6,6 @@ from typing import Dict, Optional
 from lxml import etree, html
 from requests.exceptions import RequestException
 from datapatch import LookupException, Result, Lookup
-from sqlalchemy.engine import Transaction
 from zavod.context import GenericZavod
 from structlog.contextvars import clear_contextvars, bind_contextvars
 from nomenklatura.cache import Cache
@@ -36,7 +35,6 @@ class Context(GenericZavod[Entity, Dataset]):
 
     SOURCE_TITLE = "Source data"
     BATCH_SIZE = 5000
-    BATCH_CONCURRENT = 5
 
     def __init__(self, dataset: Dataset):
         data_path = settings.DATASET_PATH.joinpath(dataset.name)
@@ -222,7 +220,7 @@ class Context(GenericZavod[Entity, Dataset]):
             )
             self._statements[stmt.id] = stmt
         self.log.debug("Emitted", entity=entity.id, schema=entity.schema.name)
-        if len(self._statements) >= (self.BATCH_SIZE * 5):
+        if len(self._statements) >= (self.BATCH_SIZE * 20):
             self.flush()
 
     def crawl(self) -> bool:
