@@ -199,7 +199,7 @@ def cleanup_dataset(conn: Conn, dataset: Dataset):
     # remove non-current statements (in the future we may want to keep them?)
     q = select(func.max(stmt_table.c.last_seen))
     q = q.filter(stmt_table.c.prop == Statement.BASE)
-    q = q.filter(stmt_table.c.external == False)  # noqa
+    # q = q.filter(stmt_table.c.external == False)  # noqa
     q = q.filter(stmt_table.c.dataset == dataset.name)
     q = q.group_by(stmt_table.c.dataset)
     cursor = conn.execute(q)
