@@ -1,4 +1,5 @@
-from typing import cast, List
+from typing import cast
+from sqlalchemy.exc import OperationalError
 from requests.exceptions import RequestException
 from followthemoney.helpers import check_person_cutoff
 from nomenklatura.cache import ConnCache
@@ -70,14 +71,16 @@ def enrich(scope_name: str, external_name: str, threshold: float):
                     save_match(context, enricher, entity, match, threshold)
             except RequestException as rexc:
                 context.log.error("Enrichment error %r: %s" % (entity, str(rexc)))
-            except Exception:
-                context.log.exception("Could not match: %r" % entity)
+            # except Exception:
+            #     context.log.exception("Could not match: %r" % entity)
 
         cleanup_dataset(context.data_conn, context.dataset)
         context.commit()
         context.resolver.save()
     except KeyboardInterrupt:
         pass
+    except Exception as exc:
+        context.log.exception("Enrichment failed: %s" % repr(exc))
     finally:
         enricher.close()
         context.close()
