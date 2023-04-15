@@ -211,13 +211,7 @@ class Context(GenericZavod[Entity, Dataset]):
             stmt.external = external
             if stmt.lang is None and self.lang is not None:
                 stmt.lang = self.lang
-            stmt.id = Statement.make_key(
-                stmt.dataset,
-                stmt.entity_id,
-                stmt.prop,
-                stmt.value,
-                external,
-            )
+            stmt.id = Statement.generate_key()
             self._statements[stmt.id] = stmt
         self.log.debug("Emitted", entity=entity.id, schema=entity.schema.name)
         if len(self._statements) >= (self.BATCH_SIZE * 20):
