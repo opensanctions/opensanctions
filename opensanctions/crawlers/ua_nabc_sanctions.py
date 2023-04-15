@@ -102,7 +102,7 @@ def crawl_common(context: Context, entity: Entity, row: Dict[str, Any]):
 
     sanction = h.make_sanction(context, entity)
     sanction.add("startDate", row.pop("sanctions_ua_date", None))
-    if row.pop("sanctions_ua") == 1:
+    if row.pop("sanctions_ua", None) == 1:
         sanction.add("status", "active")
 
     sanction.add("sourceUrl", url_split(row.pop("url_ua", "")))

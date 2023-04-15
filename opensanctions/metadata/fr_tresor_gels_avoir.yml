@@ -1488,3 +1488,7 @@ lookups:
           legalForm: Société par actions ouverte
           incorporationDate: 1992
           registrationNumber: 300042199
+      - match: "Lieu d’enregistrement : Saint-Pétersbourg, Fédération de Russie - Date d’enregistrement: 11.5.2014: /"
+        props:
+          jurisdiction: ru
+          incorporationDate: 2014-05-11

@@ -106,6 +106,7 @@ lookups:
           - вчитель
           - бізнес патнер
           - нступник
+          - ділові відносни
         schema: Associate
         local: person
         remote: associate
@@ -162,6 +163,7 @@ lookups:
           - двоюрідна сестра
           - цивільний чоловік
           - зовиця
+          - падчериця
         schema: Family
         local: person
         remote: relative
