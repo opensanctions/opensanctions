@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, time
 import openpyxl
 from openpyxl import Workbook
 from banal import as_bool
@@ -29,6 +29,8 @@ def parse_date(value: Any):
         return None
     if isinstance(value, datetime):
         return value.date()
+    if isinstance(value, (int, time)):
+        return None
     return h.parse_date(value.strip(), ["%d/%m/%Y"])
 
 
@@ -74,7 +76,7 @@ def crawl_entity(context: Context, data: Dict[str, Any]) -> None:
 
     sanction = h.make_sanction(context, entity)
     sanction.add("startDate", data.pop("Date of Sanction"))
-    sanction.add("modifiedAt", data.pop("Date of Additional Sanction"))
+    sanction.add("modifiedAt", parse_date(data.pop("Date of Additional Sanction")))
     sanction.add("status", data.pop("Sanction Status"))
     sanction.add("reason", data.pop("General Rationale for Sanction"))
     for scope in SCOPES:
