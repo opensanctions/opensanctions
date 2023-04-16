@@ -1,6 +1,7 @@
 from normality import collapse_spaces
+from lxml.etree import _Element as Element
 
-from opensanctions.core import Context
+from opensanctions.core import Context, Entity
 from opensanctions import helpers as h
 
 NAME_QUALITY = {
@@ -18,7 +19,7 @@ def values(node):
     return [c.text for c in node.findall("./VALUE")]
 
 
-def parse_alias(entity, node):
+def parse_alias(entity: Entity, node: Element):
     names = node.findtext("./ALIAS_NAME")
     quality = node.findtext("./QUALITY")
     name_prop = NAME_QUALITY[quality]
@@ -32,7 +33,7 @@ def parse_alias(entity, node):
         entity.add(name_prop, name)
 
 
-def parse_address(context: Context, node):
+def parse_address(context: Context, node: Element):
     return h.make_address(
         context,
         remarks=node.findtext("./NOTE"),
@@ -44,7 +45,7 @@ def parse_address(context: Context, node):
     )
 
 
-def parse_entity(context: Context, node):
+def parse_entity(context: Context, node: Element):
     entity = context.make("LegalEntity")
     sanction = parse_common(context, entity, node)
 
@@ -58,7 +59,7 @@ def parse_entity(context: Context, node):
     context.emit(sanction)
 
 
-def parse_individual(context: Context, node):
+def parse_individual(context: Context, node: Element):
     person = context.make("Person")
     sanction = parse_common(context, person, node)
     person.add("title", values(node.find("./TITLE")))
@@ -116,7 +117,7 @@ def parse_individual(context: Context, node):
     context.emit(sanction)
 
 
-def parse_common(context: Context, entity, node):
+def parse_common(context: Context, entity: Entity, node: Element):
     entity.id = context.make_slug(node.findtext("./DATAID"))
     h.apply_name(
         entity,
