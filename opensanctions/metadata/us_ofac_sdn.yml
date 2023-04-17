@@ -224,7 +224,6 @@ lookups:
       - match:
           - MICEX Code
           - UN/LOCODE
-
           # For all below, see SANCTIONS_FEATURES in code:
           - "Executive Order 13662 Directive Determination -"
           - "Executive Order 14024 Directive Information"

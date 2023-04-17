@@ -1,5 +1,4 @@
 # cf.
-# https://github.com/archerimpact/SanctionsExplorer/blob/master/data/sdn_parser.py
 # https://home.treasury.gov/system/files/126/sdn_advanced_notes.pdf
 from typing import Optional, Dict, Any, Union, List, Tuple
 from banal import first, as_bool
@@ -503,8 +502,8 @@ def apply_feature(
             "Missing feature",
             entity=proxy,
             schema=proxy.schema,
-            feature=feature,
-            value=value,
+            feature=repr(feature),
+            value=repr(value),
         )
         return
 
@@ -593,6 +592,8 @@ def crawl(context: Context):
     doc = h.remove_namespace(doc)
     refs = doc.find("ReferenceValueSets")
     assert refs is not None, "ReferenceValueSets not found"
+
+    # TODO: get last modified date from data
 
     # Print back a cleaned and formatted version of the source data for debug:
     # from lxml.etree import tostring
