@@ -224,6 +224,27 @@ lookups:
       - match:
           - MICEX Code
           - UN/LOCODE
+
+          # For all below, see SANCTIONS_FEATURES in code:
+          - "Executive Order 13662 Directive Determination -"
+          - "Executive Order 14024 Directive Information"
+          - "Executive Order 14024 Directive Information -"
+          - "Executive Order 13846 information:"
+          - "CAATSA Section 235 Information:"
+          - "IFCA Determination -"
+          - "PEESA Information:"
+          - "Additional Sanctions Information -"
+          - "Secondary sanctions risk:"
+          - "Transactions Prohibited For Persons Owned or Controlled By U.S. Financial Institutions:"
+          - Effective Date (CMIC)
+          - Purchase/Sales For Divestment Date (CMIC)
+          - "Effective Date (EO 14024 Directive 1a):"
+          - "Effective Date (EO 14024 Directive 2):"
+          - "Effective Date (EO 14024 Directive 3):"
+          - "Listing Date (EO 14024 Directive 1a):"
+          - "Listing Date (EO 14024 Directive 2):"
+          - "Listing Date (EO 14024 Directive 3):"
+          - "Listing Date (CMIC)"
         prop: null
       - match:
           - Location
@@ -232,16 +253,7 @@ lookups:
         schema: Person
         prop: gender
       - match:
-          - "Additional Sanctions Information -"
-          - "Executive Order 13662 Directive Determination -"
-          - "Executive Order 14024 Directive Information"
-          - "Executive Order 14024 Directive Information -"
-          - "Executive Order 13846 information:"
-          - "Secondary sanctions risk:"
-          - "IFCA Determination -"
-          - "PEESA Information:"
-          - "Transactions Prohibited For Persons Owned or Controlled By U.S. Financial Institutions:"
-          - "CAATSA Section 235 Information:"
+
         prop: notes
       - match: Birthdate
         prop: birthDate
@@ -259,7 +271,7 @@ lookups:
           - "Aircraft Operator"
           - "Vessel Owner"
         nested:
-          forwardref: owner
+          owner: true
           schema: LegalEntity
           value: name
       - match: BIK (RU)
@@ -365,22 +377,5 @@ lookups:
           value: ticker
           backref: issuer
           country: country
-      # HACK HACK this needs to go on the "Sanction" so I'm pushing
-      # it into modifiedAt and then picking it up later to put into
-      # the sanction.
-      - match:
-          - Effective Date (CMIC)
-          - Purchase/Sales For Divestment Date (CMIC)
-          - "Effective Date (EO 14024 Directive 1a):"
-          - "Effective Date (EO 14024 Directive 2):"
-          - "Effective Date (EO 14024 Directive 3):"
-        prop: modifiedAt
-        # TODO: patch these into FtM, investigate CMIC further
       - match: Issuer Name
         prop: name
-      - match:
-          - "Listing Date (EO 14024 Directive 1a):"
-          - "Listing Date (EO 14024 Directive 2):"
-          - "Listing Date (EO 14024 Directive 3):"
-          - "Listing Date (CMIC)"
-        prop: createdAt

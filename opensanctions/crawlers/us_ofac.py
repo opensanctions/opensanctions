@@ -3,7 +3,6 @@
 # https://home.treasury.gov/system/files/126/sdn_advanced_notes.pdf
 from typing import Optional, Dict, Any, Union, List, Tuple
 from banal import first, as_bool
-from banal import ensure_list
 from followthemoney.types import registry
 
 from collections import defaultdict
@@ -19,7 +18,6 @@ from zavod.parse.xml import ElementOrTree
 
 from opensanctions.core import Context, Dataset, Entity
 from opensanctions import helpers as h
-from opensanctions.core.lookups import common_lookups
 from opensanctions.helpers.dates import parse_date
 from opensanctions.helpers.text import clean_note
 
@@ -47,6 +45,27 @@ ALIAS_TYPES = {
     "N.K.A.": "name",
 }
 URL = "https://sanctionssearch.ofac.treas.gov/Details.aspx?id=%s"
+SANCTION_FEATURES = {
+    "CAATSA Section 235 Information:": "summary",
+    "Executive Order 14024 Directive Information": "summary",
+    "Executive Order 14024 Directive Information -": "summary",
+    "Executive Order 13662 Directive Determination -": "summary",
+    "Executive Order 13846 information:": "summary",
+    "Additional Sanctions Information -": "summary",
+    "Secondary sanctions risk:": "summary",
+    "Transactions Prohibited For Persons Owned or Controlled By U.S. Financial Institutions:": "summary",
+    "IFCA Determination -": "summary",
+    "PEESA Information:": "summary",
+    "Effective Date (CMIC)": "startDate",
+    "Purchase/Sales For Divestment Date (CMIC)": "startDate",
+    "Effective Date (EO 14024 Directive 1a):": "startDate",
+    "Effective Date (EO 14024 Directive 2):": "startDate",
+    "Effective Date (EO 14024 Directive 3):": "startDate",
+    "Listing Date (EO 14024 Directive 1a):": "listingDate",
+    "Listing Date (EO 14024 Directive 2):": "listingDate",
+    "Listing Date (EO 14024 Directive 3):": "listingDate",
+    "Listing Date (CMIC)": "listingDate",
+}
 
 
 def add_schema(entity, addition):
@@ -90,7 +109,7 @@ def get_ref_country(refs: Element, id: str) -> str:
     return element.text
 
 
-def parse_date(el: Element):
+def parse_date(el: Element) -> str:
     pf = parse_parts(
         el.findtext("./Year"),
         el.findtext("./Month"),
@@ -173,9 +192,9 @@ def parse_location(context: Context, refs: Element, location: Element) -> Entity
     return address
 
 
-def parse_relation(context: Context, el, parties):
+def parse_relation(context: Context, refs: Element, el: Element, parties):
     type_id = el.get("RelationTypeID")
-    type_ = ref_value("RelationType", el.get("RelationTypeID"))
+    type_ = get_ref_text(refs, "RelationType", type_id)
     from_id = context.make_slug(el.get("From-ProfileID"))
     from_party = parties.get(from_id)
     if from_party is None:
@@ -231,7 +250,7 @@ def parse_relation(context: Context, el, parties):
     entity.add(relation.from_prop, from_party)
     entity.add(relation.to_prop, to_party)
     entity.add(relation.description_prop, type_)
-    entity.add("summary", el.findtext("./Comment"))
+    entity.add("summary", el.findtext("Comment"))
     context.emit(entity)
     context.log.debug("Relation", from_=from_party, type=type_, to=to_party)
     # pprint(entity.to_dict())
@@ -282,11 +301,6 @@ def parse_distinct_party(
     for reg_doc in doc.findall(reg_doc_path):
         parse_id_reg_document(context, proxy, refs, reg_doc)
 
-    # Sanctions designations
-    entry_path = f"SanctionsEntries/SanctionsEntry[@ProfileID='{profile_id}']"
-    for sanctions_entry in doc.findall(entry_path):
-        parse_sanctions_entry(context, proxy, refs, sanctions_entry)
-
     features: Dict[str, FeatureValues] = {}
     for feature in profile.findall("./Feature"):
         feat_label, values = parse_feature(context, refs, doc, feature)
@@ -294,13 +308,14 @@ def parse_distinct_party(
             features[feat_label] = []
         features[feat_label].extend(values)
 
+    # Sanctions designations
+    entry_path = f"SanctionsEntries/SanctionsEntry[@ProfileID='{profile_id}']"
+    for sanctions_entry in doc.findall(entry_path):
+        parse_sanctions_entry(context, proxy, refs, features, sanctions_entry)
+
     for feat_label, values in features.items():
         for feat_value in values:
             apply_feature(context, proxy, feat_label, feat_value)
-
-    # from pprint import pprint
-    # pprint(features)
-    # print(proxy.to_dict())
 
     context.emit(proxy, target=True)
     return proxy
@@ -399,36 +414,42 @@ def parse_id_reg_document(
         )
         if identification is None:
             return
-        # context.inspect(identification)
         context.emit(identification)
 
 
 def parse_sanctions_entry(
-    context: Context, proxy: Entity, refs: Element, entry: Element
-) -> None:
+    context: Context,
+    proxy: Entity,
+    refs: Element,
+    features: Dict[str, FeatureValues],
+    entry: Element,
+) -> Entity:
+    # context.inspect(entry)
+    proxy.add("topics", "sanction")
     sanction = h.make_sanction(context, proxy, key=entry.get("ID"))
-    list = get_ref_text(refs, "List", entry.get("ListID"))
-    sanction.add("program", list)
+    sanction.set("program", get_ref_text(refs, "List", entry.get("ListID")))
+    sanction.set("authorityId", entry.get("ProfileID"))
 
-    # for event in entry.findall("./EntryEvent"):
-    #     date = parse_date(event.find("./Date"))
-    #     sanction.add("listingDate", date)
-    #     # party.add("createdAt", date)
-    #     sanction.add("summary", event.findtext("./Comment"))
-    #     basis = ref_value("LegalBasis", event.get("LegalBasisID"))
-    #     sanction.add("reason", basis)
+    for event in entry.findall("./EntryEvent"):
+        sanction.add("summary", event.findtext("./Comment"))
+        basis = get_ref_text(refs, "LegalBasis", event.get("LegalBasisID"))
+        sanction.add("reason", basis)
 
-    # party.add("topics", "sanction")
-    # # sanction.add("listingDate", party.get("createdAt"))
-    # # sanction.add("startDate", party.get("modifiedAt"))
+    for measure in entry.findall("./SanctionsMeasure"):
+        sanctions_type_id = measure.get("SanctionsTypeID")
+        sanctions_type = get_ref_text(refs, "SanctionsType", sanctions_type_id)
+        if sanctions_type == "Program":
+            sanctions_type = measure.findtext("Comment")
+        sanction.add("provisions", sanctions_type)
 
-    # for measure in entry.findall("./SanctionsMeasure"):
-    #     sanction.add("summary", measure.findtext("./Comment"))
-    #     type_id = measure.get("SanctionsTypeID")
-    #     sanction.add("program", ref_value("SanctionsType", type_id))
+    for feature, prop in SANCTION_FEATURES.items():
+        for value in features.get(feature, []):
+            if prop == "summary":
+                value = f"{feature} {value}"
+            sanction.add(prop, value)
 
-    # context.emit(sanction)
-    # pprint(sanction.to_dict())
+    context.emit(sanction)
+    return sanction
 
 
 def parse_feature(
@@ -436,24 +457,18 @@ def parse_feature(
 ) -> Tuple[str, FeatureValues]:
     """Extract the value of typed features linked to entities."""
     feature_id = feature.get("FeatureTypeID")
-    feature_label = get_ref_text(refs, "FeatureType", feature_id)
+    feature_label = get_ref_text(refs, "FeatureType", feature_id).strip()
     values: FeatureValues = []
 
     version_loc = feature.find(".//VersionLocation")
     if version_loc is not None:
         location_id = version_loc.get("LocationID")
         location = doc.find(f"Locations/Location[@ID='{location_id}']")
-        address = parse_location(context, refs, location)
-        values.append(address)
-        # TODO: handle country prop assignments
-        # if address.id is not None:
-        #     context.emit(address)
+        values.append(parse_location(context, refs, location))
 
     period = feature.find(".//DatePeriod")
     if period is not None:
-        value = parse_date_period(period)
-        if value is not None:
-            values.extend(value)
+        values.extend(parse_date_period(period))
 
     detail = feature.find(".//VersionDetail")
     if detail is not None:
@@ -467,20 +482,13 @@ def parse_feature(
             values.append(value)
 
     if not len(values):
-        context.log.warning("Could not extract feature value", feature=feature)
+        context.log.warning(
+            "Could not extract feature value",
+            feature=feature,
+            feature_label=feature_label,
+        )
 
     return feature_label, values
-
-
-# def _prepare_value(prop, values, date_formats):
-#     prepared = []
-#     for value in ensure_list(values):
-
-#         if prop.type == registry.date:
-#             prepared.extend(parse_date(value, date_formats))
-#             continue
-#         prepared.append(value)
-#     return prepared
 
 
 def apply_feature(
@@ -499,6 +507,7 @@ def apply_feature(
             value=value,
         )
         return
+
     if result.schema is not None:
         # The presence of this feature implies that the entity has a
         # certain schema.
@@ -512,6 +521,7 @@ def apply_feature(
         value = value.first("country")
         if value is None:
             return
+
     if result.prop is not None:
         # Set a property directly on the entity.
         prop = proxy.schema.get(result.prop)
@@ -520,12 +530,6 @@ def apply_feature(
         if result.prop == "jurisdiction" and proxy.schema.is_a("Vehicle"):
             prop = proxy.schema.get("country")
 
-        if prop.name == "notes":
-            value = clean_note(value)
-
-        if prop.name == "dunsCode":
-            value = value.strip().replace("-", "")
-
         if prop is None:
             context.log.warn(
                 "Property not found: %s" % result.prop,
@@ -533,17 +537,24 @@ def apply_feature(
                 schema=proxy.schema,
                 feature=feature,
             )
-        else:
-            proxy.add(prop, value)
+            return
+
+        if prop.name == "notes":
+            value = clean_note(value)
+
+        if prop.name == "dunsCode":
+            value = value.strip().replace("-", "")
+
+        proxy.add(prop, value)
 
     nested: Optional[Dict[str, str]] = result.nested
     if nested is not None:
         # So this is deeply funky: basically, nested entities are
         # mapped from
-        adj = context.make(nested.pop("schema"))
+        adj = context.make(nested.get("schema"))
         adj.id = context.make_id(proxy.id, feature, value)
 
-        value_prop = adj.schema.get(nested.pop("value"))
+        value_prop = adj.schema.get(nested.get("value"))
         assert value_prop is not None, nested
         adj.add(value_prop, value)
 
@@ -561,9 +572,17 @@ def apply_feature(
             )
             adj.add(backref_prop, proxy.id)
 
-        if nested.get("forwardref") is not None:
-            proxy.add(nested.get("forwardref"), adj.id)
+        if nested.get("owner"):
+            assert proxy.schema.is_a("Asset")
+            assert adj.schema.is_a("LegalEntity")
+            own = context.make("Ownership")
+            own.id = context.make_id("Ownership", proxy.id, adj.id)
+            own.add("owner", adj)
+            own.add("asset", proxy)
+            context.emit(own)
 
+        if adj.schema.is_a("Thing"):
+            adj.add("topics", "sanction")
         context.emit(adj)
 
 
@@ -581,8 +600,10 @@ def crawl(context: Context):
     # with open(clean_path, "wb") as fh:
     #     fh.write(tostring(doc, pretty_print=True, encoding="utf-8"))
 
+    parties: Dict[str, Entity] = {}
     for distinct_party in doc.findall("./DistinctParties/DistinctParty"):
-        parse_distinct_party(context, doc, refs, distinct_party)
+        proxy = parse_distinct_party(context, doc, refs, distinct_party)
+        parties[proxy.id] = proxy
 
-    # for relation in doc.findall(".//ProfileRelationship"):
-    #     parse_relation(context, relation, parties)
+    for relation in doc.findall(".//ProfileRelationship"):
+        parse_relation(context, refs, relation, parties)
