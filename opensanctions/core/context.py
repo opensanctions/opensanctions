@@ -221,7 +221,7 @@ class Context(GenericZavod[Entity, Dataset]):
             self._statements[stmt.id] = stmt
         self.log.debug("Emitted", entity=entity.id, schema=entity.schema.name)
         self._entity_count += 1
-        if len(self._statements) >= (self.BATCH_SIZE * 20):
+        if len(self._statements) >= (self.BATCH_SIZE * 10):
             self.flush()
 
     def crawl(self) -> bool:
