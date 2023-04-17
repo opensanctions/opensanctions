@@ -232,7 +232,7 @@ class Context(GenericZavod[Entity, Dataset]):
         if self.source.disabled:
             self.log.info("Source is disabled")
             return False
-        clear_resources(self.data_conn, self.dataset)
+        # clear_resources(self.data_conn, self.dataset)
         self.log.info("Begin crawl")
         self._entity_count = 0
         self._statement_count = 0
