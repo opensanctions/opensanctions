@@ -22,7 +22,7 @@ from opensanctions.core.issues import clear_issues
 from opensanctions.core.resolver import get_resolver
 from opensanctions.core.resources import save_resource, clear_resources
 from opensanctions.core.source import Source
-from opensanctions.core.statements import lock_dataset
+from opensanctions.core.statements import lock_dataset, count_entities
 from opensanctions.core.statements import cleanup_dataset, clear_statements
 from opensanctions.core.statements import save_statements
 
@@ -188,8 +188,12 @@ class Context(GenericZavod[Entity, Dataset]):
         when a crawl is aborted are not persisted to the database."""
         statements = list(self._statements.values())
         if len(statements):
-            self.log.info("Flushing %d statements..." % len(statements))
             self._statement_count += len(statements)
+            self.log.info(
+                "Storing %d statements..." % len(statements),
+                entities=self._entity_count,
+                total=self._statement_count,
+            )
         for i in range(0, len(statements), self.BATCH_SIZE):
             batch = statements[i : i + self.BATCH_SIZE]
             save_statements(self.data_conn, batch)
@@ -248,12 +252,11 @@ class Context(GenericZavod[Entity, Dataset]):
                 )
             else:
                 cleanup_dataset(self.data_conn, self.dataset)
+            entities = count_entities(self.data_conn, dataset=self.dataset)
+            targets = count_entities(self.data_conn, dataset=self.dataset, target=True)
             self.commit()
-            self.log.info(
-                "Crawl completed",
-                entities=self._entity_count,
-                statements=self._statement_count,
-            )
+            self.log.info("Crawl completed", entities=entities, targets=targets)
+            self.commit()
             return True
         except KeyboardInterrupt:
             self.log.warning("Aborted by user (SIGINT)")

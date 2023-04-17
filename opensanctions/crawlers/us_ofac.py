@@ -1,18 +1,17 @@
 # cf.
 # https://home.treasury.gov/system/files/126/sdn_advanced_notes.pdf
-from typing import Optional, Dict, Any, Union, List, Tuple
+from typing import Optional, Dict, Union, List, Tuple
 from banal import first, as_bool
-from followthemoney.types import registry
-
 from collections import defaultdict
 from functools import cache
 from lxml.etree import _Element as Element
 from lxml.etree import tostring
 from os.path import commonprefix
+from prefixdate import parse_parts
 from followthemoney import model
 from followthemoney.types import registry
+from followthemoney.schema import Schema
 from followthemoney.exc import InvalidData
-from prefixdate import parse_parts
 from zavod.parse.xml import ElementOrTree
 
 from opensanctions.core import Context, Dataset, Entity
@@ -67,23 +66,13 @@ SANCTION_FEATURES = {
 }
 
 
-def add_schema(entity, addition):
+def get_relation_schema(party_schema: Schema, range: Schema) -> Schema:
     try:
-        entity.schema = model.common_schema(entity.schema, addition)
+        return model.common_schema(party_schema, range)
     except InvalidData:
-        # FIXME: this might make vessels out of companies!!!
-        for schema in model.schemata.values():
-            if schema.is_a(entity.schema) and schema.is_a(addition):
-                entity.schema = schema
-                return
+        if range.is_a("Asset") and party_schema.is_a("LegalEntity"):
+            return model.get("Company")
         raise
-
-
-def disjoint_schema(entity, addition):
-    for schema in model.schemata.values():
-        if schema.is_a(entity.schema) and schema.is_a(addition):
-            return False
-    return True
 
 
 def get_ref_element(refs: Element, type_: str, id: str) -> Element:
@@ -191,29 +180,21 @@ def parse_location(context: Context, refs: Element, location: Element) -> Entity
     return address
 
 
-def parse_relation(context: Context, refs: Element, el: Element, parties):
+def parse_relation(
+    context: Context, refs: Element, el: Element, parties: Dict[str, Schema]
+):
     type_id = el.get("RelationTypeID")
     type_ = get_ref_text(refs, "RelationType", type_id)
     from_id = context.make_slug(el.get("From-ProfileID"))
-    from_party = parties.get(from_id)
-    if from_party is None:
-        context.log.warn("Missing relation 'from' party", entity_id=from_id, type=type_)
+    from_schema = parties.get(from_id)
+    if from_schema is None:
+        context.log.error("Missing 'from' party", entity_id=from_id, type=type_)
         return
     to_id = context.make_slug(el.get("To-ProfileID"))
-    to_party = parties.get(to_id)
-    if to_party is None:
-        context.log.warn("Missing relation 'to' party", entity_id=to_id, type=type_)
+    to_schema = parties.get(to_id)
+    if to_schema is None:
+        context.log.error("Missing 'to' party", entity_id=to_id, type=type_)
         return
-
-    # if type_id == "15003":
-    #     print(
-    #         "REL",
-    #         from_party.caption,
-    #         from_party.schema.name,
-    #         type_,
-    #         to_party.caption,
-    #         to_party.schema.name,
-    #     )
 
     relation = lookup("relations", type_id)
     if relation is None:
@@ -221,33 +202,39 @@ def parse_relation(context: Context, refs: Element, el: Element, parties):
             "Unknown relation type",
             type_id=type_id,
             type_value=type_,
-            from_party=from_party,
-            to_party=to_party,
+            from_schema=from_schema,
+            to_schema=to_schema,
         )
         return
     entity = context.make(relation.schema)
-    from_range = entity.schema.get(relation.from_prop).range
-    to_range = entity.schema.get(relation.to_prop).range
+    from_prop = entity.schema.get(relation.from_prop)
+    to_prop = entity.schema.get(relation.to_prop)
 
-    # HACK: Looks like OFAC just has some link in a direction that makes no
-    # semantic sense, so we're flipping them here.
-    if disjoint_schema(from_party, from_range) or disjoint_schema(to_party, to_range):
+    try:
+        get_relation_schema(from_schema, from_prop.range)
+        get_relation_schema(to_schema, to_prop.range)
+    except InvalidData as exc:
+        # HACK: Looks like OFAC just has some link in a direction that makes no
+        # semantic sense, so we're flipping them here.
         # context.log.warning(
         #     "Flipped relation",
-        #     from_party=from_party,
-        #     to_party=to_party,
+        #     from_id=from_id,
+        #     to_id=to_id,
         #     schema=entity.schema,
         #     type=type_,
         # )
-        from_party, to_party = to_party, from_party
+        from_id, from_schema, to_id, to_schema = to_id, to_schema, from_id, from_schema
 
-    add_schema(from_party, from_range)
-    add_schema(to_party, to_range)
-    context.emit(from_party, target=True)
-    context.emit(to_party, target=True)
+    from_party = context.make(get_relation_schema(from_schema, from_prop.range))
+    from_party.id = from_id
+    to_party = context.make(get_relation_schema(to_schema, to_prop.range))
+    to_party.id = to_id
+
+    context.emit(from_party)
+    context.emit(to_party)
     entity.id = context.make_id("Relation", from_party.id, to_party.id, el.get("ID"))
-    entity.add(relation.from_prop, from_party)
-    entity.add(relation.to_prop, to_party)
+    entity.add(from_prop, from_party)
+    entity.add(to_prop, to_party)
     entity.add(relation.description_prop, type_)
     entity.add("summary", el.findtext("Comment"))
     context.emit(entity)
@@ -278,6 +265,7 @@ def parse_distinct_party(
     proxy.id = context.make_slug(profile_id)
     proxy.add("notes", party.findtext("./Comment"))
     proxy.add("sourceUrl", URL % profile.get("ID"))
+    # return proxy
 
     identities = profile.findall("./Identity")
     assert len(identities) == 1
@@ -444,7 +432,8 @@ def parse_sanctions_entry(
     for feature, prop in SANCTION_FEATURES.items():
         for value in features.get(feature, []):
             if prop == "summary":
-                value = f"{feature} {value}"
+                fname = feature.rstrip(":").rstrip("-").strip()
+                value = f"{fname}: {value}"
             sanction.add(prop, value)
 
     context.emit(sanction)
@@ -601,10 +590,10 @@ def crawl(context: Context):
     # with open(clean_path, "wb") as fh:
     #     fh.write(tostring(doc, pretty_print=True, encoding="utf-8"))
 
-    parties: Dict[str, Entity] = {}
+    parties: Dict[str, Schema] = {}
     for distinct_party in doc.findall("./DistinctParties/DistinctParty"):
         proxy = parse_distinct_party(context, doc, refs, distinct_party)
-        parties[proxy.id] = proxy
+        parties[proxy.id] = proxy.schema
 
     for relation in doc.findall(".//ProfileRelationship"):
         parse_relation(context, refs, relation, parties)
