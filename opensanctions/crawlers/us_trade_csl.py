@@ -48,7 +48,10 @@ def parse_result(context: Context, result: Dict[str, Any]):
     entity_number = result.pop("entity_number", None)
     if entity_number is not None:
         assert int(entity_number)
-        entity.id = context.make_slug(entity_number, prefix="ofac")
+        # entity.id = context.make_slug(entity_number, prefix="ofac")
+
+        # Don't double-import OFAC entities
+        return
 
     name = result.pop("name", None)
     name = name.replace("and any successor, sub-unit, or subsidiary thereof", "")
@@ -101,19 +104,7 @@ def parse_result(context: Context, result: Dict[str, Any]):
         h.apply_address(context, entity, obj)
 
     for ident in result.pop("ids", []):
-        # print(ident)
-        country = ident.pop("country", None)
-        entity.add("country", country)
-        h.apply_feature(
-            context,
-            entity,
-            ident.pop("type"),
-            ident.pop("number"),
-            country=country,
-            date_formats=FORMATS,
-            start_date=ident.pop("issue_date", None),
-            end_date=ident.pop("expiration_date", None),
-        )
+        context.log.warning("Unknown ID type", id=ident)
 
     sanction = context.make("Sanction")
     sanction.id = context.make_id(entity.id, "Sanction")
