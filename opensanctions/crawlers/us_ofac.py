@@ -1,8 +1,11 @@
 # cf.
 # https://github.com/archerimpact/SanctionsExplorer/blob/master/data/sdn_parser.py
 # https://home.treasury.gov/system/files/126/sdn_advanced_notes.pdf
-from typing import Optional, Dict
+from typing import Optional, Dict, Any, Union, List, Tuple
 from banal import first, as_bool
+from banal import ensure_list
+from followthemoney.types import registry
+
 from collections import defaultdict
 from functools import cache
 from lxml.etree import _Element as Element
@@ -16,6 +19,12 @@ from zavod.parse.xml import ElementOrTree
 
 from opensanctions.core import Context, Dataset, Entity
 from opensanctions import helpers as h
+from opensanctions.core.lookups import common_lookups
+from opensanctions.helpers.dates import parse_date
+from opensanctions.helpers.text import clean_note
+
+FeatureValue = Union[str, Entity]
+FeatureValues = List[FeatureValue]
 
 
 def lookup(name, value):
@@ -59,8 +68,7 @@ def disjoint_schema(entity, addition):
     return True
 
 
-@cache
-def get_ref_value(refs: Element, type_: str, id: str) -> Element:
+def get_ref_element(refs: Element, type_: str, id: str) -> Element:
     element = refs.find(f"./{type_}Values/{type_}[@ID='{id}']")
     if element is None:
         raise ValueError("Cannot find reference value [%s]: %s" % (type_, id))
@@ -68,8 +76,14 @@ def get_ref_value(refs: Element, type_: str, id: str) -> Element:
 
 
 @cache
+def get_ref_text(refs: Element, type_: str, id: str) -> Optional[str]:
+    element = get_ref_element(refs, type_, id)
+    return element.text
+
+
+@cache
 def get_ref_country(refs: Element, id: str) -> str:
-    element = get_ref_value(refs, "Country", id)
+    element = get_ref_element(refs, "Country", id)
     iso2 = element.get("ISO2")
     if iso2 is not None:
         return iso2.lower()
@@ -96,7 +110,7 @@ def date_prefix(*dates: str) -> Optional[str]:
     return prefix
 
 
-def parse_date_period(date: Element):
+def parse_date_period(date: Element) -> Tuple[str, ...]:
     start_el = date.find("./Start")
     start_from = parse_date(start_el.find("./From"))
     start_to = parse_date(start_el.find("./To"))
@@ -117,7 +131,7 @@ def parse_date_period(date: Element):
 def parse_location(context: Context, refs: Element, location: Element) -> Entity:
     countries = set()
     for area in location.findall("./LocationAreaCode"):
-        area_code = get_ref_value(refs, "AreaCode", area.get("AreaCodeID"))
+        area_code = get_ref_element(refs, "AreaCode", area.get("AreaCodeID"))
         area_country = registry.country.clean(area_code.get("Description"))
         countries.add(area_country)
 
@@ -129,10 +143,10 @@ def parse_location(context: Context, refs: Element, location: Element) -> Entity
     if len(countries) > 1:
         context.log.warn("Multiple countries", countries=countries)
 
-    parts = {}
+    parts: Dict[Optional[str], Optional[str]] = {}
     for part in location.findall("./LocationPart"):
-        part_type = get_ref_value(refs, "LocPartType", part.get("LocPartTypeID"))
-        parts[part_type.text] = part.findtext("./LocationPartValue/Value")
+        part_type = get_ref_text(refs, "LocPartType", part.get("LocPartTypeID"))
+        parts[part_type] = part.findtext("./LocationPartValue/Value")
 
     country = first(countries)
     unknown = parts.pop("Unknown", None)
@@ -157,115 +171,6 @@ def parse_location(context: Context, refs: Element, location: Element) -> Entity
     )
     h.audit_data(parts)
     return address
-
-
-# def load_documents(doc):
-#     documents = {}
-#     for regdoc in doc.findall("./IDRegDocuments/IDRegDocument"):
-#         identity_id = regdoc.get("IdentityID")
-#         documents.setdefault(identity_id, [])
-#         documents[identity_id].append(regdoc)
-#     return documents
-
-
-# def parse_registration_doc(context: Context, party, regdoc):
-#     authority = regdoc.findtext("./IssuingAuthority")
-#     number = regdoc.findtext("./IDRegistrationNo")
-#     comment = regdoc.findtext("./Comment")
-#     issue_date = None
-#     expire_date = None
-#     for date in regdoc.findall("./DocumentDate"):
-#         period = parse_date_period(date.find("./DatePeriod"))
-#         date_type_id = date.get("IDRegDocDateTypeID")
-#         date_type = ref_value("IDRegDocDateType", date_type_id)
-#         if date_type == "Issue Date":
-#             issue_date = period
-#         if date_type == "Expiration Date":
-#             expire_date = period
-#     country = regdoc.get("IssuedBy-CountryID")
-#     if country is not None:
-#         country = ref_get("Country", country).get("ISO2")
-#         party.add("country", country)
-
-#     doc_type_id = regdoc.get("IDRegDocTypeID")
-#     feature = ref_value("IDRegDocType", doc_type_id)
-#     if authority in ("INN", "OGRN", "IMO"):
-#         feature = authority
-
-#     h.apply_feature(
-#         context,
-#         party,
-#         feature,
-#         number,
-#         country=country,
-#         start_date=issue_date,
-#         end_date=expire_date,
-#         comment=comment,
-#         authority=authority,
-#     )
-
-
-# def parse_party(context: Context, distinct_party, locations, documents):
-#     profile = distinct_party.find("Profile")
-#     sub_type = ref_get("PartySubType", profile.get("PartySubTypeID"))
-#     schema = TYPES.get(sub_type.get("Value"))
-#     type_ = ref_value("PartyType", sub_type.get("PartyTypeID"))
-#     schema = TYPES.get(type_, schema)
-#     if schema is None:
-#         context.log.error("Unknown party type", value=type_)
-#         return
-#     party = context.make(schema)
-#     party.id = context.make_slug(profile.get("ID"))
-#     party.add("notes", h.clean_note(distinct_party.findtext("Comment")))
-#     party.add("sourceUrl", URL % profile.get("ID"))
-
-#     for identity in profile.findall("./Identity"):
-#         # parts = {}
-#         # for group in identity.findall(".//NamePartGroup"):
-#         #     type_id = group.get("NamePartTypeID")
-#         #     parts[group.get("ID")] = ref_value("NamePartType", type_id)
-
-#         # for alias in identity.findall("./Alias"):
-#         #     parse_alias(party, parts, alias)
-
-#         for regdoc in documents.get(identity.get("ID"), []):
-#             parse_registration_doc(context, party, regdoc)
-
-#     for feature in profile.findall("./Feature"):
-#         parse_feature(context, feature, party, locations)
-
-#     context.emit(party, target=True)
-#     # pprint(party.to_dict())
-#     # context.log.info("[%s] %s" % (party.schema.name, party.caption))
-#     return party
-
-
-# def parse_entry(context: Context, entry, parties):
-#     party_id = context.make_slug(entry.get("ProfileID"))
-#     party = parties[party_id]
-
-#     sanction = h.make_sanction(context, party, key=entry.get("ID"))
-#     sanction.add("program", ref_value("List", entry.get("ListID")))
-
-#     for event in entry.findall("./EntryEvent"):
-#         date = parse_date(event.find("./Date"))
-#         party.add("createdAt", date)
-#         sanction.add("summary", event.findtext("./Comment"))
-#         basis = ref_value("LegalBasis", event.get("LegalBasisID"))
-#         sanction.add("reason", basis)
-
-#     party.add("topics", "sanction")
-#     sanction.add("listingDate", party.get("createdAt"))
-#     sanction.add("startDate", party.get("modifiedAt"))
-
-#     for measure in entry.findall("./SanctionsMeasure"):
-#         sanction.add("summary", measure.findtext("./Comment"))
-#         type_id = measure.get("SanctionsTypeID")
-#         sanction.add("program", ref_value("SanctionsType", type_id))
-
-#     context.emit(sanction)
-#     context.emit(party, target=True)
-#     # pprint(sanction.to_dict())
 
 
 def parse_relation(context: Context, el, parties):
@@ -333,19 +238,18 @@ def parse_relation(context: Context, el, parties):
 
 
 def parse_schema(refs: Element, sub_type_id: str) -> str:
-    sub_type = get_ref_value(refs, "PartySubType", sub_type_id)
+    sub_type = get_ref_element(refs, "PartySubType", sub_type_id)
 
     type_text = sub_type.text
     if type_text == "Unknown":
-        main_type = get_ref_value(refs, "PartyType", sub_type.get("PartyTypeID"))
-        type_text = main_type.text
+        type_text = get_ref_text(refs, "PartyType", sub_type.get("PartyTypeID"))
 
     return TYPES[type_text]
 
 
 def parse_distinct_party(
     context: Context, doc: ElementOrTree, refs: Element, party: Element
-) -> None:
+) -> Entity:
     profiles = party.findall("./Profile")
     assert len(profiles) == 1
     profile = profiles[0]
@@ -361,10 +265,11 @@ def parse_distinct_party(
     assert len(identities) == 1
     identity = identities[0]
 
+    # Name parts (not clear why this cannot be in aliases...)
     parts: Dict[str, str] = {}
     for group in identity.findall("NamePartGroups/MasterNamePartGroup/NamePartGroup"):
-        name_part = get_ref_value(refs, "NamePartType", group.get("NamePartTypeID"))
-        parts[group.get("ID")] = name_part.text
+        part = get_ref_text(refs, "NamePartType", group.get("NamePartTypeID"))
+        parts[group.get("ID")] = part
     assert len(parts), identity
 
     # Alias names
@@ -382,42 +287,23 @@ def parse_distinct_party(
     for sanctions_entry in doc.findall(entry_path):
         parse_sanctions_entry(context, proxy, refs, sanctions_entry)
 
+    features: Dict[str, FeatureValues] = {}
     for feature in profile.findall("./Feature"):
-        feature_id = feature.get("FeatureTypeID")
-        feature_label = get_ref_value(refs, "FeatureType", feature_id).text
+        feat_label, values = parse_feature(context, refs, doc, feature)
+        if feat_label not in features:
+            features[feat_label] = []
+        features[feat_label].extend(values)
 
-        version_loc = feature.find(".//VersionLocation")
-        if version_loc is not None:
-            location_id = version_loc.get("LocationID")
-            location = doc.find(f"Locations/Location[@ID='{location_id}']")
-            address = parse_location(context, refs, location)
-            # TODO: handle country prop assignments
-            if address.id is not None:
-                context.emit(address)
+    for feat_label, values in features.items():
+        for feat_value in values:
+            apply_feature(context, proxy, feat_label, feat_value)
 
-            # address = locations.get(location.get("LocationID"))
-            # h.apply_address(context, party, address)
-            # return
-
-        # value = None
-
-        # period = feature.find(".//DatePeriod")
-        # if period is not None:
-        #     value = parse_date_period(period)
-        #     h.apply_feature(context, party, feature_label, value)
-
-        # detail = feature.find(".//VersionDetail")
-        # if detail is not None:
-        #     # detail_type = ref_value("DetailType", detail.get("DetailTypeID"))
-        #     reference_id = detail.get("DetailReferenceID")
-        #     if reference_id is not None:
-        #         value = ref_value("DetailReference", reference_id)
-        #     else:
-        #         value = detail.text
-        #     h.apply_feature(context, party, feature_label, value)
-    #     pass
-    # context.inspect(profile)
+    # from pprint import pprint
+    # pprint(features)
     # print(proxy.to_dict())
+
+    context.emit(proxy, target=True)
+    return proxy
 
 
 def parse_alias(
@@ -425,7 +311,7 @@ def parse_alias(
 ) -> None:
     # primary = as_bool(alias.get("Primary"))
     is_weak = as_bool(alias.get("LowQuality"))
-    alias_type = get_ref_value(refs, "AliasType", alias.get("AliasTypeID"))
+    alias_type = get_ref_element(refs, "AliasType", alias.get("AliasTypeID"))
     name_prop = ALIAS_TYPES[alias_type.text]
     for name in alias.findall("DocumentedName"):
         names = defaultdict(lambda: "")
@@ -463,7 +349,7 @@ def parse_id_reg_document(
     number = reg_doc.findtext("IDRegistrationNo")
     comment = reg_doc.findtext("Comment")
     doc_type_id = reg_doc.get("IDRegDocTypeID")
-    doc_type = get_ref_value(refs, "IDRegDocType", doc_type_id)
+    doc_type = get_ref_element(refs, "IDRegDocType", doc_type_id)
     conf = lookup("doc_types", doc_type.text)
     if conf is None:
         context.log.warning(
@@ -488,7 +374,7 @@ def parse_id_reg_document(
         for date in reg_doc.findall("./DocumentDate"):
             period = parse_date_period(date.find("./DatePeriod"))
             date_type_id = date.get("IDRegDocDateTypeID")
-            date_type = get_ref_value(refs, "IDRegDocDateType", date_type_id)
+            date_type = get_ref_element(refs, "IDRegDocDateType", date_type_id)
             if date_type.text == "Issue Date":
                 issue_date = period
             elif date_type.text == "Expiration Date":
@@ -521,8 +407,8 @@ def parse_sanctions_entry(
     context: Context, proxy: Entity, refs: Element, entry: Element
 ) -> None:
     sanction = h.make_sanction(context, proxy, key=entry.get("ID"))
-    list = get_ref_value(refs, "List", entry.get("ListID"))
-    sanction.add("program", list.text)
+    list = get_ref_text(refs, "List", entry.get("ListID"))
+    sanction.add("program", list)
 
     # for event in entry.findall("./EntryEvent"):
     #     date = parse_date(event.find("./Date"))
@@ -545,33 +431,140 @@ def parse_sanctions_entry(
     # pprint(sanction.to_dict())
 
 
-# def parse_feature(
-#     context: Context, proxy: Entity, refs: Element, feature: Element
-# ) -> None:
-#     feature_id = feature.get("FeatureTypeID")
-#     feature_label = get_ref_value(refs, "FeatureType", feature_id)
-#     location = feature.find(".//VersionLocation")
-#     if location is not None:
-#         address = locations.get(location.get("LocationID"))
-#         h.apply_address(context, party, address)
-#         return
+def parse_feature(
+    context: Context, refs: Element, doc: Element, feature: Element
+) -> Tuple[str, FeatureValues]:
+    """Extract the value of typed features linked to entities."""
+    feature_id = feature.get("FeatureTypeID")
+    feature_label = get_ref_text(refs, "FeatureType", feature_id)
+    values: FeatureValues = []
 
-#     value = None
+    version_loc = feature.find(".//VersionLocation")
+    if version_loc is not None:
+        location_id = version_loc.get("LocationID")
+        location = doc.find(f"Locations/Location[@ID='{location_id}']")
+        address = parse_location(context, refs, location)
+        values.append(address)
+        # TODO: handle country prop assignments
+        # if address.id is not None:
+        #     context.emit(address)
 
-#     period = feature.find(".//DatePeriod")
-#     if period is not None:
-#         value = parse_date_period(period)
-#         h.apply_feature(context, party, feature_label, value)
+    period = feature.find(".//DatePeriod")
+    if period is not None:
+        value = parse_date_period(period)
+        if value is not None:
+            values.extend(value)
 
-#     detail = feature.find(".//VersionDetail")
-#     if detail is not None:
-#         # detail_type = ref_value("DetailType", detail.get("DetailTypeID"))
-#         reference_id = detail.get("DetailReferenceID")
-#         if reference_id is not None:
-#             value = ref_value("DetailReference", reference_id)
-#         else:
-#             value = detail.text
-#         h.apply_feature(context, party, feature_label, value)
+    detail = feature.find(".//VersionDetail")
+    if detail is not None:
+        # detail_type = ref_value("DetailType", detail.get("DetailTypeID"))
+        reference_id = detail.get("DetailReferenceID")
+        if reference_id is not None:
+            value = get_ref_text(refs, "DetailReference", reference_id)
+        else:
+            value = detail.text
+        if value is not None:
+            values.append(value)
+
+    if not len(values):
+        context.log.warning("Could not extract feature value", feature=feature)
+
+    return feature_label, values
+
+
+# def _prepare_value(prop, values, date_formats):
+#     prepared = []
+#     for value in ensure_list(values):
+
+#         if prop.type == registry.date:
+#             prepared.extend(parse_date(value, date_formats))
+#             continue
+#         prepared.append(value)
+#     return prepared
+
+
+def apply_feature(
+    context: Context,
+    proxy: Entity,
+    feature: str,
+    value: FeatureValue,
+):
+    result = lookup("features", feature)
+    if result is None:
+        context.log.warning(
+            "Missing feature",
+            entity=proxy,
+            schema=proxy.schema,
+            feature=feature,
+            value=value,
+        )
+        return
+    if result.schema is not None:
+        # The presence of this feature implies that the entity has a
+        # certain schema.
+        proxy.add_schema(result.schema)
+
+    # Handle addresses vs. countries
+    if isinstance(value, Entity):
+        if feature == "Location":
+            h.apply_address(context, proxy, value)
+            return
+        value = value.first("country")
+        if value is None:
+            return
+    if result.prop is not None:
+        # Set a property directly on the entity.
+        prop = proxy.schema.get(result.prop)
+
+        # Work-around for airplane jurisdictions:
+        if result.prop == "jurisdiction" and proxy.schema.is_a("Vehicle"):
+            prop = proxy.schema.get("country")
+
+        if prop.name == "notes":
+            value = clean_note(value)
+
+        if prop.name == "dunsCode":
+            value = value.strip().replace("-", "")
+
+        if prop is None:
+            context.log.warn(
+                "Property not found: %s" % result.prop,
+                entity=proxy,
+                schema=proxy.schema,
+                feature=feature,
+            )
+        else:
+            proxy.add(prop, value)
+
+    nested: Optional[Dict[str, str]] = result.nested
+    if nested is not None:
+        # So this is deeply funky: basically, nested entities are
+        # mapped from
+        adj = context.make(nested.pop("schema"))
+        adj.id = context.make_id(proxy.id, feature, value)
+
+        value_prop = adj.schema.get(nested.pop("value"))
+        assert value_prop is not None, nested
+        adj.add(value_prop, value)
+
+        if nested.get("feature") is not None:
+            feature = feature.replace("Digital Currency Address - ", "")
+            adj.add(nested.get("feature"), feature)
+
+        if nested.get("backref") is not None:
+            backref_prop = adj.schema.get(nested.get("backref"))
+            assert proxy.schema.is_a(backref_prop.range), (
+                proxy.schema,
+                backref_prop.range,
+                feature,
+                value,
+            )
+            adj.add(backref_prop, proxy.id)
+
+        if nested.get("forwardref") is not None:
+            proxy.add(nested.get("forwardref"), adj.id)
+
+        context.emit(adj)
 
 
 def crawl(context: Context):
@@ -588,24 +581,8 @@ def crawl(context: Context):
     # with open(clean_path, "wb") as fh:
     #     fh.write(tostring(doc, pretty_print=True, encoding="utf-8"))
 
-    # context.log.info("Loading reference values...")
-    # load_ref_values(doc)
-    # context.log.info("Loading locations...")
-    # locations = load_locations(context, doc)
-    # context.log.info("Loading ID reg documents...")
-    # documents = load_documents(doc)
-
     for distinct_party in doc.findall("./DistinctParties/DistinctParty"):
         parse_distinct_party(context, doc, refs, distinct_party)
-
-    # parties = {}
-    # for distinct_party in doc.findall(".//DistinctParty"):
-    #     party = parse_party(context, distinct_party, locations, documents)
-    #     parties[party.id] = party
-
-    # # TODO: this doesn't need the parties
-    # for entry in doc.findall(".//SanctionsEntry"):
-    #     parse_entry(context, entry, parties)
 
     # for relation in doc.findall(".//ProfileRelationship"):
     #     parse_relation(context, relation, parties)

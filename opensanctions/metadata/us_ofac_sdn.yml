@@ -225,6 +225,9 @@ lookups:
           - MICEX Code
           - UN/LOCODE
         prop: null
+      - match:
+          - Location
+        prop: addressEntity
       - match: Gender
         schema: Person
         prop: gender
@@ -275,10 +278,12 @@ lookups:
         schema: Organization
         prop: incorporationDate
       - match:
-          - "Nationality of Registration"
+          - "Nationality Country"
+          - "Citizenship Country"
         prop: nationality
       - match:
           - Registration Country
+          - "Nationality of Registration"
         prop: jurisdiction
       - match: Target Type
         prop: legalForm
@@ -327,21 +332,21 @@ lookups:
         schema: Airplane
         prop: registrationNumber
       - match:
-          - ETH
-          - BTC
-          - XBT
-          - XRP
-          - DASH
-          - LTC
-          - ZEC
-          - XMR
-          - BSV
-          - BCH
-          - BTG
-          - ETC
-          - XVG
-          - USDT
-          - USDC
+          - "Digital Currency Address - ETH"
+          - "Digital Currency Address - BTC"
+          - "Digital Currency Address - XBT"
+          - "Digital Currency Address - XRP"
+          - "Digital Currency Address - DASH"
+          - "Digital Currency Address - LTC"
+          - "Digital Currency Address - ZEC"
+          - "Digital Currency Address - XMR"
+          - "Digital Currency Address - BSV"
+          - "Digital Currency Address - BCH"
+          - "Digital Currency Address - BTG"
+          - "Digital Currency Address - ETC"
+          - "Digital Currency Address - XVG"
+          - "Digital Currency Address - USDT"
+          - "Digital Currency Address - USDC"
         nested:
           schema: CryptoWallet
           feature: currency
@@ -353,14 +358,12 @@ lookups:
           schema: Security
           value: isin
           backref: issuer
-          singleton: true
           country: country
       - match: Equity Ticker
         nested:
           schema: Security
           value: ticker
           backref: issuer
-          singleton: true
           country: country
       # HACK HACK this needs to go on the "Sanction" so I'm pushing
       # it into modifiedAt and then picking it up later to put into
