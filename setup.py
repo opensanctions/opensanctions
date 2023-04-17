@@ -42,7 +42,7 @@ setup(
         "datapatch == 1.0.2",
         "structlog",
         "colorama",
-        "pyicu < 2.11.0",
+        "pyicu < 2.12.0",
         "openpyxl == 3.1.0",
         "xlrd == 2.0.1",
         "lxml == 4.9.2",
