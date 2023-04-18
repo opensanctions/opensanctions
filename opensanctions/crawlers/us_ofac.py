@@ -66,11 +66,12 @@ SANCTION_FEATURES = {
 
 
 def get_relation_schema(party_schema: Schema, range: Schema) -> Schema:
+    if range.is_a("Asset") and party_schema.is_a("Organization"):
+        return model.get("Company")
     try:
-        return model.common_schema(party_schema, range)
+        model.common_schema(party_schema, range)
+        return range
     except InvalidData:
-        if range.is_a("Asset") and party_schema.is_a("LegalEntity"):
-            return model.get("Company")
         raise
 
 
@@ -185,15 +186,7 @@ def parse_relation(
     type_id = el.get("RelationTypeID")
     type_ = get_ref_text(refs, "RelationType", type_id)
     from_id = context.make_slug(el.get("From-ProfileID"))
-    from_schema = parties.get(from_id)
-    if from_schema is None:
-        context.log.error("Missing 'from' party", entity_id=from_id, type=type_)
-        return
     to_id = context.make_slug(el.get("To-ProfileID"))
-    to_schema = parties.get(to_id)
-    if to_schema is None:
-        context.log.error("Missing 'to' party", entity_id=to_id, type=type_)
-        return
 
     relation = lookup("relations", type_id)
     if relation is None:
@@ -201,8 +194,8 @@ def parse_relation(
             "Unknown relation type",
             type_id=type_id,
             type_value=type_,
-            from_schema=from_schema,
-            to_schema=to_schema,
+            from_id=from_id,
+            to_to=to_id,
         )
         return
     entity = context.make(relation.schema)
@@ -210,8 +203,8 @@ def parse_relation(
     to_prop = entity.schema.get(relation.to_prop)
 
     try:
-        get_relation_schema(from_schema, from_prop.range)
-        get_relation_schema(to_schema, to_prop.range)
+        get_relation_schema(parties[from_id], from_prop.range)
+        get_relation_schema(parties[to_id], to_prop.range)
     except InvalidData as exc:
         # HACK: Looks like OFAC just has some link in a direction that makes no
         # semantic sense, so we're flipping them here.
@@ -222,17 +215,18 @@ def parse_relation(
         #     schema=entity.schema,
         #     type=type_,
         # )
-        from_id, from_schema, to_id, to_schema = to_id, to_schema, from_id, from_schema
+        from_id, to_id = to_id, from_id
 
-    from_party = context.make(get_relation_schema(from_schema, from_prop.range))
+    from_party = context.make(get_relation_schema(parties[from_id], from_prop.range))
     from_party.id = from_id
-    to_party = context.make(get_relation_schema(to_schema, to_prop.range))
-    to_party.id = to_id
-
-    if from_party.schema != from_schema:
+    if not parties[from_id].is_a(from_party.schema):
         context.emit(from_party)
-    if to_party.schema != to_schema:
+
+    to_party = context.make(get_relation_schema(parties[to_id], to_prop.range))
+    to_party.id = to_id
+    if not parties[to_id].is_a(to_party.schema):
         context.emit(to_party)
+
     entity.id = context.make_id("Relation", from_party.id, to_party.id, el.get("ID"))
     entity.add(from_prop, from_party)
     entity.add(to_prop, to_party)
@@ -596,5 +590,5 @@ def crawl(context: Context):
         proxy = parse_distinct_party(context, doc, refs, distinct_party)
         parties[proxy.id] = proxy.schema
 
-    # for relation in doc.findall(".//ProfileRelationship"):
-    #     parse_relation(context, refs, relation, parties)
+    for relation in doc.findall(".//ProfileRelationship"):
+        parse_relation(context, refs, relation, parties)
