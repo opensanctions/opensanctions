@@ -1,4 +1,5 @@
 import csv
+from functools import cache
 from typing import Optional, Dict, Any
 from datetime import timedelta
 from pantomime.types import CSV
@@ -21,6 +22,7 @@ MAX_AGE = 110 * YEAR
 MAX_OFFICE = 40 * YEAR
 
 
+@cache
 def to_date(days: int) -> str:
     dt = settings.RUN_TIME - timedelta(days=days)
     return dt.isoformat()[:10]
