@@ -1,11 +1,10 @@
 # cf.
 # https://home.treasury.gov/system/files/126/sdn_advanced_notes.pdf
-from typing import Optional, Dict, Union, List, Tuple
+from functools import cache
 from banal import first, as_bool
 from collections import defaultdict
-from functools import cache
+from typing import Optional, Dict, Union, List, Tuple
 from lxml.etree import _Element as Element
-from lxml.etree import tostring
 from os.path import commonprefix
 from prefixdate import parse_parts
 from followthemoney import model
@@ -230,8 +229,10 @@ def parse_relation(
     to_party = context.make(get_relation_schema(to_schema, to_prop.range))
     to_party.id = to_id
 
-    context.emit(from_party)
-    context.emit(to_party)
+    if from_party.schema != from_schema:
+        context.emit(from_party)
+    if to_party.schema != to_schema:
+        context.emit(to_party)
     entity.id = context.make_id("Relation", from_party.id, to_party.id, el.get("ID"))
     entity.add(from_prop, from_party)
     entity.add(to_prop, to_party)
@@ -595,5 +596,5 @@ def crawl(context: Context):
         proxy = parse_distinct_party(context, doc, refs, distinct_party)
         parties[proxy.id] = proxy.schema
 
-    for relation in doc.findall(".//ProfileRelationship"):
-        parse_relation(context, refs, relation, parties)
+    # for relation in doc.findall(".//ProfileRelationship"):
+    #     parse_relation(context, refs, relation, parties)
