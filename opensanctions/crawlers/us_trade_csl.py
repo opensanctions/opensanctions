@@ -46,16 +46,21 @@ def parse_result(context: Context, result: Dict[str, Any]):
     entity.id = context.make_slug(result.pop("id"))
 
     entity_number = result.pop("entity_number", None)
+    is_ofac = False
     if entity_number is not None:
         assert int(entity_number)
-        # entity.id = context.make_slug(entity_number, prefix="ofac")
-
-        # Don't double-import OFAC entities
-        return
+        entity.id = context.make_slug(entity_number, prefix="ofac")
+        is_ofac = True
 
     name = result.pop("name", None)
     name = name.replace("and any successor, sub-unit, or subsidiary thereof", "")
     entity.add("name", name)
+
+    if is_ofac:
+        context.emit(entity, target=True)
+        # Don't double-import OFAC entities
+        return
+
     for alias in ensure_list(result.pop("alt_names", "")):
         entity.add("alias", alias.split("; "))
     entity.add("notes", result.pop("remarks", None))
