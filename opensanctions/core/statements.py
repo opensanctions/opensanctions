@@ -22,7 +22,7 @@ def save_statements(conn: Conn, statements: List[Statement]) -> None:
     # values = list(unique.values())
     if not len(statements):
         return None
-    log.debug("Saving statements", size=len(statements))
+    # log.debug("Saving statements", size=len(statements))
     values = [s.to_dict() for s in statements]
     istmt = upsert_func(stmt_table).values(values)
     stmt = istmt.on_conflict_do_update(
