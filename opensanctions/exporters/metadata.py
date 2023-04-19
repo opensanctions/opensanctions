@@ -15,6 +15,7 @@ from opensanctions.core.statements import (
     all_schemata,
     max_last_seen,
     count_entities,
+    last_modified,
     agg_entities_by_country,
     agg_entities_by_schema,
 )
@@ -28,9 +29,9 @@ def dataset_to_index(dataset: Dataset) -> Dict[str, Any]:
     log.info("Computing metadata stats...", dataset=dataset.name)
     cache = Cache(engine, metadata, dataset)
     with engine_tx() as conn:
-        last_seen = max_last_seen(conn, dataset)
-        stats_key = f"{dataset.name}:stats:{datetime_iso(last_seen)}"
-        stats = cache.get_json(stats_key, max_age=3, conn=conn)
+        last_modified_date = last_modified(conn, dataset)
+        stats_key = f"{dataset.name}:stats:{datetime_iso(last_modified_date)}"
+        stats = cache.get_json(stats_key, max_age=7, conn=conn)
         if stats is None:
             target_count = count_entities(conn, dataset=dataset, target=True)
             stats = {
@@ -53,7 +54,7 @@ def dataset_to_index(dataset: Dataset) -> Dict[str, Any]:
 
         meta = dataset.to_dict()
         meta.update(stats)
-        meta["last_change"] = last_seen
+        meta["last_change"] = last_modified_date
         meta["last_export"] = settings.RUN_TIME
         meta["entity_count"] = count_entities(conn, dataset=dataset)
         meta["index_url"] = dataset.make_public_url("index.json")

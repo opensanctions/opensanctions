@@ -180,6 +180,16 @@ def max_last_seen(conn: Conn, dataset: Optional[Dataset] = None) -> Optional[dat
     return conn.scalar(q)
 
 
+def last_modified(conn: Conn, dataset: Optional[Dataset] = None) -> Optional[datetime]:
+    """Return the latest checksum change in the data."""
+    q = select(func.max(stmt_table.c.first_seen))
+    q = q.filter(stmt_table.c.prop_type == Statement.BASE)
+    q = q.filter(stmt_table.c.external == False)  # noqa
+    if dataset is not None:
+        q = q.filter(stmt_table.c.dataset.in_(dataset.scope_names))
+    return conn.scalar(q)
+
+
 def entities_datasets(
     conn: Conn, dataset: Optional[Dataset] = None
 ) -> Generator[Tuple[str, str], None, None]:
