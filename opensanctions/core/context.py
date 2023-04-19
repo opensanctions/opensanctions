@@ -241,7 +241,7 @@ class Context(GenericZavod[Entity, Dataset]):
         self._entity_count = 0
         self._statement_count = 0
         try:
-            lock_dataset(self.data_conn, self.dataset)
+            # lock_dataset(self.data_conn, self.dataset)
             # Run the dataset:
             self.source.method(self)
             self.flush()
