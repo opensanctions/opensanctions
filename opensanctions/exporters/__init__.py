@@ -13,6 +13,7 @@ from opensanctions.exporters.nested import NestedJSONExporter
 from opensanctions.exporters.names import NamesExporter
 from opensanctions.exporters.simplecsv import SimpleCSVExporter
 from opensanctions.exporters.senzing import SenzingExporter
+from opensanctions.exporters.statistics import StatisticsExporter
 from opensanctions.exporters.metadata import export_metadata, dataset_to_index
 from opensanctions.exporters.statements import export_statements
 from opensanctions.util import write_json
@@ -23,6 +24,7 @@ EXPORTERS: List[Type[Exporter]] = [
     FtMExporter,
     NestedJSONExporter,
     NamesExporter,
+    StatisticsExporter,
     SimpleCSVExporter,
     SenzingExporter,
 ]
@@ -39,8 +41,12 @@ def export_data(context: Context, loader: Loader[Dataset, Entity]):
 
     for exporter in exporters:
         exporter.setup()
-        for entity in loader:
+
+    for entity in loader:
+        for exporter in exporters:
             exporter.feed(entity)
+
+    for exporter in exporters:
         exporter.finish()
 
 
