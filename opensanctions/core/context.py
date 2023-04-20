@@ -4,6 +4,7 @@ import mimetypes
 from functools import cached_property
 from typing import Dict, Optional
 from lxml import etree, html
+from sqlalchemy.exc import OperationalError
 from requests.exceptions import RequestException
 from datapatch import LookupException, Result, Lookup
 from zavod.context import GenericZavod
@@ -263,6 +264,9 @@ class Context(GenericZavod[Entity, Dataset]):
             return False
         except LookupException as lexc:
             self.log.error(lexc.message, lookup=lexc.lookup.name, value=lexc.value)
+            return False
+        except OperationalError as oexc:
+            self.log.error("Database error: %r" % oexc)
             return False
         except RequestException as rexc:
             resp = repr(rexc.response)

@@ -267,6 +267,12 @@ country:
         - Portuguese India
         - Grand Duchy of Oldenburg
         - Julian March
+        - Najaf
+        - Northern Wei
+        - Eastern Wei
+        - Mangkunegaran
+        - Bhavnagar State
+        - Kingdom of Bohemia
       contains:
         - (JVCFOR)
         - with effect from
@@ -480,8 +486,11 @@ country:
         - Choctaw Nation of Oklahoma
         - Sisseton Wahpeton Oyate
         - Navajo Nation
+        - Dakota Estates Park
         - Seminole Nation of Oklahoma
         - Ho-Chunk Nation of Wisconsin
+        - British America
+        - British North America
       value:
         - US
     - match:
@@ -1097,6 +1106,14 @@ date:
       values:
         - 1968
         - 1969
+    - match: "01.02.1958-28.02.1958"
+      value: 1958-02
+    - match: "07.01.1967or01.07.1967"
+      values:
+        - "1967-01-07"
+        - "1967-07-01"
+    - match: "05.09.1962(1952)"
+      value: "1962-09-05"
   map:
     "0202-11-22": "2020-11-22"
     "1951-06-31": "1951-06"
