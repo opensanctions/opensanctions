@@ -15,7 +15,6 @@ from opensanctions.core.issues import all_issues, agg_issues_by_level
 from opensanctions.core.resources import all_resources
 from opensanctions.core.statements import (
     all_schemata,
-    max_last_seen,
     count_entities,
     last_modified,
     agg_entities_by_country,
@@ -52,7 +51,6 @@ def get_dataset_statistics(dataset: Dataset, conn: Conn) -> Dict[str, Any]:
 
 
 def dataset_to_index(dataset: Dataset) -> Dict[str, Any]:
-    # log.info("Computing metadata stats...", dataset=dataset.name)
     # cache = Cache(engine, metadata, dataset)
     with engine_tx() as conn:
         last_modified_date = last_modified(conn, dataset)

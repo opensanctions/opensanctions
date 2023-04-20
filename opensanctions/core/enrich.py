@@ -4,7 +4,7 @@ from requests.exceptions import RequestException
 from followthemoney.helpers import check_person_cutoff
 from nomenklatura.cache import ConnCache
 from nomenklatura.judgement import Judgement
-from nomenklatura.enrich import Enricher
+from nomenklatura.enrich import Enricher, EnrichmentAbort, EnrichmentException
 from nomenklatura.matching import compare_scored
 
 from opensanctions.core.entity import Entity
@@ -69,8 +69,8 @@ def enrich(scope_name: str, external_name: str, threshold: float):
             try:
                 for match in enricher.match_wrapped(entity):
                     save_match(context, enricher, entity, match, threshold)
-            except RequestException as rexc:
-                context.log.error("Enrichment error %r: %s" % (entity, str(rexc)))
+            except EnrichmentException as exc:
+                context.log.error("Enrichment error %r: %s" % (entity, str(exc)))
             # except Exception:
             #     context.log.exception("Could not match: %r" % entity)
 
@@ -79,6 +79,8 @@ def enrich(scope_name: str, external_name: str, threshold: float):
         context.resolver.save()
     except KeyboardInterrupt:
         pass
+    except EnrichmentAbort as abt:
+        context.log.exception("Enrichment aborted!")
     except Exception as exc:
         context.log.exception("Enrichment failed: %s" % repr(exc))
     finally:
