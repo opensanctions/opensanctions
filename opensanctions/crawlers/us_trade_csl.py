@@ -53,8 +53,9 @@ def parse_result(context: Context, result: Dict[str, Any]):
         is_ofac = True
 
     name = result.pop("name", None)
-    name = name.replace("and any successor, sub-unit, or subsidiary thereof", "")
-    entity.add("name", name)
+    if name is not None:
+        name = name.replace("and any successor, sub-unit, or subsidiary thereof", "")
+        entity.add("name", name)
 
     if is_ofac:
         context.emit(entity, target=True)
