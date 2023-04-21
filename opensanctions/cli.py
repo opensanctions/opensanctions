@@ -1,3 +1,4 @@
+import sys
 import click
 import shutil
 import logging
@@ -44,9 +45,12 @@ def cli(verbose=False, quiet=False):
 def crawl(dataset):
     """Crawl all datasets within the given scope."""
     scope = Dataset.require(dataset)
+    failed = False
     for source in scope.sources:
         ctx = Context(source)
-        ctx.crawl()
+        failed = failed or ctx.crawl()
+    if failed:
+        sys.exit(1)
 
 
 @cli.command("export", help="Export entities from the given dataset")
@@ -69,7 +73,8 @@ def export_metadata_():
 @click.argument("external", type=datasets)
 @click.option("-t", "--threshold", type=click.FLOAT, default=0.6)
 def enrich_(dataset: str, external: str, threshold: float):
-    enrich(dataset, external, threshold)
+    if not enrich(dataset, external, threshold):
+        sys.exit(1)
 
 
 @cli.command("clear", help="Delete all stored data for the given source")

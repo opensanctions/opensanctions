@@ -77,12 +77,15 @@ def enrich(scope_name: str, external_name: str, threshold: float):
         cleanup_dataset(context.data_conn, context.dataset)
         context.commit()
         context.resolver.save()
+        return True
     except KeyboardInterrupt:
-        pass
-    except EnrichmentAbort as abt:
+        return False
+    except EnrichmentAbort:
         context.log.exception("Enrichment aborted!")
+        return False
     except Exception as exc:
         context.log.exception("Enrichment failed: %s" % repr(exc))
+        return False
     finally:
         enricher.close()
         context.close()
