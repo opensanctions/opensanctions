@@ -48,7 +48,7 @@ def crawl(dataset):
     failed = False
     for source in scope.sources:
         ctx = Context(source)
-        failed = failed or ctx.crawl()
+        failed = failed or not ctx.crawl()
     if failed:
         sys.exit(1)
 
