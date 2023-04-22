@@ -9,6 +9,7 @@ from opensanctions.util import multi_split
 
 COUNTRIES = {
     "SCT": "GB-SCT",
+    "ATA": None,
     None: None,
 }
 
