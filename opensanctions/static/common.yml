@@ -273,6 +273,12 @@ country:
         - Mangkunegaran
         - Bhavnagar State
         - Kingdom of Bohemia
+        - Cossack Hetmanate
+        - Goryeo
+        - Arabian Peninsula
+        - Kingdom of Lithuania
+        - British Malaya
+        - English people
       contains:
         - (JVCFOR)
         - with effect from
@@ -295,6 +301,7 @@ country:
         - Dominican Republic
     - match:
         - Nazi Germany
+        - Allied-occupied Germany
         - Kingdom of Bavaria
         - Bavaria
       value: DE
@@ -382,6 +389,13 @@ country:
     - match:
         - Assembly of Kosovo*
       value: XK
+    - match:
+        - Albanian Kingdom
+        - Albanian Republic
+        - Principality of Albania
+        - Independent Albania
+        - People's Socialist Republic of Albania
+      value: Albania
     - match:
         - Georgian Soviet Socialist Republic
       values:
@@ -491,6 +505,7 @@ country:
         - Ho-Chunk Nation of Wisconsin
         - British America
         - British North America
+        - United States of North America
       value:
         - US
     - match:
@@ -616,6 +631,7 @@ country:
         - "France (alt. citizen: Syri"
         - Французька Республіка
         - French Third Republic
+        - French Fourth Republic
         - Vichy France
         - Kingdom of France
         - French First Republic
