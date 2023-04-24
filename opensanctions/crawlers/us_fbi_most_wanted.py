@@ -89,7 +89,8 @@ def crawl_type(context: Context, type: str, query_id: str):
         if total_pages is not None and page > total_pages:
             break
         url = FBI_URL % (type, query_id, page)
-        print(url)
+        # print(url)
+        context.log.info("Fetching %s" % url)
         doc = context.fetch_html(url)
 
         if total_pages is None:
