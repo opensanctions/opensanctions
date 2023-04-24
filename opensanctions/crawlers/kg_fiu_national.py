@@ -1,11 +1,14 @@
+from typing import Optional
+from lxml.etree import _Element as Element
+
 from opensanctions import settings
-from opensanctions.core import Context
+from opensanctions.core import Context, Entity
 from opensanctions import helpers as h
 
 FORMATS = ["%d.%m.%Y", "%Y%m%d", "%Y-%m-%d"]
 
 
-def parse_person(context: Context, node):
+def parse_person(context: Context, node: Element):
     entity = context.make("Person")
     h.apply_name(
         entity,
@@ -25,7 +28,7 @@ def parse_person(context: Context, node):
     parse_common(context, node, entity)
 
 
-def parse_legal(context: Context, node):
+def parse_legal(context: Context, node: Element):
     entity = context.make("LegalEntity")
     names = node.findtext("./Name")
     entity.id = context.make_id(node.tag, node.findtext("./Number"), names)
@@ -33,12 +36,11 @@ def parse_legal(context: Context, node):
     parse_common(context, node, entity)
 
 
-def parse_common(context: Context, node, entity):
+def parse_common(context: Context, node: Element, entity: Entity):
     sanction = h.make_sanction(context, entity)
     sanction.add("reason", node.findtext("./BasicInclusion"))
     sanction.add("program", node.findtext("./CategoryPerson"))
     inclusion_date = h.parse_date(node.findtext("./DateInclusion"), FORMATS)
-    sanction.add("startDate", inclusion_date)
     sanction.add("listingDate", inclusion_date)
     entity.add("createdAt", inclusion_date)
     entity.add("topics", "sanction")
@@ -46,13 +48,13 @@ def parse_common(context: Context, node, entity):
     context.emit(sanction)
 
 
-def crawl_index(context: Context):
-    params = {"_": settings.RUN_DATE}
-    doc = context.fetch_html(context.dataset.url, params=params)
-    for link in doc.findall(".//div[@class='sked-view']//a"):
+def crawl_index(context: Context) -> Optional[str]:
+    doc = context.fetch_html(context.dataset.url, cache_days=1)
+    for link in doc.findall(".//a"):
         href = link.get("href")
         if href.endswith(".xml"):
             return href
+    return None
 
 
 def crawl(context: Context):
@@ -63,6 +65,7 @@ def crawl(context: Context):
     path = context.fetch_resource("source.xml", url)
     context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     xml = context.parse_resource_xml(path)
+    xml = h.remove_namespace(xml)
 
     for person in xml.findall(".//KyrgyzPhysicPerson"):
         parse_person(context, person)
