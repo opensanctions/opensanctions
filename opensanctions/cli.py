@@ -107,10 +107,16 @@ def resolve():
 @cli.command("xref", help="Generate dedupe candidates from the given dataset")
 @click.argument("dataset", default=Dataset.DEFAULT, type=datasets)
 @click.option("-l", "--limit", type=int, default=10000)
+@click.option("-f", "--focus-dataset", type=str, default=None)
 @click.option("-a", "--auto", type=float, default=0.990)
-def xref(dataset, limit, auto):
+def xref(dataset, limit: int, auto: float, focus_dataset: Optional[str] = None):
     dataset = Dataset.require(dataset)
-    blocking_xref(dataset, limit=limit, auto_threshold=auto)
+    blocking_xref(
+        dataset,
+        limit=limit,
+        auto_threshold=auto,
+        focus_dataset=focus_dataset,
+    )
 
 
 @cli.command("xref-prune", help="Remove dedupe candidates")
