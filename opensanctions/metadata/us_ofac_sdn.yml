@@ -251,9 +251,6 @@ lookups:
       - match: Gender
         schema: Person
         prop: gender
-      - match:
-
-        prop: notes
       - match: Birthdate
         prop: birthDate
       - match: Place of Birth
