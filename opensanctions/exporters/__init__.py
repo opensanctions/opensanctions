@@ -37,7 +37,10 @@ def assemble(entity: Entity) -> Entity:
 
 
 def export_data(context: Context, loader: Loader[Dataset, Entity]):
-    exporters = [Exporter(context, loader) for Exporter in EXPORTERS]
+    clazzes = EXPORTERS
+    if not context.dataset.export:
+        clazzes = [StatisticsExporter]
+    exporters = [clz(context, loader) for clz in clazzes]
 
     for exporter in exporters:
         exporter.setup()
@@ -55,8 +58,7 @@ def export_dataset(dataset: Dataset, database: Database):
     try:
         context = Context(dataset)
         loader = database.view(dataset, assemble)
-        if dataset.export:
-            export_data(context, loader)
+        export_data(context, loader)
         context.commit()
 
         # Export list of data issues from crawl stage
