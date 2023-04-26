@@ -104,6 +104,7 @@ def crawl_item(context: Context, listing):
             company.id = context.make_slug("named", company_name)
             company.add("name", company_name)
             company.add("jurisdiction", "gb")
+            company.add("topics", "crime")
             context.emit(company)
             h.apply_address(context, company, address)
 
