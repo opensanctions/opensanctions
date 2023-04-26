@@ -60,9 +60,9 @@ def all_statements(
     q = q.order_by(stmt_table.c.canonical_id.asc())
     if canonical_id is None and inverted_ids is None:
         conn = conn.execution_options(stream_results=True)
-    result = conn.execute(q)
+    cursor = conn.execute(q)
     while True:
-        rows = result.fetchmany(20000)
+        rows = cursor.fetchmany(20000)
         if not rows:
             break
         for row in rows:
@@ -267,28 +267,30 @@ def resolve_all_canonical(conn: Conn, resolver: Resolver):
     q = select(stmt_table.c.entity_id, stmt_table.c.canonical_id)
     q = q.distinct()
     # updated = 0
-    pairs = conn.execute(q).fetchall()
-    for (entity_id, current_id) in pairs:
-        canonical_id = resolver.get_canonical(entity_id)
-        if canonical_id != current_id:
-            log.info(
-                "Resolve",
-                entity_id=entity_id,
-                canonical_id=canonical_id,
-                current_id=current_id,
-            )
-            # print("MISMATCH", entity_id, current_id, canonical_id)
-            q = update(stmt_table)
-            q = q.where(stmt_table.c.entity_id == entity_id)
-            q = q.where(stmt_table.c.canonical_id != canonical_id)
-            q = q.values({stmt_table.c.canonical_id: canonical_id})
-            # print(q)
-            conn.execute(q)
-            # updated += 1
+    updates: Dict[str, str] = {}
+    cursor = conn.execute(q)
+    while True:
+        pairs = cursor.fetchmany(5000)
+        if not pairs:
+            break
+        for (entity_id, current_id) in pairs:
+            canonical_id = resolver.get_canonical(entity_id)
+            if canonical_id != current_id:
+                log.info(
+                    "Resolve",
+                    entity_id=entity_id,
+                    canonical_id=canonical_id,
+                    current_id=current_id,
+                )
+                updates[entity_id] = canonical_id
 
-        # if updated > 0 and updated % 100 == 0:
-        #     # conn.commit()
-        #     pass
+    log.info("Collected updates", count=len(updates))
+    for entity_id, canonical_id in updates.items():
+        uq = update(stmt_table)
+        uq = uq.where(stmt_table.c.entity_id == entity_id)
+        uq = uq.where(stmt_table.c.canonical_id != canonical_id)
+        uq = uq.values({stmt_table.c.canonical_id: canonical_id})
+        conn.execute(uq)
 
 
 def resolve_canonical(conn: Conn, resolver: Resolver, canonical_id: str):
