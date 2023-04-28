@@ -355,6 +355,8 @@ lookups:
           - "Digital Currency Address - XVG"
           - "Digital Currency Address - USDT"
           - "Digital Currency Address - USDC"
+          - "Digital Currency Address - BSC"
+          - "Digital Currency Address - ARB"
         nested:
           schema: CryptoWallet
           feature: currency

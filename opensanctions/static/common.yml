@@ -670,6 +670,7 @@ country:
       value: Egypt
     - match:
         - Azerbaijan Democratic Republic
+        - Азербайджанська Республіка
         - Baku
       value: AZ
     - match:
@@ -1124,6 +1125,10 @@ date:
         - 1969
     - match: "01.02.1958-28.02.1958"
       value: 1958-02
+    - match: "21.03.1965to20.03.1966"
+      values:
+        - 1965-03-21
+        - 1966-03-20
     - match: "07.01.1967or01.07.1967"
       values:
         - "1967-01-07"

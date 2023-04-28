@@ -1492,3 +1492,10 @@ lookups:
         props:
           jurisdiction: ru
           incorporationDate: 2014-05-11
+      - match: "Numéro d’enregistrement - Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Damas-Campagne - Date d’enregistrement: 10.10.2018 - Principal établissement: Damas-Campagne, Syrie.: 2906"
+        props:
+          legalForm: société à responsabilité limitée
+          jurisdiction: sy
+          incorporationDate: 2018-10-10
+          address: Damas-Campagne, Syrie
+          registrationNumber: 2906

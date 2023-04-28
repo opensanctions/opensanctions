@@ -68,13 +68,14 @@ def export_training_pairs(scope: Dataset, cached: bool = False):
                         part, other_part = max(part, other_part), min(part, other_part)
                         # pairs[(part, other_part)] = edge.judgement
                         # Export unsure as negative:
-                        pairs[(part, other_part)] = Judgement.NEGATIVE
-                        judgements[Judgement.NEGATIVE] += 1
+                        pairs[(part, other_part)] = edge.judgement
+                        judgements[edge.judgement] += 1
 
     log.info(
         "Computed %d potential pairs..." % len(pairs),
         positive=judgements.get(Judgement.POSITIVE, 0),
         negative=judgements.get(Judgement.NEGATIVE, 0),
+        unsure=judgements.get(Judgement.UNSURE, 0),
     )
     db = Database(scope, resolver, cached=cached, external=True)
     for idx, ((left, right), judgement) in enumerate(pairs.items()):
