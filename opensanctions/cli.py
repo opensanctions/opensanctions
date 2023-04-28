@@ -14,7 +14,8 @@ from opensanctions.exporters.statements import export_statements_path
 from opensanctions.exporters.statements import import_statements_path
 from opensanctions.core.audit import audit_resolver
 from opensanctions.core.loader import Database
-from opensanctions.core.resolver import export_pairs, get_resolver
+from opensanctions.core.resolver import get_resolver
+from opensanctions.core.training import export_training_pairs
 from opensanctions.core.xref import blocking_xref
 from opensanctions.core.statements import max_last_seen
 from opensanctions.core.statements import resolve_all_canonical, resolve_canonical
@@ -139,9 +140,9 @@ def dedupe(dataset):
 @cli.command("export-pairs", help="Export pairwise judgements")
 @click.argument("dataset", default=Dataset.DEFAULT, type=datasets)
 @click.option("-o", "--outfile", type=click.File("wb"), default="-")
-def export_pairs_(dataset, outfile):
+def export_pairs(dataset, outfile):
     dataset = Dataset.require(dataset)
-    for obj in export_pairs(dataset):
+    for obj in export_training_pairs(dataset):
         write_json(obj, outfile)
 
 
