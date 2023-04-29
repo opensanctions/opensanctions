@@ -87,3 +87,10 @@ def crawl(context: Context):
             entity.add("topics", "role.pep")
             entity.add("country", row.get("country_code"))
             context.emit(entity, target=True)
+
+    entity = context.make("Person")
+    entity.id = "Q21258544"
+    entity.add("name", "Mark Lipparelli")
+    entity.add("topics", "role.pep")
+    entity.add("country", "us")
+    context.emit(entity, target=True)
