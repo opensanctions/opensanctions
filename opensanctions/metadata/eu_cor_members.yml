@@ -20,5 +20,5 @@ publisher:
   official: true
 url: https://cor.europa.eu/en
 data:
-  url: https://memberspage.cor.europa.eu/
+  url: https://memberspage.cor.europa.eu/members
   format: HTML
