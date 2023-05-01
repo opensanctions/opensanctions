@@ -1363,12 +1363,12 @@ email:
       values:
         - info@hamshointl.com
         - hamshogroup@yahoo.com
-    - match:
-        - ryonha@ silibank.com; sjc117@ hotmail.com; and millim@ silibank.com
-      values:
-        - ryonha@silibank.com
-        - sjc117@hotmail.com
-        - millim@silibank.com
+    - match: ryonha@ silibank.com
+      value: ryonha@silibank.com
+    - match: sjc117@ hotmail.com
+      value: sjc117@hotmail.com
+    - match: and millim@ silibank.com
+      value: millim@silibank.com
     - match:
         - (1) magnolia.byx@yandex.ua (2) sicomplit@i.ua (3) t_c82@inbox.ru (4) zakupkj@chbrr.crimea.com
       values:
