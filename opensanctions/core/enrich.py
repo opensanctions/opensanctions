@@ -1,11 +1,9 @@
 from typing import cast
-from sqlalchemy.exc import OperationalError
-from requests.exceptions import RequestException
 from followthemoney.helpers import check_person_cutoff
 from nomenklatura.cache import ConnCache
 from nomenklatura.judgement import Judgement
 from nomenklatura.enrich import Enricher, EnrichmentAbort, EnrichmentException
-from nomenklatura.matching import compare_scored
+from nomenklatura.matching import DefaultAlgorithm
 
 from opensanctions.core.entity import Entity
 from opensanctions.core.context import Context
@@ -29,7 +27,7 @@ def save_match(
     # For unjudged candidates, compute a score and put it in the
     # xref cache so the user can decide:
     if judgement == Judgement.NO_JUDGEMENT:
-        result = compare_scored(entity, match)
+        result = DefaultAlgorithm.compare(entity, match)
         score = result["score"]
         if threshold is None or score >= threshold:
             context.log.info("Match [%s]: %.2f -> %s" % (entity, score, match))

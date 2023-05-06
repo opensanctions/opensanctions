@@ -3,12 +3,10 @@ from typing import Any, Dict
 from urllib.parse import urljoin
 from followthemoney import model
 from zavod.logs import get_logger
-from nomenklatura.matching import explain_matcher
-from nomenklatura.cache import Cache
-from nomenklatura.util import datetime_iso
+from nomenklatura.matching import MatcherV1
 
 from opensanctions import settings
-from opensanctions.core.db import engine, metadata, engine_tx, engine_read
+from opensanctions.core.db import engine_tx, engine_read
 from opensanctions.core.db import Conn
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.issues import all_issues, agg_issues_by_level
@@ -51,31 +49,8 @@ def get_dataset_statistics(dataset: Dataset, conn: Conn) -> Dict[str, Any]:
 
 
 def dataset_to_index(dataset: Dataset) -> Dict[str, Any]:
-    # cache = Cache(engine, metadata, dataset)
     with engine_tx() as conn:
         last_modified_date = last_modified(conn, dataset)
-        # stats_key = f"{dataset.name}:stats:{datetime_iso(last_modified_date)}"
-        # stats = cache.get_json(stats_key, max_age=7, conn=conn)
-        # if stats is None:
-        #     target_count = count_entities(conn, dataset=dataset, target=True)
-        #     stats = {
-        #         "entity_count": count_entities(conn, dataset=dataset),
-        #         "target_count": target_count,
-        #         "targets": {
-        #             "total": target_count,
-        #             "countries": agg_entities_by_country(conn, dataset, target=True),
-        #             "schemata": agg_entities_by_schema(conn, dataset, target=True),
-        #         },
-        #         "things": {
-        #             "total": count_entities(conn, dataset=dataset, schemata=THINGS),
-        #             "countries": agg_entities_by_country(
-        #                 conn, dataset, schemata=THINGS
-        #             ),
-        #             "schemata": agg_entities_by_schema(conn, dataset, schemata=THINGS),
-        #         },
-        #     }
-        #     cache.set_json(stats_key, stats, conn=conn)
-
         meta = dataset.to_dict()
         meta.update(get_dataset_statistics(dataset, conn))
         meta["last_change"] = last_modified_date
@@ -115,7 +90,7 @@ def export_metadata():
             "statements_url": urljoin(settings.DATASET_URL, "statements.csv"),
             "model": model.to_dict(),
             "schemata": schemata,
-            "matcher": explain_matcher(),
+            "matcher": MatcherV1.explain(),
             "app": "opensanctions",
             "version": settings.VERSION,
         }
