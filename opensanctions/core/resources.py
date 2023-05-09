@@ -14,6 +14,7 @@ class Resource(TypedDict):
     name: str
     dataset: str
     checksum: str
+    category: Optional[str]
     url: str
     timestamp: datetime
     mime_type: Optional[str]
@@ -28,6 +29,7 @@ def save_resource(
     dataset: Dataset,
     checksum: str,
     mime_type: Optional[str],
+    category: Optional[str],
     size: int,
     title: Optional[str],
 ):
@@ -42,6 +44,7 @@ def save_resource(
         "dataset": dataset.name,
         "path": path,
         "mime_type": mime_type,
+        "category": category,
         "checksum": checksum,
         "timestamp": settings.RUN_TIME,
         "size": size,
@@ -52,6 +55,7 @@ def save_resource(
         index_elements=["path", "dataset"],
         set_=dict(
             mime_type=istmt.excluded.mime_type,
+            category=istmt.excluded.category,
             checksum=istmt.excluded.checksum,
             timestamp=istmt.excluded.timestamp,
             size=istmt.excluded.size,
@@ -79,7 +83,9 @@ def all_resources(conn: Conn, dataset: Dataset) -> Generator[Resource, None, Non
         yield resource
 
 
-def clear_resources(conn: Conn, dataset: Dataset):
+def clear_resources(conn: Conn, dataset: Dataset, category: Optional[str] = None):
     pq = delete(resource_table)
     pq = pq.where(resource_table.c.dataset == dataset.name)
+    if category is not None:
+        pq = pq.where(resource_table.c.category == category)
     conn.execute(pq)

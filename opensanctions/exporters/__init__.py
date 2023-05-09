@@ -6,8 +6,10 @@ from nomenklatura.publish.dates import simplify_dates
 from opensanctions.core import Context, Dataset, Entity
 from opensanctions.core.loader import Database
 from opensanctions.core.issues import all_issues
+from opensanctions.core.db import engine_tx
+from opensanctions.core.resources import clear_resources
 from opensanctions.core.resolver import get_resolver
-from opensanctions.exporters.common import Exporter
+from opensanctions.exporters.common import Exporter, EXPORT_CATEGORY
 from opensanctions.exporters.ftm import FtMExporter
 from opensanctions.exporters.nested import NestedJSONExporter
 from opensanctions.exporters.names import NamesExporter
@@ -57,6 +59,8 @@ def export_dataset(dataset: Dataset, database: Database):
     """Dump the contents of the dataset to the output directory."""
     try:
         context = Context(dataset)
+        with engine_tx() as conn:
+            clear_resources(conn, dataset, category=EXPORT_CATEGORY)
         loader = database.view(dataset, assemble)
         export_data(context, loader)
         context.commit()

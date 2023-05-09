@@ -66,6 +66,7 @@ resource_table = Table(
     Column("path", Unicode(KEY_LEN), primary_key=True, nullable=False),
     Column("dataset", Unicode(KEY_LEN), primary_key=True, index=True, nullable=False),
     Column("checksum", Unicode(KEY_LEN), nullable=False),
+    Column("category", Unicode(KEY_LEN), nullable=True),
     Column("timestamp", DateTime, nullable=False),
     Column("mime_type", Unicode(KEY_LEN), nullable=True),
     Column("size", Integer, nullable=True),

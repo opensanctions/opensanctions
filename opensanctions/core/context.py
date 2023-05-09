@@ -35,6 +35,7 @@ class Context(GenericZavod[Entity, Dataset]):
     """
 
     SOURCE_TITLE = "Source data"
+    SOURCE_CATEGORY = "source"
     BATCH_SIZE = 5000
 
     def __init__(self, dataset: Dataset):
@@ -138,7 +139,13 @@ class Context(GenericZavod[Entity, Dataset]):
         with open(file_path, "rb") as fh:
             return etree.parse(fh)
 
-    def export_resource(self, path, mime_type=None, title=None):
+    def export_resource(
+        self,
+        path,
+        mime_type=None,
+        title=None,
+        category=SOURCE_CATEGORY,
+    ):
         """Register a file as a documented file exported by the dataset."""
         if mime_type is None:
             mime_type, _ = mimetypes.guess(path)
@@ -157,7 +164,14 @@ class Context(GenericZavod[Entity, Dataset]):
         checksum = digest.hexdigest()
         name = path.relative_to(self.path).as_posix()
         return save_resource(
-            self.data_conn, name, self.dataset, checksum, mime_type, size, title
+            self.data_conn,
+            name,
+            self.dataset,
+            checksum,
+            mime_type,
+            category,
+            size,
+            title,
         )
 
     def lookup_value(
@@ -237,7 +251,7 @@ class Context(GenericZavod[Entity, Dataset]):
         if self.source.disabled:
             self.log.info("Source is disabled")
             return False
-        # clear_resources(self.data_conn, self.dataset)
+        clear_resources(self.data_conn, self.dataset, category=self.SOURCE_CATEGORY)
         self.log.info("Begin crawl")
         self._entity_count = 0
         self._statement_count = 0

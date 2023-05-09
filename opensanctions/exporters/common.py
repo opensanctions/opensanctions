@@ -2,6 +2,8 @@ from nomenklatura.loader import Loader
 
 from opensanctions.core import Context, Dataset, Entity
 
+EXPORT_CATEGORY = "export"
+
 
 class Exporter(object):
     """A common interface for file format exports at the end of the export pipeline."""
@@ -27,7 +29,10 @@ class Exporter(object):
 
     def finish(self):
         resource = self.context.export_resource(
-            self.path, mime_type=self.MIME_TYPE, title=self.TITLE
+            self.path,
+            mime_type=self.MIME_TYPE,
+            title=self.TITLE,
+            category=EXPORT_CATEGORY,
         )
         if resource is None:
             self.context.log.warning(
