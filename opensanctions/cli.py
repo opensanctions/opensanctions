@@ -7,6 +7,7 @@ from zavod.logs import get_logger
 from nomenklatura.tui import dedupe_ui
 from nomenklatura.judgement import Judgement
 from nomenklatura.resolver import Identifier
+from nomenklatura.matching import DefaultAlgorithm
 
 from opensanctions import settings
 from opensanctions.core import Dataset, Context, setup
@@ -109,13 +110,21 @@ def resolve():
 @click.argument("dataset", default=Dataset.DEFAULT, type=datasets)
 @click.option("-l", "--limit", type=int, default=10000)
 @click.option("-f", "--focus-dataset", type=str, default=None)
-@click.option("-a", "--auto", type=float, default=0.990)
-def xref(dataset, limit: int, auto: float, focus_dataset: Optional[str] = None):
+@click.option("-a", "--algorithm", type=str, default=DefaultAlgorithm.NAME)
+@click.option("-t", "--threshold", type=float, default=0.990)
+def xref(
+    dataset,
+    limit: int,
+    threshold: float,
+    algorithm: str,
+    focus_dataset: Optional[str] = None,
+):
     dataset = Dataset.require(dataset)
     blocking_xref(
         dataset,
         limit=limit,
-        auto_threshold=auto,
+        auto_threshold=threshold,
+        algorithm=algorithm,
         focus_dataset=focus_dataset,
     )
 
