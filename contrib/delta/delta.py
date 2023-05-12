@@ -1,4 +1,5 @@
 import os
+import sys
 import click
 import orjson
 import logging
@@ -84,15 +85,17 @@ def generate_delta(scope: str, dt: datetime):
     try:
         cur_path = fetch_release(scope, cur_ts)
     except RequestException as re:
-        log.error("Cannot fetch file [%s]: %s" % (cur_ts, re))
-        return
+        log.warn("Cannot fetch current file [%s]: %s" % (cur_ts, re))
+        # Running this in a batch job early in the day becomes a race
+        # condition against the ETL.
+        sys.exit(0)
     cur_hashes = compute_hashes(cur_path)
     prev_ts = db.strftime(DATE_FORMAT)
     try:
         prev_path = fetch_release(scope, prev_ts)
     except RequestException as re:
-        log.error("Cannot fetch file [%s]: %s" % (prev_ts, re))
-        return
+        log.error("Cannot fetch previous file [%s]: %s" % (prev_ts, re))
+        sys.exit(1)
     prev_hashes = compute_hashes(prev_path)
     entities = set(cur_hashes.keys())
     entities.update(prev_hashes.keys())
