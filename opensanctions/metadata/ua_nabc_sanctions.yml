@@ -42,6 +42,7 @@ lookups:
           - друг
           - кандидат в президенти
           - засновник
+          - довіритель
         schema: UnknownLink
         local: subject
         remote: object
@@ -107,7 +108,6 @@ lookups:
           - бізнес патнер
           - нступник
           - ділові відносни
-          - довіритель
         schema: Associate
         local: person
         remote: associate
