@@ -1,0 +1,14 @@
+entry_point: opensanctions.crawlers.md_interdictie:crawl
+title: Ban list of economic operators
+prefix: md_interdictie
+collections:
+  - default
+publisher:
+  name: "Ministry of Finance of the Republic of Moldova"
+  country: md
+  url: https://www.mf.gov.md/
+  official: true
+url: https://tender.gov.md/en/lista-de-interdictie
+data:
+  url: https://tender.gov.md/en/lista-de-interdictie
+  format: HTML
