@@ -19,7 +19,10 @@ def blocking_xref(
 ):
     resolver = get_resolver()
     resolver.prune()
-    log.info("Xref running, auto merge threshold: %f" % auto_threshold)
+    log.info(
+        "Xref running, auto merge threshold: %f; algorithm: %r"
+        % (auto_threshold, algorithm)
+    )
     db = Database(dataset, resolver, cached=True, external=True)
     loader = db.view(dataset)
     algorithm_type = get_algorithm(algorithm)
