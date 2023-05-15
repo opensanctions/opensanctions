@@ -107,6 +107,7 @@ lookups:
           - бізнес патнер
           - нступник
           - ділові відносни
+          - довіритель
         schema: Associate
         local: person
         remote: associate
