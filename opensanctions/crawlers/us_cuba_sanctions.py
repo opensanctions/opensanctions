@@ -8,22 +8,6 @@ ACCOMMODATIONS_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQMquWjNWZ
 ENTITIES_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQMquWjNWZ09dm9_mu9NKrxR33c6pe4hpiGFeheFT4tDZXwpelLudcYdCdME820aKJJo8TfMKbtoXTh/pub?gid=0&single=true&output=csv"
 
 
-# def crawl_row(context: Context, row: Dict[str, str]):
-#     qid = row.get("qid", "").strip()
-#     if not len(qid):
-#         return
-#     if not is_qid(qid):
-#         context.log.warning("No valid QID", qid=qid)
-#         return
-#     schema = row.get("schema") or "Person"
-#     entity = context.make(schema)
-#     entity.id = qid
-#     topics = [t.strip() for t in row.get("topics", "").split(";")]
-#     topics = [t for t in topics if len(t)]
-#     entity.add("topics", topics)
-#     context.emit(entity, target=True)
-
-
 def crawl_accommodations(context: Context):
     path = context.fetch_resource("accommodations.csv", ACCOMMODATIONS_URL)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
