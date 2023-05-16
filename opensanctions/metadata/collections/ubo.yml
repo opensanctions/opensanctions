@@ -1,0 +1,21 @@
+type: collection
+title: Beneficial ownership graph datasets
+hidden: true
+export: false
+children:
+  - sanctions
+  - cy_companies
+  - cz_business_register
+  - ee_ariregister
+  - gb_coh_psc
+  - gleif
+  - icij_offshoreleaks
+  - lv_business_register
+  - md_companies
+  - opencorporates
+  - ru_egrul
+  - ru_rupep
+  - ru_rupep_companies
+  - ua_edr
+  - wikidata
+  - debarment
