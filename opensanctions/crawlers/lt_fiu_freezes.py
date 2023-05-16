@@ -37,7 +37,7 @@ def crawl(context: Context):
             context.emit(sanction)
 
             for related in related_entities:
-                entity = context.make("Company")
+                entity = context.make("LegalEntity")
                 entity.id = context.make_slug("sanctioned", related)
                 entity.add("name", related)
                 context.emit(entity)
