@@ -1,9 +1,12 @@
 from lxml import html
 from normality import slugify, collapse_spaces
 from pantomime.types import HTML
+import re
 
 from opensanctions.core import Context
 from opensanctions import helpers as h
+
+REGEX_DELAY = re.compile(".+(\d{2}[\.\/]\d{2}[\.\/]\d{4}$)")
 
 IDX_ORG_NAME = 1
 IDX_ORG_ADDRESS = 2
@@ -28,7 +31,7 @@ def crawl(context: Context):
     for row in table.findall(".//tr"):
         if headers is None:
             headers = [c.text_content() for c in row.findall("./th")]
-            print(headers)
+
             # Assert that column order is as expected:
             # fail explicitly upon possible breaking change
             assert "Denumirea şi forma" in headers[IDX_ORG_NAME]
@@ -55,9 +58,26 @@ def crawl(context: Context):
         address = h.make_address(context, full=full_address, country=COUNTRY)
         h.apply_address(context, entity, address)
 
-        #sanction = h.make_sanction(context, entity)
-        #sanction.add("reason", cells[IDX_REASON])
-        #sanction.add("startDate", parse_date(cells[ID]))
-        #sanction.add("endDate", parse_date(cells.pop("to")))
+        delay_until_date = parse_delay(context, cells[IDX_DELAY_UNTIL].text_content().strip())
+        start_date = delay_until_date or parse_date(cells[IDX_REGISTRATION_DATE].text_content().strip())
+
+        sanction = h.make_sanction(context, entity)
+        sanction.add("reason", cells[IDX_REASON].text_content().strip(), lang="ro")
+        sanction.add("startDate", start_date)
+        #sanction.add("endDate", parse_date(headers[IDX_END_DATE]))
 
         context.emit(entity, target=True)
+        context.emit(sanction)
+
+
+def parse_delay(context, delay):
+    if delay:
+        date_match = REGEX_DELAY.match(delay)
+        if date_match:
+            return parse_date(date_match.group(1))
+        else:
+            context.log.error(f"Failed to parse date from nonempty delay: { date_match, delay }")
+
+
+def parse_date(date):
+    return h.parse_date(date, ["%m/%d/%Y", "%m.%d.%Y", "%A, %d %b, %Y"])
