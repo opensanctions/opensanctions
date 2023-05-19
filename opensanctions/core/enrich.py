@@ -63,8 +63,6 @@ def enrich(scope_name: str, external_name: str, threshold: float):
             if entity_idx > 0 and entity_idx % 1000 == 0:
                 context.commit()
                 # lock_dataset(context.data_conn, external)
-                conn_cache = ConnCache(context.cache, context.data_conn)
-                enricher = external.get_enricher(conn_cache)
             context.log.debug("Enrich query: %r" % entity)
             try:
                 for match in enricher.match_wrapped(entity):
