@@ -279,6 +279,9 @@ country:
         - Kingdom of Lithuania
         - British Malaya
         - English people
+        - Reichskommissariat Ostland
+        - Gambia Colony and Protectorate
+        - Antilles britanniques
       contains:
         - (JVCFOR)
         - with effect from
@@ -442,6 +445,9 @@ country:
         - Fourth Republic of South Korea
         - Fifth Republic of South Korea
       value: KR
+    - match:
+        - Corée du Sud ( Rép. de )
+      value: South Korea
     - match: sh-hl
       value: Saint Helena
     - match:
@@ -450,12 +456,16 @@ country:
         - British Overseas citizen
         - United Kingdom of Great Britain and Northern Irela
       value: GB
+    - match:
+        - Scotland Uk
+      value: GB-SCO
     - match: British,Irish
       values:
         - GB
         - IE
     - match:
         - IRLANDE, ou EIRE
+        - Irlande /Eire/
       values:
         - IE
     - match: British Pakistani
@@ -506,6 +516,7 @@ country:
         - British America
         - British North America
         - United States of North America
+        - Massachusetts Bay Colony
       value:
         - US
     - match:
@@ -569,6 +580,9 @@ country:
         - Chickasaw Nation
         - Americans
       value: US
+    - match:
+        - QUEBEC H2Y 1L6
+      value: CA
     - match:
         - Repubic of Moldova
         - Gagauzia
@@ -666,7 +680,9 @@ country:
         - Australian citizen
         - "New South Wales"
       value: Australia
-    - match: Believed location - Egypt
+    - match:
+        - Believed location - Egypt
+        - Alexandria, Egypt
       value: Egypt
     - match:
         - Azerbaijan Democratic Republic
@@ -688,7 +704,9 @@ country:
       values:
         - "SUHH"
         - "KG"
-    - match: Uzbek SSR
+    - match:
+        - Uzbek SSR
+        - Uzbek Soviet Socialist Republic
       values:
         - SUHH
         - UZ
@@ -1415,12 +1433,19 @@ email:
       values:
         - spccom2@scs‐net.org
         - spccom1@scsnet.org
+    - match: (1) ermakova@intds.ru (2) lantsova@intgs.ru
+      values:
+        - ermakova@intds.ru
+        - lantsova@intgs.ru
     - match: helmand_exchange_msp@ yahoo.com
       value: helmand_exchange_msp@yahoo.com
     - match: info@dsgd.ru; gmn@dsgd.ru
       values:
         - info@dsgd.ru
         - gmn@dsgd.ru
+    - match:
+        - INFO@xn-----6kcbabo7acls0bmjmq4a8j.xn--p1ai
+      value: info@закон-защита-право.рф
 
 phone:
   options:
