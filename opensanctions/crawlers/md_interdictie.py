@@ -153,19 +153,46 @@ def parse_control(context: Context, text: str):
     # Conducători -
     # (Leaders)
     ROLES = { 
-        "Fondator/Administrator": "; OWNERS",
-        "conducătorilor": "; ADMINISTRATORS",
-        "Conducători": "; ADMINISTRATORS",
-        "Fondator": "; OWNERS",
-        "fondatorilor": "; OWNERS",
-        "Administrator": "; ADMINISTRATORS",
+        "Fondator/Administrator": "OWNERS",
+        "conducătorilor": "ADMINISTRATORS",
+        "Conducători": "ADMINISTRATORS",
+        "Fondator": "OWNERS",
+        "fondatorilor": "OWNERS",
+        "Administrator": "ADMINISTRATORS",
     }
 
     for ro, en in ROLES.items():
         text = text.replace(ro, en)
 
+    REGEX_MEMBER_GROUPS = (
+        "^(?P<unknown>[\w, \(\)%\.]+)?"
+        "("
+        "(ADMINISTRATORS: (?P<admin>[\w,\. ]+))"
+        "|OWNERS: ((?P<owners>[\w,\. \(\)%]+))"
+        ")*$"
+    )
+    match = re.match(REGEX_MEMBER_GROUPS, text)
+    
+    print()
     print(text)
-    match = re.match("^(?P<unknown>[\w, \(\)%\.]+)?((?P<admin>; ADMINISTRATORS: [\w,\. ]+)|(?P<own>; OWNERS: [\w,\. \(\)%]+))*$", text)
-    # |(?P<unknown>[\w, \(\)%]+?)
     if match:
         print(f"    -> { match.groupdict()} ")
+
+        owners_str = match.groupdict()["owners"]
+        if owners_str:
+            owners = owners_str.split(",")
+        else:
+            owners = []
+
+        admins_str = match.groupdict()["admin"]
+        if admins_str:
+            others = admins_str.split(",")
+        else:
+            others = []
+
+        unknown_str = match.groupdict()["unknown"]
+        if unknown_str:
+            others.append(unknown_str.split(","))
+
+        print(f"owners: { owners }")
+        print(f"others: { others }")
