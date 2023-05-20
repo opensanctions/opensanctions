@@ -85,6 +85,17 @@ def crawl(context: Context):
         sanction.add("endDate", parse_date(cells[IDX_END_DATE].text_content().strip()))
         sanction.add("listingDate", parse_date(cells[IDX_REGISTRATION_DATE].text_content().strip()))
 
+        parse_control(context, cells[IDX_ADMINS_FOUNDERS].text_content().strip())
+
+        # Persons
+
+
+        # Ownerships
+
+        # Memberships
+
+        
+
         context.emit(entity, target=True)
         context.emit(sanction)
 
@@ -125,3 +136,34 @@ def parse_address(context, text):
     # Căsuţa poştăla (C.P.) -> PO Box
     address = h.make_address(context, full=text, country=COUNTRY)
     return address
+
+
+def parse_control(context: Context, text: str):
+    text = text.replace("Lista ", "")
+    text = text.replace(" - ", ": ")
+    text = text.replace(" \u2013 ", ": ")
+    # Fondator/Administrator – 
+    # or
+    # Fondator - TOLMAŢCHI VALERI Administrator - TOLMAŢCHI VALERI
+    # or
+    # Lista conducătorilor - Galin Anatolie, Lista fondatorilor - Galin Anatolie
+    # (List of leaders)
+    # or
+    # Conducători -
+    # (Leaders)
+    ROLES = { 
+        "Fondator/Administrator": "; OWNERS",
+        "conducătorilor": "; ADMINISTRATORS",
+        "Conducători": "; ADMINISTRATORS",
+        "Fondator": "; OWNERS",
+        "fondatorilor": "; OWNERS",
+        "Administrator": "; ADMINISTRATORS",
+    }
+
+    for ro, en in ROLES.items():
+        text = text.replace(ro, en)
+
+    print(text)
+    match = re.match("((?P<admin>(; )?ADMINISTRATORS: [\w, ]+)|(?P<own>(; )?OWNERS: [\w, ]+)|(?P<unknown>[\w, ]+))+", text)
+    if match:
+        print(f"    -> { match.groupdict()} ")
