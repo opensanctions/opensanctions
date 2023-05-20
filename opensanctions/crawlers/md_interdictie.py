@@ -142,6 +142,7 @@ def parse_control(context: Context, text: str):
     text = text.replace("Lista ", "")
     text = text.replace(" - ", ": ")
     text = text.replace(" \u2013 ", ": ")
+    text = re.sub("\s+", " ", text)
     # Fondator/Administrator – 
     # or
     # Fondator - TOLMAŢCHI VALERI Administrator - TOLMAŢCHI VALERI
@@ -164,6 +165,7 @@ def parse_control(context: Context, text: str):
         text = text.replace(ro, en)
 
     print(text)
-    match = re.match("((?P<admin>(; )?ADMINISTRATORS: [\w, ]+)|(?P<own>(; )?OWNERS: [\w, ]+)|(?P<unknown>[\w, ]+))+", text)
+    match = re.match("^(?P<unknown>[\w, \(\)%\.]+)?((?P<admin>; ADMINISTRATORS: [\w,\. ]+)|(?P<own>; OWNERS: [\w,\. \(\)%]+))*$", text)
+    # |(?P<unknown>[\w, \(\)%]+?)
     if match:
         print(f"    -> { match.groupdict()} ")

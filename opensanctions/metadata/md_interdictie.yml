@@ -10,5 +10,5 @@ publisher:
   official: true
 url: https://tender.gov.md/ro/lista-de-interdictie
 data:
-  url: https://tender.gov.md/en/lista-de-interdictie
+  url: https://tender.gov.md/ro/lista-de-interdictie
   format: HTML
