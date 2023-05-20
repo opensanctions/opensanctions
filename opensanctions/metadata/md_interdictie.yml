@@ -8,7 +8,7 @@ publisher:
   country: md
   url: https://www.mf.gov.md/
   official: true
-url: https://tender.gov.md/en/lista-de-interdictie
+url: https://tender.gov.md/ro/lista-de-interdictie
 data:
   url: https://tender.gov.md/en/lista-de-interdictie
   format: HTML

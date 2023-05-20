@@ -6,7 +6,22 @@ import re
 from opensanctions.core import Context
 from opensanctions import helpers as h
 
-REGEX_DELAY = re.compile(".+(\d{2}[\.\/]\d{2}[\.\/]\d{4}$)")
+REGEX_DELAY = re.compile(".+(\d{2}[\.\/]\d{2}[\.\/]\d{4})$")
+
+MONTHS = {
+    "ianuarie": "January",
+    "februarie": "February",
+    "martie": "March",
+    "aprilie": "April",
+    "mai": "May",
+    "iunie": "June",
+    "iulie": "July",
+    "august": "August",
+    "septembrie": "September",
+    "octombrie": "October",
+    "noiembrie": "November",
+    "decembrie": "December",
+}
 
 IDX_ORG_NAME = 1
 IDX_ORG_ADDRESS = 2
@@ -60,11 +75,11 @@ def crawl(context: Context):
 
         delay_until_date = parse_delay(context, cells[IDX_DELAY_UNTIL].text_content().strip())
         start_date = delay_until_date or parse_date(cells[IDX_REGISTRATION_DATE].text_content().strip())
-
+        
         sanction = h.make_sanction(context, entity)
         sanction.add("reason", cells[IDX_REASON].text_content().strip(), lang="ro")
         sanction.add("startDate", start_date)
-        #sanction.add("endDate", parse_date(headers[IDX_END_DATE]))
+        sanction.add("endDate", parse_date(cells[IDX_END_DATE].text_content().strip()))
 
         context.emit(entity, target=True)
         context.emit(sanction)
@@ -79,5 +94,7 @@ def parse_delay(context, delay):
             context.log.error(f"Failed to parse date from nonempty delay: { date_match, delay }")
 
 
-def parse_date(date):
-    return h.parse_date(date, ["%m/%d/%Y", "%m.%d.%Y", "%A, %d %b, %Y"])
+def parse_date(text):
+    for ro, en in MONTHS.items():
+        text = text.replace(ro, en)
+    return h.parse_date(text, ["%d/%m/%Y", "%d.%m.%Y", "%A, %d %B, %Y"])
