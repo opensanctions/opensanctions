@@ -7,6 +7,8 @@ from opensanctions.core import Context
 from opensanctions import helpers as h
 
 REGEX_DELAY = re.compile(".+(\d{2}[\.\/]\d{2}[\.\/]\d{4})$")
+# e.g. 6/23 from "6/23 din 02.05.2023" 
+REGEX_SANCTION_NUMBER = re.compile(".*(\d+/\d+) .+")
 
 MONTHS = {
     "ianuarie": "January",
@@ -69,17 +71,19 @@ def crawl(context: Context):
         entity.id = context.make_id(name, COUNTRY)
         entity.add("name", name)
         
-        full_address = cells[IDX_ORG_ADDRESS].text_content()
-        address = h.make_address(context, full=full_address, country=COUNTRY)
+        address = parse_address(context, cells[IDX_ORG_ADDRESS].text_content())
         h.apply_address(context, entity, address)
 
         delay_until_date = parse_delay(context, cells[IDX_DELAY_UNTIL].text_content().strip())
         start_date = delay_until_date or parse_date(cells[IDX_REGISTRATION_DATE].text_content().strip())
         
-        sanction = h.make_sanction(context, entity)
+        sanction_num = parse_sanction_num(context, cells[IDX_DECISION_NUM_DATE].text_content().strip())
+        sanction = h.make_sanction(context, entity, sanction_num)
+        sanction.add("authorityId", sanction_num)
         sanction.add("reason", cells[IDX_REASON].text_content().strip(), lang="ro")
         sanction.add("startDate", start_date)
         sanction.add("endDate", parse_date(cells[IDX_END_DATE].text_content().strip()))
+        sanction.add("listingDate", parse_date(cells[IDX_REGISTRATION_DATE].text_content().strip()))
 
         context.emit(entity, target=True)
         context.emit(sanction)
@@ -91,10 +95,33 @@ def parse_delay(context, delay):
         if date_match:
             return parse_date(date_match.group(1))
         else:
-            context.log.error(f"Failed to parse date from nonempty delay: { date_match, delay }")
+            context.log.warn(f"Failed to parse date from nonempty delay: { date_match, delay }")
 
 
 def parse_date(text):
     for ro, en in MONTHS.items():
         text = text.replace(ro, en)
     return h.parse_date(text, ["%d/%m/%Y", "%d.%m.%Y", "%A, %d %B, %Y"])
+
+
+def parse_sanction_num(context, text) -> str | None:
+    match = REGEX_SANCTION_NUMBER.match(text)
+    if match:
+        return match.group(1)
+    else:
+        context.log.warn(f'Failed to parse saction number from "{ text }"')
+
+
+def parse_address(context, text):
+    # mun. Chişinău, Durleşti, str-la Codrilor 22/1, of. 92, MD-2003
+    # or
+    # r. Străşeni, s. Micăuţi, MD-3722
+    #
+    # Stradă (str.) -> street
+    # stradelă (str-lă) -> lane
+    # soseaua ((şos.) -> road
+    # mun. Chişinău -> Chişinău municipality
+    # Bulevard (bd.) -> boulevard
+    # Căsuţa poştăla (C.P.) -> PO Box
+    address = h.make_address(context, full=text, country=COUNTRY)
+    return address
