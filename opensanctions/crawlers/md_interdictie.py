@@ -153,7 +153,7 @@ def parse_control(context: Context, text: str):
     # Conducători -
     # (Leaders)
     ROLES = { 
-        "Fondator/Administrator": "OWNERS",
+        "Fondator/Administrator": "UNKNOWN",
         "conducătorilor": "ADMINISTRATORS",
         "Conducători": "ADMINISTRATORS",
         "Fondator": "OWNERS",
@@ -169,6 +169,7 @@ def parse_control(context: Context, text: str):
         "("
         "(ADMINISTRATORS: (?P<admin>[\w,\. ]+))"
         "|OWNERS: ((?P<owners>[\w,\. \(\)%]+))"
+        "|UNKNOWN: ((?P<mixed>[\w,\. \(\)%]+))"
         ")*$"
     )
     match = re.match(REGEX_MEMBER_GROUPS, text)
@@ -176,7 +177,7 @@ def parse_control(context: Context, text: str):
     print()
     print(text)
     if match:
-        print(f"    -> { match.groupdict()} ")
+        #print(f"    -> { match.groupdict()} ")
 
         owners_str = match.groupdict()["owners"]
         if owners_str:
@@ -184,15 +185,26 @@ def parse_control(context: Context, text: str):
         else:
             owners = []
 
+        members = []
         admins_str = match.groupdict()["admin"]
         if admins_str:
-            others = admins_str.split(",")
-        else:
-            others = []
+            members = admins_str.split(",")
 
         unknown_str = match.groupdict()["unknown"]
         if unknown_str:
-            others.append(unknown_str.split(","))
+            for unknown in unknown_str.split(","):
+                if "%" in unknown:
+                    owners.append(unknown)
+                else:
+                    members.append(unknown)   
 
-        print(f"owners: { owners }")
-        print(f"others: { others }")
+        mixed_str = match.groupdict()["mixed"]
+        if mixed_str:
+            for unknown in mixed_str.split(","):
+                if "%" in unknown:
+                    owners.append(unknown)
+                else:
+                    members.append(unknown)                
+
+        print(f"  owners: { owners }")
+        print(f"  members: { members }")
