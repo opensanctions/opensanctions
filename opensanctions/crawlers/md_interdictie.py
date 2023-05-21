@@ -4,11 +4,20 @@ from pantomime.types import HTML
 import re
 
 from opensanctions.core import Context
+from opensanctions.core.entity import Entity
 from opensanctions import helpers as h
 
 REGEX_DELAY = re.compile(".+(\d{2}[\.\/]\d{2}[\.\/]\d{4})$")
 # e.g. 6/23 from "6/23 din 02.05.2023" 
-REGEX_SANCTION_NUMBER = re.compile(".*(\d+/\d+) .+")
+REGEX_SANCTION_NUMBER = re.compile(".*(\d+\/\d+)[\w ]+(\d{2}[\.\/]\d{2}[\.\/]\d{4}).*")
+REGEX_MEMBER_GROUPS = (
+    "^(?P<unknown>[\w, \(\)%\.]+)?"
+    "("
+    "(ADMINISTRATORS: (?P<admin>[\w,\. ]+))"
+    "|OWNERS: ((?P<owners>[\w,\. \(\)%]+))"
+    "|UNKNOWN: ((?P<mixed>[\w,\. \(\)%]+))"
+    ")*$"
+)
 
 MONTHS = {
     "ianuarie": "January",
@@ -36,6 +45,24 @@ IDX_DELAY_UNTIL = 8
 IDX_END_DATE = 9
 
 COUNTRY = "md"
+
+# Fondator/Administrator – 
+# or
+# Fondator - TOLMAŢCHI VALERI Administrator - TOLMAŢCHI VALERI
+# or
+# Lista conducătorilor - Galin Anatolie, Lista fondatorilor - Galin Anatolie
+# (List of leaders)
+# or
+# Conducători -
+# (Leaders)
+ROLES = { 
+    "Fondator/Administrator": "UNKNOWN",
+    "conducătorilor": "ADMINISTRATORS",
+    "Conducători": "ADMINISTRATORS",
+    "Fondator": "OWNERS",
+    "fondatorilor": "OWNERS",
+    "Administrator": "ADMINISTRATORS",
+}
 
 def crawl(context: Context):
     path = context.fetch_resource("source.html", context.source.data.url)
@@ -77,7 +104,7 @@ def crawl(context: Context):
         delay_until_date = parse_delay(context, cells[IDX_DELAY_UNTIL].text_content().strip())
         start_date = delay_until_date or parse_date(cells[IDX_REGISTRATION_DATE].text_content().strip())
         
-        sanction_num = parse_sanction_num(context, cells[IDX_DECISION_NUM_DATE].text_content().strip())
+        sanction_num, decision_date = parse_sanction_decision(context, cells[IDX_DECISION_NUM_DATE].text_content().strip())
         sanction = h.make_sanction(context, entity, sanction_num)
         sanction.add("authorityId", sanction_num)
         sanction.add("reason", cells[IDX_REASON].text_content().strip(), lang="ro")
@@ -85,19 +112,12 @@ def crawl(context: Context):
         sanction.add("endDate", parse_date(cells[IDX_END_DATE].text_content().strip()))
         sanction.add("listingDate", parse_date(cells[IDX_REGISTRATION_DATE].text_content().strip()))
 
-        parse_control(context, cells[IDX_ADMINS_FOUNDERS].text_content().strip())
-
-        # Persons
-
-
-        # Ownerships
-
-        # Memberships
-
-        
+        control_entities = parse_control(context, entity, decision_date, cells[IDX_ADMINS_FOUNDERS].text_content().strip())        
 
         context.emit(entity, target=True)
         context.emit(sanction)
+        for control_entity in control_entities:
+            context.emit(control_entity)
 
 
 def parse_delay(context, delay):
@@ -115,15 +135,17 @@ def parse_date(text):
     return h.parse_date(text, ["%d/%m/%Y", "%d.%m.%Y", "%A, %d %B, %Y"])
 
 
-def parse_sanction_num(context, text) -> str | None:
+def parse_sanction_decision(context, text):
     match = REGEX_SANCTION_NUMBER.match(text)
     if match:
-        return match.group(1)
+        return match.group(1), parse_date(match.group(2))
     else:
-        context.log.warn(f'Failed to parse saction number from "{ text }"')
+        context.log.warn(f'Failed to parse saction number and date from "{ text }"')
+        return None, None
 
 
 def parse_address(context, text):
+    """Currently just the plain string as full address"""
     # mun. Chişinău, Durleşti, str-la Codrilor 22/1, of. 92, MD-2003
     # or
     # r. Străşeni, s. Micăuţi, MD-3722
@@ -138,47 +160,23 @@ def parse_address(context, text):
     return address
 
 
-def parse_control(context: Context, text: str):
+def clean_control_string(text: str) -> str:
     text = text.replace("Lista ", "")
     text = text.replace(" - ", ": ")
     text = text.replace(" \u2013 ", ": ")
     text = re.sub("\s+", " ", text)
-    # Fondator/Administrator – 
-    # or
-    # Fondator - TOLMAŢCHI VALERI Administrator - TOLMAŢCHI VALERI
-    # or
-    # Lista conducătorilor - Galin Anatolie, Lista fondatorilor - Galin Anatolie
-    # (List of leaders)
-    # or
-    # Conducători -
-    # (Leaders)
-    ROLES = { 
-        "Fondator/Administrator": "UNKNOWN",
-        "conducătorilor": "ADMINISTRATORS",
-        "Conducători": "ADMINISTRATORS",
-        "Fondator": "OWNERS",
-        "fondatorilor": "OWNERS",
-        "Administrator": "ADMINISTRATORS",
-    }
 
     for ro, en in ROLES.items():
         text = text.replace(ro, en)
+    return text
 
-    REGEX_MEMBER_GROUPS = (
-        "^(?P<unknown>[\w, \(\)%\.]+)?"
-        "("
-        "(ADMINISTRATORS: (?P<admin>[\w,\. ]+))"
-        "|OWNERS: ((?P<owners>[\w,\. \(\)%]+))"
-        "|UNKNOWN: ((?P<mixed>[\w,\. \(\)%]+))"
-        ")*$"
-    )
+
+def parse_control(context: Context, entity: Entity, date, text: str) -> [Entity]:
+    entities = []
+    text = clean_control_string(text)
     match = re.match(REGEX_MEMBER_GROUPS, text)
     
-    print()
-    print(text)
     if match:
-        #print(f"    -> { match.groupdict()} ")
-
         owners_str = match.groupdict()["owners"]
         if owners_str:
             owners = owners_str.split(",")
@@ -206,5 +204,38 @@ def parse_control(context: Context, text: str):
                 else:
                     members.append(unknown)                
 
+        print()
         print(f"  owners: { owners }")
         print(f"  members: { members }")
+
+        entities += list(make_ownerships(context, entity, date, owners))
+        #entities += make_members(entity, date, members)
+
+    return entities
+
+
+def make_ownerships(context, company: Entity, date, owners: [str]) -> [Entity]:
+    for name in owners:
+        name = name.strip()
+        match = re.match("^([^\d\.\()]+)(\(?(\d+\.?\d*) ?%\)?)?$", name)
+        if match:
+            print(match.groups())
+            name = match.group(1)
+            person = context.make("Person")
+            person.id = context.make_slug(name)            
+            person.add("name", name, lang="rum")
+
+            ownership = context.make("Ownership")
+            ownership.id = context.make_id(company.id, "owns", person.id)
+            ownership.add("owner", person)
+            ownership.add("asset", company)
+            if date:
+                ownership.add("date", date)
+            percent = match.group(3)
+            if percent:
+                ownership.add("percentage", percent)
+
+            yield person
+            yield ownership
+
+
