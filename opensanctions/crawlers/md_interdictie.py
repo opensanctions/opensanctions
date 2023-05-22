@@ -74,6 +74,7 @@ def crawl(context: Context):
         name = data.pop("denumirea-si-forma-de-organizare-a-operatorului-economic")
         entity.id = context.make_id(name, COUNTRY)
         entity.add("name", name)
+        entity.add("topics", "debarment")
         
         addr_string = data.pop("adresa-si-datele-de-contact-ale-operatorului-economic")
         address = h.make_address(context, full=addr_string, country=COUNTRY)
