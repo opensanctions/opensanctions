@@ -1,14 +1,9 @@
 import os
-import json
 from itertools import count
 from typing import Dict, Any
-from normality.cleaning import remove_control_chars
-from pantomime.types import JSON
-from followthemoney.types import registry
 
 from opensanctions.core import Context
 from opensanctions import helpers as h
-from opensanctions.util import multi_split
 
 PASSWORD = os.environ.get("OPENSANCTIONS_NSDC_PASSWORD")
 AUTH = ("rnbo", PASSWORD)
@@ -16,7 +11,7 @@ AUTH = ("rnbo", PASSWORD)
 CODES = {"DN": "UA-DPR", "LN": "UA-LPR"}
 
 
-def crawl_item(context: Context, item: Dict[str, Any]):
+def crawl_item(context: Context, item: Dict[str, Any]) -> None:
     subject_type = item.pop("subjectType")
     schema = context.lookup_value("subject_types", subject_type)
     if schema is None:
@@ -103,6 +98,3 @@ def crawl(context: Context) -> None:
             crawl_item(context, item)
         if page == response["pages"]:
             break
-
-    # crawl_physical(context)
-    # crawl_legal(context)

@@ -48,6 +48,7 @@ country:
         - "Korea under Japanese rule"
         - "United Principalities"
         - "Kingdom of Prussia"
+        - Prussia
         - "Kingdom of Italy"
         - "Principality of Montenegro"
         - "Soviet Civil Administration"
@@ -197,7 +198,6 @@ country:
         - Parthian Empire
         - Kingdom of Castile
         - Udaipur State
-        - China Hong Kong City
         - Arab Kingdom of Syria
         - Palestinian National Authority
         - Portuguese Cape Verde
@@ -282,6 +282,9 @@ country:
         - Reichskommissariat Ostland
         - Gambia Colony and Protectorate
         - Antilles britanniques
+        - Iles Vierges
+        - Terengganu
+        - Tokugawa shogunate
       contains:
         - (JVCFOR)
         - with effect from
@@ -371,6 +374,12 @@ country:
     - match:
         - "Chong An District, Wuxi Jiangsu, Jiangsu Province"
       value: CN
+    - match:
+        - China Hong Kong City
+        - Chine (Hong-Kong SAR)
+      values:
+        - HK
+        - CN
     - match:
         - Kingdom of Egypt
         - Republic of Egypt (1953–1958)
@@ -804,6 +813,10 @@ country:
       values:
         - SUHH
         - KZ
+    - match: Turkmen Soviet Socialist Republic
+      values:
+        - SUHH
+        - TM
     - match: DRC,Belgium
       values:
         - DR Congo
@@ -1443,9 +1456,10 @@ email:
       values:
         - info@dsgd.ru
         - gmn@dsgd.ru
-    - match:
-        - INFO@xn-----6kcbabo7acls0bmjmq4a8j.xn--p1ai
+    - match: INFO@xn-----6kcbabo7acls0bmjmq4a8j.xn--p1ai
       value: info@закон-защита-право.рф
+    - match: 1@xn----jtbuhicc1a.xn--p1ai
+      value: 1@р-формер.рф
 
 phone:
   options:
