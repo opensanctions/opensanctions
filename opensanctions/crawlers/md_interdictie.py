@@ -167,7 +167,7 @@ def crawl_control(context: Context, entity: Entity, date, text: str):
                     members.append(unknown)                
 
         entities += list(make_ownerships(context, entity, date, owners))
-        #entities += make_members(entity, date, members)
+        entities += list(make_members(context, entity, date, members))
 
     for entity in entities:
             context.emit(entity)
@@ -195,5 +195,24 @@ def make_ownerships(context, company: Entity, date, owners: [str]) -> [Entity]:
 
             yield owner
             yield ownership
+
+
+def make_members(context, company:Entity, date, members: [str]):
+    for name in members:
+        name = name.strip()
+        if name:
+            member = context.make("LegalEntity")
+            member.id = context.make_slug(name)
+            member.add("name", name, lang="rum")
+
+            membership = context.make("Membership")
+            membership.id = context.make_id(member.id, "in", company.id)
+            membership.add("member", member)
+            membership.add("organization", company)
+            if date:
+                membership.add("date", date)
+
+            yield member
+            yield membership
 
 
