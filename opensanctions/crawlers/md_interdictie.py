@@ -181,7 +181,7 @@ def make_ownerships(context, company: Entity, date, owners: [str]) -> [Entity]:
         if match:
             name = match.group(1)
             owner = context.make("LegalEntity")
-            owner.id = context.make_slug(name)            
+            owner.id = context.make_id(company.id, name)            
             owner.add("name", name, lang="rum")
 
             ownership = context.make("Ownership")
@@ -203,7 +203,7 @@ def make_members(context, company:Entity, date, members: [str]):
         name = name.strip()
         if name:
             member = context.make("LegalEntity")
-            member.id = context.make_slug(name)
+            member.id = context.make_id(company.id, name)
             member.add("name", name, lang="rum")
 
             membership = context.make("Membership")
