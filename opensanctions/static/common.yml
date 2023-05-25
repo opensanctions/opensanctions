@@ -285,6 +285,7 @@ country:
         - Iles Vierges
         - Terengganu
         - Tokugawa shogunate
+        - XUN
       contains:
         - (JVCFOR)
         - with effect from
@@ -360,6 +361,8 @@ country:
         - Principality of Serbia
         - Kingdom of Serbia
       value: Serbia
+    - match: SCG
+      value: CSXX
     - match:
         - Southern Netherlands
       value: Netherlands
@@ -400,6 +403,7 @@ country:
       value: DE
     - match:
         - Assembly of Kosovo*
+        - XKS
       value: XK
     - match:
         - Albanian Kingdom
@@ -634,6 +638,9 @@ country:
       contains:
         - Lebanon (Succarieh’s Australia
       value: Lebanon
+    - match:
+        - ANT
+      value: ANtigua and Barbuda
     - match: BUJUMBURA
       value: Burundi
     - match: אלג'יר או רש"פ
