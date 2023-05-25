@@ -18,7 +18,6 @@ from opensanctions.core.db import engine_read, stmt_table
 log = get_logger(__name__)
 
 Assembler = Optional[Callable[[Entity], Entity]]
-Statements = Tuple[Statement, ...]
 
 
 class Database(object):
@@ -45,7 +44,7 @@ class Database(object):
         self.build()
         return DatasetLoader(self, dataset, assembler)
 
-    def iter_statements(self) -> Generator[Statements, None, None]:
+    def iter_statements(self) -> Generator[Statement, None, None]:
         with engine_read() as conn:
             q = select(stmt_table)
             if self.scope.name != Dataset.ALL:
@@ -84,9 +83,10 @@ class Database(object):
             wb.put(key, data)
             if stmt.prop_type == registry.entity.name:
                 vc = self.resolver.get_canonical(stmt.value)
-                key = f"i.{vc}.{stmt.prop}.{stmt.canonical_id}".encode("utf-8")
+                key = f"i.{vc}.{stmt.canonical_id}".encode("utf-8")
                 wb.put(key, stmt.canonical_id.encode("utf-8"))
         wb.put(b"x.done", b"yes")
+        log.info("Local cache complete.", scope=self.scope.name, statements=idx)
         wb.write()
 
     def assemble(self, statements: Iterable[Statement]):
@@ -117,7 +117,7 @@ class DatasetLoader(Loader[Dataset, Entity]):
         self.scopes = set(self.dataset.scope_names)
         self.assembler = assembler
 
-    def assemble(self, statements: Statements) -> Generator[Entity, None, None]:
+    def assemble(self, statements: List[Statement]) -> Generator[Entity, None, None]:
         entity = self.db.assemble(statements)
         if entity is not None:
             entity = self.db.resolver.apply_properties(entity)
