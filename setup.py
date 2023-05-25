@@ -27,7 +27,7 @@ setup(
     },
     zip_safe=False,
     install_requires=[
-        "followthemoney == 3.3.0",
+        "followthemoney == 3.4.0",
         "nomenklatura == 2.11.0",
         "orjson == 3.8.12",
         "zavod == 0.6.2",
