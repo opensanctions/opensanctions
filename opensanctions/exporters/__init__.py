@@ -43,6 +43,11 @@ def export_data(context: Context, loader: Loader[Dataset, Entity]):
     if not context.dataset.export:
         clazzes = [StatisticsExporter]
     exporters = [clz(context, loader) for clz in clazzes]
+    log.info(
+        "Exporting dataset...",
+        dataset=context.dataset.name,
+        exporters=len(exporters),
+    )
 
     for exporter in exporters:
         exporter.setup()

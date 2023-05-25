@@ -127,20 +127,24 @@ class DatasetLoader(Loader[Dataset, Entity]):
 
     def get_entity(self, id: str) -> Optional[Entity]:
         statements: List[Statement] = []
-        for (_, v) in self.db.lvl.iterator(prefix=bytes(f"s.{id}.", "utf-8")):
-            data = orjson.loads(v)
-            if data.get("dataset") in self.scopes:
-                statements.append(Statement.from_dict(data))
+        prefix = f"s.{id}.".encode("utf-8")
+        with self.db.lvl.iterator(prefix=prefix, include_key=False) as it:
+            for v in it:
+                data = orjson.loads(v)
+                if data.get("dataset") in self.scopes:
+                    statements.append(Statement.from_dict(data))
         if len(statements):
             for entity in self.assemble(statements):
                 return entity
         return None
 
     def _get_inverted(self, id: str) -> Generator[Entity, None, None]:
-        for (_, v) in self.db.lvl.iterator(prefix=bytes(f"i.{id}.", "utf-8")):
-            entity = self.get_entity(v.decode("utf-8"))
-            if entity is not None:
-                yield entity
+        prefix = f"i.{id}.".encode("utf-8")
+        with self.db.lvl.iterator(prefix=prefix, include_key=False) as it:
+            for v in it:
+                entity = self.get_entity(v.decode("utf-8"))
+                if entity is not None:
+                    yield entity
 
     def get_inverted(self, id: str) -> Generator[Tuple[Property, Entity], None, None]:
         for entity in self._get_inverted(id):
@@ -149,11 +153,13 @@ class DatasetLoader(Loader[Dataset, Entity]):
                     yield prop.reverse, entity
 
     def __iter__(self) -> Generator[Entity, None, None]:
-        for (k, _) in self.db.lvl.iterator(prefix=bytes(f"e.", "utf-8")):
-            _, entity_id = k.decode("utf-8").split(".", 1)
-            entity = self.get_entity(entity_id)
-            if entity is not None:
-                yield entity
+        prefix = f"e.".encode("utf-8")
+        with self.db.lvl.iterator(prefix=prefix, include_value=False) as it:
+            for k in it:
+                _, entity_id = k.decode("utf-8").split(".", 1)
+                entity = self.get_entity(entity_id)
+                if entity is not None:
+                    yield entity
 
     def __len__(self) -> int:
         raise NotImplementedError()
