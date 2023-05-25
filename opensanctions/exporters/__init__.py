@@ -4,7 +4,7 @@ from nomenklatura.loader import Loader
 from nomenklatura.publish.dates import simplify_dates
 
 from opensanctions.core import Context, Dataset, Entity
-from opensanctions.core.loader import Database
+from opensanctions.core.loader_disk import Database
 from opensanctions.core.issues import all_issues
 from opensanctions.core.db import engine_tx
 from opensanctions.core.resources import clear_resources

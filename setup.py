@@ -32,6 +32,7 @@ setup(
         "orjson == 3.8.13",
         "zavod == 0.6.3",
         "pantomime == 0.6.0",
+        "plyvel==1.5.0",
         "sqlalchemy[mypy]",
         "requests[security]",
         "types-requests",

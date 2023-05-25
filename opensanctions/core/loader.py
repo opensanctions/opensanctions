@@ -160,7 +160,7 @@ class DatasetLoader(Loader[Dataset, Entity]):
             for entity in self.assemble(cached):
                 yield entity
 
-    def __ken__(self) -> int:
+    def __len__(self) -> int:
         with engine_read() as conn:
             return count_entities(conn, self.dataset)
 
