@@ -78,13 +78,13 @@ class Database(object):
                 wb = self.lvl.write_batch()
             stmt.canonical_id = self.resolver.get_canonical(stmt.entity_id)
             data = orjson.dumps(stmt.to_dict())
-            key = f"e.{stmt.canonical_id}".encode("utf-8")
+            key = f"e:{stmt.canonical_id}:{stmt.dataset}".encode("utf-8")
             wb.put(key, stmt.schema.encode("utf-8"))
-            key = f"s.{stmt.canonical_id}.{stmt.id}".encode("utf-8")
+            key = f"s:{stmt.canonical_id}:{stmt.id}".encode("utf-8")
             wb.put(key, data)
             if stmt.prop_type == registry.entity.name:
                 vc = self.resolver.get_canonical(stmt.value)
-                key = f"i.{vc}.{stmt.canonical_id}".encode("utf-8")
+                key = f"i:{vc}:{stmt.canonical_id}".encode("utf-8")
                 wb.put(key, stmt.canonical_id.encode("utf-8"))
         wb.put(b"x.done", b"yes")
         log.info("Local cache complete.", scope=self.scope.name, statements=idx)
@@ -131,7 +131,7 @@ class DatasetLoader(Loader[Dataset, Entity]):
 
     def get_entity(self, id: str) -> Optional[Entity]:
         statements: List[Statement] = []
-        prefix = f"s.{id}.".encode("utf-8")
+        prefix = f"s:{id}:".encode("utf-8")
         with self.db.lvl.iterator(prefix=prefix, include_key=False) as it:
             for v in it:
                 data = orjson.loads(v)
@@ -147,7 +147,7 @@ class DatasetLoader(Loader[Dataset, Entity]):
         return None
 
     def _get_inverted(self, id: str) -> Generator[Entity, None, None]:
-        prefix = f"i.{id}.".encode("utf-8")
+        prefix = f"i:{id}:".encode("utf-8")
         with self.db.lvl.iterator(prefix=prefix, include_key=False) as it:
             for v in it:
                 entity = self.get_entity(v.decode("utf-8"))
@@ -161,13 +161,22 @@ class DatasetLoader(Loader[Dataset, Entity]):
                     yield prop.reverse, entity
 
     def __iter__(self) -> Generator[Entity, None, None]:
-        prefix = f"e.".encode("utf-8")
+        prefix = f"e:".encode("utf-8")
         with self.db.lvl.iterator(prefix=prefix, include_value=False) as it:
+            current_id: Optional[str] = None
+            current_match = False
             for k in it:
-                _, entity_id = k.decode("utf-8").split(".", 1)
-                entity = self.get_entity(entity_id)
-                if entity is not None:
-                    yield entity
+                _, entity_id, dataset = k.decode("utf-8").split(":", 2)
+                if entity_id != current_id:
+                    current_id = entity_id
+                    current_match = False
+                if current_match:
+                    continue
+                if dataset in self.scopes:
+                    current_match = True
+                    entity = self.get_entity(entity_id)
+                    if entity is not None:
+                        yield entity
 
     def __len__(self) -> int:
         raise NotImplementedError()
