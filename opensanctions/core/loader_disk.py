@@ -9,6 +9,7 @@ from zavod.logs import get_logger
 from sqlalchemy.future import select
 from nomenklatura import Loader, Resolver
 from nomenklatura.statement import Statement
+from nomenklatura.util import iso_datetime
 
 from opensanctions import settings
 from opensanctions.core.dataset import Dataset
@@ -98,6 +99,9 @@ class Database(object):
                 if entity is None:
                     data = {"schema": stmt.schema, "id": stmt.canonical_id}
                     entity = Entity(model, data, default_dataset=stmt.dataset)
+                    entity.last_change = stmt.first_seen
+                if stmt.prop == Statement.BASE:
+                    entity.last_change = max(entity.last_change, stmt.first_seen)
                 entity.add_statement(stmt)
         except InvalidData as inv:
             log.error("Assemble error: %s" % inv)
@@ -132,6 +136,8 @@ class DatasetLoader(Loader[Dataset, Entity]):
             for v in it:
                 data = orjson.loads(v)
                 if data.get("dataset") in self.scopes:
+                    data["first_seen"] = iso_datetime(data["first_seen"])
+                    data["last_seen"] = iso_datetime(data["last_seen"])
                     statements.append(Statement.from_dict(data))
         if len(statements):
             for entity in self.assemble(statements):

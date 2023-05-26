@@ -14,7 +14,6 @@ from opensanctions.core.resources import all_resources
 from opensanctions.core.statements import (
     all_schemata,
     count_entities,
-    last_modified,
     agg_entities_by_country,
     agg_entities_by_schema,
 )
@@ -50,10 +49,8 @@ def get_dataset_statistics(dataset: Dataset, conn: Conn) -> Dict[str, Any]:
 
 def dataset_to_index(dataset: Dataset) -> Dict[str, Any]:
     with engine_tx() as conn:
-        last_modified_date = last_modified(conn, dataset)
         meta = dataset.to_dict()
         meta.update(get_dataset_statistics(dataset, conn))
-        meta["last_change"] = last_modified_date
         meta["last_export"] = settings.RUN_TIME
         meta["index_url"] = dataset.make_public_url("index.json")
         meta["issues_url"] = dataset.make_public_url("issues.json")
