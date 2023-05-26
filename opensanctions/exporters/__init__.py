@@ -52,7 +52,9 @@ def export_data(context: Context, loader: Loader[Dataset, Entity]):
     for exporter in exporters:
         exporter.setup()
 
-    for entity in loader:
+    for idx, entity in enumerate(loader):
+        if idx > 0 and idx % 50000 == 0:
+            log.info("Exported %s entities..." % idx, dataset=context.dataset.name)
         for exporter in exporters:
             exporter.feed(entity)
 

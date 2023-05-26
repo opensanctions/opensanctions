@@ -1,9 +1,11 @@
 from pathlib import Path
 from functools import cache
-from typing import Optional
+from typing import Optional, Generator
 from zavod.logs import get_logger
-from google.cloud.storage import Client, Bucket
+from google.cloud.storage import Client, Bucket, Blob
 from followthemoney.cli.util import path_entities
+from nomenklatura.statement import Statement
+from nomenklatura.statement.serialize import read_path_statements, JSON
 
 from opensanctions import settings
 from opensanctions.core.dataset import Dataset
@@ -26,6 +28,28 @@ def get_backfill_bucket() -> Optional[Bucket]:
     return bucket
 
 
+def get_backfill_blob(dataset: Dataset, resource: str) -> Optional[Blob]:
+    bucket = get_backfill_bucket()
+    if bucket is None:
+        return None
+    blob_name = f"{BLOB_BASE}/{dataset.name}/{resource}"
+    return bucket.get_blob(blob_name)
+
+
+def backfill_resource(dataset: Dataset, resource: str, path: Path) -> Optional[Path]:
+    blob = get_backfill_blob(dataset, resource)
+    if blob is not None:
+        log.info(
+            "Backfilling dataset resource...",
+            dataset=dataset.name,
+            resource=resource,
+            blob_name=blob.name,
+        )
+        blob.download_to_filename(path)
+        return path
+    return None
+
+
 def dataset_path(dataset: Dataset) -> Path:
     return settings.DATASET_PATH.joinpath(dataset.name)
 
@@ -38,27 +62,42 @@ def dataset_resource_path(dataset: Dataset, resource: str) -> Path:
 
 def get_dataset_resource(
     dataset: Dataset, resource: str, backfill: bool = True
-) -> Path:
+) -> Optional[Path]:
     path = dataset_resource_path(dataset, resource)
-    if not path.exists() and backfill:
-        bucket = get_backfill_bucket()
-        if bucket is not None:
-            blob_name = f"{BLOB_BASE}/{dataset.name}/{resource}"
-            blob = bucket.get_blob(blob_name)
-            if blob is not None:
-                log.info(
-                    "Backfilling dataset resource...",
-                    dataset=dataset.name,
-                    resource=resource,
-                    blob_name=blob_name,
-                )
-                blob.download_to_filename(path)
-    return path
+    if path.exists():
+        return path
+    if backfill:
+        return backfill_resource(dataset, resource, path)
+    return None
 
 
-def iter_dataset_entities(dataset: Dataset) -> Path:
+def iter_dataset_entities(dataset: Dataset) -> Generator[Entity, None, None]:
     path = get_dataset_resource(dataset, FTM_RESOURCE)
     if path is None:
         raise ValueError(f"Cannot load entities for: {dataset.name}")
     for entity in path_entities(path, Entity):
         yield entity
+
+
+def iter_dataset_statements(dataset: Dataset) -> Generator[Statement, None, None]:
+    path = get_dataset_resource(dataset, STATEMENTS_RESOURCE)
+    if path is None:
+        raise ValueError(f"Cannot load statements for: {dataset.name}")
+    for stmt in read_path_statements(path, JSON, Statement):
+        yield stmt
+
+
+def iter_previous_statements(dataset: Dataset) -> Generator[Statement, None, None]:
+    # TODO: loading this from database for now
+    resource = "statements.previous.json"
+    path = dataset_resource_path(dataset, resource)
+    if not path.exists():
+        path = backfill_resource(dataset, STATEMENTS_RESOURCE, path)
+    current_path = dataset_resource_path(dataset, STATEMENTS_RESOURCE)
+    if current_path.exists():
+        path = current_path
+    if path is None:
+        log.warning(f"Cannot load previous statements for: {dataset.name}")
+        return
+    for stmt in read_path_statements(path, JSON, Statement):
+        yield stmt
