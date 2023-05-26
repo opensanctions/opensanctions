@@ -37,6 +37,7 @@ setup(
         "requests[security]",
         "types-requests",
         "psycopg2-binary",
+        "google-cloud-storage",
         "certifi",
         "addressformatting == 1.3.1",
         "prefixdate",

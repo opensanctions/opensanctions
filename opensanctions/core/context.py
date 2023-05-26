@@ -23,7 +23,8 @@ from opensanctions.core.issues import clear_issues
 from opensanctions.core.resolver import get_resolver
 from opensanctions.core.resources import save_resource, clear_resources
 from opensanctions.core.source import Source
-from opensanctions.core.statements import lock_dataset, count_entities
+from opensanctions.core.archive import dataset_path
+from opensanctions.core.statements import count_entities
 from opensanctions.core.statements import cleanup_dataset, clear_statements
 from opensanctions.core.statements import save_statements
 
@@ -39,8 +40,7 @@ class Context(GenericZavod[Entity, Dataset]):
     BATCH_SIZE = 5000
 
     def __init__(self, dataset: Dataset):
-        data_path = settings.DATASET_PATH.joinpath(dataset.name)
-        super().__init__(dataset, Entity, data_path=data_path)
+        super().__init__(dataset, Entity, data_path=dataset_path(dataset))
         self.cache = Cache(engine, metadata, dataset, create=True)
         self._statements: Dict[str, Statement] = {}
         self._data_conn: Optional[Conn] = None

@@ -47,6 +47,7 @@ class StatisticsExporter(Exporter):
         super().setup()
         self.entity_count = 0
         self.last_change: Optional[datetime] = None
+        self.schemata = set()
 
         self.thing_count = 0
         self.thing_countries: Dict[str, int] = defaultdict(int)
@@ -58,6 +59,7 @@ class StatisticsExporter(Exporter):
 
     def feed(self, entity: Entity):
         self.entity_count += 1
+        self.schemata.add(entity.schema.name)
 
         if entity.schema.is_a("Thing"):
             self.thing_count += 1
@@ -83,6 +85,7 @@ class StatisticsExporter(Exporter):
             last_change = self.last_change.isoformat()
         stats = {
             "last_change": last_change,
+            "schemata": list(self.schemata),
             "entity_count": self.entity_count,
             "target_count": self.target_count,
             "targets": {

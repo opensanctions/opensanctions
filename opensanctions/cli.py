@@ -56,12 +56,9 @@ def crawl(dataset):
 
 @cli.command("export", help="Export entities from the given dataset")
 @click.argument("dataset", default=Dataset.ALL, type=datasets)
-@click.option("-i", "--index", is_flag=True, default=False)
 @click.option("-r", "--recurse", is_flag=True, default=False)
-def export_(dataset: str, index: bool = False, recurse: bool = False):
+def export_(dataset: str, recurse: bool = False):
     export(dataset, recurse=recurse)
-    if index:
-        export_metadata()
 
 
 @cli.command("export-index", help="Export global dataset index")

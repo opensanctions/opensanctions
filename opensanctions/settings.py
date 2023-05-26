@@ -34,6 +34,10 @@ DATA_PATH.mkdir(parents=True, exist_ok=True)
 DATASET_PATH = DATA_PATH.joinpath("datasets")
 DATASET_PATH = Path(env.get("OPENSANCTIONS_DATASET_PATH", DATASET_PATH)).resolve()
 
+# Bucket to back-fill missing data artifacts from
+BACKFILL_BUCKET = env.get("OPENSANCTIONS_BACKFILL_BUCKET", None)
+BACKFILL_VERSION = env_str("OPENSANCTIONS_BACKFILL_VERSION", "latest")
+
 # SQL database URI for structured data
 DATABASE_URI = env.get("OPENSANCTIONS_DATABASE_URI")
 if DATABASE_URI is None:

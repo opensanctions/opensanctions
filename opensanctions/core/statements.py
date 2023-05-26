@@ -221,11 +221,11 @@ def cleanup_dataset(conn: Conn, dataset: Dataset):
         conn.execute(pq)
 
 
-def lock_dataset(conn: Conn, dataset: Dataset):
-    q = select(stmt_table.c.id)
-    q = q.with_for_update()
-    q = q.filter(stmt_table.c.dataset == dataset.name)
-    conn.execute(q)
+# def lock_dataset(conn: Conn, dataset: Dataset):
+#     q = select(stmt_table.c.id)
+#     q = q.with_for_update()
+#     q = q.filter(stmt_table.c.dataset == dataset.name)
+#     conn.execute(q)
 
 
 def resolve_all_canonical(conn: Conn, resolver: Resolver):
