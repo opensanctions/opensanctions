@@ -91,37 +91,3 @@ stmt_table = Table(
     Column("first_seen", DateTime, nullable=False),
     Column("last_seen", DateTime, index=True),
 )
-
-canonical_table = Table(
-    "canonical",
-    metadata,
-    Column("entity_id", Unicode(KEY_LEN), index=True, nullable=False),
-    Column("canonical_id", Unicode(KEY_LEN), index=False, nullable=True),
-)
-
-
-analytics_entity_table = Table(
-    "analytics_entity",
-    metadata,
-    Column("id", Unicode(KEY_LEN), index=True, nullable=False),
-    Column("schema", Unicode(KEY_LEN), nullable=False),
-    Column("caption", Unicode(VALUE_LEN), nullable=False),
-    Column("target", Boolean),
-    Column("properties", JSONB),
-    Column("first_seen", DateTime),
-    Column("last_seen", DateTime),
-)
-
-analytics_dataset_table = Table(
-    "analytics_dataset",
-    metadata,
-    Column("entity_id", Unicode(KEY_LEN), index=True, nullable=False),
-    Column("dataset", Unicode(KEY_LEN), index=True, nullable=False),
-)
-
-analytics_country_table = Table(
-    "analytics_country",
-    metadata,
-    Column("entity_id", Unicode(KEY_LEN), index=True, nullable=False),
-    Column("country", Unicode(KEY_LEN), index=True, nullable=False),
-)

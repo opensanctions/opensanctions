@@ -35,7 +35,9 @@ class Database(object):
         cached: bool = False,
         external: bool = False,
     ):
-        self.path = settings.DATA_PATH / f"{scope.name}.lvldb"
+        aggregator_path = settings.DATA_PATH / "aggregator"
+        aggregator_path.mkdir(parents=True, exist_ok=True)
+        self.path = aggregator_path / scope.name
         self.lvl = plyvel.DB(self.path.as_posix(), create_if_missing=True)
         self.scope = scope
         self.external = external

@@ -10,8 +10,8 @@ from followthemoney.types import registry
 from nomenklatura.resolver import Resolver
 from nomenklatura.statement import Statement
 
-from opensanctions.core.db import stmt_table, canonical_table
-from opensanctions.core.db import Conn, ConnCache, upsert_func
+from opensanctions.core.db import stmt_table
+from opensanctions.core.db import Conn, upsert_func
 from opensanctions.core.dataset import Dataset
 
 log = get_logger(__name__)
@@ -225,40 +225,6 @@ def lock_dataset(conn: Conn, dataset: Dataset):
     q = select(stmt_table.c.id)
     q = q.with_for_update()
     q = q.filter(stmt_table.c.dataset == dataset.name)
-    conn.execute(q)
-
-
-def resolve_all_canonical_via_table(conn: Conn, resolver: Resolver):
-    log.info("Resolving canonical_id in statements...", resolver=resolver)
-    conn.execute(delete(canonical_table))
-    mappings = []
-    log.debug("Building canonical table mapping...")
-    for canonical in resolver.canonicals():
-        for referent in resolver.get_referents(canonical, canonicals=False):
-            mappings.append({"entity_id": referent, "canonical_id": canonical.id})
-        if len(mappings) > 5000:
-            stmt = insert(canonical_table).values(mappings)
-            conn.execute(stmt)
-            mappings = []
-
-    if len(mappings):
-        stmt = insert(canonical_table).values(mappings)
-        conn.execute(stmt)
-
-    log.debug("Removing exploded canonical IDs...")
-    q = update(stmt_table)
-    q = q.where(stmt_table.c.canonical_id != stmt_table.c.entity_id)
-    nested_q = select(canonical_table.c.entity_id)
-    nested_q = nested_q.where(canonical_table.c.entity_id == stmt_table.c.entity_id)
-    q = q.where(~nested_q.exists())
-    q = q.values({stmt_table.c.canonical_id: stmt_table.c.entity_id})
-    conn.execute(q)
-
-    log.debug("Applying canonical IDs from canonical table to statements...")
-    q = update(stmt_table)
-    q = q.where(stmt_table.c.entity_id == canonical_table.c.entity_id)
-    q = q.where(stmt_table.c.canonical_id != canonical_table.c.canonical_id)
-    q = q.values({stmt_table.c.canonical_id: canonical_table.c.canonical_id})
     conn.execute(q)
 
 
