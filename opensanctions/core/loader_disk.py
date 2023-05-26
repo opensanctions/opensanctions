@@ -135,6 +135,8 @@ class DatasetLoader(Loader[Dataset, Entity]):
         with self.db.lvl.iterator(prefix=prefix, include_key=False) as it:
             for v in it:
                 data = orjson.loads(v)
+                if not self.db.external and data.get("external"):
+                    continue
                 if data.get("dataset") in self.scopes:
                     data["first_seen"] = iso_datetime(data["first_seen"])
                     data["last_seen"] = iso_datetime(data["last_seen"])
