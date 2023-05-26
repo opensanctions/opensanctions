@@ -78,8 +78,11 @@ class StatisticsExporter(Exporter):
                 self.last_change = max(self.last_change, entity.last_change)
 
     def finish(self):
+        last_change: Optional[str] = None
+        if isinstance(self.last_change, datetime):
+            last_change = self.last_change.isoformat()
         stats = {
-            "last_change": self.last_change.isoformat(),
+            "last_change": last_change,
             "entity_count": self.entity_count,
             "target_count": self.target_count,
             "targets": {

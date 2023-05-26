@@ -51,6 +51,9 @@ class Database(object):
             if self.scope.name != Dataset.ALL:
                 q = q.filter(stmt_table.c.dataset.in_(self.scope.scope_names))
 
+            if not self.external:
+                q = q.filter(stmt_table.c.external == False)
+
             # q = q.order_by(stmt_table.c.canonical_id.asc())
             conn = conn.execution_options(stream_results=True)
             cursor = conn.execute(q)
