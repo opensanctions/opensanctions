@@ -1,7 +1,7 @@
 type: collection
 title: Beneficial ownership graph datasets
 hidden: true
-export: false
+# export: false
 children:
   - sanctions
   - cy_companies

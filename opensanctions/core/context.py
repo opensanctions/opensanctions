@@ -28,7 +28,6 @@ from opensanctions.core.tsindex import TimeStampIndex
 from opensanctions.core.archive import dataset_path, dataset_resource_path
 from opensanctions.core.archive import iter_previous_statements
 from opensanctions.core.archive import STATEMENTS_RESOURCE
-from opensanctions.core.statements import count_entities
 from opensanctions.core.statements import cleanup_dataset, clear_statements
 from opensanctions.core.statements import all_statements, save_statements
 
@@ -253,7 +252,7 @@ class Context(GenericZavod[Entity, Dataset]):
             stmt.entity_id = entity.id
             stmt.canonical_id = canonical_id
             stmt.schema = entity.schema.name
-            stmt.last_seen = settings.RUN_TIME
+            stmt.last_seen = settings.RUN_TIME_ISO
             stmt.target = target or False
             stmt.external = external
             if stmt.lang is None and self.lang is not None:
@@ -296,10 +295,7 @@ class Context(GenericZavod[Entity, Dataset]):
                 )
             else:
                 cleanup_dataset(self.data_conn, self.dataset)
-            entities = count_entities(self.data_conn, dataset=self.dataset)
-            targets = count_entities(self.data_conn, dataset=self.dataset, target=True)
-            self.commit()
-            self.log.info("Crawl completed", entities=entities, targets=targets)
+            self.log.info("Crawl completed", entities=self._entity_count)
             self.commit()
             return True
         except KeyboardInterrupt:

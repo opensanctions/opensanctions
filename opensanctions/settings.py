@@ -7,6 +7,7 @@ from os import environ as env
 from normality import stringify
 
 from nomenklatura import db
+from nomenklatura.util import datetime_iso
 
 
 def env_str(name: str, default: str) -> str:
@@ -49,6 +50,7 @@ db.POOL_SIZE = int(env_str("OPENSANCTIONS_POOL_SIZE", db.POOL_SIZE))
 
 # Per-run timestamp
 RUN_TIME = datetime.utcnow().replace(microsecond=0)
+RUN_TIME_ISO = RUN_TIME.isoformat(sep="T", timespec="seconds")
 RUN_DATE = RUN_TIME.date().isoformat()
 
 # Public URL version

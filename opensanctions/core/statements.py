@@ -1,11 +1,9 @@
-from functools import cache
 from datetime import datetime
 from typing import Dict, Generator, List, Optional, Tuple, Union
 from sqlalchemy.future import select
-from sqlalchemy.sql.expression import delete, update, insert
+from sqlalchemy.sql.expression import delete, update
 from sqlalchemy.sql.functions import func
 from zavod.logs import get_logger
-from followthemoney import model
 from followthemoney.types import registry
 from nomenklatura.resolver import Resolver
 from nomenklatura.statement import Statement
@@ -89,105 +87,95 @@ def count_entities(
     return conn.scalar(q)
 
 
-def agg_entities_by_country(
-    conn: Conn,
-    dataset: Optional[Dataset] = None,
-    target: Optional[bool] = None,
-    schemata: Optional[List[str]] = None,
-) -> List[Dict[str, Union[str, int]]]:
-    """Return the number of targets grouped by country."""
-    count = func.count(func.distinct(stmt_table.c.canonical_id))
-    q = select(stmt_table.c.value, count)
-    # TODO: this could be generic to type values?
-    q = q.filter(stmt_table.c.external == False)  # noqa
-    q = q.filter(stmt_table.c.prop_type == registry.country.name)
-    if dataset is not None:
-        q = q.filter(stmt_table.c.dataset.in_(dataset.scope_names))
-    if target is not None:
-        q = q.filter(stmt_table.c.target == target)
-    if schemata is not None and len(schemata):
-        q = q.filter(stmt_table.c.schema.in_(schemata))
-    q = q.group_by(stmt_table.c.value)
-    q = q.order_by(count.desc())
-    res = conn.execute(q)
-    countries = []
-    for code, count in res.fetchall():
-        result = {
-            "code": code,
-            "count": count,
-            "label": registry.country.caption(code),
-        }
-        countries.append(result)
-    return countries
+# def agg_entities_by_country(
+#     conn: Conn,
+#     dataset: Optional[Dataset] = None,
+#     target: Optional[bool] = None,
+#     schemata: Optional[List[str]] = None,
+# ) -> List[Dict[str, Union[str, int]]]:
+#     """Return the number of targets grouped by country."""
+#     count = func.count(func.distinct(stmt_table.c.canonical_id))
+#     q = select(stmt_table.c.value, count)
+#     # TODO: this could be generic to type values?
+#     q = q.filter(stmt_table.c.external == False)  # noqa
+#     q = q.filter(stmt_table.c.prop_type == registry.country.name)
+#     if dataset is not None:
+#         q = q.filter(stmt_table.c.dataset.in_(dataset.scope_names))
+#     if target is not None:
+#         q = q.filter(stmt_table.c.target == target)
+#     if schemata is not None and len(schemata):
+#         q = q.filter(stmt_table.c.schema.in_(schemata))
+#     q = q.group_by(stmt_table.c.value)
+#     q = q.order_by(count.desc())
+#     res = conn.execute(q)
+#     countries = []
+#     for code, count in res.fetchall():
+#         result = {
+#             "code": code,
+#             "count": count,
+#             "label": registry.country.caption(code),
+#         }
+#         countries.append(result)
+#     return countries
 
 
-def agg_entities_by_schema(
-    conn: Conn,
-    dataset: Optional[Dataset] = None,
-    target: Optional[bool] = None,
-    schemata: Optional[List[str]] = None,
-) -> List[Dict[str, Union[str, int]]]:
-    """Return the number of targets grouped by their schema."""
-    # FIXME: duplicates entities when there are statements with different schema
-    # defined for the same entity.
-    count = func.count(func.distinct(stmt_table.c.canonical_id))
-    q = select(stmt_table.c.schema, count)
-    q = q.filter(stmt_table.c.external == False)  # noqa
-    q = q.filter(stmt_table.c.prop_type == Statement.BASE)
-    if dataset is not None:
-        q = q.filter(stmt_table.c.dataset.in_(dataset.scope_names))
-    if target is not None:
-        q = q.filter(stmt_table.c.target == target)
-    if schemata is not None and len(schemata):
-        q = q.filter(stmt_table.c.schema.in_(schemata))
-    q = q.group_by(stmt_table.c.schema)
-    q = q.order_by(count.desc())
-    res = conn.execute(q)
-    results = []
-    for name, count in res.fetchall():
-        schema = model.get(name)
-        if schema is None or schema.hidden:
-            continue
-        result = {
-            "name": name,
-            "count": count,
-            "label": schema.label,
-            "plural": schema.plural,
-        }
-        results.append(result)
-    return results
+# def agg_entities_by_schema(
+#     conn: Conn,
+#     dataset: Optional[Dataset] = None,
+#     target: Optional[bool] = None,
+#     schemata: Optional[List[str]] = None,
+# ) -> List[Dict[str, Union[str, int]]]:
+#     """Return the number of targets grouped by their schema."""
+#     # FIXME: duplicates entities when there are statements with different schema
+#     # defined for the same entity.
+#     count = func.count(func.distinct(stmt_table.c.canonical_id))
+#     q = select(stmt_table.c.schema, count)
+#     q = q.filter(stmt_table.c.external == False)  # noqa
+#     q = q.filter(stmt_table.c.prop_type == Statement.BASE)
+#     if dataset is not None:
+#         q = q.filter(stmt_table.c.dataset.in_(dataset.scope_names))
+#     if target is not None:
+#         q = q.filter(stmt_table.c.target == target)
+#     if schemata is not None and len(schemata):
+#         q = q.filter(stmt_table.c.schema.in_(schemata))
+#     q = q.group_by(stmt_table.c.schema)
+#     q = q.order_by(count.desc())
+#     res = conn.execute(q)
+#     results = []
+#     for name, count in res.fetchall():
+#         schema = model.get(name)
+#         if schema is None or schema.hidden:
+#             continue
+#         result = {
+#             "name": name,
+#             "count": count,
+#             "label": schema.label,
+#             "plural": schema.plural,
+#         }
+#         results.append(result)
+#     return results
 
 
-def all_schemata(conn: Conn, dataset: Optional[Dataset] = None) -> List[str]:
-    """Return all schemata present in the dataset"""
-    q = select(func.distinct(stmt_table.c.schema))
-    q = q.filter(stmt_table.c.prop_type == Statement.BASE)
-    q = q.filter(stmt_table.c.external == False)  # noqa
-    if dataset is not None:
-        q = q.filter(stmt_table.c.dataset.in_(dataset.scope_names))
-    q = q.group_by(stmt_table.c.schema)
-    res = conn.execute(q)
-    return [s for (s,) in res.all()]
+# def all_schemata(conn: Conn, dataset: Optional[Dataset] = None) -> List[str]:
+#     """Return all schemata present in the dataset"""
+#     q = select(func.distinct(stmt_table.c.schema))
+#     q = q.filter(stmt_table.c.prop_type == Statement.BASE)
+#     q = q.filter(stmt_table.c.external == False)  # noqa
+#     if dataset is not None:
+#         q = q.filter(stmt_table.c.dataset.in_(dataset.scope_names))
+#     q = q.group_by(stmt_table.c.schema)
+#     res = conn.execute(q)
+#     return [s for (s,) in res.all()]
 
 
-def max_last_seen(conn: Conn, dataset: Optional[Dataset] = None) -> Optional[datetime]:
-    """Return the latest date of the data."""
-    q = select(func.max(stmt_table.c.last_seen))
-    q = q.filter(stmt_table.c.prop_type == Statement.BASE)
-    q = q.filter(stmt_table.c.external == False)  # noqa
-    if dataset is not None:
-        q = q.filter(stmt_table.c.dataset.in_(dataset.scope_names))
-    return conn.scalar(q)
-
-
-def last_modified(conn: Conn, dataset: Optional[Dataset] = None) -> Optional[datetime]:
-    """Return the latest checksum change in the data."""
-    q = select(func.max(stmt_table.c.first_seen))
-    q = q.filter(stmt_table.c.prop_type == Statement.BASE)
-    q = q.filter(stmt_table.c.external == False)  # noqa
-    if dataset is not None:
-        q = q.filter(stmt_table.c.dataset.in_(dataset.scope_names))
-    return conn.scalar(q)
+# def last_modified(conn: Conn, dataset: Optional[Dataset] = None) -> Optional[datetime]:
+#     """Return the latest checksum change in the data."""
+#     q = select(func.max(stmt_table.c.first_seen))
+#     q = q.filter(stmt_table.c.prop_type == Statement.BASE)
+#     q = q.filter(stmt_table.c.external == False)  # noqa
+#     if dataset is not None:
+#         q = q.filter(stmt_table.c.dataset.in_(dataset.scope_names))
+#     return conn.scalar(q)
 
 
 def entities_datasets(

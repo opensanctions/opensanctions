@@ -18,7 +18,6 @@ from opensanctions.core.loader import Database
 from opensanctions.core.resolver import get_resolver
 from opensanctions.core.training import export_training_pairs
 from opensanctions.core.xref import blocking_xref
-from opensanctions.core.statements import max_last_seen
 from opensanctions.core.statements import resolve_all_canonical, resolve_canonical
 from opensanctions.core.enrich import enrich
 from opensanctions.core.db import engine_tx
@@ -200,16 +199,6 @@ def merge(entity_ids, force: bool = False):
 @cli.command("audit", help="Sanity-check the resolver configuration")
 def audit():
     audit_resolver()
-
-
-@cli.command("latest", help="Show the latest data timestamp")
-@click.argument("dataset", default=Dataset.DEFAULT, type=datasets)
-def latest(dataset):
-    ds = Dataset.require(dataset)
-    with engine_tx() as conn:
-        latest = max_last_seen(conn, ds)
-        if latest is not None:
-            print(latest.isoformat())
 
 
 @cli.command("export-statements", help="Export statement data as a CSV file")
