@@ -16,10 +16,12 @@ class TimeStampIndex(object):
     def index(self, statements: Iterable[Statement]) -> None:
         log.info("Building timestamp index...")
         batch = self.db.write_batch()
-        for stmt in statements:
+        idx = 0
+        for idx, stmt in enumerate(statements):
             if stmt.first_seen is not None:
                 batch.put(stmt.id.encode("utf-8"), stmt.first_seen.encode("utf-8"))
         batch.write()
+        log.info("Index ready.", count=idx)
 
     def get(self, id: str) -> str:
         first_seen = self.db.get(id.encode("utf-8"))

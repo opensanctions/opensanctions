@@ -4,11 +4,12 @@ from typing import Optional, Generator
 from zavod.logs import get_logger
 from google.cloud.storage import Client, Bucket, Blob
 from followthemoney.cli.util import path_entities
-from nomenklatura.statement import Statement
-from nomenklatura.statement.serialize import read_path_statements, JSON
+from nomenklatura.statement import Statement, JSON
+from nomenklatura.statement.serialize import read_path_statements, read_statements
 
 from opensanctions import settings
 from opensanctions.core.dataset import Dataset
+from opensanctions.core.collection import Collection
 from opensanctions.core.entity import Entity
 
 log = get_logger(__name__)
@@ -80,6 +81,11 @@ def iter_dataset_entities(dataset: Dataset) -> Generator[Entity, None, None]:
 
 
 def iter_dataset_statements(dataset: Dataset) -> Generator[Statement, None, None]:
+    if dataset.TYPE == Collection.TYPE:
+        for source in dataset.children:
+            yield from iter_previous_statements(source)
+        return
+
     path = get_dataset_resource(dataset, STATEMENTS_RESOURCE)
     if path is None:
         raise ValueError(f"Cannot load statements for: {dataset.name}")
@@ -89,15 +95,22 @@ def iter_dataset_statements(dataset: Dataset) -> Generator[Statement, None, None
 
 def iter_previous_statements(dataset: Dataset) -> Generator[Statement, None, None]:
     # TODO: loading this from database for now
-    resource = "statements.previous.json"
-    path = dataset_resource_path(dataset, resource)
-    if not path.exists():
-        path = backfill_resource(dataset, STATEMENTS_RESOURCE, path)
-    current_path = dataset_resource_path(dataset, STATEMENTS_RESOURCE)
-    if current_path.exists():
-        path = current_path
-    if path is None:
-        log.warning(f"Cannot load previous statements for: {dataset.name}")
+
+    # resource = "statements.previous.json"
+    # path = dataset_resource_path(dataset, resource)
+    # if not path.exists():
+    #     path = backfill_resource(dataset, STATEMENTS_RESOURCE, path)
+    backfill_blob = get_backfill_blob(dataset, STATEMENTS_RESOURCE)
+    if backfill_blob is not None:
+        with backfill_blob.open("rb") as fh:
+            yield from read_statements(fh, JSON, Statement)
         return
-    for stmt in read_path_statements(path, JSON, Statement):
-        yield stmt
+
+    # current_path = dataset_resource_path(dataset, STATEMENTS_RESOURCE)
+    # if current_path.exists():
+    #     path = current_path
+    # if path is None:
+    #     log.warning(f"Cannot load previous statements for: {dataset.name}")
+    #     return
+    # for stmt in read_path_statements(path, JSON, Statement):
+    #     yield stmt

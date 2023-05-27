@@ -82,12 +82,13 @@ def crawl(context: Context):
             entity.add("address", address.get("full"))
         # h.apply_address(context, entity, address)
 
-        sanction = h.make_sanction(context, entity)
         agency = row.pop("Excluding Agency")
         if agency == "TREAS-OFAC":
             # cf. us_ofac_sdn, us_ofac_cons
             continue
-        sanction.set("authority", agency)
+        sanction = h.make_sanction(context, entity, key=agency)
+        if agency is not None and len(agency):
+            sanction.set("authority", agency)
         sanction.add("authorityId", sam_number)
         sanction.add("program", row.pop("Exclusion Program"))
         sanction.add("provisions", row.pop("Exclusion Type"))
