@@ -9,8 +9,8 @@ from opensanctions.core.entity import Entity
 from opensanctions.core.context import Context
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.external import External
-from opensanctions.core.loader import Database
-from opensanctions.core.statements import lock_dataset, cleanup_dataset
+from opensanctions.core.archive import iter_dataset_entities
+from opensanctions.core.statements import cleanup_dataset
 
 
 def save_match(
@@ -53,16 +53,13 @@ def enrich(scope_name: str, external_name: str, threshold: float):
     external = cast(External, context.dataset)
     context.bind()
     context.clear(data=False)
-    database = Database(scope, context.resolver, cached=False)
-    loader = database.view(scope)
+    entities = iter_dataset_entities(scope)
     conn_cache = ConnCache(context.cache, context.data_conn)
     enricher = external.get_enricher(conn_cache)
-    # lock_dataset(context.data_conn, external)
     try:
-        for entity_idx, entity in enumerate(loader):
+        for entity_idx, entity in enumerate(entities):
             if entity_idx > 0 and entity_idx % 1000 == 0:
                 context.commit()
-                # lock_dataset(context.data_conn, external)
             context.log.debug("Enrich query: %r" % entity)
             try:
                 for match in enricher.match_wrapped(entity):

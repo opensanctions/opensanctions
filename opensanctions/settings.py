@@ -7,6 +7,7 @@ from os import environ as env
 from normality import stringify
 
 from nomenklatura import db
+from nomenklatura.util import datetime_iso
 
 
 def env_str(name: str, default: str) -> str:
@@ -34,6 +35,10 @@ DATA_PATH.mkdir(parents=True, exist_ok=True)
 DATASET_PATH = DATA_PATH.joinpath("datasets")
 DATASET_PATH = Path(env.get("OPENSANCTIONS_DATASET_PATH", DATASET_PATH)).resolve()
 
+# Bucket to back-fill missing data artifacts from
+BACKFILL_BUCKET = env.get("OPENSANCTIONS_BACKFILL_BUCKET", None)
+BACKFILL_VERSION = env_str("OPENSANCTIONS_BACKFILL_VERSION", "latest")
+
 # SQL database URI for structured data
 DATABASE_URI = env.get("OPENSANCTIONS_DATABASE_URI")
 if DATABASE_URI is None:
@@ -45,6 +50,7 @@ db.POOL_SIZE = int(env_str("OPENSANCTIONS_POOL_SIZE", db.POOL_SIZE))
 
 # Per-run timestamp
 RUN_TIME = datetime.utcnow().replace(microsecond=0)
+RUN_TIME_ISO = RUN_TIME.isoformat(sep="T", timespec="seconds")
 RUN_DATE = RUN_TIME.date().isoformat()
 
 # Public URL version

@@ -1,6 +1,5 @@
 from normality import stringify
 from zavod.logs import get_logger
-from datetime import datetime
 from prefixdate.precision import Precision
 from typing import Any, Dict, Generator, List, Optional, Tuple, Union
 from followthemoney import model
@@ -34,7 +33,7 @@ class Entity(CompositeEntity):
         default_dataset: str = "default",
     ):
         super().__init__(model, data, cleaned=cleaned, default_dataset=default_dataset)
-        self.last_change: Optional[datetime] = None
+        self.last_change: Optional[str] = None
 
     def make_id(self, *parts: Any) -> str:
         raise NotImplementedError

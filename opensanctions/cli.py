@@ -18,10 +18,8 @@ from opensanctions.core.loader import Database
 from opensanctions.core.resolver import get_resolver
 from opensanctions.core.training import export_training_pairs
 from opensanctions.core.xref import blocking_xref
-from opensanctions.core.statements import max_last_seen
 from opensanctions.core.statements import resolve_all_canonical, resolve_canonical
 from opensanctions.core.enrich import enrich
-from opensanctions.core.analytics import build_analytics
 from opensanctions.core.db import engine_tx
 from opensanctions.exporters import export, export_metadata
 from opensanctions.util import write_json
@@ -57,12 +55,9 @@ def crawl(dataset):
 
 @cli.command("export", help="Export entities from the given dataset")
 @click.argument("dataset", default=Dataset.ALL, type=datasets)
-@click.option("-i", "--index", is_flag=True, default=False)
 @click.option("-r", "--recurse", is_flag=True, default=False)
-def export_(dataset: str, index: bool = False, recurse: bool = False):
+def export_(dataset: str, recurse: bool = False):
     export(dataset, recurse=recurse)
-    if index:
-        export_metadata()
 
 
 @cli.command("export-index", help="Export global dataset index")
@@ -204,23 +199,6 @@ def merge(entity_ids, force: bool = False):
 @cli.command("audit", help="Sanity-check the resolver configuration")
 def audit():
     audit_resolver()
-
-
-@cli.command("latest", help="Show the latest data timestamp")
-@click.argument("dataset", default=Dataset.DEFAULT, type=datasets)
-def latest(dataset):
-    ds = Dataset.require(dataset)
-    with engine_tx() as conn:
-        latest = max_last_seen(conn, ds)
-        if latest is not None:
-            print(latest.isoformat())
-
-
-@cli.command("build-analytics", help="Build analytics data tables")
-@click.argument("dataset", default=Dataset.DEFAULT, type=datasets)
-def build_analytics_(dataset):
-    ds = Dataset.require(dataset)
-    build_analytics(ds)
 
 
 @cli.command("export-statements", help="Export statement data as a CSV file")
