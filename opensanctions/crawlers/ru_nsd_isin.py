@@ -54,7 +54,7 @@ def crawl_item(context: Context, url: str):
     try:
         html = context.fetch_html(url, cache_days=30)
     except RequestException as re:
-        time.sleep(2)
+        time.sleep(10)
         context.log.error("HTTP error: %r" % re, url=url)
         return
     table = html.findall('.//td[@class="content"]//table')
@@ -198,7 +198,7 @@ def crawl(context: Context):
             doc = context.fetch_html(context.source.data.url, params=params)
         except RequestException:
             context.log.error("Cannot fetch index page", page=page)
-            time.sleep(2)
+            time.sleep(10)
             continue
         links = 0
         for anchor in doc.findall('.//div[@class="news_sep"]//a'):

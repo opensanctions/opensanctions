@@ -1,0 +1,47 @@
+entry_point: opensanctions.crawlers.us_sam_exclusions
+title: US SAM Procurement Exclusions
+prefix: usgsa
+summary: >
+  A database of suppliers who have been excluded from participating in US federal
+  procurement.
+description: |
+  > This data package is refreshed daily and contains the publicly available data for
+  > all active exclusion records entered by the Federal government identifying those
+  > parties excluded from receiving Federal contracts, certain subcontracts, and certain
+  > types of Federal financial and non-financial assistance and benefits. This version
+  > of the file has the Unique Entity Identifier fields added. Users must read the
+  > exclusion record completely to understand how it impacts the excluded party. The
+  > links include the three-digit Julian date for easier identification of the most
+  > recent file.
+collections:
+  - debarment
+  - default
+publisher:
+  name: General Services Administration (GSA)
+  description: >
+    GSA's acquisition solutions offer private sector professional services, equipment,
+    supplies, and IT to government organizations and the military. GSA also promotes
+    management best practices and efficient government operations through the development
+    of governmentwide policies
+  country: us
+  url: https://www.gsa.gov/
+  official: true
+url: https://sam.gov/data-services/Exclusions/Public%20V2?privacy=Public
+data:
+  url: "https://sam.gov/api/prod/fileextractservices/v1/api/listfiles?random=RANDOM&domain=Exclusions/Public%20V2&privacy=Public"
+  format: CSV
+
+lookups:
+  classifications:
+    options:
+      - match: Individual
+        value: Person
+      - match:
+          - Firm
+        value: Company
+      - match:
+          - Special Entity Designation
+          - ""
+        value: LegalEntity
+      - match: Vessel
+        value: Vessel

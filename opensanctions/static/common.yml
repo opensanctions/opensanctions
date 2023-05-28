@@ -48,6 +48,7 @@ country:
         - "Korea under Japanese rule"
         - "United Principalities"
         - "Kingdom of Prussia"
+        - Prussia
         - "Kingdom of Italy"
         - "Principality of Montenegro"
         - "Soviet Civil Administration"
@@ -197,7 +198,6 @@ country:
         - Parthian Empire
         - Kingdom of Castile
         - Udaipur State
-        - China Hong Kong City
         - Arab Kingdom of Syria
         - Palestinian National Authority
         - Portuguese Cape Verde
@@ -279,6 +279,13 @@ country:
         - Kingdom of Lithuania
         - British Malaya
         - English people
+        - Reichskommissariat Ostland
+        - Gambia Colony and Protectorate
+        - Antilles britanniques
+        - Iles Vierges
+        - Terengganu
+        - Tokugawa shogunate
+        - XUN
       contains:
         - (JVCFOR)
         - with effect from
@@ -354,6 +361,8 @@ country:
         - Principality of Serbia
         - Kingdom of Serbia
       value: Serbia
+    - match: SCG
+      value: CSXX
     - match:
         - Southern Netherlands
       value: Netherlands
@@ -368,6 +377,12 @@ country:
     - match:
         - "Chong An District, Wuxi Jiangsu, Jiangsu Province"
       value: CN
+    - match:
+        - China Hong Kong City
+        - Chine (Hong-Kong SAR)
+      values:
+        - HK
+        - CN
     - match:
         - Kingdom of Egypt
         - Republic of Egypt (1953–1958)
@@ -388,6 +403,7 @@ country:
       value: DE
     - match:
         - Assembly of Kosovo*
+        - XKS
       value: XK
     - match:
         - Albanian Kingdom
@@ -442,6 +458,9 @@ country:
         - Fourth Republic of South Korea
         - Fifth Republic of South Korea
       value: KR
+    - match:
+        - Corée du Sud ( Rép. de )
+      value: South Korea
     - match: sh-hl
       value: Saint Helena
     - match:
@@ -450,12 +469,16 @@ country:
         - British Overseas citizen
         - United Kingdom of Great Britain and Northern Irela
       value: GB
+    - match:
+        - Scotland Uk
+      value: GB-SCO
     - match: British,Irish
       values:
         - GB
         - IE
     - match:
         - IRLANDE, ou EIRE
+        - Irlande /Eire/
       values:
         - IE
     - match: British Pakistani
@@ -506,6 +529,7 @@ country:
         - British America
         - British North America
         - United States of North America
+        - Massachusetts Bay Colony
       value:
         - US
     - match:
@@ -570,6 +594,9 @@ country:
         - Americans
       value: US
     - match:
+        - QUEBEC H2Y 1L6
+      value: CA
+    - match:
         - Repubic of Moldova
         - Gagauzia
       value: MD
@@ -611,6 +638,9 @@ country:
       contains:
         - Lebanon (Succarieh’s Australia
       value: Lebanon
+    - match:
+        - ANT
+      value: ANtigua and Barbuda
     - match: BUJUMBURA
       value: Burundi
     - match: אלג'יר או רש"פ
@@ -666,7 +696,9 @@ country:
         - Australian citizen
         - "New South Wales"
       value: Australia
-    - match: Believed location - Egypt
+    - match:
+        - Believed location - Egypt
+        - Alexandria, Egypt
       value: Egypt
     - match:
         - Azerbaijan Democratic Republic
@@ -688,7 +720,9 @@ country:
       values:
         - "SUHH"
         - "KG"
-    - match: Uzbek SSR
+    - match:
+        - Uzbek SSR
+        - Uzbek Soviet Socialist Republic
       values:
         - SUHH
         - UZ
@@ -786,6 +820,10 @@ country:
       values:
         - SUHH
         - KZ
+    - match: Turkmen Soviet Socialist Republic
+      values:
+        - SUHH
+        - TM
     - match: DRC,Belgium
       values:
         - DR Congo
@@ -1415,12 +1453,20 @@ email:
       values:
         - spccom2@scs‐net.org
         - spccom1@scsnet.org
+    - match: (1) ermakova@intds.ru (2) lantsova@intgs.ru
+      values:
+        - ermakova@intds.ru
+        - lantsova@intgs.ru
     - match: helmand_exchange_msp@ yahoo.com
       value: helmand_exchange_msp@yahoo.com
     - match: info@dsgd.ru; gmn@dsgd.ru
       values:
         - info@dsgd.ru
         - gmn@dsgd.ru
+    - match: INFO@xn-----6kcbabo7acls0bmjmq4a8j.xn--p1ai
+      value: info@закон-защита-право.рф
+    - match: 1@xn----jtbuhicc1a.xn--p1ai
+      value: 1@р-формер.рф
 
 phone:
   options:

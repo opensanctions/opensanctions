@@ -3,6 +3,7 @@ from zavod.logs import get_logger
 from prefixdate.precision import Precision
 from typing import Any, Dict, Generator, List, Optional, Tuple, Union
 from followthemoney import model
+from followthemoney.model import Model
 from followthemoney.exc import InvalidData
 from followthemoney.util import value_list
 from followthemoney.types import registry
@@ -23,6 +24,16 @@ class Entity(CompositeEntity):
     extracting data from sanctions lists and for auditing parsing errors to
     structured logging.
     """
+
+    def __init__(
+        self,
+        model: Model,
+        data: Dict[str, Any],
+        cleaned: bool = True,
+        default_dataset: str = "default",
+    ):
+        super().__init__(model, data, cleaned=cleaned, default_dataset=default_dataset)
+        self.last_change: Optional[str] = None
 
     def make_id(self, *parts: Any) -> str:
         raise NotImplementedError
@@ -174,4 +185,5 @@ class Entity(CompositeEntity):
         data = super().to_dict()
         data["caption"] = self.caption
         data["target"] = self.target or False
+        data["last_change"] = self.last_change
         return data

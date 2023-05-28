@@ -84,9 +84,6 @@ jobs:
       - name: Export a single dataset
         run: |
           opensanctions export us_ofac_cons
-      - name: Build analytics data
-        run: |
-          opensanctions build-analytics
       - name: Clear all data
         run: |
           opensanctions clear-workdir all

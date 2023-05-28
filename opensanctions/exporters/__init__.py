@@ -4,7 +4,7 @@ from nomenklatura.loader import Loader
 from nomenklatura.publish.dates import simplify_dates
 
 from opensanctions.core import Context, Dataset, Entity
-from opensanctions.core.loader import Database
+from opensanctions.core.aggregator import Aggregator
 from opensanctions.core.issues import all_issues
 from opensanctions.core.db import engine_tx
 from opensanctions.core.resources import clear_resources
@@ -43,11 +43,18 @@ def export_data(context: Context, loader: Loader[Dataset, Entity]):
     if not context.dataset.export:
         clazzes = [StatisticsExporter]
     exporters = [clz(context, loader) for clz in clazzes]
+    log.info(
+        "Exporting dataset...",
+        dataset=context.dataset.name,
+        exporters=len(exporters),
+    )
 
     for exporter in exporters:
         exporter.setup()
 
-    for entity in loader:
+    for idx, entity in enumerate(loader):
+        if idx > 0 and idx % 50000 == 0:
+            log.info("Exported %s entities..." % idx, dataset=context.dataset.name)
         for exporter in exporters:
             exporter.feed(entity)
 
@@ -55,13 +62,13 @@ def export_data(context: Context, loader: Loader[Dataset, Entity]):
         exporter.finish()
 
 
-def export_dataset(dataset: Dataset, database: Database):
+def export_dataset(dataset: Dataset, aggregator: Aggregator):
     """Dump the contents of the dataset to the output directory."""
     try:
         context = Context(dataset)
         with engine_tx() as conn:
             clear_resources(conn, dataset, category=EXPORT_CATEGORY)
-        loader = database.view(dataset, assemble)
+        loader = aggregator.view(dataset, assemble)
         export_data(context, loader)
         context.commit()
 
@@ -86,7 +93,7 @@ def export(scope_name: str, recurse: bool = False) -> None:
     """Export dump files for all datasets in the given scope."""
     scope = Dataset.require(scope_name)
     resolver = get_resolver()
-    database = Database(scope, resolver, cached=True)
+    database = Aggregator(scope, resolver, external=False)
     database.view(scope)
     exports = scope.datasets if recurse else [scope]
     for dataset_ in exports:

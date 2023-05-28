@@ -7,71 +7,54 @@ from nomenklatura.matching import MatcherV1
 
 from opensanctions import settings
 from opensanctions.core.db import engine_tx, engine_read
-from opensanctions.core.db import Conn
+from opensanctions.core.archive import get_dataset_resource, INDEX_RESOURCE
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.issues import all_issues, agg_issues_by_level
 from opensanctions.core.resources import all_resources
-from opensanctions.core.statements import (
-    all_schemata,
-    count_entities,
-    last_modified,
-    agg_entities_by_country,
-    agg_entities_by_schema,
-)
 from opensanctions.util import write_json
 
 log = get_logger(__name__)
 THINGS = [s.name for s in model if s.is_a("Thing")]
 
 
-def get_dataset_statistics(dataset: Dataset, conn: Conn) -> Dict[str, Any]:
-    statistics_path = settings.DATASET_PATH / dataset.name / "statistics.json"
-    if statistics_path.exists():
-        with open(statistics_path, "r") as fh:
-            return json.load(fh)
-
-    log.warning("Computing statistics from database", scope=dataset)
-    target_count = count_entities(conn, dataset=dataset, target=True)
-    return {
-        "entity_count": count_entities(conn, dataset=dataset),
-        "target_count": target_count,
-        "targets": {
-            "total": target_count,
-            "countries": agg_entities_by_country(conn, dataset, target=True),
-            "schemata": agg_entities_by_schema(conn, dataset, target=True),
-        },
-        "things": {
-            "total": count_entities(conn, dataset=dataset, schemata=THINGS),
-            "countries": agg_entities_by_country(conn, dataset, schemata=THINGS),
-            "schemata": agg_entities_by_schema(conn, dataset, schemata=THINGS),
-        },
-    }
+def get_dataset_statistics(dataset: Dataset) -> Dict[str, Any]:
+    statistics_path = get_dataset_resource(dataset, "statistics.json")
+    if not statistics_path.exists():
+        log.error("No statistics file found", dataset=dataset.name)
+        return {}
+    with open(statistics_path, "r") as fh:
+        return json.load(fh)
 
 
 def dataset_to_index(dataset: Dataset) -> Dict[str, Any]:
+    meta = dataset.to_dict()
+    meta.update(get_dataset_statistics(dataset))
+    meta["last_export"] = settings.RUN_TIME
+    meta["index_url"] = dataset.make_public_url("index.json")
+    meta["issues_url"] = dataset.make_public_url("issues.json")
     with engine_tx() as conn:
-        last_modified_date = last_modified(conn, dataset)
-        meta = dataset.to_dict()
-        meta.update(get_dataset_statistics(dataset, conn))
-        meta["last_change"] = last_modified_date
-        meta["last_export"] = settings.RUN_TIME
-        meta["index_url"] = dataset.make_public_url("index.json")
-        meta["issues_url"] = dataset.make_public_url("issues.json")
         meta["issue_levels"] = agg_issues_by_level(conn, dataset)
-        meta["issue_count"] = sum(meta["issue_levels"].values())
         meta["resources"] = list(all_resources(conn, dataset))
-        return meta
+    meta["issue_count"] = sum(meta["issue_levels"].values())
+    return meta
 
 
 def export_metadata():
     """Export the global index for all datasets."""
     datasets = []
+    schemata = set()
     for dataset in Dataset.all():
-        datasets.append(dataset_to_index(dataset))
+        ds_path = get_dataset_resource(dataset, INDEX_RESOURCE)
+        if not ds_path.exists():
+            log.error("No index file found", dataset=dataset.name)
+        else:
+            with open(ds_path, "r") as fh:
+                ds_data = json.load(fh)
+                schemata.update(ds_data.get("schemata", []))
+                datasets.append(ds_data)
 
     with engine_read() as conn:
         issues = list(all_issues(conn))
-        schemata = all_schemata(conn)
 
     issues_path = settings.DATASET_PATH.joinpath("issues.json")
     log.info("Writing global issues list", path=issues_path)
@@ -79,7 +62,7 @@ def export_metadata():
         data = {"issues": issues}
         write_json(data, fh)
 
-    index_path = settings.DATASET_PATH.joinpath("index.json")
+    index_path = settings.DATASET_PATH.joinpath(INDEX_RESOURCE)
     log.info("Writing global index", datasets=len(datasets), path=index_path)
     with open(index_path, "wb") as fh:
         meta = {
@@ -89,7 +72,7 @@ def export_metadata():
             "issues_url": urljoin(settings.DATASET_URL, "issues.json"),
             "statements_url": urljoin(settings.DATASET_URL, "statements.csv"),
             "model": model.to_dict(),
-            "schemata": schemata,
+            "schemata": list(schemata),
             "matcher": MatcherV1.explain(),
             "app": "opensanctions",
             "version": settings.VERSION,
