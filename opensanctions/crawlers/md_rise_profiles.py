@@ -6,14 +6,18 @@ from opensanctions import helpers as h
 import re
 
 
-def crawl_entity(context: Context, name: str, relative_url: str):
+def crawl_entity(context: Context, relative_url: str):
     url = urljoin(context.source.data.url, relative_url)
     doc = context.fetch_html(url)
-    update_date_el = [el for el in doc.findall('.//span[@class="txt"]')
-                      if "Profile updated" in el.text_content()][0]
-    # Use name from index since "Profile updated" might be missing 
-    # and is our strongest anchor point for the name container.
-    # name = collapse_spaces(update_date_el.find("./../../div[3]/span").text_content())
+    name_el = doc.find('.//span[@class="name"]')
+    name = collapse_spaces(name_el.text)
+    attributes = dict()
+    for el in name_el.find("./..").getnext().getchildren():
+        text = collapse_spaces(el.text_content())
+        parts = text.split(": ")
+        if len(parts) == 2:
+            attributes[parts[0]] = parts[1]
+    print(name, attributes)
     
 
 def looks_like_name(text):
@@ -45,21 +49,6 @@ def crawl(context: Context):
             break
 
         for link in profiles:
-            name = collapse_spaces(link.find('.//span[1]').text)
-
-            type_span = link.find('.//span[2]')
-            if type_span is None:
-                context.log.info(f"No type classification for {name}")
-                continue
-
-            relative_url = link.get("href")
-
-            if looks_like_name(name):
-                crawl_entity(context, name, relative_url)
-            else:
-                # field arrangement might have changed.
-                context.log.info(f"Not crawling {relative_url} because '{name}' doesn't look enough like a name")
-
-        # break
+            crawl_entity(context, link.get("href"))
 
         query["br"] = query["br"] + len(profiles)
