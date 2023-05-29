@@ -1,19 +1,18 @@
 import orjson
 import plyvel
-from typing import Callable, Generator, List, Iterable, Optional, Set, Tuple
+from typing import Callable, Generator, List, Iterable, Optional, Tuple
 from followthemoney.types import registry
 from followthemoney.property import Property
 from followthemoney.exc import InvalidData
 from followthemoney import model
 from zavod.logs import get_logger
-from sqlalchemy.future import select
 from nomenklatura import Loader, Resolver
 from nomenklatura.statement import Statement
 
 from opensanctions import settings
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.entity import Entity
-from opensanctions.core.db import engine_read, stmt_table
+from opensanctions.core.archive import iter_dataset_statements
 
 log = get_logger(__name__)
 
@@ -45,35 +44,17 @@ class Aggregator(object):
         self.build()
         return DatasetLoader(self, dataset, assembler)
 
-    def iter_statements(self) -> Generator[Statement, None, None]:
-        with engine_read() as conn:
-            q = select(stmt_table)
-            if self.scope.name != Dataset.ALL:
-                q = q.filter(stmt_table.c.dataset.in_(self.scope.scope_names))
-
-            if not self.external:
-                q = q.filter(stmt_table.c.external == False)
-
-            # q = q.order_by(stmt_table.c.canonical_id.asc())
-            conn = conn.execution_options(stream_results=True)
-            cursor = conn.execute(q)
-            while True:
-                rows = cursor.fetchmany(50000)
-                if not rows:
-                    break
-                for row in rows:
-                    yield Statement.from_db_row(row)
-
     def build(self) -> None:
         """Pre-load all entity cache objects from the given scope dataset."""
         if self.db.get(b"x.done") is not None:
             return
-        log.info("Building local LevelDB cache...", scope=self.scope.name)
+        log.info("Building local LevelDB aggregator...", scope=self.scope.name)
         wb = self.db.write_batch()
-        for idx, stmt in enumerate(self.iter_statements()):
+        stmts = iter_dataset_statements(self.scope, external=self.external)
+        for idx, stmt in enumerate(stmts):
             if idx > 0 and idx % 100000 == 0:
                 log.info(
-                    "Indexing local cache...",
+                    "Indexing aggregator...",
                     statements=idx,
                     scope=self.scope.name,
                 )

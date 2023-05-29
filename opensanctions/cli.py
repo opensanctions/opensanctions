@@ -2,6 +2,7 @@ import sys
 import click
 import shutil
 import logging
+from pathlib import Path
 from typing import Optional
 from zavod.logs import get_logger
 from nomenklatura.tui import dedupe_ui
@@ -11,10 +12,10 @@ from nomenklatura.matching import DefaultAlgorithm
 
 from opensanctions import settings
 from opensanctions.core import Dataset, Context, setup
-from opensanctions.exporters.statements import export_statements_path
-from opensanctions.exporters.statements import import_statements_path
+from opensanctions.exporters.statements import export_statements
 from opensanctions.core.audit import audit_resolver
-from opensanctions.core.loader import Database
+from opensanctions.core.archive import explicit_backfill
+from opensanctions.core.aggregator import Aggregator
 from opensanctions.core.resolver import get_resolver
 from opensanctions.core.training import export_training_pairs
 from opensanctions.core.xref import blocking_xref
@@ -132,11 +133,11 @@ def xref_prune():
 
 
 @cli.command("dedupe", help="Interactively judge xref candidates")
-@click.option("-d", "--dataset", type=datasets, default=Dataset.DEFAULT)
+@click.option("-d", "--dataset", type=datasets, default=Dataset.ALL)
 def dedupe(dataset):
     resolver = get_resolver()
     dataset = Dataset.require(dataset)
-    db = Database(dataset, resolver, external=True)
+    db = Aggregator(dataset, resolver, external=True)
     loader = db.view(dataset)
     dedupe_ui(resolver, loader, url_base="https://opensanctions.org/entities/%s/")
 
@@ -203,14 +204,28 @@ def audit():
 
 @cli.command("export-statements", help="Export statement data as a CSV file")
 @click.argument("outfile", type=click.Path(writable=True))
-def export_statements_csv(outfile):
-    export_statements_path(outfile)
+@click.option("-d", "--dataset", default=Dataset.ALL, type=datasets)
+def export_statements_csv(outfile: Path, dataset: str):
+    dataset_ = Dataset.require(dataset)
+    export_statements(dataset_, outfile)
 
 
-@cli.command("import-statements", help="Import statement data from a CSV file")
-@click.argument("infile", type=click.Path(readable=True, exists=True))
-def import_statements(infile):
-    import_statements_path(infile)
+@cli.command("backfill", help="Fetch statement caches for all datasets")
+@click.option("-d", "--dataset", default=Dataset.ALL, type=datasets)
+@click.option("-f", "--force", is_flag=True, default=False)
+def backfill_(dataset: str, force: bool = False):
+    dataset_ = Dataset.require(dataset)
+    explicit_backfill(dataset_, force=force)
+
+
+@cli.command("aggregate", help="Aggregate the statements for a given scope")
+@click.option("-d", "--dataset", default=Dataset.ALL, type=datasets)
+@click.option("-e", "--external", is_flag=True, default=False)
+def aggregate_(dataset: str, external: bool = False):
+    dataset_ = Dataset.require(dataset)
+    resolver = get_resolver()
+    aggregator = Aggregator(dataset_, resolver, external=external)
+    aggregator.build()
 
 
 if __name__ == "__main__":

@@ -9,7 +9,7 @@ from opensanctions.core.entity import Entity
 from opensanctions.core.context import Context
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.external import External
-from opensanctions.core.archive import iter_dataset_entities
+from opensanctions.core.aggregator import Aggregator
 from opensanctions.core.statements import cleanup_dataset
 
 
@@ -53,7 +53,8 @@ def enrich(scope_name: str, external_name: str, threshold: float):
     external = cast(External, context.dataset)
     context.bind()
     context.clear(data=False)
-    entities = iter_dataset_entities(scope)
+    agggregator = Aggregator(scope, context.resolver, external=False)
+    entities = agggregator.view(scope)
     conn_cache = ConnCache(context.cache, context.data_conn)
     enricher = external.get_enricher(conn_cache)
     try:

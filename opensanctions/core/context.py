@@ -73,14 +73,14 @@ class Context(GenericZavod[Entity, Dataset]):
         if self._tsindex is None:
             self._tsindex = TimeStampIndex()
             # TODO: switch to using "previous" mechanism:
-            # statements = iter_previous_statements(self.dataset)
-            with engine_tx() as conn:
-                statements = all_statements(
-                    conn,
-                    dataset=self.dataset,
-                    external=True,
-                )
-                self._tsindex.index(statements)
+            statements = iter_previous_statements(self.dataset)
+            # with engine_tx() as conn:
+            #     statements = all_statements(
+            #         conn,
+            #         dataset=self.dataset,
+            #         external=True,
+            #     )
+            self._tsindex.index(statements)
         return self._tsindex
 
     def bind(self) -> None:
@@ -280,7 +280,7 @@ class Context(GenericZavod[Entity, Dataset]):
             self.log.info("Source is disabled")
             return False
         clear_resources(self.data_conn, self.dataset, category=self.SOURCE_CATEGORY)
-        self.log.info("Begin crawl")
+        self.log.info("Begin crawl", tsindex=self.tsindex)
         self._entity_count = 0
         self._statement_count = 0
         try:

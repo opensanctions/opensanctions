@@ -4,7 +4,7 @@ from nomenklatura.xref import xref
 from nomenklatura.matching import DefaultAlgorithm, get_algorithm
 
 from opensanctions.core.dataset import Dataset
-from opensanctions.core.loader import Database
+from opensanctions.core.aggregator import Aggregator
 from opensanctions.core.resolver import AUTO_USER, get_resolver
 
 log = get_logger(__name__)
@@ -23,7 +23,7 @@ def blocking_xref(
         "Xref running, auto merge threshold: %f; algorithm: %r"
         % (auto_threshold, algorithm)
     )
-    db = Database(dataset, resolver, cached=True, external=True)
+    db = Aggregator(dataset, resolver, external=True)
     loader = db.view(dataset)
     algorithm_type = get_algorithm(algorithm)
     if algorithm_type is None:

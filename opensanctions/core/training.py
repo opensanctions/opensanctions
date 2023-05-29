@@ -9,7 +9,7 @@ from opensanctions.core.dataset import Dataset
 from opensanctions.core.entity import Entity
 from opensanctions.core.db import engine_read
 from opensanctions.core.statements import entities_datasets
-from opensanctions.core.loader import Database
+from opensanctions.core.aggregator import Aggregator
 from opensanctions.core.resolver import get_resolver, Resolver
 
 log = get_logger(__name__)
@@ -27,10 +27,10 @@ def get_parts(
 
 
 def get_partial(
-    resolver: Resolver, db: Database, spec: Tuple[str, Dataset]
+    resolver: Resolver, aggregator: Aggregator, spec: Tuple[str, Dataset]
 ) -> Optional[Entity]:
     id, ds = spec
-    loader = db.view(ds)
+    loader = aggregator.view(ds)
     canonical = resolver.get_canonical(id)
     entity = loader.get_entity(canonical)
     if entity is None:
@@ -39,7 +39,7 @@ def get_partial(
     return entity
 
 
-def export_training_pairs(scope: Dataset, cached: bool = False):
+def export_training_pairs(scope: Dataset):
     resolver = get_resolver()
     datasets: Dict[str, Set[Dataset]] = defaultdict(set)
     with engine_read() as conn:
@@ -77,12 +77,12 @@ def export_training_pairs(scope: Dataset, cached: bool = False):
         negative=judgements.get(Judgement.NEGATIVE, 0),
         unsure=judgements.get(Judgement.UNSURE, 0),
     )
-    db = Database(scope, resolver, cached=cached, external=True)
+    aggregator = Aggregator(scope, resolver, external=True)
     for idx, ((left, right), judgement) in enumerate(pairs.items()):
         if idx > 0 and idx % 10000 == 0:
             log.info("Exported %d pairs..." % idx)
-        left_entity = get_partial(resolver, db, left)
-        right_entity = get_partial(resolver, db, right)
+        left_entity = get_partial(resolver, aggregator, left)
+        right_entity = get_partial(resolver, aggregator, right)
         if left_entity is None or right_entity is None:
             continue
 

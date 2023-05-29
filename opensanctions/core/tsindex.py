@@ -28,3 +28,6 @@ class TimeStampIndex(object):
         if first_seen is not None:
             return first_seen.decode("utf-8")
         return settings.RUN_TIME_ISO
+
+    def __repr__(self) -> str:
+        return f"<TimeStampIndex({self.db.name!r})>"
