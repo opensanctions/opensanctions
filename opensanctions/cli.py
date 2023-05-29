@@ -12,9 +12,9 @@ from nomenklatura.matching import DefaultAlgorithm
 
 from opensanctions import settings
 from opensanctions.core import Dataset, Context, setup
-from opensanctions.exporters.statements import export_statements
+from opensanctions.exporters.statements import export_statements_path
+from opensanctions.exporters.statements import import_statements_path
 from opensanctions.core.audit import audit_resolver
-from opensanctions.core.archive import explicit_backfill
 from opensanctions.core.aggregator import Aggregator
 from opensanctions.core.resolver import get_resolver
 from opensanctions.core.training import export_training_pairs
@@ -204,18 +204,14 @@ def audit():
 
 @cli.command("export-statements", help="Export statement data as a CSV file")
 @click.argument("outfile", type=click.Path(writable=True))
-@click.option("-d", "--dataset", default=Dataset.ALL, type=datasets)
-def export_statements_csv(outfile: Path, dataset: str):
-    dataset_ = Dataset.require(dataset)
-    export_statements(dataset_, outfile)
+def export_statements_csv(outfile):
+    export_statements_path(outfile)
 
 
-@cli.command("backfill", help="Fetch statement caches for all datasets")
-@click.option("-d", "--dataset", default=Dataset.ALL, type=datasets)
-@click.option("-f", "--force", is_flag=True, default=False)
-def backfill_(dataset: str, force: bool = False):
-    dataset_ = Dataset.require(dataset)
-    explicit_backfill(dataset_, force=force)
+@cli.command("import-statements", help="Import statement data from a CSV file")
+@click.argument("infile", type=click.Path(readable=True, exists=True))
+def import_statements(infile):
+    import_statements_path(infile)
 
 
 @cli.command("aggregate", help="Aggregate the statements for a given scope")

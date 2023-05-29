@@ -131,3 +131,8 @@ CREATE INDEX ix_statement_type_external ON statement (prop_type, external);
 
 --- 2023-05-09: add category column to resources
 ALTER TABLE "resource" ADD COLUMN "category" character varying(255) DEFAULT NULL;
+
+--- revert 2023-04-11: indexes
+
+DROP INDEX ix_statement_last_seen_dataset;
+DROP INDEX ix_statement_type_external;

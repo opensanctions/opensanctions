@@ -12,7 +12,8 @@ from nomenklatura.statement import Statement
 from opensanctions import settings
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.entity import Entity
-from opensanctions.core.archive import iter_dataset_statements
+from opensanctions.core.db import engine_read
+from opensanctions.core.statements import all_statements
 
 log = get_logger(__name__)
 
@@ -50,29 +51,30 @@ class Aggregator(object):
             return
         log.info("Building local LevelDB aggregator...", scope=self.scope.name)
         wb = self.db.write_batch()
-        stmts = iter_dataset_statements(self.scope, external=self.external)
-        for idx, stmt in enumerate(stmts):
-            if idx > 0 and idx % 100000 == 0:
-                log.info(
-                    "Indexing aggregator...",
-                    statements=idx,
-                    scope=self.scope.name,
-                )
-                wb.write()
-                wb = self.db.write_batch()
-            stmt.canonical_id = self.resolver.get_canonical(stmt.entity_id)
-            data = orjson.dumps(stmt.to_dict())
-            key = f"e:{stmt.canonical_id}:{stmt.dataset}".encode("utf-8")
-            wb.put(key, stmt.schema.encode("utf-8"))
-            key = f"s:{stmt.canonical_id}:{stmt.id}".encode("utf-8")
-            wb.put(key, data)
-            if stmt.prop_type == registry.entity.name:
-                vc = self.resolver.get_canonical(stmt.value)
-                key = f"i:{vc}:{stmt.canonical_id}".encode("utf-8")
-                wb.put(key, stmt.canonical_id.encode("utf-8"))
-        wb.put(b"x.done", b"yes")
-        log.info("Local cache complete.", scope=self.scope.name, statements=idx)
-        wb.write()
+        with engine_read() as conn:
+            stmts = all_statements(conn, self.scope, external=self.external)
+            for idx, stmt in enumerate(stmts):
+                if idx > 0 and idx % 100000 == 0:
+                    log.info(
+                        "Indexing aggregator...",
+                        statements=idx,
+                        scope=self.scope.name,
+                    )
+                    wb.write()
+                    wb = self.db.write_batch()
+                stmt.canonical_id = self.resolver.get_canonical(stmt.entity_id)
+                data = orjson.dumps(stmt.to_dict())
+                key = f"e:{stmt.canonical_id}:{stmt.dataset}".encode("utf-8")
+                wb.put(key, stmt.schema.encode("utf-8"))
+                key = f"s:{stmt.canonical_id}:{stmt.id}".encode("utf-8")
+                wb.put(key, data)
+                if stmt.prop_type == registry.entity.name:
+                    vc = self.resolver.get_canonical(stmt.value)
+                    key = f"i:{vc}:{stmt.canonical_id}".encode("utf-8")
+                    wb.put(key, stmt.canonical_id.encode("utf-8"))
+            wb.put(b"x.done", b"yes")
+            log.info("Local cache complete.", scope=self.scope.name, statements=idx)
+            wb.write()
 
     def assemble(self, statements: Iterable[Statement]):
         """Build an entity proxy from a set of cached statements, considering

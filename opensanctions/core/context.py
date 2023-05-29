@@ -2,7 +2,7 @@ import json
 import hashlib
 import mimetypes
 from functools import cached_property
-from typing import Dict, Optional, BinaryIO
+from typing import Dict, Optional
 from lxml import etree, html
 from sqlalchemy.exc import OperationalError
 from requests.exceptions import RequestException
@@ -13,7 +13,6 @@ from nomenklatura.cache import Cache
 from nomenklatura.util import normalize_url
 from nomenklatura.resolver import Resolver
 from nomenklatura.statement import Statement
-from nomenklatura.statement.serialize import write_json_statement
 
 from opensanctions import settings
 from opensanctions.core.dataset import Dataset
@@ -24,12 +23,9 @@ from opensanctions.core.issues import clear_issues
 from opensanctions.core.resolver import get_resolver
 from opensanctions.core.resources import save_resource, clear_resources
 from opensanctions.core.source import Source
-from opensanctions.core.tsindex import TimeStampIndex
-from opensanctions.core.archive import dataset_path, dataset_resource_path
-from opensanctions.core.archive import iter_previous_statements
-from opensanctions.core.archive import STATEMENTS_RESOURCE
+from opensanctions.core.archive import dataset_path
 from opensanctions.core.statements import cleanup_dataset, clear_statements
-from opensanctions.core.statements import all_statements, save_statements
+from opensanctions.core.statements import save_statements
 
 
 class Context(GenericZavod[Entity, Dataset]):
@@ -45,9 +41,7 @@ class Context(GenericZavod[Entity, Dataset]):
     def __init__(self, dataset: Dataset):
         super().__init__(dataset, Entity, data_path=dataset_path(dataset))
         self.cache = Cache(engine, metadata, dataset, create=True)
-        self.statement_fh: Optional[BinaryIO] = None
         self._statements: Dict[str, Statement] = {}
-        self._tsindex: Optional[TimeStampIndex] = None
         self._data_conn: Optional[Conn] = None
         self._entity_count = 0
         self._statement_count = 0
@@ -67,21 +61,6 @@ class Context(GenericZavod[Entity, Dataset]):
         if isinstance(self.dataset, Source):
             return self.dataset.data.lang
         return None
-
-    @property
-    def tsindex(self) -> TimeStampIndex:
-        if self._tsindex is None:
-            self._tsindex = TimeStampIndex()
-            # TODO: switch to using "previous" mechanism:
-            statements = iter_previous_statements(self.dataset)
-            # with engine_tx() as conn:
-            #     statements = all_statements(
-            #         conn,
-            #         dataset=self.dataset,
-            #         external=True,
-            #     )
-            self._tsindex.index(statements)
-        return self._tsindex
 
     def bind(self) -> None:
         bind_contextvars(dataset=self.dataset.name)
@@ -103,9 +82,6 @@ class Context(GenericZavod[Entity, Dataset]):
             self._data_conn.rollback()
             self._data_conn.close()
             self._data_conn = None
-        if self.statement_fh is not None:
-            self.statement_fh.close()
-            self.statement_fh = None
         super().close()
         clear_contextvars()
 
@@ -253,22 +229,17 @@ class Context(GenericZavod[Entity, Dataset]):
             stmt.canonical_id = canonical_id
             stmt.schema = entity.schema.name
             stmt.last_seen = settings.RUN_TIME_ISO
+            stmt.first_seen = settings.RUN_TIME_ISO
             stmt.target = target or False
             stmt.external = external
             if stmt.lang is None and self.lang is not None:
                 stmt.lang = self.lang
             if stmt.id is None:
                 stmt.id = stmt.generate_key()
-            stmt.first_seen = self.tsindex.get(stmt.id)
-            if self.statement_fh is None:
-                path = dataset_resource_path(self.dataset, STATEMENTS_RESOURCE)
-                self.statement_fh = open(path, "wb")
-            write_json_statement(self.statement_fh, stmt)
-
             self._statements[stmt.id] = stmt
         self.log.debug("Emitted", entity=entity.id, schema=entity.schema.name)
         self._entity_count += 1
-        if len(self._statements) >= (self.BATCH_SIZE * 10):
+        if len(self._statements) >= self.BATCH_SIZE:
             self.flush()
 
     def crawl(self) -> bool:
@@ -280,7 +251,7 @@ class Context(GenericZavod[Entity, Dataset]):
             self.log.info("Source is disabled")
             return False
         clear_resources(self.data_conn, self.dataset, category=self.SOURCE_CATEGORY)
-        self.log.info("Begin crawl", tsindex=self.tsindex)
+        self.log.info("Begin crawl", run_time=settings.RUN_TIME_ISO)
         self._entity_count = 0
         self._statement_count = 0
         try:

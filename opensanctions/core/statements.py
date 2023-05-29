@@ -40,24 +40,15 @@ def save_statements(conn: Conn, statements: List[Statement]) -> None:
 
 
 def all_statements(
-    conn: Conn, dataset=None, canonical_id=None, inverted_ids=None, external=False
+    conn: Conn, dataset=None, external=False
 ) -> Generator[Statement, None, None]:
     q = select(stmt_table)
-    if canonical_id is not None:
-        q = q.filter(stmt_table.c.canonical_id == canonical_id)
-    if inverted_ids is not None:
-        alias = stmt_table.alias()
-        sq = select(func.distinct(alias.c.canonical_id))
-        sq = sq.filter(alias.c.prop_type == registry.entity.name)
-        sq = sq.filter(alias.c.value.in_(inverted_ids))
-        q = q.filter(stmt_table.c.canonical_id.in_(sq))
-    if dataset is not None:
+    if dataset is not None and dataset.name != Dataset.ALL:
         q = q.filter(stmt_table.c.dataset.in_(dataset.scope_names))
     if external is False:
         q = q.filter(stmt_table.c.external == False)
     q = q.order_by(stmt_table.c.canonical_id.asc())
-    if canonical_id is None and inverted_ids is None:
-        conn = conn.execution_options(stream_results=True)
+    conn = conn.execution_options(stream_results=True)
     cursor = conn.execute(q)
     while True:
         rows = cursor.fetchmany(20000)
@@ -85,97 +76,6 @@ def count_entities(
     if schemata is not None and len(schemata):
         q = q.filter(stmt_table.c.schema.in_(schemata))
     return conn.scalar(q)
-
-
-# def agg_entities_by_country(
-#     conn: Conn,
-#     dataset: Optional[Dataset] = None,
-#     target: Optional[bool] = None,
-#     schemata: Optional[List[str]] = None,
-# ) -> List[Dict[str, Union[str, int]]]:
-#     """Return the number of targets grouped by country."""
-#     count = func.count(func.distinct(stmt_table.c.canonical_id))
-#     q = select(stmt_table.c.value, count)
-#     # TODO: this could be generic to type values?
-#     q = q.filter(stmt_table.c.external == False)  # noqa
-#     q = q.filter(stmt_table.c.prop_type == registry.country.name)
-#     if dataset is not None:
-#         q = q.filter(stmt_table.c.dataset.in_(dataset.scope_names))
-#     if target is not None:
-#         q = q.filter(stmt_table.c.target == target)
-#     if schemata is not None and len(schemata):
-#         q = q.filter(stmt_table.c.schema.in_(schemata))
-#     q = q.group_by(stmt_table.c.value)
-#     q = q.order_by(count.desc())
-#     res = conn.execute(q)
-#     countries = []
-#     for code, count in res.fetchall():
-#         result = {
-#             "code": code,
-#             "count": count,
-#             "label": registry.country.caption(code),
-#         }
-#         countries.append(result)
-#     return countries
-
-
-# def agg_entities_by_schema(
-#     conn: Conn,
-#     dataset: Optional[Dataset] = None,
-#     target: Optional[bool] = None,
-#     schemata: Optional[List[str]] = None,
-# ) -> List[Dict[str, Union[str, int]]]:
-#     """Return the number of targets grouped by their schema."""
-#     # FIXME: duplicates entities when there are statements with different schema
-#     # defined for the same entity.
-#     count = func.count(func.distinct(stmt_table.c.canonical_id))
-#     q = select(stmt_table.c.schema, count)
-#     q = q.filter(stmt_table.c.external == False)  # noqa
-#     q = q.filter(stmt_table.c.prop_type == Statement.BASE)
-#     if dataset is not None:
-#         q = q.filter(stmt_table.c.dataset.in_(dataset.scope_names))
-#     if target is not None:
-#         q = q.filter(stmt_table.c.target == target)
-#     if schemata is not None and len(schemata):
-#         q = q.filter(stmt_table.c.schema.in_(schemata))
-#     q = q.group_by(stmt_table.c.schema)
-#     q = q.order_by(count.desc())
-#     res = conn.execute(q)
-#     results = []
-#     for name, count in res.fetchall():
-#         schema = model.get(name)
-#         if schema is None or schema.hidden:
-#             continue
-#         result = {
-#             "name": name,
-#             "count": count,
-#             "label": schema.label,
-#             "plural": schema.plural,
-#         }
-#         results.append(result)
-#     return results
-
-
-# def all_schemata(conn: Conn, dataset: Optional[Dataset] = None) -> List[str]:
-#     """Return all schemata present in the dataset"""
-#     q = select(func.distinct(stmt_table.c.schema))
-#     q = q.filter(stmt_table.c.prop_type == Statement.BASE)
-#     q = q.filter(stmt_table.c.external == False)  # noqa
-#     if dataset is not None:
-#         q = q.filter(stmt_table.c.dataset.in_(dataset.scope_names))
-#     q = q.group_by(stmt_table.c.schema)
-#     res = conn.execute(q)
-#     return [s for (s,) in res.all()]
-
-
-# def last_modified(conn: Conn, dataset: Optional[Dataset] = None) -> Optional[datetime]:
-#     """Return the latest checksum change in the data."""
-#     q = select(func.max(stmt_table.c.first_seen))
-#     q = q.filter(stmt_table.c.prop_type == Statement.BASE)
-#     q = q.filter(stmt_table.c.external == False)  # noqa
-#     if dataset is not None:
-#         q = q.filter(stmt_table.c.dataset.in_(dataset.scope_names))
-#     return conn.scalar(q)
 
 
 def entities_datasets(
@@ -207,13 +107,6 @@ def cleanup_dataset(conn: Conn, dataset: Dataset):
         pq = pq.where(stmt_table.c.dataset == dataset.name)
         pq = pq.where(stmt_table.c.last_seen < last_seen)
         conn.execute(pq)
-
-
-# def lock_dataset(conn: Conn, dataset: Dataset):
-#     q = select(stmt_table.c.id)
-#     q = q.with_for_update()
-#     q = q.filter(stmt_table.c.dataset == dataset.name)
-#     conn.execute(q)
 
 
 def resolve_all_canonical(conn: Conn, resolver: Resolver):
