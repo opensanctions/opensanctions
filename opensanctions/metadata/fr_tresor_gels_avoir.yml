@@ -1499,3 +1499,13 @@ lookups:
           incorporationDate: 2018-10-10
           address: Damas-Campagne, Syrie
           registrationNumber: 2906
+      - match: "Type d'entité: branche de l'organisation Basij du Corps des gardiens de la révolution islamique (IRGC) - Lieu d'enregistrement: Iran - Date d'enregistrement: novembre 1989: /"
+        props:
+          jurisdiction: ir
+          incorporationDate: 1989
+          notes: "branche de l'organisation Basij du Corps des gardiens de la révolution islamique (IRGC)"
+      - match: "Type d'entité: fondation - Lieu d'enregistrement: Iran - Date d'enregistrement: 1989: /"
+        props:
+          jurisdiction: ir
+          incorporationDate: 1989
+          notes: fondation
