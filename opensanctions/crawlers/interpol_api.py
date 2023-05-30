@@ -1,16 +1,23 @@
+import string
+from typing import Dict, Any, List, Tuple
 from requests.exceptions import HTTPError
 from normality import collapse_spaces, stringify
 
 from opensanctions.core import Context
 from opensanctions import helpers as h
 
+# Useful notes: https://www.fer.xyz/2021/08/interpol
+
 MAX_RESULTS = 160
 SEEN = set()
 COUNTRIES_URL = "https://www.interpol.int/en/How-we-work/Notices/View-Red-Notices"
 FORMATS = ["%Y/%m/%d", "%Y/%m", "%Y"]
+GENDERS = ["M", "F", "U"]
+AGE_MIN = 0
+AGE_MAX = 120
 
 
-def get_countries(context):
+def get_countries(context: Context) -> List[Tuple[str, str]]:
     doc = context.fetch_html(COUNTRIES_URL)
     path = ".//select[@id='arrestWarrantCountryId']//option"
     options = []
@@ -23,11 +30,18 @@ def get_countries(context):
     return list(sorted(options))
 
 
-def crawl_notice(context, notice):
+def patch(query: Dict[str, Any], update: Dict[str, Any]) -> Dict[str, Any]:
+    new = query.copy()
+    new.update(update)
+    return new
+
+
+def crawl_notice(context: Context, notice: Dict[str, Any]):
     url = notice.get("_links", {}).get("self", {}).get("href")
     if url in SEEN:
         return
     SEEN.add(url)
+    # context.log.info("Crawl notice: %s" % url)
     try:
         notice = context.fetch_json(url, cache_days=7)
     except HTTPError as err:
@@ -62,49 +76,72 @@ def crawl_notice(context, notice):
     context.emit(entity, target=True)
 
 
-def crawl_country(context: Context, country, age_max=120, age_min=0):
-    params = {
-        "ageMin": int(age_min),
-        "ageMax": int(age_max),
-        # "arrestWarrantCountryId": country,
-        "nationality": country,
-        "resultPerPage": MAX_RESULTS,
-    }
+def crawl_query(
+    context: Context,
+    query: Dict[str, Any],
+):
+    context.inspect(query)
+    params = query.copy()
+    params["resultPerPage"] = MAX_RESULTS
     try:
         data = context.fetch_json(context.source.data.url, params=params)
     except HTTPError as err:
         context.log.warning(
             "HTTP error",
             url=str(err.request.url),
-            country=country,
             error=err.response.status_code,
         )
         return
-    # if res.status_code != 200:
 
-    # if not res.from_cache:
-    #     time.sleep(0.5)
-    # data = res.json()
     notices = data.get("_embedded", {}).get("notices", [])
     for notice in notices:
         crawl_notice(context, notice)
     total = data.get("total")
-    # pprint((country, total, age_max, age_min))
     if total > MAX_RESULTS:
+        # context.log.info("Splitting on age", query=query)
+        age_max = query.get("ageMax", AGE_MAX)
+        age_min = query.get("ageMin", AGE_MIN)
         age_range = age_max - age_min
+        # if age_range == 0:
+        #     if "name" in query:
+        #         context.log.warn(
+        #             "Too many results",
+        #             query=query,
+        #         )
+        #     else:
+        #         for char in string.ascii_lowercase:
+        #             prefix = f"^{char}"
+        #             crawl_query(context, patch(query, {"name": prefix}))
+
         if age_range > 1:
             age_split = age_min + (age_range // 2)
-            crawl_country(context, country, age_max, age_split)
-            crawl_country(context, country, age_split, age_min)
-        elif age_range == 1:
-            crawl_country(context, country, age_max, age_max)
-            crawl_country(context, country, age_min, age_min)
+            crawl_query(context, patch(query, {"ageMax": age_max, "ageMin": age_split}))
+            crawl_query(context, patch(query, {"ageMax": age_split, "ageMin": age_min}))
+        else:
+            if "name" in query:
+                context.log.warn(
+                    "Too many results",
+                    query=query,
+                )
+            else:
+                for char in string.ascii_uppercase:
+                    prefix = f"^{char}"
+                    crawl_query(context, patch(query, {"name": prefix}))
+        # if age_range == 1:
+        #     crawl_query(context, patch(query, {"ageMax": age_min, "ageMin": age_min}))
+        #     crawl_query(context, patch(query, {"ageMax": age_max, "ageMin": age_max}))
 
 
 def crawl(context: Context):
-    countries = get_countries(context)
     context.log.info("Loading interpol API cache...")
     context.cache.preload("https://ws-public.interpol.int/notices/%")
+    countries = get_countries(context)
+    crawl_query(context, {"sexId": "U"})
+    crawl_query(context, {"sexId": "F"})
+    for char in string.ascii_uppercase:
+        prefix = f"^{char}"
+        crawl_query(context, {"name": prefix, "arrestWarrantCountryId": "RU"})
+        crawl_query(context, {"name": prefix, "arrestWarrantCountryId": "SV"})
     for country, label in countries:
-        context.log.info("Crawl %r" % label, code=country)
-        crawl_country(context, country)
+        crawl_query(context, {"arrestWarrantCountryId": country})
+        crawl_query(context, {"nationality": country})
