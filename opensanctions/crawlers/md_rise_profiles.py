@@ -7,16 +7,29 @@ import re
 
 COUNTRY = "md"
 PERSON_TYPES = {
-    "police-officer",
-    "russian-politician",
-    "politician",
+    "bailiff",
     "businessman",
-    "judge",
-    "csm-member",
-    "prosecutor",
+    "businesswoman",
+    "cna-director",
     "cna-officer",
     "csm-member",
-    "sis-officer" "former-prosecutor",
+    "csm-member",
+    "director",
+    "diplomat",
+    "former-governor",
+    "former-prosecutor",
+    "investigator",
+    "inj-director",
+    "judge",
+    "lawyer",
+    "minister",
+    "police-officer",
+    "politician",
+    "procuror",
+    "prosecutor",
+    "public-officer",
+    "russian-politician",
+    "sis-officer",
 }
 
 
@@ -49,7 +62,7 @@ def crawl_entity(context: Context, relative_url: str):
     elif type_slug == "company":
         context.log.info(f"Skipping company {name}", url)
     else:
-        context.log.info(f"Skipping unknown type {type_slug} for {name}", url)
+        context.log.warn(f"Skipping unknown type {type_slug} for {name}", url)
 
 
 def make_person(
