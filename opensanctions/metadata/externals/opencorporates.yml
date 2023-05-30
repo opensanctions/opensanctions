@@ -26,6 +26,7 @@ collections:
   - default
 config:
   type: nomenklatura.enrich.opencorporates:OpenCorporatesEnricher
+  cache_days: 180
   schemata:
     - Company
     - Organization
