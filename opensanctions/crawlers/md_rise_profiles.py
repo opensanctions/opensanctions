@@ -16,9 +16,9 @@ PERSON_TYPES = {
     "prosecutor",
     "cna-officer",
     "csm-member",
-    "sis-officer"
-    "former-prosecutor",
+    "sis-officer" "former-prosecutor",
 }
+
 
 def parse_date(text):
     return h.parse_date(text, ["%d.%m.%Y"])
@@ -35,7 +35,7 @@ def crawl_entity(context: Context, relative_url: str):
         parts = text.split(": ")
         if len(parts) == 2:
             attributes[slugify(parts[0])] = collapse_spaces(parts[1])
-    
+
     type_el = name_el.getnext().getnext()
     if hasattr(type_el, "text"):
         type_slug = slugify(type_el.text)
@@ -52,7 +52,9 @@ def crawl_entity(context: Context, relative_url: str):
         context.log.info(f"Skipping unknown type {type_slug} for {name}", url)
 
 
-def make_person(context: Context, url: str, name: str, position: str | None, attributes: dict) -> None:
+def make_person(
+    context: Context, url: str, name: str, position: str | None, attributes: dict
+) -> None:
     person = context.make("Person")
     identification = [COUNTRY, name]
     person.add("sourceUrl", url)
@@ -75,17 +77,13 @@ def make_person(context: Context, url: str, name: str, position: str | None, att
 
 
 def crawl(context: Context):
-    query = {
-        "br": 0,
-        "lang": "eng"
-    }
+    query = {"br": 0, "lang": "eng"}
     while True:
-
         context.log.debug("Crawling index offset ", query)
         url = f"{ context.source.data.url }?{ urlencode(query) }"
         doc = context.fetch_html(url)
         profiles = doc.findall('.//div[@class="profileWindow"]//a')
-        
+
         # check absurd offset just in case there are always results for some reason
         if not profiles or query["br"] > 10000:
             break
