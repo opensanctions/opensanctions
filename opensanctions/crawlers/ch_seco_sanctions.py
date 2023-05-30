@@ -169,7 +169,8 @@ def parse_entry(context: Context, target, programs, places, updated_at):
             )
         entity = context.make("Vessel")
 
-    entity.id = context.make_slug(target.get("ssid"))
+    entity_ssid = target.get("ssid")
+    entity.id = context.make_slug(entity_ssid)
     entity.add("gender", node.get("sex"), quiet=True)
     for other in node.findall("./other-information"):
         value = other.text.strip()
@@ -205,6 +206,7 @@ def parse_entry(context: Context, target, programs, places, updated_at):
             entity.add("notes", h.clean_note(value))
 
     sanction = h.make_sanction(context, entity)
+    sanction.add("authorityId", entity_ssid)
     dates = set()
     for mod in target.findall("./modification"):
         dates.add(mod.get("publication-date"))
