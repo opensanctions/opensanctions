@@ -29,7 +29,7 @@ publisher:
   name: INTERPOL
   url: https://www.interpol.int/
   official: true
-url: https://www.interpol.int/INTERPOL-expertise/Notices
+url: https://www.interpol.int/How-we-work/Notices/View-Red-Notices
 data:
   url: https://ws-public.interpol.int/notices/v1/red
   format: xml

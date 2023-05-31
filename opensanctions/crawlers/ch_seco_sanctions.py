@@ -3,6 +3,7 @@ from prefixdate import parse_parts
 from collections import defaultdict
 from typing import Dict, Optional, Tuple
 from followthemoney.types import registry
+from followthemoney.util import join_text
 from lxml.etree import _Element as Element
 
 from opensanctions.core import Context, Entity
@@ -82,14 +83,20 @@ def parse_name(entity: Entity, node: Element):
             parts[key][part_type] = spelling.text
 
     for (lang, _), part in parts.items():
+        if name_prop == "name":
+            name_prop = name_prop if lang is None else "alias"
         lang = registry.language.clean(lang)
         entity.add("title", part.pop("title", None), quiet=True, lang=lang)
-        entity.add("title", part.pop("suffix", None), quiet=True, lang=lang)
+        suffix = part.pop("suffix", None)
+        entity.add("title", suffix, quiet=True, lang=lang)
         entity.add("weakAlias", part.pop("other", None), quiet=True, lang=lang)
         entity.add("weakAlias", part.pop("tribal-name", None), quiet=True, lang=lang)
-        entity.add(
-            "fatherName", part.pop("grand-father-name", None), quiet=True, lang=lang
-        )
+        grand_father_name = part.pop("grand-father-name", None)
+        entity.add("fatherName", grand_father_name, quiet=True, lang=lang)
+
+        # SECO shows grand father name as suffix
+        full_suffix = join_text(grand_father_name, suffix)
+
         h.apply_name(
             entity,
             full=part.pop("whole-name", None),
@@ -98,6 +105,7 @@ def parse_name(entity: Entity, node: Element):
             patronymic=part.pop("father-name", None),
             last_name=part.pop("family-name", None),
             maiden_name=part.pop("maiden-name", None),
+            suffix=full_suffix,
             is_weak=is_weak,
             name_prop=name_prop,
             quiet=True,
