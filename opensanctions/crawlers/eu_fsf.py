@@ -41,8 +41,7 @@ def parse_address(context: Context, el):
     )
 
 
-def parse_sanctions(context: Context, entity: Entity, entry):
-
+def parse_sanctions(context: Context, entity: Entity, entry: Element):
     regulations = entry.findall("./regulation")
     # if len(regulations) == 0:
     #     context.log.warning(
