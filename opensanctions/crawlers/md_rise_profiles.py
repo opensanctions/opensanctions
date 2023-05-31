@@ -5,6 +5,7 @@ from opensanctions.core import Context
 from opensanctions import helpers as h
 import re
 
+CACHE_DAYS=14
 COUNTRY = "md"
 PERSON_TYPES = {
     "bailiff",
@@ -39,7 +40,7 @@ def parse_date(text):
 
 def crawl_entity(context: Context, relative_url: str):
     url = urljoin(context.source.data.url, relative_url)
-    doc = context.fetch_html(url)
+    doc = context.fetch_html(url, cache_days=CACHE_DAYS)
     name_el = doc.find('.//span[@class="name"]')
     name = collapse_spaces(name_el.text)
     attributes = dict()
@@ -85,7 +86,7 @@ def make_person(
     if attributes:
         context.log.info(f"More info to be added to {name}", attributes, url)
     person.id = context.make_id(*identification)
-    person.add("topics", "role.pep")
+    person.add("topics", "poi")
     context.emit(person, target=True)
 
 
