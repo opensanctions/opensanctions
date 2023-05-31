@@ -84,7 +84,7 @@ def crawl_query(
     params = query.copy()
     params["resultPerPage"] = MAX_RESULTS
     try:
-        data = context.fetch_json(context.source.data.url, params=params)
+        data = context.fetch_json(context.source.data.url, params=params, cache_days=5)
     except HTTPError as err:
         context.log.warning(
             "HTTP error",
@@ -98,7 +98,7 @@ def crawl_query(
         crawl_notice(context, notice)
     total = data.get("total")
     if total > MAX_RESULTS:
-        # context.log.info("Splitting on age", query=query)
+        context.log.info("More than one page of results", query=query)
         age_max = query.get("ageMax", AGE_MAX)
         age_min = query.get("ageMin", AGE_MIN)
         age_range = age_max - age_min
@@ -141,7 +141,9 @@ def crawl(context: Context):
     for char in string.ascii_uppercase:
         prefix = f"^{char}"
         crawl_query(context, {"name": prefix, "arrestWarrantCountryId": "RU"})
+        crawl_query(context, {"forename": prefix, "arrestWarrantCountryId": "RU"})
         crawl_query(context, {"name": prefix, "arrestWarrantCountryId": "SV"})
+        crawl_query(context, {"forename": prefix, "arrestWarrantCountryId": "SV"})
     for country, label in countries:
         crawl_query(context, {"arrestWarrantCountryId": country})
         crawl_query(context, {"nationality": country})
