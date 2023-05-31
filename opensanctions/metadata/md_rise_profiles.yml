@@ -1,0 +1,27 @@
+entry_point: opensanctions.crawlers.md_rise_profiles:crawl
+title: Rsie Moldova People of interest
+prefix: mdrisepep
+summary: >
+  People of Interest is an interactive database developed and managed by RISE Moldova.
+  It is a work in progress journalistic project.
+description: |
+  > On this platform, we outline the profiles of public figures and their connections. 
+  > We index data about their companies, cases, properties, narrow interests, and 
+  > intermediaries.
+  > We verify the information we publish here from several open and closed sources.
+  > We have met the persons from the People of Interest Platform several times in our 
+  > journalistic documentations. Whether they vote laws, juggle with public money, 
+  > or they are intermediaries or wealthy businessmen, their decisions affect us all.
+collections:
+  - peps
+  - default
+publisher:
+  name: Rise Moldova
+  url: "https://www.rise.md/"
+  country: md
+  official: false
+  description: RISE is a non-profit investigative journalism newsroom based in the Republic of Moldova
+url: "https://profiles.rise.md/index.php"
+data:
+  url: "https://profiles.rise.md/index.php"
+  format: HTML
