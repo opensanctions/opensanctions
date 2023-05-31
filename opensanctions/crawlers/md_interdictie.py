@@ -110,9 +110,13 @@ def parse_delay(context, delay):
 
 
 def parse_date(text):
+    text = text.lower()
     for ro, en in MONTHS.items():
         text = text.replace(ro, en)
-    return h.parse_date(text, ["%d/%m/%Y", "%d.%m.%Y", "%A, %d %B, %Y"])
+    segments = text.split(", ")
+    if len(segments) == 3:
+        text = ", ".join(segments[1:])
+    return h.parse_date(text, ["%d/%m/%Y", "%d.%m.%Y", "%d %B, %Y"])
 
 
 def parse_sanction_decision(context, text):
