@@ -1509,3 +1509,7 @@ lookups:
           jurisdiction: ir
           incorporationDate: 1989
           notes: fondation
+      - match: "déclarée à la sous-préfecture de Sarcelles le 9 juillet 2004 sous le numéro W952006863"
+        props:
+          registrationNumber: W952006863
+          incorporationDate: 2004-07-09
