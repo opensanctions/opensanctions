@@ -8,34 +8,91 @@ import re
 CACHE_DAYS=14
 COUNTRY = "md"
 PERSON_TYPES = {
-    "bailiff",
-    "businessman",
-    "businesswoman",
-    "cna-director",
-    "cna-officer",
-    "csm-member",
-    "csm-member",
-    "director",
-    "diplomat",
-    "former-governor",
-    "former-prosecutor",
-    "investigator",
-    "inj-director",
-    "judge",
-    "lawyer",
-    "minister",
-    "police-officer",
+    "politiciana",
+    "politist",
     "politician",
+    "politician-rus",
+    "guvernator-bnm",
+    "sef-de-directie-bnm",
+    "businessman",
+    "judecatoare",
+    "judecator",
+    "membra-csm",
     "procuror",
-    "prosecutor",
-    "public-officer",
-    "russian-politician",
-    "sis-officer",
+    "ex-viceprim-ministra",
+    "ofitera-cna",
+    "viceguvernator-bnm",
+    "prim-ministru-interimar",
+    "membru-csm",
+    "ex-procuror",
+    "director-cnam",
+    "consiliera-prezidentiala",
+    "fost-guvernator-bnm",
+    "femeie-de-afaceri",
+    "membru-al-consiliului-de-supraveghere-al-bnm",
+    "fost-director-cna",
+    "ex-bascan",
+    "consilier-al-guvernatorului-bnm",
+    "prim-ministra",
+    "ofiter-sis",
+    "membru-al-consiliului-de-supraveghere-a-bnm",
+    "executoare-judecatoreasca",
+    "procurora",
+    "prim-viceguvernator-bnm",
+    "fost-judecator",
+    "director",
+    "consilier-prezidential",
+    "ministra",
+    "functionara",
+    "ministru",
+    "avocat",
+    "diplomat",
+    "sef-directie-bnm",
+    "presedinta-republicii-moldova",
+    "directoare-inj",
+    "deputata",
+    "investigator",
 }
 
+KNOWN_PERSONS = {
+    "Vadim Ceban",
+    "Galina Dodon",
+    "Veronica Dragalin",
+}
+
+KNOWN_COMPANIES = {
+    "Intertelecom",
+    "Daniel-Marius Staicu",
+    "Dinu Țurcanu",
+}
+
+COUNTRIES = {
+    "mun-chisinau-republica-moldova": "md",
+    "republica-moldova": "md",
+    "moldova": "md",
+    "marea-britanie": "uk",
+    "kargazstan": "kg",
+    "ucraina": "ua",
+    "romania": "ro",
+    "cipru": "cy",
+    "insulele-virgine-britanice": "vg",
+    "insulele-marshall": "mh",
+    "bahamas": "bs",
+    "federatia-rusa": "ru",
+}
 
 def parse_date(text):
     return h.parse_date(text, ["%d.%m.%Y"])
+
+
+def parse_country(context, url, countries):
+    country_code = None
+    for country in COUNTRIES.keys():
+        if slugify(countries).startswith(country):
+            country_code = COUNTRIES[country]
+    if country_code is None:
+        context.log.warn(f"Can't find country in {countries}", url)
+    return country_code
 
 
 def crawl_entity(context: Context, relative_url: str):
@@ -50,6 +107,9 @@ def crawl_entity(context: Context, relative_url: str):
         if len(parts) == 2:
             attributes[slugify(parts[0])] = collapse_spaces(parts[1])
 
+    if "Conexiuni" in doc.text_content():
+        context.log.warn(f"There are connections to be added for {url}")
+
     type_el = name_el.getnext().getnext()
     if hasattr(type_el, "text"):
         type_slug = slugify(type_el.text)
@@ -60,8 +120,10 @@ def crawl_entity(context: Context, relative_url: str):
 
     if type_slug in PERSON_TYPES:
         make_person(context, url, name, type_str, attributes)
-    elif type_slug == "company":
-        context.log.info(f"Skipping company {name}", url)
+    elif name in KNOWN_PERSONS:
+        make_person(context, url, name, None, attributes)
+    elif type_slug == "companie" or name in KNOWN_COMPANIES:
+        make_company(context, url, name, attributes)
     else:
         context.log.warn(f"Skipping unknown type {type_slug} for {name}", url)
 
@@ -75,14 +137,16 @@ def make_person(
     person.add("name", name)
     if position:
         person.add("position", position)
-    if "date-of-birth" in attributes:
-        dob = parse_date(attributes.pop("date-of-birth"))
+    if "data-nasterii" in attributes:
+        dob = parse_date(attributes.pop("data-nasterii"))
         identification.append(dob)
         person.add("birthDate", dob)
-    if "place-of-birth" in attributes:
-        person.add("birthPlace", attributes.pop("place-of-birth"))
-    if "citizenship" in attributes:
-        person.add("nationality", attributes.pop("citizenship"))
+    if "locul-nasterii" in attributes:
+        person.add("birthPlace", attributes.pop("locul-nasterii"))
+    if "cetatenie" in attributes:
+        country_code = parse_country(context, url, attributes.pop("cetatenie"))
+        if country_code:
+            person.add("nationality", country_code)
     if attributes:
         context.log.info(f"More info to be added to {name}", attributes, url)
     person.id = context.make_id(*identification)
@@ -90,8 +154,33 @@ def make_person(
     context.emit(person, target=True)
 
 
+def make_company(
+    context: Context, url: str, name: str, attributes: dict
+) -> None:
+    company = context.make("Company")
+    identification = [COUNTRY, name]
+    company.add("sourceUrl", url)
+    company.add("name", name)
+    if "data-inregistrarii" in attributes:
+        founded = parse_date(attributes.pop("data-inregistrarii"))
+        identification.append(founded)
+        company.add("incorporationDate", founded)
+    if "tara" in attributes:
+        country_code = parse_country(context, url, attributes.pop("tara"))
+        if country_code:
+            company.add("mainCountry", country_code)
+    if "numar-de-identificare" in attributes:
+        regno = attributes.pop("numar-de-identificare")
+        identification.append(regno)
+        company.add("registrationNumber", regno)
+    if attributes:
+        context.log.info(f"More info to be added to {name}", attributes, url)
+    company.id = context.make_id(*identification)
+    context.emit(company)
+
+
 def crawl(context: Context):
-    query = {"br": 0, "lang": "eng"}
+    query = {"br": 0, "lang": "rom"}
     while True:
         context.log.debug("Crawling index offset ", query)
         url = f"{ context.source.data.url }?{ urlencode(query) }"
