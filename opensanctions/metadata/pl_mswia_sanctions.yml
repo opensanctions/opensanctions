@@ -58,12 +58,6 @@ lookups:
         props:
           birthDate: 1964-04-21
           birthPlace: Lviv
-      - match: urodzony 9 marca 1958 r.
-        props:
-          birthDate: 1958-03-09
-      - match: urodzony 25 lipca 1959 r.
-        props:
-          birthDate: 1959-07-25
       - match: 13.05.2022 r.
         props:
           modifiedAt: 2022-05-13
@@ -75,28 +69,10 @@ lookups:
         props:
           birthDate: 1969-08-27
           birthPlace: Kaliningrad
-      - match: urodzony 4 października 1965 r.
-        props:
-          birthDate: 1965-10-04
-      - match: urodzona 21 kwietnia 1977 r.
-        props:
-          birthDate: 1977-04-21
-      - match: urodzony 8 marca 1972 r.
-        props:
-          birthDate: 1972-03-08
-      - match: urodzony 26 września 1965 r.
-        props:
-          birthDate: 1965-09-26
-      - match: urodzony 30 sierpnia 1966 r.
-        props:
-          birthDate: 1966-08-30
       - match: urodzony 18 lipca 1958 r. ob. Federacji Rosyjskiej
         props:
           birthDate: 1958-07-18
           country: ru
-      - match: urodzony 5 marca 1983 r.
-        props:
-          birthDate: 1983-03-05
       - match: urodzony 7 września 1960 r. w Leningradzie
         props:
           birthDate: 1960-09-07
@@ -111,18 +87,16 @@ lookups:
           birthPlace: Vilnius
           nationality: RU
           idNumber: "63111513931"
-      - match: urodzony 5 października 1973 r.
-        props:
-          birthDate: 1973-10-05
-      - match: urodzony 26 lutego 1980 r.
-        props:
-          birthDate: 1980-08-26
-      - match: urodzony 19 września 1983 r.,
-        props:
-          birthDate: 1983-09-19
-      - match: urodzona 20 czerwca 1979 r.
-        props:
-          birthDate: 1979-06-20
       - match: Plac Dąbrowskiego 1, 00-057 Warszawa,
         props:
           address: Plac Dąbrowskiego 1, 00-057 Warszawa
+      - match: "prowadzący działalność gospodarczą pod adresem: 00-844 Warszawa, ul. Grzybowska 87, REGON 147421934"
+        props:
+          address: "00-844 Warszawa, ul. Grzybowska 87"
+          registrationNumber: 147421934
+      - match: "obywatel Mołdawii i Izraela"
+        props:
+          nationality: ["MD", "IL"]
+      - match: "urodzonej 6 lipca 1972 r."
+        props:
+          birthDate: 1972-07-06

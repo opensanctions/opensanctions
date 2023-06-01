@@ -7,6 +7,7 @@ from opensanctions.helpers.addresses import make_address, apply_address
 from opensanctions.helpers.sanctions import make_sanction
 from opensanctions.helpers.identification import make_identification
 from opensanctions.helpers.dates import extract_years, parse_date, check_no_year
+from opensanctions.helpers.dates import parse_formats
 from opensanctions.helpers.excel import convert_excel_cell
 from opensanctions.helpers.text import clean_note, is_empty, remove_bracketed
 
@@ -22,6 +23,7 @@ __all__ = [
     "make_identification",
     "extract_years",
     "parse_date",
+    "parse_formats",
     "check_no_year",
     "convert_excel_cell",
     "remove_namespace",
