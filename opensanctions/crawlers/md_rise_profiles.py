@@ -66,33 +66,9 @@ KNOWN_COMPANIES = {
     "Dinu Țurcanu",
 }
 
-COUNTRIES = {
-    "mun-chisinau-republica-moldova": "md",
-    "republica-moldova": "md",
-    "moldova": "md",
-    "marea-britanie": "uk",
-    "kargazstan": "kg",
-    "ucraina": "ua",
-    "romania": "ro",
-    "cipru": "cy",
-    "insulele-virgine-britanice": "vg",
-    "insulele-marshall": "mh",
-    "bahamas": "bs",
-    "federatia-rusa": "ru",
-}
 
 def parse_date(text):
     return h.parse_date(text, ["%d.%m.%Y"])
-
-
-def parse_country(context, url, countries):
-    country_code = None
-    for country in COUNTRIES.keys():
-        if slugify(countries).startswith(country):
-            country_code = COUNTRIES[country]
-    if country_code is None:
-        context.log.warn(f"Can't find country in {countries}", url)
-    return country_code
 
 
 def crawl_entity(context: Context, relative_url: str):
@@ -135,18 +111,15 @@ def make_person(
     identification = [COUNTRY, name]
     person.add("sourceUrl", url)
     person.add("name", name)
-    if position:
-        person.add("position", position)
+    person.add("position", position, lang="ron")
     if "data-nasterii" in attributes:
         dob = parse_date(attributes.pop("data-nasterii"))
         identification.append(dob)
         person.add("birthDate", dob)
-    if "locul-nasterii" in attributes:
-        person.add("birthPlace", attributes.pop("locul-nasterii"))
-    if "cetatenie" in attributes:
-        country_code = parse_country(context, url, attributes.pop("cetatenie"))
-        if country_code:
-            person.add("nationality", country_code)
+
+    person.add("birthPlace", attributes.pop("locul-nasterii", None), lang="ron")
+    person.add("nationality", attributes.pop("cetatenie", "").split(","))
+
     if attributes:
         context.log.info(f"More info to be added to {name}", attributes, url)
     person.id = context.make_id(*identification)
@@ -165,10 +138,10 @@ def make_company(
         founded = parse_date(attributes.pop("data-inregistrarii"))
         identification.append(founded)
         company.add("incorporationDate", founded)
-    if "tara" in attributes:
-        country_code = parse_country(context, url, attributes.pop("tara"))
-        if country_code:
-            company.add("mainCountry", country_code)
+
+    country = attributes.pop("tara", "").split(",")[0]
+    company.add("mainCountry", country)
+
     if "numar-de-identificare" in attributes:
         regno = attributes.pop("numar-de-identificare")
         identification.append(regno)

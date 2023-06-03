@@ -1,5 +1,5 @@
 entry_point: opensanctions.crawlers.md_rise_profiles:crawl
-title: Rsie Moldova People of interest
+title: RISE Moldova People of interest
 prefix: mdrisepep
 summary: >
   People of Interest is an interactive database developed and managed by RISE Moldova.
@@ -16,7 +16,7 @@ collections:
   - peps
   - default
 publisher:
-  name: Rise Moldova
+  name: RISE Moldova
   url: "https://www.rise.md/"
   country: md
   official: false
