@@ -7,64 +7,6 @@ import re
 
 CACHE_DAYS=14
 COUNTRY = "md"
-PERSON_TYPES = {
-    "politiciana",
-    "politist",
-    "politician",
-    "politician-rus",
-    "guvernator-bnm",
-    "sef-de-directie-bnm",
-    "businessman",
-    "judecatoare",
-    "judecator",
-    "membra-csm",
-    "procuror",
-    "ex-viceprim-ministra",
-    "ofitera-cna",
-    "viceguvernator-bnm",
-    "prim-ministru-interimar",
-    "membru-csm",
-    "ex-procuror",
-    "director-cnam",
-    "consiliera-prezidentiala",
-    "fost-guvernator-bnm",
-    "femeie-de-afaceri",
-    "membru-al-consiliului-de-supraveghere-al-bnm",
-    "fost-director-cna",
-    "ex-bascan",
-    "consilier-al-guvernatorului-bnm",
-    "prim-ministra",
-    "ofiter-sis",
-    "membru-al-consiliului-de-supraveghere-a-bnm",
-    "executoare-judecatoreasca",
-    "procurora",
-    "prim-viceguvernator-bnm",
-    "fost-judecator",
-    "director",
-    "consilier-prezidential",
-    "ministra",
-    "functionara",
-    "ministru",
-    "avocat",
-    "diplomat",
-    "sef-directie-bnm",
-    "presedinta-republicii-moldova",
-    "directoare-inj",
-    "deputata",
-    "investigator",
-}
-
-KNOWN_PERSONS = {
-    "Vadim Ceban",
-    "Galina Dodon",
-    "Veronica Dragalin",
-}
-
-KNOWN_COMPANIES = {
-    "Intertelecom",
-    "Daniel-Marius Staicu",
-    "Dinu Țurcanu",
-}
 
 
 def parse_date(text):
@@ -88,20 +30,20 @@ def crawl_entity(context: Context, relative_url: str):
 
     type_el = name_el.getnext().getnext()
     if hasattr(type_el, "text"):
-        type_slug = slugify(type_el.text)
         type_str = collapse_spaces(type_el.text)
     else:
-        type_slug = None
         type_str = None
 
-    if type_slug in PERSON_TYPES:
+    entity_type = context.lookup("entity_type", type_str)
+    if entity_type is None:
+        entity_type = context.lookup("entity_type_by_name", name)
+
+    if entity_type is None:
+        context.log.warn(f"Skipping unknown type '{type_str}' for '{name}'", url)
+    elif entity_type.value == "person":
         make_person(context, url, name, type_str, attributes)
-    elif name in KNOWN_PERSONS:
-        make_person(context, url, name, None, attributes)
-    elif type_slug == "companie" or name in KNOWN_COMPANIES:
+    elif entity_type.type == "company":
         make_company(context, url, name, attributes)
-    else:
-        context.log.warn(f"Skipping unknown type {type_slug} for {name}", url)
 
 
 def make_person(
@@ -112,6 +54,7 @@ def make_person(
     person.add("sourceUrl", url)
     person.add("name", name)
     person.add("position", position, lang="ron")
+
     if "data-nasterii" in attributes:
         dob = parse_date(attributes.pop("data-nasterii"))
         identification.append(dob)

@@ -25,3 +25,72 @@ url: "https://profiles.rise.md/index.php"
 data:
   url: "https://profiles.rise.md/index.php"
   format: HTML
+lookups:
+  entity_type:
+    normalize: true
+    options:
+      - match:
+        - avocat
+        - businessman
+        - consilier al guvernatorului BNM
+        - consilier prezidențial
+        - consilieră prezidențială
+        - deputată
+        - diplomat
+        - directoare INJ
+        - director
+        - director CNAM
+        - ex-bașcan
+        - ex-procuror
+        - ex-viceprim-ministră
+        - executoare judecătorească
+        - femeie de afaceri
+        - fost director CNA
+        - fost guvernator BNM
+        - fost judecător
+        - funcționară
+        - guvernator BNM
+        - investigator
+        - judecătoare
+        - Judecătoare
+        - judecător
+        - Judecător
+        - membră CSM
+        - Membru al Consiliului de Supraveghere a BNM
+        - membru al Consiliului de Supraveghere al BNM
+        - Membru CSM
+        - ministră
+        - ministru
+        - ofițer SIS
+        - ofițeră CNA
+        - politician
+        - Politician
+        - politician rus
+        - politiciană
+        - poliţist
+        - polițist
+        - președinta Republicii Moldova
+        - prim-ministră
+        - prim-ministru interimar
+        - prim-viceguvernator BNM
+        - procuror
+        - procuroră
+        - șef de direcție BNM
+        - șef Direcție BNM
+        - viceguvernator BNM
+        value: person
+      - match: companie
+        value: company
+  entity_type_by_name:
+    normalize: true
+    options:
+      - match:
+        - Vadim Ceban
+        - Galina Dodon
+        - Veronica Dragalin
+        - Daniel-Marius Staicu
+        - Dinu Țurcanu
+        value: person
+      - match:
+        - Intertelecom
+        value: company
