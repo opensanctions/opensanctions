@@ -98,7 +98,8 @@ def crawl_excel(context: Context, url: str):
             if name is None:
                 context.log.warn("No name", row=row)
                 return
-            entity.id = context.make_slug(name)
+
+            entity.id = context.make_slug(sheet.title, name)
             names = name.split("(")
             entity.add("name", names[0])
             for alias in names[1:]:
