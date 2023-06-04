@@ -68,6 +68,7 @@ def export_dataset(dataset: Dataset, aggregator: Aggregator):
         context = Context(dataset)
         with engine_tx() as conn:
             clear_resources(conn, dataset, category=EXPORT_CATEGORY)
+            issues = list(all_issues(conn, dataset))
         loader = aggregator.view(dataset, assemble)
         export_data(context, loader)
 
@@ -75,7 +76,7 @@ def export_dataset(dataset: Dataset, aggregator: Aggregator):
         issues_path = context.get_resource_path("issues.json")
         context.log.info("Writing dataset issues list", path=issues_path)
         with open(issues_path, "wb") as fh:
-            data = {"issues": list(all_issues(context.data_conn, dataset))}
+            data = {"issues": issues}
             write_json(data, fh)
 
         # Export full metadata
