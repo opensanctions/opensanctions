@@ -94,7 +94,7 @@ lookups:
       - match:
         - Intertelecom
         value: company
-  relation_type:
+  relations:
     normalize: true
     options:
       - match:

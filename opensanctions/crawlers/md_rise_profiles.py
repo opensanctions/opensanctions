@@ -64,17 +64,15 @@ def crawl_entity(context: Context, relative_url: str, follow_relations: bool = T
             related_entity_el = connection.find("./div/div[1]/span/*[1]")
             related_entity_link = related_entity_el.find(".//a")
             relationship_el = connection.find("./div/div[2]")
-            description = (
-                collapse_spaces(relationship_el.text_content())
-                if relationship_el
-                else None,
-            )
-            target_name = (collapse_spaces(related_entity_el.text_content()),)
-            target_url = (
-                related_entity_link.get("href")
-                if related_entity_link is not None
-                else None,
-            )
+            if relationship_el is None:
+                description = None
+            else:
+                description = collapse_spaces(relationship_el.text_content())
+            target_name = collapse_spaces(related_entity_el.text_content())
+            if related_entity_link is None:
+                target_url = None
+            else:
+                target_url = related_entity_link.get("href")
             make_relation(context, entity, description, target_name, target_url)
     
     return entity
@@ -132,21 +130,22 @@ def make_relation(context, source, description, target_name, target_url):
         target = crawl_entity(context, target_url, False)
     else:
         target = context.make("LegalEntity")
-        target.id = context.make_id(target_name, "related to", source.id)
+        target.id = context.make_id(target_name, "relation of", source.id)
         target.add("name", target_name)
         context.emit(target)
 
-    res = context.lookup(relation["relationship"])
+    res = context.lookup("relations", description)
     if res:
-        relation = context.make(res.type)
+        relation = context.make(res.schema)
+        relation.id = context.make_id(target.id, "related to", source.id)
         relation.add(res.source, source.id)
-        relation.add(res.source, target.id)
-        relation.add(res.text, description, lang="rom")
+        relation.add(res.target, target.id)
+        relation.add(res.text, description, lang="ron")
         context.emit(relation)
     else:
         context.log.warn(
-            "Don't know how to make relationship '{description}'",
-            source=source.sourceUrl,
+            f"Don't know how to make relationship '{description}'",
+            source=source.get("sourceUrl"),
             target=target_name,
         )
 
@@ -166,6 +165,6 @@ def crawl(context: Context):
         for link in profiles:
             entity = crawl_entity(context, link.get("href"))
             if entity:
-                context.emit(entity)
+                context.emit(entity, target=True)
 
         query["br"] = query["br"] + len(profiles)
