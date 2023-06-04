@@ -8,6 +8,7 @@ import re
 CACHE_DAYS=14
 COUNTRY = "md"
 
+relationships = dict()
 
 def parse_date(text):
     return h.parse_date(text, ["%d.%m.%Y"])
@@ -24,9 +25,17 @@ def crawl_entity(context: Context, relative_url: str):
         parts = text.split(": ")
         if len(parts) == 2:
             attributes[slugify(parts[0])] = collapse_spaces(parts[1])
+    print(url)
 
-    if "Conexiuni" in doc.text_content():
-        context.log.warn(f"There are connections to be added for {url}")
+    for connection in doc.findall('.//div[@class="con"]'):
+        related_entity_el = connection.find('./div/div[1]/span/*[1]')
+        related_entity_link = related_entity_el.find('.//a')
+        relationship_el = connection.find('./div/div[2]')
+        relationship = collapse_spaces(relationship_el.text_content()) if relationship_el else None
+            
+        count = relationships.get(relationship, 0) + 1
+        relationships[relationship] = count
+        print(f"    -> {relationship} -> {collapse_spaces(related_entity_el.text_content())}")
 
     type_el = name_el.getnext().getnext()
     if hasattr(type_el, "text"):
@@ -111,3 +120,6 @@ def crawl(context: Context):
             crawl_entity(context, link.get("href"))
 
         query["br"] = query["br"] + len(profiles)
+
+    for relationship, count in relationships.items():
+        print(f"{count} {relationship}")
