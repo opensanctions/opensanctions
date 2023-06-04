@@ -94,3 +94,34 @@ lookups:
       - match:
         - Intertelecom
         value: company
+  relation_type:
+    normalize: true
+    options:
+      - match:
+        - membru
+        - fost președinte
+        - fost consilier
+        - fost asociat
+        - asociat unic
+        - fost membru
+        - beneficiar 100%
+        - membră
+        - beneficiar
+        - null
+        - președinte
+        - asociat
+        - fondator
+        schema: UnknownLink
+        source: subject
+        target: object
+        text: role
+      - match: acționar
+        schema: Ownership
+        source: owner
+        target: asset
+        text: role
+      - match: mamă vitregă
+        schema: Family
+        source: person
+        target: relative
+        text: relationship
