@@ -40,14 +40,14 @@ def save_statements(conn: Conn, statements: List[Statement]) -> None:
 
 
 def all_statements(
-    conn: Conn, dataset=None, external=False
+    conn: Conn, dataset: Dataset = None, external: bool = False
 ) -> Generator[Statement, None, None]:
     q = select(stmt_table)
     if dataset is not None and dataset.name != Dataset.ALL:
         q = q.filter(stmt_table.c.dataset.in_(dataset.scope_names))
     if external is False:
         q = q.filter(stmt_table.c.external == False)
-    q = q.order_by(stmt_table.c.canonical_id.asc())
+    # q = q.order_by(stmt_table.c.canonical_id.asc())
     conn = conn.execution_options(stream_results=True)
     cursor = conn.execute(q)
     while True:
