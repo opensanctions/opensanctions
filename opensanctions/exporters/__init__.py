@@ -70,7 +70,6 @@ def export_dataset(dataset: Dataset, aggregator: Aggregator):
             clear_resources(conn, dataset, category=EXPORT_CATEGORY)
         loader = aggregator.view(dataset, assemble)
         export_data(context, loader)
-        context.commit()
 
         # Export list of data issues from crawl stage
         issues_path = context.get_resource_path("issues.json")

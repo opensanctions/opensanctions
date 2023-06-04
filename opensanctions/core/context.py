@@ -1,6 +1,7 @@
 import json
 import hashlib
 import mimetypes
+from pathlib import Path
 from functools import cached_property
 from typing import Dict, Optional
 from lxml import etree, html
@@ -18,7 +19,6 @@ from opensanctions import settings
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.entity import Entity
 from opensanctions.core.db import engine, engine_tx, metadata
-from opensanctions.core.db import Conn
 from opensanctions.core.issues import clear_issues
 from opensanctions.core.resolver import get_resolver
 from opensanctions.core.resources import save_resource, clear_resources
@@ -42,7 +42,6 @@ class Context(GenericZavod[Entity, Dataset]):
         super().__init__(dataset, Entity, data_path=dataset_path(dataset))
         self.cache = Cache(engine, metadata, dataset, create=True)
         self._statements: Dict[str, Statement] = {}
-        self._data_conn: Optional[Conn] = None
         self._entity_count = 0
         self._statement_count = 0
 
@@ -65,23 +64,9 @@ class Context(GenericZavod[Entity, Dataset]):
     def bind(self) -> None:
         bind_contextvars(dataset=self.dataset.name)
 
-    @property
-    def data_conn(self) -> Conn:
-        if self._data_conn is None:
-            self._data_conn = engine.connect()
-        return self._data_conn
-
-    def commit(self):
-        self.flush()
-        if self._data_conn is not None:
-            self._data_conn.commit()
-
     def close(self) -> None:
         """Flush and tear down the context."""
-        if self._data_conn is not None:
-            self._data_conn.rollback()
-            self._data_conn.close()
-            self._data_conn = None
+        self.cache.close()
         super().close()
         clear_contextvars()
 
@@ -107,7 +92,7 @@ class Context(GenericZavod[Entity, Dataset]):
     ):
         url = normalize_url(url, params)
         if cache_days is not None:
-            text = self.cache.get(url, max_age=cache_days, conn=self.data_conn)
+            text = self.cache.get(url, max_age=cache_days)
             if text is not None:
                 self.log.debug("HTTP cache hit", url=url)
                 return text
@@ -118,7 +103,7 @@ class Context(GenericZavod[Entity, Dataset]):
             return None
 
         if cache_days is not None:
-            self.cache.set(url, text, conn=self.data_conn)
+            self.cache.set(url, text)
         return text
 
     def fetch_json(self, *args, **kwargs):
@@ -140,11 +125,11 @@ class Context(GenericZavod[Entity, Dataset]):
 
     def export_resource(
         self,
-        path,
-        mime_type=None,
-        title=None,
-        category=SOURCE_CATEGORY,
-    ):
+        path: Path,
+        mime_type: Optional[str] = None,
+        title: Optional[str] = None,
+        category: str = SOURCE_CATEGORY,
+    ) -> None:
         """Register a file as a documented file exported by the dataset."""
         if mime_type is None:
             mime_type, _ = mimetypes.guess(path)
@@ -162,16 +147,17 @@ class Context(GenericZavod[Entity, Dataset]):
             self.log.warning("Resource is empty", path=path)
         checksum = digest.hexdigest()
         name = path.relative_to(self.path).as_posix()
-        return save_resource(
-            self.data_conn,
-            name,
-            self.dataset,
-            checksum,
-            mime_type,
-            category,
-            size,
-            title,
-        )
+        with engine_tx() as conn:
+            return save_resource(
+                conn,
+                name,
+                self.dataset,
+                checksum,
+                mime_type,
+                category,
+                size,
+                title,
+            )
 
     def lookup_value(
         self,
@@ -181,8 +167,8 @@ class Context(GenericZavod[Entity, Dataset]):
         dataset: Optional[str] = None,
     ) -> Optional[str]:
         try:
-            lookup = self.get_lookup(lookup, dataset=dataset)
-            return lookup.get_value(value, default=default)
+            lookup_obj = self.get_lookup(lookup, dataset=dataset)
+            return lookup_obj.get_value(value, default=default)
         except LookupException:
             return default
 
@@ -208,9 +194,10 @@ class Context(GenericZavod[Entity, Dataset]):
                 entities=self._entity_count,
                 total=self._statement_count,
             )
-        for i in range(0, len(statements), self.BATCH_SIZE):
-            batch = statements[i : i + self.BATCH_SIZE]
-            save_statements(self.data_conn, batch)
+        with engine_tx() as conn:
+            for i in range(0, len(statements), self.BATCH_SIZE):
+                batch = statements[i : i + self.BATCH_SIZE]
+                save_statements(conn, batch)
         self._statements = {}
 
     def emit(
@@ -239,23 +226,22 @@ class Context(GenericZavod[Entity, Dataset]):
             self._statements[stmt.id] = stmt
         self.log.debug("Emitted", entity=entity.id, schema=entity.schema.name)
         self._entity_count += 1
-        if len(self._statements) >= self.BATCH_SIZE:
+        if len(self._statements) >= (self.BATCH_SIZE * 5):
             self.flush()
 
     def crawl(self) -> bool:
         """Run the crawler."""
         self.bind()
-        with engine_tx() as conn:
-            clear_issues(conn, self.dataset)
         if self.source.disabled:
             self.log.info("Source is disabled")
             return False
-        clear_resources(self.data_conn, self.dataset, category=self.SOURCE_CATEGORY)
+        with engine_tx() as conn:
+            clear_issues(conn, self.dataset)
+            clear_resources(conn, self.dataset, category=self.SOURCE_CATEGORY)
         self.log.info("Begin crawl", run_time=settings.RUN_TIME_ISO)
         self._entity_count = 0
         self._statement_count = 0
         try:
-            # lock_dataset(self.data_conn, self.dataset)
             # Run the dataset:
             self.source.method(self)
             self.flush()
@@ -265,9 +251,9 @@ class Context(GenericZavod[Entity, Dataset]):
                     statements=self._statement_count,
                 )
             else:
-                cleanup_dataset(self.data_conn, self.dataset)
+                with engine_tx() as conn:
+                    cleanup_dataset(conn, self.dataset)
             self.log.info("Crawl completed", entities=self._entity_count)
-            self.commit()
             return True
         except KeyboardInterrupt:
             self.log.warning("Aborted by user (SIGINT)")

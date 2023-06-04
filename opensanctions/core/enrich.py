@@ -1,11 +1,11 @@
 from typing import cast
 from followthemoney.helpers import check_person_cutoff
-from nomenklatura.cache import ConnCache
 from nomenklatura.judgement import Judgement
 from nomenklatura.enrich import Enricher, EnrichmentAbort, EnrichmentException
 from nomenklatura.matching import DefaultAlgorithm
 
 from opensanctions.core.entity import Entity
+from opensanctions.core.db import engine_tx
 from opensanctions.core.context import Context
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.external import External
@@ -55,12 +55,11 @@ def enrich(scope_name: str, external_name: str, threshold: float):
     context.clear(data=False)
     agggregator = Aggregator(scope, context.resolver, external=False)
     entities = agggregator.view(scope)
-    conn_cache = ConnCache(context.cache, context.data_conn)
-    enricher = external.get_enricher(conn_cache)
+    enricher = external.get_enricher(context.cache)
     try:
         for entity_idx, entity in enumerate(entities):
             if entity_idx > 0 and entity_idx % 1000 == 0:
-                context.commit()
+                context.cache.flush()
             context.log.debug("Enrich query: %r" % entity)
             try:
                 for match in enricher.match_wrapped(entity):
@@ -70,8 +69,8 @@ def enrich(scope_name: str, external_name: str, threshold: float):
             # except Exception:
             #     context.log.exception("Could not match: %r" % entity)
 
-        cleanup_dataset(context.data_conn, context.dataset)
-        context.commit()
+        with engine_tx() as conn:
+            cleanup_dataset(conn, context.dataset)
         context.resolver.save()
         return True
     except KeyboardInterrupt:
