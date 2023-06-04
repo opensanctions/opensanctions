@@ -29,7 +29,7 @@ setup(
     install_requires=[
         "followthemoney == 3.4.0",
         "nomenklatura == 2.14.0",
-        "orjson == 3.8.14",
+        "orjson == 3.9.0",
         "zavod == 0.6.3",
         "pantomime == 0.6.0",
         "plyvel==1.5.0",
