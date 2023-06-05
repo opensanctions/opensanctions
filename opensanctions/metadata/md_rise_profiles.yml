@@ -98,36 +98,90 @@ lookups:
     normalize: true
     options:
       - match:
-        - membru
-        - fost președinte
         - fost consilier
         - fost asociat
         - asociat unic
-        - fost membru
         - beneficiar 100%
-        - membră
         - beneficiar
         - null
-        - președinte
         - asociat
         - fondator
+        - deputat
+        - fost deputat
+        - reprezentată prin procură # represented by power of attorney
+        - partea a Accent Group
+        - „Spălătoria rusească”
+        - asociat cu 50%
+        - afacerea soției # wife's business
+        - soția deține 100% # wife owns 100%
+        - 2 beneficiar - 50%
+        - beneficiar 84,66%
+        - beneficiar 95%
+        - 100%
+        - beneficiar 61,93%
+        - beneficiar 63,52%
+        - beneficiar 66,70%
+        - beneficiar 80%
+        - beneficiar 85,79%
+        - beneficiar 89,73%
+        - beneficiar 89,77%
+        - beneficiar 94,77%
+        - beneficiar a unei cote de 100% împreună cu soția
+        - beneficiar final
+
         schema: UnknownLink
         source: subject
         target: object
         text: role
       - match:
-        - șefă
-          # head
+        - fost avocat
+        - fostă afacere
+        - fostă membră
+        - membră, deputată
+        - președintă
+        - fost președinte
+        - vicepreședinte
+        - președinte
+        - membră
+        - fost membru
+        - membru al Consiliului de administrare # member of the Board of Directors
+        - membru
+        schema: Membership
+        source: member
+        target: organization
+        text: role
+      - match:
+        - șefă # head
+        - fost șef # former boss
         schema: UnknownLink
         source: object
         target: subject
         text: role
-      - match: acționar
+      - match:
+        - acționar
+        - acționară
+        - acționar (100%)
+        - deţine 30%
+        - deține 100% împreună cu soția
+        - deține 100%, împreună cu soția
+        - deține 20%
+        - deține 50%
+        - deține 56,2% împreună cu soția
+        - deține 67%, împreună cu soția
+        - deține 80 de acțiuni
+        - deține 80%
+        - deține 94%
+        - deține cota-parte 50%
+        - deține, împreună cu soția, 100% (2.114.120 MDL)
+
         schema: Ownership
         source: owner
         target: asset
         text: role
-      - match: mamă vitregă
+      - match:
+        - mamă vitregă
+        - soție
+        - soț
         schema: Family
         source: person
         target: relative

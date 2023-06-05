@@ -24,6 +24,7 @@ COUNTRY = "md"
 # 52 fondator = founder (owner)
 # 70 membru = member
 
+relationships = dict()
 
 def parse_date(text):
     return h.parse_date(text, ["%d.%m.%Y"])
@@ -148,6 +149,10 @@ def make_entity(context: Context, url: str, name: str, attributes: dict) -> None
 
     if "adresa" in attributes:
         entity.add("address", h.make_address(context, full=attributes.pop("adresa")))
+    if "idno" in attributes:
+        regno = attributes.pop("idno")
+        identification.append(regno)
+        entity.add("registrationNumber", regno)
     if attributes:
         context.log.info(f"More info to be added to {name}", attributes, url)
     entity.id = context.make_id(*identification)
@@ -158,6 +163,8 @@ def make_relation(context, source, description, target_name, target_url):
     target = None
     if target_url:
         target = crawl_entity(context, target_url, False)
+        #if target_url.startswith("connection.php"):
+        #    context.emit(target)
     if target is None:
         target = context.make("LegalEntity")
         target.id = context.make_id(target_name, "relation of", source.id)
@@ -178,6 +185,8 @@ def make_relation(context, source, description, target_name, target_url):
             source=source.get("sourceUrl"),
             target=target_name,
         )
+        count = relationships.get(description, 0) + 1
+        relationships[description] = count
 
 
 def crawl(context: Context):
@@ -198,3 +207,6 @@ def crawl(context: Context):
                 context.emit(entity, target=True)
 
         query["br"] = query["br"] + len(profiles)
+
+    for count, description in sorted([(count, description) for description, count in relationships.items()]):
+        context.log.debug(count, description)
