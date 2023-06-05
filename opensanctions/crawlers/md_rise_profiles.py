@@ -182,11 +182,6 @@ def make_relation(context, source, description, target_name, target_url):
         relation.add(res.text, description, lang="ron")
         context.emit(relation)
     else:
-        context.log.warn(
-            f"Don't know how to make relationship '{description}'",
-            source=source.get("sourceUrl"),
-            target=target_name,
-        )
         count = relationships.get(description, 0) + 1
         relationships[description] = count
 
@@ -211,4 +206,4 @@ def crawl(context: Context):
         query["br"] = query["br"] + len(profiles)
 
     for count, description in sorted([(count, description) for description, count in relationships.items()]):
-        context.log.debug(count, description)
+        context.log.warn(f"unhandled relations: {count} {description}")

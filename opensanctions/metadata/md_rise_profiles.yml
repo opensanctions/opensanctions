@@ -173,7 +173,15 @@ lookups:
         - deține 94%
         - deține cota-parte 50%
         - deține, împreună cu soția, 100% (2.114.120 MDL)
-
+        - fondator (50%)
+        - fondator și administrator
+        - fondator, deține 50%
+        - fondatoare, deține 75%
+        - fondatoare, vicepreședintă
+        - fondator (100%)
+        - fondator (100%), administrator, lichidată în 2020
+        - fondator, administrator
+        - fondator, deține 100%
         schema: Ownership
         source: owner
         target: asset
