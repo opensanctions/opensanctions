@@ -79,7 +79,8 @@ lookups:
         - șef Direcție BNM
         - viceguvernator BNM
         value: person
-      - match: companie
+      - match:
+        - companie
         value: company
   entity_type_by_name:
     normalize: true
@@ -128,7 +129,6 @@ lookups:
         - beneficiar 94,77%
         - beneficiar a unei cote de 100% împreună cu soția
         - beneficiar final
-
         schema: UnknownLink
         source: subject
         target: object

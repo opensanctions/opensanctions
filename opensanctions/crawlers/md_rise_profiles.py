@@ -63,8 +63,10 @@ def crawl_entity(context: Context, relative_url: str, follow_relations: bool = T
         entity = make_entity(context, url, name, attributes)
     elif entity_type.value == "person":
         entity = make_person(context, url, name, type_str, attributes)
-    elif entity_type.type == "company":
+    elif entity_type.value == "company":
         entity = make_company(context, url, name, attributes)
+    else:
+        context.log.warn("Unhandled entity type", url, type_str)
 
     if follow_relations and entity is not None:
         for connection in doc.findall('.//div[@class="con"]'):
@@ -87,7 +89,7 @@ def crawl_entity(context: Context, relative_url: str, follow_relations: bool = T
 
 def make_person(
     context: Context, url: str, name: str, position: str | None, attributes: dict
-) -> None:
+):
     person = context.make("Person")
     identification = [COUNTRY, name]
     person.add("sourceUrl", url)
@@ -109,7 +111,7 @@ def make_person(
     return person
 
 
-def make_company(context: Context, url: str, name: str, attributes: dict) -> None:
+def make_company(context: Context, url: str, name: str, attributes: dict):
     company = context.make("Company")
     identification = [COUNTRY, name]
     company.add("sourceUrl", url)
@@ -132,7 +134,7 @@ def make_company(context: Context, url: str, name: str, attributes: dict) -> Non
     return company
 
 
-def make_entity(context: Context, url: str, name: str, attributes: dict) -> None:
+def make_entity(context: Context, url: str, name: str, attributes: dict):
     entity = context.make("LegalEntity")
     identification = [COUNTRY, name]
     entity.add("sourceUrl", url)
@@ -163,8 +165,8 @@ def make_relation(context, source, description, target_name, target_url):
     target = None
     if target_url:
         target = crawl_entity(context, target_url, False)
-        #if target_url.startswith("connection.php"):
-        #    context.emit(target)
+        if target_url.startswith("connection.php"):
+            context.emit(target)
     if target is None:
         target = context.make("LegalEntity")
         target.id = context.make_id(target_name, "relation of", source.id)
