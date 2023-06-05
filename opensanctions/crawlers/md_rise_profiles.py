@@ -43,11 +43,10 @@ def crawl_entity(context: Context, relative_url: str, follow_relations: bool = T
 
     if relative_url.startswith("profile.php"):
         type_el = name_el.getnext().getnext()
-    elif relative_url.startswith("connection.pgp"):
+    elif relative_url.startswith("connection.php"):
         type_el = None
     else:
         context.log.warn("Don't know how to handle url", url=relative_url)
-        return None
 
     if hasattr(type_el, "text"):
         type_str = collapse_spaces(type_el.text)
@@ -60,7 +59,7 @@ def crawl_entity(context: Context, relative_url: str, follow_relations: bool = T
 
     entity = None
     if entity_type is None:
-        context.log.warn(f"Skipping unknown type '{type_str}' for '{name}'", url)
+        entity = make_entity(context, url, name, attributes)
     elif entity_type.value == "person":
         entity = make_person(context, url, name, type_str, attributes)
     elif entity_type.type == "company":
@@ -70,7 +69,6 @@ def crawl_entity(context: Context, relative_url: str, follow_relations: bool = T
         for connection in doc.findall('.//div[@class="con"]'):
             related_entity_el = connection.find("./div[2]/div[1]/span/*[1]")
             related_entity_link = related_entity_el.getparent().find(".//a")
-            print(related_entity_link)
             relationship_el = connection.find("./div/div[2]")
             if relationship_el is None:
                 description = None
@@ -133,8 +131,30 @@ def make_company(context: Context, url: str, name: str, attributes: dict) -> Non
     return company
 
 
+def make_entity(context: Context, url: str, name: str, attributes: dict) -> None:
+    entity = context.make("LegalEntity")
+    identification = [COUNTRY, name]
+    entity.add("sourceUrl", url)
+    entity.add("name", name)
+    if name.startswith("Partidul"):
+        entity.add("topics", "pol.party")
+
+    if "data-fondarii" in attributes:
+        founded = parse_date(attributes.pop("data-fondarii"))
+        identification.append(founded)
+        entity.add("incorporationDate", founded)
+
+    entity.add("mainCountry", attributes.pop("tara", "").split(",")[0])
+
+    if "adresa" in attributes:
+        entity.add("address", h.make_address(context, full=attributes.pop("adresa")))
+    if attributes:
+        context.log.info(f"More info to be added to {name}", attributes, url)
+    entity.id = context.make_id(*identification)
+    return entity
+
+
 def make_relation(context, source, description, target_name, target_url):
-    print(target_name, target_url)
     target = None
     if target_url:
         target = crawl_entity(context, target_url, False)
