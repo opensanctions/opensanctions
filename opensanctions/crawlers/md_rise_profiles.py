@@ -41,7 +41,14 @@ def crawl_entity(context: Context, relative_url: str, follow_relations: bool = T
         if len(parts) == 2:
             attributes[slugify(parts[0])] = collapse_spaces(parts[1])
 
-    type_el = name_el.getnext().getnext()
+    if relative_url.startswith("profile.php"):
+        type_el = name_el.getnext().getnext()
+    elif relative_url.startswith("connection.pgp"):
+        type_el = None
+    else:
+        context.log.warn("Don't know how to handle url", url=relative_url)
+        return None
+
     if hasattr(type_el, "text"):
         type_str = collapse_spaces(type_el.text)
     else:
@@ -61,8 +68,9 @@ def crawl_entity(context: Context, relative_url: str, follow_relations: bool = T
 
     if follow_relations and entity is not None:
         for connection in doc.findall('.//div[@class="con"]'):
-            related_entity_el = connection.find("./div/div[1]/span/*[1]")
-            related_entity_link = related_entity_el.find(".//a")
+            related_entity_el = connection.find("./div[2]/div[1]/span/*[1]")
+            related_entity_link = related_entity_el.getparent().find(".//a")
+            print(related_entity_link)
             relationship_el = connection.find("./div/div[2]")
             if relationship_el is None:
                 description = None
@@ -126,9 +134,11 @@ def make_company(context: Context, url: str, name: str, attributes: dict) -> Non
 
 
 def make_relation(context, source, description, target_name, target_url):
+    print(target_name, target_url)
+    target = None
     if target_url:
         target = crawl_entity(context, target_url, False)
-    else:
+    if target is None:
         target = context.make("LegalEntity")
         target.id = context.make_id(target_name, "relation of", source.id)
         target.add("name", target_name)
