@@ -21,13 +21,13 @@ SEEN_IDS: Set[str] = set()
 COUNTRIES_URL = "https://www.interpol.int/en/How-we-work/Notices/View-Red-Notices"
 FORMATS = ["%Y/%m/%d", "%Y/%m", "%Y"]
 GENDERS = ["M", "F", "U"]
-AGE_MIN = 0
-AGE_MAX = 120
+AGE_MIN = 20
+AGE_MAX = 90
 
 
 def get_countries(context: Context) -> List[Any]:
-    doc = context.fetch_html(COUNTRIES_URL)
-    path = ".//select[@id='arrestWarrantCountryId']//option"
+    doc = context.fetch_html(COUNTRIES_URL, cache_days=7)
+    path = ".//select[@id='arrestWarrantCountryId']/option"
     options: List[Any] = []
     for option in doc.findall(path):
         # code = stringify(option.get("value"))
@@ -100,8 +100,8 @@ def crawl_notice(context: Context, notice: Dict[str, Any]):
 def crawl_query(
     context: Context,
     query: Dict[str, Any],
-):
-    context.inspect(query)
+) -> int:
+    # context.inspect(query)
     params = query.copy()
     params["resultPerPage"] = MAX_RESULTS
     try:
@@ -112,57 +112,71 @@ def crawl_query(
             url=str(err.request.url),
             error=err.response.status_code,
         )
-        return
+        return 0
 
+    total: int = data.get("total", 0)
     notices = data.get("_embedded", {}).get("notices", [])
     for notice in notices:
         crawl_notice(context, notice)
-    total: int = data.get("total", 0)
-    if total > MAX_RESULTS:
-        context.log.info("More than one page of results", query=query)
-        age_max = query.get("ageMax", AGE_MAX)
-        age_min = query.get("ageMin", AGE_MIN)
-        age_range = age_max - age_min
-        # if age_range == 0:
-        #     if "name" in query:
-        #         context.log.warn(
-        #             "Too many results",
-        #             query=query,
-        #         )
-        #     else:
-        #         for char in string.ascii_lowercase:
-        #             prefix = f"^{char}"
-        #             crawl_query(context, patch(query, {"name": prefix}))
 
-        if age_range > 1:
-            age_split = age_min + (age_range // 2)
-            crawl_query(context, patch(query, {"ageMax": age_max, "ageMin": age_split}))
-            crawl_query(context, patch(query, {"ageMax": age_split, "ageMin": age_min}))
-        else:
-            if "name" in query:
-                context.log.warn(
-                    "Too many results",
-                    query=query,
-                )
-            else:
-                for char in string.ascii_uppercase:
-                    prefix = f"^{char}"
-                    crawl_query(context, patch(query, {"name": prefix}))
+    return total
 
 
 def crawl(context: Context):
     context.log.info("Loading interpol API cache...")
-    context.cache.preload("https://ws-public.interpol.int/notices/%")
-    crawl_query(context, {"sexId": "U"})
-    crawl_query(context, {"sexId": "F"})
-    for char in string.ascii_uppercase:
-        prefix = f"^{char}"
-        crawl_query(context, {"name": prefix, "arrestWarrantCountryId": "RU"})
-        crawl_query(context, {"forename": prefix, "arrestWarrantCountryId": "RU"})
-        crawl_query(context, {"name": prefix, "arrestWarrantCountryId": "SV"})
-        crawl_query(context, {"forename": prefix, "arrestWarrantCountryId": "SV"})
-    for country in get_countries(context):
-        crawl_query(context, {"arrestWarrantCountryId": country})
-        crawl_query(context, {"nationality": country})
+    # context.cache.preload("https://ws-public.interpol.int/notices/%")
+    # crawl_query(context, {"sexId": "U"})
+    countries = get_countries(context)
+    covered_countries = set()
 
-    context.log.info("Seen", ids=len(SEEN_IDS), urls=len(SEEN_URLS))
+    for country in countries:
+        query = {"nationality": country}
+        crawl_query(context, query)
+        query = {"arrestWarrantCountryId": country}
+        warrant_total = crawl_query(context, query)
+        if warrant_total <= MAX_RESULTS:
+            covered_countries.add(country)
+        else:
+            context.log.info("Country has many warrants", country=country)
+
+    for gender in GENDERS:
+        crawl_query(context, {"sexId": gender})
+
+    age_query = patch(query, {"ageMax": AGE_MIN, "ageMin": 0})
+    if crawl_query(context, age_query) > MAX_RESULTS:
+        context.log.warn("Adjust min age", query=age_query)
+
+    age_query = patch(query, {"ageMax": 300, "ageMin": AGE_MAX})
+    if crawl_query(context, age_query) > MAX_RESULTS:
+        context.log.warn("Adjust max age", query=age_query)
+
+    for dots in range(0, 70):
+        pattern = f"^{'.' * dots}$"
+        for field in ("name", "forename"):
+            query = {field: pattern}
+            if crawl_query(context, query) > MAX_RESULTS:
+                for age in range(AGE_MIN, AGE_MAX + 1):
+                    age_query = patch(query, {"ageMax": age, "ageMin": age})
+                    if crawl_query(context, age_query) > MAX_RESULTS:
+                        context.log.warn("XXX", query=age_query)
+                for country in countries:
+                    if country in covered_countries:
+                        continue
+                    country_query = patch(query, {"arrestWarrantCountryId": country})
+                    if crawl_query(context, country_query) > MAX_RESULTS:
+                        if field == "forename":
+                            continue
+                        for odots in range(0, 50):
+                            other = f"^{'.' * odots}$"
+                            full_query = patch(country_query, {"forename": other})
+                            if crawl_query(context, full_query) > MAX_RESULTS:
+                                context.log.warn(
+                                    "Too many results in full query",
+                                    query=full_query,
+                                )
+
+    context.log.info(
+        "Seen",
+        ids=len(SEEN_IDS),
+        urls=len(SEEN_URLS),
+    )
