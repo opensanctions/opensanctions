@@ -155,7 +155,7 @@ def crawl(context: Context):
     if crawl_query(context, age_query) > MAX_RESULTS:
         context.log.warn("Adjust max age", query=age_query)
 
-    for dots in range(0, 70):
+    for dots in range(0, 100):
         pattern = f"^{'.' * dots}$"
         for field in ("name", "forename"):
             query = {field: pattern}
