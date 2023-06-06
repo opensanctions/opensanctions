@@ -123,7 +123,7 @@ def crawl_query(
 
 
 def crawl(context: Context):
-    context.log.info("Loading interpol API cache...")
+    # context.log.info("Loading interpol API cache...")
     # context.cache.preload("https://ws-public.interpol.int/notices/%")
     # crawl_query(context, {"sexId": "U"})
     countries = get_countries(context)
@@ -158,7 +158,10 @@ def crawl(context: Context):
                 for age in range(AGE_MIN, AGE_MAX + 1):
                     age_query = patch(query, {"ageMax": age, "ageMin": age})
                     if crawl_query(context, age_query) > MAX_RESULTS:
-                        context.log.warn("XXX", query=age_query)
+                        context.log.warn(
+                            "Too many names in age bracket",
+                            query=age_query,
+                        )
                 for country in countries:
                     if country in covered_countries:
                         continue
@@ -166,13 +169,18 @@ def crawl(context: Context):
                     if crawl_query(context, country_query) > MAX_RESULTS:
                         if field == "forename":
                             continue
-                        for odots in range(0, 50):
-                            other = f"^{'.' * odots}$"
-                            full_query = patch(country_query, {"forename": other})
-                            if crawl_query(context, full_query) > MAX_RESULTS:
+                        # for odots in range(0, 50):
+                        #     other = f"^{'.' * odots}$"
+                        #     two_name_query = patch(country_query, {"forename": other})
+                        #     if crawl_query(context, two_name_query) > MAX_RESULTS:
+                        for age in range(AGE_MIN, AGE_MAX + 1):
+                            age_query = patch(
+                                country_query, {"ageMax": age, "ageMin": age}
+                            )
+                            if crawl_query(context, age_query) > MAX_RESULTS:
                                 context.log.warn(
                                     "Too many results in full query",
-                                    query=full_query,
+                                    query=age_query,
                                 )
 
     context.log.info(
