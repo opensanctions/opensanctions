@@ -1,5 +1,5 @@
 import string
-from typing import Dict, Any, List, Tuple
+from typing import Dict, Any, List, Tuple, Optional, Set
 from requests.exceptions import HTTPError
 from normality import collapse_spaces, stringify
 
@@ -8,8 +8,16 @@ from opensanctions import helpers as h
 
 # Useful notes: https://www.fer.xyz/2021/08/interpol
 
+IGNORE_FIELDS = {
+    "languages_spoken_ids",
+    "hairs_id",
+    "height",
+    "weight",
+    "eyes_colors_id",
+}
 MAX_RESULTS = 160
-SEEN = set()
+SEEN_URLS: Set[str] = set()
+SEEN_IDS: Set[str] = set()
 COUNTRIES_URL = "https://www.interpol.int/en/How-we-work/Notices/View-Red-Notices"
 FORMATS = ["%Y/%m/%d", "%Y/%m", "%Y"]
 GENDERS = ["M", "F", "U"]
@@ -37,10 +45,11 @@ def patch(query: Dict[str, Any], update: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def crawl_notice(context: Context, notice: Dict[str, Any]):
-    url = notice.get("_links", {}).get("self", {}).get("href")
-    if url in SEEN:
+    _links: Dict[str, Any] = notice.pop("_links", {})
+    url: Optional[str] = _links.get("self", {}).get("href")
+    if url in SEEN_URLS or url is None:
         return
-    SEEN.add(url)
+    SEEN_URLS.add(url)
     # context.log.info("Crawl notice: %s" % url)
     try:
         notice = context.fetch_json(url, cache_days=7)
@@ -51,28 +60,35 @@ def crawl_notice(context: Context, notice: Dict[str, Any]):
             error=err.response.status_code,
         )
         return
-    first_name = notice["forename"] or ""
-    last_name = notice["name"] or ""
+    notice.pop("_links", {})
+    notice.pop("_embedded", {})
+    entity_id = notice.pop("entity_id")
+    if entity_id in SEEN_IDS:
+        context.log.warning("Duplicate entity ID", entity_id=entity_id)
+    SEEN_IDS.add(entity_id)
+    first_name = notice.pop("forename", None)
+    last_name = notice.pop("name")
     entity = context.make("Person")
-    entity.id = context.make_slug(notice.get("entity_id"))
-    entity.add("name", first_name + " " + last_name)
-    entity.add("firstName", first_name)
-    entity.add("lastName", last_name)
+    entity.id = context.make_slug(entity_id)
+    h.apply_name(entity, first_name=first_name, last_name=last_name)
     entity.add("sourceUrl", url)
-    entity.add("nationality", notice.get("nationalities"))
-    entity.add("gender", notice.get("sex_id"))
-    entity.add("birthPlace", notice.get("place_of_birth"))
+    entity.add("nationality", notice.pop("nationalities", []))
+    entity.add("country", notice.pop("country_of_birth_id", []))
+    entity.add("gender", notice.pop("sex_id", None))
+    entity.add("birthPlace", notice.pop("place_of_birth", None))
+    entity.add("notes", notice.pop("distinguishing_marks", None))
 
-    dob_raw = notice["date_of_birth"]
+    dob_raw = notice.pop("date_of_birth", None)
     entity.add("birthDate", h.parse_date(dob_raw, FORMATS))
     if "v1/red" in url:
         entity.add("topics", "crime")
 
-    for idx, warrant in enumerate(notice.get("arrest_warrants", []), 1):
+    for warrant in notice.pop("arrest_warrants", []):
         # TODO: make this a Sanction:
         entity.add("program", warrant["issuing_country_id"])
         entity.add("notes", warrant["charge"])
 
+    h.audit_data(notice, ignore=IGNORE_FIELDS)
     context.emit(entity, target=True)
 
 
@@ -84,7 +100,7 @@ def crawl_query(
     params = query.copy()
     params["resultPerPage"] = MAX_RESULTS
     try:
-        data = context.fetch_json(context.source.data.url, params=params, cache_days=5)
+        data = context.fetch_json(context.source.data.url, params=params, cache_days=3)
     except HTTPError as err:
         context.log.warning(
             "HTTP error",
