@@ -86,8 +86,16 @@ class Aggregator(object):
                     data = {"schema": stmt.schema, "id": stmt.canonical_id}
                     entity = Entity(model, data, default_dataset=stmt.dataset)
                     entity.last_change = stmt.first_seen
-                if stmt.prop == Statement.BASE:
-                    entity.last_change = max(entity.last_change, stmt.first_seen)
+
+                # The last_change attribute describes the latest checksum change
+                # of any emitted component of the entity, which is stored in the BASE
+                # field.
+                if stmt.prop == Statement.BASE and stmt.first_seen is not None:
+                    if entity.last_change is None:
+                        entity.last_change = stmt.first_seen
+                    else:
+                        entity.last_change = max(entity.last_change, stmt.first_seen)
+
                 entity.add_statement(stmt)
         except InvalidData as inv:
             log.error("Assemble error: %s" % inv)
