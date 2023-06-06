@@ -100,12 +100,17 @@ def crawl_notice(context: Context, notice: Dict[str, Any]):
 def crawl_query(
     context: Context,
     query: Dict[str, Any],
+    cache_days: int = 2,
 ) -> int:
-    # context.inspect(query)
+    context.inspect(query)
     params = query.copy()
     params["resultPerPage"] = MAX_RESULTS
     try:
-        data = context.fetch_json(context.source.data.url, params=params, cache_days=3)
+        data = context.fetch_json(
+            context.source.data.url,
+            params=params,
+            cache_days=cache_days,
+        )
     except HTTPError as err:
         context.log.warning(
             "HTTP error",
@@ -167,18 +172,13 @@ def crawl(context: Context):
                         continue
                     country_query = patch(query, {"arrestWarrantCountryId": country})
                     if crawl_query(context, country_query) > MAX_RESULTS:
-                        if field == "forename":
-                            continue
-                        # for odots in range(0, 50):
-                        #     other = f"^{'.' * odots}$"
-                        #     two_name_query = patch(country_query, {"forename": other})
-                        #     if crawl_query(context, two_name_query) > MAX_RESULTS:
                         for age in range(AGE_MIN, AGE_MAX):
                             age_query = patch(
                                 country_query,
                                 {"ageMax": age, "ageMin": age},
                             )
-                            if crawl_query(context, age_query) > MAX_RESULTS:
+                            age_total = crawl_query(context, age_query, cache_days=7)
+                            if age_total > MAX_RESULTS:
                                 context.log.warn(
                                     "Too many results in full query",
                                     query=age_query,
