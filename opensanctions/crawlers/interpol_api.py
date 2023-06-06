@@ -25,17 +25,17 @@ AGE_MIN = 0
 AGE_MAX = 120
 
 
-def get_countries(context: Context) -> List[Tuple[str, str]]:
+def get_countries(context: Context) -> List[Any]:
     doc = context.fetch_html(COUNTRIES_URL)
     path = ".//select[@id='arrestWarrantCountryId']//option"
-    options = []
+    options: List[Any] = []
     for option in doc.findall(path):
-        code = stringify(option.get("value"))
-        if code is None:
-            continue
-        label = collapse_spaces(option.text_content())
-        options.append((code, label))
-    return list(sorted(options))
+        # code = stringify(option.get("value"))
+        # if code is None:
+        #     continue
+        # label = collapse_spaces(option.text_content())
+        options.append(option.get("value"))
+    return options
 
 
 def patch(query: Dict[str, Any], update: Dict[str, Any]) -> Dict[str, Any]:
@@ -84,9 +84,14 @@ def crawl_notice(context: Context, notice: Dict[str, Any]):
         entity.add("topics", "crime")
 
     for warrant in notice.pop("arrest_warrants", []):
-        # TODO: make this a Sanction:
-        entity.add("program", warrant["issuing_country_id"])
-        entity.add("notes", warrant["charge"])
+        sanction = h.make_sanction(context, entity)
+        sanction.add("program", "Red Notice")
+        sanction.add("authorityId", entity_id)
+        sanction.add("country", warrant.pop("issuing_country_id", None))
+        sanction.add("reason", warrant.pop("charge"))
+        sanction.add("reason", warrant.pop("charge_translation"), lang="eng")
+        h.audit_data(warrant)
+        context.emit(sanction)
 
     h.audit_data(notice, ignore=IGNORE_FIELDS)
     context.emit(entity, target=True)
@@ -112,7 +117,7 @@ def crawl_query(
     notices = data.get("_embedded", {}).get("notices", [])
     for notice in notices:
         crawl_notice(context, notice)
-    total = data.get("total")
+    total: int = data.get("total", 0)
     if total > MAX_RESULTS:
         context.log.info("More than one page of results", query=query)
         age_max = query.get("ageMax", AGE_MAX)
@@ -143,15 +148,11 @@ def crawl_query(
                 for char in string.ascii_uppercase:
                     prefix = f"^{char}"
                     crawl_query(context, patch(query, {"name": prefix}))
-        # if age_range == 1:
-        #     crawl_query(context, patch(query, {"ageMax": age_min, "ageMin": age_min}))
-        #     crawl_query(context, patch(query, {"ageMax": age_max, "ageMin": age_max}))
 
 
 def crawl(context: Context):
     context.log.info("Loading interpol API cache...")
     context.cache.preload("https://ws-public.interpol.int/notices/%")
-    countries = get_countries(context)
     crawl_query(context, {"sexId": "U"})
     crawl_query(context, {"sexId": "F"})
     for char in string.ascii_uppercase:
@@ -160,6 +161,8 @@ def crawl(context: Context):
         crawl_query(context, {"forename": prefix, "arrestWarrantCountryId": "RU"})
         crawl_query(context, {"name": prefix, "arrestWarrantCountryId": "SV"})
         crawl_query(context, {"forename": prefix, "arrestWarrantCountryId": "SV"})
-    for country, label in countries:
+    for country in get_countries(context):
         crawl_query(context, {"arrestWarrantCountryId": country})
         crawl_query(context, {"nationality": country})
+
+    context.log.info("Seen", ids=len(SEEN_IDS), urls=len(SEEN_URLS))
