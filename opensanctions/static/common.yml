@@ -31,6 +31,9 @@ country:
         - Other
         - World
         - "NULL"
+        - "922"
+        - "914"
+        - "916"
         # All the countries below are nulled out because they do not have modern
         # equivalents. The rule of thumb here is to map countries into modern ones
         # if they are a perfect subset (e.g. Bavaria into Germany), but to drop
