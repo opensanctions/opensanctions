@@ -173,10 +173,13 @@ def crawl(context: Context):
                         #     other = f"^{'.' * odots}$"
                         #     two_name_query = patch(country_query, {"forename": other})
                         #     if crawl_query(context, two_name_query) > MAX_RESULTS:
-                        for age in range(AGE_MIN, AGE_MAX + 1):
+                        min_age = AGE_MIN
+                        for age in range(AGE_MIN + 5, AGE_MAX + 1, 5):
                             age_query = patch(
-                                country_query, {"ageMax": age, "ageMin": age}
+                                country_query, {"ageMax": age, "ageMin": min_age}
                             )
+                            min_age = age
+                            print(age_query)
                             if crawl_query(context, age_query) > MAX_RESULTS:
                                 context.log.warn(
                                     "Too many results in full query",
