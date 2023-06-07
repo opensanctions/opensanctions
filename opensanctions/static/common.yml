@@ -471,6 +471,7 @@ country:
         - British National (Overseas)
         - British Overseas citizen
         - United Kingdom of Great Britain and Northern Irela
+        - Marea Britanie
       value: GB
     - match:
         - Scotland Uk
@@ -533,6 +534,7 @@ country:
         - British North America
         - United States of North America
         - Massachusetts Bay Colony
+        - SUA
       value:
         - US
     - match:
@@ -602,6 +604,7 @@ country:
     - match:
         - Repubic of Moldova
         - Gagauzia
+        - mun. Chișinău
       value: MD
     - match:
         - Pridnestrovian Moldavian Soviet Socialist Republic
@@ -765,6 +768,10 @@ country:
       values:
         - SUHH
         - Latvia
+    - match:
+        - Federația Rusă
+      values:
+        - RU
     - match:
         - Ukrainian,Russian
         - Russian Federation,Ukraine
