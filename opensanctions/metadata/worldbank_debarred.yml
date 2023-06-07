@@ -19,6 +19,11 @@ description: |
 
   nb. This cross-debarment process looks to be somewhat manual. OpenSanctions should
   crawl all of the involved banks and reconcile their lists.
+
+  ### Notes
+
+  * For entities that have been permanently excluded from procurement, the sanction end
+    date is given as 2999-12-31.
 collections:
   - crime
   - debarment
