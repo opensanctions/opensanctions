@@ -99,40 +99,46 @@ lookups:
     normalize: true
     options:
       - match:
-        - fost consilier
-        - fost asociat
-        - asociat unic
-        - beneficiar 100%
-        - beneficiar
-        - null
-        - asociat
-        - fondator
-        - deputat
-        - fost deputat
-        - reprezentată prin procură # represented by power of attorney
-        - partea a Accent Group
-        - „Spălătoria rusească”
-        - asociat cu 50%
-        - afacerea soției # wife's business
-        - soția deține 100% # wife owns 100%
-        - 2 beneficiar - 50%
-        - beneficiar 84,66%
-        - beneficiar 95%
-        - 100%
-        - beneficiar 61,93%
-        - beneficiar 63,52%
-        - beneficiar 66,70%
-        - beneficiar 80%
-        - beneficiar 85,79%
-        - beneficiar 89,73%
-        - beneficiar 89,77%
-        - beneficiar 94,77%
-        - beneficiar a unei cote de 100% împreună cu soția
-        - beneficiar final
-        schema: UnknownLink
-        source: subject
-        target: object
+        - acționar
+        - acționară
+        - acționar (100%)
+        - 13.495 acțiuni
+        - acționar (4,98%)
+        - acționar (48,445%)
+        - acționar minoritar
+        - acționar, membru al consiliului
+        - acționară (10 acțiuni)
+        - acționară (4,6%)
+        - acționară (4,75%)
+        - acționară prin procură
+        - deţine 30%
+        - deține 100% împreună cu soția
+        - deține 100%, împreună cu soția
+        - deține 20%
+        - deține 50%
+        - deține 56,2% împreună cu soția
+        - deține 67%, împreună cu soția
+        - deține 80 de acțiuni
+        - deține 80%
+        - deține 94%
+        - deține cota-parte 50%
+        - deține, împreună cu soția, 100% (2.114.120 MDL)
+        - fondator, deține 50%
+        - fondatoare, deține 75%
+        - fondator (100%), administrator, lichidată în 2020
+        - fondator, deține 100%
+        schema: Ownership
+        source: owner
+        target: asset
         text: role
+      - match:
+        - mamă vitregă
+        - soție
+        - soț
+        schema: Family
+        source: person
+        target: relative
+        text: relationship
       - match:
         - fost avocat
         - fostă afacere
@@ -149,48 +155,12 @@ lookups:
         schema: Membership
         source: member
         target: organization
-        text: role
+        text: role        
+      # Relationships that make more sense reversed - the target is the object
       - match:
         - șefă # head
         - fost șef # former boss
         schema: UnknownLink
         source: object
         target: subject
-        text: role
-      - match:
-        - acționar
-        - acționară
-        - acționar (100%)
-        - deţine 30%
-        - deține 100% împreună cu soția
-        - deține 100%, împreună cu soția
-        - deține 20%
-        - deține 50%
-        - deține 56,2% împreună cu soția
-        - deține 67%, împreună cu soția
-        - deține 80 de acțiuni
-        - deține 80%
-        - deține 94%
-        - deține cota-parte 50%
-        - deține, împreună cu soția, 100% (2.114.120 MDL)
-        - fondator (50%)
-        - fondator și administrator
-        - fondator, deține 50%
-        - fondatoare, deține 75%
-        - fondatoare, vicepreședintă
-        - fondator (100%)
-        - fondator (100%), administrator, lichidată în 2020
-        - fondator, administrator
-        - fondator, deține 100%
-        schema: Ownership
-        source: owner
-        target: asset
-        text: role
-      - match:
-        - mamă vitregă
-        - soție
-        - soț
-        schema: Family
-        source: person
-        target: relative
-        text: relationship
+        text: role            

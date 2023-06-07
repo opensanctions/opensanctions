@@ -174,17 +174,18 @@ def make_relation(context, source, description, target_name, target_url):
         context.emit(target)
 
     res = context.lookup("relations", description)
-    if res:
-        relation = context.make(res.schema)
-        relation.id = context.make_id(target.id, "related to", source.id)
-        relation.add(res.source, source.id)
-        relation.add(res.target, target.id)
-        relation.add(res.text, description, lang="ron")
-        context.emit(relation)
-    else:
-        count = relationships.get(description, 0) + 1
-        relationships[description] = count
+    schema = res.schema if res else "UnknownLink"
+    source_key = res.source if res else "subject"
+    target_key = res.target if res else "object"
+    description_key = res.text if res else "role"
 
+    relation = context.make(schema)
+    relation.id = context.make_id(target.id, "related to", source.id)
+    relation.add(source_key, source.id)
+    relation.add(target_key, target.id)
+    relation.add(description_key, description, lang="ron")
+    context.emit(relation)
+    
 
 def crawl(context: Context):
     query = {"br": 0, "lang": "rom"}
