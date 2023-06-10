@@ -1,5 +1,5 @@
-from normality import normalize
-from collections import defaultdict
+from typing import Set
+from normality import collapse_spaces
 from followthemoney.types import registry
 
 from opensanctions.exporters.common import Exporter
@@ -13,28 +13,17 @@ class NamesExporter(Exporter):
 
     def setup(self):
         super().setup()
-        self.names = defaultdict(set)
+        self.fh = open(self.path, "w")
+        self.seen_hashes: Set[int] = set()
 
     def feed(self, entity):
         for name in entity.get_type_values(registry.name):
-            name = name.strip()
-            if len(name) > 3:
-                norm = normalize(name, ascii=True)
-                self.names[norm].add(name)
+            name = collapse_spaces(name)
+            key = hash(name.lower())
+            if len(name) > 3 and key not in self.seen_hashes:
+                self.seen_hashes.add(key)
+                self.fh.write(f"{name}\n")
 
     def finish(self):
-        batch = []
-        with open(self.path, "w") as fh:
-            for norm in sorted(self.names):
-                for name in sorted(self.names[norm]):
-                    batch.append(name)
-
-                if len(batch) > 10000:
-                    text = "\n".join(batch)
-                    fh.write(f"{text}\n")
-                    batch = []
-
-            if len(batch):
-                text = "\n".join(batch)
-                fh.write(f"{text}\n")
+        self.fh.close()
         super().finish()
