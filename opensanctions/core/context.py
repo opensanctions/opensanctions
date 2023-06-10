@@ -25,7 +25,7 @@ from opensanctions.core.resources import save_resource, clear_resources
 from opensanctions.core.source import Source
 from opensanctions.core.archive import dataset_path
 from opensanctions.core.statements import cleanup_dataset, clear_statements
-from opensanctions.core.statements import save_statements
+from opensanctions.core.statements import save_statements, lock_dataset
 
 
 class Context(GenericZavod[Entity, Dataset]):
@@ -195,6 +195,7 @@ class Context(GenericZavod[Entity, Dataset]):
                 total=self._statement_count,
             )
         with engine_tx() as conn:
+            lock_dataset(conn, self.dataset)
             for i in range(0, len(statements), self.BATCH_SIZE):
                 batch = statements[i : i + self.BATCH_SIZE]
                 save_statements(conn, batch)
@@ -226,7 +227,7 @@ class Context(GenericZavod[Entity, Dataset]):
             self._statements[stmt.id] = stmt
         self.log.debug("Emitted", entity=entity.id, schema=entity.schema.name)
         self._entity_count += 1
-        if len(self._statements) >= (self.BATCH_SIZE * 5):
+        if len(self._statements) >= (self.BATCH_SIZE * 10):
             self.flush()
 
     def crawl(self) -> bool:

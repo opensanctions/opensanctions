@@ -78,6 +78,13 @@ def count_entities(
     return conn.scalar(q)
 
 
+def lock_dataset(conn: Conn, dataset: Dataset):
+    q = select(stmt_table.c.id)
+    q = q.with_for_update()
+    q = q.filter(stmt_table.c.dataset == dataset.name)
+    conn.execute(q)
+
+
 def entities_datasets(
     conn: Conn, dataset: Optional[Dataset] = None
 ) -> Generator[Tuple[str, str], None, None]:
