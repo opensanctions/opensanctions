@@ -101,6 +101,7 @@ country:
         - Romanov Empire
         - Joseon
         - Song dynasty
+        - Northern Song dynasty
         - Qing dynasty
         - Ming dynasty
         - Tang dynasty
@@ -133,6 +134,8 @@ country:
         - Kingdom of Libya
         - Safavid Empire
         - French mandate of Lebanon
+        - French Mandate for Syria and the Lebanon
+        - Lebanese Republic under French mandate
         - Khedivate of Egypt
         - Marinid Dynasty
         - Ancient Rome
@@ -198,6 +201,8 @@ country:
         - Qajar dynasty
         - Portuguese Guinea
         - Grand Duchy of Moscow
+        - Principality of Polotsk
+        - Duchy of Zaslawye
         - Parthian Empire
         - Kingdom of Castile
         - Udaipur State
@@ -289,11 +294,21 @@ country:
         - Terengganu
         - Tokugawa shogunate
         - XUN
+        - Kievan Rus'
+        - British Mauritius # Tromelin is disputed by mauritius
+        - First Republic of Armenia
+        - Don Republic
       contains:
         - (JVCFOR)
         - with effect from
         - as a result of being in the service of declared terrorist organisation
       value: null
+    - match:
+      - Australian continent
+      value: AU
+    - match:
+      - Bhopal State
+      value: IN
     - match:
         - Chinese Soviet Republic
         - Beijing
@@ -389,6 +404,7 @@ country:
     - match:
         - Kingdom of Egypt
         - Republic of Egypt (1953–1958)
+        - Republic of Egypt
         - مصر - مسجون
       value: Egypt
     - match:
@@ -597,6 +613,8 @@ country:
         - Cherokee Nation
         - Chickasaw Nation
         - Americans
+        - Colony of Rhode Island and Plantations
+        - Kingdom of Hawaiʻi
       value: US
     - match:
         - QUEBEC H2Y 1L6
@@ -689,7 +707,9 @@ country:
         - Ethnic Russian
         - Southern Russia
         - Vedenskiy District, the Republic of Chechnya
+        - Chechnya
         - Tsardom of Russia
+        - Tatarstan
       value: RU
     - match:
         - Former Ukrainian
@@ -949,6 +969,12 @@ country:
       value: ua-cri
     - match: Piribebuy
       value: Paraguay
+    - match: British Honduras
+      value: BZ
+    - match: Oaxaca
+      value: MX
+    - match: Zulu Kingdom
+      value: ZA
 
 date:
   options:
@@ -999,6 +1025,7 @@ date:
         - 09.07.yyyy
         - 29.07.yyyy
         - 15.01.196
+        - "1821-02-29"
       value: null
     - match: 1972-08-10 or 1972-08-11
       values:
@@ -1187,6 +1214,8 @@ date:
       values:
         - "1968-08-23"
         - "1972-05-24"
+    - match: "17.09.1961 г."
+      value: "1961-09-17"
   map:
     "0202-11-22": "2020-11-22"
     "1951-06-31": "1951-06"
