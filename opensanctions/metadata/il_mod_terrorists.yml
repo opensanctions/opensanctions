@@ -29,7 +29,7 @@ publisher:
   country: il
   url: https://nbctf.mod.gov.il/en/aboutus/Pages/mandate.aspx
   official: true
-url: https://nbctf.mod.gov.il/en/designations/Pages/designationProcess.aspx
+url: https://nbctf.mod.gov.il/en/Minister%20Sanctions/Designation/Pages/downloads.aspx
 data:
-  url: https://nbctf.mod.gov.il/en/designations/Pages/downloads.aspx
+  url: https://nbctf.mod.gov.il/he/Announcements/Documents/NBCTFIsrael%20-%20Terror%20Organization%20Designation%20List_XL.xlsx
   format: XLSX
