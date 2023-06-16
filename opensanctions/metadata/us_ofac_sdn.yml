@@ -136,6 +136,7 @@ lookups:
           - RSIN
           - Organization Code
           - Economic Register Number (CBLS)
+          - Trademark number
         prop: registrationNumber
       - match:
           - Legal Entity Number

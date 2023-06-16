@@ -298,16 +298,17 @@ country:
         - British Mauritius # Tromelin is disputed by mauritius
         - First Republic of Armenia
         - Don Republic
+        - Archduchy of Austria
       contains:
         - (JVCFOR)
         - with effect from
         - as a result of being in the service of declared terrorist organisation
       value: null
     - match:
-      - Australian continent
+        - Australian continent
       value: AU
     - match:
-      - Bhopal State
+        - Bhopal State
       value: IN
     - match:
         - Chinese Soviet Republic
@@ -1588,6 +1589,7 @@ gender:
         - kathoey
         - two-spirit
         - agender
+        - eunuch
       value: other
 
 fulladdress:
