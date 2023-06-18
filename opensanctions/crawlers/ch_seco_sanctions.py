@@ -1,7 +1,7 @@
 import re
+from itertools import product
 from prefixdate import parse_parts
-from collections import defaultdict
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional, Tuple, List
 from followthemoney.types import registry
 from followthemoney.util import join_text
 from lxml.etree import _Element as Element
@@ -17,6 +17,19 @@ NAME_TYPE = {
     "primary-name": "name",
     "alias": "alias",
     "formerly-known-as": "previousName",
+}
+NAME_PARTS: Dict[str, Optional[str]] = {
+    "title": "title",
+    "given-name": "firstName",
+    "further-given-name": "secondName",
+    "father-name": "fatherName",
+    "grand-father-name": "fatherName",
+    "family-name": "lastName",
+    "maiden-name": "lastName",
+    "suffix": None,
+    "tribal-name": "weakAlias",
+    "whole-name": None,
+    "other": None,
 }
 # Some metadata is dirty text in <other-information> tags
 # TODO: take in charge multiple values
@@ -68,55 +81,68 @@ def compose_address(context: Context, entity: Entity, place, el: Element):
     )
 
 
-def parse_name(entity: Entity, node: Element):
+def parse_name(context: Context, entity: Entity, node: Element):
+    # verification:
+    # al-Nu'Aymi   - in full name
+    # Lutsky   - Lutsky Ihar Uladzimiravich as primary name
+
     name_prop = NAME_TYPE[node.get("name-type")]
     is_weak = NAME_QUALITY_WEAK[node.get("quality")]
+    if is_weak:
+        name_prop = "weakAlias"
 
-    parts: Dict[Tuple[MayStr, MayStr], Dict[MayStr, MayStr]] = defaultdict(dict)
+    max_order: int = 0
+    parts: List[Tuple[str, MayStr, MayStr, int, str]] = []
     for part_node in node.findall("./name-part"):
         part_type = part_node.get("name-part-type")
+        order = int(part_node.get("order"))
+        max_order = max(order, max_order)
         value = part_node.findtext("./value")
-        parts[(None, None)][part_type] = value
+        parts.append((part_type, None, None, order, value))
 
         for spelling in part_node.findall("./spelling-variant"):
-            key = (spelling.get("lang"), spelling.get("script"))
-            parts[key][part_type] = spelling.text
+            lang = registry.language.clean(spelling.get("lang"))
+            script = spelling.get("script")
+            parts.append((part_type, lang, script, order, spelling.text))
 
-    for (lang, _), part in parts.items():
-        if name_prop == "name":
-            name_prop = name_prop if lang is None else "alias"
-        lang = registry.language.clean(lang)
-        entity.add("title", part.pop("title", None), quiet=True, lang=lang)
-        suffix = part.pop("suffix", None)
-        entity.add("title", suffix, quiet=True, lang=lang)
-        entity.add("weakAlias", part.pop("other", None), quiet=True, lang=lang)
-        entity.add("weakAlias", part.pop("tribal-name", None), quiet=True, lang=lang)
-        grand_father_name = part.pop("grand-father-name", None)
-        entity.add("fatherName", grand_father_name, quiet=True, lang=lang)
+    ordered: Dict[Tuple[MayStr, MayStr], Dict[int, List[str]]] = {}
+    for (part_type, lang, script, order, value) in parts:
+        # Begin building whole names:
+        cult = (lang, script)
+        if cult not in ordered:
+            ordered[cult] = {}
+        if order not in ordered[cult]:
+            ordered[cult][order] = []
+        ordered[cult][order].append(value)
 
-        # SECO shows grand father name as suffix
-        full_suffix = join_text(grand_father_name, suffix)
+        if part_type not in NAME_PARTS:
+            context.log.warn("Unknown name part", part_type=part_type)
+            continue
+        part_prop = NAME_PARTS[part_type]
+        if part_type == "whole-name":
+            part_prop = name_prop
+        if part_prop == "name" and lang is not None:
+            part_prop = "alias"
+        if part_prop is not None:
+            entity.add(part_prop, value, lang=lang, quiet=True)
 
-        h.apply_name(
-            entity,
-            full=part.pop("whole-name", None),
-            given_name=part.pop("given-name", None),
-            second_name=part.pop("further-given-name", None),
-            patronymic=part.pop("father-name", None),
-            last_name=part.pop("family-name", None),
-            maiden_name=part.pop("maiden-name", None),
-            suffix=full_suffix,
-            is_weak=is_weak,
-            name_prop=name_prop,
-            quiet=True,
-            lang=lang,
-        )
-        h.audit_data(part)
+    for (lang, script), ords in ordered.items():
+        whole_parts: List[List[str]] = []
+        for order in range(1, max_order + 1):
+            values = ords.get(order, ordered[(None, None)][order])
+            whole_parts.append(values)
+
+        for prod in product(*whole_parts):
+            whole_name = join_text(*prod)
+            full_prop = name_prop
+            if full_prop == "name" and lang is not None:
+                full_prop = "alias"
+            entity.add(full_prop, whole_name, lang=lang)
 
 
 def parse_identity(context: Context, entity: Entity, node: Element, places):
     for name in node.findall(".//name"):
-        parse_name(entity, name)
+        parse_name(context, entity, name)
 
     for address_node in node.findall(".//address"):
         place = places.get(address_node.get("place-id"))
