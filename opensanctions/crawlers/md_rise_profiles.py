@@ -8,22 +8,6 @@ import re
 CACHE_DAYS = 14
 COUNTRY = "md"
 
-
-# 11 fost președinte = former president
-# 12 fost consilier = former councillor
-# 14 fost asociat = former associate
-# 16 asociat unic = sole associate
-# 16 fost membru = former member
-# 20 beneficiar 100% =
-# 21 membră = member
-# 26 beneficiar = beneficiary
-# 27 None
-# 27 acționar = shareholder
-# 32 președinte = president
-# 39 asociat = associate
-# 52 fondator = founder (owner)
-# 70 membru = member
-
 relationships = dict()
 
 def parse_date(text):
