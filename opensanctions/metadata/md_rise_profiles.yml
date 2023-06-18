@@ -21,6 +21,7 @@ publisher:
   country: md
   official: false
   description: RISE is a non-profit investigative journalism newsroom based in the Republic of Moldova
+  logo_url: "https://assets.opensanctions.org/images/publishers/rise-md-logo.png"
 url: "https://profiles.rise.md/index.php"
 data:
   url: "https://profiles.rise.md/index.php"
