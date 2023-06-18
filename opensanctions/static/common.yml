@@ -357,6 +357,9 @@ country:
         - Paraguay
         - Brazil
     - match:
+        - BRASILEÑA
+      value: Brazil
+    - match:
         - Italian Social Republic
         - Republic of Florence
       value: Italy
@@ -662,6 +665,8 @@ country:
         - Beirut
       contains:
         - Lebanon (Succarieh’s Australia
+        - EL LIBANO
+        - EL LÍBANO
       value: Lebanon
     - match:
         - ANT
