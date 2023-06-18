@@ -43,12 +43,13 @@ def cli(verbose=False, quiet=False):
 
 @cli.command("crawl", help="Crawl entities into the given dataset")
 @click.argument("dataset", default=Dataset.ALL, type=datasets)
-def crawl(dataset):
+@click.option("-d", "--dry-run", is_flag=True, default=False)
+def crawl(dataset: str, dry_run: bool):
     """Crawl all datasets within the given scope."""
     scope = Dataset.require(dataset)
     failed = False
     for source in scope.sources:
-        ctx = Context(source)
+        ctx = Context(source, dry_run=dry_run)
         failed = failed or not ctx.crawl()
     if failed:
         sys.exit(1)

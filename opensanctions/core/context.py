@@ -38,9 +38,10 @@ class Context(GenericZavod[Entity, Dataset]):
     SOURCE_CATEGORY = "source"
     BATCH_SIZE = 5000
 
-    def __init__(self, dataset: Dataset):
+    def __init__(self, dataset: Dataset, dry_run: bool = False):
         super().__init__(dataset, Entity, data_path=dataset_path(dataset))
         self.cache = Cache(engine, metadata, dataset, create=True)
+        self.dry_run = dry_run
         self._statements: Dict[str, Statement] = {}
         self._entity_count = 0
         self._statement_count = 0
@@ -187,6 +188,15 @@ class Context(GenericZavod[Entity, Dataset]):
         context is flushed to the store. All statements that are not flushed
         when a crawl is aborted are not persisted to the database."""
         statements = list(self._statements.values())
+        if self.dry_run:
+            self.log.info(
+                "Dry run: discarding %d statements..." % len(statements),
+                entities=self._entity_count,
+                total=self._statement_count,
+            )
+            self._statements = {}
+            return
+
         if len(statements):
             self._statement_count += len(statements)
             self.log.info(
@@ -252,8 +262,9 @@ class Context(GenericZavod[Entity, Dataset]):
                     statements=self._statement_count,
                 )
             else:
-                with engine_tx() as conn:
-                    cleanup_dataset(conn, self.dataset)
+                if not self.dry_run:
+                    with engine_tx() as conn:
+                        cleanup_dataset(conn, self.dataset)
             self.log.info("Crawl completed", entities=self._entity_count)
             return True
         except KeyboardInterrupt:
