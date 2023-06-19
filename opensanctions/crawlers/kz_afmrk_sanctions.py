@@ -40,7 +40,7 @@ def crawl(context: Context):
 
     for el in doc.findall(".//org"):
         name = el.findtext(".//org_name")
-        entity_id = context.make_id(el.findtext("./num"), name)
+        entity_id = context.make_id(el.findtext("./note"), name)
         entity = make_entity(context, el, "Organization", entity_id)
         for tag in (".//org_name", ".//org_name_en"):
             names = el.findtext(tag)
