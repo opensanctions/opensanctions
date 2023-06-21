@@ -1,0 +1,8 @@
+type: collection
+title: Enrichment target dataset for people
+hidden: true
+export: false
+children:
+  - sanctions
+  - peps
+  - wanted
