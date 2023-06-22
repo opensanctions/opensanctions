@@ -45,7 +45,7 @@ def export_metadata():
     schemata = set()
     for dataset in Dataset.all():
         ds_path = get_dataset_resource(dataset, INDEX_RESOURCE)
-        if not ds_path.exists():
+        if ds_path is None or not ds_path.exists():
             log.error("No index file found", dataset=dataset.name)
         else:
             with open(ds_path, "r") as fh:
