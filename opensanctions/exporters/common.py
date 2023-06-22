@@ -1,6 +1,5 @@
-from nomenklatura.loader import Loader
-
 from opensanctions.core import Context, Dataset, Entity
+from opensanctions.core.store import AppView
 
 EXPORT_CATEGORY = "export"
 
@@ -13,13 +12,13 @@ class Exporter(object):
     EXTENSION = ""
     MIME_TYPE = "text/plain"
 
-    def __init__(self, context: Context, loader: Loader[Dataset, Entity]):
+    def __init__(self, context: Context, view: AppView):
         self.context = context
         self.dataset = context.dataset
         self.resource_name = f"{self.NAME}.{self.EXTENSION}"
         self.path = context.get_resource_path(self.resource_name)
         self.path.parent.mkdir(exist_ok=True, parents=True)
-        self.loader = loader
+        self.view = view
 
     def setup(self):
         pass

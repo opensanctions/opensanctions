@@ -19,7 +19,7 @@ class SenzingExporter(Exporter):
             self.source_name = "OPENSANCTIONS"
 
     def feed(self, entity: Entity):
-        record = senzing_record(self.source_name, entity, self.loader)
+        record = senzing_record(self.source_name, entity, self.view)
         if record is not None:
             write_json(record, self.fh)
 

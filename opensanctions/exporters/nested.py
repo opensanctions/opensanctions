@@ -15,7 +15,7 @@ class NestedJSONExporter(Exporter):
     def feed(self, entity):
         if not entity.target:
             return
-        data = entity.to_nested_dict(self.loader)
+        data = entity.to_nested_dict(self.view)
         write_json(data, self.fh)
 
     def finish(self):

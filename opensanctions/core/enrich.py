@@ -9,7 +9,7 @@ from opensanctions.core.db import engine_tx
 from opensanctions.core.context import Context
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.external import External
-from opensanctions.core.aggregator import Aggregator
+from opensanctions.core.store import AppStore
 from opensanctions.core.statements import cleanup_dataset
 
 
@@ -53,8 +53,9 @@ def enrich(scope_name: str, external_name: str, threshold: float):
     external = cast(External, context.dataset)
     context.bind()
     context.clear(data=False)
-    agggregator = Aggregator(scope, context.resolver, external=False)
-    entities = agggregator.view(scope)
+    store = AppStore(scope, context.resolver)
+    store.build(external=False)
+    entities = store.view(scope)
     enricher = external.get_enricher(context.cache)
     try:
         for entity_idx, entity in enumerate(entities):
