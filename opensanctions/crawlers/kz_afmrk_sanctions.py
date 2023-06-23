@@ -5,6 +5,11 @@ from opensanctions import helpers as h
 
 FORMATS = ["%d.%m.%Y"]
 
+def parse_start_date(text: str) -> str | None:
+    if text and text.startswith("включен от"):
+        start_date = text.replace("включен от ", "").strip()
+        return h.parse_date(start_date, FORMATS)
+
 
 def make_entity(context: Context, el, schema, entity_id):
     entity = context.make(schema)
@@ -14,6 +19,7 @@ def make_entity(context: Context, el, schema, entity_id):
 
     sanction = h.make_sanction(context, entity)
     sanction.add("summary", el.findtext("./correction"))
+    sanction.add("startDate", parse_start_date(el.findtext("./correction")))
     context.emit(sanction)
 
     return entity
