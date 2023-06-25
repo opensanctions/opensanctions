@@ -27,7 +27,7 @@ publisher:
   url: https://www.gov.kz/memleket/entities/afm
   country: kz
   official: true
-url: https://websfm.kz/terrorism/acting
+url: https://websfm.kz/terrorism
 data:
-  url: https://api.websfm-pilot.kz/v1/sanctions/sanction-terrorist-old/
+  url: https://api.websfm-pilot.afmrk.gov.kz/v1/sanctions/sanction-terrorist-old/
   format: xml
