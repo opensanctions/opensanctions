@@ -1,14 +1,16 @@
 entry_point: opensanctions.crawlers.kz_afmrk_sanctions
-title: Kazakh Terror Financing list
+title: Kazakh Terrorist and Terror Financing list
 prefix: kzafm
 summary: >
-  A simple list of sanctioned individuals and entities published by the
+  A combination of two lists of sanctioned individuals and entities published by the
   Financial Monitoring Agency of Kazakhstan.
 description: |
-  In accordance with Article 12 of the Law of the Republic of Kazakhstan "On
+  The terror financing entities are included in accordance with Article 12 of the Law of the Republic of Kazakhstan "On
   Counteracting Legalization (Laundering) of Criminally Obtained Incomes and
   Financing of Terrorism", the list of organizations and persons associated
   with the financing of terrorism and extremism is published.
+
+  Some, if not all persons listed for participation in terrorism are by request of other countries.
 collections:
   - sanctions
   - default
@@ -25,7 +27,7 @@ publisher:
   url: https://www.gov.kz/memleket/entities/afm
   country: kz
   official: true
-url: https://websfm.kz/terrorism/1/acting
+url: https://websfm.kz/terrorism/acting
 data:
-  url: https://api.websfm.kz/v1/sanctions/sanction-terrorist-old/xml_category_1/?status=acting
+  url: https://api.websfm-pilot.kz/v1/sanctions/sanction-terrorist-old/
   format: xml
