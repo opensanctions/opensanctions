@@ -38,6 +38,7 @@ def save_issue(conn: Conn, event: Dict[str, Any]) -> None:
 
     data.pop("_record", None)
     data.pop("timestamp", None)
+    report_issue = data.pop("report_issue", True)
     record = {
         "timestamp": settings.RUN_TIME,
         "module": data.pop("logger", None),
@@ -52,8 +53,9 @@ def save_issue(conn: Conn, event: Dict[str, Any]) -> None:
     elif isinstance(entity, str):
         record["entity_id"] = entity
     record["data"] = data
-    q = issue_table.insert().values([record])
-    conn.execute(q)
+    if report_issue:
+        q = issue_table.insert().values([record])
+        conn.execute(q)
     return None
 
 

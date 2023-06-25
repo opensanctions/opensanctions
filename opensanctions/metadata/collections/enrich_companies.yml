@@ -1,5 +1,5 @@
 type: collection
-title: Beneficial ownership graph datasets
+title: Enrichment target dataset for companies
 hidden: true
 export: false
 children:
@@ -17,5 +17,5 @@ children:
   - ru_rupep
   - ru_rupep_companies
   - ua_edr
-  - wikidata
+  # - wikidata
   - debarment

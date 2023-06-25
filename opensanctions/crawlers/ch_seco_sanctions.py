@@ -105,15 +105,21 @@ def parse_name(context: Context, entity: Entity, node: Element):
             script = spelling.get("script")
             parts.append((part_type, lang, script, order, spelling.text))
 
-    ordered: Dict[Tuple[MayStr, MayStr], Dict[int, List[str]]] = {}
+    ordered: Dict[Tuple[MayStr, MayStr], Dict[int, List[MayStr]]] = {}
     for (part_type, lang, script, order, value) in parts:
+        # if part_type in ("suffix", "title"):
+        #     print("XXX", part_type, value)
+
         # Begin building whole names:
         cult = (lang, script)
         if cult not in ordered:
             ordered[cult] = {}
         if order not in ordered[cult]:
             ordered[cult][order] = []
-        ordered[cult][order].append(value)
+        if part_type == "title":
+            ordered[cult][order].append(None)
+        else:
+            ordered[cult][order].append(value)
 
         if part_type not in NAME_PARTS:
             context.log.warn("Unknown name part", part_type=part_type)
