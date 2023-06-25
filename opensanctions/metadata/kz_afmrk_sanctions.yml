@@ -1,5 +1,5 @@
 entry_point: opensanctions.crawlers.kz_afmrk_sanctions
-title: Kazakh Terrorist and Terror Financing list
+title: Kazakh Terrorist and Terror Financing lists
 prefix: kzafm
 summary: >
   A combination of two lists of sanctioned individuals and entities published by the
