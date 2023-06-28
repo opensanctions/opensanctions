@@ -299,6 +299,12 @@ country:
         - First Republic of Armenia
         - Don Republic
         - Archduchy of Austria
+        - Kingdom of Gwent
+        - Vannetais
+        - Kingdom of Gwynedd
+        - La La Land
+        - Kingdom of Ireland
+        - County of Tyrol
       contains:
         - (JVCFOR)
         - with effect from
@@ -356,6 +362,10 @@ country:
       values:
         - Paraguay
         - Brazil
+    - match:
+        - PRONTUARIO PARAGUAYO
+      values:
+        - Paraguay
     - match:
         - BRASILEÑA
       value: Brazil
@@ -805,6 +815,9 @@ country:
         - UA
         - RU
     - match:
+        - Ukranian
+      value: UA
+    - match:
         - Russian SFSR (now Russian Federation)
         - Russian SFSR
         - RSFSR
@@ -1032,6 +1045,8 @@ date:
         - 29.07.yyyy
         - 15.01.196
         - "1821-02-29"
+        - "8 сентября"
+        - "12.09."
       value: null
     - match: 1972-08-10 or 1972-08-11
       values:
