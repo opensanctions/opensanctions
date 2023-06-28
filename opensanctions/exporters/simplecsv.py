@@ -29,6 +29,7 @@ class SimpleCSVExporter(Exporter):
         "dataset",
         "first_seen",
         "last_seen",
+        "last_change",
     ]
 
     def concat_values(self, values):
@@ -100,6 +101,7 @@ class SimpleCSVExporter(Exporter):
             self.concat_values(datasets),
             entity.first_seen,
             entity.last_seen,
+            entity.last_change,
         ]
         self.writer.writerow(row)
 
