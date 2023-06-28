@@ -9,7 +9,7 @@ from opensanctions.core.dataset import Dataset
 from opensanctions.core.entity import Entity
 from opensanctions.core.db import engine_read
 from opensanctions.core.statements import entities_datasets
-from opensanctions.core.store import AppStore
+from opensanctions.core.store import Store, get_store
 from opensanctions.core.resolver import get_resolver, Resolver
 
 log = get_logger(__name__)
@@ -27,7 +27,7 @@ def get_parts(
 
 
 def get_partial(
-    resolver: Resolver, store: AppStore, spec: Tuple[str, Dataset]
+    resolver: Resolver, store: Store, spec: Tuple[str, Dataset]
 ) -> Optional[Entity]:
     id, ds = spec
     loader = store.view(ds, external=True)
@@ -77,8 +77,7 @@ def export_training_pairs(scope: Dataset):
         negative=judgements.get(Judgement.NEGATIVE, 0),
         unsure=judgements.get(Judgement.UNSURE, 0),
     )
-    store = AppStore(scope, resolver)
-    store.build(external=True)
+    store = get_store(scope, external=True)
     for idx, ((left, right), judgement) in enumerate(pairs.items()):
         if idx > 0 and idx % 10000 == 0:
             log.info("Exported %d pairs..." % idx)

@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import List, Optional
 from zavod.logs import get_logger
 from followthemoney.exc import InvalidData
@@ -10,23 +11,47 @@ from opensanctions import settings
 from opensanctions.core.entity import Entity
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.db import engine_read
+from opensanctions.core.resolver import get_resolver
 from opensanctions.core.statements import all_statements
 
 
 log = get_logger(__name__)
-AppView = LevelDBView[Dataset, Entity]
+View = LevelDBView[Dataset, Entity]
 
 
-class AppStore(LevelDBStore[Dataset, Entity]):
+def get_store(dataset: Dataset, external: bool = False) -> "Store":
+    resolver = get_resolver()
+    aggregator_path = settings.DATA_PATH / "aggregator"
+    aggregator_path.mkdir(parents=True, exist_ok=True)
+    suffix = "internal" if external is False else "external"
+    matching = [dataset]
+    matching.extend(dataset.parents)
+    for ds in matching:
+        dataset_path = aggregator_path / f"{ds.name}.{suffix}.db"
+        if dataset_path.is_dir():
+            return Store(dataset, resolver, dataset_path)
+        if external is False:
+            dataset_path = aggregator_path / f"{ds.name}.external.db"
+            if dataset_path.is_dir():
+                return Store(dataset, resolver, dataset_path)
+    new_path = aggregator_path / f"{dataset.name}.{suffix}.db"
+    store = Store(dataset, resolver, new_path)
+    store.build(external=external)
+    return store
+
+
+def get_view(dataset: Dataset, external: bool = False) -> View:
+    store = get_store(dataset, external=external)
+    return store.default_view(external=external)
+
+
+class Store(LevelDBStore[Dataset, Entity]):
     def __init__(
         self,
         dataset: Dataset,
         resolver: Resolver[Entity],
+        path: Path,
     ):
-        aggregator_path = settings.DATA_PATH / "aggregator"
-        aggregator_path.mkdir(parents=True, exist_ok=True)
-        db_name = f"{dataset.name}.db"
-        path = aggregator_path / db_name
         super().__init__(dataset, resolver, path)
         self.entity_class = Entity
 

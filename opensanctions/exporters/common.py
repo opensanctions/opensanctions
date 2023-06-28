@@ -1,5 +1,5 @@
 from opensanctions.core import Context, Dataset, Entity
-from opensanctions.core.store import AppView
+from opensanctions.core.store import View
 
 EXPORT_CATEGORY = "export"
 
@@ -12,7 +12,7 @@ class Exporter(object):
     EXTENSION = ""
     MIME_TYPE = "text/plain"
 
-    def __init__(self, context: Context, view: AppView):
+    def __init__(self, context: Context, view: View):
         self.context = context
         self.dataset = context.dataset
         self.resource_name = f"{self.NAME}.{self.EXTENSION}"

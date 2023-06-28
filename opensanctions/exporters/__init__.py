@@ -2,11 +2,10 @@ from typing import List, Type
 from zavod.logs import get_logger
 
 from opensanctions.core import Context, Dataset
-from opensanctions.core.store import AppStore, AppView
+from opensanctions.core.store import View, get_store
 from opensanctions.core.issues import all_issues
 from opensanctions.core.db import engine_tx
 from opensanctions.core.resources import clear_resources
-from opensanctions.core.resolver import get_resolver
 from opensanctions.exporters.common import Exporter, EXPORT_CATEGORY
 from opensanctions.exporters.ftm import FtMExporter
 from opensanctions.exporters.nested import NestedJSONExporter
@@ -32,7 +31,7 @@ EXPORTERS: List[Type[Exporter]] = [
 __all__ = ["export_dataset", "export_metadata", "export_statements"]
 
 
-def export_data(context: Context, view: AppView):
+def export_data(context: Context, view: View):
     clazzes = EXPORTERS
     if not context.dataset.export:
         clazzes = [StatisticsExporter]
@@ -56,14 +55,13 @@ def export_data(context: Context, view: AppView):
         exporter.finish()
 
 
-def export_dataset(dataset: Dataset, store: AppStore):
+def export_dataset(dataset: Dataset, view: View):
     """Dump the contents of the dataset to the output directory."""
     try:
         context = Context(dataset)
         with engine_tx() as conn:
             clear_resources(conn, dataset, category=EXPORT_CATEGORY)
             issues = list(all_issues(conn, dataset))
-        view = store.view(dataset)
         export_data(context, view)
 
         # Export list of data issues from crawl stage
@@ -86,10 +84,8 @@ def export_dataset(dataset: Dataset, store: AppStore):
 def export(scope_name: str, recurse: bool = False) -> None:
     """Export dump files for all datasets in the given scope."""
     scope = Dataset.require(scope_name)
-    resolver = get_resolver()
-    store = AppStore(scope, resolver)
-    store.build()
-    store.view(scope)
+    store = get_store(scope)
     exports = scope.datasets if recurse else [scope]
     for dataset_ in exports:
-        export_dataset(dataset_, store)
+        view = store.view(dataset_)
+        export_dataset(dataset_, view)

@@ -4,7 +4,7 @@ from nomenklatura.xref import xref
 from nomenklatura.matching import DefaultAlgorithm, get_algorithm
 
 from opensanctions.core.dataset import Dataset
-from opensanctions.core.store import AppStore
+from opensanctions.core.store import get_store
 from opensanctions.core.resolver import AUTO_USER, get_resolver
 
 log = get_logger(__name__)
@@ -23,8 +23,7 @@ def blocking_xref(
         "Xref running, auto merge threshold: %f; algorithm: %r"
         % (auto_threshold, algorithm)
     )
-    store = AppStore(dataset, resolver)
-    store.build(external=True)
+    store = get_store(dataset, external=True)
     algorithm_type = get_algorithm(algorithm)
     if algorithm_type is None:
         raise ValueError("Invalid algorithm: %s" % algorithm)

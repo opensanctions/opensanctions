@@ -15,7 +15,7 @@ from opensanctions.core import Dataset, Context, setup
 from opensanctions.exporters.statements import export_statements_path
 from opensanctions.exporters.statements import import_statements_path
 from opensanctions.core.audit import audit_resolver
-from opensanctions.core.store import AppStore
+from opensanctions.core.store import get_store, get_view
 from opensanctions.core.resolver import get_resolver
 from opensanctions.core.training import export_training_pairs
 from opensanctions.core.xref import blocking_xref
@@ -136,9 +136,8 @@ def xref_prune():
 @cli.command("dedupe", help="Interactively judge xref candidates")
 @click.option("-d", "--dataset", type=datasets, default=Dataset.ALL)
 def dedupe(dataset):
-    resolver = get_resolver()
     dataset = Dataset.require(dataset)
-    store = AppStore(dataset, resolver)
+    store = get_store(dataset, external=True)
     dedupe_ui(store, url_base="https://opensanctions.org/entities/%s/")
 
 
@@ -219,9 +218,7 @@ def import_statements(infile):
 @click.option("-e", "--external", is_flag=True, default=False)
 def aggregate_(dataset: str, external: bool = False):
     dataset_ = Dataset.require(dataset)
-    resolver = get_resolver()
-    store = AppStore(dataset_, resolver)
-    store.build(external=external)
+    get_store(dataset_, external=external)
 
 
 if __name__ == "__main__":
