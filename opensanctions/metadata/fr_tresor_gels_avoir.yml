@@ -1523,6 +1523,7 @@ lookups:
           incorporationDate: 2002-11-15
           registrationNumber: 1027739552642
       - match: INN 7751002460 KPP 775101001
+        schema: Company
         props:
           innCode: 7751002460
           kppCode: 775101001
@@ -1583,6 +1584,7 @@ lookups:
           incorporationDate: 1996-07-12
           innCode: 1217000287
       - match: "INN (NIF): 3334017070 KPP: 333401001"
+        schema: Company
         props:
           innCode: 3334017070
           kppCode: 333401001
@@ -1665,6 +1667,7 @@ lookups:
           associées: Aleksei Viktorovich Pimanov - Autres informations: Communications;
           organisation enregistrée auprès de l’autorité russe de régulation des médias:
           Numéro d’enregistrement: ИНН 7717653542 КПП 771701001"
+        schema: Company
         props:
           jurisdiction: ru
           legalForm: Société par actions ouverte/OAO
@@ -1794,6 +1797,7 @@ lookups:
       - match: "Personnes ou entités associées: Sergei Shoigu"
         note: true
       - match: INN 5907001774 KPP 590701001 OKPO 07504034
+        schema: Company
         props:
           innCode: 5907001774
           kppCode: 590701001
