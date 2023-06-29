@@ -9,7 +9,7 @@ from opensanctions.core.db import engine_tx
 from opensanctions.core.context import Context
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.external import External
-from opensanctions.core.aggregator import Aggregator
+from opensanctions.core.store import get_view
 from opensanctions.core.statements import cleanup_dataset
 
 
@@ -53,11 +53,10 @@ def enrich(scope_name: str, external_name: str, threshold: float):
     external = cast(External, context.dataset)
     context.bind()
     context.clear(data=False)
-    agggregator = Aggregator(scope, context.resolver, external=False)
-    entities = agggregator.view(scope)
+    view = get_view(scope, external=False)
     enricher = external.get_enricher(context.cache)
     try:
-        for entity_idx, entity in enumerate(entities):
+        for entity_idx, entity in enumerate(view.entities()):
             if entity_idx > 0 and entity_idx % 1000 == 0:
                 context.cache.flush()
             context.log.debug("Enrich query: %r" % entity)

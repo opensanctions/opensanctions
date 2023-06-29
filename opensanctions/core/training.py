@@ -9,7 +9,7 @@ from opensanctions.core.dataset import Dataset
 from opensanctions.core.entity import Entity
 from opensanctions.core.db import engine_read
 from opensanctions.core.statements import entities_datasets
-from opensanctions.core.aggregator import Aggregator
+from opensanctions.core.store import Store, get_store
 from opensanctions.core.resolver import get_resolver, Resolver
 
 log = get_logger(__name__)
@@ -27,10 +27,10 @@ def get_parts(
 
 
 def get_partial(
-    resolver: Resolver, aggregator: Aggregator, spec: Tuple[str, Dataset]
+    resolver: Resolver, store: Store, spec: Tuple[str, Dataset]
 ) -> Optional[Entity]:
     id, ds = spec
-    loader = aggregator.view(ds)
+    loader = store.view(ds, external=True)
     canonical = resolver.get_canonical(id)
     entity = loader.get_entity(canonical)
     if entity is None:
@@ -77,12 +77,12 @@ def export_training_pairs(scope: Dataset):
         negative=judgements.get(Judgement.NEGATIVE, 0),
         unsure=judgements.get(Judgement.UNSURE, 0),
     )
-    aggregator = Aggregator(scope, resolver, external=True)
+    store = get_store(scope, external=True)
     for idx, ((left, right), judgement) in enumerate(pairs.items()):
         if idx > 0 and idx % 10000 == 0:
             log.info("Exported %d pairs..." % idx)
-        left_entity = get_partial(resolver, aggregator, left)
-        right_entity = get_partial(resolver, aggregator, right)
+        left_entity = get_partial(resolver, store, left)
+        right_entity = get_partial(resolver, store, right)
         if left_entity is None or right_entity is None:
             continue
 

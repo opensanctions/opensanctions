@@ -43,6 +43,7 @@ lookups:
           - DNI Argentino para Extranjero
           - CC Colombiana
           - CI Paraguaya
+          - PRONTUARIO PARAGUAYO
         contains:
           - cédula de identidad
           - cedula de identidad

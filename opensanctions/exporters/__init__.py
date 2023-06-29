@@ -1,14 +1,11 @@
 from typing import List, Type
 from zavod.logs import get_logger
-from nomenklatura.loader import Loader
-from nomenklatura.publish.dates import simplify_dates
 
-from opensanctions.core import Context, Dataset, Entity
-from opensanctions.core.aggregator import Aggregator
+from opensanctions.core import Context, Dataset
+from opensanctions.core.store import View, get_store
 from opensanctions.core.issues import all_issues
 from opensanctions.core.db import engine_tx
 from opensanctions.core.resources import clear_resources
-from opensanctions.core.resolver import get_resolver
 from opensanctions.exporters.common import Exporter, EXPORT_CATEGORY
 from opensanctions.exporters.ftm import FtMExporter
 from opensanctions.exporters.nested import NestedJSONExporter
@@ -34,15 +31,11 @@ EXPORTERS: List[Type[Exporter]] = [
 __all__ = ["export_dataset", "export_metadata", "export_statements"]
 
 
-def assemble(entity: Entity) -> Entity:
-    return simplify_dates(entity)
-
-
-def export_data(context: Context, loader: Loader[Dataset, Entity]):
+def export_data(context: Context, view: View):
     clazzes = EXPORTERS
     if not context.dataset.export:
         clazzes = [StatisticsExporter]
-    exporters = [clz(context, loader) for clz in clazzes]
+    exporters = [clz(context, view) for clz in clazzes]
     log.info(
         "Exporting dataset...",
         dataset=context.dataset.name,
@@ -52,7 +45,7 @@ def export_data(context: Context, loader: Loader[Dataset, Entity]):
     for exporter in exporters:
         exporter.setup()
 
-    for idx, entity in enumerate(loader):
+    for idx, entity in enumerate(view.entities()):
         if idx > 0 and idx % 10000 == 0:
             log.info("Exported %s entities..." % idx, dataset=context.dataset.name)
         for exporter in exporters:
@@ -62,15 +55,14 @@ def export_data(context: Context, loader: Loader[Dataset, Entity]):
         exporter.finish()
 
 
-def export_dataset(dataset: Dataset, aggregator: Aggregator):
+def export_dataset(dataset: Dataset, view: View):
     """Dump the contents of the dataset to the output directory."""
     try:
         context = Context(dataset)
         with engine_tx() as conn:
             clear_resources(conn, dataset, category=EXPORT_CATEGORY)
             issues = list(all_issues(conn, dataset))
-        loader = aggregator.view(dataset, assemble)
-        export_data(context, loader)
+        export_data(context, view)
 
         # Export list of data issues from crawl stage
         issues_path = context.get_resource_path("issues.json")
@@ -92,9 +84,8 @@ def export_dataset(dataset: Dataset, aggregator: Aggregator):
 def export(scope_name: str, recurse: bool = False) -> None:
     """Export dump files for all datasets in the given scope."""
     scope = Dataset.require(scope_name)
-    resolver = get_resolver()
-    database = Aggregator(scope, resolver, external=False)
-    database.view(scope)
+    store = get_store(scope)
     exports = scope.datasets if recurse else [scope]
     for dataset_ in exports:
-        export_dataset(dataset_, database)
+        view = store.view(dataset_)
+        export_dataset(dataset_, view)

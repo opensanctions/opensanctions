@@ -15,7 +15,7 @@ from opensanctions.core import Dataset, Context, setup
 from opensanctions.exporters.statements import export_statements_path
 from opensanctions.exporters.statements import import_statements_path
 from opensanctions.core.audit import audit_resolver
-from opensanctions.core.aggregator import Aggregator
+from opensanctions.core.store import get_store
 from opensanctions.core.resolver import get_resolver
 from opensanctions.core.training import export_training_pairs
 from opensanctions.core.xref import blocking_xref
@@ -136,11 +136,9 @@ def xref_prune():
 @cli.command("dedupe", help="Interactively judge xref candidates")
 @click.option("-d", "--dataset", type=datasets, default=Dataset.ALL)
 def dedupe(dataset):
-    resolver = get_resolver()
     dataset = Dataset.require(dataset)
-    db = Aggregator(dataset, resolver, external=True)
-    loader = db.view(dataset)
-    dedupe_ui(resolver, loader, url_base="https://opensanctions.org/entities/%s/")
+    store = get_store(dataset, external=True)
+    dedupe_ui(store, url_base="https://opensanctions.org/entities/%s/")
 
 
 @cli.command("export-pairs", help="Export pairwise judgements")
@@ -220,9 +218,61 @@ def import_statements(infile):
 @click.option("-e", "--external", is_flag=True, default=False)
 def aggregate_(dataset: str, external: bool = False):
     dataset_ = Dataset.require(dataset)
-    resolver = get_resolver()
-    aggregator = Aggregator(dataset_, resolver, external=external)
-    aggregator.build()
+    get_store(dataset_, external=external)
+
+
+@cli.command("db-pack", help="Helper function to pack DB statements")
+def db_pack():
+    import csv
+    from nomenklatura.statement.serialize import PACK_COLUMNS, pack_statement
+    from opensanctions.core.collection import Collection
+    from opensanctions.core.archive import get_backfill_bucket
+    from opensanctions.core.archive import STATEMENTS_RESOURCE
+    from opensanctions.core.statements import all_statements
+    from opensanctions.core.db import engine_read
+
+    bucket = get_backfill_bucket()
+    for dataset in Dataset.all():
+        if dataset.TYPE == Collection.TYPE:
+            continue
+        log.info("Exporting from DB", dataset=dataset.name)
+        # blob_name = f"datasets/latest/{dataset.name}/{STATEMENTS_RESOURCE}"
+        # blob = bucket.get_blob(blob_name)
+        # if blob is not None:
+        #     print("Exists:", blob_name)
+        #     continue
+
+        ds_path = settings.DATASET_PATH / dataset.name
+        ds_path.mkdir(parents=True, exist_ok=True)
+        tmp_path = ds_path / STATEMENTS_RESOURCE
+        with open(tmp_path, "w") as fh:
+            writer = csv.writer(
+                fh,
+                dialect=csv.unix_dialect,
+                quoting=csv.QUOTE_MINIMAL,
+            )
+            with engine_read() as conn:
+                stmts = all_statements(conn, dataset=dataset, external=True)
+                for idx, stmt in enumerate(stmts):
+                    if idx > 0 and idx % 50000 == 0:
+                        log.info("Writing", dataset=dataset.name, idx=idx)
+                    row = pack_statement(stmt)
+                    writer.writerow([row.get(c) for c in PACK_COLUMNS])
+
+        # blob = bucket.blob(blob_name)
+        # blob.upload_from_filename(tmp_path)
+        # print("Uploaded:", blob_name)
+
+
+@cli.command("test-iter", help="xxx")
+def test_iter():
+    from opensanctions.core.archive import iter_dataset_statements
+
+    dataset = Dataset.require("all")
+    for idx, stmt in enumerate(iter_dataset_statements(dataset)):
+        if idx > 0 and idx % 100000 == 0:
+            print(idx)
+        # print(stmt)
 
 
 if __name__ == "__main__":
