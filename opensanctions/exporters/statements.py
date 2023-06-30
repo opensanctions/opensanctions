@@ -6,6 +6,7 @@ from nomenklatura.statement import read_path_statements, CSV
 from nomenklatura.statement import write_statements
 
 from opensanctions import settings
+from opensanctions.core.dataset import Dataset
 from opensanctions.core.db import engine_tx, engine_read
 from opensanctions.core.statements import all_statements, clear_statements
 from opensanctions.core.statements import save_statements
@@ -13,10 +14,10 @@ from opensanctions.core.statements import save_statements
 log = get_logger(__name__)
 
 
-def dump_statements() -> Generator[Statement, None, None]:
+def dump_statements(dataset: Dataset) -> Generator[Statement, None, None]:
     stmt_count = 0
     with engine_read() as conn:
-        for idx, stmt in enumerate(all_statements(conn)):
+        for idx, stmt in enumerate(all_statements(conn, dataset)):
             if idx != 0 and idx % 50000 == 0:
                 log.info("Exporting statements...", count=idx)
             yield stmt
@@ -29,10 +30,10 @@ def export_statements():
     export_statements_path(stmts_path)
 
 
-def export_statements_path(path: Path):
+def export_statements_path(path: Path, dataset: Dataset):
     log.info("Writing global statements list", path=path)
     with open(path, "wb") as fh:
-        write_statements(fh, CSV, dump_statements())
+        write_statements(fh, CSV, dump_statements(dataset))
 
 
 def import_statements_path(path: Path):

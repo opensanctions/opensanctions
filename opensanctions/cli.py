@@ -202,9 +202,11 @@ def audit():
 
 
 @cli.command("export-statements", help="Export statement data as a CSV file")
+@click.option("-d", "--dataset", default=Dataset.ALL, type=datasets)
 @click.argument("outfile", type=click.Path(writable=True))
-def export_statements_csv(outfile):
-    export_statements_path(outfile)
+def export_statements_csv(outfile, dataset):
+    dataset_ = Dataset.require(dataset)
+    export_statements_path(outfile, dataset_)
 
 
 @cli.command("import-statements", help="Import statement data from a CSV file")

@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional, Set, Tuple, Generator
+from typing import Dict, Optional, Set, Tuple, Generator
 from itertools import combinations
 from collections import defaultdict
 from zavod.logs import get_logger
