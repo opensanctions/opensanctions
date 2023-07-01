@@ -2,6 +2,7 @@ import os
 import json
 from typing import Any, Dict, Optional
 from followthemoney import model
+from zavod.parse import format_address
 
 from opensanctions.core import Context
 from opensanctions import helpers as h
@@ -283,12 +284,11 @@ def crawl_company(context: Context, data: Dict[str, Any]):
         # context.emit(rel)
         pass
 
-    address = h.make_address(
-        context,
+    address = format_address(
         street=data.pop("street", None),
         city=data.pop("city", None),
     )
-    h.apply_address(context, entity, address)
+    entity.add("address", address)
 
     if data.pop("state_company", False):
         entity.add("topics", "gov.soe")
