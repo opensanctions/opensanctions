@@ -393,6 +393,9 @@ country:
         - Principality of Serbia
         - Kingdom of Serbia
       value: Serbia
+    - match:
+        - Северная Македония
+      value: North Macedonia
     - match: SCG
       value: CSXX
     - match:
@@ -816,6 +819,7 @@ country:
         - RU
     - match:
         - Ukranian
+        - Оккупированная Россией территория Украины
       value: UA
     - match:
         - Russian SFSR (now Russian Federation)
@@ -837,6 +841,9 @@ country:
       values:
         - SUHH
         - BY
+    - match:
+        - Республика Беларусь
+      value: BY
     - match:
         - Estonian Soviet Socialist Republic
       values:
@@ -893,6 +900,7 @@ country:
       value: Syria
     - match:
         - possibly United Arab Emirates
+        - Объединённые Арабские Эмираты
       value: AE
     - match:
         - former Yugoslavia

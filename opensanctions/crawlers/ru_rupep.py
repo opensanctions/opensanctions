@@ -24,6 +24,10 @@ def clean_wdid(wikidata_id: Optional[str]):
 def person_id(context: Context, id: str, wikidata_id: Optional[str]):
     if wikidata_id is not None:
         return wikidata_id
+    # Sergei Glinka, information in RuPEP doesn't properly reflect he's
+    # left some business relationships.
+    if id == 8095:
+        return None
     return context.make_slug("person", id)
 
 
@@ -54,6 +58,8 @@ def crawl_person(context: Context, data: Dict[str, Any]):
     entity = context.make("Person")
     wikidata_id = clean_wdid(data.pop("wikidata_id", None))
     entity.id = person_id(context, data.pop("id"), wikidata_id)
+    if entity.id is None:
+        return
     entity.add("sourceUrl", data.pop("url_en", None))
     data.pop("url_ru", None)
     entity.add("modifiedAt", data.pop("last_change", None))
@@ -89,8 +95,8 @@ def crawl_person(context: Context, data: Dict[str, Any]):
 
     for country_data in data.pop("related_countries", []):
         rel_type = country_data.pop("relationship_type")
-        country_name = country_data.pop("to_country_en", None)
-        country_name = country_name or country_data.pop("to_country_ru")
+        country_name_en = country_data.pop("to_country_en", None)
+        country_name_ru = country_data.pop("to_country_ru", None)
         # print(country_name)
         res = context.lookup("country_links", rel_type)
         if res is None:
@@ -98,11 +104,13 @@ def crawl_person(context: Context, data: Dict[str, Any]):
                 "Unknown country link",
                 rel_type=rel_type,
                 entity=entity,
-                country=country_name,
+                country_name_en=country_name_en,
+                country_name_ru=country_name_ru,
             )
             continue
         if res.prop is not None:
-            entity.add(res.prop, country_name, original_value=country_name)
+            entity.add(res.prop, country_name_ru, lang="rus")
+            entity.add(res.prop, country_name_en, lang="eng")
         # h.audit_data(country_data)
 
     for rel_data in data.pop("related_persons", []):
@@ -110,6 +118,8 @@ def crawl_person(context: Context, data: Dict[str, Any]):
         other_wdid = clean_wdid(rel_data.pop("person_wikidata_id"))
         other = context.make("Person")
         other.id = person_id(context, rel_data.pop("person_id"), other_wdid)
+        if other.id is None:
+            continue
         other.add("name", rel_data.pop("person_en", None), lang="eng")
         other.add("name", rel_data.pop("person_ru", None), lang="rus")
         other.add("wikidataId", other_wdid)
@@ -182,12 +192,13 @@ def crawl_company(context: Context, data: Dict[str, Any]):
     entity.id = company_id(context, data.pop("id"))
     entity.add("sourceUrl", data.pop("url_en", None))
     data.pop("url_ru", None)
-    entity.add("name", data.pop("name_en", None))
-    entity.add("name", data.pop("name_ru", None))
-    entity.add("name", data.pop("name_suggest_output_ru", None))
+    entity.add("name", data.pop("name_en", None), lang="eng")
+    entity.add("name", data.pop("name_ru", None), lang="rus")
+    entity.add("name", data.pop("name_suggest_output_ru", None), lang="rus")
+    entity.add("name", data.pop("name_suggest_output_en", None), lang="eng")
     entity.add("alias", data.pop("also_known_as", None))
-    entity.add("alias", data.pop("short_name_en", None))
-    entity.add("alias", data.pop("short_name_ru", None))
+    entity.add("alias", data.pop("short_name_en", None), lang="eng")
+    entity.add("alias", data.pop("short_name_ru", None), lang="rus")
     entity.add("incorporationDate", parse_date(data.pop("founded", None)))
     entity.add("dissolutionDate", parse_date(data.pop("closed", None)))
     entity.add("status", data.pop("status_en", data.pop("status_ru", None)))
@@ -197,25 +208,28 @@ def crawl_company(context: Context, data: Dict[str, Any]):
 
     for country_data in data.pop("related_countries", []):
         rel_type = country_data.pop("relationship_type")
-        country_name = country_data.pop("to_country_en", None)
-        country_name = country_name or country_data.pop("to_country_ru")
-        # print(country_name)
+        country_name_en = country_data.pop("to_country_en", None)
+        country_name_ru = country_data.pop("to_country_ru", None)
         res = context.lookup("country_links", rel_type)
         if res is None:
             context.log.warn(
                 "Unknown country link",
                 rel_type=rel_type,
                 entity=entity,
-                country=country_name,
+                country_name_en=country_name_en,
+                country_name_ru=country_name_ru,
             )
             continue
         if res.prop is not None:
-            entity.add(res.prop, country_name)
+            entity.add(res.prop, country_name_ru, lang="rus")
+            entity.add(res.prop, country_name_en, lang="eng")
         # h.audit_data(country_data)
 
     for rel_data in data.pop("related_persons", []):
         other_wdid = clean_wdid(rel_data.pop("person_wikidata_id"))
         other_id = person_id(context, rel_data.pop("person_id"), other_wdid)
+        if other_id is None:
+            continue
 
         rel_type = rel_data.pop("relationship_type_en", None)
         rel_type_ru = rel_data.pop("relationship_type_ru", None)
@@ -282,6 +296,7 @@ def crawl_company(context: Context, data: Dict[str, Any]):
         # rel.add("startDate", parse_date(rel_data.pop("date_established")))
         # rel.add("endDate", parse_date(rel_data.pop("date_finished")))
         # context.emit(rel)
+        # h.audit_data(rel_data)
         pass
 
     address = format_address(
