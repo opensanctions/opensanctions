@@ -1620,7 +1620,7 @@ gender:
         - eunuch
       value: other
 
-fulladdress:
+address:
   # SELECT value, COUNT(entity_id) FROM statement WHERE prop = 'full' GROUP BY value ORDER BY COUNT(*) DESC;
   lowercase: true
   options:
@@ -1630,6 +1630,8 @@ fulladdress:
         - UNKNOWN ADDRESS
         - "Address:"
         - "-"
+        - "."
+        - "XX"
         - "na"
         - "n/a"
         - "ISLE OF MAN"
@@ -1637,8 +1639,24 @@ fulladdress:
         - Lebanon
         - Russia
         - Philippines
+        - BUITENLAND
         - Peru
         - Panama
         - Somalia
         - Turkey
+        - "NONE"
+        - nemá
+        - "203"
+        - "---"
+        - "-----"
+        - "--"
+        - "643"
+        - "616"
+        - "56"
+        - "Ж"
       value: null
+    - match:
+        - Moscow
+        - МОСКВА
+        - МОСКВА, 101000
+      value: Moscow
