@@ -47,9 +47,9 @@ def save_match(
             context.emit(adjacent)
 
 
-def enrich(scope_name: str, external_name: str, threshold: float):
+def enrich(scope_name: str, external_name: str, threshold: float, dry_run: bool):
     scope = Dataset.require(scope_name)
-    context = Context(Dataset.require(external_name))
+    context = Context(Dataset.require(external_name), dry_run=dry_run)
     external = cast(External, context.dataset)
     context.bind()
     context.clear(data=False)

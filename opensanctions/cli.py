@@ -71,8 +71,9 @@ def export_metadata_():
 @click.argument("dataset", type=datasets)
 @click.argument("external", type=datasets)
 @click.option("-t", "--threshold", type=click.FLOAT, default=0.6)
-def enrich_(dataset: str, external: str, threshold: float):
-    if not enrich(dataset, external, threshold):
+@click.option("-d", "--dry-run", is_flag=True, default=False)
+def enrich_(dataset: str, external: str, threshold: float, dry_run: bool):
+    if not enrich(dataset, external, threshold, dry_run):
         sys.exit(1)
 
 
