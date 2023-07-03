@@ -28,9 +28,9 @@ setup(
     zip_safe=False,
     install_requires=[
         "followthemoney == 3.4.3",
-        "nomenklatura == 3.0.3",
+        "nomenklatura == 3.1.0",
         "orjson == 3.9.1",
-        "zavod == 0.7.1",
+        "zavod == 0.7.2",
         "pantomime == 0.6.0",
         "plyvel==1.5.0",
         "sqlalchemy[mypy]",
