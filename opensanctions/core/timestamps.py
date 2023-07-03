@@ -4,13 +4,17 @@ from zavod.logs import get_logger
 from nomenklatura.statement import Statement
 
 from opensanctions import settings
+from opensanctions.core.dataset import Dataset
+from opensanctions.core.statements import all_statements
+from opensanctions.core.db import engine_read
 
 log = get_logger(__name__)
 
 
 class TimeStampIndex(object):
-    def __init__(self) -> None:
-        path = settings.DATA_PATH / "timestamps"
+    def __init__(self, dataset: Dataset) -> None:
+        path = settings.DATA_PATH / "timestamps" / dataset.name
+        path.parent.mkdir(parents=True, exist_ok=True)
         self.db = plyvel.DB(path.as_posix(), create_if_missing=True)
 
     def index(self, statements: Iterable[Statement]) -> None:
@@ -22,6 +26,14 @@ class TimeStampIndex(object):
                 batch.put(stmt.id.encode("utf-8"), stmt.first_seen.encode("utf-8"))
         batch.write()
         log.info("Index ready.", count=idx)
+
+    @classmethod
+    def build(cls, dataset: Dataset) -> "TimeStampIndex":
+        index = cls(dataset)
+        with engine_read() as conn:
+            statements = all_statements(conn, dataset, external=True)
+            index.index(statements)
+        return index
 
     def get(self, id: str) -> str:
         first_seen = self.db.get(id.encode("utf-8"))

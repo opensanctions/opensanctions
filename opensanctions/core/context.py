@@ -222,7 +222,12 @@ class Context(GenericZavod[Entity, Dataset]):
             raise ValueError("Entity has no ID: %r", entity)
         canonical_id = self.resolver.get_canonical(entity.id)
         for stmt in entity.statements:
-            stmt.dataset = self.dataset.name
+            assert stmt.dataset == self.dataset.name, (
+                stmt.prop,
+                entity.default_dataset,
+                stmt.dataset,
+                self.dataset.name,
+            )
             stmt.entity_id = entity.id
             stmt.canonical_id = canonical_id
             stmt.schema = entity.schema.name
@@ -245,7 +250,7 @@ class Context(GenericZavod[Entity, Dataset]):
         self.bind()
         if self.source.disabled:
             self.log.info("Source is disabled")
-            return False
+            return True
         with engine_tx() as conn:
             clear_issues(conn, self.dataset)
             clear_resources(conn, self.dataset, category=self.SOURCE_CATEGORY)

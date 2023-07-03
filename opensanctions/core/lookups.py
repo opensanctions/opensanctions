@@ -27,7 +27,7 @@ def _type_lookup(type_: PropertyType, value: Optional[str]) -> List[str]:
     return lookup.get_values(value, default=[value])
 
 
-def type_lookup(type_: PropertyType, value: Any) -> List[str]:
+def type_lookup(type_: PropertyType, value: Optional[str]) -> List[str]:
     """Given a value and a certain property type, check to see if there is a
     normalised override available. This uses the lookups defined in
     `common.yml`.
