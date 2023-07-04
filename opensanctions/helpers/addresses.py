@@ -18,7 +18,7 @@ def get_formatter() -> AddressFormatter:
 def clean_address(value: Optional[str]) -> Optional[str]:
     if value is None:
         return None
-    lookup = common_lookups().get("address")
+    lookup = common_lookups().get("type.address")
     if lookup is None:
         raise RuntimeError("No fulladdress datapatches are configured.")
     return lookup.get_value(value, default=value)

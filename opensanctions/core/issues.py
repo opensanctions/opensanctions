@@ -3,6 +3,7 @@ from pathlib import Path
 from banal import is_mapping
 from datetime import datetime
 from lxml.etree import _Element, tostring
+from typing import TYPE_CHECKING
 from typing import Any, Dict, Generator, Optional, TypedDict, cast
 from sqlalchemy.future import select
 from sqlalchemy.sql.expression import delete
@@ -13,6 +14,9 @@ from opensanctions import settings
 from opensanctions.core.db import engine_tx
 from opensanctions.core.db import issue_table, Conn
 from opensanctions.core.dataset import Dataset
+
+if TYPE_CHECKING:
+    from opensanctions.core.context import Context
 
 
 class Issue(TypedDict):
@@ -69,6 +73,7 @@ def store_log_event(logger, log_method, data: Dict[str, Any]) -> Dict[str, Any]:
             value = value.name
         data[key] = value
 
+    # context: Optional[Context] = data.pop("_context", None)
     dataset = data.get("dataset", None)
     level = data.get("level")
     if level is not None:

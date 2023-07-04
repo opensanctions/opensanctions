@@ -63,7 +63,10 @@ class Context(GenericZavod[Entity, Dataset]):
         return None
 
     def bind(self) -> None:
-        bind_contextvars(dataset=self.dataset.name)
+        bind_contextvars(
+            dataset=self.dataset.name,
+            # _context=self,
+        )
 
     def close(self) -> None:
         """Flush and tear down the context."""

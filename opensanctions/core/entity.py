@@ -12,6 +12,7 @@ from followthemoney.schema import Schema
 from followthemoney.property import Property
 from nomenklatura.entity import CompositeEntity
 
+from opensanctions.core.dataset import Dataset
 from opensanctions.core.lookups import type_lookup
 
 log = get_logger(__name__)
@@ -30,9 +31,10 @@ class Entity(CompositeEntity):
         model: Model,
         data: Dict[str, Any],
         cleaned: bool = True,
-        default_dataset: str = "default",
+        default_dataset: Optional[str] = None,
     ):
         super().__init__(model, data, cleaned=cleaned, default_dataset=default_dataset)
+        self.dataset = Dataset.get(default_dataset)
         self.last_change: Optional[str] = None
 
     def make_id(self, *parts: Any) -> str:
@@ -51,7 +53,7 @@ class Entity(CompositeEntity):
             return results
         if cleaned:
             return [value]
-        for form in type_lookup(prop.type, value):
+        for form in type_lookup(self.dataset, prop.type, value):
             if len(str(form).strip()) == 0:
                 continue
             clean = prop.type.clean(

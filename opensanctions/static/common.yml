@@ -2,7 +2,7 @@
 # reduction to allow computers to handle humans. If you disagree with any of the
 # political implications of the decisions made in this, please email us at
 # info@opensanctions.org. Let's keep it cool and pragmatic.
-country:
+type.country:
   normalize: true
   lowercase: true
   options:
@@ -1003,7 +1003,7 @@ country:
     - match: Zulu Kingdom
       value: ZA
 
-date:
+type.date:
   options:
     - match:
         - 0001-01-03
@@ -1350,7 +1350,7 @@ date:
     "01.08.1980.": "1980-08-01"
     "11.02.1961 года": "1961-02-11"
 
-email:
+type.email:
   options:
     - match:
         - www.surena gc.com
@@ -1543,7 +1543,7 @@ email:
     - match: 1@xn----jtbuhicc1a.xn--p1ai
       value: 1@р-формер.рф
 
-phone:
+type.phone:
   options:
     - match:
         - "-4874878"
@@ -1551,7 +1551,7 @@ phone:
         - "43294"
       value: null
 
-url:
+type.url:
   options:
     - contains: /het-politiek-college/
       value: null
@@ -1570,7 +1570,7 @@ url:
     - match: Olimpia Teligioridou (facebook)
       value: null
 
-gender:
+type.gender:
   # Welcome to the wonderful world of police databases:
   lowercase: true
   normalize: true
@@ -1620,8 +1620,7 @@ gender:
         - eunuch
       value: other
 
-address:
-  # SELECT value, COUNT(entity_id) FROM statement WHERE prop = 'full' GROUP BY value ORDER BY COUNT(*) DESC;
+type.address:
   lowercase: true
   options:
     - match:
