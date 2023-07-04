@@ -30,6 +30,27 @@ data:
   lang: fra
 
 lookups:
+  type.address:
+    lowercase: true
+    options:
+      - match:
+          - "-"
+          - Qatar
+        value: null
+  type.email:
+    options:
+      - contains: hotelminsk@udp.gov.by
+        values:
+          - hotelminsk@udp.gov.by
+          - marketing@hotelminsk.by
+  type.gender:
+    lowercase: true
+    normalize: true
+    options:
+      - match: Masculin
+        value: male
+      - match: Féminin
+        value: female
   identification:
     lowercase: true
     options:

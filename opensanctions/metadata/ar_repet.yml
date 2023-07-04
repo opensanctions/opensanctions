@@ -50,3 +50,56 @@ lookups:
           - Registro Nacional para
           - CUIL
         value: Identification
+  type.address:
+    lowercase: true
+    options:
+      - match: "-"
+        value: null
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - match: "Branch Office 11: Iran"
+        value: IR
+      - contains: Syrian Arab Republic
+        value: Syria
+      - match:
+          - LIBANÉS
+          - Libyan Arab Jamahiriya
+        value: Libya
+      - match: Kuwaiti citizenship withdrawn in 2002
+        value: null
+      - contains: EL LIBANO
+        value: Lebanon
+      - match: BRASILEÑA
+        value: Brazil
+      - match: Paraguay / Brasil
+        values:
+          - Paraguay
+          - Brazil
+      - match: Tunisian passport
+        value: Tunisia
+      - match: USSR (until 1991)
+        value: SUHH
+      - match: Indonesia (as at Dec. 2003)
+        value: Indonesia
+  type.date:
+    options:
+      - match: "2"
+        value: null
+  type.gender:
+    lowercase: true
+    normalize: true
+    options:
+      - match:
+          - M
+          - MALE
+        value: male
+      - match:
+          - F
+          - Female
+        value: female
+      - match:
+          - null
+          - Unknown
+        value: null

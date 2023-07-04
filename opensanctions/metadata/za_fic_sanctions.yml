@@ -34,3 +34,51 @@ url: "https://www.fic.gov.za/International/sanctions/SitePages/Home.aspx"
 data:
   url: https://transfer.fic.gov.za/public/folder/XNK-dueZDUma9kOqjPWrAA/Downloads/Consolidated%20United%20Nations%20Security%20Council%20Sanctions%20List.xml
   format: XML
+
+lookups:
+  type.address:
+    lowercase: true
+    options:
+      - match:
+          - Lebanon
+          - Philippines
+          - Qatar
+          - Somalia
+          - Turkey
+        value: null
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - contains: Syrian Arab Republic
+        value: Syria
+      - match: Sudanese by birth
+        value: Sudan
+      - match: Kuwaiti citizenship withdrawn in 2002
+        value: null
+      - match: United States. Also believed to hold Syrian nationality
+        values:
+          - US
+          - SY
+      - match: "&#x0D; Pakistan"
+        value: PK
+      - match: Possibly Ethiopian
+        value: Ethiopia
+      - match: Indonesia (as at Dec. 2003)
+        value: Indonesia
+  type.date:
+    options:
+      - match: 2015-03-27-04:00
+        value: 2015-03-27T04:00
+      - match: 2015-07-01-04:00
+        value: 2015-07-01T04:00
+      - match: 1960-01-01-05:00
+        value: 1960-01-01T05:00
+      - match: 1962-11-09-05:00
+        value: 1962-11-09T05:00
+      - match: 2015-04-14-04:00
+        value: 2015-04-14T04:00
+      - match: 1966-02-02-05:00
+        value: 1966-02-02T05:00
+      - match: 2015-04-07-04:00
+        value: 2015-04-07T04:00

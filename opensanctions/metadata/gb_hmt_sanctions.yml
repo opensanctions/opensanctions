@@ -423,3 +423,182 @@ lookups:
         values:
           - Novin Energy
           - TAMAS
+  type.address:
+    lowercase: true
+    options:
+      - match: "-"
+        value: null
+      - match: Moscow
+        value: Moscow
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - match:
+          - Belarusian SSR,
+          - Former USSR
+          - Komi ASSR,
+          - Kyrgyz SSR
+          - Moldovan SSR
+          - Uzbekistan SSR
+          - Yakut Autonomous SSR
+        value: SUHH
+      - match:
+          - Russian SFSR
+          - Russian Soviet Federative Socialist Republic
+          - former USSR Currently Russia
+        values:
+          - SUHH
+          - RU
+      - match:
+          - Ukrainian SSR (now Ukraine)
+          - former USSR, now Ukraine
+        values:
+          - SUHH
+          - UA
+      - match: "-"
+        value: null
+      - match: former USSR, now Azerbaijan
+        values:
+          - SUHH
+          - AZ
+      - match: Repubic of Moldova
+        value: MD
+      - contains: Syrian Arab Republic
+        value: Syria
+      - match: Estonia, Russia
+        values:
+          - EE
+          - RU
+      - match: former USSR, now Kyrgyzstan
+        values:
+          - SUHH
+          - KG
+      - match:
+          - Former USSR Currently Belarus
+          - Former USSR Now Belarus
+        values:
+          - SUHH
+          - BY
+      - match: Afghanistan   Afghanistan
+        value: AF
+      - match: Kazakh Soviet Socialist Republic
+        values:
+          - SUHH
+          - KZ
+      - match: Uzbek SSR
+        values:
+          - SUHH
+          - UZ
+      - match: Occupied Palestinian Territories
+        value: PS
+      - match: to   Morocco
+        value: Morocco
+  type.email:
+    options:
+      - match: "Email: scot50@scn-net.org"
+        value: scot50@scn-net.org
+      - match: (1) mobilisation@novorossia.co (2) novoross24@mail.ru (3) voenkom.dnr@mail.ru
+        values:
+          - mobilisation@novorossia.co
+          - novoross24@mail.ru
+          - voenkom.dnr@mail.ru
+      - match: (1) press@zalivkerch.com (2) sess@zalivkerch.com (3) uzis@zalivkerch.com
+        values:
+          - press@zalivkerch.com
+          - sess@zalivkerch.com
+          - uzis@zalivkerch.com
+      - match:
+          - www.140zavod.by
+          - www.surena gc.com
+        value: null
+      - match: (1) dalzavod@dcss.ru (2) ok@csdalzavod.ru
+        values:
+          - dalzavod@dcss.ru
+          - ok@csdalzavod.ru
+      - match: (1) dashtabadi@partosanat.com (2) Info@partosanat.com
+        values:
+          - dashtabadi@partosanat.com
+          - Info@partosanat.com
+      - match:
+          (1) magnolia.byx@yandex.ua (2) sicomplit@i.ua (3) t_c82@inbox.ru (4)
+          zakupkj@chbrr.crimea.com
+        values:
+          - magnolia.byx@yandex.ua
+          - sicomplit@i.ua
+          - t_c82@inbox.ru
+          - zakupkj@chbrr.crimea.com
+      - match: (1) info@scf-group.ru (2) pr@scf-group.ru (3) ir@scf-group.ru
+        values:
+          - info@scf-group.ru
+          - pr@scf-group.ru
+          - ir@scf-group.ru
+      - match: (1) bk@smpbank.ru (2) Money@smpbank.ru (3) smpbank@smpbank.ru
+        values:
+          - bk@smpbank.ru
+          - Money@smpbank.ru
+          - smpbank@smpbank.ru
+      - match:
+          "(1) www.farhang gostar.net/gtb (2) www.gtbir.com (3) www.taghtiran.ir
+          (Email address): (1) gtb@farhanggostar.net (2) hnourib@yahoo.com (3) office@taghtiran.ir
+          (4) taghtiran@gtbir.com"
+        values:
+          - gtb@farhanggostar.net
+          - hnourib@yahoo.com
+          - office@taghtiran.ir
+          - taghtiran@gtbir.com
+      - match:
+          (1) H.S@nvco.com (2) H.Sharifi@nvco.com (3) info@nvco.com (4) Marketing@nvco.com
+          (5) Mostafavi@nvco.com
+        values:
+          - H.S@nvco.com
+          - H.Sharifi@nvco.com
+          - info@nvco.com
+          - Marketing@nvco.com
+          - Mostafavi@nvco.com
+      - match: (1) spccom1@scs-net.org (2) spccom2@scs-net.org
+        values:
+          - spccom2@scs‐net.org
+          - spccom1@scsnet.org
+      - match: (1) ermakova@intds.ru (2) lantsova@intgs.ru
+        values:
+          - ermakova@intds.ru
+          - lantsova@intgs.ru
+      - match: request@mehr fci.ir
+        value: request@mehr-fci.ir
+      - match: (1) info@radioautomatic.ru (2) sale@radioautomatic.ru
+        values:
+          - info@radioautomatic.ru
+          - sale@radioautomatic.ru
+      - match:
+          (1) info@stepfasteners.com (2) miladjafari@ekolay.net (3) purchase@stepfasteners.com
+          (4) sales@stepfasteners.com
+        values:
+          - info@stepfasteners.com
+          - miladjafari@ekolay.net
+          - purchase@stepfasteners.com
+          - sales@stepfasteners.com
+      - match: (1) mohammadreza.alizadeh@schillernovin.ir (2) schniller@dpimail.net
+        values:
+          - mohammadreza.alizadeh@schillernovin.ir
+          - schniller@dpimail.net
+      - match: and millim@silibank.com
+        value: millim@silibank.com
+      - match: (1) info@zala.aero (2) 20shrhrabota@gmail.com
+        values:
+          - info@zala.aero
+          - 20shrhrabota@gmail.com
+      - match: info@etemad mobin.com
+        value: info@etemad-mobin.com
+  type.gender:
+    lowercase: true
+    normalize: true
+    options:
+      - match: Female
+        value: female
+      - match: MALE
+        value: male
+  type.phone:
+    options:
+      - match: "-4874878"
+        value: null

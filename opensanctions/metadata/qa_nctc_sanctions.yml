@@ -35,3 +35,21 @@ url: https://www.moci.gov.qa/en/anti-money-laundering-and-terrorism-financing/le
 data:
   url: "https://portal.moi.gov.qa/wps/portal/NCTC/sanctionlist/unifiedsanctionlist/!ut/p/a1/hZDLbsIwEEW_pQtv46ljIHRnLBSnTQhUkQBvKtOGYCmJU9vQ329CQarUB7ObozO6mosl3mDZqpOulNemVfWwy_FLMiWUCErSnFMGq3CWFFmYQRyPemHbCyORzmP6BIt4UsxglRNRjJ8FAbi_db_G8kthWQKEQprPea9MRSF4CBAtJxfhv4izAH8MA_yIZVWb3fmfLWt3YVRhact9aUsbHG2PD9537gEBgs5Yr-qgMTqozCl4Vwg-OnflCBa84Aical-HimrtPIJjq_e6fPsOf0s6mIH_CMBdswG9bNaRY3efJl1kaQ!!/dl5/d5/L2dBISEvZ0FBIS9nQSEh/pw/Z7_I9242H42LOC4A0Q3BITM3M0G85/res/id=getSanctionList/c=cacheLevelPage/=/?lang=en&name=&qid=&passport=&listType="
   format: JSON
+
+lookups:
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - contains: Syrian Arab Republic
+        value: Syria
+      - match: Kuwaiti citizenship withdrawn in 2002
+        value: null
+      - match: Indonesia (as at Dec. 2003)
+        value: Indonesia
+  type.date:
+    options:
+      - match: 2015-03-27-04:00
+        value: 2015-03-27T04:00
+      - match: 2015-04-07-04:00
+        value: 2015-04-07T04:00

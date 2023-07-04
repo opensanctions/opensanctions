@@ -49,3 +49,60 @@ lookups:
           - Numéro de passeport
           - Número de pasaporte
         passport: true
+  type.address:
+    lowercase: true
+    options:
+      - match: "-"
+        value: null
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - match:
+          - "Branch Office 11: Iran"
+          - Iran / unknown
+        value: IR
+      - contains: Syrian Arab Republic
+        value: Syria
+      - match:
+          - Indonesia (as at Dec. 2003)
+          - Indonesian passport
+        value: Indonesia
+      - match: Sudanese by birth
+        value: Sudan
+      - match: Kuwaiti citizenship withdrawn in 2002
+        value: null
+      - match:
+          - Sudan/South Sudan
+          - Sudan/or South Sudan
+        values:
+          - Sudan
+          - South Sudan
+      - match: United States. Also believed to hold Syrian nationality
+        values:
+          - US
+          - SY
+      - match: Libyan Arab Jamahiriya
+        value: Libya
+      - match: Possibly Ethiopian
+        value: Ethiopia
+      - match: Tunisian passport
+        value: Tunisia
+      - match: USSR (until 1991)
+        value: SUHH
+  type.date:
+    options:
+      - match: 2015-03-27-04:00
+        value: 2015-03-27T04:00
+      - match: 2015-07-01-04:00
+        value: 2015-07-01T04:00
+      - match: 1960-01-01-05:00
+        value: 1960-01-01T05:00
+      - match: 1962-11-09-05:00
+        value: 1962-11-09T05:00
+      - match: 2015-04-14-04:00
+        value: 2015-04-14T04:00
+      - match: 1966-02-02-05:00
+        value: 1966-02-02T05:00
+      - match: 2015-04-07-04:00
+        value: 2015-04-07T04:00
