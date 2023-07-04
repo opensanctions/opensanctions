@@ -55,3 +55,9 @@ lookups:
     map:
       Firm: Company
       Individual: Person
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - match: Regional
+        value: null

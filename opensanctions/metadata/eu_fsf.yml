@@ -96,3 +96,57 @@ lookups:
         prop: registrationNumber
       - match: fiscalcode
         prop: taxNumber
+
+  type.address:
+    lowercase: true
+    options:
+      - match: Moscow
+        value: Moscow
+      - match: "-"
+        value: null
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - contains: Syrian Arab Republic
+        value: Syria
+  type.email:
+    options:
+      - match:
+          - pac@silibank. com and kndic@co.chesin.com
+          - pac@silibank.com and kndic@co.chesin.com
+        values:
+          - pac@silibank.com
+          - kndic@co.chesin.com
+      - match: sjc117@ hotmail.com
+        value: sjc117@hotmail.com
+      - match: ryonha@ silibank.com
+        value: ryonha@silibank.com
+      - match: helmand_exchange_msp@ yahoo.com
+        value: helmand_exchange_msp@yahoo.com
+      - match: info@hamshointl.com and hamshogrou­p@yahoo.com
+        values:
+          - info@hamshointl.com
+          - hamshogroup@yahoo.com
+      - match: spccom2@scs‐net.org or spccom1@scsnet.org
+        values:
+          - spccom2@scs‐net.org
+          - spccom1@scsnet.org
+      - match: info@metallic-sy.com / shaamco@mail.sy
+        values:
+          - info@metallic-sy.com
+          - shaamco@mail.sy
+      - match: and millim@ silibank.com
+        value: millim@silibank.com
+      - contains: hotelminsk@udp.gov.by
+        values:
+          - hotelminsk@udp.gov.by
+          - marketing@hotelminsk.by
+  type.gender:
+    lowercase: true
+    normalize: true
+    options:
+      - match: M
+        value: male
+      - match: F
+        value: female

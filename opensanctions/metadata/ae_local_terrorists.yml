@@ -135,3 +135,14 @@ lookups:
         # license number
         value: registrationNumber
         lang: ara
+
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - match: السعودية / الكويت
+        values:
+          - Saudi Arabia
+          - Kuweit
+      - match: مصر - مسجون
+        value: Egypt

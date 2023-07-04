@@ -33,3 +33,35 @@ publisher:
 data:
   url: "https://www.fbi.gov/wanted/fugitives/@@castle.cms.querylisting/f7f80a1681ac41a08266bd0920c9d9d8?page=1"
   format: HTML
+
+lookups:
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - match: Salvadoran
+        value: El Salvador
+      - match: Palestinian and possibly Iraqi
+        values:
+          - PS
+          - IQ
+      - match: Palestinian and possibly Lebanese
+        values:
+          - PS
+          - Lebanon
+      - match: Dual American and Russian
+        values:
+          - US
+          - RU
+      - match: Laotian
+        value: Laos
+      - match: Unknown
+        value: null
+  type.gender:
+    lowercase: true
+    normalize: true
+    options:
+      - match: MALE
+        value: male
+      - match: Female
+        value: female

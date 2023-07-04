@@ -30,3 +30,24 @@ url: https://lnadbg4.adb.org/oga0009p.nsf/sancALL1P?OpenView&count=999
 data:
   url: https://lnadbg4.adb.org/oga0009p.nsf/sancALL1P?OpenView&count=999
   format: HTML
+
+lookups:
+  type.address:
+    lowercase: true
+    options:
+      - match:
+          - "-"
+          - Address Unknown
+          - Peru
+          - n/a
+        value: null
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - match: Ecuatorial Guinaea-
+        value: Equatorial Guinea
+      - match: Guinaea-
+        value: Guinea
+      - match: Unknown
+        value: null

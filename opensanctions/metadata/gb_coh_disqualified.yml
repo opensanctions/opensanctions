@@ -48,3 +48,16 @@ url: https://find-and-update.company-information.service.gov.uk/register-of-disq
 data:
   url: https://api.companieshouse.gov.uk/search/disqualified-officers
   format: json
+
+lookups:
+  type.address:
+    lowercase: true
+    options:
+      - match: Unknown
+        value: null
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - match: Other
+        value: null

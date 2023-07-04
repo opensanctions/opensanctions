@@ -42,3 +42,9 @@ lookups:
     map:
       FIRM: Company
       INDIVIDUAL: Person
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - match: Guinée Conakry
+        value: Guinea

@@ -41,3 +41,12 @@ data:
   url: "https://apigwext.worldbank.org/dvsvc/v1.0/json/APPLICATION/ADOBE_EXPRNCE_MGR/FIRM/SANCTIONED_FIRM"
   api_key: z9duUaFUiEUYSHs97CU38fcZO7ipOPvm
   format: JSON
+
+lookups:
+  type.address:
+    lowercase: true
+    options:
+      - match:
+          - "-"
+          - ISLE OF MAN
+        value: null

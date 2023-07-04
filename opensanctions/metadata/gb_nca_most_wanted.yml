@@ -27,3 +27,11 @@ publisher:
 data:
   url: "https://www.nationalcrimeagency.gov.uk/most-wanted"
   format: HTML
+
+lookups:
+  type.gender:
+    lowercase: true
+    normalize: true
+    options:
+      - match: MALE
+        value: male

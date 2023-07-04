@@ -24,3 +24,11 @@ publisher:
 data:
   url: "https://www.politie.nl/en/wanted-and-missing/most-wanted"
   format: HTML
+
+lookups:
+  type.gender:
+    lowercase: true
+    normalize: true
+    options:
+      - match: MALE
+        value: male

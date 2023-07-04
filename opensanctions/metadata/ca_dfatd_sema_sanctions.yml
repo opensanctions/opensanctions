@@ -35,3 +35,21 @@ publisher:
 data:
   url: "https://www.international.gc.ca/world-monde/assets/office_docs/international_relations-relations_internationales/sanctions/sema-lmes.xml"
   format: XML
+
+lookups:
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - contains: (JVCFOR)
+        value: null
+  type.date:
+    options:
+      - match: 1972-08-10 or 1972-08-11
+        values:
+          - 1972-08-10
+          - 1972-08-11
+      - match:
+          - "31801"
+          - "31948"
+        value: null

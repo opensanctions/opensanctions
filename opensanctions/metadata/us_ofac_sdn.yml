@@ -378,3 +378,35 @@ lookups:
           country: country
       - match: Issuer Name
         prop: name
+
+  type.address:
+    lowercase: true
+    options:
+      - match:
+          - "-"
+          - Address Unknown
+          - Lebanon
+          - Panama
+          - Peru
+          - Philippines
+          - Qatar
+          - Russia
+          - Somalia
+          - Turkey
+        value: null
+      - match: Moscow
+        value: Moscow
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - match: None Identified
+        value: null
+  type.gender:
+    lowercase: true
+    normalize: true
+    options:
+      - match: Female
+        value: female
+      - match: MALE
+        value: male

@@ -33,3 +33,23 @@ url: https://www.interpol.int/How-we-work/Notices/View-Red-Notices
 data:
   url: https://ws-public.interpol.int/notices/v1/red
   format: xml
+
+lookups:
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - match:
+          - "914"
+          - "922"
+        value: null
+  type.gender:
+    lowercase: true
+    normalize: true
+    options:
+      - match: M
+        value: male
+      - match: F
+        value: female
+      - match: U
+        value: null

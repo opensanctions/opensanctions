@@ -29,3 +29,15 @@ url: https://docs.google.com/spreadsheets/d/1CLWK2TtmmVLhqkQFzxivwxIjBhwhYDnBYhC
 data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vT3Cn2DtUWUbo9aBH_n60jOrlhITqgAZePRKwBCEafo_7VjPLBfBTmY3zHl4ixYT0a7RiaCu9HS3odV/pub?gid=486983029&single=true&output=csv
   format: JSON
+
+lookups:
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - match: Саудитско гражданство /  афганско гражданство
+        values:
+          - Saudi Arabia
+          - Afghanistan
+      - match: Sanaa, Yemen
+        value: YE

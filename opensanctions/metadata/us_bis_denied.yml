@@ -29,3 +29,19 @@ data:
   url: https://www.bis.doc.gov/dpl/dpl.txt
   format: TSV
   lang: eng
+
+lookups:
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - match: NM
+        value: US
+  type.date:
+    options:
+      - match: "3017-08-22"
+        value: 2017-08-22
+      - match: "3033-09-30"
+        value: null
+      - match: "0203-05-10"
+        value: "2023-05-10"

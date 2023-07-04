@@ -129,3 +129,23 @@ lookups:
         from_prop: subject
         to_prop: object
         desc_prop: role
+
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - match: Республика Беларусь
+        value: BY
+      - match: Оккупированная Россией территория Украины
+        value: UA
+      - match: Оккупированная Россией территория Молдовы
+        value: MD-PMR
+      - match: Северная Македония
+        value: North Macedonia
+      - contains: Syrian Arab Republic
+        value: Syria
+      - match: Объединённые Арабские Эмираты
+        value: AE
+      - match: Territories occupied by Russia
+        values:
+          - UA

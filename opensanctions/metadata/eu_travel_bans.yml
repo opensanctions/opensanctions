@@ -39,3 +39,26 @@ url: https://www.sanctionsmap.eu/#/main/travel/ban
 data:
   url: https://www.sanctionsmap.eu/api/v1/data?
   format: JSON
+
+lookups:
+  type.address:
+    lowercase: true
+    options:
+      - match: Moscow
+        value: Moscow
+      - match: "-"
+        value: null
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - contains: Syrian Arab Republic
+        value: Syria
+  type.gender:
+    lowercase: true
+    normalize: true
+    options:
+      - match: M
+        value: male
+      - match: F
+        value: female

@@ -30,3 +30,13 @@ url: https://www.opensyr.com/
 data:
   url: https://data.opensanctions.org/contrib/opensyr/sy_obsalytics_opensyr_20230201.json
   format: FTM
+
+lookups:
+  type.gender:
+    lowercase: true
+    normalize: true
+    options:
+      - match: Female
+        value: female
+      - match: MALE
+        value: male

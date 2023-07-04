@@ -2,28 +2,44 @@ entry_point: opensanctions.crawlers.eu_europol_wanted
 title: "Europe's most wanted fugitives"
 summary: "Wanted fugitivies listed on a Europol-operated web site."
 description: >
-    Europe's most wanted fugitives is a collaboration of several Fugitive
-    Active Search Teams (ENFAST) in EU Member States, whose administrators
-    upload their countries’ most wanted fugitives, and will directly
-    receive any leads about them.
+  Europe's most wanted fugitives is a collaboration of several Fugitive
+  Active Search Teams (ENFAST) in EU Member States, whose administrators
+  upload their countries’ most wanted fugitives, and will directly
+  receive any leads about them.
 
-    The ENFAST project aims to increase security within the European Union
-    by improving efficiency in tracing and arresting internationally wanted
-    criminals, who committed serious crimes. 
+  The ENFAST project aims to increase security within the European Union
+  by improving efficiency in tracing and arresting internationally wanted
+  criminals, who committed serious crimes. 
 
-    ENFAST is a network of police officers available 24/7 who can immediately
-    undertake action to locate and arrest fugitives.
+  ENFAST is a network of police officers available 24/7 who can immediately
+  undertake action to locate and arrest fugitives.
 prefix: europol
 collections:
-    - default
-    - crime
-    - wanted
+  - default
+  - crime
+  - wanted
 url: https://eumostwanted.eu/
 publisher:
-    name: European Network of Fugitive Active Search Teams
-    country: eu
-    url: https://eumostwanted.eu/enfast
-    official: true
+  name: European Network of Fugitive Active Search Teams
+  country: eu
+  url: https://eumostwanted.eu/enfast
+  official: true
 data:
-    url: https://eumostwanted.eu/
-    format: HTML
+  url: https://eumostwanted.eu/
+  format: HTML
+
+lookups:
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - match: Slovene
+        value: Slovenia
+  type.gender:
+    lowercase: true
+    normalize: true
+    options:
+      - match: MALE
+        value: male
+      - match: Female
+        value: female

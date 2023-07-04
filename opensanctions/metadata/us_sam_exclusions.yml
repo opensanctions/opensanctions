@@ -45,3 +45,25 @@ lookups:
         value: LegalEntity
       - match: Vessel
         value: Vessel
+  type.address:
+    lowercase: true
+    options:
+      - match: Moscow
+        value: Moscow
+      - match:
+          - "-"
+          - Unknown
+          - XX
+        value: null
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - match: XUN
+        value: null
+      - match: ANT
+        value: ANtigua and Barbuda
+      - match: XKS
+        value: XK
+      - match: SCG
+        value: CSXX

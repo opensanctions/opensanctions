@@ -36,3 +36,9 @@ publisher:
 data:
   url: "https://www.publicsafety.gc.ca/cnt/_xml/lstd-ntts-eng.xml"
   format: XML
+
+lookups:
+  type.date:
+    options:
+      - match: Not yet reviewed
+        value: null

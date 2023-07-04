@@ -57,3 +57,23 @@ lookups:
         value: Vessel
       - match: Aircraft
         value: Airplane
+
+  type.address:
+    lowercase: true
+    options:
+      - match: "-"
+        value: null
+      - match: Moscow
+        value: Moscow
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - match: crimea (occupied)
+        value: ua-cri
+      - match: NM
+        value: US
+      - match: china (prc)
+        value: China
+      - match: north korea (dprk)
+        value: North Korea
