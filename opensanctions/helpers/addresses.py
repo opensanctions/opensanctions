@@ -7,7 +7,7 @@ from followthemoney.util import make_entity_id, join_text
 
 from opensanctions.core.context import Context
 from opensanctions.core.entity import Entity
-from opensanctions.core.lookups import common_lookups
+from opensanctions.core.lookups import type_lookup
 
 
 @lru_cache(maxsize=None)
@@ -15,13 +15,12 @@ def get_formatter() -> AddressFormatter:
     return AddressFormatter()
 
 
-def clean_address(value: Optional[str]) -> Optional[str]:
+def clean_address(context: Context, value: Optional[str]) -> Optional[str]:
     if value is None:
         return None
-    lookup = common_lookups().get("type.address")
-    if lookup is None:
-        raise RuntimeError("No fulladdress datapatches are configured.")
-    return lookup.get_value(value, default=value)
+    for clean in type_lookup(context.dataset, registry.address, value):
+        return clean
+    return value
 
 
 def make_address(
@@ -80,7 +79,7 @@ def make_address(
         address.add("country", full_country)
         # full = None
 
-    full = clean_address(full)
+    full = clean_address(context, full)
     address.set("full", full)
 
     if full:
