@@ -198,7 +198,7 @@ class Context(GenericZavod[Entity, Dataset]):
                 continue
             cleaned[key] = value
         if len(cleaned):
-            self.log.warn("Audit: extra data found", data=cleaned)
+            self.log.warn("Unexpected data found", data=cleaned)
 
     def flush(self) -> None:
         """Emitted entities are de-constructed into statements for the database
