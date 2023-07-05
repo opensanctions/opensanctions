@@ -296,9 +296,9 @@ class Context(GenericZavod[Entity, Dataset]):
 
     def clear(self, data: bool = True) -> None:
         """Delete all recorded data for a given dataset."""
-        self.cache.clear()
         with engine_tx() as conn:
             clear_issues(conn, self.dataset)
             clear_resources(conn, self.dataset)
             if data:
+                self.cache.clear()
                 clear_statements(conn, self.dataset)
