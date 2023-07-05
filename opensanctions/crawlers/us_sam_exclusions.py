@@ -107,7 +107,7 @@ def crawl(context: Context):
         # Commercial And Government Entity (CAGE) Code
         row.pop("CAGE", None)
 
-        h.audit_data(row)
+        context.audit_data(row)
         context.emit(sanction)
         context.emit(entity, target=True)
     # print(data_url)

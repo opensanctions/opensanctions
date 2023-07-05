@@ -90,10 +90,10 @@ def crawl_notice(context: Context, notice: Dict[str, Any]):
         sanction.add("country", warrant.pop("issuing_country_id", None))
         sanction.add("reason", warrant.pop("charge"))
         sanction.add("reason", warrant.pop("charge_translation"), lang="eng")
-        h.audit_data(warrant)
+        context.audit_data(warrant)
         context.emit(sanction)
 
-    h.audit_data(notice, ignore=IGNORE_FIELDS)
+    context.audit_data(notice, ignore=IGNORE_FIELDS)
     context.emit(entity, target=True)
 
 

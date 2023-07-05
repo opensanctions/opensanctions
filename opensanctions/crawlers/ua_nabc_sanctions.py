@@ -187,7 +187,7 @@ def crawl_person(context: Context) -> None:
 
         crawl_common(context, entity, row)
         context.emit(entity, target=True)
-        h.audit_data(row)
+        context.audit_data(row)
 
 
 def crawl_company(context: Context) -> None:
@@ -207,7 +207,7 @@ def crawl_company(context: Context) -> None:
         crawl_common(context, entity, row)
         context.emit(entity, target=True)
         row.pop("logo_en", None)
-        h.audit_data(row)
+        context.audit_data(row)
 
 
 def crawl(context: Context) -> None:

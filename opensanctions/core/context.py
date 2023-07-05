@@ -2,8 +2,9 @@ import json
 import hashlib
 import mimetypes
 from pathlib import Path
+from pprint import pformat
 from functools import cached_property
-from typing import Dict, Optional
+from typing import Dict, Optional, Any, List
 from lxml import etree, html
 from sqlalchemy.exc import OperationalError
 from requests.exceptions import RequestException
@@ -184,6 +185,20 @@ class Context(GenericZavod[Entity, Dataset]):
         self, lookup: str, value: Optional[str], dataset: Optional[str] = None
     ) -> Optional[Result]:
         return self.get_lookup(lookup, dataset=dataset).match(value)
+
+    def audit_data(
+        self, data: Dict[Optional[str], Any], ignore: List[str] = []
+    ) -> None:
+        """Print a row if any of the fields not ignored are still unused."""
+        cleaned = {}
+        for key, value in data.items():
+            if key in ignore:
+                continue
+            if value is None or value == "":
+                continue
+            cleaned[key] = value
+        if len(cleaned):
+            self.log.warn("Audit: extra data found", data=cleaned)
 
     def flush(self) -> None:
         """Emitted entities are de-constructed into statements for the database

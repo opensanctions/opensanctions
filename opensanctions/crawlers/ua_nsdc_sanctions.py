@@ -79,7 +79,7 @@ def crawl_item(context: Context, item: Dict[str, Any]) -> None:
     sanction.add("program", decree.pop("number", None))
 
     item.pop("internationalSanctions", None)
-    h.audit_data(item)
+    context.audit_data(item)
 
     context.emit(entity, target=True)
     context.emit(sanction)

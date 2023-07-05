@@ -119,7 +119,7 @@ def crawl_excel(context: Context, url: str):
             sanction.add("startDate", listing_date)
             sanction.add("endDate", row.pop("data_wykreslenia_z_listy", None))
 
-            h.audit_data(row)
+            context.audit_data(row)
             context.emit(entity, target=True)
             context.emit(sanction)
 

@@ -33,7 +33,7 @@ def parse_date(date):
     return h.parse_date(date, ["%d/%m/%Y"])
 
 
-def parse_alias(entity: Entity, alias: Dict[str, str]):
+def parse_alias(context: Context, entity: Entity, alias: Dict[str, str]):
     name_prop = NAME_QUALITY[alias.pop("QUALITY", None)]
     h.apply_name(
         entity,
@@ -41,7 +41,7 @@ def parse_alias(entity: Entity, alias: Dict[str, str]):
         quiet=True,
         name_prop=name_prop,
     )
-    h.audit_data(alias, ignore=["NOTE"])
+    context.audit_data(alias, ignore=["NOTE"])
 
 
 def parse_address(context: Context, data):
@@ -117,7 +117,7 @@ def crawl_persons(context: Context):
             entity.add("birthDate", dob.pop("YEAR", None))
             entity.add("birthDate", dob.pop("FROM_YEAR", None))
             entity.add("birthDate", dob.pop("TO_YEAR", None))
-            h.audit_data(dob, ignore=["NOTE"])
+            context.audit_data(dob, ignore=["NOTE"])
 
         for doc in data.pop("INDIVIDUAL_DOCUMENT", []):
             type_ = doc.pop("TYPE_OF_DOCUMENT", None)
@@ -137,7 +137,7 @@ def crawl_persons(context: Context):
             passport.add("country", doc.pop("COUNTRY_OF_ISSUE", None))
             passport.add("summary", doc.pop("NOTE", None))
             context.emit(passport)
-            h.audit_data(doc, ignore=["CITY_OF_ISSUE"])
+            context.audit_data(doc, ignore=["CITY_OF_ISSUE"])
 
         for addr in data.pop("INDIVIDUAL_ADDRESS", []):
             address = parse_address(context, addr)
@@ -154,9 +154,9 @@ def crawl_persons(context: Context):
             entity.add("birthDate", alias.pop("YEAR", None))
             entity.add("birthPlace", alias.pop("CITY_OF_BIRTH", None))
             entity.add("country", alias.pop("COUNTRY_OF_BIRTH", None))
-            parse_alias(entity, alias)
+            parse_alias(context, entity, alias)
 
-        h.audit_data(data, ["VERSIONNUM"])
+        context.audit_data(data, ["VERSIONNUM"])
         context.emit(entity, target=True)
 
 
@@ -177,9 +177,9 @@ def crawl_entities(context: Context):
             entity.add("incorporationDate", alias.pop("YEAR", None))
             # entity.add("birthPlace", alias.pop("CITY_OF_BIRTH", None))
             entity.add("country", alias.pop("COUNTRY_OF_BIRTH", None))
-            parse_alias(entity, alias)
+            parse_alias(context, entity, alias)
 
-        h.audit_data(data, ["VERSIONNUM"])
+        context.audit_data(data, ["VERSIONNUM"])
         context.emit(entity, target=True)
 
 

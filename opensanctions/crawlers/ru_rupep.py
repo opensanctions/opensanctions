@@ -316,7 +316,7 @@ def crawl_company(context: Context, data: Dict[str, Any]):
         "other_managers",
         "other_recipient",
     ]
-    h.audit_data(data, ignore=ignore)
+    context.audit_data(data, ignore=ignore)
     # print(entity.to_dict())
     context.emit(entity)
 

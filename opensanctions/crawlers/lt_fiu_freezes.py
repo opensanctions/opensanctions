@@ -48,4 +48,4 @@ def crawl(context: Context):
                 rel.add("object", entity)
                 context.emit(rel)
 
-            h.audit_data(data)
+            context.audit_data(data)

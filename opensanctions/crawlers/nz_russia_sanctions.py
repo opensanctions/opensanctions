@@ -85,7 +85,7 @@ def crawl_entity(context: Context, data: Dict[str, Any]) -> None:
 
     context.emit(entity, target=True)
     context.emit(sanction)
-    h.audit_data(data)
+    context.audit_data(data)
 
 
 def crawl(context: Context):

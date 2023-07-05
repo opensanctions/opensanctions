@@ -27,4 +27,4 @@ def crawl(context: Context):
             sanction.add("sourceUrl", row.pop("source_url"))
             context.emit(sanction)
             context.emit(proxy, target=True)
-            h.audit_data(row)
+            context.audit_data(row)

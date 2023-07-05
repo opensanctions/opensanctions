@@ -131,7 +131,7 @@ def parse_result(context: Context, result: Dict[str, Any]):
 
     context.emit(sanction)
     context.emit(entity, target=True)
-    h.audit_data(result, ignore=["standard_order"])
+    context.audit_data(result, ignore=["standard_order"])
 
 
 def crawl(context: Context):

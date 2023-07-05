@@ -113,7 +113,7 @@ def crawl_individuals(context: Context):
 
         context.emit(entity, target=True)
         context.emit(sanction)
-        h.audit_data(record)
+        context.audit_data(record)
 
 
 def crawl_organizations(context: Context):
@@ -187,7 +187,7 @@ def crawl_organizations(context: Context):
 
         context.emit(entity, target=True)
         context.emit(sanction)
-        h.audit_data(record)
+        context.audit_data(record)
 
     for (subject, object) in links:
         subject_id = seq_ids.get(subject)

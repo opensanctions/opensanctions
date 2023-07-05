@@ -65,6 +65,6 @@ def crawl(context: Context):
         sanction.add("provisions", record.pop("EnforcementTypeCode", None))
         # context.inspect(record)
 
-        h.audit_data(record)
+        context.audit_data(record)
         context.emit(entity, target=True)
         context.emit(sanction)

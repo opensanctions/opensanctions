@@ -176,7 +176,7 @@ def parse_location(context: Context, refs: Element, location: Element) -> Entity
         country=country,
         key=location.get("ID"),
     )
-    h.audit_data(parts)
+    context.audit_data(parts)
     return address
 
 
@@ -275,7 +275,7 @@ def parse_distinct_party(
 
     # Alias names
     for alias in identity.findall("Alias"):
-        parse_alias(proxy, refs, parts, alias)
+        parse_alias(context, proxy, refs, parts, alias)
 
     # Registrations and identification documents
     identity_id = identity.get("ID")
@@ -304,7 +304,11 @@ def parse_distinct_party(
 
 
 def parse_alias(
-    proxy: Entity, refs: Element, parts: Dict[str, str], alias: Element
+    context: Context,
+    proxy: Entity,
+    refs: Element,
+    parts: Dict[str, str],
+    alias: Element,
 ) -> None:
     # primary = as_bool(alias.get("Primary"))
     is_weak = as_bool(alias.get("LowQuality"))
@@ -336,7 +340,7 @@ def parse_alias(
             is_weak=is_weak,
             name_prop=name_prop,
         )
-        h.audit_data(names)
+        context.audit_data(names)
 
 
 def parse_id_reg_document(

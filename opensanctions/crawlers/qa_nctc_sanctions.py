@@ -96,13 +96,13 @@ def crawl(context: Context):
         sanction.add("authorityId", sanctions_dto.pop("sanctionId", None), lang="eng")
         sanction.add("program", sanctions_dto.pop("sanctionRegimeEn"), lang="eng")
         sanction.add("program", sanctions_dto.pop("sanctionRegimeAr"), lang="ara")
-        h.audit_data(sanctions_dto)
+        context.audit_data(sanctions_dto)
 
         designation_dto = item.pop("designationDTO", {})
         # h.audit_data(designation_dto)
 
         context.emit(entity, target=True)
-        h.audit_data(
+        context.audit_data(
             item,
             ignore=[
                 "documentStatus",

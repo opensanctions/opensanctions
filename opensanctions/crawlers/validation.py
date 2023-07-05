@@ -45,7 +45,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
         context.emit(rel)
 
     context.emit(entity, target=True)
-    h.audit_data(row)
+    context.audit_data(row)
 
 
 def crawl(context: Context):

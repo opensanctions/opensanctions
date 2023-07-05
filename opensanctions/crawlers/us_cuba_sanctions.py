@@ -22,7 +22,7 @@ def crawl_accommodations(context: Context):
             proxy.add("sourceUrl", row.pop("SourceURL"))
             proxy.add("topics", "sanction")
             context.emit(proxy, target=True)
-            h.audit_data(row, ignore=["City"])
+            context.audit_data(row, ignore=["City"])
 
 
 def crawl_restricted_entities(context: Context):
@@ -53,7 +53,7 @@ def crawl_restricted_entities(context: Context):
 
             context.emit(proxy, target=True)
             context.emit(sanction)
-            h.audit_data(row)
+            context.audit_data(row)
 
 
 def crawl(context: Context):
