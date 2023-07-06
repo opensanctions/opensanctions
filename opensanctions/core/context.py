@@ -69,7 +69,7 @@ class Context(GenericZavod[Entity, Dataset]):
 
     @cached_property
     def timestamps(self) -> "TimeStampIndex":
-        return TimeStampIndex.build(self.dataset, dry_run=self.dry_run)
+        return TimeStampIndex.build(self.dataset)
 
     def bind(self) -> None:
         bind_contextvars(
