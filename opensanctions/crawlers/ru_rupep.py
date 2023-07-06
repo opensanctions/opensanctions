@@ -48,10 +48,9 @@ def split_names(names):
 def parse_date(date):
     if date is None or len(date.strip()) == 0:
         return None
-    # print(date)
-    # if h.check_no_year(date):
-    #     return None
-        date = date.replace("Sept.", "Sep.")
+    if h.check_no_year(date):
+        return None
+    date = date.replace("Sept.", "Sep.")
     return h.parse_date(date, FORMATS)
 
 
@@ -238,12 +237,12 @@ def crawl_company(context: Context, data: Dict[str, Any]):
         rel_type = rel_type or rel_type_ru
         res = context.lookup("person_relations", rel_type)
         if res is None:
-            context.log.info(
-                "Unknown company/person relation type",
-                rel_type=rel_type,
-                entity=entity,
-                other=other_id,
-            )
+            # context.log.info(
+            #     "Unknown company/person relation type",
+            #     rel_type=rel_type,
+            #     entity=entity,
+            #     other=other_id,
+            # )
             continue
 
         if res.schema is None:
