@@ -1,8 +1,6 @@
 from contextlib import contextmanager
 from sqlalchemy.engine import Connection
-from sqlalchemy.types import JSON
 from sqlalchemy import Table, Column, Integer, DateTime, Unicode, Boolean
-from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.dialects.postgresql import insert as upsert_func
 from nomenklatura.db import get_engine, get_metadata
 
@@ -45,20 +43,6 @@ def engine_read():
     with engine.connect() as conn:
         yield conn
 
-
-issue_table = Table(
-    "issue",
-    metadata,
-    Column("id", Integer, primary_key=True),
-    Column("timestamp", DateTime, nullable=False),
-    Column("level", Unicode(KEY_LEN), nullable=False),
-    Column("module", Unicode(KEY_LEN)),
-    Column("dataset", Unicode(KEY_LEN), index=True, nullable=False),
-    Column("message", Unicode(VALUE_LEN)),
-    Column("entity_id", Unicode(KEY_LEN), index=True),
-    Column("entity_schema", Unicode(KEY_LEN)),
-    Column("data", JSON, nullable=False),
-)
 
 resource_table = Table(
     "resource",
