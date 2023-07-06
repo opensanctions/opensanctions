@@ -5,7 +5,7 @@ from banal import as_bool
 from typing import Any, Dict
 from pantomime.types import XLSX
 
-from opensanctions.core import Context
+from opensanctions.core import Context, Entity
 from opensanctions import helpers as h
 
 SCOPES = [
@@ -24,7 +24,7 @@ TYPES = {
 }
 
 
-def parse_date(value: Any):
+def parse_date(value: Any) -> Any:
     if value is None:
         return None
     if isinstance(value, datetime):
@@ -32,6 +32,35 @@ def parse_date(value: Any):
     if isinstance(value, (int, time)):
         return None
     return h.parse_date(value.strip(), ["%d/%m/%Y"])
+
+
+def parse_associates(context: Context, target: Entity, value: str) -> None:
+    splits = value.split(" of", 1)
+    if len(splits) != 2:
+        context.log.warning("Cannot parse associate info", value=value)
+        return
+    link, other = splits
+    other = other.strip().strip("'")
+    entity = context.make("LegalEntity")
+    entity.id = context.make_slug("named", other)
+    entity.add("name", other)
+    context.emit(entity)
+    if link.lower().strip() == "associate":
+        rel = context.make("UnknownLink")
+        rel.id = context.make_id(target.id, entity.id, value)
+        rel.add("subject", target)
+        rel.add("object", entity)
+        rel.add("role", value)
+        context.emit(rel)
+    elif link.lower().strip() == "relative":
+        rel = context.make("Family")
+        rel.id = context.make_id(target.id, entity.id, value)
+        rel.add("person", target)
+        rel.add("relative", entity)
+        rel.add("relationship", value)
+        context.emit(rel)
+    else:
+        context.log.warning("Unknown associate link type", value=value)
 
 
 def crawl_entity(context: Context, data: Dict[str, Any]) -> None:
@@ -73,6 +102,10 @@ def crawl_entity(context: Context, data: Dict[str, Any]) -> None:
     entity.add("nationality", data.pop("Citizenship 3"), quiet=True)
     entity.add("birthPlace", data.pop("Place of Birth"), quiet=True)
     entity.add("passportNumber", data.pop("Passport Number"), quiet=True)
+
+    associates = data.pop("Associates/Relatives", None)
+    if associates is not None:
+        parse_associates(context, entity, associates)
 
     sanction = h.make_sanction(context, entity)
     sanction.add("startDate", data.pop("Date of Sanction"))
