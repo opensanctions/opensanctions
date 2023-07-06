@@ -13,9 +13,6 @@ from opensanctions.core.archive import dataset_resource_path, get_dataset_resour
 from opensanctions.core.archive import ISSUES_LOG_RESOURCE
 from opensanctions.core.dataset import Dataset
 
-if TYPE_CHECKING:
-    from opensanctions.core.context import Context
-
 
 class Issue(TypedDict):
     id: int
@@ -81,13 +78,15 @@ def store_log_event(logger, log_method, data: Dict[str, Any]) -> Dict[str, Any]:
             value = value.name
         data[key] = value
 
-    context: Optional[Context] = data.pop("_context", None)
+    context = data.pop("_context", None)
     dataset = data.get("dataset", None)
     level = data.get("level")
     if level is not None:
         level_num = getattr(logging, level.upper())
         if level_num > logging.INFO and dataset is not None:
-            if context is not None:
+            from opensanctions.core.context import Context
+
+            if context is not None and isinstance(context, Context):
                 context.issues.write(data)
     return data
 
