@@ -99,6 +99,8 @@ def parse_row(context: Context, row):
     sanction.add("unscId", row.pop("UNRef", None))
     sanction.add("status", row.pop("GroupStatus", None))
     sanction.add("reason", row.pop("UKStatementOfReasons", None))
+    sanction.add("summary", row.pop("GroupSanctions", None))
+    sanction.add("modifiedAt", row.pop("DateAdditionalSanctions", None))
 
     last_updated = h.parse_date(row.pop("LastUpdated"), FORMATS)
     sanction.add("modifiedAt", last_updated)
