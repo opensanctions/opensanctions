@@ -2,7 +2,6 @@ import json
 import hashlib
 import mimetypes
 from pathlib import Path
-from pprint import pformat
 from functools import cached_property
 from typing import Dict, Optional, Any, List
 from lxml import etree, html
@@ -20,7 +19,7 @@ from opensanctions import settings
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.entity import Entity
 from opensanctions.core.db import engine, engine_tx, metadata
-from opensanctions.core.issues import clear_issues
+from opensanctions.core.issues import IssueWriter
 from opensanctions.core.resolver import get_resolver
 from opensanctions.core.resources import save_resource, clear_resources
 from opensanctions.core.source import Source
@@ -42,6 +41,7 @@ class Context(GenericZavod[Entity, Dataset]):
     def __init__(self, dataset: Dataset, dry_run: bool = False):
         super().__init__(dataset, Entity, data_path=dataset_path(dataset))
         self.cache = Cache(engine, metadata, dataset, create=True)
+        self.issues = IssueWriter(dataset)
         self.dry_run = dry_run
         self._statements: Dict[str, Statement] = {}
         self._entity_count = 0
@@ -66,14 +66,35 @@ class Context(GenericZavod[Entity, Dataset]):
     def bind(self) -> None:
         bind_contextvars(
             dataset=self.dataset.name,
-            # _context=self,
+            _context=self,
         )
 
     def close(self) -> None:
         """Flush and tear down the context."""
         self.cache.close()
+        self.issues.close()
         super().close()
         clear_contextvars()
+
+        # import yaml
+        # from pprint import pprint
+        # from opensanctions.core.lookups import common_lookups
+
+        # lookups = {}
+        # for name, lookup in common_lookups().items():
+        #     cleaned = lookup.referenced_options()
+        #     if cleaned is not None:
+        #         lookups[name] = cleaned
+
+        # if len(lookups):
+        #     yaml_data = yaml.dump(
+        #         {"lookups": lookups},
+        #         indent=2,
+        #         encoding="utf-8",
+        #         allow_unicode=True,
+        #     )
+        #     with open(self.path / "lookups.yml", "wb") as fh:
+        #         fh.write(yaml_data)
 
     def fetch_response(self, url, headers=None, auth=None):
         self.log.debug("HTTP GET", url=url)
@@ -269,8 +290,8 @@ class Context(GenericZavod[Entity, Dataset]):
         if self.source.disabled:
             self.log.info("Source is disabled")
             return True
+        self.issues.clear()
         with engine_tx() as conn:
-            clear_issues(conn, self.dataset)
             clear_resources(conn, self.dataset, category=self.SOURCE_CATEGORY)
         self.log.info("Begin crawl", run_time=settings.RUN_TIME_ISO)
         self._entity_count = 0
@@ -312,7 +333,7 @@ class Context(GenericZavod[Entity, Dataset]):
     def clear(self, data: bool = True) -> None:
         """Delete all recorded data for a given dataset."""
         with engine_tx() as conn:
-            clear_issues(conn, self.dataset)
+            self.issues.clear()
             clear_resources(conn, self.dataset)
             if data:
                 self.cache.clear()

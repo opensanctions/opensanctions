@@ -7,7 +7,6 @@ from os import environ as env
 from normality import stringify
 
 from nomenklatura import db
-from nomenklatura.util import datetime_iso
 
 
 def env_str(name: str, default: str) -> str:

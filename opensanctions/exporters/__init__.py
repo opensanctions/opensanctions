@@ -61,13 +61,13 @@ def export_dataset(dataset: Dataset, view: View):
         context = Context(dataset)
         with engine_tx() as conn:
             clear_resources(conn, dataset, category=EXPORT_CATEGORY)
-            issues = list(all_issues(conn, dataset))
         export_data(context, view)
 
         # Export list of data issues from crawl stage
         issues_path = context.get_resource_path("issues.json")
         context.log.info("Writing dataset issues list", path=issues_path)
         with open(issues_path, "wb") as fh:
+            issues = list(all_issues(dataset))
             data = {"issues": issues}
             write_json(data, fh)
 

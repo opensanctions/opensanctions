@@ -1,4 +1,4 @@
-from opensanctions.core import Context, Dataset, Entity
+from opensanctions.core import Context, Entity
 from opensanctions.core.store import View
 
 EXPORT_CATEGORY = "export"

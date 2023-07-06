@@ -16,6 +16,7 @@ StatementGen = Generator[Statement, None, None]
 BLOB_BASE = f"datasets/{settings.BACKFILL_VERSION}"
 BLOB_CHUNK = 40 * 1024 * 1024
 STATEMENTS_RESOURCE = "statements.pack"
+ISSUES_LOG_RESOURCE = "issues.log.json"
 INDEX_RESOURCE = "index.json"
 FTM_RESOURCE = "entities.ftm.json"
 

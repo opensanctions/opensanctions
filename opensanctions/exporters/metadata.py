@@ -6,7 +6,7 @@ from zavod.logs import get_logger
 from nomenklatura.matching import MatcherV1
 
 from opensanctions import settings
-from opensanctions.core.db import engine_tx, engine_read
+from opensanctions.core.db import engine_tx
 from opensanctions.core.archive import get_dataset_resource, INDEX_RESOURCE
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.issues import all_issues, agg_issues_by_level
@@ -32,8 +32,8 @@ def dataset_to_index(dataset: Dataset) -> Dict[str, Any]:
     meta["last_export"] = settings.RUN_TIME
     meta["index_url"] = dataset.make_public_url("index.json")
     meta["issues_url"] = dataset.make_public_url("issues.json")
+    meta["issue_levels"] = agg_issues_by_level(dataset)
     with engine_tx() as conn:
-        meta["issue_levels"] = agg_issues_by_level(conn, dataset)
         meta["resources"] = list(all_resources(conn, dataset))
     meta["issue_count"] = sum(meta["issue_levels"].values())
     return meta
@@ -43,6 +43,7 @@ def export_metadata():
     """Export the global index for all datasets."""
     datasets = []
     schemata = set()
+    all = Dataset.require(Dataset.ALL)
     for dataset in Dataset.all():
         ds_path = get_dataset_resource(dataset, INDEX_RESOURCE)
         if ds_path is None or not ds_path.exists():
@@ -53,12 +54,10 @@ def export_metadata():
                 schemata.update(ds_data.get("schemata", []))
                 datasets.append(ds_data)
 
-    with engine_read() as conn:
-        issues = list(all_issues(conn))
-
     issues_path = settings.DATASET_PATH.joinpath("issues.json")
     log.info("Writing global issues list", path=issues_path)
     with open(issues_path, "wb") as fh:
+        issues = all_issues(all)
         data = {"issues": issues}
         write_json(data, fh)
 
