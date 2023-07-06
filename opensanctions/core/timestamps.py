@@ -28,9 +28,8 @@ class TimeStampIndex(object):
         log.info("Index ready.", count=idx)
 
     @classmethod
-    def build(cls, dataset: Dataset, dry_run: bool = False) -> "TimeStampIndex":
+    def build(cls, dataset: Dataset) -> "TimeStampIndex":
         index = cls(dataset)
-        if not dry_run:
         with engine_read() as conn:
             statements = all_statements(conn, dataset, external=True)
             index.index(statements)
