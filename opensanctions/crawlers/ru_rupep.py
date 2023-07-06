@@ -46,9 +46,11 @@ def split_names(names):
 
 
 def parse_date(date):
-    if h.check_no_year(date):
+    if date is None or len(date.strip()) == 0:
         return None
-    if date is not None:
+    # print(date)
+    # if h.check_no_year(date):
+    #     return None
         date = date.replace("Sept.", "Sep.")
     return h.parse_date(date, FORMATS)
 
@@ -260,6 +262,7 @@ def crawl_company(context: Context, data: Dict[str, Any]):
         rel.add("modifiedAt", parse_date(rel_data.pop("date_confirmed")))
         rel.add("startDate", parse_date(rel_data.pop("date_established")))
         rel.add("endDate", parse_date(rel_data.pop("date_finished")))
+        context.audit_data(rel_data, ignore=["is_pep", "person_ru", "person_en"])
         context.emit(rel)
 
     for rel_data in data.pop("related_companies", []):

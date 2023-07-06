@@ -227,9 +227,9 @@ def aggregate_(dataset: str, external: bool = False):
 @cli.command("db-pack", help="Helper function to pack DB statements")
 def db_pack():
     import csv
-    from nomenklatura.statement.serialize import PACK_COLUMNS, pack_statement
+    from nomenklatura.statement.serialize import PackStatementWriter
     from opensanctions.core.collection import Collection
-    from opensanctions.core.archive import get_backfill_bucket
+    from opensanctions.core.archive import get_backfill_bucket, dataset_resource_path
     from opensanctions.core.archive import STATEMENTS_RESOURCE
     from opensanctions.core.statements import all_statements
     from opensanctions.core.db import engine_read
@@ -245,37 +245,20 @@ def db_pack():
         #     print("Exists:", blob_name)
         #     continue
 
-        ds_path = settings.DATASET_PATH / dataset.name
-        ds_path.mkdir(parents=True, exist_ok=True)
-        tmp_path = ds_path / STATEMENTS_RESOURCE
-        with open(tmp_path, "w") as fh:
-            writer = csv.writer(
-                fh,
-                dialect=csv.unix_dialect,
-                quoting=csv.QUOTE_MINIMAL,
-            )
+        stmt_path = dataset_resource_path(dataset, STATEMENTS_RESOURCE)
+        with open(stmt_path, "wb") as fh:
+            writer = PackStatementWriter(fh)
             with engine_read() as conn:
                 stmts = all_statements(conn, dataset=dataset, external=True)
                 for idx, stmt in enumerate(stmts):
                     if idx > 0 and idx % 50000 == 0:
                         log.info("Writing", dataset=dataset.name, idx=idx)
-                    row = pack_statement(stmt)
-                    writer.writerow([row.get(c) for c in PACK_COLUMNS])
+                    writer.write(stmt)
+            # writer.close()
 
         # blob = bucket.blob(blob_name)
         # blob.upload_from_filename(tmp_path)
         # print("Uploaded:", blob_name)
-
-
-@cli.command("test-iter", help="xxx")
-def test_iter():
-    from opensanctions.core.archive import iter_dataset_statements
-
-    dataset = Dataset.require("all")
-    for idx, stmt in enumerate(iter_dataset_statements(dataset)):
-        if idx > 0 and idx % 100000 == 0:
-            print(idx)
-        # print(stmt)
 
 
 if __name__ == "__main__":

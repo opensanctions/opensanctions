@@ -86,3 +86,51 @@ lookups:
         contains:
           - member of the Commission
         schema: null
+
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - match:
+          - Организация Объединенных Наций
+          - United Nations
+        value: null
+      - match: Республика Беларусь
+        value: BY
+      - match: Оккупированная Россией территория Украины
+        value: UA
+      - match: Оккупированная Россией территория Молдовы
+        value: MD-PMR
+      - match: Северная Македония
+        value: North Macedonia
+      - contains: Syrian Arab Republic
+        value: Syria
+      - match: Объединённые Арабские Эмираты
+        value: AE
+      - match: Territories occupied by Russia
+        values:
+          - UA
+      - match: Бермудские острова
+        value: BM
+      - match: Багамские Острова
+        value: BS
+      - match: Британские Виргинские острова
+        value: VG
+      - match: Сейшельские Острова
+        value: SC
+      - match: Южная Корея
+        value: KR
+      - match: Острова Кайман
+        value: KY
+      - match: Европейский союз
+        value: EU
+      - match: ДР Конго
+        value: CD
+      - match: Мьянма
+        value: MM
+      - match: Северная Корея
+        value: KP
+      - match: Остров Мэн
+        value: IM
+      - match: Маршалловы Острова
+        value: MH
