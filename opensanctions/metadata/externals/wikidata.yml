@@ -83,6 +83,7 @@ lookups:
           - Emirate of Granada
           - Emirate of Transjordan
           - Estado Novo
+          - Fatimid Caliphate
           - Federation of Rhodesia and Nyasaland
           - First Czechoslovak Republic
           - First Saudi State
@@ -99,7 +100,9 @@ lookups:
           - Grand Duchy of Moscow
           - Grand Duchy of Oldenburg
           - Great Socialist People's Libyan Arab Jamahiriya
+          - Hadhramaut
           - Hatay State
+          - Han dynasty
           - Holy Roman Empire
           - Imperial China
           - Iraqi Republic (1958–1968)
@@ -110,6 +113,7 @@ lookups:
           - Julian March
           - Khmer Republic
           - Khwarezmian Empire
+          - Kashmir
           - Kievan Rus'
           - Kingdom of Bohemia
           - Kingdom of Bulgaria
@@ -137,6 +141,7 @@ lookups:
           - Margraviate of Moravia
           - Marinid Dynasty
           - Ming dynasty
+          - Min
           - Mughal Empire
           - Mutawakkilite Kingdom of Yemen
           - Najaf
@@ -192,6 +197,7 @@ lookups:
           - Sultanate of Egypt
           - Tahiti
           - Taifa of Dénia
+          - Taifa of Seville
           - Taiwan under Japanese rule
           - Tang dynasty
           - Terengganu
@@ -211,6 +217,8 @@ lookups:
           - Western Wei
           - Wu guo
           - Wuyue
+          - Viceroyalty of Peru
+          - Xiongnu
           - Yuan dynasty
           - Zand dynasty
           - Ziyarid dynasty
@@ -299,6 +307,8 @@ lookups:
         value: Egypt
       - match: Captaincy General of Cuba
         value: Cuba
+      - match: Colonial Brazil
+        value: Brazil
       - match: Latvian Soviet Socialist Republic
         values:
           - SUHH
