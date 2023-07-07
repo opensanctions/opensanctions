@@ -58,7 +58,7 @@ def export_metadata():
     log.info("Writing global issues list", path=issues_path)
     with open(issues_path, "wb") as fh:
         issues = all_issues(all)
-        data = {"issues": issues}
+        data = {"issues": list(issues)}
         write_json(data, fh)
 
     index_path = settings.DATASET_PATH.joinpath(INDEX_RESOURCE)
