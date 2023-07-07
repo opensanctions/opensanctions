@@ -31,3 +31,25 @@ config:
     - Company
     - Organization
     # - LegalEntity
+
+lookups:
+  type.address:
+    lowercase: true
+    options:
+      - match:
+          - NONE
+          - Panama
+        value: null
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - match:
+          - IRLANDE, ou EIRE
+          - Irlande /Eire/
+        values:
+          - IE
+      - match: Union d.Rép.Soc.Soviét.
+        value: SUHH
+      - match: Géorgie ( Rép. )
+        value: GE

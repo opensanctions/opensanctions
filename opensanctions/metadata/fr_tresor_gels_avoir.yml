@@ -1881,3 +1881,22 @@ lookups:
           jurisdiction: ru
           incorporationDate: 2015-03-10
           registrationNumber: 1157746176400
+      - match: "Lieu d'enregistrement: Fédération de Russie (193091, Saint Petersbourg, nab. Oktiabrskaia, 6,litera v, pomeshch. 8-n) - Date d'enregistrement: 25.8.2015 - Principal établissement: Fédération de Russie: 7811227439 (numéro d'identification fiscale)"
+        props:
+          jurisdiction: ru
+          address: "193091, Saint Petersbourg, nab. Oktiabrskaia, 6,litera v, pomeshch. 8-n"
+          incorporationDate: 2015-08-25
+          innCode: 7811227439
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 10.3.2015: Numéro d'enregistrement: 1157746176400"
+        props:
+          legalForm: "société par actions"
+          jurisdiction: ru
+          incorporationDate: 2015-03-10
+          registrationNumber: 1157746176400
+      - match: "Type d'entité: Propriété russe mixte avec une part de propriété fédérale - Lieu d'enregistrement: Fédération de Russie, 602205, région de Vladimir, Murom, 30 Let Pobedy St., 1a. - Date d'enregistrement: 1.7.2011 - Principal établissement: Fédération de Russie: Numéro d'enregistrement: 1113334001879"
+        props:
+          legalForm: "Propriété russe mixte avec une part de propriété fédérale"
+          jurisdiction: ru
+          address: "602205, région de Vladimir, Murom, 30 Let Pobedy St., 1a"
+          incorporationDate: 2011-07-01
+          registrationNumber: 1113334001879
