@@ -30,11 +30,11 @@ class Entity(CompositeEntity):
         self,
         model: Model,
         data: Dict[str, Any],
-        dataset: Dataset,
         cleaned: bool = True,
+        default_dataset: Dataset = None,
     ):
-        super().__init__(model, data, cleaned=cleaned, default_dataset=dataset)
-        self.default_dataset: Dataset = dataset
+        super().__init__(model, data, cleaned=cleaned, default_dataset=default_dataset)
+        self.default_dataset: Dataset = default_dataset
         self.last_change: Optional[str] = None
 
     def make_id(self, *parts: Any) -> str:
