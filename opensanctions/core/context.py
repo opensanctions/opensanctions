@@ -3,13 +3,15 @@ import hashlib
 import mimetypes
 from pathlib import Path
 from functools import cached_property
-from typing import Dict, Optional, Any, List
+from typing import Dict, Optional, Any, List, Union
 from lxml import etree, html
 from sqlalchemy.exc import OperationalError
 from requests.exceptions import RequestException
 from datapatch import LookupException, Result, Lookup
 from zavod.context import GenericZavod
 from structlog.contextvars import clear_contextvars, bind_contextvars
+from followthemoney import model
+from followthemoney.schema import Schema
 from nomenklatura.cache import Cache
 from nomenklatura.util import normalize_url
 from nomenklatura.resolver import Resolver
@@ -230,6 +232,11 @@ class Context(GenericZavod[Entity, Dataset]):
             cleaned[key] = value
         if len(cleaned):
             self.log.warn("Unexpected data found", data=cleaned)
+
+    def make(self, schema: Union[str, Schema]) -> Entity:
+        """Make a new entity with some dataset context set."""
+        data = {"schema": schema}
+        return self.entity_type(model, data, dataset=self.dataset)
 
     def flush(self) -> None:
         """Emitted entities are de-constructed into statements for the database
