@@ -39,3 +39,10 @@ config:
     # - LegalEntity
     # - Person
   cache_days: 90
+
+lookups:
+  type.address:
+    lowercase: true
+    options:
+      - match: МОСКВА, 101000
+        value: Moscow
