@@ -30,11 +30,11 @@ class Entity(CompositeEntity):
         self,
         model: Model,
         data: Dict[str, Any],
+        dataset: Dataset,
         cleaned: bool = True,
-        default_dataset: Optional[str] = None,
     ):
-        super().__init__(model, data, cleaned=cleaned, default_dataset=default_dataset)
-        self.dataset = Dataset.get(default_dataset)
+        super().__init__(model, data, cleaned=cleaned, default_dataset=dataset)
+        self.default_dataset: Dataset = dataset
         self.last_change: Optional[str] = None
 
     def make_id(self, *parts: Any) -> str:
@@ -53,7 +53,7 @@ class Entity(CompositeEntity):
             return results
         if cleaned:
             return [value]
-        for form in type_lookup(self.dataset, prop.type, value):
+        for form in type_lookup(self.default_dataset, prop.type, value):
             if len(str(form).strip()) == 0:
                 continue
             clean = prop.type.clean(

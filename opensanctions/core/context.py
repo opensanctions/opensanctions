@@ -273,7 +273,7 @@ class Context(GenericZavod[Entity, Dataset]):
         for stmt in entity.statements:
             assert stmt.dataset == self.dataset.name, (
                 stmt.prop,
-                entity.default_dataset,
+                entity.default_dataset.name,
                 stmt.dataset,
                 self.dataset.name,
             )
