@@ -71,6 +71,7 @@ def enrich(scope_name: str, external_name: str, threshold: float, dry_run: bool)
         with engine_tx() as conn:
             cleanup_dataset(conn, context.dataset)
         context.resolver.save()
+        context.log.info("Enrichment process complete.")
         return True
     except KeyboardInterrupt:
         return False
