@@ -6,6 +6,8 @@ This subdirectory contains the code for a refactoring of OpenSanctions. The goal
 * Handle datasets with different sizes, up to very large data volumes.
 * Have a well-documented crawling framework that makes it easy to contribute.
 
+Previous file-based attempt:
+* https://github.com/opensanctions/opensanctions/commit/3c32af1bcd218f0bf17eec48774c9994fd7a4afb 
 
 ### zavod
 
