@@ -1,0 +1,13 @@
+*.pyc
+*.DS_Store
+*.sqlite3
+*.egg-info
+_store/*
+.env
+.mypy_cache
+.coverage
+htmlcov/
+build/
+dist/
+data/
+textual.log
