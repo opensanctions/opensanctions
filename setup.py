@@ -47,7 +47,7 @@ setup(
         "pyicu < 2.12.0",
         "openpyxl == 3.1.0",
         "xlrd == 2.0.1",
-        "lxml == 4.9.2",
+        "lxml == 4.9.3",
         "lxml-stubs == 0.4.0",
     ],
     extras_require={
