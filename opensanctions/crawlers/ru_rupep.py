@@ -112,7 +112,13 @@ def crawl_person(context: Context, data: Dict[str, Any]):
         if res.prop is not None:
             entity.add(res.prop, country_name_ru, lang="rus")
             entity.add(res.prop, country_name_en, lang="eng")
-        context.audit_data(country_data)
+        ignores = [
+            "country_code",
+            "date_established",
+            "date_confirmed",
+            "date_finished",
+        ]
+        context.audit_data(country_data, ignore=ignores)
 
     for rel_data in data.pop("related_persons", []):
         other_pep = rel_data.pop("is_pep", False)
