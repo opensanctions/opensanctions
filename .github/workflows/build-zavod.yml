@@ -35,6 +35,8 @@ jobs:
       - name: Build a distribution
         run: |
           python setup.py sdist bdist_wheel
+          ls -l dist/
+          pwd
       - name: Publish a Python distribution to PyPI
         if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/zavod')
         uses: pypa/gh-action-pypi-publish@release/v1
@@ -42,3 +44,4 @@ jobs:
           user: __token__
           password: ${{ secrets.pypi_password }}
           skip-existing: true
+          packages-dir: nextgen/dist
