@@ -19,7 +19,7 @@ def load_yaml(file_path):
 @lru_cache(maxsize=None)
 def common_lookups():
     common_path = settings.STATIC_PATH.joinpath("common.yml")
-    return get_lookups(load_yaml(common_path))
+    return get_lookups(load_yaml(common_path), debug=True)
 
 
 @lru_cache(maxsize=20000)

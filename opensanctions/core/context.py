@@ -51,6 +51,9 @@ class Context(GenericZavod[Entity, Dataset]):
         self._entity_count = 0
         self._statement_count = 0
 
+        common_lookups.cache_clear()
+        _type_lookup.cache_clear()
+
     @property
     def source(self) -> Source:
         if isinstance(self.dataset, Source):
