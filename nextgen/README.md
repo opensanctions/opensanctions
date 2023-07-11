@@ -1,12 +1,10 @@
-# OpenSanctions NG
+# OpenSanctions Development Area
 
 This subdirectory contains the code for a refactoring of OpenSanctions. The goals are as follows:
 
 * Allow crawlers to run fully independently.
 * Handle datasets with different sizes, up to very large data volumes.
-* Have a well-documented crawling framework
-
-
+* Have a well-documented crawling framework that makes it easy to contribute.
 
 
 ### zavod

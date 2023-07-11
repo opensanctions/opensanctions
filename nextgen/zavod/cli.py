@@ -9,3 +9,8 @@ log = get_logger(__name__)
 @click.group(help="Zavod data factory")
 def cli() -> None:
     configure_logging(level=logging.INFO)
+
+
+@cli.command("run", help="Run a specific dataset crawler")
+def run() -> None:
+    pass

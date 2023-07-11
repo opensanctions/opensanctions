@@ -15,16 +15,6 @@ def env_str(name: str, default: str) -> str:
     return default if value is None else value
 
 
-# Update the data every day (not totally trying to make this flexible yet,
-# since a day seems like a pretty good universal rule).
-INTERVAL = 84600
-
-# HTTP cache expiry may last multiple runs
-CACHE_EXPIRE = INTERVAL * 7
-
-# Processing threads
-THREADS = 4
-
 # All data storage (e.g. a Docker volume mount)
 DATA_PATH = Path.cwd().joinpath("data")
 DATA_PATH = Path(env.get("OPENSANCTIONS_DATA_PATH", DATA_PATH)).resolve()
@@ -69,9 +59,6 @@ STATIC_PATH = Path(env.get("OPENSANCTIONS_STATIC_PATH", STATIC_PATH)).resolve()
 RESOLVER_PATH = env.get("OPENSANCTIONS_RESOLVER_PATH")
 if RESOLVER_PATH is None:
     raise RuntimeError("Please set $OPENSANCTIONS_RESOLVER_PATH.")
-
-# Do not edit manually, use the release process
-VERSION = "3.2.0"
 
 # User agent
 USER_AGENT = f"Mozilla/5.0 (any)"
