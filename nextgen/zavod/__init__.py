@@ -12,7 +12,7 @@ from zavod.logs import configure_logging, get_logger
 from zavod.sinks.common import Sink
 from zavod.sinks.json_entity import JSONEntitySink
 
-__version__ = "0.7.4"
+__version__ = "0.7.5"
 __all__ = [
     "init",
     "context",
