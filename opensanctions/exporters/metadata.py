@@ -74,6 +74,5 @@ def export_metadata():
             "schemata": list(schemata),
             "matcher": MatcherV1.explain(),
             "app": "opensanctions",
-            "version": settings.VERSION,
         }
         write_json(meta, fh)
