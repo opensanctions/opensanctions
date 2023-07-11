@@ -87,14 +87,14 @@ jobs:
       - name: Clear all data
         run: |
           opensanctions clear-workdir all
-      - name: Build a distribution
-        run: |
-          python setup.py sdist bdist_wheel
-      - name: Publish opensanctions to PyPI
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
-        uses: pypa/gh-action-pypi-publish@master
-        with:
-          user: __token__
-          password: ${{ secrets.pypi_password }}
-          packages_dir: dist/
-          skip_existing: true
+      # - name: Build a distribution
+      #   run: |
+      #     python setup.py sdist bdist_wheel
+      # - name: Publish opensanctions to PyPI
+      #   if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+      #   uses: pypa/gh-action-pypi-publish@master
+      #   with:
+      #     user: __token__
+      #     password: ${{ secrets.pypi_password }}
+      #     packages_dir: dist/
+      #     skip_existing: true
