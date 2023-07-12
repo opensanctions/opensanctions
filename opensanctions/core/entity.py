@@ -185,7 +185,6 @@ class Entity(CompositeEntity):
 
     def to_dict(self) -> Dict[str, Any]:
         data = super().to_dict()
-        data["caption"] = self.caption
         data["target"] = self.target or False
         data["last_change"] = self.last_change
         return data
