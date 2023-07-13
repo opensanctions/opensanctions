@@ -239,11 +239,11 @@ def db_pack():
         if dataset.TYPE == Collection.TYPE:
             continue
         log.info("Exporting from DB", dataset=dataset.name)
-        # blob_name = f"datasets/latest/{dataset.name}/{STATEMENTS_RESOURCE}"
-        # blob = bucket.get_blob(blob_name)
-        # if blob is not None:
-        #     print("Exists:", blob_name)
-        #     continue
+        blob_name = f"datasets/latest/{dataset.name}/{STATEMENTS_RESOURCE}"
+        blob = bucket.get_blob(blob_name)
+        if blob is not None:
+            log.info("Exists: %r" % blob_name)
+            continue
 
         stmt_path = dataset_resource_path(dataset, STATEMENTS_RESOURCE)
         with open(stmt_path, "wb") as fh:
@@ -254,11 +254,10 @@ def db_pack():
                     if idx > 0 and idx % 50000 == 0:
                         log.info("Writing", dataset=dataset.name, idx=idx)
                     writer.write(stmt)
-            # writer.close()
 
-        # blob = bucket.blob(blob_name)
-        # blob.upload_from_filename(tmp_path)
-        # print("Uploaded:", blob_name)
+        blob = bucket.blob(blob_name)
+        blob.upload_from_filename(stmt_path)
+        log.info("Uploaded: %r" % blob_name)
 
 
 if __name__ == "__main__":

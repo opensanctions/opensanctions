@@ -1900,3 +1900,12 @@ lookups:
           address: "602205, région de Vladimir, Murom, 30 Let Pobedy St., 1a"
           incorporationDate: 2011-07-01
           registrationNumber: 1113334001879
+      - match: "Lieu d'enregistrement: Moscou, Fédération de Russie (125080, Moscou, sh. Volokolamskoe, 1 str. 1, et 5; pom VI; kom 30B - Date d'enregistrement: 22.8.2014 - Principal établissement: Fédération de Russie, Pays-Bas - Autres informations: Sergei Iurevich Zubkov (directeur général): 7743937237 (numéro d'identification fiscale)"
+        props:
+          jurisdiction:
+            - ru
+            - nl
+          address: "125080, Moscou, sh. Volokolamskoe, 1 str. 1, et 5; pom VI; kom 30B"
+          incorporationDate: 2014-08-22
+          notes: "Sergei Iurevich Zubkov (directeur général)"
+          innCode: 7743937237

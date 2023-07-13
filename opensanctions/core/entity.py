@@ -123,7 +123,7 @@ class Entity(CompositeEntity):
             fuzzy=fuzzy,
             format=format,
         ):
-            self.claim(
+            self.unsafe_add(
                 prop,
                 value,
                 quiet=quiet,
@@ -166,7 +166,7 @@ class Entity(CompositeEntity):
             format=format,
         ):
             self.add_schema(schema)
-            self.claim(
+            self.unsafe_add(
                 prop_,
                 value,
                 original_value=original_value or original,

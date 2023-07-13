@@ -207,7 +207,16 @@ def crawl_company(context: Context) -> None:
         crawl_common(context, entity, row)
         context.emit(entity, target=True)
         row.pop("logo_en", None)
-        context.audit_data(row, ignore=["my_status", "status_partner_db", "verified"])
+        ignores = [
+            "my_status",
+            "status_partner_db",
+            "verified",
+            "chk_addr",
+            "chk_addr_en",
+            "chk_reason",
+            "logo",
+        ]
+        context.audit_data(row, ignore=ignores)
 
 
 def crawl(context: Context) -> None:

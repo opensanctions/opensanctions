@@ -136,6 +136,7 @@ def crawl_organizations(context: Context):
         entity.add("topics", "crime.terror")
         entity.add("notes", h.clean_note(lang_pick(record, "comments")))
         entity.add("notes", h.clean_note(record.pop("column_42", None)))
+        entity.add("notes", h.clean_note(record.pop("column_39", None)))
         entity.add("email", record.pop("email", None))
         entity.add("country", record.pop("country_hebrew", None), lang="heb")
         entity.add("country", record.pop("country_english", None), lang="eng")
@@ -152,6 +153,7 @@ def crawl_organizations(context: Context):
             if field.startswith("website"):
                 entity.add("website", record.pop(field, None))
 
+        entity.add("phone", record.pop("column_67", None))
         entity.add("phone", record.pop("column_70", None))
         entity.add("website", record.pop("column_73", None))
 

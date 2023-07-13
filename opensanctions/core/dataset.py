@@ -1,3 +1,4 @@
+from importlib import import_module
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set
 from urllib.parse import urljoin
 from datapatch import get_lookups
@@ -45,19 +46,6 @@ class Dataset(ZavodDataset):
     @property
     def scope_names(self) -> List[str]:
         return [s.name for s in self.scopes]
-
-    def provided_datasets(self) -> List["Dataset"]:
-        """Return a list of datasets which are in the sources or can be built from
-        the same sources. Basically: all datasets that are smaller in scope than
-        this one."""
-        datasets: List[Dataset] = []
-        available = set(self.scope_names)
-        for dataset in Dataset.all():
-            required = set(dataset.scope_names)
-            matches = available.intersection(required)
-            if len(matches) == len(required):
-                datasets.append(dataset)
-        return datasets
 
     @classmethod
     def _from_metadata(cls, catalog, file_path):

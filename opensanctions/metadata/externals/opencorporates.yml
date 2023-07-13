@@ -33,12 +33,18 @@ config:
     # - LegalEntity
 
 lookups:
+  type.date:
+    options:
+      - match:
+          - YYY
+        value: null
   type.address:
     lowercase: true
     options:
       - match:
           - NONE
           - Panama
+          - CHANNEL ISLANDS
         value: null
   type.country:
     lowercase: true
