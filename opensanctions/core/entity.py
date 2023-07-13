@@ -126,7 +126,6 @@ class Entity(CompositeEntity):
             self.unsafe_add(
                 prop,
                 value,
-                quiet=quiet,
                 cleaned=True,
                 original_value=original_value or original,
                 lang=lang,
