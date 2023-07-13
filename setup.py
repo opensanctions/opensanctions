@@ -27,10 +27,10 @@ setup(
     },
     zip_safe=False,
     install_requires=[
-        "followthemoney == 3.4.3",
-        "nomenklatura == 3.2.1",
+        "followthemoney == 3.4.4",
+        "nomenklatura == 3.2.2",
         "orjson == 3.9.2",
-        "zavod == 0.7.3",
+        "zavod >= 0.7.3",
         "pantomime == 0.6.0",
         "plyvel==1.5.0",
         "sqlalchemy[mypy]",
@@ -47,7 +47,7 @@ setup(
         "pyicu < 2.12.0",
         "openpyxl == 3.1.0",
         "xlrd == 2.0.1",
-        "lxml == 4.9.2",
+        "lxml == 4.9.3",
         "lxml-stubs == 0.4.0",
     ],
     extras_require={

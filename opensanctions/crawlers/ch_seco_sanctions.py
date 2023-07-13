@@ -26,7 +26,7 @@ NAME_PARTS: Dict[str, Optional[str]] = {
     "grand-father-name": "fatherName",
     "family-name": "lastName",
     "maiden-name": "lastName",
-    "suffix": None,
+    "suffix": "nameSuffix",
     "tribal-name": "weakAlias",
     "whole-name": None,
     "other": None,
@@ -61,10 +61,12 @@ def parse_address(node: Element):
     return {k: v for (k, v) in address.items() if v is not None}
 
 
-def compose_address(context: Context, entity: Entity, place, el: Element):
+def compose_address(
+    context: Context, entity: Entity, place, el: Element, country_prop: str = "country"
+):
     addr = dict(place)
     addr.update(parse_address(el))
-    entity.add("country", addr.get("country"))
+    entity.add(country_prop, addr.get("country"))
     po_box = addr.get("p-o-box")
     if po_box is not None:
         po_box = f"P.O. Box {po_box}"
@@ -170,7 +172,9 @@ def parse_identity(context: Context, entity: Entity, node: Element, places):
 
     for bplace in node.findall(".//place-of-birth"):
         place = places.get(bplace.get("place-id"))
-        address = compose_address(context, entity, place, bplace)
+        address = compose_address(
+            context, entity, place, bplace, country_prop="birthCountry"
+        )
         entity.add("birthPlace", address.get("full"))
 
     for doc in node.findall(".//identification-document"):
