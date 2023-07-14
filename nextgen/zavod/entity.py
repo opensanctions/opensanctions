@@ -156,7 +156,7 @@ class Entity(CompositeEntity):
                     original_value = text
                 self.add_schema(schema)
                 self.unsafe_add(
-                    prop,
+                    prop_,
                     clean,
                     cleaned=True,
                     lang=lang,
