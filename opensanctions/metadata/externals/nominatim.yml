@@ -21,8 +21,6 @@ publisher:
     database of the world. The geodata underlying the maps is considered the
     primary output of the project.
   url: https://www.openstreetmap.org/about
-collections:
-  - default
 config:
   type: nomenklatura.enrich.nominatim:NominatimEnricher
   schemata:

@@ -21,3 +21,12 @@ description: |
   * Companies known the be used to facilitate money laundering (laundromats).
   * Individuals or companies that have declared bankruptcy or insolvency in
     some sensational way.
+children:
+  - wanted
+  - debarment
+  - ransomwhere
+  - us_fbi_most_wanted
+  - interpol_red_notices
+  - gb_nca_most_wanted
+  - eu_europol_wanted
+  - nl_most_wanted

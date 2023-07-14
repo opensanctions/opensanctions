@@ -16,7 +16,6 @@ description: |
   The register only includes officers (mostly directors), which are usually
   nominees. It fails to list the shareholder information that would be essential
   to tracking asset ownership via Cyprus.
-
 url: https://www.data.gov.cy/dataset/%CE%BC%CE%B7%CF%84%CF%81%CF%8E%CE%BF-%CE%B5%CE%B3%CE%B3%CE%B5%CE%B3%CF%81%CE%B1%CE%BC%CE%BC%CE%AD%CE%BD%CF%89%CE%BD-%CE%B5%CF%84%CE%B1%CE%B9%CF%81%CE%B5%CE%B9%CF%8E%CE%BD-%CE%B5%CE%BC%CF%80%CE%BF%CF%81%CE%B9%CE%BA%CF%8E%CE%BD-%CE%B5%CF%80%CF%89%CE%BD%CF%85%CE%BC%CE%B9%CF%8E%CE%BD-%CE%BA%CE%B1%CE%B9-%CF%83%CF%85%CE%BD%CE%B5%CF%84%CE%B1%CE%B9%CF%81%CE%B9%CF%83%CE%BC%CF%8E%CE%BD-%CF%83%CF%84%CE%B7%CE%BD-%CE%BA%CF%8D%CF%80%CF%81%CE%BF
 publisher:
   name: Department of the Registrar of Companies and Intellectual Property
@@ -27,8 +26,7 @@ publisher:
   url: https://www.companies.gov.cy/en/
   country: cy
   official: true
-collections:
-  - default
+
 config:
   type: nomenklatura.enrich.yente:YenteEnricher
   api: https://api.graph.opensanctions.org/

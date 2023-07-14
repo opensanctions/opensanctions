@@ -24,8 +24,6 @@ publisher:
   url: https://www.nalog.gov.ru/rn77/service/egrip2/egrip_vzayim/
   country: ru
   official: true
-collections:
-  - default
 config:
   type: nomenklatura.enrich.yente:YenteEnricher
   api: https://api.graph.opensanctions.org/

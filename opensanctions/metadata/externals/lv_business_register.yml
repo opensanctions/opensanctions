@@ -14,8 +14,6 @@ publisher:
     their operation, and performs other activities provided for by legislative acts
     in the territory of the Republic of Latvia.
   official: true
-collections:
-  - default
 config:
   type: nomenklatura.enrich.yente:YenteEnricher
   api: https://api.graph.opensanctions.org/

@@ -10,10 +10,6 @@ description: |
   also those cross-debarred by ADB from other Multilateral Development Banks (MDBs).
   These entities are not eligible to participate in ADB-financed, -administered, or
   -supported activities for violating the specified Anticorruption Policy.
-collections:
-  - crime
-  - debarment
-  - default
 publisher:
   name: "Asian Development Bank"
   description: |

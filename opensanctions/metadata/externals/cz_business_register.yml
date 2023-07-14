@@ -14,8 +14,7 @@ publisher:
     registers).
   country: cz
   official: true
-collections:
-  - default
+
 config:
   type: nomenklatura.enrich.yente:YenteEnricher
   api: https://api.graph.opensanctions.org/

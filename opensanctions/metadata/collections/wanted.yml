@@ -5,3 +5,9 @@ summary: >
   All wanted individuals from national or international lists of wanted persons.
 description: |
   Used internally for de-duplication.
+children:
+  - us_fbi_most_wanted
+  - interpol_red_notices
+  - gb_nca_most_wanted
+  - eu_europol_wanted
+  - nl_most_wanted

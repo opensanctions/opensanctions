@@ -31,9 +31,6 @@ publisher:
     sister projects including Wikipedia, Wikivoyage, Wiktionary, Wikisource, and others.
   url: https://www.wikidata.org
   official: false
-collections:
-  - default
-  - peps
 config:
   type: nomenklatura.enrich.wikidata:WikidataEnricher
   label_cache_days: 90

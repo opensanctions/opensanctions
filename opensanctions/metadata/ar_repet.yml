@@ -10,7 +10,6 @@ description: |
   assume it is a simple reproduction of that list.
 collections:
   - sanctions
-  - default
 publisher:
   name: Ministry of Justice and Human Rights
   description: |

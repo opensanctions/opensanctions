@@ -24,10 +24,6 @@ description: |
 
   * For entities that have been permanently excluded from procurement, the sanction end
     date is given as 2999-12-31.
-collections:
-  - crime
-  - debarment
-  - default
 publisher:
   name: World Bank
   description: |

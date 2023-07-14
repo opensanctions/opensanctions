@@ -11,9 +11,6 @@ description: |
   Cryptocurrencies have, in recent years, become a common method to transact ransom
   payments in such attacks. The [ransomwhe.re](https://ransomwhe.re) site collects
   addresses (accounts) that are known to be linked to these payments.
-collections:
-  - crime
-  - default
 publisher:
   name: ransomwhe.re / Jack Cable
   url: https://cablej.io/

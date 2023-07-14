@@ -11,10 +11,6 @@ description: |
   > We pursue criminals and bring them to justice. 
   > By informing communities and supporting other agencies, we can help identify
   > criminals and speed the law enforcement process.
-collections:
-  - default
-  - crime
-  - wanted
 url: https://www.nationalcrimeagency.gov.uk/most-wanted
 publisher:
   name: National Crime Agency (NCA)

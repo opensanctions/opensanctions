@@ -7,3 +7,11 @@ summary: >
 description: |
   Procurement exclusion (debarment) of companies involved in irregularities
   in state contracts.
+children:
+  - adb_sanctions
+  - afdb_sanctions
+  - ebrd_ineligible
+  - iadb_sanctions
+  - worldbank_debarred
+  - md_interdictie
+  - us_sam_exclusions

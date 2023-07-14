@@ -14,3 +14,23 @@ description: |
   sources and therefore varies in terms of detail and precision. For example,
   many listings of political office holders do not include their exact birth
   dates or full given names.
+children:
+  - sanctions
+  - crime
+  - peps
+  - debarment
+  - wanted
+  # enrichers
+  - cy_companies
+  - cz_business_register
+  - ee_ariregister
+  - gb_coh_psc
+  - gleif
+  - icij_offshoreleaks
+  - lv_business_register
+  - md_companies
+  - nominatim
+  - opencorporates
+  - ru_egrul
+  - ua_edr
+  - wikidata

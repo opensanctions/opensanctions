@@ -21,10 +21,6 @@ description: |
   > Red Notices are published by INTERPOL at the request of a member country,
   > and must comply with INTERPOL’s Constitution and Rules. A Red Notice is
   > not an international arrest warrant.
-collections:
-  - crime
-  - default
-  - wanted
 publisher:
   name: INTERPOL
   url: https://www.interpol.int/

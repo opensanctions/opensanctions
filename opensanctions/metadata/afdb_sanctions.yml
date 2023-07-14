@@ -16,10 +16,6 @@ description: |
   These individuals and firms are therefore considered ineligible to participate in
   contracts financed or administered by the African Development Bank Group for
   the stipulated periods.
-collections:
-  - crime
-  - debarment
-  - default
 publisher:
   name: "African Development Bank Group"
   description: |
