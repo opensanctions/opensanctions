@@ -14,10 +14,6 @@ description: |
 
   * [List of enforcement measures](https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen.html)
   * [Switzerland's role in international sanctions](https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/die-schweiz-und-internationale-sanktionen.html)
-
-collections:
-  - sanctions
-  - default
 publisher:
   name: "State Secretariat for Economic Affairs (SECO)"
   description: |

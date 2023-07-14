@@ -17,10 +17,6 @@ description: |
   > the FBI officially announced the list to increase law enforcement's ability to capture dangerous fugitives.
   > The first person added to the list was Thomas J. Holden,
   > a robber and member of the Holden Keating Gang on the day of the list's inception
-collections:
-  - default
-  - crime
-  - wanted
 url: https://www.fbi.gov/wanted
 publisher:
   name: Federal Bureau of Investigation (FBI)

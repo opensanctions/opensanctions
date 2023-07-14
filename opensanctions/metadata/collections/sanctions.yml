@@ -11,3 +11,43 @@ description: |
 
   Virtually all sanctions lists are based on the [UN Security Council List](/datasets/un_sc_sanctions/), 
   and add further listings based on national policies.
+
+children:
+  - ae_local_terrorists
+  - ar_repet
+  - au_dfat_sanctions
+  - az_fiu_sanctions
+  - be_fod_sanctions
+  - bg_omnio_poi
+  - ca_dfatd_sema_sanctions
+  - ca_facfoa
+  - ca_listed_terrorists
+  - ch_seco_sanctions
+  - eu_fsf
+  - eu_sanctions_map
+  - eu_travel_bans
+  - fr_tresor_gels_avoir
+  - gb_hmt_sanctions
+  - il_mod_terrorists
+  - in_mha_banned
+  - jp_mof_sanctions
+  - kg_fiu_national
+  - kz_afmrk_sanctions
+  - lt_fiu_freezes
+  - my_moha_sanctions
+  - ng_nigsac_sanctions
+  - nl_terrorism_list
+  - nz_russia_sanctions
+  - pl_mswia_sanctions
+  - qa_nctc_sanctions
+  - sg_terrorists
+  - ua_nabc_sanctions
+  - ua_nsdc_sanctions
+  - ua_sfms_blacklist
+  - un_sc_sanctions
+  - us_bis_denied
+  - us_cuba_sanctions
+  - us_ofac_cons
+  - us_ofac_sdn
+  - us_trade_csl
+  - za_fic_sanctions

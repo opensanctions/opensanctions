@@ -1,5 +1,6 @@
 entry_point: opensanctions.crawlers.eu_europol_wanted
 title: "Europe's most wanted fugitives"
+prefix: europol
 summary: "Wanted fugitivies listed on a Europol-operated web site."
 description: >
   Europe's most wanted fugitives is a collaboration of several Fugitive
@@ -13,11 +14,6 @@ description: >
 
   ENFAST is a network of police officers available 24/7 who can immediately
   undertake action to locate and arrest fugitives.
-prefix: europol
-collections:
-  - default
-  - crime
-  - wanted
 url: https://eumostwanted.eu/
 publisher:
   name: European Network of Fugitive Active Search Teams

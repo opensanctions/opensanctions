@@ -25,9 +25,6 @@ description: |
   Other regulations are also referred to, but include fewer entitites. For context:
 
   * [Press release, 11. May](https://ec.europa.eu/neighbourhood-enlargement/news/implementation-sanctions-commission-publishes-consolidated-list-travel-bans-2022-05-11_en)
-collections:
-  - sanctions
-  - default
 publisher:
   name: Estonian Presidency of the Council of the EU
   description: |

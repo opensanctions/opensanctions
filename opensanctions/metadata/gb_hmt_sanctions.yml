@@ -12,9 +12,6 @@ description: |
 
   The UK sanctions list suffers from very bad data quality as the result of manual
   data processing and inappropriate data structures used by the XML files.
-collections:
-  - sanctions
-  - default
 publisher:
   name: Office of Financial Sanctions Implementation
   description: >

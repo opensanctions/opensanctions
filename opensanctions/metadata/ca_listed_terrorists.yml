@@ -20,10 +20,6 @@ description: |
   > in or contribute to, directly or indirectly, any activity of a terrorist group.
   > This participation is only an offence if its purpose is to enhance the ability of
   > any terrorist group to facilitate or carry out a terrorist activity.
-collections:
-  - sanctions
-  - default
-  - wanted
 url: https://www.publicsafety.gc.ca/cnt/ntnl-scrt/cntr-trrrsm/lstd-ntts/crrnt-lstd-ntts-en.aspx
 publisher:
   name: "Public Safety Canada"

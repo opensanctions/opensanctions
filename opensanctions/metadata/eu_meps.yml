@@ -9,9 +9,6 @@ description: |
   a European-wide election conducted in each member state. Member states have different
   contingents of MEPs based on their voting population. MEPs are organised into groups,
   which are formed from the representatives of national parties aligned with that group.
-collections:
-  - peps
-  - default
 publisher:
   name: European Parliament
   description: |

@@ -9,10 +9,6 @@ description: |
 
   > The most wanted persons are suspected of serious crimes and are ranked high on the
   > police's hit list.
-collections:
-  - default
-  - crime
-  - wanted
 url: https://www.politie.nl/en/wanted-and-missing/most-wanted
 publisher:
   name: Korps Nationale Politie

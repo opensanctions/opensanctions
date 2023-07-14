@@ -19,9 +19,6 @@ description: |
   > legal entities in that list without prior notice, and irrespective of
   > whether criminal proceedings exist. Each listing must be approved by
   > the Cabinet of the UAE.
-collections:
-  - sanctions
-  - default
 url: https://www.uaeiec.gov.ae/en-us/un-page?p=1#
 publisher:
   name: "Executive Office for Control & Non-proliferation"

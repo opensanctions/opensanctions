@@ -15,9 +15,6 @@ description: |
   > effect, the FIC Act requires Accountable Institutions to freeze property and
   > transactions pursuant to financial sanctions imposed in the United Nations
   > Security Council Resolutions.
-collections:
-  - sanctions
-  - default
 publisher:
   name: Financial Intelligence Centre (FIC)
   description: |

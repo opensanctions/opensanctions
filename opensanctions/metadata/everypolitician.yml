@@ -21,9 +21,6 @@ description: |
   The OpenSanctions importer only includes individuals active since the year 2000.
 coverage:
   end: 2019-05-21
-collections:
-  - peps
-  - default
 publisher:
   name: MySociety (UK Citizens Online Democracy)
   description: |

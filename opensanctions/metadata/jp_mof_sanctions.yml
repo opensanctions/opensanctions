@@ -27,9 +27,6 @@ description: |
   > involved in nuclear activities in Iraq, and acts that threaten peace in the Republic
   > of Syria. Asset freeze measures, etc. are being implemented for those involved
   > in the above.
-collections:
-  - sanctions
-  - default
 publisher:
   name: "Ministry of Finance"
   description: |

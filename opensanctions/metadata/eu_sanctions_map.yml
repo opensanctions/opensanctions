@@ -25,9 +25,6 @@ description: |
   > specific economic prohibitions as referred to in Article 2(7), 2a(7) and 2b(1) of
   > Regulation (EU) No 833/2014. They are, however, not subject to an asset freeze, hence
   > not included in the Consolidated list.
-collections:
-  - sanctions
-  - default
 publisher:
   name: Estonian Presidency of the Council of the EU
   description: |

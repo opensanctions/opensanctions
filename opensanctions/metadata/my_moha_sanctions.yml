@@ -22,9 +22,6 @@ description: |
   >
   > the Minister of Home Affairs may, by order published in the Gazette, declare the
   > entity to be a specified entity.
-collections:
-  - sanctions
-  - default
 publisher:
   name: Ministry of Home Affairs (Kementerian Dalam Negeri)
   description: |

@@ -20,9 +20,6 @@ description: |
   > to proliferation financing.
 
   For specific regulatory requirements, [see here](https://apps.nfiu.gov.ng/nigsac/NiraReports).
-collections:
-  - sanctions
-  - default
 publisher:
   name: Nigeria Sanctions Committe (NigSac)
   description: |

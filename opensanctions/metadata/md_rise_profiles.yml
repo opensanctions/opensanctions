@@ -12,9 +12,6 @@ description: |
   > We have met the persons from the People of Interest Platform several times in our 
   > journalistic documentations. Whether they vote laws, juggle with public money, 
   > or they are intermediaries or wealthy businessmen, their decisions affect us all.
-collections:
-  - peps
-  - default
 publisher:
   name: RISE Moldova
   url: "https://www.rise.md/"

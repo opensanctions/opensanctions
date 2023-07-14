@@ -20,9 +20,6 @@ description: |
   * freezing measures
   * bans on investment, loans or insurance in certain sectors
   * financing the import or export of specific goods…
-collections:
-  - sanctions
-  - default
 url: https://finance.belgium.be/en/treasury/financial-sanctions
 publisher:
   name: "Federal Public Service Finance"

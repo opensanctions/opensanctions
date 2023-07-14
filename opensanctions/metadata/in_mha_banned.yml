@@ -5,9 +5,6 @@ summary: |
   List of banned organizations under the Unlawful Activities (Prevention) Act.
 description: |
   The [relevant law](https://www.mha.gov.in/sites/default/files/A1967-37.pdf).
-collections:
-  - sanctions
-  - default
 publisher:
   name: "Ministry of Home Affairs"
   description: |

@@ -13,8 +13,6 @@ description: |
   are prohibited from purchasing any Russian securities such as debt and equity.
 
   This data source is based on [prior work by Owais Arshad](https://github.com/DtorrX/effective-bassoon).
-collections:
-  - default
 publisher:
   name: National Settlement Depository
   description: |

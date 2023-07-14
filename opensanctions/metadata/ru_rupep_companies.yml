@@ -9,9 +9,6 @@ description: |
   This is the second part of the [RuPEP dataset](/datasets/ru_rupep) which lists
   companies and assets linked to the listed politically exposed people. It is
   not included in the default dataset because its less directly sourced.
-collections:
-  # - peps
-  # - default
 publisher:
   name: RuPEP
   description: |

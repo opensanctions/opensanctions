@@ -10,9 +10,6 @@ description: |
 
   These additional entities are specified in the [Terrorism (Suppression of Financing)
   Act 2002](https://sso.agc.gov.sg/Act/TSFA2002?WholeDoc=1), first schedule.
-collections:
-  - sanctions
-  - default
 publisher:
   name: Monetary Authority of Singapore
   description: |

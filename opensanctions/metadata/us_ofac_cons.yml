@@ -14,9 +14,6 @@ description: |
   appropriate. While the consolidated sanctions list data files are not part of OFAC's
   list of Specially Designated Nationals and Blocked Persons "the SDN List," the records
   in these consolidated files may also appear on the SDN List.
-collections:
-  - sanctions
-  - default
 publisher:
   name: Office of Foreign Assets Control (OFAC)
   description: >

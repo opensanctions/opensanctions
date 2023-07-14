@@ -14,10 +14,6 @@ description: |
 
   This list has been manually extracted from the government PDF by OMNIO staff. It is
   therefore manually updated, last confirmed 10. September 2022.
-
-collections:
-  - sanctions
-  - default
 publisher:
   name: OMNIO Compliance
   description: |

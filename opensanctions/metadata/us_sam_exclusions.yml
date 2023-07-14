@@ -13,9 +13,6 @@ description: |
   > exclusion record completely to understand how it impacts the excluded party. The
   > links include the three-digit Julian date for easier identification of the most
   > recent file.
-collections:
-  - debarment
-  - default
 publisher:
   name: General Services Administration (GSA)
   description: >

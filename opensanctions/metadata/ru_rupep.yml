@@ -23,9 +23,6 @@ description: |
   > of various analytical products or for other commercial purposes is prohibited.
   > The exception is the use of information by journalists, public figures and
   > analysts to prepare materials for the media, scientific research, etc.
-collections:
-  - peps
-  - default
 publisher:
   name: RuPEP
   description: |

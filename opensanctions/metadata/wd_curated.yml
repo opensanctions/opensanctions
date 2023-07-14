@@ -7,8 +7,6 @@ summary: >
 description: |
   Inclusion in this list is managed by the OpenSanctions team. It is currently used for
   experimentation, but scheduled to become part of our integration with Wikidata.
-collections:
-  - default
 publisher:
   name: Wikidata
   description: |

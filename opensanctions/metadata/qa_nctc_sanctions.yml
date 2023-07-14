@@ -13,9 +13,6 @@ description: |
 
   Policy context on the [Ministry of Commerce and Industry website](https://www.moci.gov.qa/en/anti-money-laundering-and-terrorism-financing/legal-framework/).
 
-collections:
-  - sanctions
-  - default
 publisher:
   name: National Counter Terrorism Committee (NCTC)
   description: |

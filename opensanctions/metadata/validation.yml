@@ -9,8 +9,6 @@ description: |
 
   This dataset contains a series of fictional characters. It is used to test the proper
   functioning of the OpenSanctions data delivery mechanism.
-collections:
-  # - default
 publisher:
   name: OpenSanctions
   description: |

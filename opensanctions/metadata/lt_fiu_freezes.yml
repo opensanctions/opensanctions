@@ -5,9 +5,6 @@ summary: >
   A list of entities whose property is legally owned or controlled by a sanctioned entity.
 description: |
   A small set of Lithuanian companies published by the country's financial intelligence unit.
-collections:
-  - sanctions
-  - default
 publisher:
   name: Finansinių Nusikaltimų Tyrimo Tarnyba (FIU)
   description: |

@@ -16,9 +16,6 @@ description: |
   > Such a designation may be made following a reasoned request by a Security
   > Agency (Israel Security Agency, Israel Defense Force, the Mossad, Israel
   > Police) and the consent of the Attorney General of Israel.
-collections:
-  - sanctions
-  - default
 publisher:
   name: "National Bureau for Counter Terror Financing"
   description: |

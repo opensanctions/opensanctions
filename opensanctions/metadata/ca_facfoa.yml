@@ -12,9 +12,6 @@ description: |
   * [Ukraine](https://laws-lois.justice.gc.ca/eng/regulations/SOR-2014-44/index.html)
 
   **This data is static, current as at 12 April 2023.**
-collections:
-  - sanctions
-  - default
 url: https://www.publicsafety.gc.ca/cnt/ntnl-scrt/cntr-trrrsm/lstd-ntts/crrnt-lstd-ntts-en.aspx
 publisher:
   name: "Government of Canada"

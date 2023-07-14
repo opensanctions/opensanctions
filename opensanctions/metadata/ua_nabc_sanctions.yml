@@ -16,9 +16,6 @@ description: |
   as well information on individuals and entities that are likely to be subjected to
   sanctions. In the future, the agency plans to include information on assets of
   sanctioned individuals.
-collections:
-  - sanctions
-  - default
 publisher:
   name: National Agency on Corruption Prevention
   description: >

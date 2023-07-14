@@ -23,9 +23,6 @@ description: |
   > in most cases he or she is not a Cabinet member. Ambassadors to the United
   > States and Permanent Representatives to the UN, New York, have also been
   > included.
-collections:
-  - peps
-  - default
 url: https://www.cia.gov/resources/world-leaders/foreign-governments/
 publisher:
   name: Central Intelligence Agency (CIA)

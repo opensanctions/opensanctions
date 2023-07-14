@@ -13,9 +13,6 @@ description: |
   >
   > Please refer to the [Russia Sanctions Regulations 2022](https://www.legislation.govt.nz/act/public/2022/0006/latest/whole.html), and any amendments,
   > for the details and list of sanctions.
-collections:
-  - sanctions
-  - default
 url: https://www.mfat.govt.nz/en/countries-and-regions/europe/ukraine/russian-invasion-of-ukraine/sanctions/
 publisher:
   name: Ministry of Foreign Affairs and Trade

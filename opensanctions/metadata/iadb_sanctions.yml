@@ -33,10 +33,6 @@ description: |
   debarred firm directly or indirectly controls. In the case of a debarred
   individual, ineligibility may extend to any firm which the debarred
   individual directly or indirectly controls.
-collections:
-  - crime
-  - debarment
-  - default
 publisher:
   name: "Inter-American Development Bank"
   description: |

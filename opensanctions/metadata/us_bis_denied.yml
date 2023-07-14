@@ -13,9 +13,6 @@ description: |
 
   The Denied Persons List is also included in the [US Trade Consolidated List](/datasets/us_trade_csl/),
   so we may want to remove this crawler at some point.
-collections:
-  - sanctions
-  - default
 publisher:
   name: Bureau of Industry and Security (BIS)
   description: |

@@ -7,9 +7,6 @@ description: |
   This dataset is derived from the COTA system run by NSDC. The published sanctions
   list is based on press statements by the security council and may not be fully
   comprehensive as the system is still under development.
-collections:
-  - sanctions
-  - default
 publisher:
   name: National Security and Defense Council
   description: >

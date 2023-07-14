@@ -20,9 +20,6 @@ description: |
   * [Contact Global Affairs Canada](https://www.international.gc.ca/world-monde/international_relations-relations_internationales/sanctions/contact_us-communiquez_avec_nous.aspx?lang=eng)
   * [Justice for Victims of Corrupt Foreign Officials Regulations (SOR/2017-233)](https://laws-lois.justice.gc.ca/eng/regulations/SOR-2017-233/page-2.html#h-842596)
   * [JVCFOA XML data](https://laws-lois.justice.gc.ca/eng/XML/SOR-2017-233.xml)
-collections:
-  - sanctions
-  - default
 url: https://www.international.gc.ca/world-monde/international_relations-relations_internationales/sanctions/consolidated-consolide.aspx?lang=eng
 publisher:
   name: "Global Affairs Canada"

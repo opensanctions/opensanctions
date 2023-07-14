@@ -27,9 +27,6 @@ description: |
 
   Politically exposed persons are included after they retire from public office if they
   are within five years of leaving office.
-collections:
-  - default
-  - peps
 publisher:
   name: Wikidata
   description: |

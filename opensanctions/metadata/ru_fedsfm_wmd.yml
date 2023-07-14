@@ -30,7 +30,6 @@ description: |
   > section of the official website of the Federal Financial Monitoring Service.
 collections:
   - sanctions
-  - default
 publisher:
   name: Rosfinmonitoring
   description: >

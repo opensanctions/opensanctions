@@ -9,9 +9,6 @@ description: |
   accused of a large number of financial crimes.
 
   * [More details on Freedom House](https://freedomhouse.org/country/azerbaijan).
-collections:
-  - sanctions
-  - default
 url: http://www.fiu.az/en/sanctions/internal-sanctioned
 publisher:
   name: "Azerbaijan Financial Monitoring Service"

@@ -11,9 +11,6 @@ description: |
   open source research and documented below: 
 
   * [OPEN Syria Methodology](https://www.opensyr.com/en/our-methodology/p-5)
-collections:
-  - default
-  - peps
 publisher:
   name: Obsalytics
   description: |

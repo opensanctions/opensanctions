@@ -30,3 +30,5 @@ children:
   - gb_nca_most_wanted
   - eu_europol_wanted
   - nl_most_wanted
+  - us_occ_enfact
+  - gb_coh_disqualified

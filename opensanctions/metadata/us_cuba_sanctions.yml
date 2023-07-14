@@ -9,9 +9,6 @@ description: |
 
   * [Cuba Prohibited Accommodations List](https://www.state.gov/cuba-sanctions/cuba-prohibited-accommodations-list/cuba-prohibited-accommodations-list-initial-publication/)
   * [List of Restricted Entities and Subentities Associated With Cuba](https://www.state.gov/cuba-restricted-list/list-of-restricted-entities-and-subentities-associated-with-cuba-effective-january-8-2021/)
-collections:
-  - sanctions
-  - default
 publisher:
   name: US State Department
   description: |

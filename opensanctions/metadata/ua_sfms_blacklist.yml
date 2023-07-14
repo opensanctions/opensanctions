@@ -14,9 +14,6 @@ description: |
   міжнародні санкції)
 
   A PDF version is [available here](https://fiu.gov.ua/assets/userfiles/Terror/BlackListFull.pdf).
-collections:
-  - sanctions
-  - default
 publisher:
   name: Державна служба фінансового моніторингу України (Держфінмоніторинг)
   description: >

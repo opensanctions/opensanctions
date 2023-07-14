@@ -8,10 +8,6 @@ description: |
   The EBRD presents several separate tables of ineligble entities, including 
   one with cross-debarred entities, those originated within EBRD, and sanctions
   resulting from third-party finding. It's unclear if these overlap.
-collections:
-  - crime
-  - debarment
-  - default
 publisher:
   name: "European Bank for Reconstruction and Development"
   description: |

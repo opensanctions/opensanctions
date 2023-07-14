@@ -9,9 +9,6 @@ description: |
   This list was created in response to the poisining of Alexei Navalny by the
   Russian security services. It designates individuals who are directly or
   indirectly responsible for the attack.
-collections:
-  - default
-  # - sanctions
 publisher:
   name: Anti-Corruption Foundation (FBK)
   description: |

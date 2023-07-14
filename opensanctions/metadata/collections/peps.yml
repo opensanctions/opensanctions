@@ -14,11 +14,14 @@ description: |
   [EveryPolitician](https://everypolitician.org) project to include law makers
   from many countries.
 
-  * What are [politically exposed persons (PEP)](/docs/faq/#peps)?
+  * What are [politically exposed persons (PEP)](/pep/)?
   * [FATF guidance on PEPs](https://www.fatf-gafi.org/media/fatf/documents/recommendations/guidance-pep-rec12-22.pdf)
 
-#  EveryPolitician is soon to be superseded by the new
-#   [Peppercat](http://peppercat.org/) initiative, which aims to keep the
-#   information on political office holders in [Wikidata](https://wikidata.org)
-#   up-to-date. Please visit the Peppecat site to learn more about that
-#   effort and how you can support it.
+children:
+  - wd_peps
+  - everypolitician
+  - eu_meps
+  - ru_rupep
+  - eu_cor_members
+  - everypolitician
+  - us_cia_world_leaders

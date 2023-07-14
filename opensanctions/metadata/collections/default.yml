@@ -20,6 +20,18 @@ children:
   - peps
   - debarment
   - wanted
+
+  # misc
+  - wd_oligarchs
+  - wd_curated
+  - ru_navalny35
+  - ru_billionaires_2021
+  - ru_acf_bribetakers
+  - ru_nsd_isin
+  - sy_obsalytics_opensyr
+  - md_rise_profiles
+  - ransomwhere
+
   # enrichers
   - cy_companies
   - cz_business_register
