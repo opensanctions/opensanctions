@@ -1,5 +1,4 @@
 import json
-from datetime import datetime
 from collections import defaultdict
 from typing import Dict, List, Any, Optional
 from followthemoney import model
