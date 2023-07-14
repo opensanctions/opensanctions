@@ -39,7 +39,7 @@ setup(
         "psycopg2-binary",
         "google-cloud-storage",
         "certifi",
-        "addressformatting == 1.3.1",
+        "addressformatting == 1.3.2",
         "prefixdate",
         "datapatch == 1.0.2",
         "structlog",
