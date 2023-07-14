@@ -69,11 +69,6 @@ lookups:
           name: Ansarul Muslimina Fi Biladis Sudan
           alias: ANSARU
           country: Nigeria
-      - match: nigsac-87d1f7ebc04b3fd14c798411db10947bad4f2ca3
-        props:
-          name: Ansarul Muslimina Fi Biladis Sudan
-          alias: ANSARU
-          country: Nigeria
       - match: nigsac-5b7f34da2dfd650a678fd594a3ab2573a1af9caa
         props:
           name: Boko Haram
