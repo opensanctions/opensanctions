@@ -18,7 +18,6 @@ BLOB_CHUNK = 40 * 1024 * 1024
 STATEMENTS_RESOURCE = "statements.pack"
 ISSUES_LOG_RESOURCE = "issues.log.json"
 INDEX_RESOURCE = "index.json"
-FTM_RESOURCE = "entities.ftm.json"
 
 
 @cache

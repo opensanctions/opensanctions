@@ -204,10 +204,11 @@ def audit():
 
 @cli.command("export-statements", help="Export statement data as a CSV file")
 @click.option("-d", "--dataset", default=Dataset.ALL, type=datasets)
+@click.option("-x", "--external", is_flag=True, default=False)
 @click.argument("outfile", type=click.Path(writable=True))
-def export_statements_csv(outfile, dataset):
+def export_statements_csv(outfile, dataset: str, external: bool = False):
     dataset_ = Dataset.require(dataset)
-    export_statements_path(outfile, dataset_)
+    export_statements_path(outfile, dataset_, external=external)
 
 
 @cli.command("import-statements", help="Import statement data from a CSV file")
@@ -218,7 +219,7 @@ def import_statements(infile):
 
 @cli.command("aggregate", help="Aggregate the statements for a given scope")
 @click.option("-d", "--dataset", default=Dataset.ALL, type=datasets)
-@click.option("-e", "--external", is_flag=True, default=False)
+@click.option("-x", "--external", is_flag=True, default=False)
 def aggregate_(dataset: str, external: bool = False):
     dataset_ = Dataset.require(dataset)
     get_store(dataset_, external=external)

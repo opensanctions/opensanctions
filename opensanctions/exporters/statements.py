@@ -7,21 +7,23 @@ from nomenklatura.statement import write_statements
 
 from opensanctions import settings
 from opensanctions.core.dataset import Dataset
-from opensanctions.core.db import engine_tx, engine_read
-from opensanctions.core.statements import all_statements, clear_statements
+from opensanctions.core.archive import iter_dataset_statements
+from opensanctions.core.db import engine_tx
+from opensanctions.core.statements import clear_statements
 from opensanctions.core.statements import save_statements
 
 log = get_logger(__name__)
 
 
-def dump_statements(dataset: Dataset) -> Generator[Statement, None, None]:
+def dump_statements(
+    dataset: Dataset, external: bool = False
+) -> Generator[Statement, None, None]:
     stmt_count = 0
-    with engine_read() as conn:
-        for idx, stmt in enumerate(all_statements(conn, dataset)):
-            if idx != 0 and idx % 50000 == 0:
-                log.info("Exporting statements...", count=idx)
-            yield stmt
-            stmt_count += 1
+    for idx, stmt in enumerate(iter_dataset_statements(dataset, external=external)):
+        if idx != 0 and idx % 50000 == 0:
+            log.info("Exporting statements...", count=idx)
+        yield stmt
+        stmt_count += 1
     log.info("Statement export complete", count=stmt_count)
 
 
@@ -30,10 +32,10 @@ def export_statements():
     export_statements_path(stmts_path)
 
 
-def export_statements_path(path: Path, dataset: Dataset):
+def export_statements_path(path: Path, dataset: Dataset, external: bool = False):
     log.info("Writing global statements list", path=path)
     with open(path, "wb") as fh:
-        write_statements(fh, CSV, dump_statements(dataset))
+        write_statements(fh, CSV, dump_statements(dataset, external=external))
 
 
 def import_statements_path(path: Path):
