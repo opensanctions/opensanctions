@@ -4,7 +4,6 @@ from pathlib import Path
 from banal import is_mapping
 from datetime import datetime
 from lxml.etree import _Element, tostring
-from typing import TYPE_CHECKING
 from typing import Any, Dict, Generator, Optional, TypedDict, cast
 from followthemoney.schema import Schema
 
