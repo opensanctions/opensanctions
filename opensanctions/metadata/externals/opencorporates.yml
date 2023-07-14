@@ -38,11 +38,15 @@ lookups:
         value: null
   type.address:
     lowercase: true
+    normalize: true
     options:
       - match:
           - NONE
           - Panama
           - CHANNEL ISLANDS
+          - Channel Islands
+          - YYY
+          - VIRGIN ISLANDS # which???!?
         value: null
   type.country:
     lowercase: true
