@@ -227,7 +227,6 @@ def aggregate_(dataset: str, external: bool = False):
 
 @cli.command("db-pack", help="Helper function to pack DB statements")
 def db_pack():
-    import csv
     from nomenklatura.statement.serialize import PackStatementWriter
     from opensanctions.core.collection import Collection
     from opensanctions.core.archive import get_backfill_bucket, dataset_resource_path

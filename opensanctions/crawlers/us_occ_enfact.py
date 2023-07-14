@@ -36,6 +36,9 @@ def crawl(context: Context):
             entity = context.make("Person")
             entity.id = context.make_id(charter_no, bank_name, first_name, last_name)
             h.apply_name(entity, first_name=first_name, last_name=last_name)
+        if entity.id is None:
+            context.log.error("Entity has no ID", record=record)
+            continue
         entity.add("country", "us")
         entity.add("topics", "crime.fin")
 

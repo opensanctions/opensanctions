@@ -1,6 +1,7 @@
 def make_sanction(context, entity, key=None):
     """Create a sanctions object derived from the dataset metadata."""
     assert entity.schema.is_a("Thing"), entity.schema
+    assert entity.id is not None, entity.id
     dataset = context.dataset
     sanction = context.make("Sanction")
     sanction.id = context.make_id("Sanction", entity.id, key)

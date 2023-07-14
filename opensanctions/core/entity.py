@@ -1,16 +1,16 @@
-from normality import stringify
 from zavod.logs import get_logger
 from prefixdate.precision import Precision
-from typing import Any, Dict, Generator, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Union
 from followthemoney import model
 from followthemoney.model import Model
 from followthemoney.exc import InvalidData
-from followthemoney.util import value_list
+from followthemoney.util import gettext
 from followthemoney.types import registry
 from followthemoney.proxy import P
 from followthemoney.schema import Schema
 from followthemoney.property import Property
 from nomenklatura.entity import CompositeEntity
+from nomenklatura.statement import Statement
 
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.lookups import type_lookup
@@ -40,28 +40,24 @@ class Entity(CompositeEntity):
     def make_id(self, *parts: Any) -> str:
         raise NotImplementedError
 
-    def clean_value(
+    def lookup_clean(
         self,
         prop: Property,
-        value: Any,
+        value: Optional[str],
         cleaned: bool = False,
         fuzzy: bool = False,
         format: Optional[str] = None,
     ) -> List[str]:
         results: List[str] = []
-        if value is None:
-            return results
-        if cleaned:
-            return [value]
-        for form in type_lookup(self.default_dataset, prop.type, value):
-            if len(str(form).strip()) == 0:
-                continue
-            clean = prop.type.clean(
-                form,
-                proxy=self,
-                fuzzy=fuzzy,
-                format=format,
-            )
+        for item in type_lookup(self.default_dataset, prop.type, value):
+            clean: Optional[str] = item
+            if not cleaned:
+                clean = prop.type.clean_text(
+                    item,
+                    proxy=self,
+                    fuzzy=fuzzy,
+                    format=format,
+                )
             if clean is not None:
                 if prop.type == registry.date:
                     # none of the information in OpenSanctions is time-critical
@@ -69,7 +65,8 @@ class Entity(CompositeEntity):
                 results.append(clean)
                 continue
             if prop.type == registry.phone:
-                results.append(form)
+                # Do not have capacity to clean all phone numbers, allow broken ones
+                results.append(item)
                 continue
             log.warning(
                 "Rejected property value",
@@ -79,58 +76,51 @@ class Entity(CompositeEntity):
             )
         return results
 
-    def clean_values(
+    def unsafe_add(
         self,
         prop: Property,
-        values: Any,
+        value: Optional[str],
         cleaned: bool = False,
         fuzzy: bool = False,
         format: Optional[str] = None,
-    ) -> Generator[Tuple[str, str], None, None]:
-        if values is None:
-            return
-        for val in value_list(values):
-            for clean in self.clean_value(
-                prop, val, cleaned=cleaned, fuzzy=fuzzy, format=format
-            ):
-                if prop.type == registry.entity:
-                    val = None
-                else:
-                    val = stringify(val)
-                    if val == clean:
-                        val = None
-                yield (val, clean)
-
-    def add(
-        self,
-        prop: P,
-        values: Any,
-        cleaned: bool = False,
         quiet: bool = False,
-        fuzzy: bool = False,
-        format: Optional[str] = None,
+        schema: Optional[str] = None,
+        dataset: Optional[str] = None,
+        seen: Optional[str] = None,
         lang: Optional[str] = None,
         original_value: Optional[str] = None,
     ) -> None:
-        prop_name = self._prop_name(prop, quiet=quiet)
-        if prop_name is None:
-            return None
-        prop = self.schema.properties[prop_name]
-        for original, value in self.clean_values(
-            prop,
-            values,
-            cleaned=cleaned,
-            fuzzy=fuzzy,
-            format=format,
+        """Add a statement to the entity, possibly the value."""
+        if value is None:
+            return
+
+        # Don't allow setting the reverse properties:
+        if prop.stub:
+            if quiet:
+                return None
+            msg = gettext("Stub property (%s): %s")
+            raise InvalidData(msg % (self.schema, prop))
+
+        if lang is not None:
+            lang = registry.language.clean_text(lang)
+
+        for clean in self.lookup_clean(
+            prop, value, cleaned=cleaned, fuzzy=fuzzy, format=format
         ):
-            self.unsafe_add(
-                prop,
-                value,
-                cleaned=True,
-                original_value=original_value or original,
+            if original_value is None and clean != value:
+                original_value = value
+
+            stmt = Statement(
+                entity_id=self.id,
+                prop=prop.name,
+                schema=schema or self.schema.name,
+                value=clean,
+                dataset=dataset or self.default_dataset.name,
                 lang=lang,
+                original_value=original_value,
+                first_seen=seen,
             )
-        return None
+            self.add_statement(stmt)
 
     def add_cast(
         self,
@@ -157,21 +147,20 @@ class Entity(CompositeEntity):
         prop_ = schema_.get(prop)
         if prop_ is None:
             raise RuntimeError("Invalid prop: %s" % prop)
-        for original, value in self.clean_values(
-            prop_,
-            values,
-            cleaned=cleaned,
-            fuzzy=fuzzy,
-            format=format,
-        ):
-            self.add_schema(schema)
-            self.unsafe_add(
-                prop_,
-                value,
-                original_value=original_value or original,
-                cleaned=True,
-                lang=lang,
-            )
+        for text in string_list(values):
+            for clean in self.lookup_clean(
+                prop_, text, cleaned=cleaned, fuzzy=fuzzy, format=format
+            ):
+                if original_value is None and clean != text:
+                    original_value = text
+                self.add_schema(schema)
+                self.unsafe_add(
+                    prop,
+                    clean,
+                    cleaned=True,
+                    lang=lang,
+                    original_value=original_value,
+                )
 
     def add_schema(self, schema: Union[str, Schema]) -> None:
         """Try to apply the given schema to the current entity, making it more
