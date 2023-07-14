@@ -1,7 +1,7 @@
 import csv
 from pathlib import Path
 from functools import cache
-from typing import Optional, Generator, BinaryIO
+from typing import Optional, Generator, TextIO
 from zavod.logs import get_logger
 from google.cloud.storage import Client, Bucket, Blob
 from nomenklatura.statement import Statement
@@ -80,7 +80,7 @@ def get_dataset_index(dataset_name: str, backfill: bool = True) -> Optional[Path
     return None
 
 
-def read_fh_statements(fh: BinaryIO, external: bool) -> StatementGen:
+def read_fh_statements(fh: TextIO, external: bool) -> StatementGen:
     for cells in csv.reader(fh):
         stmt = unpack_row(cells, Statement)
         if not external and stmt.external:

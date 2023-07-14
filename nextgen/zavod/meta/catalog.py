@@ -8,7 +8,7 @@ from zavod.archive import get_dataset_index
 
 
 class ArchiveBackedCatalog(DataCatalog[Dataset]):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(Dataset, {})
 
     def load_yaml(self, path: Path) -> Optional[Dataset]:

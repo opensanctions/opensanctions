@@ -13,8 +13,8 @@ from nomenklatura.entity import CompositeEntity
 from nomenklatura.statement import Statement
 from nomenklatura.util import string_list
 
-from opensanctions.core.dataset import Dataset
-from opensanctions.core.lookups import type_lookup
+from zavod.meta import Dataset
+from zavod.meta.lookups import type_lookup
 
 log = get_logger(__name__)
 
@@ -133,7 +133,7 @@ class Entity(CompositeEntity):
         format: Optional[str] = None,
         lang: Optional[str] = None,
         original_value: Optional[str] = None,
-    ):
+    ) -> None:
         """Set a property on an entity. If the entity is of a schema that doesn't
         have the given property, also modify the schema (e.g. if something has a
         birthDate, assume it's a Person, not a LegalEntity).

@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Optional
 from functools import cache
 
 from zavod.meta.dataset import Dataset
@@ -13,6 +14,6 @@ def get_catalog() -> ArchiveBackedCatalog:
     return ArchiveBackedCatalog()
 
 
-def load_dataset_from_path(path: Path) -> Dataset:
+def load_dataset_from_path(path: Path) -> Optional[Dataset]:
     """Load a dataset from a given path."""
     return get_catalog().load_yaml(path)

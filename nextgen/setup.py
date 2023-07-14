@@ -26,6 +26,7 @@ setup(
         "addressformatting >= 1.3.0, < 2.0.0",
         "datapatch >= 0.2.1",
         "click >= 8.0.0, < 8.2.0",
+        "google-cloud-storage",
         "requests",
         "structlog",
         "lxml",
@@ -48,6 +49,7 @@ setup(
             "coverage>=4.1",
             "types-setuptools",
             "types-requests",
+            "types-google-cloud-ndb",
         ]
     },
 )
