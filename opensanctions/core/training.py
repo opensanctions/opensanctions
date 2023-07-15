@@ -7,6 +7,7 @@ from nomenklatura.resolver import Identifier
 
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.entity import Entity
+from opensanctions.core.catalog import get_catalog
 from opensanctions.core.db import engine_read
 from opensanctions.core.statements import entities_datasets
 from opensanctions.core.store import Store, get_store
@@ -41,12 +42,13 @@ def get_partial(
 
 def export_training_pairs(scope: Dataset):
     resolver = get_resolver()
+    catalog = get_catalog()
     datasets: Dict[str, Set[Dataset]] = defaultdict(set)
     with engine_read() as conn:
         for entity_id, ds in entities_datasets(conn, scope):
             if ds not in scope.leaf_names:
                 continue
-            dsa = Dataset.get(ds)
+            dsa = catalog.get(ds)
             if dsa is not None:
                 datasets[entity_id].add(dsa)
 

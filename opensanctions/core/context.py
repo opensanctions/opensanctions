@@ -19,6 +19,7 @@ from nomenklatura.statement.serialize import PackStatementWriter
 from opensanctions import settings
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.entity import Entity
+from opensanctions.core.catalog import get_catalog
 from opensanctions.core.db import engine, engine_tx, metadata
 from opensanctions.core.issues import IssueWriter
 from opensanctions.core.timestamps import TimeStampIndex
@@ -212,7 +213,7 @@ class Context(GenericZavod[Entity, Dataset]):
             return default
 
     def get_lookup(self, lookup: str, dataset: Optional[str] = None) -> Lookup:
-        ds = Dataset.require(dataset) if dataset is not None else self.dataset
+        ds = get_catalog().require(dataset) if dataset is not None else self.dataset
         return ds.lookups[lookup]
 
     def lookup(

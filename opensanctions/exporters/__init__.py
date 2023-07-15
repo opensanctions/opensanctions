@@ -1,7 +1,7 @@
 from typing import List, Type
 from zavod.logs import get_logger
 
-from opensanctions.core import Context, Dataset
+from opensanctions.core import Context, Dataset, get_catalog
 from opensanctions.core.store import View, get_store
 from opensanctions.core.issues import all_issues
 from opensanctions.core.db import engine_tx
@@ -83,7 +83,7 @@ def export_dataset(dataset: Dataset, view: View):
 
 def export(scope_name: str, recurse: bool = False) -> None:
     """Export dump files for all datasets in the given scope."""
-    scope = Dataset.require(scope_name)
+    scope = get_catalog().require(scope_name)
     store = get_store(scope)
     exports = scope.datasets if recurse else [scope]
     for dataset_ in exports:

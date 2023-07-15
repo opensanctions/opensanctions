@@ -24,7 +24,7 @@ class Exporter(object):
         pass
 
     def feed(self, entity: Entity):
-        raise NotImplemented
+        raise NotImplementedError()
 
     def finish(self):
         resource = self.context.export_resource(

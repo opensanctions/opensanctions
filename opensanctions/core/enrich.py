@@ -7,9 +7,9 @@ from nomenklatura.matching import DefaultAlgorithm
 from opensanctions.core.entity import Entity
 from opensanctions.core.db import engine_tx
 from opensanctions.core.context import Context
-from opensanctions.core.dataset import Dataset
 from opensanctions.core.external import External
 from opensanctions.core.store import get_view
+from opensanctions.core.catalog import get_catalog
 from opensanctions.core.statements import cleanup_dataset
 
 
@@ -48,8 +48,9 @@ def save_match(
 
 
 def enrich(scope_name: str, external_name: str, threshold: float, dry_run: bool):
-    scope = Dataset.require(scope_name)
-    context = Context(Dataset.require(external_name), dry_run=dry_run)
+    catalog = get_catalog()
+    scope = catalog.require(scope_name)
+    context = Context(catalog.require(external_name), dry_run=dry_run)
     external = cast(External, context.dataset)
     context.bind()
     context.clear(data=False)

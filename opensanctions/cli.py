@@ -2,7 +2,6 @@ import sys
 import click
 import shutil
 import logging
-from pathlib import Path
 from typing import Optional
 from zavod.logs import get_logger
 from nomenklatura.tui import dedupe_ui
@@ -16,6 +15,7 @@ from opensanctions.exporters.statements import export_statements_path
 from opensanctions.exporters.statements import import_statements_path
 from opensanctions.core.audit import audit_resolver
 from opensanctions.core.store import get_store
+from opensanctions.core.catalog import get_catalog, get_dataset_names
 from opensanctions.core.resolver import get_resolver
 from opensanctions.core.training import export_training_pairs
 from opensanctions.core.xref import blocking_xref
@@ -26,7 +26,7 @@ from opensanctions.exporters import export, export_metadata
 from opensanctions.util import write_json
 
 log = get_logger(__name__)
-datasets = click.Choice(Dataset.names())
+datasets = click.Choice(get_dataset_names())
 
 
 @click.group(help="OpenSanctions ETL toolkit")
@@ -46,7 +46,7 @@ def cli(verbose=False, quiet=False):
 @click.option("-d", "--dry-run", is_flag=True, default=False)
 def crawl(dataset: str, dry_run: bool):
     """Crawl all datasets within the given scope."""
-    scope = Dataset.require(dataset)
+    scope = get_catalog().require(dataset)
     failed = False
     for source in scope.leaves:
         if source.type == Source.TYPE:
@@ -81,7 +81,7 @@ def enrich_(dataset: str, external: str, threshold: float, dry_run: bool):
 @cli.command("clear", help="Delete all stored data for the given source")
 @click.argument("dataset", default=Dataset.ALL, type=datasets)
 def clear(dataset):
-    dataset = Dataset.require(dataset)
+    dataset = get_catalog().require(dataset)
     for source in dataset.leaves:
         Context(source).clear()
 
@@ -89,7 +89,7 @@ def clear(dataset):
 @cli.command("clear-workdir", help="Delete the working path and cached source data")
 @click.argument("dataset", default=Dataset.ALL, type=datasets)
 def clear_workdir(dataset: Optional[str] = None):
-    ds = Dataset.require(dataset)
+    ds = get_catalog().require(dataset)
     for part in ds.datasets:
         path = settings.DATASET_PATH.joinpath(part.name)
         if not path.exists():
@@ -118,7 +118,7 @@ def xref(
     algorithm: str,
     focus_dataset: Optional[str] = None,
 ):
-    dataset = Dataset.require(dataset)
+    dataset = get_catalog().require(dataset)
     blocking_xref(
         dataset,
         limit=limit,
@@ -138,7 +138,7 @@ def xref_prune():
 @cli.command("dedupe", help="Interactively judge xref candidates")
 @click.option("-d", "--dataset", type=datasets, default=Dataset.ALL)
 def dedupe(dataset):
-    dataset = Dataset.require(dataset)
+    dataset = get_catalog().require(dataset)
     store = get_store(dataset, external=True)
     dedupe_ui(store, url_base="https://opensanctions.org/entities/%s/")
 
@@ -147,7 +147,7 @@ def dedupe(dataset):
 @click.argument("dataset", default=Dataset.DEFAULT, type=datasets)
 @click.option("-o", "--outfile", type=click.File("wb"), default="-")
 def export_pairs(dataset, outfile):
-    dataset = Dataset.require(dataset)
+    dataset = get_catalog().require(dataset)
     for obj in export_training_pairs(dataset):
         write_json(obj, outfile)
 
@@ -208,7 +208,7 @@ def audit():
 @click.option("-x", "--external", is_flag=True, default=False)
 @click.argument("outfile", type=click.Path(writable=True))
 def export_statements_csv(outfile, dataset: str, external: bool = False):
-    dataset_ = Dataset.require(dataset)
+    dataset_ = get_catalog().require(dataset)
     export_statements_path(outfile, dataset_, external=external)
 
 
@@ -222,7 +222,7 @@ def import_statements(infile):
 @click.option("-d", "--dataset", default=Dataset.ALL, type=datasets)
 @click.option("-x", "--external", is_flag=True, default=False)
 def aggregate_(dataset: str, external: bool = False):
-    dataset_ = Dataset.require(dataset)
+    dataset_ = get_catalog().require(dataset)
     get_store(dataset_, external=external)
 
 
@@ -236,7 +236,7 @@ def db_pack():
     from opensanctions.core.db import engine_read
 
     bucket = get_backfill_bucket()
-    for dataset in Dataset.all():
+    for dataset in get_catalog().datasets:
         if dataset.TYPE == Collection.TYPE:
             continue
         log.info("Exporting from DB", dataset=dataset.name)

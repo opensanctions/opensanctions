@@ -1,7 +1,6 @@
 import os
 from importlib import import_module
-from functools import cached_property
-from typing import Set, Dict, Any
+from typing import Dict, Any
 from followthemoney.types import registry
 from nomenklatura.dataset import DataPublisher, DataCatalog
 

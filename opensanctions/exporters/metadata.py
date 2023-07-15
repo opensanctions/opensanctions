@@ -7,6 +7,7 @@ from nomenklatura.matching import MatcherV1
 
 from opensanctions import settings
 from opensanctions.core.db import engine_tx
+from opensanctions.core.catalog import get_catalog
 from opensanctions.core.archive import get_dataset_resource, INDEX_RESOURCE
 from opensanctions.core.dataset import Dataset
 from opensanctions.core.issues import all_issues, agg_issues_by_level
@@ -43,8 +44,9 @@ def export_metadata():
     """Export the global index for all datasets."""
     datasets = []
     schemata = set()
-    all = Dataset.require(Dataset.ALL)
-    for dataset in Dataset.all():
+    catalog = get_catalog()
+    all = catalog.require(Dataset.ALL)
+    for dataset in all.datasets:
         ds_path = get_dataset_resource(dataset, INDEX_RESOURCE)
         if ds_path is None or not ds_path.exists():
             log.error("No index file found", dataset=dataset.name, report_issue=False)
