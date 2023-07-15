@@ -4,10 +4,10 @@ from nomenklatura.statement import Statement
 from nomenklatura.statement import read_path_statements, CSV
 from nomenklatura.statement import write_statements
 
+from zavod import settings
 from zavod.logs import get_logger
 from zavod.meta import Dataset
-from opensanctions import settings
-from opensanctions.core.archive import iter_dataset_statements
+from zavod.archive import iter_dataset_statements
 from opensanctions.core.db import engine_tx
 from opensanctions.core.statements import clear_statements
 from opensanctions.core.statements import save_statements

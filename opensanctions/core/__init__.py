@@ -1,8 +1,8 @@
+from zavod import settings
 from zavod.logs import configure_logging, get_logger
 from zavod.entity import Entity
 from zavod.meta import Dataset
 
-from opensanctions import settings
 from opensanctions.core.context import Context
 from opensanctions.core.db import create_db
 from opensanctions.core.catalog import get_catalog, get_dataset_names

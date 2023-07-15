@@ -220,13 +220,13 @@ def aggregate_(dataset: str, external: bool = False):
 
 @cli.command("db-pack", help="Helper function to pack DB statements")
 def db_pack():
+    from zavod.archive import get_archive_bucket, dataset_resource_path
+    from zavod.archive import STATEMENTS_RESOURCE
     from nomenklatura.statement.serialize import PackStatementWriter
-    from opensanctions.core.archive import get_backfill_bucket, dataset_resource_path
-    from opensanctions.core.archive import STATEMENTS_RESOURCE
     from opensanctions.core.statements import all_statements
     from opensanctions.core.db import engine_read
 
-    bucket = get_backfill_bucket()
+    bucket = get_archive_bucket()
     for dataset in get_catalog().datasets:
         if dataset._type == "collection":
             continue

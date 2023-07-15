@@ -4,12 +4,11 @@ from urllib.parse import urljoin
 from followthemoney import model
 from nomenklatura.matching import MatcherV1
 
-from zavod import settings as zavod_settings
+from zavod import settings
 from zavod.logs import get_logger
 from zavod.meta import Dataset
-from opensanctions import settings
+from zavod.archive import get_dataset_resource, INDEX_RESOURCE
 from opensanctions.core.db import engine_tx
-from opensanctions.core.archive import get_dataset_resource, INDEX_RESOURCE
 from opensanctions.core.issues import all_issues, agg_issues_by_level
 from opensanctions.core.resources import all_resources
 from opensanctions.util import write_json
@@ -66,10 +65,10 @@ def export_metadata(scope: Dataset) -> None:
     with open(index_path, "wb") as fh:
         meta = {
             "datasets": datasets,
-            "run_time": zavod_settings.RUN_TIME,
-            "dataset_url": zavod_settings.DATASET_URL,
-            "issues_url": urljoin(zavod_settings.DATASET_URL, "issues.json"),
-            "statements_url": urljoin(zavod_settings.DATASET_URL, "statements.csv"),
+            "run_time": settings.RUN_TIME,
+            "dataset_url": settings.DATASET_URL,
+            "issues_url": urljoin(settings.DATASET_URL, "issues.json"),
+            "statements_url": urljoin(settings.DATASET_URL, "statements.csv"),
             "model": model.to_dict(),
             "schemata": list(schemata),
             "matcher": MatcherV1.explain(),

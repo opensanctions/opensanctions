@@ -3,6 +3,7 @@ from pathlib import Path
 from functools import cache
 from typing import Dict, Any, List
 from nomenklatura.dataset import DataCatalog
+from followthemoney.util import DEFAULT_ENCODING
 
 from zavod.meta import get_catalog as get_zavod_catalog
 from zavod.meta import Dataset
@@ -11,7 +12,7 @@ from opensanctions import settings
 
 
 def _from_metadata(catalog: DataCatalog[Dataset], file_path: Path):
-    with open(file_path, "r", encoding=settings.ENCODING) as fh:
+    with open(file_path, "r", encoding=DEFAULT_ENCODING) as fh:
         config: Dict[str, Any] = yaml.load(fh, Loader=yaml.SafeLoader)
     if "name" not in config:
         config["name"] = file_path.stem

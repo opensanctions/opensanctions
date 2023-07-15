@@ -7,10 +7,10 @@ from lxml.etree import _Element, tostring
 from typing import Any, Dict, Generator, Optional, TypedDict, cast
 from followthemoney.schema import Schema
 
+from zavod import settings
 from zavod.meta import Dataset
-from opensanctions import settings
-from opensanctions.core.archive import dataset_resource_path, get_dataset_resource
-from opensanctions.core.archive import ISSUES_LOG_RESOURCE
+from zavod.archive import dataset_resource_path, get_dataset_resource
+from zavod.archive import ISSUES_LOG_RESOURCE
 
 
 class Issue(TypedDict):
@@ -27,7 +27,7 @@ class Issue(TypedDict):
 
 class IssueWriter(object):
     def __init__(self, dataset: Dataset) -> None:
-        self.path = dataset_resource_path(dataset, ISSUES_LOG_RESOURCE)
+        self.path = dataset_resource_path(dataset.name, ISSUES_LOG_RESOURCE)
         self.fh = open(self.path, "ab")
 
     def clear(self) -> None:

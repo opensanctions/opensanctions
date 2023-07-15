@@ -1,14 +1,14 @@
+import re
+from typing import List
 from lxml import html
 from normality import slugify, collapse_spaces
 from pantomime.types import HTML
-import re
 
-from opensanctions.core import Context
-from opensanctions.core.entity import Entity
+from opensanctions.core import Context, Entity
 from opensanctions import helpers as h
 
 REGEX_DELAY = re.compile(".+(\d{2}[\.\/]\d{2}[\.\/]\d{4})$")
-# e.g. 6/23 from "6/23 din 02.05.2023" 
+# e.g. 6/23 from "6/23 din 02.05.2023"
 REGEX_SANCTION_NUMBER = re.compile(".*(\d+\/\d+)[\w ]+(\d{2}[\.\/]\d{2}[\.\/]\d{4}).*")
 REGEX_MEMBER_GROUPS = (
     "^(?P<unknown>[\w, \(\)%\.]+)?"
@@ -36,7 +36,7 @@ MONTHS = {
 
 COUNTRY = "md"
 
-# Fondator/Administrator – 
+# Fondator/Administrator –
 # or
 # Fondator - TOLMAŢCHI VALERI Administrator - TOLMAŢCHI VALERI
 # or
@@ -45,7 +45,7 @@ COUNTRY = "md"
 # or
 # Conducători -
 # (Leaders)
-ROLES = { 
+ROLES = {
     "Fondator/Administrator": "UNKNOWN",
     "conducătorilor": "ADMINISTRATORS",
     "Conducători": "ADMINISTRATORS",
@@ -53,6 +53,7 @@ ROLES = {
     "fondatorilor": "OWNERS",
     "Administrator": "ADMINISTRATORS",
 }
+
 
 def crawl(context: Context):
     path = context.fetch_resource("source.html", context.source.data.url)
@@ -64,18 +65,18 @@ def crawl(context: Context):
     headers = None
     for row in table.findall(".//tr"):
         if headers is None:
-            headers = [slugify(el.text_content()) for el in row.findall("./th")]        
+            headers = [slugify(el.text_content()) for el in row.findall("./th")]
             continue
 
         cells = [collapse_spaces(el.text_content()) for el in row.findall("./td")]
         data = {hdr: c for hdr, c in zip(headers, cells)}
-        
+
         entity = context.make("Company")
         name = data.pop("denumirea-si-forma-de-organizare-a-operatorului-economic")
         entity.id = context.make_id(name, COUNTRY)
         entity.add("name", name)
         entity.add("topics", "debarment")
-        
+
         addr_string = data.pop("adresa-si-datele-de-contact-ale-operatorului-economic")
         address = h.make_address(context, full=addr_string, country=COUNTRY)
         h.apply_address(context, entity, address)
@@ -83,18 +84,24 @@ def crawl(context: Context):
         delay_until_date = parse_delay(context, data.pop("mentiuni"))
         start_date = parse_date(data.pop("data-inscrierii"))
         start_date = delay_until_date or start_date
-        
-        sanction_num, decision_date = parse_sanction_decision(context, data.pop("nr-si-data-deciziei-agentiei"))
+
+        sanction_num, decision_date = parse_sanction_decision(
+            context, data.pop("nr-si-data-deciziei-agentiei")
+        )
         sanction = h.make_sanction(context, entity, sanction_num)
         sanction.add("authorityId", sanction_num)
-        reason = data.pop("expunerea-succinta-a-temeiului-de-includere-in-lista-a-operatorului-economic")
+        reason = data.pop(
+            "expunerea-succinta-a-temeiului-de-includere-in-lista-a-operatorului-economic"
+        )
         sanction.add("reason", reason, lang="ro")
         sanction.add("startDate", start_date)
-        sanction.add("endDate", parse_date(data.pop("termenul-limita-de-includere-in-lista")))
+        sanction.add(
+            "endDate", parse_date(data.pop("termenul-limita-de-includere-in-lista"))
+        )
         sanction.add("listingDate", start_date)
 
         owners_and_admins = data.pop("date-privind-administratotul-si-fondatorii")
-        crawl_control(context, entity, decision_date, owners_and_admins)        
+        crawl_control(context, entity, decision_date, owners_and_admins)
 
         context.emit(entity, target=True)
         context.emit(sanction)
@@ -106,7 +113,9 @@ def parse_delay(context, delay):
         if date_match:
             return parse_date(date_match.group(1))
         else:
-            context.log.warn(f"Failed to parse date from nonempty delay: { date_match, delay }")
+            context.log.warn(
+                f"Failed to parse date from nonempty delay: { date_match, delay }"
+            )
 
 
 def parse_date(text):
@@ -142,7 +151,7 @@ def crawl_control(context: Context, entity: Entity, date, text: str):
     entities = []
     text = clean_control_string(text)
     match = re.match(REGEX_MEMBER_GROUPS, text)
-    
+
     if match:
         owners_str = match.groupdict()["owners"]
         if owners_str:
@@ -161,7 +170,7 @@ def crawl_control(context: Context, entity: Entity, date, text: str):
                 if "%" in unknown:
                     owners.append(unknown)
                 else:
-                    members.append(unknown)   
+                    members.append(unknown)
 
         mixed_str = match.groupdict()["mixed"]
         if mixed_str:
@@ -169,23 +178,23 @@ def crawl_control(context: Context, entity: Entity, date, text: str):
                 if "%" in unknown:
                     owners.append(unknown)
                 else:
-                    members.append(unknown)                
+                    members.append(unknown)
 
         entities += list(make_ownerships(context, entity, date, owners))
         entities += list(make_members(context, entity, date, members))
 
     for entity in entities:
-            context.emit(entity)
+        context.emit(entity)
 
 
-def make_ownerships(context, company: Entity, date, owners: [str]) -> [Entity]:
+def make_ownerships(context, company: Entity, date, owners: List[str]) -> Entity:
     for name in owners:
         name = name.strip()
         match = re.match("^([^\d\.\()]+)(\(?(\d+\.?\d*) ?%\)?)?$", name)
         if match:
             name = match.group(1)
             owner = context.make("LegalEntity")
-            owner.id = context.make_id(company.id, name)            
+            owner.id = context.make_id(company.id, name)
             owner.add("name", name, lang="rum")
 
             ownership = context.make("Ownership")
@@ -202,7 +211,7 @@ def make_ownerships(context, company: Entity, date, owners: [str]) -> [Entity]:
             yield ownership
 
 
-def make_members(context, company:Entity, date, members: [str]):
+def make_members(context, company: Entity, date, members: List[str]):
     for name in members:
         name = name.strip()
         if name:
@@ -219,5 +228,3 @@ def make_members(context, company:Entity, date, members: [str]):
 
             yield member
             yield membership
-
-

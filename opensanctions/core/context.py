@@ -8,10 +8,6 @@ from lxml import etree, html
 from sqlalchemy.exc import OperationalError
 from requests.exceptions import RequestException
 from datapatch import LookupException, Result, Lookup
-from zavod.context import GenericZavod
-from zavod.entity import Entity
-from zavod.meta import Dataset
-from zavod.runner.util import load_method
 from structlog.contextvars import clear_contextvars, bind_contextvars
 from nomenklatura.cache import Cache
 from nomenklatura.util import normalize_url
@@ -19,6 +15,12 @@ from nomenklatura.resolver import Resolver
 from nomenklatura.statement import Statement
 from nomenklatura.statement.serialize import PackStatementWriter
 
+from zavod import settings as zavod_settings
+from zavod.context import GenericZavod
+from zavod.entity import Entity
+from zavod.meta import Dataset
+from zavod.runner.util import load_method
+from zavod.archive import dataset_path, STATEMENTS_RESOURCE
 from opensanctions import settings
 from opensanctions.core.catalog import get_catalog
 from opensanctions.core.db import engine, engine_tx, metadata
@@ -26,7 +28,6 @@ from opensanctions.core.issues import IssueWriter
 from opensanctions.core.timestamps import TimeStampIndex
 from opensanctions.core.resolver import get_resolver
 from opensanctions.core.resources import save_resource, clear_resources
-from opensanctions.core.archive import dataset_path, STATEMENTS_RESOURCE
 from opensanctions.core.statements import cleanup_dataset, clear_statements
 from opensanctions.core.statements import save_statements, lock_dataset
 
@@ -42,7 +43,7 @@ class Context(GenericZavod[Entity]):
     BATCH_SIZE = 5000
 
     def __init__(self, dataset: Dataset, dry_run: bool = False):
-        super().__init__(dataset, Entity, data_path=dataset_path(dataset))
+        super().__init__(dataset, Entity)
         self.cache = Cache(engine, metadata, dataset, create=True)
         self.issues = IssueWriter(dataset)
         self.dry_run = dry_run
@@ -86,33 +87,14 @@ class Context(GenericZavod[Entity]):
         super().close()
         clear_contextvars()
 
-        # import yaml
-        # from pprint import pprint
-        # from opensanctions.core.lookups import common_lookups
-
-        # lookups = {}
-        # for name, lookup in common_lookups().items():
-        #     cleaned = lookup.referenced_options()
-        #     if cleaned is not None:
-        #         lookups[name] = cleaned
-
-        # if len(lookups):
-        #     yaml_data = yaml.dump(
-        #         {"lookups": lookups},
-        #         indent=2,
-        #         encoding="utf-8",
-        #         allow_unicode=True,
-        #     )
-        #     with open(self.path / "lookups.yml", "wb") as fh:
-        #         fh.write(yaml_data)
-
     def fetch_response(self, url, headers=None, auth=None):
         self.log.debug("HTTP GET", url=url)
+        timeout = (zavod_settings.HTTP_TIMEOUT, zavod_settings.HTTP_TIMEOUT)
         response = self.http.get(
             url,
             headers=headers,
             auth=auth,
-            timeout=(settings.HTTP_TIMEOUT, settings.HTTP_TIMEOUT),
+            timeout=timeout,
             allow_redirects=True,
         )
         response.raise_for_status()
@@ -182,7 +164,8 @@ class Context(GenericZavod[Entity]):
         if size == 0:
             self.log.warning("Resource is empty", path=path)
         checksum = digest.hexdigest()
-        name = path.relative_to(self.path).as_posix()
+        dataset_path_ = dataset_path(self.dataset.name)
+        name = path.relative_to(dataset_path_).as_posix()
         with engine_tx() as conn:
             return save_resource(
                 conn,

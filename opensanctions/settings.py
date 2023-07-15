@@ -15,15 +15,6 @@ def env_str(name: str, default: str) -> str:
     return default if value is None else value
 
 
-# All data storage (e.g. a Docker volume mount)
-DATA_PATH = Path.cwd().joinpath("data")
-DATA_PATH = Path(env.get("OPENSANCTIONS_DATA_PATH", DATA_PATH)).resolve()
-DATA_PATH.mkdir(parents=True, exist_ok=True)
-
-# Resources generated from specific datasets
-DATASET_PATH = DATA_PATH.joinpath("datasets")
-DATASET_PATH = Path(env.get("OPENSANCTIONS_DATASET_PATH", DATASET_PATH)).resolve()
-
 # Bucket to back-fill missing data artifacts from
 BACKFILL_BUCKET = env.get("OPENSANCTIONS_BACKFILL_BUCKET", None)
 BACKFILL_VERSION = env_str("OPENSANCTIONS_BACKFILL_VERSION", "latest")
@@ -54,12 +45,3 @@ STATIC_PATH = Path(env.get("OPENSANCTIONS_STATIC_PATH", STATIC_PATH)).resolve()
 RESOLVER_PATH = env.get("OPENSANCTIONS_RESOLVER_PATH")
 if RESOLVER_PATH is None:
     raise RuntimeError("Please set $OPENSANCTIONS_RESOLVER_PATH.")
-
-# User agent
-USER_AGENT = "Mozilla/5.0 (any)"
-USER_AGENT = env_str("OPENSANCTIONS_USER_AGENT", USER_AGENT)
-HEADERS = {"User-Agent": USER_AGENT}
-HTTP_TIMEOUT = 240
-
-# If you change this, all bets are off
-ENCODING = "utf-8"

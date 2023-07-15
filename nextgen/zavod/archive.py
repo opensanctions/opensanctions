@@ -1,7 +1,8 @@
+import os
 import csv
 from pathlib import Path
 from functools import cache
-from typing import Optional, Generator, TextIO
+from typing import Optional, Generator, TextIO, Union
 from zavod.logs import get_logger
 from google.cloud.storage import Client, Bucket, Blob  # type: ignore
 from nomenklatura.statement import Statement
@@ -12,6 +13,7 @@ from zavod.meta.dataset import Dataset
 
 log = get_logger(__name__)
 StatementGen = Generator[Statement, None, None]
+PathLike = Union[str, os.PathLike[str]]
 BLOB_CHUNK = 40 * 1024 * 1024
 STATEMENTS_RESOURCE = "statements.pack"
 ISSUES_LOG_RESOURCE = "issues.log.json"
@@ -36,7 +38,9 @@ def get_backfill_blob(dataset_name: str, resource: str) -> Optional[Blob]:
     return bucket.get_blob(blob_name)
 
 
-def backfill_resource(dataset_name: str, resource: str, path: Path) -> Optional[Path]:
+def backfill_resource(
+    dataset_name: str, resource: PathLike, path: Path
+) -> Optional[Path]:
     blob = get_backfill_blob(dataset_name, resource)
     if blob is not None:
         log.info(
@@ -51,17 +55,20 @@ def backfill_resource(dataset_name: str, resource: str, path: Path) -> Optional[
 
 
 def dataset_path(dataset_name: str) -> Path:
-    path = settings.DATA_PATH / "datasets" / dataset_name
+    path = settings.DATASET_PATH / dataset_name
     path.mkdir(parents=True, exist_ok=True)
     return path
 
 
-def dataset_resource_path(dataset_name: str, resource: str) -> Path:
+def dataset_resource_path(dataset_name: str, resource: PathLike) -> Path:
     return dataset_path(dataset_name).joinpath(resource)
 
 
 def get_dataset_resource(
-    dataset: Dataset, resource: str, backfill: bool = True, force_backfill: bool = False
+    dataset: Dataset,
+    resource: PathLike,
+    backfill: bool = True,
+    force_backfill: bool = False,
 ) -> Optional[Path]:
     path = dataset_resource_path(dataset.name, resource)
     if path.exists() and not force_backfill:

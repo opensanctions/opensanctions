@@ -3,12 +3,12 @@ from pathlib import Path
 from typing import Any, Generic, Optional, Type, Union
 
 from followthemoney.schema import Schema
-from followthemoney.util import PathLike, make_entity_id
+from followthemoney.util import make_entity_id
 from nomenklatura.entity import CE
 
-from zavod import settings
 from zavod.audit import inspect
 from zavod.meta import Dataset
+from zavod.archive import PathLike, dataset_resource_path, dataset_path
 from zavod.http import fetch_file, make_session
 from zavod.logs import get_logger
 from zavod.sinks.common import Sink
@@ -17,23 +17,16 @@ from zavod.util import join_slug
 
 class GenericZavod(Generic[CE]):
     def __init__(
-        self,
-        dataset: Dataset,
-        entity_type: Type[CE],
-        sink: Optional[Sink[CE]] = None,
-        data_path: Path = settings.DATA_PATH,
+        self, dataset: Dataset, entity_type: Type[CE], sink: Optional[Sink[CE]] = None
     ):
         self.dataset = dataset
         self.entity_type = entity_type
-        self.path = data_path
         self.sink = sink
         self.log = get_logger(dataset.name)
         self.http = make_session()
 
     def get_resource_path(self, name: PathLike) -> Path:
-        path = self.path.joinpath(name)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        return path
+        return dataset_resource_path(self.dataset.name, name)
 
     def export_metadata(self, name: PathLike = "index.json") -> Path:
         path = self.get_resource_path(name)
@@ -54,7 +47,7 @@ class GenericZavod(Generic[CE]):
             self.http,
             url,
             name,
-            data_path=self.path,
+            data_path=dataset_path(self.dataset.name),
             auth=auth,
             headers=headers,
         )
