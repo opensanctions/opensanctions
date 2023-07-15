@@ -9,7 +9,7 @@ from nomenklatura.judgement import Judgement
 from nomenklatura.resolver import Identifier
 from nomenklatura.matching import DefaultAlgorithm
 
-from opensanctions import settings
+from zavod.archive import dataset_path
 from opensanctions.core import Context, setup
 from opensanctions.exporters.statements import export_statements_path
 from opensanctions.exporters.statements import import_statements_path
@@ -83,9 +83,7 @@ def clear(dataset: str):
 def clear_workdir(dataset: Optional[str] = None):
     ds = get_catalog().require(dataset)
     for part in ds.datasets:
-        path = settings.DATASET_PATH.joinpath(part.name)
-        if not path.exists():
-            continue
+        path = dataset_path(part.name)
         log.info("Clear path: %s" % path)
         shutil.rmtree(path)
 
