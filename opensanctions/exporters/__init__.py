@@ -1,4 +1,5 @@
 from typing import List, Type
+
 from zavod.logs import get_logger
 
 from opensanctions.core import Context, Dataset, get_catalog

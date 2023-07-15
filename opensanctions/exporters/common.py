@@ -18,7 +18,6 @@ class Exporter(object):
         self.dataset = context.dataset
         self.resource_name = f"{self.NAME}.{self.EXTENSION}"
         self.path = context.get_resource_path(self.resource_name)
-        self.path.parent.mkdir(exist_ok=True, parents=True)
         self.view = view
 
     def setup(self):

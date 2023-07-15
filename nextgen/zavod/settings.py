@@ -16,7 +16,7 @@ LOG_JSON = as_bool(env_str("ZAVOD_LOG_JSON", "false"))
 
 # Default paths
 DATA_PATH_ = env_str("ZAVOD_DATA_PATH", "data")
-DATA_PATH = Path(env_str("OPENSANCTIONS_DATA_PATH", DATA_PATH_))
+DATA_PATH = Path(env_str("OPENSANCTIONS_DATA_PATH", DATA_PATH_)).resolve()
 DATASET_PATH = DATA_PATH.joinpath("datasets")
 STATE_PATH = DATA_PATH.joinpath("state")
 
