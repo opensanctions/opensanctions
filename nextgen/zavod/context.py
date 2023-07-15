@@ -8,17 +8,17 @@ from nomenklatura.entity import CE
 
 from zavod import settings
 from zavod.audit import inspect
-from zavod.dataset import ZD
+from zavod.meta import Dataset
 from zavod.http import fetch_file, make_session
 from zavod.logs import get_logger
 from zavod.sinks.common import Sink
 from zavod.util import join_slug
 
 
-class GenericZavod(Generic[CE, ZD]):
+class GenericZavod(Generic[CE]):
     def __init__(
         self,
-        dataset: ZD,
+        dataset: Dataset,
         entity_type: Type[CE],
         sink: Optional[Sink[CE]] = None,
         data_path: Path = settings.DATA_PATH,

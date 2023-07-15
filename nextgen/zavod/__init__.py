@@ -7,7 +7,7 @@ from followthemoney.util import PathLike
 
 from zavod import settings
 from zavod.context import GenericZavod
-from zavod.dataset import ZavodDataset, ZD
+from zavod.meta import Dataset
 from zavod.logs import configure_logging, get_logger
 from zavod.sinks.common import Sink
 from zavod.sinks.json_entity import JSONEntitySink
@@ -17,7 +17,7 @@ __all__ = [
     "init",
     "context",
     "Zavod",
-    "ZavodDataset",
+    "Dataset",
     "ZD",
     "PathLike",
     "configure_logging",
@@ -28,7 +28,7 @@ __all__ = [
 logging.getLogger("prefixdate").setLevel(logging.ERROR)
 
 
-class Zavod(GenericZavod[CompositeEntity, ZavodDataset]):
+class Zavod(GenericZavod[CompositeEntity]):
     pass
 
 
@@ -47,7 +47,7 @@ def init(
         out_path = data_path.joinpath(out_file)
         out_path.parent.mkdir(exist_ok=True, parents=True)
         sink = sink_cls(out_path)
-    dataset = ZavodDataset.from_path(metadata_path)
+    dataset = Dataset.from_path(metadata_path)
     return Zavod(dataset, CompositeEntity, data_path=data_path, sink=sink)
 
 

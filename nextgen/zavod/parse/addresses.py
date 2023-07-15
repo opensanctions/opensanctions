@@ -7,7 +7,6 @@ from followthemoney.util import join_text, make_entity_id
 from nomenklatura.entity import CE
 from normality import slugify
 from zavod.context import GenericZavod
-from zavod.dataset import ZD
 
 
 @cache
@@ -30,9 +29,8 @@ def format_address(
 ) -> str:
     data = {
         "attention": summary,
-        "house": po_box,
         "road": street,
-        "house": house,
+        "house": po_box or house,
         "house_number": house_number,
         "postcode": postal_code,
         "city": city,
@@ -43,7 +41,7 @@ def format_address(
 
 
 def make_address(
-    context: GenericZavod[CE, ZD],
+    context: GenericZavod[CE],
     full: Optional[str] = None,
     remarks: Optional[str] = None,
     summary: Optional[str] = None,

@@ -11,9 +11,6 @@ def env_str(name: str, default: str) -> str:
     return default if value is None else value
 
 
-# Release version
-RELEASE = env_str("ZAVOD_RELEASE", "latest")
-
 # Logging configuration
 LOG_JSON = as_bool(env_str("ZAVOD_LOG_JSON", "false"))
 
@@ -22,6 +19,15 @@ DATA_PATH = Path(env_str("ZAVOD_DATA_PATH", "data"))
 
 # Per-run timestamp
 RUN_TIME = datetime.utcnow().replace(microsecond=0)
+RUN_TIME_ISO = RUN_TIME.isoformat(sep="T", timespec="seconds")
+RUN_DATE = RUN_TIME.date().isoformat()
+
+# Release version
+RELEASE = env_str("ZAVOD_RELEASE", RUN_TIME.strftime("%Y%m%d"))
+
+# Public URL version
+DATASET_URL = "https://data.opensanctions.org/datasets/%s/" % RELEASE
+DATASET_URL = env_str("ZAVOD_DATASET_URL", DATASET_URL)
 
 # Bucket to back-fill missing data artifacts from
 ARCHIVE_BUCKET = env.get("ZAVOD_ARCHIVE_BUCKET", None)
