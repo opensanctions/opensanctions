@@ -15,13 +15,12 @@ from nomenklatura.resolver import Resolver
 from nomenklatura.statement import Statement
 from nomenklatura.statement.serialize import PackStatementWriter
 
-from zavod import settings as zavod_settings
+from zavod import settings
 from zavod.context import Context as ZavodContext
 from zavod.entity import Entity
 from zavod.meta import Dataset
 from zavod.runner.util import load_method
 from zavod.archive import dataset_path, STATEMENTS_RESOURCE
-from opensanctions import settings
 from opensanctions.core.catalog import get_catalog
 from opensanctions.core.db import engine, engine_tx, metadata
 from opensanctions.core.issues import IssueWriter
@@ -89,7 +88,7 @@ class Context(ZavodContext):
 
     def fetch_response(self, url, headers=None, auth=None):
         self.log.debug("HTTP GET", url=url)
-        timeout = (zavod_settings.HTTP_TIMEOUT, zavod_settings.HTTP_TIMEOUT)
+        timeout = (settings.HTTP_TIMEOUT, settings.HTTP_TIMEOUT)
         response = self.http.get(
             url,
             headers=headers,

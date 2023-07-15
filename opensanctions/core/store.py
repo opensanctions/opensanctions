@@ -9,7 +9,7 @@ from nomenklatura.publish.dates import simplify_dates
 from zavod.logs import get_logger
 from zavod.entity import Entity
 from zavod.meta import Dataset
-from opensanctions import settings
+from zavod.archive import dataset_state_path
 from opensanctions.core.db import engine_read
 from opensanctions.core.resolver import get_resolver
 from opensanctions.core.statements import all_statements
@@ -21,8 +21,7 @@ View = LevelDBView[Dataset, Entity]
 
 def get_store(dataset: Dataset, external: bool = False) -> "Store":
     resolver = get_resolver()
-    aggregator_path = settings.DATA_PATH / "aggregator"
-    aggregator_path.mkdir(parents=True, exist_ok=True)
+    aggregator_path = dataset_state_path(dataset.name)
     suffix = "internal" if external is False else "external"
     matching = [dataset]
     for ds in matching:

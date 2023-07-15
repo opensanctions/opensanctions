@@ -2,9 +2,10 @@ import plyvel
 from typing import Iterable
 from nomenklatura.statement import Statement
 
+from zavod import settings
 from zavod.logs import get_logger
 from zavod.meta import Dataset
-from opensanctions import settings
+from zavod.archive import dataset_state_path
 from opensanctions.core.statements import all_statements
 from opensanctions.core.db import engine_read
 
@@ -13,8 +14,7 @@ log = get_logger(__name__)
 
 class TimeStampIndex(object):
     def __init__(self, dataset: Dataset) -> None:
-        path = settings.DATA_PATH / "timestamps" / dataset.name
-        path.parent.mkdir(parents=True, exist_ok=True)
+        path = dataset_state_path(dataset.name) / "timestamps"
         self.db = plyvel.DB(path.as_posix(), create_if_missing=True)
 
     def index(self, statements: Iterable[Statement]) -> None:

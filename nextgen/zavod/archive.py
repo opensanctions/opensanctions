@@ -60,6 +60,12 @@ def dataset_path(dataset_name: str) -> Path:
     return path.resolve()
 
 
+def dataset_state_path(dataset_name: str) -> Path:
+    path = settings.STATE_PATH / dataset_name
+    path.mkdir(parents=True, exist_ok=True)
+    return path.resolve()
+
+
 def dataset_resource_path(dataset_name: str, resource: PathLike) -> Path:
     dataset_path_ = dataset_path(dataset_name)
     return dataset_path_.joinpath(resource)
