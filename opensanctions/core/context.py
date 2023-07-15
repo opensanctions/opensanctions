@@ -43,7 +43,7 @@ class Context(ZavodContext):
     BATCH_SIZE = 5000
 
     def __init__(self, dataset: Dataset, dry_run: bool = False):
-        super().__init__(dataset, Entity)
+        super().__init__(dataset)
         self.cache = Cache(engine, metadata, dataset, create=True)
         self.issues = IssueWriter(dataset)
         self.dry_run = dry_run
@@ -224,17 +224,16 @@ class Context(ZavodContext):
             self.log.info(
                 "Dry run: discarding %d statements..." % len(statements),
                 entities=self._entity_count,
-                total=self._statement_count,
+                statements=self._statement_count,
             )
             self._statements = {}
             return
 
         if len(statements):
-            self._statement_count += len(statements)
             self.log.info(
                 "Storing %d statements..." % len(statements),
                 entities=self._entity_count,
-                total=self._statement_count,
+                statements=self._statement_count,
             )
         with engine_tx() as conn:
             lock_dataset(conn, self.dataset)
@@ -264,6 +263,7 @@ class Context(ZavodContext):
             stmt.canonical_id = canonical_id
             stmt.schema = entity.schema.name
             stmt.last_seen = settings.RUN_TIME_ISO
+            self._statement_count += 1
             if not self.dry_run:
                 stmt.first_seen = self.timestamps.get(stmt.id)
             stmt.target = target or False
