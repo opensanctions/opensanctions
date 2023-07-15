@@ -1,4 +1,4 @@
-from typing import Dict, Any, Optional, Set
+from typing import Dict, Any, Optional
 from normality import slugify
 from functools import cached_property
 from datapatch import get_lookups, Lookup
@@ -59,6 +59,8 @@ class Dataset(NKDataset):
     def to_opensanctions_dict(self) -> Dict[str, Any]:
         """Generate a backward-compatible metadata export."""
         data = self.to_dict()
+        data.pop("children", None)
+        data.pop("datasets", None)
         data["type"] = self._config.get("type", "source")
         if self.is_collection:
             data["type"] = "collection"

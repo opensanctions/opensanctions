@@ -1,11 +1,9 @@
-from typing import List, Optional, Any
-from functools import lru_cache
+from typing import List, Optional
 from followthemoney.types.common import PropertyType
 
 from zavod.meta.dataset import Dataset
 
 
-@lru_cache(maxsize=20000)
 def type_lookup(
     dataset: Dataset, type_: PropertyType, value: Optional[str]
 ) -> List[str]:

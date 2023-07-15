@@ -3,7 +3,7 @@ from pathlib import Path
 from functools import cache
 from typing import Optional, Generator, TextIO
 from zavod.logs import get_logger
-from google.cloud.storage import Client, Bucket, Blob
+from google.cloud.storage import Client, Bucket, Blob  # type: ignore
 from nomenklatura.statement import Statement
 from nomenklatura.statement.serialize import unpack_row
 
@@ -56,14 +56,14 @@ def dataset_path(dataset_name: str) -> Path:
     return path
 
 
-def dataset_resource_path(dataset: Dataset, resource: str) -> Path:
-    return dataset_path(dataset.name).joinpath(resource)
+def dataset_resource_path(dataset_name: str, resource: str) -> Path:
+    return dataset_path(dataset_name).joinpath(resource)
 
 
 def get_dataset_resource(
     dataset: Dataset, resource: str, backfill: bool = True, force_backfill: bool = False
 ) -> Optional[Path]:
-    path = dataset_resource_path(dataset, resource)
+    path = dataset_resource_path(dataset.name, resource)
     if path.exists() and not force_backfill:
         return path
     if backfill or force_backfill:
@@ -72,10 +72,10 @@ def get_dataset_resource(
 
 
 def get_dataset_index(dataset_name: str, backfill: bool = True) -> Optional[Path]:
-    path = dataset_resource_path(dataset_name, INDEX_RESOURCE)
-    if not path.exists() and backfill:
+    path: Optional[Path] = dataset_resource_path(dataset_name, INDEX_RESOURCE)
+    if path is not None and not path.exists() and backfill:
         path = backfill_resource(dataset_name, INDEX_RESOURCE, path)
-    if path.exists():
+    if path is not None and path.exists():
         return path
     return None
 
@@ -94,7 +94,7 @@ def iter_dataset_statements(dataset: Dataset, external: bool = True) -> Statemen
 
 
 def _iter_scope_statements(dataset: Dataset, external: bool = True) -> StatementGen:
-    path = dataset_resource_path(dataset, STATEMENTS_RESOURCE)
+    path = dataset_resource_path(dataset.name, STATEMENTS_RESOURCE)
     if not path.exists():
         backfill_blob = get_backfill_blob(dataset.name, STATEMENTS_RESOURCE)
         if backfill_blob is not None:
