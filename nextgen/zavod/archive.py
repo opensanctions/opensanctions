@@ -57,11 +57,12 @@ def backfill_resource(
 def dataset_path(dataset_name: str) -> Path:
     path = settings.DATASET_PATH / dataset_name
     path.mkdir(parents=True, exist_ok=True)
-    return path
+    return path.resolve()
 
 
 def dataset_resource_path(dataset_name: str, resource: PathLike) -> Path:
-    return dataset_path(dataset_name).joinpath(resource)
+    dataset_path_ = dataset_path(dataset_name)
+    return dataset_path_.joinpath(resource)
 
 
 def get_dataset_resource(
