@@ -1,9 +1,9 @@
 
 test:
-	pytest --cov-report html --cov-report term --cov=zavod tests/
+	pytest --cov-report html --cov-report term --cov=zavod zavod/tests/
 
 typecheck:
-	mypy --strict zavod/
+	mypy --strict --exclude zavod/tests zavod/
 
 check: test typecheck
 
