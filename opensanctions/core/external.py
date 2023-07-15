@@ -30,12 +30,13 @@ class External(Dataset):
 
     def to_dict(self):
         data = super().to_dict()
+        parents = [p.name for p in self.catalog.datasets if self in p.datasets]
         data.update(
             {
                 "url": self.url,
                 "disabled": self.disabled,
                 "publisher": self.publisher.to_dict(),
-                "collections": [p.name for p in self.parents],
+                "collections": parents,
             }
         )
         return data

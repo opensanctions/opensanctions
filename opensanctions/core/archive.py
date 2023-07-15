@@ -82,7 +82,7 @@ def read_fh_statements(fh: BinaryIO, external: bool) -> StatementGen:
 
 
 def iter_dataset_statements(dataset: Dataset, external: bool = True) -> StatementGen:
-    for scope in dataset.scopes:
+    for scope in dataset.leaves:
         yield from _iter_scope_statements(scope, external=external)
 
 
@@ -107,7 +107,7 @@ def _iter_scope_statements(dataset: Dataset, external: bool = True) -> Statement
 # def explicit_backfill(dataset: Dataset, force: bool = False) -> None:
 #     get_dataset_resource(dataset, INDEX_RESOURCE, force_backfill=force)
 
-#     for scope in dataset.scopes:
+#     for scope in dataset.leaves:
 #         if scope.name != dataset.name:
 #             explicit_backfill(scope, force=force)
 

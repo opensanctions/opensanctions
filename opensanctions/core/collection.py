@@ -16,17 +16,9 @@ class Collection(Dataset):
     def __init__(self, catalog: DataCatalog, config: Dict[str, Any]):
         super().__init__(catalog, self.TYPE, config)
 
-    @cached_property
-    def sources(self) -> Set[Source]:
-        return set([cast(Source, t) for t in self.datasets if t.TYPE == Source.TYPE])
-
-    @cached_property
-    def scopes(self) -> Set[Dataset]:
-        return set([t for t in self.datasets if t.TYPE in (Source.TYPE, External.TYPE)])
-
     def to_dict(self) -> Dict[str, Any]:
         data = super().to_dict()
-        data["sources"] = [s.name for s in self.sources]
-        data["scopes"] = [s.name for s in self.scopes]
-        data["externals"] = [s.name for s in self.datasets if s.TYPE == External.TYPE]
+        data["scopes"] = [s.name for s in self.leaves]
+        data["sources"] = [s.name for s in self.leaves if s.TYPE == Source.TYPE]
+        data["externals"] = [s.name for s in self.leaves if s.TYPE == External.TYPE]
         return data

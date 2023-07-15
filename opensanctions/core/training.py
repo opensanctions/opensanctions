@@ -44,7 +44,7 @@ def export_training_pairs(scope: Dataset):
     datasets: Dict[str, Set[Dataset]] = defaultdict(set)
     with engine_read() as conn:
         for entity_id, ds in entities_datasets(conn, scope):
-            if ds not in scope.scope_names:
+            if ds not in scope.leaf_names:
                 continue
             dsa = Dataset.get(ds)
             if dsa is not None:

@@ -100,7 +100,7 @@ def _all_issues(dataset: Dataset) -> Generator[Issue, None, None]:
 
 
 def all_issues(dataset: Dataset) -> Generator[Issue, None, None]:
-    for scope in dataset.scopes:
+    for scope in dataset.leaves:
         yield from _all_issues(scope)
 
 

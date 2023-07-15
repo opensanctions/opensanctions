@@ -25,7 +25,7 @@ def get_store(dataset: Dataset, external: bool = False) -> "Store":
     aggregator_path.mkdir(parents=True, exist_ok=True)
     suffix = "internal" if external is False else "external"
     matching = [dataset]
-    matching.extend(dataset.parents)
+    # matching.extend(dataset.parents)
     for ds in matching:
         dataset_path = aggregator_path / f"{ds.name}.{suffix}.db"
         if dataset_path.is_dir():

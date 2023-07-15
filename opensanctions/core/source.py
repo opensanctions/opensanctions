@@ -38,10 +38,6 @@ class Source(Dataset):
         self.data = SourceData(config.get("data", {}))
         self.publisher = DataPublisher(config.get("publisher", {}))
 
-    @cached_property
-    def sources(self) -> Set["Source"]:
-        return set([self])
-
     @property
     def method(self):
         """Load the actual crawler code behind the dataset."""
@@ -56,6 +52,7 @@ class Source(Dataset):
 
     def to_dict(self):
         data = super().to_dict()
+        parents = [p.name for p in self.catalog.datasets if self in p.datasets]
         data.update(
             {
                 "url": self.url,
@@ -63,7 +60,7 @@ class Source(Dataset):
                 "disabled": self.disabled,
                 "data": self.data.to_dict(),
                 "publisher": self.publisher.to_dict(),
-                "collections": [p.name for p in self.parents],
+                "collections": parents,
             }
         )
         return data

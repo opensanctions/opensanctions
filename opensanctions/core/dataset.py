@@ -1,4 +1,3 @@
-from importlib import import_module
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set
 from urllib.parse import urljoin
 from datapatch import get_lookups
@@ -27,25 +26,7 @@ class Dataset(ZavodDataset):
         super().__init__(catalog, config)
         self.hidden: bool = config.get("hidden", False)
         self.export: bool = config.get("export", True)
-        if self.name != self.ALL:
-            self._parents.add(self.ALL)
         self.lookups = get_lookups(config.get("lookups", {}))
-
-    @cached_property
-    def scopes(self) -> Set["Dataset"]:
-        return set([self])
-
-    @cached_property
-    def sources(self) -> Set["Source"]:
-        return set()
-
-    @property
-    def source_names(self) -> List[str]:
-        return [s.name for s in self.sources]
-
-    @property
-    def scope_names(self) -> List[str]:
-        return [s.name for s in self.scopes]
 
     @classmethod
     def _from_metadata(cls, catalog, file_path):

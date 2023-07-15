@@ -11,7 +11,7 @@ from nomenklatura.resolver import Identifier
 from nomenklatura.matching import DefaultAlgorithm
 
 from opensanctions import settings
-from opensanctions.core import Dataset, Context, setup
+from opensanctions.core import Dataset, Context, Source, setup
 from opensanctions.exporters.statements import export_statements_path
 from opensanctions.exporters.statements import import_statements_path
 from opensanctions.core.audit import audit_resolver
@@ -48,9 +48,10 @@ def crawl(dataset: str, dry_run: bool):
     """Crawl all datasets within the given scope."""
     scope = Dataset.require(dataset)
     failed = False
-    for source in scope.sources:
-        ctx = Context(source, dry_run=dry_run)
-        failed = failed or not ctx.crawl()
+    for source in scope.leaves:
+        if source.type == Source.TYPE:
+            ctx = Context(source, dry_run=dry_run)
+            failed = failed or not ctx.crawl()
     if failed:
         sys.exit(1)
 
@@ -81,7 +82,7 @@ def enrich_(dataset: str, external: str, threshold: float, dry_run: bool):
 @click.argument("dataset", default=Dataset.ALL, type=datasets)
 def clear(dataset):
     dataset = Dataset.require(dataset)
-    for source in dataset.sources:
+    for source in dataset.leaves:
         Context(source).clear()
 
 

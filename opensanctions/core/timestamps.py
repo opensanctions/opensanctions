@@ -32,7 +32,7 @@ class TimeStampIndex(object):
     def build(cls, dataset: Dataset) -> "TimeStampIndex":
         index = cls(dataset)
         with engine_read() as conn:
-            statements = all_statements(conn, dataset, external=True)
+            statements = all_statements(conn, dataset, external=False)
             index.index(statements)
         return index
 

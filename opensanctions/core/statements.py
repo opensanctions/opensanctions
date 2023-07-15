@@ -44,7 +44,7 @@ def all_statements(
 ) -> Generator[Statement, None, None]:
     q = select(stmt_table)
     if dataset is not None and dataset.name != Dataset.ALL:
-        q = q.filter(stmt_table.c.dataset.in_(dataset.scope_names))
+        q = q.filter(stmt_table.c.dataset.in_(dataset.leaf_names))
     if external is False:
         q = q.filter(stmt_table.c.external == False)
     # q = q.order_by(stmt_table.c.canonical_id.asc())
@@ -92,7 +92,7 @@ def entities_datasets(
     q = select(stmt_table.c.entity_id, stmt_table.c.dataset)
     q = q.filter(stmt_table.c.prop_type == Statement.BASE)
     if dataset is not None:
-        q = q.filter(stmt_table.c.dataset.in_(dataset.scope_names))
+        q = q.filter(stmt_table.c.dataset.in_(dataset.leaf_names))
     q = q.distinct()
     result = conn.execution_options(stream_results=True).execute(q)
     for row in result:
