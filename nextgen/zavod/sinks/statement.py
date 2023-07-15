@@ -1,4 +1,3 @@
-from typing import BinaryIO
 from nomenklatura.entity import CE
 from nomenklatura.statement.serialize import get_statement_writer, JSON, PACK
 from followthemoney.util import PathLike

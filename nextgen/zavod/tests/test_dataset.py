@@ -1,0 +1,54 @@
+import pytest
+from zavod.meta import get_catalog
+
+from nomenklatura.exceptions import MetadataException
+
+TEST_DATASET = {
+    "name": "test",
+    "title": "Test Dataset",
+    "hidden": True,
+    "prefix": "xx",
+    "data": {
+        "url": "https://example.com/data.csv",
+        "format": "csv",
+    },
+}
+
+TEST_COLLECTION = {
+    "name": "collection",
+    "title": "Test Collection",
+    "datasets": ["test"],
+}
+
+
+def test_basic():
+    catalog = get_catalog()
+    test_ds = catalog.make_dataset(TEST_DATASET)
+    coll_ds = catalog.make_dataset(TEST_COLLECTION)
+    assert len(catalog.datasets) == 2
+    assert catalog.has("test") is True
+    assert catalog.require("test") == test_ds
+    assert catalog.has("testX") is False
+    with pytest.raises(MetadataException):
+        catalog.require("testX")
+
+    assert test_ds.hidden is True
+    assert test_ds.prefix == "xx"
+    assert test_ds.is_collection is False
+    assert test_ds.data.url is not None
+    assert test_ds.disabled is False
+    assert test_ds.scope is None
+    url = test_ds.make_public_url("foo")
+    assert url.startswith("https://data.opensanctions.org/"), url
+    assert url.endswith("/foo"), url
+    os_data = test_ds.to_opensanctions_dict()
+    assert os_data["name"] == "test", os_data
+    assert os_data["collections"] == ["collection"], os_data
+
+    assert coll_ds.hidden is False
+    assert coll_ds.is_collection is True
+    assert len(coll_ds.children) == 1
+    assert coll_ds.data is None
+    os_data = coll_ds.to_opensanctions_dict()
+    assert "collections" not in os_data, os_data
+    assert os_data["sources"] == ["test"], os_data
