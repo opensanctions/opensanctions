@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Generator, List
+from typing import Generator, List, Set
 from zavod.logs import get_logger
 from nomenklatura.statement import Statement
 from nomenklatura.statement import read_path_statements, CSV
@@ -19,11 +19,15 @@ def dump_statements(
     dataset: Dataset, external: bool = False
 ) -> Generator[Statement, None, None]:
     stmt_count = 0
+    seen: Set[str] = set()
     for idx, stmt in enumerate(iter_dataset_statements(dataset, external=external)):
         if idx != 0 and idx % 50000 == 0:
             log.info("Exporting statements...", count=idx)
+        if stmt.id in seen:
+            continue
         yield stmt
         stmt_count += 1
+        seen.add(stmt.id)
     log.info("Statement export complete", count=stmt_count)
 
 
