@@ -4,8 +4,8 @@ from nomenklatura.enrich import Enricher, EnrichmentException, get_enricher
 from nomenklatura.matching import DefaultAlgorithm
 
 from zavod.entity import Entity
-from opensanctions.core.context import Context
-from opensanctions.core.store import get_view
+from opensanctions.core.context import Context  # type: ignore
+from opensanctions.core.store import get_view  # type: ignore
 
 
 def dataset_enricher(context: Context) -> Enricher:
@@ -24,9 +24,9 @@ def save_match(
     entity: Entity,
     match: Entity,
     threshold: float,
-):
+) -> None:
     if not entity.schema.can_match(match.schema):
-        return
+        return None
     judgement = context.resolver.get_judgement(match.id, entity.id)
 
     # For unjudged candidates, compute a score and put it in the
@@ -52,7 +52,7 @@ def save_match(
             context.emit(adjacent)
 
 
-def enrich(context: Context):
+def enrich(context: Context) -> None:
     if context.dataset.scope is None:
         msg = "No enrichment scope defined for dataset: %s" % context.dataset.name
         raise RuntimeError(msg)

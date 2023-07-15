@@ -30,7 +30,7 @@ def get_archive_bucket() -> Optional[Bucket]:
     return bucket
 
 
-def get_backfill_blob(dataset_name: str, resource: str) -> Optional[Blob]:
+def get_backfill_blob(dataset_name: str, resource: PathLike) -> Optional[Blob]:
     bucket = get_archive_bucket()
     if bucket is None:
         return None

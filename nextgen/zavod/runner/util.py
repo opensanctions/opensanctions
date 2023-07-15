@@ -1,5 +1,6 @@
 # import re
 # from functools import cache
+from typing import Callable, Any, cast
 from importlib import import_module
 
 # from importlib.util import module_from_spec, spec_from_file_location
@@ -30,7 +31,7 @@ from zavod.meta import Dataset
 
 
 # TODO: move this to a separate module
-def load_method(dataset: Dataset):
+def load_method(dataset: Dataset) -> Callable[[Any], None]:
     """Load the actual crawler code behind the dataset."""
     method = "crawl"
     module = dataset.entry_point
@@ -39,4 +40,7 @@ def load_method(dataset: Dataset):
     if ":" in module:
         module, method = module.rsplit(":", 1)
     module_ = import_module(module)
-    return getattr(module_, method)
+    method_ = getattr(module_, method)
+    if method_ is None:
+        raise RuntimeError("Function does not exist: %r" % method)
+    return cast(Callable[[Any], None], method_)

@@ -16,4 +16,7 @@ class Data(object):
             self.api_key = os.path.expandvars(self.api_key)
 
     def to_dict(self) -> Dict[str, Any]:
-        return {"url": self.url, "format": self.format, "mode": self.mode}
+        data = {"url": self.url, "format": self.format}
+        if self.mode is not None:
+            data["mode"] = self.mode
+        return data

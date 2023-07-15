@@ -13,8 +13,9 @@ from zavod.meta.data import Data
 
 
 class Dataset(NKDataset):
-    def __init__(self, catalog: DataCatalog["Dataset"], data: Dict[str, Any]):
+    def __init__(self, catalog: "DataCatalog[Dataset]", data: Dict[str, Any]):
         super().__init__(catalog, data)
+        self.catalog: "DataCatalog[Dataset]" = catalog  # type: ignore
         self.prefix: str = data.get("prefix", slugify(self.name, sep="-"))
         if self.updated_at is None:
             self.updated_at = datetime_iso(settings.RUN_TIME)
@@ -44,7 +45,7 @@ class Dataset(NKDataset):
         name = f"scope_{key}"
         if not self.catalog.has(name):
             data = {"name": name, "datasets": names, "hidden": True}
-            scope = type(self)(self.catalog, data)
+            scope = self.catalog.make_dataset(data)
             self.catalog.add(scope)
         return self.catalog.require(name)
 

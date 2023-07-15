@@ -1,12 +1,12 @@
 from functools import cache, lru_cache
 from typing import Optional
-
 from addressformatting import AddressFormatter
 from followthemoney.types import registry
 from followthemoney.util import join_text, make_entity_id
-from nomenklatura.entity import CE
 from normality import slugify
-from zavod.context import GenericZavod
+
+from zavod.entity import Entity
+from zavod.context import Context
 
 
 @cache
@@ -41,7 +41,7 @@ def format_address(
 
 
 def make_address(
-    context: GenericZavod[CE],
+    context: Context,
     full: Optional[str] = None,
     remarks: Optional[str] = None,
     summary: Optional[str] = None,
@@ -58,7 +58,7 @@ def make_address(
     country_code: Optional[str] = None,
     key: Optional[str] = None,
     lang: Optional[str] = None,
-) -> CE:
+) -> Entity:
     """Generate an address schema object adjacent to the main entity."""
 
     city = join_text(place, city, sep=", ")

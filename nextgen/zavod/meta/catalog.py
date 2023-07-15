@@ -1,5 +1,5 @@
 import yaml
-from typing import Optional, Dict, Any
+from typing import Optional
 from pathlib import Path
 from nomenklatura.dataset import DataCatalog
 
@@ -29,9 +29,3 @@ class ArchiveBackedCatalog(DataCatalog[Dataset]):
         if path is not None:
             return self.load_yaml(path)
         return None
-
-    def to_opensanctions_dict(self) -> Dict[str, Any]:
-        return {
-            "datasets": [d.to_opensanctions_dict() for d in self.datasets],
-            "updated_at": self.updated_at,
-        }
