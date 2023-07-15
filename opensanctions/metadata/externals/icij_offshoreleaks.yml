@@ -1,4 +1,5 @@
 type: external
+entry_point: zavod.runner.enrich:enrich
 title: ICIJ Offshore Leaks Database
 summary: |
   Combined data from the Panama Papers, Paradise Papers, Pandora Papers
@@ -29,6 +30,10 @@ publisher:
     fact-checkers and data journalists who maintain the OffshoreLeaks database.
   url: https://www.icij.org/about/
   official: false
+
+scopes:
+  - enrich_companies
+
 config:
   type: nomenklatura.enrich.yente:YenteEnricher
   api: https://api.graph.opensanctions.org/

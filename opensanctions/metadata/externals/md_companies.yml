@@ -1,4 +1,5 @@
 type: external
+entry_point: zavod.runner.enrich:enrich
 title: State Register of legal entities in the Republic of Moldova
 summary: |
   All companies in Moldova, with information on their founders, beneficial
@@ -11,6 +12,10 @@ publisher:
   description: |
     The P.I. “Public Services Agency” is a holder of the basic state information resources.
   official: true
+
+scopes:
+  - enrich_companies
+
 config:
   type: nomenklatura.enrich.yente:YenteEnricher
   api: https://api.graph.opensanctions.org/

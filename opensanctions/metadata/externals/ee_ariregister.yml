@@ -1,4 +1,5 @@
 type: external
+entry_point: zavod.runner.enrich:enrich
 title: Estonia e-Business Register (E-äriregister)
 prefix: ee
 summary: |
@@ -13,6 +14,10 @@ publisher:
     governmental agencies and self-employed persons.
   country: ee
   official: true
+
+scopes:
+  - enrich_companies
+
 config:
   type: nomenklatura.enrich.yente:YenteEnricher
   api: https://api.graph.opensanctions.org/
