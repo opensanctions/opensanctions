@@ -16,7 +16,7 @@ from nomenklatura.statement import Statement
 from nomenklatura.statement.serialize import PackStatementWriter
 
 from zavod import settings as zavod_settings
-from zavod.context import GenericZavod
+from zavod.context import Context as ZavodContext
 from zavod.entity import Entity
 from zavod.meta import Dataset
 from zavod.runner.util import load_method
@@ -32,7 +32,7 @@ from opensanctions.core.statements import cleanup_dataset, clear_statements
 from opensanctions.core.statements import save_statements, lock_dataset
 
 
-class Context(GenericZavod[Entity]):
+class Context(ZavodContext):
     """A utility object to be passed into crawlers which supports
     emitting entities, accessing metadata and logging errors and
     warnings.
