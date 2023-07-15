@@ -2,14 +2,14 @@ import json
 from typing import Any, Dict
 from urllib.parse import urljoin
 from followthemoney import model
-from zavod.logs import get_logger
 from nomenklatura.matching import MatcherV1
 
+from zavod import settings as zavod_settings
+from zavod.logs import get_logger
+from zavod.meta import Dataset
 from opensanctions import settings
 from opensanctions.core.db import engine_tx
-from opensanctions.core.catalog import get_catalog
 from opensanctions.core.archive import get_dataset_resource, INDEX_RESOURCE
-from opensanctions.core.dataset import Dataset
 from opensanctions.core.issues import all_issues, agg_issues_by_level
 from opensanctions.core.resources import all_resources
 from opensanctions.util import write_json
@@ -28,7 +28,7 @@ def get_dataset_statistics(dataset: Dataset) -> Dict[str, Any]:
 
 
 def dataset_to_index(dataset: Dataset) -> Dict[str, Any]:
-    meta = dataset.to_dict()
+    meta = dataset.to_opensanctions_dict()
     meta.update(get_dataset_statistics(dataset))
     meta["last_export"] = settings.RUN_TIME
     meta["index_url"] = dataset.make_public_url("index.json")
@@ -40,13 +40,11 @@ def dataset_to_index(dataset: Dataset) -> Dict[str, Any]:
     return meta
 
 
-def export_metadata():
+def export_metadata(scope: Dataset) -> None:
     """Export the global index for all datasets."""
     datasets = []
     schemata = set()
-    catalog = get_catalog()
-    all = catalog.require(Dataset.ALL)
-    for dataset in all.datasets:
+    for dataset in scope.datasets:
         ds_path = get_dataset_resource(dataset, INDEX_RESOURCE)
         if ds_path is None or not ds_path.exists():
             log.error("No index file found", dataset=dataset.name, report_issue=False)
@@ -59,7 +57,7 @@ def export_metadata():
     issues_path = settings.DATASET_PATH.joinpath("issues.json")
     log.info("Writing global issues list", path=issues_path)
     with open(issues_path, "wb") as fh:
-        issues = all_issues(all)
+        issues = all_issues(scope)
         data = {"issues": list(issues)}
         write_json(data, fh)
 
@@ -68,10 +66,10 @@ def export_metadata():
     with open(index_path, "wb") as fh:
         meta = {
             "datasets": datasets,
-            "run_time": settings.RUN_TIME,
-            "dataset_url": settings.DATASET_URL,
-            "issues_url": urljoin(settings.DATASET_URL, "issues.json"),
-            "statements_url": urljoin(settings.DATASET_URL, "statements.csv"),
+            "run_time": zavod_settings.RUN_TIME,
+            "dataset_url": zavod_settings.DATASET_URL,
+            "issues_url": urljoin(zavod_settings.DATASET_URL, "issues.json"),
+            "statements_url": urljoin(zavod_settings.DATASET_URL, "statements.csv"),
             "model": model.to_dict(),
             "schemata": list(schemata),
             "matcher": MatcherV1.explain(),

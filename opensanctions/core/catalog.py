@@ -4,11 +4,10 @@ from functools import cache
 from typing import Dict, Any, List
 from nomenklatura.dataset import DataCatalog
 
+from zavod.meta import get_catalog as get_zavod_catalog
+from zavod.meta import Dataset
+
 from opensanctions import settings
-from opensanctions.core.dataset import Dataset
-from opensanctions.core.source import Source
-from opensanctions.core.external import External
-from opensanctions.core.collection import Collection
 
 
 def _from_metadata(catalog: DataCatalog[Dataset], file_path: Path):
@@ -16,20 +15,13 @@ def _from_metadata(catalog: DataCatalog[Dataset], file_path: Path):
         config: Dict[str, Any] = yaml.load(fh, Loader=yaml.SafeLoader)
     if "name" not in config:
         config["name"] = file_path.stem
-    type_: str = config.get("type", Source.TYPE)
-    type_ = type_.lower().strip()
-    if type_ == Collection.TYPE:
-        return Collection(catalog, config)
-    if type_ == Source.TYPE:
-        return Source(catalog, config)
-    if type_ == External.TYPE:
-        return External(catalog, config)
+    return Dataset(catalog, config)
 
 
 @cache
 def get_catalog() -> DataCatalog[Dataset]:
     """Load the current catalog of datasets and sources."""
-    catalog = DataCatalog(Dataset, {})
+    catalog = get_zavod_catalog()
     for glob in ("**/*.yml", "**/*.yaml"):
         for file_path in settings.METADATA_PATH.glob(glob):
             dataset = _from_metadata(catalog, file_path)

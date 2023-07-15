@@ -1,4 +1,5 @@
-from opensanctions.core import Context, Entity
+from zavod.entity import Entity
+from opensanctions.core import Context
 from opensanctions.core.store import View
 
 EXPORT_CATEGORY = "export"

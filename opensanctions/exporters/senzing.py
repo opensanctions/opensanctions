@@ -1,6 +1,6 @@
 from nomenklatura.senzing import senzing_record
 
-from opensanctions.core import Entity
+from zavod.entity import Entity
 from opensanctions.exporters.common import Exporter
 from opensanctions.util import write_json
 

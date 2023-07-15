@@ -42,11 +42,6 @@ RUN_TIME = datetime.utcnow().replace(microsecond=0)
 RUN_TIME_ISO = RUN_TIME.isoformat(sep="T", timespec="seconds")
 RUN_DATE = RUN_TIME.date().isoformat()
 
-# Public URL version
-DATASET_FOLDER = RUN_TIME.strftime("%Y%m%d")
-DATASET_URL = "https://data.opensanctions.org/datasets/%s/" % DATASET_FOLDER
-DATASET_URL = env_str("OPENSANCTIONS_DATASET_URL", DATASET_URL)
-
 # Directory with metadata specifications for each crawler
 METADATA_PATH = Path(__file__).resolve().parent.joinpath("metadata")
 METADATA_PATH = Path(env.get("OPENSANCTIONS_METADATA_PATH", METADATA_PATH)).resolve()
@@ -61,7 +56,7 @@ if RESOLVER_PATH is None:
     raise RuntimeError("Please set $OPENSANCTIONS_RESOLVER_PATH.")
 
 # User agent
-USER_AGENT = f"Mozilla/5.0 (any)"
+USER_AGENT = "Mozilla/5.0 (any)"
 USER_AGENT = env_str("OPENSANCTIONS_USER_AGENT", USER_AGENT)
 HEADERS = {"User-Agent": USER_AGENT}
 HTTP_TIMEOUT = 240

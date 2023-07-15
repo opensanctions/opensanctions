@@ -9,6 +9,9 @@ from sqlalchemy.exc import OperationalError
 from requests.exceptions import RequestException
 from datapatch import LookupException, Result, Lookup
 from zavod.context import GenericZavod
+from zavod.entity import Entity
+from zavod.meta import Dataset
+from zavod.runner.util import load_method
 from structlog.contextvars import clear_contextvars, bind_contextvars
 from nomenklatura.cache import Cache
 from nomenklatura.util import normalize_url
@@ -17,22 +20,18 @@ from nomenklatura.statement import Statement
 from nomenklatura.statement.serialize import PackStatementWriter
 
 from opensanctions import settings
-from opensanctions.core.dataset import Dataset
-from opensanctions.core.entity import Entity
 from opensanctions.core.catalog import get_catalog
 from opensanctions.core.db import engine, engine_tx, metadata
 from opensanctions.core.issues import IssueWriter
 from opensanctions.core.timestamps import TimeStampIndex
 from opensanctions.core.resolver import get_resolver
 from opensanctions.core.resources import save_resource, clear_resources
-from opensanctions.core.source import Source
 from opensanctions.core.archive import dataset_path, STATEMENTS_RESOURCE
-from opensanctions.core.lookups import common_lookups, _type_lookup
 from opensanctions.core.statements import cleanup_dataset, clear_statements
 from opensanctions.core.statements import save_statements, lock_dataset
 
 
-class Context(GenericZavod[Entity, Dataset]):
+class Context(GenericZavod[Entity]):
     """A utility object to be passed into crawlers which supports
     emitting entities, accessing metadata and logging errors and
     warnings.
@@ -52,12 +51,9 @@ class Context(GenericZavod[Entity, Dataset]):
         self._entity_count = 0
         self._statement_count = 0
 
-        common_lookups.cache_clear()
-        _type_lookup.cache_clear()
-
     @property
-    def source(self) -> Source:
-        if isinstance(self.dataset, Source):
+    def source(self) -> Dataset:
+        if self.dataset.data is not None:
             return self.dataset
         raise RuntimeError("Dataset is not a source: %s" % self.dataset.name)
 
@@ -67,7 +63,7 @@ class Context(GenericZavod[Entity, Dataset]):
 
     @cached_property
     def lang(self) -> Optional[str]:
-        if isinstance(self.dataset, Source):
+        if self.dataset.data is not None:
             return self.dataset.data.lang
         return None
 
@@ -277,7 +273,7 @@ class Context(GenericZavod[Entity, Dataset]):
         for stmt in entity.statements:
             assert stmt.dataset == self.dataset.name, (
                 stmt.prop,
-                entity.default_dataset.name,
+                entity.dataset.name,
                 stmt.dataset,
                 self.dataset.name,
             )
@@ -316,7 +312,8 @@ class Context(GenericZavod[Entity, Dataset]):
         self._statement_count = 0
         try:
             # Run the dataset:
-            self.source.method(self)
+            method = load_method(self.dataset)
+            method(self)
             self.flush()
             if self._entity_count == 0:
                 self.log.warn(

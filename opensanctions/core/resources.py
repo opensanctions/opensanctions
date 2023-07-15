@@ -4,8 +4,8 @@ from typing import Optional, TypedDict, Generator, cast
 from sqlalchemy.future import select
 from sqlalchemy.sql.expression import delete
 
+from zavod.meta import Dataset
 from opensanctions import settings
-from opensanctions.core.dataset import Dataset
 from opensanctions.core.db import Conn, upsert_func, resource_table
 
 

@@ -1,15 +1,15 @@
 from pathlib import Path
 from typing import List, Optional
-from zavod.logs import get_logger
 from followthemoney.exc import InvalidData
 from nomenklatura.statement import Statement
 from nomenklatura.resolver import Resolver
 from nomenklatura.store.level import LevelDBStore, LevelDBView
 from nomenklatura.publish.dates import simplify_dates
 
+from zavod.logs import get_logger
+from zavod.entity import Entity
+from zavod.meta import Dataset
 from opensanctions import settings
-from opensanctions.core.entity import Entity
-from opensanctions.core.dataset import Dataset
 from opensanctions.core.db import engine_read
 from opensanctions.core.resolver import get_resolver
 from opensanctions.core.statements import all_statements

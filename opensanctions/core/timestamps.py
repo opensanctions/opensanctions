@@ -1,10 +1,10 @@
 import plyvel
 from typing import Iterable
-from zavod.logs import get_logger
 from nomenklatura.statement import Statement
 
+from zavod.logs import get_logger
+from zavod.meta import Dataset
 from opensanctions import settings
-from opensanctions.core.dataset import Dataset
 from opensanctions.core.statements import all_statements
 from opensanctions.core.db import engine_read
 

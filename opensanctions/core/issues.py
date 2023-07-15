@@ -7,10 +7,10 @@ from lxml.etree import _Element, tostring
 from typing import Any, Dict, Generator, Optional, TypedDict, cast
 from followthemoney.schema import Schema
 
+from zavod.meta import Dataset
 from opensanctions import settings
 from opensanctions.core.archive import dataset_resource_path, get_dataset_resource
 from opensanctions.core.archive import ISSUES_LOG_RESOURCE
-from opensanctions.core.dataset import Dataset
 
 
 class Issue(TypedDict):

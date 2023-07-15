@@ -4,7 +4,8 @@ from typing import List
 from followthemoney.types import registry
 from followthemoney.util import join_text
 
-from opensanctions.core import Entity, get_catalog
+from zavod.entity import Entity
+from opensanctions.core import get_catalog
 from opensanctions.exporters.common import Exporter
 
 

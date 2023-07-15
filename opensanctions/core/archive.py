@@ -8,8 +8,8 @@ from google.cloud.storage import Client, Bucket, Blob
 from nomenklatura.statement import Statement
 from nomenklatura.statement.serialize import unpack_row
 
+from zavod.meta import Dataset
 from opensanctions import settings
-from opensanctions.core.dataset import Dataset
 
 log = get_logger(__name__)
 StatementGen = Generator[Statement, None, None]

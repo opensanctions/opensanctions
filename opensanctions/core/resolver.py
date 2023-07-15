@@ -1,5 +1,6 @@
 from functools import cache
 from pathlib import Path
+from zavod.entity import Entity
 from typing import Optional, Tuple
 from nomenklatura.judgement import Judgement
 from nomenklatura.resolver import Resolver, Identifier, StrIdent
@@ -7,7 +8,6 @@ from nomenklatura.resolver import Resolver, Identifier, StrIdent
 from opensanctions import settings
 from opensanctions.core.db import engine_tx
 from opensanctions.core.statements import resolve_canonical
-from opensanctions.core.entity import Entity
 
 AUTO_USER = "opensanctions/xref"
 Scored = Tuple[str, str, Optional[float]]
