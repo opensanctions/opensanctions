@@ -52,7 +52,8 @@ class Source(Dataset):
 
     def to_dict(self):
         data = super().to_dict()
-        parents = [p.name for p in self.catalog.datasets if self in p.datasets]
+        all = self.catalog.datasets
+        parents = [p.name for p in all if self in p.datasets and p != self]
         data.update(
             {
                 "url": self.url,
