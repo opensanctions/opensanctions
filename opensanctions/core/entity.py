@@ -2,11 +2,9 @@ from zavod.logs import get_logger
 from prefixdate.precision import Precision
 from typing import Any, Dict, List, Optional, Union
 from followthemoney import model
-from followthemoney.model import Model
 from followthemoney.exc import InvalidData
 from followthemoney.util import gettext
 from followthemoney.types import registry
-from followthemoney.proxy import P
 from followthemoney.schema import Schema
 from followthemoney.property import Property
 from nomenklatura.entity import CompositeEntity
@@ -29,13 +27,12 @@ class Entity(CompositeEntity):
 
     def __init__(
         self,
-        model: Model,
+        dataset: Dataset,
         data: Dict[str, Any],
         cleaned: bool = True,
-        default_dataset: Dataset = None,
     ):
-        super().__init__(model, data, cleaned=cleaned, default_dataset=default_dataset)
-        self.default_dataset: Dataset = default_dataset
+        super().__init__(dataset, data, cleaned=cleaned)
+        self.dataset: Dataset = dataset
         self.last_change: Optional[str] = None
 
     def make_id(self, *parts: Any) -> str:
@@ -50,7 +47,7 @@ class Entity(CompositeEntity):
         format: Optional[str] = None,
     ) -> List[str]:
         results: List[str] = []
-        for item in type_lookup(self.default_dataset, prop.type, value):
+        for item in type_lookup(self.dataset, prop.type, value):
             clean: Optional[str] = item
             if not cleaned:
                 clean = prop.type.clean_text(
@@ -116,7 +113,7 @@ class Entity(CompositeEntity):
                 prop=prop.name,
                 schema=schema or self.schema.name,
                 value=clean,
-                dataset=dataset or self.default_dataset.name,
+                dataset=dataset or self.dataset.name,
                 lang=lang,
                 original_value=original_value,
                 first_seen=seen,

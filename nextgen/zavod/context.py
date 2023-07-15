@@ -2,7 +2,6 @@ import json
 from pathlib import Path
 from typing import Any, Generic, Optional, Type, Union
 
-from followthemoney import model
 from followthemoney.schema import Schema
 from followthemoney.util import PathLike, make_entity_id
 from nomenklatura.entity import CE
@@ -62,11 +61,7 @@ class GenericZavod(Generic[CE, ZD]):
 
     def make(self, schema: Union[str, Schema]) -> CE:
         """Make a new entity with some dataset context set."""
-        return self.entity_type(
-            model,
-            {"schema": schema},
-            default_dataset=self.dataset,
-        )
+        return self.entity_type(self.dataset, {"schema": schema})
 
     def make_slug(
         self, *parts: Optional[str], strict: bool = True, prefix: Optional[str] = None

@@ -1,7 +1,7 @@
 import sys
 import logging
 import structlog
-from typing import List, Any, Dict, MutableMapping
+from typing import List, Any, MutableMapping
 from structlog.stdlib import get_logger as get_raw_logger
 from structlog.contextvars import merge_contextvars
 from structlog.types import Processor
