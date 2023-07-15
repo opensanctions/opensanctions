@@ -34,6 +34,7 @@ DATASET_URL = env_str("ZAVOD_DATASET_URL", DATASET_URL)
 
 # Bucket to back-fill missing data artifacts from
 ARCHIVE_BUCKET = env.get("ZAVOD_ARCHIVE_BUCKET", None)
+ARCHIVE_BUCKET = env.get("OPENSANCTIONS_BACKFILL_BUCKET", ARCHIVE_BUCKET)
 BACKFILL_RELEASE = env_str("ZAVOD_BACKFILL_RELEASE", "latest")
 
 # HTTP settings
