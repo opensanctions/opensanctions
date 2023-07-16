@@ -1,4 +1,4 @@
-entry_point: opensanctions.crawlers.validation
+entry_point: validation
 title: OpenSanctions Validation Dataset
 prefix: osv
 hidden: true

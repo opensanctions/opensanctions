@@ -1,0 +1,14 @@
+entry_point: analyzer
+title: OpenSanctions Analyzer
+prefix: anly
+hidden: true
+publisher:
+  name: OpenSanctions
+  description: |
+    Manually created by the project team.
+  url: https://www.opensanctions.org
+  official: false
+url: https://github.com/opensanctions/opensanctions
+
+scopes:
+  - validation

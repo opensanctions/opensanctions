@@ -60,3 +60,9 @@ def test_validation(vdataset: Dataset):
     assert vdataset.publisher.official is False
     assert len(vdataset.children) == 0
     assert len(vdataset.datasets) == 1
+    assert vdataset.scope is None
+
+
+def test_analyzer(analyzer: Dataset, vdataset: Dataset):
+    assert analyzer.scope is not None
+    assert analyzer.scope == vdataset

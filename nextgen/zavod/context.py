@@ -109,7 +109,7 @@ class Context(object):
         if len(cleaned):
             self.log.warn("Unexpected data found", data=cleaned)
 
-    def emit(self, entity: Entity) -> None:
+    def emit(self, entity: Entity, target: bool = False) -> None:
         pass
 
     def close(self) -> None:

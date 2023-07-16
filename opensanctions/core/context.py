@@ -20,7 +20,7 @@ from zavod.context import Context as ZavodContext
 from zavod.entity import Entity
 from zavod.meta import Dataset
 from zavod.dedupe import get_resolver
-from zavod.runner.util import load_method
+from zavod.runtime.loader import load_entry_point
 from zavod.archive import dataset_path, STATEMENTS_RESOURCE
 from opensanctions.core.db import engine, engine_tx, metadata
 from opensanctions.core.issues import IssueWriter
@@ -246,8 +246,8 @@ class Context(ZavodContext):
     def crawl(self) -> bool:
         """Run the crawler."""
         self.bind()
-        if self.source.disabled:
-            self.log.info("Source is disabled")
+        if self.dataset.disabled:
+            self.log.info("Dataset is disabled")
             return True
         self.issues.clear()
         with engine_tx() as conn:
@@ -257,7 +257,7 @@ class Context(ZavodContext):
         self._statement_count = 0
         try:
             # Run the dataset:
-            method = load_method(self.dataset)
+            method = load_entry_point(self.dataset)
             method(self)
             self.flush()
             if self._entity_count == 0:

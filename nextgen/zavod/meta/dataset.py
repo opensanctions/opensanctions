@@ -42,11 +42,18 @@ class Dataset(NKDataset):
         scopes = [self.catalog.require(s) for s in self._scopes]
         if len(scopes) == 1:
             return scopes[0]
+        # Weird: if there are many scopes, we're making up a synthetic collection
+        # to group them together so that we can build a store and view for them.
         names = sorted([s.name for s in scopes])
         key = hash_data(".".join(names))
         name = f"scope_{key}"
         if not self.catalog.has(name):
-            data = {"name": name, "datasets": names, "hidden": True}
+            data = {
+                "name": name,
+                "title": name,
+                "datasets": names,
+                "hidden": True,
+            }
             scope = self.catalog.make_dataset(data)
             self.catalog.add(scope)
         return self.catalog.require(name)

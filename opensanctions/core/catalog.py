@@ -16,7 +16,9 @@ def _from_metadata(catalog: DataCatalog[Dataset], file_path: Path):
         config: Dict[str, Any] = yaml.load(fh, Loader=yaml.SafeLoader)
     if "name" not in config:
         config["name"] = file_path.stem
-    return Dataset(catalog, config)
+    dataset = Dataset(catalog, config)
+    dataset.base_path = file_path.parent
+    return dataset
 
 
 @cache
