@@ -9,9 +9,9 @@ from nomenklatura.publish.dates import simplify_dates
 from zavod.logs import get_logger
 from zavod.entity import Entity
 from zavod.meta import Dataset
+from zavod.resolver import get_resolver
 from zavod.archive import dataset_state_path
 from opensanctions.core.db import engine_read
-from opensanctions.core.resolver import get_resolver
 from opensanctions.core.statements import all_statements
 
 

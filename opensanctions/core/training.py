@@ -2,16 +2,16 @@ from typing import Dict, Optional, Set, Tuple, Generator
 from itertools import combinations
 from collections import defaultdict
 from nomenklatura.judgement import Judgement
-from nomenklatura.resolver import Identifier
+from nomenklatura.resolver import Identifier, Resolver
 
 from zavod.meta import Dataset
 from zavod.entity import Entity
 from zavod.logs import get_logger
+from zavod.resolver import get_resolver
 from opensanctions.core.catalog import get_catalog
 from opensanctions.core.db import engine_read
 from opensanctions.core.statements import entities_datasets
 from opensanctions.core.store import Store, get_store
-from opensanctions.core.resolver import get_resolver, Resolver
 
 log = get_logger(__name__)
 

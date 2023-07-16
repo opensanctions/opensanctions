@@ -37,6 +37,13 @@ ARCHIVE_BUCKET = env.get("ZAVOD_ARCHIVE_BUCKET", None)
 ARCHIVE_BUCKET = env.get("OPENSANCTIONS_BACKFILL_BUCKET", ARCHIVE_BUCKET)
 BACKFILL_RELEASE = env_str("ZAVOD_BACKFILL_RELEASE", "latest")
 
+# File path for the resolver path used for entity deduplication
+RESOLVER_PATH = env.get("ZAVOD_RESOLVER_PATH")
+RESOLVER_PATH = env.get("OPENSANCTIONS_RESOLVER_PATH", RESOLVER_PATH)
+if RESOLVER_PATH is None:
+    raise RuntimeError("Please set $OPENSANCTIONS_RESOLVER_PATH.")
+
+
 # HTTP settings
 HTTP_TIMEOUT = 1200
 HTTP_USER_AGENT = "Mozilla/5.0 (zavod)"

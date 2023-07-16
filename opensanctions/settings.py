@@ -19,8 +19,3 @@ db.POOL_SIZE = int(env_str("OPENSANCTIONS_POOL_SIZE", db.POOL_SIZE))
 # Directory with metadata specifications for each crawler
 METADATA_PATH = Path(__file__).resolve().parent.joinpath("metadata")
 METADATA_PATH = Path(env.get("OPENSANCTIONS_METADATA_PATH", METADATA_PATH)).resolve()
-
-# Resolver file path
-RESOLVER_PATH = env.get("OPENSANCTIONS_RESOLVER_PATH")
-if RESOLVER_PATH is None:
-    raise RuntimeError("Please set $OPENSANCTIONS_RESOLVER_PATH.")

@@ -3,11 +3,11 @@ import hashlib
 import mimetypes
 from pathlib import Path
 from functools import cached_property
-from typing import Dict, Optional, Any, List
+from typing import Dict, Optional
 from lxml import etree, html
 from sqlalchemy.exc import OperationalError
 from requests.exceptions import RequestException
-from datapatch import LookupException, Result, Lookup
+from datapatch import LookupException
 from structlog.contextvars import clear_contextvars, bind_contextvars
 from nomenklatura.cache import Cache
 from nomenklatura.util import normalize_url
@@ -19,13 +19,12 @@ from zavod import settings
 from zavod.context import Context as ZavodContext
 from zavod.entity import Entity
 from zavod.meta import Dataset
+from zavod.resolver import get_resolver
 from zavod.runner.util import load_method
 from zavod.archive import dataset_path, STATEMENTS_RESOURCE
-from opensanctions.core.catalog import get_catalog
 from opensanctions.core.db import engine, engine_tx, metadata
 from opensanctions.core.issues import IssueWriter
 from opensanctions.core.timestamps import TimeStampIndex
-from opensanctions.core.resolver import get_resolver
 from opensanctions.core.resources import save_resource, clear_resources
 from opensanctions.core.statements import cleanup_dataset, clear_statements
 from opensanctions.core.statements import save_statements, lock_dataset
@@ -176,42 +175,6 @@ class Context(ZavodContext):
                 size,
                 title,
             )
-
-    def lookup_value(
-        self,
-        lookup: str,
-        value: Optional[str],
-        default: Optional[str] = None,
-        dataset: Optional[str] = None,
-    ) -> Optional[str]:
-        try:
-            lookup_obj = self.get_lookup(lookup, dataset=dataset)
-            return lookup_obj.get_value(value, default=default)
-        except LookupException:
-            return default
-
-    def get_lookup(self, lookup: str, dataset: Optional[str] = None) -> Lookup:
-        ds = get_catalog().require(dataset) if dataset is not None else self.dataset
-        return ds.lookups[lookup]
-
-    def lookup(
-        self, lookup: str, value: Optional[str], dataset: Optional[str] = None
-    ) -> Optional[Result]:
-        return self.get_lookup(lookup, dataset=dataset).match(value)
-
-    def audit_data(
-        self, data: Dict[Optional[str], Any], ignore: List[str] = []
-    ) -> None:
-        """Print a row if any of the fields not ignored are still unused."""
-        cleaned = {}
-        for key, value in data.items():
-            if key in ignore:
-                continue
-            if value is None or value == "":
-                continue
-            cleaned[key] = value
-        if len(cleaned):
-            self.log.warn("Unexpected data found", data=cleaned)
 
     def flush(self) -> None:
         """Emitted entities are de-constructed into statements for the database
