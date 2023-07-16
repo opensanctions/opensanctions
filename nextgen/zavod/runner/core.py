@@ -7,6 +7,11 @@ from zavod.meta import Dataset
 from zavod.context import Context
 from zavod.runtime.stats import ContextStats
 from zavod.runtime.loader import load_entry_point
+from zavod.runner.enrich import dataset_enricher
+
+# HACK: Importing the enrich module in the test avoids a segfault otherwise happening
+# on OS X, probably related to the nested use of import_module.
+assert dataset_enricher is not None
 
 
 def run_dataset(dataset: Dataset, dry_run: bool = False) -> ContextStats:

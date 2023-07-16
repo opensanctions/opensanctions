@@ -133,6 +133,8 @@ class Context(object):
         for stmt in entity.statements:
             if stmt.lang is None:
                 stmt.lang = self.lang
+            stmt.external = external
+            stmt.target = target
             self.stats.statements += 1
             if not self.dry_run:
                 self.sink.emit(stmt)

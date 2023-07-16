@@ -1,23 +1,25 @@
 from followthemoney.helpers import check_person_cutoff
 from nomenklatura.judgement import Judgement
 from nomenklatura.resolver import Resolver
+from nomenklatura.cache import Cache
 from nomenklatura.enrich import Enricher, EnrichmentException, get_enricher
 from nomenklatura.matching import DefaultAlgorithm
 
+from zavod.meta import Dataset
 from zavod.entity import Entity
 from zavod.context import Context
 from zavod.dedupe import get_resolver
 from opensanctions.core.store import get_view  # type: ignore
 
 
-def dataset_enricher(context: Context) -> Enricher:
+def dataset_enricher(dataset: Dataset, cache: Cache) -> Enricher:
     """Load and configure the enricher interface."""
-    config = dict(context.dataset.config)
+    config = dict(dataset.config)
     enricher_type = config.pop("type")
     enricher_cls = get_enricher(enricher_type)
     if enricher_cls is None:
         raise RuntimeError("Could load enricher: %s" % enricher_type)
-    return enricher_cls(context.dataset, context.cache, config)  # type: ignore
+    return enricher_cls(dataset, cache, config)  # type: ignore
 
 
 def save_match(
@@ -63,7 +65,7 @@ def enrich(context: Context) -> None:
         raise RuntimeError(msg)
     view = get_view(context.dataset.scope)
     resolver = get_resolver()
-    enricher = dataset_enricher(context)
+    enricher = dataset_enricher(context.dataset, context.cache)
     threshold = float(context.dataset.config.get("threshold", 0.7))
     try:
         for entity_idx, entity in enumerate(view.entities()):
