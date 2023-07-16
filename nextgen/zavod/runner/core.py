@@ -1,9 +1,24 @@
-from typing import Callable
-from sqlalchemy.exc import OperationalError
-from requests.exceptions import RequestException
-from datapatch import LookupException
+# from typing import Callable
+# from sqlalchemy.exc import OperationalError
+# from requests.exceptions import RequestException
+# from datapatch import LookupException
 
 from zavod.meta import Dataset
+from zavod.context import Context
+from zavod.runtime.stats import ContextStats
+from zavod.runtime.loader import load_entry_point
+
+
+def run_dataset(dataset: Dataset, dry_run: bool = False) -> ContextStats:
+    """Load the dataset entry point, configure a context, and then execute the entry
+    point; finally disband the context."""
+    context = Context(dataset, dry_run=dry_run)
+    try:
+        entry_point = load_entry_point(dataset)
+        entry_point(context)
+    finally:
+        context.close()
+    return context.stats
 
 
 # def execute_runner(dataset: Dataset, method: Callable):

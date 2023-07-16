@@ -5,8 +5,7 @@ from followthemoney.cli.util import InPath
 
 from zavod.logs import configure_logging, get_logger
 from zavod.meta import load_dataset_from_path
-
-# from zavod.context import Context
+from zavod.runner import run_dataset
 
 log = get_logger(__name__)
 
@@ -21,5 +20,4 @@ def cli() -> None:
 @click.option("-d", "--dry-run", is_flag=True, default=False)
 def run(path: Path, dry_run: bool = False) -> None:
     dataset = load_dataset_from_path(path)
-    # context = Context(dataset)
-    print(dataset)
+    run_dataset(dataset, dry_run=dry_run)
