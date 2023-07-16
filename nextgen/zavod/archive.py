@@ -54,14 +54,22 @@ def backfill_resource(
     return None
 
 
+def datasets_path() -> Path:
+    return settings.DATA_PATH / "datasets"
+
+
+def state_path() -> Path:
+    return settings.DATA_PATH / "state"
+
+
 def dataset_path(dataset_name: str) -> Path:
-    path = settings.DATASET_PATH / dataset_name
+    path = datasets_path() / dataset_name
     path.mkdir(parents=True, exist_ok=True)
     return path.resolve()
 
 
 def dataset_state_path(dataset_name: str) -> Path:
-    path = settings.STATE_PATH / dataset_name
+    path = state_path() / dataset_name
     path.mkdir(parents=True, exist_ok=True)
     return path.resolve()
 

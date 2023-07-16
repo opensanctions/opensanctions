@@ -4,10 +4,9 @@ from nomenklatura.statement import Statement
 from nomenklatura.statement import read_path_statements, CSV
 from nomenklatura.statement import write_statements
 
-from zavod import settings
 from zavod.logs import get_logger
 from zavod.meta import Dataset
-from zavod.archive import iter_dataset_statements
+from zavod.archive import iter_dataset_statements, datasets_path
 from opensanctions.core.db import engine_tx
 from opensanctions.core.statements import clear_statements
 from opensanctions.core.statements import save_statements
@@ -32,7 +31,7 @@ def dump_statements(
 
 
 def export_statements():
-    stmts_path = settings.DATASET_PATH.joinpath("statements.csv")
+    stmts_path = datasets_path().joinpath("statements.csv")
     export_statements_path(stmts_path)
 
 

@@ -7,7 +7,8 @@ from nomenklatura.matching import MatcherV1
 from zavod import settings
 from zavod.logs import get_logger
 from zavod.meta import Dataset
-from zavod.archive import get_dataset_resource, INDEX_RESOURCE
+from zavod.archive import get_dataset_resource, datasets_path
+from zavod.archive import INDEX_RESOURCE
 from opensanctions.core.db import engine_tx
 from opensanctions.core.issues import all_issues, agg_issues_by_level
 from opensanctions.core.resources import all_resources
@@ -41,6 +42,7 @@ def dataset_to_index(dataset: Dataset) -> Dict[str, Any]:
 
 def export_metadata(scope: Dataset) -> None:
     """Export the global index for all datasets."""
+    base_path = datasets_path()
     datasets = []
     schemata = set()
     for dataset in scope.datasets:
@@ -53,14 +55,14 @@ def export_metadata(scope: Dataset) -> None:
                 schemata.update(ds_data.get("schemata", []))
                 datasets.append(ds_data)
 
-    issues_path = settings.DATASET_PATH.joinpath("issues.json")
+    issues_path = base_path.joinpath("issues.json")
     log.info("Writing global issues list", path=issues_path)
     with open(issues_path, "wb") as fh:
         issues = all_issues(scope)
         data = {"issues": list(issues)}
         write_json(data, fh)
 
-    index_path = settings.DATASET_PATH.joinpath(INDEX_RESOURCE)
+    index_path = base_path.joinpath(INDEX_RESOURCE)
     log.info("Writing global index", datasets=len(datasets), path=index_path)
     with open(index_path, "wb") as fh:
         meta = {
