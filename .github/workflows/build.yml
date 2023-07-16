@@ -37,12 +37,14 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python }}
-      - name: Install dependencies and zavod
-        working-directory: nextgen
+      - name: Install system dependencies
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
           sudo apt-get install -y -qq libicu-dev
+      - name: Install zavod dependencies
+        working-directory: nextgen
+        run: |
           pip install --no-cache-dir -q -e ".[dev]"
           pip freeze
       - name: Check zavod type annotations (strict)
