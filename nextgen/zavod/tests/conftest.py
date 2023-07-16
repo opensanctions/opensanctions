@@ -1,6 +1,6 @@
 import pytest
 from pathlib import Path
-from tempfile import mkdtemp
+from tempfile import mkdtemp, mkstemp
 
 from zavod import settings
 from zavod.meta import get_catalog, load_dataset_from_path, Dataset
@@ -18,6 +18,8 @@ ENRICHER_YML = FIXTURES_PATH / "enricher.yml"
 
 @pytest.fixture(autouse=True)
 def clear_catalog():
+    _, path = mkstemp(suffix=".ijson")
+    settings.RESOLVER_PATH = path
     get_resolver.cache_clear()
     yield
     get_catalog.cache_clear()

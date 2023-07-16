@@ -9,7 +9,7 @@ from zavod.meta import Dataset
 from zavod.entity import Entity
 from zavod.context import Context
 from zavod.dedupe import get_resolver
-from opensanctions.core.store import get_view  # type: ignore
+from zavod.store import get_view
 
 
 def dataset_enricher(dataset: Dataset, cache: Cache) -> Enricher:
