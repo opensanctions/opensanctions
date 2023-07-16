@@ -6,7 +6,7 @@ from followthemoney.types import registry
 from followthemoney.util import make_entity_id, join_text
 
 from zavod.entity import Entity
-from zavod.meta.lookups import type_lookup
+from zavod.runtime.lookups import type_lookup
 from opensanctions.core.context import Context
 
 

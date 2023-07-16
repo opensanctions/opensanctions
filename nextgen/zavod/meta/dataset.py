@@ -1,6 +1,7 @@
 from banal import ensure_list, ensure_dict, hash_data
 from typing import Dict, Any, Optional, List
 from normality import slugify
+from pathlib import Path
 from urllib.parse import urljoin
 from functools import cached_property
 from datapatch import get_lookups, Lookup
@@ -27,6 +28,7 @@ class Dataset(NKDataset):
         _scopes = ensure_list(data.get("scopes", []))
         self._scopes: List[str] = [str(x) for x in _scopes]
         self._data = data
+        self.base_path: Optional[Path] = None
 
         # TODO: this is for backward compatibility, get rid of it one day
         self._type: str = data.get("type", "source").lower().strip()

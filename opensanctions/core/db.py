@@ -4,6 +4,8 @@ from sqlalchemy import Table, Column, Integer, DateTime, Unicode, Boolean
 from sqlalchemy.dialects.postgresql import insert as upsert_func
 from nomenklatura.db import get_engine, get_metadata
 
+from opensanctions import settings  # noqa
+
 KEY_LEN = 255
 VALUE_LEN = 65535
 Conn = Connection
