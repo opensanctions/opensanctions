@@ -10,7 +10,7 @@ from nomenklatura.resolver import Identifier
 from nomenklatura.matching import DefaultAlgorithm
 
 from zavod.archive import dataset_path
-from zavod.resolver import get_resolver
+from zavod.dedupe import get_resolver
 from opensanctions.core import Context, setup
 from opensanctions.exporters.statements import export_statements_path
 from opensanctions.exporters.statements import import_statements_path

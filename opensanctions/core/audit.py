@@ -4,7 +4,7 @@ from nomenklatura.util import is_qid
 from nomenklatura.enrich.wikidata import WikidataEnricher
 from nomenklatura.judgement import Judgement
 
-from zavod.resolver import get_resolver
+from zavod.dedupe import get_resolver
 from opensanctions.core.db import engine, metadata, engine_read
 from opensanctions.core.statements import entities_datasets
 from opensanctions.core.catalog import get_catalog

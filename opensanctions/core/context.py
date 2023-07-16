@@ -19,7 +19,7 @@ from zavod import settings
 from zavod.context import Context as ZavodContext
 from zavod.entity import Entity
 from zavod.meta import Dataset
-from zavod.resolver import get_resolver
+from zavod.dedupe import get_resolver
 from zavod.runner.util import load_method
 from zavod.archive import dataset_path, STATEMENTS_RESOURCE
 from opensanctions.core.db import engine, engine_tx, metadata

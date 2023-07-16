@@ -4,7 +4,7 @@ from nomenklatura.xref import xref
 from nomenklatura.matching import DefaultAlgorithm, get_algorithm
 
 from zavod.meta import Dataset
-from zavod.resolver import get_resolver, AUTO_USER
+from zavod.dedupe import get_resolver, AUTO_USER
 from opensanctions.core.store import get_store
 
 log = get_logger(__name__)
