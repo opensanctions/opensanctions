@@ -58,7 +58,7 @@ def datasets_path() -> Path:
     return settings.DATA_PATH / "datasets"
 
 
-def state_path() -> Path:
+def _state_path() -> Path:
     return settings.DATA_PATH / "state"
 
 
@@ -69,7 +69,9 @@ def dataset_path(dataset_name: str) -> Path:
 
 
 def dataset_state_path(dataset_name: str) -> Path:
-    path = state_path() / dataset_name
+    """The state directory is outside the main data directory and is used for temporary
+    processing artifacts (like the materialised graph, and the timestamp index)."""
+    path = _state_path() / dataset_name
     path.mkdir(parents=True, exist_ok=True)
     return path.resolve()
 
@@ -102,7 +104,7 @@ def get_dataset_index(dataset_name: str, backfill: bool = True) -> Optional[Path
     return None
 
 
-def read_fh_statements(fh: TextIO, external: bool) -> StatementGen:
+def _read_fh_statements(fh: TextIO, external: bool) -> StatementGen:
     for cells in csv.reader(fh):
         stmt = unpack_row(cells, Statement)
         if not external and stmt.external:
@@ -111,6 +113,7 @@ def read_fh_statements(fh: TextIO, external: bool) -> StatementGen:
 
 
 def iter_dataset_statements(dataset: Dataset, external: bool = True) -> StatementGen:
+    """Create a generator that yields all statements in the given dataset."""
     for scope in dataset.leaves:
         yield from _iter_scope_statements(scope, external=external)
 
@@ -125,9 +128,23 @@ def _iter_scope_statements(dataset: Dataset, external: bool = True) -> Statement
                 dataset=dataset.name,
             )
             with backfill_blob.open("r", chunk_size=BLOB_CHUNK) as fh:
-                yield from read_fh_statements(fh, external)
+                yield from _read_fh_statements(fh, external)
             return
         raise ValueError(f"Cannot load statements for: {dataset.name}")
 
     with open(path, "r") as fh:
-        yield from read_fh_statements(fh, external)
+        yield from _read_fh_statements(fh, external)
+
+
+def iter_previous_statements(dataset: Dataset, external: bool = True) -> StatementGen:
+    """Load the statements from the previous release of the dataset by streaming them
+    from the data archive."""
+    for scope in dataset.leaves:
+        backfill_blob = get_backfill_blob(scope.name, STATEMENTS_RESOURCE)
+        if backfill_blob is not None:
+            log.info(
+                "Streaming backfilled statements...",
+                dataset=scope.name,
+            )
+            with backfill_blob.open("r", chunk_size=BLOB_CHUNK) as fh:
+                yield from _read_fh_statements(fh, external)

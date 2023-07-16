@@ -10,8 +10,6 @@ from zavod import settings
 from zavod.logs import get_logger
 from zavod.meta import Dataset
 
-# from opensanctions.core.store import get_store
-
 log = get_logger(__name__)
 AUTO_USER = "zavod/xref"
 
@@ -31,23 +29,29 @@ def blocking_xref(
     algorithm: str = DefaultAlgorithm.NAME,
     focus_dataset: Optional[str] = None,
 ) -> None:
+    """This runs the deduplication process, which compares all entities in the given
+    dataset against each other, and stores the highest-scoring candidates for human
+    review. Candidates above the given threshold score will be merged automatically.
+    """
+    from zavod.store import get_store
+
     resolver = get_resolver()
     resolver.prune()
     log.info(
         "Xref running, auto merge threshold: %f; algorithm: %r"
         % (auto_threshold, algorithm)
     )
-    # store = get_store(dataset, external=True)
-    # algorithm_type = get_algorithm(algorithm)
-    # if algorithm_type is None:
-    #     raise ValueError("Invalid algorithm: %s" % algorithm)
-    # xref(
-    #     store,
-    #     limit=limit,
-    #     scored=True,
-    #     auto_threshold=auto_threshold,
-    #     focus_dataset=focus_dataset,
-    #     algorithm=algorithm_type,
-    #     user=AUTO_USER,
-    # )
+    store = get_store(dataset, external=True)
+    algorithm_type = get_algorithm(algorithm)
+    if algorithm_type is None:
+        raise ValueError("Invalid algorithm: %s" % algorithm)
+    xref(
+        store,
+        limit=limit,
+        scored=True,
+        auto_threshold=auto_threshold,
+        focus_dataset=focus_dataset,
+        algorithm=algorithm_type,
+        user=AUTO_USER,
+    )
     resolver.save()

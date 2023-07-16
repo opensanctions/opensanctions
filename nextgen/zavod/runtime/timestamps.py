@@ -1,0 +1,42 @@
+import plyvel  # type: ignore
+from typing import Iterable, Optional
+from nomenklatura.statement import Statement
+
+from zavod import settings
+from zavod.logs import get_logger
+from zavod.meta import Dataset
+from zavod.archive import dataset_state_path, iter_previous_statements
+
+log = get_logger(__name__)
+
+
+class TimeStampIndex(object):
+    def __init__(self, dataset: Dataset) -> None:
+        path = dataset_state_path(dataset.name) / "timestamps"
+        self.db = plyvel.DB(path.as_posix(), create_if_missing=True)
+
+    def index(self, statements: Iterable[Statement]) -> None:
+        log.info("Building timestamp index...")
+        # TODO: work out the previous logic.
+        batch = self.db.write_batch()
+        idx = 0
+        for idx, stmt in enumerate(statements):
+            if stmt.first_seen is not None and stmt.id is not None:
+                batch.put(stmt.id.encode("utf-8"), stmt.first_seen.encode("utf-8"))
+        batch.write()
+        log.info("Index ready.", count=idx)
+
+    @classmethod
+    def build(cls, dataset: Dataset) -> "TimeStampIndex":
+        index = cls(dataset)
+        index.index(iter_previous_statements(dataset, external=False))
+        return index
+
+    def get(self, id: str) -> str:
+        first_seen: Optional[bytes] = self.db.get(id.encode("utf-8"))
+        if first_seen is not None:
+            return first_seen.decode("utf-8")
+        return settings.RUN_TIME_ISO
+
+    def __repr__(self) -> str:
+        return f"<TimeStampIndex({self.db.name!r})>"

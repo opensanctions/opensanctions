@@ -2,7 +2,7 @@ from zavod.logs import get_logger
 from prefixdate.precision import Precision
 from typing import Any, Dict, List, Optional, Union
 from followthemoney import model
-from followthemoney.exc import InvalidData
+from followthemoney.exc import InvalidData, InvalidModel
 from followthemoney.util import gettext
 from followthemoney.types import registry
 from followthemoney.schema import Schema
@@ -135,10 +135,10 @@ class Entity(CompositeEntity):
 
         schema_ = model.get(schema)
         if schema_ is None:
-            raise RuntimeError("Invalid schema: %s" % schema)
+            raise InvalidModel("Invalid schema: %s" % schema)
         prop_ = schema_.get(prop)
         if prop_ is None:
-            raise RuntimeError("Invalid prop: %s" % prop)
+            raise InvalidModel("Invalid prop: %s" % prop)
         for text in string_list(values):
             for clean in self.lookup_clean(
                 prop_, text, cleaned=cleaned, fuzzy=fuzzy, format=format

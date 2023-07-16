@@ -5,6 +5,7 @@ from datapatch import LookupException, Result, Lookup
 from followthemoney.schema import Schema
 from followthemoney.util import make_entity_id
 
+from zavod import settings
 from zavod.audit import inspect
 from zavod.meta import Dataset, get_catalog
 from zavod.entity import Entity
@@ -135,6 +136,8 @@ class Context(object):
                 stmt.lang = self.lang
             stmt.external = external
             stmt.target = target
+            stmt.first_seen = settings.RUN_TIME_ISO
+            stmt.last_seen = settings.RUN_TIME_ISO
             self.stats.statements += 1
             if not self.dry_run:
                 self.sink.emit(stmt)
