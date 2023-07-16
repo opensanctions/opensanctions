@@ -18,6 +18,9 @@ AUTO_USER = "zavod/xref"
 
 @cache
 def get_resolver() -> Resolver[Entity]:
+    """Load the deduplication resolver."""
+    if settings.RESOLVER_PATH is None:
+        raise RuntimeError("Please set $ZAVOD_RESOLVER_PATH.")
     return Resolver.load(Path(settings.RESOLVER_PATH))
 
 
@@ -27,7 +30,7 @@ def blocking_xref(
     auto_threshold: float = 0.990,
     algorithm: str = DefaultAlgorithm.NAME,
     focus_dataset: Optional[str] = None,
-):
+) -> None:
     resolver = get_resolver()
     resolver.prune()
     log.info(

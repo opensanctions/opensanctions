@@ -12,7 +12,7 @@ from nomenklatura.statement import Statement
 from nomenklatura.util import string_list
 
 from zavod.meta import Dataset
-from zavod.meta.lookups import type_lookup
+from zavod.runtime.lookups import type_lookup
 
 log = get_logger(__name__)
 
