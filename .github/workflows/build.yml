@@ -26,9 +26,6 @@ jobs:
       OPENSANCTIONS_RESOLVER_PATH: /dev/null
 
     runs-on: ubuntu-latest
-    defaults:
-        run:
-            working-directory: nextgen
     strategy:
       matrix:
         python:
@@ -56,15 +53,13 @@ jobs:
         working-directory: nextgen
         run: |
           make test
-      - name: Build a distribution
+      - name: Build a zavod distribution
         working-directory: nextgen
         run: |
           python setup.py sdist bdist_wheel
-          ls -l dist/
-          pwd
       - name: Install opensanctions
         run: |
-          pip install --no-cache-dir -q -e ".[dev]"
+          pip install -e ".[dev]"
           pip freeze
       - name: Crawl a single dataset
         run: |
