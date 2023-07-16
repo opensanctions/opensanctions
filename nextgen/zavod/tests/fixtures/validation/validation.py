@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Dict
 from pantomime.types import CSV
 
-from opensanctions.core import Context
+from zavod import Context
 from zavod.parse import make_address
 
 LOCAL_PATH = Path(__file__).parent / "dataset.csv"
@@ -57,7 +57,7 @@ def crawl(context: Context):
     with open(LOCAL_PATH, "r") as fh:
         with open(data_path, "w") as out:
             out.write(fh.read())
-    context.export_resource(data_path, CSV, title=context.SOURCE_TITLE)
+    # context.export_resource(data_path, CSV, title=context.SOURCE_TITLE)
     with open(data_path, "r") as fh:
         for row in csv.DictReader(fh):
             crawl_row(context, row)

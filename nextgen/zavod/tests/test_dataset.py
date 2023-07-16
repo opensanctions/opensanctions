@@ -1,5 +1,5 @@
 import pytest
-from zavod.meta import get_catalog
+from zavod.meta import get_catalog, Dataset
 
 from nomenklatura.exceptions import MetadataException
 
@@ -52,3 +52,11 @@ def test_basic():
     os_data = coll_ds.to_opensanctions_dict()
     assert "collections" not in os_data, os_data
     assert os_data["sources"] == ["test"], os_data
+
+
+def test_validation(vdataset: Dataset):
+    assert vdataset.name == "validation"
+    assert vdataset.publisher.name == "OpenSanctions"
+    assert vdataset.publisher.official is False
+    assert len(vdataset.children) == 0
+    assert len(vdataset.datasets) == 1

@@ -1,20 +1,15 @@
 import logging
-from followthemoney.util import PathLike
 
 from zavod import settings
 from zavod.meta import Dataset
-from zavod.logs import configure_logging, get_logger
+from zavod.entity import Entity
+from zavod.context import Context
 
 __version__ = "0.7.5"
 __all__ = [
-    "init",
-    "context",
-    "Zavod",
+    "Context",
+    "Entity",
     "Dataset",
-    "ZD",
-    "PathLike",
-    "configure_logging",
-    "get_logger",
     "settings",
 ]
 

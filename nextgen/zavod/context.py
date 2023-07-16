@@ -1,11 +1,12 @@
 import json
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, Dict, List
+from datapatch import LookupException, Result, Lookup
 from followthemoney.schema import Schema
 from followthemoney.util import make_entity_id
 
 from zavod.audit import inspect
-from zavod.meta import Dataset
+from zavod.meta import Dataset, get_catalog
 from zavod.entity import Entity
 from zavod.archive import PathLike, dataset_resource_path, dataset_path
 from zavod.http import fetch_file, make_session
@@ -64,11 +65,49 @@ class Context(object):
             return None
         return self.make_slug(hashed, prefix=prefix, strict=True)
 
+    def lookup_value(
+        self,
+        lookup: str,
+        value: Optional[str],
+        default: Optional[str] = None,
+        dataset: Optional[str] = None,
+    ) -> Optional[str]:
+        try:
+            lookup_obj = self.get_lookup(lookup, dataset=dataset)
+            return lookup_obj.get_value(value, default=default)
+        except LookupException:
+            return default
+
+    def get_lookup(self, lookup: str, dataset: Optional[str] = None) -> Lookup:
+        ds = get_catalog().require(dataset) if dataset is not None else self.dataset
+        return ds.lookups[lookup]
+
+    def lookup(
+        self, lookup: str, value: Optional[str], dataset: Optional[str] = None
+    ) -> Optional[Result]:
+        return self.get_lookup(lookup, dataset=dataset).match(value)
+
     def inspect(self, obj: Any) -> None:
         """Display an object in a form suitable for inspection."""
         text = inspect(obj)
         if text is not None:
             self.log.info(text)
+
+    def audit_data(
+        self, data: Dict[Optional[str], Any], ignore: List[str] = []
+    ) -> None:
+        """Print the formatted data object if it contains any fields not explicitly
+        excluded by the ignore list. This is used to warn about unexpected data in
+        the source by removing the fields one by one and then inspecting the rest."""
+        cleaned = {}
+        for key, value in data.items():
+            if key in ignore:
+                continue
+            if value is None or value == "":
+                continue
+            cleaned[key] = value
+        if len(cleaned):
+            self.log.warn("Unexpected data found", data=cleaned)
 
     def emit(self, entity: Entity) -> None:
         pass
