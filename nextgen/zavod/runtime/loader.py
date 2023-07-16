@@ -26,9 +26,10 @@ def load_entry_point(dataset: Dataset, method: str = "crawl") -> Callable[[Any],
             file_path = dataset.base_path.joinpath(file_path)
         if file_path.is_file():
             spec = spec_from_file_location("_dataset_module", file_path)
-            module = module_from_spec(spec)
-            spec.loader.exec_module(module)
-            break
+            if spec is not None and spec.loader is not None:
+                module = module_from_spec(spec)
+                spec.loader.exec_module(module)
+                break
     if module is None:
         module = import_module(module_name)
     if module is None:
