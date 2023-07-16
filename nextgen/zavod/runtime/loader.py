@@ -1,4 +1,5 @@
 import re
+import sys
 from pathlib import Path
 from types import ModuleType
 from typing import Callable, Any, Optional, cast
@@ -35,6 +36,7 @@ def load_entry_point(dataset: Dataset, method: str = "crawl") -> Callable[[Any],
                 spec = spec_from_file_location(name, file_path)
                 if spec is not None and spec.loader is not None:
                     module = module_from_spec(spec)
+                    sys.modules[name] = module
                     spec.loader.exec_module(module)
                     break
     if module is None:

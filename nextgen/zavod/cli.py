@@ -20,4 +20,6 @@ def cli() -> None:
 @click.option("-d", "--dry-run", is_flag=True, default=False)
 def run(path: Path, dry_run: bool = False) -> None:
     dataset = load_dataset_from_path(path)
+    if dataset is None:
+        raise RuntimeError("Could not load dataset: %s" % path)
     run_dataset(dataset, dry_run=dry_run)

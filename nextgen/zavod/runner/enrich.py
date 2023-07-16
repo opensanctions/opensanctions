@@ -17,17 +17,19 @@ def dataset_enricher(context: Context) -> Enricher:
     enricher_cls = get_enricher(enricher_type)
     if enricher_cls is None:
         raise RuntimeError("Could load enricher: %s" % enricher_type)
-    return enricher_cls(context.dataset, context.cache, config)
+    return enricher_cls(context.dataset, context.cache, config)  # type: ignore
 
 
 def save_match(
     context: Context,
-    resolver: Resolver,
+    resolver: Resolver[Entity],
     enricher: Enricher,
     entity: Entity,
     match: Entity,
     threshold: float,
 ) -> None:
+    if match.id is None or entity.id is None:
+        return None
     if not entity.schema.can_match(match.schema):
         return None
     judgement = resolver.get_judgement(match.id, entity.id)
