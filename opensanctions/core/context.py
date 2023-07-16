@@ -9,7 +9,6 @@ from sqlalchemy.exc import OperationalError
 from requests.exceptions import RequestException
 from datapatch import LookupException
 from structlog.contextvars import clear_contextvars, bind_contextvars
-from nomenklatura.cache import Cache
 from nomenklatura.util import normalize_url
 from nomenklatura.resolver import Resolver
 from nomenklatura.statement import Statement
@@ -21,7 +20,7 @@ from zavod.meta import Dataset
 from zavod.dedupe import get_resolver
 from zavod.runtime.loader import load_entry_point
 from zavod.archive import dataset_path
-from opensanctions.core.db import engine, engine_tx, metadata
+from opensanctions.core.db import engine_tx
 from opensanctions.core.issues import IssueWriter
 from opensanctions.core.timestamps import TimeStampIndex
 from opensanctions.core.resources import save_resource, clear_resources
@@ -40,10 +39,8 @@ class Context(ZavodContext):
     BATCH_SIZE = 5000
 
     def __init__(self, dataset: Dataset, dry_run: bool = False):
-        super().__init__(dataset)
-        self.cache = Cache(engine, metadata, dataset, create=True)
+        super().__init__(dataset, dry_run=dry_run)
         self.issues = IssueWriter(dataset)
-        self.dry_run = dry_run
         self._statements: Dict[str, Statement] = {}
 
     @property
@@ -68,7 +65,6 @@ class Context(ZavodContext):
 
     def close(self) -> None:
         """Flush and tear down the context."""
-        self.cache.close()
         self.issues.close()
         super().close()
         clear_contextvars()

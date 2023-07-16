@@ -1,0 +1,22 @@
+entry_point: zavod.runner.enrich:enrich
+title: Test Enrichment Source
+prefix: enrich
+publisher:
+  name: OpenSanctions
+  description: |
+    Manually created by the project team.
+  url: https://www.opensanctions.org
+  official: false
+url: https://github.com/opensanctions/opensanctions
+
+scopes:
+  - validation
+
+config:
+  type: zavod.tests.test_enrichment:StubEnricher
+# config:
+#   type: nomenklatura.enrich.wikidata:WikidataEnricher
+#   label_cache_days: 90
+#   cache_days: 14
+#   schemata:
+#     - Person

@@ -9,9 +9,11 @@ from zavod.dedupe import get_resolver
 settings.DATA_PATH = Path(mkdtemp()).resolve()
 settings.RESOLVER_PATH = settings.DATA_PATH / "resolver.ijson"
 settings.ARCHIVE_BUCKET = None
+settings.CACHE_DATABASE_URI = None
 FIXTURES_PATH = Path(__file__).parent / "fixtures"
 VALIDATION_YML = FIXTURES_PATH / "validation" / "validation.yml"
-ANALYZER_YML = FIXTURES_PATH / "analyzer" / "analyzer.yml"
+ANALYZER_YML = FIXTURES_PATH / "analyzer.yml"
+ENRICHER_YML = FIXTURES_PATH / "enricher.yml"
 
 
 @pytest.fixture(autouse=True)
@@ -30,3 +32,9 @@ def vdataset() -> Dataset:
 def analyzer(vdataset) -> Dataset:
     assert vdataset is not None
     return load_dataset_from_path(ANALYZER_YML)
+
+
+@pytest.fixture(scope="function")
+def enricher(vdataset) -> Dataset:
+    assert vdataset is not None
+    return load_dataset_from_path(ENRICHER_YML)

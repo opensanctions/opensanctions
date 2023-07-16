@@ -11,16 +11,19 @@ from zavod.entity import Entity
 from zavod.archive import PathLike, dataset_resource_path, dataset_path
 from zavod.runtime.stats import ContextStats
 from zavod.runtime.sink import DatasetSink
+from zavod.runtime.cache import get_cache
 from zavod.http import fetch_file, make_session
 from zavod.logs import get_logger
 from zavod.util import join_slug
 
 
 class Context(object):
-    def __init__(self, dataset: Dataset):
+    def __init__(self, dataset: Dataset, dry_run: bool = False):
         self.dataset = dataset
+        self.dry_run = dry_run
         self.stats = ContextStats()
         self.sink = DatasetSink(dataset)
+        self.cache = get_cache(dataset)
         self.log = get_logger(dataset.name)
         self.http = make_session()
 
@@ -131,10 +134,14 @@ class Context(object):
             if stmt.lang is None:
                 stmt.lang = self.lang
             self.stats.statements += 1
-            self.sink.emit(stmt)
+            if not self.dry_run:
+                self.sink.emit(stmt)
+
+    # def flush(self) -> None:
+    #     self.cache.flush()
 
     def close(self) -> None:
         """Flush and tear down the context."""
+        self.cache.close()
         self.sink.close()
         self.http.close()
-        self.stats.reset()
