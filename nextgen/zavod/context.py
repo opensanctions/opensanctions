@@ -9,6 +9,8 @@ from zavod.audit import inspect
 from zavod.meta import Dataset, get_catalog
 from zavod.entity import Entity
 from zavod.archive import PathLike, dataset_resource_path, dataset_path
+from zavod.runtime.stats import ContextStats
+from zavod.runtime.sink import DatasetSink
 from zavod.http import fetch_file, make_session
 from zavod.logs import get_logger
 from zavod.util import join_slug
@@ -17,8 +19,15 @@ from zavod.util import join_slug
 class Context(object):
     def __init__(self, dataset: Dataset):
         self.dataset = dataset
+        self.stats = ContextStats()
+        self.sink = DatasetSink(dataset)
         self.log = get_logger(dataset.name)
         self.http = make_session()
+
+        self.lang: Optional[str] = None
+        """Default language for statements emitted from this dataset"""
+        if dataset.data is not None:
+            self.lang = dataset.data.lang
 
     def get_resource_path(self, name: PathLike) -> Path:
         return dataset_resource_path(self.dataset.name, name)
@@ -109,10 +118,23 @@ class Context(object):
         if len(cleaned):
             self.log.warn("Unexpected data found", data=cleaned)
 
-    def emit(self, entity: Entity, target: bool = False) -> None:
-        pass
+    def emit(
+        self, entity: Entity, target: bool = False, external: bool = False
+    ) -> None:
+        """Send an entity from the crawling/runner process to be stored."""
+        if entity.id is None:
+            raise ValueError("Entity has no ID: %r", entity)
+        self.stats.entities += 1
+        if target:
+            self.stats.targets += 1
+        for stmt in entity.statements:
+            if stmt.lang is None:
+                stmt.lang = self.lang
+            self.stats.statements += 1
+            self.sink.emit(stmt)
 
     def close(self) -> None:
         """Flush and tear down the context."""
+        self.sink.close()
         self.http.close()
-        pass
+        self.stats.reset()

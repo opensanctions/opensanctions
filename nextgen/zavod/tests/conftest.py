@@ -6,7 +6,7 @@ from zavod import settings
 from zavod.meta import get_catalog, load_dataset_from_path, Dataset
 from zavod.dedupe import get_resolver
 
-settings.DATA_PATH = Path(mkdtemp())
+settings.DATA_PATH = Path(mkdtemp()).resolve()
 settings.RESOLVER_PATH = settings.DATA_PATH / "resolver.ijson"
 settings.ARCHIVE_BUCKET = None
 FIXTURES_PATH = Path(__file__).parent / "fixtures"

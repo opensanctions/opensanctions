@@ -29,4 +29,8 @@ def test_run_dataset(vdataset: Dataset):
     context = Context(vdataset)
     func = load_entry_point(vdataset)
     func(context)
+    assert context.stats.entities > 5, context.stats.entities
+    assert (
+        context.stats.statements > context.stats.entities * 2
+    ), context.stats.statements
     context.close()

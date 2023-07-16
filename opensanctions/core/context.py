@@ -13,7 +13,6 @@ from nomenklatura.cache import Cache
 from nomenklatura.util import normalize_url
 from nomenklatura.resolver import Resolver
 from nomenklatura.statement import Statement
-from nomenklatura.statement.serialize import PackStatementWriter
 
 from zavod import settings
 from zavod.context import Context as ZavodContext
@@ -21,7 +20,7 @@ from zavod.entity import Entity
 from zavod.meta import Dataset
 from zavod.dedupe import get_resolver
 from zavod.runtime.loader import load_entry_point
-from zavod.archive import dataset_path, STATEMENTS_RESOURCE
+from zavod.archive import dataset_path
 from opensanctions.core.db import engine, engine_tx, metadata
 from opensanctions.core.issues import IssueWriter
 from opensanctions.core.timestamps import TimeStampIndex
@@ -45,10 +44,7 @@ class Context(ZavodContext):
         self.cache = Cache(engine, metadata, dataset, create=True)
         self.issues = IssueWriter(dataset)
         self.dry_run = dry_run
-        self._stmt_writer: Optional[PackStatementWriter] = None
         self._statements: Dict[str, Statement] = {}
-        self._entity_count = 0
-        self._statement_count = 0
 
     @property
     def source(self) -> Dataset:
@@ -59,12 +55,6 @@ class Context(ZavodContext):
     @property
     def resolver(self) -> Resolver:
         return get_resolver()
-
-    @cached_property
-    def lang(self) -> Optional[str]:
-        if self.dataset.data is not None:
-            return self.dataset.data.lang
-        return None
 
     @cached_property
     def timestamps(self) -> "TimeStampIndex":
@@ -80,8 +70,6 @@ class Context(ZavodContext):
         """Flush and tear down the context."""
         self.cache.close()
         self.issues.close()
-        if self._stmt_writer is not None:
-            self._stmt_writer.close()
         super().close()
         clear_contextvars()
 
@@ -185,8 +173,8 @@ class Context(ZavodContext):
         if self.dry_run:
             self.log.info(
                 "Dry run: discarding %d statements..." % len(statements),
-                entities=self._entity_count,
-                statements=self._statement_count,
+                entities=self.stats.entities,
+                statements=self.stats.statements,
             )
             self._statements = {}
             return
@@ -194,8 +182,8 @@ class Context(ZavodContext):
         if len(statements):
             self.log.info(
                 "Storing %d statements..." % len(statements),
-                entities=self._entity_count,
-                statements=self._statement_count,
+                entities=self.stats.entities,
+                statements=self.stats.statements,
             )
         with engine_tx() as conn:
             lock_dataset(conn, self.dataset)
@@ -214,6 +202,9 @@ class Context(ZavodContext):
         if entity.id is None:
             raise ValueError("Entity has no ID: %r", entity)
         canonical_id = self.resolver.get_canonical(entity.id)
+        self.stats.entities += 1
+        if target:
+            self.stats.targets += 1
         for stmt in entity.statements:
             assert stmt.dataset == self.dataset.name, (
                 stmt.prop,
@@ -225,7 +216,7 @@ class Context(ZavodContext):
             stmt.canonical_id = canonical_id
             stmt.schema = entity.schema.name
             stmt.last_seen = settings.RUN_TIME_ISO
-            self._statement_count += 1
+            self.stats.statements += 1
             if not self.dry_run:
                 stmt.first_seen = self.timestamps.get(stmt.id)
             stmt.target = target or False
@@ -233,13 +224,9 @@ class Context(ZavodContext):
             if stmt.lang is None and self.lang is not None:
                 stmt.lang = self.lang
             # if not self.dry_run:
-            if self._stmt_writer is None:
-                fh = open(self.get_resource_path(STATEMENTS_RESOURCE), "wb")
-                self._stmt_writer = PackStatementWriter(fh)
-            self._stmt_writer.write(stmt)
+            self.sink.emit(stmt)
             self._statements[stmt.id] = stmt
         self.log.debug("Emitted", entity=entity.id, schema=entity.schema.name)
-        self._entity_count += 1
         if len(self._statements) >= (self.BATCH_SIZE * 10):
             self.flush()
 
@@ -253,23 +240,26 @@ class Context(ZavodContext):
         with engine_tx() as conn:
             clear_resources(conn, self.dataset, category=self.SOURCE_CATEGORY)
         self.log.info("Begin crawl", run_time=settings.RUN_TIME_ISO)
-        self._entity_count = 0
-        self._statement_count = 0
+        self.stats.reset()
         try:
             # Run the dataset:
             method = load_entry_point(self.dataset)
             method(self)
             self.flush()
-            if self._entity_count == 0:
+            if self.stats.entities == 0:
                 self.log.warn(
                     "Crawler did not emit entities",
-                    statements=self._statement_count,
+                    statements=self.stats.statements,
                 )
             else:
                 if not self.dry_run:
                     with engine_tx() as conn:
                         cleanup_dataset(conn, self.dataset)
-            self.log.info("Crawl completed", entities=self._entity_count)
+            self.log.info(
+                "Crawl completed",
+                entities=self.stats.entities,
+                statements=self.stats.statements,
+            )
             return True
         except KeyboardInterrupt:
             self.log.warning("Aborted by user (SIGINT)")
@@ -297,7 +287,5 @@ class Context(ZavodContext):
             clear_resources(conn, self.dataset)
             if data:
                 self.cache.clear()
-                path = self.get_resource_path(STATEMENTS_RESOURCE)
-                if path.exists():
-                    path.unlink()
+                self.sink.clear()
                 clear_statements(conn, self.dataset)
