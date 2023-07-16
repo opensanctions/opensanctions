@@ -1,22 +1,9 @@
 from lxml.etree import _Element, tostring
-from pprint import pprint, pformat
-from typing import Any, Dict, List, Optional
+from pprint import pformat
+from typing import Any, Optional
 from datapatch import Result
 
 from followthemoney.proxy import EntityProxy
-
-
-def audit_data(data: Dict[Optional[str], Any], ignore: List[str] = []) -> None:
-    """Print a row if any of the fields not ignored are still unused."""
-    cleaned = {}
-    for key, value in data.items():
-        if key in ignore:
-            continue
-        if value is None or value == "":
-            continue
-        cleaned[key] = value
-    if len(cleaned):
-        pprint(cleaned)
 
 
 def inspect(obj: Any) -> Optional[str]:
