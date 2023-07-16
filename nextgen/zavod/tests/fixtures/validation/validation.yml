@@ -19,3 +19,20 @@ url: https://github.com/opensanctions/opensanctions
 data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vTYliJOm1mk2PrsL0m_BVn2sEbpHIdQ2fuzavp0gqOLndgzCw7gtr9Npqwa_FerVrQBfYFiDeKuwfV-/pub?gid=0&single=true&output=csv
   format: CSV
+
+lookups:
+  plants:
+    options:
+      - match:
+          - null
+          - banana
+          - apple
+        value: Fruit
+      - match:
+          - potato
+          - carrot
+        value: Vegetable
+      - match:
+          - oak
+          - pine
+        value: Tree
