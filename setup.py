@@ -13,7 +13,7 @@ setup(
     license="MIT",
     author="OpenSanctions",
     author_email="info@opensanctions.org",
-    packages=find_packages(exclude=["ez_setup", "examples", "test"]),
+    packages=find_packages(exclude=["ez_setup", "zavod", "examples", "test"]),
     namespace_packages=[],
     package_data={
         "opensanctions": [
@@ -22,7 +22,6 @@ setup(
             "*.ini",
             "*.mako",
             "*.ijson",
-            "migrate/versions/*.py",
         ]
     },
     zip_safe=False,
@@ -30,15 +29,7 @@ setup(
         "zavod >= 0.7.3",
     ],
     extras_require={
-        "dev": [
-            "sphinx",
-            "bump2version",
-            "wheel>=0.29.0",
-            "twine",
-            "black",
-            "flake8>=2.6.0",
-            "sphinx-rtd-theme",
-        ],
+        "dev": ["bump2version", "wheel>=0.29.0", "twine"],
     },
     entry_points={
         "console_scripts": [
