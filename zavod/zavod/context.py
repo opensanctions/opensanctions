@@ -20,6 +20,12 @@ from zavod.util import join_slug
 
 
 class Context(object):
+    """A utility object that is passed into crawlers and other runners.
+    It supports emitting entities, accessing metadata and logging errors and warnings.
+    """
+
+    SOURCE_TITLE = "Source data"
+
     def __init__(self, dataset: Dataset, dry_run: bool = False):
         self.dataset = dataset
         self.dry_run = dry_run

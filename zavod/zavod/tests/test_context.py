@@ -27,10 +27,13 @@ def test_context_helpers(vdataset: Dataset):
 
 def test_run_dataset(vdataset: Dataset):
     context = Context(vdataset)
+    context.begin(clear=True)
+    assert len(context.resources.all()) == 0
     func = load_entry_point(vdataset)
     func(context)
     assert context.stats.entities > 5, context.stats.entities
     assert (
         context.stats.statements > context.stats.entities * 2
     ), context.stats.statements
+    assert len(context.resources.all()) == 1
     context.close()

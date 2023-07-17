@@ -63,6 +63,19 @@ def test_validation(vdataset: Dataset):
     assert vdataset.scope is None
 
 
+def test_validation_os_dict(vdataset: Dataset):
+    osa = vdataset.to_opensanctions_dict()
+    assert osa["name"] == "validation"
+    assert osa["publisher"]["name"] == "OpenSanctions"
+    assert osa["publisher"]["official"] is False
+    assert osa["data"]["url"] is not None
+    assert osa["data"]["format"] == "CSV"
+    assert "hidden" in osa
+    assert "export" in osa
+    assert "summary" in osa
+    assert "description" in osa
+
+
 def test_analyzer(analyzer: Dataset, vdataset: Dataset):
     assert analyzer.scope is not None
     assert analyzer.scope == vdataset

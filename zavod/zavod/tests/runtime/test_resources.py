@@ -12,6 +12,7 @@ CSV_PATH = VALIDATION_YML.parent / "dataset.csv"
 
 def test_resources(vdataset: Dataset):
     resources = DatasetResources(vdataset)
+    resources.clear()
     assert len(resources.all()) == 0
 
     with pytest.raises(ValueError):
