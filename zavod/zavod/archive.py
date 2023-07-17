@@ -123,20 +123,21 @@ def iter_dataset_statements(dataset: "Dataset", external: bool = True) -> Statem
 
 def _iter_scope_statements(dataset: "Dataset", external: bool = True) -> StatementGen:
     path = dataset_resource_path(dataset.name, STATEMENTS_FILE)
-    if not path.exists():
-        backfill_blob = get_backfill_blob(dataset.name, STATEMENTS_FILE)
-        if backfill_blob is not None:
-            log.info(
-                "Streaming backfilled statements...",
-                dataset=dataset.name,
-            )
-            with backfill_blob.open("r", chunk_size=BLOB_CHUNK) as fh:
-                yield from _read_fh_statements(fh, external)
-            return
-        raise ValueError(f"Cannot load statements for: {dataset.name}")
+    if path.exists():
+        with open(path, "r") as fh:
+            yield from _read_fh_statements(fh, external)
+        return
 
-    with open(path, "r") as fh:
-        yield from _read_fh_statements(fh, external)
+    backfill_blob = get_backfill_blob(dataset.name, STATEMENTS_FILE)
+    if backfill_blob is not None:
+        log.info(
+            "Streaming backfilled statements...",
+            dataset=dataset.name,
+        )
+        with backfill_blob.open("r", chunk_size=BLOB_CHUNK) as fh:
+            yield from _read_fh_statements(fh, external)
+        return
+    raise ValueError(f"Cannot load statements for: {dataset.name}")
 
 
 def iter_previous_statements(dataset: "Dataset", external: bool = True) -> StatementGen:

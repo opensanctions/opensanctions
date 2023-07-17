@@ -74,6 +74,7 @@ def test_validation_os_dict(vdataset: Dataset):
     assert "export" in osa
     assert "summary" in osa
     assert "description" in osa
+    assert osa["entry_point"] == "validation"
 
 
 def test_analyzer(analyzer: Dataset, vdataset: Dataset):

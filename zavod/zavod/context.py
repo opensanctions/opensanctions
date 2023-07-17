@@ -1,4 +1,3 @@
-import json
 from pathlib import Path
 from typing import Any, Optional, Union, Dict, List
 from datapatch import LookupException, Result, Lookup
@@ -55,12 +54,6 @@ class Context(object):
 
     def get_resource_path(self, name: PathLike) -> Path:
         return dataset_resource_path(self.dataset.name, name)
-
-    def export_metadata(self, name: PathLike = "index.json") -> Path:
-        path = self.get_resource_path(name)
-        with open(path, "w") as fh:
-            json.dump(self.dataset.to_dict(), fh)
-        return path
 
     def export_resource(
         self, path: Path, mime_type: Optional[str] = None, title: Optional[str] = None
@@ -165,8 +158,11 @@ class Context(object):
         for stmt in entity.statements:
             if stmt.lang is None:
                 stmt.lang = self.lang
+            stmt.dataset = self.dataset.name
+            stmt.entity_id = entity.id
             stmt.external = external
             stmt.target = target
+            stmt.schema = entity.schema.name
             stmt.first_seen = settings.RUN_TIME_ISO
             stmt.last_seen = settings.RUN_TIME_ISO
             self.stats.statements += 1
