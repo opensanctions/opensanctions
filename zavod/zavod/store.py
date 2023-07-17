@@ -78,13 +78,4 @@ class Store(LevelDBStore[Dataset, Entity]):
             if entity.id is not None:
                 entity.extra_referents.update(self.resolver.get_referents(entity.id))
             entity = simplify_dates(entity)
-            for stmt in statements:
-                # The last_change attribute describes the latest checksum change
-                # of any emitted component of the entity, which is stored in the BASE
-                # field.
-                if stmt.prop == Statement.BASE and stmt.first_seen is not None:
-                    if entity.last_change is None:
-                        entity.last_change = stmt.first_seen
-                    else:
-                        entity.last_change = max(entity.last_change, stmt.first_seen)
         return entity

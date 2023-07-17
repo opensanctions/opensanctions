@@ -58,12 +58,6 @@ class Dataset(NKDataset):
             self.catalog.add(scope)
         return self.catalog.require(name)
 
-    @property
-    def is_runner(self) -> bool:
-        if self.is_collection:
-            return False
-        return self.entry_point is not None
-
     @cached_property
     def lookups(self) -> Dict[str, Lookup]:
         # TODO: debug mode

@@ -1,3 +1,4 @@
+from zavod import settings
 from zavod.meta import Dataset
 from zavod.runner import run_dataset
 from zavod.store import get_store, get_view
@@ -16,3 +17,4 @@ def test_store_access(vdataset: Dataset):
     entity = view2.get_entity("osv-john-doe")
     assert entity is not None, entity
     assert entity.id == "osv-john-doe"
+    assert entity.last_change == settings.RUN_TIME_ISO
