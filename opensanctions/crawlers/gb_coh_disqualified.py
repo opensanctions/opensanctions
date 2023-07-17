@@ -1,5 +1,6 @@
 import os
 import string
+from typing import Optional, Dict, Any
 from urllib.parse import urljoin
 from requests.exceptions import HTTPError
 
@@ -18,7 +19,12 @@ API_URL = "https://api.companieshouse.gov.uk/"
 WEB_URL = "https://beta.companieshouse.gov.uk/register-of-disqualifications/A"
 
 
-def http_get(context: Context, url, params=None, cache_days=None):
+def http_get(
+    context: Context,
+    url,
+    params: Optional[Dict[str, Any]] = None,
+    cache_days: Optional[int] = None,
+) -> Optional[Dict[str, Any]]:
     try:
         return context.fetch_json(
             url,
@@ -30,12 +36,16 @@ def http_get(context: Context, url, params=None, cache_days=None):
         if err.response.status_code in (429, 416):
             raise AbortCrawl()
         context.log.info("HTTP error: %r", err)
+        return None
 
 
-def crawl_item(context: Context, listing):
+def crawl_item(context: Context, listing: Dict[str, Any]) -> None:
     links = listing.get("links", {})
     url = urljoin(API_URL, links.get("self"))
     data = http_get(context, url, cache_days=14)
+    if data is None:
+        context.log.warn("Could not fetch: %r" % url)
+        return
     person = context.make("Person")
     _, officer_id = url.rsplit("/", 1)
     person.id = context.make_slug(officer_id)
@@ -117,7 +127,7 @@ def crawl_item(context: Context, listing):
     context.emit(person, target=True)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     if API_KEY is None:
         context.log.error("Please set $OPENSANCTIONS_COH_API_KEY.")
         return
