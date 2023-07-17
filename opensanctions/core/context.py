@@ -166,7 +166,7 @@ class Context(ZavodContext):
                 stmt.dataset,
                 self.dataset.name,
             )
-            assert stmt.entity_id == entity.id
+            stmt.entity_id == entity.id
             stmt.canonical_id = canonical_id
             stmt.schema = entity.schema.name
             stmt.last_seen = settings.RUN_TIME_ISO

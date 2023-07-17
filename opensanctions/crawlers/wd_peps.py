@@ -5,7 +5,7 @@ from datetime import timedelta
 from pantomime.types import CSV
 from nomenklatura.util import is_qid
 
-from opensanctions import settings
+from zavod import settings
 from opensanctions.core import Context
 
 DECISIONS = {

@@ -1,7 +1,6 @@
 from typing import Optional
 from lxml.etree import _Element as Element
 
-from opensanctions import settings
 from opensanctions.core import Context, Entity
 from opensanctions import helpers as h
 
