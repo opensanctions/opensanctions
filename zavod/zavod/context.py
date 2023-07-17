@@ -3,6 +3,7 @@ from typing import Any, Optional, Union, Dict, List
 from datapatch import LookupException, Result, Lookup
 from followthemoney.schema import Schema
 from followthemoney.util import make_entity_id
+from structlog.contextvars import clear_contextvars, bind_contextvars
 
 from zavod import settings
 from zavod.audit import inspect
@@ -11,6 +12,7 @@ from zavod.entity import Entity
 from zavod.archive import PathLike, dataset_resource_path, dataset_path
 from zavod.runtime.stats import ContextStats
 from zavod.runtime.sink import DatasetSink
+from zavod.runtime.issues import DatasetIssues
 from zavod.runtime.resources import DatasetResources
 from zavod.runtime.cache import get_cache
 from zavod.http import fetch_file, make_session
@@ -30,6 +32,7 @@ class Context(object):
         self.dry_run = dry_run
         self.stats = ContextStats()
         self.sink = DatasetSink(dataset)
+        self.issues = DatasetIssues(dataset)
         self.resources = DatasetResources(dataset)
         self.cache = get_cache(dataset)
         self.log = get_logger(dataset.name)
@@ -42,15 +45,22 @@ class Context(object):
 
     def begin(self, clear: bool = False) -> None:
         """Prepare the context for running the exporter."""
-        if clear or self.dry_run:
+        bind_contextvars(
+            dataset=self.dataset.name,
+            context=self,
+        )
+        if clear and not self.dry_run:
             self.resources.clear()
+            self.issues.clear()
         self.stats.reset()
 
     def close(self) -> None:
         """Flush and tear down the context."""
+        self.http.close()
         self.cache.close()
         self.sink.close()
-        self.http.close()
+        self.issues.close()
+        clear_contextvars()
 
     def get_resource_path(self, name: PathLike) -> Path:
         return dataset_resource_path(self.dataset.name, name)

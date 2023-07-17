@@ -5,7 +5,6 @@ from lxml import etree, html
 from sqlalchemy.exc import OperationalError
 from requests.exceptions import RequestException
 from datapatch import LookupException
-from structlog.contextvars import clear_contextvars, bind_contextvars
 from nomenklatura.util import normalize_url
 from nomenklatura.resolver import Resolver
 from nomenklatura.statement import Statement
@@ -16,9 +15,8 @@ from zavod.entity import Entity
 from zavod.meta import Dataset
 from zavod.dedupe import get_resolver
 from zavod.runtime.loader import load_entry_point
+from zavod.runtime.timestamps import TimeStampIndex
 from opensanctions.core.db import engine_tx
-from opensanctions.core.issues import IssueWriter
-from opensanctions.core.timestamps import TimeStampIndex
 from opensanctions.core.statements import cleanup_dataset, clear_statements
 from opensanctions.core.statements import save_statements, lock_dataset
 
@@ -35,7 +33,6 @@ class Context(ZavodContext):
 
     def __init__(self, dataset: Dataset, dry_run: bool = False):
         super().__init__(dataset, dry_run=dry_run)
-        self.issues = IssueWriter(dataset)
         self._statements: Dict[str, Statement] = {}
 
     @property
@@ -51,18 +48,6 @@ class Context(ZavodContext):
     @cached_property
     def timestamps(self) -> "TimeStampIndex":
         return TimeStampIndex.build(self.dataset)
-
-    def bind(self) -> None:
-        bind_contextvars(
-            dataset=self.dataset.name,
-            _context=self,
-        )
-
-    def close(self) -> None:
-        """Flush and tear down the context."""
-        self.issues.close()
-        super().close()
-        clear_contextvars()
 
     def fetch_response(self, url, headers=None, auth=None):
         self.log.debug("HTTP GET", url=url)
@@ -186,14 +171,11 @@ class Context(ZavodContext):
 
     def crawl(self) -> bool:
         """Run the crawler."""
-        self.bind()
         if self.dataset.disabled:
             self.log.info("Dataset is disabled")
             return True
         self.begin(clear=True)
-        self.issues.clear()
         self.log.info("Begin crawl", run_time=settings.RUN_TIME_ISO)
-        self.stats.reset()
         try:
             # Run the dataset:
             method = load_entry_point(self.dataset)

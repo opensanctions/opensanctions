@@ -4,9 +4,6 @@ from zavod.logs import get_logger
 from zavod.store import View, get_store
 
 from opensanctions.core import Context, Dataset, get_catalog
-
-# from opensanctions.core.store import View, get_store
-from opensanctions.core.issues import all_issues
 from opensanctions.exporters.common import Exporter
 from opensanctions.exporters.ftm import FtMExporter
 from opensanctions.exporters.nested import NestedJSONExporter
@@ -67,7 +64,7 @@ def export_dataset(dataset: Dataset, view: View):
         issues_path = context.get_resource_path("issues.json")
         context.log.info("Writing dataset issues list", path=issues_path)
         with open(issues_path, "wb") as fh:
-            issues = list(all_issues(dataset))
+            issues = list(context.issues.all())
             data = {"issues": issues}
             write_json(data, fh)
 

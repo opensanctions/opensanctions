@@ -6,14 +6,13 @@ from zavod.meta import Dataset
 from opensanctions.core.context import Context
 from opensanctions.core.db import create_db
 from opensanctions.core.catalog import get_catalog, get_dataset_names
-from opensanctions.core.issues import store_log_event
 
 __all__ = ["Dataset", "Source", "Context", "Entity", "get_catalog"]
 
 
 def setup(log_level=None):
     """Configure the framework."""
-    configure_logging(level=log_level, extra_processors=[store_log_event])
+    configure_logging(level=log_level)
     log = get_logger(__name__)
     log.debug(
         "OpenSanctions starting",

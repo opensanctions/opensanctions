@@ -1,7 +1,11 @@
 import sys
 import logging
 import structlog
-from typing import List, Any, MutableMapping
+from pathlib import Path
+from lxml.etree import _Element, tostring
+from followthemoney.schema import Schema
+
+from typing import Dict, List, Any, MutableMapping
 from structlog.stdlib import get_logger as get_raw_logger
 from structlog.contextvars import merge_contextvars
 from structlog.types import Processor
@@ -9,10 +13,7 @@ from structlog.types import Processor
 from zavod import settings
 
 
-def configure_logging(
-    level: int = logging.DEBUG,
-    extra_processors: List[Processor] = [],
-) -> None:
+def configure_logging(level: int = logging.DEBUG) -> None:
     """Configure log levels and structured logging."""
     processors: List[Processor] = [
         structlog.stdlib.add_log_level,
@@ -22,8 +23,8 @@ def configure_logging(
         merge_contextvars,
         structlog.dev.set_exc_info,
         structlog.processors.UnicodeDecoder(),
+        log_issue,
     ]
-    processors.extend(extra_processors)
 
     if settings.LOG_JSON:
         processors.append(structlog.processors.TimeStamper(fmt="iso"))
@@ -73,3 +74,25 @@ def format_json(
     ed["message"] = ed.pop("event")
     ed["severity"] = ed.pop("level", "info").upper()
     return ed
+
+
+def log_issue(logger: Any, log_method: str, data: Dict[str, Any]) -> Dict[str, Any]:
+    for key, value in data.items():
+        if isinstance(value, _Element):
+            value = tostring(value, pretty_print=False, encoding=str)
+        if isinstance(value, Path):
+            value = str(value.relative_to(settings.DATA_PATH))
+        if isinstance(value, Schema):
+            value = value.name
+        data[key] = value
+
+    context = data.pop("context", None)
+    level = data.get("level")
+    if level is not None:
+        level_num = getattr(logging, level.upper())
+        if level_num > logging.INFO and context is not None:
+            from zavod.context import Context
+
+            if isinstance(context, Context):
+                context.issues.write(data)
+    return data

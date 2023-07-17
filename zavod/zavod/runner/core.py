@@ -34,7 +34,6 @@ def run_dataset(dataset: Dataset, dry_run: bool = False) -> ContextStats:
 #         context.log.info("Source is disabled", dataset=dataset.name)
 #         return True
 
-#     context.bind()
 #     if context.source.disabled:
 #         context.log.info("Source is disabled")
 #         return True
