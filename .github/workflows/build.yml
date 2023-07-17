@@ -43,20 +43,20 @@ jobs:
         run: |
           sudo apt-get install -y -qq libicu-dev
       - name: Install zavod dependencies
-        working-directory: nextgen
+        working-directory: zavod
         run: |
           pip install --no-cache-dir -q -e ".[dev]"
           pip freeze
       - name: Check zavod type annotations (strict)
-        working-directory: nextgen
+        working-directory: zavod
         run: |
           make typecheck
       - name: Run zavod tests
-        working-directory: nextgen
+        working-directory: zavod
         run: |
           make test
       - name: Build a zavod distribution
-        working-directory: nextgen
+        working-directory: zavod
         run: |
           python setup.py sdist bdist_wheel
       - name: Install opensanctions
@@ -74,13 +74,13 @@ jobs:
           opensanctions clear-workdir all
       - name: Publish a Python distribution to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
-        # working-directory: nextgen
+        # working-directory: zavod
         if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/zavod')
         with:
           user: __token__
           password: ${{ secrets.pypi_password }}
           skip-existing: true
-          packages-dir: nextgen/dist
+          packages-dir: zavod/dist
 
   docker:
     if: ${{ github.ref == 'refs/heads/main' }}
