@@ -1,3 +1,4 @@
+from typing import Optional
 from normality import collapse_spaces
 from lxml.etree import _Element as Element
 
@@ -142,8 +143,20 @@ def parse_common(context: Context, entity: Entity, node: Element):
     return sanction
 
 
+def crawl_index(context: Context) -> Optional[str]:
+    doc = context.fetch_html(context.source.data.url, cache_days=1)
+    for link in doc.findall(".//a"):
+        href = link.get("href")
+        if href is None or "consolidated_en" not in href:
+            continue
+        if href.endswith(".xml"):
+            return href
+    return None
+
+
 def crawl(context: Context):
-    path = context.fetch_resource("source.xml", context.source.data.url)
+    xml_url = crawl_index(context)
+    path = context.fetch_resource("source.xml", xml_url)
     context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
 

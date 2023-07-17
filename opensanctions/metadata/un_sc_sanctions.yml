@@ -30,7 +30,7 @@ publisher:
   official: true
 url: "https://www.un.org/securitycouncil/sanctions/information"
 data:
-  url: https://scsanctions.un.org/resources/xml/en/consolidated.xml
+  url: https://www.un.org/securitycouncil/content/un-sc-consolidated-list
   format: XML
 
 lookups:
