@@ -21,8 +21,11 @@ class TimeStampIndex(object):
         batch = self.db.write_batch()
         idx = 0
         for idx, stmt in enumerate(statements):
-            if stmt.first_seen is not None and stmt.id is not None:
-                batch.put(stmt.id.encode("utf-8"), stmt.first_seen.encode("utf-8"))
+            if stmt.first_seen is None or stmt.id is None:
+                continue
+            if len(stmt.first_seen.strip()) == 0:
+                continue
+            batch.put(stmt.id.encode("utf-8"), stmt.first_seen.encode("utf-8"))
         batch.write()
         log.info("Index ready.", count=idx)
 

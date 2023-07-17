@@ -18,3 +18,5 @@ def test_store_access(vdataset: Dataset):
     assert entity is not None, entity
     assert entity.id == "osv-john-doe"
     assert entity.last_change == settings.RUN_TIME_ISO
+    assert entity.first_seen == settings.RUN_TIME_ISO
+    assert entity.last_seen == settings.RUN_TIME_ISO
