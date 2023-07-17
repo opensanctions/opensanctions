@@ -1,9 +1,11 @@
 from typing import List, Type
 
 from zavod.logs import get_logger
+from zavod.store import View, get_store
 
 from opensanctions.core import Context, Dataset, get_catalog
-from opensanctions.core.store import View, get_store
+
+# from opensanctions.core.store import View, get_store
 from opensanctions.core.issues import all_issues
 from opensanctions.exporters.common import Exporter
 from opensanctions.exporters.ftm import FtMExporter
