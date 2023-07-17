@@ -53,6 +53,7 @@ class Dataset(NKDataset):
                 "title": name,
                 "datasets": names,
                 "hidden": True,
+                "export": False,
             }
             scope = self.catalog.make_dataset(data)
             self.catalog.add(scope)
