@@ -29,6 +29,8 @@ def test_resources(vdataset: Dataset):
     resources.save(resource)
     assert len(resources.all()) == 1
     assert resources.all()[0].name == "dataset.csv"
+    resources.save(resource)
+    assert len(resources.all()) == 1
 
     resources2 = DatasetResources(vdataset)
     assert len(resources2.all()) == 1

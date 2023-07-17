@@ -7,11 +7,12 @@ from followthemoney.util import make_entity_id
 
 from zavod import settings
 from zavod.audit import inspect
-from zavod.meta import Dataset, get_catalog
+from zavod.meta import Dataset, DataResource, get_catalog
 from zavod.entity import Entity
 from zavod.archive import PathLike, dataset_resource_path, dataset_path
 from zavod.runtime.stats import ContextStats
 from zavod.runtime.sink import DatasetSink
+from zavod.runtime.resources import DatasetResources
 from zavod.runtime.cache import get_cache
 from zavod.http import fetch_file, make_session
 from zavod.logs import get_logger
@@ -24,6 +25,7 @@ class Context(object):
         self.dry_run = dry_run
         self.stats = ContextStats()
         self.sink = DatasetSink(dataset)
+        self.resources = DatasetResources(dataset)
         self.cache = get_cache(dataset)
         self.log = get_logger(dataset.name)
         self.http = make_session()
@@ -33,6 +35,18 @@ class Context(object):
         if dataset.data is not None:
             self.lang = dataset.data.lang
 
+    def begin(self, clear: bool = False) -> None:
+        """Prepare the context for running the exporter."""
+        if clear:
+            self.resources.clear()
+        self.stats.reset()
+
+    def close(self) -> None:
+        """Flush and tear down the context."""
+        self.cache.close()
+        self.sink.close()
+        self.http.close()
+
     def get_resource_path(self, name: PathLike) -> Path:
         return dataset_resource_path(self.dataset.name, name)
 
@@ -41,6 +55,16 @@ class Context(object):
         with open(path, "w") as fh:
             json.dump(self.dataset.to_dict(), fh)
         return path
+
+    def export_resource(
+        self, path: Path, mime_type: Optional[str] = None, title: Optional[str] = None
+    ) -> DataResource:
+        """Register a file as a data resource exported by the dataset."""
+        resource = DataResource.from_path(
+            self.dataset, path, mime_type=mime_type, title=title
+        )
+        self.resources.save(resource)
+        return resource
 
     def fetch_resource(
         self,
@@ -141,12 +165,3 @@ class Context(object):
             self.stats.statements += 1
             if not self.dry_run:
                 self.sink.emit(stmt)
-
-    # def flush(self) -> None:
-    #     self.cache.flush()
-
-    def close(self) -> None:
-        """Flush and tear down the context."""
-        self.cache.close()
-        self.sink.close()
-        self.http.close()

@@ -2,8 +2,6 @@ from zavod.entity import Entity
 from opensanctions.core import Context
 from opensanctions.core.store import View
 
-EXPORT_CATEGORY = "export"
-
 
 class Exporter(object):
     """A common interface for file format exports at the end of the export pipeline."""
@@ -27,20 +25,20 @@ class Exporter(object):
         raise NotImplementedError()
 
     def finish(self):
-        resource = self.context.export_resource(
-            self.path,
-            mime_type=self.MIME_TYPE,
-            title=self.TITLE,
-            category=EXPORT_CATEGORY,
-        )
-        if resource is None:
+        try:
+            resource = self.context.export_resource(
+                self.path,
+                mime_type=self.MIME_TYPE,
+                title=self.TITLE,
+            )
+            self.context.log.info(
+                "Exported: %s" % self.TITLE,
+                path=self.path,
+                size=resource.size,
+            )
+        except ValueError as ve:
             self.context.log.warning(
-                "Export is empty: %s" % self.TITLE,
+                "Export failed: %s" % ve,
                 path=self.path,
             )
             return
-        self.context.log.info(
-            "Exported: %s" % self.TITLE,
-            path=self.path,
-            size=resource["size"],
-        )

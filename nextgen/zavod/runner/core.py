@@ -19,6 +19,7 @@ def run_dataset(dataset: Dataset, dry_run: bool = False) -> ContextStats:
     point; finally disband the context."""
     context = Context(dataset, dry_run=dry_run)
     try:
+        context.begin(clear=True)
         entry_point = load_entry_point(dataset)
         entry_point(context)
     finally:

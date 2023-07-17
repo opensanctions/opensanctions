@@ -18,6 +18,8 @@ class DataResource(NKDataResource):
         title: Optional[str] = None,
     ) -> "DataResource":
         """Create a resource description object from a local file path."""
+        if not path.exists():
+            raise ValueError("File does not exist: %s" % path)
         if mime_type is None:
             mime_type, _ = mimetypes.guess_type(path.as_posix(), strict=False)
         dataset_path_ = dataset_path(dataset.name)

@@ -1,7 +1,4 @@
 import json
-import hashlib
-import mimetypes
-from pathlib import Path
 from functools import cached_property
 from typing import Dict, Optional
 from lxml import etree, html
@@ -19,11 +16,9 @@ from zavod.entity import Entity
 from zavod.meta import Dataset
 from zavod.dedupe import get_resolver
 from zavod.runtime.loader import load_entry_point
-from zavod.archive import dataset_path
 from opensanctions.core.db import engine_tx
 from opensanctions.core.issues import IssueWriter
 from opensanctions.core.timestamps import TimeStampIndex
-from opensanctions.core.resources import save_resource, clear_resources
 from opensanctions.core.statements import cleanup_dataset, clear_statements
 from opensanctions.core.statements import save_statements, lock_dataset
 
@@ -123,43 +118,6 @@ class Context(ZavodContext):
         with open(file_path, "rb") as fh:
             return etree.parse(fh)
 
-    def export_resource(
-        self,
-        path: Path,
-        mime_type: Optional[str] = None,
-        title: Optional[str] = None,
-        category: str = SOURCE_CATEGORY,
-    ) -> None:
-        """Register a file as a documented file exported by the dataset."""
-        if mime_type is None:
-            mime_type, _ = mimetypes.guess(path)
-
-        digest = hashlib.sha1()
-        size = 0
-        with open(path, "rb") as fh:
-            while True:
-                chunk = fh.read(65536)
-                if not chunk:
-                    break
-                size += len(chunk)
-                digest.update(chunk)
-        if size == 0:
-            self.log.warning("Resource is empty", path=path)
-        checksum = digest.hexdigest()
-        dataset_path_ = dataset_path(self.dataset.name)
-        name = path.relative_to(dataset_path_).as_posix()
-        with engine_tx() as conn:
-            return save_resource(
-                conn,
-                name,
-                self.dataset,
-                checksum,
-                mime_type,
-                category,
-                size,
-                title,
-            )
-
     def flush(self) -> None:
         """Emitted entities are de-constructed into statements for the database
         to store. These are inserted in batches - so the statement cache on the
@@ -232,9 +190,8 @@ class Context(ZavodContext):
         if self.dataset.disabled:
             self.log.info("Dataset is disabled")
             return True
+        self.begin(clear=True)
         self.issues.clear()
-        with engine_tx() as conn:
-            clear_resources(conn, self.dataset, category=self.SOURCE_CATEGORY)
         self.log.info("Begin crawl", run_time=settings.RUN_TIME_ISO)
         self.stats.reset()
         try:
@@ -280,7 +237,7 @@ class Context(ZavodContext):
         """Delete all recorded data for a given dataset."""
         with engine_tx() as conn:
             self.issues.clear()
-            clear_resources(conn, self.dataset)
+            self.resources.clear()
             if data:
                 self.cache.clear()
                 self.sink.clear()

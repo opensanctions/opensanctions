@@ -9,13 +9,11 @@ from zavod.logs import get_logger
 from zavod.meta import Dataset
 from zavod.archive import get_dataset_resource, datasets_path
 from zavod.archive import INDEX_FILE
-from opensanctions.core.db import engine_tx
+from zavod.runtime.resources import DatasetResources
 from opensanctions.core.issues import all_issues, agg_issues_by_level
-from opensanctions.core.resources import all_resources
 from opensanctions.util import write_json
 
 log = get_logger(__name__)
-THINGS = [s.name for s in model if s.is_a("Thing")]
 
 
 def get_dataset_statistics(dataset: Dataset) -> Dict[str, Any]:
@@ -30,12 +28,12 @@ def get_dataset_statistics(dataset: Dataset) -> Dict[str, Any]:
 def dataset_to_index(dataset: Dataset) -> Dict[str, Any]:
     meta = dataset.to_opensanctions_dict()
     meta.update(get_dataset_statistics(dataset))
+    resources = DatasetResources(dataset)
     meta["last_export"] = settings.RUN_TIME
     meta["index_url"] = dataset.make_public_url("index.json")
     meta["issues_url"] = dataset.make_public_url("issues.json")
     meta["issue_levels"] = agg_issues_by_level(dataset)
-    with engine_tx() as conn:
-        meta["resources"] = list(all_resources(conn, dataset))
+    meta["resources"] = [r.to_opensanctions_dict() for r in resources.all()]
     meta["issue_count"] = sum(meta["issue_levels"].values())
     return meta
 

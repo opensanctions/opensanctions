@@ -5,9 +5,7 @@ from zavod.logs import get_logger
 from opensanctions.core import Context, Dataset, get_catalog
 from opensanctions.core.store import View, get_store
 from opensanctions.core.issues import all_issues
-from opensanctions.core.db import engine_tx
-from opensanctions.core.resources import clear_resources
-from opensanctions.exporters.common import Exporter, EXPORT_CATEGORY
+from opensanctions.exporters.common import Exporter
 from opensanctions.exporters.ftm import FtMExporter
 from opensanctions.exporters.nested import NestedJSONExporter
 from opensanctions.exporters.names import NamesExporter
@@ -60,8 +58,7 @@ def export_dataset(dataset: Dataset, view: View):
     """Dump the contents of the dataset to the output directory."""
     try:
         context = Context(dataset)
-        with engine_tx() as conn:
-            clear_resources(conn, dataset, category=EXPORT_CATEGORY)
+        context.begin(clear=False)
         export_data(context, view)
 
         # Export list of data issues from crawl stage
