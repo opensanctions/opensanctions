@@ -8,7 +8,7 @@ from zavod import settings
 from zavod.logs import get_logger
 from zavod.meta import Dataset
 from zavod.archive import get_dataset_resource, datasets_path
-from zavod.archive import INDEX_RESOURCE
+from zavod.archive import INDEX_FILE
 from opensanctions.core.db import engine_tx
 from opensanctions.core.issues import all_issues, agg_issues_by_level
 from opensanctions.core.resources import all_resources
@@ -46,7 +46,7 @@ def export_metadata(scope: Dataset) -> None:
     datasets = []
     schemata = set()
     for dataset in scope.datasets:
-        ds_path = get_dataset_resource(dataset, INDEX_RESOURCE)
+        ds_path = get_dataset_resource(dataset, INDEX_FILE)
         if ds_path is None or not ds_path.exists():
             log.error("No index file found", dataset=dataset.name, report_issue=False)
         else:
@@ -62,7 +62,7 @@ def export_metadata(scope: Dataset) -> None:
         data = {"issues": list(issues)}
         write_json(data, fh)
 
-    index_path = base_path.joinpath(INDEX_RESOURCE)
+    index_path = base_path.joinpath(INDEX_FILE)
     log.info("Writing global index", datasets=len(datasets), path=index_path)
     with open(index_path, "wb") as fh:
         meta = {

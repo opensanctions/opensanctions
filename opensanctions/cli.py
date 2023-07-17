@@ -219,7 +219,7 @@ def aggregate_(dataset: str, external: bool = False):
 @cli.command("db-pack", help="Helper function to pack DB statements")
 def db_pack():
     from zavod.archive import get_archive_bucket, dataset_resource_path
-    from zavod.archive import STATEMENTS_RESOURCE
+    from zavod.archive import STATEMENTS_FILE
     from nomenklatura.statement.serialize import PackStatementWriter
     from opensanctions.core.statements import all_statements
     from opensanctions.core.db import engine_read
@@ -229,13 +229,13 @@ def db_pack():
         if dataset._type == "collection":
             continue
         log.info("Exporting from DB", dataset=dataset.name)
-        blob_name = f"datasets/latest/{dataset.name}/{STATEMENTS_RESOURCE}"
+        blob_name = f"datasets/latest/{dataset.name}/{STATEMENTS_FILE}"
         blob = bucket.get_blob(blob_name)
         if blob is not None:
             log.info("Exists: %r" % blob_name)
             continue
 
-        stmt_path = dataset_resource_path(dataset, STATEMENTS_RESOURCE)
+        stmt_path = dataset_resource_path(dataset, STATEMENTS_FILE)
         with open(stmt_path, "wb") as fh:
             writer = PackStatementWriter(fh)
             with engine_read() as conn:

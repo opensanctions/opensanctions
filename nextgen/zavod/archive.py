@@ -15,9 +15,10 @@ log = get_logger(__name__)
 StatementGen = Generator[Statement, None, None]
 PathLike = Union[str, os.PathLike[str]]
 BLOB_CHUNK = 40 * 1024 * 1024
-STATEMENTS_RESOURCE = "statements.pack"
-ISSUES_LOG_RESOURCE = "issues.log.json"
-INDEX_RESOURCE = "index.json"
+STATEMENTS_FILE = "statements.pack"
+ISSUES_LOG = "issues.log"
+RESOURCES_FILE = "resources.json"
+INDEX_FILE = "index.json"
 
 
 @cache
@@ -96,9 +97,9 @@ def get_dataset_resource(
 
 
 def get_dataset_index(dataset_name: str, backfill: bool = True) -> Optional[Path]:
-    path: Optional[Path] = dataset_resource_path(dataset_name, INDEX_RESOURCE)
+    path: Optional[Path] = dataset_resource_path(dataset_name, INDEX_FILE)
     if path is not None and not path.exists() and backfill:
-        path = backfill_resource(dataset_name, INDEX_RESOURCE, path)
+        path = backfill_resource(dataset_name, INDEX_FILE, path)
     if path is not None and path.exists():
         return path
     return None
@@ -119,9 +120,9 @@ def iter_dataset_statements(dataset: Dataset, external: bool = True) -> Statemen
 
 
 def _iter_scope_statements(dataset: Dataset, external: bool = True) -> StatementGen:
-    path = dataset_resource_path(dataset.name, STATEMENTS_RESOURCE)
+    path = dataset_resource_path(dataset.name, STATEMENTS_FILE)
     if not path.exists():
-        backfill_blob = get_backfill_blob(dataset.name, STATEMENTS_RESOURCE)
+        backfill_blob = get_backfill_blob(dataset.name, STATEMENTS_FILE)
         if backfill_blob is not None:
             log.info(
                 "Streaming backfilled statements...",
@@ -140,7 +141,7 @@ def iter_previous_statements(dataset: Dataset, external: bool = True) -> Stateme
     """Load the statements from the previous release of the dataset by streaming them
     from the data archive."""
     for scope in dataset.leaves:
-        backfill_blob = get_backfill_blob(scope.name, STATEMENTS_RESOURCE)
+        backfill_blob = get_backfill_blob(scope.name, STATEMENTS_FILE)
         if backfill_blob is not None:
             log.info(
                 "Streaming backfilled statements...",

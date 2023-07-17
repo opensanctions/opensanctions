@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 from pantomime import parse_mimetype
 from typing import Optional, TypedDict, Generator, cast
@@ -6,6 +7,7 @@ from sqlalchemy.sql.expression import delete
 
 from zavod import settings
 from zavod.meta import Dataset
+from zavod.archive import dataset_resource_path, RESOURCES_FILE
 from opensanctions.core.db import Conn, upsert_func, resource_table
 
 
@@ -21,6 +23,13 @@ class Resource(TypedDict):
     mime_type_label: Optional[str]
     title: Optional[str]
     size: int
+
+
+class DatasetResources(object):
+    def __init__(self, dataset: Dataset) -> None:
+        self.path = dataset_resource_path(dataset.name, RESOURCES_FILE)
+        with open(self.path, "r") as fh:
+            self.data = json.load(fh)
 
 
 def save_resource(

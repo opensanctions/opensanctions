@@ -4,7 +4,7 @@ from nomenklatura.statement.serialize import get_statement_writer, StatementWrit
 
 
 from zavod.meta import Dataset
-from zavod.archive import dataset_resource_path, STATEMENTS_RESOURCE
+from zavod.archive import dataset_resource_path, STATEMENTS_FILE
 
 
 class DatasetSink(object):
@@ -12,7 +12,7 @@ class DatasetSink(object):
 
     def __init__(self, dataset: Dataset) -> None:
         self.dataset = dataset
-        self.path = dataset_resource_path(dataset.name, STATEMENTS_RESOURCE)
+        self.path = dataset_resource_path(dataset.name, STATEMENTS_FILE)
         self.fh: Optional[BinaryIO] = None
         self.writer: Optional[StatementWriter] = None
 
