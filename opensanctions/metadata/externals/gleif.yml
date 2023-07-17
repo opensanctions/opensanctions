@@ -1,4 +1,5 @@
-type: external
+type: external]
+entry_point: zavod.runner.enrich:enrich
 title: Legal Entity Identifier (LEI) Reference Data
 summary: |
   A concatenated data file of all entities which have been issued Legal
@@ -29,6 +30,9 @@ publisher:
     the global financial markets. GLEIF is a supra-national not-for-profit
     organization headquartered in Basel, Switzerland.
   url: https://www.gleif.org/en/about/this-is-gleif
+
+scopes:
+  - enrich_companies
 
 config:
   type: nomenklatura.enrich.yente:YenteEnricher

@@ -4,7 +4,8 @@ from typing import List
 from followthemoney.types import registry
 from followthemoney.util import join_text
 
-from opensanctions.core import Dataset, Entity
+from zavod.entity import Entity
+from opensanctions.core import get_catalog
 from opensanctions.exporters.common import Exporter
 
 
@@ -84,7 +85,7 @@ class SimpleCSVExporter(Exporter):
 
         datasets: List[str] = []
         for dataset in entity.datasets:
-            ds = Dataset.require(dataset)
+            ds = get_catalog().require(dataset)
             datasets.append(ds.title)
         row = [
             entity.id,

@@ -1,4 +1,5 @@
 type: external
+entry_point: zavod.runner.enrich:enrich
 title: Russian Unified State Register of Legal Entities (EGRUL)
 summary: |
   Companies database of the Russian Federation as maintained and published by 
@@ -24,6 +25,10 @@ publisher:
   url: https://www.nalog.gov.ru/rn77/service/egrip2/egrip_vzayim/
   country: ru
   official: true
+
+scopes:
+  - enrich_companies
+
 config:
   type: nomenklatura.enrich.yente:YenteEnricher
   api: https://api.graph.opensanctions.org/

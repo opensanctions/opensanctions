@@ -13,7 +13,7 @@ from followthemoney.schema import Schema
 from followthemoney.exc import InvalidData
 from zavod.parse.xml import ElementOrTree
 
-from opensanctions.core import Context, Dataset, Entity
+from opensanctions.core import Context, Entity, get_catalog
 from opensanctions import helpers as h
 from opensanctions.helpers.dates import parse_date
 from opensanctions.helpers.text import clean_note
@@ -25,7 +25,7 @@ FeatureValues = List[FeatureValue]
 def lookup(name, value):
     # We don't want to duplicate the lookup configs in both YAML files,
     # so we're hard-coding that lookups go against the SDN config.
-    sdn = Dataset.require("us_ofac_sdn")
+    sdn = get_catalog().require("us_ofac_sdn")
     return sdn.lookups.get(name).match(value)
 
 

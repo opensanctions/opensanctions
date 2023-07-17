@@ -8,8 +8,8 @@ from pantomime.types import XLS
 from normality import collapse_spaces, stringify
 from normality.cleaning import decompose_nfkd
 
+from zavod import settings
 from opensanctions.core import Context
-from opensanctions import settings
 from opensanctions import helpers as h
 from opensanctions.util import multi_split
 

@@ -1,5 +1,4 @@
 from zavod.parse import remove_namespace, make_name, apply_name
-from zavod.audit import audit_data
 
 from opensanctions.helpers.emails import clean_emails
 from opensanctions.helpers.phones import clean_phones
@@ -27,7 +26,6 @@ __all__ = [
     "check_no_year",
     "convert_excel_cell",
     "remove_namespace",
-    "audit_data",
     "make_name",
     "apply_name",
 ]

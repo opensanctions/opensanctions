@@ -1,16 +1,17 @@
 from typing import Dict, Optional, Set, Tuple, Generator
 from itertools import combinations
 from collections import defaultdict
-from zavod.logs import get_logger
 from nomenklatura.judgement import Judgement
-from nomenklatura.resolver import Identifier
+from nomenklatura.resolver import Identifier, Resolver
 
-from opensanctions.core.dataset import Dataset
-from opensanctions.core.entity import Entity
+from zavod.meta import Dataset
+from zavod.entity import Entity
+from zavod.logs import get_logger
+from zavod.dedupe import get_resolver
+from opensanctions.core.catalog import get_catalog
 from opensanctions.core.db import engine_read
 from opensanctions.core.statements import entities_datasets
 from opensanctions.core.store import Store, get_store
-from opensanctions.core.resolver import get_resolver, Resolver
 
 log = get_logger(__name__)
 
@@ -41,12 +42,13 @@ def get_partial(
 
 def export_training_pairs(scope: Dataset):
     resolver = get_resolver()
+    catalog = get_catalog()
     datasets: Dict[str, Set[Dataset]] = defaultdict(set)
     with engine_read() as conn:
         for entity_id, ds in entities_datasets(conn, scope):
             if ds not in scope.leaf_names:
                 continue
-            dsa = Dataset.get(ds)
+            dsa = catalog.get(ds)
             if dsa is not None:
                 datasets[entity_id].add(dsa)
 

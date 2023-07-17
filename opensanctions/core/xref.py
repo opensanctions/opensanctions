@@ -3,9 +3,9 @@ from zavod.logs import get_logger
 from nomenklatura.xref import xref
 from nomenklatura.matching import DefaultAlgorithm, get_algorithm
 
-from opensanctions.core.dataset import Dataset
+from zavod.meta import Dataset
+from zavod.dedupe import get_resolver, AUTO_USER
 from opensanctions.core.store import get_store
-from opensanctions.core.resolver import AUTO_USER, get_resolver
 
 log = get_logger(__name__)
 

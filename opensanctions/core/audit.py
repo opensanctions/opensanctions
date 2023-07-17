@@ -4,16 +4,16 @@ from nomenklatura.util import is_qid
 from nomenklatura.enrich.wikidata import WikidataEnricher
 from nomenklatura.judgement import Judgement
 
+from zavod.dedupe import get_resolver
 from opensanctions.core.db import engine, metadata, engine_read
 from opensanctions.core.statements import entities_datasets
-from opensanctions.core.resolver import get_resolver
-from opensanctions.core.dataset import Dataset
+from opensanctions.core.catalog import get_catalog
 
 log = get_logger(__name__)
 
 
 def get_wikidata_enricher() -> WikidataEnricher:
-    wikidata = Dataset.require("wikidata")
+    wikidata = get_catalog().require("wikidata")
     cache = Cache(engine, metadata, wikidata)
     wd: WikidataEnricher = wikidata.get_enricher(cache)
     return wd

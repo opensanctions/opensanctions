@@ -1,16 +1,14 @@
-from datetime import datetime
-from typing import Dict, Generator, List, Optional, Tuple, Union
+from typing import Dict, Generator, List, Optional, Tuple
 from sqlalchemy.future import select
 from sqlalchemy.sql.expression import delete, update
 from sqlalchemy.sql.functions import func
-from zavod.logs import get_logger
-from followthemoney.types import registry
 from nomenklatura.resolver import Resolver
 from nomenklatura.statement import Statement
 
+from zavod.logs import get_logger
+from zavod.meta import Dataset
 from opensanctions.core.db import stmt_table
 from opensanctions.core.db import Conn, upsert_func
-from opensanctions.core.dataset import Dataset
 
 log = get_logger(__name__)
 
@@ -43,10 +41,10 @@ def all_statements(
     conn: Conn, dataset: Dataset = None, external: bool = False
 ) -> Generator[Statement, None, None]:
     q = select(stmt_table)
-    if dataset is not None and dataset.name != Dataset.ALL:
+    if dataset is not None:
         q = q.filter(stmt_table.c.dataset.in_(dataset.leaf_names))
     if external is False:
-        q = q.filter(stmt_table.c.external == False)
+        q = q.filter(stmt_table.c.external == False)  # noqa
     # q = q.order_by(stmt_table.c.canonical_id.asc())
     conn = conn.execution_options(stream_results=True)
     cursor = conn.execute(q)

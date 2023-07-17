@@ -1,6 +1,6 @@
 from followthemoney.cli.util import write_entity
 
-from opensanctions.core.entity import Entity
+from zavod.entity import Entity
 from opensanctions.exporters.common import Exporter
 
 

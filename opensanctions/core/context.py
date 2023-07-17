@@ -1,37 +1,29 @@
 import json
-import hashlib
-import mimetypes
-from pathlib import Path
 from functools import cached_property
-from typing import Dict, Optional, Any, List
+from typing import Dict, Optional
 from lxml import etree, html
 from sqlalchemy.exc import OperationalError
 from requests.exceptions import RequestException
-from datapatch import LookupException, Result, Lookup
-from zavod.context import GenericZavod
+from datapatch import LookupException
 from structlog.contextvars import clear_contextvars, bind_contextvars
-from nomenklatura.cache import Cache
 from nomenklatura.util import normalize_url
 from nomenklatura.resolver import Resolver
 from nomenklatura.statement import Statement
-from nomenklatura.statement.serialize import PackStatementWriter
 
-from opensanctions import settings
-from opensanctions.core.dataset import Dataset
-from opensanctions.core.entity import Entity
-from opensanctions.core.db import engine, engine_tx, metadata
+from zavod import settings
+from zavod.context import Context as ZavodContext
+from zavod.entity import Entity
+from zavod.meta import Dataset
+from zavod.dedupe import get_resolver
+from zavod.runtime.loader import load_entry_point
+from opensanctions.core.db import engine_tx
 from opensanctions.core.issues import IssueWriter
 from opensanctions.core.timestamps import TimeStampIndex
-from opensanctions.core.resolver import get_resolver
-from opensanctions.core.resources import save_resource, clear_resources
-from opensanctions.core.source import Source
-from opensanctions.core.archive import dataset_path, STATEMENTS_RESOURCE
-from opensanctions.core.lookups import common_lookups, _type_lookup
 from opensanctions.core.statements import cleanup_dataset, clear_statements
 from opensanctions.core.statements import save_statements, lock_dataset
 
 
-class Context(GenericZavod[Entity, Dataset]):
+class Context(ZavodContext):
     """A utility object to be passed into crawlers which supports
     emitting entities, accessing metadata and logging errors and
     warnings.
@@ -42,33 +34,19 @@ class Context(GenericZavod[Entity, Dataset]):
     BATCH_SIZE = 5000
 
     def __init__(self, dataset: Dataset, dry_run: bool = False):
-        super().__init__(dataset, Entity, data_path=dataset_path(dataset))
-        self.cache = Cache(engine, metadata, dataset, create=True)
+        super().__init__(dataset, dry_run=dry_run)
         self.issues = IssueWriter(dataset)
-        self.dry_run = dry_run
-        self._stmt_writer: Optional[PackStatementWriter] = None
         self._statements: Dict[str, Statement] = {}
-        self._entity_count = 0
-        self._statement_count = 0
-
-        common_lookups.cache_clear()
-        _type_lookup.cache_clear()
 
     @property
-    def source(self) -> Source:
-        if isinstance(self.dataset, Source):
+    def source(self) -> Dataset:
+        if self.dataset.data is not None:
             return self.dataset
         raise RuntimeError("Dataset is not a source: %s" % self.dataset.name)
 
     @property
     def resolver(self) -> Resolver:
         return get_resolver()
-
-    @cached_property
-    def lang(self) -> Optional[str]:
-        if isinstance(self.dataset, Source):
-            return self.dataset.data.lang
-        return None
 
     @cached_property
     def timestamps(self) -> "TimeStampIndex":
@@ -82,40 +60,18 @@ class Context(GenericZavod[Entity, Dataset]):
 
     def close(self) -> None:
         """Flush and tear down the context."""
-        self.cache.close()
         self.issues.close()
-        if self._stmt_writer is not None:
-            self._stmt_writer.close()
         super().close()
         clear_contextvars()
 
-        # import yaml
-        # from pprint import pprint
-        # from opensanctions.core.lookups import common_lookups
-
-        # lookups = {}
-        # for name, lookup in common_lookups().items():
-        #     cleaned = lookup.referenced_options()
-        #     if cleaned is not None:
-        #         lookups[name] = cleaned
-
-        # if len(lookups):
-        #     yaml_data = yaml.dump(
-        #         {"lookups": lookups},
-        #         indent=2,
-        #         encoding="utf-8",
-        #         allow_unicode=True,
-        #     )
-        #     with open(self.path / "lookups.yml", "wb") as fh:
-        #         fh.write(yaml_data)
-
     def fetch_response(self, url, headers=None, auth=None):
         self.log.debug("HTTP GET", url=url)
+        timeout = (settings.HTTP_TIMEOUT, settings.HTTP_TIMEOUT)
         response = self.http.get(
             url,
             headers=headers,
             auth=auth,
-            timeout=(settings.HTTP_TIMEOUT, settings.HTTP_TIMEOUT),
+            timeout=timeout,
             allow_redirects=True,
         )
         response.raise_for_status()
@@ -162,78 +118,6 @@ class Context(GenericZavod[Entity, Dataset]):
         with open(file_path, "rb") as fh:
             return etree.parse(fh)
 
-    def export_resource(
-        self,
-        path: Path,
-        mime_type: Optional[str] = None,
-        title: Optional[str] = None,
-        category: str = SOURCE_CATEGORY,
-    ) -> None:
-        """Register a file as a documented file exported by the dataset."""
-        if mime_type is None:
-            mime_type, _ = mimetypes.guess(path)
-
-        digest = hashlib.sha1()
-        size = 0
-        with open(path, "rb") as fh:
-            while True:
-                chunk = fh.read(65536)
-                if not chunk:
-                    break
-                size += len(chunk)
-                digest.update(chunk)
-        if size == 0:
-            self.log.warning("Resource is empty", path=path)
-        checksum = digest.hexdigest()
-        name = path.relative_to(self.path).as_posix()
-        with engine_tx() as conn:
-            return save_resource(
-                conn,
-                name,
-                self.dataset,
-                checksum,
-                mime_type,
-                category,
-                size,
-                title,
-            )
-
-    def lookup_value(
-        self,
-        lookup: str,
-        value: Optional[str],
-        default: Optional[str] = None,
-        dataset: Optional[str] = None,
-    ) -> Optional[str]:
-        try:
-            lookup_obj = self.get_lookup(lookup, dataset=dataset)
-            return lookup_obj.get_value(value, default=default)
-        except LookupException:
-            return default
-
-    def get_lookup(self, lookup: str, dataset: Optional[str] = None) -> Lookup:
-        ds = Dataset.require(dataset) if dataset is not None else self.dataset
-        return ds.lookups[lookup]
-
-    def lookup(
-        self, lookup: str, value: Optional[str], dataset: Optional[str] = None
-    ) -> Optional[Result]:
-        return self.get_lookup(lookup, dataset=dataset).match(value)
-
-    def audit_data(
-        self, data: Dict[Optional[str], Any], ignore: List[str] = []
-    ) -> None:
-        """Print a row if any of the fields not ignored are still unused."""
-        cleaned = {}
-        for key, value in data.items():
-            if key in ignore:
-                continue
-            if value is None or value == "":
-                continue
-            cleaned[key] = value
-        if len(cleaned):
-            self.log.warn("Unexpected data found", data=cleaned)
-
     def flush(self) -> None:
         """Emitted entities are de-constructed into statements for the database
         to store. These are inserted in batches - so the statement cache on the
@@ -243,18 +127,17 @@ class Context(GenericZavod[Entity, Dataset]):
         if self.dry_run:
             self.log.info(
                 "Dry run: discarding %d statements..." % len(statements),
-                entities=self._entity_count,
-                total=self._statement_count,
+                entities=self.stats.entities,
+                statements=self.stats.statements,
             )
             self._statements = {}
             return
 
         if len(statements):
-            self._statement_count += len(statements)
             self.log.info(
                 "Storing %d statements..." % len(statements),
-                entities=self._entity_count,
-                total=self._statement_count,
+                entities=self.stats.entities,
+                statements=self.stats.statements,
             )
         with engine_tx() as conn:
             lock_dataset(conn, self.dataset)
@@ -273,17 +156,21 @@ class Context(GenericZavod[Entity, Dataset]):
         if entity.id is None:
             raise ValueError("Entity has no ID: %r", entity)
         canonical_id = self.resolver.get_canonical(entity.id)
+        self.stats.entities += 1
+        if target:
+            self.stats.targets += 1
         for stmt in entity.statements:
             assert stmt.dataset == self.dataset.name, (
                 stmt.prop,
-                entity.default_dataset.name,
+                entity.dataset.name,
                 stmt.dataset,
                 self.dataset.name,
             )
-            assert stmt.entity_id == entity.id
+            stmt.entity_id == entity.id
             stmt.canonical_id = canonical_id
             stmt.schema = entity.schema.name
             stmt.last_seen = settings.RUN_TIME_ISO
+            self.stats.statements += 1
             if not self.dry_run:
                 stmt.first_seen = self.timestamps.get(stmt.id)
             stmt.target = target or False
@@ -291,42 +178,41 @@ class Context(GenericZavod[Entity, Dataset]):
             if stmt.lang is None and self.lang is not None:
                 stmt.lang = self.lang
             # if not self.dry_run:
-            if self._stmt_writer is None:
-                fh = open(self.get_resource_path(STATEMENTS_RESOURCE), "wb")
-                self._stmt_writer = PackStatementWriter(fh)
-            self._stmt_writer.write(stmt)
+            self.sink.emit(stmt)
             self._statements[stmt.id] = stmt
         self.log.debug("Emitted", entity=entity.id, schema=entity.schema.name)
-        self._entity_count += 1
         if len(self._statements) >= (self.BATCH_SIZE * 10):
             self.flush()
 
     def crawl(self) -> bool:
         """Run the crawler."""
         self.bind()
-        if self.source.disabled:
-            self.log.info("Source is disabled")
+        if self.dataset.disabled:
+            self.log.info("Dataset is disabled")
             return True
+        self.begin(clear=True)
         self.issues.clear()
-        with engine_tx() as conn:
-            clear_resources(conn, self.dataset, category=self.SOURCE_CATEGORY)
         self.log.info("Begin crawl", run_time=settings.RUN_TIME_ISO)
-        self._entity_count = 0
-        self._statement_count = 0
+        self.stats.reset()
         try:
             # Run the dataset:
-            self.source.method(self)
+            method = load_entry_point(self.dataset)
+            method(self)
             self.flush()
-            if self._entity_count == 0:
+            if self.stats.entities == 0:
                 self.log.warn(
                     "Crawler did not emit entities",
-                    statements=self._statement_count,
+                    statements=self.stats.statements,
                 )
             else:
                 if not self.dry_run:
                     with engine_tx() as conn:
                         cleanup_dataset(conn, self.dataset)
-            self.log.info("Crawl completed", entities=self._entity_count)
+            self.log.info(
+                "Crawl completed",
+                entities=self.stats.entities,
+                statements=self.stats.statements,
+            )
             return True
         except KeyboardInterrupt:
             self.log.warning("Aborted by user (SIGINT)")
@@ -351,10 +237,8 @@ class Context(GenericZavod[Entity, Dataset]):
         """Delete all recorded data for a given dataset."""
         with engine_tx() as conn:
             self.issues.clear()
-            clear_resources(conn, self.dataset)
+            self.resources.clear()
             if data:
                 self.cache.clear()
-                path = self.get_resource_path(STATEMENTS_RESOURCE)
-                if path.exists():
-                    path.unlink()
+                self.sink.clear()
                 clear_statements(conn, self.dataset)

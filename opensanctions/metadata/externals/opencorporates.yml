@@ -1,4 +1,5 @@
 type: external
+entry_point: zavod.runner.enrich:enrich
 title: OpenCorporates
 summary: |
   The largest open database of company data in the world, with data from over 140 registries.
@@ -22,6 +23,10 @@ publisher:
     OpenCorporates, is the largest open database of company data in the world, with data
     from over 140 registries.
   url: https://opencorporates.com/info/about/
+
+scopes:
+  - enrich_companies
+
 config:
   type: nomenklatura.enrich.opencorporates:OpenCorporatesEnricher
   cache_days: 180

@@ -4,7 +4,7 @@ from typing import Dict, List, Any, Optional
 from followthemoney import model
 from followthemoney.types import registry
 
-from opensanctions.core import Entity
+from zavod.entity import Entity
 from opensanctions.exporters.common import Exporter
 
 

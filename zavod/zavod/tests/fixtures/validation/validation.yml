@@ -1,0 +1,38 @@
+entry_point: validation
+title: OpenSanctions Validation Dataset
+prefix: osv
+hidden: true
+summary: >
+  This dataset is used to validate and test the OpenSanctions data processing pipeline.
+description: |
+  **Do not include this data in production screening**
+
+  This dataset contains a series of fictional characters. It is used to test the proper
+  functioning of the OpenSanctions data delivery mechanism.
+publisher:
+  name: OpenSanctions
+  description: |
+    Manually created by the project team.
+  url: https://www.opensanctions.org
+  official: false
+url: https://github.com/opensanctions/opensanctions
+data:
+  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vTYliJOm1mk2PrsL0m_BVn2sEbpHIdQ2fuzavp0gqOLndgzCw7gtr9Npqwa_FerVrQBfYFiDeKuwfV-/pub?gid=0&single=true&output=csv
+  format: CSV
+
+lookups:
+  plants:
+    options:
+      - match:
+          - null
+          - banana
+          - apple
+        value: Fruit
+      - match:
+          - potato
+          - carrot
+        value: Vegetable
+      - match:
+          - oak
+          - pine
+        value: Tree

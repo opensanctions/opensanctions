@@ -29,6 +29,7 @@ RUN pip3 install --no-cache-dir -U pip six setuptools wheel \
     && pip3 install --no-cache-dir -U "pyicu<2.11.0"
 
 COPY . /opensanctions
+RUN pip install --no-cache-dir -e /opensanctions/zavod
 WORKDIR /opensanctions
 RUN pip install --no-cache-dir -e /opensanctions
 

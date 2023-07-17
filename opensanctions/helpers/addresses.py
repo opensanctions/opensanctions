@@ -5,9 +5,9 @@ from addressformatting import AddressFormatter
 from followthemoney.types import registry
 from followthemoney.util import make_entity_id, join_text
 
+from zavod.entity import Entity
+from zavod.runtime.lookups import type_lookup
 from opensanctions.core.context import Context
-from opensanctions.core.entity import Entity
-from opensanctions.core.lookups import type_lookup
 
 
 @lru_cache(maxsize=None)

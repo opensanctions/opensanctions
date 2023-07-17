@@ -1,4 +1,5 @@
 type: external
+entry_point: zavod.runner.enrich:enrich
 title: Czechia business register
 summary: |
   Czech business register with company metadata and directorships as obtained
@@ -14,6 +15,9 @@ publisher:
     registers).
   country: cz
   official: true
+
+scopes:
+  - enrich_companies
 
 config:
   type: nomenklatura.enrich.yente:YenteEnricher

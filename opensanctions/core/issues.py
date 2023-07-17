@@ -7,10 +7,10 @@ from lxml.etree import _Element, tostring
 from typing import Any, Dict, Generator, Optional, TypedDict, cast
 from followthemoney.schema import Schema
 
-from opensanctions import settings
-from opensanctions.core.archive import dataset_resource_path, get_dataset_resource
-from opensanctions.core.archive import ISSUES_LOG_RESOURCE
-from opensanctions.core.dataset import Dataset
+from zavod import settings
+from zavod.meta import Dataset
+from zavod.archive import dataset_resource_path, get_dataset_resource
+from zavod.archive import ISSUES_LOG
 
 
 class Issue(TypedDict):
@@ -27,7 +27,7 @@ class Issue(TypedDict):
 
 class IssueWriter(object):
     def __init__(self, dataset: Dataset) -> None:
-        self.path = dataset_resource_path(dataset, ISSUES_LOG_RESOURCE)
+        self.path = dataset_resource_path(dataset.name, ISSUES_LOG)
         self.fh = open(self.path, "ab")
 
     def clear(self) -> None:
@@ -91,7 +91,7 @@ def store_log_event(logger, log_method, data: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def _all_issues(dataset: Dataset) -> Generator[Issue, None, None]:
-    path = get_dataset_resource(dataset, ISSUES_LOG_RESOURCE)
+    path = get_dataset_resource(dataset, ISSUES_LOG)
     if path is None or not path.is_file():
         return
     with open(path, "rb") as fh:

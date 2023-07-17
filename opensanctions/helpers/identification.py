@@ -1,6 +1,7 @@
 from typing import Optional
+
+from zavod.entity import Entity
 from opensanctions.core.context import Context
-from opensanctions.core.entity import Entity
 
 
 def make_identification(
