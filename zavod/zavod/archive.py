@@ -85,7 +85,7 @@ def dataset_resource_path(dataset_name: str, resource: PathLike) -> Path:
 
 
 def get_dataset_resource(
-    dataset: Dataset,
+    dataset: "Dataset",
     resource: PathLike,
     backfill: bool = True,
     force_backfill: bool = False,
