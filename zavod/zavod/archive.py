@@ -2,14 +2,16 @@ import os
 import csv
 from pathlib import Path
 from functools import cache
-from typing import Optional, Generator, TextIO, Union
+from typing import Optional, Generator, TextIO, Union, TYPE_CHECKING
 from zavod.logs import get_logger
 from google.cloud.storage import Client, Bucket, Blob  # type: ignore
 from nomenklatura.statement import Statement
 from nomenklatura.statement.serialize import unpack_row
 
 from zavod import settings
-from zavod.meta.dataset import Dataset
+
+if TYPE_CHECKING:
+    from zavod.meta.dataset import Dataset
 
 log = get_logger(__name__)
 StatementGen = Generator[Statement, None, None]
@@ -113,13 +115,13 @@ def _read_fh_statements(fh: TextIO, external: bool) -> StatementGen:
         yield stmt
 
 
-def iter_dataset_statements(dataset: Dataset, external: bool = True) -> StatementGen:
+def iter_dataset_statements(dataset: "Dataset", external: bool = True) -> StatementGen:
     """Create a generator that yields all statements in the given dataset."""
     for scope in dataset.leaves:
         yield from _iter_scope_statements(scope, external=external)
 
 
-def _iter_scope_statements(dataset: Dataset, external: bool = True) -> StatementGen:
+def _iter_scope_statements(dataset: "Dataset", external: bool = True) -> StatementGen:
     path = dataset_resource_path(dataset.name, STATEMENTS_FILE)
     if not path.exists():
         backfill_blob = get_backfill_blob(dataset.name, STATEMENTS_FILE)
@@ -137,7 +139,7 @@ def _iter_scope_statements(dataset: Dataset, external: bool = True) -> Statement
         yield from _read_fh_statements(fh, external)
 
 
-def iter_previous_statements(dataset: Dataset, external: bool = True) -> StatementGen:
+def iter_previous_statements(dataset: "Dataset", external: bool = True) -> StatementGen:
     """Load the statements from the previous release of the dataset by streaming them
     from the data archive."""
     for scope in dataset.leaves:

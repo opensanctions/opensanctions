@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Optional, Dict, Any
 from nomenklatura.dataset import DataResource as NKDataResource
 
+from zavod.archive import dataset_path
 from zavod.meta.dataset import Dataset
 
 
@@ -17,9 +18,6 @@ class DataResource(NKDataResource):
         title: Optional[str] = None,
     ) -> "DataResource":
         """Create a resource description object from a local file path."""
-        # Avoid circular import:
-        from zavod.archive import dataset_path
-
         if not path.exists():
             raise ValueError("File does not exist: %s" % path)
         if mime_type is None:
