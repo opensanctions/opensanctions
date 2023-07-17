@@ -3,9 +3,10 @@ from typing import Optional
 from functools import cache
 
 from zavod.meta.dataset import Dataset
+from zavod.meta.resource import DataResource
 from zavod.meta.catalog import ArchiveBackedCatalog
 
-__all__ = ["Dataset"]
+__all__ = ["Dataset", "DataResource"]
 
 
 @cache
