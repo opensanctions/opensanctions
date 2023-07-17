@@ -12,6 +12,8 @@ from structlog.types import Processor
 
 from zavod import settings
 
+Event = MutableMapping[str, str]
+
 
 def configure_logging(level: int = logging.DEBUG) -> None:
     """Configure log levels and structured logging."""
@@ -67,16 +69,15 @@ def get_logger(name: str) -> structlog.stdlib.BoundLogger:
     return get_raw_logger(name)
 
 
-def format_json(
-    _: Any, __: str, ed: MutableMapping[str, str]
-) -> MutableMapping[str, str]:
+def format_json(_: Any, __: str, ed: Event) -> Event:
     """Stackdriver uses `message` and `severity` keys to display logs"""
     ed["message"] = ed.pop("event")
     ed["severity"] = ed.pop("level", "info").upper()
     return ed
 
 
-def log_issue(logger: Any, log_method: str, data: Dict[str, Any]) -> Dict[str, Any]:
+def log_issue(_: Any, __: str, ed: Event) -> Event:
+    data: Dict[str, Any] = dict(ed)
     for key, value in data.items():
         if isinstance(value, _Element):
             value = tostring(value, pretty_print=False, encoding=str)

@@ -80,5 +80,7 @@ class DatasetIssues(object):
     def by_level(self) -> Dict[str, int]:
         levels: Dict[str, int] = {}
         for issue in self.all():
-            levels[issue.get("level")] = levels.get(issue.get("level"), 0) + 1
+            level = issue.get("level")
+            if level is not None:
+                levels[level] = levels.get(level, 0) + 1
         return levels
