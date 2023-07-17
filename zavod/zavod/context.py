@@ -43,7 +43,7 @@ class Context(object):
 
     def begin(self, clear: bool = False) -> None:
         """Prepare the context for running the exporter."""
-        if clear:
+        if clear or self.dry_run:
             self.resources.clear()
         self.stats.reset()
 
@@ -69,7 +69,8 @@ class Context(object):
         resource = DataResource.from_path(
             self.dataset, path, mime_type=mime_type, title=title
         )
-        self.resources.save(resource)
+        if not self.dry_run:
+            self.resources.save(resource)
         return resource
 
     def fetch_resource(
