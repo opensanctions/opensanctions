@@ -8,6 +8,7 @@ from nomenklatura.store.base import View as BaseView
 from nomenklatura.store.level import LevelDBStore
 from nomenklatura.publish.dates import simplify_dates
 
+from zavod import settings
 from zavod.logs import get_logger
 from zavod.entity import Entity
 from zavod.meta import Dataset
@@ -63,6 +64,8 @@ class Store(LevelDBStore[Dataset, Entity]):
                         statements=idx,
                         scope=self.dataset.name,
                     )
+                stmt.first_seen = stmt.first_seen or settings.RUN_TIME_ISO
+                stmt.last_seen = stmt.last_seen or settings.RUN_TIME_ISO
                 writer.add_statement(stmt)
         log.info("Local cache complete.", scope=self.dataset.name, statements=idx)
 
