@@ -1,11 +1,12 @@
 from pathlib import Path
-from typing import Generator, List, Set
+from typing import Generator, List, Set, Optional
 from nomenklatura.statement import Statement
 from nomenklatura.statement import read_path_statements, CSV
 from nomenklatura.statement import write_statements
 
 from zavod.logs import get_logger
 from zavod.meta import Dataset
+from zavod.dedupe import get_resolver
 from zavod.archive import iter_dataset_statements, datasets_path
 from opensanctions.core.db import engine_tx
 from opensanctions.core.statements import clear_statements
@@ -18,12 +19,18 @@ def dump_statements(
     dataset: Dataset, external: bool = False
 ) -> Generator[Statement, None, None]:
     stmt_count = 0
+    resolver = get_resolver()
     seen: Set[str] = set()
+    prev_dataset: Optional[str] = None
     for idx, stmt in enumerate(iter_dataset_statements(dataset, external=external)):
         if idx != 0 and idx % 50000 == 0:
             log.info("Exporting statements...", count=idx)
         if stmt.id in seen:
             continue
+        if stmt.dataset != prev_dataset:
+            prev_dataset = stmt.dataset
+            seen = set()
+        stmt.canonical_id = resolver.get_canonical(stmt.entity_id)
         yield stmt
         stmt_count += 1
         seen.add(stmt.id)
