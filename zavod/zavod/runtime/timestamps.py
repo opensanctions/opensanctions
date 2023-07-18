@@ -17,7 +17,6 @@ class TimeStampIndex(object):
 
     def index(self, statements: Iterable[Statement]) -> None:
         log.info("Building timestamp index...")
-        # TODO: work out the previous logic.
         batch = self.db.write_batch()
         idx = 0
         for idx, stmt in enumerate(statements):
