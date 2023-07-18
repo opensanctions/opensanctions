@@ -132,7 +132,7 @@ def _iter_scope_statements(dataset: "Dataset", external: bool = True) -> Stateme
     if backfill_blob is not None:
         log.info(
             "Streaming backfilled statements...",
-            dataset=dataset.name,
+            backfill_dataset=dataset.name,
         )
         with backfill_blob.open("r", chunk_size=BLOB_CHUNK) as fh:
             yield from _read_fh_statements(fh, external)

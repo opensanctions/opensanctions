@@ -24,7 +24,7 @@ def dump_statements(
     prev_dataset: Optional[str] = None
     for idx, stmt in enumerate(iter_dataset_statements(dataset, external=external)):
         if idx != 0 and idx % 50000 == 0:
-            log.info("Exporting statements...", count=idx)
+            log.info("Exporting statements...", count=idx, dataset=stmt.dataset)
         if stmt.id in seen:
             continue
         if stmt.dataset != prev_dataset:
