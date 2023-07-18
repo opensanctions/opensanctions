@@ -1,7 +1,8 @@
 import io
 import csv
 import time
-from typing import Optional
+from pathlib import Path
+from typing import Optional, Dict, Any, Generator
 from zipfile import ZipFile
 from urllib.parse import urljoin
 from pantomime.types import ZIP
@@ -18,7 +19,7 @@ def parse_date(date: Optional[str]):
     return h.parse_date(date, ["%Y-%m-%d", "%m/%d/%Y"])
 
 
-def read_rows(zip_path):
+def read_rows(zip_path: Path) -> Generator[Dict[str, Any], None, None]:
     with ZipFile(zip_path, "r") as zip:
         for file_name in zip.namelist():
             with zip.open(file_name) as zfh:
@@ -28,7 +29,7 @@ def read_rows(zip_path):
                     yield row
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     ms = str(int(time.time() * 1000))
     url = context.source.data.url.replace("RANDOM", ms)
     metadata = context.fetch_json(url)
@@ -80,6 +81,7 @@ def crawl(context: Context):
         )
         if address is not None:
             entity.add("address", address.get("full"))
+            entity.add("country", address.get("country"))
         # h.apply_address(context, entity, address)
 
         agency = row.pop("Excluding Agency")
