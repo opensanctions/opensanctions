@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 from pathlib import Path
 from functools import cache
 from zavod.entity import Entity
@@ -8,7 +8,9 @@ from nomenklatura.matching import DefaultAlgorithm, get_algorithm
 
 from zavod import settings
 from zavod.logs import get_logger
-from zavod.meta import Dataset
+
+if TYPE_CHECKING:
+    from zavod.store import Store
 
 log = get_logger(__name__)
 AUTO_USER = "zavod/xref"
@@ -23,7 +25,7 @@ def get_resolver() -> Resolver[Entity]:
 
 
 def blocking_xref(
-    dataset: Dataset,
+    store: "Store",
     limit: int = 5000,
     auto_threshold: float = 0.990,
     algorithm: str = DefaultAlgorithm.NAME,
@@ -33,15 +35,12 @@ def blocking_xref(
     dataset against each other, and stores the highest-scoring candidates for human
     review. Candidates above the given threshold score will be merged automatically.
     """
-    from zavod.store import get_store
-
     resolver = get_resolver()
     resolver.prune()
     log.info(
         "Xref running, auto merge threshold: %f; algorithm: %r"
         % (auto_threshold, algorithm)
     )
-    store = get_store(dataset, external=True)
     algorithm_type = get_algorithm(algorithm)
     if algorithm_type is None:
         raise ValueError("Invalid algorithm: %s" % algorithm)

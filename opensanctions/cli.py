@@ -10,7 +10,7 @@ from nomenklatura.resolver import Identifier
 from nomenklatura.matching import DefaultAlgorithm
 
 from zavod.archive import dataset_path
-from zavod.dedupe import get_resolver
+from zavod.dedupe import get_resolver, blocking_xref
 from opensanctions.core import Context, setup
 from opensanctions.exporters.statements import export_statements_path
 from opensanctions.exporters.statements import import_statements_path
@@ -18,7 +18,6 @@ from opensanctions.core.audit import audit_resolver
 from opensanctions.core.store import get_store
 from opensanctions.core.catalog import get_catalog, get_dataset_names
 from opensanctions.core.training import export_training_pairs
-from opensanctions.core.xref import blocking_xref
 from opensanctions.core.statements import resolve_all_canonical, resolve_canonical
 from opensanctions.core.db import engine_tx
 from opensanctions.exporters import export, export_metadata
@@ -109,8 +108,9 @@ def xref(
     focus_dataset: Optional[str] = None,
 ):
     dataset = get_catalog().require(dataset)
+    store = get_store(dataset, external=True)
     blocking_xref(
-        dataset,
+        store,
         limit=limit,
         auto_threshold=threshold,
         algorithm=algorithm,
