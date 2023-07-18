@@ -40,6 +40,7 @@ config:
   dataset: gleif
   api_key: ${OPENSANCTIONS_GRAPH_API_KEY}
   strip_namespace: true
+  fuzzy: false
   threshold: 0.5
   schemata:
     - Company

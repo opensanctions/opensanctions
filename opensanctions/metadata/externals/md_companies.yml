@@ -22,7 +22,8 @@ config:
   dataset: md_companies
   api_key: ${OPENSANCTIONS_GRAPH_API_KEY}
   strip_namespace: true
-  threshold: 0.5
+  fuzzy: false
+  threshold: 0.7
   schemata:
     - Company
     - Organization
