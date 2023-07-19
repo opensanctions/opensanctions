@@ -134,6 +134,7 @@ def _iter_scope_statements(dataset: "Dataset", external: bool = True) -> Stateme
             "Streaming backfilled statements...",
             backfill_dataset=dataset.name,
         )
+        backfill_blob.reload()
         with backfill_blob.open("r", chunk_size=BLOB_CHUNK) as fh:
             yield from _read_fh_statements(fh, external)
         return
@@ -150,5 +151,6 @@ def iter_previous_statements(dataset: "Dataset", external: bool = True) -> State
                 "Streaming backfilled statements...",
                 dataset=scope.name,
             )
+            backfill_blob.reload()
             with backfill_blob.open("r", chunk_size=BLOB_CHUNK) as fh:
                 yield from _read_fh_statements(fh, external)
