@@ -1,6 +1,11 @@
 version: 2
 updates:
   - package-ecosystem: "pip"
+    directory: "/zavod"
+    open-pull-requests-limit: 99
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "pip"
     directory: "/"
     open-pull-requests-limit: 99
     schedule:
