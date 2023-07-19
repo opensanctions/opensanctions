@@ -58,6 +58,7 @@ setup(
             "pytest-cov",
             "lxml-stubs",
             "coverage>=4.1",
+            "requests-mock",
             "types-setuptools",
             "types-requests",
             "types-google-cloud-ndb",
