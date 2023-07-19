@@ -4,8 +4,11 @@ from sqlalchemy.engine import Engine
 from nomenklatura.cache import Cache
 
 from zavod import settings
+from zavod.logs import get_logger
 from zavod.meta import Dataset
 from zavod.archive import dataset_state_path
+
+log = get_logger(__name__)
 
 
 @cache
@@ -30,4 +33,5 @@ def get_cache(dataset: Dataset) -> Cache:
         database_uri = f"sqlite:///{cache_path.as_posix()}"
     engine = get_engine(database_uri)
     metadata = get_metadata(database_uri)
+    log.info("Using cache: %r" % engine, dataset=dataset.name)
     return Cache(engine, metadata, dataset, create=True)

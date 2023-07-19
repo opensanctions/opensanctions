@@ -22,7 +22,7 @@ setup(
     zip_safe=False,
     install_requires=[
         "followthemoney == 3.4.4",
-        "nomenklatura == 3.3.2",
+        "nomenklatura == 3.3.3",
         "datapatch == 1.0.2",
         "addressformatting == 1.3.2",
         "certifi",
@@ -32,7 +32,7 @@ setup(
         "lxml-stubs == 0.4.0",
         "openpyxl == 3.1.0",
         "orjson == 3.9.2",
-        "pantomime == 0.6.0",
+        "pantomime == 0.6.1",
         "plyvel == 1.5.0",
         "prefixdate",
         "psycopg2-binary",
