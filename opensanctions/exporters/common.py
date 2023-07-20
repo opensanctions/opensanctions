@@ -1,6 +1,6 @@
 from zavod.entity import Entity
-from opensanctions.core import Context
-from opensanctions.core.store import View
+from zavod.store import View
+from zavod.context import Context
 
 
 class Exporter(object):

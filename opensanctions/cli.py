@@ -9,13 +9,13 @@ from nomenklatura.judgement import Judgement
 from nomenklatura.resolver import Identifier
 from nomenklatura.matching import DefaultAlgorithm
 
+from zavod.store import get_store
 from zavod.archive import dataset_path
 from zavod.dedupe import get_resolver, blocking_xref
 from opensanctions.core import Context, setup
 from opensanctions.exporters.statements import export_statements_path
 from opensanctions.exporters.statements import import_statements_path
 from opensanctions.core.audit import audit_resolver
-from opensanctions.core.store import get_store
 from opensanctions.core.catalog import get_catalog, get_dataset_names
 from opensanctions.core.training import export_training_pairs
 from opensanctions.core.statements import resolve_all_canonical, resolve_canonical
