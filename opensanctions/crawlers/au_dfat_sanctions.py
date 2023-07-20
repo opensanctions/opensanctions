@@ -76,7 +76,14 @@ def parse_reference(context: Context, reference: int, rows):
             context.log.warning("Unknown entity type", type=type_)
             return
         schemata.add(schema)
-    assert len(schemata) == 1, schemata
+    if len(schemata) > 1:
+        context.log.error(
+            "Multiple entity types",
+            schemata=list(schemata),
+            reference=reference,
+            # rows=rows,
+        )
+        return
     entity = context.make(schemata.pop())
 
     primary_name = None
