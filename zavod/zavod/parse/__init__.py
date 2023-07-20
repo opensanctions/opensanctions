@@ -10,6 +10,7 @@ and improve consistency across datasets.
 from zavod.parse.addresses import make_address, format_address
 from zavod.parse.xml import remove_namespace
 from zavod.parse.names import make_name, apply_name
+from zavod.parse.positions import make_position
 
 __all__ = [
     "make_address",
@@ -17,4 +18,5 @@ __all__ = [
     "remove_namespace",
     "make_name",
     "apply_name",
+    "make_position",
 ]
