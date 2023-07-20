@@ -3,6 +3,7 @@ from typing import Any, Optional, Union, Dict, List
 from datapatch import LookupException, Result, Lookup
 from followthemoney.schema import Schema
 from followthemoney.util import make_entity_id
+from nomenklatura.cache import Cache
 from structlog.contextvars import clear_contextvars, bind_contextvars
 
 from zavod import settings
@@ -14,6 +15,7 @@ from zavod.runtime.stats import ContextStats
 from zavod.runtime.sink import DatasetSink
 from zavod.runtime.issues import DatasetIssues
 from zavod.runtime.resources import DatasetResources
+from zavod.runtime.timestamps import TimeStampIndex
 from zavod.runtime.cache import get_cache
 from zavod.http import fetch_file, make_session
 from zavod.logs import get_logger
@@ -34,14 +36,30 @@ class Context(object):
         self.sink = DatasetSink(dataset)
         self.issues = DatasetIssues(dataset)
         self.resources = DatasetResources(dataset)
-        self.cache = get_cache(dataset)
         self.log = get_logger(dataset.name)
         self.http = make_session()
+        self._cache: Optional[Cache] = None
+        self._timestamps: Optional[TimeStampIndex] = None
 
         self.lang: Optional[str] = None
         """Default language for statements emitted from this dataset"""
         if dataset.data is not None:
             self.lang = dataset.data.lang
+
+    @property
+    def cache(self) -> Cache:
+        """A cache object for storing HTTP responses and other data."""
+        if self._cache is None:
+            self._cache = get_cache(self.dataset)
+        return self._cache
+
+    @property
+    def timestamps(self) -> TimeStampIndex:
+        """An index of the first_seen time of every statement previous emitted by
+        the dataset. This is used to determine if a statement is new or not."""
+        if self._timestamps is None:
+            self._timestamps = TimeStampIndex.build(self.dataset)
+        return self._timestamps
 
     def begin(self, clear: bool = False) -> None:
         """Prepare the context for running the exporter."""
@@ -57,12 +75,16 @@ class Context(object):
     def close(self) -> None:
         """Flush and tear down the context."""
         self.http.close()
-        self.cache.close()
+        if self._cache is not None:
+            self._cache.close()
+        if self._timestamps is not None:
+            self._timestamps.close()
         self.sink.close()
-        self.issues.close()
         clear_contextvars()
+        self.issues.close()
 
     def get_resource_path(self, name: PathLike) -> Path:
+        """Get the path to a file in the dataset data folder."""
         return dataset_resource_path(self.dataset.name, name)
 
     def export_resource(
@@ -101,12 +123,16 @@ class Context(object):
     def make_slug(
         self, *parts: Optional[str], strict: bool = True, prefix: Optional[str] = None
     ) -> Optional[str]:
+        """Make a slug-based entity ID from a list of strings, using the
+        dataset prefix."""
         prefix = self.dataset.prefix if prefix is None else prefix
         return join_slug(*parts, prefix=prefix, strict=strict)
 
     def make_id(
         self, *parts: Optional[str], prefix: Optional[str] = None
     ) -> Optional[str]:
+        """Make a hash-based entity ID from a list of strings, prefixed with the
+        dataset prefix."""
         hashed = make_entity_id(*parts, key_prefix=self.dataset.name)
         if hashed is None:
             return None
@@ -165,6 +191,12 @@ class Context(object):
         self.stats.entities += 1
         if target:
             self.stats.targets += 1
+        if self.stats.entities % 1000 == 0:
+            self.log.info(
+                "Emitted %s entities" % self.stats.entities,
+                targets=self.stats.targets,
+                statements=self.stats.statements,
+            )
         for stmt in entity.statements:
             if stmt.lang is None:
                 stmt.lang = self.lang
@@ -175,6 +207,7 @@ class Context(object):
             stmt.schema = entity.schema.name
             stmt.first_seen = settings.RUN_TIME_ISO
             stmt.last_seen = settings.RUN_TIME_ISO
-            self.stats.statements += 1
             if not self.dry_run:
+                stmt.first_seen = self.timestamps.get(stmt.id, settings.RUN_TIME_ISO)
                 self.sink.emit(stmt)
+            self.stats.statements += 1

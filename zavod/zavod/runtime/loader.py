@@ -49,4 +49,5 @@ def load_entry_point(dataset: Dataset, method: str = "crawl") -> Callable[[Any],
 
 
 def example_function() -> None:
+    """For unit tests."""
     pass

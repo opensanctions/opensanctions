@@ -2,6 +2,9 @@
 
 
 class ContextStats(object):
+    """A simple object for tracking the number of statements, entities and targets
+    emitted by a dataset context while running the dataset method."""
+
     def __init__(self) -> None:
         self.reset()
 

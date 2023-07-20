@@ -17,6 +17,7 @@ class DatasetSink(object):
         self.writer: Optional[StatementWriter] = None
 
     def emit(self, stmt: Statement) -> None:
+        """Write a statement to the dataset output."""
         if self.fh is None or self.writer is None:
             self.fh = open(self.path, "wb")
             self.writer = get_statement_writer(self.fh, PACK)
@@ -31,6 +32,7 @@ class DatasetSink(object):
             self.fh = None
 
     def clear(self) -> None:
+        """Delete the dataset statements output file."""
         self.close()
         if self.path.is_file():
             self.path.unlink()

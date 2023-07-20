@@ -2,7 +2,6 @@ import plyvel  # type: ignore
 from typing import Iterable, Optional
 from nomenklatura.statement import Statement
 
-from zavod import settings
 from zavod.logs import get_logger
 from zavod.meta import Dataset
 from zavod.archive import dataset_state_path, iter_previous_statements
@@ -34,11 +33,16 @@ class TimeStampIndex(object):
         index.index(iter_previous_statements(dataset, external=False))
         return index
 
-    def get(self, id: str) -> str:
+    def get(self, id: Optional[str], default: str) -> str:
+        if id is None:
+            return default
         first_seen: Optional[bytes] = self.db.get(id.encode("utf-8"))
         if first_seen is not None:
             return first_seen.decode("utf-8")
-        return settings.RUN_TIME_ISO
+        return default
+
+    def close(self) -> None:
+        self.db.close()
 
     def __repr__(self) -> str:
         return f"<TimeStampIndex({self.db.name!r})>"

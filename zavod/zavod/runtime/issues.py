@@ -21,6 +21,8 @@ class Issue(TypedDict):
 
 
 class DatasetIssues(object):
+    """A log of issues that occurred during the running and export of a dataset."""
+
     def __init__(self, dataset: Dataset) -> None:
         self.dataset = dataset
         self.path = dataset_resource_path(dataset.name, ISSUES_LOG)
@@ -59,15 +61,18 @@ class DatasetIssues(object):
         self.fh.write(out)
 
     def clear(self) -> None:
+        """Clear (delete) the issues log file."""
         self.close()
         self.path.unlink(missing_ok=True)
 
     def close(self) -> None:
+        """Close the issues log file."""
         if self.fh is not None:
             self.fh.close()
         self.fh = None
 
     def all(self) -> Generator[Issue, None, None]:
+        """Iterate over all issues in the log."""
         self.close()
         for scope in self.dataset.leaves:
             path = get_dataset_resource(scope, ISSUES_LOG)
@@ -78,6 +83,7 @@ class DatasetIssues(object):
                     yield cast(Issue, orjson.loads(line))
 
     def by_level(self) -> Dict[str, int]:
+        """Count the number of issues by severity level."""
         levels: Dict[str, int] = {}
         for issue in self.all():
             level = issue.get("level")

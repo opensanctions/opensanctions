@@ -14,15 +14,15 @@ def test_timestamps(vdataset: Dataset):
     stmts = list(iter_dataset_statements(vdataset))
     for stmt in stmts:
         assert stmt.first_seen == prev_time
-    dt = datetime.utcnow().replace(microsecond=0) + timedelta(days=1)
 
-    settings.RUN_TIME_ISO = dt.isoformat(sep="T", timespec="seconds")
+    dt = datetime.utcnow().replace(microsecond=0) + timedelta(days=1)
+    default = dt.isoformat(sep="T", timespec="seconds")
 
     index = TimeStampIndex(dataset=vdataset)
     index.index(stmts)
-    assert index.get("test") == settings.RUN_TIME_ISO
+    assert index.get("test", default) == default
     for stmt in stmts:
-        assert index.get(stmt.id) != ""
-        assert index.get(stmt.id) == prev_time
+        assert index.get(stmt.id, default) != ""
+        assert index.get(stmt.id, default) == prev_time
 
     assert "TimeStampIndex" in repr(index), repr(index)
