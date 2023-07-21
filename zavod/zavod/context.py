@@ -64,7 +64,7 @@ class Context:
     @property
     def data_url(self) -> str:
         """The URL of the source data for the dataset."""
-        if self.dataset.data is None:
+        if self.dataset.data is None or self.dataset.data.url is None:
             raise ValueError("Dataset has no data URL: %r" % self.dataset)
         return self.dataset.data.url
 
