@@ -10,7 +10,14 @@ def remove_namespace(el: ElementOrTree) -> ElementOrTree:
 
     If the namespaces in a document define multiple tags with the same
     local tag name, this will create ambiguity and lead to errors. Most
-    XML documents, however, only actively use one namespace."""
+    XML documents, however, only actively use one namespace.
+
+    Args:
+        el: The root element or tree to remove namespaces from.
+
+    Returns:
+        An updated element tree with the namespaces removed.
+    """
     for elem in el.iter():
         elem.tag = etree.QName(elem).localname
         for key, value in list(elem.attrib.items()):
