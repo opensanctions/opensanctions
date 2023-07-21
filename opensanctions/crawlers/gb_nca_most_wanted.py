@@ -49,7 +49,7 @@ def crawl_person(context: Context, item: _Element, url: str) -> None:
 
 
 def crawl(context: Context):
-    url = context.source.data.url
+    url = context.data_url
     doc = context.fetch_html(url)
     mw_grid = doc.find('.//div[@class="blog most-wanted-grid"]')
     if mw_grid is None:

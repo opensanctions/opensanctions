@@ -125,13 +125,13 @@ def crawl_excel(context: Context, url: str):
 
 
 def crawl(context: Context):
-    doc = context.fetch_html(context.source.data.url)
+    doc = context.fetch_html(context.data_url)
 
     xlsx_found = False
     for a in doc.findall(".//a[@class='file-download']"):
         if ".xlsx" in a.text_content():
             xlsx_found = True
-            url = urljoin(context.source.data.url, a.get("href"))
+            url = urljoin(context.data_url, a.get("href"))
             crawl_excel(context, url)
 
     if not xlsx_found:

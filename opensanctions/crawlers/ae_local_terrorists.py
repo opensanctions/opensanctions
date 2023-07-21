@@ -69,10 +69,10 @@ def parse_excel(context: Context, path: Path):
 
 
 def crawl(context: Context):
-    doc = context.fetch_html(context.source.data.url)
+    doc = context.fetch_html(context.data_url)
     found_file = False
     for a in doc.findall(".//a"):
-        a_url = urljoin(context.source.data.url, a.get("href"))
+        a_url = urljoin(context.data_url, a.get("href"))
         if "Local Terrorist List" in a.text_content() and "API/Upload" in a_url:
             found_file = True
             path = context.fetch_resource("source.xls", a_url)

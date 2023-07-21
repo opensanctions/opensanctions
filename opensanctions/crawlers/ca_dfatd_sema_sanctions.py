@@ -13,7 +13,7 @@ def parse_date(date):
 
 
 def crawl(context: Context):
-    path = context.fetch_resource("source.xml", context.source.data.url)
+    path = context.fetch_resource("source.xml", context.data_url)
     context.export_resource(path, XML, title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
     for node in doc.findall(".//record"):

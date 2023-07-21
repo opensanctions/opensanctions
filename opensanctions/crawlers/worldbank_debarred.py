@@ -34,7 +34,7 @@ def clean_name(text):
 
 
 def crawl(context: Context):
-    url = context.source.data.url
+    url = context.data_url
     headers = {"apikey": context.dataset.data.api_key}
     data = context.fetch_json(url, headers=headers)
     # TODO write this out to a source.json

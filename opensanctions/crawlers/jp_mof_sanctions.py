@@ -53,9 +53,9 @@ def parse_names(names: List[str]) -> List[str]:
 
 def fetch_xls_url(context):
     params = {"_": settings.RUN_DATE}
-    doc = context.fetch_html(context.source.data.url, params=params)
+    doc = context.fetch_html(context.data_url, params=params)
     for link in doc.findall('.//div[@class="unique-block"]//a'):
-        href = urljoin(context.source.data.url, link.get("href"))
+        href = urljoin(context.data_url, link.get("href"))
         if href.endswith(".xls"):
             return href
     context.log.error("Could not find XLS file on MoF web site")

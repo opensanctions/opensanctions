@@ -311,7 +311,7 @@ def parse_entry(context: Context, target, programs, places, updated_at):
 
 
 def crawl(context: Context):
-    path = context.fetch_resource("source.xml", context.source.data.url)
+    path = context.fetch_resource("source.xml", context.data_url)
     context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
     updated_at = doc.getroot().get("date")

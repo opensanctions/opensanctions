@@ -65,7 +65,7 @@ def crawl_country(context: Context, country: str) -> None:
 
 
 def crawl(context: Context) -> None:
-    data = context.fetch_json(context.source.data.url)
+    data = context.fetch_json(context.data_url)
     countries = data["data"]["leaders"]["nodes"]
     for c in countries:
         crawl_country(context, c["country"])

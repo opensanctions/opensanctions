@@ -45,7 +45,7 @@ def crawl(context: Context):
 
 def crawl_financiers(context: Context):
     path = context.fetch_resource(
-        CATEGORY1_EXPORT, urljoin(context.source.data.url, CATEGORY1_URL)
+        CATEGORY1_EXPORT, urljoin(context.data_url, CATEGORY1_URL)
     )
     context.export_resource(path, XML, title=CATEGORY1_PROGRAM)
 
@@ -84,7 +84,7 @@ def crawl_financiers(context: Context):
 def crawl_terrorists(context: Context):
     # Note: This list specifies that it refers to individuals but uses organisation xml tags
     path = context.fetch_resource(
-        CATEGORY2_EXPORT, urljoin(context.source.data.url, CATEGORY2_URL)
+        CATEGORY2_EXPORT, urljoin(context.data_url, CATEGORY2_URL)
     )
     context.export_resource(path, XML, title=CATEGORY2_PROGRAM)
 

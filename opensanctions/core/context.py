@@ -20,12 +20,6 @@ class Context(ZavodContext):
     def __init__(self, dataset: Dataset, dry_run: bool = False):
         super().__init__(dataset, dry_run=dry_run)
 
-    @property
-    def source(self) -> Dataset:
-        if self.dataset.data is not None:
-            return self.dataset
-        raise RuntimeError("Dataset is not a source: %s" % self.dataset.name)
-
     def fetch_response(self, url, headers=None, auth=None):
         self.log.debug("HTTP GET", url=url)
         timeout = (settings.HTTP_TIMEOUT, settings.HTTP_TIMEOUT)

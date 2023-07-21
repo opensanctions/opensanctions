@@ -137,10 +137,10 @@ def parse_reference(context: Context, reference: int, rows):
 def crawl(context: Context):
     # TODO: why does this work and the fetch call does not?
     # path = context.get_resource_path("source.xlsx")
-    # res = requests.get(context.source.data.url, verify=False)
+    # res = requests.get(context.data_url, verify=False)
     # with open(path, "wb") as fh:
     #     fh.write(res.content)
-    path = context.fetch_resource("source.xlsx", context.source.data.url)
+    path = context.fetch_resource("source.xlsx", context.data_url)
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
     workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)

@@ -19,7 +19,7 @@ def parse_date(date):
 
 
 def crawl(context: Context):
-    path = context.fetch_resource("source.json", context.source.data.url)
+    path = context.fetch_resource("source.json", context.data_url)
     context.export_resource(path, JSON, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         data = json.load(fh)

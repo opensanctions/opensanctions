@@ -61,6 +61,13 @@ class Context(object):
             self._timestamps = TimeStampIndex.build(self.dataset)
         return self._timestamps
 
+    @property
+    def data_url(self) -> str:
+        """The URL of the source data for the dataset."""
+        if self.dataset.data is None:
+            raise ValueError("Dataset has no data URL: %r" % self.dataset)
+        return self.dataset.data.url
+
     def begin(self, clear: bool = False) -> None:
         """Prepare the context for running the exporter."""
         bind_contextvars(

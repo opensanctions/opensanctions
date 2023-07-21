@@ -18,7 +18,7 @@ def parse_countries(countries):
 
 def crawl(context: Context):
     for page in count(1):
-        url = str(context.source.data.url)
+        url = str(context.data_url)
         url = url.replace("pPageNumber=1", "pPageNumber=%s" % page)
         headers = {
             "Accept": "application/json",

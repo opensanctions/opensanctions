@@ -9,7 +9,7 @@ from opensanctions import helpers as h
 
 
 def crawl(context: Context):
-    data = context.fetch_json(context.source.data.url)
+    data = context.fetch_json(context.data_url)
 
     for country in data:
         for legislature in country.get("legislatures", []):
@@ -22,7 +22,7 @@ def crawl_legislature(context: Context, country: str, legislature):
     lastmod_ = int(legislature.get("lastmod"))
     lastmod = datetime.utcfromtimestamp(lastmod_)
 
-    url = urljoin(context.source.data.url, legislature.get("popolo"))
+    url = urljoin(context.data_url, legislature.get("popolo"))
     # print(url)
     # this isn't being updated, hence long interval:
     data = context.fetch_json(url, cache_days=30)

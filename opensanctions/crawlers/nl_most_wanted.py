@@ -38,7 +38,7 @@ FIELDS = {
 
 
 def crawl_person(context: Context, list_item: _Element):
-    source_url = urljoin(context.source.data.url, list_item.get("href"))
+    source_url = urljoin(context.data_url, list_item.get("href"))
     person = context.make("Person")
     person.id = context.make_id(source_url)
     person.add("topics", "crime")
@@ -80,7 +80,7 @@ def crawl_person(context: Context, list_item: _Element):
 def crawl(context: Context):
     page = 1
     while True:
-        doc = context.fetch_html(context.source.data.url, params={"page": page})
+        doc = context.fetch_html(context.data_url, params={"page": page})
         for item in doc.findall('.//section//a[@class="imagelistlink"]'):
             crawl_person(context, item)
 

@@ -7,7 +7,7 @@ from opensanctions.crawlers.eu_fsf import parse_entry
 
 
 def crawl(context: Context):
-    path = context.fetch_resource("source.zip", context.source.data.url)
+    path = context.fetch_resource("source.zip", context.data_url)
     context.export_resource(path, "application/zip", title=context.SOURCE_TITLE)
     with ZipFile(path, "r") as zip:
         for name in zip.namelist():

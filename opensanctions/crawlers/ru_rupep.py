@@ -186,7 +186,7 @@ def crawl_person(context: Context, data: Dict[str, Any]):
 
 def crawl_peps(context: Context):
     auth = ("opensanctions", PASSWORD)
-    path = context.fetch_resource("persons.json", context.source.data.url, auth=auth)
+    path = context.fetch_resource("persons.json", context.data_url, auth=auth)
     # context.export_resource(path, JSON, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         persons = json.load(fh)
@@ -331,7 +331,7 @@ def crawl_company(context: Context, data: Dict[str, Any]):
 
 def crawl_companies(context: Context):
     auth = ("opensanctions", PASSWORD)
-    path = context.fetch_resource("companies.json", context.source.data.url, auth=auth)
+    path = context.fetch_resource("companies.json", context.data_url, auth=auth)
     # context.export_resource(path, JSON, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         companies = json.load(fh)

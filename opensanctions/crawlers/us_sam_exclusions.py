@@ -31,7 +31,7 @@ def read_rows(zip_path: Path) -> Generator[Dict[str, Any], None, None]:
 
 def crawl(context: Context) -> None:
     ms = str(int(time.time() * 1000))
-    url = context.source.data.url.replace("RANDOM", ms)
+    url = context.data_url.replace("RANDOM", ms)
     metadata = context.fetch_json(url)
     objects = metadata.pop("_embedded").pop("customS3ObjectSummaryList")
     data_url = urljoin(DOWNLOAD_URL, objects[0]["key"])

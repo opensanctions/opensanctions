@@ -144,7 +144,7 @@ def parse_common(context: Context, entity: Entity, node: Element):
 
 
 def crawl_index(context: Context) -> Optional[str]:
-    doc = context.fetch_html(context.source.data.url, cache_days=1)
+    doc = context.fetch_html(context.data_url, cache_days=1)
     for link in doc.findall(".//a"):
         href = link.get("href")
         if href is None or "consolidated_en" not in href:

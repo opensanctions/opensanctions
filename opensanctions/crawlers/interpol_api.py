@@ -107,7 +107,7 @@ def crawl_query(
     params["resultPerPage"] = MAX_RESULTS
     try:
         data = context.fetch_json(
-            context.source.data.url,
+            context.data_url,
             params=params,
             cache_days=cache_days,
         )

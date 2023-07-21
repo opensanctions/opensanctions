@@ -49,7 +49,7 @@ def parse_result(context: Context, row: Dict[str, Any]):
 
 
 def crawl(context: Context):
-    path = context.fetch_resource("source.json", context.source.data.url)
+    path = context.fetch_resource("source.json", context.data_url)
     context.export_resource(path, JSON, title=context.SOURCE_TITLE)
     with open(path, "r") as file:
         data = json.load(file)

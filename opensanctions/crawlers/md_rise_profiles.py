@@ -10,12 +10,13 @@ COUNTRY = "md"
 
 relationships = dict()
 
+
 def parse_date(text):
     return h.parse_date(text, ["%d.%m.%Y"])
 
 
 def crawl_entity(context: Context, relative_url: str, follow_relations: bool = True):
-    url = urljoin(context.source.data.url, relative_url)
+    url = urljoin(context.data_url, relative_url)
     doc = context.fetch_html(url, cache_days=CACHE_DAYS)
     name_el = doc.find('.//span[@class="name"]')
     name = collapse_spaces(name_el.text)
@@ -67,7 +68,7 @@ def crawl_entity(context: Context, relative_url: str, follow_relations: bool = T
             else:
                 target_url = related_entity_link.get("href")
             make_relation(context, entity, description, target_name, target_url)
-    
+
     return entity
 
 
@@ -169,13 +170,13 @@ def make_relation(context, source, description, target_name, target_url):
     relation.add(target_key, target.id)
     relation.add(description_key, description, lang="ron")
     context.emit(relation)
-    
+
 
 def crawl(context: Context):
     query = {"br": 0, "lang": "rom"}
     while True:
         context.log.debug("Crawling index offset ", query)
-        url = f"{ context.source.data.url }?{ urlencode(query) }"
+        url = f"{ context.data_url }?{ urlencode(query) }"
         doc = context.fetch_html(url)
         profiles = doc.findall('.//div[@class="profileWindow"]//a')
 
@@ -190,5 +191,7 @@ def crawl(context: Context):
 
         query["br"] = query["br"] + len(profiles)
 
-    for count, description in sorted([(count, description) for description, count in relationships.items()]):
+    for count, description in sorted(
+        [(count, description) for description, count in relationships.items()]
+    ):
         context.log.warn(f"unhandled relations: {count} {description}")

@@ -89,7 +89,7 @@ def crawl(context: Context) -> None:
     for page in count(1):
         params = {"perPage": 100, "page": page}
         response = context.fetch_json(
-            context.source.data.url,
+            context.data_url,
             auth=AUTH,
             params=params,
             # cache_days=1,

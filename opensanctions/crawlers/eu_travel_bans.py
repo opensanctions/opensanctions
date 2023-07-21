@@ -20,7 +20,7 @@ def salvage_entity(context: Context, entry):
 
 
 def crawl(context: Context):
-    data = context.fetch_json(context.source.data.url)
+    data = context.fetch_json(context.data_url)
     for ban in data.get("data", {}).get("travelBansFiles"):
         if not ban.get("fileName").endswith(".xml"):
             continue

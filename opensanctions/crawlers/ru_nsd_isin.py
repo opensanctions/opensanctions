@@ -195,14 +195,14 @@ def crawl(context: Context):
             "page22": page,
         }
         try:
-            doc = context.fetch_html(context.source.data.url, params=params)
+            doc = context.fetch_html(context.data_url, params=params)
         except RequestException:
             context.log.error("Cannot fetch index page", page=page)
             time.sleep(10)
             continue
         links = 0
         for anchor in doc.findall('.//div[@class="news_sep"]//a'):
-            url = urljoin(context.source.data.url, anchor.get("href"))
+            url = urljoin(context.data_url, anchor.get("href"))
             crawl_item(context, url)
             links += 1
 

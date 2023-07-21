@@ -7,7 +7,7 @@ from opensanctions.core import Context
 
 
 def crawl(context: Context):
-    path = context.fetch_resource("source.csv", context.source.data.url)
+    path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     prev_country = None
     with open(path, "r") as fh:

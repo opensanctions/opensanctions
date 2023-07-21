@@ -30,7 +30,7 @@ def read_zip_csv(context: Context, path: Path) -> Generator[Dict[str, Any], None
 
 
 def crawl(context: Context) -> None:
-    path = context.fetch_resource("source.zip", context.source.data.url)
+    path = context.fetch_resource("source.zip", context.data_url)
     context.export_resource(path, ZIP, title=context.SOURCE_TITLE)
 
     for data in read_zip_csv(context, path):

@@ -86,7 +86,7 @@ def parse_foreign_persons(context: Context, entity, text):
 
 
 def crawl(context: Context):
-    path = context.fetch_resource("source.html", context.source.data.url)
+    path = context.fetch_resource("source.html", context.data_url)
     context.export_resource(path, HTML, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         doc = html.parse(fh)
