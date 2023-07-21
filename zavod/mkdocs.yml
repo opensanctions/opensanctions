@@ -1,0 +1,28 @@
+site_name: zavod
+repo_url: https://github.com/opensanctions/opensanctions
+
+theme:
+  name: material
+  logo: https://assets.opensanctions.org/images/ura/logo_white.png
+  favicon: https://assets.opensanctions.org/images/favicon-32x32.png
+  palette:
+    primary: custom
+    accent: custom
+  extra_css: [stylesheets/extra.css]
+  extra:
+    social:
+      - icon: material/web
+        link: https://www.opensanctions.org
+      - icon: material/mail
+        link: https://www.opensanctions.org/contact/
+      - icon: material/slack
+        link: https://www.opensanctions.org/slack/
+      - icon: material/github
+        link: https://github.com/opensanctions/opensanctions
+
+plugins:
+  - mkdocstrings
+
+nav:
+  - index.md
+  - reference.md

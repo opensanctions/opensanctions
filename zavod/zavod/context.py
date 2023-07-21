@@ -22,7 +22,7 @@ from zavod.logs import get_logger
 from zavod.util import join_slug
 
 
-class Context(object):
+class Context:
     """A utility object that is passed into crawlers and other runners.
     It supports emitting entities, accessing metadata and logging errors and warnings.
     """
@@ -69,7 +69,11 @@ class Context(object):
         return self.dataset.data.url
 
     def begin(self, clear: bool = False) -> None:
-        """Prepare the context for running the exporter."""
+        """Prepare the context for running the exporter.
+
+        Args:
+            clear: Remove the existing resources and issues from the dataset.
+        """
         bind_contextvars(
             dataset=self.dataset.name,
             context=self,
@@ -91,7 +95,13 @@ class Context(object):
         self.issues.close()
 
     def get_resource_path(self, name: PathLike) -> Path:
-        """Get the path to a file in the dataset data folder."""
+        """Get the path to a file in the dataset data folder.
+
+        Args:
+            name: The name of the file, relative to the dataset data folder.
+
+        Returns:
+            The full path to the file."""
         return dataset_resource_path(self.dataset.name, name)
 
     def export_resource(
@@ -192,7 +202,14 @@ class Context(object):
     def emit(
         self, entity: Entity, target: bool = False, external: bool = False
     ) -> None:
-        """Send an entity from the crawling/runner process to be stored."""
+        """Send an entity from the crawling/runner process to be stored.
+
+        Args:
+            entity: The entity to be stored.
+            target: Whether the entity is a target of the dataset.
+            external: Whether the entity is an enrichment candidate or already
+                part of the dataset.
+        """
         if entity.id is None:
             raise ValueError("Entity has no ID: %r", entity)
         self.stats.entities += 1
