@@ -1,4 +1,6 @@
 from pathlib import Path
+from datetime import datetime
+from functools import cached_property
 from typing import Any, Optional, Union, Dict, List
 from datapatch import LookupException, Result, Lookup
 from followthemoney.schema import Schema
@@ -40,6 +42,7 @@ class Context:
         self.http = make_session()
         self._cache: Optional[Cache] = None
         self._timestamps: Optional[TimeStampIndex] = None
+        self._data_time: datetime = settings.RUN_TIME
 
         self.lang: Optional[str] = None
         """Default language for statements emitted from this dataset"""
@@ -67,6 +70,27 @@ class Context:
         if self.dataset.data is None or self.dataset.data.url is None:
             raise ValueError("Dataset has no data URL: %r" % self.dataset)
         return self.dataset.data.url
+
+    @property
+    def data_time(self) -> datetime:
+        """The data provenance time to be used for the emitted statements. This is
+        used to set the first_seen and last_seen properties of statements to a time
+        that may be different than the real run time of the crawler, e.g. when a
+        coverage end is defined, or the data source itself states an update time.
+
+        Returns:
+            The time to be used for the emitted statements."""
+        return self._data_time
+
+    @data_time.setter
+    def data_time(self, value: datetime) -> None:
+        self._data_time = value
+        del self.data_time_iso
+
+    @cached_property
+    def data_time_iso(self) -> str:
+        """String representation of `data_time` in ISO format."""
+        return self.data_time.isoformat(sep="T", timespec="seconds")
 
     def begin(self, clear: bool = False) -> None:
         """Prepare the context for running the exporter.
@@ -229,9 +253,15 @@ class Context:
             stmt.external = external
             stmt.target = target
             stmt.schema = entity.schema.name
-            stmt.first_seen = settings.RUN_TIME_ISO
-            stmt.last_seen = settings.RUN_TIME_ISO
+            stmt.first_seen = self.data_time_iso
+            stmt.last_seen = self.data_time_iso
             if not self.dry_run:
-                stmt.first_seen = self.timestamps.get(stmt.id, settings.RUN_TIME_ISO)
+                stmt.first_seen = self.timestamps.get(stmt.id, self.data_time_iso)
                 self.sink.emit(stmt)
             self.stats.statements += 1
+
+    def __hash__(self) -> int:
+        return hash(self.dataset.name)
+
+    def __repr__(self) -> str:
+        return f"<Context({self.dataset.name})>"

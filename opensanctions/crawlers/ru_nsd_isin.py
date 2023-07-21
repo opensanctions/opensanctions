@@ -3,7 +3,6 @@ from datetime import datetime
 from urllib.parse import urljoin
 from requests.exceptions import RequestException
 
-from zavod import settings
 from opensanctions.core import Context
 
 # . SEARCH_URL =
@@ -181,7 +180,7 @@ def crawl_item(context: Context, url: str):
 
 
 def crawl(context: Context):
-    to_dt = settings.RUN_TIME.strftime("%d.%m.%Y")
+    to_dt = context.data_time.strftime("%d.%m.%Y")
     for page in range(1, 901):
         context.log.info("Crawl page", page=page)
         params = {

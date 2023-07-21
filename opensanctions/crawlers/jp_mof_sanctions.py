@@ -51,8 +51,8 @@ def parse_names(names: List[str]) -> List[str]:
     return cleaned
 
 
-def fetch_xls_url(context):
-    params = {"_": settings.RUN_DATE}
+def fetch_xls_url(context: Context) -> str:
+    params = {"_": context.data_time.date().isoformat()}
     doc = context.fetch_html(context.data_url, params=params)
     for link in doc.findall('.//div[@class="unique-block"]//a'):
         href = urljoin(context.data_url, link.get("href"))

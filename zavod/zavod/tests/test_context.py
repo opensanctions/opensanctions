@@ -1,3 +1,6 @@
+from datetime import datetime
+
+from zavod import settings
 from zavod.context import Context
 from zavod.meta import Dataset
 from zavod.entity import Entity
@@ -23,6 +26,14 @@ def test_context_helpers(vdataset: Dataset):
 
     context.inspect(None)
     context.inspect("foo")
+
+    assert context.data_time == settings.RUN_TIME
+    assert context.data_time_iso == settings.RUN_TIME.isoformat(
+        sep="T", timespec="seconds"
+    )
+    other = datetime(2020, 1, 1)
+    context.data_time = other
+    assert context.data_time_iso == other.isoformat(sep="T", timespec="seconds")
 
 
 def test_run_dataset(vdataset: Dataset):
