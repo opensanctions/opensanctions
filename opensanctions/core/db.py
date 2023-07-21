@@ -1,10 +1,8 @@
 from contextlib import contextmanager
 from sqlalchemy.engine import Connection
-from sqlalchemy import Table, Column, Integer, DateTime, Unicode, Boolean
+from sqlalchemy import Table, Column, DateTime, Unicode, Boolean
 from sqlalchemy.dialects.postgresql import insert as upsert_func
 from nomenklatura.db import get_engine, get_metadata
-
-from opensanctions import settings  # noqa
 
 KEY_LEN = 255
 VALUE_LEN = 65535
@@ -45,19 +43,6 @@ def engine_read():
     with engine.connect() as conn:
         yield conn
 
-
-resource_table = Table(
-    "resource",
-    metadata,
-    Column("path", Unicode(KEY_LEN), primary_key=True, nullable=False),
-    Column("dataset", Unicode(KEY_LEN), primary_key=True, index=True, nullable=False),
-    Column("checksum", Unicode(KEY_LEN), nullable=False),
-    Column("category", Unicode(KEY_LEN), nullable=True),
-    Column("timestamp", DateTime, nullable=False),
-    Column("mime_type", Unicode(KEY_LEN), nullable=True),
-    Column("size", Integer, nullable=True),
-    Column("title", Unicode(VALUE_LEN), nullable=True),
-)
 
 stmt_table = Table(
     "statement",
