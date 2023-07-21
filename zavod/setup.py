@@ -6,7 +6,7 @@ with open("README.md") as f:
 
 setup(
     name="zavod",
-    version="0.7.5",
+    version="0.8.0",
     description="Data factory for followthemoney data.",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -21,7 +21,7 @@ setup(
     package_data={"": ["zavod/data/*", "zavod/py.typed"]},
     zip_safe=False,
     install_requires=[
-        "followthemoney == 3.4.4",
+        "followthemoney == 3.5.0",
         "nomenklatura == 3.3.4",
         "datapatch == 1.0.2",
         "addressformatting == 1.3.2",

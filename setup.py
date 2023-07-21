@@ -26,7 +26,7 @@ setup(
     },
     zip_safe=False,
     install_requires=[
-        "zavod >= 0.7.3",
+        "zavod >= 0.8.0",
     ],
     extras_require={
         "dev": ["bump2version", "wheel>=0.29.0", "twine"],
