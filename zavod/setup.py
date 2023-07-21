@@ -62,6 +62,9 @@ setup(
             "types-setuptools",
             "types-requests",
             "types-google-cloud-ndb",
+            "mkdocs",
+            "mkdocstrings[python]",
+            "mkdocs-material",
         ]
     },
 )
