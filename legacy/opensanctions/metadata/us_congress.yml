@@ -1,0 +1,12 @@
+entry_point: opensanctions.crawlers.us_congress
+title: US Congress PEPs
+prefix: us_congress
+publisher:
+  name: Congress
+  country: us
+  url: https://api.congress.gov/
+  official: true
+url: https://api.congress.gov/
+data:
+  url: https://api.congress.gov/v3/member
+  format: JSON
