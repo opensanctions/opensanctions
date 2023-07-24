@@ -8,13 +8,12 @@ from nomenklatura.judgement import Judgement
 from nomenklatura.resolver import Identifier
 from nomenklatura.matching import DefaultAlgorithm
 
-from zavod.logs import get_logger
+from zavod.logs import get_logger, configure_logging
 from zavod.runner import run_dataset
 from zavod.store import get_store
 from zavod.archive import dataset_path
 from zavod.dedupe import get_resolver, blocking_xref
 from zavod.exc import RunFailedException
-from opensanctions.core import setup
 from opensanctions.exporters.statements import export_statements_path
 from opensanctions.exporters.statements import import_statements_path
 from opensanctions.core.catalog import get_catalog, get_dataset_names
@@ -39,7 +38,8 @@ def cli(verbose=False, quiet=False):
         level = logging.WARNING
     if verbose:
         level = logging.DEBUG
-    setup(log_level=level)
+    configure_logging(level=level)
+    get_catalog()
 
 
 @cli.command("crawl", help="Crawl entities into the given dataset")
