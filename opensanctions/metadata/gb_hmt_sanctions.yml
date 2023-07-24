@@ -94,6 +94,11 @@ lookups:
           - Cargo Link Petroleum Logistics Company Ltd
           - JSC Concern Morinformsystem-Agat
           - Saratov Aviation Plant CJSC
+          - M-Finans
+          - Sewa Security Services
+          - M-Invest
+          - Megaline, JSC Delta
+          - Meroe Gold
         value: SAME
       - match: Subsidiary of the Organisation for Technological Industries (OTI) and therefore the Syrian Ministry of Defence
         values:

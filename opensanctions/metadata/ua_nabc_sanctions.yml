@@ -35,7 +35,9 @@ lookups:
   relations:
     options:
       - match:
+          - null
           - "NULL"
+          - "-"
           - друг
           - кандидат в президенти
           - засновник
@@ -185,6 +187,8 @@ lookups:
           - 1966-03-20
       - match: 29.02.1963
         value: 1963-02
+      - match: "03011978"
+        value: 1978-01-03
       - match: 03.1968-03.1969
         values:
           - 1968

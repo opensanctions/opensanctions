@@ -199,6 +199,7 @@ def crawl_company(context: Context) -> None:
         entity.add("name", row.pop("name_en", None), lang="eng")
         entity.add("name", row.pop("name_uk", None), lang="ukr")
         entity.add("name", row.pop("name_ru", None), lang="rus")
+        entity.add("notes", row.pop("comment", None), lang="ukr")
         entity.add("innCode", row.pop("inn", None))
         url = f"https://sanctions.nazk.gov.ua/en/sanction-company/{company_id}/"
         entity.add("sourceUrl", url)
