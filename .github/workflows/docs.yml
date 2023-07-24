@@ -1,0 +1,24 @@
+name: docs 
+on:
+  push:
+    branches:
+      - main
+permissions:
+  contents: write
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install system dependencies
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          sudo apt-get install -y -qq libicu-dev
+      - name: Install zavod dependencies
+        working-directory: zavod
+        run: |
+          pip install --no-cache-dir -q -e ".[dev]"
+          pip freeze
+      - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV 
+      - run: mkdocs gh-deploy --force
