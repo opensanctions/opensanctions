@@ -15,10 +15,18 @@ jobs:
           DEBIAN_FRONTEND: noninteractive
         run: |
           sudo apt-get install -y -qq libicu-dev
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          cache: 'pip'
       - name: Install zavod dependencies
         working-directory: zavod
         run: |
           pip install --no-cache-dir -q -e ".[dev]"
           pip freeze
-      - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV 
-      - run: mkdocs gh-deploy --force
+      # - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV 
+      - name: Build and deploy mkdocs documentation
+        working-directory: zavod
+        run: |
+          mkdocs gh-deploy --force
