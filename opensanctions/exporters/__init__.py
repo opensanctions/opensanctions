@@ -2,8 +2,8 @@ from typing import List, Type
 
 from zavod.logs import get_logger
 from zavod.store import View, get_store
-
-from zavod import Context, Dataset
+from zavod.context import Context
+from zavod.meta import Dataset
 from opensanctions.core import get_catalog
 from opensanctions.exporters.common import Exporter
 from opensanctions.exporters.ftm import FtMExporter
