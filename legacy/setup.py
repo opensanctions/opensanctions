@@ -13,7 +13,7 @@ setup(
     license="MIT",
     author="OpenSanctions",
     author_email="info@opensanctions.org",
-    packages=find_packages(exclude=["ez_setup", "zavod", "examples", "test"]),
+    packages=find_packages(where=["opensanctions"]),
     namespace_packages=[],
     package_data={
         "opensanctions": [
