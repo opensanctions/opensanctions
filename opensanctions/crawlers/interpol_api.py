@@ -42,7 +42,7 @@ def patch(query: Dict[str, Any], update: Dict[str, Any]) -> Dict[str, Any]:
     return new
 
 
-def crawl_notice(context: Context, notice: Dict[str, Any]):
+def crawl_notice(context: Context, notice: Dict[str, Any]) -> None:
     _links: Dict[str, Any] = notice.pop("_links", {})
     url: Optional[str] = _links.get("self", {}).get("href")
     if url in SEEN_URLS or url is None:
@@ -127,7 +127,7 @@ def crawl_query(
     return total
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     # context.log.info("Loading interpol API cache...")
     # context.cache.preload("https://ws-public.interpol.int/notices/%")
     # crawl_query(context, {"sexId": "U"})
