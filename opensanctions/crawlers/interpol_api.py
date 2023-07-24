@@ -112,6 +112,8 @@ def crawl_query(
             cache_days=cache_days,
         )
     except HTTPError as err:
+        if err.response.status_code == 404:
+            return
         context.log.warning(
             "HTTP error",
             url=str(err.request.url),
