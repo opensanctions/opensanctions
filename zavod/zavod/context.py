@@ -92,6 +92,7 @@ class Context:
 
     @data_time.setter
     def data_time(self, value: datetime) -> None:
+        """Modify the data time."""
         self._data_time = value
         del self.data_time_iso
 
@@ -139,7 +140,16 @@ class Context:
     def export_resource(
         self, path: Path, mime_type: Optional[str] = None, title: Optional[str] = None
     ) -> DataResource:
-        """Register a file as a data resource exported by the dataset."""
+        """Register a file as a data resource exported by the dataset.
+
+        Args:
+            path: The file path of the exported resource
+            mime_type: MIME type of the resource, will be guessed otherwise
+            title: A human-readable description.
+
+        Returns:
+            The generated resource object which has been saved.
+        """
         resource = DataResource.from_path(
             self.dataset, path, mime_type=mime_type, title=title
         )
@@ -358,7 +368,11 @@ class Context:
         return self.get_lookup(lookup, dataset=dataset).match(value)
 
     def inspect(self, obj: Any) -> None:
-        """Display an object in a form suitable for inspection."""
+        """Display an object in a form suitable for inspection.
+
+        Args:
+            obj: The object to be logged in pretty print.
+        """
         text = inspect(obj)
         if text is not None:
             self.log.info(text)
@@ -368,7 +382,12 @@ class Context:
     ) -> None:
         """Print the formatted data object if it contains any fields not explicitly
         excluded by the ignore list. This is used to warn about unexpected data in
-        the source by removing the fields one by one and then inspecting the rest."""
+        the source by removing the fields one by one and then inspecting the rest.
+
+        Args:
+            data: A mapping which is to be checked.
+            ignore: List of string keys to be skipped when checking the mapping
+        """
         cleaned = {}
         for key, value in data.items():
             if key in ignore:
