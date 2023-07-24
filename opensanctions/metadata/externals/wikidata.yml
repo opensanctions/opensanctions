@@ -1,6 +1,8 @@
 type: external
 title: Wikidata
 entry_point: zavod.runner.enrich:enrich
+prefix: wd
+export: false
 summary: |
   Wikidata is the structured data project of the Wikipedia community,
   providing fact-based information edited by humans and machines.
@@ -22,7 +24,6 @@ description: |
   We also remove any person born before 1900, or who has died before 2000 from
   the dataset in order to avoid outdated profiles that could lead to false
   positives.
-prefix: wd
 url: https://www.wikidata.org/wiki/Wikidata:Main_Page
 publisher:
   name: Wikidata

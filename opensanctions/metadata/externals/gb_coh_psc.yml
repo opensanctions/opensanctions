@@ -1,6 +1,7 @@
 type: external
 entry_point: zavod.runner.enrich:enrich
 title: UK Companies House People with Significant Control
+export: false
 summary: |
   The database of beneficial owners of companies incorporated in England, Wales,
   Scotland and Northern Ireland.
