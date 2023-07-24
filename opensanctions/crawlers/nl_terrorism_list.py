@@ -3,7 +3,7 @@ from typing import IO, Generator, List, Tuple
 from lxml import etree
 from zipfile import ZipFile
 
-from opensanctions.core import Context
+from zavod import Context
 from opensanctions import helpers as h
 
 ODS = "application/vnd.oasis.opendocument.spreadsheet"

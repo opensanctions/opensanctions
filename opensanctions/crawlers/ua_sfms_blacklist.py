@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from opensanctions.core import Context
+from zavod import Context
 from opensanctions import helpers as h
 from opensanctions.util import multi_split
 

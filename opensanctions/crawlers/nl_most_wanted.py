@@ -2,7 +2,7 @@ from urllib.parse import urljoin
 from lxml.etree import _Element
 from normality import slugify
 
-from opensanctions.core import Context
+from zavod import Context
 from opensanctions import helpers as h
 
 base_url = "https://www.politie.nl/"

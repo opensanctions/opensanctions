@@ -1,11 +1,10 @@
 from typing import Optional
 from banal import first
-from pprint import pprint
 from normality import stringify, collapse_spaces
 from pantomime.types import XML
 from followthemoney.util import join_text
 
-from opensanctions.core import Context
+from zavod import Context
 from opensanctions import helpers as h
 from opensanctions.util import multi_split
 

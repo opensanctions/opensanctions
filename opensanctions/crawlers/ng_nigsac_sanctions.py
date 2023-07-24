@@ -2,8 +2,8 @@ from lxml import html
 from typing import Optional
 from pantomime.types import HTML
 
+from zavod import Context
 from opensanctions import helpers as h
-from opensanctions.core import Context
 
 FORMATS = ["%d/%m/%Y", "%d %B %Y"]
 

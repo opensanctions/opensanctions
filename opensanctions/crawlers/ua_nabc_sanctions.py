@@ -3,7 +3,7 @@ from typing import Any, Dict, Union
 from urllib.parse import urljoin
 from pantomime.types import JSON
 
-from opensanctions.core import Context, Entity
+from zavod import Context, Entity
 from opensanctions import helpers as h
 from opensanctions.util import multi_split
 

@@ -4,7 +4,7 @@ from banal import as_bool
 from prefixdate import parse_parts
 from followthemoney.types import registry
 
-from opensanctions.core import Context, Entity
+from zavod import Context, Entity
 from opensanctions import helpers as h
 from opensanctions.util import multi_split
 

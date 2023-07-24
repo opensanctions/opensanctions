@@ -2,7 +2,7 @@ from typing import Optional
 from normality import collapse_spaces
 from lxml.etree import _Element as Element
 
-from opensanctions.core import Context, Entity
+from zavod import Context, Entity
 from opensanctions import helpers as h
 
 NAME_QUALITY = {

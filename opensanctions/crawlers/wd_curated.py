@@ -3,7 +3,7 @@ from typing import Dict
 from pantomime.types import CSV
 from nomenklatura.util import is_qid
 
-from opensanctions.core import Context
+from zavod import Context
 
 
 def crawl_row(context: Context, row: Dict[str, str]):

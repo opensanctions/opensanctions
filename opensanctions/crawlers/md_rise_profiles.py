@@ -1,9 +1,8 @@
 from urllib.parse import urljoin, urlencode
-from normality import stringify, collapse_spaces, slugify
+from normality import collapse_spaces, slugify
 
-from opensanctions.core import Context
+from zavod import Context
 from opensanctions import helpers as h
-import re
 
 CACHE_DAYS = 14
 COUNTRY = "md"

@@ -2,7 +2,7 @@ from pantomime.types import JSON
 from followthemoney.proxy import EntityProxy
 from followthemoney.cli.util import binary_entities
 
-from opensanctions.core import Context
+from zavod import Context
 
 
 def crawl(context: Context):

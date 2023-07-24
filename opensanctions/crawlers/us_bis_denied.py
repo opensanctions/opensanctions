@@ -1,6 +1,6 @@
 import csv
 
-from opensanctions.core import Context
+from zavod import Context
 from opensanctions import helpers as h
 
 FORMATS = ("%m/%d/%Y",)

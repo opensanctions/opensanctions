@@ -4,7 +4,7 @@ from typing import Optional, Dict, Any
 from urllib.parse import urljoin
 from requests.exceptions import HTTPError
 
-from opensanctions.core import Context
+from zavod import Context
 from opensanctions import helpers as h
 
 

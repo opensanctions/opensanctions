@@ -2,8 +2,8 @@ from lxml.etree import _Element
 from normality import collapse_spaces
 from pantomime.types import XML
 
+from zavod import Context
 from opensanctions import helpers as h
-from opensanctions.core import Context
 
 
 def parse_date(date):

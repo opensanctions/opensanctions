@@ -1,6 +1,6 @@
 import re
 
-from opensanctions.core import Context
+from zavod import Context
 from opensanctions import helpers as h
 
 SPLITS = r"(a\.k\.a\.?|aka|f/k/a|also known as|\(formerly |, also d\.b\.a\.|\(currently (d/b/a)?|d/b/a|\(name change from|, as the successor or assign to)"  # noqa

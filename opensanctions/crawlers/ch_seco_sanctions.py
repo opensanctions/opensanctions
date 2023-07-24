@@ -6,7 +6,7 @@ from followthemoney.types import registry
 from followthemoney.util import join_text
 from lxml.etree import _Element as Element
 
-from opensanctions.core import Context, Entity
+from zavod import Context, Entity
 from opensanctions import helpers as h
 
 # TODO: sanctions-program full parse

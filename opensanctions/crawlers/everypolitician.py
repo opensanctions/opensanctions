@@ -3,8 +3,7 @@ from urllib.parse import urljoin
 from typing import Dict, Optional
 from followthemoney.helpers import check_person_cutoff, post_summary
 
-
-from opensanctions.core import Context
+from zavod import Context
 from opensanctions import helpers as h
 
 

@@ -11,9 +11,10 @@ from followthemoney import model
 from followthemoney.types import registry
 from followthemoney.schema import Schema
 from followthemoney.exc import InvalidData
-from zavod.parse.xml import ElementOrTree
+from zavod.util import ElementOrTree
 
-from opensanctions.core import Context, Entity, get_catalog
+from zavod import Context, Entity
+from opensanctions.core import get_catalog
 from opensanctions import helpers as h
 from opensanctions.helpers.dates import parse_date
 from opensanctions.helpers.text import clean_note

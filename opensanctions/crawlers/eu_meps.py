@@ -1,4 +1,4 @@
-from opensanctions.core import Context
+from zavod import Context
 
 
 def split_name(name):

@@ -6,7 +6,7 @@ from pantomime.types import CSV
 from nomenklatura.util import is_qid
 
 from zavod import settings
-from opensanctions.core import Context
+from zavod import Context
 
 DECISIONS = {
     "subnational": "State government",

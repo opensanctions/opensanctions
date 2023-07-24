@@ -2,7 +2,7 @@ from lxml import html
 from normality import slugify, collapse_spaces
 from pantomime.types import HTML
 
-from opensanctions.core import Context
+from zavod import Context
 from opensanctions import helpers as h
 
 FORMATS = ["%d-%b-%Y"]

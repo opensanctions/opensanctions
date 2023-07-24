@@ -1,8 +1,8 @@
 import csv
 from pantomime.types import CSV
 
+from zavod import Context
 from opensanctions import helpers as h
-from opensanctions.core import Context
 
 
 def crawl(context: Context):

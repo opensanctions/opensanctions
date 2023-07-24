@@ -3,8 +3,8 @@ import string
 from normality import slugify
 from pantomime.types import CSV
 
+from zavod import Context
 from opensanctions import helpers as h
-from opensanctions.core import Context
 from opensanctions.util import multi_split
 
 PERSONS_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT8r6lvQerO1tMNTUFaECYax-rU3Wra53U7T_yyRAZHMbGqvx6y93W8LO8OMatg08EQupZmAe7Wm-Wx/pub?gid=780934597&single=true&output=csv"

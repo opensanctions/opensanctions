@@ -3,7 +3,7 @@ from typing import Any, Dict
 from prefixdate import parse_parts
 from pantomime.types import JSON
 
-from opensanctions.core import Context, Entity
+from zavod import Context, Entity
 from opensanctions import helpers as h
 
 SCHEMATA = {

@@ -1,4 +1,4 @@
-from opensanctions.core import Context
+from zavod import Context
 from opensanctions import helpers as h
 
 DATA_URL = "https://www.sanctionsmap.eu/api/v1/data?"

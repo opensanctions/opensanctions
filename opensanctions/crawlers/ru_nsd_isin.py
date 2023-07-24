@@ -3,7 +3,7 @@ from datetime import datetime
 from urllib.parse import urljoin
 from requests.exceptions import RequestException
 
-from opensanctions.core import Context
+from zavod import Context
 
 # . SEARCH_URL =
 

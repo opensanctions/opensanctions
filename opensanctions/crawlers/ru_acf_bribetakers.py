@@ -3,7 +3,7 @@ import json
 from typing import Any, Dict, Iterable, Optional
 from pantomime.types import JSON
 
-from opensanctions.core import Context
+from zavod import Context
 from opensanctions import helpers as h
 
 NO_YEAR = re.compile(r"^\d{1,2}\.\d{1,2}\.?$")

@@ -1,7 +1,7 @@
 from typing import Dict, Any, List, Optional, Set
 from requests.exceptions import HTTPError
 
-from opensanctions.core import Context
+from zavod import Context
 from opensanctions import helpers as h
 
 # Useful notes: https://www.fer.xyz/2021/08/interpol

@@ -1,6 +1,6 @@
 from urllib.parse import urljoin
 
-from opensanctions.core import Context
+from zavod import Context
 from opensanctions import helpers as h
 
 FIELDS = {

@@ -4,7 +4,7 @@ from openpyxl import load_workbook
 from pantomime.types import XLSX
 from normality import slugify, stringify
 
-from opensanctions.core import Context
+from zavod import Context
 from opensanctions import helpers as h
 from opensanctions.util import multi_split
 

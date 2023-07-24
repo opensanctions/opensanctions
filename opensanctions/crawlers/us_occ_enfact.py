@@ -1,7 +1,7 @@
 import json
 from pantomime.types import JSON
 
-from opensanctions.core import Context
+from zavod import Context
 from opensanctions import helpers as h
 
 IGNORE = [

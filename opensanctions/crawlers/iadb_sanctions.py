@@ -1,7 +1,6 @@
 from itertools import count
-from pantomime.types import HTML
 
-from opensanctions.core import Context
+from zavod import Context
 from opensanctions import helpers as h
 
 FORMATS = ["%m/%d/%Y %H:00:00 AM"]

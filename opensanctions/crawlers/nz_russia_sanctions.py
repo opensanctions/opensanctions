@@ -5,7 +5,7 @@ from banal import as_bool
 from typing import Any, Dict
 from pantomime.types import XLSX
 
-from opensanctions.core import Context, Entity
+from zavod import Context, Entity
 from opensanctions import helpers as h
 
 SCOPES = [

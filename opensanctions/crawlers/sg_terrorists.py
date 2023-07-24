@@ -2,7 +2,7 @@ import re
 from lxml import html
 from pantomime.types import HTML
 
-from opensanctions.core import Context
+from zavod import Context
 from opensanctions import helpers as h
 from opensanctions.util import multi_split
 

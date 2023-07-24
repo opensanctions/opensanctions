@@ -1,12 +1,10 @@
 import openpyxl
-from datetime import datetime
 from urllib.parse import urljoin
-from collections import defaultdict
 from typing import List, Optional
 from normality import slugify
-from pantomime.types import HTML, XLSX
+from pantomime.types import XLSX
 
-from opensanctions.core import Context, Entity
+from zavod import Context, Entity
 from opensanctions import helpers as h
 
 TYPES = {"osoby": "Person", "podmioty": "Company"}

@@ -1,7 +1,7 @@
 from urllib.parse import urljoin
 from normality import stringify, collapse_spaces, slugify
 
-from opensanctions.core import Context
+from zavod import Context
 from opensanctions import helpers as h
 
 FORMATS = ("%d/%m/%Y",)

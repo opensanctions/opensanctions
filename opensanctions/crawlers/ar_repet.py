@@ -2,7 +2,7 @@ import json
 from typing import Dict
 from pantomime.types import JSON
 
-from opensanctions.core import Context, Entity
+from zavod import Context, Entity
 from opensanctions import helpers as h
 
 

@@ -1,6 +1,6 @@
 from pantomime.types import XML
 
-from opensanctions.core import Context
+from zavod import Context
 from opensanctions import helpers as h
 
 from urllib.parse import urljoin

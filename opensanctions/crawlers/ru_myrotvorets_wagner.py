@@ -5,7 +5,7 @@ from io import TextIOWrapper
 from typing import Any, Dict, Generator
 from pantomime.types import ZIP
 
-from opensanctions.core import Context
+from zavod import Context
 from opensanctions.util import multi_split
 
 HEADERS = [

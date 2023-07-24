@@ -7,7 +7,7 @@ from zipfile import ZipFile
 from urllib.parse import urljoin
 from pantomime.types import ZIP
 
-from opensanctions.core import Context
+from zavod import Context
 from opensanctions import helpers as h
 
 DOWNLOAD_URL = "https://sam.gov/api/prod/fileextractservices/v1/api/download/"

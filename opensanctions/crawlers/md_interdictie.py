@@ -4,7 +4,7 @@ from lxml import html
 from normality import slugify, collapse_spaces
 from pantomime.types import HTML
 
-from opensanctions.core import Context, Entity
+from zavod import Context, Entity
 from opensanctions import helpers as h
 
 REGEX_DELAY = re.compile(".+(\d{2}[\.\/]\d{2}[\.\/]\d{4})$")

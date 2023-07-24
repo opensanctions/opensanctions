@@ -1,8 +1,9 @@
 import json
 from pantomime.types import JSON
 
-from opensanctions.core import Context
-from opensanctions import helpers as h
+from zavod import Context
+
+# from opensanctions import helpers as h
 
 
 def format_number(value):

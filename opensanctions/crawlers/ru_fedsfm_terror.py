@@ -2,7 +2,7 @@ from lxml import html
 from pantomime.types import HTML
 from prefixdate import parse_format
 
-from opensanctions.core import Context
+from zavod import Context
 from opensanctions import helpers as h
 
 SECTIONS = {

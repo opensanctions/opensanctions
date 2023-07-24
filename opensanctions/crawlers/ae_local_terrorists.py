@@ -5,7 +5,7 @@ from normality import collapse_spaces
 from urllib.parse import urljoin
 from pantomime.types import XLS
 
-from opensanctions.core import Context
+from zavod import Context
 from opensanctions import helpers as h
 
 

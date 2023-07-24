@@ -1,6 +1,6 @@
 from typing import Dict
 
-from opensanctions.core import Context
+from zavod import Context
 from opensanctions import helpers as h
 
 

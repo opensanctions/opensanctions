@@ -6,8 +6,8 @@ from normality import slugify
 from datetime import datetime
 from pantomime.types import XLSX
 
+from zavod import Context
 from opensanctions import helpers as h
-from opensanctions.core import Context
 from opensanctions.util import multi_split
 
 SPLITS = [" %s)" % char for char in string.ascii_lowercase]

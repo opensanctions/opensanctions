@@ -1,12 +1,9 @@
 import json
-from lxml import html
 from typing import List
-from urllib.parse import urljoin
-from normality import collapse_spaces
 from pantomime.types import JSON
 from prefixdate import parse_formats
 
-from opensanctions.core import Context
+from zavod import Context
 from opensanctions import helpers as h
 from opensanctions.util import multi_split
 
