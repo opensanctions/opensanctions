@@ -183,7 +183,7 @@ def crawl_person(context: Context) -> None:
         entity.add("position", row.pop("position_uk", None), lang="ukr")
 
         # TODO: emit image
-        photo_url = row.pop("photo_name", None)
+        row.pop("photo_name", None)
 
         crawl_common(context, entity, row)
         context.emit(entity, target=True)

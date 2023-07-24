@@ -247,6 +247,7 @@ lookups:
           - presidencies and provinces of British India
           - statelessness
           - Đại Việt
+          - Ilkhanate
         value: null
       - match:
           - Cherokee Nation
@@ -449,4 +450,5 @@ lookups:
       - match:
           - MALE
           - trans man
+          - cisgender male
         value: male

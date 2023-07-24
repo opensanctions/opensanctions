@@ -1906,3 +1906,10 @@ lookups:
           incorporationDate: 2014-08-22
           notes: "Sergei Iurevich Zubkov (directeur général)"
           innCode: 7743937237
+      - match: "Type d’entité: entreprise d’État - Lieu d’enregistrement: Myanmar/Birmanie - Lieu principal d’activité: Myanmar/Birmanie: /"
+        props:
+          legalForm: entreprise d’État
+          jurisdiction: Myanmar
+      - match: "No INN: 7707314029"
+        props:
+          innCode: 7707314029
