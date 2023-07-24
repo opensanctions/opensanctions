@@ -1,7 +1,5 @@
-import string
-from typing import Dict, Any, List, Tuple, Optional, Set
+from typing import Dict, Any, List, Optional, Set
 from requests.exceptions import HTTPError
-from normality import collapse_spaces, stringify
 
 from opensanctions.core import Context
 from opensanctions import helpers as h
