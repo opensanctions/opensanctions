@@ -291,6 +291,7 @@ class Context:
         )
         if text is not None and len(text):
             return html.fromstring(text)
+        raise ValueError("Invalid HTML document: %s" % url)
 
     def parse_resource_xml(self, name: PathLike) -> ElementOrTree:
         """Parse a file in the resource folder into an XML tree.
