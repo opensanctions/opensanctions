@@ -1,5 +1,9 @@
-from typing import Optional
+from lxml import etree
+from typing import Optional, Union
 from normality import slugify
+
+
+ElementOrTree = Union[etree._Element, etree._ElementTree]
 
 
 def join_slug(

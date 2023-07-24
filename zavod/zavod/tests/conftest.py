@@ -14,6 +14,7 @@ FIXTURES_PATH = Path(__file__).parent / "fixtures"
 VALIDATION_YML = FIXTURES_PATH / "validation" / "validation.yml"
 ANALYZER_YML = FIXTURES_PATH / "analyzer.yml"
 ENRICHER_YML = FIXTURES_PATH / "enricher.yml"
+XML_DOC = FIXTURES_PATH / "doc.xml"
 
 
 @pytest.fixture(autouse=True)

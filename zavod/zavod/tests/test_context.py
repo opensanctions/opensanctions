@@ -1,4 +1,5 @@
 import pytest
+import requests_mock
 from datetime import datetime
 
 from zavod import settings
@@ -10,11 +11,14 @@ from zavod.archive import iter_dataset_statements
 from zavod.runtime.sink import DatasetSink
 from zavod.exc import RunFailedException
 from zavod.runtime.loader import load_entry_point
+from zavod.tests.conftest import XML_DOC
 
 
 def test_context_helpers(vdataset: Dataset):
     context = Context(vdataset)
     assert context.dataset == vdataset
+    assert "docs.google.com" in context.data_url
+    assert vdataset.name in repr(context)
     gen_id = "osv-e7bb50a8ac8cc89a980ae970de9d3b05af2973c2"
     assert context.make_id("john", "doe") == gen_id
     assert context.make_id("") is None
@@ -25,12 +29,18 @@ def test_context_helpers(vdataset: Dataset):
     assert isinstance(entity, Entity)
     assert entity.schema.name == "Person"
 
+    with pytest.raises(ValueError):
+        context.emit(entity)
+
     assert context.lookup("plants", "banana").value == "Fruit"
     assert context.lookup_value("plants", "potato") == "Vegetable"
     assert context.lookup_value("plants", "stone") is None
 
     context.inspect(None)
     context.inspect("foo")
+
+    # don't know how to assert anything here
+    context.audit_data({"test": "bla", "foo": 3}, ignore=["foo"])
 
     assert context.data_time == settings.RUN_TIME
     assert context.data_time_iso == settings.RUN_TIME.isoformat(
@@ -39,6 +49,46 @@ def test_context_helpers(vdataset: Dataset):
     other = datetime(2020, 1, 1)
     context.data_time = other
     assert context.data_time_iso == other.isoformat(sep="T", timespec="seconds")
+
+
+def test_context_fetchers(vdataset: Dataset):
+    context = Context(vdataset)
+
+    with requests_mock.Mocker() as m:
+        m.get("/bla", text="Hello, World!")
+        text = context.fetch_text("https://test.com/bla", cache_days=14)
+        assert text == "Hello, World!"
+
+    text = context.fetch_text("https://test.com/bla", cache_days=14)
+    assert text == "Hello, World!"
+
+    with requests_mock.Mocker() as m:
+        m.get("/bla", json={"msg": "Hello, World!"})
+        data = context.fetch_json("https://test.com/bla")
+        assert data["msg"] == "Hello, World!"
+
+    with requests_mock.Mocker() as m:
+        html = "<html><h1>Hello, World!</h1></html>"
+        m.get("/bla", text=html)
+        doc = context.fetch_html("https://test.com/bla")
+        assert doc.findtext(".//h1") == "Hello, World!"
+
+    long = "Hello, World!\n" * 1000
+    with requests_mock.Mocker() as m:
+        m.get("/bla", text=long)
+        path = context.fetch_resource("world.txt", "https://test.com/bla")
+    assert path.stem == "world"
+    with open(path, "r") as fh:
+        assert fh.read() == long
+
+    path = context.get_resource_path("doc.xml")
+    with open(path, "w") as fh:
+        with open(XML_DOC, "r") as src:
+            fh.write(src.read())
+    doc = context.parse_resource_xml("doc.xml")
+    assert "MyAddress" in doc.getroot().tag
+
+    context.close()
 
 
 def test_run_dataset(vdataset: Dataset):
