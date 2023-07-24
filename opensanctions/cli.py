@@ -3,22 +3,23 @@ import click
 import shutil
 import logging
 from typing import Optional
-from zavod.logs import get_logger
 from nomenklatura.tui import dedupe_ui
 from nomenklatura.judgement import Judgement
 from nomenklatura.resolver import Identifier
 from nomenklatura.matching import DefaultAlgorithm
 
+from zavod.logs import get_logger
+from zavod.runner import run_dataset
 from zavod.store import get_store
 from zavod.archive import dataset_path
 from zavod.dedupe import get_resolver, blocking_xref
-from opensanctions.core import Context, setup
+from zavod.exc import RunFailedException
+from opensanctions.core import setup
 from opensanctions.exporters.statements import export_statements_path
 from opensanctions.exporters.statements import import_statements_path
-from opensanctions.core.audit import audit_resolver
 from opensanctions.core.catalog import get_catalog, get_dataset_names
 from opensanctions.core.training import export_training_pairs
-from opensanctions.core.statements import resolve_all_canonical, resolve_canonical
+from opensanctions.core.statements import resolve_canonical
 from opensanctions.core.db import engine_tx
 from opensanctions.exporters import export, export_metadata
 from opensanctions.util import write_json
@@ -49,8 +50,10 @@ def crawl(dataset: str, dry_run: bool):
     scope = get_catalog().require(dataset)
     failed = False
     for source in scope.leaves:
-        ctx = Context(source, dry_run=dry_run)
-        failed = failed or not ctx.crawl()
+        try:
+            run_dataset(source, dry_run=dry_run)
+        except RunFailedException:
+            failed = True
     if failed:
         sys.exit(1)
 
@@ -69,14 +72,6 @@ def export_metadata_(dataset: str):
     export_metadata(dataset_)
 
 
-@cli.command("clear", help="Delete all stored data for the given source")
-@click.argument("dataset", default=ALL_SCOPE, type=datasets)
-def clear(dataset: str):
-    dataset_ = get_catalog().require(dataset)
-    for source in dataset_.leaves:
-        Context(source).clear()
-
-
 @cli.command("clear-workdir", help="Delete the working path and cached source data")
 @click.argument("dataset", default=ALL_SCOPE, type=datasets)
 def clear_workdir(dataset: Optional[str] = None):
@@ -85,13 +80,6 @@ def clear_workdir(dataset: Optional[str] = None):
         path = dataset_path(part.name)
         log.info("Clear path: %s" % path)
         shutil.rmtree(path)
-
-
-@cli.command("resolve", help="Apply de-duplication to the statements table")
-def resolve():
-    resolver = get_resolver()
-    with engine_tx() as conn:
-        resolve_all_canonical(conn, resolver)
 
 
 @cli.command("xref", help="Generate dedupe candidates from the given dataset")
@@ -188,11 +176,6 @@ def merge(entity_ids, force: bool = False):
     log.info("Canonical: %s" % canonical_id)
 
 
-@cli.command("audit", help="Sanity-check the resolver configuration")
-def audit():
-    audit_resolver()
-
-
 @cli.command("export-statements", help="Export statement data as a CSV file")
 @click.option("-d", "--dataset", default=ALL_SCOPE, type=datasets)
 @click.option("-x", "--external", is_flag=True, default=False)
@@ -206,48 +189,6 @@ def export_statements_csv(outfile, dataset: str, external: bool = False):
 @click.argument("infile", type=click.Path(readable=True, exists=True))
 def import_statements(infile):
     import_statements_path(infile)
-
-
-@cli.command("aggregate", help="Aggregate the statements for a given scope")
-@click.option("-d", "--dataset", default=ALL_SCOPE, type=datasets)
-@click.option("-x", "--external", is_flag=True, default=False)
-def aggregate_(dataset: str, external: bool = False):
-    dataset_ = get_catalog().require(dataset)
-    get_store(dataset_, external=external)
-
-
-@cli.command("db-pack", help="Helper function to pack DB statements")
-def db_pack():
-    from zavod.archive import get_archive_bucket, dataset_resource_path
-    from zavod.archive import STATEMENTS_FILE
-    from nomenklatura.statement.serialize import PackStatementWriter
-    from opensanctions.core.statements import all_statements
-    from opensanctions.core.db import engine_read
-
-    bucket = get_archive_bucket()
-    for dataset in get_catalog().datasets:
-        if dataset._type == "collection":
-            continue
-        log.info("Exporting from DB", dataset=dataset.name)
-        blob_name = f"datasets/latest/{dataset.name}/{STATEMENTS_FILE}"
-        blob = bucket.get_blob(blob_name)
-        if blob is not None:
-            log.info("Exists: %r" % blob_name)
-            continue
-
-        stmt_path = dataset_resource_path(dataset, STATEMENTS_FILE)
-        with open(stmt_path, "wb") as fh:
-            writer = PackStatementWriter(fh)
-            with engine_read() as conn:
-                stmts = all_statements(conn, dataset=dataset, external=True)
-                for idx, stmt in enumerate(stmts):
-                    if idx > 0 and idx % 50000 == 0:
-                        log.info("Writing", dataset=dataset.name, idx=idx)
-                    writer.write(stmt)
-
-        blob = bucket.blob(blob_name)
-        blob.upload_from_filename(stmt_path)
-        log.info("Uploaded: %r" % blob_name)
 
 
 if __name__ == "__main__":

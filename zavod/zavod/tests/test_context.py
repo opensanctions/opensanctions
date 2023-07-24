@@ -1,9 +1,14 @@
+import pytest
 from datetime import datetime
 
 from zavod import settings
 from zavod.context import Context
 from zavod.meta import Dataset
 from zavod.entity import Entity
+from zavod.runner import run_dataset
+from zavod.archive import iter_dataset_statements
+from zavod.runtime.sink import DatasetSink
+from zavod.exc import RunFailedException
 from zavod.runtime.loader import load_entry_point
 
 
@@ -37,6 +42,9 @@ def test_context_helpers(vdataset: Dataset):
 
 
 def test_run_dataset(vdataset: Dataset):
+    DatasetSink(vdataset).clear()
+    with pytest.raises(ValueError):
+        assert len(list(iter_dataset_statements(vdataset))) == 0
     context = Context(vdataset)
     context.begin(clear=True)
     assert len(context.resources.all()) == 0
@@ -48,3 +56,18 @@ def test_run_dataset(vdataset: Dataset):
     ), context.stats.statements
     assert len(context.resources.all()) == 1
     context.close()
+    assert len(list(iter_dataset_statements(vdataset))) == context.stats.statements
+
+
+def test_run_dataset_wrapper(vdataset: Dataset):
+    stats = run_dataset(vdataset)
+    assert stats.entities > 10
+
+    vdataset.disabled = True
+    stats = run_dataset(vdataset)
+    assert stats.entities == 0
+
+    vdataset.disabled = False
+    vdataset.data.format = "FAIL"
+    with pytest.raises(RunFailedException):
+        run_dataset(vdataset)
