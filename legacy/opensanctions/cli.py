@@ -2,24 +2,23 @@ import sys
 import click
 import shutil
 import logging
+from pathlib import Path
 from typing import Optional
 from nomenklatura.tui import dedupe_ui
 from nomenklatura.judgement import Judgement
 from nomenklatura.resolver import Identifier
 from nomenklatura.matching import DefaultAlgorithm
+from followthemoney.cli.util import OutPath
 
 from zavod.logs import get_logger, configure_logging
 from zavod.runner import run_dataset
 from zavod.store import get_store
 from zavod.archive import dataset_path
 from zavod.dedupe import get_resolver, blocking_xref
+from zavod.tools.dump_file import dump_dataset_to_file
 from zavod.exc import RunFailedException
-from opensanctions.exporters.statements import export_statements_path
-from opensanctions.exporters.statements import import_statements_path
 from opensanctions.core.catalog import get_catalog, get_dataset_names
 from opensanctions.core.training import export_training_pairs
-from opensanctions.core.statements import resolve_canonical
-from opensanctions.core.db import engine_tx
 from opensanctions.exporters import export, export_metadata
 from opensanctions.util import write_json
 
@@ -135,10 +134,8 @@ def export_pairs(dataset, outfile):
 def explode(canonical_id):
     resolver = get_resolver()
     resolved_id = resolver.get_canonical(canonical_id)
-    with engine_tx() as conn:
-        for entity_id in resolver.explode(resolved_id):
-            log.info("Restore separate entity", entity=entity_id)
-            resolve_canonical(conn, resolver, entity_id)
+    for entity_id in resolver.explode(resolved_id):
+        log.info("Restore separate entity", entity=entity_id)
     resolver.save()
 
 
@@ -179,16 +176,10 @@ def merge(entity_ids, force: bool = False):
 @cli.command("export-statements", help="Export statement data as a CSV file")
 @click.option("-d", "--dataset", default=ALL_SCOPE, type=datasets)
 @click.option("-x", "--external", is_flag=True, default=False)
-@click.argument("outfile", type=click.Path(writable=True))
-def export_statements_csv(outfile, dataset: str, external: bool = False):
+@click.argument("outfile", type=OutPath)
+def export_statements_csv(outfile: Path, dataset: str, external: bool = False):
     dataset_ = get_catalog().require(dataset)
-    export_statements_path(outfile, dataset_, external=external)
-
-
-@cli.command("import-statements", help="Import statement data from a CSV file")
-@click.argument("infile", type=click.Path(readable=True, exists=True))
-def import_statements(infile):
-    import_statements_path(infile)
+    dump_dataset_to_file(dataset_, outfile, format="csv", external=external)
 
 
 if __name__ == "__main__":

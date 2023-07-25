@@ -13,7 +13,6 @@ from opensanctions.exporters.simplecsv import SimpleCSVExporter
 from opensanctions.exporters.senzing import SenzingExporter
 from opensanctions.exporters.statistics import StatisticsExporter
 from opensanctions.exporters.metadata import export_metadata, dataset_to_index
-from opensanctions.exporters.statements import export_statements
 from opensanctions.util import write_json
 
 log = get_logger(__name__)

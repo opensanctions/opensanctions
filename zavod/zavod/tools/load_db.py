@@ -13,7 +13,7 @@ log = get_logger(__name__)
 
 
 def load_dataset_to_db(
-    scope: Dataset, database_uri: str, batch_size: int = 5000
+    scope: Dataset, database_uri: str, batch_size: int = 5000, external: bool = True
 ) -> None:
     """Load a dataset into a database given as a URI. This will delete all
     statements related to a dataset before inserting the current statements.
@@ -22,6 +22,7 @@ def load_dataset_to_db(
         scope: The dataset to load from the archive.
         database_uri: The database URI to load into.
         batch_size: The number of statements to insert in a single batch.
+        external: Include statements that are enrichment candidates.
     """
     engine = create_engine(database_uri, poolclass=NullPool)
     metadata = MetaData()
@@ -34,7 +35,7 @@ def load_dataset_to_db(
             conn.execute(del_q)
             batch: List[Dict[str, Any]] = []
             dataset_count: int = 0
-            for stmt in iter_output_statements(dataset):
+            for stmt in iter_output_statements(dataset, external=external):
                 # Convert the statement to a dictionary, and convert the
                 # timestamps to fit into SQLite.
                 row = cast(Dict[str, Any], stmt.to_dict())
