@@ -1,4 +1,4 @@
-from typing import List, Set, Dict, Any, cast
+from typing import List, Dict, Any, cast
 from sqlalchemy import delete, insert
 from sqlalchemy import MetaData, create_engine
 from sqlalchemy.pool import NullPool
@@ -7,7 +7,7 @@ from nomenklatura.util import iso_datetime
 
 from zavod.logs import get_logger
 from zavod.meta import Dataset
-from zavod.archive import iter_dataset_statements
+from zavod.tools.util import iter_output_statements
 
 log = get_logger(__name__)
 
@@ -27,17 +27,14 @@ def load_dataset_to_db(
     metadata = MetaData()
     table = make_statement_table(metadata)
     metadata.create_all(bind=engine, tables=[table])
+    total_count: int = 0
     for dataset in scope.leaves:
         with engine.begin() as conn:
             del_q = delete(table).where(table.c.dataset == dataset.name)
             conn.execute(del_q)
-            seen_ids: Set[str] = set()
             batch: List[Dict[str, Any]] = []
-            total: int = 0
-            for stmt in iter_dataset_statements(dataset):
-                if stmt.id in seen_ids or stmt.id is None:
-                    continue
-
+            dataset_count: int = 0
+            for stmt in iter_output_statements(dataset):
                 # Convert the statement to a dictionary, and convert the
                 # timestamps to fit into SQLite.
                 row = cast(Dict[str, Any], stmt.to_dict())
@@ -45,19 +42,25 @@ def load_dataset_to_db(
                     value = row.pop(key, None)
                     if value is not None:
                         row[key] = iso_datetime(value)
-
                 batch.append(row)
-                seen_ids.add(stmt.id)
-                total += 1
+
+                total_count += 1
+                dataset_count += 1
                 if len(batch) >= batch_size:
                     log.info(
                         "Inserting batch of %s statements" % len(batch),
                         dataset=dataset.name,
-                        statements=total,
+                        statements=dataset_count,
+                        total=total_count,
                     )
                     conn.execute(insert(table).values(batch))
                     batch = []
             if len(batch):
                 conn.execute(table.insert().values(batch))
-            log.info("Load complete", dataset=dataset.name, statements=total)
+            log.info(
+                "Load complete",
+                dataset=dataset.name,
+                statements=dataset_count,
+                total=total_count,
+            )
     # engine.dispose()
