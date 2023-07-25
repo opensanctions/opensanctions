@@ -1,26 +1,8 @@
 import orjson
 import logging
-from banal import ensure_list
 from typing import IO, Any, Dict
 
 log = logging.getLogger(__name__)
-
-
-def multi_split(text, splitters):
-    """Sequentially attempt to split a text based on an array of splitting criteria.
-    This is useful for strings where multiple separators are used to separate values,
-    e.g.: `test,other/misc`. A special case of this is itemised lists like `a) test
-    b) other c) misc` which sanction-makers seem to love."""
-    fragments = ensure_list(text)
-    for splitter in splitters:
-        out = []
-        for fragment in fragments:
-            for frag in fragment.split(splitter):
-                frag = frag.strip()
-                if len(frag):
-                    out.append(frag)
-        fragments = out
-    return fragments
 
 
 def json_default(obj: Any) -> Any:

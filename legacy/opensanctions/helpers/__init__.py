@@ -9,12 +9,14 @@ from opensanctions.helpers.dates import extract_years, parse_date, check_no_year
 from opensanctions.helpers.dates import parse_formats
 from opensanctions.helpers.excel import convert_excel_cell
 from opensanctions.helpers.text import clean_note, is_empty, remove_bracketed
+from opensanctions.helpers.text import multi_split
 
 __all__ = [
     "clean_emails",
     "clean_phones",
     "clean_note",
     "is_empty",
+    "multi_split",
     "remove_bracketed",
     "make_address",
     "apply_address",

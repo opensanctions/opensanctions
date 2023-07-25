@@ -6,7 +6,7 @@ from typing import Any, Dict, Generator
 from pantomime.types import ZIP
 
 from zavod import Context
-from opensanctions.util import multi_split
+from opensanctions import helpers as h
 
 HEADERS = [
     "name_eng",
@@ -40,7 +40,7 @@ def crawl(context: Context) -> None:
         entity.add("name", data.get("name_eng"), lang="eng")
         entity.add("name", data.get("name_rus"), lang="rus")
         entity.add("name", data.get("name_ukr"), lang="ukr")
-        for country in multi_split(data.get("nationality"), [",", ";", "/"]):
+        for country in h.multi_split(data.get("nationality"), [",", ";", "/"]):
             entity.add("country", country, lang="rus")
         entity.add("birthDate", data.get("date_of_birth"))
         entity.add("sourceUrl", source_url)

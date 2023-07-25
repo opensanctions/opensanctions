@@ -16,8 +16,6 @@ from zavod.util import ElementOrTree
 from zavod import Context, Entity
 from opensanctions.core import get_catalog
 from opensanctions import helpers as h
-from opensanctions.helpers.dates import parse_date
-from opensanctions.helpers.text import clean_note
 
 FeatureValue = Union[str, Entity]
 FeatureValues = List[FeatureValue]
@@ -528,7 +526,7 @@ def apply_feature(
             return
 
         if prop.name == "notes":
-            value = clean_note(value)
+            value = h.clean_note(value)
 
         if prop.name == "dunsCode":
             value = value.strip().replace("-", "")

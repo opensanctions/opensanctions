@@ -2,7 +2,6 @@ from datetime import datetime
 
 from zavod import Context
 from opensanctions import helpers as h
-from opensanctions.util import multi_split
 
 FORMATS = ["%d %b %Y", "%d %B %Y", "%Y", "%b %Y", "%B %Y"]
 
@@ -77,7 +76,7 @@ def parse_entry(context: Context, entry):
         entity.add_cast("Person", "birthDate", date)
 
     for nat in entry.findall("./nationality-list"):
-        for country in multi_split(nat.text, [";", ","]):
+        for country in h.multi_split(nat.text, [";", ","]):
             country = h.remove_bracketed(country)
             entity.add("nationality", country, quiet=True)
 

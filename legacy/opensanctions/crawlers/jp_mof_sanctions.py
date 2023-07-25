@@ -10,7 +10,6 @@ from normality.cleaning import decompose_nfkd
 
 from zavod import Context
 from opensanctions import helpers as h
-from opensanctions.util import multi_split
 
 BRACKETED = re.compile(r"(\([^\(\)]*\)|\[[^\[\]]*\])")
 
@@ -27,7 +26,7 @@ DATE_CLEAN = re.compile(r"(\(|\)|（|）| |改訂日|改訂)")
 
 def parse_date(text: List[Optional[str]]) -> List[str]:
     dates: List[str] = []
-    for date in multi_split(text, DATE_SPLITS):
+    for date in h.multi_split(text, DATE_SPLITS):
         cleaned = DATE_CLEAN.sub("", date)
         normal = decompose_nfkd(cleaned)
         for parsed in h.parse_date(normal, FORMATS, default=date):
@@ -149,7 +148,7 @@ def crawl(context: Context):
                     values = []
                     if isinstance(cell, datetime):
                         cell = cell.date()
-                    for value in multi_split(stringify(cell), SPLITS):
+                    for value in h.multi_split(stringify(cell), SPLITS):
                         if value is None:
                             continue
                         if value == "不明":

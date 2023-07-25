@@ -4,7 +4,6 @@ from pantomime.types import CSV
 
 from zavod import Context
 from opensanctions import helpers as h
-from opensanctions.util import multi_split
 
 TYPES = {
     "Person": "Person",
@@ -63,7 +62,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     entity.add(cit_prop, row.pop("Citizenships_BG", "").split(";"), lang="bul")
     entity.add("birthPlace", row.pop("Place_of_birth"), quiet=True)
     entity.add("birthPlace", row.pop("Place_of_birth_BG"), quiet=True, lang="bul")
-    for part in multi_split([row.pop("DOB"), row.pop("DOB_BG")], [";", "/"]):
+    for part in h.multi_split([row.pop("DOB"), row.pop("DOB_BG")], [";", "/"]):
         entity.add("birthDate", parse_date(part), quiet=True)
     entity.add("passportNumber", row.pop("Passport_No"), quiet=True)
     entity.add("passportNumber", row.pop("Passport_No_BG"), quiet=True, lang="bul")

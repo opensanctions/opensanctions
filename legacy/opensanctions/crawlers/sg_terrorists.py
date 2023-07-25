@@ -4,7 +4,6 @@ from pantomime.types import HTML
 
 from zavod import Context
 from opensanctions import helpers as h
-from opensanctions.util import multi_split
 
 IN_BRACKETS = re.compile(r"\(([^\)]*)\)")
 PROGRAM = "Terrorism (Suppression of Financing) Act 2002; Schedule 2"
@@ -26,7 +25,7 @@ def crawl(context: Context):
             text = item.findtext(".//td[@class='sProvP1']")
             text = text.strip().rstrip(";").rstrip(".")
             name, _ = text.split("(", 1)
-            names = multi_split(name, ["s/o", "@"])
+            names = h.multi_split(name, ["s/o", "@"])
 
             entity = context.make("Person")
             entity.id = context.make_slug(number, name)

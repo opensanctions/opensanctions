@@ -5,7 +5,6 @@ from prefixdate import parse_formats
 
 from zavod import Context
 from opensanctions import helpers as h
-from opensanctions.util import multi_split
 
 TYPES = {"1": "Person", "2": "Organization"}
 FORMATS = ["%Y-%m-%d", "%Y-%m-%d-%H", "%d/%m/%Y", "X_%Y_X_X", "%d-%m-%Y", "%Y"]
@@ -18,7 +17,7 @@ def parse_dates(text: str) -> List[str]:
     type_, text = text.split("_", 1)
     if text == "X_X_X_X":
         return []
-    for part in multi_split(text, [":", ";", "؛", " to "]):
+    for part in h.multi_split(text, [":", ";", "؛", " to "]):
         part = part.replace("___", " ")
         part = part.replace("_X_X_X", " ")
         part = part.strip()

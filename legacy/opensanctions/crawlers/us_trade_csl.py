@@ -7,7 +7,6 @@ from requests.exceptions import RequestException
 
 from zavod import Context
 from opensanctions import helpers as h
-from opensanctions.util import multi_split
 
 FORMATS = ["%d %b %Y", "%d %B %Y", "%Y", "%b %Y", "%B %Y"]
 
@@ -27,7 +26,7 @@ def parse_date(text: Optional[str]):
     text = text.replace("circa", "")
     text = text.strip()
     dates: List[str] = []
-    for part in multi_split(text, [" to "]):
+    for part in h.multi_split(text, [" to "]):
         dates.extend(h.parse_date(part, FORMATS))
     return dates
 

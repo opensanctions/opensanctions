@@ -5,7 +5,6 @@ from pantomime.types import JSON
 
 from zavod import Context, Entity
 from opensanctions import helpers as h
-from opensanctions.util import multi_split
 
 COUNTRIES = {
     "SCT": "GB-SCT",
@@ -41,14 +40,14 @@ def parse_date(date):
     if date is not None:
         date = date.replace(" ", "")
     dates = set()
-    for part in multi_split(date, [",", "\n", ";"]):
+    for part in h.multi_split(date, [",", "\n", ";"]):
         dates.update(h.parse_date(part, ["%d.%m.%Y", "dd.%m.%Y"]))
     return dates
 
 
 def url_split(urls):
     urls = []
-    for url in multi_split(urls, [";", "\n"]):
+    for url in h.multi_split(urls, [";", "\n"]):
         if len(url) > 5:
             urls.append(url)
     return urls

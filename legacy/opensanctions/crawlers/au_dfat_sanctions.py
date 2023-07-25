@@ -8,7 +8,6 @@ from pantomime.types import XLSX
 
 from zavod import Context
 from opensanctions import helpers as h
-from opensanctions.util import multi_split
 
 SPLITS = [" %s)" % char for char in string.ascii_lowercase]
 FORMATS = ["%d/%m/%Y", "%d %b. %Y", "%d %b.%Y", "%d %b %Y", "%d %B %Y"]
@@ -45,7 +44,7 @@ def clean_date(date):
     if date is None:
         return dates
     date = date.replace("\n", " ")
-    for part in multi_split(date, splits):
+    for part in h.multi_split(date, splits):
         part = part.strip().strip(",")
         if not len(part):
             continue
@@ -105,11 +104,11 @@ def parse_reference(context: Context, reference: int, rows):
     for row in rows:
         addr = row.pop("address")
         if addr is not None:
-            for part in multi_split(addr, SPLITS):
+            for part in h.multi_split(addr, SPLITS):
                 address = h.make_address(context, full=part)
                 h.apply_address(context, entity, address)
         sanction.add("program", row.pop("committees"))
-        citizen = multi_split(
+        citizen = h.multi_split(
             row.pop("citizenship"), ["a)", "b)", "c)", "d)", ";", ","]
         )
         entity.add("nationality", citizen, quiet=True)

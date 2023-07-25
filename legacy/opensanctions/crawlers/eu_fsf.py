@@ -6,7 +6,6 @@ from followthemoney.types import registry
 
 from zavod import Context, Entity
 from opensanctions import helpers as h
-from opensanctions.util import multi_split
 
 
 def parse_country(node):
@@ -157,7 +156,7 @@ def parse_entry(context: Context, entry: Element):
                 if prop is None:
                     context.log.warning("Unknown contact info", node=child)
                 else:
-                    values = multi_split(child.get("value"), [",", ";"])
+                    values = h.multi_split(child.get("value"), [",", ";"])
                     values = [v.strip() for v in values]
                     entity.add(prop, values)
             else:

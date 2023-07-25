@@ -1,6 +1,6 @@
 import re
 
-from opensanctions.util import multi_split
+from opensanctions.helpers.text import multi_split
 
 SPLITS = [",", "/", "(1)", "(2)", "(3)", "(4)", "(5)", "(6)", "(7)", "(8)"]
 REMOVE = re.compile("(ex|ext|extension|fax|tel|\:|\-)", re.IGNORECASE)

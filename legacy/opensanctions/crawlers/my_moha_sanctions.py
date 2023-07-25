@@ -5,7 +5,6 @@ from pantomime.types import CSV
 
 from zavod import Context
 from opensanctions import helpers as h
-from opensanctions.util import multi_split
 
 PERSONS_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT8r6lvQerO1tMNTUFaECYax-rU3Wra53U7T_yyRAZHMbGqvx6y93W8LO8OMatg08EQupZmAe7Wm-Wx/pub?gid=780934597&single=true&output=csv"
 GROUPS_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT8r6lvQerO1tMNTUFaECYax-rU3Wra53U7T_yyRAZHMbGqvx6y93W8LO8OMatg08EQupZmAe7Wm-Wx/pub?gid=676382776&single=true&output=csv"
@@ -35,9 +34,9 @@ def crawl_persons(context: Context):
             entity.add("birthDate", parse_date(data.pop("6_tarikh_lahir")))
             entity.add("birthPlace", data.pop("7_tempat_lahir"))
 
-            aliases = multi_split(data.pop("8_nama_lain"), SPLITS)
+            aliases = h.multi_split(data.pop("8_nama_lain"), SPLITS)
             entity.add("alias", aliases)
-            countries = multi_split(data.pop("9_warganegara"), SPLITS)
+            countries = h.multi_split(data.pop("9_warganegara"), SPLITS)
             entity.add("nationality", countries)
 
             entity.add("passportNumber", data.pop("10_nombor_pasport"))
@@ -68,9 +67,9 @@ def crawl_groups(context: Context):
             entity.id = context.make_slug("group", code)
             entity.add("name", data.pop("3_nama"))
             entity.add("topics", "sanction")
-            aliases = multi_split(data.pop("4_alias"), SPLITS)
+            aliases = h.multi_split(data.pop("4_alias"), SPLITS)
             entity.add("alias", aliases)
-            countries = multi_split(data.pop("6_alamat"), SPLITS)
+            countries = h.multi_split(data.pop("6_alamat"), SPLITS)
             entity.add("country", countries)
 
             short_alias = str(data.pop("5_nama_lain"))

@@ -6,7 +6,6 @@ from followthemoney.util import join_text
 
 from zavod import Context
 from opensanctions import helpers as h
-from opensanctions.util import multi_split
 
 FORMATS = ["%d/%m/%Y", "00/%m/%Y", "%m/%Y", "00/00/%Y", "%Y"]
 COUNTRY_SPLIT = ["(1)", "(2)", "(3)", ". "]
@@ -33,7 +32,7 @@ NAME_TYPES = {
 
 def parse_countries(text):
     countries = set()
-    for country in multi_split(text, COUNTRY_SPLIT):
+    for country in h.multi_split(text, COUNTRY_SPLIT):
         country = h.remove_bracketed(country)
         countries.add(country)
     return countries
@@ -71,7 +70,7 @@ def split_items(text, comma=False):
 
 def split_new(text):
     # It's 2022 and they can't multi-value a thing...
-    return multi_split(text, [". ", ", "])
+    return h.multi_split(text, [". ", ", "])
 
 
 def parse_row(context: Context, row):

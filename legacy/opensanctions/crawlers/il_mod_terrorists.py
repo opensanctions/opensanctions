@@ -6,7 +6,6 @@ from normality import slugify, stringify
 
 from zavod import Context
 from opensanctions import helpers as h
-from opensanctions.util import multi_split
 
 ORG_URL = "https://nbctf.mod.gov.il/he/Announcements/Documents/NBCTFIsrael%20-%20Terror%20Organization%20Designation%20List_XL.xlsx"
 PEOPLE_URL = "https://nbctf.mod.gov.il/he/Announcements/Documents/NBCTF%20Israel%20designation%20Individuals_XL.xlsx"
@@ -17,7 +16,7 @@ END_TAG = re.compile(r"בוטל ביום", re.U)
 
 def parse_date(date):
     dates = []
-    for part in multi_split(date, ["OR", ";", " - "]):
+    for part in h.multi_split(date, ["OR", ";", " - "]):
         dates.extend(h.parse_date(part, FORMATS))
     return dates
 

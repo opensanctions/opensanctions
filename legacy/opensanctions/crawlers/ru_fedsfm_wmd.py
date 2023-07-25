@@ -7,7 +7,6 @@ from followthemoney.types import registry
 
 from zavod import Context
 from opensanctions import helpers as h
-from opensanctions.util import multi_split
 
 SPLITS = ["%s)" % c for c in string.ascii_lowercase]
 SPLITS = SPLITS + ["; ", " и "]
@@ -20,7 +19,7 @@ def clean_date(text):
 
 
 def letter_split(text):
-    return multi_split(text, SPLITS)
+    return h.multi_split(text, SPLITS)
 
 
 def maybe_rsplit(text, splitter):

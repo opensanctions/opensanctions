@@ -6,7 +6,6 @@ from zavod.parse import format_address
 
 from zavod import Context
 from opensanctions import helpers as h
-from opensanctions.util import multi_split
 
 PASSWORD = os.environ.get("OPENSANCTIONS_RUPEP_PASSWORD")
 FORMATS = ["%d.%m.%Y", "%m.%Y", "%Y", "%b. %d, %Y", "%B %d, %Y"]
@@ -42,7 +41,7 @@ def short_id(context: Context, id: str) -> str:
 
 
 def split_names(names):
-    return multi_split(names, ["\n", ", "])
+    return h.multi_split(names, ["\n", ", "])
 
 
 def parse_date(date):
