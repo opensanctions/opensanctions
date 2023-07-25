@@ -14,7 +14,7 @@ def crawl(context: Context):
             if name.endswith(".xml"):
                 with zip.open(name) as fh:
                     doc = etree.parse(fh)
-                    doc = h.remove_namespace(doc)
-                    for entry in doc.findall(".//sanctionEntity"):
+                    doc_ = h.remove_namespace(doc)
+                    for entry in doc_.findall(".//sanctionEntity"):
                         parse_entry(context, entry)
                         # print(entry, entry.get("euReferenceNumber"), entry.attrib)
