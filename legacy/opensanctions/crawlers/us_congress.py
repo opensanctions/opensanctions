@@ -51,7 +51,6 @@ def make_occupancy(
         occupancy.add("status", status)
         return occupancy
 
-
 def crawl_positions(context, member, entity):
     terms: List[dict] = member.pop("terms")
     entities = []
@@ -76,7 +75,7 @@ def crawl_positions(context, member, entity):
 
 
 def crawl_member(context: Context, bioguide_id: str):
-    url = urljoin(context.source.data.url, bioguide_id)
+    url = urljoin(context.data_url, bioguide_id)
     headers = {"x-api-key": API_KEY}
     member = context.fetch_json(url, headers=headers, cache_days=CACHE_DAYS)["member"]
 
@@ -97,7 +96,7 @@ def crawl_member(context: Context, bioguide_id: str):
 
 def fetch(context: Context, offset):
     query = {"limit": LIMIT, "offset": offset}
-    url = f"{ context.source.data.url }?{ urlencode(query) }"
+    url = f"{ context.data_url }?{ urlencode(query) }"
     headers = {"x-api-key": API_KEY}
     path = context.fetch_resource(f"members-{offset}.json", url, headers=headers)
     context.export_resource(path, title=context.SOURCE_TITLE + f"offset {offset}")
