@@ -6,13 +6,14 @@ from opensanctions import helpers as h
 
 # Useful notes: https://www.fer.xyz/2021/08/interpol
 
-IGNORE_FIELDS = {
+CACHE_DAYS = 3
+IGNORE_FIELDS = [
     "languages_spoken_ids",
     "hairs_id",
     "height",
     "weight",
     "eyes_colors_id",
-}
+]
 MAX_RESULTS = 160
 SEEN_URLS: Set[str] = set()
 SEEN_IDS: Set[str] = set()
@@ -24,7 +25,7 @@ AGE_MAX = 90
 
 
 def get_countries(context: Context) -> List[Any]:
-    doc = context.fetch_html(COUNTRIES_URL, cache_days=7)
+    doc = context.fetch_html(COUNTRIES_URL, cache_days=CACHE_DAYS)
     path = ".//select[@id='arrestWarrantCountryId']/option"
     options: List[Any] = []
     for option in doc.findall(path):
@@ -50,7 +51,7 @@ def crawl_notice(context: Context, notice: Dict[str, Any]) -> None:
     SEEN_URLS.add(url)
     # context.log.info("Crawl notice: %s" % url)
     try:
-        notice = context.fetch_json(url, cache_days=7)
+        notice = context.fetch_json(url, cache_days=CACHE_DAYS)
     except HTTPError as err:
         context.log.warning(
             "HTTP error",
@@ -95,11 +96,7 @@ def crawl_notice(context: Context, notice: Dict[str, Any]) -> None:
     context.emit(entity, target=True)
 
 
-def crawl_query(
-    context: Context,
-    query: Dict[str, Any],
-    cache_days: int = 2,
-) -> int:
+def crawl_query(context: Context, query: Dict[str, Any]) -> int:
     context.inspect(query)
     params = query.copy()
     params["resultPerPage"] = MAX_RESULTS
@@ -107,11 +104,11 @@ def crawl_query(
         data = context.fetch_json(
             context.data_url,
             params=params,
-            cache_days=cache_days,
+            cache_days=CACHE_DAYS,
         )
     except HTTPError as err:
         if err.response.status_code == 404:
-            return
+            return 0
         context.log.warning(
             "HTTP error",
             url=str(err.request.url),
