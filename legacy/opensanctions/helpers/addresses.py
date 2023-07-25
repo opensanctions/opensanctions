@@ -89,7 +89,7 @@ def make_address(
     return address
 
 
-def apply_address(context: Context, entity: Entity, address: Entity):
+def apply_address(context: Context, entity: Entity, address: Entity) -> None:
     """Link the given entity to the given address."""
     if address is None:
         return

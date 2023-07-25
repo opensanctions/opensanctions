@@ -3,6 +3,7 @@ from pathlib import Path
 from tempfile import mkdtemp, mkstemp
 
 from zavod import settings
+from zavod.context import Context
 from zavod.meta import get_catalog, load_dataset_from_path, Dataset
 from zavod.dedupe import get_resolver
 
@@ -28,7 +29,14 @@ def clear_catalog():
 
 @pytest.fixture(scope="function")
 def vdataset() -> Dataset:
-    return load_dataset_from_path(VALIDATION_YML)
+    dataset = load_dataset_from_path(VALIDATION_YML)
+    assert dataset is not None
+    return dataset
+
+
+@pytest.fixture(scope="function")
+def vcontext(vdataset) -> Context:
+    return Context(vdataset)
 
 
 @pytest.fixture(scope="function")

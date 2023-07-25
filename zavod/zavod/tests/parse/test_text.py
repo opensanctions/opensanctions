@@ -2,6 +2,8 @@ from zavod.parse.text import multi_split, remove_bracketed, is_empty, clean_note
 
 
 def test_multi_split():
+    assert len(multi_split(None, ["a)"])) == 0
+    assert len(multi_split("", ["a)"])) == 0
     text = "banana"
     assert len(multi_split(text, ["a)"])) == 1
     text = "a) banana b) peach"
@@ -23,8 +25,11 @@ def test_is_empty():
     assert is_empty("") is True
     assert is_empty("  ") is True
     assert is_empty(" hello ") is False
+    assert is_empty(5) is False
 
 
 def test_clean_note():
     assert clean_note([]) == []
+    assert clean_note(None) == []
     assert clean_note(["hello"]) == ["hello"]
+    assert clean_note(["hello", None]) == ["hello"]
