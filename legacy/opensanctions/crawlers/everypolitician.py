@@ -1,10 +1,35 @@
+import re
 from datetime import datetime
-from urllib.parse import urljoin
+from urllib.parse import urljoin, unquote
 from typing import Dict, Optional
 from followthemoney.helpers import check_person_cutoff, post_summary
 
 from zavod import Context
 from opensanctions import helpers as h
+
+
+PHONE_SPLITS = [",", "/", "(1)", "(2)", "(3)", "(4)", "(5)", "(6)", "(7)", "(8)"]
+PHONE_REMOVE = re.compile("(ex|ext|extension|fax|tel|\:|\-)", re.IGNORECASE)
+
+
+def clean_emails(emails):
+    out = []
+    for email in h.multi_split(emails, ["/", ","]):
+        if email is None:
+            return
+        email = unquote(email)
+        email = email.strip()
+        email = email.rstrip(".")
+        out.append(email)
+    return out
+
+
+def clean_phones(phones):
+    out = []
+    for phone in h.multi_split(phones, PHONE_SPLITS):
+        phone = PHONE_REMOVE.sub("", phone)
+        out.append(phone)
+    return out
 
 
 def crawl(context: Context):
@@ -69,7 +94,7 @@ def parse_person(context: Context, data, country, lastmod):
     person.add("fatherName", data.pop("patronymic_name", None))
     person.add("birthDate", data.pop("birth_date", None))
     person.add("deathDate", data.pop("death_date", None))
-    person.add("email", h.clean_emails(data.pop("email", None)))
+    person.add("email", clean_emails(data.pop("email", None)))
     person.add("notes", data.pop("summary", None))
     person.add("topics", "role.pep")
 
@@ -93,7 +118,7 @@ def parse_person(context: Context, data, country, lastmod):
     for contact_detail in data.pop("contact_details", []):
         value = contact_detail.get("value")
         if "email" == contact_detail.get("type"):
-            person.add("email", h.clean_emails(value))
+            person.add("email", clean_emails(value))
         if "phone" == contact_detail.get("type"):
             person.add("phone", h.clean_phones(value))
 
