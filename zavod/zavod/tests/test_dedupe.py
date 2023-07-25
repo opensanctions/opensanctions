@@ -15,6 +15,7 @@ def test_store_access(vdataset: Dataset):
     blocking_xref(store)
     assert len(resolver.edges)
     for edge in resolver.edges.values():
+        assert edge.score is not None
         assert edge.score >= 0.1
         assert edge.judgement == Judgement.NO_JUDGEMENT
         assert edge.user == AUTO_USER
