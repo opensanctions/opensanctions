@@ -1,5 +1,5 @@
 from urllib.parse import unquote
-from opensanctions.helpers.text import multi_split
+from zavod.parse.text import multi_split
 
 
 def clean_emails(emails):

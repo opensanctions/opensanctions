@@ -3,10 +3,10 @@ from banal import is_listish, ensure_list
 from typing import Optional, List, Union, Iterable
 from normality import collapse_spaces
 
-PREFIX_ = "INTERPOL-UN\s*Security\s*Council\s*Special\s*Notice\s*web\s*link:?"
+PREFIX_ = r"INTERPOL-UN\s*Security\s*Council\s*Special\s*Notice\s*web\s*link:?"
 PREFIX = re.compile(PREFIX_, re.IGNORECASE)
 
-INTERPOL_URL_ = "https?:\/\/www\.interpol\.int\/[^ ]*(\s\d+)?"
+INTERPOL_URL_ = r"https?:\/\/www\.interpol\.int\/[^ ]*(\s\d+)?"
 INTERPOL_URL = re.compile(INTERPOL_URL_, re.IGNORECASE)
 BRACKETED = re.compile(r"\(.*\)")
 
@@ -29,12 +29,14 @@ def clean_note(text: Union[Optional[str], List[Optional[str]]]) -> List[str]:
         for t in text:
             out.extend(clean_note(t))
         return out
-    text = PREFIX.sub(" ", text)
-    text = INTERPOL_URL.sub(" ", text)
-    text = collapse_spaces(text)
-    if text is None:
-        return out
-    return [text]
+    if isinstance(text, str):
+        text = PREFIX.sub(" ", text)
+        text = INTERPOL_URL.sub(" ", text)
+        text = collapse_spaces(text)
+        if text is None:
+            return out
+        return [text]
+    return out
 
 
 def multi_split(
