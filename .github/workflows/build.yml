@@ -65,6 +65,10 @@ jobs:
         run: |
           pip install -e ".[dev]"
           pip freeze
+      - name: Run legacy tests
+        working-directory: legacy
+        run: |
+          make test
       - name: Crawl a single dataset
         run: |
           opensanctions crawl us_ofac_cons
