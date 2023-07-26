@@ -11,7 +11,7 @@ from zavod.export.names import NamesExporter
 from zavod.export.simplecsv import SimpleCSVExporter
 from zavod.export.senzing import SenzingExporter
 from zavod.export.statistics import StatisticsExporter
-from zavod.export.metadata import export_metadata, dataset_to_index
+from zavod.export.metadata import dataset_to_index
 from zavod.util import write_json
 
 log = get_logger(__name__)
@@ -25,7 +25,7 @@ EXPORTERS: List[Type[Exporter]] = [
     SenzingExporter,
 ]
 
-__all__ = ["export_dataset", "export_metadata"]
+__all__ = ["export_dataset"]
 
 
 def export_data(context: Context, view: View):

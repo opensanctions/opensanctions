@@ -1,17 +1,12 @@
 import json
 from typing import Any, Dict
-from urllib.parse import urljoin
-from followthemoney import model
-from nomenklatura.matching import MatcherV1
 
 from zavod import settings
 from zavod.logs import get_logger
 from zavod.meta import Dataset
-from zavod.archive import get_dataset_resource, datasets_path
-from zavod.archive import INDEX_FILE
+from zavod.archive import get_dataset_resource
 from zavod.runtime.resources import DatasetResources
 from zavod.runtime.issues import DatasetIssues
-from zavod.util import write_json
 
 log = get_logger(__name__)
 
@@ -37,42 +32,3 @@ def dataset_to_index(dataset: Dataset) -> Dict[str, Any]:
     meta["index_url"] = dataset.make_public_url("index.json")
     meta["issues_url"] = dataset.make_public_url("issues.json")
     return meta
-
-
-def export_metadata(scope: Dataset) -> None:
-    """Export the global index for all datasets."""
-    base_path = datasets_path()
-    datasets = []
-    schemata = set()
-    for dataset in scope.datasets:
-        ds_path = get_dataset_resource(dataset, INDEX_FILE)
-        if ds_path is None or not ds_path.exists():
-            log.error("No index file found", dataset=dataset.name, report_issue=False)
-        else:
-            with open(ds_path, "r") as fh:
-                ds_data = json.load(fh)
-                schemata.update(ds_data.get("schemata", []))
-                datasets.append(ds_data)
-
-    issues_path = base_path.joinpath("issues.json")
-    log.info("Writing global issues list", path=issues_path)
-    with open(issues_path, "wb") as fh:
-        issues = DatasetIssues(scope)
-        data = {"issues": list(issues.all())}
-        write_json(data, fh)
-
-    index_path = base_path.joinpath(INDEX_FILE)
-    log.info("Writing global index", datasets=len(datasets), path=index_path)
-    with open(index_path, "wb") as fh:
-        meta = {
-            "datasets": datasets,
-            "run_time": settings.RUN_TIME,
-            "dataset_url": settings.DATASET_URL,
-            "issues_url": urljoin(settings.DATASET_URL, "issues.json"),
-            "statements_url": urljoin(settings.DATASET_URL, "statements.csv"),
-            "model": model.to_dict(),
-            "schemata": list(schemata),
-            "matcher": MatcherV1.explain(),
-            "app": "opensanctions",
-        }
-        write_json(meta, fh)
