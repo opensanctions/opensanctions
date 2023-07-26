@@ -7,8 +7,7 @@ from zavod.parse.addresses import make_address, apply_address, format_address
 from zavod.parse.dates import extract_years, parse_date, check_no_year
 from zavod.parse.dates import parse_formats
 from zavod.parse.identification import make_identification
-
-from opensanctions.helpers.excel import convert_excel_cell
+from zavod.parse.excel import convert_excel_cell
 
 __all__ = [
     "clean_note",
