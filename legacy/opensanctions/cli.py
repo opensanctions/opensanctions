@@ -20,7 +20,7 @@ from zavod.exc import RunFailedException
 from opensanctions.core.catalog import get_catalog, get_dataset_names
 from opensanctions.core.training import export_training_pairs
 from zavod.export import export, export_metadata
-from opensanctions.util import write_json
+from zavod.util import write_json
 
 log = get_logger(__name__)
 datasets = click.Choice(get_dataset_names())

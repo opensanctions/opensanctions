@@ -8,13 +8,8 @@ from followthemoney.cli.util import read_entities
 from json import load, loads
 from csv import DictReader
 
-from zavod.meta import get_catalog as get_zavod_catalog
-#from legacy.opensanctions.core import get_catalog as get_legacy_catalog
 
 def test_export(vdataset: Dataset):
-    #print(get_legacy_catalog())
-    print(get_zavod_catalog())
-    
     stats = run_dataset(vdataset)
     export(vdataset.name)
 
