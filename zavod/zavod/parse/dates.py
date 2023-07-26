@@ -4,6 +4,8 @@ from prefixdate import parse_formats
 
 NUMBERS = re.compile(r"\d+")
 
+__all__ = ["parse_date", "check_no_year", "parse_formats", "extract_years"]
+
 
 def extract_years(text: str) -> List[str]:
     """Try to locate year numbers in a string such as 'circa 1990'. This will fail if
