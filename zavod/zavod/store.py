@@ -1,6 +1,6 @@
+import shutil
 from pathlib import Path
 from typing import List, Optional
-from functools import cache
 from followthemoney.exc import InvalidData
 from nomenklatura.statement import Statement
 from nomenklatura.resolver import Resolver
@@ -18,7 +18,6 @@ log = get_logger(__name__)
 View = BaseView[Dataset, Entity]
 
 
-@cache
 def get_store(dataset: Dataset, external: bool = False) -> "Store":
     resolver = get_resolver()
     aggregator_path = dataset_state_path(dataset.name)
@@ -33,6 +32,17 @@ def get_store(dataset: Dataset, external: bool = False) -> "Store":
     store = Store(dataset, resolver, dataset_path)
     store.build(external=external)
     return store
+
+
+def clear_store(dataset: Dataset) -> None:
+    """Delete the store graph for the given dataset."""
+    aggregator_path = dataset_state_path(dataset.name)
+    external_path = aggregator_path / f"{dataset.name}.external.store"
+    if external_path.exists():
+        shutil.rmtree(external_path)
+    internal_path = aggregator_path / f"{dataset.name}.internal.store"
+    if internal_path.exists():
+        shutil.rmtree(internal_path)
 
 
 def get_view(dataset: Dataset, external: bool = False) -> View:

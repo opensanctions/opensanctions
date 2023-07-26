@@ -126,6 +126,7 @@ class Context:
         self.sink.close()
         clear_contextvars()
         self.issues.close()
+        self.issues.export()
 
     def get_resource_path(self, name: PathLike) -> Path:
         """Get the path to a file in the dataset data folder.

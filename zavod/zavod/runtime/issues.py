@@ -1,11 +1,13 @@
 import orjson
-from banal import is_mapping
+from pathlib import Path
+from banal import is_mapping, hash_data
 from datetime import datetime
 from typing import Any, Dict, Generator, Optional, TypedDict, BinaryIO, cast
+from nomenklatura.util import datetime_iso
 
 from zavod.meta import Dataset
 from zavod.archive import dataset_resource_path, get_dataset_resource
-from zavod.archive import ISSUES_LOG
+from zavod.archive import ISSUES_LOG, ISSUES_FILE
 
 
 class Issue(TypedDict):
@@ -33,6 +35,8 @@ class DatasetIssues(object):
             self.fh = open(self.path, "ab")
         data = dict(event)
         for key, value in data.items():
+            if key == "dataset" and value == self.dataset.name:
+                continue
             if hasattr(value, "to_dict"):
                 value = value.to_dict()
             if isinstance(value, set):
@@ -43,9 +47,8 @@ class DatasetIssues(object):
         report_issue = data.pop("report_issue", True)
         if not report_issue:
             return
-        now = datetime.utcnow().isoformat()
         record = {
-            "timestamp": data.pop("timestamp", now),
+            "timestamp": datetime_iso(datetime.utcnow()),
             "module": data.pop("logger", None),
             "level": data.pop("level"),
             "message": data.pop("event", None),
@@ -57,6 +60,7 @@ class DatasetIssues(object):
         elif isinstance(entity, str):
             record["entity"] = {"id": entity}
         record["data"] = data
+        record["id"] = hash_data(record)
         out = orjson.dumps(record, option=orjson.OPT_APPEND_NEWLINE)
         self.fh.write(out)
 
@@ -64,6 +68,8 @@ class DatasetIssues(object):
         """Clear (delete) the issues log file."""
         self.close()
         self.path.unlink(missing_ok=True)
+        file_path = dataset_resource_path(self.dataset.name, ISSUES_FILE)
+        file_path.unlink(missing_ok=True)
 
     def close(self) -> None:
         """Close the issues log file."""
@@ -90,3 +96,11 @@ class DatasetIssues(object):
             if level is not None:
                 levels[level] = levels.get(level, 0) + 1
         return levels
+
+    def export(self, path: Optional[Path] = None) -> None:
+        """Export the issues log to a consolidated file."""
+        if path is None:
+            path = dataset_resource_path(self.dataset.name, ISSUES_FILE)
+        with open(path, "wb") as fh:
+            issues = list(self.all())
+            fh.write(orjson.dumps({"issues": issues}))

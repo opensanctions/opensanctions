@@ -10,7 +10,7 @@ from zavod.context import Context
 
 
 @cache
-def get_formatter() -> AddressFormatter:
+def _get_formatter() -> AddressFormatter:
     return AddressFormatter()
 
 
@@ -27,6 +27,23 @@ def format_address(
     state: Optional[str] = None,
     country_code: Optional[str] = None,
 ) -> str:
+    """Given the components of a postal address, format it into a single line
+    using some country-specific templating logic.
+
+    Args:
+        summary: A short description of the address.
+        po_box: The PO box/mailbox number.
+        street: The street or road name.
+        house: The descriptive name of the house.
+        house_number: The number of the house on the street.
+        postal_code: The postal code or ZIP code.
+        city: The city or town name.
+        county: The county or district name.
+        state: The state or province name.
+        country_code: A pre-normalized country code.
+
+    Returns:
+        A single-line string with the formatted address."""
     data = {
         "attention": summary,
         "road": street,
@@ -37,7 +54,7 @@ def format_address(
         "county": county,
         "state_district": state,
     }
-    return get_formatter().one_line(data, country=country_code)
+    return _get_formatter().one_line(data, country=country_code)
 
 
 def make_address(
@@ -59,8 +76,29 @@ def make_address(
     key: Optional[str] = None,
     lang: Optional[str] = None,
 ) -> Entity:
-    """Generate an address schema object adjacent to the main entity."""
+    """Generate an address schema object adjacent to the main entity.
 
+    Args:
+        context: The runner context used for making and emitting entities.
+        full: The full address as a single string.
+        remarks: Delivery remarks for the address.
+        summary: A short description of the address.
+        po_box: The PO box/mailbox number.
+        street: The street or road name.
+        street2: The street or road name, line 2.
+        street3: The street or road name, line 3.
+        city: The city or town name.
+        place: The name of a smaller locality (same as city).
+        postal_code: The postal code or ZIP code.
+        state: The state or province name.
+        region: The region or district name.
+        country: The country name (words, not ISO code).
+        country_code: A pre-normalized country code.
+        key: An optional key to be included in the ID of the address.
+        lang: The language of the address details.
+
+    Returns:
+        A new entity of type `Address`."""
     city = join_text(place, city, sep=", ")
     street = join_text(street, street2, street3, sep=", ")
 
@@ -94,12 +132,34 @@ def make_address(
         address.add("country", full_country, lang=lang)
         # full = None
 
-    # full = clean_address(full)
     address.add("full", full, lang=lang)
+    # Send the address through the cleaning routine applied to address-type
+    # values:
+    fulls = sorted(address.get("full"))
 
-    if full:
-        norm_full = slugify(full)
+    if len(fulls):
+        norm_full = slugify(fulls[0])
         hash_id = make_entity_id(country_code, norm_full, key)
         if hash_id is not None:
             address.id = f"addr-{hash_id}"
     return address
+
+
+def apply_address(context: Context, entity: Entity, address: Entity) -> None:
+    """Link the given entity to the given address.
+
+    Args:
+        context: The runner context used for emitting entities.
+        entity: The thing located at the given address.
+        address: The address entity, usually constructed with `make_address`.
+    """
+    if address is None:
+        return
+    assert address.schema.is_a("Address"), "address must be an Address"
+    assert (
+        entity.schema.get("addressEntity") is not None
+    ), "Entity must have addressEntity"
+    entity.add("country", address.get("country"))
+    if address.id is not None:
+        entity.add("addressEntity", address)
+        context.emit(address)

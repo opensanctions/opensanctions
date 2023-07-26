@@ -10,8 +10,6 @@ from zavod.store import get_store, Store
 from zavod.logs import get_logger
 from zavod.dedupe import get_resolver
 from opensanctions.core.catalog import get_catalog
-from opensanctions.core.db import engine_read
-from opensanctions.core.statements import entities_datasets
 
 log = get_logger(__name__)
 

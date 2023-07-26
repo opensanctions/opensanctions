@@ -174,7 +174,7 @@ def crawl(context: Context) -> None:
                                 country_query,
                                 {"ageMax": age, "ageMin": age},
                             )
-                            age_total = crawl_query(context, age_query, cache_days=7)
+                            age_total = crawl_query(context, age_query)
                             if age_total > MAX_RESULTS:
                                 context.log.warn(
                                     "Too many results in full query",
