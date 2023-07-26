@@ -28,11 +28,14 @@ def test_context_helpers(vdataset: Dataset):
     entity = context.make("Person")
     assert isinstance(entity, Entity)
     assert entity.schema.name == "Person"
+    assert entity.dataset == vdataset
 
     with pytest.raises(ValueError):
         context.emit(entity)
 
-    assert context.lookup("plants", "banana").value == "Fruit"
+    result = context.lookup("plants", "banana")
+    assert result is not None
+    assert result.value == "Fruit"
     assert context.lookup_value("plants", "potato") == "Vegetable"
     assert context.lookup_value("plants", "stone") is None
 
