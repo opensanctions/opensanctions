@@ -25,6 +25,7 @@ def format_address(
     city: Optional[str] = None,
     county: Optional[str] = None,
     state: Optional[str] = None,
+    country: Optional[str] = None,
     country_code: Optional[str] = None,
 ) -> str:
     """Given the components of a postal address, format it into a single line
@@ -40,10 +41,13 @@ def format_address(
         city: The city or town name.
         county: The county or district name.
         state: The state or province name.
+        country: The name of the country (words, not ISO code).
         country_code: A pre-normalized country code.
 
     Returns:
         A single-line string with the formatted address."""
+    if country_code is None and country is not None:
+        country_code = registry.country.clean_text(country)
     data = {
         "attention": summary,
         "road": street,
@@ -53,6 +57,7 @@ def format_address(
         "city": city,
         "county": county,
         "state_district": state,
+        "country": country,
     }
     return _get_formatter().one_line(data, country=country_code)
 
@@ -124,13 +129,14 @@ def make_address(
             postal_code=postal_code,
             city=city,
             state=join_text(region, state, sep=", "),
+            country=country,
             country_code=country_code,
         )
 
     full_country = registry.country.clean(full)
     if full_country is not None:
         address.add("country", full_country, lang=lang)
-        # full = None
+        return address
 
     address.add("full", full, lang=lang)
     # Send the address through the cleaning routine applied to address-type
