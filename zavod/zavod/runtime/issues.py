@@ -35,6 +35,8 @@ class DatasetIssues(object):
             self.fh = open(self.path, "ab")
         data = dict(event)
         for key, value in data.items():
+            if key == "dataset" and value == self.dataset.name:
+                continue
             if hasattr(value, "to_dict"):
                 value = value.to_dict()
             if isinstance(value, set):
