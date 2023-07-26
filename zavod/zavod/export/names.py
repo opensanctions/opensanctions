@@ -2,7 +2,7 @@ from typing import Set
 from normality import collapse_spaces
 from followthemoney.types import registry
 
-from opensanctions.exporters.common import Exporter
+from zavod.export.common import Exporter
 
 
 class NamesExporter(Exporter):

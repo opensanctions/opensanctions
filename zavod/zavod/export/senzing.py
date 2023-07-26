@@ -1,8 +1,8 @@
 from nomenklatura.senzing import senzing_record
 
 from zavod.entity import Entity
-from opensanctions.exporters.common import Exporter
-from opensanctions.util import write_json
+from zavod.export.common import Exporter
+from zavod.util import write_json
 
 
 class SenzingExporter(Exporter):

@@ -20,7 +20,7 @@ from opensanctions.core.catalog import get_catalog, get_dataset_names
 from opensanctions.core.training import export_training_pairs
 from opensanctions.core.statements import resolve_canonical
 from opensanctions.core.db import engine_tx
-from opensanctions.exporters import export, export_metadata
+from zavod.export import export, export_metadata
 from opensanctions.util import write_json
 
 log = get_logger(__name__)

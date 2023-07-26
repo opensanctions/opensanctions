@@ -11,7 +11,7 @@ from zavod.archive import get_dataset_resource, datasets_path
 from zavod.archive import INDEX_FILE
 from zavod.runtime.resources import DatasetResources
 from zavod.runtime.issues import DatasetIssues
-from opensanctions.util import write_json
+from zavod.util import write_json
 
 log = get_logger(__name__)
 

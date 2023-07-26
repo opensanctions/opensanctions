@@ -1,7 +1,7 @@
 from followthemoney.cli.util import write_entity
 
 from zavod.entity import Entity
-from opensanctions.exporters.common import Exporter
+from zavod.export.common import Exporter
 
 
 class FtMExporter(Exporter):

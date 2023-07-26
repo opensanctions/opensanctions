@@ -5,8 +5,8 @@ from followthemoney.types import registry
 from followthemoney.util import join_text
 
 from zavod.entity import Entity
-from opensanctions.core import get_catalog
-from opensanctions.exporters.common import Exporter
+from zavod.meta import get_catalog
+from zavod.export.common import Exporter
 
 
 class SimpleCSVExporter(Exporter):
