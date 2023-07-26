@@ -3,6 +3,7 @@ from pathlib import Path
 from banal import is_mapping, hash_data
 from datetime import datetime
 from typing import Any, Dict, Generator, Optional, TypedDict, BinaryIO, cast
+from nomenklatura.util import datetime_iso
 
 from zavod.meta import Dataset
 from zavod.archive import dataset_resource_path, get_dataset_resource
@@ -44,9 +45,8 @@ class DatasetIssues(object):
         report_issue = data.pop("report_issue", True)
         if not report_issue:
             return
-        now = datetime.utcnow().isoformat()
         record = {
-            "timestamp": data.pop("timestamp", now),
+            "timestamp": datetime_iso(datetime.utcnow()),
             "module": data.pop("logger", None),
             "level": data.pop("level"),
             "message": data.pop("event", None),

@@ -3,6 +3,7 @@ from zavod.logs import configure_logging
 from zavod.archive import ISSUES_LOG, ISSUES_FILE, dataset_resource_path
 from zavod.context import Context
 from zavod.meta import Dataset
+from nomenklatura.util import iso_datetime
 
 
 def test_issue_logger(vdataset: Dataset):
@@ -39,6 +40,11 @@ def test_issue_logger(vdataset: Dataset):
     with open(issues_path, "r") as fh:
         data = json.load(fh)
         assert len(data["issues"]) == 2
+        for issue in data["issues"]:
+            assert issue["id"] is not None
+            assert iso_datetime(issue["timestamp"]) is not None
+            assert issue["level"] in ("warning", "error")
+            assert issue["dataset"] == vdataset.name
 
     context = Context(vdataset)
     context.begin(clear=True)
