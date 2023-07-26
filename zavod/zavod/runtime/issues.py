@@ -1,6 +1,6 @@
 import orjson
 from pathlib import Path
-from banal import is_mapping
+from banal import is_mapping, hash_data
 from datetime import datetime
 from typing import Any, Dict, Generator, Optional, TypedDict, BinaryIO, cast
 
@@ -58,6 +58,7 @@ class DatasetIssues(object):
         elif isinstance(entity, str):
             record["entity"] = {"id": entity}
         record["data"] = data
+        record["id"] = hash_data(record)
         out = orjson.dumps(record, option=orjson.OPT_APPEND_NEWLINE)
         self.fh.write(out)
 
