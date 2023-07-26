@@ -19,6 +19,7 @@ PathLike = Union[str, os.PathLike[str]]
 BLOB_CHUNK = 40 * 1024 * 1024
 STATEMENTS_FILE = "statements.pack"
 ISSUES_LOG = "issues.log"
+ISSUES_FILE = "issues.json"
 RESOURCES_FILE = "resources.json"
 INDEX_FILE = "index.json"
 

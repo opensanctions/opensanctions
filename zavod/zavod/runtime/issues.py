@@ -1,11 +1,12 @@
 import orjson
+from pathlib import Path
 from banal import is_mapping
 from datetime import datetime
 from typing import Any, Dict, Generator, Optional, TypedDict, BinaryIO, cast
 
 from zavod.meta import Dataset
 from zavod.archive import dataset_resource_path, get_dataset_resource
-from zavod.archive import ISSUES_LOG
+from zavod.archive import ISSUES_LOG, ISSUES_FILE
 
 
 class Issue(TypedDict):
@@ -64,6 +65,8 @@ class DatasetIssues(object):
         """Clear (delete) the issues log file."""
         self.close()
         self.path.unlink(missing_ok=True)
+        file_path = dataset_resource_path(self.dataset.name, ISSUES_FILE)
+        file_path.unlink(missing_ok=True)
 
     def close(self) -> None:
         """Close the issues log file."""
@@ -90,3 +93,11 @@ class DatasetIssues(object):
             if level is not None:
                 levels[level] = levels.get(level, 0) + 1
         return levels
+
+    def export(self, path: Optional[Path] = None) -> None:
+        """Export the issues log to a consolidated file."""
+        if path is None:
+            path = dataset_resource_path(self.dataset.name, ISSUES_FILE)
+        with open(path, "wb") as fh:
+            issues = list(self.all())
+            fh.write(orjson.dumps({"issues": issues}))
