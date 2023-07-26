@@ -1,6 +1,6 @@
 import json
 from zavod.logs import configure_logging
-from zavod.archive import ISSUES_LOG, ISSUES_FILE, dataset_resource_path
+from zavod.archive import ISSUES_FILE, dataset_resource_path
 from zavod.context import Context
 from zavod.meta import Dataset
 from nomenklatura.util import iso_datetime
@@ -19,7 +19,7 @@ def test_issue_logger(vdataset: Dataset):
         "This is a warning",
         foo="bar",
         person=entity.schema,
-        path=context.issues.path,
+        path=issues_path,
         entity=entity,
     )
     context.log.error("This is an error", qux="quux", entity="other")
@@ -32,7 +32,7 @@ def test_issue_logger(vdataset: Dataset):
     assert issues[0]["level"] == "warning"
     assert issues[0]["data"]["foo"] == "bar"
     assert issues[0]["data"]["person"] == "Person"
-    assert issues[0]["data"]["path"].endswith(ISSUES_LOG)
+    assert issues[0]["data"]["path"].endswith(ISSUES_FILE)
 
     issues_path.unlink()
     context.issues.export()
