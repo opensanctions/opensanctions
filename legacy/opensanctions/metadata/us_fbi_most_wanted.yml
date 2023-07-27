@@ -61,3 +61,9 @@ lookups:
         value: male
       - match: Female
         value: female
+  type.date:
+    lowercase: true
+    options:
+      - match:
+          - unknown
+        value: null

@@ -59,6 +59,9 @@ lookups:
     normalize: true
     options:
       - match:
+          - YYY
+        value: null
+      - match:
           - IRLANDE, ou EIRE
           - Irlande /Eire/
         values:
