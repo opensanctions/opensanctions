@@ -10,5 +10,5 @@ publisher:
   official: false
 url: https://github.com/opensanctions/opensanctions
 
-scopes:
+inputs:
   - validation

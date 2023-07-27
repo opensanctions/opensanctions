@@ -29,7 +29,7 @@ publisher:
   country: cy
   official: true
 
-scopes:
+inputs:
   - enrich_companies
 
 config:

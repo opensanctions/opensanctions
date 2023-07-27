@@ -25,8 +25,8 @@ class Dataset(NKDataset):
         self.disabled: bool = data.get("disabled", False)
         self.entry_point: Optional[str] = data.get("entry_point", None)
         self.config: Dict[str, Any] = ensure_dict(data.get("config", {}))
-        _scopes = ensure_list(data.get("scopes", []))
-        self._scopes: List[str] = [str(x) for x in _scopes]
+        _inputs = ensure_list(data.get("inputs", []))
+        self._inputs: List[str] = [str(x) for x in _inputs]
         self._data = data
         self.base_path: Optional[Path] = None
 
@@ -34,17 +34,17 @@ class Dataset(NKDataset):
         self._type: str = data.get("type", "source").lower().strip()
 
     @cached_property
-    def scope(self) -> Optional["Dataset"]:
+    def input(self) -> Optional["Dataset"]:
         """The scopes of a dataset is the set of other datasets on which analysis or
         enrichment should be performed by the runner."""
-        if not len(self._scopes):
+        if not len(self._inputs):
             return None
-        scopes = [self.catalog.require(s) for s in self._scopes]
-        if len(scopes) == 1:
-            return scopes[0]
+        inputs = [self.catalog.require(s) for s in self._inputs]
+        if len(inputs) == 1:
+            return inputs[0]
         # Weird: if there are many scopes, we're making up a synthetic collection
         # to group them together so that we can build a store and view for them.
-        names = sorted([s.name for s in scopes])
+        names = sorted([i.name for i in inputs])
         key = hash_data(".".join(names))
         name = f"scope_{key}"
         if not self.catalog.has(name):

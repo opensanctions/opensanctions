@@ -32,7 +32,7 @@ publisher:
     organization headquartered in Basel, Switzerland.
   url: https://www.gleif.org/en/about/this-is-gleif
 
-scopes:
+inputs:
   - enrich_companies
 
 config:

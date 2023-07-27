@@ -16,7 +16,7 @@ publisher:
   country: ee
   official: true
 
-scopes:
+inputs:
   - enrich_companies
 
 config:

@@ -14,7 +14,7 @@ publisher:
     The P.I. “Public Services Agency” is a holder of the basic state information resources.
   official: true
 
-scopes:
+inputs:
   - enrich_companies
 
 config:

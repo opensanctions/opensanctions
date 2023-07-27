@@ -27,7 +27,7 @@ publisher:
   country: ru
   official: true
 
-scopes:
+inputs:
   - enrich_companies
 
 config:
