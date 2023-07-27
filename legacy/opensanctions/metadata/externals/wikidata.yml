@@ -34,7 +34,7 @@ publisher:
   url: https://www.wikidata.org
   official: false
 
-scopes:
+inputs:
   # Warning: cannot include wd_peps here otherwise it gets too recursive
   - sanctions
   - eu_meps

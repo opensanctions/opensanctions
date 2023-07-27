@@ -37,7 +37,7 @@ def test_basic():
     assert test_ds.is_collection is False
     assert test_ds.data.url is not None
     assert test_ds.disabled is False
-    assert test_ds.scope is None
+    assert test_ds.input is None
     url = test_ds.make_public_url("foo")
     assert url.startswith("https://data.opensanctions.org/"), url
     assert url.endswith("/foo"), url
@@ -56,11 +56,12 @@ def test_basic():
 
 def test_validation(vdataset: Dataset):
     assert vdataset.name == "validation"
+    assert vdataset.publisher is not None
     assert vdataset.publisher.name == "OpenSanctions"
     assert vdataset.publisher.official is False
     assert len(vdataset.children) == 0
     assert len(vdataset.datasets) == 1
-    assert vdataset.scope is None
+    assert vdataset.input is None
 
 
 def test_validation_os_dict(vdataset: Dataset):
@@ -78,5 +79,5 @@ def test_validation_os_dict(vdataset: Dataset):
 
 
 def test_analyzer(analyzer: Dataset, vdataset: Dataset):
-    assert analyzer.scope is not None
-    assert analyzer.scope == vdataset
+    assert analyzer.input is not None
+    assert analyzer.input == vdataset

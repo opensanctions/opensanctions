@@ -24,7 +24,7 @@ publisher:
     primary output of the project.
   url: https://www.openstreetmap.org/about
 
-scopes:
+inputs:
   - default
 
 config:

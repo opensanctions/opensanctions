@@ -17,7 +17,7 @@ publisher:
     in the territory of the Republic of Latvia.
   official: true
 
-scopes:
+inputs:
   - enrich_companies
 
 config:

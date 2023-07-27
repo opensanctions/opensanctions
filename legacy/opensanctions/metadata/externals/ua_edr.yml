@@ -40,7 +40,7 @@ publisher:
   country: ua
   official: true
 
-scopes:
+inputs:
   - enrich_companies
 
 config:

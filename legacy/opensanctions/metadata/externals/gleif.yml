@@ -1,4 +1,4 @@
-type: external]
+type: external
 entry_point: zavod.runner.enrich:enrich
 title: Legal Entity Identifier (LEI) Reference Data
 export: false
@@ -32,7 +32,7 @@ publisher:
     organization headquartered in Basel, Switzerland.
   url: https://www.gleif.org/en/about/this-is-gleif
 
-scopes:
+inputs:
   - enrich_companies
 
 config:

@@ -60,10 +60,10 @@ def save_match(
 
 
 def enrich(context: Context) -> None:
-    if context.dataset.scope is None:
-        msg = "No enrichment scope defined for dataset: %s" % context.dataset.name
+    if context.dataset.input is None:
+        msg = "No enrichment input defined for dataset: %s" % context.dataset.name
         raise RuntimeError(msg)
-    view = get_view(context.dataset.scope)
+    view = get_view(context.dataset.input)
     resolver = get_resolver()
     enricher = dataset_enricher(context.dataset, context.cache)
     threshold = float(context.dataset.config.get("threshold", 0.7))

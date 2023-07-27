@@ -24,7 +24,7 @@ publisher:
   country: gb
   official: true
 
-scopes:
+inputs:
   - enrich_companies
 
 config:

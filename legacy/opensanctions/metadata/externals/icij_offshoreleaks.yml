@@ -32,7 +32,7 @@ publisher:
   url: https://www.icij.org/about/
   official: false
 
-scopes:
+inputs:
   - enrich_companies
 
 config:
