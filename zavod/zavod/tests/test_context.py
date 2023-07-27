@@ -54,6 +54,16 @@ def test_context_helpers(vdataset: Dataset):
     assert context.data_time_iso == other.isoformat(sep="T", timespec="seconds")
 
 
+def test_context_dry_run(vdataset: Dataset):
+    context = Context(vdataset, dry_run=True)
+    assert context.dataset == vdataset
+    context.begin(clear=True)
+    assert context.dry_run
+    context.log.error("Test error")
+    context.close()
+    assert list(context.issues.all()) == []
+
+
 def test_context_fetchers(vdataset: Dataset):
     context = Context(vdataset)
 
