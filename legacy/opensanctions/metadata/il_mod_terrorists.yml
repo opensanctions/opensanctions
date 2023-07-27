@@ -82,6 +82,7 @@ lookups:
       - match:
           - לינק להכרזה
           - בוטל ביום
+          - הכרזה בוטלה
         value: null
       - match: 1/1/67
         value: "1967-01-01"
