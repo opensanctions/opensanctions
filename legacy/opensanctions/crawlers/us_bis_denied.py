@@ -1,4 +1,5 @@
 import csv
+from followthemoney.types import registry
 
 from zavod import Context
 from opensanctions import helpers as h
@@ -14,13 +15,14 @@ def parse_row(context: Context, row):
     entity.add("country", row.get("Country"))
     entity.add("modifiedAt", row.get("Last_Update"))
 
+    country_code = registry.country.clean(row.get("Country"))
     address = h.make_address(
         context,
         street=row.get("Street_Address"),
         postal_code=row.get("Postal_Code"),
         city=row.get("City"),
         region=row.get("State"),
-        country=row.get("Country"),
+        country_code=country_code,
     )
     h.apply_address(context, entity, address)
     context.emit(entity, target=True)

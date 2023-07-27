@@ -379,7 +379,9 @@ class Context:
         if text is not None:
             self.log.info(text)
 
-    def audit_data(self, data: Dict[str, Any], ignore: List[str] = []) -> None:
+    def audit_data(
+        self, data: Dict[Optional[str], Any], ignore: List[Optional[str]] = []
+    ) -> None:
         """Print the formatted data object if it contains any fields not explicitly
         excluded by the ignore list. This is used to warn about unexpected data in
         the source by removing the fields one by one and then inspecting the rest.

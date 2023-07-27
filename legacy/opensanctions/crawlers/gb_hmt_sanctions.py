@@ -191,11 +191,14 @@ def parse_row(context: Context, row):
         sep=", ",
     )
 
+    country_name = first(countries)
+    if country_name == "UK":  # Ukraine is a whole thing, people.
+        country_name = "United Kingdom"
     address = h.make_address(
         context,
         full=full_address,
         postal_code=row.pop("PostCode", None),
-        country=first(countries),
+        country=country_name,
     )
     h.apply_address(context, entity, address)
 

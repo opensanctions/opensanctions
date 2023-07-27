@@ -107,6 +107,13 @@ def make_address(
     city = join_text(place, city, sep=", ")
     street = join_text(street, street2, street3, sep=", ")
 
+    if country is not None and len(country.strip()) == 2:
+        context.log.warn(
+            "Country name looks like a country code",
+            country=country,
+            country_code=country_code,
+        )
+
     address = context.make("Address")
     address.add("full", full, lang=lang)
     address.add("remarks", remarks, lang=lang)

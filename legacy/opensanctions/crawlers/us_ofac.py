@@ -3,7 +3,7 @@
 from functools import cache
 from banal import first, as_bool
 from collections import defaultdict
-from typing import Optional, Dict, Union, List, Tuple
+from typing import Optional, Dict, Union, List, Tuple, Set
 from lxml.etree import _Element as Element
 from os.path import commonprefix
 from prefixdate import parse_parts
@@ -49,7 +49,7 @@ SANCTION_FEATURES = {
     "Executive Order 13846 information:": "summary",
     "Additional Sanctions Information -": "summary",
     "Secondary sanctions risk:": "summary",
-    "Transactions Prohibited For Persons Owned or Controlled By U.S. Financial Institutions:": "summary",
+    "Transactions Prohibited For Persons Owned or Controlled By U.S. Financial Institutions:": "summary",  # noqa
     "IFCA Determination -": "summary",
     "PEESA Information:": "summary",
     "Effective Date (CMIC)": "startDate",
@@ -88,12 +88,9 @@ def get_ref_text(refs: Element, type_: str, id: str) -> Optional[str]:
 
 
 @cache
-def get_ref_country(refs: Element, id: str) -> str:
+def get_ref_country(refs: Element, id: str) -> Optional[str]:
     element = get_ref_element(refs, "Country", id)
-    iso2 = element.get("ISO2")
-    if iso2 is not None:
-        return iso2.lower()
-    return element.text
+    return element.text or element.get("ISO2")
 
 
 def parse_date(el: Element) -> str:
@@ -135,32 +132,31 @@ def parse_date_period(date: Element) -> Tuple[str, ...]:
 
 
 def parse_location(context: Context, refs: Element, location: Element) -> Entity:
-    countries = set()
+    countries: Set[Optional[str]] = set()
     for area in location.findall("./LocationAreaCode"):
         area_code = get_ref_element(refs, "AreaCode", area.get("AreaCodeID"))
-        area_country = registry.country.clean(area_code.get("Description"))
-        countries.add(area_country)
+        countries.add(area_code.get("Description"))
 
     for loc_country in location.findall("./LocationCountry"):
         country = get_ref_country(refs, loc_country.get("CountryID"))
-        country_code = registry.country.clean(country)
-        countries.add(country_code)
+        countries.add(country)
 
-    if len(countries) > 1:
-        context.log.warn("Multiple countries", countries=countries)
+    country_names = [c for c in countries if c not in ("undetermined", None)]
+    if len(country_names) > 1:
+        context.log.warn("Multiple countries", countries=country_names)
 
     parts: Dict[Optional[str], Optional[str]] = {}
     for part in location.findall("./LocationPart"):
         part_type = get_ref_text(refs, "LocPartType", part.get("LocPartTypeID"))
         parts[part_type] = part.findtext("./LocationPartValue/Value")
 
-    country = first(countries)
+    country_name = first(country_names)
     unknown = parts.pop("Unknown", None)
     if registry.country.clean(unknown, fuzzy=True):
-        country = unknown
+        country_name = unknown
 
-    if country == "undetermined":
-        country = unknown = None
+    if country_name is None and unknown is not None:
+        context.log.warning("Unknown country, but have text", unknown=unknown)
 
     address = h.make_address(
         context,
@@ -172,7 +168,7 @@ def parse_location(context: Context, refs: Element, location: Element) -> Entity
         postal_code=parts.pop("POSTAL CODE", None),
         region=parts.pop("REGION", None),
         state=parts.pop("STATE/PROVINCE", None),
-        country=country,
+        country_code=country_name,
         key=location.get("ID"),
     )
     context.audit_data(parts)
@@ -204,7 +200,7 @@ def parse_relation(
     try:
         get_relation_schema(parties[from_id], from_prop.range)
         get_relation_schema(parties[to_id], to_prop.range)
-    except InvalidData as exc:
+    except InvalidData:
         # HACK: Looks like OFAC just has some link in a direction that makes no
         # semantic sense, so we're flipping them here.
         # context.log.warning(
