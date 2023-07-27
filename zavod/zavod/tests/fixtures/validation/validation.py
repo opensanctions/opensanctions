@@ -66,3 +66,5 @@ def crawl(context: Context):
     with open(data_path, "r") as fh:
         for row in csv.DictReader(fh):
             crawl_row(context, row)
+
+    context.log.warn("This is a test warning")

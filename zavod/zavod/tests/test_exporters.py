@@ -9,7 +9,7 @@ from json import load, loads
 from csv import DictReader
 
 def test_export(vdataset: Dataset):
-    stats = run_dataset(vdataset)
+    run_dataset(vdataset)
     export(vdataset.name)
 
     expected_resources = [
