@@ -28,11 +28,14 @@ def test_context_helpers(vdataset: Dataset):
     entity = context.make("Person")
     assert isinstance(entity, Entity)
     assert entity.schema.name == "Person"
+    assert entity.dataset == vdataset
 
     with pytest.raises(ValueError):
         context.emit(entity)
 
-    assert context.lookup("plants", "banana").value == "Fruit"
+    result = context.lookup("plants", "banana")
+    assert result is not None
+    assert result.value == "Fruit"
     assert context.lookup_value("plants", "potato") == "Vegetable"
     assert context.lookup_value("plants", "stone") is None
 
@@ -49,6 +52,16 @@ def test_context_helpers(vdataset: Dataset):
     other = datetime(2020, 1, 1)
     context.data_time = other
     assert context.data_time_iso == other.isoformat(sep="T", timespec="seconds")
+
+
+def test_context_dry_run(vdataset: Dataset):
+    context = Context(vdataset, dry_run=True)
+    assert context.dataset == vdataset
+    context.begin(clear=True)
+    assert context.dry_run
+    context.log.error("Test error")
+    context.close()
+    assert list(context.issues.all()) == []
 
 
 def test_context_fetchers(vdataset: Dataset):

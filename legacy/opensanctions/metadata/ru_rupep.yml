@@ -71,6 +71,9 @@ lookups:
         value: role.pep
       - match: International organization Politically Exposed Person
         value: gov.igo
+      - match:
+          - Person under sanctions
+        value: sanction
 
   person_relations:
     options:

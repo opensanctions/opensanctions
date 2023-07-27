@@ -27,12 +27,13 @@ class DatasetIssues(object):
 
     def __init__(self, dataset: Dataset) -> None:
         self.dataset = dataset
-        self.path = dataset_resource_path(dataset.name, ISSUES_LOG)
         self.fh: Optional[BinaryIO] = None
+        get_dataset_resource(self.dataset, ISSUES_LOG)
 
     def write(self, event: Dict[str, Any]) -> None:
         if self.fh is None:
-            self.fh = open(self.path, "ab")
+            path = dataset_resource_path(self.dataset.name, ISSUES_LOG)
+            self.fh = open(path, "ab")
         data = dict(event)
         for key, value in data.items():
             if key == "dataset" and value == self.dataset.name:
@@ -67,7 +68,9 @@ class DatasetIssues(object):
     def clear(self) -> None:
         """Clear (delete) the issues log file."""
         self.close()
-        self.path.unlink(missing_ok=True)
+        log_path = dataset_resource_path(self.dataset.name, ISSUES_LOG)
+        with open(log_path, "w") as fh:
+            fh.flush()
         file_path = dataset_resource_path(self.dataset.name, ISSUES_FILE)
         file_path.unlink(missing_ok=True)
 

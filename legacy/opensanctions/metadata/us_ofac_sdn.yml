@@ -399,6 +399,12 @@ lookups:
     options:
       - match: None Identified
         value: null
+      - match: Netherlands Antilles
+        value: null
+      - match: "Region: Gaza"
+        value: PS
+      - match: "Region: Northern Mali"
+        value: Mali
   type.gender:
     lowercase: true
     normalize: true

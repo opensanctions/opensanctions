@@ -43,15 +43,24 @@ def run(dataset_path: Path, dry_run: bool = False) -> None:
 @click.argument("dataset_path", type=InPath)
 @click.argument("database_uri", type=str)
 @click.option("--batch-size", type=int, default=5000)
-def load_db(dataset_path: Path, database_uri: str, batch_size: int = 5000) -> None:
+@click.option("-x", "--external", is_flag=True, default=False)
+def load_db(
+    dataset_path: Path,
+    database_uri: str,
+    batch_size: int = 5000,
+    external: bool = False,
+) -> None:
     dataset = _load_dataset(dataset_path)
-    load_dataset_to_db(dataset, database_uri, batch_size=batch_size)
+    load_dataset_to_db(dataset, database_uri, batch_size=batch_size, external=external)
 
 
 @cli.command("dump-file", help="Dump dataset statements from the archive to a file")
 @click.argument("dataset_path", type=InPath)
 @click.argument("out_path", type=OutPath)
 @click.option("-f", "--format", type=STMT_FORMATS, default=CSV)
-def dump_file(dataset_path: Path, out_path: Path, format: str) -> None:
+@click.option("-x", "--external", is_flag=True, default=False)
+def dump_file(
+    dataset_path: Path, out_path: Path, format: str, external: bool = False
+) -> None:
     dataset = _load_dataset(dataset_path)
-    dump_dataset_to_file(dataset, out_path, format=format.lower())
+    dump_dataset_to_file(dataset, out_path, format=format.lower(), external=external)

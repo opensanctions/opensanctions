@@ -13,7 +13,8 @@ def test_make_address_helper(vcontext: Context):
         country="United States of America",
     )
     assert "us" in addr.get("country")
-    assert addr.first("full") == "123 Main St, Springfield, 12345"
+    expect = "123 Main St, Springfield, 12345, United States of America"
+    assert addr.first("full") == expect
     assert addr.id is not None
     assert addr.id.startswith("addr-")
 

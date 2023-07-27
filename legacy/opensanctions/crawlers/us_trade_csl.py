@@ -4,6 +4,7 @@ from banal import ensure_list
 from functools import cache
 from pantomime.types import JSON
 from requests.exceptions import RequestException
+from followthemoney.types import registry
 
 from zavod import Context
 from opensanctions import helpers as h
@@ -98,13 +99,14 @@ def parse_result(context: Context, result: Dict[str, Any]):
     assert not result.pop("vessel_type", None)
 
     for address in result.pop("addresses", []):
+        country_code = registry.country.clean(address.get("country"))
         obj = h.make_address(
             context,
             street=address.get("address"),
             city=address.get("city"),
             postal_code=address.get("postal_code"),
             region=address.get("state"),
-            country=address.get("country"),
+            country_code=country_code,
         )
         h.apply_address(context, entity, obj)
 
