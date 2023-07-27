@@ -107,12 +107,17 @@ def make_address(
     city = join_text(place, city, sep=", ")
     street = join_text(street, street2, street3, sep=", ")
 
+    # This is meant to handle cases where the country field contains a country code
+    # in a subset of the given records:
     if country is not None and len(country.strip()) == 2:
         context.log.warn(
             "Country name looks like a country code",
             country=country,
             country_code=country_code,
         )
+        if country_code is None:
+            country_code = country
+            country = None
 
     address = context.make("Address")
     address.add("full", full, lang=lang)
