@@ -1,4 +1,4 @@
-from zavod.export import export
+from zavod.exporters import export
 from zavod.context import Context
 from zavod.store import View, get_store, get_view
 from zavod.meta import Dataset
@@ -7,7 +7,6 @@ from zavod import settings
 from followthemoney.cli.util import read_entities
 from json import load, loads
 from csv import DictReader
-
 
 def test_export(vdataset: Dataset):
     stats = run_dataset(vdataset)

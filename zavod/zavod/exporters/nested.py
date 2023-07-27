@@ -1,4 +1,4 @@
-from zavod.export.common import Exporter
+from zavod.exporters.common import Exporter
 from zavod.util import write_json
 
 

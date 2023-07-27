@@ -20,7 +20,7 @@ from zavod.tools.metadata import export_metadata
 from zavod.exc import RunFailedException
 from opensanctions.core.catalog import get_catalog, get_dataset_names
 from opensanctions.core.training import export_training_pairs
-from zavod.export import export
+from zavod.exporters import export
 from zavod.util import write_json
 
 log = get_logger(__name__)

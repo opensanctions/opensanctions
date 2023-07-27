@@ -6,7 +6,7 @@ from followthemoney.util import join_text
 
 from zavod.entity import Entity
 from zavod.meta import get_catalog
-from zavod.export.common import Exporter
+from zavod.exporters.common import Exporter
 
 
 class SimpleCSVExporter(Exporter):

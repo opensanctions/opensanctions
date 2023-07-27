@@ -4,14 +4,14 @@ from zavod.logs import get_logger
 from zavod.store import View, get_store
 from zavod.context import Context
 from zavod.meta import Dataset, get_catalog
-from zavod.export.common import Exporter
-from zavod.export.ftm import FtMExporter
-from zavod.export.nested import NestedJSONExporter
-from zavod.export.names import NamesExporter
-from zavod.export.simplecsv import SimpleCSVExporter
-from zavod.export.senzing import SenzingExporter
-from zavod.export.statistics import StatisticsExporter
-from zavod.export.metadata import dataset_to_index
+from zavod.exporters.common import Exporter
+from zavod.exporters.ftm import FtMExporter
+from zavod.exporters.nested import NestedJSONExporter
+from zavod.exporters.names import NamesExporter
+from zavod.exporters.simplecsv import SimpleCSVExporter
+from zavod.exporters.senzing import SenzingExporter
+from zavod.exporters.statistics import StatisticsExporter
+from zavod.exporters.metadata import dataset_to_index
 from zavod.util import write_json
 
 log = get_logger(__name__)

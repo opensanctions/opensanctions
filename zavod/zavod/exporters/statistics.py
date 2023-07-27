@@ -5,7 +5,7 @@ from followthemoney import model
 from followthemoney.types import registry
 
 from zavod.entity import Entity
-from zavod.export.common import Exporter
+from zavod.exporters.common import Exporter
 
 
 def get_schema_facets(schemata: Dict[str, int]) -> List[Any]:
