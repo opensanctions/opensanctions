@@ -11,7 +11,7 @@ from zavod.exporters.names import NamesExporter
 from zavod.exporters.simplecsv import SimpleCSVExporter
 from zavod.exporters.senzing import SenzingExporter
 from zavod.exporters.statistics import StatisticsExporter
-from zavod.exporters.metadata import dataset_to_index
+from zavod.exporters.metadata import write_dataset_index
 from zavod.util import write_json
 
 log = get_logger(__name__)
@@ -68,11 +68,8 @@ def export_dataset(dataset: Dataset, view: View) -> None:
             write_json(data, fh)
 
         # Export full metadata
-        index_path = context.get_resource_path("index.json")
-        context.log.info("Writing dataset index", path=index_path)
-        with open(index_path, "wb") as fh:
-            meta = dataset_to_index(dataset)
-            write_json(meta, fh)
+        write_dataset_index(context, dataset)
+
     finally:
         context.close()
 

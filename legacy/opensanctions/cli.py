@@ -69,7 +69,7 @@ def export_(dataset: str, recurse: bool = False):
 @click.argument("dataset", default=ALL_SCOPE, type=datasets)
 def export_metadata_(dataset: str):
     dataset_ = get_catalog().require(dataset)
-    export_metadata(dataset_)
+    export_index(dataset_)
 
 
 @cli.command("clear-workdir", help="Delete the working path and cached source data")
