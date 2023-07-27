@@ -47,3 +47,10 @@ lookups:
         value: Guinea
       - match: Unknown
         value: null
+  type.date:
+    lowercase: true
+    options:
+      - match:
+          - Until Further Notice
+          - Indefinitely
+        value: null
