@@ -18,13 +18,13 @@ class Exporter(object):
         self.path = context.get_resource_path(self.resource_name)
         self.view = view
 
-    def setup(self):
+    def setup(self) -> None:
         pass
 
-    def feed(self, entity: Entity):
+    def feed(self, entity: Entity) -> None:
         raise NotImplementedError()
 
-    def finish(self):
+    def finish(self) -> None:
         try:
             resource = self.context.export_resource(
                 self.path,

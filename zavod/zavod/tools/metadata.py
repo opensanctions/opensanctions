@@ -8,6 +8,7 @@ from zavod.runtime.issues import DatasetIssues
 from zavod import settings
 from urllib.parse import urljoin
 from nomenklatura.matching import MatcherV1
+import json
 
 log = get_logger(__name__)
 

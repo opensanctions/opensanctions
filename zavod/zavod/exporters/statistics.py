@@ -1,6 +1,6 @@
 import json
 from collections import defaultdict
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Set
 from followthemoney import model
 from followthemoney.types import registry
 
@@ -42,11 +42,11 @@ class StatisticsExporter(Exporter):
     EXTENSION = "json"
     MIME_TYPE = "application/json"
 
-    def setup(self):
+    def setup(self) -> None:
         super().setup()
         self.entity_count = 0
         self.last_change: Optional[str] = None
-        self.schemata = set()
+        self.schemata: Set[str] = set()
 
         self.thing_count = 0
         self.thing_countries: Dict[str, int] = defaultdict(int)
@@ -56,7 +56,7 @@ class StatisticsExporter(Exporter):
         self.target_countries: Dict[str, int] = defaultdict(int)
         self.target_schemata: Dict[str, int] = defaultdict(int)
 
-    def feed(self, entity: Entity):
+    def feed(self, entity: Entity) -> None:
         self.entity_count += 1
         self.schemata.add(entity.schema.name)
 
@@ -78,7 +78,7 @@ class StatisticsExporter(Exporter):
             else:
                 self.last_change = max(self.last_change, entity.last_change)
 
-    def finish(self):
+    def finish(self) -> None:
         stats = {
             "last_change": self.last_change,
             "schemata": list(self.schemata),

@@ -1,5 +1,5 @@
 import json
-from typing import Any, Dict
+from typing import Any, Dict, cast
 
 from zavod import settings
 from zavod.logs import get_logger
@@ -13,11 +13,11 @@ log = get_logger(__name__)
 
 def get_dataset_statistics(dataset: Dataset) -> Dict[str, Any]:
     statistics_path = get_dataset_resource(dataset, "statistics.json")
-    if not statistics_path.exists():
+    if statistics_path is None or not statistics_path.exists():
         log.error("No statistics file found", dataset=dataset.name)
         return {}
     with open(statistics_path, "r") as fh:
-        return json.load(fh)
+        return cast(Dict[str, Any], json.load(fh))
 
 
 def dataset_to_index(dataset: Dataset) -> Dict[str, Any]:

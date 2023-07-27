@@ -28,7 +28,7 @@ EXPORTERS: List[Type[Exporter]] = [
 __all__ = ["export_dataset"]
 
 
-def export_data(context: Context, view: View):
+def export_data(context: Context, view: View) -> None:
     clazzes = EXPORTERS
     if not context.dataset.export:
         clazzes = [StatisticsExporter]
@@ -52,7 +52,7 @@ def export_data(context: Context, view: View):
         exporter.finish()
 
 
-def export_dataset(dataset: Dataset, view: View):
+def export_dataset(dataset: Dataset, view: View) -> None:
     """Dump the contents of the dataset to the output directory."""
     try:
         context = Context(dataset)

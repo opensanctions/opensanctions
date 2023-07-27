@@ -1,6 +1,6 @@
 import io
 import csv
-from typing import List
+from typing import List, Iterable
 from followthemoney.types import registry
 from followthemoney.util import join_text
 
@@ -33,7 +33,7 @@ class SimpleCSVExporter(Exporter):
         "last_change",
     ]
 
-    def concat_values(self, values):
+    def concat_values(self, values: Iterable[str]) -> str:
         output = io.StringIO()
         writer = csv.writer(
             output,
@@ -45,7 +45,7 @@ class SimpleCSVExporter(Exporter):
         writer.writerow(sorted(values))
         return output.getvalue()
 
-    def sanction_text(self, sanction):
+    def sanction_text(self, sanction: Entity) -> str:
         value = join_text(
             *sanction.get("program"),
             *sanction.get("reason"),
@@ -56,13 +56,13 @@ class SimpleCSVExporter(Exporter):
         )
         return value or ""
 
-    def setup(self):
+    def setup(self) -> None:
         super().setup()
         self.fh = open(self.path, "w")
         self.writer = csv.writer(self.fh, dialect=csv.unix_dialect)
         self.writer.writerow(self.HEADERS)
 
-    def feed(self, entity: Entity):
+    def feed(self, entity: Entity) -> None:
         if not entity.target:
             return
         countries = set(entity.get_type_values(registry.country))
@@ -106,6 +106,6 @@ class SimpleCSVExporter(Exporter):
         ]
         self.writer.writerow(row)
 
-    def finish(self):
+    def finish(self) -> None:
         self.fh.close()
         super().finish()
