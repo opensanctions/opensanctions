@@ -181,6 +181,13 @@ lookups:
         value: Moscow
   type.date:
     options:
+      - match:
+          - 15.01.196
+          - 19.10.yyyy
+          - 29.07.yyyy
+          - "--"
+          - невідомо
+        value: null
       - match: 21.03.1965to20.03.1966
         values:
           - 1965-03-21
@@ -209,11 +216,6 @@ lookups:
         values:
           - 1981-05-07
           - 1979-05-07
-      - match:
-          - 15.01.196
-          - 19.10.yyyy
-          - 29.07.yyyy
-        value: null
       - match: 23.11.1961р.н
         value: "1961-11-23"
       - match: 24.11.1988р
