@@ -13,6 +13,7 @@ settings.ARCHIVE_BUCKET = None
 settings.CACHE_DATABASE_URI = None
 FIXTURES_PATH = Path(__file__).parent / "fixtures"
 VALIDATION_YML = FIXTURES_PATH / "validation" / "validation.yml"
+COLLECTION_YML = FIXTURES_PATH / "validation" / "collection.yml"
 ANALYZER_YML = FIXTURES_PATH / "analyzer.yml"
 ENRICHER_YML = FIXTURES_PATH / "enricher.yml"
 XML_DOC = FIXTURES_PATH / "doc.xml"
@@ -30,6 +31,13 @@ def clear_catalog():
 @pytest.fixture(scope="function")
 def vdataset() -> Dataset:
     dataset = load_dataset_from_path(VALIDATION_YML)
+    assert dataset is not None
+    return dataset
+
+
+@pytest.fixture(scope="function")
+def vcollection() -> Dataset:
+    dataset = load_dataset_from_path(COLLECTION_YML)
     assert dataset is not None
     return dataset
 

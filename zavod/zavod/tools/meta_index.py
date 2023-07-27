@@ -13,7 +13,7 @@ import json
 log = get_logger(__name__)
 
 
-def export_metadata(scope: Dataset) -> None:
+def export_index(scope: Dataset) -> None:
     """Export the global index for all datasets in the given scope."""
     base_path = datasets_path()
     datasets = []

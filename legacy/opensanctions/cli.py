@@ -16,7 +16,7 @@ from zavod.store import get_store
 from zavod.archive import dataset_path
 from zavod.dedupe import get_resolver, blocking_xref
 from zavod.tools.dump_file import dump_dataset_to_file
-from zavod.tools.metadata import export_metadata
+from zavod.tools.meta_index import export_index
 from zavod.exc import RunFailedException
 from opensanctions.core.catalog import get_catalog, get_dataset_names
 from opensanctions.core.training import export_training_pairs

@@ -1,0 +1,7 @@
+type: collection
+title: A test collection for testing collection thingies
+summary: >
+  This is not real data. It is test stuffies.
+children:
+  - validation
+  - test_datast_2
