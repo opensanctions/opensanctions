@@ -1,6 +1,6 @@
 import pytest
 from zavod.context import Context
-from zavod.parse.sanctions import make_sanction
+from zavod.helpers.sanctions import make_sanction
 
 
 def test_sanctions_helper(vcontext: Context):

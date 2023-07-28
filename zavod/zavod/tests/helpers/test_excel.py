@@ -1,5 +1,5 @@
 import xlrd  # type: ignore
-from zavod.parse.excel import convert_excel_cell
+from zavod.helpers.excel import convert_excel_cell
 from zavod.tests.conftest import FIXTURES_PATH
 
 XLS_BOOK = FIXTURES_PATH / "book.xls"

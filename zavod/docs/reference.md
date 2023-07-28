@@ -6,7 +6,7 @@
 
 ## Helpers
 
-::: zavod.parse
+::: zavod.helpers
 
 ## Entity
 

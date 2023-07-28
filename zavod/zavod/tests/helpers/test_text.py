@@ -1,4 +1,4 @@
-from zavod.parse.text import multi_split, remove_bracketed, is_empty, clean_note
+from zavod.helpers.text import multi_split, remove_bracketed, is_empty, clean_note
 
 
 def test_multi_split():

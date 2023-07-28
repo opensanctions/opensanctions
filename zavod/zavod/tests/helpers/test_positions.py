@@ -1,6 +1,6 @@
-from zavod.parse import make_position
 from zavod.context import Context
 from zavod.meta import Dataset
+from zavod.helpers.positions import make_position
 
 
 def test_make_position(vdataset: Dataset):
