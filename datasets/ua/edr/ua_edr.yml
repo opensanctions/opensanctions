@@ -1,0 +1,22 @@
+name: ua_edr
+title: Ukraine Consolidated State Registry (Edinyy Derzhavnyj Reestr)
+prefix: ua-edr
+entry_point: parse.py
+summary: |
+  The beneficial ownership database of legal entities registered in Ukraine (EDR)
+coverage:
+  end: 2022-02-23
+resources:
+  - name: entities.ftm.json
+    url: https://data.opensanctions.org/graph/ua_edr/entities.ftm.json
+    mime_type: application/json+ftm
+publisher:
+  name: Ministry of Justice of Ukraine
+  description: |
+    The database is managed and - in peacetime - published by the Department
+    for State Registration and Notariat.
+  url: https://usr.minjust.gov.ua/
+  country: ua
+data:
+  url: "https://data.opensanctions.org/contrib/ua_edr/23022022.zip"
+  format: XML
