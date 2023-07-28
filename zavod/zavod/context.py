@@ -414,7 +414,7 @@ class Context:
         self.stats.entities += 1
         if target:
             self.stats.targets += 1
-        if self.stats.entities % 1000 == 0:
+        if self.stats.entities % 10000 == 0:
             self.log.info(
                 "Emitted %s entities" % self.stats.entities,
                 targets=self.stats.targets,
