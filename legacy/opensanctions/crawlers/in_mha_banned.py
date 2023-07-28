@@ -3,7 +3,7 @@ from normality import collapse_spaces
 from pantomime.types import HTML
 
 from zavod import Context
-from opensanctions import helpers as h
+from zavod import helpers as h
 
 CLEAN = [
     ", all its formations and front organizations.",

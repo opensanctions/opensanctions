@@ -3,7 +3,7 @@ from lxml.etree import _Element
 from normality import slugify
 
 from zavod import Context
-from opensanctions import helpers as h
+from zavod import helpers as h
 
 base_url = "https://www.politie.nl/"
 

@@ -6,7 +6,7 @@ from typing import Any, Dict, Generator
 from pantomime.types import ZIP
 
 from zavod import Context
-from opensanctions import helpers as h
+from zavod import helpers as h
 
 HEADERS = [
     "name_eng",

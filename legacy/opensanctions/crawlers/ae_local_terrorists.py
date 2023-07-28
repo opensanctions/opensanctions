@@ -6,7 +6,7 @@ from urllib.parse import urljoin
 from pantomime.types import XLS
 
 from zavod import Context
-from opensanctions import helpers as h
+from zavod import helpers as h
 
 
 def parse_row(context: Context, headers: List[str], row: List[str]):

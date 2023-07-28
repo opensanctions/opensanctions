@@ -3,7 +3,7 @@ from typing import Dict
 from pantomime.types import CSV
 
 from zavod import Context
-from opensanctions import helpers as h
+from zavod import helpers as h
 
 
 def crawl_row(context: Context, row: Dict[str, str]):

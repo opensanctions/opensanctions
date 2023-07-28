@@ -3,7 +3,7 @@ from typing import Dict
 from pantomime.types import JSON
 
 from zavod import Context, Entity
-from opensanctions import helpers as h
+from zavod import helpers as h
 
 
 URL = "https://repet.jus.gob.ar/xml/%s.json"

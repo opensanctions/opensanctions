@@ -4,7 +4,7 @@ from prefixdate import parse_parts
 from pantomime.types import JSON
 
 from zavod import Context, Entity
-from opensanctions import helpers as h
+from zavod import helpers as h
 
 SCHEMATA = {
     "Personne physique": "Person",

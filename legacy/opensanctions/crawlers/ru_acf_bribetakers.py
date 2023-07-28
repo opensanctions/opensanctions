@@ -4,7 +4,7 @@ from typing import Any, Dict, Iterable, Optional
 from pantomime.types import JSON
 
 from zavod import Context
-from opensanctions import helpers as h
+from zavod import helpers as h
 
 NO_YEAR = re.compile(r"^\d{1,2}\.\d{1,2}\.?$")
 DATE_FORMATS = ["%d.%m.%Y", "%d-%m-%Y"]

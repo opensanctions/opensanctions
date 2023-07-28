@@ -15,7 +15,7 @@ from zavod.util import ElementOrTree
 
 from zavod import Context, Entity
 from opensanctions.core import get_catalog
-from opensanctions import helpers as h
+from zavod import helpers as h
 
 FeatureValue = Union[str, Entity]
 FeatureValues = List[FeatureValue]

@@ -5,7 +5,7 @@ from urllib.parse import urljoin
 from requests.exceptions import HTTPError
 
 from zavod import Context
-from opensanctions import helpers as h
+from zavod import helpers as h
 
 
 class AbortCrawl(Exception):

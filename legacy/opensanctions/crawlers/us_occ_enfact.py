@@ -2,7 +2,7 @@ import json
 from pantomime.types import JSON
 
 from zavod import Context
-from opensanctions import helpers as h
+from zavod import helpers as h
 
 IGNORE = [
     "TerminationDate",

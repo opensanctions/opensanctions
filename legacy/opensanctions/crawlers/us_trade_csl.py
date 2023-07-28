@@ -7,7 +7,7 @@ from requests.exceptions import RequestException
 from followthemoney.types import registry
 
 from zavod import Context
-from opensanctions import helpers as h
+from zavod import helpers as h
 
 FORMATS = ["%d %b %Y", "%d %B %Y", "%Y", "%b %Y", "%B %Y"]
 

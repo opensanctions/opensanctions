@@ -6,7 +6,7 @@ from typing import Any, Dict
 from pantomime.types import XLSX
 
 from zavod import Context, Entity
-from opensanctions import helpers as h
+from zavod import helpers as h
 
 SCOPES = [
     "Aircraft Ban",

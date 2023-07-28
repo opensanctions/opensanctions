@@ -1,7 +1,7 @@
 from pantomime.types import XML
 
 from zavod import Context
-from opensanctions import helpers as h
+from zavod import helpers as h
 
 
 def crawl(context: Context):

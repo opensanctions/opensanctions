@@ -2,7 +2,7 @@ from typing import Optional
 from lxml.etree import _Element as Element
 
 from zavod import Context, Entity
-from opensanctions import helpers as h
+from zavod import helpers as h
 
 FORMATS = ["%d.%m.%Y", "%Y%m%d", "%Y-%m-%d"]
 

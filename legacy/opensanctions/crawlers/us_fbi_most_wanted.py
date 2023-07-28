@@ -4,7 +4,7 @@ from itertools import count
 from typing import Optional
 
 from zavod import Context
-from opensanctions import helpers as h
+from zavod import helpers as h
 
 FORMATS = (
     "%B %d, %Y",

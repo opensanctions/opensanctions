@@ -5,7 +5,7 @@ from typing import Dict, Optional
 from followthemoney.helpers import check_person_cutoff, post_summary
 
 from zavod import Context
-from opensanctions import helpers as h
+from zavod import helpers as h
 
 
 PHONE_SPLITS = [",", "/", "(1)", "(2)", "(3)", "(4)", "(5)", "(6)", "(7)", "(8)"]

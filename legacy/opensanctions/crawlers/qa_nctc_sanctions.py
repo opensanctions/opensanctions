@@ -4,7 +4,7 @@ from pantomime.types import JSON
 from prefixdate import parse_formats
 
 from zavod import Context
-from opensanctions import helpers as h
+from zavod import helpers as h
 
 TYPES = {"1": "Person", "2": "Organization"}
 FORMATS = ["%Y-%m-%d", "%Y-%m-%d-%H", "%d/%m/%Y", "X_%Y_X_X", "%d-%m-%Y", "%Y"]

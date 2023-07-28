@@ -3,7 +3,7 @@ from lxml import html
 from pantomime.types import HTML
 
 from zavod import Context
-from opensanctions import helpers as h
+from zavod import helpers as h
 
 IN_BRACKETS = re.compile(r"\(([^\)]*)\)")
 PROGRAM = "Terrorism (Suppression of Financing) Act 2002; Schedule 2"

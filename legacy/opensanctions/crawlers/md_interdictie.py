@@ -5,7 +5,7 @@ from normality import slugify, collapse_spaces
 from pantomime.types import HTML
 
 from zavod import Context, Entity
-from opensanctions import helpers as h
+from zavod import helpers as h
 
 REGEX_DELAY = re.compile(".+(\d{2}[\.\/]\d{2}[\.\/]\d{4})$")
 # e.g. 6/23 from "6/23 din 02.05.2023"

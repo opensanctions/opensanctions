@@ -3,7 +3,7 @@ from normality import collapse_spaces
 from lxml.etree import _Element as Element
 
 from zavod import Context, Entity
-from opensanctions import helpers as h
+from zavod import helpers as h
 
 NAME_QUALITY = {
     "Low": "weakAlias",

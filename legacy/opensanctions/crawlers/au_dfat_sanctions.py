@@ -7,7 +7,7 @@ from datetime import datetime
 from pantomime.types import XLSX
 
 from zavod import Context
-from opensanctions import helpers as h
+from zavod import helpers as h
 
 SPLITS = [" %s)" % char for char in string.ascii_lowercase]
 FORMATS = ["%d/%m/%Y", "%d %b. %Y", "%d %b.%Y", "%d %b %Y", "%d %B %Y"]

@@ -5,7 +5,7 @@ from pantomime.types import XLSX
 from normality import slugify, stringify
 
 from zavod import Context
-from opensanctions import helpers as h
+from zavod import helpers as h
 
 ORG_URL = "https://nbctf.mod.gov.il/he/Announcements/Documents/NBCTFIsrael%20-%20Terror%20Organization%20Designation%20List_XL.xlsx"
 PEOPLE_URL = "https://nbctf.mod.gov.il/he/Announcements/Documents/NBCTF%20Israel%20designation%20Individuals_XL.xlsx"
