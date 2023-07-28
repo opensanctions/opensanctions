@@ -7,6 +7,8 @@ from zavod import settings
 from followthemoney.cli.util import read_entities
 from json import load, loads
 from csv import DictReader
+from zavod.exporters.ftm import FtMExporter
+
 
 def test_export(vdataset: Dataset):
     run_dataset(vdataset)
@@ -68,3 +70,26 @@ def test_export(vdataset: Dataset):
         targets = list(DictReader(targets_simple_file))
         assert len(targets) == 8
         assert "Johnny Doe" in {t["name"] for t in targets}
+
+
+def test_ftm(vdataset: Dataset):
+    run_dataset(vdataset)
+    context = Context(vdataset)
+    context.begin(clear=False)
+    store = get_store(vdataset)
+    view = store.view(vdataset)
+
+    exporter = FtMExporter(context, view)
+    exporter.setup()
+    for entity in view.entities():
+        exporter.feed(entity)
+    exporter.finish()
+    context.close()
+    store.close()
+
+    dataset_path = settings.DATA_PATH / "datasets" / vdataset.name
+    with open(dataset_path / "entities.ftm.json") as ftm:
+        # it parses and finds expected number of entites
+        assert len(list(read_entities(ftm))) == 11
+    assert 1 == 3
+    
