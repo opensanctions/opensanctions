@@ -1,7 +1,5 @@
-from typing import Union
 from lxml import etree
-
-ElementOrTree = Union[etree._Element, etree._ElementTree]
+from zavod.util import ElementOrTree
 
 
 def remove_namespace(el: ElementOrTree) -> ElementOrTree:

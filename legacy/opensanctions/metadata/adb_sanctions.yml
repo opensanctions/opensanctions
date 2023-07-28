@@ -1,0 +1,56 @@
+entry_point: opensanctions.crawlers.adb_sanctions:crawl
+title: Asian Development Bank Sanctions
+prefix: adb
+summary: |
+  The ADB's published sanctions list. It contains the names of entities who violated
+  the sanctions while ineligible; entities who committed second and subsequent
+  violations; debarred entities who are uncontactable; and cross debarred entities.
+description: |
+  The dataset lists the entities sanctioned by the Asian Development Bank (ADB) and
+  also those cross-debarred by ADB from other Multilateral Development Banks (MDBs).
+  These entities are not eligible to participate in ADB-financed, -administered, or
+  -supported activities for violating the specified Anticorruption Policy.
+publisher:
+  name: "Asian Development Bank"
+  description: |
+    ADB was conceived in the early 1960s as a financial institution that would be Asian
+    in character and foster economic growth and cooperation in one of the poorest
+    regions in the world.
+    It was established by a resolution passed at the first Ministerial Conference on
+    Asian Economic Cooperation held by the United Nations Economic Commission for Asia
+    and the Far East in 1963.
+  country: zz
+  url: https://adb.org/
+  official: true
+url: https://lnadbg4.adb.org/oga0009p.nsf/sancALL1P?OpenView&count=999
+data:
+  url: https://lnadbg4.adb.org/oga0009p.nsf/sancALL1P?OpenView&count=999
+  format: HTML
+
+lookups:
+  type.address:
+    lowercase: true
+    options:
+      - match:
+          - "-"
+          - Address Unknown
+          - Peru
+          - n/a
+        value: null
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - match: Ecuatorial Guinaea-
+        value: Equatorial Guinea
+      - match: Guinaea-
+        value: Guinea
+      - match: Unknown
+        value: null
+  type.date:
+    lowercase: true
+    options:
+      - match:
+          - Until Further Notice
+          - Indefinitely
+        value: null

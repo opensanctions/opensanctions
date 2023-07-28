@@ -1,4 +1,5 @@
 from typing import Generator
+from normality import slugify
 from nomenklatura.enrich import Enricher
 from nomenklatura.judgement import Judgement
 from nomenklatura.entity import CE
@@ -16,7 +17,8 @@ class StubEnricher(Enricher):
         if entity.schema.name != "Person":
             return
         result = self.make_entity(entity, "Person")
-        result.id = f"enrich-{entity.id}"
+        derived_name = slugify(entity.first("name"))
+        result.id = f"enrich-{derived_name}"
         result.add("name", entity.get("name"))
         result.add("birthDate", entity.get("birthDate"))
         result.add("sourceUrl", "https://enrichment.os.org")
@@ -28,6 +30,7 @@ class StubEnricher(Enricher):
 
 def test_enrich_process(vdataset: Dataset, enricher: Dataset):
     resolver = get_resolver()
+    assert len(resolver.edges) == 0
     run_dataset(vdataset)
 
     assert len(resolver.edges) == 0, resolver.edges
@@ -40,7 +43,14 @@ def test_enrich_process(vdataset: Dataset, enricher: Dataset):
     assert len(externals) > 5, externals
 
     # Now merge one of the enriched entities with an interal one:
-    resolver.decide("osv-john-doe", "enrich-osv-john-doe", Judgement.POSITIVE)
+    canon_id = resolver.decide(
+        "osv-john-doe",
+        "enrich-john-doe",
+        Judgement.POSITIVE,
+    )
+    assert canon_id.id.startswith("NK-")
+    assert len(resolver.connected(canon_id)) == 3
     stats = run_dataset(enricher)
     internals = list(iter_dataset_statements(enricher, external=False))
     assert len(internals) > 2, internals
+    get_resolver.cache_clear()

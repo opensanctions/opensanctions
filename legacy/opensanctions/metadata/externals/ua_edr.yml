@@ -1,0 +1,59 @@
+type: external
+entry_point: zavod.runner.enrich:enrich
+title: Ukraine Consolidated State Registry
+hidden: false
+export: false
+summary: |
+  The beneficial ownership database of legal entities registered in Ukraine (EDR)
+description: |
+  Publication of this data has been suspended since the Russian attack on Feburary
+  24, 2022. We're not linking to the full dataset here, either, but instead include
+  details on those Ukrainian companies identified by the Ukraine National Security
+  Council on its sanctions list. 
+
+  > Beneficial ownership data in Ukraine has been publicly available as
+  > open data in the Unified State Register of Legal Entities and
+  > Individual Entrepreneurs (USR) since 2017.
+
+  > Ukrainian law refers to ‘controllers’ (контролери) as opposed to
+  > ‘founders’ (засновниками) to differentiate beneficial ownership from
+  > legal ownership/shareholding. ‘Founders’ can be legal entities or
+  > natural persons.
+
+  > A beneficial owner of a legal entity is a natural person who directly
+  > or indirectly:
+
+  > * Has the right to execute decisive influence on the management or
+  >   economic activity of a legal entity
+  > * Has decisive influence on the composition and decisions of the entity’s managing body
+  > * Has at least 25% of shares or voting rights of the entity
+  > * Nominees and agents of such rights cannot be named as beneficial owners.
+
+  cf. https://register.openownership.org/data_sources/ua-edr-register
+url: https://data.gov.ua/dataset/1c7f3815-3259-45e0-bdf1-64dca07ddc10
+publisher:
+  name: Ministry of Justice of Ukraine
+  description: |
+    The database is managed and - in peacetime - published by the Department
+    for State Registration and Notariat.
+  url: https://usr.minjust.gov.ua/
+  country: ua
+  official: true
+
+inputs:
+  - enrich_companies
+
+config:
+  type: nomenklatura.enrich.yente:YenteEnricher
+  api: https://api.graph.opensanctions.org/
+  dataset: ua_edr
+  api_key: ${OPENSANCTIONS_GRAPH_API_KEY}
+  strip_namespace: true
+  fuzzy: false
+  threshold: 0.7
+  schemata:
+    - Company
+    - Organization
+    # - LegalEntity
+    # - Person
+  cache_days: 90

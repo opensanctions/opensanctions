@@ -1,0 +1,455 @@
+type: external
+title: Wikidata
+entry_point: zavod.runner.enrich:enrich
+prefix: wd
+export: false
+summary: |
+  Wikidata is the structured data project of the Wikipedia community,
+  providing fact-based information edited by humans and machines.
+description: |
+  Wikidata serves as the source of much of the OpenSanctions data related to
+  politically exposed persons (PEPs). We also link up entities that are 
+  sanctioned whenever a relevant Wikidata item is available.
+
+  The Wikidata importer will also traverse family and personal relationships
+  that are documented in the database and import relatives and close associates
+  whereever these are stated.
+
+  ### Limitations
+
+  There is no attempt to link companies and organizations from sanctions lists
+  to Wikidata, as the way that an encyclopedia describes such legal entities is
+  not granular enough for due diligence use cases.
+
+  We also remove any person born before 1900, or who has died before 2000 from
+  the dataset in order to avoid outdated profiles that could lead to false
+  positives.
+url: https://www.wikidata.org/wiki/Wikidata:Main_Page
+publisher:
+  name: Wikidata
+  description: |
+    Wikidata is a free and open knowledge base that can be read and edited by both humans
+    and machines. It acts as central storage for the structured data of its Wikimedia
+    sister projects including Wikipedia, Wikivoyage, Wiktionary, Wikisource, and others.
+  url: https://www.wikidata.org
+  official: false
+
+inputs:
+  # Warning: cannot include wd_peps here otherwise it gets too recursive
+  - sanctions
+  - eu_meps
+  - wd_peps
+  - wd_oligarchs
+  - wd_curated
+  - wanted
+  - ru_rupep
+  - ru_navalny35
+  - ru_myrotvorets_wagner
+  - ru_billionaires_2021
+  - ru_acf_bribetakers
+  - sy_obsalytics_opensyr
+  - md_rise_profiles
+  - eu_cor_members
+  - everypolitician
+  - us_cia_world_leaders
+
+config:
+  type: nomenklatura.enrich.wikidata:WikidataEnricher
+  label_cache_days: 90
+  cache_days: 14
+  schemata:
+    - Person
+
+lookups:
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - match:
+          - Abbasid Caliphate
+          - Afsharid Empire
+          - Al Ain
+          - Ancient Rome
+          - Arab Kingdom of Syria
+          - Assyrian Empire
+          - Austria-Hungary
+          - Austrian Empire
+          - Babylon
+          - Bengal
+          - British Empire
+          - British India
+          - British Malaya
+          - British Pakistanis
+          - British Raj
+          - Buyid dynasty
+          - Caliphate of Córdoba
+          - Cao Wei
+          - Caucasus Emirate
+          - Central African Empire
+          - Chen dynasty
+          - Cisleithania
+          - Cossack Hetmanate
+          - County of Mark
+          - Crown of Aragon
+          - Delhi Sultanate
+          - Democratic Kampuchea
+          - Denmark-Norway
+          - Dominion of Ghana
+          - Dominion of India
+          - Dutch East Indies
+          - Eastern Han
+          - Eastern Wei
+          - Emirate of Granada
+          - Emirate of Transjordan
+          - Estado Novo
+          - Fatimid Caliphate
+          - Federation of Rhodesia and Nyasaland
+          - First Czechoslovak Republic
+          - First Saudi State
+          - Former Liang
+          - French Indochina
+          - French mandate of Lebanon
+          - Gambia Colony and Protectorate
+          - German Confederation
+          - German Empire
+          - German Reich
+          - Ghaznavid Empire
+          - Goryeo
+          - Grand Duchy of Lithuania
+          - Grand Duchy of Moscow
+          - Grand Duchy of Oldenburg
+          - Great Socialist People's Libyan Arab Jamahiriya
+          - Hadhramaut
+          - Hatay State
+          - Han dynasty
+          - Holy Roman Empire
+          - Imperial China
+          - Independent State of Croatia
+          - Iraqi Republic (1958–1968)
+          - Irish Free State
+          - Jin dynasty
+          - Jordanian annexation of the West Bank
+          - Joseon
+          - Julian March
+          - Khmer Republic
+          - Khwarezmian Empire
+          - Kashmir
+          - Kievan Rus'
+          - Kingdom of Bohemia
+          - Kingdom of Bulgaria
+          - Kingdom of Castile
+          - Kingdom of Hanover
+          - Kingdom of Hejaz
+          - Kingdom of Hungary
+          - Kingdom of Iraq
+          - Kingdom of Italy
+          - Kingdom of Libya
+          - Kingdom of Naples
+          - Kingdom of Navarre
+          - Kingdom of Prussia
+          - Kingdom of Romania
+          - Kingdom of Serbs, Croats and Slovenes
+          - Kingdom of Sikkim
+          - Kingdom of the Two Sicilies
+          - Korea under Japanese rule
+          - Korean Empire
+          - La La Land
+          - Lebanese Republic under French mandate
+          - Liang dynasty
+          - Libyan Arab Republic
+          - Mandatory Palestine
+          - Margraviate of Moravia
+          - Marinid Dynasty
+          - Ming dynasty
+          - Min
+          - Mughal Empire
+          - Mutawakkilite Kingdom of Yemen
+          - Najaf
+          - Nazareth
+          - Newcastle United F.C.
+          - Northern Qi
+          - Northern Song dynasty
+          - Northern Wei
+          - Northern Zhou
+          - Ottoman Empire
+          - Pahlavi Dynasty
+          - Palestinian National Authority
+          - Papal States
+          - Parthian Empire
+          - Patiala State
+          - People's Republic of Kampuchea
+          - People's Republic of the Congo
+          - Polish–Lithuanian Commonwealth
+          - Portuguese Cape Verde
+          - Portuguese Guinea
+          - Portuguese India
+          - Portuguese Macau
+          - Principality of Transylvania
+          - Protectorate of Bohemia and Moravia
+          - Pueblo of Laguna
+          - Qajar Iran
+          - Qajar dynasty
+          - Qing dynasty
+          - Rashidun Caliphate
+          - Republic of Geneva
+          - Republic of German-Austria
+          - Republic of Upper Volta
+          - Republic of Venice
+          - Republic of the Congo (Léopoldville)
+          - Restored Hanthawaddy Kingdom
+          - Russian state 1918-1920
+          - Safavid Empire
+          - Samanid Empire
+          - Second East Turkestan Republic
+          - Second Polish Republic
+          - Seljuk Empire
+          - Sheikhdom of Kuwait
+          - Shu Han
+          - Song dynasty
+          - Southern Qi
+          - Southern Rhodesia
+          - Southern Tang
+          - Soviet Civil Administration
+          - Spanish Empire
+          - State of Cambodia
+          - State of Greater Lebanon
+          - Sui dynasty
+          - Sultanate of Egypt
+          - Tahiti
+          - Taifa of Dénia
+          - Taifa of Seville
+          - Taiwan under Japanese rule
+          - Tang dynasty
+          - Terengganu
+          - Tibetan Plateau
+          - Timurid Empire
+          - Transcaucasian Commissariat
+          - Transcaucasian Democratic Federative Republic
+          - Tuvan People's Republic
+          - Udaipur State
+          - Umayyad Caliphate
+          - Union of South Africa
+          - United Arab Republic
+          - United States occupation of the Ryukyu Islands
+          - Weimar Republic
+          - West Ukrainian People's Republic
+          - Western Han
+          - Western Wei
+          - Wu guo
+          - Wuyue
+          - Viceroyalty of Peru
+          - Xiongnu
+          - Yuan dynasty
+          - Zand dynasty
+          - Ziyarid dynasty
+          - al-Andalus
+          - emirate of Córdoba
+          - politician
+          - presidencies and provinces of British India
+          - statelessness
+          - Đại Việt
+          - Ilkhanate
+        value: null
+      - match:
+          - Cherokee Nation
+          - Chickasaw Nation
+          - Choctaw Nation of Oklahoma
+          - Ho-Chunk Nation of Wisconsin
+          - Navajo Nation
+          - Northern Cheyenne Indian Reservation
+          - Sisseton Wahpeton Oyate
+        value: US
+      - match: British Cyprus
+        value: CY
+      - match: Socialist Republic of Romania
+        value: RO
+      - match: Santo Domingo
+        values:
+          - Dominican Republic
+      - match:
+          - Federal State of Austria
+          - First Republic of Austria
+        value: AT
+      - match:
+          - Kingdom of Poland
+          - Polish People's Republic
+        value: Poland
+      - match:
+          - First French Empire
+          - French First Republic
+          - French Third Republic
+          - Kingdom of France
+        value: France
+      - match: Byelorussian Soviet Socialist Republic
+        values:
+          - SUHH
+          - BY
+      - match: Trucial States
+        value: AE
+      - match:
+          - Democratic Republic of Afghanistan
+          - Emirate of Afghanistan
+          - Islamic Emirate of Afghanistan
+          - Islamic State of Afghanistan
+          - Kingdom of Afghanistan
+          - Republic of Afghanistan
+          - Transitional Islamic State of Afghanistan
+        value: AF
+      - match: Pahlavi Iran
+        value: IR
+      - match: Georgian Soviet Socialist Republic
+        values:
+          - GE
+          - SU
+      - match:
+          - Ukrainian People's Republic
+          - Ukrainian Soviet Socialist Republic
+        values:
+          - SUHH
+          - UA
+      - match:
+          - Russian Socialist Federative Soviet Republic
+          - Russian Soviet Federative Socialist Republic
+        values:
+          - SUHH
+          - RU
+      - match:
+          - Bavaria
+          - Nazi Germany
+          - Saxe-Eisenach
+        value: DE
+      - match: British Honduras
+        value: BZ
+      - match: Provisional People's Committee for North Korea
+        value: North Korea
+      - match:
+          - Kingdom of Egypt
+          - Republic of Egypt
+        value: Egypt
+      - match: Captaincy General of Cuba
+        value: Cuba
+      - match: Colonial Brazil
+        value: Brazil
+      - match: Latvian Soviet Socialist Republic
+        values:
+          - SUHH
+          - Latvia
+      - match:
+          - North Vietnam
+          - South Vietnam
+          - State of Vietnam
+        value: Vietnam
+      - match:
+          - South Yemen
+          - Yemen Arab Republic
+        value: YE
+      - match:
+          - People's Republic of Bulgaria
+          - Principality of Bulgaria
+        value: Bulgaria
+      - match: Pridnestrovian Moldavian Soviet Socialist Republic
+        value: MD-PMR
+      - match: Southern Netherlands
+        value: Netherlands
+      - match: Uzbek Soviet Socialist Republic
+        values:
+          - SUHH
+          - UZ
+      - match: Kingdom of Portugal
+        value: Portugal
+      - contains:
+          - Damascus
+          - First Syrian Republic
+          - State of Syria
+        value: Syria
+      - match: Gagauzia
+        value: MD
+      - match:
+          - Chechnya
+          - Tsardom of Russia
+        value: RU
+      - match:
+          - British National (Overseas)
+          - British Overseas citizen
+        value: GB
+      - match: Piribebuy
+        value: Paraguay
+      - match: Kingdom of Yugoslavia
+        value: YUCS
+      - match: Azerbaijan Soviet Socialist Republic
+        values:
+          - SUHH
+          - AZ
+      - match: Turkmen Soviet Socialist Republic
+        values:
+          - SUHH
+          - TM
+      - match: Republic of Serbian Krajina
+        value: HR
+      - contains: Ba'athist Iraq
+        value: Iraq
+      - match: Armenian Soviet Socialist Republic
+        values:
+          - SUHH
+          - AM
+      - match: Kingdom of Serbia
+        value: Serbia
+      - match: Federation of Malaya
+        value: Malaysia
+      - match:
+          - Azad Kashmir
+          - پاڪستاني
+        value: PK
+      - match: Kazakh Soviet Socialist Republic
+        values:
+          - SUHH
+          - KZ
+      - match: Azerbaijan Democratic Republic
+        value: AZ
+      - match: Gujarat
+        value: India
+      - match: Kingdom of Nejd and Hejaz
+        value: Saudi Arabia
+      - match: Estonian Soviet Socialist Republic
+        values:
+          - SUHH
+          - EE
+      - match: Oaxaca
+        value: MX
+      - match: Aceh
+        value: Indonesia
+      - match: French Cameroons
+        value: Cameroon
+  type.date:
+    options:
+      - match: "1949-02-29"
+        value: 1949-02
+      - match: "1935-06-31"
+        value: 1935-06
+      - match: "8034-06-14"
+        value: null
+      - match: "1973-09-31"
+        value: 1973-09
+  type.gender:
+    lowercase: true
+    normalize: true
+    options:
+      - match:
+          - Female
+          - trans woman
+        value: female
+      - match:
+          - genderfluid
+          - genderqueer
+          - neutrois
+          - non-binary
+          - travesti
+          - two-spirit
+        value: other
+      - match: transgender
+        value: null
+      - match:
+          - MALE
+          - trans man
+          - cisgender male
+        value: male

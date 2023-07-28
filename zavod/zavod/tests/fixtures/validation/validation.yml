@@ -36,3 +36,15 @@ lookups:
           - oak
           - pine
         value: Tree
+
+  type.address:
+    normalize: true
+    lowercase: true
+    options:
+      - match:
+          - congo
+        values:
+          - DR Congo
+          - Congo Brazzaville
+      - match: Moscou
+        value: Moscow

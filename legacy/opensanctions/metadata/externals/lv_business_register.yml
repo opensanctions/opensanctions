@@ -1,0 +1,36 @@
+type: external
+entry_point: zavod.runner.enrich:enrich
+title: Register of Enterprises of the Republic of Latvia (Uzņēmumu reģistrs)
+export: false
+summary: |
+  The Latvian company registry lists directors, shareholders and beneficial owners
+  as well as bank accounts for all companies and traders in the country.
+publisher:
+  name: Latvijas Republikas Uzņēmumu reģistrs
+  url: https://www.ur.gov.lv/lv/
+  country: lv
+  description: |
+    The Register of Enterprises of the Republic of Latvia is a state
+    institution that registers enterprises, merchants, their branches
+    and representative offices, as well as all changes in the basic documents of
+    their operation, and performs other activities provided for by legislative acts
+    in the territory of the Republic of Latvia.
+  official: true
+
+inputs:
+  - enrich_companies
+
+config:
+  type: nomenklatura.enrich.yente:YenteEnricher
+  api: https://api.graph.opensanctions.org/
+  dataset: lv_business_register
+  api_key: ${OPENSANCTIONS_GRAPH_API_KEY}
+  strip_namespace: true
+  fuzzy: false
+  threshold: 0.7
+  schemata:
+    - Company
+    - Organization
+    # - LegalEntity
+    # - Person
+  cache_days: 30

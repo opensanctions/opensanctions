@@ -1,0 +1,72 @@
+type: external
+entry_point: zavod.runner.enrich:enrich
+title: OpenCorporates
+export: false
+summary: |
+  The largest open database of company data in the world, with data from over 140 registries.
+description: |
+  OpenCorporates is a global database of companies, their directors and regulatory filings.
+
+  We provide links to OpenCorporates for entities that exist both in our database and in the
+  OpenCorporates database. These links can be used to explore more detail about sanctioned
+  companies. OpenCorporates customers with bulk data or API access can also use the
+  OpenCorporates URL to integrate both datasets, for example to build an in-house knowledge
+  graph with sanctions and company control information.
+
+  **Note:** as of May 2022, we have only linked some sanctioned companies to OpenCorporates.
+  In the future, we also hope to create links regarding directors and beneficial owners of
+  companies, for example in cases where the owner is a politicially exposed person (PEP).
+prefix: oc
+url: https://opencorporates.com/
+publisher:
+  name: OpenCorporates.com
+  description: |
+    OpenCorporates, is the largest open database of company data in the world, with data
+    from over 140 registries.
+  url: https://opencorporates.com/info/about/
+
+inputs:
+  - enrich_companies
+
+config:
+  type: nomenklatura.enrich.opencorporates:OpenCorporatesEnricher
+  cache_days: 180
+  schemata:
+    - Company
+    - Organization
+    # - LegalEntity
+
+lookups:
+  type.date:
+    options:
+      - match:
+          - YYY
+        value: null
+  type.address:
+    lowercase: true
+    normalize: true
+    options:
+      - match:
+          - NONE
+          - Panama
+          - CHANNEL ISLANDS
+          - Channel Islands
+          - YYY
+          - VIRGIN ISLANDS # which???!?
+        value: null
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - match:
+          - YYY
+        value: null
+      - match:
+          - IRLANDE, ou EIRE
+          - Irlande /Eire/
+        values:
+          - IE
+      - match: Union d.Rép.Soc.Soviét.
+        value: SUHH
+      - match: Géorgie ( Rép. )
+        value: GE

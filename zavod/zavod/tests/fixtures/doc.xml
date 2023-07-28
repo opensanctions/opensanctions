@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<x:MyAddress xmlns:x="http://www.ibm.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ibm.com x.xsd">
+    <x:name>Peter Smith</x:name>
+</x:MyAddress>

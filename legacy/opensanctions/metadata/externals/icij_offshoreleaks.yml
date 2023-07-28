@@ -1,0 +1,51 @@
+type: external
+entry_point: zavod.runner.enrich:enrich
+title: ICIJ Offshore Leaks Database
+export: false
+summary: |
+  Combined data from the Panama Papers, Paradise Papers, Pandora Papers
+  and other cross-border investigations conducted by ICIJ and its partners.
+description: |
+  > The International Consortium of Investigative Journalists obtained the data through five massive leaks:
+  >
+  > * Pandora Papers (2021): Data added in December 2021 comes from two offshore service providers’ documents that were part of the Pandora Papers dataset: Alemán, Cordero, Galindo & Lee (Alcogal) and Fidelity Corporate Services. Data from Alpha Consulting was added in April 2022. Data from Asiaciti Trust Asia Limited, CILTrust International, Commence Overseas Limited, IlShin, Overseas Management Company Inc, SFM Corporate Services and Trident Trust Company Limited was added in May 2022.
+  > * Paradise Papers (2017 & 2018): the Paradise Papers data in the Offshore Leaks database comes from the offshore law firm Appleby and a trove of data from seven corporate registries. Data from Appleby was added in November 2017, and the corporate registries data was added in December 2017 (Aruba, Bahamas, Barbados and Nevis) and February 2018 (Cook Islands, Malta and Samoa).
+  > * Bahamas Leaks (2016): In September 2016, ICIJ added data from the Bahamas Leaks investigation, which was based on a trove of data from the Bahamas corporate registry.
+  > * Panama Papers (2016): The Panama Papers data, added to the Offshore Leaks Database in May 2016, comes from Panama law firm Mossack Fonseca, whose inner workings were exposed as part of a collaborative investigation with German newspaper Süddeutsche Zeitung and more than 100 media partners.
+  > * Offshore Leaks (2013): This was the first information added to this database when it was published in June 2013, produced in conjunction with Costa Rican newspaper La Nación. This data covers a portion of offshore entities that were incorporated through Portcullis Trustnet (now Portcullis) and Commonwealth Trust Limited, two offshore service providers investigated as part of ICIJ’s 2013 Offshore Leaks exposé.
+
+  See also: [Offshore Leaks Database FAQ](https://offshoreleaks.icij.org/pages/faq).
+
+  ### Using the full data
+
+  In order to match OffshoreLeaks data with OpenSanctions, we've converted the full
+  database to the FollowTheMoney data format used by our system. You can download
+  the [raw data and use it in full](https://github.com/opensanctions/icij-offshoreleaks)
+  and audit the mechanism by which we have aligned the data.
+url: https://offshoreleaks.icij.org/
+publisher:
+  name: International Consortium of Investigative Journalists (ICIJ)
+  description: |
+    ICIJ is a global network of reporters and media organizations that cooperate on
+    large-scale cross-border investigations. Its core team is a group of editors, 
+    fact-checkers and data journalists who maintain the OffshoreLeaks database.
+  url: https://www.icij.org/about/
+  official: false
+
+inputs:
+  - enrich_companies
+
+config:
+  type: nomenklatura.enrich.yente:YenteEnricher
+  api: https://api.graph.opensanctions.org/
+  dataset: icij_offshoreleaks
+  api_key: ${OPENSANCTIONS_GRAPH_API_KEY}
+  strip_namespace: true
+  fuzzy: false
+  threshold: 0.7
+  schemata:
+    - Company
+    - Organization
+    # - LegalEntity
+    # - Person
+  cache_days: 90

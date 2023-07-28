@@ -1,0 +1,69 @@
+entry_point: opensanctions.crawlers.us_fbi_most_wanted:crawl
+title: FBI Most Wanted
+prefix: us-fbi
+disabled: false
+summary: >
+  The FBI Ten Most Wanted Fugitives is a most wanted list
+  maintained by the United States's Federal Bureau of Investigation (FBI).
+description: |
+  From the WIKI page [Wikipedia](https://en.wikipedia.org/wiki/FBI_Ten_Most_Wanted_Fugitives):
+
+  > The FBI Ten Most Wanted Fugitives is a most wanted list maintained by the United States's Federal Bureau of Investigation (FBI).
+  > The list arose from a conversation held in late 1949 between J. Edgar Hoover, Director of the FBI, and William Kinsey Hutchinson,
+  > International News Service (the predecessor of the United Press International) editor-in-chief,
+  > who were discussing ways to promote capture of the FBI's "toughest guys".
+  >
+  > This discussion turned into a published article, which received so much positive publicity that on March 14, 1950,
+  > the FBI officially announced the list to increase law enforcement's ability to capture dangerous fugitives.
+  > The first person added to the list was Thomas J. Holden,
+  > a robber and member of the Holden Keating Gang on the day of the list's inception
+url: https://www.fbi.gov/wanted
+publisher:
+  name: Federal Bureau of Investigation (FBI)
+  description: >
+    The Federal Bureau of Investigation is the domestic intelligence and security service of
+    the United States and its principal federal law enforcement agency.
+  url: https://www.fbi.gov/
+  country: us
+  official: true
+data:
+  url: "https://www.fbi.gov/wanted/fugitives/@@castle.cms.querylisting/f7f80a1681ac41a08266bd0920c9d9d8?page=1"
+  format: HTML
+
+lookups:
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - match: Salvadoran
+        value: El Salvador
+      - match: Palestinian and possibly Iraqi
+        values:
+          - PS
+          - IQ
+      - match: Palestinian and possibly Lebanese
+        values:
+          - PS
+          - Lebanon
+      - match: Dual American and Russian
+        values:
+          - US
+          - RU
+      - match: Laotian
+        value: Laos
+      - match: Unknown
+        value: null
+  type.gender:
+    lowercase: true
+    normalize: true
+    options:
+      - match: MALE
+        value: male
+      - match: Female
+        value: female
+  type.date:
+    lowercase: true
+    options:
+      - match:
+          - unknown
+        value: null
