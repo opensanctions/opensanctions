@@ -1,0 +1,17 @@
+name: cy_companies
+title: Cyprus company registry
+prefix: cy
+entry_point: parse.py
+summary: |
+  Cypriot open data on companies, which names their officers but not any shareholders.
+publisher:
+  name: Department of the Registrar of Companies and Intellectual Property
+  description: |
+    Competent Service for the registration and maintenance of the register
+    of Companies, Cooperatives, Trade Names, Trade Marks, Patents,
+    Industrial Designs, etc.
+  url: https://www.companies.gov.cy/en/
+  country: cy
+data:
+  url: "https://www.data.gov.cy/node/4016/dataset/download"
+  format: HTML
