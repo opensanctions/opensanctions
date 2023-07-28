@@ -1,0 +1,17 @@
+name: gb_coh_psc
+title: Companies House (UK) Persons with Significant Control
+prefix: gb-coh
+entry_point: psc_parse.py
+summary: |
+  The database of beneficial owners of companies incorporated in England, Wales,
+  Scotland and Northern Ireland.
+publisher:
+  name: UK Companies House
+  description: |
+    Companies House is the UK body responsible for managing the incorporation of
+    limited companies, and the maintenance of their records.
+  url: https://www.gov.uk/government/organisations/companies-house
+  country: gb
+data:
+  url: "http://download.companieshouse.gov.uk/en_pscdata.html"
+  format: JSON
