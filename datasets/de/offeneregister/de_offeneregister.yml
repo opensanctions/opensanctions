@@ -1,0 +1,22 @@
+name: de_offeneregister
+title: Deutsches Handelsregister (OffeneRegister.de)
+prefix: de-oc
+entry_point: parse.py
+summary: |
+  The OpenCorporates dump of the german companies registry, recent until end of
+  2018, as published via OffeneRegister.de. Includes companies (HRA/HRB),
+  organizations (VR/GnR/PR) and their officers. For some of the companies
+  there is as well ownership data, but without share values.
+coverage:
+  end: 2019-02-01
+publisher:
+  name: OffeneRegister.de / OKF DE
+  url: https://offeneregister.de/
+  official: false
+  country: de
+  description: |
+    OffeneRegister.de is a project of the Open Knowledge Foundation Deutschland
+    e.V. with data from OpenCorporates.
+data:
+  url: "https://daten.offeneregister.de/de_companies_ocdata.jsonl.bz2"
+  format: JSONL
