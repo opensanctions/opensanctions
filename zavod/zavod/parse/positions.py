@@ -12,13 +12,13 @@ def make_position(
     summary: Optional[str] = None,
     description: Optional[str] = None,
     country: Optional[str | Iterable[str]] = None,
-    subnationalArea: Optional[str] = None,
+    subnational_area: Optional[str] = None,
     organization: Optional[str] = None,
-    inceptionDate: Optional[Iterable[str]] = None,
-    dissolutionDate: Optional[Iterable[str]] = None,
-    numberOfSeats: Optional[str] = None,
-    wikidataId: Optional[str] = None,
-    sourceUrl: Optional[str] = None,
+    inception_date: Optional[Iterable[str]] = None,
+    dissolution_date: Optional[Iterable[str]] = None,
+    number_of_seats: Optional[str] = None,
+    wikidata_id: Optional[str] = None,
+    source_url: Optional[str] = None,
     lang: Optional[str] = None,
 ) -> Entity:
   """Create consistent position entities. Help make sure the same position
@@ -32,18 +32,18 @@ def make_position(
   position.add("description", description, lang=lang)
   position.add("country", country, lang=lang)
   position.add("organization", organization, lang=lang)
-  position.add("subnationalArea", subnationalArea, lang=lang)
-  position.add("inceptionDate", inceptionDate)
-  position.add("dissolutionDate", dissolutionDate)
-  position.add("numberOfSeats", numberOfSeats)
-  position.add("wikidataId", wikidataId)
-  position.add("sourceUrl", sourceUrl)
+  position.add("subnationalArea", subnational_area, lang=lang)
+  position.add("inceptionDate", inception_date)
+  position.add("dissolutionDate", dissolution_date)
+  position.add("numberOfSeats", number_of_seats)
+  position.add("wikidataId", wikidata_id)
+  position.add("sourceUrl", source_url)
 
   parts = [
     name,
     country,
-    inceptionDate,
-    dissolutionDate,
+    inception_date,
+    dissolution_date,
   ]
   hash_id = make_entity_id(*parts)
   if hash_id is not None:
