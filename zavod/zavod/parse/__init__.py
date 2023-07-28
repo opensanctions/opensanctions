@@ -8,6 +8,7 @@ and improve consistency across datasets.
 """
 from zavod.parse.xml import remove_namespace
 from zavod.parse.names import make_name, apply_name
+from zavod.parse.positions import make_position
 from zavod.parse.text import clean_note, is_empty, remove_bracketed
 from zavod.parse.text import multi_split
 from zavod.parse.sanctions import make_sanction
@@ -35,4 +36,5 @@ __all__ = [
     "remove_namespace",
     "make_name",
     "apply_name",
+    "make_position",
 ]
