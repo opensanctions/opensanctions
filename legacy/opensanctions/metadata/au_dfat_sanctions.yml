@@ -124,6 +124,11 @@ lookups:
           - Iran
   type.date:
     options:
+      - match:
+          - Between Aug.
+          - Approximately
+          - na
+        value: null
       - match: 07/04/62
         value: "1962-04-07"
       - match: 05.09.1990
