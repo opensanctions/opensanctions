@@ -2,7 +2,7 @@ from followthemoney import model
 from nomenklatura.entity import CompositeEntity
 
 from zavod.context import Context
-from zavod.parse import make_name, apply_name
+from zavod.helpers import make_name, apply_name
 
 
 ENTITY = {

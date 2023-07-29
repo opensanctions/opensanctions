@@ -27,6 +27,7 @@ data:
 
 lookups:
   type.date:
+    lowercase: true
     options:
       - match:
           - unknown

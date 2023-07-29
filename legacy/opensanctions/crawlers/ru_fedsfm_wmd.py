@@ -6,7 +6,7 @@ from followthemoney import model
 from followthemoney.types import registry
 
 from zavod import Context
-from opensanctions import helpers as h
+from zavod import helpers as h
 
 SPLITS = ["%s)" % c for c in string.ascii_lowercase]
 SPLITS = SPLITS + ["; ", " и "]

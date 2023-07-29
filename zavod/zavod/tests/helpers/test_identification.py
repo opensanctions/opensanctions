@@ -1,5 +1,5 @@
 from zavod.context import Context
-from zavod.parse.identification import make_identification
+from zavod.helpers.identification import make_identification
 
 
 def test_make_identification_helper(vcontext: Context):

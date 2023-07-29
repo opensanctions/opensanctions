@@ -1,5 +1,5 @@
 from zavod import Context
-from opensanctions import helpers as h
+from zavod import helpers as h
 from opensanctions.crawlers.eu_fsf import parse_entry, parse_sanctions
 
 URL = "https://www.sanctionsmap.eu/api/v1/travelbans/file/%s"

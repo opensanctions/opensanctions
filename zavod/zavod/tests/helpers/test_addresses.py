@@ -1,7 +1,7 @@
 import pytest
 
 from zavod.context import Context
-from zavod.parse.addresses import make_address, apply_address
+from zavod.helpers.addresses import make_address, apply_address
 
 
 def test_make_address_helper(vcontext: Context):

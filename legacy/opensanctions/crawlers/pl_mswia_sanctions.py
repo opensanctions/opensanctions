@@ -5,7 +5,7 @@ from normality import slugify
 from pantomime.types import XLSX
 
 from zavod import Context, Entity
-from opensanctions import helpers as h
+from zavod import helpers as h
 
 TYPES = {"osoby": "Person", "podmioty": "Company"}
 BDAY_FORMATS = ("%d.%m.%Y", "%d %b %Y")

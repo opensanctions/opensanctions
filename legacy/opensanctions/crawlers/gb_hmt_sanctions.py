@@ -5,7 +5,7 @@ from pantomime.types import XML
 from followthemoney.util import join_text
 
 from zavod import Context
-from opensanctions import helpers as h
+from zavod import helpers as h
 
 FORMATS = ["%d/%m/%Y", "00/%m/%Y", "%m/%Y", "00/00/%Y", "%Y"]
 COUNTRY_SPLIT = ["(1)", "(2)", "(3)", ". "]

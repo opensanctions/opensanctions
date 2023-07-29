@@ -3,7 +3,7 @@ from itertools import count
 from typing import Dict, Any
 
 from zavod import Context
-from opensanctions import helpers as h
+from zavod import helpers as h
 
 PASSWORD = os.environ.get("OPENSANCTIONS_NSDC_PASSWORD")
 AUTH = ("rnbo", PASSWORD)

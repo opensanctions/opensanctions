@@ -4,7 +4,7 @@ from typing import Dict
 from pantomime.types import CSV
 
 from zavod.context import Context
-from zavod.parse import make_address
+from zavod.helpers.addresses import make_address
 
 LOCAL_PATH = Path(__file__).parent / "dataset.csv"
 

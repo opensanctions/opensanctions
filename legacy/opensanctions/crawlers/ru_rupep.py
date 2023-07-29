@@ -2,10 +2,9 @@ import os
 import json
 from typing import Any, Dict, Optional
 from followthemoney import model
-from zavod.parse import format_address
 
 from zavod import Context
-from opensanctions import helpers as h
+from zavod import helpers as h
 
 PASSWORD = os.environ.get("OPENSANCTIONS_RUPEP_PASSWORD")
 FORMATS = ["%d.%m.%Y", "%m.%Y", "%Y", "%b. %d, %Y", "%B %d, %Y"]
@@ -306,7 +305,7 @@ def crawl_company(context: Context, data: Dict[str, Any]):
         # h.audit_data(rel_data)
         pass
 
-    address = format_address(
+    address = h.format_address(
         street=data.pop("street", None),
         city=data.pop("city", None),
     )

@@ -1,7 +1,7 @@
 from itertools import count
 
 from zavod import Context
-from opensanctions import helpers as h
+from zavod import helpers as h
 
 FORMATS = ["%m/%d/%Y %H:00:00 AM"]
 

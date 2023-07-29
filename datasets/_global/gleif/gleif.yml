@@ -1,0 +1,50 @@
+name: gleif
+title: GLEIF Concatenated Data File
+prefix: lei
+entry_point: parse.py
+summary: |
+  Base data for all entities which have been issued Legal Entity Identifier
+  (LEI) codes, as well as the relationships between them.
+publisher:
+  name: Global Legal Entity Identifier Foundation (GLEIF)
+  description: |
+    Established by the Financial Stability Board in June 2014, the Global Legal Entity
+    Identifier Foundation (GLEIF) is tasked to support the implementation and use
+    of the Legal Entity Identifier (LEI). The foundation is backed and overseen by
+    the Regulatory Oversight Committee, representing public authorities from around
+    the globe that have come together to jointly drive forward transparency within
+    the global financial markets. GLEIF is a supra-national not-for-profit
+    organization headquartered in Basel, Switzerland.
+  url: https://www.gleif.org/en/about/this-is-gleif
+
+lookups:
+  type.country:
+    options:
+      - regex: US-\w\w
+        value: us
+      - regex: AE-\w\w
+        value: ae
+      - regex: CA-\w\w
+        value: ca
+      - match:
+          - UN
+          - XX
+        value: null
+      - match:
+          - KN-N
+        value: KN
+      - regex: PT-\d\d
+        value: PT
+      - regex: MY-\d\d
+        value: MY
+      - match: GQ-BN
+        value: GQ
+      - match: GB-ENG
+        value: GB
+  type.date:
+    options:
+      - regex: 0\d{3}-\d{2}-\d{2}
+        match:
+          - 9940-12-31
+          - 3032-04-05
+        value: null

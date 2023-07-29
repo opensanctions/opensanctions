@@ -2,7 +2,7 @@ from typing import Dict, Any, Optional
 from normality import slugify, collapse_spaces
 
 from zavod import Context
-from opensanctions import helpers as h
+from zavod import helpers as h
 
 WEB_URL = "https://www.cia.gov/resources/world-leaders/foreign-governments/%s"
 DATA_URL = "https://www.cia.gov/resources/world-leaders/page-data/foreign-governments/%s/page-data.json"

@@ -2,7 +2,7 @@ from urllib.parse import urljoin, urlencode
 from normality import collapse_spaces, slugify
 
 from zavod import Context
-from opensanctions import helpers as h
+from zavod import helpers as h
 
 CACHE_DAYS = 14
 COUNTRY = "md"

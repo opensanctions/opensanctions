@@ -4,7 +4,7 @@ from urllib.parse import urljoin
 from pantomime.types import JSON
 
 from zavod import Context, Entity
-from opensanctions import helpers as h
+from zavod import helpers as h
 
 COUNTRIES = {
     "SCT": "GB-SCT",

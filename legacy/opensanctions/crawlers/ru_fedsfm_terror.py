@@ -3,7 +3,7 @@ from pantomime.types import HTML
 from prefixdate import parse_format
 
 from zavod import Context
-from opensanctions import helpers as h
+from zavod import helpers as h
 
 SECTIONS = {
     "russianUL": ("National part", "Organization"),

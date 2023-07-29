@@ -1,5 +1,5 @@
 from lxml import etree
-from zavod.parse.xml import remove_namespace
+from zavod.helpers.xml import remove_namespace
 from zavod.tests.conftest import XML_DOC
 
 

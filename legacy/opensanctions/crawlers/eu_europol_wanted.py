@@ -1,7 +1,7 @@
 from urllib.parse import urljoin
 
 from zavod import Context
-from opensanctions import helpers as h
+from zavod import helpers as h
 
 FIELDS = {
     "Sex": "gender",

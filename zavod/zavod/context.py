@@ -379,9 +379,7 @@ class Context:
         if text is not None:
             self.log.info(text)
 
-    def audit_data(
-        self, data: Dict[Optional[str], Any], ignore: List[Optional[str]] = []
-    ) -> None:
+    def audit_data(self, data: Dict[Any, Any], ignore: List[Any] = []) -> None:
         """Print the formatted data object if it contains any fields not explicitly
         excluded by the ignore list. This is used to warn about unexpected data in
         the source by removing the fields one by one and then inspecting the rest.
@@ -416,7 +414,7 @@ class Context:
         self.stats.entities += 1
         if target:
             self.stats.targets += 1
-        if self.stats.entities % 1000 == 0:
+        if self.stats.entities % 10000 == 0:
             self.log.info(
                 "Emitted %s entities" % self.stats.entities,
                 targets=self.stats.targets,

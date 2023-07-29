@@ -9,7 +9,7 @@ from normality import collapse_spaces, stringify
 from normality.cleaning import decompose_nfkd
 
 from zavod import Context
-from opensanctions import helpers as h
+from zavod import helpers as h
 
 BRACKETED = re.compile(r"(\([^\(\)]*\)|\[[^\[\]]*\])")
 

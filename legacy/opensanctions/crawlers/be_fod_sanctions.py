@@ -2,7 +2,7 @@ from lxml import etree
 from zipfile import ZipFile
 
 from zavod import Context
-from opensanctions import helpers as h
+from zavod import helpers as h
 from opensanctions.crawlers.eu_fsf import parse_entry
 
 

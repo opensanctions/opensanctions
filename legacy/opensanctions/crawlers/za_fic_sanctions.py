@@ -1,7 +1,7 @@
 from typing import Dict
 
 from zavod import Context
-from opensanctions import helpers as h
+from zavod import helpers as h
 
 
 def parse_date(date):

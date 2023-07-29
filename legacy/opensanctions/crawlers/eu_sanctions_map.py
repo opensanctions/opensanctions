@@ -1,5 +1,5 @@
 from zavod import Context
-from opensanctions import helpers as h
+from zavod import helpers as h
 
 DATA_URL = "https://www.sanctionsmap.eu/api/v1/data?"
 REGIME_URL = "https://www.sanctionsmap.eu/api/v1/regime"

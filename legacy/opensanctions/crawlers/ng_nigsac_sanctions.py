@@ -3,7 +3,7 @@ from typing import Optional
 from pantomime.types import HTML
 
 from zavod import Context
-from opensanctions import helpers as h
+from zavod import helpers as h
 
 FORMATS = ["%d/%m/%Y", "%d %B %Y"]
 

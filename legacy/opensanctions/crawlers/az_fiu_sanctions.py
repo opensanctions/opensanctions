@@ -3,7 +3,7 @@ from pantomime.types import HTML
 from normality import slugify, collapse_spaces
 
 from zavod import Context
-from opensanctions import helpers as h
+from zavod import helpers as h
 
 
 def parse_date(date):
