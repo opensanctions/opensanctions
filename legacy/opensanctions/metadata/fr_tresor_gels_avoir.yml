@@ -1913,3 +1913,32 @@ lookups:
       - match: "No INN: 7707314029"
         props:
           innCode: 7707314029
+      - match: "NIF - Type d’entité: Organisation autonome à but non lucratif - Lieu d’enregistrement: Russie - Date d’enregistrement: 2019 - Principal lieu d’activité: Russie: 9709056472"
+        props:
+          jurisdiction: ru
+          legalForm: Organisation autonome à but non lucratif
+          incorporationDate: 2019
+          innCode: 9709056472
+      - match: "NIF - Type d’entité: “Conseils en matière d’activités commerciales et de gestion” - Lieu d’enregistrement: Moscou -Date d’enregistrement: 3.11.2005 - Principal lieu d’activité: Moscou: 7727536630"
+        props:
+          jurisdiction: ru
+          legalForm: “Conseils en matière d’activités commerciales et de gestion”
+          incorporationDate: 2005-11-03
+          innCode: 7727536630
+      - match: "Entreprise de d’information et de technologies - Lieu d’enregistrement: Russie - Date d’enregistrement: créée en 2001 - Principal lieu d’activité: Russie: /"
+        props:
+          jurisdiction: ru
+          legalForm: Entreprise de d’information et de technologies
+          incorporationDate: 2001
+      - match: "NIF - Type d’entité: Organe de presse - Lieu d’enregistrement: Moscou - Date d’enregistrement: 2.6.2003 - Principal lieu d’activité: Moscou: 7727214569"
+        props:
+          jurisdiction: ru
+          legalForm: Organe de presse
+          incorporationDate: 2003-06-02
+          innCode: 7727214569
+      - match: "NIF - Type d’entité: Organisation autonome à but non lucratif - Lieu d’enregistrement: Russie - Date d’enregistrement: 2019 - Principal lieu d’activité: Russie: 9709056472"
+        props:
+          jurisdiction: ru
+          legalForm: Organisation autonome à but non lucratif
+          incorporationDate: 2019
+          innCode: 9709056472
