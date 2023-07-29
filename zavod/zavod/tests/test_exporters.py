@@ -4,7 +4,8 @@ from zavod.store import View, get_store, get_view
 from zavod.meta import Dataset
 from zavod.runner import run_dataset
 from zavod import settings
-from followthemoney.cli.util import read_entities
+from followthemoney.cli.util import path_entities
+from followthemoney.proxy import EntityProxy
 from json import load, loads
 from csv import DictReader
 from zavod.exporters.ftm import FtMExporter
@@ -25,9 +26,8 @@ def test_export(vdataset: Dataset):
     ]
 
     dataset_path = settings.DATA_PATH / "datasets" / vdataset.name
-    with open(dataset_path / "entities.ftm.json") as ftm:
-        # it parses and finds expected number of entites
-        assert len(list(read_entities(ftm))) == 11
+    # it parses and finds expected number of entites
+    assert len(list(path_entities(dataset_path / "entities.ftm.json", EntityProxy))) == 11
 
     with open(dataset_path / "index.json") as index_file:
         index = load(index_file)
@@ -72,23 +72,27 @@ def test_export(vdataset: Dataset):
         assert "Johnny Doe" in {t["name"] for t in targets}
 
 
-def test_ftm(vdataset: Dataset):
-    run_dataset(vdataset)
-    context = Context(vdataset)
+def harnessed_export(exporterClass, dataset) -> None:
+    context = Context(dataset)
     context.begin(clear=False)
-    store = get_store(vdataset)
-    view = store.view(vdataset)
+    store = get_store(dataset)
+    view = store.view(dataset)
 
-    exporter = FtMExporter(context, view)
+    exporter = exporterClass(context, view)
     exporter.setup()
     for entity in view.entities():
         exporter.feed(entity)
     exporter.finish()
+
     context.close()
     store.close()
 
+
+def test_ftm(vdataset: Dataset):
+    run_dataset(vdataset)
+
+    harnessed_export(FtMExporter, vdataset)
+
     dataset_path = settings.DATA_PATH / "datasets" / vdataset.name
-    with open(dataset_path / "entities.ftm.json") as ftm:
-        # it parses and finds expected number of entites
-        assert len(list(read_entities(ftm))) == 11
+    assert len(list(path_entities(dataset_path / "entities.ftm.json", EntityProxy))) == 11
     
