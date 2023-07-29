@@ -1,4 +1,4 @@
-entry_point: test_dataset_2
+entry_point: testentrypoint2
 title: OpenSanctions Validation Dataset
 prefix: td2
 hidden: true

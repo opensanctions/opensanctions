@@ -11,4 +11,4 @@ publisher:
 url: https://github.com/opensanctions/opensanctions
 
 inputs:
-  - validation
+  - testdataset1

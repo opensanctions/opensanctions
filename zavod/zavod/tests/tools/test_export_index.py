@@ -7,7 +7,7 @@ from json import load
 from zavod.runner import run_dataset
 from zavod.exporters import export
 
-DATASET_2_YML = FIXTURES_PATH / "test_dataset_2" / "test_dataset_2.yml"
+DATASET_2_YML = FIXTURES_PATH / "testdataset2" / "testdataset2.yml"
 COLLECTION_YML = FIXTURES_PATH / "collection.yml"
 
 
@@ -31,7 +31,5 @@ def test_export_index(vdataset: Dataset):
     with open(settings.DATA_PATH / "datasets" / "index.json") as index_file:
         index = load(index_file)
         datasets = {r["name"] for r in index["datasets"]}
-        assert "validation" in datasets
-        assert "test_dataset_2" in datasets
-
-    assert 1 == 2
+        assert "testdataset1" in datasets
+        assert "testdataset2" in datasets

@@ -55,7 +55,7 @@ def test_basic():
 
 
 def test_validation(vdataset: Dataset):
-    assert vdataset.name == "validation"
+    assert vdataset.name == "testdataset1"
     assert vdataset.publisher is not None
     assert vdataset.publisher.name == "OpenSanctions"
     assert vdataset.publisher.official is False
@@ -66,7 +66,7 @@ def test_validation(vdataset: Dataset):
 
 def test_validation_os_dict(vdataset: Dataset):
     osa = vdataset.to_opensanctions_dict()
-    assert osa["name"] == "validation"
+    assert osa["name"] == "testdataset1"
     assert osa["publisher"]["name"] == "OpenSanctions"
     assert osa["publisher"]["official"] is False
     assert osa["data"]["url"] is not None
@@ -75,7 +75,7 @@ def test_validation_os_dict(vdataset: Dataset):
     assert "export" in osa
     assert "summary" in osa
     assert "description" in osa
-    assert osa["entry_point"] == "validation"
+    assert osa["entry_point"] == "testentrypoint1"
 
 
 def test_analyzer(analyzer: Dataset, vdataset: Dataset):

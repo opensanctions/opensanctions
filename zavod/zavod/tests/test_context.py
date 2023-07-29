@@ -19,7 +19,7 @@ def test_context_helpers(vdataset: Dataset):
     assert context.dataset == vdataset
     assert "docs.google.com" in context.data_url
     assert vdataset.name in repr(context)
-    gen_id = "osv-e7bb50a8ac8cc89a980ae970de9d3b05af2973c2"
+    gen_id = "osv-d5fdc7f711d0d9fd15421102d272e475a236005c"
     assert context.make_id("john", "doe") == gen_id
     assert context.make_id("") is None
     assert context.make_slug("john", "doe") == "osv-john-doe"

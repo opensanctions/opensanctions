@@ -91,5 +91,4 @@ def test_ftm(vdataset: Dataset):
     with open(dataset_path / "entities.ftm.json") as ftm:
         # it parses and finds expected number of entites
         assert len(list(read_entities(ftm))) == 11
-    assert 1 == 3
     
