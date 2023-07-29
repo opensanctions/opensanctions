@@ -1,0 +1,571 @@
+name: icij_offshoreleaks
+title: ICIJ OffshoreLeaks
+prefix: icijol
+entry_point: parse.py
+summary: |
+  Combined data from the Panama Papers, Paradise Papers, Pandora Papers
+  and other cross-border investigations conducted by ICIJ and its partners.
+coverage:
+  end: 2023-03-21
+publisher:
+  name: International Consortium of Investigative Journalists (ICIJ)
+  description: |
+    ICIJ is a global network of reporters and media organizations that cooperate on
+    large-scale cross-border investigations. Its core team is a group of editors, 
+    fact-checkers and data journalists who maintain the OffshoreLeaks database.
+  url: https://www.icij.org/about/
+  official: false
+data:
+  url: https://offshoreleaks-data.icij.org/offshoreleaks/csv/full-oldb.LATEST.zip
+  format: CSV
+
+lookups:
+  relationships:
+    lowercase: true
+    options:
+      # - match:
+      #     - registered address
+      #     - registered office
+      #     - correspondent addr. of
+      #     - correspondance address
+      #     - same address as
+      #   contains:
+      #     - business address
+      #     - residential address
+      #     - alternative register address
+      #     - mailing address
+      #     - correspondent addr
+      #     - administration address
+      #     - principal office
+      #     - administration address
+      #     - correspondance address
+      #     - business registered address
+      #     - residential registered address
+      #     - mailing registered address
+      #     - former registered address
+      #     - registered at
+      #     - corporate address registered at
+      #   address: true
+      - contains:
+          - board-member
+          - chairman of
+          # - alternate director
+          - director of
+          - treasurer
+          - foundation council
+          - secretary
+          - president
+          - nominee name of
+          - Protector of
+          - Nominee Trust Settlor of
+          - Nominee Investment Advisor of
+          - trust settlor of
+          - board representative of
+          - nominated person of
+          - director / chief investment officer
+          - class a director
+          - authorised person / signatory of
+          - bank signatory of
+          - officer of
+          - managing director
+          - director/proxy of
+          - board member
+          - director / manager of
+          - managing director
+          - chairman
+          - chairwoman
+          - chief executive officer
+          - "director -"
+          - party leader
+          - proxy
+        match:
+          - director
+          - permanent director
+          - supervisory director b of
+          - lid van het college van bestuur of
+          - fund administrator of
+          - ceo
+          - authorized signatory of
+          - party leader
+          - trustee of
+          - legal advisor of
+          - auth. representative of
+          - joint settlor of
+          - appointor of
+          - investment advisor of
+          - personal directorship of
+          - power of attorney of
+          - signatory of
+          - sole signatory of
+          - director (rami makhlouf) of
+          - officer
+          - dir. / sec. / treasure
+          - director / manager
+          - executive
+          - anderson
+          - diretor
+          - alternate director
+          - v.p. / treas. / director
+          - director / asst. sec
+          - authorized signatory
+          - pres / sec / director
+          - general manager
+          - financial controller
+          - sole director
+          - member
+          - company executive
+          - assistant director
+          - class b director
+          - director / v.p.
+          - company / director
+          - sole director / sec.
+          - director / treas / sec
+          - director / pres / 01
+          - vp / treas. asst sec
+          - resigned
+          - pres / dir. / sec. / tres.
+          - investment advisor
+          - controller
+          - assistant controller
+          - director / vp / secretar
+          - director / sec
+          - alt director
+          - corp. director
+          - pres / ch.invest.of / di
+          - v.p / / senior trader
+          - attorney in fact
+          - director / c.e.o
+          - deputy ch. / c.e.o
+          - banker
+          - dir / pres / treas
+          - director / officer
+          - director / pres. / secr.
+          - as. sec. / as. treas.
+          - 1st v.p. / director
+          - businessman
+          - corporation
+          - director / c.o.o.
+          - dipl. ing.
+          - subscriber
+          - director / mgn. dir.
+          - ibc
+          - authorized
+          - dr. norbert marxer
+          - c.e.o
+          - executive officer
+          - chief exec. officer
+          - manager-corporate
+          - chief fin. officer
+          - dir. and sec.
+          - non
+          - corporate director
+          - businesswoman
+          - attorney at law
+          - director / v.pres. / sec
+          - c.e.o. / pres. / dir.
+          - director / cob
+          - presid / treas / dir
+          - executive director
+          - non executive direct
+          - chief financial off
+          - dir / pres / treas / sec
+          - director / assist sec
+          - independent director
+          - dir / pres / sec / tre
+          - dir. / v. p. / a.s.
+          - dir. / chrm. / vp / a.s.
+          - asst treas / director
+          - tur limited
+          - mng. director / china
+          - first director
+          - chief executive off
+          - direc / secr. / treas.
+          - pres. / dir. / sec.
+          - mr /
+          - dir. v. pres. / tre
+          - special director
+          - c.f.o.
+          - treas. / director
+          - director / c.f.o.
+          - vp / c.e.o.
+          - dir. / vp / sec
+          - pres / v.p.
+          - director / ass. sec.
+          - director / pres / treas
+          - sec / treas
+          - t.c.
+          - cramlington
+          - director / c.e.o / pres.
+          - sec
+          - dir / pres / vp / trea / sec
+          - advisor to the board
+          - pres. / ch.exec. / dir.
+          - to gary lane
+          - co.
+          - clementi limited
+          - gfs
+          - ind. non-exec. dir.
+          - bruno a. roberts
+          - alt. dir to ian fair
+          - administrator of
+          - settlor of
+          - investment manager of
+          - enforcer of
+          - appointer of
+          - authorised signatory of
+          - fund manager of
+          - member of the board of directors
+          - client contact of
+          - related party of
+          - director b of
+          - senior director; techmical operations of
+          - liquidator
+          - legal representative
+          - judicial representative
+          - is signatory for
+          - supervisory director/commissioner of
+          - liquidator of
+          - manager of
+          - member of the supervisory board of
+          - director w/t general manager of
+          - member credit committee of
+          - director/vocal of
+          - member of the board of directors of
+          - supervisory director with restricted vote of
+          - business executive of
+          - legal representative of
+          - local representative of
+          - ordinary director
+          - asst. controller
+          - Designated Representative
+          - board of directors member of
+          - Advocate
+          - company CEO
+          - authorised signatory
+          - Director and Power of attorney
+          - director, POA
+          - director and attorney in fact
+          - Director and Member
+          - POA
+          - attorney-in-fact
+          - Administrator, director
+          - effective controller, Herman Gref provided source of funds
+          - director/key officer
+          - Former Director
+          - Managing Partner
+          - General director
+          - Managing partner
+          - D Director irector
+          - Ultimate controling party
+          - Director, controller
+        schema: Directorship
+        start: director
+        end: organization
+        link: role
+        status: status
+      - contains:
+          - beneficiary of
+          - shareholder of
+          - owner of
+          - Beneficial Owner
+          - partner of
+          - founder
+        match:
+          - director i of
+          - director e of
+          - subscriber of
+          - shareholder
+          - shareholder (through julex foundation) of
+          - owner
+          - investor
+          - trustee of trust of
+          - co-trustee of trust of
+          - resident trustee of
+          - co-trustee of
+          - co-trustee of trust of
+          - Beneficial owner of the underlying company
+          - Beneficiary and Director
+          - Settlor and Beneficiary
+          - Person of Significant Control
+          - BeneficialOwner
+          - Settlor; Grantor
+          - Grantor
+          - Trustor
+          - Director/shareholder
+          - Shareholder/Director/Bemeficial Owner
+          - Shareholder (Trident) - 34%
+          - shareholder through company Tharb
+          - shareholder/BO
+          - Settlor / primary Beneficiary
+          - attorney‑in‑fact
+          - UBO, shareholder
+          - Co-owner (50% owned by him)
+          - shareholder via Thelma Holdings
+          - BO
+          - DIRECTOR / OWNER
+          - Director and Shareholder
+          - Shareholders
+          - Director and shareholder
+          - UBO
+          - Sole Director and shareholder
+          - Beneficiary
+          - Director & Shareholder
+          - Sole Director & Shareholder
+          - sole director and sole shareholder
+          - Corporate Shareholder
+          - Beneficiary Owner
+          - Sole shareholder
+          - Protector and beneficiary
+          - Shareholder, power of attorney
+          - benefiicary (main), protector
+          - Sole director and shareholder
+          - beneficiary
+          - Protector
+          - Director, Shareholder
+          - sole beneficiary
+          - Principal beneficiary
+          - Shareholder, beneficiary
+          - Shareholder/Sole director
+          - Director, beneficiary, shareholder
+          - Shareholder and Director
+          - settlor
+          - Attorney/shareholder
+          - Significant Controller
+          - director, shareholder
+          - Beneficiary,  power of attorney, client/correspondent
+          - Settlor, Beneficiary
+          - owner, director
+          - Beneficiary and Power of attorney
+          - Beneficiary (Subsquent Beneficiary)
+          - Shareholder, through Bernini Foundation
+          - shareholder, director
+          - controller, ubo, settlor
+          - Shareholder, director
+          - Settlor and Sole Beneficiary
+          - Settlor, Protector, Investment director
+          - beneficiary, protector
+          - benefits protector
+          - settlor, beneficiary
+          - unclear, but is part of the family trust that belongs to Herman Gref
+          - Settlor, primary beneficiary
+          - Director, Power of attorney
+          - Director, shareholder
+          - shareholder , POA, UBO
+          - sole director and shareholder
+          - BO
+          - Sole director and Shareholder
+          - Sole Director and Shareholder
+          - BO/Director
+          - Substitute Beneficiary
+          - Main Beneficiary
+          - co-owner, Director
+        schema: Ownership
+        start: owner
+        end: asset
+        link: role
+        status: status
+        weight: 1000
+      - match:
+          - intermediary of
+          - power of Attorney
+          - tax advisor of
+          - stockbroker of
+          - unit trust register of
+          - records & registers of
+          - attorney of
+          - attorney at law of
+          - alternate manager of
+          - representative of
+          - business man of
+          - operations manager of
+          - messenger of
+          - engineer of
+          - vice dean of
+          - dean of
+          - general accountant of
+          - general counsel
+          - chartered accountant
+          - appleby assigned attorney
+          - auditor
+          - accountant
+          - intermediary / eligible introducer of
+          - registered agent of
+          - registrar and transfer agent of
+          - registered office service provider
+          - correspondent addr. of
+          - registered agent
+          - registered office
+          - registered at
+          - corporate address registered at
+        contains:
+          - judicial representative of
+          - registered office
+          - business address
+          - registered address
+          - residential address
+          - mailing address
+          - administration address
+          - principal office
+          - register address
+          - correspondance address
+        schema: Representation
+        start: agent
+        end: client
+        link: role
+        status: status
+      - contains:
+          - connected to
+          - auditor of
+          - safekeeping of
+          - custodian of
+          - grantee of a mortgage of
+          - connected of
+          - underlying company of
+        match:
+          - company
+          - member of
+          - Creator
+          - Business lady
+          - Employed
+          - Unknown
+          - linked to
+          - Lawyer
+          - Executive Manager
+          - consultant
+          - Self employed
+          - End user client
+          - Taipei
+          - Manager
+          - Taichung
+          - Freelance photographer, cameraman
+          - Partner, MATRIX CAPITAL
+          - entrepreneur
+          - Relationship Manager
+          - Housekeeper, currently retired
+          - Representative of Clarion (Council Member of Logol Foundation)
+          - Entrepreneur
+          - Entrepreneur and Investor
+          - Regional Commercial Technical project manager (APAC)
+          - Project Manager
+          - Tourism manager
+          - Finance analysis specialist
+          - Settlor
+          - protector
+          - Attorney
+        schema: UnknownLink
+        start: subject
+        end: object
+        link: role
+        status: status
+      - match:
+          - same name as
+          - same_name_as
+          - similar
+          - same as
+          - same id as
+          - same address as
+          - same company as
+          - similar company as
+          - same intermediary as
+          - probably same officer as
+          - same name and registration date as
+          - entity similar to
+          - related entity
+          - similar name and address as
+          - same name and registration date as
+          - similar name and address as
+          - null
+        contains:
+          - same name as
+
+  type.date:
+    options:
+      - regex: 0\d{3}-\d{2}-\d{2}
+        value: null
+      - match: 18/19/2015
+        value: "2015"
+      - match: 09-18-2004
+        value: 2004-09-18
+      - match: 04/27/05
+        value: 2005-04-27
+      - match: 16/20/2013
+        value: "2013"
+      - match: "05152015"
+        value: "2015-05-15"
+      - match: "01.004.04"
+        value: "2004"
+      - match: "26/08-2010"
+        value: "2010-08-26"
+      - match: "29/02/2006"
+        value: "2006-02"
+      - match: 5/21/14
+        value: "2014-05-21"
+      - match: 4/25/14
+        value: "2014-04-25"
+      - match: "1212012"
+        value: "2012"
+      - match: "06/01.2009"
+        value: "2009-01-06"
+      - match: "25090015"
+        value: null
+      - match: "28/02/201"
+        value: null
+      - match: "28.02/2014"
+        value: "2014-02-28"
+      - match: "1/15/15"
+        value: null
+      - match: "10-6-14"
+        value: "2014-06-10"
+      - match: "27-6-14"
+        value: "2014-06-27"
+      - match: "31/02/2013"
+        value: "2013-02"
+      - match: "05/26/14"
+        value: "2014-05-26"
+      - match: "12-112013"
+        value: "2013"
+      - match: "08/11/204"
+        value: null
+      - match: "284/2015"
+        value: 2015-04-28
+      - match: "OCT-2019"
+        value: "2019-10"
+
+  type.country:
+    options:
+      - match:
+          - Undetermined
+          - Not identified
+          - 'Recorded in leaked files as "fund"'
+          - XXX
+          - ok # boomer
+          - SCP
+          - "null"
+          # now three countries, can't identify which:
+          - Netherlands Antilles
+          - Channel Islands
+        value: null
+      - match: Cayman
+        value: Cayman Islands
+      - match: COOKISLANDS
+        value: CK
+      - match: Sint Eustatius and Saba Bonaire
+        value: BQ
+      - match: ZAM
+        value: ZM
+      - match:
+          - State of Delaware
+          - District of Columbia
+          - USA (South Dakota)
+          - USA (Delaware)
+          - New Hampshire
+          - Unied States
+          - United Stales
+        value: United States of America
+      - match: Province of China Taiwan
+        value: Taiwan
+      - match: The Democratic Republic of the Congo
+        value: DR Congo
+      - match:
+          - Labuan
+        value: Malaysia
