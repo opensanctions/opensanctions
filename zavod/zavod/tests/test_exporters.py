@@ -72,13 +72,13 @@ def test_export(vdataset: Dataset):
         assert "Johnny Doe" in {t["name"] for t in targets}
 
 
-def harnessed_export(exporterClass, dataset) -> None:
+def harnessed_export(exporter_class, dataset) -> None:
     context = Context(dataset)
     context.begin(clear=False)
     store = get_store(dataset)
     view = store.view(dataset)
 
-    exporter = exporterClass(context, view)
+    exporter = exporter_class(context, view)
     exporter.setup()
     for entity in view.entities():
         exporter.feed(entity)
