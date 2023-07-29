@@ -34,8 +34,6 @@ MONTHS = {
     "decembrie": "December",
 }
 
-COUNTRY = "md"
-
 # Fondator/Administrator –
 # or
 # Fondator - TOLMAŢCHI VALERI Administrator - TOLMAŢCHI VALERI
@@ -73,12 +71,12 @@ def crawl(context: Context):
 
         entity = context.make("Company")
         name = data.pop("denumirea-si-forma-de-organizare-a-operatorului-economic")
-        entity.id = context.make_id(name, COUNTRY)
+        entity.id = context.make_id(name, "md")
         entity.add("name", name)
         entity.add("topics", "debarment")
 
         addr_string = data.pop("adresa-si-datele-de-contact-ale-operatorului-economic")
-        address = h.make_address(context, full=addr_string, country=COUNTRY)
+        address = h.make_address(context, full=addr_string, country_code="md")
         h.apply_address(context, entity, address)
 
         delay_until_date = parse_delay(context, data.pop("mentiuni"))
