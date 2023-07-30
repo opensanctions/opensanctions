@@ -10,7 +10,7 @@ publisher:
 url: https://github.com/opensanctions/opensanctions
 
 inputs:
-  - validation
+  - testdataset1
 
 config:
   type: zavod.tests.test_enrichment:StubEnricher

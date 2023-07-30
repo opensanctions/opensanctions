@@ -3,17 +3,16 @@ from typing import List, Type
 from zavod.logs import get_logger
 from zavod.store import View, get_store
 from zavod.context import Context
-from zavod.meta import Dataset
-from opensanctions.core import get_catalog
-from opensanctions.exporters.common import Exporter
-from opensanctions.exporters.ftm import FtMExporter
-from opensanctions.exporters.nested import NestedJSONExporter
-from opensanctions.exporters.names import NamesExporter
-from opensanctions.exporters.simplecsv import SimpleCSVExporter
-from opensanctions.exporters.senzing import SenzingExporter
-from opensanctions.exporters.statistics import StatisticsExporter
-from opensanctions.exporters.metadata import export_metadata, dataset_to_index
-from opensanctions.util import write_json
+from zavod.meta import Dataset, get_catalog
+from zavod.exporters.common import Exporter
+from zavod.exporters.ftm import FtMExporter
+from zavod.exporters.nested import NestedJSONExporter
+from zavod.exporters.names import NamesExporter
+from zavod.exporters.simplecsv import SimpleCSVExporter
+from zavod.exporters.senzing import SenzingExporter
+from zavod.exporters.statistics import StatisticsExporter
+from zavod.exporters.metadata import write_dataset_index
+from zavod.util import write_json
 
 log = get_logger(__name__)
 
@@ -26,10 +25,10 @@ EXPORTERS: List[Type[Exporter]] = [
     SenzingExporter,
 ]
 
-__all__ = ["export_dataset", "export_metadata", "export_statements"]
+__all__ = ["export_dataset"]
 
 
-def export_data(context: Context, view: View):
+def export_data(context: Context, view: View) -> None:
     clazzes = EXPORTERS
     if not context.dataset.export:
         clazzes = [StatisticsExporter]
@@ -53,27 +52,28 @@ def export_data(context: Context, view: View):
         exporter.finish()
 
 
-def export_dataset(dataset: Dataset, view: View):
+def write_issues(context: Context) -> None:
+    # Export list of data issues from crawl stage
+    issues_path = context.get_resource_path("issues.json")
+    context.log.info("Writing dataset issues list", path=issues_path)
+    with open(issues_path, "wb") as fh:
+        issues = list(context.issues.all())
+        data = {"issues": issues}
+        write_json(data, fh)
+
+
+def export_dataset(dataset: Dataset, view: View) -> None:
     """Dump the contents of the dataset to the output directory."""
     try:
         context = Context(dataset)
         context.begin(clear=False)
         export_data(context, view)
 
-        # Export list of data issues from crawl stage
-        issues_path = context.get_resource_path("issues.json")
-        context.log.info("Writing dataset issues list", path=issues_path)
-        with open(issues_path, "wb") as fh:
-            issues = list(context.issues.all())
-            data = {"issues": issues}
-            write_json(data, fh)
+        write_issues(context)
 
         # Export full metadata
-        index_path = context.get_resource_path("index.json")
-        context.log.info("Writing dataset index", path=index_path)
-        with open(index_path, "wb") as fh:
-            meta = dataset_to_index(dataset)
-            write_json(meta, fh)
+        write_dataset_index(context, dataset)
+
     finally:
         context.close()
 

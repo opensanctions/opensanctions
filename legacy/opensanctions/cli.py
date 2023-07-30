@@ -16,11 +16,12 @@ from zavod.store import get_store
 from zavod.archive import dataset_path
 from zavod.dedupe import get_resolver, blocking_xref
 from zavod.tools.dump_file import dump_dataset_to_file
+from zavod.tools.meta_index import export_index
 from zavod.exc import RunFailedException
 from opensanctions.core.catalog import get_catalog, get_dataset_names
 from opensanctions.core.training import export_training_pairs
-from opensanctions.exporters import export, export_metadata
-from opensanctions.util import write_json
+from zavod.exporters import export
+from zavod.util import write_json
 
 log = get_logger(__name__)
 datasets = click.Choice(get_dataset_names())
@@ -68,7 +69,7 @@ def export_(dataset: str, recurse: bool = False):
 @click.argument("dataset", default=ALL_SCOPE, type=datasets)
 def export_metadata_(dataset: str):
     dataset_ = get_catalog().require(dataset)
-    export_metadata(dataset_)
+    export_index(dataset_)
 
 
 @cli.command("clear-workdir", help="Delete the working path and cached source data")
