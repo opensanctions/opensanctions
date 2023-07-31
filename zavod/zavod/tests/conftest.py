@@ -12,7 +12,8 @@ settings.RESOLVER_PATH = settings.DATA_PATH.joinpath("resolver.ijson").as_posix(
 settings.ARCHIVE_BUCKET = None
 settings.CACHE_DATABASE_URI = None
 FIXTURES_PATH = Path(__file__).parent / "fixtures"
-DATASET_YML = FIXTURES_PATH / "testdataset1" / "testdataset1.yml"
+DATASET_1_YML = FIXTURES_PATH / "testdataset1" / "testdataset1.yml"
+DATASET_2_YML = FIXTURES_PATH / "testdataset2" / "testdataset2.yml"
 COLLECTION_YML = FIXTURES_PATH / "collection.yml"
 ANALYZER_YML = FIXTURES_PATH / "analyzer.yml"
 ENRICHER_YML = FIXTURES_PATH / "enricher.yml"
@@ -30,7 +31,7 @@ def clear_catalog():
 
 @pytest.fixture(scope="function")
 def vdataset() -> Dataset:
-    dataset = load_dataset_from_path(DATASET_YML)
+    dataset = load_dataset_from_path(DATASET_1_YML)
     assert dataset is not None
     return dataset
 

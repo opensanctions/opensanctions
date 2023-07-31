@@ -1,14 +1,18 @@
-from zavod.exporters import export
-from zavod.context import Context
-from zavod.store import View, get_store, get_view
-from zavod.meta import Dataset
-from zavod.runner import run_dataset
-from zavod import settings
+from csv import DictReader
 from followthemoney.cli.util import path_entities
 from followthemoney.proxy import EntityProxy
 from json import load, loads
-from csv import DictReader
+from nomenklatura.judgement import Judgement
+
+from zavod import settings
+from zavod.context import Context
+from zavod.dedupe import get_resolver
+from zavod.exporters import export
 from zavod.exporters.ftm import FtMExporter
+from zavod.meta import Dataset, load_dataset_from_path
+from zavod.runner import run_dataset
+from zavod.store import View, get_store, get_view
+from zavod.tests.conftest import DATASET_2_YML
 
 
 def test_export(vdataset: Dataset):
@@ -27,7 +31,9 @@ def test_export(vdataset: Dataset):
 
     dataset_path = settings.DATA_PATH / "datasets" / vdataset.name
     # it parses and finds expected number of entites
-    assert len(list(path_entities(dataset_path / "entities.ftm.json", EntityProxy))) == 11
+    assert (
+        len(list(path_entities(dataset_path / "entities.ftm.json", EntityProxy))) == 11
+    )
 
     with open(dataset_path / "index.json") as index_file:
         index = load(index_file)
@@ -88,11 +94,39 @@ def harnessed_export(exporter_class, dataset) -> None:
     store.close()
 
 
-def test_ftm(vdataset: Dataset):
+def test_ftm_referents(vdataset: Dataset):
     run_dataset(vdataset)
 
+    resolver = get_resolver()
+    identifier = resolver.decide(
+        "osv-john-doe", "osv-johnny-does", Judgement.POSITIVE, user="test"
+    )
     harnessed_export(FtMExporter, vdataset)
 
-    dataset_path = settings.DATA_PATH / "datasets" / vdataset.name
-    assert len(list(path_entities(dataset_path / "entities.ftm.json", EntityProxy))) == 11
-    
+    ftm_path = settings.DATA_PATH / "datasets" / vdataset.name / "entities.ftm.json"
+    entities = list(path_entities(ftm_path, EntityProxy))
+    assert len(entities) == 11
+
+    john = [e for e in entities if e.id == "osv-john-doe"][0]
+    assert [identifier, "osv-johnny-does"] == sorted(john.to_dict()["referents"])
+
+    johnny = [e for e in entities if e.id == "osv-johnny-does"][0]
+    assert [identifier, "osv-john-doe"] == sorted(johnny.to_dict()["referents"])
+
+    # Dedupe against an entity from another dataset.
+    # The entity ID is included as referent but is not included in the export.
+
+    dataset2 = load_dataset_from_path(DATASET_2_YML)
+    run_dataset(dataset2)
+    other_dataset_id = "td2-friedrich"
+
+    resolver.decide("osv-john-doe", other_dataset_id, Judgement.POSITIVE, user="test")
+    harnessed_export(FtMExporter, vdataset)
+
+    entities = list(path_entities(ftm_path, EntityProxy))
+    assert len(entities) == 11
+    john = [e for e in entities if e.id == "osv-john-doe"][0]
+    assert [identifier, "osv-johnny-does", other_dataset_id] == sorted(
+        john.to_dict()["referents"]
+    )
+    assert [] == [e for e in entities if e.id == other_dataset_id]

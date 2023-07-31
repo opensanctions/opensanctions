@@ -5,9 +5,9 @@ from zavod.archive import dataset_resource_path
 from zavod.meta import Dataset, DataResource
 from zavod.runtime.resources import DatasetResources
 
-from zavod.tests.conftest import DATASET_YML
+from zavod.tests.conftest import DATASET_1_YML
 
-CSV_PATH = DATASET_YML.parent / "dataset.csv"
+CSV_PATH = DATASET_1_YML.parent / "dataset.csv"
 
 
 def test_resources(vdataset: Dataset):
