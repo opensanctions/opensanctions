@@ -9,7 +9,7 @@ from datapatch import LookupException, Result, Lookup
 from followthemoney.schema import Schema
 from followthemoney.util import make_entity_id
 from nomenklatura.cache import Cache
-from nomenklatura.util import normalize_url
+from nomenklatura.util import normalize_url, ParamsType
 from structlog.contextvars import clear_contextvars, bind_contextvars
 
 from zavod import settings
@@ -28,7 +28,6 @@ from zavod.logs import get_logger
 from zavod.util import join_slug, ElementOrTree
 
 _Auth = Optional[Tuple[str, str]]
-_Params = Optional[Mapping[str, str]]
 _Headers = Optional[Mapping[str, str]]
 
 
@@ -205,7 +204,7 @@ class Context:
     def fetch_text(
         self,
         url: str,
-        params: _Params = None,
+        params: ParamsType = None,
         headers: _Headers = None,
         auth: _Auth = None,
         cache_days: Optional[int] = None,
@@ -243,7 +242,7 @@ class Context:
     def fetch_json(
         self,
         url: str,
-        params: _Params = None,
+        params: ParamsType = None,
         headers: _Headers = None,
         auth: _Auth = None,
         cache_days: Optional[int] = None,
@@ -275,7 +274,7 @@ class Context:
     def fetch_html(
         self,
         url: str,
-        params: _Params = None,
+        params: ParamsType = None,
         headers: _Headers = None,
         auth: _Auth = None,
         cache_days: Optional[int] = None,
