@@ -39,7 +39,7 @@ description: >
     a sanctions list that is implemented by all member states.
 
 # The Python module in the same director that contains the crawler code:
-entry_point: parse
+entry_point: crawler
 
 # A prefix will be used to mint entity IDs. Keep it short.
 prefix: eu-fsf
@@ -67,26 +67,26 @@ Once that YAML file is stored in the correct folder, you should be able to run c
 $ zavod run datasets/eu/fsf/eu_fsf_demo.yml
 ....
 2023-08-01 12:36:24 [warning  ] No backfill bucket configured  [zavod.archive] 
-2023-08-01 12:36:24 [info     ] Running dataset                [eue_fsf_demo] dataset=eue_fsf_demo path=/home/jdb/projects/opensanctions/opensanctions/data/datasets/eue_fsf_demo
-2023-08-01 12:36:24 [error    ] Runner failed: Could not load entry point: parse [eue_fsf_demo] dataset=eue_fsf_demo
+2023-08-01 12:36:24 [info     ] Running dataset                [eue_fsf_demo] dataset=eue_fsf_demo path=/home/you/opensanctions/data/datasets/eue_fsf_demo
+2023-08-01 12:36:24 [error    ] Runner failed: Could not load entry point: crawler [eue_fsf_demo] dataset=eue_fsf_demo
 ```
 
 Don't worry about the backfill bucket warning - that is not needed when developing crawlers. It is used in production to automatically track when data was previously seen and updated.
 
-The `Runner failed: Could not load entry point: parse` error indicates that it looked for our crawler and couldn't find it. Adding the crawler script is the next step.
+The `Runner failed: Could not load entry point: crawler` error indicates that it looked for our crawler and couldn't find it. Adding the crawler script is the next step.
 
 ## Developing a crawler script
 
 In order to actually feed data into the data source, we need to write a crawler script. The script location is specified in the YAML metadata file as ``entry_point:``. This also means you could reference the same script for multiple data sources, for example in a scenario where two data sources use the API, except with some varied parameters.
 
-In our example above, we'd create a file in `datasets/eu/fsf/parse.py` with a crawler skeleton:
+In our example above, we'd create a file in `datasets/eu/fsf/crawler.py` with a crawler skeleton:
 
 ```python
 def crawl(context):
     context.log.info("Hello, World!")
 ```
 
-Running the crawler (`opensanctions crawl eu_fsf_demo`) should now produce a log line with the message *Hello, World!*
+Running the crawler (`zavod run datasets/eu/fsf/eu_fsf_demo.yml`) should now produce a log line with the message *Hello, World!*
 
 You'll notice that the ``crawl()`` function receives a ``Context`` object. Think of it as a sort of sidekick: it helps you to create, store and document data in your crawler.
 
@@ -137,8 +137,8 @@ def crawl(context):
 
     # Each entity needs an ID which is unique within the source database, and
     # ideally consistent over time.
-    # In OpenSanctions, this is often derived from its ID in the source database,
-    # or a string with the above properties. See patterns below.
+    # This is often ideally derived from its ID in the source database,
+    # or a string with the above properties. See Patterns below.
     entity.id = context.make_id('Joseph Biden')
 
     # Assign some property values:
@@ -154,7 +154,7 @@ def crawl(context):
     context.emit(entity, target=True)
 ```
 
-The entity object is based on the entity proxy in FollowTheMoney, so we suggest you also check out the [FtM documentation](https://followthemoney.tech/docs/api/) on entity construction. Some additional utility methods are added in the entity class in OpenSanctions.
+The entity object is based on the entity proxy in FollowTheMoney, so we suggest you also check out the [FtM documentation](https://followthemoney.tech/docs/api/) on entity construction. Some additional utility methods are added in the `Entity` class in `zavod`.
 
 ## Checklist
 
@@ -170,7 +170,7 @@ When contributing a new data source, or some other change, make sure of the foll
   data in an improvised way.
 * Include verbose logging in your crawler. Make sure that new fields or enum values
   introduced upstream (e.g. a new country code or sanction program) will cause a warning
-  to be emitted. [Warnings](/https://www.opensanctions.org/issues) are checked regularly to identify when a crawler needs attention.
+  to be emitted. [Warnings](https://www.opensanctions.org/issues) are checked regularly to identify when a crawler needs attention.
   Info and lower level logs are useful for debugging with the `-v` flag.
 * Bonus points: your Python code is linted and formatted with ``black``.
 
