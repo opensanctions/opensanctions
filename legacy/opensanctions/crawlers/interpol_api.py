@@ -53,6 +53,8 @@ def crawl_notice(context: Context, notice: Dict[str, Any]) -> None:
     try:
         notice = context.fetch_json(url, cache_days=CACHE_DAYS)
     except HTTPError as err:
+        if err.response.status_code == 404:
+            return
         context.log.warning(
             "HTTP error",
             url=str(err.request.url),

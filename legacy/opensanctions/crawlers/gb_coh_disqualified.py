@@ -12,7 +12,7 @@ class AbortCrawl(Exception):
     pass
 
 
-API_KEY = os.environ.get("OPENSANCTIONS_COH_API_KEY")
+API_KEY = os.environ.get("OPENSANCTIONS_COH_API_KEY", "")
 AUTH = (API_KEY, "")
 SEARCH_URL = "https://api.companieshouse.gov.uk/search/disqualified-officers"
 API_URL = "https://api.companieshouse.gov.uk/"
@@ -42,9 +42,15 @@ def http_get(
 def crawl_item(context: Context, listing: Dict[str, Any]) -> None:
     links = listing.get("links", {})
     url = urljoin(API_URL, links.get("self"))
-    data = http_get(context, url, cache_days=14)
-    if data is None:
-        context.log.warn("Could not fetch: %r" % url)
+    try:
+        data = context.fetch_json(url, auth=AUTH, cache_days=14)
+    except HTTPError as err:
+        if err.response.status_code in (429, 416):
+            raise AbortCrawl()
+        if err.response.status_code == 404:
+            context.log.info("Entity removed: %s" % url)
+            return
+        context.log.exception("HTTP error: %s" % url)
         return
     person = context.make("Person")
     _, officer_id = url.rsplit("/", 1)
@@ -128,7 +134,7 @@ def crawl_item(context: Context, listing: Dict[str, Any]) -> None:
 
 
 def crawl(context: Context) -> None:
-    if API_KEY is None:
+    if not len(API_KEY):
         context.log.error("Please set $OPENSANCTIONS_COH_API_KEY.")
         return
     try:
@@ -137,9 +143,21 @@ def crawl(context: Context) -> None:
             while True:
                 params = {
                     "q": letter,
-                    "start_index": start_index,
-                    "items_per_page": 100,
+                    "start_index": str(start_index),
+                    "items_per_page": "100",
                 }
+                try:
+                    data = context.fetch_json(
+                        SEARCH_URL,
+                        params=params,
+                        auth=AUTH,
+                        cache_days=2,
+                    )
+                except HTTPError as err:
+                    if err.response.status_code in (429, 416):
+                        raise AbortCrawl()
+                    context.log.exception("HTTP error: %s" % SEARCH_URL)
+                    break
                 data = http_get(context, SEARCH_URL, params=params)
                 for item in data.pop("items", []):
                     crawl_item(context, item)
