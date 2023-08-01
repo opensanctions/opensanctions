@@ -21,13 +21,19 @@ theme:
         link: https://github.com/opensanctions/opensanctions
 
 plugins:
-  - mkdocstrings
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            show_root_heading: true
+            show_object_full_path: false
 
 markdown_extensions:
   - admonition
 
 nav:
-  - index.md
+  - Overview: index.md
   - install.md
   - tutorial.md
-  - reference.md
+  - context.md
+  - helpers.md
