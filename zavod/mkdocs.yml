@@ -25,4 +25,6 @@ plugins:
 
 nav:
   - index.md
+  - install.md
+  - tutorial.md
   - reference.md

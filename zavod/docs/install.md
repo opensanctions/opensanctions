@@ -1,12 +1,6 @@
----
-summary:
-    You can install zavod on your own systems in order to run the pipeline
-    indepdendently, or to contribute to the code base. 
----
-
 # Installation
 
-`zavod`, the OpenSanctions data pipeline, can be installed in a few different ways, depending on your answers to these two questions:
+`zavod` can be installed in a few different ways, depending on your answers to these two questions:
 
 * Do you just want to execute the existing crawlers, or change them and add your own
   data sources to the system?
@@ -67,24 +61,15 @@ $ zavod --help
 If you encounter any errors during the installation, please consider googling errors related to libraries used by `zavod` (e.g.: SQLAlchemy, Python-Levenshtein, click, etc.).
 
 
-**Note:** `zavod` has an optional dependency on PyICU, a library related to the transliteration of names in other alphabets to the latin character set. This library is not installed by default because its configuration can be tricky. Consider following `the PyICU documentation <https://pypi.org/project/PyICU/>`_ to install this library and achieve better transliteration results.
+**Note:** `zavod` has an optional dependency on PyICU, a library related to the transliteration of names in other alphabets to the latin character set. This library is not installed by default because its configuration can be tricky. Consider following [the PyICU documentation](https://pypi.org/project/PyICU/) to install this library and achieve better transliteration results.
 
 
-## <a id="updates"></a> Configuration
+## Configuration
 
 `zavod` is inspired by the [twelve factor model](https://12factor.net/) and uses
 [environment variables](https://www.twilio.com/blog/2017/01/how-to-set-environment-variables.html) to configure the operation of the system. Some of the key settings include:
-
-* `ZAVOD_RESOLVER_PATH` is a JSON file that contains deduplication
-  judgements. You can set this to an empty file if you have not performed any
-  deduplication, or create an file in the `/data` volume mount of the docker
-  installation.
 
 * `ZAVOD_DATA_PATH` is the main working directory for the system. By
   default it will contain cached artifacts and the generated output data. This
   defaults to the `data/` subdirectory of the current working directory when the
   `zavod` command is invoked.
-
-* `ZAVOD_METADATA_PATH` is the path in which the system will search for
-  metadata specifications of [datasets](/datasets/). By default, this points
-  to the `metadata/` subdirectory within the application source code.
