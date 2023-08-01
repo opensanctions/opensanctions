@@ -23,6 +23,9 @@ theme:
 plugins:
   - mkdocstrings
 
+markdown_extensions:
+  - admonition
+
 nav:
   - index.md
   - install.md

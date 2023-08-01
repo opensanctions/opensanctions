@@ -5,11 +5,12 @@ store it as entities as a data source. `zavod` defines a framework for
 crawlers to retrieve data, parse it and emit structured data about people or 
 companies into a database.
 
-**Note:** Before you contribute a crawler, please consider if you are willing
-to remain involved in its maintenance after having the code included in
-`zavod`. Maintaining a crawler is an ongoing commitment, and the OpenSanctions
-team does not automatically assume that responsibility for code contributed by
-others. See our general [inclusion critera](https://www.opensanctions.org/docs/criteria/).
+!!! info "Please note"
+    Before you contribute a crawler, please consider if you are willing
+    to remain involved in its maintenance after having the code included in
+    `zavod`. Maintaining a crawler is an ongoing commitment, and the OpenSanctions
+    team does not automatically assume that responsibility for code contributed by
+    others. See our general [inclusion critera](https://www.opensanctions.org/docs/criteria/).
 
 1. Make sure you have [installed zavod](install.md).
 2. File a [GitHub issue](https://github.com/opensanctions/opensanctions/issues)
@@ -25,6 +26,17 @@ Before programming a crawler script, you need to create a YAML file with some ba
 The metadata file must also include a reference to the entry point, the Python code that should be executed in order to crawl the source.
 
 Create a new YAML file at the path ``datasets/cc/source/cc_source.yml`` replacing `cc` with the relevant ISO 3166-2 country code, and `source` with an acronym or short name for the source, separating name parts using underscores. Other codes may be derived from standard acronyms instead of country codes for regions that span beyond one country.
+
+!!! warning "Important"
+
+    High quality, meaning clear, comprehensive, but concise, metadata
+    describing the source and the data itself is critical to the usability
+    of the data. This should not be neglected, and contributed crawlers
+    can not be merged without adequate metadata.
+
+    Read your metadata as if it's your first time, and ask yourself if other
+    readers will understand the scope and limitations of the dataset, or whether
+    they might misinterpret the purpose of the dataset as intended by its publisher
 
 The contents of the new metadata file should look something like this:
 
