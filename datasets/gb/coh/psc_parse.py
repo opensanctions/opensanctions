@@ -29,6 +29,24 @@ KINDS = {
     "exemptions": "",
 }
 
+IGNORE_BASE_COLUMNS = [
+    "Accounts.AccountRefDay",
+    "Accounts.AccountRefMonth",
+    "Accounts.NextDueDate",
+    "Accounts.LastMadeUpDate",
+    "Accounts.AccountCategory",
+    "Returns.NextDueDate",
+    "Returns.LastMadeUpDate",
+    "Mortgages.NumMortCharges",
+    "Mortgages.NumMortOutstanding",
+    "Mortgages.NumMortPartSatisfied",
+    "Mortgages.NumMortSatisfied",
+    "LimitedPartnerships.NumGenPartners",
+    "LimitedPartnerships.NumLimPartners",
+    "ConfStmtNextDueDate",
+    "ConfStmtLastMadeUpDate",
+]
+
 
 def company_id(context: Context, company_nr: str) -> str:
     nr = company_nr.lower()
@@ -101,7 +119,7 @@ def parse_base_data(context: Context) -> None:
 
         oc_url = f"https://opencorporates.com/companies/gb/{company_nr}"
         entity.add("opencorporatesUrl", oc_url)
-        # entity.add("sourceUrl", row.pop("URI"))
+        entity.add("sourceUrl", row.pop("URI"))
 
         for i in range(1, 5):
             sector = row.pop(f"SICCode.SicText_{i}")
@@ -130,9 +148,7 @@ def parse_base_data(context: Context) -> None:
             country_code=country_code,
         )
         entity.add("address", addr_text)
-
-        # pprint(entity.to_dict())
-        context.audit_data(row)
+        context.audit_data(row, ignore=IGNORE_BASE_COLUMNS)
         context.emit(entity)
 
 
@@ -190,10 +206,11 @@ def parse_psc_data(context: Context) -> None:
         psc.id = f"{context.dataset.prefix}-psc-{company_nr}-{psc_id_slug}"
         psc.add("name", data.pop("name"))
         nationality = data.pop("nationality", None)
+        nationalities = h.multi_split(nationality, [",", "/"])
         if psc.schema.is_a("Person"):
-            psc.add("nationality", nationality, quiet=True)
+            psc.add("nationality", nationalities, quiet=True)
         else:
-            psc.add("jurisdiction", nationality, quiet=True)
+            psc.add("jurisdiction", nationalities, quiet=True)
         psc.add("country", data.pop("country_of_residence", None))
 
         names = data.pop("name_elements", {})
@@ -218,6 +235,7 @@ def parse_psc_data(context: Context) -> None:
                 summary=address.pop("care_of", None),
                 po_box=address.pop("po_box", None),
                 street=street,
+                house_number=address.pop("premises", None),
                 postal_code=address.pop("postal_code", None),
                 state=address.pop("region", None),
                 city=address.pop("locality", None),
@@ -232,7 +250,7 @@ def parse_psc_data(context: Context) -> None:
         psc.add("legalForm", ident.pop("legal_form", None), quiet=True)
         psc.add("legalForm", ident.pop("legal_authority", None), quiet=True)
         psc.add("jurisdiction", ident.pop("country_registered", None), quiet=True)
-        psc.add("jurisdiction", ident.pop("place_registered", None), quiet=True)
+        # psc.add("jurisdiction", ident.pop("place_registered", None), quiet=True)
         # if len(ident):
         #     pprint(ident)
 
@@ -257,5 +275,5 @@ def parse_psc_data(context: Context) -> None:
 
 
 def crawl(context: Context) -> None:
-    parse_base_data(context)
+    # parse_base_data(context)
     parse_psc_data(context)

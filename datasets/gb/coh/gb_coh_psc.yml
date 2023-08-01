@@ -15,3 +15,24 @@ publisher:
 data:
   url: "http://download.companieshouse.gov.uk/en_pscdata.html"
   format: JSON
+
+lookups:
+  type.country:
+    lowercase: true
+    options:
+      - match:
+          - Companies House
+          - England & Wales Companies Register
+          - Compaines House
+          - CHANNEL ISLANDS
+          - VIRGIN ISLANDS
+        contains:
+          - Register Of Companies
+        value: null
+      - match:
+          - Hong Konger
+        value: hk
+      - match:
+          - Other
+          - N/A
+          - None
