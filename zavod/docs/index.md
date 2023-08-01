@@ -8,7 +8,6 @@ This page contains documentation for the data processing framework used by [Open
 
 * [Installation](install.md) of zavod on your machine
 * [Tutorial](tutorial.md): how to add a crawler
-* Working with [dataset metadata](metadata.md)
 
 ## Further references
 
