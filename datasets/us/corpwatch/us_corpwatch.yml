@@ -1,0 +1,42 @@
+name: us_corpwatch
+title: US CorpWatch EX-21 Filings
+prefix: us-cw
+entry_point: crawler.py
+summary: |
+  Subsidiary relationship information from Exhibit 21 of companies' 10-K
+  filings with the SEC (global subsidiaries of all publicly-listed companies
+  in the US).
+description: |
+  No directors, only companies and their (international) subsidiaries / parents.
+
+  Parent companies (as parsed from the Exhibit 21 of the 10-K where possible) are
+  mapped via the `parent` property, no extra `Ownership` interval is created,
+  unless there is detailed share information (percentage and/or date).
+
+  From Corpwatch source data README:
+  > NOTE: Some groups of companies may form circular loops due to peculiarities of
+  > their filings (Same companies listed as parents and children), or because
+  > multiple CIKs refer to the same filing.
+url: http://api.corpwatch.org/documentation/#data
+publisher:
+  name: CorpWatch
+  url: https://corpwatch.org
+  description: |
+    The data provided here is funded and developed by CorpWatch.org, a
+    non-profit which works to promote environmental, social and human rights at
+    the local, national and global levels by holding multinational corporations
+    accountable for their actions. We employ investigative research and
+    journalism to provide critical information on corporate malfeasance and
+    profiteering around the world to foster a more informed public and an
+    effective democracy.
+  country: us
+data:
+  url: https://archive.org/download/corpwatch_api_data_dumps/corpwatch_api_tables_csv.tar.gz
+  format: CSV+TAR+GZIP
+
+lookups:
+  type.country:
+    - options:
+        - match:
+            - AN
+          value: null
