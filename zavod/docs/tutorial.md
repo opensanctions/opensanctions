@@ -29,14 +29,12 @@ Create a new YAML file at the path ``datasets/cc/source/cc_source.yml`` replacin
 
 !!! warning "Important"
 
-    High quality, meaning clear, comprehensive, but concise, metadata
-    describing the source and the data itself is critical to the usability
-    of the data. This should not be neglected, and contributed crawlers
-    can not be merged without adequate metadata.
+    Metadata is essential to making our data useable. We will not merge additional
+    crawlers which don't have metadata, or where the descriptions are cryptic.
 
     Read your metadata as if it's your first time, and ask yourself if other
-    readers will understand the scope and limitations of the dataset, or whether
-    they might misinterpret the purpose of the dataset as intended by its publisher
+    readers will understand the scope and limitations of the dataset. For simple
+    crawlers, writing the metadata can take as much time as writing the code.
 
 The contents of the new metadata file should look something like this:
 
@@ -73,6 +71,8 @@ data:
     format: XML
 ```
 
+## Running a dataset crawler
+
 Once that YAML file is stored in the correct folder, you should be able to run command-line operations against the dataset. For example (if your metadata file is named `eu_fsf_demo.yml`):
 
 ```bash
@@ -86,6 +86,11 @@ $ zavod run datasets/eu/fsf/eu_fsf_demo.yml
 Don't worry about the backfill bucket warning - that is not needed when developing crawlers. It is used in production to automatically track when data was previously seen and updated.
 
 The `Runner failed: Could not load entry point: crawler` error indicates that it looked for our crawler and couldn't find it. Adding the crawler script is the next step.
+
+!!! info "Dry run mode"
+    You can switch zavod to dry run during crawler development by adding the `-d` (or `--dry-run`) flag on the command line. A dry run will not store any of the emitted data, and disable the generation of correct timestamps, which is slow.
+
+    `zavod run -d datasets/eu/fsf/eu_fsf_demo.yml`
 
 ## Developing a crawler script
 
