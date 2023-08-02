@@ -100,18 +100,20 @@ In order to actually feed data into the data source, we need to write a crawler 
 In our example above, we'd create a file in `datasets/eu/fsf/crawler.py` with a crawler skeleton:
 
 ```python
-def crawl(context):
+from zavod import Context
+
+def crawl(context: Context):
     context.log.info("Hello, World!")
 ```
 
 Running the crawler (`zavod run datasets/eu/fsf/eu_fsf_demo.yml`) should now produce a log line with the message *Hello, World!*
 
-You'll notice that the ``crawl()`` function receives a ``Context`` object. Think of it as a sort of sidekick: it helps you to create, store and document data in your crawler.
+You'll notice that the ``crawl()`` function receives a [`Context`][zavod.context.Context] object. Think of it as a sort of sidekick: it helps you to create, store and document data in your crawler.
 
 ### Fetching and storing resources
 
 Many crawlers will start off by downloading a source data file, like a CSV table or a
-XML document. The `context` provides utility methods that let you fetch a file and store it into the crawlers working directory. Files stored to the crawler home directory (``context.path``) will later be uploaded and published to the web.
+XML document. The [`context`][zavod.context.Context] provides utility methods that let you fetch a file and store it into the crawlers working directory. Files stored to the crawler home directory and [exported as resources][zavod.context.Context.export_resource] will later be uploaded and published to the web.
 
 ```python
 def crawl(context):

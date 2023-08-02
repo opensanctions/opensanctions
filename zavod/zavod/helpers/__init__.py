@@ -20,7 +20,7 @@ def crawl(context: Context) -> None:
         # Using the helper guarantees a consistent handling of the 
         # attributes, and in this case will also automatically
         # generate a full name for the entity:
-        h.make_name(
+        h.apply_name(
             entity,
             first_name=row.get("first_name"),
             patronymic=row.get("patronymic"),

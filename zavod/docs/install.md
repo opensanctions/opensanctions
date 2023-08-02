@@ -1,10 +1,6 @@
 # Installation
 
-`zavod` can be installed as a standalone Python application, or by using Docker as a runtime environment. In order to choose the correct installation path, consider the following questions:
-
-* Do you just want to execute the existing crawlers (works in Docker), or change them and add your own data sources to the system? Getting `zavod` to run inside a Docker container is very easy, it might make iteration a bit slower and stand in the way of debugging a crawler as it is being developed.
-
-* Are you more comfortable running the program in your own Python virtual environment, or do you prefer to isolate it in a Docker container?
+`zavod` can be installed as a standalone Python application, or by using Docker as a runtime environment. In order to choose the correct installation path, consider the following questions: Do you just want to execute the existing crawlers, or change them and add your own data sources? Getting `zavod` to run inside a Docker container is very easy, but it makes working on the code harder and stands in the way of debugging a crawler as it is being developed.
 
 In any case, you will need to check out the OpenSanctions repository which houses the `zavod` application to your computer:
 
