@@ -20,10 +20,9 @@ log = get_logger(__name__)
 class Entity(CompositeEntity):
     """Entity for sanctions list entries and adjacent objects.
 
-    Add utility methods to the :py:class:`followthemoney.proxy:EntityProxy` for
-    extracting data from sanctions lists and for auditing parsing errors to
-    structured logging.
-    """
+    Add utility methods to the [EntityProxy](https://followthemoney.tech/reference/python/followthemoney/proxy.html#EntityProxy) for
+    extracting data from sanctions lists and for auditing parsing errors to structured logging.
+    """  # noqa
 
     def __init__(self, dataset: Dataset, data: Dict[str, Any], cleaned: bool = True):
         super().__init__(dataset, data, cleaned=cleaned)

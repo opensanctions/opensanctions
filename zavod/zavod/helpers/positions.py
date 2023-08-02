@@ -35,7 +35,7 @@ def make_position(
         inception_date: The date the position was created.
         dissolution_date: The date the position was dissolved.
         number_of_seats: The number of seats that can hold the position.
-        wiki_id: The Wikidata QID of the position.
+        wikidata_id: The Wikidata QID of the position.
         source_url: The URL of the source the position was found in.
         lang: The language of the position details.
 

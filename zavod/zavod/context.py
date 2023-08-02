@@ -32,8 +32,12 @@ _Headers = Optional[Mapping[str, str]]
 
 
 class Context:
-    """A utility object that is passed into crawlers and other runners.
-    It supports emitting entities, accessing metadata and logging errors and warnings.
+    """The context is a utility object that is passed as an argument into crawlers
+    and other runners.
+
+    It supports creating and emitting (storing) entities, accessing metadata and
+    logging errors and warnings. It also has functions for fetching data from the
+    web and storing it in the dataset's data folder.
     """
 
     SOURCE_TITLE = "Source data"

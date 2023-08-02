@@ -21,7 +21,9 @@ theme:
         link: https://github.com/opensanctions/opensanctions
 
 plugins:
+  - autorefs
   - mkdocstrings:
+      default_handler: python
       handlers:
         python:
           options:
@@ -30,10 +32,18 @@ plugins:
 
 markdown_extensions:
   - admonition
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
 
 nav:
   - Overview: index.md
   - install.md
-  - tutorial.md
+  - Tutorial: tutorial.md
   - context.md
   - helpers.md
+  - patterns.md

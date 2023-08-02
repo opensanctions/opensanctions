@@ -5,6 +5,33 @@ real-world data (like XML, CSV, date formats) and converting it into
 FollowTheMoney entity structures. Factory methods are provided for
 handling common entity patterns as a way to reduce boilerplate code
 and improve consistency across datasets.
+
+A typical use might look like this:
+
+```python
+from zavod import Context
+from zavod import helpers as h
+
+def crawl(context: Context) -> None:
+    # ... fetch some data
+    for row in data:
+        entity = h.make_entity("Person")
+        entity.id = context.make_id(row.get("id"))
+        # Using the helper guarantees a consistent handling of the 
+        # attributes, and in this case will also automatically
+        # generate a full name for the entity:
+        h.make_name(
+            entity,
+            first_name=row.get("first_name"),
+            patronymic=row.get("patronymic"),
+            last_name=row.get("last_name"),
+            title=row.get("title"),
+        )
+        context.emit(entity)
+```
+
+Any data wrangling code that is repeated in three or more crawlers should
+be considered for inclusion in the helper library.
 """
 from zavod.helpers.xml import remove_namespace
 from zavod.helpers.names import make_name, apply_name

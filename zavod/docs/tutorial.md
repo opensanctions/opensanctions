@@ -135,11 +135,23 @@ def crawl(context):
         context.log.info("Element", element=element)
 ```
 
-Responses from the ``context.http`` session are cached between different runs of the crawler and will be cached for up to 10 days. You can partially disable this by adding a timestamp parameter to the fetched URLs.
+Responses from the ``context.http`` session can also be cached using built-in helper methods:
+
+```python
+from lxml import html
+
+def crawl(context):
+    # Fetch, cache and parse the HTTP response into an lxml DOM:
+    doc = context.fetch_html(context.dataset.data.url, cache_days=7)
+
+    # Query the DOM for specific elements to extract data from:
+    for element in doc.findall('.//div[@class="person"]'):
+        context.log.info("Element", element=element)
+```
 
 ### Creating and emitting entities
 
-The goal of each crawler is to produce data about persons and other entities of interest. To enable this, the ``context`` provides a number of helpers that construct and store [entities](https://www.opensanctions.org/docs/entities/):
+The goal of each crawler is to produce data about persons and other entities of interest. To enable this, the [`context`][zavod.context.Context] provides a number of helpers that construct and store [entities](https://www.opensanctions.org/docs/entities/):
 
 ```python
 def crawl(context):
@@ -166,7 +178,7 @@ def crawl(context):
     context.emit(entity, target=True)
 ```
 
-The entity object is based on the entity proxy in FollowTheMoney, so we suggest you also check out the [FtM documentation](https://followthemoney.tech/docs/api/) on entity construction. Some additional utility methods are added in the `Entity` class in `zavod`.
+The [entity object][zavod.entity.Entity] is based on the [entity proxy in FollowTheMoney](https://followthemoney.tech/reference/python/followthemoney/proxy.html#EntityProxy), so we suggest you also check out the [FtM documentation](https://followthemoney.tech/docs/api/) on entity construction. Some additional utility methods are added in the [`Entity`][zavod.entity.Entity] class in `zavod`.
 
 ## Checklist
 
@@ -185,43 +197,3 @@ When contributing a new data source, or some other change, make sure of the foll
   to be emitted. [Warnings](https://www.opensanctions.org/issues) are checked regularly to identify when a crawler needs attention.
   Info and lower level logs are useful for debugging with the `-v` flag.
 * Bonus points: your Python code is linted and formatted with ``black``.
-
-## Patterns
-
-The following are some patterns that have proved useful:
-
-### Detect unhandled data
-
-If a variable number of fields can extracted automatically (e.g. from a list or table):
-
-* Capture them in a `dict`.
-* `pop()` them when adding them to entities.
-* Log warnings if there are unhandled fields remaining in the `dict` so that we notice and improve the crawler.
-
-### Capture useful free text in its original language
-
-Useful fields like the reason someone is sanctioned should be captured regardless
-of the language it is written in. Don't worry about translating fields where arbitrary
-text would be written. If the language is known, include the language code
-in the `lang` parameter to `Entity.add()`. e.g.
-
-```python
-reason = data.pop("expunerea-succinta-a-temeiului-de-includere-in-lista-a-operatorului-economic")
-sanction.add("reason", reason, lang="ro")
-```
-
-### Generating consistent unique identifiers
-
-Make sure entity IDs are unique within the source. e.g. avoid using only the name of
-the entity because there might eventually be two persons or two companies with the same
-name. [It is preferable](https://www.opensanctions.org/docs/identifiers) to have to manually deduplicated two Follow the
-Money entities for the same real world entity. 
-
-Good values to use as identifiers are
-
-* an ID in the source dataset, e.g. a sanction number, company registration number,
-  personal identity number
-* some combination of consistent attributes, e.g. a person's name and normalised 
-  date of birth in a dataset that holds a relatively small proportion of the population
-* a combination of identifiers for the entities related by another entity, e.g. an 
-  owner and a company, in the form `ownership.id = context.make_id(owner.id, "owns", company.id)`
