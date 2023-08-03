@@ -1,6 +1,7 @@
 name: icij_offshoreleaks
 title: ICIJ OffshoreLeaks
 prefix: icijol
+disabled: true
 entry_point: parse.py
 summary: |
   Combined data from the Panama Papers, Paradise Papers, Pandora Papers

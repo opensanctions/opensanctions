@@ -1,6 +1,7 @@
 name: de_offeneregister
 title: Deutsches Handelsregister (OffeneRegister.de)
 prefix: de-oc
+disabled: true
 entry_point: parse.py
 summary: |
   The OpenCorporates dump of the german companies registry, recent until end of

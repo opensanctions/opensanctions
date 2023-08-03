@@ -1,6 +1,7 @@
 name: gleif
 title: GLEIF Concatenated Data File
 prefix: lei
+disabled: true
 entry_point: parse.py
 summary: |
   Base data for all entities which have been issued Legal Entity Identifier

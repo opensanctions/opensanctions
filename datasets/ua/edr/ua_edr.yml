@@ -1,6 +1,7 @@
 name: ua_edr
 title: Ukraine Consolidated State Registry (Edinyy Derzhavnyj Reestr)
 prefix: ua-edr
+disabled: true
 entry_point: parse.py
 summary: |
   The beneficial ownership database of legal entities registered in Ukraine (EDR)
