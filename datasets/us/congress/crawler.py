@@ -72,11 +72,12 @@ def crawl_member(context: Context, bioguide_id: str):
 
     person = context.make("Person")
     person.id = context.make_id(bioguide_id)
+    person.add("birthDate", member.pop("birthYear"))
     person.add("name", member.pop("directOrderName"))
     person.add("firstName", member.pop("firstName"))
     person.add("lastName", member.pop("lastName"))
-    person.add("middleName", member.pop("middleName"))
-    person.add("title", member.pop("honorificName"))
+    person.add("middleName", member.pop("middleName", None))
+    person.add("title", member.pop("honorificName", None))
     person.add("country", "us")
 
     entities, topics = crawl_positions(context, member, person)
@@ -89,8 +90,8 @@ def crawl_member(context: Context, bioguide_id: str):
 
 def fetch(context: Context, url):
     headers = {"x-api-key": API_KEY}
-    r = context.http.get(url, headers=headers)
-    return r.json()["members"], r.json()["pagination"].get("next", None)
+    response = context.fetch_json(url, headers=headers, cache_days=1)
+    return response["members"], response["pagination"].get("next", None)
 
 
 def crawl(context: Context):
