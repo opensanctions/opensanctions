@@ -7,6 +7,7 @@ from nomenklatura.util import is_qid
 
 from zavod import settings
 from zavod import Context
+from zavod import helpers as h
 
 DECISIONS = {
     "subnational": "State government",
@@ -22,12 +23,6 @@ MAX_AGE = 110 * YEAR
 MAX_OFFICE = 40 * YEAR
 
 
-@cache
-def to_date(days: int) -> str:
-    dt = settings.RUN_TIME - timedelta(days=days)
-    return dt.isoformat()[:10]
-
-
 def date_value(value: Any) -> Optional[str]:
     if value is None:
         return None
@@ -40,19 +35,19 @@ def date_value(value: Any) -> Optional[str]:
 def check_qualified(row: Dict[str, Any]) -> bool:
     # TODO: PEP logic
     death = date_value(row.get("person_death"))
-    if death is not None and to_date(AFTER_DEATH) > death:
+    if death is not None and h.backdate(settings.RUN_TIME, AFTER_DEATH) > death:
         return False
 
     birth = date_value(row.get("person_birth"))
-    if birth is not None and to_date(MAX_AGE) > birth:
+    if birth is not None and h.backdate(settings.RUN_TIME, MAX_AGE) > birth:
         return False
 
     end_date = date_value(row.get("end_date"))
-    if end_date is not None and to_date(AFTER_OFFICE) > end_date:
+    if end_date is not None and h.backdate(settings.RUN_TIME, AFTER_OFFICE) > end_date:
         return False
 
     start_date = date_value(row.get("start_date"))
-    if start_date is not None and to_date(MAX_OFFICE) > start_date:
+    if start_date is not None and h.backdate(settings.RUN_TIME, MAX_OFFICE) > start_date:
         return False
 
     # TODO: decide all entities with no P39 dates as false?
