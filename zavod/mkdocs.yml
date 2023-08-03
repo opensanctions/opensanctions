@@ -22,6 +22,7 @@ theme:
 
 plugins:
   - autorefs
+  - social
   - mkdocstrings:
       default_handler: python
       handlers:
