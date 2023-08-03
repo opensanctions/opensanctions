@@ -32,6 +32,7 @@ jobs:
         working-directory: zavod
         run: |
           pip install --no-cache-dir -q -e ".[dev]"
+          pip install --no-cache-dir -q -e ".[docs]"
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v3
