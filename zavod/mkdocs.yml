@@ -9,20 +9,21 @@ theme:
     primary: custom
     accent: custom
   extra_css: [stylesheets/extra.css]
-  extra:
-    social:
-      - icon: material/web
-        link: https://www.opensanctions.org
-      - icon: material/mail
-        link: https://www.opensanctions.org/contact/
-      - icon: material/slack
-        link: https://www.opensanctions.org/slack/
-      - icon: material/github
-        link: https://github.com/opensanctions/opensanctions
+
+extra:
+  social:
+    - icon: material/web
+      link: https://www.opensanctions.org/
+    - icon: material/mail
+      link: https://www.opensanctions.org/contact/
+    - icon: material/slack
+      link: https://www.opensanctions.org/slack/
+    - icon: material/github
+      link: https://github.com/opensanctions/opensanctions
 
 plugins:
   - autorefs
-  - social
+  # - social
   - mkdocstrings:
       default_handler: python
       handlers:
