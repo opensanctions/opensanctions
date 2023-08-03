@@ -3,6 +3,8 @@ from followthemoney.cli.util import path_entities
 from followthemoney.proxy import EntityProxy
 from json import load, loads
 from nomenklatura.judgement import Judgement
+from nomenklatura.stream import StreamEntity
+from datetime import datetime
 
 from zavod import settings
 from zavod.context import Context
@@ -13,6 +15,8 @@ from zavod.meta import Dataset, load_dataset_from_path
 from zavod.runner import run_dataset
 from zavod.store import View, get_store, get_view
 from zavod.tests.conftest import DATASET_2_YML
+
+TIME_SECONDS_FMT = "%Y-%m-%dT%H:%M:%S"
 
 
 def test_export(vdataset: Dataset):
@@ -92,6 +96,30 @@ def harnessed_export(exporter_class, dataset) -> None:
 
     context.close()
     store.close()
+
+
+def test_ftm(vdataset: Dataset):
+    run_dataset(vdataset)
+    harnessed_export(FtMExporter, vdataset)
+
+    ftm_path = settings.DATA_PATH / "datasets" / vdataset.name / "entities.ftm.json"
+
+    entities = list(path_entities(ftm_path, StreamEntity))
+
+    for entity in entities:
+        # Fail if incorrect format
+        datetime.strptime(entity.first_seen, TIME_SECONDS_FMT)
+        datetime.strptime(entity.last_seen, TIME_SECONDS_FMT)
+        datetime.strptime(entity.last_change, TIME_SECONDS_FMT)
+        assert entity.datasets == {"testdataset1"}
+
+    john = [e for e in entities if e.id == "osv-john-doe"][0]
+    john.get("name") == "John Doe"
+
+    mem = [
+        e for e in entities if e.id == "osv-11ccbadf03c265454795b9bf79eb15754ca267d1"
+    ][0]
+    assert mem.schema.name == "Membership"
 
 
 def test_ftm_referents(vdataset: Dataset):
