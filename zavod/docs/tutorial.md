@@ -58,6 +58,7 @@ prefix: eu-fsf
 # This section provides information about the original publisher of the data,
 # often a government authority:
 publisher:
+    name: European Commission
     organization: European Commission
     authority: European Union External Action Service
     acronym: EEAS
