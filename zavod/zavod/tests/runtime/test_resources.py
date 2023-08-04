@@ -5,9 +5,9 @@ from zavod.archive import dataset_resource_path
 from zavod.meta import Dataset, DataResource
 from zavod.runtime.resources import DatasetResources
 
-from zavod.tests.conftest import DATASET_YML
+from zavod.tests.conftest import DATASET_1_YML
 
-CSV_PATH = DATASET_YML.parent / "dataset.csv"
+CSV_PATH = DATASET_1_YML.parent / "dataset.csv"
 
 
 def test_resources(vdataset: Dataset):
@@ -25,7 +25,7 @@ def test_resources(vdataset: Dataset):
     assert resource.name == "dataset.csv"
     assert resource.size is not None
     assert resource.size > 0
-    assert resource.checksum == "085f67f2e868f73964b66addd9f4b8584d59a10c"
+    assert resource.checksum == "9b1965782e6c5749369ec4c8db098343ca9c7871"
 
     resources.save(resource)
     assert len(resources.all()) == 1
