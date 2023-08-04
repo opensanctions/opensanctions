@@ -11,6 +11,8 @@ from zavod.context import Context
 from zavod.dedupe import get_resolver
 from zavod.exporters import export
 from zavod.exporters.ftm import FtMExporter
+from zavod.exporters.names import NamesExporter
+from zavod.exporters.nested import NestedJSONExporter
 from zavod.meta import Dataset, load_dataset_from_path
 from zavod.runner import run_dataset
 from zavod.store import View, get_store, get_view
@@ -34,6 +36,7 @@ def test_export(vdataset: Dataset):
     ]
 
     dataset_path = settings.DATA_PATH / "datasets" / vdataset.name
+
     # it parses and finds expected number of entites
     assert (
         len(list(path_entities(dataset_path / "entities.ftm.json", EntityProxy))) == 11
@@ -116,10 +119,10 @@ def test_ftm(vdataset: Dataset):
     john = [e for e in entities if e.id == "osv-john-doe"][0]
     john.get("name") == "John Doe"
 
-    mem = [
-        e for e in entities if e.id == "osv-11ccbadf03c265454795b9bf79eb15754ca267d1"
+    fam = [
+        e for e in entities if e.id == "osv-eb0a27f226377001807c04a1ca7de8502cf4d0cb"
     ][0]
-    assert mem.schema.name == "Membership"
+    assert fam.schema.name == "Family"
 
 
 def test_ftm_referents(vdataset: Dataset):
@@ -158,3 +161,48 @@ def test_ftm_referents(vdataset: Dataset):
         john.to_dict()["referents"]
     )
     assert [] == [e for e in entities if e.id == other_dataset_id]
+
+
+def test_names(vdataset: Dataset):
+    run_dataset(vdataset)
+    harnessed_export(NamesExporter, vdataset)
+    names_path = settings.DATA_PATH / "datasets" / vdataset.name / "names.txt"
+    with open(names_path ) as names_file:
+        names = names_file.readlines()
+
+    # it contains a couple of expected names
+    assert "Jakob Maria Mierscheid\n" in names
+    assert "Johnny Doe\n" in names
+    assert "Jane Doe\n" in names # Family member
+    assert len(names) == 14
+
+
+def test_nested(vdataset: Dataset):
+    run_dataset(vdataset)
+    harnessed_export(NestedJSONExporter, vdataset)
+
+    nested_path = settings.DATA_PATH / "datasets" / vdataset.name / "targets.nested.json"
+
+    with open(nested_path) as nested_file:
+        entities = [loads(line) for line in nested_file.readlines()]
+
+    for entity in entities:
+        # Fail if incorrect format
+        datetime.strptime(entity["first_seen"], TIME_SECONDS_FMT)
+        datetime.strptime(entity["last_seen"], TIME_SECONDS_FMT)
+        datetime.strptime(entity["last_change"], TIME_SECONDS_FMT)
+        assert entity["datasets"] == ["testdataset1"]
+
+    john = [e for e in entities if e["id"] == "osv-john-doe"][0]
+    john.get("name") == "John Doe"
+
+    family_id = "osv-eb0a27f226377001807c04a1ca7de8502cf4d0cb"
+    # Family relationship is not included as a root object
+    assert len([e for e in entities if e["id"] == family_id]) == 0
+
+    assert len(john["properties"]["familyPerson"]) == 1
+    fam = john["properties"]["familyPerson"][0]
+    assert fam["id"] == family_id
+    assert fam["properties"]["person"][0] == "osv-john-doe"
+    assert fam["properties"]["relative"][0]["id"] == "osv-jane-doe"
+
