@@ -17,7 +17,4 @@ def get_catalog() -> ArchiveBackedCatalog:
 
 def load_dataset_from_path(path: Path) -> Optional[Dataset]:
     """Load a dataset from a given path."""
-    if "lv_business" not in str(path):
-        return get_catalog().load_yaml(path)
-    else:
-        return None
+    return get_catalog().load_yaml(path)
