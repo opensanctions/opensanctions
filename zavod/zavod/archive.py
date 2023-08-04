@@ -139,7 +139,7 @@ def _iter_scope_statements(dataset: "Dataset", external: bool = True) -> Stateme
         with backfill_blob.open("r", chunk_size=BLOB_CHUNK) as fh:
             yield from _read_fh_statements(fh, external)
         return
-    raise ValueError(f"Cannot load statements for: {dataset.name}")
+    log.error(f"Cannot load statements for: {dataset.name}")
 
 
 def iter_previous_statements(dataset: "Dataset", external: bool = True) -> StatementGen:

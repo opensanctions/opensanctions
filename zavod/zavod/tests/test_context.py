@@ -106,8 +106,7 @@ def test_context_fetchers(vdataset: Dataset):
 
 def test_run_dataset(vdataset: Dataset):
     DatasetSink(vdataset).clear()
-    with pytest.raises(ValueError):
-        assert len(list(iter_dataset_statements(vdataset))) == 0
+    assert len(list(iter_dataset_statements(vdataset))) == 0
     context = Context(vdataset)
     context.begin(clear=True)
     assert len(context.resources.all()) == 0
