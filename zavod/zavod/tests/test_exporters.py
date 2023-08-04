@@ -169,13 +169,13 @@ def test_names(vdataset: Dataset):
     run_dataset(vdataset)
     harnessed_export(NamesExporter, vdataset)
     names_path = settings.DATA_PATH / "datasets" / vdataset.name / "names.txt"
-    with open(names_path ) as names_file:
+    with open(names_path) as names_file:
         names = names_file.readlines()
 
     # it contains a couple of expected names
     assert "Jakob Maria Mierscheid\n" in names
     assert "Johnny Doe\n" in names
-    assert "Jane Doe\n" in names # Family member
+    assert "Jane Doe\n" in names  # Family member
     assert len(names) == 14
 
 
@@ -183,7 +183,9 @@ def test_nested(vdataset: Dataset):
     run_dataset(vdataset)
     harnessed_export(NestedJSONExporter, vdataset)
 
-    nested_path = settings.DATA_PATH / "datasets" / vdataset.name / "targets.nested.json"
+    nested_path = (
+        settings.DATA_PATH / "datasets" / vdataset.name / "targets.nested.json"
+    )
     with open(nested_path) as nested_file:
         entities = [loads(line) for line in nested_file.readlines()]
 
@@ -216,7 +218,7 @@ def test_targets_simple(vdataset: Dataset):
     with open(csv_path) as csv_file:
         reader = DictReader(csv_file)
         rows = list(reader)
-    
+
     john = [r for r in rows if r["id"] == "osv-john-doe"][0]
     # Some people probably assume column order even though they ideally shouldn't
     assert list(john.keys()) == [
@@ -249,9 +251,50 @@ def test_targets_simple(vdataset: Dataset):
         "phones": "",
         "emails": "",
         "dataset": "OpenSanctions Validation Dataset",  # Dataset title
-        "first_seen": settings.RUN_TIME_ISO, # Seconds string format
+        "first_seen": settings.RUN_TIME_ISO,  # Seconds string format
         "last_seen": settings.RUN_TIME_ISO,
         "last_change": settings.RUN_TIME_ISO,
     }
     # Assert the dates above are in the expected format
     datetime.strptime(settings.RUN_TIME_ISO, TIME_SECONDS_FMT)
+
+
+def test_senzing(vdataset: Dataset):
+    run_dataset(vdataset)
+    harnessed_export(NestedJSONExporter, vdataset)
+
+    senzing_path = settings.DATA_PATH / "datasets" / vdataset.name / "senzing.json"
+    with open(senzing_path) as senzing_file:
+        targets = [loads(line) for line in senzing_file.readlines()]
+    company = [t for t in targets if t["RECORD_ID"] == "osv-umbrella-corp"][0]
+    company_features = company.pop("FEATURES")
+
+    assert {
+        "NAME_TYPE": "PRIMARY",
+        "NAME_ORG": "Umbrella Corporation",
+    } in company_features
+    assert {
+        "NAME_TYPE": "ALIAS",
+        "NAME_ORG": "Umbrella Pharmaceuticals, Inc.",
+    } in company_features
+    assert {"REGISTRATION_DATE": "1980"} in company_features
+    assert {"REGISTRATION_COUNTRY": "us"} in company_features
+    assert {"NATIONAL_ID_NUMBER": "8723-BX"} in company_features
+    assert company == {
+        "DATA_SOURCE": "OS_TESTDATASET1",
+        "RECORD_ID": "osv-umbrella-corp",
+        "RECORD_TYPE": "COMPANY",
+    }
+
+    person = [t for t in targets if t["RECORD_ID"] == "osv-hans-gruber"][0]
+    person_features = person.pop("FEATURES")
+    assert {"NAME_TYPE": "PRIMARY", "NAME_FULL": "Hans Gruber"} in person_features
+    assert {"NAME_TYPE": "ALIAS", "NAME_FULL": "Bill Clay"} in person_features
+    assert {"ADDR_FULL": "Lauensteiner Str. 49, 01277 Dresden"} in person_features
+    assert {"DATE_OF_BIRTH": "1978-09-25"} in person_features
+    assert {"NATIONALITY": "dd"} in person_features
+    assert person == {
+        "DATA_SOURCE": "OS_TESTDATASET1",
+        "RECORD_ID": "osv-hans-gruber",
+        "RECORD_TYPE": "PERSON",
+    }
