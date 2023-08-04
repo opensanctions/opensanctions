@@ -13,10 +13,12 @@ from zavod.exporters import export
 from zavod.exporters.ftm import FtMExporter
 from zavod.exporters.names import NamesExporter
 from zavod.exporters.nested import NestedJSONExporter
+from zavod.exporters.simplecsv import SimpleCSVExporter
 from zavod.meta import Dataset, load_dataset_from_path
 from zavod.runner import run_dataset
 from zavod.store import View, get_store, get_view
 from zavod.tests.conftest import DATASET_2_YML
+from csv import DictReader
 
 TIME_SECONDS_FMT = "%Y-%m-%dT%H:%M:%S"
 
@@ -182,7 +184,6 @@ def test_nested(vdataset: Dataset):
     harnessed_export(NestedJSONExporter, vdataset)
 
     nested_path = settings.DATA_PATH / "datasets" / vdataset.name / "targets.nested.json"
-
     with open(nested_path) as nested_file:
         entities = [loads(line) for line in nested_file.readlines()]
 
@@ -206,3 +207,51 @@ def test_nested(vdataset: Dataset):
     assert fam["properties"]["person"][0] == "osv-john-doe"
     assert fam["properties"]["relative"][0]["id"] == "osv-jane-doe"
 
+
+def test_targets_simple(vdataset: Dataset):
+    run_dataset(vdataset)
+    harnessed_export(NestedJSONExporter, vdataset)
+
+    csv_path = settings.DATA_PATH / "datasets" / vdataset.name / "targets.simple.csv"
+    with open(csv_path) as csv_file:
+        reader = DictReader(csv_file)
+        rows = list(reader)
+    
+    john = [r for r in rows if r["id"] == "osv-john-doe"][0]
+    # Some people probably assume column order even though they ideally shouldn't
+    assert list(john.keys()) == [
+        "id",
+        "schema",
+        "name",
+        "aliases",
+        "birth_date",
+        "countries",
+        "addresses",
+        "identifiers",
+        "sanctions",
+        "phones",
+        "emails",
+        "dataset",
+        "first_seen",
+        "last_seen",
+        "last_change",
+    ]
+    assert john == {
+        "id": "osv-john-doe",
+        "schema": "Person",
+        "name": "John Doe",
+        "aliases": "",
+        "birth_date": "1975",
+        "countries": "us",
+        "addresses": "",
+        "identifiers": "",
+        "sanctions": "",
+        "phones": "",
+        "emails": "",
+        "dataset": "OpenSanctions Validation Dataset",  # Dataset title
+        "first_seen": settings.RUN_TIME_ISO, # Seconds string format
+        "last_seen": settings.RUN_TIME_ISO,
+        "last_change": settings.RUN_TIME_ISO,
+    }
+    # Assert the dates above are in the expected format
+    datetime.strptime(settings.RUN_TIME_ISO, TIME_SECONDS_FMT)
