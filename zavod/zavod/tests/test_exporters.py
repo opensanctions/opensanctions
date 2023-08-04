@@ -5,6 +5,7 @@ from json import load, loads
 from nomenklatura.judgement import Judgement
 from nomenklatura.stream import StreamEntity
 from datetime import datetime
+from shutil import rmtree
 
 from zavod import settings
 from zavod.context import Context
@@ -14,6 +15,8 @@ from zavod.exporters.ftm import FtMExporter
 from zavod.exporters.names import NamesExporter
 from zavod.exporters.nested import NestedJSONExporter
 from zavod.exporters.simplecsv import SimpleCSVExporter
+from zavod.exporters.senzing import SenzingExporter
+from zavod.exporters.statistics import StatisticsExporter
 from zavod.meta import Dataset, load_dataset_from_path
 from zavod.runner import run_dataset
 from zavod.store import View, get_store, get_view
@@ -24,6 +27,9 @@ TIME_SECONDS_FMT = "%Y-%m-%dT%H:%M:%S"
 
 
 def test_export(vdataset: Dataset):
+    dataset_path = settings.DATA_PATH / "datasets" / vdataset.name
+    rmtree(dataset_path, ignore_errors=True)
+
     run_dataset(vdataset)
     export(vdataset.name)
 
@@ -37,8 +43,6 @@ def test_export(vdataset: Dataset):
         "targets.simple.csv",
     ]
 
-    dataset_path = settings.DATA_PATH / "datasets" / vdataset.name
-
     # it parses and finds expected number of entites
     assert (
         len(list(path_entities(dataset_path / "entities.ftm.json", EntityProxy))) == 11
@@ -48,7 +52,7 @@ def test_export(vdataset: Dataset):
         index = load(index_file)
         assert index["name"] == vdataset.name
         assert index["entity_count"] == 11
-        assert index["target_count"] == 8
+        assert index["target_count"] == 7
         resources = {r["name"] for r in index["resources"]}
         for r in expected_resources:
             assert r in resources
@@ -65,26 +69,26 @@ def test_export(vdataset: Dataset):
             assert r in resources
 
     with open(dataset_path / "senzing.json") as senzing_file:
-        targets = [loads(line) for line in senzing_file.readlines()]
-        assert len(targets) == 8
-        for target in targets:
-            assert target["RECORD_TYPE"] in {"PERSON", "ORGANIZATION", "COMPANY"}
+        entities = [loads(line) for line in senzing_file.readlines()]
+        assert len(entities) == 8
+        for entities in entities:
+            assert entities["RECORD_TYPE"] in {"PERSON", "ORGANIZATION", "COMPANY"}
 
     with open(dataset_path / "statistics.json") as statistics_file:
         statistics = load(statistics_file)
-        assert index["entity_count"] == 11
-        assert index["target_count"] == 8
+        assert statistics["entity_count"] == 11
+        assert statistics["target_count"] == 7
 
     with open(dataset_path / "targets.nested.json") as targets_nested_file:
         targets = [loads(r) for r in targets_nested_file.readlines()]
-        assert len(targets) == 8
+        assert len(targets) == 7
         for target in targets:
             assert target["schema"] in {"Person", "Organization", "Company"}
 
     with open(dataset_path / "targets.simple.csv") as targets_simple_file:
         targets = list(DictReader(targets_simple_file))
-        assert len(targets) == 8
-        assert "Johnny Doe" in {t["name"] for t in targets}
+        assert len(targets) == 7
+        assert "Oswell E. Spencer" in {t["name"] for t in targets}
 
 
 def harnessed_export(exporter_class, dataset) -> None:
@@ -104,13 +108,13 @@ def harnessed_export(exporter_class, dataset) -> None:
 
 
 def test_ftm(vdataset: Dataset):
+    dataset_path = settings.DATA_PATH / "datasets" / vdataset.name
+    rmtree(dataset_path)
+
     run_dataset(vdataset)
     harnessed_export(FtMExporter, vdataset)
 
-    ftm_path = settings.DATA_PATH / "datasets" / vdataset.name / "entities.ftm.json"
-
-    entities = list(path_entities(ftm_path, StreamEntity))
-
+    entities = list(path_entities(dataset_path / "entities.ftm.json", StreamEntity))
     for entity in entities:
         # Fail if incorrect format
         datetime.strptime(entity.first_seen, TIME_SECONDS_FMT)
@@ -128,6 +132,9 @@ def test_ftm(vdataset: Dataset):
 
 
 def test_ftm_referents(vdataset: Dataset):
+    dataset_path = settings.DATA_PATH / "datasets" / vdataset.name
+    rmtree(dataset_path)
+
     run_dataset(vdataset)
 
     resolver = get_resolver()
@@ -136,8 +143,7 @@ def test_ftm_referents(vdataset: Dataset):
     )
     harnessed_export(FtMExporter, vdataset)
 
-    ftm_path = settings.DATA_PATH / "datasets" / vdataset.name / "entities.ftm.json"
-    entities = list(path_entities(ftm_path, EntityProxy))
+    entities = list(path_entities(dataset_path / "entities.ftm.json", EntityProxy))
     assert len(entities) == 11
 
     john = [e for e in entities if e.id == "osv-john-doe"][0]
@@ -156,7 +162,7 @@ def test_ftm_referents(vdataset: Dataset):
     resolver.decide("osv-john-doe", other_dataset_id, Judgement.POSITIVE, user="test")
     harnessed_export(FtMExporter, vdataset)
 
-    entities = list(path_entities(ftm_path, EntityProxy))
+    entities = list(path_entities(dataset_path / "entities.ftm.json", EntityProxy))
     assert len(entities) == 11
     john = [e for e in entities if e.id == "osv-john-doe"][0]
     assert [identifier, "osv-johnny-does", other_dataset_id] == sorted(
@@ -166,10 +172,13 @@ def test_ftm_referents(vdataset: Dataset):
 
 
 def test_names(vdataset: Dataset):
+    dataset_path = settings.DATA_PATH / "datasets" / vdataset.name
+    rmtree(dataset_path)
+
     run_dataset(vdataset)
     harnessed_export(NamesExporter, vdataset)
-    names_path = settings.DATA_PATH / "datasets" / vdataset.name / "names.txt"
-    with open(names_path) as names_file:
+
+    with open(dataset_path / "names.txt") as names_file:
         names = names_file.readlines()
 
     # it contains a couple of expected names
@@ -180,13 +189,13 @@ def test_names(vdataset: Dataset):
 
 
 def test_nested(vdataset: Dataset):
+    dataset_path = settings.DATA_PATH / "datasets" / vdataset.name
+    rmtree(dataset_path)
+
     run_dataset(vdataset)
     harnessed_export(NestedJSONExporter, vdataset)
 
-    nested_path = (
-        settings.DATA_PATH / "datasets" / vdataset.name / "targets.nested.json"
-    )
-    with open(nested_path) as nested_file:
+    with open(dataset_path / "targets.nested.json") as nested_file:
         entities = [loads(line) for line in nested_file.readlines()]
 
     for entity in entities:
@@ -211,11 +220,13 @@ def test_nested(vdataset: Dataset):
 
 
 def test_targets_simple(vdataset: Dataset):
-    run_dataset(vdataset)
-    harnessed_export(NestedJSONExporter, vdataset)
+    dataset_path = settings.DATA_PATH / "datasets" / vdataset.name
+    rmtree(dataset_path)
 
-    csv_path = settings.DATA_PATH / "datasets" / vdataset.name / "targets.simple.csv"
-    with open(csv_path) as csv_file:
+    run_dataset(vdataset)
+    harnessed_export(SimpleCSVExporter, vdataset)
+
+    with open(dataset_path / "targets.simple.csv") as csv_file:
         reader = DictReader(csv_file)
         rows = list(reader)
 
@@ -260,11 +271,15 @@ def test_targets_simple(vdataset: Dataset):
 
 
 def test_senzing(vdataset: Dataset):
-    run_dataset(vdataset)
-    harnessed_export(NestedJSONExporter, vdataset)
+    """Tests whether the senzing output contain the expected entities, with expected
+    keys and value formats."""
+    dataset_path = settings.DATA_PATH / "datasets" / vdataset.name
+    rmtree(dataset_path)
 
-    senzing_path = settings.DATA_PATH / "datasets" / vdataset.name / "senzing.json"
-    with open(senzing_path) as senzing_file:
+    run_dataset(vdataset)
+    harnessed_export(SenzingExporter, vdataset)
+
+    with open(dataset_path / "senzing.json") as senzing_file:
         targets = [loads(line) for line in senzing_file.readlines()]
     company = [t for t in targets if t["RECORD_ID"] == "osv-umbrella-corp"][0]
     company_features = company.pop("FEATURES")
@@ -298,3 +313,48 @@ def test_senzing(vdataset: Dataset):
         "RECORD_ID": "osv-hans-gruber",
         "RECORD_TYPE": "PERSON",
     }
+
+
+def test_statistics(vdataset: Dataset):
+    dataset_path = settings.DATA_PATH / "datasets" / vdataset.name
+    rmtree(dataset_path)
+
+    run_dataset(vdataset)
+    harnessed_export(StatisticsExporter, vdataset)
+
+    with open(dataset_path / "statistics.json") as statistics_file:
+        statistics = load(statistics_file)
+
+    assert statistics["entity_count"] == 11
+    assert statistics["target_count"] == 7
+    assert "Organization" in statistics["schemata"]
+    assert "Person" in statistics["schemata"]
+    assert len(statistics["schemata"]) == 6
+
+    thing_countries = statistics["things"]["countries"]
+    assert {"code": "de", "count": 2, "label": "Germany"} in thing_countries
+    assert {"code": "ca", "count": 1, "label": "Canada"} in thing_countries
+    assert len(thing_countries) == 6
+
+    thing_schemata = statistics["things"]["schemata"]
+    assert {
+        "name": "Person",
+        "count": 6,
+        "label": "Person",
+        "plural": "People",
+    } in thing_schemata
+    assert len(thing_schemata) == 3
+
+    target_countries = statistics["targets"]["countries"]
+    assert {"code": "de", "count": 2, "label": "Germany"} in target_countries
+    assert "ca" not in {f["code"] for f in target_countries}
+    assert len(target_countries) == 5
+
+    target_schemata = statistics["targets"]["schemata"]
+    assert {
+        "name": "Person",
+        "count": 5,
+        "label": "Person",
+        "plural": "People",
+    } in target_schemata
+    assert len(target_schemata) == 3

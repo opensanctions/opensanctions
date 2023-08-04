@@ -1,9 +1,9 @@
-id,type,name,alias,notes,dob,country,id_number,rel_type,rel_other,rel_start,rel_end,rel_summary,city,street,postal_code,topics
-mierscheid,Person,Jakob Maria Mierscheid,Jakob Mierscheid,Fictional parliamentarian,1933-03-01,Germany,DE1234,Membership,spd,1979,,MdB,,,,role.pep
-spd,Organization,Sozialdemokratische Partei Deutschlands,,,,Germany,,,,,,,,,,
-john-doe,Person,John Doe,,,1975,United States,,Family,jane-doe,2003,,Spouse,,,,
-jane-doe,Person,Jane Doe,Jane Smith,,1972,Paraguay,,,,,,,,,,
-hans-gruber,Person,Hans Gruber,Bill Clay,Freedom fighter,1978-09-25,East Germany,,,,,,,Dresden,Lauensteiner Str. 49,01277,
-umbrella-corp,Company,Umbrella Corporation,"Umbrella Pharmaceuticals, Inc. ",,1980,United States,8723-BX,,,,,,,,,
-oswell-spencer,Person,Oswell E. Spencer,Ozwell E. Spencer; オズウェル,,1923,Japan,,Ownership,umbrella-corp,1968,2003,Founder,,,,crime.boss
-johnny-does,Person,Johnny Doe,John Ignatius Doe,,1975,Canada,,,,,,,,,,
+id,type,name,alias,notes,dob,country,id_number,rel_type,rel_other,rel_start,rel_end,rel_summary,city,street,postal_code,topics,target
+mierscheid,Person,Jakob Maria Mierscheid,Jakob Mierscheid,Fictional parliamentarian,1933-03-01,Germany,DE1234,Membership,spd,1979,,MdB,,,,role.pep,true
+spd,Organization,Sozialdemokratische Partei Deutschlands,,,,Germany,,,,,,,,,,,true
+john-doe,Person,John Doe,,,1975,United States,,Family,jane-doe,2003,,Spouse,,,,,true
+jane-doe,Person,Jane Doe,Jane Smith,,1972,Paraguay,,,,,,,,,,,true
+hans-gruber,Person,Hans Gruber,Bill Clay,Freedom fighter,1978-09-25,East Germany,,,,,,,Dresden,Lauensteiner Str. 49,01277,,true
+umbrella-corp,Company,Umbrella Corporation,"Umbrella Pharmaceuticals, Inc. ",,1980,United States,8723-BX,,,,,,,,,,true
+oswell-spencer,Person,Oswell E. Spencer,Ozwell E. Spencer; オズウェル,,1923,Japan,,Ownership,umbrella-corp,1968,2003,Founder,,,,crime.boss,true
+johnny-does,Person,Johnny Doe,John Ignatius Doe,,1975,Canada,,,,,,,,,,,false

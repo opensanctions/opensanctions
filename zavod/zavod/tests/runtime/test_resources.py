@@ -25,7 +25,7 @@ def test_resources(vdataset: Dataset):
     assert resource.name == "dataset.csv"
     assert resource.size is not None
     assert resource.size > 0
-    assert resource.checksum == "085f67f2e868f73964b66addd9f4b8584d59a10c"
+    assert resource.checksum == "9b1965782e6c5749369ec4c8db098343ca9c7871"
 
     resources.save(resource)
     assert len(resources.all()) == 1
