@@ -1,5 +1,5 @@
 from datetime import timedelta
-from shutil import copyfile
+from shutil import copyfile, rmtree
 from tempfile import mkdtemp
 from pathlib import Path
 
@@ -36,6 +36,10 @@ def test_store_access(vdataset: Dataset):
 
 
 def test_timestamps(vdataset: Dataset):
+    """Test integration of store and backfilling timestamps"""
+    dataset_path = settings.DATA_PATH / "datasets" / vdataset.name
+    rmtree(dataset_path, ignore_errors=True)
+    
     settings.ARCHIVE_BACKEND = "FilesystemBackend"
     settings.ARCHIVE_PATH = Path(mkdtemp())
     first_time = settings.RUN_TIME_ISO
@@ -58,6 +62,7 @@ def test_timestamps(vdataset: Dataset):
     view = store.default_view(external=True)
     entity = view.get_entity("osv-john-doe")
 
+    # Restore settings
     settings.ARCHIVE_BACKEND = "CloudStorageBackend"
 
     assert entity.last_change == first_time
