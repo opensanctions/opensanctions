@@ -60,6 +60,9 @@ lookups:
     options:
       - match:
           - YYY
+          - VIRGIN ISLANDS
+          - Iles Vierges
+          - Channel Islands
         value: null
       - match:
           - IRLANDE, ou EIRE
@@ -70,3 +73,7 @@ lookups:
         value: SUHH
       - match: Géorgie ( Rép. )
         value: GE
+      - match: QUEBEC H2Y 1L6
+        value: CA
+      - match: Corée du Sud ( Rép. de )
+        value: South Korea
