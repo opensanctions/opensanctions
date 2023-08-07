@@ -11,6 +11,7 @@ from nomenklatura.matching import MatcherV1
 import json
 
 log = get_logger(__name__)
+SCOPED = ["datasets", "scopes", "sources", "externals", "collections"]
 
 
 def export_index(scope: Dataset) -> None:
@@ -25,6 +26,15 @@ def export_index(scope: Dataset) -> None:
         else:
             with open(ds_path, "r") as fh:
                 ds_data = json.load(fh)
+
+                # Make sure the datasets in this catalog don't reference datasets
+                # that are not included in the scope.
+                for field in SCOPED:
+                    if field in ds_data:
+                        values = ds_data.get(field, [])
+                        values = [d for d in values if d in scope.dataset_names]
+                        ds_data[field] = values
+
                 schemata.update(ds_data.get("schemata", []))
                 datasets.append(ds_data)
 

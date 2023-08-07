@@ -36,7 +36,7 @@ data:
 
 lookups:
   type.country:
-    - options:
-        - match:
-            - AN
-          value: null
+    options:
+      - match:
+          - AN
+        value: null

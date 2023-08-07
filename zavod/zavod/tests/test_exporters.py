@@ -109,7 +109,7 @@ def harnessed_export(exporter_class, dataset) -> None:
 
 def test_ftm(vdataset: Dataset):
     dataset_path = settings.DATA_PATH / "datasets" / vdataset.name
-    rmtree(dataset_path)
+    rmtree(dataset_path, ignore_errors=True)
 
     run_dataset(vdataset)
     harnessed_export(FtMExporter, vdataset)
@@ -173,7 +173,7 @@ def test_ftm_referents(vdataset: Dataset):
 
 def test_names(vdataset: Dataset):
     dataset_path = settings.DATA_PATH / "datasets" / vdataset.name
-    rmtree(dataset_path)
+    rmtree(dataset_path, ignore_errors=True)
 
     run_dataset(vdataset)
     harnessed_export(NamesExporter, vdataset)
@@ -190,7 +190,7 @@ def test_names(vdataset: Dataset):
 
 def test_nested(vdataset: Dataset):
     dataset_path = settings.DATA_PATH / "datasets" / vdataset.name
-    rmtree(dataset_path)
+    rmtree(dataset_path, ignore_errors=True)
 
     run_dataset(vdataset)
     harnessed_export(NestedJSONExporter, vdataset)
