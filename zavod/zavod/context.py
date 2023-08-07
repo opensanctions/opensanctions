@@ -3,6 +3,7 @@ from lxml import html, etree
 from pathlib import Path
 from datetime import datetime
 from requests import Response
+from prefixdate import DatePrefix
 from functools import cached_property
 from typing import Any, Optional, Union, Dict, List, Tuple, Mapping
 from datapatch import LookupException, Result, Lookup
@@ -53,7 +54,12 @@ class Context:
         self.http = make_session()
         self._cache: Optional[Cache] = None
         self._timestamps: Optional[TimeStampIndex] = None
+
         self._data_time: datetime = settings.RUN_TIME
+        # If the dataset has a fixed end time, use that as the data time:
+        if dataset.coverage is not None and dataset.coverage.end is not None:
+            prefix = DatePrefix(dataset.coverage.end)
+            self._data_time = prefix.dt or self._data_time
 
         self.lang: Optional[str] = None
         """Default language for statements emitted from this dataset"""
