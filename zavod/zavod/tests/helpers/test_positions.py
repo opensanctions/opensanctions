@@ -3,8 +3,8 @@ from zavod.meta import Dataset
 from zavod.helpers.positions import make_position
 
 
-def test_make_position(vdataset: Dataset):
-    context = Context(vdataset)
+def test_make_position(testdataset1: Dataset):
+    context = Context(testdataset1)
     name = "Minister of finance"
     de = make_position(context, name=name, country="de")
     de_with_date = make_position(
@@ -17,8 +17,8 @@ def test_make_position(vdataset: Dataset):
     assert de.get("name") == uk.get("name")
 
 
-def test_make_position_full(vdataset: Dataset):
-    context = Context(vdataset)
+def test_make_position_full(testdataset1: Dataset):
+    context = Context(testdataset1)
     org = context.make("Organization")
     org.id = "myorg"
     one_with_everything = make_position(

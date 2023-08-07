@@ -30,24 +30,31 @@ def clear_catalog():
 
 
 @pytest.fixture(scope="function")
-def vdataset() -> Dataset:
+def testdataset1() -> Dataset:
     dataset = load_dataset_from_path(DATASET_1_YML)
     assert dataset is not None
     return dataset
 
 
 @pytest.fixture(scope="function")
-def vcontext(vdataset) -> Context:
-    return Context(vdataset)
+def testdataset2() -> Dataset:
+    dataset = load_dataset_from_path(DATASET_2_YML)
+    assert dataset is not None
+    return dataset
 
 
 @pytest.fixture(scope="function")
-def analyzer(vdataset) -> Dataset:
-    assert vdataset is not None
+def vcontext(testdataset1) -> Context:
+    return Context(testdataset1)
+
+
+@pytest.fixture(scope="function")
+def analyzer(testdataset1) -> Dataset:
+    assert testdataset1 is not None
     return load_dataset_from_path(ANALYZER_YML)
 
 
 @pytest.fixture(scope="function")
-def enricher(vdataset) -> Dataset:
-    assert vdataset is not None
+def enricher(testdataset1) -> Dataset:
+    assert testdataset1 is not None
     return load_dataset_from_path(ENRICHER_YML)

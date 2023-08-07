@@ -10,15 +10,13 @@ from zavod.exporters import export
 COLLECTION_YML = FIXTURES_PATH / "collection.yml"
 
 
-def test_export_index(vdataset: Dataset):
+def test_export_index(testdataset1: Dataset, testdataset2: Dataset):
     # Create dataset index files
-    context1 = Context(vdataset)
-    run_dataset(vdataset)
-    export(vdataset.name)
+    run_dataset(testdataset1)
+    export(testdataset1.name)
 
-    dataset2 = load_dataset_from_path(DATASET_2_YML)
-    run_dataset(dataset2)
-    export(dataset2.name)
+    run_dataset(testdataset2)
+    export(testdataset2.name)
 
     # Clear catalog as if this is a fresh process separate from the earlier exports
     get_catalog.cache_clear()

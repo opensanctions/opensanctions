@@ -17,7 +17,7 @@ from zavod.exporters.nested import NestedJSONExporter
 from zavod.exporters.simplecsv import SimpleCSVExporter
 from zavod.exporters.senzing import SenzingExporter
 from zavod.exporters.statistics import StatisticsExporter
-from zavod.meta import Dataset, load_dataset_from_path
+from zavod.meta import Dataset, load_dataset_from_path, get_catalog
 from zavod.runner import run_dataset
 from zavod.store import View, get_store, get_view
 from zavod.tests.conftest import DATASET_2_YML
@@ -25,23 +25,22 @@ from csv import DictReader
 
 TIME_SECONDS_FMT = "%Y-%m-%dT%H:%M:%S"
 
+always_exports = ["statistics.json"]
+default_exports = [
+    "entities.ftm.json",
+    "names.txt",
+    "senzing.json",
+    "source.csv",
+    "targets.nested.json",
+    "targets.simple.csv",
+]
 
-def test_export(vdataset: Dataset):
-    dataset_path = settings.DATA_PATH / "datasets" / vdataset.name
+def test_export(testdataset1: Dataset):
+    dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
     rmtree(dataset_path, ignore_errors=True)
 
-    run_dataset(vdataset)
-    export(vdataset.name)
-
-    expected_resources = [
-        "entities.ftm.json",
-        "names.txt",
-        "senzing.json",
-        "source.csv",
-        "statistics.json",
-        "targets.nested.json",
-        "targets.simple.csv",
-    ]
+    run_dataset(testdataset1)
+    export(testdataset1.name)
 
     # it parses and finds expected number of entites
     assert (
@@ -50,11 +49,11 @@ def test_export(vdataset: Dataset):
 
     with open(dataset_path / "index.json") as index_file:
         index = load(index_file)
-        assert index["name"] == vdataset.name
+        assert index["name"] == testdataset1.name
         assert index["entity_count"] == 11
         assert index["target_count"] == 7
         resources = {r["name"] for r in index["resources"]}
-        for r in expected_resources:
+        for r in default_exports + always_exports:
             assert r in resources
 
     with open(dataset_path / "names.txt") as names_file:
@@ -65,7 +64,7 @@ def test_export(vdataset: Dataset):
 
     with open(dataset_path / "resources.json") as resources_file:
         resources = {r["name"] for r in load(resources_file)["resources"]}
-        for r in expected_resources:
+        for r in default_exports + always_exports:
             assert r in resources
 
     with open(dataset_path / "senzing.json") as senzing_file:
@@ -91,6 +90,31 @@ def test_export(vdataset: Dataset):
         assert "Oswell E. Spencer" in {t["name"] for t in targets}
 
 
+def test_minimal_export_config(testdataset2: Dataset):
+    """Test export when dataset.exporters is empty list"""
+    dataset_path = settings.DATA_PATH / "datasets" / testdataset2.name
+    rmtree(dataset_path, ignore_errors=True)
+    get_catalog.cache_clear()
+
+    run_dataset(testdataset2)
+    export(testdataset2.name)
+
+    with open(dataset_path / "index.json") as index_file:
+        index = load(index_file)
+        resources = {r["name"] for r in index["resources"]}
+        for r in always_exports:
+            assert r in resources
+        for r in default_exports:
+            assert r not in resources
+
+    with open(dataset_path / "resources.json") as resources_file:
+        resources = {r["name"] for r in load(resources_file)["resources"]}
+        for r in always_exports:
+            assert r in resources
+        for r in default_exports:
+            assert r not in resources
+
+
 def harnessed_export(exporter_class, dataset) -> None:
     context = Context(dataset)
     context.begin(clear=False)
@@ -107,12 +131,12 @@ def harnessed_export(exporter_class, dataset) -> None:
     store.close()
 
 
-def test_ftm(vdataset: Dataset):
-    dataset_path = settings.DATA_PATH / "datasets" / vdataset.name
+def test_ftm(testdataset1: Dataset):
+    dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
     rmtree(dataset_path, ignore_errors=True)
 
-    run_dataset(vdataset)
-    harnessed_export(FtMExporter, vdataset)
+    run_dataset(testdataset1)
+    harnessed_export(FtMExporter, testdataset1)
 
     entities = list(path_entities(dataset_path / "entities.ftm.json", StreamEntity))
     for entity in entities:
@@ -131,17 +155,17 @@ def test_ftm(vdataset: Dataset):
     assert fam.schema.name == "Family"
 
 
-def test_ftm_referents(vdataset: Dataset):
-    dataset_path = settings.DATA_PATH / "datasets" / vdataset.name
+def test_ftm_referents(testdataset1: Dataset):
+    dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
     rmtree(dataset_path)
 
-    run_dataset(vdataset)
+    run_dataset(testdataset1)
 
     resolver = get_resolver()
     identifier = resolver.decide(
         "osv-john-doe", "osv-johnny-does", Judgement.POSITIVE, user="test"
     )
-    harnessed_export(FtMExporter, vdataset)
+    harnessed_export(FtMExporter, testdataset1)
 
     entities = list(path_entities(dataset_path / "entities.ftm.json", EntityProxy))
     assert len(entities) == 11
@@ -160,7 +184,7 @@ def test_ftm_referents(vdataset: Dataset):
     other_dataset_id = "td2-friedrich"
 
     resolver.decide("osv-john-doe", other_dataset_id, Judgement.POSITIVE, user="test")
-    harnessed_export(FtMExporter, vdataset)
+    harnessed_export(FtMExporter, testdataset1)
 
     entities = list(path_entities(dataset_path / "entities.ftm.json", EntityProxy))
     assert len(entities) == 11
@@ -171,12 +195,12 @@ def test_ftm_referents(vdataset: Dataset):
     assert [] == [e for e in entities if e.id == other_dataset_id]
 
 
-def test_names(vdataset: Dataset):
-    dataset_path = settings.DATA_PATH / "datasets" / vdataset.name
+def test_names(testdataset1: Dataset):
+    dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
     rmtree(dataset_path, ignore_errors=True)
 
-    run_dataset(vdataset)
-    harnessed_export(NamesExporter, vdataset)
+    run_dataset(testdataset1)
+    harnessed_export(NamesExporter, testdataset1)
 
     with open(dataset_path / "names.txt") as names_file:
         names = names_file.readlines()
@@ -188,12 +212,12 @@ def test_names(vdataset: Dataset):
     assert len(names) == 14
 
 
-def test_nested(vdataset: Dataset):
-    dataset_path = settings.DATA_PATH / "datasets" / vdataset.name
+def test_nested(testdataset1: Dataset):
+    dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
     rmtree(dataset_path, ignore_errors=True)
 
-    run_dataset(vdataset)
-    harnessed_export(NestedJSONExporter, vdataset)
+    run_dataset(testdataset1)
+    harnessed_export(NestedJSONExporter, testdataset1)
 
     with open(dataset_path / "targets.nested.json") as nested_file:
         entities = [loads(line) for line in nested_file.readlines()]
@@ -219,12 +243,12 @@ def test_nested(vdataset: Dataset):
     assert fam["properties"]["relative"][0]["id"] == "osv-jane-doe"
 
 
-def test_targets_simple(vdataset: Dataset):
-    dataset_path = settings.DATA_PATH / "datasets" / vdataset.name
+def test_targets_simple(testdataset1: Dataset):
+    dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
     rmtree(dataset_path)
 
-    run_dataset(vdataset)
-    harnessed_export(SimpleCSVExporter, vdataset)
+    run_dataset(testdataset1)
+    harnessed_export(SimpleCSVExporter, testdataset1)
 
     with open(dataset_path / "targets.simple.csv") as csv_file:
         reader = DictReader(csv_file)
@@ -270,14 +294,14 @@ def test_targets_simple(vdataset: Dataset):
     datetime.strptime(settings.RUN_TIME_ISO, TIME_SECONDS_FMT)
 
 
-def test_senzing(vdataset: Dataset):
+def test_senzing(testdataset1: Dataset):
     """Tests whether the senzing output contain the expected entities, with expected
     keys and value formats."""
-    dataset_path = settings.DATA_PATH / "datasets" / vdataset.name
+    dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
     rmtree(dataset_path)
 
-    run_dataset(vdataset)
-    harnessed_export(SenzingExporter, vdataset)
+    run_dataset(testdataset1)
+    harnessed_export(SenzingExporter, testdataset1)
 
     with open(dataset_path / "senzing.json") as senzing_file:
         targets = [loads(line) for line in senzing_file.readlines()]
@@ -315,12 +339,12 @@ def test_senzing(vdataset: Dataset):
     }
 
 
-def test_statistics(vdataset: Dataset):
-    dataset_path = settings.DATA_PATH / "datasets" / vdataset.name
+def test_statistics(testdataset1: Dataset):
+    dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
     rmtree(dataset_path)
 
-    run_dataset(vdataset)
-    harnessed_export(StatisticsExporter, vdataset)
+    run_dataset(testdataset1)
+    harnessed_export(StatisticsExporter, testdataset1)
 
     with open(dataset_path / "statistics.json") as statistics_file:
         statistics = load(statistics_file)

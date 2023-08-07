@@ -9,17 +9,17 @@ from zavod.tools.load_db import load_dataset_to_db
 from zavod.archive import iter_dataset_statements, dataset_state_path
 
 
-def test_load_db(vdataset: Dataset):
-    run_dataset(vdataset)
+def test_load_db(testdataset1: Dataset):
+    run_dataset(testdataset1)
 
-    stmts = list(iter_dataset_statements(vdataset))
+    stmts = list(iter_dataset_statements(testdataset1))
     assert len(stmts) > 0
 
-    db_path = dataset_state_path(vdataset.name) / "dump.sqlite3"
+    db_path = dataset_state_path(testdataset1.name) / "dump.sqlite3"
     assert not db_path.exists()
     db_uri = "sqlite:///%s" % db_path.as_posix()
     batch_size = (len(stmts) // 2) - 1
-    load_dataset_to_db(vdataset, db_uri, batch_size=batch_size)
+    load_dataset_to_db(testdataset1, db_uri, batch_size=batch_size)
     assert db_path.exists()
     assert db_path.stat().st_size > 0
 

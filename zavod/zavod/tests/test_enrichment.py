@@ -28,10 +28,10 @@ class StubEnricher(Enricher):
         yield match
 
 
-def test_enrich_process(vdataset: Dataset, enricher: Dataset):
+def test_enrich_process(testdataset1: Dataset, enricher: Dataset):
     resolver = get_resolver()
     assert len(resolver.edges) == 0
-    run_dataset(vdataset)
+    run_dataset(testdataset1)
 
     assert len(resolver.edges) == 0, resolver.edges
     stats = run_dataset(enricher)

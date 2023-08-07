@@ -8,12 +8,12 @@ from zavod.tools.dump_file import dump_dataset_to_file
 from zavod.archive import iter_dataset_statements, dataset_state_path
 
 
-def test_dump_file(vdataset: Dataset):
+def test_dump_file(testdataset1: Dataset):
     resolver = get_resolver()
     assert len(resolver.edges) == 0
-    run_dataset(vdataset)
+    run_dataset(testdataset1)
 
-    stmts = list(iter_dataset_statements(vdataset))
+    stmts = list(iter_dataset_statements(testdataset1))
     assert len(stmts) > 0
 
     canonical = resolver.decide(
@@ -22,9 +22,9 @@ def test_dump_file(vdataset: Dataset):
         Judgement.POSITIVE,
         user="test",
     )
-    out_path = dataset_state_path(vdataset.name) / "dump.csv"
+    out_path = dataset_state_path(testdataset1.name) / "dump.csv"
     assert not out_path.exists()
-    dump_dataset_to_file(vdataset, out_path, format=CSV)
+    dump_dataset_to_file(testdataset1, out_path, format=CSV)
     assert out_path.exists()
     assert out_path.stat().st_size > 0
 

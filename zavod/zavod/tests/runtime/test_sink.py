@@ -6,8 +6,8 @@ from zavod.meta import Dataset
 from zavod.context import Context
 
 
-def test_dataset_sink(vdataset: Dataset):
-    context = Context(vdataset)
+def test_dataset_sink(testdataset1: Dataset):
+    context = Context(testdataset1)
     assert context.sink.path.is_relative_to(settings.DATA_PATH)
     entity = context.make("Person")
     entity.id = "foo"
@@ -18,7 +18,7 @@ def test_dataset_sink(vdataset: Dataset):
     with open(context.sink.path, "rb") as fh:
         stmts = list(read_statements(fh, PACK, Statement))
         for stmt in stmts:
-            assert stmt.dataset == vdataset.name, stmt
+            assert stmt.dataset == testdataset1.name, stmt
             assert stmt.entity_id == "foo"
         assert len(stmts) == 2, stmts
         props = [s.prop for s in stmts]
