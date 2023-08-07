@@ -41,9 +41,11 @@ def test_timestamps(vdataset: Dataset):
     first_time = settings.RUN_TIME_ISO
     run_dataset(vdataset)
 
+    archive_path = settings.ARCHIVE_PATH / "datasets/latest/testdataset1"
+    archive_path.mkdir(parents=True, exist_ok=True)
     copyfile(
         settings.DATA_PATH / "datasets" / vdataset.name / "statements.pack",
-        settings.ARCHIVE_PATH / "statements.pack",
+        archive_path / "statements.pack",
     )
 
     settings.RUN_TIME = settings.RUN_TIME + timedelta(days=1)

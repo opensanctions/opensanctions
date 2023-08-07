@@ -80,7 +80,6 @@ backends = {
 
 @cache
 def get_archive_backend():
-    raise Exception(f"{settings.ARCHIVE_BACKEND} {settings.ARCHIVE_PATH}")
     if settings.ARCHIVE_BACKEND is None:
         log.info("No backfill backend configured.")
         return None
