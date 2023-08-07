@@ -5,11 +5,13 @@ from pantomime.types import XML
 from zavod import Context
 from zavod import helpers as h
 
+FORMATS = ["%Y", "%d-%m-%Y", "%b-%y"]
+
 
 def parse_date(date):
     if date is None:
         return None
-    return h.parse_date(date.strip(), ["%Y", "%d-%m-%Y"])
+    return h.parse_date(date.strip(), FORMATS)
 
 
 def crawl(context: Context):

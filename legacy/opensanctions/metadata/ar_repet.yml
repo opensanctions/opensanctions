@@ -76,7 +76,9 @@ lookups:
           - Brazil
       - match: Tunisian passport
         value: Tunisia
-      - match: USSR (until 1991)
+      - match:
+          - USSR (until 1991)
+          - former Soviet Union
         value: SUHH
       - match: Indonesia (as at Dec. 2003)
         value: Indonesia
