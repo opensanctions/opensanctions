@@ -1,4 +1,4 @@
-from typing import List, Type
+from typing import List, Dict, Type
 
 from zavod.logs import get_logger
 from zavod.store import View, get_store
@@ -16,22 +16,31 @@ from zavod.util import write_json
 
 log = get_logger(__name__)
 
-EXPORTERS: List[Type[Exporter]] = [
-    FtMExporter,
-    NestedJSONExporter,
-    NamesExporter,
+ALWAYS_EXPORTERS: List[Type[Exporter]] = [
     StatisticsExporter,
-    SimpleCSVExporter,
-    SenzingExporter,
 ]
+EXPORTERS: Dict[str, Type[Exporter]] = {
+    "entities.ftm.json": FtMExporter,
+    "targets.nested.json": NestedJSONExporter,
+    "names.txt": NamesExporter,
+    "targets.simple.csv": SimpleCSVExporter,
+    "senzing.json": SenzingExporter,
+}
 
 __all__ = ["export_dataset"]
 
 
 def export_data(context: Context, view: View) -> None:
-    clazzes = EXPORTERS
-    if not context.dataset.export:
-        clazzes = [StatisticsExporter]
+    clazzes = ALWAYS_EXPORTERS
+    if context.dataset.exporters is None:
+        for clazz in EXPORTERS.values():
+            clazzes.append(clazz)
+    else:
+        for filename in context.dataset.exporters:
+            if filename in EXPORTERS:
+                clazzes.append(EXPORTERS[filename])
+            else:
+                log.error(f"No exporter found for target filename {filename}")
     exporters = [clz(context, view) for clz in clazzes]
     log.info(
         "Exporting dataset...",
