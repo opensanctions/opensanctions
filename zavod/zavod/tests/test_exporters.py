@@ -94,7 +94,6 @@ def test_minimal_export_config(testdataset2: Dataset):
     """Test export when dataset.exporters is empty list"""
     dataset_path = settings.DATA_PATH / "datasets" / testdataset2.name
     rmtree(dataset_path, ignore_errors=True)
-    get_catalog.cache_clear()
 
     run_dataset(testdataset2)
     export(testdataset2.name)

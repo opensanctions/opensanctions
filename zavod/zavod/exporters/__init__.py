@@ -31,7 +31,7 @@ __all__ = ["export_dataset"]
 
 
 def export_data(context: Context, view: View) -> None:
-    clazzes = ALWAYS_EXPORTERS
+    clazzes = ALWAYS_EXPORTERS.copy()
     if context.dataset.exporters is None:
         for clazz in EXPORTERS.values():
             clazzes.append(clazz)
