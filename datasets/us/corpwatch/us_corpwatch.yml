@@ -18,6 +18,10 @@ description: |
   > their filings (Same companies listed as parents and children), or because
   > multiple CIKs refer to the same filing.
 url: http://api.corpwatch.org/documentation/#data
+coverage:
+  frequency: weekly
+deploy:
+  disk: 50Gi
 publisher:
   name: CorpWatch
   url: https://corpwatch.org

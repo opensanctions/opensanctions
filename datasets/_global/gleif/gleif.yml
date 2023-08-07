@@ -6,6 +6,10 @@ entry_point: parse.py
 summary: |
   Base data for all entities which have been issued Legal Entity Identifier
   (LEI) codes, as well as the relationships between them.
+coverage:
+  frequency: weekly
+deploy:
+  disk: 50Gi
 publisher:
   name: Global Legal Entity Identifier Foundation (GLEIF)
   description: |
