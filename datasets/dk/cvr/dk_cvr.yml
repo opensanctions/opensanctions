@@ -1,0 +1,29 @@
+name: dk_cvr
+title: Denmark Central Business Register (Centrale Virksomhedsregister - CVR)
+prefix: oo
+entry_point: crawler.py
+disabled: true
+summary: |
+  Danish companies have to report beneficial owners (‘reelle ejere’) who directly control a company.
+  Beneficial owners can be Danish or foreign natural persons. Data is collected by the Danish
+  Business Authority.
+coverage:
+  frequency: weekly
+publisher:
+  name: OpenOwnership
+  url: https://www.openownership.org
+  description: |
+    OO helps countries generate high quality data on company ownership that
+    complies with international standards and meets the needs of data users
+    across government, civil society, and the private sector. OO supports
+    people and organisations to use this data to build trust as well as
+    reducing corruption and tax evasion.
+data:
+  url: https://s3.eu-west-1.amazonaws.com/oo-bodsdata/data/denmark/json.zip
+  format: JSON+ZIP
+
+lookups:
+  type.url:
+    options:
+      - regex: /entities/.*
+        value: null

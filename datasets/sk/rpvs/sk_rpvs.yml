@@ -1,0 +1,30 @@
+name: sk_rpvs
+title: Slovakia Public Sector Partners Register (Register partnerov verejného sektora - RPVS)
+prefix: oo
+entry_point: crawler.py
+disabled: false
+summary: |
+  Data is collected by the Ministry of Justice of the Slovak Republic in the ‘Register
+  partnerov verejného sektora’ (RPVS), and covers entities benefiting from public
+  funding or conducting business with the state, so-called ‘Partners of Public
+  Sector’.
+coverage:
+  frequency: weekly
+publisher:
+  name: OpenOwnership
+  url: https://www.openownership.org
+  description: |
+    OO helps countries generate high quality data on company ownership that
+    complies with international standards and meets the needs of data users
+    across government, civil society, and the private sector. OO supports
+    people and organisations to use this data to build trust as well as
+    reducing corruption and tax evasion.
+data:
+  url: https://s3.eu-west-1.amazonaws.com/oo-bodsdata/data/slovakia/json.zip
+  format: JSON+ZIP
+
+lookups:
+  type.url:
+    options:
+      - regex: /entities/.*
+        value: null
