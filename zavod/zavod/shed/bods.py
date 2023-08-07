@@ -172,6 +172,6 @@ def parse_bods_fh(context: Context, fh: BinaryIO) -> None:
             context.log.info("BODS statements: %d..." % index)
 
 
-def parse_bods_file(context: Context, file_name: Path):
+def parse_bods_file(context: Context, file_name: Path) -> None:
     with open(file_name, "rb") as fh:
         parse_bods_fh(context, fh)
