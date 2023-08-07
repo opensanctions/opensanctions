@@ -1,7 +1,7 @@
 type: external
 entry_point: zavod.runner.enrich:enrich
 title: Legal Entity Identifier (LEI) Reference Data
-export: false
+exporters: []
 summary: |
   A concatenated data file of all entities which have been issued Legal
   Entity Identifier (LEI) codes.

@@ -1,7 +1,7 @@
 entry_point: opensanctions.crawlers.wd_curated
 title: Wikidata Entities of Interest
 prefix: wd
-export: false
+exporters: []
 summary: >
   Persons of interest profiles from Wikidata, the structured data version of Wikipedia.
 description: |

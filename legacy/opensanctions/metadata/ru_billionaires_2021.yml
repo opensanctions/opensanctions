@@ -1,7 +1,7 @@
 entry_point: opensanctions.crawlers.wd_curated
 title: Forbes 2021 List of Russian Billionaires
 prefix: rubil
-export: false
+exporters: []
 summary: >
   Based on an annual assessment of wealth and assets compiled and published
   by Forbes magazine in 2021.

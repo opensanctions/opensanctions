@@ -1,7 +1,7 @@
 type: external
 entry_point: zavod.runner.enrich:enrich
 title: Cyprus Companies and Corporate Officers
-export: false
+exporters: []
 summary: |
   Cypriot open data on companies, which names officers but no shareholders.
 description: |

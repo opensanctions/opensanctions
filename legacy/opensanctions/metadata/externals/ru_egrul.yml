@@ -1,7 +1,7 @@
 type: external
 entry_point: zavod.runner.enrich:enrich
 title: Russian Unified State Register of Legal Entities (EGRUL)
-export: false
+exporters: []
 summary: |
   Companies database of the Russian Federation as maintained and published by 
   the Federal Tax Service.

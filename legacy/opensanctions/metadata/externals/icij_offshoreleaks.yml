@@ -1,7 +1,7 @@
 type: external
 entry_point: zavod.runner.enrich:enrich
 title: ICIJ Offshore Leaks Database
-export: false
+exporters: []
 summary: |
   Combined data from the Panama Papers, Paradise Papers, Pandora Papers
   and other cross-border investigations conducted by ICIJ and its partners.
