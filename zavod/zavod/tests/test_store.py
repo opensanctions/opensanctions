@@ -1,10 +1,7 @@
-from datetime import timedelta
-
 from zavod import settings
 from zavod.meta import Dataset
 from zavod.runner import run_dataset
 from zavod.store import get_store, get_view, clear_store
-from zavod.tests.conftest import FIXTURES_PATH
 
 
 def test_store_access(vdataset: Dataset):

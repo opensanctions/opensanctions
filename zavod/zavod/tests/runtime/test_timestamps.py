@@ -31,16 +31,11 @@ def test_timestamps(vdataset: Dataset):
     assert "TimeStampIndex" in repr(index), repr(index)
 
 
-def test_backfill(vdataset: Dataset):   
-    dataset_path = settings.DATA_PATH / "datasets" / vdataset.name
-    rmtree(dataset_path, ignore_errors=True)
-    
-    settings.ARCHIVE_BACKEND = "FilesystemBackend"
-    settings.ARCHIVE_PATH = Path(mkdtemp())
+def test_backfill(vdataset: Dataset):
     prev_time = settings.RUN_TIME_ISO
     run_dataset(vdataset)
 
-    archive_path = settings.ARCHIVE_PATH / "datasets/latest/testdataset1"
+    archive_path = settings.ARCHIVE_PATH / "datasets/latest" / vdataset.name
     archive_path.mkdir(parents=True, exist_ok=True)
     copyfile(
         settings.DATA_PATH / "datasets" / vdataset.name / "statements.pack",
@@ -52,9 +47,6 @@ def test_backfill(vdataset: Dataset):
     settings.RUN_DATE = settings.RUN_TIME.date().isoformat()
     second_time = settings.RUN_TIME_ISO
     run_dataset(vdataset)
-    
-    # Restore settings
-    settings.ARCHIVE_BACKEND = "CloudStorageBackend"
 
     stmts = list(iter_dataset_statements(vdataset))
     index = TimeStampIndex.build(dataset=vdataset)
