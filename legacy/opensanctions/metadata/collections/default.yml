@@ -32,6 +32,7 @@ children:
   - md_rise_profiles
   - ru_myrotvorets_wagner
   - ransomwhere
+  - kp_rusi_reports
 
   # enrichers
   - cy_companies
