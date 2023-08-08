@@ -77,3 +77,5 @@ lookups:
         value: CA
       - match: Corée du Sud ( Rép. de )
         value: South Korea
+      - match: HNK
+        value: HK
