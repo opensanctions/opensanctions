@@ -6,15 +6,14 @@ from zavod.context import Context
 class Exporter(object):
     """A common interface for file format exports at the end of the export pipeline."""
 
-    NAME = ""
+    FILE_NAME = ""
     TITLE = ""
-    EXTENSION = ""
     MIME_TYPE = "text/plain"
 
     def __init__(self, context: Context, view: View):
         self.context = context
         self.dataset = context.dataset
-        self.resource_name = f"{self.NAME}.{self.EXTENSION}"
+        self.resource_name = f"{self.FILE_NAME}"
         self.path = context.get_resource_path(self.resource_name)
         self.view = view
 

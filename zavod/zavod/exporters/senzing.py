@@ -8,8 +8,7 @@ from zavod.util import write_json
 
 class SenzingExporter(Exporter):
     TITLE = "Senzing entity format"
-    NAME = "senzing"
-    EXTENSION = "json"
+    FILE_NAME = "senzing.json"
     MIME_TYPE = "application/json+senzing"
 
     def setup(self) -> None:

@@ -20,11 +20,14 @@ ALWAYS_EXPORTERS: List[Type[Exporter]] = [
     StatisticsExporter,
 ]
 EXPORTERS: Dict[str, Type[Exporter]] = {
-    "entities.ftm.json": FtMExporter,
-    "targets.nested.json": NestedJSONExporter,
-    "names.txt": NamesExporter,
-    "targets.simple.csv": SimpleCSVExporter,
-    "senzing.json": SenzingExporter,
+    clz.FILE_NAME: clz
+    for clz in [
+        FtMExporter,
+        NestedJSONExporter,
+        NamesExporter,
+        SimpleCSVExporter,
+        SenzingExporter,
+    ]
 }
 
 __all__ = ["export_dataset"]

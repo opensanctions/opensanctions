@@ -5,8 +5,7 @@ from zavod.entity import Entity
 
 class NestedJSONExporter(Exporter):
     TITLE = "Targets as nested JSON"
-    NAME = "targets.nested"
-    EXTENSION = "json"
+    FILE_NAME = "targets.nested.json"
     MIME_TYPE = "application/json"
 
     def setup(self) -> None:
