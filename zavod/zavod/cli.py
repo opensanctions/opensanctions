@@ -8,6 +8,8 @@ from nomenklatura.statement import CSV, FORMATS
 from zavod.logs import configure_logging, get_logger
 from zavod.meta import load_dataset_from_path, Dataset
 from zavod.runner import run_dataset
+from zavod.store import get_view
+from zavod.exporters import export_dataset
 from zavod.tools.load_db import load_dataset_to_db
 from zavod.tools.dump_file import dump_dataset_to_file
 from zavod.exc import RunFailedException
@@ -37,6 +39,14 @@ def run(dataset_path: Path, dry_run: bool = False) -> None:
         run_dataset(dataset, dry_run=dry_run)
     except RunFailedException:
         sys.exit(1)
+
+
+@cli.command("export", help="Export data from a specific dataset")
+@click.argument("dataset_path", type=InPath)
+def export(dataset_path: Path) -> None:
+    dataset = _load_dataset(dataset_path)
+    view = get_view(dataset, external=False)
+    export_dataset(dataset, view)
 
 
 @cli.command("load-db", help="Load dataset statements from the archive into a database")

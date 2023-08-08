@@ -1,6 +1,6 @@
 from click.testing import CliRunner
 
-from zavod.cli import run, load_db, dump_file
+from zavod.cli import run, export, load_db, dump_file
 from zavod.archive import dataset_state_path
 from zavod.tests.conftest import DATASET_1_YML
 
@@ -10,6 +10,14 @@ def test_run_dataset():
     result = runner.invoke(run, ["/dev/null"])
     assert result.exit_code != 0, result.output
     result = runner.invoke(run, [DATASET_1_YML.as_posix()])
+    assert result.exit_code == 0, result.output
+
+
+def test_export_dataset():
+    runner = CliRunner()
+    result = runner.invoke(export, ["/dev/null"])
+    assert result.exit_code != 0, result.output
+    result = runner.invoke(export, [DATASET_1_YML.as_posix()])
     assert result.exit_code == 0, result.output
 
 
