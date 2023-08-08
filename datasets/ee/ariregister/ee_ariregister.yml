@@ -1,7 +1,7 @@
 name: ee_ariregister
 title: Estonia e-Business Register (E-äriregister)
 prefix: ee
-disabled: false
+disabled: true
 entry_point: crawler.py
 summary: |
   A collection of all companies registered in Estonia, including directors and
