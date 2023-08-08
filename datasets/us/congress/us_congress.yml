@@ -2,16 +2,18 @@ name: us_congress
 entry_point: crawler
 title: Members of the United States Congress
 prefix: us_congress
+coverage:
+  frequency: weekly
 summary: >
   Current and recent members of the United States Senate and House of Representatives
 description: >
   The US Congress is the collection of members of both houses of its
   legislature - the Senate and the House of Representatives. 
-  
+
   Members of the House of Representatives are elected to serve a two-year
   term representing the people of each person's district. Each state,
   regardless of its size, has at least one representative.
-  
+
   Each member of the Senate is elected to serve a six-year term representing
   the people of that person's state. Each state, regardless of its size, has
   two senators. Senatorial terms are staggered, so every two years

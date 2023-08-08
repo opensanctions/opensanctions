@@ -43,7 +43,7 @@ children:
   - icij_offshoreleaks
   # - ext_lv_business_register
   - md_companies
-  - nominatim
+  # - nominatim
   - opencorporates
   - ru_egrul
   - ua_edr
