@@ -1,0 +1,12 @@
+data/
+data1/
+.ipynb_checkpoints/
+__pycache__/
+data1/
+*.json
+*.jsonl
+*.xml
+*.gz
+*.gzip
+.DS_Store
+test_notebooks/
