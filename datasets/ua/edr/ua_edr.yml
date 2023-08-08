@@ -3,10 +3,14 @@ title: Ukraine Consolidated State Registry (Edinyy Derzhavnyj Reestr)
 prefix: ua-edr
 disabled: true
 entry_point: parse.py
+coverage:
+  frequency: never
+  end: 2022-02-23
+deploy:
+  schedule: "@monthly"
+  disk: 50Gi
 summary: |
   The beneficial ownership database of legal entities registered in Ukraine (EDR)
-coverage:
-  end: 2022-02-23
 resources:
   - name: entities.ftm.json
     url: https://data.opensanctions.org/graph/ua_edr/entities.ftm.json

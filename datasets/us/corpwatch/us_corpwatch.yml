@@ -19,7 +19,7 @@ description: |
   > multiple CIKs refer to the same filing.
 url: http://api.corpwatch.org/documentation/#data
 coverage:
-  frequency: weekly
+  frequency: monthly
 deploy:
   disk: 50Gi
 publisher:

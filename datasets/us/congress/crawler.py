@@ -1,16 +1,12 @@
-from functools import cache
-import json
 import os
-from typing import Optional
+from typing import Optional, List
 from urllib.parse import urlencode, urljoin
-from datetime import timedelta
 
 from zavod import helpers as h
-from zavod.context import Context
-from zavod.entity import Entity
+from zavod import Context, Entity
 from zavod import settings
 
-API_KEY = os.environ.get("OPENSANCTIONS_US_CONGRESS_KEY")
+API_KEY = os.environ.get("OPENSANCTIONS_US_CONGRESS_API_KEY")
 LIMIT = 250
 CACHE_DAYS = 5
 AFTER_OFFICE = 5 * 365
@@ -40,15 +36,15 @@ def make_occupancy(
             status = "Ended"
         occupancy.add("status", status)
         return occupancy
+    return None
 
 
-def crawl_positions(context, member, entity):
+def crawl_positions(context: Context, member, entity):
     terms: List[dict] = member.pop("terms")
     entities = []
     topics = set()
     for term in terms:
         res = context.lookup("position", term["chamber"])
-
         position = h.make_position(context, res.name, country="us")
         occupancy = make_occupancy(
             context,
@@ -88,18 +84,17 @@ def crawl_member(context: Context, bioguide_id: str):
             context.emit(entity)
 
 
-def fetch(context: Context, url):
-    headers = {"x-api-key": API_KEY}
-    response = context.fetch_json(url, headers=headers, cache_days=1)
-    return response["members"], response["pagination"].get("next", None)
-
-
 def crawl(context: Context):
+    if API_KEY is None:
+        context.log.error("No API key set, skipping crawl.")
+        return
     query = {"limit": LIMIT}
-    url = f"{ context.data_url }?{ urlencode(query) }"
+    url = f"{context.data_url}?{urlencode(query)}"
+    headers = {"x-api-key": API_KEY}
     while url:
-        members, url = fetch(context, url)
-
-        for member in members:
-            if member:  # There's one empty object in their results
-                crawl_member(context, member["bioguideId"])
+        response = context.fetch_json(url, headers=headers, cache_days=1)
+        url = response["pagination"].get("next", None)
+        for member in response["members"]:
+            if not member:  # There's one empty object in their results
+                continue
+            crawl_member(context, member["bioguideId"])

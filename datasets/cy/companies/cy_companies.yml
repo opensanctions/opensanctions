@@ -3,6 +3,10 @@ title: Cyprus company registry
 prefix: cy
 disabled: true
 entry_point: parse.py
+coverage:
+  frequency: weekly
+deploy:
+  disk: 30Gi
 summary: |
   Cypriot open data on companies, which names their officers but not any shareholders.
 publisher:
