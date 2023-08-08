@@ -2,6 +2,8 @@ name: kp_rusi_reports
 title: DPRK Reports
 prefix: kprusi
 entry_point: crawler.py
+coverage:
+  frequency: weekly
 summary: |
   All companies in Moldova, with information on their founders, beneficial
   owners and directors.

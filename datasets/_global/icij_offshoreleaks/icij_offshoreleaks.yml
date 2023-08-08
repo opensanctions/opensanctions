@@ -7,7 +7,7 @@ summary: |
   Combined data from the Panama Papers, Paradise Papers, Pandora Papers
   and other cross-border investigations conducted by ICIJ and its partners.
 coverage:
-  end: 2023-03-21
+  end: 2023-07-26
 publisher:
   name: International Consortium of Investigative Journalists (ICIJ)
   description: |
@@ -16,6 +16,7 @@ publisher:
     fact-checkers and data journalists who maintain the OffshoreLeaks database.
   url: https://www.icij.org/about/
   official: false
+url: https://offshoreleaks.icij.org/pages/database
 data:
   url: https://offshoreleaks-data.icij.org/offshoreleaks/csv/full-oldb.LATEST.zip
   format: CSV

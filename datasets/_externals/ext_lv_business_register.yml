@@ -18,7 +18,22 @@ publisher:
   official: true
 
 inputs:
-  - enrich_companies
+  - sanctions
+  # - cy_companies
+  # - cz_business_register
+  # - ee_ariregister
+  # - gb_coh_psc
+  # - gleif
+  # - icij_offshoreleaks
+  # - ext_lv_business_register
+  # - md_companies
+  - opencorporates
+  # - ru_egrul
+  - ru_rupep
+  - ru_rupep_companies
+  # - ua_edr
+  # - wikidata
+  - debarment
 
 config:
   type: nomenklatura.enrich.yente:YenteEnricher
