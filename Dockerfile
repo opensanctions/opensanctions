@@ -33,7 +33,7 @@ RUN pip install --no-cache-dir -e /opensanctions/zavod
 WORKDIR /opensanctions
 RUN pip install --no-cache-dir -e /opensanctions/legacy
 
-ENV OPENSANCTIONS_DATA_PATH="/opensanctions/data" \
+ENV ZAVOD_DATA_PATH="/opensanctions/data" \
     OPENSSL_CONF="/opensanctions/contrib/openssl.cnf"
 
 CMD ["opensanctions", "crawl"]

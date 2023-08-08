@@ -11,7 +11,7 @@ TARGET_COUNT = 7
 
 
 def validation_path(file_name: str):
-    data_path = os.environ.get("OPENSANCTIONS_DATA_PATH")
+    data_path = os.environ.get("ZAVOD_DATA_PATH")
     assert data_path is not None
     validation_data = Path(data_path) / "datasets/validation"
     return validation_data / file_name
