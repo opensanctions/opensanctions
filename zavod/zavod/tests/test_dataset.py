@@ -72,7 +72,7 @@ def test_validation_os_dict(testdataset1: Dataset):
     assert osa["data"]["url"] is not None
     assert osa["data"]["format"] == "CSV"
     assert "hidden" in osa
-    assert "exporters" in osa
+    assert "exports" in osa
     assert "summary" in osa
     assert "description" in osa
     assert osa["entry_point"] == "testentrypoint1"

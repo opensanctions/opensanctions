@@ -1,7 +1,7 @@
 type: collection
 title: Working set
 hidden: true
-exporters: []
+exports: []
 children:
   # - sanctions
   # - icij_offshoreleaks
