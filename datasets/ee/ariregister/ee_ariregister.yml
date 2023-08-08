@@ -1,0 +1,68 @@
+name: ee_ariregister
+title: Estonia e-Business Register (E-äriregister)
+prefix: ee
+disabled: false
+entry_point: crawler.py
+summary: |
+  A collection of all companies registered in Estonia, including directors and
+  beneficial owners.
+coverage:
+  frequency: weekly
+deploy:
+  disk: 50Gi
+publisher:
+  name: Centre of Registers and Information Systems
+  url: https://www.rik.ee/en/e-business-register
+  description: |
+    The e-Business Register issues free legal and statistical data about all
+    Estonian companys, non-profit associations, foundations, state and local
+    governmental agencies and self-employed persons.
+  country: ee
+data:
+  url: https://avaandmed.ariregister.rik.ee/en/downloading-open-data
+
+lookups:
+  type.country:
+    options:
+      - match: GER
+        value: DE
+      - match: DEN
+        value: DK
+      - match: LAT
+        value: LV
+      - match: LIT
+        value: LT
+      - match: NED
+        value: NL
+      - match: SUI
+        value: CH
+      - match: SLO
+        value: SI
+      - match: SVB
+        value: SE
+      - match: BUL
+        value: BG
+      - match: XXX
+        value: null
+      - match: KSA
+        value: SA
+      - match: SCG
+        value: RS
+      - match: ICX
+        value: CY
+      - match: GRE
+        value: GR
+      - match: POR
+        value: PT
+      - match: XXK
+        value: XK
+      - match: LIB
+        value: LB
+      - match: XXS
+        value: SS
+      - match: XYY
+        value: SY
+      - match: CHI
+        value: CL
+      - match: IVB
+        value: VG
