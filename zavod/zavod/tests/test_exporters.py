@@ -25,15 +25,15 @@ from csv import DictReader
 
 TIME_SECONDS_FMT = "%Y-%m-%dT%H:%M:%S"
 
-always_exports = ["statistics.json"]
-default_exports = [
+always_exports = {"statistics.json"}
+default_exports = {
     "entities.ftm.json",
     "names.txt",
     "senzing.json",
     "source.csv",
     "targets.nested.json",
     "targets.simple.csv",
-]
+}
 
 def test_export(testdataset1: Dataset):
     dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
@@ -53,7 +53,7 @@ def test_export(testdataset1: Dataset):
         assert index["entity_count"] == 11
         assert index["target_count"] == 7
         resources = {r["name"] for r in index["resources"]}
-        for r in default_exports + always_exports:
+        for r in set.union(default_exports, always_exports):
             assert r in resources
 
     with open(dataset_path / "names.txt") as names_file:
@@ -64,7 +64,7 @@ def test_export(testdataset1: Dataset):
 
     with open(dataset_path / "resources.json") as resources_file:
         resources = {r["name"] for r in load(resources_file)["resources"]}
-        for r in default_exports + always_exports:
+        for r in set.union(default_exports, always_exports):
             assert r in resources
 
     with open(dataset_path / "senzing.json") as senzing_file:
@@ -112,6 +112,32 @@ def test_minimal_export_config(testdataset2: Dataset):
             assert r in resources
         for r in default_exports:
             assert r not in resources
+
+
+def test_custom_export_config(testdataset2_export: Dataset):
+    """Test export when dataset.exporters has custom exports listed"""
+    dataset_path = settings.DATA_PATH / "datasets" / testdataset2_export.name
+    rmtree(dataset_path, ignore_errors=True)
+
+    run_dataset(testdataset2_export)
+    export(testdataset2_export.name)
+
+    with open(dataset_path / "index.json") as index_file:
+        index = load(index_file)
+        resources = {r["name"] for r in index["resources"]}
+        for r in set.union(always_exports, {"names.txt"}):
+            assert r in resources
+        for r in default_exports - {"names.txt"}:
+            assert r not in resources
+
+    with open(dataset_path / "resources.json") as resources_file:
+        resources = {r["name"] for r in load(resources_file)["resources"]}
+        for r in set.union(always_exports, {"names.txt"}):
+            assert r in resources
+        for r in default_exports - {"names.txt"}:
+            assert r not in resources
+
+    assert False
 
 
 def harnessed_export(exporter_class, dataset) -> None:
