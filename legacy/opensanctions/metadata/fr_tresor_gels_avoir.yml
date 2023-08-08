@@ -1942,13 +1942,6 @@ lookups:
           legalForm: Organisation autonome à but non lucratif
           incorporationDate: 2019
           innCode: 9709056472
-      - match: "Lieu d’enregistrement: 4, rue Uralskaya, Minsk 220037, République de Biélorussie - Date d’enregistrement: 1.3.1994 - Type d’entité: Entreprise d’État: Numéro d’enregistrement: 100211261(УНП)"
-        props:
-          jurisdiction: by
-          address: "4, rue Uralskaya, Minsk 220037, République de Biélorussie"
-          incorporationDate: 1994-03-01
-          legalForm: Entreprise d’État
-          registrationNumber: 100211261
       - match: "NIF - Type d'entité: Organisation autonome à but non lucratif - Lieu d'enregistrement: Russie - Date d'enregistrement: 2019 - Principal lieu d'activité: Russie: 7703438908"
         props:
           jurisdiction: ru
