@@ -3,6 +3,10 @@ title: Companies House (UK) Persons with Significant Control
 prefix: gb-coh
 disabled: true
 entry_point: psc_parse.py
+coverage:
+  frequency: weekly
+deploy:
+  disk: 60Gi
 summary: |
   The database of beneficial owners of companies incorporated in England, Wales,
   Scotland and Northern Ireland.

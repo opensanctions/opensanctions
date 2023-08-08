@@ -3,13 +3,13 @@ title: Estonia e-Business Register (E-äriregister)
 prefix: ee
 disabled: true
 entry_point: crawler.py
-summary: |
-  A collection of all companies registered in Estonia, including directors and
-  beneficial owners.
 coverage:
   frequency: weekly
 deploy:
   disk: 50Gi
+summary: |
+  A collection of all companies registered in Estonia, including directors and
+  beneficial owners.
 publisher:
   name: Centre of Registers and Information Systems
   url: https://www.rik.ee/en/e-business-register

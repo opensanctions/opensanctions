@@ -3,14 +3,14 @@ title: Register of Enterprises of the Republic of Latvia (Uzņēmumu reģistrs)
 prefix: lv
 disabled: false
 entry_point: crawler.py
-summary: |
-  The Latvian company registry lists directors, shareholders and beneficial owners
-  as well as bank accounts for all companies and traders in the country.
-url: https://data.gov.lv/dati/lv/dataset/uz
 coverage:
   frequency: weekly
 deploy:
   disk: 50Gi
+summary: |
+  The Latvian company registry lists directors, shareholders and beneficial owners
+  as well as bank accounts for all companies and traders in the country.
+url: https://data.gov.lv/dati/lv/dataset/uz
 publisher:
   name: Latvijas Republikas Uzņēmumu reģistrs
   url: https://www.ur.gov.lv/lv/
