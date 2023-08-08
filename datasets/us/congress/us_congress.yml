@@ -4,7 +4,7 @@ prefix: us-congress
 disabled: false
 entry_point: crawler.py
 coverage:
-  frequency: weekly
+  frequency: daily
 summary: >
   Current and recent members of the United States Senate and House of Representatives
 description: >
