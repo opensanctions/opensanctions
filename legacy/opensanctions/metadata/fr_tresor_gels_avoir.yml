@@ -2017,12 +2017,6 @@ lookups:
             - Республиканское унитарное предприятие ‘Белорусский металлургический з'
           incorporationDate: 1991-04-24
           registrationNumber: 400074854
-      - match: "NIF - Type d’entité: “Conseils en matière d’activités commerciales et de gestion” - Lieu d’enregistrement: Moscou -Date d’enregistrement: 3.11.2005 - Principal lieu d’activité: Moscou: 7727536630"
-        props:
-          jurisdiction: ru
-          legalForm: “Conseils en matière d’activités commerciales et de gestion”
-          incorporationDate: 2005-11-03
-          innCode: 7727536630
       - match: "NIF  - Type d’entité: Organe de presse - Lieu d’enregistrement: Moscou - Date d’enregistrement: 2.6.2003 - Principal lieu d’activité: Moscou: 7727214569"
         props:
           jurisdiction: ru
