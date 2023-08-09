@@ -5,7 +5,7 @@ disabled: false
 exports:
   - statistics.json
 deploy:
-  schedule: "1 2 * * *"
+  schedule: "1 22 * * *"
   memory: "2Gi"
 coverage:
   frequency: daily

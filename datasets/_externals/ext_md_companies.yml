@@ -6,7 +6,7 @@ hidden: true
 exports:
   - statistics.json
 deploy:
-  schedule: "1 2 * * *"
+  schedule: "1 16 * * *"
 summary: |
   All companies in Moldova, with information on their founders, beneficial
   owners and directors.

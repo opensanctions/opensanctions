@@ -6,7 +6,7 @@ hidden: true
 exports:
   - statistics.json
 deploy:
-  schedule: "1 2 * * *"
+  schedule: "1 8 * * *"
 summary: |
   The database of beneficial owners of companies incorporated in England, Wales,
   Scotland and Northern Ireland.

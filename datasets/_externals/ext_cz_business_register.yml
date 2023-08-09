@@ -6,7 +6,7 @@ hidden: true
 exports:
   - statistics.json
 deploy:
-  schedule: "1 2 * * *"
+  schedule: "1 4 * * *"
 summary: |
   Czech business register with company metadata and directorships as obtained
   from the open data xml dump by ARES.

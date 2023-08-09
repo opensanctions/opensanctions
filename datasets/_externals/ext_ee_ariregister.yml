@@ -6,7 +6,7 @@ hidden: true
 exports:
   - statistics.json
 deploy:
-  schedule: "1 2 * * *"
+  schedule: "1 6 * * *"
 entry_point: zavod.runner.enrich:enrich
 summary: |
   A collection of all companies registered in Estonia, including directors and
