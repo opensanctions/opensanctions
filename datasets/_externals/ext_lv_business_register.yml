@@ -1,9 +1,9 @@
 type: external
-entry_point: zavod.runner.enrich:enrich
 title: Register of Enterprises of the Republic of Latvia (Uzņēmumu reģistrs)
+entry_point: zavod.runner.enrich:enrich
+disabled: false
 exports:
   - statistics.json
-disabled: true
 summary: |
   The Latvian company registry lists directors, shareholders and beneficial owners
   as well as bank accounts for all companies and traders in the country.

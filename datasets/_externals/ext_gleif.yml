@@ -1,0 +1,71 @@
+type: external
+title: Legal Entity Identifier (LEI) Reference Data
+entry_point: zavod.runner.enrich:enrich
+disabled: false
+hidden: true
+exports:
+  - statistics.json
+deploy:
+  schedule: "1 2 * * *"
+coverage:
+  frequency: weekly
+summary: |
+  A concatenated data file of all entities which have been issued Legal
+  Entity Identifier (LEI) codes.
+description: |
+  Legal Entity Identifiers (LEIs) are global company identification numbers. They
+  are meant to be used in international transactions in the future, backed by an
+  ISO-developed standard.
+
+  The GLEIF group assembles a database of all entities which have been issued an
+  LEI and is published as open data on the web.
+
+  ### Using the full data
+
+  In order to match GLEIF data with OpenSanctions, we've converted the full GLEIF
+  database to the FollowTheMoney data format used by our system. You can download
+  the [raw data and use it in full](https://github.com/opensanctions/gleif)
+  (updated daily).
+url: https://www.gleif.org/en/lei-data/gleif-concatenated-file
+publisher:
+  name: Global Legal Entity Identifier Foundation (GLEIF)
+  description: |
+    Established by the Financial Stability Board in June 2014, the Global Legal Entity
+    Identifier Foundation (GLEIF) is tasked to support the implementation and use
+    of the Legal Entity Identifier (LEI). The foundation is backed and overseen by
+    the Regulatory Oversight Committee, representing public authorities from around
+    the globe that have come together to jointly drive forward transparency within
+    the global financial markets. GLEIF is a supra-national not-for-profit
+    organization headquartered in Basel, Switzerland.
+  url: https://www.gleif.org/en/about/this-is-gleif
+
+inputs:
+  - sanctions
+  # - cy_companies
+  # - cz_business_register
+  # - ee_ariregister
+  # - gb_coh_psc
+  # - gleif
+  # - icij_offshoreleaks
+  - ext_lv_business_register
+  # - md_companies
+  - opencorporates
+  # - ru_egrul
+  - ru_rupep
+  - ru_rupep_companies
+  # - ua_edr
+  # - debarment
+
+config:
+  type: nomenklatura.enrich.yente:YenteEnricher
+  api: https://api.graph.opensanctions.org/
+  dataset: gleif
+  api_key: ${OPENSANCTIONS_GRAPH_API_KEY}
+  strip_namespace: true
+  fuzzy: false
+  threshold: 0.5
+  schemata:
+    - Company
+    - Organization
+    # - LegalEntity
+  cache_days: 15
