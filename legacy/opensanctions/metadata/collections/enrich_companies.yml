@@ -1,7 +1,8 @@
 type: collection
 title: Enrichment target dataset for companies
 hidden: true
-exports: []
+exports:
+  - statistics.json
 children:
   - sanctions
   - cy_companies

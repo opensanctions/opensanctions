@@ -16,12 +16,10 @@ from zavod.util import write_json
 
 log = get_logger(__name__)
 
-ALWAYS_EXPORTERS: List[Type[Exporter]] = [
-    StatisticsExporter,
-]
 EXPORTERS: Dict[str, Type[Exporter]] = {
     clz.FILE_NAME: clz
     for clz in [
+        StatisticsExporter,
         FtMExporter,
         NestedJSONExporter,
         NamesExporter,
@@ -34,10 +32,9 @@ __all__ = ["export_dataset"]
 
 
 def export_data(context: Context, view: View) -> None:
-    clazzes = ALWAYS_EXPORTERS.copy()
-    if context.dataset.exports is None:
-        for clazz in EXPORTERS.values():
-            clazzes.append(clazz)
+    clazzes = []
+    if context.dataset.exports == []:
+       clazzes = EXPORTERS.values()
     else:
         for filename in context.dataset.exports:
             if filename in EXPORTERS:

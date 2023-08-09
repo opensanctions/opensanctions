@@ -2,7 +2,8 @@ type: external
 entry_point: zavod.runner.enrich:enrich
 title: Ukraine Consolidated State Registry
 hidden: false
-exports: []
+exports:
+  - statistics.json
 summary: |
   The beneficial ownership database of legal entities registered in Ukraine (EDR)
 description: |

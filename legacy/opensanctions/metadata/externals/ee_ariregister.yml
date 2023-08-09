@@ -2,7 +2,8 @@ type: external
 entry_point: zavod.runner.enrich:enrich
 title: Estonia e-Business Register (E-äriregister)
 prefix: ee
-exports: []
+exports:
+  - statistics.json
 summary: |
   A collection of all companies registered in Estonia, including directors and
   beneficial owners.
