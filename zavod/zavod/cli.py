@@ -7,10 +7,10 @@ from nomenklatura.statement import CSV, FORMATS
 
 from zavod.logs import configure_logging, get_logger
 from zavod.meta import load_dataset_from_path, Dataset
-from zavod.runner import run_dataset
+from zavod.crawl import crawl_dataset
 from zavod.store import get_view
 from zavod.exporters import export_dataset
-from zavod.publish import publish_dataset
+from zavod.publish import publish_dataset, publish_failure
 from zavod.tools.load_db import load_dataset_to_db
 from zavod.tools.dump_file import dump_dataset_to_file
 from zavod.exc import RunFailedException
@@ -31,13 +31,13 @@ def cli() -> None:
     configure_logging(level=logging.INFO)
 
 
-@cli.command("run", help="Run a specific dataset")
+@cli.command("crawl", help="Crawl a specific dataset")
 @click.argument("dataset_path", type=InPath)
 @click.option("-d", "--dry-run", is_flag=True, default=False)
-def run(dataset_path: Path, dry_run: bool = False) -> None:
+def crawl(dataset_path: Path, dry_run: bool = False) -> None:
     dataset = _load_dataset(dataset_path)
     try:
-        run_dataset(dataset, dry_run=dry_run)
+        crawl_dataset(dataset, dry_run=dry_run)
     except RunFailedException:
         sys.exit(1)
 
@@ -55,6 +55,22 @@ def export(dataset_path: Path) -> None:
 @click.option("--latest", is_flag=True, default=False)
 def publish(dataset_path: Path, latest: bool = False) -> None:
     dataset = _load_dataset(dataset_path)
+    publish_dataset(dataset, latest=latest)
+
+
+@cli.command("run", help="Crawl, export and then publish a specific dataset")
+@click.argument("dataset_path", type=InPath)
+@click.option("--latest", is_flag=True, default=False)
+def run(dataset_path: Path, latest: bool = False) -> None:
+    dataset = _load_dataset(dataset_path)
+    if dataset.entry_point is not None and not dataset.is_collection:
+        try:
+            crawl_dataset(dataset, dry_run=False)
+        except RunFailedException:
+            publish_failure(dataset, latest=latest)
+            sys.exit(1)
+    view = get_view(dataset, external=False)
+    export_dataset(dataset, view)
     publish_dataset(dataset, latest=latest)
 
 

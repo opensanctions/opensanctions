@@ -1,11 +1,11 @@
 from zavod import settings
 from zavod.meta import Dataset
-from zavod.runner import run_dataset
+from zavod.crawl import crawl_dataset
 from zavod.store import get_store, get_view, clear_store
 
 
 def test_store_access(testdataset1: Dataset):
-    run_dataset(testdataset1)
+    crawl_dataset(testdataset1)
     store = get_store(testdataset1, external=True)
     view = store.default_view(external=True)
     assert len(list(view.entities())) > 5, list(view.entities())

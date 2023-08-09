@@ -3,13 +3,13 @@ from shutil import copyfile
 
 from zavod import settings
 from zavod.meta import Dataset
-from zavod.runner import run_dataset
+from zavod.crawl import crawl_dataset
 from zavod.archive import iter_dataset_statements
 from zavod.runtime.timestamps import TimeStampIndex
 
 
 def test_timestamps(testdataset1: Dataset):
-    run_dataset(testdataset1)
+    crawl_dataset(testdataset1)
 
     prev_time = str(settings.RUN_TIME_ISO)
     stmts = list(iter_dataset_statements(testdataset1))
@@ -31,7 +31,7 @@ def test_timestamps(testdataset1: Dataset):
 
 def test_backfill(testdataset1: Dataset):
     prev_time = settings.RUN_TIME_ISO
-    run_dataset(testdataset1)
+    crawl_dataset(testdataset1)
 
     archive_path = settings.ARCHIVE_PATH / "datasets/latest" / testdataset1.name
     archive_path.mkdir(parents=True, exist_ok=True)
@@ -44,7 +44,7 @@ def test_backfill(testdataset1: Dataset):
     settings.RUN_TIME_ISO = settings.RUN_TIME.isoformat(sep="T", timespec="seconds")
     settings.RUN_DATE = settings.RUN_TIME.date().isoformat()
     second_time = settings.RUN_TIME_ISO
-    run_dataset(testdataset1)
+    crawl_dataset(testdataset1)
 
     stmts = list(iter_dataset_statements(testdataset1))
     index = TimeStampIndex.build(dataset=testdataset1)

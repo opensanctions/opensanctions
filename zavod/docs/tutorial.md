@@ -77,7 +77,7 @@ data:
 Once that YAML file is stored in the correct folder, you should be able to run command-line operations against the dataset. For example (if your metadata file is named `eu_fsf_demo.yml`):
 
 ```bash
-$ zavod run datasets/eu/fsf/eu_fsf_demo.yml
+$ zavod crawl datasets/eu/fsf/eu_fsf_demo.yml
 ....
 2023-08-01 12:36:24 [warning  ] No backfill bucket configured  [zavod.archive] 
 2023-08-01 12:36:24 [info     ] Running dataset                [eue_fsf_demo] dataset=eue_fsf_demo path=/home/you/opensanctions/data/datasets/eue_fsf_demo
@@ -91,7 +91,7 @@ The `Runner failed: Could not load entry point: crawler` error indicates that it
 !!! info "Dry run mode"
     You can switch zavod to dry run during crawler development by adding the `-d` (or `--dry-run`) flag on the command line. A dry run will not store any of the emitted data, and disable the generation of correct timestamps, which is slow.
 
-    `zavod run -d datasets/eu/fsf/eu_fsf_demo.yml`
+    `zavod crawl -d datasets/eu/fsf/eu_fsf_demo.yml`
 
 ## Developing a crawler script
 
@@ -106,7 +106,7 @@ def crawl(context: Context):
     context.log.info("Hello, World!")
 ```
 
-Running the crawler (`zavod run datasets/eu/fsf/eu_fsf_demo.yml`) should now produce a log line with the message *Hello, World!*
+Running the crawler (`zavod crawl datasets/eu/fsf/eu_fsf_demo.yml`) should now produce a log line with the message *Hello, World!*
 
 You'll notice that the ``crawl()`` function receives a [`Context`][zavod.context.Context] object. Think of it as a sort of sidekick: it helps you to create, store and document data in your crawler.
 

@@ -1,3 +1,4 @@
+import shutil
 from zavod import settings
 from zavod.meta import Dataset
 from zavod.archive import get_dataset_resource, publish_resource
@@ -27,3 +28,4 @@ def test_archive_publish(testdataset1: Dataset):
 
     local_path = get_dataset_resource(testdataset1, name)
     assert local_path.exists()
+    shutil.rmtree(settings.ARCHIVE_PATH / "latest")

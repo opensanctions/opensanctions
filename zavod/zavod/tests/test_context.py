@@ -6,7 +6,7 @@ from zavod import settings
 from zavod.context import Context
 from zavod.meta import Dataset
 from zavod.entity import Entity
-from zavod.runner import run_dataset
+from zavod.crawl import crawl_dataset
 from zavod.archive import iter_dataset_statements
 from zavod.runtime.sink import DatasetSink
 from zavod.exc import RunFailedException
@@ -108,7 +108,7 @@ def test_context_fetchers(testdataset1: Dataset):
     context.close()
 
 
-def test_run_dataset(testdataset1: Dataset):
+def test_crawl_dataset(testdataset1: Dataset):
     DatasetSink(testdataset1).clear()
     assert len(list(iter_dataset_statements(testdataset1))) == 0
     context = Context(testdataset1)
@@ -125,15 +125,15 @@ def test_run_dataset(testdataset1: Dataset):
     assert len(list(iter_dataset_statements(testdataset1))) == context.stats.statements
 
 
-def test_run_dataset_wrapper(testdataset1: Dataset):
-    stats = run_dataset(testdataset1)
+def test_crawl_dataset_wrapper(testdataset1: Dataset):
+    stats = crawl_dataset(testdataset1)
     assert stats.entities > 10
 
     testdataset1.disabled = True
-    stats = run_dataset(testdataset1)
+    stats = crawl_dataset(testdataset1)
     assert stats.entities == 0
 
     testdataset1.disabled = False
     testdataset1.data.format = "FAIL"
     with pytest.raises(RunFailedException):
-        run_dataset(testdataset1)
+        crawl_dataset(testdataset1)

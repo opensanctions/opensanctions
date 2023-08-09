@@ -4,13 +4,13 @@ from sqlalchemy.pool import NullPool
 from nomenklatura.statement.db import make_statement_table
 
 from zavod.meta import Dataset
-from zavod.runner import run_dataset
+from zavod.crawl import crawl_dataset
 from zavod.tools.load_db import load_dataset_to_db
 from zavod.archive import iter_dataset_statements, dataset_state_path
 
 
 def test_load_db(testdataset1: Dataset):
-    run_dataset(testdataset1)
+    crawl_dataset(testdataset1)
 
     stmts = list(iter_dataset_statements(testdataset1))
     assert len(stmts) > 0

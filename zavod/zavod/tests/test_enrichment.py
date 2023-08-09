@@ -5,7 +5,7 @@ from nomenklatura.judgement import Judgement
 from nomenklatura.entity import CE
 
 from zavod.meta import Dataset
-from zavod.runner import run_dataset
+from zavod.crawl import crawl_dataset
 from zavod.dedupe import get_resolver
 from zavod.archive import iter_dataset_statements
 
@@ -31,10 +31,10 @@ class StubEnricher(Enricher):
 def test_enrich_process(testdataset1: Dataset, enricher: Dataset):
     resolver = get_resolver()
     assert len(resolver.edges) == 0
-    run_dataset(testdataset1)
+    crawl_dataset(testdataset1)
 
     assert len(resolver.edges) == 0, resolver.edges
-    stats = run_dataset(enricher)
+    stats = crawl_dataset(enricher)
     assert stats.entities > 0, stats.entities
     assert len(resolver.edges) > 0, resolver.edges
     internals = list(iter_dataset_statements(enricher, external=False))
@@ -50,7 +50,7 @@ def test_enrich_process(testdataset1: Dataset, enricher: Dataset):
     )
     assert canon_id.id.startswith("NK-")
     assert len(resolver.connected(canon_id)) == 3
-    stats = run_dataset(enricher)
+    stats = crawl_dataset(enricher)
     internals = list(iter_dataset_statements(enricher, external=False))
     assert len(internals) > 2, internals
     get_resolver.cache_clear()

@@ -4,7 +4,7 @@ from zavod.meta import Dataset
 from zavod.archive import STATISTICS_FILE, INDEX_FILE, STATEMENTS_FILE
 from zavod.archive import dataset_path, get_dataset_resource
 from zavod.archive import iter_dataset_statements, iter_previous_statements
-from zavod.runner import run_dataset
+from zavod.crawl import crawl_dataset
 from zavod.store import get_view, clear_store
 from zavod.exporters import export_dataset
 from zavod.publish import publish_dataset, publish_failure
@@ -17,7 +17,7 @@ def test_publish_dataset(testdataset1: Dataset):
     assert not release_path.joinpath(INDEX_FILE).exists()
     assert not latest_path.joinpath(INDEX_FILE).exists()
     clear_store(testdataset1)
-    run_dataset(testdataset1)
+    crawl_dataset(testdataset1)
     view = get_view(testdataset1)
     export_dataset(testdataset1, view)
 
@@ -27,6 +27,7 @@ def test_publish_dataset(testdataset1: Dataset):
     assert not latest_path.joinpath(INDEX_FILE).exists()
     assert release_path.joinpath(STATEMENTS_FILE).exists()
     assert release_path.joinpath(STATISTICS_FILE).exists()
+    assert release_path.joinpath("entities.ftm.json").exists()
 
     publish_dataset(testdataset1, latest=True)
     assert latest_path.joinpath(INDEX_FILE).exists()
@@ -49,7 +50,7 @@ def test_publish_failure(testdataset1: Dataset):
     assert testdataset1.data is not None
     testdataset1.data.format = "FAIL"
     try:
-        run_dataset(testdataset1)
+        crawl_dataset(testdataset1)
     except RunFailedException:
         publish_failure(testdataset1, latest=True)
     shutil.rmtree(dataset_path(testdataset1.name))

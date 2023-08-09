@@ -27,11 +27,11 @@ tool within the container:
 ```bash
 $ docker-compose run --rm app zavod --help
 # Or, run a specific subcommand:
-$ docker-compose run --rm app zavod run datasets/ua/edr/ua_edr.yml
+$ docker-compose run --rm app zavod crawl datasets/ua/edr/ua_edr.yml
 # You can also just run a shell inside the container, and then execute multiple
 # commands in sequence:
 $ docker-compose run --rm app bash
-container$ zavod run datasets/ua/edr/ua_edr.yml
+container$ zavod crawl datasets/ua/edr/ua_edr.yml
 # The above command to spawn an interactive shell is also available as:
 $ make shell
 ```

@@ -18,7 +18,7 @@ from zavod.exporters.simplecsv import SimpleCSVExporter
 from zavod.exporters.senzing import SenzingExporter
 from zavod.exporters.statistics import StatisticsExporter
 from zavod.meta import Dataset, load_dataset_from_path
-from zavod.runner import run_dataset
+from zavod.crawl import crawl_dataset
 from zavod.store import get_store
 from zavod.tests.conftest import DATASET_2_YML
 
@@ -39,7 +39,7 @@ def test_export(testdataset1: Dataset):
     dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
     rmtree(dataset_path, ignore_errors=True)
 
-    run_dataset(testdataset1)
+    crawl_dataset(testdataset1)
     export(testdataset1.name)
 
     # it parses and finds expected number of entites
@@ -95,7 +95,7 @@ def test_minimal_export_config(testdataset2: Dataset):
     dataset_path = settings.DATA_PATH / "datasets" / testdataset2.name
     rmtree(dataset_path, ignore_errors=True)
 
-    run_dataset(testdataset2)
+    crawl_dataset(testdataset2)
     export(testdataset2.name)
 
     with open(dataset_path / "index.json") as index_file:
@@ -119,7 +119,7 @@ def test_custom_export_config(testdataset2_export: Dataset):
     dataset_path = settings.DATA_PATH / "datasets" / testdataset2_export.name
     rmtree(dataset_path, ignore_errors=True)
 
-    run_dataset(testdataset2_export)
+    crawl_dataset(testdataset2_export)
     export(testdataset2_export.name)
 
     with open(dataset_path / "index.json") as index_file:
@@ -158,7 +158,7 @@ def test_ftm(testdataset1: Dataset):
     dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
     rmtree(dataset_path, ignore_errors=True)
 
-    run_dataset(testdataset1)
+    crawl_dataset(testdataset1)
     harnessed_export(FtMExporter, testdataset1)
 
     entities = list(path_entities(dataset_path / "entities.ftm.json", StreamEntity))
@@ -182,7 +182,7 @@ def test_ftm_referents(testdataset1: Dataset):
     dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
     rmtree(dataset_path)
 
-    run_dataset(testdataset1)
+    crawl_dataset(testdataset1)
 
     resolver = get_resolver()
     identifier = resolver.decide(
@@ -203,7 +203,7 @@ def test_ftm_referents(testdataset1: Dataset):
     # The entity ID is included as referent but is not included in the export.
 
     dataset2 = load_dataset_from_path(DATASET_2_YML)
-    run_dataset(dataset2)
+    crawl_dataset(dataset2)
     other_dataset_id = "td2-friedrich"
 
     resolver.decide("osv-john-doe", other_dataset_id, Judgement.POSITIVE, user="test")
@@ -222,7 +222,7 @@ def test_names(testdataset1: Dataset):
     dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
     rmtree(dataset_path, ignore_errors=True)
 
-    run_dataset(testdataset1)
+    crawl_dataset(testdataset1)
     harnessed_export(NamesExporter, testdataset1)
 
     with open(dataset_path / "names.txt") as names_file:
@@ -239,7 +239,7 @@ def test_nested(testdataset1: Dataset):
     dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
     rmtree(dataset_path, ignore_errors=True)
 
-    run_dataset(testdataset1)
+    crawl_dataset(testdataset1)
     harnessed_export(NestedJSONExporter, testdataset1)
 
     with open(dataset_path / "targets.nested.json") as nested_file:
@@ -270,7 +270,7 @@ def test_targets_simple(testdataset1: Dataset):
     dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
     rmtree(dataset_path)
 
-    run_dataset(testdataset1)
+    crawl_dataset(testdataset1)
     harnessed_export(SimpleCSVExporter, testdataset1)
 
     with open(dataset_path / "targets.simple.csv") as csv_file:
@@ -323,7 +323,7 @@ def test_senzing(testdataset1: Dataset):
     dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
     rmtree(dataset_path)
 
-    run_dataset(testdataset1)
+    crawl_dataset(testdataset1)
     harnessed_export(SenzingExporter, testdataset1)
 
     with open(dataset_path / "senzing.json") as senzing_file:
@@ -366,7 +366,7 @@ def test_statistics(testdataset1: Dataset):
     dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
     rmtree(dataset_path)
 
-    run_dataset(testdataset1)
+    crawl_dataset(testdataset1)
     harnessed_export(StatisticsExporter, testdataset1)
 
     with open(dataset_path / "statistics.json") as statistics_file:
