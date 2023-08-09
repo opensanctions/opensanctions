@@ -1,7 +1,8 @@
 type: external
 entry_point: zavod.runner.enrich:enrich
 title: Czechia business register
-export: false
+exports:
+  - statistics.json
 summary: |
   Czech business register with company metadata and directorships as obtained
   from the open data xml dump by ARES.

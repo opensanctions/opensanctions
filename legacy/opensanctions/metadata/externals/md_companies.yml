@@ -1,6 +1,7 @@
 type: external
 entry_point: zavod.runner.enrich:enrich
-export: false
+exports:
+  - statistics.json
 title: State Register of legal entities in the Republic of Moldova
 summary: |
   All companies in Moldova, with information on their founders, beneficial

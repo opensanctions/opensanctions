@@ -1,7 +1,8 @@
 type: collection
 title: Working set
 hidden: true
-export: false
+exports:
+  - statistics.json
 children:
   # - sanctions
   # - icij_offshoreleaks

@@ -10,18 +10,18 @@ from zavod.archive import iter_dataset_statements
 from zavod.runtime.timestamps import TimeStampIndex
 
 
-def test_timestamps(vdataset: Dataset):
-    run_dataset(vdataset)
+def test_timestamps(testdataset1: Dataset):
+    run_dataset(testdataset1)
 
     prev_time = str(settings.RUN_TIME_ISO)
-    stmts = list(iter_dataset_statements(vdataset))
+    stmts = list(iter_dataset_statements(testdataset1))
     for stmt in stmts:
         assert stmt.first_seen == prev_time
 
     dt = datetime.utcnow().replace(microsecond=0) + timedelta(days=1)
     default = dt.isoformat(sep="T", timespec="seconds")
 
-    index = TimeStampIndex(dataset=vdataset)
+    index = TimeStampIndex(dataset=testdataset1)
     index.index(stmts)
     assert index.get("test", default) == default
     for stmt in stmts:

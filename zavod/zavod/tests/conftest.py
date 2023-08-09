@@ -15,6 +15,7 @@ settings.CACHE_DATABASE_URI = None
 FIXTURES_PATH = Path(__file__).parent / "fixtures"
 DATASET_1_YML = FIXTURES_PATH / "testdataset1" / "testdataset1.yml"
 DATASET_2_YML = FIXTURES_PATH / "testdataset2" / "testdataset2.yml"
+DATASET_2_EXPORT_YML = FIXTURES_PATH / "testdataset2" / "testdataset2_export.yml"
 COLLECTION_YML = FIXTURES_PATH / "collection.yml"
 ANALYZER_YML = FIXTURES_PATH / "analyzer.yml"
 ENRICHER_YML = FIXTURES_PATH / "enricher.yml"
@@ -31,24 +32,38 @@ def clear_catalog():
 
 
 @pytest.fixture(scope="function")
-def vdataset() -> Dataset:
+def testdataset1() -> Dataset:
     dataset = load_dataset_from_path(DATASET_1_YML)
     assert dataset is not None
     return dataset
 
 
 @pytest.fixture(scope="function")
-def vcontext(vdataset) -> Context:
-    return Context(vdataset)
+def testdataset2() -> Dataset:
+    dataset = load_dataset_from_path(DATASET_2_YML)
+    assert dataset is not None
+    return dataset
 
 
 @pytest.fixture(scope="function")
-def analyzer(vdataset) -> Dataset:
-    assert vdataset is not None
+def testdataset2_export() -> Dataset:
+    dataset = load_dataset_from_path(DATASET_2_EXPORT_YML)
+    assert dataset is not None
+    return dataset
+
+
+@pytest.fixture(scope="function")
+def vcontext(testdataset1) -> Context:
+    return Context(testdataset1)
+
+
+@pytest.fixture(scope="function")
+def analyzer(testdataset1) -> Dataset:
+    assert testdataset1 is not None
     return load_dataset_from_path(ANALYZER_YML)
 
 
 @pytest.fixture(scope="function")
-def enricher(vdataset) -> Dataset:
-    assert vdataset is not None
+def enricher(testdataset1) -> Dataset:
+    assert testdataset1 is not None
     return load_dataset_from_path(ENRICHER_YML)

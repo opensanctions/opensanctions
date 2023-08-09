@@ -1,7 +1,6 @@
 entry_point: opensanctions.crawlers.ru_myrotvorets_wagner
 title: Myrotvorets list of Wagner mercenaries
 prefix: rumy
-export: true
 summary: >
   A list of Russian soldiers, PMC Wagner members and other criminals.
 description: |

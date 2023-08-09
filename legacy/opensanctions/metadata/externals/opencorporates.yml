@@ -1,7 +1,8 @@
 type: external
 entry_point: zavod.runner.enrich:enrich
 title: OpenCorporates
-export: false
+exports:
+  - statistics.json
 summary: |
   The largest open database of company data in the world, with data from over 140 registries.
 description: |

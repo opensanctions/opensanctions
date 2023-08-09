@@ -1,7 +1,8 @@
 type: external
 entry_point: zavod.runner.enrich:enrich
 title: OpenStreetMap Nominatim Geocoder
-export: false
+exports:
+  - statistics.json
 summary: |
   Nominatim is a geocoding system based on OpenStreetMap, the open map of the
   world created by a community of mappers.

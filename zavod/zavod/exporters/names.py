@@ -7,8 +7,7 @@ from zavod.entity import Entity
 
 class NamesExporter(Exporter):
     TITLE = "Target names text file"
-    NAME = "names"
-    EXTENSION = "txt"
+    FILE_NAME = "names.txt"
     MIME_TYPE = "text/plain"
 
     def setup(self) -> None:
