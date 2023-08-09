@@ -1,0 +1,62 @@
+type: external
+title: UK Companies House People with Significant Control
+entry_point: zavod.runner.enrich:enrich
+disabled: false
+hidden: true
+exports:
+  - statistics.json
+deploy:
+  schedule: "1 2 * * *"
+summary: |
+  The database of beneficial owners of companies incorporated in England, Wales,
+  Scotland and Northern Ireland.
+description: |
+  The beneficial ownership registry of the United Kingdom.
+
+  > A person with significant control (PSC) is someone who owns or controls
+  > your company. They’re sometimes called ‘beneficial owners’.
+
+  This includes major shareholders (25%+) in any UK company, identified by
+  name, date of birth and nationality. Companies House may not enforce the 
+  correct filing of PSC reports, so errors in the data must be assumed.
+url: https://www.gov.uk/guidance/people-with-significant-control-pscs
+publisher:
+  name: UK Companies House
+  description: |
+    Companies House is the UK body responsible for managing the incorporation of
+    limited companies, and the maintenance of their records.
+  url: https://www.gov.uk/government/organisations/companies-house
+  country: gb
+  official: true
+
+inputs:
+  - sanctions
+  # - cy_companies
+  # - cz_business_register
+  # - ee_ariregister
+  # - gb_coh_psc
+  # - gleif
+  # - icij_offshoreleaks
+  - ext_lv_business_register
+  # - md_companies
+  - opencorporates
+  # - ru_egrul
+  - ru_rupep
+  - ru_rupep_companies
+  # - ua_edr
+  - debarment
+
+config:
+  type: nomenklatura.enrich.yente:YenteEnricher
+  api: https://api.graph.opensanctions.org/
+  dataset: gb_coh_psc
+  api_key: ${OPENSANCTIONS_GRAPH_API_KEY}
+  strip_namespace: true
+  fuzzy: false
+  threshold: 0.7
+  schemata:
+    - Company
+    - Organization
+    # - LegalEntity
+    # - Person
+  cache_days: 30

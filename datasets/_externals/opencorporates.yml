@@ -1,8 +1,13 @@
 type: external
-entry_point: zavod.runner.enrich:enrich
 title: OpenCorporates
+entry_point: zavod.runner.enrich:enrich
+disabled: false
 exports:
   - statistics.json
+deploy:
+  schedule: "1 2 * * *"
+coverage:
+  frequency: daily
 summary: |
   The largest open database of company data in the world, with data from over 140 registries.
 description: |
@@ -27,7 +32,21 @@ publisher:
   url: https://opencorporates.com/info/about/
 
 inputs:
-  - enrich_companies
+  - sanctions
+  # - cy_companies
+  # - cz_business_register
+  # - ee_ariregister
+  # - gb_coh_psc
+  # - gleif
+  # - icij_offshoreleaks
+  - ext_lv_business_register
+  # - md_companies
+  - opencorporates
+  # - ru_egrul
+  - ru_rupep
+  - ru_rupep_companies
+  # - ua_edr
+  - debarment
 
 config:
   type: nomenklatura.enrich.opencorporates:OpenCorporatesEnricher

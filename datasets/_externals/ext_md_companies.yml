@@ -1,0 +1,52 @@
+type: external
+title: State Register of legal entities in the Republic of Moldova
+entry_point: zavod.runner.enrich:enrich
+disabled: false
+hidden: true
+exports:
+  - statistics.json
+deploy:
+  schedule: "1 2 * * *"
+summary: |
+  All companies in Moldova, with information on their founders, beneficial
+  owners and directors.
+url: https://date.gov.md/ckan/ro/dataset/11736-date-din-registrul-de-stat-al-unitatilor-de-drept-privind-intreprinderile-inregistrate-in-repu
+publisher:
+  name: Agenția Servicii Publice
+  country: md
+  url: http://asp.gov.md/
+  description: |
+    The P.I. “Public Services Agency” is a holder of the basic state information resources.
+  official: true
+
+inputs:
+  - sanctions
+  # - cy_companies
+  # - cz_business_register
+  # - ee_ariregister
+  # - gb_coh_psc
+  # - gleif
+  # - icij_offshoreleaks
+  - ext_lv_business_register
+  # - md_companies
+  - opencorporates
+  # - ru_egrul
+  - ru_rupep
+  - ru_rupep_companies
+  # - ua_edr
+  - debarment
+
+config:
+  type: nomenklatura.enrich.yente:YenteEnricher
+  api: https://api.graph.opensanctions.org/
+  dataset: md_companies
+  api_key: ${OPENSANCTIONS_GRAPH_API_KEY}
+  strip_namespace: true
+  fuzzy: false
+  threshold: 0.7
+  schemata:
+    - Company
+    - Organization
+    # - LegalEntity
+    # - Person
+  cache_days: 30

@@ -2,8 +2,14 @@ type: external
 title: Wikidata
 entry_point: zavod.runner.enrich:enrich
 prefix: wd
+disabled: false
 exports:
   - statistics.json
+  - entities.ftm.json
+deploy:
+  schedule: "1 2 * * *"
+coverage:
+  frequency: daily
 summary: |
   Wikidata is the structured data project of the Wikipedia community,
   providing fact-based information edited by humans and machines.

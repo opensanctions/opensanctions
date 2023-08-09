@@ -10,14 +10,14 @@ from datapatch import LookupException, Result, Lookup
 from followthemoney.schema import Schema
 from followthemoney.util import make_entity_id
 from nomenklatura.cache import Cache
-from nomenklatura.util import normalize_url, ParamsType
+from nomenklatura.util import normalize_url, ParamsType, PathLike
 from structlog.contextvars import clear_contextvars, bind_contextvars
 
 from zavod import settings
 from zavod.audit import inspect
 from zavod.meta import Dataset, DataResource, get_catalog
 from zavod.entity import Entity
-from zavod.archive import PathLike, dataset_resource_path, dataset_path
+from zavod.archive import dataset_resource_path, dataset_data_path
 from zavod.runtime.stats import ContextStats
 from zavod.runtime.sink import DatasetSink
 from zavod.runtime.issues import DatasetIssues
@@ -146,7 +146,7 @@ class Context:
 
         Returns:
             The full path to the file."""
-        return dataset_resource_path(self.dataset.name, name)
+        return dataset_resource_path(self.dataset.name, str(name))
 
     def export_resource(
         self, path: Path, mime_type: Optional[str] = None, title: Optional[str] = None
@@ -181,7 +181,7 @@ class Context:
             self.http,
             url,
             name,
-            data_path=dataset_path(self.dataset.name),
+            data_path=dataset_data_path(self.dataset.name),
             auth=auth,
             headers=headers,
         )

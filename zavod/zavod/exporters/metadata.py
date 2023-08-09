@@ -2,10 +2,10 @@ import json
 from typing import Any, Dict, cast
 
 from zavod import settings
-from zavod.context import Context
 from zavod.logs import get_logger
 from zavod.meta import Dataset
-from zavod.archive import get_dataset_resource
+from zavod.archive import INDEX_FILE, STATISTICS_FILE, ISSUES_FILE
+from zavod.archive import get_dataset_resource, dataset_resource_path
 from zavod.runtime.resources import DatasetResources
 from zavod.runtime.issues import DatasetIssues
 from zavod.util import write_json
@@ -14,15 +14,22 @@ log = get_logger(__name__)
 
 
 def get_dataset_statistics(dataset: Dataset) -> Dict[str, Any]:
-    statistics_path = get_dataset_resource(dataset, "statistics.json")
-    if statistics_path is None or not statistics_path.exists():
+    statistics_path = get_dataset_resource(dataset, STATISTICS_FILE)
+    if not statistics_path.is_file():
         log.error("No statistics file found", dataset=dataset.name)
         return {}
     with open(statistics_path, "r") as fh:
         return cast(Dict[str, Any], json.load(fh))
 
 
-def dataset_to_index(dataset: Dataset) -> Dict[str, Any]:
+def write_dataset_index(dataset: Dataset) -> None:
+    """Export dataset metadata to index.json."""
+    index_path = dataset_resource_path(dataset.name, INDEX_FILE)
+    log.info(
+        "Writing dataset index",
+        path=index_path,
+        is_collection=dataset.is_collection,
+    )
     meta = dataset.to_opensanctions_dict()
     meta.update(get_dataset_statistics(dataset))
     issues = DatasetIssues(dataset)
@@ -33,12 +40,17 @@ def dataset_to_index(dataset: Dataset) -> Dict[str, Any]:
     meta["last_export"] = settings.RUN_TIME
     meta["index_url"] = dataset.make_public_url("index.json")
     meta["issues_url"] = dataset.make_public_url("issues.json")
-    return meta
-
-
-def write_dataset_index(context: Context, dataset: Dataset) -> None:
-    index_path = context.get_resource_path("index.json")
-    context.log.info("Writing dataset index", path=index_path)
     with open(index_path, "wb") as fh:
-        meta = dataset_to_index(dataset)
         write_json(meta, fh)
+
+
+def write_issues(dataset: Dataset) -> None:
+    """Export list of data issues from crawl stage."""
+    if dataset.is_collection:
+        return
+    issues_path = dataset_resource_path(dataset.name, ISSUES_FILE)
+    log.info("Writing dataset issues list", path=issues_path.as_posix())
+    with open(issues_path, "wb") as fh:
+        issues = DatasetIssues(dataset)
+        data = {"issues": list(issues.all())}
+        write_json(data, fh)

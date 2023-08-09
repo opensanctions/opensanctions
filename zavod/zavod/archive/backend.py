@@ -1,91 +1,149 @@
-import os
 import shutil
 from pathlib import Path
 from functools import cache
-from typing import cast, Any, Optional, IO, Protocol
+from typing import cast, Dict, Optional, Type, TextIO
 from google.cloud.storage import Client, Blob  # type: ignore
 
 from zavod import settings
 from zavod.logs import get_logger
+from zavod.exc import ConfigurationException
 
 
 log = get_logger(__name__)
+BLOB_CHUNK = 40 * 1024 * 1024
 
 
-class ProtocolBlob(Protocol):
-    def open(self: Blob, mode: str, chunk_size: int) -> None:
-        ...
+class ArchiveObject(object):
+    def __init__(self, name: str) -> None:
+        self.name = name
 
-    def download_to_filename(self, dst: str) -> None:
-        ...
+    def exists(self) -> bool:
+        raise NotImplementedError
 
-    def reload(self) -> None:
-        ...
+    def backfill(self, dest: Path) -> None:
+        raise NotImplementedError
+
+    def publish(self, source: Path, mime_type: Optional[str] = None) -> None:
+        raise NotImplementedError
+
+    def republish(self, source: str) -> None:
+        """Copy the object inside the archive, avoid re-uploads"""
+        pass
+
+    def open(self) -> TextIO:
+        raise NotImplementedError
 
 
-class Backend(Protocol):
-    def get_blob(self, name: str) -> ProtocolBlob:
-        ...
+class ArchiveBackend(object):
+    def get_object(self, name: str) -> ArchiveObject:
+        raise NotImplementedError
 
 
-class ConfigurationException(Exception):
-    def __init__(self, message: str) -> None:
-        self.message = message
+class GoogleCloudObject(ArchiveObject):
+    def __init__(self, backend: "GoogleCloudBackend", name: str) -> None:
+        self.backend = backend
+        self.name = f"datasets/{name}"
+        self._blob: Optional[Blob] = None
+
+    @property
+    def blob(self) -> Optional[Blob]:
+        if self._blob is None:
+            self._blob = self.backend.bucket.get_blob(self.name)
+        return self._blob
+
+    def exists(self) -> bool:
+        return self.blob is not None
+
+    def open(self) -> TextIO:
+        if self.blob is None:
+            raise RuntimeError("Object does not exist: %s" % self.name)
+        self.blob.reload()
+        return cast(TextIO, self.blob.open(mode="r", chunk_size=BLOB_CHUNK))
+
+    def backfill(self, dest: Path) -> None:
+        if self.blob is None:
+            raise RuntimeError("Object does not exist: %s" % self.name)
+        self.blob.download_to_filename(dest)
+
+    def publish(self, source: Path, mime_type: Optional[str] = None) -> None:
+        self._blob = self.backend.bucket.blob(self.name)
+        log.info(f"Uploading blob: {source.name}", blob_name=self.name)
+        self._blob.upload_from_filename(source, content_type=mime_type)
+
+    def republish(self, source: str) -> None:
+        source_blob = self.backend.bucket.get_blob(f"datasets/{source}")
+        if source_blob is None:
+            raise RuntimeError("Object does not exist: %s" % source)
+        # TODO: add if_generation_match
+        log.info(f"Copying blob: {self.name}", source=source)
+        self._blob = self.backend.bucket.copy_blob(
+            source_blob,
+            self.backend.bucket,
+            self.name,
+        )
 
 
-class GoogleCloudBackend:
+class GoogleCloudBackend(ArchiveBackend):
     def __init__(self) -> None:
         if settings.ARCHIVE_BUCKET is None:
             raise ConfigurationException("No backfill bucket configured")
         client = Client()
         self.bucket = client.get_bucket(settings.ARCHIVE_BUCKET)
 
-    def get_blob(self, name: str) -> Blob:
-        return self.bucket.get_blob(name)
+    def get_object(self, name: str) -> GoogleCloudObject:
+        return GoogleCloudObject(self, name)
 
 
-# Other than being a bit icky, there's no real demand for abstracting away
-# the Google Cloud Storage API right now, so this is a blatant mirror for now.
-class FileSystemBlob:
-    def __init__(self, base_path: Path, name: str) -> None:
-        self.path = base_path / name
+class FileSystemObject(ArchiveObject):
+    def __init__(self, backend: "FileSystemBackend", name: str) -> None:
+        self.backend = backend
+        self.path = settings.ARCHIVE_PATH / name
         self.name = name
 
-    def open(self, mode: str, chunk_size: int) -> IO[Any]:
-        log.info(f"Opening {self.path}")
-        return open(self.path, mode, buffering=chunk_size)
+    def exists(self) -> bool:
+        return self.path.exists()
 
-    def download_to_filename(self, dst: str) -> None:
-        log.info(f"Copying file {self.path} to {dst}")
-        shutil.copyfile(self.path, dst)
+    def open(self) -> TextIO:
+        return open(self.path, "r", buffering=BLOB_CHUNK)
 
-    def reload(self) -> None:
-        pass
+    def backfill(self, dest: Path) -> None:
+        log.info(f"Copying file: {self.path.stem}", dest=dest.as_posix())
+        shutil.copyfile(self.path, dest)
+
+    def publish(self, source: Path, mime_type: str | None = None) -> None:
+        log.info(
+            f"Copying file: {self.path.name} to archive",
+            source=source,
+            dest=self.path,
+        )
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(source, self.path)
+
+    def republish(self, source: str) -> None:
+        source_path = settings.ARCHIVE_PATH / source
+        log.info(
+            f"Copying file: {self.path.name} to archive",
+            source=source_path,
+            dest=self.path,
+        )
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(source_path, self.path)
 
 
-class FileSystemBackend:
-    def get_blob(self, name: str) -> Optional[FileSystemBlob]:
-        path = settings.ARCHIVE_PATH / name
-        if os.path.isfile(path):
-            return FileSystemBlob(settings.ARCHIVE_PATH, name)
-        else:
-            log.warning(f"File {path.as_posix()} doesn't exist.")
-            return None
+class FileSystemBackend(ArchiveBackend):
+    def get_object(self, name: str) -> FileSystemObject:
+        return FileSystemObject(self, name)
 
 
-backends = {
+backends: Dict[str, Type[ArchiveBackend]] = {
     "GoogleCloudBackend": GoogleCloudBackend,
     "FileSystemBackend": FileSystemBackend,
 }
 
 
 @cache
-def get_archive_backend() -> Optional[Backend]:
-    if settings.ARCHIVE_BACKEND is None:
-        log.info("No backfill backend configured.")
-        return None
-    try:
-        return cast(Backend, backends[settings.ARCHIVE_BACKEND]())
-    except ConfigurationException as error:
-        log.warning(error.message)
-        return None
+def get_archive_backend() -> ArchiveBackend:
+    if settings.ARCHIVE_BACKEND not in backends:
+        msg = "Invalid archive backend: %s" % settings.ARCHIVE_BACKEND
+        raise ConfigurationException(msg)
+    return backends[settings.ARCHIVE_BACKEND]()

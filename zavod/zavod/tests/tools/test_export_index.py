@@ -3,19 +3,17 @@ from json import load
 from zavod.meta import get_catalog, load_dataset_from_path, Dataset
 from zavod.tools.meta_index import export_index
 from zavod import settings
-from ..conftest import FIXTURES_PATH
-from zavod.runner import run_dataset
+from ..conftest import COLLECTION_YML
+from zavod.crawl import crawl_dataset
 from zavod.exporters import export
-
-COLLECTION_YML = FIXTURES_PATH / "collection.yml"
 
 
 def test_export_index(testdataset1: Dataset, testdataset2: Dataset):
     # Create dataset index files
-    run_dataset(testdataset1)
+    crawl_dataset(testdataset1)
     export(testdataset1.name)
 
-    run_dataset(testdataset2)
+    crawl_dataset(testdataset2)
     export(testdataset2.name)
 
     # Clear catalog as if this is a fresh process separate from the earlier exports

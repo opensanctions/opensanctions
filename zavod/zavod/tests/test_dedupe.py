@@ -2,12 +2,12 @@ from nomenklatura.judgement import Judgement
 
 from zavod.meta import Dataset
 from zavod.store import get_store, clear_store
-from zavod.runner import run_dataset
+from zavod.crawl import crawl_dataset
 from zavod.dedupe import get_resolver, blocking_xref, AUTO_USER
 
 
 def test_store_access(testdataset1: Dataset):
-    run_dataset(testdataset1)
+    crawl_dataset(testdataset1)
     resolver = get_resolver()
     assert not len(resolver.edges)
 
@@ -23,7 +23,7 @@ def test_store_access(testdataset1: Dataset):
 
 
 def test_resolve_dedupe(testdataset1: Dataset):
-    stats = run_dataset(testdataset1)
+    stats = crawl_dataset(testdataset1)
     resolver = get_resolver()
     assert len(resolver.edges) == 0
     resolver.decide("osv-john-doe", "osv-johnny-does", Judgement.POSITIVE, user="test")

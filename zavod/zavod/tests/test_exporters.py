@@ -5,12 +5,12 @@ from json import load, loads
 from nomenklatura.judgement import Judgement
 from nomenklatura.stream import StreamEntity
 from datetime import datetime
-from shutil import rmtree
 
 from zavod import settings
 from zavod.context import Context
 from zavod.dedupe import get_resolver
 from zavod.exporters import export
+from zavod.archive import clear_data_path
 from zavod.exporters.ftm import FtMExporter
 from zavod.exporters.names import NamesExporter
 from zavod.exporters.nested import NestedJSONExporter
@@ -18,9 +18,9 @@ from zavod.exporters.simplecsv import SimpleCSVExporter
 from zavod.exporters.senzing import SenzingExporter
 from zavod.exporters.statistics import StatisticsExporter
 from zavod.meta import Dataset, load_dataset_from_path
-from zavod.runner import run_dataset
+from zavod.crawl import crawl_dataset
 from zavod.store import get_store
-from zavod.tests.conftest import DATASET_2_YML
+from zavod.tests.conftest import DATASET_2_YML, COLLECTION_YML
 
 TIME_SECONDS_FMT = "%Y-%m-%dT%H:%M:%S"
 
@@ -37,9 +37,9 @@ default_exports = {
 
 def test_export(testdataset1: Dataset):
     dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
-    rmtree(dataset_path, ignore_errors=True)
+    clear_data_path(testdataset1.name)
 
-    run_dataset(testdataset1)
+    crawl_dataset(testdataset1)
     export(testdataset1.name)
 
     # it parses and finds expected number of entites
@@ -93,9 +93,9 @@ def test_export(testdataset1: Dataset):
 def test_minimal_export_config(testdataset2: Dataset):
     """Test export when dataset.exporters is empty list"""
     dataset_path = settings.DATA_PATH / "datasets" / testdataset2.name
-    rmtree(dataset_path, ignore_errors=True)
+    clear_data_path(testdataset2.name)
 
-    run_dataset(testdataset2)
+    crawl_dataset(testdataset2)
     export(testdataset2.name)
 
     with open(dataset_path / "index.json") as index_file:
@@ -117,9 +117,9 @@ def test_minimal_export_config(testdataset2: Dataset):
 def test_custom_export_config(testdataset2_export: Dataset):
     """Test export when dataset.exporters has custom exports listed"""
     dataset_path = settings.DATA_PATH / "datasets" / testdataset2_export.name
-    rmtree(dataset_path, ignore_errors=True)
+    clear_data_path(testdataset2_export.name)
 
-    run_dataset(testdataset2_export)
+    crawl_dataset(testdataset2_export)
     export(testdataset2_export.name)
 
     with open(dataset_path / "index.json") as index_file:
@@ -156,9 +156,9 @@ def harnessed_export(exporter_class, dataset) -> None:
 
 def test_ftm(testdataset1: Dataset):
     dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
-    rmtree(dataset_path, ignore_errors=True)
+    clear_data_path(testdataset1.name)
 
-    run_dataset(testdataset1)
+    crawl_dataset(testdataset1)
     harnessed_export(FtMExporter, testdataset1)
 
     entities = list(path_entities(dataset_path / "entities.ftm.json", StreamEntity))
@@ -180,49 +180,62 @@ def test_ftm(testdataset1: Dataset):
 
 def test_ftm_referents(testdataset1: Dataset):
     dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
-    rmtree(dataset_path)
-
-    run_dataset(testdataset1)
+    clear_data_path(testdataset1.name)
 
     resolver = get_resolver()
     identifier = resolver.decide(
         "osv-john-doe", "osv-johnny-does", Judgement.POSITIVE, user="test"
     )
+    crawl_dataset(testdataset1)
     harnessed_export(FtMExporter, testdataset1)
 
     entities = list(path_entities(dataset_path / "entities.ftm.json", EntityProxy))
-    assert len(entities) == 11
+    assert len(entities) == 10
 
-    john = [e for e in entities if e.id == "osv-john-doe"][0]
-    assert [identifier, "osv-johnny-does"] == sorted(john.to_dict()["referents"])
-
-    johnny = [e for e in entities if e.id == "osv-johnny-does"][0]
-    assert [identifier, "osv-john-doe"] == sorted(johnny.to_dict()["referents"])
+    john = [e for e in entities if e.id == identifier][0]
+    john_dict = john.to_dict()
+    assert len(john_dict["referents"]) == 2
+    assert "osv-johnny-does" in john_dict["referents"]
+    assert "osv-john-doe" in john_dict["referents"]
+    assert str(identifier) not in john_dict["referents"]
+    assert len(john_dict["datasets"]) == 1
+    assert "testdataset1" in john_dict["datasets"]
 
     # Dedupe against an entity from another dataset.
     # The entity ID is included as referent but is not included in the export.
 
     dataset2 = load_dataset_from_path(DATASET_2_YML)
-    run_dataset(dataset2)
-    other_dataset_id = "td2-friedrich"
+    assert dataset2 is not None
+    collection = load_dataset_from_path(COLLECTION_YML)
+    assert collection is not None
+    collection_path = settings.DATA_PATH / "datasets" / collection.name
+    crawl_dataset(dataset2)
+    other_dataset_id = "freddie"
+    harnessed_export(FtMExporter, collection)
+    entities = list(path_entities(collection_path / "entities.ftm.json", EntityProxy))
+    assert len(entities) == 11
 
     resolver.decide("osv-john-doe", other_dataset_id, Judgement.POSITIVE, user="test")
-    harnessed_export(FtMExporter, testdataset1)
-
-    entities = list(path_entities(dataset_path / "entities.ftm.json", EntityProxy))
-    assert len(entities) == 11
-    john = [e for e in entities if e.id == "osv-john-doe"][0]
-    assert [identifier, "osv-johnny-does", other_dataset_id] == sorted(
-        john.to_dict()["referents"]
-    )
+    clear_data_path(collection.name)
+    harnessed_export(FtMExporter, collection)
+    entities = list(path_entities(collection_path / "entities.ftm.json", EntityProxy))
+    assert len(entities) == 10
     assert [] == [e for e in entities if e.id == other_dataset_id]
+
+    john = [e for e in entities if e.id == identifier][0]
+    john_dict = john.to_dict()
+    assert "osv-johnny-does" in john_dict["referents"]
+    assert "osv-john-doe" in john_dict["referents"]
+    assert other_dataset_id in john_dict["referents"]
+    assert len(john_dict["datasets"]) == 2
+    assert collection.name not in john_dict["datasets"]
 
 
 def test_names(testdataset1: Dataset):
     dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
-    rmtree(dataset_path, ignore_errors=True)
+    clear_data_path(testdataset1.name)
 
-    run_dataset(testdataset1)
+    crawl_dataset(testdataset1)
     harnessed_export(NamesExporter, testdataset1)
 
     with open(dataset_path / "names.txt") as names_file:
@@ -237,9 +250,9 @@ def test_names(testdataset1: Dataset):
 
 def test_nested(testdataset1: Dataset):
     dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
-    rmtree(dataset_path, ignore_errors=True)
+    clear_data_path(testdataset1.name)
 
-    run_dataset(testdataset1)
+    crawl_dataset(testdataset1)
     harnessed_export(NestedJSONExporter, testdataset1)
 
     with open(dataset_path / "targets.nested.json") as nested_file:
@@ -268,9 +281,9 @@ def test_nested(testdataset1: Dataset):
 
 def test_targets_simple(testdataset1: Dataset):
     dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
-    rmtree(dataset_path)
+    clear_data_path(testdataset1.name)
 
-    run_dataset(testdataset1)
+    crawl_dataset(testdataset1)
     harnessed_export(SimpleCSVExporter, testdataset1)
 
     with open(dataset_path / "targets.simple.csv") as csv_file:
@@ -321,9 +334,9 @@ def test_senzing(testdataset1: Dataset):
     """Tests whether the senzing output contain the expected entities, with expected
     keys and value formats."""
     dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
-    rmtree(dataset_path)
+    clear_data_path(testdataset1.name)
 
-    run_dataset(testdataset1)
+    crawl_dataset(testdataset1)
     harnessed_export(SenzingExporter, testdataset1)
 
     with open(dataset_path / "senzing.json") as senzing_file:
@@ -364,9 +377,9 @@ def test_senzing(testdataset1: Dataset):
 
 def test_statistics(testdataset1: Dataset):
     dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
-    rmtree(dataset_path)
+    clear_data_path(testdataset1.name)
 
-    run_dataset(testdataset1)
+    crawl_dataset(testdataset1)
     harnessed_export(StatisticsExporter, testdataset1)
 
     with open(dataset_path / "statistics.json") as statistics_file:

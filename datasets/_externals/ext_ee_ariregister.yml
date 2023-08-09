@@ -1,0 +1,54 @@
+type: external
+title: Estonia e-Business Register (E-äriregister)
+prefix: ee
+disabled: true
+hidden: true
+exports:
+  - statistics.json
+deploy:
+  schedule: "1 2 * * *"
+entry_point: zavod.runner.enrich:enrich
+summary: |
+  A collection of all companies registered in Estonia, including directors and
+  beneficial owners.
+publisher:
+  name: Centre of Registers and Information Systems
+  url: https://www.rik.ee/en/e-business-register
+  description: |
+    The e-Business Register issues free legal and statistical data about all
+    Estonian companys, non-profit associations, foundations, state and local
+    governmental agencies and self-employed persons.
+  country: ee
+  official: true
+
+inputs:
+  - sanctions
+  # - cy_companies
+  # - cz_business_register
+  # - ee_ariregister
+  # - gb_coh_psc
+  # - gleif
+  # - icij_offshoreleaks
+  - ext_lv_business_register
+  # - md_companies
+  - opencorporates
+  # - ru_egrul
+  - ru_rupep
+  - ru_rupep_companies
+  # - ua_edr
+  - debarment
+
+config:
+  type: nomenklatura.enrich.yente:YenteEnricher
+  api: https://api.graph.opensanctions.org/
+  dataset: ee_ariregister
+  api_key: ${OPENSANCTIONS_GRAPH_API_KEY}
+  strip_namespace: true
+  fuzzy: false
+  threshold: 0.7
+  schemata:
+    - Company
+    - Organization
+    # - LegalEntity
+    # - Person
+  cache_days: 30

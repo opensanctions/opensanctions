@@ -4,7 +4,7 @@ from datapatch import LookupException
 from zavod.meta import Dataset
 from zavod.context import Context
 from zavod.exc import RunFailedException
-from zavod.archive import dataset_path
+from zavod.archive import dataset_data_path
 from zavod.runtime.stats import ContextStats
 from zavod.runtime.loader import load_entry_point
 from zavod.runner.enrich import dataset_enricher
@@ -14,7 +14,7 @@ from zavod.runner.enrich import dataset_enricher
 assert dataset_enricher is not None
 
 
-def run_dataset(dataset: Dataset, dry_run: bool = False) -> ContextStats:
+def crawl_dataset(dataset: Dataset, dry_run: bool = False) -> ContextStats:
     """Load the dataset entry point, configure a context, and then execute the entry
     point; finally disband the context."""
     context = Context(dataset, dry_run=dry_run)
@@ -24,7 +24,11 @@ def run_dataset(dataset: Dataset, dry_run: bool = False) -> ContextStats:
 
     try:
         context.begin(clear=True)
-        context.log.info("Running dataset", path=dataset_path(dataset.name).as_posix())
+        context.log.info(
+            "Running dataset",
+            data_path=dataset_data_path(dataset.name),
+            data_time=context.data_time_iso,
+        )
         entry_point = load_entry_point(dataset)
         entry_point(context)
         if context.stats.entities == 0:
@@ -53,16 +57,3 @@ def run_dataset(dataset: Dataset, dry_run: bool = False) -> ContextStats:
         raise RunFailedException() from exc
     finally:
         context.close()
-
-
-# def clear_dataset(dataset: Dataset, data: bool = True) -> None:
-#     """Delete all recorded data for a given dataset."""
-#     context = Context(dataset, dry_run=False)
-#     try:
-#         context.issues.clear()
-#         context.resources.clear()
-#         if data:
-#             context.cache.clear()
-#             context.sink.clear()
-#     finally:
-#         context.close()

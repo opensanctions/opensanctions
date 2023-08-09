@@ -11,8 +11,7 @@ from zavod.exporters.names import NamesExporter
 from zavod.exporters.simplecsv import SimpleCSVExporter
 from zavod.exporters.senzing import SenzingExporter
 from zavod.exporters.statistics import StatisticsExporter
-from zavod.exporters.metadata import write_dataset_index
-from zavod.util import write_json
+from zavod.exporters.metadata import write_dataset_index, write_issues
 
 log = get_logger(__name__)
 
@@ -25,7 +24,7 @@ EXPORTERS: Dict[str, Type[Exporter]] = {
     SenzingExporter.FILE_NAME: SenzingExporter,
 }
 
-__all__ = ["export_dataset"]
+__all__ = ["export_dataset", "write_dataset_index", "write_issues"]
 
 
 def export_data(context: Context, view: View) -> None:
@@ -59,16 +58,6 @@ def export_data(context: Context, view: View) -> None:
         exporter.finish()
 
 
-def write_issues(context: Context) -> None:
-    # Export list of data issues from crawl stage
-    issues_path = context.get_resource_path("issues.json")
-    context.log.info("Writing dataset issues list", path=issues_path)
-    with open(issues_path, "wb") as fh:
-        issues = list(context.issues.all())
-        data = {"issues": issues}
-        write_json(data, fh)
-
-
 def export_dataset(dataset: Dataset, view: View) -> None:
     """Dump the contents of the dataset to the output directory."""
     try:
@@ -76,11 +65,9 @@ def export_dataset(dataset: Dataset, view: View) -> None:
         context.begin(clear=False)
         export_data(context, view)
 
-        write_issues(context)
-
+        write_issues(dataset)
         # Export full metadata
-        write_dataset_index(context, dataset)
-
+        write_dataset_index(dataset)
     finally:
         context.close()
 

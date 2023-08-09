@@ -1,3 +1,4 @@
+import os
 from banal import ensure_list, ensure_dict, hash_data
 from typing import Dict, Any, Optional, List, Set
 from normality import slugify
@@ -24,6 +25,14 @@ class Dataset(NKDataset):
         self.exports: Set[str] = set(data.get("exports", []))
         self.disabled: bool = data.get("disabled", False)
         self.entry_point: Optional[str] = data.get("entry_point", None)
+
+        self.load_db_uri: Optional[str] = data.get("load_db_uri", None)
+        """Used to load the dataset into a database when doing a complete run."""
+        if self.load_db_uri is not None:
+            self.load_db_uri = os.path.expandvars(self.load_db_uri)
+            if len(self.load_db_uri.strip()) == 0:
+                self.load_db_uri = None
+
         self.config: Dict[str, Any] = ensure_dict(data.get("config", {}))
         _inputs = ensure_list(data.get("inputs", []))
         self._inputs: List[str] = [str(x) for x in _inputs]

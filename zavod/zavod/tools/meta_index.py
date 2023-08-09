@@ -1,14 +1,15 @@
+import json
+from urllib.parse import urljoin
+from nomenklatura.matching import MatcherV1
 from followthemoney import model
+
+from zavod import settings
 from zavod.archive import get_dataset_resource, datasets_path
 from zavod.util import write_json
 from zavod.meta import Dataset
-from zavod.archive import INDEX_FILE
+from zavod.archive import INDEX_FILE, ISSUES_FILE
 from zavod.logs import get_logger
 from zavod.runtime.issues import DatasetIssues
-from zavod import settings
-from urllib.parse import urljoin
-from nomenklatura.matching import MatcherV1
-import json
 
 log = get_logger(__name__)
 SCOPED = ["datasets", "scopes", "sources", "externals", "collections"]
@@ -21,7 +22,7 @@ def export_index(scope: Dataset) -> None:
     schemata = set()
     for dataset in scope.datasets:
         ds_path = get_dataset_resource(dataset, INDEX_FILE)
-        if ds_path is None or not ds_path.exists():
+        if not ds_path.is_file():
             log.error("No index file found", dataset=dataset.name, report_issue=False)
         else:
             with open(ds_path, "r") as fh:
@@ -38,7 +39,8 @@ def export_index(scope: Dataset) -> None:
                 schemata.update(ds_data.get("schemata", []))
                 datasets.append(ds_data)
 
-    issues_path = base_path.joinpath("issues.json")
+    # TODO: get rid of this
+    issues_path = base_path.joinpath(ISSUES_FILE)
     log.info("Writing global issues list", path=issues_path)
     with open(issues_path, "wb") as fh:
         issues = DatasetIssues(scope)

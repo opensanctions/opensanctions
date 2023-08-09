@@ -3,7 +3,7 @@ from nomenklatura.statement import Statement, CSV, read_path_statements
 
 from zavod.meta import Dataset
 from zavod.dedupe import get_resolver
-from zavod.runner import run_dataset
+from zavod.crawl import crawl_dataset
 from zavod.tools.dump_file import dump_dataset_to_file
 from zavod.archive import iter_dataset_statements, dataset_state_path
 
@@ -11,7 +11,7 @@ from zavod.archive import iter_dataset_statements, dataset_state_path
 def test_dump_file(testdataset1: Dataset):
     resolver = get_resolver()
     assert len(resolver.edges) == 0
-    run_dataset(testdataset1)
+    crawl_dataset(testdataset1)
 
     stmts = list(iter_dataset_statements(testdataset1))
     assert len(stmts) > 0
