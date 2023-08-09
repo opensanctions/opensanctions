@@ -8,6 +8,7 @@ exports:
   - entities.ftm.json
 deploy:
   schedule: "1 2 * * *"
+  memory: "2Gi"
 coverage:
   frequency: daily
 summary: |
