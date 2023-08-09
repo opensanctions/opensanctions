@@ -37,3 +37,5 @@ class DatasetResources(object):
     def clear(self) -> None:
         if self.path.exists():
             self.path.unlink()
+        with open(self.path, "w") as fh:
+            fh.write(json.dumps({"resources": []}))
