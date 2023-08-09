@@ -7,6 +7,9 @@ coverage:
   frequency: weekly
 deploy:
   disk: 20Gi
+exports:
+  - statistics.json
+  - entities.ftm.json
 summary: |
   Data is collected by the Ministry of Justice of the Slovak Republic in the ‘Register
   partnerov verejného sektora’ (RPVS), and covers entities benefiting from public

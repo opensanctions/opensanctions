@@ -2,6 +2,13 @@ name: us_corpwatch
 title: US CorpWatch EX-21 Filings
 prefix: us-cw
 entry_point: crawler.py
+coverage:
+  frequency: monthly
+deploy:
+  disk: 50Gi
+exports:
+  - statistics.json
+  - entities.ftm.json
 summary: |
   Subsidiary relationship information from Exhibit 21 of companies' 10-K
   filings with the SEC (global subsidiaries of all publicly-listed companies
@@ -18,10 +25,6 @@ description: |
   > their filings (Same companies listed as parents and children), or because
   > multiple CIKs refer to the same filing.
 url: http://api.corpwatch.org/documentation/#data
-coverage:
-  frequency: monthly
-deploy:
-  disk: 50Gi
 publisher:
   name: CorpWatch
   url: https://corpwatch.org

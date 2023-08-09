@@ -8,6 +8,9 @@ summary: |
   and other cross-border investigations conducted by ICIJ and its partners.
 coverage:
   end: 2023-07-26
+exports:
+  - statistics.json
+  - entities.ftm.json
 publisher:
   name: International Consortium of Investigative Journalists (ICIJ)
   description: |

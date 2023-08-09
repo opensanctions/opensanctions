@@ -9,6 +9,9 @@ coverage:
 deploy:
   schedule: "@monthly"
   disk: 50Gi
+exports:
+  - statistics.json
+  - entities.ftm.json
 summary: |
   The beneficial ownership database of legal entities registered in Ukraine (EDR)
 resources:

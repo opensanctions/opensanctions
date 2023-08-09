@@ -1,14 +1,17 @@
 name: de_offeneregister
 title: Deutsches Handelsregister (OffeneRegister.de)
 prefix: de-oc
-disabled: true
+disabled: false
 entry_point: parse.py
 coverage:
   end: 2019-02-01
   frequency: never
 deploy:
   schedule: "@monthly"
-  disk: 30Gi
+  disk: 50Gi
+exports:
+  - statistics.json
+  - entities.ftm.json
 summary: |
   The OpenCorporates dump of the german companies registry, recent until end of
   2018, as published via OffeneRegister.de. Includes companies (HRA/HRB),

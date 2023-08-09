@@ -7,6 +7,9 @@ coverage:
   frequency: weekly
 deploy:
   disk: 50Gi
+exports:
+  - statistics.json
+  - entities.ftm.json
 summary: |
   Base data for all entities which have been issued Legal Entity Identifier
   (LEI) codes, as well as the relationships between them.
