@@ -52,7 +52,7 @@ def publish_resource(
 ) -> None:
     backend = get_archive_backend()
     if dataset_name is not None:
-        assert path.relative_to(dataset_path(dataset_name))
+        assert path.relative_to(dataset_data_path(dataset_name))
         resource = f"{dataset_name}/{resource}"
     release_name = f"{settings.RELEASE}/{resource}"
     release_object = backend.get_object(release_name)
@@ -72,7 +72,7 @@ def _state_path() -> Path:
     return settings.DATA_PATH / "state"
 
 
-def dataset_path(dataset_name: str) -> Path:
+def dataset_data_path(dataset_name: str) -> Path:
     path = datasets_path() / dataset_name
     path.mkdir(parents=True, exist_ok=True)
     return path.resolve()
@@ -87,8 +87,8 @@ def dataset_state_path(dataset_name: str) -> Path:
 
 
 def dataset_resource_path(dataset_name: str, resource: str) -> Path:
-    dataset_path_ = dataset_path(dataset_name)
-    return dataset_path_.joinpath(resource)
+    dataset_path = dataset_data_path(dataset_name)
+    return dataset_path.joinpath(resource)
 
 
 def get_dataset_resource(

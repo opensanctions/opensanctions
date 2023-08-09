@@ -4,7 +4,7 @@ from datapatch import LookupException
 from zavod.meta import Dataset
 from zavod.context import Context
 from zavod.exc import RunFailedException
-from zavod.archive import dataset_path
+from zavod.archive import dataset_data_path
 from zavod.runtime.stats import ContextStats
 from zavod.runtime.loader import load_entry_point
 from zavod.runner.enrich import dataset_enricher
@@ -24,7 +24,7 @@ def crawl_dataset(dataset: Dataset, dry_run: bool = False) -> ContextStats:
 
     try:
         context.begin(clear=True)
-        context.log.info("Running dataset", path=dataset_path(dataset.name).as_posix())
+        context.log.info("Running dataset", data_path=dataset_data_path(dataset.name))
         entry_point = load_entry_point(dataset)
         entry_point(context)
         if context.stats.entities == 0:

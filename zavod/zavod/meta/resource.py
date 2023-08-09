@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Optional, Dict, Any
 from nomenklatura.dataset import DataResource as NKDataResource
 
-from zavod.archive import dataset_path
+from zavod.archive import dataset_data_path
 from zavod.meta.dataset import Dataset
 
 
@@ -22,7 +22,7 @@ class DataResource(NKDataResource):
             raise ValueError("File does not exist: %s" % path)
         if mime_type is None:
             mime_type, _ = mimetypes.guess_type(path.as_posix(), strict=False)
-        dataset_path_ = dataset_path(dataset.name)
+        dataset_path_ = dataset_data_path(dataset.name)
         name = path.relative_to(dataset_path_).as_posix()
 
         digest = sha1()

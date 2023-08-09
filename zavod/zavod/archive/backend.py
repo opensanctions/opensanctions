@@ -68,7 +68,7 @@ class GoogleCloudObject(ArchiveObject):
     def publish(self, source: Path, mime_type: Optional[str] = None) -> None:
         if self.blob is None:
             raise RuntimeError("Object does not exist: %s" % self.name)
-        log.info(f"Uploading blob: {self.name} from {source.as_posix()}")
+        log.info(f"Uploading blob: {source.name}", blob_name=self.name)
         self.blob.upload_from_filename(source, content_type=mime_type)
 
     def republish(self, source: str) -> None:
@@ -76,7 +76,7 @@ class GoogleCloudObject(ArchiveObject):
         if source_blob is None:
             raise RuntimeError("Object does not exist: %s" % source)
         # TODO: add if_generation_match
-        log.info(f"Copying blob: {self.name} from {source}")
+        log.info(f"Copying blob: {self.name}", source=source)
         self.backend.bucket.copy_blob(source_blob, self.backend.bucket, self.name)
 
 
@@ -104,17 +104,25 @@ class FileSystemObject(ArchiveObject):
         return open(self.path, "r", buffering=BLOB_CHUNK)
 
     def backfill(self, dest: Path) -> None:
-        log.info(f"Copying file {self.path.as_posix()!r} to {dest.as_posix()!r}")
+        log.info(f"Copying file: {self.path.stem}", dest=dest.as_posix())
         shutil.copyfile(self.path, dest)
 
     def publish(self, source: Path, mime_type: str | None = None) -> None:
-        log.info(f"Copying file {source.as_posix()!r} to {self.path.as_posix()!r}")
+        log.info(
+            f"Copying file: {self.path.name} to archive",
+            source=source,
+            dest=self.path,
+        )
         self.path.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(source, self.path)
 
     def republish(self, source: str) -> None:
         source_path = settings.ARCHIVE_PATH / source
-        log.info(f"Copying file {source_path.as_posix()!r} to {self.path.as_posix()!r}")
+        log.info(
+            f"Copying file: {self.path.name} to archive",
+            source=source_path,
+            dest=self.path,
+        )
         self.path.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(source_path, self.path)
 

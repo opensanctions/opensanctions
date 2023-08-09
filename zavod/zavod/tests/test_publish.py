@@ -2,7 +2,7 @@ import shutil
 from zavod import settings
 from zavod.meta import Dataset
 from zavod.archive import STATISTICS_FILE, INDEX_FILE, STATEMENTS_FILE
-from zavod.archive import dataset_path, get_dataset_resource
+from zavod.archive import dataset_data_path, get_dataset_resource
 from zavod.archive import iter_dataset_statements, iter_previous_statements
 from zavod.crawl import crawl_dataset
 from zavod.store import get_view, clear_store
@@ -33,7 +33,7 @@ def test_publish_dataset(testdataset1: Dataset):
     assert latest_path.joinpath(INDEX_FILE).exists()
 
     # Test backfill:
-    shutil.rmtree(dataset_path(testdataset1.name))
+    shutil.rmtree(dataset_data_path(testdataset1.name))
     assert len(list(iter_dataset_statements(testdataset1))) > 5
     assert len(list(iter_previous_statements(testdataset1))) > 5
     path = get_dataset_resource(testdataset1, INDEX_FILE, backfill=False)
@@ -53,7 +53,7 @@ def test_publish_failure(testdataset1: Dataset):
         crawl_dataset(testdataset1)
     except RunFailedException:
         publish_failure(testdataset1, latest=True)
-    shutil.rmtree(dataset_path(testdataset1.name))
+    shutil.rmtree(dataset_data_path(testdataset1.name))
 
     assert not latest_path.joinpath("statements.pack").exists()
     assert latest_path.joinpath("index.json").exists()

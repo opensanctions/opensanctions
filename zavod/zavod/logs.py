@@ -82,7 +82,11 @@ def log_issue(_: Any, __: str, ed: Event) -> Event:
         if isinstance(value, _Element):
             value = tostring(value, pretty_print=False, encoding=str)
         if isinstance(value, Path):
-            value = str(value.relative_to(settings.DATA_PATH))
+            try:
+                value = value.relative_to(settings.DATA_PATH)
+            except ValueError:
+                pass
+            value = str(value)
         if isinstance(value, Schema):
             value = value.name
         data[key] = value

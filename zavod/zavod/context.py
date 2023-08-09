@@ -17,7 +17,7 @@ from zavod import settings
 from zavod.audit import inspect
 from zavod.meta import Dataset, DataResource, get_catalog
 from zavod.entity import Entity
-from zavod.archive import dataset_resource_path, dataset_path
+from zavod.archive import dataset_resource_path, dataset_data_path
 from zavod.runtime.stats import ContextStats
 from zavod.runtime.sink import DatasetSink
 from zavod.runtime.issues import DatasetIssues
@@ -181,7 +181,7 @@ class Context:
             self.http,
             url,
             name,
-            data_path=dataset_path(self.dataset.name),
+            data_path=dataset_data_path(self.dataset.name),
             auth=auth,
             headers=headers,
         )
