@@ -34,11 +34,11 @@ publisher:
 
 inputs:
   - sanctions
-  # - cy_companies
+  - ext_cy_companies
   # - cz_business_register
   # - ee_ariregister
   # - gb_coh_psc
-  # - gleif
+  - ext_gleif
   # - icij_offshoreleaks
   - ext_lv_business_register
   # - md_companies
