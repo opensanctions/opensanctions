@@ -10,7 +10,6 @@ from zavod.logs import get_logger
 
 
 log = get_logger(__name__)
-BLOB_CHUNK = 40 * 1024 * 1024
 
 
 class ProtocolBlob(Protocol):
