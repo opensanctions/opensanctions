@@ -15,7 +15,7 @@ def publish_dataset(dataset: Dataset, latest: bool = True) -> None:
     for resource in resources.all():
         path = dataset_resource_path(dataset.name, resource.name)
         if not path.is_file():
-            log.error("Resource not found: %s" % path)
+            log.error("Resource not found: %s" % path, dataset=dataset.name)
             continue
         publish_resource(
             path,
@@ -30,7 +30,7 @@ def publish_dataset(dataset: Dataset, latest: bool = True) -> None:
     for meta in files:
         path = dataset_resource_path(dataset.name, meta)
         if not path.is_file():
-            log.error("Metadata file not found: %s" % path)
+            log.error("Metadata file not found: %s" % path, dataset=dataset.name)
             continue
         mime_type = "application/json" if meta.endswith(".json") else None
         publish_resource(path, dataset.name, meta, latest=latest, mime_type=mime_type)
@@ -50,7 +50,7 @@ def publish_failure(dataset: Dataset, latest: bool = True) -> None:
     for meta in [ISSUES_FILE, ISSUES_LOG, INDEX_FILE]:
         path = dataset_resource_path(dataset.name, meta)
         if not path.is_file():
-            log.error("Metadata file not found: %s" % path)
+            log.error("Metadata file not found: %s" % path, dataset=dataset.name)
             continue
         mime_type = "application/json" if meta.endswith(".json") else None
         publish_resource(path, dataset.name, meta, latest=latest, mime_type=mime_type)
