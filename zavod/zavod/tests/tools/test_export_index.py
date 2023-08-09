@@ -1,9 +1,9 @@
+from json import load
+
 from zavod.meta import get_catalog, load_dataset_from_path, Dataset
 from zavod.tools.meta_index import export_index
-from ..conftest import FIXTURES_PATH, DATASET_2_YML
-from zavod.context import Context
 from zavod import settings
-from json import load
+from ..conftest import FIXTURES_PATH
 from zavod.runner import run_dataset
 from zavod.exporters import export
 

@@ -1,7 +1,5 @@
 from datetime import datetime, timedelta
-from shutil import copyfile, rmtree
-from tempfile import mkdtemp
-from pathlib import Path
+from shutil import copyfile
 
 from zavod import settings
 from zavod.meta import Dataset
@@ -31,14 +29,14 @@ def test_timestamps(testdataset1: Dataset):
     assert "TimeStampIndex" in repr(index), repr(index)
 
 
-def test_backfill(vdataset: Dataset):
+def test_backfill(testdataset1: Dataset):
     prev_time = settings.RUN_TIME_ISO
-    run_dataset(vdataset)
+    run_dataset(testdataset1)
 
-    archive_path = settings.ARCHIVE_PATH / "datasets/latest" / vdataset.name
+    archive_path = settings.ARCHIVE_PATH / "datasets/latest" / testdataset1.name
     archive_path.mkdir(parents=True, exist_ok=True)
     copyfile(
-        settings.DATA_PATH / "datasets" / vdataset.name / "statements.pack",
+        settings.DATA_PATH / "datasets" / testdataset1.name / "statements.pack",
         archive_path / "statements.pack",
     )
 
@@ -46,10 +44,10 @@ def test_backfill(vdataset: Dataset):
     settings.RUN_TIME_ISO = settings.RUN_TIME.isoformat(sep="T", timespec="seconds")
     settings.RUN_DATE = settings.RUN_TIME.date().isoformat()
     second_time = settings.RUN_TIME_ISO
-    run_dataset(vdataset)
+    run_dataset(testdataset1)
 
-    stmts = list(iter_dataset_statements(vdataset))
-    index = TimeStampIndex.build(dataset=vdataset)
+    stmts = list(iter_dataset_statements(testdataset1))
+    index = TimeStampIndex.build(dataset=testdataset1)
     for stmt in stmts:
         assert index.get(stmt.id, second_time) != ""
         assert index.get(stmt.id, second_time) == prev_time

@@ -5,7 +5,10 @@ test:
 typecheck:
 	mypy --strict --exclude zavod/tests zavod/
 
-check: test typecheck
+lint:
+	ruff zavod/
+
+check: test typecheck lint
 
 clean:
 	rm -rf .coverage htmlcov dist build zavod.egg-info

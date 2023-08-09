@@ -17,11 +17,10 @@ from zavod.exporters.nested import NestedJSONExporter
 from zavod.exporters.simplecsv import SimpleCSVExporter
 from zavod.exporters.senzing import SenzingExporter
 from zavod.exporters.statistics import StatisticsExporter
-from zavod.meta import Dataset, load_dataset_from_path, get_catalog
+from zavod.meta import Dataset, load_dataset_from_path
 from zavod.runner import run_dataset
-from zavod.store import View, get_store, get_view
+from zavod.store import get_store
 from zavod.tests.conftest import DATASET_2_YML
-from csv import DictReader
 
 TIME_SECONDS_FMT = "%Y-%m-%dT%H:%M:%S"
 
@@ -34,6 +33,7 @@ default_exports = {
     "targets.nested.json",
     "targets.simple.csv",
 }
+
 
 def test_export(testdataset1: Dataset):
     dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
