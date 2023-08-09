@@ -51,7 +51,8 @@ def crawl(dataset_path: Path, dry_run: bool = False, clear: bool = False) -> Non
 @click.option("-c", "--clear", is_flag=True, default=False)
 def export(dataset_path: Path, clear: bool = False) -> None:
     dataset = _load_dataset(dataset_path)
-    clear_store(dataset)
+    if clear:
+        clear_store(dataset)
     view = get_view(dataset, external=False)
     export_dataset(dataset, view)
 
