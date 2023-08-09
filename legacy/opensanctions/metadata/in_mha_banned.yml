@@ -1,6 +1,7 @@
 entry_point: opensanctions.crawlers.in_mha_banned:crawl
 title: Indian Ministry of Home Affairs Banned Organizations
 prefix: in-mha
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   List of banned organizations under the Unlawful Activities (Prevention) Act.
 description: |

@@ -69,7 +69,13 @@ def publish(dataset_path: Path, latest: bool = False) -> None:
 @click.argument("dataset_path", type=InPath)
 @click.option("-l", "--latest", is_flag=True, default=False)
 @click.option("-c", "--clear", is_flag=True, default=False)
-def run(dataset_path: Path, latest: bool = False, clear: bool = False) -> None:
+@click.option("-x", "--external", is_flag=True, default=True)
+def run(
+    dataset_path: Path,
+    latest: bool = False,
+    clear: bool = False,
+    external: bool = False,
+) -> None:
     dataset = _load_dataset(dataset_path)
     if clear:
         clear_data_path(dataset.name)
@@ -82,6 +88,10 @@ def run(dataset_path: Path, latest: bool = False, clear: bool = False) -> None:
     view = get_view(dataset, external=False)
     export_dataset(dataset, view)
     publish_dataset(dataset, latest=latest)
+
+    if not dataset.is_collection and dataset.load_db_uri is not None:
+        log.info("Loading dataset into database...")
+        load_dataset_to_db(dataset, dataset.load_db_uri, external=external)
 
 
 @cli.command("load-db", help="Load dataset statements from the archive into a database")
