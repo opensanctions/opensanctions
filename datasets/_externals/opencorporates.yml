@@ -6,7 +6,7 @@ exports:
   - statistics.json
 deploy:
   schedule: "1 2 * * *"
-  memory: "1500Mi"
+  memory: "2Gi"
 coverage:
   frequency: daily
 summary: |
