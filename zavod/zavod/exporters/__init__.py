@@ -65,7 +65,9 @@ def export_dataset(dataset: Dataset, view: View) -> None:
         context.begin(clear=False)
         export_data(context, view)
 
-        write_issues(dataset)
+        if not dataset.is_collection:
+            # Export issues
+            write_issues(dataset)
         # Export full metadata
         write_dataset_index(dataset)
     finally:

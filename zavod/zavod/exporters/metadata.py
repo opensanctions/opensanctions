@@ -32,9 +32,10 @@ def write_dataset_index(dataset: Dataset) -> None:
     )
     meta = dataset.to_opensanctions_dict()
     meta.update(get_dataset_statistics(dataset))
-    issues = DatasetIssues(dataset)
-    meta["issue_levels"] = issues.by_level()
-    meta["issue_count"] = sum(meta["issue_levels"].values())
+    if not dataset.is_collection:
+        issues = DatasetIssues(dataset)
+        meta["issue_levels"] = issues.by_level()
+        meta["issue_count"] = sum(meta["issue_levels"].values())
     resources = DatasetResources(dataset)
     meta["resources"] = [r.to_opensanctions_dict() for r in resources.all()]
     meta["last_export"] = settings.RUN_TIME
