@@ -3,7 +3,7 @@ from click.testing import CliRunner
 
 from zavod import settings
 from zavod.meta import Dataset
-from zavod.cli import crawl, run, export, load_db, dump_file
+from zavod.cli import crawl, run, publish, export, clear, load_db, dump_file
 from zavod.archive import dataset_state_path
 from zavod.tests.conftest import DATASET_1_YML
 
@@ -11,9 +11,17 @@ from zavod.tests.conftest import DATASET_1_YML
 def test_crawl_dataset():
     runner = CliRunner()
     result = runner.invoke(crawl, ["/dev/null"])
+    path = settings.DATA_PATH / "datasets" / "testdataset1"
     assert result.exit_code != 0, result.output
+    assert not path.exists()
     result = runner.invoke(crawl, [DATASET_1_YML.as_posix()])
     assert result.exit_code == 0, result.output
+    assert path.exists()
+
+    result = runner.invoke(clear, ["/dev/null"])
+    assert path.exists()
+    result = runner.invoke(clear, [DATASET_1_YML.as_posix()])
+    assert not path.exists()
 
 
 def test_export_dataset():
@@ -22,6 +30,7 @@ def test_export_dataset():
     assert result.exit_code != 0, result.output
     result = runner.invoke(export, [DATASET_1_YML.as_posix()])
     assert result.exit_code == 0, result.output
+    shutil.rmtree(settings.DATA_PATH)
 
 
 def test_load_db():
@@ -41,6 +50,7 @@ def test_dump_file():
     assert result.exit_code != 0, result.output
     result = runner.invoke(dump_file, [DATASET_1_YML.as_posix(), out_path.as_posix()])
     assert result.exit_code == 0, result.output
+    shutil.rmtree(settings.DATA_PATH)
 
 
 def test_run_dataset(testdataset1: Dataset):
@@ -54,4 +64,13 @@ def test_run_dataset(testdataset1: Dataset):
     assert latest_path.exists()
     assert latest_path.joinpath("index.json").exists()
     assert latest_path.joinpath("entities.ftm.json").exists()
-    shutil.rmtree(settings.ARCHIVE_PATH)
+    shutil.rmtree(latest_path)
+
+    result = runner.invoke(publish, ["/dev/null"])
+    assert result.exit_code != 0, result.output
+    result = runner.invoke(publish, ["--latest", DATASET_1_YML.as_posix()])
+    assert result.exit_code == 0, result.output
+    assert latest_path.exists()
+    assert latest_path.joinpath("index.json").exists()
+    assert latest_path.joinpath("entities.ftm.json").exists()
+    shutil.rmtree(settings.DATA_PATH)

@@ -1,6 +1,5 @@
 import sys
 import click
-import shutil
 import logging
 from pathlib import Path
 from followthemoney.cli.util import InPath, OutPath
@@ -10,7 +9,7 @@ from zavod.logs import configure_logging, get_logger
 from zavod.meta import load_dataset_from_path, Dataset
 from zavod.crawl import crawl_dataset
 from zavod.store import get_view
-from zavod.archive import dataset_data_path, dataset_state_path
+from zavod.archive import clear_data_path
 from zavod.exporters import export_dataset
 from zavod.publish import publish_dataset, publish_failure
 from zavod.tools.load_db import load_dataset_to_db
@@ -107,5 +106,4 @@ def dump_file(
 @click.argument("dataset_path", type=InPath)
 def clear(dataset_path: Path) -> None:
     dataset = _load_dataset(dataset_path)
-    shutil.rmtree(dataset_data_path(dataset.name))
-    shutil.rmtree(dataset_state_path(dataset.name))
+    clear_data_path(dataset.name)

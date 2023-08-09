@@ -1,4 +1,5 @@
 import csv
+import shutil
 from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Optional, Generator, TextIO
@@ -84,6 +85,12 @@ def dataset_state_path(dataset_name: str) -> Path:
     path = _state_path() / dataset_name
     path.mkdir(parents=True, exist_ok=True)
     return path.resolve()
+
+
+def clear_data_path(dataset_name: str) -> None:
+    """Delete all recorded data for a given dataset."""
+    shutil.rmtree(dataset_data_path(dataset_name))
+    shutil.rmtree(dataset_state_path(dataset_name))
 
 
 def dataset_resource_path(dataset_name: str, resource: str) -> Path:
