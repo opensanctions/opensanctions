@@ -420,6 +420,8 @@ class Context:
         """
         if entity.id is None:
             raise ValueError("Entity has no ID: %r", entity)
+        if len(entity.properties) == 0:
+            raise ValueError("Entity has no properties: %r", entity)
         self.stats.entities += 1
         if target:
             self.stats.targets += 1
