@@ -1,6 +1,5 @@
 import sys
 import click
-import shutil
 import logging
 from pathlib import Path
 from typing import Optional
@@ -11,9 +10,8 @@ from nomenklatura.matching import DefaultAlgorithm
 from followthemoney.cli.util import OutPath
 
 from zavod.logs import get_logger, configure_logging
-from zavod.runner import run_dataset
+from zavod.crawl import crawl_dataset
 from zavod.store import get_store
-from zavod.archive import dataset_path
 from zavod.dedupe import get_resolver, blocking_xref
 from zavod.tools.dump_file import dump_dataset_to_file
 from zavod.tools.meta_index import export_index
@@ -51,7 +49,7 @@ def crawl(dataset: str, dry_run: bool):
     failed = False
     for source in scope.leaves:
         try:
-            run_dataset(source, dry_run=dry_run)
+            crawl_dataset(source, dry_run=dry_run)
         except RunFailedException:
             failed = True
     if failed:
@@ -70,16 +68,6 @@ def export_(dataset: str, recurse: bool = False):
 def export_metadata_(dataset: str):
     dataset_ = get_catalog().require(dataset)
     export_index(dataset_)
-
-
-@cli.command("clear-workdir", help="Delete the working path and cached source data")
-@click.argument("dataset", default=ALL_SCOPE, type=datasets)
-def clear_workdir(dataset: Optional[str] = None):
-    ds = get_catalog().require(dataset)
-    for part in ds.datasets:
-        path = dataset_path(part.name)
-        log.info("Clear path: %s" % path)
-        shutil.rmtree(path)
 
 
 @cli.command("xref", help="Generate dedupe candidates from the given dataset")

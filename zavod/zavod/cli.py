@@ -35,8 +35,11 @@ def cli() -> None:
 @cli.command("crawl", help="Crawl a specific dataset")
 @click.argument("dataset_path", type=InPath)
 @click.option("-d", "--dry-run", is_flag=True, default=False)
-def crawl(dataset_path: Path, dry_run: bool = False) -> None:
+@click.option("-c", "--clear", is_flag=True, default=False)
+def crawl(dataset_path: Path, dry_run: bool = False, clear: bool = False) -> None:
     dataset = _load_dataset(dataset_path)
+    if clear:
+        clear_data_path(dataset.name)
     try:
         crawl_dataset(dataset, dry_run=dry_run)
     except RunFailedException:
@@ -53,7 +56,7 @@ def export(dataset_path: Path) -> None:
 
 @cli.command("publish", help="Publish data from a specific dataset")
 @click.argument("dataset_path", type=InPath)
-@click.option("--latest", is_flag=True, default=False)
+@click.option("-l", "--latest", is_flag=True, default=False)
 def publish(dataset_path: Path, latest: bool = False) -> None:
     dataset = _load_dataset(dataset_path)
     publish_dataset(dataset, latest=latest)
@@ -61,9 +64,12 @@ def publish(dataset_path: Path, latest: bool = False) -> None:
 
 @cli.command("run", help="Crawl, export and then publish a specific dataset")
 @click.argument("dataset_path", type=InPath)
-@click.option("--latest", is_flag=True, default=False)
-def run(dataset_path: Path, latest: bool = False) -> None:
+@click.option("-l", "--latest", is_flag=True, default=False)
+@click.option("-c", "--clear", is_flag=True, default=False)
+def run(dataset_path: Path, latest: bool = False, clear: bool = False) -> None:
     dataset = _load_dataset(dataset_path)
+    if clear:
+        clear_data_path(dataset.name)
     if dataset.entry_point is not None and not dataset.is_collection:
         try:
             crawl_dataset(dataset, dry_run=False)
