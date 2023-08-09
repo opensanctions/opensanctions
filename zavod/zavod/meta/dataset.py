@@ -21,7 +21,7 @@ class Dataset(NKDataset):
         if self.updated_at is None:
             self.updated_at = datetime_iso(settings.RUN_TIME)
         self.hidden: bool = data.get("hidden", False)
-        self.exports: Optional[List[str]] = data.get("exports", [])
+        self.exports: List[str] = data.get("exports", [])
         self.disabled: bool = data.get("disabled", False)
         self.entry_point: Optional[str] = data.get("entry_point", None)
         self.config: Dict[str, Any] = ensure_dict(data.get("config", {}))

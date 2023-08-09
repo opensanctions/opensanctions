@@ -32,9 +32,9 @@ __all__ = ["export_dataset"]
 
 
 def export_data(context: Context, view: View) -> None:
-    clazzes = []
+    clazzes: List[Type[Exporter]] = []
     if context.dataset.exports == []:
-       clazzes = EXPORTERS.values()
+       clazzes = list(EXPORTERS.values())
     else:
         for filename in context.dataset.exports:
             if filename in EXPORTERS:
