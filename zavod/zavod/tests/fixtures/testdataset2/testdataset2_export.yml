@@ -3,7 +3,7 @@ title: OpenSanctions Validation Dataset
 prefix: td2
 hidden: true
 exports:
-  - names.txts
+  - names.txt
 summary: >
   This dataset is used to validate and test the OpenSanctions data processing pipeline.
 description: |
