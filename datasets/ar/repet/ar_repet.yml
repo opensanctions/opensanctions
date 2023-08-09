@@ -2,7 +2,7 @@ title: Argentine RePET
 prefix: arpet
 entry_point: crawler.py
 deploy:
-  schedule: "*/12 * * *"
+  schedule: "0 */12 * * *"
 summary: >
   Public Registry of Persons and Entities linked to acts of Terrorism and their Financing
 description: |
