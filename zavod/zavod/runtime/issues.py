@@ -85,7 +85,7 @@ class DatasetIssues(object):
         self.close()
         for scope in self.dataset.leaves:
             path = get_dataset_resource(scope, ISSUES_LOG)
-            if path is None or not path.is_file():
+            if not path.is_file():
                 continue
             with open(path, "rb") as fh:
                 for line in fh:

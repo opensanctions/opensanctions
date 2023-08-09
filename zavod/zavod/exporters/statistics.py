@@ -5,6 +5,7 @@ from followthemoney import model
 from followthemoney.types import registry
 
 from zavod.entity import Entity
+from zavod.archive import STATISTICS_FILE
 from zavod.exporters.common import Exporter
 
 
@@ -38,7 +39,7 @@ def get_country_facets(countries: Dict[str, int]) -> List[Any]:
 
 class StatisticsExporter(Exporter):
     TITLE = "Dataset statistics"
-    FILE_NAME = "statistics.json"
+    FILE_NAME = STATISTICS_FILE
     MIME_TYPE = "application/json"
 
     def setup(self) -> None:

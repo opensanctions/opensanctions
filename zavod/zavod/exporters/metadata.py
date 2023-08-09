@@ -2,10 +2,10 @@ import json
 from typing import Any, Dict, cast
 
 from zavod import settings
-from zavod.context import Context
 from zavod.logs import get_logger
 from zavod.meta import Dataset
-from zavod.archive import get_dataset_resource
+from zavod.archive import INDEX_FILE, STATISTICS_FILE
+from zavod.archive import get_dataset_resource, dataset_resource_path
 from zavod.runtime.resources import DatasetResources
 from zavod.runtime.issues import DatasetIssues
 from zavod.util import write_json
@@ -14,8 +14,8 @@ log = get_logger(__name__)
 
 
 def get_dataset_statistics(dataset: Dataset) -> Dict[str, Any]:
-    statistics_path = get_dataset_resource(dataset, "statistics.json")
-    if statistics_path is None or not statistics_path.exists():
+    statistics_path = get_dataset_resource(dataset, STATISTICS_FILE)
+    if not statistics_path.is_file():
         log.error("No statistics file found", dataset=dataset.name)
         return {}
     with open(statistics_path, "r") as fh:
@@ -36,9 +36,9 @@ def dataset_to_index(dataset: Dataset) -> Dict[str, Any]:
     return meta
 
 
-def write_dataset_index(context: Context, dataset: Dataset) -> None:
-    index_path = context.get_resource_path("index.json")
-    context.log.info("Writing dataset index", path=index_path)
+def write_dataset_index(dataset: Dataset) -> None:
+    index_path = dataset_resource_path(dataset.name, INDEX_FILE)
+    log.info("Writing dataset index", path=index_path)
     with open(index_path, "wb") as fh:
         meta = dataset_to_index(dataset)
         write_json(meta, fh)

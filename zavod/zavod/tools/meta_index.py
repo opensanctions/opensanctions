@@ -21,7 +21,7 @@ def export_index(scope: Dataset) -> None:
     schemata = set()
     for dataset in scope.datasets:
         ds_path = get_dataset_resource(dataset, INDEX_FILE)
-        if ds_path is None or not ds_path.exists():
+        if not ds_path.is_file():
             log.error("No index file found", dataset=dataset.name, report_issue=False)
         else:
             with open(ds_path, "r") as fh:

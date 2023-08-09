@@ -10,14 +10,14 @@ from datapatch import LookupException, Result, Lookup
 from followthemoney.schema import Schema
 from followthemoney.util import make_entity_id
 from nomenklatura.cache import Cache
-from nomenklatura.util import normalize_url, ParamsType
+from nomenklatura.util import normalize_url, ParamsType, PathLike
 from structlog.contextvars import clear_contextvars, bind_contextvars
 
 from zavod import settings
 from zavod.audit import inspect
 from zavod.meta import Dataset, DataResource, get_catalog
 from zavod.entity import Entity
-from zavod.archive import PathLike, dataset_resource_path, dataset_path
+from zavod.archive import dataset_resource_path, dataset_path
 from zavod.runtime.stats import ContextStats
 from zavod.runtime.sink import DatasetSink
 from zavod.runtime.issues import DatasetIssues

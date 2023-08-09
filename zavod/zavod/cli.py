@@ -10,6 +10,7 @@ from zavod.meta import load_dataset_from_path, Dataset
 from zavod.runner import run_dataset
 from zavod.store import get_view
 from zavod.exporters import export_dataset
+from zavod.publish import publish_dataset
 from zavod.tools.load_db import load_dataset_to_db
 from zavod.tools.dump_file import dump_dataset_to_file
 from zavod.exc import RunFailedException
@@ -47,6 +48,14 @@ def export(dataset_path: Path) -> None:
     dataset = _load_dataset(dataset_path)
     view = get_view(dataset, external=False)
     export_dataset(dataset, view)
+
+
+@cli.command("publish", help="Publish data from a specific dataset")
+@click.argument("dataset_path", type=InPath)
+@click.option("--latest", is_flag=True, default=False)
+def publish(dataset_path: Path, latest: bool = False) -> None:
+    dataset = _load_dataset(dataset_path)
+    publish_dataset(dataset, latest=latest)
 
 
 @cli.command("load-db", help="Load dataset statements from the archive into a database")
