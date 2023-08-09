@@ -22,6 +22,7 @@ def test_export_index(testdataset1: Dataset, testdataset2: Dataset):
     get_catalog.cache_clear()
 
     collection = load_dataset_from_path(COLLECTION_YML)
+    assert collection is not None
     export(collection.name)
     export_index(collection)
 

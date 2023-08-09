@@ -70,8 +70,8 @@ def test_export(testdataset1: Dataset):
     with open(dataset_path / "senzing.json") as senzing_file:
         entities = [loads(line) for line in senzing_file.readlines()]
         assert len(entities) == 8
-        for entities in entities:
-            assert entities["RECORD_TYPE"] in {"PERSON", "ORGANIZATION", "COMPANY"}
+        for ent in entities:
+            assert ent["RECORD_TYPE"] in {"PERSON", "ORGANIZATION", "COMPANY"}
 
     with open(dataset_path / "statistics.json") as statistics_file:
         statistics = load(statistics_file)
