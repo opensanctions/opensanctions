@@ -1,4 +1,3 @@
-import json
 from collections import defaultdict
 from typing import Dict, List, Any, Optional, Set
 from followthemoney import model
@@ -7,6 +6,7 @@ from followthemoney.types import registry
 from zavod.entity import Entity
 from zavod.archive import STATISTICS_FILE
 from zavod.exporters.common import Exporter
+from zavod.util import write_json
 
 
 def get_schema_facets(schemata: Dict[str, int]) -> List[Any]:
@@ -95,6 +95,6 @@ class StatisticsExporter(Exporter):
                 "schemata": get_schema_facets(self.thing_schemata),
             },
         }
-        with open(self.path, "w") as fh:
-            json.dump(stats, fh, indent=2)
+        with open(self.path, "wb") as fh:
+            write_json(stats, fh)
         super().finish()

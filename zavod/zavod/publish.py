@@ -9,7 +9,7 @@ from zavod.exporters import write_dataset_index, write_issues
 log = get_logger(__name__)
 
 
-def publish_dataset(dataset: Dataset, latest: bool = True):
+def publish_dataset(dataset: Dataset, latest: bool = True) -> None:
     """Upload a dataset to the archive."""
     resources = DatasetResources(dataset)
     for resource in resources.all():
@@ -33,7 +33,7 @@ def publish_dataset(dataset: Dataset, latest: bool = True):
         publish_resource(path, dataset.name, meta, latest=latest, mime_type=mime_type)
 
 
-def publish_failure(dataset: Dataset, latest: bool = True):
+def publish_failure(dataset: Dataset, latest: bool = True) -> None:
     """Upload failure information about a dataset to the archive."""
     # Clear out interim artifacts so they cannot pollute the metadata we're
     # generating.

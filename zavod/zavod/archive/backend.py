@@ -1,7 +1,7 @@
 import shutil
 from pathlib import Path
 from functools import cache
-from typing import Dict, Optional, Type, TextIO
+from typing import cast, Dict, Optional, Type, TextIO
 from google.cloud.storage import Client, Blob  # type: ignore
 
 from zavod import settings
@@ -58,7 +58,7 @@ class GoogleCloudObject(ArchiveObject):
         if self.blob is None:
             raise RuntimeError("Object does not exist: %s" % self.name)
         self.blob.reload()
-        return self.blob.open(mode="r", chunk_size=BLOB_CHUNK)
+        return cast(TextIO, self.blob.open(mode="r", chunk_size=BLOB_CHUNK))
 
     def backfill(self, dest: Path) -> None:
         if self.blob is None:

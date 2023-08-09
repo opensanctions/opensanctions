@@ -146,7 +146,7 @@ class Context:
 
         Returns:
             The full path to the file."""
-        return dataset_resource_path(self.dataset.name, name)
+        return dataset_resource_path(self.dataset.name, str(name))
 
     def export_resource(
         self, path: Path, mime_type: Optional[str] = None, title: Optional[str] = None

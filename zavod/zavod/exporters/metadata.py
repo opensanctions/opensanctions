@@ -22,23 +22,18 @@ def get_dataset_statistics(dataset: Dataset) -> Dict[str, Any]:
         return cast(Dict[str, Any], json.load(fh))
 
 
-def dataset_to_index(dataset: Dataset) -> Dict[str, Any]:
-    meta = dataset.to_opensanctions_dict()
-    meta.update(get_dataset_statistics(dataset))
-    issues = DatasetIssues(dataset)
-    meta["issue_levels"] = issues.by_level()
-    meta["issue_count"] = sum(meta["issue_levels"].values())
-    resources = DatasetResources(dataset)
-    meta["resources"] = [r.to_opensanctions_dict() for r in resources.all()]
-    meta["last_export"] = settings.RUN_TIME
-    meta["index_url"] = dataset.make_public_url("index.json")
-    meta["issues_url"] = dataset.make_public_url("issues.json")
-    return meta
-
-
 def write_dataset_index(dataset: Dataset) -> None:
     index_path = dataset_resource_path(dataset.name, INDEX_FILE)
     log.info("Writing dataset index", path=index_path)
     with open(index_path, "wb") as fh:
-        meta = dataset_to_index(dataset)
+        meta = dataset.to_opensanctions_dict()
+        meta.update(get_dataset_statistics(dataset))
+        issues = DatasetIssues(dataset)
+        meta["issue_levels"] = issues.by_level()
+        meta["issue_count"] = sum(meta["issue_levels"].values())
+        resources = DatasetResources(dataset)
+        meta["resources"] = [r.to_opensanctions_dict() for r in resources.all()]
+        meta["last_export"] = settings.RUN_TIME
+        meta["index_url"] = dataset.make_public_url("index.json")
+        meta["issues_url"] = dataset.make_public_url("issues.json")
         write_json(meta, fh)

@@ -52,6 +52,7 @@ def publish_resource(
 ) -> None:
     backend = get_archive_backend()
     if dataset_name is not None:
+        assert path.relative_to(dataset_path(dataset_name))
         resource = f"{dataset_name}/{resource}"
     release_name = f"{settings.RELEASE}/{resource}"
     release_object = backend.get_object(release_name)

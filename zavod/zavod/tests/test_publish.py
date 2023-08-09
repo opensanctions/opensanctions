@@ -46,6 +46,7 @@ def test_publish_dataset(testdataset1: Dataset):
 
 def test_publish_failure(testdataset1: Dataset):
     latest_path = settings.ARCHIVE_PATH / "latest" / testdataset1.name
+    assert testdataset1.data is not None
     testdataset1.data.format = "FAIL"
     try:
         run_dataset(testdataset1)

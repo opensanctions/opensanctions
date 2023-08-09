@@ -1,14 +1,15 @@
+import json
+from urllib.parse import urljoin
+from nomenklatura.matching import MatcherV1
 from followthemoney import model
+
+from zavod import settings
 from zavod.archive import get_dataset_resource, datasets_path
 from zavod.util import write_json
 from zavod.meta import Dataset
 from zavod.archive import INDEX_FILE
 from zavod.logs import get_logger
 from zavod.runtime.issues import DatasetIssues
-from zavod import settings
-from urllib.parse import urljoin
-from nomenklatura.matching import MatcherV1
-import json
 
 log = get_logger(__name__)
 SCOPED = ["datasets", "scopes", "sources", "externals", "collections"]
