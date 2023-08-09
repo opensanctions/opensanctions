@@ -16,6 +16,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     schema = row.get("schema") or "Person"
     entity = context.make(schema)
     entity.id = qid
+    entity.add("wikidataId", qid)
     topics = [t.strip() for t in row.get("topics", "").split(";")]
     topics = [t for t in topics if len(t)]
     entity.add("topics", topics)
