@@ -2,22 +2,12 @@ import os
 import csv
 from pathlib import Path
 from functools import cache
-from typing import (
-    Any,
-    Optional,
-    Generator,
-    IO,
-    TextIO,
-    Union,
-    TYPE_CHECKING,
-    Protocol,
-    cast,
-    ClassVar,
-)
+from typing import TYPE_CHECKING, cast
+from typing import Any, Optional, Generator, IO, TextIO, Union, Protocol
 import shutil
 
 from zavod.logs import get_logger
-from google.cloud.storage import Client, Bucket, Blob  # type: ignore
+from google.cloud.storage import Client, Blob  # type: ignore
 from nomenklatura.statement import Statement
 from nomenklatura.statement.serialize import unpack_row
 
@@ -58,7 +48,7 @@ class ConfigurationException(Exception):
         self.message = message
 
 
-class CloudStorageBackend:
+class GoogleCloudBackend:
     def __init__(self) -> None:
         if settings.ARCHIVE_BUCKET is None:
             raise ConfigurationException("No backfill bucket configured")
@@ -88,24 +78,19 @@ class FileSystemBlob:
         pass
 
 
-class FilesystemBackend:
-    def __init__(self) -> None:
-        if settings.ARCHIVE_PATH is None:
-            raise ConfigurationException("No archive path configured.")
-        self.base_path = Path(settings.ARCHIVE_PATH)
-
+class FileSystemBackend:
     def get_blob(self, name: str) -> Optional[FileSystemBlob]:
-        path = self.base_path / name
+        path = settings.ARCHIVE_PATH / name
         if os.path.isfile(path):
-            return FileSystemBlob(self.base_path, name)
+            return FileSystemBlob(settings.ARCHIVE_PATH, name)
         else:
-            log.info(f"File {path} doesn't exist.")
+            log.info(f"File {path.as_posix()} doesn't exist.")
             return None
 
 
 backends = {
-    "CloudStorageBackend": CloudStorageBackend,
-    "FilesystemBackend": FilesystemBackend,
+    "GoogleCloudBackend": GoogleCloudBackend,
+    "FileSystemBackend": FileSystemBackend,
 }
 
 
