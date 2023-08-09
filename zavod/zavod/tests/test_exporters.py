@@ -137,8 +137,6 @@ def test_custom_export_config(testdataset2_export: Dataset):
         for r in default_exports - {"names.txt"}:
             assert r not in resources
 
-    assert False
-
 
 def harnessed_export(exporter_class, dataset) -> None:
     context = Context(dataset)

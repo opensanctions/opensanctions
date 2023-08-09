@@ -1,6 +1,6 @@
 entry_point: testentrypoint2
 title: OpenSanctions Validation Dataset
-prefix: td2
+prefix: td2_export
 hidden: true
 exports:
   - names.txt
