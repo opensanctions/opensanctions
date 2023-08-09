@@ -108,10 +108,12 @@ class Dataset(NKDataset):
             data["sources"] = [s.name for s in self.leaves if s._type == "source"]
             data["externals"] = [s.name for s in self.leaves if s._type == "external"]
         else:
-            all_datasets = self.catalog.datasets
-            data["collections"] = [
-                p.name for p in all_datasets if self in p.datasets and p != self
+            collections = [
+                p.name
+                for p in self.catalog.datasets
+                if self in p.datasets and p != self
             ]
+            data["collections"] = collections
         if self.entry_point is not None:
             data["entry_point"] = self.entry_point
         return data
