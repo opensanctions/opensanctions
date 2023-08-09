@@ -68,6 +68,7 @@ class GoogleCloudObject(ArchiveObject):
     def publish(self, source: Path, mime_type: Optional[str] = None) -> None:
         if self.blob is None:
             raise RuntimeError("Object does not exist: %s" % self.name)
+        log.info(f"Uploading blob: {self.name} from {source.as_posix()}")
         self.blob.upload_from_filename(source, content_type=mime_type)
 
     def republish(self, source: str) -> None:
@@ -75,6 +76,7 @@ class GoogleCloudObject(ArchiveObject):
         if source_blob is None:
             raise RuntimeError("Object does not exist: %s" % source)
         # TODO: add if_generation_match
+        log.info(f"Copying blob: {self.name} from {source}")
         self.backend.bucket.copy_blob(source_blob, self.backend.bucket, self.name)
 
 
