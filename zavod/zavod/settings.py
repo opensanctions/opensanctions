@@ -33,6 +33,9 @@ DATASET_URL = env_str("ZAVOD_DATASET_URL", DATASET_URL)
 # Bucket to back-fill missing data artifacts from
 ARCHIVE_BUCKET = env.get("ZAVOD_ARCHIVE_BUCKET", None)
 ARCHIVE_BUCKET = env.get("OPENSANCTIONS_BACKFILL_BUCKET", ARCHIVE_BUCKET)
+ARCHIVE_BACKEND = env.get("ZAVOD_ARCHIVE_BACKEND", "CloudStorageBackend")
+ARCHIVE_PATH = env.get("ZAVOD_ARCHIVE_PATH", None)
+
 BACKFILL_RELEASE = env_str("ZAVOD_BACKFILL_RELEASE", "latest")
 
 # File path for the resolver path used for entity deduplication
