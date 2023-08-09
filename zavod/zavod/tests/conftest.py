@@ -9,7 +9,7 @@ from zavod.dedupe import get_resolver
 
 settings.DATA_PATH = Path(mkdtemp()).resolve()
 settings.RESOLVER_PATH = settings.DATA_PATH.joinpath("resolver.ijson").as_posix()
-settings.ARCHIVE_BACKEND = "FilesystemBackend"
+settings.ARCHIVE_BACKEND = "FileSystemBackend"
 settings.ARCHIVE_PATH = Path(mkdtemp())
 settings.CACHE_DATABASE_URI = None
 FIXTURES_PATH = Path(__file__).parent / "fixtures"
