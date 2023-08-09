@@ -43,7 +43,7 @@ inputs:
   # - md_companies
   - opencorporates
   # - ru_egrul
-  - ru_rupep
+  # - ru_rupep
   - ru_rupep_companies
   # - ua_edr
   - debarment

@@ -49,11 +49,10 @@ description: >
     a sanctions list that is implemented by all member states.
 
 # The Python module in the same director that contains the crawler code:
-entry_point: crawler
+entry_point: crawler.py
 
 # A prefix will be used to mint entity IDs. Keep it short.
 prefix: eu-fsf
-
 
 # This section provides information about the original publisher of the data,
 # often a government authority:
