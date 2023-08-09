@@ -4,8 +4,6 @@ from zavod.logs import get_logger
 from zavod.store import View, get_store
 from zavod.context import Context
 from zavod.meta import Dataset, get_catalog
-from zavod.runtime.issues import DatasetIssues
-from zavod.archive import dataset_resource_path, ISSUES_FILE
 from zavod.exporters.common import Exporter
 from zavod.exporters.ftm import FtMExporter
 from zavod.exporters.nested import NestedJSONExporter
@@ -13,8 +11,7 @@ from zavod.exporters.names import NamesExporter
 from zavod.exporters.simplecsv import SimpleCSVExporter
 from zavod.exporters.senzing import SenzingExporter
 from zavod.exporters.statistics import StatisticsExporter
-from zavod.exporters.metadata import write_dataset_index
-from zavod.util import write_json
+from zavod.exporters.metadata import write_dataset_index, write_issues
 
 log = get_logger(__name__)
 
@@ -27,7 +24,7 @@ EXPORTERS: Dict[str, Type[Exporter]] = {
     SenzingExporter.FILE_NAME: SenzingExporter,
 }
 
-__all__ = ["export_dataset", "write_dataset_index"]
+__all__ = ["export_dataset", "write_dataset_index", "write_issues"]
 
 
 def export_data(context: Context, view: View) -> None:
@@ -61,16 +58,6 @@ def export_data(context: Context, view: View) -> None:
         exporter.finish()
 
 
-def write_issues(dataset: Dataset) -> None:
-    """Export list of data issues from crawl stage."""
-    issues_path = dataset_resource_path(dataset.name, ISSUES_FILE)
-    log.info("Writing dataset issues list", path=issues_path.as_posix())
-    with open(issues_path, "wb") as fh:
-        issues = DatasetIssues(dataset)
-        data = {"issues": list(issues.all())}
-        write_json(data, fh)
-
-
 def export_dataset(dataset: Dataset, view: View) -> None:
     """Dump the contents of the dataset to the output directory."""
     try:
@@ -79,10 +66,8 @@ def export_dataset(dataset: Dataset, view: View) -> None:
         export_data(context, view)
 
         write_issues(dataset)
-
         # Export full metadata
         write_dataset_index(dataset)
-
     finally:
         context.close()
 

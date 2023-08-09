@@ -4,7 +4,7 @@ from typing import Any, Dict, cast
 from zavod import settings
 from zavod.logs import get_logger
 from zavod.meta import Dataset
-from zavod.archive import INDEX_FILE, STATISTICS_FILE
+from zavod.archive import INDEX_FILE, STATISTICS_FILE, ISSUES_FILE
 from zavod.archive import get_dataset_resource, dataset_resource_path
 from zavod.runtime.resources import DatasetResources
 from zavod.runtime.issues import DatasetIssues
@@ -37,3 +37,13 @@ def write_dataset_index(dataset: Dataset) -> None:
         meta["index_url"] = dataset.make_public_url("index.json")
         meta["issues_url"] = dataset.make_public_url("issues.json")
         write_json(meta, fh)
+
+
+def write_issues(dataset: Dataset) -> None:
+    """Export list of data issues from crawl stage."""
+    issues_path = dataset_resource_path(dataset.name, ISSUES_FILE)
+    log.info("Writing dataset issues list", path=issues_path.as_posix())
+    with open(issues_path, "wb") as fh:
+        issues = DatasetIssues(dataset)
+        data = {"issues": list(issues.all())}
+        write_json(data, fh)
