@@ -193,8 +193,13 @@ def test_ftm_referents(testdataset1: Dataset):
     assert len(entities) == 10
 
     john = [e for e in entities if e.id == identifier][0]
-    assert "osv-johnny-does" in john.to_dict()["referents"]
-    assert "osv-john-doe" in john.to_dict()["referents"]
+    john_dict = john.to_dict()
+    assert len(john_dict["referents"]) == 2
+    assert "osv-johnny-does" in john_dict["referents"]
+    assert "osv-john-doe" in john_dict["referents"]
+    assert str(identifier) not in john_dict["referents"]
+    assert len(john_dict["datasets"]) == 1
+    assert "testdataset1" in john_dict["datasets"]
 
     # Dedupe against an entity from another dataset.
     # The entity ID is included as referent but is not included in the export.
@@ -216,6 +221,14 @@ def test_ftm_referents(testdataset1: Dataset):
     entities = list(path_entities(collection_path / "entities.ftm.json", EntityProxy))
     assert len(entities) == 10
     assert [] == [e for e in entities if e.id == other_dataset_id]
+
+    john = [e for e in entities if e.id == identifier][0]
+    john_dict = john.to_dict()
+    assert "osv-johnny-does" in john_dict["referents"]
+    assert "osv-john-doe" in john_dict["referents"]
+    assert other_dataset_id in john_dict["referents"]
+    assert len(john_dict["datasets"]) == 2
+    assert collection.name not in john_dict["datasets"]
 
 
 def test_names(testdataset1: Dataset):

@@ -24,7 +24,11 @@ def crawl_dataset(dataset: Dataset, dry_run: bool = False) -> ContextStats:
 
     try:
         context.begin(clear=True)
-        context.log.info("Running dataset", data_path=dataset_data_path(dataset.name))
+        context.log.info(
+            "Running dataset",
+            data_path=dataset_data_path(dataset.name),
+            data_time=context.data_time_iso,
+        )
         entry_point = load_entry_point(dataset)
         entry_point(context)
         if context.stats.entities == 0:
@@ -53,16 +57,3 @@ def crawl_dataset(dataset: Dataset, dry_run: bool = False) -> ContextStats:
         raise RunFailedException() from exc
     finally:
         context.close()
-
-
-# def clear_dataset(dataset: Dataset, data: bool = True) -> None:
-#     """Delete all recorded data for a given dataset."""
-#     context = Context(dataset, dry_run=False)
-#     try:
-#         context.issues.clear()
-#         context.resources.clear()
-#         if data:
-#             context.cache.clear()
-#             context.sink.clear()
-#     finally:
-#         context.close()
