@@ -7,7 +7,7 @@ from zavod import settings
 from zavod.archive import get_dataset_resource, datasets_path
 from zavod.util import write_json
 from zavod.meta import Dataset
-from zavod.archive import INDEX_FILE
+from zavod.archive import INDEX_FILE, ISSUES_FILE
 from zavod.logs import get_logger
 from zavod.runtime.issues import DatasetIssues
 
@@ -39,7 +39,8 @@ def export_index(scope: Dataset) -> None:
                 schemata.update(ds_data.get("schemata", []))
                 datasets.append(ds_data)
 
-    issues_path = base_path.joinpath("issues.json")
+    # TODO: get rid of this
+    issues_path = base_path.joinpath(ISSUES_FILE)
     log.info("Writing global issues list", path=issues_path)
     with open(issues_path, "wb") as fh:
         issues = DatasetIssues(scope)

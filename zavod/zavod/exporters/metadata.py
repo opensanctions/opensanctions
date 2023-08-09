@@ -23,24 +23,31 @@ def get_dataset_statistics(dataset: Dataset) -> Dict[str, Any]:
 
 
 def write_dataset_index(dataset: Dataset) -> None:
+    """Export dataset metadata to index.json."""
     index_path = dataset_resource_path(dataset.name, INDEX_FILE)
-    log.info("Writing dataset index", path=index_path)
+    log.info(
+        "Writing dataset index",
+        path=index_path,
+        is_collection=dataset.is_collection,
+    )
+    meta = dataset.to_opensanctions_dict()
+    meta.update(get_dataset_statistics(dataset))
+    issues = DatasetIssues(dataset)
+    meta["issue_levels"] = issues.by_level()
+    meta["issue_count"] = sum(meta["issue_levels"].values())
+    resources = DatasetResources(dataset)
+    meta["resources"] = [r.to_opensanctions_dict() for r in resources.all()]
+    meta["last_export"] = settings.RUN_TIME
+    meta["index_url"] = dataset.make_public_url("index.json")
+    meta["issues_url"] = dataset.make_public_url("issues.json")
     with open(index_path, "wb") as fh:
-        meta = dataset.to_opensanctions_dict()
-        meta.update(get_dataset_statistics(dataset))
-        issues = DatasetIssues(dataset)
-        meta["issue_levels"] = issues.by_level()
-        meta["issue_count"] = sum(meta["issue_levels"].values())
-        resources = DatasetResources(dataset)
-        meta["resources"] = [r.to_opensanctions_dict() for r in resources.all()]
-        meta["last_export"] = settings.RUN_TIME
-        meta["index_url"] = dataset.make_public_url("index.json")
-        meta["issues_url"] = dataset.make_public_url("issues.json")
         write_json(meta, fh)
 
 
 def write_issues(dataset: Dataset) -> None:
     """Export list of data issues from crawl stage."""
+    if dataset.is_collection:
+        return
     issues_path = dataset_resource_path(dataset.name, ISSUES_FILE)
     log.info("Writing dataset issues list", path=issues_path.as_posix())
     with open(issues_path, "wb") as fh:

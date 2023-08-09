@@ -24,7 +24,10 @@ def publish_dataset(dataset: Dataset, latest: bool = True) -> None:
             latest=latest,
             mime_type=resource.mime_type,
         )
-    for meta in [STATEMENTS_FILE, ISSUES_FILE, ISSUES_LOG, RESOURCES_FILE, INDEX_FILE]:
+    files = [RESOURCES_FILE, INDEX_FILE]
+    if dataset.entry_point is not None:
+        files.extend([ISSUES_LOG, ISSUES_FILE, STATEMENTS_FILE])
+    for meta in files:
         path = dataset_resource_path(dataset.name, meta)
         if not path.is_file():
             log.error("Metadata file not found: %s" % path)
@@ -37,6 +40,7 @@ def publish_failure(dataset: Dataset, latest: bool = True) -> None:
     """Upload failure information about a dataset to the archive."""
     # Clear out interim artifacts so they cannot pollute the metadata we're
     # generating.
+    assert not dataset.is_collection
     dataset_resource_path(dataset.name, RESOURCES_FILE).unlink(missing_ok=True)
     dataset_resource_path(dataset.name, STATEMENTS_FILE).unlink(missing_ok=True)
     dataset_resource_path(dataset.name, STATISTICS_FILE).unlink(missing_ok=True)

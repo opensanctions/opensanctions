@@ -8,7 +8,7 @@ from nomenklatura.statement import CSV, FORMATS
 from zavod.logs import configure_logging, get_logger
 from zavod.meta import load_dataset_from_path, Dataset
 from zavod.crawl import crawl_dataset
-from zavod.store import get_view
+from zavod.store import get_view, clear_store
 from zavod.archive import clear_data_path
 from zavod.exporters import export_dataset
 from zavod.publish import publish_dataset, publish_failure
@@ -48,8 +48,10 @@ def crawl(dataset_path: Path, dry_run: bool = False, clear: bool = False) -> Non
 
 @cli.command("export", help="Export data from a specific dataset")
 @click.argument("dataset_path", type=InPath)
-def export(dataset_path: Path) -> None:
+@click.option("-c", "--clear", is_flag=True, default=False)
+def export(dataset_path: Path, clear: bool = False) -> None:
     dataset = _load_dataset(dataset_path)
+    clear_store(dataset)
     view = get_view(dataset, external=False)
     export_dataset(dataset, view)
 
