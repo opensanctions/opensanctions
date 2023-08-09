@@ -75,9 +75,6 @@ jobs:
       - name: Export a single dataset
         run: |
           opensanctions export us_ofac_cons
-      - name: Clear all data
-        run: |
-          opensanctions clear-workdir all
       - name: Publish a Python distribution to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         # working-directory: zavod
