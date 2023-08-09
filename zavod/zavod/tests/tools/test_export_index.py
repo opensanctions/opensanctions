@@ -1,29 +1,28 @@
+from json import load
+
 from zavod.meta import get_catalog, load_dataset_from_path, Dataset
 from zavod.tools.meta_index import export_index
-from ..conftest import FIXTURES_PATH, DATASET_2_YML
-from zavod.context import Context
 from zavod import settings
-from json import load
+from ..conftest import FIXTURES_PATH
 from zavod.runner import run_dataset
 from zavod.exporters import export
 
 COLLECTION_YML = FIXTURES_PATH / "collection.yml"
 
 
-def test_export_index(vdataset: Dataset):
+def test_export_index(testdataset1: Dataset, testdataset2: Dataset):
     # Create dataset index files
-    context1 = Context(vdataset)
-    run_dataset(vdataset)
-    export(vdataset.name)
+    run_dataset(testdataset1)
+    export(testdataset1.name)
 
-    dataset2 = load_dataset_from_path(DATASET_2_YML)
-    run_dataset(dataset2)
-    export(dataset2.name)
+    run_dataset(testdataset2)
+    export(testdataset2.name)
 
     # Clear catalog as if this is a fresh process separate from the earlier exports
     get_catalog.cache_clear()
 
     collection = load_dataset_from_path(COLLECTION_YML)
+    assert collection is not None
     export(collection.name)
     export_index(collection)
 

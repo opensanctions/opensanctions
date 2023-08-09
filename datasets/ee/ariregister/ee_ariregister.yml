@@ -7,6 +7,9 @@ coverage:
   frequency: weekly
 deploy:
   disk: 50Gi
+exports:
+  - statistics.json
+  - entities.ftm.json
 summary: |
   A collection of all companies registered in Estonia, including directors and
   beneficial owners.

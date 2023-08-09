@@ -52,6 +52,10 @@ jobs:
         working-directory: zavod
         run: |
           make typecheck
+      - name: Check zavod ruff lint
+        working-directory: zavod
+        run: |
+          make lint
       - name: Run zavod tests
         working-directory: zavod
         run: |

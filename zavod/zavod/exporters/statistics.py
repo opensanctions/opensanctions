@@ -38,8 +38,7 @@ def get_country_facets(countries: Dict[str, int]) -> List[Any]:
 
 class StatisticsExporter(Exporter):
     TITLE = "Dataset statistics"
-    NAME = "statistics"
-    EXTENSION = "json"
+    FILE_NAME = "statistics.json"
     MIME_TYPE = "application/json"
 
     def setup(self) -> None:

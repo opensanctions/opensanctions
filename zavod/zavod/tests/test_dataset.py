@@ -54,30 +54,30 @@ def test_basic():
     assert os_data["sources"] == ["test"], os_data
 
 
-def test_validation(vdataset: Dataset):
-    assert vdataset.name == "testdataset1"
-    assert vdataset.publisher is not None
-    assert vdataset.publisher.name == "OpenSanctions"
-    assert vdataset.publisher.official is False
-    assert len(vdataset.children) == 0
-    assert len(vdataset.datasets) == 1
-    assert vdataset.input is None
+def test_validation(testdataset1: Dataset):
+    assert testdataset1.name == "testdataset1"
+    assert testdataset1.publisher is not None
+    assert testdataset1.publisher.name == "OpenSanctions"
+    assert testdataset1.publisher.official is False
+    assert len(testdataset1.children) == 0
+    assert len(testdataset1.datasets) == 1
+    assert testdataset1.input is None
 
 
-def test_validation_os_dict(vdataset: Dataset):
-    osa = vdataset.to_opensanctions_dict()
+def test_validation_os_dict(testdataset1: Dataset):
+    osa = testdataset1.to_opensanctions_dict()
     assert osa["name"] == "testdataset1"
     assert osa["publisher"]["name"] == "OpenSanctions"
     assert osa["publisher"]["official"] is False
     assert osa["data"]["url"] is not None
     assert osa["data"]["format"] == "CSV"
     assert "hidden" in osa
-    assert "export" in osa
+    assert "exports" in osa
     assert "summary" in osa
     assert "description" in osa
     assert osa["entry_point"] == "testentrypoint1"
 
 
-def test_analyzer(analyzer: Dataset, vdataset: Dataset):
+def test_analyzer(analyzer: Dataset, testdataset1: Dataset):
     assert analyzer.input is not None
-    assert analyzer.input == vdataset
+    assert analyzer.input == testdataset1

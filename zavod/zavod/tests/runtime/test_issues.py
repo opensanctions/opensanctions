@@ -6,10 +6,10 @@ from zavod.meta import Dataset
 from nomenklatura.util import iso_datetime
 
 
-def test_issue_logger(vdataset: Dataset):
+def test_issue_logger(testdataset1: Dataset):
     configure_logging()
-    issues_path = dataset_resource_path(vdataset.name, ISSUES_FILE)
-    context = Context(vdataset)
+    issues_path = dataset_resource_path(testdataset1.name, ISSUES_FILE)
+    context = Context(testdataset1)
     context.begin(clear=True)
     assert not issues_path.exists()
     entity = context.make("Person")
@@ -44,8 +44,8 @@ def test_issue_logger(vdataset: Dataset):
             assert issue["id"] is not None
             assert iso_datetime(issue["timestamp"]) is not None
             assert issue["level"] in ("warning", "error")
-            assert issue["dataset"] == vdataset.name
+            assert issue["dataset"] == testdataset1.name
 
-    context = Context(vdataset)
+    context = Context(testdataset1)
     context.begin(clear=True)
     assert len(list(context.issues.all())) == 0

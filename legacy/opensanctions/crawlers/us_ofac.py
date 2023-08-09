@@ -214,12 +214,12 @@ def parse_relation(
 
     from_party = context.make(get_relation_schema(parties[from_id], from_prop.range))
     from_party.id = from_id
-    if not parties[from_id].is_a(from_party.schema):
+    if not parties[from_id].is_a(from_party.schema) and len(from_party.properties):
         context.emit(from_party)
 
     to_party = context.make(get_relation_schema(parties[to_id], to_prop.range))
     to_party.id = to_id
-    if not parties[to_id].is_a(to_party.schema):
+    if not parties[to_id].is_a(to_party.schema) and len(from_party.properties):
         context.emit(to_party)
 
     entity.id = context.make_id("Relation", from_party.id, to_party.id, el.get("ID"))

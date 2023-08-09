@@ -1,14 +1,16 @@
 import os
 import csv
 from pathlib import Path
-from functools import cache
-from typing import Optional, Generator, TextIO, Union, TYPE_CHECKING
+from typing import TYPE_CHECKING
+from typing import Optional, Generator, TextIO, Union
+
 from zavod.logs import get_logger
-from google.cloud.storage import Client, Bucket, Blob  # type: ignore
+from google.cloud.storage import Blob  # type: ignore
 from nomenklatura.statement import Statement
 from nomenklatura.statement.serialize import unpack_row
 
 from zavod import settings
+from zavod.archive.backend import get_archive_backend
 
 if TYPE_CHECKING:
     from zavod.meta.dataset import Dataset
@@ -24,22 +26,12 @@ RESOURCES_FILE = "resources.json"
 INDEX_FILE = "index.json"
 
 
-@cache
-def get_archive_bucket() -> Optional[Bucket]:
-    if settings.ARCHIVE_BUCKET is None:
-        log.warn("No backfill bucket configured")
-        return None
-    client = Client()
-    bucket = client.get_bucket(settings.ARCHIVE_BUCKET)
-    return bucket
-
-
 def get_backfill_blob(dataset_name: str, resource: PathLike) -> Optional[Blob]:
-    bucket = get_archive_bucket()
-    if bucket is None:
+    backend = get_archive_backend()
+    if backend is None:
         return None
     blob_name = f"datasets/{settings.BACKFILL_RELEASE}/{dataset_name}/{resource}"
-    return bucket.get_blob(blob_name)
+    return backend.get_blob(blob_name)
 
 
 def backfill_resource(

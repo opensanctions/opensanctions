@@ -6,8 +6,7 @@ from zavod.exporters.common import Exporter
 
 class FtMExporter(Exporter):
     TITLE = "FollowTheMoney entities"
-    NAME = "entities.ftm"
-    EXTENSION = "json"
+    FILE_NAME = "entities.ftm.json"
     MIME_TYPE = "application/json+ftm"
 
     def setup(self) -> None:

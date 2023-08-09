@@ -1,5 +1,5 @@
 from banal import ensure_list, ensure_dict, hash_data
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional, List, Set
 from normality import slugify
 from pathlib import Path
 from urllib.parse import urljoin
@@ -21,7 +21,7 @@ class Dataset(NKDataset):
         if self.updated_at is None:
             self.updated_at = datetime_iso(settings.RUN_TIME)
         self.hidden: bool = data.get("hidden", False)
-        self.export: bool = data.get("export", True)
+        self.exports: Set[str] = set(data.get("exports", []))
         self.disabled: bool = data.get("disabled", False)
         self.entry_point: Optional[str] = data.get("entry_point", None)
         self.config: Dict[str, Any] = ensure_dict(data.get("config", {}))
@@ -53,7 +53,7 @@ class Dataset(NKDataset):
                 "title": name,
                 "datasets": names,
                 "hidden": True,
-                "export": False,
+                "exports": [],
             }
             scope = self.catalog.make_dataset(data)
             self.catalog.add(scope)
@@ -81,7 +81,7 @@ class Dataset(NKDataset):
         data = super().to_dict()
         data["hidden"] = self.hidden
         data["disabled"] = self.disabled
-        data["export"] = self.export
+        data["exports"] = self.exports
         if self.data:
             data["data"] = self.data.to_dict()
         return data

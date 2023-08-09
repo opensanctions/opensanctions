@@ -16,7 +16,10 @@ def make_session(user_agent: str = settings.HTTP_USER_AGENT) -> Session:
     session = Session()
     session.headers["User-Agent"] = user_agent
     session.verify = False
-    session.request = partial(session.request, timeout=settings.HTTP_TIMEOUT)  # type: ignore
+    session.request = partial(  # type: ignore
+        session.request,
+        timeout=settings.HTTP_TIMEOUT,
+    )
     return session
 
 

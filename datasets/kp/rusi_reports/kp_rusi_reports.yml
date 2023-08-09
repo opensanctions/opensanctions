@@ -4,6 +4,9 @@ prefix: kprusi
 entry_point: crawler.py
 coverage:
   frequency: weekly
+exports:
+  - statistics.json
+  - entities.ftm.json
 summary: |
   A database of entities and events related to North Korea's sanctions
   evasion efforts.

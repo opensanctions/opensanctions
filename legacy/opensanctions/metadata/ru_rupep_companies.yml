@@ -2,6 +2,9 @@ entry_point: opensanctions.crawlers.ru_rupep:crawl_companies
 title: RuPEP Public Database of PEPs in Russia and Belarus (company part)
 prefix: rupep
 hidden: true
+exports:
+  - statistics.json
+  - entities.ftm.json
 summary: >
   RuPEP is a detailed database of companies linked to politically exposed persons
   in Russia and Belarus maintained by qualified researchers

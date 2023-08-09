@@ -11,8 +11,7 @@ from zavod.exporters.common import Exporter
 
 class SimpleCSVExporter(Exporter):
     TITLE = "Targets as simplified CSV"
-    NAME = "targets.simple"
-    EXTENSION = "csv"
+    FILE_NAME = "targets.simple.csv"
     MIME_TYPE = "text/csv"
 
     HEADERS = [

@@ -1,7 +1,8 @@
 entry_point: opensanctions.crawlers.wd_oligarchs
 title: Russian Oligarch Database
 prefix: wdoli
-export: false
+exports:
+  - statistics.json
 summary: >
   A list of oiligarchs from CIS countries, most notably the Russian
   Federation.

@@ -1,7 +1,8 @@
 entry_point: opensanctions.crawlers.ru_rupep:crawl_peps
 title: RuPEP Public Database of PEPs in Russia and Belarus
 prefix: rupep
-export: false
+exports:
+  - statistics.json
 summary: >
   RuPEP is a detailed database of politically exposed persons in Russia and
   Belarus maintained by qualified researchers

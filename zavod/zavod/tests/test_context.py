@@ -14,11 +14,11 @@ from zavod.runtime.loader import load_entry_point
 from zavod.tests.conftest import XML_DOC
 
 
-def test_context_helpers(vdataset: Dataset):
-    context = Context(vdataset)
-    assert context.dataset == vdataset
+def test_context_helpers(testdataset1: Dataset):
+    context = Context(testdataset1)
+    assert context.dataset == testdataset1
     assert "docs.google.com" in context.data_url
-    assert vdataset.name in repr(context)
+    assert testdataset1.name in repr(context)
     gen_id = "osv-d5fdc7f711d0d9fd15421102d272e475a236005c"
     assert context.make_id("john", "doe") == gen_id
     assert context.make_id("") is None
@@ -28,9 +28,13 @@ def test_context_helpers(vdataset: Dataset):
     entity = context.make("Person")
     assert isinstance(entity, Entity)
     assert entity.schema.name == "Person"
-    assert entity.dataset == vdataset
+    assert entity.dataset == testdataset1
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Entity has no ID.+"):
+        context.emit(entity)
+
+    entity.id = "test-id"
+    with pytest.raises(ValueError, match="Entity has no properties."):
         context.emit(entity)
 
     result = context.lookup("plants", "banana")
@@ -54,9 +58,9 @@ def test_context_helpers(vdataset: Dataset):
     assert context.data_time_iso == other.isoformat(sep="T", timespec="seconds")
 
 
-def test_context_dry_run(vdataset: Dataset):
-    context = Context(vdataset, dry_run=True)
-    assert context.dataset == vdataset
+def test_context_dry_run(testdataset1: Dataset):
+    context = Context(testdataset1, dry_run=True)
+    assert context.dataset == testdataset1
     context.begin(clear=True)
     assert context.dry_run
     context.log.error("Test error")
@@ -64,8 +68,8 @@ def test_context_dry_run(vdataset: Dataset):
     assert list(context.issues.all()) == []
 
 
-def test_context_fetchers(vdataset: Dataset):
-    context = Context(vdataset)
+def test_context_fetchers(testdataset1: Dataset):
+    context = Context(testdataset1)
 
     with requests_mock.Mocker() as m:
         m.get("/bla", text="Hello, World!")
@@ -104,13 +108,13 @@ def test_context_fetchers(vdataset: Dataset):
     context.close()
 
 
-def test_run_dataset(vdataset: Dataset):
-    DatasetSink(vdataset).clear()
-    assert len(list(iter_dataset_statements(vdataset))) == 0
-    context = Context(vdataset)
+def test_run_dataset(testdataset1: Dataset):
+    DatasetSink(testdataset1).clear()
+    assert len(list(iter_dataset_statements(testdataset1))) == 0
+    context = Context(testdataset1)
     context.begin(clear=True)
     assert len(context.resources.all()) == 0
-    func = load_entry_point(vdataset)
+    func = load_entry_point(testdataset1)
     func(context)
     assert context.stats.entities > 5, context.stats.entities
     assert (
@@ -118,18 +122,18 @@ def test_run_dataset(vdataset: Dataset):
     ), context.stats.statements
     assert len(context.resources.all()) == 1
     context.close()
-    assert len(list(iter_dataset_statements(vdataset))) == context.stats.statements
+    assert len(list(iter_dataset_statements(testdataset1))) == context.stats.statements
 
 
-def test_run_dataset_wrapper(vdataset: Dataset):
-    stats = run_dataset(vdataset)
+def test_run_dataset_wrapper(testdataset1: Dataset):
+    stats = run_dataset(testdataset1)
     assert stats.entities > 10
 
-    vdataset.disabled = True
-    stats = run_dataset(vdataset)
+    testdataset1.disabled = True
+    stats = run_dataset(testdataset1)
     assert stats.entities == 0
 
-    vdataset.disabled = False
-    vdataset.data.format = "FAIL"
+    testdataset1.disabled = False
+    testdataset1.data.format = "FAIL"
     with pytest.raises(RunFailedException):
-        run_dataset(vdataset)
+        run_dataset(testdataset1)
