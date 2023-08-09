@@ -30,7 +30,11 @@ def test_context_helpers(testdataset1: Dataset):
     assert entity.schema.name == "Person"
     assert entity.dataset == testdataset1
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Entity has no ID.+"):
+        context.emit(entity)
+
+    entity.id = "test-id"
+    with pytest.raises(ValueError, match="Entity has no properties."):
         context.emit(entity)
 
     result = context.lookup("plants", "banana")
