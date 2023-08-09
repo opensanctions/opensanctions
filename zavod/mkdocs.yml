@@ -46,6 +46,7 @@ nav:
   - Overview: index.md
   - install.md
   - Tutorial: tutorial.md
+  - Command-line usage: usage.md
   - context.md
   - helpers.md
   - patterns.md

@@ -2,14 +2,14 @@ name: gleif
 title: GLEIF Concatenated Data File
 prefix: lei
 disabled: true
-entry_point: parse.py
-summary: |
-  Base data for all entities which have been issued Legal Entity Identifier
-  (LEI) codes, as well as the relationships between them.
+entry_point: crawler.py
 coverage:
   frequency: weekly
 deploy:
   disk: 50Gi
+summary: |
+  Base data for all entities which have been issued Legal Entity Identifier
+  (LEI) codes, as well as the relationships between them.
 publisher:
   name: Global Legal Entity Identifier Foundation (GLEIF)
   description: |

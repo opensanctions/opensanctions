@@ -5,24 +5,27 @@ entry_point: crawler.py
 coverage:
   frequency: weekly
 summary: |
-  All companies in Moldova, with information on their founders, beneficial
-  owners and directors.
-description:
-  The DPRK Reports database contains structured information relating to the
-  activities of entities that assist North Korea to develop prohibited
-  weapons programmes and evade sanctions. The data is sourced from the
-  United Nations Panel of Experts reports, from 2010 to 2023, as well as
-  the associated UN sanctions resolutions.
+  A database of entities and events related to North Korea's sanctions
+  evasion efforts.
+description: |
+  > The DPRK Reports database contains structured information relating to the
+  > activities of entities that assist North Korea to develop prohibited
+  > weapons programmes and evade sanctions. The data is sourced from the
+  > United Nations Panel of Experts reports, from 2010 to 2023, as well as
+  > the associated UN sanctions resolutions.
 
-  It includes profiles of the persons, companies, organizations, and vessels
-  that are mentioned in the reports, and contains information such as
-  names, aliases, locations, contact details and sanction designation
-  status. The database also records the relationships between entities
-  and their involvement or relationship to specific events.
+  > It includes profiles of the persons, companies, organizations, and vessels
+  > that are mentioned in the reports, and contains information such as
+  > names, aliases, locations, contact details and sanction designation
+  > status. The database also records the relationships between entities
+  > and their involvement or relationship to specific events.
 
-  The objective of this database is to provide national authorities and
-  private-sector institutions with information that can assist with
-  sanctions implementation efforts such as due diligence and compliance.
+  > The objective of this database is to provide national authorities and
+  > private-sector institutions with information that can assist with
+  > sanctions implementation efforts such as due diligence and compliance.
+
+  The original data contains a rich set of source documents which we've 
+  excluded from the entity network we've imported into OpenSanctions.
 url: https://dprk-reports.org/pages/about
 publisher:
   name: Korea Risk Group at RUSI
@@ -32,7 +35,7 @@ publisher:
     Korea Risk Group provides primary and secondary data on North Korea
     that is unavailable anywhere else, and a host to research tools
     tailored for users within government, business, academia and journalism.
-    It is hosted by the  Royal United Services Institute (RUSI) in London.
+    It is hosted by the Royal United Services Institute (RUSI) in London.
 data:
   url: https://dprk-reports.org/assets/export.zip
   format: ZIP+FTM
