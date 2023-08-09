@@ -156,6 +156,8 @@ def crawl_index(context: Context) -> Optional[str]:
 
 def crawl(context: Context):
     xml_url = crawl_index(context)
+    if xml_url is None:
+        raise ValueError("No XML file found on %s" % context.data_url)
     path = context.fetch_resource("source.xml", xml_url)
     context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
