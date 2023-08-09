@@ -51,7 +51,7 @@ inputs:
   # - ee_ariregister
   # - gb_coh_psc
   - ext_gleif
-  # - icij_offshoreleaks
+  - ext_icij_offshoreleaks
   - ext_lv_business_register
   - ext_md_companies
   - opencorporates
