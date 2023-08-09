@@ -38,10 +38,10 @@ inputs:
   # - cz_business_register
   # - ee_ariregister
   # - gb_coh_psc
-  # - gleif
+  - ext_gleif
   # - icij_offshoreleaks
   - ext_lv_business_register
-  # - md_companies
+  # - ext_md_companies
   - opencorporates
   # - ru_egrul
   # - ru_rupep
