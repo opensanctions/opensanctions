@@ -16,7 +16,7 @@ from zavod.exporters.metadata import write_dataset_index, write_issues
 
 log = get_logger(__name__)
 
-DEFAULT_EXPORTERS: Set[Type[Exporter]] = {
+DEFAULT_EXPORTERS: Set[str] = {
     StatisticsExporter.FILE_NAME,
     FtMExporter.FILE_NAME,
     NestedJSONExporter.FILE_NAME,

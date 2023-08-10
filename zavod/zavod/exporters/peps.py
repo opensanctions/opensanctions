@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Dict, List, Any, Optional, Set
+from typing import Dict, List, Any, Optional, Set, DefaultDict
 from followthemoney import model
 
 from zavod.entity import Entity
@@ -15,12 +15,15 @@ class PEPSummaryExporter(Exporter):
     def setup(self) -> None:
         super().setup()
 
-        country_template = lambda: {"positions": defaultdict(int)}
-        self.countries: Dict[str, Dict[str, Dict[str, int]]] = defaultdict(country_template)
+        PositionMap = DefaultDict[str, int]
+        Country = Dict[str, PositionMap]
+        CountryMap = DefaultDict[str, Country]
+        self.countries: CountryMap = defaultdict(
+            lambda: {"positions": defaultdict(int)}
+        )
 
     def feed(self, entity: Entity) -> None:
-        if entity.schema == model.get('Person'):
-            print(entity.get("name"))
+        if entity.schema.name == "Person":
             for person_prop, person_related in self.view.get_adjacent(entity):
                 if person_prop.name == "positionOccupancies":
                     for occ_prop, occ_related in self.view.get_adjacent(person_related):
@@ -31,9 +34,7 @@ class PEPSummaryExporter(Exporter):
                                 self.countries[code]["positions"][position_name] += 1
 
     def finish(self) -> None:
-        output = {
-            "countries": self.countries
-        }
+        output = {"countries": self.countries}
         with open(self.path, "wb") as fh:
             write_json(output, fh)
         super().finish()
