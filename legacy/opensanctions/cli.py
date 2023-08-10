@@ -2,17 +2,13 @@ import sys
 import click
 import logging
 from pathlib import Path
-from typing import Optional
-from nomenklatura.tui import dedupe_ui
 from nomenklatura.judgement import Judgement
 from nomenklatura.resolver import Identifier
-from nomenklatura.matching import DefaultAlgorithm
 from followthemoney.cli.util import OutPath
 
 from zavod.logs import get_logger, configure_logging
 from zavod.crawl import crawl_dataset
-from zavod.store import get_store
-from zavod.dedupe import get_resolver, blocking_xref
+from zavod.dedupe import get_resolver
 from zavod.tools.dump_file import dump_dataset_to_file
 from zavod.tools.meta_index import export_index
 from zavod.exc import RunFailedException
@@ -68,45 +64,6 @@ def export_(dataset: str, recurse: bool = False):
 def export_metadata_(dataset: str):
     dataset_ = get_catalog().require(dataset)
     export_index(dataset_)
-
-
-@cli.command("xref", help="Generate dedupe candidates from the given dataset")
-@click.argument("dataset", default=DEFAULT_SCOPE, type=datasets)
-@click.option("-l", "--limit", type=int, default=10000)
-@click.option("-f", "--focus-dataset", type=str, default=None)
-@click.option("-a", "--algorithm", type=str, default=DefaultAlgorithm.NAME)
-@click.option("-t", "--threshold", type=float, default=0.990)
-def xref(
-    dataset,
-    limit: int,
-    threshold: float,
-    algorithm: str,
-    focus_dataset: Optional[str] = None,
-):
-    dataset = get_catalog().require(dataset)
-    store = get_store(dataset, external=True)
-    blocking_xref(
-        store,
-        limit=limit,
-        auto_threshold=threshold,
-        algorithm=algorithm,
-        focus_dataset=focus_dataset,
-    )
-
-
-@cli.command("xref-prune", help="Remove dedupe candidates")
-def xref_prune():
-    resolver = get_resolver()
-    resolver.prune()
-    resolver.save()
-
-
-@cli.command("dedupe", help="Interactively judge xref candidates")
-@click.option("-d", "--dataset", type=datasets, default=ALL_SCOPE)
-def dedupe(dataset):
-    dataset = get_catalog().require(dataset)
-    store = get_store(dataset, external=True)
-    dedupe_ui(store, url_base="https://opensanctions.org/entities/%s/")
 
 
 @cli.command("export-pairs", help="Export pairwise judgements")
