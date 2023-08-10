@@ -1,5 +1,5 @@
 import os
-from banal import ensure_list, ensure_dict, hash_data
+from banal import ensure_list, ensure_dict, hash_data, as_bool
 from typing import Dict, Any, Optional, List, Set
 from normality import slugify
 from pathlib import Path
@@ -17,13 +17,15 @@ from zavod.meta.data import Data
 class Dataset(NKDataset):
     def __init__(self, catalog: "DataCatalog[Dataset]", data: Dict[str, Any]):
         super().__init__(catalog, data)
+        assert self.name == slugify(self.name, sep="_"), "Dataset name is invalid"
         self.catalog: "DataCatalog[Dataset]" = catalog  # type: ignore
         self.prefix: str = data.get("prefix", slugify(self.name, sep="-"))
+        assert self.prefix == slugify(self.prefix, sep="-"), "Dataset prefix is invalid"
         if self.updated_at is None:
             self.updated_at = datetime_iso(settings.RUN_TIME)
-        self.hidden: bool = data.get("hidden", False)
+        self.hidden: bool = as_bool(data.get("hidden", False))
         self.exports: Set[str] = set(data.get("exports", []))
-        self.disabled: bool = data.get("disabled", False)
+        self.disabled: bool = as_bool(data.get("disabled", False))
         self.entry_point: Optional[str] = data.get("entry_point", None)
 
         self.load_db_uri: Optional[str] = data.get("load_db_uri", None)
