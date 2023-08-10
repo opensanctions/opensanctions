@@ -1,6 +1,8 @@
 type: collection
 title: Wanted lists
 hidden: true
+deploy:
+  schedule: "45 8 * * *"
 summary: >
   All wanted individuals from national or international lists of wanted persons.
 description: |
