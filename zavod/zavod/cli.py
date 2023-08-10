@@ -85,14 +85,19 @@ def run(
         except RunFailedException:
             publish_failure(dataset, latest=latest)
             sys.exit(1)
-    view = get_view(dataset, external=False)
-    export_dataset(dataset, view)
-    publish_dataset(dataset, latest=latest)
+    try:
+        clear_store(dataset)
+        view = get_view(dataset, external=False)
+        export_dataset(dataset, view)
+        publish_dataset(dataset, latest=latest)
 
-    if not dataset.is_collection and dataset.load_db_uri is not None:
-        log.info("Loading dataset into database...", dataset=dataset.name)
-        load_dataset_to_db(dataset, dataset.load_db_uri, external=external)
-    log.info("Dataset run is complete.", dataset=dataset.name)
+        if not dataset.is_collection and dataset.load_db_uri is not None:
+            log.info("Loading dataset into database...", dataset=dataset.name)
+            load_dataset_to_db(dataset, dataset.load_db_uri, external=external)
+        log.info("Dataset run is complete :)", dataset=dataset.name)
+    except Exception:
+        log.exception("Failed to export and publish %r" % dataset.name)
+        sys.exit(1)
 
 
 @cli.command("load-db", help="Load dataset statements from the archive into a database")

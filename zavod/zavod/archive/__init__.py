@@ -89,8 +89,8 @@ def dataset_state_path(dataset_name: str) -> Path:
 
 def clear_data_path(dataset_name: str) -> None:
     """Delete all recorded data for a given dataset."""
-    shutil.rmtree(dataset_data_path(dataset_name))
-    shutil.rmtree(dataset_state_path(dataset_name))
+    shutil.rmtree(dataset_data_path(dataset_name), ignore_errors=True)
+    shutil.rmtree(dataset_state_path(dataset_name), ignore_errors=True)
 
 
 def dataset_resource_path(dataset_name: str, resource: str) -> Path:
