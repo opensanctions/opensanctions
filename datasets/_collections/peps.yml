@@ -29,3 +29,12 @@ children:
   - everypolitician
   - us_cia_world_leaders
   - us_congress
+
+exports:
+  - statistics.json
+  - entities.ftm.json
+  - names.txt
+  - pep-positions.json
+  - senzing.json
+  - targets.nested.json
+  - targets.simple.csv
