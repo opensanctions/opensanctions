@@ -2,15 +2,19 @@ import sys
 import click
 import logging
 from pathlib import Path
+from typing import Optional
 from followthemoney.cli.util import InPath, OutPath
+from nomenklatura.tui import dedupe_ui
 from nomenklatura.statement import CSV, FORMATS
+from nomenklatura.matching import DefaultAlgorithm
 
 from zavod.logs import configure_logging, get_logger
 from zavod.meta import load_dataset_from_path, Dataset
 from zavod.crawl import crawl_dataset
-from zavod.store import get_view, clear_store
+from zavod.store import get_view, get_store, clear_store
 from zavod.archive import clear_data_path
 from zavod.exporters import export_dataset
+from zavod.dedupe import get_resolver, blocking_xref
 from zavod.publish import publish_dataset, publish_failure
 from zavod.tools.load_db import load_dataset_to_db
 from zavod.tools.dump_file import dump_dataset_to_file
@@ -125,6 +129,52 @@ def dump_file(
 ) -> None:
     dataset = _load_dataset(dataset_path)
     dump_dataset_to_file(dataset, out_path, format=format.lower(), external=external)
+
+
+@cli.command("xref", help="Generate dedupe candidates from the given dataset")
+@click.argument("dataset_path", type=InPath)
+@click.option("-c", "--clear", is_flag=True, default=False)
+@click.option("-l", "--limit", type=int, default=10000)
+@click.option("-f", "--focus-dataset", type=str, default=None)
+@click.option("-a", "--algorithm", type=str, default=DefaultAlgorithm.NAME)
+@click.option("-t", "--threshold", type=float, default=0.990)
+def xref(
+    dataset_path: Path,
+    clear: bool,
+    limit: int,
+    threshold: float,
+    algorithm: str,
+    focus_dataset: Optional[str] = None,
+) -> None:
+    dataset = _load_dataset(dataset_path)
+    if clear:
+        clear_store(dataset)
+    store = get_store(dataset, external=True)
+    blocking_xref(
+        store,
+        limit=limit,
+        auto_threshold=threshold,
+        algorithm=algorithm,
+        focus_dataset=focus_dataset,
+    )
+
+
+@cli.command("xref-prune", help="Remove dedupe candidates from resolver file")
+def xref_prune() -> None:
+    resolver = get_resolver()
+    resolver.prune()
+    resolver.save()
+
+
+@cli.command("dedupe", help="Interactively decide xref candidates")
+@click.argument("dataset_path", type=InPath)
+@click.option("-c", "--clear", is_flag=True, default=False)
+def dedupe(dataset_path: Path, clear: bool = False) -> None:
+    dataset = _load_dataset(dataset_path)
+    if clear:
+        clear_store(dataset)
+    store = get_store(dataset, external=True)
+    dedupe_ui(store, url_base="https://opensanctions.org/entities/%s/")
 
 
 @cli.command("clear", help="Delete the data and state paths for a dataset")
