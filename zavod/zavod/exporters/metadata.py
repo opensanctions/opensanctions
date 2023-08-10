@@ -38,7 +38,8 @@ def write_dataset_index(dataset: Dataset) -> None:
         meta["issue_count"] = sum(meta["issue_levels"].values())
     resources = DatasetResources(dataset)
     meta["resources"] = [r.to_opensanctions_dict() for r in resources.all()]
-    meta["last_export"] = settings.RUN_TIME
+    meta["last_export"] = settings.RUN_TIME_ISO
+    meta["updated_at"] = settings.RUN_TIME_ISO
     meta["index_url"] = dataset.make_public_url("index.json")
     meta["issues_url"] = dataset.make_public_url("issues.json")
     with open(index_path, "wb") as fh:
