@@ -34,19 +34,19 @@ publisher:
 
 inputs:
   - sanctions
-  # - cy_companies
-  # - cz_business_register
-  # - ee_ariregister
-  # - gb_coh_psc
-  - ext_gleif
+  # - ext_cy_companies
+  # - ext_cz_business_register
+  # - ext_ee_ariregister
+  # - ext_gb_coh_psc
+  # - ext_gleif
   - ext_icij_offshoreleaks
   - ext_lv_business_register
   # - ext_md_companies
   - opencorporates
-  # - ru_egrul
+  # - ext_ru_egrul
   # - ru_rupep
   - ru_rupep_companies
-  # - ua_edr
+  # - ext_ua_edr
   - debarment
 
 config:

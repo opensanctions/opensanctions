@@ -46,6 +46,7 @@ inputs:
   # Warning: cannot include wd_peps here otherwise it gets too recursive
   - sanctions
   - eu_meps
+  - kp_rusi_reports
   - wd_peps
   - wd_oligarchs
   - wd_curated
@@ -60,6 +61,7 @@ inputs:
   - eu_cor_members
   - everypolitician
   - us_cia_world_leaders
+  - us_congress
 
 config:
   type: nomenklatura.enrich.wikidata:WikidataEnricher
