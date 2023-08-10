@@ -19,8 +19,10 @@ class Dataset(NKDataset):
         super().__init__(catalog, data)
         assert self.name == slugify(self.name, sep="_"), "Dataset name is invalid"
         self.catalog: "DataCatalog[Dataset]" = catalog  # type: ignore
-        self.prefix: str = data.get("prefix", slugify(self.name, sep="-"))
-        assert self.prefix == slugify(self.prefix, sep="-"), "Dataset prefix is invalid"
+        self.prefix: str = data.get("prefix", slugify(self.name, sep="-")).strip()
+        assert self.prefix == slugify(self.prefix, sep="-"), (
+            "Dataset prefix is invalid: %s" % self.prefix
+        )
         if self.updated_at is None:
             self.updated_at = datetime_iso(settings.RUN_TIME)
         self.hidden: bool = as_bool(data.get("hidden", False))

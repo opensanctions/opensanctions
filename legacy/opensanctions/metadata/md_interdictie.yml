@@ -1,7 +1,7 @@
 entry_point: opensanctions.crawlers.md_interdictie:crawl
 title: Moldovan ban list of economic operators
 summary: List of economic operators banned from participating public procurement in Moldova
-prefix: md_interdictie
+prefix: md-interdictie
 publisher:
   name: "Ministry of Finance of the Republic of Moldova"
   country: md
