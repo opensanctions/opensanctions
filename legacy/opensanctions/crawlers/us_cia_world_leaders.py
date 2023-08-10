@@ -41,6 +41,13 @@ def crawl_leader(
     person.add("topics", "role.pep")
     context.emit(person, target=True)
 
+    position = h.make_position(context, function, country=country)
+    occupancy = h.make_occupancy(context, person, position, no_end_implies_current=True)
+
+    context.emit(position)
+    context.emit(occupancy)
+
+
 
 def crawl_country(context: Context, country: str) -> None:
     context.log.debug("Crawling country: %s" % country)

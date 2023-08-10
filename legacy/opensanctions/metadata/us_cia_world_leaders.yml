@@ -32,3 +32,11 @@ publisher:
 data:
   url: "https://www.cia.gov/resources/world-leaders/page-data/sq/d/3159235335.json"
   format: JSON
+exports:
+  - statistics.json
+  - entities.ftm.json
+  - names.txt
+  - pep-positions.json
+  - senzing.json
+  - targets.nested.json
+  - targets.simple.csv

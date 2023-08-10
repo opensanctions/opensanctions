@@ -3,6 +3,10 @@ from typing import Optional, Iterable, List
 
 from zavod.context import Context
 from zavod.entity import Entity
+from zavod import settings
+
+
+AFTER_OFFICE = 5 * 365
 
 
 def make_position(
@@ -70,3 +74,30 @@ def make_position(
         position.id = context.make_id(*parts)
 
     return position
+
+
+def make_occupancy(
+    context: Context,
+    person: Entity,
+    position: Entity,
+    no_end_implies_current: bool,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+) -> Optional[Entity]:
+    """Make occupancies if they meet our criteria for PEP position occupancy"""
+    if end_date is None or end_date > h.backdate(settings.RUN_TIME, AFTER_OFFICE):
+        occupancy = context.make("Occupancy")
+        parts = [person.id, position.id, start_date, end_date]
+        occupancy.id = context.make_id(*parts)
+        occupancy.add("holder", person)
+        occupancy.add("post", position)
+        occupancy.add("startDate", start_date)
+        if end_date:
+            occupancy.add("endDate", end_date)
+        if no_end_implies_current and not end_date:
+            status = "Current"
+        else:
+            status = "Ended"
+        occupancy.add("status", status)
+        return occupancy
+    return None
