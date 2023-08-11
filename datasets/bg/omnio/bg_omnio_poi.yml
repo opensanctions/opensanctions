@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.bg_omnio_poi
 title: Bulgarian Persons of Interest
+entry_point: crawler.py
 prefix: omnio
 coverage:
   frequency: daily

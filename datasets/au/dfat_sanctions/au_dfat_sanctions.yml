@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.au_dfat_sanctions
 title: "Australian Sanctions Consolidated List"
+entry_point: crawler.py
 prefix: au-dfat
 coverage:
   frequency: daily

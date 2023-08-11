@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.ca_facfoa
 title: "Freezing Assets of Corrupt Foreign Officials Act"
+entry_point: crawler.py
 prefix: ca-facfoa
 coverage:
   frequency: daily

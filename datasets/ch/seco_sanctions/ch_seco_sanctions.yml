@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.ch_seco_sanctions
 title: Swiss SECO Sanctions/Embargoes
+entry_point: crawler.py
 prefix: ch-seco
 coverage:
   frequency: daily

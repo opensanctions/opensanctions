@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.in_mha_banned:crawl
 title: Indian Ministry of Home Affairs Banned Organizations
+entry_point: crawler.py
 prefix: in-mha
 coverage:
   frequency: daily

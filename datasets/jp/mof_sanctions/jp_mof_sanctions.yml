@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.jp_mof_sanctions
 title: Japan Economic sanctions and list of eligible people
+entry_point: crawler.py
 prefix: ja-mof
 coverage:
   frequency: daily

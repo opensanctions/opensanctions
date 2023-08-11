@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.fr_tresor_gels_avoir
 title: French Freezing of Assets
+entry_point: crawler.py
 prefix: fr-ga
 coverage:
   frequency: daily
