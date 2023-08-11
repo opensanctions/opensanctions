@@ -71,10 +71,10 @@ jobs:
           pip freeze
       - name: Crawl a single dataset
         run: |
-          opensanctions crawl us_ofac_cons
+          zavod crawl -c datasets/us/ofac/us_ofac_cons.yml
       - name: Export a single dataset
         run: |
-          opensanctions export us_ofac_cons
+          zavod export -c datasets/us/ofac/us_ofac_cons.yml
       - name: Publish a Python distribution to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         # working-directory: zavod

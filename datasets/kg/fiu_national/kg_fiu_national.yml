@@ -27,7 +27,7 @@ data:
 lookups:
   type.date:
     options:
-      - match: 06.02.1974
+      - match: "06.02.1974"
         value: "1974-02-06"
       - match: 17.01.2018, 29.05.2018
         values:
