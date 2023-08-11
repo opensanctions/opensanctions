@@ -4,6 +4,7 @@ prefix: gb-hmt
 coverage:
   frequency: daily
 deploy:
+  memory: "2Gi"
   schedule: "0 */2 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >

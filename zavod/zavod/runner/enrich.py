@@ -77,13 +77,7 @@ def enrich(context: Context) -> None:
                     save_match(context, resolver, enricher, entity, match, threshold)
             except EnrichmentException as exc:
                 context.log.error("Enrichment error %r: %s" % (entity, str(exc)))
-            # except Exception:
-            #     context.log.exception("Could not match: %r" % entity)
-
-        # with engine_tx() as conn:
-        #     cleanup_dataset(conn, context.dataset)
         resolver.save()
         context.log.info("Enrichment process complete.")
     finally:
         enricher.close()
-        context.close()
