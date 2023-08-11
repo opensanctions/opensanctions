@@ -51,7 +51,8 @@ class Dataset(NKDataset):
         self.base_path: Optional[Path] = None
 
         # TODO: this is for backward compatibility, get rid of it one day
-        self._type: str = data.get("type", "source").lower().strip()
+        _type = "collection" if self.is_collection else "source"
+        self._type: str = data.get("type", _type).lower().strip()
 
     @cached_property
     def input(self) -> Optional["Dataset"]:
@@ -73,7 +74,6 @@ class Dataset(NKDataset):
                 "title": name,
                 "datasets": names,
                 "hidden": True,
-                "exports": [],
             }
             scope = self.catalog.make_dataset(data)
             self.catalog.add(scope)
@@ -101,7 +101,6 @@ class Dataset(NKDataset):
         data = super().to_dict()
         data["hidden"] = self.hidden
         data["disabled"] = self.disabled
-        data["exports"] = self.exports
         if self.data:
             data["data"] = self.data.to_dict()
         return data
