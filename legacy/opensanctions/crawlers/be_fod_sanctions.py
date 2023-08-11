@@ -3,7 +3,7 @@ from zipfile import ZipFile
 
 from zavod import Context
 from zavod import helpers as h
-from opensanctions.crawlers.eu_fsf import parse_entry
+from zavod.shed.fsf import parse_entry
 
 
 def crawl(context: Context):
