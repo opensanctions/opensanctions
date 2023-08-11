@@ -1,0 +1,45 @@
+title: Myrotvorets list of Wagner mercenaries
+entry_point: crawler.py
+prefix: rumy
+coverage:
+  frequency: daily
+deploy:
+  schedule: "0 */6 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  A list of Russian soldiers, PMC Wagner members and other criminals.
+description: |
+  Described as:
+  > Information for law enforcement authorities and special services about
+  > pro-Russian terrorists, separatists, mercenaries, war criminals, and
+  > murderers
+publisher:
+  name: Myrotvorets Center
+  description: |
+    Non-government Center for Research of Signs of Crimes against the
+    National Security of Ukraine, Peace, Humanity, and the International
+    Law
+  url: https://myrotvorets.center/
+  official: false
+  country: ru
+url: https://myrotvorets.center/criminal/
+data:
+  url: https://myrotvorets.news/wp-content/uploads/2021/12/vagner4000.zip
+  format: CSV
+
+lookups:
+  type.date:
+    options:
+      - match:
+          - "0000-00-00"
+        value: null
+  type.country:
+    options:
+      - match: Украна
+        value: UA
+      - match: Туркмения
+        value: Turkmenistan
+      - match: Россия - Казахстан
+        values:
+          - Россия
+          - Казахстан

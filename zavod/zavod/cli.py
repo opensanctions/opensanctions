@@ -2,15 +2,19 @@ import sys
 import click
 import logging
 from pathlib import Path
+from typing import Optional
 from followthemoney.cli.util import InPath, OutPath
+from nomenklatura.tui import dedupe_ui
 from nomenklatura.statement import CSV, FORMATS
+from nomenklatura.matching import DefaultAlgorithm
 
 from zavod.logs import configure_logging, get_logger
 from zavod.meta import load_dataset_from_path, Dataset
 from zavod.crawl import crawl_dataset
-from zavod.store import get_view, clear_store
+from zavod.store import get_view, get_store, clear_store
 from zavod.archive import clear_data_path
 from zavod.exporters import export_dataset
+from zavod.dedupe import get_resolver, blocking_xref
 from zavod.publish import publish_dataset, publish_failure
 from zavod.tools.load_db import load_dataset_to_db
 from zavod.tools.dump_file import dump_dataset_to_file
@@ -50,19 +54,27 @@ def crawl(dataset_path: Path, dry_run: bool = False, clear: bool = False) -> Non
 @click.argument("dataset_path", type=InPath)
 @click.option("-c", "--clear", is_flag=True, default=False)
 def export(dataset_path: Path, clear: bool = False) -> None:
-    dataset = _load_dataset(dataset_path)
-    if clear:
-        clear_store(dataset)
-    view = get_view(dataset, external=False)
-    export_dataset(dataset, view)
+    try:
+        dataset = _load_dataset(dataset_path)
+        if clear:
+            clear_store(dataset)
+        view = get_view(dataset, external=False)
+        export_dataset(dataset, view)
+    except Exception:
+        log.exception("Failed to export: %s" % dataset_path)
+        sys.exit(1)
 
 
 @cli.command("publish", help="Publish data from a specific dataset")
 @click.argument("dataset_path", type=InPath)
 @click.option("-l", "--latest", is_flag=True, default=False)
 def publish(dataset_path: Path, latest: bool = False) -> None:
-    dataset = _load_dataset(dataset_path)
-    publish_dataset(dataset, latest=latest)
+    try:
+        dataset = _load_dataset(dataset_path)
+        publish_dataset(dataset, latest=latest)
+    except Exception:
+        log.exception("Failed to publish: %s" % dataset_path)
+        sys.exit(1)
 
 
 @cli.command("run", help="Crawl, export and then publish a specific dataset")
@@ -79,20 +91,29 @@ def run(
     dataset = _load_dataset(dataset_path)
     if clear:
         clear_data_path(dataset.name)
+    if dataset.disabled:
+        log.info("Dataset is disabled, skipping: %s" % dataset.name)
+        publish_failure(dataset, latest=latest)
+        sys.exit(0)
     if dataset.entry_point is not None and not dataset.is_collection:
         try:
             crawl_dataset(dataset, dry_run=False)
         except RunFailedException:
             publish_failure(dataset, latest=latest)
             sys.exit(1)
-    view = get_view(dataset, external=False)
-    export_dataset(dataset, view)
-    publish_dataset(dataset, latest=latest)
+    try:
+        clear_store(dataset)
+        view = get_view(dataset, external=False)
+        export_dataset(dataset, view)
+        publish_dataset(dataset, latest=latest)
 
-    if not dataset.is_collection and dataset.load_db_uri is not None:
-        log.info("Loading dataset into database...", dataset=dataset.name)
-        load_dataset_to_db(dataset, dataset.load_db_uri, external=external)
-    log.info("Dataset run is complete.", dataset=dataset.name)
+        if not dataset.is_collection and dataset.load_db_uri is not None:
+            log.info("Loading dataset into database...", dataset=dataset.name)
+            load_dataset_to_db(dataset, dataset.load_db_uri, external=external)
+        log.info("Dataset run is complete :)", dataset=dataset.name)
+    except Exception:
+        log.exception("Failed to export and publish %r" % dataset.name)
+        sys.exit(1)
 
 
 @cli.command("load-db", help="Load dataset statements from the archive into a database")
@@ -106,8 +127,17 @@ def load_db(
     batch_size: int = 5000,
     external: bool = False,
 ) -> None:
-    dataset = _load_dataset(dataset_path)
-    load_dataset_to_db(dataset, database_uri, batch_size=batch_size, external=external)
+    try:
+        dataset = _load_dataset(dataset_path)
+        load_dataset_to_db(
+            dataset,
+            database_uri,
+            batch_size=batch_size,
+            external=external,
+        )
+    except Exception:
+        log.exception("Failed to load dataset into database: %s" % dataset_path)
+        sys.exit(1)
 
 
 @cli.command("dump-file", help="Dump dataset statements from the archive to a file")
@@ -118,12 +148,75 @@ def load_db(
 def dump_file(
     dataset_path: Path, out_path: Path, format: str, external: bool = False
 ) -> None:
+    try:
+        dataset = _load_dataset(dataset_path)
+        dump_dataset_to_file(
+            dataset,
+            out_path,
+            format=format.lower(),
+            external=external,
+        )
+    except Exception:
+        log.exception("Failed to dump dataset to file: %s" % dataset_path)
+        sys.exit(1)
+
+
+@cli.command("xref", help="Generate dedupe candidates from the given dataset")
+@click.argument("dataset_path", type=InPath)
+@click.option("-c", "--clear", is_flag=True, default=False)
+@click.option("-l", "--limit", type=int, default=10000)
+@click.option("-f", "--focus-dataset", type=str, default=None)
+@click.option("-a", "--algorithm", type=str, default=DefaultAlgorithm.NAME)
+@click.option("-t", "--threshold", type=float, default=0.990)
+def xref(
+    dataset_path: Path,
+    clear: bool,
+    limit: int,
+    threshold: float,
+    algorithm: str,
+    focus_dataset: Optional[str] = None,
+) -> None:
     dataset = _load_dataset(dataset_path)
-    dump_dataset_to_file(dataset, out_path, format=format.lower(), external=external)
+    if clear:
+        clear_store(dataset)
+    store = get_store(dataset, external=True)
+    blocking_xref(
+        store,
+        limit=limit,
+        auto_threshold=threshold,
+        algorithm=algorithm,
+        focus_dataset=focus_dataset,
+    )
+
+
+@cli.command("xref-prune", help="Remove dedupe candidates from resolver file")
+def xref_prune() -> None:
+    try:
+        resolver = get_resolver()
+        resolver.prune()
+        resolver.save()
+    except Exception:
+        log.exception("Failed to prune resolver file")
+        sys.exit(1)
+
+
+@cli.command("dedupe", help="Interactively decide xref candidates")
+@click.argument("dataset_path", type=InPath)
+@click.option("-c", "--clear", is_flag=True, default=False)
+def dedupe(dataset_path: Path, clear: bool = False) -> None:
+    dataset = _load_dataset(dataset_path)
+    if clear:
+        clear_store(dataset)
+    store = get_store(dataset, external=True)
+    dedupe_ui(store, url_base="https://opensanctions.org/entities/%s/")
 
 
 @cli.command("clear", help="Delete the data and state paths for a dataset")
 @click.argument("dataset_path", type=InPath)
 def clear(dataset_path: Path) -> None:
-    dataset = _load_dataset(dataset_path)
-    clear_data_path(dataset.name)
+    try:
+        dataset = _load_dataset(dataset_path)
+        clear_data_path(dataset.name)
+    except Exception:
+        log.exception("Failed to clear dataset: %s" % dataset_path)
+        sys.exit(1)

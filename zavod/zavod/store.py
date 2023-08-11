@@ -39,10 +39,10 @@ def clear_store(dataset: Dataset) -> None:
     aggregator_path = dataset_state_path(dataset.name)
     external_path = aggregator_path / f"{dataset.name}.external.store"
     if external_path.exists():
-        shutil.rmtree(external_path)
+        shutil.rmtree(external_path, ignore_errors=True)
     internal_path = aggregator_path / f"{dataset.name}.internal.store"
     if internal_path.exists():
-        shutil.rmtree(internal_path)
+        shutil.rmtree(internal_path, ignore_errors=True)
 
 
 def get_view(dataset: Dataset, external: bool = False) -> View:

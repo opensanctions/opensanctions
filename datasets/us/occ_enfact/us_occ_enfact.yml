@@ -1,0 +1,33 @@
+title: "OCC Enforcement Actions"
+entry_point: crawler.py
+prefix: us-occ
+coverage:
+  frequency: daily
+deploy:
+  schedule: "0 */6 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: |
+  The US banking regulator OCC publishes a list of companies and individuals
+  against which punitive measures have been applied.
+description: |
+  > The OCC may take enforcement actions for violations of laws, rules or
+  > regulations, final orders or conditions imposed in writing; unsafe or 
+  > unsound practices; and for breach of fiduciary duty by
+  > institution-affiliated parties (IAPs).
+  [Read more...](https://occ.gov/topics/laws-and-regulations/enforcement-actions/index-enforcement-actions.html)
+
+  * [Enforcement Action Types](https://occ.gov/topics/laws-and-regulations/enforcement-actions/enforcement-action-types/index-enforcement-action-types.html)
+  * [Data dictionary](https://occ.gov/static/ots/enforcement/enforcement-order-definitions.pdf)
+url: https://apps.occ.gov/EASearch/
+publisher:
+  name: "Office of the Comptroller of the Currency"
+  description: |
+    The OCC charters, regulates, and supervises all national banks and federal
+    savings associations as well as federal branches and agencies of foreign
+    banks. The OCC is an independent bureau of the U.S. Department of the Treasury.
+  country: us
+  url: https://www.occ.treas.gov/about/index-about.html
+  official: true
+data:
+  url: "https://apps.occ.gov/EASearch/Search/ExportToJSON?Search=&StartDateMinimum=&StartDateMaximum=&TerminationDateMinimum=&TerminationDateMaximum=&ShowIndividualActionsOnly=false&ShowInstitutionActionsOnly=false&ShowTerminatedActionsOnly=false&ShowActiveOnly=false&Category=&Sort=BankName&AutoCompleteSelection=&CurrentPageIndex=0&ItemsPerPage=10&view=Table&IsAdvanced=true"
+  format: JSON

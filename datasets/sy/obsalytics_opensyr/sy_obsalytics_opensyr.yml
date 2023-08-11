@@ -1,0 +1,45 @@
+title: Syrian Observatory of Political and Economic Networks
+entry_point: crawler.py
+prefix: opensyr
+hidden: true
+coverage:
+  frequency: never
+  end: "2023-02-01"
+deploy:
+  schedule: "0 6 * * 0"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  A knowledge graph of persons of interest inside Syria, including detailed
+  information on family relationships and business ties.
+description: |
+  This dataset contains a detailed knowledge graph composed by analysts from
+  Obsalytics, a Canada-based activist group. Their methodology is based on
+  open source research and documented below: 
+
+  * [OPEN Syria Methodology](https://www.opensyr.com/en/our-methodology/p-5)
+publisher:
+  name: Obsalytics
+  description: |
+    "We are a group of Syrian and Arab youth who, after the great sacrifices
+    the Syrian people made during the second decade of the twenty-first
+    century, decided to provide the Syrian people and their friends around
+    the world with a tool that enables them to tie information together and
+    weave knowledge to explore what connects the political, economic, social,
+    security, and military actors in Syria in a step toward building a more
+    just and healthy society"
+  url: https://obsalytics.org/
+  official: false
+url: https://www.opensyr.com/
+data:
+  url: https://data.opensanctions.org/contrib/opensyr/sy_obsalytics_opensyr_20230201.json
+  format: FTM
+
+lookups:
+  type.gender:
+    lowercase: true
+    normalize: true
+    options:
+      - match: Female
+        value: female
+      - match: MALE
+        value: male

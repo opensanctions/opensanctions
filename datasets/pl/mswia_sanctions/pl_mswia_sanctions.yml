@@ -1,0 +1,104 @@
+title: Polish list of persons and entities subject to sanctions
+entry_point: crawler.py
+prefix: plmswia
+coverage:
+  frequency: daily
+deploy:
+  schedule: "0 */6 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Decisions by the Polish Interior Ministry regarding entities linked
+  to the aggression in Ukraine.
+description: |
+  Sanctions list published by Polish Ministry of Internal Affairs (MSWiA) following
+  the introduction of the "Act on special solutions in the field of counteracting
+  supporting aggression against Ukraine and serving to protect national security".
+  It includes Russian oligarchs and entities which if sanctioned may indirectly
+  contribute to reducing the benefits that the Russian economy and the Russian
+  Federation authorities derive from their activities.
+
+  > Decisions of the Minister of Interior and Administration on entry
+  > on the list of persons and entities to whom the measures referred
+  > to in the Act on special solutions in the field of counteracting
+  > supporting aggression against Ukraine and serving to protect
+  > national security are applied
+publisher:
+  name: Ministerstwo Spraw Wewnętrznych i Administracji
+  description: |
+    Department of Public Order within the Ministry of the Interior of Poland.
+  url: https://www.gov.pl/web/mswia
+  country: pl
+  official: true
+url: https://www.gov.pl/web/mswia/decyzje-ministra-swia-w-sprawie-wpisu-na-liste-sankcyjna
+data:
+  url: https://www.gov.pl/web/mswia/lista-osob-i-podmiotow-objetych-sankcjami
+  format: HTML
+  lang: pol
+
+lookups:
+  details:
+    normalize: true
+    lowercase: true
+    options:
+      - match: ul. Udalcowa 2, Moskwa, Federacja Rosyjska
+        props:
+          address: ul. Udalcowa 2, Moskwa, Federacja Rosyjska
+      - match: siedziba ul. Garncarska 34 42-200 Częstochowa
+        props:
+          address: ul. Garncarska 34 42-200 Częstochowa
+      - match: 39A/2 Leningradskoje Szosse 125212 Moskwa, Rosja
+        props:
+          address: 39A/2 Leningradskoje Szosse 125212 Moskwa, Rosja
+      - match: urodzona 16 października 1975 r.
+        props:
+          birthDate: 1975-10-16
+      - match: urodzony 2 stycznia 1968 r. w Dzierżyńsku
+        props:
+          birthDate: 1968-01-02
+          birthPlace: Dzerzhinsk
+      - match: urodzony 21 kwietnia 1964 r. we Lwowie
+        props:
+          birthDate: 1964-04-21
+          birthPlace: Lviv
+      - match: 13.05.2022 r.
+        props:
+          modifiedAt: 2022-05-13
+      - match: urodzony 8 września 1953 r. w Moskwie
+        props:
+          birthDate: 1953-09-08
+          birthPlace: Moscow
+      - match: urodzony 27 sierpnia 1969 r. w Kaliningradzie (Federacja Rosyjska)
+        props:
+          birthDate: 1969-08-27
+          birthPlace: Kaliningrad
+      - match: urodzony 18 lipca 1958 r. ob. Federacji Rosyjskiej
+        props:
+          birthDate: 1958-07-18
+          country: ru
+      - match: urodzony 7 września 1960 r. w Leningradzie
+        props:
+          birthDate: 1960-09-07
+          birthPlace: Leningrad
+      - match: urodzony 14 kwietnia 1957 r. w Drohobyczu
+        props:
+          birthDate: 1957-04-14
+          birthPlace: Drohobych
+      - match: "urodzony 15 listopada 1963 r. w Wilnie (Litwa) obywatel rosyjski nr PESEL: 63111513931"
+        props:
+          birthDate: 1963-11-15
+          birthPlace: Vilnius
+          nationality: RU
+          idNumber: "63111513931"
+      - match: Plac Dąbrowskiego 1, 00-057 Warszawa,
+        props:
+          address: Plac Dąbrowskiego 1, 00-057 Warszawa
+      - match: "prowadzący działalność gospodarczą pod adresem: 00-844 Warszawa, ul. Grzybowska 87, REGON 147421934"
+        props:
+          address: "00-844 Warszawa, ul. Grzybowska 87"
+          registrationNumber: 147421934
+      - match: "obywatel Mołdawii i Izraela"
+        props:
+          nationality: ["MD", "IL"]
+      - match: "urodzonej 6 lipca 1972 r."
+        props:
+          birthDate: 1972-07-06

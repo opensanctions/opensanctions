@@ -1,0 +1,27 @@
+title: Members of the European Commitee of the Regions
+entry_point: crawler.py
+prefix: eu-cor
+disabled: true
+coverage:
+  frequency: daily
+deploy:
+  schedule: "0 */6 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  ​The European Committee of the Regions (CoR) represents local and regional
+  authorities across the European Union and advises on new laws that have
+  an impact on regions and cities.
+description: >
+  ​The European Committee of the Regions (CoR) is the voice of regions and 
+  cities in the European Union (EU). It represents local and regional authorities 
+  across the European Union and advises on new laws that have an impact on regions 
+  and cities (70% of all EU legislation).
+publisher:
+  name: European Committee of the Regions
+  country: eu
+  url: https://cor.europa.eu/en
+  official: true
+url: https://cor.europa.eu/en
+data:
+  url: https://memberspage.cor.europa.eu/members
+  format: HTML

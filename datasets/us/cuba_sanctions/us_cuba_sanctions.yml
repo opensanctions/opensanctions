@@ -1,0 +1,33 @@
+title: US State Department Cuba Sanctions
+entry_point: crawler.py
+prefix: us-cuba
+coverage:
+  frequency: never
+  end: "2023-04-27"
+deploy:
+  schedule: "0 6 * * 1"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Several lists of Cuban companies and hotels that are blocked by the US State 
+  Department separately from the sanctions lists maintained by the Treasury.
+description: |
+  This includes:
+
+  * [Cuba Prohibited Accommodations List](https://www.state.gov/cuba-sanctions/cuba-prohibited-accommodations-list/cuba-prohibited-accommodations-list-initial-publication/)
+  * [List of Restricted Entities and Subentities Associated With Cuba](https://www.state.gov/cuba-restricted-list/list-of-restricted-entities-and-subentities-associated-with-cuba-effective-january-8-2021/)
+publisher:
+  name: US State Department
+  description: |
+    The Counter Threat Finance and Sanctions division (TFS) is responsible for developing
+    and implementing sanctions to counter threats to national security posed by
+    particular activities, terrorist groups and countries. TFS advises the Secretary on
+    economic sanctions strategies to achieve U.S. foreign policy objectives and works
+    with other agencies to enact such strategies.
+  url: https://www.state.gov/
+  country: us
+  official: true
+url: https://www.state.gov/cuba-sanctions/
+data:
+  url: https://docs.google.com/spreadsheets/d/1kkl5JhsE-w3m8veU4DrkwTOGMmkAniMc0GsyJFJMFck/edit#gid=1890354374https://www.bis.doc.gov/dpl/dpl.txt
+  format: CSV
+  lang: eng

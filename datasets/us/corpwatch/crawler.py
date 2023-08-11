@@ -63,7 +63,8 @@ def parse_company_names(context: Context, row: Row):
             proxy.add("previousName", name)
         else:
             proxy.add("name", name)
-        context.emit(proxy)
+        if len(proxy.properties):
+            context.emit(proxy)
 
 
 def parse_company_locations(context: Context, row: Row):
@@ -83,7 +84,8 @@ def parse_company_locations(context: Context, row: Row):
         # don't add addresses consisting only of placeholder characters:
         if slugify(address) is not None:
             proxy.add("address", address)
-        context.emit(proxy)
+        if len(proxy.properties):
+            context.emit(proxy)
 
 
 def parse_company_relations(context: Context, row: Row):
@@ -91,8 +93,9 @@ def parse_company_relations(context: Context, row: Row):
     target = make_proxy(context, row.pop("target_cw_id"), row)
     if source is not None and target is not None:
         target.add("parent", source)
-        context.emit(source)
         context.emit(target)
+        if len(source.properties):
+            context.emit(source)
 
 
 def parse_relationships(context: Context, row: Row):
@@ -111,8 +114,10 @@ def parse_relationships(context: Context, row: Row):
             rel.add("asset", child)
             rel.add("percentage", percentage)
             rel.add("date", year)
-            context.emit(parent)
-            context.emit(child)
+            if len(parent.properties):
+                context.emit(parent)
+            if len(child.properties):
+                context.emit(child)
             context.emit(rel)
 
 

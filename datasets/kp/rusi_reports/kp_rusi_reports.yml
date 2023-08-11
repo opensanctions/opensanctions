@@ -3,7 +3,8 @@ title: DPRK Reports
 prefix: kprusi
 entry_point: crawler.py
 coverage:
-  frequency: weekly
+  frequency: daily
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 exports:
   - statistics.json
   - entities.ftm.json

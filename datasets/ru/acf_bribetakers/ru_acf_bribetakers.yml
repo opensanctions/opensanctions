@@ -1,0 +1,74 @@
+title: ACF List of bribetakers and warmongers
+entry_point: crawler.py
+prefix: acf
+coverage:
+  frequency: daily
+deploy:
+  schedule: "0 */6 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  A list of key Russian decision-makers from government and business
+  composed by ACF/FBK, the anti-corruption investigative organization
+  founded by Alexei Navalny
+description: >
+  Putin and his accomplices (officials, oligarchs, propagandists), as well as
+  > yachts and mansions, which, we hope, they will soon be deprived of.
+publisher:
+  name: Anti-Corruption Foundation (ACF)
+  description: |
+    ACF is the international division of Фонд борьбы с коррупцией (FBK), the anti-corruption
+    investigative team founded by Alexei Navalny.
+  url: https://acf.international/
+  official: false
+  country: ru
+url: https://acf.international/bribetakers-list
+data:
+  url: https://sanctions.acf.international/api/villains/
+  format: JSON
+
+lookups:
+  descriptions:
+    normalize: true
+    options:
+      - contains:
+          - he remains involved in the system
+        value: null
+
+  tags:
+    lowercase: true
+    options:
+      - match:
+          - war-arrangers
+          - warmongers
+          - individuals-involved-in-corruption
+          - sellout-opinion-leaders
+          - Top-bribetakers-and-warmongers
+        value: null
+
+  type.date:
+    options:
+      - match:
+          - 8 сентября
+        value: null
+      - match: ".05.1959"
+        value: "1959-05"
+      - match: "24 .08.1973"
+        value: 1973-08-24
+      - match: 15.05.1960 (07.07.1977)
+        values:
+          - 1960-05-15
+          - 1977-07-07
+      - match: "03.10.52"
+        value: 1952-10-03
+      - match: 17.09.1961 г.
+        value: 1961-09-17
+      - match: 16.11.1956 (?)
+        value: 1956-11-16
+      - match: "11.27.1963"
+        value: 1963-11-27
+      - match: "01.08.1980."
+        value: 1980-08-01
+      - match: 11.02.1961 года
+        value: 1961-02-11
+      - match: "05.25.1969"
+        value: 1969-05-25

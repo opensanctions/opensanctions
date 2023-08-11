@@ -1,0 +1,32 @@
+title: "Dutch National Sanctionlist Terrorism"
+entry_point: crawler.py
+prefix: nl-dnst
+coverage:
+  frequency: daily
+deploy:
+  schedule: "0 */6 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: |
+  The Dutch government's sanctions list of people suspected of involvement in
+  terroristic activities.
+description: |
+  > The national sanctionlist terrorism contains the names of individuals and organisations 
+  > who are involved in terrorist activities. In accordance with UN Security Council 
+  > Resolution 1373 (2001) their assets have been frozen, causing them to amongst other things
+  > no longer being able to withdraw money from their bank accounts, nor use their credit cards. 
+  > Since terrorist acts require funding this measure thus makes it significantly more difficult 
+  > to commit or be (financially) involved with them.
+
+  Sanctions are limited to either Dutch people and Dutch entities or people and entities
+  operating in the Kingdom of the Netherlands.
+url: https://www.government.nl/documents/reports/2016/01/15/national-terrorism-list
+publisher:
+  name: Ministry of Foreign Affairs
+  description: |
+    The list is composed by the Ministers of Foreign Affairs, Finance and Justice.
+  country: nl
+  url: https://www.government.nl/ministries/ministry-of-foreign-affairs
+  official: true
+data:
+  url: https://www.government.nl/binaries/government/documenten/reports/2016/01/15/national-terrorism-list/eng-terrorismelijst.ods
+  format: ODS

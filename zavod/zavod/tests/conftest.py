@@ -67,3 +67,9 @@ def analyzer(testdataset1) -> Dataset:
 def enricher(testdataset1) -> Dataset:
     assert testdataset1 is not None
     return load_dataset_from_path(ENRICHER_YML)
+
+
+@pytest.fixture(scope="function")
+def collection(testdataset1) -> Dataset:
+    assert testdataset1 is not None
+    return load_dataset_from_path(COLLECTION_YML)

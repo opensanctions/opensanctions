@@ -1,0 +1,141 @@
+title: RuPEP Public Database of PEPs in Russia and Belarus (company part)
+entry_point: crawler.py:crawl_companies
+prefix: rupep
+hidden: true
+coverage:
+  frequency: daily
+deploy:
+  schedule: "0 */6 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+exports:
+  - statistics.json
+  - entities.ftm.json
+summary: >
+  RuPEP is a detailed database of companies linked to politically exposed persons
+  in Russia and Belarus maintained by qualified researchers
+description: |
+  This is the second part of the [RuPEP dataset](/datasets/ru_rupep) which lists
+  companies and assets linked to the listed politically exposed people. It is
+  not included in the default dataset because its less directly sourced.
+publisher:
+  name: RuPEP
+  description: |
+    The group maintaining this database is not publicly identified. The OpenSanctions
+    team is happy to create introductions for those interested in the commercial
+    reuse of the material.
+  url: "https://rupep.org/"
+  country: ru
+  official: false
+url: "https://rupep.org/en/%D0%B2%D0%BE%D0%BF%D1%80%D0%BE%D1%81%D1%8B-%D0%B8-%D0%BE%D1%82%D0%B2%D0%B5%D1%82%D1%8B/"
+data:
+  url: "https://rupep.org/opendata/companies/json"
+  format: JSON
+
+lookups:
+  country_links:
+    normalize: true
+    options:
+      - match: citizenship
+        prop: nationality
+      - match:
+          - registered_in
+        prop: jurisdiction
+      - match:
+          - under_sanctions
+          # - business
+          - realty
+        prop: null
+  person_relations:
+    options:
+      - match:
+          - owner
+          - co-owner
+          - founder
+          - co-founder
+          - beneficiary
+          - shareholder
+        schema: Ownership
+        from_prop: asset
+        to_prop: owner
+        desc_prop: role
+      - match:
+          - director
+          - head
+          - Chairman of the Board
+          - board member
+          - the president
+          - secretary
+          - CEO
+          - governor
+          - lieutenant governor
+          - vice-chairman
+          - chairman
+          - the chairman
+          - Deputy Director
+          - First Deputy Director
+          - chairman of the board
+          - vice president
+          - deputy general director
+        schema: Directorship
+        from_prop: organization
+        to_prop: director
+        desc_prop: role
+      - match:
+          - employee
+        schema: Employment
+        from_prop: employer
+        to_prop: employee
+        desc_prop: role
+      - match:
+          - chief veterinarian
+        contains:
+          - member of the Commission
+        schema: null
+
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - match:
+          - Организация Объединенных Наций
+          - United Nations
+        value: null
+      - match: Республика Беларусь
+        value: BY
+      - match: Оккупированная Россией территория Украины
+        value: UA
+      - match: Оккупированная Россией территория Молдовы
+        value: MD-PMR
+      - match: Северная Македония
+        value: North Macedonia
+      - contains: Syrian Arab Republic
+        value: Syria
+      - match: Объединённые Арабские Эмираты
+        value: AE
+      - match: Territories occupied by Russia
+        values:
+          - UA
+      - match: Бермудские острова
+        value: BM
+      - match: Багамские Острова
+        value: BS
+      - match: Британские Виргинские острова
+        value: VG
+      - match: Сейшельские Острова
+        value: SC
+      - match: Южная Корея
+        value: KR
+      - match: Острова Кайман
+        value: KY
+      - match: Европейский союз
+        value: EU
+      - match: ДР Конго
+        value: CD
+      - match: Мьянма
+        value: MM
+      - match: Северная Корея
+        value: KP
+      - match: Остров Мэн
+        value: IM
+      - match: Маршалловы Острова
+        value: MH

@@ -1,0 +1,35 @@
+title: "Netherlands Police Nationale Opsporingslijst (Wanted)"
+entry_point: crawler.py
+prefix: nl-wanted
+coverage:
+  frequency: daily
+deploy:
+  schedule: "0 */6 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: |
+  The most wanted persons are suspected of serious crimes and are ranked
+  high on the police's hit list.
+description: |
+  From the dutch police page [politie](https://www.politie.nl/en/wanted-and-missing/most-wanted):
+
+  > The most wanted persons are suspected of serious crimes and are ranked high on the
+  > police's hit list.
+url: https://www.politie.nl/en/wanted-and-missing/most-wanted
+publisher:
+  name: Korps Nationale Politie
+  description: |
+    The list is composed by Korps Nationale Politie.
+  country: nl
+  url: https://www.government.nl/ministries/ministry-of-foreign-affairs
+  official: true
+data:
+  url: "https://www.politie.nl/en/wanted-and-missing/most-wanted"
+  format: HTML
+
+lookups:
+  type.gender:
+    lowercase: true
+    normalize: true
+    options:
+      - match: MALE
+        value: male

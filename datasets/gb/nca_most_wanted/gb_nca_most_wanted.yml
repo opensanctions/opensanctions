@@ -1,0 +1,38 @@
+title: NCA Most Wanted
+entry_point: crawler.py
+prefix: gb-nca
+disabled: false
+coverage:
+  frequency: daily
+deploy:
+  schedule: "0 */4 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Most wanted list of criminals and fugitives in Britain,
+  maintained by the United Kingdom's National Crime Agency (NCA).
+description: |
+  From the NCA page [NCA](https://www.nationalcrimeagency.gov.uk/most-wanted):
+
+  > We pursue criminals and bring them to justice. 
+  > By informing communities and supporting other agencies, we can help identify
+  > criminals and speed the law enforcement process.
+url: https://www.nationalcrimeagency.gov.uk/most-wanted
+publisher:
+  name: National Crime Agency (NCA)
+  description: >
+    The National Crime Agency leads the UK's fight to cut serious and organised crime, protecting the public 
+    by disrupting and bringing to justice those serious and organised criminals who pose the highest risk to the UK.
+  url: https://www.nationalcrimeagency.gov.uk/
+  country: gb
+  official: true
+data:
+  url: "https://www.nationalcrimeagency.gov.uk/most-wanted"
+  format: HTML
+
+lookups:
+  type.gender:
+    lowercase: true
+    normalize: true
+    options:
+      - match: MALE
+        value: male

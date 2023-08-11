@@ -1,0 +1,185 @@
+title: RISE Moldova People of interest
+entry_point: crawler.py
+prefix: mdrisepep
+coverage:
+  frequency: weekly
+deploy:
+  schedule: "0 6 * * 0"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  People of Interest is an interactive database developed and managed by RISE Moldova.
+  It is a work in progress journalistic project.
+description: |
+  > On this platform, we outline the profiles of public figures and their connections. 
+  > We index data about their companies, cases, properties, narrow interests, and 
+  > intermediaries.
+  > We verify the information we publish here from several open and closed sources.
+  > We have met the persons from the People of Interest Platform several times in our 
+  > journalistic documentations. Whether they vote laws, juggle with public money, 
+  > or they are intermediaries or wealthy businessmen, their decisions affect us all.
+publisher:
+  name: RISE Moldova
+  url: "https://www.rise.md/"
+  country: md
+  official: false
+  description: RISE is a non-profit investigative journalism newsroom based in the Republic of Moldova
+  logo_url: "https://assets.opensanctions.org/images/publishers/rise-md-logo.png"
+url: "https://profiles.rise.md/index.php"
+data:
+  url: "https://profiles.rise.md/index.php"
+  format: HTML
+
+lookups:
+  entity_type:
+    normalize: true
+    options:
+      - match:
+          - avocat
+          - businessman
+          - consilier al guvernatorului BNM
+          - consilier prezidențial
+          - consilieră prezidențială
+          - deputată
+          - diplomat
+          - directoare INJ
+          - director
+          - director CNAM
+          - ex-bașcan
+          - ex-procuror
+          - ex-viceprim-ministră
+          - executoare judecătorească
+          - femeie de afaceri
+          - fost director CNA
+          - fost guvernator BNM
+          - fost judecător
+          - funcționară
+          - guvernator BNM
+          - investigator
+          - judecătoare
+          - Judecătoare
+          - judecător
+          - Judecător
+          - membră CSM
+          - Membru al Consiliului de Supraveghere a BNM
+          - membru al Consiliului de Supraveghere al BNM
+          - Membru CSM
+          - ministră
+          - ministru
+          - ofițer SIS
+          - ofițeră CNA
+          - politician
+          - Politician
+          - politician rus
+          - politiciană
+          - poliţist
+          - polițist
+          - președinta Republicii Moldova
+          - prim-ministră
+          - prim-ministru interimar
+          - prim-viceguvernator BNM
+          - procuror
+          - procuroră
+          - șef de direcție BNM
+          - șef Direcție BNM
+          - viceguvernator BNM
+        value: person
+      - match:
+          - companie
+        value: company
+  entity_type_by_name:
+    normalize: true
+    options:
+      - match:
+          - Vadim Ceban
+          - Galina Dodon
+          - Veronica Dragalin
+          - Daniel-Marius Staicu
+          - Dinu Țurcanu
+        value: person
+      - match:
+          - Intertelecom
+        value: company
+  relations:
+    normalize: true
+    options:
+      - match:
+          - acționar
+          - acționară
+          - acționar (100%)
+          - 13.495 acțiuni
+          - acționar (4,98%)
+          - acționar (48,445%)
+          - acționar minoritar
+          - acționar, membru al consiliului
+          - acționară (10 acțiuni)
+          - acționară (4,6%)
+          - acționară (4,75%)
+          - acționară prin procură
+          - deţine 30%
+          - deține 100% împreună cu soția
+          - deține 100%, împreună cu soția
+          - deține 20%
+          - deține 50%
+          - deține 56,2% împreună cu soția
+          - deține 67%, împreună cu soția
+          - deține 80 de acțiuni
+          - deține 80%
+          - deține 94%
+          - deține cota-parte 50%
+          - deține, împreună cu soția, 100% (2.114.120 MDL)
+          - fondator, deține 50%
+          - fondatoare, deține 75%
+          - fondator (100%), administrator, lichidată în 2020
+          - fondator, deține 100%
+        schema: Ownership
+        source: owner
+        target: asset
+        text: role
+      - match:
+          - mamă vitregă
+          - soție
+          - soț
+        schema: Family
+        source: person
+        target: relative
+        text: relationship
+      - match:
+          - fost avocat
+          - fostă afacere
+          - fostă membră
+          - membră, deputată
+          - președintă
+          - fost președinte
+          - vicepreședinte
+          - președinte
+          - membră
+          - fost membru
+          - membru al Consiliului de administrare # member of the Board of Directors
+          - membru
+        schema: Membership
+        source: member
+        target: organization
+        text: role
+      # Relationships that make more sense reversed - the target is the object
+      - match:
+          - șefă # head
+          - fost șef # former boss
+        schema: UnknownLink
+        source: object
+        target: subject
+        text: role
+
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - match: Marea Britanie
+        value: GB
+      - match: SUA
+        value:
+          - US
+      - match: Federația Rusă
+        values:
+          - RU
+      - match: mun. Chișinău
+        value: MD

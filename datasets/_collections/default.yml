@@ -1,0 +1,54 @@
+type: collection
+title: OpenSanctions Default
+deploy:
+  schedule: "30 */6 * * *"
+  memory: "1500Mi"
+  command: /etl/scripts/export-default.sh
+summary: >
+  This collection includes most of the data collected by OpenSanctions which
+  meets quality standards and would be useful to an analyst or journalist
+  attempting to perform a due-diligence type task.
+description: |
+  This list can be used as the broadest available OpenSanctions dataset. It
+  includes any entity that should receive enhanced public scrutiny - either
+  because they appear on a sanctions list, in a criminal context or as a
+  political office holder.
+
+  Be advised that the data in this collection originates from a variety of
+  sources and therefore varies in terms of detail and precision. For example,
+  many listings of political office holders do not include their exact birth
+  dates or full given names.
+children:
+  - sanctions
+  - crime
+  - peps
+  - debarment
+  - wanted
+
+  # misc
+  - wd_oligarchs
+  - wd_curated
+  - ru_navalny35
+  - ru_billionaires_2021
+  - ru_acf_bribetakers
+  - ru_nsd_isin
+  - sy_obsalytics_opensyr
+  - md_rise_profiles
+  - ru_myrotvorets_wagner
+  - ransomwhere
+  - kp_rusi_reports
+
+  # enrichers
+  - cy_companies
+  - cz_business_register
+  - ee_ariregister
+  - gb_coh_psc
+  - gleif
+  - icij_offshoreleaks
+  # - ext_lv_business_register
+  - md_companies
+  # - nominatim
+  - opencorporates
+  - ru_egrul
+  - ua_edr
+  - wikidata

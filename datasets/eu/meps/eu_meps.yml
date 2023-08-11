@@ -1,0 +1,29 @@
+title: Members of the European Parliament
+entry_point: crawler.py
+prefix: eu-meps
+coverage:
+  frequency: daily
+deploy:
+  schedule: "0 */12 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  A set of all the members of the European Union's parliament, which are
+  elected per member state.
+description: |
+  Members of the European Parliament (MEPs) are elected for a five-year term through
+  a European-wide election conducted in each member state. Member states have different
+  contingents of MEPs based on their voting population. MEPs are organised into groups,
+  which are formed from the representatives of national parties aligned with that group.
+publisher:
+  name: European Parliament
+  description: |
+    The European Parliament is the legislative branch of the European Union. Together with
+    the Council of the European Union and the European Commission it devises and adopts 
+    European legislation.
+  url: http://www.europarl.europa.eu/
+  country: eu
+  official: true
+url: http://www.europarl.europa.eu/meps/
+data:
+  url: http://www.europarl.europa.eu/meps/en/full-list/xml
+  format: XML

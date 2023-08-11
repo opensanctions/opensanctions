@@ -5,6 +5,7 @@ disabled: false
 entry_point: crawler.py
 coverage:
   frequency: daily
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Current and recent members of the United States Senate and House of Representatives
 description: >

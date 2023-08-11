@@ -4,6 +4,7 @@ prefix: us-cw
 entry_point: crawler.py
 coverage:
   frequency: monthly
+  start: "2003-01-01"
 deploy:
   disk: 50Gi
 exports:
