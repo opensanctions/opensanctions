@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.my_moha_sanctions
 title: Malaysian MOHA Sanctions List
+entry_point: crawler.py
 prefix: mymoha
 coverage:
   frequency: never

@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.kz_afmrk_sanctions
 title: Kazakh Terrorist and Terror Financing lists
+entry_point: crawler.py
 prefix: kzafm
 coverage:
   frequency: daily

@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.ng_nigsac_sanctions
 title: Nigeria Sanctions List
+entry_point: crawler.py
 prefix: nigsac
 coverage:
   frequency: daily

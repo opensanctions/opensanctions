@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.kg_fiu_national
 title: Kyrgyz National List
+entry_point: crawler.py
 prefix: kg-fiu
 coverage:
   frequency: daily

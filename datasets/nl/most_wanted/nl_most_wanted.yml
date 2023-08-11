@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.nl_most_wanted
 title: "Netherlands Police Nationale Opsporingslijst (Wanted)"
+entry_point: crawler.py
 prefix: nl-wanted
 coverage:
   frequency: daily

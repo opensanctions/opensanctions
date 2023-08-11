@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.nl_terrorism_list
 title: "Dutch National Sanctionlist Terrorism"
+entry_point: crawler.py
 prefix: nl-dnst
 coverage:
   frequency: daily
