@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.eu_cor_members:crawl
 title: Members of the European Commitee of the Regions
+entry_point: crawler.py
 prefix: eu-cor
 disabled: true
 coverage:

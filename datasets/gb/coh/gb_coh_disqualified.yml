@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.gb_coh_disqualified
 title: UK Companies House Disqualified Directors
+entry_point: disqualified.py
 prefix: gb-coh
 coverage:
   frequency: daily
