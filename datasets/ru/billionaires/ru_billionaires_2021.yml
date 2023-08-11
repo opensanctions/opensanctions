@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.wd_curated
 title: Forbes 2021 List of Russian Billionaires
+entry_point: crawler.py
 prefix: rubil
 coverage:
   frequency: never

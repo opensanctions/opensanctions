@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.md_interdictie:crawl
 title: Moldovan ban list of economic operators
+entry_point: crawler.py
 prefix: md-interdictie
 coverage:
   frequency: daily

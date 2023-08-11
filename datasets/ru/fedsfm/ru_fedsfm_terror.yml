@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.ru_fedsfm_terror
 title: Rosfinmonitoring List of terrorists and extremists
+entry_point: crawler_terror.py
 prefix: ruterr
 disabled: true
 coverage:

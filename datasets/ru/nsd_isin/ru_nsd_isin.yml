@@ -1,6 +1,6 @@
 # Inspired by: https://github.com/DtorrX/effective-bassoon
-entry_point: opensanctions.crawlers.ru_nsd_isin
 title: National Settlement Depository (NSD Russia) ISIN Assignment
+entry_point: crawler.py
 prefix: ru-nsd
 coverage:
   frequency: daily

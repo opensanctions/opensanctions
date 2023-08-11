@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.md_rise_profiles:crawl
 title: RISE Moldova People of interest
+entry_point: crawler.py
 prefix: mdrisepep
 coverage:
   frequency: weekly

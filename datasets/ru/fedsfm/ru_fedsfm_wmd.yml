@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.ru_fedsfm_wmd
 title: Rosfinmonitoring WMD-related entities
+entry_point: crawler_wmd.py
 prefix: ru-wmd
 disabled: true
 coverage:

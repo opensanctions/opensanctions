@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.ru_myrotvorets_wagner
 title: Myrotvorets list of Wagner mercenaries
+entry_point: crawler.py
 prefix: rumy
 coverage:
   frequency: daily

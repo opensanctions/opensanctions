@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.ru_acf_bribetakers
 title: ACF List of bribetakers and warmongers
+entry_point: crawler.py
 prefix: acf
 coverage:
   frequency: daily
