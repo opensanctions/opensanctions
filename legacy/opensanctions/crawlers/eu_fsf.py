@@ -1,6 +1,7 @@
 from lxml import etree
 from lxml.etree import _Element as Element
 from banal import as_bool
+from typing import Optional
 from prefixdate import parse_parts
 from followthemoney.types import registry
 
@@ -8,7 +9,7 @@ from zavod import Context, Entity
 from zavod import helpers as h
 
 
-def parse_country(node):
+def parse_country(node: Element) -> Optional[str]:
     description = node.get("countryDescription")
     if description == "UNKNOWN":
         return None
@@ -21,7 +22,7 @@ def parse_country(node):
     return code
 
 
-def parse_address(context: Context, el):
+def parse_address(context: Context, el: Element) -> Entity:
     country = el.get("countryDescription")
     if country == "UNKNOWN":
         country = None
@@ -39,7 +40,7 @@ def parse_address(context: Context, el):
     )
 
 
-def parse_sanctions(context: Context, entity: Entity, entry: Element):
+def parse_sanctions(context: Context, entity: Entity, entry: Element) -> None:
     regulations = entry.findall("./regulation")
     # if len(regulations) == 0:
     #     context.log.warning(
@@ -63,16 +64,12 @@ def parse_sanctions(context: Context, entity: Entity, entry: Element):
         context.emit(sanction)
 
 
-def parse_entry(context: Context, entry: Element):
+def parse_entry(context: Context, entry: Element) -> None:
     subject_type = entry.find("./subjectType")
     if subject_type is None:
         context.log.warning("Unknown subject type", entry=entry)
         return
-    schema = context.lookup_value(
-        "subject_type",
-        subject_type.get("code"),
-        dataset="eu_fsf",
-    )
+    schema = context.lookup_value("subject_type", subject_type.get("code"))
     if schema is None:
         context.log.warning("Unknown subject type", type=subject_type)
         return
@@ -107,7 +104,7 @@ def parse_entry(context: Context, entry: Element):
         country = parse_country(node)
         latin_number = node.get("latinNumber")
         number = node.get("number") or latin_number
-        result = context.lookup("identification_type", doc_type, dataset="eu_fsf")
+        result = context.lookup("identification_type", doc_type)
         if result is None:
             context.log.warning(
                 "Unknown identification type",
@@ -142,17 +139,13 @@ def parse_entry(context: Context, entry: Element):
         address = parse_address(context, node)
         h.apply_address(context, entity, address)
 
-        for child in node.getchildren():
+        for child in node.iterchildren():
             if child.tag in ("regulationSummary"):
                 continue
             elif child.tag == "remark":
                 entity.add("notes", child.text)
             elif child.tag == "contactInfo":
-                prop = context.lookup_value(
-                    "contact_info",
-                    child.get("key"),
-                    dataset="eu_fsf",
-                )
+                prop = context.lookup_value("contact_info", child.get("key"))
                 if prop is None:
                     context.log.warning("Unknown contact info", node=child)
                 else:
@@ -180,7 +173,7 @@ def parse_entry(context: Context, entry: Element):
     context.emit(entity, target=True)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.xml", context.data_url)
     context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)

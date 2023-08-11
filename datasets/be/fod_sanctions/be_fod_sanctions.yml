@@ -37,6 +37,44 @@ data:
   format: ZIP/XML
 
 lookups:
+  subject_type:
+    options:
+      - match: person
+        value: Person
+      - match: enterprise
+        value: Organization
+  contact_info:
+    map:
+      PHONE: phone
+      FAX: phone
+      EMAIL: email
+      WEB: website
+  identification_type:
+    options:
+      - match:
+          - id
+          - other
+          - tradelic
+          - ssn
+          - birthcert
+          - nationcert
+          - travelcardid
+          - electionid
+          - residentperm
+          - drivinglicence
+          - NRN
+        schema: Identification
+      - match: passport
+        schema: Passport
+      - match: swiftbic
+        prop: swiftBic
+      - match: imo
+        prop: imoNumber
+      - match: regnumber
+        prop: registrationNumber
+      - match: fiscalcode
+        prop: taxNumber
+
   type.address:
     lowercase: true
     options:
