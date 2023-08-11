@@ -1991,12 +1991,6 @@ lookups:
           incorporationDate: 1994-03-01
           legalForm: Entreprise d’État
           registrationNumber: 100211261
-      - match: "NIF - Type d'entité: Organisation autonome à but non lucratif - Lieu d'enregistrement: Russie - Date d'enregistrement: 2019 - Principal lieu d'activité: Russie: 7703438908"
-        props:
-          jurisdiction: ru
-          legalForm: Organisation autonome à but non lucratif
-          incorporationDate: 2019
-          innCode: 7703438908
       - match: "Type d’entité: société par actions ouverte - Lieu d’enregistrement: Zhlobin, région de Gomel, Biélorussie - Principal établissement: Zhlobin, région de Gomel, Biélorussie. Date d’enregistrement: 24.4.1991 en tant que “БЕЛОРУССКИЙ МЕТАЛЛУРГИЧЕСКИЙ ЗАВОД”,11.9.1996 en tant que “Государственное предприятие – Белорусский металлургический завод”, 1.12.1997 en tant que “Белорусский металлургический завод”, 3.11.1999 en tant que “Республиканское унитарное предприятие ‘Белорусский металлургический з: 400074854"
         props:
           jurisdiction: by
