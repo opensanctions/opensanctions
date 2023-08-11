@@ -1,0 +1,5 @@
+name,position,country,start_date,end_date,no_end_means_current
+Freddie Bloggs,United States representative,us,2019,2021,true
+Freddie Bloggs,United States representative,us,2021,,true
+Rosalyn Fox,United States senator,us,2021,,true
+Jacques Bloggue,Ambassador to United States,fr,2021,,false
