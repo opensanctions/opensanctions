@@ -114,6 +114,7 @@ lookups:
           - father/mother
           - ex-husband
           - ex-wife
+          - son/daughter
         schema: Family
         from_prop: person
         to_prop: relative
