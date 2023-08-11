@@ -1,5 +1,6 @@
 from banal import ensure_list
 from typing import Optional, Iterable, List
+from enum import Enum
 
 from zavod.context import Context
 from zavod.entity import Entity
@@ -8,6 +9,12 @@ from zavod import helpers as h
 
 
 AFTER_OFFICE = 5 * 365
+
+class Status(Enum):
+    CURRENT = "current"
+    ENDED = "ended"
+    UNKNOWN = "unknown"
+
 
 
 def make_position(
@@ -93,12 +100,14 @@ def make_occupancy(
         occupancy.add("holder", person)
         occupancy.add("post", position)
         occupancy.add("startDate", start_date)
+        occupancy.add("endDate", end_date)
         if end_date:
-            occupancy.add("endDate", end_date)
-        if no_end_implies_current and not end_date:
-            status = "Current"
+            status = Status.ENDED.value
         else:
-            status = "Ended"
+            if no_end_implies_current:
+                status = Status.CURRENT.value
+            else:
+                status = Status.UNKNOWN.value
         occupancy.add("status", status)
         return occupancy
     return None

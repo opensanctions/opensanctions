@@ -47,3 +47,12 @@ lookups:
         name: United States senator
         topics:
           - role.pep
+
+exports:
+  - statistics.json
+  - entities.ftm.json
+  - names.txt
+  - pep-positions.json
+  - senzing.json
+  - targets.nested.json
+  - targets.simple.csv
