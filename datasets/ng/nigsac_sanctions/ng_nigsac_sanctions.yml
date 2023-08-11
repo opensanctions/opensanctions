@@ -5,6 +5,7 @@ coverage:
   frequency: daily
 deploy:
   schedule: "0 */6 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Nigeria enforces the UN Security Council list but also has an independent
   list of designations.

@@ -5,6 +5,7 @@ coverage:
   frequency: daily
 deploy:
   schedule: "0 */6 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   A simple list of sanctioned individuals and entities published by the
   Kyrgyz' State Financial Intelligence Service.

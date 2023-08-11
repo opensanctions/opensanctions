@@ -6,6 +6,7 @@ coverage:
   end: "2023-04-27"
 deploy:
   schedule: "0 6 * * 1"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Several lists of Cuban companies and hotels that are blocked by the US State 
   Department separately from the sanctions lists maintained by the Treasury.

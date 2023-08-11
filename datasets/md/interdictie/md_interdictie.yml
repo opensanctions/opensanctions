@@ -5,6 +5,7 @@ coverage:
   frequency: daily
 deploy:
   schedule: "0 */12 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: List of economic operators banned from participating public procurement in Moldova
 publisher:
   name: "Ministry of Finance of the Republic of Moldova"

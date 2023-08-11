@@ -6,6 +6,7 @@ coverage:
   frequency: daily
 deploy:
   schedule: "0 */6 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   ​The European Committee of the Regions (CoR) represents local and regional
   authorities across the European Union and advises on new laws that have

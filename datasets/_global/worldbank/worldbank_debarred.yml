@@ -5,6 +5,7 @@ coverage:
   frequency: daily
 deploy:
   schedule: "0 */6 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   The firms and individuals listed in this dataset are debarred and thus
   ineligible to participate in World Bank-financed contracts for the

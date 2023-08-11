@@ -5,6 +5,7 @@ coverage:
   frequency: daily
 deploy:
   schedule: "0 */6 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Individuals which have been disqualified from holding the post of a
   company director in the United Kingdom following a court decision.

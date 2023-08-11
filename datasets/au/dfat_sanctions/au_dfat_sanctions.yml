@@ -5,6 +5,7 @@ coverage:
   frequency: daily
 deploy:
   schedule: "0 */2 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   The Consolidated List is a list of all persons and entities who are subject to
   targeted financial sanctions under Australian sanctions law.

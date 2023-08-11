@@ -6,6 +6,7 @@ coverage:
   end: "2023-07-11"
 deploy:
   schedule: "@weekly"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   The Malaysian Home Affairs list designates those found to be involved in acts
   of terrorism.

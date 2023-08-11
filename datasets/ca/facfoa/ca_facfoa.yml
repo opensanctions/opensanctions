@@ -5,6 +5,7 @@ coverage:
   frequency: daily
 deploy:
   schedule: "0 */6 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   The Canadian governments maintains a small, Magnitsky-style list of government
   officials that it alleges to be involved in corruption.

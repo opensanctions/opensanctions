@@ -5,6 +5,7 @@ coverage:
   frequency: daily
 deploy:
   schedule: "0 */3 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   Sanctions imposed by Japan under its Foreign Exchange and Foreign Trade Law.
 description: |

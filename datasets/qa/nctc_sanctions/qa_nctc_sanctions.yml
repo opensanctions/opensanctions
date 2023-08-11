@@ -4,7 +4,8 @@ prefix: qa-nctc
 coverage:
   frequency: daily
 deploy:
-  schedule: "0 */6 * * *"
+  schedule: "0 */3 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   This dataset contains both UN-mandated and the national sanctions designations
   for Qatar (Targeted Financial Sanctions).

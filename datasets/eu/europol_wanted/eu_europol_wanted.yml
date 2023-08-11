@@ -5,6 +5,7 @@ coverage:
   frequency: daily
 deploy:
   schedule: "0 */12 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: "Wanted fugitivies listed on a Europol-operated web site."
 description: >
   Europe's most wanted fugitives is a collaboration of several Fugitive

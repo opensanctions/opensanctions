@@ -5,6 +5,7 @@ coverage:
   frequency: daily
 deploy:
   schedule: "0 */3 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Ukraine's financial intelligence unit publishes this list of sanctioned
   individuals.

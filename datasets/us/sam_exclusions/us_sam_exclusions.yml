@@ -5,6 +5,7 @@ coverage:
   frequency: daily
 deploy:
   schedule: "0 */12 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   A database of suppliers who have been excluded from participating in US federal
   procurement.

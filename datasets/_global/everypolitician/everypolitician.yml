@@ -5,6 +5,7 @@ disabled: false
 coverage:
   end: "2019-05-21"
   frequency: monthly
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   All members of national parliament in the world, collected from hundreds of
   government web sites and consolidated via Wikidata.

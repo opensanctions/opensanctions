@@ -3,6 +3,7 @@ prefix: ae-lt
 entry_point: crawler.py
 deploy:
   schedule: "0 */12 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   The UAE's asset freeze list of individuals and legal entities that are
   suspected of, attempt to, or commit terrorist acts.

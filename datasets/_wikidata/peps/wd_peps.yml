@@ -7,6 +7,7 @@ coverage:
 deploy:
   schedule: "0 */7 * * *"
   memory: "2Gi"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Profiles of politically exposed persons from Wikidata, the structured data version of 
   Wikipedia.

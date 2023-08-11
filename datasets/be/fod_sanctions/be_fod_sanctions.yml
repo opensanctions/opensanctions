@@ -5,6 +5,7 @@ coverage:
   frequency: daily
 deploy:
   schedule: "0 */3 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   Belgium extends the European FSF sanctions list on the basis of a national terrorist
   list, issued by the National Security Council.

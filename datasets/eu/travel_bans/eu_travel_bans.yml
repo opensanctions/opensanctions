@@ -5,6 +5,7 @@ coverage:
   frequency: daily
 deploy:
   schedule: "0 */3 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Consolidated information about individuals who have been banned from traveling to the
   European Union, released as part of the EU Sanctions Map.

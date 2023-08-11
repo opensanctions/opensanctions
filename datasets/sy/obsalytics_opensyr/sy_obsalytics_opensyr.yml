@@ -7,6 +7,7 @@ coverage:
   end: "2023-02-01"
 deploy:
   schedule: "0 6 * * 0"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   A knowledge graph of persons of interest inside Syria, including detailed
   information on family relationships and business ties.

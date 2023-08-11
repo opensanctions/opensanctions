@@ -5,6 +5,7 @@ coverage:
   frequency: daily
 deploy:
   schedule: "0 */12 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   A set of all the members of the European Union's parliament, which are
   elected per member state.

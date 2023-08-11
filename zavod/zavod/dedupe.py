@@ -21,7 +21,7 @@ def get_resolver() -> Resolver[Entity]:
     """Load the deduplication resolver."""
     if settings.RESOLVER_PATH is None:
         raise RuntimeError("Please set $ZAVOD_RESOLVER_PATH.")
-    log.info("Loading resolver from %s" % settings.RESOLVER_PATH)
+    log.info("Loading resolver from: %s" % settings.RESOLVER_PATH)
     return Resolver.load(Path(settings.RESOLVER_PATH))
 
 

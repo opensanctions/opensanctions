@@ -5,7 +5,8 @@ coverage:
   frequency: never
   end: "2022-01-01"
 deploy:
-  schedule: "0 */6 * * *"
+  schedule: "0 6 * * 1"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 exports:
   - statistics.json
 summary: >

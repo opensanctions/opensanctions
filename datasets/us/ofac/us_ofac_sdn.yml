@@ -5,6 +5,7 @@ coverage:
   frequency: daily
 deploy:
   schedule: "0 */2 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   The primary United States' sanctions list, specially designated nationals (SDN) part.
 description: |

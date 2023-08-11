@@ -6,6 +6,7 @@ coverage:
   frequency: daily
 deploy:
   schedule: "0 */6 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   The FBI Ten Most Wanted Fugitives is a most wanted list
   maintained by the United States's Federal Bureau of Investigation (FBI).

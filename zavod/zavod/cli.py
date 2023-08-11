@@ -91,6 +91,10 @@ def run(
     dataset = _load_dataset(dataset_path)
     if clear:
         clear_data_path(dataset.name)
+    if dataset.disabled:
+        log.info("Dataset is disabled, skipping: %s" % dataset.name)
+        publish_failure(dataset, latest=latest)
+        sys.exit(0)
     if dataset.entry_point is not None and not dataset.is_collection:
         try:
             crawl_dataset(dataset, dry_run=False)

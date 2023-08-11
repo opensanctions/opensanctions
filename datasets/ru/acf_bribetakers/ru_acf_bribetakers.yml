@@ -5,6 +5,7 @@ coverage:
   frequency: daily
 deploy:
   schedule: "0 */6 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   A list of key Russian decision-makers from government and business
   composed by ACF/FBK, the anti-corruption investigative organization
