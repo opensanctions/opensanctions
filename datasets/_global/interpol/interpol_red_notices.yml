@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.interpol_api
 title: INTERPOL Red Notices
+entry_point: interpol_api.py
 prefix: interpol-red
 coverage:
   frequency: daily

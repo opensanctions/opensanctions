@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.ransomwhere
 title: ransomwhe.re ransomware addresses
+entry_point: crawler.py
 prefix: rwre
 coverage:
   frequency: daily

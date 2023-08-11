@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.un_sc_sanctions
 title: UN Security Council Consolidated Sanctions
+entry_point: crawler.py
 prefix: unsc
 coverage:
   frequency: daily

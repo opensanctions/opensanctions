@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.worldbank_debarred
 title: WorldBank Debarred Providers
+entry_point: crawler.py
 prefix: wbdeb
 coverage:
   frequency: daily

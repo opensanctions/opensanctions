@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.interpol_api
 title: INTERPOL Yellow Notices
+entry_point: interpol_api.py
 prefix: interpol-yellow
 disabled: true
 coverage:
