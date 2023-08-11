@@ -64,18 +64,27 @@ def test_validation(testdataset1: Dataset):
     assert testdataset1.input is None
 
 
-def test_validation_os_dict(testdataset1: Dataset):
+def test_validation_os_dict(testdataset1: Dataset, collection: Dataset):
     osa = testdataset1.to_opensanctions_dict()
     assert osa["name"] == "testdataset1"
+    assert osa["type"] == "source"
     assert osa["publisher"]["name"] == "OpenSanctions"
     assert osa["publisher"]["official"] is False
     assert osa["data"]["url"] is not None
     assert osa["data"]["format"] == "CSV"
     assert "hidden" in osa
-    assert "exports" in osa
+    assert "exports" not in osa
     assert "summary" in osa
     assert "description" in osa
     assert osa["entry_point"] == "testentrypoint1"
+
+    osac = collection.to_opensanctions_dict()
+    assert osac["name"] == "collection"
+    assert osac["type"] == "collection"
+    assert len(osac["scopes"]) == 1
+    assert len(osac["sources"]) == 1
+    assert len(osac["externals"]) == 0
+    assert "entry_point" not in osac
 
 
 def test_analyzer(analyzer: Dataset, testdataset1: Dataset):
