@@ -8,10 +8,14 @@ from functools import cached_property
 from datapatch import get_lookups, Lookup
 from nomenklatura.dataset import Dataset as NKDataset
 from nomenklatura.dataset import DataCatalog, DataCoverage
+from nomenklatura.exceptions import MetadataException
 from nomenklatura.util import datetime_iso
 
 from zavod import settings
+from zavod.logs import get_logger
 from zavod.meta.data import Data
+
+log = get_logger(__name__)
 
 
 class Dataset(NKDataset):
@@ -58,9 +62,18 @@ class Dataset(NKDataset):
     def input(self) -> Optional["Dataset"]:
         """The scopes of a dataset is the set of other datasets on which analysis or
         enrichment should be performed by the runner."""
-        if not len(self._inputs):
+        inputs: List[Dataset] = []
+        for input_name in self._inputs:
+            try:
+                inputs.append(self.catalog.require(input_name))
+            except MetadataException as exc:
+                log.error(
+                    "Invalid dataset input: %s" % exc,
+                    input=input_name,
+                    dataset=self.name,
+                )
+        if not len(inputs):
             return None
-        inputs = [self.catalog.require(s) for s in self._inputs]
         if len(inputs) == 1:
             return inputs[0]
         # Weird: if there are many scopes, we're making up a synthetic collection
