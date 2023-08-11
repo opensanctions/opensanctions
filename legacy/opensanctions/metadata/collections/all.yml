@@ -12,7 +12,7 @@ description: |
   include entities from sources that have not yet passed all quality checks
   or are not directly related to screening tasks.
 children:
-  # - validation
+  - validation
   - default
   - ru_rupep_companies
   - ru_fedsfm_wmd
