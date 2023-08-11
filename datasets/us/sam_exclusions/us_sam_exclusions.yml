@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.us_sam_exclusions
 title: US SAM Procurement Exclusions
+entry_point: crawler.py
 prefix: usgsa
 coverage:
   frequency: daily

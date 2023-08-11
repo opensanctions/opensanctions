@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.us_occ_enfact
 title: "OCC Enforcement Actions"
+entry_point: crawler.py
 prefix: us-occ
 coverage:
   frequency: daily

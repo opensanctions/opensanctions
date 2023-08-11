@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.ua_nabc_sanctions
 title: Ukraine NABC Sanctions Tracker
+entry_point: crawler.py
 prefix: ua-nazk
 coverage:
   frequency: daily

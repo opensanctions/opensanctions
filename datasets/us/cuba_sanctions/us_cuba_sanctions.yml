@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.us_cuba_sanctions
 title: US State Department Cuba Sanctions
+entry_point: crawler.py
 prefix: us-cuba
 coverage:
   frequency: never

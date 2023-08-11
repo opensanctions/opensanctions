@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.us_trade_csl
 title: US Trade Consolidated Screening List (CSL)
+entry_point: crawler.py
 prefix: trade-csl
 coverage:
   frequency: daily

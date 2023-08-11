@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.ua_nsdc_sanctions
 title: Ukraine National Security Sanctions
+entry_point: crawler.py
 prefix: ua-nsdc
 coverage:
   frequency: daily

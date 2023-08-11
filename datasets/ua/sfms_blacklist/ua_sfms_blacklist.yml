@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.ua_sfms_blacklist
 title: Ukraine SFMS Blacklist
+entry_point: crawler.py
 prefix: ua-sfms
 coverage:
   frequency: daily

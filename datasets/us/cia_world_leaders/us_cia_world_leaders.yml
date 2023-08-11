@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.us_cia_world_leaders:crawl
 title: CIA World Leaders
+entry_point: crawler.py
 prefix: us-cia
 coverage:
   frequency: daily
