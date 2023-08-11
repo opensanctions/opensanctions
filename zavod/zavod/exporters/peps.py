@@ -1,6 +1,5 @@
 from collections import defaultdict
-from typing import Dict, List, Any, Optional, Set, DefaultDict, NewType
-from followthemoney import model
+from typing import Dict, Any, DefaultDict, NewType
 
 from zavod.entity import Entity
 from zavod.exporters.common import Exporter
