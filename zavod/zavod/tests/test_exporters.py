@@ -214,13 +214,13 @@ def test_ftm_referents(testdataset1: Dataset):
     other_dataset_id = "td2-freddie-bloggs"
     harnessed_export(FtMExporter, collection)
     entities = list(path_entities(collection_path / "entities.ftm.json", EntityProxy))
-    assert len(entities) == 19
+    assert len(entities) == 20
 
     resolver.decide("osv-john-doe", other_dataset_id, Judgement.POSITIVE, user="test")
     clear_data_path(collection.name)
     harnessed_export(FtMExporter, collection)
     entities = list(path_entities(collection_path / "entities.ftm.json", EntityProxy))
-    assert len(entities) == 18
+    assert len(entities) == 19  # After deduplication there's one less entity
     assert [] == [e for e in entities if e.id == other_dataset_id]
 
     john = [e for e in entities if e.id == identifier][0]
@@ -430,7 +430,23 @@ def test_pep_positions(testdataset2_export: Dataset):
 
     with open(dataset_path / "pep-positions.json") as statistics_file:
         stats = load(statistics_file)
-        
+
     assert len(stats["countries"]) == 2
-    assert stats["countries"]["fr"]
-    
+    us = stats["countries"]["us"]
+    assert us["counts"]["total"] == 3
+    assert us["counts"]["current"] == 2
+    assert us["counts"]["ended"] == 1
+    assert us["counts"]["unknown"] == 0
+
+    fr = stats["countries"]["fr"]
+    assert fr["counts"]["total"] == 1
+    assert fr["counts"]["current"] == 0
+    assert fr["counts"]["ended"] == 0
+    assert fr["counts"]["unknown"] == 1
+
+    assert len(us["positions"]) == 2
+    rep = us["positions"]["td2-export-44fdcec78a4b6038bcea7903aa5448d59c4aebaf"]
+    assert rep["counts"]["total"] == 2
+    assert rep["counts"]["current"] == 1
+    assert rep["counts"]["ended"] == 1
+    assert rep["counts"]["unknown"] == 0
