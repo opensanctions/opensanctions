@@ -1,5 +1,9 @@
 type: collection
 title: OpenSanctions Default
+deploy:
+  schedule: "30 */6 * * *"
+  memory: "1500Mi"
+  command: /etl/scripts/export-default.sh
 summary: >
   This collection includes most of the data collected by OpenSanctions which
   meets quality standards and would be useful to an analyst or journalist
