@@ -7,7 +7,7 @@ from urllib.parse import urljoin
 from functools import cached_property
 from datapatch import get_lookups, Lookup
 from nomenklatura.dataset import Dataset as NKDataset
-from nomenklatura.dataset import DataCatalog
+from nomenklatura.dataset import DataCatalog, DataCoverage
 from nomenklatura.util import datetime_iso
 
 from zavod import settings
@@ -27,7 +27,6 @@ class Dataset(NKDataset):
             self.updated_at = datetime_iso(settings.RUN_TIME)
         self.hidden: bool = as_bool(data.get("hidden", False))
         self.exports: Set[str] = set(data.get("exports", []))
-        self.disabled: bool = as_bool(data.get("disabled", False))
         self.entry_point: Optional[str] = data.get("entry_point", None)
 
         self.load_db_uri: Optional[str] = data.get("load_db_uri", None)
@@ -36,6 +35,14 @@ class Dataset(NKDataset):
             self.load_db_uri = os.path.expandvars(self.load_db_uri)
             if len(self.load_db_uri.strip()) == 0:
                 self.load_db_uri = None
+
+        self.disabled: bool = as_bool(data.get("disabled", False))
+        """Do not update the crawler at the moment."""
+        # This will make disabled crawlers visible in the metadata:
+        if self.disabled:
+            if self.coverage is None:
+                self.coverage = DataCoverage({})
+            self.coverage.frequency = "never"
 
         self.config: Dict[str, Any] = ensure_dict(data.get("config", {}))
         _inputs = ensure_list(data.get("inputs", []))
