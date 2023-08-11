@@ -10,7 +10,7 @@ from zavod import helpers as h
 
 AFTER_OFFICE = 5 * 365
 
-class Status(Enum):
+class PositionStatus(Enum):
     CURRENT = "current"
     ENDED = "ended"
     UNKNOWN = "unknown"
@@ -67,7 +67,7 @@ def make_position(
     position.add("numberOfSeats", number_of_seats)
     position.add("wikidataId", wikidata_id)
     position.add("sourceUrl", source_url)
-    
+
     parts: List[str] = [name]
     if country is not None:
         parts.extend(ensure_list(country))
@@ -102,12 +102,12 @@ def make_occupancy(
         occupancy.add("startDate", start_date)
         occupancy.add("endDate", end_date)
         if end_date:
-            status = Status.ENDED.value
+            status = PositionStatus.ENDED.value
         else:
             if no_end_implies_current:
-                status = Status.CURRENT.value
+                status = PositionStatus.CURRENT.value
             else:
-                status = Status.UNKNOWN.value
+                status = PositionStatus.UNKNOWN.value
         occupancy.add("status", status)
         return occupancy
     return None

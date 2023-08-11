@@ -40,17 +40,17 @@ class PEPSummaryExporter(Exporter):
                         "position_name": "",
                         "counts": {
                             "total": 0,
-                            h.Status.CURRENT.value: 0,
-                            h.Status.ENDED.value: 0,
-                            h.Status.UNKNOWN.value: 0,
+                            h.PositionStatus.CURRENT.value: 0,
+                            h.PositionStatus.ENDED.value: 0,
+                            h.PositionStatus.UNKNOWN.value: 0,
                         },
                     }
                 ),
                 "counts": {
                     "total": 0,
-                    h.Status.CURRENT.value: 0,
-                    h.Status.ENDED.value: 0,
-                    h.Status.UNKNOWN.value: 0,
+                    h.PositionStatus.CURRENT.value: 0,
+                    h.PositionStatus.ENDED.value: 0,
+                    h.PositionStatus.UNKNOWN.value: 0,
                 },
             }
         )
@@ -60,17 +60,17 @@ class PEPSummaryExporter(Exporter):
                     lambda: {
                         "counts": {
                             "total": 0,
-                            h.Status.CURRENT.value: 0,
-                            h.Status.ENDED.value: 0,
-                            h.Status.UNKNOWN.value: 0,
+                            h.PositionStatus.CURRENT.value: 0,
+                            h.PositionStatus.ENDED.value: 0,
+                            h.PositionStatus.UNKNOWN.value: 0,
                         }
                     }
                 ),
                 "counts": {
                     "total": 0,
-                    h.Status.CURRENT.value: 0,
-                    h.Status.ENDED.value: 0,
-                    h.Status.UNKNOWN.value: 0,
+                    h.PositionStatus.CURRENT.value: 0,
+                    h.PositionStatus.ENDED.value: 0,
+                    h.PositionStatus.UNKNOWN.value: 0,
                 },
             }
         )
