@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.za_fic_sanctions
 title: South African Targeted Financial Sanctions
+entry_point: crawler.py
 prefix: zafic
 coverage:
   frequency: daily

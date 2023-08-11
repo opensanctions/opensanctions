@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.ru_rupep:crawl_peps
 title: RuPEP Public Database of PEPs in Russia and Belarus
+entry_point: crawler.py:crawl_peps
 prefix: rupep
 coverage:
   frequency: daily

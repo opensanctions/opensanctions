@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.sy_obsalytics_opensyr
 title: Syrian Observatory of Political and Economic Networks
+entry_point: crawler.py
 prefix: opensyr
 hidden: true
 coverage:

@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.lt_fiu_freezes
 title: Lithuanian FIU International Sanctions
+entry_point: crawler.py
 prefix: ltfiu
 coverage:
   country: lt

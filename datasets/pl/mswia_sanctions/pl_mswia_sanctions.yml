@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.pl_mswia_sanctions
 title: Polish list of persons and entities subject to sanctions
+entry_point: crawler.py
 prefix: plmswia
 coverage:
   frequency: daily

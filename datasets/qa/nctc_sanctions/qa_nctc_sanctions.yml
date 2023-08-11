@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.qa_nctc_sanctions
 title: Qatar Unified Record of Persons and Entities on Sanction List
+entry_point: crawler.py
 prefix: qa-nctc
 coverage:
   frequency: daily

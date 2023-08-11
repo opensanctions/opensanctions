@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.nz_russia_sanctions
 title: "New Zealand Russia Sanctions"
+entry_point: crawler.py
 prefix: nz-ru
 coverage:
   frequency: daily

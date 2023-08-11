@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.il_mod_terrorists:crawl
 title: Israel Terrorists Organizations and Unauthorized Associations lists
+entry_point: crawler.py
 prefix: il-nbctf
 coverage:
   frequency: daily
