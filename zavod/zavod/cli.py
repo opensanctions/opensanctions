@@ -54,19 +54,27 @@ def crawl(dataset_path: Path, dry_run: bool = False, clear: bool = False) -> Non
 @click.argument("dataset_path", type=InPath)
 @click.option("-c", "--clear", is_flag=True, default=False)
 def export(dataset_path: Path, clear: bool = False) -> None:
-    dataset = _load_dataset(dataset_path)
-    if clear:
-        clear_store(dataset)
-    view = get_view(dataset, external=False)
-    export_dataset(dataset, view)
+    try:
+        dataset = _load_dataset(dataset_path)
+        if clear:
+            clear_store(dataset)
+        view = get_view(dataset, external=False)
+        export_dataset(dataset, view)
+    except Exception:
+        log.exception("Failed to export: %s" % dataset_path)
+        sys.exit(1)
 
 
 @cli.command("publish", help="Publish data from a specific dataset")
 @click.argument("dataset_path", type=InPath)
 @click.option("-l", "--latest", is_flag=True, default=False)
 def publish(dataset_path: Path, latest: bool = False) -> None:
-    dataset = _load_dataset(dataset_path)
-    publish_dataset(dataset, latest=latest)
+    try:
+        dataset = _load_dataset(dataset_path)
+        publish_dataset(dataset, latest=latest)
+    except Exception:
+        log.exception("Failed to publish: %s" % dataset_path)
+        sys.exit(1)
 
 
 @cli.command("run", help="Crawl, export and then publish a specific dataset")
@@ -115,8 +123,17 @@ def load_db(
     batch_size: int = 5000,
     external: bool = False,
 ) -> None:
-    dataset = _load_dataset(dataset_path)
-    load_dataset_to_db(dataset, database_uri, batch_size=batch_size, external=external)
+    try:
+        dataset = _load_dataset(dataset_path)
+        load_dataset_to_db(
+            dataset,
+            database_uri,
+            batch_size=batch_size,
+            external=external,
+        )
+    except Exception:
+        log.exception("Failed to load dataset into database: %s" % dataset_path)
+        sys.exit(1)
 
 
 @cli.command("dump-file", help="Dump dataset statements from the archive to a file")
@@ -127,8 +144,17 @@ def load_db(
 def dump_file(
     dataset_path: Path, out_path: Path, format: str, external: bool = False
 ) -> None:
-    dataset = _load_dataset(dataset_path)
-    dump_dataset_to_file(dataset, out_path, format=format.lower(), external=external)
+    try:
+        dataset = _load_dataset(dataset_path)
+        dump_dataset_to_file(
+            dataset,
+            out_path,
+            format=format.lower(),
+            external=external,
+        )
+    except Exception:
+        log.exception("Failed to dump dataset to file: %s" % dataset_path)
+        sys.exit(1)
 
 
 @cli.command("xref", help="Generate dedupe candidates from the given dataset")
@@ -161,9 +187,13 @@ def xref(
 
 @cli.command("xref-prune", help="Remove dedupe candidates from resolver file")
 def xref_prune() -> None:
-    resolver = get_resolver()
-    resolver.prune()
-    resolver.save()
+    try:
+        resolver = get_resolver()
+        resolver.prune()
+        resolver.save()
+    except Exception:
+        log.exception("Failed to prune resolver file")
+        sys.exit(1)
 
 
 @cli.command("dedupe", help="Interactively decide xref candidates")
@@ -180,5 +210,9 @@ def dedupe(dataset_path: Path, clear: bool = False) -> None:
 @cli.command("clear", help="Delete the data and state paths for a dataset")
 @click.argument("dataset_path", type=InPath)
 def clear(dataset_path: Path) -> None:
-    dataset = _load_dataset(dataset_path)
-    clear_data_path(dataset.name)
+    try:
+        dataset = _load_dataset(dataset_path)
+        clear_data_path(dataset.name)
+    except Exception:
+        log.exception("Failed to clear dataset: %s" % dataset_path)
+        sys.exit(1)
