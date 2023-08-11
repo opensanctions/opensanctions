@@ -1,0 +1,38 @@
+entry_point: opensanctions.crawlers.us_cia_world_leaders:crawl
+title: CIA World Leaders
+prefix: us-cia
+coverage:
+  frequency: daily
+deploy:
+  schedule: "0 */6 * * *"
+summary: >
+  An index of most national-level cabinet members in world governments that
+  is publicly maintained by the CIA.
+description: |
+  From the CIA [web site](https://www.cia.gov/resources/world-leaders/foreign-governments/):
+
+  > The CIA publishes and updates the online directory of World Leaders and
+  > Cabinet Members of Foreign Governments weekly. The directory is intended
+  > to be used primarily as a reference aid and includes as many governments
+  > of the world as is considered practical, some of them not officially
+  > recognized by the United States. Regimes with which the United States has
+  > no diplomatic exchanges are indicated by the initials NDE. Governments
+  > are listed according to the most commonly used version of each country’s
+  > name. The spelling of the personal names in this directory follows
+  > transliteration systems generally agreed upon by US Government agencies,
+  > except in the cases in which officials have stated a preference for alternate
+  > spellings of their names.
+  > 
+  > NOTE: Although the head of the central bank is listed for each country,
+  > in most cases he or she is not a Cabinet member. Ambassadors to the United
+  > States and Permanent Representatives to the UN, New York, have also been
+  > included.
+url: https://www.cia.gov/resources/world-leaders/foreign-governments/
+publisher:
+  name: Central Intelligence Agency (CIA)
+  url: https://www.cia.gov/
+  country: us
+  official: true
+data:
+  url: "https://www.cia.gov/resources/world-leaders/page-data/sq/d/3159235335.json"
+  format: JSON

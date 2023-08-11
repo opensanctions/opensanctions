@@ -1,0 +1,53 @@
+entry_point: opensanctions.crawlers.ru_fedsfm_terror
+title: Rosfinmonitoring List of terrorists and extremists
+prefix: ruterr
+disabled: true
+coverage:
+  frequency: never
+  end: "2022-02-24"
+deploy:
+  schedule: "0 22 * * 3"
+summary: >
+  List of organizations and individuals involved in extremist or 
+  terrorist activities.
+description: |
+  This list contains a large number of targets that seem extremist only 
+  in a narrow domestic sense, such as Jehova's Witnesses and Navalny's
+  FBK. We will not include this list in the Due Diligence and Consolidated
+  Sanctions list to avoid assisting the criminalisation of Russian 
+  opposition figures.
+
+  > In accordance with the provisions of the second paragraph of clause 2
+  > of Article 6 of the Federal Law of August 7, 2001 No. 115-FZ "On
+  > Counteracting the Legalization (Laundering) of Criminally Obtained
+  > Incomes and the Financing of Terrorism" (hereinafter - Federal Law
+  > No. 115-FZ) and the Rules determining the list of organizations and
+  > individuals in relation to which there is information about their
+  > involvement in extremist activities or terrorism, and bringing this
+  > list to the attention of organizations carrying out transactions with
+  > monetary funds or other property, and individual entrepreneurs,
+  > approved by the decree of the Government of the Russian Federation
+  > dated 06.08. 2015 No. 804 (hereinafter referred to as the Rules), The
+  > Federal Financial Monitoring Service compiles a list of organizations
+  > and individuals in relation to which there is information about
+  > their involvement in extremist activities or terrorism (hereinafter
+  > referred to as the List).
+publisher:
+  name: Rosfinmonitoring
+  description: >
+    The Federal Service for Financial Monitoring (Rosfinmonitoring, Росфинмониторинг)
+    is the federal executive body responsible for countering the laundering of
+    proceeds from crime, financing terrorism and financing the proliferation of
+    weapons of mass destruction, for developing state policy and legal regulation
+    in this area, to coordinate the relevant activities of other federal executive
+    bodies, other state bodies and organizations, as well as the functions of the
+    national center for assessing threats to national security arising from
+    transactions with money or other property, and to develop measures to counter
+    these threats.
+  url: https://www.fedsfm.ru/
+  country: ru
+  official: true
+url: https://www.fedsfm.ru/documents/terrorists-catalog-portal-act
+data:
+  url: https://www.fedsfm.ru/documents/terrorists-catalog-portal-act
+  format: HTML

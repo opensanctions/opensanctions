@@ -9,7 +9,7 @@ from zavod import helpers as h
 PERSONS_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT8r6lvQerO1tMNTUFaECYax-rU3Wra53U7T_yyRAZHMbGqvx6y93W8LO8OMatg08EQupZmAe7Wm-Wx/pub?gid=780934597&single=true&output=csv"
 GROUPS_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT8r6lvQerO1tMNTUFaECYax-rU3Wra53U7T_yyRAZHMbGqvx6y93W8LO8OMatg08EQupZmAe7Wm-Wx/pub?gid=676382776&single=true&output=csv"
 
-SPLITS = [f"{l})" for l in string.ascii_letters]
+SPLITS = [f"{la})" for la in string.ascii_letters]
 FORMATS = ["%d %B %Y", "%d.%m.%Y"]
 MONTHS = {"Mei": "May", "Februari": "February", "Ogos": "August"}
 

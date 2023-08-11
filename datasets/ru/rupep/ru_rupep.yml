@@ -1,0 +1,156 @@
+entry_point: opensanctions.crawlers.ru_rupep:crawl_peps
+title: RuPEP Public Database of PEPs in Russia and Belarus
+prefix: rupep
+coverage:
+  frequency: daily
+deploy:
+  schedule: "0 */6 * * *"
+exports:
+  - statistics.json
+summary: >
+  RuPEP is a detailed database of politically exposed persons in Russia and
+  Belarus maintained by qualified researchers
+description: |
+  From the RuPEP site:
+
+  > The database of public officials of Russia (PEP, Politically exposed person) –
+  > is the database created for financial monitoring subjects (banks, payment
+  > organizations, exchanges, etc.) in order to detect Russian PEP and its related
+  > persons, and to assess the level of risk associated with servicing such clients.
+
+  > The site is public and free to use for non-commercial purposes if it references
+  > to the site.
+
+  > Financial monitoring subjects can also obtain information from the database in
+  > JSON or XML format and receive regular updates for financial monitoring purposes.
+
+  > The use of information obtained from this site for further resale in the form
+  > of various analytical products or for other commercial purposes is prohibited.
+  > The exception is the use of information by journalists, public figures and
+  > analysts to prepare materials for the media, scientific research, etc.
+publisher:
+  name: RuPEP
+  description: |
+    The group maintaining this database is not publicly identified. The OpenSanctions
+    team is happy to create introductions for those interested in the commercial
+    reuse of the material.
+  url: "https://rupep.org/"
+  country: ru
+  official: false
+url: "https://rupep.org/en/%D0%B2%D0%BE%D0%BF%D1%80%D0%BE%D1%81%D1%8B-%D0%B8-%D0%BE%D1%82%D0%B2%D0%B5%D1%82%D1%8B/"
+data:
+  url: "https://rupep.org/opendata/persons/json"
+  format: JSON
+
+lookups:
+  country_links:
+    normalize: true
+    options:
+      - match: citizenship
+        prop: nationality
+      - match:
+          - lived_in
+          - born_in
+          - registered_in
+        prop: country
+      - match:
+          - under_sanctions
+          - business
+          - realty
+        prop: null
+  person_type:
+    options:
+      - match:
+          - ""
+          - "-"
+          - "A person with significant political or public influence"
+          - null
+        value: null
+      - match:
+          - Close associate
+          - Family member
+        value: role.rca
+      - match:
+          - Domestic Politically Exposed Person
+          - Foreign Politically Exposed Person
+        value: role.pep
+      - match: International organization Politically Exposed Person
+        value: gov.igo
+      - match:
+          - Person under sanctions
+        value: sanction
+
+  person_relations:
+    options:
+      - match:
+          - husband
+          - wife
+          - father
+          - daughter
+          - sibling
+          - son
+          - mother
+          - daughter in law
+          - father in law
+          - mother in law
+          - son in law
+          - grandson
+          - uncle
+          - aunt
+          - niece
+          - nephew
+          - granddaughter
+          - grandfather
+          - grandmother
+          - adoptive parent
+          - stepdaughter
+          - stepfather
+          - stepmother
+          - stepson
+          - great-granddaughter
+          - great-grandmother
+          - great-grandson
+          - associated with the common life and mutual rights and obligations
+          - father/mother
+          - ex-husband
+          - ex-wife
+        schema: Family
+        from_prop: person
+        to_prop: relative
+        desc_prop: relationship
+      - match:
+          - business relationships
+          - personal relationships
+          - cohabitants
+          - guardian or trustee
+          - a person who is under guardianship or trusteeship
+        schema: Associate
+        from_prop: person
+        to_prop: associate
+        desc_prop: relationship
+      - match:
+          - ""
+        schema: UnknownLink
+        from_prop: subject
+        to_prop: object
+        desc_prop: role
+
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - match: Республика Беларусь
+        value: BY
+      - match: Оккупированная Россией территория Украины
+        value: UA
+      - match: Оккупированная Россией территория Молдовы
+        value: MD-PMR
+      - match: Северная Македония
+        value: North Macedonia
+      - contains: Syrian Arab Republic
+        value: Syria
+      - match: Объединённые Арабские Эмираты
+        value: AE
+      - match: Territories occupied by Russia
+        values:
+          - UA

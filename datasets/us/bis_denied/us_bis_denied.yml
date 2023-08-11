@@ -1,0 +1,48 @@
+entry_point: opensanctions.crawlers.us_bis_denied
+title: US BIS Denied Persons List
+prefix: us-bis
+coverage:
+  frequency: daily
+deploy:
+  schedule: "0 */6 * * *"
+summary: >
+  The Bureau of Industry and Security publishes this list of entities which
+  are relevant with regards to export controls.
+description: |
+  The Denied Persons List is a list of people and companies whose export
+  privileges have been denied by the Department of Commerce's Bureau of
+  Industry and Security (BIS). An American company or individual may not
+  participate in an export transaction with an individual or company on the
+  Denied Persons List.
+
+  The Denied Persons List is also included in the [US Trade Consolidated List](/datasets/us_trade_csl/),
+  so we may want to remove this crawler at some point.
+publisher:
+  name: Bureau of Industry and Security (BIS)
+  description: |
+    BIS is part of the U.S. Department of Commerce, where it manages the intersection between
+    business and the foreign policy and security interests of the U.S.
+  url: https://www.bis.doc.gov/
+  country: us
+  official: true
+url: https://www.bis.doc.gov/index.php/policy-guidance/lists-of-parties-of-concern/denied-persons-list
+data:
+  url: https://www.bis.doc.gov/dpl/dpl.txt
+  format: TSV
+  lang: eng
+
+lookups:
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - match: NM
+        value: US
+  type.date:
+    options:
+      - match: "3017-08-22"
+        value: 2017-08-22
+      - match: "3033-09-30"
+        value: null
+      - match: "0203-05-10"
+        value: "2023-05-10"

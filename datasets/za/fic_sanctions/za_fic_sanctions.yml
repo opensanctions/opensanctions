@@ -1,0 +1,85 @@
+entry_point: opensanctions.crawlers.za_fic_sanctions
+title: South African Targeted Financial Sanctions
+prefix: zafic
+coverage:
+  frequency: daily
+deploy:
+  schedule: "0 */3 * * *"
+summary: >
+  The South African FIC sanctions list, largely based on UN Security Council sanctions.
+description: |
+  South African sanctions are largely based on the [UN Security Council sanctions
+  list](/datasets/un_sc_sanctions/), with some additions.
+
+  > Sanctions impose restrictions on activities that relate to particular countries,
+  > goods and services, or persons and entities. Targeted Financial Sanctions (TFS)
+  > measures generally restrict sanctioned persons and entities from having access
+  > to funds and property under their control and from receiving financial services
+  > in relation to such funds and property.  In order for these sanctions to be given
+  > effect, the FIC Act requires Accountable Institutions to freeze property and
+  > transactions pursuant to financial sanctions imposed in the United Nations
+  > Security Council Resolutions.
+publisher:
+  name: Financial Intelligence Centre (FIC)
+  description: |
+    The Financial Intelligence Centre (FIC) exists to apply measures outlined in
+    the Financial Intelligence Centre Act, 2001 (Act 38 of 2001), which are
+    intended to make the financial system intolerant to abuse. The FIC does this
+    by working towards fulfilling its mandate of assisting in identifying the
+    proceeds of crime, combating money laundering, the financing of terrorism
+    and the proliferation of weapons of mass destruction.
+  url: "https://www.fic.gov.za/aboutus/Pages/WhoWeAre.aspx"
+  country: za
+  official: true
+url: "https://www.fic.gov.za/International/sanctions/SitePages/Home.aspx"
+data:
+  url: https://transfer.fic.gov.za/public/folder/XNK-dueZDUma9kOqjPWrAA/Downloads/Consolidated%20United%20Nations%20Security%20Council%20Sanctions%20List.xml
+  format: XML
+
+lookups:
+  type.address:
+    lowercase: true
+    options:
+      - match:
+          - Lebanon
+          - Philippines
+          - Qatar
+          - Somalia
+          - Turkey
+        value: null
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - contains: Syrian Arab Republic
+        value: Syria
+      - match: Sudanese by birth
+        value: Sudan
+      - match: Kuwaiti citizenship withdrawn in 2002
+        value: null
+      - match: United States. Also believed to hold Syrian nationality
+        values:
+          - US
+          - SY
+      - match: "&#x0D; Pakistan"
+        value: PK
+      - match: Possibly Ethiopian
+        value: Ethiopia
+      - match: Indonesia (as at Dec. 2003)
+        value: Indonesia
+  type.date:
+    options:
+      - match: 2015-03-27-04:00
+        value: 2015-03-27T04:00
+      - match: 2015-07-01-04:00
+        value: 2015-07-01T04:00
+      - match: 1960-01-01-05:00
+        value: 1960-01-01T05:00
+      - match: 1962-11-09-05:00
+        value: 1962-11-09T05:00
+      - match: 2015-04-14-04:00
+        value: 2015-04-14T04:00
+      - match: 1966-02-02-05:00
+        value: 1966-02-02T05:00
+      - match: 2015-04-07-04:00
+        value: 2015-04-07T04:00

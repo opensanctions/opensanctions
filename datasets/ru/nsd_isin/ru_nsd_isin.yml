@@ -1,0 +1,32 @@
+# Inspired by: https://github.com/DtorrX/effective-bassoon
+entry_point: opensanctions.crawlers.ru_nsd_isin
+title: National Settlement Depository (NSD Russia) ISIN Assignment
+prefix: ru-nsd
+coverage:
+  frequency: daily
+deploy:
+  schedule: "0 */6 * * *"
+summary: >
+  ISIN security identifiers assigned in Russia and subject to a US investment
+  ban.
+description: |
+  All Russian securities are subject to the [executive order
+  14071](https://ofac.treasury.gov/sanctions-programs-and-country-information/russian-harmful-foreign-activities-sanctions). Under the order,
+  the Office of Foreign Assets Control (OFAC) has indicated that U.S. persons
+  are prohibited from purchasing any Russian securities such as debt and equity.
+
+  This data source is based on [prior work by Owais Arshad](https://github.com/DtorrX/effective-bassoon).
+publisher:
+  name: National Settlement Depository
+  description: |
+    «Национальный расчетный депозитарий» (НКО АО НРД, NSD) is the central depository of
+    the Russian Federation. The status of the central depository was assigned by the
+    Federal Financial Markets Service of Russia. It has the sole authority to issue
+    ISIN numbers for use by Russian securities.
+  url: https://www.nsd.ru/
+  country: ru
+  official: true
+url: https://www.isin.ru/ru/ru_isin/news_c/
+data:
+  url: https://www.isin.ru/ru/ru_isin/news_c/
+  format: HTML

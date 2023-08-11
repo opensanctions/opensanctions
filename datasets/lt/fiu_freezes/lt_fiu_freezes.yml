@@ -1,0 +1,27 @@
+entry_point: opensanctions.crawlers.lt_fiu_freezes
+title: Lithuanian FIU International Sanctions
+prefix: ltfiu
+coverage:
+  country: lt
+  frequency: never
+  end: 2023-05-16
+deploy:
+  schedule: "0 */6 * * *"
+summary: >
+  A list of entities whose property is legally owned or controlled by a sanctioned entity.
+description: |
+  A small set of Lithuanian companies published by the country's financial intelligence unit.
+publisher:
+  name: Finansinių Nusikaltimų Tyrimo Tarnyba (FIU)
+  description: |
+    The Financial Crimes Investigation Service at the Ministry of Internal Affairs of the
+    Republic of Lithuania (Finansinių Nusikaltimų Tyrimo Tarnyba Prie Lietuvos Respublikos
+    Vidaus Reikalų Ministerijos) is a law enforcement institution, which investigates the
+    financial sector and sanctions violations.
+  url: https://www.fntt.lt/lt/kontaktai/8
+  country: lt
+  official: true
+url: https://www.fntt.lt/lt/tarptautines-finansines-sankcijos/4166
+data:
+  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjv_tSJupEXAilIIOHYKyg2HWYXTqFEsUojaWRqCQ_CcWxCGvUNw67ONZ9wjjNHRTeQsuMgknOVEA/pub?gid=0&single=true&output=csv
+  format: csv

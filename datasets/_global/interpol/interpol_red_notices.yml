@@ -1,0 +1,55 @@
+entry_point: opensanctions.crawlers.interpol_api
+title: INTERPOL Red Notices
+prefix: interpol-red
+coverage:
+  frequency: daily
+deploy:
+  schedule: "0 */6 * * *"
+summary: >
+  International arrest warrants published by INTERPOL with a view to
+  extradition of the wanted individuals.
+description: |
+  From the [INTERPOL site](https://www.interpol.int/en/How-we-work/Notices/Red-Notices):
+
+  > A Red Notice is a request to law enforcement worldwide to locate and
+  > provisionally arrest a person pending extradition, surrender, or similar
+  > legal action.
+  >
+  > It contains two main types of information:
+  > 
+  > Information to identify the wanted person, such as their name, date of
+  > birth, nationality, hair and eye colour, photographs and fingerprints
+  > if available.
+  > Information related to the crime they are wanted for, which can typically
+  > be murder, rape, child abuse or armed robbery. 
+  > Red Notices are published by INTERPOL at the request of a member country,
+  > and must comply with INTERPOL’s Constitution and Rules. A Red Notice is
+  > not an international arrest warrant.
+publisher:
+  name: INTERPOL
+  url: https://www.interpol.int/
+  official: true
+url: https://www.interpol.int/How-we-work/Notices/View-Red-Notices
+data:
+  url: https://ws-public.interpol.int/notices/v1/red
+  format: xml
+
+lookups:
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - match:
+          - "914"
+          - "922"
+        value: null
+  type.gender:
+    lowercase: true
+    normalize: true
+    options:
+      - match: M
+        value: male
+      - match: F
+        value: female
+      - match: U
+        value: null

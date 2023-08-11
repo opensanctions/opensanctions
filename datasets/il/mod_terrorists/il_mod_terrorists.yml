@@ -1,0 +1,114 @@
+entry_point: opensanctions.crawlers.il_mod_terrorists:crawl
+title: Israel Terrorists Organizations and Unauthorized Associations lists
+prefix: il-nbctf
+coverage:
+  frequency: daily
+deploy:
+  schedule: "0 */6 * * *"
+summary: |
+  Terrorist organizations and individuals as designated by the Israeli government.
+description: |
+  > According to the Defense Regulations (Emergency), 1945 and the Prohibition on
+  > Terrorist Financing Law 5765-2004 and Designations on Terrorist Organizations
+  > in accordance with the Prevention of Terrorism Ordinance No 33 5708-1948 and
+  > the Counter Terrorism Law, 2016
+
+  Broadly:
+
+  > The Counter-Terrorism Law, 5776-2016 (hereinafter: the Law) authorizes the
+  > Minister of Defense to designate a group of persons as a Terrorist Organization.
+  > Such a designation may be made following a reasoned request by a Security
+  > Agency (Israel Security Agency, Israel Defense Force, the Mossad, Israel
+  > Police) and the consent of the Attorney General of Israel.
+publisher:
+  name: "National Bureau for Counter Terror Financing"
+  description: |
+    The National Bureau for Counter Terror Financing (NBCTF), at the Ministry of Defense,
+    was established with the aim of unifying and concentrating national efforts to counter
+    financial infrastructure of terrorist organizations, perpetrators and parties involved
+    in Terror Financing.
+  country: il
+  url: https://nbctf.mod.gov.il/en/aboutus/Pages/mandate.aspx
+  official: true
+url: https://nbctf.mod.gov.il/en/Minister%20Sanctions/Designation/Pages/downloads.aspx
+data:
+  url: https://nbctf.mod.gov.il/he/Announcements/Documents/NBCTFIsrael%20-%20Terror%20Organization%20Designation%20List_XL.xlsx
+  format: XLSX
+
+lookups:
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - match:
+          - BENGHAZI
+          - DERNA
+          - בנגאזי
+          - דרנה
+        value: Libya
+      - match: פיליפים / סעודיה
+        values:
+          - Saudi Arabia
+          - Philippines
+      - match: ירדן, כווית
+        values:
+          - Jordan
+          - Kuweit
+      - match: Ramallah
+        value: PS
+      - match: תוניס
+        value: Tunisia
+      - match: תורכיה ירדן ערב הסעודית
+        values:
+          - Turkey
+          - Jordan
+          - Saudi Arabia
+      - match:
+          - PAKISTAN AND AFGHNISTAN
+          - פקיסטן ואפגניסטן
+        values:
+          - AF
+          - PK
+      - match: עירק/סוריה
+        values:
+          - Iraq
+          - Syria
+      - match: אוזבקיסטן / אפגניסטן
+        values:
+          - Uzbekistan
+          - Afghanistan
+      - match: אלג'יר או רש"פ
+        values:
+          - Algeria
+          - PS
+  type.date:
+    options:
+      - match:
+          - לינק להכרזה
+          - בוטל ביום
+          - הכרזה בוטלה
+        value: null
+      - match: 1/1/67
+        value: "1967-01-01"
+      - match: הכרזה בוטלה ביום 29.8.21
+        value: null
+      - match: 16/6/67
+        value: "1967-06-16"
+  type.email:
+    options:
+      - match: admin@europalforum org.uk
+        value: admin@europalforum.org.uk
+      - contains: "101193998017268"
+        value: null
+  type.url:
+    options:
+      - match: "טוויטר: @PalesAbroadE"
+        value: https://twitter.com/PalesAbroadE
+      - contains: Samidoun.net
+        values:
+          - http://samidoun.net
+          - http://palestinevaincra.com
+      - match: "טוויטר: @EuroPalForum"
+        value: https://twitter.com/EuroPalForum
+      - match: "טוויטר: Addameer"
+        value: https://twitter.com/Addameer

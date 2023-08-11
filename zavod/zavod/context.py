@@ -15,7 +15,7 @@ from structlog.contextvars import clear_contextvars, bind_contextvars
 
 from zavod import settings
 from zavod.audit import inspect
-from zavod.meta import Dataset, DataResource, get_catalog
+from zavod.meta import Dataset, DataResource
 from zavod.entity import Entity
 from zavod.archive import dataset_resource_path, dataset_data_path
 from zavod.runtime.stats import ContextStats
@@ -357,26 +357,19 @@ class Context:
         return self.make_slug(hashed, prefix=prefix, strict=True)
 
     def lookup_value(
-        self,
-        lookup: str,
-        value: Optional[str],
-        default: Optional[str] = None,
-        dataset: Optional[str] = None,
+        self, lookup: str, value: Optional[str], default: Optional[str] = None
     ) -> Optional[str]:
         try:
-            lookup_obj = self.get_lookup(lookup, dataset=dataset)
+            lookup_obj = self.get_lookup(lookup)
             return lookup_obj.get_value(value, default=default)
         except LookupException:
             return default
 
-    def get_lookup(self, lookup: str, dataset: Optional[str] = None) -> Lookup:
-        ds = get_catalog().require(dataset) if dataset is not None else self.dataset
-        return ds.lookups[lookup]
+    def get_lookup(self, lookup: str) -> Lookup:
+        return self.dataset.lookups[lookup]
 
-    def lookup(
-        self, lookup: str, value: Optional[str], dataset: Optional[str] = None
-    ) -> Optional[Result]:
-        return self.get_lookup(lookup, dataset=dataset).match(value)
+    def lookup(self, lookup: str, value: Optional[str]) -> Optional[Result]:
+        return self.get_lookup(lookup).match(value)
 
     def inspect(self, obj: Any) -> None:
         """Display an object in a form suitable for inspection.

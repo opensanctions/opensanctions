@@ -1,0 +1,26 @@
+entry_point: opensanctions.crawlers.in_mha_banned:crawl
+title: Indian Ministry of Home Affairs Banned Organizations
+prefix: in-mha
+coverage:
+  frequency: daily
+deploy:
+  schedule: "0 */6 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: |
+  List of banned organizations under the Unlawful Activities (Prevention) Act.
+description: |
+  The [relevant law](https://www.mha.gov.in/sites/default/files/A1967-37.pdf).
+publisher:
+  name: "Ministry of Home Affairs"
+  description: |
+    The Ministry of Home Affairs (MHA) discharges multifarious responsibilities,
+    the important among them being - internal security, border management,
+    Centre-State relations, administration of Union Territories, management of
+    Central Armed Police Forces, disaster management, etc.
+  country: in
+  url: https://www.mha.gov.in/en/page/about-ministry
+  official: true
+url: https://www.mha.gov.in/en/banned-organisations
+data:
+  url: https://www.mha.gov.in/en/banned-organisations
+  format: HTML

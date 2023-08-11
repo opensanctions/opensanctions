@@ -1,0 +1,29 @@
+entry_point: opensanctions.crawlers.wd_curated
+title: FBK Recommended List of Individuals for Sanctioning (Navalny 35)
+prefix: nv
+coverage:
+  frequency: never
+  end: "2021-02-08"
+deploy:
+  schedule: "0 */6 * * *"
+exports:
+  - statistics.json
+summary: >
+  A list of suggested sanctions targets published by Navalny's FBK in a letter
+  to Dominic Raab.
+description: |
+  This list was created in response to the poisining of Alexei Navalny by the
+  Russian security services. It designates individuals who are directly or
+  indirectly responsible for the attack.
+publisher:
+  name: Anti-Corruption Foundation (FBK)
+  description: |
+    Фонд борьбы с коррупцией is an anti-corruption NGO linked to the political
+    network of imprisoned Russian opposition leader Alexei Navalny.
+  url: https://fbk.info
+  official: false
+  country: ru
+url: https://drive.google.com/file/d/1A9l5SqqbFBw3kGkQzWKfSyI-qQXBFme3/edit?fbclid=IwAR0Fp9sn9UGiX_St6i-_GrhIKvrdyhVtaXB3TRfskPCjuC5U5QTEnmuuyEQ
+data:
+  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRJGZGTZ1EZ-FSghkXqHQFNmWlPC6MkruipeSvzji4xtW_jXLay_f3px7xl_SrJII0ARqeGqxzfAF4J/pub?gid=1155837879&single=true&output=csv
+  format: CSV

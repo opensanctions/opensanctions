@@ -1,0 +1,80 @@
+entry_point: opensanctions.crawlers.ua_nsdc_sanctions
+title: Ukraine National Security Sanctions
+prefix: ua-nsdc
+coverage:
+  frequency: daily
+deploy:
+  schedule: "0 */3 * * *"
+summary: >
+  List of individuals and legal entities subject to restrictive measures.
+description: |
+  This dataset is derived from the COTA system run by NSDC. The published sanctions
+  list is based on press statements by the security council and may not be fully
+  comprehensive as the system is still under development.
+publisher:
+  name: National Security and Defense Council
+  description: >
+    The National Security and Defense Council (Рада національної безпеки і оборони
+    України) of Ukraine is the coordinating body in matters pertaining to national
+    security and defense under the President of Ukraine.
+  url: https://www.rnbo.gov.ua/en/
+  country: ua
+  official: true
+url: https://sanctions.nsdc.gov.ua/
+data:
+  url: https://sanctions.nsdc.gov.ua/api/sanctions/
+  format: JSON
+
+lookups:
+  subject_types:
+    map:
+      individual: Person
+      legal: Organization
+  ident_types:
+    options:
+      - match:
+          - ІПН
+        value: innCode
+      - match:
+          - ОДРН
+          - ОДРНІП
+          - ОДРНПП
+        value: ogrnCode
+      - match:
+          - ОКПО
+        value: okpoCode
+      - match:
+          - КПП
+        value: kppCode
+        schema: Company
+      - match:
+          - Номер телефону
+        value: phone
+      - match:
+          - Паспорт
+          - Дипломатичний паспорт
+          - Закордонний паспорт
+          - Службовий паспорт
+        value: passportNumber
+      - match:
+          - Permanent residence permit - посвідка на постійне проживання
+          - Особистий номер офіцера
+        value: idNumber
+      - match:
+          - ЄДРПОУ
+          - ЄДРЮО
+          - УНЗР
+          - Реєстраційний номер
+          - Реєстраційний номер адвокатської діяльності
+          - МФО
+          - KRS (Krajowy Rejestr Sądowy)
+          - REGON (Rejestr Gospodarki Narodowej)
+          - ОКАТО
+        value: registrationNumber
+      - match:
+          - Генеральна ліцензія на здійснення банківських операцій
+          - Кореспондентський рахунок
+          - Розрахунковий рахунок
+          - Абонентська скринька
+          - Посвідчення адвокатської діяльності
+        value: null

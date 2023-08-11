@@ -1,0 +1,78 @@
+entry_point: opensanctions.crawlers.everypolitician
+title: Every Politician
+prefix: evpo
+disabled: false
+coverage:
+  end: "2019-05-21"
+  frequency: monthly
+summary: >
+  All members of national parliament in the world, collected from hundreds of
+  government web sites and consolidated via Wikidata.
+description: |
+  The EveryPolitician project ran until 2019 and created a mechanism for consolidating 
+  data about members of parliament for 233 different countries and territories. As part
+  of the project, EveryPolitician operated a large fleet of crawlers which read the web
+  sites of parliaments around the world.
+
+  The project was [shut down in June 2019](https://www.mysociety.org/2019/06/26/placing-everypolitician-on-hold/), 
+  leaving the contained data to slowly wither in precision. Going forward, the
+  [Peppercat Legislators](/datasets/wd_peppercat_legislators/) dataset will succeed
+  EveryPolitician. It generates membership data from Wikidata, which is currently
+  incomplete in some jurisdictions. Going forward, the intention is to use the
+  EveryPolitician scrapers to update membership data in Wikidata.
+
+  The OpenSanctions importer only includes individuals active since the year 2000.
+publisher:
+  name: MySociety (UK Citizens Online Democracy)
+  description: |
+    MySociety is a non-profit group developing online technologies that empower citizens
+    to participate in politics and civic life.
+  url: https://www.mysociety.org/
+  official: false
+url: http://everypolitician.org
+data:
+  url: https://data.opensanctions.org/contrib/everypolitician/countries.json
+  format: JSON
+
+lookups:
+  org_id:
+    # normalize: true
+    lowercase: true
+    # required: true
+    options:
+      - match:
+          - "party/unknown"
+          - "independent"
+          - "independant"
+          - "_IND"
+          - "ind"
+          - "independent_candidate"
+          - "indép."
+          - "independiente"
+          - "independent_members"
+          - "independent_mps"
+          - "none"
+          - "n/a"
+          - "na"
+          - "non_inscrit"
+          - "non-inscrit"
+          - "non-inscrits_divers_droite"
+          - "non-inscrits_divers_gauche"
+          - "non_specificato"
+          - "non-partisan"
+          - "no_agrupado"
+          - "Aucun_bloc"
+          - "partilös"
+          - "out_of_faction"
+          - "s.partido"
+          - "unknown"
+          - "initial-presiding-officer"
+          - "speaker"
+          - "speaker_of_the_house"
+          - "deputy-speaker"
+          - "pres"
+          - "president_of_the_senate"
+          - "autre"
+          - "*"
+          - "-"
+        value: null

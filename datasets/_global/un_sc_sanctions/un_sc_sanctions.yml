@@ -1,0 +1,114 @@
+entry_point: opensanctions.crawlers.un_sc_sanctions
+title: UN Security Council Consolidated Sanctions
+prefix: unsc
+coverage:
+  frequency: daily
+deploy:
+  schedule: "0 */3 * * *"
+summary: >
+  The Security Council's set of sanctions serve as the foundation for most
+  national sanctions lists.
+description: |
+  The Security Council sanctions are developed by a set of committees, each
+  dedicated to establishing individual listings within its regime. Technical 
+  explanations are available on the [download page](https://www.un.org/securitycouncil/content/un-sc-consolidated-list).
+
+  The UN SC web site describes the policy as follows:
+
+  > The Security Council can take action to maintain or restore international peace and security under Chapter VII of the United Nations Charter. Sanctions measures, under Article 41, encompass a broad range of enforcement options that do not involve the use of armed force. Since 1966, the Security Council has established 30 sanctions regimes, in Southern Rhodesia, South Africa, the former Yugoslavia (2), Haiti, Iraq (2), Angola, Rwanda, Sierra Leone, Somalia and Eritrea, Eritrea and Ethiopia, Liberia (3), DRC, Côte d’Ivoire, Sudan, Lebanon, DPRK, Iran, Libya (2), Guinea-Bissau, CAR, Yemen, South Sudan and Mali, as well as against ISIL (Da'esh) and Al-Qaida and the Taliban.
+  > 
+  > Security Council sanctions have taken a number of different forms, in pursuit of a variety of goals. The measures have ranged from comprehensive economic and trade sanctions to more targeted measures such as arms embargoes, travel bans, and financial or commodity restrictions. The Security Council has applied sanctions to support peaceful transitions, deter non-constitutional changes, constrain terrorism, protect human rights and promote non-proliferation.
+  > 
+  > Sanctions do not operate, succeed or fail in a vacuum. The measures are most effective at maintaining or restoring international peace and security when applied as part of a comprehensive strategy encompassing peacekeeping, peacebuilding and peacemaking. Contrary to the assumption that sanctions are punitive, many regimes are designed to support governments and regions working towards peaceful transition. The Libyan and Guinea-Bissau sanctions regimes all exemplify this approach.
+  > 
+  > Today, there are 14 ongoing sanctions regimes which focus on supporting political settlement of conflicts, nuclear non-proliferation, and counter-terrorism. Each regime is administered by a sanctions committee chaired by a non-permanent member of the Security Council. There are 10 monitoring groups, teams and panels that support the work of 11 of the 14 sanctions committees.
+  > 
+  > The Council applies sanctions with ever-increasing cognisance of the rights of those targeted. In the 2005 World Summit declaration, the General Assembly called on the Security Council, with the support of the Secretary-General, to ensure that fair and clear procedures are in place for the imposition and lifting of sanctions measures. The establishment of a focal point for de-listing, and the Office of the Ombudsperson to the ISIL (Da'esh) & Al-Qaida Sanctions Committee are examples of this approach in practice.
+publisher:
+  name: United Nations Security Council (UN SC)
+  description: |
+    The Security Council is one of the principal organs of the United Nations, charged with 
+    ensuring international peace and security. Its powers include establishing peacekeeping
+    operations, enacting international sanctions, and authorizing military action.
+  url: "https://www.un.org/en/sc/"
+  official: true
+url: "https://www.un.org/securitycouncil/sanctions/information"
+data:
+  url: https://scsanctions.un.org/resources/xml/en/consolidated.xml
+  format: XML
+
+lookups:
+  document_type:
+    normalize: true
+    options:
+      - match:
+          - National Identification Number
+          - National identification no.
+        passport: false
+      - match:
+          - Passport
+          - Numéro de passeport
+          - Número de pasaporte
+        passport: true
+  type.address:
+    lowercase: true
+    options:
+      - match: "-"
+        value: null
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - match:
+          - "Branch Office 11: Iran"
+          - Iran / unknown
+        value: IR
+      - contains: Syrian Arab Republic
+        value: Syria
+      - match:
+          - Indonesia (as at Dec. 2003)
+          - Indonesian passport
+        value: Indonesia
+      - match: Sudanese by birth
+        value: Sudan
+      - match: Kuwaiti citizenship withdrawn in 2002
+        value: null
+      - match:
+          - Sudan/South Sudan
+          - Sudan/or South Sudan
+        values:
+          - Sudan
+          - South Sudan
+      - match: United States. Also believed to hold Syrian nationality
+        values:
+          - US
+          - SY
+      - match: Libyan Arab Jamahiriya
+        value: Libya
+      - match: Possibly Ethiopian
+        value: Ethiopia
+      - match: Tunisian passport
+        value: Tunisia
+      - match:
+          - USSR (until 1991)
+          - former Soviet Union
+        value: SUHH
+  type.date:
+    options:
+      - match:
+          - Invalid date
+        value: null
+      - match: 2015-03-27-04:00
+        value: 2015-03-27T04:00
+      - match: 2015-07-01-04:00
+        value: 2015-07-01T04:00
+      - match: 1960-01-01-05:00
+        value: 1960-01-01T05:00
+      - match: 1962-11-09-05:00
+        value: 1962-11-09T05:00
+      - match: 2015-04-14-04:00
+        value: 2015-04-14T04:00
+      - match: 1966-02-02-05:00
+        value: 1966-02-02T05:00
+      - match: 2015-04-07-04:00
+        value: 2015-04-07T04:00
