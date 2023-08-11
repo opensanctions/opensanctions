@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.eu_travel_bans
 title: EU Consolidated Travel Bans
+entry_point: crawler.py
 prefix: eu-tb
 coverage:
   frequency: daily

@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.be_fod_sanctions
 title: "Belgian Financial Sanctions"
+entry_point: crawler.py
 prefix: be-fod
 coverage:
   frequency: daily

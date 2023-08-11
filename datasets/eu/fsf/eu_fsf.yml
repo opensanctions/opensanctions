@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.eu_fsf
 title: "EU Financial Sanctions Files (FSF)"
+entry_point: crawler.py
 prefix: eu-fsf
 coverage:
   frequency: daily
