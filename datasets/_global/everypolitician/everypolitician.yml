@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.everypolitician
 title: Every Politician
+entry_point: crawler.py
 prefix: evpo
 disabled: false
 coverage:

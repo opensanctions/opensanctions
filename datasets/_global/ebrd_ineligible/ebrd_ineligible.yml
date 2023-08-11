@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.ebrd_ineligible:crawl
 title: EBRD Ineligible entities
+entry_point: crawler.py
 prefix: ebrd
 coverage:
   frequency: daily

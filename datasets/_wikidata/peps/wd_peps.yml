@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.wd_peps
 title: Wikidata Politically Exposed Persons
+entry_point: crawler.py
 prefix: wd
 # hidden: true
 coverage:

@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.iadb_sanctions:crawl
 title: Inter-American Development Bank Sanctions
+entry_point: crawler.py
 prefix: iadb
 coverage:
   frequency: daily

@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.adb_sanctions:crawl
 title: Asian Development Bank Sanctions
+entry_point: crawler.py
 prefix: adb
 coverage:
   frequency: daily

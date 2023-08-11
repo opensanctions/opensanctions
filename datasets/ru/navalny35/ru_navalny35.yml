@@ -1,5 +1,5 @@
-entry_point: opensanctions.crawlers.wd_curated
 title: FBK Recommended List of Individuals for Sanctioning (Navalny 35)
+entry_point: crawler.py
 prefix: nv
 coverage:
   frequency: never
