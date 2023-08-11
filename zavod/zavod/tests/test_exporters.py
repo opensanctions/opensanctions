@@ -17,6 +17,7 @@ from zavod.exporters.nested import NestedJSONExporter
 from zavod.exporters.simplecsv import SimpleCSVExporter
 from zavod.exporters.senzing import SenzingExporter
 from zavod.exporters.statistics import StatisticsExporter
+from zavod.exporters.peps import PEPSummaryExporter
 from zavod.meta import Dataset, load_dataset_from_path
 from zavod.crawl import crawl_dataset
 from zavod.store import get_store
@@ -125,16 +126,16 @@ def test_custom_export_config(testdataset2_export: Dataset):
     with open(dataset_path / "index.json") as index_file:
         index = load(index_file)
         resources = {r["name"] for r in index["resources"]}
-        for r in set.union(always_exports, {"names.txt"}):
+        for r in set.union(always_exports, {"names.txt", "pep-positions.json"}):
             assert r in resources
-        for r in default_exports - {"names.txt"}:
+        for r in default_exports - {"names.txt", "pep-positions.json"}:
             assert r not in resources
 
     with open(dataset_path / "resources.json") as resources_file:
         resources = {r["name"] for r in load(resources_file)["resources"]}
-        for r in set.union(always_exports, {"names.txt"}):
+        for r in set.union(always_exports, {"names.txt", "pep-positions.json"}):
             assert r in resources
-        for r in default_exports - {"names.txt"}:
+        for r in default_exports - {"names.txt", "pep-positions.json"}:
             assert r not in resources
 
 
@@ -210,16 +211,16 @@ def test_ftm_referents(testdataset1: Dataset):
     assert collection is not None
     collection_path = settings.DATA_PATH / "datasets" / collection.name
     crawl_dataset(dataset2)
-    other_dataset_id = "freddie"
+    other_dataset_id = "td2-freddie-bloggs"
     harnessed_export(FtMExporter, collection)
     entities = list(path_entities(collection_path / "entities.ftm.json", EntityProxy))
-    assert len(entities) == 11
+    assert len(entities) == 19
 
     resolver.decide("osv-john-doe", other_dataset_id, Judgement.POSITIVE, user="test")
     clear_data_path(collection.name)
     harnessed_export(FtMExporter, collection)
     entities = list(path_entities(collection_path / "entities.ftm.json", EntityProxy))
-    assert len(entities) == 10
+    assert len(entities) == 18
     assert [] == [e for e in entities if e.id == other_dataset_id]
 
     john = [e for e in entities if e.id == identifier][0]
@@ -418,3 +419,18 @@ def test_statistics(testdataset1: Dataset):
         "plural": "People",
     } in target_schemata
     assert len(target_schemata) == 3
+
+
+def test_pep_positions(testdataset2_export: Dataset):
+    dataset_path = settings.DATA_PATH / "datasets" / testdataset2_export.name
+    clear_data_path(testdataset2_export.name)
+
+    crawl_dataset(testdataset2_export)
+    harnessed_export(PEPSummaryExporter, testdataset2_export)
+
+    with open(dataset_path / "pep-positions.json") as statistics_file:
+        stats = load(statistics_file)
+        
+    assert len(stats["countries"]) == 2
+    assert stats["countries"]["fr"]
+    

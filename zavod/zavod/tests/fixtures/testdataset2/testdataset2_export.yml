@@ -5,6 +5,7 @@ hidden: true
 exports:
   - statistics.json
   - names.txt
+  - pep-positions.json
 summary: >
   This dataset is used to validate and test the OpenSanctions data processing pipeline.
 description: |

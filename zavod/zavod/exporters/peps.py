@@ -36,7 +36,7 @@ class PEPSummaryExporter(Exporter):
         self.countries: DefaultDict[str, Any] = defaultdict(
             lambda: {
                 "positions": defaultdict(
-                    lambda: {  # Country type
+                    lambda: {
                         "position_name": "",
                         "counts": {
                             "total": 0,
