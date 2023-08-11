@@ -1,11 +1,29 @@
 from collections import defaultdict
-from typing import Dict, List, Any, Optional, Set, DefaultDict
+from typing import Dict, List, Any, Optional, Set, DefaultDict, NewType
 from followthemoney import model
 
 from zavod.entity import Entity
 from zavod.exporters.common import Exporter
 from zavod.util import write_json
 from zavod import helpers as h
+
+
+CountryCode = NewType("CountryCode", str)
+PositionLabel = NewType("PositionLabel", str)
+PositionId = NewType("PositionId", str)
+
+# country code -> position id -> position summary
+PositionCount = Dict[str, str | int]
+PositionSummary = DefaultDict[PositionId, PositionCount]
+Country = Dict[str, PositionSummary | str | int]
+CountryMap = DefaultDict[CountryCode, Country]
+
+# position -> country code -> country summary
+CountryCount = Dict[str, str | int]
+CountrySummary = DefaultDict[CountryCode, PositionCount]
+Position = Dict[str, CountrySummary | str | int]
+PositionMap = DefaultDict[str, Position]
+
 
 class PEPSummaryExporter(Exporter):
     TITLE = "PEP position occupancy summary"
@@ -15,63 +33,65 @@ class PEPSummaryExporter(Exporter):
     def setup(self) -> None:
         super().setup()
 
-        CountryCode = str
-        PositionLabel = str
-        PositionId = str
-        PositionCount = Dict[str, str | int]
-        PositionSummary = DefaultDict[PositionId, PositionCount]
-        Country = Dict[str, PositionSummary]
-        CountryMap = DefaultDict[CountryCode, Country]
-        self.countries: CountryMap = defaultdict(
+        self.countries: DefaultDict[str, Any] = defaultdict(
             lambda: {
-                "positions": defaultdict(lambda: {
-                    "position_name": None,
+                "positions": defaultdict(
+                    lambda: {  # Country type
+                        "position_name": "",
+                        "counts": {
+                            "total": 0,
+                            h.Status.CURRENT.value: 0,
+                            h.Status.ENDED.value: 0,
+                            h.Status.UNKNOWN.value: 0,
+                        },
+                    }
+                ),
+                "counts": {
                     "total": 0,
                     h.Status.CURRENT.value: 0,
                     h.Status.ENDED.value: 0,
-                    h.Status.UNKNOWN.value: 0
-                }),
-                "total": 0,
-                h.Status.CURRENT.value: 0,
-                h.Status.ENDED.value: 0,
-                h.Status.UNKNOWN.value: 0
+                    h.Status.UNKNOWN.value: 0,
+                },
             }
         )
-        CountryCount = Dict[str, str | int]
-        CountrySummary = DefaultDict[CountryCode, PositionCount]
-        Position = Dict[str, CountrySummary]
-        PositionMap = DefaultDict[str, Position]
-        self.positions: PositionMap = defaultdict(
+        self.positions: DefaultDict[str, Any] = defaultdict(
             lambda: {
-                "countries": defaultdict(lambda: {
+                "countries": defaultdict(
+                    lambda: {
+                        "counts": {
+                            "total": 0,
+                            h.Status.CURRENT.value: 0,
+                            h.Status.ENDED.value: 0,
+                            h.Status.UNKNOWN.value: 0,
+                        }
+                    }
+                ),
+                "counts": {
                     "total": 0,
                     h.Status.CURRENT.value: 0,
                     h.Status.ENDED.value: 0,
-                    h.Status.UNKNOWN.value: 0
-                }),
-                "total": 0,
-                h.Status.CURRENT.value: 0,
-                h.Status.ENDED.value: 0,
-                h.Status.UNKNOWN.value: 0
+                    h.Status.UNKNOWN.value: 0,
+                },
             }
         )
 
-    def observe_occupancy(self, occupancy, position):
+    def observe_occupancy(self, occupancy: Entity, position: Entity) -> None:
         country_codes = position.get("country")
         for code in country_codes:
             position_name = position.get("name")[0]
             status = occupancy.get("status")[0]
-            print(status)
-            self.countries[code]["positions"][position.id]["position_name"] = position_name
-            self.countries[code]["positions"][position.id]["total"] += 1
-            self.countries[code]["positions"][position.id][status] += 1
-            self.countries[code]["total"] += 1
-            self.countries[code][status] += 1
+            self.countries[code]["positions"][position.id][
+                "position_name"
+            ] = position_name
+            self.countries[code]["positions"][position.id]["counts"]["total"] += 1
+            self.countries[code]["positions"][position.id]["counts"][status] += 1
+            self.countries[code]["counts"]["total"] += 1
+            self.countries[code]["counts"][status] += 1
 
-            self.positions[position_name]["countries"][code]["total"] += 1
-            self.positions[position_name]["countries"][code][status] += 1
-            self.positions[position_name]["total"] += 1
-            self.positions[position_name][status] += 1
+            self.positions[position_name]["countries"][code]["counts"]["total"] += 1
+            self.positions[position_name]["countries"][code]["counts"][status] += 1
+            self.positions[position_name]["counts"]["total"] += 1
+            self.positions[position_name]["counts"][status] += 1
 
     def feed(self, entity: Entity) -> None:
         if entity.schema.name == "Person":
