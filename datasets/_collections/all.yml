@@ -3,7 +3,7 @@ title: All entities in OpenSanctions
 hidden: true
 deploy:
   schedule: "15 */6 * * *"
-  memory: "3000Mi"
+  memory: "2000Mi"
   spot: false
 summary: >
   Entities from all the datasets in OpenSanctions, including sanctions,

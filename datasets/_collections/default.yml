@@ -2,7 +2,7 @@ type: collection
 title: OpenSanctions Default
 deploy:
   schedule: "30 */6 * * *"
-  memory: "3000Mi"
+  memory: "2000Mi"
   command: /etl/scripts/export-default.sh
   spot: false
 summary: >
