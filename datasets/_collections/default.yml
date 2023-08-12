@@ -3,7 +3,7 @@ title: OpenSanctions Default
 deploy:
   schedule: "30 */6 * * *"
   memory: "2000Mi"
-  disk: "15Gi"
+  disk: "20Gi"
   command: /etl/scripts/export-default.sh
 summary: >
   This collection includes most of the data collected by OpenSanctions which
