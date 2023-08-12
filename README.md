@@ -6,11 +6,10 @@ OpenSanctions uses [Follow the Money](https://www.followthemoney.tech), a JSON-b
 
 * [opensanctions.org](https://www.opensanctions.org/)
     * [Datasets](https://www.opensanctions.org/datasets/)
-    * [About the project](https://www.opensanctions.org/docs/about/)
     * [FAQ](https://www.opensanctions.org/docs/faq/)
-    * [API](https://api.opensanctions.org/)
-* [Software documentation](https://www.opensanctions.org/docs/opensource/)
-* [Data sources roadmap](https://bit.ly/osa-sources)
+    * [API](https://www.opensanctions.org/api/)
+* [zavod Software documentation](https://zavod.opensanctions.org/) - how to add a crawler
+* [Data sources roadmap](https://bit.ly/osa-sources) - current plans
 * [Data licensing](https://www.opensanctions.org/licensing/)
 * [Contact us](https://www.opensanctions.org/contact/)
 
