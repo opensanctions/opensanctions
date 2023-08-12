@@ -1,5 +1,6 @@
 from collections import defaultdict
 from typing import Dict, Any, DefaultDict, NewType
+from followthemoney.types import registry
 
 from zavod.entity import Entity
 from zavod.exporters.common import Exporter
@@ -79,6 +80,8 @@ class PEPSummaryExporter(Exporter):
         for code in country_codes:
             position_name = position.get("name")[0]
             status = occupancy.get("status")[0]
+
+            self.countries[code]["label"] = registry.country.caption(code)
             self.countries[code]["positions"][position.id][
                 "position_name"
             ] = position_name

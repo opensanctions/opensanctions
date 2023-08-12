@@ -438,15 +438,15 @@ def test_pep_positions(testdataset2_export: Dataset):
     assert us["counts"]["ended"] == 1
     assert us["counts"]["unknown"] == 0
 
-    fr = stats["countries"]["fr"]
-    assert fr["counts"]["total"] == 1
-    assert fr["counts"]["current"] == 0
-    assert fr["counts"]["ended"] == 0
-    assert fr["counts"]["unknown"] == 1
-
     assert len(us["positions"]) == 2
     rep = us["positions"]["td2-export-44fdcec78a4b6038bcea7903aa5448d59c4aebaf"]
     assert rep["counts"]["total"] == 2
     assert rep["counts"]["current"] == 1
     assert rep["counts"]["ended"] == 1
     assert rep["counts"]["unknown"] == 0
+
+    fr = stats["countries"]["fr"]
+    assert fr["counts"]["total"] == 1
+    assert fr["counts"]["current"] == 0
+    assert fr["counts"]["ended"] == 0
+    assert fr["counts"]["unknown"] == 1
