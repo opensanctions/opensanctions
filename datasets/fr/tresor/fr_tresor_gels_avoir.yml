@@ -4,7 +4,7 @@ prefix: fr-ga
 coverage:
   frequency: daily
 deploy:
-  schedule: "0 */2 * * *"
+  schedule: "30 */2 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   The register lists all persons, entities and vessels subject to asset

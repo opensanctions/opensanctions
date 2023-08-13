@@ -4,7 +4,7 @@ prefix: ofac
 coverage:
   frequency: daily
 deploy:
-  schedule: "0 */2 * * *"
+  schedule: "40 */2 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   OFAC is providing all of its non-SDN sanctions lists in a consolidated set
