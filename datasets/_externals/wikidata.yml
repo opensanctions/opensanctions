@@ -8,7 +8,7 @@ exports:
   - entities.ftm.json
 deploy:
   schedule: "1 0 * * *"
-  memory: "2Gi"
+  memory: "3Gi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 coverage:
   frequency: daily
@@ -260,6 +260,11 @@ lookups:
           - statelessness
           - Đại Việt
           - Ilkhanate
+          - Later Qin
+          - Sultanate of Nejd
+          - Don Republic
+          - Koreans
+          - Colony of Rhode Island and Plantations
         value: null
       - match:
           - Cherokee Nation
