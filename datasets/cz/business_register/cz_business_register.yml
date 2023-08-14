@@ -7,6 +7,7 @@ coverage:
   frequency: weekly
 deploy:
   disk: 30Gi
+  premium: true
 exports:
   - statistics.json
   - entities.ftm.json

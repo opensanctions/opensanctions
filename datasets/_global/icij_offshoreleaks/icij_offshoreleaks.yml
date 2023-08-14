@@ -3,14 +3,16 @@ title: ICIJ OffshoreLeaks
 prefix: icijol
 disabled: true
 entry_point: parse.py
-summary: |
-  Combined data from the Panama Papers, Paradise Papers, Pandora Papers
-  and other cross-border investigations conducted by ICIJ and its partners.
 coverage:
   end: 2023-07-26
+deploy:
+  premium: true
 exports:
   - statistics.json
   - entities.ftm.json
+summary: |
+  Combined data from the Panama Papers, Paradise Papers, Pandora Papers
+  and other cross-border investigations conducted by ICIJ and its partners.
 publisher:
   name: International Consortium of Investigative Journalists (ICIJ)
   description: |

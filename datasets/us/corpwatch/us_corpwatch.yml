@@ -7,6 +7,7 @@ coverage:
   start: "2003-01-01"
 deploy:
   disk: 50Gi
+  premium: true
 exports:
   - statistics.json
   - entities.ftm.json

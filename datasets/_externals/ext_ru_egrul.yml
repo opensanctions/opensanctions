@@ -9,6 +9,7 @@ deploy:
   schedule: "1 18 * * *"
   disk: "20Gi"
   memory: "2Gi"
+  premium: true
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   Companies database of the Russian Federation as maintained and published by 

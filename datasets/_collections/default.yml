@@ -5,6 +5,7 @@ deploy:
   memory: "2000Mi"
   disk: "20Gi"
   command: /etl/scripts/export-default.sh
+  premium: true
 summary: >
   This collection includes most of the data collected by OpenSanctions which
   meets quality standards and would be useful to an analyst or journalist

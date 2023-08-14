@@ -9,6 +9,7 @@ exports:
 deploy:
   schedule: "1 0 * * *"
   memory: "3Gi"
+  premium: true
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 coverage:
   frequency: daily
