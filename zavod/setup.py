@@ -21,9 +21,9 @@ setup(
     package_data={"": ["zavod/data/*", "zavod/py.typed"]},
     zip_safe=False,
     install_requires=[
-        "followthemoney == 3.5.1",
-        "nomenklatura == 3.3.8",
-        "datapatch == 1.0.2",
+        "followthemoney == 3.5.2",
+        "nomenklatura == 3.3.9",
+        "datapatch == 1.1.0",
         "addressformatting == 1.3.2",
         "certifi",
         "colorama",
