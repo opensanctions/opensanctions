@@ -23,7 +23,7 @@ setup(
     install_requires=[
         "followthemoney == 3.5.2",
         "nomenklatura == 3.3.9",
-        "datapatch == 1.1.0",
+        "datapatch == 1.1.1",
         "addressformatting == 1.3.2",
         "certifi",
         "colorama",
