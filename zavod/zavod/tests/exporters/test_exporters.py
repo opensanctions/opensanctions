@@ -7,7 +7,6 @@ from nomenklatura.stream import StreamEntity
 from datetime import datetime
 
 from zavod import settings
-from zavod.context import Context
 from zavod.dedupe import get_resolver
 from zavod.exporters import export
 from zavod.archive import clear_data_path
@@ -19,7 +18,6 @@ from zavod.exporters.senzing import SenzingExporter
 from zavod.exporters.statistics import StatisticsExporter
 from zavod.meta import Dataset, load_dataset_from_path
 from zavod.crawl import crawl_dataset
-from zavod.store import get_store
 from zavod.tests.conftest import DATASET_2_YML, COLLECTION_YML
 from zavod.tests.exporters.util import harnessed_export
 

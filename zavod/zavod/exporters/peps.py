@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Dict, Any, DefaultDict, NewType, Tuple
+from typing import Dict, Any, DefaultDict, Tuple
 from followthemoney.types import registry
 
 from zavod.entity import Entity
