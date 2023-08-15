@@ -17,11 +17,12 @@ from zavod.exporters.nested import NestedJSONExporter
 from zavod.exporters.simplecsv import SimpleCSVExporter
 from zavod.exporters.senzing import SenzingExporter
 from zavod.exporters.statistics import StatisticsExporter
-from zavod.exporters.peps import PEPSummaryExporter
 from zavod.meta import Dataset, load_dataset_from_path
 from zavod.crawl import crawl_dataset
 from zavod.store import get_store
 from zavod.tests.conftest import DATASET_2_YML, COLLECTION_YML
+from zavod.tests.exporters.util import harnessed_export
+
 
 TIME_SECONDS_FMT = "%Y-%m-%dT%H:%M:%S"
 
@@ -139,22 +140,6 @@ def test_custom_export_config(testdataset2_export: Dataset):
             assert r not in resources
 
 
-def harnessed_export(exporter_class, dataset) -> None:
-    context = Context(dataset)
-    context.begin(clear=False)
-    store = get_store(dataset)
-    view = store.view(dataset)
-
-    exporter = exporter_class(context, view)
-    exporter.setup()
-    for entity in view.entities():
-        exporter.feed(entity)
-    exporter.finish()
-
-    context.close()
-    store.close()
-
-
 def test_ftm(testdataset1: Dataset):
     dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
     clear_data_path(testdataset1.name)
@@ -214,13 +199,13 @@ def test_ftm_referents(testdataset1: Dataset):
     other_dataset_id = "td2-freddie-bloggs"
     harnessed_export(FtMExporter, collection)
     entities = list(path_entities(collection_path / "entities.ftm.json", EntityProxy))
-    assert len(entities) == 20
+    assert len(entities) == 28
 
     resolver.decide("osv-john-doe", other_dataset_id, Judgement.POSITIVE, user="test")
     clear_data_path(collection.name)
     harnessed_export(FtMExporter, collection)
     entities = list(path_entities(collection_path / "entities.ftm.json", EntityProxy))
-    assert len(entities) == 19  # After deduplication there's one less entity
+    assert len(entities) == 27  # After deduplication there's one less entity
     assert [] == [e for e in entities if e.id == other_dataset_id]
 
     john = [e for e in entities if e.id == identifier][0]
@@ -420,33 +405,3 @@ def test_statistics(testdataset1: Dataset):
     } in target_schemata
     assert len(target_schemata) == 3
 
-
-def test_pep_positions(testdataset2_export: Dataset):
-    dataset_path = settings.DATA_PATH / "datasets" / testdataset2_export.name
-    clear_data_path(testdataset2_export.name)
-
-    crawl_dataset(testdataset2_export)
-    harnessed_export(PEPSummaryExporter, testdataset2_export)
-
-    with open(dataset_path / "pep-positions.json") as statistics_file:
-        stats = load(statistics_file)
-
-    assert len(stats["countries"]) == 2
-    us = stats["countries"]["us"]
-    assert us["counts"]["total"] == 3
-    assert us["counts"]["current"] == 2
-    assert us["counts"]["ended"] == 1
-    assert us["counts"]["unknown"] == 0
-
-    assert len(us["positions"]) == 2
-    rep = us["positions"]["td2-export-44fdcec78a4b6038bcea7903aa5448d59c4aebaf"]
-    assert rep["counts"]["total"] == 2
-    assert rep["counts"]["current"] == 1
-    assert rep["counts"]["ended"] == 1
-    assert rep["counts"]["unknown"] == 0
-
-    fr = stats["countries"]["fr"]
-    assert fr["counts"]["total"] == 1
-    assert fr["counts"]["current"] == 0
-    assert fr["counts"]["ended"] == 0
-    assert fr["counts"]["unknown"] == 1

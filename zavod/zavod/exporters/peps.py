@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Dict, Any, DefaultDict, NewType
+from typing import Dict, Any, DefaultDict, NewType, Tuple
 from followthemoney.types import registry
 
 from zavod.entity import Entity
@@ -8,21 +8,28 @@ from zavod.util import write_json
 from zavod import helpers as h
 
 
-CountryCode = NewType("CountryCode", str)
-PositionLabel = NewType("PositionLabel", str)
-PositionId = NewType("PositionId", str)
+PREFERENCE = {
+    h.PositionStatus.CURRENT.value: 2,
+    h.PositionStatus.ENDED.value: 1,
+    h.PositionStatus.UNKNOWN.value: 0,
+}
 
-# country code -> position id -> position summary
-PositionCount = Dict[str, str | int]
-PositionSummary = DefaultDict[PositionId, PositionCount]
-Country = Dict[str, PositionSummary | str | int]
-CountryMap = DefaultDict[CountryCode, Country]
 
-# position -> country code -> country summary
-CountryCount = Dict[str, str | int]
-CountrySummary = DefaultDict[CountryCode, PositionCount]
-Position = Dict[str, CountrySummary | str | int]
-PositionMap = DefaultDict[str, Position]
+def observe_occupancy(
+    occupancies: Dict[str, Tuple[Entity, Entity]], occupancy: Entity, position: Entity
+) -> None:
+    """Maintains a dict of (occupancy, position) tuples,
+    keeping only the preferred occupancy for each position"""
+    if position.id is None:
+        raise Exception("Position id is unexpectedly None")
+    seen = occupancies.get(position.id, None)
+    if seen is None:
+        occupancies[position.id] = (occupancy, position)
+    else:
+        seen_status = seen[0].get("status")[0]
+        other_status = occupancy.get("status")[0]
+        if PREFERENCE[other_status] > PREFERENCE[seen_status]:
+            occupancies[position.id] = (occupancy, position)
 
 
 class PEPSummaryExporter(Exporter):
@@ -75,12 +82,16 @@ class PEPSummaryExporter(Exporter):
             }
         )
 
-    def observe_occupancy(self, occupancy: Entity, position: Entity) -> None:
+    def count_occupancy(self, occupancy: Entity, position: Entity) -> None:
+        if len(position.get("name")) > 1:
+            self.context.log.warn("More than one name for position.", id=position.id)
+        position_name = position.get("name")[0]
+        if len(occupancy.get("status")) > 1:
+            self.context.log.warn("More than one status for occupancy", id=occupancy.id)
+        status = occupancy.get("status")[0]
+
         country_codes = position.get("country")
         for code in country_codes:
-            position_name = position.get("name")[0]
-            status = occupancy.get("status")[0]
-
             self.countries[code]["label"] = registry.country.caption(code)
             self.countries[code]["positions"][position.id][
                 "position_name"
@@ -97,11 +108,15 @@ class PEPSummaryExporter(Exporter):
 
     def feed(self, entity: Entity) -> None:
         if entity.schema.name == "Person":
+            occupancies: Dict[str, Tuple[Entity, Entity]] = {}
             for person_prop, person_related in self.view.get_adjacent(entity):
                 if person_prop.name == "positionOccupancies":
                     for occ_prop, occ_related in self.view.get_adjacent(person_related):
                         if occ_prop.name == "post":
-                            self.observe_occupancy(person_related, occ_related)
+                            observe_occupancy(occupancies, person_related, occ_related)
+
+            for occupancy, position in occupancies.values():
+                self.count_occupancy(occupancy, position)
 
     def finish(self) -> None:
         output = {
