@@ -49,15 +49,15 @@ def test_observe_occupancy(vcontext: Context) -> None:
 
     curr = vcontext.make("Occupancy")
     curr.id = "curr"
-    curr.add("status", h.PositionStatus.CURRENT.value)
+    curr.add("status", h.OccupancyStatus.CURRENT.value)
 
     ended = vcontext.make("Occupancy")
     ended.id = "ended"
-    ended.add("status", h.PositionStatus.ENDED.value)
+    ended.add("status", h.OccupancyStatus.ENDED.value)
 
     unknown = vcontext.make("Occupancy")
     unknown.id = "unknown"
-    unknown.add("status", h.PositionStatus.UNKNOWN.value)
+    unknown.add("status", h.OccupancyStatus.UNKNOWN.value)
 
     occupancies = {}
 

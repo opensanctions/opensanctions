@@ -9,9 +9,9 @@ from zavod import helpers as h
 
 
 PREFERENCE = {
-    h.PositionStatus.CURRENT.value: 2,
-    h.PositionStatus.ENDED.value: 1,
-    h.PositionStatus.UNKNOWN.value: 0,
+    h.OccupancyStatus.CURRENT.value: 2,
+    h.OccupancyStatus.ENDED.value: 1,
+    h.OccupancyStatus.UNKNOWN.value: 0,
 }
 
 
@@ -33,7 +33,7 @@ def observe_occupancy(
 
 
 class PEPSummaryExporter(Exporter):
-    TITLE = "PEP position occupancy summary"
+    TITLE = "PEP position occupancy summary (Early preview)"
     FILE_NAME = "pep-positions.json"
     MIME_TYPE = "application/json"
 
@@ -47,17 +47,17 @@ class PEPSummaryExporter(Exporter):
                         "position_name": "",
                         "counts": {
                             "total": 0,
-                            h.PositionStatus.CURRENT.value: 0,
-                            h.PositionStatus.ENDED.value: 0,
-                            h.PositionStatus.UNKNOWN.value: 0,
+                            h.OccupancyStatus.CURRENT.value: 0,
+                            h.OccupancyStatus.ENDED.value: 0,
+                            h.OccupancyStatus.UNKNOWN.value: 0,
                         },
                     }
                 ),
                 "counts": {
                     "total": 0,
-                    h.PositionStatus.CURRENT.value: 0,
-                    h.PositionStatus.ENDED.value: 0,
-                    h.PositionStatus.UNKNOWN.value: 0,
+                    h.OccupancyStatus.CURRENT.value: 0,
+                    h.OccupancyStatus.ENDED.value: 0,
+                    h.OccupancyStatus.UNKNOWN.value: 0,
                 },
             }
         )
@@ -67,17 +67,17 @@ class PEPSummaryExporter(Exporter):
                     lambda: {
                         "counts": {
                             "total": 0,
-                            h.PositionStatus.CURRENT.value: 0,
-                            h.PositionStatus.ENDED.value: 0,
-                            h.PositionStatus.UNKNOWN.value: 0,
+                            h.OccupancyStatus.CURRENT.value: 0,
+                            h.OccupancyStatus.ENDED.value: 0,
+                            h.OccupancyStatus.UNKNOWN.value: 0,
                         }
                     }
                 ),
                 "counts": {
                     "total": 0,
-                    h.PositionStatus.CURRENT.value: 0,
-                    h.PositionStatus.ENDED.value: 0,
-                    h.PositionStatus.UNKNOWN.value: 0,
+                    h.OccupancyStatus.CURRENT.value: 0,
+                    h.OccupancyStatus.ENDED.value: 0,
+                    h.OccupancyStatus.UNKNOWN.value: 0,
                 },
             }
         )

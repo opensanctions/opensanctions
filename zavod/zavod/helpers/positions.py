@@ -10,7 +10,7 @@ from zavod import helpers as h
 
 AFTER_OFFICE = 5 * 365
 
-class PositionStatus(Enum):
+class OccupancyStatus(Enum):
     CURRENT = "current"
     ENDED = "ended"
     UNKNOWN = "unknown"
@@ -102,12 +102,12 @@ def make_occupancy(
         occupancy.add("startDate", start_date)
         occupancy.add("endDate", end_date)
         if end_date:
-            status = PositionStatus.ENDED.value
+            status = OccupancyStatus.ENDED.value
         else:
             if no_end_implies_current:
-                status = PositionStatus.CURRENT.value
+                status = OccupancyStatus.CURRENT.value
             else:
-                status = PositionStatus.UNKNOWN.value
+                status = OccupancyStatus.UNKNOWN.value
         occupancy.add("status", status)
         return occupancy
     return None
