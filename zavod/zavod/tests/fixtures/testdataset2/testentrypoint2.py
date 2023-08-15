@@ -1,8 +1,10 @@
-from zavod.context import Context
-from zavod import helpers as h
 from pathlib import Path
 from typing import Dict
 import csv
+from datetime import datetime
+
+from zavod.context import Context
+from zavod import helpers as h
 
 LOCAL_PATH = Path(__file__).parent / "dataset.csv"
 
@@ -24,6 +26,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
         person,
         position,
         row.pop("no_end_means_current") == "true",
+        datetime(2023, 8, 8),
         start_date,
         end_date,
     )

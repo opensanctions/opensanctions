@@ -1,6 +1,8 @@
+from datetime import datetime
+
 from zavod.context import Context
 from zavod.meta import Dataset
-from zavod.helpers.positions import make_position
+from zavod.helpers.positions import make_position, make_occupancy
 
 
 def test_make_position(testdataset1: Dataset):
@@ -48,3 +50,59 @@ def test_make_position_full(testdataset1: Dataset):
     assert one_with_everything.get("numberOfSeats") == ["5"]
     assert one_with_everything.get("wikidataId") == ["Q123"]
     assert one_with_everything.get("sourceUrl") == ["http://example.com/"]
+
+
+def test_make_occupancy(testdataset1: Dataset):
+    context = Context(testdataset1)
+    pos = make_position(context, name="A position", country="ls")
+    person = context.make("Person")
+    person.id = "thabo"
+
+    # all fields
+    occupancy = make_occupancy(
+        context,
+        person=person,
+        position=pos,
+        no_end_implies_current=True,
+        current_time=datetime(2021, 1, 3),
+        start_date="2021-01-01",
+        end_date="2021-01-02",
+    )
+
+    assert occupancy.id == "osv-de34e6b03014409e1d8b13aec5264a5f480b5b1d"
+    assert occupancy.get("holder") == ["thabo"]
+    assert occupancy.get("post") == ["osv-40a302b7f09ea065880a3c840855681b18ead5a4"]
+    assert occupancy.get("startDate") == ["2021-01-01"]
+    assert occupancy.get("endDate") == ["2021-01-02"]
+    assert occupancy.get("status") == ["ended"]
+
+    current = make_occupancy(
+        context,
+        person,
+        pos,
+        True,
+        start_date="1950-01-01",
+        current_time=datetime(2021, 1, 1),
+    )
+    assert current.get("status") == ["current"]
+
+    unknown = make_occupancy(
+        context,
+        person,
+        pos,
+        False,
+        start_date="1950-01-01",
+        current_time=datetime(2021, 1, 1),
+    )
+    assert unknown.get("status") == ["unknown"]
+
+    none = make_occupancy(
+        context,
+        person,
+        pos,
+        False,
+        start_date="1950-01-01",
+        end_date="2015-01-01",
+        current_time=datetime(2020, 1, 1),
+    )
+    assert none is None
