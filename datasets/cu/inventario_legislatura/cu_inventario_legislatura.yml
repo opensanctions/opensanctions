@@ -1,0 +1,33 @@
+title: Members of the Parliament of Cuba
+entry_point: crawler.py
+prefix: cuinv
+coverage:
+  frequency: monthly
+deploy:
+  schedule: "0 0 * * 0"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Members of the 10. Legislature of the National Assembly of People's Power.
+description: |
+  Parliament of Cuba for the years 2023-2028.
+
+  > The X Legislature of the National Assembly of Popular Power (ANPP) is made up
+  > of 470 deputies, 135 less than in the previous one, after the entry into force
+  > of a new constitution in 2019 introduced modifications to the composition,
+  > operation and functions of this and other state and government bodies.
+
+  > As has been characteristic in previous legislatures, 97% of the deputies (456) are
+  > members of the Communist Party of Cuba or the Union of Young Communists, with
+  > only 14 without membership in either of the two organizations.
+publisher:
+  name: Proyecto Inventario
+  description: |
+    Proyecto Inventario is an organization dedicated to facilitating access to open data
+    and public information about Cuba.
+  url: https://proyectoinventario.org/nosotros/
+  country: cu
+  official: false
+url: https://proyectoinventario.org/x-legislatura-la-asamblea-nacional-poder-popular-parlamento-cuba-2023-2028/
+data:
+  url: https://proyectoinventario.org/x-legislatura-la-asamblea-nacional-poder-popular-parlamento-cuba-2023-2028/
+  format: HTML

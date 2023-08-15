@@ -8,6 +8,7 @@ from nomenklatura.tui import dedupe_ui
 from nomenklatura.statement import CSV, FORMATS
 from nomenklatura.matching import DefaultAlgorithm
 
+from zavod import settings
 from zavod.logs import configure_logging, get_logger
 from zavod.meta import load_dataset_from_path, Dataset
 from zavod.crawl import crawl_dataset
@@ -119,7 +120,7 @@ def run(
 @cli.command("load-db", help="Load dataset statements from the archive into a database")
 @click.argument("dataset_path", type=InPath)
 @click.argument("database_uri", type=str)
-@click.option("--batch-size", type=int, default=5000)
+@click.option("--batch-size", type=int, default=settings.DB_BATCH_SIZE)
 @click.option("-x", "--external", is_flag=True, default=False)
 def load_db(
     dataset_path: Path,

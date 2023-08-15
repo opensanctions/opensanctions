@@ -120,7 +120,7 @@ def parse_person(context: Context, data, country, lastmod):
         if "email" == contact_detail.get("type"):
             person.add("email", clean_emails(value))
         if "phone" == contact_detail.get("type"):
-            person.add("phone", h.clean_phones(value))
+            person.add("phone", clean_phones(value))
 
     if check_person_cutoff(person):
         return

@@ -1,6 +1,8 @@
 name: ru_egrul
 prefix: ru
 disabled: true
+deploy:
+  premium: true
 title: Russian Unified State Register of Legal Entities (EGRUL)
 summary: |
   Companies database of the Russian Federation as maintained and published by 

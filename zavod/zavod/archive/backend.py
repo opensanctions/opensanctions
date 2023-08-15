@@ -3,6 +3,7 @@ from pathlib import Path
 from functools import cache
 from typing import cast, Dict, Optional, Type, TextIO
 from google.cloud.storage import Client, Blob  # type: ignore
+from google.cloud.storage.retry import DEFAULT_RETRY  # type: ignore
 
 from zavod import settings
 from zavod.logs import get_logger
@@ -40,6 +41,13 @@ class ArchiveBackend(object):
 
 
 class GoogleCloudObject(ArchiveObject):
+    """Google Cloud Storage object.
+
+    This is built to use object generations on GCS, which only makes complete sense
+    if you're using it on a versioned bucket which will allow a user to continue
+    streaming blobs even after they've been replaced with a new version.
+    """
+
     def __init__(self, backend: "GoogleCloudBackend", name: str) -> None:
         self.backend = backend
         self.name = f"datasets/{name}"
@@ -68,7 +76,9 @@ class GoogleCloudObject(ArchiveObject):
     def publish(self, source: Path, mime_type: Optional[str] = None) -> None:
         self._blob = self.backend.bucket.blob(self.name)
         log.info(f"Uploading blob: {source.name}", blob_name=self.name)
-        self._blob.upload_from_filename(source, content_type=mime_type)
+        self._blob.upload_from_filename(
+            source, content_type=mime_type, retry=DEFAULT_RETRY
+        )
 
     def republish(self, source: str) -> None:
         source_blob = self.backend.bucket.get_blob(f"datasets/{source}")

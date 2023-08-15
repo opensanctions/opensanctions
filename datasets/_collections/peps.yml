@@ -21,14 +21,15 @@ description: |
   * [FATF guidance on PEPs](https://www.fatf-gafi.org/media/fatf/documents/recommendations/guidance-pep-rec12-22.pdf)
 
 children:
-  - wd_peps
-  - everypolitician
-  - eu_meps
-  - ru_rupep
+  - cu_inventario_legislatura
   - eu_cor_members
+  - eu_meps
   - everypolitician
+  - everypolitician
+  - ru_rupep
   - us_cia_world_leaders
   - us_congress
+  - wd_peps
 
 exports:
   - statistics.json

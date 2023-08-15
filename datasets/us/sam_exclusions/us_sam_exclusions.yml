@@ -4,7 +4,8 @@ prefix: usgsa
 coverage:
   frequency: daily
 deploy:
-  schedule: "0 */12 * * *"
+  schedule: "10 */12 * * *"
+  memory: "2Gi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   A database of suppliers who have been excluded from participating in US federal

@@ -77,3 +77,43 @@ lookups:
           - "*"
           - "-"
         value: null
+  type.url:
+    options:
+      - contains:
+          - het-politiek-college
+          - Olimpia Teligioridou (facebook)
+          - koutsoukosgiannis.gr
+        value: null
+  type.country:
+    options:
+      - match: sh-hl
+        value: SH
+  type.email:
+    options:
+      - match:
+          - ministersecrcasapng.gov.pg
+          - "-"
+          - "j"
+          - No tiene
+          - com
+          - janak.ram@sansad
+        value: null
+      - match: giovani.bushishi@parliament@gov.rw
+        value: giovani.bushishi@parliament.gov.rw
+      - match: knaru@morobe.gov.pg or knarumpg@gmail.com
+        values:
+          - knaru@morobe.gov.pg
+          - knarumpg@gmail.com
+      - match: la.khan7860@yahoo
+        value: la.khan7860@yahoo.com
+      - match: Victoria.Oliver@deputies.gov.ggvictoria1.oliver@icloud.com
+        values:
+          - Victoria.Oliver@deputies.gov.gg
+          - victoria1.oliver@icloud.com
+      - match: marycamachotorres@gmail.commarycamachotorres@gmail.com
+        values:
+          - marycamachotorres@gmail.com
+      - match: barnabeloundou@assnatcm
+        value: barnabeloundou@assnat.cm
+      - match: aliyoum@assnatcm
+        value: aliyoum@assnat.cm

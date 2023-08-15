@@ -2,7 +2,7 @@ type: external
 title: Estonia e-Business Register (E-äriregister)
 entry_point: zavod.runner.enrich:enrich
 prefix: ee
-disabled: true
+disabled: false
 hidden: true
 exports:
   - statistics.json

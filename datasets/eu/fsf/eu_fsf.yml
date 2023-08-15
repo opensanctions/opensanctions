@@ -4,7 +4,7 @@ prefix: eu-fsf
 coverage:
   frequency: daily
 deploy:
-  schedule: "0 */2 * * *"
+  schedule: "50 */2 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   As part of the Common Foreign Security Policy the European Union publishes

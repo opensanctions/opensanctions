@@ -7,6 +7,8 @@ exports:
   - statistics.json
 deploy:
   schedule: "1 10 * * *"
+  disk: "20Gi"
+  premium: true
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 coverage:
   frequency: weekly

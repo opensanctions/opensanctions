@@ -42,8 +42,8 @@ def crawl_dataset(dataset: Dataset, dry_run: bool = False) -> ContextStats:
             statements=context.stats.statements,
         )
         return context.stats
-    except KeyboardInterrupt as kint:
-        context.log.warning("Aborted by user (SIGINT)")
+    except (SystemExit, KeyboardInterrupt) as kint:
+        context.log.warning("Interrupted")
         raise RunFailedException() from kint
     except LookupException as lexc:
         context.log.error(lexc.message, lookup=lexc.lookup.name, value=lexc.value)

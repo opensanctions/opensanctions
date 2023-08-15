@@ -105,6 +105,7 @@ def crawl(context: Context) -> None:
         row.pop("NPI", None)
 
         row.pop("CT Code", None)
+        row.pop("Open Data Flag")
 
         # Commercial And Government Entity (CAGE) Code
         row.pop("CAGE", None)

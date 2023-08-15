@@ -3,7 +3,9 @@ title: All entities in OpenSanctions
 hidden: true
 deploy:
   schedule: "15 */6 * * *"
-  memory: "1500Mi"
+  memory: "2000Mi"
+  disk: "20Gi"
+  premium: true
 summary: >
   Entities from all the datasets in OpenSanctions, including sanctions,
   politically exposed person and criminal figures. This collection exists

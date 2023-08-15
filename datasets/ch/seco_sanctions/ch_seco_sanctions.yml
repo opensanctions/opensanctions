@@ -4,7 +4,7 @@ prefix: ch-seco
 coverage:
   frequency: daily
 deploy:
-  schedule: "0 */2 * * *"
+  schedule: "10 */2 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   Switzerland manages a sanctions lists with a high degree of detail on the

@@ -5,6 +5,7 @@ from sqlalchemy.pool import NullPool
 from nomenklatura.statement.db import make_statement_table
 from nomenklatura.util import iso_datetime
 
+from zavod import settings
 from zavod.logs import get_logger
 from zavod.meta import Dataset
 from zavod.tools.util import iter_output_statements
@@ -13,7 +14,10 @@ log = get_logger(__name__)
 
 
 def load_dataset_to_db(
-    scope: Dataset, database_uri: str, batch_size: int = 5000, external: bool = True
+    scope: Dataset,
+    database_uri: str,
+    batch_size: int = settings.DB_BATCH_SIZE,
+    external: bool = True,
 ) -> None:
     """Load a dataset into a database given as a URI. This will delete all
     statements related to a dataset before inserting the current statements.
@@ -29,6 +33,7 @@ def load_dataset_to_db(
     table = make_statement_table(metadata)
     metadata.create_all(bind=engine, tables=[table])
     total_count: int = 0
+    is_postgresql = "postgres" in engine.dialect.name
     for dataset in scope.leaves:
         with engine.begin() as conn:
             del_q = delete(table).where(table.c.dataset == dataset.name)
@@ -39,10 +44,11 @@ def load_dataset_to_db(
                 # Convert the statement to a dictionary, and convert the
                 # timestamps to fit into SQLite.
                 row = cast(Dict[str, Any], stmt.to_dict())
-                for key in ("first_seen", "last_seen"):
-                    value = row.pop(key, None)
-                    if value is not None:
-                        row[key] = iso_datetime(value)
+                if not is_postgresql:
+                    for key in ("first_seen", "last_seen"):
+                        value = row.pop(key, None)
+                        if value is not None:
+                            row[key] = iso_datetime(value)
                 batch.append(row)
 
                 total_count += 1
