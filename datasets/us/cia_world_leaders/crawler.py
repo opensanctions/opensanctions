@@ -9,6 +9,24 @@ DATA_URL = "https://www.cia.gov/resources/world-leaders/page-data/foreign-govern
 SECTIONS = ["leaders", "leaders_2", "leaders_3", "leaders_4"]
 
 
+def clean_position(position: str):
+    replacements = [
+        ("Dep.", "Deputy"),
+        ("Min.", "Minister"),
+        ("Pres.", "President"),
+        ("Gen.", "General"),
+        ("Govt.", "Government"),
+        ("Sec.", "Secretary"),
+        ("Dir.", "Director"),
+        ("Chmn.", "Chairman"),
+        ("Intl.", "International"),
+        ("Mbr.", "Member"),
+    ]
+    for abbrev, full in replacements:
+        position = position.replace(abbrev, full)
+    return position
+
+
 def crawl_leader(
     context: Context,
     country: str,
@@ -20,7 +38,7 @@ def crawl_leader(
     name = name.replace("(Acting)", "")
     if h.is_empty(name):
         return
-    function = leader["title"]
+    function = clean_position(leader["title"])
     gov = collapse_spaces(section)
     if gov:
         function = f"{function} - {gov}"
@@ -40,6 +58,13 @@ def crawl_leader(
     person.add("sourceUrl", source_url)
     person.add("topics", "role.pep")
     context.emit(person, target=True)
+
+    position = h.make_position(context, function, country=country)
+    occupancy = h.make_occupancy(context, person, position, no_end_implies_current=True)
+
+    context.emit(position)
+    context.emit(occupancy)
+
 
 
 def crawl_country(context: Context, country: str) -> None:

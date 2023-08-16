@@ -35,7 +35,7 @@ be considered for inclusion in the helper library.
 """
 from zavod.helpers.xml import remove_namespace
 from zavod.helpers.names import make_name, apply_name
-from zavod.helpers.positions import make_position
+from zavod.helpers.positions import make_position, make_occupancy, OccupancyStatus
 from zavod.helpers.text import clean_note, is_empty, remove_bracketed
 from zavod.helpers.text import multi_split
 from zavod.helpers.sanctions import make_sanction
@@ -65,4 +65,6 @@ __all__ = [
     "make_name",
     "apply_name",
     "make_position",
+    "make_occupancy",
+    "OccupancyStatus"
 ]

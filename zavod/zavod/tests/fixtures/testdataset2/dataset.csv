@@ -1,0 +1,9 @@
+name,position,country,start_date,end_date,no_end_means_current
+Freddie Bloggs,United States representative,us,2019,2021,true
+Freddie Bloggs,United States representative,us,2021,,true
+Jasper Craft,United States representative,us,2019,2021,true
+Kenneth Serrano,United States representative,us,2021,2023,true
+Philip Britt,United States senator,us,2021,,true
+Jeanette Gilmore,United States senator,us,2021,,false
+Rosalyn Fox,United States senator,us,2021,,true
+Jacques Bloggue,Ambassador to United States,fr,2021,,false

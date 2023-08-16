@@ -7,7 +7,6 @@ from nomenklatura.stream import StreamEntity
 from datetime import datetime
 
 from zavod import settings
-from zavod.context import Context
 from zavod.dedupe import get_resolver
 from zavod.exporters import export
 from zavod.archive import clear_data_path
@@ -19,8 +18,9 @@ from zavod.exporters.senzing import SenzingExporter
 from zavod.exporters.statistics import StatisticsExporter
 from zavod.meta import Dataset, load_dataset_from_path
 from zavod.crawl import crawl_dataset
-from zavod.store import get_store
 from zavod.tests.conftest import DATASET_2_YML, COLLECTION_YML
+from zavod.tests.exporters.util import harnessed_export
+
 
 TIME_SECONDS_FMT = "%Y-%m-%dT%H:%M:%S"
 
@@ -125,33 +125,17 @@ def test_custom_export_config(testdataset2_export: Dataset):
     with open(dataset_path / "index.json") as index_file:
         index = load(index_file)
         resources = {r["name"] for r in index["resources"]}
-        for r in set.union(always_exports, {"names.txt"}):
+        for r in set.union(always_exports, {"names.txt", "pep-positions.json"}):
             assert r in resources
-        for r in default_exports - {"names.txt"}:
+        for r in default_exports - {"names.txt", "pep-positions.json"}:
             assert r not in resources
 
     with open(dataset_path / "resources.json") as resources_file:
         resources = {r["name"] for r in load(resources_file)["resources"]}
-        for r in set.union(always_exports, {"names.txt"}):
+        for r in set.union(always_exports, {"names.txt", "pep-positions.json"}):
             assert r in resources
-        for r in default_exports - {"names.txt"}:
+        for r in default_exports - {"names.txt", "pep-positions.json"}:
             assert r not in resources
-
-
-def harnessed_export(exporter_class, dataset) -> None:
-    context = Context(dataset)
-    context.begin(clear=False)
-    store = get_store(dataset)
-    view = store.view(dataset)
-
-    exporter = exporter_class(context, view)
-    exporter.setup()
-    for entity in view.entities():
-        exporter.feed(entity)
-    exporter.finish()
-
-    context.close()
-    store.close()
 
 
 def test_ftm(testdataset1: Dataset):
@@ -210,16 +194,16 @@ def test_ftm_referents(testdataset1: Dataset):
     assert collection is not None
     collection_path = settings.DATA_PATH / "datasets" / collection.name
     crawl_dataset(dataset2)
-    other_dataset_id = "freddie"
+    other_dataset_id = "td2-freddie-bloggs"
     harnessed_export(FtMExporter, collection)
     entities = list(path_entities(collection_path / "entities.ftm.json", EntityProxy))
-    assert len(entities) == 11
+    assert len(entities) == 28
 
     resolver.decide("osv-john-doe", other_dataset_id, Judgement.POSITIVE, user="test")
     clear_data_path(collection.name)
     harnessed_export(FtMExporter, collection)
     entities = list(path_entities(collection_path / "entities.ftm.json", EntityProxy))
-    assert len(entities) == 10
+    assert len(entities) == 27  # After deduplication there's one less entity
     assert [] == [e for e in entities if e.id == other_dataset_id]
 
     john = [e for e in entities if e.id == identifier][0]
@@ -418,3 +402,4 @@ def test_statistics(testdataset1: Dataset):
         "plural": "People",
     } in target_schemata
     assert len(target_schemata) == 3
+

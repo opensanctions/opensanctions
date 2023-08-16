@@ -1,8 +1,21 @@
 from banal import ensure_list
 from typing import Optional, Iterable, List
+from enum import Enum
+from datetime import datetime
 
 from zavod.context import Context
 from zavod.entity import Entity
+from zavod import settings
+from zavod import helpers as h
+
+
+AFTER_OFFICE = 5 * 365
+
+
+class OccupancyStatus(Enum):
+    CURRENT = "current"
+    ENDED = "ended"
+    UNKNOWN = "unknown"
 
 
 def make_position(
@@ -47,7 +60,7 @@ def make_position(
     position.add("name", name, lang=lang)
     position.add("summary", summary, lang=lang)
     position.add("description", description, lang=lang)
-    position.add("country", country, lang=lang)
+    position.add("country", country)
     position.add("organization", organization, lang=lang)
     position.add("subnationalArea", subnational_area, lang=lang)
     position.add("inceptionDate", inception_date)
@@ -70,3 +83,38 @@ def make_position(
         position.id = context.make_id(*parts)
 
     return position
+
+
+def make_occupancy(
+    context: Context,
+    person: Entity,
+    position: Entity,
+    no_end_implies_current: bool,
+    current_time: datetime = settings.RUN_TIME,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+) -> Optional[Entity]:
+    """Create Occupancy entities if they meet our criteria for PEP position occupancy,
+    otherwise just return None.
+
+    Occupancies are only created if end_date is None or less than AFTER_OFFICE years
+    after current_time. current_time defaults to the process start date and time.
+    """
+    if end_date is None or end_date > h.backdate(current_time, AFTER_OFFICE):
+        occupancy = context.make("Occupancy")
+        parts = [person.id, position.id, start_date, end_date]
+        occupancy.id = context.make_id(*parts)
+        occupancy.add("holder", person)
+        occupancy.add("post", position)
+        occupancy.add("startDate", start_date)
+        occupancy.add("endDate", end_date)
+        if end_date:
+            status = OccupancyStatus.ENDED.value
+        else:
+            if no_end_implies_current:
+                status = OccupancyStatus.CURRENT.value
+            else:
+                status = OccupancyStatus.UNKNOWN.value
+        occupancy.add("status", status)
+        return occupancy
+    return None

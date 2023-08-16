@@ -8,34 +8,6 @@ from zavod import Context, Entity
 from zavod import settings
 
 API_KEY = os.environ.get("OPENSANCTIONS_US_CONGRESS_API_KEY")
-AFTER_OFFICE = 5 * 365
-
-
-def make_occupancy(
-    context: Context,
-    person: Entity,
-    position: Entity,
-    start_date: str,
-    end_date: Optional[str],
-    no_end_implies_current: bool,
-) -> Optional[Entity]:
-    """Make occupancies if they meet our criteria for PEP position occupancy"""
-    if end_date is None or end_date > h.backdate(settings.RUN_TIME, AFTER_OFFICE):
-        occupancy = context.make("Occupancy")
-        parts = [person.id, position.id, start_date, end_date]
-        occupancy.id = context.make_id(*parts)
-        occupancy.add("holder", person)
-        occupancy.add("post", position)
-        occupancy.add("startDate", start_date)
-        if end_date:
-            occupancy.add("endDate", end_date)
-        if no_end_implies_current and not end_date:
-            status = "Current"
-        else:
-            status = "Ended"
-        occupancy.add("status", status)
-        return occupancy
-    return None
 
 
 def crawl_positions(context: Context, member, entity):
@@ -45,13 +17,13 @@ def crawl_positions(context: Context, member, entity):
     for term in terms:
         res = context.lookup("position", term["chamber"])
         position = h.make_position(context, res.name, country="us")
-        occupancy = make_occupancy(
+        occupancy = h.make_occupancy(
             context,
             entity,
             position,
-            str(term.pop("startYear")),
-            str(term.pop("endYear")) if "endYear" in term else None,
             True,
+            start_date=str(term.pop("startYear")),
+            end_date=str(term.pop("endYear")) if "endYear" in term else None,
         )
         if occupancy:
             entities.append(position)

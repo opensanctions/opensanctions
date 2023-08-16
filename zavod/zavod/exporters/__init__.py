@@ -1,4 +1,4 @@
-from typing import List, Dict, Type
+from typing import List, Dict, Type, Set
 
 from zavod.logs import get_logger
 from zavod.store import View, get_store
@@ -11,10 +11,19 @@ from zavod.exporters.names import NamesExporter
 from zavod.exporters.simplecsv import SimpleCSVExporter
 from zavod.exporters.senzing import SenzingExporter
 from zavod.exporters.statistics import StatisticsExporter
+from zavod.exporters.peps import PEPSummaryExporter
 from zavod.exporters.metadata import write_dataset_index, write_issues
 
 log = get_logger(__name__)
 
+DEFAULT_EXPORTERS: Set[str] = {
+    StatisticsExporter.FILE_NAME,
+    FtMExporter.FILE_NAME,
+    NestedJSONExporter.FILE_NAME,
+    NamesExporter.FILE_NAME,
+    SimpleCSVExporter.FILE_NAME,
+    SenzingExporter.FILE_NAME,
+}
 EXPORTERS: Dict[str, Type[Exporter]] = {
     StatisticsExporter.FILE_NAME: StatisticsExporter,
     FtMExporter.FILE_NAME: FtMExporter,
@@ -22,6 +31,7 @@ EXPORTERS: Dict[str, Type[Exporter]] = {
     NamesExporter.FILE_NAME: NamesExporter,
     SimpleCSVExporter.FILE_NAME: SimpleCSVExporter,
     SenzingExporter.FILE_NAME: SenzingExporter,
+    PEPSummaryExporter.FILE_NAME: PEPSummaryExporter,
 }
 
 __all__ = ["export_dataset", "write_dataset_index", "write_issues"]
@@ -30,7 +40,7 @@ __all__ = ["export_dataset", "write_dataset_index", "write_issues"]
 def export_data(context: Context, view: View) -> None:
     exporter_names = set(context.dataset.exports)
     if not len(exporter_names):
-        exporter_names.update(EXPORTERS.keys())
+        exporter_names.update(DEFAULT_EXPORTERS)
     exporter_names.add(StatisticsExporter.FILE_NAME)
     exporters: List[Exporter] = []
     for name in exporter_names:
