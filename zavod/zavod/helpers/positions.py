@@ -100,21 +100,26 @@ def make_occupancy(
     Occupancies are only created if end_date is None or less than AFTER_OFFICE years
     after current_time. current_time defaults to the process start date and time.
     """
-    if end_date is None or end_date > h.backdate(current_time, AFTER_OFFICE):
-        occupancy = context.make("Occupancy")
-        parts = [person.id, position.id, start_date, end_date]
-        occupancy.id = context.make_id(*parts)
-        occupancy.add("holder", person)
-        occupancy.add("post", position)
-        occupancy.add("startDate", start_date)
-        occupancy.add("endDate", end_date)
-        if end_date:
+    if end_date is not None and end_date < h.backdate(current_time, AFTER_OFFICE):
+        return None
+
+    if end_date:
+        if end_date < current_time.isoformat():
             status = OccupancyStatus.ENDED.value
         else:
-            if no_end_implies_current:
-                status = OccupancyStatus.CURRENT.value
-            else:
-                status = OccupancyStatus.UNKNOWN.value
-        occupancy.add("status", status)
-        return occupancy
-    return None
+            status = OccupancyStatus.CURRENT.value
+    else:
+        if no_end_implies_current:
+            status = OccupancyStatus.CURRENT.value
+        else:
+            status = OccupancyStatus.UNKNOWN.value
+
+    occupancy = context.make("Occupancy")
+    parts = [person.id, position.id, start_date, end_date]
+    occupancy.id = context.make_id(*parts)
+    occupancy.add("holder", person)
+    occupancy.add("post", position)
+    occupancy.add("startDate", start_date)
+    occupancy.add("endDate", end_date)
+    occupancy.add("status", status)
+    return occupancy
