@@ -271,3 +271,5 @@ lookups:
         value: "1942-12-19"
       - match: "200812.19"
         value: "2008-12-19"
+      - match: （year unknown）
+        value: null

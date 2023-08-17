@@ -20,10 +20,21 @@ SPLITS = SPLITS + ["（a）", "（b）", "（c）", "\n"]
 
 # DATE FORMATS
 FORMATS = ["%Y年%m月%d日", "%Y年%m月%d", "%Y年%m月", "%Y.%m.%d"]
-#                                  "or", "or", "raw", "revised", "date", "and"]
-DATE_SPLITS = SPLITS + ["、", "；", "又は", "または", "生", "改訂", "日", "及び"]
-#                                       Date of revision | revision
-DATE_CLEAN = re.compile(r"(\(|\)|（|）| |改訂日|改訂)")
+DATE_SPLITS = SPLITS + [
+    "、",
+    "；",
+    "又は",  # or
+    "又は",  # or
+    "または",  # or
+    "生",  # living
+    "に改訂",  # revised to
+    "改訂",  # revised
+    "日",  # date
+    "及び",  # and
+    "修正",  # fix
+]
+#                                       Date of revision | revision | part of an OR phrase
+DATE_CLEAN = re.compile(r"(\(|\)|（|）| |改訂日|改訂|まれ)")
 
 # 2019年7月10日；（改訂日2019年12月19日、2020年1月14日、2022年10月5日）
 
@@ -124,15 +135,7 @@ def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str
 
     sanction.add("startDate", parse_date(row.pop("notification_date", [])))
     sanction.add("startDate", parse_date(row.pop("designated_date", [])))
-    listing_date = row.pop("publication_date", [])
-    if listing_date:
-        verbose = True
-    else:
-        verbose = False
-    parsed_listing_date = parse_date(listing_date, verbose)
-    if verbose:
-        print(f"listingDate sheet=[{sheet}] row={rowi}  str='{listing_date}'  {parsed_listing_date}")
-    sanction.add("listingDate", parsed_listing_date)
+    sanction.add("listingDate", parse_date(row.pop("publication_date", [])))
 
     # if len(row):
     #     context.inspect(row)
