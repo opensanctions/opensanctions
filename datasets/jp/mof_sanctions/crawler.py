@@ -73,7 +73,7 @@ def fetch_xls_url(context: Context) -> str:
     context.log.error("Could not find XLS file on MoF web site")
 
 
-def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str]], rowi: int):
+def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str]]):
     schema = context.lookup_value("schema", section)
     if schema is None:
         context.log.warning("No schema for section", section=section, sheet=sheet)
@@ -170,7 +170,7 @@ def crawl(context: Context):
                         if value is not None:
                             values.append(value)
                     data[header] = values
-                emit_row(context, sheet.name, section, data, r)
+                emit_row(context, sheet.name, section, data)
 
             if not len(row) or row[0] is None:
                 continue
