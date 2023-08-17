@@ -20,17 +20,31 @@ SPLITS = SPLITS + ["（a）", "（b）", "（c）", "\n"]
 
 # DATE FORMATS
 FORMATS = ["%Y年%m月%d日", "%Y年%m月%d", "%Y年%m月", "%Y.%m.%d"]
-DATE_SPLITS = SPLITS + ["、", "；", "又は", "または", "生", "改訂", "日", "及び"]
-DATE_CLEAN = re.compile(r"(\(|\)|（|）| |改訂日|改訂)")
+DATE_SPLITS = SPLITS + [
+    "、",
+    "；",
+    "又は",  # or
+    "又は",  # or
+    "または",  # or
+    "生",  # living
+    "に改訂",  # revised to
+    "改訂",  # revised
+    "日",  # date
+    "及び",  # and
+    "修正",  # fix
+]
+# Date of revision | revision | part of an OR phrase
+DATE_CLEAN = re.compile(r"(\(|\)|（|）| |改訂日|改訂|まれ)")
 
 
 def parse_date(text: List[Optional[str]]) -> List[str]:
     dates: List[str] = []
     for date in h.multi_split(text, DATE_SPLITS):
         cleaned = DATE_CLEAN.sub("", date)
-        normal = decompose_nfkd(cleaned)
-        for parsed in h.parse_date(normal, FORMATS, default=date):
-            dates.append(parsed)
+        if cleaned:
+            normal = decompose_nfkd(cleaned)
+            for parsed in h.parse_date(normal, FORMATS, default=date):
+                dates.append(parsed)
     return dates
 
 
@@ -162,7 +176,7 @@ def crawl(context: Context):
                 continue
             teaser = row[0].strip()
             # the first column of the common headers:
-            if "告示日付" in teaser:
+            if "告示日付" in teaser: # jp: Notice date
                 if headers is not None:
                     context.log.error("Found double header?", row=row)
                 # print("SHEET", sheet, row)

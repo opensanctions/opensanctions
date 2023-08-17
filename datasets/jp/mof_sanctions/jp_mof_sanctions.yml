@@ -231,6 +231,8 @@ lookups:
         value: SUHH
       - match: 2002年にクウェート国籍を剥奪された。
         value: null
+      - match: サウディ・アラビア
+        value: Saudi Arabia
   type.date:
     options:
       - match:
@@ -242,13 +244,24 @@ lookups:
           - おおむね30～35歳
           - ３月13
           - ９月28
+          - "1402-06-24"
+          # "From the forged passport"
+          - （偽造旅券より）
+          # "Hijiri calendar"
+          - "（ヒジュラ暦）"
         value: null
       - match: Born on 10 July 1942
         value: "1942-07-10"
       - match: Born at Ravni, Republic of Serbia, on 1 June 1941
         value: "1941-06-01"
+      # Ravni, Republic of Serbia
+      - match: セルビア共和国ラヴニ
+        value: null
       - match: Born at Pozarevac, Republic of Serbia, on 20 August 1941
         value: "1941-08-20"
+      # Pozarevac, Republic of Serbia
+      - match: セルビア共和国ポジャレヴァッツ
+        value: null
       - match: ©1979年3月3
         value: "1979-03-03"
       - match: 1977年8月から9月の間
@@ -257,6 +270,9 @@ lookups:
           - 1977-09
       - match: Born at Bor, Republic of Serbia, on 7 December 1948
         value: "1948-12-07"
+      # Bor, Republic of Serbia
+      - match: セルビア共和国ボル
+        value: null
       - match: Born on 2 July 1974
         value: "1074-07-02"
       - match: 60年
@@ -269,5 +285,10 @@ lookups:
           - 1983-03-10
       - match: Born at Belgrade, Republic of Serbia, on 19 December 1942
         value: "1942-12-19"
+      # Belgrade, Republic of Serbia
+      - match: セルビア共和国ベオグラード
+        value: null
       - match: "200812.19"
         value: "2008-12-19"
+      - match: （year unknown）
+        value: null
