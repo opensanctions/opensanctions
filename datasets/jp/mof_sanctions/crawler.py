@@ -20,17 +20,25 @@ SPLITS = SPLITS + ["（a）", "（b）", "（c）", "\n"]
 
 # DATE FORMATS
 FORMATS = ["%Y年%m月%d日", "%Y年%m月%d", "%Y年%m月", "%Y.%m.%d"]
+#                                  "or", "or", "raw", "revised", "date", "and"]
 DATE_SPLITS = SPLITS + ["、", "；", "又は", "または", "生", "改訂", "日", "及び"]
+#                                       Date of revision | revision
 DATE_CLEAN = re.compile(r"(\(|\)|（|）| |改訂日|改訂)")
 
+# 2019年7月10日；（改訂日2019年12月19日、2020年1月14日、2022年10月5日）
 
-def parse_date(text: List[Optional[str]]) -> List[str]:
+def parse_date(text: List[Optional[str]], verbose=False) -> List[str]:
     dates: List[str] = []
     for date in h.multi_split(text, DATE_SPLITS):
         cleaned = DATE_CLEAN.sub("", date)
-        normal = decompose_nfkd(cleaned)
-        for parsed in h.parse_date(normal, FORMATS, default=date):
-            dates.append(parsed)
+        if verbose:
+            print(f"cleaned   {date}   to   {cleaned}")
+        if cleaned:
+            normal = decompose_nfkd(cleaned)
+            for parsed in h.parse_date(normal, FORMATS, default=date):
+                if verbose:
+                    print(f"normal   {normal}  parsed  {parsed}")
+                dates.append(parsed)
     return dates
 
 
@@ -59,7 +67,7 @@ def fetch_xls_url(context: Context) -> str:
     context.log.error("Could not find XLS file on MoF web site")
 
 
-def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str]]):
+def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str]], rowi: int):
     schema = context.lookup_value("schema", section)
     if schema is None:
         context.log.warning("No schema for section", section=section, sheet=sheet)
@@ -116,7 +124,15 @@ def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str
 
     sanction.add("startDate", parse_date(row.pop("notification_date", [])))
     sanction.add("startDate", parse_date(row.pop("designated_date", [])))
-    sanction.add("listingDate", parse_date(row.pop("publication_date", [])))
+    listing_date = row.pop("publication_date", [])
+    if listing_date:
+        verbose = True
+    else:
+        verbose = False
+    parsed_listing_date = parse_date(listing_date, verbose)
+    if verbose:
+        print(f"listingDate sheet=[{sheet}] row={rowi}  str='{listing_date}'  {parsed_listing_date}")
+    sanction.add("listingDate", parsed_listing_date)
 
     # if len(row):
     #     context.inspect(row)
@@ -156,13 +172,13 @@ def crawl(context: Context):
                         if value is not None:
                             values.append(value)
                     data[header] = values
-                emit_row(context, sheet.name, section, data)
+                emit_row(context, sheet.name, section, data, r)
 
             if not len(row) or row[0] is None:
                 continue
             teaser = row[0].strip()
             # the first column of the common headers:
-            if "告示日付" in teaser:
+            if "告示日付" in teaser: # jp: Notice date
                 if headers is not None:
                     context.log.error("Found double header?", row=row)
                 # print("SHEET", sheet, row)
