@@ -33,22 +33,17 @@ DATE_SPLITS = SPLITS + [
     "及び",  # and
     "修正",  # fix
 ]
-#                                       Date of revision | revision | part of an OR phrase
+# Date of revision | revision | part of an OR phrase
 DATE_CLEAN = re.compile(r"(\(|\)|（|）| |改訂日|改訂|まれ)")
 
-# 2019年7月10日；（改訂日2019年12月19日、2020年1月14日、2022年10月5日）
 
-def parse_date(text: List[Optional[str]], verbose=False) -> List[str]:
+def parse_date(text: List[Optional[str]]) -> List[str]:
     dates: List[str] = []
     for date in h.multi_split(text, DATE_SPLITS):
         cleaned = DATE_CLEAN.sub("", date)
-        if verbose:
-            print(f"cleaned   {date}   to   {cleaned}")
         if cleaned:
             normal = decompose_nfkd(cleaned)
             for parsed in h.parse_date(normal, FORMATS, default=date):
-                if verbose:
-                    print(f"normal   {normal}  parsed  {parsed}")
                 dates.append(parsed)
     return dates
 
