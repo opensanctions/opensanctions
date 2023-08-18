@@ -87,7 +87,7 @@ def make_position(
 
 def make_occupancy(
     context: Context,
-    person: Entity,
+    person: Entity | str,
     position: Entity,
     no_end_implies_current: bool,
     current_time: datetime = settings.RUN_TIME,
@@ -100,9 +100,15 @@ def make_occupancy(
     Occupancies are only created if end_date is None or less than AFTER_OFFICE years
     after current_time. current_time defaults to the process start date and time.
     """
-    if end_date is None or end_date > h.backdate(current_time, AFTER_OFFICE):
+    after_office = h.backdate(current_time, AFTER_OFFICE)
+    if (
+        end_date is None
+        or (type(end_date) == list and any(d > after_office for d in end_date))
+        or (type(end_date) == str and  end_date > after_office)
+    ):
         occupancy = context.make("Occupancy")
-        parts = [person.id, position.id, start_date, end_date]
+        person_id = person if type(person) == str else person.id
+        parts = [person_id, position.id, start_date, end_date]
         occupancy.id = context.make_id(*parts)
         occupancy.add("holder", person)
         occupancy.add("post", position)
