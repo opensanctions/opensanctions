@@ -7,7 +7,7 @@ from zavod import Context
 from zavod import helpers as h
 
 NO_YEAR = re.compile(r"^\d{1,2}\.\d{1,2}\.?$")
-DATE_FORMATS = ["%d.%m.%Y", "%d-%m-%Y"]
+DATE_FORMATS = ["%d.%m.%Y", "%d-%m-%Y", "%Y-%m-%d"]
 
 
 def parse_date(date: str) -> Optional[Iterable[str]]:
@@ -15,7 +15,6 @@ def parse_date(date: str) -> Optional[Iterable[str]]:
         return None
     if NO_YEAR.match(date):
         return None
-
     return h.parse_date(date, DATE_FORMATS)
 
 
