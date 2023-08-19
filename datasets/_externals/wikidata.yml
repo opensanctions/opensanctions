@@ -47,6 +47,7 @@ publisher:
 inputs:
   # Warning: cannot include wd_peps here otherwise it gets too recursive
   - sanctions
+  - peps
   - eu_meps
   - kp_rusi_reports
   - wd_peps
