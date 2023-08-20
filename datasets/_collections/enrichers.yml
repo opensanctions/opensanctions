@@ -1,0 +1,26 @@
+type: collection
+title: Enrichment from external databases
+hidden: true
+disabled: true
+summary: >
+  These data sources are only partially imported where a link to an existing
+  entity of interest can be found.
+children:
+  - cy_companies
+  - cz_business_register
+  - ee_ariregister
+  - gb_coh_psc
+  - gleif
+  - ext_gleif
+  - icij_offshoreleaks
+  - ext_icij_offshoreleaks
+  - ext_lv_business_register
+  - md_companies
+  - ext_md_companies
+  # - nominatim
+  - opencorporates
+  - ru_egrul
+  - ext_ru_egrul
+  - ua_edr
+  - ext_ua_edr
+  - wikidata
