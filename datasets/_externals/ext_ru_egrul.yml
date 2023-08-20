@@ -74,3 +74,9 @@ lookups:
     options:
       - match: МОСКВА, 101000
         value: Moscow
+  type.email:
+    options:
+      - match:
+          - BUH@xn--c1adldkhfelbegn7job.xn--p1ai
+          - INFO@xn-----6kcbabo7acls0bmjmq4a8j.xn--p1ai
+        value: null
