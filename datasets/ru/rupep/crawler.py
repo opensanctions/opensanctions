@@ -60,7 +60,8 @@ def crawl_person(context: Context, data: Dict[str, Any]):
     entity.id = person_id(context, data.pop("id"), wikidata_id)
     if entity.id is None:
         return
-    entity.add("sourceUrl", data.pop("url_en", None))
+    url_en = data.pop("url_en", None)
+    entity.add("sourceUrl", url_en)
     data.pop("url_ru", None)
     entity.add("modifiedAt", data.pop("last_change", None))
     entity.add("wikidataId", wikidata_id)
@@ -83,15 +84,19 @@ def crawl_person(context: Context, data: Dict[str, Any]):
     entity.add("lastName", data.pop("last_name_en", None), lang="eng")
     entity.add("lastName", data.pop("last_name_ru", None), lang="rus")
 
+    last_positions = set()
+
     for lang, suffix in ((None, ""), ("eng", "_en"), ("rus", "_ru")):
         role = data.pop(f"last_job_title{suffix}", None)
         org = data.pop(f"last_workplace{suffix}", None)
         if org is None or not len(org.strip()):
             continue
+        last_positions.add(org)
         position = org
         if role is not None and len(role.strip()):
             position = f"{org} ({role})"
         entity.add("position", position, lang=lang)
+
 
     for country_data in data.pop("related_countries", []):
         rel_type = country_data.pop("relationship_type")
@@ -177,8 +182,27 @@ def crawl_person(context: Context, data: Dict[str, Any]):
     data.pop("reason_of_termination_ru", None)
     # TODO: store images
     data.pop("photo", None)
-    # for company_data in data.pop("related_companies", []):
-    #    crawl_person_company_link(context, entity, company_data)
+
+
+    if person_topic.value is not None and ("role.pep" in person_topic.value or "gov.igo" in person_topic.value):
+        print(url_en)
+        companies = {}
+        for company_data in data.pop("related_companies", []):
+            name_ru = company_data.get("to_company_ru", None)
+            if name_ru:
+                companies[name_ru] = company_data
+            name_en = company_data.get("to_company_en", None)
+            if name_en:
+                companies[name_en] = company_data
+        matches = set(companies.keys()).intersection(last_positions)
+        for match in matches:
+            company = companies[match]
+            is_state = company.get("to_company_is_state", None)
+            print("is_state", is_state, matches)
+            date_finished = company.get("date_finished", None)
+            print("date_finished", date_finished)
+        
+
     data.pop("declarations", None)
     # h.audit_data(data)
     context.emit(entity, target=is_pep)
@@ -245,6 +269,7 @@ def emit_pep_relationship(
         end_date=end_date,
     )
     if occupancy:
+        # print("OCCUPANCY", position.get("name"), position.get("country"), occupancy.get("status"))
         context.emit(position)
         context.emit(occupancy)
 
