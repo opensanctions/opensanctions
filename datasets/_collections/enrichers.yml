@@ -4,6 +4,8 @@ hidden: true
 deploy:
   schedule: "30 3 * * *"
   memory: "2000Mi"
+exports:
+  - statistics.json
 summary: >
   These data sources are only partially imported where a link to an existing
   entity of interest can be found.
