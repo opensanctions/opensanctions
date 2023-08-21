@@ -81,6 +81,71 @@ lookups:
           - Person under sanctions
         value: sanction
 
+  company_relations:
+    options:
+      - match:
+          - owner
+          - co-owner
+          - founder
+          - co-founder
+          - beneficiary
+          - shareholder
+        schema: Ownership
+        from_prop: asset
+        to_prop: owner
+        desc_prop: role
+      - match:
+          - director
+          - head
+          - Chairman of the Board
+          - board member
+          - the president
+          - secretary
+          - CEO
+          - governor
+          - lieutenant governor
+          - vice-chairman
+          - chairman
+          - the chairman
+          - Deputy Director
+          - First Deputy Director
+          - chairman of the board
+          - vice president
+          - deputy general director
+        schema: Directorship
+        from_prop: organization
+        to_prop: director
+        desc_prop: role
+      - match:
+          - employee
+        schema: Employment
+        from_prop: employer
+        to_prop: employee
+        desc_prop: role
+      - match:
+          - chief veterinarian
+        contains:
+          - member of the Commission
+        schema: null
+      - match:
+          - Deputy Minister
+          - deputy
+        schema: Occupancy
+
+  pep_organizations:
+    options:
+      - regex:
+          - ".+ District Council of Deputies"
+          - ".+ City Council of Deputies"
+          - ".+ City Council"
+          - ".+ City Duma"
+        scope: local
+      - regex: ".+ Regional Duma"
+        scope: subnational
+      - match: "The State Duma"
+        scope: national
+      
+
   person_relations:
     options:
       - match:

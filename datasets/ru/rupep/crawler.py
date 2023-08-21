@@ -2,6 +2,8 @@ import os
 import json
 from typing import Any, Dict, Optional, List
 from followthemoney import model
+from csv import writer
+from collections import defaultdict
 
 from zavod import Context
 from zavod import helpers as h
@@ -9,6 +11,14 @@ from zavod.entity import Entity
 
 PASSWORD = os.environ.get("OPENSANCTIONS_RUPEP_PASSWORD")
 FORMATS = ["%d.%m.%Y", "%m.%Y", "%Y", "%b. %d, %Y", "%B %d, %Y"]
+
+unknown_writer = writer(open("maybe-pep-person-roles-companies.csv", "w"))
+unknown_writer.writerow(["count", "role", "role_ru", "name", "name_ru", "is_state", "id"])
+unknowns = defaultdict(int)
+
+known_writer = writer(open("known-pep-person-roles-companies.csv", "w"))
+known_writer.writerow(["count", "role", "role_ru", "name", "name_ru", "scope", "id"])
+knowns = defaultdict(int)
 
 
 def clean_wdid(wikidata_id: Optional[str]):
@@ -185,23 +195,42 @@ def crawl_person(context: Context, data: Dict[str, Any]):
 
 
     if person_topic.value is not None and ("role.pep" in person_topic.value or "gov.igo" in person_topic.value):
-        print(url_en)
-        companies = {}
         for company_data in data.pop("related_companies", []):
             name_ru = company_data.get("to_company_ru", None)
-            if name_ru:
-                companies[name_ru] = company_data
-            name_en = company_data.get("to_company_en", None)
-            if name_en:
-                companies[name_en] = company_data
-        matches = set(companies.keys()).intersection(last_positions)
-        for match in matches:
-            company = companies[match]
-            is_state = company.get("to_company_is_state", None)
-            print("is_state", is_state, matches)
-            date_finished = company.get("date_finished", None)
-            print("date_finished", date_finished)
-        
+            name_short_ru = company_data.get("to_company_short_ru", None)
+            name_ru = name_short_ru or name_ru
+            name = company_data.get("to_company_en", None)
+            name_short = company_data.get("to_company_short_en", None)
+            name = name_short or name
+
+            role = company_data.get("relationship_type_en", None)
+            role_ru = company_data.get("relationship_type_ru", None)
+            
+            is_state = company_data.get("to_company_is_state", None)
+            company_id = company_data.get("company_id")
+            end_date = parse_date(company_data.get("date_finished", None))
+            
+            if end_date is None or end_date[0] > "2019":
+
+                co_rel_res = context.lookup("company_relations", role)
+                pep_co_res = context.lookup("pep_organizations", name)
+
+                if co_rel_res and co_rel_res.schema != "Occupancy":
+                    continue
+                if co_rel_res and co_rel_res.schema == "Occupancy" and pep_co_res:
+                    # "role", "role_ru", "name", "name_ru", "scope", "id"
+                    key = (role, role_ru, name, name_ru, pep_co_res.scope, company_id)
+                    knowns[key] += 1
+                else:
+                    # "role", "role_ru", "name", "name_ru", "is_state", "id"
+                    key = (role, role_ru, name, name_ru, is_state, company_id)
+                    unknowns[key] += 1
+
+
+
+
+
+
 
     data.pop("declarations", None)
     # h.audit_data(data)
@@ -217,6 +246,21 @@ def crawl_peps(context: Context):
     for data in persons:
         crawl_person(context, data)
 
+    sorted_knowns = []
+    for key, count in knowns.items():
+        sorted_knowns.append([count] + list(key))
+    sorted_knowns.sort()
+    sorted_knowns.reverse()
+    for row in sorted_knowns:
+        known_writer.writerow(row)
+
+    sorted_unknowns = []
+    for key, count in unknowns.items():
+        sorted_unknowns.append([count] + list(key))
+    sorted_unknowns.sort()
+    sorted_unknowns.reverse()
+    for row in sorted_unknowns:
+        unknown_writer.writerow(row)
 
 def emit_pep_relationship(
     context: Context,
