@@ -8,6 +8,7 @@ exports:
   - statistics.json
 deploy:
   schedule: "1 6 * * *"
+  memory: "2000Mi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   A collection of all companies registered in Estonia, including directors and

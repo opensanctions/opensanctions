@@ -7,6 +7,7 @@ exports:
   - statistics.json
 deploy:
   schedule: "1 12 * * *"
+  memory: "2000Mi"
   premium: true
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 coverage:
