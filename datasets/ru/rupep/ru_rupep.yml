@@ -128,8 +128,12 @@ lookups:
           - member of the Commission
         schema: null
       - match:
+          - the minister
           - Deputy Minister
           - deputy
+        regex:
+          - "deputy, (member of the"
+          - "judge(, .+)?"
         schema: Occupancy
 
   pep_organizations:
@@ -139,11 +143,15 @@ lookups:
           - ".+ City Council of Deputies"
           - ".+ City Council"
           - ".+ City Duma"
+          - ".+ Regional Court"
         scope: local
       - regex: ".+ Regional Duma"
         scope: subnational
       - match: "The State Duma"
+        regex:
+          - "(The|Russian) *Ministry of"
         scope: national
+      
       
 
   person_relations:
