@@ -13,10 +13,21 @@ API_KEY = os.environ.get("OPENSANCTIONS_PLURAL_API_KEY")
 REGEX_PATH = re.compile(
     "^people-main/data/(?P<jurisdiction>[a-z]{2})/(?P<body>legislature|executive|retired)"
 )
-REGEX_JURISDICTION = re.compile(".+/(?P<type>state|district|territory):(?P<code>[a-z]{2})(?P<place>/place:\w+)?(/government)?$")
+REGEX_JURISDICTION = re.compile(
+    ".+/(?P<type>state|district|territory):(?P<code>[a-z]{2})(?P<place>/place:\w+)?(/government)?$"
+)
 
 
 def crawl_person(context, jurisdictions, house_positions, data: dict[str, Any]):
+    person = context.make("Person")
+    person.id = context.make_id(data.pop("id"))
+    person.add("name", data.pop("name"))
+    person.add("firstName", data.pop("given_name", None))
+    person.add("lastName", data.pop("family_name", None))
+    person.add("gender", data.pop("gender", None))
+    person.add("birthDate", data.pop("birth_date", None))
+
+    pep_entities = []
     for role in data.pop("roles"):
         role_type = role.get("type")
 
@@ -26,28 +37,50 @@ def crawl_person(context, jurisdictions, house_positions, data: dict[str, Any]):
                 # skip local government
                 continue
         else:
-            context.log.warning("No match for jurisdiction.", jurisdiction=role["jurisdiction"])
+            context.log.warning(
+                "No match for jurisdiction.", jurisdiction=role["jurisdiction"]
+            )
             continue
 
-        position_key = (role_match.group("code"), role_type)
+        jurisdiction_code = role_match.group("code")
+        jurisdiction_name = jurisdictions[jurisdiction_code]
+
+        position_key = (jurisdiction_code, role_type)
         position_name = house_positions.get(position_key, None)
         if position_name is None:
             res = context.lookup("position", role_type)
             if res and res.position_prefix:
-                position_name = f'{res.position_prefix} of {jurisdictions[role_match.group("code")]}'
-
+                position_name = f"{res.position_prefix} of {jurisdiction_name}"
         if position_name is None:
-            context.log.warning("Unknown position", position_key=position_key, jurisdiction=role["jurisdiction"])
+            context.log.warning(
+                "Unknown position",
+                position_key=position_key,
+                jurisdiction=role["jurisdiction"],
+            )
             continue
-        #print(
-        #    "  ",
-        #    position_name,
-        #    {"start": role.get("start_date", None), "end": role.get("end_date", None)},
-        #)
 
-        # governor of {state}
-        # member of the {state} senate
-        # member of the {state} house of reps
+        position = h.make_position(
+            context, position_name, country="us", subnational_area=jurisdiction_name
+        )
+        start_date = role.get("start_date", None)
+        end_date = role.get("end_date", None)
+        occupancy = h.make_occupancy(
+            context,
+            person,
+            position,
+            True,
+            start_date=str(start_date) if start_date else None,
+            end_date=str(end_date) if end_date else None,
+        )
+        if occupancy:
+            pep_entities.append(position)
+            pep_entities.append(occupancy)
+
+    if pep_entities:
+        person.add("topics", "role.pep")
+        context.emit(person, target=True)
+    for entity in pep_entities:
+        context.emit(entity)
 
 
 def crawl_jurisdictions(context: Context):
@@ -73,7 +106,9 @@ def crawl_jurisdictions(context: Context):
 
             for org in jurisdiction["organizations"]:
                 if org["classification"] == "upper":
-                    house_positions[(code, "upper")] = f'Member of the {name} {org["name"]}'
+                    house_positions[
+                        (code, "upper")
+                    ] = f'Member of the {name} {org["name"]}'
                 if org["classification"] == "lower":
                     representative = org["districts"][0]["role"]
                     house_positions[
