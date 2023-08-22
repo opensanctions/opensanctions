@@ -28,3 +28,11 @@ url: "https://open.pluralpolicy.com/data/"
 data:
   url: "https://github.com/openstates/people/archive/refs/heads/main.zip"
   format: YAML
+
+lookups:
+  position:
+    options:
+      - match: governor
+        position_prefix: Governor
+      - match: secretary of state
+        position_prefix: Secretary of state
