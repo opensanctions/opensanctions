@@ -13,20 +13,31 @@ API_KEY = os.environ.get("OPENSANCTIONS_PLURAL_API_KEY")
 REGEX_PATH = re.compile(
     "^people-main/data/(?P<jurisdiction>[a-z]{2})/(?P<body>legislature|executive|retired)"
 )
+REGEX_JURISDICTION = re.compile(".+/(?P<type>state|district|territory):(?P<code>[a-z]{2})(?P<place>/place:\w+)?(/government)?$")
 
 
-def crawl_person(context, jurisdictions, house_positions, jurisdiction_code: str, data: dict[str, Any]):
+def crawl_person(context, jurisdictions, house_positions, data: dict[str, Any]):
     for role in data.pop("roles"):
         role_type = role.get("type")
-        position_key = (jurisdiction_code, role_type)
+
+        role_match = REGEX_JURISDICTION.match(role["jurisdiction"])
+        if role_match:
+            if role_match.group("place"):
+                # skip local government
+                continue
+        else:
+            context.log.warning("No match for jurisdiction.", jurisdiction=role["jurisdiction"])
+            continue
+
+        position_key = (role_match.group("code"), role_type)
         position_name = house_positions.get(position_key, None)
         if position_name is None:
             res = context.lookup("position", role_type)
             if res and res.position_prefix:
-                position_name = f"{res.position_prefix} of {jurisdictions[jurisdiction_code]}"
+                position_name = f'{res.position_prefix} of {jurisdictions[role_match.group("code")]}'
 
         if position_name is None:
-            context.log.warning("Unknown position", position_key=position_key)
+            context.log.warning("Unknown position", position_key=position_key, jurisdiction=role["jurisdiction"])
             continue
         #print(
         #    "  ",
@@ -53,13 +64,11 @@ def crawl_jurisdictions(context: Context):
         result = context.fetch_json(url, headers=headers, cache_days=1)
         for jurisdiction in result["results"]:
             name = jurisdiction["name"]
-            match = re.match(
-                ".+/(state|district|territory):([a-z]{2})", jurisdiction.get("division_id")
-            )
+            match = REGEX_JURISDICTION.match(jurisdiction.get("division_id"))
             if not match:
                 print(jurisdiction.get("division_id"))
                 continue
-            code = match.group(2)
+            code = match.group("code")
             jurisdictions[code] = name
 
             for org in jurisdiction["organizations"]:
@@ -92,6 +101,5 @@ def crawl(context: Context):
                         context,
                         jurisdictions,
                         house_positions,
-                        match.group("jurisdiction"),
                         safe_load(filestream),
                     )

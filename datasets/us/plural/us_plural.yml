@@ -36,3 +36,5 @@ lookups:
         position_prefix: Governor
       - match: secretary of state
         position_prefix: Secretary of state
+      - match: chief election officer
+        position_prefix: null
