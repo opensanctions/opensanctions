@@ -102,7 +102,9 @@ def make_occupancy(
     """
     if end_date is None or end_date > h.backdate(current_time, AFTER_OFFICE):
         occupancy = context.make("Occupancy")
-        parts = [person.id, position.id, start_date, end_date]
+        # Include started and ended strings so that two occupancies, one missing start
+        # and and one missing end, don't get normalisted to the same ID
+        parts = [person.id, position.id, "started", start_date, "ended", end_date]
         occupancy.id = context.make_id(*parts)
         occupancy.add("holder", person)
         occupancy.add("post", position)

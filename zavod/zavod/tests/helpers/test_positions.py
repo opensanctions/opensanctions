@@ -69,14 +69,14 @@ def test_make_occupancy(testdataset1: Dataset):
         end_date="2021-01-02",
     )
 
-    assert occupancy.id == "osv-de34e6b03014409e1d8b13aec5264a5f480b5b1d"
+    assert occupancy.id == "osv-0675000c8483d6a9163a48e4eb222fd5e4a2a886"
     assert occupancy.get("holder") == ["thabo"]
     assert occupancy.get("post") == ["osv-40a302b7f09ea065880a3c840855681b18ead5a4"]
     assert occupancy.get("startDate") == ["2021-01-01"]
     assert occupancy.get("endDate") == ["2021-01-02"]
     assert occupancy.get("status") == ["ended"]
 
-    current = make_occupancy(
+    status_current = make_occupancy(
         context,
         person,
         pos,
@@ -84,9 +84,19 @@ def test_make_occupancy(testdataset1: Dataset):
         start_date="1950-01-01",
         current_time=datetime(2021, 1, 1),
     )
-    assert current.get("status") == ["current"]
+    assert status_current.get("status") == ["current"]
 
-    unknown = make_occupancy(
+    ended_before_current = make_occupancy(
+        context,
+        person,
+        pos,
+        True,
+        end_date="1950-01-01",
+        current_time=datetime(1950, 1, 1),
+    )
+    assert ended_before_current.id != status_current.id
+
+    status_unknown = make_occupancy(
         context,
         person,
         pos,
@@ -94,9 +104,9 @@ def test_make_occupancy(testdataset1: Dataset):
         start_date="1950-01-01",
         current_time=datetime(2021, 1, 1),
     )
-    assert unknown.get("status") == ["unknown"]
+    assert status_unknown.get("status") == ["unknown"]
 
-    none = make_occupancy(
+    too_old_none = make_occupancy(
         context,
         person,
         pos,
@@ -105,4 +115,4 @@ def test_make_occupancy(testdataset1: Dataset):
         end_date="2015-01-01",
         current_time=datetime(2020, 1, 1),
     )
-    assert none is None
+    assert too_old_none is None
