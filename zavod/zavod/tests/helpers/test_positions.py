@@ -76,43 +76,26 @@ def test_make_occupancy(testdataset1: Dataset):
     assert occupancy.get("endDate") == ["2021-01-02"]
     assert occupancy.get("status") == ["ended"]
 
-    status_current = make_occupancy(
-        context,
-        person,
-        pos,
-        True,
-        start_date="1950-01-01",
-        current_time=datetime(2021, 1, 1),
+    def make(implies, start, end):
+        return make_occupancy(
+        context, person, pos, implies, datetime(2021, 1, 1), start, end
     )
-    assert status_current.get("status") == ["current"]
 
-    ended_before_current = make_occupancy(
-        context,
-        person,
-        pos,
-        True,
-        end_date="1950-01-01",
-        current_time=datetime(1950, 1, 1),
-    )
-    assert ended_before_current.id != status_current.id
+    current_no_end = make(True, "2020-01-01", None)
+    assert current_no_end.get("status") == ["current"]
 
-    status_unknown = make_occupancy(
-        context,
-        person,
-        pos,
-        False,
-        start_date="1950-01-01",
-        current_time=datetime(2021, 1, 1),
-    )
-    assert status_unknown.get("status") == ["unknown"]
+    ended_no_start = make(True, None, "2020-01-01")
+    assert ended_no_start.get("status") == ["ended"]
+    assert ended_no_start.id != current_no_end.id
 
-    too_old_none = make_occupancy(
-        context,
-        person,
-        pos,
-        False,
-        start_date="1950-01-01",
-        end_date="2015-01-01",
-        current_time=datetime(2020, 1, 1),
-    )
-    assert too_old_none is None
+    current_with_end = make(True, "1950-01-01", "2021-01-02")
+    assert current_with_end.get("status") == ["current"]
+
+    ended = make(True, "1950-01-01", "2020-12-31")
+    assert ended.get("status") == ["ended"]
+
+    unknown = make(False, "1950-01-01", None)
+    assert unknown.get("status") == ["unknown"]
+
+    none = make(False, "1950-01-01", "2015-01-01")
+    assert none is None

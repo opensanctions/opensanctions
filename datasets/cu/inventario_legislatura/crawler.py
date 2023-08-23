@@ -26,8 +26,14 @@ IGNORE_COLUMNS = [
 
 def crawl(context: Context):
     pos = "X Legislatura de la Asamblea Nacional del Poder Popular (ANPP)"
+    inception_date = "2023"
+    dissolution_date = "2028"
     position = h.make_position(
-        context, pos, country="cu", inception_date="2023", dissolution_date="2028"
+        context,
+        pos,
+        country="cu",
+        inception_date=inception_date,
+        dissolution_date=dissolution_date,
     )
     context.emit(position)
 
@@ -60,6 +66,16 @@ def crawl(context: Context):
         entity.add("birthDate", dob)
         entity.add("nationality", "cu")
         entity.add("topics", "role.pep")
+
+        occupancy = h.make_occupancy(
+            context,
+            entity,
+            position,
+            start_date=inception_date,
+            end_date=dissolution_date,
+            no_end_implies_current=True,
+        )
+        context.emit(occupancy)
 
         context.audit_data(data, ignore=IGNORE_COLUMNS)
         context.emit(entity, target=True)
