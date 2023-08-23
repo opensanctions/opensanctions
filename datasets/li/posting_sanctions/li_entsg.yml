@@ -1,0 +1,47 @@
+title: Liechtenstein Posted Workers Act
+
+prefix: li-entsg
+entry_point: crawler.py
+coverage:
+  frequency: daily
+deploy:
+  schedule: "17 */2 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+
+summary: |
+  Companies and persons against whom a legally binding sanction
+  has been imposed in accordance with articles 7 and 9 of the
+  Liechtenstein Posted Workers Act (Entsendegesetz, EntsG)
+
+description: |
+  The Office of Economic Affairs of the Principality of Liechtenstein
+  publishes a list of companies and persons against whom a legally binding
+  sanction has been imposed in accordance with articles 7 and 9 of the
+  Liechtenstein Posted Workers Act (Entsendegesetz, EntsG).
+
+  * [Posted Workers Act (Entsendegesetz, EntsG)](https://www.gesetze.li/konso/2000.88)
+  * [Posted Workers Decree (Entsendeverordnung, EntsV)](https://www.gesetze.li/konso/2019.371)
+
+publisher:
+  name: Office of Economic Affairs
+  description: |
+    The Office of Economic Affairs is a government agency
+    of the Principality of Liechtenstein. It is part of
+    the Ministry of the Interior, Justice and Economy
+  country: li
+  url: https://www.llv.li/de/landesverwaltung/amt-fuer-volkswirtschaft
+  official: true
+
+url: https://www.llv.li/de/unternehmen/berichtspflichten-bewilligungen/grenzueberschreitende-dienstleistungen/entsendung-von-arbeitnehmern/sanktionsliste-gemaess-art.-7-abs.-4-entsg
+
+data:
+  url: https://www.llv.li/de/unternehmen/berichtspflichten-bewilligungen/grenzueberschreitende-dienstleistungen/entsendung-von-arbeitnehmern/sanktionsliste-gemaess-art.-7-abs.-4-entsg
+  format: HTML
+
+lookups:
+  classifications:
+    options:
+      - match: Individual
+        value: Person
+      - match: Firm
+        value: Company
