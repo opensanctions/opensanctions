@@ -40,13 +40,13 @@ inputs:
   # - ext_ee_ariregister
   # - ext_gb_coh_psc
   # - ext_gleif
-  - ext_icij_offshoreleaks
-  - ext_lv_business_register
+  # - ext_icij_offshoreleaks
+  # - ext_lv_business_register
   # - ext_md_companies
-  - opencorporates
+  # - opencorporates
   # - ext_ru_egrul
   # - ru_rupep
-  - ru_rupep_companies
+  # - ru_rupep_companies
   # - ext_ua_edr
   - debarment
 
