@@ -1,0 +1,38 @@
+type: collection
+title: Open Ownership BODS
+hidden: true
+deploy:
+  memory: "2000Mi"
+  disk: "100Gi"
+coverage:
+  frequency: weekly
+exports:
+  - statistics.json
+  - entities.ftm.json
+summary: >
+  Corporate ownership records from various countries published using Open Ownership's
+  Beneficial Ownership Data Standard (BODS).
+description: |
+  The data in this collection is full beneficial ownership registers, not just the
+  subsets which are adjacent to sanctioned or other risky entities and thus included 
+  in the [OpenSanctions default](/datasets/default/) dataset. This data is not fully
+  internally resolved in the same way that the rest of OpenSanctions is.
+
+  For the UK PSC and Latvian beneficial ownership database, we retrieve the data
+  directly from their respective data publishers in order to guarantee a weekly
+  refresh cycle.
+url: https://bods-data.openownership.org/
+publisher:
+  name: Open Ownership
+  url: https://www.openownership.org/en/
+  official: false
+  description: |
+    Open Ownership provides policy guidance and technical support to governments
+    that wish to make information regarding the ownership of companies available
+    in a structured form.
+children:
+  - gb_coh_psc
+  - gleif
+  - lv_business_register
+  - sk_rpvs
+  - dk_cvr
