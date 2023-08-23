@@ -4,6 +4,7 @@ hidden: true
 deploy:
   memory: "2000Mi"
   disk: "300Gi"
+  premium: true
 coverage:
   frequency: monthly
 exports:
