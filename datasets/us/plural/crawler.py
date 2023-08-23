@@ -62,8 +62,17 @@ def crawl_person(context, jurisdictions, house_positions, data: dict[str, Any]):
         position_name = house_positions.get(position_key, None)
         if position_name is None:
             res = context.lookup("position", role_type)
-            if res and res.position_prefix:
-                position_name = f"{res.position_prefix} of {jurisdiction_name}"
+            if res:
+                if res.position_prefix:
+                    position_name = f"{res.position_prefix} of {jurisdiction_name}"
+                else:
+                    # Explicitly marked positions we're not interested in
+                    context.log.info(
+                        "Skipping position.",
+                        source_id=source_id,
+                        position_key=position_key,
+                    )
+                    continue
         if position_name is None:
             context.log.warning(
                 "Unknown position",
@@ -132,14 +141,17 @@ def crawl_jurisdictions(context: Context):
             jurisdictions[code] = name
 
             for org in jurisdiction["organizations"]:
-                if org["classification"] == "upper":
+                type = org["classification"]
+                if type == "legislature":
+                    house_positions[(code, type)] = f'Member of the {org["name"]}'
+                if type == "upper":
                     house_positions[
-                        (code, "upper")
+                        (code, type)
                     ] = f'Member of the {name} {org["name"]}'
-                if org["classification"] == "lower":
+                if type == "lower":
                     representative = org["districts"][0]["role"]
                     house_positions[
-                        (code, "lower")
+                        (code, type)
                     ] = f'Member of the {name} {org["name"]} of {representative}s'
 
         if query.get("page") == result.get("pagination").get("max_page", None):
