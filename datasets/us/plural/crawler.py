@@ -19,13 +19,26 @@ REGEX_JURISDICTION = re.compile(
 
 
 def crawl_person(context, jurisdictions, house_positions, data: dict[str, Any]):
+    if data.pop("death_date", None):
+        return
     person = context.make("Person")
-    person.id = context.make_id(data.pop("id"))
+    source_id = data.pop("id")
+    person.id = context.make_id(source_id)
+    person.add("country", "us")
     person.add("name", data.pop("name"))
+    other_names = [n["name"] for n in data.pop("other_names", [])]
+    person.add("alias", other_names)
     person.add("firstName", data.pop("given_name", None))
     person.add("lastName", data.pop("family_name", None))
+    person.add("middleName", data.pop("middle_name", None))
+    person.add("nameSuffix", data.pop("suffix", None))
     person.add("gender", data.pop("gender", None))
     person.add("birthDate", data.pop("birth_date", None))
+    person.add("description", data.pop("biography", None))
+    homepages = [
+        l["url"] for l in data.pop("links", []) if l.get("note", None) == "homepage"
+    ]
+    person.add("website", homepages)
 
     pep_entities = []
     for role in data.pop("roles"):
@@ -75,6 +88,20 @@ def crawl_person(context, jurisdictions, house_positions, data: dict[str, Any]):
         if occupancy:
             pep_entities.append(position)
             pep_entities.append(occupancy)
+
+    context.audit_data(
+        data,
+        ignore=[
+            "email",
+            "image",
+            "party",
+            "other_identifiers",
+            "sources",
+            "offices",
+            "extras",
+            "ids",
+        ],
+    )
 
     if pep_entities:
         person.add("topics", "role.pep")
