@@ -1,0 +1,40 @@
+title: Plural Legislators (formerly OpenStates)
+entry_point: crawler.py
+prefix: plural
+coverage:
+  frequency: weekly
+deploy:
+  schedule: "30 */6 * * *"
+  memory: "1000Mi"
+summary: >
+  Open data on federal and local legislators
+publisher:
+  name: Plural
+  description: |
+    Plural provides data and functionnality to track and collaborate around
+    public policy.
+
+    From their website:
+
+    > We help you shape policy together, so you can shape the future. It starts
+    > with providing the most complete information about the policies that
+    > impact us.
+
+    OpenStates became part of Plural in 2021.
+  url: "https://pluralpolicy.com/"
+  country: us
+  official: false
+url: "https://open.pluralpolicy.com/data/"
+data:
+  url: "https://github.com/openstates/people/archive/refs/heads/main.zip"
+  format: YAML
+
+lookups:
+  position:
+    options:
+      - match: governor
+        position_prefix: Governor
+      - match: secretary of state
+        position_prefix: Secretary of state
+      - match: chief election officer
+        position_prefix: null

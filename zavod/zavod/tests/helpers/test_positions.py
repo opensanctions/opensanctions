@@ -69,7 +69,7 @@ def test_make_occupancy(testdataset1: Dataset):
         end_date="2021-01-02",
     )
 
-    assert occupancy.id == "osv-de34e6b03014409e1d8b13aec5264a5f480b5b1d"
+    assert occupancy.id == "osv-0675000c8483d6a9163a48e4eb222fd5e4a2a886"
     assert occupancy.get("holder") == ["thabo"]
     assert occupancy.get("post") == ["osv-40a302b7f09ea065880a3c840855681b18ead5a4"]
     assert occupancy.get("startDate") == ["2021-01-01"]
@@ -81,8 +81,12 @@ def test_make_occupancy(testdataset1: Dataset):
         context, person, pos, implies, datetime(2021, 1, 1), start, end
     )
 
-    current_no_end = make(True, "1950-01-01", None)
+    current_no_end = make(True, "2020-01-01", None)
     assert current_no_end.get("status") == ["current"]
+
+    ended_no_start = make(True, None, "2020-01-01")
+    assert ended_no_start.get("status") == ["ended"]
+    assert ended_no_start.id != current_no_end.id
 
     current_with_end = make(True, "1950-01-01", "2021-01-02")
     assert current_with_end.get("status") == ["current"]
