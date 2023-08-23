@@ -18,12 +18,17 @@ REGEX_JURISDICTION = re.compile(
 )
 
 
+def make_source_url(id: str) -> str:
+    return f'https://pluralpolicy.com/app/person/{id.replace("ocd-person/", "")}'
+
+
 def crawl_person(context, jurisdictions, house_positions, data: dict[str, Any]):
     if data.pop("death_date", None):
         return
     person = context.make("Person")
     source_id = data.pop("id")
     person.id = context.make_id(source_id)
+    person.add("sourceUrl", make_source_url(source_id))
     person.add("country", "us")
     person.add("name", data.pop("name"))
     other_names = [n["name"] for n in data.pop("other_names", [])]
