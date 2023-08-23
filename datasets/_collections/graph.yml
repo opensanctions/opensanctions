@@ -40,6 +40,7 @@ datasets:
   - sk_rpvs
   - dk_cvr
   - ru_rupep_companies
+  - de_offeneregister
 
   # misc
   - wd_oligarchs
