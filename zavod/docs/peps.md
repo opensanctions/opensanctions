@@ -12,10 +12,10 @@ crime laws in many countries. Read more about our [PEP data](https://www.opensan
 
 In addition to capturing general information about PEPs, a PEP crawler must
 
-- Generate [Position entities](https://www.opensanctions.org/reference/#schema.Position) for each position in the dataset
-- Generate [Occupancy entities](https://www.opensanctions.org/reference/#schema.Occupancy) representing the act of each person occupying a position for a period of time
-- Add the `role.pep` [topic](https://www.opensanctions.org/reference/#type.topic) to each PEP Person entity
-- Add the `role.rca` [topic](https://www.opensanctions.org/reference/#type.topic) to each relative or close associate, as well as the most appropriate entity to represent the relationship, e.g. [Family](https://www.opensanctions.org/reference/#schema.Family), [Associate](https://www.opensanctions.org/reference/#schema.Associate), or [UnknownLink](https://www.opensanctions.org/reference/#schema.UnknownLink)
+- Generate a [Position entity](https://www.opensanctions.org/reference/#schema.Position) for each position where a person has the kind of influence causing them to be defined as a PEP.
+- Generate [Occupancy entities](https://www.opensanctions.org/reference/#schema.Occupancy) representing the act of each person occupying a position for a period of time.
+- Add the `role.pep` [topic](https://www.opensanctions.org/reference/#type.topic) to each PEP Person entity.
+- Add the `role.rca` [topic](https://www.opensanctions.org/reference/#type.topic) to each relative or close associate, as well as the most appropriate entity to represent the relationship, e.g. [Family](https://www.opensanctions.org/reference/#schema.Family), [Associate](https://www.opensanctions.org/reference/#schema.Associate), or [UnknownLink](https://www.opensanctions.org/reference/#schema.UnknownLink).
 
 ## Creating Positions
 
@@ -54,7 +54,7 @@ Avoid
   when a given person holds a position. If the same position occurs twice in time, 
   e.g. it was only possible to be `Minister of Electricity` up until 2015 and 
   again from 2023, those can be distinguished sufficiently using the dissolution 
-  and inception properties.
+  and inception properties rather than the name.
 
 Use the [`make_position`][zavod.helpers.make_position] helper to generate position entities consistently. 
 
@@ -73,7 +73,8 @@ Use the [`make_position`][zavod.helpers.make_position] helper to generate positi
 ## Creating Occupancies
 
 Occupanies represent the fact that a person holds or held a position for a given
-period of time.
+period of time. If a person holds the same position numerous times, emit an
+occupancy for each instance.
 
 For most positions, someone holding a position becomes less and less significant over time.
 It becomes less important to carry out anti money-laundering checks on people the
