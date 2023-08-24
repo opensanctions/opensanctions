@@ -201,12 +201,12 @@ pager like `less` together to browse and search within the `[targets.nested.json
 output using a command like
 
 ```bash
-jq data/datasets/eu_fsf_demo/targets.nested.json --color-output | less
+jq . data/datasets/eu_fsf_demo/targets.nested.json --color-output | less
 ```
 
 Good things to check are
 
-- The number of entities produced of each type
+- The number of entities produced of each type are as expected for your dataset
 - Spot checking some specific persons, companies, and relations between them, as relevant to your data
 - Any warnings in the crawler output
 

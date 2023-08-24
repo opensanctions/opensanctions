@@ -50,3 +50,4 @@ nav:
   - context.md
   - helpers.md
   - patterns.md
+  - PEPs: peps.md
