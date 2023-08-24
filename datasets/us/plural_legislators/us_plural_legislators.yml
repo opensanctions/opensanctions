@@ -7,7 +7,15 @@ deploy:
   schedule: "30 */6 * * *"
   memory: "1000Mi"
 summary: >
-  Open data on federal and local legislators
+  Open data on federal, state and local legislators in the United States of
+  America.
+description: |
+  The OpenStates project is building and maintaining a fleet of scrapers to
+  collect data on legislators in the United States of America. This dataset
+  includes data on legislators at the federal, state and local levels.
+
+  The dataset is available under a CC-0 license, making it entirely free to
+  use.
 publisher:
   name: Plural
   description: |

@@ -1,9 +1,9 @@
+import re
+import os
+from typing import Any
 from zipfile import ZipFile
 from pantomime.types import ZIP
 from yaml import safe_load
-from typing import Any
-import re
-import os
 from urllib.parse import urlencode
 
 from zavod.context import Context
@@ -41,7 +41,9 @@ def crawl_person(context, jurisdictions, house_positions, data: dict[str, Any]):
     person.add("birthDate", data.pop("birth_date", None))
     person.add("description", data.pop("biography", None))
     homepages = [
-        l["url"] for l in data.pop("links", []) if l.get("note", None) == "homepage"
+        link["url"]
+        for link in data.pop("links", [])
+        if link.get("note", None) == "homepage"
     ]
     person.add("website", homepages)
 
