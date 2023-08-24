@@ -187,6 +187,37 @@ def crawl(context):
 
 The [entity object][zavod.entity.Entity] is based on the [entity proxy in FollowTheMoney](https://followthemoney.tech/reference/python/followthemoney/proxy.html#EntityProxy), so we suggest you also check out the [FtM documentation](https://followthemoney.tech/docs/api/) on entity construction. Some additional utility methods are added in the [`Entity`][zavod.entity.Entity] class in `zavod`.
 
+### Verifying your output
+
+Now that you're extracting data, it's a good idea to start verifying your output. Start by exportng your crawler's data:
+
+```bash
+zavod export datasets/eu/fsf/eu_fsf_demo.yml
+```
+
+This will log a number of different file types that are exported by default. A nice way
+to explore the output is using the JSON command line utility `jq` and your favourite text
+pager like `less` together to browse and search within the `[targets.nested.json](https://www.opensanctions.org/docs/bulk/json/#:~:text=targets.nested.json)`
+output using a command like
+
+```bash
+jq data/datasets/eu_fsf_demo/targets.nested.json --color-output | less
+```
+
+Good things to check are
+
+- The number of entities produced of each type
+- Spot checking some specific persons, companies, and relations between them, as relevant to your data
+- Any warnings in the crawler output
+
+### Next steps
+
+You may now want to level up your crawler by looking at
+
+- [helpers](helpers.md) for common tasks,
+- [common patterns](patterns.md) for building crawlers,
+- the [PEPs guide](peps.md) if you're crawling Politically Exposed Persons and their Relatives and Close Associates.
+
 ## Checklist
 
 When contributing a new data source, or some other change, make sure of the following:
