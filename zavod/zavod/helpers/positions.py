@@ -102,9 +102,14 @@ def make_occupancy(
 
     Args:
         context: The context to create the entity in.
-        person: The person holding the position. They will be added to the `holder` property.
-        position: The position held by the person. This will be added to the `post` property.
-        no_end_implies_current: Set this to True if a dataset is regularly maintained and it can be assumed that no end date implies the position is currently held. In this case, `status` will be set to `current`. Otherwise, `status` will be set to `unknown`.
+        person: The person holding the position. They will be added to the 
+            `holder` property.
+        position: The position held by the person. This will be added to the
+            `post` property.
+        no_end_implies_current: Set this to True if a dataset is regularly maintained
+            and it can be assumed that no end date implies the person is currently
+            occupying this position. In this case, `status` will be set to `current`.
+            Otherwise, `status` will be set to `unknown`.
         current_time: Defaults to the run time of the current crawl.
         start_date: Set if the date the person started occupying the position is known.
         end_date: Set if the date the person left the position is known.

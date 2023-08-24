@@ -45,8 +45,8 @@ Avoid
 - Prefer `United States representative` over `Member of the House of Representatives` - 
   while it's true that they're a member of the house of representatives, the 
   common generic term is United States representative.
-- Prefer `Member of the Landtag of Mecklenburg-Vorpommern` over `Member of the 
-  Landtag of Mecklenburg-Vorpommern, Germany` - the country is already captured
+- Prefer `Member of the Landtag of Mecklenburg-Vorpommern` over `Member of the Landtag of Mecklenburg-Vorpommern, Germany` -
+  the country is already captured
   as a property of the entity.
 - Prefer `Member of the Hellenic Parliament` over `Member of the 17th Hellenic 
   Parliament (2015-202019)` - there is currently no need to distinguish between 
