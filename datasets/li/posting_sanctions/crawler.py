@@ -22,10 +22,11 @@ MONTHS_DE = {
 
 
 COUNTRY_CODES = {
-    "A": "at",
-    "D": "de",
-    "F": "fr",
-    "I": "it",
+    "A": "at",   # Austria
+    "D": "de",   # Germany
+    "F": "fr",   # France
+    "I": "it",   # Italy
+    "SL": "si",  # Slovenia
 }
 
 
