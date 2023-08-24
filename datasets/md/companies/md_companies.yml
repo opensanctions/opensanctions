@@ -1,7 +1,7 @@
 name: md_companies
 title: State Register of legal entities in the Republic of Moldova
 prefix: md
-disabled: true
+disabled: false
 entry_point: parse.py
 coverage:
   frequency: weekly
