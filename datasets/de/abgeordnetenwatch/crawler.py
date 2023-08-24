@@ -8,7 +8,7 @@ from zavod import helpers as h
 
 def crawl(context: Context):
     # Fetch the source data URL specified in the metadata to a local path:
-    api_response = context.fetch_json(context.dataset.data.url)
+    api_response = context.fetch_json(context.dataset.data.url, cache_days=30)
     total_results = api_response["meta"]["result"]["total"]
     num_batches = math.ceil(total_results / 100)
 
@@ -19,7 +19,9 @@ def crawl(context: Context):
         )
         if bi > 0:
             api_response = context.fetch_json(
-                context.dataset.data.url, params={"range_start": bi * 100}
+                context.dataset.data.url,
+                params={"range_start": bi * 100},
+                cache_days=30,
             )
             batch_total_results = api_response["meta"]["result"]["total"]
             if batch_total_results != total_results:
@@ -33,9 +35,7 @@ def crawl(context: Context):
 
             position = h.make_position(
                 context,
-                name="Member of Parliament ({} - {}) - Germany/{}".format(
-                    inception_date, dissolution_date, state
-                ),
+                name="Member of Parliament",
                 country="Germany",
                 subnational_area=state,
                 inception_date=inception_date,
@@ -44,6 +44,18 @@ def crawl(context: Context):
 
             person = context.make("Person")
             person.id = context.make_id(candidate["politician"]["id"])
+
+            # Get the politician birthday date
+            context.log.info(
+                "Get Politician {} birth year".format(candidate["politician"]["label"])
+            )
+            api_response = context.fetch_json(
+                candidate["politician"]["api_url"], cache_days=30
+            )
+            birthYear = api_response["data"]["year_of_birth"]
+            person.add("birthDate", birthYear)
+
+            # Get fullname
             h.apply_name(person, full=candidate["politician"]["label"])
             occupancy = h.make_occupancy(
                 context, person, position, False, start_date=candidate["start_date"]
