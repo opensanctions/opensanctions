@@ -94,11 +94,25 @@ def make_occupancy(
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,
 ) -> Optional[Entity]:
-    """Create Occupancy entities if they meet our criteria for PEP position occupancy,
-    otherwise just return None.
+    """Creates and returns an Occupancy entity if the arguments meet our criteria
+    for PEP position occupancy, otherwise returns None.
 
-    Occupancies are only created if end_date is None or less than AFTER_OFFICE years
+    Occupancies are only returned if end_date is None or less than AFTER_OFFICE years
     after current_time. current_time defaults to the process start date and time.
+
+    Args:
+        context: The context to create the entity in.
+        person: The person holding the position. They will be added to the 
+            `holder` property.
+        position: The position held by the person. This will be added to the
+            `post` property.
+        no_end_implies_current: Set this to True if a dataset is regularly maintained
+            and it can be assumed that no end date implies the person is currently
+            occupying this position. In this case, `status` will be set to `current`.
+            Otherwise, `status` will be set to `unknown`.
+        current_time: Defaults to the run time of the current crawl.
+        start_date: Set if the date the person started occupying the position is known.
+        end_date: Set if the date the person left the position is known.
     """
 
     if end_date is not None and end_date < h.backdate(current_time, AFTER_OFFICE):
