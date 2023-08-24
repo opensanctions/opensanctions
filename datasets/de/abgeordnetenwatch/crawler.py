@@ -45,9 +45,13 @@ def crawl(context: Context):
             person = context.make("Person")
             person.id = context.make_id(candidate["politician"]["id"])
             h.apply_name(person, full=candidate["politician"]["label"])
-            h.make_occupancy(context, person, position, False)
-            context.emit(person)
-            context.emit(position)
+            occupancy = h.make_occupancy(
+                context, person, position, False, start_date=candidate["start_date"]
+            )
+            if occupancy:
+                context.emit(person, target=True)
+                context.emit(position)
+                context.emit(occupancy)
 
         # Increment batch number
         bi += 1
