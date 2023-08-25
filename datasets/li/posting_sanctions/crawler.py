@@ -87,8 +87,7 @@ def parse_target(context: Context, name: str, address: Entity, date: str) -> Ent
         # "Wilhelm Alexander, Herr Alexander Wilhelm"
         given_name, family_name = " ".join(w[:-1]), w[-1]
     person.id = context.make_id("Person", given_name, family_name, gender)
-    person.add("firstName", given_name)
-    person.add("lastName", family_name)
+    h.apply_name(person, given_name=given_name, last_name=family_name)
     person.add("gender", gender)
     company_name = company_name.removeprefix(f"{family_name} {given_name}")
     company_name = company_name.removeprefix(",").strip()
