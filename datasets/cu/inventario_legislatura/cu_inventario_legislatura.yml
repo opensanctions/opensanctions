@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: cuinv
 coverage:
   frequency: monthly
+  end: 2024-04-09
 deploy:
   schedule: "0 0 * * 0"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
