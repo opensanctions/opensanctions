@@ -1,6 +1,6 @@
-from datetime import datetime
-import lxml
 import re
+from datetime import datetime
+from typing import Optional
 
 from zavod import Context, Entity
 from zavod import helpers as h
@@ -22,10 +22,10 @@ MONTHS_DE = {
 
 
 COUNTRY_CODES = {
-    "A": "at",   # Austria
-    "D": "de",   # Germany
-    "F": "fr",   # France
-    "I": "it",   # Italy
+    "A": "at",  # Austria
+    "D": "de",  # Germany
+    "F": "fr",  # France
+    "I": "it",  # Italy
     "SL": "si",  # Slovenia
 }
 
@@ -38,7 +38,7 @@ ADDRESS_FIXES = {
 }
 
 
-def parse_data_time(doc) -> datetime:
+def parse_data_time(doc) -> Optional[datetime]:
     text = doc.xpath("//p[starts-with(., 'Stand:')]/strong")[0].text
     for de, en in MONTHS_DE.items():
         # Adding space to prevent replacing Jänner -> January -> Januaryy
@@ -69,13 +69,15 @@ def parse_address(context: Context, addr: str) -> Entity:
     )
 
 
-def parse_target(context: Context, name: str, address: Entity, date: str) -> Entity:
+def parse_target(
+    context: Context, name: str, address: Entity, date: str
+) -> Optional[Entity]:
     name = " ".join(name.replace("\u00a0", " ").split())
     person = context.make("Person")
     m = re.search(r"^(.+), (Frau|Herr[n]?) (.+)$", name)
-    if m == None:
+    if m is None:
         context.log.warn(f'Cannot parse target "{name}"')
-        return None
+        return
     company_name = m.group(1)
     gender = {"Frau": "female", "Herr": "male", "Herrn": "male"}[m.group(2)]
     w = m.group(3).split()
@@ -115,7 +117,7 @@ def parse_target(context: Context, name: str, address: Entity, date: str) -> Ent
     return company
 
 
-def parse_debarments(context, doc):
+def parse_debarments(context: Context, doc):
     table = doc.xpath(
         "//h2[text()='Laufende und abgelaufene Entsendesperren"
         + " (Art. 7 Abs. 2 Entsendegesetz)']/following::table[1]"
@@ -126,6 +128,8 @@ def parse_debarments(context, doc):
         start = h.parse_date(start, ["%d.%m.%Y"])
         end = h.parse_date(end, ["%d.%m.%Y"])
         target = parse_target(context, name, address, start)
+        if target is None:
+            continue
         target.add("topics", "debarment")
         sanction = h.make_sanction(context, target)
         sanction.id = context.make_id(
@@ -134,14 +138,15 @@ def parse_debarments(context, doc):
         sanction.add("startDate", start)
         sanction.add("endDate", end)
         sanction.add("description", "Debarment")
-        sanction.add(
-            "reason",
-            f"Repeated or severe infraction against Liechtenstein Posted Workers Act, {law}",
+        reason = (
+            "Repeated or severe infraction against "
+            f"Liechtenstein Posted Workers Act, {law}"
         )
+        sanction.add("reason", reason)
         context.emit(sanction)
 
 
-def parse_infractions(context, doc):
+def parse_infractions(context: Context, doc):
     table = doc.xpath(
         "//h2[text()='Übertretungen (Art. 9 Entsendegesetz)']/following::table[1]"
     )[0]
@@ -161,10 +166,9 @@ def parse_infractions(context, doc):
 
 
 def crawl(context: Context):
-    source_path = context.fetch_resource("source.html", context.dataset.data.url)
+    source_path = context.fetch_resource("source.html", context.data_url)
     context.export_resource(source_path, "text/html", title="Source HTML file")
-    with open(source_path, "r") as fh:
-        doc = lxml.html.fromstring(fh.read())
+    doc = context.parse_resource_xml(source_path)
     if data_time := parse_data_time(doc):
         context.log.info(f"Parsing data version of {data_time}")
         context.data_time = data_time
