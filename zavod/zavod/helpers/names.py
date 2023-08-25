@@ -24,7 +24,29 @@ def make_name(
     suffix: Optional[str] = None,
 ) -> Optional[str]:
     """Provides a standardised way of assembling the components of a human name.
-    This does a whole lot of cultural ignorance work, so YMMV."""
+    This does a whole lot of cultural ignorance work, so YMMV.
+
+    Args:
+        full: The full name if available (this will otherwise be generated).
+        name1: The first name if numeric parts are used.
+        first_name: The first name.
+        given_name: The given name (also first name).
+        name2: The second name if numeric parts are used.
+        second_name: The second name.
+        middle_name: The middle name.
+        name3: The third name if numeric parts are used.
+        patronymic: The patronymic (father-derived) name.
+        matronymic: The matronymic (mother-derived) name.
+        name4: The fourth name if numeric parts are used.
+        name5: The fifth name if numeric parts are used.
+        tail_name: A secondary last name.
+        last_name: The last/family name name.
+        prefix: A prefix to the name (e.g. "Mr").
+        suffix: A suffix to the name (e.g. "Jr").
+
+    Returns:
+        The full name.
+    """
     full = collapse_spaces(full)
     if full is not None and len(full) > 1:
         return full
@@ -85,6 +107,35 @@ def apply_name(
     quiet: bool = False,
     lang: Optional[str] = None,
 ) -> None:
+    """A standardised way to set a name for a person or other entity, which handles
+    normalising the categories of names found in source data to the correct properties
+    (e.g. "family name" becomes "lastName").
+
+    Args:
+        entity: The entity to set the name on.
+        full: The full name if available (this will otherwise be generated).
+        name1: The first name if numeric parts are used.
+        first_name: The first name.
+        given_name: The given name (also first name).
+        name2: The second name if numeric parts are used.
+        second_name: The second name.
+        middle_name: The middle name.
+        name3: The third name if numeric parts are used.
+        patronymic: The patronymic (father-derived) name.
+        matronymic: The matronymic (mother-derived) name.
+        name4: The fourth name if numeric parts are used.
+        name5: The fifth name if numeric parts are used.
+        tail_name: A secondary last name.
+        last_name: The last/family name name.
+        maiden_name: The maiden name (before marriage).
+        prefix: A prefix to the name (e.g. "Mr").
+        suffix: A suffix to the name (e.g. "Jr").
+        alias: If this is an alias name.
+        name_prop: The property to set the full name on.
+        is_weak: If this is a weak alias name.
+        quiet: If this should not raise errors on invalid properties.
+        lang: The language of the name.
+    """
     if not is_weak:
         set_name_part(entity, "firstName", given_name, quiet, lang)
         set_name_part(entity, "firstName", first_name, quiet, lang)
