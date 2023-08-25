@@ -2,7 +2,7 @@ name: dk_cvr
 title: Denmark Central Business Register (Centrale Virksomhedsregister - CVR)
 prefix: oo
 entry_point: crawler.py
-disabled: true
+disabled: false
 coverage:
   frequency: weekly
 deploy:

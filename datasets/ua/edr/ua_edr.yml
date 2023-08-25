@@ -1,7 +1,7 @@
 name: ua_edr
 title: Ukraine Consolidated State Registry (Edinyy Derzhavnyj Reestr)
 prefix: ua-edr
-disabled: true
+disabled: false
 entry_point: parse.py
 coverage:
   frequency: never

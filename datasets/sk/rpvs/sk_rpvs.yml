@@ -2,7 +2,7 @@ name: sk_rpvs
 title: Slovakia Public Sector Partners Register (Register partnerov verejného sektora - RPVS)
 prefix: oo
 entry_point: crawler.py
-disabled: true
+disabled: false
 coverage:
   frequency: weekly
 deploy:
