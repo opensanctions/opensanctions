@@ -40,6 +40,12 @@ def crawl_person(context, jurisdictions, house_positions, data: dict[str, Any]):
     person.add("gender", data.pop("gender", None))
     person.add("birthDate", data.pop("birth_date", None))
     person.add("description", data.pop("biography", None))
+    person.add("email", data.pop("email", None))
+    for party in data.pop("party", []):
+        person.add("political", party.get("name", None))
+    extras = data.pop("extras", {})
+    person.add("gender", extras.pop("gender", None))
+    person.add("title", extras.pop("title", None))
     homepages = [
         link["url"]
         for link in data.pop("links", [])
@@ -108,7 +114,6 @@ def crawl_person(context, jurisdictions, house_positions, data: dict[str, Any]):
     context.audit_data(
         data,
         ignore=[
-            "email",
             "image",
             "party",
             "other_identifiers",
@@ -127,6 +132,8 @@ def crawl_person(context, jurisdictions, house_positions, data: dict[str, Any]):
 
 
 def crawl_jurisdictions(context: Context):
+    if API_KEY is None:
+        raise ValueError("No OPENSANCTIONS_PLURAL_API_KEY key set for OpenStates")
     jurisdictions = {}
     house_positions = {}
     headers = {"x-api-key": API_KEY}
