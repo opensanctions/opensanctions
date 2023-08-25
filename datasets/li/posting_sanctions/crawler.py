@@ -109,15 +109,13 @@ def parse_target(
     emp.add("employer", company)
     emp.add("date", date)
     emp.add("role", "Manager found responsible for breaking the law")
-
-    context.emit(company, target=True)
     context.emit(person, target=False)
     context.emit(emp, target=False)
 
     return company
 
 
-def parse_debarments(context: Context, doc):
+def parse_debarments(context: Context, doc) -> None:
     table = doc.xpath(
         "//h2[text()='Laufende und abgelaufene Entsendesperren"
         + " (Art. 7 Abs. 2 Entsendegesetz)']/following::table[1]"
@@ -127,13 +125,13 @@ def parse_debarments(context: Context, doc):
         address = parse_address(context, addr)
         start = h.parse_date(start, ["%d.%m.%Y"])
         end = h.parse_date(end, ["%d.%m.%Y"])
-        target = parse_target(context, name, address, start)
-        if target is None:
+        company = parse_target(context, name, address, start)
+        if company is None:
             continue
-        target.add("topics", "debarment")
-        sanction = h.make_sanction(context, target)
+        company.add("topics", "debarment")
+        sanction = h.make_sanction(context, company)
         sanction.id = context.make_id(
-            "Sanction", "Debarment", target.id, law, start, end
+            "Sanction", "Debarment", company.id, law, start, end
         )
         sanction.add("startDate", start)
         sanction.add("endDate", end)
@@ -144,9 +142,10 @@ def parse_debarments(context: Context, doc):
         )
         sanction.add("reason", reason)
         context.emit(sanction)
+        context.emit(company, target=True)
 
 
-def parse_infractions(context: Context, doc):
+def parse_infractions(context: Context, doc) -> None:
     table = doc.xpath(
         "//h2[text()='Übertretungen (Art. 9 Entsendegesetz)']/following::table[1]"
     )[0]
@@ -154,15 +153,18 @@ def parse_infractions(context: Context, doc):
         [date, name, addr, law] = row.xpath("descendant::*/text()")
         address = parse_address(context, addr)
         date = h.parse_date(date, ["%d.%m.%Y"])
-        target = parse_target(context, name, address, date)
-        sanction = h.make_sanction(context, target)
-        sanction.id = context.make_id("Sanction", "Penalty", target.id, law, date)
+        company = parse_target(context, name, address, date)
+        if company is None:
+            continue
+        sanction = h.make_sanction(context, company)
+        sanction.id = context.make_id("Sanction", "Penalty", company.id, law, date)
         sanction.add("date", date)
         sanction.add("description", "Administrative Penalty")
         sanction.add(
             "reason", f"Infraction against Liechtenstein Posted Workers Act, {law}"
         )
         context.emit(sanction)
+        context.emit(company, target=True)
 
 
 def crawl(context: Context):
