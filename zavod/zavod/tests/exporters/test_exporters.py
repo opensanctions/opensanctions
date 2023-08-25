@@ -4,6 +4,8 @@ from followthemoney.proxy import EntityProxy
 from json import load, loads
 from nomenklatura.judgement import Judgement
 from nomenklatura.stream import StreamEntity
+from nomenklatura.statement import Statement, CSV
+from nomenklatura.statement.serialize import read_path_statements
 from datetime import datetime
 
 from zavod import settings
@@ -16,6 +18,7 @@ from zavod.exporters.nested import NestedJSONExporter
 from zavod.exporters.simplecsv import SimpleCSVExporter
 from zavod.exporters.senzing import SenzingExporter
 from zavod.exporters.statistics import StatisticsExporter
+from zavod.exporters.statements import StatementsCSVExporter
 from zavod.meta import Dataset, load_dataset_from_path
 from zavod.crawl import crawl_dataset
 from zavod.tests.conftest import DATASET_2_YML, COLLECTION_YML
@@ -403,3 +406,15 @@ def test_statistics(testdataset1: Dataset):
     } in target_schemata
     assert len(target_schemata) == 3
 
+
+def test_statements(testdataset1: Dataset):
+    dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
+    clear_data_path(testdataset1.name)
+
+    crawl_dataset(testdataset1)
+    harnessed_export(StatementsCSVExporter, testdataset1)
+
+    path = dataset_path / "statements.csv"
+    statements = list(read_path_statements(path, CSV, Statement))
+    entities = [s.canonical_id for s in statements if s.prop == Statement.BASE]
+    assert len(entities) == 11

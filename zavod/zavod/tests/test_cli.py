@@ -86,7 +86,7 @@ def test_xref_dataset(testdataset1: Dataset):
     resolver = get_resolver()
     assert len(resolver.edges) == 0
 
-    result = runner.invoke(xref, [DATASET_1_YML.as_posix()])
+    result = runner.invoke(xref, ["--clear", DATASET_1_YML.as_posix()])
     assert result.exit_code == 0, result.output
 
     get_resolver.cache_clear()

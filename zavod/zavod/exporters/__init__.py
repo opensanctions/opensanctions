@@ -12,6 +12,7 @@ from zavod.exporters.simplecsv import SimpleCSVExporter
 from zavod.exporters.senzing import SenzingExporter
 from zavod.exporters.statistics import StatisticsExporter
 from zavod.exporters.peps import PEPSummaryExporter
+from zavod.exporters.statements import StatementsCSVExporter
 from zavod.exporters.metadata import write_dataset_index, write_issues
 
 log = get_logger(__name__)
@@ -32,6 +33,7 @@ EXPORTERS: Dict[str, Type[Exporter]] = {
     SimpleCSVExporter.FILE_NAME: SimpleCSVExporter,
     SenzingExporter.FILE_NAME: SenzingExporter,
     PEPSummaryExporter.FILE_NAME: PEPSummaryExporter,
+    StatementsCSVExporter.FILE_NAME: StatementsCSVExporter,
 }
 
 __all__ = ["export_dataset", "write_dataset_index", "write_issues"]
