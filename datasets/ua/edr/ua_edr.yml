@@ -8,6 +8,7 @@ coverage:
   end: 2022-02-23
 deploy:
   schedule: "@monthly"
+  memory: 2Gi
   disk: 50Gi
 exports:
   - statistics.json

@@ -1,7 +1,7 @@
 name: gb_coh_psc
 title: Companies House (UK) Persons with Significant Control
 prefix: gb-coh
-disabled: true
+disabled: false
 entry_point: psc_parse.py
 coverage:
   frequency: weekly

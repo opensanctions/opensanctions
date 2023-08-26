@@ -1,7 +1,7 @@
 name: cy_companies
 title: Cyprus company registry
 prefix: cy
-disabled: true
+disabled: false
 entry_point: parse.py
 coverage:
   frequency: weekly
