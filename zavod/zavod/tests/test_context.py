@@ -33,9 +33,11 @@ def test_context_helpers(testdataset1: Dataset):
     with pytest.raises(ValueError, match="Entity has no ID.+"):
         context.emit(entity)
 
+    # no properties:
     entity.id = "test-id"
-    with pytest.raises(ValueError, match="Entity has no properties."):
-        context.emit(entity)
+    before = context.stats.entities
+    context.emit(entity)
+    assert context.stats.entities == before
 
     result = context.lookup("plants", "banana")
     assert result is not None
