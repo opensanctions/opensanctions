@@ -1,7 +1,7 @@
 title: INTERPOL Yellow Notices
 entry_point: interpol_api.py
 prefix: interpol-yellow
-disabled: true
+# disabled: true
 coverage:
   frequency: daily
 deploy:

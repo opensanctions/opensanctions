@@ -57,9 +57,9 @@ def parse_owner(context: Context, company_id: str, unique_id: str, el: Element):
     if name != el.text:
         owner.add("notes", el.text)
     # print(name, latinize_text(name))
-
-    context.emit(owner)
-    context.emit(ownership)
+    if len(owner.properties):
+        context.emit(owner)
+        context.emit(ownership)
 
 
 def parse_uo(context: Context, fh: IO[bytes]):
@@ -92,11 +92,11 @@ def parse_uo(context: Context, fh: IO[bytes]):
 
         for boss in el.findall(".//BOSS"):
             name = boss.text
-            if name is None:
-                continue
             director = context.make("Person")
             director.id = context.make_id(unique_id, name)
             director.add("name", name)
+            if not len(director.properties):
+                continue
             context.emit(director)
 
             directorship = context.make("Directorship")
