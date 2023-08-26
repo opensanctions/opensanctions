@@ -83,7 +83,8 @@ def parse_old_names(context: Context, row: Item):
     company = context.make("Company")
     company.id = company_id(context, row["regcode"])
     company.add("previousName", row["name"])
-    context.emit(company)
+    if len(company.properties):
+        context.emit(company)
 
 
 def make_officer(context: Context, row: Item):

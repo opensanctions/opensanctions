@@ -1,6 +1,6 @@
 import tarfile
 from normality import slugify
-from typing import Optional, BinaryIO
+from typing import Optional, IO
 
 from followthemoney.util import make_entity_id
 from lxml import etree
@@ -18,7 +18,7 @@ def company_id(
 
 
 def person_id(
-    context: Context, name: str, address: str, company_id: str
+    context: Context, name: str, address: Optional[str], company_id: str
 ) -> Optional[str]:
     if slugify(address) is not None:
         return context.make_slug("person", name, make_entity_id(address))
@@ -59,34 +59,39 @@ def make_company(context: Context, tree: ElementOrTree) -> Optional[Entity]:
         return proxy
 
 
-def parse_xml(context: Context, reader: BinaryIO):
+def parse_xml(context: Context, reader: IO[bytes]):
     tree = etree.parse(reader)
     company = make_company(context, tree)
-    if company is None:
+    if company is None or company.id is None:
         return
     context.emit(company)
     for member in tree.findall(".//Clen"):
         proxy = context.make("Person")
+        # context.inspect(member)
         first_name = member.findtext("fosoba/jmeno")
         last_name = member.findtext("fosoba/prijmeni")
-        proxy.add("firstName", first_name)
-        proxy.add("lastName", last_name)
-        if first_name and last_name:
-            proxy.add("name", " ".join((first_name, last_name)))
-        address = make_address(member.find(".//adresa"))
+        h.apply_name(proxy, first_name=first_name, last_name=last_name)
+        proxy.add("title", member.findall("fosoba/titulPred"))
+        address = make_address(member.find("fosoba/adresa"))
         proxy.add("address", address)
-        proxy.id = person_id(context, proxy.caption, address, company.id)
-        if proxy.id is not None:
-            context.emit(proxy)
+        name = proxy.first("name")
+        if name is None:
+            continue
+        proxy.id = person_id(context, name, address, company.id)
+        if proxy.id is None:
+            continue
+        context.emit(proxy)
 
-            role = member.findtext("funkce/nazev")
-            if role is not None:
-                rel = context.make("Directorship")
-                rel.id = context.make_slug("directorship", company.id, proxy.id)
-                rel.add("role", role)
-                rel.add("director", proxy)
-                rel.add("organization", company)
-                context.emit(rel)
+        role = member.findtext("funkce/nazev")
+        if role is not None:
+            rel = context.make("Directorship")
+            rel.id = context.make_slug("directorship", company.id, proxy.id)
+            rel.add("role", role)
+            rel.add("director", proxy)
+            rel.add("organization", company)
+            rel.add("startDate", member.findtext("funkce/vznikFunkce"))
+            rel.add("endDate", member.findtext("funkce/zanikFunkce"))
+            context.emit(rel)
 
 
 def crawl(context: Context):
