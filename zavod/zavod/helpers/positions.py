@@ -89,7 +89,7 @@ def make_occupancy(
     context: Context,
     person: Entity,
     position: Entity,
-    no_end_implies_current: bool,
+    no_end_implies_current: bool = True,
     current_time: datetime = settings.RUN_TIME,
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,
@@ -102,7 +102,7 @@ def make_occupancy(
 
     Args:
         context: The context to create the entity in.
-        person: The person holding the position. They will be added to the 
+        person: The person holding the position. They will be added to the
             `holder` property.
         position: The position held by the person. This will be added to the
             `post` property.

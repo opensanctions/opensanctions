@@ -1,11 +1,10 @@
 title: Members of the European Commitee of the Regions
 entry_point: crawler.py
 prefix: eu-cor
-disabled: true
 coverage:
   frequency: daily
 deploy:
-  schedule: "0 */6 * * *"
+  schedule: "0 5 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   ​The European Committee of the Regions (CoR) represents local and regional
@@ -23,5 +22,5 @@ publisher:
   official: true
 url: https://cor.europa.eu/en
 data:
-  url: https://memberspage.cor.europa.eu/members
-  format: HTML
+  url: https://memberspage.cor.europa.eu/api/members
+  format: JSON

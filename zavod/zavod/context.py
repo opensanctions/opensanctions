@@ -58,8 +58,9 @@ class Context:
         self._data_time: datetime = settings.RUN_TIME
         # If the dataset has a fixed end time, use that as the data time:
         if dataset.coverage is not None and dataset.coverage.end is not None:
-            prefix = DatePrefix(dataset.coverage.end)
-            self._data_time = prefix.dt or self._data_time
+            if dataset.coverage.end < settings.RUN_TIME_ISO:
+                prefix = DatePrefix(dataset.coverage.end)
+                self._data_time = prefix.dt or self._data_time
 
         self.lang: Optional[str] = None
         """Default language for statements emitted from this dataset"""
