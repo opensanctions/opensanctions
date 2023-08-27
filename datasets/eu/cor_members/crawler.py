@@ -2,8 +2,14 @@ from typing import Any, Dict
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.helpers.positions import OccupancyStatus
 
 FORMATS = ("%d/%m/%Y",)
+
+STATUS = {
+    "Active": OccupancyStatus.CURRENT,
+    "Incoming": OccupancyStatus.UNKNOWN,
+}
 
 
 def crawl_person(context: Context, item: Dict[str, Any]) -> None:
@@ -35,7 +41,9 @@ def crawl_person(context: Context, item: Dict[str, Any]) -> None:
         end_date=item.pop("to"),
     )
     if occupancy is not None:
-        occupancy.add("status", item.pop("memberStatuses"))
+        for value in item.pop("memberStatuses", []):
+            status = STATUS[value]
+            occupancy.add("status", status)
         context.emit(position)
         context.emit(occupancy)
 
