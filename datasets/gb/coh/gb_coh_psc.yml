@@ -7,7 +7,7 @@ coverage:
   frequency: weekly
 deploy:
   disk: 100Gi
-  memory: 2Gi
+  memory: 2500Mi
   premium: true
 exports:
   - statistics.json

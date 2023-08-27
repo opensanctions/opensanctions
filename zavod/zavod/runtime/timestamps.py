@@ -24,6 +24,8 @@ class TimeStampIndex(object):
             if len(stmt.first_seen.strip()) == 0:
                 continue
             batch.put(stmt.id.encode("utf-8"), stmt.first_seen.encode("utf-8"))
+            if idx > 0 and idx % 1_000_000 == 0:
+                batch.write()
         batch.write()
         log.info("Index ready.", count=idx)
 
