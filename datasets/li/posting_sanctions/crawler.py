@@ -137,6 +137,7 @@ def parse_debarments(context: Context, doc) -> None:
         sanction.add("startDate", start)
         sanction.add("endDate", end)
         sanction.add("description", "Debarment")
+        sanction.add("program", "EntsG Sanctions")
         reason = (
             "Repeated or severe infraction against "
             f"Liechtenstein Posted Workers Act, {law}"
@@ -161,6 +162,7 @@ def parse_infractions(context: Context, doc) -> None:
         sanction.id = context.make_id("Sanction", "Penalty", company.id, law, date)
         sanction.add("date", date)
         sanction.add("description", "Administrative Penalty")
+        sanction.add("program", "EntsG Sanctions")
         sanction.add(
             "reason", f"Infraction against Liechtenstein Posted Workers Act, {law}"
         )
