@@ -100,8 +100,8 @@ def make_occupancy(
     Occupancies are only returned if end_date is None or less than AFTER_OFFICE years
     after current_time. current_time defaults to the process start date and time.
 
-    Occupancy.status is set to 
-    
+    Occupancy.status is set to
+
     - `current` if `end_date` is `None` and `no_end_implies_current` is `True`, otherwise
       `status` will be `unknown`
     - `current` if `end_date` is some date in the future, unless the dataset
@@ -110,7 +110,7 @@ def make_occupancy(
 
     Args:
         context: The context to create the entity in.
-        person: The person holding the position. They will be added to the 
+        person: The person holding the position. They will be added to the
             `holder` property.
         position: The position held by the person. This will be added to the
             `post` property.
@@ -132,6 +132,13 @@ def make_occupancy(
         elif end_date > context.dataset.coverage.end:
             # Don't trust future end dates beyond the known coverage date of the datast.
             status = OccupancyStatus.UNKNOWN.value
+            context.log.warning(
+                "Future Occupancy end date is beyond the dataset coverage date. "
+                "Check if the source data is being updated.",
+                person=person.id,
+                position=position.id,
+                end_date=end_date,
+            )
         else:
             status = OccupancyStatus.CURRENT.value
     else:
