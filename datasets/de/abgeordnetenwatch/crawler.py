@@ -61,6 +61,10 @@ def crawl(context: Context):
             birthYear = politician_data.pop("year_of_birth")
             person.add("birthDate", birthYear)
 
+            # Get WikiData ID
+            politician_wikidata_id = politician_data.pop("qid_wikidata")
+            person.add("wikidataId", politician_wikidata_id)
+
             # Apply politician fullname to Person entity
             h.apply_name(person, full=politician_fullname)
 
@@ -116,7 +120,6 @@ def crawl(context: Context):
                     "statistic_questions",
                     "statistic_questions_answered",
                     "ext_id_bundestagsverwaltung",
-                    "qid_wikidata",
                     "field_title",
                 ],
             )
