@@ -76,6 +76,8 @@ def make_position(
         parts.extend(ensure_list(inception_date))
     if dissolution_date is not None:
         parts.extend(ensure_list(dissolution_date))
+    if subnational_area is not None:
+        parts.extend(ensure_list(subnational_area))
 
     if wikidata_id is not None:
         position.id = wikidata_id

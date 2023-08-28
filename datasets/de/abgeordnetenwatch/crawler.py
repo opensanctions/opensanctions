@@ -9,29 +9,6 @@ from zavod import helpers as h
 def crawl_politician(context: Context, politician_api_url: str):
     api_response = context.fetch_json(politician_api_url, cache_days=30)
     politician = api_response.pop("data")
-    context.audit_data(
-        politician,
-        ignore=[
-            "id",
-            "entity_type",
-            "api_url",
-            "abgeordnetenwatch_url",
-            "first_name",
-            "last_name",
-            "birth_name",
-            "sex",
-            "party",
-            "party_past",
-            "education",
-            "residence",
-            "occupation",
-            "statistic_questions",
-            "statistic_questions_answered",
-            "ext_id_bundestagsverwaltung",
-            "qid_wikidata",
-            "field_title",
-        ],
-    )
     return politician
 
 
@@ -60,20 +37,6 @@ def crawl(context: Context):
                 num_batches = math.ceil(batch_total_results / 100)
 
         for mandate in api_response.get("data"):
-            context.audit_data(
-                mandate,
-                ignore=[
-                    "id",
-                    "entity_type",
-                    "api_url",
-                    "id_external_administration",
-                    "id_external_administration_description",
-                    "type",
-                    "info",
-                    "electoral_data",
-                    "fraction_membership",
-                ],
-            )
             politician = mandate.pop("politician")
 
             # Get state from parliament info
@@ -114,6 +77,49 @@ def crawl(context: Context):
                 context.emit(person, target=True)
                 context.emit(position)
                 context.emit(occupancy)
+
+            # Audit mandate
+            context.audit_data(
+                mandate,
+                ignore=[
+                    "id",
+                    "entity_type",
+                    "api_url",
+                    "label",
+                    "id_external_administration",
+                    "id_external_administration_description",
+                    "type",
+                    "info",
+                    "electoral_data",
+                    "fraction_membership",
+                ],
+            )
+
+            # Audit
+            context.audit_data(
+                politician_data,
+                ignore=[
+                    "id",
+                    "entity_type",
+                    "label",
+                    "api_url",
+                    "abgeordnetenwatch_url",
+                    "first_name",
+                    "last_name",
+                    "birth_name",
+                    "sex",
+                    "party",
+                    "party_past",
+                    "education",
+                    "residence",
+                    "occupation",
+                    "statistic_questions",
+                    "statistic_questions_answered",
+                    "ext_id_bundestagsverwaltung",
+                    "qid_wikidata",
+                    "field_title",
+                ],
+            )
 
         # Increment batch number
         bi += 1
