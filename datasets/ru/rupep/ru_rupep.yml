@@ -132,7 +132,7 @@ lookups:
           - Deputy Minister
           - deputy
         regex:
-          - "deputy, (member of the"
+          # - "deputy, (member of the"
           - "judge(, .+)?"
         schema: Occupancy
 

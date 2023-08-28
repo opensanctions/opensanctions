@@ -195,6 +195,7 @@ def crawl_person(context: Context, data: Dict[str, Any]):
 
 
     if person_topic.value is not None and ("role.pep" in person_topic.value or "gov.igo" in person_topic.value):
+        has_state_company = False
         for company_data in data.pop("related_companies", []):
             name_ru = company_data.get("to_company_ru", None)
             name_short_ru = company_data.get("to_company_short_ru", None)
@@ -207,6 +208,8 @@ def crawl_person(context: Context, data: Dict[str, Any]):
             role_ru = company_data.get("relationship_type_ru", None)
             
             is_state = company_data.get("to_company_is_state", None)
+            if is_state:
+                has_state_company = True
             company_id = company_data.get("company_id")
             end_date = parse_date(company_data.get("date_finished", None))
             
@@ -225,7 +228,8 @@ def crawl_person(context: Context, data: Dict[str, Any]):
                     # "role", "role_ru", "name", "name_ru", "is_state", "id"
                     key = (role, role_ru, name, name_ru, is_state, company_id)
                     unknowns[key] += 1
-
+        if not has_state_company:
+            print(f"No state company for PEP {url_en}")
 
 
 
