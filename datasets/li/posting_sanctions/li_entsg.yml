@@ -1,4 +1,4 @@
-title: Liechtenstein Posted Workers Act
+title: Liechtenstein Posted Workers Act (EntsG) Sanctions
 
 prefix: li-entsg
 entry_point: crawler.py
@@ -27,7 +27,7 @@ publisher:
   description: |
     The Office of Economic Affairs is a government agency
     of the Principality of Liechtenstein. It is part of
-    the Ministry of the Interior, Justice and Economy
+    the Ministry of the Interior, Justice and Economy.
   country: li
   url: https://www.llv.li/de/landesverwaltung/amt-fuer-volkswirtschaft
   official: true
