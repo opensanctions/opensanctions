@@ -6,10 +6,32 @@ from zavod import Context
 from zavod import helpers as h
 
 
-def get_politician_data(context: Context, politician_api_url: str):
+def crawl_politician(context: Context, politician_api_url: str):
     api_response = context.fetch_json(politician_api_url, cache_days=30)
     politician = api_response.pop("data")
-    context.audit_data(politician)
+    context.audit_data(
+        politician,
+        ignore=[
+            "id",
+            "entity_type",
+            "api_url",
+            "abgeordnetenwatch_url",
+            "first_name",
+            "last_name",
+            "birth_name",
+            "sex",
+            "party",
+            "party_past",
+            "education",
+            "residence",
+            "occupation",
+            "statistic_questions",
+            "statistic_questions_answered",
+            "ext_id_bundestagsverwaltung",
+            "qid_wikidata",
+            "field_title",
+        ],
+    )
     return politician
 
 
@@ -38,7 +60,20 @@ def crawl(context: Context):
                 num_batches = math.ceil(batch_total_results / 100)
 
         for mandate in api_response.get("data"):
-            context.audit_data(mandate)
+            context.audit_data(
+                mandate,
+                ignore=[
+                    "id",
+                    "entity_type",
+                    "api_url",
+                    "id_external_administration",
+                    "id_external_administration_description",
+                    "type",
+                    "info",
+                    "electoral_data",
+                    "fraction_membership",
+                ],
+            )
             politician = mandate.pop("politician")
 
             # Get state from parliament info
@@ -48,7 +83,7 @@ def crawl(context: Context):
             # Create position
             position = h.make_position(
                 context,
-                name="Member of Parliament",
+                name="Member of the {} Parliament".format(state),
                 country="Germany",
                 subnational_area=state,
             )
@@ -59,7 +94,7 @@ def crawl(context: Context):
 
             # Get the politician birthday date
             context.log.info("Get Politician {} birth year".format(politician_fullname))
-            politician_data = get_politician_data(context, politician.pop("api_url"))
+            politician_data = crawl_politician(context, politician.pop("api_url"))
             birthYear = politician_data.pop("year_of_birth")
             person.add("birthDate", birthYear)
 
@@ -68,7 +103,12 @@ def crawl(context: Context):
 
             # Create occupancy
             occupancy = h.make_occupancy(
-                context, person, position, False, start_date=mandate.pop("start_date")
+                context,
+                person,
+                position,
+                True,
+                start_date=mandate.pop("start_date"),
+                end_date=mandate.pop("end_date"),
             )
             if occupancy:
                 context.emit(person, target=True)
