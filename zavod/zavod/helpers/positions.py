@@ -129,8 +129,12 @@ def make_occupancy(
     if end_date:
         if end_date < current_time.isoformat():
             status = OccupancyStatus.ENDED.value
-        elif end_date > context.dataset.coverage.end:
-            # Don't trust future end dates beyond the known coverage date of the datast.
+        elif (
+            context.dataset.coverage
+            and context.dataset.coverage.end
+            and current_time.isoformat() > context.dataset.coverage.end
+        ):
+            # Don't trust future end dates beyond the known coverage date of the dataset.
             status = OccupancyStatus.UNKNOWN.value
             context.log.warning(
                 "Future Occupancy end date is beyond the dataset coverage date. "

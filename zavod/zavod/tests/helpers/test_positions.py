@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from zavod.context import Context
-from zavod.meta import Dataset
+from zavod.meta import Dataset, get_catalog
 from zavod.helpers.positions import make_position, make_occupancy
 
 
@@ -99,3 +99,48 @@ def test_make_occupancy(testdataset1: Dataset):
 
     none = make(False, "1950-01-01", "2015-01-01")
     assert none is None
+
+
+def test_occupancy_dataset_coverage():
+    # If coverage end is in the future, we trust the future end date
+    dataset1 = Dataset(get_catalog(), {
+        "name": "dataset1",
+        "title": "Dataset 1",
+        "coverage": {"end": "2021-01-04"}
+    })
+    context1 = Context(dataset1)
+    pos = make_position(context1, name="A position", country="ls")
+    person = context1.make("Person")
+    person.id = "thabo"
+
+    occupancy1 = make_occupancy(
+        context1,
+        person=person,
+        position=pos,
+        current_time=datetime(2021, 1, 3),
+        start_date="2021-01-01",
+        end_date="2021-01-05",
+    )
+    assert occupancy1.get("status") == ["current"]
+
+    # If coverage end date has passed, we don't trust the future end date
+    dataset2 = Dataset(get_catalog(), {
+        "name": "dataset2",
+        "title": "Dataset 2",
+        "coverage": {"end": "2021-01-02"}
+    })
+    context2 = Context(dataset2)
+    pos2 = make_position(context2, name="A position", country="ls")
+    person2 = context2.make("Person")
+    person2.id = "thabo"
+
+    # all fields
+    occupancy2 = make_occupancy(
+        context2,
+        person=person2,
+        position=pos2,
+        current_time=datetime(2021, 1, 3),
+        start_date="2021-01-01",
+        end_date="2021-01-05",
+    )
+    assert occupancy2.get("status") == ["unknown"]
