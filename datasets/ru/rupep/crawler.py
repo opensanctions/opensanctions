@@ -13,11 +13,11 @@ PASSWORD = os.environ.get("OPENSANCTIONS_RUPEP_PASSWORD")
 FORMATS = ["%d.%m.%Y", "%m.%Y", "%Y", "%b. %d, %Y", "%B %d, %Y"]
 
 unknown_writer = writer(open("maybe-pep-person-roles-companies.csv", "w"))
-unknown_writer.writerow(["count", "role", "role_ru", "name", "name_ru", "is_state", "id"])
+unknown_writer.writerow(["count", "role", "role_ru", "company_name", "company_name_ru", "id", "position_name"])
 unknowns = defaultdict(int)
 
 known_writer = writer(open("known-pep-person-roles-companies.csv", "w"))
-known_writer.writerow(["count", "role", "role_ru", "name", "name_ru", "scope", "id"])
+known_writer.writerow(["count", "role", "role_ru", "company_name", "company_name_ru", "id", "position_name"])
 knowns = defaultdict(int)
 
 
@@ -63,6 +63,76 @@ def parse_date(date):
     return h.parse_date(date, FORMATS)
 
 
+def emit_related_person(context: Context, entity: Entity, rel_data: dict):
+    other_pep = rel_data.pop("is_pep", False)
+    other_wdid = clean_wdid(rel_data.pop("person_wikidata_id"))
+    other = context.make("Person")
+    other.id = person_id(context, rel_data.pop("person_id"), other_wdid)
+    if other.id is None:
+        return
+    other.add("name", rel_data.pop("person_en", None), lang="eng")
+    other.add("name", rel_data.pop("person_ru", None), lang="rus")
+    other.add("wikidataId", other_wdid)
+
+    rel_type = rel_data.pop("relationship_type_en", None)
+    rel_type_ru = rel_data.pop("relationship_type_ru", None)
+    rel_type = rel_type or rel_type_ru
+    res = context.lookup("person_relations", rel_type)
+    if res is None:
+        context.log.warn(
+            "Unknown person/person relation type",
+            rel_type=rel_type,
+            entity=entity,
+            other=other,
+        )
+        return
+
+    # print("LINK", (entity.id, other.id))
+    id_a, id_b = sorted((entity.id, other.id))
+    rel = context.make(res.schema)
+    id_a_short = short_id(context, id_a)
+    id_b_short = short_id(context, id_b)
+    rel.id = context.make_slug(id_a_short, res.schema, id_b_short)
+    rel.add(res.from_prop, id_a)
+    rel.add(res.to_prop, id_b)
+    rel.add(res.desc_prop, rel_type)
+    rel.add("modifiedAt", parse_date(rel_data.pop("date_confirmed")))
+    rel.add("startDate", parse_date(rel_data.pop("date_established")))
+    rel.add("endDate", parse_date(rel_data.pop("date_finished")))
+
+    context.audit_data(rel_data)
+    context.emit(other, target=other_pep)
+    context.emit(rel)    
+
+
+def get_position_name(context, role, role_ru, company_name, company_name_ru, company_id) -> Optional[str]:
+    company_rel_res = context.lookup("company_relations", role)
+    if company_rel_res and not company_rel_res.is_maybe_pep:
+        return True, None
+
+    if role and company_name:
+        if role.startswith("The "):
+            position_name = f"{role} of {company_name}"
+        else:
+            position_name = f"{role} of the {company_name}"
+    else:
+        # context.warning("Not handling incomplete english yet")
+        return None, None
+    
+    pep_position = context.lookup("pep_positions", position_name)
+    if pep_position:
+        if pep_position.is_pep:
+            if pep_position.name:
+                return True, pep_position.name
+            else:
+                return True, position_name
+        else:
+            return True, None
+    
+    # conext.log.warning("Unknown position", position=position_name)
+    return False, None
+
+
 def crawl_person(context: Context, data: Dict[str, Any]):
     is_pep = data.pop("is_pep", False)
     entity = context.make("Person")
@@ -94,14 +164,11 @@ def crawl_person(context: Context, data: Dict[str, Any]):
     entity.add("lastName", data.pop("last_name_en", None), lang="eng")
     entity.add("lastName", data.pop("last_name_ru", None), lang="rus")
 
-    last_positions = set()
-
     for lang, suffix in ((None, ""), ("eng", "_en"), ("rus", "_ru")):
         role = data.pop(f"last_job_title{suffix}", None)
         org = data.pop(f"last_workplace{suffix}", None)
         if org is None or not len(org.strip()):
             continue
-        last_positions.add(org)
         position = org
         if role is not None and len(role.strip()):
             position = f"{org} ({role})"
@@ -135,45 +202,7 @@ def crawl_person(context: Context, data: Dict[str, Any]):
         context.audit_data(country_data, ignore=ignores)
 
     for rel_data in data.pop("related_persons", []):
-        other_pep = rel_data.pop("is_pep", False)
-        other_wdid = clean_wdid(rel_data.pop("person_wikidata_id"))
-        other = context.make("Person")
-        other.id = person_id(context, rel_data.pop("person_id"), other_wdid)
-        if other.id is None:
-            continue
-        other.add("name", rel_data.pop("person_en", None), lang="eng")
-        other.add("name", rel_data.pop("person_ru", None), lang="rus")
-        other.add("wikidataId", other_wdid)
-
-        rel_type = rel_data.pop("relationship_type_en", None)
-        rel_type_ru = rel_data.pop("relationship_type_ru", None)
-        rel_type = rel_type or rel_type_ru
-        res = context.lookup("person_relations", rel_type)
-        if res is None:
-            context.log.warn(
-                "Unknown person/person relation type",
-                rel_type=rel_type,
-                entity=entity,
-                other=other,
-            )
-            continue
-
-        # print("LINK", (entity.id, other.id))
-        id_a, id_b = sorted((entity.id, other.id))
-        rel = context.make(res.schema)
-        id_a_short = short_id(context, id_a)
-        id_b_short = short_id(context, id_b)
-        rel.id = context.make_slug(id_a_short, res.schema, id_b_short)
-        rel.add(res.from_prop, id_a)
-        rel.add(res.to_prop, id_b)
-        rel.add(res.desc_prop, rel_type)
-        rel.add("modifiedAt", parse_date(rel_data.pop("date_confirmed")))
-        rel.add("startDate", parse_date(rel_data.pop("date_established")))
-        rel.add("endDate", parse_date(rel_data.pop("date_finished")))
-
-        context.audit_data(rel_data)
-        context.emit(other, target=other_pep)
-        context.emit(rel)
+        emit_related_person(context, entity, rel_data)
 
     data.pop("type_of_official_ru", None)
     person_type = data.pop("type_of_official_en", None)
@@ -193,16 +222,18 @@ def crawl_person(context: Context, data: Dict[str, Any]):
     # TODO: store images
     data.pop("photo", None)
 
-
-    if person_topic.value is not None and ("role.pep" in person_topic.value or "gov.igo" in person_topic.value):
+    pep_category = person_topic.value is not None and person_topic.value in {"role.pep", "gov.igo"}
+    #if pep_category != is_pep:
+    #    print("PEP category but not is_pep", pep_category, is_pep, url_en)
+    if pep_category or is_pep:
         has_state_company = False
         for company_data in data.pop("related_companies", []):
-            name_ru = company_data.get("to_company_ru", None)
-            name_short_ru = company_data.get("to_company_short_ru", None)
-            name_ru = name_short_ru or name_ru
-            name = company_data.get("to_company_en", None)
-            name_short = company_data.get("to_company_short_en", None)
-            name = name_short or name
+            company_name_ru = company_data.get("to_company_ru", None)
+            company_name_short_ru = company_data.get("to_company_short_ru", None)
+            company_name_ru = company_name_short_ru or company_name_ru
+            company_name = company_data.get("to_company_en", None)
+            company_name_short = company_data.get("to_company_short_en", None)
+            company_name = company_name_short or company_name
 
             role = company_data.get("relationship_type_en", None)
             role_ru = company_data.get("relationship_type_ru", None)
@@ -213,23 +244,19 @@ def crawl_person(context: Context, data: Dict[str, Any]):
             company_id = company_data.get("company_id")
             end_date = parse_date(company_data.get("date_finished", None))
             
-            if end_date is None or end_date[0] > "2019":
-
-                co_rel_res = context.lookup("company_relations", role)
-                pep_co_res = context.lookup("pep_organizations", name)
-
-                if co_rel_res and co_rel_res.schema != "Occupancy":
-                    continue
-                if co_rel_res and co_rel_res.schema == "Occupancy" and pep_co_res:
-                    # "role", "role_ru", "name", "name_ru", "scope", "id"
-                    key = (role, role_ru, name, name_ru, pep_co_res.scope, company_id)
+            if end_date is None or end_date[0] > "2019": # let's focus on the positions we'd currently emit
+                is_known, position_name = get_position_name(context, role, role_ru, company_name, company_name_ru, company_id)
+                if is_known:
+                    # "role", "role_ru", "company_name", "company_name_ru",  "company_id", "position_name"
+                    key = (role, role_ru, company_name, company_name_ru, company_id, position_name)
                     knowns[key] += 1
                 else:
-                    # "role", "role_ru", "name", "name_ru", "is_state", "id"
-                    key = (role, role_ru, name, name_ru, is_state, company_id)
+                    # "role", "role_ru", "company_name", "company_name_ru", "company_id", "position_name"
+                    key = (role, role_ru, company_name, company_name_ru, company_id, position_name)
                     unknowns[key] += 1
-        if not has_state_company:
-            print(f"No state company for PEP {url_en}")
+                    position_name = None
+        #if not has_state_company:
+            #print(f"No state company for PEP {url_en}")
 
 
 

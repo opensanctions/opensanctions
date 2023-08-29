@@ -94,6 +94,7 @@ lookups:
         from_prop: asset
         to_prop: owner
         desc_prop: role
+        is_maybe_pep: true
       - match:
           - director
           - head
@@ -116,17 +117,20 @@ lookups:
         from_prop: organization
         to_prop: director
         desc_prop: role
+        is_maybe_pep: true
       - match:
           - employee
         schema: Employment
         from_prop: employer
         to_prop: employee
         desc_prop: role
+        is_maybe_pep: false
       - match:
           - chief veterinarian
         contains:
           - member of the Commission
         schema: null
+        is_maybe_pep: false
       - match:
           - the minister
           - Deputy Minister
@@ -135,23 +139,23 @@ lookups:
           # - "deputy, (member of the"
           - "judge(, .+)?"
         schema: Occupancy
+        is_maybe_pep: true
 
-  pep_organizations:
+  pep_positions:
     options:
       - regex:
-          - ".+ District Council of Deputies"
-          - ".+ City Council of Deputies"
-          - ".+ City Council"
-          - ".+ City Duma"
-          - ".+ Regional Court"
-        scope: local
-      - regex: ".+ Regional Duma"
-        scope: subnational
-      - match: "The State Duma"
-        regex:
-          - "(The|Russian) *Ministry of"
-        scope: national
-      
+          - "^deputy of the .+ Council of Deputies$"
+          - "^deputy of the .+ Council of Deputies$"
+          - "^deputy of the .+ City Council$"
+          - "^deputy of the .+ City Duma$"
+          - "^deputy of the .+ Regional Court$"
+          - "^Assistant to Member of Parliament of The State Duma$"
+          - "^judge of the .+ Court$"
+        is_pep: true
+      - regex:
+          - "^deputy, member of the .+ of The State Duma$"
+        is_pep: true
+        name: deputy(of The State Duma
       
 
   person_relations:
