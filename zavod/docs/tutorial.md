@@ -21,8 +21,6 @@ companies into a database.
 
 ## Data source metadata
 
-This is a brief instruction. See the full [metadata documentation](metadata.md).
-
 Before programming a crawler script, you need to create a YAML file with some basic metadata to describe the new dataset. That information includes the dataset name (which is normally derived from the YAML file name), information about the source publisher and the source data URL.
 
 The metadata file must also include a reference to the entry point, the Python code that should be executed in order to crawl the source.
@@ -59,9 +57,7 @@ prefix: eu-fsf
 # This section provides information about the original publisher of the data,
 # often a government authority:
 publisher:
-    name: European Commission
-    organization: European Commission
-    authority: European Union External Action Service
+    name: European Union External Action Service
     acronym: EEAS
     country: eu
     url: https://eeas.europa.eu/topics/sanctions-policy/8442/consolidated-list-of-sanctions_en
