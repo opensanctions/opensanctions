@@ -89,7 +89,7 @@ def make_occupancy(
     context: Context,
     person: Entity,
     position: Entity,
-    no_end_implies_current: bool,
+    no_end_implies_current: bool = True,
     current_time: datetime = settings.RUN_TIME,
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,

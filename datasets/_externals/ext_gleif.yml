@@ -53,11 +53,11 @@ inputs:
   - ext_icij_offshoreleaks
   - ext_lv_business_register
   - ext_md_companies
-  - opencorporates
   - ext_ru_egrul
+  - ext_ua_edr
+  - opencorporates
   - ru_rupep
   - ru_rupep_companies
-  - ext_ua_edr
   # - debarment
 
 config:
