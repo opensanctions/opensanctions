@@ -56,7 +56,8 @@ class Context:
         self._timestamps: Optional[TimeStampIndex] = None
 
         self._data_time: datetime = settings.RUN_TIME
-        # If the dataset has a fixed end time which is in the past, use that as the data time:
+        # If the dataset has a fixed end time which is in the past,
+        # use that as the data time:
         if dataset.coverage is not None and dataset.coverage.end is not None:
             if dataset.coverage.end < settings.RUN_TIME_ISO:
                 prefix = DatePrefix(dataset.coverage.end)

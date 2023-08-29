@@ -102,8 +102,8 @@ def make_occupancy(
 
     Occupancy.status is set to
 
-    - `current` if `end_date` is `None` and `no_end_implies_current` is `True`, otherwise
-      `status` will be `unknown`
+    - `current` if `end_date` is `None` and `no_end_implies_current` is `True`,
+      otherwise `status` will be `unknown`
     - `current` if `end_date` is some date in the future, unless the dataset
       `coverage.end` is a date in the past, in which case `status` will be `unknown`
     - `ended` if `end_date` is some date in the past.
@@ -134,7 +134,7 @@ def make_occupancy(
             and context.dataset.coverage.end
             and current_time.isoformat() > context.dataset.coverage.end
         ):
-            # Don't trust future end dates beyond the known coverage date of the dataset.
+            # Don't trust future end dates beyond the known coverage date of the dataset
             status = OccupancyStatus.UNKNOWN.value
             context.log.warning(
                 "Future Occupancy end date is beyond the dataset coverage date. "
