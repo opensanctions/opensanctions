@@ -4,6 +4,7 @@ from typing import Any, Dict, Optional, List
 from followthemoney import model
 from csv import writer
 from collections import defaultdict
+from normality import collapse_spaces
 
 from zavod import Context
 from zavod import helpers as h
@@ -111,7 +112,7 @@ def get_position_name(context, role, role_ru, company_name, company_name_ru, com
         return True, None
 
     if role and company_name:
-        if role.startswith("The "):
+        if company_name.startswith("The "):
             position_name = f"{role} of {company_name}"
         else:
             position_name = f"{role} of the {company_name}"
@@ -243,18 +244,38 @@ def crawl_person(context: Context, data: Dict[str, Any]):
                 has_state_company = True
             company_id = company_data.get("company_id")
             end_date = parse_date(company_data.get("date_finished", None))
-            
-            if end_date is None or end_date[0] > "2019": # let's focus on the positions we'd currently emit
-                is_known, position_name = get_position_name(context, role, role_ru, company_name, company_name_ru, company_id)
-                if is_known:
-                    # "role", "role_ru", "company_name", "company_name_ru",  "company_id", "position_name"
-                    key = (role, role_ru, company_name, company_name_ru, company_id, position_name)
-                    knowns[key] += 1
+
+            parts = []
+            splitroles = [
+                "deputy",
+                "deputy head",
+                "deputy chief",
+                "judge",
+                "deputy head",
+                "member of the board",
+                "member of the chamber",
+                "professor",
+                "associate professor",
+                "deputy director",
+            ]
+            for split in splitroles:
+                if role.lower().startswith(split + ","):
+                    parts = role.split(",", 1)
                 else:
-                    # "role", "role_ru", "company_name", "company_name_ru", "company_id", "position_name"
-                    key = (role, role_ru, company_name, company_name_ru, company_id, position_name)
-                    unknowns[key] += 1
-                    position_name = None
+                    parts = [role]
+
+            for part in parts: 
+                if end_date is None or end_date[0] > "2019": # let's focus on the positions we'd currently emit
+                    is_known, position_name = get_position_name(context, collapse_spaces(part), role_ru, collapse_spaces(company_name), company_name_ru, company_id)
+                    if is_known:
+                        # "role", "role_ru", "company_name", "company_name_ru",  "company_id", "position_name"
+                        key = (part, role_ru, company_name, company_name_ru, company_id, position_name)
+                        knowns[key] += 1
+                    else:
+                        # "role", "role_ru", "company_name", "company_name_ru", "company_id", "position_name"
+                        key = (part, role_ru, company_name, company_name_ru, company_id, position_name)
+                        unknowns[key] += 1
+                        position_name = None
         #if not has_state_company:
             #print(f"No state company for PEP {url_en}")
 

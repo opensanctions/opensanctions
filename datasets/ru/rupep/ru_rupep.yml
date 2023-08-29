@@ -145,7 +145,6 @@ lookups:
     options:
       - regex:
           - "^deputy of the .+ Council of Deputies$"
-          - "^deputy of the .+ Council of Deputies$"
           - "^deputy of the .+ City Council$"
           - "^deputy of the .+ City Duma$"
           - "^deputy of the .+ Regional Court$"
