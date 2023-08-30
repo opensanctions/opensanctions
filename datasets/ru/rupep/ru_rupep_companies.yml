@@ -32,7 +32,7 @@ data:
   format: JSON
 
 lookups:
-  country_links:
+  company_country_links:
     normalize: true
     options:
       - match: citizenship
@@ -45,7 +45,7 @@ lookups:
           # - business
           - realty
         prop: null
-  person_relations:
+  company_person_relations:
     options:
       - match:
           - owner
