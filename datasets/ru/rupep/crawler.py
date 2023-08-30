@@ -326,6 +326,8 @@ def crawl_peps(context: Context):
     for data in persons:
         crawl_person(context, data)
 
+    print(f"Known: {len(knowns)}  Unknown: {len(unknowns)}")
+
     sorted_knowns = []
     for key, count in knowns.items():
         sorted_knowns.append([count] + list(key))
