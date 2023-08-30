@@ -142,19 +142,21 @@ lookups:
         is_maybe_pep: true
 
   pep_positions:
+    lowercase: true
     options:
       - regex:
-          - "^deputy of the .+ Council of Deputies$"
-          - "^deputy of the .+ City Council$"
-          - "^deputy of the .+ City Duma$"
-          - "^deputy of the .+ Regional Court$"
-          - "^Assistant to Member of Parliament of The State Duma$"
-          - "^judge of the .+ Court$"
+          - "^deputy of the .+ council of deputies$"
+          - "^deputy of the .+ city council$"
+          - "^(deputy|mp) of the.+(city|regional|state) duma$"
+          - "^(member|chairperson) of the .+ committee of the state duma$"
+          - "^(member|chairperson) of the committee (for|on) .+ of the state duma$"
+          - "^deputy of the .+ regional court$"
+          - "^assistant to member of parliament of the state duma$"
+          - "^judge of the .+ court$"
+          - "^senator of the council of the federation$"
+          - "^deputy of the parliament of the .+ republic$"
+          - "^senator of the council of the (federation|republic of the national assembly of belarus)$"
         is_pep: true
-      - regex:
-          - "^deputy, member of the .+ of The State Duma$"
-        is_pep: true
-        name: deputy(of The State Duma
       
 
   person_relations:

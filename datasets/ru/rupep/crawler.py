@@ -14,11 +14,27 @@ PASSWORD = os.environ.get("OPENSANCTIONS_RUPEP_PASSWORD")
 FORMATS = ["%d.%m.%Y", "%m.%Y", "%Y", "%b. %d, %Y", "%B %d, %Y"]
 
 unknown_writer = writer(open("maybe-pep-person-roles-companies.csv", "w"))
-unknown_writer.writerow(["count", "role", "role_ru", "company_name", "company_name_ru", "id", "position_name"])
+unknown_writer.writerow(
+    [
+        "count",
+        "role",
+        "company_name",
+        "id",
+        "position_name",
+    ]
+)
 unknowns = defaultdict(int)
 
 known_writer = writer(open("known-pep-person-roles-companies.csv", "w"))
-known_writer.writerow(["count", "role", "role_ru", "company_name", "company_name_ru", "id", "position_name"])
+known_writer.writerow(
+    [
+        "count",
+        "role",
+        "company_name",
+        "id",
+        "position_name",
+    ]
+)
 knowns = defaultdict(int)
 
 
@@ -103,10 +119,10 @@ def emit_related_person(context: Context, entity: Entity, rel_data: dict):
 
     context.audit_data(rel_data)
     context.emit(other, target=other_pep)
-    context.emit(rel)    
+    context.emit(rel)
 
 
-def get_position_name(context, role, role_ru, company_name, company_name_ru, company_id) -> Optional[str]:
+def get_position_name(context, role, company_name, company_id) -> Optional[str]:
     company_rel_res = context.lookup("company_relations", role)
     if company_rel_res and not company_rel_res.is_maybe_pep:
         return True, None
@@ -119,7 +135,7 @@ def get_position_name(context, role, role_ru, company_name, company_name_ru, com
     else:
         # context.warning("Not handling incomplete english yet")
         return None, None
-    
+
     pep_position = context.lookup("pep_positions", position_name)
     if pep_position:
         if pep_position.is_pep:
@@ -129,7 +145,7 @@ def get_position_name(context, role, role_ru, company_name, company_name_ru, com
                 return True, position_name
         else:
             return True, None
-    
+
     # conext.log.warning("Unknown position", position=position_name)
     return False, None
 
@@ -174,7 +190,6 @@ def crawl_person(context: Context, data: Dict[str, Any]):
         if role is not None and len(role.strip()):
             position = f"{org} ({role})"
         entity.add("position", position, lang=lang)
-
 
     for country_data in data.pop("related_countries", []):
         rel_type = country_data.pop("relationship_type")
@@ -223,8 +238,11 @@ def crawl_person(context: Context, data: Dict[str, Any]):
     # TODO: store images
     data.pop("photo", None)
 
-    pep_category = person_topic.value is not None and person_topic.value in {"role.pep", "gov.igo"}
-    #if pep_category != is_pep:
+    pep_category = person_topic.value is not None and person_topic.value in {
+        "role.pep",
+        "gov.igo",
+    }
+    # if pep_category != is_pep:
     #    print("PEP category but not is_pep", pep_category, is_pep, url_en)
     if pep_category or is_pep:
         has_state_company = False
@@ -238,7 +256,11 @@ def crawl_person(context: Context, data: Dict[str, Any]):
 
             role = company_data.get("relationship_type_en", None)
             role_ru = company_data.get("relationship_type_ru", None)
-            
+
+            if not (role and company_name):
+                #context.warn("Remember to deal with incomplete english positions")
+                continue
+
             is_state = company_data.get("to_company_is_state", None)
             if is_state:
                 has_state_company = True
@@ -257,32 +279,38 @@ def crawl_person(context: Context, data: Dict[str, Any]):
                 "professor",
                 "associate professor",
                 "deputy director",
+                "mp",
+                "senator"
             ]
             for split in splitroles:
                 if role.lower().startswith(split + ","):
                     parts = role.split(",", 1)
+                    break
                 else:
                     parts = [role]
-
-            for part in parts: 
-                if end_date is None or end_date[0] > "2019": # let's focus on the positions we'd currently emit
-                    is_known, position_name = get_position_name(context, collapse_spaces(part), role_ru, collapse_spaces(company_name), company_name_ru, company_id)
+            #if len(parts) > 2 or "," in role:
+            #    print(parts)
+            for part in parts:
+                if (
+                    end_date is None or end_date[0] > "2019"
+                ):  # let's focus on the positions we'd currently emit
+                    is_known, position_name = get_position_name(
+                        context,
+                        collapse_spaces(part),
+                        collapse_spaces(company_name),
+                        company_id,
+                    )
                     if is_known:
-                        # "role", "role_ru", "company_name", "company_name_ru",  "company_id", "position_name"
-                        key = (part, role_ru, company_name, company_name_ru, company_id, position_name)
+                        # "role", "company_name", "company_id", "position_name"
+                        key = (part, company_name, company_id, position_name)
                         knowns[key] += 1
                     else:
-                        # "role", "role_ru", "company_name", "company_name_ru", "company_id", "position_name"
-                        key = (part, role_ru, company_name, company_name_ru, company_id, position_name)
+                        # "role", "company_name",  "company_id", "position_name"
+                        key = (part, company_name, company_id, position_name)
                         unknowns[key] += 1
                         position_name = None
-        #if not has_state_company:
-            #print(f"No state company for PEP {url_en}")
-
-
-
-
-
+        # if not has_state_company:
+        # print(f"No state company for PEP {url_en}")
 
     data.pop("declarations", None)
     # h.audit_data(data)
@@ -313,6 +341,7 @@ def crawl_peps(context: Context):
     sorted_unknowns.reverse()
     for row in sorted_unknowns:
         unknown_writer.writerow(row)
+
 
 def emit_pep_relationship(
     context: Context,
