@@ -6,6 +6,30 @@ from zavod import Context
 from zavod import helpers as h
 
 
+def crawl_parliament_label(context: Context, parliament_api_url: str):
+    api_response = context.fetch_json(parliament_api_url, cache_days=30)
+    parliament = api_response.pop("data")
+
+    return parliament.pop("label_external_long")
+
+
+def crawl_parliament_period(context: Context, parliament_period_api_url: str):
+    api_response = context.fetch_json(parliament_period_api_url, cache_days=30)
+    parliament_period = api_response.pop("data")
+
+    parliament = parliament_period.pop("parliament")
+    parliament_api_url = parliament.pop("api_url")
+
+    parliament_label = crawl_parliament_label(context, parliament_api_url)
+
+    parliament_data = {}
+    parliament_data["label"] = parliament_label
+    parliament_data["start_date_period"] = parliament_period.pop("start_date_period")
+    parliament_data["end_date_period"] = parliament_period.pop("end_date_period")
+
+    return parliament_data
+
+
 def crawl_politician(context: Context, politician_api_url: str):
     api_response = context.fetch_json(politician_api_url, cache_days=30)
     politician = api_response.pop("data")
@@ -40,15 +64,25 @@ def crawl(context: Context):
             politician = mandate.pop("politician")
 
             # Get state from parliament info
-            parliament_info = mandate.pop("parliament_period").pop("label").split(" ")
-            state = parliament_info[0]
+            parliament_info = mandate.pop("parliament_period")
+            parliament_label = parliament_info.pop("label").split(" ")
+            state = parliament_label[0]
+
+            # Don't get Members of EU-Paralament
+            if state == "EU-Parlament":
+                continue
+
+            # Get the Parliament infor in its own endpoint
+            parliament_period_data = crawl_parliament_period(
+                context, parliament_info.pop("api_url")
+            )
 
             # Create position
             position = h.make_position(
                 context,
-                name="Member of the {} Parliament".format(state),
+                name="Member of the {}".format(parliament_period_data["label"]),
                 country="Germany",
-                subnational_area=state,
+                subnational_area=state if state != "Bundestag" else None,
             )
 
             person = context.make("Person")
@@ -68,13 +102,17 @@ def crawl(context: Context):
             # Apply politician fullname to Person entity
             h.apply_name(person, full=politician_fullname)
 
+            mandate_start_date = mandate.pop("start_date")
+            if not mandate_start_date:
+                mandate_start_date = parliament_period_data.pop("start_date_period")
+
             # Create occupancy
             occupancy = h.make_occupancy(
                 context,
                 person,
                 position,
                 True,
-                start_date=mandate.pop("start_date"),
+                start_date=mandate_start_date,
                 end_date=mandate.pop("end_date"),
             )
             if occupancy:
