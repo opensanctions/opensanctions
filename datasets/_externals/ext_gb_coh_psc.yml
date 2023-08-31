@@ -2,7 +2,7 @@ type: external
 title: UK Companies House People with Significant Control
 entry_point: zavod.runner.enrich:enrich
 disabled: false
-hidden: true
+hidden: false
 exports:
   - statistics.json
 deploy:

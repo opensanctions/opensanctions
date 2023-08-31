@@ -2,7 +2,7 @@ type: external
 entry_point: zavod.runner.enrich:enrich
 title: Czechia business register
 disabled: false
-hidden: true
+hidden: false
 exports:
   - statistics.json
 deploy:

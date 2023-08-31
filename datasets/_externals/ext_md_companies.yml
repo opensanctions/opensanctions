@@ -2,7 +2,7 @@ type: external
 title: State Register of legal entities in the Republic of Moldova
 entry_point: zavod.runner.enrich:enrich
 disabled: false
-hidden: true
+hidden: false
 exports:
   - statistics.json
 deploy:

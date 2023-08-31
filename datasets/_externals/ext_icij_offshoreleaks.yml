@@ -2,7 +2,7 @@ type: external
 title: ICIJ Offshore Leaks Database
 entry_point: zavod.runner.enrich:enrich
 disabled: false
-hidden: true
+hidden: false
 exports:
   - statistics.json
 deploy:

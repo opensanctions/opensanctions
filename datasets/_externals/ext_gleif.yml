@@ -2,7 +2,7 @@ type: external
 title: Legal Entity Identifier (LEI) Reference Data
 entry_point: zavod.runner.enrich:enrich
 disabled: false
-hidden: true
+hidden: false
 exports:
   - statistics.json
 deploy:

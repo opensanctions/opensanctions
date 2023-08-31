@@ -3,7 +3,7 @@ title: Estonia e-Business Register (E-äriregister)
 entry_point: zavod.runner.enrich:enrich
 prefix: ee
 disabled: false
-hidden: true
+hidden: false
 exports:
   - statistics.json
 deploy:
