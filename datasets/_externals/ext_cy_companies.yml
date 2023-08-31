@@ -1,6 +1,7 @@
 type: external
 title: Cyprus Companies and Corporate Officers
 entry_point: zavod.runner.enrich:enrich
+full_dataset: cy_companies
 disabled: false
 hidden: false
 exports:

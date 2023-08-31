@@ -1,6 +1,7 @@
 type: external
 title: Ukraine Consolidated State Registry
 entry_point: zavod.runner.enrich:enrich
+full_dataset: ua_edr
 disabled: false
 hidden: false
 exports:

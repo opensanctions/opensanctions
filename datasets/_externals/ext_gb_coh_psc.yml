@@ -1,6 +1,7 @@
 type: external
 title: UK Companies House People with Significant Control
 entry_point: zavod.runner.enrich:enrich
+full_dataset: gb_coh_psc
 disabled: false
 hidden: false
 exports:

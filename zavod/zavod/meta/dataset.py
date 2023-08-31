@@ -33,6 +33,9 @@ class Dataset(NKDataset):
         self.exports: Set[str] = set(data.get("exports", []))
         self.entry_point: Optional[str] = data.get("entry_point", None)
 
+        self.full_dataset: Optional[str] = data.get("full_dataset", None)
+        """The bulk full dataset for datasets that result from enrichment."""
+
         self.load_db_uri: Optional[str] = data.get("load_db_uri", None)
         """Used to load the dataset into a database when doing a complete run."""
         if self.load_db_uri is not None:
@@ -116,6 +119,8 @@ class Dataset(NKDataset):
         data["disabled"] = self.disabled
         if self.data:
             data["data"] = self.data.to_dict()
+        if self.full_dataset is not None:
+            data["full_dataset"] = self.full_dataset
         return data
 
     def to_opensanctions_dict(self) -> Dict[str, Any]:

@@ -1,7 +1,7 @@
 name: gleif
 title: GLEIF Concatenated Data File
 prefix: lei
-disabled: true
+disabled: false
 entry_point: crawler.py
 coverage:
   frequency: weekly

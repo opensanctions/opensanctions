@@ -1,6 +1,7 @@
 type: external
 title: Register of Enterprises of the Republic of Latvia (Uzņēmumu reģistrs)
 entry_point: zavod.runner.enrich:enrich
+full_dataset: lv_business_register
 disabled: false
 exports:
   - statistics.json
