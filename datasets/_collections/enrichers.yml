@@ -14,15 +14,12 @@ children:
   - ext_cz_business_register
   - ext_ee_ariregister
   - ext_gb_coh_psc
-  - gleif
   - ext_gleif
-  - icij_offshoreleaks
   - ext_icij_offshoreleaks
   - ext_lv_business_register
   - ext_md_companies
   # - nominatim
   - opencorporates
-  - ru_egrul
   - ext_ru_egrul
   - ext_ua_edr
   - wikidata
