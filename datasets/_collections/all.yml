@@ -22,5 +22,5 @@ children:
   - ru_rupep_companies
   - ru_fedsfm_wmd
   - ru_fedsfm_terror
-  - interpol_yellow_notices
+  # - interpol_yellow_notices
   # - nominatim
