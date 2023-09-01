@@ -3,6 +3,8 @@ title: "abgeordnetenwatch"
 url: https://www.abgeordnetenwatch.de
 entry_point: crawler
 prefix: de-aw
+coverage:
+  frequency: daily
 description: |
   Members of the German national legislature (The Bundestag)
   and state legislatures (Landstag) and the positions they occupy
