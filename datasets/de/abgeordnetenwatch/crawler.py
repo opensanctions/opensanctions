@@ -8,28 +8,14 @@ from zavod import Context
 from zavod import helpers as h
 
 
-def crawl_parliament_label(context: Context, parliament_api_url: str):
+def crawl_parliament(context: Context, parliament_api_url: str):
     api_response = context.fetch_json(parliament_api_url, cache_days=30)
-    parliament = api_response.pop("data")
-
-    return parliament.pop("label_external_long")
+    return api_response.pop("data")
 
 
 def crawl_parliament_period(context: Context, parliament_period_api_url: str):
     api_response = context.fetch_json(parliament_period_api_url, cache_days=30)
-    parliament_period = api_response.pop("data")
-
-    parliament = parliament_period.pop("parliament")
-    parliament_api_url = parliament.pop("api_url")
-
-    parliament_label = crawl_parliament_label(context, parliament_api_url)
-
-    parliament_data = {}
-    parliament_data["label"] = parliament_label
-    parliament_data["start_date_period"] = parliament_period.pop("start_date_period")
-    parliament_data["end_date_period"] = parliament_period.pop("end_date_period")
-
-    return parliament_data
+    return api_response.pop("data")
 
 
 def crawl_politician(context: Context, politician_api_url: str):
@@ -64,25 +50,28 @@ def crawl(context: Context):
 
         for mandate in api_response.get("data"):
             politician = mandate.pop("politician")
-
-            # Get state from parliament info
-            parliament_info = mandate.pop("parliament_period")
+            parliament_period = mandate.pop("parliament_period")
+            parliament_period_detail = crawl_parliament_period(
+                context, parliament_period["api_url"]
+            )
+            parliament_detail = crawl_parliament(
+                context, parliament_period_detail["parliament"]["api_url"]
+            )
+            parliament_label = parliament_period_detail["parliament"]["label"]
+            parliament_label_long = parliament_detail["label_external_long"]
 
             # Don't get Members of EU-Parlament
-            if "EU" in parliament_info.pop("label"):
+            if "EU" in parliament_label:
                 continue
-
-            # Get the Parliament infor in its own endpoint
-            parliament_period_data = crawl_parliament_period(
-                context, parliament_info.pop("api_url")
-            )
 
             # Create position
             position = h.make_position(
                 context,
-                name="Member of the {}".format(parliament_period_data["label"]),
+                name="Member of the {}".format(parliament_label_long),
                 country="Germany",
-                subnational_area=state if state != "Bundestag" else None,
+                subnational_area=parliament_label
+                if parliament_label != "Bundestag"
+                else None,
             )
 
             politician_fullname = politician.pop("label")
@@ -100,12 +89,20 @@ def crawl(context: Context):
                 person.id = context.make_id(politician.pop("id"))
 
             person.add("birthDate", politician_detail.pop("year_of_birth"))
-            h.apply_name(person, full=politician_fullname)
+            h.apply_name(
+                person,
+                full=politician_fullname,
+                first_name=politician_detail.pop("first_name"),
+                last_name=politician_detail.pop("last_name"),
+                maiden_name=politician_detail.pop("birth_name"),
+            )
+
+            person.add("sourceUrl", politician_detail.pop("abgeordnetenwatch_url"))
 
             mandate_start_date = mandate.pop(
                 "start_date"
-            ) or parliament_period_data.pop("start_date_period")
-            mandate_end_date = mandate.pop("end_date") or parliament_period_data.pop(
+            ) or parliament_period_detail.pop("start_date_period")
+            mandate_end_date = mandate.pop("end_date") or parliament_period_detail.pop(
                 "end_date_period"
             )
 
@@ -147,10 +144,6 @@ def crawl(context: Context):
                     "entity_type",
                     "label",
                     "api_url",
-                    "abgeordnetenwatch_url",
-                    "first_name",
-                    "last_name",
-                    "birth_name",
                     "sex",
                     "party",
                     "party_past",
