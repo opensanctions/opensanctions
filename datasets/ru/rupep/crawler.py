@@ -2,6 +2,7 @@ import os
 import json
 from typing import Any, Dict, Optional
 from followthemoney import model
+from nomenklatura.util import is_qid
 
 from zavod import Context
 from zavod import helpers as h
@@ -20,7 +21,7 @@ def clean_wdid(wikidata_id: Optional[str]):
 
 
 def person_id(context: Context, id: str, wikidata_id: Optional[str]):
-    if wikidata_id is not None:
+    if is_qid(wikidata_id):
         return wikidata_id
     # Sergei Glinka, information in RuPEP doesn't properly reflect he's
     # left some business relationships.
