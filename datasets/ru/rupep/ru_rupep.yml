@@ -88,10 +88,17 @@ lookups:
           - "^deputy of the .+ council of deputies$"
           - "^deputy of the .+ city council$"
           - "^(deputy|mp) of the.+(city|regional|state) duma$"
-          - "^deputy of the representatives chambers .+ belarus$"
+          - "^deputy of the .+ regional court$"
+          - "^(lieutenant |acting )?governor of the.*(government|administration).*$"
+        scope: subnational
+      - regex:
+        # deputy of the Representatives Chambers of the National Assembly of the Republic of Belarus 
+        # 
+          - "^deputy of the representatives chambers of the national assembly of belarus$"          
           - "^(member|(first deputy )?chairperson) of the .+ committee of the (state duma|council of the federation|representatives chambers .+ belarus)$"
           - "^(member|(first deputy )?chairperson) of the committee (for|on) .+ of the (state duma|council of the federation|representatives chambers .+ belarus)$"
-          - "^deputy of the .+ regional court$"
+        scope: national
+      - regex:
           - "^assistant to member of parliament of the state duma$"
           - "^judge of the.+court( of the \\w+ district of.+)?"
           - "^judge of the.+district court of"
@@ -99,20 +106,24 @@ lookups:
           - "^senator of the council of the federation$"
           - "^deputy of the parliament of the .+ republic$"
           - "^senator of the council of the (federation|republic of the national assembly of belarus)$"
-          - "^(the |deputy |first deputy |advisor to the |assistant to the )?minister"
           - "administration of the president$"
-          - "^(lieutenant |acting )?governor of the.*(government|administration).*$"
           - "^the head of administration.+administration.*"
-          - "^(consul|abassador)"
+          - "^(consul|abassador) " # This space is important to not match consultant
           - "^presidium member.+party.*"
-
-        is_pep: true
+      - regex:
+          - "^(the |deputy |first deputy |advisor to the |assistant to the )?minister.+ministry.+"
+        scope: national
+        preposition: of
+      - regex:
+          - "^(the |deputy |first deputy |advisor to the |assistant to the )?minister.+ministry.+"
+        scope: national
+        preposition: in the
       - match: the president of the president of russia
         name: The Pesident of Russia
-        is_pep: true
+        scope: national
       - match: the president of the president of the republic of belarus
         name: The President of The Republic of Belarus
-        is_pep: true
+        scope: national
       
 
   person_person_relations:

@@ -136,12 +136,22 @@ def emit_related_person(context: Context, entity: Entity, rel_data: dict):
     context.emit(rel)
 
 
+def draft_position_name(role, company_name):
+    if company_name.startswith("The "):
+        return f"{role} of {company_name}"
+    else:
+        return f"{role} of the {company_name}"
+
+
+def clean_position_name(role, company_name, preposition="of the"):
+    if company_name.startswith("Ministry"):
+        company_name = company_name.replace("Ministry of ", "")
+    return f"{role} {preposition} {company_name}"
+
+
 def get_position_name(context, role, company_name, company_id) -> Optional[str]:
     if role and company_name:
-        if company_name.startswith("The "):
-            position_name = f"{role} of {company_name}"
-        else:
-            position_name = f"{role} of the {company_name}"
+        position_name = draft_position_name
     else:
         # context.warning("Not handling incomplete english yet")
         return None, None
@@ -152,7 +162,7 @@ def get_position_name(context, role, company_name, company_id) -> Optional[str]:
             if pep_position.name:
                 return True, pep_position.name
             else:
-                return True, position_name
+                return True, clean_position_name(role, company_name, pep_position.preposition)
         else:
             return True, None
 
@@ -274,7 +284,7 @@ def crawl_person(
             rupep_company_id = company_data.get("company_id")
             company_entity_id = company_id(context, rupep_company_id)
             
-            start_date = parse_date(company_data.get("date_started", None))
+            start_date = parse_date(company_data.get("date_established", None))
             end_date = parse_date(company_data.get("date_finished", None))
 
             parts = []
