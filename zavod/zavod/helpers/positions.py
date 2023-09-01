@@ -76,6 +76,8 @@ def make_position(
         parts.extend(ensure_list(inception_date))
     if dissolution_date is not None:
         parts.extend(ensure_list(dissolution_date))
+    if subnational_area is not None:
+        parts.extend(ensure_list(subnational_area))
 
     if wikidata_id is not None:
         position.id = wikidata_id
@@ -87,40 +89,56 @@ def make_position(
 
 def make_occupancy(
     context: Context,
-    person: Entity | str,
+    person: Entity,
     position: Entity,
-    no_end_implies_current: bool,
+    no_end_implies_current: bool = True,
     current_time: datetime = settings.RUN_TIME,
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,
 ) -> Optional[Entity]:
-    """Create Occupancy entities if they meet our criteria for PEP position occupancy,
-    otherwise just return None.
+    """Creates and returns an Occupancy entity if the arguments meet our criteria
+    for PEP position occupancy, otherwise returns None.
 
-    Occupancies are only created if end_date is None or less than AFTER_OFFICE years
+    Occupancies are only returned if end_date is None or less than AFTER_OFFICE years
     after current_time. current_time defaults to the process start date and time.
+
+    Args:
+        context: The context to create the entity in.
+        person: The person holding the position. They will be added to the
+            `holder` property.
+        position: The position held by the person. This will be added to the
+            `post` property.
+        no_end_implies_current: Set this to True if a dataset is regularly maintained
+            and it can be assumed that no end date implies the person is currently
+            occupying this position. In this case, `status` will be set to `current`.
+            Otherwise, `status` will be set to `unknown`.
+        current_time: Defaults to the run time of the current crawl.
+        start_date: Set if the date the person started occupying the position is known.
+        end_date: Set if the date the person left the position is known.
     """
-    after_office = h.backdate(current_time, AFTER_OFFICE)
-    if (
-        end_date is None
-        or (type(end_date) == list and any(d > after_office for d in end_date))
-        or (type(end_date) == str and  end_date > after_office)
-    ):
-        occupancy = context.make("Occupancy")
-        person_id = person if type(person) == str else person.id
-        parts = [person_id, position.id, start_date, end_date]
-        occupancy.id = context.make_id(*parts)
-        occupancy.add("holder", person)
-        occupancy.add("post", position)
-        occupancy.add("startDate", start_date)
-        occupancy.add("endDate", end_date)
-        if end_date:
+
+    if end_date is not None and end_date < h.backdate(current_time, AFTER_OFFICE):
+        return None
+
+    if end_date:
+        if end_date < current_time.isoformat():
             status = OccupancyStatus.ENDED.value
         else:
-            if no_end_implies_current:
-                status = OccupancyStatus.CURRENT.value
-            else:
-                status = OccupancyStatus.UNKNOWN.value
-        occupancy.add("status", status)
-        return occupancy
-    return None
+            status = OccupancyStatus.CURRENT.value
+    else:
+        if no_end_implies_current:
+            status = OccupancyStatus.CURRENT.value
+        else:
+            status = OccupancyStatus.UNKNOWN.value
+
+    occupancy = context.make("Occupancy")
+    # Include started and ended strings so that two occupancies, one missing start
+    # and and one missing end, don't get normalisted to the same ID
+    parts = [person.id, position.id, "started", start_date, "ended", end_date]
+    occupancy.id = context.make_id(*parts)
+    occupancy.add("holder", person)
+    occupancy.add("post", position)
+    occupancy.add("startDate", start_date)
+    occupancy.add("endDate", end_date)
+    occupancy.add("status", status)
+    return occupancy

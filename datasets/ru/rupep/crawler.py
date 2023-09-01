@@ -1,6 +1,6 @@
 import os
 import json
-from typing import Any, Dict, Optional, List
+from typing import Any, Dict, Optional, List, Tuple
 from followthemoney import model
 from csv import writer
 from collections import defaultdict
@@ -311,9 +311,6 @@ def crawl_person(
                     key = (parts[0], company_name, rupep_company_id, position_name)
                     knowns[key] += 1
 
-                    if company_entity_id not in company_countries:
-                        print("Missing", company_entity_id)
-
                     if position_name:
                         emit_pep_relationship(
                             context,
@@ -372,7 +369,7 @@ def emit_pep_relationship(
     org_id: str,
     person: Entity,
     position_name: str,
-    countries: List[str],
+    countries: Tuple[List[str]],
     start_date: Optional[List[str]],
     end_date: Optional[List[str]],
     url: Optional[str],
@@ -381,10 +378,11 @@ def emit_pep_relationship(
     position = h.make_position(
         context,
         position_name,
-        country=countries,
+        country=countries[0],
         organization=org_id,
         source_url=url,
     )
+    position.add("country", countries[1], lang="rus")
     occupancy = h.make_occupancy(
         context,
         person,
@@ -403,13 +401,10 @@ def emit_pep_relationship(
 def crawl_company(context: Context, data: Dict[str, Any]):
     entity = context.make("Organization")
     entity.id = company_id(context, data.pop("id"))
-    url = data.pop("url_en", None)
-    entity.add("sourceUrl", url)
+    entity.add("sourceUrl", data.pop("url_en", None))
     data.pop("url_ru", None)
-    name_en = data.pop("name_en", None)
-    entity.add("name", name_en, lang="eng")
-    name_ru = data.pop("name_ru", None)
-    entity.add("name", name_ru, lang="rus")
+    entity.add("name", data.pop("name_en", None), lang="eng")
+    entity.add("name", data.pop("name_ru", None), lang="rus")
     entity.add("name", data.pop("name_suggest_output_ru", None), lang="rus")
     entity.add("name", data.pop("name_suggest_output_en", None), lang="eng")
     entity.add("alias", data.pop("also_known_as", None))
@@ -440,10 +435,11 @@ def crawl_company(context: Context, data: Dict[str, Any]):
             )
             continue
         if res.prop is not None:
-            entity.add(res.prop, country_name_ru, lang="rus")
-            entity.add(res.prop, country_name_en, lang="eng")
             country_names_ru.append(country_name_ru)
             country_names_en.append(country_name_en)
+
+            entity.add(res.prop, country_name_ru, lang="rus")
+            entity.add(res.prop, country_name_en, lang="eng")
         # h.audit_data(country_data)
 
     for rel_data in data.pop("related_persons", []):
@@ -479,12 +475,9 @@ def crawl_company(context: Context, data: Dict[str, Any]):
         rel.add(res.to_prop, other_id)
         rel.add(res.desc_prop, rel_type)
         rel.add("modifiedAt", parse_date(rel_data.pop("date_confirmed")))
-        start_date = parse_date(rel_data.pop("date_established"))
-        rel.add("startDate", start_date)
-        end_date = parse_date(rel_data.pop("date_finished"))
-        rel.add("endDate", end_date)
-
-        context.audit_data(rel_data, ignore=["person_ru", "person_en", "is_pep"])
+        rel.add("startDate", parse_date(rel_data.pop("date_established")))
+        rel.add("endDate", parse_date(rel_data.pop("date_finished")))
+        context.audit_data(rel_data, ignore=["is_pep", "person_ru", "person_en"])
         context.emit(rel)
 
     for rel_data in data.pop("related_companies", []):
@@ -544,8 +537,8 @@ def crawl_company(context: Context, data: Dict[str, Any]):
     context.audit_data(data, ignore=ignore)
     # print(entity.to_dict())
     context.emit(entity)
-
-    return entity.id, set(country_names_en + country_names_ru)
+    
+    return entity.id, country_names_en, country_names_ru
 
 
 def crawl_companies(context: Context):
@@ -557,6 +550,6 @@ def crawl_companies(context: Context):
 
     company_countries = {}
     for data in companies:
-        entity_id, countries = crawl_company(context, data)
-        company_countries[entity_id] = countries
+        entity_id, countries_en, countries_ru = crawl_company(context, data)
+        company_countries[entity_id] = (countries_en, countries_ru)
     return company_countries
