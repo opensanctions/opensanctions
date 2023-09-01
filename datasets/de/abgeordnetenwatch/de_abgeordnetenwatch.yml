@@ -11,7 +11,6 @@ description: |
   Data released under CC0 1.0 license.
 publisher:
     name: Parlamentwatch e.V.
-    organization: Parlamentwatch e.V.
     description: |
       On abgeordnetenwatch.de (which translates as “member of parliament watch”)
       users can find all their representatives and ask them public questions, read
@@ -21,5 +20,5 @@ publisher:
     country: de
     url: https://www.abgeordnetenwatch.de/ueber-uns/impressum
 data:
-    url: "https://www.abgeordnetenwatch.de/api/v2/candidacies-mandates"
+    url: "https://www.abgeordnetenwatch.de/api/v2/candidacies-mandates?type=mandate"
     format: JSON

@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 import json
 import math
+from nomenklatura.util import is_qid
+
 from zavod import Context
 from zavod import helpers as h
 
@@ -65,11 +67,9 @@ def crawl(context: Context):
 
             # Get state from parliament info
             parliament_info = mandate.pop("parliament_period")
-            parliament_label = parliament_info.pop("label").split(" ")
-            state = parliament_label[0]
 
-            # Don't get Members of EU-Paralament
-            if state == "EU-Parlament":
+            # Don't get Members of EU-Parlament
+            if "EU" in parliament_info.pop("label"):
                 continue
 
             # Get the Parliament infor in its own endpoint
@@ -85,35 +85,37 @@ def crawl(context: Context):
                 subnational_area=state if state != "Bundestag" else None,
             )
 
-            person = context.make("Person")
-            person.id = context.make_id(politician.pop("id"))
             politician_fullname = politician.pop("label")
+            context.log.info("Get Politician {} detail".format(politician_fullname))
+            politician_detail = crawl_politician(context, politician.pop("api_url"))
 
-            # Get the politician birthday date
-            context.log.info("Get Politician {} birth year".format(politician_fullname))
-            politician_data = crawl_politician(context, politician.pop("api_url"))
-            birthYear = politician_data.pop("year_of_birth")
-            person.add("birthDate", birthYear)
+            person = context.make("Person")
 
-            # Get WikiData ID
-            politician_wikidata_id = politician_data.pop("qid_wikidata")
+            politician_wikidata_id = politician_detail.pop("qid_wikidata")
             person.add("wikidataId", politician_wikidata_id)
 
-            # Apply politician fullname to Person entity
+            if is_qid(politician_wikidata_id):
+                person.id = politician_wikidata_id
+            else:
+                person.id = context.make_id(politician.pop("id"))
+
+            person.add("birthDate", politician_detail.pop("year_of_birth"))
             h.apply_name(person, full=politician_fullname)
 
-            mandate_start_date = mandate.pop("start_date")
-            if not mandate_start_date:
-                mandate_start_date = parliament_period_data.pop("start_date_period")
+            mandate_start_date = mandate.pop(
+                "start_date"
+            ) or parliament_period_data.pop("start_date_period")
+            mandate_end_date = mandate.pop("end_date") or parliament_period_data.pop(
+                "end_date_period"
+            )
 
-            # Create occupancy
             occupancy = h.make_occupancy(
                 context,
                 person,
                 position,
                 True,
                 start_date=mandate_start_date,
-                end_date=mandate.pop("end_date"),
+                end_date=mandate_end_date,
             )
             if occupancy:
                 context.emit(person, target=True)
@@ -139,7 +141,7 @@ def crawl(context: Context):
 
             # Audit
             context.audit_data(
-                politician_data,
+                politician_detail,
                 ignore=[
                     "id",
                     "entity_type",
