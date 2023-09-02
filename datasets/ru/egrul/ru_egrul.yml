@@ -36,3 +36,52 @@ coverage:
 data:
   url: https://egrul.itsoft.ru/EGRUL_406/01.01.2022_FULL/
   format: XML
+
+lookups:
+  type.country:
+    lowercase: true
+    options:
+      - match: Киргизская Республика
+        value: KG
+      - match: Республика Казахстан
+        value: KZ
+      - match: Республика Таджикистан
+        value: TJ
+      - match: Государство Израиль
+        value: IL
+      - match: Федеративная Республика Германия
+        value: DE
+      - match: Республика Болгария
+        value: BG
+      - match: Республика Армения
+        value: AM
+      - match: Сирийская Арабская Республика
+        value: SY
+      - match: Латвийская Республика
+        value: LV
+      - match: ВИРГИНСКИЕ ОСТРОВА (БРИТАНСКИЕ)
+        value: VG
+      - match: СЕЙШЕЛЫ
+        value: SC
+      - match: ЧЕШСКАЯ РЕСПУБЛИКА
+        value: CZ
+      - match: Турецкая Республика
+        value: TR
+      - match: Китайская Народная Республика
+        value: CN
+      - match: Республика Корея
+        value: KR
+      - match: Республика Индия
+        value: IN
+      - match: СОЕДИНЕННОЕ КОРОЛЕВСТВО
+        value: GB
+      - match: ОСТРОВА ТЕРКС И КАЙКОС
+        value: TC
+      - match: Республика Черногория
+        value: ME
+      - match: Тайвань (Китай)
+        value: TW
+      - match: Республика Узбекистан
+        value: UZ
+      - match: КОРЕЯ, РЕСПУБЛИКА
+        value: South Korea
