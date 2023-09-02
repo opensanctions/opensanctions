@@ -1,16 +1,16 @@
 from concurrent.futures import ThreadPoolExecutor
 from urllib.parse import urljoin, urlparse
 from zipfile import ZipFile
-from lxml import etree, html
+from lxml import etree
 from typing import Dict, Optional, Set, IO
 from lxml.etree import _Element as Element, tostring
-from zavod import Zavod, init_context
-from followthemoney.proxy import EntityProxy
 from followthemoney.util import join_text
 from addressformatting import AddressFormatter
 
+from zavod import Context, Entity
+
 INN_URL = "https://egrul.itsoft.ru/%s.xml"
-PREFIX = "https://egrul.itsoft.ru/EGRUL_406/01.01.2022_FULL/"
+# original source: "https://egrul.itsoft.ru/EGRUL_406/01.01.2022_FULL/"
 aformatter = AddressFormatter()
 
 
@@ -33,7 +33,7 @@ def elattr(el: Optional[Element], attr: str):
 
 
 def make_id(
-    context: Zavod, entity: EntityProxy, local_id: Optional[str] = None
+    context: Context, entity: Entity, local_id: Optional[str] = None
 ) -> Optional[str]:
     # FIXME: should we make INN slugs if the nationality is not Russian?
     for inn in sorted(entity.get("innCode", quiet=True)):
@@ -47,7 +47,9 @@ def make_id(
     return None
 
 
-def make_person(context: Zavod, el: Element, local_id: str) -> Optional[EntityProxy]:
+def make_person(
+    context: Context, el: Element, local_id: Optional[str]
+) -> Optional[Entity]:
     name_el = el.find(".//СвФЛ")
     entity = context.make("Person")
     if name_el is None:
@@ -72,7 +74,7 @@ def make_person(context: Zavod, el: Element, local_id: str) -> Optional[EntityPr
     return entity
 
 
-def make_org(context: Zavod, el: Element, local_id: str) -> EntityProxy:
+def make_org(context: Context, el: Element, local_id: Optional[str]) -> Entity:
     entity = context.make("Organization")
     name_el = el.find("./НаимИННЮЛ")
     if name_el is not None:
@@ -95,7 +97,7 @@ def make_org(context: Zavod, el: Element, local_id: str) -> EntityProxy:
     return entity
 
 
-def parse_founder(context: Zavod, company: EntityProxy, el: Element):
+def parse_founder(context: Context, company: Entity, el: Element):
     owner = context.make("LegalEntity")
     ownership = context.make("Ownership")
 
@@ -192,7 +194,7 @@ def parse_founder(context: Zavod, company: EntityProxy, el: Element):
     context.emit(ownership)
 
 
-def parse_directorship(context: Zavod, company: EntityProxy, el: Element):
+def parse_directorship(context: Context, company: Entity, el: Element):
     # TODO: can we use the ГРН as a fallback ID?
     director = make_person(context, el, company.id)
     if director is None:
@@ -220,7 +222,7 @@ def parse_directorship(context: Zavod, company: EntityProxy, el: Element):
     context.emit(directorship)
 
 
-def parse_address(context: Zavod, entity: EntityProxy, el: Element):
+def parse_address(context: Context, entity: Entity, el: Element):
     data: Dict[str, Optional[str]] = {}
     country = "ru"
     if el.tag == "АдресРФ":  # normal address
@@ -263,7 +265,7 @@ def parse_address(context: Zavod, entity: EntityProxy, el: Element):
     entity.add("address", address)
 
 
-def parse_company(context: Zavod, el: Element):
+def parse_company(context: Context, el: Element):
     entity = context.make("Company")
     entity.id = context.make_slug("inn", el.get("ИНН"))
     entity.add("jurisdiction", "ru")
@@ -301,7 +303,7 @@ def parse_company(context: Zavod, el: Element):
     context.emit(entity)
 
 
-def parse_sole_trader(context: Zavod, el: Element):
+def parse_sole_trader(context: Context, el: Element):
     entity = context.make("LegalEntity")
     entity.add("country", "ru")
     entity.add("ogrnCode", el.get("ОГРНИП"))
@@ -312,7 +314,7 @@ def parse_sole_trader(context: Zavod, el: Element):
     context.emit(entity)
 
 
-def parse_xml(context: Zavod, handle: IO[bytes]):
+def parse_xml(context: Context, handle: IO[bytes]):
     doc = etree.parse(handle)
     for el in doc.findall(".//СвЮЛ"):
         parse_company(context, el)
@@ -320,17 +322,16 @@ def parse_xml(context: Zavod, handle: IO[bytes]):
         parse_sole_trader(context, el)
 
 
-def parse_examples(context: Zavod):
+def parse_examples(context: Context):
     for inn in ["7709383684", "7704667322", "9710075695"]:
         path = context.fetch_resource("%s.xml" % inn, INN_URL % inn)
         with open(path, "rb") as fh:
             parse_xml(context, fh)
 
 
-def crawl_index(context: Zavod, url: str) -> Set[str]:
+def crawl_index(context: Context, url: str) -> Set[str]:
     archives: Set[str] = set()
-    res = context.http.get(url)
-    doc = html.fromstring(res.text)
+    doc = context.fetch_html(url)
     for a in doc.findall(".//a"):
         link_url = urljoin(url, a.get("href"))
         if not link_url.startswith(url):
@@ -342,7 +343,7 @@ def crawl_index(context: Zavod, url: str) -> Set[str]:
     return archives
 
 
-def crawl_archive(context: Zavod, url: str):
+def crawl_archive(context: Context, url: str) -> None:
     url_path = urlparse(url).path.lstrip("/")
     path = context.fetch_resource(url_path, url)
     try:
@@ -358,21 +359,13 @@ def crawl_archive(context: Zavod, url: str):
         path.unlink(missing_ok=True)
 
 
-def crawl(context: Zavod):
+def crawl(context: Context) -> None:
     # TODO: thread pool execution
-    for archive_url in sorted(crawl_index(context, PREFIX)):
+    for archive_url in sorted(crawl_index(context, context.data_url)):
         crawl_archive(context, archive_url)
 
 
-def crawl_parallel(context: Zavod):
+def crawl_parallel(context: Context) -> None:
     with ThreadPoolExecutor() as executor:
-        for archive_url in crawl_index(context, PREFIX):
+        for archive_url in crawl_index(context, context.data_url):
             executor.submit(crawl_archive, context, archive_url)
-
-
-if __name__ == "__main__":
-    with init_context("metadata.yml") as context:
-        context.export_metadata("export/index.json")
-        crawl_parallel(context)
-        # crawl(context)
-        # parse_examples(context)

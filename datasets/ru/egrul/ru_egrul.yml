@@ -1,10 +1,12 @@
 name: ru_egrul
+title: Russian Unified State Register of Legal Entities (EGRUL)
+entry_point: crawler.py
 prefix: ru
 disabled: true
 deploy:
   premium: true
-  memory: "1200Mi"
-title: Russian Unified State Register of Legal Entities (EGRUL)
+  memory: 2000Mi
+  disk: 200Gi
 summary: |
   Companies database of the Russian Federation as maintained and published by 
   the Federal Tax Service.
@@ -30,7 +32,6 @@ publisher:
   country: ru
 coverage:
   end: 2022-01-01
-resources:
-  - name: entities.ftm.json
-    url: https://data.opensanctions.org/graph/ru_egrul/entities.ftm.json
-    mime_type: application/json+ftm
+data:
+  url: https://egrul.itsoft.ru/EGRUL_406/01.01.2022_FULL/
+  format: XML

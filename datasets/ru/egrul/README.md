@@ -14,7 +14,3 @@ Source data publication:
 
 * https://egrul.itsoft.ru/EGRUL_406/
 * https://egrul.itsoft.ru/EGRIP_405/
-
-FtM converted data link (for loading into Aleph or yente):
-
-* https://data.opensanctions.org/graph/ru_egrul/egrul.json
