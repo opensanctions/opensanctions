@@ -41,6 +41,10 @@ lookups:
   type.country:
     lowercase: true
     options:
+      - match:
+          - НОРМАНДСКИЕ ОСТРОВА
+          - НИДЕРЛАНДСКИЕ АНТИЛЫ
+        value: null
       - match: Киргизская Республика
         value: KG
       - match: Республика Казахстан
@@ -121,5 +125,106 @@ lookups:
         value: Serbia
       - match: Социалистическая Республика Вьетнам
         value: VN
-      - match: Соединенные Штаты Америки
+      - match:
+          - Соединенные Штаты Америки
         value: US
+      - match: ВИРГИНСКИЕ ОСТРОВА (США)
+        value: VI
+      - match: Арабская Республика Египет
+        value: EG
+      - match: Французская Республика
+        value: FR
+      - match: Республика Беларусь
+        value: BY
+      - match: Королевство Дания
+        value: DK
+      - match: Остров Джерси
+        value: JE
+      - match: Королевство Испания
+        value: ES
+      - match: Исламская Республика Афганистан
+        value: AF
+      - match: Восточная Республика Уругвай
+        value: UY
+      - match: СЕВЕРНЫЕ МАРИАНСКИЕ ОСТРОВА
+        value: MP
+      - match:
+          - Республика Македония
+          - РЕСПУБЛИКА МАКЕДОНИЯ
+        value: MK
+      - match: Республика Эквадор
+        value: EC
+      - match: Республика Чили
+        value: CL
+      - match: Алжирская Народная Демократическая Республика
+        value: DZ
+      - match: Республика Кот д`Ивуар
+        value: CI
+      - match: Демократическая Социалистическая Республика Шри-Ланка
+        value: LK
+      - match: Демократическая Республика Конго
+        value: CG
+      - match: Венгерская Республика
+        value: HU
+      - match: Республика Польша
+        value: PL
+      - match: Республика Кирибати
+        value: KI
+      - match: Республика Камерун
+        value: CM
+      - match: Народная Республика Бангладеш
+        value: BD
+      - match: Республика Колумбия
+        value: CO
+      - match: Республика Словения
+        value: SI
+      - match: Федеративная Республика Нигерия
+        value: NG
+      - match: Республика Маврикий
+        value: MU
+      - match: Республика Мальта
+        value: MT
+      - match: Республика Мозамбик
+        value: MZ
+      - match: Швейцарская Конфедерация
+        value: CH
+      - match: Королевство Швеция
+        value: SE
+      - match: Республика Филиппины
+        value: PH
+      - match: ЮЖНАЯ АФРИКА
+        value: ZA
+      - match: Республика Кения
+        value: KE
+      - match: Республика Уганда
+        value: UG
+      - match: Республика Сейшелы
+        value: SC
+      - match: Республика Хорватия
+        value: HR
+      - match: Иорданское Хашимитское Королевство
+        value: JO
+      - match: Великое Герцогство Люксембург
+        value: LU
+      - match: Ливанская Республика
+        value: LB
+      - match: Республика Судан
+        value: SD
+      - match: Мальдивская Республика
+        value: MV
+      - match: Республика Ирак
+        value: IQ
+      - match: Республика Перу
+        value: PE
+      - match: Аргентинская Республика
+        value: AR
+      - match: Республика Мадагаскар
+        value: MG
+      - match: Исламская Республика Пакистан
+        value: PK
+      - match: Мексиканские Соединенные Штаты
+        value: MX
+      - match: Республика Коста-Рика
+        value: CR
+      - match: Тунисская Республика
+        value: TN
