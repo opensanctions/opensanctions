@@ -8,6 +8,7 @@ coverage:
 deploy:
   premium: true
   memory: 2500Mi
+  disk: 30Gi
 exports:
   - statistics.json
   - entities.ftm.json
