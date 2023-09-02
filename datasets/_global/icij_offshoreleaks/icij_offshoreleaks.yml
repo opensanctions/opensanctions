@@ -2,12 +2,12 @@ name: icij_offshoreleaks
 title: ICIJ OffshoreLeaks
 prefix: icijol
 # disabled: true
-entry_point: parse.py
+entry_point: crawler.py
 coverage:
   end: 2023-07-26
 deploy:
   premium: true
-  memory: 5Gi
+  memory: 2500Mi
 exports:
   - statistics.json
   - entities.ftm.json

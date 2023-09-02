@@ -6,8 +6,8 @@ entry_point: crawler.py
 coverage:
   frequency: weekly
 deploy:
-  disk: 50Gi
-  memory: 3Gi
+  disk: 10Gi
+  memory: 2Gi
   premium: true
 exports:
   - statistics.json
