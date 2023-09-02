@@ -1,7 +1,7 @@
 name: icij_offshoreleaks
 title: ICIJ OffshoreLeaks
 prefix: icijol
-disabled: true
+# disabled: true
 entry_point: parse.py
 coverage:
   end: 2023-07-26
