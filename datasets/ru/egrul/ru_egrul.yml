@@ -73,7 +73,9 @@ lookups:
         value: KR
       - match: Республика Индия
         value: IN
-      - match: СОЕДИНЕННОЕ КОРОЛЕВСТВО
+      - match:
+          - СОЕДИНЕННОЕ КОРОЛЕВСТВО
+          - Соединенное Королевство Великобритании и Северной Ирландии
         value: GB
       - match: ОСТРОВА ТЕРКС И КАЙКОС
         value: TC
@@ -85,3 +87,39 @@ lookups:
         value: UZ
       - match: КОРЕЯ, РЕСПУБЛИКА
         value: South Korea
+      - match: КОРЕЯ, НАРОДНО-ДЕМОКРАТИЧЕСКАЯ РЕСПУБЛИКА
+        value: North Korea
+      - match: Республика Азербайджан
+        value: AZ
+      - match: Эстонская Республика
+        value: EE
+      - match: Австрийская Республика
+        value: AT
+      - match:
+          - Республика Молдова
+          - МОЛДОВА, РЕСПУБЛИКА
+        value: MD
+      - match: Греческая Республика
+        value: GR
+      - match: Словацкая Республика
+        value: SK
+      - match: Литовская Республика
+        value: LT
+      - match: Королевство Нидерландов
+        value: NL
+      - match: Королевство Бельгии
+        value: BE
+      - match: Республика Куба
+        value: CU
+      - match: Королевство Норвегия
+        value: "NO"
+      - match: Венесуэла (Боливарианская Республика)
+        value: VE
+      - match: Итальянская Республика
+        value: IT
+      - match: Республика Сербия
+        value: Serbia
+      - match: Социалистическая Республика Вьетнам
+        value: VN
+      - match: Соединенные Штаты Америки
+        value: US
