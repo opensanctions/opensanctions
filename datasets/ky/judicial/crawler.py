@@ -76,7 +76,7 @@ def crawl(context: Context):
         for position in new_judge["positions"]:
             pos = h.make_position(
                 context,
-                name=position,
+                name="Judge for {}".format(position),
                 country="Cayman Islands",
             )
             occupancy = h.make_occupancy(
