@@ -1,5 +1,5 @@
 type: collection
-title: OpenScreening Graph
+title: OpenSanctions Full Graph
 hidden: true
 deploy:
   memory: "2000Mi"
@@ -14,8 +14,14 @@ summary: >
   The full graph of company registries, sanctions, and other data sources published by
   OpenSanctions.
 description: |
-  This exists mainly for experimentation. It's not recommended for screening or usage
-  with the on-premises API server (yente).
+  This dataset contains companies and persons not linked to any risk indication. It can
+  be used to perform screening and know-your-business checks in the listed jurisdictions.
+
+  The data is updated less frequently than the main OpenSanctions dataset, and is not
+  internally resolved in the same way. It is intended to be used as a reference dataset
+  for data analytics and research purposes.
+
+  This data is the source for [OpenScreening](https://resources.linkurious.com/openscreening).
 datasets:
   - sanctions
   - crime
