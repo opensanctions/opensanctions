@@ -36,9 +36,6 @@ class Dataset(NKDataset):
         self.exports: Set[str] = set(data.get("exports", []))
         """List of exporters to run on the dataset."""
 
-        self.disabled: bool = as_bool(data.get("disabled", False))
-        """Do not update the crawler at the moment."""
-
         self.resolve: bool = as_bool(data.get("resolve", True))
         """Option to disable de-duplication mechanism."""
 
