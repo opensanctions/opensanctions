@@ -11,7 +11,7 @@ from nomenklatura.publish.dates import simplify_dates
 from zavod.logs import get_logger
 from zavod.entity import Entity
 from zavod.meta import Dataset
-from zavod.dedupe import get_resolver
+from zavod.dedupe import get_dataset_resolver
 from zavod.archive import dataset_state_path, iter_dataset_statements
 
 log = get_logger(__name__)
@@ -19,7 +19,7 @@ View = BaseView[Dataset, Entity]
 
 
 def get_store(dataset: Dataset, external: bool = False) -> "Store":
-    resolver = get_resolver()
+    resolver = get_dataset_resolver(dataset)
     aggregator_path = dataset_state_path(dataset.name)
     suffix = "external" if external else "internal"
     dataset_path = aggregator_path / f"{dataset.name}.{suffix}.store"

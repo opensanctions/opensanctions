@@ -8,6 +8,7 @@ from nomenklatura.matching import DefaultAlgorithm, get_algorithm
 
 from zavod import settings
 from zavod.logs import get_logger
+from zavod.meta import Dataset
 
 if TYPE_CHECKING:
     from zavod.store import Store
@@ -23,6 +24,13 @@ def get_resolver() -> Resolver[Entity]:
         raise RuntimeError("Please set $ZAVOD_RESOLVER_PATH.")
     log.info("Loading resolver from: %s" % settings.RESOLVER_PATH)
     return Resolver.load(Path(settings.RESOLVER_PATH))
+
+
+def get_dataset_resolver(dataset: Dataset) -> Resolver[Entity]:
+    """Get a resolver for the given dataset."""
+    if not dataset.resolve:
+        return Resolver()
+    return get_resolver()
 
 
 def blocking_xref(

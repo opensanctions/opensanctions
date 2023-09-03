@@ -30,8 +30,17 @@ class Dataset(NKDataset):
         if self.updated_at is None:
             self.updated_at = datetime_iso(settings.RUN_TIME)
         self.hidden: bool = as_bool(data.get("hidden", False))
-        self.exports: Set[str] = set(data.get("exports", []))
         self.entry_point: Optional[str] = data.get("entry_point", None)
+        """Code location for the crawler script"""
+
+        self.exports: Set[str] = set(data.get("exports", []))
+        """List of exporters to run on the dataset."""
+
+        self.disabled: bool = as_bool(data.get("disabled", False))
+        """Do not update the crawler at the moment."""
+
+        self.resolve: bool = as_bool(data.get("resolve", True))
+        """Option to disable de-duplication mechanism."""
 
         self.full_dataset: Optional[str] = data.get("full_dataset", None)
         """The bulk full dataset for datasets that result from enrichment."""
