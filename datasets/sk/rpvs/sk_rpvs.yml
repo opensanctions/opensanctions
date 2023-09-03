@@ -12,6 +12,7 @@ deploy:
 exports:
   - statistics.json
   - entities.ftm.json
+resolve: false
 summary: |
   Data is collected by the Ministry of Justice of the Slovak Republic in the ‘Register
   partnerov verejného sektora’ (RPVS), and covers entities benefiting from public

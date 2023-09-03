@@ -11,6 +11,7 @@ deploy:
 exports:
   - statistics.json
   - entities.ftm.json
+resolve: false
 summary: |
   Cypriot open data on companies, which names their officers but not any shareholders.
 publisher:

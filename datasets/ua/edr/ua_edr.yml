@@ -13,6 +13,7 @@ deploy:
 exports:
   - statistics.json
   - entities.ftm.json
+resolve: false
 summary: |
   The beneficial ownership database of legal entities registered in Ukraine (EDR)
 resources:

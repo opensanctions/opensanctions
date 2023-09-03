@@ -12,6 +12,7 @@ deploy:
 exports:
   - statistics.json
   - entities.ftm.json
+resolve: false
 summary: |
   All companies in Moldova, with information on their founders, beneficial
   owners and directors.

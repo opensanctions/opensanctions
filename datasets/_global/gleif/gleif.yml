@@ -12,6 +12,7 @@ deploy:
 exports:
   - statistics.json
   - entities.ftm.json
+resolve: false
 summary: |
   Base data for all entities which have been issued Legal Entity Identifier
   (LEI) codes, as well as the relationships between them.

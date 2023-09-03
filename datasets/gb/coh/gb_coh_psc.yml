@@ -12,6 +12,7 @@ deploy:
 exports:
   - statistics.json
   - entities.ftm.json
+resolve: false
 summary: |
   The database of beneficial owners of companies incorporated in England, Wales,
   Scotland and Northern Ireland.

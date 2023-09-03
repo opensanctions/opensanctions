@@ -11,6 +11,7 @@ deploy:
 exports:
   - statistics.json
   - entities.ftm.json
+resolve: false
 summary: |
   A collection of all companies registered in Estonia, including directors and
   beneficial owners.

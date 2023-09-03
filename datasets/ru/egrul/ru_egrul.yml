@@ -228,3 +228,5 @@ lookups:
         value: CR
       - match: Тунисская Республика
         value: TN
+      - match: Финляндская Республика
+        value: FI
