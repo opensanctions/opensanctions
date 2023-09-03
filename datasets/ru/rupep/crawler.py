@@ -96,7 +96,7 @@ def parse_date(date):
     return h.parse_date(date, FORMATS)
 
 
-def emit_related_person(context: Context, entity: Entity, rel_data: dict):
+def crawl_person_person_relation(context: Context, entity: Entity, rel_data: dict):
     other_pep = rel_data.pop("is_pep", False)
     other_wdid = clean_wdid(rel_data.pop("person_wikidata_id"))
     other = context.make("Person")
@@ -138,6 +138,57 @@ def emit_related_person(context: Context, entity: Entity, rel_data: dict):
     context.emit(rel)
 
 
+def crawl_company_person_relation(
+    context: Context, company: Entity, person: Entity, rel_data: dict
+):
+    rel_type = rel_data.pop("relationship_type_en", None)
+    rel_type_ru = rel_data.pop("relationship_type_ru", None)
+    rel_type = rel_type or rel_type_ru
+    res = context.lookup("company_person_relations", rel_type)
+    if res is None:
+        # context.log.info(
+        #     "Unknown company/person relation type",
+        #     rel_type=rel_type,
+        #     entity=company,
+        #     person=person_id,
+        # )
+        return
+
+    if res.schema is None:
+        return
+
+    if res.schema == "Organization" and res.from_prop == "asset":
+        company.schema = model.get("Company")
+
+    rel = context.make(res.schema)
+    id_a_short = short_id(context, company.id)
+    id_b_short = short_id(context, person.id)
+    rel.id = context.make_slug(id_a_short, res.schema, id_b_short)
+    rel.add(res.from_prop, company.id)
+    rel.add(res.to_prop, person.id)
+    rel.add(res.desc_prop, rel_type)
+    rel.add("modifiedAt", parse_date(rel_data.pop("date_confirmed")))
+    rel.add("startDate", parse_date(rel_data.pop("date_established")))
+    rel.add("endDate", parse_date(rel_data.pop("date_finished")))
+    context.audit_data(
+        rel_data,
+        ignore=[
+            "is_pep",
+            "person_ru",
+            "person_en",
+            "to_company_is_state",
+            "to_company_edrpou",
+            "to_company_founded",
+            "to_company_key_company",
+            "to_company_ru",
+            "to_company_en",
+            "to_company_short_ru",
+            "to_company_short_en",
+        ],
+    )
+    context.emit(rel)
+
+
 def draft_position_name(role, company_name):
     if company_name.startswith("The "):
         return f"{role} of {company_name}"
@@ -145,7 +196,7 @@ def draft_position_name(role, company_name):
         return f"{role} of the {company_name}"
 
 
-def clean_position_name(role, company_name, preposition="of the"):
+def clean_position_name(role, company_name, preposition):
     if company_name.startswith("Ministry"):
         company_name = company_name.replace("Ministry of ", "")
     return f"{role} {preposition} {company_name}"
@@ -165,34 +216,75 @@ def get_position_name(context, role, company_name, company_id) -> Optional[str]:
         position_name = draft_position_name(role, company_name)
     else:
         # context.warning("Not handling incomplete english yet")
-        return None, None, None
+        return None, None
 
     pep_position = context.lookup("pep_positions", position_name)
     if pep_position:
         if pep_position.scope:
             subnational_area = get_subnational_area(pep_position.scope, position_name)
             if pep_position.name:
-                return True, pep_position.name, subnational_area
+                return pep_position.name, subnational_area
             else:
                 return (
-                    True,
-                    clean_position_name(role, company_name, pep_position.preposition),
+                    clean_position_name(role, company_name, pep_position.preposition or "of the"),
                     subnational_area,
                 )
         else:
-            return True, None, None
+            return None, None
 
     # conext.log.warning("Unknown position", position=position_name)
-    return False, None, None
+    return None, None
 
 
-def crawl_person(
-    context: Context, company_countries: Dict[str, List[str]], data: Dict[str, Any]
-):
+def emit_pep_relationship(
+    context: Context,
+    org_id: str,
+    person: Entity,
+    position_name: str,
+    countries: Tuple[List[str]],
+    subnational_area: Optional[str],
+    start_date: Optional[List[str]],
+    end_date: Optional[List[str]],
+    url: Optional[str],
+    also: Optional[List[str]],
+) -> None:
+    position = h.make_position(
+        context,
+        position_name,
+        country=countries,
+        subnational_area=subnational_area,
+        source_url=url,
+    )
+    position.add("country", countries, lang="rus")
+    occupancy = h.make_occupancy(
+        context,
+        person,
+        position,
+        no_end_implies_current=True,
+        start_date=start_date,
+        end_date=end_date,
+    )
+    if occupancy:
+        occupancy.add("description", also)
+        print(
+            "OCCUPANCY",
+            position.get("name"),
+            position.get("country"),
+            position.get("subnationalArea"),
+            occupancy.get("status"),
+            occupancy.get("startDate"),
+            occupancy.get("endDate"),
+        )
+        context.emit(position)
+        context.emit(occupancy)
+
+
+def crawl_person(context: Context, companies: Dict[int, Entity], data: Dict[str, Any]):
     is_pep = data.pop("is_pep", False)
     entity = context.make("Person")
     wikidata_id = clean_wdid(data.pop("wikidata_id", None))
-    entity.id = person_id(context, data.pop("id"), wikidata_id)
+    rupep_person_id = data.pop("id")
+    entity.id = person_id(context, rupep_person_id, wikidata_id)
     if entity.id is None:
         return
     url_en = data.pop("url_en", None)
@@ -233,7 +325,6 @@ def crawl_person(
         rel_type = country_data.pop("relationship_type")
         country_name_en = country_data.pop("to_country_en", None)
         country_name_ru = country_data.pop("to_country_ru", None)
-        # print(country_name)
         res = context.lookup("person_country_links", rel_type)
         if res is None:
             context.log.warn(
@@ -256,7 +347,7 @@ def crawl_person(
         context.audit_data(country_data, ignore=ignores)
 
     for rel_data in data.pop("related_persons", []):
-        emit_related_person(context, entity, rel_data)
+        crawl_person_person_relation(context, entity, rel_data)
 
     data.pop("type_of_official_ru", None)
     person_type = data.pop("type_of_official_en", None)
@@ -281,76 +372,73 @@ def crawl_person(
         "gov.igo",
     }
 
-    pep_companies = set()
-    if pep_category or is_pep:
-        for company_data in data.pop("related_companies", []):
-            company_name_ru = company_data.get("to_company_ru", None)
-            company_name_short_ru = company_data.get("to_company_short_ru", None)
-            company_name_ru = company_name_short_ru or company_name_ru
-            company_name = company_data.get("to_company_en", None)
-            company_name_short = company_data.get("to_company_short_en", None)
-            company_name = company_name_short or company_name
+    for rel_data in data.pop("related_companies", []):
+        company_name_ru = rel_data.get("to_company_ru", None)
+        company_name_short_ru = rel_data.get("to_company_short_ru", None)
+        company_name_ru = company_name_short_ru or company_name_ru
+        company_name = rel_data.get("to_company_en", None)
+        company_name_short = rel_data.get("to_company_short_en", None)
+        company_name = company_name_short or company_name
 
-            role = company_data.get("relationship_type_en", None)
-            role_ru = company_data.get("relationship_type_ru", None)
+        role = rel_data.get("relationship_type_en", None)
+        role_ru = rel_data.get("relationship_type_ru", None)
 
-            if not (role and company_name):
-                # context.warn("Remember to deal with incomplete english positions")
-                continue
+        if not (role and company_name):
+            # context.warn("Remember to deal with incomplete english positions")
+            continue
 
-            rupep_company_id = company_data.get("company_id")
-            company_entity_id = company_id(context, rupep_company_id)
-
-            start_date = parse_date(company_data.get("date_established", None))
-            end_date = parse_date(company_data.get("date_finished", None))
-
-            extra = None
-            # If the role starts with any of the common PEPish first role parts,
-            # use that and just log the rest in the occupancy
-            for split in SPLIT_ROLES:
-                if role.lower().startswith(split + ","):
-                    role, extra = role.split(",", 1)
-                    break
-
-            is_known, position_name, subnational_area = get_position_name(
-                context,
-                collapse_spaces(role),
-                collapse_spaces(company_name),
-                rupep_company_id,
+        rupep_company_id = rel_data.pop("company_id")
+        company = companies.get(rupep_company_id, None)
+        if not company:
+            context.log.warning(
+                "Unseen company referenced in relation",
+                person_id=rupep_person_id,
+                company_id=rupep_company_id,
             )
-            if is_known:
-                # "role", "company_name", "rupep_company_id", "position_name"
-                key = (role, company_name, rupep_company_id, position_name)
-                knowns[key] += 1
+            continue
+        company_entity_id = company_id(context, rupep_company_id)
 
-                if position_name:
-                    emit_pep_relationship(
-                        context,
-                        company_entity_id,
-                        entity,
-                        position_name,
-                        company_countries[company_entity_id],
-                        subnational_area,
-                        start_date,
-                        end_date,
-                        url_en,
-                        extra,
-                    )
-                pep_companies.add(company_entity_id)
-            else:
-                # "role", "company_name",  "rupep_company_id", "position_name"
-                key = (role, company_name, rupep_company_id, position_name)
-                unknowns[key] += 1
+        start_date = parse_date(rel_data.get("date_established", None))
+        end_date = parse_date(rel_data.get("date_finished", None))
+
+        extra = None
+        # If the role starts with any of the common PEPish first role parts,
+        # use that and just log the rest in the occupancy
+        for split in SPLIT_ROLES:
+            if role.lower().startswith(split + ","):
+                role, extra = role.split(",", 1)
+                break
+
+        position_name, subnational_area = get_position_name(
+            context,
+            collapse_spaces(role),
+            collapse_spaces(company_name),
+            rupep_company_id,
+        )
+
+        if position_name:
+            emit_pep_relationship(
+                context,
+                company_entity_id,
+                entity,
+                position_name,
+                company.get("country"),
+                subnational_area,
+                start_date[0] if start_date else None,
+                end_date[0] if end_date else None,
+                url_en,
+                extra,
+            )
+        else:
+            crawl_company_person_relation(context, company, entity, rel_data)
 
     data.pop("declarations", None)
     # h.audit_data(data)
     context.emit(entity, target=is_pep)
-    return pep_companies
 
 
 def crawl_peps(context: Context):
-    company_countries = crawl_companies(context, True)
-    pep_companies = set()
+    companies = crawl_companies(context)
 
     auth = ("opensanctions", PASSWORD)
     path = context.fetch_resource("persons.json", context.data_url, auth=auth)
@@ -358,10 +446,9 @@ def crawl_peps(context: Context):
     with open(path, "r") as fh:
         persons = json.load(fh)
     for data in persons:
-        pep_companies.update(crawl_person(context, company_countries, data))
+        crawl_person(context, companies, data)
 
-    crawl_companies(context, False)
-    #
+    # ==========================================================================
     # DEBUG
     #
     print(f"Known: {len(knowns)}  Unknown: {len(unknowns)}")
@@ -383,52 +470,10 @@ def crawl_peps(context: Context):
         unknown_writer.writerow(row)
 
 
-def emit_pep_relationship(
-    context: Context,
-    org_id: str,
-    person: Entity,
-    position_name: str,
-    countries: Tuple[List[str]],
-    subnational_area: Optional[str],
-    start_date: Optional[List[str]],
-    end_date: Optional[List[str]],
-    url: Optional[str],
-    also: Optional[List[str]],
-) -> None:
-    position = h.make_position(
-        context,
-        position_name,
-        country=countries[0] + countries[1],
-        subnational_area=subnational_area,
-        source_url=url,
-    )
-    position.add("country", countries[1], lang="rus")
-    occupancy = h.make_occupancy(
-        context,
-        person,
-        position,
-        no_end_implies_current=True,
-        start_date=start_date,
-        end_date=end_date,
-    )
-    if occupancy:
-        occupancy.add("description", also)
-        print(
-            "OCCUPANCY",
-            position.get("name"),
-            position.get("country"),
-            position.get("subnationalArea"),
-            occupancy.get("status"),
-            occupancy.get("startDate"),
-            occupancy.get("endDate"),
-        )
-        context.emit(position)
-        context.emit(occupancy)
-
-
-def crawl_company(context: Context, data: Dict[str, Any], trial_run):
+def crawl_company(context: Context, data: Dict[str, Any]):
     entity = context.make("Organization")
-    entity.id = company_id(context, data.pop("id"))
+    rupep_id = data.pop("id")
+    entity.id = company_id(context, rupep_id)
     entity.add("sourceUrl", data.pop("url_en", None))
     data.pop("url_ru", None)
     entity.add("name", data.pop("name_en", None), lang="eng")
@@ -445,9 +490,6 @@ def crawl_company(context: Context, data: Dict[str, Any], trial_run):
     entity.add_cast("Company", "ogrnCode", data.pop("ogrn_code", None))
     entity.add("registrationNumber", data.pop("edrpou", None))
 
-    country_names_en = []
-    country_names_ru = []
-
     for country_data in data.pop("related_countries", []):
         rel_type = country_data.pop("relationship_type")
         country_name_en = country_data.pop("to_country_en", None)
@@ -463,51 +505,9 @@ def crawl_company(context: Context, data: Dict[str, Any], trial_run):
             )
             continue
         if res.prop is not None:
-            country_names_ru.append(country_name_ru)
-            country_names_en.append(country_name_en)
-
             entity.add(res.prop, country_name_ru, lang="rus")
             entity.add(res.prop, country_name_en, lang="eng")
         # h.audit_data(country_data)
-
-    for rel_data in data.pop("related_persons", []):
-        other_wdid = clean_wdid(rel_data.pop("person_wikidata_id"))
-        other_id = person_id(context, rel_data.pop("person_id"), other_wdid)
-        if other_id is None:
-            continue
-
-        rel_type = rel_data.pop("relationship_type_en", None)
-        rel_type_ru = rel_data.pop("relationship_type_ru", None)
-        rel_type = rel_type or rel_type_ru
-        res = context.lookup("company_person_relations", rel_type)
-        if res is None:
-            # context.log.info(
-            #     "Unknown company/person relation type",
-            #     rel_type=rel_type,
-            #     entity=entity,
-            #     other=other_id,
-            # )
-            continue
-
-        if res.schema is None:
-            continue
-
-        if res.schema == "Organization" and res.from_prop == "asset":
-            entity.schema = model.get("Company")
-
-        rel = context.make(res.schema)
-        id_a_short = short_id(context, entity.id)
-        id_b_short = short_id(context, other_id)
-        rel.id = context.make_slug(id_a_short, res.schema, id_b_short)
-        rel.add(res.from_prop, entity.id)
-        rel.add(res.to_prop, other_id)
-        rel.add(res.desc_prop, rel_type)
-        rel.add("modifiedAt", parse_date(rel_data.pop("date_confirmed")))
-        rel.add("startDate", parse_date(rel_data.pop("date_established")))
-        rel.add("endDate", parse_date(rel_data.pop("date_finished")))
-        context.audit_data(rel_data, ignore=["is_pep", "person_ru", "person_en"])
-        if not trial_run:
-            context.emit(rel)
 
     for rel_data in data.pop("related_companies", []):
         # pprint(rel_data)
@@ -562,16 +562,15 @@ def crawl_company(context: Context, data: Dict[str, Any], trial_run):
         "other_owners",
         "other_managers",
         "other_recipient",
+        "related_persons",
     ]
     context.audit_data(data, ignore=ignore)
-    # print(entity.to_dict())
-    if not trial_run:
-        context.emit(entity)
+    context.emit(entity)
 
-    return entity.id, country_names_en, country_names_ru
+    return rupep_id, entity
 
 
-def crawl_companies(context: Context, trial_run):
+def crawl_companies(context: Context):
     auth = ("opensanctions", PASSWORD)
     path = context.fetch_resource(
         "companies.json", "https://rupep.org/opendata/companies/json", auth=auth
@@ -580,8 +579,9 @@ def crawl_companies(context: Context, trial_run):
     with open(path, "r") as fh:
         companies = json.load(fh)
 
-    company_countries = {}
+    company_entities = {}
     for data in companies:
-        entity_id, countries_en, countries_ru = crawl_company(context, data, trial_run)
-        company_countries[entity_id] = (countries_en, countries_ru)
-    return company_countries
+        rupep_id, company = crawl_company(context, data)
+        company_entities[rupep_id] = company
+
+    return company_entities
