@@ -30,8 +30,17 @@ class Dataset(NKDataset):
         if self.updated_at is None:
             self.updated_at = datetime_iso(settings.RUN_TIME)
         self.hidden: bool = as_bool(data.get("hidden", False))
-        self.exports: Set[str] = set(data.get("exports", []))
         self.entry_point: Optional[str] = data.get("entry_point", None)
+        """Code location for the crawler script"""
+
+        self.exports: Set[str] = set(data.get("exports", []))
+        """List of exporters to run on the dataset."""
+
+        self.resolve: bool = as_bool(data.get("resolve", True))
+        """Option to disable de-duplication mechanism."""
+
+        self.full_dataset: Optional[str] = data.get("full_dataset", None)
+        """The bulk full dataset for datasets that result from enrichment."""
 
         self.load_db_uri: Optional[str] = data.get("load_db_uri", None)
         """Used to load the dataset into a database when doing a complete run."""
@@ -116,6 +125,8 @@ class Dataset(NKDataset):
         data["disabled"] = self.disabled
         if self.data:
             data["data"] = self.data.to_dict()
+        if self.full_dataset is not None:
+            data["full_dataset"] = self.full_dataset
         return data
 
     def to_opensanctions_dict(self) -> Dict[str, Any]:

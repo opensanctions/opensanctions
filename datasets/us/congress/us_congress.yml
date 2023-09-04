@@ -34,17 +34,13 @@ publisher:
   description: >
     The Library of Congress is an agency of the legislative branch of the U.S.
     government. Among other resources, The Library of Congress publishes
-    https://www.congress.gov/ and the beta [Congress.gov Application Programming Interface (API)](https://api.congress.gov/).
-
+    [congress.gov](https://www.congress.gov/) and the beta [Congress.gov
+    Application Programming Interface (API)](https://api.congress.gov/).
 lookups:
   position:
     normalize: true
     options:
       - match: House of Representatives
         name: United States representative
-        topics:
-          - role.pep
       - match: Senate
         name: United States senator
-        topics:
-          - role.pep

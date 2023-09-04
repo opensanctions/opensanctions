@@ -44,6 +44,7 @@ def parse_result(context: Context, result: Dict[str, Any]):
         return
     entity = context.make(schema)
     entity.id = context.make_slug(result.pop("id"))
+    entity.add("topics", "sanction")
 
     entity_number = result.pop("entity_number", None)
     is_ofac = False

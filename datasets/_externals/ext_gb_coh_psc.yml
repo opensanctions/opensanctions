@@ -1,12 +1,14 @@
 type: external
 title: UK Companies House People with Significant Control
 entry_point: zavod.runner.enrich:enrich
+full_dataset: gb_coh_psc
 disabled: false
-hidden: true
+hidden: false
 exports:
   - statistics.json
 deploy:
   schedule: "1 8 * * *"
+  memory: "2000Mi"
   disk: "20Gi"
   premium: true
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}

@@ -79,3 +79,9 @@ lookups:
         value: China
       - match: north korea (dprk)
         value: North Korea
+      - match: "people's republic of china (prc)"
+        value: China
+      - match:
+          - "turkish individual"
+          - "turkey (turkiye)"
+        value: Turkey

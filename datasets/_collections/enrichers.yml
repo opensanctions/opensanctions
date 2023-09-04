@@ -1,0 +1,25 @@
+type: collection
+title: Enrichment from external databases
+hidden: true
+deploy:
+  schedule: "30 3 * * *"
+  memory: "2000Mi"
+exports:
+  - statistics.json
+summary: >
+  These data sources are only partially imported where a link to an existing
+  entity of interest can be found.
+children:
+  - ext_cy_companies
+  - ext_cz_business_register
+  - ext_ee_ariregister
+  - ext_gb_coh_psc
+  - ext_gleif
+  - ext_icij_offshoreleaks
+  - ext_lv_business_register
+  - ext_md_companies
+  # - nominatim
+  - opencorporates
+  - ext_ru_egrul
+  - ext_ua_edr
+  - wikidata

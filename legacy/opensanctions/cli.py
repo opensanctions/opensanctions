@@ -1,4 +1,3 @@
-import sys
 import click
 import logging
 from pathlib import Path
@@ -7,14 +6,11 @@ from nomenklatura.resolver import Identifier
 from followthemoney.cli.util import OutPath
 
 from zavod.logs import get_logger, configure_logging
-from zavod.crawl import crawl_dataset
 from zavod.dedupe import get_resolver
 from zavod.tools.dump_file import dump_dataset_to_file
 from zavod.tools.meta_index import export_index
-from zavod.exc import RunFailedException
 from opensanctions.core.catalog import get_catalog, get_dataset_names
 from opensanctions.core.training import export_training_pairs
-from zavod.exporters import export
 from zavod.util import write_json
 
 log = get_logger(__name__)
@@ -34,29 +30,6 @@ def cli(verbose=False, quiet=False):
         level = logging.DEBUG
     configure_logging(level=level)
     get_catalog()
-
-
-@cli.command("crawl", help="Crawl entities into the given dataset")
-@click.argument("dataset", default=ALL_SCOPE, type=datasets)
-@click.option("-d", "--dry-run", is_flag=True, default=False)
-def crawl(dataset: str, dry_run: bool):
-    """Crawl all datasets within the given scope."""
-    scope = get_catalog().require(dataset)
-    failed = False
-    for source in scope.leaves:
-        try:
-            crawl_dataset(source, dry_run=dry_run)
-        except RunFailedException:
-            failed = True
-    if failed:
-        sys.exit(1)
-
-
-@cli.command("export", help="Export entities from the given dataset")
-@click.argument("dataset", default=ALL_SCOPE, type=datasets)
-@click.option("-r", "--recurse", is_flag=True, default=False)
-def export_(dataset: str, recurse: bool = False):
-    export(dataset, recurse=recurse)
 
 
 @cli.command("export-index", help="Export global dataset index")

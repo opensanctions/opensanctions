@@ -2,15 +2,15 @@ type: external
 title: Russian Unified State Register of Legal Entities (EGRUL)
 entry_point: zavod.runner.enrich:enrich
 disabled: false
-hidden: true
+hidden: false
 exports:
   - statistics.json
 deploy:
   schedule: "1 18 * * *"
   # disk: "20Gi"
-  memory: "2Gi"
+  memory: "3000Mi"
   premium: true
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+# load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   Companies database of the Russian Federation as maintained and published by 
   the Federal Tax Service.
@@ -74,3 +74,10 @@ lookups:
     options:
       - match: МОСКВА, 101000
         value: Moscow
+  type.email:
+    options:
+      - match:
+          - BUH@xn--c1adldkhfelbegn7job.xn--p1ai
+          - INFO@xn-----6kcbabo7acls0bmjmq4a8j.xn--p1ai
+          - 1@xn----jtbuhicc1a.xn--p1ai
+        value: null

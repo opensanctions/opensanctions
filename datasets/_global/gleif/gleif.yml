@@ -1,16 +1,18 @@
 name: gleif
 title: GLEIF Concatenated Data File
 prefix: lei
-disabled: true
+disabled: false
 entry_point: crawler.py
 coverage:
   frequency: weekly
 deploy:
   disk: 50Gi
+  memory: 2Gi
   premium: true
 exports:
   - statistics.json
   - entities.ftm.json
+resolve: false
 summary: |
   Base data for all entities which have been issued Legal Entity Identifier
   (LEI) codes, as well as the relationships between them.

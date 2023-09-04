@@ -1,12 +1,14 @@
 type: external
 title: Cyprus Companies and Corporate Officers
 entry_point: zavod.runner.enrich:enrich
+full_dataset: cy_companies
 disabled: false
-hidden: true
+hidden: false
 exports:
   - statistics.json
 deploy:
   schedule: "1 2 * * *"
+  memory: "2000Mi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   Cypriot open data on companies, which names officers but no shareholders.

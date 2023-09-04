@@ -6,6 +6,14 @@ deploy:
   disk: "20Gi"
   command: /etl/scripts/export-default.sh
   premium: true
+exports:
+  - statistics.json
+  - entities.ftm.json
+  - names.txt
+  - senzing.json
+  - targets.nested.json
+  - targets.simple.csv
+  - statements.csv
 summary: >
   This collection includes most of the data collected by OpenSanctions which
   meets quality standards and would be useful to an analyst or journalist
@@ -26,6 +34,7 @@ children:
   - peps
   - debarment
   - wanted
+  - enrichers
 
   # misc
   - wd_oligarchs
@@ -39,18 +48,3 @@ children:
   - ru_myrotvorets_wagner
   - ransomwhere
   - kp_rusi_reports
-
-  # enrichers
-  - cy_companies
-  - cz_business_register
-  - ee_ariregister
-  - gb_coh_psc
-  - gleif
-  - icij_offshoreleaks
-  # - ext_lv_business_register
-  - md_companies
-  # - nominatim
-  - opencorporates
-  - ru_egrul
-  - ua_edr
-  - wikidata

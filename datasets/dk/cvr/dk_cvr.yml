@@ -2,15 +2,17 @@ name: dk_cvr
 title: Denmark Central Business Register (Centrale Virksomhedsregister - CVR)
 prefix: oo
 entry_point: crawler.py
-disabled: true
+disabled: false
 coverage:
   frequency: weekly
 deploy:
   disk: 10Gi
+  memory: 3Gi
   premium: true
 exports:
   - statistics.json
   - entities.ftm.json
+resolve: false
 summary: |
   Danish companies have to report beneficial owners (‘reelle ejere’) who directly control a company.
   Beneficial owners can be Danish or foreign natural persons. Data is collected by the Danish

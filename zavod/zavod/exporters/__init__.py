@@ -1,9 +1,9 @@
 from typing import List, Dict, Type, Set
 
 from zavod.logs import get_logger
-from zavod.store import View, get_store
+from zavod.store import View
 from zavod.context import Context
-from zavod.meta import Dataset, get_catalog
+from zavod.meta import Dataset
 from zavod.exporters.common import Exporter
 from zavod.exporters.ftm import FtMExporter
 from zavod.exporters.nested import NestedJSONExporter
@@ -12,6 +12,7 @@ from zavod.exporters.simplecsv import SimpleCSVExporter
 from zavod.exporters.senzing import SenzingExporter
 from zavod.exporters.statistics import StatisticsExporter
 from zavod.exporters.peps import PEPSummaryExporter
+from zavod.exporters.statements import StatementsCSVExporter
 from zavod.exporters.metadata import write_dataset_index, write_issues
 
 log = get_logger(__name__)
@@ -32,6 +33,7 @@ EXPORTERS: Dict[str, Type[Exporter]] = {
     SimpleCSVExporter.FILE_NAME: SimpleCSVExporter,
     SenzingExporter.FILE_NAME: SenzingExporter,
     PEPSummaryExporter.FILE_NAME: PEPSummaryExporter,
+    StatementsCSVExporter.FILE_NAME: StatementsCSVExporter,
 }
 
 __all__ = ["export_dataset", "write_dataset_index", "write_issues"]
@@ -82,13 +84,3 @@ def export_dataset(dataset: Dataset, view: View) -> None:
         write_dataset_index(dataset)
     finally:
         context.close()
-
-
-def export(scope_name: str, recurse: bool = False) -> None:
-    """Export dump files for all datasets in the given scope."""
-    scope = get_catalog().require(scope_name)
-    store = get_store(scope)
-    exports = scope.datasets if recurse else [scope]
-    for dataset_ in exports:
-        view = store.view(dataset_)
-        export_dataset(dataset_, view)

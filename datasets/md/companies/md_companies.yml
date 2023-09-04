@@ -1,16 +1,18 @@
 name: md_companies
 title: State Register of legal entities in the Republic of Moldova
 prefix: md
-disabled: true
+disabled: false
 entry_point: parse.py
 coverage:
   frequency: weekly
 deploy:
   disk: 30Gi
+  memory: 2Gi
   premium: true
 exports:
   - statistics.json
   - entities.ftm.json
+resolve: false
 summary: |
   All companies in Moldova, with information on their founders, beneficial
   owners and directors.

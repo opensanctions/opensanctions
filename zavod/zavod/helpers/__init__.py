@@ -15,7 +15,7 @@ from zavod import helpers as h
 def crawl(context: Context) -> None:
     # ... fetch some data
     for row in data:
-        entity = h.make_entity("Person")
+        entity = context.make("Person")
         entity.id = context.make_id(row.get("id"))
         # Using the helper guarantees a consistent handling of the 
         # attributes, and in this case will also automatically
@@ -66,5 +66,5 @@ __all__ = [
     "apply_name",
     "make_position",
     "make_occupancy",
-    "OccupancyStatus"
+    "OccupancyStatus",
 ]

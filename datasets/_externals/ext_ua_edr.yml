@@ -1,12 +1,14 @@
 type: external
 title: Ukraine Consolidated State Registry
 entry_point: zavod.runner.enrich:enrich
+full_dataset: ua_edr
 disabled: false
-hidden: true
+hidden: false
 exports:
   - statistics.json
 deploy:
   schedule: "1 20 * * *"
+  memory: "1500Mi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   The beneficial ownership database of legal entities registered in Ukraine (EDR)

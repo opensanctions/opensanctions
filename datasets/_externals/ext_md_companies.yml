@@ -1,12 +1,14 @@
 type: external
 title: State Register of legal entities in the Republic of Moldova
 entry_point: zavod.runner.enrich:enrich
+full_dataset: md_companies
 disabled: false
-hidden: true
+hidden: false
 exports:
   - statistics.json
 deploy:
   schedule: "1 16 * * *"
+  memory: "2000Mi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   All companies in Moldova, with information on their founders, beneficial

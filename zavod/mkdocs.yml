@@ -47,6 +47,8 @@ nav:
   - install.md
   - Tutorial: tutorial.md
   - Command-line usage: usage.md
+  - metadata.md
   - context.md
   - helpers.md
   - patterns.md
+  - PEPs: peps.md

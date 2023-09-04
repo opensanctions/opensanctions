@@ -1,7 +1,5 @@
 import csv
-from functools import cache
 from typing import Optional, Dict, Any
-from datetime import timedelta
 from pantomime.types import CSV
 from nomenklatura.util import is_qid
 
@@ -47,7 +45,10 @@ def check_qualified(row: Dict[str, Any]) -> bool:
         return False
 
     start_date = date_value(row.get("start_date"))
-    if start_date is not None and h.backdate(settings.RUN_TIME, MAX_OFFICE) > start_date:
+    if (
+        start_date is not None
+        and h.backdate(settings.RUN_TIME, MAX_OFFICE) > start_date
+    ):
         return False
 
     # TODO: decide all entities with no P39 dates as false?

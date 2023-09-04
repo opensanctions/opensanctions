@@ -1,12 +1,14 @@
 type: external
 title: Legal Entity Identifier (LEI) Reference Data
 entry_point: zavod.runner.enrich:enrich
+full_dataset: gleif
 disabled: false
-hidden: true
+hidden: false
 exports:
   - statistics.json
 deploy:
   schedule: "1 10 * * *"
+  memory: "2000Mi"
   disk: "20Gi"
   premium: true
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
@@ -46,17 +48,17 @@ inputs:
   - sanctions
   - ext_cy_companies
   - ext_cz_business_register
-  # - ext_ee_ariregister
+  - ext_ee_ariregister
   - ext_gb_coh_psc
   - ext_gleif
   - ext_icij_offshoreleaks
   - ext_lv_business_register
   - ext_md_companies
-  - opencorporates
   - ext_ru_egrul
+  - ext_ua_edr
+  - opencorporates
   - ru_rupep
   - ru_rupep_companies
-  - ext_ua_edr
   # - debarment
 
 config:

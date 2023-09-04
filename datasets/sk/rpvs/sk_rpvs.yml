@@ -2,15 +2,17 @@ name: sk_rpvs
 title: Slovakia Public Sector Partners Register (Register partnerov verejného sektora - RPVS)
 prefix: oo
 entry_point: crawler.py
-disabled: true
+disabled: false
 coverage:
   frequency: weekly
 deploy:
   disk: 20Gi
+  memory: 2Gi
   premium: true
 exports:
   - statistics.json
   - entities.ftm.json
+resolve: false
 summary: |
   Data is collected by the Ministry of Justice of the Slovak Republic in the ‘Register
   partnerov verejného sektora’ (RPVS), and covers entities benefiting from public

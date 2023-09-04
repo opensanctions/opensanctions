@@ -4,11 +4,14 @@ from followthemoney.proxy import EntityProxy
 from json import load, loads
 from nomenklatura.judgement import Judgement
 from nomenklatura.stream import StreamEntity
+from nomenklatura.statement import Statement, CSV
+from nomenklatura.statement.serialize import read_path_statements
 from datetime import datetime
 
 from zavod import settings
+from zavod.store import get_view
 from zavod.dedupe import get_resolver
-from zavod.exporters import export
+from zavod.exporters import export_dataset
 from zavod.archive import clear_data_path
 from zavod.exporters.ftm import FtMExporter
 from zavod.exporters.names import NamesExporter
@@ -16,6 +19,7 @@ from zavod.exporters.nested import NestedJSONExporter
 from zavod.exporters.simplecsv import SimpleCSVExporter
 from zavod.exporters.senzing import SenzingExporter
 from zavod.exporters.statistics import StatisticsExporter
+from zavod.exporters.statements import StatementsCSVExporter
 from zavod.meta import Dataset, load_dataset_from_path
 from zavod.crawl import crawl_dataset
 from zavod.tests.conftest import DATASET_2_YML, COLLECTION_YML
@@ -35,12 +39,17 @@ default_exports = {
 }
 
 
+def export(dataset: Dataset) -> None:
+    view = get_view(dataset)
+    export_dataset(dataset, view)
+
+
 def test_export(testdataset1: Dataset):
     dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
     clear_data_path(testdataset1.name)
 
     crawl_dataset(testdataset1)
-    export(testdataset1.name)
+    export(testdataset1)
 
     # it parses and finds expected number of entites
     assert (
@@ -96,7 +105,7 @@ def test_minimal_export_config(testdataset2: Dataset):
     clear_data_path(testdataset2.name)
 
     crawl_dataset(testdataset2)
-    export(testdataset2.name)
+    export(testdataset2)
 
     with open(dataset_path / "index.json") as index_file:
         index = load(index_file)
@@ -120,7 +129,7 @@ def test_custom_export_config(testdataset2_export: Dataset):
     clear_data_path(testdataset2_export.name)
 
     crawl_dataset(testdataset2_export)
-    export(testdataset2_export.name)
+    export(testdataset2_export)
 
     with open(dataset_path / "index.json") as index_file:
         index = load(index_file)
@@ -403,3 +412,15 @@ def test_statistics(testdataset1: Dataset):
     } in target_schemata
     assert len(target_schemata) == 3
 
+
+def test_statements(testdataset1: Dataset):
+    dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
+    clear_data_path(testdataset1.name)
+
+    crawl_dataset(testdataset1)
+    harnessed_export(StatementsCSVExporter, testdataset1)
+
+    path = dataset_path / "statements.csv"
+    statements = list(read_path_statements(path, CSV, Statement))
+    entities = [s.canonical_id for s in statements if s.prop == Statement.BASE]
+    assert len(entities) == 11

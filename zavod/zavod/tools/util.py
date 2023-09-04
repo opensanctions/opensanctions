@@ -2,7 +2,7 @@ from typing import Generator, Set
 from nomenklatura.statement import Statement
 
 from zavod.meta import Dataset
-from zavod.dedupe import get_resolver
+from zavod.dedupe import get_dataset_resolver
 from zavod.archive import iter_dataset_statements
 
 
@@ -21,7 +21,7 @@ def iter_output_statements(
         A generator of statements.
     """
     assert not scope.is_collection
-    resolver = get_resolver()
+    resolver = get_dataset_resolver(scope)
     seen_ids: Set[str] = set()
     for stmt in iter_dataset_statements(scope, external=external):
         if stmt.id is None or stmt.id in seen_ids:

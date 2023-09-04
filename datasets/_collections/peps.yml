@@ -3,6 +3,14 @@ title: Politically Exposed Persons (PEPs)
 deploy:
   schedule: "40 */6 * * *"
   memory: "2Gi"
+exports:
+  - statistics.json
+  - entities.ftm.json
+  - names.txt
+  - pep-positions.json
+  - senzing.json
+  - targets.nested.json
+  - targets.simple.csv
 summary: >
   A politically exposed person (PEP) is a person that has been entrusted with
   a prominent public function. PEPs include elected officials, members of
@@ -22,19 +30,12 @@ description: |
 
 children:
   - cu_inventario_legislatura
+  - de_abgeordnetenwatch
   - eu_cor_members
   - eu_meps
   - everypolitician
   - ru_rupep
   - us_cia_world_leaders
   - us_congress
+  - us_plural_legislators
   - wd_peps
-
-exports:
-  - statistics.json
-  - entities.ftm.json
-  - names.txt
-  - pep-positions.json
-  - senzing.json
-  - targets.nested.json
-  - targets.simple.csv

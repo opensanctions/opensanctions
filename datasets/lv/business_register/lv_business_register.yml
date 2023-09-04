@@ -1,16 +1,17 @@
 name: lv_business_register
 title: Register of Enterprises of the Republic of Latvia (Uzņēmumu reģistrs)
 prefix: lv
-disabled: true
 entry_point: crawler.py
 coverage:
   frequency: weekly
 deploy:
   disk: 50Gi
+  memory: 2Gi
   premium: true
 exports:
   - statistics.json
   - entities.ftm.json
+resolve: false
 summary: |
   The Latvian company registry lists directors, shareholders and beneficial owners
   as well as bank accounts for all companies and traders in the country.

@@ -56,10 +56,12 @@ class Context:
         self._timestamps: Optional[TimeStampIndex] = None
 
         self._data_time: datetime = settings.RUN_TIME
-        # If the dataset has a fixed end time, use that as the data time:
+        # If the dataset has a fixed end time which is in the past,
+        # use that as the data time:
         if dataset.coverage is not None and dataset.coverage.end is not None:
-            prefix = DatePrefix(dataset.coverage.end)
-            self._data_time = prefix.dt or self._data_time
+            if dataset.coverage.end < settings.RUN_TIME_ISO:
+                prefix = DatePrefix(dataset.coverage.end)
+                self._data_time = prefix.dt or self._data_time
 
         self.lang: Optional[str] = None
         """Default language for statements emitted from this dataset"""
@@ -414,7 +416,8 @@ class Context:
         if entity.id is None:
             raise ValueError("Entity has no ID: %r", entity)
         if len(entity.properties) == 0:
-            raise ValueError("Entity has no properties: %r", entity)
+            self.log.error("Entity has no properties", entity=entity)
+            return
         self.stats.entities += 1
         if target:
             self.stats.targets += 1

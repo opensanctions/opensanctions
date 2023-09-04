@@ -1,9 +1,9 @@
 type: collection
 title: Working set
 hidden: true
-disabled: true
+# disabled: true
 deploy:
-  schedule: "30 */4 * * *"
+  schedule: "@monthly"
   memory: "1500Mi"
 exports:
   - statistics.json

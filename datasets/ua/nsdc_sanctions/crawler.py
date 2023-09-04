@@ -6,7 +6,7 @@ from zavod import Context
 from zavod import helpers as h
 
 PASSWORD = os.environ.get("OPENSANCTIONS_NSDC_PASSWORD")
-AUTH = ("rnbo", PASSWORD)
+AUTH = ("rnbo_user", PASSWORD)
 
 CODES = {"DN": "UA-DPR", "LN": "UA-LPR"}
 

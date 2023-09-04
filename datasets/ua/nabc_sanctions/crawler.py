@@ -1,4 +1,5 @@
 import json
+from banal import ensure_list
 from typing import Any, Dict, Union
 from urllib.parse import urljoin
 from pantomime.types import JSON
@@ -89,10 +90,13 @@ def crawl_common(context: Context, entity: Entity, row: Dict[str, Any]):
     entity.add("topics", "sanction")
     country = row.pop("country", None)
     entity.add("country", COUNTRIES.get(country, country))
-    entity.add("keywords", row.pop("category", None))
-    entity.add("keywords", row.pop("subcategory_1", None))
-    entity.add("keywords", row.pop("subcategory_2", None))
-    entity.add("keywords", row.pop("subcategory_3", None))
+    keywords = ensure_list(row.pop("keywords"))
+    keywords.extend(row.pop("subcategory_1", []))
+    keywords.extend(row.pop("subcategory_2", []))
+    keywords.extend(row.pop("subcategory_3", []))
+    for kw in keywords:
+        if not kw.startswith("category_"):
+            entity.add("keywords", kw)
 
     entity.add("website", url_split(row.pop("link", "")))
     entity.add("innCode", row.pop("itn", None))

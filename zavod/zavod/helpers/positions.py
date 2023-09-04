@@ -97,11 +97,27 @@ def make_occupancy(
     end_date: Optional[str] = None,
 ) -> Optional[Entity]:
     """Creates and returns an Occupancy entity if the arguments meet our criteria
+<<<<<<< HEAD
     for PEP position occupancy, otherwise returns None.
+=======
+    for PEP position occupancy, otherwise returns None. Also adds the position countries
+    and the `role.pep` topic to the person if an Occupancy is returned.
+>>>>>>> main
 
     Occupancies are only returned if end_date is None or less than AFTER_OFFICE years
     after current_time. current_time defaults to the process start date and time.
 
+<<<<<<< HEAD
+=======
+    Occupancy.status is set to
+
+    - `current` if `end_date` is `None` and `no_end_implies_current` is `True`,
+      otherwise `status` will be `unknown`
+    - `current` if `end_date` is some date in the future, unless the dataset
+      `coverage.end` is a date in the past, in which case `status` will be `unknown`
+    - `ended` if `end_date` is some date in the past.
+
+>>>>>>> main
     Args:
         context: The context to create the entity in.
         person: The person holding the position. They will be added to the
@@ -116,12 +132,30 @@ def make_occupancy(
         start_date: Set if the date the person started occupying the position is known.
         end_date: Set if the date the person left the position is known.
     """
+<<<<<<< HEAD
+=======
+
+>>>>>>> main
     if end_date is not None and end_date < h.backdate(current_time, AFTER_OFFICE):
         return None
 
     if end_date:
         if end_date < current_time.isoformat():
             status = OccupancyStatus.ENDED.value
+        elif (
+            context.dataset.coverage
+            and context.dataset.coverage.end
+            and current_time.isoformat() > context.dataset.coverage.end
+        ):
+            # Don't trust future end dates beyond the known coverage date of the dataset
+            status = OccupancyStatus.UNKNOWN.value
+            context.log.warning(
+                "Future Occupancy end date is beyond the dataset coverage date. "
+                "Check if the source data is being updated.",
+                person=person.id,
+                position=position.id,
+                end_date=end_date,
+            )
         else:
             status = OccupancyStatus.CURRENT.value
     else:
@@ -140,4 +174,8 @@ def make_occupancy(
     occupancy.add("startDate", start_date)
     occupancy.add("endDate", end_date)
     occupancy.add("status", status)
+
+    person.add("topics", "role.pep")
+    person.add("country", position.get("country"))
+
     return occupancy

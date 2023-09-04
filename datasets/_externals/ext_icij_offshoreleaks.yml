@@ -1,12 +1,14 @@
 type: external
 title: ICIJ Offshore Leaks Database
 entry_point: zavod.runner.enrich:enrich
+full_dataset: icij_offshoreleaks
 disabled: false
-hidden: true
+hidden: false
 exports:
   - statistics.json
 deploy:
   schedule: "1 12 * * *"
+  memory: "2000Mi"
   premium: true
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 coverage:
@@ -44,20 +46,20 @@ publisher:
 
 inputs:
   - sanctions
+  - debarment
   - ext_cy_companies
   - ext_cz_business_register
-  # - ext_ee_ariregister
+  - ext_ee_ariregister
   - ext_gb_coh_psc
   - ext_gleif
   - ext_icij_offshoreleaks
   - ext_lv_business_register
   - ext_md_companies
-  - opencorporates
   - ext_ru_egrul
+  - ext_ua_edr
+  - opencorporates
   - ru_rupep
   - ru_rupep_companies
-  - ext_ua_edr
-  - debarment
 
 config:
   type: nomenklatura.enrich.yente:YenteEnricher

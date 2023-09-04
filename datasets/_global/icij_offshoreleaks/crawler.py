@@ -12,7 +12,7 @@ from zavod import helpers as h
 
 log = get_logger("offshoreleaks")
 
-ENTITIES: Dict[str, Entity] = {}
+SCHEMATA: Dict[str, str] = {}
 DATE_FORMATS = [
     "%d-%b-%Y",
     "%b %d, %Y",
@@ -33,32 +33,22 @@ def parse_countries(text):
     return h.multi_split(text, [";"])
 
 
-def emit_entity(proxy: Entity):
+def emit_entity(context: Context, proxy: Entity):
     assert proxy.id is not None, proxy
-    if proxy.id in ENTITIES:
-        schemata = [proxy.schema.name, ENTITIES[proxy.id].schema.name]
+    if proxy.id in SCHEMATA:
+        schemata = [proxy.schema.name, SCHEMATA[proxy.id]]
         if sorted(schemata) == sorted(["Asset", "Organization"]):
             proxy.schema = model.get("Company")
         if sorted(schemata) == sorted(["Asset", "LegalEntity"]):
             proxy.schema = model.get("Company")
 
         try:
-            proxy = ENTITIES[proxy.id].merge(proxy)
+            proxy.schema = model.common_schema(proxy.schema, SCHEMATA[proxy.id])
         except Exception:
-            print(proxy.schema, ENTITIES[proxy.id].schema)
+            print(proxy.schema, SCHEMATA[proxy.id])
             raise
-    ENTITIES[proxy.id] = proxy
-
-
-def dump_nodes(context: Context):
-    context.log.info("Dumping %d nodes to: %s", len(ENTITIES), context.sink)
-    for idx, entity in enumerate(ENTITIES.values()):
-        assert not entity.schema.abstract, entity
-        if entity.schema.name == "Address":
-            continue
-        context.emit(entity)
-        if idx > 0 and idx % 10000 == 0:
-            context.log.info("Dumped %d nodes..." % idx)
+    SCHEMATA[proxy.id] = proxy.schema.name
+    context.emit(proxy)
 
 
 def read_rows(
@@ -138,7 +128,7 @@ def make_row_entity(context: Context, row: Dict[str, str], schema):
 
     row.pop("internal_id", None)
     context.audit_data(row)
-    emit_entity(proxy)
+    emit_entity(context, proxy)
 
 
 def make_row_address(context: Context, row: Dict[str, str]):
@@ -160,7 +150,7 @@ def make_row_address(context: Context, row: Dict[str, str]):
     proxy.add("publisher", row.pop("sourceID", None))
 
     context.audit_data(row)
-    emit_entity(proxy)
+    emit_entity(context, proxy)
 
 
 LINK_SEEN = set()
@@ -174,10 +164,14 @@ def make_row_relationship(context: Context, row: Dict[str, str]):
     _end = row.pop("node_id_end")
     start = context.make_slug(_start)
     assert start is not None, _start
-    start_ent = ENTITIES.get(start)
+    start_schema = SCHEMATA.get(start)
+    start_ent = context.make(start_schema)
+    start_ent.id = start
     end = context.make_slug(_end)
     assert end is not None, _end
-    end_ent = ENTITIES.get(end)
+    end_schema = SCHEMATA.get(end)
+    end_ent = context.make(end_schema)
+    end_ent.id = end
     link = row.pop("link", None)
     source_id = row.pop("sourceID", None)
     start_date = parse_date(row.pop("start_date"))
@@ -235,11 +229,13 @@ def make_row_relationship(context: Context, row: Dict[str, str]):
         # this turns legalentity into organization in some cases
         start_ent = context.make(rel.schema.get(res.start).range)
         start_ent.id = start
-        emit_entity(start_ent)
+        start_ent.add("sourceUrl", NODE_URL % _start)
+        emit_entity(context, start_ent)
 
         end_ent = context.make(rel.schema.get(res.end).range)
         end_ent.id = end
-        emit_entity(end_ent)
+        end_ent.add("sourceUrl", NODE_URL % _end)
+        emit_entity(context, end_ent)
 
     context.audit_data(row)
 
@@ -269,5 +265,3 @@ def crawl(context: Context):
     context.log.info("Loading: relationships.csv...")
     for row in read_rows(context, zip_path, "relationships.csv"):
         make_row_relationship(context, row)
-
-    dump_nodes(context)

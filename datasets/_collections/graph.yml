@@ -1,0 +1,62 @@
+type: collection
+title: OpenSanctions Full Graph
+hidden: true
+deploy:
+  memory: "2000Mi"
+  disk: "300Gi"
+  premium: true
+coverage:
+  frequency: monthly
+exports:
+  - statistics.json
+  - entities.ftm.json
+summary: >
+  The full graph of company registries, sanctions, and other data sources published by
+  OpenSanctions.
+description: |
+  This dataset contains companies and persons not linked to any risk indication. It can
+  be used to perform screening and know-your-business checks in the listed jurisdictions.
+
+  The data is updated less frequently than the main OpenSanctions dataset, and is not
+  internally resolved in the same way. It is intended to be used as a reference dataset
+  for data analytics and research purposes.
+
+  This data is the source for [OpenScreening](https://resources.linkurious.com/openscreening).
+datasets:
+  - sanctions
+  - crime
+  - peps
+  - debarment
+  - wanted
+
+  # non-default full datasets
+  - wikidata
+  - opencorporates
+  - us_corpwatch
+  - cy_companies
+  - cz_business_register
+  - ee_ariregister
+  - gb_coh_psc
+  - gleif
+  - icij_offshoreleaks
+  - lv_business_register
+  - md_companies
+  - ru_egrul
+  - ua_edr
+  - sk_rpvs
+  - dk_cvr
+  - ru_rupep_companies
+  - de_offeneregister
+
+  # misc
+  - wd_oligarchs
+  - wd_curated
+  - ru_navalny35
+  - ru_billionaires_2021
+  - ru_acf_bribetakers
+  - ru_nsd_isin
+  - sy_obsalytics_opensyr
+  - md_rise_profiles
+  - ru_myrotvorets_wagner
+  - ransomwhere
+  - kp_rusi_reports

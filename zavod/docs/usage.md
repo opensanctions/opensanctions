@@ -1,6 +1,6 @@
 # Using the command-line tool
 
-Once you've successfully [installed][install.md] zavod, you can use the built-in command-line tool to run parts of the system:
+Once you've successfully [installed](install.md) zavod, you can use the built-in command-line tool to run parts of the system:
 
 ```bash
 # Before everything else, flush away cached source data. If you don't 

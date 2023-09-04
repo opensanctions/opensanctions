@@ -1,4 +1,4 @@
-title: UK OFSI Consolidated List of Targets
+title: UK HMT/OFSI Consolidated List of Targets
 entry_point: crawler.py
 prefix: gb-hmt
 coverage:

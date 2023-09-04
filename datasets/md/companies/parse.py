@@ -86,6 +86,8 @@ def parse_founders(context: Context, company: Entity, founders: Optional[str]) -
         found = context.make("LegalEntity")
         found.id = context.make_id(company.id, founder)
         found.add("name", founder)
+        if not found.has("name"):
+            continue
         context.emit(found)
 
         own = context.make("Ownership")
@@ -112,6 +114,8 @@ def parse_owners(context: Context, company: Entity, owners: Optional[str]) -> No
         bo.add("country", country)
         if country is not None and not bo.has("country"):
             context.log.warn("Unknown country code", country=country)
+        if not bo.has("name"):
+            continue
         context.emit(bo)
 
         own = context.make("Ownership")

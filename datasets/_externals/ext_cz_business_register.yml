@@ -1,12 +1,14 @@
 type: external
-entry_point: zavod.runner.enrich:enrich
 title: Czechia business register
+entry_point: zavod.runner.enrich:enrich
+full_dataset: cz_business_register
 disabled: false
-hidden: true
+hidden: false
 exports:
   - statistics.json
 deploy:
   schedule: "1 4 * * *"
+  memory: "2000Mi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   Czech business register with company metadata and directorships as obtained
