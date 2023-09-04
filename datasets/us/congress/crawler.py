@@ -13,7 +13,6 @@ API_KEY = os.environ.get("OPENSANCTIONS_US_CONGRESS_API_KEY")
 def crawl_positions(context: Context, member, entity):
     terms: List[dict] = member.pop("terms")
     entities = []
-    topics = set()
     for term in terms:
         res = context.lookup("position", term["chamber"])
         position = h.make_position(context, res.name, country="us")
@@ -28,8 +27,7 @@ def crawl_positions(context: Context, member, entity):
         if occupancy:
             entities.append(position)
             entities.append(occupancy)
-            topics.update(res.topics)
-    return entities, topics
+    return entities
 
 
 def crawl_member(context: Context, bioguide_id: str):
@@ -46,11 +44,9 @@ def crawl_member(context: Context, bioguide_id: str):
     person.add("lastName", member.pop("lastName"))
     person.add("middleName", member.pop("middleName", None))
     person.add("title", member.pop("honorificName", None))
-    person.add("country", "us")
 
-    entities, topics = crawl_positions(context, member, person)
+    entities = crawl_positions(context, member, person)
     if entities:
-        person.add("topics", topics)
         context.emit(person, target=True)
         for entity in entities:
             context.emit(entity)

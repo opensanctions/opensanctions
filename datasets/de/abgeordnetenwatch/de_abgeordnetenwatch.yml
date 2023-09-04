@@ -5,6 +5,7 @@ entry_point: crawler
 prefix: de-aw
 coverage:
   frequency: daily
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 description: |
   Members of the German national legislature (The Bundestag)
   and state legislatures (Landstag) and the positions they occupy

@@ -125,7 +125,6 @@ def crawl_person(context, jurisdictions, house_positions, data: dict[str, Any]):
     )
 
     if pep_entities:
-        person.add("topics", "role.pep")
         context.emit(person, target=True)
     for entity in pep_entities:
         context.emit(entity)
@@ -184,6 +183,7 @@ def crawl(context: Context):
                 continue
             match = REGEX_PATH.match(member.filename)
             if match and match.group("jurisdiction") != "us":
+                # context.log.info(f"Crawling {member.filename}")
                 with archive.open(member) as filestream:
                     crawl_person(
                         context,

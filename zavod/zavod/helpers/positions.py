@@ -97,7 +97,8 @@ def make_occupancy(
     end_date: Optional[str] = None,
 ) -> Optional[Entity]:
     """Creates and returns an Occupancy entity if the arguments meet our criteria
-    for PEP position occupancy, otherwise returns None.
+    for PEP position occupancy, otherwise returns None. Also adds the position countries
+    and the `role.pep` topic to the person if an Occupancy is returned.
 
     Occupancies are only returned if end_date is None or less than AFTER_OFFICE years
     after current_time. current_time defaults to the process start date and time.
@@ -163,4 +164,8 @@ def make_occupancy(
     occupancy.add("startDate", start_date)
     occupancy.add("endDate", end_date)
     occupancy.add("status", status)
+
+    person.add("topics", "role.pep")
+    person.add("country", position.get("country"))
+
     return occupancy

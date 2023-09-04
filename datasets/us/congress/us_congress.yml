@@ -42,9 +42,5 @@ lookups:
     options:
       - match: House of Representatives
         name: United States representative
-        topics:
-          - role.pep
       - match: Senate
         name: United States senator
-        topics:
-          - role.pep

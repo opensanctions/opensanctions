@@ -23,7 +23,6 @@ def crawl_person(context: Context, item: Dict[str, Any]) -> None:
         first_name=item.pop("firstName"),
         last_name=item.pop("lastName"),
     )
-    person.add("topics", "role.pep")
 
     country: Dict[str, str] = item.pop("country", {})
     person.add("country", country.pop("value"))

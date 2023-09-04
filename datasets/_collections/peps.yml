@@ -30,6 +30,7 @@ description: |
 
 children:
   - cu_inventario_legislatura
+  - de_abgeordnetenwatch
   - eu_cor_members
   - eu_meps
   - everypolitician
