@@ -97,18 +97,12 @@ def make_occupancy(
     end_date: Optional[str] = None,
 ) -> Optional[Entity]:
     """Creates and returns an Occupancy entity if the arguments meet our criteria
-<<<<<<< HEAD
-    for PEP position occupancy, otherwise returns None.
-=======
     for PEP position occupancy, otherwise returns None. Also adds the position countries
     and the `role.pep` topic to the person if an Occupancy is returned.
->>>>>>> main
 
     Occupancies are only returned if end_date is None or less than AFTER_OFFICE years
     after current_time. current_time defaults to the process start date and time.
 
-<<<<<<< HEAD
-=======
     Occupancy.status is set to
 
     - `current` if `end_date` is `None` and `no_end_implies_current` is `True`,
@@ -117,7 +111,6 @@ def make_occupancy(
       `coverage.end` is a date in the past, in which case `status` will be `unknown`
     - `ended` if `end_date` is some date in the past.
 
->>>>>>> main
     Args:
         context: The context to create the entity in.
         person: The person holding the position. They will be added to the
@@ -132,10 +125,6 @@ def make_occupancy(
         start_date: Set if the date the person started occupying the position is known.
         end_date: Set if the date the person left the position is known.
     """
-<<<<<<< HEAD
-=======
-
->>>>>>> main
     if end_date is not None and end_date < h.backdate(current_time, AFTER_OFFICE):
         return None
 
