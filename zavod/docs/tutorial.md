@@ -59,9 +59,7 @@ prefix: eu-fsf
 # This section provides information about the original publisher of the data,
 # often a government authority:
 publisher:
-    name: European Commission
-    organization: European Commission
-    authority: European Union External Action Service
+    name: European Union External Action Service
     acronym: EEAS
     country: eu
     url: https://eeas.europa.eu/topics/sanctions-policy/8442/consolidated-list-of-sanctions_en
