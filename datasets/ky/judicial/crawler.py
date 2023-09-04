@@ -66,8 +66,8 @@ def crawl(context: Context):
         judge_proxy = context.make("Person")
         h.apply_name(judge_proxy, full=new_judge["name"])
         # TODO: Make a better ID
-        judge_proxy.id = "judicial-admin-cayman-islands-{}".format(
-            new_judge["name"].replace(" ", "_")
+        judge_proxy.id = context.make_id(
+            new_judge["name"]
         )
 
         judge_positions = []
