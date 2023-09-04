@@ -48,7 +48,7 @@ inputs:
   # - ru_rupep
   # - ru_rupep_companies
   # - ext_ua_edr
-  - debarment
+  # - debarment
 
 config:
   type: nomenklatura.enrich.opencorporates:OpenCorporatesEnricher
