@@ -19,6 +19,7 @@ from zavod.dedupe import get_resolver, blocking_xref
 from zavod.publish import publish_dataset, publish_failure
 from zavod.tools.load_db import load_dataset_to_db
 from zavod.tools.dump_file import dump_dataset_to_file
+from zavod.tools.summarise_peps import print_peps_summary
 from zavod.exc import RunFailedException
 
 log = get_logger(__name__)
@@ -220,4 +221,19 @@ def clear(dataset_path: Path) -> None:
         clear_data_path(dataset.name)
     except Exception:
         log.exception("Failed to clear dataset: %s" % dataset_path)
+        sys.exit(1)
+
+
+@cli.command("summarise-peps", help="Sumamrise PEPs and their positions")
+@click.argument("dataset_path", type=InPath)
+@click.option("-c", "--clear", is_flag=True, default=False)
+def summarise_peps(dataset_path: Path, limit: int = None, clear: bool = False) -> None:
+    try:
+        dataset = _load_dataset(dataset_path)
+        if clear:
+            clear_store(dataset)
+        view = get_view(dataset, external=False)
+        print_peps_summary(dataset, view)
+    except Exception:
+        log.exception("Failed to summarise: %s" % dataset_path)
         sys.exit(1)
