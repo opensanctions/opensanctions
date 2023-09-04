@@ -142,8 +142,9 @@ def crawl_person_person_relation(context: Context, entity: Entity, rel_data: dic
 def crawl_company_person_relation(
     context: Context, company: Entity, person: Entity, rel_data: dict
 ):
-    rel_type = rel_data.pop("relationship_type_en", None)
-    rel_type_ru = rel_data.pop("relationship_type_ru", None)
+    """Also has side-effect of changing company schema for asset ownership"""
+    rel_type = rel_data.pop("relationship_type_en")
+    rel_type_ru = rel_data.pop("relationship_type_ru")
     rel_type = rel_type or rel_type_ru
     res = context.lookup("company_person_relations", rel_type)
     if res is None:
@@ -151,7 +152,7 @@ def crawl_company_person_relation(
         #     "Unknown company/person relation type",
         #     rel_type=rel_type,
         #     entity=company,
-        #     person=person_id,
+        #     person=person,
         # )
         return
 
@@ -175,8 +176,6 @@ def crawl_company_person_relation(
         rel_data,
         ignore=[
             "is_pep",
-            "person_ru",
-            "person_en",
             "to_company_is_state",
             "to_company_edrpou",
             "to_company_founded",
@@ -226,7 +225,9 @@ def get_position_name(context, role, company_name, company_id) -> Optional[str]:
             return pep_position.name, subnational_area
         else:
             return (
-                clean_position_name(role, company_name, pep_position.preposition or "of the"),
+                clean_position_name(
+                    role, company_name, pep_position.preposition or "of the"
+                ),
                 subnational_area,
             )
 
@@ -243,7 +244,6 @@ def emit_pep_relationship(
     subnational_area: Optional[str],
     start_date: Optional[List[str]],
     end_date: Optional[List[str]],
-    url: Optional[str],
     also: Optional[List[str]],
 ) -> None:
     position = h.make_position(
@@ -256,22 +256,21 @@ def emit_pep_relationship(
         context,
         person,
         position,
-        no_end_implies_current=True,
         start_date=start_date,
         end_date=end_date,
     )
     if occupancy:
         occupancy.add("description", also)
 
-        print(
-            "OCCUPANCY",
-            position.get("name"),
-            position.get("country"),
-            position.get("subnationalArea"),
-            occupancy.get("status"),
-            occupancy.get("startDate"),
-            occupancy.get("endDate"),
-        )
+        # print(
+        #     "OCCUPANCY",
+        #     position.get("name"),
+        #     position.get("country"),
+        #     position.get("subnationalArea"),
+        #     occupancy.get("status"),
+        #     occupancy.get("startDate"),
+        #     occupancy.get("endDate"),
+        # )
         context.emit(position)
         context.emit(occupancy)
 
@@ -284,8 +283,7 @@ def crawl_person(context: Context, companies: Dict[int, Entity], data: Dict[str,
     entity.id = person_id(context, rupep_person_id, wikidata_id)
     if entity.id is None:
         return
-    url_en = data.pop("url_en", None)
-    entity.add("sourceUrl", url_en)
+    entity.add("sourceUrl", data.pop("url_en", None))
     data.pop("url_ru", None)
     entity.add("modifiedAt", data.pop("last_change", None))
     entity.add("wikidataId", wikidata_id)
@@ -364,11 +362,7 @@ def crawl_person(context: Context, companies: Dict[int, Entity], data: Dict[str,
     # TODO: store images
     data.pop("photo", None)
 
-    pep_category = person_topic.value is not None and person_topic.value in {
-        "role.pep",
-        "gov.igo",
-    }
-
+    companies_to_emit = set()
     for rel_data in data.pop("related_companies", []):
         company_name_ru = rel_data.get("to_company_ru", None)
         company_name_short_ru = rel_data.get("to_company_short_ru", None)
@@ -388,7 +382,7 @@ def crawl_person(context: Context, companies: Dict[int, Entity], data: Dict[str,
         company = companies.get(rupep_company_id, None)
         if not company:
             context.log.warning(
-                "Unseen company referenced in relation",
+                "Unseen company referenced in relation. This can be transient due to stale cached comapanies data",
                 person_id=rupep_person_id,
                 company_id=rupep_company_id,
             )
@@ -423,19 +417,21 @@ def crawl_person(context: Context, companies: Dict[int, Entity], data: Dict[str,
                 subnational_area,
                 start_date[0] if start_date else None,
                 end_date[0] if end_date else None,
-                url_en,
                 extra,
             )
         else:
             crawl_company_person_relation(context, company, entity, rel_data)
+            companies_to_emit.add(rupep_company_id)
 
     data.pop("declarations", None)
     # h.audit_data(data)
     context.emit(entity, target=is_pep)
+    return companies_to_emit
 
 
 def crawl_peps(context: Context):
     companies = crawl_companies(context)
+    companies_to_emit = set()
 
     auth = ("opensanctions", PASSWORD)
     path = context.fetch_resource("persons.json", context.data_url, auth=auth)
@@ -443,7 +439,14 @@ def crawl_peps(context: Context):
     with open(path, "r") as fh:
         persons = json.load(fh)
     for data in persons:
-        crawl_person(context, companies, data)
+        person_companies_to_emit = crawl_person(context, companies, data)
+        if person_companies_to_emit:
+            companies_to_emit.update(person_companies_to_emit)
+
+    # Only emit companies which come up in non-PEP relations, after handling those
+    # relations in case their schema got changed due to the relation type.
+    for id in companies_to_emit:
+        context.emit(companies[id])
 
     # ==========================================================================
     # DEBUG
@@ -562,7 +565,6 @@ def crawl_company(context: Context, data: Dict[str, Any]):
         "related_persons",
     ]
     context.audit_data(data, ignore=ignore)
-    context.emit(entity)
 
     return rupep_id, entity
 

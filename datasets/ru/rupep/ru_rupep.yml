@@ -175,8 +175,6 @@ lookups:
   company_country_links:
     normalize: true
     options:
-      - match: citizenship
-        prop: nationality
       - match:
           - registered_in
         prop: jurisdiction
