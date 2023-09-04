@@ -91,10 +91,6 @@ lookups:
           - "^deputy of the .+ regional court$"
           - "^(lieutenant |acting )?governor of the.*(government|administration).*$"
           - "^judge of the.+district court of"
-        scope: subnational
-      - regex:
-        # deputy of the Representatives Chambers of the National Assembly of the Republic of Belarus 
-        # 
           - "^deputy of the representatives chambers of the national assembly of belarus$"          
           - "^(member|(first deputy )?chairperson) of the .+ committee of the (state duma|council of the federation|representatives chambers .+ belarus)$"
           - "^(member|(first deputy )?chairperson) of the committee (for|on) .+ of the (state duma|council of the federation|representatives chambers .+ belarus)$"
@@ -103,27 +99,20 @@ lookups:
           - "administration of the president$"
           - "^(consul|abassador) " # This space is important to not match consultant
           - "^judge of the (constitutional|supreme) court.*$"
-        scope: national
-      - regex:
           - "^judge of the.+court( of the \\w+ district of.+)?$"
           - "^deputy of the parliament of the .+ republic$"
           - "^the head of administration.+administration.*"
           - "^presidium member.+party.*"
-        scope: unsure
       - regex:
           - "^(the |deputy |first deputy |advisor to the |assistant to the )?minister.+ministry.+"
-        scope: national
         preposition: of
       - regex:
           - "^(the |deputy |first deputy |advisor to the |assistant to the )?minister.+ministry.+"
-        scope: national
         preposition: in the
       - match: the president of the president of russia
-        name: The Pesident of Russia
-        scope: national
+        name: The Pesident of Russi
       - match: the president of the president of the republic of belarus
         name: The President of The Republic of Belarus
-        scope: national
       
 
   person_person_relations:

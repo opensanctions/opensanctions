@@ -220,17 +220,14 @@ def get_position_name(context, role, company_name, company_id) -> Optional[str]:
 
     pep_position = context.lookup("pep_positions", position_name)
     if pep_position:
-        if pep_position.scope:
-            subnational_area = get_subnational_area(pep_position.scope, position_name)
-            if pep_position.name:
-                return pep_position.name, subnational_area
-            else:
-                return (
-                    clean_position_name(role, company_name, pep_position.preposition or "of the"),
-                    subnational_area,
-                )
+        subnational_area = get_subnational_area(pep_position.scope, position_name)
+        if pep_position.name:
+            return pep_position.name, subnational_area
         else:
-            return None, None
+            return (
+                clean_position_name(role, company_name, pep_position.preposition or "of the"),
+                subnational_area,
+            )
 
     # conext.log.warning("Unknown position", position=position_name)
     return None, None
