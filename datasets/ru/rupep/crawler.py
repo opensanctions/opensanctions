@@ -241,7 +241,7 @@ def emit_pep_relationship(
     org_id: str,
     person: Entity,
     position_name: str,
-    countries: Tuple[List[str]],
+    countries: List[str],
     subnational_area: Optional[str],
     start_date: Optional[List[str]],
     end_date: Optional[List[str]],
@@ -253,9 +253,7 @@ def emit_pep_relationship(
         position_name,
         country=countries,
         subnational_area=subnational_area,
-        source_url=url,
     )
-    position.add("country", countries, lang="rus")
     occupancy = h.make_occupancy(
         context,
         person,
@@ -266,6 +264,7 @@ def emit_pep_relationship(
     )
     if occupancy:
         occupancy.add("description", also)
+
         print(
             "OCCUPANCY",
             position.get("name"),

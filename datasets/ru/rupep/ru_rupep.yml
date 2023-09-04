@@ -6,8 +6,8 @@ coverage:
 deploy:
   schedule: "30 */6 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-exports:
-  - statistics.json
+#exports:
+#  - statistics.json
 summary: >
   RuPEP is a detailed database of politically exposed persons in Russia and
   Belarus maintained by qualified researchers
@@ -90,6 +90,7 @@ lookups:
           - "^(deputy|mp) of the.+(city|regional|state) duma$"
           - "^deputy of the .+ regional court$"
           - "^(lieutenant |acting )?governor of the.*(government|administration).*$"
+          - "^judge of the.+district court of"
         scope: subnational
       - regex:
         # deputy of the Representatives Chambers of the National Assembly of the Republic of Belarus 
@@ -97,19 +98,18 @@ lookups:
           - "^deputy of the representatives chambers of the national assembly of belarus$"          
           - "^(member|(first deputy )?chairperson) of the .+ committee of the (state duma|council of the federation|representatives chambers .+ belarus)$"
           - "^(member|(first deputy )?chairperson) of the committee (for|on) .+ of the (state duma|council of the federation|representatives chambers .+ belarus)$"
-        scope: national
-      - regex:
           - "^assistant to member of parliament of the state duma$"
-          - "^judge of the.+court( of the \\w+ district of.+)?"
-          - "^judge of the.+district court of"
-          - "^judge of the (constitutional|supreme) court.*$"
-          - "^senator of the council of the federation$"
-          - "^deputy of the parliament of the .+ republic$"
           - "^senator of the council of the (federation|republic of the national assembly of belarus)$"
           - "administration of the president$"
-          - "^the head of administration.+administration.*"
           - "^(consul|abassador) " # This space is important to not match consultant
+          - "^judge of the (constitutional|supreme) court.*$"
+        scope: national
+      - regex:
+          - "^judge of the.+court( of the \\w+ district of.+)?$"
+          - "^deputy of the parliament of the .+ republic$"
+          - "^the head of administration.+administration.*"
           - "^presidium member.+party.*"
+        scope: unsure
       - regex:
           - "^(the |deputy |first deputy |advisor to the |assistant to the )?minister.+ministry.+"
         scope: national
