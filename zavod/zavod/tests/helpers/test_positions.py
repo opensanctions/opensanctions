@@ -76,6 +76,9 @@ def test_make_occupancy(testdataset1: Dataset):
     assert occupancy.get("endDate") == ["2021-01-02"]
     assert occupancy.get("status") == ["ended"]
 
+    assert person.get("country") == ["ls"]
+    assert person.get("topics") == ["role.pep"]
+
     def make(implies, start, end):
         return make_occupancy(
         context, person, pos, implies, datetime(2021, 1, 1), start, end

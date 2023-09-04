@@ -53,15 +53,13 @@ def crawl_leader(
     person = context.make("Person")
     person.id = context.make_slug(country, name, function)
     person.add("name", name)
-    person.add("country", country)
     person.add("position", function)
     person.add("sourceUrl", source_url)
-    person.add("topics", "role.pep")
-    context.emit(person, target=True)
 
     position = h.make_position(context, function, country=country)
-    occupancy = h.make_occupancy(context, person, position, no_end_implies_current=True)
+    occupancy = h.make_occupancy(context, person, position)
 
+    context.emit(person, target=True)
     context.emit(position)
     context.emit(occupancy)
 
