@@ -30,30 +30,6 @@ SPLIT_ROLES = [
 ]
 REGEX_SUBNATIONAL = re.compile("(?P<area>\w{4,}) city|regional")
 
-unknown_writer = writer(open("maybe-pep-person-roles-companies.csv", "w"))
-unknown_writer.writerow(
-    [
-        "count",
-        "role",
-        "company_name",
-        "id",
-        "position_name",
-    ]
-)
-unknowns = defaultdict(int)
-
-known_writer = writer(open("known-pep-person-roles-companies.csv", "w"))
-known_writer.writerow(
-    [
-        "count",
-        "role",
-        "company_name",
-        "id",
-        "position_name",
-    ]
-)
-knowns = defaultdict(int)
-
 
 def clean_wdid(wikidata_id: Optional[str]):
     if wikidata_id is None:
@@ -261,16 +237,6 @@ def emit_pep_relationship(
     )
     if occupancy:
         occupancy.add("description", also)
-
-        # print(
-        #     "OCCUPANCY",
-        #     position.get("name"),
-        #     position.get("country"),
-        #     position.get("subnationalArea"),
-        #     occupancy.get("status"),
-        #     occupancy.get("startDate"),
-        #     occupancy.get("endDate"),
-        # )
         context.emit(position)
         context.emit(occupancy)
 
@@ -447,27 +413,6 @@ def crawl_peps(context: Context):
     # relations in case their schema got changed due to the relation type.
     for id in companies_to_emit:
         context.emit(companies[id])
-
-    # ==========================================================================
-    # DEBUG
-    #
-    print(f"Known: {len(knowns)}  Unknown: {len(unknowns)}")
-
-    sorted_knowns = []
-    for key, count in knowns.items():
-        sorted_knowns.append([count] + list(key))
-    sorted_knowns.sort()
-    sorted_knowns.reverse()
-    for row in sorted_knowns:
-        known_writer.writerow(row)
-
-    sorted_unknowns = []
-    for key, count in unknowns.items():
-        sorted_unknowns.append([count] + list(key))
-    sorted_unknowns.sort()
-    sorted_unknowns.reverse()
-    for row in sorted_unknowns:
-        unknown_writer.writerow(row)
 
 
 def crawl_company(context: Context, data: Dict[str, Any]):
