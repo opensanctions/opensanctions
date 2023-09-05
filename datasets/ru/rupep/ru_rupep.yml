@@ -7,8 +7,8 @@ deploy:
   schedule: "30 */6 * * *"
   memory: "1000Mi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-#exports:
-#  - statistics.json
+exports:
+  - statistics.json
 summary: >
   RuPEP is a detailed database of politically exposed persons in Russia and
   Belarus maintained by qualified researchers
