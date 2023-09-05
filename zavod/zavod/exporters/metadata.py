@@ -1,5 +1,5 @@
 import json
-from typing import Any, Dict, cast
+from typing import Any, Dict, cast, List
 
 from zavod import settings
 from zavod.logs import get_logger
@@ -7,7 +7,7 @@ from zavod.meta import Dataset
 from zavod.archive import INDEX_FILE, STATISTICS_FILE, ISSUES_FILE
 from zavod.archive import get_dataset_resource, dataset_resource_path
 from zavod.runtime.resources import DatasetResources
-from zavod.runtime.issues import DatasetIssues
+from zavod.runtime.issues import DatasetIssues, Issue
 from zavod.util import write_json
 
 log = get_logger(__name__)
@@ -46,13 +46,22 @@ def write_dataset_index(dataset: Dataset) -> None:
         write_json(meta, fh)
 
 
-def write_issues(dataset: Dataset) -> None:
+def write_issues(dataset: Dataset, max_export: int = 10_000) -> None:
     """Export list of data issues from crawl stage."""
     if dataset.is_collection:
         return
+    issues = DatasetIssues(dataset)
+    export_issues: List[Issue] = []
+    for issue in issues.all():
+        if len(export_issues) >= max_export:
+            log.warning(
+                "Maximum issue count for export exceeded, check the issue log instead.",
+                max_export=max_export,
+            )
+            break
+        export_issues.append(issue)
     issues_path = dataset_resource_path(dataset.name, ISSUES_FILE)
     log.info("Writing dataset issues list", path=issues_path.as_posix())
     with open(issues_path, "wb") as fh:
-        issues = DatasetIssues(dataset)
-        data = {"issues": list(issues.all())}
+        data = {"issues": export_issues}
         write_json(data, fh)

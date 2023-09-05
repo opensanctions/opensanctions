@@ -106,6 +106,7 @@ def run(
         clear_store(dataset)
         view = get_view(dataset, external=False)
         export_dataset(dataset, view)
+        view.store.close()
         publish_dataset(dataset, latest=latest)
 
         if not dataset.is_collection and dataset.load_db_uri is not None:
