@@ -125,7 +125,6 @@ def make_occupancy(
         start_date: Set if the date the person started occupying the position is known.
         end_date: Set if the date the person left the position is known.
     """
-
     if end_date is not None and end_date < h.backdate(current_time, AFTER_OFFICE):
         return None
 
