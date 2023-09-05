@@ -2,7 +2,7 @@ from typing import Any, Dict
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.helpers.positions import OccupancyStatus
+from zavod.logic.pep import OccupancyStatus
 
 FORMATS = ("%d/%m/%Y",)
 

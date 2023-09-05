@@ -8,6 +8,7 @@ from zavod import helpers as h
 from zavod import settings
 from zavod.archive import clear_data_path
 from zavod.crawl import crawl_dataset
+from zavod.logic.pep import OccupancyStatus
 
 
 def test_pep_positions(testdataset2_export: Dataset):
@@ -49,15 +50,15 @@ def test_observe_occupancy(vcontext: Context) -> None:
 
     curr = vcontext.make("Occupancy")
     curr.id = "curr"
-    curr.add("status", h.OccupancyStatus.CURRENT.value)
+    curr.add("status", OccupancyStatus.CURRENT.value)
 
     ended = vcontext.make("Occupancy")
     ended.id = "ended"
-    ended.add("status", h.OccupancyStatus.ENDED.value)
+    ended.add("status", OccupancyStatus.ENDED.value)
 
     unknown = vcontext.make("Occupancy")
     unknown.id = "unknown"
-    unknown.add("status", h.OccupancyStatus.UNKNOWN.value)
+    unknown.add("status", OccupancyStatus.UNKNOWN.value)
 
     occupancies = {}
 

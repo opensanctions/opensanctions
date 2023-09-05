@@ -6,12 +6,13 @@ from zavod.entity import Entity
 from zavod.exporters.common import Exporter
 from zavod.util import write_json
 from zavod import helpers as h
+from zavod.logic.pep import OccupancyStatus
 
 
 PREFERENCE = {
-    h.OccupancyStatus.CURRENT.value: 2,
-    h.OccupancyStatus.ENDED.value: 1,
-    h.OccupancyStatus.UNKNOWN.value: 0,
+    OccupancyStatus.CURRENT.value: 2,
+    OccupancyStatus.ENDED.value: 1,
+    OccupancyStatus.UNKNOWN.value: 0,
 }
 
 
