@@ -61,7 +61,8 @@ def crawl(context: Context):
                 # position if it exists.
                 if i == len(words) - 1:
                     new_pos += [w]
-                p += [" ".join(new_pos).removesuffix(" and").strip()]
+                full_new_pos = " ".join(new_pos).removesuffix(" and").strip()
+                p += [full_new_pos]
                 new_pos = [w]
             else:
                 # Add word to position description
@@ -106,7 +107,7 @@ def crawl(context: Context):
         for position in person["positions"]:
             pos = h.make_position(
                 context,
-                name=position,
+                name=position if "Member" not in position else "Member of Parliament",
                 country="Cayman Islands",
             )
             occupancy = h.make_occupancy(
