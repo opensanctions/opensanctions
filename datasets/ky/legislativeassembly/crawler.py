@@ -6,7 +6,7 @@ from zavod import helpers as h
 
 
 def crawl(context: Context):
-    api_response = context.fetch_html(context.dataset.data.url, cache_days=30)
+    request_response = context.fetch_html(context.dataset.data.url, cache_days=30)
 
     # The list of positions sections that we are interested
     positions = [
@@ -19,7 +19,7 @@ def crawl(context: Context):
 
     # The HTML is malformed and it's easier to parse the text content
     # instead of the HTML
-    page_text = api_response.text_content()
+    page_text = request_response.text_content()
 
     # After the following part we are next to the legislative positions
     initial_pad = page_text.find("You are here")
@@ -100,10 +100,7 @@ def crawl(context: Context):
     for person in persons:
         person_proxy = context.make("Person")
         h.apply_name(person_proxy, full=person["name"])
-        # TODO: Make a better ID
-        person_proxy.id = "legislativeassembly-{}".format(
-            person["name"].replace(" ", "_")
-        )
+        person_proxy.id = context.make_id(person["name"])
 
         person_positions = []
         for position in person["positions"]:
