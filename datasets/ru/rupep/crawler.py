@@ -292,7 +292,7 @@ def crawl_person(context: Context, company_state: Dict[int, Company], data: Dict
             continue
         position = org
         if role is not None and len(role.strip()):
-            position = f"{org} ({role})"
+            position = collapse_spaces(f"{org} ({role})")
         entity.add("position", position, lang=lang)
 
     for country_data in data.pop("related_countries", []):
