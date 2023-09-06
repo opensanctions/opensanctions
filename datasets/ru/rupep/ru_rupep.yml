@@ -191,6 +191,8 @@ lookups:
           - co-founder
         to_prop: object
         from_prop: subject
+        schema: UnknownLink
+        desc_prop: role
       - match:
           - owner
           - co-owner
