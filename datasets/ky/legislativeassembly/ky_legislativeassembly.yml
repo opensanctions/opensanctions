@@ -1,5 +1,5 @@
 name: ky_legislativeassembly
-title: "legislativeassembly"
+title: "Cayman Islands Legislative Assembly"
 url: http://www.legislativeassembly.ky/
 entry_point: crawler
 prefix: ky-la
