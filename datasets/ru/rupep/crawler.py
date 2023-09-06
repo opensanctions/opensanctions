@@ -395,13 +395,21 @@ def crawl_person(context: Context, companies: Dict[int, Entity], data: Dict[str,
     return companies_to_emit
 
 
-def crawl_peps(context: Context):
-    companies = crawl_companies(context)
+def crawl(context: Context):
+    auth = ("opensanctions", PASSWORD)
+    
+    companies_path = context.fetch_resource("companies.json", context.data_url, auth=auth)
+    persons_path = context.fetch_resource("persons.json", context.data_url, auth=auth)
+
+    with open(companies_path, "r") as fh:
+        companies = json.load(fh)
+
+    for data in companies:
+        rupep_company_id = data.get("id")
+        company_countries[rupep_company_id] = company_countries(context, data)
+
     companies_to_emit = set()
 
-    auth = ("opensanctions", PASSWORD)
-    path = context.fetch_resource("persons.json", context.data_url, auth=auth)
-    # context.export_resource(path, JSON, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         persons = json.load(fh)
     for data in persons:
@@ -413,6 +421,31 @@ def crawl_peps(context: Context):
     # relations in case their schema got changed due to the relation type.
     for id in companies_to_emit:
         context.emit(companies[id])
+
+
+    for data in companies:
+        rupep_id, countries = crawl_company(context, data, emit)
+
+
+def company_country(context: Context, country_rel: Dict) -> Optional[Tuple[str, List[str], List[str]]]:
+    for country_data in data.pop("related_countries", []):
+        rel_type = country_data.pop("relationship_type")
+        country_name_en = country_data.pop("to_country_en", None)
+        country_name_ru = country_data.pop("to_country_ru", None)
+        res = context.lookup("company_country_links", rel_type)
+        if res is None:
+            context.log.warn(
+                "Unknown country link",
+                rel_type=rel_type,
+                entity=entity,
+                country_name_en=country_name_en,
+                country_name_ru=country_name_ru,
+            )
+            return None
+        if res.prop is not None:
+            return res.prop, country_name_en, country_name_ru
+        else:
+            return None
 
 
 def crawl_company(context: Context, data: Dict[str, Any]):
@@ -436,23 +469,12 @@ def crawl_company(context: Context, data: Dict[str, Any]):
     entity.add("registrationNumber", data.pop("edrpou", None))
 
     for country_data in data.pop("related_countries", []):
-        rel_type = country_data.pop("relationship_type")
-        country_name_en = country_data.pop("to_country_en", None)
-        country_name_ru = country_data.pop("to_country_ru", None)
-        res = context.lookup("company_country_links", rel_type)
-        if res is None:
-            context.log.warn(
-                "Unknown country link",
-                rel_type=rel_type,
-                entity=entity,
-                country_name_en=country_name_en,
-                country_name_ru=country_name_ru,
-            )
-            continue
-        if res.prop is not None:
+        company_country = company_country(context, country_data)
+        if company_country is not None:
+            prop, country_name_en, country_name_ru = company_country
             entity.add(res.prop, country_name_ru, lang="rus")
             entity.add(res.prop, country_name_en, lang="eng")
-        # h.audit_data(country_data)
+
 
     for rel_data in data.pop("related_companies", []):
         # pprint(rel_data)
@@ -514,18 +536,10 @@ def crawl_company(context: Context, data: Dict[str, Any]):
     return rupep_id, entity
 
 
-def crawl_companies(context: Context):
-    auth = ("opensanctions", PASSWORD)
-    path = context.fetch_resource(
-        "companies.json", "https://rupep.org/opendata/companies/json", auth=auth
-    )
+def crawl_companies(context: Context, companies_path: str):
+    
     # context.export_resource(path, JSON, title=context.SOURCE_TITLE)
-    with open(path, "r") as fh:
-        companies = json.load(fh)
 
-    company_entities = {}
-    for data in companies:
-        rupep_id, company = crawl_company(context, data)
-        company_entities[rupep_id] = company
+        company[rupep_id] = company.get("country")
 
-    return company_entities
+    return company_countries
