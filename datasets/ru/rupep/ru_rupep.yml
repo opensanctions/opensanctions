@@ -5,7 +5,7 @@ coverage:
   frequency: daily
 deploy:
   schedule: "30 */6 * * *"
-  memory: "1000Mi"
+  memory: "2000Mi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 exports:
   - statistics.json
