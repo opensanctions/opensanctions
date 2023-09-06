@@ -23,12 +23,24 @@ def crawl(context: Context):
 
     # After the following part we are next to the legislative positions
     initial_pad = page_text.find("You are here")
+    if initial_pad < 0:
+        context.log.warning(
+            "Couldn't find the initial block of content in the page. Maybe the page HTML changed."
+        )
     page_text = page_text[initial_pad:]
 
     # Find the indexes in the text were each position is written
     positions_idx = []
     for pos in positions:
-        positions_idx += [(pos, page_text.find(pos))]
+        position_in_page = page_text.find(pos)
+        if position_in_page < 0:
+            context.log.warning(
+                "Couldn't find the block of content for '{}' in the page. Maybe the page HTML changed.".format(
+                    pos
+                )
+            )
+        else:
+            positions_idx += [(pos, position_in_page)]
 
     def get_positions(s):
         """
@@ -120,6 +132,7 @@ def crawl(context: Context):
             )
             person_positions += [(pos, occupancy)]
 
+        person_proxy.add("sourceUrl", context.dataset.data.url)
         context.emit(person_proxy, target=True)
         for pos in person_positions:
             context.emit(pos[0])
