@@ -1,5 +1,5 @@
 title: RuPEP Public Database of PEPs in Russia and Belarus
-entry_point: crawler.py:crawl_peps
+entry_point: crawler.py
 prefix: rupep
 coverage:
   frequency: daily
@@ -41,7 +41,7 @@ publisher:
   official: false
 url: "https://rupep.org/en/%D0%B2%D0%BE%D0%BF%D1%80%D0%BE%D1%81%D1%8B-%D0%B8-%D0%BE%D1%82%D0%B2%D0%B5%D1%82%D1%8B/"
 data:
-  url: "https://rupep.org/opendata/persons/json"
+  url: "https://rupep.org/opendata/"
   format: JSON
 
 lookups:
@@ -183,13 +183,19 @@ lookups:
           # - business
           - realty
         prop: null
+
   company_person_relations:
     options:
       - match:
-          - owner
-          - co-owner
           - founder
           - co-founder
+        to_prop: object
+        from_prop: subject
+        schema: UnknownLink
+        desc_prop: role
+      - match:
+          - owner
+          - co-owner
           - beneficiary
           - shareholder
         schema: Ownership
