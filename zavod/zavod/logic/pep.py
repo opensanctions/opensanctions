@@ -1,10 +1,11 @@
 from enum import Enum
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timedelta
+from functools import cache
 
 from zavod.context import Context
 from zavod import settings
-from zavod import helpers as h
+from zavod.entity import Entity
 
 YEAR = 365  # days
 AFTER_OFFICE = 5 * YEAR
@@ -19,8 +20,17 @@ class OccupancyStatus(Enum):
     UNKNOWN = "unknown"
 
 
+@cache
+def backdate(date: datetime, days: int) -> str:
+    """Return a partial ISO8601 date string backdated by the number of days provided"""
+    dt = date - timedelta(days=days)
+    return dt.isoformat()[:10]
+
+
 def occupancy_status(
     context: Context,
+    person: Entity,
+    position: Entity,
     no_end_implies_current: bool = True,
     current_time: datetime = settings.RUN_TIME,
     start_date: Optional[str] = None,
@@ -28,16 +38,16 @@ def occupancy_status(
     birth_date: Optional[str] = None,
     death_date: Optional[str] = None,
 ) -> OccupancyStatus:
-    if death_date is not None and h.backdate(current_time, AFTER_DEATH) > death_date:
+    if death_date is not None and backdate(current_time, AFTER_DEATH) > death_date:
         return None
 
-    if birth_date is not None and h.backdate(current_time, MAX_AGE) > birth_date:
+    if birth_date is not None and backdate(current_time, MAX_AGE) > birth_date:
         return None
 
-    if end_date is not None and h.backdate(current_time, AFTER_OFFICE) > end_date:
+    if end_date is not None and backdate(current_time, AFTER_OFFICE) > end_date:
         return None
 
-    if start_date is not None and h.backdate(current_time, MAX_OFFICE) > start_date:
+    if start_date is not None and backdate(current_time, MAX_OFFICE) > start_date:
         return None
 
     if not (

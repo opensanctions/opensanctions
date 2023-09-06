@@ -1,8 +1,7 @@
 import re
 from typing import Iterable, Set, Optional, List
 from prefixdate import parse_formats
-from datetime import datetime, timedelta
-from functools import cache
+from datetime import datetime
 
 NUMBERS = re.compile(r"\d+")
 
@@ -55,10 +54,3 @@ def parse_date(
     if len(years):
         return years
     return [default or text]
-
-
-@cache
-def backdate(date: datetime, days: int) -> str:
-    """Return a partial ISO8601 date string backdated by the number of days provided"""
-    dt = date - timedelta(days=days)
-    return dt.isoformat()[:10]

@@ -120,6 +120,8 @@ def make_occupancy(
     """
     status = occupancy_status(
         context,
+        person,
+        position,
         no_end_implies_current,
         current_time,
         start_date,
