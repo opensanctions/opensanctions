@@ -31,8 +31,8 @@ def occupancy_status(
     if death_date is not None and h.backdate(current_time, AFTER_DEATH) > death_date:
         return None
 
-    if birth_date is not None and h.backdate(current_time, MAX_AGE) > birth:
-        return False
+    if birth_date is not None and h.backdate(current_time, MAX_AGE) > birth_date:
+        return None
 
     if end_date is not None and h.backdate(current_time, AFTER_OFFICE) > end_date:
         return None
@@ -40,7 +40,9 @@ def occupancy_status(
     if start_date is not None and h.backdate(current_time, MAX_OFFICE) > start_date:
         return None
 
-    if not death_date or birth_date or end_date or start_date or no_end_implies_current:
+    if not (
+        death_date or birth_date or end_date or start_date or no_end_implies_current
+    ):
         return None
 
     if end_date:

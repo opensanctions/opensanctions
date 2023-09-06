@@ -119,7 +119,9 @@ def make_occupancy(
         end_date: Set if the date the person left the position is known.
     """
     status = occupancy_status(
+        context,
         no_end_implies_current,
+        current_time,
         start_date,
         end_date,
         birth_date,

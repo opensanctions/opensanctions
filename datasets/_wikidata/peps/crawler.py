@@ -32,7 +32,12 @@ def crawl(context: Context):
             qid: Optional[str] = row.get("person_qid")
             if not is_qid(qid):
                 continue
+            entity.id = qid
 
+            keyword = DECISIONS.get(row.get("decision", ""))
+            if keyword is None:
+                continue
+            
             position = h.make_position(
                 context,
                 row.get("position_label"),
@@ -55,10 +60,6 @@ def crawl(context: Context):
             # TODO: decide all entities with no P39 dates as false?
             # print(holder.person_qid, death, start_date, end_date)
 
-            keyword = DECISIONS.get(row.get("decision", ""))
-            if keyword is None:
-                continue
-            entity.id = qid
             if row.get("person_label") != qid:
                 entity.add("name", row.get("person_label"))
             entity.add("keywords", keyword)
