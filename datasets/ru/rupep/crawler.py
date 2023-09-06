@@ -149,11 +149,12 @@ def crawl_company_person_relation(
         company.schema = model.get("Company")
 
     rupep_company_id = rel_data.pop("company_id")
+    entity_company_id = company_id(context, rupep_company_id)
     rel = context.make(res.schema)
-    id_a_short = short_id(context, company_id(context, rupep_company_id))
+    id_a_short = short_id(context, entity_company_id)
     id_b_short = short_id(context, person.id)
     rel.id = context.make_slug(id_a_short, res.schema, id_b_short)
-    rel.add(res.from_prop, rupep_company_id)
+    rel.add(res.from_prop, entity_company_id)
     rel.add(res.to_prop, person.id)
     rel.add(res.desc_prop, rel_type)
     rel.add("modifiedAt", parse_date(rel_data.pop("date_confirmed")))
@@ -538,6 +539,7 @@ def crawl(context: Context):
     with open(companies_path, "r") as fh:
         companies_data = json.load(fh)
 
+    context.log.info("Loading company countries.")
     company_state: Dict[int, Company] = {}
     for data in companies_data:
         rupep_company_id = data.get("id")
@@ -548,9 +550,11 @@ def crawl(context: Context):
     with open(persons_path, "r") as fh:
         persons_data = json.load(fh)
 
+    context.log.info("Creating persons and positions.")
     for data in persons_data:
         crawl_person(context, company_state, data)
 
+    context.log.info("Creating companies.")
     for data in companies_data:
         rupep_company_id = data.get("id")
         company = company_state[rupep_company_id]

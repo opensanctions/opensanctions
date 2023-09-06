@@ -183,13 +183,17 @@ lookups:
           # - business
           - realty
         prop: null
+
   company_person_relations:
     options:
       - match:
-          - owner
-          - co-owner
           - founder
           - co-founder
+        to_prop: object
+        from_prop: subject
+      - match:
+          - owner
+          - co-owner
           - beneficiary
           - shareholder
         schema: Ownership
