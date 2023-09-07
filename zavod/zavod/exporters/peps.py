@@ -48,17 +48,17 @@ class PEPSummaryExporter(Exporter):
                         "position_name": "",
                         "counts": {
                             "total": 0,
-                            h.OccupancyStatus.CURRENT.value: 0,
-                            h.OccupancyStatus.ENDED.value: 0,
-                            h.OccupancyStatus.UNKNOWN.value: 0,
+                            OccupancyStatus.CURRENT.value: 0,
+                            OccupancyStatus.ENDED.value: 0,
+                            OccupancyStatus.UNKNOWN.value: 0,
                         },
                     }
                 ),
                 "counts": {
                     "total": 0,
-                    h.OccupancyStatus.CURRENT.value: 0,
-                    h.OccupancyStatus.ENDED.value: 0,
-                    h.OccupancyStatus.UNKNOWN.value: 0,
+                    OccupancyStatus.CURRENT.value: 0,
+                    OccupancyStatus.ENDED.value: 0,
+                    OccupancyStatus.UNKNOWN.value: 0,
                 },
             }
         )
@@ -68,17 +68,17 @@ class PEPSummaryExporter(Exporter):
                     lambda: {
                         "counts": {
                             "total": 0,
-                            h.OccupancyStatus.CURRENT.value: 0,
-                            h.OccupancyStatus.ENDED.value: 0,
-                            h.OccupancyStatus.UNKNOWN.value: 0,
+                            OccupancyStatus.CURRENT.value: 0,
+                            OccupancyStatus.ENDED.value: 0,
+                            OccupancyStatus.UNKNOWN.value: 0,
                         }
                     }
                 ),
                 "counts": {
                     "total": 0,
-                    h.OccupancyStatus.CURRENT.value: 0,
-                    h.OccupancyStatus.ENDED.value: 0,
-                    h.OccupancyStatus.UNKNOWN.value: 0,
+                    OccupancyStatus.CURRENT.value: 0,
+                    OccupancyStatus.ENDED.value: 0,
+                    OccupancyStatus.UNKNOWN.value: 0,
                 },
             }
         )
@@ -90,14 +90,14 @@ class PEPSummaryExporter(Exporter):
         if len(occupancy.get("status")) > 1:
             self.context.log.warn("More than one status for occupancy", id=occupancy.id)
         status = occupancy.get("status")[0]
-        if status not in h.OccupancyStatus._value2member_map_:
+        if status not in OccupancyStatus._value2member_map_:
             self.context.log.warn(
                 "Unrecognized status",
                 status=status,
                 position=position.id,
                 occupancy=occupancy.id,
             )
-            status = h.OccupancyStatus.UNKNOWN.value
+            status = OccupancyStatus.UNKNOWN.value
 
         country_codes = position.get("country")
         for code in country_codes:

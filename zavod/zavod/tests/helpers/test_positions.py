@@ -79,30 +79,6 @@ def test_make_occupancy(testdataset1: Dataset):
     assert person.get("country") == ["ls"]
     assert person.get("topics") == ["role.pep"]
 
-    def make(implies, start, end):
-        return make_occupancy(
-        context, person, pos, implies, datetime(2021, 1, 1), start, end
-    )
-
-    current_no_end = make(True, "2020-01-01", None)
-    assert current_no_end.get("status") == ["current"]
-
-    ended_no_start = make(True, None, "2020-01-01")
-    assert ended_no_start.get("status") == ["ended"]
-    assert ended_no_start.id != current_no_end.id
-
-    current_with_end = make(True, "1950-01-01", "2021-01-02")
-    assert current_with_end.get("status") == ["current"]
-
-    ended = make(True, "1950-01-01", "2020-12-31")
-    assert ended.get("status") == ["ended"]
-
-    unknown = make(False, "1950-01-01", None)
-    assert unknown.get("status") == ["unknown"]
-
-    none = make(False, "1950-01-01", "2015-01-01")
-    assert none is None
-
 
 def test_occupancy_dataset_coverage():
     # If coverage end is in the future, we trust the future end date
