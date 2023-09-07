@@ -32,6 +32,11 @@ def test_occupancy_status(testdataset1: Dataset):
 
     # Current when no end implies current
     assert status(True, "2020-01-01", None) == OccupancyStatus.CURRENT
+    # Even with no start date
+    assert status(True, None, None) == OccupancyStatus.CURRENT
+
+    # Not a PEP with no dates and no end doesn't imply current.
+    assert status(False, None, None, None, None) is None
 
     # Current when end date is in the future
     # (even when it started longer than MAX_OFFICE ago)
