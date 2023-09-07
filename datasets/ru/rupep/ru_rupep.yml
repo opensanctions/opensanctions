@@ -60,6 +60,7 @@ lookups:
           - business
           - realty
         prop: null
+
   person_type:
     options:
       - match:
@@ -115,7 +116,6 @@ lookups:
       - match: the president of the president of the republic of belarus
         name: The President of The Republic of Belarus
       
-
   person_person_relations:
     options:
       - match:
@@ -235,6 +235,47 @@ lookups:
         contains:
           - member of the Commission
         schema: null
+
+  company_company_relations:
+    options:
+      - match:
+          - Public contracts/Customer
+          - Founder
+          - Legal successor
+          - Stand-alone unit
+          - Co-founder
+          - Director
+          - Related
+          - 
+          - Bank customer
+          - Lender (financial partner)
+          - Professional Services Provider
+          - Counterparty
+          - Stakeholder
+          - Secretaty
+          - Client
+          - Subcontractor
+          - Managed company
+          - Сontract holder
+          - grantor
+          - Vendor
+          - Member of the supervisory authority
+          - Contractor
+            # Everything is unknown until we know how to establish directionality in the relations.
+          - Co-owner
+          - Owner
+          - Shareholder
+          - Management company
+          - Main company
+          - Branch
+          - Parent company
+          - The main company
+          - Subsidiary
+          - Former co-owner/co-founder
+        schema: UnknownLink
+        from_prop: subject
+        to_prop: object
+        desc_prop: role
 
   type.country:
     lowercase: true

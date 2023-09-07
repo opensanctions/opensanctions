@@ -1,5 +1,5 @@
 import os
-import json
+import ijson
 from typing import Any, Dict, Optional, List, Tuple
 from followthemoney import model
 from csv import writer
@@ -34,6 +34,7 @@ REGEX_SUBNATIONAL = re.compile("(?P<area>\w{4,}) city|regional")
 class Company:
     """Minimal information we want to hold in memory to pass between company and
     person file passes"""
+
     def __init__(self, rupep_id: int, countries: List[str]) -> None:
         self.rupep_id = rupep_id
         self.emit = False
@@ -254,7 +255,9 @@ def emit_pep_relationship(
         context.emit(occupancy)
 
 
-def crawl_person(context: Context, company_state: Dict[int, Company], data: Dict[str, Any]):
+def crawl_person(
+    context: Context, company_state: Dict[int, Company], data: Dict[str, Any]
+):
     is_pep = data.pop("is_pep", False)
     entity = context.make("Person")
     wikidata_id = clean_wdid(data.pop("wikidata_id", None))
@@ -405,8 +408,9 @@ def crawl_person(context: Context, company_state: Dict[int, Company], data: Dict
     context.emit(entity, target=is_pep)
 
 
-def get_company_country(context: Context, country_data: Dict) -> Optional[Tuple[str, List[str], List[str]]]:
-    
+def get_company_country(
+    context: Context, country_data: Dict
+) -> Optional[Tuple[str, List[str], List[str]]]:
     rel_type = country_data.pop("relationship_type")
     country_name_en = country_data.pop("to_country_en", None)
     country_name_ru = country_data.pop("to_country_ru", None)
@@ -441,12 +445,15 @@ def get_company_countries(context: Context, data: Dict) -> List[str]:
     return entity.get("country")
 
 
-def crawl_company(context: Context, company: Company, data: Dict[str, Any]):
+def crawl_company(
+    context: Context, company_state: Dict[int, Company], data: Dict[str, Any]
+):
+    rupep_id = data.pop("id")
+    company = company_state[rupep_id]
     schema = company.schema
     if schema is None:
         schema = "Organization"
     entity = context.make(schema)
-    rupep_id = data.pop("id")
     entity.id = company_id(context, rupep_id)
     entity.add("sourceUrl", data.pop("url_en", None))
     data.pop("url_ru", None)
@@ -461,54 +468,55 @@ def crawl_company(context: Context, company: Company, data: Dict[str, Any]):
     entity.add("dissolutionDate", parse_date(data.pop("closed", None)))
     entity.add("status", data.pop("status_en", data.pop("status_ru", None)))
     entity.add("status", data.pop("status", None))
-    ogrn_code = data.pop("ogrn_code", None)
-    entity.add_cast("Company", "ogrnCode", ogrn_code)
+    entity.add_cast("Company", "ogrnCode", data.pop("ogrn_code", None))
     entity.add("registrationNumber", data.pop("edrpou", None))
 
     for country_data in data.pop("related_countries", []):
         company_country = get_company_country(context, country_data)
         if company_country is not None:
             prop, country_name_en, country_name_ru = company_country
-            entity.add(res.prop, country_name_ru, lang="rus")
-            entity.add(res.prop, country_name_en, lang="eng")
+            entity.add(prop, country_name_ru, lang="rus")
+            entity.add(prop, country_name_en, lang="eng")
 
+    related_companies = data.pop("related_companies", [])
+    for rel_data in related_companies:
+        other_rupep_id = rel_data.pop("company_id")
+        other_id = company_id(context, other_rupep_id)
 
-    for rel_data in data.pop("related_companies", []):
-        # pprint(rel_data)
-        # other_id = company_id(context, rel_data.pop("company_id"))
+        rel_type = rel_data.pop("relationship_type_en", None)
+        rel_type_ru = rel_data.pop("relationship_type_ru", None)
+        rel_type = rel_type or rel_type_ru
+        res = context.lookup("company_company_relations", rel_type)
+        if res is None:
+            context.log.warn(
+                "Unknown company/company relation type",
+                rel_type=rel_type,
+                entity=entity,
+                other=other_id,
+            )
+            continue
 
-        # rel_type = rel_data.pop("relationship_type_en", None)
-        # rel_type_ru = rel_data.pop("relationship_type_ru", None)
-        # rel_type = rel_type or rel_type_ru
-        # res = context.lookup("company_relations", rel_type)
-        # if res is None:
-        #     context.log.warn(
-        #         "Unknown company/company relation type",
-        #         rel_type=rel_type,
-        #         entity=entity,
-        #         other=other_id,
-        #     )
-        #     continue
-
-        # if res.schema is None:
-        #     continue
+        if res.schema is None:
+            continue
 
         # if res.schema == "Organization" and res.from_prop == "asset":
         #     entity.schema = model.get("Company")
-
-        # rel = context.make(res.schema)
-        # id_a_short = short_id(context, entity.id)
-        # id_b_short = short_id(context, other_id)
-        # rel.id = context.make_slug(id_a_short, res.schema, id_b_short)
-        # rel.add(res.from_prop, entity.id)
-        # rel.add(res.to_prop, other_id)
-        # rel.add(res.desc_prop, rel_type)
-        # rel.add("modifiedAt", parse_date(rel_data.pop("date_confirmed")))
-        # rel.add("startDate", parse_date(rel_data.pop("date_established")))
-        # rel.add("endDate", parse_date(rel_data.pop("date_finished")))
-        # context.emit(rel)
-        # h.audit_data(rel_data)
-        pass
+        rel = context.make(res.schema)
+        id_a_short = short_id(context, entity.id)
+        id_b_short = short_id(context, other_id)
+        rel.id = context.make_slug(id_a_short, res.schema, id_b_short)
+        rel.add(res.from_prop, entity.id)
+        rel.add(res.to_prop, other_id)
+        rel.add(res.desc_prop, rel_type)
+        rel.add("description", "Note: Direction of relationship unknown.")
+        rel.add("modifiedAt", parse_date(rel_data.pop("date_confirmed")))
+        rel.add("startDate", parse_date(rel_data.pop("date_established")))
+        rel.add("endDate", parse_date(rel_data.pop("date_finished")))
+        context.emit(rel)
+        context.audit_data(
+            rel_data,
+            ignore=["state_company", "key_company", "company_ru", "company_en"],
+        )
 
     address = h.format_address(
         street=data.pop("street", None),
@@ -529,35 +537,65 @@ def crawl_company(context: Context, company: Company, data: Dict[str, Any]):
         "related_persons",
     ]
     context.audit_data(data, ignore=ignore)
-    if company.emit or ogrn_code:
-        context.emit(entity)
+    context.emit(entity)
 
 
 def crawl(context: Context):
     auth = ("opensanctions", PASSWORD)
-    companies_path = context.fetch_resource("companies.json", f"{context.data_url}/companies/json", auth=auth)
-    persons_path = context.fetch_resource("persons.json", f"{context.data_url}/persons/json", auth=auth)
+    companies_path = context.fetch_resource(
+        "companies.json", f"{context.data_url}/companies/json", auth=auth
+    )
+    persons_path = context.fetch_resource(
+        "persons.json", f"{context.data_url}/persons/json", auth=auth
+    )
 
-    with open(companies_path, "r") as fh:
-        companies_data = json.load(fh)
-
-    context.log.info("Loading company countries.")
     company_state: Dict[int, Company] = {}
-    for data in companies_data:
-        rupep_company_id = data.get("id")
-        countries = get_company_countries(context, data)
-        company = Company(rupep_company_id, countries)
-        company_state[company.rupep_id] = company
 
-    with open(persons_path, "r") as fh:
-        persons_data = json.load(fh)
+    context.log.info("Loading initial company state.")
+    with open(companies_path, "r") as fh:
+        for data in ijson.items(fh, "item"):
+            rupep_company_id = data.get("id")
+            countries = get_company_countries(context, data)
+            company = Company(rupep_company_id, countries)
+            if data.get("ogrn_code", None):
+                company.emit = True
+            company_state[company.rupep_id] = company
 
     context.log.info("Creating persons and positions.")
-    for data in persons_data:
-        crawl_person(context, company_state, data)
+    with open(persons_path, "r") as fh:
+        for data in ijson.items(fh, "item"):
+            crawl_person(context, company_state, data)
+
+    # This is only really needed if we care enough about excluding companies
+    # that aren't linked to any people or other emitted companies to tolerate
+    # this compute and ugliness cost.
+    changed = True
+    propagations = 0
+    max_propagations = 20
+    while changed:
+        if propagations >= max_propagations:
+            context.warning("Maxed out propagations. Not propagating further.")
+            break
+        changed = False
+        propagations += 1
+        context.log.info(f"Propagating emit decision along company relations (iteration {propagations}).")
+        with open(companies_path, "r") as fh:
+            for data in ijson.items(fh, "item"):
+                company = company_state.get(data.get("id"))
+                if company.emit:
+                    for rel_data in data.get("related_companies", []):
+                        other_rupep_id = rel_data.get("company_id")
+                        other_company = company_state.get(other_rupep_id, None)
+                        if other_company is None:
+                            context.log.warning("Unseen company", company_id=other_rupep_id)
+                            continue
+                        if not other_company.emit:
+                            changed = True
+                            other_company.emit = True
 
     context.log.info("Creating companies.")
-    for data in companies_data:
-        rupep_company_id = data.get("id")
-        company = company_state[rupep_company_id]
-        crawl_company(context, company, data)
+    with open(companies_path, "r") as fh:
+        for data in ijson.items(fh, "item"):
+            company = company_state[data.get("id")]
+            if company.emit:
+                crawl_company(context, company_state, data)
