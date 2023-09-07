@@ -38,15 +38,19 @@ def occupancy_status(
     birth_date: Optional[str] = None,
     death_date: Optional[str] = None,
 ) -> OccupancyStatus:
-    if death_date is not None and backdate(current_time, AFTER_DEATH) > death_date:
+    if death_date is not None and death_date < backdate(current_time, AFTER_DEATH):
+        # If they did longer ago than AFTER_DEATH threshold, don't consider a PEP.
         return None
 
-    if birth_date is not None and backdate(current_time, MAX_AGE) > birth_date:
+    if birth_date is not None and birth_date < backdate(current_time, MAX_AGE):
+        # If they're unrealistically old, assume they're not a PEP.
         return None
 
     if not (
         death_date or birth_date or end_date or start_date or no_end_implies_current
     ):
+        # If we don't have any dates to work with, nor a really well-maintained source,
+        # don't consider them a PEP.
         return None
 
     if end_date:
@@ -60,7 +64,7 @@ def occupancy_status(
         elif ( 
             context.dataset.coverage
             and context.dataset.coverage.end
-            and current_time.isoformat() > context.dataset.coverage.end
+            and context.dataset.coverage.end < current_time.isoformat()
         ):  # end_date is in the future and dataset is beyond its coverage.
             # Don't trust future end dates beyond the known coverage date of the dataset
             context.log.warning(
@@ -73,14 +77,17 @@ def occupancy_status(
             return OccupancyStatus.UNKNOWN
         else: # end_date is in the future and coverage is unspecified or active
             return OccupancyStatus.CURRENT
-    else:
 
+    else:  # No end date
         if start_date is not None and start_date < backdate(current_time, MAX_OFFICE):
-            # No end date and start date is beyond MAX_OFFICE threshold for assuming
-            # they're still a PEP.
+            # start_date is older than MAX_OFFICE threshold for assuming they're still
+            # a PEP
             return None
 
         if no_end_implies_current:
+            # This is for sources we are really confident will provide an end date
+            # or totally remove the person soon enough after the person leaves the
+            # position
             return OccupancyStatus.CURRENT
         else:
             return OccupancyStatus.UNKNOWN
