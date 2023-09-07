@@ -1,5 +1,5 @@
 import os
-import json
+import ijson
 from typing import Any, Dict, Optional, List, Tuple
 from followthemoney import model
 from csv import writer
@@ -441,12 +441,13 @@ def get_company_countries(context: Context, data: Dict) -> List[str]:
     return entity.get("country")
 
 
-def crawl_company(context: Context, company: Company, data: Dict[str, Any]):
+def crawl_company(context: Context, company_state: Dict[int, Company], data: Dict[str, Any]):
+    rupep_id = data.pop("id")
+    company = company_state[rupep_id]
     schema = company.schema
     if schema is None:
         schema = "Organization"
     entity = context.make(schema)
-    rupep_id = data.pop("id")
     entity.id = company_id(context, rupep_id)
     entity.add("sourceUrl", data.pop("url_en", None))
     data.pop("url_ru", None)
@@ -469,8 +470,8 @@ def crawl_company(context: Context, company: Company, data: Dict[str, Any]):
         company_country = get_company_country(context, country_data)
         if company_country is not None:
             prop, country_name_en, country_name_ru = company_country
-            entity.add(res.prop, country_name_ru, lang="rus")
-            entity.add(res.prop, country_name_en, lang="eng")
+            entity.add(prop, country_name_ru, lang="rus")
+            entity.add(prop, country_name_en, lang="eng")
 
 
     for rel_data in data.pop("related_companies", []):
@@ -538,26 +539,22 @@ def crawl(context: Context):
     companies_path = context.fetch_resource("companies.json", f"{context.data_url}/companies/json", auth=auth)
     persons_path = context.fetch_resource("persons.json", f"{context.data_url}/persons/json", auth=auth)
 
-    with open(companies_path, "r") as fh:
-        companies_data = json.load(fh)
+    company_state: Dict[int, Company] = {}
 
     context.log.info("Loading company countries.")
-    company_state: Dict[int, Company] = {}
-    for data in companies_data:
-        rupep_company_id = data.get("id")
-        countries = get_company_countries(context, data)
-        company = Company(rupep_company_id, countries)
-        company_state[company.rupep_id] = company
-
-    with open(persons_path, "r") as fh:
-        persons_data = json.load(fh)
+    with open(companies_path, "r") as fh:
+        for data in ijson.items(fh, "item"):    
+            rupep_company_id = data.get("id")
+            countries = get_company_countries(context, data)
+            company = Company(rupep_company_id, countries)
+            company_state[company.rupep_id] = company
 
     context.log.info("Creating persons and positions.")
-    for data in persons_data:
-        crawl_person(context, company_state, data)
+    with open(persons_path, "r") as fh:
+        for data in ijson.items(fh, "item"):    
+            crawl_person(context, company_state, data)
 
     context.log.info("Creating companies.")
-    for data in companies_data:
-        rupep_company_id = data.get("id")
-        company = company_state[rupep_company_id]
-        crawl_company(context, company, data)
+    with open(companies_path, "r") as fh:
+        for data in ijson.items(fh, "item"):    
+            crawl_company(context, company_state, data)
