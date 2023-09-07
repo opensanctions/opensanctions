@@ -86,6 +86,7 @@ lookups:
           - Iles Vierges
           - Channel Islands
           - "U"
+          - "#"
         value: null
       - match:
           - IRLANDE, ou EIRE
