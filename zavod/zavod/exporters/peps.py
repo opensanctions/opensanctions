@@ -5,7 +5,6 @@ from followthemoney.types import registry
 from zavod.entity import Entity
 from zavod.exporters.common import Exporter
 from zavod.util import write_json
-from zavod import helpers as h
 from zavod.logic.pep import OccupancyStatus
 
 

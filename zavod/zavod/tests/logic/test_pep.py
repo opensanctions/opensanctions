@@ -5,6 +5,7 @@ from zavod.meta import Dataset
 from zavod.context import Context
 from zavod.helpers.positions import make_position
 
+
 def test_backdate():
     assert backdate(datetime(2023, 8, 3), 0) == "2023-08-03"
     assert backdate(datetime(2023, 8, 3), 182) == "2023-02-02"
@@ -16,31 +17,47 @@ def test_occupancy_status(testdataset1: Dataset):
     person = context.make("Person")
     person.id = "thabo"
 
-    def make(implies, start, end):
+    def status(implies, start, end, birth=None, death=None):
         return occupancy_status(
-            context, person, pos, implies, datetime(2021, 1, 1), start, end
+            context,
+            person,
+            pos,
+            implies,
+            datetime(2021, 1, 1),
+            start,
+            end,
+            birth,
+            death,
         )
 
-    current_no_end = make(True, "2020-01-01", None)
-    assert current_no_end == OccupancyStatus.CURRENT
+    # Current when no end implies current
+    assert status(True, "2020-01-01", None) == OccupancyStatus.CURRENT
 
-    ended_no_start = make(True, None, "2020-01-01")
-    assert ended_no_start == OccupancyStatus.ENDED
+    # Current when end date is in the future
+    # (even when it started longer than MAX_OFFICE ago)
+    assert status(True, "1950-01-01", "2021-01-02") == OccupancyStatus.CURRENT
+    # Ended when end date is in the past
+    assert status(True, "1950-01-01", "2020-12-31") == OccupancyStatus.ENDED
+    # Not a PEP when end date is longer than AFTER_OFFICE ago
+    assert status(False, "1950-01-01", "2016-01-01") is None
 
-    current_with_end = make(True, "1950-01-01", "2021-01-02")
-    assert current_with_end == OccupancyStatus.CURRENT
+    # Not a PEP when end date is unknown but start date > MAX_OFFICE
+    assert status(False, "1981-01-01", None) is None
+    assert status(True, "1981-01-01", None) is None
+    assert status(True, "1981-01-01", None) is None
 
-    ended = make(True, "1950-01-01", "2020-12-31")
-    assert ended == OccupancyStatus.ENDED
-
-    # > MAX_OFFICE is not a PEP
-    beyond_max_office = make(False, "1981-01-01", None)
-    assert beyond_max_office == None
-
-    # < MAX_OFFICE is a PEP but current status is unknown
+    # Unknown when started really long ago but < MAX_OFFICE ago
     # Note this is not counting leap days
-    within_max_office = make(False, "1981-01-15", None)
-    assert within_max_office == OccupancyStatus.UNKNOWN
+    assert status(False, "1981-01-15", None) == OccupancyStatus.UNKNOWN
+    # Current when the source is really good (no end implies current)
+    assert status(True, "1981-01-15", None) == OccupancyStatus.CURRENT
 
-    none = make(False, "1950-01-01", "2015-01-01")
-    assert none is None
+    # Not a PEP if they died longer than AFTER_DEATH ago
+    assert status(True, "2020-01-01", None, None, "2016-01-01") is None
+    assert status(True, "1950-01-01", "2021-01-02", None, "2016-01-01") is None
+    assert status(True, "1950-01-01", "2020-12-31", None, "2016-01-01") is None
+
+    # Not a PEP if they were born longer than MAX_AGE ago
+    assert status(True, "2020-01-01", None, "1910-01-01") is None
+    assert status(True, "1950-01-01", "2021-01-02", "1910-01-01") is None
+    assert status(True, "1950-01-01", "2020-12-31", "1910-01-01") is None

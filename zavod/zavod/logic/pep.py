@@ -37,7 +37,7 @@ def occupancy_status(
     end_date: Optional[str] = None,
     birth_date: Optional[str] = None,
     death_date: Optional[str] = None,
-) -> OccupancyStatus:
+) -> Optional[OccupancyStatus]:
     if death_date is not None and death_date < backdate(current_time, AFTER_DEATH):
         # If they did longer ago than AFTER_DEATH threshold, don't consider a PEP.
         return None

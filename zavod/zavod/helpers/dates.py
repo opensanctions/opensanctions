@@ -1,7 +1,6 @@
 import re
 from typing import Iterable, Set, Optional, List
 from prefixdate import parse_formats
-from datetime import datetime
 
 NUMBERS = re.compile(r"\d+")
 

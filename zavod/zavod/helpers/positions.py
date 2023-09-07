@@ -5,7 +5,6 @@ from datetime import datetime
 from zavod.context import Context
 from zavod.entity import Entity
 from zavod import settings
-from zavod import helpers as h
 from zavod.logic.pep import occupancy_status
 
 

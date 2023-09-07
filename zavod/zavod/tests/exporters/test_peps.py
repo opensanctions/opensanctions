@@ -4,7 +4,6 @@ from zavod.tests.exporters.util import harnessed_export
 from zavod.meta import Dataset
 from zavod.exporters.peps import PEPSummaryExporter, observe_occupancy
 from zavod.context import Context
-from zavod import helpers as h
 from zavod import settings
 from zavod.archive import clear_data_path
 from zavod.crawl import crawl_dataset

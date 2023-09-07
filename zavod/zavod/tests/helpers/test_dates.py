@@ -1,5 +1,4 @@
 from zavod.helpers.dates import parse_date, check_no_year, extract_years
-from datetime import datetime
 
 FORMATS = ["%b %Y", "%d.%m.%Y", "%Y-%m"]
 
