@@ -90,7 +90,7 @@ def crawl_common(context: Context, entity: Entity, row: Dict[str, Any]):
     entity.add("topics", "sanction")
     country = row.pop("country", None)
     entity.add("country", COUNTRIES.get(country, country))
-    keywords = ensure_list(row.pop("keywords"))
+    keywords = ensure_list(row.pop("category", []))
     keywords.extend(row.pop("subcategory_1", []))
     keywords.extend(row.pop("subcategory_2", []))
     keywords.extend(row.pop("subcategory_3", []))
