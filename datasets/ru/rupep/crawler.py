@@ -461,7 +461,8 @@ def crawl_company(context: Context, company: Company, data: Dict[str, Any]):
     entity.add("dissolutionDate", parse_date(data.pop("closed", None)))
     entity.add("status", data.pop("status_en", data.pop("status_ru", None)))
     entity.add("status", data.pop("status", None))
-    entity.add_cast("Company", "ogrnCode", data.pop("ogrn_code", None))
+    ogrn_code = data.pop("ogrn_code", None)
+    entity.add_cast("Company", "ogrnCode", ogrn_code)
     entity.add("registrationNumber", data.pop("edrpou", None))
 
     for country_data in data.pop("related_countries", []):
@@ -528,7 +529,8 @@ def crawl_company(context: Context, company: Company, data: Dict[str, Any]):
         "related_persons",
     ]
     context.audit_data(data, ignore=ignore)
-    context.emit(entity)
+    if company.emit or ogrn_code:
+        context.emit(entity)
 
 
 def crawl(context: Context):
@@ -558,5 +560,4 @@ def crawl(context: Context):
     for data in companies_data:
         rupep_company_id = data.get("id")
         company = company_state[rupep_company_id]
-        if company.emit:
-            crawl_company(context, company, data)
+        crawl_company(context, company, data)
