@@ -38,11 +38,15 @@ def crawl(context: Context):
             if keyword is None:
                 continue
             
+            position_qid = row.get("position_qid")
+            position_label = row.get("position_label")
+            if not position_label:
+                position_label = position_qid
             position = h.make_position(
                 context,
-                row.get("position_label"),
+                position_label,
                 country=row.get("country_code"),
-                wikidata_id=row.get("position_qid"),
+                wikidata_id=position_qid,
             )
             occupancy = h.make_occupancy(
                 context,
