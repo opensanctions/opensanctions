@@ -1,5 +1,4 @@
-from zavod.helpers.dates import parse_date, check_no_year, extract_years, backdate
-from datetime import datetime
+from zavod.helpers.dates import parse_date, check_no_year, extract_years
 
 FORMATS = ["%b %Y", "%d.%m.%Y", "%Y-%m"]
 
@@ -33,8 +32,3 @@ def test_parse_date():
     assert parse_date("circa then", FORMATS, "foo") == ["foo"]
     assert parse_date("circa then", FORMATS) == ["circa then"]
     assert parse_date("23.5.", FORMATS) == ["23.5."]
-
-
-def test_date_days_from_runtime():
-    assert backdate(datetime(2023, 8, 3), 0) == "2023-08-03"
-    assert backdate(datetime(2023, 8, 3), 182) == "2023-02-02"

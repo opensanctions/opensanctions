@@ -14,13 +14,6 @@ DECISIONS = {
 }
 
 
-YEAR = 365  # days
-AFTER_OFFICE = 5 * YEAR
-AFTER_DEATH = 5 * YEAR
-MAX_AGE = 110 * YEAR
-MAX_OFFICE = 40 * YEAR
-
-
 def date_value(value: Any) -> Optional[str]:
     if value is None:
         return None
@@ -30,38 +23,6 @@ def date_value(value: Any) -> Optional[str]:
     return text[:10]
 
 
-def check_qualified(row: Dict[str, Any]) -> bool:
-    # TODO: PEP logic
-    death = date_value(row.get("person_death"))
-    if death is not None and h.backdate(settings.RUN_TIME, AFTER_DEATH) > death:
-        return False
-
-    birth = date_value(row.get("person_birth"))
-    if birth is not None and h.backdate(settings.RUN_TIME, MAX_AGE) > birth:
-        return False
-
-    end_date = date_value(row.get("end_date"))
-    if end_date is not None and h.backdate(settings.RUN_TIME, AFTER_OFFICE) > end_date:
-        return False
-
-    start_date = date_value(row.get("start_date"))
-    if (
-        start_date is not None
-        and h.backdate(settings.RUN_TIME, MAX_OFFICE) > start_date
-    ):
-        return False
-
-    # TODO: decide all entities with no P39 dates as false?
-    # print(holder.person_qid, death, start_date, end_date)
-    has_date = (
-        death is not None
-        or birth is not None
-        or end_date is not None
-        or start_date is not None
-    )
-    return has_date
-
-
 def crawl(context: Context):
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
@@ -69,19 +30,42 @@ def crawl(context: Context):
         for row in csv.DictReader(fh):
             entity = context.make("Person")
             qid: Optional[str] = row.get("person_qid")
-            if qid is None or not is_qid(qid):
+            if not is_qid(qid):
                 continue
-            if not check_qualified(row):
-                continue
+            entity.id = qid
+
             keyword = DECISIONS.get(row.get("decision", ""))
             if keyword is None:
                 continue
-            entity.id = qid
+            
+            position = h.make_position(
+                context,
+                row.get("position_label"),
+                country=row.get("country_code"),
+                wikidata_id=row.get("position_qid"),
+            )
+            occupancy = h.make_occupancy(
+                context,
+                entity,
+                position,
+                False,
+                death_date=date_value(row.get("person_death")),
+                birth_date=date_value(row.get("person_birth")),
+                end_date=date_value(row.get("end_date")),
+                start_date=date_value(row.get("start_date")),
+            )
+            if not occupancy:
+                continue
+
+            # TODO: decide all entities with no P39 dates as false?
+            # print(holder.person_qid, death, start_date, end_date)
+
             if row.get("person_label") != qid:
                 entity.add("name", row.get("person_label"))
             entity.add("keywords", keyword)
-            entity.add("topics", "role.pep")
-            entity.add("country", row.get("country_code"))
+
+            context.emit(position)
+            context.emit(occupancy)
             context.emit(entity, target=True)
 
     entity = context.make("Person")

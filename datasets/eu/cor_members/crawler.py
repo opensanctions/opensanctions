@@ -2,7 +2,7 @@ from typing import Any, Dict
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.helpers.positions import OccupancyStatus
+from zavod.logic.pep import OccupancyStatus
 
 FORMATS = ("%d/%m/%Y",)
 
@@ -41,7 +41,7 @@ def crawl_person(context: Context, item: Dict[str, Any]) -> None:
     )
     if occupancy is not None:
         for value in item.pop("memberStatuses", []):
-            status = STATUS[value]
+            status = STATUS[value].value
             occupancy.add("status", status)
         context.emit(position)
         context.emit(occupancy)

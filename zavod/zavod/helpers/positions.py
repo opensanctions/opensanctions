@@ -1,21 +1,11 @@
 from banal import ensure_list
 from typing import Optional, Iterable, List
-from enum import Enum
 from datetime import datetime
 
 from zavod.context import Context
 from zavod.entity import Entity
 from zavod import settings
-from zavod import helpers as h
-
-
-AFTER_OFFICE = 5 * 365
-
-
-class OccupancyStatus(Enum):
-    CURRENT = "current"
-    ENDED = "ended"
-    UNKNOWN = "unknown"
+from zavod.logic.pep import occupancy_status
 
 
 def make_position(
@@ -95,6 +85,8 @@ def make_occupancy(
     current_time: datetime = settings.RUN_TIME,
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,
+    birth_date: Optional[str] = None,
+    death_date: Optional[str] = None,
 ) -> Optional[Entity]:
     """Creates and returns an Occupancy entity if the arguments meet our criteria
     for PEP position occupancy, otherwise returns None. Also adds the position countries
@@ -125,33 +117,19 @@ def make_occupancy(
         start_date: Set if the date the person started occupying the position is known.
         end_date: Set if the date the person left the position is known.
     """
-    if end_date is not None and end_date < h.backdate(current_time, AFTER_OFFICE):
+    status = occupancy_status(
+        context,
+        person,
+        position,
+        no_end_implies_current,
+        current_time,
+        start_date,
+        end_date,
+        birth_date,
+        death_date,
+    )
+    if status is None:
         return None
-
-    if end_date:
-        if end_date < current_time.isoformat():
-            status = OccupancyStatus.ENDED.value
-        elif (
-            context.dataset.coverage
-            and context.dataset.coverage.end
-            and current_time.isoformat() > context.dataset.coverage.end
-        ):
-            # Don't trust future end dates beyond the known coverage date of the dataset
-            status = OccupancyStatus.UNKNOWN.value
-            context.log.warning(
-                "Future Occupancy end date is beyond the dataset coverage date. "
-                "Check if the source data is being updated.",
-                person=person.id,
-                position=position.id,
-                end_date=end_date,
-            )
-        else:
-            status = OccupancyStatus.CURRENT.value
-    else:
-        if no_end_implies_current:
-            status = OccupancyStatus.CURRENT.value
-        else:
-            status = OccupancyStatus.UNKNOWN.value
 
     occupancy = context.make("Occupancy")
     # Include started and ended strings so that two occupancies, one missing start
@@ -162,7 +140,7 @@ def make_occupancy(
     occupancy.add("post", position)
     occupancy.add("startDate", start_date)
     occupancy.add("endDate", end_date)
-    occupancy.add("status", status)
+    occupancy.add("status", status.value)
 
     person.add("topics", "role.pep")
     person.add("country", position.get("country"))

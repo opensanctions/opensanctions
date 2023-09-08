@@ -79,6 +79,17 @@ def test_make_occupancy(testdataset1: Dataset):
     assert person.get("country") == ["ls"]
     assert person.get("topics") == ["role.pep"]
 
+
+def test_occupancy_not_same_start_end_id(testdataset1: Dataset):
+    """Test that an occupancy with the same start but no end, and one with the
+    same end but no start, don't end up with the same ID. This occurs in the wild
+    when a source has an unknown start date, ends a term, then starts the next
+    term."""
+    context = Context(testdataset1)
+    pos = make_position(context, name="A position", country="ls")
+    person = context.make("Person")
+    person.id = "thabo"
+
     def make(implies, start, end):
         return make_occupancy(
         context, person, pos, implies, datetime(2021, 1, 1), start, end
@@ -89,19 +100,8 @@ def test_make_occupancy(testdataset1: Dataset):
 
     ended_no_start = make(True, None, "2020-01-01")
     assert ended_no_start.get("status") == ["ended"]
+
     assert ended_no_start.id != current_no_end.id
-
-    current_with_end = make(True, "1950-01-01", "2021-01-02")
-    assert current_with_end.get("status") == ["current"]
-
-    ended = make(True, "1950-01-01", "2020-12-31")
-    assert ended.get("status") == ["ended"]
-
-    unknown = make(False, "1950-01-01", None)
-    assert unknown.get("status") == ["unknown"]
-
-    none = make(False, "1950-01-01", "2015-01-01")
-    assert none is None
 
 
 def test_occupancy_dataset_coverage():
