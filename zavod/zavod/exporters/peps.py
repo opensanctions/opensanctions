@@ -83,6 +83,9 @@ class PEPSummaryExporter(Exporter):
         )
 
     def count_occupancy(self, occupancy: Entity, position: Entity) -> None:
+        if len(position.get("name")) < 1:
+            self.context.log.warn("Missing position name.", id=position.id)
+            return
         if len(position.get("name")) > 1:
             self.context.log.warn("More than one name for position.", id=position.id)
         position_name = position.get("name")[0]
