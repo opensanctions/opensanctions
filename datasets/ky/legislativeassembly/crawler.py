@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import re
 from zavod import Context
 from zavod import helpers as h
 
@@ -15,6 +16,10 @@ def crawl(context: Context):
         "Deputy Premier",
         "Cabinet Ministers",
         "Ex Officio",
+        "Government Backbench Members",
+        "Opposition Members",
+        "Independent Opposition Member",
+        "Election Results",
     ]
 
     # The HTML is malformed and it's easier to parse the text content
@@ -83,7 +88,88 @@ def crawl(context: Context):
 
     persons = []
     for i in range(len(positions_idx) - 1):
-        if positions_idx[i][0] != "Cabinet Ministers":
+        if positions_idx[i][0] == "Ex Officio":
+            c = page_text[positions_idx[4][1] : positions_idx[4 + 1][1]].split("Hon. ")[
+                1:
+            ]
+            for person in c:
+                person_parts = person.split("JP,")
+                name = person_parts[0].split(",")[0].strip()
+                position = person_parts[1].split(",")[0].strip()
+                new_person = {}
+                new_person["name"] = name.strip()
+                new_person["positions"] = [position.strip(), "Member of Parliament"]
+                persons += [new_person]
+        elif positions_idx[i][0] == "Government Backbench Members":
+            for line in page_text[
+                positions_idx[i][1] : positions_idx[i + 1][1]
+            ].splitlines():
+                if "MP" in line:
+                    new_person = {}
+                    new_person["name"] = (
+                        line.split(",")[0].replace("Hon. ", "").replace("Ms. ", "")
+                    )
+                    parts = re.split(r"[,;] and Member of", line.split("MP, ")[1])[0]
+                    positions = ["Member of Parliament"]
+                    if "Member" not in parts:
+                        if "," not in parts:
+                            positions += [parts]
+                        else:
+                            positions += [
+                                parts.split(",")[0],
+                                " ".join(parts.split(",")[1:]),
+                            ]
+                    new_person["positions"] = positions
+                    persons += [new_person]
+        elif positions_idx[i][0] == "Opposition Members":
+            for line in page_text[
+                positions_idx[6][1] : positions_idx[6 + 1][1]
+            ].splitlines()[1:]:
+                if "MP" in line:
+                    new_person = {}
+                    new_person["name"] = (
+                        line.split(",")[0]
+                        .replace("Hon. ", "")
+                        .replace("Mr. ", "")
+                        .replace("Ms. ", "")
+                        .replace("Sir ", "")
+                        .strip()
+                    )
+                    position_part = line.split("MP, ")[1]
+                    if ";" in position_part:
+                        new_person["positions"] = [
+                            position_part.split(";")[0].strip(),
+                            "Member of Parliament",
+                        ]
+                    elif "and" in position_part:
+                        new_person["positions"] = [
+                            position_part.split("and")[0].strip(),
+                            "Member of Parliament",
+                        ]
+                    elif "Member" in position_part:
+                        new_person["positions"] = ["Member of Parliament"]
+                    persons += [new_person]
+        elif positions_idx[i][0] == "Cabinet Ministers":
+            c = page_text[positions_idx[i][1] : positions_idx[i + 1][1]]
+            for cm in c.split("Hon.")[1:]:
+                cm_parts = cm.split("MP,")
+                new_person = {}
+                new_person["name"] = cm_parts[0].split(",")[0].strip()
+                new_person["positions"] = [
+                    p.strip() for p in "".join(cm_parts[1:]).strip().split(" and ")
+                ]
+
+                persons += [new_person]
+        elif positions_idx[i][0] == "Independent Opposition Member":
+            for line in page_text[
+                positions_idx[7][1] : positions_idx[7 + 1][1]
+            ].splitlines():
+                if "MP" in line:
+                    new_person = {}
+                    new_person["name"] = line.split(",")[0].replace("Mr. ", "")
+                    new_person["positions"] = ["Member of Parliament"]
+                    persons += [new_person]
+        else:
             parts = (
                 page_text[positions_idx[i][1] : positions_idx[i + 1][1]]
                 .split("Hon.")[1]
@@ -97,18 +183,11 @@ def crawl(context: Context):
                 for p in positions
                 if "MP" in p
             ][0]
+            new_person["positions"] = [
+                p if "Member of Parliament" not in p else "Member of Parliament"
+                for p in new_person["positions"]
+            ]
             persons += [new_person]
-        else:
-            c = page_text[positions_idx[i][1] : positions_idx[i + 1][1]]
-            for cm in c.split("Hon.")[1:]:
-                cm_parts = cm.split("MP,")
-                new_person = {}
-                new_person["name"] = cm_parts[0].split(",")[0].strip()
-                new_person["positions"] = [
-                    p.strip() for p in "".join(cm_parts[1:]).strip().split(" and ")
-                ]
-
-                persons += [new_person]
 
     for person in persons:
         person_proxy = context.make("Person")
