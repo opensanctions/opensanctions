@@ -6,180 +6,118 @@ from zavod import Context
 from zavod import helpers as h
 
 
+def crawl_judges(context: Context, url, position, get_name, get_judges=None):
+    request_response = context.fetch_html(url, cache_days=30)
+
+    if get_judges is not None:
+        parsed_judges = get_judges(request_response)
+        judges = []
+        for judge in parsed_judges:
+            judge_name = get_name(judge)
+            judges += [(judge_name, position, url)]
+        return judges
+    else:
+        judge_name = get_name(request_response)
+        return [(judge_name, position, url)]
+
+
+def emit_entities(context: Context, entities_data):
+    for entity in entities_data:
+        name, position, url = entity
+        person_proxy = context.make("Person")
+        person_proxy.add("sourceUrl", url)
+        h.apply_name(person_proxy, full=name)
+        person_proxy.id = context.make_id(name)
+
+        position_proxy = h.make_position(
+            context,
+            name=position,
+            country="Cayman Islands",
+        )
+        occupancy = h.make_occupancy(context, person_proxy, position_proxy, True)
+        context.emit(person_proxy, target=True)
+        context.emit(position_proxy)
+        context.emit(occupancy)
+
+
 def crawl(context: Context):
     request_response = context.fetch_html(context.dataset.data.url, cache_days=30)
 
-    # Get current judges
-    current_judges_block = request_response.xpath(
-        "//div[contains(@class, 'accordian')]"
-    )[0]
-    current_judges = current_judges_block.xpath(
-        ".//div[contains(@class, 'fusion-panel')]"
-    )
-
-    # First get the list of different types of courts
-    courts = []
-    for sm in request_response.xpath('.//ul[contains(@class,"sub-menu")]')[:2]:
-        for court in [s.text_content() for s in sm.xpath("./li/a/span")]:
-            courts.append(court)
-
-    def filter_courts(t):
-        """
-        Giving a text block, filter the list of courts mentioned in the text
-        or remove the excluded courts
-        """
-        if "all Divisions" in t:
-            if "except the" not in t:
-                return courts
-            else:
-                not_in = t.split("except the", maxsplit=1)[1].strip()
-                return [c for c in courts if c not in not_in]
-        elif "to the" in t:
-            division = t.split("to the", maxsplit=1)[1].strip().replace(")", "")
-            return [division]
-
-    judges = []
-    for judge in current_judges:
-        new_judge = {}
-        new_judge["name"] = (
-            judge.xpath('.//span[contains(@class, "fusion-toggle-heading")]')[0]
-            .text.replace("Hon. ", "")
-            .split(",")[0]
-            .replace(" CBE", "")
-        )
-        for line in (
-            judge.xpath('.//div[contains(@class, "panel-body")]')[0]
-            .text_content()
-            .splitlines()
-        ):
-            if "Assigned" in line:
-                new_judge["positions"] = filter_courts(line)
-                break
-            else:
-                new_judge["positions"] = []
-                for c in courts:
-                    if c in line:
-                        new_judge["positions"] += [c]
-
-        judges += [new_judge]
-
-        judge_proxy = context.make("Person")
-        judge_proxy.add("sourceUrl", context.dataset.data.url)
-        h.apply_name(judge_proxy, full=new_judge["name"])
-        judge_proxy.id = context.make_id(new_judge["name"])
-
-        judge_positions = []
-        for position in new_judge["positions"]:
-            pos = h.make_position(
-                context,
-                name="Judge for {}".format(position),
-                country="Cayman Islands",
-            )
-            occupancy = h.make_occupancy(context, judge_proxy, pos, True)
-            judge_positions += [(pos, occupancy)]
-
-        # If there is not information about the judge position
-        # we just add tje position 'Judge'
-        if len(judge_positions) == 0:
-            pos = h.make_position(
-                context,
-                name="Judge",
-                country="Cayman Islands",
-            )
-            occupancy = h.make_occupancy(context, judge_proxy, pos, True)
-            judge_positions += [(pos, occupancy)]
-
-        context.emit(judge_proxy, target=True)
-        for pos in judge_positions:
-            context.emit(pos[0])
-            context.emit(pos[1])
+    all_judges = []
 
     # Get Chief Justice
     chief_justice_url = "https://www.judicial.ky/judicial-administration/chief-justice"
-    request_response = context.fetch_html(chief_justice_url, cache_days=30)
-    chief_justice_name = (
-        request_response.xpath(
-            './/div[contains(@class, "fusion-flex-column-wrapper-legacy")]'
-        )[2]
-        .text_content()
-        .split(",")[0]
-        .replace("Hon. ", "")
+
+    def get_name(elm):
+        return (
+            elm.xpath('.//div[contains(@class, "fusion-flex-column-wrapper-legacy")]')[
+                2
+            ]
+            .text_content()
+            .split(",")[0]
+            .replace("Hon. ", "")
+        )
+
+    chief_justice = crawl_judges(
+        context, chief_justice_url, "Chief of Justice", get_name
     )
+    all_judges += chief_justice
 
-    judge_proxy = context.make("Person")
-    judge_proxy.add("sourceUrl", chief_justice_url)
-    h.apply_name(judge_proxy, full=chief_justice_name)
-    judge_proxy.id = context.make_id(chief_justice_name)
-
-    pos = h.make_position(
-        context,
-        name="Chief Justice",
-        country="Cayman Islands",
-    )
-    occupancy = h.make_occupancy(context, judge_proxy, pos, True)
-
-    context.emit(judge_proxy, target=True)
-    context.emit(pos)
-    context.emit(occupancy)
-
-    # Get President - Court of Appeal
+    # Get President of court
     president_court_url = (
         "https://www.judicial.ky/judicial-administration/president-court-of-appeal"
     )
-    request_response = context.fetch_html(president_court_url, cache_days=30)
-    president_court_name = (
-        request_response.xpath('.//h4[contains(@class, "panel-title")]')[0]
-        .text_content()
-        .split("Sir")[-1]
-        .strip()
-    )
 
-    judge_proxy = context.make("Person")
-    judge_proxy.add("sourceUrl", president_court_url)
-    h.apply_name(judge_proxy, full=president_court_name)
-    judge_proxy.id = context.make_id(president_court_name)
+    def get_name(elm):
+        return (
+            elm.xpath('.//h4[contains(@class, "panel-title")]')[0]
+            .text_content()
+            .split("Sir")[-1]
+            .strip()
+        )
 
-    pos = h.make_position(
-        context,
-        name="President of the Court of Appeal",
-        country="Cayman Islands",
+    president_court = crawl_judges(
+        context, president_court_url, "President of the Court of Appeal", get_name
     )
-    occupancy = h.make_occupancy(context, judge_proxy, pos, True)
-    context.emit(judge_proxy, target=True)
-    context.emit(pos)
-    context.emit(occupancy)
+    all_judges += president_court
 
     # Get Justices of Appeal
     justices_of_appeal_url = (
         "https://www.judicial.ky/judicial-administration/justices-of-appeal"
     )
-    request_response = context.fetch_html(justices_of_appeal_url, cache_days=30)
-    current_justices_block = request_response.xpath(
-        './/div[contains(@class, "accordian")]'
-    )[0]
 
-    for justice in current_justices_block.xpath("//h4"):
-        judge_proxy = context.make("Person")
-        judge_proxy.add("sourceUrl", justices_of_appeal_url)
-
-        # Get name
-        justice_name = ""
-
-        justice_text = justice.text_content()
-        if "Sir" in justice_text:
-            justice_name = justice_text.split("Sir")[-1].strip()
+    def get_name(elm):
+        elm_text = elm.text_content()
+        if "Sir" in elm_text:
+            return elm_text.split("Sir")[-1].strip()
         else:
-            justice_name = justice_text.split("Hon.")[-1].replace("Justice", "").strip()
+            return elm_text.split("Hon.")[-1].replace("Justice", "").strip()
 
-        h.apply_name(judge_proxy, full=justice_name)
-        judge_proxy.id = context.make_id(justice_name)
+    def get_judges(page):
+        return page.xpath('.//div[contains(@class, "accordian")]')[0].xpath(".//h4")
 
-        pos = h.make_position(
-            context,
-            name="Justice of Appeal",
-            country="Cayman Islands",
+    justices_of_appeal = crawl_judges(
+        context, justices_of_appeal_url, "Justice of Appeal", get_name, get_judges
+    )
+    all_judges += justices_of_appeal
+
+    # Get Judges
+    def get_name(elm):
+        return (
+            elm.xpath('.//span[contains(@class, "fusion-toggle-heading")]')[0]
+            .text.replace("Hon. ", "")
+            .split(",")[0]
+            .replace(" CBE", "")
         )
-        occupancy = h.make_occupancy(context, judge_proxy, pos, True)
-        context.emit(judge_proxy, target=True)
-        context.emit(pos)
-        context.emit(occupancy)
+
+    def get_judges(page):
+        return page.xpath("//div[contains(@class, 'accordian')]")[0].xpath(
+            ".//div[contains(@class, 'fusion-panel')]"
+        )
+
+    judges = crawl_judges(
+        context, context.dataset.data.url, "Judge", get_name, get_judges
+    )
+    all_judges += judges
+
+    emit_entities(context, all_judges)
