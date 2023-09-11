@@ -1,6 +1,6 @@
 import os
 import ijson
-from typing import Any, Dict, Optional, List, Tuple
+from typing import Any, Dict, Optional, List, Tuple, Set
 from followthemoney import model
 from csv import writer
 from collections import defaultdict
@@ -84,11 +84,17 @@ def parse_date(date):
     return h.parse_date(date, FORMATS)
 
 
-def crawl_person_person_relation(context: Context, entity: Entity, rel_data: dict):
+def crawl_person_person_relation(
+    context: Context, published_people: Set[int], entity: Entity, rel_data: dict
+):
+    other_rupep_id = rel_data.pop("person_id")
+    if other_rupep_id not in published_people:
+        context.log.debug("Skipping unpublished person", id=other_rupep_id)
+        return
     other_pep = rel_data.pop("is_pep", False)
     other_wdid = clean_wdid(rel_data.pop("person_wikidata_id"))
     other = context.make("Person")
-    other.id = person_id(context, rel_data.pop("person_id"), other_wdid)
+    other.id = person_id(context, other_rupep_id, other_wdid)
     if other.id is None:
         return
     other.add("name", rel_data.pop("person_en", None), lang="eng")
@@ -256,7 +262,10 @@ def emit_pep_relationship(
 
 
 def crawl_person(
-    context: Context, company_state: Dict[int, Company], data: Dict[str, Any]
+    context: Context,
+    published_people: Set[int],
+    company_state: Dict[int, Company],
+    data: Dict[str, Any],
 ):
     is_pep = data.pop("is_pep", False)
     entity = context.make("Person")
@@ -324,7 +333,7 @@ def crawl_person(
         context.audit_data(country_data, ignore=ignores)
 
     for rel_data in data.pop("related_persons", []):
-        crawl_person_person_relation(context, entity, rel_data)
+        crawl_person_person_relation(context, published_people, entity, rel_data)
 
     data.pop("type_of_official_ru", None)
     person_type = data.pop("type_of_official_en", None)
@@ -362,8 +371,8 @@ def crawl_person(
         rupep_company_id = rel_data.get("company_id")
         company = company_state.get(rupep_company_id, None)
         if company is None:
-            context.log.warning(
-                "Unseen company referenced in relation. This can be transient due to stale cached comapanies data",
+            context.log.debug(
+                "Skipping unpublished company in person-company relation.",
                 person_id=rupep_person_id,
                 company_id=rupep_company_id,
             )
@@ -481,6 +490,12 @@ def crawl_company(
     related_companies = data.pop("related_companies", [])
     for rel_data in related_companies:
         other_rupep_id = rel_data.pop("company_id")
+        if other_rupep_id not in company_state:
+            context.log.debug(
+                "Skipping unpublished company in company-company relation",
+                id=other_rupep_id,
+            )
+            continue
         other_id = company_id(context, other_rupep_id)
 
         rel_type = rel_data.pop("relationship_type_en", None)
@@ -549,8 +564,20 @@ def crawl(context: Context):
         "persons.json", f"{context.data_url}/persons/json", auth=auth
     )
 
-    company_state: Dict[int, Company] = {}
+    # Only emit companies and people who occur in the root array in the source data.
+    # That's how RuPEP indicates that they are published and available for publication
+    # in OpenSanctions.
 
+    published_people = set()
+    context.log.info("Loading published person IDs.")
+    with open(persons_path, "r") as fh:
+        for data in ijson.items(fh, "item"):
+            published_people.add(data.get("id"))
+
+    # Build a dict of Company instances to pass company countries to Position
+    # extraction, and pass the decision to emit a company from crawl_person
+    # back to crawl_company.
+    company_state: Dict[int, Company] = {}
     context.log.info("Loading initial company state.")
     with open(companies_path, "r") as fh:
         for data in ijson.items(fh, "item"):
@@ -564,7 +591,7 @@ def crawl(context: Context):
     context.log.info("Creating persons and positions.")
     with open(persons_path, "r") as fh:
         for data in ijson.items(fh, "item"):
-            crawl_person(context, company_state, data)
+            crawl_person(context, published_people, company_state, data)
 
     # This is only really needed if we care enough about excluding companies
     # that aren't linked to any people or other emitted companies to tolerate
@@ -578,7 +605,9 @@ def crawl(context: Context):
             break
         changed = False
         propagations += 1
-        context.log.info(f"Propagating emit decision along company relations (iteration {propagations}).")
+        context.log.info(
+            f"Propagating emit decision along company relations (iteration {propagations})."
+        )
         with open(companies_path, "r") as fh:
             for data in ijson.items(fh, "item"):
                 company = company_state.get(data.get("id"))
@@ -587,7 +616,10 @@ def crawl(context: Context):
                         other_rupep_id = rel_data.get("company_id")
                         other_company = company_state.get(other_rupep_id, None)
                         if other_company is None:
-                            context.log.warning("Unseen company", company_id=other_rupep_id)
+                            context.log.debug(
+                                "Skipping unpublished company in nested company-company relation",
+                                company_id=other_rupep_id,
+                            )
                             continue
                         if not other_company.emit:
                             changed = True
