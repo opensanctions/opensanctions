@@ -4,7 +4,7 @@ url: http://www.legislativeassembly.ky/
 entry_point: crawler
 prefix: ky-la
 coverage:
-  frequency: monthly
+  frequency: weekly
 description: |
   Members of the House of Parliament of the Cayman Islands in the 2021-2025 legislative term.
 publisher:

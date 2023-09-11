@@ -34,6 +34,8 @@ children:
   - eu_cor_members
   - eu_meps
   - everypolitician
+  - ky_judicial
+  - ky_legislativeassembly
   - ru_rupep
   - us_cia_world_leaders
   - us_congress
