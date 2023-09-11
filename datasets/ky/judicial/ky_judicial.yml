@@ -4,7 +4,8 @@ url: http://www.judicial.ky/
 entry_point: crawler
 prefix: ky-ja
 coverage:
-  frequency: monthly
+  frequency: weekly
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 description: |
   Judicial Officers from Cayman Islands Judicial Administration
 publisher:
