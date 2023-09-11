@@ -22,6 +22,7 @@ publisher:
     Industrial Designs, etc.
   url: https://www.companies.gov.cy/en/
   country: cy
+  official: true
 data:
   url: "https://www.data.gov.cy/node/4016/dataset/download"
   format: HTML

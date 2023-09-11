@@ -27,6 +27,7 @@ publisher:
     the global financial markets. GLEIF is a supra-national not-for-profit
     organization headquartered in Basel, Switzerland.
   url: https://www.gleif.org/en/about/this-is-gleif
+  official: true
 
 lookups:
   type.country:

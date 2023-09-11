@@ -34,6 +34,7 @@ publisher:
     credit institutions)
   url: https://www.nalog.gov.ru/rn77/service/egrip2/egrip_vzayim/
   country: ru
+  official: true
 coverage:
   end: 2022-01-01
 data:

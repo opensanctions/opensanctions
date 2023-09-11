@@ -26,6 +26,7 @@ publisher:
     of the state administration from which it draws data (the so-called source
     registers).
   country: cz
+  official: true
 data:
   url: "http://wwwinfo.mfcr.cz/ares/ares_vreo_all.tar.gz"
   format: XML+TAR+GZIP

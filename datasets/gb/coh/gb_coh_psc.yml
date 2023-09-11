@@ -23,6 +23,7 @@ publisher:
     limited companies, and the maintenance of their records.
   url: https://www.gov.uk/government/organisations/companies-house
   country: gb
+  official: true
 data:
   url: "http://download.companieshouse.gov.uk/en_pscdata.html"
   format: JSON

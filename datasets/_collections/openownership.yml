@@ -1,5 +1,5 @@
 type: collection
-title: Open Ownership BODS
+title: Open Ownership Datasets
 hidden: true
 deploy:
   memory: "2000Mi"
