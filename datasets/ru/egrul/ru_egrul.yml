@@ -37,6 +37,7 @@ publisher:
   official: true
 coverage:
   end: 2022-01-01
+  frequency: never
 data:
   url: https://egrul.itsoft.ru/EGRUL_406/01.01.2022_FULL/
   format: XML

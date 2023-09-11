@@ -4,6 +4,8 @@ entry_point: zavod.runner.enrich:enrich
 full_dataset: cy_companies
 disabled: false
 hidden: false
+coverage:
+  frequency: weekly
 exports:
   - statistics.json
 deploy:

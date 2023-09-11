@@ -5,6 +5,8 @@ full_dataset: ee_ariregister
 prefix: ee
 disabled: false
 hidden: false
+coverage:
+  frequency: weekly
 exports:
   - statistics.json
 deploy:

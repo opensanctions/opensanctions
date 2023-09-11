@@ -3,6 +3,8 @@ title: Wikidata
 entry_point: zavod.runner.enrich:enrich
 prefix: wd
 disabled: false
+coverage:
+  frequency: daily
 exports:
   - statistics.json
   - entities.ftm.json

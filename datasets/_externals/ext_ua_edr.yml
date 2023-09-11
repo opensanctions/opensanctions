@@ -4,6 +4,9 @@ entry_point: zavod.runner.enrich:enrich
 full_dataset: ua_edr
 disabled: false
 hidden: false
+coverage:
+  frequency: never
+  end: 2022-02-23
 exports:
   - statistics.json
 deploy:
