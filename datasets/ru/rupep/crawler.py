@@ -371,8 +371,8 @@ def crawl_person(
         rupep_company_id = rel_data.get("company_id")
         company = company_state.get(rupep_company_id, None)
         if company is None:
-            context.log.warning(
-                "Unseen company referenced in relation. This can be transient due to stale cached comapanies data",
+            context.log.debug(
+                "Skipping unpublished company in person-company relation.",
                 person_id=rupep_person_id,
                 company_id=rupep_company_id,
             )
@@ -490,6 +490,12 @@ def crawl_company(
     related_companies = data.pop("related_companies", [])
     for rel_data in related_companies:
         other_rupep_id = rel_data.pop("company_id")
+        if other_rupep_id not in company_state:
+            context.log.debug(
+                "Skipping unpublished company in company-company relation",
+                id=other_rupep_id,
+            )
+            continue
         other_id = company_id(context, other_rupep_id)
 
         rel_type = rel_data.pop("relationship_type_en", None)
@@ -561,6 +567,7 @@ def crawl(context: Context):
     # Only emit companies and people who occur in the root array in the source data.
     # That's how RuPEP indicates that they are published and available for publication
     # in OpenSanctions.
+
     published_people = set()
     context.log.info("Loading published person IDs.")
     with open(persons_path, "r") as fh:
@@ -609,8 +616,9 @@ def crawl(context: Context):
                         other_rupep_id = rel_data.get("company_id")
                         other_company = company_state.get(other_rupep_id, None)
                         if other_company is None:
-                            context.log.warning(
-                                "Unseen company", company_id=other_rupep_id
+                            context.log.debug(
+                                "Skipping unpublished company in nested company-company relation",
+                                company_id=other_rupep_id,
                             )
                             continue
                         if not other_company.emit:
