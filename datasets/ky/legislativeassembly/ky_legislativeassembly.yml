@@ -5,6 +5,7 @@ entry_point: crawler
 prefix: ky-la
 coverage:
   frequency: weekly
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 description: |
   Members of the House of Parliament of the Cayman Islands in the 2021-2025 legislative term.
 publisher:
