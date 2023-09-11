@@ -1,0 +1,25 @@
+name: ky_legislativeassembly
+title: "Cayman Islands Legislative Assembly"
+url: http://www.legislativeassembly.ky/
+entry_point: crawler
+prefix: ky-la
+coverage:
+  frequency: monthly
+description: |
+  Members of the House of Parliament of the Cayman Islands in the 2021-2025 legislative term.
+publisher:
+    name: The Cayman Islands Legislative Assembly 
+    description: |
+      The House of Parliament of the Cayman Islands is a unicameral Legislature
+      comprising 21 Members, 19 of whom are the Elected Representatives for the
+      Islands' 19 constituencies: one each from West Bay Central, West Bay North,
+      West Bay South, West Bay West, George Town Central, George Town East, George
+      Town North, George Town South, George Town West, Prospect, Red Bay, Bodden
+      Town East, Bodden Town West, Newlands, Savannah, North Side, East End, Cayman
+      Brac East, Cayman Brac West & Little Cayman.
+    acronym: ky-legislative
+    country: ky
+    url: http://www.legislativeassembly.ky/portal/page/portal/lglhome/aboutus
+data:
+    url: "http://legislativeassembly.ky/portal/page/portal/lglhome/members/elected-2021-2025"
+    format: HTML
