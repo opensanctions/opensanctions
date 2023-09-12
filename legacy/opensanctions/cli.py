@@ -8,7 +8,7 @@ from followthemoney.cli.util import OutPath
 from zavod.logs import get_logger, configure_logging
 from zavod.dedupe import get_resolver
 from zavod.tools.dump_file import dump_dataset_to_file
-from zavod.tools.meta_index import export_index
+from zavod.tools.export_catalog import export_index
 from opensanctions.core.catalog import get_catalog, get_dataset_names
 from opensanctions.core.training import export_training_pairs
 from zavod.util import write_json
