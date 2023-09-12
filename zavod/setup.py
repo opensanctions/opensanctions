@@ -21,7 +21,7 @@ setup(
     package_data={"": ["zavod/data/*", "zavod/py.typed"]},
     zip_safe=False,
     install_requires=[
-        "followthemoney == 3.5.2",
+        "followthemoney == 3.5.3",
         "nomenklatura == 3.4.0",
         "datapatch == 1.1.1",
         "addressformatting == 1.3.2",
@@ -31,7 +31,7 @@ setup(
         "lxml == 4.9.3",
         "lxml-stubs == 0.4.0",
         "openpyxl == 3.1.2",
-        "orjson == 3.9.5",
+        "orjson == 3.9.7",
         "ijson > 3.2, < 4.0",
         "pantomime == 0.6.1",
         "plyvel == 1.5.0",
