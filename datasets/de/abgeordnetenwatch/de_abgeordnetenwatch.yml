@@ -17,6 +17,7 @@ description: |
   Data released under CC0 1.0 license.
 publisher:
   name: Parlamentwatch e.V.
+  official: false
   description: |
     On abgeordnetenwatch.de (which translates as “member of parliament watch”)
     users can find all politicial representatives and ask them questions, read

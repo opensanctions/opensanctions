@@ -9,7 +9,8 @@ load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 description: |
   Members of the House of Parliament of the Cayman Islands in the 2021-2025 legislative term.
 publisher:
-    name: The Cayman Islands Legislative Assembly 
+    name: The Cayman Islands Legislative Assembly
+    official: true
     description: |
       The House of Parliament of the Cayman Islands is a unicameral Legislature
       comprising 21 Members, 19 of whom are the Elected Representatives for the
