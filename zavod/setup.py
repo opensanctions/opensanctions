@@ -21,7 +21,7 @@ setup(
     package_data={"": ["zavod/data/*", "zavod/py.typed"]},
     zip_safe=False,
     install_requires=[
-        "followthemoney == 3.5.3",
+        "followthemoney @ git+ssh://git@github.com/jbothma/followthemoney@add-pep-topics#egg=followthemoney",
         "nomenklatura == 3.4.0",
         "datapatch == 1.1.1",
         "addressformatting == 1.3.2",
