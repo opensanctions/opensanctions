@@ -2,6 +2,7 @@ import orjson
 from pathlib import Path
 from banal import is_mapping, hash_data
 from datetime import datetime
+from followthemoney.proxy import EntityProxy
 from typing import Any, Dict, Generator, Optional, TypedDict, BinaryIO, cast
 from nomenklatura.util import datetime_iso
 
@@ -38,8 +39,12 @@ class DatasetIssues(object):
         for key, value in data.items():
             if key == "dataset" and value == self.dataset.name:
                 continue
-            if hasattr(value, "to_dict"):
-                value = value.to_dict()
+            if isinstance(value, EntityProxy):
+                value = {
+                    "id": value.id,
+                    "caption": value.caption,
+                    "schema": value.schema.name,
+                }
             if isinstance(value, set):
                 value = list(value)
             data[key] = value
