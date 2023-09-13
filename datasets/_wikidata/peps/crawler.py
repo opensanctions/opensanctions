@@ -12,6 +12,23 @@ DECISIONS = {
     "national": "National government",
     "international": "International organization",
 }
+SCOPE_TOPICS = {
+    "subnational": ["gov.state"],
+    "national": ["gov.national"],
+    "international": [],
+}
+
+
+def get_topics(context, decision, role):
+    topics = SCOPE_TOPICS.get(decision, [])
+    res = None
+    if decision == "national":
+        res = context.lookup("national_position_topics", role)
+    elif decision == "international":
+        res = context.lookup("international_position_topics", role)
+    if res:
+        topics.extend(res.topics)
+    return topics
 
 
 def date_value(value: Any) -> Optional[str]:
@@ -37,15 +54,18 @@ def crawl(context: Context):
             keyword = DECISIONS.get(row.get("decision", ""))
             if keyword is None:
                 continue
-            
+
             position_qid = row.get("position_qid")
             position_label = row.get("position_label")
             if not position_label:
                 position_label = position_qid
+            position_topics = get_topics(context, row.get("decision", ""), position_label)
+
             position = h.make_position(
                 context,
                 position_label,
                 country=row.get("country_code"),
+                topics=position_topics,
                 wikidata_id=position_qid,
             )
             occupancy = h.make_occupancy(
