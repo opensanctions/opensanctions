@@ -40,35 +40,44 @@ data:
 
 lookups:
   position_topics:
-    normalize: true
     lowercase: true
     options:
       - match:
           - president
           - vice president
+          - first vice president
+          - second vice president
           - deputy president
           - prime minister
           - deputy prime minister
+          - deputy prime min
+          - vice prime minister
           - sultan
           - king
           - queen
           - supreme leader
           - head of state (co-prince)
+          - head of state
           - head of government
+          - premier
+          - deputy premier
+        regex:
+          - "^vice premier"
+          - "^governor( general)?$"
         topics:
           - gov.national
           - gov.head
       - regex:
-        - "^(state )?minister"
-        - "^secretary of state"
+          - "^(state )?minister"
+          - "^secretary (of|for|general)"
+          - "^(state )?secretary"
         topics:
           - gov.national
           - gov.executive
+      - match: speaker of parliament
       - regex: 
-          - "governor, reserve bank"
-          - "governor, central bank"
-        #  - "(governor|chairman|president), (central|national|reserve) bank"
-        #  - auditor general
+          - "(governor|chairman|president), (central|national|reserve) bank"
+          - auditor general
         topics:
           - gov.national
           - gov.financial
@@ -87,4 +96,8 @@ lookups:
         topics:
           - gov.igo
           - role.diplo
+      - match: member, state admin. council
+        topics:
+          - gov.national
+          - gov.security
         
