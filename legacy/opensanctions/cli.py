@@ -9,12 +9,11 @@ from zavod.logs import get_logger, configure_logging
 from zavod.dedupe import get_resolver
 from zavod.tools.dump_file import dump_dataset_to_file
 from zavod.tools.export_catalog import export_index
-from opensanctions.core.catalog import get_catalog, get_dataset_names
+from opensanctions.core.catalog import get_catalog
 from opensanctions.core.training import export_training_pairs
 from zavod.util import write_json
 
 log = get_logger(__name__)
-datasets = click.Choice(get_dataset_names())
 ALL_SCOPE = "all"
 DEFAULT_SCOPE = "default"
 
@@ -33,14 +32,14 @@ def cli(verbose=False, quiet=False):
 
 
 @cli.command("export-index", help="Export global dataset index")
-@click.argument("dataset", default=ALL_SCOPE, type=datasets)
+@click.argument("dataset", default=ALL_SCOPE, type=str)
 def export_metadata_(dataset: str):
     dataset_ = get_catalog().require(dataset)
     export_index(dataset_)
 
 
 @cli.command("export-pairs", help="Export pairwise judgements")
-@click.argument("dataset", default=DEFAULT_SCOPE, type=datasets)
+@click.argument("dataset", default=DEFAULT_SCOPE, type=str)
 @click.option("-o", "--outfile", type=click.File("wb"), default="-")
 def export_pairs(dataset, outfile):
     dataset = get_catalog().require(dataset)
@@ -93,7 +92,7 @@ def merge(entity_ids, force: bool = False):
 
 
 @cli.command("export-statements", help="Export statement data as a CSV file")
-@click.option("-d", "--dataset", default=ALL_SCOPE, type=datasets)
+@click.option("-d", "--dataset", default=ALL_SCOPE, type=str)
 @click.option("-x", "--external", is_flag=True, default=False)
 @click.argument("outfile", type=OutPath)
 def export_statements_csv(outfile: Path, dataset: str, external: bool = False):

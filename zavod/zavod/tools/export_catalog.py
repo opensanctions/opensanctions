@@ -46,13 +46,14 @@ def get_opensanctions_catalog(scope: Dataset) -> Dict[str, Any]:
         schemata.update(ds.get("schemata", []))
 
     stmt_url = urljoin(settings.DATASET_URL, "latest/default/statements.csv")
+    log.info("Generating catalog", schemata=len(schemata), datasets=len(datasets))
     return {
         "datasets": datasets,
         "run_time": settings.RUN_TIME,
         "dataset_url": settings.DATASET_URL,
         "statements_url": stmt_url,
         "model": model.to_dict(),
-        "schemata": list(schemata),
+        "schemata": sorted(schemata),
         "app": "opensanctions",
     }
 
