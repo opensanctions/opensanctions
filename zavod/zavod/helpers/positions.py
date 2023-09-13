@@ -14,6 +14,7 @@ def make_position(
     summary: Optional[str] = None,
     description: Optional[str] = None,
     country: Optional[str | Iterable[str]] = None,
+    topics: Optional[List[str]] = None,
     subnational_area: Optional[str] = None,
     organization: Optional[Entity] = None,
     inception_date: Optional[Iterable[str]] = None,
@@ -47,18 +48,6 @@ def make_position(
 
     position = context.make("Position")
 
-    position.add("name", name, lang=lang)
-    position.add("summary", summary, lang=lang)
-    position.add("description", description, lang=lang)
-    position.add("country", country)
-    position.add("organization", organization, lang=lang)
-    position.add("subnationalArea", subnational_area, lang=lang)
-    position.add("inceptionDate", inception_date)
-    position.add("dissolutionDate", dissolution_date)
-    position.add("numberOfSeats", number_of_seats)
-    position.add("wikidataId", wikidata_id)
-    position.add("sourceUrl", source_url)
-
     parts: List[str] = [name]
     if country is not None:
         parts.extend(ensure_list(country))
@@ -73,6 +62,20 @@ def make_position(
         position.id = wikidata_id
     else:
         position.id = context.make_id(*parts)
+
+    position.add("name", name, lang=lang)
+    position.add("summary", summary, lang=lang)
+    position.add("description", description, lang=lang)
+    position.add("country", country)
+    position.add("topics", topics)
+    
+    position.add("organization", organization, lang=lang)
+    position.add("subnationalArea", subnational_area, lang=lang)
+    position.add("inceptionDate", inception_date)
+    position.add("dissolutionDate", dissolution_date)
+    position.add("numberOfSeats", number_of_seats)
+    position.add("wikidataId", wikidata_id)
+    position.add("sourceUrl", source_url)
 
     return position
 

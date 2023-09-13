@@ -37,3 +37,54 @@ publisher:
 data:
   url: "https://www.cia.gov/resources/world-leaders/page-data/sq/d/3159235335.json"
   format: JSON
+
+lookups:
+  position_topics:
+    normalize: true
+    lowercase: true
+    options:
+      - match:
+          - president
+          - vice president
+          - deputy president
+          - prime minister
+          - deputy prime minister
+          - sultan
+          - king
+          - queen
+          - supreme leader
+          - head of state (co-prince)
+          - head of government
+        topics:
+          - gov.national
+          - gov.head
+      - regex:
+        - "^(state )?minister"
+        - "^secretary of state"
+        topics:
+          - gov.national
+          - gov.executive
+      - regex: 
+          - "governor, reserve bank"
+          - "governor, central bank"
+        #  - "(governor|chairman|president), (central|national|reserve) bank"
+        #  - auditor general
+        topics:
+          - gov.national
+          - gov.financial
+      - match:
+          - attorney general
+          - prosecutor general
+        topics:
+          - gov.national
+      - regex:
+          - "ambassador"
+          - "consul "
+        topics:
+          - gov.national
+          - role.diplo
+      - match: permanent representative to the un, new york
+        topics:
+          - gov.igo
+          - role.diplo
+        
