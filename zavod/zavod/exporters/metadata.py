@@ -46,7 +46,7 @@ def write_dataset_index(dataset: Dataset) -> None:
         write_json(meta, fh)
 
 
-def write_issues(dataset: Dataset, max_export: int = 10_000) -> None:
+def write_issues(dataset: Dataset, max_export: int = 1_000) -> None:
     """Export list of data issues from crawl stage."""
     if dataset.is_collection:
         return

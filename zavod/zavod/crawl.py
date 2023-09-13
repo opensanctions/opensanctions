@@ -49,8 +49,12 @@ def crawl_dataset(dataset: Dataset, dry_run: bool = False) -> ContextStats:
         context.log.error(lexc.message, lookup=lexc.lookup.name, value=lexc.value)
         raise RunFailedException() from lexc
     except RequestException as rexc:
-        resp = repr(rexc.response)
-        context.log.error(str(rexc), url=rexc.request.url, response=resp)
+        context.log.error(
+            str(rexc),
+            url=rexc.request.url,
+            response_code=rexc.response.status_code,
+            response_text=rexc.response.text,
+        )
         raise RunFailedException() from rexc
     except Exception as exc:
         context.log.exception("Runner failed: %s" % str(exc))
