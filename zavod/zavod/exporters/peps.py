@@ -15,6 +15,25 @@ PREFERENCE = {
 }
 
 
+CATEGORISATION = [
+    ({"gov.national", "gov.head"}, "nat-head"),
+    ({"gov.national", "gov.executive"}, "nat-exec"),
+    ({"gov.national", "gov.legislative"}, "nat-legis"),
+    ({"gov.national", "gov.financial"}, "nat-fin"),
+    ({"gov.igo", "gov.legislative"}, "int-legis"),
+    ({"gov.igo", "gov.financial"}, "int-fin"),
+    ({"role.diplo"}, "diplo"),
+]
+
+def topics_to_categories(topics):
+    topics_set = set(topics)
+    categories = []
+    for category_topics, category in CATEGORISATION:
+        if category_topics.issubset(topics_set):
+            categories.append(category)
+    return categories
+
+
 def observe_occupancy(
     occupancies: Dict[str, Tuple[Entity, Entity]], occupancy: Entity, position: Entity
 ) -> None:
@@ -44,7 +63,10 @@ class PEPSummaryExporter(Exporter):
             lambda: {
                 "positions": defaultdict(
                     lambda: {
-                        "position_name": "",
+                        "id": None,
+                        "name": None,
+                        "categories": [],
+                        "topics": [],
                         "counts": {
                             "total": 0,
                             OccupancyStatus.CURRENT.value: 0,
@@ -102,11 +124,13 @@ class PEPSummaryExporter(Exporter):
             status = OccupancyStatus.UNKNOWN.value
 
         country_codes = position.get("country")
+        topics = position.get("topics")
+        categories = topics_to_categories(topics)
         for code in country_codes:
             self.countries[code]["label"] = registry.country.caption(code)
-            self.countries[code]["positions"][position.id][
-                "position_name"
-            ] = position_name
+            self.countries[code]["positions"][position.id]["name"] = position_name
+            self.countries[code]["positions"][position.id]["topics"] = topics
+            self.countries[code]["positions"][position.id]["categories"] = categories
             self.countries[code]["positions"][position.id]["counts"]["total"] += 1
             self.countries[code]["positions"][position.id]["counts"][status] += 1
             self.countries[code]["counts"]["total"] += 1
