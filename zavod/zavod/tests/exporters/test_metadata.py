@@ -17,4 +17,4 @@ def test_metadata_collection_export(collection: Dataset) -> None:
         catalog = json.load(fh)
 
     assert catalog["updated_at"] == settings.RUN_TIME_ISO
-    assert len(catalog["datasets"]) == 2
+    assert len(catalog["datasets"]) == len(collection.datasets)
