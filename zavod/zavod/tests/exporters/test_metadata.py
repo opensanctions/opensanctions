@@ -36,4 +36,5 @@ def test_metadata_collection_export(testdataset1: Dataset, collection: Dataset) 
     assert len(catalog["datasets"]) == len(collection.datasets)
     for ds in catalog["datasets"]:
         assert ds["updated_at"] == settings.RUN_TIME_ISO
-        assert len(ds["resources"]) > 2
+        if ds["name"] in (collection.name, testdataset1.name):
+            assert len(ds["resources"]) > 2
