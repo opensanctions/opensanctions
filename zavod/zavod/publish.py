@@ -1,7 +1,7 @@
 from zavod.meta import Dataset
 from zavod.logs import get_logger
 from zavod.archive import publish_resource, dataset_resource_path
-from zavod.archive import INDEX_FILE, ISSUES_FILE, ISSUES_LOG
+from zavod.archive import INDEX_FILE, CATALOG_FILE, ISSUES_FILE, ISSUES_LOG
 from zavod.archive import STATEMENTS_FILE, RESOURCES_FILE, STATISTICS_FILE
 from zavod.runtime.resources import DatasetResources
 from zavod.exporters import write_dataset_index, write_issues
@@ -27,6 +27,8 @@ def publish_dataset(dataset: Dataset, latest: bool = True) -> None:
     files = [RESOURCES_FILE, INDEX_FILE]
     if dataset.entry_point is not None:
         files.extend([ISSUES_LOG, ISSUES_FILE, STATEMENTS_FILE])
+    if dataset.is_collection:
+        files.extend([CATALOG_FILE])
     for meta in files:
         path = dataset_resource_path(dataset.name, meta)
         if not path.is_file():
@@ -45,6 +47,7 @@ def publish_failure(dataset: Dataset, latest: bool = True) -> None:
     dataset_resource_path(dataset.name, STATEMENTS_FILE).unlink(missing_ok=True)
     dataset_resource_path(dataset.name, STATISTICS_FILE).unlink(missing_ok=True)
     dataset_resource_path(dataset.name, INDEX_FILE).unlink(missing_ok=True)
+    dataset_resource_path(dataset.name, CATALOG_FILE).unlink(missing_ok=True)
     write_issues(dataset)
     write_dataset_index(dataset)
     for meta in [ISSUES_FILE, ISSUES_LOG, INDEX_FILE]:

@@ -1,46 +1,22 @@
-import json
-from typing import List, Dict, Any
+from typing import Dict, Any
 from urllib.parse import urljoin
 from followthemoney import model
 
 from zavod import settings
-from zavod.archive import get_dataset_resource, datasets_path
+from zavod.archive import datasets_path
 from zavod.util import write_json
 from zavod.meta import Dataset
+from zavod.exporters.metadata import get_catalog_datasets
 from zavod.archive import INDEX_FILE
 from zavod.logs import get_logger
 
 log = get_logger(__name__)
-SCOPED = ["datasets", "scopes", "sources", "externals", "collections"]
-
-
-def catalog_datasets(scope: Dataset) -> List[Dict[str, Any]]:
-    datasets = []
-    for dataset in scope.datasets:
-        path = get_dataset_resource(dataset, INDEX_FILE)
-        if not path.is_file():
-            log.error("No index file found", dataset=dataset.name, report_issue=False)
-            continue
-
-        with open(path, "r") as fh:
-            metadata: Dict[str, Any] = json.load(fh)
-
-            # Make sure the datasets in this catalog don't reference datasets
-            # that are not included in the scope.
-            for field in SCOPED:
-                if field in metadata:
-                    values = metadata.get(field, [])
-                    values = [d for d in values if d in scope.dataset_names]
-                    metadata[field] = values
-
-            datasets.append(metadata)
-    return datasets
 
 
 def get_opensanctions_catalog(scope: Dataset) -> Dict[str, Any]:
     """Get the OpenSanctions-style catalog, including all datasets in the given
     scope."""
-    datasets = catalog_datasets(scope)
+    datasets = get_catalog_datasets(scope)
     schemata = set()
     for ds in datasets:
         schemata.update(ds.get("schemata", []))
@@ -49,7 +25,7 @@ def get_opensanctions_catalog(scope: Dataset) -> Dict[str, Any]:
     log.info("Generating catalog", schemata=len(schemata), datasets=len(datasets))
     return {
         "datasets": datasets,
-        "run_time": settings.RUN_TIME,
+        "run_time": settings.RUN_TIME_ISO,
         "dataset_url": settings.DATASET_URL,
         "statements_url": stmt_url,
         "model": model.to_dict(),
@@ -61,8 +37,8 @@ def get_opensanctions_catalog(scope: Dataset) -> Dict[str, Any]:
 def get_nk_catalog(scope: Dataset) -> Dict[str, Any]:
     """Get the Nomenklatura-style catalog, including all datasets in the given
     scope."""
-    datasets = catalog_datasets(scope)
-    return {"datasets": datasets}
+    datasets = get_catalog_datasets(scope)
+    return {"datasets": datasets, "updated_at": settings.RUN_TIME_ISO}
 
 
 def export_index(scope: Dataset) -> None:
