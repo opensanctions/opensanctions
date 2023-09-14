@@ -128,6 +128,7 @@ class PEPSummaryExporter(Exporter):
         categories = topics_to_categories(topics)
         for code in country_codes:
             self.countries[code]["label"] = registry.country.caption(code)
+            self.countries[code]["positions"][position.id]["id"] = position.id
             self.countries[code]["positions"][position.id]["name"] = position_name
             self.countries[code]["positions"][position.id]["topics"] = topics
             self.countries[code]["positions"][position.id]["categories"] = categories
