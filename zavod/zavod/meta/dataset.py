@@ -133,6 +133,7 @@ class Dataset(NKDataset):
         """Generate a backward-compatible metadata export."""
         data = self.to_dict()
         assert self._type in ("collection", "source", "external"), self._type
+        data.pop("resources", None)
         # data.pop("children", None)
         # data.pop("datasets", None)
         data["type"] = self._type

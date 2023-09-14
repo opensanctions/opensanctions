@@ -24,6 +24,20 @@ def get_dataset_statistics(dataset: Dataset) -> Dict[str, Any]:
         return cast(Dict[str, Any], json.load(fh))
 
 
+def get_base_dataset_metadata(dataset: Dataset) -> Dict[str, Any]:
+    meta = {
+        "issue_levels": {},
+        "issue_count": 0,
+        "updated_at": settings.RUN_TIME_ISO,
+        "index_url": dataset.make_public_url("index.json"),
+        "issues_url": dataset.make_public_url("issues.json"),
+    }
+    resources = DatasetResources(dataset)
+    meta["resources"] = [r.to_opensanctions_dict() for r in resources.all()]
+    meta.update(get_dataset_statistics(dataset))
+    return meta
+
+
 def write_dataset_index(dataset: Dataset) -> None:
     """Export dataset metadata to index.json."""
     index_path = dataset_resource_path(dataset.name, INDEX_FILE)
@@ -32,18 +46,13 @@ def write_dataset_index(dataset: Dataset) -> None:
         path=index_path,
         is_collection=dataset.is_collection,
     )
-    meta = dataset.to_opensanctions_dict()
-    meta.update(get_dataset_statistics(dataset))
+    meta = get_base_dataset_metadata(dataset)
+    meta.update(dataset.to_opensanctions_dict())
     if not dataset.is_collection:
         issues = DatasetIssues(dataset)
         meta["issue_levels"] = issues.by_level()
         meta["issue_count"] = sum(meta["issue_levels"].values())
-    resources = DatasetResources(dataset)
-    meta["resources"] = [r.to_opensanctions_dict() for r in resources.all()]
     meta["last_export"] = settings.RUN_TIME_ISO
-    meta["updated_at"] = settings.RUN_TIME_ISO
-    meta["index_url"] = dataset.make_public_url("index.json")
-    meta["issues_url"] = dataset.make_public_url("issues.json")
     with open(index_path, "wb") as fh:
         write_json(meta, fh)
 
@@ -51,21 +60,16 @@ def write_dataset_index(dataset: Dataset) -> None:
 def get_catalog_dataset(dataset: Dataset) -> Dict[str, Any]:
     """Get a metadata description of a single dataset, retaining timestamp information
     for the last export, but updating some other metadata."""
+    meta = get_base_dataset_metadata(dataset)
     path = get_dataset_resource(dataset, INDEX_FILE)
-    metadata = {
-        "issue_levels": {},
-        "issue_count": 0,
-        "resources": [],
-        "updated_at": settings.RUN_TIME_ISO,
-    }
     if path.is_file():
         with open(path, "r") as fh:
-            metadata.update(json.load(fh))
+            meta.update(json.load(fh))
     else:
         log.error("No index file found", dataset=dataset.name, report_issue=False)
-    metadata.update(dataset.to_opensanctions_dict())
-    metadata.update(get_dataset_statistics(dataset))
-    return metadata
+    meta.update(dataset.to_opensanctions_dict())
+    assert len(meta["resources"]), meta["resources"]
+    return meta
 
 
 def get_catalog_datasets(scope: Dataset) -> List[Dict[str, Any]]:
