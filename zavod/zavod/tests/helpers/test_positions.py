@@ -42,7 +42,9 @@ def test_make_position_full(testdataset1: Dataset):
     assert one_with_everything.id == "Q123"
     assert one_with_everything.get("name") == ["boss"]
     assert one_with_everything.get("country") == ["de"]
-    assert set(one_with_everything.get("topics")) == set(["gov.national", "gov.executive"])
+    assert set(one_with_everything.get("topics")) == set(
+        ["gov.national", "gov.executive"]
+    )
     assert one_with_everything.get("description") == ["desc"]
     assert one_with_everything.get("summary") == ["sum"]
     assert one_with_everything.get("subnationalArea") == ["subnat"]
@@ -94,8 +96,8 @@ def test_occupancy_not_same_start_end_id(testdataset1: Dataset):
 
     def make(implies, start, end):
         return make_occupancy(
-        context, person, pos, implies, datetime(2021, 1, 1), start, end
-    )
+            context, person, pos, implies, datetime(2021, 1, 1), start, end
+        )
 
     current_no_end = make(True, "2020-01-01", None)
     assert current_no_end.get("status") == ["current"]
@@ -108,11 +110,10 @@ def test_occupancy_not_same_start_end_id(testdataset1: Dataset):
 
 def test_occupancy_dataset_coverage():
     # If coverage end is in the future, we trust the future end date
-    dataset1 = Dataset(get_catalog(), {
-        "name": "dataset1",
-        "title": "Dataset 1",
-        "coverage": {"end": "2021-01-04"}
-    })
+    dataset1 = Dataset(
+        get_catalog(),
+        {"name": "dataset1", "title": "Dataset 1", "coverage": {"end": "2021-01-04"}},
+    )
     context1 = Context(dataset1)
     pos = make_position(context1, name="A position", country="ls")
     person = context1.make("Person")
@@ -129,11 +130,10 @@ def test_occupancy_dataset_coverage():
     assert occupancy1.get("status") == ["current"]
 
     # If coverage end date has passed, we don't trust the future end date
-    dataset2 = Dataset(get_catalog(), {
-        "name": "dataset2",
-        "title": "Dataset 2",
-        "coverage": {"end": "2021-01-02"}
-    })
+    dataset2 = Dataset(
+        get_catalog(),
+        {"name": "dataset2", "title": "Dataset 2", "coverage": {"end": "2021-01-02"}},
+    )
     context2 = Context(dataset2)
     pos2 = make_position(context2, name="A position", country="ls")
     person2 = context2.make("Person")

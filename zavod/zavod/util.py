@@ -45,7 +45,7 @@ def write_json(data: Dict[str, Any], fh: IO[bytes]) -> None:
 
 
 # https://stackoverflow.com/a/49146722/330558
-def remove_emoji(string):
+def remove_emoji(string: str) -> str:
     emoji_pattern = re.compile("["
                            u"\U0001F600-\U0001F64F"  # emoticons
                            u"\U0001F300-\U0001F5FF"  # symbols & pictographs
