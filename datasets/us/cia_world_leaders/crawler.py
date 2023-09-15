@@ -56,7 +56,14 @@ def crawl_leader(
     person.add("position", function)
     person.add("sourceUrl", source_url)
 
-    position = h.make_position(context, function, country=country)
+    res = context.lookup("position_topics", function)
+    if res:
+        position_topics = res.topics
+    else:
+        position_topics = []
+        context.log.info("No topics match for position", position=function, country=country)
+
+    position = h.make_position(context, function, country=country, topics=position_topics)
     occupancy = h.make_occupancy(context, person, position)
 
     context.emit(person, target=True)

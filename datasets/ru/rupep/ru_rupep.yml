@@ -99,7 +99,7 @@ lookups:
           - "^assistant to member of parliament of the state duma$"
           - "^senator of the council of the (federation|republic of the national assembly of belarus)$"
           - "administration of the president$"
-          - "^(consul|abassador) " # This space is important to not match consultant
+          - "^(consul |abassador )" # This space is important to not match consultant
           - "^judge of the (constitutional|supreme) court.*$"
           - "^judge of the.+court( of the \\w+ district of.+)?$"
           - "^deputy of the parliament of the .+ republic$"
