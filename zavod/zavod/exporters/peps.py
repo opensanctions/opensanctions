@@ -64,7 +64,7 @@ class PEPSummaryExporter(Exporter):
                 "positions": defaultdict(
                     lambda: {
                         "id": None,
-                        "name": None,
+                        "names": None,
                         "categories": [],
                         "topics": [],
                         "counts": {
@@ -108,9 +108,10 @@ class PEPSummaryExporter(Exporter):
         if len(position.get("name")) < 1:
             self.context.log.warn("Missing position name.", id=position.id)
             return
-        if len(position.get("name")) > 1:
-            self.context.log.warn("More than one name for position.", id=position.id)
-        position_name = position.get("name")[0]
+        position_names = position.get("name")
+        if len(occupancy.get("status")) == 0:
+            self.context.log.warn("No status for occupancy", id=occupancy.id)
+            return
         if len(occupancy.get("status")) > 1:
             self.context.log.warn("More than one status for occupancy", id=occupancy.id)
         status = occupancy.get("status")[0]
@@ -129,7 +130,7 @@ class PEPSummaryExporter(Exporter):
         for code in country_codes:
             self.countries[code]["label"] = registry.country.caption(code)
             self.countries[code]["positions"][position.id]["id"] = position.id
-            self.countries[code]["positions"][position.id]["name"] = position_name
+            self.countries[code]["positions"][position.id]["names"] = position_names
             self.countries[code]["positions"][position.id]["topics"] = topics
             self.countries[code]["positions"][position.id]["categories"] = categories
             self.countries[code]["positions"][position.id]["counts"]["total"] += 1
@@ -137,10 +138,10 @@ class PEPSummaryExporter(Exporter):
             self.countries[code]["counts"]["total"] += 1
             self.countries[code]["counts"][status] += 1
 
-            self.positions[position_name]["countries"][code]["counts"]["total"] += 1
-            self.positions[position_name]["countries"][code]["counts"][status] += 1
-            self.positions[position_name]["counts"]["total"] += 1
-            self.positions[position_name]["counts"][status] += 1
+            self.positions[position_names[0]]["countries"][code]["counts"]["total"] += 1
+            self.positions[position_names[0]]["countries"][code]["counts"][status] += 1
+            self.positions[position_names[0]]["counts"]["total"] += 1
+            self.positions[position_names[0]]["counts"][status] += 1
 
     def feed(self, entity: Entity) -> None:
         if entity.schema.name == "Person":
@@ -155,8 +156,15 @@ class PEPSummaryExporter(Exporter):
                 self.count_occupancy(occupancy, position)
 
     def finish(self) -> None:
+        countries = {}
+        for code, country in self.countries.items():
+            countries[code] = {
+                "label": country["label"],
+                "positions": list(country["positions"].values()),
+                "counts": country["counts"],
+            }
         output = {
-            "countries": self.countries,
+            "countries": countries,
             "positions": self.positions,
         }
         with open(self.path, "wb") as fh:
