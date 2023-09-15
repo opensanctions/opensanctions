@@ -27,6 +27,7 @@ def test_make_position_full(testdataset1: Dataset):
         context,
         name="boss",
         country="de",
+        topics=["gov.national", "gov.executive"],
         description="desc",
         summary="sum",
         subnational_area="subnat",
@@ -41,6 +42,7 @@ def test_make_position_full(testdataset1: Dataset):
     assert one_with_everything.id == "Q123"
     assert one_with_everything.get("name") == ["boss"]
     assert one_with_everything.get("country") == ["de"]
+    assert set(one_with_everything.get("topics")) == set(["gov.national", "gov.executive"])
     assert one_with_everything.get("description") == ["desc"]
     assert one_with_everything.get("summary") == ["sum"]
     assert one_with_everything.get("subnationalArea") == ["subnat"]

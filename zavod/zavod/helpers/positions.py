@@ -68,7 +68,6 @@ def make_position(
     position.add("description", description, lang=lang)
     position.add("country", country)
     position.add("topics", topics)
-    
     position.add("organization", organization, lang=lang)
     position.add("subnationalArea", subnational_area, lang=lang)
     position.add("inceptionDate", inception_date)
