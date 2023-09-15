@@ -29,8 +29,8 @@ def test_pep_positions(testdataset2_export: Dataset):
     assert us["counts"]["unknown"] == 1
 
     assert len(us["positions"]) == 2
-    rep = us["positions"]["td2-export-44fdcec78a4b6038bcea7903aa5448d59c4aebaf"]
-    assert rep["position_name"] == "United States representative"
+    rep = [p for p in us["positions"] if p["id"] == "td2-export-44fdcec78a4b6038bcea7903aa5448d59c4aebaf"][0]
+    assert rep["names"] == ["United States representative"]
     assert rep["counts"]["total"] == 3
     assert rep["counts"]["current"] == 1
     assert rep["counts"]["ended"] == 2

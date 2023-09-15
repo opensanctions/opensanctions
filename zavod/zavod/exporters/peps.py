@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Dict, Any, DefaultDict, Tuple
+from typing import Dict, Any, DefaultDict, Tuple, List
 from followthemoney.types import registry
 
 from zavod.entity import Entity
@@ -25,7 +25,7 @@ CATEGORISATION = [
     ({"role.diplo"}, "diplo"),
 ]
 
-def topics_to_categories(topics):
+def topics_to_categories(topics: List[str]) -> List[str]:
     topics_set = set(topics)
     categories = []
     for category_topics, category in CATEGORISATION:
