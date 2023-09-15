@@ -272,6 +272,15 @@ lookups:
           - The main company
           - Subsidiary
           - Former co-owner/co-founder
+          - Bank
+          - Controlled by
+          - Grantee
+          - Object of property rights
+          - Ordering customer
+          - Predecessor
+          - Provider of goods / services
+          - Public contracts/Contractor
+          - Recipient / Buyer
         schema: UnknownLink
         from_prop: subject
         to_prop: object

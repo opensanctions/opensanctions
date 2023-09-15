@@ -1,7 +1,7 @@
 from json import load
 
 from zavod.meta import get_catalog, load_dataset_from_path, Dataset
-from zavod.tools.meta_index import export_index
+from zavod.tools.export_catalog import export_index
 from zavod import settings
 from zavod.tests.conftest import COLLECTION_YML
 from zavod.crawl import crawl_dataset

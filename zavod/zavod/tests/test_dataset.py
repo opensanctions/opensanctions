@@ -81,7 +81,8 @@ def test_validation_os_dict(testdataset1: Dataset, collection: Dataset):
     osac = collection.to_opensanctions_dict()
     assert osac["name"] == "collection"
     assert osac["type"] == "collection"
-    assert len(osac["scopes"]) == 1
+    assert len(osac["datasets"]) == 1, osac["datasets"]
+    assert len(osac["children"]) == 2, osac["children"]
     assert len(osac["sources"]) == 1
     assert len(osac["externals"]) == 0
     assert "entry_point" not in osac

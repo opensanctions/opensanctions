@@ -14,6 +14,7 @@ from zavod.exporters.statistics import StatisticsExporter
 from zavod.exporters.peps import PEPSummaryExporter
 from zavod.exporters.statements import StatementsCSVExporter
 from zavod.exporters.metadata import write_dataset_index, write_issues
+from zavod.exporters.metadata import write_catalog
 
 log = get_logger(__name__)
 
@@ -77,10 +78,9 @@ def export_dataset(dataset: Dataset, view: View) -> None:
         context.begin(clear=False)
         export_data(context, view)
 
-        if not dataset.is_collection:
-            # Export issues
-            write_issues(dataset)
         # Export full metadata
         write_dataset_index(dataset)
+        write_issues(dataset)
+        write_catalog(dataset)
     finally:
         context.close()

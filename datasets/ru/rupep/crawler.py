@@ -523,7 +523,6 @@ def crawl_company(
         rel.add(res.from_prop, entity.id)
         rel.add(res.to_prop, other_id)
         rel.add(res.desc_prop, rel_type)
-        rel.add("description", "Note: Direction of relationship unknown.")
         rel.add("modifiedAt", parse_date(rel_data.pop("date_confirmed")))
         rel.add("startDate", parse_date(rel_data.pop("date_established")))
         rel.add("endDate", parse_date(rel_data.pop("date_finished")))
