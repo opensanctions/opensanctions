@@ -91,11 +91,12 @@ def crawl_common(context: Context, entity: Entity, row: Dict[str, Any]):
     country = row.pop("country", None)
     entity.add("country", COUNTRIES.get(country, country))
     keywords = ensure_list(row.pop("category", []))
-    keywords.extend(row.pop("subcategory_1", []))
-    keywords.extend(row.pop("subcategory_2", []))
-    keywords.extend(row.pop("subcategory_3", []))
+    keywords.extend(ensure_list(row.pop("subcategory_1", [])))
+    keywords.extend(ensure_list(row.pop("subcategory_2", [])))
+    keywords.extend(ensure_list(row.pop("subcategory_3", [])))
     for kw in keywords:
         if not kw.startswith("category_"):
+            print("KW", kw)
             entity.add("keywords", kw)
 
     entity.add("website", url_split(row.pop("link", "")))
