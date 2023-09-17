@@ -5,7 +5,7 @@ from nomenklatura.cache import Cache
 from nomenklatura.enrich import Enricher, EnrichmentException, get_enricher
 from nomenklatura.matching import DefaultAlgorithm
 
-from zavod.meta import Dataset
+from zavod.meta import Dataset, get_multi_dataset
 from zavod.entity import Entity
 from zavod.context import Context
 from zavod.dedupe import get_resolver
@@ -59,10 +59,7 @@ def save_match(
 
 
 def enrich(context: Context) -> None:
-    if context.dataset.input is None:
-        msg = "No enrichment input defined for dataset: %s" % context.dataset.name
-        raise RuntimeError(msg)
-    view = get_view(context.dataset.input)
+    view = get_view(get_multi_dataset(context.dataset.inputs))
     resolver = get_resolver()
     enricher = dataset_enricher(context.dataset, context.cache)
     threshold = float(context.dataset.config.get("threshold", 0.7))

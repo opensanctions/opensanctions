@@ -1,5 +1,5 @@
 import os
-from banal import ensure_list, ensure_dict, hash_data, as_bool
+from banal import ensure_list, ensure_dict, as_bool
 from typing import Dict, Any, Optional, List, Set
 from normality import slugify
 from pathlib import Path
@@ -8,7 +8,6 @@ from functools import cached_property
 from datapatch import get_lookups, Lookup
 from nomenklatura.dataset import Dataset as NKDataset
 from nomenklatura.dataset import DataCatalog, DataCoverage
-from nomenklatura.exceptions import MetadataException
 from nomenklatura.util import datetime_iso
 
 from zavod import settings
@@ -59,47 +58,15 @@ class Dataset(NKDataset):
 
         self.config: Dict[str, Any] = ensure_dict(data.get("config", {}))
         _inputs = ensure_list(data.get("inputs", []))
-        self._inputs: List[str] = [str(x) for x in _inputs]
+        self.inputs: List[str] = [str(x) for x in _inputs]
+        """List of other datasets that this dataset depends on as processing inputs."""
+
         self._data = data
         self.base_path: Optional[Path] = None
 
         # TODO: this is for backward compatibility, get rid of it one day
         _type = "collection" if self.is_collection else "source"
         self._type: str = data.get("type", _type).lower().strip()
-
-    @cached_property
-    def input(self) -> Optional["Dataset"]:
-        """The scopes of a dataset is the set of other datasets on which analysis or
-        enrichment should be performed by the runner."""
-        inputs: List[Dataset] = []
-        for input_name in self._inputs:
-            try:
-                inputs.append(self.catalog.require(input_name))
-            except MetadataException as exc:
-                log.error(
-                    "Invalid dataset input: %s" % exc,
-                    input=input_name,
-                    dataset=self.name,
-                )
-        if not len(inputs):
-            return None
-        if len(inputs) == 1:
-            return inputs[0]
-        # Weird: if there are many scopes, we're making up a synthetic collection
-        # to group them together so that we can build a store and view for them.
-        names = sorted([i.name for i in inputs])
-        key = hash_data(".".join(names))
-        name = f"scope_{key}"
-        if not self.catalog.has(name):
-            data = {
-                "name": name,
-                "title": name,
-                "datasets": names,
-                "hidden": True,
-            }
-            scope = self.catalog.make_dataset(data)
-            self.catalog.add(scope)
-        return self.catalog.require(name)
 
     @cached_property
     def lookups(self) -> Dict[str, Lookup]:

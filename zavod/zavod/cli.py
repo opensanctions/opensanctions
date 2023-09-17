@@ -10,7 +10,7 @@ from nomenklatura.matching import DefaultAlgorithm
 
 from zavod import settings
 from zavod.logs import configure_logging, get_logger
-from zavod.meta import load_dataset_from_path, Dataset
+from zavod.meta import load_dataset_from_path, get_multi_dataset, Dataset
 from zavod.crawl import crawl_dataset
 from zavod.store import get_view, get_store, clear_store
 from zavod.archive import clear_data_path
@@ -31,6 +31,13 @@ def _load_dataset(path: Path) -> Dataset:
     if dataset is None:
         raise click.BadParameter("Invalid dataset path: %s" % path)
     return dataset
+
+
+def _load_datasets(paths: List[Path]) -> Dataset:
+    inputs: List[str] = []
+    for path in paths:
+        inputs.append(_load_dataset(path).name)
+    return get_multi_dataset(inputs)
 
 
 @click.group(help="Zavod data factory")
@@ -165,21 +172,21 @@ def dump_file(
 
 
 @cli.command("xref", help="Generate dedupe candidates from the given dataset")
-@click.argument("dataset_path", type=InPath)
+@click.argument("dataset_paths", type=InPath, nargs=-1)
 @click.option("-c", "--clear", is_flag=True, default=False)
 @click.option("-l", "--limit", type=int, default=10000)
 @click.option("-f", "--focus-dataset", type=str, default=None)
 @click.option("-a", "--algorithm", type=str, default=DefaultAlgorithm.NAME)
 @click.option("-t", "--threshold", type=Optional[float], default=None)
 def xref(
-    dataset_path: Path,
+    dataset_paths: List[Path],
     clear: bool,
     limit: int,
     threshold: Optional[float],
     algorithm: str,
     focus_dataset: Optional[str] = None,
 ) -> None:
-    dataset = _load_dataset(dataset_path)
+    dataset = _load_datasets(dataset_paths)
     if clear:
         clear_store(dataset)
     store = get_store(dataset, external=True)
@@ -204,10 +211,10 @@ def xref_prune() -> None:
 
 
 @cli.command("dedupe", help="Interactively decide xref candidates")
-@click.argument("dataset_path", type=InPath)
+@click.argument("dataset_paths", type=InPath, nargs=-1)
 @click.option("-c", "--clear", is_flag=True, default=False)
-def dedupe(dataset_path: Path, clear: bool = False) -> None:
-    dataset = _load_dataset(dataset_path)
+def dedupe(dataset_paths: List[Path], clear: bool = False) -> None:
+    dataset = _load_datasets(dataset_paths)
     if clear:
         clear_store(dataset)
     store = get_store(dataset, external=True)

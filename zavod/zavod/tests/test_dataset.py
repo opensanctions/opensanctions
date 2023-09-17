@@ -1,7 +1,8 @@
 import pytest
-from zavod.meta import get_catalog, Dataset
-
 from nomenklatura.exceptions import MetadataException
+
+from zavod.meta import get_catalog, Dataset, get_multi_dataset
+
 
 TEST_DATASET = {
     "name": "test",
@@ -37,7 +38,7 @@ def test_basic():
     assert test_ds.is_collection is False
     assert test_ds.data.url is not None
     assert test_ds.disabled is False
-    assert test_ds.input is None
+    assert not len(test_ds.inputs)
     url = test_ds.make_public_url("foo")
     assert url.startswith("https://data.opensanctions.org/"), url
     assert url.endswith("/foo"), url
@@ -61,7 +62,7 @@ def test_validation(testdataset1: Dataset):
     assert testdataset1.publisher.official is False
     assert len(testdataset1.children) == 0
     assert len(testdataset1.datasets) == 1
-    assert testdataset1.input is None
+    assert len(testdataset1.inputs) == 0
 
 
 def test_validation_os_dict(testdataset1: Dataset, collection: Dataset):
@@ -89,5 +90,17 @@ def test_validation_os_dict(testdataset1: Dataset, collection: Dataset):
 
 
 def test_analyzer(analyzer: Dataset, testdataset1: Dataset):
-    assert analyzer.input is not None
-    assert analyzer.input == testdataset1
+    assert len(analyzer.inputs) == 1
+    assert len(analyzer.inputs)
+
+
+def test_multi_dataset(analyzer: Dataset, testdataset1: Dataset):
+    with pytest.raises(MetadataException):
+        get_multi_dataset(["xxxx"])
+
+    ds = get_multi_dataset([analyzer.name])
+    assert ds == analyzer
+
+    ds = get_multi_dataset([analyzer.name, testdataset1.name])
+    assert analyzer in ds.children
+    assert testdataset1 in ds.children
