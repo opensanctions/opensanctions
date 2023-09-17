@@ -64,11 +64,6 @@ jobs:
         working-directory: zavod
         run: |
           python setup.py sdist bdist_wheel
-      - name: Install opensanctions
-        working-directory: legacy
-        run: |
-          pip install -e ".[dev]"
-          pip freeze
       - name: Crawl a single dataset
         run: |
           zavod crawl -c datasets/us/ofac/us_ofac_cons.yml
