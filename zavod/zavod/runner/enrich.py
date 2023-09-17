@@ -40,10 +40,9 @@ def save_match(
     # xref cache so the user can decide:
     if judgement == Judgement.NO_JUDGEMENT:
         result = DefaultAlgorithm.compare(entity, match)
-        score = result["score"]
-        if threshold is None or score >= threshold:
-            context.log.info("Match [%s]: %.2f -> %s" % (entity, score, match))
-            resolver.suggest(entity.id, match.id, score, user="os-enrich")
+        if threshold is None or result.score >= threshold:
+            context.log.info("Match [%s]: %.2f -> %s" % (entity, result.score, match))
+            resolver.suggest(entity.id, match.id, result.score, user="os-enrich")
 
     if judgement not in (Judgement.NEGATIVE, Judgement.POSITIVE):
         context.emit(match, external=True)

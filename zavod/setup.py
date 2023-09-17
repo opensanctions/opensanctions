@@ -22,7 +22,7 @@ setup(
     zip_safe=False,
     install_requires=[
         "followthemoney == 3.5.4",
-        "nomenklatura == 3.4.2",
+        "nomenklatura == 3.5.1",
         "datapatch == 1.1.1",
         "addressformatting == 1.3.2",
         "certifi",
