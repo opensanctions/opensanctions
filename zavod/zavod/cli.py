@@ -2,7 +2,7 @@ import sys
 import click
 import logging
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List
 from followthemoney.cli.util import InPath, OutPath
 from nomenklatura.tui import dedupe_ui
 from nomenklatura.statement import CSV, FORMATS
@@ -15,7 +15,8 @@ from zavod.crawl import crawl_dataset
 from zavod.store import get_view, get_store, clear_store
 from zavod.archive import clear_data_path
 from zavod.exporters import export_dataset
-from zavod.dedupe import get_resolver, blocking_xref
+from zavod.dedupe import get_resolver, blocking_xref, merge_entities
+from zavod.dedupe import explode_cluster
 from zavod.publish import publish_dataset, publish_failure
 from zavod.tools.load_db import load_dataset_to_db
 from zavod.tools.dump_file import dump_dataset_to_file
@@ -169,12 +170,12 @@ def dump_file(
 @click.option("-l", "--limit", type=int, default=10000)
 @click.option("-f", "--focus-dataset", type=str, default=None)
 @click.option("-a", "--algorithm", type=str, default=DefaultAlgorithm.NAME)
-@click.option("-t", "--threshold", type=float, default=0.990)
+@click.option("-t", "--threshold", type=Optional[float], default=None)
 def xref(
     dataset_path: Path,
     clear: bool,
     limit: int,
-    threshold: float,
+    threshold: Optional[float],
     algorithm: str,
     focus_dataset: Optional[str] = None,
 ) -> None:
@@ -191,7 +192,7 @@ def xref(
     )
 
 
-@cli.command("xref-prune", help="Remove dedupe candidates from resolver file")
+@cli.command("resolver-prune", help="Remove dedupe candidates from resolver file")
 def xref_prune() -> None:
     try:
         resolver = get_resolver()
@@ -211,6 +212,23 @@ def dedupe(dataset_path: Path, clear: bool = False) -> None:
         clear_store(dataset)
     store = get_store(dataset, external=True)
     dedupe_ui(store, url_base="https://opensanctions.org/entities/%s/")
+
+
+@cli.command("explode-cluster", help="Destroy a cluster of deduplication matches")
+@click.argument("canonical_id", type=str)
+def explode(canonical_id: str) -> None:
+    explode_cluster(canonical_id)
+
+
+@cli.command("merge-cluster", help="Merge multiple entities as duplicates")
+@click.argument("entity_ids", type=str, nargs=-1)
+@click.option("-f", "--force", is_flag=True, default=False)
+def merge(entity_ids: List[str], force: bool = False):
+    try:
+        merge_entities(entity_ids, force=force)
+    except ValueError as ve:
+        log.error("Cannot merge: %s" % ve)
+        sys.exit(1)
 
 
 @cli.command("clear", help="Delete the data and state paths for a dataset")

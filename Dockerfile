@@ -30,8 +30,6 @@ RUN pip3 install --no-cache-dir -U pip six setuptools wheel \
 
 COPY . /opensanctions
 RUN pip install --no-cache-dir -e /opensanctions/zavod
-WORKDIR /opensanctions
-RUN pip install --no-cache-dir -e /opensanctions/legacy
 
 ENV ZAVOD_DATA_PATH="/opensanctions/data" \
     OPENSSL_CONF="/opensanctions/contrib/openssl.cnf"

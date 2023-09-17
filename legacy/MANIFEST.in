@@ -1,4 +1,0 @@
-include README.md
-include LICENSE
-recursive-include opensanctions/ *.yml *.yaml *.ijson
-recursive-include opensanctions/migrate *.py *.ini *.mako
