@@ -223,7 +223,7 @@ def explode(canonical_id: str) -> None:
 @cli.command("merge-cluster", help="Merge multiple entities as duplicates")
 @click.argument("entity_ids", type=str, nargs=-1)
 @click.option("-f", "--force", is_flag=True, default=False)
-def merge(entity_ids: List[str], force: bool = False):
+def merge(entity_ids: List[str], force: bool = False) -> None:
     try:
         merge_entities(entity_ids, force=force)
     except ValueError as ve:
