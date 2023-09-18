@@ -269,6 +269,19 @@ lookups:
           - Don Republic
           - Koreans
           - Colony of Rhode Island and Plantations
+          - Wu
+          - Almoravid dynasty
+          - Río Gallegos
+          - Kingdom of Saxony
+          - Palatinate-Neuburg
+          - Grand Duchy of Mecklenburg-Schwerin
+          - Sovereign Principality of the United Netherlands
+          - Crown of Castile
+          - Habsburg Netherlands
+          - Byzantine Empire
+          - Grand Duchy of Baden
+          - Song
+          - Cook Islands Maori people
         value: null
       - match:
           - Cherokee Nation
@@ -283,6 +296,10 @@ lookups:
         value: CY
       - match: Socialist Republic of Romania
         value: RO
+      - match: United Kingdom of the Netherlands
+        value: NL
+      - match: Kingdom of Ireland
+        value: IE
       - match: Santo Domingo
         values:
           - Dominican Republic

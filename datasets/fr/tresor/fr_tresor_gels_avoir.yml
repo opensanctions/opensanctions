@@ -2018,3 +2018,152 @@ lookups:
       - match: "Lieu d'enregistrement: Syrie: /"
         props:
           jurisdiction: sy
+      - match: "Type d’entité: prison - Lieu d’enregistrement: Karaj, province d’Alborz, Iran: /"
+        props:
+          jurisdiction: ir
+          legalForm: prison
+          address: "Karaj, province d’Alborz, Iran"
+      - match: "Type d'entité: société par actions. Lieu d'enregistrement: Fédération de Russie. Date d'enregistrement: 6.6.2003. Numéro d'enregistrement: 1031632202227. Principal établissement: Russie: uméro d'enregistrement: 1031632202227"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2003-06-06
+          registrationNumber: 1031632202227
+      - match: "Numéro d’enregistrement: 10101373495"
+        props:
+          registrationNumber: 10101373495
+      - match: "Type d'entité: organe de presse - Lieu d'enregistrement: Iran - Date d'enregistrement: 30 juin 2012: /"
+        props:
+          jurisdiction: ir
+          legalForm: organe de presse
+          incorporationDate: 2012-06-30
+      - match: "NIF 1644024517"
+        props:
+          idNumber: 1644024517
+      - match: "CEI 165101001"
+        props:
+          idNumber: 165101001
+      - match: "PSRN 1021601627090 le 25.11.2002"
+        props:
+          registrationNumber: 1021601627090
+          incorporationDate: 2002-11-25
+      - match: "OKPO 57243722"
+        schema: Company
+        props:
+          okpoCode: 57243722
+      - match: "N ° d'identification fiscale - En cours de liquidation - Liquidateur: Igor Staloverov: 7730018980"
+        props:
+          innCode: 7730018980
+          status: En cours de liquidation
+      - match: "Numéro d'enregistrement national: 1025201335730"
+        props:
+          registrationNumber: 1025201335730
+      - match: "Type d'entité: société par actions"
+        props:
+          legalForm: société par actions
+      - match: "Type d’entité: prison - Lieu d’enregistrement: Zahedan, Iran: /"
+        props:
+          jurisdiction: ir
+          legalForm: prison
+          address: "Zahedan, Iran"
+      - match: "Lieu d'enregistrement: Dubaï, Émirats arabes unis (Unit OT 17-32, Level 17, Central Park Offices, Dubai International Financial Centre, Dubaï, 507065, Émirats arabes unis) . Date d'enregistrement: 2.8.2012. Principaux établissements: Émirats arabes unis, Fédérationde Russie, Union européenne: Numéro d'enregistrement: 1244"
+        props:
+          jurisdiction: ae
+          country: ru
+          address: "Unit OT 17-32, Level 17, Central Park Offices, Dubai International Financial Centre, Dubaï, 507065, Émirats arabes unis"
+          incorporationDate: 2012-08-02
+          registrationNumber: 1244
+      - match: "Numéro d’enregistrement: 10590042155"
+        props:
+          registrationNumber: 10590042155
+      - match: "Type d’entité: entité gouvernementale - Lieu d’enregistrement: Iran - Date d’enregistrement: 2012: /"
+        props:
+          jurisdiction: ir
+          legalForm: entité gouvernementale
+          incorporationDate: 2012
+      - match: "Type d'entité: société par actions cotée. Lieu d'enregistrement: Fédération de Russie. Date d'enregistrement: 1992. Numéro d'enregistrement: 1027739555282. Principal établissement: Fédération de Russie: Numéro d'enregistrement: 1027739555282"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions cotée
+          incorporationDate: 1992
+          registrationNumber: 1027739555282
+      - match: "Type d'entité: société à responsabilité limitée. Lieu d'enregistrement: rue Bolshaya Polyanka, 50/1 STR.1, 119180, Moscou, Russie. Date d'enregistrement: 21.2.2005. Numéro d'enregistrement: 1057746290469. Numéro d'identification du contribuable: 7706569306. Principal établissement: Moscou, Russie: Numéro d'enregistrement: 1057746290469"
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          address: "rue Bolshaya Polyanka, 50/1 STR.1, 119180, Moscou, Russie"
+          incorporationDate: 2005-02-21
+          registrationNumber: 1057746290469
+          innCode: 7706569306
+      - match: "Type d'entité: société par actions. Date d'enregistrement: 26.9.2011. Lieu d’enregistrement: région de Nijni Novgorod, Fédération de Russie Principal lieu d’activité: Fédération de Russie: Date d'enregistrement: 26.9.2011"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2011-09-26
+      - match: "Type d’entité: prison - Lieu d’enregistrement: province du Kurdistan, nord-ouest de l’Iran: /"
+        props:
+          jurisdiction: ir
+          legalForm: prison
+          address: "province du Kurdistan, nord-ouest de l’Iran"
+      - match: "Type d'entité: société par actions. Principal établissement: Russie: Société par actions"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+      - match: "Numéro d'enregistrement national: 1027739000475"
+        props:
+          registrationNumber: 1027739000475
+      - match: "Type d'entité: société par actions. Lieu d'enregistrement: Oblast de Tcheliabinsk, Fédération de Russie. Date d'enregistrement: 22.6.2000. Numéro d'enregistrement: 1027400870826. Principal établissement: Russie: Numéro d'enregistrement: 1027400870826"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          address: "Oblast de Tcheliabinsk, Fédération de Russie"
+          incorporationDate: 2000-06-22
+          registrationNumber: 1027400870826
+      - match: "Type d’entité: prison - Lieu d’enregistrement: Ispahan, Iran: /"
+        props:
+          jurisdiction: ir
+          legalForm: prison
+          address: "Ispahan, Iran"
+      - match: "Type d'entité: société par actions cotée. Lieu d'enregistrement: Perm, Fédération de Russie. Date d'enregistrement: 11.12.1992. Numéro d'enregistrement: 1025901364708. Principal établissement: Russie: Numéro d'enregistrement: 1025901364708"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions cotée
+          address: "Perm, Fédération de Russie"
+          incorporationDate: 1992-12-11
+          registrationNumber: 1025901364708
+      - match: "Type d'entité: entreprise unitaire publique fédérale. Lieu d'enregistrement: Pokhodnyy Proyezd 3- 2, 125373, Moscou, Russie. Date d'enregistrement: 14.10.2002. Numéro d'enregistrement: 1027700310076. Principal établissement: Moscou, Russie: Numéro d'enregistrement: 1027700310076"
+        props:
+          jurisdiction: ru
+          legalForm: entreprise unitaire publique fédérale
+          address: "Pokhodnyy Proyezd 3- 2, 125373, Moscou, Russie"
+          incorporationDate: 2002-10-14
+          registrationNumber: 1027700310076
+      - match: "Type d'entité: groupe de moto Lieu d'enregistrement: Fédération de Russie Date d'enregistrement: 1989"
+        props:
+          jurisdiction: ru
+          legalForm: groupe de moto
+          incorporationDate: 1989
+      - match: "Date d'enregistrement: 20.9.2001: Numéro d'enregistrement: SRN/OGRN 1021602498114"
+        props:
+          ogrnCode: 1021602498114
+      - match: "Type d'entité: société par actions Date d'enregistrement: 1.2.2008. Numéro d'enregistrement: 1087746152207. Numéro d'identification fiscale: 7704676655: Numéro d'enregistrement: 1087746152207"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2008-02-01
+          registrationNumber: 1087746152207
+          innCode: 7704676655
+      - match: "Type d'entité: organe de presse  - Lieu d'enregistrement: Iran - Date d'enregistrement: 30 juin 2012: /"
+        props:
+          jurisdiction: ir
+          legalForm: organe de presse
+          incorporationDate: 2012-06-30
+      - match: "Type d'entité: groupe de moto  Lieu d'enregistrement: Fédération de Russie  Date d'enregistrement: 1989"
+        props:
+          jurisdiction: ru
+          legalForm: groupe de moto
+          incorporationDate: 1989
+      - match: "Date d'enregistrement: 20.9.2001: Numéro d'enregistrement: SRN/OGRN  1021602498114"
+        props:
+          ogrnCode: 1021602498114
+          incorporationDate: 2001-09-20

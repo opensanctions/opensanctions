@@ -137,6 +137,14 @@ lookups:
         # license number
         value: registrationNumber
         lang: ara
+      - match: قرار الإدراج
+        value: listingDate
+        lang: ara
+        type: date
+      - match: قرار رفع الإدراج
+        value: endDate
+        lang: ara
+        type: date
 
   type.country:
     lowercase: true
