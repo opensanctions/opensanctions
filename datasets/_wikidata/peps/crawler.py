@@ -6,6 +6,8 @@ from nomenklatura.util import is_qid
 from zavod import settings
 from zavod import Context
 from zavod import helpers as h
+from zavod.util import remove_emoji
+
 
 DECISIONS = {
     "subnational": "State government",
@@ -39,7 +41,7 @@ def crawl(context: Context):
                 continue
             
             position_qid = row.get("position_qid")
-            position_label = row.get("position_label")
+            position_label = remove_emoji(row.get("position_label"))
             if not position_label:
                 position_label = position_qid
             position = h.make_position(
