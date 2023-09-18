@@ -1,0 +1,35 @@
+type: collection
+title: OpenSanctions Know-Your-Business Datasets
+hidden: true
+deploy:
+  memory: "2000Mi"
+  disk: "200Gi"
+  premium: true
+coverage:
+  frequency: monthly
+exports:
+  - statistics.json
+summary: >
+  The company registries and beneficial ownership databases published by
+  OpenSanctions.
+description: |
+  This dataset contains companies and persons not linked to any risk indication. It can
+  be used to perform screening and know-your-business checks in the listed jurisdictions.
+datasets:
+  - wikidata
+  - opencorporates
+  - us_corpwatch
+  - cy_companies
+  - cz_business_register
+  - ee_ariregister
+  - gb_coh_psc
+  - gleif
+  - icij_offshoreleaks
+  - lv_business_register
+  - md_companies
+  - ru_egrul
+  - ua_edr
+  - sk_rpvs
+  - dk_cvr
+  - ru_rupep_companies
+  - de_offeneregister
