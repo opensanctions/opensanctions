@@ -16,8 +16,6 @@ description: |
   This dataset contains companies and persons not linked to any risk indication. It can
   be used to perform screening and know-your-business checks in the listed jurisdictions.
 datasets:
-  - wikidata
-  - opencorporates
   - us_corpwatch
   - cy_companies
   - cz_business_register
