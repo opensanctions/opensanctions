@@ -5,11 +5,19 @@ from lxml import html
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.logic.pep import OccupancyStatus
 
 WEB_URL = "https://www.cia.gov/the-world-factbook/countries/%s"
 DATA_URL = "https://www.cia.gov/the-world-factbook/page-data/countries/%s/page-data.json"
-SECTIONS = ["leaders", "leaders_2", "leaders_3", "leaders_4"]
 
+DATES = ["%d %B %Y"]
+
+REGEX_SKIP_CATEGORY_HTML = re.compile(
+    "^<em>note</em>"
+    "|<strong>chief of state:</strong> Notification Statement:"
+    "|Prime Minister HUN MANET succeeded"
+    "|<strong>note 1:</strong>"
+)
 REGEX_HOLDERS = re.compile((
     "(chief of state|head of government): "
     "(?P<role>("
@@ -35,7 +43,6 @@ REGEX_HOLDERS = re.compile((
     "Lord of Mann|"
     "Mayor and Chairman of the Island Council|"
     "Minister of State|"
-    "Overall Taliban Leader|"
     "Pope|"
     "Premier|"
     "Prime|"
@@ -51,10 +58,19 @@ REGEX_HOLDERS = re.compile((
     "Taoiseach \(Prime Minister\)|"
     "\(Ulu o Tokelau\)"
     ")) "
-    "(?P<holder>[^;]+);? "
-    "(?P<remainder>.*)"
+    "(?P<holder>[^;]+)"
+    "(;? represented by (?P<rep_role>"
+    "((Acting |Lieutenant[ -])?Governor([ -]General)?"
+    "|Administrator( Sperior)?"
+    "|Prefect"
+    "|UK High Commissioner to New Zealand and Governor \(nonresident\) of the Pitcairn Islands"
+    "|High Commissioner"
+    ")) (?P<rep_holder>[^;]+))?"
+    ";?(?P<remainder>.*)"
 ))
-
+REGEX_NAME_DATE = re.compile(
+    "(?P<name>[\w.,' -]+)(\(since (?P<date>\d+ \w+ \d+)\))?"
+)
 
 
 # =chief of state: Co-prince Emmanuel MACRON (since 14 May 2017); represented by Patrick STROZDA (since 14 May 2017); and Co-prince Archbishop Joan-Enric VIVES i Sicilia (since 12 May 2003); represented by Josep Maria MAURI (since 20 July 2012)
@@ -88,44 +104,34 @@ SKIP_COUNTRIES = {
     "European Union",
 }
 
-def crawl_leader(
+def emit_person(
     context: Context,
     country: str,
     source_url: str,
-    section: Optional[str],
-    leader: Dict[str, Any],
+    role: str,
+    name: str,
+    start_date: Optional[str],
+    end_date: Optional[str] = None
 ) -> None:
-    name = leader["name"]
-    name = name.replace("(Acting)", "")
-    if h.is_empty(name):
-        return
-    function = clean_position(leader["title"])
-    gov = collapse_spaces(section)
-    if gov:
-        function = f"{function} - {gov}"
-        # print(function)
-    context.log.debug(
-        "Person",
-        country=country,
-        name=name,
-        function=function,
-        url=source_url,
-    )
     person = context.make("Person")
-    person.id = context.make_slug(country, name, function)
+    person.id = context.make_slug(country, name, role)
     person.add("name", name)
-    person.add("position", function)
+    person.add("position", role)
     person.add("sourceUrl", source_url)
 
-    res = context.lookup("position_topics", function)
-    if res:
-        position_topics = res.topics
-    else:
-        position_topics = []
-        context.log.info("No topics match for position", position=function, country=country)
-
-    position = h.make_position(context, function, country=country, topics=position_topics)
-    occupancy = h.make_occupancy(context, person, position)
+    position_topics = ["gov.national", "gov.head"]
+    start_date = h.parse_date(start_date, DATES)
+    end_date = h.parse_date(end_date, DATES)
+    print(end_date)
+    position = h.make_position(context, role, country=country, topics=position_topics)
+    occupancy = h.make_occupancy(
+        context, 
+        person, 
+        position,
+        start_date=start_date[0] if start_date else None,
+        end_date=end_date[0] if end_date else None,
+        status=OccupancyStatus.CURRENT
+    )
 
     context.emit(person, target=True)
     context.emit(position)
@@ -156,19 +162,40 @@ def crawl_country(context: Context, country: str) -> None:
         return
     categories = executive["data"].split("<br><br>")
     for category_html in categories:
+        if REGEX_SKIP_CATEGORY_HTML.match(category_html):
+            context.log.info("Skipping bad content", truncated_content=category_html[:100])
+            continue
         category_els = html.fromstring(category_html)
         label_els = category_els.findall("./strong")
         if len(label_els) != 1:
+            
             context.log.warning("Error parsing label", html=category_html)
             continue
         label_text = label_els[0].text_content()
         if label_text in ["chief of state:", "head of government:"]:
             category_text = category_els.text_content()
-            match = REGEX_HOLDERS.match(category_text)
+            match = REGEX_HOLDERS.match(collapse_spaces(category_text))
             if match is None:
-                context.log.warning("Error parsing holder", html=category_text)
+                context.log.warning("Error parsing holder.", html=category_text)
+                # If it's just a notice, add it to REGEX_SKIP_CATEGORY
+                holders = context.lookup("unparsed_holders", category_text)
+                if holders:
+                    print("overridden")
+                    print(holders)
             else:
-                print(f"category: {label_text}\nrole: {match.group('role')}\nholder: {match.group('holder')}\nremainder: {match.group('remainder')}")
+                if match.group("rep_role"):
+                    print(f"rep for {match.group('role')} {match.group('holder')}")
+                    role = match.group("rep_role")
+                    holder = match.group("rep_holder")
+                else:
+                    role = match.group('role')
+                    holder = match.group('holder')
+                print(f"category: {label_text}\nrole: {role}\nholder: {holder}\nremainder: {match.group('remainder')}")
+                name_date = REGEX_NAME_DATE.match(holder)
+                if name_date:
+                    emit_person(context, country, source_url, role, name_date.group("name"), name_date.group("date"))
+                else:
+                    context.log.warning("Couldn't parse name.", holder=holder)
             print()
     
 
@@ -179,4 +206,4 @@ def crawl(context: Context) -> None:
     for c in countries:
         if c["name"] not in SKIP_COUNTRIES:
             crawl_country(context, c["name"])
-    print(REGEX_HOLDERS.pattern)
+    # print(REGEX_HOLDERS.pattern)

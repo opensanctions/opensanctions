@@ -14,42 +14,25 @@ publisher:
   official: true
 data:
   url: "https://www.cia.gov/the-world-factbook/page-data/sq/d/1627106492.json"
-  # https://www.cia.gov/the-world-factbook/page-data/sq/d/1627106492.json
-  # https://www.cia.gov/the-world-factbook/page-data/sq/d/2231225494.json
-  # https://www.cia.gov/the-world-factbook/page-data/sq/d/3333839064.json
-  # https://www.cia.gov/the-world-factbook/page-data/sq/d/4080977855.json
   format: JSON
 
 lookups:
-  position_topics:
-    lowercase: true
+  unparsed_holders:
     options:
-      - match:
-          - president
-          - vice president
-          - first vice president
-          - second vice president
-          - deputy president
-          - prime minister
-          - deputy prime minister
-          - deputy prime min
-          - vice prime minister
-          - sultan
-          - king
-          - queen
-          - supreme leader
-          - head of state (co-prince)
-          - head of state
-          - head of government
-          - premier
-          - deputy premier
-        regex:
-          - "^vice premier"
-          - "^governor( general)?$"
-        topics:
-          - gov.national
-          - gov.head
-      - regex:
-          - "^(state )?minister"
-          - "^secretary (of|for|general)"
-          - "^(state )?secretary"
+      - match: "chief of state: co-chiefs of state Captain Regent Alessandro SCARANO and Adele TONNINI (for the period 1 April 2023 - 1 October 2023)"
+        holders:
+          - role: co-chief of state
+            name: Captain Regent Alessandro SCARANO
+            start_date: 1 April 2023
+            end_Date: 1 October 2023
+          - role: co-chief of state
+            name: Adele TONNINI
+            start_date: 1 April 2023
+            end_Date: 1 October 2023
+      - match: "chief of state: TUIMALEALI'IFANO Va’aletoa Sualauvi II (since 21 July 2017)"
+        holders:
+          - role: chief of state
+            name: TUIMALEALI'IFANO Va’aletoa Sualauvi II
+            start_date: 21 July 2017
+      - match: "chief of state: president (vacant)"
+        holders: []
