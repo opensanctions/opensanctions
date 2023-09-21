@@ -1,0 +1,55 @@
+title: CIA World Factbook
+entry_point: crawler.py
+prefix: us-cia
+coverage:
+  frequency: daily
+deploy:
+  schedule: "30 */6 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+url: https://www.cia.gov/resources/world-leaders/foreign-governments/
+publisher:
+  name: Central Intelligence Agency (CIA)
+  url: https://www.cia.gov/
+  country: us
+  official: true
+data:
+  url: "https://www.cia.gov/the-world-factbook/page-data/sq/d/1627106492.json"
+  # https://www.cia.gov/the-world-factbook/page-data/sq/d/1627106492.json
+  # https://www.cia.gov/the-world-factbook/page-data/sq/d/2231225494.json
+  # https://www.cia.gov/the-world-factbook/page-data/sq/d/3333839064.json
+  # https://www.cia.gov/the-world-factbook/page-data/sq/d/4080977855.json
+  format: JSON
+
+lookups:
+  position_topics:
+    lowercase: true
+    options:
+      - match:
+          - president
+          - vice president
+          - first vice president
+          - second vice president
+          - deputy president
+          - prime minister
+          - deputy prime minister
+          - deputy prime min
+          - vice prime minister
+          - sultan
+          - king
+          - queen
+          - supreme leader
+          - head of state (co-prince)
+          - head of state
+          - head of government
+          - premier
+          - deputy premier
+        regex:
+          - "^vice premier"
+          - "^governor( general)?$"
+        topics:
+          - gov.national
+          - gov.head
+      - regex:
+          - "^(state )?minister"
+          - "^secretary (of|for|general)"
+          - "^(state )?secretary"
