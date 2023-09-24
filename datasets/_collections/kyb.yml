@@ -29,5 +29,4 @@ datasets:
   - ua_edr
   - sk_rpvs
   - dk_cvr
-  - ru_rupep_companies
   - de_offeneregister
