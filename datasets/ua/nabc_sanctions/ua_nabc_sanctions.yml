@@ -5,6 +5,7 @@ coverage:
   frequency: daily
 deploy:
   schedule: "0 */3 * * *"
+  memory: 1500Mi
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   A list of suggested Russia-related sanctions targets composed by the
