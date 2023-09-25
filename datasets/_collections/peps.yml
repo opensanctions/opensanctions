@@ -37,6 +37,7 @@ children:
   - ky_judicial
   - ky_legislativeassembly
   - ru_rupep
+  - us_cia_world_factbook
   - us_cia_world_leaders
   - us_congress
   - us_plural_legislators
