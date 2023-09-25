@@ -19,15 +19,17 @@ REGEX_SKIP_CATEGORY_HTML = re.compile(
     "|<strong>note 1:</strong>"
 )
 REGEX_RELEVANT_CATEGORY = re.compile("^(chief of state|head of government): ")
-REGEX_HOLDER = print((
+REGEX_HOLDER = re.compile((
     "(represented by )?"
     "(?P<role>("
-    "(transitional |Transition |Interim )?President( of the Swiss Confederation| of the Territorial Assembly| of the Government of Spain \(prime minister-equivalent\))?"
+    "(transitional |Transition |Interim )?President"
+    "|President( of the Swiss Confederation| of the Territorial Assembly| of the Government of Spain \(prime minister-equivalent\))?"
     "|(First |Second |Executive |Co-)?(Vice |Deputy )President"
-    "|(Acting |Transition |Caretaker |Interim |Sultan and |(First |Second )?Deputy )?Prime Minister"
+    "|(Acting |Transition |Caretaker |Interim |Sultan and |(First |Second |Third )?Deputy )?Prime Minister"
     "|Administrator Air Vice-Marshal"
     "|Administrator"
     "|Amir"
+    "|Bailiff"
     "|(Vice )?Chairperson, Presidential Council,?"
     "|Chairman, Presidential Council,"
     "|Chairman of the Council of Ministers"
@@ -35,12 +37,12 @@ REGEX_HOLDER = print((
     "|Chancellor"
     "|Chief Executive"
     "|Chief Minister"
-    "|Commissioner"
+    "|(New Zealand )?(High )?Commissioner"
     "|Co-prince"
     "|Crown Prince and Prime Minister"
     "|Crown Prince"
     "|Emperor"
-    "|(Vice )?Governor"
+    "|(Vice |Acting |Lieutenant[ -])?Governor([ -]General)?( of the Commonwealth of Australia)?"
     "|Grand Duke"
     "|King"
     "|Lord of Mann"
@@ -62,47 +64,9 @@ REGEX_HOLDER = print((
     "|Taoiseach \(Prime Minister\)"
     "|\(Ulu o Tokelau\)"
     ")) "
-    "(?P<name>[\w,.'’ -]+)"
-    "\((since |born )(?P<start_date>\d+ \w+ \d+ ?)\)"
+    "(?P<name>[\w,.'’\" -]+)"
+    "\((since |born |reappointed )?(?P<start_date>\d* ?\w* ?\d{4} ?)\)"
 ))
-#   "(;? represented by (?P<rep_role>"
-#    "((Acting |Lieutenant[ -])?Governor([ -]General)?"
-#    "|Administrator( Superior)?"
-#    "|Prefect"
-#    "|UK High Commissioner to New Zealand and Governor \(nonresident\) of the Pitcairn Islands"
-#    "|High Commissioner"
-#    ")) (?P<rep_holder>[^;]+))?"
-#    ";?(?P<remainder>.*)"
-REGEX_NAME_DATE = re.compile(
-    "(?P<name>[\w.,' -]+)(\(since (?P<date>\d+ \w+ \d+)\))?"
-)
-
-
-# =chief of state: Co-prince Emmanuel MACRON (since 14 May 2017); represented by Patrick STROZDA (since 14 May 2017); and Co-prince Archbishop Joan-Enric VIVES i Sicilia (since 12 May 2003); represented by Josep Maria MAURI (since 20 July 2012)
-
-
-#remainder: ; the president is both chief of state and head of government; Prime Minister Dinesh GUNAWARDENA (since 22 July 2022)
-
-
-# "((Executive |First )?Vice President|Vice Chairperson, Presidential Council|Heir Apparent Prince)"
-# ; Co-Vice President MUHAMMAD BIN RASHID Al-Maktum (since 5 January 2006); Co-Vice President MANSUR bin Zayid Al-Nuhayyan (since 29 March 2023); Crown Prince KHALID bin Muhammad Al-Nuhayyan, the eldest son of the monarch, born 14 November 1982; note - MUHAMMAD BIN ZAYID Al-Nuhayyan elected president by the Federal Supreme Council following the death of President KHALIFA bin Zayid Al-Nuhayyan on 13 May 2022
-# First Deputy Prime Minister Rebecca KADAGA (since 24 June 2021); Second Deputy Prime Minister Moses ALI (since 21 June 2021); note - the president is both chief of state and head of government
-
-# category: chief of state:
-# role: King
-# holder: CHARLES III (since 8 September 2022)
-# remainder: ; represented by Governor General Tofiga Vaevalu FALANI (since 29 August 2021)
-
-# remainder: ; represented by Governor Nigel DAKIN (since 15 July 2019)
-
-# remainder: ; represented by Governor-General of New Zealand Dame Cindy KIRO (since 21 September 2021); New Zealand is represented by Administrator Ross ARDERN (since May 2018)
-
-# remainder: ; Deputy President Paul MASHSATILE (since 7 March 2023); note - the president is both chief of state and head of government; note - Deputy President David MABUZA resigned 1 March 2023
-
-#co-chiefs of state Captain Regent Alessandro SCARANO and Adele TONNINI 
-# san marino
-
-# 2023-09-21 12:33:12 [warning  ] Error parsing holder           [us_cia_world_factbook] dataset=us_cia_world_factbook html=chief of state: TUIMALEALI'IFANO Va’aletoa Sualauvi II (since 21 July 2017)
 
 SKIP_COUNTRIES = {
     "World",
@@ -127,7 +91,6 @@ def emit_person(
     position_topics = ["gov.national", "gov.head"]
     start_date = h.parse_date(start_date, DATES)
     end_date = h.parse_date(end_date, DATES)
-    print(end_date)
     position = h.make_position(context, role, country=country, topics=position_topics)
     occupancy = h.make_occupancy(
         context, 
