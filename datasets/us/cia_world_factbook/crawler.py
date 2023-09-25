@@ -50,7 +50,7 @@ REGEX_HOLDER = re.compile((
     "|Minister of State"
     "|Pope"
     "|Prefect"
-    "|(First Deputy )?Premier"
+    "|(First Deputy |Vice )?Premier"
     "|Prime"
     "|Prime Minister, State Administration Council Chair,"
     "|Prince"
@@ -64,7 +64,8 @@ REGEX_HOLDER = re.compile((
     "|Taoiseach \(Prime Minister\)"
     "|\(Ulu o Tokelau\)"
     ")) "
-    "(?P<name>[\w,.'’\" -]+)"
+    "(?P<name>[\w,.'’\" -]+) ?"
+    "(\([\w \.]+\))? ?"
     "\((since |born |reappointed )?(?P<start_date>\d* ?\w* ?\d{4} ?)\)"
 ))
 

@@ -45,11 +45,97 @@ lookups:
           - role: Deputy Prime Minister
             name: MAKTUM bin Muhammad bin Rashid Al-Maktum
             start_date: 25 September 2021
+      - match: "Crown Prince KHALID bin Muhammad Al-Nuhayyan, the eldest son of the monarch, born 14 November 1982"
+        holders:
+          - role: Crown Prince
+            name: KHALID bin Muhammad Al-Nuhayyan
+            start_date: 14 November 1982
+      - match: "President Recep Tayyip ERDOGAN (head of government since 9 July 2018"
+        holders:
+          - role: President
+            name: Recep Tayyip ERDOGAN
+            start_date: 9 July 2018
+      - match: "President Recep Tayyip ERDOGAN (chief of state since 28 August 2014"
+        holders:
+          - role: President
+            name: Recep Tayyip ERDOGAN
+            start_date: 28 August 2014
+      - match: "New Zealand is represented by Administrator Ross ARDERN (since May 2018)"
+        holders:
+          - role: Administrator
+            name: Ross ARDERN
+            start_date: May 2018
+      - match: "Vice President Philip MPANGO"
+        holders:
+          - role: Vice President
+            name: Philip MPANGO
+      - match: "President Emomali RAHMON (since 6 November 1994"
+        holders:
+          - role: President
+            name: Emomali RAHMON
+            start_date: 6 November 1994
+          - role: Supreme Assembly Chairman
+            name: Emomali RAHMON
+            start_date: 19 November 1992
+      - match: "Sovereign Council Chair and Commander-in-Chief of the Sudanese Armed Forces General Abd-al-Fatah al-BURHAN Abd-al-Rahman"
+        holders:
+          - role: Sovereign Council Chair and Commander-in-Chief of the Sudanese Armed Forces
+            name: General Abd-al-Fatah al-BURHAN Abd-al-Rahman
+            start_date:
+      - match: "Vice Presidents TABAN Deng Gai, Riek MACHAR Teny Dhurgon, James Wani IGGA, Rebecca Nyandeng Chol GARANG de Mabior, Hussein ABDELBAGI Ayii (since 22 February 2020)"
+        holders:
+          - role: Vice President
+            name: TABAN Deng Gai
+            start_date: 22 February 2020
+          - role: Vice President
+            name: Riek MACHAR Teny Dhurgon
+            start_date: 22 February 2020
+          - role: Vice President
+            name: James Wani IGGA
+            start_date: 22 February 2020
+          - role: Vice President
+            name: Rebecca Nyandeng Chol GARANG de Mabior
+            start_date: 22 February 2020
+          - role: Vice President
+            name: Hussein ABDELBAGI Ayii
+            start_date: 22 February 2020
+      - match: "Deputy Prime Ministers Stefan HOLY, Veronika REMISOVA, Richard SULIK (all since 21 March 2020)"
+        holders:
+          - role: Deputy Prime Minister
+            name: Stefan HOLY
+            start_date: 21 March 2020
+          - role: Deputy Prime Minister
+            name: Veronika REMISOVA
+            start_date: 21 March 2020
+          - role: Deputy Prime Minister
+            name: Richard SULIK
+            start_date: 21 March 2020
+      - match: ""
+        holders:
+          - role: 
+            name: 
+            start_date:
+      - match: ""
+        holders:
+          - role: 
+            name: 
+            start_date:
+      - match: ""
+        holders:
+          - role: 
+            name: 
+            start_date:
+      - match: ""
+        holders:
+          - role: 
+            name: 
+            start_date:
+      
       - match: "chief of state: president (vacant)"
         holders: []
       - regex:
           - "^the president is both chief of state and head of government"
-          - "^note - "
+          - "^note [-–] "
           - "^Heir Apparent"
           - "^chief of state since 28 August 2014"
           - "^council members rotate the 1-year term"
@@ -72,7 +158,7 @@ lookups:
           - "GOITA served as vice president"
           - "on 21 September 2020, a group of 17 electors"
           - "the position of the king"
-          - "installed on 13 December 2016) resigned"
+          - "installed on 13 December 2016\\) resigned"
           - "Prime Minister vacant (as of 17 August 2023)"
           - "Crown Prince MISHAL al-Ahmad al-Sabah, born 27 September 1940, is the brother"
           - "the specific titles associated"
@@ -96,4 +182,15 @@ lookups:
           - "^presidency member since"
           - "prime minister position abolished"
           - "he was reappointed by the president"
+          - "head of government since 9 July 2018\\)"
+          - "head of state and Supreme Assembly Chairman since 19 November 1992\\)"
         holders: []
+
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - match: virgin islands
+        value: vi
+      - match: Turkey (Turkiye)
+        value: tr
