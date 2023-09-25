@@ -1,4 +1,4 @@
-title: CIA World Factbook
+title: CIA World Factbook heads of state and government
 entry_point: crawler.py
 prefix: us-cia
 coverage:
@@ -18,7 +18,7 @@ description: |
 
   The World Factbook source pages contain much more narrative about each country.
   From the website: 
-  
+
   > The World Factbook provides basic intelligence on the history, people,
   > government, economy, energy, geography, environment, communications,
   > transportation, military, terrorism, and transnational issues for 266 world
