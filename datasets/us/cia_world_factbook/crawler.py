@@ -18,56 +18,61 @@ REGEX_SKIP_CATEGORY_HTML = re.compile(
     "|Prime Minister HUN MANET succeeded"
     "|<strong>note 1:</strong>"
 )
-REGEX_HOLDERS = re.compile((
-    "(chief of state|head of government): "
+REGEX_RELEVANT_CATEGORY = re.compile("^(chief of state|head of government): ")
+REGEX_HOLDER = print((
+    "(represented by )?"
     "(?P<role>("
-    "(transitional |Transition |Interim )?President( of the Swiss Confederation| of the Territorial Assembly| of the Government of Spain \(prime minister-equivalent\))?|"
-    "(Transition |Caretaker |Interim |Sultan and )?Prime Minister|"
-    "Administrator Air Vice-Marshal|"
-    "Administrator|"
-    "Amir|"
-    "Chairperson, Presidential Council,?|"
-    "Chairman, Presidential Council,"
-    "Chairman of the Council of Ministers|"
-    "Chairman of the Presidency|"
-    "Chancellor|"
-    "Chief Executive|"
-    "Chief Minister|"
-    "Commissioner|"
-    "Co-prince|"
-    "Crown Prince and Prime Minister|"
-    "Emperor|"
-    "Governor|"
-    "Grand Duke|"
-    "King|"
-    "Lord of Mann|"
-    "Mayor and Chairman of the Island Council|"
-    "Minister of State|"
-    "Pope|"
-    "Premier|"
-    "Prime|"
-    "Prime Minister, State Administration Council Chair,|"
-    "Prince|"
-    "Queen|"
-    "Secretary of State for Foreign and Political Affairs|"
-    "Sovereign Council Chair and Commander-in-Chief of the Sudanese Armed Forces|"
-    "State Affairs Commission President|"
-    "Sultan and Prime Minister|"
-    "Supreme Leader|"
-    "Supreme People's Assembly President|"
-    "Taoiseach \(Prime Minister\)|"
-    "\(Ulu o Tokelau\)"
-    ")) "
-    "(?P<holder>[^;]+)"
-    "(;? represented by (?P<rep_role>"
-    "((Acting |Lieutenant[ -])?Governor([ -]General)?"
-    "|Administrator( Sperior)?"
+    "(transitional |Transition |Interim )?President( of the Swiss Confederation| of the Territorial Assembly| of the Government of Spain \(prime minister-equivalent\))?"
+    "|(First |Second |Executive |Co-)?(Vice |Deputy )President"
+    "|(Acting |Transition |Caretaker |Interim |Sultan and |(First |Second )?Deputy )?Prime Minister"
+    "|Administrator Air Vice-Marshal"
+    "|Administrator"
+    "|Amir"
+    "|(Vice )?Chairperson, Presidential Council,?"
+    "|Chairman, Presidential Council,"
+    "|Chairman of the Council of Ministers"
+    "|Chairman of the Presidency"
+    "|Chancellor"
+    "|Chief Executive"
+    "|Chief Minister"
+    "|Commissioner"
+    "|Co-prince"
+    "|Crown Prince and Prime Minister"
+    "|Crown Prince"
+    "|Emperor"
+    "|(Vice )?Governor"
+    "|Grand Duke"
+    "|King"
+    "|Lord of Mann"
+    "|Mayor and Chairman of the Island Council"
+    "|Minister of State"
+    "|Pope"
     "|Prefect"
-    "|UK High Commissioner to New Zealand and Governor \(nonresident\) of the Pitcairn Islands"
-    "|High Commissioner"
-    ")) (?P<rep_holder>[^;]+))?"
-    ";?(?P<remainder>.*)"
+    "|(First Deputy )?Premier"
+    "|Prime"
+    "|Prime Minister, State Administration Council Chair,"
+    "|Prince"
+    "|Queen"
+    "|Secretary of State for Foreign and Political Affairs"
+    "|Sovereign Council Chair and Commander-in-Chief of the Sudanese Armed Forces"
+    "|State Affairs Commission President"
+    "|Sultan and Prime Minister"
+    "|Supreme Leader"
+    "|Supreme People's Assembly President"
+    "|Taoiseach \(Prime Minister\)"
+    "|\(Ulu o Tokelau\)"
+    ")) "
+    "(?P<name>[\w,.'’ -]+)"
+    "\((since |born )(?P<start_date>\d+ \w+ \d+ ?)\)"
 ))
+#   "(;? represented by (?P<rep_role>"
+#    "((Acting |Lieutenant[ -])?Governor([ -]General)?"
+#    "|Administrator( Superior)?"
+#    "|Prefect"
+#    "|UK High Commissioner to New Zealand and Governor \(nonresident\) of the Pitcairn Islands"
+#    "|High Commissioner"
+#    ")) (?P<rep_holder>[^;]+))?"
+#    ";?(?P<remainder>.*)"
 REGEX_NAME_DATE = re.compile(
     "(?P<name>[\w.,' -]+)(\(since (?P<date>\d+ \w+ \d+)\))?"
 )
@@ -168,35 +173,35 @@ def crawl_country(context: Context, country: str) -> None:
         category_els = html.fromstring(category_html)
         label_els = category_els.findall("./strong")
         if len(label_els) != 1:
-            
             context.log.warning("Error parsing label", html=category_html)
             continue
         label_text = label_els[0].text_content()
         if label_text in ["chief of state:", "head of government:"]:
             category_text = category_els.text_content()
-            match = REGEX_HOLDERS.match(collapse_spaces(category_text))
-            if match is None:
-                context.log.warning("Error parsing holder.", html=category_text)
-                # If it's just a notice, add it to REGEX_SKIP_CATEGORY
-                holders = context.lookup("unparsed_holders", category_text)
-                if holders:
-                    print("overridden")
-                    print(holders)
-            else:
-                if match.group("rep_role"):
-                    print(f"rep for {match.group('role')} {match.group('holder')}")
-                    role = match.group("rep_role")
-                    holder = match.group("rep_holder")
+            category_text = REGEX_RELEVANT_CATEGORY.sub("", category_text)
+            for segment in collapse_spaces(category_text).split("; "):
+                match = REGEX_HOLDER.match(segment)
+                if match is None:
+                    # If it's just a notice, add it to REGEX_SKIP_CATEGORY
+                    holders = context.lookup("unparsed_holders", segment)
+                    if holders:
+                        print("overridden")
+                        print(holders)
+                    else:
+                        context.log.warning("Error parsing holder.", html=segment, url=source_url)
                 else:
+                    #if match.group("rep_role"):
+                    #    print(f"rep for {match.group('role')} {match.group('holder')}")
+                    #    role = match.group("rep_role")
+                    #    holder = match.group("rep_holder")
+                    #else:
                     role = match.group('role')
-                    holder = match.group('holder')
-                print(f"category: {label_text}\nrole: {role}\nholder: {holder}\nremainder: {match.group('remainder')}")
-                name_date = REGEX_NAME_DATE.match(holder)
-                if name_date:
-                    emit_person(context, country, source_url, role, name_date.group("name"), name_date.group("date"))
-                else:
-                    context.log.warning("Couldn't parse name.", holder=holder)
+                    print(f"category: {label_text}\nrole: {role}\nname: {match.group('name')}\ndate: {match.group('start_date')}")
+                    emit_person(context, country, source_url, role, match.group("name"), match.group("start_date"))
+                    
+                    print("--------------------")
             print()
+
     
 
 
@@ -206,4 +211,4 @@ def crawl(context: Context) -> None:
     for c in countries:
         if c["name"] not in SKIP_COUNTRIES:
             crawl_country(context, c["name"])
-    # print(REGEX_HOLDERS.pattern)
+    #print(REGEX_HOLDER.pattern)

@@ -34,5 +34,27 @@ lookups:
           - role: chief of state
             name: TUIMALEALI'IFANO Va’aletoa Sualauvi II
             start_date: 21 July 2017
+      - match: "Deputy Prime Ministers SAIF bin Zayid Al-Nuhayyan, MANSUR bin Zayid Al-Nuhayyan (both since 11 May 2009), and MAKTUM bin Muhammad bin Rashid Al-Maktum (since 25 September 2021)"
+        holders:
+          - role: Deputy Prime Minister
+            name: SAIF bin Zayid Al-Nuhayyan
+            start_date: 11 May 2009
+          - role: Deputy Prime Minister
+            name: MANSUR bin Zayid Al-Nuhayyan
+            start_date: 11 May 2009
+          - role: Deputy Prime Minister
+            name: MAKTUM bin Muhammad bin Rashid Al-Maktum
+            start_date: 25 September 2021
       - match: "chief of state: president (vacant)"
+        holders: []
+      - regex:
+          - "^the president is both chief of state and head of government"
+          - "^note - "
+          - "^Heir Apparent"
+          - "^chief of state since 28 August 2014)"
+          - "^council members rotate the 1-year term"
+          - "^HAMDOUK served as prime minister"
+          - "^he was later freed and reinstated"
+          - "^on 25 October 2021, al-BURHAN dissolved"
+          - "^TABAN served as first vice"
         holders: []
