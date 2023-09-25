@@ -5,7 +5,7 @@ from datetime import datetime
 from zavod.context import Context
 from zavod.entity import Entity
 from zavod import settings
-from zavod.logic.pep import occupancy_status
+from zavod.logic.pep import occupancy_status, OccupancyStatus
 
 
 def make_position(
@@ -89,6 +89,7 @@ def make_occupancy(
     end_date: Optional[str] = None,
     birth_date: Optional[str] = None,
     death_date: Optional[str] = None,
+    status: Optional[OccupancyStatus] = None,
 ) -> Optional[Entity]:
     """Creates and returns an Occupancy entity if the arguments meet our criteria
     for PEP position occupancy, otherwise returns None. Also adds the position countries
@@ -119,17 +120,18 @@ def make_occupancy(
         start_date: Set if the date the person started occupying the position is known.
         end_date: Set if the date the person left the position is known.
     """
-    status = occupancy_status(
-        context,
-        person,
-        position,
-        no_end_implies_current,
-        current_time,
-        start_date,
-        end_date,
-        birth_date,
-        death_date,
-    )
+    if status is None:
+        status = occupancy_status(
+            context,
+            person,
+            position,
+            no_end_implies_current,
+            current_time,
+            start_date,
+            end_date,
+            birth_date,
+            death_date,
+        )
     if status is None:
         return None
 
