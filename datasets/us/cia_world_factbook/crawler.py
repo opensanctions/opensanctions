@@ -8,7 +8,9 @@ from zavod import helpers as h
 from zavod.logic.pep import OccupancyStatus
 
 WEB_URL = "https://www.cia.gov/the-world-factbook/countries/%s"
-DATA_URL = "https://www.cia.gov/the-world-factbook/page-data/countries/%s/page-data.json"
+DATA_URL = (
+    "https://www.cia.gov/the-world-factbook/page-data/countries/%s/page-data.json"
+)
 
 DATES = ["%d %B %Y"]
 
@@ -19,60 +21,63 @@ REGEX_SKIP_CATEGORY_HTML = re.compile(
     "|<strong>note 1:</strong>"
 )
 REGEX_RELEVANT_CATEGORY = re.compile("^(chief of state|head of government): ")
-REGEX_HOLDER = re.compile((
-    "(represented by )?"
-    "(?P<role>("
-    "(transitional |Transition |Interim )?President"
-    "|President( of the Swiss Confederation| of the Territorial Assembly| of the Government of Spain \(prime minister-equivalent\))?"
-    "|(First |Second |Executive |Co-)?(Vice |Deputy )President"
-    "|(Acting |Transition |Caretaker |Interim |Sultan and |(First |Second |Third )?Deputy )?Prime Minister"
-    "|Administrator Air Vice-Marshal"
-    "|Administrator"
-    "|Amir"
-    "|Bailiff"
-    "|(Vice )?Chairperson, Presidential Council,?"
-    "|Chairman, Presidential Council,"
-    "|Chairman of the Council of Ministers"
-    "|Chairman of the Presidency"
-    "|Chancellor"
-    "|Chief Executive"
-    "|Chief Minister"
-    "|(New Zealand )?(High )?Commissioner"
-    "|Co-prince"
-    "|Crown Prince and Prime Minister"
-    "|Crown Prince"
-    "|Emperor"
-    "|(Vice |Acting |Lieutenant[ -])?Governor([ -]General)?( of the Commonwealth of Australia)?"
-    "|Grand Duke"
-    "|King"
-    "|Lord of Mann"
-    "|Mayor and Chairman of the Island Council"
-    "|Minister of State"
-    "|Pope"
-    "|Prefect"
-    "|(First Deputy |Vice )?Premier"
-    "|Prime"
-    "|Prime Minister, State Administration Council Chair,"
-    "|Prince"
-    "|Queen"
-    "|Secretary of State for Foreign and Political Affairs"
-    "|Sovereign Council Chair and Commander-in-Chief of the Sudanese Armed Forces"
-    "|State Affairs Commission President"
-    "|Sultan and Prime Minister"
-    "|Supreme Leader"
-    "|Supreme People's Assembly President"
-    "|Taoiseach \(Prime Minister\)"
-    "|\(Ulu o Tokelau\)"
-    ")) "
-    "(?P<name>[\w,.'’\" -]+) ?"
-    "(\([\w \.]+\))? ?"
-    "\((since |born |reappointed )?(?P<start_date>\d* ?\w* ?\d{4} ?)\)"
-))
+REGEX_HOLDER = re.compile(
+    (
+        "(represented by )?"
+        "(?P<role>("
+        "(transitional |Transition |Interim )?President"
+        "|President( of the Swiss Confederation| of the Territorial Assembly| of the Government of Spain \(prime minister-equivalent\))?"
+        "|(First |Second |Executive |Co-)?(Vice |Deputy )President"
+        "|(Acting |Transition |Caretaker |Interim |Sultan and |(First |Second |Third )?Deputy )?Prime Minister"
+        "|Administrator Air Vice-Marshal"
+        "|Administrator"
+        "|Amir"
+        "|Bailiff"
+        "|(Vice )?Chairperson, Presidential Council,?"
+        "|Chairman, Presidential Council,"
+        "|Chairman of the Council of Ministers"
+        "|Chairman of the Presidency"
+        "|Chancellor"
+        "|Chief Executive"
+        "|Chief Minister"
+        "|(New Zealand )?(High )?Commissioner"
+        "|Co-prince"
+        "|Crown Prince and Prime Minister"
+        "|Crown Prince"
+        "|Emperor"
+        "|(Vice |Acting |Lieutenant[ -])?Governor([ -]General)?( of the Commonwealth of Australia)?"
+        "|Grand Duke"
+        "|King"
+        "|Lord of Mann"
+        "|Mayor and Chairman of the Island Council"
+        "|Minister of State"
+        "|Pope"
+        "|Prefect"
+        "|(First Deputy |Vice )?Premier"
+        "|Prime"
+        "|Prime Minister, State Administration Council Chair,"
+        "|Prince"
+        "|Queen"
+        "|Secretary of State for Foreign and Political Affairs"
+        "|Sovereign Council Chair and Commander-in-Chief of the Sudanese Armed Forces"
+        "|State Affairs Commission President"
+        "|Sultan and Prime Minister"
+        "|Supreme Leader"
+        "|Supreme People's Assembly President"
+        "|Taoiseach \(Prime Minister\)"
+        "|\(Ulu o Tokelau\)"
+        ")) "
+        "(?P<name>[\w,.'’\" -]+) ?"
+        "(\([\w \.]+\))? ?"
+        "\((since |born |reappointed )?(?P<start_date>\d* ?\w* ?\d{4} ?)\)"
+    )
+)
 
 SKIP_COUNTRIES = {
     "World",
     "European Union",
 }
+
 
 def emit_person(
     context: Context,
@@ -81,7 +86,7 @@ def emit_person(
     role: str,
     name: str,
     start_date: Optional[str],
-    end_date: Optional[str] = None
+    end_date: Optional[str] = None,
 ) -> None:
     person = context.make("Person")
     person.id = context.make_slug(country, name, role)
@@ -94,12 +99,12 @@ def emit_person(
     end_date = h.parse_date(end_date, DATES)
     position = h.make_position(context, role, country=country, topics=position_topics)
     occupancy = h.make_occupancy(
-        context, 
-        person, 
+        context,
+        person,
         position,
         start_date=start_date[0] if start_date else None,
         end_date=end_date[0] if end_date else None,
-        status=OccupancyStatus.CURRENT
+        status=OccupancyStatus.CURRENT,
     )
 
     context.emit(person, target=True)
@@ -119,20 +124,24 @@ def crawl_country(context: Context, country: str) -> None:
     country_slug = slugify(country.replace("'", ""), sep="-")
     data_url = DATA_URL % country_slug
     source_url = WEB_URL % country_slug
-    
+
     try:
         res = context.fetch_json(data_url, cache_days=5)
     except Exception as e:
         print(e)
         return
 
-    executive = get(res["result"]["data"]["fields"]["nodes"], "name", "Executive branch")
+    executive = get(
+        res["result"]["data"]["fields"]["nodes"], "name", "Executive branch"
+    )
     if executive is None:
         return
     categories = executive["data"].split("<br><br>")
     for category_html in categories:
         if REGEX_SKIP_CATEGORY_HTML.match(category_html):
-            context.log.info("Skipping bad content", truncated_content=category_html[:100])
+            context.log.info(
+                "Skipping bad content", truncated_content=category_html[:100]
+            )
             continue
         category_els = html.fromstring(category_html)
         label_els = category_els.findall("./strong")
@@ -146,27 +155,32 @@ def crawl_country(context: Context, country: str) -> None:
             for segment in collapse_spaces(category_text).split("; "):
                 match = REGEX_HOLDER.match(segment)
                 if match is None:
-                    # If it's just a notice, add it to REGEX_SKIP_CATEGORY
-                    holders = context.lookup("unparsed_holders", segment)
-                    if holders:
-                        print("overridden")
-                        print(holders)
+                    res = context.lookup("unparsed_holders", segment)
+                    if res:
+                        for holder in res.holders:
+                            emit_person(
+                                context,
+                                country,
+                                source_url,
+                                holder["role"],
+                                holder["name"],
+                                holder.get("start_date", None),
+                                holder.get("end_date", None),
+                            )
                     else:
-                        context.log.warning("Error parsing holder.", html=segment, url=source_url)
+                        context.log.warning(
+                            "Error parsing holder.", html=segment, url=source_url
+                        )
                 else:
-                    #if match.group("rep_role"):
-                    #    print(f"rep for {match.group('role')} {match.group('holder')}")
-                    #    role = match.group("rep_role")
-                    #    holder = match.group("rep_holder")
-                    #else:
-                    role = match.group('role')
-                    print(f"category: {label_text}\nrole: {role}\nname: {match.group('name')}\ndate: {match.group('start_date')}")
-                    emit_person(context, country, source_url, role, match.group("name"), match.group("start_date"))
-                    
-                    print("--------------------")
-            print()
-
-    
+                    role = match.group("role")
+                    emit_person(
+                        context,
+                        country,
+                        source_url,
+                        role,
+                        match.group("name"),
+                        match.group("start_date"),
+                    )
 
 
 def crawl(context: Context) -> None:
@@ -175,4 +189,3 @@ def crawl(context: Context) -> None:
     for c in countries:
         if c["name"] not in SKIP_COUNTRIES:
             crawl_country(context, c["name"])
-    #print(REGEX_HOLDER.pattern)
