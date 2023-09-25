@@ -6,6 +6,23 @@ coverage:
 deploy:
   schedule: "30 */6 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  An index of most national-level heads of state and heads of government
+  in world governments that is publicly maintained by the CIA.
+description: |
+  This dataset makes the "chief of state", as labeled here, and head of government,
+  available for all countries in the World Factbook which have such roles.
+
+  Where a monarch has a local representative of e.g. an ex-colony, both the
+  monarch and any local representatives are generally included.
+
+  The World Factbook source pages contain much more narrative about each country.
+  From the website: 
+  
+  > The World Factbook provides basic intelligence on the history, people,
+  > government, economy, energy, geography, environment, communications,
+  > transportation, military, terrorism, and transnational issues for 266 world
+  > entities.
 url: https://www.cia.gov/resources/world-leaders/foreign-governments/
 publisher:
   name: Central Intelligence Agency (CIA)
