@@ -323,6 +323,8 @@ lookups:
           - BY
       - match: Trucial States
         value: AE
+      - match: Republic of Vietnam
+        value: VN
       - match:
           - Democratic Republic of Afghanistan
           - Emirate of Afghanistan
