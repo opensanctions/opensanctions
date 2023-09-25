@@ -153,7 +153,7 @@ lookups:
             start_date: 10 November 2020
           - role: Deputy Premier
             name: Denis Valentinovich MANTUROV
-            start_date: Denis Valentinovich MANTUROV
+            start_date: 15 July 2022
       - match: "Deputy Prime Ministers Sorin GRINDEANU (since 25 November 2021) and Hunor KELEMEN (since 23 December 2020)"
         holders:
           - role: Deputy Prime Minister
@@ -169,7 +169,7 @@ lookups:
             start_date: 16 November 2015
           - role: Deputy Prime Minister
             name: Jacek SASIN
-            start_date: 15 November 201
+            start_date: 15 November 2019
           - role: Deputy Prime Minister
             name: Henryk KOWALCZYK
             start_date: 26 October 2021
@@ -329,7 +329,7 @@ lookups:
           - role: Chairman of the Presidency
             name: Zeljko KOMSIC
             start_date: 16 July 2023
-      - match: "Deputy Prime Ministers Vincent Van QUICKENBORNE (since 1 October 2020), Vincent VAN PETEGHEM (since 1 October 2020), Frank VANDENBROUCKE (since 1 October 2020), Pierre-Yves DERMAGNE (since 1 October 2020), Petra DE SUTTER (since 1 October 2020), Georges GILKINET (since 1 October 2020), David CLARINVAL"
+      - regex: "Deputy Prime Ministers Vincent Van QUICKENBORNE .+ Vincent VAN PETEGHEM .+ Frank VANDENBROUCKE .+ Pierre-Yves DERMAGNE .+ Petra DE SUTTER .+ Georges GILKINET .+ David CLARINVAL"
         holders:
           - role: Deputy Prime Minister
             name: Vincent Van QUICKENBORNE
@@ -414,6 +414,11 @@ lookups:
           - role: Acting Prime Minister
             name: Abdul KABIR
             start_date: November 2021
+      - match: "Prime Minister Cleopas DLAMINI (since since 19 July 2021)"
+        holders:
+          - role: Prime Minister
+            name: Cleopas DLAMINI
+            start_date: 19 July 2021
       - match: "chief of state: president (vacant)"
         holders: []
       - regex:
@@ -455,7 +460,7 @@ lookups:
           - "vice presidents \\(vacant"
           - "CASTRO is Honduras' first female"
           - "new elections have not yet"
-          - "President \\(vacant"
+          - "[Pp]resident \\(vacant"
           - "on 1 October 2021, DOUMBOUYA"
           - "the 5 members all have equal"
           - "the Policy and Resources Committee"

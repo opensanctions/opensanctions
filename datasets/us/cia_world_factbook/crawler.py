@@ -15,10 +15,12 @@ DATA_URL = (
 DATES = ["%d %B %Y"]
 
 REGEX_SKIP_CATEGORY_HTML = re.compile(
-    "^<em>note</em>"
+    "("
+    "<em>note</em>"
     "|<strong>chief of state:</strong> Notification Statement:"
     "|Prime Minister HUN MANET succeeded"
     "|<strong>note 1:</strong>"
+    ")"
 )
 REGEX_RELEVANT_CATEGORY = re.compile("^(chief of state|head of government): ")
 REGEX_HOLDER = re.compile(
@@ -95,8 +97,8 @@ def emit_person(
     person.add("sourceUrl", source_url)
 
     position_topics = ["gov.national", "gov.head"]
-    start_date = h.parse_date(start_date, DATES)
-    end_date = h.parse_date(end_date, DATES)
+    start_date = h.parse_date(start_date, DATES, None)
+    end_date = h.parse_date(end_date, DATES, None)
     position = h.make_position(context, role, country=country, topics=position_topics)
     occupancy = h.make_occupancy(
         context,
