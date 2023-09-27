@@ -330,10 +330,10 @@ def parse_alias(
             is_weak=is_weak,
         )
         proxy.add("name", names.pop("Vessel Name", None))
-        proxy.add("weakAlias", names.pop("Nickname", None))
         proxy.add("name", names.pop("Aircraft Name", None))
         h.apply_name(
             proxy,
+            prefix=names.pop("Nickname", None),
             first_name=names.pop("First Name", None),
             middle_name=names.pop("Middle Name", None),
             maiden_name=names.pop("Maiden Name", None),
