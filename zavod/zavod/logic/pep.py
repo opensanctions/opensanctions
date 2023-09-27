@@ -28,7 +28,7 @@ def backdate(date: datetime, days: int) -> str:
     return dt.isoformat()[:10]
 
 
-def get_after_office(topics: List[str]):
+def get_after_office(topics: List[str]) -> int:
     if "gov.national" in topics:
         return NATIONAL_AFTER_OFFICE
     return DEFAULT_AFTER_OFFICE

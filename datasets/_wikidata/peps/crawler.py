@@ -48,11 +48,12 @@ def crawl(context: Context):
             position_label = remove_emoji(row.get("position_label"))
             if not position_label:
                 position_label = position_qid
+
             position = h.make_position(
                 context,
                 position_label,
                 country=row.get("country_code"),
-                topics=TOPICS.get(row.get("decision", ""), None),
+                topics=TOPICS.get(row.get("decision", ""), []),
                 wikidata_id=position_qid,
             )
             occupancy = h.make_occupancy(
@@ -67,6 +68,10 @@ def crawl(context: Context):
             )
             if not occupancy:
                 continue
+
+            res = context.lookup("role_topics", position_label)
+            if res:
+                position.add("topics", res.topics)
 
             # TODO: decide all entities with no P39 dates as false?
             # print(holder.person_qid, death, start_date, end_date)
