@@ -19,9 +19,14 @@ CATEGORISATION = [
     ({"gov.national", "gov.head"}, "nat-head"),
     ({"gov.national", "gov.executive"}, "nat-exec"),
     ({"gov.national", "gov.legislative"}, "nat-legis"),
+    ({"gov.national", "gov.judicial"}, "nat-judicial"),
     ({"gov.national", "gov.financial"}, "nat-fin"),
     ({"gov.igo", "gov.legislative"}, "int-legis"),
     ({"gov.igo", "gov.financial"}, "int-fin"),
+    ({"gov.state", "gov.head"}, "nat-head"),
+    ({"gov.state", "gov.executive"}, "subnat-exec"),
+    ({"gov.state", "gov.legislative"}, "subnat-legis"),
+    ({"gov.state", "gov.judicial"}, "subnat-judicial"),
     ({"role.diplo"}, "diplo"),
 ]
 
@@ -83,26 +88,6 @@ class PEPSummaryExporter(Exporter):
                 },
             }
         )
-        self.positions: DefaultDict[str, Any] = defaultdict(
-            lambda: {
-                "countries": defaultdict(
-                    lambda: {
-                        "counts": {
-                            "total": 0,
-                            OccupancyStatus.CURRENT.value: 0,
-                            OccupancyStatus.ENDED.value: 0,
-                            OccupancyStatus.UNKNOWN.value: 0,
-                        }
-                    }
-                ),
-                "counts": {
-                    "total": 0,
-                    OccupancyStatus.CURRENT.value: 0,
-                    OccupancyStatus.ENDED.value: 0,
-                    OccupancyStatus.UNKNOWN.value: 0,
-                },
-            }
-        )
 
     def count_occupancy(self, occupancy: Entity, position: Entity) -> None:
         if len(position.get("name")) < 1:
@@ -138,11 +123,6 @@ class PEPSummaryExporter(Exporter):
             self.countries[code]["counts"]["total"] += 1
             self.countries[code]["counts"][status] += 1
 
-            self.positions[position_names[0]]["countries"][code]["counts"]["total"] += 1
-            self.positions[position_names[0]]["countries"][code]["counts"][status] += 1
-            self.positions[position_names[0]]["counts"]["total"] += 1
-            self.positions[position_names[0]]["counts"][status] += 1
-
     def feed(self, entity: Entity) -> None:
         if entity.schema.name == "Person":
             occupancies: Dict[str, Tuple[Entity, Entity]] = {}
@@ -165,7 +145,6 @@ class PEPSummaryExporter(Exporter):
             }
         output = {
             "countries": countries,
-            "positions": self.positions,
         }
         with open(self.path, "wb") as fh:
             write_json(output, fh)
