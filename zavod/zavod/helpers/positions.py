@@ -95,8 +95,12 @@ def make_occupancy(
     for PEP position occupancy, otherwise returns None. Also adds the position countries
     and the `role.pep` topic to the person if an Occupancy is returned.
 
-    Occupancies are only returned if end_date is None or less than AFTER_OFFICE years
-    after current_time. current_time defaults to the process start date and time.
+    Unless `status` is overridden, Occupancies are only returned if end_date is None or 
+    less than the after-office period after current_time.
+    
+    current_time defaults to the process start date and time.
+
+    The after-office threshold is determined based on the position topics.
 
     Occupancy.status is set to
 
@@ -119,6 +123,7 @@ def make_occupancy(
         current_time: Defaults to the run time of the current crawl.
         start_date: Set if the date the person started occupying the position is known.
         end_date: Set if the date the person left the position is known.
+        status: Overrides determining PEP occupancy status
     """
     if status is None:
         status = occupancy_status(

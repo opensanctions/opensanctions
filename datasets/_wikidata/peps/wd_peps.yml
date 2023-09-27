@@ -45,3 +45,27 @@ url: https://www.opensanctions.org/datasets/peps
 data:
   url: https://data.opensanctions.org/contrib/pepdb/holders.csv
   format: CSV
+
+lookups:
+  role_topics:
+    lowercase: true
+    normalize: true
+    options:
+      - regex:
+          - ^member of[\w ]+(parliament|legislative assembly|national assembly|chamber of deputies|house of representatices|senate)
+          - ^(member|deputy|mp) of the [\w ]+ duma
+          - ^united states representative$
+        topics:
+          - gov.legislative
+      - regex:
+          - ^(the )?(deputy )?minister
+        topics:
+          - gov.executive
+      - regex:
+          - (consul\b|ambassador)
+        topics:
+          - role.diplo
+      - regex:
+          - ^(justice|judge) of the [\w ]+ court
+        topics:
+          - gov.judicial
