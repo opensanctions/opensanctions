@@ -13,11 +13,13 @@ def test_backdate():
 
 def test_occupancy_status(testdataset1: Dataset):
     context = Context(testdataset1)
-    pos = make_position(context, name="A position", country="ls")
     person = context.make("Person")
     person.id = "thabo"
 
-    def status(implies, start, end, birth=None, death=None):
+    def status(implies, start, end, birth=None, death=None, position_topics=[]):
+        pos = make_position(
+            context, name="A position", country="ls", topics=position_topics
+        )
         return occupancy_status(
             context,
             person,
@@ -43,8 +45,19 @@ def test_occupancy_status(testdataset1: Dataset):
     assert status(True, "1950-01-01", "2021-01-02") == OccupancyStatus.CURRENT
     # Ended when end date is in the past
     assert status(True, "1950-01-01", "2020-12-31") == OccupancyStatus.ENDED
-    # Not a PEP when end date is longer than AFTER_OFFICE ago
+    # Not a PEP when end date is longer than DEFAULT_AFTER_OFFICE ago
     assert status(False, "1950-01-01", "2016-01-01") is None
+    # Still a PEP when end_date is longer than DEFAULT_AFTER_OFFICE
+    # but not longer than NATIONAL_AFTER_OFFICE ago
+    assert (
+        status(False, "1950-01-01", "2016-01-01", position_topics=["gov.national"])
+        is OccupancyStatus.ENDED
+    )
+    # Not a PEP when end date is longer than NATIONAL_AFTER_OFFICE ago
+    assert (
+        status(False, "1950-01-01", "2001-01-01", position_topics=["gov.national"])
+        is None
+    )
 
     # Not a PEP when end date is unknown but start date > MAX_OFFICE
     assert status(False, "1981-01-01", None) is None

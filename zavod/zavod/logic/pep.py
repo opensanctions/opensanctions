@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime, timedelta
 from functools import cache
 
@@ -8,7 +8,8 @@ from zavod import settings
 from zavod.entity import Entity
 
 YEAR = 365  # days
-AFTER_OFFICE = 5 * YEAR
+DEFAULT_AFTER_OFFICE = 5 * YEAR
+NATIONAL_AFTER_OFFICE = 20 * YEAR
 AFTER_DEATH = 5 * YEAR
 MAX_AGE = 110 * YEAR
 MAX_OFFICE = 40 * YEAR
@@ -25,6 +26,12 @@ def backdate(date: datetime, days: int) -> str:
     """Return a partial ISO8601 date string backdated by the number of days provided"""
     dt = date - timedelta(days=days)
     return dt.isoformat()[:10]
+
+
+def get_after_office(topics: List[str]):
+    if "gov.national" in topics:
+        return NATIONAL_AFTER_OFFICE
+    return DEFAULT_AFTER_OFFICE
 
 
 def occupancy_status(
@@ -54,14 +61,15 @@ def occupancy_status(
         return None
 
     if end_date:
-        if end_date < current_time.isoformat(): # end_date is in the past
-            if end_date < backdate(current_time, AFTER_OFFICE):
-                # end_date is beyond AFTER_OFFICE threshold
+        if end_date < current_time.isoformat():  # end_date is in the past
+            after_office = get_after_office(position.get("topics"))
+            if end_date < backdate(current_time, after_office):
+                # end_date is beyond after-office threshold
                 return None
             else:
-                # end_date is within AFTER_OFFICE threshold
+                # end_date is within after-office threshold
                 return OccupancyStatus.ENDED
-        elif ( 
+        elif (
             context.dataset.coverage
             and context.dataset.coverage.end
             and context.dataset.coverage.end < current_time.isoformat()
@@ -75,7 +83,7 @@ def occupancy_status(
                 end_date=end_date,
             )
             return OccupancyStatus.UNKNOWN
-        else: # end_date is in the future and coverage is unspecified or active
+        else:  # end_date is in the future and coverage is unspecified or active
             return OccupancyStatus.CURRENT
 
     else:  # No end date
