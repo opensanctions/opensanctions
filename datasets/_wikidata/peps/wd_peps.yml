@@ -52,8 +52,8 @@ lookups:
     normalize: true
     options:
       - regex:
-          - ^member of (parliament|national assembly|chamber of deputies|house of representatices|senate)
-          - ^(member|deputy|mp) of the state duma$
+          - ^member of[\w ]+(parliament|national assembly|chamber of deputies|house of representatices|senate)
+          - ^(member|deputy|mp) of the [\w ]+ duma
           - ^united states representative$
         topics:
           - gov.legislative
@@ -62,6 +62,11 @@ lookups:
         topics:
           - gov.executive
       - regex:
-          - ^(consul\b|ambassador)
+          - (consul\b|ambassador)
         topics:
           - role.diplo
+      - regex:
+          - ^(justice|judge) of the [\w ]+ court
+          - ^prosecutor general
+        topics:
+          - gov.judicial
