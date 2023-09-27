@@ -14,7 +14,11 @@ DECISIONS = {
     "national": "National government",
     "international": "International organization",
 }
-
+TOPICS = {
+    "subnational": ["gov.state"],
+    "national": ["gov.national"],
+    "international": ["gov.igo"],
+}
 
 def date_value(value: Any) -> Optional[str]:
     if value is None:
@@ -48,6 +52,7 @@ def crawl(context: Context):
                 context,
                 position_label,
                 country=row.get("country_code"),
+                topics=TOPICS.get(row.get("decision", ""), None),
                 wikidata_id=position_qid,
             )
             occupancy = h.make_occupancy(
