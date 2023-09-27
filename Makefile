@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 # Check if 'docker-compose' is available, if not, use 'docker compose'
-COMPOSE_CMD := $(shell command -v docker-compose >/dev/null 2>&1 && echo "docker-compose" || (docker compose version >/dev/null 2>&1 && echo "docker compose"))
+COMPOSE_CMD := $(docker-compose version >/dev/null 2>&1 && echo "docker-compose" || (docker compose version >/dev/null 2>&1 && echo "docker compose"))
 
 TS=$(shell date +%Y%m%d%H%M)
 
