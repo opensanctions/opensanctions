@@ -52,7 +52,7 @@ lookups:
     normalize: true
     options:
       - regex:
-          - ^member of[\w ]+(parliament|national assembly|chamber of deputies|house of representatices|senate)
+          - ^member of[\w ]+(parliament|legislative assembly|national assembly|chamber of deputies|house of representatices|senate)
           - ^(member|deputy|mp) of the [\w ]+ duma
           - ^united states representative$
         topics:
@@ -67,6 +67,5 @@ lookups:
           - role.diplo
       - regex:
           - ^(justice|judge) of the [\w ]+ court
-          - ^prosecutor general
         topics:
           - gov.judicial
