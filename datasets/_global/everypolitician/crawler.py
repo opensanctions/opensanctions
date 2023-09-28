@@ -2,7 +2,7 @@ import re
 from datetime import datetime
 from urllib.parse import urljoin, unquote
 from typing import Dict, Optional
-from followthemoney.helpers import check_person_cutoff, post_summary
+from followthemoney.helpers import post_summary
 
 from zavod import Context
 from zavod import helpers as h
@@ -51,11 +51,6 @@ def crawl_legislature(context: Context, country: str, legislature):
     # this isn't being updated, hence long interval:
     data = context.fetch_json(url, cache_days=30)
 
-    persons: Dict[str, Optional[str]] = {}
-    for person in data.pop("persons", []):
-        pid = person.get("id")
-        persons[pid] = parse_person(context, person, country, lastmod)
-
     organizations: Dict[str, Optional[str]] = {}
     for org in data.pop("organizations", []):
         org_id = org.pop("id", None)
@@ -69,14 +64,43 @@ def crawl_legislature(context: Context, country: str, legislature):
     events = data.pop("events", [])
     events = {e.get("id"): e for e in events}
 
-    for membership in data.pop("memberships", []):
-        parse_membership(context, membership, persons, organizations, events)
+    birth_dates: Dict[str, str] = {}
+    death_dates: Dict[str, str] = {}
+    for person in data.get("persons"):
+        death_date = person.get("death_date", None)
+        if death_date is not None:
+            death_dates[person.get("id")] = death_date
+        birth_date = person.get("birth_date", None)
+        if birth_date is not None:
+            birth_dates[person.get("id")] = birth_date
+
+    peps: Set[str] = set()
+    for membership in data.pop("memberships"):
+        person_id = parse_membership(
+            context,
+            country,
+            membership,
+            organizations,
+            events,
+            birth_dates,
+            death_dates,
+        )
+        if person_id is not None:
+            peps.add(person_id)
+
+    for person in data.get("persons"):
+        if person.get("id") in peps:
+            parse_person(context, person, country, lastmod)
 
 
-def parse_person(context: Context, data, country, lastmod):
+def person_entity_id(context, person_id: str) -> str:
+    return context.make_slug(person_id)
+
+
+def parse_person(context: Context, data, country, lastmod) -> None:
     person_id = data.pop("id", None)
     person = context.make("Person")
-    person.id = context.make_slug(person_id)
+    person.id = person_entity_id(context, person_id)
     person.add("nationality", country)
     name = data.get("name")
     if name is None or name.lower().strip() in ("unknown",):
@@ -122,34 +146,64 @@ def parse_person(context: Context, data, country, lastmod):
         if "phone" == contact_detail.get("type"):
             person.add("phone", clean_phones(value))
 
-    if check_person_cutoff(person):
-        return
-
     # data.pop("image", None)
     # data.pop("images", None)
     # if len(data):
     #     pprint(data)
-    context.emit(person, target=True)
-    # entities[person_id] = person.id
-    return person.id
+    context.emit(person)
 
 
-def parse_membership(context: Context, data, persons, organizations, events):
-    person_id = persons.get(data.pop("person_id", None))
+def parse_membership(
+    context: Context, country, data, organizations, events, birth_dates, death_dates
+) -> Optional[str]:
+    person_id = data.pop("person_id", None)
     org_name = organizations.get(data.pop("organization_id", None))
 
     if person_id and org_name:
         period_id = data.get("legislative_period_id")
         period = events.get(period_id, {})
-        comment = data.pop("role", None)
-        comment = comment or period.get("name")
+        role = data.pop("role", None)
+        role = role or period.get("name")
+        if role != "member":
+            context.log.warning("Unexpected role", role=role)
+
         starts = [data.get("start_date"), period.get("start_date")]
         ends = [data.get("end_date"), period.get("end_date")]
         # for source in data.get("sources", []):
         #     membership.add("sourceUrl", source.get("url"))
 
-        position = post_summary(org_name, comment, starts, ends, [])
+        position_label = f"{role.title()} of the {org_name}"
+        res = context.lookup("position_label", position_label)
+        if res:
+            position_label = res.value
+
+        position = h.make_position(
+            context,
+            position_label,
+            country=country,
+            topics=["gov.national", "gov.legislative"],
+        )
+
+        position_property = post_summary(org_name, role, starts, ends, [])
         person = context.make("Person")
-        person.id = person_id
-        person.add("position", position)
-        context.emit(person, target=True)
+        person.id = person_entity_id(context, person_id)
+        person.add("position", position_property)
+        #print(death_dates.get(person_id,None,            ))
+        occupancy = h.make_occupancy(
+            context,
+            person,
+            position,
+            no_end_implies_current=False,
+            start_date=data.get("start_date") or period.get("start_date"),
+            end_date=data.get("end_date") or period.get("end_date"),
+            birth_date=birth_dates.get(person_id, None),
+            death_date=death_dates.get(
+                person_id,
+                None,
+            ),
+        )
+        if occupancy:
+            context.emit(position)
+            context.emit(occupancy)
+            context.emit(person, target=True)
+            return person_id
