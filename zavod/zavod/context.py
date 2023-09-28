@@ -349,11 +349,12 @@ class Context:
         return join_slug(*parts, prefix=prefix, strict=strict)
 
     def make_id(
-        self, *parts: Optional[str], prefix: Optional[str] = None
+        self, *parts: Optional[str], prefix: Optional[str] = None, hash_prefix: Optional[str] = None
     ) -> Optional[str]:
         """Make a hash-based entity ID from a list of strings, prefixed with the
         dataset prefix."""
-        hashed = make_entity_id(*parts, key_prefix=self.dataset.name)
+        hash_prefix = hash_prefix or self.dataset.name
+        hashed = make_entity_id(*parts, key_prefix=hash_prefix)
         if hashed is None:
             return None
         return self.make_slug(hashed, prefix=prefix, strict=True)

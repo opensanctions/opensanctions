@@ -99,7 +99,13 @@ def emit_person(
     position_topics = ["gov.national", "gov.head"]
     start_date = h.parse_date(start_date, DATES, None)
     end_date = h.parse_date(end_date, DATES, None)
-    position = h.make_position(context, role, country=country, topics=position_topics)
+    position = h.make_position(
+        context,
+        role,
+        country=country,
+        topics=position_topics,
+        id_hash_prefix="us_cia_world_leaders",
+    )
     occupancy = h.make_occupancy(
         context,
         person,
@@ -126,15 +132,10 @@ def crawl_country(context: Context, country: str) -> None:
     country_slug = slugify(country.replace("'", ""), sep="-")
     data_url = DATA_URL % country_slug
     source_url = WEB_URL % country_slug
-
-    try:
-        res = context.fetch_json(data_url, cache_days=5)
-    except Exception as e:
-        print(e)
-        return
+    response = context.fetch_json(data_url, cache_days=5)
 
     executive = get(
-        res["result"]["data"]["fields"]["nodes"], "name", "Executive branch"
+        response["result"]["data"]["fields"]["nodes"], "name", "Executive branch"
     )
     if executive is None:
         return
@@ -189,5 +190,7 @@ def crawl(context: Context) -> None:
     data = context.fetch_json(context.data_url, cache_days=5)
     countries = data["data"]["countries"]["nodes"]
     for c in countries:
-        if c["name"] not in SKIP_COUNTRIES:
-            crawl_country(context, c["name"])
+        redirect = c["redirect"]
+        name = c["name"] if redirect is None else redirect["name"]
+        if name not in SKIP_COUNTRIES:
+            crawl_country(context, name)

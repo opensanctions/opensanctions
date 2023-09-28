@@ -23,6 +23,7 @@ def make_position(
     wikidata_id: Optional[str] = None,
     source_url: Optional[str] = None,
     lang: Optional[str] = None,
+    id_hash_prefix: Optional[str] = None,
 ) -> Entity:
     """Create consistent position entities. Help make sure the same position
     from different sources will end up with the same id, while different positions
@@ -61,7 +62,7 @@ def make_position(
     if wikidata_id is not None:
         position.id = wikidata_id
     else:
-        position.id = context.make_id(*parts)
+        position.id = context.make_id(*parts, hash_prefix=id_hash_prefix)
 
     position.add("name", name, lang=lang)
     position.add("summary", summary, lang=lang)
