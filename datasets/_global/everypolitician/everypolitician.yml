@@ -9,7 +9,7 @@ deploy:
   memory: "2000Mi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  All members of national parliament in the world, collected from hundreds of
+  All members of national legislatures in the world, collected from hundreds of
   government web sites and consolidated via Wikidata.
 description: |
   The EveryPolitician project ran until 2019 and created a mechanism for consolidating 
@@ -17,14 +17,18 @@ description: |
   of the project, EveryPolitician operated a large fleet of crawlers which read the web
   sites of parliaments around the world.
 
-  The project was [shut down in June 2019](https://www.mysociety.org/2019/06/26/placing-everypolitician-on-hold/), 
-  leaving the contained data to slowly wither in precision. Going forward, the
-  [Peppercat Legislators](/datasets/wd_peppercat_legislators/) dataset will succeed
-  EveryPolitician. It generates membership data from Wikidata, which is currently
-  incomplete in some jurisdictions. Going forward, the intention is to use the
-  EveryPolitician scrapers to update membership data in Wikidata.
+  The project was [shut down in June 2019](https://www.mysociety.org/2019/06/26/placing-everypolitician-on-hold/)
+  ceasing updates to this dataset.
+  
+  OpenSanctions continues to include members from this dataset which meet our standard
+  criteria of PEP classification: national legislature members are included for 20 years
+  after they held a position if an end date is known, otherwise for 40 years after they
+  entered the position. They are excluded 5 years after their death, or 120 years
+  after their birth.
 
-  The OpenSanctions importer only includes individuals active since the year 2000.
+  Other sources will eventually replace this dataset completely as we continually
+  improve PEP coverage through more current sources.
+
 publisher:
   name: MySociety (UK Citizens Online Democracy)
   description: |
@@ -79,6 +83,15 @@ lookups:
           - "*"
           - "-"
         value: null
+  position_label:
+    normalize: true
+    options:
+      - match: Member of the Congress
+        value: Member of Congress
+      - match: Member of the Parliament
+        value: Member of Parliament
+      - match: Member of the Dail Eireann
+        value: Member of Dáil Éireann
   type.url:
     options:
       - contains:
