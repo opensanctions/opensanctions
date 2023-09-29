@@ -150,7 +150,7 @@ def parse_person(context: Context, data, country, lastmod) -> None:
     # data.pop("images", None)
     # if len(data):
     #     pprint(data)
-    context.emit(person)
+    context.emit(person, target=True)
 
 
 def parse_membership(
@@ -188,7 +188,7 @@ def parse_membership(
         person = context.make("Person")
         person.id = person_entity_id(context, person_id)
         person.add("position", position_property)
-        #print(death_dates.get(person_id,None,            ))
+
         occupancy = h.make_occupancy(
             context,
             person,
