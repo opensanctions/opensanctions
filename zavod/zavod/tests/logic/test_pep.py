@@ -48,7 +48,7 @@ def test_occupancy_status(testdataset1: Dataset):
     # Not a PEP when end date is longer than DEFAULT_AFTER_OFFICE ago
     assert status(False, "1950-01-01", "2016-01-01") is None
     # Still a PEP when end_date is longer than DEFAULT_AFTER_OFFICE
-    # but not longer than NATIONAL_AFTER_OFFICE ago
+    # but not longer than EXTENDED_AFTER_OFFICE ago
     assert (
         status(False, "1950-01-01", "2016-01-01", position_topics=["gov.national"])
         is OccupancyStatus.ENDED

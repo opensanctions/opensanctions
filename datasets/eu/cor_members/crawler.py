@@ -30,7 +30,12 @@ def crawl_person(context: Context, item: Dict[str, Any]) -> None:
     function: Dict[str, str] = item.pop("memberFunction")
     function_name = function.pop("value")
     position_name = f"{function_name} of the European Committee of the Regions"
-    position = h.make_position(context, name=position_name, country="eu")
+    position = h.make_position(
+        context,
+        name=position_name,
+        country="eu",
+        topics=["gov.igo"]
+    )
     occupancy = h.make_occupancy(
         context,
         person,

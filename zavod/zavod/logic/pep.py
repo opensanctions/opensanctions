@@ -9,7 +9,7 @@ from zavod.entity import Entity
 
 YEAR = 365  # days
 DEFAULT_AFTER_OFFICE = 5 * YEAR
-NATIONAL_AFTER_OFFICE = 20 * YEAR
+EXTENDED_AFTER_OFFICE = 20 * YEAR
 AFTER_DEATH = 5 * YEAR
 MAX_AGE = 110 * YEAR
 MAX_OFFICE = 40 * YEAR
@@ -30,7 +30,9 @@ def backdate(date: datetime, days: int) -> str:
 
 def get_after_office(topics: List[str]) -> int:
     if "gov.national" in topics:
-        return NATIONAL_AFTER_OFFICE
+        return EXTENDED_AFTER_OFFICE
+    if "gov.igo" in topics:
+        return EXTENDED_AFTER_OFFICE
     return DEFAULT_AFTER_OFFICE
 
 
