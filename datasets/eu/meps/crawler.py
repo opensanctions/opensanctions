@@ -1,4 +1,6 @@
 from zavod import Context
+from zavod import helpers as h
+from zavod.entity import Entity
 
 
 def split_name(name):
@@ -11,7 +13,7 @@ def split_name(name):
     return None, None
 
 
-def crawl_node(context: Context, node):
+def crawl_node(context: Context, node, position: Entity):
     mep_id = node.findtext(".//id")
     person = context.make("Person")
     person.id = context.make_slug(mep_id)
@@ -24,6 +26,10 @@ def crawl_node(context: Context, node):
     person.add("lastName", last_name)
     person.add("nationality", node.findtext(".//country"))
     person.add("topics", "role.pep")
+
+    occupancy = h.make_occupancy(context, person, position)
+
+    context.emit(occupancy)
     context.emit(person, target=True)
 
     party_name = node.findtext(".//nationalPoliticalGroup")
@@ -58,5 +64,13 @@ def crawl(context: Context):
     path = context.fetch_resource("source.xml", context.data_url)
     context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
+
+    position = h.make_position(
+        context,
+        "Member of the European Parliament",
+        country="eu",
+        topics=["gov.igo", "gov.legislative"]
+    )
+    context.emit(position)
     for node in doc.findall(".//mep"):
-        crawl_node(context, node)
+        crawl_node(context, node, position)
