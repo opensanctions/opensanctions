@@ -63,7 +63,13 @@ def crawl_leader(
         position_topics = []
         context.log.info("No topics match for position", position=function, country=country)
 
-    position = h.make_position(context, function, country=country, topics=position_topics)
+    position = h.make_position(
+        context,
+        function,
+        country=country,
+        topics=position_topics,
+        id_hash_prefix="us_cia_world_leaders",
+    )
     occupancy = h.make_occupancy(context, person, position)
 
     context.emit(person, target=True)

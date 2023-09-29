@@ -23,7 +23,7 @@ CATEGORISATION = [
     ({"gov.national", "gov.financial"}, "nat-fin"),
     ({"gov.igo", "gov.legislative"}, "int-legis"),
     ({"gov.igo", "gov.financial"}, "int-fin"),
-    ({"gov.state", "gov.head"}, "nat-head"),
+    ({"gov.state", "gov.head"}, "subnat-head"),
     ({"gov.state", "gov.executive"}, "subnat-exec"),
     ({"gov.state", "gov.legislative"}, "subnat-legis"),
     ({"gov.state", "gov.judicial"}, "subnat-judicial"),
