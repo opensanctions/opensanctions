@@ -22,8 +22,9 @@ setup(
     zip_safe=False,
     install_requires=[
         "followthemoney == 3.5.4",
-        "nomenklatura == 3.5.2",
+        "nomenklatura == 3.6.0",
         "datapatch == 1.1.1",
+        "fingerprints == 1.2.0",
         "addressformatting == 1.3.2",
         "certifi",
         "colorama",
