@@ -93,7 +93,7 @@ lookups:
           - "^deputy of the .+ regional court$"
           - "^(lieutenant |acting )?governor of the.*(government|administration).*$"
           - "^judge of the.+district court of"
-          - "^deputy of the representatives chambers of the national assembly of belarus$"          
+          - "^deputy of the representatives chambers of the national assembly of belarus$"
           - "^(member|(first deputy )?chairperson) of the .+ committee of the (state duma|council of the federation|representatives chambers .+ belarus)$"
           - "^(member|(first deputy )?chairperson) of the committee (for|on) .+ of the (state duma|council of the federation|representatives chambers .+ belarus)$"
           - "^assistant to member of parliament of the state duma$"
@@ -115,7 +115,7 @@ lookups:
         name: The Pesident of Russi
       - match: the president of the president of the republic of belarus
         name: The President of The Republic of Belarus
-      
+
   person_person_relations:
     options:
       - match:
@@ -198,6 +198,7 @@ lookups:
           - co-owner
           - beneficiary
           - shareholder
+          - Former owner/founder
         schema: Ownership
         from_prop: asset
         to_prop: owner
@@ -246,7 +247,7 @@ lookups:
           - Co-founder
           - Director
           - Related
-          - 
+          -
           - Bank customer
           - Lender (financial partner)
           - Professional Services Provider
