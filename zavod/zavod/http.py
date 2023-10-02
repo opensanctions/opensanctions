@@ -3,7 +3,7 @@ from typing import Any, Optional
 from functools import partial
 from pathlib import Path
 from requests import Session
-from urllib3.connectionpool import InsecureRequestWarning
+from urllib3.exceptions import InsecureRequestWarning
 
 from zavod import settings
 from zavod.logs import get_logger
