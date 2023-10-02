@@ -279,9 +279,21 @@ lookups:
           - Crown of Castile
           - Habsburg Netherlands
           - Byzantine Empire
-          - Grand Duchy of Baden
           - Song
           - Cook Islands Maori people
+          - Mali Federation
+          - Tapia
+          - Romanov Empire
+          - Barotseland
+          - Chinese Soviet Republic
+          - Free Territory of Trieste
+          - Netherlands Antilles
+          - First Republic of South Korea
+          - Second Republic of South Korea
+          - Third Republic of South Korea
+          - Fourth Republic of South Korea
+          - Fifth Republic of South Korea
+          - Gold Coast Colony
         value: null
       - match:
           - Cherokee Nation
@@ -323,6 +335,12 @@ lookups:
           - BY
       - match: Trucial States
         value: AE
+      - match:
+          - Bahrain and its Dependencies
+        value: Bahrain
+      - match: 
+          - Hunedoara County
+        value: RO
       - match: Republic of Vietnam
         value: VN
       - match:
@@ -356,6 +374,8 @@ lookups:
           - Bavaria
           - Nazi Germany
           - Saxe-Eisenach
+          - Grand Duchy of Baden
+          - Kingdom of Bavaria
         value: DE
       - match: British Honduras
         value: BZ

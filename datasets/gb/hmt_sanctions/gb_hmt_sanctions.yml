@@ -85,6 +85,7 @@ lookups:
           - PJSC Aeroflot
           - PJSC KIROVSKY PLANT
           - Ministry of Defence of the Russian Federation
+          - Government of the Russian Federation
           - Ural Wings
           - Roscosmos
           - Federal Agency for State Property Management
@@ -609,4 +610,8 @@ lookups:
   type.phone:
     options:
       - match: "-4874878"
+        value: null
+  type.date:
+    options:
+      - match: 00/00/0
         value: null
