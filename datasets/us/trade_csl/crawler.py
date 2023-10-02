@@ -1,24 +1,13 @@
 import json
 from typing import Any, Dict, List, Optional
 from banal import ensure_list
-from functools import cache
 from pantomime.types import JSON
-from requests.exceptions import RequestException
 from followthemoney.types import registry
 
 from zavod import Context
 from zavod import helpers as h
 
 FORMATS = ["%d %b %Y", "%d %B %Y", "%Y", "%b %Y", "%B %Y"]
-
-
-@cache
-def deref_url(context: Context, url):
-    try:
-        res = context.fetch_response(url)
-        return str(res.url)
-    except RequestException:
-        return url
 
 
 def parse_date(text: Optional[str]):
@@ -56,6 +45,9 @@ def parse_result(context: Context, result: Dict[str, Any]):
     name = result.pop("name", None)
     if name is not None:
         name = name.replace("and any successor, sub-unit, or subsidiary thereof", "")
+        if "bis.doc.gov" in result.get("source_list_url", ""):
+            name = name.replace("?s ", "'s ")
+            name = name.replace("?", " ")
         entity.add("name", name)
 
     if is_ofac:
@@ -125,10 +117,7 @@ def parse_result(context: Context, result: Dict[str, Any]):
     sanction.add("endDate", result.pop("end_date", None))
     sanction.add("country", "us")
     sanction.add("authority", result.pop("source", None))
-
-    # TODO: deref
-    source_url = deref_url(context, result.pop("source_information_url"))
-    sanction.add("sourceUrl", source_url)
+    sanction.add("sourceUrl", result.pop("source_information_url"))
     result.pop("source_list_url")
 
     context.emit(sanction)
