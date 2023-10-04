@@ -294,6 +294,7 @@ lookups:
           - Fourth Republic of South Korea
           - Fifth Republic of South Korea
           - Gold Coast Colony
+          - Surakarta Sunanate
         value: null
       - match:
           - Cherokee Nation
@@ -308,6 +309,8 @@ lookups:
         value: CY
       - match: Socialist Republic of Romania
         value: RO
+      - match: Congress Poland
+        value: PL
       - match: United Kingdom of the Netherlands
         value: NL
       - match: Kingdom of Ireland

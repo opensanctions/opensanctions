@@ -198,7 +198,7 @@ lookups:
           - co-owner
           - beneficiary
           - shareholder
-          - Former owner/founder
+          - "Former owner/founder"
         schema: Ownership
         from_prop: asset
         to_prop: owner

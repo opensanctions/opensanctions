@@ -362,6 +362,7 @@ lookups:
           - "Digital Currency Address - USDC"
           - "Digital Currency Address - BSC"
           - "Digital Currency Address - ARB"
+          - "Digital Currency Address - TRX"
         nested:
           schema: CryptoWallet
           feature: currency
