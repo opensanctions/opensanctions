@@ -35,4 +35,4 @@ WORKDIR /opensanctions
 ENV ZAVOD_DATA_PATH="/opensanctions/data" \
     OPENSSL_CONF="/opensanctions/contrib/openssl.cnf"
 
-CMD ["opensanctions", "crawl"]
+CMD ["zavod"]
