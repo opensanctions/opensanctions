@@ -1,7 +1,3 @@
-Certainly! Here's a more streamlined and refined version for contributors:
-
----
-
 # OpenSanctions Codebase
 
 OpenSanctions aggregates and provides a comprehensive open-source database of sanctions data, politically exposed persons, and related entities. Key functionalities in this codebase include:
@@ -22,34 +18,35 @@ We adopt the [Follow the Money](https://www.followthemoney.tech) framework, a JS
 * [Data Licensing Details](https://www.opensanctions.org/licensing/)
 * [Reach Out to Us](https://www.opensanctions.org/contact/)
 
-## Join Us in Development
+## Collaborate with Us in Development
 
-### Getting Started
+### Introduction
 
-This project uses a crawler named **Zavod**. Sometimes you might need a database we will help you set this up to. To run the project, you can utilize either the `docker-compose.yml` or the `Makefile`.
+At the heart of our project is a crawler dubbed **Zavod**. Should you need to set up a database, we're here to guide you every step of the way. To activate the project, you have the option to employ either `docker-compose.yml` or the `Makefile`.
 
-We recommend using the `Makefile` due to comprehensive documentation available on the [Zavod](https://zavod.opensanctions.org/) site.
+For an enriched experience backed by extensive documentation, we recommend opting for the `Makefile`. More details can be found on the [Zavod](https://zavod.opensanctions.org/) website.
 
-### Configuration
+### Environment Setup
 
-Setup in 1 terminal your database:
+1. **Database Initialization**:
+   Launch a terminal and set up your database with:
+   ```bash
+   docker compose up db
+   ```
 
+2. **Project Building**:
+   In a separate terminal, commence the build process with:
+   ```bash
+   make build
+   # Alternatively, for direct execution:
+   docker-compose build --pull
+   ```
+
+### Deploying the Crawler
+
+Kickstart the crawling process with:
 ```bash
-docker compose up db
-```
-
-Set a other terminal with the build:
-```bash
-make build
-# Alternatively, you can run this directly:
-docker-compose build --pull
-```
-
-### Execute the Crawler
-
-To crawl the dataset:
-```bash
-# This targets the dataset in the datasets folder
+# This zeroes in on the dataset located in the datasets directory
 docker compose run --rm app zavod crawl datasets/de/abgeordnetenwatch/de_abgeordnetenwatch.yml
 ```
 
@@ -61,7 +58,3 @@ docker compose run --rm app zavod crawl datasets/de/abgeordnetenwatch/de_abgeord
 ## Licensing
 
 The code within this repository is licensed under MIT. For content and data, we adhere to [CC 4.0 Attribution-NonCommercial](https://www.opensanctions.org/licensing/).
-
----
-
-This version offers clarity and structure, making it easier for contributors to navigate and understand.
