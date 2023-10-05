@@ -13,7 +13,7 @@ exports:
   - targets.simple.csv
 summary: >
   A politically exposed person (PEP) is a person that has been entrusted with
-  a prominent public function. PEPs include elected officials, members of
+  a prominent public function. PEPs include elected officials and members of
   government.
 description: |
   This collection contains data about politically exposed persons (PEPs) from
