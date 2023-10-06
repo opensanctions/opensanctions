@@ -49,6 +49,7 @@ def fetch_release(scope: str, timestamp: str) -> Path:
 def entity_hash(data: Dict[str, Any]) -> str:
     data.pop("first_seen", None)
     data.pop("last_seen", None)
+    data.pop("last_change", None)
     data.pop("referents", None)
     data.pop("datasets", None)
     data.pop("caption", None)

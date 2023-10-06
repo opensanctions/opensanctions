@@ -39,7 +39,7 @@ def parse_addresses(
             )
 
         address_str = address.get("address")
-        splits = h.multi_split(address_str, ["; and"])
+        splits = h.multi_split(address_str, ["; and", "; "])
 
         if len(splits) > 0 and all([contains_parts(addr) for addr in splits]):
             for split_addr in splits:
