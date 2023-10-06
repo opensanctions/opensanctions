@@ -1,11 +1,12 @@
 import json
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Generator
 from banal import ensure_list
 from pantomime.types import JSON
 from followthemoney.types import registry
 
-from zavod import Context
+from zavod import Context, Entity
 from zavod import helpers as h
+
 
 FORMATS = ["%d %b %Y", "%d %B %Y", "%Y", "%b %Y", "%B %Y"]
 
@@ -19,6 +20,46 @@ def parse_date(text: Optional[str]):
     for part in h.multi_split(text, [" to "]):
         dates.extend(h.parse_date(part, FORMATS))
     return dates
+
+
+def parse_addresses(
+    context: Context, addresses: List[Dict[str, str]]
+) -> Generator[Entity, None, None]:
+    for address in addresses:
+        country_code = registry.country.clean(address.get("country"))
+        city = address.get("city")
+        postal_code = address.get("postal_code")
+        state = address.get("state")
+
+        def contains_parts(addr):
+            return (
+                (city is None or city in addr)
+                and (postal_code is None or postal_code in addr)
+                and (state is None or state in addr)
+            )
+
+        address_str = address.get("address")
+        splits = h.multi_split(address_str, ["; and"])
+
+        if len(splits) > 0 and all([contains_parts(addr) for addr in splits]):
+            for split_addr in splits:
+                yield h.make_address(
+                    context,
+                    full=split_addr,
+                    city=city,
+                    postal_code=postal_code,
+                    region=state,
+                    country_code=country_code,
+                )
+        else:
+            yield h.make_address(
+                context,
+                street=address_str,
+                city=city,
+                postal_code=postal_code,
+                region=state,
+                country_code=country_code,
+            )
 
 
 def parse_result(context: Context, result: Dict[str, Any]):
@@ -91,16 +132,7 @@ def parse_result(context: Context, result: Dict[str, Any]):
     assert not result.pop("vessel_owner", None)
     assert not result.pop("vessel_type", None)
 
-    for address in result.pop("addresses", []):
-        country_code = registry.country.clean(address.get("country"))
-        obj = h.make_address(
-            context,
-            street=address.get("address"),
-            city=address.get("city"),
-            postal_code=address.get("postal_code"),
-            region=address.get("state"),
-            country_code=country_code,
-        )
+    for obj in parse_addresses(context, result.pop("addresses", [])):
         h.apply_address(context, entity, obj)
 
     for ident in result.pop("ids", []):
