@@ -44,7 +44,7 @@ services:
   app:
     build: .
     image: ghcr.io/opensanctions/opensanctions:latest
-    command: bash -c 'while !</dev/tcp/db/5432; do sleep 2; done; opensanctions crawl'
+    command: bash -c 'while !</dev/tcp/db/5432; do sleep 2; done; zavod --help'
     hostname: work
     environment:
       ZAVOD_DATABASE_URI: postgresql://os:os@db/opensanctions

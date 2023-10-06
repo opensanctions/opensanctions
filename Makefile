@@ -1,8 +1,8 @@
+# SHELL specifies the shell used by Make. Bash is used for its array and string manipulation capabilities.
 SHELL := /bin/bash
-# Check if 'docker-compose' is available, if not, use 'docker compose'
-COMPOSE_CMD := $(docker-compose version >/dev/null 2>&1 && echo "docker-compose" || (docker compose version >/dev/null 2>&1 && echo "docker compose"))
 
-TS=$(shell date +%Y%m%d%H%M)
+# Check if 'docker-compose' is available, if not, use 'docker compose'.
+COMPOSE_CMD := $(if $(shell which docker-compose 2>/dev/null),docker-compose,docker compose)
 
 .PHONY: build
 
