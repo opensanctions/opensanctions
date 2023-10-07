@@ -177,7 +177,7 @@ def dump_file(
 @click.option("-l", "--limit", type=int, default=10000)
 @click.option("-f", "--focus-dataset", type=str, default=None)
 @click.option("-a", "--algorithm", type=str, default=DefaultAlgorithm.NAME)
-@click.option("-t", "--threshold", type=Optional[float], default=None)
+@click.option("-t", "--threshold", type=float, default=None)
 def xref(
     dataset_paths: List[Path],
     clear: bool,
