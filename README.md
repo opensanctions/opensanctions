@@ -1,12 +1,13 @@
-# OpenSanctions Codebase
+# OpenSanctions
 
 OpenSanctions aggregates and provides a comprehensive open-source database of sanctions data, politically exposed persons, and related entities. Key functionalities in this codebase include:
+
 - **Parsing** of raw source data.
 - **Cleaning** and standardization of data structures.
 - **Deduplication** to maintain data integrity.
-- **Database Creation** for a unified repository of records.
+- **Exporting** the data into a variety of output formats.
 
-We adopt the [Follow the Money](https://www.followthemoney.tech) framework, a JSON-focused anti-corruption data model, as the schema for all our crawlers. Feature enhancements for exporting data in CSV and JSON formats are underway.
+We build on top of the [Follow the Money](https://www.followthemoney.tech) framework, a JSON-focused anti-corruption data model, as the schema for all our crawlers. FtM data is then optionally exposed to simplified formats like CSV.
 
 ## Quick Links
 * [OpenSanctions Main Site](https://www.opensanctions.org/)
@@ -18,33 +19,38 @@ We adopt the [Follow the Money](https://www.followthemoney.tech) framework, a JS
 * [Data Licensing Details](https://www.opensanctions.org/licensing/)
 * [Reach Out to Us](https://www.opensanctions.org/contact/)
 
-## Collaborate with Us in Development
+## Collaborate with us in Development
 
 ### Introduction
 
-At the heart of our project is a crawler dubbed **Zavod**. Should you need to set up a database, we're here to guide you every step of the way. To activate the project, you have the option to employ either `docker-compose.yml` or the `Makefile`.
+At the heart of our project is a crawler framework dubbed ``zavod``. To activate the project, you have the option to employ either `docker-compose.yml` or the `Makefile`.
 
-For an enriched experience backed by extensive documentation, we recommend opting for the `Makefile`. More details can be found on the [Zavod](https://zavod.opensanctions.org/) website.
+For an enriched experience backed by extensive documentation, we recommend opting for the `Makefile`. More details can be found on the ``[zavod](https://zavod.opensanctions.org/)`` website.
 
 ### Environment Setup
 
 1. **Database Initialization**:
-   Launch a terminal and set up your database with:
-   ```bash
-   docker compose up db
-   ```
+
+``zavod`` can use a database in order to cache information from the data sources. Launch a terminal and set up your database with:
+
+```bash
+docker compose up -d db
+```
 
 2. **Project Building**:
-   In a separate terminal, commence the build process with:
-   ```bash
-   make build
-   # Alternatively, for direct execution:
-   docker-compose build --pull
-   ```
+
+Next, commence the build process with:
+
+```bash
+make build
+# Alternatively, for direct execution:
+docker-compose build --pull
+```
 
 ### Deploying the Crawler
 
 Kickstart the crawling process with:
+
 ```bash
 # This zeroes in on the dataset located in the datasets directory
 docker compose run --rm app zavod crawl datasets/de/abgeordnetenwatch/de_abgeordnetenwatch.yml
@@ -52,7 +58,7 @@ docker compose run --rm app zavod crawl datasets/de/abgeordnetenwatch/de_abgeord
 
 ## Associated Repositories
 
-- [opensanctions/site](https://github.com/opensanctions/site): The official website for OpenSanctions. Contains TypeScript React components for visualizing FtM data.
+- [opensanctions/nomenklatura](https://github.com/opensanctions/nomenklatura): building on top of FollowTheMoney, `nomenklatura` provides a framework for storing data statements with full data lineage, and for integrating entity data from multiple sources. It also handles the data enrichment function that links OpenSanctions to external databases like OpenCorporates.
 - [opensanctions/yente](https://github.com/opensanctions/yente): API for entity matching and searching.
 
 ## Licensing
