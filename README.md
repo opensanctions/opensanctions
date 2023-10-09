@@ -10,11 +10,11 @@ OpenSanctions aggregates and provides a comprehensive open-source database of sa
 We build on top of the [Follow the Money](https://www.followthemoney.tech) framework, a JSON-focused anti-corruption data model, as the schema for all our crawlers. FtM data is then optionally exposed to simplified formats like CSV.
 
 ## Quick Links
-* [OpenSanctions Main Site](https://www.opensanctions.org/)
+* [OpenSanctions Website](https://www.opensanctions.org/)
     * [Datasets](https://www.opensanctions.org/datasets/)
     * [FAQs](https://www.opensanctions.org/docs/faq/)
-    * [API Documentation](https://www.opensanctions.org/api/)
-* [Zavod Software Documentation](https://zavod.opensanctions.org/)
+    * [API Documentation](https://api.opensanctions.org/)
+* [zavod Documentation](https://zavod.opensanctions.org/)
 * [Data Sources Roadmap](https://bit.ly/osa-sources) - See our current plans!
 * [Data Licensing Details](https://www.opensanctions.org/licensing/)
 * [Reach Out to Us](https://www.opensanctions.org/contact/)
@@ -25,7 +25,7 @@ We build on top of the [Follow the Money](https://www.followthemoney.tech) frame
 
 At the heart of our project is a crawler framework dubbed ``zavod``. To activate the project, you have the option to employ either `docker-compose.yml` or the `Makefile`.
 
-For an enriched experience backed by extensive documentation, we recommend opting for the `Makefile`. More details can be found on the ``[zavod](https://zavod.opensanctions.org/)`` website.
+For an enriched experience backed by extensive documentation, we recommend opting for the `Makefile`. More details can be found in the [zavod documentation](https://zavod.opensanctions.org/).
 
 ### Environment Setup
 
