@@ -1,9 +1,8 @@
 import csv
-from typing import Optional, Dict, Any
+from typing import Optional, Any
 from pantomime.types import CSV
 from nomenklatura.util import is_qid
 
-from zavod import settings
 from zavod import Context
 from zavod import helpers as h
 from zavod.util import remove_emoji
@@ -19,6 +18,7 @@ TOPICS = {
     "national": ["gov.national"],
     "international": ["gov.igo"],
 }
+
 
 def date_value(value: Any) -> Optional[str]:
     if value is None:
@@ -36,14 +36,14 @@ def crawl(context: Context):
         for row in csv.DictReader(fh):
             entity = context.make("Person")
             qid: Optional[str] = row.get("person_qid")
-            if not is_qid(qid):
+            if not is_qid(qid) or qid == "Q1045488":
                 continue
             entity.id = qid
 
             keyword = DECISIONS.get(row.get("decision", ""))
             if keyword is None:
                 continue
-            
+
             position_qid = row.get("position_qid")
             position_label = remove_emoji(row.get("position_label"))
             if not position_label:
