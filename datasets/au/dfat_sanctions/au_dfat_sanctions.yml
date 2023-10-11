@@ -102,22 +102,10 @@ lookups:
         value: Lebanon
       - match: Ukranian
         value: UA
-      - match: Russian and Ukrainian
-        values:
-          - RU
-          - UA
-      - match: Russian and Uzbekistani
-        values:
-          - RU
-          - UZ
-      - match: Kazakhstani and Ukrainian
-        values:
-          - KZ
-          - UA
-      - match: Ukrainian and Uzbekistani
-        values:
-          - UA
-          - UZ
+      - match: Tobago
+        value: Trinidad
+      - match: Herzegovina
+        value: Bosnia
       - match: "France (alt. citizen: Syri"
         value: France
       - contains: Fiji (Prakash’s Australian

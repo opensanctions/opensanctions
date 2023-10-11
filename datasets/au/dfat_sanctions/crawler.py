@@ -66,6 +66,10 @@ def clean_reference(ref) -> Optional[int]:
     raise ValueError()
 
 
+def clean_country(country: str) -> List[str]:
+    return h.multi_split(country, ["a)", "b)", "c)", "d)", ";", ",", " and "])
+
+
 def parse_reference(context: Context, reference: int, rows):
     schemata = set()
     for row in rows:
@@ -108,10 +112,11 @@ def parse_reference(context: Context, reference: int, rows):
                 address = h.make_address(context, full=part)
                 h.apply_address(context, entity, address)
         sanction.add("program", row.pop("committees"))
-        citizen = h.multi_split(
-            row.pop("citizenship"), ["a)", "b)", "c)", "d)", ";", ","]
-        )
-        entity.add("nationality", citizen, quiet=True)
+        country = clean_country(row.pop("citizenship"))
+        if entity.schema.is_a("Person"):
+            entity.add("nationality", country)
+        else:
+            entity.add("country", country)
         dates = clean_date(row.pop("date_of_birth"))
         entity.add("birthDate", dates, quiet=True)
         entity.add("birthPlace", row.pop("place_of_birth"), quiet=True)
@@ -127,6 +132,7 @@ def parse_reference(context: Context, reference: int, rows):
         control_date = row.pop("control_date")
         sanction.add("startDate", control_date)
         entity.add("createdAt", control_date)
+        context.audit_data(row, ignore=["reference"])
 
     entity.add("topics", "sanction")
     context.emit(entity, target=True)
