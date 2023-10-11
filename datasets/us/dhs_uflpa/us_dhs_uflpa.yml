@@ -1,0 +1,38 @@
+title: "Uyghur Forced Labor Prevention Act Entity List"
+entry_point: crawler.py
+prefix: us-uflpa
+coverage:
+  frequency: daily
+deploy:
+  schedule: "0 */12 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: |
+  The US DHS publishes this list of entities wholly or in part using forced labour
+  in the People's Republic of China, especially from the Xinjiang Uyghur Autonomous
+  Region, or Xinjiang.
+description: |
+  > The Uyghur Forced Labor Prevention Act (Public Law No. 117-78), also known as 
+  > the UFLPA, directs the Forced Labor Enforcement Task Force to develop a strategy
+  > for supporting enforcement of the prohibition on the importation of goods into the
+  > United States manufactured wholly or in part with forced labor in the People's
+  > Republic of China, especially from the Xinjiang Uyghur Autonomous Region, or Xinjiang.
+  >
+  > The UFLPA was enacted on December 23, 2021, with a June 21, 2022 effective date
+  > for a rebuttable presumption that goods mined, produced, or manufactured wholly or
+  > in part in Xinjiang or by an entity on the UFLPA Entity List are prohibited from
+  > U.S. importation under 19 U.S.C. § 1307.
+
+  \- [DHS](https://www.dhs.gov/uflpa)
+url: https://www.dhs.gov/uflpa-entity-list
+publisher:
+  name: U.S. Department of Homeland Security
+  description: |
+    The Department of Homeland Security is the federal department responsible for public security,
+    including counter terrorism, border securiy, securiy of cyberspace and critical infrastructure,
+    and economic security.
+  country: us
+  url: https://www.dhs.gov/
+  official: true
+data:
+  url: "https://www.dhs.gov/uflpa-entity-list"
+  format: HTML
