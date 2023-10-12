@@ -2,6 +2,7 @@ from typing import List, Optional, TYPE_CHECKING
 from pathlib import Path
 from functools import cache
 from zavod.entity import Entity
+from followthemoney import model
 from nomenklatura.xref import xref
 from nomenklatura.resolver import Resolver, Identifier
 from nomenklatura.judgement import Judgement
@@ -40,6 +41,7 @@ def blocking_xref(
     auto_threshold: Optional[float] = None,
     algorithm: str = DefaultAlgorithm.NAME,
     focus_dataset: Optional[str] = None,
+    schema_range: Optional[str] = None,
 ) -> None:
     """This runs the deduplication process, which compares all entities in the given
     dataset against each other, and stores the highest-scoring candidates for human
@@ -51,9 +53,11 @@ def blocking_xref(
     algorithm_type = get_algorithm(algorithm)
     if algorithm_type is None:
         raise ValueError("Invalid algorithm: %s" % algorithm)
+    range = model.get(schema_range) if schema_range is not None else None
     xref(
         store,
         limit=limit,
+        range=range,
         scored=True,
         auto_threshold=auto_threshold,
         focus_dataset=focus_dataset,

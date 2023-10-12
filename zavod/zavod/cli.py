@@ -176,6 +176,7 @@ def dump_file(
 @click.option("-c", "--clear", is_flag=True, default=False)
 @click.option("-l", "--limit", type=int, default=10000)
 @click.option("-f", "--focus-dataset", type=str, default=None)
+@click.option("-s", "--schema", type=str, default=None)
 @click.option("-a", "--algorithm", type=str, default=DefaultAlgorithm.NAME)
 @click.option("-t", "--threshold", type=float, default=None)
 def xref(
@@ -185,6 +186,7 @@ def xref(
     threshold: Optional[float],
     algorithm: str,
     focus_dataset: Optional[str] = None,
+    schema: Optional[str] = None,
 ) -> None:
     dataset = _load_datasets(dataset_paths)
     if clear:
@@ -196,6 +198,7 @@ def xref(
         auto_threshold=threshold,
         algorithm=algorithm,
         focus_dataset=focus_dataset,
+        schema_range=schema,
     )
 
 
