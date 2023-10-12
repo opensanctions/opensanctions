@@ -1,8 +1,43 @@
+from pprint import pprint
 from normality import collapse_spaces, slugify
 from zavod import Context
 from zavod import helpers as h
 
+import re
+
 FORMATS = ["%B %d, %Y"]
+
+# NAME (and one alias: NAME)
+# NAME (including one alias: NAME) and subsidiaries
+# NAME (including two aliases: NAME and NAME)
+# NAME (including two aliases: NAME; and NAME)            <-- optional oxford comma
+# NAME (including three aliases: NAME; NAME; and NAME)
+# NAME (including NUMBER aliases: NAME; NAME; ...; and NAME)
+# NAME and its subordinate and affiliated entities
+# NAME (including three aliases: NAME; NAME; and NAME) and its subordinate and affiliated entities
+# NAME and its eight PLACE-based subsidiaries, which include NAME, NAME, ..., and NAME
+# NAME and its subsidiary NAME
+# NAME, and Subsidiaries
+
+REGEX_NAME_STRUCTURE = re.compile((
+    "^"
+    "(?P<main>[\w.,/&\(\) -]+?) ?"
+    "(\((and|including) [a-z]+ alias(es)? ?: (?P<alias_list>.+)\))? ?"
+    "(?P<subordinates_note>, and Subsidiaries| and (subsidiaries|its subordinate and affiliated entities))? ?"
+    "(and its [a-zA-Z]+-based subsidiaries, which include (?P<subsidiaries>.+))?"
+    "$"
+))
+
+def parse_names(name_field: str):
+    print(name_field)
+    structure_match = REGEX_NAME_STRUCTURE.match(name_field)
+    if structure_match:
+        structure = structure_match.groupdict()
+        pprint(structure)
+    else:
+        print("!!! didn't match")
+    print()
+
 
 def crawl_program(context: Context, table, program: str, section: str) -> None:
     headers = None
@@ -19,6 +54,9 @@ def crawl_program(context: Context, table, program: str, section: str) -> None:
         if name is None:
             context.log.warning("Couldn't get entity name", data)
             continue
+
+        parse_names(name)
+
         entity.id = context.make_id(name, "md")
         entity.add("name", name)
         entity.add("topics", "sanction")
