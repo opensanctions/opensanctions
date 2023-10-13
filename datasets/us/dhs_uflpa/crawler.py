@@ -23,19 +23,30 @@ REGEX_NAME_STRUCTURE = re.compile((
     "^"
     "(?P<main>[\w.,/&\(\) -]+?) ?"
     "(\((and|including) [a-z]+ alias(es)? ?: (?P<alias_list>.+)\))? ?"
-    "(?P<subordinates_note>, and Subsidiaries| and (subsidiaries|its subordinate and affiliated entities))? ?"
-    "(and its [a-zA-Z]+-based subsidiaries, which include (?P<subsidiaries>.+))?"
+    "(?P<subordinate_note>, and Subsidiaries| and (subsidiaries|its subordinate and affiliated entities))? ?"
+    "(and its [a-zA-Z]+-based subsidiaries, which include (?P<subsidiary_list>.+))?"
     "$"
 ))
+SPLITTERS = [", and ", "; and ", ", ", "; "]
 
 def parse_names(name_field: str):
     print(name_field)
+    name_field = name_field.replace(", Ltd.", " Ltd.")
     structure_match = REGEX_NAME_STRUCTURE.match(name_field)
     if structure_match:
         structure = structure_match.groupdict()
-        pprint(structure)
+        alias_list = structure["alias_list"] or ""
+        subsidiary_list = structure["subsidiary_list"] or ""
+        names = {
+            "main": structure["main"],
+            "aliases": h.multi_split(alias_list, SPLITTERS),
+            "subsidiaries": h.multi_split(subsidiary_list, SPLITTERS),
+            "subordinates_note": structure["subordinate_note"],
+        }
+        pprint(names)
+        #return names
     else:
-        print("!!! didn't match")
+        print("#################### didn't match")
     print()
 
 
