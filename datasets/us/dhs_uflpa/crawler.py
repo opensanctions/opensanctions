@@ -19,18 +19,20 @@ FORMATS = ["%B %d, %Y"]
 # NAME and its subsidiary NAME
 # NAME, and Subsidiaries
 
-REGEX_NAME_STRUCTURE = re.compile((
-    "^"
-    "(?P<main>[\w.,/&\(\) -]+?) ?"
-    "(\((and|including) [a-z]+ alias(es)? ?: (?P<alias_list>.+)\))? ?"
-    "(?P<subordinate_note>, and Subsidiaries| and (subsidiaries|its subordinate and affiliated entities))? ?"
-    "(and its [a-zA-Z]+-based subsidiaries, which include (?P<subsidiary_list>.+))?"
-    "$"
-))
+REGEX_NAME_STRUCTURE = re.compile(
+    (
+        "^"
+        "(?P<main>[\w.,/&\(\) -]+?) ?"
+        "(\((and|including) [a-z]+ alias(es)? ?: (?P<alias_list>.+)\))? ?"
+        "(?P<subordinate_note>, and Subsidiaries| and (subsidiaries|its subordinate and affiliated entities))? ?"
+        "(and its ([a-z]+ [a-zA-Z]+-based subsidiaries, which include|subsidiary) (?P<subsidiary_list>.+))?"
+        "$"
+    )
+)
 SPLITTERS = [", and ", "; and ", ", ", "; "]
 
+
 def parse_names(name_field: str):
-    print(name_field)
     name_field = name_field.replace(", Ltd.", " Ltd.")
     structure_match = REGEX_NAME_STRUCTURE.match(name_field)
     if structure_match:
@@ -43,11 +45,7 @@ def parse_names(name_field: str):
             "subsidiaries": h.multi_split(subsidiary_list, SPLITTERS),
             "subordinates_note": structure["subordinate_note"],
         }
-        pprint(names)
-        #return names
-    else:
-        print("#################### didn't match")
-    print()
+        return names
 
 
 def crawl_program(context: Context, table, program: str, section: str) -> None:
@@ -60,24 +58,53 @@ def crawl_program(context: Context, table, program: str, section: str) -> None:
         cells = [collapse_spaces(el.text_content()) for el in row.findall("./td")]
         data = {hdr: c for hdr, c in zip(headers, cells)}
 
-        entity = context.make("Company")
-        name = data.pop("name-of-entity", data.pop("entity-name", None))
-        if name is None:
+        
+        name_field = data.pop("name-of-entity", data.pop("entity-name", None))
+        if name_field is None:
             context.log.warning("Couldn't get entity name", data)
             continue
 
-        parse_names(name)
+        names = parse_names(name_field)
+        if names is None:
+            context.log.warning("Couldn't parse name field", data)
+            continue
 
-        entity.id = context.make_id(name, "md")
-        entity.add("name", name)
-        entity.add("topics", "sanction")
+        main_company = context.make("Company")
+        main_company.id = context.make_id(names["main"])
+        main_company.add("name", names["main"])
+        main_company.add("topics", "sanction")
+        main_company.add("alias", names["aliases"])
+        main_company.add("notes", names["subordinates_note"])
 
-        sanction = h.make_sanction(context, entity, section)
-        sanction.add("program", program)
-        sanction.add("startDate", h.parse_date(data.pop("effective-date"), FORMATS))
+        subsidiaries = []
+        ownerships = []
+        for subsidiary in names["subsidiaries"]:
+            entity = context.make("Company")
+            entity.id = context.make_id(subsidiary)
+            entity.add("name", subsidiary)
+            entity.add("topics", "sanction")
+            subsidiaries.append(entity)
 
-        context.emit(entity, target=True)
-        context.emit(sanction)
+            ownership = context.make("Ownership")
+            ownership.id = context.make_slug(main_company.id, "owns", entity.id)
+            ownership.add("owner", main_company)
+            ownership.add("asset", entity)
+            ownerships.append(ownership)
+
+        effective_date = h.parse_date(data.pop("effective-date"), FORMATS)
+        companies = [main_company] + subsidiaries
+        sanctions = []
+        for entity in companies:
+            sanction = h.make_sanction(context, entity, section)
+            sanction.add("program", program)
+            sanction.add("startDate", effective_date)
+            sanctions.append(sanction)
+
+        for entity in companies:
+            context.emit(entity, target=True)
+
+        for entity in ownerships + sanctions:
+            context.emit(entity)
 
         context.audit_data(data)
 
