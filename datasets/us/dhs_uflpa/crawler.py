@@ -58,7 +58,6 @@ def crawl_program(context: Context, table, program: str, section: str) -> None:
         cells = [collapse_spaces(el.text_content()) for el in row.findall("./td")]
         data = {hdr: c for hdr, c in zip(headers, cells)}
 
-        
         name_field = data.pop("name-of-entity", data.pop("entity-name", None))
         if name_field is None:
             context.log.warning("Couldn't get entity name", data)
