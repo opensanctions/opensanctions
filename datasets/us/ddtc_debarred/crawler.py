@@ -1,8 +1,9 @@
-from typing import Any, Dict, List, Optional
 from normality import slugify
 import openpyxl
-from zavod import Context
 from pantomime.types import XLSX
+from typing import Any, Dict, List, Optional
+
+from zavod import Context
 from zavod import helpers as h
 
 STATUTORY_XLSX_URL = "https://www.pmddtc.state.gov/sys_attachment.do?sys_id=27c46b251baf29102b6ca932f54bcb20"
@@ -54,6 +55,7 @@ def crawl_debarment(
     entity.id = context.make_slug(name, date_of_birth, strict=False)
     entity.add("name", name)
     entity.add("alias", aliases)
+    entity.add("country", "us")
     if schema == "Person":
         entity.add("birthDate", h.parse_date(date_of_birth, FORMATS))
     entity.add("topics", "debarment")
