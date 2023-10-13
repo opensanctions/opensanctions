@@ -36,3 +36,15 @@ publisher:
 data:
   url: "https://www.dhs.gov/uflpa-entity-list"
   format: HTML
+
+lookups:
+  type:
+    options:
+      - contains:
+          - Co.
+          - Group
+          - Corporation
+        entity_schema: Company
+        rel_schema: Ownership
+        subject: owner
+        object: asset

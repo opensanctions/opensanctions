@@ -69,7 +69,19 @@ def crawl_program(context: Context, table, program: str, section: str) -> None:
             context.log.warning("Couldn't parse name field", data)
             continue
 
-        main_company = context.make("Company")
+        res = context.lookup("type", names["main"])
+        if res:
+            entity_schema = res.entity_schema
+            rel_schema = res.rel_schema
+            subject = res.subject
+            object = res.object
+        else:
+            entity_schema = "LegalEntity"
+            rel_schema = "UnknownLink"
+            subject = "subject"
+            object = "object"
+
+        main_company = context.make(entity_schema)
         main_company.id = context.make_id(names["main"])
         main_company.add("name", names["main"])
         main_company.add("topics", "sanction")
@@ -79,16 +91,16 @@ def crawl_program(context: Context, table, program: str, section: str) -> None:
         subsidiaries = []
         ownerships = []
         for subsidiary in names["subsidiaries"]:
-            entity = context.make("Company")
+            entity = context.make(entity_schema)
             entity.id = context.make_id(subsidiary)
             entity.add("name", subsidiary)
             entity.add("topics", "sanction")
             subsidiaries.append(entity)
 
-            ownership = context.make("Ownership")
+            ownership = context.make(rel_schema)
             ownership.id = context.make_slug(main_company.id, "owns", entity.id)
-            ownership.add("owner", main_company)
-            ownership.add("asset", entity)
+            ownership.add(subject, main_company)
+            ownership.add(object, entity)
             ownerships.append(ownership)
 
         effective_date = h.parse_date(data.pop("effective-date"), FORMATS)
