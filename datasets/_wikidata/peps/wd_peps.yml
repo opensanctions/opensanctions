@@ -69,3 +69,10 @@ lookups:
           - ^(justice|judge) of the [\w ]+ court
         topics:
           - gov.judicial
+  type.date:
+    options:
+      - match:
+          - "8034-06-14"
+          - "0011-06-04"
+          - "3004-03-14"
+        value: null

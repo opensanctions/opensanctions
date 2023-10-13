@@ -240,6 +240,7 @@ lookups:
   company_company_relations:
     options:
       - match:
+          - ""
           - Public contracts/Customer
           - Founder
           - Legal successor
