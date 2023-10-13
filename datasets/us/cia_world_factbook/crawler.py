@@ -29,7 +29,7 @@ REGEX_HOLDER = re.compile(
         "(?P<role>("
         "(transitional |Transition |Interim )?President"
         "|President( of the Swiss Confederation| of the Territorial Assembly| of the Government of Spain \(prime minister-equivalent\))?"
-        "|(First |Second |Executive |Co-)?(Vice |Deputy )President"
+        "|(First |Second |Executive |Co-)?(Vice |Deputy )?President(-elect)?"
         "|(Acting |Transition |Caretaker |Interim |Sultan and |(First |Second |Third )?Deputy )?Prime Minister"
         "|Administrator Air Vice-Marshal"
         "|Administrator"

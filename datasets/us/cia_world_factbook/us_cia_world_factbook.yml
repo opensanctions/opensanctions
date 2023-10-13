@@ -436,6 +436,10 @@ lookups:
           - role: Prime Minister
             name: Cleopas DLAMINI
             start_date: 19 July 2021
+      - match: "Administrator Balraj DHANDA"
+        holders:
+          - role: Administrator
+            name: Balraj DHANDA
       - match: "chief of state: president (vacant)"
         holders: []
       - regex:
@@ -490,6 +494,7 @@ lookups:
           - "he was reappointed by the president"
           - "head of government since 9 July 2018\\)"
           - "head of state and Supreme Assembly Chairman since 19 November 1992\\)"
+          - "inauguration scheduled for 17 November 2023"
         holders: []
 
   type.country:
