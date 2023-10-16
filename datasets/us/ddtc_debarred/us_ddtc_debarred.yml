@@ -1,4 +1,4 @@
-title: "Directorate of Defense Trade Controls AECA Debarments"
+title: US Directorate of Defense Trade Controls AECA Debarments
 entry_point: crawler.py
 prefix: us-ddtc
 coverage:
