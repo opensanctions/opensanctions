@@ -1,0 +1,45 @@
+title: "Directorate of Defense Trade Controls AECA Debarments"
+entry_point: crawler.py
+prefix: us-ddtc
+coverage:
+  frequency: daily
+deploy:
+  schedule: "0 */12 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: |
+  Companies and individuals prohibited from participating in export of defence articles
+  and services as a consequence of vuilation of the Arms Export Control Act (AECA)
+description: |
+  This dataset contains entities from the Statutory Debarments and the Administrative Debarments
+  lists from the US State Department's Directorate of Defense Trade Controls.
+
+  The Statutory Debarments are for individuals and companies who have been convicted
+  of violating or conspiracy to violate the Arms Export Control Act (AECA).
+
+  Administrative Deparbments may be imposed by the department for violations of the AECA/ITAR,
+  as specified in 22 CFR §127.7(a), upon resolution of enforcement proceedings.
+
+  > The statutory debarment list includes only persons who are subject to
+  > statutory debarment for convictions of violating or conspiracy to violate
+  > the AECA. This is a small subset of persons who may be debarred or ineligible
+  > to participate in the export of defense articles and defense services. In other
+  > words, the list does not include persons that may be ineligible under other
+  > AECA and ITAR prohibitions or restrictions.
+  >
+  > Although the statutory and administrative debarment lists on this website are
+  > periodically updated, notices published in the Federal Register are considered
+  > the authoritative source for debarment information.
+  [DDTC Debarred Parties note](https://www.pmddtc.state.gov/ddtc_public/ddtc_public?id=ddtc_kb_article_page&sys_id=c22d1833dbb8d300d0a370131f9619f0)
+url: "https://www.pmddtc.state.gov/ddtc_public/ddtc_public?id=ddtc_kb_article_page&sys_id=c22d1833dbb8d300d0a370131f9619f0"
+publisher:
+  name: US State Department Directorate of Defense Trade Controls
+  description: |
+    The Directorate of Defense Trade Controls (DDTC) ensures commercial exports
+    of defense articles and defense services advance U.S. national security and
+    foreign policy objectives.
+  country: us
+  url: https://www.pmddtc.state.gov/ddtc_public/ddtc_public?id=ddtc_public_portal_homepage
+  official: true
+data:
+  url: "https://www.pmddtc.state.gov/ddtc_public/ddtc_public?id=ddtc_kb_article_page&sys_id=c22d1833dbb8d300d0a370131f9619f0"
+  format: XLSX

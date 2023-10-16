@@ -86,6 +86,7 @@ def crawl_program(context: Context, table, program: str, section: str) -> None:
         main_company.add("topics", "sanction")
         main_company.add("alias", names["aliases"])
         main_company.add("notes", names["subordinates_note"])
+        main_company.add("country", "cn")
 
         subsidiaries = []
         ownerships = []
@@ -94,6 +95,7 @@ def crawl_program(context: Context, table, program: str, section: str) -> None:
             entity.id = context.make_id(subsidiary)
             entity.add("name", subsidiary)
             entity.add("topics", "sanction")
+            entity.add("country", "cn")
             subsidiaries.append(entity)
 
             ownership = context.make(rel_schema)
