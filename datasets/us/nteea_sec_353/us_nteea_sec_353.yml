@@ -1,0 +1,41 @@
+title: "US NTEEA Section 353 Corrupt and Undemocratic Actors Report 2023"
+entry_point: crawler.py
+prefix: us-nteea-353
+coverage:
+  frequency: never
+deploy:
+  schedule: "0 */12 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: |
+  A list of persons who have been determined to have taken Actions that Undermine Democratic 
+  Processes or Institutions, Significant Corruption, or Obstruction of Such Corruption in
+  El Salvador, Guatemala, and Honduras, published by the US State Department.
+description: |
+  The U.S. Department of State Bureau of Western Hemisphere Affairs publishes this report
+  submitted to congress consistent with Section 353(b) of the United States – 
+  Northern Triangle Enhanced Engagement Act (22 U.S.C. 2277a(b)).
+
+  From the report:
+
+  > Under Section 353, foreign persons identified in the report submitted to Congress
+  > are generally ineligible for visas and admission to the United States.  Any
+  > current visa shall be revoked immediately, and any other valid visa or entry
+  > documentation cancelled. Consistent with Section 353(g), this report will
+  > be published in the Federal Register.
+
+  This is an annual report and is therefore manually transferred to tabular
+  form and not updated automatically. Last updated 16 October 2023.
+url: https://www.state.gov/reports/section-353-corrupt-and-undemocratic-actors-report-2023/
+publisher:
+  name: US State Department
+  description: |
+    The U.S. State Department's stated mission is to protect and promote U.S. 
+    security, prosperity, and democratic values and shape an international
+    environment in which all Americans can thrive.
+  country: us
+  url: https://www.state.gov/
+  official: true
+data:
+  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vSzazpcuxJ2nMTUWVRNONPuxCzRxdZL2bOtClMc6bVJkyS8VC32nwUFkYpx2yOFeU2mDSr2Wyps0LxK/pub?gid=0&output=csv
+  format: HTML
+
