@@ -339,6 +339,8 @@ lookups:
           - BY
       - match: Trucial States
         value: AE
+      - match: Ghanaians
+        value: Ghana
       - match:
           - Bahrain and its Dependencies
         value: Bahrain
