@@ -52,6 +52,7 @@ children:
   - un_sc_sanctions
   - us_bis_denied
   - us_cuba_sanctions
+  - us_dhs_uflpa
   - us_ofac_cons
   - us_ofac_sdn
   - us_trade_csl
