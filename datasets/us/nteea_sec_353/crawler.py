@@ -3,6 +3,7 @@ from typing import Dict
 import csv
 
 from zavod import Context
+from zavod import helpers as h
 
 
 def crawl_row(context: Context, row: Dict[str, str]):
@@ -12,8 +13,17 @@ def crawl_row(context: Context, row: Dict[str, str]):
     entity.id = context.make_id(country, name)
     entity.add("name", name)
     entity.add("country", country)
-    entity.add("notes", row.pop("notes"))
+    entity.add("topics", "sanction")
+
+    sanction = h.make_sanction(context, entity)
+    report_date = row.pop("report-date")
+    sanction.add("listingDate", report_date)
+    sanction.add("reason", row.pop("reason"))
+    sanction.add("program","Section 353(b) of the United States - Northern Triangle Enhanced Engagement Act")
+    sanction.add("description", f"Published in {report_date} report.")
+
     context.emit(entity, target=True)
+    context.emit(sanction)
 
 
 def crawl(context: Context):
