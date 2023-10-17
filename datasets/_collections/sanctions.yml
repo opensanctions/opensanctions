@@ -33,6 +33,7 @@ children:
   - eu_travel_bans
   - fr_tresor_gels_avoir
   - gb_hmt_sanctions
+  - gb_hmt_invbans
   - il_mod_terrorists
   - in_mha_banned
   - jp_mof_sanctions
