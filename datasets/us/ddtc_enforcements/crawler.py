@@ -1,7 +1,25 @@
 import re
 import json
+from typing import Any, Dict
 
 from zavod import Context
+from zavod import helpers as h
+
+
+def crawl_row(context: Context, row: Dict[str, Any]):
+    entity = context.make("LegalEntity")
+    name = row.pop("company")["value"]
+    entity.id = context.make_slug(name)
+    entity.add("name", name)
+    entity.add("country", "us")
+
+    description = row.pop("description")["value"]
+    sanction = h.make_sanction(context, entity, description)
+    sanction.add("reason", description)
+    sanction.add("listingDate", row.pop("year")["value"])
+
+    context.emit(entity, target=True)
+    context.emit(sanction)
 
 
 def crawl(context: Context):
@@ -10,10 +28,9 @@ def crawl(context: Context):
     # to page request.
     # BigIP cookie is also important since session seems to be origin-specific.
 
+    context.log.info("Fetching table page")
     # Set cookies and fetch token
-    doc = context.fetch_html(
-        "https://www.pmddtc.state.gov/ddtc_public/ddtc_public?id=ddtc_kb_article_page&sys_id=384b968adb3cd30044f9ff621f961941"
-    )
+    doc = context.fetch_html(context.dataset.url)
     page_data = doc.find(
         ".//script[@data-description='NOW vars set by properties, custom events, g_* globals']"
     )
@@ -47,11 +64,21 @@ def crawl(context: Context):
         "sys_class_name": "sp_instance",
         "sp_widget": "dbd0af311b58b450055b9796bc4bcb2d",
     }
-
+    
     headers = {"X-UserToken": token}
-    res = context.http.post(
-        "https://www.pmddtc.state.gov/api/now/sp/widget/844682081bbbc550055b9796bc4bcb3d?id=ddtc_kb_article_page&sys_id=384b968adb3cd30044f9ff621f961941",
-        data=json.dumps(request_data),
-        headers=headers,
-    )
-    print(res.json())
+    num_pages = None
+
+    page_num = 1
+    while num_pages is None or page_num <= num_pages:
+        context.log.info(f"Fetching table data page {page_num}")
+        request_data["p"] = page_num
+        res = context.http.post(
+            context.dataset.data.url,
+            data=json.dumps(request_data),
+            headers=headers,
+        )
+        response_data = res.json()
+        num_pages = response_data["result"]["data"]["num_pages"]
+        for row in response_data["result"]["data"]["list"]:
+            crawl_row(context, row)
+        page_num += 1

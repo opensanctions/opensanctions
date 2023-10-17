@@ -8,7 +8,7 @@ deploy:
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: "..."
 description: "..."
-# url: "..."
+url: "https://www.pmddtc.state.gov/ddtc_public/ddtc_public?id=ddtc_kb_article_page&sys_id=384b968adb3cd30044f9ff621f961941"
 publisher:
   name: US State Department Directorate of Defense Trade Controls
   description: |
@@ -19,5 +19,5 @@ publisher:
   url: https://www.pmddtc.state.gov/ddtc_public/ddtc_public?id=ddtc_public_portal_homepage
   official: true
 data:
-  url: "https://www.pmddtc.state.gov/"
-  format: XLSX
+  url: "https://www.pmddtc.state.gov/api/now/sp/widget/844682081bbbc550055b9796bc4bcb3d?id=ddtc_kb_article_page&sys_id=384b968adb3cd30044f9ff621f961941"
+  format: JSON
