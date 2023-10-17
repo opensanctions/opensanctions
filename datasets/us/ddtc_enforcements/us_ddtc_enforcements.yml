@@ -1,0 +1,23 @@
+title: US Directorate of Defense Trade Controls Penalties & Oversight Agreements
+entry_point: crawler.py
+prefix: us-ddtc-enf
+coverage:
+  frequency: daily
+deploy:
+  schedule: "0 */12 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: "..."
+description: "..."
+# url: "..."
+publisher:
+  name: US State Department Directorate of Defense Trade Controls
+  description: |
+    The Directorate of Defense Trade Controls (DDTC) ensures commercial exports
+    of defense articles and defense services advance U.S. national security and
+    foreign policy objectives.
+  country: us
+  url: https://www.pmddtc.state.gov/ddtc_public/ddtc_public?id=ddtc_public_portal_homepage
+  official: true
+data:
+  url: "https://www.pmddtc.state.gov/"
+  format: XLSX
