@@ -6,6 +6,40 @@ from zavod import Context
 from zavod import helpers as h
 
 
+REQUEST_TEMPLATE = {
+    "sys_id": "384b968adb3cd30044f9ff621f961941",
+    "preventViewAll": True,
+    "workflow_state": "published",
+    "field_list": "year,company,description,charging_letter,consent_agreement,order",
+    "table": "x_usd10_ddtc_publi_ddtc_public_penalty_and_oversight",
+    "order": 1,
+    "sys_view_count": "0",
+    "d": "DESC",
+    "active": True,
+    "fields_array": [
+        "year",
+        "company",
+        "description",
+        "charging_letter",
+        "consent_agreement",
+        "order",
+    ],
+    "kb_knowledge_page": "ddtc_kb_article_page",
+    "o": "year",
+    "sp_widget_dv": "PWS DDTC Public Portal KB",
+    "kb_knowledge_base": "34a3eed6db2f0300d0a370131f961983",
+    "category": "ba6b12cadb3cd30044f9ff621f961981",
+    "sp_column": "b8037ac41b0ec950055b9796bc4bcb86",
+    "sys_class_name": "sp_instance",
+    "sp_widget": "dbd0af311b58b450055b9796bc4bcb2d",
+}
+PROGRAM = (
+    "Pursuant to the International Traffic in Arms Regulations (ITAR) §127.10, "
+    "the Assistant Secretary for Political-Military Affairs is authorized to "
+    "impose civil penalties for violations of the Arms Export Control Act (AECA) "
+    "and the ITAR."
+)
+
 def crawl_row(context: Context, row: Dict[str, Any]):
     entity = context.make("LegalEntity")
     name = row.pop("company")["value"]
@@ -17,6 +51,7 @@ def crawl_row(context: Context, row: Dict[str, Any]):
     sanction = h.make_sanction(context, entity, description)
     sanction.add("reason", description)
     sanction.add("listingDate", row.pop("year")["value"])
+    sanction.add("program", PROGRAM)
 
     context.emit(entity, target=True)
     context.emit(sanction)
@@ -37,33 +72,7 @@ def crawl(context: Context):
     javascript_vars = page_data.text_content()
     token = re.search("window.g_ck = '(\w+)';", javascript_vars).groups(1)[0]
 
-    request_data = {
-        "sys_id": "384b968adb3cd30044f9ff621f961941",
-        "preventViewAll": True,
-        "workflow_state": "published",
-        "field_list": "year,company,description,charging_letter,consent_agreement,order",
-        "table": "x_usd10_ddtc_publi_ddtc_public_penalty_and_oversight",
-        "order": 1,
-        "sys_view_count": "0",
-        "d": "DESC",
-        "active": True,
-        "fields_array": [
-            "year",
-            "company",
-            "description",
-            "charging_letter",
-            "consent_agreement",
-            "order",
-        ],
-        "kb_knowledge_page": "ddtc_kb_article_page",
-        "o": "year",
-        "sp_widget_dv": "PWS DDTC Public Portal KB",
-        "kb_knowledge_base": "34a3eed6db2f0300d0a370131f961983",
-        "category": "ba6b12cadb3cd30044f9ff621f961981",
-        "sp_column": "b8037ac41b0ec950055b9796bc4bcb86",
-        "sys_class_name": "sp_instance",
-        "sp_widget": "dbd0af311b58b450055b9796bc4bcb2d",
-    }
+    request_data = REQUEST_TEMPLATE
     
     headers = {"X-UserToken": token}
     num_pages = None
