@@ -1,6 +1,8 @@
 import re
 import json
-from typing import Any, Dict
+from typing import Any, Dict, Optional
+from lxml import html
+from urllib.parse import urljoin
 
 from zavod import Context
 from zavod import helpers as h
@@ -40,12 +42,21 @@ PROGRAM = (
     "and the ITAR."
 )
 
+
+def get_link_href(base_url: str, link: Optional[str]) -> Optional[str]:
+    if not link:
+        return None
+    anchor = html.fromstring(link)
+    return urljoin(base_url, anchor.get("href"))
+
+
 def crawl_row(context: Context, row: Dict[str, Any]):
     entity = context.make("LegalEntity")
     name = row.pop("company")["value"]
     entity.id = context.make_slug(name)
     entity.add("name", name)
     entity.add("country", "us")
+    entity.add("topics", "crime.traffick")
 
     description = row.pop("description")["value"]
     sanction = h.make_sanction(context, entity, description)
@@ -53,8 +64,22 @@ def crawl_row(context: Context, row: Dict[str, Any]):
     sanction.add("listingDate", row.pop("year")["value"])
     sanction.add("program", PROGRAM)
 
+    sanction.add(
+        "sourceUrl",
+        get_link_href(context.dataset.url, row.pop("charging_letter")["value"]),
+    )
+    sanction.add(
+        "sourceUrl",
+        get_link_href(context.dataset.url, row.pop("consent_agreement")["value"]),
+    )
+    sanction.add(
+        "sourceUrl", get_link_href(context.dataset.url, row.pop("order")["value"])
+    )
+
     context.emit(entity, target=True)
     context.emit(sanction)
+
+    context.audit_data(row, ignore=["sys_id"])
 
 
 def crawl(context: Context):
@@ -73,7 +98,7 @@ def crawl(context: Context):
     token = re.search("window.g_ck = '(\w+)';", javascript_vars).groups(1)[0]
 
     request_data = REQUEST_TEMPLATE
-    
+
     headers = {"X-UserToken": token}
     num_pages = None
 

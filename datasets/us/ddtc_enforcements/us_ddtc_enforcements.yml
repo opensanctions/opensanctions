@@ -13,9 +13,11 @@ description: |
   This dataset provides a current and historical list of names of current individuals
   and companies who entered into consent agreements
   with the Directorate of Defense Trade Controls (DDTC) to settle allegations of violations
-  of the AECA or ITAR. It includes a short description of the allegations and links
-  to the page publishing the charging letter, the agreement, and the order of remediation
-  actions.
+  of the AECA or ITAR. 
+  
+  It includes a short description of the allegations and links
+  to the charging letter, the agreement, and the order of remediation for each instance,
+  when available.
 
   From the DDTC page:
 
