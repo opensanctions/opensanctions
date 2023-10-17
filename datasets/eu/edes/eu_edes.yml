@@ -38,5 +38,7 @@ data:
 lookups:
   type.date:
     options:
-      - match: "9999-12-31"
+      - match:
+          - "9999-12-31"
+          - "9999-12-30"
         value: null
