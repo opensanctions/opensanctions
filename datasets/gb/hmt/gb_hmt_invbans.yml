@@ -1,0 +1,32 @@
+title: UK HMT/OFSI Investment Bans
+entry_point: crawler.py
+prefix: gb-invban
+coverage:
+  frequency: daily
+deploy:
+  memory: "2Gi"
+  schedule: "0 */12 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Separate from the main sanctions list, this list of persons names entities
+  in relation to financial and investment restrictions
+description: |
+  > Sectoral financial and investment restrictions are in place in the Russia
+  > sanctions regime which restrict specified activities. These include
+  > restrictions on dealing with transferable securities or money-market
+  > instruments and granting or entering into arrangements to grant loans or credit.
+
+  The UK sanctions list suffers from very bad data quality as the result of manual
+  data processing and inappropriate data structures used by the XML files.
+publisher:
+  name: Office of Financial Sanctions Implementation
+  description: >
+    OFSI is part of Her Majesty's Treasury. It helps to ensure that financial
+    sanctions are properly understood, implemented and enforced in the United Kingdom.
+  url: https://www.gov.uk/government/organisations/office-of-financial-sanctions-implementation
+  country: gb
+  official: true
+url: https://www.gov.uk/government/publications/financial-sanctions-consolidated-list-of-targets
+data:
+  url: https://ofsistorage.blob.core.windows.net/publishlive/2022format/InvBan.xml
+  format: XML

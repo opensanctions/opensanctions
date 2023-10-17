@@ -86,7 +86,7 @@ def parse_row(context: Context, row):
     sanction.add("authority", row.pop("ListingType", None))
     listed_date = h.parse_date(row.pop("DateListed"), FORMATS)
     sanction.add("listingDate", listed_date)
-    designated_date = h.parse_date(row.pop("DateDesignated"), FORMATS)
+    designated_date = h.parse_date(row.pop("DateDesignated", None), FORMATS)
     sanction.add("startDate", designated_date)
 
     entity.add("createdAt", listed_date)
@@ -251,7 +251,11 @@ def parse_row(context: Context, row):
         context.emit(ownership)
 
     grp_status = row.pop("GrpStatus", None)
-    if grp_status != "A":
+    if grp_status == "A":
+        sanction.add("provisions", "Asset freeze")
+    elif grp_status == "I":
+        sanction.add("provisions", "Investment ban")
+    else:
         context.log.warning("Unknown GrpStatus", value=grp_status)
 
     entity.add("notes", h.clean_note(row.pop("OtherInformation", None)))
