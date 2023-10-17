@@ -1,0 +1,21 @@
+title: US State Department Senior Officials
+entry_point: crawler.py
+prefix: us-dos-adm
+coverage:
+  frequency: daily
+deploy:
+  schedule: "0 */12 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: |
+  Senior officials in the US Department of State
+description: ...
+url: https://www.state.gov/biographies-list/
+publisher:
+  name: US State Department
+  description: ...
+  country: us
+  url: https://www.pmddtc.state.gov/ddtc_public/ddtc_public?id=ddtc_public_portal_homepage
+  official: true
+data:
+  url: https://www.state.gov/biographies-list/
+  format: HTML
