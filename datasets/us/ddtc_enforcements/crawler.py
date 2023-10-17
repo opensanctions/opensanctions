@@ -68,18 +68,11 @@ def crawl_row(context: Context, row: Dict[str, Any]):
         "sourceUrl",
         get_link_href(context.dataset.url, row.pop("charging_letter")["value"]),
     )
-    sanction.add(
-        "sourceUrl",
-        get_link_href(context.dataset.url, row.pop("consent_agreement")["value"]),
-    )
-    sanction.add(
-        "sourceUrl", get_link_href(context.dataset.url, row.pop("order")["value"])
-    )
 
     context.emit(entity, target=True)
     context.emit(sanction)
 
-    context.audit_data(row, ignore=["sys_id"])
+    context.audit_data(row, ignore=["sys_id", "consent_agreement", "order"])
 
 
 def crawl(context: Context):
