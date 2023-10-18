@@ -6,6 +6,9 @@ from zavod.util import ElementOrTree
 import re
 
 
+REGEX_ITEM = re.compile("(\d+\. )?(\(U\) )?(?P<name>[\w \.'’“”-]+),? ?\((?P<country>[\w /]+)\) (– )?(?P<reason>.+)$")
+
+
 def crawl_section(context: Context, url: str, section: ElementOrTree):
     print("\n--------------")
     program = section.find(".//h3[@class='report__section-subtitle']").text_content()
@@ -20,14 +23,18 @@ def crawl_section(context: Context, url: str, section: ElementOrTree):
     if len(items) == 0:
         context.log.warning(f"Empty list for program {program}")
     for item in items:
-        name, rest = item.text_content().split("(", 1)
-        country, reason = rest.split(")", 1)
-
-        name = collapse_spaces(name)
-        country = collapse_spaces(country)
-        reason = collapse_spaces(re.sub("^\s*–\s*", "", reason))
-        
-        print(f"{name} | {country} | {reason}")
+        item_text = collapse_spaces(item.text_content())
+        if item_text == "":
+            continue
+        match = REGEX_ITEM.match(item_text)
+        if match:
+            name = collapse_spaces(match.group("name"))
+            country = collapse_spaces(match.group("country"))
+            reason = collapse_spaces(match.group("reason"))
+            
+            print(f"{name} | {country} | {reason}")
+        else:
+            context.log.warning(f"Cannot parse item", item=item_text)
 
 
 
