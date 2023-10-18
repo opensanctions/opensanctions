@@ -1,6 +1,6 @@
 title: "US Anti-Kleptocracy and Human Rights Visa Restrictions"
 entry_point: crawler.py
-prefix: us-dosforaa-7031
+prefix: us-klepto-hr-visa
 coverage:
   frequency: never
 deploy:
