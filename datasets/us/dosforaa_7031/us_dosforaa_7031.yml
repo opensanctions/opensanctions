@@ -7,17 +7,15 @@ deploy:
   schedule: "0 */12 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
-  Officials of foreign governments and family members credibly implicated in 
-  corruption or human rights violations as outlined in Section 7031(c)(1)(A) 
-  of the Department of State, Foreign Operations and Related Appropriations 
-  Act of 2021
+  US Visa restrictions on officials of foreign governments and family members
+  credibly implicated in corruption or human rights violations
 description: |
   The U.S. Department of State Bureau of International Narcotics and Law 
   Enforcement Affairs publishes this report
   submitted to congress as per Section 7031(c)(1)(A) of the Department of State,
   Foreign Operations and Related Appropriations Act of 2021
 
-  From the report:
+  From the report pages:
 
   > Officials of foreign governments and their immediate family members about
   > whom the Secretary of State has credible information have been involved,
@@ -40,3 +38,10 @@ data:
   url: https://www.state.gov/reports/report-to-congress-on-anti-kleptocracy-and-human-rights-visa-restrictions-public-listing/
   format: HTML
 
+lookups:
+  unparsed:
+    options:
+      - regex: "^Karina \\(aka Khadizhat\\) Ramzanovna Kadyrova \\(Russia\\)"
+        name: Karina (aka Khadizhat) Ramzanovna Kadyrova
+        country: RU
+        reason: "(1)(B) Public Designation. Karina Kadyrova is Ramzan Kadyrov’s daughter."
