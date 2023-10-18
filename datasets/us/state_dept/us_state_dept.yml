@@ -1,6 +1,6 @@
 title: US State Department Senior Officials
 entry_point: crawler.py
-prefix: us-dos-adm
+prefix: us-dos
 coverage:
   frequency: daily
 deploy:
