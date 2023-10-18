@@ -8,7 +8,9 @@ from zavod import helpers as h
 from zavod.util import ElementOrTree
 
 
-REGEX_ITEM = re.compile("(\d+\. )?(\(U\) )?(?P<name>[\w \.'’“”-]+),? ?\((?P<country>[\w /]+)\) (– )?(?P<reason>.+)$")
+REGEX_ITEM = re.compile(
+    "(\d+\. )?(\(U\) )?(?P<name>[\w \.'’“”-]+),? ?\((?P<country>[\w /]+)\) (– )?(?P<reason>.+)$"
+)
 
 
 def crawl_section(context: Context, url: str, section: ElementOrTree):
@@ -27,7 +29,7 @@ def crawl_section(context: Context, url: str, section: ElementOrTree):
         items = section.findall(".//p")
     if len(items) == 0:
         context.log.warning(f"Empty list for program {program}")
-        
+
     for item in items:
         item_text = collapse_spaces(item.text_content())
         if item_text == "":
@@ -46,11 +48,12 @@ def crawl_section(context: Context, url: str, section: ElementOrTree):
                 name = res.name
                 countries = res.country
                 reason = res.reason
-    
+
             entity = context.make("Person")
             entity.id = context.make_slug(countries, name)
             entity.add("name", name)
             entity.add("country", countries)
+            entity.add("topics", "sanction")
 
             sanction = h.make_sanction(context, entity)
             sanction.add("program", program)
@@ -62,7 +65,6 @@ def crawl_section(context: Context, url: str, section: ElementOrTree):
             context.emit(sanction)
         else:
             context.log.warning(f"Cannot parse item", item=item_text)
-
 
 
 def crawl_report(context: Context, url: str):
