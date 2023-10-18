@@ -2,7 +2,7 @@ title: "US Anti-Kleptocracy and Human Rights Visa Restrictions"
 entry_point: crawler.py
 prefix: us-klepto-hr-visa
 coverage:
-  frequency: never
+  frequency: daily
 deploy:
   schedule: "0 */12 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
