@@ -53,8 +53,9 @@ def crawl_bio_page(context: Context, url: str):
     position_name = collapse_spaces(position_container.text_content())
 
     topics = ["gov.national"]
-    if position_name == "The Secretary of State" or position_name.startswith(
-        "Under Secretary"
+    if (position_name == "Secretary of State" 
+        or position_name.startswith("Deputy Secretary of State")
+        or position_name.startswith("Under Secretary")
     ):
         topics.append("gov.executive")
 
