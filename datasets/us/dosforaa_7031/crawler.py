@@ -7,14 +7,26 @@ import re
 
 
 def crawl_section(context: Context, url: str, section: ElementOrTree):
+    print("\n--------------")
     program = section.find(".//h3[@class='report__section-subtitle']").text_content()
-    for item in section.findall(".//li"):
-        name_el = item.find("./strong")
-        if name_el is None:
-            name_el = item.find("./b")
-        name = name_el.text_content()
-        country, reason = name_el.tail.split(")", 1)
-        country = re.sub("[(–]", "", country)
+    program = program.replace("(Generally Listed in Chronological Order)", "")
+    program = collapse_spaces(program.replace("Since Previous Report", ""))
+    print(program)
+    print()
+
+    items = section.findall(".//li")
+    if len(items) == 0:
+        items = section.findall(".//p")
+    if len(items) == 0:
+        context.log.warning(f"Empty list for program {program}")
+    for item in items:
+        name, rest = item.text_content().split("(", 1)
+        country, reason = rest.split(")", 1)
+
+        name = collapse_spaces(name)
+        country = collapse_spaces(country)
+        reason = collapse_spaces(re.sub("^\s*–\s*", "", reason))
+        
         print(f"{name} | {country} | {reason}")
 
 
