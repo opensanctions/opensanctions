@@ -1,0 +1,47 @@
+title: "US Anti-Kleptocracy and Human Rights Visa Restrictions"
+entry_point: crawler.py
+prefix: us-dosforaa-7031
+coverage:
+  frequency: never
+deploy:
+  schedule: "0 */12 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: |
+  US Visa restrictions on officials of foreign governments and family members
+  credibly implicated in corruption or human rights violations
+description: |
+  The U.S. Department of State Bureau of International Narcotics and Law 
+  Enforcement Affairs publishes this report of quarterly submissions
+  to congress as per Section 7031(c)(1)(A) of the Department of State,
+  Foreign Operations and Related Appropriations Act of 2021
+
+  From the report pages:
+
+  > Officials of foreign governments and their immediate family members about
+  > whom the Secretary of State has credible information have been involved,
+  > directly or indirectly, in significant corruption, including corruption
+  > related to the extraction of natural resources, or a gross violation of
+  > human rights, including the wrongful detention of locally employed staff
+  > of a United States diplomatic mission or a United States citizen or national,
+  > shall be ineligible for entry into the United States.
+url: https://www.state.gov/reports/report-to-congress-on-anti-kleptocracy-and-human-rights-visa-restrictions-public-listing/
+publisher:
+  name: US State Department
+  description: |
+    The U.S. State Department's stated mission is to protect and promote U.S. 
+    security, prosperity, and democratic values and shape an international
+    environment in which all Americans can thrive.
+  country: us
+  url: https://www.state.gov/
+  official: true
+data:
+  url: https://www.state.gov/reports/report-to-congress-on-anti-kleptocracy-and-human-rights-visa-restrictions-public-listing/
+  format: HTML
+
+lookups:
+  unparsed:
+    options:
+      - regex: "^Karina \\(aka Khadizhat\\) Ramzanovna Kadyrova \\(Russia\\)"
+        name: Karina (aka Khadizhat) Ramzanovna Kadyrova
+        country: RU
+        reason: "(1)(B) Public Designation. Karina Kadyrova is Ramzan Kadyrov’s daughter."
