@@ -70,7 +70,6 @@ def crawl_section(context: Context, url: str, section: ElementOrTree):
 def crawl_report(context: Context, url: str):
     context.log.info(f"Crawling {url}")
     doc = context.fetch_html(url, cache_days=1)
-    doc.find
     for section in doc.findall(".//section[@class='entry-content']"):
         crawl_section(context, url, section)
 
