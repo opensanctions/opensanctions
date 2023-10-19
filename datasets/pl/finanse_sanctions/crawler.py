@@ -43,6 +43,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     birthplace = row.pop("Miejsce urodzenia")
     entity.id = context.make_id(birthplace, name)
     entity.add("name", name)
+    entity.add("alias", row.pop("Pseudonim").split("\n"))
     birth_country = birthplace.split(",")[-1]
     entity.add("birthPlace", birthplace, lang="pol")
     entity.add("birthCountry", birth_country, lang="pol")
@@ -64,6 +65,8 @@ def crawl_row(context: Context, row: Dict[str, str]):
     context.emit(entity, target=True)
     context.emit(sanction)
     context.emit(address)
+
+    context.audit_data(row)
 
 
 def check_updates(context: Context):
