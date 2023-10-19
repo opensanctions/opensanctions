@@ -9,10 +9,9 @@ def get_persons(
     doc: ElementOrTree,
     committee_id_prefixes: Optional[List[str]] = None,
 ):
-    for entity in get_entities(
+    yield from get_entities(
         context, prefix, doc, committee_id_prefixes, "INDIVIDUAL", "Person"
-    ):
-        yield entity
+    )
 
 
 def get_legal_entities(
@@ -21,10 +20,9 @@ def get_legal_entities(
     doc: ElementOrTree,
     committee_id_prefixes: Optional[List[str]] = None,
 ):
-    for entity in get_entities(
+    yield from get_entities(
         context, prefix, doc, committee_id_prefixes, "ENTITY", "LegalEntity"
-    ):
-        yield entity
+    )
 
 
 def get_entities(
@@ -45,7 +43,9 @@ def get_entities(
 
 
 def make_entity(context: Context, prefix: str, schema: str, dataid: str) -> Entity:
-    """Make an entity and set its ID"""
+    """Make an entity, set its ID, and add the sanction topic so that there is
+    at least one property, making it ready to emit."""
     entity = context.make(schema)
     entity.id = context.make_slug(dataid, prefix=prefix)
+    entity.add("topics", "sanction")
     return entity

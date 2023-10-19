@@ -128,7 +128,6 @@ def parse_common(context: Context, entity: Entity, node: Element):
     )
     entity.add("alias", node.findtext("./NAME_ORIGINAL_SCRIPT"))
     entity.add("notes", h.clean_note(node.findtext("./COMMENTS1")))
-    entity.add("topics", "sanction")
 
     sanction = h.make_sanction(context, entity)
     entity.add("createdAt", node.findtext("./LISTED_ON"))

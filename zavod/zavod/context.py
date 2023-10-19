@@ -412,7 +412,7 @@ class Context:
             self.log.warn("Unexpected data found", data=cleaned)
 
     def emit(
-        self, entity: Entity, target: bool = False, external: bool = False, endorse: bool = False
+        self, entity: Entity, target: bool = False, external: bool = False
     ) -> None:
         """Send an entity from the crawling/runner process to be stored.
 
@@ -421,13 +421,10 @@ class Context:
             target: Whether the entity is a target of the dataset.
             external: Whether the entity is an enrichment candidate or already
                 part of the dataset.
-            endorse: Set to true when emitting only the ID under another dataset
-                than the primary dataset for this source, e.g. when a country
-                endorses another list.
         """
         if entity.id is None:
             raise ValueError("Entity has no ID: %r", entity)
-        if not endorse and len(entity.properties) == 0:
+        if len(entity.properties) == 0:
             self.log.error("Entity has no properties", entity=entity)
             return
         self.stats.entities += 1

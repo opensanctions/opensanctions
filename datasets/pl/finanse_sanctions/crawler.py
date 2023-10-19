@@ -104,7 +104,7 @@ def crawl(context: Context):
     doc = context.parse_resource_xml(path)
 
     for _node, entity in get_persons(context, UN_SC_PREFIX, doc, UN_SC_COMMITTEE_PREFIXES):
-        context.emit(entity, target=True, endorse=True)
+        context.emit(entity, target=True)
 
     for _node, entity in get_legal_entities(context, UN_SC_PREFIX, doc, UN_SC_COMMITTEE_PREFIXES):
-        context.emit(entity, target=True, endorse=True)
+        context.emit(entity, target=True)
