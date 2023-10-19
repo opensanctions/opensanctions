@@ -48,13 +48,10 @@ lookups:
           - "11203"
         values: []
       - match:
-          - Kaveh Cutting Tools
           - Htoo Group of Companies
-          - Basij Cooperative Foundation (BCF)
           - Aerospace Industries Organisation (AIO)
           - Aerospace Industries Organization (AIO)
           - Defence Industries Organisation (DIO)
-          - Khatam al-Anbiya (KAA)
           - General Petroleum Company (GPC)
           - Daedong Credit Bank (DCB)
           - Russian Ministry of Defence
@@ -64,9 +61,6 @@ lookups:
           - The Korea Ryongbong General Corporation
           - Green Pine Associated Corporation
           - DPRK's Second Academy of Natural Sciences
-          - Islamic Revolutionary Guard Corps (IRGC)
-          - Iran Aviation Industries Organisation (IAIO)
-          - Iran Aircraft Manufacturing Company
           - Sairan Medical Equipment Industry
           - Shahid Hemmat Industrial Group (SHIG)
           - Shahid Bagheri Industrial Group (SBIG)
@@ -82,7 +76,6 @@ lookups:
           - Rostech
           - Ghorb Nooh
           - Gidrostroimos-Riga
-          - 7TH OF TIR
           - PJSC Aeroflot
           - PJSC KIROVSKY PLANT
           - Ministry of Defence of the Russian Federation
@@ -306,7 +299,6 @@ lookups:
         value: Islamic Revolutionary Guard Corps (IRGC)
       - match:
           - Iran Aviation Industries Organisation (IAIO) (a subsidiary of MODAFL)
-          - Iran Aviation Industries Organisation (IAIO)
         values:
           - Iran Aviation Industries Organisation (IAIO)
       - match:
@@ -337,11 +329,6 @@ lookups:
         value: Syrian Ministry of Defence
       - match: Ministry of Interior, Marjeh Square, Damascus
         value: Syrian Ministry of Interior
-      - match: Air Defense Missile Industries Group. Areospace Industries Organisation (AIO). Shahid Ahmad Kazemi Industries Group
-        values:
-          - Air Defense Missile Industries Group
-          - Areospace Industries Organisation (AIO)
-          - Shahid Ahmad Kazemi Industries Group
       - match: Belneftekhim. Belorusneft. CJSC Belarusian Oil Company
         values:
           - Belneftekhim
@@ -439,12 +426,6 @@ lookups:
       - match: Bena Properties (subsidiary), Cham Holding Building, Daraa Highway, Ashrafiyat Sahnaya Rif Dimashq, Syria, P.O. Box 9525
         values:
           - Bena Properties
-      - match: Ammunition and Metallurgy Group. Ammunition Industries Group (AMIG). Defence Industries Organisation (DIO). Ministry of Defence and Armed Force Logistics (MODAFL)
-        values:
-          - Ammunition and Metallurgy Group
-          - Ammunition Industries Group (AMIG)
-          - Defence Industries Organisation (DIO)
-          - Ministry of Defence and Armed Force Logistics (MODAFL)
       - match: (1) Novin Energy (2) TAMAS
         values:
           - Novin Energy
@@ -452,8 +433,6 @@ lookups:
   type.address:
     lowercase: true
     options:
-      - match: "-"
-        value: null
       - match: Moscow
         value: Moscow
   type.country:
