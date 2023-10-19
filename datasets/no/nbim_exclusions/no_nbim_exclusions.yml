@@ -7,7 +7,7 @@ deploy:
   schedule: "0 */12 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
-  Companies excluded from investment by Norway's oil fund, or listed for observation.
+  Companies excluded from investment by Norway's Government Pension Fund Global, or listed for observation.
 description: |
   This dataset lists companies which are excluded from investment by Norway's
   oil fund, or placed under observation, guided by a set of guidelines from
@@ -31,7 +31,7 @@ url: https://www.nbim.no/en/responsible-investment/ethical-exclusions/exclusion-
 publisher:
   name: Norges Bank Investment Management (NBIM)
   description: |
-    NBIM is responsible for the operational management of Norway's oil fund.
+    NBIM is responsible for the operational management of Norway's Government Pension Fund Global.
     Their objective is the highest possible return on the fund, aiming to
     achieve this in a safe, efficient, responsible and transparent manner,
     and within government guidelines. 
