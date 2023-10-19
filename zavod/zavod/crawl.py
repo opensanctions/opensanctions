@@ -1,6 +1,7 @@
 from requests.exceptions import RequestException
 from datapatch import LookupException
 
+from zavod import settings
 from zavod.meta import Dataset
 from zavod.context import Context
 from zavod.exc import RunFailedException
@@ -41,6 +42,8 @@ def crawl_dataset(dataset: Dataset, dry_run: bool = False) -> ContextStats:
             entities=context.stats.entities,
             statements=context.stats.statements,
         )
+        if settings.DEBUG:
+            context.debug_lookups()
         return context.stats
     except (SystemExit, KeyboardInterrupt) as kint:
         context.log.warning("Interrupted")

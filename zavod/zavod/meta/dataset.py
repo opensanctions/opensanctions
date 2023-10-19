@@ -70,8 +70,8 @@ class Dataset(NKDataset):
 
     @cached_property
     def lookups(self) -> Dict[str, Lookup]:
-        # TODO: debug mode
-        return get_lookups(self._data.get("lookups", {}))
+        config = self._data.get("lookups", {})
+        return get_lookups(config, debug=settings.DEBUG)
 
     @cached_property
     def data(self) -> Optional[Data]:

@@ -352,11 +352,11 @@ class Context:
         self,
         *parts: Optional[str],
         prefix: Optional[str] = None,
-        hash_prefix: Optional[str] = None
+        hash_prefix: Optional[str] = None,
     ) -> Optional[str]:
         """Make a hash-based entity ID from a list of strings, prefixed with the
         dataset prefix.
-        
+
         Args:
             prefix: Use this prefix in the slug, but not the hash.
             hash_prefix: Use this prefix in the hash, but not the slug.
@@ -381,6 +381,19 @@ class Context:
 
     def lookup(self, lookup: str, value: Optional[str]) -> Optional[Result]:
         return self.get_lookup(lookup).match(value)
+
+    def debug_lookups(self) -> None:
+        """Output a list of unused lookup options."""
+        for name, lookup in self.dataset.lookups.items():
+            for option in lookup.options:
+                if option.ref_count > 0:
+                    continue
+                self.log.warn(
+                    "Unused lookup option",
+                    lookup=name,
+                    option=option,
+                    clauses=option.clauses,
+                )
 
     def inspect(self, obj: Any) -> None:
         """Display an object in a form suitable for inspection.

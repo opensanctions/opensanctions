@@ -41,8 +41,11 @@ def _load_datasets(paths: List[Path]) -> Dataset:
 
 
 @click.group(help="Zavod data factory")
-def cli() -> None:
-    configure_logging(level=logging.INFO)
+@click.option("--debug", is_flag=True, default=False)
+def cli(debug: bool = False) -> None:
+    settings.DEBUG = debug
+    level = logging.DEBUG if debug else logging.INFO
+    configure_logging(level=level)
 
 
 @cli.command("crawl", help="Crawl a specific dataset")
