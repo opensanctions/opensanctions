@@ -52,6 +52,7 @@ lookups:
           - Htoo Group of Companies
           - Basij Cooperative Foundation (BCF)
           - Aerospace Industries Organisation (AIO)
+          - Aerospace Industries Organization (AIO)
           - Defence Industries Organisation (DIO)
           - Khatam al-Anbiya (KAA)
           - General Petroleum Company (GPC)
@@ -308,8 +309,24 @@ lookups:
           - Iran Aviation Industries Organisation (IAIO)
         values:
           - Iran Aviation Industries Organisation (IAIO)
-      - match: Owned/controlled by Khatam al Anbiya Construction Headquarters
+      - match:
+          - Atomic Energy Organisation of Iran (AEOI)
+        values:
+          - Atomic Energy Organisation of Iran (AEOI)
+      - match:
+          - Defence Industries Organisation (DIO), Ministry of Defence Armed Forces Logistics (MODAFL)
+        values:
+          - Defence Industries Organisation (DIO)
+          - Ministry of Defence and Armed Force Logistics (MODAFL)
+      - match:
+          - Owned/controlled by Khatam al Anbiya Construction Headquarters
+          - Khatam-al Anbiya Construction Headquarters
+          - KHATAM AL-ANBIYA CONSTRUCTION HEADQUARTERS (KAA)
         value: Khatam al Anbiya Construction Headquarters
+      - match: Shahid Ahmad Kazemi Industries Group, Aerospace Industries Organisation (AIO)
+        values:
+          - Shahid Ahmad Kazemi Industries Group
+          - Areospace Industries Organisation (AIO)
       - match: AMMUNITION AND METALLURGY INDUSTRIES GROUP (AMIG). Defence Industries Organisation (DIO)
         value:
           - AMMUNITION AND METALLURGY INDUSTRIES GROUP (AMIG)
