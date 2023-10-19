@@ -394,6 +394,7 @@ class Context:
                     option=option,
                     clauses=option.clauses,
                 )
+            # print(lookup.unmatched_yaml())
 
     def inspect(self, obj: Any) -> None:
         """Display an object in a form suitable for inspection.

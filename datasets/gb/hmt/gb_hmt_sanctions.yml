@@ -106,13 +106,13 @@ lookups:
           - Organisation for Technological Industries (OTI)
           - Syrian Ministry of Defence
       - match: JSC “Krasnodargastroy”. JSC “Lengazpetstroy”. JSC “Volgogaz”. LLC”NGKM”
-        value:
+        values:
           - JSC “Krasnodargastroy”
           - JSC “Lengazpetstroy”
           - JSC “Volgogaz”
           - LLC ”NGKM”
       - match: Yuzhny Proyect (Southern Project),  affiliated with the Saint Petersburg-based Rossiya bank, which is co-owned by oligarch Yury KOVALCHUK (RUS0007)
-        value:
+        values:
           - Yuzhny Proyect
           - Rossiya bank
       - match: Limited Liability Company <<STROYGAZMONTAZH>>
@@ -320,7 +320,7 @@ lookups:
           - Shahid Ahmad Kazemi Industries Group
           - Areospace Industries Organisation (AIO)
       - match: AMMUNITION AND METALLURGY INDUSTRIES GROUP (AMIG). Defence Industries Organisation (DIO)
-        value:
+        values:
           - AMMUNITION AND METALLURGY INDUSTRIES GROUP (AMIG)
           - Defence Industries Organisation (DIO)
       - match: Hamsho International, Baghdad Street, PO Box 8254 Damascus
