@@ -16,6 +16,7 @@
 # Justification for entry on the list
 # Date of listing
 
+from normality import collapse_spaces
 from pantomime.types import CSV
 from typing import Dict
 import csv
@@ -42,16 +43,23 @@ def crawl_row(context: Context, row: Dict[str, str]):
     entity.add("birthPlace", birthplace, lang="pol")
     entity.add("birthCountry", birth_country, lang="pol")
     entity.add("birthDate", parse_date(row.pop("Data urodzenia")))
+    address = h.make_address(
+        context,
+        place=row.pop("location place"),
+        country=row.pop("location country")
+    )
+    entity.add("address", address)	
+    entity.add("nationality", row.pop("narodowość"))
     entity.add("topics", "sanction")
 
     sanction = h.make_sanction(context, entity)
     sanction.add("listingDate", parse_date(row.pop("Data umieszczenia na liście")))
-    sanction.add("reason", row.pop("Uzasadnienie wpisu na listę"), lang="pol")
+    sanction.add("reason", collapse_spaces(row.pop("Uzasadnienie wpisu na listę")), lang="pol")
     sanction.add("program", POLAND_PROGRAM, "pol")
 
     context.emit(entity, target=True)
     context.emit(sanction)
-
+    context.emit(address)
 
 def crawl(context: Context):
     doc = context.fetch_html(context.dataset.url)

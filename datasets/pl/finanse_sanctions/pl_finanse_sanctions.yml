@@ -27,7 +27,11 @@ lookups:
     normalize: true
     lowercase: true
     options:
-      - match: Republika Iraku
+      - match:
+          - Republika Iraku
+          - iracka
         value: IQ
-      - match: Federalna Republika Nigerii
+      - match: 
+          - Federalna Republika Nigerii
+          - nigeryjska
         value: NG
