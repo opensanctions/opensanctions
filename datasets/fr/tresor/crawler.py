@@ -62,6 +62,18 @@ def apply_prop(context: Context, entity: Entity, sanction: Entity, field: str, v
         if result.props:
             for prop, value in result.props.items():
                 entity.add(prop, value, lang="fra", original_value=full)
+        if result.associates:
+            for associate in result.associates:
+                other = context.make("LegalEntity")
+                other.id = context.make_slug("named", associate)
+                other.add("name", associate, lang="fra")
+                context.emit(other)
+
+                link = context.make("UnknownLink")
+                link.id = context.make_id(entity.id, other.id)
+                link.add("subject", entity)
+                link.add("object", other)
+                context.emit(link)
     elif field == "AUTRE_IDENTITE":
         entity.add("idNumber", value.pop("NumeroCarte"))
     elif field == "REFERENCE_UE":
