@@ -1,4 +1,4 @@
-title: "Norges Bank observation and exclusion of companies"
+title: "Norges Bank Investment Management observation and exclusion of companies"
 entry_point: crawler.py
 prefix: no-nbim
 coverage:

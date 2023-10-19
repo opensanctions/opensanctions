@@ -4,6 +4,7 @@ from lxml.etree import _Element as Element
 
 from zavod import Context, Entity
 from zavod import helpers as h
+from zavod.shed.un_sc import get_legal_entities, get_persons
 
 NAME_QUALITY = {
     "Low": "weakAlias",
@@ -46,8 +47,7 @@ def parse_address(context: Context, node: Element):
     )
 
 
-def parse_entity(context: Context, node: Element):
-    entity = context.make("LegalEntity")
+def parse_entity(context: Context, node: Element, entity: Entity):
     sanction = parse_common(context, entity, node)
 
     for alias in node.findall("./ENTITY_ALIAS"):
@@ -60,8 +60,7 @@ def parse_entity(context: Context, node: Element):
     context.emit(sanction)
 
 
-def parse_individual(context: Context, node: Element):
-    person = context.make("Person")
+def parse_individual(context: Context, node: Element, person: Entity):
     sanction = parse_common(context, person, node)
     person.add("title", values(node.find("./TITLE")))
     person.add("position", values(node.find("./DESIGNATION")))
@@ -119,7 +118,6 @@ def parse_individual(context: Context, node: Element):
 
 
 def parse_common(context: Context, entity: Entity, node: Element):
-    entity.id = context.make_slug(node.findtext("./DATAID"))
     h.apply_name(
         entity,
         given_name=node.findtext("./FIRST_NAME"),
@@ -130,7 +128,6 @@ def parse_common(context: Context, entity: Entity, node: Element):
     )
     entity.add("alias", node.findtext("./NAME_ORIGINAL_SCRIPT"))
     entity.add("notes", h.clean_note(node.findtext("./COMMENTS1")))
-    entity.add("topics", "sanction")
 
     sanction = h.make_sanction(context, entity)
     entity.add("createdAt", node.findtext("./LISTED_ON"))
@@ -162,8 +159,8 @@ def crawl(context: Context):
     context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
 
-    for node in doc.findall(".//INDIVIDUAL"):
-        parse_individual(context, node)
+    for node, entity in get_persons(context, context.dataset.prefix, doc):
+        parse_individual(context, node, entity)
 
-    for node in doc.findall(".//ENTITY"):
-        parse_entity(context, node)
+    for node, entity in get_legal_entities(context, context.dataset.prefix, doc):
+        parse_entity(context, node, entity)
