@@ -118,14 +118,6 @@ def parse_individual(context: Context, node: Element, person: Entity):
 
 
 def parse_common(context: Context, entity: Entity, node: Element):
-    h.apply_name(
-        entity,
-        given_name=node.findtext("./FIRST_NAME"),
-        second_name=node.findtext("./SECOND_NAME"),
-        name3=node.findtext("./THIRD_NAME"),
-        name4=node.findtext("./FOURTH_NAME"),
-        quiet=True,
-    )
     entity.add("alias", node.findtext("./NAME_ORIGINAL_SCRIPT"))
     entity.add("notes", h.clean_note(node.findtext("./COMMENTS1")))
 

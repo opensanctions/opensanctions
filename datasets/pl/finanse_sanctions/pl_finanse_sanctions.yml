@@ -9,10 +9,7 @@ load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Sanctions by Polish Ministry of Finance countering money laundering and terror
   financing, as well as UN Security Council resolutions 2253 and 1988
-description:
-publisher:
-  name: Generalny Inspektor Informacji Finansowej
-  description: |
+description: |
     The Inspector General of Financial Information in the Polish Ministry of Finance
     issues sanctions such that obligated institutions apply restrictive measures
     in accordance with Article 118 Section 1 point 1 of the Act of March 1, 2018 on
@@ -26,7 +23,11 @@ publisher:
     This dataset includes minimal data from the UN lists, whose data is included in
     full in the [UN SC Consolidated Dataset](https://www.opensanctions.org/datasets/un_sc_sanctions/)
     and our [Standard collection of datasets](https://www.opensanctions.org/datasets/default/)
-  url: https://www.gov.pl/web/mswia
+publisher:
+  name: Generalny Inspektor Informacji Finansowej
+  description: |
+    The Inspector General of Financial Information in the Polish Ministry of Finance
+  url: https://www.gov.pl/web/finanse/generalny-inspektor-informacji-finansowej
   country: pl
   official: true
 url: https://www.gov.pl/web/finanse/lista-osob-i-podmiotow-wobec-ktorych-stosuje-sie-szczegolne-srodki-ograniczajace-na-podstawie-art-118-ustawy-z-dnia-1-marca-2018-r-o-przeciwdzialaniu-praniu-pieniedzy-i-finansowaniu-terroryzmu

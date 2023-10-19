@@ -1,6 +1,8 @@
 from typing import Generator, List, Optional, Tuple
+
 from zavod import Context, Entity
 from zavod.util import ElementOrTree
+from zavod import helpers as h
 
 
 def get_persons(
@@ -34,22 +36,29 @@ def get_entities(
     schema: str,
 ) -> Generator[Tuple[ElementOrTree, Entity], None, None]:
     for node in doc.findall(f".//{tag}"):
-        dataid = node.findtext("./DATAID")
         perm_ref = node.findtext("./REFERENCE_NUMBER")
         if (
             include_prefixes is None
             or perm_ref is None
             or any([perm_ref.startswith(un_prefix) for un_prefix in include_prefixes])
         ):
-            yield node, make_entity(context, prefix, schema, dataid)
+            yield node, make_entity(context, prefix, schema, node)
 
 
 def make_entity(
-    context: Context, prefix: str, schema: str, dataid: str | None
+    context: Context, prefix: str, schema: str, node: ElementOrTree
 ) -> Entity:
-    """Make an entity, set its ID, and add the sanction topic so that there is
-    at least one property, making it ready to emit."""
+    """Make an entity, set its ID, and add the name and sanction topic so that there is
+    at least one property, making it useful and ready to emit."""
     entity = context.make(schema)
-    entity.id = context.make_slug(dataid, prefix=prefix)
+    entity.id = context.make_slug(node.findtext("./DATAID"), prefix=prefix)
+    h.apply_name(
+        entity,
+        given_name=node.findtext("./FIRST_NAME"),
+        second_name=node.findtext("./SECOND_NAME"),
+        name3=node.findtext("./THIRD_NAME"),
+        name4=node.findtext("./FOURTH_NAME"),
+        quiet=True,
+    )
     entity.add("topics", "sanction")
     return entity
