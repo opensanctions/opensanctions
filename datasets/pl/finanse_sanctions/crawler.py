@@ -23,10 +23,14 @@ import csv
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.shed.un_sc import get_legal_entities, get_persons
 
 FORMATS = ["%d.%m.%Y"]
 PDF_URL = "https://www.gov.pl/attachment/2fc03b3b-a5f6-4d08-80d1-728cdb71d2d6"
 POLAND_PROGRAM = "art. 118 ustawy z dnia 1 marca 2018 r. o przeciwdziałaniu praniu pieniędzy i finansowaniu terroryzmu"
+UN_SC_CONSOLIDATED_URL = "https://scsanctions.un.org/resources/xml/en/consolidated.xml"
+UN_SC_COMMITTEE_PREFIXES = ["TA", "QD"]
+UN_SC_PREFIX = "unsc"
 
 
 def parse_date(string):
@@ -44,24 +48,25 @@ def crawl_row(context: Context, row: Dict[str, str]):
     entity.add("birthCountry", birth_country, lang="pol")
     entity.add("birthDate", parse_date(row.pop("Data urodzenia")))
     address = h.make_address(
-        context,
-        place=row.pop("location place"),
-        country=row.pop("location country")
+        context, place=row.pop("location place"), country=row.pop("location country")
     )
-    entity.add("address", address)	
+    entity.add("address", address)
     entity.add("nationality", row.pop("narodowość"))
     entity.add("topics", "sanction")
 
     sanction = h.make_sanction(context, entity)
     sanction.add("listingDate", parse_date(row.pop("Data umieszczenia na liście")))
-    sanction.add("reason", collapse_spaces(row.pop("Uzasadnienie wpisu na listę")), lang="pol")
+    sanction.add(
+        "reason", collapse_spaces(row.pop("Uzasadnienie wpisu na listę")), lang="pol"
+    )
     sanction.add("program", POLAND_PROGRAM, "pol")
 
     context.emit(entity, target=True)
     context.emit(sanction)
     context.emit(address)
 
-def crawl(context: Context):
+
+def check_updates(context: Context):
     doc = context.fetch_html(context.dataset.url)
     doc.make_links_absolute(context.dataset.url)
     materials = doc.findall(".//a[@class='file-download']")
@@ -84,8 +89,22 @@ def crawl(context: Context):
                     last_modified=last_modified,
                 )
 
+
+def crawl(context: Context):
+    check_updates(context)
+
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         for row in csv.DictReader(fh):
             crawl_row(context, row)
+
+    path = context.fetch_resource("source.xml", UN_SC_CONSOLIDATED_URL)
+    context.export_resource(path, "text/xml", title="UN Security Council Consolidated list")
+    doc = context.parse_resource_xml(path)
+
+    for _node, entity in get_persons(context, UN_SC_PREFIX, doc, UN_SC_COMMITTEE_PREFIXES):
+        context.emit(entity, target=True, endorse=True)
+
+    for _node, entity in get_legal_entities(context, UN_SC_PREFIX, doc, UN_SC_COMMITTEE_PREFIXES):
+        context.emit(entity, target=True, endorse=True)
