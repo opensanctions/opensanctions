@@ -1,6 +1,6 @@
 import string
 import openpyxl
-from typing import List, Optional
+from typing import List, Optional, Set
 from collections import defaultdict
 from normality import slugify
 from datetime import datetime
@@ -52,11 +52,7 @@ def clean_date(date):
     return dates
 
 
-def clean_reference(ref) -> Optional[int]:
-    if ref is None:
-        return None
-    if isinstance(ref, (int, float)):
-        return int(ref)
+def clean_reference(ref: str) -> Optional[int]:
     number = ref
     while len(number):
         try:
@@ -140,16 +136,13 @@ def parse_reference(context: Context, reference: int, rows):
 
 
 def crawl(context: Context):
-    # TODO: why does this work and the fetch call does not?
-    # path = context.get_resource_path("source.xlsx")
-    # res = requests.get(context.data_url, verify=False)
-    # with open(path, "wb") as fh:
-    #     fh.write(res.content)
     path = context.fetch_resource("source.xlsx", context.data_url)
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
     workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
     references = defaultdict(list)
+    raw_references: Set[str] = set()
+    # duplicates = set()
     for sheet in workbook.worksheets:
         headers: Optional[List[str]] = None
         for row in sheet.rows:
@@ -158,7 +151,16 @@ def crawl(context: Context):
                 headers = [slugify(h, sep="_") for h in cells]
                 continue
             row = dict(zip(headers, cells))
-            reference = clean_reference(row.get("reference"))
+            raw_ref = row.get("reference")
+            if raw_ref is None:
+                continue
+            raw_ref = str(raw_ref)
+            if raw_ref in raw_references:
+                raise ValueError("Duplicate reference: %s" % raw_ref)
+                # duplicates.add(raw_ref)
+
+            raw_references.add(raw_ref)
+            reference = clean_reference(raw_ref)
             if reference is not None:
                 references[reference].append(row)
 
@@ -174,3 +176,5 @@ def crawl(context: Context):
 
     for ref, rows in references.items():
         parse_reference(context, ref, rows)
+
+    # print("Duplicates:", duplicates)
