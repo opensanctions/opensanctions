@@ -29,7 +29,7 @@ FORMATS = ["%d.%m.%Y"]
 PDF_URL = "https://www.gov.pl/attachment/2fc03b3b-a5f6-4d08-80d1-728cdb71d2d6"
 POLAND_PROGRAM = "art. 118 ustawy z dnia 1 marca 2018 r. o przeciwdziałaniu praniu pieniędzy i finansowaniu terroryzmu"
 UN_SC_CONSOLIDATED_URL = "https://scsanctions.un.org/resources/xml/en/consolidated.xml"
-UN_SC_COMMITTEE_PREFIXES = ["TA", "QD"]
+UN_SC_PREFIXES = ["TA", "QD"]
 UN_SC_PREFIX = "unsc"
 
 
@@ -100,11 +100,13 @@ def crawl(context: Context):
             crawl_row(context, row)
 
     path = context.fetch_resource("source.xml", UN_SC_CONSOLIDATED_URL)
-    context.export_resource(path, "text/xml", title="UN Security Council Consolidated list")
+    context.export_resource(
+        path, "text/xml", title="UN Security Council Consolidated list"
+    )
     doc = context.parse_resource_xml(path)
 
-    for _node, entity in get_persons(context, UN_SC_PREFIX, doc, UN_SC_COMMITTEE_PREFIXES):
+    for _node, entity in get_persons(context, UN_SC_PREFIX, doc, UN_SC_PREFIXES):
         context.emit(entity, target=True)
 
-    for _node, entity in get_legal_entities(context, UN_SC_PREFIX, doc, UN_SC_COMMITTEE_PREFIXES):
+    for _node, entity in get_legal_entities(context, UN_SC_PREFIX, doc, UN_SC_PREFIXES):
         context.emit(entity, target=True)
