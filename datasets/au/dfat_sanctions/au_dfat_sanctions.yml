@@ -33,8 +33,8 @@ publisher:
   url: http://dfat.gov.au/
   official: true
 data:
-  # url: "https://www.dfat.gov.au/sites/default/files/regulation8_consolidated.xlsx"
-  url: "https://data.opensanctions.org/datasets/20231015/au_dfat_sanctions/source.xlsx"
+  url: "https://www.dfat.gov.au/sites/default/files/regulation8_consolidated.xlsx"
+  # url: "https://data.opensanctions.org/datasets/20231015/au_dfat_sanctions/source.xlsx"
   format: XLSX
 
 lookups:
