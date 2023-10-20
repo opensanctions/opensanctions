@@ -1,0 +1,62 @@
+title: Moldovan sanctions for terrorism and proliferation of WMD
+entry_point: crawler.py
+prefix: md-terr
+coverage:
+  frequency: daily
+deploy:
+  schedule: "0 */12 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: |
+  Sanctions on persons and entities involved in terrorist activities and the 
+  proliferation of weapons of masss destruction
+description: |
+  This dataset consolidates a number of lists announced by the head of the 
+  Anti-Terrorist Center of the Intelligence and Security Service of the Republic
+  of Moldova for the attention of reporting entities, public authorities with
+  attributions in the field of preventing and combating terrorism and public
+  authorities empowered to prevent and combat money laundering and terrorist
+  financing.
+
+  This is done with reference to Article 10 paragraph (1) letter d) from Law 
+  no. 120 of 21 September 2017 regarding the prevention and combating of terrorism
+  (Official Gazette of the Republic of Moldova no. 364-370/614 of 20.10.2017).
+
+  The lists are:
+
+    - List of persons, entities and other groups associated with the "Taliban" 
+      maintained by the Committee of the United Nations Security Council established 
+      by Resolution 1988 (2011), according to Annex No. 1;
+    - List of persons, entities and other groups associated with "ISIL" ("Da'esh") 
+      and "Al-Qaida" maintained by the United Nations Security Council Committee
+      established by Resolutions 1267 (1999), 1989 (2011), 2253 (2015), according
+      to annex no. 2;
+    - The list of persons, groups and entities provided for in article 1 of the 
+      Common Position of the Council of December 27, 2001 (2001/931/CFSP), according 
+      to annex no. 3;
+    - List of persons, entities and other groups involved in the proliferation of 
+      weapons of mass destruction and subject to restrictive measures, belonging 
+      to the Democratic People's Republic of Korea, maintained by the United Nations
+      Security Council Committee established by Resolution 1718 (2006), according 
+      to annex no. 4;
+    - List of persons, entities and other groups involved in the proliferation of 
+      weapons of mass destruction and subject to restrictive measures, belonging to
+      Iran, maintained by the United Nations Security Council Committee established
+      by Resolution 2231 (2015), according to annex no. 5.
+publisher:
+  name: Centrul Antiterorist al Serviciului de Informaţii şi Securitate al Republicii Moldova
+  description: The Anti-Terrorist Center of the Intelligence and Security Service of the Republic of Moldova
+  country: md
+  url: https://antiteror.sis.md/
+  official: true
+url: https://antiteror.sis.md/advanced-page-type/listele-teroriste
+data:
+  url: https://antiteror.sis.md/lista-terorista-xls
+  format: HTML
+
+lookups:
+  type.date:
+    options:
+      - match: 
+          - "24/06/1402 (Hijri Calendar)"
+          - "Intre Aug."
+        value: null
