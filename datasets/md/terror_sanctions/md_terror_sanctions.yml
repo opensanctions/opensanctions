@@ -1,0 +1,22 @@
+title: Moldovan sanctions for terrorism and proliferation of WMD
+entry_point: crawler.py
+prefix: md-terr
+coverage:
+  frequency: daily
+deploy:
+  schedule: "0 */12 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: |
+  Sanctions on persons and entities involved in terrorist activities and the 
+  proliferation of weapons of masss destruction
+publisher:
+  name: Centrul Antiterorist al Serviciului de Informaţii şi Securitate al Republicii Moldova
+  description: The Anti-Terrorist Center of the Intelligence and Security Service of the Republic of Moldova
+  country: md
+  url: https://antiteror.sis.md/
+  official: true
+url: https://antiteror.sis.md/advanced-page-type/listele-teroriste
+data:
+  url: https://antiteror.sis.md/lista-terorista-xls
+  format: HTML
+
