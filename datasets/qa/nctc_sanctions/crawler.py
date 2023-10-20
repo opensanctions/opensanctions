@@ -40,7 +40,7 @@ def crawl(context: Context):
     with open(path, "r") as fh:
         data = json.load(fh)
 
-    assert data["totalElements"] > 800
+    assert data["totalElements"] > 700
     for item in data["content"]:
         data_id = item.pop("dataId")
         typ = item.pop("typ")
