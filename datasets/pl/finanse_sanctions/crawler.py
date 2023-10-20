@@ -48,10 +48,9 @@ def crawl_row(context: Context, row: Dict[str, str]):
     entity.add("birthPlace", birthplace, lang="pol")
     entity.add("birthCountry", birth_country, lang="pol")
     entity.add("birthDate", parse_date(row.pop("Data urodzenia")))
-    address = h.make_address(
-        context, place=row.pop("location place"), country=row.pop("location country")
-    )
-    entity.add("address", address)
+    entity.add("address", row.pop("location full") or None)
+    entity.add("country", row.pop("location country") or None)
+
     entity.add("nationality", row.pop("narodowość"))
     entity.add("topics", "sanction")
 
@@ -64,7 +63,6 @@ def crawl_row(context: Context, row: Dict[str, str]):
 
     context.emit(entity, target=True)
     context.emit(sanction)
-    context.emit(address)
 
     context.audit_data(row)
 
