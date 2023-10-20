@@ -9,10 +9,14 @@ from zavod import helpers as h
 
 
 FORMATS = ["%d.%m.%Y"]
+SPLITS = ["si", ";", "sau", "a)", "b)", "c)"]
+
 
 def parse_birth_dates(string: str) -> List[str]:
-    strings = [collapse_spaces(s) for s in h.multi_split(string, ["si", ";"])]
-    return [d for d in h.parse_date(s, FORMATS) for s in strings]
+    strings = h.multi_split(string, SPLITS)
+    # flatten
+    return [date for s in strings for date in h.parse_date(s, FORMATS)]
+
 
 def crawl(context: Context):
     path = context.fetch_resource("source.html", context.data_url)
@@ -26,5 +30,16 @@ def crawl(context: Context):
         schema = "LegalEntity" if birth_dates == [] else "Person"
         entity = context.make(schema)
         name = row.pop("persoana-fizica-entitate")
-        entity.id = context.make_id(name, *birth_dates)
-        
+        entity.id = context.make_id(name, *sorted(birth_dates))
+        entity.add("name", name)
+        if birth_dates:
+            entity.add("birthDate", birth_dates)
+
+        sanction = h.make_sanction(context, entity)
+        sanction.add("program", row.pop("sanctiuni-teroriste") or None, lang="mol")
+        sanction.add("program", row.pop("sanctiuni-de-proliferare") or None, lang="mol")
+
+        context.emit(entity, target=True)
+        context.emit(sanction)
+
+        context.audit_data(row)

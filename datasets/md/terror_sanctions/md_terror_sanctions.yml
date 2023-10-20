@@ -20,3 +20,10 @@ data:
   url: https://antiteror.sis.md/lista-terorista-xls
   format: HTML
 
+lookups:
+  type.date:
+    options:
+      - match: 
+          - "24/06/1402 (Hijri Calendar)"
+          - "Intre Aug."
+        value: null
