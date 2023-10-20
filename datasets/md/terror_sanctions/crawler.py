@@ -3,9 +3,8 @@ from typing import List, Tuple
 from lxml import html
 from normality import slugify, collapse_spaces
 from pantomime.types import HTML
-import re
 
-from zavod import Context, Entity
+from zavod import Context
 from zavod import helpers as h
 
 
