@@ -1,0 +1,42 @@
+title: Joining the Dots Nigeria PEPs and PEP Relatives
+entry_point: crawler.py
+prefix: ng-dots
+coverage:
+  frequency: daily
+deploy:
+  schedule: "0 */6 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Data on Politically Exposed Persons in Nigeria and their relatives from the Joining the Dots project.
+description: |
+  This is a dataset of Politically Exposed Persons (PEPs) in Nigeria and their relatives,
+  as part of the Joining the Dots project.
+
+  This is a civil-society project using official sources as far as possible,
+  complemented by other public sources.
+
+  The Joining the Dots Nigeria project also publishes a dataset of companies in the
+  extractives industry and their beneficial owners. It further lists 
+  [possible name matches between these beneficial owners and PEPs](https://peps.directoriolegislativo.org/nigeria/monitoring)
+  and their relatives.
+
+  However, these matches have not yet been confirmed due to the lack of strong
+  identifiers in the available data. This dataset therefore currently only includes the
+  PEPs and their relatives, but not the companies or ownership information.
+publisher:
+  name: Joining the Dots with PEPs (Nigeria)
+  description: |
+    This is a project by Directorio Legislativo, with support from 
+    [OpenOwnership](https://www.openownership.org/en/) and the 
+    [Nigeria Extractive Industries Transparency Initiative (NEITI)](https://www.neiti.gov.ng/).
+
+    This project aims to improve natural resource governance in Nigeria. It does
+    so by enabling the discovery of relationships between people in political office
+    and companies in the extractives industry.
+  url: https://peps.directoriolegislativo.org/nigeria/
+  country: ng
+  official: false
+url: https://peps.directoriolegislativo.org/nigeria/open-data
+data:
+  url: https://peps.directoriolegislativo.org/
+  format: XLSX
