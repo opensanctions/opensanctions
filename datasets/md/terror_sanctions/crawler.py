@@ -1,8 +1,9 @@
 import re
-from typing import List
+from typing import List, Tuple
 from lxml import html
 from normality import slugify, collapse_spaces
 from pantomime.types import HTML
+import re
 
 from zavod import Context, Entity
 from zavod import helpers as h
@@ -18,6 +19,19 @@ def parse_birth_dates(string: str) -> List[str]:
     return [date for s in strings for date in h.parse_date(s, FORMATS)]
 
 
+def clean_name(string: str):
+    name = re.sub("^[\]\), ]+", "", string)
+    name = re.sub("[\[\(\., ]+$", "", string)
+    return name
+
+def parse_names(string: str) -> Tuple[str, List[str]]:
+    parts = string.split("alias")
+    name = clean_name(parts[0])
+    aliases = parts[1:] if len(parts) > 1 else []
+    aliases = [clean_name(alias) for alias in aliases]
+    return name, aliases
+
+
 def crawl(context: Context):
     path = context.fetch_resource("source.html", context.data_url)
     context.export_resource(path, HTML, title=context.SOURCE_TITLE)
@@ -29,9 +43,11 @@ def crawl(context: Context):
         birth_dates = parse_birth_dates(row.pop("data-de-nastere"))
         schema = "LegalEntity" if birth_dates == [] else "Person"
         entity = context.make(schema)
-        name = row.pop("persoana-fizica-entitate")
+        name, aliases = parse_names(row.pop("persoana-fizica-entitate"))
         entity.id = context.make_id(name, *sorted(birth_dates))
         entity.add("name", name)
+        if aliases:
+            entity.add("alias", aliases)
         if birth_dates:
             entity.add("birthDate", birth_dates)
 

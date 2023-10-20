@@ -2,8 +2,6 @@ from typing import Dict, Generator, cast
 from normality import slugify, collapse_spaces
 from lxml.html import HtmlElement
 
-from zavod.util import ElementOrTree
-
 
 def parse_table(table: HtmlElement) -> Generator[Dict[str, str], None, None]:
     headers = None
