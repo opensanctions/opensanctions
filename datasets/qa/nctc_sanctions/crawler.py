@@ -94,7 +94,7 @@ def crawl(context: Context):
         sanction.add("program", sanctions_dto.pop("sanctionRegimeAr"), lang="ara")
         context.audit_data(sanctions_dto)
 
-        designation_dto = item.pop("designationDTO", {})
+        item.pop("designationDTO", {})
         # h.audit_data(designation_dto)
 
         context.emit(entity, target=True)

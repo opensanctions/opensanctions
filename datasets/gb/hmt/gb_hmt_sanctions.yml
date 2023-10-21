@@ -44,7 +44,6 @@ lookups:
           - State Owned Enterprise (SOE)
           - (1) Brest branch (2) Gomel branch (3) Grodno branch (4) Mogilev branch (5) Vitsebsk branch
           - Aerial Defence. Air Force. Civil Defence Forces. Coastal Defence. Ground Forces. Internal Security Forces. Navy. Popular Army. Syrian Arab Army
-          - Saccal System companies
           - "11203"
         values: []
       - match:
@@ -319,10 +318,12 @@ lookups:
         values:
           - Shahid Ahmad Kazemi Industries Group
           - Areospace Industries Organisation (AIO)
-      - match: AMMUNITION AND METALLURGY INDUSTRIES GROUP (AMIG). Defence Industries Organisation (DIO)
+      - match: (1) Ammunition and Metallurgy Group (2) Ammunition Industries Group (AMIG) (3) Defence Industries Organisation (DIO) (4) Ministry of Defence and Armed Force Logistics (MODAFL)
         values:
+          - Ammunition and Metallurgy Group (AMMG)
           - AMMUNITION AND METALLURGY INDUSTRIES GROUP (AMIG)
           - Defence Industries Organisation (DIO)
+          - Ministry of Defence and Armed Force Logistics (MODAFL)
       - match: Hamsho International, Baghdad Street, PO Box 8254 Damascus
         value: Hamsho International
       - match: Subsidiary organisation of the Ministry of Defence
