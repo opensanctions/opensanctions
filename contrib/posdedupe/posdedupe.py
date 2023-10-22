@@ -1,35 +1,59 @@
 from collections import defaultdict
+from itertools import combinations
+from fingerprints import clean_name_ascii
+import re
 from sys import argv
-from typing import Dict, List
+from typing import Dict, Set, Optional
 from followthemoney import model
 from followthemoney.compare import compare
 from nomenklatura.judgement import Judgement
+from nomenklatura.stream import StreamEntity
+from nomenklatura.util import levenshtein_similarity
 from followthemoney.cli.util import path_entities
-from followthemoney.proxy import EntityProxy
 
 from zavod.dedupe import get_resolver
+
+STOPWORDS = re.compile(r"[\W](of|and|&|for|in|the|a|an|at|on|by|with|from)[\W$]", re.U)
+
+
+def norm_name(name: str) -> Optional[str]:
+    # name = name.lower()
+    cleaned = clean_name_ascii(name)
+    if cleaned is None:
+        return None
+    while True:
+        cleaned_sub = STOPWORDS.sub(" ", cleaned)
+        if cleaned_sub == cleaned:
+            break
+        cleaned = cleaned_sub
+    return cleaned
 
 
 def load_file(filename: str):
     resolver = get_resolver()
-    countries: Dict[Dict[List[set]]] = defaultdict(lambda: defaultdict(set))
+    resolver.prune()
+    countries: Dict[str, Dict[str, Set[StreamEntity]]] = defaultdict(
+        lambda: defaultdict(set)
+    )
 
-    for entity in path_entities(filename, EntityProxy):
+    for entity in path_entities(filename, StreamEntity):
         if not entity.schema.name == "Position":
             continue
 
         for country in entity.get("country"):
             for name in entity.get("name"):
-                countries[country][name.lower()].add(entity.id)
+                name = norm_name(name)
+                if name is None:
+                    continue
+                countries[country][name].add(entity)
 
-    for country in countries.values():
-        for names in country.values():
-            if len(names) == 1:
+    for country_posn in countries.values():
+        for positions in country_posn.values():
+            if len(positions) == 1:
                 continue
-            first, *rest = names
-            for id in rest:
-                print("merging", first, id)
-                resolver.decide(first, id, Judgement.POSITIVE, user="position-dedupe")
+            for left, right in combinations(positions, 2):
+                score = levenshtein_similarity(left.caption, right.caption)
+                resolver.suggest(left.id, right.id, score=score, user="position-dedupe")
     resolver.save()
 
 
