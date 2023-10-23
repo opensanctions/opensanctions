@@ -1,12 +1,9 @@
-from collections import defaultdict
-from itertools import combinations
-from fingerprints import clean_name_ascii
 import re
 from sys import argv
 from typing import Dict, Set, Optional
-from followthemoney import model
-from followthemoney.compare import compare
-from nomenklatura.judgement import Judgement
+from collections import defaultdict
+from itertools import combinations
+from fingerprints import clean_name_ascii
 from nomenklatura.stream import StreamEntity
 from nomenklatura.util import levenshtein_similarity
 from followthemoney.cli.util import path_entities
