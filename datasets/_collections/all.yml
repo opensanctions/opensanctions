@@ -4,6 +4,7 @@ hidden: true
 deploy:
   schedule: "15 */6 * * *"
   memory: "2000Mi"
+  cpu: "800m"
   disk: "20Gi"
   # premium: true
 summary: >
