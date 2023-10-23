@@ -28,7 +28,8 @@ description: |
   > Colombia Compra Eficiente website and the list of operating companies in
   > the mining and hydrocarbons industry of EITI Colombia.
 
-  This dataset currently only includes the PEPs.
+  This dataset currently includes Representatives and Senators, with some company
+  ownership information added as notes to these political office-holders.
 publisher:
   name: Joining the Dots with PEPs (Columbia)
   description: |
