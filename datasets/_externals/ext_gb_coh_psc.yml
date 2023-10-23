@@ -12,7 +12,7 @@ deploy:
   schedule: "1 8 * * *"
   memory: "2000Mi"
   disk: "20Gi"
-  premium: true
+  # premium: true
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   The database of beneficial owners of companies incorporated in England, Wales,

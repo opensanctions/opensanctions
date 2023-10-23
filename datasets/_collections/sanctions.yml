@@ -4,7 +4,7 @@ deploy:
   schedule: "30 */4 * * *"
   memory: "1500Mi"
   command: /etl/scripts/export-sanctions.sh
-  premium: true
+  # premium: true
 summary: >
   Consolidated list of sanctioned entities designated by different 
   countries and international organisations. This can include military,

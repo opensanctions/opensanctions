@@ -11,7 +11,7 @@ exports:
 deploy:
   schedule: "1 12 * * *"
   memory: "2000Mi"
-  premium: true
+  # premium: true
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 coverage:
   end: 2023-07-26
