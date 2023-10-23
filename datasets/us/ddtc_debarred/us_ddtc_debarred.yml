@@ -8,7 +8,7 @@ deploy:
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   Companies and individuals prohibited from participating in export of defence articles
-  and services as a consequence of vuilation of the Arms Export Control Act (AECA)
+  and services as a consequence of violation of the Arms Export Control Act (AECA)
 description: |
   This dataset contains entities from the Statutory Debarments and the Administrative Debarments
   lists from the US State Department's Directorate of Defense Trade Controls.
