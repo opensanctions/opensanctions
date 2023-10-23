@@ -11,7 +11,7 @@ exports:
 deploy:
   schedule: "1 18 * * *"
   disk: "50Gi"
-  memory: "3000Mi"
+  memory: "2000Mi"
   premium: true
 # load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
