@@ -4,15 +4,70 @@ from collections import defaultdict
 from normality import collapse_spaces, slugify
 from datetime import datetime
 from pantomime.types import XLSX
+import re
+
 from zavod import Context
 from zavod import helpers as h
 
-# position: Member Of The House Of Assembly Orhionmwon, district: Kwara
-# means the person is in the Orhionmwon seat of the Kwara state house of assembly
-# member of the Jigawa State House of Assembly (Q59528329)
 
 # Member Of The Of The Senate Of Nigeria
 # of the of the
+
+REGEX_STATE_ASSEMBLY = re.compile(
+    r"^Member Of The House Of Assembly ([\w/'-]+ ){0,2}[\w/'-]+$"
+)
+
+
+def clean_position(
+    context: Context, position: str, district: str, name: str
+) -> Optional[str]:
+    if position is None:
+        return None
+    position = collapse_spaces(position)
+    position = re.sub(r"of the of the", "of the", position, re.IGNORECASE)
+    slug = slugify(position)
+
+    # position: Member Of The House Of Assembly Orhionmwon, district: Kwara
+    # means the person is in the Orhionmwon seat of the Kwara state house of assembly
+    # e.g. member of the Jigawa State House of Assembly (Q59528329)
+
+    if slug.startswith("member-of-the-house-of-assembly"):
+        if not district:
+            context.log.info(
+                "No district for state assembly", position=position, name=name
+            )
+            return position
+
+        if REGEX_STATE_ASSEMBLY.match(position):
+            return f"Member of the {district} State House of Assembly"
+        else:
+            context.log.warning(
+                "Cannot parse apparent state assembly", position=position
+            )
+
+    if slug.startswith("member-of-the-house-of-representatives-national-assembly"):
+        # Q21290864
+        return "Member of the House of Representatives of Nigeria"
+
+    if slug.startswith("member-of-the-senate-of-nigeria-national-assembly"):
+        # Q19822359
+        return "Member of the Senate of Nigeria"
+
+    return position
+
+
+def position_topics(position):
+    if "President Federal Republic Of Nigeria" in position:
+        return ["gov.national", "gov.head"]
+    if position.startswith("Minister"):
+        return ["gov.national", "gov.executive"]
+    if position.startswith("Member of the House of Representatives"):
+        return ["gov.national", "gov.legislative"]
+    if position.startswith("Member of the Senate"):
+        return ["gov.national", "gov.legislative"]
+    if "State House of Assembly" in position:
+        return ["gov.state", "gov.legislative"]
+    return []
 
 
 def parse_position_dates(string: Optional[str]) -> Tuple[Optional[str], Optional[str]]:
@@ -56,10 +111,15 @@ def crawl(context: Context):
         entity.add("birthDate", birth_date)
         entity.add("gender", row.pop("gender", None))
 
-        position_name = collapse_spaces(row.pop("position")) or None
+        position_name = clean_position(context, row.pop("position"), district, name)
 
         if position_name:
-            position = h.make_position(context, position_name, country="NG")
+            position = h.make_position(
+                context,
+                position_name,
+                country="NG",
+                topics=position_topics(position_name),
+            )
             start_date, end_date = parse_position_dates(row.pop("period", None))
             occupancy = h.make_occupancy(
                 context,
