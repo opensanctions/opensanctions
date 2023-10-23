@@ -1,5 +1,5 @@
 import openpyxl
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, Generator, List, Optional, Set, Tuple
 from collections import defaultdict
 from normality import collapse_spaces, slugify
 from datetime import datetime
@@ -152,8 +152,7 @@ def crawl_relative(context: Context, row, pep_ids):
     context.emit(rel)
 
 
-
-def worksheet_rows(sheet) -> List[Dict[str, Any]]:
+def worksheet_rows(sheet) -> Generator[Dict[str, Any], None, None]:
     headers: Optional[List[str]] = None
     for row in sheet.rows:
         cells = [c.value for c in row]
