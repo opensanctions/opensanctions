@@ -40,3 +40,9 @@ url: https://peps.directoriolegislativo.org/nigeria/open-data
 data:
   url: https://peps.directoriolegislativo.org/
   format: XLSX
+
+lookups:
+  type.gender:
+    options:
+      match: Non
+      value: null
