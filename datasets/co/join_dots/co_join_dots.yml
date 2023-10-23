@@ -1,0 +1,58 @@
+title: Joining the Dots Columbia PEPs
+entry_point: crawler.py
+prefix: co-dots
+coverage:
+  frequency: daily
+deploy:
+  schedule: "0 */6 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Data on Politically Exposed Persons in Columbia from the Joining the Dots project.
+description: |
+  This is a dataset of Politically Exposed Persons (PEPs) in Columbia as part of the Joining the Dots project.
+
+  Joining the Dots is a civil-society project using official sources as far as possible,
+  complemented by other public sources.
+
+  From the project site:
+
+  > "Joining the Dots with PEPs" makes available to the public information on 
+  > public officials’ Financial Declarations, government procurement and
+  > contracting, and contracts and tenders of companies in the extractive 
+  > sector, with the aim of identifying possible conflicts of interest,
+  > corruption or misuse of public office.
+  >
+  > To this end, we have developed a platform that compiles, verifies and
+  > cross-checks information on politically exposed persons (PEPs) with public
+  > data from Financial Declarations, transactions registered on the official
+  > Colombia Compra Eficiente website and the list of operating companies in
+  > the mining and hydrocarbons industry of EITI Colombia.
+
+  This dataset currently only includes the PEPs.
+publisher:
+  name: Joining the Dots with PEPs (Columbia)
+  description: |
+    This is a project carried out by [Directorio Legislativo](https://peps.directoriolegislativo.org/images/dl.png) and the [Extractive Industries Transparency Initiative](https://eiti.org/)
+  url: https://peps.directoriolegislativo.org/colombia/
+  country: co
+  official: false
+url: https://peps.directoriolegislativo.org/colombia/open-data
+data:
+  url: https://peps.directoriolegislativo.org/datasets/peps.csv
+  format: CSV
+
+lookups:
+  position:
+    options:
+      - regex: "^senador"
+        name: member of the Senado
+        topics:
+          - gov.national
+          - gov.legislative
+      - regex: "^representante"
+        name: Member of the Cámara de Representantes
+        topics:
+          - gov.national
+          - gov.legislative
+
+
