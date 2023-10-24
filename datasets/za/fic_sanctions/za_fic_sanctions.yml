@@ -68,19 +68,3 @@ lookups:
         value: Ethiopia
       - match: Indonesia (as at Dec. 2003)
         value: Indonesia
-  type.date:
-    options:
-      - match: 2015-03-27-04:00
-        value: 2015-03-27T04:00
-      - match: 2015-07-01-04:00
-        value: 2015-07-01T04:00
-      - match: 1960-01-01-05:00
-        value: 1960-01-01T05:00
-      - match: 1962-11-09-05:00
-        value: 1962-11-09T05:00
-      - match: 2015-04-14-04:00
-        value: 2015-04-14T04:00
-      - match: 1966-02-02-05:00
-        value: 1966-02-02T05:00
-      - match: 2015-04-07-04:00
-        value: 2015-04-07T04:00
