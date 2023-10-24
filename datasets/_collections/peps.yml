@@ -21,6 +21,7 @@ description: |
   official sources like governments and also from third-party sources that
   have been aggregated by other organizations.
 children:
+  - co_join_dots
   - cu_inventario_legislatura
   - de_abgeordnetenwatch
   - eu_cor_members
@@ -28,6 +29,7 @@ children:
   - everypolitician
   - ky_judicial
   - ky_legislativeassembly
+  - ng_join_dots
   - ru_rupep
   - us_cia_world_factbook
   - us_cia_world_leaders

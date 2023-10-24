@@ -177,6 +177,7 @@ def crawl(context: Context):
             continue
         name_slug = slugify(name)
         if name_slug in pep_ids:
+            context.log.info("Dropping name with duplicate entry", name=name_slug)
             dupes.add(name_slug)
             pep_ids.pop((name_slug))
         else:
