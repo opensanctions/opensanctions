@@ -6,6 +6,7 @@ from lxml import html
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.entity import Entity
 from zavod.logic.pep import OccupancyStatus
 
 # ID / CC
@@ -62,60 +63,64 @@ def parse_node(context: Context, node: str) -> Dict[str, str]:
     if len(links) == 1:
         data["link"] = links[0].get("href")
     else:
-        context.log.warning("More than one link for node", id=node["ID"])
-
+        context.log.warning("Expected exactly one link for node", id=node["ID"], count=len(links))
     return data
+
+
+def crawl_node(context: Context, peps: Dict[str, Entity], node: Dict[str, str]):
+    data = parse_node(context, node)
+    if data:
+        name = data["politically_exposed_person"]
+        name_slug = slugify(name)
+        entity = peps.get(name_slug, None)
+        if entity:
+            position_slug = slugify(data.pop("position"))
+            res = context.lookup("position", position_slug)
+            if res:
+                notes = ""
+                red_flags = data.pop("red_flags_found", None)
+                if red_flags is not None:
+                    notes += f"Potential red flags: {red_flags}."
+                ownership = data.get("corporation_shares", None)
+                if ownership and ownership != "null":
+                    notes += f" Corporation shares: {ownership}"
+                if notes:
+                    entity.add("notes", notes)
+                entity.add("sourceUrl", data.pop("link"))
+
+                position = h.make_position(
+                    context, res.name, country="co", topics=res.topics
+                )
+                occupancy = h.make_occupancy(
+                    context, entity, position, status=OccupancyStatus.UNKNOWN
+                )
+                context.emit(occupancy)
+                context.emit(position)
+                context.emit(entity, target=True)
+        else:
+            context.log.info("PEP not found", name=name)    
 
 
 def crawl(context: Context):
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
 
-    pep = {}
+    peps = {}
     dupes = set()
 
     with open(path, "r") as fh:
         for row in csv.DictReader(fh):
             name_slug, entity = crawl_row(context, row)
-            if name_slug in pep:
+            if name_slug in peps:
                 context.log.info("Dropping name with duplicate entry", name=name_slug)
                 dupes.add(name_slug)
-                pep.pop((name_slug))
+                peps.pop((name_slug))
             else:
                 if name_slug not in dupes:
-                    pep[name_slug] = entity
+                    peps[name_slug] = entity
 
+    # Only try and import the PEPs for whom we have position information
     graph = context.fetch_json(GRAPH_URL, cache_days=1)
     for node in graph["nodes"]:
         if node["Type"] in ["PEP", "FLAG"]:
-            data = parse_node(context, node)
-            if data:
-                name = data["politically_exposed_person"]
-                name_slug = slugify(name)
-                entity = pep.get(name_slug, None)
-                if entity:
-                    position_slug = slugify(data.pop("position"))
-                    res = context.lookup("position", position_slug)
-                    if res:
-                        notes = ""
-                        red_flags = data.pop("red_flags_found", None)
-                        if red_flags is not None:
-                            notes += f"Potential red flags: {red_flags}."
-                        ownership = data.get("corporation_shares", None)
-                        if ownership and ownership != "null":
-                            notes += f" Corporation shares: {ownership}"
-                        if notes:
-                            entity.add("notes", notes)
-                            entity.add("sourceUrl", data.pop("link"))
-
-                        position = h.make_position(
-                            context, res.name, country="co", topics=res.topics
-                        )
-                        occupancy = h.make_occupancy(
-                            context, entity, position, status=OccupancyStatus.UNKNOWN
-                        )
-                        context.emit(occupancy)
-                        context.emit(position)
-                        context.emit(entity, target=True)
-                else:
-                    context.log.info("PEP not found", name=name)
+            crawl_node(context, peps, node)
