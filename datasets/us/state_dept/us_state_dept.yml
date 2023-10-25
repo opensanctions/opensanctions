@@ -4,7 +4,7 @@ prefix: us-dos
 coverage:
   frequency: daily
 deploy:
-  schedule: "0 */12 * * *"
+  schedule: "0 16 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   Senior officials in the US Department of State

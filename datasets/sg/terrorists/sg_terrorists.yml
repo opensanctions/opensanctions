@@ -4,7 +4,7 @@ prefix: sgtfs
 coverage:
   frequency: daily
 deploy:
-  schedule: "0 */6 * * *"
+  schedule: "0 9 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Terrorists and terrorist entities designated by the Singapore government on top

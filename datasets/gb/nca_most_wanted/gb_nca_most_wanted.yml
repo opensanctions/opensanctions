@@ -5,7 +5,7 @@ disabled: false
 coverage:
   frequency: daily
 deploy:
-  schedule: "0 */4 * * *"
+  schedule: "0 */12 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Most wanted list of criminals and fugitives in Britain,

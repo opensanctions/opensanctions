@@ -5,7 +5,7 @@ prefix: ru-nsd
 coverage:
   frequency: daily
 deploy:
-  schedule: "0 */6 * * *"
+  schedule: "0 15 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   ISIN security identifiers assigned in Russia and subject to a US investment

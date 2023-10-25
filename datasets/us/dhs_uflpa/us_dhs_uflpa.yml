@@ -4,7 +4,7 @@ prefix: us-uflpa
 coverage:
   frequency: daily
 deploy:
-  schedule: "0 */12 * * *"
+  schedule: "0 12 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   The US DHS publishes this list of entities wholly or in part using forced labour

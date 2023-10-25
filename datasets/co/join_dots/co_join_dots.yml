@@ -4,7 +4,7 @@ prefix: co-dots
 coverage:
   frequency: daily
 deploy:
-  schedule: "0 */6 * * *"
+  schedule: "0 11 * * 3"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Data on Politically Exposed Persons in Colombia from the Joining the Dots project.
@@ -57,5 +57,3 @@ lookups:
         topics:
           - gov.national
           - gov.legislative
-
-

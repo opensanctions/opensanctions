@@ -4,7 +4,7 @@ prefix: ng-dots
 coverage:
   frequency: daily
 deploy:
-  schedule: "0 */6 * * *"
+  schedule: "0 4 * * 2"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Data on Politically Exposed Persons in Nigeria and their relatives from the Joining the Dots project.

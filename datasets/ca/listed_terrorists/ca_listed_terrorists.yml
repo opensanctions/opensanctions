@@ -4,7 +4,7 @@ prefix: ca-lte
 coverage:
   frequency: daily
 deploy:
-  schedule: "0 */3 * * *"
+  schedule: "0 */6 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   The Canadian governments own list of people and organizations associated with 

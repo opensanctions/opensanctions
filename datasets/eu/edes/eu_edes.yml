@@ -4,7 +4,7 @@ prefix: eu-edes
 coverage:
   frequency: daily
 deploy:
-  schedule: "50 */12 * * *"
+  schedule: "50 5 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   List of persons or entities excluded from contracts financed by the EU budget.

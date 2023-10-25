@@ -4,7 +4,7 @@ prefix: nz-ru
 coverage:
   frequency: daily
 deploy:
-  schedule: "0 */6 * * *"
+  schedule: "0 */7 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   The New Zealand government's list of people and companies sanctioned in relation
