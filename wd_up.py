@@ -8,53 +8,6 @@ from zavod.meta import load_dataset_from_path
 from zavod.store import get_view
 from pathlib import Path
 
-# 
-# def is_more_specific_date(a: Optional[str], b: Optional[str]) -> bool:
-#     if a is None:
-#         return False
-#     if b is None:
-#         return True
-#     if len(a) > len(b):
-#         return True
-#     if len(a) < len(b):
-#         return False
-#     
-# 
-# def is_more_specific_entity_date(a: EntityProxy, b: EntityProxy) -> bool:
-#     a_start_date = a.get("startDate")
-#     a_end_date = a.get("endDate")
-#     b_start_date = b.get("startDate")
-#     b_end_date = b.get("endDate")
-#     if a_end_date 
-#         return False
-#     
-# 
-# # A function that takes a list of occupancies indicating a person holding a position,
-# # deduplicates instances of a person holding a position from different dataset sources,
-# # and returns the deduplicated list of occupancies, keeping the ones with the most specific
-# # dates. Dates are partial ISO-8601 dates. If there are two occupancies from the same year but
-# # one has a month, keep the one with month. If one has a day number, keep that one.
-# # If the dates are the same, it keeps the one from wd_peps.
-# def deduplicate_occupancies(occupancies: List[EntityProxy]) -> List[EntityProxy]:
-#     date_pairs = {}
-#     for occupancy in occupancies:
-#         for length in [10, 7, 4, 0]:
-#             start_date = occupancy.get("startDate")
-#             end_date = occupancy.get("endDate")
-#             if start_date is not None:
-#                 start_date = start_date[:length]
-#             if end_date is not None:
-#                 end_date = end_date[:length]
-#             match = date_pairs.get((start_date, end_date), None)
-#             if match.id == occupancy.id:
-#                 continue
-#             if is_more_specific(occupancy, match):
-#                 date_pairs[(start_date, end_date)] = occupancy
-#         
-
-
-
-
 
 def load_file():
     dataset = load_dataset_from_path(Path("datasets/_collections/peps.yml"))
@@ -81,23 +34,45 @@ def load_file():
                                 wd_position_occupancies[position.id].append(occupancy)
 
         if position_occupancies and (wd_position_occupancies != position_occupancies):
+            
+
             print("\n--------------------")
             print(entity.id, entity.get("name"))
 
             for position_id in position_occupancies.keys():
-                print("  ", position_id)
                 occupancies = position_occupancies[position_id]
                 wd_occupancies = wd_position_occupancies.get(position_id, [])
 
-                print("  Wikidata has:")
-                for occupancy in wd_occupancies:
-                    print("    ", occupancy.get("startDate"), occupancy.get("endDate"))
+                if not occupancies:
+                    continue
 
-                print("  We have:")
+                wd_start_years = set()
+                wd_end_years = set()
+                for occupancy in wd_occupancies:
+                    for date in occupancy.get("startDate"):
+                        wd_start_years.add(date[:4])
+                    if len(occupancy.get("startDate")) == 0:
+                        wd_start_years.add(None)
+                    for date in occupancy.get("endDate"):
+                        wd_end_years.add(date[:4])
+                    if len(occupancy.get("endDate")) == 0:
+                        wd_end_years.add(None)
+
+                print("  ", position_id)
+                print("     Wikidata has:")
+                for occupancy in wd_occupancies:
+                    print("      ", occupancy.get("startDate"), occupancy.get("endDate"))
+
+                print("     We have:")
                 for occupancy in occupancies:
-                    if "wd_peps" in occupancy.datasets:
-                        continue
-                    print("    ", occupancy.get("startDate"), occupancy.get("endDate"), occupancy.datasets)
+                    start_years = {d[:4] for d in occupancy.get("startDate")}
+                    start_years.add(None) if len(occupancy.get("startDate")) == 0 else None
+                    end_years = {d[:4] for d in occupancy.get("endDate")}
+                    end_years.add(None) if len(occupancy.get("endDate")) == 0 else None
+                    if "wd_peps" in occupancy.datasets or start_years.issubset(wd_start_years) or end_years.issubset(wd_end_years):
+                        print("       skipping", occupancy.get("startDate"), occupancy.get("endDate"), occupancy.datasets)
+                    else:
+                        print("       CANDIDATE:", occupancy.get("startDate"), occupancy.get("endDate"), occupancy.datasets)
            
 
 
