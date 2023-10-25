@@ -3,8 +3,6 @@ entry_point: crawler.py
 prefix: us-ddtc
 coverage:
   frequency: daily
-deploy:
-  schedule: "0 */12 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   Companies and individuals prohibited from participating in export of defence articles

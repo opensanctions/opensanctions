@@ -3,8 +3,6 @@ entry_point: crawler.py
 prefix: md-terr
 coverage:
   frequency: daily
-deploy:
-  schedule: "0 */12 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   Sanctions on persons and entities involved in terrorist activities and the 
@@ -56,7 +54,7 @@ data:
 lookups:
   type.date:
     options:
-      - match: 
+      - match:
           - "24/06/1402 (Hijri Calendar)"
           - "Intre Aug."
         value: null

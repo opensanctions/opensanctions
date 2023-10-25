@@ -4,8 +4,6 @@ prefix: cuinv
 coverage:
   frequency: monthly
   end: 2024-04-09
-deploy:
-  schedule: "0 2 * * 0"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Members of the 10. Legislature of the National Assembly of People's Power.

@@ -3,8 +3,6 @@ entry_point: crawler.py
 prefix: us-cia
 coverage:
   frequency: daily
-deploy:
-  schedule: "30 */6 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   An index of most national-level heads of state and heads of government
@@ -134,7 +132,7 @@ lookups:
             start_date: 1 April 2023
             end_date: 1 October 2023
           - role: Co-chief of state
-            name: Adele TONNINI 
+            name: Adele TONNINI
             start_date: 1 April 2023
             end_date: 1 October 2023
       - match: "TUIMALEALI'IFANO Va’aletoa Sualauvi II (since 21 July 2017)"
@@ -201,7 +199,7 @@ lookups:
       - match: "the UK and New Zealand are represented by New Zealand High Commissioner Helen TUNNAH (since July 2020)"
         holders:
           - role: New Zealand High Commissioner
-            name: Helen TUNNAH 
+            name: Helen TUNNAH
             start_date: July 2020
       - match: "Deputy Prime Ministers Sigrid KAAG and Wopke HOEKSTRA (since 10 January 2022), Carola SCHOUTEN (since 26 October 2017)"
         holders:
@@ -248,7 +246,7 @@ lookups:
             name: PANI Yathotou
             start_date: 22 March 2021
           - role: Vice President
-            name: BOUNTHONG Chitmani 
+            name: BOUNTHONG Chitmani
             start_date: 22 March 2021
       - match: "President Latif RASHID (since 13 October 2022"
         holders:
@@ -350,9 +348,9 @@ lookups:
         holders:
           - role: Deputy Prime Minister
             name: Vincent Van QUICKENBORNE
-            start_date:  1 October 2020
+            start_date: 1 October 2020
           - role: Deputy Prime Minister
-            name: Vincent VAN PETEGHEM 
+            name: Vincent VAN PETEGHEM
             start_date: 1 October 2020
           - role: Deputy Prime Minister
             name: Frank VANDENBROUCKE
@@ -443,7 +441,7 @@ lookups:
       - match: "chief of state: president (vacant)"
         holders: []
       - regex:
-          - "Overall Taliban Leader HAYBATULLAH Akhundzada serves as the head of the Taliban government as Amir-ul Momineennote - on 7 September 2021, the Taliban announced Mohammad HASSAN Akhund as the “acting prime minister” of the \"caretaker government”"
+          - 'Overall Taliban Leader HAYBATULLAH Akhundzada serves as the head of the Taliban government as Amir-ul Momineennote - on 7 September 2021, the Taliban announced Mohammad HASSAN Akhund as the “acting prime minister” of the "caretaker government”'
           - "^the president is both chief of state and head of government"
           - "^note [-–] "
           - "^Heir Apparent"
@@ -513,4 +511,3 @@ lookups:
           - Dhekelia
           - Akrotiri
         value: gb
-      

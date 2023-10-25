@@ -5,7 +5,7 @@ coverage:
   frequency: daily
 deploy:
   memory: "2Gi"
-  cpu: "1000m"
+  cpu: "800m"
   schedule: "35 */2 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >

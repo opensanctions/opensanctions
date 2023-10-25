@@ -3,8 +3,6 @@ entry_point: crawler.py
 prefix: us-cia
 coverage:
   frequency: daily
-deploy:
-  schedule: "0 */6 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   An index of most national-level cabinet members in world governments that
@@ -75,7 +73,7 @@ lookups:
           - gov.national
           - gov.executive
       - match: speaker of parliament
-      - regex: 
+      - regex:
           - "(governor|chairman|president), (central|national|reserve) bank"
           - auditor general
         topics:
@@ -100,4 +98,3 @@ lookups:
         topics:
           - gov.national
           - gov.security
-        

@@ -3,8 +3,6 @@ entry_point: crawler.py
 prefix: wdoli
 coverage:
   frequency: daily
-deploy:
-  schedule: "0 5 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 exports:
   - statistics.json
