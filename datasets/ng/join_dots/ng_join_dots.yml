@@ -13,7 +13,9 @@ description: |
   as part of the Joining the Dots project.
 
   This is a civil-society project using official sources as far as possible,
-  complemented by other public sources.
+  complemented by other public sources. It aims to improve natural resource governance in Nigeria 
+  by enabling the discovery of relationships between people in political office
+  and companies in the extractives industry.
 
   The Joining the Dots Nigeria project also publishes a dataset of companies in the
   extractives industry and their beneficial owners. It further lists 
@@ -26,13 +28,9 @@ description: |
 publisher:
   name: Joining the Dots with PEPs (Nigeria)
   description: |
-    This is a project by Directorio Legislativo, with support from 
-    [OpenOwnership](https://www.openownership.org/en/) and the 
-    [Nigeria Extractive Industries Transparency Initiative (NEITI)](https://www.neiti.gov.ng/).
-
-    This project aims to improve natural resource governance in Nigeria. It does
-    so by enabling the discovery of relationships between people in political office
-    and companies in the extractives industry.
+    This is a project by [Directorio Legislativo](https://directoriolegislativo.org/en/) with support from
+    the Opening Extractives program ([OpenOwnership](https://www.openownership.org/en/) and [EITI](https://eiti.org/))
+    and the [Nigeria Extractive Industries Transparency Initiative (NEITI)](https://www.neiti.gov.ng/).
   url: https://peps.directoriolegislativo.org/nigeria/
   country: ng
   official: false
