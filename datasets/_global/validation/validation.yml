@@ -4,8 +4,6 @@ prefix: osv
 hidden: true
 coverage:
   frequency: daily
-deploy:
-  schedule: "0 */3 * * *"
 summary: >
   This dataset is used to validate and test the OpenSanctions data processing pipeline.
 description: |
