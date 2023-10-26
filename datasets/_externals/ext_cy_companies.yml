@@ -10,7 +10,8 @@ exports:
   - statistics.json
 deploy:
   # schedule: "1 2 * * *"
-  memory: "1500Mi"
+  memory: "1000Mi"
+  memory_limit: "2000Mi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   Cypriot open data on companies, which names officers but no shareholders.

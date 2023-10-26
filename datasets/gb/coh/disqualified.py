@@ -151,7 +151,7 @@ def crawl(context: Context) -> None:
                         SEARCH_URL,
                         params=params,
                         auth=AUTH,
-                        cache_days=2,
+                        cache_days=4,
                     )
                 except HTTPError as err:
                     if err.response.status_code in (429, 416):

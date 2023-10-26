@@ -10,7 +10,8 @@ exports:
   - statistics.json
 deploy:
   schedule: "1 10 * * *"
-  memory: "2000Mi"
+  memory: "1500Mi"
+  memory_limit: "2500Mi"
   disk: "20Gi"
   # premium: true
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
