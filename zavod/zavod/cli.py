@@ -12,6 +12,7 @@ from zavod import settings
 from zavod.logs import configure_logging, get_logger
 from zavod.meta import load_dataset_from_path, get_multi_dataset, Dataset
 from zavod.crawl import crawl_dataset
+from zavod.runtime.cache import get_cache
 from zavod.store import get_view, get_store, clear_store
 from zavod.archive import clear_data_path
 from zavod.exporters import export_dataset
@@ -21,6 +22,8 @@ from zavod.publish import publish_dataset, publish_failure
 from zavod.tools.load_db import load_dataset_to_db
 from zavod.tools.dump_file import dump_dataset_to_file
 from zavod.exc import RunFailedException
+from zavod.wd_up import generate_wd_statements
+
 
 log = get_logger(__name__)
 STMT_FORMATS = click.Choice(FORMATS, case_sensitive=False)
@@ -253,3 +256,27 @@ def clear(dataset_path: Path) -> None:
     except Exception:
         log.exception("Failed to clear dataset: %s" % dataset_path)
         sys.exit(1)
+
+
+@cli.command("wd-up", help="Generate statements to update wikidata")
+@click.argument("dataset_paths", type=InPath, nargs=-1)
+@click.option("-o", "--out-file", type=str, required=True)
+@click.option("-c", "--clear", is_flag=True, default=False)
+@click.option("-f", "--focus-dataset", type=str, default=None)
+def wd_up(
+    dataset_paths: List[Path],
+    out_file: str,
+    clear: bool,
+    focus_dataset: Optional[str] = None,
+) -> None:
+    dataset = _load_datasets(dataset_paths)
+    if clear:
+        clear_store(dataset)
+    view = get_view(dataset, external=False)
+    cache = get_cache(dataset)
+    generate_wd_statements(
+        out_file,
+        view,
+        cache,
+        focus_dataset=focus_dataset,
+    )
