@@ -83,12 +83,31 @@ log = logging.getLogger(__name__)
 #                     print("       CANDIDATE:", occupancy.get("startDate"), occupancy.get("endDate"), occupancy.datasets)
 
 
+PROP_LABEL = {
+    "P735": "given name",
+    "P734": "family name",
+}
 SPARQL_URL = "https://query.wikidata.org/sparql"
+# TODO: add support for gendered names
+# TODO: When there are multiple matches, we want the one
+# in the language that matches, otherwise we want the one
+# in multiple languages
+# https://www.wikidata.org/wiki/Q97065077 multiple languages
+# https://www.wikidata.org/wiki/Q97065008 Chinese
 GIVEN_NAME_SPARQL = """
 SELECT ?item ?itemLabel
 WHERE
 {
-  ?item wdt:P31/wdt:P279* wd:Q202444 .
+  ?item wdt:P31 wd:Q202444 .
+  ?item ?label "%s"@en .
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "en" }
+}
+"""
+FAMILY_NAME_SPARQL = """
+SELECT ?item ?itemLabel
+WHERE
+{
+  ?item wdt:P31 wd:Q101352 .
   ?item ?label "%s"@en .
   SERVICE wikibase:label { bd:serviceParam wikibase:language "en" }
 }
@@ -116,6 +135,9 @@ class Assessment:
         self.item = (
             self.session.get_json(WD_API, params).get("entities", {}).get(self.qid)
         )
+        if self.item is None:
+            log.warning("No item for %s", self.qid)
+            return
         self.claims = defaultdict(list)
         for wd_prop, claim_dicts in self.item.get("claims", {}).items():
             self.claims[wd_prop] = [Claim(c, wd_prop) for c in claim_dicts]
@@ -124,7 +146,8 @@ class Assessment:
         if self.qid:
             if self.item is None:
                 self.fetch_item()
-            self.assess_forename()
+            self.assess_given_name()
+            self.assess_family_name()
 
             # TODO: check if it has a label, other non-claim properties?
             # description
@@ -134,40 +157,51 @@ class Assessment:
 
         # else: search for and propose adding a new item
 
-    def assess_forename(self):
+    def assess_given_name(self):
         stmts = self.entity.get_statements("firstName")
         wd_vals = self.claims.get("P735", [])
         if wd_vals:
             return
         for stmt in stmts:
-            print(stmt.value, stmt.lang, stmt.dataset)
-            lang = stmt.lang or "en"
-            # TODO: use statement language, convert to 2-letter code.
-            # TODO: watch out for gendered given names. Do we want to restrict ourselfs
-            # just to cases where we find a non-gendered name for now?
-            query = GIVEN_NAME_SPARQL % stmt.value
-            r = self.session.get_json(
-                SPARQL_URL, params={"format": "json", "query": query}
-            )
-            rows = r["results"]["bindings"]
-            if len(rows) == 1:
-                value_qid = rows[0]["item"]["value"].split("/")[-1]
-                # TODO: consider adding reference to source dataset or sourceUrl added to entity by dataset.
-                self.actions.append(
-                    Action(
-                        f"{self.qid}\tP735\t{value_qid}",
-                        f"Add given name {value_qid} ({stmt.value}) to {self.qid}.",
-                    )
+            self.action_for_statement("P735", GIVEN_NAME_SPARQL, stmt)
+
+    def assess_family_name(self):
+        wd_vals = self.claims.get("P734", [])
+        wd_vals.extend(self.claims.get("P1950", []))
+        if wd_vals:
+            return
+        # TODO: Add support for multiple family names
+        for stmt in self.entity.get_statements("lastName"):
+            self.action_for_statement("P734", FAMILY_NAME_SPARQL, stmt)
+            
+    def action_for_statement(self, prop, query, stmt):
+        print(stmt.value, stmt.lang, stmt.dataset)
+        lang = stmt.lang or "en"
+        # TODO: use statement language, convert to 2-letter code.
+        query = GIVEN_NAME_SPARQL % stmt.value
+        r = self.session.get_json(
+            SPARQL_URL, params={"format": "json", "query": query}
+        )
+        rows = r["results"]["bindings"]
+        if len(rows) == 1:
+            value_qid = rows[0]["item"]["value"].split("/")[-1]
+            # TODO: consider adding reference to source dataset or sourceUrl added to entity by dataset.
+            self.actions.append(
+                Action(
+                    f"{self.qid}\t{prop}\t{value_qid}",
+                    f"Add {PROP_LABEL[prop]} {value_qid} ({stmt.value}) to {self.qid}.",
                 )
-            if len(rows) > 1:
-                log.info("More than one forename result %r", rows)
-            # if len(rows) == 0: consider adding missing given names as new items.
+            )
+        if len(rows) > 1:
+            log.info("More than one forename result %r", rows)
+        # TODO: if len(rows) == 0: consider adding missing given names as new items.
 
 
 class EditSession:
     def __init__(self, cache: Cache):
         self.cache = cache
         self.http_session = Session()
+        self.http_session.headers["User-Agent"] = f"opensanctions.org"
 
     def get_json(self, url, params, cache_days=2):
         url = normalize_url(url, params=params)
