@@ -4,7 +4,7 @@ prefix: ofac
 coverage:
   frequency: daily
 deploy:
-  cpu: "800m"
+  cpu: "500m"
   schedule: "40 */2 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
