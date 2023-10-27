@@ -132,14 +132,15 @@ def best_label(stmts: List[Statement]) -> str:
 def prefix_to_qs_date(string: str) -> str:
     """Convers a prefixdate to a quickstatements date."""
     prefix = prefixdate.parse(string)
-    if prefix.precision == prefixdate.Precision.YEAR:
-        return f"+{string}-00-00T00:00:00Z/9"
-    elif prefix.precision == prefixdate.Precision.MONTH:
-        return f"+{string}-00T00:00:00Z/10"
-    elif prefix.precision == prefixdate.Precision.DAY:
-        return f"+{string}T00:00:00Z/11"
-    else:
-        log.warning("Unhandled prefixdate precision: %s", string)
+    match prefix.precision:
+        case prefixdate.Precision.YEAR:
+            return f"+{string}-00-00T00:00:00Z/9"
+        case prefixdate.Precision.MONTH:
+            return f"+{string}-00T00:00:00Z/10"
+        case prefixdate.Precision.DAY:
+            return f"+{string}T00:00:00Z/11"
+        case _:
+            log.warning("Unhandled prefixdate precision: %s", string)
 
 
 
@@ -158,6 +159,15 @@ class Assessment:
         self.actions = []
         wikidataIds = entity.get("wikidataId")
         self.qid = wikidataIds[0] if wikidataIds else None
+        self.source_urls = {}
+
+        source_url_stmts = self.entity.get_statements("sourceUrl")
+        for dataset, stmts in groupby(source_url_stmts, lambda stmt: stmt.dataset):
+            values = [s.value for s in stmts]
+            if len(values) == 1:
+                self.source_urls[dataset] = values[0]
+            if len(values) > 1:
+                log.info("Multiple source URLs for dataset %s", dataset)
 
     def fetch_item(self):
         params = {"format": "json", "ids": self.qid, "action": "wbgetentities"}
@@ -210,13 +220,17 @@ class Assessment:
         if len(stmts) == 1:
             stmt = stmts[0]
             date = prefix_to_qs_date(stmt.value)
-            if date:
-                self.actions.append(
-                    Action(
-                        f"{self.qid}\tP569\t{date}",
-                        f"Add birth date {stmt.value} to {self.qid}.",
-                    )
+            if not date:
+                return
+            source_pairs = self.source_pairs(stmt)
+            if not source_pairs:
+                return
+            self.actions.append(
+                Action(
+                    f"{self.qid}\tP569\t{date}\t{source_pairs}",
+                    f"Add birth date {stmt.value} to {self.qid}",
                 )
+            )
 
     def assess_given_name(self):
         if self.claims.get("P735", []):
@@ -243,18 +257,26 @@ class Assessment:
         rows = r["results"]["bindings"]
         if len(rows) == 1:
             value_qid = rows[0]["item"]["value"].split("/")[-1]
-            # TODO: consider adding reference to source dataset or sourceUrl added to entity by dataset.
+            
+            source_pairs = self.source_pairs(stmt)
+            if not source_pairs:
+                return
             self.actions.append(
                 Action(
-                    f"{self.qid}\t{prop}\t{value_qid}",
-                    f"Add {PROP_LABEL[prop]} {value_qid} ({stmt.value}) to {self.qid}.",
+                    f"{self.qid}\t{prop}\t{value_qid}\t{source_pairs}",
+                    f"Add {PROP_LABEL[prop]} {value_qid} ({stmt.value}) to {self.qid}",
                 )
             )
         if len(rows) > 1:
             log.info("More than one result. Skipping. %r", rows)
         # TODO: if len(rows) == 0: consider adding missing given names as new items.
 
-
+    def source_pairs(self, stmt: Statement) -> Optional[str]:
+        source_url = self.source_urls.get(stmt.dataset)
+        if not source_url:
+            log.warning("No source URL for %s birth date %s %s", self.qid, stmt.value, stmt.dataset)
+            return None
+        return f"S854\t\"{source_url}\"\tS813\t{prefix_to_qs_date(stmt.last_seen[:10])}"
 class EditSession:
     def __init__(self, cache: Cache):
         self.cache = cache
