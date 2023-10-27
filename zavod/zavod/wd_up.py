@@ -1,20 +1,25 @@
 from collections import defaultdict
 from followthemoney.cli.util import path_entities
-from followthemoney.proxy import EntityProxy
 from itertools import groupby
 from languagecodes import iso_639_alpha2
 from nomenklatura.cache import Cache
 from nomenklatura.enrich.wikidata import WD_API
 from nomenklatura.enrich.wikidata.model import Claim
-from nomenklatura.enrich.wikidata.props import PROPS_DIRECT
 from nomenklatura.statement.statement import Statement
 from nomenklatura.util import normalize_url
 from requests import Session
 from sys import argv
-from typing import Dict, List, Set, Optional, Tuple
+from typing import Dict, Generator, List, Set, Optional, cast
 import json
 import logging
 import prefixdate
+from textual.app import App, ComposeResult
+from textual.widgets import Header, Footer
+from textual.widget import Widget
+from rich.text import Text
+from rich.console import RenderableType
+from textual.reactive import reactive
+
 
 from zavod.entity import Entity
 from zavod.meta import load_dataset_from_path
@@ -143,7 +148,6 @@ def prefix_to_qs_date(string: str) -> str:
             log.warning("Unhandled prefixdate precision: %s", string)
 
 
-
 class Action:
     def __init__(self, quickstatement, human_readable):
         self.quickstatement = quickstatement
@@ -257,7 +261,7 @@ class Assessment:
         rows = r["results"]["bindings"]
         if len(rows) == 1:
             value_qid = rows[0]["item"]["value"].split("/")[-1]
-            
+
             source_pairs = self.source_pairs(stmt)
             if not source_pairs:
                 return
@@ -274,16 +278,29 @@ class Assessment:
     def source_pairs(self, stmt: Statement) -> Optional[str]:
         source_url = self.source_urls.get(stmt.dataset)
         if not source_url:
-            log.warning("No source URL for %s birth date %s %s", self.qid, stmt.value, stmt.dataset)
+            log.warning(
+                "No source URL for %s birth date %s %s",
+                self.qid,
+                stmt.value,
+                stmt.dataset,
+            )
             return None
-        return f"S854\t\"{source_url}\"\tS813\t{prefix_to_qs_date(stmt.last_seen[:10])}"
+        return f'S854\t"{source_url}"\tS813\t{prefix_to_qs_date(stmt.last_seen[:10])}'
+
+
 class EditSession:
-    def __init__(self, cache: Cache):
+    def __init__(
+        self, cache: Cache, view: View, focus_dataset: Optional[str], qs_filename: str
+    ):
         self.cache = cache
+        self.view = view
+        self.focus_dataset = focus_dataset
         self.http_session = Session()
         self.http_session.headers[
             "User-Agent"
         ] = f"zavod (https://opensanctions.org; https://www.wikidata.org/wiki/User:OpenSanctions)"
+        self.quickstatements_fh = open(qs_filename, "w")
+        self._entities_gen = self.view.entities()
 
     def get_json(self, url, params, cache_days=2):
         url = normalize_url(url, params=params)
@@ -298,32 +315,81 @@ class EditSession:
                 self.cache.set(url, response)
         return json.loads(response)
 
+    def next_assessment(self):
+        # for action in assessment.actions:
+        #     quickstatements_fh.write(
+        #         f"{action.quickstatement}\t/* {action.human_readable} */\n"
+        #     )
+        # quickstatements_fh.flush()
+
+        try:
+            entity = None
+            while entity is None:
+                entity = next(self._entities_gen)
+                if not entity.schema.name == "Person":
+                    entity = None
+                    continue
+                if self.focus_dataset and self.focus_dataset not in entity.datasets:
+                    entity = None
+                    continue
+
+                assessment = self.assess_entity(entity)
+                self.cache.flush()
+                return assessment
+        except StopIteration:
+            return None
+
     def assess_entity(self, entity: Entity) -> Assessment:
         assessment = Assessment(self, entity)
         assessment.generate_actions()
         return assessment
 
 
+class AssessmentDisplay(Widget):
+    assessment = reactive(None)
+
+    def render(self) -> RenderableType:
+        if self.assessment:
+            return Text(f"{self.assessment.entity.id} {self.assessment.entity.get('name')}")
+        else:
+            return Text("No more entities.", justify="center")
+
+    
+class WikidataApp(App):
+    session: EditSession
+
+    BINDINGS = [
+        ("n", "next", "Next"),
+        ("s", "save", "Save"),
+        # ("w", "exit_save", "Quit & save"),
+        ("q", "exit_hard", "Quit"),
+    ]
+
+    def compose(self) -> ComposeResult:
+        """Create child widgets for the app."""
+        yield Header()
+        yield Footer()
+        yield AssessmentDisplay()
+        
+
+    def on_mount(self) -> None:
+        # self.query_one(AssessmentDisplay).assessment = self.session.next_assessment()
+        pass
+    async def action_next(self) -> None:
+        self.query_one(AssessmentDisplay).assessment = self.session.next_assessment()
+        
+
+    # async def action_exit_save(self) -> None:
+    #    await self.save_resolver()
+    #    self.exit(0)
+
+    async def action_exit_hard(self) -> None:
+        self.exit(0)
+
+
 def generate_wd_statements(
     out_file: str, view: View, cache: Cache, focus_dataset: str
 ) -> None:
-    session = EditSession(cache)
-
-    with open(out_file, "w") as quickstatements_fh:
-        for entity in view.entities():
-            if not entity.schema.name == "Person":
-                continue
-            if focus_dataset and focus_dataset not in entity.datasets:
-                continue
-
-            assessment = session.assess_entity(entity)
-
-            # todo: in interactive interface, offer the user the choice of adding all
-            # actions, a selection, or none.
-            for action in assessment.actions:
-                quickstatements_fh.write(
-                    f"{action.quickstatement}\t/* {action.human_readable} */\n"
-                )
-
-            quickstatements_fh.flush()
-            cache.flush()
+    app = WikidataApp()
+    app.session = EditSession(cache, view, focus_dataset, out_file)
+    app.run()
