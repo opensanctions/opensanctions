@@ -14,6 +14,7 @@ from sys import argv
 from typing import Dict, List, Set, Optional, Tuple
 import json
 import logging
+import prefixdate
 
 from zavod.entity import Entity
 from zavod.meta import load_dataset_from_path
@@ -126,7 +127,20 @@ def best_label(stmts: List[Statement]) -> str:
         if "," not in stmt.value:
             return stmt.value
     return stmts[0].value
-    
+
+
+def prefix_to_qs_date(string: str) -> str:
+    """Convers a prefixdate to a quickstatements date."""
+    prefix = prefixdate.parse(string)
+    if prefix.precision == prefixdate.Precision.YEAR:
+        return f"+{string}-00-00T00:00:00Z/9"
+    elif prefix.precision == prefixdate.Precision.MONTH:
+        return f"+{string}-00T00:00:00Z/10"
+    elif prefix.precision == prefixdate.Precision.DAY:
+        return f"+{string}T00:00:00Z/11"
+    else:
+        log.warning("Unhandled prefixdate precision: %s", string)
+
 
 
 class Action:
@@ -164,6 +178,7 @@ class Assessment:
             if self.item is None:
                 return
             self.assess_labels()
+            self.assess_birthdate()
             self.assess_given_name()
             self.assess_family_name()
 
@@ -174,6 +189,7 @@ class Assessment:
             # ... wd:everypolitition data model has hints ...
 
         # else: search for and propose adding a new item
+
     def assess_labels(self):
         stmts = self.entity.get_statements("name")
         for lang, group_stmts in groupby(stmts, lambda stmt: stmt.lang or "en"):
@@ -182,17 +198,30 @@ class Assessment:
                 label = best_label(list(group_stmts))
                 self.actions.append(
                     Action(
-                        f"{self.qid}\tL{lang_2}\t\"{label}\"",
+                        f'{self.qid}\tL{lang_2}\t"{label}"',
                         f"Add {lang_2} label {label} to {self.qid}.",
                     )
                 )
 
-    def assess_given_name(self):
-        stmts = self.entity.get_statements("firstName")
-        wd_vals = self.claims.get("P735", [])
-        if wd_vals:
+    def assess_birthdate(self):
+        if self.claims.get("P569", []):
             return
-        for stmt in stmts:
+        stmts = self.entity.get_statements("birthDate")
+        if len(stmts) == 1:
+            stmt = stmts[0]
+            date = prefix_to_qs_date(stmt.value)
+            if date:
+                self.actions.append(
+                    Action(
+                        f"{self.qid}\tP569\t{date}",
+                        f"Add birth date {stmt.value} to {self.qid}.",
+                    )
+                )
+
+    def assess_given_name(self):
+        if self.claims.get("P735", []):
+            return
+        for stmt in self.entity.get_statements("firstName"):
             self.action_for_statement("P735", GIVEN_NAME_SPARQL, stmt)
 
     def assess_family_name(self):
@@ -203,7 +232,7 @@ class Assessment:
         # TODO: Add support for multiple family names
         for stmt in self.entity.get_statements("lastName"):
             self.action_for_statement("P734", FAMILY_NAME_SPARQL, stmt)
-            
+
     def action_for_statement(self, prop, query, stmt):
         if stmt.lang not in [None, "en"]:
             return
@@ -230,7 +259,9 @@ class EditSession:
     def __init__(self, cache: Cache):
         self.cache = cache
         self.http_session = Session()
-        self.http_session.headers["User-Agent"] = f"zavod (https://opensanctions.org; https://www.wikidata.org/wiki/User:OpenSanctions)"
+        self.http_session.headers[
+            "User-Agent"
+        ] = f"zavod (https://opensanctions.org; https://www.wikidata.org/wiki/User:OpenSanctions)"
 
     def get_json(self, url, params, cache_days=2):
         url = normalize_url(url, params=params)
