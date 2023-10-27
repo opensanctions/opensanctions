@@ -1,20 +1,24 @@
-import logging
-from sys import argv
-from typing import Dict, List, Set, Optional
 from collections import defaultdict
 from followthemoney.cli.util import path_entities
 from followthemoney.proxy import EntityProxy
+from itertools import groupby
+from languagecodes import iso_639_alpha2
+from nomenklatura.cache import Cache
+from nomenklatura.enrich.wikidata import WD_API
+from nomenklatura.enrich.wikidata.model import Claim
+from nomenklatura.enrich.wikidata.props import PROPS_DIRECT
+from nomenklatura.statement.statement import Statement
+from nomenklatura.util import normalize_url
 from requests import Session
+from sys import argv
+from typing import Dict, List, Set, Optional, Tuple
+import json
+import logging
+
 from zavod.entity import Entity
 from zavod.meta import load_dataset_from_path
 from zavod.runtime.cache import get_cache
 from zavod.store import View, get_view
-from nomenklatura.enrich.wikidata.props import PROPS_DIRECT
-from nomenklatura.enrich.wikidata import WD_API
-from nomenklatura.enrich.wikidata.model import Claim
-from nomenklatura.util import normalize_url
-import json
-from nomenklatura.cache import Cache
 
 
 log = logging.getLogger(__name__)
@@ -114,6 +118,17 @@ WHERE
 """
 
 
+def best_label(stmts: List[Statement]) -> str:
+    """Prefer labels that don't have a comma."""
+    if len(stmts) == 0:
+        return None
+    for stmt in sorted(stmts, key=lambda stmt: stmt.value):
+        if "," not in stmt.value:
+            return stmt.value
+    return stmts[0].value
+    
+
+
 class Action:
     def __init__(self, quickstatement, human_readable):
         self.quickstatement = quickstatement
@@ -146,6 +161,9 @@ class Assessment:
         if self.qid:
             if self.item is None:
                 self.fetch_item()
+            if self.item is None:
+                return
+            self.assess_labels()
             self.assess_given_name()
             self.assess_family_name()
 
@@ -156,6 +174,18 @@ class Assessment:
             # ... wd:everypolitition data model has hints ...
 
         # else: search for and propose adding a new item
+    def assess_labels(self):
+        stmts = self.entity.get_statements("name")
+        for lang, group_stmts in groupby(stmts, lambda stmt: stmt.lang or "en"):
+            lang_2 = iso_639_alpha2(lang)
+            if lang_2 not in self.item.get("labels"):
+                label = best_label(list(group_stmts))
+                self.actions.append(
+                    Action(
+                        f"{self.qid}\tL{lang_2}\t\"{label}\"",
+                        f"Add {lang_2} label {label} to {self.qid}.",
+                    )
+                )
 
     def assess_given_name(self):
         stmts = self.entity.get_statements("firstName")
@@ -175,9 +205,8 @@ class Assessment:
             self.action_for_statement("P734", FAMILY_NAME_SPARQL, stmt)
             
     def action_for_statement(self, prop, query, stmt):
-        print(stmt.value, stmt.lang, stmt.dataset)
-        lang = stmt.lang or "en"
-        # TODO: use statement language, convert to 2-letter code.
+        if stmt.lang not in [None, "en"]:
+            return
         _query = query % stmt.value
         r = self.session.get_json(
             SPARQL_URL, params={"format": "json", "query": _query}
@@ -193,7 +222,7 @@ class Assessment:
                 )
             )
         if len(rows) > 1:
-            log.info("More than one forename result %r", rows)
+            log.info("More than one result. Skipping. %r", rows)
         # TODO: if len(rows) == 0: consider adding missing given names as new items.
 
 
@@ -201,7 +230,7 @@ class EditSession:
     def __init__(self, cache: Cache):
         self.cache = cache
         self.http_session = Session()
-        self.http_session.headers["User-Agent"] = f"opensanctions.org"
+        self.http_session.headers["User-Agent"] = f"zavod (https://opensanctions.org; https://www.wikidata.org/wiki/User:OpenSanctions)"
 
     def get_json(self, url, params, cache_days=2):
         url = normalize_url(url, params=params)
