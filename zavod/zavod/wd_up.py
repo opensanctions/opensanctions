@@ -178,9 +178,9 @@ class Assessment:
         print(stmt.value, stmt.lang, stmt.dataset)
         lang = stmt.lang or "en"
         # TODO: use statement language, convert to 2-letter code.
-        query = GIVEN_NAME_SPARQL % stmt.value
+        _query = query % stmt.value
         r = self.session.get_json(
-            SPARQL_URL, params={"format": "json", "query": query}
+            SPARQL_URL, params={"format": "json", "query": _query}
         )
         rows = r["results"]["bindings"]
         if len(rows) == 1:
