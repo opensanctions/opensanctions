@@ -1,14 +1,17 @@
 import re
-from sys import argv
+import sys
+from pathlib import Path
 from typing import Dict, Set, Optional
 from collections import defaultdict
 from itertools import combinations
 from fingerprints import clean_name_ascii
 from nomenklatura.stream import StreamEntity
 from nomenklatura.util import levenshtein_similarity
-from followthemoney.cli.util import path_entities
 
+from zavod.meta import Dataset
 from zavod.dedupe import get_resolver
+from zavod.store import get_view, clear_store
+from zavod.cli import _load_datasets
 
 STOPWORDS = re.compile(r"[\W](of|and|&|for|in|the|a|an|at|on|by|with|from)[\W$]", re.U)
 
@@ -26,14 +29,16 @@ def norm_name(name: str) -> Optional[str]:
     return cleaned
 
 
-def load_file(filename: str):
+def crossref_positions(dataset: Dataset) -> None:
+    clear_store(dataset)
+    view = get_view(dataset, external=True)
     resolver = get_resolver()
     resolver.prune()
     countries: Dict[str, Dict[str, Set[StreamEntity]]] = defaultdict(
         lambda: defaultdict(set)
     )
 
-    for entity in path_entities(filename, StreamEntity):
+    for entity in view.entities():
         if not entity.schema.name == "Position":
             continue
 
@@ -42,7 +47,9 @@ def load_file(filename: str):
                 name = norm_name(name)
                 if name is None:
                     continue
-                countries[country][name].add(entity)
+                for token in name.split(" "):
+                    countries[country][token].add(entity)
+                # countries[country][name].add(entity)
 
     for country_posn in countries.values():
         for positions in country_posn.values():
@@ -55,4 +62,5 @@ def load_file(filename: str):
 
 
 if __name__ == "__main__":
-    load_file(argv[1])
+    dataset = _load_datasets([Path(p) for p in sys.argv[1:]])
+    crossref_positions(dataset)

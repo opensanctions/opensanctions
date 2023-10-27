@@ -20,7 +20,7 @@ def norm_name(name: str) -> Optional[str]:
     return fingerprint(name)
 
 
-def load_file(dataset: Dataset):
+def cross_ref_dataset(dataset: Dataset) -> None:
     clear_store(dataset)
     view = get_view(dataset, external=True)
     resolver = get_resolver()
@@ -38,18 +38,25 @@ def load_file(dataset: Dataset):
                 fp = fingerprint(name)
                 if fp is None:
                     continue
-                countries[country][fp].add(entity)
+                for token in fp.split(" "):
+                    countries[country][token].add(entity)
+                # countries[country][fp].add(entity)
 
+    seen = set()
     for country_posn in countries.values():
         for positions in country_posn.values():
             if len(positions) == 1:
                 continue
             for left, right in combinations(positions, 2):
+                if (left.id, right.id) in seen:
+                    continue
+                seen.add((left.id, right.id))
                 score = NameQualifiedMatcher.compare(left, right).score
-                resolver.suggest(left.id, right.id, score=score, user="pep-dedupe")
+                if score > 0.6:
+                    resolver.suggest(left.id, right.id, score=score, user="pep-dedupe")
     resolver.save()
 
 
 if __name__ == "__main__":
     dataset = _load_datasets([Path(p) for p in sys.argv[1:]])
-    load_file(dataset)
+    cross_ref_dataset(dataset)
