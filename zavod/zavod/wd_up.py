@@ -383,6 +383,7 @@ class SearchDisplay(Widget):
 class WikidataApp(App):
     session: EditSession
 
+    CSS_PATH = "wd_up.tcss"
     BINDINGS = [
         ("n", "next", "Next"),
         ("s", "save", "Save"),
@@ -395,9 +396,9 @@ class WikidataApp(App):
         yield Header()
         yield Footer()
         self.session.next()
-        self.session_display = SessionDisplay()
+        self.session_display = SessionDisplay(classes="box")
         yield self.session_display
-        self.search_display = SearchDisplay()
+        self.search_display = SearchDisplay(classes="box")
         yield self.search_display
         self.search_display.items = self.session.search_results
 
