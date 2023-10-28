@@ -6,7 +6,7 @@ from nomenklatura.cache import Cache
 from nomenklatura.enrich.wikidata import WD_API
 from nomenklatura.enrich.wikidata.model import Claim
 from nomenklatura.statement.statement import Statement
-from nomenklatura.util import normalize_url
+from nomenklatura.util import normalize_url, is_qid
 from requests import Session
 from sys import argv
 from typing import Dict, Generator, List, Set, Optional, cast
@@ -14,7 +14,7 @@ import json
 import logging
 import prefixdate
 from textual.app import App, ComposeResult
-from textual.widgets import Header, Footer
+from textual.widgets import Header, Footer, RadioSet, RadioButton
 from textual.widget import Widget
 from rich.text import Text
 from rich.console import RenderableType
@@ -124,14 +124,14 @@ WHERE
 """
 
 
-def best_label(stmts: List[Statement]) -> str:
+def best_label(names: List[str]) -> str:
     """Prefer labels that don't have a comma."""
-    if len(stmts) == 0:
+    if len(names) == 0:
         return None
-    for stmt in sorted(stmts, key=lambda stmt: stmt.value):
-        if "," not in stmt.value:
-            return stmt.value
-    return stmts[0].value
+    for name in sorted(names):
+        if "," not in name:
+            return name
+    return names[0]
 
 
 def prefix_to_qs_date(string: str) -> str:
@@ -161,8 +161,7 @@ class Assessment:
         self.item = None
         self.claims = defaultdict(list)
         self.actions = []
-        wikidataIds = entity.get("wikidataId")
-        self.qid = wikidataIds[0] if wikidataIds else None
+        self.qid = entity.id if is_qid(entity.id) else None
         self.source_urls = {}
 
         source_url_stmts = self.entity.get_statements("sourceUrl")
@@ -209,7 +208,7 @@ class Assessment:
         for lang, group_stmts in groupby(stmts, lambda stmt: stmt.lang or "en"):
             lang_2 = iso_639_alpha2(lang)
             if lang_2 not in self.item.get("labels"):
-                label = best_label(list(group_stmts))
+                label = best_label([s.value for s in group_stmts])
                 self.actions.append(
                     Action(
                         f'{self.qid}\tL{lang_2}\t"{label}"',
@@ -294,6 +293,7 @@ class EditSession:
     ):
         self.cache = cache
         self.view = view
+        self.assessment = None
         self.focus_dataset = focus_dataset
         self.http_session = Session()
         self.http_session.headers[
@@ -301,6 +301,7 @@ class EditSession:
         ] = f"zavod (https://opensanctions.org; https://www.wikidata.org/wiki/User:OpenSanctions)"
         self.quickstatements_fh = open(qs_filename, "w")
         self._entities_gen = self.view.entities()
+        self.search_results = []
 
     def get_json(self, url, params, cache_days=2):
         url = normalize_url(url, params=params)
@@ -315,46 +316,70 @@ class EditSession:
                 self.cache.set(url, response)
         return json.loads(response)
 
-    def next_assessment(self):
+    def next(self):
         # for action in assessment.actions:
         #     quickstatements_fh.write(
         #         f"{action.quickstatement}\t/* {action.human_readable} */\n"
         #     )
         # quickstatements_fh.flush()
+        self.search_results = []
+        for entity in self._entities_gen:
+            if not entity.schema.name == "Person":
+                continue
+            if self.focus_dataset and self.focus_dataset not in entity.datasets:
+                continue
 
-        try:
-            entity = None
-            while entity is None:
-                entity = next(self._entities_gen)
-                if not entity.schema.name == "Person":
-                    entity = None
-                    continue
-                if self.focus_dataset and self.focus_dataset not in entity.datasets:
-                    entity = None
-                    continue
-
-                assessment = self.assess_entity(entity)
-                self.cache.flush()
-                return assessment
-        except StopIteration:
-            return None
+            self.assessment = self.assess_entity(entity)
+            if self.assessment.qid is None:
+                self.search_items()
+            self.cache.flush()
+            if self.assessment.actions or self.assessment.qid is None:
+                return
 
     def assess_entity(self, entity: Entity) -> Assessment:
         assessment = Assessment(self, entity)
         assessment.generate_actions()
         return assessment
 
+    def search_items(self):
+        params = {
+            "format": "json",
+            "search": best_label(self.assessment.entity.get("name")),
+            "action": "wbsearchentities",
+            "language": "en",
+        }
+        self.search_results = self.get_json(WD_API, params)["search"]
 
-class AssessmentDisplay(Widget):
-    assessment = reactive(None)
 
+class SessionDisplay(Widget):
+    @property
+    def session(self) -> EditSession:
+        return cast(EditSession, self.app.session)
+
+    # renders a table of the key biographical properties of the current assessment entity
+    # and a list of proposed actions using the Rich library, if there's a current assessment in the session,
+    # otherwise the message "No more entities".
     def render(self) -> RenderableType:
-        if self.assessment:
-            return Text(f"{self.assessment.entity.id} {self.assessment.entity.get('name')}")
+        if self.session.assessment:
+            assessment = self.session.assessment
+            return Text(
+                f"{assessment.entity.id} {assessment.qid}"
+                + f"\n{assessment.entity.caption}\n\n"
+                + "\n".join([action.human_readable for action in assessment.actions])
+            )
         else:
-            return Text("No more entities.", justify="center")
+            return Text("No more entities")
 
-    
+
+class SearchDisplay(Widget):
+    items = reactive([])
+
+    def watch_items(self):
+        self.query(RadioButton).remove()
+        options = [RadioButton(f'{r["id"]} {r["label"]}') for r in self.items]
+        self.mount(*options)
+
+
 class WikidataApp(App):
     session: EditSession
 
@@ -369,15 +394,17 @@ class WikidataApp(App):
         """Create child widgets for the app."""
         yield Header()
         yield Footer()
-        yield AssessmentDisplay()
-        
+        self.session.next()
+        self.session_display = SessionDisplay()
+        yield self.session_display
+        self.search_display = SearchDisplay()
+        yield self.search_display
+        self.search_display.items = self.session.search_results
 
-    def on_mount(self) -> None:
-        # self.query_one(AssessmentDisplay).assessment = self.session.next_assessment()
-        pass
     async def action_next(self) -> None:
-        self.query_one(AssessmentDisplay).assessment = self.session.next_assessment()
-        
+        self.session.next()
+        self.session_display.refresh()
+        self.search_display.items = self.session.search_results
 
     # async def action_exit_save(self) -> None:
     #    await self.save_resolver()
