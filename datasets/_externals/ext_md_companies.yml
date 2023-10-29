@@ -10,7 +10,8 @@ exports:
   - statistics.json
 deploy:
   # schedule: "1 16 * * *"
-  memory: "1500Mi"
+  memory: "800Mi"
+  memory_limit: "1500Mi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   All companies in Moldova, with information on their founders, beneficial
