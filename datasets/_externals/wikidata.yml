@@ -298,6 +298,13 @@ lookups:
           - Sultanate of Bengal
           - Habsburg monarchy
           - Egypt Eyalet
+          - West Pakistan
+          - Colony and Protectorate of Nigeria
+          - Federation of Nigeria
+          - First Nigerian Republic
+          - Second Nigerian Republic
+          - Mamluk rule in Iraq
+          - Ottoman Iraq
         value: null
       - match:
           - Cherokee Nation
@@ -307,6 +314,7 @@ lookups:
           - Navajo Nation
           - Northern Cheyenne Indian Reservation
           - Sisseton Wahpeton Oyate
+          - Confederate States
         value: US
       - match: British Cyprus
         value: CY
@@ -467,6 +475,8 @@ lookups:
           - Azad Kashmir
           - پاڪستاني
         value: PK
+      - match: Kwara State
+        value: NG
       - match: Kazakh Soviet Socialist Republic
         values:
           - SUHH

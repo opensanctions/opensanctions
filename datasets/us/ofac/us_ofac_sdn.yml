@@ -219,6 +219,7 @@ lookups:
           - Paraguayan tax identification number
           - Romanian Tax Registration
           - C.I.F.
+          - "N.I.F."
         prop: taxNumber
       - match:
           - Aircraft Serial Identification
@@ -410,7 +411,8 @@ lookups:
         value: null
       - match: Netherlands Antilles
         value: null
-      - match: "Region: Gaza"
+      - match:
+          - "Region: Gaza"
         value: PS
       - match: "Region: Northern Mali"
         value: Mali
