@@ -1,14 +1,16 @@
+from typing import List, Optional
 from datetime import datetime
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.helpers.xml import ElementOrTree
 
 FORMATS = ["%d %b %Y", "%d %B %Y", "%Y", "%b %Y", "%B %Y"]
 
 
-def parse_date(date):
+def parse_date(date: Optional[str]) -> List[str]:
     if date is None:
-        return
+        return []
     date = date.replace(".", "")
     if ";" in date:
         date, _ = date.split(";", 1)
@@ -16,7 +18,7 @@ def parse_date(date):
     return h.parse_date(date, FORMATS)
 
 
-def parse_entry(context: Context, entry):
+def parse_entry(context: Context, entry: ElementOrTree) -> None:
     entity = context.make("LegalEntity")
     if entry.findtext("./type-entry") == "2":
         entity = context.make("Person")
@@ -65,8 +67,7 @@ def parse_entry(context: Context, entry):
         entity.add("idNumber", doc.text)
 
     for node in entry.findall("./address-list"):
-        address = h.make_address(context, full=node.findtext("./address"))
-        h.apply_address(context, entity, address)
+        entity.add("address", node.findtext("./address"))
 
     for pob in entry.findall("./place-of-birth-list"):
         entity.add_cast("Person", "birthPlace", pob.text)
@@ -77,15 +78,15 @@ def parse_entry(context: Context, entry):
 
     for nat in entry.findall("./nationality-list"):
         for country in h.multi_split(nat.text, [";", ","]):
-            country = h.remove_bracketed(country)
-            entity.add("nationality", country, quiet=True)
+            country_ = h.remove_bracketed(country)
+            entity.add("nationality", country_, quiet=True)
 
     entity.add("topics", "sanction")
     context.emit(entity, target=True)
     context.emit(sanction)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     path = context.fetch_resource("source.xml", context.data_url)
     context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
