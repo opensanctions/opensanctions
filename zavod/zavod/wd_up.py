@@ -14,7 +14,9 @@ import json
 import logging
 import prefixdate
 from textual.app import App, ComposeResult
-from textual.widgets import Header, Footer, Log, ListItem, ListView, Label
+from textual.widgets import Header, Footer, Log, ListItem, ListView, Label, Button
+from textual.screen import Screen
+from textual.containers import Grid
 from textual.widget import Widget
 from rich.text import Text
 from rich.console import RenderableType
@@ -419,8 +421,27 @@ class SearchDisplay(Widget):
         self.list_view.append(ListItem(Label("None of the above")))
 
 
+
+class QuitScreen(Screen):
+    """Screen with a dialog to quit."""
+
+    def compose(self) -> ComposeResult:
+        yield Grid(
+            Label("You have unsaved changes. Quit without saving?", id="question"),
+            Button("Quit", variant="error", id="quit"),
+            Button("Cancel", variant="primary", id="cancel"),
+            id="dialog",
+        )
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        if event.button.id == "quit":
+            self.app.exit(0)
+        else:
+            self.app.pop_screen()
+
 class WikidataApp(App):
     session: EditSession
+    is_dirty: bool = reactive(False)
 
     CSS_PATH = "wd_up.tcss"
     BINDINGS = [
@@ -452,6 +473,7 @@ class WikidataApp(App):
         self.search_display.items = self.session.search_results
 
     def action_resolve(self):
+        self.is_dirty = True
         highlighted_index = self.search_display.list_view.index
         highlighted_result = self.search_display.items[highlighted_index]
         qid = highlighted_result["id"]
@@ -464,9 +486,13 @@ class WikidataApp(App):
 
     def action_save(self) -> None:
         self.session.save()
+        self.is_dirty = False
 
     def action_exit_hard(self) -> None:
-        self.exit(0)
+        if self.is_dirty:
+            self.push_screen(QuitScreen())
+        else:
+            self.exit(0)
 
 
 def run_app(out_file: str, store, cache: Cache, focus_dataset: str) -> None:
