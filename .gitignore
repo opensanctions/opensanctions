@@ -76,3 +76,8 @@ env*/
 _site/
 site/public/sitemap.xml
 site/_data
+
+.pywikibot/throttle.ctrl
+.pywikibot/apicache-py3
+throttle.ctrl
+apicache-py3

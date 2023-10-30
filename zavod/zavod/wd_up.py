@@ -1,4 +1,5 @@
 from collections import defaultdict
+from datetime import datetime
 from itertools import groupby
 from languagecodes import iso_639_alpha2
 from nomenklatura import Store
@@ -24,8 +25,10 @@ from textual.reactive import reactive
 from nomenklatura.dataset import DS
 from nomenklatura.entity import CE
 from nomenklatura.judgement import Judgement
+import pywikibot
 
 from zavod.entity import Entity
+from zavod import settings
 
 
 log = logging.getLogger(__name__)
@@ -495,7 +498,37 @@ class WikidataApp(App):
             self.exit(0)
 
 
+PID_DOB_TEST = "P18"
+
 def run_app(out_file: str, store, cache: Cache, focus_dataset: str) -> None:
-    app = WikidataApp()
-    app.session = EditSession(cache, store, focus_dataset, out_file)
-    app.run()
+
+    site = pywikibot.Site("test", "wikidata")
+    
+    repo = site.data_repository()
+    item = pywikibot.ItemPage(repo, "Q232548")
+    print(item)
+    print()
+    item_dict = item.get() #Get the item dictionary
+    clm_dict = item_dict["claims"] # Get the claim dictionary
+    print(clm_dict)
+
+    print()
+    clm_list = clm_dict["P18"]
+
+    for clm in clm_list:
+        print(clm)
+    print()
+
+    new_item = pywikibot.ItemPage(site)
+    new_item.editLabels(labels={'en': f'A funky purple item {datetime.now().isoformat()}'}, summary="Setting labels")
+    qid = new_item.getID()
+    print("New qid", qid)
+
+    dateclaim = pywikibot.Claim(repo, PID_DOB_TEST)
+    dateOfBirth = pywikibot.WbTime(year=1977, month=6, day=8)
+    dateclaim.setTarget(dateOfBirth)
+    item.addClaim(dateclaim, summary=u'Adding dateOfBirth')
+    #app = WikidataApp()
+    #app.session = EditSession(cache, store, focus_dataset, out_file)
+    #app.run()
+
