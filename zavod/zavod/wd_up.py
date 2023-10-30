@@ -1,7 +1,7 @@
 from collections import defaultdict
-from followthemoney.cli.util import path_entities
 from itertools import groupby
 from languagecodes import iso_639_alpha2
+from nomenklatura import Store
 from nomenklatura.cache import Cache
 from nomenklatura.enrich.wikidata import WD_API
 from nomenklatura.enrich.wikidata.model import Claim
@@ -19,12 +19,11 @@ from textual.widget import Widget
 from rich.text import Text
 from rich.console import RenderableType
 from textual.reactive import reactive
-
+from nomenklatura.dataset import DS
+from nomenklatura.entity import CE
+from nomenklatura.judgement import Judgement
 
 from zavod.entity import Entity
-from zavod.meta import load_dataset_from_path
-from zavod.runtime.cache import get_cache
-from zavod.store import View, get_view
 
 
 log = logging.getLogger(__name__)
@@ -289,10 +288,16 @@ class Assessment:
 
 class EditSession:
     def __init__(
-        self, cache: Cache, view: View, focus_dataset: Optional[str], qs_filename: str
+        self,
+        cache: Cache,
+        store: Store[DS, CE],
+        focus_dataset: Optional[str],
+        qs_filename: str,
     ):
+        self.store = store
+        self.resolver = store.resolver
         self.cache = cache
-        self.view = view
+        self.view = store.default_view(external=False)
         self.assessment = None
         self.focus_dataset = focus_dataset
         self.http_session = Session()
@@ -350,6 +355,19 @@ class EditSession:
         }
         self.search_results = self.get_json(WD_API, params)["search"]
 
+    # Create a decision that marks the current item id and the provided
+    # qid as a positive match.
+    def resolve(self, qid: str):
+        canonical_id = self.resolver.decide(
+            self.assessment.entity.id,
+            qid,
+            judgement=Judgement.POSITIVE,
+        )
+        self.store.update(canonical_id)
+
+    def save(self) -> None:
+        self.resolver.save()
+
 
 class SessionDisplay(Widget):
     @property
@@ -370,12 +388,13 @@ class SessionDisplay(Widget):
         else:
             return Text("No more entities")
 
+
 class SearchItem(ListItem):
     result_item = reactive(None)
 
     def render(self):
         return f'{self.result_item["id"]} {self.result_item["label"]}'
-    
+
 
 class SearchDisplay(Widget):
     items: Dict[str, str] = reactive([])
@@ -400,14 +419,14 @@ class SearchDisplay(Widget):
         self.list_view.append(ListItem(Label("None of the above")))
 
 
-
 class WikidataApp(App):
     session: EditSession
 
     CSS_PATH = "wd_up.tcss"
     BINDINGS = [
         ("n", "next", "Next"),
-        # ("s", "save", "Save"),
+        ("r", "resolve", "Resolve"),
+        ("s", "save", "Save"),
         # ("w", "exit_save", "Quit & save"),
         ("q", "exit_hard", "Quit"),
     ]
@@ -432,17 +451,25 @@ class WikidataApp(App):
         self.session_display.refresh()
         self.search_display.items = self.session.search_results
 
-    # async def action_exit_save(self) -> None:
-    #    await self.save_resolver()
-    #    self.exit(0)
+    def action_resolve(self):
+        highlighted_index = self.search_display.list_view.index
+        highlighted_result = self.search_display.items[highlighted_index]
+        qid = highlighted_result["id"]
+        entity = self.session.assessment.entity
+        self.log_display.write_line(
+            f"Resolving {entity.id} as {qid} {highlighted_result['label']}"
+        )
+        self.session.resolve(qid)
+        self.action_next()
 
-    async def action_exit_hard(self) -> None:
+    def action_save(self) -> None:
+        self.session.save()
+
+    def action_exit_hard(self) -> None:
         self.exit(0)
 
 
-def run_app(
-    out_file: str, view: View, cache: Cache, focus_dataset: str
-) -> None:
+def run_app(out_file: str, store, cache: Cache, focus_dataset: str) -> None:
     app = WikidataApp()
-    app.session = EditSession(cache, view, focus_dataset, out_file)
+    app.session = EditSession(cache, store, focus_dataset, out_file)
     app.run()

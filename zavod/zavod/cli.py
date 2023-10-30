@@ -272,11 +272,11 @@ def wd_up(
     dataset = _load_datasets(dataset_paths)
     if clear:
         clear_store(dataset)
-    view = get_view(dataset, external=False)
+    store = get_store(dataset, external=False)
     cache = get_cache(dataset)
     run_app(
         out_file,
-        view,
+        store,
         cache,
         focus_dataset=focus_dataset,
     )
