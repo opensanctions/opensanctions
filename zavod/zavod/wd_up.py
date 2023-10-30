@@ -14,7 +14,7 @@ import json
 import logging
 import prefixdate
 from textual.app import App, ComposeResult
-from textual.widgets import Header, Footer, RadioSet, RadioButton
+from textual.widgets import Header, Footer, Log, ListItem, ListView, Label
 from textual.widget import Widget
 from rich.text import Text
 from rich.console import RenderableType
@@ -370,14 +370,35 @@ class SessionDisplay(Widget):
         else:
             return Text("No more entities")
 
+class SearchItem(ListItem):
+    result_item = reactive(None)
+
+    def render(self):
+        return f'{self.result_item["id"]} {self.result_item["label"]}'
+    
 
 class SearchDisplay(Widget):
-    items = reactive([])
+    items: Dict[str, str] = reactive([])
+    list_view = None
 
-    def watch_items(self):
-        self.query(RadioButton).remove()
-        options = [RadioButton(f'{r["id"]} {r["label"]}') for r in self.items]
-        self.mount(*options)
+    def compose(self):
+        self.list_view = ListView()
+        yield self.list_view
+        self.update_items()
+
+    def watch_items(self, items: List[Dict[str, str]]):
+        if self.list_view is None:
+            return
+        self.update_items()
+
+    def update_items(self):
+        self.list_view.clear()
+        for result_item in self.items:
+            search_item = SearchItem()
+            search_item.result_item = result_item
+            self.list_view.append(search_item)
+        self.list_view.append(ListItem(Label("None of the above")))
+
 
 
 class WikidataApp(App):
@@ -386,7 +407,7 @@ class WikidataApp(App):
     CSS_PATH = "wd_up.tcss"
     BINDINGS = [
         ("n", "next", "Next"),
-        ("s", "save", "Save"),
+        # ("s", "save", "Save"),
         # ("w", "exit_save", "Quit & save"),
         ("q", "exit_hard", "Quit"),
     ]
@@ -400,10 +421,14 @@ class WikidataApp(App):
         yield self.session_display
         self.search_display = SearchDisplay(classes="box")
         yield self.search_display
+        self.log_display = Log()
+        yield self.log_display
         self.search_display.items = self.session.search_results
 
-    async def action_next(self) -> None:
+    def action_next(self) -> None:
+        self.log_display.write_line("Loading next entity...")
         self.session.next()
+        self.log_display.write_line("Done.")
         self.session_display.refresh()
         self.search_display.items = self.session.search_results
 
@@ -415,7 +440,7 @@ class WikidataApp(App):
         self.exit(0)
 
 
-def generate_wd_statements(
+def run_app(
     out_file: str, view: View, cache: Cache, focus_dataset: str
 ) -> None:
     app = WikidataApp()

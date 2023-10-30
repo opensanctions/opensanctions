@@ -22,7 +22,7 @@ from zavod.publish import publish_dataset, publish_failure
 from zavod.tools.load_db import load_dataset_to_db
 from zavod.tools.dump_file import dump_dataset_to_file
 from zavod.exc import RunFailedException
-from zavod.wd_up import generate_wd_statements
+from zavod.wd_up import run_app
 
 
 log = get_logger(__name__)
@@ -258,7 +258,7 @@ def clear(dataset_path: Path) -> None:
         sys.exit(1)
 
 
-@cli.command("wd-up", help="Generate statements to update wikidata")
+@cli.command("wd-up", help="Review and output possible wikidata updates")
 @click.argument("dataset_paths", type=InPath, nargs=-1)
 @click.option("-o", "--out-file", type=str, required=True)
 @click.option("-c", "--clear", is_flag=True, default=False)
@@ -274,7 +274,7 @@ def wd_up(
         clear_store(dataset)
     view = get_view(dataset, external=False)
     cache = get_cache(dataset)
-    generate_wd_statements(
+    run_app(
         out_file,
         view,
         cache,
