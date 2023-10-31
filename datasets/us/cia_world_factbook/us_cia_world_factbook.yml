@@ -438,6 +438,16 @@ lookups:
         holders:
           - role: Administrator
             name: Balraj DHANDA
+      - match: "Chief Mgwagwa GAMEDZE appointed acting prime minister (since 28 September 2023)"
+        holders:
+          - role: Acting Prime Minister
+            name: Mgwagwa GAMEDZE
+            start_date: 28 September 2023
+      - match: Raymond Ndong Sima (since 8 September 2023)
+        holders:
+          - role: Interim Prime Minister
+            name: Raymond Ndong Sima
+            start_date: 8 September 2023
       - match: "chief of state: president (vacant)"
         holders: []
       - regex:
@@ -493,6 +503,8 @@ lookups:
           - "head of government since 9 July 2018\\)"
           - "head of state and Supreme Assembly Chairman since 19 November 1992\\)"
           - "inauguration scheduled for 17 November 2023"
+          - "on 5 September 2023, OLIGUI was sworn in as transitional president"
+          - "note- interim prime minister"
         holders: []
 
   type.country:
