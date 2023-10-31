@@ -30,7 +30,6 @@ import json
 import logging
 import prefixdate
 
-from zavod.entity import Entity
 from zavod import settings
 
 
@@ -236,10 +235,8 @@ class EditSession:
         self._entities_gen = self._view.entities()
         self._reset_entity()
 
-        self.debug_file = open("debug.txt", "w")
-
     def _reset_entity(self):
-        self.entity: Optional[Entity] = None
+        self.entity: Optional[CE] = None
         self.item: Optional[ItemPage] = None
         self.item_dict: Optional[Dict[str, Any]] = None
         self.claims: Optional[List[Claim]] = None
@@ -285,22 +282,20 @@ class EditSession:
             if self.actions or self.qid is None:
                 return
 
+    def _log(self, message: str):
+        self._app.post_message(LogMessage(message))
     
     def _fetch_item(self):
-        self.debug_file.write("Fetching item %s\n" % self.qid)
-        self.app.post_message(Message("Fetching item %s" % self.qid))
-        self.debug_file.flush()
+        self._log("Fetching item %s" % self.qid)
         self.item = ItemPage(self._wd_repo, self.qid)
-        self.debug_file.write("Fetching item dict %s\n" % self.qid)
-        self.debug_file.flush()
+        self._log("Fetching item dict %s\n" % self.qid)
         dict_cache_key = item_dict_cache_key(self.qid)
         #self.item_dict = self._cache.get(dict_cache_key, max_age=1)
         #if self.item_dict is None:
         self.item_dict = self.item.get()
         #    self._cache.set(dict_cache_key, self.item_dict)
         self.claims = self.item_dict["claims"]
-        self.debug_file.write("Done.\n")
-        self.debug_file.flush()
+        self._log("Done.\n")
 
     def _search_items(self):
         params = {
@@ -410,7 +405,7 @@ class EditSession:
                 self.actions.append(AddClaimAction(date_claim))
                 self.actions.append(AddSourceClaimAction(date_claim, source_claims))
             else:
-                self.debug_file.write("Couldn't provide source for {date_claim}")
+                self._log(f"Couldn't provide source for {date_claim}")
 
     def _make_source_claims(self, stmt: Statement) -> Optional[List[Claim]]:
         source_url = self.source_urls.get(stmt.dataset)
@@ -434,7 +429,47 @@ class EditSession:
                         self.position_labels[position.id] = position.get("name")
 
     def _check_positions(self):
-        pass
+        wd_pos_start_years = defaultdict(set)
+        wd_pos_end_years = defaultdict(set)
+        # Wikidata
+        for claim_ in self.item_dict["claims"].get("P39", []):
+            claim = cast(Claim, claim_)
+            self._log(str(claim.target))
+            starts = [cast(Claim, q) for q in claim.qualifiers.get("P580", [])]
+            ends = [cast(Claim, q) for q in claim.qualifiers.get("P582", [])]
+            if len(starts) > 0:
+                wd_pos_start_years[claim.target.getID()].add(str(starts[0].target.year))
+            if len(ends) > 0:
+                wd_pos_end_years[claim.target.getID()].add(str(ends[0].target.year))
+        self._log(f"wd starts {wd_pos_start_years}")
+        self._log(f"wd ends {wd_pos_end_years}")
+        # OpenSanctions
+        for pos_id, occs in self.position_occupancies.items():
+            if not is_qid(pos_id):
+                continue
+            for occ in occs:
+                add = True
+                if pos_id in wd_pos_start_years:
+                    for date in occ.get("startDate"):
+                        if date[:4] in wd_pos_start_years[pos_id]:
+                            add = False
+                if pos_id in wd_pos_start_years:
+                    for date in occ.get("endDate"):
+                        if date[:4] in wd_pos_end_years[pos_id]:
+                            add = False
+                if not occ.get("startDate") and not occ.get("endDate") and pos_id in wd_pos_start_years and pos_id in wd_pos_start_years:
+                    add = False
+                if add:
+                    self._log(f"Would add {pos_id} {occ.get('startDate')} {occ.get('endDate')}")
+                    claim = Claim(self._wd_repo, "P39")
+                    claim.setTarget(ItemPage(self._wd_repo, pos_id))
+                    source_claims = self._make_source_claims(occ)
+                    
+                    self.actions.append(AddClaimAction(claim))
+                    
+                
+
+            
 
     # def _check_given_name(self):
     #    if self.claims.get("P735", []):
@@ -487,7 +522,7 @@ class EditSession:
 #    # TODO: if len(rows) == 0: consider adding missing given names as new items.
 
 
-def render_property(entity: Entity, property: str) -> str:
+def render_property(entity: CE, property: str) -> str:
     text = f"{property}:"
     values = entity.get(property)
     match len(values):
@@ -543,8 +578,7 @@ class SearchItem(ListItem):
         pos_claims = self.result_item["item_dict"]["claims"].get("P39", [])
         for claim in pos_claims:
             claim_ = cast(Claim, claim)
-            value += f"  {claim_.getTarget()}\n"
-            pformat(claim_.qualifiers, 2)
+            value += f"  {claim_.target}\n"
 
         return(Text(value))
 
@@ -594,6 +628,7 @@ class NextLoaded(Message):
 
 class LogMessage(Message):
     def __init__(self, message: str):
+        super().__init__()
         self.message = message
 
 class WikidataApp(App):
