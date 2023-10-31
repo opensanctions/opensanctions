@@ -2358,3 +2358,28 @@ lookups:
           jurisdiction: ir
           address: "Téhéran, Iran"
           incorporationDate: 2008-03-03
+      - match: "Lieu d'enregistrement: Myanmar/Birmanie: /"
+        props:
+          jurisdiction: mm
+      - match: "Type d'entité: Filiale de l'entreprise unitaire de l'État fédéral - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 15.11.2002 - Principal établissement: Fédération de Russie: Numéro d'enregistrement: 1027739552642"
+        props:
+          jurisdiction: ru
+          legalForm: Filiale de l'entreprise unitaire de l'État fédéral
+          incorporationDate: 2002-11-15
+          registrationNumber: 1027739552642
+      - match: 'Entités associées: Ancienne société mère: entreprise unitaire de l''État fédéral "Scientific and Production Center of Automation and Instrumentation named after academician N.A. Pilyugin" (JSC "NPCAP": Autres informations: TIN 7728171283'
+        associates:
+          - Scientific and Production Center of Automation and Instrumentation named after academician N.A. Pilyugin
+      - match: "Lieu d'enregistrement: Iran - Établissement principal: Iran: /"
+        props:
+          jurisdiction: ir
+      - match: "Lieu d'enregistrement: Téhéran - No d'enregistrement: 176855 - Code économique: 411139673763 - Date d'enregistrement: 1987 et 2001 - Personnes associées: Reza Sadougi, PDG: Numéro d'identification national 10102191894"
+        props:
+          jurisdiction: ir
+          registrationNumber: 176855
+          taxNumber: 411139673763
+          incorporationDate:
+            - 1987
+            - 2001
+        associates:
+          - Reza Sadougi

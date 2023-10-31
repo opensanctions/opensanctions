@@ -4,8 +4,9 @@ prefix: ofac
 coverage:
   frequency: daily
 deploy:
-  memory: "2Gi"
-  cpu: "500m"
+  memory: 1300Mi
+  memory_limit: "2Gi"
+  cpu: "200m"
   schedule: "35 */2 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
