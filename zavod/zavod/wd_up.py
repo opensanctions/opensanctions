@@ -263,7 +263,6 @@ class EditSession:
         self._reset_entity()
 
         for entity in self._entities_gen:
-            
             if not entity.schema.name == "Person" or not entity.target:
                 continue
             if self._focus_dataset and self._focus_dataset not in entity.datasets:
@@ -284,14 +283,14 @@ class EditSession:
 
     def _log(self, message: str):
         self._app.post_message(LogMessage(message))
-    
+
     def _fetch_item(self):
         self._log("Fetching item %s" % self.qid)
         self.item = ItemPage(self._wd_repo, self.qid)
         self._log("Fetching item dict %s\n" % self.qid)
         dict_cache_key = item_dict_cache_key(self.qid)
-        #self.item_dict = self._cache.get(dict_cache_key, max_age=1)
-        #if self.item_dict is None:
+        # self.item_dict = self._cache.get(dict_cache_key, max_age=1)
+        # if self.item_dict is None:
         self.item_dict = self.item.get()
         #    self._cache.set(dict_cache_key, self.item_dict)
         self.claims = self.item_dict["claims"]
@@ -348,7 +347,6 @@ class EditSession:
                 raise ValueError("Unknown action: %r" % action)
         if created:
             self.resolve(self.qid)
-                
 
     def save_resolver(self) -> None:
         self._resolver.save()
@@ -417,7 +415,7 @@ class EditSession:
         date_claim = Claim(self._wd_repo, "P813", is_reference=True)
         date_claim.setTarget(prefix_to_wb_time(stmt.last_seen[:10]))
         return [url_claim, date_claim]
-    
+
     def _get_occupancies(self):
         for person_prop, person_related in self._view.get_adjacent(self.entity):
             if person_prop.name == "positionOccupancies":
@@ -457,19 +455,22 @@ class EditSession:
                     for date in occ.get("endDate"):
                         if date[:4] in wd_pos_end_years[pos_id]:
                             add = False
-                if not occ.get("startDate") and not occ.get("endDate") and pos_id in wd_pos_start_years and pos_id in wd_pos_start_years:
+                if (
+                    not occ.get("startDate")
+                    and not occ.get("endDate")
+                    and pos_id in wd_pos_start_years
+                    and pos_id in wd_pos_start_years
+                ):
                     add = False
                 if add:
-                    self._log(f"Would add {pos_id} {occ.get('startDate')} {occ.get('endDate')}")
+                    self._log(
+                        f"Would add {pos_id} {occ.get('startDate')} {occ.get('endDate')}"
+                    )
                     claim = Claim(self._wd_repo, "P39")
                     claim.setTarget(ItemPage(self._wd_repo, pos_id))
                     source_claims = self._make_source_claims(occ)
-                    
-                    self.actions.append(AddClaimAction(claim))
-                    
-                
 
-            
+                    self.actions.append(AddClaimAction(claim))
 
     # def _check_given_name(self):
     #    if self.claims.get("P735", []):
@@ -533,8 +534,9 @@ def render_property(entity: CE, property: str) -> str:
         case _:
             text += "\n"
             for value in values:
-                text += f"  {value}\n"   
+                text += f"  {value}\n"
             return text
+
 
 class SessionDisplay(Widget):
     @property
@@ -573,14 +575,17 @@ class SearchItem(ListItem):
         if description:
             value += f"\n  {description}\n"
         value += "instance of: "
-        value += ",".join(str(c.target) for c in self.result_item["item_dict"]["claims"].get("P31", []))
+        value += ",".join(
+            str(c.target)
+            for c in self.result_item["item_dict"]["claims"].get("P31", [])
+        )
         value += "\npositions held: \n"
         pos_claims = self.result_item["item_dict"]["claims"].get("P39", [])
         for claim in pos_claims:
             claim_ = cast(Claim, claim)
             value += f"  {claim_.target}\n"
 
-        return(Text(value))
+        return Text(value)
 
 
 class SearchDisplay(Widget):
@@ -626,15 +631,17 @@ class QuitScreen(Screen):
 class NextLoaded(Message):
     pass
 
+
 class LogMessage(Message):
     def __init__(self, message: str):
         super().__init__()
         self.message = message
 
+
 class WikidataApp(App):
     session: EditSession
     is_dirty: bool = reactive(False)
-    loading_next = False  # very very poor man's semaphore 
+    loading_next = False  # very very poor man's semaphore
 
     CSS_PATH = "wd_up.tcss"
     BINDINGS = [
@@ -665,12 +672,12 @@ class WikidataApp(App):
             self.log_display.write_line("Loading next entity...")
             self.loading_next = True
             self.load_next_entity()
-    
+
     @work(thread=True)
     def load_next_entity(self) -> None:
         self.session.next()
         self.post_message(NextLoaded())
-    
+
     def on_next_loaded(self, event: NextLoaded) -> None:
         self.loading_next = False
         self.session_display.refresh()
