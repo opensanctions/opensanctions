@@ -238,6 +238,8 @@ class EditSession:
         self.search_results: List[Dict[str, Any]] = []
         self.source_urls: Dict[str, str] = {}
         self.actions: List[Action] = []
+        self.position_occupancies = defaultdict(list)
+        self.position_labels = defaultdict(str)
 
     def get_json(self, url, params, cache_days=2):
         url = normalize_url(url, params=params)
@@ -256,19 +258,20 @@ class EditSession:
         self._reset_entity()
 
         for entity in self._entities_gen:
-            self.entity = entity
-            if not entity.schema.name == "Person":
+            
+            if not entity.schema.name == "Person" or not entity.target:
                 continue
-
             if self._focus_dataset and self._focus_dataset not in entity.datasets:
                 continue
 
-            self.qid = entity.id if is_qid(entity.id) else None
+            self.entity = entity
+            self.qid = self.entity.id if is_qid(self.entity.id) else None
             if self.qid is None:
                 self._search_items()
             else:
                 self.item = self._fetch_item()
 
+            self._get_occupancies()
             self._propose_actions()
 
             if self.actions or self.qid is None:
@@ -400,6 +403,16 @@ class EditSession:
         date_claim = Claim(self._wd_repo, "P813", is_reference=True)
         date_claim.setTarget(prefix_to_wb_time(stmt.last_seen[:10]))
         return [url_claim, date_claim]
+    
+    def _get_occupancies(self):
+        for person_prop, person_related in self._view.get_adjacent(self.entity):
+            if person_prop.name == "positionOccupancies":
+                occupancy = person_related
+                for occ_prop, occ_related in self._view.get_adjacent(person_related):
+                    if occ_prop.name == "post":
+                        position = occ_related
+                        self.position_occupancies[position.id].append(occupancy)
+                        self.position_labels[position.id] = position.get("name")
 
     # def _check_given_name(self):
     #    if self.claims.get("P735", []):
@@ -452,6 +465,20 @@ class EditSession:
 #    # TODO: if len(rows) == 0: consider adding missing given names as new items.
 
 
+def render_property(entity: Entity, property: str) -> str:
+    text = f"{property}:"
+    values = entity.get(property)
+    match len(values):
+        case 0:
+            return text + " -\n"
+        case 1:
+            return text + f" {values[0]}\n"
+        case _:
+            text += "\n"
+            for value in values:
+                text += f"  {value}\n"   
+            return text
+
 class SessionDisplay(Widget):
     @property
     def session(self) -> EditSession:
@@ -459,13 +486,25 @@ class SessionDisplay(Widget):
 
     def render(self) -> RenderableType:
         if self.session.entity:
-            return Text(
-                f"{self.session.entity.id}"
-                + f"\n{self.session.entity.caption}\n\n"
-                + "\n".join([str(action) for action in self.session.actions])
+            text = (
+                f"ID: {self.session.entity.id}\n"
+                f"Names: {' | '.join(self.session.entity.get('name'))}\n\n"
             )
+            text += render_property(self.session.entity, "birthDate")
+            text += render_property(self.session.entity, "gender")
+            text += render_property(self.session.entity, "nationality")
+            text += render_property(self.session.entity, "country")
+            text += "Positions:\n"
+            for pos_id, pos_names in self.session.position_labels.items():
+                text += f"  {pos_id}\n  {pos_names[0]} ({len(pos_names)})\n"
+                for occ in self.session.position_occupancies[pos_id]:
+                    text += f'    {occ.get("startDate")} {occ.get("endDate")}\n'
+            text += "\nProposed actions:\n"
+            for action in self.session.actions:
+                text += f"  {action}\n"
+            return Text(text)
         else:
-            return Text("No more entities")
+            return Text("No current entity")
 
 
 class SearchItem(ListItem):
@@ -543,6 +582,7 @@ class WikidataApp(App):
         yield self.search_display
         self.log_display = Log()
         yield self.log_display
+        self.log_display.write_line("Press n for next entity.")
 
     def action_next(self) -> None:
         self.session.next()
