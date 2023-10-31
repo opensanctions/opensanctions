@@ -4,29 +4,31 @@ from itertools import groupby
 from languagecodes import iso_639_alpha2
 from nomenklatura import Store
 from nomenklatura.cache import Cache
+from nomenklatura.dataset import DS
 from nomenklatura.enrich.wikidata import WD_API
-from nomenklatura.enrich.wikidata.model import Claim
+from nomenklatura.entity import CE
+from nomenklatura.judgement import Judgement
 from nomenklatura.statement.statement import Statement
 from nomenklatura.util import normalize_url, is_qid
+from pprint import pformat
+from pywikibot import ItemPage, WbTime, Claim, Site
+from pywikibot.data import api
 from requests import Session
+from rich.console import RenderableType
+from rich.text import Text
 from sys import argv
+from textual.app import App, ComposeResult
+from textual.containers import Grid
+from textual.reactive import reactive
+from textual.screen import Screen
+from textual.widget import Widget
+from textual.widgets import Header, Footer, Log, ListItem, ListView, Label, Button
+from textual.message import Message
+from textual import work
 from typing import Any, Dict, Generator, List, Set, Optional, cast
 import json
 import logging
 import prefixdate
-from textual.app import App, ComposeResult
-from textual.widgets import Header, Footer, Log, ListItem, ListView, Label, Button
-from textual.screen import Screen
-from textual.containers import Grid
-from textual.widget import Widget
-from rich.text import Text
-from rich.console import RenderableType
-from textual.reactive import reactive
-from nomenklatura.dataset import DS
-from nomenklatura.entity import CE
-from nomenklatura.judgement import Judgement
-from pywikibot import ItemPage, WbTime, Claim, Site
-from pywikibot.data import api
 
 from zavod.entity import Entity
 from zavod import settings
@@ -160,6 +162,10 @@ def prefix_to_wb_time(string: str) -> WbTime:
     return WbTime(year=year, month=month, day=day)
 
 
+def item_dict_cache_key(qid: str) -> str:
+    return f"wd:item:{qid}:dict"
+
+
 class Action:
     pass
 
@@ -212,11 +218,13 @@ class EditSession:
         cache: Cache,
         store: Store[DS, CE],
         focus_dataset: Optional[str],
+        app: App,
     ):
         self._store = store
         self._resolver = store.resolver
         self.is_resolver_dirty = False
         self._cache = cache
+        self._app = app
         self._view = store.default_view(external=False)
         self._focus_dataset = focus_dataset
         self._http_session = Session()
@@ -277,13 +285,19 @@ class EditSession:
             if self.actions or self.qid is None:
                 return
 
+    
     def _fetch_item(self):
         self.debug_file.write("Fetching item %s\n" % self.qid)
+        self.app.post_message(Message("Fetching item %s" % self.qid))
         self.debug_file.flush()
         self.item = ItemPage(self._wd_repo, self.qid)
         self.debug_file.write("Fetching item dict %s\n" % self.qid)
         self.debug_file.flush()
+        dict_cache_key = item_dict_cache_key(self.qid)
+        #self.item_dict = self._cache.get(dict_cache_key, max_age=1)
+        #if self.item_dict is None:
         self.item_dict = self.item.get()
+        #    self._cache.set(dict_cache_key, self.item_dict)
         self.claims = self.item_dict["claims"]
         self.debug_file.write("Done.\n")
         self.debug_file.flush()
@@ -299,6 +313,9 @@ class EditSession:
         request = api.Request(site=self._wd_site, parameters=params)
         result = request.submit()
         self.search_results = result["search"]
+        for result in self.search_results:
+            result["item"] = ItemPage(self._wd_repo, result["id"])
+            result["item_dict"] = result["item"].get()
 
     def resolve(self, qid: str):
         self.qid = qid
@@ -318,6 +335,7 @@ class EditSession:
 
     def publish(self):
         created = False
+        self._cache.delete(item_dict_cache_key(self.qid))
         for action in self.actions:
             if isinstance(action, CreateItemAction):
                 self.item = ItemPage(self._wd_site)
@@ -345,6 +363,7 @@ class EditSession:
         if self.qid:
             self._check_labels()
             self._check_birthdate()
+            self._check_positions()
             # self._check_given_name()
             # self._check_family_name()
 
@@ -413,6 +432,9 @@ class EditSession:
                         position = occ_related
                         self.position_occupancies[position.id].append(occupancy)
                         self.position_labels[position.id] = position.get("name")
+
+    def _check_positions(self):
+        pass
 
     # def _check_given_name(self):
     #    if self.claims.get("P735", []):
@@ -514,7 +536,16 @@ class SearchItem(ListItem):
         value = f'{self.result_item["id"]} {self.result_item["label"]}'
         description = self.result_item.get("description", None)
         if description:
-            value += f"\n  {description}"
+            value += f"\n  {description}\n"
+        value += "instance of: "
+        value += ",".join(str(c.target) for c in self.result_item["item_dict"]["claims"].get("P31", []))
+        value += "\npositions held: \n"
+        pos_claims = self.result_item["item_dict"]["claims"].get("P39", [])
+        for claim in pos_claims:
+            claim_ = cast(Claim, claim)
+            value += f"  {claim_.getTarget()}\n"
+            pformat(claim_.qualifiers, 2)
+
         return(Text(value))
 
 
@@ -558,9 +589,17 @@ class QuitScreen(Screen):
             self.app.pop_screen()
 
 
+class NextLoaded(Message):
+    pass
+
+class LogMessage(Message):
+    def __init__(self, message: str):
+        self.message = message
+
 class WikidataApp(App):
     session: EditSession
     is_dirty: bool = reactive(False)
+    loading_next = False  # very very poor man's semaphore 
 
     CSS_PATH = "wd_up.tcss"
     BINDINGS = [
@@ -585,7 +624,20 @@ class WikidataApp(App):
         self.log_display.write_line("Press n for next entity.")
 
     def action_next(self) -> None:
+        if self.loading_next:
+            self.log_display.write_line("Already loading next entity. Ignoring.")
+        else:
+            self.log_display.write_line("Loading next entity...")
+            self.loading_next = True
+            self.load_next_entity()
+    
+    @work(thread=True)
+    def load_next_entity(self) -> None:
         self.session.next()
+        self.post_message(NextLoaded())
+    
+    def on_next_loaded(self, event: NextLoaded) -> None:
+        self.loading_next = False
         self.session_display.refresh()
         self.search_display.items = self.session.search_results
         if self.session.qid is None:
@@ -601,6 +653,9 @@ class WikidataApp(App):
             self.log_display.write_line(
                 "[p]ublish proposed edits to found wikidata item?"
             )
+
+    def on_log_message(self, event: LogMessage) -> None:
+        self.log_display.write_line(event.message)
 
     def action_resolve(self):
         highlighted_index = self.search_display.list_view.index
@@ -634,5 +689,5 @@ class WikidataApp(App):
 
 def run_app(store, cache: Cache, focus_dataset: str) -> None:
     app = WikidataApp()
-    app.session = EditSession(cache, store, focus_dataset)
+    app.session = EditSession(cache, store, focus_dataset, app)
     app.run()
