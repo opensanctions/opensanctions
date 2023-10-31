@@ -10,7 +10,7 @@ from nomenklatura.statement.statement import Statement
 from nomenklatura.util import normalize_url, is_qid
 from requests import Session
 from sys import argv
-from typing import Dict, Generator, List, Set, Optional, cast
+from typing import Any, Dict, Generator, List, Set, Optional, cast
 import json
 import logging
 import prefixdate
@@ -25,7 +25,8 @@ from textual.reactive import reactive
 from nomenklatura.dataset import DS
 from nomenklatura.entity import CE
 from nomenklatura.judgement import Judgement
-import pywikibot
+from pywikibot import ItemPage, WbTime, Claim, Site
+from pywikibot.data import api
 
 from zavod.entity import Entity
 from zavod import settings
@@ -97,6 +98,9 @@ log = logging.getLogger(__name__)
 #                     print("       CANDIDATE:", occupancy.get("startDate"), occupancy.get("endDate"), occupancy.datasets)
 
 
+PID_DOB_TEST = "P18"
+PID_REF_URL_TEST = "P93"
+
 PROP_LABEL = {
     "P735": "given name",
     "P734": "family name",
@@ -138,157 +142,72 @@ def best_label(names: List[str]) -> str:
     return names[0]
 
 
-def prefix_to_qs_date(string: str) -> str:
-    """Convers a prefixdate to a quickstatements date."""
+def prefix_to_wb_time(string: str) -> WbTime:
+    year = month = day = None
     prefix = prefixdate.parse(string)
     match prefix.precision:
         case prefixdate.Precision.YEAR:
-            return f"+{string}-00-00T00:00:00Z/9"
+            year = prefix.dt.year
         case prefixdate.Precision.MONTH:
-            return f"+{string}-00T00:00:00Z/10"
+            year = prefix.dt.year
+            month = prefix.dt.month
         case prefixdate.Precision.DAY:
-            return f"+{string}T00:00:00Z/11"
+            year = prefix.dt.year
+            month = prefix.dt.month
+            day = prefix.dt.day
         case _:
-            log.warning("Unhandled prefixdate precision: %s", string)
+            return None
+    return WbTime(year=year, month=month, day=day)
 
 
 class Action:
-    def __init__(self, quickstatement, human_readable):
-        self.quickstatement = quickstatement
-        self.human_readable = human_readable
+    pass
 
 
-class Assessment:
-    def __init__(self, session: "EditSession", entity: Entity):
-        self.session = session
-        self.entity = entity
-        self.item = None
-        self.claims = defaultdict(list)
-        self.actions = []
-        self.qid = entity.id if is_qid(entity.id) else None
-        self.source_urls = {}
+class CreateItemAction(Action):
+    pass
 
-        source_url_stmts = self.entity.get_statements("sourceUrl")
-        for dataset, stmts in groupby(source_url_stmts, lambda stmt: stmt.dataset):
-            values = [s.value for s in stmts]
-            if len(values) == 1:
-                self.source_urls[dataset] = values[0]
-            if len(values) > 1:
-                log.info("Multiple source URLs for dataset %s", dataset)
+    # new_item = pywikibot.ItemPage(site)
 
-    def fetch_item(self):
-        params = {"format": "json", "ids": self.qid, "action": "wbgetentities"}
-        self.item = (
-            self.session.get_json(WD_API, params).get("entities", {}).get(self.qid)
-        )
-        if self.item is None:
-            log.warning("No item for %s", self.qid)
-            return
-        self.claims = defaultdict(list)
-        for wd_prop, claim_dicts in self.item.get("claims", {}).items():
-            self.claims[wd_prop] = [Claim(c, wd_prop) for c in claim_dicts]
+    def __repr__(self):
+        return "Create Wikidata item"
 
-    def generate_actions(self):
-        if self.qid:
-            if self.item is None:
-                self.fetch_item()
-            if self.item is None:
-                return
-            self.assess_labels()
-            self.assess_birthdate()
-            self.assess_given_name()
-            self.assess_family_name()
 
-            # TODO: check if it has a label, other non-claim properties?
-            # description
-            # aliases
-            # ... all the properties we care about ...
-            # ... wd:everypolitition data model has hints ...
+class SetLabelsAction(Action):
+    def __init__(self, labels: Dict[str, str]):
+        self.labels = labels
 
-        # else: search for and propose adding a new item
+    # new_item.editLabels(labels={'en': f'A funky purple item {datetime.now().isoformat()}'}, summary="Setting labels")
 
-    def assess_labels(self):
-        stmts = self.entity.get_statements("name")
-        for lang, group_stmts in groupby(stmts, lambda stmt: stmt.lang or "en"):
-            lang_2 = iso_639_alpha2(lang)
-            if lang_2 not in self.item.get("labels"):
-                label = best_label([s.value for s in group_stmts])
-                self.actions.append(
-                    Action(
-                        f'{self.qid}\tL{lang_2}\t"{label}"',
-                        f"Add {lang_2} label {label} to {self.qid}.",
-                    )
-                )
+    def __repr__(self) -> str:
+        return "Set labels %r" % self.labels
 
-    def assess_birthdate(self):
-        if self.claims.get("P569", []):
-            return
-        stmts = self.entity.get_statements("birthDate")
-        if len(stmts) == 1:
-            stmt = stmts[0]
-            date = prefix_to_qs_date(stmt.value)
-            if not date:
-                return
-            source_pairs = self.source_pairs(stmt)
-            if not source_pairs:
-                return
-            self.actions.append(
-                Action(
-                    f"{self.qid}\tP569\t{date}\t{source_pairs}",
-                    f"Add birth date {stmt.value} to {self.qid}",
-                )
-            )
 
-    def assess_given_name(self):
-        if self.claims.get("P735", []):
-            return
-        for stmt in self.entity.get_statements("firstName"):
-            self.action_for_statement("P735", GIVEN_NAME_SPARQL, stmt)
+class SetDescriptionsAction(Action):
+    def __init__(self, descriptions: Dict[str, str]):
+        self.descriptions = descriptions
 
-    def assess_family_name(self):
-        wd_vals = self.claims.get("P734", [])
-        wd_vals.extend(self.claims.get("P1950", []))
-        if wd_vals:
-            return
-        # TODO: Add support for multiple family names
-        for stmt in self.entity.get_statements("lastName"):
-            self.action_for_statement("P734", FAMILY_NAME_SPARQL, stmt)
+    def __repr__(self) -> str:
+        return "Set descriptions %r" % self.descriptions
 
-    def action_for_statement(self, prop, query, stmt):
-        if stmt.lang not in [None, "en"]:
-            return
-        _query = query % stmt.value
-        r = self.session.get_json(
-            SPARQL_URL, params={"format": "json", "query": _query}
-        )
-        rows = r["results"]["bindings"]
-        if len(rows) == 1:
-            value_qid = rows[0]["item"]["value"].split("/")[-1]
 
-            source_pairs = self.source_pairs(stmt)
-            if not source_pairs:
-                return
-            self.actions.append(
-                Action(
-                    f"{self.qid}\t{prop}\t{value_qid}\t{source_pairs}",
-                    f"Add {PROP_LABEL[prop]} {value_qid} ({stmt.value}) to {self.qid}",
-                )
-            )
-        if len(rows) > 1:
-            log.info("More than one result. Skipping. %r", rows)
-        # TODO: if len(rows) == 0: consider adding missing given names as new items.
+# item.addClaim(dateclaim, summary=u'Adding dateOfBirth')
+class AddClaimAction(Action):
+    def __init__(self, claim: Claim):
+        self.claim = claim
 
-    def source_pairs(self, stmt: Statement) -> Optional[str]:
-        source_url = self.source_urls.get(stmt.dataset)
-        if not source_url:
-            log.warning(
-                "No source URL for %s birth date %s %s",
-                self.qid,
-                stmt.value,
-                stmt.dataset,
-            )
-            return None
-        return f'S854\t"{source_url}"\tS813\t{prefix_to_qs_date(stmt.last_seen[:10])}'
+    def __repr__(self) -> str:
+        return "Add claim %r" % self.claim
+
+
+# claim.addSources(source_claims, summary=u'Adding reference claim')
+class AddSourceClaimAction(Action):
+    def __init__(self, claim: Claim, source_claims: List[Claim]):
+        self.claim = claim
+        self.source_claim = source_claims
+
+    def __repr__(self):
+        return "Add source qualifiers %r to %r" % (self.source_claims, self.claim)
 
 
 class EditSession:
@@ -297,21 +216,30 @@ class EditSession:
         cache: Cache,
         store: Store[DS, CE],
         focus_dataset: Optional[str],
-        qs_filename: str,
     ):
         self.store = store
         self.resolver = store.resolver
         self.cache = cache
         self.view = store.default_view(external=False)
-        self.assessment = None
         self.focus_dataset = focus_dataset
         self.http_session = Session()
         self.http_session.headers[
             "User-Agent"
         ] = f"zavod (https://opensanctions.org; https://www.wikidata.org/wiki/User:OpenSanctions)"
-        self.quickstatements_fh = open(qs_filename, "w")
+        self.wd_site = Site(settings.WD_SITE_CODE, "wikidata")
+        self.wd_repo = self.wd_site.data_repository()
         self._entities_gen = self.view.entities()
-        self.search_results = []
+        self._reset_entity()
+
+        self.debug_file = open("debug.txt", "w")
+
+    def _reset_entity(self):
+        self.entity: Optional[Entity] = None
+        self.item: Optional[ItemPage] = None
+        self.item_dict: Dict[str, Any] = None
+        self.search_results: List[Dict[str, Any]] = []
+        self.source_urls: Dict[str, str] = {}
+        self.actions: List[Action] = []
 
     def get_json(self, url, params, cache_days=2):
         url = normalize_url(url, params=params)
@@ -327,51 +255,176 @@ class EditSession:
         return json.loads(response)
 
     def next(self):
-        # for action in assessment.actions:
-        #     quickstatements_fh.write(
-        #         f"{action.quickstatement}\t/* {action.human_readable} */\n"
-        #     )
-        # quickstatements_fh.flush()
-        self.search_results = []
+        self._reset_entity()
+
         for entity in self._entities_gen:
+            self.entity = entity
             if not entity.schema.name == "Person":
                 continue
+
             if self.focus_dataset and self.focus_dataset not in entity.datasets:
                 continue
 
-            self.assessment = self.assess_entity(entity)
-            if self.assessment.qid is None:
-                self.search_items()
-            self.cache.flush()
-            if self.assessment.actions or self.assessment.qid is None:
+            self.qid = entity.id if is_qid(entity.id) else None
+            if self.qid is None:
+                self._search_items()
+            else:
+                self.item = self._fetch_item()
+
+            self._propose_actions()
+
+            if self.actions or self.qid is None:
                 return
 
-    def assess_entity(self, entity: Entity) -> Assessment:
-        assessment = Assessment(self, entity)
-        assessment.generate_actions()
-        return assessment
+    def _fetch_item(self):
+        self.debug_file.write("Fetching item %s\n" % self.qid)
+        self.debug_file.flush()
+        self.item = ItemPage(self.wd_repo, self.qid)
+        self.debug_file.write("Fetching item dict %s\n" % self.qid)
+        self.debug_file.flush()
+        self.item_dict = self.item.get()
+        self.debug_file.write("Done.\n")
+        self.debug_file.flush()
 
-    def search_items(self):
+    def _search_items(self):
         params = {
-            "format": "json",
-            "search": best_label(self.assessment.entity.get("name")),
             "action": "wbsearchentities",
+            "format": "json",
             "language": "en",
+            "type": "item",
+            "search": best_label(self.entity.get("name")),
         }
-        self.search_results = self.get_json(WD_API, params)["search"]
+        request = api.Request(site=self.wd_site, parameters=params)
+        result = request.submit()
+        self.search_results = result["search"]
 
-    # Create a decision that marks the current item id and the provided
-    # qid as a positive match.
     def resolve(self, qid: str):
+        self.qid = qid
         canonical_id = self.resolver.decide(
-            self.assessment.entity.id,
+            self.entity.id,
             qid,
             judgement=Judgement.POSITIVE,
         )
         self.store.update(canonical_id)
+        self.search_results = []
+        self._fetch_item()
+        self._propose_actions()
+        if not self.actions:
+            self.next()
 
-    def save(self) -> None:
+    def save_resolver(self) -> None:
         self.resolver.save()
+
+    def _propose_actions(self):
+        if self.qid:
+            self._check_labels()
+            self._check_birthdate()
+            # self._check_given_name()
+            # self._check_family_name()
+
+            # TODO: check if it has a label, other non-claim properties?
+            # description
+            # aliases
+            # ... all the properties we care about ...
+            # ... wd:everypolitition data model has hints ...
+
+        else:
+            self.actions.append(CreateItemAction())
+            self._propose_labels({})
+
+    def _check_labels(self):
+        self._propose_labels(self.item_dict.get("labels", {}))
+
+    def _propose_labels(self, exclude: Dict[str, str]) -> None:
+        labels = {}
+        stmts = self.entity.get_statements("name")
+        for lang, group_stmts in groupby(stmts, lambda stmt: stmt.lang or "en"):
+            lang_2 = iso_639_alpha2(lang)
+            if lang_2 not in exclude:
+                labels[lang_2] = best_label([s.value for s in group_stmts])
+        if labels:
+            self.actions.append(SetLabelsAction(labels))
+
+    def _check_birthdate(self):
+        pid = "P569"
+        if self.claims.get(pid, []):
+            return
+        stmts = self.entity.get_statements("birthDate")
+        if len(stmts) == 1:
+            stmt = stmts[0]
+            date_value = prefix_to_wb_time(stmt.value)
+            if not date_value:
+                return
+
+            date_claim = Claim(self.repo, pid)
+            date_claim.setTarget(date_value)
+
+            source_claims = self._make_source_claims(stmt)
+
+            if source_claims:
+                self.actions.append(AddClaimAction(date_claim))
+                self.actions.append(AddSourceClaimAction(date_claim, source_claims))
+
+    def _make_source_claims(self, stmt: Statement) -> Optional[List[Claim]]:
+        source_url = self.source_urls.get(stmt.dataset)
+        if not source_url:
+            return None
+
+        url_claim = Claim(self.repo, "P854", is_reference=True)
+        url_claim.setTarget(source_url)
+        date_claim = Claim(self.repo, "P813", is_reference=True)
+        date_claim.setTarget(prefix_to_wb_time(stmt.last_seen[:10]))
+        return [url_claim, date_claim]
+
+    # def _check_given_name(self):
+    #    if self.claims.get("P735", []):
+    #        return
+    #    for stmt in self.entity.get_statements("firstName"):
+    #        self.action_for_statement("P735", GIVEN_NAME_SPARQL, stmt)
+
+    # def _check_family_name(self):
+    #    wd_claims = self.claims.get("P734", [])
+    #    wd_claims.extend(self.claims.get("P1950", []))
+    #    if wd_claims:
+    #        return
+    #    # TODO: Add support for multiple family names
+    #    for stmt in self.entity.get_statements("lastName"):
+    #        self.action_for_statement("P734", FAMILY_NAME_SPARQL, stmt)
+
+    #    source_url_stmts = self.entity.get_statements("sourceUrl")
+    #    for dataset, stmts in groupby(source_url_stmts, lambda stmt: stmt.dataset):
+    #        values = [s.value for s in stmts]
+    #        if len(values) == 1:
+    #            self.source_urls[dataset] = values[0]
+    #        if len(values) > 1:
+    #            log.info("Multiple source URLs for dataset %s", dataset)
+
+    # def action_for_statement(self, prop, query, stmt):
+    #    if stmt.lang not in [None, "en"]:
+    #        return
+    #    _query = query % stmt.value
+    #    r = self.session.get_json(
+    #        SPARQL_URL, params={"format": "json", "query": _query}
+    #    )
+    #    rows = r["results"]["bindings"]
+    #    if len(rows) == 1:
+    #        value_qid = rows[0]["item"]["value"].split("/")[-1]
+
+
+#
+#        source_pairs = self.source_pairs(stmt)
+#        if not source_pairs:
+#            return
+#        claim =
+#        self.actions.append(
+#            Action(
+#                f"{self.qid}\t{prop}\t{value_qid}\t{source_pairs}",
+#                f"Add {PROP_LABEL[prop]} {value_qid} ({stmt.value}) to {self.qid}",
+#            )
+#        )
+#    if len(rows) > 1:
+#        log.info("More than one result. Skipping. %r", rows)
+#    # TODO: if len(rows) == 0: consider adding missing given names as new items.
 
 
 class SessionDisplay(Widget):
@@ -379,16 +432,12 @@ class SessionDisplay(Widget):
     def session(self) -> EditSession:
         return cast(EditSession, self.app.session)
 
-    # renders a table of the key biographical properties of the current assessment entity
-    # and a list of proposed actions using the Rich library, if there's a current assessment in the session,
-    # otherwise the message "No more entities".
     def render(self) -> RenderableType:
-        if self.session.assessment:
-            assessment = self.session.assessment
+        if self.session.entity:
             return Text(
-                f"{assessment.entity.id} {assessment.qid}"
-                + f"\n{assessment.entity.caption}\n\n"
-                + "\n".join([action.human_readable for action in assessment.actions])
+                f"{self.session.entity.id}"
+                + f"\n{self.session.entity.caption}\n\n"
+                + "\n".join([str(action) for action in self.session.actions])
             )
         else:
             return Text("No more entities")
@@ -421,8 +470,6 @@ class SearchDisplay(Widget):
             search_item = SearchItem()
             search_item.result_item = result_item
             self.list_view.append(search_item)
-        self.list_view.append(ListItem(Label("None of the above")))
-
 
 
 class QuitScreen(Screen):
@@ -442,6 +489,7 @@ class QuitScreen(Screen):
         else:
             self.app.pop_screen()
 
+
 class WikidataApp(App):
     session: EditSession
     is_dirty: bool = reactive(False)
@@ -449,6 +497,7 @@ class WikidataApp(App):
     CSS_PATH = "wd_up.tcss"
     BINDINGS = [
         ("n", "next", "Next"),
+        ("p", "publish", "Publish"),
         ("r", "resolve", "Resolve"),
         ("s", "save", "Save"),
         # ("w", "exit_save", "Quit & save"),
@@ -459,32 +508,50 @@ class WikidataApp(App):
         """Create child widgets for the app."""
         yield Header()
         yield Footer()
-        self.session.next()
         self.session_display = SessionDisplay(classes="box")
         yield self.session_display
         self.search_display = SearchDisplay(classes="box")
         yield self.search_display
         self.log_display = Log()
         yield self.log_display
-        self.search_display.items = self.session.search_results
 
     def action_next(self) -> None:
-        self.log_display.write_line("Loading next entity...")
         self.session.next()
-        self.log_display.write_line("Done.")
         self.session_display.refresh()
         self.search_display.items = self.session.search_results
+        if self.session.qid is None:
+            if self.session.search_results:
+                self.log_display.write_line(
+                    "Highlight a search result and [r]esolve or [p]ublish proposed wikidata item."
+                )
+            else:
+                self.log_display.write_line(
+                    "No results found. [p]ublish proposed wikidata item?"
+                )
+        else:
+            self.log_display.write_line(
+                "[p]ublish proposed edits to found wikidata item?"
+            )
 
     def action_resolve(self):
-        self.is_dirty = True
         highlighted_index = self.search_display.list_view.index
-        highlighted_result = self.search_display.items[highlighted_index]
-        qid = highlighted_result["id"]
-        entity = self.session.assessment.entity
-        self.log_display.write_line(
-            f"Resolving {entity.id} as {qid} {highlighted_result['label']}"
-        )
-        self.session.resolve(qid)
+        if self.session.qid is None and highlighted_index is not None:
+            
+            self.is_dirty = True
+            highlighted_result = self.search_display.items[highlighted_index]
+            qid = highlighted_result["id"]
+            self.log_display.write_line(
+                f"Resolving {self.session.entity.id} as {qid} {highlighted_result['label']}"
+            )
+            self.session.resolve(qid)
+            self.session_display.refresh()
+            self.search_display.items = self.session.search_results
+        else:
+            self.log_display.write_line("Nothing to resolve.")
+
+    def action_publish(self):
+        self.session.publish()
+        self.log_display.write_line(f"Published to {self.session.qid}.")
         self.action_next()
 
     def action_save(self) -> None:
@@ -498,59 +565,7 @@ class WikidataApp(App):
             self.exit(0)
 
 
-PID_DOB_TEST = "P18"
-PID_REF_URL_TEST = "P93"
-
-def run_app(out_file: str, store, cache: Cache, focus_dataset: str) -> None:
-
-    site = pywikibot.Site("test", "wikidata")
-    
-    repo = site.data_repository()
-    item = pywikibot.ItemPage(repo, "Q232548")
-    # print(item)
-    # print()
-    # item_dict = item.get() #Get the item dictionary
-    # clm_dict = item_dict["claims"] # Get the claim dictionary
-    # print(clm_dict)
-# 
-    # print()
-    # clm_list = clm_dict["P18"]
-# 
-    # for clm in clm_list:
-    #     print(clm)
-    # print()
-# 
-    # new_item = pywikibot.ItemPage(site)
-    # new_item.editLabels(labels={'en': f'A funky purple item {datetime.now().isoformat()}'}, summary="Setting labels")
-    # qid = new_item.getID()
-    # print("New qid", qid)
-# 
-    # dateclaim = pywikibot.Claim(repo, PID_DOB_TEST)
-    # dateOfBirth = pywikibot.WbTime(year=1977, month=6, day=8)
-    # dateclaim.setTarget(dateOfBirth)
-    # new_item.addClaim(dateclaim, summary=u'Adding dateOfBirth')
-# 
-    # ref_claim = pywikibot.Claim(site, PID_REF_URL_TEST, is_reference=True)
-    # ref_claim.setTarget("http://example.org/auto")
-    # dateclaim.addSources([ref_claim], summary=u'Adding reference claim')
-
-    # bad
-    #pg = site.search("a funky purple item")
-    #for item in pg:
-    #    if is_qid(item.title()):
-    #        print(item.getID())
-
-    from pywikibot.data import api
-    params = { 'action' :'wbsearchentities', 
-                'format' : 'json',
-                'language' : 'en',
-                'type' : 'item',
-                'search': "A funky purple"}
-    request = api.Request(site=site, parameters=params)
-    result = request.submit()
-    for result_item in result["search"]:
-        print(result_item["id"], result_item["label"], result_item.get("description"))
-    #app = WikidataApp()
-    #app.session = EditSession(cache, store, focus_dataset, out_file)
-    #app.run()
-
+def run_app(store, cache: Cache, focus_dataset: str) -> None:
+    app = WikidataApp()
+    app.session = EditSession(cache, store, focus_dataset)
+    app.run()
