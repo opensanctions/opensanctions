@@ -165,17 +165,13 @@ class Action:
 
 
 class CreateItemAction(Action):
-    pass
-
-    # new_item = pywikibot.ItemPage(site)
-
     def __repr__(self):
         return "Create Wikidata item"
 
 
 class SetLabelsAction(Action):
     def __init__(self, labels: Dict[str, str]):
-        self.labels = labels
+        self.labels: Dict[str, str] = labels
 
     # new_item.editLabels(labels={'en': f'A funky purple item {datetime.now().isoformat()}'}, summary="Setting labels")
 
@@ -217,18 +213,19 @@ class EditSession:
         store: Store[DS, CE],
         focus_dataset: Optional[str],
     ):
-        self.store = store
-        self.resolver = store.resolver
-        self.cache = cache
-        self.view = store.default_view(external=False)
-        self.focus_dataset = focus_dataset
-        self.http_session = Session()
-        self.http_session.headers[
+        self._store = store
+        self._resolver = store.resolver
+        self.is_resolver_dirty = False
+        self._cache = cache
+        self._view = store.default_view(external=False)
+        self._focus_dataset = focus_dataset
+        self._http_session = Session()
+        self._http_session.headers[
             "User-Agent"
         ] = f"zavod (https://opensanctions.org; https://www.wikidata.org/wiki/User:OpenSanctions)"
-        self.wd_site = Site(settings.WD_SITE_CODE, "wikidata")
-        self.wd_repo = self.wd_site.data_repository()
-        self._entities_gen = self.view.entities()
+        self._wd_site = Site(settings.WD_SITE_CODE, "wikidata")
+        self._wd_repo = self._wd_site.data_repository()
+        self._entities_gen = self._view.entities()
         self._reset_entity()
 
         self.debug_file = open("debug.txt", "w")
@@ -236,22 +233,23 @@ class EditSession:
     def _reset_entity(self):
         self.entity: Optional[Entity] = None
         self.item: Optional[ItemPage] = None
-        self.item_dict: Dict[str, Any] = None
+        self.item_dict: Optional[Dict[str, Any]] = None
+        self.claims: Optional[List[Claim]] = None
         self.search_results: List[Dict[str, Any]] = []
         self.source_urls: Dict[str, str] = {}
         self.actions: List[Action] = []
 
     def get_json(self, url, params, cache_days=2):
         url = normalize_url(url, params=params)
-        response = self.cache.get(url, max_age=cache_days)
+        response = self._cache.get(url, max_age=cache_days)
         if response is None:
             log.debug("HTTP GET: %s", url)
 
-            resp = self.http_session.get(url)
+            resp = self._http_session.get(url)
             resp.raise_for_status()
             response = resp.text
             if cache_days > 0:
-                self.cache.set(url, response)
+                self._cache.set(url, response)
         return json.loads(response)
 
     def next(self):
@@ -262,7 +260,7 @@ class EditSession:
             if not entity.schema.name == "Person":
                 continue
 
-            if self.focus_dataset and self.focus_dataset not in entity.datasets:
+            if self._focus_dataset and self._focus_dataset not in entity.datasets:
                 continue
 
             self.qid = entity.id if is_qid(entity.id) else None
@@ -279,10 +277,11 @@ class EditSession:
     def _fetch_item(self):
         self.debug_file.write("Fetching item %s\n" % self.qid)
         self.debug_file.flush()
-        self.item = ItemPage(self.wd_repo, self.qid)
+        self.item = ItemPage(self._wd_repo, self.qid)
         self.debug_file.write("Fetching item dict %s\n" % self.qid)
         self.debug_file.flush()
         self.item_dict = self.item.get()
+        self.claims = self.item_dict["claims"]
         self.debug_file.write("Done.\n")
         self.debug_file.flush()
 
@@ -294,26 +293,50 @@ class EditSession:
             "type": "item",
             "search": best_label(self.entity.get("name")),
         }
-        request = api.Request(site=self.wd_site, parameters=params)
+        request = api.Request(site=self._wd_site, parameters=params)
         result = request.submit()
         self.search_results = result["search"]
 
     def resolve(self, qid: str):
         self.qid = qid
-        canonical_id = self.resolver.decide(
+        canonical_id = self._resolver.decide(
             self.entity.id,
             qid,
             judgement=Judgement.POSITIVE,
         )
-        self.store.update(canonical_id)
+        self._store.update(canonical_id)
+        self.is_resolver_dirty = True
         self.search_results = []
         self._fetch_item()
+        self.actions = []
         self._propose_actions()
         if not self.actions:
             self.next()
 
+    def publish(self):
+        created = False
+        for action in self.actions:
+            if isinstance(action, CreateItemAction):
+                self.item = ItemPage(self._wd_site)
+                self.qid = self.item.getID()
+                created = True
+            elif isinstance(action, SetLabelsAction):
+                self.item.editLabels(action.labels)
+            elif isinstance(action, SetDescriptionsAction):
+                self.item.editDescriptions(action.descriptions)
+            elif isinstance(action, AddClaimAction):
+                self.item.addClaim(action.claim)
+            elif isinstance(action, AddSourceClaimAction):
+                action.claim.addSources(action.source_claims)
+            else:
+                raise ValueError("Unknown action: %r" % action)
+        if created:
+            self.resolve(self.qid)
+                
+
     def save_resolver(self) -> None:
-        self.resolver.save()
+        self._resolver.save()
+        self.is_resolver_dirty = False
 
     def _propose_actions(self):
         if self.qid:
@@ -356,7 +379,7 @@ class EditSession:
             if not date_value:
                 return
 
-            date_claim = Claim(self.repo, pid)
+            date_claim = Claim(self._wd_repo, pid)
             date_claim.setTarget(date_value)
 
             source_claims = self._make_source_claims(stmt)
@@ -364,15 +387,17 @@ class EditSession:
             if source_claims:
                 self.actions.append(AddClaimAction(date_claim))
                 self.actions.append(AddSourceClaimAction(date_claim, source_claims))
+            else:
+                self.debug_file.write("Couldn't provide source for {date_claim}")
 
     def _make_source_claims(self, stmt: Statement) -> Optional[List[Claim]]:
         source_url = self.source_urls.get(stmt.dataset)
         if not source_url:
             return None
 
-        url_claim = Claim(self.repo, "P854", is_reference=True)
+        url_claim = Claim(self._wd_repo, "P854", is_reference=True)
         url_claim.setTarget(source_url)
-        date_claim = Claim(self.repo, "P813", is_reference=True)
+        date_claim = Claim(self._wd_repo, "P813", is_reference=True)
         date_claim.setTarget(prefix_to_wb_time(stmt.last_seen[:10]))
         return [url_claim, date_claim]
 
@@ -447,7 +472,11 @@ class SearchItem(ListItem):
     result_item = reactive(None)
 
     def render(self):
-        return f'{self.result_item["id"]} {self.result_item["label"]}'
+        value = f'{self.result_item["id"]} {self.result_item["label"]}'
+        description = self.result_item.get("description", None)
+        if description:
+            value += f"\n  {description}"
+        return(Text(value))
 
 
 class SearchDisplay(Widget):
@@ -536,8 +565,6 @@ class WikidataApp(App):
     def action_resolve(self):
         highlighted_index = self.search_display.list_view.index
         if self.session.qid is None and highlighted_index is not None:
-            
-            self.is_dirty = True
             highlighted_result = self.search_display.items[highlighted_index]
             qid = highlighted_result["id"]
             self.log_display.write_line(
@@ -555,11 +582,11 @@ class WikidataApp(App):
         self.action_next()
 
     def action_save(self) -> None:
-        self.session.save()
-        self.is_dirty = False
+        self.session.save_resolver()
+        self.log_display.write_line("Saved resolver changes.")
 
     def action_exit_hard(self) -> None:
-        if self.is_dirty:
+        if self.session.is_resolver_dirty:
             self.push_screen(QuitScreen())
         else:
             self.exit(0)
