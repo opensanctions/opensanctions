@@ -499,6 +499,7 @@ class WikidataApp(App):
 
 
 PID_DOB_TEST = "P18"
+PID_REF_URL_TEST = "P93"
 
 def run_app(out_file: str, store, cache: Cache, focus_dataset: str) -> None:
 
@@ -506,28 +507,49 @@ def run_app(out_file: str, store, cache: Cache, focus_dataset: str) -> None:
     
     repo = site.data_repository()
     item = pywikibot.ItemPage(repo, "Q232548")
-    print(item)
-    print()
-    item_dict = item.get() #Get the item dictionary
-    clm_dict = item_dict["claims"] # Get the claim dictionary
-    print(clm_dict)
+    # print(item)
+    # print()
+    # item_dict = item.get() #Get the item dictionary
+    # clm_dict = item_dict["claims"] # Get the claim dictionary
+    # print(clm_dict)
+# 
+    # print()
+    # clm_list = clm_dict["P18"]
+# 
+    # for clm in clm_list:
+    #     print(clm)
+    # print()
+# 
+    # new_item = pywikibot.ItemPage(site)
+    # new_item.editLabels(labels={'en': f'A funky purple item {datetime.now().isoformat()}'}, summary="Setting labels")
+    # qid = new_item.getID()
+    # print("New qid", qid)
+# 
+    # dateclaim = pywikibot.Claim(repo, PID_DOB_TEST)
+    # dateOfBirth = pywikibot.WbTime(year=1977, month=6, day=8)
+    # dateclaim.setTarget(dateOfBirth)
+    # new_item.addClaim(dateclaim, summary=u'Adding dateOfBirth')
+# 
+    # ref_claim = pywikibot.Claim(site, PID_REF_URL_TEST, is_reference=True)
+    # ref_claim.setTarget("http://example.org/auto")
+    # dateclaim.addSources([ref_claim], summary=u'Adding reference claim')
 
-    print()
-    clm_list = clm_dict["P18"]
+    # bad
+    #pg = site.search("a funky purple item")
+    #for item in pg:
+    #    if is_qid(item.title()):
+    #        print(item.getID())
 
-    for clm in clm_list:
-        print(clm)
-    print()
-
-    new_item = pywikibot.ItemPage(site)
-    new_item.editLabels(labels={'en': f'A funky purple item {datetime.now().isoformat()}'}, summary="Setting labels")
-    qid = new_item.getID()
-    print("New qid", qid)
-
-    dateclaim = pywikibot.Claim(repo, PID_DOB_TEST)
-    dateOfBirth = pywikibot.WbTime(year=1977, month=6, day=8)
-    dateclaim.setTarget(dateOfBirth)
-    item.addClaim(dateclaim, summary=u'Adding dateOfBirth')
+    from pywikibot.data import api
+    params = { 'action' :'wbsearchentities', 
+                'format' : 'json',
+                'language' : 'en',
+                'type' : 'item',
+                'search': "A funky purple"}
+    request = api.Request(site=site, parameters=params)
+    result = request.submit()
+    for result_item in result["search"]:
+        print(result_item["id"], result_item["label"], result_item.get("description"))
     #app = WikidataApp()
     #app.session = EditSession(cache, store, focus_dataset, out_file)
     #app.run()
