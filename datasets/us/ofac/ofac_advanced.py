@@ -53,6 +53,7 @@ SANCTION_FEATURES = {
     "CAATSA Section 235 Information:": "summary",
     "Executive Order 14024 Directive Information": "summary",
     "Executive Order 14024 Directive Information -": "summary",
+    "Executive Order 14014 Directive Information:": "summary",
     "Executive Order 13662 Directive Determination -": "summary",
     "Executive Order 13846 information:": "summary",
     "Additional Sanctions Information -": "summary",
@@ -65,9 +66,11 @@ SANCTION_FEATURES = {
     "Effective Date (EO 14024 Directive 1a):": "startDate",
     "Effective Date (EO 14024 Directive 2):": "startDate",
     "Effective Date (EO 14024 Directive 3):": "startDate",
+    "Effective Date (EO 14014 Directive 1):": "startDate",
     "Listing Date (EO 14024 Directive 1a):": "listingDate",
     "Listing Date (EO 14024 Directive 2):": "listingDate",
     "Listing Date (EO 14024 Directive 3):": "listingDate",
+    "Listing Date (EO 14014 Directive 1):": "listingDate",
     "Listing Date (CMIC)": "listingDate",
 }
 

@@ -236,6 +236,7 @@ lookups:
           - "Executive Order 13662 Directive Determination -"
           - "Executive Order 14024 Directive Information"
           - "Executive Order 14024 Directive Information -"
+          - "Executive Order 14014 Directive Information:"
           - "Executive Order 13846 information:"
           - "CAATSA Section 235 Information:"
           - "IFCA Determination -"
@@ -248,9 +249,11 @@ lookups:
           - "Effective Date (EO 14024 Directive 1a):"
           - "Effective Date (EO 14024 Directive 2):"
           - "Effective Date (EO 14024 Directive 3):"
+          - "Effective Date (EO 14014 Directive 1):"
           - "Listing Date (EO 14024 Directive 1a):"
           - "Listing Date (EO 14024 Directive 2):"
           - "Listing Date (EO 14024 Directive 3):"
+          - "Listing Date (EO 14014 Directive 1):"
           - "Listing Date (CMIC)"
         prop: null
       - match:
