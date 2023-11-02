@@ -1,0 +1,112 @@
+title: Colombian Administrative Department of Public Service PEP Declarations
+entry_point: crawler.py
+prefix: co-cedula
+coverage:
+  frequency: daily
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: Declarations of Politically Exposed Person status by public servants and politicians in Colombia
+description: |
+  The Application for Public Integrity of the Administrative Department of
+  Public Service is a tool that allows citizens to consult the declarations
+  of assets, income and conflicts of interest of public servants and politicians
+  in Colombia.
+
+  This dataset publishes the names, ID numbers, and positions of public office
+  held by public servants in Colombia.
+
+  These declarations are made by the public servants themselves, rather than
+  centrally initiated.
+publisher:
+  name: Deparatamento Administrativo del la Funcion Publica
+  description: The Colombian Administrative Department of Public Service    
+  url: https://www.funcionpublica.gov.co/
+  country: co
+  official: true
+url: https://www.funcionpublica.gov.co/fdci/consultaCiudadana/consultaPEP
+data:
+  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vSz_0mjJvc0HMOItvDusleWx6dxIufuMY2OjATSUMyEzazUZPfvJoEtIlI77GmGLVed8wtVq3d1m5VJ/pub?gid=0&single=true&output=csv
+  format: CSV
+
+lookups:
+  positions:
+    options:
+      - match: ALCALDE
+        tags:
+          - gov.muni
+          - gov.head
+        add_entity: true
+      - match: ALCALDE LOCAL
+        tags:
+          - gov.muni
+          - gov.head
+        add_entity: true
+      - match: AUDITOR GENERAL
+        tags:
+          - gov.financial
+          - gov.national
+      - match: CONSEJERO PRESIDENCIAL
+        tags:
+          - gov.national
+          - gov.head
+      - match: CONTADOR GENERAL DE LA NACIÓN
+        tags:
+          - gov.national
+          - gov.financial
+      - match: FISCAL DELEGADO ANTE JUECES DE CIRCUITO
+        tags:
+          - gov.judicial
+      - match: FISCAL DELEGADO ANTE JUECES MUNICIPALES Y PROMISCUOS
+        tags:
+          - gov.judicial
+          - gov.muni
+        add_entity: true
+      - match: FISCAL DELEGADO ANTE JUECES PENALES CIRCUITO ESPECIALIZADOS
+        tags:
+          - gov.judicial
+      - match: FISCAL DELEGADO ANTE LA CORTE SUPREMA DE JUSTICIA
+        tags:
+          - gov.judicial
+          - gov.national
+      - match: FISCAL DELEGADO ANTE TRIBUNAL DE DISTRITO
+        tags:
+          - gov.judicial
+          - gov.state
+      - match: GOBERNADOR
+        tags:
+          - gov.state
+          - gov.head
+        add_entity: true
+      - match: MINISTRO
+        tags:
+          - gov.national
+          - gov.executive
+      - match: PRESIDENTE DE AGENCIA
+        tags:
+          - gov.soe
+        add_entity: true
+      - match: PRESIDENTE DE LA REPÚBLICA
+        tags:
+          - gov.national
+          - gov.head
+      - match: SECRETARIO GENERAL DE MINISTERIO O DE DEPARTAMENTO ADMINISTRATIVO
+        tags:
+          - gov.national
+          - gov.executive
+        add_entity: true
+      - match: SECRETARIO GENERAL DEL MINISTERIO DE DEFENSA
+        tags:
+          - gov.national
+          - gov.executive
+      - match: VICEMINISTRO
+        tags:
+          - gov.national
+          - gov.executive
+      - match: VICEPRESIDENTE DE LA REPÚBLICA
+        tags:
+          - gov.national
+          - gov.head
+      - match: VICEPROCURADOR GENERAL
+        tags:
+          - gov.national
+          - gov.judicial
+
