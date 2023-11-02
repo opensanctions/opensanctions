@@ -8,8 +8,9 @@ coverage:
 exports:
   - statistics.json
 deploy:
-  schedule: "1 14 * * *"
-  memory: "1500Mi"
+  # schedule: "1 14 * * *"
+  memory: "1000Mi"
+  memory_limit: "2000Mi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   The Latvian company registry lists directors, shareholders and beneficial owners

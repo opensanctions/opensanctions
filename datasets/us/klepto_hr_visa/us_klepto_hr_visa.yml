@@ -3,8 +3,6 @@ entry_point: crawler.py
 prefix: us-klepto-hr-visa
 coverage:
   frequency: daily
-deploy:
-  schedule: "0 */12 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   US Visa restrictions on officials of foreign governments and family members

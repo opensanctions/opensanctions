@@ -3,8 +3,6 @@ entry_point: crawler.py
 prefix: us-ddtc-enf
 coverage:
   frequency: daily
-deploy:
-  schedule: "0 */12 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   Consent agreements entered into by parties accused of violating the Arms 
@@ -14,7 +12,7 @@ description: |
   and companies who entered into consent agreements
   with the Directorate of Defense Trade Controls (DDTC) to settle allegations of violations
   of the AECA or ITAR. 
-  
+
   It includes a short description of the allegations and a link
   to the charging letter for each instance when available.
 

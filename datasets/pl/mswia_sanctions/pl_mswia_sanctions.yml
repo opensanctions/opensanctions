@@ -4,7 +4,7 @@ prefix: plmswia
 coverage:
   frequency: daily
 deploy:
-  schedule: "0 */6 * * *"
+  schedule: "0 */8 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Decisions by the Polish Interior Ministry regarding entities linked

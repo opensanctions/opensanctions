@@ -1,27 +1,19 @@
 import itertools
+from typing import Dict, Tuple, List
 from nomenklatura.resolver import Identifier
 from followthemoney import model
+from followthemoney.schema import Schema
 from followthemoney.compare import compare
-
-from opensanctions.core import Dataset, Entity
-from opensanctions.core.resolver import get_resolver
-from opensanctions.core.loader import Database
+from nomenklatura.stream import StreamEntity
 from followthemoney.cli.util import path_entities
 
-# def load_db(name: str):
-#     resolver = get_resolver()
-#     ds = Dataset.require(name)
-#     db = Database(ds, resolver, cached=False)
-#     print("DB", db)
-#     loader = db.view(ds)
-#     for entity in loader:
-#         print(entity)
+from zavod.dedupe import get_resolver
 
 
-def load_file(filename: str):
+def load_file(filename: str) -> None:
     resolver = get_resolver()
-    keys = {}
-    for entity in path_entities(filename, Entity):
+    keys: Dict[Tuple[Identifier, Identifier, Schema], List[StreamEntity]] = {}
+    for entity in path_entities(filename, StreamEntity):
         if not entity.schema.edge:
             continue
         sources = [Identifier.get(s) for s in entity.get(entity.schema.source_prop)]

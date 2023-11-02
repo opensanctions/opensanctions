@@ -32,7 +32,7 @@ publisher:
 url: https://fiu.gov.ua/en/pages/dijalnist/protidija-terorizmu/perelik-teroristiv
 data:
   # url: https://fiu.gov.ua/assets/userfiles/Terror/zBlackListFull.xml
-  url: https://fiu.gov.ua/assets/userfiles/BlackListFull.xml
+  url: https://fiu.gov.ua/assets/userfiles/Terror/BlackListFull.xml
   format: XML
 
 lookups:

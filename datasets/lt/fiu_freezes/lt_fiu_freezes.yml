@@ -4,9 +4,9 @@ prefix: ltfiu
 coverage:
   country: lt
   frequency: never
-  end: 2023-05-16
+  end: 2023-10-27
 deploy:
-  schedule: "0 */6 * * *"
+  schedule: "0 6 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   A list of entities whose property is legally owned or controlled by a sanctioned entity.

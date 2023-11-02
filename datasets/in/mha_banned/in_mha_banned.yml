@@ -3,8 +3,6 @@ entry_point: crawler.py
 prefix: in-mha
 coverage:
   frequency: daily
-deploy:
-  schedule: "0 */6 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   List of banned organizations under the Unlawful Activities (Prevention) Act.

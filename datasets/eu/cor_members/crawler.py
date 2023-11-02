@@ -8,8 +8,9 @@ FORMATS = ("%d/%m/%Y",)
 
 STATUS = {
     "Active": OccupancyStatus.CURRENT,
-    "Incoming": OccupancyStatus.UNKNOWN,
+    "Incoming": OccupancyStatus.CURRENT,
     "Inactive": OccupancyStatus.UNKNOWN,
+    "Outgoing": OccupancyStatus.CURRENT,
 }
 
 

@@ -6,7 +6,7 @@ coverage:
 deploy:
   schedule: "30 */6 * * *"
   memory: "2000Mi"
-  cpu: "1000m"
+  cpu: "500m"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 exports:
   - statistics.json

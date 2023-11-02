@@ -4,7 +4,7 @@ prefix: kg-fiu
 coverage:
   frequency: daily
 deploy:
-  schedule: "0 */6 * * *"
+  schedule: "0 */7 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   A simple list of sanctioned individuals and entities published by the

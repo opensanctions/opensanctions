@@ -4,7 +4,7 @@ prefix: us-nteea-353
 coverage:
   frequency: never
 deploy:
-  schedule: "0 */12 * * *"
+  schedule: "0 12 * * 3"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   A list of persons who have been determined to have taken Actions that Undermine Democratic 
@@ -38,4 +38,3 @@ publisher:
 data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vSzazpcuxJ2nMTUWVRNONPuxCzRxdZL2bOtClMc6bVJkyS8VC32nwUFkYpx2yOFeU2mDSr2Wyps0LxK/pub?gid=0&output=csv
   format: CSV
-

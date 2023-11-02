@@ -4,7 +4,6 @@ prefix: plural
 coverage:
   frequency: weekly
 deploy:
-  schedule: "30 */6 * * *"
   memory: "1000Mi"
 summary: >
   Open data on state legislators in the United States of America.

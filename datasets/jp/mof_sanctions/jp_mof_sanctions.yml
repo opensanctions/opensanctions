@@ -233,6 +233,10 @@ lookups:
         value: null
       - match: サウディ・アラビア
         value: Saudi Arabia
+      - match: トルコ、ヨルダン
+        values:
+          - Turkey
+          - Jordan
   type.date:
     options:
       - match:
