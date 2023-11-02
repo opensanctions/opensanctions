@@ -35,7 +35,7 @@ GRAPH_URL = "https://peps.directoriolegislativo.org/json/graph.json"
 def crawl_row(context: Context, row: Dict[str, str]):
     entity = context.make("Person")
     id_number = row.pop("ID / CC")
-    entity.id = context.make_slug("person", id_number)
+    entity.id = context.make_slug(id_number, prefix="co-cedula")
     h.apply_name(
         entity,
         first_name=row.pop("Primer Nombre"),
