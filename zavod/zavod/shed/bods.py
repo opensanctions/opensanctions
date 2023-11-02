@@ -46,6 +46,7 @@ SCHEME_PROPS = {
     "GB Persons Of Significant Control Register - Registration numbers": "registrationNumber",  # noqa
     "OpenOwnership Register": "sourceUrl",
     "OpenCorporates": "opencorporatesUrl",
+    "Global Legal Entity Identifier Index": "leiCode",
     "Companies House": "registrationNumber",
 }
 
@@ -53,6 +54,7 @@ SCHEME_PROPS = {
 def parse_statement(context: Context, data: Dict[str, Any]) -> None:
     statement_type = data.pop("statementType")
     statement_id = data.pop("statementID")
+    proxy_id = context.make_slug(statement_id)
     countries = set()
 
     if data["isComponent"]:
@@ -65,6 +67,7 @@ def parse_statement(context: Context, data: Dict[str, Any]) -> None:
 
         assert person_type == "knownPerson", (person_type, data)
         proxy = context.make("Person")
+        proxy.id = proxy_id
         proxy.add("birthDate", data.pop("birthDate", None))
         proxy.add("deathDate", data.pop("deathDate", None))
         for name in data.pop("names", []):
@@ -89,6 +92,7 @@ def parse_statement(context: Context, data: Dict[str, Any]) -> None:
     elif statement_type == "entityStatement":
         # entity_type = data.pop("entityType")  starting from v0.3.0 : public bodies
         proxy = context.make("LegalEntity")
+        proxy.id = proxy_id
         proxy.add("name", data.pop("name", None))
 
         proxy.add("alias", data.pop("alternateNames", []))
@@ -105,6 +109,7 @@ def parse_statement(context: Context, data: Dict[str, Any]) -> None:
 
     elif statement_type == "ownershipOrControlStatement":
         proxy = context.make("Ownership")
+        proxy.id = proxy_id
         interested_party = data.pop("interestedParty", {})
         proxy.add("owner", interested_party.pop("describedByPersonStatement", None))
         proxy.add("owner", interested_party.pop("describedByEntityStatement", None))
@@ -120,8 +125,6 @@ def parse_statement(context: Context, data: Dict[str, Any]) -> None:
 
     else:
         context.log.warn("Unknown statement type", statement_type)
-
-    proxy.id = context.make_slug(statement_id)
 
     for addr in data.pop("addresses", []):
         proxy.add("address", addr.pop("address"))
@@ -140,6 +143,8 @@ def parse_statement(context: Context, data: Dict[str, Any]) -> None:
             context.log.warn("Weird identifier", identifier=ident)
         prop = SCHEME_PROPS[scheme]
         if prop is not None:
+            if prop == "leiCode":
+                value = value.split("/")[-1]
             proxy.add(prop, value)
 
     # source meta for all statements, merge with `PublicationDetails`
