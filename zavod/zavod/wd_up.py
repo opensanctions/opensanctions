@@ -190,7 +190,7 @@ class EditSession:
         self.source_urls: Dict[str, str] = {}
         self.actions: List[Action] = []
         self.position_occupancies: Dict[str, List[CompositeEntity]]= defaultdict(list)
-        self.position_labels: Dict[str, str] = {}
+        self.position_labels: Dict[str, List[str]] = {}
 
     def get_json(self, url: str, params: Dict[str, str], cache_days: Optional[int] = None) -> Any:
         url = normalize_url(url, params=params)
@@ -215,14 +215,14 @@ class EditSession:
                 continue
 
             self.entity = entity
-            self.qid = self.entity.id if is_qid(self.entity.id) else None
+            self.qid = self.entity.id if is_qid(entity.id) else None
             if self.qid is None:
                 self._search_items()
             else:
                 self._fetch_item()
 
-            self._get_occupancies()
-            self._propose_actions()
+            self._get_occupancies(entity)
+            self._propose_actions(entity)
 
             if self.actions or self.qid is None:
                 return
@@ -282,7 +282,7 @@ class EditSession:
         self.search_results = []
         self._fetch_item()
         self.actions = []
-        self._propose_actions()
+        self._propose_actions(self.entity)
         if not self.actions:
             self.next()
 
@@ -321,14 +321,12 @@ class EditSession:
         self._resolver.save()
         self.is_resolver_dirty = False
 
-    def _propose_actions(self) -> None:
-        if self.entity is None:
-            raise ValueError("No entity to propose actions for")
+    def _propose_actions(self, entity: CompositeEntity) -> None:
         if self.qid:
             if self.item_dict is None:
                 raise ValueError("No item dict to propose actions for")
-            self._propose_labels(self.entity, self.item_dict["labels"])
-            self._check_birthdate(self.entity, self.item_dict["claims"])
+            self._propose_labels(entity, self.item_dict["labels"])
+            self._check_birthdate(entity, self.item_dict["claims"])
             self._check_positions(self.item_dict["claims"])
             # self._check_given_name()
             # self._check_family_name()
@@ -341,7 +339,7 @@ class EditSession:
 
         else:
             self.actions.append(CreateItemAction())
-            self._propose_labels(self.entity, {})
+            self._propose_labels(entity, {})
 
     def _propose_labels(self, entity: CompositeEntity, exclude: Dict[str, str]) -> None:
         labels = {}
@@ -391,13 +389,14 @@ class EditSession:
         date_claim.setTarget(prefix_to_wb_time(stmt.last_seen[:10]))
         return [url_claim, date_claim]
 
-    def _get_occupancies(self) -> None:
-        for person_prop, person_related in self._view.get_adjacent(self.entity):
+    def _get_occupancies(self, entity: CompositeEntity) -> None:
+        for person_prop, person_related in self._view.get_adjacent(entity):
             if person_prop.name == "positionOccupancies":
                 occupancy = person_related
                 for occ_prop, occ_related in self._view.get_adjacent(person_related):
                     if occ_prop.name == "post":
                         position = occ_related
+                        assert isinstance(position.id, str)
                         self.position_occupancies[position.id].append(occupancy)
                         self.position_labels[position.id] = position.get("name")
 
@@ -443,7 +442,7 @@ class EditSession:
                     )
                     claim = Claim(self._wd_repo, "P39")
                     claim.setTarget(ItemPage(self._wd_repo, pos_id))
-                    source_claims = self._make_source_claims(occ)
+                    # source_claims = self._make_source_claims(occ)
 
                     self.actions.append(AddClaimAction(claim))
 
@@ -498,7 +497,7 @@ class EditSession:
 #    # TODO: if len(rows) == 0: consider adding missing given names as new items.
 
 
-def render_property(entity: CE, property: str) -> str:
+def render_property(entity: CompositeEntity, property: str) -> str:
     text = f"{property}:"
     values = entity.get(property)
     match len(values):
@@ -516,7 +515,7 @@ def render_property(entity: CE, property: str) -> str:
 class SessionDisplay(Widget):
     @property
     def session(self) -> EditSession:
-        return cast(EditSession, self.app.session)
+        return cast("WikidataApp", self.app).session
 
     def render(self) -> RenderableType:
         if self.session.entity:
@@ -545,6 +544,8 @@ class SearchItem(ListItem):
     result_item: reactive[Optional[Dict[str, str]]] = reactive(None)
 
     def render(self) -> Text:
+        if self.result_item is None:
+            return Text("Result not loaded yet.")
         value = f'{self.result_item["id"]} {self.result_item["label"]}'
         description = self.result_item.get("description", None)
         if description:
