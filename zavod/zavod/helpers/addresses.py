@@ -70,6 +70,8 @@ def _make_id(
 ) -> Optional[str]:
     if full is None or not len(full.strip()):
         country_id = make_entity_id(country_code, full, key)
+        if country_id is None:
+            return None
         return f"addr-{country_id}"
     prop = entity.schema.get("full")
     assert prop is not None, entity.schema
