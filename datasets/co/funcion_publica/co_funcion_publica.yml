@@ -31,82 +31,84 @@ lookups:
   positions:
     options:
       - match: ALCALDE
-        tags:
+        topics:
           - gov.muni
           - gov.head
         add_entity: true
       - match: ALCALDE LOCAL
-        tags:
+        topics:
           - gov.muni
           - gov.head
         add_entity: true
       - match: AUDITOR GENERAL
-        tags:
+        topics:
           - gov.financial
           - gov.national
       - match: CONSEJERO PRESIDENCIAL
-        tags:
+        topics:
           - gov.national
           - gov.head
       - match: CONTADOR GENERAL DE LA NACIÓN
-        tags:
+        topics:
           - gov.national
           - gov.financial
       - match: FISCAL DELEGADO ANTE JUECES DE CIRCUITO
-        tags:
+        topics:
           - gov.judicial
       - match: FISCAL DELEGADO ANTE JUECES MUNICIPALES Y PROMISCUOS
-        tags:
+        topics:
           - gov.judicial
-          - gov.muni
         add_entity: true
       - match: FISCAL DELEGADO ANTE JUECES PENALES CIRCUITO ESPECIALIZADOS
-        tags:
+        topics:
           - gov.judicial
       - match: FISCAL DELEGADO ANTE LA CORTE SUPREMA DE JUSTICIA
-        tags:
+        topics:
           - gov.judicial
           - gov.national
       - match: FISCAL DELEGADO ANTE TRIBUNAL DE DISTRITO
-        tags:
+        topics:
           - gov.judicial
           - gov.state
+        add_entity: true
       - match: GOBERNADOR
-        tags:
+        topics:
           - gov.state
           - gov.head
         add_entity: true
       - match: MINISTRO
-        tags:
+        topics:
           - gov.national
           - gov.executive
+        add_entity: true
       - match: PRESIDENTE DE AGENCIA
-        tags:
+        topics:
           - gov.soe
         add_entity: true
       - match: PRESIDENTE DE LA REPÚBLICA
-        tags:
+        topics:
           - gov.national
           - gov.head
       - match: SECRETARIO GENERAL DE MINISTERIO O DE DEPARTAMENTO ADMINISTRATIVO
-        tags:
+        topics:
           - gov.national
           - gov.executive
         add_entity: true
       - match: SECRETARIO GENERAL DEL MINISTERIO DE DEFENSA
-        tags:
+        topics:
           - gov.national
           - gov.executive
       - match: VICEMINISTRO
-        tags:
+        topics:
           - gov.national
           - gov.executive
+        add_entity: true
       - match: VICEPRESIDENTE DE LA REPÚBLICA
-        tags:
+        topics:
           - gov.national
           - gov.head
       - match: VICEPROCURADOR GENERAL
-        tags:
+        topics:
           - gov.national
           - gov.judicial
 
