@@ -38,7 +38,7 @@ setup(
         "plyvel == 1.5.0",
         "prefixdate",
         "psycopg2-binary",
-        "pyicu == 2.13.0",
+        "pyicu == 2.12.0",
         "requests[security]",
         "sqlalchemy[mypy]",
         "structlog",
