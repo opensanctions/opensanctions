@@ -11,11 +11,22 @@ description: |
   of assets, income and conflicts of interest of public servants and politicians
   in Colombia.
 
-  This dataset publishes the names, ID numbers, and positions of public office
-  held by public servants in Colombia.
+  The Colombian Decree 830 of 2021 aims to support the implementation of
+  article 52 of the United Nations Convention against Corruption as well as
+  Financial Action Task Force (FATF) and Latin American Financial Action Task
+  Force (GAFILAT). It therefore defines a relatively broad definition of PEPs
+  and requires the publication of persons holding these positions which have
+  the opportunity to influence public transactions for their benefit.
 
-  These declarations are made by the public servants themselves, rather than
-  centrally initiated.
+  This dataset publishes the names, ID numbers, and positions of public office
+  held by public servants in Colombia. It currently excludes the contractor
+  information available at the same website.
+  
+  We supplement the data from the online search with their Excel download
+  which contains a little more information for a selection of people, although
+  the criteria for selection is unclear. While their Excel file data dictionary states that
+  currently-held positions will have a blank end date, that is not currently
+  the case so we include the stated end date but indicate occupancy status as unknown.
 publisher:
   name: Deparatamento Administrativo del la Funcion Publica
   description: The Colombian Administrative Department of Public Service    
