@@ -24,8 +24,8 @@ def crawl_row(context: Context, row: Dict[str, str]):
         city=row.pop("city"),
         postal_code=row.pop("postal_code"),
     )
-    # h.apply_address(context, entity, address)
-    entity.add("address", address.get("full"))
+    if address is not None:
+        entity.add("address", address.get("full"))
 
     if entity.schema.is_a("Person"):
         entity.add("nationality", row.pop("country"))

@@ -62,6 +62,27 @@ def format_address(
     return _get_formatter().one_line(data, country=country_code)
 
 
+def _make_id(
+    entity: Entity,
+    full: Optional[str],
+    country_code: Optional[str],
+    key: Optional[str] = None,
+) -> Optional[str]:
+    if full is None or not len(full.strip()):
+        country_id = make_entity_id(country_code, full, key)
+        return f"addr-{country_id}"
+    prop = entity.schema.get("full")
+    assert prop is not None, entity.schema
+    for cleaned in entity.lookup_clean(prop, full):
+        norm_full = slugify(cleaned)
+        if norm_full is None:
+            continue
+        hashed_id = make_entity_id(country_code, norm_full, key)
+        if hashed_id is not None:
+            return f"addr-{hashed_id}"
+    return None
+
+
 def make_address(
     context: Context,
     full: Optional[str] = None,
@@ -80,7 +101,7 @@ def make_address(
     country_code: Optional[str] = None,
     key: Optional[str] = None,
     lang: Optional[str] = None,
-) -> Entity:
+) -> Optional[Entity]:
     """Generate an address schema object adjacent to the main entity.
 
     Args:
@@ -119,20 +140,20 @@ def make_address(
             country_code = country
             country = None
 
-    address = context.make("Address")
-    address.add("full", full, lang=lang)
-    address.add("remarks", remarks, lang=lang)
-    address.add("summary", summary, lang=lang)
-    address.add("postOfficeBox", po_box, lang=lang)
-    address.add("street", street, lang=lang)
-    address.add("city", city, lang=lang)
-    address.add("postalCode", postal_code, lang=lang)
-    address.add("region", region, lang=lang)
-    address.add("state", state, quiet=True, lang=lang)
-    address.add("country", country, lang=lang)
-    address.add("country", country_code)
+    if country is not None:
+        parsed_code = registry.country.clean(country)
+        if parsed_code is not None:
+            if country_code != parsed_code:
+                context.log.warn(
+                    "Country code mismatch",
+                    country=country,
+                    country_code=country_code,
+                )
+            country_code = parsed_code
 
-    country_code = address.first("country")
+    if country_code is None:
+        country_code = registry.country.clean(full)
+
     if not full:
         full = format_address(
             summary=summary,
@@ -145,25 +166,28 @@ def make_address(
             country_code=country_code,
         )
 
-    full_country = registry.country.clean(full)
-    if full_country is not None:
-        address.add("country", full_country, lang=lang)
-        return address
+    if full == country:
+        full = None
+
+    address = context.make("Address")
+    address.id = _make_id(address, full, country_code, key=key)
+    if address.id is None:
+        return None
 
     address.add("full", full, lang=lang)
-    # Send the address through the cleaning routine applied to address-type
-    # values:
-    fulls = sorted(address.get("full"))
-
-    if len(fulls):
-        norm_full = slugify(fulls[0])
-        hash_id = make_entity_id(country_code, norm_full, key)
-        if hash_id is not None:
-            address.id = f"addr-{hash_id}"
+    address.add("remarks", remarks, lang=lang)
+    address.add("summary", summary, lang=lang)
+    address.add("postOfficeBox", po_box, lang=lang)
+    address.add("street", street, lang=lang)
+    address.add("city", city, lang=lang)
+    address.add("postalCode", postal_code, lang=lang)
+    address.add("region", region, lang=lang)
+    address.add("state", state, quiet=True, lang=lang)
+    address.add("country", country_code, lang=lang, original_value=country)
     return address
 
 
-def apply_address(context: Context, entity: Entity, address: Entity) -> None:
+def apply_address(context: Context, entity: Entity, address: Optional[Entity]) -> None:
     """Link the given entity to the given address.
 
     Args:
@@ -178,6 +202,6 @@ def apply_address(context: Context, entity: Entity, address: Entity) -> None:
         entity.schema.get("addressEntity") is not None
     ), "Entity must have addressEntity"
     entity.add("country", address.get("country"))
-    if address.id is not None:
+    if address.has("full"):
         entity.add("addressEntity", address)
         context.emit(address)
