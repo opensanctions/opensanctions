@@ -11,6 +11,7 @@ deploy:
 exports:
   - statistics.json
   - entities.ftm.json
+  - senzing.json
 resolve: false
 summary: |
   The Latvian company registry lists directors, shareholders and beneficial owners

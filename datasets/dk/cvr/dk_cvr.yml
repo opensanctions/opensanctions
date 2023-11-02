@@ -12,6 +12,7 @@ deploy:
 exports:
   - statistics.json
   - entities.ftm.json
+  - senzing.json
 resolve: false
 summary: |
   Danish companies have to report beneficial owners (‘reelle ejere’) who directly control a company.
