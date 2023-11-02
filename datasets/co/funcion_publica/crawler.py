@@ -35,9 +35,6 @@ from zavod.context import Context
 # contractors only
 
 
-UPDATES_URL = "https://www.funcionpublica.gov.co/fdci/consultaCiudadana/consultaPEP?find=FindNext&tipoRegistro=4&numeroDocumento=&primerNombre=&segundoNombre=&primerApellido=&segundoApellido=&entidad=&dpto=&mun=&max=10&offset="
-
-
 def crawl_row(context: Context, row: Dict[str, str]):
     person = context.make("Person")
     id_number = row.pop("NUMERO_DOCUMENTO")
@@ -86,21 +83,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     context.audit_data(row, ["ENLACE_CONSULTA_DECLARACIONES_PEP"])
 
 
-def check_updates(context: Context):
-    offset = "3970"
-    expected_row_count = 2
-    doc = context.fetch_html(UPDATES_URL + offset, cache_days=1)
-
-    actual_row_count = len(doc.findall(".//tr"))
-    if actual_row_count != expected_row_count:
-        context.log.warning(
-            f"Update spreadsheet. Expected {expected_row_count} rows but found {actual_row_count}"
-        )
-
-
 def crawl(context: Context):
-    check_updates(context)
-
     path = context.fetch_resource("source.csv", context.data_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
