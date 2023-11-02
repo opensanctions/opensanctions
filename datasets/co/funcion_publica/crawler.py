@@ -40,7 +40,7 @@ from zavod.logic.pep import OccupancyStatus, backdate
 def crawl_sheet_row(context: Context, row: Dict[str, str]):
     person = context.make("Person")
     id_number = row.pop("NUMERO_DOCUMENTO")
-    person.id = context.make_slug(id_number)
+    person.id = context.make_slug(id_number, prefix="co-cedula")
     person.add("idNumber", id_number)
     person.add("name", row.pop("NOMBRE_PEP"))
     cv_url = row.pop("ENLACE_HOJA_VIDA_SIGEP")
@@ -83,10 +83,9 @@ def crawl_sheet_row(context: Context, row: Dict[str, str]):
         start_date=row.pop("FECHA_VINCULACION"),
         end_date=row.pop("FECHA_DESVINCULACION"),
     )
-    if occupancy:
-        context.emit(person, target=True)
-        context.emit(position)
-        context.emit(occupancy)
+    context.emit(person, target=True)
+    context.emit(position)
+    context.emit(occupancy)
     context.audit_data(row, ["ENLACE_CONSULTA_DECLARACIONES_PEP"])
     return slugify([id_number, role, entity_name])
 
@@ -111,7 +110,7 @@ def crawl_table_row(context: Context, seen: set, row: Dict[str, str|List[Tuple[s
         return
     
     person = context.make("Person")
-    person.id = context.make_slug(name_id[1])
+    person.id = context.make_slug(name_id[1], prefix="co-cedula")
     person.name = name_id[0]
     person.add("idNumber", name_id[1])
     links = row.pop("enlaces-externos")
@@ -154,8 +153,6 @@ def parse_table(table) -> List[Dict[str, str|Dict[str, str]]]:
         if headers is None:
             headers = []
             for el in row.findall("./th"):
-                # Workaround because lxml-stubs doesn't yet support HtmlElement
-                # https://github.com/lxml/lxml-stubs/pull/71
                 headers.append(slugify(el.text_content()))
             continue
         cells = []
@@ -182,6 +179,7 @@ def crawl(context: Context):
 
     next_link = "https://www.funcionpublica.gov.co/fdci/consultaCiudadana/consultaPEP?find=FindNext&tipoRegistro=4&offset=0&max=50"
     while next_link:
+        context.log.info("Fetching page", url=next_link)
         doc = context.fetch_html(next_link, cache_days=1)
         doc.make_links_absolute(next_link)
         next_anchors = doc.xpath("//a[contains(@class, 'nextLink')]")
