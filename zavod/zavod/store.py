@@ -7,6 +7,7 @@ from nomenklatura.resolver import Resolver
 from nomenklatura.store.base import View as BaseView
 from nomenklatura.store.level import LevelDBStore
 from nomenklatura.publish.dates import simplify_dates
+from nomenklatura.publish.edges import simplify_undirected
 
 from zavod.logs import get_logger
 from zavod.entity import Entity
@@ -88,4 +89,5 @@ class Store(LevelDBStore[Dataset, Entity]):
             if entity.id is not None:
                 entity.extra_referents.update(self.resolver.get_referents(entity.id))
             entity = simplify_dates(entity)
+            entity = simplify_undirected(entity)
         return entity
