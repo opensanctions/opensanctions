@@ -392,6 +392,7 @@ lookups:
           - Saxe-Eisenach
           - Grand Duchy of Baden
           - Kingdom of Bavaria
+          - Kingdom of Württemberg
         value: DE
       - match: British Honduras
         value: BZ
