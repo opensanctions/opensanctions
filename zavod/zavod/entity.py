@@ -92,6 +92,9 @@ class Entity(CompositeEntity):
             msg = gettext("Stub property (%s): %s")
             raise InvalidData(msg % (self.schema, prop))
 
+        if self.id is None:
+            raise InvalidData("Cannot add statement to entity without ID!")
+
         if lang is not None:
             lang = registry.language.clean_text(lang)
 
