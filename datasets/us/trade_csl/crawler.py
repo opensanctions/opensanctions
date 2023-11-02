@@ -43,7 +43,7 @@ def parse_addresses(
 
         if len(splits) > 0 and all([contains_parts(addr) for addr in splits]):
             for split_addr in splits:
-                yield h.make_address(
+                addr = h.make_address(
                     context,
                     full=split_addr,
                     city=city,
@@ -51,8 +51,10 @@ def parse_addresses(
                     region=state,
                     country_code=country_code,
                 )
+                if addr is not None:
+                    yield addr
         else:
-            yield h.make_address(
+            addr = h.make_address(
                 context,
                 street=address_str,
                 city=city,
@@ -60,6 +62,8 @@ def parse_addresses(
                 region=state,
                 country_code=country_code,
             )
+            if addr is not None:
+                yield addr
 
 
 def parse_result(context: Context, result: Dict[str, Any]):

@@ -175,7 +175,10 @@ def crawl_organizations(context: Context):
         city = lang_pick(record, "city_village")
         if street or city:
             address = h.make_address(
-                context, street=street, city=city, country_code=entity.first("country")
+                context,
+                street=street,
+                city=city,
+                country_code=entity.first("country"),
             )
             h.apply_address(context, entity, address)
 

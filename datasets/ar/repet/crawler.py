@@ -1,5 +1,5 @@
 import json
-from typing import Dict
+from typing import Dict, Optional
 from pantomime.types import JSON
 
 from zavod import Context, Entity
@@ -44,7 +44,7 @@ def parse_alias(context: Context, entity: Entity, alias: Dict[str, str]):
     context.audit_data(alias, ignore=["NOTE"])
 
 
-def parse_address(context: Context, data):
+def parse_address(context: Context, data: Dict[str, str]) -> Optional[Entity]:
     return h.make_address(
         context,
         remarks=data.pop("NOTE", None),

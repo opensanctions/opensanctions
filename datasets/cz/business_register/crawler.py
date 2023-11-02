@@ -50,13 +50,14 @@ def make_company(context: Context, tree: ElementOrTree) -> Optional[Entity]:
     proxy = context.make("Company")
     reg_nr = tree.findtext(".//ICO")
     proxy.id = company_id(context, reg_nr, name)
-    if proxy.id is not None:
-        proxy.add("name", name)
-        proxy.add("registrationNumber", reg_nr)
-        proxy.add("address", make_address(tree.find(".//Sidlo")))
-        proxy.add("incorporationDate", tree.findtext(".//DatumZapisu"))
-        proxy.add("dissolutionDate", tree.findtext(".//DatumVymazu"))
-        return proxy
+    if proxy.id is None:
+        return None
+    proxy.add("name", name)
+    proxy.add("registrationNumber", reg_nr)
+    proxy.add("address", make_address(tree.find(".//Sidlo")))
+    proxy.add("incorporationDate", tree.findtext(".//DatumZapisu"))
+    proxy.add("dissolutionDate", tree.findtext(".//DatumVymazu"))
+    return proxy
 
 
 def parse_xml(context: Context, reader: IO[bytes]):

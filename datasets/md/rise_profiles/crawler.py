@@ -134,7 +134,11 @@ def make_entity(context: Context, url: str, name: str, attributes: dict):
     entity.add("mainCountry", attributes.pop("tara", "").split(",")[0])
 
     if "adresa" in attributes:
-        entity.add("address", h.make_address(context, full=attributes.pop("adresa")))
+        address = h.make_address(
+            context, full=attributes.pop("adresa"), country_code="md"
+        )
+        if address is not None:
+            entity.add("address", address.get("full"))
     if "idno" in attributes:
         regno = attributes.pop("idno")
         identification.append(regno)

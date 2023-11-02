@@ -15,8 +15,8 @@ def parse_row(context: Context, headers: List[str], row: List[str]):
     entity.add("topics", "sanction")
     sanction = h.make_sanction(context, entity)
     address = {}
-    for (header, lang, type_), value in zip(headers, row):
-        value = collapse_spaces(value)
+    for (header, lang, type_), value_ in zip(headers, row):
+        value = collapse_spaces(value_)
         if value is None or value == "-":
             continue
         if header in ["index", "issuer"]:
