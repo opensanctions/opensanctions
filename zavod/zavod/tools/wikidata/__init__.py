@@ -350,24 +350,23 @@ class EditSession(Generic[DS, CE]):
         if self.qid:
             if self.item_dict is None:
                 raise ValueError("No item dict to propose actions for")
-            self._propose_labels(entity, self.item_dict["labels"])
-            self._propose_birthdate(entity, self.item_dict["claims"])
-            self._propose_positions(self.item_dict["claims"])
-            # self._check_given_name()
-            # self._check_family_name()
-
-            # TODO: check if it has a label, other non-claim properties?
-            # description
-            # aliases
-            # ... all the properties we care about ...
-            # ... wd:everypolitition data model has hints ...
-
+            labels = self.item_dict["labels"]
+            descriptions = self.item_dict["descriptions"]
+            claims = self.item_dict["claims"]
         else:
+            labels = {}
+            descriptions = {}
+            claims = {}
             self.actions.append(CreateItemAction())
-            self._propose_labels(entity, {})
-            self._propose_description(entity, {})
-            self._propose_birthdate(entity, {})
-            self._propose_positions({})
+
+        self._propose_labels(entity, labels)
+        self._propose_description(entity, descriptions)
+        self._propose_human(entity, claims)
+        self._propose_sex_or_gender(entity, claims)
+        # occupation
+        # nationality
+        self._propose_birthdate(entity, claims)
+        self._propose_positions(claims)
 
     def _propose_labels(self, entity: CE, exclude: Dict[str, str]) -> None:
         labels = {}
@@ -428,6 +427,33 @@ class EditSession(Generic[DS, CE]):
             #    self.actions.append(AddSourceClaimAction(date_claim, source_claims))
             #else:
             #    self._log(f"Couldn't provide source for {date_claim}")
+
+    def _propose_human(self, entity: CE, claims: Dict[str, List[Claim]]) -> None:
+        pid = "P31"
+        if claims.get(pid, []):
+            return
+        claim = Claim(self._wd_repo, pid)
+        claim.setTarget(ItemPage(self._wd_repo, "Q5"))
+        self.actions.append(AddClaimAction(claim))
+
+    def _propose_sex_or_gender(self, entity: CE, claims: Dict[str, List[Claim]]) -> None:
+        pid = "P21"
+        if claims.get(pid, []):
+            return
+        stmts = entity.get_statements("gender")
+        if len(stmts) == 1:
+            stmt = stmts[0]
+            match stmt.value:
+                case "male":
+                    value = "Q6581097"
+                case "female":
+                    value = "Q6581072"
+                case _:
+                    self._log(f"Unhandled gender value {stmt.value}")
+                    return
+            claim = Claim(self._wd_repo, pid)
+            claim.setTarget(ItemPage(self._wd_repo, value))
+            self.actions.append(AddClaimAction(claim))
 
     def _make_source_claims(self, stmt: Statement) -> Optional[List[Claim]]:
         source_url = self.source_urls.get(stmt.dataset)
