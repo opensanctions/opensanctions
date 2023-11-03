@@ -24,10 +24,11 @@ from textual.widget import Widget
 from textual.widgets import Header, Footer, Log, ListItem, ListView, Label, Button
 from textual.message import Message
 from textual import work
-from typing import Any, Dict, Generator, Generic, List, Set, Optional, cast
+from typing import Any, Dict, Generator, Generic, List, Set, Optional, Tuple, cast
 import json
 import logging
 import prefixdate
+import re
 
 from zavod import settings
 from zavod.entity import Entity
@@ -35,6 +36,7 @@ from zavod.entity import Entity
 
 log = logging.getLogger(__name__)
 
+CALENDARMODEL = "https://www.wikidata.org/wiki/Q12138"
 PROP_LABEL = {
     "P735": "given name",
     "P734": "family name",
@@ -62,7 +64,15 @@ WHERE
 
 def best_label(names: List[str]) -> str:
     """Prefer labels that don't have a comma."""
-    for name in sorted(names):
+    multi_multi_case_names = []
+    for name in names:
+        if re.match("[A-Z][a-z]+ [A-Z][a-z]+", name):
+            multi_multi_case_names.append(name)
+    multi_names = []
+    for name in names:
+        if re.match("[A-Z][z-z]+", name):
+            multi_names.append(name)
+    for name in sorted(multi_multi_case_names) + sorted(multi_names) + sorted(names):
         if "," not in name:
             return name
     return names[0]
@@ -85,7 +95,7 @@ def prefix_to_wb_time(string: str) -> Optional[WbTime]:
             day = prefix.dt.day
         case _:
             return None
-    return WbTime(year=year, month=month, day=day)
+    return WbTime(year=year, month=month, day=day, calendarmodel=CALENDARMODEL)
 
 
 def item_dict_cache_key(qid: str) -> str:
@@ -98,7 +108,7 @@ class Action:
 
 class CreateItemAction(Action):
     def __repr__(self) -> str:
-        return "Create Wikidata item"
+        return "Create Wikidata item."
 
 
 class SetLabelsAction(Action):
@@ -106,15 +116,15 @@ class SetLabelsAction(Action):
         self.labels: Dict[str, str] = labels
 
     def __repr__(self) -> str:
-        return "Set labels %r" % self.labels
+        return "Set labels %r." % self.labels
 
 
 class SetDescriptionsAction(Action):
-    def __init__(self, descriptions: Dict[str, str]):
-        self.descriptions = descriptions
+    def __init__(self, description: str):
+        self.description = description
 
     def __repr__(self) -> str:
-        return "Set descriptions %r" % self.descriptions
+        return "Set en description %r." % self.description
 
 
 class AddClaimAction(Action):
@@ -122,7 +132,14 @@ class AddClaimAction(Action):
         self.claim = claim
 
     def __repr__(self) -> str:
-        return "Add claim %s with value %r" % (self.claim.id, self.claim.target)
+        t = self.claim.target
+        if isinstance(t, WbTime):
+            value = f"{t.year}-{t.month}-{t.day} precision {t.precision}"
+        elif isinstance(t, ItemPage):
+            value = t.labels.get("en", t.id)
+        else:
+            value = str(t)
+        return "Add claim %s with value %r." % (self.claim.id, value)
 
 
 class AddSourceClaimAction(Action):
@@ -131,7 +148,7 @@ class AddSourceClaimAction(Action):
         self.source_claims = source_claims
 
     def __repr__(self) -> str:
-        return "Add source qualifiers %r to %r" % (self.source_claims, self.claim)
+        return "Add source qualifiers %r to %r." % (self.source_claims, self.claim)
 
 
 class EditSession(Generic[DS, CE]):
@@ -164,6 +181,8 @@ class EditSession(Generic[DS, CE]):
         self,
         cache: Cache,
         store: Store[DS, CE],
+        country_code: str,
+        country_adjective: str,
         focus_dataset: Optional[str],
         app: App[int],
     ):
@@ -173,6 +192,8 @@ class EditSession(Generic[DS, CE]):
         self._cache = cache
         self._app = app
         self._view = store.default_view(external=False)
+        self._country_code = country_code
+        self._country_adjective = country_adjective
         self._focus_dataset = focus_dataset
         self._http_session = Session()
         self._http_session.headers[
@@ -185,12 +206,13 @@ class EditSession(Generic[DS, CE]):
 
     def _reset_entity(self) -> None:
         self.entity: Optional[CE] = None
+        self.qid: Optional[str] = None
         self.item: Optional[ItemPage] = None
         self.item_dict: Optional[Dict[str, Any]] = None
         self.search_results: List[Dict[str, Any]] = []
         self.source_urls: Dict[str, str] = {}
         self.actions: List[Action] = []
-        self.position_occupancies: Dict[str, List[CE]] = defaultdict(list)
+        self.position_occupancies: Dict[str, List[Tuple[CE, CE]]] = defaultdict(list)
         self.position_labels: Dict[str, List[str]] = {}
 
     def get_json(
@@ -209,9 +231,8 @@ class EditSession(Generic[DS, CE]):
         return json.loads(response)
 
     def next(self) -> None:
-        self._reset_entity()
-
         for entity in self._entities_gen:
+            self._reset_entity()
             if not entity.schema.name == "Person" or not entity.target:
                 continue
             if self._focus_dataset and self._focus_dataset not in entity.datasets:
@@ -267,6 +288,8 @@ class EditSession(Generic[DS, CE]):
             result["item_dict"] = result["item"].get()
 
     def resolve(self, qid: str) -> None:
+        """Saves the resolve decision, then fetches the item and proposes changes,
+        or loads entities until one is found with proposed changes."""
         if self.entity is None:
             self._log("No entity to resolve")
             return
@@ -294,7 +317,6 @@ class EditSession(Generic[DS, CE]):
         for action in self.actions:
             if isinstance(action, CreateItemAction):
                 self.item = ItemPage(self._wd_site)
-                self.qid = self.item.getID()
                 created = True
             elif isinstance(action, SetLabelsAction):
                 if self.item is None:
@@ -303,7 +325,7 @@ class EditSession(Generic[DS, CE]):
             elif isinstance(action, SetDescriptionsAction):
                 if self.item is None:
                     raise ValueError("No item to publish to")
-                self.item.editDescriptions(action.descriptions)
+                self.item.editDescriptions({'en': action.description})
             elif isinstance(action, AddClaimAction):
                 if self.item is None:
                     raise ValueError("No item to publish to")
@@ -315,9 +337,10 @@ class EditSession(Generic[DS, CE]):
             else:
                 raise ValueError("Unknown action: %r" % action)
         if created:
-            if self.qid is None:
-                raise ValueError("No QID for created item")
-            self.resolve(self.qid)
+            qid = self.item.getID()
+            if qid == "-1" or not isinstance(qid, str):
+                raise ValueError("No QID for created item %r" % qid)
+            self.resolve(qid)
 
     def save_resolver(self) -> None:
         self._resolver.save()
@@ -328,8 +351,8 @@ class EditSession(Generic[DS, CE]):
             if self.item_dict is None:
                 raise ValueError("No item dict to propose actions for")
             self._propose_labels(entity, self.item_dict["labels"])
-            self._check_birthdate(entity, self.item_dict["claims"])
-            self._check_positions(self.item_dict["claims"])
+            self._propose_birthdate(entity, self.item_dict["claims"])
+            self._propose_positions(self.item_dict["claims"])
             # self._check_given_name()
             # self._check_family_name()
 
@@ -342,6 +365,9 @@ class EditSession(Generic[DS, CE]):
         else:
             self.actions.append(CreateItemAction())
             self._propose_labels(entity, {})
+            self._propose_description(entity, {})
+            self._propose_birthdate(entity, {})
+            self._propose_positions({})
 
     def _propose_labels(self, entity: CE, exclude: Dict[str, str]) -> None:
         labels = {}
@@ -356,9 +382,32 @@ class EditSession(Generic[DS, CE]):
         if labels:
             self.actions.append(SetLabelsAction(labels))
 
-    def _check_birthdate(
-        self, entity: CE, claims: Dict[str, List[Claim]]
-    ) -> None:
+    def _propose_description(self, entity: CE, descriptions) -> None:
+        if "en" in descriptions:
+            return
+        for items in self.position_occupancies.values():
+            for pos, occ in items:
+                countries = pos.get("country")
+                if len(countries) != 1:
+                    continue
+                if countries[0] != self._country_code:
+                    continue
+                role = None
+                if "gov.head" in pos.get("topics"):
+                    role = "head of state or government"
+                if "gov.executive" in pos.get("topics"):
+                    role = "politician"
+                if "gov.legislative" in pos.get("topics"):
+                    role = "politician"
+                if "gov.judicial" in pos.get("topics"):
+                    role = "judge"
+                if role:
+                    description = f"{self._country_adjective} {role}"
+                    self.actions.append(SetDescriptionsAction(description))
+                    return
+
+    def _propose_birthdate(self, entity: CE, claims: Dict[str, List[Claim]]) -> None:
+        """Propose adding a date of birth if we have it and wikidata doesn't."""
         pid = "P569"
         if claims.get(pid, []):
             return
@@ -374,11 +423,11 @@ class EditSession(Generic[DS, CE]):
 
             source_claims = self._make_source_claims(stmt)
 
-            if source_claims:
-                self.actions.append(AddClaimAction(date_claim))
-                self.actions.append(AddSourceClaimAction(date_claim, source_claims))
-            else:
-                self._log(f"Couldn't provide source for {date_claim}")
+            #if source_claims:
+            self.actions.append(AddClaimAction(date_claim))
+            #    self.actions.append(AddSourceClaimAction(date_claim, source_claims))
+            #else:
+            #    self._log(f"Couldn't provide source for {date_claim}")
 
     def _make_source_claims(self, stmt: Statement) -> Optional[List[Claim]]:
         source_url = self.source_urls.get(stmt.dataset)
@@ -401,10 +450,12 @@ class EditSession(Generic[DS, CE]):
                     if occ_prop.name == "post":
                         position = occ_related
                         assert isinstance(position.id, str)
-                        self.position_occupancies[position.id].append(occupancy)
+                        self.position_occupancies[position.id].append((position, occupancy))
                         self.position_labels[position.id] = position.get("name")
 
-    def _check_positions(self, claims: Dict[str, List[Claim]]) -> None:
+    def _propose_positions(self, claims: Dict[str, List[Claim]]) -> None:
+        """Propose adding positions for any positions with QID which the wikidata
+        item does not yet have for either the same start or end year"""
         wd_pos_start_years = defaultdict(set)
         wd_pos_end_years = defaultdict(set)
         # Wikidata
@@ -423,7 +474,7 @@ class EditSession(Generic[DS, CE]):
         for pos_id, occs in self.position_occupancies.items():
             if not is_qid(pos_id):
                 continue
-            for occ in occs:
+            for (pos, occ) in occs:
                 add = True
                 if pos_id in wd_pos_start_years:
                     for date in occ.get("startDate"):
@@ -534,7 +585,7 @@ class SessionDisplay(Widget):
             text += "Positions:\n"
             for pos_id, pos_names in self.session.position_labels.items():
                 text += f"  {pos_id}\n  {pos_names[0]} ({len(pos_names)})\n"
-                for occ in self.session.position_occupancies[pos_id]:
+                for (pos, occ) in self.session.position_occupancies[pos_id]:
                     text += f'    {occ.get("startDate")} {occ.get("endDate")}\n'
             text += "\nProposed actions:\n"
             for action in self.session.actions:
@@ -646,6 +697,7 @@ class WikidataApp(App[int], Generic[DS, CE]):
         self.log_display = Log()
         yield self.log_display
         self.log_display.write_line("Press n for next entity.")
+        self.action_next()
 
     def action_next(self) -> None:
         if self.loading_next:
@@ -664,6 +716,9 @@ class WikidataApp(App[int], Generic[DS, CE]):
         self.loading_next = False
         self.session_display.refresh()
         self.search_display.items = self.session.search_results
+        if self.session.entity is None:
+            self.log_display.write_line("No more entities to edit.")
+            return
         if self.session.qid is None:
             if self.session.search_results:
                 self.log_display.write_line(
@@ -723,8 +778,14 @@ class WikidataApp(App[int], Generic[DS, CE]):
 
 
 def run_app(
-    store: Store[DS, CE], cache: Cache, focus_dataset: Optional[str]
+    store: Store[DS, CE],
+    cache: Cache,
+    country_code: str,
+    country_adjective: str,
+    focus_dataset: Optional[str],
 ) -> None:
     app = WikidataApp[DS, CE]()
-    app.session = EditSession[DS, CE](cache, store, focus_dataset, app)
+    app.session = EditSession[DS, CE](
+        cache, store, country_code, country_adjective, focus_dataset, app
+    )
     app.run()

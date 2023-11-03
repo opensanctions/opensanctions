@@ -261,10 +261,14 @@ def clear(dataset_path: Path) -> None:
 @cli.command("wd-up", help="Review and output possible wikidata updates")
 @click.argument("dataset_paths", type=InPath, nargs=-1)
 @click.option("-c", "--clear", is_flag=True, default=False)
+@click.option("-a", "--country-adjective", type=str, required=True)
+@click.option("-d", "--country-code", type=str, required=True)
 @click.option("-f", "--focus-dataset", type=str, default=None)
 def wd_up(
     dataset_paths: List[Path],
     clear: bool,
+    country_code: str,
+    country_adjective: str,
     focus_dataset: Optional[str] = None,
 ) -> None:
     dataset = _load_datasets(dataset_paths)
@@ -275,5 +279,7 @@ def wd_up(
     run_app(
         store,
         cache,
+        country_code=country_code,
+        country_adjective=country_adjective,
         focus_dataset=focus_dataset,
     )
