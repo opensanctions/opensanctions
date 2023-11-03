@@ -10,8 +10,8 @@ from nomenklatura.judgement import Judgement
 from nomenklatura.statement.statement import Statement
 from nomenklatura.util import normalize_url, is_qid
 from pprint import pformat
-from pywikibot import ItemPage, WbTime, Claim, Site
-from pywikibot.data import api
+from pywikibot import ItemPage, WbTime, Claim, Site  # type: ignore
+from pywikibot.data import api  # type: ignore
 from requests import Session
 from rich.console import RenderableType
 from rich.text import Text

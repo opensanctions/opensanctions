@@ -22,7 +22,7 @@ from zavod.publish import publish_dataset, publish_failure
 from zavod.tools.load_db import load_dataset_to_db
 from zavod.tools.dump_file import dump_dataset_to_file
 from zavod.exc import RunFailedException
-from zavod.wd_up import run_app
+from zavod.tools.wikidata import run_app
 
 
 log = get_logger(__name__)
