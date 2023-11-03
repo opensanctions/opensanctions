@@ -111,7 +111,7 @@ def crawl_table_row(context: Context, seen: set, row: Dict[str, str|List[Tuple[s
     
     person = context.make("Person")
     person.id = context.make_slug(name_id[1], prefix="co-cedula")
-    person.name = name_id[0]
+    person.add("name", name_id[0])
     person.add("idNumber", name_id[1])
     links = row.pop("enlaces-externos")
     person.add("website", links.pop("consultar-hoja-de-vida", None))
