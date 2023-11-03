@@ -4,8 +4,8 @@ from itertools import groupby
 from languagecodes import iso_639_alpha2
 from nomenklatura import Store
 from nomenklatura.cache import Cache
-from nomenklatura.dataset import Dataset
-from nomenklatura.entity import CompositeEntity
+from nomenklatura.dataset import Dataset, DS
+from nomenklatura.entity import CompositeEntity, CE
 from nomenklatura.judgement import Judgement
 from nomenklatura.statement.statement import Statement
 from nomenklatura.util import normalize_url, is_qid
@@ -24,12 +24,13 @@ from textual.widget import Widget
 from textual.widgets import Header, Footer, Log, ListItem, ListView, Label, Button
 from textual.message import Message
 from textual import work
-from typing import Any, Dict, Generator, List, Set, Optional, cast
+from typing import Any, Dict, Generator, Generic, List, Set, Optional, cast
 import json
 import logging
 import prefixdate
 
 from zavod import settings
+from zavod.entity import Entity
 
 
 log = logging.getLogger(__name__)
@@ -133,9 +134,9 @@ class AddSourceClaimAction(Action):
         return "Add source qualifiers %r to %r" % (self.source_claims, self.claim)
 
 
-class EditSession:
+class EditSession(Generic[DS, CE]):
     """A session for syncing a single entity with a single item on wikidata at a time.
-    
+
     Call next() to iterate over entities from the selected dataset until either
     an entity without a QID is found, or an entity with a QID is found for which
     we have some proposed edits.
@@ -146,7 +147,7 @@ class EditSession:
     If `qid` is none, the session will search for matching items on wikidata and
     populate `search_results`. Either `resolve()` to indicate a matching item,
     or `publish()` to create a new item.
-    
+
     `resolve()` can be called with a QID to add a deduplication
     decision for this entity and the provided QID to the resolver. After this, the
     item is fetched and proposed edits are rechecked. If no potential edits are
@@ -158,10 +159,11 @@ class EditSession:
 
     `save_resolver()` can be called to save the resolver state.
     """
+
     def __init__(
         self,
         cache: Cache,
-        store: Store[Dataset, CompositeEntity],
+        store: Store[DS, CE],
         focus_dataset: Optional[str],
         app: App[int],
     ):
@@ -182,17 +184,18 @@ class EditSession:
         self._reset_entity()
 
     def _reset_entity(self) -> None:
-        self.entity: Optional[CompositeEntity] = None
+        self.entity: Optional[CE] = None
         self.item: Optional[ItemPage] = None
         self.item_dict: Optional[Dict[str, Any]] = None
-        self.claims: Optional[List[Claim]] = None
         self.search_results: List[Dict[str, Any]] = []
         self.source_urls: Dict[str, str] = {}
         self.actions: List[Action] = []
-        self.position_occupancies: Dict[str, List[CompositeEntity]]= defaultdict(list)
+        self.position_occupancies: Dict[str, List[CE]] = defaultdict(list)
         self.position_labels: Dict[str, List[str]] = {}
 
-    def get_json(self, url: str, params: Dict[str, str], cache_days: Optional[int] = None) -> Any:
+    def get_json(
+        self, url: str, params: Dict[str, str], cache_days: Optional[int] = None
+    ) -> Any:
         url = normalize_url(url, params=params)
         response = self._cache.get(url, max_age=cache_days)
         if response is None:
@@ -244,7 +247,6 @@ class EditSession:
         if self.item_dict is None:
             raise ValueError(f"Couldn't fetch item {self.qid}")
         #    self._cache.set(dict_cache_key, self.item_dict)
-        self.claims = self.item_dict["claims"]
         self._log("Done.\n")
 
     def _search_items(self) -> None:
@@ -321,7 +323,7 @@ class EditSession:
         self._resolver.save()
         self.is_resolver_dirty = False
 
-    def _propose_actions(self, entity: CompositeEntity) -> None:
+    def _propose_actions(self, entity: CE) -> None:
         if self.qid:
             if self.item_dict is None:
                 raise ValueError("No item dict to propose actions for")
@@ -341,7 +343,7 @@ class EditSession:
             self.actions.append(CreateItemAction())
             self._propose_labels(entity, {})
 
-    def _propose_labels(self, entity: CompositeEntity, exclude: Dict[str, str]) -> None:
+    def _propose_labels(self, entity: CE, exclude: Dict[str, str]) -> None:
         labels = {}
         stmts = entity.get_statements("name")
         for lang, group_stmts in groupby(stmts, lambda stmt: stmt.lang or "en"):
@@ -354,7 +356,9 @@ class EditSession:
         if labels:
             self.actions.append(SetLabelsAction(labels))
 
-    def _check_birthdate(self, entity: CompositeEntity, claims: Dict[str, List[Claim]]) -> None:
+    def _check_birthdate(
+        self, entity: CE, claims: Dict[str, List[Claim]]
+    ) -> None:
         pid = "P569"
         if claims.get(pid, []):
             return
@@ -389,7 +393,7 @@ class EditSession:
         date_claim.setTarget(prefix_to_wb_time(stmt.last_seen[:10]))
         return [url_claim, date_claim]
 
-    def _get_occupancies(self, entity: CompositeEntity) -> None:
+    def _get_occupancies(self, entity: CE) -> None:
         for person_prop, person_related in self._view.get_adjacent(entity):
             if person_prop.name == "positionOccupancies":
                 occupancy = person_related
@@ -497,7 +501,7 @@ class EditSession:
 #    # TODO: if len(rows) == 0: consider adding missing given names as new items.
 
 
-def render_property(entity: CompositeEntity, property: str) -> str:
+def render_property(entity: CE, property: str) -> str:
     text = f"{property}:"
     values = entity.get(property)
     match len(values):
@@ -514,8 +518,8 @@ def render_property(entity: CompositeEntity, property: str) -> str:
 
 class SessionDisplay(Widget):
     @property
-    def session(self) -> EditSession:
-        return cast("WikidataApp", self.app).session
+    def session(self) -> EditSession[DS, CE]:
+        return cast("WikidataApp[DS, CE]", self.app).session
 
     def render(self) -> RenderableType:
         if self.session.entity:
@@ -541,7 +545,7 @@ class SessionDisplay(Widget):
 
 
 class SearchItem(ListItem):
-    result_item: reactive[Optional[Dict[str, str]]] = reactive(None)
+    result_item: reactive[Optional[Dict[str, Any]]] = reactive(None)
 
     def render(self) -> Text:
         if self.result_item is None:
@@ -566,7 +570,7 @@ class SearchItem(ListItem):
 
 class SearchDisplay(Widget):
     items: reactive[List[Dict[str, str]]] = reactive([])
-    list_view: reactive[Optional[ListView]] = None
+    list_view: Optional[ListView] = None
 
     def compose(self) -> ComposeResult:
         self.list_view = ListView()
@@ -579,6 +583,8 @@ class SearchDisplay(Widget):
         self.update_items()
 
     def update_items(self) -> None:
+        if self.list_view is None:
+            raise ValueError("This shouldn't happen: No list view")
         self.list_view.clear()
         for result_item in self.items:
             search_item = SearchItem()
@@ -586,7 +592,7 @@ class SearchDisplay(Widget):
             self.list_view.append(search_item)
 
 
-class QuitScreen(Screen):
+class QuitScreen(Screen[None]):
     """Screen with a dialog to quit."""
 
     def compose(self) -> ComposeResult:
@@ -614,8 +620,8 @@ class LogMessage(Message):
         self.message = message
 
 
-class WikidataApp(App):
-    session: EditSession
+class WikidataApp(App[int], Generic[DS, CE]):
+    session: EditSession[DS, CE]
     is_dirty: reactive[bool] = reactive(False)
     loading_next: bool = False  # very very poor man's semaphore
 
@@ -675,19 +681,26 @@ class WikidataApp(App):
     def on_log_message(self, event: LogMessage) -> None:
         self.log_display.write_line(event.message)
 
-    def action_resolve(self):
-        highlighted_index = self.search_display.list_view.index
-        if self.session.qid is None and highlighted_index is not None:
-            highlighted_result = self.search_display.items[highlighted_index]
-            qid = highlighted_result["id"]
-            self.log_display.write_line(
-                f"Resolving {self.session.entity.id} as {qid} {highlighted_result['label']}"
-            )
-            self.session.resolve(qid)
-            self.session_display.refresh()
-            self.search_display.items = self.session.search_results
-        else:
+    def action_resolve(self) -> None:
+        highlighted_index: Optional[int] = None
+        if self.search_display.list_view:
+            highlighted_index = self.search_display.list_view.index
+        if (
+            highlighted_index is None
+            or self.session.qid is not None
+            or self.session.entity is None
+        ):
             self.log_display.write_line("Nothing to resolve.")
+            return
+
+        highlighted_result = self.search_display.items[highlighted_index]
+        qid = highlighted_result["id"]
+        self.log_display.write_line(
+            f"Resolving {self.session.entity.id} as {qid} {highlighted_result['label']}"
+        )
+        self.session.resolve(qid)
+        self.session_display.refresh()
+        self.search_display.items = self.session.search_results
 
     def action_publish(self) -> None:
         self.session.publish()
@@ -699,7 +712,7 @@ class WikidataApp(App):
         self.log_display.write_line("Saved resolver changes.")
 
     def action_exit_save(self) -> None:
-        self.session.save()
+        self.session.save_resolver()
         self.exit(0)
 
     def action_exit_hard(self) -> None:
@@ -709,7 +722,9 @@ class WikidataApp(App):
             self.exit(0)
 
 
-def run_app(store, cache: Cache, focus_dataset: str) -> None:
-    app = WikidataApp()
-    app.session = EditSession(cache, store, focus_dataset, app)
+def run_app(
+    store: Store[DS, CE], cache: Cache, focus_dataset: Optional[str]
+) -> None:
+    app = WikidataApp[DS, CE]()
+    app.session = EditSession[DS, CE](cache, store, focus_dataset, app)
     app.run()
