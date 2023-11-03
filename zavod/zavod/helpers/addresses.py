@@ -145,7 +145,7 @@ def make_address(
     if country is not None:
         parsed_code = registry.country.clean(country)
         if parsed_code is not None:
-            if country_code != parsed_code:
+            if country_code is not None and country_code != parsed_code:
                 context.log.warn(
                     "Country code mismatch",
                     country=country,
