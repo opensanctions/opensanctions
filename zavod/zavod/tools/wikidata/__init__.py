@@ -550,10 +550,10 @@ class SearchItem(ListItem):
     def render(self) -> Text:
         if self.result_item is None:
             return Text("Result not loaded yet.")
-        value = f'{self.result_item["id"]} {self.result_item["label"]}'
+        value = f'{self.result_item["id"]} {self.result_item["label"]}\n'
         description = self.result_item.get("description", None)
         if description:
-            value += f"\n  {description}\n"
+            value += f"  {description}\n"
         value += "instance of: "
         value += ",".join(
             str(c.target)
