@@ -41,6 +41,11 @@ PROP_LABEL = {
     "P735": "given name",
     "P734": "family name",
 }
+WD_PRECISION_LABELS = {
+    9: "year",
+    10: "month",
+    11: "day",
+}
 SPARQL_URL = "https://query.wikidata.org/sparql"
 GIVEN_NAME_SPARQL = """
 SELECT ?item ?itemLabel
@@ -98,6 +103,15 @@ def prefix_to_wb_time(string: str) -> Optional[WbTime]:
     return WbTime(year=year, month=month, day=day, calendarmodel=CALENDARMODEL)
 
 
+def wd_value_to_str(value: Any) -> str:
+    if isinstance(value, ItemPage):
+        return value.labels.get("en", value.id)
+    elif isinstance(value, WbTime):
+        return f"{value.year}-{value.month}-{value.day} precision {WD_PRECISION_LABELS[value.precision]}"
+    else:
+        return str(value)
+
+
 def item_dict_cache_key(qid: str) -> str:
     return f"wd:item:{qid}:dict"
 
@@ -128,27 +142,22 @@ class SetDescriptionsAction(Action):
 
 
 class AddClaimAction(Action):
-    def __init__(self, claim: Claim):
+    def __init__(self, claim: Claim, qualifiers: List[Claim], sources: List[Claim]):
         self.claim = claim
+        self.qualifiers = qualifiers
+        self.sources = sources
 
     def __repr__(self) -> str:
         t = self.claim.target
-        if isinstance(t, WbTime):
-            value = f"{t.year}-{t.month}-{t.day} precision {t.precision}"
-        elif isinstance(t, ItemPage):
-            value = t.labels.get("en", t.id)
-        else:
-            value = str(t)
+        value = wd_value_to_str(t)
+        for qual in self.qualifiers:
+            value += f", qualify {qual.getID()}: {wd_value_to_str(qual.target)}"
+        for src in self.sources:
+            value += f", source {src.getID()}: {wd_value_to_str(src.target)}"
         return "Add claim %s with value %r." % (self.claim.id, value)
 
 
-class AddSourceClaimAction(Action):
-    def __init__(self, claim: Claim, source_claims: List[Claim]):
-        self.claim = claim
-        self.source_claims = source_claims
 
-    def __repr__(self) -> str:
-        return "Add source qualifiers %r to %r." % (self.source_claims, self.claim)
 
 
 class EditSession(Generic[DS, CE]):
@@ -330,10 +339,10 @@ class EditSession(Generic[DS, CE]):
                 if self.item is None:
                     raise ValueError("No item to publish to")
                 self.item.addClaim(action.claim)
-            elif isinstance(action, AddSourceClaimAction):
-                if self.item is None:
-                    raise ValueError("No item to publish to")
-                action.claim.addSources(action.source_claims)
+                for claim in action.qualifiers:
+                    action.claim.addQualifier(claim)
+                for claim in action.sources:
+                    action.claim.addSources(claim)
             else:
                 raise ValueError("Unknown action: %r" % action)
         if created:
@@ -423,7 +432,7 @@ class EditSession(Generic[DS, CE]):
             source_claims = self._make_source_claims(stmt)
 
             #if source_claims:
-            self.actions.append(AddClaimAction(date_claim))
+            self.actions.append(AddClaimAction(date_claim, [], []))
             #    self.actions.append(AddSourceClaimAction(date_claim, source_claims))
             #else:
             #    self._log(f"Couldn't provide source for {date_claim}")
@@ -434,7 +443,7 @@ class EditSession(Generic[DS, CE]):
             return
         claim = Claim(self._wd_repo, pid)
         claim.setTarget(ItemPage(self._wd_repo, "Q5"))
-        self.actions.append(AddClaimAction(claim))
+        self.actions.append(AddClaimAction(claim, [], []))
 
     def _propose_sex_or_gender(self, entity: CE, claims: Dict[str, List[Claim]]) -> None:
         pid = "P21"
@@ -453,7 +462,7 @@ class EditSession(Generic[DS, CE]):
                     return
             claim = Claim(self._wd_repo, pid)
             claim.setTarget(ItemPage(self._wd_repo, value))
-            self.actions.append(AddClaimAction(claim))
+            self.actions.append(AddClaimAction(claim, [], []))
 
     def _make_source_claims(self, stmt: Statement) -> Optional[List[Claim]]:
         source_url = self.source_urls.get(stmt.dataset)
@@ -494,8 +503,6 @@ class EditSession(Generic[DS, CE]):
                 wd_pos_start_years[claim.target.getID()].add(str(starts[0].target.year))
             if len(ends) > 0:
                 wd_pos_end_years[claim.target.getID()].add(str(ends[0].target.year))
-        self._log(f"wd starts {wd_pos_start_years}")
-        self._log(f"wd ends {wd_pos_end_years}")
         # OpenSanctions
         for pos_id, occs in self.position_occupancies.items():
             if not is_qid(pos_id):
@@ -518,14 +525,24 @@ class EditSession(Generic[DS, CE]):
                 ):
                     add = False
                 if add:
-                    self._log(
-                        f"Would add {pos_id} {occ.get('startDate')} {occ.get('endDate')}"
-                    )
                     claim = Claim(self._wd_repo, "P39")
                     claim.setTarget(ItemPage(self._wd_repo, pos_id))
+                    qualifiers = []
+                    start_date = occ.get("startDate")
+                    if start_date:
+                        start_qual = Claim(self._wd_repo, "P580", is_qualifier=True)
+                        start_qual.setTarget(prefix_to_wb_time(start_date[0]))
+                        qualifiers.append(start_qual)
+                    end_date = occ.get("endDate")
+                    if end_date:
+                        end_qual = Claim(self._wd_repo, "P582", is_qualifier=True)
+                        end_qual.setTarget(prefix_to_wb_time(end_date[0]))
+                        qualifiers.append(end_qual)
+
+                    
                     # source_claims = self._make_source_claims(occ)
 
-                    self.actions.append(AddClaimAction(claim))
+                    self.actions.append(AddClaimAction(claim, qualifiers, []))
 
     # def _check_given_name(self):
     #    if self.claims.get("P735", []):
