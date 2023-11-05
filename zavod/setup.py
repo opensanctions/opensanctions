@@ -22,7 +22,7 @@ setup(
     zip_safe=False,
     install_requires=[
         "followthemoney == 3.5.*",
-        "nomenklatura == 3.6.*",
+        "nomenklatura == 3.7.*",
         "datapatch == 1.1.*",
         "fingerprints == 1.2.*",
         "addressformatting == 1.3.*",
@@ -38,7 +38,7 @@ setup(
         "plyvel == 1.5.0",
         "prefixdate",
         "psycopg2-binary",
-        "pyicu < 2.12.0",
+        "pyicu == 2.12.0",
         "pywikibot==8.4.0"
         "requests[security]",
         "sqlalchemy[mypy]",

@@ -50,7 +50,7 @@ def parse_data_time(doc) -> Optional[datetime]:
         return None
 
 
-def parse_address(context: Context, addr: str) -> Entity:
+def parse_address(context: Context, addr: str) -> Optional[Entity]:
     addr = ADDRESS_FIXES.get(addr, addr)
     parts = [p.strip() for p in addr.split(",")]
     street = parts[0]
@@ -71,14 +71,14 @@ def parse_address(context: Context, addr: str) -> Entity:
 
 
 def parse_target(
-    context: Context, name: str, address: Entity, date: str
+    context: Context, name: str, address: Optional[Entity], date: str
 ) -> Optional[Entity]:
     name = " ".join(name.replace("\u00a0", " ").split())
     person = context.make("Person")
     m = re.search(r"^(.+), (Frau|Herr[n]?) (.+)$", name)
     if m is None:
         context.log.warn(f'Cannot parse target "{name}"')
-        return
+        return None
     company_name = m.group(1)
     gender = {"Frau": "female", "Herr": "male", "Herrn": "male"}[m.group(2)]
     w = m.group(3).split()

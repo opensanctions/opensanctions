@@ -7,11 +7,13 @@ coverage:
   frequency: weekly
 deploy:
   disk: 50Gi
-  memory: 2Gi
+  memory: 1500Mi
+  memory_limit: 2500Mi
   premium: true
 exports:
   - statistics.json
   - entities.ftm.json
+  - senzing.json
 resolve: false
 summary: |
   Base data for all entities which have been issued Legal Entity Identifier

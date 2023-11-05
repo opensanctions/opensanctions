@@ -1,6 +1,6 @@
 import string
 import openpyxl
-from typing import List, Optional, Set
+from typing import List, Optional, Set, Tuple, Dict, Any
 from collections import defaultdict
 from normality import slugify
 from datetime import datetime
@@ -66,7 +66,9 @@ def clean_country(country: str) -> List[str]:
     return h.multi_split(country, ["a)", "b)", "c)", "d)", ";", ",", " and "])
 
 
-def parse_reference(context: Context, reference: int, rows):
+def parse_reference(
+    context: Context, reference: int, rows: List[Dict[str, Any]]
+) -> None:
     schemata = set()
     for row in rows:
         type_ = row.pop("type")
@@ -85,7 +87,8 @@ def parse_reference(context: Context, reference: int, rows):
         return
     entity = context.make(schemata.pop())
 
-    primary_name = None
+    primary_name: Optional[str] = None
+    names: List[Tuple[str, str]] = []
     for row in rows:
         name = row.pop("name_of_individual_or_entity", None)
         name_type = row.pop("name_type")
@@ -93,11 +96,13 @@ def parse_reference(context: Context, reference: int, rows):
         if name_prop is None:
             context.log.warning("Unknown name type", name_type=name_type)
             return
-        entity.add(name_prop, name)
+        names.append((name_prop, name))
         if name_prop == "name" or primary_name is None:
             primary_name = name
 
     entity.id = context.make_slug(reference, primary_name)
+    for name_prop, name in names:
+        entity.add(name_prop, name)
     sanction = h.make_sanction(context, entity)
 
     primary_name = None

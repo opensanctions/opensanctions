@@ -63,7 +63,7 @@ def parse_address(node: Element):
 
 def compose_address(
     context: Context, entity: Entity, place, el: Element, country_prop: str = "country"
-):
+) -> Optional[Entity]:
     addr = dict(place)
     addr.update(parse_address(el))
     entity.add(country_prop, addr.get("country"))
@@ -175,19 +175,20 @@ def parse_identity(context: Context, entity: Entity, node: Element, places):
         address = compose_address(
             context, entity, place, bplace, country_prop="birthCountry"
         )
-        entity.add("birthPlace", address.get("full"))
+        if address is not None:
+            entity.add("birthPlace", address.get("full"))
 
     for doc in node.findall(".//identification-document"):
         type_ = doc.get("document-type")
         is_passport = type_ in ("passport", "diplomatic-passport")
-        country = doc.find("./issuer")
-        entity.add("nationality", country.text, quiet=True)
+        country = doc.findtext("./issuer")
+        entity.add("nationality", country, quiet=True)
         passport = h.make_identification(
             context,
             entity,
             number=doc.findtext("./number"),
             doc_type=type_,
-            country=country.text,
+            country=country,
             summary=doc.findtext("./remark"),
             start_date=doc.findtext("./date-of-issue"),
             end_date=doc.findtext("./expiry-date"),

@@ -18,7 +18,7 @@ from zavod import Context, Entity, Dataset
 from zavod.meta import load_dataset_from_path
 from zavod import helpers as h
 
-FeatureValue = Union[str, Entity]
+FeatureValue = Union[str, Entity, None]
 FeatureValues = List[FeatureValue]
 
 
@@ -142,7 +142,9 @@ def parse_date_period(date: Element) -> Tuple[str, ...]:
     return (start, end)
 
 
-def parse_location(context: Context, refs: Element, location: Element) -> Entity:
+def parse_location(
+    context: Context, refs: Element, location: Element
+) -> Optional[Entity]:
     countries: Set[Optional[str]] = set()
     for area in location.findall("./LocationAreaCode"):
         area_code = get_ref_element(refs, "AreaCode", area.get("AreaCodeID"))

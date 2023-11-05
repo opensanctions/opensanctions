@@ -72,17 +72,17 @@ def parse_uo(context: Context, fh: IO[bytes]):
         long_name = el.findtext("./NAME")
         short_name = el.findtext("./SHORT_NAME")
         edrpou = el.findtext("./EDRPOU")
+        unique_id = make_entity_id(edrpou, short_name, long_name)
+        company.id = context.make_slug(edrpou, unique_id, strict=False)
+        if company.id is None:
+            context.log.warn("Could not generate company ID", xml=tag_text(el))
+            continue
         if short_name and len(short_name.strip()):
             company.add("name", short_name)
             company.add("alias", long_name)
         else:
             company.add("name", long_name)
 
-        unique_id = make_entity_id(edrpou, short_name, long_name)
-        company.id = context.make_slug(edrpou, unique_id, strict=False)
-        if company.id is None:
-            context.log.warn("Could not generate company ID", xml=tag_text(el))
-            continue
         company.add("registrationNumber", edrpou)
         company.add("jurisdiction", "ua")
         company.add("address", el.findtext("./ADDRESS"))

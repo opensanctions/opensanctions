@@ -78,14 +78,19 @@ def make_rel(
     schema = REL_SCHEMS[type_]
     if schema == "Ownership" and company.schema.is_a("Asset"):
         proxy = context.make(schema)
+        proxy.id = context.make_slug(
+            "rel", make_entity_id(company.id, officer.id, type_)
+        )
         proxy.add("owner", officer)
         proxy.add("asset", company)
     else:
         proxy = context.make("Directorship")
+        proxy.id = context.make_slug(
+            "rel", make_entity_id(company.id, officer.id, type_)
+        )
         proxy.add("director", officer)
         proxy.add("organization", company)
 
-    proxy.id = context.make_slug("rel", make_entity_id(company.id, officer.id, type_))
     proxy.add("role", type_)
     proxy.add("summary", summary)
     for key, value in data.get("other_attributes", {}).items():
@@ -103,29 +108,30 @@ def make_officer_and_rel(context: Context, company: Entity, data: dict[str, Any]
         proxy = context.make("Company")
         parsed_data = parse_officer_company_name(name)
         if parsed_data:
-            proxy.add("name", parsed_data.pop("name"))
-            proxy.add("address", parsed_data.pop("city", None))
             reg = (
                 parsed_data.pop("reg"),
                 parsed_data.pop("reg_type"),
                 parsed_data.pop("reg_nr"),
             )
+            proxy.id = context.make_slug(*reg)
+            proxy.add("name", parsed_data.pop("name"))
+            proxy.add("address", parsed_data.pop("city", None))
             proxy.add("registrationNumber", join_text(*reg))
             proxy.add("registrationNumber", join_text(*reg[1:]))
-            proxy.id = context.make_slug(*reg)
+
             rel_summary = parsed_data.pop("summary")
         else:
-            proxy.add("name", name)
             proxy.id = context.make_slug("officer", make_entity_id(company.id, name))
+            proxy.add("name", name)
     elif type_ == "person":
         proxy = context.make("Person")
-        proxy.add("name", name)
         proxy.id = context.make_slug("officer", make_entity_id(company.id, name))
+        proxy.add("name", name)
     else:
         context.log.warning("Unknown type: %s" % type_)
         proxy = context.make("LegalEntity")
-        proxy.add("name", name)
         proxy.id = context.make_slug("officer", make_entity_id(company.id, name))
+        proxy.add("name", name)
 
     for key, value in data.get("other_attributes", {}).items():
         if key in MAPPING:
@@ -138,12 +144,12 @@ def make_officer_and_rel(context: Context, company: Entity, data: dict[str, Any]
 def make_company(context: Context, data: dict[str, Any]) -> Entity:
     meta = data.pop("all_attributes")
     reg_art = meta.pop("_registerArt")
+    reg_nr = meta.pop("native_company_number")
     schema, legalForm = SCHEMES[reg_art]
     proxy = context.make(schema)
-    proxy.add("legalForm", legalForm)
-    reg_nr = meta.pop("native_company_number")
-    proxy.add("registrationNumber", reg_nr)
     proxy.id = context.make_slug(reg_nr)
+    proxy.add("legalForm", legalForm)
+    proxy.add("registrationNumber", reg_nr)
     # FIXME? better gleif matching:
     proxy.add("registrationNumber", f'{reg_art} {meta.pop("_registerNummer")}')
     proxy.add("status", data.pop("current_status", None))

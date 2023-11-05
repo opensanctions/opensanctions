@@ -19,7 +19,15 @@ def parse_date(date: str) -> Optional[Iterable[str]]:
 
 
 def parse_result(context: Context, row: Dict[str, Any]):
+    name_en = row.pop("name_en")
+    name_ru = row.pop("name_ru")
+    dob = row.pop("birthdate")
+    published_at = row.pop("published_at")
     entity = context.make("Person")
+    entity.id = context.make_id(name_en, name_ru, published_at, dob)
+    entity.add("name", name_en, lang="eng")
+    entity.add("name", h.remove_bracketed(name_en), lang="eng")
+    entity.add("alias", name_ru, lang="rus")
     # context.inspect(row)
     for tag in row.pop("tags"):
         result = context.lookup("tags", tag["slug"])
@@ -38,14 +46,6 @@ def parse_result(context: Context, row: Dict[str, Any]):
                 description = result.values
             entity.add("notes", description)
 
-    name_en = row.pop("name_en")
-    name_ru = row.pop("name_ru")
-    dob = row.pop("birthdate")
-    published_at = row.pop("published_at")
-    entity.id = context.make_id(name_en, name_ru, published_at, dob)
-    entity.add("name", name_en, lang="eng")
-    entity.add("name", h.remove_bracketed(name_en), lang="eng")
-    entity.add("alias", name_ru, lang="rus")
     transliterations = row.pop("transliterations")
     for tl in transliterations.split("\n"):
         tl = h.remove_bracketed(tl).strip()

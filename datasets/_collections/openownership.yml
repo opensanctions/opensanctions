@@ -9,6 +9,7 @@ coverage:
 exports:
   - statistics.json
   - entities.ftm.json
+  - senzing.json
 resolve: false
 summary: >
   Corporate ownership records from various countries published using Open Ownership's

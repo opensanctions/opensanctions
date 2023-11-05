@@ -52,10 +52,13 @@ def crawl(context: Context):
 
             affiliated = row.pop("affiliatedWithEntityId")
             if len(affiliated):
+                other = context.make("LegalEntity")
+                other.id = context.make_slug(affiliated)
+                other.add("name", affiliated)
                 link = context.make("UnknownLink")
                 link.id = context.make_id(row_id, affiliated)
                 link.add("subject", entity.id)
-                link.add("object", context.make_slug(affiliated))
+                link.add("object", other.id)
                 context.emit(link)
 
             sanction = h.make_sanction(context, entity)

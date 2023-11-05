@@ -1,11 +1,9 @@
 import os
+import re
 import ijson
 from typing import Any, Dict, Optional, List, Tuple, Set
 from followthemoney import model
-from csv import writer
-from collections import defaultdict
 from normality import collapse_spaces
-import re
 from nomenklatura.util import is_qid
 
 from zavod import Context
@@ -35,7 +33,7 @@ class Company:
     """Minimal information we want to hold in memory to pass between company and
     person file passes"""
 
-    def __init__(self, rupep_id: int, countries: List[str]) -> None:
+    def __init__(self, rupep_id: int, countries: Set[str]) -> None:
         self.rupep_id = rupep_id
         self.emit = False
         self.schema = None
@@ -428,7 +426,6 @@ def get_company_country(
         context.log.warn(
             "Unknown country link",
             rel_type=rel_type,
-            entity=entity,
             country_name_en=country_name_en,
             country_name_ru=country_name_ru,
         )
@@ -439,19 +436,23 @@ def get_company_country(
         return None
 
 
-def get_company_countries(context: Context, data: Dict) -> List[str]:
+def get_company_countries(context: Context, data: Dict) -> Set[str]:
     """Clean set of countries the way we eventually will in crawl_company"""
-
     # Nasty hack to get a single list of country codes from names:
 
     entity = context.make("Organization")
+    prop = entity.schema.get("country")
+    countries: Set[str] = set()
     for country_data in data.pop("related_countries", []):
         company_country = get_company_country(context, country_data)
-        if company_country is not None:
-            prop, country_name_en, country_name_ru = company_country
-            entity.add("country", country_name_ru, lang="rus")
-            entity.add("country", country_name_en, lang="eng")
-    return entity.get("country")
+        if company_country is None:
+            continue
+        prop, name_en, name_ru = company_country
+        for country in entity.lookup_clean(prop, name_en):
+            countries.add(country)
+        for country in entity.lookup_clean(prop, name_ru):
+            countries.add(country)
+    return countries
 
 
 def crawl_company(

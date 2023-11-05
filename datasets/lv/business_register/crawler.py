@@ -91,12 +91,6 @@ def make_officer(context: Context, row: Item):
     officer_type = TYPES.get(row.get("entity_type"), "Person")
     is_person = officer_type == "Person"
     officer = context.make(officer_type)
-    h.apply_name(
-        officer,
-        full=row.get("name"),
-        first_name=row.get("forename"),
-        last_name=row.get("surname"),
-    )
     if is_person:
         officer.id = person_id(context, row)
         officer.add("idNumber", row["latvian_identity_number_masked"])
@@ -105,6 +99,12 @@ def make_officer(context: Context, row: Item):
         officer.id = company_id(
             context, row["legal_entity_registration_number"], row["name"]
         )
+    h.apply_name(
+        officer,
+        full=row.get("name"),
+        first_name=row.get("forename"),
+        last_name=row.get("surname"),
+    )
     return officer
 
 
@@ -147,20 +147,20 @@ def parse_beneficial_owners(context: Context, row: Item):
 def parse_members(context: Context, row: Item):
     cid = company_id(context, row["at_legal_entity_registration_number"])
     rel = context.make("Ownership")
+    if row["entity_type"] == "JOINT_OWNERS":
+        # owners will be added by `parse_joint_members` based on relation id:
+        rel.id = context.make_slug("OWNER", row["id"])
+    else:
+        officer = make_officer(context, row)
+        rel.id = context.make_slug("OWNER", officer.id, cid)
+        rel.add("owner", officer)
+        context.emit(officer)
     rel.add("role", "OWNER")
     rel.add("asset", cid)
     rel.add("sharesCount", row["number_of_shares"])
     rel.add("sharesValue", row["share_nominal_value"])
     rel.add("sharesCurrency", row["share_currency"])
     rel.add("startDate", row["date_from"])
-    if row["entity_type"] == "JOINT_OWNERS":
-        # owners will be added by `parse_joint_members` based on relation id:
-        rel.id = context.make_slug("OWNER", row["id"])
-    else:
-        officer = make_officer(context, row)
-        rel.add("owner", officer)
-        rel.id = context.make_slug("OWNER", officer.id, cid)
-        context.emit(officer)
     context.emit(rel)
 
 

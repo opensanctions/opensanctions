@@ -22,7 +22,7 @@ def parse_country(node: Element) -> Optional[str]:
     return code
 
 
-def parse_address(context: Context, el: Element) -> Entity:
+def parse_address(context: Context, el: Element) -> Optional[Entity]:
     country = el.get("countryDescription")
     if country == "UNKNOWN":
         country = None

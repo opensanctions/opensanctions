@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-import json
 import math
 from nomenklatura.util import is_qid
 
@@ -81,13 +78,12 @@ def crawl(context: Context):
             person = context.make("Person")
 
             politician_wikidata_id = politician_detail.pop("qid_wikidata")
-            person.add("wikidataId", politician_wikidata_id)
-
             if is_qid(politician_wikidata_id):
                 person.id = politician_wikidata_id
             else:
                 person.id = context.make_id(politician.pop("id"))
 
+            person.add("wikidataId", politician_wikidata_id)
             person.add("birthDate", politician_detail.pop("year_of_birth"))
             h.apply_name(
                 person,

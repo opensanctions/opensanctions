@@ -7,10 +7,11 @@ deploy:
   schedule: "@monthly"
   premium: true
   memory: 2500Mi
-  disk: 200Gi
+  disk: 250Gi
 exports:
   - statistics.json
   - entities.ftm.json
+  - senzing.json
 summary: |
   Companies database of the Russian Federation as maintained and published by 
   the Federal Tax Service.

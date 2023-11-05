@@ -24,18 +24,18 @@ def crawl(context: Context):
     with open(path, "r") as fh:
         data = json.load(fh)
     for record in data:
-        orig_record = dict(record)
+        # orig_record = dict(record)
         charter_no = record.pop("CharterNumber")
         doc_number = record.pop("DocumentNumber", None)
         docket_number = record.pop("DocketNumber", None)
         bank_name = record.pop("BankName")
         bank = context.make("Company")
         bank.id = context.make_slug(charter_no, bank_name)
-        bank.add("name", bank_name)
-        bank.add("registrationNumber", charter_no)
-        bank.add("country", "us")
-        bank.add("topics", "fin.bank")
         if bank.id is not None:
+            bank.add("name", bank_name)
+            bank.add("registrationNumber", charter_no)
+            bank.add("country", "us")
+            bank.add("topics", "fin.bank")
             context.emit(bank)
         company_name = record.pop("CompanyName")
         first_name = record.pop("FirstName")
