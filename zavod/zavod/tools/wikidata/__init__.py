@@ -1,15 +1,15 @@
 from collections import defaultdict
-from datetime import datetime
 from itertools import groupby
 from languagecodes import iso_639_alpha2
 from nomenklatura import Store
-from nomenklatura.cache import Cache
-from nomenklatura.dataset import Dataset, DS
-from nomenklatura.entity import CompositeEntity, CE
+from nomenklatura.dataset import DS
+from nomenklatura.entity import CE
 from nomenklatura.judgement import Judgement
 from nomenklatura.statement.statement import Statement
 from nomenklatura.util import normalize_url, is_qid
 from pprint import pformat
+# They've done a partial attempt at adding types, then totally
+# deprioritised it.
 from pywikibot import ItemPage, WbTime, Claim, Site  # type: ignore
 from pywikibot.data import api  # type: ignore
 from requests import Session
@@ -24,15 +24,14 @@ from textual.widget import Widget
 from textual.widgets import Header, Footer, Log, ListItem, ListView, Label, Button
 from textual.message import Message
 from textual import work
-from typing import Any, Dict, Generator, Generic, List, Set, Optional, Tuple, cast
+from typing import Any, Dict, Generic, List, Set, Optional, Tuple, cast
 import json
 import logging
 import prefixdate
 import re
 
 from zavod import settings
-from zavod.entity import Entity
-import zavod
+from zavod.meta.dataset import Dataset
 
 
 log = logging.getLogger(__name__)
@@ -46,26 +45,6 @@ WD_PRECISION_LABELS = {
     10: "month",
     11: "day",
 }
-SPARQL_URL = "https://query.wikidata.org/sparql"
-GIVEN_NAME_SPARQL = """
-SELECT ?item ?itemLabel
-WHERE
-{
-  ?item wdt:P31 wd:Q202444 .
-  ?item ?label "%s"@en .
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "en" }
-}
-"""
-FAMILY_NAME_SPARQL = """
-SELECT ?item ?itemLabel
-WHERE
-{
-  ?item wdt:P31 wd:Q101352 .
-  ?item ?label "%s"@en .
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "en" }
-}
-"""
-
 
 def best_label(names: List[str]) -> str:
     """Prefer labels that don't have a comma."""
@@ -110,10 +89,6 @@ def wd_value_to_str(value: Any) -> str:
         return f"{value.year}-{value.month}-{value.day} precision {WD_PRECISION_LABELS[value.precision]}"
     else:
         return str(value)
-
-
-def item_dict_cache_key(qid: str) -> str:
-    return f"wd:item:{qid}:dict"
 
 
 class Action:
@@ -178,14 +153,13 @@ class EditSession(Generic[DS, CE]):
 
     `publish()` can be called to publish the proposed edits to a new or existing
     item on wikidata. If publishing created a new entity, it will also resolve
-    the entity to the new QID.
+    the entity to the new QID and load the next item.
 
     `save_resolver()` can be called to save the resolver state.
     """
 
     def __init__(
         self,
-        cache: Cache,
         store: Store[DS, CE],
         country_code: str,
         country_adjective: str,
@@ -195,16 +169,11 @@ class EditSession(Generic[DS, CE]):
         self._store = store
         self._resolver = store.resolver
         self.is_resolver_dirty = False
-        self._cache = cache
         self._app = app
         self._view = store.default_view(external=False)
         self._country_code = country_code
         self._country_adjective = country_adjective
         self._focus_dataset = focus_dataset
-        self._http_session = Session()
-        self._http_session.headers[
-            "User-Agent"
-        ] = f"zavod (https://opensanctions.org; https://www.wikidata.org/wiki/User:OpenSanctions)"
         self._wd_site = Site(settings.WD_SITE_CODE, "wikidata")
         self._wd_repo = self._wd_site.data_repository()
         self._entities_gen = self._view.entities()
@@ -221,26 +190,11 @@ class EditSession(Generic[DS, CE]):
         self.position_occupancies: Dict[str, List[Tuple[CE, CE]]] = defaultdict(list)
         self.position_labels: Dict[str, List[str]] = {}
 
-    def get_json(
-        self, url: str, params: Dict[str, str], cache_days: Optional[int] = None
-    ) -> Any:
-        url = normalize_url(url, params=params)
-        response = self._cache.get(url, max_age=cache_days)
-        if response is None:
-            log.debug("HTTP GET: %s", url)
-
-            resp = self._http_session.get(url)
-            resp.raise_for_status()
-            response = resp.text
-            if cache_days is not None and cache_days > 0:
-                self._cache.set(url, response)
-        return json.loads(response)
-
     def next(self) -> None:
         for entity in self._entities_gen:
             if self._app.quitting:
                 return
-            
+
             self._reset_entity()
             if not entity.schema.name == "Person" or not entity.target:
                 continue
@@ -283,13 +237,9 @@ class EditSession(Generic[DS, CE]):
         self._log("Fetching item %s" % self.qid)
         self.item = ItemPage(self._wd_repo, self.qid)
         self._log("Fetching item dict %s\n" % self.qid)
-        # dict_cache_key = item_dict_cache_key(self.qid)
-        # self.item_dict = self._cache.get(dict_cache_key, max_age=1)
-        # if self.item_dict is None:
         self.item_dict = self.item.get()
         if self.item_dict is None:
             raise ValueError(f"Couldn't fetch item {self.qid}")
-        #    self._cache.set(dict_cache_key, self.item_dict)
         self._log("Done.\n")
 
     def _search_items(self) -> None:
@@ -337,7 +287,6 @@ class EditSession(Generic[DS, CE]):
 
     def publish(self) -> None:
         created = False
-        # self._cache.delete(item_dict_cache_key(self.qid))
         for action in self.actions:
             if isinstance(action, CreateItemAction):
                 self._log("Creating item...")
@@ -500,7 +449,7 @@ class EditSession(Generic[DS, CE]):
     def _make_source_claims(self, stmt: Statement) -> Optional[List[Claim]]:
         if isinstance(stmt.dataset, str):
             dataset = stmt.dataset
-        elif isinstance(stmt.dataset, zavod.meta.Dataset):
+        elif isinstance(stmt.dataset, Dataset):
             dataset = stmt.dataset.name
         source_url = self.source_urls.get(dataset)
         if not source_url:
@@ -570,22 +519,31 @@ class EditSession(Generic[DS, CE]):
                 if add:
                     claim = Claim(self._wd_repo, "P39")
                     claim.setTarget(ItemPage(self._wd_repo, pos_id))
+                    source_claims = self._make_source_claims(
+                        occ.get_statements("holder")[0]
+                    )
+
                     qualifiers = []
                     start_date = occ.get("startDate")
                     if start_date:
                         start_qual = Claim(self._wd_repo, "P580", is_qualifier=True)
                         start_qual.setTarget(prefix_to_wb_time(start_date[0]))
                         qualifiers.append(start_qual)
+                        source_claims_start = self._make_source_claims(
+                            occ.get_statements("startDate")[0]
+                        )
+                        assert source_claims_start == source_claims
+
                     end_date = occ.get("endDate")
                     if end_date:
                         end_qual = Claim(self._wd_repo, "P582", is_qualifier=True)
                         end_qual.setTarget(prefix_to_wb_time(end_date[0]))
                         qualifiers.append(end_qual)
+                        source_claims_end = self._make_source_claims(
+                            occ.get_statements("endDate")[0]
+                        )
+                        assert source_claims_end == source_claims
 
-                    source_claims = self._make_source_claims(occ.get_statements("holder")[0])
-                    source_claims_start = self._make_source_claims(occ.get_statements("startDate")[0])
-                    source_claims_end = self._make_source_claims(occ.get_statements("endDate")[0])
-                    assert source_claims_start == source_claims_end == source_claims
                     if source_claims:
                         self.actions.append(
                             AddClaimAction(claim, qualifiers, source_claims)
@@ -786,7 +744,7 @@ class WikidataApp(App[int], Generic[DS, CE]):
     def action_resolve(self) -> None:
         if self.loading_next:
             self.log_display.write_line("Busy working on entity. Ignoring.")
-            return            
+            return
 
         highlighted_index: Optional[int] = None
         if self.search_display.list_view:
@@ -816,9 +774,11 @@ class WikidataApp(App[int], Generic[DS, CE]):
         if self.loading_next:
             self.log_display.write_line("Busy working on entity. Ignoring.")
             return
-        
+
         self.log_display.write_line("Publishing...")
-        self.log_display.write_line("Reminder: wikidata API can throttle with 5-10s wait.")
+        self.log_display.write_line(
+            "Reminder: wikidata API can throttle with 5-10s wait."
+        )
         self.do_publish()
 
     @work(thread=True)
@@ -845,13 +805,12 @@ class WikidataApp(App[int], Generic[DS, CE]):
 
 def run_app(
     store: Store[DS, CE],
-    cache: Cache,
     country_code: str,
     country_adjective: str,
     focus_dataset: Optional[str],
 ) -> None:
     app = WikidataApp[DS, CE]()
     app.session = EditSession[DS, CE](
-        cache, store, country_code, country_adjective, focus_dataset, app
+        store, country_code, country_adjective, focus_dataset, app
     )
     app.run()

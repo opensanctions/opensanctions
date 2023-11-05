@@ -275,10 +275,8 @@ def wd_up(
     if clear:
         clear_store(dataset)
     store = get_store(dataset, external=False)
-    cache = get_cache(dataset)
     run_app(
         store,
-        cache,
         country_code=country_code,
         country_adjective=country_adjective,
         focus_dataset=focus_dataset,
