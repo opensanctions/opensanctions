@@ -15,9 +15,9 @@ def crawl_person(context: Context, item: _Element, url: str) -> None:
 
     # Person create
     person = context.make("Person")
+    person.id = context.make_slug(name.text.strip())
     person.add("topics", "crime")
     person.add("name", name.text.strip())
-    person.id = context.make_slug(name.text.strip())
 
     # Person page
     person_url = urljoin(url, name.get("href"))

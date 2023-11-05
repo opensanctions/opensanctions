@@ -101,7 +101,7 @@ def parse_reference(
             primary_name = name
 
     entity.id = context.make_slug(reference, primary_name)
-    for name_prop, name in names.items():
+    for name_prop, name in names:
         entity.add(name_prop, name)
     sanction = h.make_sanction(context, entity)
 
