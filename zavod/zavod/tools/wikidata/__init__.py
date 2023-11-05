@@ -27,7 +27,6 @@ import logging
 import prefixdate
 import re
 
-from zavod import settings
 from zavod.meta.dataset import Dataset
 
 
