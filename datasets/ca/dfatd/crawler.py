@@ -35,8 +35,8 @@ def parse_entry(context: Context, node: _Element):
         entity_name = h.make_name(given_name=given_name, last_name=last_name)
     program = node.findtext("./Country")
     country = program
-    if country is None and program is not None and "/" in program:
-        country, _ = program.split("/")
+    if program is not None and "/" in program:
+        country, _ = program.split("/", 1)
 
     item = node.findtext("./Item")
     entity = context.make("LegalEntity")
@@ -52,14 +52,14 @@ def parse_entry(context: Context, node: _Element):
         entity_name,
         strict=False,
     )
-    if given_name is not None and last_name is not None:
+    if given_name is not None or last_name is not None or dob is not None:
         entity.add_schema("Person")
         h.apply_name(entity, first_name=given_name, last_name=last_name)
         entity.add("birthDate", parse_date(dob))
     else:
         entity.add("name", entity_name.split("/"))
         # entity.add("incorporationDate", parse_date(dob))
-        assert dob is None, dob
+        assert dob is None, (dob, entity_name)
 
     entity.add("topics", "sanction")
     entity.add("country", country)
