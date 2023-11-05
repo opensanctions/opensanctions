@@ -105,7 +105,7 @@ def prefix_to_wb_time(string: str) -> Optional[WbTime]:
 
 def wd_value_to_str(value: Any) -> str:
     if isinstance(value, ItemPage):
-        return value.labels.get("en", value.id)
+        return str(value.labels.get("en", value.id))
     elif isinstance(value, WbTime):
         return f"{value.year}-{value.month}-{value.day} precision {WD_PRECISION_LABELS[value.precision]}"
     else:
@@ -190,7 +190,7 @@ class EditSession(Generic[DS, CE]):
         country_code: str,
         country_adjective: str,
         focus_dataset: Optional[str],
-        app: App[int],
+        app: "WikidataApp[DS, CE]",
     ):
         self._store = store
         self._resolver = store.resolver
@@ -366,10 +366,14 @@ class EditSession(Generic[DS, CE]):
             else:
                 raise ValueError("Unknown action: %r" % action)
         if created:
+            if self.item is None:
+                raise ValueError("Item not set.")
             qid = self.item.getID()
             if qid == "-1" or not isinstance(qid, str):
                 raise ValueError("No QID for created item %r" % qid)
             self.resolve(qid)
+        else:
+            self.next()
 
     def save_resolver(self) -> None:
         self._resolver.save()
@@ -410,7 +414,7 @@ class EditSession(Generic[DS, CE]):
         if labels:
             self.actions.append(SetLabelsAction(labels))
 
-    def _propose_description(self, entity: CE, descriptions) -> None:
+    def _propose_description(self, entity: CE, descriptions: Dict[str, str]) -> None:
         if "en" in descriptions:
             return
         for items in self.position_occupancies.values():
@@ -494,13 +498,11 @@ class EditSession(Generic[DS, CE]):
                 )
 
     def _make_source_claims(self, stmt: Statement) -> Optional[List[Claim]]:
-        self._log(f"Entity source URLs: {self.source_urls}")
         if isinstance(stmt.dataset, str):
             dataset = stmt.dataset
         elif isinstance(stmt.dataset, zavod.meta.Dataset):
             dataset = stmt.dataset.name
         source_url = self.source_urls.get(dataset)
-        self._log(f"Statement source {stmt.dataset} {type(stmt.dataset)} URL: {source_url}")
         if not source_url:
             return None
 
@@ -580,7 +582,10 @@ class EditSession(Generic[DS, CE]):
                         end_qual.setTarget(prefix_to_wb_time(end_date[0]))
                         qualifiers.append(end_qual)
 
-                    source_claims = self._make_source_claims(occ)
+                    source_claims = self._make_source_claims(occ.get_statements("holder")[0])
+                    source_claims_start = self._make_source_claims(occ.get_statements("startDate")[0])
+                    source_claims_end = self._make_source_claims(occ.get_statements("endDate")[0])
+                    assert source_claims_start == source_claims_end == source_claims
                     if source_claims:
                         self.actions.append(
                             AddClaimAction(claim, qualifiers, source_claims)
@@ -739,7 +744,6 @@ class WikidataApp(App[int], Generic[DS, CE]):
         yield self.search_display
         self.log_display = Log()
         yield self.log_display
-        self.log_display.write_line("Press n for next entity.")
         self.action_next()
 
     def action_next(self) -> None:
@@ -748,10 +752,10 @@ class WikidataApp(App[int], Generic[DS, CE]):
         else:
             self.log_display.write_line("Loading next entity...")
             self.loading_next = True
-            self.load_next_entity()
+            self.do_next()
 
     @work(thread=True)
-    def load_next_entity(self) -> None:
+    def do_next(self) -> None:
         self.session.next()
         self.post_message(NextLoaded())
 
@@ -780,6 +784,10 @@ class WikidataApp(App[int], Generic[DS, CE]):
         self.log_display.write_line(event.message)
 
     def action_resolve(self) -> None:
+        if self.loading_next:
+            self.log_display.write_line("Busy working on entity. Ignoring.")
+            return            
+
         highlighted_index: Optional[int] = None
         if self.search_display.list_view:
             highlighted_index = self.search_display.list_view.index
@@ -796,14 +804,27 @@ class WikidataApp(App[int], Generic[DS, CE]):
         self.log_display.write_line(
             f"Resolving {self.session.entity.id} as {qid} {highlighted_result['label']}"
         )
+        self.loading_next = True
+        self.do_resolve(qid)
+
+    @work(thread=True)
+    def do_resolve(self, qid: str) -> None:
         self.session.resolve(qid)
-        self.session_display.refresh()
-        self.search_display.items = self.session.search_results
+        self.post_message(NextLoaded())
 
     def action_publish(self) -> None:
+        if self.loading_next:
+            self.log_display.write_line("Busy working on entity. Ignoring.")
+            return
+        
+        self.log_display.write_line("Publishing...")
+        self.log_display.write_line("Reminder: wikidata API can throttle with 5-10s wait.")
+        self.do_publish()
+
+    @work(thread=True)
+    def do_publish(self) -> None:
         self.session.publish()
-        self.log_display.write_line(f"Published to {self.session.qid}.")
-        self.action_next()
+        self.post_message(NextLoaded())
 
     def action_save(self) -> None:
         self.session.save_resolver()
