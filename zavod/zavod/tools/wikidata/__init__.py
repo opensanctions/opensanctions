@@ -6,16 +6,14 @@ from nomenklatura.dataset import DS
 from nomenklatura.entity import CE
 from nomenklatura.judgement import Judgement
 from nomenklatura.statement.statement import Statement
-from nomenklatura.util import normalize_url, is_qid
-from pprint import pformat
+from nomenklatura.util import is_qid
+
 # They've done a partial attempt at adding types, then totally
 # deprioritised it.
 from pywikibot import ItemPage, WbTime, Claim, Site  # type: ignore
 from pywikibot.data import api  # type: ignore
-from requests import Session
 from rich.console import RenderableType
 from rich.text import Text
-from sys import argv
 from textual.app import App, ComposeResult
 from textual.containers import Grid
 from textual.reactive import reactive
@@ -24,8 +22,7 @@ from textual.widget import Widget
 from textual.widgets import Header, Footer, Log, ListItem, ListView, Label, Button
 from textual.message import Message
 from textual import work
-from typing import Any, Dict, Generic, List, Set, Optional, Tuple, cast
-import json
+from typing import Any, Dict, Generic, List, Optional, Tuple, cast
 import logging
 import prefixdate
 import re
@@ -40,11 +37,7 @@ log = logging.getLogger(__name__)
 # Just grgorian results in dates being added, but the wikidata web UI being
 # weird and probably disappearing your edit on the next save.
 PROLEPTIC_GREGORIAN = "http://www.wikidata.org/entity/Q1985727"
-WD_PRECISION_LABELS = {
-    9: "year",
-    10: "month",
-    11: "day",
-}
+
 
 def best_label(names: List[str]) -> str:
     """Prefer labels that don't have a comma."""
@@ -82,11 +75,23 @@ def prefix_to_wb_time(string: str) -> Optional[WbTime]:
     return WbTime(year=year, month=month, day=day, calendarmodel=PROLEPTIC_GREGORIAN)
 
 
+def wd_date_to_str(date: WbTime) -> str:
+    match date.precision:
+        case 9:
+            return str(date.year)
+        case 10:
+            return f"{date.year}-{date.month}"
+        case 11:
+            return f"{date.year}-{date.month}-{date.day}"
+        case _:
+            return str(date)
+
+
 def wd_value_to_str(value: Any) -> str:
     if isinstance(value, ItemPage):
         return str(value.labels.get("en", value.id))
     elif isinstance(value, WbTime):
-        return f"{value.year}-{value.month}-{value.day} precision {WD_PRECISION_LABELS[value.precision]}"
+        return wd_date_to_str(value)
     else:
         return str(value)
 
@@ -308,7 +313,7 @@ class EditSession(Generic[DS, CE]):
                     raise ValueError("No item to publish to")
                 self.item.addClaim(action.claim)
                 for claim in action.qualifiers:
-                    self._log(f"Adding qualifier...")
+                    self._log("Adding qualifier...")
                     action.claim.addQualifier(claim)
                 self._log("Adding sources...")
                 action.claim.addSources(action.sources)
@@ -345,8 +350,6 @@ class EditSession(Generic[DS, CE]):
         self._propose_description(entity, descriptions)
         self._propose_human(entity, claims)
         self._propose_sex_or_gender(entity, claims)
-        # occupation
-        # nationality
         self._propose_birthdate(entity, claims)
         self._propose_positions(claims)
 
@@ -407,9 +410,7 @@ class EditSession(Generic[DS, CE]):
             if source_claims:
                 self.actions.append(AddClaimAction(date_claim, [], source_claims))
             else:
-                self._log(
-                    f"Couldn't provide source for birth date {stmt.value} from {stmt.dataset}"
-                )
+                self._log(f"Couldn't provide source for birth date from {stmt.dataset}")
 
     def _propose_human(self, entity: CE, claims: Dict[str, List[Claim]]) -> None:
         pid = "P31"
@@ -442,9 +443,7 @@ class EditSession(Generic[DS, CE]):
             if source_claims:
                 self.actions.append(AddClaimAction(claim, [], source_claims))
             else:
-                self._log(
-                    f"Couldn't provide source for gender {stmt.value} from {stmt.dataset}"
-                )
+                self._log(f"Couldn't provide source for gender from {stmt.dataset}")
 
     def _make_source_claims(self, stmt: Statement) -> Optional[List[Claim]]:
         if isinstance(stmt.dataset, str):
@@ -727,7 +726,10 @@ class WikidataApp(App[int], Generic[DS, CE]):
         if self.session.qid is None:
             if self.session.search_results:
                 self.log_display.write_line(
-                    "Highlight a search result and [r]esolve or [p]ublish proposed wikidata item."
+                    (
+                        "Highlight a search result and [r]esolve "
+                        "or [p]ublish proposed wikidata item."
+                    )
                 )
             else:
                 self.log_display.write_line(

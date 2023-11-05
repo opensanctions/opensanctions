@@ -12,7 +12,6 @@ from zavod import settings
 from zavod.logs import configure_logging, get_logger
 from zavod.meta import load_dataset_from_path, get_multi_dataset, Dataset
 from zavod.crawl import crawl_dataset
-from zavod.runtime.cache import get_cache
 from zavod.store import get_view, get_store, clear_store
 from zavod.archive import clear_data_path
 from zavod.exporters import export_dataset
