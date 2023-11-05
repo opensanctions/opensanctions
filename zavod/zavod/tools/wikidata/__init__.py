@@ -179,7 +179,7 @@ class EditSession(Generic[DS, CE]):
         self._country_code = country_code
         self._country_adjective = country_adjective
         self._focus_dataset = focus_dataset
-        self._wd_site = Site(settings.WD_SITE_CODE, "wikidata")
+        self._wd_site = Site("wikidata", "wikidata")
         self._wd_repo = self._wd_site.data_repository()
         self._entities_gen = self._view.entities()
         self._reset_entity()
