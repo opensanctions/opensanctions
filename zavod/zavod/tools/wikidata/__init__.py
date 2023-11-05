@@ -32,15 +32,15 @@ import re
 
 from zavod import settings
 from zavod.entity import Entity
+import zavod
 
 
 log = logging.getLogger(__name__)
 
-CALENDARMODEL = "https://www.wikidata.org/wiki/Q12138"
-PROP_LABEL = {
-    "P735": "given name",
-    "P734": "family name",
-}
+# Because you have to set it, and you have to set it to this value.
+# Just grgorian results in dates being added, but the wikidata web UI being
+# weird and probably disappearing your edit on the next save.
+PROLEPTIC_GREGORIAN = "http://www.wikidata.org/entity/Q1985727"
 WD_PRECISION_LABELS = {
     9: "year",
     10: "month",
@@ -100,7 +100,7 @@ def prefix_to_wb_time(string: str) -> Optional[WbTime]:
             day = prefix.dt.day
         case _:
             return None
-    return WbTime(year=year, month=month, day=day, calendarmodel=CALENDARMODEL)
+    return WbTime(year=year, month=month, day=day, calendarmodel=PROLEPTIC_GREGORIAN)
 
 
 def wd_value_to_str(value: Any) -> str:
@@ -155,9 +155,6 @@ class AddClaimAction(Action):
         for src in self.sources:
             value += f", source {src.getID()}: {wd_value_to_str(src.target)}"
         return "Add claim %s with value %r." % (self.claim.id, value)
-
-
-
 
 
 class EditSession(Generic[DS, CE]):
@@ -241,6 +238,9 @@ class EditSession(Generic[DS, CE]):
 
     def next(self) -> None:
         for entity in self._entities_gen:
+            if self._app.quitting:
+                return
+            
             self._reset_entity()
             if not entity.schema.name == "Person" or not entity.target:
                 continue
@@ -248,6 +248,8 @@ class EditSession(Generic[DS, CE]):
                 continue
 
             self.entity = entity
+            self.source_urls = self._load_source_urls(entity)
+
             self.qid = self.entity.id if is_qid(entity.id) else None
             if self.qid is None:
                 self._search_items()
@@ -266,6 +268,17 @@ class EditSession(Generic[DS, CE]):
     def _warn(self, message: str) -> None:
         self._log(f"WARNING: {message}")
 
+    def _load_source_urls(self, entity: CE) -> Dict[str, str]:
+        source_urls: Dict[str, str] = {}
+        source_url_stmts = entity.get_statements("sourceUrl")
+        for dataset, stmts in groupby(source_url_stmts, lambda stmt: stmt.dataset):
+            values = [s.value for s in stmts]
+            if len(values) == 1:
+                source_urls[dataset] = values[0]
+            if len(values) > 1:
+                log.info("Multiple source URLs for dataset %s", dataset)
+        return source_urls
+
     def _fetch_item(self) -> None:
         self._log("Fetching item %s" % self.qid)
         self.item = ItemPage(self._wd_repo, self.qid)
@@ -282,12 +295,14 @@ class EditSession(Generic[DS, CE]):
     def _search_items(self) -> None:
         if self.entity is None:
             raise ValueError("No entity to search for")
+        search_label = best_label(self.entity.get("name"))
+        self._log(f"Searching item: {search_label}")
         params = {
             "action": "wbsearchentities",
             "format": "json",
             "language": "en",
             "type": "item",
-            "search": best_label(self.entity.get("name")),
+            "search": search_label,
         }
         request = api.Request(site=self._wd_site, parameters=params)
         result = request.submit()
@@ -325,24 +340,29 @@ class EditSession(Generic[DS, CE]):
         # self._cache.delete(item_dict_cache_key(self.qid))
         for action in self.actions:
             if isinstance(action, CreateItemAction):
+                self._log("Creating item...")
                 self.item = ItemPage(self._wd_site)
                 created = True
             elif isinstance(action, SetLabelsAction):
+                self._log("Adding item labels...")
                 if self.item is None:
                     raise ValueError("No item to publish to")
                 self.item.editLabels(action.labels)
             elif isinstance(action, SetDescriptionsAction):
+                self._log("Adding item descriptions...")
                 if self.item is None:
                     raise ValueError("No item to publish to")
-                self.item.editDescriptions({'en': action.description})
+                self.item.editDescriptions({"en": action.description})
             elif isinstance(action, AddClaimAction):
+                self._log("Adding claim...")
                 if self.item is None:
                     raise ValueError("No item to publish to")
                 self.item.addClaim(action.claim)
                 for claim in action.qualifiers:
+                    self._log(f"Adding qualifier...")
                     action.claim.addQualifier(claim)
-                for claim in action.sources:
-                    action.claim.addSources(claim)
+                self._log("Adding sources...")
+                action.claim.addSources(action.sources)
             else:
                 raise ValueError("Unknown action: %r" % action)
         if created:
@@ -431,11 +451,12 @@ class EditSession(Generic[DS, CE]):
 
             source_claims = self._make_source_claims(stmt)
 
-            #if source_claims:
-            self.actions.append(AddClaimAction(date_claim, [], []))
-            #    self.actions.append(AddSourceClaimAction(date_claim, source_claims))
-            #else:
-            #    self._log(f"Couldn't provide source for {date_claim}")
+            if source_claims:
+                self.actions.append(AddClaimAction(date_claim, [], source_claims))
+            else:
+                self._log(
+                    f"Couldn't provide source for birth date {stmt.value} from {stmt.dataset}"
+                )
 
     def _propose_human(self, entity: CE, claims: Dict[str, List[Claim]]) -> None:
         pid = "P31"
@@ -445,7 +466,9 @@ class EditSession(Generic[DS, CE]):
         claim.setTarget(ItemPage(self._wd_repo, "Q5"))
         self.actions.append(AddClaimAction(claim, [], []))
 
-    def _propose_sex_or_gender(self, entity: CE, claims: Dict[str, List[Claim]]) -> None:
+    def _propose_sex_or_gender(
+        self, entity: CE, claims: Dict[str, List[Claim]]
+    ) -> None:
         pid = "P21"
         if claims.get(pid, []):
             return
@@ -462,10 +485,22 @@ class EditSession(Generic[DS, CE]):
                     return
             claim = Claim(self._wd_repo, pid)
             claim.setTarget(ItemPage(self._wd_repo, value))
-            self.actions.append(AddClaimAction(claim, [], []))
+            source_claims = self._make_source_claims(stmt)
+            if source_claims:
+                self.actions.append(AddClaimAction(claim, [], source_claims))
+            else:
+                self._log(
+                    f"Couldn't provide source for gender {stmt.value} from {stmt.dataset}"
+                )
 
     def _make_source_claims(self, stmt: Statement) -> Optional[List[Claim]]:
-        source_url = self.source_urls.get(stmt.dataset)
+        self._log(f"Entity source URLs: {self.source_urls}")
+        if isinstance(stmt.dataset, str):
+            dataset = stmt.dataset
+        elif isinstance(stmt.dataset, zavod.meta.Dataset):
+            dataset = stmt.dataset.name
+        source_url = self.source_urls.get(dataset)
+        self._log(f"Statement source {stmt.dataset} {type(stmt.dataset)} URL: {source_url}")
         if not source_url:
             return None
 
@@ -485,7 +520,9 @@ class EditSession(Generic[DS, CE]):
                     if occ_prop.name == "post":
                         position = occ_related
                         assert isinstance(position.id, str)
-                        self.position_occupancies[position.id].append((position, occupancy))
+                        self.position_occupancies[position.id].append(
+                            (position, occupancy)
+                        )
                         self.position_labels[position.id] = position.get("name")
 
     def _propose_positions(self, claims: Dict[str, List[Claim]]) -> None:
@@ -493,22 +530,26 @@ class EditSession(Generic[DS, CE]):
         item does not yet have for either the same start or end year"""
         wd_pos_start_years = defaultdict(set)
         wd_pos_end_years = defaultdict(set)
+        unqualified_pos_ids = set()
         # Wikidata
         for claim_ in claims.get("P39", []):
             claim = cast(Claim, claim_)
-            self._log(str(claim.target))
             starts = [cast(Claim, q) for q in claim.qualifiers.get("P580", [])]
             ends = [cast(Claim, q) for q in claim.qualifiers.get("P582", [])]
             if len(starts) > 0:
                 wd_pos_start_years[claim.target.getID()].add(str(starts[0].target.year))
             if len(ends) > 0:
                 wd_pos_end_years[claim.target.getID()].add(str(ends[0].target.year))
+            if not starts and not ends:
+                unqualified_pos_ids.add(claim.target.getID())
         # OpenSanctions
         for pos_id, occs in self.position_occupancies.items():
             if not is_qid(pos_id):
                 continue
-            for (pos, occ) in occs:
+            for pos, occ in occs:
                 add = True
+                if pos_id in unqualified_pos_ids:
+                    add = False
                 if pos_id in wd_pos_start_years:
                     for date in occ.get("startDate"):
                         if date[:4] in wd_pos_start_years[pos_id]:
@@ -539,60 +580,18 @@ class EditSession(Generic[DS, CE]):
                         end_qual.setTarget(prefix_to_wb_time(end_date[0]))
                         qualifiers.append(end_qual)
 
-                    
-                    # source_claims = self._make_source_claims(occ)
-
-                    self.actions.append(AddClaimAction(claim, qualifiers, []))
-
-    # def _check_given_name(self):
-    #    if self.claims.get("P735", []):
-    #        return
-    #    for stmt in self.entity.get_statements("firstName"):
-    #        self.action_for_statement("P735", GIVEN_NAME_SPARQL, stmt)
-
-    # def _check_family_name(self):
-    #    wd_claims = self.claims.get("P734", [])
-    #    wd_claims.extend(self.claims.get("P1950", []))
-    #    if wd_claims:
-    #        return
-    #    # TODO: Add support for multiple family names
-    #    for stmt in self.entity.get_statements("lastName"):
-    #        self.action_for_statement("P734", FAMILY_NAME_SPARQL, stmt)
-
-    #    source_url_stmts = self.entity.get_statements("sourceUrl")
-    #    for dataset, stmts in groupby(source_url_stmts, lambda stmt: stmt.dataset):
-    #        values = [s.value for s in stmts]
-    #        if len(values) == 1:
-    #            self.source_urls[dataset] = values[0]
-    #        if len(values) > 1:
-    #            log.info("Multiple source URLs for dataset %s", dataset)
-
-    # def action_for_statement(self, prop, query, stmt):
-    #    if stmt.lang not in [None, "en"]:
-    #        return
-    #    _query = query % stmt.value
-    #    r = self.session.get_json(
-    #        SPARQL_URL, params={"format": "json", "query": _query}
-    #    )
-    #    rows = r["results"]["bindings"]
-    #    if len(rows) == 1:
-    #        value_qid = rows[0]["item"]["value"].split("/")[-1]
-
-
-#
-#        source_pairs = self.source_pairs(stmt)
-#        if not source_pairs:
-#            return
-#        claim =
-#        self.actions.append(
-#            Action(
-#                f"{self.qid}\t{prop}\t{value_qid}\t{source_pairs}",
-#                f"Add {PROP_LABEL[prop]} {value_qid} ({stmt.value}) to {self.qid}",
-#            )
-#        )
-#    if len(rows) > 1:
-#        log.info("More than one result. Skipping. %r", rows)
-#    # TODO: if len(rows) == 0: consider adding missing given names as new items.
+                    source_claims = self._make_source_claims(occ)
+                    if source_claims:
+                        self.actions.append(
+                            AddClaimAction(claim, qualifiers, source_claims)
+                        )
+                    else:
+                        self._log(
+                            (
+                                "Couldn't provide source for position "
+                                f"{pos_id} {start_date} {end_date} from {occ.dataset}"
+                            )
+                        )
 
 
 def render_property(entity: CE, property: str) -> str:
@@ -628,7 +627,7 @@ class SessionDisplay(Widget):
             text += "Positions:\n"
             for pos_id, pos_names in self.session.position_labels.items():
                 text += f"  {pos_id}\n  {pos_names[0]} ({len(pos_names)})\n"
-                for (pos, occ) in self.session.position_occupancies[pos_id]:
+                for pos, occ in self.session.position_occupancies[pos_id]:
                     text += f'    {occ.get("startDate")} {occ.get("endDate")}\n'
             text += "\nProposed actions:\n"
             for action in self.session.actions:
@@ -715,6 +714,7 @@ class LogMessage(Message):
 
 
 class WikidataApp(App[int], Generic[DS, CE]):
+    quitting: bool = False
     session: EditSession[DS, CE]
     is_dirty: reactive[bool] = reactive(False)
     loading_next: bool = False  # very very poor man's semaphore
@@ -811,12 +811,14 @@ class WikidataApp(App[int], Generic[DS, CE]):
 
     def action_exit_save(self) -> None:
         self.session.save_resolver()
+        self.quitting = True
         self.exit(0)
 
     def action_exit_hard(self) -> None:
         if self.session.is_resolver_dirty:
             self.push_screen(QuitScreen())
         else:
+            self.quitting = True
             self.exit(0)
 
 
