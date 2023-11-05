@@ -229,6 +229,8 @@ lookups:
         value: 1963-02
       - match: "03011978"
         value: 1978-01-03
+      - match: "18.10.979"
+        value: "1979-10-18"
       - match: 03.1968-03.1969
         values:
           - 1968
