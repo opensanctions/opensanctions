@@ -27,7 +27,7 @@ REGEX_HOLDER = re.compile(
     (
         "(represented by )?"
         "(?P<role>("
-        "(transitional |Transition |Interim )?President"
+        "([Tt]ransitional |Transition |Interim )?President"
         "|President( of the Swiss Confederation| of the Territorial Assembly| of the Government of Spain \(prime minister-equivalent\))?"
         "|(First |Second |Executive |Co-)?(Vice |Deputy )?President(-elect)?"
         "|(Acting |Transition |Caretaker |Interim |Sultan and |(First |Second |Third )?Deputy )?Prime Minister"
@@ -132,7 +132,7 @@ def crawl_country(context: Context, country: str) -> None:
     country_slug = slugify(country.replace("'", ""), sep="-")
     data_url = DATA_URL % country_slug
     source_url = WEB_URL % country_slug
-    response = context.fetch_json(data_url, cache_days=5)
+    response = context.fetch_json(data_url, cache_days=1)
 
     executive = get(
         response["result"]["data"]["fields"]["nodes"], "name", "Executive branch"

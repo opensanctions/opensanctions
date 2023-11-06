@@ -438,8 +438,8 @@ def get_company_country(
 
 def get_company_countries(context: Context, data: Dict) -> Set[str]:
     """Clean set of countries the way we eventually will in crawl_company"""
-    # Nasty hack to get a single list of country codes from names:
 
+    # Nasty hack to get a single list of country codes from names:
     entity = context.make("Organization")
 
     countries: Set[str] = set()
