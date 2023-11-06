@@ -441,13 +441,13 @@ def get_company_countries(context: Context, data: Dict) -> Set[str]:
     # Nasty hack to get a single list of country codes from names:
 
     entity = context.make("Organization")
-    prop = entity.schema.get("country")
     countries: Set[str] = set()
     for country_data in data.pop("related_countries", []):
         company_country = get_company_country(context, country_data)
         if company_country is None:
             continue
-        prop, name_en, name_ru = company_country
+        prop_name, name_en, name_ru = company_country
+        prop = entity.schema.get(prop_name)
         for country in entity.lookup_clean(prop, name_en):
             countries.add(country)
         for country in entity.lookup_clean(prop, name_ru):
