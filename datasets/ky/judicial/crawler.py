@@ -25,9 +25,9 @@ def emit_entities(context: Context, entities_data):
     for entity in entities_data:
         name, position, url = entity
         person_proxy = context.make("Person")
+        person_proxy.id = context.make_id(name)
         person_proxy.add("sourceUrl", url)
         h.apply_name(person_proxy, full=name)
-        person_proxy.id = context.make_id(name)
         person_proxy.add("topics", "role.judge")
 
         position_proxy = h.make_position(
