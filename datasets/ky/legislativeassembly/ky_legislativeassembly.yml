@@ -28,7 +28,7 @@ publisher:
       Islands' 19 constituencies.
     acronym: ky-legislative
     country: ky
-    url: https://www.gov.ky/cabinet
+    url: https://archives.gov.ky/sites/legislativeassembly/portal/page/portal/lglhome/members/elected-2021-2025.html
 data:
     url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRM-hl1drkQMn4wHXxHkHXHZb2TkUyIFWxGXwJ_UqZNRpH00DGWrdHk_zDrHUsZ4YCeVYYojqSMmZuX/pub?output=csv
     format: HTML
