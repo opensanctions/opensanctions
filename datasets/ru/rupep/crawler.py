@@ -360,7 +360,7 @@ def crawl_person(
         company_name = company_name_short or company_name
 
         role = rel_data.get("relationship_type_en", None)
-        role_ru = rel_data.get("relationship_type_ru", None)
+        # rel_data.get("relationship_type_ru", None)
 
         if not (role and company_name):
             # context.warn("Remember to deal with incomplete english positions")
@@ -607,7 +607,7 @@ def crawl(context: Context):
         changed = False
         propagations += 1
         context.log.info(
-            f"Propagating emit decision along company relations (iteration {propagations})."
+            f"Propagating emit decision along company relations (it {propagations})."
         )
         with open(companies_path, "r") as fh:
             for data in ijson.items(fh, "item"):

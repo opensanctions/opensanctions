@@ -71,16 +71,16 @@ def parse_xml(context: Context, reader: IO[bytes]):
         # context.inspect(member)
         first_name = member.findtext("fosoba/jmeno")
         last_name = member.findtext("fosoba/prijmeni")
-        h.apply_name(proxy, first_name=first_name, last_name=last_name)
-        proxy.add("title", member.findtext("fosoba/titulPred"))
+        name = h.make_name(first_name=first_name, last_name=last_name)
         address = make_address(member.find("fosoba/adresa"))
-        proxy.add("address", address)
-        name = proxy.first("name")
         if name is None:
             continue
         proxy.id = person_id(context, name, address, company.id)
         if proxy.id is None:
             continue
+        h.apply_name(proxy, first_name=first_name, last_name=last_name)
+        proxy.add("title", member.findtext("fosoba/titulPred"))
+        proxy.add("address", address)
         context.emit(proxy)
 
         role = member.findtext("funkce/nazev")
