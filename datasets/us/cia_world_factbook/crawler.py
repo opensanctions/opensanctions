@@ -26,10 +26,17 @@ REGEX_RELEVANT_CATEGORY = re.compile("^(chief of state|head of government): ")
 REGEX_HOLDER = re.compile(
     (
         "(represented by )?"
-        "(?P<role>("
-        "([Tt]ransitional |Transition |Interim )?President"
-        "|President( of the Swiss Confederation| of the Territorial Assembly| of the Government of Spain \(prime minister-equivalent\))?"
-        "|(First |Second |Executive |Co-)?(Vice |Deputy )?President(-elect)?"
+        "(?P<role>"
+        "([Tt]ransitional |Transition |Interim )President"
+        "|President of the Government"
+        "|President of the Republic"
+        "|President of Territorial Council"
+        "|President of the Territorial Assembly"
+        "|President of the Swiss Confederation"
+        "|President of the Government of Spain \(prime minister-equivalent\)"
+        "|President of the Pontifical Commission for the State of Vatican City"
+        "|(First |Second |Executive |Co-)?(Vice |Deputy )President(-elect)?"
+        "|President(-elect)?"
         "|(Acting |Transition |Caretaker |Interim |Sultan and |(First |Second |Third )?Deputy )?Prime Minister"
         "|Administrator Air Vice-Marshal"
         "|Administrator"
@@ -56,8 +63,8 @@ REGEX_HOLDER = re.compile(
         "|Pope"
         "|Prefect"
         "|(First Deputy |Vice )?Premier"
-        "|Prime"
         "|Prime Minister, State Administration Council Chair,"
+        "|Prime"
         "|Prince"
         "|Queen"
         "|Secretary of State for Foreign and Political Affairs"
@@ -68,13 +75,26 @@ REGEX_HOLDER = re.compile(
         "|Supreme People's Assembly President"
         "|Taoiseach \(Prime Minister\)"
         "|\(Ulu o Tokelau\)"
-        ")) "
-        "(?P<name>[\w,.'’\" -]+) ?"
+        ") "
+        "(?P<name>[\w,.'’\" -]+?) ?"
         "(\([\w \.]+\))? ?"
         "\((since |born |reappointed )?(?P<start_date>\d* ?\w* ?\d{4} ?)\)"
     )
 )
-
+REGEX_CONTAINS_OTHER = re.compile(r"\b(and|of the) ")
+REGEX_OTHER_ROLES = re.compile(
+    (
+        "and "
+        "(Foreign Minister"
+        "|Minister of Interior"
+        "|Minister of Oil"
+        "|Minister for Infrastructure"
+        "|Co-Vice President"
+        "|Minister of State for Defense Affairs"
+        "|Minister of State for Cabinet Affairs"
+        "|President of the Governorate of the Vatican City State is)"
+    )
+)
 SKIP_COUNTRIES = {
     "World",
     "European Union",
@@ -176,12 +196,21 @@ def crawl_country(context: Context, country: str) -> None:
                         )
                 else:
                     role = match.group("role")
+                    name = match.group("name")
+                    if REGEX_CONTAINS_OTHER.match(name):
+                        name = REGEX_OTHER_ROLES.sub("", name)
+                        if REGEX_CONTAINS_OTHER.match(name):
+                            context.log.warn(
+                                "Skipping name containing 'and' - possible parsing issue.",
+                                name=name,
+                            )
+                            continue
                     emit_person(
                         context,
                         country,
                         source_url,
                         role,
-                        match.group("name"),
+                        name,
                         match.group("start_date"),
                     )
 
