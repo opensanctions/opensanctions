@@ -12,6 +12,7 @@ exports:
   - statistics.json
   - entities.ftm.json
   - senzing.json
+resolve: false
 summary: |
   Companies database of the Russian Federation as maintained and published by 
   the Federal Tax Service.
