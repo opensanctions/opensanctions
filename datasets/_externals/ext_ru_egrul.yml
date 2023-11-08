@@ -1,7 +1,7 @@
 type: external
 title: Russian Unified State Register of Legal Entities (EGRUL)
 entry_point: zavod.runner.enrich:enrich
-disabled: false
+disabled: true
 hidden: false
 coverage:
   frequency: never
