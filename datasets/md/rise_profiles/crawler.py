@@ -18,6 +18,7 @@ def crawl_entity(context: Context, relative_url: str, follow_relations: bool = T
     url = urljoin(context.data_url, relative_url)
     doc = context.fetch_html(url, cache_days=CACHE_DAYS)
     name_el = doc.find('.//span[@class="name"]')
+    assert name_el is not None, url
     name = collapse_spaces(name_el.text)
     attributes = dict()
     for el in name_el.find("./..").getnext().getchildren():
@@ -121,6 +122,12 @@ def make_company(context: Context, url: str, name: str, attributes: dict):
 def make_entity(context: Context, url: str, name: str, attributes: dict):
     entity = context.make("LegalEntity")
     identification = [COUNTRY, name]
+    # founded = parse_date(attributes.get("data-fondarii"))
+    # identification.append(founded)
+    regno = attributes.get("idno")
+    if regno is not None:
+        identification.append(regno)
+    entity.id = context.make_id(*identification)
     entity.add("sourceUrl", url)
     entity.add("name", name)
     if name.startswith("Partidul"):
@@ -145,7 +152,6 @@ def make_entity(context: Context, url: str, name: str, attributes: dict):
         entity.add("registrationNumber", regno)
     if attributes:
         context.log.info(f"More info to be added to {name}", attributes, url)
-    entity.id = context.make_id(*identification)
     return entity
 
 

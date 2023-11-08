@@ -99,6 +99,8 @@ lookups:
           - M-Invest
           - Megaline, JSC Delta
           - Meroe Gold
+          - Paramount Energy & Commodities SA
+          - Central Bank of Russia
         value: SAME
       - match: Subsidiary of the Organisation for Technological Industries (OTI) and therefore the Syrian Ministry of Defence
         values:
