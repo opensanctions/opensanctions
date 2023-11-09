@@ -9,6 +9,7 @@ from nomenklatura.util import is_qid
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
+from zavod.logic.pep import categorise
 
 PASSWORD = os.environ.get("OPENSANCTIONS_RUPEP_PASSWORD")
 FORMATS = ["%d.%m.%Y", "%m.%Y", "%Y", "%b. %d, %Y", "%B %d, %Y"]
@@ -205,20 +206,21 @@ def get_subnational_area(scope, draft_position):
     return None
 
 
-def get_position_name(context, role, company_name) -> Optional[str]:
+def get_position_name(context, role, company_name) -> Tuple[Optional[str], Optional[str], Optional[str]]:
     if role and company_name:
         position_name = draft_position_name(role, company_name)
     else:
         # context.warning("Not handling incomplete english yet")
-        return None, None
+        return False, None, None
 
     pep_position = context.lookup("pep_positions", position_name)
     if pep_position:
         subnational_area = get_subnational_area(pep_position.scope, position_name)
         if pep_position.name:
-            return pep_position.name, subnational_area
+            return True, pep_position.name, subnational_area
         else:
             return (
+                True,
                 clean_position_name(
                     role, company_name, pep_position.preposition or "of the"
                 ),
@@ -226,37 +228,7 @@ def get_position_name(context, role, company_name) -> Optional[str]:
             )
 
     # conext.log.warning("Unknown position", position=position_name)
-    return None, None
-
-
-def emit_pep_relationship(
-    context: Context,
-    org_id: str,
-    person: Entity,
-    position_name: str,
-    countries: List[str],
-    subnational_area: Optional[str],
-    start_date: Optional[List[str]],
-    end_date: Optional[List[str]],
-    also: Optional[List[str]],
-) -> None:
-    position = h.make_position(
-        context,
-        position_name,
-        country=countries,
-        subnational_area=subnational_area,
-    )
-    occupancy = h.make_occupancy(
-        context,
-        person,
-        position,
-        start_date=start_date,
-        end_date=end_date,
-    )
-    if occupancy:
-        occupancy.add("description", also)
-        context.emit(position)
-        context.emit(occupancy)
+    return None, f"{role}, {company_name}", None
 
 
 def crawl_person(
@@ -388,25 +360,36 @@ def crawl_person(
                 role, extra = role.split(",", 1)
                 break
 
-        position_name, subnational_area = get_position_name(
+        is_pep, position_name, subnational_area = get_position_name(
             context,
             collapse_spaces(role),
             collapse_spaces(company_name),
         )
 
-        if position_name:
-            emit_pep_relationship(
+        if is_pep is None or is_pep:
+            position = h.make_position(
                 context,
-                company_entity_id,
-                entity,
                 position_name,
-                company.countries,
-                subnational_area,
-                start_date[0] if start_date else None,
-                end_date[0] if end_date else None,
-                extra,
+                country=company.countries,
+                subnational_area=subnational_area,
             )
-        else:
+            categorisation = categorise(context, position, is_pep)
+            if categorisation.is_pep:
+                occupancy = h.make_occupancy(
+                    context,
+                    entity,
+                    position,
+                    categorisation,
+                    start_date=start_date[0] if start_date else None,
+                    end_date=end_date[0] if end_date else None,
+                )
+                if occupancy:
+                    occupancy.add("description", extra)
+                    context.emit(position)
+                    context.emit(occupancy)
+            else:
+                is_pep = categorisation.is_pep
+        if not is_pep or is_pep is None:
             if crawl_company_person_relation(context, company, entity, rel_data):
                 company.emit = True
 
