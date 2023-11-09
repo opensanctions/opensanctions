@@ -5,57 +5,7 @@ from datetime import datetime
 from zavod.context import Context
 from zavod.entity import Entity
 from zavod import settings
-from zavod.logic.pep import occupancy_status, OccupancyStatus
-from zavod.settings import API_URL, API_KEY
-
-
-class Annotation:
-    def __init__(
-        self, names: List[str], countries: List[str], topics: List[str], is_pep: bool
-    ):
-        self.names = names
-        self.countries = countries
-        self.topics = topics
-        self.is_pep = is_pep
-
-
-def check_position(
-    context: Context,
-    position_id: str,
-    names: List[str],
-    countries: List[str],
-    topics: List[str],
-    is_pep: bool,
-) -> Annotation:
-    if API_URL is None or API_KEY is None:
-        return None
-    url = f"{API_URL}/positions/{position_id}"
-    headers = {"authorization": API_KEY}
-    res = context.http.get(url, headers=headers)
-
-    if res.status_code == 200:
-        data = res.json()
-    elif res.status_code == 404:
-        url = f"{API_URL}/positions/"
-        body = {
-            "entity_id": position_id,
-            "names": names,
-            "countries": countries,
-            "topics": topics,
-            "is_pep": is_pep,
-        }
-        res = context.http.post(url, headers=headers, json=body)
-        res.raise_for_status()
-        data = res.json()
-    else:
-        res.raise_for_status()
-      
-    return Annotation(
-        data["names"],
-        data["countries"],
-        data["topics"],
-        data["is_pep"],
-    )
+from zavod.logic.pep import occupancy_status, OccupancyStatus, PositionCategorisation
 
 
 def make_position(
@@ -74,16 +24,11 @@ def make_position(
     source_url: Optional[str] = None,
     lang: Optional[str] = None,
     id_hash_prefix: Optional[str] = None,
-    is_pep: Optional[bool] = True,
-) -> Optional[Entity]:
-    """Creates and returns a Position entity if is_pep is True or if it's
-    confirmed to be a PEP position in the positions database. Otherwise returns
-    None.
+) -> Entity:
+    """Creates a Position entity.
 
-    Also ensures the position exists in the positions database for further
-    categorisation.
-
-    Topics in the positions database override topics supplied to this helper.
+    Position categorisation should then be fetched using zavod.logic.pep.categorise
+    and the result's is_pep checked.
 
     Args:
         context: The context to create the entity in.
@@ -99,7 +44,6 @@ def make_position(
         wikidata_id: The Wikidata QID of the position.
         source_url: The URL of the source the position was found in.
         lang: The language of the position details.
-        is_pep: Whether the position is known to be a PEP.
 
     Returns:
         A new entity of type `Position`."""
@@ -121,22 +65,11 @@ def make_position(
     else:
         position.id = context.make_id(*parts, hash_prefix=id_hash_prefix)
 
-    annotation = check_position(context, position.id, [name], ensure_list(country), ensure_list(topics), is_pep)
-    if annotation is None:
-        context.log.warning("PEP database unavailable. Configure API_URL and API_KEY")
-        return
-    if annotation.is_pep is None:
-        context.log.info(f"Position {country} {name} not yet categorised as PEP or not.")
-        return
-    if not annotation.is_pep:
-        context.log.info(f"Position {country} {name} is not a PEP position.")
-        return
-
     position.add("name", name, lang=lang)
     position.add("summary", summary, lang=lang)
     position.add("description", description, lang=lang)
     position.add("country", country)
-    position.add("topics", annotation.topics)
+    position.add("topics", topics)
     position.add("organization", organization, lang=lang)
     position.add("subnationalArea", subnational_area, lang=lang)
     position.add("inceptionDate", inception_date)
@@ -152,6 +85,7 @@ def make_occupancy(
     context: Context,
     person: Entity,
     position: Entity,
+    categorisation: PositionCategorisation,
     no_end_implies_current: bool = True,
     current_time: datetime = settings.RUN_TIME,
     start_date: Optional[str] = None,
@@ -194,11 +128,14 @@ def make_occupancy(
         end_date: Set if the date the person left the position is known.
         status: Overrides determining PEP occupancy status
     """
+    assert categorisation.is_pep
+
     if status is None:
         status = occupancy_status(
             context,
             person,
             position,
+            categorisation,
             no_end_implies_current,
             current_time,
             start_date,
@@ -212,7 +149,14 @@ def make_occupancy(
     occupancy = context.make("Occupancy")
     # Include started and ended strings so that two occupancies, one missing start
     # and and one missing end, don't get normalisted to the same ID
-    parts = [person.id, position.id, "started", start_date, "ended", end_date]
+    parts = [
+        person.id,
+        position.id,
+        "started",
+        start_date,
+        "ended",
+        end_date,
+    ]
     occupancy.id = context.make_id(*parts)
     occupancy.add("holder", person)
     occupancy.add("post", position)

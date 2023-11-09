@@ -21,6 +21,70 @@ class OccupancyStatus(Enum):
     UNKNOWN = "unknown"
 
 
+class PositionCategorisation:
+    def __init__(self, topics: List[str], is_pep: Optional[bool]):
+        self.topics = topics
+        self.is_pep = is_pep
+
+
+def categorise(
+    context: Context,
+    position: Entity,
+    is_pep: Optional[bool] = True,
+) -> PositionCategorisation:
+    """Checks whether this is a PEP position and for any topics needed to make
+    PEP duration decisions.
+
+    If the position is not in the database yet, it uploads it.
+    
+    Only emit positions where is_pep is true, even if the crawler sets is_pep
+    to true, in case someone has set is_pep to False in the database.
+    
+    Arguments:
+      context: Zavod context
+      position: The position to be categorised
+      is_pep: Initial value for is_pep in the database if it gets added.
+    """
+
+    if settings.API_URL is None or settings.API_KEY is None:
+        context.log.warning("PEP database unavailable. Configure API_URL and API_KEY")
+        return PositionCategorisation(topics=[], is_pep=None)
+
+    url = f"{settings.API_URL}/positions/{position.id}"
+    headers = {"authorization": settings.API_KEY}
+    res = context.http.get(url, headers=headers)
+
+    if res.status_code == 200:
+        data = res.json()
+    elif res.status_code == 404:
+        url = f"{settings.API_URL}/positions/"
+        body = {
+            "entity_id": position.id,
+            "names": position.get("name"),
+            "countries": position.get("country"),
+            "topics": position.get("topics"),
+            "is_pep": is_pep,
+        }
+        res = context.http.post(url, headers=headers, json=body)
+        res.raise_for_status()
+        data = res.json()
+    else:
+        res.raise_for_status()
+
+    if data.get("is_pep") is None:
+        context.log.info(
+            (
+                f'Position {position.get("country")} {position.get("name")}'
+                " not yet categorised as PEP or not."
+            )
+        )
+
+    return PositionCategorisation(
+        topics=data.get("topics", []),
+        is_pep=data.get("is_pep"),
+    )
+
+
 @cache
 def backdate(date: datetime, days: int) -> str:
     """Return a partial ISO8601 date string backdated by the number of days provided"""
@@ -40,6 +104,7 @@ def occupancy_status(
     context: Context,
     person: Entity,
     position: Entity,
+    categorisation: PositionCategorisation,
     no_end_implies_current: bool = True,
     current_time: datetime = settings.RUN_TIME,
     start_date: Optional[str] = None,
@@ -64,7 +129,7 @@ def occupancy_status(
 
     if end_date:
         if end_date < current_time.isoformat():  # end_date is in the past
-            after_office = get_after_office(position.get("topics"))
+            after_office = get_after_office(categorisation.topics)
             if end_date < backdate(current_time, after_office):
                 # end_date is beyond after-office threshold
                 return None

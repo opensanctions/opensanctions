@@ -6,7 +6,7 @@ import csv
 
 from zavod import helpers as h
 from zavod.context import Context
-from zavod.logic.pep import OccupancyStatus, backdate
+from zavod.logic.pep import OccupancyStatus, backdate, categorise
 
 # NUMERO DOCUMENTO
 # NOMBRE PEP
@@ -69,15 +69,19 @@ def crawl_sheet_row(context: Context, row: Dict[str, str]):
     position_name = role
     if add_entity:
         position_name += " - " + entity_name
-    position = h.make_position(context, position_name, country="co", topics=topics)
-    if position is None:
+    position = h.make_position(
+        context, position_name, country="co", topics=topics, lang="spa"
+    )
+    categorisation = categorise(context, position)
+    if not categorisation.is_pep:
         return
     occupancy = h.make_occupancy(
         context,
         person,
         position,
+        categorisation,
         # no_end_implies_current=True,
-        # Data Dictionary says "The box will be empty if the entity has not 
+        # Data Dictionary says "The box will be empty if the entity has not
         # reported the separation of the Politically Exposed Person."
         # but that's not the case. I have an issue open with their support.
         # In the meantime:
@@ -92,7 +96,9 @@ def crawl_sheet_row(context: Context, row: Dict[str, str]):
     return slugify([id_number, role, entity_name])
 
 
-def crawl_table_row(context: Context, seen: set, row: Dict[str, str|List[Tuple[str, str]]]):
+def crawl_table_row(
+    context: Context, seen: set, row: Dict[str, str | List[Tuple[str, str]]]
+):
     name_id = row.pop("declarante").split(" - ")
     if len(name_id) != 2:
         context.log.warning("Invalid name/id", name_id=name_id)
@@ -102,15 +108,15 @@ def crawl_table_row(context: Context, seen: set, row: Dict[str, str|List[Tuple[s
     key = slugify([name_id[1], role, entity_name])
     if key in seen:
         return
-    
-    if row.pop("fecha-publicacion") < backdate(datetime.now(), 365*5):
+
+    if row.pop("fecha-publicacion") < backdate(datetime.now(), 365 * 5):
         context.log.warning("Skipping potentially too old position", key=key)
         return
-    
+
     if row.pop("es-contratista") != "NO":
         context.log.warning("Unexpectedly found a contractor", key=key)
         return
-    
+
     person = context.make("Person")
     person.id = context.make_slug(name_id[1], prefix="co-cedula")
     person.add("name", name_id[0])
@@ -125,7 +131,7 @@ def crawl_table_row(context: Context, seen: set, row: Dict[str, str|List[Tuple[s
             f'{links.pop("consultar-declaraciones-ley-2013-de-2019")}'
         ),
     )
-    
+
     res = context.lookup("positions", role)
     add_entity = True
     topics = None
@@ -135,13 +141,18 @@ def crawl_table_row(context: Context, seen: set, row: Dict[str, str|List[Tuple[s
     position_name = role
     if add_entity:
         position_name += " - " + entity_name
-    position = h.make_position(context, position_name, country="co", topics=topics)
-    if position is None:
+
+    position = h.make_position(
+        context, position_name, country="co", topics=topics, lang="spa"
+    )
+    categorisation = categorise(context, position)
+    if not categorisation.is_pep:
         return
     occupancy = h.make_occupancy(
         context,
         person,
         position,
+        categorisation,
         no_end_implies_current=False,
         status=OccupancyStatus.UNKNOWN,
     )
@@ -151,7 +162,7 @@ def crawl_table_row(context: Context, seen: set, row: Dict[str, str|List[Tuple[s
     context.audit_data(row, ["descargar"])
 
 
-def parse_table(table) -> List[Dict[str, str|Dict[str, str]]]:
+def parse_table(table) -> List[Dict[str, str | Dict[str, str]]]:
     headers = None
     for row in table.findall(".//tr"):
         if headers is None:
@@ -194,4 +205,3 @@ def crawl(context: Context):
 
         for row in parse_table(doc.find(".//table")):
             crawl_table_row(context, seen, row)
-            
