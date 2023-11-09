@@ -70,6 +70,8 @@ def crawl_sheet_row(context: Context, row: Dict[str, str]):
     if add_entity:
         position_name += " - " + entity_name
     position = h.make_position(context, position_name, country="co", topics=topics)
+    if position is None:
+        return
     occupancy = h.make_occupancy(
         context,
         person,
@@ -134,6 +136,8 @@ def crawl_table_row(context: Context, seen: set, row: Dict[str, str|List[Tuple[s
     if add_entity:
         position_name += " - " + entity_name
     position = h.make_position(context, position_name, country="co", topics=topics)
+    if position is None:
+        return
     occupancy = h.make_occupancy(
         context,
         person,

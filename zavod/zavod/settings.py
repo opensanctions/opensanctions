@@ -56,3 +56,6 @@ CACHE_DATABASE_URI = env.get("OPENSANCTIONS_DATABASE_URI", CACHE_DATABASE_URI)
 
 # Load DB batch size
 DB_BATCH_SIZE = int(env_str("ZAVOD_DB_BATCH_SIZE", "10000"))
+
+API_URL = env.get("ZAVOD_API_URL", None)
+API_KEY = env.get("ZAVOD_API_KEY", None)
