@@ -77,7 +77,7 @@ def crawl_sheet_row(context: Context, row: Dict[str, str]):
         # no_end_implies_current=True,
         # Data Dictionary says "The box will be empty if the entity has not 
         # reported the separation of the Politically Exposed Person."
-        # but that's not the case. Have an issue open with their support.
+        # but that's not the case. I have an issue open with their support.
         # In the meantime:
         status=OccupancyStatus.UNKNOWN,
         start_date=row.pop("FECHA_VINCULACION"),
@@ -102,7 +102,7 @@ def crawl_table_row(context: Context, seen: set, row: Dict[str, str|List[Tuple[s
         return
     
     if row.pop("fecha-publicacion") < backdate(datetime.now(), 365*5):
-        context.log.warning("Skiping potentially too old position", key=key)
+        context.log.warning("Skipping potentially too old position", key=key)
         return
     
     if row.pop("es-contratista") != "NO":
