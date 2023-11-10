@@ -1,7 +1,7 @@
 title: Liechtenstein Posted Workers Act (EntsG) Sanctions
 prefix: li-entsg
 entry_point: crawler.py
-disabled: true
+# disabled: true
 coverage:
   frequency: never
   end: 2023-10-03
