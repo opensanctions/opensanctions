@@ -64,6 +64,7 @@ setup(
             "requests-mock",
             "types-setuptools",
             "types-requests",
+            "types-openpyxl",
             "types-google-cloud-ndb",
         ],
         "docs": [
