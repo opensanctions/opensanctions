@@ -316,7 +316,7 @@ class Context:
             return html.fromstring(text)
         raise ValueError("Invalid HTML document: %s" % url)
 
-    def parse_resource_xml(self, name: PathLike) -> ElementOrTree:
+    def parse_resource_xml(self, name: PathLike) -> etree._ElementTree:
         """Parse a file in the resource folder into an XML tree.
 
         Args:
