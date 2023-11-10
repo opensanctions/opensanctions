@@ -13,8 +13,6 @@ deploy:
   memory: "3000Mi"
   premium: true
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-coverage:
-  frequency: daily
 summary: |
   Wikidata is the structured data project of the Wikipedia community,
   providing fact-based information edited by humans and machines.

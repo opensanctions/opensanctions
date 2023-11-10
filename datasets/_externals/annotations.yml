@@ -1,0 +1,39 @@
+type: external
+title: Annotations by OpenSanctions
+entry_point: zavod.runner.enrich:enrich
+prefix: ann
+disabled: false
+coverage:
+  frequency: daily
+exports:
+  - statistics.json
+deploy:
+  schedule: "1 0 * * *"
+  memory: "3000Mi"
+  premium: true
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: |
+  Entity categorisation decisions by the OpenSanctions team.
+description: |
+  The annotations dataset consists of detail added by the OpenSanctions team
+  to enrich the data our other sources with detail from our knowledge and
+  desktop research. This includes, for example, that a position like
+  "Advisor to the president of Russia" is a PEP, and a national government PEP
+  at that, while "President of the water polo club" is not a PEP.
+url: https://opensanctions.org/datasets/annotations
+publisher:
+  name: OpenSanctions
+  description: |
+    OpenSanctions is the company behind the OpenSanctions database of persons
+    and companies of political, criminal, or economic interest.
+  url: https://opensanctions.org
+  official: false
+
+inputs:
+  #- peps
+  - ru_rupep
+
+config:
+  type: zavod.shed.annotations:AnnotationsEnricher
+  schemata:
+    - Position

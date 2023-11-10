@@ -27,6 +27,8 @@ class PositionCategorisation:
         self.is_pep = is_pep
 
 
+
+@cache
 def categorise(
     context: Context,
     position: Entity,
@@ -47,9 +49,9 @@ def categorise(
     """
 
     if settings.API_URL is None or settings.API_KEY is None:
-        context.log.warning("PEP database unavailable. Configure API_URL and API_KEY")
+        context.log.warning("API_URL or API_KEY not configured. Can't check {country} {names}")
         return PositionCategorisation(topics=[], is_pep=None)
-
+    
     url = f"{settings.API_URL}/positions/{position.id}"
     headers = {"authorization": settings.API_KEY}
     res = context.http.get(url, headers=headers)
