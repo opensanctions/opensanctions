@@ -1,5 +1,6 @@
-import lxml
 import re
+import lxml
+import shutil
 from datetime import datetime
 from typing import Optional
 
@@ -171,7 +172,11 @@ def parse_infractions(context: Context, doc) -> None:
 
 
 def crawl(context: Context):
-    source_path = context.fetch_resource("source.html", context.data_url)
+    assert context.dataset.base_path is not None
+    data_path = context.dataset.base_path / "data.html"
+    source_path = context.get_resource_path("source.html")
+    shutil.copyfile(data_path, source_path)
+    # source_path = context.fetch_resource("source.html", context.data_url)
     context.export_resource(source_path, "text/html", title="Source HTML file")
     with open(source_path, "r") as fh:
         doc = lxml.html.fromstring(fh.read())  # invalid XML, need HTML parser
