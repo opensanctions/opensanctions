@@ -36,21 +36,25 @@ def categorise(
     """Checks whether this is a PEP position and for any topics needed to make
     PEP duration decisions.
 
-    If the position is not in the database yet, it uploads it.
-    
+    If the position is not in the database yet, it is added.
+
     Only emit positions where is_pep is true, even if the crawler sets is_pep
-    to true, in case someone has set is_pep to False in the database.
-    
+    to true, in case is_pep has been changed to false in the database.
+
     Arguments:
-      context: Zavod context
+      context:
       position: The position to be categorised
       is_pep: Initial value for is_pep in the database if it gets added.
     """
-
     if settings.API_URL is None or settings.API_KEY is None:
-        context.log.warning("API_URL or API_KEY not configured. Can't check {country} {names}")
+        context.log.warning(
+            (
+                "API_URL or API_KEY not configured. Can't check "
+                f"{position.get('country')} {position.get('name')}"
+            )
+        )
         return PositionCategorisation(topics=[], is_pep=None)
-    
+
     url = f"{settings.API_URL}/positions/{position.id}"
     headers = {"authorization": settings.API_KEY}
     res = context.http.get(url, headers=headers)
@@ -58,10 +62,11 @@ def categorise(
     if res.status_code == 200:
         data = res.json()
     elif res.status_code == 404:
+        context.log.info("Adding position not yet in database", entity_id=position.id)
         url = f"{settings.API_URL}/positions/"
         body = {
             "entity_id": position.id,
-            "names": position.get("name"),
+            "caption": position.caption,
             "countries": position.get("country"),
             "topics": position.get("topics"),
             "is_pep": is_pep,
@@ -73,7 +78,7 @@ def categorise(
         res.raise_for_status()
 
     if data.get("is_pep") is None:
-        context.log.info(
+        context.log.debug(
             (
                 f'Position {position.get("country")} {position.get("name")}'
                 " not yet categorised as PEP or not."
@@ -105,13 +110,13 @@ def occupancy_status(
     context: Context,
     person: Entity,
     position: Entity,
-    categorisation: PositionCategorisation,
     no_end_implies_current: bool = True,
     current_time: datetime = settings.RUN_TIME,
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,
     birth_date: Optional[str] = None,
     death_date: Optional[str] = None,
+    categorisation: Optional[PositionCategorisation] = None,
 ) -> Optional[OccupancyStatus]:
     if death_date is not None and death_date < backdate(current_time, AFTER_DEATH):
         # If they did longer ago than AFTER_DEATH threshold, don't consider a PEP.
@@ -128,9 +133,14 @@ def occupancy_status(
         # don't consider them a PEP.
         return None
 
+    if categorisation is None:
+        topics = position.get("topics", [])
+    else:
+        topics = categorisation.topics
+
     if end_date:
         if end_date < current_time.isoformat():  # end_date is in the past
-            after_office = get_after_office(categorisation.topics)
+            after_office = get_after_office(topics)
             if end_date < backdate(current_time, after_office):
                 # end_date is beyond after-office threshold
                 return None

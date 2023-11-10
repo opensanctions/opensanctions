@@ -30,5 +30,4 @@ publisher:
   official: false
 
 inputs:
-  #- peps
-  - ru_rupep
+  - peps

@@ -85,13 +85,13 @@ def make_occupancy(
     context: Context,
     person: Entity,
     position: Entity,
-    categorisation: PositionCategorisation,
     no_end_implies_current: bool = True,
     current_time: datetime = settings.RUN_TIME,
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,
     birth_date: Optional[str] = None,
     death_date: Optional[str] = None,
+    categorisation: Optional[PositionCategorisation] = None,
     status: Optional[OccupancyStatus] = None,
 ) -> Optional[Entity]:
     """Creates and returns an Occupancy entity if the arguments meet our criteria
@@ -128,20 +128,21 @@ def make_occupancy(
         end_date: Set if the date the person left the position is known.
         status: Overrides determining PEP occupancy status
     """
-    assert categorisation.is_pep
+    if categorisation is not None:
+        assert categorisation.is_pep, person
 
     if status is None:
         status = occupancy_status(
             context,
             person,
             position,
-            categorisation,
             no_end_implies_current,
             current_time,
             start_date,
             end_date,
             birth_date,
             death_date,
+            categorisation,
         )
     if status is None:
         return None

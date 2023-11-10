@@ -379,9 +379,9 @@ def crawl_person(
                     context,
                     entity,
                     position,
-                    categorisation,
                     start_date=start_date[0] if start_date else None,
                     end_date=end_date[0] if end_date else None,
+                    categorisation=categorisation,
                 )
                 if occupancy:
                     occupancy.add("description", extra)

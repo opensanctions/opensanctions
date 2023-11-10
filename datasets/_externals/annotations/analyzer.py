@@ -1,3 +1,4 @@
+from functools import cache
 from typing import cast, Any, Dict, Optional
 from nomenklatura.entity import CE
 
@@ -7,6 +8,7 @@ from zavod.meta import get_multi_dataset
 from zavod.store import get_view
 
 
+@cache
 def get_position(context: Context, entity_id: str) -> Optional[Dict[str, Any]]:
     url = f"{settings.API_URL}/positions/{entity_id}"
     headers = {"authorization": settings.API_KEY}

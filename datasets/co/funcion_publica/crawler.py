@@ -79,7 +79,6 @@ def crawl_sheet_row(context: Context, row: Dict[str, str]):
         context,
         person,
         position,
-        categorisation,
         # no_end_implies_current=True,
         # Data Dictionary says "The box will be empty if the entity has not
         # reported the separation of the Politically Exposed Person."
@@ -88,6 +87,7 @@ def crawl_sheet_row(context: Context, row: Dict[str, str]):
         status=OccupancyStatus.UNKNOWN,
         start_date=row.pop("FECHA_VINCULACION"),
         end_date=row.pop("FECHA_DESVINCULACION"),
+        categorisation=categorisation,
     )
     context.emit(person, target=True)
     context.emit(position)
@@ -152,9 +152,9 @@ def crawl_table_row(
         context,
         person,
         position,
-        categorisation,
         no_end_implies_current=False,
         status=OccupancyStatus.UNKNOWN,
+        categorisation=categorisation,
     )
     context.emit(person, target=True)
     context.emit(position)
