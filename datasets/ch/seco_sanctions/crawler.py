@@ -12,13 +12,13 @@ from zavod import helpers as h
 # TODO: sanctions-program full parse
 MayStr = Optional[str]
 
-NAME_QUALITY_WEAK = {"good": False, "low": True}
-NAME_TYPE = {
+NAME_QUALITY_WEAK: Dict[MayStr, bool] = {"good": False, "low": True}
+NAME_TYPE: Dict[MayStr, str] = {
     "primary-name": "name",
     "alias": "alias",
     "formerly-known-as": "previousName",
 }
-NAME_PARTS: Dict[str, Optional[str]] = {
+NAME_PARTS: Dict[MayStr, MayStr] = {
     "title": "title",
     "given-name": "firstName",
     "further-given-name": "secondName",
@@ -97,14 +97,20 @@ def parse_name(context: Context, entity: Entity, node: Element):
     parts: List[Tuple[str, MayStr, MayStr, int, str]] = []
     for part_node in node.findall("./name-part"):
         part_type = part_node.get("name-part-type")
-        order = int(part_node.get("order"))
+        order_str = part_node.get("order")
+        assert order_str is not None and part_type is not None
+        order = int(order_str)
         max_order = max(order, max_order)
         value = part_node.findtext("./value")
+        if value is None:
+            continue
         parts.append((part_type, None, None, order, value))
 
         for spelling in part_node.findall("./spelling-variant"):
             lang = registry.language.clean(spelling.get("lang"))
             script = spelling.get("script")
+            if spelling.text is None:
+                continue
             parts.append((part_type, lang, script, order, spelling.text))
 
     ordered: Dict[Tuple[MayStr, MayStr], Dict[int, List[MayStr]]] = {}
@@ -135,7 +141,7 @@ def parse_name(context: Context, entity: Entity, node: Element):
             entity.add(part_prop, value, lang=lang, quiet=True)
 
     for (lang, script), ords in ordered.items():
-        whole_parts: List[List[str]] = []
+        whole_parts: List[List[MayStr]] = []
         for order in range(1, max_order + 1):
             values = ords.get(order, ordered[(None, None)][order])
             whole_parts.append(values)
@@ -181,14 +187,14 @@ def parse_identity(context: Context, entity: Entity, node: Element, places):
     for doc in node.findall(".//identification-document"):
         type_ = doc.get("document-type")
         is_passport = type_ in ("passport", "diplomatic-passport")
-        country = doc.findtext("./issuer")
+        doc_country = doc.findtext("./issuer")
         entity.add("nationality", country, quiet=True)
         passport = h.make_identification(
             context,
             entity,
             number=doc.findtext("./number"),
             doc_type=type_,
-            country=country,
+            country=doc_country,
             summary=doc.findtext("./remark"),
             start_date=doc.findtext("./date-of-issue"),
             end_date=doc.findtext("./expiry-date"),
@@ -270,6 +276,8 @@ def parse_entry(context: Context, target, programs, places, updated_at):
         entity.add("modifiedAt", max(dates_))
 
     ssid = target.get("sanctions-set-id")
+    if ssid is None:
+        ssid = target.findtext("./sanctions-set-id")
     sanction.add("program", programs.get(ssid))
 
     for justification in node.findall("./justification"):
@@ -298,8 +306,9 @@ def parse_entry(context: Context, target, programs, places, updated_at):
         # rel_target = context.make(rel.schema.get(res.target).range)
         # rel_target.id = target_id
         # context.emit(rel_target)
-
-        entity.add_schema(rel.schema.get(res.source).range)
+        source_prop = rel.schema.get(res.source)
+        if source_prop is not None and source_prop.range is not None:
+            entity.add_schema(source_prop.range)
         context.emit(rel)
 
     for identity in node.findall("./identity"):
@@ -315,11 +324,17 @@ def crawl(context: Context):
     path = context.fetch_resource("source.xml", context.data_url)
     context.export_resource(path, "text/xml", title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
-    updated_at = doc.getroot().get("date")
+    root = doc.getroot()
+    assert root is not None
+    updated_at = root.get("date")
 
     programs = {}
     for sanc in doc.findall(".//sanctions-program"):
-        ssid = sanc.find("./sanctions-set").get("ssid")
+        sanc_set = sanc.find("./sanctions-set")
+        if sanc_set is None:
+            context.log.warning("No sanctions-set", program=sanc)
+            continue
+        ssid = sanc_set.get("ssid")
         programs[ssid] = sanc.findtext('./program-name[@lang="eng"]')
 
     places = {}
