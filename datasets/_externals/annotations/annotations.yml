@@ -1,6 +1,6 @@
 type: external
 title: Annotations by OpenSanctions
-entry_point: zavod.runner.enrich:enrich
+entry_point: analyzer
 prefix: ann
 disabled: false
 coverage:
@@ -16,7 +16,7 @@ summary: |
   Entity categorisation decisions by the OpenSanctions team.
 description: |
   The annotations dataset consists of detail added by the OpenSanctions team
-  to enrich the data our other sources with detail from our knowledge and
+  to enrich the data from our other sources with detail from our knowledge and
   desktop research. This includes, for example, that a position like
   "Advisor to the president of Russia" is a PEP, and a national government PEP
   at that, while "President of the water polo club" is not a PEP.
@@ -32,8 +32,3 @@ publisher:
 inputs:
   #- peps
   - ru_rupep
-
-config:
-  type: zavod.shed.annotations:AnnotationsEnricher
-  schemata:
-    - Position

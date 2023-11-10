@@ -27,7 +27,6 @@ class PositionCategorisation:
         self.is_pep = is_pep
 
 
-
 @cache
 def categorise(
     context: Context,
