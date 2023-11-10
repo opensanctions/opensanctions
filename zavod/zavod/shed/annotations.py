@@ -20,10 +20,10 @@ class AnnotationsEnricher(Enricher):
     def match(self, entity: CE) -> Generator[CE, None, None]:
         if not entity.schema.is_a("Position"):
             return
-        if not entity.referents:
-            return
         entity_ids = entity.referents
         entity_ids.add(entity.id)
+        if not entity_ids:
+            return
         for entity_id in entity_ids:
             data = self.get_position(entity_id)
             if data is None:
