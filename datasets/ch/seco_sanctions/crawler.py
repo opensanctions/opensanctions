@@ -188,7 +188,7 @@ def parse_identity(context: Context, entity: Entity, node: Element, places):
         type_ = doc.get("document-type")
         is_passport = type_ in ("passport", "diplomatic-passport")
         doc_country = doc.findtext("./issuer")
-        entity.add("nationality", country, quiet=True)
+        entity.add("nationality", doc_country, quiet=True)
         passport = h.make_identification(
             context,
             entity,
