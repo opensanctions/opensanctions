@@ -1,14 +1,17 @@
 import os
 import re
 import ijson
+from itertools import chain
 from typing import Any, Dict, Optional, List, Tuple, Set
 from followthemoney import model
+from followthemoney.types import registry
 from normality import collapse_spaces
 from nomenklatura.util import is_qid
 
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
+from zavod.runtime.lookups import type_lookup
 
 PASSWORD = os.environ.get("OPENSANCTIONS_RUPEP_PASSWORD")
 FORMATS = ["%d.%m.%Y", "%m.%Y", "%Y", "%b. %d, %Y", "%B %d, %Y"]
@@ -438,21 +441,15 @@ def get_company_country(
 
 def get_company_countries(context: Context, data: Dict) -> Set[str]:
     """Clean set of countries the way we eventually will in crawl_company"""
-
-    # Nasty hack to get a single list of country codes from names:
-    entity = context.make("Organization")
-
     countries: Set[str] = set()
     for country_data in data.pop("related_countries", []):
         company_country = get_company_country(context, country_data)
         if company_country is None:
             continue
-        prop_name, name_en, name_ru = company_country
-        prop = entity.schema.get(prop_name)
-        for country in entity.lookup_clean(prop, name_en):
-            countries.add(country)
-        for country in entity.lookup_clean(prop, name_ru):
-            countries.add(country)
+        _, name_en, name_ru = company_country
+        for name in chain(name_en, name_ru):
+            for country in type_lookup(context.dataset, registry.country, name):
+                countries.add(country)
     return countries
 
 
