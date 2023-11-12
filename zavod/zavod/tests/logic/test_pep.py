@@ -1,6 +1,13 @@
 from datetime import datetime
+import requests_mock
 
-from zavod.logic.pep import backdate, occupancy_status, OccupancyStatus
+from zavod.logic.pep import (
+    PositionCategorisation,
+    backdate,
+    occupancy_status,
+    OccupancyStatus,
+    categorise,
+)
 from zavod.meta import Dataset
 from zavod.context import Context
 from zavod.helpers.positions import make_position
@@ -58,6 +65,16 @@ def test_occupancy_status(testdataset1: Dataset):
         status(False, "1950-01-01", "2001-01-01", position_topics=["gov.national"])
         is None
     )
+    categorisation_override = occupancy_status(
+        context,
+        person,
+        make_position(context, "Pos", country="ls"),
+        start_date="1950-01-01",
+        end_date="2016-12-31",
+        categorisation=PositionCategorisation(["gov.national"], True),
+    )
+    # Still a PEP within NATIONAL_AFTER_OFFICE indicated by categorisation topics.
+    assert categorisation_override is OccupancyStatus.ENDED
 
     # Not a PEP when end date is unknown but start date > MAX_OFFICE
     assert status(False, "1981-01-01", None) is None
@@ -79,3 +96,48 @@ def test_occupancy_status(testdataset1: Dataset):
     assert status(True, "2020-01-01", None, "1910-01-01") is None
     assert status(True, "1950-01-01", "2021-01-02", "1910-01-01") is None
     assert status(True, "1950-01-01", "2020-12-31", "1910-01-01") is None
+
+
+def test_categorise_new(testdataset1: Dataset):
+    context = Context(testdataset1)
+    position = make_position(context, "A position", country="ls")
+
+    data = {
+        "entity_id": position.id,
+        "caption": position.caption,
+        "countries": ["ls"],
+        "topics": [],
+        "is_pep": None,
+    }
+    with requests_mock.Mocker() as m:
+        m.get(
+            "/positions/osv-40a302b7f09ea065880a3c840855681b18ead5a4", status_code=404
+        )
+        m.post("/positions/", status_code=201, json=data)
+        categorisation = categorise(context, position)
+
+    assert categorisation.is_pep is None
+    assert categorisation.topics == []
+
+
+def test_categorise_existing(testdataset1: Dataset):
+    context = Context(testdataset1)
+    position = make_position(context, "Another position", country="ls")
+
+    data = {
+        "entity_id": position.id,
+        "caption": position.caption,
+        "countries": ["ls"],
+        "topics": ["gov.igo"],
+        "is_pep": True,
+    }
+    with requests_mock.Mocker() as m:
+        m.get(
+            "/positions/osv-3c5b98b2f63e39d0a341af03d2dde959e25f07f8",
+            status_code=200,
+            json=data,
+        )
+        categorisation = categorise(context, position)
+
+    assert categorisation.is_pep is True
+    assert categorisation.topics == ["gov.igo"]
