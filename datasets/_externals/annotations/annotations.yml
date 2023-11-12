@@ -16,10 +16,11 @@ summary: |
   Entity categorisation decisions by the OpenSanctions team.
 description: |
   The annotations dataset consists of detail added by the OpenSanctions team
-  to enrich the data from our other sources with detail from our knowledge and
-  desktop research. This includes, for example, that a position like
-  "Advisor to the president of Russia" is a PEP, and a national government PEP
-  at that, while "President of the water polo club" is not a PEP.
+  to improve on the data from our other sources with detail from our knowledge and
+  desktop research. This includes e.g. that a position like "Advisor to the
+  president of Russia" is a PEP with national government level of influence, while
+  "President of the water polo club" might also be a position included in an
+  investigative database, but should not be considered a PEP in our dataset.
 url: https://opensanctions.org/datasets/annotations
 publisher:
   name: OpenSanctions

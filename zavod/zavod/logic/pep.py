@@ -41,29 +41,29 @@ def categorise(
     Only emit positions where is_pep is true, even if the crawler sets is_pep
     to true, in case is_pep has been changed to false in the database.
 
-    Arguments:
+    Args:
       context:
       position: The position to be categorised
       is_pep: Initial value for is_pep in the database if it gets added.
     """
-    if settings.API_URL is None or settings.API_KEY is None:
+    if settings.OPENSANCTIONS_API_KEY is None:
         context.log.warning(
             (
-                "API_URL or API_KEY not configured. Can't check "
+                "OPENSANCTIONS_API_KEY not configured. Can't check "
                 f"{position.get('country')} {position.get('name')}"
             )
         )
         return PositionCategorisation(topics=[], is_pep=None)
 
-    url = f"{settings.API_URL}/positions/{position.id}"
-    headers = {"authorization": settings.API_KEY}
+    url = f"{settings.OPENSANCTIONS_API_URL}/positions/{position.id}"
+    headers = {"authorization": settings.OPENSANCTIONS_API_KEY}
     res = context.http.get(url, headers=headers)
 
     if res.status_code == 200:
         data = res.json()
     elif res.status_code == 404:
         context.log.info("Adding position not yet in database", entity_id=position.id)
-        url = f"{settings.API_URL}/positions/"
+        url = f"{settings.OPENSANCTIONS_API_URL}/positions/"
         body = {
             "entity_id": position.id,
             "caption": position.caption,
@@ -134,7 +134,7 @@ def occupancy_status(
         return None
 
     if categorisation is None:
-        topics = position.get("topics", [])
+        topics = position.get("topics")
     else:
         topics = categorisation.topics
 
