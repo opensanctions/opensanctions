@@ -3,27 +3,28 @@ from nomenklatura.util import is_qid
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.logic.pep import categorise
 
 
 def crawl_parliament(context: Context, parliament_api_url: str):
-    api_response = context.fetch_json(parliament_api_url, cache_days=30)
+    api_response = context.fetch_json(parliament_api_url, cache_days=1)
     return api_response.pop("data")
 
 
 def crawl_parliament_period(context: Context, parliament_period_api_url: str):
-    api_response = context.fetch_json(parliament_period_api_url, cache_days=30)
+    api_response = context.fetch_json(parliament_period_api_url, cache_days=1)
     return api_response.pop("data")
 
 
 def crawl_politician(context: Context, politician_api_url: str):
-    api_response = context.fetch_json(politician_api_url, cache_days=30)
+    api_response = context.fetch_json(politician_api_url, cache_days=2)
     politician = api_response.pop("data")
     return politician
 
 
 def crawl(context: Context):
     # Fetch the source data URL specified in the metadata to a local path:
-    api_response = context.fetch_json(context.dataset.data.url, cache_days=30)
+    api_response = context.fetch_json(context.dataset.data.url, cache_days=1)
     total_results = api_response.pop("meta").pop("result").pop("total")
     num_batches = math.ceil(total_results / 100)
 
@@ -37,7 +38,7 @@ def crawl(context: Context):
             api_response = context.fetch_json(
                 context.dataset.data.url,
                 params={"range_start": bi * 100},
-                cache_days=30,
+                cache_days=1,
             )
             # We need to always recheck total number of results because the API
             # returns a incorrect value in the first request without range_start
@@ -101,7 +102,9 @@ def crawl(context: Context):
             mandate_end_date = mandate.pop("end_date") or parliament_period_detail.pop(
                 "end_date_period"
             )
-
+            categorisation = categorise(context, position)
+            if not categorisation.is_pep:
+                return
             occupancy = h.make_occupancy(
                 context,
                 person,
@@ -109,6 +112,7 @@ def crawl(context: Context):
                 True,
                 start_date=mandate_start_date,
                 end_date=mandate_end_date,
+                categorisation=categorisation
             )
             if occupancy:
                 context.emit(person, target=True)
