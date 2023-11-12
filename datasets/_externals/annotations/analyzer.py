@@ -10,8 +10,8 @@ from zavod.store import get_view
 
 @cache
 def get_position(context: Context, entity_id: str) -> Optional[Dict[str, Any]]:
-    url = f"{settings.API_URL}/positions/{entity_id}"
-    headers = {"authorization": settings.API_KEY}
+    url = f"{settings.OPENSANCTIONS_API_URL}/positions/{entity_id}"
+    headers = {"authorization": settings.OPENSANCTIONS_API_KEY}
     res = context.http.get(url, headers=headers)
 
     if res.status_code == 200:
@@ -40,12 +40,18 @@ def analyze_position(context: Context, entity: CE) -> None:
 
 def crawl(context: Context) -> None:
     view = get_view(get_multi_dataset(context.dataset.inputs))
-    
+    position_count = 0
+
     for entity_idx, entity in enumerate(view.entities()):
         if entity_idx > 0 and entity_idx % 1000 == 0:
+            context.log.info("Processed %s entities" % entity_idx)
             context.cache.flush()
         
         if entity.schema.is_a("Position"):
             analyze_position(context, entity)
+            position_count += 1
+            if position_count % 1000 == 0:
+                context.log.info("Analyzed %s positions" % position_count)
+                context.cache.flush()
             
         
