@@ -11,13 +11,15 @@ children:
   # - sanctions
   # - icij_offshoreleaks
   # - wikidata
-  - ng_nigsac_sanctions
-  - my_moha_sanctions
-  - un_sc_sanctions
+  - sanctions
+  - wikidata
+  - us_cia_world_leaders
+  - us_cia_world_factbook
   # - md_companies
   # - ru_egrul
   # - ru_rupep
-  # - opencorporates
+  - opencorporates
+  - ext_gleif
   # - us_cia_world_leaders
   # - ru_rupep_companies
   # - ru_acf_bribetakers
