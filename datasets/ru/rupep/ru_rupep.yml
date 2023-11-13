@@ -113,7 +113,7 @@ lookups:
           - "^(the |deputy |first deputy |advisor to the |assistant to the )?minister.+ministry.+"
         preposition: in the
       - match: the president of the president of russia
-        name: The Pesident of Russi
+        name: The President of Russia
       - match: the president of the president of the republic of belarus
         name: The President of The Republic of Belarus
 
