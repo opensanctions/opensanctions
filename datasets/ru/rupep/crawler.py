@@ -420,7 +420,7 @@ def crawl_person(
 
 def get_company_country(
     context: Context, country_data: Dict
-) -> Optional[Tuple[str, List[str], List[str]]]:
+) -> Optional[Tuple[str, str, str]]:
     rel_type = country_data.pop("relationship_type")
     country_name_en = country_data.pop("to_country_en", None)
     country_name_ru = country_data.pop("to_country_ru", None)
@@ -447,7 +447,7 @@ def get_company_countries(context: Context, data: Dict) -> Set[str]:
         if company_country is None:
             continue
         _, name_en, name_ru = company_country
-        for name in chain(name_en, name_ru):
+        for name in [name_en, name_ru]:
             for country in type_lookup(context.dataset, registry.country, name):
                 countries.add(country)
     return countries
