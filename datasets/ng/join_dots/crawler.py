@@ -24,7 +24,7 @@ def clean_position(
     if position is None:
         return None
     position = collapse_spaces(position)
-    position = re.sub(r"of the of the", "of the", position, re.IGNORECASE)
+    position = re.sub(r"Of The Of The", "of the", position)
     slug = slugify(position)
 
     # position: Member Of The House Of Assembly Orhionmwon, district: Kwara
@@ -45,15 +45,19 @@ def clean_position(
                 "Cannot parse apparent state assembly", position=position
             )
 
-    if slug.startswith("member-of-the-house-of-representatives-national-assembly"):
+    if slug.startswith("member-of-the-house-of-representatives"):
         # Q21290864
         return "Member of the House of Representatives of Nigeria"
 
-    if slug.startswith("member-of-the-senate-of-nigeria-national-assembly"):
+    if slug.startswith("member-of-the-senate-of-nigeria"):
         # Q19822359
         return "Member of the Senate of Nigeria"
 
-    return position
+    res = context.lookup("position", position)
+    if res is None:
+        return position
+    else:
+        return res.name
 
 
 def position_topics(position):
@@ -75,6 +79,7 @@ def parse_position_dates(string: Optional[str]) -> Tuple[Optional[str], Optional
         return None, None
 
     start, end = string.split(" - ")
+    start = None if start == "NA" else start
     end = None if end == "NA" else end
     return start, end
 
@@ -86,9 +91,7 @@ def crawl_pep(context: Context, row) -> Tuple[Optional[str], Optional[str]]:
     district = row.pop("district", None)
 
     entity = context.make("Person")
-    entity.id = context.make_slug(
-        name, birth_date, "district", district, strict=False
-    )
+    entity.id = context.make_slug(name, birth_date, "district", district, strict=False)
 
     entity.add("name", name)
     entity.add("birthDate", birth_date)
@@ -103,7 +106,7 @@ def crawl_pep(context: Context, row) -> Tuple[Optional[str], Optional[str]]:
             position_name,
             country="NG",
             topics=topics,
-            subnational_area=subnational_area
+            subnational_area=subnational_area,
         )
 
         start_date, end_date = parse_position_dates(row.pop("period", None))
@@ -143,7 +146,9 @@ def crawl_relative(context: Context, row, pep_ids):
 
     relationship = row.pop("relationship", None)
     rel = context.make("Family")
-    rel.id = context.make_slug(name, relationship or "relative", "of", pep_name, strict=False)
+    rel.id = context.make_slug(
+        name, relationship or "relative", "of", pep_name, strict=False
+    )
     rel.add("person", pep_id)
     rel.add("relative", entity)
     rel.add("relationship", relationship)
@@ -185,7 +190,8 @@ def crawl(context: Context):
                 pep_ids[name_slug] = id
 
     peps_path = context.fetch_resource(
-        "pep_relatives.xlsx", context.data_url + "datasets/nigeria/PEP_relatives_data.xlsx"
+        "pep_relatives.xlsx",
+        context.data_url + "datasets/nigeria/PEP_relatives_data.xlsx",
     )
     context.export_resource(peps_path, XLSX, title="PEP Relatives source data")
     workbook = openpyxl.load_workbook(peps_path, read_only=True)
