@@ -74,6 +74,14 @@ def categorise(
         res = context.http.post(url, headers=headers, json=body)
         res.raise_for_status()
         data = res.json()
+    elif res.status_code == 403:
+        context.log.warning(
+            (
+                "OPENSANCTIONS_API_KEY not authorised for positions."
+                " Falling back to provided topics and is_pep"
+            )
+        )
+        return PositionCategorisation(topics=position.get("topics"), is_pep=is_pep)
     else:
         res.raise_for_status()
 

@@ -141,3 +141,24 @@ def test_categorise_existing(testdataset1: Dataset):
 
     assert categorisation.is_pep is True
     assert categorisation.topics == ["gov.igo"]
+
+
+def test_categorise_unauthorised(testdataset1: Dataset):
+    context = Context(testdataset1)
+    position = make_position(
+        context, "Another position", country="ls", topics=["gov.igo"]
+    )
+
+    with requests_mock.Mocker() as m:
+        m.get(f"/positions/{position.id}", status_code=403)
+        categorisation = categorise(context, position, is_pep=False)
+
+    assert categorisation.is_pep is False
+    assert categorisation.topics == ["gov.igo"]
+
+    with requests_mock.Mocker() as m:
+        m.get(f"/positions/{position.id}", status_code=403)
+        categorisation = categorise(context, position, is_pep=True)
+
+    assert categorisation.is_pep is True
+    assert categorisation.topics == ["gov.igo"]
