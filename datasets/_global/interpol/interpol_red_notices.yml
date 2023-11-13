@@ -4,7 +4,7 @@ prefix: interpol-red
 coverage:
   frequency: daily
 deploy:
-  schedule: "0 */6 * * *"
+  schedule: "0 */9 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   International arrest warrants published by INTERPOL with a view to

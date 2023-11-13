@@ -14,6 +14,9 @@ def env_str(name: str, default: str) -> str:
 # Logging configuration
 LOG_JSON = as_bool(env_str("ZAVOD_LOG_JSON", "false"))
 
+# Debug mode
+DEBUG = as_bool(env_str("ZAVOD_DEBUG", "false"))
+
 # Default paths
 DATA_PATH_ = env_str("ZAVOD_DATA_PATH", "data")
 DATA_PATH = Path(env_str("OPENSANCTIONS_DATA_PATH", DATA_PATH_)).resolve()

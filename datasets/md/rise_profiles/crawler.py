@@ -18,6 +18,7 @@ def crawl_entity(context: Context, relative_url: str, follow_relations: bool = T
     url = urljoin(context.data_url, relative_url)
     doc = context.fetch_html(url, cache_days=CACHE_DAYS)
     name_el = doc.find('.//span[@class="name"]')
+    assert name_el is not None, url
     name = collapse_spaces(name_el.text)
     attributes = dict()
     for el in name_el.find("./..").getnext().getchildren():
@@ -76,51 +77,55 @@ def make_person(
 ):
     person = context.make("Person")
     identification = [COUNTRY, name]
+    birth_date = parse_date(attributes.pop("data-nasterii", None))
+    if birth_date:
+        identification.append(birth_date)
+    person.id = context.make_id(*identification)
+
     person.add("sourceUrl", url)
     person.add("name", name)
     person.add("position", position, lang="ron")
-
-    if "data-nasterii" in attributes:
-        dob = parse_date(attributes.pop("data-nasterii"))
-        identification.append(dob)
-        person.add("birthDate", dob)
-
+    person.add("birthDate", birth_date)
     person.add("birthPlace", attributes.pop("locul-nasterii", None), lang="ron")
     person.add("nationality", attributes.pop("cetatenie", "").split(","))
+    person.add("topics", "poi")
 
     if attributes:
         context.log.info(f"More info to be added to {name}", attributes, url)
-    person.id = context.make_id(*identification)
-    person.add("topics", "poi")
     return person
 
 
 def make_company(context: Context, url: str, name: str, attributes: dict):
     company = context.make("Company")
     identification = [COUNTRY, name]
-    company.add("sourceUrl", url)
-    company.add("name", name)
-    if "data-inregistrarii" in attributes:
-        founded = parse_date(attributes.pop("data-inregistrarii"))
+    founded = parse_date(attributes.pop("data-inregistrarii", None))
+    if founded:
         identification.append(founded)
-        company.add("incorporationDate", founded)
-
-    country = attributes.pop("tara", "").split(",")[0]
-    company.add("mainCountry", country)
-
-    if "numar-de-identificare" in attributes:
-        regno = attributes.pop("numar-de-identificare")
+    regno = attributes.pop("numar-de-identificare", None)
+    if regno:        
         identification.append(regno)
-        company.add("registrationNumber", regno)
+    company.id = context.make_id(*identification)
+
+    company.add("name", name)
+    company.add("registrationNumber", regno)
+    company.add("sourceUrl", url)
+    company.add("mainCountry", attributes.pop("tara", "").split(",")[0])
+    company.add("incorporationDate", founded)
+
     if attributes:
         context.log.info(f"More info to be added to {name}", attributes, url)
-    company.id = context.make_id(*identification)
     return company
 
 
 def make_entity(context: Context, url: str, name: str, attributes: dict):
     entity = context.make("LegalEntity")
     identification = [COUNTRY, name]
+    # founded = parse_date(attributes.get("data-fondarii"))
+    # identification.append(founded)
+    regno = attributes.get("idno")
+    if regno is not None:
+        identification.append(regno)
+    entity.id = context.make_id(*identification)
     entity.add("sourceUrl", url)
     entity.add("name", name)
     if name.startswith("Partidul"):
@@ -134,14 +139,17 @@ def make_entity(context: Context, url: str, name: str, attributes: dict):
     entity.add("mainCountry", attributes.pop("tara", "").split(",")[0])
 
     if "adresa" in attributes:
-        entity.add("address", h.make_address(context, full=attributes.pop("adresa")))
+        address = h.make_address(
+            context, full=attributes.pop("adresa"), country_code="md"
+        )
+        if address is not None:
+            entity.add("address", address.get("full"))
     if "idno" in attributes:
         regno = attributes.pop("idno")
         identification.append(regno)
         entity.add("registrationNumber", regno)
     if attributes:
         context.log.info(f"More info to be added to {name}", attributes, url)
-    entity.id = context.make_id(*identification)
     return entity
 
 

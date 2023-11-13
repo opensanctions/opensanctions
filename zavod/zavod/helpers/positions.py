@@ -1,21 +1,11 @@
 from banal import ensure_list
 from typing import Optional, Iterable, List
-from enum import Enum
 from datetime import datetime
 
 from zavod.context import Context
 from zavod.entity import Entity
 from zavod import settings
-from zavod import helpers as h
-
-
-AFTER_OFFICE = 5 * 365
-
-
-class OccupancyStatus(Enum):
-    CURRENT = "current"
-    ENDED = "ended"
-    UNKNOWN = "unknown"
+from zavod.logic.pep import occupancy_status, OccupancyStatus
 
 
 def make_position(
@@ -24,6 +14,7 @@ def make_position(
     summary: Optional[str] = None,
     description: Optional[str] = None,
     country: Optional[str | Iterable[str]] = None,
+    topics: Optional[List[str]] = None,
     subnational_area: Optional[str] = None,
     organization: Optional[Entity] = None,
     inception_date: Optional[Iterable[str]] = None,
@@ -32,6 +23,7 @@ def make_position(
     wikidata_id: Optional[str] = None,
     source_url: Optional[str] = None,
     lang: Optional[str] = None,
+    id_hash_prefix: Optional[str] = None,
 ) -> Entity:
     """Create consistent position entities. Help make sure the same position
     from different sources will end up with the same id, while different positions
@@ -57,18 +49,6 @@ def make_position(
 
     position = context.make("Position")
 
-    position.add("name", name, lang=lang)
-    position.add("summary", summary, lang=lang)
-    position.add("description", description, lang=lang)
-    position.add("country", country)
-    position.add("organization", organization, lang=lang)
-    position.add("subnationalArea", subnational_area, lang=lang)
-    position.add("inceptionDate", inception_date)
-    position.add("dissolutionDate", dissolution_date)
-    position.add("numberOfSeats", number_of_seats)
-    position.add("wikidataId", wikidata_id)
-    position.add("sourceUrl", source_url)
-
     parts: List[str] = [name]
     if country is not None:
         parts.extend(ensure_list(country))
@@ -82,7 +62,20 @@ def make_position(
     if wikidata_id is not None:
         position.id = wikidata_id
     else:
-        position.id = context.make_id(*parts)
+        position.id = context.make_id(*parts, hash_prefix=id_hash_prefix)
+
+    position.add("name", name, lang=lang)
+    position.add("summary", summary, lang=lang)
+    position.add("description", description, lang=lang)
+    position.add("country", country)
+    position.add("topics", topics)
+    position.add("organization", organization, lang=lang)
+    position.add("subnationalArea", subnational_area, lang=lang)
+    position.add("inceptionDate", inception_date)
+    position.add("dissolutionDate", dissolution_date)
+    position.add("numberOfSeats", number_of_seats)
+    position.add("wikidataId", wikidata_id)
+    position.add("sourceUrl", source_url)
 
     return position
 
@@ -95,13 +88,20 @@ def make_occupancy(
     current_time: datetime = settings.RUN_TIME,
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,
+    birth_date: Optional[str] = None,
+    death_date: Optional[str] = None,
+    status: Optional[OccupancyStatus] = None,
 ) -> Optional[Entity]:
     """Creates and returns an Occupancy entity if the arguments meet our criteria
     for PEP position occupancy, otherwise returns None. Also adds the position countries
     and the `role.pep` topic to the person if an Occupancy is returned.
 
-    Occupancies are only returned if end_date is None or less than AFTER_OFFICE years
-    after current_time. current_time defaults to the process start date and time.
+    Unless `status` is overridden, Occupancies are only returned if end_date is None or 
+    less than the after-office period after current_time.
+    
+    current_time defaults to the process start date and time.
+
+    The after-office threshold is determined based on the position topics.
 
     Occupancy.status is set to
 
@@ -124,35 +124,22 @@ def make_occupancy(
         current_time: Defaults to the run time of the current crawl.
         start_date: Set if the date the person started occupying the position is known.
         end_date: Set if the date the person left the position is known.
+        status: Overrides determining PEP occupancy status
     """
-
-    if end_date is not None and end_date < h.backdate(current_time, AFTER_OFFICE):
+    if status is None:
+        status = occupancy_status(
+            context,
+            person,
+            position,
+            no_end_implies_current,
+            current_time,
+            start_date,
+            end_date,
+            birth_date,
+            death_date,
+        )
+    if status is None:
         return None
-
-    if end_date:
-        if end_date < current_time.isoformat():
-            status = OccupancyStatus.ENDED.value
-        elif (
-            context.dataset.coverage
-            and context.dataset.coverage.end
-            and current_time.isoformat() > context.dataset.coverage.end
-        ):
-            # Don't trust future end dates beyond the known coverage date of the dataset
-            status = OccupancyStatus.UNKNOWN.value
-            context.log.warning(
-                "Future Occupancy end date is beyond the dataset coverage date. "
-                "Check if the source data is being updated.",
-                person=person.id,
-                position=position.id,
-                end_date=end_date,
-            )
-        else:
-            status = OccupancyStatus.CURRENT.value
-    else:
-        if no_end_implies_current:
-            status = OccupancyStatus.CURRENT.value
-        else:
-            status = OccupancyStatus.UNKNOWN.value
 
     occupancy = context.make("Occupancy")
     # Include started and ended strings so that two occupancies, one missing start
@@ -163,7 +150,7 @@ def make_occupancy(
     occupancy.add("post", position)
     occupancy.add("startDate", start_date)
     occupancy.add("endDate", end_date)
-    occupancy.add("status", status)
+    occupancy.add("status", status.value)
 
     person.add("topics", "role.pep")
     person.add("country", position.get("country"))

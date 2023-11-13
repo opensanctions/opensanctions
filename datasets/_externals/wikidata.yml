@@ -3,6 +3,8 @@ title: Wikidata
 entry_point: zavod.runner.enrich:enrich
 prefix: wd
 disabled: false
+coverage:
+  frequency: daily
 exports:
   - statistics.json
   - entities.ftm.json
@@ -267,6 +269,42 @@ lookups:
           - Don Republic
           - Koreans
           - Colony of Rhode Island and Plantations
+          - Wu
+          - Almoravid dynasty
+          - Río Gallegos
+          - Kingdom of Saxony
+          - Palatinate-Neuburg
+          - Grand Duchy of Mecklenburg-Schwerin
+          - Sovereign Principality of the United Netherlands
+          - Crown of Castile
+          - Habsburg Netherlands
+          - Byzantine Empire
+          - Song
+          - Cook Islands Maori people
+          - Mali Federation
+          - Tapia
+          - Romanov Empire
+          - Barotseland
+          - Chinese Soviet Republic
+          - Free Territory of Trieste
+          - Netherlands Antilles
+          - First Republic of South Korea
+          - Second Republic of South Korea
+          - Third Republic of South Korea
+          - Fourth Republic of South Korea
+          - Fifth Republic of South Korea
+          - Gold Coast Colony
+          - Surakarta Sunanate
+          - Sultanate of Bengal
+          - Habsburg monarchy
+          - Egypt Eyalet
+          - West Pakistan
+          - Colony and Protectorate of Nigeria
+          - Federation of Nigeria
+          - First Nigerian Republic
+          - Second Nigerian Republic
+          - Mamluk rule in Iraq
+          - Ottoman Iraq
         value: null
       - match:
           - Cherokee Nation
@@ -276,11 +314,18 @@ lookups:
           - Navajo Nation
           - Northern Cheyenne Indian Reservation
           - Sisseton Wahpeton Oyate
+          - Confederate States
         value: US
       - match: British Cyprus
         value: CY
       - match: Socialist Republic of Romania
         value: RO
+      - match: Congress Poland
+        value: PL
+      - match: United Kingdom of the Netherlands
+        value: NL
+      - match: Kingdom of Ireland
+        value: IE
       - match: Santo Domingo
         values:
           - Dominican Republic
@@ -304,6 +349,16 @@ lookups:
           - BY
       - match: Trucial States
         value: AE
+      - match: Ghanaians
+        value: Ghana
+      - match:
+          - Bahrain and its Dependencies
+        value: Bahrain
+      - match: 
+          - Hunedoara County
+        value: RO
+      - match: Republic of Vietnam
+        value: VN
       - match:
           - Democratic Republic of Afghanistan
           - Emirate of Afghanistan
@@ -335,6 +390,9 @@ lookups:
           - Bavaria
           - Nazi Germany
           - Saxe-Eisenach
+          - Grand Duchy of Baden
+          - Kingdom of Bavaria
+          - Kingdom of Württemberg
         value: DE
       - match: British Honduras
         value: BZ
@@ -418,6 +476,8 @@ lookups:
           - Azad Kashmir
           - پاڪستاني
         value: PK
+      - match: Kwara State
+        value: NG
       - match: Kazakh Soviet Socialist Republic
         values:
           - SUHH
@@ -440,12 +500,15 @@ lookups:
         value: Cameroon
   type.date:
     options:
+      - match: 
+          - "8034-06-14"
+          - "0011-06-04"
+          - "3004-03-14"
+        value: null
       - match: "1949-02-29"
         value: 1949-02
       - match: "1935-06-31"
         value: 1935-06
-      - match: "8034-06-14"
-        value: null
       - match: "1973-09-31"
         value: 1973-09
   type.gender:

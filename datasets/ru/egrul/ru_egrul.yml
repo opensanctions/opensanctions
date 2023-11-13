@@ -6,8 +6,13 @@ prefix: ru
 deploy:
   schedule: "@monthly"
   premium: true
-  memory: 2000Mi
-  disk: 200Gi
+  memory: 2500Mi
+  disk: 250Gi
+exports:
+  - statistics.json
+  - entities.ftm.json
+  - senzing.json
+resolve: false
 summary: |
   Companies database of the Russian Federation as maintained and published by 
   the Federal Tax Service.
@@ -31,8 +36,10 @@ publisher:
     credit institutions)
   url: https://www.nalog.gov.ru/rn77/service/egrip2/egrip_vzayim/
   country: ru
+  official: true
 coverage:
   end: 2022-01-01
+  frequency: never
 data:
   url: https://egrul.itsoft.ru/EGRUL_406/01.01.2022_FULL/
   format: XML

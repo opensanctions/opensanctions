@@ -62,11 +62,11 @@ def crawl(context: Context):
     context.export_resource(path, ODS, title=context.SOURCE_TITLE)
     for row in parse_sheet(path):
         entity = context.make("LegalEntity")
-        entity.add("topics", "crime")
         values = [v for _, (_, v, _) in row]
         entity.id = context.make_id(*values)
         if entity.id is None:
             continue
+        entity.add("topics", "crime")
 
         sanction = h.make_sanction(context, entity)
         surname, first_name = None, None

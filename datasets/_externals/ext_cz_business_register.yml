@@ -4,11 +4,14 @@ entry_point: zavod.runner.enrich:enrich
 full_dataset: cz_business_register
 disabled: false
 hidden: false
+coverage:
+  frequency: weekly
 exports:
   - statistics.json
 deploy:
-  schedule: "1 4 * * *"
-  memory: "2000Mi"
+  # schedule: "1 4 * * *"
+  memory: "1000Mi"
+  memory_limit: "2000Mi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   Czech business register with company metadata and directorships as obtained
@@ -50,6 +53,7 @@ config:
   strip_namespace: true
   fuzzy: false
   threshold: 0.7
+  algorithm: regression-v1
   schemata:
     - Company
     - Organization

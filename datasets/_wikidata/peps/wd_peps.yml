@@ -5,7 +5,7 @@ prefix: wd
 coverage:
   frequency: daily
 deploy:
-  schedule: "0 */7 * * *"
+  schedule: "0 */6 * * *"
   memory: "2Gi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
@@ -45,3 +45,34 @@ url: https://www.opensanctions.org/datasets/peps
 data:
   url: https://data.opensanctions.org/contrib/pepdb/holders.csv
   format: CSV
+
+lookups:
+  role_topics:
+    lowercase: true
+    normalize: true
+    options:
+      - regex:
+          - ^member of[\w ]+(parliament|legislative assembly|national assembly|chamber of deputies|house of representatices|senate)
+          - ^(member|deputy|mp) of the [\w ]+ duma
+          - ^united states representative$
+        topics:
+          - gov.legislative
+      - regex:
+          - ^(the )?(deputy )?minister
+        topics:
+          - gov.executive
+      - regex:
+          - (consul\b|ambassador)
+        topics:
+          - role.diplo
+      - regex:
+          - ^(justice|judge) of the [\w ]+ court
+        topics:
+          - gov.judicial
+  type.date:
+    options:
+      - match:
+          - "8034-06-14"
+          - "0011-06-04"
+          - "3004-03-14"
+        value: null

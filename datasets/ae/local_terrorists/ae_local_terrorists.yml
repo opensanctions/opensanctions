@@ -1,8 +1,8 @@
 title: "United Arab Emirates Local Terrorist List"
 prefix: ae-lt
 entry_point: crawler.py
-deploy:
-  schedule: "0 */12 * * *"
+coverage:
+  frequency: daily
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   The UAE's asset freeze list of individuals and legal entities that are
@@ -135,6 +135,14 @@ lookups:
         # license number
         value: registrationNumber
         lang: ara
+      - match: قرار الإدراج
+        value: listingDate
+        lang: ara
+        type: date
+      - match: قرار رفع الإدراج
+        value: endDate
+        lang: ara
+        type: date
 
   type.country:
     lowercase: true

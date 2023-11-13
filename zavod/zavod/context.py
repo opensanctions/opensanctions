@@ -316,7 +316,7 @@ class Context:
             return html.fromstring(text)
         raise ValueError("Invalid HTML document: %s" % url)
 
-    def parse_resource_xml(self, name: PathLike) -> ElementOrTree:
+    def parse_resource_xml(self, name: PathLike) -> etree._ElementTree:
         """Parse a file in the resource folder into an XML tree.
 
         Args:
@@ -349,11 +349,20 @@ class Context:
         return join_slug(*parts, prefix=prefix, strict=strict)
 
     def make_id(
-        self, *parts: Optional[str], prefix: Optional[str] = None
+        self,
+        *parts: Optional[str],
+        prefix: Optional[str] = None,
+        hash_prefix: Optional[str] = None,
     ) -> Optional[str]:
         """Make a hash-based entity ID from a list of strings, prefixed with the
-        dataset prefix."""
-        hashed = make_entity_id(*parts, key_prefix=self.dataset.name)
+        dataset prefix.
+
+        Args:
+            prefix: Use this prefix in the slug, but not the hash.
+            hash_prefix: Use this prefix in the hash, but not the slug.
+        """
+        hash_prefix = hash_prefix or self.dataset.name
+        hashed = make_entity_id(*parts, key_prefix=hash_prefix)
         if hashed is None:
             return None
         return self.make_slug(hashed, prefix=prefix, strict=True)
@@ -372,6 +381,20 @@ class Context:
 
     def lookup(self, lookup: str, value: Optional[str]) -> Optional[Result]:
         return self.get_lookup(lookup).match(value)
+
+    def debug_lookups(self) -> None:
+        """Output a list of unused lookup options."""
+        for name, lookup in self.dataset.lookups.items():
+            for option in lookup.options:
+                if option.ref_count > 0:
+                    continue
+                self.log.warn(
+                    "Unused lookup option",
+                    lookup=name,
+                    option=option,
+                    clauses=option.clauses,
+                )
+            # print(lookup.unmatched_yaml())
 
     def inspect(self, obj: Any) -> None:
         """Display an object in a form suitable for inspection.

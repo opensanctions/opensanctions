@@ -4,7 +4,7 @@ prefix: ca-sema
 coverage:
   frequency: daily
 deploy:
-  schedule: "0 */2 * * *"
+  schedule: "0 */3 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   Sanctions imposed by Canada on specific countries, organizations, or individuals 

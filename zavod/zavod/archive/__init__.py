@@ -22,6 +22,7 @@ ISSUES_LOG = "issues.log"
 ISSUES_FILE = "issues.json"
 RESOURCES_FILE = "resources.json"
 INDEX_FILE = "index.json"
+CATALOG_FILE = "catalog.json"
 
 
 def get_backfill_object(dataset_name: str, resource: str) -> ArchiveObject:

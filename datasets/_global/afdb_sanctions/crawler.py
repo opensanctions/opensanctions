@@ -1,3 +1,4 @@
+import shutil
 from lxml import html
 from normality import slugify, collapse_spaces
 from pantomime.types import HTML
@@ -16,7 +17,14 @@ def parse_date(text):
 
 
 def crawl(context: Context):
-    path = context.fetch_resource("source.html", context.data_url)
+    # Cloudflare blocks access to our crawler:
+    # path = context.fetch_resource("source.html", context.data_url)
+    # context.export_resource(path, HTML, title=context.SOURCE_TITLE)
+
+    assert context.dataset.base_path is not None
+    data_path = context.dataset.base_path / "data.html"
+    path = context.get_resource_path("source.html")
+    shutil.copyfile(data_path, path)
     context.export_resource(path, HTML, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         doc = html.parse(fh)

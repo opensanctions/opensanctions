@@ -4,7 +4,6 @@ prefix: plural
 coverage:
   frequency: weekly
 deploy:
-  schedule: "30 */6 * * *"
   memory: "1000Mi"
 summary: >
   Open data on state legislators in the United States of America.
@@ -48,3 +47,43 @@ lookups:
         position_prefix: Secretary of state
       - match: chief election officer
         position_prefix: null
+  type.email:
+    lowercase: true
+    options:
+      - match:
+          - 307j@att
+          - SL Jones@ballhealth.com
+          - na
+          - "!"
+          - (View Map)
+          - aquintero@elmontec
+          - repalcos iii@capitol.hawaii.gov
+          - sendela cruz@capitol.hawaii.gov
+          - senrichards iii@capitol.hawaii.gov
+          - senihara jr.@capitol.hawaii.gov
+          - repla chica@capitol.hawaii.gov
+          - ebankslaw@aol.com@house.ms.gov
+          - SenKean, Jr.@njleg.org
+          - AsmVainieri Huttle@njleg.org
+        contains:
+          - www.cityofmontebello.com
+          - www.house.leg.state.mn.us
+        value: null
+      - match: tcolpetzer@mcdonoughga.org.
+        value: tcolpetzer@mcdonoughga.org
+      - match: sensan buenaventura@capitol.hawaii.gov
+        value: sensanbuenaventura@capitol.hawaii.gov
+      - match: district@repkelly.com, mike@repkelly.com
+        values:
+          - district@repkelly.com
+          - mike@repkelly.com
+      - match: repnreitz@gmail com
+        value: repnreitz@gmail.com
+      - match: achmielewski@belairmd.orgA Chmielewski sm10
+        value: achmielewski@belairmd.org
+      - match: tscott@carlislepa.org.
+        value: tscott@carlislepa.org
+      - match: mayor@cityofkaty.com.
+        value: mayor@cityofkaty.com
+      - match: jrkillacky52@gmail,com
+        value: jrkillacky52@gmail.com

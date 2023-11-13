@@ -1,0 +1,51 @@
+title: Polish sanctions countering money laundering and terror financing
+entry_point: crawler.py
+prefix: pl-fin
+coverage:
+  frequency: daily
+deploy:
+  schedule: "0 */6 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Sanctions by Polish Ministry of Finance countering money laundering and terror
+  financing, as well as UN Security Council resolutions 2253 and 1988
+description: |
+    The Inspector General of Financial Information in the Polish Ministry of Finance
+    issues sanctions such that obligated institutions apply restrictive measures
+    in accordance with Article 118 Section 1 point 1 of the Act of March 1, 2018 on
+    countering money laundering and terrorist financing.
+
+    These sanctions comprise of a small list issued by the Polish Ministry of Finance,
+    as well as the lists referred to in point 3 of resolution 2253 (2015)
+    of the United Nations Security Council and point 1 of resolution 1988 (2011) of
+    the United Nations Security Council United Nations (UN SC).
+
+    This dataset includes minimal data from the UN lists, whose data is included in
+    full in the [UN SC Consolidated Dataset](https://www.opensanctions.org/datasets/un_sc_sanctions/)
+    and our [Standard collection of datasets](https://www.opensanctions.org/datasets/default/)
+publisher:
+  name: Generalny Inspektor Informacji Finansowej
+  description: |
+    The Inspector General of Financial Information in the Polish Ministry of Finance
+  url: https://www.gov.pl/web/finanse/generalny-inspektor-informacji-finansowej
+  country: pl
+  official: true
+url: https://www.gov.pl/web/finanse/lista-osob-i-podmiotow-wobec-ktorych-stosuje-sie-szczegolne-srodki-ograniczajace-na-podstawie-art-118-ustawy-z-dnia-1-marca-2018-r-o-przeciwdzialaniu-praniu-pieniedzy-i-finansowaniu-terroryzmu
+data:
+  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vR1QhgLSbLVzombbJu20IB1eJ-ORMazTPj7TCTHDJ-y_bo4dEoISAZgE3DL9c7wszmXEfY13L6P78GR/pub?gid=0&single=true&output=csv
+  format: CSV
+  lang: pol
+
+lookups:
+  type.country:
+    normalize: true
+    lowercase: true
+    options:
+      - match:
+          - Republika Iraku
+          - iracka
+        value: IQ
+      - match: 
+          - Federalna Republika Nigerii
+          - nigeryjska
+        value: NG

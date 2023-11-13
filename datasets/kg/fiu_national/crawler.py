@@ -9,18 +9,18 @@ FORMATS = ["%d.%m.%Y", "%Y%m%d", "%Y-%m-%d"]
 
 def parse_person(context: Context, node: Element):
     entity = context.make("Person")
-    h.apply_name(
-        entity,
-        given_name=node.findtext("./Name"),
-        patronymic=node.findtext("./Patronomic"),
-        last_name=node.findtext("./Surname"),
-    )
     entity.id = context.make_id(
         node.tag,
         node.findtext("./Number"),
         node.findtext("./Name"),
         node.findtext("./Patronomic"),
         node.findtext("./Surname"),
+    )
+    h.apply_name(
+        entity,
+        given_name=node.findtext("./Name"),
+        patronymic=node.findtext("./Patronomic"),
+        last_name=node.findtext("./Surname"),
     )
     entity.add("birthDate", h.parse_date(node.findtext("./DataBirth"), FORMATS))
     entity.add("birthPlace", node.findtext("./PlaceBirth"))

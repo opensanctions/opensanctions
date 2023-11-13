@@ -79,7 +79,15 @@ def crawl(context: Context):
         address = h.make_address(context, full=addr_string, country_code="md")
         h.apply_address(context, entity, address)
 
-        delay_until_date = parse_delay(context, data.pop("mentiuni"))
+        delay_until_date = None
+        delay_note = None
+        delay  = data.pop("mentiuni")
+        if delay:
+            date_match = REGEX_DELAY.match(delay)
+            if date_match:
+                delay_until_date = parse_date(date_match.group(1))
+            else:
+                delay_note = "Mențiuni: " + delay
         start_date = parse_date(data.pop("data-inscrierii"))
         start_date = delay_until_date or start_date
 
@@ -97,23 +105,13 @@ def crawl(context: Context):
             "endDate", parse_date(data.pop("termenul-limita-de-includere-in-lista"))
         )
         sanction.add("listingDate", start_date)
+        sanction.add("status", delay_note, lang="rum")
 
         owners_and_admins = data.pop("date-privind-administratotul-si-fondatorii")
         crawl_control(context, entity, decision_date, owners_and_admins)
 
         context.emit(entity, target=True)
         context.emit(sanction)
-
-
-def parse_delay(context, delay):
-    if delay:
-        date_match = REGEX_DELAY.match(delay)
-        if date_match:
-            return parse_date(date_match.group(1))
-        else:
-            context.log.warn(
-                f"Failed to parse date from nonempty delay: { date_match, delay }"
-            )
 
 
 def parse_date(text):

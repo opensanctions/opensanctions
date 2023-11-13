@@ -1,11 +1,14 @@
 name: de_abgeordnetenwatch
-title: "abgeordnetenwatch"
+title: "Members of German Legislatures from AbgeordnetenWatch"
 url: https://www.abgeordnetenwatch.de
 entry_point: crawler
 prefix: de-aw
 coverage:
   frequency: daily
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Members of the German national legislature (The Bundestag)
+  and state legislatures (Landstag).
 description: |
   Members of the German national legislature (The Bundestag)
   and state legislatures (Landstag) and the positions they occupy
@@ -13,15 +16,15 @@ description: |
 
   Data released under CC0 1.0 license.
 publisher:
-    name: Parlamentwatch e.V.
-    description: |
-      On abgeordnetenwatch.de (which translates as “member of parliament watch”)
-      users can find all their representatives and ask them public questions, read
-      investigative researchs and support their demands towards politics for more
-      transparency.
-    acronym: de-bund
-    country: de
-    url: https://www.abgeordnetenwatch.de/ueber-uns/impressum
+  name: Parlamentwatch e.V.
+  official: false
+  description: |
+    On abgeordnetenwatch.de (which translates as “member of parliament watch”)
+    users can find all politicial representatives and ask them questions, read
+    investigative research and support their demands towards politics for more
+    transparency.
+  country: de
+  url: https://www.abgeordnetenwatch.de/ueber-uns/impressum
 data:
-    url: "https://www.abgeordnetenwatch.de/api/v2/candidacies-mandates?type=mandate"
-    format: JSON
+  url: "https://www.abgeordnetenwatch.de/api/v2/candidacies-mandates?type=mandate"
+  format: JSON

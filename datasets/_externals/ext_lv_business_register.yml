@@ -3,11 +3,14 @@ title: Register of Enterprises of the Republic of Latvia (Uzņēmumu reģistrs)
 entry_point: zavod.runner.enrich:enrich
 full_dataset: lv_business_register
 disabled: false
+coverage:
+  frequency: weekly
 exports:
   - statistics.json
 deploy:
-  schedule: "1 14 * * *"
-  memory: "2000Mi"
+  # schedule: "1 14 * * *"
+  memory: "1000Mi"
+  memory_limit: "2000Mi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   The Latvian company registry lists directors, shareholders and beneficial owners
@@ -49,6 +52,7 @@ config:
   strip_namespace: true
   fuzzy: false
   threshold: 0.7
+  algorithm: regression-v1
   schemata:
     - Company
     - Organization

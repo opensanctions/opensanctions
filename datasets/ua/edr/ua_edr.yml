@@ -13,6 +13,7 @@ deploy:
 exports:
   - statistics.json
   - entities.ftm.json
+  - senzing.json
 resolve: false
 summary: |
   The beneficial ownership database of legal entities registered in Ukraine (EDR)
@@ -27,6 +28,7 @@ publisher:
     for State Registration and Notariat.
   url: https://usr.minjust.gov.ua/
   country: ua
+  official: true
 data:
   url: "https://data.opensanctions.org/contrib/ua_edr/23022022.zip"
   format: XML

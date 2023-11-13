@@ -1,11 +1,9 @@
 # Inspired by: https://github.com/DtorrX/effective-bassoon
-title: National Settlement Depository (NSD Russia) ISIN Assignment
+title: Russian National Settlement Depository (NSD, ISIN Assignment)
 entry_point: crawler.py
 prefix: ru-nsd
 coverage:
   frequency: daily
-deploy:
-  schedule: "0 */6 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   ISIN security identifiers assigned in Russia and subject to a US investment
@@ -31,3 +29,112 @@ url: https://www.isin.ru/ru/ru_isin/news_c/
 data:
   url: https://www.isin.ru/ru/ru_isin/news_c/
   format: HTML
+
+lookups:
+  fields:
+    options:
+      - match:
+          - "Управляющая компания" # Management company
+          - "Специализированный депозитарий" # Specialized depository
+          - "Реестродержатель" # Registrar
+          - "Регистратор" # Registrar
+          - "Управляющий ипотечным покрытием" # Mortgage coverage manager
+          - "Порядок хранения/учета" # Storage / accounting procedure
+          - "Дата принятия решения" # Date of decision
+          - "Финансовый инструмент" # Financial instrument
+          - "Коэффициент (ДР : Представляемые ценные бумаги)" # Coefficient (DR: Securities represented)
+          - "Номер решения о формировании имущественного пула" # Number of the decision on the formation of the property pool
+          - "Дата государственной регистрации правил фонда" # Date of state registration of fund rules
+        prop: null
+      - match:
+          - "ISIN код"
+        prop: isin
+        entity: security
+      - match:
+          - "Дата присвоения кода" # Date of assignment of the code
+          - "Дата присвоения идентификационного номера выпуска" # Date of assignment of the issue identification number
+        prop: createdAt
+        type: date
+        entity: security
+      - match:
+          - "Эмитент" # Issuer
+          - "Полное наименование организации, выдающей КСУ" # Full name of the organization issuing the CSU
+          - "Наименование фонда" # "Fund Name"
+        prop: name
+        entity: issuer
+      - match:
+          - "ИНН эмитента" # Issuer's TIN
+        prop: innCode
+        entity: issuer
+      - match:
+          - "Полное наименование индекса на английском языке" # Full name of the index in English
+          - "Полное наименование индекса" # Full name of the index
+          - "Наименование выпуска/транша"
+          - "Полное наименование финансового инструмента"
+          - "Наименование выпуска/транша"
+          - "Наименование имущественного пула"
+          - "Наименование ипотечного сертификата участия с ипотечным покрытием" # Name of the mortgage participation certificate with mortgage coverage
+          - "Наименование ипотечных сертификатов участия с ипотечным покрытием" # Name of mortgage participation certificates with mortgage coverage
+          - "Наименование ипотечных сертификатов участия" # Name of mortgage participation certificates
+          - "Полное наименование депозитной ставки" # Full name of the deposit rate
+          - "Полное наименование инструмента" # Full name of the tool
+          - "Наименование финансового инструмента" # Name of the financial instrument
+        prop: name
+        entity: security
+      - match:
+          - "Тип фонда"
+        prop: legalForm
+        entity: issuer
+      - match:
+          - "Номинал"
+          - "Номинальная стоимость каждой ценной бумаги"
+        prop: amount
+        entity: security
+      - match:
+          - "Валюта номинала"
+        prop: currency
+        entity: security
+      - match:
+          - "Форма выпуска ценной бумаги"
+        prop: classification
+        entity: security
+      - match:
+          - "Краткое наименование депозитной ставки" # Short name of the deposit rate
+          - "Краткое наименование индекса" # Short name of the index
+          - "Краткое наименование индекса на английском языке" # Short name of the index in English
+          - "Краткое наименование инструмента" # Short name of the tool
+          - "Краткое наименование финансового инструмента" # Short name of the financial instrument
+        prop: ticker
+        entity: security
+      - match:
+          - "Pегистрационный номер"
+          - "Регистрационный номер"
+          - "Идентификационный номер выпуска"
+          - "Регистрационный номер выпуска" # Issue registration number
+          - "Государственный регистрационный номер выпуска" # State registration number of the issue
+          - "Государственный регистрационный номер правил Д.У." # State registration number of the rules D.U.
+          - "Государственный регистрационный номер правил фонда" # State registration number of the rules of the fund
+          - "Государственный регистрационный номер правил" # State registration number of the rules
+        prop: registrationNumber
+        entity: security
+      - match: "Дата погашения"
+        prop: maturityDate
+        type: date
+        entity: security
+      - match:
+          - "Дата регистрации"
+          - "Дата допуска к торгам на фондовой бирже в процессе размещения"
+          - "Дата государственной регистрации выпуска" # 'Date of state registration of the issue'
+          - "Дата допуска к торгам на фондовой бирже в процессе размещения" # 'Date of admission to trading on the stock exchange in the process of placement'
+          - "Дата регистрации выпуска" # Issue registration date
+          - "Дата государственной регистрации правил Д.У." # Date of state registration of D.U.
+          - "Дата государственной регистрации правил" # Date of state registration of the rules
+        prop: issueDate
+        type: date
+        entity: security
+      - match:
+          - "Вид, категория ценной бумаги"
+          - "Вид, категория, тип ценной бумаги"
+          - "Тип ценной бумаги"
+        prop: type
+        entity: security

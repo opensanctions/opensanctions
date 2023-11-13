@@ -12,8 +12,10 @@ from zavod.exporters.simplecsv import SimpleCSVExporter
 from zavod.exporters.senzing import SenzingExporter
 from zavod.exporters.statistics import StatisticsExporter
 from zavod.exporters.peps import PEPSummaryExporter
+from zavod.exporters.securities import SecuritiesExporter
 from zavod.exporters.statements import StatementsCSVExporter
 from zavod.exporters.metadata import write_dataset_index, write_issues
+from zavod.exporters.metadata import write_catalog
 
 log = get_logger(__name__)
 
@@ -33,6 +35,7 @@ EXPORTERS: Dict[str, Type[Exporter]] = {
     SimpleCSVExporter.FILE_NAME: SimpleCSVExporter,
     SenzingExporter.FILE_NAME: SenzingExporter,
     PEPSummaryExporter.FILE_NAME: PEPSummaryExporter,
+    SecuritiesExporter.FILE_NAME: SecuritiesExporter,
     StatementsCSVExporter.FILE_NAME: StatementsCSVExporter,
 }
 
@@ -77,10 +80,9 @@ def export_dataset(dataset: Dataset, view: View) -> None:
         context.begin(clear=False)
         export_data(context, view)
 
-        if not dataset.is_collection:
-            # Export issues
-            write_issues(dataset)
         # Export full metadata
         write_dataset_index(dataset)
+        write_issues(dataset)
+        write_catalog(dataset)
     finally:
         context.close()

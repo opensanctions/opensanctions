@@ -2,9 +2,10 @@ title: Inter-American Development Bank Sanctions
 entry_point: crawler.py
 prefix: iadb
 coverage:
-  frequency: daily
+  frequency: never
+  end: 2023-11-10
 deploy:
-  schedule: "0 */6 * * *"
+  schedule: "@monthly"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   The firms and individuals listed have been sanctioned for having engaged in
@@ -47,9 +48,11 @@ publisher:
   url: https://www.iadb.org/
   official: true
 url: https://www.iadb.org/en/transparency/sanctioned-firms-and-individuals
+
+# FIXME: powerbi embed requires manual fetching of the Spreadsheet data export
 data:
-  url: https://www.iadb.org/en/sanctioned-firms/get-santions/pPageNumber=1&pPageSize=100&pLang=en
-  format: JSON
+  url: https://www.iadb.org/en/who-we-are/transparency/sanctions-system/sanctioned-firms-and-individuals
+  format: XLSX
 
 lookups:
   types:

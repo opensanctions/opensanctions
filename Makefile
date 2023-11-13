@@ -1,5 +1,8 @@
-DOCKER=
-TS=$(shell date +%Y%m%d%H%M)
+# SHELL specifies the shell used by Make. Bash is used for its array and string manipulation capabilities.
+SHELL := /bin/bash
+
+# Check if 'docker-compose' is available, if not, use 'docker compose'.
+COMPOSE_CMD := $(if $(shell which docker-compose 2>/dev/null),docker-compose,docker compose)
 
 .PHONY: build
 
@@ -9,19 +12,19 @@ workdir:
 	mkdir -p data/postgres
 
 build:
-	docker-compose build --pull
+	$(COMPOSE_CMD) build --pull
 
 services:
-	docker-compose up -d --remove-orphans db
+	$(COMPOSE_CMD) up -d --remove-orphans db
 
 shell: build workdir services
-	docker-compose run --rm app bash
+	$(COMPOSE_CMD) run --rm app bash
 
 run: build workdir services
-	docker-compose run --rm app opensanctions run
+	$(COMPOSE_CMD) run --rm app opensanctions run
 
 stop:
-	docker-compose down --remove-orphans
+	$(COMPOSE_CMD) down --remove-orphans
 
 clean:
 	rm -rf data/datasets build dist .mypy_cache .pytest_cache

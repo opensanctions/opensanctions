@@ -1,0 +1,46 @@
+title: US Directorate of Defense Trade Controls Penalties & Oversight Agreements
+entry_point: crawler.py
+prefix: us-ddtc-enf
+coverage:
+  frequency: daily
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: |
+  Consent agreements entered into by parties accused of violating the Arms 
+  Export Control Act (AECA) or International Traffic in Arms Regulations (ITAR)
+description: |
+  This dataset provides a current and historical list of names of current individuals
+  and companies who entered into consent agreements
+  with the Directorate of Defense Trade Controls (DDTC) to settle allegations of violations
+  of the AECA or ITAR. 
+
+  It includes a short description of the allegations and a link
+  to the charging letter for each instance when available.
+
+  The publisher's page (link provided) additionally publishes the agreement and the order
+  of remediation actions.
+
+  From the DDTC page:
+
+  > Pursuant to the International Traffic in Arms Regulations (ITAR) §127.10, the 
+  > Assistant Secretary for Political-Military Affairs is authorized to impose civil 
+  > penalties for violations of the Arms Export Control Act (AECA) and the ITAR. 
+  > Imposition of civil penalties generally includes the payment of fines to the U.S. 
+  > Treasury and a Consent Agreement, under which the company is required to institute 
+  > enhanced compliance measures. The Consent Agreement outlines the measures required 
+  > to enhance compliance programs.
+  >
+  > Consent Agreements and accompanying documents are made available to the public.
+  > Current and past agreements are provided
+url: "https://www.pmddtc.state.gov/ddtc_public/ddtc_public?id=ddtc_kb_article_page&sys_id=384b968adb3cd30044f9ff621f961941"
+publisher:
+  name: US State Department Directorate of Defense Trade Controls
+  description: |
+    The Directorate of Defense Trade Controls (DDTC) ensures commercial exports
+    of defense articles and defense services advance U.S. national security and
+    foreign policy objectives.
+  country: us
+  url: https://www.pmddtc.state.gov/ddtc_public/ddtc_public?id=ddtc_public_portal_homepage
+  official: true
+data:
+  url: "https://www.pmddtc.state.gov/api/now/sp/widget/844682081bbbc550055b9796bc4bcb3d?id=ddtc_kb_article_page&sys_id=384b968adb3cd30044f9ff621f961941"
+  format: JSON

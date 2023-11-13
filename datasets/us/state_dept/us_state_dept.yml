@@ -1,0 +1,32 @@
+title: US State Department Senior Officials
+entry_point: crawler.py
+prefix: us-dos
+coverage:
+  frequency: daily
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: |
+  Senior officials in the US Department of State
+description: |
+  This is a dataset of senior officials in the US Department of State
+  including political appointees like the Secretary of State and Under
+  Secretaries of State, and senior administrative staff.
+
+  The State Department consists of bureaus and offices responsible for
+  handling various state interests and policy initiatives, each reporting to
+  a specific under secretary. A number of geographic bureaus and offices
+  report to and advise the Under Secretary for Political Affairs, and
+  guide the operation of the U.s. diplomatic missions within their regional
+  jurisdiction.
+url: https://www.state.gov/biographies-list/
+publisher:
+  name: US State Department
+  description: |
+    The U.S. State Department's stated mission is to protect and promote U.S. 
+    security, prosperity, and democratic values and shape an international
+    environment in which all Americans can thrive.
+  country: us
+  url: https://www.pmddtc.state.gov/ddtc_public/ddtc_public?id=ddtc_public_portal_homepage
+  official: true
+data:
+  url: https://www.state.gov/biographies-list/
+  format: HTML

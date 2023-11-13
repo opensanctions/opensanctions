@@ -1,24 +1,14 @@
 import json
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Generator
 from banal import ensure_list
-from functools import cache
 from pantomime.types import JSON
-from requests.exceptions import RequestException
 from followthemoney.types import registry
 
-from zavod import Context
+from zavod import Context, Entity
 from zavod import helpers as h
 
+
 FORMATS = ["%d %b %Y", "%d %B %Y", "%Y", "%b %Y", "%B %Y"]
-
-
-@cache
-def deref_url(context: Context, url):
-    try:
-        res = context.fetch_response(url)
-        return str(res.url)
-    except RequestException:
-        return url
 
 
 def parse_date(text: Optional[str]):
@@ -30,6 +20,50 @@ def parse_date(text: Optional[str]):
     for part in h.multi_split(text, [" to "]):
         dates.extend(h.parse_date(part, FORMATS))
     return dates
+
+
+def parse_addresses(
+    context: Context, addresses: List[Dict[str, str]]
+) -> Generator[Entity, None, None]:
+    for address in addresses:
+        country_code = registry.country.clean(address.get("country"))
+        city = address.get("city")
+        postal_code = address.get("postal_code")
+        state = address.get("state")
+
+        def contains_parts(addr):
+            return (
+                (city is None or city in addr)
+                and (postal_code is None or postal_code in addr)
+                and (state is None or state in addr)
+            )
+
+        address_str = address.get("address")
+        splits = h.multi_split(address_str, ["; and", "; "])
+
+        if len(splits) > 0 and all([contains_parts(addr) for addr in splits]):
+            for split_addr in splits:
+                addr = h.make_address(
+                    context,
+                    full=split_addr,
+                    city=city,
+                    postal_code=postal_code,
+                    region=state,
+                    country_code=country_code,
+                )
+                if addr is not None:
+                    yield addr
+        else:
+            addr = h.make_address(
+                context,
+                street=address_str,
+                city=city,
+                postal_code=postal_code,
+                region=state,
+                country_code=country_code,
+            )
+            if addr is not None:
+                yield addr
 
 
 def parse_result(context: Context, result: Dict[str, Any]):
@@ -56,6 +90,9 @@ def parse_result(context: Context, result: Dict[str, Any]):
     name = result.pop("name", None)
     if name is not None:
         name = name.replace("and any successor, sub-unit, or subsidiary thereof", "")
+        if "bis.doc.gov" in result.get("source_list_url", ""):
+            name = name.replace("?s ", "'s ")
+            name = name.replace("?", " ")
         entity.add("name", name)
 
     if is_ofac:
@@ -99,16 +136,7 @@ def parse_result(context: Context, result: Dict[str, Any]):
     assert not result.pop("vessel_owner", None)
     assert not result.pop("vessel_type", None)
 
-    for address in result.pop("addresses", []):
-        country_code = registry.country.clean(address.get("country"))
-        obj = h.make_address(
-            context,
-            street=address.get("address"),
-            city=address.get("city"),
-            postal_code=address.get("postal_code"),
-            region=address.get("state"),
-            country_code=country_code,
-        )
+    for obj in parse_addresses(context, result.pop("addresses", [])):
         h.apply_address(context, entity, obj)
 
     for ident in result.pop("ids", []):
@@ -125,10 +153,7 @@ def parse_result(context: Context, result: Dict[str, Any]):
     sanction.add("endDate", result.pop("end_date", None))
     sanction.add("country", "us")
     sanction.add("authority", result.pop("source", None))
-
-    # TODO: deref
-    source_url = deref_url(context, result.pop("source_information_url"))
-    sanction.add("sourceUrl", source_url)
+    sanction.add("sourceUrl", result.pop("source_information_url"))
     result.pop("source_list_url")
 
     context.emit(sanction)

@@ -1,11 +1,16 @@
-from typing import Dict
+from typing import Dict, Optional, List
 
 from zavod import Context
 from zavod import helpers as h
 
 
-def parse_date(date):
-    return h.parse_date(date, ["%d-%m-%Y"])
+def parse_date(date: Optional[str]) -> List[str]:
+    if date is None:
+        return []
+    dates = set()
+    for dp in h.multi_split(date, [", "]):
+        dates.update(h.parse_date(dp[:10], ["%d-%m-%Y", "%Y-%m-%d", "%Y-%m"]))
+    return list(dates)
 
 
 def crawl_row(context: Context, data: Dict[str, str]):

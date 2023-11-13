@@ -21,6 +21,10 @@ def test_context_helpers(testdataset1: Dataset):
     assert testdataset1.name in repr(context)
     gen_id = "osv-d5fdc7f711d0d9fd15421102d272e475a236005c"
     assert context.make_id("john", "doe") == gen_id
+    other_prefix_id = "other-d5fdc7f711d0d9fd15421102d272e475a236005c"
+    assert context.make_id("john", "doe", prefix="other") == other_prefix_id
+    other_hash_prefix_id = "osv-b47c69d4529998a124703956a9a9d8ae85f4860c"
+    assert context.make_id("john", "doe", hash_prefix="other") == other_hash_prefix_id
     assert context.make_id("") is None
     assert context.make_slug("john", "doe") == "osv-john-doe"
     assert context.make_slug(None) is None

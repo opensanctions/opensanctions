@@ -40,9 +40,9 @@ def crawl_person(context: Context, url: str) -> None:
         return
 
     person = context.make("Person")
+    person.id = context.make_slug(name)
     person.add("topics", "crime")
     person.add("name", name)
-    person.id = context.make_slug(name)
     person.add("sourceUrl", url)
     # last_name, first_name = name.split(" ", 1)
     # person.add("firstName", first_name)

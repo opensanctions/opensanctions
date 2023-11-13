@@ -7,11 +7,13 @@ coverage:
   frequency: weekly
 deploy:
   disk: 100Gi
+  cpu: 400m
   memory: 2500Mi
   premium: true
 exports:
   - statistics.json
   - entities.ftm.json
+  - senzing.json
 resolve: false
 summary: |
   The database of beneficial owners of companies incorporated in England, Wales,
@@ -23,6 +25,7 @@ publisher:
     limited companies, and the maintenance of their records.
   url: https://www.gov.uk/government/organisations/companies-house
   country: gb
+  official: true
 data:
   url: "http://download.companieshouse.gov.uk/en_pscdata.html"
   format: JSON

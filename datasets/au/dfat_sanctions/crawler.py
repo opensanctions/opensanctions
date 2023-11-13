@@ -1,6 +1,6 @@
 import string
 import openpyxl
-from typing import List, Optional
+from typing import List, Optional, Set, Tuple, Dict, Any
 from collections import defaultdict
 from normality import slugify
 from datetime import datetime
@@ -52,11 +52,7 @@ def clean_date(date):
     return dates
 
 
-def clean_reference(ref) -> Optional[int]:
-    if ref is None:
-        return None
-    if isinstance(ref, (int, float)):
-        return int(ref)
+def clean_reference(ref: str) -> Optional[int]:
     number = ref
     while len(number):
         try:
@@ -66,7 +62,13 @@ def clean_reference(ref) -> Optional[int]:
     raise ValueError()
 
 
-def parse_reference(context: Context, reference: int, rows):
+def clean_country(country: str) -> List[str]:
+    return h.multi_split(country, ["a)", "b)", "c)", "d)", ";", ",", " and "])
+
+
+def parse_reference(
+    context: Context, reference: int, rows: List[Dict[str, Any]]
+) -> None:
     schemata = set()
     for row in rows:
         type_ = row.pop("type")
@@ -85,7 +87,8 @@ def parse_reference(context: Context, reference: int, rows):
         return
     entity = context.make(schemata.pop())
 
-    primary_name = None
+    primary_name: Optional[str] = None
+    names: List[Tuple[str, str]] = []
     for row in rows:
         name = row.pop("name_of_individual_or_entity", None)
         name_type = row.pop("name_type")
@@ -93,11 +96,13 @@ def parse_reference(context: Context, reference: int, rows):
         if name_prop is None:
             context.log.warning("Unknown name type", name_type=name_type)
             return
-        entity.add(name_prop, name)
+        names.append((name_prop, name))
         if name_prop == "name" or primary_name is None:
             primary_name = name
 
     entity.id = context.make_slug(reference, primary_name)
+    for name_prop, name in names:
+        entity.add(name_prop, name)
     sanction = h.make_sanction(context, entity)
 
     primary_name = None
@@ -108,10 +113,11 @@ def parse_reference(context: Context, reference: int, rows):
                 address = h.make_address(context, full=part)
                 h.apply_address(context, entity, address)
         sanction.add("program", row.pop("committees"))
-        citizen = h.multi_split(
-            row.pop("citizenship"), ["a)", "b)", "c)", "d)", ";", ","]
-        )
-        entity.add("nationality", citizen, quiet=True)
+        country = clean_country(row.pop("citizenship"))
+        if entity.schema.is_a("Person"):
+            entity.add("nationality", country)
+        else:
+            entity.add("country", country)
         dates = clean_date(row.pop("date_of_birth"))
         entity.add("birthDate", dates, quiet=True)
         entity.add("birthPlace", row.pop("place_of_birth"), quiet=True)
@@ -127,6 +133,7 @@ def parse_reference(context: Context, reference: int, rows):
         control_date = row.pop("control_date")
         sanction.add("startDate", control_date)
         entity.add("createdAt", control_date)
+        context.audit_data(row, ignore=["reference"])
 
     entity.add("topics", "sanction")
     context.emit(entity, target=True)
@@ -134,16 +141,13 @@ def parse_reference(context: Context, reference: int, rows):
 
 
 def crawl(context: Context):
-    # TODO: why does this work and the fetch call does not?
-    # path = context.get_resource_path("source.xlsx")
-    # res = requests.get(context.data_url, verify=False)
-    # with open(path, "wb") as fh:
-    #     fh.write(res.content)
     path = context.fetch_resource("source.xlsx", context.data_url)
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
     workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
     references = defaultdict(list)
+    raw_references: Set[str] = set()
+    # duplicates = set()
     for sheet in workbook.worksheets:
         headers: Optional[List[str]] = None
         for row in sheet.rows:
@@ -152,7 +156,16 @@ def crawl(context: Context):
                 headers = [slugify(h, sep="_") for h in cells]
                 continue
             row = dict(zip(headers, cells))
-            reference = clean_reference(row.get("reference"))
+            raw_ref = row.get("reference")
+            if raw_ref is None:
+                continue
+            raw_ref = str(raw_ref)
+            if raw_ref in raw_references:
+                raise ValueError("Duplicate reference: %s" % raw_ref)
+                # duplicates.add(raw_ref)
+
+            raw_references.add(raw_ref)
+            reference = clean_reference(raw_ref)
             if reference is not None:
                 references[reference].append(row)
 
@@ -168,3 +181,5 @@ def crawl(context: Context):
 
     for ref, rows in references.items():
         parse_reference(context, ref, rows)
+
+    # print("Duplicates:", duplicates)

@@ -1,9 +1,12 @@
+from banal import first
 from lxml.etree import _Element
 from normality import collapse_spaces
 from pantomime.types import XML
+from followthemoney.types import registry
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.runtime.lookups import type_lookup
 
 FORMATS = ["%Y", "%d-%m-%Y", "%b-%y"]
 
@@ -24,35 +27,40 @@ def crawl(context: Context):
 
 def parse_entry(context: Context, node: _Element):
     entity_name = node.findtext("./Entity")
+    given_name = node.findtext("./GivenName")
+    last_name = node.findtext("./LastName")
     dob = node.findtext("./DateOfBirth")
     schedule = node.findtext("./Schedule")
     if schedule == "N/A":
         schedule = ""
-    program = node.findtext("./Country")
-    item = node.findtext("./Item")
-    if entity_name is not None:
-        entity = context.make("LegalEntity")
-        entity.add("name", entity_name.split("/"))
-    else:
-        entity = context.make("Person")
-        given_name = node.findtext("./GivenName")
-        last_name = node.findtext("./LastName")
+    if entity_name is None:
         entity_name = h.make_name(given_name=given_name, last_name=last_name)
-        entity.add("name", entity_name)
-        entity.add("birthDate", parse_date(dob))
-
+    program = node.findtext("./Country")
     country = program
     if program is not None and "/" in program:
-        country, _ = program.split("/")
-    entity.add("country", country)
+        country, _ = program.split("/", 1)
 
+    item = node.findtext("./Item")
+    entity = context.make("LegalEntity")
+    country_code = registry.country.clean(country)
     entity.id = context.make_slug(
         schedule,
         item,
-        entity.first("country"),
+        country_code,
         entity_name,
         strict=False,
     )
+    if given_name is not None or last_name is not None or dob is not None:
+        entity.add_schema("Person")
+        h.apply_name(entity, first_name=given_name, last_name=last_name)
+        entity.add("birthDate", parse_date(dob))
+    elif entity_name is not None:
+        entity.add("name", entity_name.split("/"))
+        # entity.add("incorporationDate", parse_date(dob))
+        assert dob is None, (dob, entity_name)
+
+    entity.add("topics", "sanction")
+    entity.add("country", country)
 
     sanction = h.make_sanction(context, entity)
     sanction.add("program", program)
@@ -62,9 +70,7 @@ def parse_entry(context: Context, node: _Element):
     names = node.findtext("./Aliases")
     if names is not None:
         for name in names.split(", "):
-            name = collapse_spaces(name)
-            entity.add("alias", name)
+            entity.add("alias", collapse_spaces(name))
 
-    entity.add("topics", "sanction")
     context.emit(entity, target=True)
     context.emit(sanction)

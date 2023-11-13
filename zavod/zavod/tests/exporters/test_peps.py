@@ -4,10 +4,10 @@ from zavod.tests.exporters.util import harnessed_export
 from zavod.meta import Dataset
 from zavod.exporters.peps import PEPSummaryExporter, observe_occupancy
 from zavod.context import Context
-from zavod import helpers as h
 from zavod import settings
 from zavod.archive import clear_data_path
 from zavod.crawl import crawl_dataset
+from zavod.logic.pep import OccupancyStatus
 
 
 def test_pep_positions(testdataset2_export: Dataset):
@@ -29,8 +29,12 @@ def test_pep_positions(testdataset2_export: Dataset):
     assert us["counts"]["unknown"] == 1
 
     assert len(us["positions"]) == 2
-    rep = us["positions"]["td2-export-44fdcec78a4b6038bcea7903aa5448d59c4aebaf"]
-    assert rep["position_name"] == "United States representative"
+    rep = [
+        p
+        for p in us["positions"]
+        if p["id"] == "td2-export-44fdcec78a4b6038bcea7903aa5448d59c4aebaf"
+    ][0]
+    assert rep["names"] == ["United States representative"]
     assert rep["counts"]["total"] == 3
     assert rep["counts"]["current"] == 1
     assert rep["counts"]["ended"] == 2
@@ -49,15 +53,15 @@ def test_observe_occupancy(vcontext: Context) -> None:
 
     curr = vcontext.make("Occupancy")
     curr.id = "curr"
-    curr.add("status", h.OccupancyStatus.CURRENT.value)
+    curr.add("status", OccupancyStatus.CURRENT.value)
 
     ended = vcontext.make("Occupancy")
     ended.id = "ended"
-    ended.add("status", h.OccupancyStatus.ENDED.value)
+    ended.add("status", OccupancyStatus.ENDED.value)
 
     unknown = vcontext.make("Occupancy")
     unknown.id = "unknown"
-    unknown.add("status", h.OccupancyStatus.UNKNOWN.value)
+    unknown.add("status", OccupancyStatus.UNKNOWN.value)
 
     occupancies = {}
 

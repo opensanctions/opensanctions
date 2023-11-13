@@ -36,7 +36,7 @@ def crawl_leader(
 ) -> None:
     name = leader["name"]
     name = name.replace("(Acting)", "")
-    if h.is_empty(name):
+    if h.is_empty(name) or name.lower() == "vacant":
         return
     function = clean_position(leader["title"])
     gov = collapse_spaces(section)
@@ -56,13 +56,27 @@ def crawl_leader(
     person.add("position", function)
     person.add("sourceUrl", source_url)
 
-    position = h.make_position(context, function, country=country)
+    res = context.lookup("position_topics", function)
+    if res:
+        position_topics = res.topics
+    else:
+        position_topics = []
+        context.log.info(
+            "No topics match for position", position=function, country=country
+        )
+
+    position = h.make_position(
+        context,
+        function,
+        country=country,
+        topics=position_topics,
+        id_hash_prefix="us_cia_world_leaders",
+    )
     occupancy = h.make_occupancy(context, person, position)
 
     context.emit(person, target=True)
     context.emit(position)
     context.emit(occupancy)
-
 
 
 def crawl_country(context: Context, country: str) -> None:

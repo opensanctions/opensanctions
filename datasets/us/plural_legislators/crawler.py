@@ -14,7 +14,7 @@ REGEX_PATH = re.compile(
     "^people-main/data/(?P<jurisdiction>[a-z]{2})/(?P<body>legislature|executive|retired)"
 )
 REGEX_JURISDICTION = re.compile(
-    ".+/(?P<type>state|district|territory):(?P<code>[a-z]{2})(?P<place>/place:\w+)?(/government)?$"
+    ".+/(?P<type>state|district|territory):(?P<code>[a-z]{2})(?P<place>/(place|county):\w+)?(/government)?$"
 )
 
 
@@ -56,7 +56,6 @@ def crawl_person(context, jurisdictions, house_positions, data: dict[str, Any]):
     pep_entities = []
     for role in data.pop("roles"):
         role_type = role.get("type")
-
         role_match = REGEX_JURISDICTION.match(role["jurisdiction"])
         if role_match:
             if role_match.group("place"):

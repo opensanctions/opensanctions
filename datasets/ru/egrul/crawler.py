@@ -1,13 +1,12 @@
-from concurrent.futures import ThreadPoolExecutor
-from urllib.parse import urljoin, urlparse
-from zipfile import ZipFile
 from lxml import etree
+from zipfile import ZipFile
+from urllib.parse import urljoin, urlparse
 from typing import Dict, Optional, Set, IO
 from lxml.etree import _Element as Element, tostring
-from followthemoney.util import join_text
 from addressformatting import AddressFormatter
 
 from zavod import Context, Entity
+from zavod import helpers as h
 
 INN_URL = "https://egrul.itsoft.ru/%s.xml"
 # original source: "https://egrul.itsoft.ru/EGRUL_406/01.01.2022_FULL/"
@@ -32,18 +31,19 @@ def elattr(el: Optional[Element], attr: str):
         return el.get(attr)
 
 
-def make_id(
-    context: Context, entity: Entity, local_id: Optional[str] = None
+def entity_id(
+    context: Context,
+    name: Optional[str] = None,
+    inn: Optional[str] = None,
+    ogrn: Optional[str] = None,
+    local_id: Optional[str] = None,
 ) -> Optional[str]:
-    # FIXME: should we make INN slugs if the nationality is not Russian?
-    for inn in sorted(entity.get("innCode", quiet=True)):
+    if inn is not None:
         return context.make_slug("inn", inn)
-    for ogrn in sorted(entity.get("ogrnCode", quiet=True)):
+    if ogrn is not None:
         return context.make_slug("ogrn", ogrn)
-    if local_id is not None:
-        # If no INN is present, make a fake entity ID:
-        for name in sorted(entity.get("name")):
-            return context.make_id(local_id, name)
+    if name is not None:
+        return context.make_id(local_id, name)
     return None
 
 
@@ -51,19 +51,22 @@ def make_person(
     context: Context, el: Element, local_id: Optional[str]
 ) -> Optional[Entity]:
     name_el = el.find(".//СвФЛ")
-    entity = context.make("Person")
     if name_el is None:
         return None
     last_name = name_el.get("Фамилия")
     first_name = name_el.get("Имя")
     patronymic = name_el.get("Отчество")
-    name = join_text(first_name, patronymic, last_name)
+    inn_code = name_el.get("ИННФЛ")
+    name = h.make_name(
+        first_name=first_name, patronymic=patronymic, last_name=last_name
+    )
+    entity = context.make("Person")
+    entity.id = entity_id(context, name, inn_code, local_id=local_id)
     entity.add("name", name)
     entity.add("firstName", first_name)
     entity.add("fatherName", patronymic)
     entity.add("lastName", last_name)
-    entity.add("innCode", name_el.get("ИННФЛ"))
-    entity.id = make_id(context, entity, local_id)
+    entity.add("innCode", inn_code)
 
     country = el.find("./СвГраждФЛ")
     if country is not None:
@@ -78,13 +81,19 @@ def make_org(context: Context, el: Element, local_id: Optional[str]) -> Entity:
     entity = context.make("Organization")
     name_el = el.find("./НаимИННЮЛ")
     if name_el is not None:
-        entity.add("name", name_el.get("НаимЮЛПолн"))
-        entity.add("innCode", name_el.get("ИНН"))
-        entity.add("ogrnCode", name_el.get("ОГРН"))
+        name = name_el.get("НаимЮЛПолн")
+        inn = name_el.get("ИНН")
+        ogrn = name_el.get("ОГРН")
+        entity.id = entity_id(context, name, inn, ogrn, local_id)
+        entity.add("name", name)
+        entity.add("innCode", inn)
+        entity.add("ogrnCode", ogrn)
 
     name_latin_el = el.find("./СвНаимЮЛПолнИн")
     if name_latin_el is not None:
-        entity.add("name", name_latin_el.get("НаимПолн"))
+        name_latin = name_latin_el.get("НаимПолн")
+        entity.id = entity_id(context, name=name_latin, local_id=local_id)
+        entity.add("name", name_latin)
 
     foreign_reg_el = el.find("./СвРегИн")
     if foreign_reg_el is not None:
@@ -92,22 +101,19 @@ def make_org(context: Context, el: Element, local_id: Optional[str]) -> Entity:
         entity.add("registrationNumber", foreign_reg_el.get("РегНомер"))
         entity.add("publisher", foreign_reg_el.get("НаимРегОрг"))
         entity.add("address", foreign_reg_el.get("АдрСтр"))
-
-    entity.id = make_id(context, entity, local_id)
     return entity
 
 
 def parse_founder(context: Context, company: Entity, el: Element):
-    owner = context.make("LegalEntity")
-    ownership = context.make("Ownership")
-
     meta = el.find("./ГРНДатаПерв")
+    owner = context.make("LegalEntity")
     local_id = company.id
     if meta is not None:
-        ownership.add("startDate", meta.get("ДатаЗаписи"))
         local_id = meta.get("ГРН") or local_id
+    link_summary: Optional[str] = None
+    link_date: Optional[str] = None
+    link_record_id: Optional[str] = None
 
-    ownership.add("role", el.tag)
     if el.tag == "УчрФЛ":  # Individual founder
         owner_proxy = make_person(context, el, local_id)
         if owner_proxy is not None:
@@ -124,14 +130,17 @@ def parse_founder(context: Context, company: Entity, el: Element):
         fund_name_el = el.find("./СвНаимПИФ")
         if fund_name_el is not None:
             # owner.add("name", fund_name_el.get("НаимПИФ"))
-            ownership.add("summary", fund_name_el.get("НаимПИФ"))
+            link_summary = fund_name_el.get("НаимПИФ")
 
         manager_el = el.find("./СвУпрКомпПИФ/УпрКомпПиф")
         if manager_el is not None:
-            owner.add("name", manager_el.get("НаимЮЛПолн"))
-            owner.add("innCode", manager_el.get("ИНН"))
-            owner.add("ogrnCode", manager_el.get("ОГРН"))
-            owner.id = make_id(context, owner, local_id)
+            name = manager_el.get("НаимЮЛПолн")
+            inn = manager_el.get("ИНН")
+            ogrn = manager_el.get("ОГРН")
+            owner.id = entity_id(context, name, inn, ogrn, local_id)
+            owner.add("name", name)
+            owner.add("innCode", inn)
+            owner.add("ogrnCode", ogrn)
     elif el.tag == "УчрРФСубМО":  # Russian public body
         pb_name_el = el.find("./ВидНаимУчр")
         if pb_name_el is not None:
@@ -139,9 +148,8 @@ def parse_founder(context: Context, company: Entity, el: Element):
             pb_name = pb_name_el.get("НаимМО")
             if pb_name is not None:
                 owner = context.make("Organization")
+                owner.id = entity_id(context, name=pb_name, local_id=local_id)
                 owner.add("name", pb_name)
-                owner.id = make_id(context, owner, local_id)
-            # ownership.add("role", pb_name_el.get("НаимМО"))
 
         # managing body:
         pb_el = el.find("./СвОргОсущПр")
@@ -151,17 +159,23 @@ def parse_founder(context: Context, company: Entity, el: Element):
         # FIXME: should the partnership be its own entity?
         terms_el = el.find("./ИнПрДогИнвТов")
         if terms_el is not None:
-            ownership.add("summary", terms_el.get("НаимДог"))
-            ownership.add("recordId", terms_el.get("НомерДог"))
-            ownership.add("date", terms_el.get("Дата"))
+            link_summary = terms_el.get("НаимДог")
+            link_record_id = terms_el.get("НомерДог")
+            link_date = terms_el.get("Дата")
 
         # managing vehicle
         manager_el = el.find("./СвУпТовЮЛ")
         if manager_el is not None:
-            owner.add("name", manager_el.get("НаимЮЛПолн"))
-            owner.add("innCode", manager_el.get("ИНН"))
-            owner.add("ogrnCode", manager_el.get("ОГРН"))
-            owner.id = make_id(context, owner, local_id)
+            name = manager_el.get("НаимЮЛПолн")
+            inn = manager_el.get("ИНН")
+            ogrn = manager_el.get("ОГРН")
+            owner.id = entity_id(context, name, inn, ogrn, local_id)
+            owner.add("name", name)
+            owner.add("innCode", inn)
+            owner.add("ogrnCode", ogrn)
+    elif el.tag == "УчрРФСубМО":
+        # Skip municipal ownership
+        return
     else:
         context.log.warn("Unknown owner type", tag=el.tag)
         return
@@ -171,8 +185,17 @@ def parse_founder(context: Context, company: Entity, el: Element):
             "No ID for owner: %s" % company.id, el=tag_text(el), owner=owner.to_dict()
         )
         return
-
+    ownership = context.make("Ownership")
     ownership.id = context.make_id(company.id, owner.id)
+    ownership.add("summary", link_summary)
+    ownership.add("recordId", link_record_id)
+    ownership.add("date", link_date)
+
+    meta = el.find("./ГРНДатаПерв")
+    if meta is not None:
+        ownership.add("startDate", meta.get("ДатаЗаписи"))
+
+    ownership.add("role", el.tag)
     ownership.add("owner", owner)
     ownership.add("asset", company)
 
@@ -267,10 +290,22 @@ def parse_address(context: Context, entity: Entity, el: Element):
 
 def parse_company(context: Context, el: Element):
     entity = context.make("Company")
-    entity.id = context.make_slug("inn", el.get("ИНН"))
+    inn = el.get("ИНН")
+    ogrn = el.get("ОГРН")
+    name_full: Optional[str] = None
+    name_short: Optional[str] = None
+
+    for name_el in el.findall("./СвНаимЮЛ"):
+        name_full = name_el.get("НаимЮЛПолн")
+        name_short = name_el.get("НаимЮЛСокр")
+
+    name = name_full or name_short
+    entity.id = entity_id(context, name=name, inn=inn, ogrn=ogrn)
     entity.add("jurisdiction", "ru")
-    entity.add("ogrnCode", el.get("ОГРН"))
-    entity.add("innCode", el.get("ИНН"))
+    entity.add("name", name_full)
+    entity.add("name", name_short)
+    entity.add("ogrnCode", ogrn)
+    entity.add("innCode", inn)
     entity.add("kppCode", el.get("КПП"))
     entity.add("legalForm", el.get("ПолнНаимОПФ"))
     entity.add("incorporationDate", el.get("ДатаОГРН"))
@@ -286,12 +321,6 @@ def parse_company(context: Context, el: Element):
     for addr_el in el.findall("./СвАдресЮЛ/*"):
         parse_address(context, entity, addr_el)
 
-    for name_el in el.findall("./СвНаимЮЛ"):
-        entity.add("name", name_el.get("НаимЮЛПолн"))
-        entity.add("name", name_el.get("НаимЮЛСокр"))
-
-    entity.id = make_id(context, entity)
-
     # prokura or directors etc.
     for director in el.findall("./СведДолжнФЛ"):
         parse_directorship(context, entity, director)
@@ -304,13 +333,17 @@ def parse_company(context: Context, el: Element):
 
 
 def parse_sole_trader(context: Context, el: Element):
+    inn = el.get("ИННФЛ")
+    ogrn = el.get("ОГРНИП")
     entity = context.make("LegalEntity")
+    entity.id = entity_id(context, inn=inn, ogrn=ogrn)
+    if entity.id is None:
+        context.log.warn("No ID for sole trader")
+        return
     entity.add("country", "ru")
-    entity.add("ogrnCode", el.get("ОГРНИП"))
-    entity.add("innCode", el.get("ИННФЛ"))
+    entity.add("ogrnCode", ogrn)
+    entity.add("innCode", inn)
     entity.add("legalForm", el.get("НаимВидИП"))
-
-    entity.id = make_id(context, entity)
     context.emit(entity)
 
 
@@ -363,9 +396,3 @@ def crawl(context: Context) -> None:
     # TODO: thread pool execution
     for archive_url in sorted(crawl_index(context, context.data_url)):
         crawl_archive(context, archive_url)
-
-
-def crawl_parallel(context: Context) -> None:
-    with ThreadPoolExecutor() as executor:
-        for archive_url in crawl_index(context, context.data_url):
-            executor.submit(crawl_archive, context, archive_url)

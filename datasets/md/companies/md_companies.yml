@@ -8,7 +8,7 @@ coverage:
 deploy:
   disk: 30Gi
   memory: 2Gi
-  premium: true
+  # premium: true
 exports:
   - statistics.json
   - entities.ftm.json
@@ -23,6 +23,7 @@ publisher:
   url: http://asp.gov.md/
   description: |
     The P.I. “Public Services Agency” is a holder of the basic state information resources.
+  official: true
 
 lookups:
   type.date:

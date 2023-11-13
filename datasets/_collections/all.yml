@@ -4,8 +4,9 @@ hidden: true
 deploy:
   schedule: "15 */6 * * *"
   memory: "2000Mi"
+  cpu: "300m"
   disk: "20Gi"
-  premium: true
+  # premium: true
 summary: >
   Entities from all the datasets in OpenSanctions, including sanctions,
   politically exposed person and criminal figures. This collection exists
@@ -19,7 +20,7 @@ description: |
 children:
   - validation
   - default
-  - ru_rupep_companies
+  # - ru_rupep_companies
   - ru_fedsfm_wmd
   - ru_fedsfm_terror
   # - interpol_yellow_notices

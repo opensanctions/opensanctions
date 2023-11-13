@@ -1,0 +1,42 @@
+title: "EU Early Detection and Exclusion System (EDES)"
+entry_point: crawler.py
+prefix: eu-edes
+coverage:
+  frequency: daily
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  List of persons or entities excluded from contracts financed by the EU budget.
+description: |
+  > The economic operators listed below have been excluded from participation in
+  > EU procurement procedures, grant award procedures, prizes procedures, financial
+  > instruments and procedures for selection of experts or any other form of 
+  > contribution from the EU budget for the periods mentioned and/or have been
+  > imposed a financial penalty. Therefore, they cannot be awarded any contract
+  > financed by the EU budget.
+  > 
+  > Please note that the list below concerns only the cases for which a decision
+  > was taken to publish in order to, where necessary, reinforce the deterrent
+  > effect of the sanctions. Other cases of exclusions and financial penalty are
+  > listed in the Commission's database (EDES-DB) which is only accessible to
+  > authorised users involved in the implementation of the EU budget.
+publisher:
+  name: European Commission
+  description: |
+    The European Commission is the executive branch of the European Union. It has
+    set up a panel which administers the EDES system and will handle the removal
+    of entities from the list.
+  country: eu
+  url: https://commission.europa.eu/strategy-and-policy/eu-budget/how-it-works/annual-lifecycle/implementation/anti-fraud-measures/edes_en
+  official: true
+url: https://commission.europa.eu/strategy-and-policy/eu-budget/how-it-works/annual-lifecycle/implementation/anti-fraud-measures/edes/edes-database_en
+data:
+  url: https://ec.europa.eu/edes/api/cases/paginatedList
+  format: JSON
+
+lookups:
+  type.date:
+    options:
+      - match:
+          - "9999-12-31"
+          - "9999-12-30"
+        value: null

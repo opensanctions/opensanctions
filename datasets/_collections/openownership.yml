@@ -1,5 +1,5 @@
 type: collection
-title: Open Ownership BODS
+title: Open Ownership Datasets
 hidden: true
 deploy:
   memory: "2000Mi"
@@ -9,6 +9,7 @@ coverage:
 exports:
   - statistics.json
   - entities.ftm.json
+  - senzing.json
 resolve: false
 summary: >
   Corporate ownership records from various countries published using Open Ownership's

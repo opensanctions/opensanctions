@@ -1,0 +1,44 @@
+title: "Norges Bank Investment Management observation and exclusion of companies"
+entry_point: crawler.py
+prefix: no-nbim
+coverage:
+  frequency: daily
+deploy:
+  schedule: "0 3 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: |
+  Companies excluded from investment by Norway's Government Pension Fund Global, or listed for observation.
+description: |
+  This dataset lists companies which are excluded from investment by Norway's
+  Government Pension Fund Global, or placed under observation. Decisions are guided by a set of
+  guidelines from Norway's Ministry of Finance, with final decisions made by
+  Norges Bank's Executive Board.
+
+  From their [Ethical Exclusions](https://www.nbim.no/en/responsible-investment/ethical-exclusions/) page:
+
+  > Companies may be excluded or placed under observation if there is an unacceptable
+  > risk that the company contributes to or is responsible for:
+  >
+  > - serious or systematic human rights violations
+  > - serious violations of individual's rights in situations of war or conflict
+  > - the sale of weapons to states engaged in armed conflict that use the weapons in ways that constitute serious and systematic violations of the international rules on the conduct of hostilities
+  > - the sale of weapons or military materiel to states that are subject to investment restrictions on government bonds
+  > - severe environmental damage
+  > - acts or omissions that on an aggregate company level lead to unacceptable greenhouse gas emissions
+  > - gross corruption or other serious financial crime
+  > - other particularly serious violations of fundamental ethical norms
+url: https://www.nbim.no/en/responsible-investment/ethical-exclusions/exclusion-of-companies/
+publisher:
+  name: Norges Bank Investment Management (NBIM)
+  description: |
+    Norges Bank Investment Management (NBIM) is a branch of Norges Bank, Norway's central bank.
+    It is responsible for the operational management of Norway's Government Pension Fund Global.
+    Their objective is the highest possible return on the fund, aiming to
+    achieve this in a safe, efficient, responsible and transparent manner,
+    and within government guidelines.
+  country: "no"
+  url: https://www.nbim.no/en/
+  official: true
+data:
+  url: https://www.nbim.no/en/responsible-investment/ethical-exclusions/exclusion-of-companies/
+  format: HTML

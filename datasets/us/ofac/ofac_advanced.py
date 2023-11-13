@@ -18,7 +18,7 @@ from zavod import Context, Entity, Dataset
 from zavod.meta import load_dataset_from_path
 from zavod import helpers as h
 
-FeatureValue = Union[str, Entity]
+FeatureValue = Union[str, Entity, None]
 FeatureValues = List[FeatureValue]
 
 
@@ -53,6 +53,7 @@ SANCTION_FEATURES = {
     "CAATSA Section 235 Information:": "summary",
     "Executive Order 14024 Directive Information": "summary",
     "Executive Order 14024 Directive Information -": "summary",
+    "Executive Order 14014 Directive Information:": "summary",
     "Executive Order 13662 Directive Determination -": "summary",
     "Executive Order 13846 information:": "summary",
     "Additional Sanctions Information -": "summary",
@@ -65,9 +66,11 @@ SANCTION_FEATURES = {
     "Effective Date (EO 14024 Directive 1a):": "startDate",
     "Effective Date (EO 14024 Directive 2):": "startDate",
     "Effective Date (EO 14024 Directive 3):": "startDate",
+    "Effective Date (EO 14014 Directive 1):": "startDate",
     "Listing Date (EO 14024 Directive 1a):": "listingDate",
     "Listing Date (EO 14024 Directive 2):": "listingDate",
     "Listing Date (EO 14024 Directive 3):": "listingDate",
+    "Listing Date (EO 14014 Directive 1):": "listingDate",
     "Listing Date (CMIC)": "listingDate",
 }
 
@@ -139,7 +142,9 @@ def parse_date_period(date: Element) -> Tuple[str, ...]:
     return (start, end)
 
 
-def parse_location(context: Context, refs: Element, location: Element) -> Entity:
+def parse_location(
+    context: Context, refs: Element, location: Element
+) -> Optional[Entity]:
     countries: Set[Optional[str]] = set()
     for area in location.findall("./LocationAreaCode"):
         area_code = get_ref_element(refs, "AreaCode", area.get("AreaCodeID"))
@@ -330,10 +335,10 @@ def parse_alias(
             is_weak=is_weak,
         )
         proxy.add("name", names.pop("Vessel Name", None))
-        proxy.add("weakAlias", names.pop("Nickname", None))
         proxy.add("name", names.pop("Aircraft Name", None))
         h.apply_name(
             proxy,
+            prefix=names.pop("Nickname", None),
             first_name=names.pop("First Name", None),
             middle_name=names.pop("Middle Name", None),
             maiden_name=names.pop("Maiden Name", None),

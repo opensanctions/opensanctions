@@ -23,6 +23,7 @@ publisher:
     Estonian companys, non-profit associations, foundations, state and local
     governmental agencies and self-employed persons.
   country: ee
+  official: true
 data:
   url: https://avaandmed.ariregister.rik.ee/en/downloading-open-data
 

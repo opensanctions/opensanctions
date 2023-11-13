@@ -1,14 +1,18 @@
 type: external
 title: Russian Unified State Register of Legal Entities (EGRUL)
 entry_point: zavod.runner.enrich:enrich
-disabled: false
+disabled: true
 hidden: false
+coverage:
+  frequency: never
+  end: 2022-01-01
 exports:
   - statistics.json
 deploy:
   schedule: "1 18 * * *"
-  # disk: "20Gi"
-  memory: "3000Mi"
+  disk: "50Gi"
+  memory: "1500Mi"
+  memory_limit: "2000Mi"
   premium: true
 # load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
@@ -61,6 +65,7 @@ config:
   strip_namespace: true
   fuzzy: false
   threshold: 0.7
+  algorithm: regression-v1
   schemata:
     - Company
     - Organization

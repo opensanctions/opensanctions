@@ -4,7 +4,7 @@ deploy:
   schedule: "30 */4 * * *"
   memory: "1500Mi"
   command: /etl/scripts/export-sanctions.sh
-  premium: true
+  # premium: true
 summary: >
   Consolidated list of sanctioned entities designated by different 
   countries and international organisations. This can include military,
@@ -32,6 +32,7 @@ children:
   - eu_sanctions_map
   - eu_travel_bans
   - fr_tresor_gels_avoir
+  - gb_hmt_invbans
   - gb_hmt_sanctions
   - il_mod_terrorists
   - in_mha_banned
@@ -39,10 +40,12 @@ children:
   - kg_fiu_national
   - kz_afmrk_sanctions
   - lt_fiu_freezes
+  - md_terror_sanctions
   - my_moha_sanctions
   - ng_nigsac_sanctions
   - nl_terrorism_list
   - nz_russia_sanctions
+  - pl_finanse_sanctions
   - pl_mswia_sanctions
   - qa_nctc_sanctions
   - sg_terrorists
@@ -52,6 +55,9 @@ children:
   - un_sc_sanctions
   - us_bis_denied
   - us_cuba_sanctions
+  - us_dhs_uflpa
+  - us_klepto_hr_visa
+  - us_nteea_sec_353
   - us_ofac_cons
   - us_ofac_sdn
   - us_trade_csl

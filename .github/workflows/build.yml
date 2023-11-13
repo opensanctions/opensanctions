@@ -32,7 +32,7 @@ jobs:
           - "3.10"
           - "3.11"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -64,11 +64,6 @@ jobs:
         working-directory: zavod
         run: |
           python setup.py sdist bdist_wheel
-      - name: Install opensanctions
-        working-directory: legacy
-        run: |
-          pip install -e ".[dev]"
-          pip freeze
       - name: Crawl a single dataset
         run: |
           zavod crawl -c datasets/us/ofac/us_ofac_cons.yml
@@ -90,21 +85,21 @@ jobs:
     runs-on: ubuntu-latest
     needs: [python]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       # - name: Set up QEMU
       #   uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
         with:
           install: true
       - name: Login to DockerHub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push release
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           context: .
           # platforms: linux/amd64,linux/arm64

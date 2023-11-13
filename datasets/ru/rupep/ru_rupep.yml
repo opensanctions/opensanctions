@@ -1,11 +1,12 @@
 title: RuPEP Public Database of PEPs in Russia and Belarus
-entry_point: crawler.py:crawl_peps
+entry_point: crawler.py
 prefix: rupep
 coverage:
   frequency: daily
 deploy:
   schedule: "30 */6 * * *"
-  memory: "1000Mi"
+  memory: "2000Mi"
+  cpu: "500m"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 exports:
   - statistics.json
@@ -41,11 +42,11 @@ publisher:
   official: false
 url: "https://rupep.org/en/%D0%B2%D0%BE%D0%BF%D1%80%D0%BE%D1%81%D1%8B-%D0%B8-%D0%BE%D1%82%D0%B2%D0%B5%D1%82%D1%8B/"
 data:
-  url: "https://rupep.org/opendata/persons/json"
+  url: "https://rupep.org/opendata"
   format: JSON
 
 lookups:
-  country_links:
+  person_country_links:
     normalize: true
     options:
       - match: citizenship
@@ -60,6 +61,7 @@ lookups:
           - business
           - realty
         prop: null
+
   person_type:
     options:
       - match:
@@ -82,7 +84,40 @@ lookups:
           - Person under sanctions
         value: sanction
 
-  person_relations:
+  pep_positions:
+    lowercase: true
+    options:
+      - regex:
+          - "^deputy of the .+ council of deputies$"
+          - "^deputy of the .+ city council$"
+          - "^(deputy|mp) of the.+(city|regional|state) duma$"
+          - "^deputy of the .+ regional court$"
+          - "^(lieutenant |acting )?governor of the.*(government|administration).*$"
+          - "^judge of the.+district court of"
+          - "^deputy of the representatives chambers of the national assembly of belarus$"
+          - "^(member|(first deputy )?chairperson) of the .+ committee of the (state duma|council of the federation|representatives chambers .+ belarus)$"
+          - "^(member|(first deputy )?chairperson) of the committee (for|on) .+ of the (state duma|council of the federation|representatives chambers .+ belarus)$"
+          - "^assistant to member of parliament of the state duma$"
+          - "^senator of the council of the (federation|republic of the national assembly of belarus)$"
+          - "administration of the president$"
+          - "^(consul |abassador )" # This space is important to not match consultant
+          - "^judge of the (constitutional|supreme) court.*$"
+          - "^judge of the.+court( of the \\w+ district of.+)?$"
+          - "^deputy of the parliament of the .+ republic$"
+          - "^the head of administration.+administration.*"
+          - "^presidium member.+party.*"
+      - regex:
+          - "^(the |deputy |first deputy |advisor to the |assistant to the )?minister.+ministry.+"
+        preposition: of
+      - regex:
+          - "^(the |deputy |first deputy |advisor to the |assistant to the )?minister.+ministry.+"
+        preposition: in the
+      - match: the president of the president of russia
+        name: The President of Russia
+      - match: the president of the president of the republic of belarus
+        name: The President of The Republic of Belarus
+
+  person_person_relations:
     options:
       - match:
           - husband
@@ -138,10 +173,130 @@ lookups:
         to_prop: object
         desc_prop: role
 
+  company_country_links:
+    normalize: true
+    options:
+      - match:
+          - registered_in
+        prop: jurisdiction
+      - match:
+          - under_sanctions
+          # - business
+          - realty
+        prop: null
+
+  company_person_relations:
+    options:
+      - match:
+          - founder
+          - co-founder
+        to_prop: object
+        from_prop: subject
+        schema: UnknownLink
+        desc_prop: role
+      - match:
+          - owner
+          - co-owner
+          - beneficiary
+          - shareholder
+          - "Former owner/founder"
+        schema: Ownership
+        from_prop: asset
+        to_prop: owner
+        desc_prop: role
+      - match:
+          - director
+          - head
+          - Chairman of the Board
+          - board member
+          - the president
+          - secretary
+          - CEO
+          - governor
+          - lieutenant governor
+          - vice-chairman
+          - chairman
+          - the chairman
+          - Deputy Director
+          - First Deputy Director
+          - chairman of the board
+          - vice president
+          - deputy general director
+        schema: Directorship
+        from_prop: organization
+        to_prop: director
+        desc_prop: role
+      - match:
+          - employee
+        schema: Employment
+        from_prop: employer
+        to_prop: employee
+        desc_prop: role
+      - match:
+          - chief veterinarian
+        contains:
+          - member of the Commission
+        schema: null
+
+  company_company_relations:
+    options:
+      - match:
+          - ""
+          - Public contracts/Customer
+          - Founder
+          - Legal successor
+          - Stand-alone unit
+          - Co-founder
+          - Director
+          - Related
+          - "Former owner/founder"
+          - Bank customer
+          - Lender (financial partner)
+          - Professional Services Provider
+          - Counterparty
+          - Stakeholder
+          - Secretaty
+          - Client
+          - Subcontractor
+          - Managed company
+          - Сontract holder
+          - grantor
+          - Vendor
+          - Member of the supervisory authority
+          - Contractor
+            # Everything is unknown until we know how to establish directionality in the relations.
+          - Co-owner
+          - Owner
+          - Shareholder
+          - Management company
+          - Main company
+          - Branch
+          - Parent company
+          - The main company
+          - Subsidiary
+          - Former co-owner/co-founder
+          - Bank
+          - Controlled by
+          - Grantee
+          - Object of property rights
+          - Ordering customer
+          - Predecessor
+          - Provider of goods / services
+          - Public contracts/Contractor
+          - Recipient / Buyer
+        schema: UnknownLink
+        from_prop: subject
+        to_prop: object
+        desc_prop: role
+
   type.country:
     lowercase: true
     normalize: true
     options:
+      - match:
+          - Организация Объединенных Наций
+          - United Nations
+        value: null
       - match: Республика Беларусь
         value: BY
       - match: Оккупированная Россией территория Украины
@@ -157,3 +312,27 @@ lookups:
       - match: Territories occupied by Russia
         values:
           - UA
+      - match: Бермудские острова
+        value: BM
+      - match: Багамские Острова
+        value: BS
+      - match: Британские Виргинские острова
+        value: VG
+      - match: Сейшельские Острова
+        value: SC
+      - match: Южная Корея
+        value: KR
+      - match: Острова Кайман
+        value: KY
+      - match: Европейский союз
+        value: EU
+      - match: ДР Конго
+        value: CD
+      - match: Мьянма
+        value: MM
+      - match: Северная Корея
+        value: KP
+      - match: Остров Мэн
+        value: IM
+      - match: Маршалловы Острова
+        value: MH

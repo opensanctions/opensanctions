@@ -4,13 +4,16 @@ entry_point: zavod.runner.enrich:enrich
 full_dataset: gb_coh_psc
 disabled: false
 hidden: false
+coverage:
+  frequency: weekly
 exports:
   - statistics.json
 deploy:
   schedule: "1 8 * * *"
-  memory: "2000Mi"
+  memory: "800Mi"
+  memory_limit: "1500Mi"
   disk: "20Gi"
-  premium: true
+  # premium: true
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   The database of beneficial owners of companies incorporated in England, Wales,
@@ -59,6 +62,7 @@ config:
   strip_namespace: true
   fuzzy: false
   threshold: 0.7
+  algorithm: regression-v1
   schemata:
     - Company
     - Organization

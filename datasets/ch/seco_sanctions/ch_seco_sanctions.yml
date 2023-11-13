@@ -5,6 +5,7 @@ coverage:
   frequency: daily
 deploy:
   schedule: "10 */2 * * *"
+  memory: 1500Mi
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   Switzerland manages a sanctions lists with a high degree of detail on the

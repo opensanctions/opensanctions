@@ -20,6 +20,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
         street=row.pop("street"),
         city=row.pop("city"),
         postal_code=row.pop("postal_code"),
+        country=row.get("country"),
     )
     h.apply_address(context, entity, address)
 

@@ -13,29 +13,28 @@ exports:
   - targets.simple.csv
 summary: >
   A politically exposed person (PEP) is a person that has been entrusted with
-  a prominent public function. PEPs include elected officials, members of
+  a prominent public function. PEPs include elected officials and members of
   government.
 description: |
-  Integrating data about political actors is an essential step in making
-  an open source due diligence database. However, it is a much more intricate
-  task than collecting sanctions lists (of which there are only a few dozen),
-  and fully addressing it will be the focus of a later stage of this project.
-
-  At present, OpenSanctions relies mainly on the efforts of the now-defunct
-  [EveryPolitician](https://everypolitician.org) project to include law makers
-  from many countries.
-
-  * What are [politically exposed persons (PEP)](/pep/)?
-  * [FATF guidance on PEPs](https://www.fatf-gafi.org/media/fatf/documents/recommendations/guidance-pep-rec12-22.pdf)
-
+  This collection contains data about politically exposed persons (PEPs) from
+  multiple sources. We include lists of office-holders both directly from 
+  official sources like governments and also from third-party sources that
+  have been aggregated by other organizations.
 children:
+  - co_funcion_publica
+  - co_join_dots
   - cu_inventario_legislatura
   - de_abgeordnetenwatch
   - eu_cor_members
   - eu_meps
   - everypolitician
+  - ky_judicial
+  - ky_legislativeassembly
+  - ng_join_dots
   - ru_rupep
+  - us_cia_world_factbook
   - us_cia_world_leaders
   - us_congress
   - us_plural_legislators
+  - us_state_dept
   - wd_peps

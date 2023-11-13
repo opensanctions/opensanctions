@@ -31,7 +31,8 @@ publisher:
   official: true
 url: https://fiu.gov.ua/en/pages/dijalnist/protidija-terorizmu/perelik-teroristiv
 data:
-  url: https://fiu.gov.ua/assets/userfiles/Terror/zBlackListFull.xml
+  # url: https://fiu.gov.ua/assets/userfiles/Terror/zBlackListFull.xml
+  url: https://fiu.gov.ua/assets/userfiles/Terror/BlackListFull.xml
   format: XML
 
 lookups:
@@ -51,6 +52,7 @@ lookups:
       - match:
           - Kuwaiti citizenship withdrawn in 2002
           - Stateless Palestinian
+          - "682"
         value: null
       - contains: Syrian Arab Republic
         value: Syria

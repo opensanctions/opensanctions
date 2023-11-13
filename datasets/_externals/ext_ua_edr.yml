@@ -4,11 +4,15 @@ entry_point: zavod.runner.enrich:enrich
 full_dataset: ua_edr
 disabled: false
 hidden: false
+coverage:
+  frequency: never
+  end: 2022-02-23
 exports:
   - statistics.json
 deploy:
   schedule: "1 20 * * *"
-  memory: "1500Mi"
+  memory: "1000Mi"
+  memory_limit: "2000Mi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   The beneficial ownership database of legal entities registered in Ukraine (EDR)
@@ -72,6 +76,7 @@ config:
   strip_namespace: true
   fuzzy: false
   threshold: 0.7
+  algorithm: regression-v1
   schemata:
     - Company
     - Organization

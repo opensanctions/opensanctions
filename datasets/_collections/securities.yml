@@ -1,0 +1,34 @@
+type: collection
+title: Sanctioned securities
+deploy:
+  schedule: "@daily"
+  # memory: "1000Mi"
+exports:
+  - statistics.json
+  - securities.csv
+summary: >
+  Custom export of sanctioned public companies and their securities identifiers.
+description: |
+  This collection produces a custom export of all sanctioned organizations,
+  with a column to designate their LEI codes, where available. We also include
+  a column that lists all known ISINs per company.
+
+  Finally, the table also lists all Russian companies that have been assigned
+  an ISIN, and thus are subject to investment bans under US EO 14071.
+
+  See also:
+  * [Securities data in OpenSanctions](https://www.opensanctions.org/docs/bulk/faq/#securities)
+  * [NSD ISIN dataset](https://www.opensanctions.org/datasets/ru_nsd_isin/)
+
+children:
+  - us_ofac_sdn
+  - us_ofac_cons
+  - eu_fsf
+  - eu_sanctions_map
+  - gb_hmt_sanctions
+  - gb_hmt_invbans
+  - ch_seco_sanctions
+  - au_dfat_sanctions
+  - ca_dfatd_sema_sanctions
+  - ext_gleif
+  - ru_nsd_isin

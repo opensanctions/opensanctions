@@ -1,0 +1,25 @@
+name: ky_judicial
+title: "Cayman Islands senior judicial officers"
+url: http://www.judicial.ky/
+entry_point: crawler
+prefix: ky-ja
+coverage:
+  frequency: weekly
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+description: |
+  Judicial Officers from Cayman Islands Judicial Administration
+publisher:
+    name: Cayman Islands Judicial Administration
+    official: true
+    description: |
+      "The Judiciary is one of three separate arms of Government. Its function
+      is to administer the law independently of the Executive and the Legislative
+      arms of Government; an independence that is safeguarded in the Constitution of
+      the Cayman Islands. The Judiciary is comprised of the following jurisdictions
+      in ascending order within the hierarchy of the courts: The Summary Court, The
+      Grand Court, Court of Appeal, Privy Council"
+    country: ky
+    url: https://www.judicial.ky/judicial-administration/contacts
+data:
+    url: "https://www.judicial.ky/judicial-administration/judges"
+    format: HTML

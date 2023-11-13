@@ -1,6 +1,8 @@
 title: Argentine RePET
 prefix: arpet
 entry_point: crawler.py
+coverage:
+  frequency: daily
 deploy:
   schedule: "0 */12 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}

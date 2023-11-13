@@ -201,7 +201,7 @@ pager like `less` together to browse and search within the `[targets.nested.json
 output using a command like
 
 ```bash
-jq . data/datasets/eu_fsf_demo/targets.nested.json --color-output | less
+jq . data/datasets/eu_fsf_demo/targets.nested.json --color-output | less -R
 ```
 
 Good things to check are

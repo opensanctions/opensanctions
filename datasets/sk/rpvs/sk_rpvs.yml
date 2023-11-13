@@ -8,10 +8,11 @@ coverage:
 deploy:
   disk: 20Gi
   memory: 2Gi
-  premium: true
+  # premium: true
 exports:
   - statistics.json
   - entities.ftm.json
+  - senzing.json
 resolve: false
 summary: |
   Data is collected by the Ministry of Justice of the Slovak Republic in the ‘Register

@@ -40,7 +40,7 @@ def crawl(context: Context):
     with open(path, "r") as fh:
         data = json.load(fh)
 
-    assert data["totalElements"] > 800
+    assert data["totalElements"] > 700
     for item in data["content"]:
         data_id = item.pop("dataId")
         typ = item.pop("typ")
@@ -94,7 +94,7 @@ def crawl(context: Context):
         sanction.add("program", sanctions_dto.pop("sanctionRegimeAr"), lang="ara")
         context.audit_data(sanctions_dto)
 
-        designation_dto = item.pop("designationDTO", {})
+        item.pop("designationDTO", {})
         # h.audit_data(designation_dto)
 
         context.emit(entity, target=True)

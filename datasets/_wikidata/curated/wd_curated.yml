@@ -3,8 +3,6 @@ entry_point: crawler.py
 prefix: wd
 coverage:
   frequency: daily
-deploy:
-  schedule: "0 */6 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 exports:
   - statistics.json

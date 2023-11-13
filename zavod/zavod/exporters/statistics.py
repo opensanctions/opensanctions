@@ -47,6 +47,7 @@ class StatisticsExporter(Exporter):
         self.entity_count = 0
         self.last_change: Optional[str] = None
         self.schemata: Set[str] = set()
+        self.qnames: Set[str] = set()
 
         self.thing_count = 0
         self.thing_countries: Dict[str, int] = defaultdict(int)
@@ -59,6 +60,8 @@ class StatisticsExporter(Exporter):
     def feed(self, entity: Entity) -> None:
         self.entity_count += 1
         self.schemata.add(entity.schema.name)
+        for prop in entity.iterprops():
+            self.qnames.add(prop.qname)
 
         if entity.schema.is_a("Thing"):
             self.thing_count += 1
@@ -82,6 +85,7 @@ class StatisticsExporter(Exporter):
         stats = {
             "last_change": self.last_change,
             "schemata": list(self.schemata),
+            "properties": list(self.qnames),
             "entity_count": self.entity_count,
             "target_count": self.target_count,
             "targets": {

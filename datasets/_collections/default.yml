@@ -3,9 +3,10 @@ title: OpenSanctions Default
 deploy:
   schedule: "30 */6 * * *"
   memory: "2000Mi"
+  cpu: "400m"
   disk: "20Gi"
   command: /etl/scripts/export-default.sh
-  premium: true
+  # premium: true
 exports:
   - statistics.json
   - entities.ftm.json

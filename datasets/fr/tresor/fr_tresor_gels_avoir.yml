@@ -4,7 +4,7 @@ prefix: fr-ga
 coverage:
   frequency: daily
 deploy:
-  schedule: "30 */2 * * *"
+  schedule: "30 */3 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   The register lists all persons, entities and vessels subject to asset
@@ -36,7 +36,6 @@ lookups:
     lowercase: true
     options:
       - match:
-          - "-"
           - Qatar
         value: null
   type.email:
@@ -56,15 +55,10 @@ lookups:
   identification:
     lowercase: true
     options:
-      - match: ""
-        props: {}
       - match: "Numéro d'enregistrement - Date d'enregistrement : 04/01/1996: 600390798"
         props:
           registrationNumber: 600390798
           incorporationDate: 1996-01-04
-      - match: "Numéro d'enregistrement:: 1209100012648"
-        props:
-          registrationNumber: 1209100012648
       - match: "OMI: 8514306"
         props:
           # imoNumber: 8514306
@@ -127,14 +121,6 @@ lookups:
         props:
           jurisdiction: IR
           legalForm: Unité militaire du Corps des gardiens de la révolution islamique (IRGC)
-      - match:
-          "Type d’entité: société par actions. Lieu d’enregistrement: Fédération de
-          Russie. Date d’enregistrement: 6.6.2003. Numéro d’enregistrement: 1031632202227.
-          Principal établissement: Russie: uméro d’enregistrement: 1031632202227"
-        props:
-          jurisdiction: ru
-          incorporationDate: 2003-06-06
-          ogrnCode: 1031632202227
       - match: "n° d'enregistrement national, Date d'enregistrement : 08/05/2014: 1147746527279"
         props:
           registrationNumber: 1147746527279
@@ -199,10 +185,13 @@ lookups:
           "Lieu d'enregistrement : Moscou - Date d'enregistrement : 2001 - Principal
           établissement : Fédération de Russie - Entités associées : GTLK Europe, GTLK Asia,
           GTLK Middle East: Société de transport"
+        associates:
+          - GTLK Europe
+          - GTLK Asia
+          - GTLK Middle East
         props:
           jurisdiction: ru
           incorporationDate: 2001
-          notes: "Entités associées : GTLK Europe, GTLK Asia, GTLK Middle East: Société de transport"
       - match: "Numéro d'enregistrement national: 1027739167246"
         props:
           registrationNumber: 1027739167246
@@ -212,9 +201,6 @@ lookups:
       - match: "N° d'enregistrement: 1157746088170"
         props:
           registrationNumber: 1157746088170
-      - match: "N ° d'identification fiscale: 7730018980"
-        props:
-          taxNumber: 7730018980
       - match: "SWIFT: ILSIKPPY"
         props:
           swiftBic: ILSIKPPY
@@ -295,13 +281,6 @@ lookups:
       - match: "numéro d'enregistrement: 1149204004707"
         props:
           registrationNumber: 1149204004707
-      - match:
-          "Numéro d’enregistrement - Date d’enregistrement: 1992 - Société par actions
-          ouverte: 300042199"
-        props:
-          registrationNumber: 300042199
-          incorporationDate: 1992
-          legalForm: Société par actions ouverte
       - match: "Numéro d'enregistrement: 193299162"
         props:
           registrationNumber: 193299162
@@ -338,7 +317,10 @@ lookups:
           Entité associée: Agence fédérale pour la gestion des biens publics (la subdivision
           du ministère russe du développement économique est l'un des principaux actionnaires):
           Société anonyme publique"
-        note: true
+        associates:
+          - Andrei Leonidowitsch KOSTIN
+          - Anton SILUANOV
+          # - Agence fédérale pour la gestion des biens publics
         props:
           jurisdiction: ru
           address: Degtyarnyy - Pereulok, 11a, Saint Pétersbourg, 191144, Fédération de Russie
@@ -378,15 +360,6 @@ lookups:
         props:
           registrationNumber: 394678
           incorporationDate: 2000-07-04
-      - match:
-          "Type d’entité: société par actions cotée. Lieu d’enregistrement: Fédération
-          de Russie. Date d’enregistrement: 1992. Numéro d’enregistrement: 1027739555282.
-          Principal établissement: Fédération de Russie: Numéro d’enregistrement: 1027739555282"
-        props:
-          legalForm: société par actions cotée
-          jurisdiction: ru
-          incorporationDate: 1992
-          ogrnCode: 1027739555282
       - match:
           "Type d’entité: Unité militaire du Corps des gardiens de la révolution islamique
           (IRGC) - Lieu d’enregistrement: Khuzestan, Iran - Principal lieu d’activité: Iran:
@@ -465,7 +438,10 @@ lookups:
           du conseil de direction) - Andrey Valeryevich KONDRATYEV (président du conseil
           d'administration) - Entité associée: Rostec (société d'État russe du domaine
           des technologies): Banque commerciale anonyme"
-        note: true
+        associates:
+          - Georgieva Elena ALEKSANDROVNA
+          - Andrey Valeryevich KONDRATYEV
+          - Rostec
         props:
           registrationNumber: 1027739075891
       - match: "n° d'inscription au registre de commerce (Royaume-Uni): 02150590"
@@ -486,19 +462,6 @@ lookups:
       - match: "SWIFT/BIC: KDBKKPPY"
         props:
           swiftBic: KDBKKPPY
-      - match:
-          "Type d’entité: société à responsabilité limitée. Lieu d’enregistrement:
-          rue Bolshaya Polyanka, 50/1 STR.1, 119180, Moscou, Russie. Date d’enregistrement:
-          21.2.2005. Numéro d’enregistrement: 1057746290469. Numéro d’identification du
-          contribuable: 7706569306. Principal établissement: Moscou, Russie: Numéro d’enregistrement:
-          1057746290469"
-        props:
-          jurisdiction: ru
-          legalForm: société à responsabilité limitée
-          ogrnCode: 1057746290469
-          incorporationDate: 2005-02-21
-          innCode: 7706569306
-          address: rue Bolshaya Polyanka, 50/1 STR.1, 119180, Moscou, Russie
       - match: "SWIFT/BIC: CMSYSYDA"
         props:
           swiftBic: CMSYSYDA
@@ -511,15 +474,6 @@ lookups:
           ogrnCode: 1217700605209
           legalForm: société à responsabilité limitée
           address: passage piéton, propriété 3. bâtiment 2, 125373, Moscou, Fédération de Russie
-          jurisdiction: ru
-      - match:
-          "Type d’entité: société par actions. Date d’enregistrement: 26.9.2011. Lieu
-          d’enregistrement: région de Nizhny Novgorod, Russie. Principal établissement:
-          Russie: Date d’enregistrement: 26.9.2011"
-        props:
-          incorporationDate: 2011-09-26
-          legalForm: société par actions
-          address: région de Nizhny Novgorod, Russie
           jurisdiction: ru
       - match: "OMI: 9036387"
         props:
@@ -592,15 +546,6 @@ lookups:
           incorporationDate: 2010
           jurisdiction: ir
       - match:
-          "Type d’entité: société par actions. Lieu d’enregistrement: Oblast de Tcheliabinsk,
-          Fédération de Russie. Date d’enregistrement: 22.6.2000. Numéro d’enregistrement:
-          1027400870826. Principal établissement: Russie: Numéro d’enregistrement: 1027400870826"
-        props:
-          legalForm: société par actions
-          registrationNumber: 1027400870826
-          jurisdiction: ru
-          incorporationDate: 2000-06-22
-      - match:
           "Type d’entité: société par actions cotée. Lieu d’enregistrement: str. M.
           Gorky 6, 300002, city of Tula, Tula region, Fédération de Russie. Date d’enregistrement:
           23.9.2002. Numéro d’enregistrement national: 1027100517256. Numéro d’identification
@@ -668,15 +613,6 @@ lookups:
           innCode: 5259113339
           ogrnCode: 1145259004296
           jurisdiction: ru
-      - match:
-          "Date d'enregistrement:  01.09.2014 - Numéro d'enregistrement: 1144400000425
-          - Numéro d'identification fiscale: 4401116480 - Entité associée: gouvernement
-          de la Fédération de Russie: Société anonyme publique"
-        props:
-          incorporationDate: 2014-09-01
-          ogrnCode: 1144400000425
-          innCode: 4401116480
-          legalForm: Société anonyme publique
       - match:
           "Type d'entité: société par actions. Date d'enregistrement: 23.4.2002.
           Principal établissement: Russie: société par actions"
@@ -755,31 +691,11 @@ lookups:
           jurisdiction: us
           registrationNumber: 36-3823186
       - match:
-          "Type d’entité: société par actions cotée. Lieu d’enregistrement: Perm, Fédération
-          de Russie. Date d’enregistrement: 11.12.1992. Numéro d’enregistrement: 1025901364708.
-          Principal établissement: Russie: Numéro d’enregistrement: 1025901364708"
-        props:
-          jurisdiction: ru
-          legalForm: société par actions cotée
-          incorporationDate: 1992-12-11
-          ogrnCode: 1025901364708
-      - match:
           "Numéro d’enregistrement - Date d’enregistrement: 13.8.1991 - Société par
           actions ouverte: 100205408"
         props:
           legalForm: Société par actions ouverte
           registrationNumber: 100205408
-      - match:
-          "Type d’entité: entreprise unitaire publique fédérale. Lieu d’enregistrement:
-          Pokhodnyy Proyezd 3- 2, 125373, Moscou, Russie. Date d’enregistrement: 14.10.2002.
-          Numéro d’enregistrement: 1027700310076. Principal établissement: Moscou, Russie:
-          Numéro d’enregistrement: 1027700310076"
-        props:
-          legalForm: entreprise unitaire publique fédérale
-          address: Pokhodnyy Proyezd 3- 2, 125373, Moscou, Russie
-          incorporationDate: 2002-10-14
-          jurisdiction: ru
-          ogrnCode: 1027700310076
       - match:
           "Type d’entité: société à responsabilité limitée. Lieu d’enregistrement:
           str. Butlerova, 13, letter A, room. 20Н, 195256, St. Petersburg, Fédération de
@@ -859,15 +775,6 @@ lookups:
         props:
           jurisdiction: IR
           address: Téhéran, n° 22 rue Khorramshahr Téhéran, rue Shohvardi nord, rue Korramshahr, numéro 24, 1er étage
-      - match:
-          "Type d’entité: société par actions Date d’enregistrement: 1.2.2008. Numéro
-          d’enregistrement: 1087746152207. Numéro d’identification fiscale: 7704676655:
-          Numéro d’enregistrement: 1087746152207"
-        props:
-          legalForm: société par actions
-          incorporationDate: 2008-02-01
-          registrationNumber: 1087746152207
-          taxNumber: 7704676655
       - match: "Numéro d'enregistrement: 1209100012648"
         props:
           registrationNumber: 1209100012648
@@ -1107,15 +1014,6 @@ lookups:
           incorporationDate: 2009-02-27
           innCode: 7802463197
       - match:
-          "Lieu d’enregistrement: Fédération de Russie (197046, Saint-Pétersbourg,
-          ul. Malaia Posadskaia, 30). Date d’enregistrement: 26.2.2009. Principal établissement:
-          Fédération de Russie: No d’identification fiscale: 7813438763"
-        props:
-          jurisdiction: RU
-          address: 197046, Saint-Pétersbourg, ul. Malaia Posadskaia, 30
-          incorporationDate: 2009-02-26
-          innCode: 7813438763
-      - match:
           "Type d’entité: société anonyme publique. Lieu d’enregistrement: Ekaterinburg,
           Fédération de Russie. Date d’enregistrement: 5.4.2010 Principal établissement:Fédération
           de Russie: Numéro d’enregistrement: 1107746256727"
@@ -1213,17 +1111,6 @@ lookups:
           incorporationDate: 2006-02-06
           innCode: 7720544208
       - match:
-          "Lieu d’enregistrement: Dubaï, Émirats arabes unis (Unit OT 17-32, Level
-          17, Central Park Offices, Dubai International Financial Centre, Dubaï, 507065,
-          Émirats arabes unis) . Date d’enregistrement: 2.8.2012. Principaux établissements:
-          Émirats arabes unis, Fédérationde Russie, Union européenne: Numéro d’enregistrement:
-          1244"
-        props:
-          jurisdiction: AE
-          address: Unit OT 17-32, Level 17, Central Park Offices, Dubai International Financial Centre, Dubaï, 507065, Émirats arabes unis
-          incorporationDate: 2012-08-02
-          registrationNumber: 1244
-      - match:
           "Lieu d’enregistrement: Moscou, Fédération de Russie. Date d’enregistrement:.
           3.8.2016. Principal établissement: Fédération de Russie: No d’identification fiscale:
           7706440687"
@@ -1297,9 +1184,6 @@ lookups:
       - match: "Numéro d’identification fiscale: 366127502"
         props:
           taxNumber: 366127502
-      - match: "Lieu d’enregistrement: Syrie: /"
-        props:
-          jurisdiction: Syria
       - match: NIF/INN 1651049488
         props:
           innCode: 1651049488
@@ -1318,9 +1202,6 @@ lookups:
       - match: NIF/INN 1651000027
         props:
           innCode: 1651000027
-      - match: "Numéro d’enregistrement national: 1027739000475"
-        props:
-          registrationNumber: 1027739000475
       - match: "Numéro fiscal: 1648013442"
         props:
           taxNumber: 1648013442
@@ -1373,20 +1254,9 @@ lookups:
       - match: "Numéro fiscal: 7718852163"
         props:
           taxNumber: 7718852163
-      - match:
-          "Type d’entité: groupe de moto  Lieu d’enregistrement: Fédération de Russie  Date
-          d’enregistrement: 1989"
-        props:
-          legalForm: groupe de moto
-          jurisdiction: Russia
-          incorporationDate: 1989
       - match: "Numéro d’identification fiscale: 3900000111"
         props:
           taxNumber: 3900000111
-      - match: "Date d’enregistrement: 20.9.2001: Numéro d’enregistrement: SRN/OGRN  1021602498114"
-        props:
-          incorporationDate: 2001-09-20
-          ogrnCode: 1021602498114
       - match: "Numéro d’enregistrement national: 1053600445337"
         props:
           registrationNumber: 1053600445337
@@ -1396,16 +1266,22 @@ lookups:
       - match:
           "Entités associées:  Tatneft-Neftekhim;  Nizhnekamskshina;  Nizhnekamsk All-Steel
           Tyre Plant"
-        note: true
+        associates:
+          - Tatneft-Neftekhim
+          - Nizhnekamskshina
+          - Nizhnekamsk All-Steel Tyre Plant
       - match:
           "Entités associées:  Trading House KAMA  Management Company Tatneft-Neftekhim  Nizhnekamsk
           All-Steel Tyre Plant"
-        note: true
+        associates:
+          - Trading House KAMA
+          - Management Company Tatneft-Neftekhim
+          - Nizhnekamsk All-Steel Tyre Plant
       - match: "Entités associées: Trading House KAMA  Management Company Tatneft-Neftekhim  Nizhnekamskshina"
-        note: true
-      - match: "Numéro d’enregistrement national: 1025201335730"
-        props:
-          registrationNumber: 1025201335730
+        associates:
+          - Trading House KAMA
+          - Management Company Tatneft-Neftekhim
+          - Nizhnekamskshina
       - match: "Numéro d’enregistrement national: 1067746915191"
         props:
           registrationNumber: 1067746915191
@@ -1561,30 +1437,17 @@ lookups:
           innCode: 7724032017
           ogrnCode: 1027700450975
       - match:
-          "Lieu d’enregistrement: Moscou, Fédération de Russie (125080, Moscou, sh.
-          Volokolamskoe, 1 str. 1, et 5; pom VI; kom 30B - Date d’enregistrement: 22.8.2014
-          - Principal établissement: Fédération de Russie, Pays-Bas - Autres informations:
-          Sergei Iurevich Zubkov (directeur général): 7743937237 (numéro d’identification
-          fiscale)"
-        props:
-          jurisdiction:
-            - ru
-            - nl
-          address: "125080, Moscou, sh. Volokolamskoe, 1 str. 1, et 5; pom VI; kom 30B"
-          incorporationDate: 2014-08-22
-          notes: "Sergei Iurevich Zubkov (directeur général)"
-          innCode: 7743937237
-      - match:
           "Type d’entité: organisation non gouvernementale - Lieu d’enregistrement:
           Moscou, Russie - Date d’enregistrement: 21.11.2011 - Principal établissement:
           Russie, Moscou - Entités associées: Agence fédérale Rossotrudnichestvo: Numéro
           d’enregistrement: 1117799023330"
+        associates:
+          - Agence fédérale Rossotrudnichestvo
         props:
           jurisdiction: ru
           legalForm: organisation non gouvernementale
           incorporationDate: 2011-11-21
           address: Moscou, Russie
-          notes: "Entités associées: Agence fédérale Rossotrudnichestvo"
           registrationNumber: 1117799023330
       - match:
           "Type d’entité: bien fédéral - Lieu d’enregistrement: 412310, région de Saratov,
@@ -1647,12 +1510,14 @@ lookups:
           - Lieu d'enregistrement: Saint-Pétersbourg, Fédération de Russie - Principal
           établissement: Russie - Personnes associées: Yevgeniy Viktorovich Prigozhin  -
           Entités associées: Wagner Group: Numéro d'enregistrement: 1227800167242"
+        associates:
+          - Yevgeniy Viktorovich Prigozhin
+          - Wagner Group
         props:
           jurisdiction: ru
           legalForm: société par actions
           incorporationDate: 2022-12-27
           address: Saint-Pétersbourg, Fédération de Russie
-          notes: "Personnes associées: Yevgeniy Viktorovich Prigozhin, Entités associées: Wagner Group"
           registrationNumber: 1227800167242
       - match:
           "Lieu d’enregistrement: Saint-Pétersbourg, Fédération de Russie - Date d’enregistrement:
@@ -1691,25 +1556,16 @@ lookups:
           organisation enregistrée auprès de l’autorité russe de régulation des médias:
           Numéro d’enregistrement: ИНН 7717653542 КПП 771701001"
         schema: Company
+        associates:
+          - Aleksei Viktorovich Pimanov
         props:
           jurisdiction: ru
           legalForm: Société par actions ouverte/OAO
           incorporationDate: 2009-06-08
           address: "129164, Moscou, Prospekt Mira, 126 / 129164, г. Москва, пр-кт Мира, д. 126"
-          notes: "Personnes associées: Aleksei Viktorovich Pimanov, Autres informations: Communications; organisation enregistrée auprès de l’autorité russe de régulation des médias"
+          notes: "Communications; organisation enregistrée auprès de l’autorité russe de régulation des médias"
           innCode: 7717653542
           kppCode: 771701001
-      - match:
-          "Type d’entité: Propriété russe mixte avec une part de propriété fédérale
-          - Lieu d’enregistrement: Fédération de Russie, 602205, région de Vladimir, Murom,
-          30 Let Pobedy St., 1a. - Date d’enregistrement: 1.7.2011 - Principal établissement:
-          Fédération de Russie: Numéro d’enregistrement: 1113334001879"
-        props:
-          jurisdiction: ru
-          legalForm: Propriété russe mixte avec une part de propriété fédérale
-          incorporationDate: 2011-07-01
-          address: "602205, région de Vladimir, Murom, 30 Let Pobedy St., 1a."
-          registrationNumber: 1113334001879
       - match:
           "Type d’entité: société à responsabilité limitée (SARL) - Lieu d’enregistrement:
           Russie - Date d’enregistrement: 24.12.2010 - Entité associée: société par actions
@@ -1795,18 +1651,20 @@ lookups:
           10.10.2010 - Principal établissement: Fédération de Russie - Entités associées:
           Tactical Missile Corporation, société mère (NIF: 503210805145): 3001041615 (numéro
           d’identification fiscale)"
+        associates:
+          - Tactical Missile Corporation
         props:
           jurisdiction: ru
           address: "416506, région d’Astrakhan, district d’Akhtubinsky, Akhtubinsk, st. Sukhoi P.O., Building 12a"
-          notes: "Entités associées: Tactical Missile Corporation, société mère (NIF: 503210805145)"
           incorporationDate: 2010-10-10
           innCode: 3001041615
       - match:
           'Entités associées: Ancienne société mère: entreprise unitaire de l’État
           fédéral "Scientific and Production Center of Automation and Instrumentation named
           after academician N.A. Pilyugin" (JSC "NPCAP": Autres informations: TIN 7728171283'
+        associates:
+          - Scientific and Production Center of Automation and Instrumentation named after academician N.A. Pilyugin
         props:
-          notes: 'Entités associées: Ancienne société mère: entreprise unitaire de l’État fédéral "Scientific and Production Center of Automation and Instrumentation named after academician N.A. Pilyugin" (JSC "NPCAP")'
           innCode: 7728171283
       - match:
           "Lieu d’enregistrement: Fédération de Russie (107241, Moscou, sh. Shchelkovskoe,
@@ -1818,7 +1676,8 @@ lookups:
           incorporationDate: 2017-09-27
           innCode: 9718077239
       - match: "Personnes ou entités associées: Sergei Shoigu"
-        note: true
+        associates:
+          - Sergei Shoigu
       - match: INN 5907001774 KPP 590701001 OKPO 07504034
         schema: Company
         props:
@@ -1861,28 +1720,10 @@ lookups:
           address: "27521, Moscou, ul. Oktiabrskaia, 72."
           incorporationDate: 2020-05-29
           innCode: 9715384055
-      - match:
-          "Lieu d’enregistrement: Fédération de Russie (193091, Saint Petersbourg,
-          nab. Oktiabrskaia, 6,litera v, pomeshch. 8-n) - Date d’enregistrement: 25.8.2015
-          - Principal établissement: Fédération de Russie: 7811227439 (numéro d’identification
-          fiscale)"
-        props:
-          jurisdiction: ru
-          address: "193091, Saint Petersbourg, nab. Oktiabrskaia, 6,litera v, pomeshch. 8-n"
-          incorporationDate: 2015-08-25
-          innCode: 7811227439
       - match: "Date d’enregistrement: 1947 - Principal établissement: Russie"
         props:
           incorporationDate: 1947
           jurisdiction: ru
-      - match:
-          "Type d’entité: société par actions - Lieu d’enregistrement: Fédération de
-          Russie - Date d’enregistrement: 10.3.2015: Numéro d’enregistrement: 1157746176400"
-        props:
-          legalForm: "société par actions"
-          jurisdiction: ru
-          incorporationDate: 2015-03-10
-          registrationNumber: 1157746176400
       - match: "Lieu d'enregistrement: Fédération de Russie (193091, Saint Petersbourg, nab. Oktiabrskaia, 6,litera v, pomeshch. 8-n) - Date d'enregistrement: 25.8.2015 - Principal établissement: Fédération de Russie: 7811227439 (numéro d'identification fiscale)"
         props:
           jurisdiction: ru
@@ -1918,53 +1759,11 @@ lookups:
       - match: "No INN: 7707314029"
         props:
           innCode: 7707314029
-      - match: "NIF - Type d’entité: Organisation autonome à but non lucratif - Lieu d’enregistrement: Russie - Date d’enregistrement: 2019 - Principal lieu d’activité: Russie: 9709056472"
-        props:
-          jurisdiction: ru
-          legalForm: Organisation autonome à but non lucratif
-          incorporationDate: 2019
-          innCode: 9709056472
-      - match: "NIF - Type d’entité: “Conseils en matière d’activités commerciales et de gestion” - Lieu d’enregistrement: Moscou -Date d’enregistrement: 3.11.2005 - Principal lieu d’activité: Moscou: 7727536630"
-        props:
-          jurisdiction: ru
-          legalForm: “Conseils en matière d’activités commerciales et de gestion”
-          incorporationDate: 2005-11-03
-          innCode: 7727536630
       - match: "Entreprise de d’information et de technologies - Lieu d’enregistrement: Russie - Date d’enregistrement: créée en 2001 - Principal lieu d’activité: Russie: /"
         props:
           jurisdiction: ru
           legalForm: Entreprise de d’information et de technologies
           incorporationDate: 2001
-      - match: "NIF - Type d’entité: Organe de presse - Lieu d’enregistrement: Moscou - Date d’enregistrement: 2.6.2003 - Principal lieu d’activité: Moscou: 7727214569"
-        props:
-          jurisdiction: ru
-          legalForm: Organe de presse
-          incorporationDate: 2003-06-02
-          innCode: 7727214569
-      - match: "NIF - Type d’entité: Organisation autonome à but non lucratif - Lieu d’enregistrement: Russie - Date d’enregistrement: 2019 - Principal lieu d’activité: Russie: 9709056472"
-        props:
-          jurisdiction: ru
-          legalForm: Organisation autonome à but non lucratif
-          incorporationDate: 2019
-          innCode: 9709056472
-      - match: "NIF - Type d’entité: “Conseils en matière d’activités commerciales et de gestion” - Lieu d’enregistrement: Moscou -Date d’enregistrement: 3.11.2005 - Principal lieu d’activité: Moscou: 7727536630"
-        props:
-          jurisdiction: ru
-          legalForm: “Conseils en matière d’activités commerciales et de gestion”
-          incorporationDate: 2005-11-03
-          innCode: 7727536630
-      - match: "NIF - Type d’entité: Organe de presse - Lieu d’enregistrement: Moscou - Date d’enregistrement: 2.6.2003 - Principal lieu d’activité: Moscou: 7727214569"
-        props:
-          jurisdiction: ru
-          legalForm: Organe de presse
-          incorporationDate: 2003-06-02
-          innCode: 7727214569
-      - match: "NIF - Type d’entité: Organisation autonome à but non lucratif - Lieu d’enregistrement: Russie - Date d’enregistrement: 2019 - Principal lieu d’activité: Russie: 9709056472"
-        props:
-          jurisdiction: ru
-          legalForm: Organisation autonome à but non lucratif
-          incorporationDate: 2019
-          innCode: 9709056472
       - match: "Type d’entité: Entreprise d’État - Lieu d’enregistrement: 73, rue Dzerzhinskogo, Minsk, 220116 - Date d’enregistrement: 21.7.1997 -  Principal établissement: Minsk, Biélorussie: 101272253"
         props:
           jurisdiction: by
@@ -2015,6 +1814,572 @@ lookups:
           legalForm: Organisation autonome à but non lucratif
           incorporationDate: 2019
           innCode: 7703438908
+      - match: "Type d’entité: prison - Lieu d’enregistrement: Karaj, province d’Alborz, Iran: /"
+        props:
+          jurisdiction: ir
+          legalForm: prison
+          address: "Karaj, province d’Alborz, Iran"
+      - match: "Type d'entité: société par actions. Lieu d'enregistrement: Fédération de Russie. Date d'enregistrement: 6.6.2003. Numéro d'enregistrement: 1031632202227. Principal établissement: Russie: uméro d'enregistrement: 1031632202227"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2003-06-06
+          registrationNumber: 1031632202227
+      - match: "Numéro d’enregistrement: 10101373495"
+        props:
+          registrationNumber: 10101373495
+      - match: "NIF 1644024517"
+        props:
+          idNumber: 1644024517
+      - match: "CEI 165101001"
+        props:
+          idNumber: 165101001
+      - match: "PSRN 1021601627090 le 25.11.2002"
+        props:
+          registrationNumber: 1021601627090
+          incorporationDate: 2002-11-25
+      - match: "OKPO 57243722"
+        schema: Company
+        props:
+          okpoCode: 57243722
+      - match: "N ° d'identification fiscale - En cours de liquidation - Liquidateur: Igor Staloverov: 7730018980"
+        props:
+          innCode: 7730018980
+          status: En cours de liquidation
+      - match: "Numéro d'enregistrement national: 1025201335730"
+        props:
+          registrationNumber: 1025201335730
+      - match: "Type d'entité: société par actions"
+        props:
+          legalForm: société par actions
+      - match: "Type d’entité: prison - Lieu d’enregistrement: Zahedan, Iran: /"
+        props:
+          jurisdiction: ir
+          legalForm: prison
+          address: "Zahedan, Iran"
+      - match: "Lieu d'enregistrement: Dubaï, Émirats arabes unis (Unit OT 17-32, Level 17, Central Park Offices, Dubai International Financial Centre, Dubaï, 507065, Émirats arabes unis) . Date d'enregistrement: 2.8.2012. Principaux établissements: Émirats arabes unis, Fédérationde Russie, Union européenne: Numéro d'enregistrement: 1244"
+        props:
+          jurisdiction: ae
+          country: ru
+          address: "Unit OT 17-32, Level 17, Central Park Offices, Dubai International Financial Centre, Dubaï, 507065, Émirats arabes unis"
+          incorporationDate: 2012-08-02
+          registrationNumber: 1244
+      - match: "Numéro d’enregistrement: 10590042155"
+        props:
+          registrationNumber: 10590042155
+      - match: "Type d’entité: entité gouvernementale - Lieu d’enregistrement: Iran - Date d’enregistrement: 2012: /"
+        props:
+          jurisdiction: ir
+          legalForm: entité gouvernementale
+          incorporationDate: 2012
+      - match: "Type d'entité: société à responsabilité limitée. Lieu d'enregistrement: rue Bolshaya Polyanka, 50/1 STR.1, 119180, Moscou, Russie. Date d'enregistrement: 21.2.2005. Numéro d'enregistrement: 1057746290469. Numéro d'identification du contribuable: 7706569306. Principal établissement: Moscou, Russie: Numéro d'enregistrement: 1057746290469"
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          address: "rue Bolshaya Polyanka, 50/1 STR.1, 119180, Moscou, Russie"
+          incorporationDate: 2005-02-21
+          registrationNumber: 1057746290469
+          innCode: 7706569306
+      - match: "Type d'entité: société par actions. Date d'enregistrement: 26.9.2011. Lieu d’enregistrement: région de Nijni Novgorod, Fédération de Russie Principal lieu d’activité: Fédération de Russie: Date d'enregistrement: 26.9.2011"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2011-09-26
+      - match: "Type d’entité: prison - Lieu d’enregistrement: province du Kurdistan, nord-ouest de l’Iran: /"
+        props:
+          jurisdiction: ir
+          legalForm: prison
+          address: "province du Kurdistan, nord-ouest de l’Iran"
+      - match: "Type d'entité: société par actions. Principal établissement: Russie: Société par actions"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+      - match: "Numéro d'enregistrement national: 1027739000475"
+        props:
+          registrationNumber: 1027739000475
+      - match: "Type d'entité: société par actions. Lieu d'enregistrement: Oblast de Tcheliabinsk, Fédération de Russie. Date d'enregistrement: 22.6.2000. Numéro d'enregistrement: 1027400870826. Principal établissement: Russie: Numéro d'enregistrement: 1027400870826"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          address: "Oblast de Tcheliabinsk, Fédération de Russie"
+          incorporationDate: 2000-06-22
+          registrationNumber: 1027400870826
+      - match: "Type d’entité: prison - Lieu d’enregistrement: Ispahan, Iran: /"
+        props:
+          jurisdiction: ir
+          legalForm: prison
+          address: "Ispahan, Iran"
+      - match: "Type d'entité: société par actions cotée. Lieu d'enregistrement: Perm, Fédération de Russie. Date d'enregistrement: 11.12.1992. Numéro d'enregistrement: 1025901364708. Principal établissement: Russie: Numéro d'enregistrement: 1025901364708"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions cotée
+          address: "Perm, Fédération de Russie"
+          incorporationDate: 1992-12-11
+          registrationNumber: 1025901364708
+      - match: "Type d'entité: entreprise unitaire publique fédérale. Lieu d'enregistrement: Pokhodnyy Proyezd 3- 2, 125373, Moscou, Russie. Date d'enregistrement: 14.10.2002. Numéro d'enregistrement: 1027700310076. Principal établissement: Moscou, Russie: Numéro d'enregistrement: 1027700310076"
+        props:
+          jurisdiction: ru
+          legalForm: entreprise unitaire publique fédérale
+          address: "Pokhodnyy Proyezd 3- 2, 125373, Moscou, Russie"
+          incorporationDate: 2002-10-14
+          registrationNumber: 1027700310076
+      - match: "Type d'entité: société par actions Date d'enregistrement: 1.2.2008. Numéro d'enregistrement: 1087746152207. Numéro d'identification fiscale: 7704676655: Numéro d'enregistrement: 1087746152207"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2008-02-01
+          registrationNumber: 1087746152207
+          innCode: 7704676655
+      - match: "Type d'entité: organe de presse  - Lieu d'enregistrement: Iran - Date d'enregistrement: 30 juin 2012: /"
+        props:
+          jurisdiction: ir
+          legalForm: organe de presse
+          incorporationDate: 2012-06-30
+      - match: "Type d'entité: groupe de moto  Lieu d'enregistrement: Fédération de Russie  Date d'enregistrement: 1989"
+        props:
+          jurisdiction: ru
+          legalForm: groupe de moto
+          incorporationDate: 1989
+      - match: "Date d'enregistrement: 20.9.2001: Numéro d'enregistrement: SRN/OGRN  1021602498114"
+        props:
+          ogrnCode: 1021602498114
+          incorporationDate: 2001-09-20
+      - match: "Lieu d’enregistrement: Téhéran, Iran - Établissement principal: Iran: /"
+        props:
+          jurisdiction: ir
+          address: "Téhéran, Iran"
+      - match:
+          "Lieu d’enregistrement: Téhéran, Iran - Établissement principal: Téhéran,
+          Iran - Entités associées: Corps des gardiens de la révolution islamique (IRGC);
+          Khatam al-Anbiya Construction Headquarters (KAA): Type d’entité: filiale de Khatam
+          al-Anbiya Construction Headquarters, qui est une entreprise d’ingénierie contrôlée
+          par l’IRGC"
+        associates:
+          - Corps des gardiens de la révolution islamique (IRGC)
+          - Khatam al-Anbiya Construction Headquarters (KAA)
+        props:
+          jurisdiction: ir
+          address: "Téhéran, Iran"
+          legalForm: filiale de Khatam al-Anbiya Construction Headquarters, qui est une entreprise d’ingénierie contrôlée par l’IRGC
+      - match:
+          "Lieu d’enregistrement: Iran - Date d’enregistrement: 2006 - Établissement
+          principal: Iran - Entités associées: Corps des gardiens de la révolution islamique
+          (IRGC).Khatam al-Anbiya Construction Headquarters (KAA) - Site internet: www.sepanir.com:
+          Entreprise publique"
+        associates:
+          - Corps des gardiens de la révolution islamique (IRGC)
+          - Khatam al-Anbiya Construction Headquarters (KAA)
+        props:
+          jurisdiction: ir
+          incorporationDate: 2006
+          address: Iran
+          legalForm: Entreprise publique
+          website: http://www.sepanir.com
+      - match:
+          "Ghorb Nooh; Corps des gardiens de la révolution islamique (IRGC); Khatam
+          al-Anbiya Construction Headquarters (KAA): Entités associées"
+        associates:
+          - Ghorb Nooh
+          - Corps des gardiens de la révolution islamique (IRGC)
+          - Khatam al-Anbiya Construction Headquarters (KAA)
+      - match: "No d’enregistrement: société coopérative no 892"
+        props:
+          registrationNumber: 892
+      - match: "Entités associées: Khatam al-Anbiya Construction Headquarters (KAA)"
+        associates:
+          - Khatam al-Anbiya Construction Headquarters (KAA)
+      - match:
+          "Type d’entité: entité publique - Lieu d’enregistrement: Téhéran, Iran -
+          Établissement principal: Téhéran, Iran: /"
+        props:
+          jurisdiction: ir
+          legalForm: entité publique
+          address: "Téhéran, Iran"
+      - match:
+          "Corps des gardiens de la révolution islamique (IRGC); Ghorb Nooh; Khatam
+          al-Anbiya Construction Headquarters (KAA): Entités associées"
+        associates:
+          - Corps des gardiens de la révolution islamique (IRGC)
+          - Ghorb Nooh
+          - Khatam al-Anbiya Construction Headquarters (KAA)
+      - match: "Établissement principal: Iran: /"
+        props:
+          jurisdiction: ir
+      - match:
+          "Lieu d’enregistrement: Iran - Établissement principal: Iran - Personnes
+          associées: Sardar Abed -(commandant de Khatam al-Anbiya Construction Headquarters)
+          - Entités associées: Corps des gardiens de la révolution islamique (IRGC); Fater
+          Institute; Niro Holding: Type d’entité: entreprise publique"
+        associates:
+          - Sardar Abed
+          - Corps des gardiens de la révolution islamique (IRGC)
+          - Fater Institute
+          - Niro Holding
+        props:
+          jurisdiction: ir
+          address: Iran
+          legalForm: entreprise publique
+      - match:
+          "Entités associées: Shahid Baheri Industrial Group (SBIG);  Organisation
+          des industries aérospatiales (AIO)"
+        associates:
+          - Shahid Baheri Industrial Group (SBIG)
+          - Organisation des industries aérospatiales (AIO)
+      - match:
+          "Entités associées: Organisation des industries aérospatiales (AIO);  Pejman
+          Industrial Services"
+        associates:
+          - Organisation des industries aérospatiales (AIO)
+          - Pejman Industrial Services
       - match: "Lieu d'enregistrement: Syrie: /"
         props:
           jurisdiction: sy
+      - match:
+          "ministère de la défense et de la logistique des forces armées (MODAFL);
+          ELI: http://data.europa.eu/eli/reg_impl/2023/2196/oj 31/44 Nom Informations d’identification
+          Motifs Date d’inscriptionOrganisation des industries de la défense (DIO); Organisation
+          des industries aérospatiales (AIO); Iran Electronics Industries (IEI); P.B. Sadr;
+          Zhejiang Qingji Ind. Co., Ltd en Chine; Lingoe Process Engineering Limited (Lingoe)
+          à Hong Kong; Blue Calm Marine Services Company (Blue Calm) en Iran;: Entités associées"
+        associates:
+          - MODAFL
+          - Organisation des industries de la défense (DIO)
+          - Organisation des industries aérospatiales (AIO)
+          - Iran Electronics Industries (IEI)
+          - P.B. Sadr
+          - Zhejiang Qingji Ind. Co., Ltd en Chine
+          - Lingoe Process Engineering Limited (Lingoe) à Hong Kong
+          - Blue Calm Marine Services Company (Blue Calm) en Iran
+      - match: "Personne associée: Li Fang Wei alias Karl Lee"
+        associates:
+          - Li Fang Wei
+          - Karl Lee
+      - match:
+          "Personnes associées: Mehrdada Akhlaghi Ketabachi [directeur de Shahid Baheri
+          Industrial Group (SBIG)]"
+        associates:
+          - Mehrdada Akhlaghi Ketabachi
+      - match:
+          "Lieu d’enregistrement: Iran - Personnes associées: Morteza Rezaie; Ali Akbar
+          Ahmadian; Mohammad Reza Zahedi; Morteza Safari; Mohammad Bagher Zolghadr - Entités
+          associées: Corps des gardiens de la révolution islamique (IRGC); force aérospatiale
+          du Corps des gardiens de la révolution islamique (IRGC): Type d’entité: entreprise
+          aéronautique"
+        associates:
+          - Morteza Rezaie
+          - Ali Akbar Ahmadian
+          - Mohammad Reza Zahedi
+          - Morteza Safari
+          - Mohammad Bagher Zolghadr
+          - Corps des gardiens de la révolution islamique (IRGC)
+          - force aérospatiale du Corps des gardiens de la révolution islamique (IRGC)
+        props:
+          jurisdiction: ir
+          legalForm: entreprise aéronautique
+      - match: "Lieu d’enregistrement: Iran - Établissement principal: Iran: /"
+        props:
+          jurisdiction: ir
+      - match:
+          "N° d’enregistrement - Lieu d’enregistrement: Iran - Date d’enregistrement:
+          1992: 339747"
+        props:
+          jurisdiction: ir
+          registrationNumber: 339747
+          incorporationDate: 1992
+      - match: "Lieu d’enregistrement: Iran - Établissement principal: Téhéran, Iran: /"
+        props:
+          jurisdiction: ir
+          address: "Téhéran, Iran"
+      - match:
+          "Entités associées:  Yas Air; Pouya Air: Lieu d'enregistrement: Téhéran,
+          Iran"
+        associates:
+          - Yas Air
+          - Pouya Air
+        props:
+          jurisdiction: ir
+          address: "Téhéran, Iran"
+      - match:
+          "Entités associées: Corps des gardiens de la révolution islamique (IRGC);
+          Khatam al-Anbiya Construction Headquarters (KAA)"
+        associates:
+          - Corps des gardiens de la révolution islamique (IRGC)
+          - Khatam al-Anbiya Construction Headquarters (KAA)
+      - match:
+          "Entités associées: entité placée sous le contrôle de l’Organisation des
+          industries aérospatiales (AIO)"
+        associates:
+          - Organisation des industries aérospatiales (AIO)
+      - match: "Lieu d’enregistrement: Téhéran: /"
+        props:
+          jurisdiction: ir
+          address: Téhéran
+      - match:
+          "Lieu d’enregistrement: Iran - Établissement principal: Iran - Entités associées:
+          Corps des gardiens de la révolution islamique (IRGC); Khatam al-Anbiya Construction
+          Headquarters (KAA); Niro Holding: Type d’entité: entreprise publique"
+        associates:
+          - Corps des gardiens de la révolution islamique (IRGC)
+          - Khatam al-Anbiya Construction Headquarters (KAA)
+          - Niro Holding
+        props:
+          jurisdiction: ir
+          address: Iran
+          legalForm: entreprise publique
+      - match:
+          "Khatam al-Anbiya - Construction Headquarters (KAA); Hara Company; Omran
+          Sahel; Sahel Consultant Engineers; National Iranian Oil company (NIOC); Corps
+          des gardiens de la révolution islamique (IRGC): Entités associées"
+        associates:
+          - Khatam al-Anbiya - Construction Headquarters (KAA)
+          - Hara Company
+          - Omran Sahel
+          - Sahel Consultant Engineers
+          - National Iranian Oil company (NIOC)
+          - Corps des gardiens de la révolution islamique (IRGC)
+      - match:
+          "Lieu d’enregistrement: Mashad, Iran - Date d’enregistrement: 1993 - Établissement
+          principal: Mashad, Iran: /"
+        props:
+          jurisdiction: ir
+          address: "Mashad, Iran"
+          incorporationDate: 1993
+      - match: "Entités associées: Organisation des industries aérospatiales (AIO)"
+        associates:
+          - Organisation des industries aérospatiales (AIO)
+      - match:
+          "Organisation des industries de la défense (DIO); LIMMT Economic and Trade
+          Company (LIMMT); Groupe des industries des munitions et de la métallurgie (AMIG);
+          Shahid Sayyad Shirazi Industries: Entités associées"
+        associates:
+          - Organisation des industries de la défense (DIO)
+          - LIMMT Economic and Trade Company (LIMMT)
+          - Groupe des industries des munitions et de la métallurgie (AMIG)
+          - Shahid Sayyad Shirazi Industries
+      - match:
+          "Entités associées: Saba Battery  Organisation des industries de la défense
+          (DIO);  ministère de la défense et de la logistique des forces armées (MODAFL)"
+        associates:
+          - Saba Battery
+          - Organisation des industries de la défense (DIO)
+          - MODAFL
+      - match:
+          "Entités associées: Corps des gardiens de la révolution islamique (IRGC);  Khatam
+          al-Anbiya Construction Headquarters (KAA): Établissement principal: Iran"
+        associates:
+          - Corps des gardiens de la révolution islamique (IRGC)
+          - Khatam al-Anbiya Construction Headquarters (KAA)
+        props:
+          jurisdiction: ir
+      - match: "Établissement principal: Téhéran, Iran Ispahan, Iran: /"
+        props:
+          jurisdiction: ir
+          address:
+            - Téhéran, Iran
+            - Ispahan, Iran
+      - match:
+          "Lieu d’enregistrement: Iran - Date d’enregistrement: 1961 - Code économique:
+          411315443678: No d’enregistrement: 860"
+        props:
+          jurisdiction: ir
+          registrationNumber: 860
+          taxNumber: 411315443678
+          incorporationDate: 1961
+      - match: "Date d’enregistrement: 1997 - Établissement principal: Iran: /"
+        props:
+          jurisdiction: ir
+          incorporationDate: 1997
+      - match:
+          "Date d’enregistrement: 1989 et 1990 - Personnes associées: Abdollah Abdullahi
+          (directeur général et administrateur); M. Surah Kia Pasha (directeur général)
+          - Entités associées: Corps des gardiens de la révolution islamique (IRGC); Khatam
+          al-Anbiya Construction Headquarters (KAA: Lieu d’enregistrement: Iran"
+        associates:
+          - Abdollah Abdullahi
+          - M. Surah Kia Pasha
+          - Corps des gardiens de la révolution islamique (IRGC)
+          - Khatam al-Anbiya Construction Headquarters (KAA)
+        props:
+          jurisdiction: ir
+      - match:
+          "Type d'entité: société par actions cotée. Lieu d'enregistrement: Fédération
+          de Russie. Date d'enregistrement: 1992. Numéro d'enregistrement: 1027739555282.
+          Principal établissement: Fédération de Russie: Numéro d'enregistrement: 1027739555282"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions cotée
+          incorporationDate: 1992
+          registrationNumber: 1027739555282
+      - match:
+          "Organisation des industries aérospatiales (AIO); Sabalan Company; Sabalan
+          Petrochemical Company; Sabalan Petrochemical Industries Company; SPICO; SPC: Entités
+          associées"
+        associates:
+          - Organisation des industries aérospatiales (AIO)
+          - Sabalan Company
+          - Sabalan Petrochemical Company
+          - Sabalan Petrochemical Industries Company
+          - SPICO
+          - SPC
+      - match:
+          "Entités associées: Khatam al-Anbiya Construction Headquarters (KAA);  Ghorb
+          Nooh"
+        associates:
+          - Khatam al-Anbiya Construction Headquarters (KAA)
+          - Ghorb Nooh
+      - match: "N° d’identification national - Établissement principal: Téhéran, Iran: 10103864724"
+        props:
+          jurisdiction: ir
+          address: "Téhéran, Iran"
+          idNumber: 10103864724
+      - match:
+          "Entités associées: Corps des gardiens de la révolution islamique (IRGC);
+          Khatam al-Anbiya Construction Headquarters (KAA): Date d’enregistrement: 1992"
+        props:
+          jurisdiction: ir
+          incorporationDate: 1992
+        associates:
+          - Corps des gardiens de la révolution islamique (IRGC)
+          - Khatam al-Anbiya Construction Headquarters (KAA)
+      - match:
+          "Type d’entité: entreprise publique - Lieu d’enregistrement: Iran - Établissement
+          principal: Iran: /"
+        props:
+          jurisdiction: ir
+          legalForm: entreprise publique
+      - match:
+          "Type d’entité: fournisseur d’armes militaires  - Lieu d’enregistrement:
+          Mashad, Iran - Établissement principal: Iran: /"
+        props:
+          jurisdiction: ir
+          legalForm: fournisseur d’armes militaires
+          address: "Mashad, Iran"
+      - match:
+          "Ali Akbar; Tabatabaei (IRGC); Azim Aghajani (IRGC); Esmail Ghani, alias
+          Ismail Akbar Nezhad ou Esmail Qani - Entités associées: Corps des gardiens de
+          la révolution islamique (IRGC): Personnes associées"
+        associates:
+          - Ali Akbar
+          - Tabatabaei (IRGC)
+          - Azim Aghajani (IRGC)
+          - Esmail Ghani
+          - Ismail Akbar Nezhad
+          - Esmail Qani
+          - Corps des gardiens de la révolution islamique (IRGC)
+      - match:
+          "Entités associées: IRGC; ministère de la défense et de la logistique des
+          forces armées (MODAFL) de l’Iran; Organisation des industries de l’aviation de
+          l’Iran (IAIO); Organisation des industries aérospatiales (AIO): Type d’entité:
+          entreprise de construction aéronautique"
+        props:
+          jurisdiction: ir
+          legalForm: entreprise de construction aéronautique
+        associates:
+          - IRGC
+          - MODAFL
+          - Organisation des industries de l’aviation de l’Iran (IAIO)
+          - Organisation des industries aérospatiales (AIO)
+      - match:
+          "Lieu d'enregistrement: Iran - Date d'enregistrement: 2000 (en tant que
+          Qeshm Air) et renommée Yas Air en 2008 - Entités associées: Pars Aviation Services
+          Company (PASC); Corps des gardiens de la révolution islamique (IRGC) - Sites internet:
+          pouyaair.com; yasair.com: Type d'entité: compagnie aérienne de fret"
+        associates:
+          - Pars Aviation Services Company (PASC)
+          - Corps des gardiens de la révolution islamique (IRGC)
+        props:
+          jurisdiction: ir
+          incorporationDate: 2000
+          website:
+            - http://pouyaair.com
+            - http://yasair.com
+          legalForm: compagnie aérienne de fret
+      - match:
+          "Type d’entité: filiale de l’Organisation des industries aérospatiales (AIO):
+          /"
+        associates:
+          - Organisation des industries aérospatiales (AIO)
+      - match:
+          "The Parchin Military Complex (PMC); Zeinoddin Chemical Industries; Chemical
+          Industries and Development of Material Group (CIDMG) Personnes associées: Davoud
+          Damghani (attaché de la défense de l’Iran à Pékin); Li Zeming (Li) (employé de
+          Zhejiang Qingji); Shen Weisheng (administrateur et directeur général de Zhejiang
+          Qingji): Entités associée"
+        associates:
+          - The Parchin Military Complex (PMC)
+          - Zeinoddin Chemical Industries
+          - Chemical Industries and Development of Material Group (CIDMG)
+          - Davoud Damghani
+          - Li Zeming
+          - Shen Weisheng
+      - match: "Lieu d’enregistrement: Téhéran, Iran: Établissement principal: Iran"
+        props:
+          jurisdiction: ir
+          address: "Téhéran, Iran"
+      - match:
+          "Lieu d’enregistrement: Iran - Établissement principal: Iran - Entités associées:
+          Corps des gardiens de la révolution islamique (IRGC); Khatam al-Anbiya Construction
+          Headquarters (KAA): Type d’entité: entreprise publique"
+        associates:
+          - Corps des gardiens de la révolution islamique (IRGC)
+          - Khatam al-Anbiya Construction Headquarters (KAA)
+        props:
+          jurisdiction: ir
+          address: Iran
+          legalForm: entreprise publique
+      - match:
+          "Lieu d’enregistrement: Téhéran, Iran - Entités associées: Organisation des
+          industries de la défense (DIO); ministère de la défense et de la logistique des
+          forces armées en Iran (MODAFL): Type d’entité: filiale de l’Organisation des industries
+          de la défense (DIO) de l’Iran, qui est elle-même une filiale du ministère de la
+          défense et de la logistique des forces armées (MODAFL)"
+        associates:
+          - Organisation des industries de la défense (DIO)
+          - MODAFL
+        props:
+          jurisdiction: ir
+          address: "Téhéran, Iran"
+          notes: filiale de l’Organisation des industries de la défense (DIO) de l’Iran, qui est elle-même une filiale du ministère de la défense et de la logistique des forces armées (MODAFL)
+      - match:
+          "Lieu d’enregistrement: Téhéran - No d’enregistrement: 176855 - Code économique:
+          411139673763 - Date d’enregistrement: 1987 et 2001 - Personnes associées: Reza
+          Sadougi, PDG: Numéro d’identification national 10102191894"
+        props:
+          jurisdiction: ir
+          registrationNumber: 176855
+          taxNumber: 411139673763
+          incorporationDate: 1987
+        associates:
+          - Reza Sadougi
+      - match:
+          "Lieu d’enregistrement: Téhéran, Iran - Date d’enregistrement: 3.3.2008 -
+          Établissement principal: Iran: /"
+        props:
+          jurisdiction: ir
+          address: "Téhéran, Iran"
+          incorporationDate: 2008-03-03
+      - match: "Lieu d'enregistrement: Myanmar/Birmanie: /"
+        props:
+          jurisdiction: mm
+      - match: "Type d'entité: Filiale de l'entreprise unitaire de l'État fédéral - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 15.11.2002 - Principal établissement: Fédération de Russie: Numéro d'enregistrement: 1027739552642"
+        props:
+          jurisdiction: ru
+          legalForm: Filiale de l'entreprise unitaire de l'État fédéral
+          incorporationDate: 2002-11-15
+          registrationNumber: 1027739552642
+      - match: 'Entités associées: Ancienne société mère: entreprise unitaire de l''État fédéral "Scientific and Production Center of Automation and Instrumentation named after academician N.A. Pilyugin" (JSC "NPCAP": Autres informations: TIN 7728171283'
+        associates:
+          - Scientific and Production Center of Automation and Instrumentation named after academician N.A. Pilyugin
+      - match: "Lieu d'enregistrement: Iran - Établissement principal: Iran: /"
+        props:
+          jurisdiction: ir
+      - match: "Lieu d'enregistrement: Téhéran - No d'enregistrement: 176855 - Code économique: 411139673763 - Date d'enregistrement: 1987 et 2001 - Personnes associées: Reza Sadougi, PDG: Numéro d'identification national 10102191894"
+        props:
+          jurisdiction: ir
+          registrationNumber: 176855
+          taxNumber: 411139673763
+          incorporationDate:
+            - 1987
+            - 2001
+        associates:
+          - Reza Sadougi
