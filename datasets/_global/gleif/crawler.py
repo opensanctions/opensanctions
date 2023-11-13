@@ -42,6 +42,8 @@ ADDRESS_PARTS: Dict[str, str] = {
 def make_address(el: etree._Element) -> str:
     parts: Dict[str, Union[str, None]] = {"summary": el.text}  # FirstAddressLine
     parent = el.getparent()
+    if parent is None:
+        return ""
     for tag, key in ADDRESS_PARTS.items():
         parts[key] = parent.findtext(tag)
     return h.format_address(**parts)
@@ -173,7 +175,10 @@ def parse_lei_file(context: Context, fh: BinaryIO) -> None:
             continue
         proxy.add("name", entity.findtext("LegalName"))
         proxy.add("jurisdiction", entity.findtext("LegalJurisdiction"))
-        proxy.add("status", entity.findtext("EntityStatus"))
+        status = entity.findtext("EntityStatus")
+        if status in ("DUPLICATE", "ANNULLED"):
+            continue
+        proxy.add("status", status)
         create_date = parse_date(entity.findtext("EntityCreationDate"))
         proxy.add("incorporationDate", create_date)
         authority = entity.find("RegistrationAuthority")
