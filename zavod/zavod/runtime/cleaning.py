@@ -18,7 +18,7 @@ log = get_logger(__name__)
 def normalize_bic(value: str) -> Optional[str]:
     # Examples: SABRRUMMXXX = SABRRUMM
     try:
-        bic_value = bic.validate(value)
+        bic_value: Optional[str] = bic.validate(value)
         if bic_value is None:
             return None
         return bic_value[:8]
@@ -28,7 +28,7 @@ def normalize_bic(value: str) -> Optional[str]:
 
 def normalize_isin(value: str) -> Optional[str]:
     try:
-        isin_value = isin.validate(value)
+        isin_value: Optional[str] = isin.validate(value)
         if isin_value is None:
             return None
         return isin_value
