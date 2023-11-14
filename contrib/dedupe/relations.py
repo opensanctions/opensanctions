@@ -19,7 +19,7 @@ Key = Tuple[Identifier, Identifier, Schema, Temp, Temp]
 
 
 def dedupe_relations(dataset: Dataset) -> None:
-    # clear_store(dataset)
+    clear_store(dataset)
     view = get_view(dataset, external=True)
     resolver = get_resolver()
     resolver.prune()
@@ -80,8 +80,6 @@ def dedupe_relations(dataset: Dataset) -> None:
                 judgement=Judgement.POSITIVE,
                 user="edge-dedupe",
             ).id
-        # print("KEYS", key)
-        # print("ENTS", values)
 
     resolver.save()
 
