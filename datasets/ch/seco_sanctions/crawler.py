@@ -1,5 +1,6 @@
 import re
 from itertools import product
+from datetime import datetime
 from prefixdate import parse_parts
 from typing import Dict, Optional, Tuple, List
 from followthemoney.types import registry
@@ -205,7 +206,7 @@ def parse_identity(context: Context, entity: Entity, node: Element, places):
             context.emit(passport)
 
 
-def parse_entry(context: Context, target, programs, places, updated_at):
+def parse_entry(context: Context, target: Element, programs, places):
     entity = context.make("LegalEntity")
     node = target.find("./entity")
     if node is None:
@@ -213,6 +214,9 @@ def parse_entry(context: Context, target, programs, places, updated_at):
         entity = context.make("Person")
     if node is None:
         node = target.find("./object")
+        if node is None:
+            context.log.error("No target", target=target)
+            return
         object_type = node.get("object-type")
         if object_type != "vessel":
             context.log.warning(
@@ -224,6 +228,8 @@ def parse_entry(context: Context, target, programs, places, updated_at):
     entity.id = context.make_slug(entity_ssid)
     entity.add("gender", node.get("sex"), quiet=True)
     for other in node.findall("./other-information"):
+        if other.text is None:
+            continue
         value = other.text.strip()
         imo_num = REGEX_IMO.fullmatch(value)
         reg_num = REGEX_REGNUM.fullmatch(value)
@@ -328,15 +334,19 @@ def crawl(context: Context):
     doc = context.parse_resource_xml(path)
     root = doc.getroot()
     assert root is not None
-    updated_at = root.get("date")
+    date = root.get("date")
+    if date is not None:
+        context.data_time = datetime.strptime(date, "%Y-%m-%d")
 
-    programs = {}
+    programs: Dict[str, MayStr] = {}
     for sanc in doc.findall(".//sanctions-program"):
         sanc_set = sanc.find("./sanctions-set")
         if sanc_set is None:
             context.log.warning("No sanctions-set", program=sanc)
             continue
         ssid = sanc_set.get("ssid")
+        if ssid is None:
+            continue
         programs[ssid] = sanc.findtext('./program-name[@lang="eng"]')
 
     places = {}
@@ -344,4 +354,4 @@ def crawl(context: Context):
         places[place.get("ssid")] = parse_address(place)
 
     for target in doc.findall("./target"):
-        parse_entry(context, target, programs, places, updated_at)
+        parse_entry(context, target, programs, places)
