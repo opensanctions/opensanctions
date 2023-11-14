@@ -1,12 +1,10 @@
 import sys
-import itertools
 from pathlib import Path
 from typing import Dict, Tuple, Union, List
 from nomenklatura.resolver import Identifier
-from followthemoney import model
+from nomenklatura.judgement import Judgement
 from followthemoney.schema import Schema
 from followthemoney.property import Property
-from followthemoney.compare import compare
 
 from zavod.logs import get_logger
 from zavod.meta import Dataset
@@ -26,13 +24,18 @@ def dedupe_relations(dataset: Dataset) -> None:
     resolver = get_resolver()
     resolver.prune()
     keys: Dict[Key, List[Entity]] = {}
-    for entity in view.entities():
+    for idx, entity in enumerate(view.entities()):
         if (
             not entity.schema.edge
             or entity.schema.source_prop is None
             or entity.schema.target_prop is None
+            or entity.id is None
         ):
             continue
+
+        if idx > 0 and idx % 10000 == 0:
+            log.info("Keyed %s entities..." % idx)
+
         sources = [Identifier.get(s) for s in entity.get(entity.schema.source_prop)]
         targets = [Identifier.get(t) for t in entity.get(entity.schema.target_prop)]
         if len(set(sources).union(targets)) > 2:
@@ -47,9 +50,9 @@ def dedupe_relations(dataset: Dataset) -> None:
             source, target = min((source, target)), max((source, target))
 
         key = (
-            source.id,
-            target.id,
-            entity.schema.name,
+            source,
+            target,
+            entity.schema,
             entity.temporal_start,
             entity.temporal_end,
         )
@@ -60,13 +63,27 @@ def dedupe_relations(dataset: Dataset) -> None:
     for key, values in keys.items():
         if len(values) == 1:
             continue
-        # for a, b in itertools.combinations(values, 2):
-        #     score = compare(model, a, b)
-        #     resolver.suggest(a.id, b.id, score=score, user="edge-dedupe")
-        print("KEYS", key)
-        print("ENTS", values)
+        entity_id = values[0].id
+        if entity_id is None:
+            continue
+        canonical = resolver.get_canonical(entity_id)
+        for other in values[1:]:
+            if other.id is None:
+                continue
+            other_id = resolver.get_canonical(other.id)
+            if other_id == canonical:
+                continue
+            log.info("Merge edge: %s (%s -> %s)" % (other, other_id, canonical))
+            canonical = resolver.decide(
+                canonical,
+                other_id,
+                judgement=Judgement.POSITIVE,
+                user="edge-dedupe",
+            ).id
+        # print("KEYS", key)
+        # print("ENTS", values)
 
-    # resolver.save()
+    resolver.save()
 
 
 if __name__ == "__main__":
