@@ -279,6 +279,8 @@ def parse_entry(context: Context, target, programs, places, updated_at):
     if ssid is None:
         ssid = target.findtext("./sanctions-set-id")
     sanction.add("program", programs.get(ssid))
+    foreign_id = target.findtext("./foreign-identifier")
+    sanction.add("unscId", foreign_id)
 
     for justification in node.findall("./justification"):
         # TODO: should this go into sanction:reason?
