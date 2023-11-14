@@ -1,0 +1,46 @@
+type: external
+title: OpenFIGI
+entry_point: zavod.runner.enrich:enrich
+full_dataset: openfigi
+disabled: false
+hidden: false
+coverage:
+  frequency: weekly
+exports:
+  - statistics.json
+deploy:
+  schedule: "1 10 * * *"
+  # premium: true
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: |
+  placeholder
+description: |
+  placeholder
+url: https://www.openfigi.com/
+publisher:
+  name: OpenFIGI
+  description: |
+    placeholder
+  url: https://www.openfigi.com/
+
+inputs:
+  #- sanctions
+  # - us_ofac_sdn
+  # - us_ofac_cons
+  # - eu_fsf
+  - eu_sanctions_map
+  #- gb_hmt_sanctions
+  #- gb_hmt_invbans
+  #- ch_seco_sanctions
+  # - au_dfat_sanctions
+  # - ca_dfatd_sema_sanctions
+  # - ext_gleif
+  # - ru_nsd_isin
+config:
+  type: nomenklatura.enrich.openfigi:OpenFIGIEnricher
+  dataset: openfigi
+  api_key: ${OPENSANCTIONS_GRAPH_API_KEY}
+  schemata:
+    - Company
+    - Organization
+  cache_days: 15
