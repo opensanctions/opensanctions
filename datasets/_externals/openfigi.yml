@@ -8,8 +8,7 @@ coverage:
 exports:
   - statistics.json
 deploy:
-  schedule: "1 10 * * *"
-  # premium: true
+  schedule: "@daily"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   Securities with FIGI identifiers matching sanctioned companies.
