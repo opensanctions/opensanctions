@@ -1,11 +1,10 @@
 type: external
 title: OpenFIGI
 entry_point: zavod.runner.enrich:enrich
-full_dataset: openfigi
 disabled: false
 hidden: false
 coverage:
-  frequency: weekly
+  frequency: daily
 exports:
   - statistics.json
 deploy:
