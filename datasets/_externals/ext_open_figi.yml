@@ -38,9 +38,7 @@ publisher:
   url: https://www.openfigi.com/
 
 inputs:
-  #- sanctions
-  - gb_hmt_invbans
-  - gb_hmt_sanctions
+  - sanctions
 
 config:
   type: nomenklatura.enrich.openfigi:OpenFIGIEnricher
