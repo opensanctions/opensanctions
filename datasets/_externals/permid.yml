@@ -1,0 +1,37 @@
+type: external
+title: LSEG PermID Open Data
+entry_point: zavod.runner.enrich:enrich
+disabled: false
+hidden: false
+coverage:
+  frequency: weekly
+exports:
+  - statistics.json
+deploy:
+  schedule: "1 10 * * *"
+  memory: "1500Mi"
+  memory_limit: "2500Mi"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: |
+  Permanent Identifier (PermID) is a reference data spine offered by LSEG/Refinitiv
+  to help create unique identifiers for organizations that are publicly listed.
+description: |
+  > Refinitiv is making available its Permanent Identifiers, or PermIDs, and the
+  > associated entity masters and metadata to the market. PermIDs are open, permanent
+  > and universal identifiers where underlying attributes capture the context of the
+  > identity they each represent.
+url: https://permid.org/about
+publisher:
+  name: LSEG/Refinitiv
+  description: |
+    With the merger of Refinitiv into LSEG, the PermID service (formerly Calais) is
+    now offered as an open access API by the company.
+  url: https://www.lseg.com/en/about-us/what-we-do
+
+inputs:
+  - sanctions
+
+config:
+  type: nomenklatura.enrich.permid:PermIDEnricher
+  api_token: ${PERMID_API_TOKEN}
+  cache_days: 15
