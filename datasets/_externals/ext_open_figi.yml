@@ -13,29 +13,35 @@ deploy:
   # premium: true
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
-  placeholder
+  Securities with FIGI identifiers matching sanctioned companies.
 description: |
-  placeholder
+
+  Securities in this dataset have been linked to sanctioned companies.
+
+  A FIGI™, or Financial Instrument Global Identifier™, is an established global
+  standard of the [Object Management Group®](http://www.OMG.org), as well as
+  an [X9 American National Standard](http://x9.org) (accredited by the American
+  National Standards Institute to develop standards for the U.S. Financial
+  services industry). The FIGI has also been adopted as a standard by the Brazilian
+  Association of Technical Standards (ABNT).
+
+  The FIGI standard is issued by Bloomberg L.P. and Kaiko as a Certified Providers
+  and distributed by Bloomberg L.P. as the Registration Authority under the auspice
+  of OMG® and X9.
 url: https://www.openfigi.com/
 publisher:
   name: OpenFIGI
   description: |
-    placeholder
+    OpenFIGI is an open system for identifying instruments globally across all asset 
+    classes. Using OpenFigi, Financial instruments can be identified and mapped to their
+    registered FIGI by various proprietary and standard identifiers.
   url: https://www.openfigi.com/
 
 inputs:
   #- sanctions
-  # - us_ofac_sdn
-  # - us_ofac_cons
-  # - eu_fsf
-  - eu_sanctions_map
-  #- gb_hmt_sanctions
-  #- gb_hmt_invbans
-  #- ch_seco_sanctions
-  # - au_dfat_sanctions
-  # - ca_dfatd_sema_sanctions
-  # - ext_gleif
-  # - ru_nsd_isin
+  - gb_hmt_invbans
+  - gb_hmt_sanctions
+
 config:
   type: nomenklatura.enrich.openfigi:OpenFIGIEnricher
   dataset: openfigi

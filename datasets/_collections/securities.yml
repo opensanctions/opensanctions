@@ -21,14 +21,15 @@ description: |
   * [Securities data in OpenSanctions](https://www.opensanctions.org/docs/bulk/faq/#securities)
   * [Russian NSD dataset](https://www.opensanctions.org/datasets/ru_nsd_isin/)
 children:
-  - us_ofac_sdn
-  - us_ofac_cons
-  - eu_fsf
-  - eu_sanctions_map
-  - gb_hmt_sanctions
-  - gb_hmt_invbans
-  - ch_seco_sanctions
   - au_dfat_sanctions
   - ca_dfatd_sema_sanctions
+  - ch_seco_sanctions
+  - eu_fsf
+  - eu_sanctions_map
   - ext_gleif
+  - ext_open_figi
+  - gb_hmt_invbans
+  - gb_hmt_sanctions
   - ru_nsd_isin
+  - us_ofac_cons
+  - us_ofac_sdn
