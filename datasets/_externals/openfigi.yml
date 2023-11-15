@@ -9,6 +9,8 @@ exports:
   - statistics.json
 deploy:
   schedule: "@daily"
+  memory: 1000Mi
+  memory_limit: 1500Mi
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   Securities with FIGI identifiers matching sanctioned companies.
@@ -41,7 +43,4 @@ config:
   type: nomenklatura.enrich.openfigi:OpenFIGIEnricher
   dataset: openfigi
   api_key: ${OPENFIGI_API_KEY}
-  schemata:
-    - Company
-    - Organization
   cache_days: 30
