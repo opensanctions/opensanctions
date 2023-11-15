@@ -52,6 +52,10 @@ lookups:
         value: male
       - match: Féminin
         value: female
+  type.country:
+    options:
+      - match: KURDISTAN IRAKIEN
+        value: IQ
   identification:
     lowercase: true
     options:
