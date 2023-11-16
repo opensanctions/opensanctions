@@ -38,6 +38,8 @@ publisher:
 
 inputs:
   - sanctions
+  - ru_nsd_isin
+  - ext_gleif
 
 config:
   type: nomenklatura.enrich.openfigi:OpenFIGIEnricher
