@@ -10,17 +10,21 @@ from zavod.exporters.common import Exporter
 
 COLUMNS = [
     "caption",
-    "lei_code",
+    "lei",
+    "perm_id",
     "isins",
+    "ric",
     "countries",
     "sanctioned",
     "eo_14071",
+    "public",
     "id",
     "url",
     "datasets",
     "aliases",
 ]
 SANCTIONED = "sanction"
+PUBLIC = "corp.public"
 EO_14071 = "ru_nsd_isin"
 
 log = get_logger(__name__)
@@ -71,7 +75,9 @@ class SecuritiesExporter(Exporter):
     def feed(self, entity: Entity) -> None:
         if not entity.schema.is_a("Organization"):
             return
-        is_sanctioned = SANCTIONED in entity.get("topics", quiet=True)
+        topics = entity.get("topics", quiet=True)
+        is_sanctioned = SANCTIONED in topics
+        is_public = PUBLIC in topics
         is_eo_14071 = EO_14071 in entity.datasets
         if not is_sanctioned and not is_eo_14071:
             return
@@ -83,10 +89,13 @@ class SecuritiesExporter(Exporter):
         row = [
             entity.caption,
             join_cell(leis),
+            join_cell(entity.get("permId", quiet=True)),
             join_cell(isins),
+            join_cell(entity.get("ricCode", quiet=True)),
             join_cell(entity.get_type_values(registry.country, matchable=True)),
             bool_text(is_sanctioned),
             bool_text(is_eo_14071),
+            bool_text(is_public),
             entity.id,
             f"https://www.opensanctions.org/entities/{entity.id}/",
             join_cell(entity.datasets),
