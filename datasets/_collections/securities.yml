@@ -27,7 +27,6 @@ children:
   - eu_fsf
   - eu_sanctions_map
   - ext_gleif
-  - ext_open_figi
   - gb_hmt_invbans
   - gb_hmt_sanctions
   - ru_nsd_isin
