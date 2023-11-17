@@ -256,8 +256,7 @@ lookups:
           - "Listing Date (EO 14014 Directive 1):"
           - "Listing Date (CMIC)"
         prop: null
-      - match:
-          - Location
+      - match: Location
         prop: addressEntity
       - match: Gender
         schema: Person
