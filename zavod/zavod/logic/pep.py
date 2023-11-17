@@ -69,6 +69,7 @@ def categorise(
             "caption": position.caption,
             "countries": position.get("country"),
             "topics": position.get("topics"),
+            "dataset": position.dataset.name,
             "is_pep": is_pep,
         }
         res = context.http.post(url, headers=headers, json=body)
