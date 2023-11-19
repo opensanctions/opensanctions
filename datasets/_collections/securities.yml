@@ -32,5 +32,5 @@ children:
   - ru_nsd_isin
   - us_ofac_cons
   - us_ofac_sdn
-  # - openfigi
+  - openfigi
   - permid
