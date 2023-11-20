@@ -45,3 +45,7 @@ lookups:
           - "--"
           - "---"
         value: null
+      - match: "www.http://goldos.co2g.de"
+        value: http://goldos.co2g.de
+      - match: "www.http://swiss-wealth.com"
+        value: http://swiss-wealth.com

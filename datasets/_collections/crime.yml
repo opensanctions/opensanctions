@@ -36,3 +36,5 @@ children:
   - us_ddtc_enforcements
   - us_occ_enfact
   - gb_coh_disqualified
+  - ch_finma_warnings
+  - ch_finma_rulings
