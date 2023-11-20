@@ -5,12 +5,12 @@ full_dataset: ru_egrul
 disabled: false
 hidden: false
 coverage:
-  frequency: never
+  schedule: "daily"
   end: 2022-01-01
 exports:
   - statistics.json
 deploy:
-  schedule: "@daily"
+  # schedule: "@daily"
   disk: "50Gi"
   memory: "1500Mi"
   memory_limit: "2000Mi"
