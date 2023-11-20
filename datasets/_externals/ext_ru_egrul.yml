@@ -1,7 +1,8 @@
 type: external
 title: Russian Unified State Register of Legal Entities (EGRUL)
 entry_point: zavod.runner.enrich:enrich
-disabled: true
+full_dataset: ru_egrul
+disabled: false
 hidden: false
 coverage:
   frequency: never
@@ -9,7 +10,7 @@ coverage:
 exports:
   - statistics.json
 deploy:
-  schedule: "1 18 * * *"
+  schedule: "@daily"
   disk: "50Gi"
   memory: "1500Mi"
   memory_limit: "2000Mi"
