@@ -1,10 +1,10 @@
-from typing import Dict, List, Optional
 import re
 import xlrd
 import string
 from datetime import datetime
-from urllib.parse import urljoin
 from pantomime.types import XLS
+from urllib.parse import urljoin
+from typing import Dict, List, Optional
 from normality import collapse_spaces, stringify
 from normality.cleaning import decompose_nfkd
 
@@ -70,7 +70,7 @@ def fetch_xls_url(context: Context) -> str:
         href = urljoin(context.data_url, link.get("href"))
         if href.endswith(".xls"):
             return href
-    context.log.error("Could not find XLS file on MoF web site")
+    raise ValueError("Could not find XLS file on MoF web site")
 
 
 def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str]]):
@@ -176,7 +176,7 @@ def crawl(context: Context):
                 continue
             teaser = row[0].strip()
             # the first column of the common headers:
-            if "告示日付" in teaser: # jp: Notice date
+            if "告示日付" in teaser:  # jp: Notice date
                 if headers is not None:
                     context.log.error("Found double header?", row=row)
                 # print("SHEET", sheet, row)

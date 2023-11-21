@@ -12,6 +12,7 @@ from zavod.exporters.simplecsv import SimpleCSVExporter
 from zavod.exporters.senzing import SenzingExporter
 from zavod.exporters.statistics import StatisticsExporter
 from zavod.exporters.peps import PEPSummaryExporter
+from zavod.exporters.securities import SecuritiesExporter
 from zavod.exporters.statements import StatementsCSVExporter
 from zavod.exporters.metadata import write_dataset_index, write_issues
 from zavod.exporters.metadata import write_catalog
@@ -34,6 +35,7 @@ EXPORTERS: Dict[str, Type[Exporter]] = {
     SimpleCSVExporter.FILE_NAME: SimpleCSVExporter,
     SenzingExporter.FILE_NAME: SenzingExporter,
     PEPSummaryExporter.FILE_NAME: PEPSummaryExporter,
+    SecuritiesExporter.FILE_NAME: SecuritiesExporter,
     StatementsCSVExporter.FILE_NAME: StatementsCSVExporter,
 }
 

@@ -42,3 +42,14 @@ lookups:
     options:
       match: Non
       value: null
+
+  position:
+    options:
+      - regex: Central Member Of The Senate Of Nigeriaial
+        name: Member of the Senate of Nigeria
+      - match: Ambassador To The Us
+        name: Ambassador to the US
+      - match: Chairperson
+        name: null
+      - match: Minister Of Finance Of Nigeriaminister Of Finance Of Nigeria
+        name: Minister of Finance of Nigeria

@@ -1,7 +1,7 @@
-from banal import first
 from lxml.etree import _Element
 from normality import collapse_spaces
 from pantomime.types import XML
+from followthemoney.types import registry
 
 from zavod import Context
 from zavod import helpers as h
@@ -40,11 +40,7 @@ def parse_entry(context: Context, node: _Element):
 
     item = node.findtext("./Item")
     entity = context.make("LegalEntity")
-
-    # HACK: faff for backward compatibility:
-    prop = entity.schema.get("country")
-    country_code = first(entity.lookup_clean(prop, country))
-
+    country_code = registry.country.clean(country)
     entity.id = context.make_slug(
         schedule,
         item,
@@ -56,7 +52,7 @@ def parse_entry(context: Context, node: _Element):
         entity.add_schema("Person")
         h.apply_name(entity, first_name=given_name, last_name=last_name)
         entity.add("birthDate", parse_date(dob))
-    else:
+    elif entity_name is not None:
         entity.add("name", entity_name.split("/"))
         # entity.add("incorporationDate", parse_date(dob))
         assert dob is None, (dob, entity_name)
@@ -72,8 +68,7 @@ def parse_entry(context: Context, node: _Element):
     names = node.findtext("./Aliases")
     if names is not None:
         for name in names.split(", "):
-            name = collapse_spaces(name)
-            entity.add("alias", name)
+            entity.add("alias", collapse_spaces(name))
 
     context.emit(entity, target=True)
     context.emit(sanction)

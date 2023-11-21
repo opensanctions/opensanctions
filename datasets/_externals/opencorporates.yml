@@ -77,6 +77,8 @@ lookups:
           - Channel Islands
           - YYY
           - VIRGIN ISLANDS # which???!?
+          - Republic Of
+          - Islamic Republic Of
         value: null
   type.country:
     lowercase: true

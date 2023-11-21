@@ -1,12 +1,14 @@
-import ijson
+import ijson  # type: ignore
 import zipfile
 from datetime import datetime
-from typing import Any, Generator, Optional, Tuple, Dict
+from typing import Any, Generator, Optional, Tuple, Dict, TypeVar, Union
 from followthemoney.util import make_entity_id
 
 from zavod import Context, Entity
+from zavod import helpers as h
 
 Item = Dict[str, Any]
+Default = TypeVar("Default")
 
 SOURCES = {
     "officers1": "ettevotja_rekvisiidid__kaardile_kantud_isikud.json",
@@ -25,8 +27,8 @@ TYPES = {
 
 
 def get_value(
-    data: Item, keys: Tuple[str, ...], default: Optional[Any] = None
-) -> Optional[str]:
+    data: Item, keys: Tuple[str, ...], default: Optional[Default] = None
+) -> Union[Default, Any]:
     for key in keys:
         val = data.pop(key, None)
         if val is not None:
@@ -57,9 +59,9 @@ def get_address(data: Item) -> Optional[str]:
     return None
 
 
-def make_proxy(
-    context: Context, row: Item, schema: Optional[str] = "LegalEntity"
-) -> Entity:
+def make_proxy(context: Context, row: Item, schema: Optional[str] = None) -> Entity:
+    if schema is None:
+        schema = "LegalEntity"
     proxy = context.make(schema)
     ident = row.pop("ariregistri_kood")
     proxy.id = context.make_slug(ident)
@@ -76,17 +78,7 @@ def make_officer(context: Context, data: Item, company_id: str) -> Entity:
     first_name, last_name = data.pop("eesnimi", None), get_value(
         data, ("nimi_arinimi", "nimi")
     )
-    if legal_form == "F":
-        proxy = context.make("Person")
-        proxy.add("idNumber", id_number)
-        proxy.add("firstName", first_name)
-        proxy.add("lastName", last_name)
-        if first_name and last_name:
-            proxy.add("name", " ".join((first_name, last_name)))
-    else:
-        proxy = context.make("LegalEntity")
-        proxy.add("name", " ".join((first_name or "", last_name or "")).strip())
-
+    proxy = context.make("LegalEntity")
     address = get_address(data)
     proxy.id = context.make_slug(id_number)
     if proxy.id is None:
@@ -95,7 +87,14 @@ def make_officer(context: Context, data: Item, company_id: str) -> Entity:
             ident_id = id_number or company_id
         proxy.id = context.make_slug("officer", proxy.caption, ident_id)
 
-    proxy.add("registrationNumber", id_number)
+    if legal_form == "F":
+        proxy.add_schema("Person")
+        proxy.add("idNumber", id_number)
+        h.apply_name(proxy, first_name=first_name, last_name=last_name)
+    else:
+        proxy.add("name", " ".join((first_name or "", last_name or "")).strip())
+        proxy.add("registrationNumber", id_number)
+
     proxy.add("country", data.pop("aadress_riik"))
     email = data.pop("email", None)
     if email is not None:
@@ -142,18 +141,20 @@ def parse_general(context: Context, row: Item):
     )
 
     for contact in data.pop("sidevahendid", []):
+        value = contact["sisu"].strip(".")
         if contact["liik"] == "EMAIL":
-            proxy.add("email", contact["sisu"])
+            proxy.add("email", value)
         elif contact["liik"] == "WWW":
-            proxy.add("website", contact["sisu"])
+            proxy.add("website", value)
         elif contact["liik"] in ("MOB", "TEL"):
-            proxy.add("phone", contact["sisu"])
+            proxy.add("phone", value)
 
     context.emit(proxy)
 
 
 def parse_officer(context: Context, row: Item):
     company = make_proxy(context, row)
+    assert company.id is not None, ("Company ID is None", row)
     context.emit(company)
 
     for data in get_value(row, ("kaardile_kantud_isikud", "kaardivalised_isikud")):
@@ -173,6 +174,7 @@ def parse_officer(context: Context, row: Item):
 
 def parse_bfo(context: Context, row: Item):
     company = make_proxy(context, row)
+    assert company.id is not None, ("Company ID is None", row)
     context.emit(company)
 
     for data in row.pop("kasusaajad"):

@@ -22,7 +22,7 @@ setup(
     zip_safe=False,
     install_requires=[
         "followthemoney == 3.5.*",
-        "nomenklatura == 3.7.*",
+        "nomenklatura == 3.8.*",
         "datapatch == 1.1.*",
         "fingerprints == 1.2.*",
         "addressformatting == 1.3.*",
@@ -39,6 +39,7 @@ setup(
         "prefixdate",
         "psycopg2-binary",
         "pyicu == 2.12.0",
+        "pywikibot==8.4.0",
         "requests[security]",
         "sqlalchemy[mypy]",
         "structlog",
@@ -64,6 +65,7 @@ setup(
             "requests-mock",
             "types-setuptools",
             "types-requests",
+            "types-openpyxl",
             "types-google-cloud-ndb",
         ],
         "docs": [

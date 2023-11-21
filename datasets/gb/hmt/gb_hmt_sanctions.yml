@@ -498,7 +498,9 @@ lookups:
         values:
           - SUHH
           - UZ
-      - match: Occupied Palestinian Territories
+      - match:
+          - Occupied Palestinian Territories
+          - Gaza
         value: PS
       - match: to   Morocco
         value: Morocco

@@ -7,6 +7,7 @@ from normality import slugify
 
 from zavod.entity import Entity
 from zavod.context import Context
+from zavod.runtime.lookups import type_lookup
 
 
 @cache
@@ -73,10 +74,8 @@ def _make_id(
         if country_id is None:
             return None
         return f"addr-{country_id}"
-    prop = entity.schema.get("full")
-    assert prop is not None, entity.schema
-    for cleaned in entity.lookup_clean(prop, full):
-        norm_full = slugify(cleaned)
+    for norm in type_lookup(entity.dataset, registry.address, full):
+        norm_full = slugify(norm)
         if norm_full is None:
             continue
         hashed_id = make_entity_id(country_code, norm_full, key)

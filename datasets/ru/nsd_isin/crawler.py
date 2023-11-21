@@ -1,5 +1,6 @@
 import time
 from banal import first
+from typing import Dict, List
 from datetime import datetime
 from urllib.parse import urljoin
 from requests.exceptions import RequestException
@@ -36,7 +37,7 @@ def parse_date(text: str) -> str:
 
 def crawl_item(context: Context, url: str):
     try:
-        html = context.fetch_html(url, cache_days=30)
+        html = context.fetch_html(url, cache_days=60)
     except RequestException as re:
         time.sleep(10)
         context.log.error("HTTP error: %r" % re, url=url)
@@ -45,7 +46,7 @@ def crawl_item(context: Context, url: str):
     if len(table) != 1:
         context.log.info("ISIN announcement table not found", url=url)
         return
-    values = {"security": {}, "issuer": {}}
+    values: Dict[str, Dict[str, List[str]]] = {"security": {}, "issuer": {}}
     for row in table[0].findall(".//tr"):
         if row is None:
             continue
@@ -81,8 +82,8 @@ def crawl_item(context: Context, url: str):
     security.id = context.make_slug(isin_code)
     security.add("sourceUrl", url)
     security.add("country", "ru")
-    for prop, value in values["security"].items():
-        security.add(prop, value)
+    for prop, prop_val in values["security"].items():
+        security.add(prop, prop_val)
     context.emit(security, target=True)
 
     issuer = context.make("LegalEntity")
@@ -95,8 +96,8 @@ def crawl_item(context: Context, url: str):
             return
         issuer.id = context.make_id(isin_code, issuer_name)
     issuer.add("country", "ru")
-    for prop, value in values["issuer"].items():
-        issuer.add(prop, value)
+    for prop, prop_val in values["issuer"].items():
+        issuer.add(prop, prop_val)
     context.emit(issuer)
 
 
@@ -115,7 +116,11 @@ def crawl(context: Context):
             "page22": page,
         }
         try:
-            doc = context.fetch_html(context.data_url, params=params)
+            doc = context.fetch_html(
+                context.data_url,
+                params=params,
+                # cache_days=10 if page > 5 else 0,
+            )
         except RequestException:
             context.log.error("Cannot fetch index page", page=page)
             time.sleep(10)

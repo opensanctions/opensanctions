@@ -1,6 +1,4 @@
-from zavod.logs import get_logger
-from prefixdate.precision import Precision
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, Optional, Union
 from followthemoney import model
 from followthemoney.exc import InvalidData, InvalidModel
 from followthemoney.util import gettext
@@ -12,7 +10,8 @@ from nomenklatura.statement import Statement
 from nomenklatura.util import string_list
 
 from zavod.meta import Dataset
-from zavod.runtime.lookups import type_lookup
+from zavod.logs import get_logger
+from zavod.runtime.cleaning import value_clean
 
 log = get_logger(__name__)
 
@@ -30,42 +29,6 @@ class Entity(CompositeEntity):
 
     def make_id(self, *parts: Any) -> str:
         raise NotImplementedError
-
-    def lookup_clean(
-        self,
-        prop: Property,
-        value: Optional[str],
-        cleaned: bool = False,
-        fuzzy: bool = False,
-        format: Optional[str] = None,
-    ) -> List[str]:
-        results: List[str] = []
-        for item in type_lookup(self.dataset, prop.type, value):
-            clean: Optional[str] = item
-            if not cleaned:
-                clean = prop.type.clean_text(
-                    item,
-                    proxy=self,
-                    fuzzy=fuzzy,
-                    format=format,
-                )
-            if clean is not None:
-                if prop.type == registry.date:
-                    # none of the information in OpenSanctions is time-critical
-                    clean = clean[: Precision.DAY.value]
-                results.append(clean)
-                continue
-            if prop.type == registry.phone:
-                # Do not have capacity to clean all phone numbers, allow broken ones
-                results.append(item)
-                continue
-            log.warning(
-                "Rejected property value",
-                entity_id=self.id,
-                prop=prop.name,
-                value=value,
-            )
-        return results
 
     def unsafe_add(
         self,
@@ -98,15 +61,15 @@ class Entity(CompositeEntity):
         if lang is not None:
             lang = registry.language.clean_text(lang)
 
-        for clean in self.lookup_clean(
-            prop, value, cleaned=cleaned, fuzzy=fuzzy, format=format
+        for prop_, clean in value_clean(
+            self, prop, value, cleaned=cleaned, fuzzy=fuzzy, format=format
         ):
             if original_value is None and clean != value:
                 original_value = value
 
             stmt = Statement(
                 entity_id=self.id,
-                prop=prop.name,
+                prop=prop_.name,
                 schema=schema or self.schema.name,
                 value=clean,
                 dataset=dataset or self.dataset.name,
@@ -142,14 +105,14 @@ class Entity(CompositeEntity):
         if prop_ is None:
             raise InvalidModel("Invalid prop: %s" % prop)
         for text in string_list(values):
-            for clean in self.lookup_clean(
-                prop_, text, cleaned=cleaned, fuzzy=fuzzy, format=format
+            for norm_prop_, clean in value_clean(
+                self, prop_, text, cleaned=cleaned, fuzzy=fuzzy, format=format
             ):
                 if original_value is None and clean != text:
                     original_value = text
                 self.add_schema(schema)
                 self.unsafe_add(
-                    prop_,
+                    norm_prop_,
                     clean,
                     cleaned=True,
                     lang=lang,

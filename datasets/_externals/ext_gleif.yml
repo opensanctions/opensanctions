@@ -15,8 +15,6 @@ deploy:
   disk: "20Gi"
   # premium: true
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-coverage:
-  frequency: weekly
 summary: |
   A concatenated data file of all entities which have been issued Legal
   Entity Identifier (LEI) codes.

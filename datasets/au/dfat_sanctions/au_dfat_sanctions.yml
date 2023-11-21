@@ -97,6 +97,10 @@ lookups:
         values:
           - Mauritania
           - Mali
+      - match: Turkish/Jordanian
+        value:
+          - Turkey
+          - Jordan
       - match: Indonesian (as at Dec. 2003)
         value: Indonesia
       - contains: Lebanon (Succarieh’s Australia

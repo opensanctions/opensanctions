@@ -512,6 +512,7 @@ def apply_feature(
     if isinstance(value, Entity):
         if feature == "Location":
             h.apply_address(context, proxy, value)
+            proxy.add("address", value.get("full"))
             return
         value = value.first("country")
         if value is None:

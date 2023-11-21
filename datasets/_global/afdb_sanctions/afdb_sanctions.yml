@@ -2,7 +2,10 @@ title: African Development Bank Debarred Entities
 entry_point: crawler.py
 prefix: afdb
 coverage:
-  frequency: daily
+  frequency: never
+  end: 2023-11-10
+deploy:
+  schedule: "@monthly"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   Individuals and firms that have been sanctioned by AfDB, for having 

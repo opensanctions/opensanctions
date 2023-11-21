@@ -1,0 +1,39 @@
+title: Swiss FINMA Final Rulings
+entry_point: crawler.py:crawl_rulings
+prefix: ch-finmaru
+coverage:
+  frequency: daily
+deploy:
+  memory: 1500Mi
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: |
+  Switzerland's financial regulator maintains and publishes final
+  rulings naming those involved in financial misconduct.
+description: |
+  > Article 34 FINMASA gives FINMA the power to publish all or part of
+  > its final rulings on serious violations of supervisory law, including
+  > personal details of those involved, once a ruling has become legally
+  > binding and it provides for this.
+publisher:
+  name: "Swiss Financial Market Supervisory Authority FINMA"
+  description: |
+    FINMA is Switzerland’s independent financial-markets regulator. Its mandate
+    is to supervise banks, insurance companies, financial institutions,
+    collective investment schemes, and their asset managers and fund
+    management companies.
+  country: ch
+  url: https://www.finma.ch/en/
+  official: true
+url: https://www.finma.ch/en/enforcement/enforcement-tools/publication-of-final-rulings/
+data:
+  url: https://www.finma.ch/en/api/search/getresult
+  format: JSON
+
+lookups:
+  type.url:
+    options:
+      - match:
+          - "-"
+          - "--"
+          - "---"
+        value: null
