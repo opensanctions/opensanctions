@@ -21,6 +21,85 @@ class OccupancyStatus(Enum):
     UNKNOWN = "unknown"
 
 
+class PositionCategorisation:
+    def __init__(self, topics: List[str], is_pep: Optional[bool]):
+        self.topics = topics
+        self.is_pep = is_pep
+
+
+@cache
+def categorise(
+    context: Context,
+    position: Entity,
+    is_pep: Optional[bool] = True,
+) -> PositionCategorisation:
+    """Checks whether this is a PEP position and for any topics needed to make
+    PEP duration decisions.
+
+    If the position is not in the database yet, it is added.
+
+    Only emit positions where is_pep is true, even if the crawler sets is_pep
+    to true, in case is_pep has been changed to false in the database.
+
+    Args:
+      context:
+      position: The position to be categorised
+      is_pep: Initial value for is_pep in the database if it gets added.
+    """
+    if settings.OPENSANCTIONS_API_KEY is None:
+        context.log.warning(
+            (
+                "OPENSANCTIONS_API_KEY not configured. Can't check "
+                f"{position.get('country')} {position.get('name')}"
+            )
+        )
+        return PositionCategorisation(topics=[], is_pep=None)
+
+    url = f"{settings.OPENSANCTIONS_API_URL}/positions/{position.id}"
+    headers = {"authorization": settings.OPENSANCTIONS_API_KEY}
+    res = context.http.get(url, headers=headers)
+
+    if res.status_code == 200:
+        data = res.json()
+    elif res.status_code == 404:
+        context.log.info("Adding position not yet in database", entity_id=position.id)
+        url = f"{settings.OPENSANCTIONS_API_URL}/positions/"
+        body = {
+            "entity_id": position.id,
+            "caption": position.caption,
+            "countries": position.get("country"),
+            "topics": position.get("topics"),
+            "dataset": position.dataset.name,
+            "is_pep": is_pep,
+        }
+        res = context.http.post(url, headers=headers, json=body)
+        res.raise_for_status()
+        data = res.json()
+    elif res.status_code == 403:
+        context.log.warning(
+            (
+                "OPENSANCTIONS_API_KEY not authorised for positions."
+                " Falling back to provided topics and is_pep"
+            )
+        )
+        return PositionCategorisation(topics=position.get("topics"), is_pep=is_pep)
+    else:
+        res.raise_for_status()
+
+    if data.get("is_pep") is None:
+        context.log.debug(
+            (
+                f'Position {position.get("country")} {position.get("name")}'
+                " not yet categorised as PEP or not."
+            )
+        )
+
+    return PositionCategorisation(
+        topics=data.get("topics", []),
+        is_pep=data.get("is_pep"),
+    )
+
+
 @cache
 def backdate(date: datetime, days: int) -> str:
     """Return a partial ISO8601 date string backdated by the number of days provided"""
@@ -46,6 +125,7 @@ def occupancy_status(
     end_date: Optional[str] = None,
     birth_date: Optional[str] = None,
     death_date: Optional[str] = None,
+    categorisation: Optional[PositionCategorisation] = None,
 ) -> Optional[OccupancyStatus]:
     if death_date is not None and death_date < backdate(current_time, AFTER_DEATH):
         # If they did longer ago than AFTER_DEATH threshold, don't consider a PEP.
@@ -62,9 +142,14 @@ def occupancy_status(
         # don't consider them a PEP.
         return None
 
+    if categorisation is None:
+        topics = position.get("topics")
+    else:
+        topics = categorisation.topics
+
     if end_date:
         if end_date < current_time.isoformat():  # end_date is in the past
-            after_office = get_after_office(position.get("topics"))
+            after_office = get_after_office(topics)
             if end_date < backdate(current_time, after_office):
                 # end_date is beyond after-office threshold
                 return None
