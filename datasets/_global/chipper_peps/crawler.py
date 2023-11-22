@@ -45,7 +45,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     if present_pos:
         emit_position(context, entity, present_pos)
 
-    context.emit(entity)
+    context.emit(entity, target=True)
 
 
 def crawl(context: Context):
