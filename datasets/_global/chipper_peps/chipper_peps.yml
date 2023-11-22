@@ -1,4 +1,4 @@
-title: Politically Exposed Persons data collected by Chippercash
+title: Politically Exposed Persons data collected by 
 entry_point: crawler.py
 prefix: chip
 coverage:
