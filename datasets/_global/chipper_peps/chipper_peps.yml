@@ -1,0 +1,21 @@
+title: Politically Exposed Persons data collected by Chippercash
+entry_point: crawler.py
+prefix: chip
+coverage:
+  frequency: daily
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  placeholder
+description: |
+  placeholder
+publisher:
+  name: placeholder
+  description: |
+    placeholder
+  url: http://example.com/
+  country: ng
+  official: false
+url: http://example.com/
+data:
+  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vS-0_pci6BoFHpxfPXbDeMD53jvti_TmovR406JK-Z-9lYPCqbUmTk6vZC0hTSRFxHYGTzJJyFRDCxz/pub?output=csv
+  format: CSV
