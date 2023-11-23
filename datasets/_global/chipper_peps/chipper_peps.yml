@@ -19,3 +19,17 @@ url: http://example.com/
 data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vS-0_pci6BoFHpxfPXbDeMD53jvti_TmovR406JK-Z-9lYPCqbUmTk6vZC0hTSRFxHYGTzJJyFRDCxz/pub?output=csv
   format: CSV
+
+lookups:
+  type.gender:
+    options:
+      - match: Male `
+        value: Male
+      - match:
+        - 7
+        - 40
+        value: null
+  type.date:
+    options:
+      match: 16-Oct-60
+      value: 1960-10-16

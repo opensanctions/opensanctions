@@ -2,6 +2,7 @@ from normality import collapse_spaces
 from pantomime.types import CSV
 from typing import Dict
 import csv
+import re
 
 from zavod import Context
 from zavod import helpers as h
@@ -9,9 +10,12 @@ from zavod.entity import Entity
 from zavod.logic.pep import OccupancyStatus
 
 FORMATS = ["%m/%d/%Y"]
+# Match space before comma or no space after comma
+REGEX_FIX_COMMA = re.compile(r"(\w)\s*,\s*(\w)")
 
 
 def emit_position(context: Context, entity: Entity, name: str):
+    name = REGEX_FIX_COMMA.sub(r"\1, \2", name)
     position = h.make_position(context, name, country="ng")
     occupancy = h.make_occupancy(
         context, entity, position, False, status=OccupancyStatus.UNKNOWN
@@ -32,18 +36,23 @@ def crawl_row(context: Context, row: Dict[str, str]):
         middle_name=row.pop("Middle Name"),
         last_name=row.pop("Last Name"),
     )
-    entity.add("title", row.pop("Title"))
+    entity.add("title", collapse_spaces(row.pop("Title")))
     entity.add("gender", row.pop("Gender"))
-    entity.add("birthDate", h.parse_date(row.pop("Date of Birth"), FORMATS))
-    entity.add("address", row.pop("Official Address"))
-    entity.add("birthPlace", row.pop("State Of Origin"))
+    entity.add("birthDate", h.parse_date(row.pop("Date of Birth").strip(), FORMATS))
+    entity.add("address", collapse_spaces(row.pop("Official Address")))
+    # confirming if this assumption is ok:
+    # entity.add("birthPlace", row.pop("State Of Origin"))
 
-    previous_pos = row.pop("Previous Position")
+    previous_pos = collapse_spaces(row.pop("Previous Position")).strip()
     if previous_pos:
         emit_position(context, entity, previous_pos)
-    present_pos = row.pop("Present Position")
+    present_pos = collapse_spaces(row.pop("Present Position")).strip()
     if present_pos:
         emit_position(context, entity, present_pos)
+
+    if not present_pos and not previous_pos:
+        entity.add("topics", "poi")
+        entity.add("country", "ng")
 
     context.emit(entity, target=True)
 
