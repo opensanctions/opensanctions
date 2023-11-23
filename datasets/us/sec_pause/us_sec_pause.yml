@@ -1,6 +1,6 @@
 title: "US Public Alert: Unregistered Soliciting Entities (PAUSE)"
 entry_point: crawler.py
-prefix: us-pause
+prefix: us-sec-pause
 coverage:
   frequency: daily
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}

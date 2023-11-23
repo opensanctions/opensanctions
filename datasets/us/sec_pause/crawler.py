@@ -45,6 +45,7 @@ def parse_table(table) -> Generator[Dict[str, str | Tuple[str]], None, None]:
 
 
 def crawl_entity(context: Context, url: str, name: str, category: str) -> None:
+    context.log.info("Crawling entity", url=url)
     doc = context.fetch_html(url, cache_days=1)
     res = context.lookup("schema", category)
     entity = context.make(res.schema)
