@@ -20,13 +20,19 @@ def emit_position(context: Context, entity: Entity, name: str):
     categorisation = categorise(context, position, True)
     if categorisation.is_pep:
         occupancy = h.make_occupancy(
-            context, entity, position, False, status=OccupancyStatus.UNKNOWN
+            context,
+            entity,
+            position,
+            False,
+            status=OccupancyStatus.UNKNOWN,
+            categorisation=categorisation,
         )
         context.emit(position)
         context.emit(occupancy)
     else:
         entity.add("position", name)
         entity.add("topics", "poi")
+
 
 def crawl_row(context: Context, row: Dict[str, str]):
     entity = context.make("Person")
