@@ -50,3 +50,46 @@ lookups:
         schema: LegalEntity
       - match: ""
         schema: LegalEntity
+
+  contacts:
+    options:
+      - match:
+          - "Field Operations:"
+          - "Mailing Address:"
+          - "Also: P.O. Box 1059"
+          - "Note: The website is no longer accessible."
+        prop: null
+      - match:
+          - "499 Park Avenue New York, NY 10022 Phone: 1-212-461-1848 Fax: 1-212-916-1531 Email: aimllc.ny@alphainvestmentlc.com Website: www.alphainvestmentllc.com"
+          - "(The former website http://scc-gov.org/ is no longer accessible. However, the current website is accessible.)"
+          - "22 West 19th Street, Suite 701 New York, NY 10011 Phone: 1-718-289-3163 Fax: none www.williamburkeventures.com"
+        prio: notes
+
+  type.email:
+    options:
+      - match:
+        - None
+        - none
+        - contact@DC Markets LLC
+        - support@247cryptotrade
+        - None provided
+        value: null
+      - match: info.whitmanlg.com
+        value: info@whitmanlg.com
+      - match: support@apexglobalf.com / support@apexglobalx.com
+        value: support@apexglobalf.com
+      - match: info.kenilworthma.com
+        value: info@kenilworthma.com
+  type.url:
+    options:
+      - match:
+        - None
+        - None provided
+        - No website found
+        value: null
+  type.phone:
+    options:
+      - match:
+        - None
+        value: null
+    

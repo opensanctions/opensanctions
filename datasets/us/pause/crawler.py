@@ -6,6 +6,22 @@ from pantomime.types import HTML
 from zavod import Context
 from zavod import helpers as h
 
+CONTACTS = [
+    ("Phone:", "Phone:", "phone"),
+    ("Phone", "Phone", "phone"),
+    ("Telefax:", "Telefax:", "phone"),
+    ("Tel:", "Tel:", "phone"),
+    ("Telephone:", "Telephone:", "phone"),
+    ("Fax", "", "notes"),
+    ("Email:", "Email:", "email"),
+    ("E-mail:", "E-mail:", "email"),
+    ("Website:", "Website:", "website"),
+    ("Website", "Website", "website"),
+    ("Web:", "Web:", "website"),
+    ("www", "", "website"),
+    ("http", "", "website"),
+    ("Direct:", "Direct:", "phone"),
+]
 
 def parse_table(table) -> Generator[Dict[str, str | Tuple[str]], None, None]:
     headers = None
@@ -29,6 +45,7 @@ def parse_table(table) -> Generator[Dict[str, str | Tuple[str]], None, None]:
 
 
 def crawl_entity(context: Context, url: str, name: str, category: str) -> None:
+    doc = context.fetch_html(url, cache_days=1)
     res = context.lookup("schema", category)
     entity = context.make(res.schema)
     entity.id = context.make_id(name)
@@ -41,6 +58,53 @@ def crawl_entity(context: Context, url: str, name: str, category: str) -> None:
     )
     if category != "":
         sanction.add("reason", category)
+
+    body_el = doc.find(".//div[@class='article-body']")
+    if body_el is not None:
+        body = body_el.text_content().strip()
+        entity.add("notes", body)
+
+    container = doc.xpath(
+        ".//div[contains(@class, 'stylized-box-1 public-alerts--unregistered-soliciting-entities-pause')]"
+    )[0]
+    container.remove(container.find(".//h2"))
+    container.remove(container.find(".//h1"))
+    contacts_container = container.findall("./")
+    if len(contacts_container) != 1:
+        context.log.warning(
+            "Couldn't find single child contacts container",
+            count=len(contacts_container),
+        )
+    else:
+        contacts_container = contacts_container[0]
+        contacts = contacts_container.text_content()
+        contacts = contacts.replace(" :", ":")
+        address = []
+        for row in contacts.split("\n"):
+            value = None
+            row = row.strip()
+            if row == "":
+                continue
+            for prefix, replace, prop_name in CONTACTS:
+                if row.startswith(prefix):
+                    value = row.replace(replace, "").strip()
+                    entity.add(prop_name, value)
+                    break
+            if value is None:
+                if ":" in row:
+                    res = context.lookup("contacts", row)
+                    if res:
+                        if res.prop:
+                            entity.add(res.prop, row)
+                        else:
+                            continue
+                    context.log.warn(
+                        "possible non-address line slipping through", line=row
+                    )
+                    entity.add("notes", row)
+                address.append(row)
+        if address:
+            entity.add("address", ", ".join(address))
 
     context.emit(entity, target=True)
     context.emit(sanction)
