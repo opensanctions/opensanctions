@@ -5,7 +5,7 @@ coverage:
   frequency: daily
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  PEP data collected by Chipper, focusing on Nigeria with plans to expand.
+  PEP data collected by Chipper, initially focusing on Nigeria
 description: |
   This is a dataset of politically exposed persons in Africa collected by Chipper
   to support their risk management practices. To start with, it consists of a vast
