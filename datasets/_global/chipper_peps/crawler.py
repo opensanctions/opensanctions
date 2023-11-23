@@ -7,7 +7,7 @@ import re
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
-from zavod.logic.pep import OccupancyStatus
+from zavod.logic.pep import OccupancyStatus, categorise
 
 FORMATS = ["%m/%d/%Y"]
 # Match space before comma or no space after comma
@@ -17,12 +17,16 @@ REGEX_FIX_COMMA = re.compile(r"(\w)\s*,\s*(\w)")
 def emit_position(context: Context, entity: Entity, name: str):
     name = REGEX_FIX_COMMA.sub(r"\1, \2", name)
     position = h.make_position(context, name, country="ng")
-    occupancy = h.make_occupancy(
-        context, entity, position, False, status=OccupancyStatus.UNKNOWN
-    )
-    context.emit(position)
-    context.emit(occupancy)
-
+    categorisation = categorise(context, position, True)
+    if categorisation.is_pep:
+        occupancy = h.make_occupancy(
+            context, entity, position, False, status=OccupancyStatus.UNKNOWN
+        )
+        context.emit(position)
+        context.emit(occupancy)
+    else:
+        entity.add("position", name)
+        entity.add("topics", "poi")
 
 def crawl_row(context: Context, row: Dict[str, str]):
     entity = context.make("Person")
@@ -51,7 +55,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
         emit_position(context, entity, present_pos)
 
     if not present_pos and not previous_pos:
-        entity.add("topics", "poi")
+        entity.add("topics", "role.pep")
         entity.add("country", "ng")
 
     context.emit(entity, target=True)
