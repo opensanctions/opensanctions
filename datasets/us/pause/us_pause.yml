@@ -1,0 +1,52 @@
+title: "US Public Alert: Unregistered Soliciting Entities (PAUSE)"
+entry_point: crawler.py
+prefix: us-pause
+coverage:
+  frequency: daily
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Entities that falsely claim to be registered, licensed, and/or located in the
+  United States, to be regulators, or impersonate genuine firms.
+description: |
+  > The PAUSE Program lists entities that falsely claim to be registered, licensed,
+  > and/or located in the United States in their solicitation of investors. The
+  > PAUSE Program also lists entities that impersonate genuine U.S. registered
+  > securities firms as well as fictitious regulators, governmental agencies, or
+  > international organizations.
+
+  > You should be aware that the PAUSE lists do not include all unregistered entities,
+  > impersonators of genuine firms, fake regulators, or entities that have been
+  > the subject of complaints received by the SEC. Also, you should understand that
+  > the inclusion of a name on these lists does not mean that the SEC has concluded
+  > that a violation of the US securities laws has occurred or that the SEC has made
+  > any judgment about the merits of the securities being offered by these entities.
+
+  > You can view the [official SEC release describing and providing more details about this list](https://www.sec.gov/rules/other/2007/34-56534.pdf).
+  > If you have information, questions or comments about the entities on
+  > this list, submit a question or complaint to the SEC.
+publisher:
+  name: US Securities and Exchange Commission (SEC)
+  description: |
+    > The federal securities laws empower the Securities and Exchange Commission (SEC)
+    > with broad authority over all aspects of the securities industry. The SEC’s
+    > mission is to protect investors; maintain fair, orderly, and efficient markets;
+    > and facilitate capital formation.
+  country: us
+  url: https://www.sec.gov/
+  official: true
+url: https://www.sec.gov/enforce/public-alerts
+data:
+  url: https://www.sec.gov/enforce/public-alerts
+  format: HTML
+
+lookups:
+  schema:
+    options:
+      - match: Impersonators of Genuine Firms
+        schema: Company
+      - match: Unregistered Soliciting Entities
+        schema: Company
+      - match: Fictitious Regulators
+        schema: LegalEntity
+      - match: ""
+        schema: LegalEntity
