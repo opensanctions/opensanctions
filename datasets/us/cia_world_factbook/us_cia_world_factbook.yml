@@ -97,7 +97,7 @@ lookups:
           - role: Sovereign Council Chair and Commander-in-Chief of the Sudanese Armed Forces
             name: General Abd-al-Fatah al-BURHAN Abd-al-Rahman
             start_date:
-      - match: "Vice Presidents TABAN Deng Gai, Riek MACHAR Teny Dhurgon, James Wani IGGA, Rebecca Nyandeng Chol GARANG de Mabior, Hussein ABDELBAGI Ayii (since 22 February 2020)"
+      - match: "Vice Presidents Riek MACHAR Teny Dhurgon, TABAN Deng Gai, James Wani IGGA, Rebecca Nyandeng Chol GARANG de Mabior, Hussein ABDELBAGI Ayii (since 22 February 2020)"
         holders:
           - role: Vice President
             name: TABAN Deng Gai

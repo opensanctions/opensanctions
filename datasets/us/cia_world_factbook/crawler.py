@@ -5,7 +5,7 @@ from lxml import html
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.logic.pep import OccupancyStatus
+from zavod.logic.pep import OccupancyStatus, categorise
 
 WEB_URL = "https://www.cia.gov/the-world-factbook/countries/%s"
 DATA_URL = (
@@ -94,7 +94,8 @@ REGEX_OTHER_ROLES = re.compile(
         "|Co-Vice President"
         "|Minister of State for Defense Affairs"
         "|Minister of State for Cabinet Affairs"
-        "|President of the Governorate of the Vatican City State is)"
+        "|President of the Governorate of the Vatican City State is"
+        "|Minister of Foreign Affairs)"
     )
 )
 SKIP_COUNTRIES = {
@@ -128,18 +129,21 @@ def emit_person(
         topics=position_topics,
         id_hash_prefix="us_cia_world_leaders",
     )
-    occupancy = h.make_occupancy(
-        context,
-        person,
-        position,
-        start_date=start_date[0] if start_date else None,
-        end_date=end_date[0] if end_date else None,
-        status=OccupancyStatus.CURRENT,
-    )
+    categorisation = categorise(context, position, True)
+    if categorisation.is_pep:
+        occupancy = h.make_occupancy(
+            context,
+            person,
+            position,
+            start_date=start_date[0] if start_date else None,
+            end_date=end_date[0] if end_date else None,
+            status=OccupancyStatus.CURRENT,
+            categorisation=categorisation,
+        )
 
-    context.emit(person, target=True)
-    context.emit(position)
-    context.emit(occupancy)
+        context.emit(person, target=True)
+        context.emit(position)
+        context.emit(occupancy)
 
 
 def get(items, key, value):
@@ -218,7 +222,7 @@ def crawl_country(context: Context, country: str) -> None:
 
 
 def crawl(context: Context) -> None:
-    data = context.fetch_json(context.data_url, cache_days=5)
+    data = context.fetch_json(context.data_url, cache_days=1)
     countries = data["data"]["countries"]["nodes"]
     for c in countries:
         redirect = c["redirect"]

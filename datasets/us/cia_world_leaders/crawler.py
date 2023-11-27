@@ -3,6 +3,7 @@ from normality import slugify, collapse_spaces
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.logic.pep import categorise
 
 WEB_URL = "https://www.cia.gov/resources/world-leaders/foreign-governments/%s"
 DATA_URL = "https://www.cia.gov/resources/world-leaders/page-data/foreign-governments/%s/page-data.json"
@@ -72,11 +73,15 @@ def crawl_leader(
         topics=position_topics,
         id_hash_prefix="us_cia_world_leaders",
     )
-    occupancy = h.make_occupancy(context, person, position)
+    categorisation = categorise(context, position, True)
+    if categorisation.is_pep:
+        occupancy = h.make_occupancy(
+            context, person, position, categorisation=categorisation
+        )
 
-    context.emit(person, target=True)
-    context.emit(position)
-    context.emit(occupancy)
+        context.emit(person, target=True)
+        context.emit(position)
+        context.emit(occupancy)
 
 
 def crawl_country(context: Context, country: str) -> None:
