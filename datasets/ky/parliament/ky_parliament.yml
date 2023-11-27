@@ -1,0 +1,28 @@
+name: ky_parliament
+title: Cayman Islands Members of Parliament
+url: https://parliament.ky/members/
+entry_point: crawler
+prefix: ky-la
+coverage:
+  frequency: daily
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: |
+  Members of the Parliament of the Cayman Islands.
+description: |
+  Members of the Parliament of the Cayman Islands as listed on the parliamentary
+  website.
+
+  Previous legislative terms are included from a [spreadsheet](https://docs.google.com/spreadsheets/d/e/2PACX-1vRM-hl1drkQMn4wHXxHkHXHZb2TkUyIFWxGXwJ_UqZNRpH00DGWrdHk_zDrHUsZ4YCeVYYojqSMmZuX/pub?output=csv)
+  extracted from Former Members pages.
+publisher:
+    name: The Parliament of the Cayman Islands
+    official: true
+    description: |
+      The House of Parliament of the Cayman Islands is a unicameral Legislature.
+      The Parliament of the Cayman Islands was previously known as the Legislative
+      Assembly of the Cayman Islands.
+    country: ky
+    url: https://archives.gov.ky/sites/legislativeassembly/portal/page/portal/lglhome/members/elected-2021-2025.html
+data:
+    url: https://parliament.ky/members/
+    format: HTML
