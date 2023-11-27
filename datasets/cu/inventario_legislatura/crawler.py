@@ -3,6 +3,7 @@ from typing import Optional, List
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.logic.pep import categorise
 
 FORMATS = ["%d/%m/%Y", "%d/%m/%y"]
 IGNORE_COLUMNS = [
@@ -35,6 +36,7 @@ def crawl(context: Context):
         inception_date=inception_date,
         dissolution_date=dissolution_date,
     )
+    categorisation = categorise(context, position, True)
     context.emit(position)
 
     doc = context.fetch_html(context.data_url)
@@ -74,6 +76,7 @@ def crawl(context: Context):
             start_date=inception_date,
             end_date=dissolution_date,
             no_end_implies_current=True,
+            categorisation=categorisation,
         )
         context.emit(occupancy)
 

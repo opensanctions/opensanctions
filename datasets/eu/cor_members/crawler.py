@@ -2,7 +2,7 @@ from typing import Any, Dict
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.logic.pep import OccupancyStatus
+from zavod.logic.pep import OccupancyStatus, categorise
 
 FORMATS = ("%d/%m/%Y",)
 
@@ -35,6 +35,9 @@ def crawl_person(context: Context, item: Dict[str, Any]) -> None:
     position = h.make_position(
         context, name=position_name, country="eu", topics=["gov.igo"]
     )
+    categorisation = categorise(context, position, True)
+    if not categorisation.is_pep:
+        return
     occupancy = h.make_occupancy(
         context,
         person,
@@ -42,6 +45,7 @@ def crawl_person(context: Context, item: Dict[str, Any]) -> None:
         no_end_implies_current=True,
         start_date=item.pop("from"),
         end_date=item.pop("to"),
+        categorisation=categorisation,
     )
     if occupancy is not None:
         for value in item.pop("memberStatuses", []):

@@ -7,7 +7,7 @@ from lxml import html
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
-from zavod.logic.pep import OccupancyStatus
+from zavod.logic.pep import OccupancyStatus, categorise
 
 # ID / CC
 # Primer Nombre
@@ -63,7 +63,9 @@ def parse_node(context: Context, node: str) -> Dict[str, str]:
     if len(links) == 1:
         data["link"] = links[0].get("href")
     else:
-        context.log.warning("Expected exactly one link for node", id=node["ID"], count=len(links))
+        context.log.warning(
+            "Expected exactly one link for node", id=node["ID"], count=len(links)
+        )
     return data
 
 
@@ -91,14 +93,16 @@ def crawl_node(context: Context, peps: Dict[str, Entity], node: Dict[str, str]):
                 position = h.make_position(
                     context, res.name, country="co", topics=res.topics
                 )
-                occupancy = h.make_occupancy(
-                    context, entity, position, status=OccupancyStatus.UNKNOWN
-                )
-                context.emit(occupancy)
-                context.emit(position)
-                context.emit(entity, target=True)
+                categorisation = categorise(context, position, True)
+                if categorisation.is_pep:
+                    occupancy = h.make_occupancy(
+                        context, entity, position, status=OccupancyStatus.UNKNOWN
+                    )
+                    context.emit(occupancy)
+                    context.emit(position)
+                    context.emit(entity, target=True)
         else:
-            context.log.info("PEP not found", name=name)    
+            context.log.info("PEP not found", name=name)
 
 
 def crawl(context: Context):

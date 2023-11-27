@@ -53,7 +53,7 @@ def categorise(
                 f"{position.get('country')} {position.get('name')}"
             )
         )
-        return PositionCategorisation(topics=[], is_pep=None)
+        return PositionCategorisation(topics=position.get("topics"), is_pep=is_pep)
 
     url = f"{settings.OPENSANCTIONS_API_URL}/positions/{position.id}"
     headers = {"authorization": settings.OPENSANCTIONS_API_KEY}
