@@ -1,6 +1,7 @@
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
+from zavod.logic.pep import PositionCategorisation, categorise
 
 
 def split_name(name):
@@ -13,7 +14,7 @@ def split_name(name):
     return None, None
 
 
-def crawl_node(context: Context, node, position: Entity):
+def crawl_node(context: Context, node, position: Entity, categorisation: PositionCategorisation):
     mep_id = node.findtext(".//id")
     person = context.make("Person")
     person.id = context.make_slug(mep_id)
@@ -27,7 +28,7 @@ def crawl_node(context: Context, node, position: Entity):
     person.add("nationality", node.findtext(".//country"))
     person.add("topics", "role.pep")
 
-    occupancy = h.make_occupancy(context, person, position)
+    occupancy = h.make_occupancy(context, person, position, categorisation=categorisation)
 
     context.emit(occupancy)
     context.emit(person, target=True)
@@ -71,6 +72,7 @@ def crawl(context: Context):
         country="eu",
         topics=["gov.igo", "gov.legislative"]
     )
+    categorisation = categorise(context, position, True)
     context.emit(position)
     for node in doc.findall(".//mep"):
-        crawl_node(context, node, position)
+        crawl_node(context, node, position, categorisation)

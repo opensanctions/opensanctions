@@ -11,6 +11,7 @@ from nomenklatura.util import is_qid
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
+from zavod.logic.pep import categorise
 from zavod.runtime.lookups import type_lookup
 
 PASSWORD = os.environ.get("OPENSANCTIONS_RUPEP_PASSWORD")
@@ -249,17 +250,20 @@ def emit_pep_relationship(
         country=countries,
         subnational_area=subnational_area,
     )
-    occupancy = h.make_occupancy(
-        context,
-        person,
-        position,
-        start_date=start_date,
-        end_date=end_date,
-    )
-    if occupancy:
-        occupancy.add("description", also)
-        context.emit(position)
-        context.emit(occupancy)
+    categorisation = categorise(context, position, True)
+    if categorisation.is_pep:
+        occupancy = h.make_occupancy(
+            context,
+            person,
+            position,
+            start_date=start_date,
+            end_date=end_date,
+            categorisation=categorisation,
+        )
+        if occupancy:
+            occupancy.add("description", also)
+            context.emit(position)
+            context.emit(occupancy)
 
 
 def crawl_person(

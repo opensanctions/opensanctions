@@ -4,6 +4,7 @@
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.logic.pep import categorise
 
 
 def crawl_judges(context: Context, url, position, get_name, get_judges=None):
@@ -30,15 +31,19 @@ def emit_entities(context: Context, entities_data):
         h.apply_name(person_proxy, full=name)
         person_proxy.add("topics", "role.judge")
 
-        position_proxy = h.make_position(
+        position = h.make_position(
             context,
             name=position,
             country="Cayman Islands",
         )
-        occupancy = h.make_occupancy(context, person_proxy, position_proxy, True)
-        context.emit(person_proxy, target=True)
-        context.emit(position_proxy)
-        context.emit(occupancy)
+        categorisation = categorise(context, position)
+        if categorisation.is_pep:
+            occupancy = h.make_occupancy(
+                context, person_proxy, position, True, categorisation=categorisation
+            )
+            context.emit(person_proxy, target=True)
+            context.emit(position)
+            context.emit(occupancy)
 
 
 def crawl(context: Context):

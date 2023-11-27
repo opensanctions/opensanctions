@@ -6,6 +6,7 @@ from followthemoney.helpers import post_summary
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.logic.pep import categorise
 
 
 PHONE_SPLITS = [",", "/", "(1)", "(2)", "(3)", "(4)", "(5)", "(6)", "(7)", "(8)"]
@@ -183,27 +184,30 @@ def parse_membership(
             country=country,
             topics=["gov.national", "gov.legislative"],
         )
+        categorisation = categorise(context, position, True)
 
         position_property = post_summary(org_name, role, starts, ends, [])
         person = context.make("Person")
         person.id = person_entity_id(context, person_id)
         person.add("position", position_property)
 
-        occupancy = h.make_occupancy(
-            context,
-            person,
-            position,
-            no_end_implies_current=False,
-            start_date=data.get("start_date") or period.get("start_date"),
-            end_date=data.get("end_date") or period.get("end_date"),
-            birth_date=birth_dates.get(person_id, None),
-            death_date=death_dates.get(
-                person_id,
-                None,
-            ),
-        )
-        if occupancy:
-            context.emit(position)
-            context.emit(occupancy)
-            context.emit(person, target=True)
-            return person_id
+        if categorisation.is_pep:
+            occupancy = h.make_occupancy(
+                context,
+                person,
+                position,
+                no_end_implies_current=False,
+                start_date=data.get("start_date") or period.get("start_date"),
+                end_date=data.get("end_date") or period.get("end_date"),
+                birth_date=birth_dates.get(person_id, None),
+                death_date=death_dates.get(
+                    person_id,
+                    None,
+                ),
+                categorisation=categorisation,
+            )
+            if occupancy:
+                context.emit(position)
+                context.emit(occupancy)
+                context.emit(person, target=True)
+                return person_id
