@@ -304,6 +304,8 @@ lookups:
           - Mamluk rule in Iraq
           - Ottoman Iraq
           - Fatimid Egypt Caliphate
+          - Duchy of Saxe-Coburg and Gotha
+          - Western Jin dynasty
         value: null
       - match:
           - Cherokee Nation
@@ -353,7 +355,7 @@ lookups:
       - match:
           - Bahrain and its Dependencies
         value: Bahrain
-      - match: 
+      - match:
           - Hunedoara County
         value: RO
       - match: Republic of Vietnam
@@ -385,6 +387,8 @@ lookups:
         values:
           - SUHH
           - RU
+      - match: Russian State
+        value: RU
       - match:
           - Bavaria
           - Nazi Germany
@@ -446,6 +450,7 @@ lookups:
       - match:
           - British National (Overseas)
           - British Overseas citizen
+          - Kingdom of Great Britain
         value: GB
       - match: Piribebuy
         value: Paraguay
@@ -499,7 +504,7 @@ lookups:
         value: Cameroon
   type.date:
     options:
-      - match: 
+      - match:
           - "8034-06-14"
           - "0011-06-04"
           - "3004-03-14"

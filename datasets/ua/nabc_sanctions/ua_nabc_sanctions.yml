@@ -131,6 +131,8 @@ lookups:
           - Близький товариш та тримач активів
           - Друг
           - Діловий партнер
+          - колега, друг
+          - колега, бізнес партнер
         schema: Associate
         local: person
         remote: associate

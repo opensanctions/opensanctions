@@ -17,7 +17,7 @@ TRACK_COUNTRIES = ["ua", "eu", "us", "au", "ca", "ch", "es", "gb", "jp", "nz", "
 
 
 def clean_row(row: Dict[str, Any]) -> Dict[str, Union[str, Dict[str, str]]]:
-    data = {}
+    data: Dict[str, Any] = {}
     for k, v in row.items():
         if v is None:
             continue
