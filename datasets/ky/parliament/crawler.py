@@ -7,6 +7,7 @@ from lxml import etree
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.logic.pep import categorise
 from zavod.util import ElementOrTree
 
 
@@ -33,7 +34,7 @@ KEEP_HEADINGS = {
 }
 
 
-def crawl_card(context: Context, position: str, el: ElementOrTree):
+def crawl_card_2021(context: Context, position: str, el: ElementOrTree):
     name_el = el.find('.//p[@class="elementor-image-box-title"]')
     name = name_el.text_content()
     name = re.sub(r",.+", "", name)
@@ -56,16 +57,19 @@ def crawl_card(context: Context, position: str, el: ElementOrTree):
         topics=["gov.national"],
         country="ky",
     )
-    occupancy = h.make_occupancy(
-        context,
-        entity,
-        position,
-        start_date="2021",
-        end_date="2025",
-    )
-    context.emit(entity, target=True)
-    context.emit(position)
-    context.emit(occupancy)
+    categorisation = categorise(context, position, True)
+    if categorisation.is_pep:
+        occupancy = h.make_occupancy(
+            context,
+            entity,
+            position,
+            start_date="2021",
+            end_date="2025",
+            categorisation=categorisation,
+        )
+        context.emit(entity, target=True)
+        context.emit(position)
+        context.emit(occupancy)
 
     
 
@@ -82,21 +86,25 @@ def crawl_row(context: Context, row: Dict[str, str]):
         topics=["gov.national"],
         country="ky",
     )
-    occupancy = h.make_occupancy(
-        context,
-        entity,
-        position,
-        no_end_implies_current=False,
-        start_date=row.pop("Start date") or None,
-        end_date=row.pop("End date") or None,
-    )
-    context.emit(entity, target=True)
-    context.emit(position)
-    context.emit(occupancy)
+    categorisation = categorise(context, position, True)
+    if categorisation.is_pep:
+        occupancy = h.make_occupancy(
+            context,
+            entity,
+            position,
+            no_end_implies_current=False,
+            start_date=row.pop("Start date") or None,
+            end_date=row.pop("End date") or None,
+            categorisation=categorisation,
+        )
+        context.emit(entity, target=True)
+        context.emit(position)
+        context.emit(occupancy)
 
 
 def crawl(context: Context):
     doc = context.fetch_html(context.data_url, cache_days=1)
+    # crawl_card assumes 2021
     assert "2021-2025 Members" in doc.text_content()
 
     heading = None
@@ -117,7 +125,7 @@ def crawl(context: Context):
                 continue
             for el in section.xpath(".//div[contains(@class, 'elementor-element-populated')]"):
                 if el.find('.//p[@class="elementor-image-box-title"]') is not None:
-                    crawl_card(context, heading, el)
+                    crawl_card_2021(context, heading, el)
 
 
     path = context.fetch_resource("historical_data.csv", HISTORICAL_DATA_CSV)
