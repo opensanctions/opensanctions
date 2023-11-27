@@ -10,6 +10,8 @@ from zavod import helpers as h
 from zavod.util import ElementOrTree
 
 
+HISTORICAL_DATA_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRM-hl1drkQMn4wHXxHkHXHZb2TkUyIFWxGXwJ_UqZNRpH00DGWrdHk_zDrHUsZ4YCeVYYojqSMmZuX/pub?output=csv"
+
 CLEAN_TITLE_RE = re.compile(r"((Cert. Hon.|KCMG|MBE|KC|JP|MP|MBE|NP)(, )?)+")
 IGNORE_HEADINGS = {
     "About",
@@ -68,10 +70,6 @@ def crawl_card(context: Context, position: str, el: ElementOrTree):
     
 
 def crawl_row(context: Context, row: Dict[str, str]):
-    # https://archives.gov.ky/sites/legislativeassembly/portal/page/portal/lglhome/members/elected-2021-2025.html
-    inception_date = "2021"
-    dissolution_date = "2025"
-
     entity = context.make("Person")
     name = row.pop("Name")
     entity.id = context.make_id(name)
@@ -88,8 +86,9 @@ def crawl_row(context: Context, row: Dict[str, str]):
         context,
         entity,
         position,
-        start_date=inception_date,
-        end_date=dissolution_date,
+        no_end_implies_current=False,
+        start_date=row.pop("Start date") or None,
+        end_date=row.pop("End date") or None,
     )
     context.emit(entity, target=True)
     context.emit(position)
@@ -121,8 +120,8 @@ def crawl(context: Context):
                     crawl_card(context, heading, el)
 
 
-    #path = context.fetch_resource("source.csv", context.data_url)
-    #context.export_resource(path, CSV, title=context.SOURCE_TITLE)
-    #with open(path, "r") as fh:
-    #    for row in csv.DictReader(fh):
-    #        crawl_row(context, row)
+    path = context.fetch_resource("historical_data.csv", HISTORICAL_DATA_CSV)
+    context.export_resource(path, CSV, title=context.SOURCE_TITLE)
+    with open(path, "r") as fh:
+        for row in csv.DictReader(fh):
+            crawl_row(context, row)
