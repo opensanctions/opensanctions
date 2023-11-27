@@ -8,6 +8,7 @@ from urllib.parse import urlencode
 
 from zavod.context import Context
 from zavod import helpers as h
+from zavod.logic.pep import categorise
 
 API_KEY = os.environ.get("OPENSANCTIONS_PLURAL_API_KEY")
 REGEX_PATH = re.compile(
@@ -96,6 +97,9 @@ def crawl_person(context, jurisdictions, house_positions, data: dict[str, Any]):
         position = h.make_position(
             context, position_name, country="us", subnational_area=jurisdiction_name
         )
+        categorisation = categorise(context, position, True)
+        if not categorisation.is_pep:
+            return
         start_date = role.get("start_date", None)
         end_date = role.get("end_date", None)
         occupancy = h.make_occupancy(
@@ -105,6 +109,7 @@ def crawl_person(context, jurisdictions, house_positions, data: dict[str, Any]):
             True,
             start_date=str(start_date) if start_date else None,
             end_date=str(end_date) if end_date else None,
+            categorisation=categorisation,
         )
         if occupancy:
             pep_entities.append(position)

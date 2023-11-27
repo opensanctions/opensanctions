@@ -3,6 +3,7 @@ from xml.etree import ElementTree
 from normality import collapse_spaces
 from zavod import Context
 from zavod import helpers as h
+from zavod.logic.pep import categorise
 
 
 DATE_FORMAT = ["%B %d, %Y"]
@@ -40,9 +41,7 @@ def crawl_bio_page(context: Context, url: str):
     entity.add("nationality", "us")
 
     description = doc.find(".//meta[@property='og:description']").get("content")
-    description = description.replace(
-        "[…]", "[...More on linked State Dept page]"
-    )
+    description = description.replace("[…]", "[...More on linked State Dept page]")
     entity.add("description", description)
 
     position_container = doc.xpath(
@@ -53,14 +52,17 @@ def crawl_bio_page(context: Context, url: str):
     position_name = collapse_spaces(position_container.text_content())
 
     topics = ["gov.national"]
-    if (position_name == "Secretary of State" 
+    if (
+        position_name == "Secretary of State"
         or position_name.startswith("Deputy Secretary of State")
         or position_name.startswith("Under Secretary")
     ):
         topics.append("gov.executive")
 
     position = h.make_position(context, position_name, country="us", topics=topics)
-
+    categorisation = categorise(context, position)
+    if not categorisation.is_pep:
+        return
     dates = collapse_spaces(
         doc.xpath(".//p[contains(@class, 'article-meta__publish-date')]")[
             0
@@ -73,7 +75,12 @@ def crawl_bio_page(context: Context, url: str):
     end_date = h.parse_date(end_date, DATE_FORMAT)[0] if end_date else None
 
     occupancy = h.make_occupancy(
-        context, entity, position, start_date=start_date, end_date=end_date
+        context,
+        entity,
+        position,
+        start_date=start_date,
+        end_date=end_date,
+        categorisation=categorisation,
     )
     context.emit(entity, target=True)
     context.emit(position)
