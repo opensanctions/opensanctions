@@ -36,15 +36,43 @@ def crawl_person(context: Context, row: Dict[str, str]) -> str:
     return internal_id, wikidata_id
 
 
+def en_label(institution_en: str, department_en: str, position_en: str) -> str:
+    if position_en.lower() == "minister":
+        label = f"Minister of {institution_en}"
+        label = label.replace("Ministry of ", "")
+    else:
+        label = position_en
+
+        if department_en:
+            label += f", {department_en}"
+
+        if (
+            institution_en
+            and slugify(institution_en) not in slugify(label)
+            # handle party name thrown in institution field. TODO handle in lookups
+            and "mayor-of" not in slugify(label)
+        ):
+            label += f", {institution_en}"
+    return label
+
+
+def si_label(institution_si: str, department_si: str, position_si: str) -> Optional[str]:
+    label = position_si
+    if department_si:
+        label += f", {department_si}"
+    if institution_si:
+        label += f", {institution_si}"
+    return label
+
 
 def crawl_cv_entry(context: Context, wikidata_ids: Dict[str, Optional[str]], row: Dict[str, str]):
     person = context.make("Person")
-    person_id = row.pop("person_id").strip()
-    if not person_id:
+    internal_id = row.pop("person_id").strip()
+    if not internal_id:
         return
     
-    wikidata_id = wikidata_ids[person_id]
-    person.id = wikidata_id or make_person_id(context, person_id)
+    wikidata_id = wikidata_ids[internal_id]
+    person.id = wikidata_id or make_person_id(context, internal_id)
 
     institution_en = row.pop("institution_en")
     department_en = row.pop("institution_department_en")
@@ -67,35 +95,29 @@ def crawl_cv_entry(context: Context, wikidata_ids: Dict[str, Optional[str]], row
         "delovne izkušnje",  # work experience
         "svetovalne in nadzorne funkcije etc.",  # advisory and supervisory functions, etc.
     }:
-        if not position_en:
+        label_si = si_label(institution_si, department_si, position_si)
+        if position_en:
+            lang = "eng"
+            label = en_label(institution_en, department_en, position_en)
+        elif label_si:
+            lang = "slv"
+            label = si_label(institution_si, department_si, position_si)
+            print(label)
             return
-
-        lang = "eng"
-
-        if position_en.lower() == "minister":
-            label = f"Minister of {institution_en}"
-            label = label.replace("Ministry of ", "")
         else:
-            label = position_en
-
-            if department_en:
-                label += f", {department_en}"
-
-            if (
-                institution_en
-                and slugify(institution_en) not in slugify(label)
-                and "mayor-of" not in slugify(label)
-            ):
-                label += f", {institution_en}"
-
+            context.log.warning(f"Missing position for {internal_id} - {institution_en}/{institution_si}")
+            return
         res = context.lookup("position", label)
         if res and res.label:
             label = res.label
 
         position = h.make_position(context, label, country="si", lang=lang)
+        if lang == "eng":
+            position.add("name", label_si, lang="slv")
         categorisation = categorise(context, position, is_pep=None)
         if not categorisation.is_pep:
             return
+        
         start_date = h.parse_date(row.pop("start_day"), FORMATS)[0]
         if not start_date:
             start_year = row.pop("start_year")
@@ -126,7 +148,9 @@ def crawl_cv_entry(context: Context, wikidata_ids: Dict[str, Optional[str]], row
             context.emit(position)
             context.emit(occupancy)
     elif part_of_cv == "lastništvo podjetja":  # company ownership
-        print("OWNERSHIP", institution_en, position_en)
+        # print("OWNERSHIP", institution_en, position_en)
+        return
+    elif part_of_cv == "prostočasne aktivnosti":  # leisure activities
         return
     else:
         context.log.warning(f"Unhandled part of CV: {part_of_cv}")
