@@ -56,7 +56,7 @@ publisher:
 url: https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:52023XC00724
 data:
   url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vScJoESeSlsPlFcHSqIQMO9kK6JRV7ahVNc_WdiLuCV-CzBZh-tZU00_-MgXekD6t7vSNjjDZBI9eNI/pub?gid=0&single=true&output=csv"
-  format: XCSV
+  format: CSV
 
 lookups:
   type.country:
