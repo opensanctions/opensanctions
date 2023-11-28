@@ -1,6 +1,6 @@
 from normality import collapse_spaces, slugify
 from pantomime.types import CSV
-from typing import Dict
+from typing import Dict, Optional
 import csv
 
 from zavod import Context
@@ -15,13 +15,36 @@ def make_person_id(context: Context, id: str) -> str:
     return context.make_slug("person", id)
 
 
-def crawl_row(context: Context, row: Dict[str, str]):
+def crawl_person(context: Context, row: Dict[str, str]) -> str:
+    person = context.make("Person")
+    internal_id = row.pop("id").strip()
+    if not internal_id:
+        return None, None
+    wikidata_id = row.pop("wikidata_id").strip()
+    if wikidata_id:
+        person.id = wikidata_id
+        person.add("wikidataId", wikidata_id)
+    else:
+        wikidata_id = None
+        person.id = make_person_id(context, internal_id)
+    person.add("name", row.pop("name"))
+    person.add("birthDate", h.parse_date(row.pop("birth_date"), FORMATS))
+    person.add("gender", row.pop("gender"))
+
+    context.emit(person, target=True)
+
+    return internal_id, wikidata_id
+
+
+
+def crawl_cv_entry(context: Context, wikidata_ids: Dict[str, Optional[str]], row: Dict[str, str]):
     person = context.make("Person")
     person_id = row.pop("person_id").strip()
-
     if not person_id:
         return
-    person.id = make_person_id(context, person_id)
+    
+    wikidata_id = wikidata_ids[person_id]
+    person.id = wikidata_id or make_person_id(context, person_id)
 
     institution_en = row.pop("institution_en")
     department_en = row.pop("institution_department_en")
@@ -31,7 +54,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     department_si = row.pop("institution_department_si")
     position_si = row.pop("position_si")
 
-    part_of_cv = row.pop("part_of_cv")
+    part_of_cv = row.pop("part_of_cv").lower()
 
     if part_of_cv == "izobraževanje":
         if institution_en:
@@ -39,7 +62,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
         if institution_si:
             person.add("education", institution_si, lang="slv")
 
-    if part_of_cv in {
+    elif part_of_cv in {
         "strankarska pozicija",  # party position
         "delovne izkušnje",  # work experience
         "svetovalne in nadzorne funkcije etc.",  # advisory and supervisory functions, etc.
@@ -66,15 +89,13 @@ def crawl_row(context: Context, row: Dict[str, str]):
                 label += f", {institution_en}"
 
         res = context.lookup("position", label)
-        if res is None:
-            # context.log.warning("Unknown position", label=label)
-            print(label)
-            return
-        if not res.is_pep:
-            return
-        label = res.label or label
+        if res and res.label:
+            label = res.label
 
-        position = h.make_position(context, label, country="si")
+        position = h.make_position(context, label, country="si", lang=lang)
+        categorisation = categorise(context, position, is_pep=None)
+        if not categorisation.is_pep:
+            return
         start_date = h.parse_date(row.pop("start_day"), FORMATS)[0]
         if not start_date:
             start_year = row.pop("start_year")
@@ -99,18 +120,30 @@ def crawl_row(context: Context, row: Dict[str, str]):
             False,
             start_date=start_date or None,
             end_date=end_date or None,
+            categorisation=categorisation,
         )
         if occupancy:
             context.emit(position)
             context.emit(occupancy)
+    elif part_of_cv == "lastništvo podjetja":  # company ownership
+        print("OWNERSHIP", institution_en, position_en)
+        return
+    else:
+        context.log.warning(f"Unhandled part of CV: {part_of_cv}")
+        return
 
-    if "role.pep" not in person.get("topics"):
-        person.add("topics", "poi")
     context.emit(person, target=True)
 
 
 def crawl(context: Context):
+    wikidata_ids = {}
+    path = context.fetch_resource("persons.csv", context.data_url)
+    with open(path, "r") as fh:
+        for row in csv.DictReader(fh):
+            internal_id, wikidata_id = crawl_person(context, row)
+            wikidata_ids[internal_id] = wikidata_id
+
     path = context.fetch_resource("cv-entries.csv", context.data_url)
     with open(path, "r") as fh:
         for row in csv.DictReader(fh):
-            crawl_row(context, row)
+            crawl_cv_entry(context, wikidata_ids, row)

@@ -41,8 +41,3 @@ lookups:
       - match: "mp, national assembly"
         is_pep: true
         label: "Member of Parliament"
-      - regex:
-          - "^mayor"
-          - "^minister"
-          - "^state secretary"
-        is_pep: true
