@@ -1,19 +1,21 @@
-title: Slovenian political office holders from Relatioscope
+title: Slovenian political office holders from Relatioscope (Zvezoscope)
 entry_point: crawler.py
-prefix: sl-ost
+prefix: si-zvezo
 coverage:
   frequency: never
-  schedule: "45 4 * * *"
+  schedule: "45 5 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  Political office holders and their political career as presented at Relatioscope
+  Political office holders and their political career as presented at Relatioscope (Zvezoscope)
 description: |
   This dataset contains Slovenian political office holders, biographical information
   like their date of birth and educational institutions attended, and the positions
   in public office they held up to November 2023.
 
   The data was collected by the Slovenian investigative journalism center Oštro
-  and published on the Relatioscope website. Relatioscope is an interactive
+  and published on the Relatioscope website, known in Slovene as Zvezoscope.
+  
+  Relatioscope is an interactive
   visualisation of the career paths of Slovenian political office holders. Its goal
   is to highlight links and potential networks of influence between politicians.
   It does so by presenting the career paths and points of convergence of politicians
@@ -31,3 +33,16 @@ url: http://www.zvezoskop.si/
 data:
   url: https://docs.google.com/spreadsheets/d/readonlyversion
   format: CSV
+
+lookups:
+  position:
+    lowercase: true
+    options:
+      - match: "mp, national assembly"
+        is_pep: true
+        label: "Member of Parliament"
+      - regex:
+          - "^mayor"
+          - "^minister"
+          - "^state secretary"
+        is_pep: true

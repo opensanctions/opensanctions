@@ -61,5 +61,5 @@ data:
 lookups:
   type.country:
     options:
-      match: EL
-      value: GR
+      - match: EL
+        value: GR
