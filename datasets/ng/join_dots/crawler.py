@@ -8,6 +8,7 @@ import re
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.logic.pep import categorise
 
 
 # Member Of The Of The Senate Of Nigeria
@@ -108,26 +109,28 @@ def crawl_pep(context: Context, row) -> Tuple[Optional[str], Optional[str]]:
             topics=topics,
             subnational_area=subnational_area,
         )
+        categorisation = categorise(context, position, True)
 
         start_date, end_date = parse_position_dates(row.pop("period", None))
-        occupancy = h.make_occupancy(
-            context,
-            entity,
-            position,
-            no_end_implies_current=False,
-            start_date=start_date,
-            end_date=end_date,
-            birth_date=birth_date,
-        )
+        if categorisation.is_pep:
+            occupancy = h.make_occupancy(
+                context,
+                entity,
+                position,
+                no_end_implies_current=False,
+                start_date=start_date,
+                end_date=end_date,
+                birth_date=birth_date,
+                categorisation=categorisation,
+            )
 
-        if occupancy:
-            context.emit(entity, target=True)
-            context.emit(occupancy)
-            context.emit(position)
+            if occupancy:
+                context.emit(entity, target=True)
+                context.emit(occupancy)
+                context.emit(position)
 
-            context.audit_data(row, ignore=["age"])
-
-            return name, entity.id
+                context.audit_data(row, ignore=["age"])
+                return name, entity.id
     return None, None
 
 

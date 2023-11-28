@@ -1,0 +1,65 @@
+title: "EU Prominent Public Functions"
+entry_point: crawler.py
+prefix: eu-pub
+coverage:
+  frequency: daily
+deploy:
+  schedule: "50 */3 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+exports:
+  - statistics.json
+  - entities.ftm.json
+  - statements.csv
+summary: >
+  Prominent public functions at national level, at the level of International
+  Organisations and at the level of the European Union Institutions and Bodies
+description: |
+  The European Union published a list of prominent public functions at national
+  level of member countries, international organisations with headquarters in
+  the EU and EU institutions and bodies. The list is published in the Official
+  Journal of the European Union.
+
+  This publication does not list the names of the persons holding these positions,
+  but only the positions themselves. It is therefore useful in constructing a
+  benchmark of positions whose occupants ought to be identified as [PEPs](/pep).
+
+  The information is formatted differently for each country, but the positions
+  are broadly categorised as follows:
+
+  - heads of State, heads of government, ministers and deputy or assistant ministers
+  - members of parliament or of similar legislative bodies
+  - members of the governing bodies of political parties
+  - members of supreme courts, of constitutional courts or of other high-level judicial bodies, the decisions of which are not subject to further appeal, except in exceptional circumstances
+  - members of courts of auditors or of the boards of central banks
+  - ambassadors, chargés d'affaires and high-ranking officers in the armed forces
+  - members of the administrative, management or supervisory bodies of State-owned enterprises
+  - directors, deputy directors and members of the board or equivalent function of an international organisation
+
+  These categories can be found in [EU Commission Decision of 20 May 2022 on the exact functions that qualify as prominent public functions in the European Union institutions and bodies](https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=OJ:C_202300611)
+
+  This dataset works towards publishing structured data of the positions listed
+  in EU journal notice C/2023/724 as unambiguous positions which can be used to
+  clearly identify the position held by persons in these public functions.
+
+  Since some of the positions are not clearly identified in the original document,
+  or left as broad or generic categories, we initially only include the positions
+  we could clearly identify as positions which exist in those countries.
+publisher:
+  name: Official Journal of the European Union
+  description: |
+    The Official Journal of the European Union is the official publication (gazette)
+    for EU legal acts, other acts and official information from EU institutions,
+    bodies, offices and agencies.
+  country: eu
+  url: https://eur-lex.europa.eu/oj/direct-access.html
+  official: true
+url: https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:52023XC00724
+data:
+  url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vScJoESeSlsPlFcHSqIQMO9kK6JRV7ahVNc_WdiLuCV-CzBZh-tZU00_-MgXekD6t7vSNjjDZBI9eNI/pub?gid=0&single=true&output=csv"
+  format: CSV
+
+lookups:
+  type.country:
+    options:
+      match: EL
+      value: GR

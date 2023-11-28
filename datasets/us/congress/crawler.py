@@ -6,6 +6,7 @@ from requests.exceptions import HTTPError
 from zavod import helpers as h
 from zavod import Context, Entity
 from zavod import settings
+from zavod.logic.pep import categorise
 
 API_KEY = os.environ.get("OPENSANCTIONS_US_CONGRESS_API_KEY")
 
@@ -16,17 +17,20 @@ def crawl_positions(context: Context, member, entity):
     for term in terms:
         res = context.lookup("position", term["chamber"])
         position = h.make_position(context, res.name, country="us")
-        occupancy = h.make_occupancy(
-            context,
-            entity,
-            position,
-            True,
-            start_date=str(term.pop("startYear")),
-            end_date=str(term.pop("endYear")) if "endYear" in term else None,
-        )
-        if occupancy:
-            entities.append(position)
-            entities.append(occupancy)
+        categorisation = categorise(context, position)
+        if categorisation.is_pep:
+            occupancy = h.make_occupancy(
+                context,
+                entity,
+                position,
+                True,
+                start_date=str(term.pop("startYear")),
+                end_date=str(term.pop("endYear")) if "endYear" in term else None,
+                categorisation=categorisation,
+            )
+            if occupancy:
+                entities.append(position)
+                entities.append(occupancy)
     return entities
 
 

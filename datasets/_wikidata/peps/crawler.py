@@ -5,6 +5,7 @@ from nomenklatura.util import is_qid
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.logic.pep import categorise
 from zavod.util import remove_emoji
 
 
@@ -56,6 +57,9 @@ def crawl(context: Context):
                 topics=TOPICS.get(row.get("decision", ""), []),
                 wikidata_id=position_qid,
             )
+            categorisation = categorise(context, position)
+            if not categorisation.is_pep:
+                continue
             occupancy = h.make_occupancy(
                 context,
                 entity,
@@ -65,6 +69,7 @@ def crawl(context: Context):
                 birth_date=date_value(row.get("person_birth")),
                 end_date=date_value(row.get("end_date")),
                 start_date=date_value(row.get("start_date")),
+                categorisation=categorisation,
             )
             if not occupancy:
                 continue

@@ -97,8 +97,9 @@ lookups:
         values:
           - Mauritania
           - Mali
-      - match: Turkish/Jordanian
-        value:
+      - match:
+          - Turkish/Jordanian
+        values:
           - Turkey
           - Jordan
       - match: Indonesian (as at Dec. 2003)

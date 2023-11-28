@@ -1,0 +1,44 @@
+title: Nigerian Politically Exposed Persons data by Chipper
+entry_point: crawler.py
+prefix: ng-chip
+coverage:
+  frequency: daily
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  PEP data collected by Chipper for Nigeria
+description: |
+  This is a vast dataset of politically exposed persons in Nigeria collected by
+  Chipper to support their risk management practices.
+
+  It is not considered to be comprehensive, but significantly augments PEP
+  identification data already available on the market.
+
+  Nigeria follows the "Once a PEP, always a PEP" duration practice, meaning people
+  may remain in this dataset longer than for data sourced for other jurisdictions.
+publisher:
+  name: Chipper
+  description: |
+    Chipper is a financial technology company that provides cross-border payment
+    services in Africa and beyond.
+  url: https://chippercash.com/
+  country: ng
+  official: false
+  logo_url: "https://assets.opensanctions.org/images/publishers/chipper-logo.svg"
+url: https://chippercash.com/
+data:
+  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vS-0_pci6BoFHpxfPXbDeMD53jvti_TmovR406JK-Z-9lYPCqbUmTk6vZC0hTSRFxHYGTzJJyFRDCxz/pub?output=csv
+  format: CSV
+
+lookups:
+  type.gender:
+    options:
+      - match: Male `
+        value: Male
+      - match:
+        - 7
+        - 40
+        value: null
+  type.date:
+    options:
+      match: 16-Oct-60
+      value: 1960-10-16
