@@ -306,6 +306,30 @@ lookups:
           - Fatimid Egypt Caliphate
           - Duchy of Saxe-Coburg and Gotha
           - Western Jin dynasty
+          - Eastern Wu
+          - Ifriqiya
+          - Confederation of the Rhine
+          - Katsina-Ala
+          - Benue State
+          - Gombe State
+          - Akko
+          - Katsina State
+          - Tokugawa shogunate
+          - Borno State
+          - Safavid dynasty
+          - Yobe State
+          - Ogun State
+          - Kaduna State
+          - Pahang
+          - Hirshabelle
+          - Kurdistan
+          - Ifriqiya
+          - Regency of Algiers
+          - Sultanate of Darfur
+          - Khedivate of Egypt
+          - Imamate of Futa Toro
+          - Niger State
+          - Massina Empire
         value: null
       - match:
           - Cherokee Nation
@@ -317,6 +341,11 @@ lookups:
           - Sisseton Wahpeton Oyate
           - Confederate States
         value: US
+      - match:
+          - Democratic Republic of Sudan
+          - Anglo-Egyptian occupation of Sudan
+          - Mahdist Sudan
+        value: Sudan
       - match: British Cyprus
         value: CY
       - match: Socialist Republic of Romania
@@ -327,6 +356,8 @@ lookups:
         value: NL
       - match: Kingdom of Ireland
         value: IE
+      - match: Colony of New Zealand
+        value: NZ
       - match: Santo Domingo
         values:
           - Dominican Republic
