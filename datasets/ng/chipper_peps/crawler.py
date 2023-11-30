@@ -13,9 +13,15 @@ FORMATS = ["%m/%d/%Y"]
 # Match space before comma or no space after comma
 REGEX_FIX_COMMA = re.compile(r"(\w)\s*,\s*(\w)")
 
+# (Adavi, Okehi)member of the house of Representatives of the Federal Republic of Nigeria
+# APC, Abakaliki North constituency candidate for House of Assembly
+# Abakaliki South (PDP) Member of the House of Assembly Ebonyi State
+# Abia State Commissioner for Health
+
 
 def emit_position(context: Context, entity: Entity, name: str):
     name = REGEX_FIX_COMMA.sub(r"\1, \2", name)
+    print(name)
     position = h.make_position(context, name, country="ng")
     categorisation = categorise(context, position, True)
     if categorisation.is_pep:
