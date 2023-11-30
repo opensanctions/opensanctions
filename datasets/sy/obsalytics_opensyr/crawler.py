@@ -1,5 +1,6 @@
 import re
 import json
+from normality import slugify
 from typing import Dict, Optional
 from pantomime.types import JSON
 
@@ -229,13 +230,15 @@ def extract_relation(
     if type_ in ["له_منصب"]:
         position_type = props.get("041_نوع_المنصب", None)
         position_title = props.get("042_اسم_المنصب", None)
-        position_desc = props.get("043_وصف_المنصب", None)
+        # position_desc = props.get("043_وصف_المنصب", None)
         if position_type == 1:
             type_ = "وظيفية"
         elif position_type == 2:
             type_ = "وظيفية"
         elif position_type == 3:
-            if any(position_title in string for string in directorship_titles):
+            if position_title is not None and any(
+                position_title in s for s in directorship_titles
+            ):
                 type_ = "إدارية"
             else:
                 type_ = "ملكية"
@@ -349,7 +352,10 @@ def crawl(context: Context):
             rel_target_id = rel["target_id"]
             first_id = max(rel_source_id, rel_target_id)
             second_id = min(rel_source_id, rel_target_id)
-            rel_id = f"opensyr-rel-{rel_type}-{first_id}-{second_id}"
+            rel_id = slugify(f"opensyr-rel-{rel_type}-{first_id}-{second_id}")
+            if rel_id is None:
+                context.log.warning("Could not generate ID for relation")
+                continue
             source_id = f"opensyr-node-{rel['source_id']}"
             target_id = f"opensyr-node-{rel['target_id']}"
             extract_relation(
