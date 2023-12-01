@@ -116,14 +116,15 @@ def crawl_person_person_relation(
         )
         return
 
-    # print("LINK", (entity.id, other.id))
-    id_a, id_b = sorted((entity.id, other.id))
     rel = context.make(res.schema)
-    id_a_short = short_id(context, id_a)
-    id_b_short = short_id(context, id_b)
+    id_a_short = short_id(context, entity.id)
+    id_b_short = short_id(context, other.id)
+    if id_a_short > id_b_short:
+        # For a pair, this is true in one direction and false in the other.
+        return
     rel.id = context.make_slug(id_a_short, res.schema, id_b_short)
-    rel.add(res.from_prop, id_a)
-    rel.add(res.to_prop, id_b)
+    rel.add(res.from_prop, entity.id)
+    rel.add(res.to_prop, other.id)
     rel.add(res.desc_prop, rel_type)
     rel.add("modifiedAt", parse_date(rel_data.pop("date_confirmed")))
     rel.add("startDate", parse_date(rel_data.pop("date_established")))
@@ -522,6 +523,9 @@ def crawl_company(
         rel = context.make(res.schema)
         id_a_short = short_id(context, entity.id)
         id_b_short = short_id(context, other_id)
+        if id_a_short > id_b_short:
+            # For a pair, this is true in one direction and false in the other.
+            continue
         rel.id = context.make_slug(id_a_short, res.schema, id_b_short)
         rel.add(res.from_prop, entity.id)
         rel.add(res.to_prop, other_id)
