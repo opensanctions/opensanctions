@@ -2387,3 +2387,11 @@ lookups:
             - 2001
         associates:
           - Reza Sadougi
+      - match: "Association déclarée le 5 janvier 2012 à la préfecture du Gard: W302009276"
+        props:
+          registrationNumber: W302009276
+          incorporationDate: 2012-01-05
+      - match: "Déclarée le 22 septembre 2016 à la préfecture du Gard: W302013417,"
+        props:
+          registrationNumber: W302013417
+          incorporationDate: 2016-09-22
