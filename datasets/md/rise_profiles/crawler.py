@@ -166,8 +166,6 @@ def make_relation(context, source, description, target_name, target_url):
         )
         target = context.make(target_schema)
         target.id = context.make_id(target_name, "relation of", source.id)
-        if target.id == "mdrisepep-4e6472fa54b95701b8db75456fced58eab6a38db":
-            print(target)
         target.add("name", target_name)
         context.emit(target)
 
