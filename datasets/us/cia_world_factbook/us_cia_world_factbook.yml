@@ -445,6 +445,11 @@ lookups:
           - role: Interim Prime Minister
             name: Raymond Ndong Sima
             start_date: 8 September 2023
+      - match: President Mohamed MUIZZI ((sworn in 17 November 2023)
+        holders:
+          - role: President
+            name: Mohamed MUIZZI
+            start_date: 17 November 2023
       - match: "chief of state: president (vacant)"
         holders: []
       - regex:

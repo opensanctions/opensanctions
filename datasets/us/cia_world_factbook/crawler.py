@@ -80,7 +80,7 @@ REGEX_HOLDER = re.compile(
         ") "
         "(?P<name>[\w,.'’\" -]+?) ?"
         "(\([\w \.]+\))? ?"
-        "\((since |born |reappointed )?(?P<start_date>\d* ?\w* ?\d{4} ?)\)"
+        "\((since |born |reappointed |sworn in )?(?P<start_date>\d* ?\w* ?\d{4} ?)\)"
     )
 )
 REGEX_CONTAINS_OTHER = re.compile(r"\b(and|of the) ")
