@@ -3,8 +3,6 @@ entry_point: crawler.py
 prefix: br-ceis
 coverage:
   frequency: daily
-deploy:
-  schedule: "0 */9 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   The National Register of Ineligible and Suspended Companies (CEIS) lists individuals and companies sanctioned from public procurement in Brazil.
@@ -22,7 +20,7 @@ description: |
   The database is maintained under the mandate of the Anti-Corruption Law (Law No. 12.846/2013),
   with the entries being directly fed by public entities responsible for the sanctions.
 publisher:
-  name: CGU (General Control Office of the Union) 
+  name: CGU (General Control Office of the Union)
   url: https://portaldatransparencia.gov.br
   official: true
   country: "br"

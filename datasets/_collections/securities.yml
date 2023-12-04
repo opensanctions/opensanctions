@@ -18,7 +18,7 @@ description: |
   and thus are subject to investment bans under US Executive Order (EO) 14071.
 
   See also:
-  * [Securities data in OpenSanctions](https://www.opensanctions.org/docs/bulk/faq/#securities)
+  * [Securities data in OpenSanctions](/docs/data/securities/)
   * [Russian NSD dataset](https://www.opensanctions.org/datasets/ru_nsd_isin/)
 children:
   - au_dfat_sanctions
