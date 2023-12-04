@@ -45,7 +45,7 @@ publisher:
 url: https://www.mof.go.jp/policy/international_policy/gaitame_kawase/gaitame/economic_sanctions/gaiyou.html
 data:
   url: https://www.mof.go.jp/policy/international_policy/gaitame_kawase/gaitame/economic_sanctions/list.html
-  format: XLS
+  format: XLSX
   lang: jpn
 
 lookups:
@@ -233,6 +233,8 @@ lookups:
         value: null
       - match: サウディ・アラビア
         value: Saudi Arabia
+      - match: スロバキア共和国
+        value: Slovakia
       - match: トルコ、ヨルダン
         values:
           - Turkey

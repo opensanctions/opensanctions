@@ -1,8 +1,11 @@
 import re
 import xlrd
 import string
-from datetime import datetime
-from pantomime.types import XLS
+from banal import first
+from datetime import datetime, date
+from openpyxl import load_workbook
+from openpyxl.cell import Cell
+from pantomime.types import XLSX
 from urllib.parse import urljoin
 from typing import Dict, List, Optional
 from normality import collapse_spaces, stringify
@@ -37,13 +40,28 @@ DATE_SPLITS = SPLITS + [
 DATE_CLEAN = re.compile(r"(\(|\)|（|）| |改訂日|改訂|まれ)")
 
 
-def parse_date(text: List[Optional[str]]) -> List[str]:
+def str_cell(cell: Cell) -> Optional[str]:
+    value = cell.value
+    if value is None:
+        return None
+    if isinstance(value, (datetime, date)):
+        return value.isoformat()
+    if isinstance(value, bool):
+        return str(value).lower()
+    return stringify(value)
+
+
+def parse_date(text: List[str]) -> List[str]:
     dates: List[str] = []
-    for date in h.multi_split(text, DATE_SPLITS):
-        cleaned = DATE_CLEAN.sub("", date)
+    for date_ in h.multi_split(text, DATE_SPLITS):
+        parsed = h.convert_excel_date(date_)
+        if parsed is not None:
+            dates.append(parsed)
+            continue
+        cleaned = DATE_CLEAN.sub("", date_)
         if cleaned:
             normal = decompose_nfkd(cleaned)
-            for parsed in h.parse_date(normal, FORMATS, default=date):
+            for parsed in h.parse_date(normal, FORMATS, default=date_):
                 dates.append(parsed)
     return dates
 
@@ -63,12 +81,12 @@ def parse_names(names: List[str]) -> List[str]:
     return cleaned
 
 
-def fetch_xls_url(context: Context) -> str:
+def fetch_xlsx_url(context: Context) -> str:
     params = {"_": context.data_time.date().isoformat()}
     doc = context.fetch_html(context.data_url, params=params)
     for link in doc.findall('.//div[@class="unique-block"]//a'):
         href = urljoin(context.data_url, link.get("href"))
-        if href.endswith(".xls"):
+        if href.endswith(".xlsx"):
             return href
     raise ValueError("Could not find XLS file on MoF web site")
 
@@ -140,18 +158,18 @@ def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str
 
 
 def crawl(context: Context):
-    xls_url = fetch_xls_url(context)
-    path = context.fetch_resource("source.xls", xls_url)
-    context.export_resource(path, XLS, title=context.SOURCE_TITLE)
+    xlsx_url = fetch_xlsx_url(context)
+    path = context.fetch_resource("source.xlsx", xlsx_url)
+    context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
-    xls = xlrd.open_workbook(path)
-    for sheet in xls.sheets():
-        headers = None
-        row0 = [h.convert_excel_cell(xls, c) for c in sheet.row(0)]
-        sections = [c for c in row0 if c is not None]
+    wb = load_workbook(path, read_only=True)
+    for sheet in wb.worksheets:
+        row0 = [str_cell(c) for c in list(sheet.iter_rows(0, 1))[0]]
+        sections = [str(c) for c in row0 if c is not None]
         section = collapse_spaces(" / ".join(sections))
-        for r in range(1, sheet.nrows):
-            row = [h.convert_excel_cell(xls, c) for c in sheet.row(r)]
+        headers = None
+        for cells in sheet.iter_rows(1):
+            row = [str_cell(c) for c in cells]
 
             # after a header is found, read normal data:
             if headers is not None:
@@ -170,7 +188,7 @@ def crawl(context: Context):
                         if value is not None:
                             values.append(value)
                     data[header] = values
-                emit_row(context, sheet.name, section, data)
+                emit_row(context, sheet.title, section, data)
 
             if not len(row) or row[0] is None:
                 continue
@@ -186,6 +204,6 @@ def crawl(context: Context):
                     header = context.lookup_value("columns", cell)
                     if header is None:
                         context.log.warning(
-                            "Unknown column title", column=cell, sheet=sheet.name
+                            "Unknown column title", column=cell, sheet=sheet.title
                         )
                     headers.append(header)
