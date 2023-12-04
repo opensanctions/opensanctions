@@ -1,6 +1,6 @@
 title: Brazil National Register of Disreputable and Suspended Companies
 entry_point: crawler.py
-prefix: brazil-ceis
+prefix: br-ceis
 coverage:
   frequency: daily
 deploy:
@@ -25,6 +25,7 @@ publisher:
   name: CGU (General Control Office of the Union) 
   url: https://portaldatransparencia.gov.br
   official: true
+  country: "br"
 url: https://portaldatransparencia.gov.br/download-de-dados/ceis
 data:
   url: https://portaldatransparencia.gov.br/download-de-dados/ceis

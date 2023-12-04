@@ -6,7 +6,6 @@ import io
 import re
 from typing import List
 
-SITE_URL = "https://portaldatransparencia.gov.br/download-de-dados/ceis"
 HEADERS = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
     }
@@ -16,7 +15,7 @@ def get_csv_url(context: Context) -> str:
     """
     Fetches the CSV URL from the main page.
     The CSV URL is dynamically generated and changes every day
-    and is created by concatenating the SITE_URL with the date in the format YYYYMMDD.
+    and is created by concatenating the base url (the url in the metadata) with the date in the format YYYYMMDD.
 
     The date is in a script tag in the main page.
 
@@ -26,7 +25,7 @@ def get_csv_url(context: Context) -> str:
     """
 
     # The header is necessary because the website blocks requests without a user agent.
-    doc = context.fetch_html(SITE_URL, headers=HEADERS)
+    doc = context.fetch_html(context.data_url, headers=HEADERS)
     path = '//script'
     date_pattern = re.compile(r'"ano"\s*:\s*"(\d+)",\s*"mes"\s*:\s*"(\d+)",\s*"dia"\s*:\s*"(\d+)"')
     for script in doc.xpath(path):
@@ -34,7 +33,7 @@ def get_csv_url(context: Context) -> str:
             match = date_pattern.search(script.text)
             if match:
                 year, month, day = match.groups()
-                return SITE_URL + f"/{year}{month}{day}"
+                return context.data_url + f"/{year}{month}{day}"
 
     raise ValueError("Data URL not found")
 
@@ -75,7 +74,6 @@ def create_entities(data: List[dict], context: Context) -> None:
             entity = context.make('Person')
             entity.id = context.make_id(raw_entity['CPF OU CNPJ DO SANCIONADO'])
             entity.add('name', raw_entity['NOME DO SANCIONADO'])
-            entity.add('country', 'br')
             entity.add('taxNumber', raw_entity['CPF OU CNPJ DO SANCIONADO'])
 
             context.emit(entity, target=True)
@@ -84,14 +82,12 @@ def create_entities(data: List[dict], context: Context) -> None:
             entity = context.make('Company')
             entity.id = context.make_id(raw_entity['CPF OU CNPJ DO SANCIONADO'])
             entity.add('name', raw_entity['NOME DO SANCIONADO'])
-            entity.add('country', 'br')
             entity.add('taxNumber', raw_entity['CPF OU CNPJ DO SANCIONADO'])
 
             context.emit(entity, target=True)
 
         sanction = h.make_sanction(context, entity)
         sanction.add("program", "Brazil disreputed and sanctioned companies")
-        sanction.add("country", "br")
         sanction.add("reason", raw_entity["FUNDAMENTAÇÃO LEGAL"], lang="por")
         context.emit(sanction)
 
