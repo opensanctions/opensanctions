@@ -22,7 +22,7 @@ setup(
     zip_safe=False,
     install_requires=[
         "followthemoney == 3.5.*",
-        "nomenklatura == 3.9.*",
+        "nomenklatura[leveldb] == 3.9.*",
         "datapatch == 1.1.*",
         "fingerprints == 1.2.*",
         "addressformatting == 1.3.*",
