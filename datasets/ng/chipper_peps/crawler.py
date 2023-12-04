@@ -37,8 +37,9 @@ REGEX_HOUSE_REP = re.compile(
 
 def crawl_position(context: Context, entity: Entity, name: str):
     name = REGEX_FIX_COMMA.sub(r"\1, \2", name)
+    name_lower = name.lower()
 
-    if "candidate" in name.lower():
+    if "candidate" in name_lower:
         entity.add("topics", "poi")
         entity.add("country", "ng")
         entity.add("position", name)
@@ -48,6 +49,12 @@ def crawl_position(context: Context, entity: Entity, name: str):
         entity.add("position", name)
         name = "Member of the Federal House of Representatives"
 
+    if name.startswith("Former "):
+        status = OccupancyStatus.ENDED
+        name = name.replace("Former ", "")
+    else:
+        status = OccupancyStatus.UNKNOWN
+
     position = h.make_position(context, name, country="ng")
     categorisation = categorise(context, position, True)
     if categorisation.is_pep:
@@ -56,7 +63,7 @@ def crawl_position(context: Context, entity: Entity, name: str):
             entity,
             position,
             False,
-            status=OccupancyStatus.UNKNOWN,
+            status=status,
             categorisation=categorisation,
         )
         context.emit(position)
