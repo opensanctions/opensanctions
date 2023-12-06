@@ -1,4 +1,5 @@
 from functools import cache
+from random import random
 from typing import cast, Any, Dict, Optional
 from nomenklatura.entity import CE
 
@@ -39,6 +40,11 @@ def analyze_position(context: Context, entity: CE) -> None:
 
 
 def crawl(context: Context) -> None:
+    # Temporarily force out-of memory to create test data for infrastructure
+    # monitoring and alerting.
+    myset = set()
+    while True:
+        myset.add(random())
     view = get_view(get_multi_dataset(context.dataset.inputs))
     position_count = 0
 
