@@ -39,7 +39,7 @@ setup(
         "prefixdate",
         "psycopg2-binary",
         "pyicu == 2.12.0",
-        "pywikibot==8.5.1",
+        "pywikibot==8.6.0",
         "requests[security]",
         "sqlalchemy[mypy]",
         "structlog",
