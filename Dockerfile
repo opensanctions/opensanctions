@@ -22,7 +22,6 @@ RUN localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 ENV LANG="en_US.UTF-8" \
     TZ="UTC"
 
-RUN pip3 install --no-cache-dir -U pip cryptography
 RUN python3 -m venv /venv
 ENV PATH="/venv/bin:$PATH"
 RUN pip3 install --no-cache-dir -U pip six setuptools wheel \
