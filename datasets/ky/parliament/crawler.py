@@ -13,7 +13,6 @@ from zavod.util import ElementOrTree
 
 HISTORICAL_DATA_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRM-hl1drkQMn4wHXxHkHXHZb2TkUyIFWxGXwJ_UqZNRpH00DGWrdHk_zDrHUsZ4YCeVYYojqSMmZuX/pub?output=csv"
 
-CLEAN_TITLE_RE = re.compile(r"((Cert. Hon.|KCMG|MBE|KC|JP|MP|MBE|NP)(, )?)+")
 IGNORE_HEADINGS = {
     "About",
     "Members",
@@ -32,24 +31,31 @@ KEEP_HEADINGS = {
     "Government Members": "Government Member of parliament",
     "Opposition Members": "Opposition Member of parliament",
 }
+REGEX_POSITIONISH = re.compile(r"(Minister|Attorney|Governor|Member|Parliamentary|Leader)")
 
 
 def crawl_card_2021(context: Context, position: str, el: ElementOrTree):
-    name_el = el.find('.//p[@class="elementor-image-box-title"]')
+    name_el = el.find('.//h1')
+    sub_title_el = name_el.find('.//span[@class="member-sub-title"]')
+    sub_title_el.getparent().remove(sub_title_el)
     name = name_el.text_content()
     name = re.sub(r",.+", "", name)
     name = name.replace("Hon. ", "")
+    name = name.replace("Ms. ", "")
     name = name.replace("Mr. ", "")
+    name = name.replace("Sir ", "")
     
     entity = context.make("Person")
     entity.id = context.make_id(name)
     entity.add("name", name)
 
-    position_el = name_el.getparent().find('.//p[@class="elementor-image-box-description"]')
+    position_el = el.find('.//p')
     if position_el is not None:
         position_detail = collapse_spaces(position_el.text_content())
-        position_detail = CLEAN_TITLE_RE.sub("", position_detail)
-        entity.add("position", position_detail)
+        if REGEX_POSITIONISH.search(position_detail):
+            entity.add("position", position_detail)
+        else:
+            context.warning("Position detail value doesn't look like position detail", value=position_detail)
 
     position = h.make_position(
         context,
@@ -70,6 +76,7 @@ def crawl_card_2021(context: Context, position: str, el: ElementOrTree):
         context.emit(entity, target=True)
         context.emit(position)
         context.emit(occupancy)
+        return entity
 
     
 
@@ -106,7 +113,8 @@ def crawl(context: Context):
     doc = context.fetch_html(context.data_url, cache_days=1)
     # crawl_card assumes 2021
     assert "2021-2025 Members" in doc.text_content()
-
+    expected_current_member_count = 20
+    current_member_count = 0
     heading = None
     for section in doc.findall(".//section"):
         heading_el = section.xpath(".//h2[contains(@class, 'elementor-heading-title')]")
@@ -123,9 +131,11 @@ def crawl(context: Context):
         else:
             if heading is None:
                 continue
-            for el in section.xpath(".//div[contains(@class, 'elementor-element-populated')]"):
-                if el.find('.//p[@class="elementor-image-box-title"]') is not None:
-                    crawl_card_2021(context, heading, el)
+            for el in section.xpath(".//div[contains(@class, 'member-select-content')]"):
+                if crawl_card_2021(context, heading, el):
+                    current_member_count += 1
+    if current_member_count < 20:
+        context.log.warning(f"Expected at least {expected_current_member_count} current members but found {current_member_count}")
 
 
     path = context.fetch_resource("historical_data.csv", HISTORICAL_DATA_CSV)
