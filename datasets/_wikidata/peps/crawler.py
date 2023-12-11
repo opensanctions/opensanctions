@@ -11,16 +11,14 @@ from zavod.util import remove_emoji
 from zavod.shed.wikidata.query import run_query, CACHE_MEDIUM
 
 
-DECISIONS = {
-    "subnational": "State government",
-    "national": "National government",
-    "international": "International organization",
-}
-TOPICS = {
-    "subnational": ["gov.state"],
-    "national": ["gov.national"],
-    "international": ["gov.igo"],
-}
+def keyword(topics: [str]) -> Optional[str]:
+    if "gov.national" in topics:
+        return "National government"
+    if "gov.state" in topics:
+        return "State government"
+    if "gov.igo" in topics:
+        return "International organization"
+    return None
 
 
 def date_value(value: Any) -> Optional[str]:
@@ -38,32 +36,26 @@ def truncate_date(text: Optional[str]) -> Optional[str]:
     return text[:10]
 
 
-def crawl_holder(context: Context, holder: Dict[str, str]) -> None:
+def crawl_holder(context: Context, categorisation, holder: Dict[str, str]) -> None:
+    print(holder)
     entity = context.make("Person")
     qid: Optional[str] = holder.get("person_qid")
     if not is_qid(qid) or qid == "Q1045488":
         return
     entity.id = qid
 
-    keyword = DECISIONS.get(holder.get("decision", ""))
-    if keyword is None:
-        return
-
-    position_qid = holder.get("position_qid")
-    position_label = remove_emoji(holder.get("position_label"))
+    position_qid = categorisation.entity_id
+    position_label = remove_emoji(categorisation.caption)
     if not position_label:
         position_label = position_qid
 
     position = h.make_position(
         context,
         position_label,
-        country=holder.get("country_code"),
-        topics=TOPICS.get(holder.get("decision", ""), []),
-        wikidata_id=position_qid,
+        country=categorisation.countries,
+        topics=categorisation.topics,
+        wikidata_id=categorisation.entity_id,
     )
-    categorisation = categorise(context, position)
-    if not categorisation.is_pep:
-        return
     occupancy = h.make_occupancy(
         context,
         entity,
@@ -78,26 +70,22 @@ def crawl_holder(context: Context, holder: Dict[str, str]) -> None:
     if not occupancy:
         return
 
-    res = context.lookup("role_topics", position_label)
-    if res:
-        position.add("topics", res.topics)
-
     # TODO: decide all entities with no P39 dates as false?
     # print(holder.person_qid, death, start_date, end_date)
 
     if holder.get("person_label") != qid:
         entity.add("name", holder.get("person_label"))
-    entity.add("keywords", keyword)
+    entity.add("keywords", keyword(categorisation.topics))
 
     context.emit(position)
     context.emit(occupancy)
     context.emit(entity, target=True)
 
 
-def query_position_holders(context: Context, position: PositionCategorisation) -> None:
-    vars = {"POSITION": position.entity_id}
-    context.log.info("Crawling position [%s]: %s", position.qid, position.caption)
-    response = run_query(context, "holders/holders", vars, expire=CACHE_MEDIUM)
+def query_position_holders(context: Context, categorisation: PositionCategorisation) -> None:
+    vars = {"POSITION": categorisation.entity_id}
+    context.log.info("Crawling position [%s]: %s", categorisation.entity_id, categorisation.caption)
+    response = run_query(context, "holders/holders", vars, cache_days=CACHE_MEDIUM)
     for binding in response.results:
         start_date = truncate_date(
             binding.plain("positionStart")
@@ -118,9 +106,9 @@ def query_position_holders(context: Context, position: PositionCategorisation) -
             "person_death": truncate_date(binding.plain("death")),
             "start_date": start_date,
             "end_date": end_date,
-            "position_qid": position.qid,
-            "position_label": position.caption,
-            "country": position.country,
+            "position_qid": categorisation.entity_id,
+            "position_label": categorisation.caption,
+            "country": categorisation.countries,
         }
 
 

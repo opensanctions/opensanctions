@@ -22,11 +22,12 @@ class OccupancyStatus(Enum):
 
 
 class PositionCategorisation:
-    def __init__(self, entity_id: str, caption: str, topics: List[str], is_pep: Optional[bool]):
+    def __init__(self, entity_id: str, caption: str, topics: List[str], is_pep: Optional[bool], countries: [str]):
         self.entity_id = entity_id
         self.caption = caption
         self.topics = topics
         self.is_pep = is_pep
+        self.countries = countries
 
 
 def get_positions(
@@ -47,6 +48,7 @@ def get_positions(
                 caption=position["caption"],
                 topics=position["topics"],
                 is_pep=position["is_pep"],
+                countries=position["countries"],
             )
         offset += len(data["results"])
 
@@ -123,6 +125,7 @@ def categorise(
         caption=position["caption"],
         topics=position["topics"],
         is_pep=position["is_pep"],
+        countries=position["countries"],
     )
 
 
