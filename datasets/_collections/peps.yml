@@ -22,6 +22,7 @@ description: |
   have been aggregated by other organizations.
 children:
   - annotations
+  - br_pep
   - co_funcion_publica
   - co_join_dots
   - cu_inventario_legislatura
