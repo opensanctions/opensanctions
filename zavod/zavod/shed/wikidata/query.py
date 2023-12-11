@@ -4,7 +4,7 @@ from pathlib import Path
 
 from zavod.context import Context
 
-from .struct import SparqlResponse
+from zavod.shed.wikidata.struct import SparqlResponse
 
 
 queries_path = Path(__file__).resolve().parent / "queries"

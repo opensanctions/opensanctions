@@ -5,8 +5,10 @@ from nomenklatura.util import is_qid
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.logic.pep import categorise
+from zavod.logic.pep import PositionCategorisation, categorise, get_positions
 from zavod.util import remove_emoji
+
+from zavod.shed.wikidata.query import run_query, CACHE_MEDIUM
 
 
 DECISIONS = {
@@ -26,6 +28,12 @@ def date_value(value: Any) -> Optional[str]:
         return None
     text = str(value).strip()
     if len(text) < 4:
+        return None
+    return text[:10]
+
+
+def truncate_date(text: Optional[str]) -> Optional[str]:
+    if text is None:
         return None
     return text[:10]
 
@@ -86,12 +94,10 @@ def crawl_holder(context: Context, holder: Dict[str, str]) -> None:
     context.emit(entity, target=True)
 
 
-def query_position_holders(position: Dict[str, str]) -> None:
-   
-    vars = {"POSITION": position.qid}
-    context.log.info("Crawling position [%s]: %s", position.qid, position.label)
-    response = run_query(conn, "holders/holders", vars, expire=CACHE_MEDIUM)
-    holders: Dict[str, Holder] = {}
+def query_position_holders(context: Context, position: PositionCategorisation) -> None:
+    vars = {"POSITION": position.entity_id}
+    context.log.info("Crawling position [%s]: %s", position.qid, position.caption)
+    response = run_query(context, "holders/holders", vars, expire=CACHE_MEDIUM)
     for binding in response.results:
         start_date = truncate_date(
             binding.plain("positionStart")
@@ -103,19 +109,8 @@ def query_position_holders(position: Dict[str, str]) -> None:
             or binding.plain("bodyEnd")
             or binding.plain("bodyAbolished")
         )
-        holder_id = make_id(
-            binding.plain("ps"),
-            binding.plain("person"),
-            position.qid,
-            start_date,
-            end_date,
-        )
-        if holder_id is None:
-            log.error("No holder ID: %r", binding)
-            continue
-
+        
         yield {
-            "id": holder_id,
             "person_qid": binding.plain("person"),
             "person_label": binding.plain("personLabel"),
             "person_description": binding.plain("personDescription"),
@@ -124,17 +119,16 @@ def query_position_holders(position: Dict[str, str]) -> None:
             "start_date": start_date,
             "end_date": end_date,
             "position_qid": position.qid,
-            "country_qid": position.country_qid,
+            "position_label": position.caption,
+            "country": position.country,
         }
 
 
 def crawl(context: Context):
-    path = context.fetch_resource("source.csv", context.data_url)
-    context.export_resource(path, CSV, title=context.SOURCE_TITLE)
-
-    for position in fetch_positions(context):
-        for holder in query_position_holders(context, position):
-            crawl_holder(context, holder)
+    for categorisation in get_positions(context, dataset="wd_pep", is_pep=True):
+        print(categorisation.caption)
+        for holder in query_position_holders(context, categorisation):
+            crawl_holder(context, categorisation, holder)
 
     entity = context.make("Person")
     entity.id = "Q21258544"

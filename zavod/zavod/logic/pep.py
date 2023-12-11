@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Optional, List
+from typing import Generator, Optional, List
 from datetime import datetime, timedelta
 from functools import cache
 
@@ -22,9 +22,33 @@ class OccupancyStatus(Enum):
 
 
 class PositionCategorisation:
-    def __init__(self, topics: List[str], is_pep: Optional[bool]):
+    def __init__(self, entity_id: str, caption: str, topics: List[str], is_pep: Optional[bool]):
+        self.entity_id = entity_id
+        self.caption = caption
         self.topics = topics
         self.is_pep = is_pep
+
+
+def get_positions(
+    context: Context, dataset: str, is_pep: bool
+) -> Generator[None, None, PositionCategorisation]:
+    offset = 0
+    while True:
+        url = f"{settings.OPENSANCTIONS_API_URL}/positions/"
+        params = {"datasets": dataset, "is_pep": str(is_pep).lower(), "offset": offset}
+        headers = {"authorization": settings.OPENSANCTIONS_API_KEY}
+        data = context.fetch_json(url, headers=headers, params=params)
+        print(data)
+        if not data["results"]:
+            raise StopIteration
+        for position in data["results"]:
+            yield PositionCategorisation(
+                entity_id=position["entity_id"],
+                caption=position["caption"],
+                topics=position["topics"],
+                is_pep=position["is_pep"],
+            )
+        offset += len(data["results"])
 
 
 @cache
@@ -95,8 +119,10 @@ def categorise(
         )
 
     return PositionCategorisation(
-        topics=data.get("topics", []),
-        is_pep=data.get("is_pep"),
+        entity_id=position["entity_id"],
+        caption=position["caption"],
+        topics=position["topics"],
+        is_pep=position["is_pep"],
     )
 
 
