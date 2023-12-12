@@ -37,7 +37,7 @@ def truncate_date(text: Optional[str]) -> Optional[str]:
 
 
 def crawl_holder(context: Context, categorisation, holder: Dict[str, str]) -> None:
-    print(holder)
+    # print(holder)
     entity = context.make("Person")
     qid: Optional[str] = holder.get("person_qid")
     if not is_qid(qid) or qid == "Q1045488":
@@ -114,7 +114,7 @@ def query_position_holders(context: Context, categorisation: PositionCategorisat
 
 def crawl(context: Context):
     for categorisation in get_positions(context, dataset="wd_pep", is_pep=True):
-        print(categorisation.caption)
+        #print(categorisation.caption)
         for holder in query_position_holders(context, categorisation):
             crawl_holder(context, categorisation, holder)
 

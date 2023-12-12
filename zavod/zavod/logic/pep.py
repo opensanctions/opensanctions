@@ -39,7 +39,7 @@ def get_positions(
         params = {"datasets": dataset, "is_pep": str(is_pep).lower(), "offset": offset}
         headers = {"authorization": settings.OPENSANCTIONS_API_KEY}
         data = context.fetch_json(url, headers=headers, params=params)
-        print(data)
+        # print(data)
         if not data["results"]:
             raise StopIteration
         for position in data["results"]:
