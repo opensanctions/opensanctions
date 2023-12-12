@@ -450,6 +450,11 @@ lookups:
           - role: President
             name: Mohamed MUIZZI
             start_date: 17 November 2023
+      - match: "Prime Minister Antonio Luis Santos da COSTA (since 24 November 2015"
+        holders:
+          - role: Prime Minister
+            name: Antonio Luis Santos da COSTA
+            start_date: 24 November 2015
       - match: "chief of state: president (vacant)"
         holders: []
       - regex:
@@ -507,6 +512,7 @@ lookups:
           - "inauguration scheduled for 17 November 2023"
           - "on 4 September 2023, Gen. OLIGUI was sworn in as transitional president"
           - "note- interim prime minister"
+          - "resigned on 7 November 2023 but remains in caretaker status until new elections on 10 March 2024\\)"
         holders: []
 
   type.country:

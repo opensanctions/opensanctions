@@ -23,13 +23,13 @@ REGEX_NAME_STRUCTURE = re.compile(
     (
         "^"
         "(?P<main>[\w.,/&\(\) -]+?) ?"
-        "(\((and|including) [a-z]+ alias(es)? ?: (?P<alias_list>.+)\))? ?"
+        "(\(((and|including) [a-z]+ alias(es)? ?:|(formerly|also) known as) (?P<alias_list>.+)\))? ?"
         "(?P<subordinate_note>, and Subsidiaries| and (subsidiaries|its subordinate and affiliated entities))? ?"
         "(and its ([a-z]+ [a-zA-Z]+-based subsidiaries, which include|subsidiary) (?P<subsidiary_list>.+))?"
         "$"
     )
 )
-SPLITTERS = [", and ", "; and ", ", ", "; "]
+SPLITTERS = [" and formerly known as ", ", and ", "; and ", ", ", "; "]
 
 
 def parse_names(name_field: str):
@@ -65,7 +65,7 @@ def crawl_program(context: Context, table, program: str, section: str) -> None:
 
         names = parse_names(name_field)
         if names is None:
-            context.log.warning("Couldn't parse name field", data)
+            context.log.warning("Couldn't parse name field", name_field)
             continue
 
         res = context.lookup("type", names["main"])
