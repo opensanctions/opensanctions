@@ -74,7 +74,7 @@ def crawl_holder(context: Context, categorisation: PositionCategorisation, posit
 
 def query_position_holders(context: Context, categorisation: PositionCategorisation) -> None:
     vars = {"POSITION": categorisation.entity_id}
-    context.log.info(f"Crawling position [{categorisation.entity_id}]: {categorisation.caption}")
+    context.log.info(f"Crawling holders of position [{categorisation.entity_id}]: {categorisation.caption}")
     response = run_query(context, "holders/holders", vars, cache_days=CACHE_MEDIUM)
     for binding in response.results:
         start_date = truncate_date(
@@ -142,7 +142,6 @@ def query_positions(context: Context, country_qid: str, country: Dict):
             "label": label,
             "description": bind.plain("positionDescription"),
             "country_code": country_code,
-            "score": float(bind.plain("holders") or 1),
         }
 
 
@@ -179,7 +178,7 @@ def crawl(context: Context):
                 country=wd_position["country_code"],
                 wikidata_id=wd_position["qid"],
             )
-            categorisation = categorise(context, position)
+            categorisation = categorise(context, position, is_pep=None)
             if not categorisation.is_pep:
                 continue
 
