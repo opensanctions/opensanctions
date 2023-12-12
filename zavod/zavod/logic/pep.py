@@ -30,29 +30,6 @@ class PositionCategorisation:
         self.countries = countries
 
 
-def get_positions(
-    context: Context, dataset: str, is_pep: bool
-) -> Generator[None, None, PositionCategorisation]:
-    offset = 0
-    while True:
-        url = f"{settings.OPENSANCTIONS_API_URL}/positions/"
-        params = {"dataset": dataset, "is_pep": str(is_pep).lower(), "offset": offset}
-        headers = {"authorization": settings.OPENSANCTIONS_API_KEY}
-        data = context.fetch_json(url, headers=headers, params=params)
-        # print(data)
-        if not data["results"]:
-            raise StopIteration
-        for position in data["results"]:
-            yield PositionCategorisation(
-                entity_id=position["entity_id"],
-                caption=position["caption"],
-                topics=position["topics"],
-                is_pep=position["is_pep"],
-                countries=position["countries"],
-            )
-        offset += len(data["results"])
-
-
 @cache
 def categorise(
     context: Context,
@@ -121,11 +98,11 @@ def categorise(
         )
 
     return PositionCategorisation(
-        entity_id=position["entity_id"],
-        caption=position["caption"],
-        topics=position["topics"],
-        is_pep=position["is_pep"],
-        countries=position["countries"],
+        entity_id=data["entity_id"],
+        caption=data["caption"],
+        topics=data["topics"],
+        is_pep=data["is_pep"],
+        countries=data["countries"],
     )
 
 

@@ -1,11 +1,13 @@
 import csv
 from typing import Dict, Optional, Any
+import countrynames
 from pantomime.types import CSV
 from nomenklatura.util import is_qid
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.logic.pep import PositionCategorisation, categorise, get_positions
+from zavod.entity import Entity
+from zavod.logic.pep import PositionCategorisation, categorise
 from zavod.util import remove_emoji
 
 from zavod.shed.wikidata.query import run_query, CACHE_MEDIUM
@@ -36,7 +38,7 @@ def truncate_date(text: Optional[str]) -> Optional[str]:
     return text[:10]
 
 
-def crawl_holder(context: Context, categorisation, holder: Dict[str, str]) -> None:
+def crawl_holder(context: Context, categorisation: PositionCategorisation, position: Entity, holder: Dict[str, str]) -> None:
     # print(holder)
     entity = context.make("Person")
     qid: Optional[str] = holder.get("person_qid")
@@ -44,18 +46,6 @@ def crawl_holder(context: Context, categorisation, holder: Dict[str, str]) -> No
         return
     entity.id = qid
 
-    position_qid = categorisation.entity_id
-    position_label = remove_emoji(categorisation.caption)
-    if not position_label:
-        position_label = position_qid
-
-    position = h.make_position(
-        context,
-        position_label,
-        country=categorisation.countries,
-        topics=categorisation.topics,
-        wikidata_id=categorisation.entity_id,
-    )
     occupancy = h.make_occupancy(
         context,
         entity,
@@ -84,7 +74,7 @@ def crawl_holder(context: Context, categorisation, holder: Dict[str, str]) -> No
 
 def query_position_holders(context: Context, categorisation: PositionCategorisation) -> None:
     vars = {"POSITION": categorisation.entity_id}
-    context.log.info("Crawling position [%s]: %s", categorisation.entity_id, categorisation.caption)
+    context.log.info(f"Crawling position [{categorisation.entity_id}]: {categorisation.caption}")
     response = run_query(context, "holders/holders", vars, cache_days=CACHE_MEDIUM)
     for binding in response.results:
         start_date = truncate_date(
@@ -109,11 +99,92 @@ def query_position_holders(context: Context, categorisation: PositionCategorisat
         }
 
 
+def pick_country(context, *qids):
+    for qid in qids:
+        country = context.lookup("country_decisions", qid)
+        if country is not None and country.decision != "national":
+            return country
+    return None
+
+
+def query_positions(context: Context, country_qid: str, country: Dict):
+    context.log.info(f"Crawling positions: {country.label} ({country_qid})")
+    vars = {"COUNTRY": country_qid}
+    response = run_query(context, "positions/country", vars, cache_days=CACHE_MEDIUM)
+    for bind in response.results:
+        country_code = pick_country(
+            context,
+            bind.plain("country"),
+            bind.plain("jurisdiction"),
+            country_qid,
+        )
+        yield {
+            "qid": bind.plain("position"),
+            "label": bind.plain("positionLabel"),
+            "description": bind.plain("positionDescription"),
+            "country_code": country_code
+        }
+
+    # b) Positions held by politicans from that country
+    response = run_query(context, "positions/politician", vars, cache_days=CACHE_MEDIUM)
+    for bind in response.results:
+        country_code = pick_country(
+            context,
+            bind.plain("country"),
+            bind.plain("jurisdiction"),
+        )
+        qid = bind.plain("position")
+        label = bind.plain('positionLabel')
+        if country_code is None:
+            context.log.info(f"No country for position {qid} {label}")
+        yield {
+            "qid": qid,
+            "label": label,
+            "description": bind.plain("positionDescription"),
+            "country_code": country_code,
+            "score": float(bind.plain("holders") or 1),
+        }
+
+
+def query_countries(context: Context):
+    response = run_query(context, "countries/all")
+    for binding in response.results:
+        qid = binding.plain("country")
+        label = binding.plain("countryLabel")
+        if qid is None or qid == label:
+            continue
+        code = countrynames.to_code(label)
+        yield {
+            "qid": qid,
+            "code": code,
+            "label": label,
+            "description": binding.plain("countryDescription"),
+        }
+
+
 def crawl(context: Context):
-    for categorisation in get_positions(context, dataset="wd_peps", is_pep=True):
-        #print(categorisation.caption)
-        for holder in query_position_holders(context, categorisation):
-            crawl_holder(context, categorisation, holder)
+    for country in query_countries(context):
+        context.log.info(f"Crawling country: {country['qid']} ({country['label']})")
+        res = context.lookup("country_decisions", country["qid"])
+        if res is None:
+            context.log.warning("Country without decision", country=country)
+            continue
+        if res.decision != "national":
+            continue
+
+        for wd_position in query_positions(context, country["qid"], res):
+            position = h.make_position(
+                context,
+                wd_position["label"],
+                country=wd_position["country_code"],
+                wikidata_id=wd_position["qid"],
+            )
+            categorisation = categorise(context, position)
+            if not categorisation.is_pep:
+                continue
+
+            for holder in query_position_holders(context, categorisation):
+                crawl_holder(context, categorisation, position, holder)
 
     entity = context.make("Person")
     entity.id = "Q21258544"

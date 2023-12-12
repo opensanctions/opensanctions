@@ -1,0 +1,7 @@
+
+SELECT ?position ?positionLabel ?positionDescription WHERE {
+    ?position wdt:P31 wd:Q4164871 .  
+    ?position wdt:P1001 wd:{{COUNTRY}} .  
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "en,de,es,fr". }
+} GROUP BY ?position ?positionLabel ?positionDescription
+ORDER BY DESC(?holders)

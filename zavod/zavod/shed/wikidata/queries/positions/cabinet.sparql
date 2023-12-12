@@ -1,0 +1,9 @@
+
+SELECT DISTINCT ?position ?positionLabel ?cabinet ?cabinetLabel WHERE {
+    ?holder wdt:P39 ?position .
+    ?holder wdt:P31 wd:Q5 .
+    ?position wdt:P361 ?cabinet .
+    # p:P361/ps:P361
+    ?cabinet wdt:P31|wdt:279 wd:Q640506
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "en,de,es,fr,pt". }
+}

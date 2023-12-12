@@ -1,0 +1,8 @@
+
+SELECT ?country (COUNT(*) AS ?holders) WHERE {
+    # ?holder wdt:P31 wd:Q5 .  
+    ?holder wdt:P106 wd:Q82955 .  
+    ?holder wdt:P27 ?country .  
+    # ?position wdt:P31* wd:Q4164871 . 
+} GROUP BY ?country 
+ORDER BY DESC(?holders)
