@@ -135,8 +135,6 @@ def query_positions(context: Context, country_qid: str, country: Dict):
         )
         qid = bind.plain("position")
         label = bind.plain('positionLabel')
-        if country_code is None:
-            context.log.info(f"No country for position {qid} {label}")
         yield {
             "qid": qid,
             "label": label,
@@ -162,6 +160,7 @@ def query_countries(context: Context):
 
 
 def crawl(context: Context):
+    completed_positions = set()
     for country in query_countries(context):
         context.log.info(f"Crawling country: {country['qid']} ({country['label']})")
         res = context.lookup("country_decisions", country["qid"])
@@ -172,6 +171,8 @@ def crawl(context: Context):
             continue
 
         for wd_position in query_positions(context, country["qid"], res):
+            if wd_position["qid"] in completed_positions:
+                continue
             position = h.make_position(
                 context,
                 wd_position["label"],
@@ -184,6 +185,7 @@ def crawl(context: Context):
 
             for holder in query_position_holders(context, categorisation):
                 crawl_holder(context, categorisation, position, holder)
+            completed_positions.add(wd_position["qid"])
 
     entity = context.make("Person")
     entity.id = "Q21258544"
