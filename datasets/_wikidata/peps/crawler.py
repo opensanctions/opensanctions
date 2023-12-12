@@ -106,14 +106,11 @@ def query_position_holders(context: Context, categorisation: PositionCategorisat
             "person_death": truncate_date(binding.plain("death")),
             "start_date": start_date,
             "end_date": end_date,
-            "position_qid": categorisation.entity_id,
-            "position_label": categorisation.caption,
-            "country": categorisation.countries,
         }
 
 
 def crawl(context: Context):
-    for categorisation in get_positions(context, dataset="wd_pep", is_pep=True):
+    for categorisation in get_positions(context, dataset="wd_peps", is_pep=True):
         #print(categorisation.caption)
         for holder in query_position_holders(context, categorisation):
             crawl_holder(context, categorisation, holder)

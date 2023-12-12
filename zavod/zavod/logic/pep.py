@@ -36,7 +36,7 @@ def get_positions(
     offset = 0
     while True:
         url = f"{settings.OPENSANCTIONS_API_URL}/positions/"
-        params = {"datasets": dataset, "is_pep": str(is_pep).lower(), "offset": offset}
+        params = {"dataset": dataset, "is_pep": str(is_pep).lower(), "offset": offset}
         headers = {"authorization": settings.OPENSANCTIONS_API_KEY}
         data = context.fetch_json(url, headers=headers, params=params)
         # print(data)
