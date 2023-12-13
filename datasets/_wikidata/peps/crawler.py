@@ -1,3 +1,4 @@
+from collections import defaultdict
 import csv
 from typing import Dict, Optional, Any, Set
 import countrynames
@@ -61,6 +62,7 @@ def crawl_holder(
         end_date=date_value(holder.get("end_date")),
         start_date=date_value(holder.get("start_date")),
         categorisation=categorisation,
+        propagate_country=len(position.get("country")) == 1,
     )
     if not occupancy:
         return
@@ -82,7 +84,7 @@ def query_position_holders(context: Context, wd_position: Dict[str, str]) -> Non
     response = run_query(context, "holders/holders", vars, cache_days=CACHE_MEDIUM)
     context.log.info(
         (
-            f"Crawling holders of position {wd_position['qid']} {wd_position['label']}, "
+            f"Crawling holders of position {wd_position['qid']} ({wd_position['label']}), "
             f"found {len(response.results)}"
         )
     )
@@ -101,7 +103,6 @@ def query_position_holders(context: Context, wd_position: Dict[str, str]) -> Non
         yield {
             "person_qid": binding.plain("person"),
             "person_label": binding.plain("personLabel"),
-            "person_description": binding.plain("personDescription"),
             "person_birth": truncate_date(binding.plain("birth")),
             "person_death": truncate_date(binding.plain("death")),
             "start_date": start_date,
@@ -118,52 +119,53 @@ def pick_country(context, *qids):
 
 
 def query_positions(context: Context, country):
-    """Yields items for each position and each country selecting the most appropriate
-    country possible, if any. May return duplicates"""
+    """
+    Yields items for each position and each country selecting the most appropriate
+    countries possible, if any.
+
+    May return duplicates
+    """
+    context.log.info(f"Crawling positions for {country['label']} {country['qid']}")
+
     vars = {"COUNTRY": country["qid"]}
+    position_countries = defaultdict(set)
+
     # a) All positions by jurisdiction/country
-    response = run_query(context, "positions/country", vars, cache_days=CACHE_MEDIUM)
-    context.log.info(
-        (
-            f"Crawling positions {country['label']} {country['qid']}, "
-            f"found {len(response.results)}"
-        )
+    country_response = run_query(
+        context, "positions/country", vars, cache_days=CACHE_MEDIUM
     )
-    for bind in response.results:
-        date_abolished = bind.plain("abolished")
-        if date_abolished is not None and date_abolished > "2000-01-01":
-            context.log.info(f"Skipping abolished position: {bind.plain('position')}")
-            continue
+    for bind in country_response.results:
         country_res = pick_country(
             context,
             bind.plain("country"),
             bind.plain("jurisdiction"),
             country["qid"],
         )
-        yield {
-            "qid": bind.plain("position"),
-            "label": bind.plain("positionLabel"),
-            "description": bind.plain("positionDescription"),
-            "country_code": country_res.code,
-        }
+        if country_res is not None:
+            position_countries[bind.plain("position")].add(country_res.code)
 
     # b) Positions held by politicans from that country
-    response = run_query(context, "positions/politician", vars, cache_days=CACHE_MEDIUM)
-    for bind in response.results:
-        date_abolished = bind.plain("abolished")
-        if date_abolished is not None and date_abolished > "2000-01-01":
-            context.log.info(f"Skipping abolished position: {bind.plain('position')}")
-            continue
+    politician_response = run_query(
+        context, "positions/politician", vars, cache_days=CACHE_MEDIUM
+    )
+    for bind in politician_response.results:
         country_res = pick_country(
             context,
             bind.plain("country"),
             bind.plain("jurisdiction"),
         )
+        if country_res is not None:
+            position_countries[bind.plain("position")].add(country_res.code)
+
+    for bind in country_response.results + politician_response.results:
+        date_abolished = bind.plain("abolished")
+        if date_abolished is not None and date_abolished < "2000-01-01":
+            context.log.info(f"Skipping abolished position: {bind.plain('position')}")
+            continue
         yield {
             "qid": bind.plain("position"),
             "label": bind.plain("positionLabel"),
-            "description": bind.plain("positionDescription"),
-            "country_code": country_res.code if country_res else None,
+            "country_codes": position_countries[bind.plain("position")],
         }
 
 
@@ -179,7 +181,6 @@ def query_countries(context: Context):
             "qid": qid,
             "code": code,
             "label": label,
-            "description": binding.plain("countryDescription"),
         }
 
 
@@ -201,13 +202,13 @@ def crawl(context: Context):
             continue
 
         for wd_position in query_positions(context, country):
-            if (wd_position["qid"], wd_position["country_code"]) in seen_positions:
+            if wd_position["qid"] in seen_positions:
                 continue
 
             position = h.make_position(
                 context,
                 wd_position["label"],
-                country=wd_position["country_code"],
+                country=wd_position["country_codes"],
                 wikidata_id=wd_position["qid"],
             )
             categorisation = categorise(context, position, is_pep=None)
@@ -216,7 +217,7 @@ def crawl(context: Context):
 
             for holder in query_position_holders(context, wd_position):
                 crawl_holder(context, seen_positions, categorisation, position, holder)
-            seen_positions.add((wd_position["qid"], wd_position["country_code"]))
+            seen_positions.add(wd_position["qid"])
 
     entity = context.make("Person")
     entity.id = "Q21258544"
