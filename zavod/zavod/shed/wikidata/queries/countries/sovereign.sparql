@@ -1,4 +1,0 @@
-SELECT ?country ?countryLabel ?countryDescription WHERE {
-    ?country wdt:P31 wd:Q3624078 .  
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
-}

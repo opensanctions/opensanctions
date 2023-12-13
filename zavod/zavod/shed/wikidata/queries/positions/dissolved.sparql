@@ -1,5 +1,0 @@
-SELECT ?position ?end WHERE {
-  ?position wdt:P31* wd:Q4164871 .
-  # abolished:
-  ?position p:P576|p:P582 [ a wikibase:BestRank ; psv:P576|psv:P582 [ wikibase:timeValue ?end ] ]
-}
