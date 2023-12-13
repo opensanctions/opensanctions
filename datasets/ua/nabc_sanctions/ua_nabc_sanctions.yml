@@ -133,6 +133,7 @@ lookups:
           - Діловий партнер
           - колега, друг
           - колега, бізнес партнер
+          - Колега
         schema: Associate
         local: person
         remote: associate

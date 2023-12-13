@@ -197,6 +197,12 @@ lookups:
           - Portuguese Guinea
           - Portuguese India
           - Portuguese Macau
+          - Kingdom of Sardinia
+          - Spanish Netherlands
+          - Portuguese Mozambique
+          - Schaumburg-Lippe
+          - Grand Duchy of Tuscany
+          - Portuguese Empire
           - Principality of Transylvania
           - Protectorate of Bohemia and Moravia
           - Pueblo of Laguna
@@ -331,6 +337,8 @@ lookups:
           - Niger State
           - Massina Empire
           - Electorate of Bavaria
+          - United Kingdom of Portugal, and of Brazil, and the Algarves
+          - Africa
         value: null
       - match:
           - Cherokee Nation
@@ -403,6 +411,8 @@ lookups:
         value: AF
       - match: Pahlavi Iran
         value: IR
+      - match: Maputo
+        value: MZ
       - match: Georgian Soviet Socialist Republic
         values:
           - GE

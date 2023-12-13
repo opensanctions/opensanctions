@@ -47,6 +47,7 @@ lookups:
     options:
       - match:
           - 8 сентября
+          - 10 октября
         value: null
       - match: ".05.1959"
         value: "1959-05"

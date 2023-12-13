@@ -2395,3 +2395,50 @@ lookups:
         props:
           registrationNumber: W302013417
           incorporationDate: 2016-09-22
+      - match: "Lieu d'enregistrement: Al-jref Gharb Plot 134 Blok 1 h, Khartoum, Soudan: /"
+        props:
+          jurisdiction: sd
+          address: "Al-jref Gharb Plot 134 Blok 1 h, Khartoum, Soudan"
+      - match: "Lieu d’enregistrement: Téhéran, Iran - Date d’enregistrement: 2017 - Numéro d’enregistrement: 534295 - Principal établissement: Iran: Type d’entité: société à responsabilité limitée"
+        props:
+          jurisdiction: ir
+          address: "Téhéran, Iran"
+          incorporationDate: 2017
+          registrationNumber: 534295
+          legalForm: société à responsabilité limitée
+      - match: "Ehsan Imaninejad (directeur général): Personnes associées"
+        associates:
+          - Ehsan Imaninejad
+      - match: "Date d’enregistrement: 2002: Lieu d’enregistrement: Iran"
+        props:
+          jurisdiction: ir
+          incorporationDate: 2002
+      - match: "Rahmatollah Heidari (directeur général et membre du conseil d’administration): Personnes associées"
+        associates:
+          - Rahmatollah Heidari
+      - match: "Lieu d’enregistrement: Iran: Numéro d’enregistrement: 10320661315 ou 414950 ou 47779."
+        props:
+          jurisdiction: ir
+          registrationNumber:
+            - 10320661315
+            - 414950
+            - 47779
+      - match: "Lieu d'enregistrement: Téhéran, Iran - Date d'enregistrement: 2013 - Principal établissement: Iran: Type d'entité: société à responsabilité limitée"
+        props:
+          jurisdiction: ir
+          address: "Téhéran, Iran"
+          incorporationDate: 2013
+          legalForm: société à responsabilité limitée
+      - match: "Hadi Zahourian (directeur général); Mohammad Shabab Khanian (directeur général adjoint); Ehsan Rahat Varnosfadrani (scientifique en chef et ancien directeur général): Personnes associées"
+        associates:
+          - Hadi Zahourian
+          - Mohammad Shabab Khanian
+          - Ehsan Rahat Varnosfadrani
+      - match: "Date d’enregistrement: 2014 - Principal établissement: Iran: Lieu d’enregistrement: Iran"
+        props:
+          jurisdiction: ir
+          incorporationDate: 2014
+      - match: "Lieu d'enregistrement: Moscou (64 Zemlyanoy Val, bâtiment 2, bureau 201, Moscou, Fédération de Russie): /"
+        props:
+          jurisdiction: ru
+          address: "64 Zemlyanoy Val, bâtiment 2, bureau 201, Moscou, Fédération de Russie"
