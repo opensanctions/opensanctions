@@ -1,5 +1,5 @@
 import csv
-from typing import Dict, Optional, Any
+from typing import Dict, Optional, Any, Set
 import countrynames
 from pantomime.types import CSV
 from nomenklatura.util import is_qid
@@ -38,7 +38,13 @@ def truncate_date(text: Optional[str]) -> Optional[str]:
     return text[:10]
 
 
-def crawl_holder(context: Context, categorisation: PositionCategorisation, position: Entity, holder: Dict[str, str]) -> None:
+def crawl_holder(
+    context: Context,
+    emitted_positions: Set[str],
+    categorisation: PositionCategorisation,
+    position: Entity,
+    holder: Dict[str, str],
+) -> None:
     # print(holder)
     entity = context.make("Person")
     qid: Optional[str] = holder.get("person_qid")
@@ -67,14 +73,20 @@ def crawl_holder(context: Context, categorisation: PositionCategorisation, posit
         entity.add("name", holder.get("person_label"))
     entity.add("keywords", keyword(categorisation.topics))
 
-    context.emit(position)
+    if position.id not in emitted_positions:
+        context.emit(position)
+        emitted_positions.add(position.id)
     context.emit(occupancy)
     context.emit(entity, target=True)
 
 
-def query_position_holders(context: Context, categorisation: PositionCategorisation) -> None:
+def query_position_holders(
+    context: Context, categorisation: PositionCategorisation
+) -> None:
     vars = {"POSITION": categorisation.entity_id}
-    context.log.info(f"Crawling holders of position [{categorisation.entity_id}]: {categorisation.caption}")
+    context.log.info(
+        f"Crawling holders of position [{categorisation.entity_id}]: {categorisation.caption}"
+    )
     response = run_query(context, "holders/holders", vars, cache_days=CACHE_MEDIUM)
     for binding in response.results:
         start_date = truncate_date(
@@ -87,7 +99,7 @@ def query_position_holders(context: Context, categorisation: PositionCategorisat
             or binding.plain("bodyEnd")
             or binding.plain("bodyAbolished")
         )
-        
+
         yield {
             "person_qid": binding.plain("person"),
             "person_label": binding.plain("personLabel"),
@@ -100,7 +112,6 @@ def query_position_holders(context: Context, categorisation: PositionCategorisat
 
 
 def pick_country(context, *qids):
-
     for qid in qids:
         country = context.lookup("country_decisions", qid)
         if country is not None and country.decision == "national":
@@ -124,22 +135,20 @@ def query_positions(context: Context, country):
             "qid": bind.plain("position"),
             "label": bind.plain("positionLabel"),
             "description": bind.plain("positionDescription"),
-            "country_code": country_res.code
+            "country_code": country_res.code,
         }
 
     # b) Positions held by politicans from that country
     response = run_query(context, "positions/politician", vars, cache_days=CACHE_MEDIUM)
     for bind in response.results:
-        country = pick_country(
+        country_res = pick_country(
             context,
             bind.plain("country"),
             bind.plain("jurisdiction"),
         )
-        qid = bind.plain("position")
-        label = bind.plain('positionLabel')
         yield {
-            "qid": qid,
-            "label": label,
+            "qid": bind.plain("position"),
+            "label": bind.plain("positionLabel"),
             "description": bind.plain("positionDescription"),
             "country_code": country_res.code if country_res else None,
         }
@@ -162,7 +171,7 @@ def query_countries(context: Context):
 
 
 def crawl(context: Context):
-    completed_positions = set()
+    emitted_positions = set()
     for country in query_countries(context):
         context.log.info(f"Crawling country: {country['qid']} ({country['label']})")
 
@@ -172,16 +181,16 @@ def crawl(context: Context):
             continue
         if country_res.decision != "national":
             continue
-        
+
         for wd_position in query_positions(context, country):
-            if wd_position["qid"] in completed_positions:
+            if wd_position["qid"] in emitted_positions:
                 continue
-            # TODO: geting 500 from wikidata when querying this - might be an issue with 
+            # TODO: geting 500 from wikidata when querying this - might be an issue with
             # adding FILTER (isIRI(?position) && !wikibase:isSomeValue(?position))
             # to the query
             if wd_position["qid"] == "Q110086626":
                 continue
-            
+
             position = h.make_position(
                 context,
                 wd_position["label"],
@@ -193,8 +202,9 @@ def crawl(context: Context):
                 continue
 
             for holder in query_position_holders(context, categorisation):
-                crawl_holder(context, categorisation, position, holder)
-            completed_positions.add(wd_position["qid"])
+                crawl_holder(
+                    context, emitted_positions, categorisation, position, holder
+                )
 
     entity = context.make("Person")
     entity.id = "Q21258544"
@@ -202,5 +212,3 @@ def crawl(context: Context):
     entity.add("topics", "role.pep")
     entity.add("country", "us")
     context.emit(entity, target=True)
-
-
