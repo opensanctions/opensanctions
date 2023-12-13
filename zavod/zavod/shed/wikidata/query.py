@@ -35,5 +35,7 @@ def run_query(
 ) -> SparqlResponse:
     query_text = make_query(name, variables)
     params = {"query": query_text}
-    data = context.fetch_json(QUERY_URL, params=params, headers=HEADERS, cache_days=cache_days)
+    data = context.fetch_json(
+        QUERY_URL, params=params, headers=HEADERS, cache_days=cache_days
+    )
     return SparqlResponse(query_text, data)
