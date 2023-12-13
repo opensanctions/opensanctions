@@ -31,11 +31,13 @@ KEEP_HEADINGS = {
     "Government Members": "Government Member of parliament",
     "Opposition Members": "Opposition Member of parliament",
 }
-REGEX_POSITIONISH = re.compile(r"(Minister|Attorney|Governor|Member|Parliamentary|Leader)")
+REGEX_POSITIONISH = re.compile(
+    r"(Minister|Attorney|Governor|Member|Parliamentary|Leader|Speaker)"
+)
 
 
 def crawl_card_2021(context: Context, position: str, el: ElementOrTree):
-    name_el = el.find('.//h1')
+    name_el = el.find(".//h1")
     sub_title_el = name_el.find('.//span[@class="member-sub-title"]')
     sub_title_el.getparent().remove(sub_title_el)
     name = name_el.text_content()
@@ -44,18 +46,21 @@ def crawl_card_2021(context: Context, position: str, el: ElementOrTree):
     name = name.replace("Ms. ", "")
     name = name.replace("Mr. ", "")
     name = name.replace("Sir ", "")
-    
+
     entity = context.make("Person")
     entity.id = context.make_id(name)
     entity.add("name", name)
 
-    position_el = el.find('.//p')
+    position_el = el.find(".//p")
     if position_el is not None:
         position_detail = collapse_spaces(position_el.text_content())
         if REGEX_POSITIONISH.search(position_detail):
             entity.add("position", position_detail)
         else:
-            context.warning("Position detail value doesn't look like position detail", value=position_detail)
+            context.log.warning(
+                "Position detail value doesn't look like position detail",
+                value=position_detail,
+            )
 
     position = h.make_position(
         context,
@@ -78,7 +83,6 @@ def crawl_card_2021(context: Context, position: str, el: ElementOrTree):
         context.emit(occupancy)
         return entity
 
-    
 
 def crawl_row(context: Context, row: Dict[str, str]):
     entity = context.make("Person")
@@ -131,12 +135,15 @@ def crawl(context: Context):
         else:
             if heading is None:
                 continue
-            for el in section.xpath(".//div[contains(@class, 'member-select-content')]"):
+            for el in section.xpath(
+                ".//div[contains(@class, 'member-select-content')]"
+            ):
                 if crawl_card_2021(context, heading, el):
                     current_member_count += 1
     if current_member_count < 20:
-        context.log.warning(f"Expected at least {expected_current_member_count} current members but found {current_member_count}")
-
+        context.log.warning(
+            f"Expected at least {expected_current_member_count} current members but found {current_member_count}"
+        )
 
     path = context.fetch_resource("historical_data.csv", HISTORICAL_DATA_CSV)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
