@@ -57,1243 +57,1243 @@ lookups:
 
   country_decisions:
     options:
-      - match: Q145
-        code: GB
-        label: United Kingdom
-        decision: national
-      - match: Q148
-        code: CN
-        label: 'People''s Republic of China'
-        decision: national
-      - match: Q155
-        code: BR
-        label: Brazil
-        decision: national
-      - match: Q159
-        code: RU
-        label: Russia
-        decision: national
-      - match: Q183
-        code: DE
-        label: Germany
-        decision: national
-      - match: Q711
-        code: MN
-        label: Mongolia
-        decision: national
-      - match: Q757
-        code: VC
-        label: Saint Vincent and the Grenadines
-        decision: national
-      - match: Q781
-        code: AG
-        label: Antigua and Barbuda
-        decision: national
-      - match: Q786
-        code: DO
-        label: Dominican Republic
-        decision: national
-      - match: Q796
-        code: IQ
-        label: Iraq
-        decision: national
-      - match: Q801
-        code: IL
-        label: Israel
-        decision: national
-      - match: Q810
-        code: JO
-        label: Jordan
-        decision: national
-      - match: Q881
-        code: VN
-        label: Vietnam
-        decision: national
-      - match: Q902
-        code: BD
-        label: Bangladesh
-        decision: national
-      - match: Q921
-        code: BN
-        label: Brunei
-        decision: national
-      - match: Q953
-        code: ZM
-        label: Zambia
-        decision: national
-      - match: Q963
-        code: BW
-        label: Botswana
-        decision: national
-      - match: Q965
-        code: BF
-        label: Burkina Faso
-        decision: national
-      - match: Q971
-        code: CG
-        label: Republic of the Congo
-        decision: national
-      - match: Q977
-        code: DJ
-        label: Djibouti
-        decision: national
-      - match: Q986
-        code: ER
-        label: Eritrea
-        decision: national
-      - match: Q1008
-        code: CI
-        label: Ivory Coast
-        decision: national
-      - match: Q1009
-        code: CM
-        label: Cameroon
-        decision: national
-      - match: Q1014
-        code: LR
-        label: Liberia
-        decision: national
-      - match: Q1019
-        code: MG
-        label: Madagascar
-        decision: national
-      - match: Q1044
-        code: SL
-        label: Sierra Leone
-        decision: national
-      - match: Q1246
-        code: XK
-        label: Kosovo
-        decision: national
-      - match: Q16644
-        code: MP
-        label: Northern Mariana Islands
-        decision: national
-      - match: Q34020
-        code: NU
-        label: Niue
-        decision: national
-      - match: Q1147441
-        code: 
-        label: British North Borneo
-        decision: ignore
-      - match: Q2578028
-        code: 
-        label: Sikh Misl
-        decision: ignore
-      - match: Q123699090
-        code: 
-        label: Alrawashdeh-Orda_Buryat_Okrug
-        decision: ignore
-      - match: Q458
-        code: EU
-        label: European Union
-        decision: national
-      - match: Q3057312
-        code: 
-        label: Organisation for European Economic Co-operation
-        decision: ignore
-      - match: Q96979217
-        code: 
-        label: The Mahdi Servants Union
-        decision: ignore
-      - match: Q119439372
-        code: 
-        label: Provisional Earth Federation
-        decision: ignore
-      - match: Q32
-        code: LU
-        label: Luxembourg
-        decision: national
-      - match: Q40362
-        code: EH
-        label: Sahrawi Arab Democratic Republic
-        decision: national
-      - match: Q76236
-        code: 
-        label: Lithuanian–Byelorussian Soviet Socialist Republic
-        decision: ignore
-      - match: Q29520
-        code: CN
-        label: China
-        decision: national
-      - match: Q18589761
-        code: 
-        label: Prince-Bishopric of Chur
-        decision: ignore
-      - match: Q21056
-        code: 
-        label: Onondaga Nation
-        decision: ignore
-      - match: Q123237651
-        code: 
-        label: Ameer Lukman Haruna
-        decision: ignore
-      - match: Q15397819
-        code: 
-        label: Wikidata Sandbox 3
-        decision: ignore
-      - match: Q685
-        code: SB
-        label: Solomon Islands
-        decision: national
-      - match: Q686
-        code: VU
-        label: Vanuatu
-        decision: national
-      - match: Q691
-        code: PG
-        label: Papua New Guinea
-        decision: national
-      - match: Q695
-        code: PW
-        label: Palau
-        decision: national
-      - match: Q702
-        code: FM
-        label: Federated States of Micronesia
-        decision: national
-      - match: Q709
-        code: MH
-        label: Marshall Islands
-        decision: national
-      - match: Q710
-        code: KI
-        label: Kiribati
-        decision: national
-      - match: Q712
-        code: FJ
-        label: Fiji
-        decision: national
-      - match: Q717
-        code: VE
-        label: Venezuela
-        decision: national
-      - match: Q733
-        code: PY
-        label: Paraguay
-        decision: national
-      - match: Q734
-        code: GY
-        label: Guyana
-        decision: national
-      - match: Q736
-        code: EC
-        label: Ecuador
-        decision: national
-      - match: Q739
-        code: CO
-        label: Colombia
-        decision: national
-      - match: Q750
-        code: BO
-        label: Bolivia
-        decision: national
-      - match: Q754
-        code: TT
-        label: Trinidad and Tobago
-        decision: national
-      - match: Q760
-        code: LC
-        label: Saint Lucia
-        decision: national
-      - match: Q763
-        code: KN
-        label: Saint Kitts and Nevis
-        decision: national
-      - match: Q766
-        code: JM
-        label: Jamaica
-        decision: national
-      - match: Q769
-        code: GD
-        label: Grenada
-        decision: national
-      - match: Q774
-        code: GT
-        label: Guatemala
-        decision: national
-      - match: Q783
-        code: HN
-        label: Honduras
-        decision: national
-      - match: Q790
-        code: HT
-        label: Haiti
-        decision: national
-      - match: Q792
-        code: SV
-        label: El Salvador
-        decision: national
-      - match: Q813
-        code: KG
-        label: Kyrgyzstan
-        decision: national
-      - match: Q822
-        code: LB
-        label: Lebanon
-        decision: national
-      - match: Q826
-        code: MV
-        label: Maldives
-        decision: national
-      - match: Q833
-        code: MY
-        label: Malaysia
-        decision: national
-      - match: Q836
-        code: MM
-        label: Myanmar
-        decision: national
-      - match: Q837
-        code: NP
-        label: Nepal
-        decision: national
-      - match: Q842
-        code: OM
-        label: Oman
-        decision: national
-      - match: Q869
-        code: TH
-        label: Thailand
-        decision: national
-      - match: Q874
-        code: TM
-        label: Turkmenistan
-        decision: national
-      - match: Q878
-        code: AE
-        label: United Arab Emirates
-        decision: national
-      - match: Q884
-        code: KR
-        label: South Korea
-        decision: national
-      - match: Q889
-        code: AF
-        label: Afghanistan
-        decision: national
-      - match: Q916
-        code: AO
-        label: Angola
-        decision: national
-      - match: Q917
-        code: BT
-        label: Bhutan
-        decision: national
-      - match: Q924
-        code: TZ
-        label: Tanzania
-        decision: national
-      - match: Q928
-        code: PH
-        label: Philippines
-        decision: national
-      - match: Q954
-        code: ZW
-        label: Zimbabwe
-        decision: national
-      - match: Q119723120
-        code: 
-        label: Kaiserthum Österreich
-        decision: ignore
-      - match: Q2369784
-        code: 
-        label: Interwar Latvia
-        decision: ignore
-      - match: Q1016
-        code: LY
-        label: Libya
-        decision: national
-      - match: Q574
-        code: TL
-        label: East Timor
-        decision: national
-      - match: Q657
-        code: TD
-        label: Chad
-        decision: national
-      - match: Q664
-        code: NZ
-        label: New Zealand
-        decision: national
-      - match: Q668
-        code: IN
-        label: India
-        decision: national
-      - match: Q672
-        code: TV
-        label: Tuvalu
-        decision: national
-      - match: Q683
-        code: WS
-        label: Samoa
-        decision: national
-      - match: Q697
-        code: NR
-        label: Nauru
-        decision: national
-      - match: Q778
-        code: BS
-        label: The Bahamas
-        decision: national
-      - match: Q784
-        code: DM
-        label: Dominica
-        decision: national
-      - match: Q794
-        code: IR
-        label: Iran
-        decision: national
-      - match: Q800
-        code: CR
-        label: Costa Rica
-        decision: national
-      - match: Q805
-        code: YE
-        label: Yemen
-        decision: national
-      - match: Q811
-        code: NI
-        label: Nicaragua
-        decision: national
-      - match: Q912
-        code: ML
-        label: Mali
-        decision: national
-      - match: Q929
-        code: CF
-        label: Central African Republic
-        decision: national
-      - match: Q945
-        code: TG
-        label: Togo
-        decision: national
-      - match: Q948
-        code: TN
-        label: Tunisia
-        decision: national
-      - match: Q958
-        code: SS
-        label: South Sudan
-        decision: national
-      - match: Q962
-        code: BJ
-        label: Benin
-        decision: national
-      - match: Q967
-        code: BI
-        label: Burundi
-        decision: national
-      - match: Q123368095
-        code: 
-        label: Grupos Organizados
-        decision: ignore
-      - match: Q970
-        code: KM
-        label: Comoros
-        decision: national
-      - match: Q974
-        code: CD
-        label: Democratic Republic of the Congo
-        decision: national
-      - match: Q1000
-        code: GA
-        label: Gabon
-        decision: national
-      - match: Q1007
-        code: GW
-        label: Guinea-Bissau
-        decision: national
-      - match: Q1011
-        code: CV
-        label: Cape Verde
-        decision: national
-      - match: Q1013
-        code: LS
-        label: Lesotho
-        decision: national
-      - match: Q1020
-        code: MW
-        label: Malawi
-        decision: national
-      - match: Q1025
-        code: MR
-        label: Mauritania
-        decision: national
-      - match: Q116282506
-        code: TT
-        label: Republic of Trinidad and Tobago
-        decision: national
-      - match: Q1045
-        code: SO
-        label: Somalia
-        decision: national
-      - match: Q21203
-        code: AW
-        label: Aruba
-        decision: national
-      - match: Q26988
-        code: CK
-        label: Cook Islands
-        decision: national
-      - match: Q244165
-        code: AZ-NK
-        label: Republic of Artsakh
-        decision: national
-      - match: Q2988343
-        code: 
-        label: Portuguese Malacca
-        decision: ignore
-      - match: Q12355069
-        code: 
-        label: Serendip
-        decision: ignore
-      - match: Q8932
-        code: 
-        label: European Economic Area
-        decision: ignore
-      - match: Q184
-        code: BY
-        label: Belarus
-        decision: national
-      - match: Q189
-        code: IS
-        label: Iceland
-        decision: national
-      - match: Q191
-        code: EE
-        label: Estonia
-        decision: national
-      - match: Q211
-        code: LV
-        label: Latvia
-        decision: national
-      - match: Q213
-        code: CZ
-        label: Czech Republic
-        decision: national
-      - match: Q214
-        code: SK
-        label: Slovakia
-        decision: national
-      - match: Q215
-        code: SI
-        label: Slovenia
-        decision: national
-      - match: Q218
-        code: RO
-        label: Romania
-        decision: national
-      - match: Q219
-        code: BG
-        label: Bulgaria
-        decision: national
-      - match: Q221
-        code: MK
-        label: North Macedonia
-        decision: national
-      - match: L721717
-        code: 
-        label: L721717
-        decision: ignore
-      - match: Q41470
-        code: 
-        label: Kurdistan
-        decision: ignore
-      - match: Q549817
-        code: 
-        label: Principality of Murom
-        decision: ignore
-      - match: Q146761
-        code: 
-        label: Hatay State
-        decision: ignore
-      - match: Q142417
-        code: 
-        label: Kingdom of Valencia
-        decision: ignore
-      - match: Q609850
-        code: RU
-        label: Rus
-        decision: national
-      - match: Q1042
-        code: SC
-        label: Seychelles
-        decision: national
-      - match: Q1049
-        code: SD
-        label: Sudan
-        decision: national
-      - match: Q3908
-        code: 
-        label: Galicia
-        decision: ignore
-      - match: Q5705
-        code: ES
-        label: Catalonia
-        decision: national
-      - match: Q19083
-        code: 
-        label: Kingdom of Iberia
-        decision: ignore
-      - match: Q26273
-        code: SX
-        label: Sint Maarten
-        decision: national
-      - match: Q29999
-        code: NL
-        label: Kingdom of the Netherlands
-        decision: national
-      - match: Q44826
-        code: 
-        label: Tarshish
-        decision: ignore
-      - match: Q703695
-        code: 
-        label: Great Balhae Kingdom
-        decision: ignore
-      - match: Q907234
-        code: 
-        label: French protectorate in Morocco
-        decision: ignore
-      - match: Q114415093
-        code: 
-        label: Democratic Republic of East Timor
-        decision: ignore
-      - match: Q2576045
-        code: 
-        label: Little Tartary
-        decision: ignore
-      - match: Q13125117
-        code: 
-        label: Unyasa
-        decision: ignore
-      - match: Q28846511
-        code: DK
-        label: Kingdom of Denmark
-        decision: national
-      - match: Q120088504
-        code: 
-        label: Meliau Kingdom
-        decision: ignore
-      - match: Q146165
-        code: 
-        label: Nordic Council
-        decision: ignore
-      - match: Q205718
-        code: 
-        label: Zirid Dynasty
-        decision: ignore
-      - match: Q166110
-        code: 
-        label: Union State
-        decision: ignore
-      - match: Q2993835
-        code: 
-        label: West African Examinations Council
-        decision: ignore
-      - match: Q99360983
-        code: 
-        label: COVAX
-        decision: ignore
-      - match: Q118878368
-        code: 
-        label: Earth Federation
-        decision: ignore
-      - match: Q212
-        code: UA
-        label: Ukraine
-        decision: national
-      - match: Q34754
-        code: SO-SOM
-        label: Somaliland
-        decision: national
-      - match: Q110362913
-        code: 
-        label: Chacha Empire
-        decision: ignore
-      - match: Q1240096
-        code: 
-        label: Hyderabad State
-        decision: ignore
-      - match: Q2320255
-        code: 
-        label: Islamic Emirate of Waziristan
-        decision: ignore
-      - match: Q2842000
-        code: 
-        label: Ambazonia
-        decision: ignore
-      - match: Q29
-        code: ES
-        label: Spain
-        decision: national
-      - match: Q45
-        code: PT
-        label: Portugal
-        decision: national
-      - match: Q55
-        code: NL
-        label: Netherlands
-        decision: national
-      - match: Q116749839
-        code: 
-        label: Crown of Sperlinga
-        decision: ignore
-      - match: Q77
-        code: UY
-        label: Uruguay
-        decision: national
-      - match: Q79
-        code: EG
-        label: Egypt
-        decision: national
-      - match: Q20949725
-        code: 
-        label: Principality of Sperlinga
-        decision: ignore
-      - match: Q114
-        code: KE
-        label: Kenya
-        decision: national
-      - match: Q115
-        code: ET
-        label: Ethiopia
-        decision: national
-      - match: Q117
-        code: GH
-        label: Ghana
-        decision: national
-      - match: Q142
-        code: FR
-        label: France
-        decision: national
-      - match: Q222
-        code: AL
-        label: Albania
-        decision: national
-      - match: Q224
-        code: HR
-        label: Croatia
-        decision: national
-      - match: Q227
-        code: AZ
-        label: Azerbaijan
-        decision: national
-      - match: Q228
-        code: AD
-        label: Andorra
-        decision: national
-      - match: Q229
-        code: CY
-        label: Cyprus
-        decision: national
-      - match: Q232
-        code: KZ
-        label: Kazakhstan
-        decision: national
-      - match: Q233
-        code: MT
-        label: Malta
-        decision: national
-      - match: Q236
-        code: ME
-        label: Montenegro
-        decision: national
-      - match: Q241
-        code: CU
-        label: Cuba
-        decision: national
-      - match: Q252
-        code: ID
-        label: Indonesia
-        decision: national
-      - match: Q258
-        code: ZA
-        label: South Africa
-        decision: national
-      - match: Q262
-        code: DZ
-        label: Algeria
-        decision: national
-      - match: Q265
-        code: UZ
-        label: Uzbekistan
-        decision: national
-      - match: Q298
-        code: CL
-        label: Chile
-        decision: national
-      - match: Q334
-        code: SG
-        label: Singapore
-        decision: national
-      - match: Q347
-        code: LI
-        label: Liechtenstein
-        decision: national
-      - match: Q398
-        code: BH
-        label: Bahrain
-        decision: national
-      - match: Q399
-        code: AM
-        label: Armenia
-        decision: national
-      - match: Q408
-        code: AU
-        label: Australia
-        decision: national
-      - match: Q414
-        code: AR
-        label: Argentina
-        decision: national
-      - match: Q419
-        code: PE
-        label: Peru
-        decision: national
-      - match: Q423
-        code: KP
-        label: North Korea
-        decision: national
-      - match: Q319881
-        code: 
-        label: Republic of Formosa
-        decision: ignore
-      - match: Q855044
-        code: 
-        label: Bhopal State
-        decision: ignore
-      - match: Q1072140
-        code: 
-        label: Roman Republic
-        decision: ignore
-      - match: Q1108659
-        code: BJ
-        label: Republic of Benin
-        decision: national
-      - match: Q3112525
-        code: 
-        label: Provisional Government of Kentucky
-        decision: ignore
-      - match: Q11967593
-        code: 
-        label: Free Lebanon State
-        decision: ignore
-      - match: Q424
-        code: KH
-        label: Cambodia
-        decision: national
-      - match: Q3456497
-        code: 
-        label: Italian Partisan Republics
-        decision: ignore
-      - match: Q7489715
-        code: 
-        label: Sharifian Caliphate
-        decision: ignore
-      - match: Q11950523
-        code: 
-        label: Sumapaz
-        decision: ignore
-      - match: Q16250774
-        code: 
-        label: 'Kharkov People''s Republic'
-        decision: ignore
-      - match: Q114318415
-        code: 
-        label: Zaporozhye State
-        decision: ignore
-      - match: Q114334914
-        code: UA-DPR
-        label: 'Donetsk People''s Republic'
-        decision: national
-      - match: Q18590086
-        code: 
-        label: County of Loano
-        decision: ignore
-      - match: Q70802
-        code: 
-        label: French Third Republic
-        decision: ignore
-      - match: Q170072
-        code: 
-        label: Dutch Republic
-        decision: ignore
-      - match: Q5092177
-        code: 
-        label: Cherokee Nation
-        decision: ignore
-      - match: Q11938308
-        code: 
-        label: Nabhani dynasty
-        decision: ignore
-      - match: Q819
-        code: LA
-        label: Laos
-        decision: national
-      - match: Q1005
-        code: GM
-        label: The Gambia
-        decision: national
-      - match: Q1006
-        code: GN
-        label: Guinea
-        decision: national
-      - match: Q20886709
-        code: 
-        label: Lower Alsace
-        decision: ignore
-      - match: Q435583
-        code: 
-        label: Old Swiss Confederacy
-        decision: ignore
-      - match: Q843
-        code: PK
-        label: Pakistan
-        decision: national
-      - match: Q846
-        code: QA
-        label: Qatar
-        decision: national
-      - match: Q851
-        code: SA
-        label: Saudi Arabia
-        decision: national
-      - match: Q854
-        code: LK
-        label: Sri Lanka
-        decision: national
-      - match: Q858
-        code: SY
-        label: Syria
-        decision: national
-      - match: Q863
-        code: TJ
-        label: Tajikistan
-        decision: national
-      - match: Q865
-        code: TW
-        label: Taiwan
-        decision: national
-      - match: Q1028
-        code: MA
-        label: Morocco
-        decision: national
-      - match: Q1029
-        code: MZ
-        label: Mozambique
-        decision: national
-      - match: Q1030
-        code: NA
-        label: Namibia
-        decision: national
-      - match: Q1032
-        code: NE
-        label: Niger
-        decision: national
-      - match: Q1033
-        code: NG
-        label: Nigeria
-        decision: national
-      - match: Q1036
-        code: UG
-        label: Uganda
-        decision: national
-      - match: Q1037
-        code: RW
-        label: Rwanda
-        decision: national
-      - match: Q1039
-        code: ST
-        label: São Tomé and Príncipe
-        decision: national
-      - match: Q1041
-        code: SN
-        label: Senegal
-        decision: national
-      - match: Q217
-        code: MD
-        label: Moldova
-        decision: national
-      - match: Q730
-        code: SR
-        label: Suriname
-        decision: national
-      - match: Q804
-        code: PA
-        label: Panama
-        decision: national
-      - match: Q817
-        code: KW
-        label: Kuwait
-        decision: national
-      - match: Q23366230
-        code: 
-        label: Republic of Geneva
-        decision: ignore
-      - match: Q23427
-        code: X-SO
-        label: South Ossetia
-        decision: national
-      - match: Q23681
-        code: CY-TRNC
-        label: Northern Cyprus
-        decision: national
-      - match: Q1549254
-        code: 
-        label: Principality of Seborga
-        decision: ignore
-      - match: Q1540575
-        code: 
-        label: Gozo
-        decision: ignore
-      - match: Q86450617
-        code: 
-        label: CtvforMe
-        decision: ignore
-      - match: Q16678116
-        code: 
-        label: Moskovskoye gosudarstvo
-        decision: ignore
-      - match: Q756617
-        code: DK
-        label: Kingdom of Denmark
-        decision: national
-      - match: Q907112
-        code: MD-PMR
-        label: Transnistria
-        decision: national
-      - match: Q1415162
-        code: 
-        label: Garðaríki
-        decision: ignore
-      - match: Q5721088
-        code: 
-        label: 'Barri de la Vila d''Ontinyent'
-        decision: ignore
-      - match: Q1063498
-        code: 
-        label: United States of the Ionian Islands
-        decision: ignore
-      - match: Q1322662
-        code: 
-        label: Principality of Chernigov
-        decision: ignore
-      - match: Q1760729
-        code: 
-        label: Alashiya
-        decision: ignore
-      - match: Q2396442
-        code: 
-        label: Kingdom of Galicia and Lodomeria
-        decision: ignore
-      - match: Q2608489
-        code: 
-        label: Aztec Empire
-        decision: ignore
-      - match: Q3780537
-        code: 
-        label: Gaza Empire
-        decision: ignore
-      - match: Q6037274
-        code: 
-        label: Mosquitia
-        decision: ignore
-      - match: Q117089833
-        code: SC
-        label: Republic of Seychelles
-        decision: national
-      - match: Q16150196
-        code: UA-DPR
-        label: 'Donetsk People''s Republic'
-        decision: national
-      - match: Q200686
-        code: 
-        label: French Fifth Republic
-        decision: ignore
-      - match: Q983
-        code: GQ
-        label: Equatorial Guinea
-        decision: national
-      - match: Q1027
-        code: MU
-        label: Mauritius
-        decision: national
-      - match: Q16673775
-        code: 
-        label: Kingdom of Kampuchea
-        decision: ignore
-      - match: Q21076535
-        code: 
-        label: Islamic Republic of Qaim
-        decision: ignore
-      - match: Q23906811
-        code: 
-        label: Republic of Logone
-        decision: ignore
-      - match: Q31354462
-        code: GE-AB
-        label: Republic of Abkhazia
-        decision: national
-      - match: Q65079691
-        code: 
-        label: Western Togoland
-        decision: ignore
-      - match: Q86750256
-        code: 
-        label: Free Dadra and Nagar Haveli
-        decision: ignore
-      - match: Q111967268
-        code: 
-        label: Islamic government of Laristan
-        decision: ignore
-      - match: Q114318324
-        code: 
-        label: Kherson State
-        decision: ignore
-      - match: Q205047
-        code: 
-        label: Kurdistan Region
-        decision: ignore
-      - match: Q2562456
-        code: 
-        label: Republic of West Papua
-        decision: ignore
-      - match: Q115166787
-        code: 
-        label: Reman
-        decision: ignore
-      - match: Q16
-        code: CA
-        label: Canada
-        decision: national
-      - match: Q17
-        code: JP
-        label: Japan
-        decision: national
-      - match: Q20
-        code: NO
-        label: Norway
-        decision: national
-      - match: Q21
-        code: GB
-        label: England
-        decision: national
-      - match: Q22
-        code: GB-SCT
-        label: Scotland
-        decision: national
-      - match: Q25
-        code: GB-WLS
-        label: Wales
-        decision: national
-      - match: Q26
-        code: GB-NIR
-        label: Northern Ireland
-        decision: national
-      - match: Q27
-        code: IE
-        label: Republic of Ireland
-        decision: national
-      - match: Q28
-        code: HU
-        label: Hungary
-        decision: national
-      - match: Q30
-        code: US
-        label: United States of America
-        decision: national
-      - match: Q31
-        code: BE
-        label: Belgium
-        decision: national
-      - match: Q33
-        code: FI
-        label: Finland
-        decision: national
-      - match: Q34
-        code: SE
-        label: Sweden
-        decision: national
-      - match: Q35
-        code: DK
-        label: Denmark
-        decision: national
-      - match: Q36
-        code: PL
-        label: Poland
-        decision: national
-      - match: Q37
-        code: LT
-        label: Lithuania
-        decision: national
-      - match: Q38
-        code: IT
-        label: Italy
-        decision: national
-      - match: Q39
-        code: CH
-        label: Switzerland
-        decision: national
-      - match: Q40
-        code: AT
-        label: Austria
-        decision: national
-      - match: Q41
-        code: GR
-        label: Greece
-        decision: national
-      - match: Q43
-        code: TR
-        label: Turkey
-        decision: national
-      - match: Q96
-        code: MX
-        label: Mexico
-        decision: national
-      - match: Q225
-        code: BA
-        label: Bosnia and Herzegovina
-        decision: national
-      - match: Q230
-        code: GE
-        label: Georgia
-        decision: national
-      - match: Q235
-        code: MC
-        label: Monaco
-        decision: national
-      - match: Q237
-        code: VA
-        label: Vatican City
-        decision: national
-      - match: Q238
-        code: SM
-        label: San Marino
-        decision: national
-      - match: Q242
-        code: BZ
-        label: Belize
-        decision: national
-      - match: Q244
-        code: BB
-        label: Barbados
-        decision: national
-      - match: Q403
-        code: RS
-        label: Serbia
-        decision: national
-      - match: Q678
-        code: TO
-        label: Tonga
-        decision: national
-      - match: Q1050
-        code: SZ
-        label: Eswatini
-        decision: national
-      - match: Q219060
-        code: PS
-        label: State of Palestine
-        decision: national
+      - match: "Q145"
+        code: "GB"
+        label: "United Kingdom"
+        decision: "national"
+      - match: "Q148"
+        code: "CN"
+        label: "'People''s Republic of China'"
+        decision: "national"
+      - match: "Q155"
+        code: "BR"
+        label: "Brazil"
+        decision: "national"
+      - match: "Q159"
+        code: "RU"
+        label: "Russia"
+        decision: "national"
+      - match: "Q183"
+        code: "DE"
+        label: "Germany"
+        decision: "national"
+      - match: "Q711"
+        code: "MN"
+        label: "Mongolia"
+        decision: "national"
+      - match: "Q757"
+        code: "VC"
+        label: "Saint Vincent and the Grenadines"
+        decision: "national"
+      - match: "Q781"
+        code: "AG"
+        label: "Antigua and Barbuda"
+        decision: "national"
+      - match: "Q786"
+        code: "DO"
+        label: "Dominican Republic"
+        decision: "national"
+      - match: "Q796"
+        code: "IQ"
+        label: "Iraq"
+        decision: "national"
+      - match: "Q801"
+        code: "IL"
+        label: "Israel"
+        decision: "national"
+      - match: "Q810"
+        code: "JO"
+        label: "Jordan"
+        decision: "national"
+      - match: "Q881"
+        code: "VN"
+        label: "Vietnam"
+        decision: "national"
+      - match: "Q902"
+        code: "BD"
+        label: "Bangladesh"
+        decision: "national"
+      - match: "Q921"
+        code: "BN"
+        label: "Brunei"
+        decision: "national"
+      - match: "Q953"
+        code: "ZM"
+        label: "Zambia"
+        decision: "national"
+      - match: "Q963"
+        code: "BW"
+        label: "Botswana"
+        decision: "national"
+      - match: "Q965"
+        code: "BF"
+        label: "Burkina Faso"
+        decision: "national"
+      - match: "Q971"
+        code: "CG"
+        label: "Republic of the Congo"
+        decision: "national"
+      - match: "Q977"
+        code: "DJ"
+        label: "Djibouti"
+        decision: "national"
+      - match: "Q986"
+        code: "ER"
+        label: "Eritrea"
+        decision: "national"
+      - match: "Q1008"
+        code: "CI"
+        label: "Ivory Coast"
+        decision: "national"
+      - match: "Q1009"
+        code: "CM"
+        label: "Cameroon"
+        decision: "national"
+      - match: "Q1014"
+        code: "LR"
+        label: "Liberia"
+        decision: "national"
+      - match: "Q1019"
+        code: "MG"
+        label: "Madagascar"
+        decision: "national"
+      - match: "Q1044"
+        code: "SL"
+        label: "Sierra Leone"
+        decision: "national"
+      - match: "Q1246"
+        code: "XK"
+        label: "Kosovo"
+        decision: "national"
+      - match: "Q16644"
+        code: "MP"
+        label: "Northern Mariana Islands"
+        decision: "national"
+      - match: "Q34020"
+        code: "NU"
+        label: "Niue"
+        decision: "national"
+      - match: "Q1147441"
+        code: ""
+        label: "British North Borneo"
+        decision: "ignore"
+      - match: "Q2578028"
+        code: ""
+        label: "Sikh Misl"
+        decision: "ignore"
+      - match: "Q123699090"
+        code: ""
+        label: "Alrawashdeh-Orda_Buryat_Okrug"
+        decision: "ignore"
+      - match: "Q458"
+        code: "EU"
+        label: "European Union"
+        decision: "national"
+      - match: "Q3057312"
+        code: ""
+        label: "Organisation for European Economic Co-operation"
+        decision: "ignore"
+      - match: "Q96979217"
+        code: ""
+        label: "The Mahdi Servants Union"
+        decision: "ignore"
+      - match: "Q119439372"
+        code: ""
+        label: "Provisional Earth Federation"
+        decision: "ignore"
+      - match: "Q32"
+        code: "LU"
+        label: "Luxembourg"
+        decision: "national"
+      - match: "Q40362"
+        code: "EH"
+        label: "Sahrawi Arab Democratic Republic"
+        decision: "national"
+      - match: "Q76236"
+        code: ""
+        label: "Lithuanian–Byelorussian Soviet Socialist Republic"
+        decision: "ignore"
+      - match: "Q29520"
+        code: "CN"
+        label: "China"
+        decision: "national"
+      - match: "Q18589761"
+        code: ""
+        label: "Prince-Bishopric of Chur"
+        decision: "ignore"
+      - match: "Q21056"
+        code: ""
+        label: "Onondaga Nation"
+        decision: "ignore"
+      - match: "Q123237651"
+        code: ""
+        label: "Ameer Lukman Haruna"
+        decision: "ignore"
+      - match: "Q15397819"
+        code: ""
+        label: "Wikidata Sandbox 3"
+        decision: "ignore"
+      - match: "Q685"
+        code: "SB"
+        label: "Solomon Islands"
+        decision: "national"
+      - match: "Q686"
+        code: "VU"
+        label: "Vanuatu"
+        decision: "national"
+      - match: "Q691"
+        code: "PG"
+        label: "Papua New Guinea"
+        decision: "national"
+      - match: "Q695"
+        code: "PW"
+        label: "Palau"
+        decision: "national"
+      - match: "Q702"
+        code: "FM"
+        label: "Federated States of Micronesia"
+        decision: "national"
+      - match: "Q709"
+        code: "MH"
+        label: "Marshall Islands"
+        decision: "national"
+      - match: "Q710"
+        code: "KI"
+        label: "Kiribati"
+        decision: "national"
+      - match: "Q712"
+        code: "FJ"
+        label: "Fiji"
+        decision: "national"
+      - match: "Q717"
+        code: "VE"
+        label: "Venezuela"
+        decision: "national"
+      - match: "Q733"
+        code: "PY"
+        label: "Paraguay"
+        decision: "national"
+      - match: "Q734"
+        code: "GY"
+        label: "Guyana"
+        decision: "national"
+      - match: "Q736"
+        code: "EC"
+        label: "Ecuador"
+        decision: "national"
+      - match: "Q739"
+        code: "CO"
+        label: "Colombia"
+        decision: "national"
+      - match: "Q750"
+        code: "BO"
+        label: "Bolivia"
+        decision: "national"
+      - match: "Q754"
+        code: "TT"
+        label: "Trinidad and Tobago"
+        decision: "national"
+      - match: "Q760"
+        code: "LC"
+        label: "Saint Lucia"
+        decision: "national"
+      - match: "Q763"
+        code: "KN"
+        label: "Saint Kitts and Nevis"
+        decision: "national"
+      - match: "Q766"
+        code: "JM"
+        label: "Jamaica"
+        decision: "national"
+      - match: "Q769"
+        code: "GD"
+        label: "Grenada"
+        decision: "national"
+      - match: "Q774"
+        code: "GT"
+        label: "Guatemala"
+        decision: "national"
+      - match: "Q783"
+        code: "HN"
+        label: "Honduras"
+        decision: "national"
+      - match: "Q790"
+        code: "HT"
+        label: "Haiti"
+        decision: "national"
+      - match: "Q792"
+        code: "SV"
+        label: "El Salvador"
+        decision: "national"
+      - match: "Q813"
+        code: "KG"
+        label: "Kyrgyzstan"
+        decision: "national"
+      - match: "Q822"
+        code: "LB"
+        label: "Lebanon"
+        decision: "national"
+      - match: "Q826"
+        code: "MV"
+        label: "Maldives"
+        decision: "national"
+      - match: "Q833"
+        code: "MY"
+        label: "Malaysia"
+        decision: "national"
+      - match: "Q836"
+        code: "MM"
+        label: "Myanmar"
+        decision: "national"
+      - match: "Q837"
+        code: "NP"
+        label: "Nepal"
+        decision: "national"
+      - match: "Q842"
+        code: "OM"
+        label: "Oman"
+        decision: "national"
+      - match: "Q869"
+        code: "TH"
+        label: "Thailand"
+        decision: "national"
+      - match: "Q874"
+        code: "TM"
+        label: "Turkmenistan"
+        decision: "national"
+      - match: "Q878"
+        code: "AE"
+        label: "United Arab Emirates"
+        decision: "national"
+      - match: "Q884"
+        code: "KR"
+        label: "South Korea"
+        decision: "national"
+      - match: "Q889"
+        code: "AF"
+        label: "Afghanistan"
+        decision: "national"
+      - match: "Q916"
+        code: "AO"
+        label: "Angola"
+        decision: "national"
+      - match: "Q917"
+        code: "BT"
+        label: "Bhutan"
+        decision: "national"
+      - match: "Q924"
+        code: "TZ"
+        label: "Tanzania"
+        decision: "national"
+      - match: "Q928"
+        code: "PH"
+        label: "Philippines"
+        decision: "national"
+      - match: "Q954"
+        code: "ZW"
+        label: "Zimbabwe"
+        decision: "national"
+      - match: "Q119723120"
+        code: ""
+        label: "Kaiserthum Österreich"
+        decision: "ignore"
+      - match: "Q2369784"
+        code: ""
+        label: "Interwar Latvia"
+        decision: "ignore"
+      - match: "Q1016"
+        code: "LY"
+        label: "Libya"
+        decision: "national"
+      - match: "Q574"
+        code: "TL"
+        label: "East Timor"
+        decision: "national"
+      - match: "Q657"
+        code: "TD"
+        label: "Chad"
+        decision: "national"
+      - match: "Q664"
+        code: "NZ"
+        label: "New Zealand"
+        decision: "national"
+      - match: "Q668"
+        code: "IN"
+        label: "India"
+        decision: "national"
+      - match: "Q672"
+        code: "TV"
+        label: "Tuvalu"
+        decision: "national"
+      - match: "Q683"
+        code: "WS"
+        label: "Samoa"
+        decision: "national"
+      - match: "Q697"
+        code: "NR"
+        label: "Nauru"
+        decision: "national"
+      - match: "Q778"
+        code: "BS"
+        label: "The Bahamas"
+        decision: "national"
+      - match: "Q784"
+        code: "DM"
+        label: "Dominica"
+        decision: "national"
+      - match: "Q794"
+        code: "IR"
+        label: "Iran"
+        decision: "national"
+      - match: "Q800"
+        code: "CR"
+        label: "Costa Rica"
+        decision: "national"
+      - match: "Q805"
+        code: "YE"
+        label: "Yemen"
+        decision: "national"
+      - match: "Q811"
+        code: "NI"
+        label: "Nicaragua"
+        decision: "national"
+      - match: "Q912"
+        code: "ML"
+        label: "Mali"
+        decision: "national"
+      - match: "Q929"
+        code: "CF"
+        label: "Central African Republic"
+        decision: "national"
+      - match: "Q945"
+        code: "TG"
+        label: "Togo"
+        decision: "national"
+      - match: "Q948"
+        code: "TN"
+        label: "Tunisia"
+        decision: "national"
+      - match: "Q958"
+        code: "SS"
+        label: "South Sudan"
+        decision: "national"
+      - match: "Q962"
+        code: "BJ"
+        label: "Benin"
+        decision: "national"
+      - match: "Q967"
+        code: "BI"
+        label: "Burundi"
+        decision: "national"
+      - match: "Q123368095"
+        code: ""
+        label: "Grupos Organizados"
+        decision: "ignore"
+      - match: "Q970"
+        code: "KM"
+        label: "Comoros"
+        decision: "national"
+      - match: "Q974"
+        code: "CD"
+        label: "Democratic Republic of the Congo"
+        decision: "national"
+      - match: "Q1000"
+        code: "GA"
+        label: "Gabon"
+        decision: "national"
+      - match: "Q1007"
+        code: "GW"
+        label: "Guinea-Bissau"
+        decision: "national"
+      - match: "Q1011"
+        code: "CV"
+        label: "Cape Verde"
+        decision: "national"
+      - match: "Q1013"
+        code: "LS"
+        label: "Lesotho"
+        decision: "national"
+      - match: "Q1020"
+        code: "MW"
+        label: "Malawi"
+        decision: "national"
+      - match: "Q1025"
+        code: "MR"
+        label: "Mauritania"
+        decision: "national"
+      - match: "Q116282506"
+        code: "TT"
+        label: "Republic of Trinidad and Tobago"
+        decision: "national"
+      - match: "Q1045"
+        code: "SO"
+        label: "Somalia"
+        decision: "national"
+      - match: "Q21203"
+        code: "AW"
+        label: "Aruba"
+        decision: "national"
+      - match: "Q26988"
+        code: "CK"
+        label: "Cook Islands"
+        decision: "national"
+      - match: "Q244165"
+        code: "AZ-NK"
+        label: "Republic of Artsakh"
+        decision: "national"
+      - match: "Q2988343"
+        code: ""
+        label: "Portuguese Malacca"
+        decision: "ignore"
+      - match: "Q12355069"
+        code: ""
+        label: "Serendip"
+        decision: "ignore"
+      - match: "Q8932"
+        code: ""
+        label: "European Economic Area"
+        decision: "ignore"
+      - match: "Q184"
+        code: "BY"
+        label: "Belarus"
+        decision: "national"
+      - match: "Q189"
+        code: "IS"
+        label: "Iceland"
+        decision: "national"
+      - match: "Q191"
+        code: "EE"
+        label: "Estonia"
+        decision: "national"
+      - match: "Q211"
+        code: "LV"
+        label: "Latvia"
+        decision: "national"
+      - match: "Q213"
+        code: "CZ"
+        label: "Czech Republic"
+        decision: "national"
+      - match: "Q214"
+        code: "SK"
+        label: "Slovakia"
+        decision: "national"
+      - match: "Q215"
+        code: "SI"
+        label: "Slovenia"
+        decision: "national"
+      - match: "Q218"
+        code: "RO"
+        label: "Romania"
+        decision: "national"
+      - match: "Q219"
+        code: "BG"
+        label: "Bulgaria"
+        decision: "national"
+      - match: "Q221"
+        code: "MK"
+        label: "North Macedonia"
+        decision: "national"
+      - match: "L721717"
+        code: ""
+        label: "L721717"
+        decision: "ignore"
+      - match: "Q41470"
+        code: ""
+        label: "Kurdistan"
+        decision: "ignore"
+      - match: "Q549817"
+        code: ""
+        label: "Principality of Murom"
+        decision: "ignore"
+      - match: "Q146761"
+        code: ""
+        label: "Hatay State"
+        decision: "ignore"
+      - match: "Q142417"
+        code: ""
+        label: "Kingdom of Valencia"
+        decision: "ignore"
+      - match: "Q609850"
+        code: "RU"
+        label: "Rus"
+        decision: "national"
+      - match: "Q1042"
+        code: "SC"
+        label: "Seychelles"
+        decision: "national"
+      - match: "Q1049"
+        code: "SD"
+        label: "Sudan"
+        decision: "national"
+      - match: "Q3908"
+        code: ""
+        label: "Galicia"
+        decision: "ignore"
+      - match: "Q5705"
+        code: "ES"
+        label: "Catalonia"
+        decision: "national"
+      - match: "Q19083"
+        code: ""
+        label: "Kingdom of Iberia"
+        decision: "ignore"
+      - match: "Q26273"
+        code: "SX"
+        label: "Sint Maarten"
+        decision: "national"
+      - match: "Q29999"
+        code: "NL"
+        label: "Kingdom of the Netherlands"
+        decision: "national"
+      - match: "Q44826"
+        code: ""
+        label: "Tarshish"
+        decision: "ignore"
+      - match: "Q703695"
+        code: ""
+        label: "Great Balhae Kingdom"
+        decision: "ignore"
+      - match: "Q907234"
+        code: ""
+        label: "French protectorate in Morocco"
+        decision: "ignore"
+      - match: "Q114415093"
+        code: ""
+        label: "Democratic Republic of East Timor"
+        decision: "ignore"
+      - match: "Q2576045"
+        code: ""
+        label: "Little Tartary"
+        decision: "ignore"
+      - match: "Q13125117"
+        code: ""
+        label: "Unyasa"
+        decision: "ignore"
+      - match: "Q28846511"
+        code: "DK"
+        label: "Kingdom of Denmark"
+        decision: "national"
+      - match: "Q120088504"
+        code: ""
+        label: "Meliau Kingdom"
+        decision: "ignore"
+      - match: "Q146165"
+        code: ""
+        label: "Nordic Council"
+        decision: "ignore"
+      - match: "Q205718"
+        code: ""
+        label: "Zirid Dynasty"
+        decision: "ignore"
+      - match: "Q166110"
+        code: ""
+        label: "Union State"
+        decision: "ignore"
+      - match: "Q2993835"
+        code: ""
+        label: "West African Examinations Council"
+        decision: "ignore"
+      - match: "Q99360983"
+        code: ""
+        label: "COVAX"
+        decision: "ignore"
+      - match: "Q118878368"
+        code: ""
+        label: "Earth Federation"
+        decision: "ignore"
+      - match: "Q212"
+        code: "UA"
+        label: "Ukraine"
+        decision: "national"
+      - match: "Q34754"
+        code: "SO-SOM"
+        label: "Somaliland"
+        decision: "national"
+      - match: "Q110362913"
+        code: ""
+        label: "Chacha Empire"
+        decision: "ignore"
+      - match: "Q1240096"
+        code: ""
+        label: "Hyderabad State"
+        decision: "ignore"
+      - match: "Q2320255"
+        code: ""
+        label: "Islamic Emirate of Waziristan"
+        decision: "ignore"
+      - match: "Q2842000"
+        code: ""
+        label: "Ambazonia"
+        decision: "ignore"
+      - match: "Q29"
+        code: "ES"
+        label: "Spain"
+        decision: "national"
+      - match: "Q45"
+        code: "PT"
+        label: "Portugal"
+        decision: "national"
+      - match: "Q55"
+        code: "NL"
+        label: "Netherlands"
+        decision: "national"
+      - match: "Q116749839"
+        code: ""
+        label: "Crown of Sperlinga"
+        decision: "ignore"
+      - match: "Q77"
+        code: "UY"
+        label: "Uruguay"
+        decision: "national"
+      - match: "Q79"
+        code: "EG"
+        label: "Egypt"
+        decision: "national"
+      - match: "Q20949725"
+        code: ""
+        label: "Principality of Sperlinga"
+        decision: "ignore"
+      - match: "Q114"
+        code: "KE"
+        label: "Kenya"
+        decision: "national"
+      - match: "Q115"
+        code: "ET"
+        label: "Ethiopia"
+        decision: "national"
+      - match: "Q117"
+        code: "GH"
+        label: "Ghana"
+        decision: "national"
+      - match: "Q142"
+        code: "FR"
+        label: "France"
+        decision: "national"
+      - match: "Q222"
+        code: "AL"
+        label: "Albania"
+        decision: "national"
+      - match: "Q224"
+        code: "HR"
+        label: "Croatia"
+        decision: "national"
+      - match: "Q227"
+        code: "AZ"
+        label: "Azerbaijan"
+        decision: "national"
+      - match: "Q228"
+        code: "AD"
+        label: "Andorra"
+        decision: "national"
+      - match: "Q229"
+        code: "CY"
+        label: "Cyprus"
+        decision: "national"
+      - match: "Q232"
+        code: "KZ"
+        label: "Kazakhstan"
+        decision: "national"
+      - match: "Q233"
+        code: "MT"
+        label: "Malta"
+        decision: "national"
+      - match: "Q236"
+        code: "ME"
+        label: "Montenegro"
+        decision: "national"
+      - match: "Q241"
+        code: "CU"
+        label: "Cuba"
+        decision: "national"
+      - match: "Q252"
+        code: "ID"
+        label: "Indonesia"
+        decision: "national"
+      - match: "Q258"
+        code: "ZA"
+        label: "South Africa"
+        decision: "national"
+      - match: "Q262"
+        code: "DZ"
+        label: "Algeria"
+        decision: "national"
+      - match: "Q265"
+        code: "UZ"
+        label: "Uzbekistan"
+        decision: "national"
+      - match: "Q298"
+        code: "CL"
+        label: "Chile"
+        decision: "national"
+      - match: "Q334"
+        code: "SG"
+        label: "Singapore"
+        decision: "national"
+      - match: "Q347"
+        code: "LI"
+        label: "Liechtenstein"
+        decision: "national"
+      - match: "Q398"
+        code: "BH"
+        label: "Bahrain"
+        decision: "national"
+      - match: "Q399"
+        code: "AM"
+        label: "Armenia"
+        decision: "national"
+      - match: "Q408"
+        code: "AU"
+        label: "Australia"
+        decision: "national"
+      - match: "Q414"
+        code: "AR"
+        label: "Argentina"
+        decision: "national"
+      - match: "Q419"
+        code: "PE"
+        label: "Peru"
+        decision: "national"
+      - match: "Q423"
+        code: "KP"
+        label: "North Korea"
+        decision: "national"
+      - match: "Q319881"
+        code: ""
+        label: "Republic of Formosa"
+        decision: "ignore"
+      - match: "Q855044"
+        code: ""
+        label: "Bhopal State"
+        decision: "ignore"
+      - match: "Q1072140"
+        code: ""
+        label: "Roman Republic"
+        decision: "ignore"
+      - match: "Q1108659"
+        code: "BJ"
+        label: "Republic of Benin"
+        decision: "national"
+      - match: "Q3112525"
+        code: ""
+        label: "Provisional Government of Kentucky"
+        decision: "ignore"
+      - match: "Q11967593"
+        code: ""
+        label: "Free Lebanon State"
+        decision: "ignore"
+      - match: "Q424"
+        code: "KH"
+        label: "Cambodia"
+        decision: "national"
+      - match: "Q3456497"
+        code: ""
+        label: "Italian Partisan Republics"
+        decision: "ignore"
+      - match: "Q7489715"
+        code: ""
+        label: "Sharifian Caliphate"
+        decision: "ignore"
+      - match: "Q11950523"
+        code: ""
+        label: "Sumapaz"
+        decision: "ignore"
+      - match: "Q16250774"
+        code: ""
+        label: "'Kharkov People''s Republic'"
+        decision: "ignore"
+      - match: "Q114318415"
+        code: ""
+        label: "Zaporozhye State"
+        decision: "ignore"
+      - match: "Q114334914"
+        code: "UA-DPR"
+        label: "'Donetsk People''s Republic'"
+        decision: "national"
+      - match: "Q18590086"
+        code: ""
+        label: "County of Loano"
+        decision: "ignore"
+      - match: "Q70802"
+        code: ""
+        label: "French Third Republic"
+        decision: "ignore"
+      - match: "Q170072"
+        code: ""
+        label: "Dutch Republic"
+        decision: "ignore"
+      - match: "Q5092177"
+        code: ""
+        label: "Cherokee Nation"
+        decision: "ignore"
+      - match: "Q11938308"
+        code: ""
+        label: "Nabhani dynasty"
+        decision: "ignore"
+      - match: "Q819"
+        code: "LA"
+        label: "Laos"
+        decision: "national"
+      - match: "Q1005"
+        code: "GM"
+        label: "The Gambia"
+        decision: "national"
+      - match: "Q1006"
+        code: "GN"
+        label: "Guinea"
+        decision: "national"
+      - match: "Q20886709"
+        code: ""
+        label: "Lower Alsace"
+        decision: "ignore"
+      - match: "Q435583"
+        code: ""
+        label: "Old Swiss Confederacy"
+        decision: "ignore"
+      - match: "Q843"
+        code: "PK"
+        label: "Pakistan"
+        decision: "national"
+      - match: "Q846"
+        code: "QA"
+        label: "Qatar"
+        decision: "national"
+      - match: "Q851"
+        code: "SA"
+        label: "Saudi Arabia"
+        decision: "national"
+      - match: "Q854"
+        code: "LK"
+        label: "Sri Lanka"
+        decision: "national"
+      - match: "Q858"
+        code: "SY"
+        label: "Syria"
+        decision: "national"
+      - match: "Q863"
+        code: "TJ"
+        label: "Tajikistan"
+        decision: "national"
+      - match: "Q865"
+        code: "TW"
+        label: "Taiwan"
+        decision: "national"
+      - match: "Q1028"
+        code: "MA"
+        label: "Morocco"
+        decision: "national"
+      - match: "Q1029"
+        code: "MZ"
+        label: "Mozambique"
+        decision: "national"
+      - match: "Q1030"
+        code: "NA"
+        label: "Namibia"
+        decision: "national"
+      - match: "Q1032"
+        code: "NE"
+        label: "Niger"
+        decision: "national"
+      - match: "Q1033"
+        code: "NG"
+        label: "Nigeria"
+        decision: "national"
+      - match: "Q1036"
+        code: "UG"
+        label: "Uganda"
+        decision: "national"
+      - match: "Q1037"
+        code: "RW"
+        label: "Rwanda"
+        decision: "national"
+      - match: "Q1039"
+        code: "ST"
+        label: "São Tomé and Príncipe"
+        decision: "national"
+      - match: "Q1041"
+        code: "SN"
+        label: "Senegal"
+        decision: "national"
+      - match: "Q217"
+        code: "MD"
+        label: "Moldova"
+        decision: "national"
+      - match: "Q730"
+        code: "SR"
+        label: "Suriname"
+        decision: "national"
+      - match: "Q804"
+        code: "PA"
+        label: "Panama"
+        decision: "national"
+      - match: "Q817"
+        code: "KW"
+        label: "Kuwait"
+        decision: "national"
+      - match: "Q23366230"
+        code: ""
+        label: "Republic of Geneva"
+        decision: "ignore"
+      - match: "Q23427"
+        code: "X-SO"
+        label: "South Ossetia"
+        decision: "national"
+      - match: "Q23681"
+        code: "CY-TRNC"
+        label: "Northern Cyprus"
+        decision: "national"
+      - match: "Q1549254"
+        code: ""
+        label: "Principality of Seborga"
+        decision: "ignore"
+      - match: "Q1540575"
+        code: ""
+        label: "Gozo"
+        decision: "ignore"
+      - match: "Q86450617"
+        code: ""
+        label: "CtvforMe"
+        decision: "ignore"
+      - match: "Q16678116"
+        code: ""
+        label: "Moskovskoye gosudarstvo"
+        decision: "ignore"
+      - match: "Q756617"
+        code: "DK"
+        label: "Kingdom of Denmark"
+        decision: "national"
+      - match: "Q907112"
+        code: "MD-PMR"
+        label: "Transnistria"
+        decision: "national"
+      - match: "Q1415162"
+        code: ""
+        label: "Garðaríki"
+        decision: "ignore"
+      - match: "Q5721088"
+        code: ""
+        label: "'Barri de la Vila d''Ontinyent'"
+        decision: "ignore"
+      - match: "Q1063498"
+        code: ""
+        label: "United States of the Ionian Islands"
+        decision: "ignore"
+      - match: "Q1322662"
+        code: ""
+        label: "Principality of Chernigov"
+        decision: "ignore"
+      - match: "Q1760729"
+        code: ""
+        label: "Alashiya"
+        decision: "ignore"
+      - match: "Q2396442"
+        code: ""
+        label: "Kingdom of Galicia and Lodomeria"
+        decision: "ignore"
+      - match: "Q2608489"
+        code: ""
+        label: "Aztec Empire"
+        decision: "ignore"
+      - match: "Q3780537"
+        code: ""
+        label: "Gaza Empire"
+        decision: "ignore"
+      - match: "Q6037274"
+        code: ""
+        label: "Mosquitia"
+        decision: "ignore"
+      - match: "Q117089833"
+        code: "SC"
+        label: "Republic of Seychelles"
+        decision: "national"
+      - match: "Q16150196"
+        code: "UA-DPR"
+        label: "'Donetsk People''s Republic'"
+        decision: "national"
+      - match: "Q200686"
+        code: ""
+        label: "French Fifth Republic"
+        decision: "ignore"
+      - match: "Q983"
+        code: "GQ"
+        label: "Equatorial Guinea"
+        decision: "national"
+      - match: "Q1027"
+        code: "MU"
+        label: "Mauritius"
+        decision: "national"
+      - match: "Q16673775"
+        code: ""
+        label: "Kingdom of Kampuchea"
+        decision: "ignore"
+      - match: "Q21076535"
+        code: ""
+        label: "Islamic Republic of Qaim"
+        decision: "ignore"
+      - match: "Q23906811"
+        code: ""
+        label: "Republic of Logone"
+        decision: "ignore"
+      - match: "Q31354462"
+        code: "GE-AB"
+        label: "Republic of Abkhazia"
+        decision: "national"
+      - match: "Q65079691"
+        code: ""
+        label: "Western Togoland"
+        decision: "ignore"
+      - match: "Q86750256"
+        code: ""
+        label: "Free Dadra and Nagar Haveli"
+        decision: "ignore"
+      - match: "Q111967268"
+        code: ""
+        label: "Islamic government of Laristan"
+        decision: "ignore"
+      - match: "Q114318324"
+        code: ""
+        label: "Kherson State"
+        decision: "ignore"
+      - match: "Q205047"
+        code: ""
+        label: "Kurdistan Region"
+        decision: "ignore"
+      - match: "Q2562456"
+        code: ""
+        label: "Republic of West Papua"
+        decision: "ignore"
+      - match: "Q115166787"
+        code: ""
+        label: "Reman"
+        decision: "ignore"
+      - match: "Q16"
+        code: "CA"
+        label: "Canada"
+        decision: "national"
+      - match: "Q17"
+        code: "JP"
+        label: "Japan"
+        decision: "national"
+      - match: "Q20"
+        code: "NO"
+        label: "Norway"
+        decision: "national"
+      - match: "Q21"
+        code: "GB"
+        label: "England"
+        decision: "national"
+      - match: "Q22"
+        code: "GB-SCT"
+        label: "Scotland"
+        decision: "national"
+      - match: "Q25"
+        code: "GB-WLS"
+        label: "Wales"
+        decision: "national"
+      - match: "Q26"
+        code: "GB-NIR"
+        label: "Northern Ireland"
+        decision: "national"
+      - match: "Q27"
+        code: "IE"
+        label: "Republic of Ireland"
+        decision: "national"
+      - match: "Q28"
+        code: "HU"
+        label: "Hungary"
+        decision: "national"
+      - match: "Q30"
+        code: "US"
+        label: "United States of America"
+        decision: "national"
+      - match: "Q31"
+        code: "BE"
+        label: "Belgium"
+        decision: "national"
+      - match: "Q33"
+        code: "FI"
+        label: "Finland"
+        decision: "national"
+      - match: "Q34"
+        code: "SE"
+        label: "Sweden"
+        decision: "national"
+      - match: "Q35"
+        code: "DK"
+        label: "Denmark"
+        decision: "national"
+      - match: "Q36"
+        code: "PL"
+        label: "Poland"
+        decision: "national"
+      - match: "Q37"
+        code: "LT"
+        label: "Lithuania"
+        decision: "national"
+      - match: "Q38"
+        code: "IT"
+        label: "Italy"
+        decision: "national"
+      - match: "Q39"
+        code: "CH"
+        label: "Switzerland"
+        decision: "national"
+      - match: "Q40"
+        code: "AT"
+        label: "Austria"
+        decision: "national"
+      - match: "Q41"
+        code: "GR"
+        label: "Greece"
+        decision: "national"
+      - match: "Q43"
+        code: "TR"
+        label: "Turkey"
+        decision: "national"
+      - match: "Q96"
+        code: "MX"
+        label: "Mexico"
+        decision: "national"
+      - match: "Q225"
+        code: "BA"
+        label: "Bosnia and Herzegovina"
+        decision: "national"
+      - match: "Q230"
+        code: "GE"
+        label: "Georgia"
+        decision: "national"
+      - match: "Q235"
+        code: "MC"
+        label: "Monaco"
+        decision: "national"
+      - match: "Q237"
+        code: "VA"
+        label: "Vatican City"
+        decision: "national"
+      - match: "Q238"
+        code: "SM"
+        label: "San Marino"
+        decision: "national"
+      - match: "Q242"
+        code: "BZ"
+        label: "Belize"
+        decision: "national"
+      - match: "Q244"
+        code: "BB"
+        label: "Barbados"
+        decision: "national"
+      - match: "Q403"
+        code: "RS"
+        label: "Serbia"
+        decision: "national"
+      - match: "Q678"
+        code: "TO"
+        label: "Tonga"
+        decision: "national"
+      - match: "Q1050"
+        code: "SZ"
+        label: "Eswatini"
+        decision: "national"
+      - match: "Q219060"
+        code: "PS"
+        label: "State of Palestine"
+        decision: "national"
