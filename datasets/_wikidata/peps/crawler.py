@@ -100,35 +100,37 @@ def query_position_holders(context: Context, categorisation: PositionCategorisat
 
 
 def pick_country(context, *qids):
+
     for qid in qids:
         country = context.lookup("country_decisions", qid)
-        if country is not None and country.decision != "national":
+        if country is not None and country.decision == "national":
             return country
     return None
 
 
-def query_positions(context: Context, country_qid: str, country: Dict):
-    context.log.info(f"Crawling positions: {country.label} ({country_qid})")
-    vars = {"COUNTRY": country_qid}
+def query_positions(context: Context, country):
+    context.log.info(f"Crawling positions: {country['label']} ({country['qid']})")
+    vars = {"COUNTRY": country["qid"]}
+    # a) All positions by jurisdiction/country
     response = run_query(context, "positions/country", vars, cache_days=CACHE_MEDIUM)
     for bind in response.results:
-        country_code = pick_country(
+        country_res = pick_country(
             context,
             bind.plain("country"),
             bind.plain("jurisdiction"),
-            country_qid,
+            country["qid"],
         )
         yield {
             "qid": bind.plain("position"),
             "label": bind.plain("positionLabel"),
             "description": bind.plain("positionDescription"),
-            "country_code": country_code
+            "country_code": country_res.code
         }
 
     # b) Positions held by politicans from that country
     response = run_query(context, "positions/politician", vars, cache_days=CACHE_MEDIUM)
     for bind in response.results:
-        country_code = pick_country(
+        country = pick_country(
             context,
             bind.plain("country"),
             bind.plain("jurisdiction"),
@@ -139,7 +141,7 @@ def query_positions(context: Context, country_qid: str, country: Dict):
             "qid": qid,
             "label": label,
             "description": bind.plain("positionDescription"),
-            "country_code": country_code,
+            "country_code": country_res.code if country_res else None,
         }
 
 
@@ -163,14 +165,15 @@ def crawl(context: Context):
     completed_positions = set()
     for country in query_countries(context):
         context.log.info(f"Crawling country: {country['qid']} ({country['label']})")
-        res = context.lookup("country_decisions", country["qid"])
-        if res is None:
+
+        country_res = context.lookup("country_decisions", country["qid"])
+        if country_res is None:
             context.log.warning("Country without decision", country=country)
             continue
-        if res.decision != "national":
+        if country_res.decision != "national":
             continue
-
-        for wd_position in query_positions(context, country["qid"], res):
+        
+        for wd_position in query_positions(context, country):
             if wd_position["qid"] in completed_positions:
                 continue
             # TODO: geting 500 from wikidata when querying this - might be an issue with 
@@ -178,6 +181,7 @@ def crawl(context: Context):
             # to the query
             if wd_position["qid"] == "Q110086626":
                 continue
+            
             position = h.make_position(
                 context,
                 wd_position["label"],
