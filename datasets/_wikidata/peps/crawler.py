@@ -13,6 +13,8 @@ from zavod.util import remove_emoji
 
 from zavod.shed.wikidata.query import run_query, CACHE_MEDIUM
 
+DECISION_NATIONAL = "national"
+
 
 def keyword(topics: [str]) -> Optional[str]:
     if "gov.national" in topics:
@@ -41,7 +43,6 @@ def truncate_date(text: Optional[str]) -> Optional[str]:
 
 def crawl_holder(
     context: Context,
-    seen_positions: Set[str],
     categorisation: PositionCategorisation,
     position: Entity,
     holder: Dict[str, str],
@@ -111,21 +112,23 @@ def query_position_holders(context: Context, wd_position: Dict[str, str]) -> Non
 
 
 def pick_country(context, *qids):
+    """
+    Returns the country for the first national decision country of the given qids, or None
+    """
     for qid in qids:
         country = context.lookup("country_decisions", qid)
-        if country is not None and country.decision == "national":
+        if country is not None and country.decision == DECISION_NATIONAL:
             return country
     return None
 
 
-def query_positions(context: Context, country):
+def query_positions(context: Context, country) -> Dict:
     """
-    Yields items for each position and each country selecting the most appropriate
-    countries possible, if any.
+    Yields an item for each position with all countries selected by pick_country().
 
     May return duplicates
     """
-    context.log.info(f"Crawling positions for {country['label']} {country['qid']}")
+    context.log.info(f"Crawling positions for {country['qid']} ({country['label']})")
 
     vars = {"COUNTRY": country["qid"]}
     position_countries = defaultdict(set)
@@ -198,7 +201,7 @@ def crawl(context: Context):
         if country_res is None:
             context.log.warning("Country without decision", country=country)
             continue
-        if country_res.decision != "national":
+        if country_res.decision != DECISION_NATIONAL:
             continue
 
         for wd_position in query_positions(context, country):
@@ -216,7 +219,7 @@ def crawl(context: Context):
                 continue
 
             for holder in query_position_holders(context, wd_position):
-                crawl_holder(context, seen_positions, categorisation, position, holder)
+                crawl_holder(context, categorisation, position, holder)
             seen_positions.add(wd_position["qid"])
 
     entity = context.make("Person")

@@ -1,4 +1,4 @@
-SELECT ?position ?positionLabel ?positionDescription ?jurisdiction ?country ?abolished
+SELECT ?position ?positionLabel ?jurisdiction ?country ?abolished
 WHERE {
     ?holder wdt:P39 ?position .
     # ?holder wdt:P31 wd:Q5 .
@@ -9,4 +9,4 @@ WHERE {
     OPTIONAL { ?position p:P576|p:P582 [ a wikibase:BestRank ; psv:P576|psv:P582 [ wikibase:timeValue ?abolished ] ] }
   SERVICE wikibase:label { bd:serviceParam wikibase:language "en,de,es,fr". }
 }
-GROUP BY ?position ?positionLabel ?positionDescription ?jurisdiction ?country ?abolished
+GROUP BY ?position ?positionLabel ?jurisdiction ?country ?abolished

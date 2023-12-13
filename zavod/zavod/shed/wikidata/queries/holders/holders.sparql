@@ -1,5 +1,5 @@
 SELECT
-  ?person ?personLabel ?personDescription ?ps
+  ?person ?personLabel ?ps
   ?body ?bodyLabel ?bodyInception ?bodyStart ?bodyAbolished ?bodyEnd
   ?birth ?death ?positionStart ?positionEnd
 WHERE {
