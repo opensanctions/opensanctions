@@ -173,6 +173,11 @@ def crawl(context: Context):
         for wd_position in query_positions(context, country["qid"], res):
             if wd_position["qid"] in completed_positions:
                 continue
+            # TODO: geting 500 from wikidata when querying this - might be an issue with 
+            # adding FILTER (isIRI(?position) && !wikibase:isSomeValue(?position))
+            # to the query
+            if wd_position["qid"] == "Q110086626":
+                continue
             position = h.make_position(
                 context,
                 wd_position["label"],
