@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Generator, Optional, List
+from typing import Optional, List
 from datetime import datetime, timedelta
 from functools import cache
 
@@ -22,12 +22,9 @@ class OccupancyStatus(Enum):
 
 
 class PositionCategorisation:
-    def __init__(self, entity_id: str, caption: str, topics: List[str], is_pep: Optional[bool], countries: [str]):
-        self.entity_id = entity_id
-        self.caption = caption
+    def __init__(self, topics: List[str], is_pep: Optional[bool]):
         self.topics = topics
         self.is_pep = is_pep
-        self.countries = countries
 
 
 @cache
@@ -98,11 +95,8 @@ def categorise(
         )
 
     return PositionCategorisation(
-        entity_id=data["entity_id"],
-        caption=data["caption"],
-        topics=data["topics"],
-        is_pep=data["is_pep"],
-        countries=data["countries"],
+        topics=data.get("topics", []),
+        is_pep=data.get("is_pep"),
     )
 
 

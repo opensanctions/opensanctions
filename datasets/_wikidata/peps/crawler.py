@@ -81,11 +81,11 @@ def crawl_holder(
 
 
 def query_position_holders(
-    context: Context, categorisation: PositionCategorisation
+    context: Context, wd_position: Dict[str, str]
 ) -> None:
-    vars = {"POSITION": categorisation.entity_id}
+    vars = {"POSITION": wd_position["qid"]}
     context.log.info(
-        f"Crawling holders of position [{categorisation.entity_id}]: {categorisation.caption}"
+        f"Crawling holders of position [{wd_position['qid']}]: {wd_position['label']}"
     )
     response = run_query(context, "holders/holders", vars, cache_days=CACHE_MEDIUM)
     for binding in response.results:
@@ -201,7 +201,7 @@ def crawl(context: Context):
             if not categorisation.is_pep:
                 continue
 
-            for holder in query_position_holders(context, categorisation):
+            for holder in query_position_holders(context, wd_position):
                 crawl_holder(
                     context, emitted_positions, categorisation, position, holder
                 )
