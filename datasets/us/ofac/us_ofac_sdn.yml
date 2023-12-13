@@ -143,6 +143,7 @@ lookups:
           - Economic Register Number (CBLS)
           - Trademark number
           - Permit Number
+          - Military Registration Number
         prop: registrationNumber
       - match:
           - Legal Entity Number
