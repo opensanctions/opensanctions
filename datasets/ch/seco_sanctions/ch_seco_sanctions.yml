@@ -357,7 +357,6 @@ lookups:
           - Child of
           - Father in law of
           - Brother-in-law of
-          - related-to
         schema: Family
         source: person
         target: relative
