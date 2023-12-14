@@ -29,6 +29,8 @@ setup(
         "certifi",
         "colorama",
         "google-cloud-storage",
+        "jinja2",
+        "types-jinja2",
         "lxml == 4.9.3",
         "lxml-stubs == 0.4.0",
         "openpyxl == 3.1.2",

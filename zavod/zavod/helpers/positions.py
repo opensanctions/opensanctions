@@ -93,6 +93,7 @@ def make_occupancy(
     death_date: Optional[str] = None,
     categorisation: Optional[PositionCategorisation] = None,
     status: Optional[OccupancyStatus] = None,
+    propagate_country: bool = True,
 ) -> Optional[Entity]:
     """Creates and returns an Occupancy entity if the arguments meet our criteria
     for PEP position occupancy, otherwise returns None. Also adds the position countries
@@ -166,6 +167,7 @@ def make_occupancy(
     occupancy.add("status", status.value)
 
     person.add("topics", "role.pep")
-    person.add("country", position.get("country"))
+    if propagate_country:
+        person.add("country", position.get("country"))
 
     return occupancy

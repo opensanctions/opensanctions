@@ -1,0 +1,23 @@
+SELECT
+  ?person ?personLabel ?ps
+  ?body ?bodyLabel ?bodyInception ?bodyStart ?bodyAbolished ?bodyEnd
+  ?birth ?death ?positionStart ?positionEnd
+WHERE {
+    ?ps ps:P39 wd:{{POSITION}} .
+    ?person p:P39 ?ps .
+    ?person wdt:P31 wd:Q5 .  
+    FILTER NOT EXISTS { ?ps wikibase:rank wikibase:DeprecatedRank }
+    OPTIONAL { ?person p:P569 [ a wikibase:BestRank ; psv:P569 [ wikibase:timeValue ?birth ] ] }
+    OPTIONAL { ?person p:P570 [ a wikibase:BestRank ; psv:P570 [ wikibase:timeValue ?death ] ] }
+    OPTIONAL { ?ps pqv:P580 [ wikibase:timeValue ?positionStart ] }
+    OPTIONAL { ?ps pqv:P582 [ wikibase:timeValue ?positionEnd ] }
+
+    OPTIONAL {
+      ?ps pq:P5054|pq:P2937 ?body .
+      OPTIONAL { ?body p:P571 [ a wikibase:BestRank ; psv:P571 [ wikibase:timeValue ?bodyInception ] ] }
+      OPTIONAL { ?body p:P580 [ a wikibase:BestRank ; psv:P580 [ wikibase:timeValue ?bodyStart ] ] }
+      OPTIONAL { ?body p:P576 [ a wikibase:BestRank ; psv:P576 [ wikibase:timeValue ?bodyAbolished ] ] }
+      OPTIONAL { ?body p:P582 [ a wikibase:BestRank ; psv:P582 [ wikibase:timeValue ?bodyEnd ] ] }
+    }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "en,de,es,fr". }
+}

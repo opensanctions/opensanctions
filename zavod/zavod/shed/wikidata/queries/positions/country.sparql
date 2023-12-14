@@ -1,0 +1,12 @@
+
+SELECT ?position ?positionLabel ?country ?jurisdiction ?abolished
+WHERE {
+    ?position wdt:P31 wd:Q4164871 .
+    ?position wdt:P1001|wdt:P17 wd:{{COUNTRY}} .
+    OPTIONAL { ?position wdt:P17 ?country }
+    OPTIONAL { ?position wdt:P1001 ?jurisdiction }
+    OPTIONAL { ?position p:P576|p:P582 [ a wikibase:BestRank ; psv:P576|psv:P582 [ wikibase:timeValue ?abolished ] ] }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "en,de,es,fr". }
+}
+GROUP BY ?position ?positionLabel ?country ?jurisdiction ?abolished
+ORDER BY DESC(?holders)
