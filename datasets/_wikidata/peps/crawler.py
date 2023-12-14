@@ -215,7 +215,7 @@ def crawl(context: Context):
                 wikidata_id=wd_position["qid"],
             )
             categorisation = categorise(context, position, is_pep=None)
-            if not categorisation.is_pep:
+            if not categorisation.is_pep or "gov.muni" in categorisation.topics:
                 continue
 
             for holder in query_position_holders(context, wd_position):
