@@ -12,6 +12,7 @@ from nomenklatura.util import datetime_iso
 
 from zavod import settings
 from zavod.logs import get_logger
+from zavod.meta.assertion import Assertion
 from zavod.meta.data import Data
 
 log = get_logger(__name__)
@@ -68,6 +69,7 @@ class Dataset(NKDataset):
         _type = "collection" if self.is_collection else "source"
         self._type: str = data.get("type", _type).lower().strip()
 
+        self.assertions = [Assertion(a) for a in ensure_list(data.get("assertions", []))]
     @cached_property
     def lookups(self) -> Dict[str, Lookup]:
         config = self._data.get("lookups", {})

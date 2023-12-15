@@ -26,3 +26,33 @@ publisher:
 data:
     url: https://parliament.ky/members/
     format: HTML
+
+assertions:
+  - comparison: GT
+    threshold: 100
+    action: WARN
+    filter:
+      attribute: schema
+      value: Person
+
+  - comparison: GT
+    threshold: 50
+    action: FAIL
+    filter:
+      attribute: schema
+      value: Person
+
+  # Upper threshold can warn when lower thresholds probably need updating
+  - comparison: LT
+    threshold: 200
+    action: WARN
+    filter:
+      attribute: schema
+      value: Person
+
+  - comparison: GT
+    threshold: 90
+    action: WARN
+    filter:
+      attribute: country
+      value: ky

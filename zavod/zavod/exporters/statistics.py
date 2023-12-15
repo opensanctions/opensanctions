@@ -2,10 +2,12 @@ from collections import defaultdict
 from typing import Dict, List, Any, Optional, Set
 from followthemoney import model
 from followthemoney.types import registry
+from zavod.context import Context
 
 from zavod.entity import Entity
 from zavod.archive import STATISTICS_FILE
 from zavod.exporters.common import Exporter
+from zavod.meta.assertion import Action, Assertion, Comparison
 from zavod.util import write_json
 
 
@@ -35,6 +37,44 @@ def get_country_facets(countries: Dict[str, int]) -> List[Any]:
         }
         facets.append(facet)
     return facets
+
+
+def compare_threshold(value: int, comparison: Comparison, threshold: int) -> bool:
+    match comparison:
+        case Comparison.GT:
+            return value > threshold
+        case Comparison.LT:
+            return value < threshold
+        case _:
+            raise ValueError(f"Unknown comparison: {comparison}")
+
+
+def check_assertion(context: Context, stats: Dict, assertion: Assertion) -> None:
+    things = stats.get("things")
+    match assertion.filter_attribute:
+        case "schema":
+            items = things.get("schemata")
+            filter_key = "name"
+        case "country":
+            items = things.get("countries")
+            filter_key = "code"
+        case _:
+            raise ValueError(f"Unknown filter attribute: {assertion.filter_attribute}")
+    items = [i for i in items if i[filter_key] == assertion.filter_value]
+    assert len(items) == 1, "Value not found for assertion with filter %s=%s" % (
+        assertion.filter_attribute,
+        assertion.filter_value,
+    )
+    value = items[0]["count"]
+    if not compare_threshold(value, assertion.comparison, assertion.threshold):
+        msg = f"Assertion failed for value {value}: {assertion}"
+        match assertion.action:
+            case Action.WARN:
+                context.log.warning(msg)
+            case Action.FAIL:
+                raise ValueError(msg)
+            case _:
+                raise ValueError(f"Unknown assertion action: {assertion.action}")
 
 
 class StatisticsExporter(Exporter):
@@ -99,6 +139,10 @@ class StatisticsExporter(Exporter):
                 "schemata": get_schema_facets(self.thing_schemata),
             },
         }
+
+        for assertion in self.dataset.assertions:
+            check_assertion(self.context, stats, assertion)
+
         with open(self.path, "wb") as fh:
             write_json(stats, fh)
         super().finish()
