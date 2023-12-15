@@ -49,22 +49,20 @@ def compare_threshold(value: int, comparison: Comparison, threshold: int) -> boo
             raise ValueError(f"Unknown comparison: {comparison}")
 
 
-def check_assertion(context: Context, stats: Dict, assertion: Assertion) -> None:
-    things = stats.get("things")
+def check_assertion(
+    context: Context, stats: Dict[str, Any], assertion: Assertion
+) -> None:
     match assertion.filter_attribute:
         case "schema":
-            items = things.get("schemata")
+            items = stats["things"]["schemata"]
             filter_key = "name"
         case "country":
-            items = things.get("countries")
+            items = stats["things"]["countries"]
             filter_key = "code"
         case _:
             raise ValueError(f"Unknown filter attribute: {assertion.filter_attribute}")
     items = [i for i in items if i[filter_key] == assertion.filter_value]
-    assert len(items) == 1, "Value not found for assertion with filter %s=%s" % (
-        assertion.filter_attribute,
-        assertion.filter_value,
-    )
+    assert len(items) == 1, "Value not found for assertion %s" % assertion
     value = items[0]["count"]
     if not compare_threshold(value, assertion.comparison, assertion.threshold):
         msg = f"Assertion failed for value {value}: {assertion}"
@@ -72,7 +70,7 @@ def check_assertion(context: Context, stats: Dict, assertion: Assertion) -> None
             case Action.WARN:
                 context.log.warning(msg)
             case Action.FAIL:
-                raise ValueError(msg)
+                raise RuntimeError(msg)
             case _:
                 raise ValueError(f"Unknown assertion action: {assertion.action}")
 

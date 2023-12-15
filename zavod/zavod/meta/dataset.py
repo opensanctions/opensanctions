@@ -69,7 +69,10 @@ class Dataset(NKDataset):
         _type = "collection" if self.is_collection else "source"
         self._type: str = data.get("type", _type).lower().strip()
 
-        self.assertions = [Assertion(a) for a in ensure_list(data.get("assertions", []))]
+        self.assertions = [
+            Assertion(a) for a in ensure_list(data.get("assertions", []))
+        ]
+
     @cached_property
     def lookups(self) -> Dict[str, Lookup]:
         config = self._data.get("lookups", {})

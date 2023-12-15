@@ -20,10 +20,12 @@ class Assertion(object):
     """Data assertion specification."""
 
     def __init__(self, config: Dict[str, Any]) -> None:
-        self.comparison = Comparison[config.get("comparison")]
+        comparison_ = type_require(registry.string, config.get("comparison"))
+        self.comparison = Comparison[comparison_]
         self.threshold = int(type_require(registry.number, config.get("threshold")))
-        self.action = Action[config.get("action")]
-        filter = config.get("filter")
+        action_ = type_require(registry.string, config.get("action"))
+        self.action = Action[action_]
+        filter = config.get("filter", {})
         self.filter_attribute = type_require(registry.string, filter.get("attribute"))
         self.filter_value = type_require(registry.string, filter.get("value"))
 
