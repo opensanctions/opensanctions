@@ -33,6 +33,7 @@ def dedupe_relations(dataset: Dataset) -> None:
         ):
             continue
 
+        resolver.explode(entity.id)
         if idx > 0 and idx % 10000 == 0:
             log.info("Keyed %s entities..." % idx)
 
