@@ -306,7 +306,7 @@ def parse_entry(context: Context, target: Element, programs, places):
             continue
 
         rel = context.make(res.schema)
-        rel.id = context.make_slug(relation.get("ssid"))
+        rel.id = context.make_slug(relation.get("ssid"), rel_type)
         rel.add(res.source, entity.id)
         rel.add(res.target, target_id)
         rel.add(res.text, rel_type)

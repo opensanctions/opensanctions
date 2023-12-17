@@ -30,9 +30,9 @@ def cleanup_relations(dataset: Dataset) -> None:
     resolver.prune()
     unused_ids = set()
     for node in resolver.nodes.keys():
-        if node.id in used_ids:
+        if node.canonical:
             continue
-        if node.id.startswith("Q"):
+        if node.id in used_ids:
             continue
         resolver.remove(node)
         log.info("Removing: %s" % node.id)
