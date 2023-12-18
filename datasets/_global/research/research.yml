@@ -1,5 +1,5 @@
-title: Additional ISINs for Russian Industry
-prefix: alam
+title: Custom research data
+prefix: osre
 disabled: false
 entry_point: crawler.py
 coverage:
@@ -14,6 +14,6 @@ data:
 publisher:
   name: OpenSanctions Team
   description: |
-    This data was curated by OpenSanctions and initially submitted by a user.
+    This data was curated by OpenSanctions and initially submitted by our users and customers.
   url: https://www.opensanctions.org
   official: false
