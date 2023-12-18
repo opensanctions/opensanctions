@@ -8,14 +8,13 @@ coverage:
 exports:
   - statistics.json
 summary: |
-  ISINs for specific securities, contributed by Alken Asset Management.
+  ISINs for specific securities subject to sanctions
 data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vTtQD9wiHuyl23NmrIeAACET4OohOXhmuxQv817FHHas8uO4k8VBzex25nIOPqsG9300aXJIqCZzo--/pub?gid=0&single=true&output=csv
   format: csv
 publisher:
-  name: Alken Asset Management Ltd.
+  name: OpenSanctions Team
   description: |
-    Alken Asset Management Ltd. is an independent asset management company
-    based in London. The company was founded in 2005 by Nicolas Walewski.
-  url: https://www.alken-am.com/
+    This data was curated by OpenSanctions and initially submitted by a user.
+  url: https://www.opensanctions.org
   official: false

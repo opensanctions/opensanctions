@@ -34,4 +34,4 @@ children:
   - us_ofac_sdn
   - openfigi
   - permid
-  - alken_isins
+  - custom_isins
