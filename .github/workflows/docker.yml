@@ -32,5 +32,5 @@ jobs:
           context: .
           pull: true
           push: true
-          tags: ghcr.io/opensanctions/opensanctions:main
+          tags: ghcr.io/opensanctions/opensanctions:latest
           cache-to: type=gha,mode=max
