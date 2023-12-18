@@ -1,3 +1,4 @@
+import shutil
 from lxml import html
 from normality import collapse_spaces
 from pantomime.types import HTML
@@ -16,7 +17,15 @@ CLEAN = [
 
 
 def crawl(context: Context):
-    path = context.fetch_resource("source.html", context.data_url)
+    # path = context.fetch_resource(
+    #     "source.html",
+    #     context.data_url,
+    #     headers={"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "},
+    # )
+    assert context.dataset.base_path is not None
+    data_path = context.dataset.base_path / "data.html"
+    path = context.get_resource_path("source.html")
+    shutil.copyfile(data_path, path)
     context.export_resource(path, HTML, title=context.SOURCE_TITLE)
     with open(path, "rb") as fh:
         doc = html.fromstring(fh.read())
