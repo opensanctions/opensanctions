@@ -1,11 +1,10 @@
 import re
-import xlrd
+import xlrd  # type: ignore
 import string
-from banal import first
 from datetime import datetime, date
 from openpyxl import load_workbook
 from openpyxl.cell import Cell
-from pantomime.types import XLSX
+from pantomime.types import XLSX, XLS
 from urllib.parse import urljoin
 from typing import Dict, List, Optional
 from normality import collapse_spaces, stringify
@@ -81,12 +80,12 @@ def parse_names(names: List[str]) -> List[str]:
     return cleaned
 
 
-def fetch_xlsx_url(context: Context) -> str:
+def fetch_excel_url(context: Context) -> str:
     params = {"_": context.data_time.date().isoformat()}
     doc = context.fetch_html(context.data_url, params=params)
     for link in doc.findall('.//div[@class="unique-block"]//a'):
         href = urljoin(context.data_url, link.get("href"))
-        if href.endswith(".xlsx"):
+        if href.endswith(".xlsx") or href.endswith(".xls"):
             return href
     raise ValueError("Could not find XLS file on MoF web site")
 
@@ -157,9 +156,8 @@ def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str
     context.emit(sanction)
 
 
-def crawl(context: Context):
-    xlsx_url = fetch_xlsx_url(context)
-    path = context.fetch_resource("source.xlsx", xlsx_url)
+def crawl_xlsx(context: Context, url: str):
+    path = context.fetch_resource("source.xlsx", url)
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
     wb = load_workbook(path, read_only=True)
@@ -207,3 +205,64 @@ def crawl(context: Context):
                             "Unknown column title", column=cell, sheet=sheet.title
                         )
                     headers.append(header)
+
+
+def crawl_xls(context: Context, url: str):
+    path = context.fetch_resource("source.xls", url)
+    context.export_resource(path, XLS, title=context.SOURCE_TITLE)
+
+    xls = xlrd.open_workbook(path)
+    for sheet in xls.sheets():
+        headers = None
+        row0 = [h.convert_excel_cell(xls, c) for c in sheet.row(0)]
+        sections = [c for c in row0 if c is not None]
+        section = collapse_spaces(" / ".join(sections))
+        for r in range(1, sheet.nrows):
+            row = [h.convert_excel_cell(xls, c) for c in sheet.row(r)]
+
+            # after a header is found, read normal data:
+            if headers is not None:
+                data: Dict[str, List[str]] = {}
+                for header, cell in zip(headers, row):
+                    if header is None:
+                        continue
+                    values = []
+                    if isinstance(cell, datetime):
+                        cell = cell.date()
+                    for value in h.multi_split(stringify(cell), SPLITS):
+                        if value is None:
+                            continue
+                        if value == "不明":
+                            continue
+                        if value is not None:
+                            values.append(value)
+                    data[header] = values
+                emit_row(context, sheet.name, section, data)
+
+            if not len(row) or row[0] is None:
+                continue
+            teaser = row[0].strip()
+            # the first column of the common headers:
+            if "告示日付" in teaser:  # jp: Notice date
+                if headers is not None:
+                    context.log.error("Found double header?", row=row)
+                # print("SHEET", sheet, row)
+                headers = []
+                for cell in row:
+                    cell = collapse_spaces(cell)
+                    header = context.lookup_value("columns", cell)
+                    if header is None:
+                        context.log.warning(
+                            "Unknown column title", column=cell, sheet=sheet.name
+                        )
+                    headers.append(header)
+
+
+def crawl(context: Context):
+    url = fetch_excel_url(context)
+    if url.endswith(".xlsx"):
+        crawl_xlsx(context, url)
+    elif url.endswith(".xls"):
+        crawl_xls(context, url)
+    else:
+        raise ValueError("Unknown file type: %s" % url)
