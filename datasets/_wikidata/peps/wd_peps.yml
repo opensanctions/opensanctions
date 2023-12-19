@@ -46,6 +46,49 @@ data:
   url: https://data.opensanctions.org/contrib/pepdb/holders.csv
   format: CSV
 
+assertions:
+  - metric: entity_count
+    comparison: gt
+    threshold: 160000
+    filter:
+      attribute: schema
+      value: Person
+  - metric: entity_count
+    comparison: lt
+    threshold: 180000
+    filter:
+      attribute: schema
+      value: Person
+  - metric: entity_count
+    comparison: gt
+    threshold: 10000
+    filter:
+      attribute: schema
+      value: Position
+
+  - metric: entity_count
+    comparison: gt
+    threshold: 20000
+    filter:
+      attribute: country
+      value: us
+  - metric: entity_count
+    comparison: gt
+    threshold: 8000
+    filter:
+      attribute: country
+      value: cn
+  - metric: entity_count
+    comparison: gt
+    threshold: 20
+    filter:
+      attribute: country
+      value: bn
+
+  - metric: country_count
+    comparison: gt
+    threshold: 19
+
 lookups:
   type.date:
     options:

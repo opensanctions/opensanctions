@@ -78,7 +78,7 @@ def check_assertion(
 ) -> None:
     value = get_value(stats, assertion)
     if value is None:
-        context.log.warning("Value not found for assertion %s" % assertion)
+        context.log.warning(f"Value not found for assertion {assertion}")
         return
     if not compare_threshold(value, assertion.comparison, assertion.threshold):
         context.log.warning(f"Assertion failed for value {value}: {assertion}")

@@ -30,21 +30,21 @@ data:
 assertions:
   - metric: entity_count
     comparison: gt
-    threshold: 100
+    threshold: 45
     filter:
       attribute: schema
       value: Person
 
   - metric: entity_count
     comparison: lt
-    threshold: 200
+    threshold: 52
     filter:
       attribute: schema
       value: Person
 
   - metric: entity_count
     comparison: gt
-    threshold: 100
+    threshold: 75
     filter:
       attribute: country
       value: ky
