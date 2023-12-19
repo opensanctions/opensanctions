@@ -18,7 +18,6 @@ from zavod.exporters.names import NamesExporter
 from zavod.exporters.nested import NestedJSONExporter
 from zavod.exporters.simplecsv import SimpleCSVExporter
 from zavod.exporters.senzing import SenzingExporter
-from zavod.exporters.statistics import StatisticsExporter
 from zavod.exporters.statements import StatementsCSVExporter
 from zavod.meta import Dataset, load_dataset_from_path
 from zavod.crawl import crawl_dataset

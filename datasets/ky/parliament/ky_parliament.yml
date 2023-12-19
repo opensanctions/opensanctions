@@ -31,24 +31,20 @@ assertions:
   - metric: entity_count
     comparison: gt
     threshold: 100
-    action: warn
     filter:
       attribute: schema
       value: Person
 
-  # Upper threshold can warn when lower thresholds probably need updating
   - metric: entity_count
     comparison: lt
     threshold: 200
-    action: warn
     filter:
       attribute: schema
       value: Person
 
   - metric: entity_count
     comparison: gt
-    threshold: 90
-    action: warn
+    threshold: 100
     filter:
       attribute: country
       value: ky

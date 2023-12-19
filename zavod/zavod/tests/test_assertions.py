@@ -31,20 +31,20 @@ def test_assertion():
     assert country_count.filter_attribute is None
     assert country_count.comparison == Comparison.LT
 
-    with pytest.raises(MetadataException) as e_info:
+    with pytest.raises(MetadataException):
         Assertion({})
 
     config = deepcopy(ENTITY_COUNT)
     config["metric"] = "foo"
-    with pytest.raises(ValueError) as e_info:
+    with pytest.raises(ValueError):
         Assertion(config)
 
     config = deepcopy(ENTITY_COUNT)
     config["comparison"] = "gte"
-    with pytest.raises(ValueError) as e_info:
+    with pytest.raises(ValueError):
         Assertion(config)
 
     config = deepcopy(ENTITY_COUNT)
     del config["filter"]
-    with pytest.raises(MetadataException) as e_info:
+    with pytest.raises(MetadataException):
         Assertion(config)

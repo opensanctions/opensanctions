@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 from followthemoney.types import registry
 from nomenklatura.dataset.util import type_require
 
@@ -18,6 +18,8 @@ class Comparison(Enum):
 
 class Assertion(object):
     """Data assertion specification."""
+    filter_attribute: Optional[str]
+    filter_value: Optional[str]
 
     def __init__(self, config: Dict[str, Any]) -> None:
         self.metric = Metric(type_require(registry.string, config.get("metric")))
@@ -26,7 +28,9 @@ class Assertion(object):
         self.threshold = int(type_require(registry.number, config.get("threshold")))
         if self.metric == Metric.ENTITY_COUNT:
             filter = config.get("filter", {})
-            self.filter_attribute = type_require(registry.string, filter.get("attribute"))
+            self.filter_attribute = type_require(
+                registry.string, filter.get("attribute")
+            )
             self.filter_value = type_require(registry.string, filter.get("value"))
         else:
             assert "filter" not in config, self.metric
@@ -34,8 +38,10 @@ class Assertion(object):
             self.filter_value = None
 
     def __repr__(self) -> str:
-        string = f"<Assertion {self.metric.value} {self.comparison.value} {self.threshold}"
+        string = (
+            f"<Assertion {self.metric.value} {self.comparison.value} {self.threshold}"
+        )
         if self.filter_attribute is not None:
-            string  += f" filter: {self.filter_attribute}={self.filter_value}"
+            string += f" filter: {self.filter_attribute}={self.filter_value}"
         string += ">"
         return string
