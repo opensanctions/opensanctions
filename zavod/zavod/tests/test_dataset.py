@@ -2,6 +2,7 @@ import pytest
 from nomenklatura.exceptions import MetadataException
 
 from zavod.meta import get_catalog, Dataset, get_multi_dataset
+from zavod.meta.assertion import Assertion
 
 
 TEST_DATASET = {
@@ -55,7 +56,7 @@ def test_basic():
     assert os_data["sources"] == ["test"], os_data
 
 
-def test_validation(testdataset1: Dataset):
+def test_validation(testdataset1: Dataset, testdataset2: Dataset):
     assert testdataset1.name == "testdataset1"
     assert testdataset1.publisher is not None
     assert testdataset1.publisher.name == "OpenSanctions"
@@ -63,6 +64,9 @@ def test_validation(testdataset1: Dataset):
     assert len(testdataset1.children) == 0
     assert len(testdataset1.datasets) == 1
     assert len(testdataset1.inputs) == 0
+    assert len(testdataset1.assertions) == 4
+    assert isinstance(testdataset1.assertions[0], Assertion)
+    assert testdataset2.assertions == []
 
 
 def test_validation_os_dict(testdataset1: Dataset, collection: Dataset):
