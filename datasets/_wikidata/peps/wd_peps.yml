@@ -31,8 +31,9 @@ description: |
   Going forward, we will also include sub-national positions, include state legislatures 
   in federally organized countries, as well as state-level senior executives.
 
-  Politically exposed persons are included after they retire from public office if they
-  are within five years of leaving office.
+  Politically exposed persons are included after they retire from public office for a
+  period determined by [a number of rules](https://www.opensanctions.org/docs/pep/methodology)
+  to handle missing data and different levels of influence of positions.
 publisher:
   name: Wikidata
   description: |
@@ -43,8 +44,8 @@ publisher:
   official: false
 url: https://www.opensanctions.org/datasets/peps
 data:
-  url: https://data.opensanctions.org/contrib/pepdb/holders.csv
-  format: CSV
+  url: https://query.wikidata.org/sparql
+  format: JSON
 
 lookups:
   type.date:
@@ -941,6 +942,10 @@ lookups:
         code: "GN"
         label: "Guinea"
         decision: "national"
+      - match: "Q12891054"
+        code: "GN"
+        label: "Guinea"
+        decision: "national"
       - match: "Q20886709"
         code: ""
         label: "Lower Alsace"
@@ -962,6 +967,10 @@ lookups:
         label: "Saudi Arabia"
         decision: "national"
       - match: "Q854"
+        code: "LK"
+        label: "Sri Lanka"
+        decision: "national"
+      - match: "Q13100640"
         code: "LK"
         label: "Sri Lanka"
         decision: "national"
