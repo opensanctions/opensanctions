@@ -4,9 +4,9 @@ prefix: ltfiu
 coverage:
   country: lt
   frequency: never
-  end: 2023-10-27
+  end: 2023-12-18
 deploy:
-  schedule: "0 6 * * *"
+  schedule: "@weekly"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   A list of entities whose property is legally owned or controlled by a sanctioned entity.
@@ -24,5 +24,5 @@ publisher:
   official: true
 url: https://www.fntt.lt/lt/tarptautines-finansines-sankcijos/4166
 data:
-  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRKjv_tSJupEXAilIIOHYKyg2HWYXTqFEsUojaWRqCQ_CcWxCGvUNw67ONZ9wjjNHRTeQsuMgknOVEA/pub?gid=0&single=true&output=csv
-  format: csv
+  url: https://fntt.lrv.lt/lt/tarptautines-finansines-sankcijos/
+  format: html
