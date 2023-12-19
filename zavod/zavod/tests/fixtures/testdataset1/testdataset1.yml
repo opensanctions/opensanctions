@@ -20,6 +20,30 @@ data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vTYliJOm1mk2PrsL0m_BVn2sEbpHIdQ2fuzavp0gqOLndgzCw7gtr9Npqwa_FerVrQBfYFiDeKuwfV-/pub?gid=0&single=true&output=csv
   format: CSV
 
+assertions:
+  - metric: entity_count
+    comparison: gt
+    threshold: 10
+    filter:
+      attribute: schema
+      value: Person
+  - metric: entity_count
+    comparison: gt
+    threshold: 2
+    filter:
+      attribute: country
+      value: de
+  - metric: entity_count
+    comparison: lt
+    threshold: 2
+    filter:
+      attribute: country
+      value: de
+  - metric: country_count
+    comparison: gt
+    threshold: 7
+
+
 lookups:
   plants:
     options:

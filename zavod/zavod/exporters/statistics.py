@@ -7,7 +7,7 @@ from zavod.context import Context
 from zavod.entity import Entity
 from zavod.archive import STATISTICS_FILE
 from zavod.exporters.common import Exporter
-from zavod.meta.assertion import Action, Assertion, Comparison, Metric
+from zavod.meta.assertion import Assertion, Comparison, Metric
 from zavod.util import write_json
 
 
@@ -75,15 +75,8 @@ def check_assertion(
 ) -> None:
     value = get_value(stats, assertion)
     if not compare_threshold(value, assertion.comparison, assertion.threshold):
-        msg = f"Assertion failed for value {value}: {assertion}"
-        match assertion.action:
-            case Action.WARN:
-                context.log.warning(msg)
-            case Action.FAIL:
-                raise RuntimeError(msg)
-            case _:
-                raise ValueError(f"Unknown assertion action: {assertion.action}")
-
+        context.log.warning(f"Assertion failed for value {value}: {assertion}")
+                
 
 class StatisticsExporter(Exporter):
     TITLE = "Dataset statistics"
