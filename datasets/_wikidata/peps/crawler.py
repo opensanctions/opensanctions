@@ -82,7 +82,9 @@ def crawl_holder(
 
 def query_position_holders(context: Context, wd_position: Dict[str, str]) -> None:
     vars = {"POSITION": wd_position["qid"]}
-    response = run_query(context, "holders/holders", vars, cache_days=CACHE_MEDIUM)
+    response = run_query(
+        context, context.data_url, "holders/holders", vars, cache_days=CACHE_MEDIUM
+    )
     context.log.info(
         (
             f"Crawling holders of position {wd_position['qid']} ({wd_position['label']}), "
@@ -135,7 +137,7 @@ def query_positions(context: Context, country) -> Dict:
 
     # a) All positions by jurisdiction/country
     country_response = run_query(
-        context, "positions/country", vars, cache_days=CACHE_MEDIUM
+        context, context.data_url, "positions/country", vars, cache_days=CACHE_MEDIUM
     )
     for bind in country_response.results:
         country_res = pick_country(
@@ -149,7 +151,7 @@ def query_positions(context: Context, country) -> Dict:
 
     # b) Positions held by politicans from that country
     politician_response = run_query(
-        context, "positions/politician", vars, cache_days=CACHE_MEDIUM
+        context, context.data_url, "positions/politician", vars, cache_days=CACHE_MEDIUM
     )
     for bind in politician_response.results:
         country_res = pick_country(
@@ -173,7 +175,7 @@ def query_positions(context: Context, country) -> Dict:
 
 
 def query_countries(context: Context):
-    response = run_query(context, "countries/all")
+    response = run_query(context, context.data_url, "countries/all", cache_days=CACHE_MEDIUM)
     for binding in response.results:
         qid = binding.plain("country")
         label = binding.plain("countryLabel")
