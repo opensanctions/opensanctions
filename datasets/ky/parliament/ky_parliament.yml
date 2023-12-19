@@ -28,31 +28,35 @@ data:
     format: HTML
 
 assertions:
-  - comparison: GT
+  - metric: entity_count
+    comparison: gt
     threshold: 100
-    action: WARN
+    action: warn
     filter:
       attribute: schema
       value: Person
 
-  - comparison: GT
+  - metric: entity_count
+    comparison: gt
     threshold: 50
-    action: FAIL
+    action: fail
     filter:
       attribute: schema
       value: Person
 
   # Upper threshold can warn when lower thresholds probably need updating
-  - comparison: LT
+  - metric: entity_count
+    comparison: lt
     threshold: 200
-    action: WARN
+    action: warn
     filter:
       attribute: schema
       value: Person
 
-  - comparison: GT
+  - metric: entity_count
+    comparison: gt
     threshold: 90
-    action: WARN
+    action: warn
     filter:
       attribute: country
       value: ky

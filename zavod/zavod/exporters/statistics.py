@@ -7,7 +7,7 @@ from zavod.context import Context
 from zavod.entity import Entity
 from zavod.archive import STATISTICS_FILE
 from zavod.exporters.common import Exporter
-from zavod.meta.assertion import Action, Assertion, Comparison
+from zavod.meta.assertion import Action, Assertion, Comparison, Metric
 from zavod.util import write_json
 
 
@@ -49,21 +49,31 @@ def compare_threshold(value: int, comparison: Comparison, threshold: int) -> boo
             raise ValueError(f"Unknown comparison: {comparison}")
 
 
+def get_value(stats: Dict[str, Any], assertion: Assertion) -> int:
+    match assertion.metric:
+        case Metric.ENTITY_COUNT:
+            match assertion.filter_attribute:
+                case "schema":
+                    items = stats["things"]["schemata"]
+                    filter_key = "name"
+                case "country":
+                    items = stats["things"]["countries"]
+                    filter_key = "code"
+                case _:
+                    raise ValueError(f"Unknown filter attribute: {assertion.filter_attribute}")
+            items = [i for i in items if i[filter_key] == assertion.filter_value]
+            assert len(items) == 1, "Value not found for assertion %s" % assertion
+            return items[0]["count"]
+        case Metric.COUNTRY_COUNT:
+            return len(stats["things"]["countries"])
+        case _:
+            raise ValueError(f"Unknown metric: {assertion.metric}")
+        
+        
 def check_assertion(
     context: Context, stats: Dict[str, Any], assertion: Assertion
 ) -> None:
-    match assertion.filter_attribute:
-        case "schema":
-            items = stats["things"]["schemata"]
-            filter_key = "name"
-        case "country":
-            items = stats["things"]["countries"]
-            filter_key = "code"
-        case _:
-            raise ValueError(f"Unknown filter attribute: {assertion.filter_attribute}")
-    items = [i for i in items if i[filter_key] == assertion.filter_value]
-    assert len(items) == 1, "Value not found for assertion %s" % assertion
-    value = items[0]["count"]
+    value = get_value(stats, assertion)
     if not compare_threshold(value, assertion.comparison, assertion.threshold):
         msg = f"Assertion failed for value {value}: {assertion}"
         match assertion.action:
