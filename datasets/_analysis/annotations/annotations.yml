@@ -8,9 +8,8 @@ coverage:
 exports:
   - statistics.json
 deploy:
-  schedule: "1 0 * * *"
-  memory: "3000Mi"
-  premium: true
+  memory: "1000Mi"
+  memory_limit: "1500Mi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   Entity categorisation decisions by the OpenSanctions team.
