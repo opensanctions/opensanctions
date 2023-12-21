@@ -1,8 +1,7 @@
 from functools import cache
-from typing import cast, Any, Dict, Optional
-from nomenklatura.entity import CE
+from typing import Any, Dict, Optional
 
-from zavod.context import Context
+from zavod import Context, Entity
 from zavod import settings
 from zavod.meta import get_multi_dataset
 from zavod.store import get_view
@@ -13,18 +12,14 @@ def get_position(context: Context, entity_id: str) -> Optional[Dict[str, Any]]:
     url = f"{settings.OPENSANCTIONS_API_URL}/positions/{entity_id}"
     headers = {"authorization": settings.OPENSANCTIONS_API_KEY}
     res = context.http.get(url, headers=headers)
-
-    if res.status_code == 200:
-        return res.json()
-    elif res.status_code == 404:
-        return None
-    else:
-        res.raise_for_status()
+    res.raise_for_status()
+    return res.json()
 
 
-def analyze_position(context: Context, entity: CE) -> None:
+def analyze_position(context: Context, entity: Entity) -> None:
     entity_ids = entity.referents
-    entity_ids.add(entity.id)
+    if entity.id is not None:
+        entity_ids.add(entity.id)
     if not entity_ids:
         return
     for entity_id in entity_ids:
