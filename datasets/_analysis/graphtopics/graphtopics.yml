@@ -1,0 +1,31 @@
+type: external
+title: Graph-based entity tagging
+entry_point: analyzer
+prefix: gra
+disabled: false
+hidden: true
+coverage:
+  frequency: daily
+exports:
+  - statistics.json
+deploy:
+  memory: "1000Mi"
+  memory_limit: "1500Mi"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: |
+  Automatically generated graph-based topic annotations
+description: |
+  ...
+url: https://opensanctions.org/datasets/graphtopics
+publisher:
+  name: OpenSanctions
+  description: |
+    OpenSanctions is the company behind the OpenSanctions database of persons
+    and companies of political, criminal, or economic interest.
+  url: https://opensanctions.org
+  official: false
+
+inputs:
+  - default
+  # - sanctions
+  # - ru_rupep
