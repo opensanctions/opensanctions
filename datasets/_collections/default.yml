@@ -39,6 +39,7 @@ children:
   - enrichers
 
   # misc
+  - ann_graph_topics
   - wd_oligarchs
   - wd_curated
   - ru_navalny35

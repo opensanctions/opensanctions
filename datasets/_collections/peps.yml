@@ -23,7 +23,7 @@ description: |
   official sources like governments and also from third-party sources that
   have been aggregated by other organizations.
 children:
-  - annotations
+  - ann_pep_positions
   - br_pep
   - co_funcion_publica
   - co_join_dots
