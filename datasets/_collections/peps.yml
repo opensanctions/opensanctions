@@ -2,7 +2,9 @@ type: collection
 title: Politically Exposed Persons (PEPs)
 deploy:
   schedule: "40 */6 * * *"
-  memory: "2Gi"
+  memory: "1500Mi"
+  memory_limit: "2000Mi"
+  cpu: "500m"
 exports:
   - statistics.json
   - entities.ftm.json
