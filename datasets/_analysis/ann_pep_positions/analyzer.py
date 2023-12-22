@@ -12,6 +12,8 @@ def get_position(context: Context, entity_id: str) -> Optional[Dict[str, Any]]:
     url = f"{settings.OPENSANCTIONS_API_URL}/positions/{entity_id}"
     headers = {"authorization": settings.OPENSANCTIONS_API_KEY}
     res = context.http.get(url, headers=headers)
+    if res.status_code == 404:
+        return None
     res.raise_for_status()
     return res.json()
 
