@@ -1,8 +1,9 @@
 type: external
-title: Annotations by OpenSanctions
+title: PEP position annotations by OpenSanctions
 entry_point: analyzer
-prefix: ann
+prefix: ann-pep
 disabled: false
+hidden: true
 coverage:
   frequency: daily
 exports:
