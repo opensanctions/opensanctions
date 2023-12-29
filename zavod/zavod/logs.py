@@ -36,7 +36,7 @@ def configure_logging(level: int = logging.DEBUG) -> None:
             processor=structlog.processors.JSONRenderer(),
         )
     else:
-        processors.append(structlog.processors.TimeStamper(fmt="%Y-%m-%d %H:%M:%S"))
+        processors.append(structlog.processors.TimeStamper(fmt="%Y-%m-%d %H:%M:%S", utc=settings.TIME_ZONE == "UTC"))
         formatter = structlog.stdlib.ProcessorFormatter(
             foreign_pre_chain=processors,
             processor=structlog.dev.ConsoleRenderer(
