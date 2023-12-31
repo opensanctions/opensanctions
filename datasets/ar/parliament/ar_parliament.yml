@@ -1,0 +1,24 @@
+name: ar_parliament
+title: Argentina Members of Parliament
+url: https://www.hcdn.gob.ar/diputados/
+entry_point: crawler
+prefix: ar-pep # TODO: double check if this is the correct prefix
+#coverage:
+#  frequency: daily
+#load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: |
+  Members of the Parliament of Argentina.
+description: |
+  National Deputies (Members of the Parliament) - Representatives elected directly by the people of the provinces and
+  the city of Buenos Aires of Argentina as listed on the parliamentary website.
+publisher: # TODO: double check what to write here
+    name: Honorable Chamber of Deputies of the Argentine Nation
+    official: true
+    description: |
+      National Deputies
+      Representatives elected directly by the people of the provinces and the city of Buenos Aires (art. 45 National Constitution)
+    country: ar
+    url: https://www.hcdn.gob.ar/diputados/
+data: # TODO: double check what to write here
+    url: https://www.hcdn.gob.ar/diputados/
+    format: HTML
