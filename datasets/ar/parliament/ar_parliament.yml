@@ -19,6 +19,6 @@ publisher: # TODO: double check what to write here
       Representatives elected directly by the people of the provinces and the city of Buenos Aires (art. 45 National Constitution)
     country: ar
     url: https://www.hcdn.gob.ar/diputados/
-data: # TODO: double check what to write here
+data:
     url: https://www.hcdn.gob.ar/diputados/
     format: HTML
