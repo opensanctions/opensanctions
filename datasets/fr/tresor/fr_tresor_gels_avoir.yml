@@ -2924,3 +2924,33 @@ lookups:
           legalForm: société par actions
           registrationNumber: 1096659005200
           incorporationDate: 2009-05-15
+      - match: "Numéro d'enregistrement - Type d'entité: entreprise fédérale d'État - Lieu d'enregistrement: Kuibyshev, région de Novosibirsk, Fédération de Russie - Date d'enregistrement: 15.6.2006: 1065471010340"
+        props:
+          jurisdiction: ru
+          legalForm: entreprise fédérale d'État
+          registrationNumber: 1065471010340
+          incorporationDate: 2006-06-15
+      - match: "Numéro d'enregistrement - Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 14.10.2002: 1027301482603"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          registrationNumber: 1027301482603
+          incorporationDate: 2002-10-14
+      - match: "Personne associée: Pavel Alekseevich Marinychev (PDG)"
+        associates:
+          - Pavel Alekseevich Marinychev
+      - match: "Principal lieu d’activité: Fédération de Russie"
+        props:
+          jurisdiction: ru
+      - match: "Date d’enregistrement: 17/07/2002"
+        props:
+          incorporationDate: 2002-07-17
+      - match: "Type d’entité: société publique par actions"
+        props:
+          legalForm: société publique par actions
+      - match: "NIF: 1433000147"
+        props:
+          innCode: 1433000147
+      - match: "OGRN: 1021400967092"
+        props:
+          ogrnCode: 1021400967092
