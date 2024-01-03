@@ -12,6 +12,7 @@ def crawl_person(context: Context, element):
     name = element.xpath('.//td[2]/a/text()')
     if name:
         person.id = context.make_id(name[0].strip())
+        context.log.info(f"Made person's ID: {person}: {person.id}")
         person.add('name', name[0].strip())
         person.add('alias', f"{name[0].strip().split(',')[1]} {name[0].strip().split(',')[0]}")
         person.add("country", "ar")
@@ -30,9 +31,11 @@ def crawl_person(context: Context, element):
     if url_extension:
         url = context.dataset.data.url + url_extension[0].strip().replace('/diputados/', '')
         person.add("sourceUrl", url)
+        context.log.info(f"Added personal page as URL for {person}")
         crawl_personal_page(context, url, person)
     else:
         person.add("sourceUrl", context.dataset.data.url)
+        context.log.info(f"Added Parliament page as URL for {person}")
 
     # Extract district and create position
     district = element.xpath('.//td[3]/text()')
