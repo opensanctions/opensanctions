@@ -27,7 +27,7 @@ REGEX_HOLDER = re.compile(
     (
         "(represented by )?"
         "(?P<role>"
-        "([Tt]ransitional |Transition |Interim )President"
+        "([Tt]ransitional |Transition |Interim |Acting )President"
         "|President of the Government"
         "|President of China"
         "|President of the Republic"
