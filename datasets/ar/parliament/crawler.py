@@ -1,134 +1,143 @@
 from lxml import html, etree
 from datetime import datetime
-
 from zavod import Context
 from zavod import helpers as h
-# from zavod.logic.pep import categorise
 
-def crawl_person(context: Context, element):
-    person = context.make("Person")
 
-    # Extract PEP's name, create id and add first properties
-    name = element.xpath('.//td[2]/a/text()')
+def crawl_person(context: Context, element) -> dict:
+    """
+    Extracts information about a person from the Parliament page.
+    Returns a dictionary containing extracted data about the person.
+    """
+    person_data = {}
+
+    # Extract PEP's image URL
+    image_url = element.xpath(".//td[1]/img/@src")
+    person_data["image_url"] = image_url[0].strip() if image_url else None
+
+    # Extract PEP's name, alias and split name into first and last names
+    name = element.xpath(".//td[2]/a/text()")
     if name:
-        person.id = context.make_id(name[0].strip())
-        context.log.info(f"Made person's ID: {person}: {person.id}")
-        person.add('name', name[0].strip())
-        person.add('alias', f"{name[0].strip().split(',')[1]} {name[0].strip().split(',')[0]}")
+        name_parts = name[0].strip().split(",")
+        person_data.update(
+            {
+                "name": name[0].strip(),
+                "alias": f"{name_parts[1]} {name_parts[0]}",
+                "first_name": name_parts[1],
+                "last_name": name_parts[0],
+            }
+        )
+
+    # Extract URL extension for the personal page and save person url if exists
+    url_extension = element.xpath(".//td[2]/a/@href")
+    if url_extension:
+        person_data["url"] = context.dataset.data.url + url_extension[
+            0
+        ].strip().replace("/diputados/", "")
+        crawl_personal_page(context, person_data)
+    else:
+        person_data.update(
+            {
+                "url": context.dataset.data.url,
+                "profession": None,
+                "birth_date": None,
+                "email": None,
+            }
+        )
+
+    # Extract additional available information about the person
+    person_data["district"] = _extract_text(element, ".//td[3]/text()")
+    person_data["term"] = _extract_text(element, ".//td[4]/text()")
+    person_data["term_start"] = _extract_text(element, ".//td[5]/text()")
+    person_data["term_end"] = _extract_text(element, ".//td[6]/text()")
+    person_data["block"] = _extract_text(element, ".//td[7]/text()")
+
+    context.log.info(f"Finished crawl person", person_data)
+    return person_data
+
+
+def _extract_text(element, xpath_query):
+    """
+    Helper function to extract text content from an HTML element using XPath.
+    Returns the extracted text, or None if not found.
+    """
+    result = element.xpath(xpath_query)
+    return result[0].strip() if result else None
+
+
+def crawl_personal_page(context: Context, person_data: dict):
+    """
+    Crawls a person's individual page and updates their data dictionary.
+    """
+    context.log.info("Starting crawling personal page", person_data["url"])
+    response = context.http.get(person_data["url"])
+    doc = html.fromstring(response.text)
+
+    # Extract additional details from the personal page
+    person_data["profession"] = _extract_text(
+        doc, './/p[@class="encabezadoProfesion"]/span/text()'
+    )
+    birth_date = _extract_text(doc, './/p[@class="encabezadoFecha"]/span/text()')
+    person_data["birth_date"] = convert_date_format(birth_date) if birth_date else None
+    person_data["email"] = _extract_text(
+        doc, './/a[starts-with(@href, "mailto:")]/text()'
+    )
+
+
+def make_and_emit_person(context: Context, person_data: dict):
+    """
+    Creates a 'Person' entity from the scraped data and emits it to the Context.
+    """
+    if person_data.get("name"):
+        person = context.make("Person")
+        person.id = context.make_id(person_data["name"])
+        person.add("name", person_data["name"])
+        person.add("alias", person_data["alias"])
         person.add("country", "ar")
         h.apply_name(
             person,
-            first_name=name[0].strip().split(',')[1],
-            last_name=name[0].strip().split(',')[0],
+            first_name=person_data["first_name"],
+            last_name=person_data["last_name"],
         )
+        person.add("sourceUrl", person_data["url"])
+        person.add("political", person_data["block"])
 
-    # Extract PEP's image url // TODO: find out if we need term
-    element_image_url = element.xpath('//tr/td[1]/img/@src')
-    image_url = element_image_url[0].strip() if element_image_url else None
-
-    # Extract link to PEP's personal page
-    url_extension = element.xpath('.//td[2]/a/@href')
-    if url_extension:
-        url = context.dataset.data.url + url_extension[0].strip().replace('/diputados/', '')
-        person.add("sourceUrl", url)
-        context.log.info(f"Added personal page as URL for {person}")
-        crawl_personal_page(context, url, person)
-    else:
-        person.add("sourceUrl", context.dataset.data.url)
-        context.log.info(f"Added Parliament page as URL for {person}")
-
-    # Extract district and create position
-    district = element.xpath('.//td[3]/text()')
-    if district:
+        # Create position and occupancy
         position = h.make_position(
             context,
             name="Member of National Congress of Argentina",
             country="ar",
-            subnational_area=district[0].strip(),
-            # topics=[] TODO: find out what is topic and if needed
+            subnational_area=person_data.get("district"),
         )
-    else:
-        position = h.make_position(
+        occupancy = h.make_occupancy(
             context,
-            name="Member of National Congress of Argentina",
-            country="ar",
-            # topics=[] TODO: find out what is topic and if needed
+            person,
+            position,
+            no_end_implies_current=True,
+            start_date=person_data["term_start"],
+            end_date=person_data["term_end"],
         )
 
-    # Extract term // TODO: find out if we need term
-    element_term = element.xpath('.//td[4]/text()')
-    term = element_term[0].strip() if element_term else None
+        # Emit person, position and occupancy
+        context.emit(person, target=True)
+        context.emit(position)
+        context.emit(occupancy)
 
-    # Extract term start and end dates and add them to occupancy
-    element_term_start = element.xpath('.//td[5]/text()')
-    term_start = element_term_start[0].strip() if element_term_start else None
-    element_term_end = element.xpath('.//td[6]/text()')
-    term_end = element_term_end[0].strip() if element_term_end else None
-    # categorisation = categorise(context, position, True) # TODO: find out what is categorise and if we need it
-    occupancy = h.make_occupancy(
-        context,
-        person,
-        position,
-        no_end_implies_current=True,
-        start_date=term_start,
-        end_date=term_end,
-        # categorisation=categorisation,
-    )
 
-    # Extract political block and add to person
-    block = element.xpath('.//td[7]/text()')
-    if block:
-        person.add("political", block[0].strip())
+def convert_date_format(date_string: str) -> str:
+    """
+    Converts a date string from 'DD/MM/YYYY' format to 'YYYY-MM-DD'.
+    """
+    return datetime.strptime(date_string, "%d/%m/%Y").strftime("%Y-%m-%d")
 
-    context.log.info(f"enriched entity: {person}")
-    context.emit(person, target=True)
-
-def crawl_personal_page(context: Context, url, person):
-    context.log.info(f"Starting crawling entity {url}")
-    response = context.http.get(url)
-
-    # Parse the HTTP response into an lxml DOM:
-    doc = html.fromstring(response.text)
-
-    # Extract profession // TODO: find out if we need and can use profession
-    profession = doc.xpath('.//p[@class="encabezadoProfesion"]/span/text()')
-    entity_profession = profession[0].strip() if profession else None
-
-    # Extract date of birth
-    birth_date = doc.xpath('.//p[@class="encabezadoFecha"]/span/text()')
-    if birth_date:
-        person.add('birthDate', convert_date_format(birth_date[0].strip()))
-
-    # Extract email
-    email = doc.xpath('.//a[starts-with(@href, "mailto:")]/text()')
-    if email:
-        person.add('email', email[0].strip())
-
-def save_text_to_file(element, filename):
-    text = etree.tostring(element, pretty_print=True, method="html").decode()
-    with open(filename, 'w') as file:
-        file.write(text)
-
-def convert_date_format(date_string):
-    # Parse the date string into a datetime object
-    date_obj = datetime.strptime(date_string, '%d/%m/%Y')
-
-    # Format the datetime object into the desired format
-    return date_obj.strftime('%Y-%m-%d')
 
 def crawl(context: Context):
-    context.log.info("Starting crawling")
+    """
+    Main function to crawl and process data from the Argentinian parliament members page.
+    """
     response = context.http.get(context.dataset.data.url)
-
-    # Parse the HTTP response into an lxml DOM:
     doc = html.fromstring(response.text)
-    context.log.info(f"This is 100 symbols of doc {doc[:100]}")
 
-    save_text_to_file(doc, '/opensanctions/data/output.txt')
-    context.log.info("Saved output.txt")
-
-    # Find all <tr> elements within <tbody>
-    for element in doc.xpath('//tbody/tr')[:10]:
-        crawl_person(context, element)
-
-
+    for element in doc.xpath("//tbody/tr"):
+        person_data = crawl_person(context, element)
+        make_and_emit_person(context, person_data)
