@@ -30,9 +30,9 @@ data:
 assertions:
   min:
     schema_entities:
-      Person: 45
+      Person: 33
     country_entities:
-      ky: 75
+      ky: 63
   max:
     schema_entities:
-      Person: 52
+      Person: 40
