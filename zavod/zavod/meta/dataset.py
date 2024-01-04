@@ -77,7 +77,7 @@ class Dataset(NKDataset):
         
         Configured as follows:
 
-        .. code-block:: yaml
+        ```yaml
           min:
             schema_entities:
               Person: 160000
@@ -89,6 +89,7 @@ class Dataset(NKDataset):
           max:
             schema_entities:
               Person: 180000
+        ```
         """
 
     @cached_property
