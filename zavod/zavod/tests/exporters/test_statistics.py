@@ -61,16 +61,16 @@ def test_statistics(testdataset1: Dataset):
     issues = [f'{i["level"]}: {i["message"]}' for i in issue_details]
     assert (
         "warning: Assertion failed for value 2: "
-        "<Assertion entity_count gt 2 filter: country=de>"
+        "<Assertion entity_count gte 3 filter: country=de>"
     ) in issues, issues
     assert (
         "warning: Assertion failed for value 2: "
-        "<Assertion entity_count lt 2 filter: country=de>"
+        "<Assertion entity_count lte 1 filter: country=de>"
     ) in issues, issues
     assert (
         "warning: Assertion failed for value 6: "
-        "<Assertion entity_count gt 10 filter: schema=Person>"
+        "<Assertion entity_count gte 10 filter: schema=Person>"
     ) in issues, issues
     assert (
-        "warning: Assertion failed for value 6: <Assertion country_count gt 7>"
+        "warning: Assertion failed for value 6: <Assertion country_count gte 7>"
     ) in issues, issues

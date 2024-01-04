@@ -25,11 +25,11 @@ assertions:
     schema_entities:
       Person: 10
     country_entities:
-      de: 2
+      de: 3
     countries: 7
   max:
     country_entities:
-      de: 2
+      de: 1
 
 lookups:
   plants:

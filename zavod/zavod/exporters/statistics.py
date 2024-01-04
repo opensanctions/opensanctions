@@ -41,10 +41,10 @@ def get_country_facets(countries: Dict[str, int]) -> List[Any]:
 
 def compare_threshold(value: int, comparison: Comparison, threshold: int) -> bool:
     match comparison:
-        case Comparison.GT:
-            return value > threshold
-        case Comparison.LT:
-            return value < threshold
+        case Comparison.GTE:
+            return value >= threshold
+        case Comparison.LTE:
+            return value <= threshold
         case _:
             raise ValueError(f"Unknown comparison: {comparison}")
 

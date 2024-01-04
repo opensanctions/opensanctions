@@ -20,12 +20,12 @@ def test_parse_assertions():
     entity_count = assertions[0]
     assert entity_count.metric == Metric.ENTITY_COUNT
     assert entity_count.filter_attribute == "schema"
-    assert entity_count.comparison == Comparison.GT
+    assert entity_count.comparison == Comparison.GTE
 
     country_count = assertions[1]
     assert country_count.metric == Metric.COUNTRY_COUNT
     assert country_count.filter_attribute is None
-    assert country_count.comparison == Comparison.LT
+    assert country_count.comparison == Comparison.LTE
 
     config = deepcopy(CONFIG)
     config["min"]["foo"] = config["min"].pop("schema_entities")

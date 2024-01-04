@@ -12,8 +12,8 @@ class Metric(Enum):
 
 
 class Comparison(Enum):
-    GT = "gt"
-    LT = "lt"
+    GTE = "gte"
+    LTE = "lte"
 
 
 class Assertion(object):
@@ -81,9 +81,9 @@ def parse_assertions(config: Dict[str, Any]) -> Generator[Assertion, None, None]
     for key, value in config.items():
         match key:
             case "min":
-                comparison = Comparison.GT
+                comparison = Comparison.GTE
             case "max":
-                comparison = Comparison.LT
+                comparison = Comparison.LTE
             case _:
                 raise ValueError(f"Unknown assertion: {key}")
         yield from parse_metrics(comparison, value)
