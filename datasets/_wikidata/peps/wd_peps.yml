@@ -48,47 +48,18 @@ data:
   format: JSON
 
 assertions:
-  - metric: entity_count
-    comparison: gt
-    threshold: 160000
-    filter:
-      attribute: schema
-      value: Person
-  - metric: entity_count
-    comparison: lt
-    threshold: 180000
-    filter:
-      attribute: schema
-      value: Person
-  - metric: entity_count
-    comparison: gt
-    threshold: 10000
-    filter:
-      attribute: schema
-      value: Position
-
-  - metric: entity_count
-    comparison: gt
-    threshold: 20000
-    filter:
-      attribute: country
-      value: us
-  - metric: entity_count
-    comparison: gt
-    threshold: 8000
-    filter:
-      attribute: country
-      value: cn
-  - metric: entity_count
-    comparison: gt
-    threshold: 20
-    filter:
-      attribute: country
-      value: bn
-
-  - metric: country_count
-    comparison: gt
-    threshold: 19
+  min:
+    schema_entities:
+      Person: 160000
+      Position: 10000
+    country_entities:
+      us: 20000
+      cn: 8000
+      bn: 20
+    countries: 19
+  max:
+    schema_entities:
+      Person: 180000
 
 lookups:
   type.date:

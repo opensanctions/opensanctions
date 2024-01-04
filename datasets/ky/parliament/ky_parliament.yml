@@ -28,23 +28,11 @@ data:
     format: HTML
 
 assertions:
-  - metric: entity_count
-    comparison: gt
-    threshold: 45
-    filter:
-      attribute: schema
-      value: Person
-
-  - metric: entity_count
-    comparison: lt
-    threshold: 52
-    filter:
-      attribute: schema
-      value: Person
-
-  - metric: entity_count
-    comparison: gt
-    threshold: 75
-    filter:
-      attribute: country
-      value: ky
+  min:
+    schema_entities:
+      Person: 45
+    country_entities:
+      ky: 75
+  max:
+    schema_entities:
+      Person: 52

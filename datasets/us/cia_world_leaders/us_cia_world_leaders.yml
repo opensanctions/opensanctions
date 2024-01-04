@@ -37,35 +37,13 @@ data:
   format: JSON
 
 assertions:
-  - metric: entity_count
-    comparison: gt
-    threshold: 5700
-    action: warn
-    filter:
-      attribute: schema
-      value: Person
-
-  - metric: entity_count
-    comparison: gt
-    threshold: 5000
-    action: fail
-    filter:
-      attribute: schema
-      value: Person
-
-  - metric: entity_count
-    comparison: lt
-    threshold: 6000
-    action: warn
-    filter:
-      attribute: schema
-      value: Person
-
-  - metric: country_count
-    comparison: gt
-    threshold: 195
-    action: warn
-
+  min:
+    schema_entities:
+      Person: 5700
+    countries: 195
+  max:
+    schema_entities:
+      Person: 6000
 
 lookups:
   position_topics:
