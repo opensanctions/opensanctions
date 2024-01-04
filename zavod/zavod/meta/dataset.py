@@ -69,7 +69,9 @@ class Dataset(NKDataset):
         _type = "collection" if self.is_collection else "source"
         self._type: str = data.get("type", _type).lower().strip()
 
-        self.assertions: List[Assertion] = list(parse_assertions(data.get("assertions", {})))
+        self.assertions: List[Assertion] = list(
+            parse_assertions(data.get("assertions", {}))
+        )
         """
         List of assertions which should be considered warnings if they fail.
         

@@ -1,6 +1,5 @@
 import pytest
 from copy import deepcopy
-from nomenklatura.exceptions import MetadataException
 
 from zavod.meta.assertion import parse_assertions, Comparison, Metric
 

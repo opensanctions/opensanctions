@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Any, Dict, Generator, List, Optional, cast
+from typing import Any, Dict, Generator, Optional
 from followthemoney.types import registry
 from nomenklatura.dataset.util import type_require
 
