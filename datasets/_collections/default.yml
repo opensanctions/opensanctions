@@ -2,8 +2,9 @@ type: collection
 title: OpenSanctions Default
 deploy:
   schedule: "30 */6 * * *"
-  memory: "2000Mi"
-  cpu: "400m"
+  memory: "1500Mi"
+  memory_limit: "2500Mi"
+  cpu: "500m"
   disk: "20Gi"
   command: /etl/scripts/export-default.sh
   # premium: true
@@ -38,6 +39,7 @@ children:
   - enrichers
 
   # misc
+  - ann_graph_topics
   - wd_oligarchs
   - wd_curated
   - ru_navalny35

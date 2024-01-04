@@ -34,18 +34,18 @@ KEEP_HEADINGS = {
 REGEX_POSITIONISH = re.compile(
     r"(Minister|Attorney|Governor|Member|Parliamentary|Leader|Speaker)"
 )
-
+REGEX_NAME = re.compile(r"^[\w\.“”’-]+( [\w\.“”’-]+){1,3}$")
 
 def crawl_card_2021(context: Context, position: str, el: ElementOrTree):
-    name_el = el.find(".//h1")
-    sub_title_el = name_el.find('.//span[@class="member-sub-title"]')
-    sub_title_el.getparent().remove(sub_title_el)
-    name = name_el.text_content()
+    name_el = el.find("./h1")
+    name = name_el.text
     name = re.sub(r",.+", "", name)
     name = name.replace("Hon. ", "")
     name = name.replace("Ms. ", "")
     name = name.replace("Mr. ", "")
     name = name.replace("Sir ", "")
+    if not REGEX_NAME.match(name):
+        context.log.warning("Name doesn't look like a name", name=name)
 
     entity = context.make("Person")
     entity.id = context.make_id(name)

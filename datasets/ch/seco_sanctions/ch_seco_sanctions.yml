@@ -43,7 +43,7 @@ lookups:
         source: subject
         target: object
         text: role
-        
+
   type.address:
     lowercase: true
     options:

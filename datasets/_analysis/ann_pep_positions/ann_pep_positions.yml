@@ -1,16 +1,16 @@
 type: external
-title: Annotations by OpenSanctions
+title: PEP position annotations by OpenSanctions
 entry_point: analyzer
-prefix: ann
+prefix: ann-pep
 disabled: false
+hidden: true
 coverage:
   frequency: daily
 exports:
   - statistics.json
 deploy:
-  schedule: "1 0 * * *"
-  memory: "3000Mi"
-  premium: true
+  memory: "1000Mi"
+  memory_limit: "1500Mi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   Entity categorisation decisions by the OpenSanctions team.

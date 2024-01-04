@@ -9,7 +9,6 @@ from zavod.shed.wikidata.struct import SparqlResponse
 
 queries_path = Path(__file__).resolve().parent / "queries"
 
-QUERY_URL = "https://query.wikidata.org/sparql"
 HEADERS = {
     "Accept": "application/sparql-results+json",
 }
@@ -29,6 +28,7 @@ def make_query(name: str, variables: Dict[str, str]) -> str:
 
 def run_query(
     context: Context,
+    query_url: str,
     name: str,
     variables: Dict[str, str] = {},
     cache_days: int = CACHE_SHORT,
@@ -36,6 +36,6 @@ def run_query(
     query_text = make_query(name, variables)
     params = {"query": query_text}
     data = context.fetch_json(
-        QUERY_URL, params=params, headers=HEADERS, cache_days=cache_days
+        query_url, params=params, headers=HEADERS, cache_days=cache_days
     )
     return SparqlResponse(query_text, data)

@@ -257,6 +257,8 @@ lookups:
           - （偽造旅券より）
           # "Hijiri calendar"
           - "（ヒジュラ暦）"
+          - "の間"
+          - "から"
         value: null
       - match: Born on 10 July 1942
         value: "1942-07-10"
