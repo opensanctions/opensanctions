@@ -2,49 +2,48 @@ import pytest
 from copy import deepcopy
 from nomenklatura.exceptions import MetadataException
 
-from zavod.meta.assertion import Assertion, Comparison, Metric
+from zavod.meta.assertion import parse_assertions, Comparison, Metric
 
-ENTITY_COUNT = {
-    "metric": "entity_count",
-    "comparison": "gt",
-    "threshold": 1,
-    "filter": {
-        "attribute": "schema",
-        "value": "Person"
+CONFIG = {
+    "min": {
+        "schema_entities": {
+            "Person": 1
+        },
+    },
+    "max": {
+        "countries": 1
     }
 }
-COUNTRY_COUNT = {
-    "metric": "country_count",
-    "comparison": "lt",
-    "threshold": 1
-}
 
 
-def test_assertion():
-    entity_count = Assertion(ENTITY_COUNT)
+def test_parse_assertions():
+    assertions = list(parse_assertions(CONFIG))
+    entity_count = assertions[0]
     assert entity_count.metric == Metric.ENTITY_COUNT
     assert entity_count.filter_attribute == "schema"
     assert entity_count.comparison == Comparison.GT
 
-    country_count = Assertion(COUNTRY_COUNT)
+    country_count = assertions[1]
     assert country_count.metric == Metric.COUNTRY_COUNT
     assert country_count.filter_attribute is None
     assert country_count.comparison == Comparison.LT
 
-    with pytest.raises(MetadataException):
-        Assertion({})
-
-    config = deepcopy(ENTITY_COUNT)
-    config["metric"] = "foo"
+    config = deepcopy(CONFIG)
+    config["min"]["foo"] = config["min"].pop("schema_entities")
     with pytest.raises(ValueError):
-        Assertion(config)
+        list(parse_assertions(config))
 
-    config = deepcopy(ENTITY_COUNT)
-    config["comparison"] = "gte"
+    config = deepcopy(CONFIG)
+    config["min"]["schema_entities"] = 1
+    with pytest.raises(Exception):
+        list(parse_assertions(config))
+        
+    config = deepcopy(CONFIG)
+    config["min"]["schema_entities"]["Person"] = "foo"
+    with pytest.raises(Exception):
+        list(parse_assertions(config))
+        
+    config = deepcopy(CONFIG)
+    config["whatever"] = config.pop("min")
     with pytest.raises(ValueError):
-        Assertion(config)
-
-    config = deepcopy(ENTITY_COUNT)
-    del config["filter"]
-    with pytest.raises(MetadataException):
-        Assertion(config)
+        list(parse_assertions(config))

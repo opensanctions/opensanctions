@@ -12,7 +12,7 @@ from nomenklatura.util import datetime_iso
 
 from zavod import settings
 from zavod.logs import get_logger
-from zavod.meta.assertion import Assertion
+from zavod.meta.assertion import Assertion, parse_assertions
 from zavod.meta.data import Data
 
 log = get_logger(__name__)
@@ -69,9 +69,25 @@ class Dataset(NKDataset):
         _type = "collection" if self.is_collection else "source"
         self._type: str = data.get("type", _type).lower().strip()
 
-        self.assertions = [
-            Assertion(a) for a in ensure_list(data.get("assertions", []))
-        ]
+        self.assertions: List[Assertion] = list(parse_assertions(data.get("assertions", {})))
+        """
+        List of assertions which should be considered warnings if they fail.
+        
+        Configured as follows:
+
+        .. code-block:: yaml
+          min:
+            schema_entities:
+              Person: 160000
+              Position: 10000
+            country_entities:
+              us: 20000
+              cn: 8000
+            countries: 19
+          max:
+            schema_entities:
+              Person: 180000
+        """
 
     @cached_property
     def lookups(self) -> Dict[str, Lookup]:

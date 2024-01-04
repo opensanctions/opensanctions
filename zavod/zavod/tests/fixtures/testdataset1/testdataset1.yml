@@ -21,28 +21,15 @@ data:
   format: CSV
 
 assertions:
-  - metric: entity_count
-    comparison: gt
-    threshold: 10
-    filter:
-      attribute: schema
-      value: Person
-  - metric: entity_count
-    comparison: gt
-    threshold: 2
-    filter:
-      attribute: country
-      value: de
-  - metric: entity_count
-    comparison: lt
-    threshold: 2
-    filter:
-      attribute: country
-      value: de
-  - metric: country_count
-    comparison: gt
-    threshold: 7
-
+  min:
+    schema_entities:
+      Person: 10
+    country_entities:
+      de: 2
+    countries: 7
+  max:
+    country_entities:
+      de: 2
 
 lookups:
   plants:

@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Generator, List, Optional, cast
 from followthemoney.types import registry
 from nomenklatura.dataset.util import type_require
 
@@ -18,24 +18,23 @@ class Comparison(Enum):
 
 class Assertion(object):
     """Data assertion specification."""
+
     filter_attribute: Optional[str]
     filter_value: Optional[str]
 
-    def __init__(self, config: Dict[str, Any]) -> None:
-        self.metric = Metric(type_require(registry.string, config.get("metric")))
-        comparison_ = type_require(registry.string, config.get("comparison"))
-        self.comparison = Comparison(comparison_)
-        self.threshold = int(type_require(registry.number, config.get("threshold")))
-        if self.metric == Metric.ENTITY_COUNT:
-            filter = config.get("filter", {})
-            self.filter_attribute = type_require(
-                registry.string, filter.get("attribute")
-            )
-            self.filter_value = type_require(registry.string, filter.get("value"))
-        else:
-            assert "filter" not in config, self.metric
-            self.filter_attribute = None
-            self.filter_value = None
+    def __init__(
+        self,
+        metric: Metric,
+        comparison: Comparison,
+        threshold: int,
+        filter_attribute: Optional[str],
+        filter_value: Optional[str],
+    ) -> None:
+        self.metric = metric
+        self.comparison = comparison
+        self.threshold = threshold
+        self.filter_attribute = filter_attribute
+        self.filter_value = filter_value
 
     def __repr__(self) -> str:
         string = (
@@ -45,3 +44,46 @@ class Assertion(object):
             string += f" filter: {self.filter_attribute}={self.filter_value}"
         string += ">"
         return string
+
+
+def parse_filters(
+    metric: Metric,
+    comparison: Comparison,
+    filter_attribute: str,
+    config: Dict[str, Any],
+) -> Generator[Assertion, None, None]:
+    for key, value in config.items():
+        threshold = int(type_require(registry.number, value))
+        yield Assertion(metric, comparison, threshold, filter_attribute, key)
+
+
+def parse_metrics(
+    comparison: Comparison, config: Dict[str, Any]
+) -> Generator[Assertion, None, None]:
+    for key, value in config.items():
+        match key:
+            case "schema_entities":
+                yield from parse_filters(
+                    Metric.ENTITY_COUNT, comparison, "schema", value
+                )
+            case "country_entities":
+                yield from parse_filters(
+                    Metric.ENTITY_COUNT, comparison, "country", value
+                )
+            case "countries":
+                threshold = int(type_require(registry.number, value))
+                yield Assertion(Metric.COUNTRY_COUNT, comparison, threshold, None, None)
+            case _:
+                raise ValueError(f"Unknown metric: {key}")
+
+
+def parse_assertions(config: Dict[str, Any]) -> Generator[Assertion, None, None]:
+    for key, value in config.items():
+        match key:
+            case "min":
+                comparison = Comparison.GT
+            case "max":
+                comparison = Comparison.LT
+            case _:
+                raise ValueError(f"Unknown assertion: {key}")
+        yield from parse_metrics(comparison, value)
