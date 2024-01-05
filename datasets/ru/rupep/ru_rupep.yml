@@ -315,6 +315,14 @@ lookups:
           - Russian-occupied territory of Ukraine
         values:
           - UA
+      - match: Russian-occupied territory of Moldova
+        values:
+          - MD-PMR
+      - match: 
+          - Оккупированная Россией территория Грузии
+          - Russian-occupied territory of Georgia
+        value:
+          - GE-AB
       - match: Бермудские острова
         value: BM
       - match: Багамские Острова
