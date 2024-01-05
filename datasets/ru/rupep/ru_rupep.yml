@@ -310,7 +310,9 @@ lookups:
         value: Syria
       - match: Объединённые Арабские Эмираты
         value: AE
-      - match: Territories occupied by Russia
+      - match:
+          - Territories occupied by Russia
+          - Russian-occupied territory of Ukraine
         values:
           - UA
       - match: Бермудские острова

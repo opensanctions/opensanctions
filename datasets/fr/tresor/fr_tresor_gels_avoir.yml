@@ -2527,7 +2527,7 @@ lookups:
           incorporationDate: 2017
           registrationNumber: 534295
           legalForm: société à responsabilité limitée
-      - match: "Numéro d’enregistrement - Type d’entité: société par actions  - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 14.10.2002: 1027301482603"
+      - match: "Numéro d'enregistrement - Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 14.10.2002: 1027301482603"
         props:
           jurisdiction: ru
           legalForm: société par actions
@@ -2626,12 +2626,13 @@ lookups:
           legalForm: société par actions
           registrationNumber: 1117154036911
           incorporationDate: 2011-12-30
-      - match: "Numéro d’enregistrement  - Type d’entité: entreprise fédérale d’État - Lieu d’enregistrement: Kuibyshev, région de Novosibirsk, Fédération de Russie - Date d’enregistrement: 15.6.2006: 1065471010340"
+      - match: "Numéro d'enregistrement - Type d'entité: entreprise fédérale d'État - Lieu d'enregistrement: Kuibyshev, région de Novosibirsk, Fédération de Russie - Date d'enregistrement: 15.6.2006: 1065471010340"
         props:
           jurisdiction: ru
           legalForm: entreprise fédérale d’État
           registrationNumber: 1065471010340
           incorporationDate: 2006-06-15
+          address: "Kuibyshev, région de Novosibirsk, Fédération de Russie"
       - match: "Lieu d’enregistrement: Moscou, Fédération de Russie - Date d’enregistrement: 7.11.2005 - Principal établissement: Fédération de Russie: Numéro d’identification fiscale: 7743575354"
         props:
           jurisdiction: ru
@@ -2939,7 +2940,9 @@ lookups:
       - match: "Personne associée: Pavel Alekseevich Marinychev (PDG)"
         associates:
           - Pavel Alekseevich Marinychev
-      - match: "Principal lieu d’activité: Fédération de Russie"
+      - match:
+          - "Principal lieu d’activité: Fédération de Russie"
+          - "Lieu d’enregistrement: Fédération de Russie"
         props:
           jurisdiction: ru
       - match: "Date d’enregistrement: 17/07/2002"
