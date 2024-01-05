@@ -9,12 +9,16 @@ load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   Governors, Regents, and Mayors elected in the 2018 Indonesian regional elections
 description: |
-  placeholder
+   This provides names and positions of governors, mayors and regents elected in the 2018 regional election in Indonesia.
+
+   The data is sourced from the Indonesian General Election Commission open data portal.
 publisher:
     name: Komisi Pemilihan Umum (KPU)
     official: true
     description: |
-      The KPU - the General Election Commission of the Republic of Indonesia - is mandated to Coordinate, organize, control and monitor all stages of elections in Indonesia.
+      The KPU - the General Election Commission of the Republic of Indonesia - is mandated to
+      > Coordinate, organize, control and monitor all stages of elections
+      in Indonesia.
     country: id
     url: https://www.kpu.go.id/
 data:
