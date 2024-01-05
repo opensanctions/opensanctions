@@ -10,7 +10,7 @@ from zavod import helpers as h
 from zavod.logic.pep import categorise
 
 
-REGEX_TITLE = re.compile(r"^(Drs\. |Dr\. |Ir\. |Hj\. |PROF\. |IRJEN POL\. \(Purn\) )*", re.IGNORECASE)
+REGEX_TITLE = re.compile(r"^(Drs\. |Dr\. |Ir\. |Hj\. |PROF\. |IRJEN POL\. \(Purn\) |Dra\. )*", re.IGNORECASE)
 
 
 def worksheet_rows(sheet) -> Generator[Dict[str, Any], None, None]:
@@ -30,76 +30,67 @@ def clean_name(name: str) -> str:
     return name
 
 
-def crawl_governor(context: Context, row: Dict[str, Any]):
-    print(row)
-    gov_name, deputy_name = row["nama_paslon"].split("/")
-    gov_name = clean_name(gov_name)
+def crawl_person(context: Context, name, jurisdiction, position_ind, position_eng, topics):
+    entity = context.make("Person")
+    entity.id = context.make_slug(jurisdiction, name)
+    entity.add("name", name)
+
+    position = h.make_position(
+        context,
+        f"{position_ind} {jurisdiction}",
+        lang="ind",
+        country="id",
+        topics=topics,
+    )
+    position.add("description", position_eng)
+    categorisation = categorise(context, position, True)
+    occupancy = h.make_occupancy(
+        context,
+        entity,
+        position,
+        start_date="2018",
+        no_end_implies_current=False,
+        categorisation=categorisation,
+    )
+
+    context.emit(entity, target=True)
+    context.emit(position)
+    context.emit(occupancy)
+
+
+def crawl_pair(context: Context, row, head_ind, head_eng, deputy_ind, deputy_eng, jurisdiction_column, topics):
+    head_name, deputy_name = row["nama_paslon"].split("/")
+    head_name = clean_name(head_name)
     deputy_name = clean_name(deputy_name)
-    province = row["provinsi"].title()
-
-    governor = context.make("Person")
-    governor.id = context.make_slug(province, gov_name)
-    governor.add("name", gov_name)
-
-    gov_position = h.make_position(
-        context,
-        f"Gubernur {province}",
-        lang="ind",
-        country="id",
-        topics=["gov.head", "gov.state"],
-    )
-    gov_position.add("description", "Governor")
-    gov_categorisation = categorise(context, gov_position, True)
-    gov_occupancy = h.make_occupancy(
-        context,
-        governor,
-        gov_position,
-        start_date="2018",
-        no_end_implies_current=False,
-        categorisation=gov_categorisation,
-    )
-
-    context.emit(governor, target=True)
-    context.emit(gov_position)
-    context.emit(gov_occupancy)
-
-    deputy = context.make("Person")
-    deputy.id = context.make_slug(province, deputy_name)
-    deputy.add("name", deputy_name)
-
-    deputy_position = h.make_position(
-        context,
-        f"Wakil Gubernur {province}",
-        lang="ind",
-        country="id",
-        topics=["gov.head", "gov.state"],
-    )
-    deputy_position.add("description", "Deputy Governor")
-    deputy_categorisation = categorise(context, deputy_position, True)
-    deputy_occupancy = h.make_occupancy(
-        context,
-        deputy,
-        deputy_position,
-        start_date="2018",
-        no_end_implies_current=False,
-        categorisation=deputy_categorisation,
-    )
-
-    context.emit(deputy, target=True)
-    context.emit(deputy_position)
-    context.emit(deputy_occupancy)
-
-
-def crawl_regent_or_mayor(context: Context, row: Dict[str, Any]):
-    print(row)
-
+    jurisdiction = row[jurisdiction_column].title()
+    crawl_person(context, head_name, jurisdiction, head_ind, head_eng, topics)
+    crawl_person(context, deputy_name, jurisdiction, deputy_ind, deputy_eng, topics)
+    
 
 def crawl(context: Context):
     path = context.fetch_resource("individuals.xlsx", context.data_url)
     context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
     workbook = openpyxl.load_workbook(path, read_only=True)
     for row in worksheet_rows(workbook["Pemilihan Gubernur"]):
-        crawl_governor(context, row)
+        crawl_pair(
+            context,
+            row,
+            "Gubernur",
+            "Governor",
+            "Wakil Gubernur",
+            "Deputy Governor",
+            "provinsi",
+            ["gov.head", "gov.state"],
+        )
 
-    # for row in worksheet_rows(workbook["Pemilihan Bupati atau Walikota"]):
-    #    crawl_regent_or_mayor(context, row)
+    for row in worksheet_rows(workbook["Pemilihan Bupati atau Walikota"]):
+        crawl_pair(
+            context,
+            row,
+            "Bupati atau Walikota",
+            "Regent or Mayor",
+            "Wakil Bupati atau Wakil Walikota",
+            "Deputy Regent or Deputy Mayor",
+            "kabupaten_kota",
+            ["gov.head", "gov.muni"],
+        )
