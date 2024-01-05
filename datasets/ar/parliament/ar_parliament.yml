@@ -3,9 +3,9 @@ title: Argentina Members of Parliament
 url: https://www.hcdn.gob.ar/diputados/
 entry_point: crawler
 prefix: ar-pep # TODO: double check if this is the correct prefix
-#coverage:
-#  frequency: daily
-#load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+coverage:
+  frequency: daily
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   Members of the Parliament of Argentina.
 description: |

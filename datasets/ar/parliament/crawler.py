@@ -120,8 +120,12 @@ def make_and_emit_person(context: Context, person_data: dict):
 
         # Emit person, position and occupancy
         context.emit(person, target=True)
-        context.emit(position)
-        context.emit(occupancy)
+        if occupancy:
+            context.log.info("Created Occupancy", occupancy)
+            context.emit(occupancy)
+        if position:
+            context.log.info("Created Position", position)
+            context.emit(position)
 
 
 def convert_date_format(date_string: str) -> str:
