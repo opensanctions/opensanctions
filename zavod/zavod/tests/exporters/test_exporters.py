@@ -80,7 +80,7 @@ def test_export(testdataset1: Dataset):
         entities = [loads(line) for line in senzing_file.readlines()]
         assert len(entities) == 8
         for ent in entities:
-            assert ent["RECORD_TYPE"] in {"PERSON", "ORGANIZATION", "COMPANY"}
+            assert ent["RECORD_TYPE"] in {"PERSON", "ORGANIZATION"}
 
     with open(dataset_path / "statistics.json") as statistics_file:
         statistics = load(statistics_file)
@@ -157,13 +157,16 @@ def test_ftm(testdataset1: Dataset):
     entities = list(path_entities(dataset_path / "entities.ftm.json", StreamEntity))
     for entity in entities:
         # Fail if incorrect format
+        assert entity.first_seen is not None
         datetime.strptime(entity.first_seen, TIME_SECONDS_FMT)
+        assert entity.last_seen is not None
         datetime.strptime(entity.last_seen, TIME_SECONDS_FMT)
+        assert entity.last_change is not None
         datetime.strptime(entity.last_change, TIME_SECONDS_FMT)
         assert entity.datasets == {"testdataset1"}
 
     john = [e for e in entities if e.id == "osv-john-doe"][0]
-    john.get("name") == "John Doe"
+    assert john.get("name") == ["John Doe"]
 
     fam = [
         e for e in entities if e.id == "osv-eb0a27f226377001807c04a1ca7de8502cf4d0cb"
@@ -259,7 +262,7 @@ def test_nested(testdataset1: Dataset):
         assert entity["datasets"] == ["testdataset1"]
 
     john = [e for e in entities if e["id"] == "osv-john-doe"][0]
-    john.get("name") == "John Doe"
+    assert john['properties']["name"] == ["John Doe"]
 
     family_id = "osv-eb0a27f226377001807c04a1ca7de8502cf4d0cb"
     # Family relationship is not included as a root object
@@ -351,7 +354,7 @@ def test_senzing(testdataset1: Dataset):
     assert company == {
         "DATA_SOURCE": "OS_TESTDATASET1",
         "RECORD_ID": "osv-umbrella-corp",
-        "RECORD_TYPE": "COMPANY",
+        "RECORD_TYPE": "ORGANIZATION",
     }
 
     person = [t for t in targets if t["RECORD_ID"] == "osv-hans-gruber"][0]
