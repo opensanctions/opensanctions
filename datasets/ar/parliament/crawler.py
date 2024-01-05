@@ -2,6 +2,7 @@ from lxml import html, etree
 from datetime import datetime
 from zavod import Context
 from zavod import helpers as h
+from zavod.logic.pep import categorise
 
 
 def crawl_person(context: Context, element) -> dict:
@@ -109,23 +110,33 @@ def make_and_emit_person(context: Context, person_data: dict):
             country="ar",
             subnational_area=person_data.get("district"),
         )
+
+        # Create categorisation
+        categorisation = categorise(context, position, is_pep=True)
+        if not categorisation.is_pep:
+            context.log.info("Categorisation IS NOT PEP")
+            return
+        else:
+            context.log.info("Categorisation IS PEP")
+
         occupancy = h.make_occupancy(
             context,
             person,
             position,
-            no_end_implies_current=True,
+            False,
             start_date=person_data["term_start"],
             end_date=person_data["term_end"],
+            categorisation=categorisation,
         )
 
         # Emit person, position and occupancy
         context.emit(person, target=True)
-        if occupancy:
-            context.log.info("Created Occupancy", occupancy)
-            context.emit(occupancy)
         if position:
             context.log.info("Created Position", position)
             context.emit(position)
+        if occupancy:
+            context.log.info("Created Occupancy", occupancy)
+            context.emit(occupancy)
 
 
 def convert_date_format(date_string: str) -> str:
