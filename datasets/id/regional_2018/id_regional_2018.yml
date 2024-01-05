@@ -1,0 +1,27 @@
+name: id_regional_2018
+title: Indonesia 2018 Regional Head Election Results
+url: https://opendata.kpu.go.id/dataset/0276bb839-2cacada2c-ae16c0def-ebbf9
+entry_point: crawler
+prefix: id-reg-2018
+coverage:
+  frequency: daily
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: |
+  Governors, Regents, and Mayors elected in the 2018 Indonesian regional elections
+description: |
+   This provides names and positions of governors, mayors and regents elected in the 2018 regional election in Indonesia.
+
+   The data is sourced from the Indonesian General Election Commission open data portal.
+publisher:
+    name: Komisi Pemilihan Umum (KPU)
+    official: true
+    description: |
+      The KPU - the General Election Commission of the Republic of Indonesia - is mandated to
+      > Coordinate, organize, control and monitor all stages of elections
+      in Indonesia.
+    country: id
+    url: https://www.kpu.go.id/
+data:
+    # https://web.archive.org/web/20240105095157/https://opendatadev.kpu.go.id/sites/default/files/files/8a0d3612bda85495f2a849a6b8fcbf3d.xlsx
+    url: https://opendatadev.kpu.go.id/sites/default/files/files/8a0d3612bda85495f2a849a6b8fcbf3d.xlsx
+    format: XLSX
