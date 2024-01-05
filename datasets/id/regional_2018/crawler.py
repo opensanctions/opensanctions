@@ -41,6 +41,7 @@ def crawl_person(context: Context, name, jurisdiction, position_ind, position_en
         lang="ind",
         country="id",
         topics=topics,
+        subnational_area=jurisdiction,
     )
     position.add("description", position_eng)
     categorisation = categorise(context, position, True)
