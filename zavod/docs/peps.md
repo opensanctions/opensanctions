@@ -155,7 +155,7 @@ for role in person_data.pop("roles"):
         subnational_area=province
     )
     categorisation = categorise(context, position, is_pep=True)
-    if categorisation.is_pep is False:
+    if not categorisation.is_pep:
         continue
     occupancy = h.make_occupancy(
         context,
