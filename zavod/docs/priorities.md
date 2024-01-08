@@ -2,23 +2,23 @@
 
 With some data sources, extracting some attributes of people or companies sufficiently cleanly/reliably can take more effort than others. Not all attributes are equally valuable to our users.
 
-To avoid going too far down a rabbit hole or wasting effort, we recommend an approach of time-boxing the work on a crawler, and taking a best-effort approach according to the following priorities, categorised roughly by Must, Should, Could, and Won't.
+To avoid going too far down a rabbit hole or wasting effort, we recommend an approach of time-boxing the work on a crawler, and taking a best-effort approach according to the following priorities, categorised roughly by Essential, Should, Could and Won't.
 
 Aim for **complete coverage** - make sure all [targets](https://www.opensanctions.org/docs/glossary/#targets) are included. But also **ensure accuracy**, e.g. make sure not to mark someone as a PEP when they are not.
 
 ## Generally
 
-**Must (bare minimum)**
+**Essential (bare minimum)**
 
 - Name(s)
 
-**Must (when available)**
+**Essential (when available)**
 
-- Date of birth (people)
-- Date of registration/creation (Companies, Organizations, Securities)
+- People: Date of birth, nationality
+- Companies/Organizations: Date of registration/creation
 - Official ID numbers (National ID for people, Registration number for companies, etc)
 - Other identifiers (See specifics in schemata, e.g. `innCode`, `wikidataId`)
-- Country of nationality, birth, registration (`Company:jurisdiction`)
+- Country of birth, registration country (`Company:jurisdiction`)
 
 **Should**
 
@@ -47,4 +47,4 @@ Aim for **complete coverage** - make sure all [targets](https://www.opensanction
 
 **Won't - don't extract**
 
-- Addresses
+- Addresses (not needed, and privacy concern)
