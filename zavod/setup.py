@@ -31,7 +31,7 @@ setup(
         "google-cloud-storage",
         "jinja2",
         "types-jinja2",
-        "lxml == 5.0.0",
+        "lxml == 5.0.1",
         "lxml-stubs == 0.4.0",
         "openpyxl == 3.1.2",
         "orjson == 3.9.10",
