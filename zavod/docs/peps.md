@@ -84,15 +84,15 @@ a PEP position, and the PEP duration of its scope.
 To allow newly discovered positions to be added to the database, and to use the
 `is_pep` value from the database, call `zavod.logic.pep.categorise` with the Position.
 If the data source is known to only include PEP positions, or if the crawler only
-attempts to create positions known to be PEPs, the `is_pep` argument can be `True`.
-Otherwise, it should be `None` denoting, that it should be manually categorised
+attempts to create positions known to be PEPs, the `is_pep` argument should be `True`.
+Otherwise it should be `None`, denoting that it should be manually categorised
 in the database.
 **Only make occupancies and emit entities for which the returned `categorisation.is_pep` is `True`**.
 See example below.
 
 During development, it is normally best to run Zavod with the [environment variable](/usage#environment-variables)
-`ZAVOD_SYNC_POSITIONS` set to `false`, meaning the `is_pep` value supplied to
-`categorise` will be used, rather than any value in the database.
+`ZAVOD_SYNC_POSITIONS` set to `false`, meaning the position topics and `is_pep` value supplied to
+`categorise` will be used locally, rather than any value in the database.
 
 In production, positions will be created in the database if they don't already exist,
 which we can later categorise manually. The `is_pep` and `topics` values
@@ -124,7 +124,7 @@ case the occupancy status should be `unknown`.
 
 ### Only emit if the person is a PEP
 
-Only occupancies and positions should be emitted for instances where these
+Occupancies and positions should only be emitted for instances where these
 conditions are met. Persons should only be emitted if at least one occupancy
 exists to indicate they meet our criteria for being considered a PEP.
 
