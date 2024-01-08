@@ -2620,13 +2620,13 @@ lookups:
           address: "Fédération de Russie (450022, République du Bashkortostan, Oufa, Mendeleev street, 134)"
           incorporationDate: 2000-07-29
           innCode: 0274068924
-      - match: "Numéro d’enregistrement - Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie, région de Tula, Tula - Date d’enregistrement: 30.12.2011: 1117154036911"
+      - contains: "30.12.2011: 1117154036911"
         props:
           jurisdiction: ru
           legalForm: société par actions
           registrationNumber: 1117154036911
           incorporationDate: 2011-12-30
-      - match: "Numéro d'enregistrement - Type d'entité: entreprise fédérale d'État - Lieu d'enregistrement: Kuibyshev, région de Novosibirsk, Fédération de Russie - Date d'enregistrement: 15.6.2006: 1065471010340"
+      - contains: "15.6.2006: 1065471010340"
         props:
           jurisdiction: ru
           legalForm: entreprise fédérale d’État
