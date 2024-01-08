@@ -65,6 +65,7 @@ lookups:
           - ebankslaw@aol.com@house.ms.gov
           - SenKean, Jr.@njleg.org
           - AsmVainieri Huttle@njleg.org
+          - https://sd30.senate.ca.gov/contact/message
         contains:
           - www.cityofmontebello.com
           - www.house.leg.state.mn.us
@@ -87,3 +88,9 @@ lookups:
         value: mayor@cityofkaty.com
       - match: jrkillacky52@gmail,com
         value: jrkillacky52@gmail.com
+      - match: mayor@boonton.org.
+        value: mayor@boonton.org
+  type.gender:
+    options:
+      match: X
+      value: other

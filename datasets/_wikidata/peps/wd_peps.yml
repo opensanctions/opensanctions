@@ -1306,3 +1306,7 @@ lookups:
         code: "PS"
         label: "State of Palestine"
         decision: "national"
+      - match: "Q5185064"
+        code: ""
+        label: "House of Zhu"
+        decision: "ignore"
