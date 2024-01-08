@@ -44,6 +44,7 @@ def crawl_card_2021(context: Context, position: str, el: ElementOrTree):
     name = name.replace("Ms. ", "")
     name = name.replace("Mr. ", "")
     name = name.replace("Sir ", "")
+    name = name.replace("Dr. ", "")
     if not REGEX_NAME.match(name):
         context.log.warning("Name doesn't look like a name", name=name)
 

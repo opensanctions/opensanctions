@@ -47,6 +47,20 @@ data:
   url: https://query.wikidata.org/sparql
   format: JSON
 
+assertions:
+  min:
+    schema_entities:
+      Person: 160000
+      Position: 10000
+    country_entities:
+      us: 20000
+      cn: 8000
+      bn: 20
+    countries: 19
+  max:
+    schema_entities:
+      Person: 180000
+
 lookups:
   type.date:
     options:
