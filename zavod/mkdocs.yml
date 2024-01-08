@@ -51,5 +51,6 @@ nav:
   - context.md
   - helpers.md
   - patterns.md
+  - priorities.md
   - PEPs: peps.md
   - Wikidata: wikidata.md
