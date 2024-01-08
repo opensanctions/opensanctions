@@ -197,7 +197,7 @@ zavod export datasets/eu/fsf/eu_fsf_demo.yml
 
 This will log a number of different file types that are exported by default. A nice way
 to explore the output is using the JSON command line utility `jq` and your favourite text
-pager like `less` together to browse and search within the `[targets.nested.json](https://www.opensanctions.org/docs/bulk/json/#:~:text=targets.nested.json)`
+pager like `less` together to browse and search within the [targets.nested.json](https://www.opensanctions.org/docs/bulk/json/#:~:text=targets.nested.json)
 output using a command like
 
 ```bash

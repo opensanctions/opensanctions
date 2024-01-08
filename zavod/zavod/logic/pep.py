@@ -22,6 +22,11 @@ class OccupancyStatus(Enum):
 
 
 class PositionCategorisation:
+    is_pep: Optional[bool]
+    """Whether the position denotes a politically exposed person or not"""
+    topics: List[str]
+    """The [role and scope](https://www.opensanctions.org/docs/topics/#politically-exposed-persons) of the position, as a list of topics"""
+
     def __init__(self, topics: List[str], is_pep: Optional[bool]):
         self.topics = topics
         self.is_pep = is_pep
@@ -46,14 +51,18 @@ def categorise(
       position: The position to be categorised
       is_pep: Initial value for is_pep in the database if it gets added.
     """
-    if settings.OPENSANCTIONS_API_KEY is None:
-        context.log.warning(
-            (
-                "OPENSANCTIONS_API_KEY not configured. Can't check "
-                f"{position.get('country')} {position.get('name')}"
-            )
+    if not settings.SYNC_POSITIONS:
+        context.log.debug(
+            "Syncing positions is disabled - using categorisation provided by crawler, if any.",
+            countries=position.get("country"),
+            name=position.get("name"),
         )
         return PositionCategorisation(topics=position.get("topics"), is_pep=is_pep)
+
+    if not settings.OPENSANCTIONS_API_KEY:
+        context.log.error(
+            "Setting OPENSANCTIONS_API_KEY is required when SYNC_POSITIONS is true."
+        )
 
     url = f"{settings.OPENSANCTIONS_API_URL}/positions/{position.id}"
     headers = {"authorization": settings.OPENSANCTIONS_API_KEY}

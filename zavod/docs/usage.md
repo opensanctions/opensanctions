@@ -21,3 +21,22 @@ $ zavod publish  --latest datasets/_global/icij_offshoreleaks/icij_offshoreleaks
 # Combine crawl, export and publish in one command:
 $ zavod run --latest datasets/_global/icij_offshoreleaks/icij_offshoreleaks.yml
 ```
+
+When you are developing a crawler, it can be handy to rerun the crawler a number
+of times using the data source cache, then export the data rebuilding the intermediate
+storage.
+
+First run the crawler without `--clear` until you are ready to export:
+
+```bash
+$ zavod crawl ...
+```
+
+Then run the exporter with `--clear` to ensure the latest statements are included in the output:
+
+```bash
+$ zavod export --clear ...```
+
+## Environment variables
+
+Zavod can be configured using a range of environment variables defined in `zavod.settings`. These are most-easily set during development in a `.envrc` file by installing [direnv](https://direnv.net/).

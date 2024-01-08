@@ -70,6 +70,40 @@ Use the [`make_position`][zavod.helpers.make_position] helper to generate positi
     export process will take care of deduplication of entities with consistent
     `id`s.
 
+## Categorising positions
+
+Most sources by their nature comprise entirely of PEPs. On rare occasions a
+source may contain positions which do not fall within the [categories of roles we consider PEPs](https://www.opensanctions.org/docs/pep/methodology/#types).
+
+We maintain a database of positions where we can easily categorise positions as
+PEP or not, as well as their [scope and role](https://www.opensanctions.org/docs/topics/#politically-exposed-persons).
+This categorisation is used to determine whether a position, its holder(s), and
+the Occupancy entities relating them, should be emitted based on whether it is
+a PEP position, and the PEP duration of its scope.
+
+To allow newly discovered positions to be added to the database, and to use the
+`is_pep` value from the database, call `zavod.logic.pep.categorise` with the Position.
+If the data source is known to only include PEP positions, or if the crawler only
+attempts to create positions known to be PEPs, the `is_pep` argument can be `True`.
+Otherwise, it should be `None` denoting, that it should be manually categorised
+in the database.
+**Only make occupancies and emit entities for which the returned `categorisation.is_pep` is `True`**.
+See example below.
+
+During development, it is normally best to run Zavod with the [environment variable](/usage#environment-variables)
+`ZAVOD_SYNC_POSITIONS` set to `false`, meaning the `is_pep` value supplied to
+`categorise` will be used, rather than any value in the database.
+
+In production, positions will be created in the database if they don't already exist,
+which we can later categorise manually. The `is_pep` and `topics` values
+from the database will then be used during crawling and [enrichment](https://www.opensanctions.org/datasets/annotations/)
+respectively.
+
+### ::: zavod.logic.pep.categorise
+
+### ::: zavod.logic.pep.PositionCategorisation
+
+
 ## Creating Occupancies
 
 Occupanies represent the fact that a person holds or held a position for a given
@@ -88,16 +122,17 @@ a position is currently held or not, we consider someone a PEP if they have not
 passed away, and they entered the position within the past 40 years. In this
 case the occupancy status should be `unknown`.
 
-### Only emit if they're a PEP
+### Only emit if the person is a PEP
 
 Only occupancies and positions should be emitted for instances where these
 conditions are met. Persons should only be emitted if at least one occupancy
 exists to indicate they meet our criteria for being considered a PEP.
 
 The [`make_occupancy`][zavod.helpers.make_occupancy] helper will only return 
-occupancies if they meet these conditions. You can use this to create occupancies,
-automatically set the correct `status`, and determine whether the occupancy
-meets our criteria and should be emitted.
+occupancies if they still meet these conditions, taking the [PEP duration](https://www.opensanctions.org/docs/pep/methodology/#types)
+into account.
+You can use this to create occupancies, automatically set the correct `status`,
+and determine whether the occupancy meets our criteria and should be emitted.
 
 ### Example
 
@@ -119,6 +154,9 @@ for role in person_data.pop("roles"):
         country="us",
         subnational_area=province
     )
+    categorisation = categorise(context, position, is_pep=True)
+    if categorisation.is_pep is False:
+        continue
     occupancy = h.make_occupancy(
         context,
         person,
@@ -126,6 +164,7 @@ for role in person_data.pop("roles"):
         True,
         start_date=role.get("start_date", None),
         end_date=role.get("end_date", None),
+        categorisation=categorisation
     )
     if occupancy:
         pep_entities.append(position)
