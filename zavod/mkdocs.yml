@@ -50,7 +50,8 @@ nav:
   - metadata.md
   - context.md
   - helpers.md
-  - patterns.md
-  - priorities.md
+  - Best practices:
+      - patterns.md
+      - priorities.md
   - PEPs: peps.md
   - Wikidata: wikidata.md
