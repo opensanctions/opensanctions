@@ -607,7 +607,7 @@ def crawl(context: Context):
     max_propagations = 20
     while changed:
         if propagations >= max_propagations:
-            context.warning("Maxed out propagations. Not propagating further.")
+            context.log.warning("Maxed out propagations. Not propagating further.")
             break
         changed = False
         propagations += 1

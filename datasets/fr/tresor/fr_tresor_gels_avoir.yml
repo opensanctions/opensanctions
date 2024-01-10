@@ -2931,7 +2931,8 @@ lookups:
           legalForm: entreprise fédérale d'État
           registrationNumber: 1065471010340
           incorporationDate: 2006-06-15
-      - match: "Numéro d'enregistrement - Type d'entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 14.10.2002: 1027301482603"
+      - contains:
+          - "14.10.2002: 1027301482603"
         props:
           jurisdiction: ru
           legalForm: société par actions

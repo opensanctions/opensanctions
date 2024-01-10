@@ -343,6 +343,8 @@ lookups:
           - Kingdom of Lombardy–Venetia
           - Emirate of Cyrenaica
           - Federation of Arab Republics
+          - East Pakistan
+          - Akko Town
         value: null
       - match:
           - Cherokee Nation
@@ -548,6 +550,9 @@ lookups:
         value: Indonesia
       - match: French Cameroons
         value: Cameroon
+      - match:
+          - Israeli Civil Administration
+        value: Israel
   type.date:
     options:
       - match:
@@ -576,6 +581,7 @@ lookups:
           - non-binary
           - travesti
           - two-spirit
+          - intersex
         value: other
       - match: transgender
         value: null
