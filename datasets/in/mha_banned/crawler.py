@@ -1,4 +1,5 @@
 import shutil
+import re
 from lxml import html
 from normality import collapse_spaces
 from pantomime.types import HTML
@@ -14,19 +15,16 @@ CLEAN = [
     "all its formations and front organizations.",
     ", and all its Manifestations",
 ]
-
+REGEX_PERSON_PREFIX = re.compile(r"^\d+\.")
 
 def crawl(context: Context):
-    # path = context.fetch_resource(
-    #     "source.html",
-    #     context.data_url,
+    path = context.fetch_resource(
+         "organisations.html",
+         context.data_url + "banned-organisations",
     #     headers={"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "},
-    # )
-    assert context.dataset.base_path is not None
-    data_path = context.dataset.base_path / "data.html"
-    path = context.get_resource_path("source.html")
-    shutil.copyfile(data_path, path)
-    context.export_resource(path, HTML, title=context.SOURCE_TITLE)
+    )
+    context.export_resource(path, HTML)
+    context.export_resource(path, HTML, title="Banned organisations")
     with open(path, "rb") as fh:
         doc = html.fromstring(fh.read())
     for row in doc.findall('.//div[@class="field-content"]//table//tr'):
@@ -44,4 +42,29 @@ def crawl(context: Context):
                 alias = alias.replace(clean, " ")
             entity.add("name", collapse_spaces(alias))
 
+        context.emit(entity, target=True)
+
+    people_url = context.data_url + "page/individual-terrorists-under-uapa"
+    people_path = context.fetch_resource("individuals.html", people_url)
+    context.export_resource(people_path, HTML, "Individuals under UAPA")
+    with open(people_path, "rb") as fh:
+        doc = html.fromstring(fh.read())
+    doc.make_links_absolute(people_url)
+    for para in doc.findall(".//p"):
+        line = collapse_spaces(para.text_content())
+        if not line:
+            continue
+        if not REGEX_PERSON_PREFIX.match(line):
+            context.log.warn("Couldn't parse item", item=line)
+            continue
+        names = REGEX_PERSON_PREFIX.sub("", line)
+        names = re.sub(r"\.$", "", names)
+        name_list = [n.strip() for n in names.split("@")]
+        entity = context.make("Person")
+        entity.id = context.make_id(names)
+        entity.add("name", name_list.pop(0))
+        if name_list:
+            entity.add("alias", name_list)
+        entity.add("topics", "sanction")
+        entity.add("sourceUrl", para.find(".//a").get("href"))
         context.emit(entity, target=True)
