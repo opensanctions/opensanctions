@@ -23,5 +23,11 @@ publisher:
   official: true
 url: https://www.mha.gov.in/en/banned-organisations
 data:
-  url: https://www.mha.gov.in/en/banned-organisations
+  url: https://www.mha.gov.in/en/
   format: HTML
+
+assertions:
+  min:
+    schema_entities:
+      Person: 56
+      Organization: 37
