@@ -50,28 +50,28 @@ def crawl_person(
     context.log.info("Traditional Chinese name {name}".format(name=pages.hant["name"]))
     h.apply_name(person, full=pages.hans["name"], lang="zh_hans")
     context.log.info("Simplified Chinese name {name}".format(name=pages.hans["name"]))
-    for email in pages.en.get("email_address", []):
+    for email in pages.en.pop("email_address", []):
         if email:
             context.log.info("Email: {email}".format(email=email))
             person.add("email", email)
-    for url in pages.en.get("homepage", []):
+    for url in pages.en.pop("homepage", []):
         if url:
             context.log.info("Web: {url}".format(url=url))
             person.add("website", url)
     for phone in ("office_telephone", "mobile_phone"):
-        for number in pages.en.get(phone, []):
+        for number in pages.en.pop(phone, []):
             if number:
                 context.log.info("Phone: {number}".format(number=number))
                 person.add("phone", number)
-    honours = pages.en.get("honour")
+    honours = pages.en.pop("honour")
     if honours and honours != "-":
         context.log.info("Honours: {honours}".format(honours=honours))
         person.add("title", honours)
-    for qual in pages.en.get("qualification", []):
+    for qual in pages.en.pop("qualification", []):
         if qual:
             context.log.info("Education: {qual}".format(qual=qual))
             person.add("education", qual)
-    for address in pages.en.get("office_address", []):
+    for address in pages.en.pop("office_address", []):
         if address:
             context.log.info("Address: {address}".format(address=address))
             address_entity = h.make_address(context, address)
@@ -89,7 +89,7 @@ def crawl_member(
     person = crawl_person(context, member, pages)
 
     positions = []
-    if member.get("is_president", "N") == "Y":
+    if member.pop("is_president", "N") == "Y":
         position = h.make_position(
             context,
             name="President of the Legislative Council of Hong Kong",
@@ -125,6 +125,6 @@ def crawl(context: Context):
     response = context.fetch_json(context.dataset.data.url, cache_days=7)
     members = response["data"]
     for member in members:
-        if member.get("is_active", "N") == "N":
+        if member.pop("is_active", "N") == "N":
             continue
         crawl_member(context, member)
