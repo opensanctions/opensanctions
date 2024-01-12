@@ -2958,3 +2958,8 @@ lookups:
       - match: "OGRN: 1021400967092"
         props:
           ogrnCode: 1021400967092
+      - match: "Créée le 27 juillet 2018 et déclarée le 1er août 2018 à la préfecture des Hauts-de-Seine (92): W9220127754"
+        props:
+          jurisdiction: fr
+          registrationNumber: W9220127754
+          incorporationDate: 2018-07-27
