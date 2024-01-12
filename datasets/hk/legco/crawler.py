@@ -94,7 +94,7 @@ def crawl_member(
             context,
             name="President of the Legislative Council of Hong Kong",
             country="Hong Kong",
-            topics=["gov.national", "gov.legislative", "role.pep"],
+            topics=["gov.national", "gov.legislative"],
         )
         categorisation = categorise(context, position)
         if categorisation.is_pep:
@@ -103,7 +103,7 @@ def crawl_member(
         context,
         name="Member of the Legislative Council of Hong Kong",
         country="Hong Kong",
-        topics=["gov.national", "gov.legislative", "role.pep"],
+        topics=["gov.national", "gov.legislative"],
     )
     categorisation = categorise(context, position)
     if categorisation.is_pep:
