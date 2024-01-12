@@ -31,15 +31,7 @@ def parse_sheet_row(context: Context, row: Dict[str, str]):
     person.add("idNumber", id_number)
     person.add("name", person_name)
 
-    organization_name = row.pop("organismo")
-
-    organization = context.make("Organization")
-    organization.id = context.make_slug(organization_name, prefix="uy-cedula")
-    organization.add("name", organization_name)
-
-    position = h.make_position(
-        context, role, country="uy", organization=organization, lang="spa"
-    )
+    position = h.make_position(context, role, country="uy", lang="spa")
 
     context.emit(person, target=True)
     context.emit(position)
