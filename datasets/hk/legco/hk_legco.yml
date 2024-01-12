@@ -1,0 +1,22 @@
+name: hk_legco
+title: Members of the Hong Kong Legislative Council
+url: https://www.legco.gov.hk/en/members/legco-members/members-biographies.html
+summary: >-
+  Members of the Hong Kong Legislative Council.
+description: |
+  Members of the Hong Kong Legislative Council, their type of
+  constituency, and which constituency they represent.
+entry_point: crawler.py
+prefix: hk-legco
+publisher:
+  name: >-
+    Hong Kong Legislative Council
+  official: true
+  description: |
+    Legislative Council of the Hong Kong Special Administrative Region
+    of the People's Republic of China
+  url: https://legco.gov.hk/
+data:
+  url: https://app4.legco.gov.hk/mapi/en/api/LASS/getListMember
+  format: JSON
+
