@@ -3,30 +3,45 @@ Crawler for extracting names and constituencies of Hong Kong
 Legislative Council members.
 """
 
-from typing import Dict, Union, List
+from typing import Dict, Union, NamedTuple
 
 from zavod import Context
 from zavod import helpers as h
 from zavod.logic.pep import categorise
 
-MEMBER_URL_FORMAT = (
-    "https://app4.legco.gov.hk/mapi/{lang}/api/LASS/getMember?member_id={member_id}"
-)
+
+class SearchKeyData(NamedTuple):
+    """Components of "search_key" field in member list."""
+
+    name_zh_hant: str  # Name (traditional)
+    name_zh_hans: str  # Name (simplified)
+    name_en: str  # Name (English)
+    cons_name_hant: str  # Constituency name (traditional)
+    cons_name_hans: str  # Constituency name (simplified)
+    cons_name_en: str  # Constituency name (English)
+    cons_type_hant: str  # Constituency type (traditional)
+    cons_type_hans: str  # Constituency type (simplified)
+    cons_type_en: str  # Constituency type (English)
+
+
+def extract_search_key(key: str) -> SearchKeyData:
+    """Extract fields from search_key."""
+    return SearchKeyData(*key.split("|"))
 
 
 def crawl_member(
     context: Context,
     member: Dict[str, Union[str, int]],
-    pages: Dict[str, Dict[str, Union[str, int, List]]],
 ):
-    context.log.info(
-        "Adding {name} ({name_tc})".format(
-            name=pages["en"]["name"], name_tc=pages["tc"]["name"]
-        )
-    )
+    """Emit entities for a member of the Legislative Council from JSON data."""
+    context.log.info("Adding {name}".format(name=member["salute_name"]))
+    keydata = extract_search_key(member["search_key"])
+    context.log.info("Chinese name: {name}".format(name=keydata.name_zh_hant))
     person = context.make("Person")
-    person.id = context.make_id(member["member_id"])
-    h.apply_name(person, full=pages["en"]["name"])
+    person.id = context.make_id(member["member_id"], member["search_key"])
+    h.apply_name(person, full=member["salute_name"])
+    h.apply_name(person, full=keydata.name_zh_hant, lang="zh_hant")
+    h.apply_name(person, full=keydata.name_zh_hans, lang="zh_hans")
     if member.get("is_president", "N") == "Y":
         position_name = "President of the Legislative Council"
     else:
@@ -34,8 +49,7 @@ def crawl_member(
     position = h.make_position(
         context,
         name=position_name,
-        country="China",
-        subnational_area="Hong Kong Special Administrative Region",
+        country="Hong Kong",
     )
     categorisation = categorise(context, position)
     if not categorisation.is_pep:
@@ -46,6 +60,10 @@ def crawl_member(
     context.emit(person, target=True)
     context.emit(position)
     context.emit(occupancy)
+    # Note: There is additional information available on the member
+    # page, at
+    # https://app4.legco.gov.hk/mapi/{lang}/api/LASS/getMember?member_id={member_id}
+    # though it doesn't quite fit the schema.
 
 
 def crawl(context: Context):
@@ -56,11 +74,4 @@ def crawl(context: Context):
     for member in members:
         if member.get("is_active", "N") == "N":
             continue
-        member_id = member["member_id"]
-        # Retrieve member pages in English, traditional and simplified Chinese
-        pages = {}
-        for lang in "en", "tc", "cn":
-            member_url = MEMBER_URL_FORMAT.format(lang=lang, member_id=member_id)
-            response = context.fetch_json(member_url, cache_days=7)
-            pages[lang] = response["data"]
-        crawl_member(context, member, pages)
+        crawl_member(context, member)
