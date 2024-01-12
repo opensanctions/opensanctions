@@ -21,7 +21,17 @@ publisher:
 
     This dataset is collected from the API for the official website of
     the Legislative Council, which is the legislative body for the
-    Hong Kong SAR.
+    Hong Kong SAR.  The Legislative Council is composed of 90 members,
+    20 of whom are popularly elected by geographical constituencies,
+    30 of whom are elected by specific functional constituencies
+    composed of organizations or individuals in specific segments of
+    Hong Kong society, and 40 of whom are elected by the 1500-member
+    Election Committee.
+
+    It includes the current members along with their names, contact
+    information, and educational qualifications.  It does not include
+    information on term of office as this is not included in the API
+    data.
   url: https://legco.gov.hk/
 data:
   url: https://app4.legco.gov.hk/mapi/en/api/LASS/getListMember
