@@ -1,0 +1,14 @@
+name: uy_pep
+title: "Politically Exposed Persons (PEP)"
+url: https://www.gub.uy/
+description: placeholder
+entry_point: crawler.py
+prefix: uy-pep
+publisher:
+  name: The National Secretariat for the Fight against Money Laundering and Financing of Terrorism
+  acronym: SENACLAFT
+  country: uy
+  url: https://www.gub.uy/secretaria-nacional-lucha-contra-lavado-activos-financiamiento-terrorismo/comunicacion/publicaciones/lista-pep
+data:
+  url: https://www.gub.uy/secretaria-nacional-lucha-contra-lavado-activos-financiamiento-terrorismo/sites/secretaria-nacional-lucha-contra-lavado-activos-financiamiento-terrorismo/files/documentos/publicaciones/Lista_PEP_V31.xlsx
+  format: XLSX
