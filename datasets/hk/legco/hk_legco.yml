@@ -30,8 +30,10 @@ publisher:
 
     It includes the current members along with their names, contact
     information, and educational qualifications.  It does not include
-    information on term of office as this is not included in the API
-    data.
+    information on term of office as this is not provided by the API.
+    It does not include information provided by the API about
+    political party affiliation, constituency or constituency type, as
+    is not included in the schema.
   url: https://legco.gov.hk/
 data:
   url: https://app4.legco.gov.hk/mapi/en/api/LASS/getListMember
