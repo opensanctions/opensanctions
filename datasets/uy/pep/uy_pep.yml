@@ -3,7 +3,7 @@ title: "Politically Exposed Persons (PEP)"
 url: https://www.gub.uy/
 description: placeholder
 entry_point: crawler.py
-prefix: ur-pep
+prefix: uy-pep
 publisher:
   name: The National Secretariat for the Fight against Money Laundering and Financing of Terrorism
   acronym: SENACLAFT

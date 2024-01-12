@@ -4,7 +4,6 @@ from pantomime.types import XLSX
 import openpyxl
 from normality import slugify
 from zavod import helpers as h
-from zavod.logic.pep import categorise
 
 
 def sheet_to_dicts(sheet):
@@ -28,14 +27,14 @@ def parse_sheet_row(context: Context, row: Dict[str, str]):
     person_name = row.pop("nombre")
     role = row.pop("cargo")
 
-    person.id = context.make_slug(id_number, prefix="ur-cedula")
+    person.id = context.make_slug(id_number, prefix="uy-cedula")
     person.add("idNumber", id_number)
     person.add("name", person_name)
 
     organization_name = row.pop("organismo")
 
     organization = context.make("Organization")
-    organization.id = context.make_slug(organization_name, prefix="ur-cedula")
+    organization.id = context.make_slug(organization_name, prefix="uy-cedula")
     organization.add("name", organization_name)
 
     position = h.make_position(
