@@ -1,0 +1,21 @@
+title: Chile Interest and asset declarations
+entry_point: crawler.py
+prefix: cl-info-probidad
+coverage:
+  frequency: daily
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Interest and asset declarations of Chilean public officials
+description: |
+  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+  Curabitur porttitor lorem eu elit dictum congue donec tincidunt,
+  est non venenatis tincidunt.
+publisher:
+  name: Contraloría General de la República (CGR)
+  url: https://www.contraloria.cl/
+  official: true
+  country: "cl"
+url: https://www.infoprobidad.cl/DatosAbiertos/Catalogos
+data:
+  url: https://datos.cplt.cl/catalogos/infoprobidad/csvdeclaraciones
+  format: csv
