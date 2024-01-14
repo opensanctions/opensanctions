@@ -5,14 +5,14 @@ import os
 import csv
 
 from zavod import Context
+from zavod import helpers as h
 
 def crawl_row(context: Context, row: Dict[str, str]):
     entity = context.make("Person")
-    name = f"{row['Nombre']} {row['ApPaterno']} {row['ApMaterno']}"
+    
     id = os.path.basename(urlparse(row["UriDeclarante"]).path)
     entity.id = context.make_slug(id)
-    entity.add("name", name)
-    
+    h.apply_name(entity, first_name=row['Nombre'], patronymic=row['ApPaterno'], matronymic=row['ApMaterno'])
     context.emit(entity, target=True)
 
 
