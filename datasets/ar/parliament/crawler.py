@@ -4,6 +4,8 @@ from zavod import Context
 from zavod import helpers as h
 from zavod.logic.pep import categorise
 
+FORMATS = ["%d/%m/%Y"]
+
 
 def crawl_person(context: Context, element) -> dict:
     """
@@ -50,10 +52,14 @@ def crawl_person(context: Context, element) -> dict:
     person_data["district"] = _extract_text(element, ".//td[3]/text()")
     person_data["term"] = _extract_text(element, ".//td[4]/text()")
     person_data["term_start"] = _extract_text(element, ".//td[5]/text()")
+    if person_data["term_start"]:
+        person_data["term_start"] = h.parse_date(person_data["term_start"], FORMATS)[0]
     person_data["term_end"] = _extract_text(element, ".//td[6]/text()")
+    if person_data["term_end"]:
+        person_data["term_end"] = h.parse_date(person_data["term_end"], FORMATS)[0]
     person_data["block"] = _extract_text(element, ".//td[7]/text()")
 
-    context.log.info(f"Finished crawl person", person_data)
+    context.log.debug(f"Finished crawl person", person=person_data)
     return person_data
 
 
@@ -70,16 +76,15 @@ def crawl_personal_page(context: Context, person_data: dict):
     """
     Crawls a person's individual page and updates their data dictionary.
     """
-    context.log.info("Starting crawling personal page", person_data["url"])
-    response = context.http.get(person_data["url"])
-    doc = html.fromstring(response.text)
+    context.log.debug("Starting crawling personal page", person=person_data["url"])
+    doc = context.fetch_html(person_data["url"], cache_days=1)
 
     # Extract additional details from the personal page
     person_data["profession"] = _extract_text(
         doc, './/p[@class="encabezadoProfesion"]/span/text()'
     )
     birth_date = _extract_text(doc, './/p[@class="encabezadoFecha"]/span/text()')
-    person_data["birth_date"] = convert_date_format(birth_date) if birth_date else None
+    person_data["birth_date"] = h.parse_date(birth_date, FORMATS)
     person_data["email"] = _extract_text(
         doc, './/a[starts-with(@href, "mailto:")]/text()'
     )
@@ -97,28 +102,20 @@ def make_and_emit_person(context: Context, person_data: dict):
         person.add("country", "ar")
         h.apply_name(
             person,
-            first_name=person_data["first_name"],
-            last_name=person_data["last_name"],
+            first_name=person_data["first_name"].strip(),
+            last_name=person_data["last_name"].strip,
         )
         person.add("sourceUrl", person_data["url"])
         person.add("political", person_data["block"])
 
-        # Create position and occupancy
         position = h.make_position(
             context,
             name="Member of National Congress of Argentina",
             country="ar",
-            subnational_area=person_data.get("district"),
         )
-
-        # Create categorisation
         categorisation = categorise(context, position, is_pep=True)
         if not categorisation.is_pep:
-            context.log.info("Categorisation IS NOT PEP")
             return
-        else:
-            context.log.info("Categorisation IS PEP")
-
         occupancy = h.make_occupancy(
             context,
             person,
@@ -129,29 +126,18 @@ def make_and_emit_person(context: Context, person_data: dict):
             categorisation=categorisation,
         )
 
-        # Emit person, position and occupancy
+        if not occupancy:
+            return
         context.emit(person, target=True)
-        if position:
-            context.log.info("Created Position", position)
-            context.emit(position)
-        if occupancy:
-            context.log.info("Created Occupancy", occupancy)
-            context.emit(occupancy)
-
-
-def convert_date_format(date_string: str) -> str:
-    """
-    Converts a date string from 'DD/MM/YYYY' format to 'YYYY-MM-DD'.
-    """
-    return datetime.strptime(date_string, "%d/%m/%Y").strftime("%Y-%m-%d")
+        context.emit(position)
+        context.emit(occupancy)
 
 
 def crawl(context: Context):
     """
     Main function to crawl and process data from the Argentinian parliament members page.
     """
-    response = context.http.get(context.dataset.data.url)
-    doc = html.fromstring(response.text)
+    doc = context.fetch_html(context.dataset.data.url, cache_days=1)
 
     for element in doc.xpath("//tbody/tr"):
         person_data = crawl_person(context, element)
