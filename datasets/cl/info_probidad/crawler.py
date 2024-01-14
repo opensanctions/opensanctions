@@ -7,17 +7,19 @@ import csv
 from zavod import Context
 from zavod import helpers as h
 
+
 def crawl_row(context: Context, row: Dict[str, str]):
     person = context.make("Person")
-    
-    uri = row.pop("UriDeclarante")
-    id = os.path.basename(urlparse(uri).path)
+
+    id = os.path.basename(urlparse(row.pop("UriDeclarante")).path)
     person.id = context.make_slug(id)
 
-    name = row.pop("Nombre")
-    father_name = row.pop("ApPaterno")
-    mother_name = row.pop("ApMaterno")
-    h.apply_name(person, first_name=name, patronymic=father_name, matronymic=mother_name)
+    h.apply_name(
+        person,
+        first_name=row.pop("Nombre"),
+        patronymic=row.pop("ApPaterno"),
+        matronymic=row.pop("ApMaterno"),
+    )
 
     context.emit(person, target=True)
 
