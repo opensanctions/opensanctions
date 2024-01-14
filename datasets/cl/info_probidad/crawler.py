@@ -8,16 +8,18 @@ from zavod import Context
 from zavod import helpers as h
 
 def crawl_row(context: Context, row: Dict[str, str]):
-    entity = context.make("Person")
+    person = context.make("Person")
     
     uri = row.pop("UriDeclarante")
     id = os.path.basename(urlparse(uri).path)
-    entity.id = context.make_slug(id)
+    person.id = context.make_slug(id)
+
     name = row.pop("Nombre")
     father_name = row.pop("ApPaterno")
     mother_name = row.pop("ApMaterno")
-    h.apply_name(entity, first_name=name, patronymic=father_name, matronymic=mother_name)
-    context.emit(entity, target=True)
+    h.apply_name(person, first_name=name, patronymic=father_name, matronymic=mother_name)
+
+    context.emit(person, target=True)
 
 
 def crawl(context: Context):
