@@ -10,9 +10,13 @@ from zavod import helpers as h
 def crawl_row(context: Context, row: Dict[str, str]):
     entity = context.make("Person")
     
-    id = os.path.basename(urlparse(row["UriDeclarante"]).path)
+    uri = row.pop("UriDeclarante")
+    id = os.path.basename(urlparse(uri).path)
     entity.id = context.make_slug(id)
-    h.apply_name(entity, first_name=row['Nombre'], patronymic=row['ApPaterno'], matronymic=row['ApMaterno'])
+    name = row.pop("Nombre")
+    father_name = row.pop("ApPaterno")
+    mother_name = row.pop("ApMaterno")
+    h.apply_name(entity, first_name=name, patronymic=father_name, matronymic=mother_name)
     context.emit(entity, target=True)
 
 
