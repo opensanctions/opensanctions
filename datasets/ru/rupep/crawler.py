@@ -1,12 +1,11 @@
 import os
 import re
 import ijson
-from itertools import chain
 from typing import Any, Dict, Optional, List, Tuple, Set
 from followthemoney import model
 from followthemoney.types import registry
 from normality import collapse_spaces
-from nomenklatura.util import is_qid
+from rigour.ids.wikidata import is_qid
 
 from zavod import Context
 from zavod import helpers as h

@@ -10,7 +10,8 @@ from datapatch import LookupException, Result, Lookup
 from followthemoney.schema import Schema
 from followthemoney.util import make_entity_id
 from nomenklatura.cache import Cache
-from nomenklatura.util import normalize_url, ParamsType, PathLike
+from rigour.urls import build_url, ParamsType
+from nomenklatura.util import PathLike
 from structlog.contextvars import clear_contextvars, bind_contextvars
 
 from zavod import settings
@@ -220,7 +221,7 @@ class Context:
         headers: _Headers = None,
         auth: _Auth = None,
         cache_days: Optional[int] = None,
-    ) -> str:
+    ) -> Optional[str]:
         """Execute an HTTP GET request using the contexts' session and return
         the decoded response body. If a `cache_days` argument is provided, a
         cache will be used for the given number of days.
@@ -235,7 +236,7 @@ class Context:
         Returns:
             The decoded response body as a string.
         """
-        url = normalize_url(url, params)
+        url = build_url(url, params)
         if cache_days is not None:
             text = self.cache.get(url, max_age=cache_days)
             if text is not None:
