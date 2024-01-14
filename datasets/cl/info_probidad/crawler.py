@@ -6,7 +6,7 @@ import csv
 
 from zavod import Context
 from zavod import helpers as h
-
+from zavod.logic.pep import categorise
 
 def crawl_row(context: Context, row: Dict[str, str]):
     person = context.make("Person")
@@ -21,8 +21,26 @@ def crawl_row(context: Context, row: Dict[str, str]):
         matronymic=row.pop("ApMaterno"),
     )
 
-    context.emit(person, target=True)
+    position_name = row.pop("Cargo")
+    position = h.make_position(
+        context, position_name, country="cl", lang="spa"
+    )
+    position_lookup = context.lookup("positions", position_name)
+    
+    # all positions (ie. Cargo) should be explicitly classified as either pep or no-pep
+    if not position_lookup:
+        context.audit_data(position.to_dict())
+    
+    if not position_lookup.is_pep:
+        return
 
+    categorisation = categorise(context, position)
+    
+    if not categorisation.is_pep:
+        return
+    
+    context.emit(person, target=True)
+    context.emit(position)
 
 def crawl(context: Context):
     path = context.fetch_resource("source.csv", context.dataset.data.url)
