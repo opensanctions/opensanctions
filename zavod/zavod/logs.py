@@ -2,6 +2,7 @@ import sys
 import logging
 import structlog
 from pathlib import Path
+from typing import Optional
 from lxml.etree import _Element, tostring
 from followthemoney.schema import Schema
 
@@ -36,7 +37,11 @@ def configure_logging(level: int = logging.DEBUG) -> None:
             processor=structlog.processors.JSONRenderer(),
         )
     else:
-        processors.append(structlog.processors.TimeStamper(fmt="%Y-%m-%d %H:%M:%S", utc=settings.TIME_ZONE == "UTC"))
+        processors.append(
+            structlog.processors.TimeStamper(
+                fmt="%Y-%m-%d %H:%M:%S", utc=settings.TIME_ZONE == "UTC"
+            )
+        )
         formatter = structlog.stdlib.ProcessorFormatter(
             foreign_pre_chain=processors,
             processor=structlog.dev.ConsoleRenderer(
@@ -92,9 +97,9 @@ def log_issue(_: Any, __: str, ed: Event) -> Event:
         data[key] = value
 
     context = data.pop("context", None)
-    level = data.get("level")
+    level: Optional[str] = data.get("level")
     if level is not None:
-        level_num = getattr(logging, level.upper())
+        level_num = getattr(logging, level.upper(), logging.ERROR)
         if level_num > logging.INFO and context is not None:
             from zavod.context import Context
 
