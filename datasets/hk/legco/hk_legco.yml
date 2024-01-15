@@ -1,0 +1,41 @@
+name: hk_legco
+title: Members of the Hong Kong Legislative Council
+url: https://www.legco.gov.hk/en/members/legco-members/members-biographies.html
+summary: >-
+  Members of the Hong Kong Legislative Council.
+description: |
+  Members of the Hong Kong Legislative Council.
+
+  This dataset lists the current members of the Legislative Council of
+  the Hong Kong Special Administrative Region of the People's
+  Republic of China by their English and Chinese names.
+entry_point: crawler.py
+prefix: hk-legco
+publisher:
+  name: >-
+    Hong Kong Legislative Council
+  official: true
+  description: |
+    Legislative Council of the Hong Kong Special Administrative Region
+    of the People's Republic of China
+
+    This dataset is collected from the API for the official website of
+    the Legislative Council, which is the legislative body for the
+    Hong Kong SAR.  The Legislative Council is composed of 90 members,
+    20 of whom are popularly elected by geographical constituencies,
+    30 of whom are elected by specific functional constituencies
+    composed of organizations or individuals in specific segments of
+    Hong Kong society, and 40 of whom are elected by the 1500-member
+    Election Committee.
+
+    It includes the current members along with their names, contact
+    information, and educational qualifications.  It does not include
+    information on term of office as this is not provided by the API.
+    It does not include information provided by the API about
+    political party affiliation, constituency or constituency type, as
+    is not included in the schema.
+  url: https://legco.gov.hk/
+data:
+  url: https://app4.legco.gov.hk/mapi/en/api/LASS/getListMember
+  format: JSON
+
