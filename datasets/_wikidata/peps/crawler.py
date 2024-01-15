@@ -1,22 +1,19 @@
 from collections import defaultdict
-import csv
-from typing import Dict, Optional, Any, Set
+from typing import Dict, Optional, Any, List, Generator
 import countrynames
-from pantomime.types import CSV
-from nomenklatura.util import is_qid
+from rigour.ids.wikidata import is_qid
 
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.logic.pep import PositionCategorisation, categorise
-from zavod.util import remove_emoji
 
 from zavod.shed.wikidata.query import run_query, CACHE_MEDIUM
 
 DECISION_NATIONAL = "national"
 
 
-def keyword(topics: [str]) -> Optional[str]:
+def keyword(topics: List[str]) -> Optional[str]:
     if "gov.national" in topics:
         return "National government"
     if "gov.state" in topics:
@@ -49,7 +46,7 @@ def crawl_holder(
 ) -> None:
     entity = context.make("Person")
     qid: Optional[str] = holder.get("person_qid")
-    if not is_qid(qid) or qid == "Q1045488":
+    if qid is None or not is_qid(qid) or qid == "Q1045488":
         return
     entity.id = qid
 
@@ -80,7 +77,7 @@ def crawl_holder(
     context.emit(entity, target=True)
 
 
-def query_position_holders(context: Context, wd_position: Dict[str, str]) -> None:
+def query_position_holders(context: Context, wd_position: Dict[str, str]) -> Generator[Dict[str, Any], None, None]:
     vars = {"POSITION": wd_position["qid"]}
     response = run_query(
         context, context.data_url, "holders/holders", vars, cache_days=CACHE_MEDIUM
@@ -124,7 +121,7 @@ def pick_country(context, *qids):
     return None
 
 
-def query_positions(context: Context, country) -> Dict:
+def query_positions(context: Context, country) -> Generator[Dict[str, Any], None, None]:
     """
     Yields an item for each position with all countries selected by pick_country().
 
