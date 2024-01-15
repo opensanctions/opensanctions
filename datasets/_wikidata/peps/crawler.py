@@ -3,6 +3,7 @@ from typing import Dict, Optional, Any, List, Generator
 import countrynames
 from rigour.ids.wikidata import is_qid
 from languagecodes import iso_639_alpha3
+from followthemoney.types import registry
 
 from zavod import Context
 from zavod import helpers as h
@@ -52,7 +53,7 @@ def crawl_labels(context, entity: Entity):
         )
     )
     for binding in response.results:
-        code = iso_639_alpha3(binding.plain("label_lang"))
+        code = registry.language.clean(iso_639_alpha3(binding.plain("label_lang")))
         if code is None:
             continue
         entity.add("name", binding.plain("label"), lang=code)
