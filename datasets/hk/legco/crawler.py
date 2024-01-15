@@ -3,7 +3,7 @@ Crawler for extracting names and constituencies of Hong Kong
 Legislative Council members.
 """
 
-from typing import Any, Dict, NamedTuple, Optional, Union
+from typing import Any, Dict, NamedTuple, Union
 
 from zavod import Context, Entity
 from zavod import helpers as h
