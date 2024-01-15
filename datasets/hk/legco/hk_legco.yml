@@ -28,12 +28,9 @@ publisher:
     Hong Kong society, and 40 of whom are elected by the 1500-member
     Election Committee.
 
-    It includes the current members along with their names, contact
-    information, and educational qualifications.  It does not include
-    information on term of office as this is not provided by the API.
-    It does not include information provided by the API about
-    political party affiliation, constituency or constituency type, as
-    is not included in the schema.
+    It includes the current members along with their names (in
+    English, Traditional and Simplified Chinese), contact information,
+    and educational qualifications.
   url: https://legco.gov.hk/
 data:
   url: https://app4.legco.gov.hk/mapi/en/api/LASS/getListMember
