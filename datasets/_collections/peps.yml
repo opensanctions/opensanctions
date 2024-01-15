@@ -24,6 +24,7 @@ description: |
   have been aggregated by other organizations.
 children:
   - ann_pep_positions
+  - ar_parliament
   - br_pep
   - co_funcion_publica
   - co_join_dots
