@@ -103,7 +103,7 @@ def make_and_emit_person(context: Context, person_data: dict):
         h.apply_name(
             person,
             first_name=person_data["first_name"].strip(),
-            last_name=person_data["last_name"].strip,
+            last_name=person_data["last_name"].strip(),
         )
         person.add("sourceUrl", person_data["url"])
         person.add("political", person_data["block"])
