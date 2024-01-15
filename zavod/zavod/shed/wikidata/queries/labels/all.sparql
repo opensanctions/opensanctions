@@ -1,0 +1,5 @@
+SELECT ?label (lang(?label) as ?label_lang)
+WHERE {
+    wd:{{ITEM}} rdfs:label ?label .
+}
+GROUP BY ?label ?label_lang

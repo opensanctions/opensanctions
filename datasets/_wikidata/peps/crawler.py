@@ -2,6 +2,7 @@ from collections import defaultdict
 from typing import Dict, Optional, Any, List, Generator
 import countrynames
 from rigour.ids.wikidata import is_qid
+from languagecodes import iso_639_alpha3
 
 from zavod import Context
 from zavod import helpers as h
@@ -38,6 +39,25 @@ def truncate_date(text: Optional[str]) -> Optional[str]:
     return text[:10]
 
 
+def crawl_labels(context, entity: Entity):
+    """Adds the labels for which we can get 3-letter language codes to the entity's name property."""
+    vars = {"ITEM": entity.id}
+    response = run_query(
+        context, context.data_url, "labels/all", vars, cache_days=CACHE_MEDIUM
+    )
+    context.log.info(
+        (
+            f"Crawling labels of {entity.id} ({entity.get('name')}), "
+            f"found {len(response.results)}"
+        )
+    )
+    for binding in response.results:
+        code = iso_639_alpha3(binding.plain("label_lang"))
+        if code is None:
+            continue
+        entity.add("name", binding.plain("label"), lang=code)
+
+
 def crawl_holder(
     context: Context,
     categorisation: PositionCategorisation,
@@ -70,6 +90,7 @@ def crawl_holder(
 
     if holder.get("person_label") != qid:
         entity.add("name", holder.get("person_label"))
+    crawl_labels(context, entity)
     entity.add("keywords", keyword(categorisation.topics))
 
     context.emit(position)
@@ -77,7 +98,9 @@ def crawl_holder(
     context.emit(entity, target=True)
 
 
-def query_position_holders(context: Context, wd_position: Dict[str, str]) -> Generator[Dict[str, Any], None, None]:
+def query_position_holders(
+    context: Context, wd_position: Dict[str, str]
+) -> Generator[Dict[str, Any], None, None]:
     vars = {"POSITION": wd_position["qid"]}
     response = run_query(
         context, context.data_url, "holders/holders", vars, cache_days=CACHE_MEDIUM
@@ -172,7 +195,9 @@ def query_positions(context: Context, country) -> Generator[Dict[str, Any], None
 
 
 def query_countries(context: Context):
-    response = run_query(context, context.data_url, "countries/all", cache_days=CACHE_MEDIUM)
+    response = run_query(
+        context, context.data_url, "countries/all", cache_days=CACHE_MEDIUM
+    )
     for binding in response.results:
         qid = binding.plain("country")
         label = binding.plain("countryLabel")
