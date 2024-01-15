@@ -36,7 +36,7 @@ def crawl_person(
     context: Context,
     member: Dict[str, Union[str, int]],
     pages: MemberPages,
-) -> Optional[Entity]:
+) -> Entity:
     """Fetch personal information for a Legislative Council member and
     create a Person entity."""
     person = context.make("Person")
@@ -120,8 +120,6 @@ def crawl_member(
     member_id = int(member["member_id"])
     pages = crawl_member_pages(context, member_id)
     person = crawl_person(context, member, pages)
-    if person is None:
-        return
 
     positions = []
     if member.pop("is_president", "N") == "Y":
