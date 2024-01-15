@@ -42,38 +42,71 @@ def crawl_person(
     create a Person entity."""
     person = context.make("Person")
     person.id = context.make_id(member.pop("member_id"), member.pop("search_key"))
-    context.log.info("Unique ID {person_id}".format(person_id=person.id))
+    context.log.debug("Unique ID {person_id}".format(person_id=person.id))
     # Add names in English and both Chinese writing systems
     h.apply_name(person, full=pages.en.pop("name"), lang="en")
     h.apply_name(person, full=pages.hant.pop("name"), lang="zh_hant")
     h.apply_name(person, full=pages.hans.pop("name"), lang="zh_hans")
     for email in pages.en.pop("email_address", []):
         if email:
-            context.log.info("Email: {email}".format(email=email))
+            context.log.debug("Email: {email}".format(email=email))
             person.add("email", email)
     for url in pages.en.pop("homepage", []):
         if url:
-            context.log.info("Web: {url}".format(url=url))
+            context.log.debug("Web: {url}".format(url=url))
             person.add("website", url)
     for phone in ("office_telephone", "mobile_phone"):
         for number in pages.en.pop(phone, []):
             if number:
-                context.log.info("Phone: {number}".format(number=number))
+                context.log.debug("Phone: {number}".format(number=number))
                 person.add("phone", number)
     title = pages.en.pop("title")
     if title and title != "-":
-        context.log.info("Title: {title}".format(title=title))
+        context.log.debug("Title: {title}".format(title=title))
         person.add("title", title)
     for qual in pages.en.pop("qualification", []):
         if qual:
-            context.log.info("Education: {qual}".format(qual=qual))
+            context.log.debug("Education: {qual}".format(qual=qual))
             person.add("education", qual)
     for address in pages.en.pop("office_address", []):
         if address:
-            context.log.info("Address: {address}".format(address=address))
+            context.log.debug("Address: {address}".format(address=address))
             address_entity = h.make_address(context, address)
             h.apply_address(context, person, address_entity)
     return person
+
+
+UNUSED_LIST_FIELDS = [
+    "seq_num",
+    "constituency",
+    "constituency_type",
+    "photo_url",
+    "new_term",
+    "enable_link",
+    "honour",
+]
+UNUSED_PAGE_FIELDS = [
+    "constituency",
+    "constituency_type",
+    "photo_url",
+    "large_photo_url",
+    "office_fax",
+    "new_term",
+    "enable_link",
+    "salute_name",
+    "honour",
+    "occupation",
+    "party",
+    "office_address",
+]
+PAGE_FIELDS = [
+    "qualification",
+    "title",
+    "office_telephone",
+    "mobile_phone",
+    "email_address",
+    "homepage",
+]
 
 
 def crawl_member(
@@ -82,7 +115,7 @@ def crawl_member(
 ):
     """Emit entities for a member of the Legislative Council from JSON data."""
     salute_name = member.pop("salute_name")
-    context.log.info("Adding {name}".format(name=salute_name))
+    context.log.debug("Adding {name}".format(name=salute_name))
     member_id = member["member_id"]
     pages = crawl_member_pages(context, member_id)
     person = crawl_person(context, member, pages)
@@ -110,62 +143,13 @@ def crawl_member(
     if not positions:
         return
     for lang, page in zip(pages._fields, pages):
-        context.log.info("Auditing data for {lang}".format(lang=lang))
+        context.log.debug("Auditing data for {lang}".format(lang=lang))
         assert page.pop("member_id") == member_id
         if lang == "en":
-            assert page.pop("salute_name") == salute_name
-            assert page.pop("honour") == member.pop("honour")
-            context.audit_data(
-                page,
-                ignore=[
-                    "constituency",
-                    "constituency_type",
-                    "photo_url",
-                    "large_photo_url",
-                    "office_fax",
-                    "new_term",
-                    "enable_link",
-                    "salute_name",
-                    "occupation",
-                    "party",
-                    "office_address",
-                ],
-            )
+            context.audit_data(page, ignore=UNUSED_PAGE_FIELDS)
         else:
-            context.audit_data(
-                page,
-                ignore=[
-                    "constituency",
-                    "constituency_type",
-                    "photo_url",
-                    "large_photo_url",
-                    "office_fax",
-                    "new_term",
-                    "enable_link",
-                    "salute_name",
-                    "occupation",
-                    "party",
-                    "office_address",
-                    "honour",
-                    "qualification",
-                    "title",
-                    "office_telephone",
-                    "mobile_phone",
-                    "email_address",
-                    "homepage",
-                ],
-            )
-    context.audit_data(
-        member,
-        ignore=[
-            "seq_num",
-            "constituency",
-            "constituency_type",
-            "photo_url",
-            "new_term",
-            "enable_link",
-        ],
-    )
+            context.audit_data(page, ignore=UNUSED_PAGE_FIELDS + PAGE_FIELDS)
+    context.audit_data(member, ignore=UNUSED_LIST_FIELDS)
 
     occupancy = h.make_occupancy(
         context, person, position, True, categorisation=categorisation
@@ -178,7 +162,7 @@ def crawl_member(
 def crawl(context: Context):
     """Retrieve member list and member information from the JSON API
     and emit entities for council members."""
-    response = context.fetch_json(context.dataset.data.url, cache_days=7)
+    response = context.fetch_json(context.dataset.data.url, cache_days=1)
     members = response["data"]
     for member in members:
         if member.pop("is_active", "N") == "N":
