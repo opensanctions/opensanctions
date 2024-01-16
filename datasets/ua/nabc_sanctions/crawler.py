@@ -96,7 +96,7 @@ def crawl_common(context: Context, entity: Entity, row: Dict[str, Any]):
     keywords.extend(ensure_list(row.pop("subcategory_3", [])))
     for kw in keywords:
         if not kw.startswith("category_"):
-            print("KW", kw)
+            # context.log.info("KW", kw)
             entity.add("keywords", kw)
 
     entity.add("website", url_split(row.pop("link", "")))
@@ -163,7 +163,7 @@ def crawl_common(context: Context, entity: Entity, row: Dict[str, Any]):
 
 
 def crawl_person(context: Context) -> None:
-    for row in json_listing(context, context.data_url, "v3/person"):
+    for row in json_listing(context, context.data_url, "v5/person"):
         row = clean_row(row)
         person_id = row.pop("person_id", None)
         if person_id is None:
@@ -195,7 +195,7 @@ def crawl_person(context: Context) -> None:
 
 
 def crawl_company(context: Context) -> None:
-    for row in json_listing(context, context.data_url, "v3/company"):
+    for row in json_listing(context, context.data_url, "v5/company"):
         row = clean_row(row)
         company_id = row.pop("company_id")
         entity = context.make("Organization")

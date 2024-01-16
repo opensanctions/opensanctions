@@ -1,7 +1,7 @@
 import csv
 from typing import Dict
 from pantomime.types import CSV
-from nomenklatura.util import is_qid
+from rigour.ids.wikidata import is_qid
 
 from zavod import Context
 
