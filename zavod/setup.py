@@ -37,7 +37,7 @@ setup(
         "orjson == 3.9.10",
         "ijson > 3.2, < 4.0",
         "pantomime == 0.6.1",
-        "plyvel == 1.5.0",
+        "plyvel == 1.5.1",
         "prefixdate",
         "psycopg2-binary",
         "pyicu == 2.12.0",
