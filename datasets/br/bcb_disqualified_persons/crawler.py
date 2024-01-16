@@ -32,6 +32,7 @@ def create_entity(input_dict: dict, context: Context):
     entity.add("name", input_dict["Nome"])
     entity.add("taxNumber", tax_number)
     entity.add("country", "br")
+    entity.add('topics', 'corp.disqual')
 
     return entity
 
