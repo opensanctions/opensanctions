@@ -90,6 +90,8 @@ lookups:
         value: jrkillacky52@gmail.com
       - match: mayor@boonton.org.
         value: mayor@boonton.org
+      - match: chriswooten@schouse.gov.
+        value: chriswooten@schouse.gov
   type.gender:
     options:
       match: X

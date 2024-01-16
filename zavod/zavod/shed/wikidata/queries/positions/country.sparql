@@ -1,7 +1,7 @@
 
 SELECT ?position ?positionLabel ?country ?jurisdiction ?abolished
 WHERE {
-    ?position wdt:P31 wd:Q4164871 .
+    ?position wdt:P31/wdt:P279* wd:Q4164871 .
     ?position wdt:P1001|wdt:P17 wd:{{COUNTRY}} .
     OPTIONAL { ?position wdt:P17 ?country }
     OPTIONAL { ?position wdt:P1001 ?jurisdiction }
