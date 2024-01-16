@@ -22,8 +22,9 @@ def crawl_row(context: Context, row: Dict[str, str]):
     )
 
     position_name = row.pop("Cargo")
+    position_institution = row.pop("Institucion")
     position = h.make_position(
-        context, position_name, country="cl", lang="spa"
+        context, f"{position_name}, {position_institution}", country="cl", lang="spa"
     )
     position_lookup = context.lookup("positions", position_name)
     
