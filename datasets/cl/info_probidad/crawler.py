@@ -31,10 +31,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     if not position_lookup:
         context.audit_data(position.to_dict())
     
-    if not position_lookup.is_pep:
-        return
-
-    categorisation = categorise(context, position)
+    categorisation = categorise(context, position, is_pep = getattr(position_lookup, "is_pep", None))
     
     if not categorisation.is_pep:
         return
