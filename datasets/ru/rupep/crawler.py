@@ -53,7 +53,7 @@ def clean_wdid(wikidata_id: Optional[str]):
 
 
 def person_id(context: Context, id: str, wikidata_id: Optional[str]):
-    if is_qid(wikidata_id):
+    if wikidata_id is not None and is_qid(wikidata_id):
         return wikidata_id
     # Sergei Glinka, information in RuPEP doesn't properly reflect he's
     # left some business relationships.

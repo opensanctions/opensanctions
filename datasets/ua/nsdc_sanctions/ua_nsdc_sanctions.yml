@@ -60,6 +60,7 @@ lookups:
       - match:
           - Permanent residence permit - посвідка на постійне проживання
           - Особистий номер офіцера
+          - refugee card
         value: idNumber
       - match:
           - ЄДРПОУ

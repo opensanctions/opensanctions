@@ -79,7 +79,7 @@ def crawl(context: Context):
             person = context.make("Person")
 
             politician_wikidata_id = politician_detail.pop("qid_wikidata")
-            if is_qid(politician_wikidata_id):
+            if politician_wikidata_id is not None and is_qid(politician_wikidata_id):
                 person.id = politician_wikidata_id
             else:
                 person.id = context.make_id(politician.pop("id"))

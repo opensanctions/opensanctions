@@ -394,7 +394,9 @@ lookups:
         values:
           - SUHH
           - BY
-      - match: Trucial States
+      - match:
+          - Trucial States
+          - Emirate of Dubai
         value: AE
       - match: Ghanaians
         value: Ghana
