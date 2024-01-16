@@ -26,11 +26,11 @@ def crawl_row(context: Context, row: Dict[str, str]):
     position = h.make_position(
         context, f"{position_name}, {position_institution}", country="cl", lang="spa"
     )
-    position_lookup = context.lookup("positions", position_name)
     
-    # all positions (ie. Cargo) should be explicitly classified as either pep or no-pep
+    # 'cargos' can be marked as PEPs for all institutions in cl_info_probidad.yml
+    position_lookup = context.lookup("positions", position_name)
     if not position_lookup:
-        context.audit_data(position.to_dict())
+        context.log.warning(f"A new 'Cargo' '{position_name}' was identified")
     
     categorisation = categorise(context, position, is_pep = getattr(position_lookup, "is_pep", None))
     
