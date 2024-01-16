@@ -1,18 +1,39 @@
-title: Chile Interest and asset declarations
+title: PEPs from Chile interest and asset declarations
 entry_point: crawler.py
 prefix: cl-info-probidad
 coverage:
   frequency: daily
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  Interest and asset declarations of Chilean public officials
+  Data on Politically Exposed Persons from asset and interest declarations of Chilean public officials
 description: |
-  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-  Curabitur porttitor lorem eu elit dictum congue donec tincidunt,
-  est non venenatis tincidunt.
+  The Chilean Law of Probity in Public Function and Prevention of Conflicts of 
+  Interest (Law N° 20.880) mandates the disclosure of interests and assets by 
+  public officials and civil servants. 
+
+  The law applies to a broad range of public officials, 
+  including the President, 
+  ministers, 
+  undersecretaries, 
+  regional governors, 
+  legislative and judicial authorities, 
+  military and police officers, 
+  and leaders of political parties.
+
+  The list of individuals required to comply are similar to those considered PEPs.
+  However, the list included in Law N° 20.880 is more extensive.
+  This dataset does not publish information about the civil servants not considered PEPs.
+
+  The declarations are published by a joint initiative between the Consejo para la Transparencia (CPLT) and
+  the Contraloría General de la República (CGR).
 publisher:
-  name: Contraloría General de la República (CGR)
-  url: https://www.contraloria.cl/
+  name: Consejo para la Transparencia (CPLT)
+  description: |
+    The Council for Transparency (CPLT) is an autonomous public organization established by the 
+    Law on the Transparency of Public Functions and Access to Information on Public Administration
+    in charge of guaranteeing citizens' right of access to public information, 
+    with powers to enforce the law and impose penalties.
+  url: https://www.consejotransparencia.cl/
   official: true
   country: "cl"
 url: https://www.infoprobidad.cl/DatosAbiertos/Catalogos
