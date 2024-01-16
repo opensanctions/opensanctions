@@ -487,11 +487,11 @@ lookups:
       - match: "GERENTE GENERAL INTERINO"
         is_pep: false
       - match: "GOBERNADOR "
-        is_pep: false
+        is_pep: true
       - match: "GOBERNADOR REGIONAL"
-        is_pep: false
+        is_pep: true
       - match: "GOBERNADORA REGIONAL"
-        is_pep: false
+        is_pep: true
       - match: "HONORARIO"
         is_pep: false
       - match: "HONORARIO POR PROGRAMA"
