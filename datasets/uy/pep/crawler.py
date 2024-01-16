@@ -4,7 +4,7 @@ from pantomime.types import XLSX
 import openpyxl
 from normality import slugify
 from zavod import helpers as h
-from zavod.logic.pep import categorise
+from zavod.logic.pep import OccupancyStatus, categorise
 
 
 def sheet_to_dicts(sheet):
@@ -45,11 +45,15 @@ def parse_sheet_row(context: Context, row: Dict[str, str]):
         context,
         person,
         position,
+        no_end_implies_current=False,
+        status=OccupancyStatus.UNKNOWN,
+        categorisation=categorisation,
     )
 
     context.emit(person, target=True)
     context.emit(position)
     context.emit(occupancy)
+    context.audit_data(row)
 
 
 def crawl(context: Context):
