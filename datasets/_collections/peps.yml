@@ -25,6 +25,7 @@ description: |
 children:
   - ann_pep_positions
   - br_pep
+  - cl_info_probidad
   - co_funcion_publica
   - co_join_dots
   - cu_inventario_legislatura
