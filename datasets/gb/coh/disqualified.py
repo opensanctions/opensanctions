@@ -74,7 +74,7 @@ def crawl_item(context: Context, listing: Dict[str, Any]) -> None:
     if nationality is not None:
         person.add("nationality", nationality.split(","))
     person.add("birthDate", data.pop("date_of_birth", None))
-    person.add("topics", "crime")
+    person.add("topics", "corp.disqual")
 
     address = listing.get("address", {})
     address = h.make_address(
