@@ -25,4 +25,4 @@ publisher:
   official: true
 data:
   url: "https://www.data.gov.cy/node/4016/dataset/download"
-  format: HTML
+  format: ZIP+CSV

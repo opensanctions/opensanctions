@@ -284,7 +284,7 @@ lookups:
       - match: セルビア共和国ボル
         value: null
       - match: Born on 2 July 1974
-        value: "1074-07-02"
+        value: "1974-07-02"
       - match: 60年
         value: "1960"
       - match: "2007.713"
