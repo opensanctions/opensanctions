@@ -58,7 +58,7 @@ def crawl_item(context: Context, listing: Dict[str, Any]) -> None:
 
     person.add("name", listing.get("title"))
     person.add("notes", listing.get("description"))
-    person.add("topics", "crime")
+    person.add("topics", "corp.disqual")
     source_url = urljoin(WEB_URL, links.get("self"))
     person.add("sourceUrl", source_url)
 
@@ -74,8 +74,7 @@ def crawl_item(context: Context, listing: Dict[str, Any]) -> None:
     if nationality is not None:
         person.add("nationality", nationality.split(","))
     person.add("birthDate", data.pop("date_of_birth", None))
-    person.add("topics", "corp.disqual")
-
+    
     address = listing.get("address", {})
     address = h.make_address(
         context,
@@ -120,7 +119,7 @@ def crawl_item(context: Context, listing: Dict[str, Any]) -> None:
             company.id = context.make_slug("named", company_name)
             company.add("name", company_name)
             company.add("jurisdiction", "gb")
-            company.add("topics", "crime")
+            # company.add("topics", "crime")
             context.emit(company)
             h.apply_address(context, company, address)
 
