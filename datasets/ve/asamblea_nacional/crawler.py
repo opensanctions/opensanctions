@@ -11,6 +11,7 @@ from zavod import Context, Entity
 from zavod import helpers as h
 from zavod.logic.pep import categorise
 from zavod.util import ElementOrTree
+from lxml.html import HtmlElement
 
 BIRTHDATE = re.compile(r"fecha de nacimiento\s*:\s*(.*)$", re.I | re.MULTILINE)
 BIRTHPLACE = re.compile(r"lugar de nacimiento\s*:\s*(.*)$", re.I | re.MULTILINE)
@@ -18,7 +19,7 @@ IDENTITY = re.compile(r"(?:c\.i|cédula de identidad)\s*:\s*(\S+)", re.I)
 WS = re.compile(r"\s+")
 
 
-def crawl_infobox(context: Context, person: Entity, infobox: ElementOrTree):
+def crawl_infobox(context: Context, person: Entity, infobox: HtmlElement):
     """Do a best-effort extraction of some facts from the text of an
     infobox with a member's CV."""
     text = infobox.text_content()
@@ -58,6 +59,8 @@ def crawl_infobox(context: Context, person: Entity, infobox: ElementOrTree):
 
 
 def crawl_member_page(context: Context, person: Entity, name: str, href: str):
+    """Attempt to extract information from a member's individual
+    page."""
     context.log.info(f"Fetching page for {name} from {href}")
     try:
         page = context.fetch_html(href, cache_days=1)
@@ -71,6 +74,9 @@ def crawl_member_page(context: Context, person: Entity, name: str, href: str):
         return
     # Find the index of the CV
     for cv_idx, el in enumerate(tabs.iterfind(".//a")):
+        if el.text is None:
+            context.log.error(f"No text in tab {cv_idx}")
+            continue
         if el.text.strip().lower() == "curriculo":
             context.log.info(f"CV found for {name} in tab {cv_idx}")
             break
@@ -80,6 +86,8 @@ def crawl_member_page(context: Context, person: Entity, name: str, href: str):
     # Now find the list of tabs and get the corresponding one
     for switcher in page.iterfind(".//ul[@class]"):
         classes = switcher.get("class")
+        if classes is None:
+            continue
         if "uk-switcher" in classes.split():
             break
     else:
@@ -129,6 +137,8 @@ def crawl_members(context: Context, page: ElementOrTree):
     # Don't XPath, too much trouble (wish we had CSS selectors)
     for el in page.iterfind(".//div[@class]"):
         classes = el.get("class")
+        if classes is None:
+            continue
         if "text-diputado-slider" not in classes.split():
             continue
         member_link = el.find(".//a")
@@ -144,7 +154,7 @@ def crawl_member_list(context: Context) -> Iterator[ElementOrTree]:
     assert context.dataset.data.url is not None
     context.log.info(f"Fetching front page from {context.dataset.data.url}")
     page_number = 1
-    page = context.fetch_html(context.dataset.data.url, cache_days=1)
+    page: HtmlElement = context.fetch_html(context.dataset.data.url, cache_days=1)
     yield page
     while True:
         next_links = page.find_rel_links("next")
@@ -154,7 +164,14 @@ def crawl_member_list(context: Context) -> Iterator[ElementOrTree]:
         # Make sure there's a link to the next page
         for link in next_links:
             href = link.get("href")
-            next_page = int(parse_qs(urlparse(href).query).get("page")[0])
+            if href is None:
+                context.log.error('Missing href for rel="next" link')
+                continue
+            page_queries = parse_qs(urlparse(href).query).get("page")
+            if page_queries is None or len(page_queries) == 0:
+                context.log.error('Missing page for rel="next" link')
+                continue
+            next_page = int(page_queries[0])
             if next_page == page_number + 1:
                 break
         else:
