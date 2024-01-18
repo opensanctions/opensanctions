@@ -2,7 +2,8 @@ title: RuPEP Public Database of PEPs in Russia and Belarus
 entry_point: crawler.py
 prefix: rupep
 coverage:
-  frequency: daily
+  frequency: never
+  end: 2024-01-18
 deploy:
   schedule: "30 */6 * * *"
   memory: "2000Mi"
@@ -31,6 +32,9 @@ description: |
   > of various analytical products or for other commercial purposes is prohibited.
   > The exception is the use of information by journalists, public figures and
   > analysts to prepare materials for the media, scientific research, etc.
+
+  **Update (2021-01-18):** We’ve stopped updating the RuPEP data while the RuPEP
+  team is re-launching its product and its commercial licensing strategy.
 publisher:
   name: RuPEP
   description: |
@@ -43,7 +47,7 @@ publisher:
   logo_url: "https://assets.opensanctions.org/images/publishers/rupep-logo.png"
 url: "https://rupep.org/en/%D0%B2%D0%BE%D0%BF%D1%80%D0%BE%D1%81%D1%8B-%D0%B8-%D0%BE%D1%82%D0%B2%D0%B5%D1%82%D1%8B/"
 data:
-  url: "https://rupep.org/opendata"
+  url: "https://rupep.org/en/faq/"
   format: JSON
 
 lookups:

@@ -30,5 +30,5 @@ publisher:
   country: ua
   official: true
 data:
-  url: "https://data.opensanctions.org/contrib/ua_edr/23022022.zip"
+  url: "https://usr.minjust.gov.ua/content/free-search"
   format: XML

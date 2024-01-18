@@ -1,4 +1,3 @@
-import os
 import re
 import ijson
 from typing import Any, Dict, Optional, List, Tuple, Set
@@ -12,8 +11,10 @@ from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.logic.pep import categorise
 from zavod.runtime.lookups import type_lookup
+from zavod.shed.internal_data import fetch_internal_data
 
-PASSWORD = os.environ.get("OPENSANCTIONS_RUPEP_PASSWORD")
+
+# PASSWORD = os.environ.get("OPENSANCTIONS_RUPEP_PASSWORD")
 FORMATS = ["%d.%m.%Y", "%m.%Y", "%Y", "%b. %d, %Y", "%B %d, %Y"]
 SPLIT_ROLES = [
     "deputy",
@@ -561,14 +562,13 @@ def crawl_company(
 
 
 def crawl(context: Context):
-    auth = ("opensanctions", PASSWORD)
-    companies_path = context.fetch_resource(
-        "companies.json", f"{context.data_url}/companies/json", auth=auth
-    )
-    persons_path = context.fetch_resource(
-        "persons.json", f"{context.data_url}/persons/json", auth=auth
-    )
-
+    # auth = ("opensanctions", PASSWORD)
+    companies_path = context.get_resource_path("companies.json")
+    if not companies_path.exists():
+        fetch_internal_data('rupep/20240118/companies.json', companies_path)
+    persons_path = context.get_resource_path("persons.json")
+    if not persons_path.exists():
+        fetch_internal_data('rupep/20240118/persons.json', persons_path)
     # Only emit companies and people who occur in the root array in the source data.
     # That's how RuPEP indicates that they are published and available for publication
     # in OpenSanctions.
