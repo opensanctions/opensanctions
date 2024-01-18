@@ -1,0 +1,23 @@
+name: ve_asamblea_nacional
+title: Members of the National Assembly of Venezuela
+url: https://www.asambleanacional.gob.ve/diputados
+summary: >-
+  Members of the National Asssembly of Venezuela.
+description: |
+  This dataset lists the current members of the National Assembly
+  of the Bolivian Republic of Venezuela.
+
+  The data is collected from the official website of the National
+  Assembly.
+entry_point: crawler.py
+prefix: ve-asamblea-nacional
+publisher:
+  name: Asamblea Nacional de Venezuela
+  official: true
+  description:
+    National Assembly of the Bolivian Republic of Venezuela
+  country: ve
+  url: https://www.asambleanacional.gob.ve/
+data:
+  url: https://www.asambleanacional.gob.ve/diputados
+  format: HTML
