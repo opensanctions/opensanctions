@@ -15,7 +15,14 @@ publisher:
   name: Asamblea Nacional de Venezuela
   official: true
   description:
-    National Assembly of the Bolivian Republic of Venezuela
+    National Assembly of the Bolivian Republic of Venezuela.
+
+    The National Assembly is the unicameral legislature of Venezuela.
+    It consists of 277 members elected for 5-year terms by mixed
+    member proportional representation, with 60% of members elected
+    directly by geographical constituencies and the remaining members
+    elected proportionally by party list.  In addition, 3 seats are
+    reserved for representatives of Indigenous communities.
   country: ve
   url: https://www.asambleanacional.gob.ve/
 data:
