@@ -1,0 +1,14 @@
+title: Lithuania Members of the Seimas
+entry_point: crawler.py
+prefix: li-seimas
+url: https://www.lrs.lt/sip/portal.show?p_r=35299&p_k=2
+description: placeholder
+publisher:
+  name: placeholder
+  description: placeholder
+  url: https://www.lrs.lt/sip/portal.show?p_r=35299&p_k=2
+  country: li
+  official: true
+data:
+  url: https://www.lrs.lt/sip/portal.show?p_r=35299&p_k=2
+  format: HTML
