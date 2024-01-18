@@ -5,7 +5,7 @@ coverage:
   frequency: never
   end: 2024-01-18
 deploy:
-  schedule: "30 */6 * * *"
+  schedule: "@weekly"
   memory: "2000Mi"
   cpu: "500m"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
