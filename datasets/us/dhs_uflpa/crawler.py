@@ -1,4 +1,3 @@
-from pprint import pprint
 from normality import collapse_spaces, slugify
 from zavod import Context
 from zavod import helpers as h
