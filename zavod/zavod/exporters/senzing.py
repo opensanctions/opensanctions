@@ -8,8 +8,6 @@ from itertools import product
 from typing import Dict, Any
 from followthemoney.types import registry
 from rigour.ids.wikidata import is_qid
-from nomenklatura.store import View
-from nomenklatura.dataset import DS
 from pprint import pprint  # noqa
 
 from zavod.entity import Entity
