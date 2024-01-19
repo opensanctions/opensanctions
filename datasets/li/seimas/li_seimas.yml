@@ -11,9 +11,10 @@ description: >
   with a portion elected in single-seat constituencies and another through proportional 
   representation. The election process involves ordinary elections, with both single-seat 
   constituencies and proportional representation determining the composition of the Seimas.
+  [Source: Wikipedia](https://en.wikipedia.org/wiki/Seimas)
 
-  The Speaker of the Seimas, represents the Seimas, directs its work, and may act as President
-  temporarily in certain circumstances. [Source: Wikipedia](https://en.wikipedia.org/wiki/Seimas)
+  This dataset publishes the name, position, date of birth, place of birth and occupancy of
+  Members of Seimas
 publisher:
   name: Seimas of the Republic of Lithuania
   description: >
