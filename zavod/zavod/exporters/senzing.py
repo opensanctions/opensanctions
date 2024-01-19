@@ -43,51 +43,6 @@ def clean(obj: Dict[str, Any]) -> Dict[str, Any]:
     return out
 
 
-def senzing_adjacent_features(
-    entity: Entity, record: Dict[str, Any], view: View[DS, Entity]
-) -> None:
-    for _, adj in view.get_adjacent(entity):
-        if adj.schema.name == "Address":
-            adj_data = {
-                "ADDR_FULL": adj.first("full"),
-                "ADDR_LINE1": adj.first("street"),
-                "ADDR_LINE2": adj.first("street2"),
-                "ADDR_CITY": adj.first("city"),
-                "ADDR_STATE": adj.first("state"),
-                "ADDR_COUNTRY": adj.first("country"),
-                "ADDR_POSTAL_CODE": adj.first("postalCode"),
-            }
-            push(record, "ADDRESSES", clean(adj_data))
-        elif adj.schema.name == "Identification":
-            adj_data = {
-                "NATIONAL_ID_NUMBER": adj.first("number"),
-                "NATIONAL_ID_COUNTRY": adj.first("country"),
-            }
-            push(record, "IDENTIFIERS", clean(adj_data))
-        elif adj.schema.name == "Passport":
-            adj_data = {
-                "PASSPORT_NUMBER": adj.first("number"),
-                "PASSPORT_COUNTRY": adj.first("country"),
-            }
-            push(record, "IDENTIFIERS", clean(adj_data))
-
-        if adj.schema.edge and adj.schema.source_prop and adj.schema.target_prop:
-            sources = adj.get(adj.schema.source_prop)
-            targets = adj.get(adj.schema.target_prop)
-            caption = adj.first("role", quiet=True) or adj.caption
-            for s, t in product(sources, targets):
-                if s != entity.id and t != entity.id:
-                    continue
-                edge = {
-                    "REL_ANCHOR_DOMAIN": DOMAIN,
-                    "REL_ANCHOR_ID": s,
-                    "REL_ANCHOR_ROLE": caption,
-                    "REL_POINTER_DOMAIN": DOMAIN,
-                    "REL_POINTER_ID": t,
-                }
-                push(record, "RELATIONSHIPS", edge)
-
-
 class SenzingExporter(Exporter):
     TITLE = "Senzing entity format"
     FILE_NAME = "senzing.json"
@@ -125,7 +80,7 @@ class SenzingExporter(Exporter):
             "RECORD_TYPE": record_type,
             "LAST_CHANGE": entity.last_change,
         }
-        
+
         name_field = "NAME_ORG" if is_org else "NAME_FULL"
         push(record, "NAMES", {"NAME_TYPE": "PRIMARY", name_field: entity.caption})
         for name in entity.get_type_values(registry.name):
@@ -162,7 +117,47 @@ class SenzingExporter(Exporter):
         map(entity, "dunsCode", record, "IDENTIFIERS", "DUNS_NUMBER")
         map(entity, "sourceUrl", record, "LINKS", "SOURCE_URL")
 
-        senzing_adjacent_features(entity, record, self.view)
+        for _, adj in self.view.get_adjacent(entity):
+            if adj.schema.name == "Address":
+                adj_data = {
+                    "ADDR_FULL": adj.first("full"),
+                    "ADDR_LINE1": adj.first("street"),
+                    "ADDR_LINE2": adj.first("street2"),
+                    "ADDR_CITY": adj.first("city"),
+                    "ADDR_STATE": adj.first("state"),
+                    "ADDR_COUNTRY": adj.first("country"),
+                    "ADDR_POSTAL_CODE": adj.first("postalCode"),
+                }
+                push(record, "ADDRESSES", clean(adj_data))
+            elif adj.schema.name == "Identification":
+                adj_data = {
+                    "NATIONAL_ID_NUMBER": adj.first("number"),
+                    "NATIONAL_ID_COUNTRY": adj.first("country"),
+                }
+                push(record, "IDENTIFIERS", clean(adj_data))
+            elif adj.schema.name == "Passport":
+                adj_data = {
+                    "PASSPORT_NUMBER": adj.first("number"),
+                    "PASSPORT_COUNTRY": adj.first("country"),
+                }
+                push(record, "IDENTIFIERS", clean(adj_data))
+
+            if adj.schema.edge and adj.schema.source_prop and adj.schema.target_prop:
+                sources = adj.get(adj.schema.source_prop)
+                targets = adj.get(adj.schema.target_prop)
+                caption = adj.first("role", quiet=True) or adj.caption
+                for s, t in product(sources, targets):
+                    if s != entity.id and t != entity.id:
+                        continue
+                    edge = {
+                        "REL_ANCHOR_DOMAIN": DOMAIN,
+                        "REL_ANCHOR_ID": s,
+                        "REL_ANCHOR_ROLE": caption,
+                        "REL_POINTER_DOMAIN": DOMAIN,
+                        "REL_POINTER_ID": t,
+                    }
+                    push(record, "RELATIONSHIPS", edge)
+
         seen_identifiers = set()
         for ident in record.get("IDENTIFIERS", []):
             seen_identifiers.update(ident.values())
