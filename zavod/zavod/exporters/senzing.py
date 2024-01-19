@@ -14,7 +14,7 @@ from zavod.entity import Entity
 from zavod.exporters.common import Exporter
 from zavod.util import write_json
 
-DOMAIN = "OS_LIST_ID"
+DOMAIN = "OS_ENTITY_ID"
 
 
 def push(obj: Dict[str, Any], section: str, value: Dict[str, Any]) -> None:
