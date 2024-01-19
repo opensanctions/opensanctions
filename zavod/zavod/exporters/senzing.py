@@ -4,7 +4,8 @@
 # This format can then be used to perform record linkage against other datasets.
 # As a next step, the matching results could be converted back into a
 # nomenklatura resolver file and then used to generate integrated FtM entities.
-from typing import cast, Dict, Any, Generator, List, Optional, Union
+from itertools import product
+from typing import cast, Dict, Any
 from followthemoney.types import registry
 from rigour.ids.wikidata import is_qid
 from nomenklatura.store import View
@@ -15,20 +16,15 @@ from zavod.entity import Entity
 from zavod.exporters.common import Exporter
 from zavod.util import write_json
 
-# Feature = Union[str, Dict[str, str]]
-ID_TYPES = {
-
-}
-
-
-# def map_feature(entity: Entity, features: List[Feature], prop: str, attr: str) -> None:
-#     for value in entity.get(prop, quiet=True):
-#         features.append({attr: value})
+DOMAIN = "OS_LIST_ID"
 
 
 def push(obj: Dict[str, Any], section: str, value: Dict[str, Any]) -> None:
     if section not in obj:
         obj[section] = []
+    for item in obj[section]:
+        if item == value:
+            return
     obj[section].append(value)
 
 
@@ -38,12 +34,14 @@ def map(
     for value in entity.get(prop, quiet=True):
         push(obj, section, {attr: value})
 
+
 def clean(obj: Dict[str, Any]) -> Dict[str, Any]:
     out: Dict[str, Any] = {}
     for k, v in obj.items():
         if v is not None:
             out[k] = v
     return out
+
 
 def senzing_adjacent_features(
     entity: Entity, record: Dict[str, Any], view: View[DS, Entity]
@@ -73,7 +71,21 @@ def senzing_adjacent_features(
             }
             push(record, "IDENTIFIERS", clean(adj_data))
 
-        # TODO: make graph edges
+        if adj.schema.edge and adj.schema.source_prop and adj.schema.target_prop:
+            sources = adj.get(adj.schema.source_prop)
+            targets = adj.get(adj.schema.target_prop)
+            caption = adj.first("role", quiet=True) or adj.caption
+            for s, t in product(sources, targets):
+                if s != entity.id and t != entity.id:
+                    continue
+                edge = {
+                    "REL_ANCHOR_DOMAIN": DOMAIN,
+                    "REL_ANCHOR_ID": s,
+                    "REL_ANCHOR_ROLE": caption,
+                    "REL_POINTER_DOMAIN": DOMAIN,
+                    "REL_POINTER_ID": t,
+                }
+                push(record, "RELATIONSHIPS", edge)
 
 
 class SenzingExporter(Exporter):
@@ -113,11 +125,12 @@ class SenzingExporter(Exporter):
             "RECORD_TYPE": record_type,
             "LAST_CHANGE": entity.last_change,
         }
-
+        
+        name_field = "NAME_ORG" if is_org else "NAME_FULL"
+        push(record, "NAMES", {"NAME_TYPE": "PRIMARY", name_field: entity.caption})
         for name in entity.get_type_values(registry.name):
-            name_type = "PRIMARY" if name == entity.caption else "ALIAS"
-            name_field = "NAME_ORG" if is_org else "NAME_FULL"
-            push(record, "NAMES", {"NAME_TYPE": name_type, name_field: name})
+            if name != entity.caption:
+                push(record, "NAMES", {"NAME_TYPE": "ALIAS", name_field: name})
 
         genders = entity.get("gender", quiet=True)
         if len(genders) == 1:
@@ -126,6 +139,7 @@ class SenzingExporter(Exporter):
             if genders[0] == "female":
                 record["GENDER"] = "F"
 
+        map(entity, "topics", record, "RISKS", "TOPIC")
         map(entity, "address", record, "ADDRESSES", "ADDR_FULL")
         map(entity, "birthDate", record, "DATES", "DATE_OF_BIRTH")
         map(entity, "deathDate", record, "DATES", "DATE_OF_DEATH")
@@ -149,6 +163,15 @@ class SenzingExporter(Exporter):
         map(entity, "sourceUrl", record, "LINKS", "SOURCE_URL")
 
         senzing_adjacent_features(entity, record, self.view)
+        seen_identifiers = set()
+        for ident in record.get("IDENTIFIERS", []):
+            seen_identifiers.update(ident.values())
+
+        for stmt in entity.get_type_statements(registry.identifier):
+            if stmt.value in seen_identifiers:
+                continue
+            ident = {"OTHER_ID_TYPE": stmt.prop, "OTHER_ID_NUMBER": stmt.value}
+            push(record, "IDENTIFIERS", ident)
 
         for wd_id in (entity.id, entity.first("wikidataId")):
             if wd_id is not None and is_qid(wd_id):
@@ -159,11 +182,11 @@ class SenzingExporter(Exporter):
                 push(record, "IDENTIFIERS", wd)
 
         if not is_qid(entity.id):
-            ident = {"OTHER_ID_TYPE": "OS_LIST_ID", "OTHER_ID_NUMBER": entity.id}
+            ident = {"OTHER_ID_TYPE": DOMAIN, "OTHER_ID_NUMBER": entity.id}
             push(record, "IDENTIFIERS", ident)
 
         record["URL"] = f"https://www.opensanctions.org/entities/{entity.id}/"
-        if entity.schema.is_a('Organization'):
+        if entity.schema.is_a("Organization"):
             for addr in record.get("ADDRESSES", []):
                 addr["ADDR_TYPE"] = "BUSINESS"
         pprint(record)
