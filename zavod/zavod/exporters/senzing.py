@@ -5,7 +5,7 @@
 # As a next step, the matching results could be converted back into a
 # nomenklatura resolver file and then used to generate integrated FtM entities.
 from itertools import product
-from typing import cast, Dict, Any
+from typing import Dict, Any
 from followthemoney.types import registry
 from rigour.ids.wikidata import is_qid
 from nomenklatura.store import View
