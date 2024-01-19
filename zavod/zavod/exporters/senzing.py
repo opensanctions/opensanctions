@@ -10,7 +10,7 @@ from followthemoney.types import registry
 from rigour.ids.wikidata import is_qid
 from nomenklatura.store import View
 from nomenklatura.dataset import DS
-from pprint import pprint
+from pprint import pprint  # noqa
 
 from zavod.entity import Entity
 from zavod.exporters.common import Exporter
@@ -189,7 +189,7 @@ class SenzingExporter(Exporter):
         if entity.schema.is_a("Organization"):
             for addr in record.get("ADDRESSES", []):
                 addr["ADDR_TYPE"] = "BUSINESS"
-        pprint(record)
+        # pprint(record)
         write_json(cast(Dict[str, Any], record), self.fh)
 
     def finish(self) -> None:
