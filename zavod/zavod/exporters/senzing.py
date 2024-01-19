@@ -190,7 +190,7 @@ class SenzingExporter(Exporter):
             for addr in record.get("ADDRESSES", []):
                 addr["ADDR_TYPE"] = "BUSINESS"
         # pprint(record)
-        write_json(cast(Dict[str, Any], record), self.fh)
+        write_json(record, self.fh)
 
     def finish(self) -> None:
         self.fh.close()
