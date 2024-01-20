@@ -57,7 +57,7 @@ def crawl(context: Context):
     page = 0
     while True:
         # the API maximum number of records per page is 2000
-        params = {"page": page, "size": 5}
+        params = {"page": page, "size": 2000}
         res = requests.post(
             context.dataset.data.url,
             params=params,
