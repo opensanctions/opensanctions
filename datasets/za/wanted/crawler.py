@@ -20,11 +20,7 @@ def parse_cell(cell: html.HtmlElement):
         result["last_name"] = last_name.strip()
         result["crime"] = crime.strip()
         result["status"] = status.strip()
-        details_id = cell.xpath(".//a/@href")[0]
-        source_url = (
-            f'https://www.saps.gov.za/crimestop/wanted/{details_id}'
-        )
-        result["source_url"] = source_url
+        result["source_url"] = cell.xpath(".//a/@href")[0]
     return result
 
 
@@ -53,7 +49,9 @@ def crawl_cell(context: Context, cell: Dict[str, str]):
 
 def crawl(context):
     doc = context.fetch_html(context.dataset.data.url, cache_days=1)
-    cells = doc.xpath("//td[.//a[starts-with(@href, 'detail.php')]]")
+    # makes it easier to extract dedicated details page 
+    doc.make_links_absolute(context.dataset.data.url)
+    cells = doc.xpath("//td[.//a[contains(@href, 'detail.php')]]")
 
     for cell in cells:
         crawl_cell(context, cell)
