@@ -20,4 +20,4 @@ publisher:
 url: https://olinda.bcb.gov.br/olinda/servico/Gepad_QuadrosGeraisInternet/versao/v1/odata/QuadroGeralInabilitados?format=text/html
 data:
   url: https://olinda.bcb.gov.br/olinda/servico/Gepad_QuadrosGeraisInternet/versao/v1/odata/QuadroGeralInabilitados?format=text/html
-  format: csv
+  format: JSON
