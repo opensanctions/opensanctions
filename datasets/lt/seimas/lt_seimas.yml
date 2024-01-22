@@ -1,6 +1,6 @@
 title: Lithuania Members of the Seimas
 entry_point: crawler.py
-prefix: li-seimas
+prefix: lt-seimas
 url: https://www.lrs.lt/sip/portal.show?p_r=35299&p_k=2
 summary: Current and recent Members of the Seimas
 description: >
@@ -23,7 +23,7 @@ publisher:
     The primary function of the Seimas is to consider, adopt and issue laws and amendments to the Constitution
     [Source: Wikipedia](https://en.wikipedia.org/wiki/Seimas)
   url: https://www.lrs.lt
-  country: li
+  country: lt
   official: true
 data:
   url: https://www.lrs.lt/sip/portal.show?p_r=35299&p_k=2
