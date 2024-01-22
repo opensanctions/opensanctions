@@ -1,7 +1,7 @@
 from lxml import etree
 from zipfile import ZipFile
 from urllib.parse import urljoin, urlparse
-from typing import Dict, Optional, Set, IO
+from typing import Dict, Optional, Set, IO, List
 from lxml.etree import _Element as Element, tostring
 from addressformatting import AddressFormatter
 
@@ -25,6 +25,20 @@ def dput(data: Dict[str, Optional[str]], name: str, value: Optional[str]):
         return
     data[name] = value
 
+
+def parse_name(name: Optional[str]) -> List[str]:
+    if name is None:
+        return []
+    names: List[str] = []
+    if name.endswith(')'):
+        parts = name.rsplit('(', 1)
+        if len(parts) == 2:
+            name = parts[0].strip()
+            alias = parts[1].strip(')').strip()
+            names.append(alias)
+    names.append(name)
+    return names
+    
 
 def elattr(el: Optional[Element], attr: str):
     if el is not None:
@@ -85,7 +99,7 @@ def make_org(context: Context, el: Element, local_id: Optional[str]) -> Entity:
         inn = name_el.get("ИНН")
         ogrn = name_el.get("ОГРН")
         entity.id = entity_id(context, name, inn, ogrn, local_id)
-        entity.add("name", name)
+        entity.add("name", parse_name(name))
         entity.add("innCode", inn)
         entity.add("ogrnCode", ogrn)
 
@@ -138,7 +152,7 @@ def parse_founder(context: Context, company: Entity, el: Element):
             inn = manager_el.get("ИНН")
             ogrn = manager_el.get("ОГРН")
             owner.id = entity_id(context, name, inn, ogrn, local_id)
-            owner.add("name", name)
+            owner.add("name", parse_name(name))
             owner.add("innCode", inn)
             owner.add("ogrnCode", ogrn)
     elif el.tag == "УчрРФСубМО":  # Russian public body
@@ -170,7 +184,7 @@ def parse_founder(context: Context, company: Entity, el: Element):
             inn = manager_el.get("ИНН")
             ogrn = manager_el.get("ОГРН")
             owner.id = entity_id(context, name, inn, ogrn, local_id)
-            owner.add("name", name)
+            owner.add("name", parse_name(name))
             owner.add("innCode", inn)
             owner.add("ogrnCode", ogrn)
     elif el.tag == "УчрРФСубМО":

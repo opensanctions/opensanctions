@@ -4,61 +4,41 @@
 # This format can then be used to perform record linkage against other datasets.
 # As a next step, the matching results could be converted back into a
 # nomenklatura resolver file and then used to generate integrated FtM entities.
-from typing import cast, Dict, Any, Generator, List, Optional, Union
-from typing_extensions import TypedDict
+from itertools import product
+from typing import Dict, Any
 from followthemoney.types import registry
 from rigour.ids.wikidata import is_qid
-from nomenklatura.store import View
-from nomenklatura.dataset import DS
+from pprint import pprint  # noqa
 
 from zavod.entity import Entity
 from zavod.exporters.common import Exporter
 from zavod.util import write_json
 
-Feature = Union[str, Dict[str, str]]
+DOMAIN = "OS_ENTITY_ID"
 
 
-class SenzingRecord(TypedDict):
-    DATA_SOURCE: str
-    RECORD_ID: str
-    RECORD_TYPE: Optional[str]
-    FEATURES: List[Feature]
+def push(obj: Dict[str, Any], section: str, value: Dict[str, Any]) -> None:
+    if section not in obj:
+        obj[section] = []
+    for item in obj[section]:
+        if item == value:
+            return
+    obj[section].append(value)
 
 
-def map_feature(entity: Entity, features: List[Feature], prop: str, attr: str) -> None:
+def map(
+    entity: Entity, prop: str, obj: Dict[str, Any], section: str, attr: str
+) -> None:
     for value in entity.get(prop, quiet=True):
-        features.append({attr: value})
+        push(obj, section, {attr: value})
 
 
-def senzing_adjacent_features(
-    entity: Entity, view: View[DS, Entity]
-) -> Generator[Feature, None, None]:
-    for _, adj in view.get_adjacent(entity):
-        adj_data: Optional[Dict[str, Optional[str]]] = None
-        if adj.schema.name == "Address":
-            adj_data = {
-                "ADDR_FULL": adj.first("full"),
-                "ADDR_LINE1": adj.first("street"),
-                "ADDR_LINE2": adj.first("street2"),
-                "ADDR_CITY": adj.first("city"),
-                "ADDR_STATE": adj.first("state"),
-                "ADDR_COUNTRY": adj.first("country"),
-                "ADDR_POSTAL_CODE": adj.first("postalCode"),
-            }
-        elif adj.schema.name == "Identification":
-            adj_data = {
-                "NATIONAL_ID_NUMBER": adj.first("number"),
-                "NATIONAL_ID_COUNTRY": adj.first("country"),
-            }
-        elif adj.schema.name == "Passport":
-            adj_data = {
-                "PASSPORT_NUMBER": adj.first("number"),
-                "PASSPORT_COUNTRY": adj.first("country"),
-            }
-        if adj_data is not None:
-            values = {k: v for k, v in adj_data.items() if v is not None}
-            if len(values):
-                yield values
+def clean(obj: Dict[str, Any]) -> Dict[str, Any]:
+    out: Dict[str, Any] = {}
+    for k, v in obj.items():
+        if v is not None:
+            out[k] = v
+    return out
 
 
 class SenzingExporter(Exporter):
@@ -74,7 +54,7 @@ class SenzingExporter(Exporter):
             self.source_name = "OPENSANCTIONS"
 
     def feed(self, entity: Entity) -> None:
-        if not entity.schema.is_a("LegalEntity"):
+        if not entity.schema.matchable:
             return None
         if entity.id is None:
             return None
@@ -92,60 +72,118 @@ class SenzingExporter(Exporter):
         elif entity.schema.is_a("Vehicle"):
             record_type = "VEHICLE"
 
-        record: SenzingRecord = {
+        record: Dict[str, Any] = {
             "DATA_SOURCE": self.source_name,
             "RECORD_ID": entity.id,
             "RECORD_TYPE": record_type,
-            "FEATURES": [],
+            "LAST_CHANGE": entity.last_change,
         }
 
-        features: List[Feature] = []
+        name_field = "NAME_ORG" if is_org else "NAME_FULL"
+        push(record, "NAMES", {"NAME_TYPE": "PRIMARY", name_field: entity.caption})
         for name in entity.get_type_values(registry.name):
-            name_type = "PRIMARY" if name == entity.caption else "ALIAS"
-            name_field = "NAME_ORG" if is_org else "NAME_FULL"
-            features.append({"NAME_TYPE": name_type, name_field: name})
+            if name != entity.caption:
+                push(record, "NAMES", {"NAME_TYPE": "ALIAS", name_field: name})
 
-        for gender in entity.get("gender", quiet=True):
-            if gender == "male":
-                features.append({"GENDER": "M"})
-            if gender == "female":
-                features.append({"GENDER": "F"})
+        genders = entity.get("gender", quiet=True)
+        if len(genders) == 1:
+            if genders[0] == "male":
+                record["GENDER"] = "M"
+            if genders[0] == "female":
+                record["GENDER"] = "F"
 
-        map_feature(entity, features, "address", "ADDR_FULL")
-        map_feature(entity, features, "birthDate", "DATE_OF_BIRTH")
-        map_feature(entity, features, "deathDate", "DATE_OF_DEATH")
-        map_feature(entity, features, "birthPlace", "PLACE_OF_BIRTH")
-        map_feature(entity, features, "nationality", "NATIONALITY")
-        map_feature(entity, features, "country", "CITIZENSHIP")
-        map_feature(entity, features, "incorporationDate", "REGISTRATION_DATE")
-        map_feature(entity, features, "jurisdiction", "REGISTRATION_COUNTRY")
-        map_feature(entity, features, "website", "WEBSITE_ADDRESS")
-        map_feature(entity, features, "email", "EMAIL_ADDRESS")
-        map_feature(entity, features, "phone", "PHONE_NUMBER")
-        map_feature(entity, features, "passportNumber", "PASSPORT_NUMBER")
-        map_feature(entity, features, "idNumber", "NATIONAL_ID_NUMBER")
-        map_feature(entity, features, "registrationNumber", "NATIONAL_ID_NUMBER")
-        map_feature(entity, features, "ogrnCode", "NATIONAL_ID_NUMBER")
-        map_feature(entity, features, "taxNumber", "TAX_ID_NUMBER")
-        map_feature(entity, features, "innCode", "TAX_ID_NUMBER")
-        map_feature(entity, features, "vatCode", "TAX_ID_NUMBER")
-        map_feature(entity, features, "leiCode", "LEI_NUMBER")
-        map_feature(entity, features, "dunsCode", "DUNS_NUMBER")
+        map(entity, "topics", record, "RISKS", "TOPIC")
+        map(entity, "address", record, "ADDRESSES", "ADDR_FULL")
+        map(entity, "birthDate", record, "DATES", "DATE_OF_BIRTH")
+        map(entity, "deathDate", record, "DATES", "DATE_OF_DEATH")
+        map(entity, "incorporationDate", record, "DATES", "REGISTRATION_DATE")
+        map(entity, "birthPlace", record, "ADDRESSES", "PLACE_OF_BIRTH")
+        map(entity, "nationality", record, "COUNTRIES", "NATIONALITY")
+        map(entity, "country", record, "COUNTRIES", "CITIZENSHIP")
+        map(entity, "jurisdiction", record, "COUNTRIES", "REGISTRATION_COUNTRY")
+        map(entity, "website", record, "CONTACTS", "WEBSITE_ADDRESS")
+        map(entity, "email", record, "CONTACTS", "EMAIL_ADDRESS")
+        map(entity, "phone", record, "CONTACTS", "PHONE_NUMBER")
+        map(entity, "passportNumber", record, "IDENTIFIERS", "PASSPORT_NUMBER")
+        map(entity, "idNumber", record, "IDENTIFIERS", "NATIONAL_ID_NUMBER")
+        map(entity, "registrationNumber", record, "IDENTIFIERS", "NATIONAL_ID_NUMBER")
+        map(entity, "ogrnCode", record, "IDENTIFIERS", "NATIONAL_ID_NUMBER")
+        map(entity, "taxNumber", record, "IDENTIFIERS", "TAX_ID_NUMBER")
+        map(entity, "innCode", record, "IDENTIFIERS", "TAX_ID_NUMBER")
+        map(entity, "vatCode", record, "IDENTIFIERS", "TAX_ID_NUMBER")
+        map(entity, "leiCode", record, "IDENTIFIERS", "LEI_NUMBER")
+        map(entity, "dunsCode", record, "IDENTIFIERS", "DUNS_NUMBER")
+        map(entity, "sourceUrl", record, "LINKS", "SOURCE_URL")
 
-        for adj_feature in senzing_adjacent_features(entity, self.view):
-            features.append(adj_feature)
+        for _, adj in self.view.get_adjacent(entity):
+            if adj.schema.name == "Address":
+                adj_data = {
+                    "ADDR_FULL": adj.first("full"),
+                    "ADDR_LINE1": adj.first("street"),
+                    "ADDR_LINE2": adj.first("street2"),
+                    "ADDR_CITY": adj.first("city"),
+                    "ADDR_STATE": adj.first("state"),
+                    "ADDR_COUNTRY": adj.first("country"),
+                    "ADDR_POSTAL_CODE": adj.first("postalCode"),
+                }
+                push(record, "ADDRESSES", clean(adj_data))
+            elif adj.schema.name == "Identification":
+                adj_data = {
+                    "NATIONAL_ID_NUMBER": adj.first("number"),
+                    "NATIONAL_ID_COUNTRY": adj.first("country"),
+                }
+                push(record, "IDENTIFIERS", clean(adj_data))
+            elif adj.schema.name == "Passport":
+                adj_data = {
+                    "PASSPORT_NUMBER": adj.first("number"),
+                    "PASSPORT_COUNTRY": adj.first("country"),
+                }
+                push(record, "IDENTIFIERS", clean(adj_data))
+
+            if adj.schema.edge and adj.schema.source_prop and adj.schema.target_prop:
+                sources = adj.get(adj.schema.source_prop)
+                targets = adj.get(adj.schema.target_prop)
+                caption = adj.first("role", quiet=True) or adj.caption
+                for s, t in product(sources, targets):
+                    if s != entity.id and t != entity.id:
+                        continue
+                    edge = {
+                        "REL_ANCHOR_DOMAIN": DOMAIN,
+                        "REL_ANCHOR_ID": s,
+                        "REL_ANCHOR_ROLE": caption,
+                        "REL_POINTER_DOMAIN": DOMAIN,
+                        "REL_POINTER_ID": t,
+                    }
+                    push(record, "RELATIONSHIPS", edge)
+
+        seen_identifiers = set()
+        for ident in record.get("IDENTIFIERS", []):
+            seen_identifiers.update(ident.values())
+
+        for stmt in entity.get_type_statements(registry.identifier):
+            if stmt.value in seen_identifiers:
+                continue
+            ident = {"OTHER_ID_TYPE": stmt.prop, "OTHER_ID_NUMBER": stmt.value}
+            push(record, "IDENTIFIERS", ident)
 
         for wd_id in (entity.id, entity.first("wikidataId")):
             if wd_id is not None and is_qid(wd_id):
-                features.append(
-                    {
-                        "TRUSTED_ID_TYPE": "WIKIDATA",
-                        "TRUSTED_ID_NUMBER": wd_id,
-                    }
-                )
+                wd = {
+                    "TRUSTED_ID_TYPE": "WIKIDATA",
+                    "TRUSTED_ID_NUMBER": wd_id,
+                }
+                push(record, "IDENTIFIERS", wd)
 
-        record["FEATURES"] = features
-        write_json(cast(Dict[str, Any], record), self.fh)
+        if not is_qid(entity.id):
+            ident = {"OTHER_ID_TYPE": DOMAIN, "OTHER_ID_NUMBER": entity.id}
+            push(record, "IDENTIFIERS", ident)
+
+        record["URL"] = f"https://www.opensanctions.org/entities/{entity.id}/"
+        if entity.schema.is_a("Organization"):
+            for addr in record.get("ADDRESSES", []):
+                addr["ADDR_TYPE"] = "BUSINESS"
+        # pprint(record)
+        write_json(record, self.fh)
 
     def finish(self) -> None:
         self.fh.close()
