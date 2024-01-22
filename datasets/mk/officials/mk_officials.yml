@@ -1,7 +1,7 @@
-name: mk_elected_officials
-title: "North Macedonia PEPs"
+name: mk_officials
+title: "North Macedonia elected and appointed officials"
 entry_point: crawler.py
-prefix: mk-elected-officials
+prefix: mk-officials
 coverage:
   frequency: daily
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
