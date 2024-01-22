@@ -51,12 +51,14 @@ def create_sanction(input_dict: dict, entity, context: Context):
     :param context: The context object.
     """
 
-    sanction = h.make_sanction(context, entity)
+    pas_number = input_dict.pop("PAS")
+
+    sanction = h.make_sanction(context, entity, key=pas_number)
 
     # The ID of the process
     sanction.add(
         "description",
-        "Administrative Sanctioning Process Number: {}".format(input_dict.pop("PAS")),
+        "Administrative Sanctioning Process Number: {}".format(pas_number),
     )
 
     # The duration is always in years
