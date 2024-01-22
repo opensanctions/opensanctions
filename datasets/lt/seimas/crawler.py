@@ -1,10 +1,9 @@
-from typing import Optional
-from xml.etree import ElementTree
 from zavod import Context
 from zavod import helpers as h
 from zavod.logic.pep import categorise
 from normality import collapse_spaces
 from datetime import datetime
+from xml.etree import ElementTree
 
 
 def to_date(date_str: str) -> datetime:
@@ -47,11 +46,7 @@ def crawl_member_bio(context: Context, url: str):
     )
 
     position_name = get_element_text(doc, '//div[@class="sn-nuo-iki"]')
-    party = get_element_text(doc, '//a[contains(@class, "smn-frakcija")]')
-
     position_name = position_name.split("from")[0].strip()
-    if party:
-        position_name = f"{position_name}, {party}"
 
     tenure = get_element_text(doc, '//div[@class="kadencija"]')
     start_year, end_year = get_occupany_dates(tenure)
@@ -68,7 +63,7 @@ def crawl_member_bio(context: Context, url: str):
     position = h.make_position(
         context,
         position_name,
-        country="li",
+        country="lt",
     )
 
     categorisation = categorise(context, position)
