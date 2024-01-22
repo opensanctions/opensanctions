@@ -28,7 +28,7 @@ def create_entity(input_dict: dict, context: Context):
     """
     entity = context.make("Person")
     tax_number = input_dict["CPF"]
-    entity.id = context.make_id(tax_number)
+    entity.id = context.make_slug(tax_number, prefix="br-cpf")
     entity.add("name", input_dict["Nome"])
     entity.add("taxNumber", tax_number)
     entity.add("country", "br")
