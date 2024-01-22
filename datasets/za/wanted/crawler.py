@@ -26,6 +26,10 @@ def parse_cell(cell: html.HtmlElement):
 
 def crawl_cell(context: Context, cell: Dict[str, str]):
     data = parse_cell(cell)
+    
+    # first name is considered a bare minimum to emit a person entity
+    if data["last_name"] in ["Unknown", "Uknown"]:
+        return
 
     person = context.make("Person")
     
