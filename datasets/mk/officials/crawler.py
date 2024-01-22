@@ -6,6 +6,7 @@ from zavod import helpers as h
 from zavod.logic.pep import categorise
 
 IGNORE_COLUMNS = [
+    "id",
     "formType",
     "subInstitution",
 ]
@@ -14,16 +15,21 @@ IGNORE_COLUMNS = [
 def crawl_row(context: Context, row: Dict[str, str]):
     person = context.make("Person")
 
-    person.id = context.make_slug(row.pop("id"))
+    first_name = row.pop("name")
+    last_name = row.pop("lastName")
+    position_name = row.pop("workingPosition")
+    position_institution = row.pop("institution")
+
+    person.id = context.make_id(
+        first_name, last_name, position_name, position_institution
+    )
 
     h.apply_name(
         person,
-        first_name=row.pop("name"),
-        last_name=row.pop("lastName"),
+        first_name=first_name,
+        last_name=last_name,
     )
 
-    position_name = row.pop("workingPosition")
-    position_institution = row.pop("institution")
     position = h.make_position(
         context, f"{position_name}, {position_institution}", country="mk", lang="mkd"
     )
