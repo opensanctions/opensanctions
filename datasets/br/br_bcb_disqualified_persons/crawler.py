@@ -52,10 +52,6 @@ def create_sanction(input_dict: dict, entity, context: Context):
     """
 
     sanction = h.make_sanction(context, entity)
-    sanction.add(
-        "program", "Brazil's Central Bank General Register of Disqualified Persons"
-    )
-    sanction.add("authority", "Brazil's Central Bank")
 
     # The ID of the process
     sanction.add(
