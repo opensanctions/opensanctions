@@ -12,10 +12,6 @@ description: |
   It enumerates individuals who, due to penalties incurred in administrative sanction proceedings,
   are temporarily prohibited from occupying key positions such as administrators
   or board members in financial or consortium administration entities.
-  This measure ensures the integrity and reliability of personnel in critical financial roles,
-  reflecting the Central Bank's commitment to maintaining stability and transparency in the financial system.
-  The dataset is a part of broader efforts to uphold high standards in financial governance
-  and protect the interests of stakeholders in the financial industry.
 publisher:
   name: BCB (Brazil's Central Bank)
   url: https://www.bcb.gov.br
