@@ -37,7 +37,6 @@ def crawl_cell(context: Context, cell: Dict[str, str]):
     # which appears to be a unique identifier
     id = parse_qs(urlparse(data["source_url"]).query)["bid"][0]
     person.id = context.make_slug(id)
-    breakpoint()
 
     h.apply_name(
         person,
