@@ -8,11 +8,16 @@ from zavod import helpers as h
 REGEX_PATTERN = re.compile("(.+)\((.+)\)(.+)")
 
 def crawl_person(context: Context, cell: html.HtmlElement):
+    source_url = cell.xpath(".//a/@href")[0]
     match = REGEX_PATTERN.match(cell.text_content())
+
+    if not match:
+        context.log.warning("Regex did not match data for person %s" % source_url)
+        return
+
     name, crime, status = map(str.strip, match.groups())
     last_name, first_name = map(str.strip, name.split(",", maxsplit=1))
-    source_url = cell.xpath(".//a/@href")[0]
-    
+
     # first name is considered a bare minimum to emit a person entity
     if last_name in ["Unknown", "Uknown"]:
         return
