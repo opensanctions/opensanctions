@@ -34,7 +34,7 @@ setup(
         "lxml == 5.1.0",
         "lxml-stubs == 0.5.1",
         "openpyxl == 3.1.2",
-        "orjson == 3.9.10",
+        "orjson == 3.9.12",
         "ijson > 3.2, < 4.0",
         "pantomime == 0.6.1",
         "plyvel == 1.5.1",
