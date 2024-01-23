@@ -40,6 +40,7 @@ def crawl_person(context: Context, cell: html.HtmlElement):
     person.add("notes", f"{status} - {crime}")
 
     person.add("topics", "crime")
+    person.add("country", "za")
     context.emit(person, target=True)
 
 
