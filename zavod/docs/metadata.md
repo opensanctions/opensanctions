@@ -17,7 +17,7 @@ Remember to give the context that people from different countries need to make s
 - `summary` - Capture what a user of the dataset needs to know to decide if it's what they're looking for in a single clear concise line. This is used in search results.
 - `description` - This can be one to two paragraphs of text. A more complete description of the dataset, perhaps with a bit more detail about what it includes, what it excludes, and how it is kept up to date if it is not from an official publisher.
 - `publisher`
-    - `name` - The publisher's official name 
+    - `name` - The publisher's official name. If this is by default in a primary non-english language from the originating country, use that language here, and the english form in `publisher.description`.
     - `description` - This can be one to two paragraphs of text. Use the publisher description field to explain to someone from a country other than the publisher who the publisher is, and why they do what they do. 
     - `url` - The home page of their official website
     - `country` - The Alpha-2 or two-letter ISO 3166-1 

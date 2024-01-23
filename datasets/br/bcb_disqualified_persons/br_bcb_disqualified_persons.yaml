@@ -1,4 +1,4 @@
-title: Brazil Register of Disqualified Persons  
+title: Brazil BCB Register of persons disqualified from senior roles
 entry_point: crawler.py
 prefix: br-qgi
 coverage:
