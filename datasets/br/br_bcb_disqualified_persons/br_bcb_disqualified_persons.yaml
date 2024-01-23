@@ -1,0 +1,23 @@
+title: Brazil's Central Bank General Register of Disqualified Persons  
+entry_point: crawler.py
+prefix: br-qgi
+coverage:
+  frequency: daily
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  The QGI is a dataset from the Central Bank of Brazil listing individuals disqualified from certain roles in financial institutions and consortium administrators.
+description: |
+  The QGI, maintained by the Central Bank of Brazil,
+  serves as a crucial resource for monitoring regulatory compliance in the financial sector.
+  It enumerates individuals who, due to penalties incurred in administrative sanction proceedings,
+  are temporarily prohibited from occupying key positions such as administrators
+  or board members in financial or consortium administration entities.
+publisher:
+  name: Banco Central do Brasil (BCB)
+  url: https://www.bcb.gov.br
+  official: true
+  country: "br"
+url: https://dadosabertos.bcb.gov.br/dataset/processo-administrativo-sancionador---qgi-e-qgp/resource/d9949d9d-8b41-4dd2-83e1-14fd051fcfbe
+data:
+  url: https://olinda.bcb.gov.br/olinda/servico/Gepad_QuadrosGeraisInternet/versao/v1/odata/QuadroGeralInabilitados
+  format: JSON
