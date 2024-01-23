@@ -32,16 +32,18 @@ def create_entity(input_dict: dict, context: Context):
     # If it's 14 digits, then it is a CNPJ: https://en.wikipedia.org/wiki/CNPJ
     if len(tax_number) == 14:
         entity.add_schema("Company")
+        prefix = "br-cnpj"
 
     # If it's 11 digits, then it is a CPF: https://en.wikipedia.org/wiki/CPF_number
     elif len(tax_number) == 11:
         entity.add_schema("Person")
+        prefix = "br-cpf"
 
     # It cannot be anything other than those two
     else:
         context.log.error("Tax number is neither a CPF nor CNPJ")
 
-    entity.id = context.make_id(tax_number)
+    entity.id = context.make_slug(tax_number, prefix=prefix)
     entity.add("name", input_dict["Nome"])
     entity.add("taxNumber", tax_number)
     entity.add("country", "br")
@@ -64,16 +66,17 @@ def create_sanction(input_dict: dict, entity, context: Context):
     :param context: The context object.
     """
 
-    sanction = h.make_sanction(context, entity)
+    pas = input_dict.pop("PAS")
+
+    sanction = h.make_sanction(context, entity, key=pas)
     sanction.add(
         "program", "Brazil's Central Bank General Register of Persons and Companies Prohibited from Offering Auditing Services"
     )
-    sanction.add("authority", "Brazil's Central Bank")
 
     # The ID of the process
     sanction.add(
         "description",
-        "Administrative Sanctioning Process Number: {}".format(input_dict.pop("PAS")),
+        "Administrative Sanctioning Process Number: {}".format(pas),
     )
 
     # The duration is always in years
