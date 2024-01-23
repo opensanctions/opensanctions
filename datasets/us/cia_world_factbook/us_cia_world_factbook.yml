@@ -82,6 +82,14 @@ lookups:
           - role: Deputy Prime Minister
             name: Peter KMEC
             start_date: 25 October 2023
+      - match: "Deputy Prime Ministers Sainbuyen AMARSAIKHAN (since 8 September 2022) and Chimed KHURELBAATAR (since 5 January 2023)"
+        holders:
+          - role: Deputy Prime Minister
+            name: Sainbuyen AMARSAIKHAN
+            start_date: 8 September 2022
+          - role: Deputy Prime Minister
+            name: Chimed KHURELBAATAR
+            start_date: 5 January 2023
       - match: "Crown Prince KHALID bin Muhammad Al Nuhayyan, the eldest son of the monarch, born 14 November 1982"
         holders:
           - role: Crown Prince
