@@ -1,4 +1,4 @@
-title: Brazil's Central Bank General Register of Persons Prohibited from Offering Auditing Services
+title: Brazil Entities Prohibited from Offering Auditing Services
 entry_point: crawler.py
 prefix: br-qgp
 coverage:
@@ -14,6 +14,7 @@ description: |
   aim to ensure the reliability and integrity of those in key auditing roles.
 publisher:
   name: Banco Central do Brasil (BCB)
+  description: The Central Bank of Brazil
   url: https://www.bcb.gov.br
   official: true
   country: "br"

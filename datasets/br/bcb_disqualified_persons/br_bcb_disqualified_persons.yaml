@@ -1,4 +1,4 @@
-title: Brazil's Central Bank General Register of Disqualified Persons  
+title: Brazil Register of Disqualified Persons  
 entry_point: crawler.py
 prefix: br-qgi
 coverage:
@@ -14,6 +14,7 @@ description: |
   or board members in financial or consortium administration entities.
 publisher:
   name: Banco Central do Brasil (BCB)
+  description: The Central Bank of Brazil
   url: https://www.bcb.gov.br
   official: true
   country: "br"
