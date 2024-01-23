@@ -1,6 +1,6 @@
 title: Brazil's Central Bank General Register of Disqualified Persons  
 entry_point: crawler.py
-prefix: bcb-disqualified-persons
+prefix: br-qgi
 coverage:
   frequency: daily
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
@@ -12,16 +12,12 @@ description: |
   It enumerates individuals who, due to penalties incurred in administrative sanction proceedings,
   are temporarily prohibited from occupying key positions such as administrators
   or board members in financial or consortium administration entities.
-  This measure ensures the integrity and reliability of personnel in critical financial roles,
-  reflecting the Central Bank's commitment to maintaining stability and transparency in the financial system.
-  The dataset is a part of broader efforts to uphold high standards in financial governance
-  and protect the interests of stakeholders in the financial industry.
 publisher:
-  name: BCB (Brazil's Central Bank)
+  name: Banco Central do Brasil (BCB)
   url: https://www.bcb.gov.br
   official: true
   country: "br"
-url: https://olinda.bcb.gov.br/olinda/servico/Gepad_QuadrosGeraisInternet/versao/v1/odata/QuadroGeralInabilitados?format=text/html
+url: https://dadosabertos.bcb.gov.br/dataset/processo-administrativo-sancionador---qgi-e-qgp/resource/d9949d9d-8b41-4dd2-83e1-14fd051fcfbe
 data:
-  url: https://olinda.bcb.gov.br/olinda/servico/Gepad_QuadrosGeraisInternet/versao/v1/odata/QuadroGeralInabilitados?format=text/html
-  format: csv
+  url: https://olinda.bcb.gov.br/olinda/servico/Gepad_QuadrosGeraisInternet/versao/v1/odata/QuadroGeralInabilitados
+  format: JSON

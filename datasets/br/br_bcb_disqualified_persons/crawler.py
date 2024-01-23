@@ -28,7 +28,7 @@ def create_entity(input_dict: dict, context: Context):
     """
     entity = context.make("Person")
     tax_number = input_dict["CPF"]
-    entity.id = context.make_id(tax_number)
+    entity.id = context.make_slug(tax_number, prefix="br-cpf")
     entity.add("name", input_dict["Nome"])
     entity.add("taxNumber", tax_number)
     entity.add("country", "br")
@@ -51,16 +51,14 @@ def create_sanction(input_dict: dict, entity, context: Context):
     :param context: The context object.
     """
 
-    sanction = h.make_sanction(context, entity)
-    sanction.add(
-        "program", "Brazil's Central Bank General Register of Disqualified Persons"
-    )
-    sanction.add("authority", "Brazil's Central Bank")
+    pas_number = input_dict.pop("PAS")
+
+    sanction = h.make_sanction(context, entity, key=pas_number)
 
     # The ID of the process
     sanction.add(
         "description",
-        "Administrative Sanctioning Process Number: {}".format(input_dict.pop("PAS")),
+        "Administrative Sanctioning Process Number: {}".format(pas_number),
     )
 
     # The duration is always in years
