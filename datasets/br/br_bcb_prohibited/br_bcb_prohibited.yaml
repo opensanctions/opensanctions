@@ -1,0 +1,23 @@
+title: Brazil's Central Bank General Register of Persons Prohibited from Offering Auditing Services
+entry_point: crawler.py
+prefix: br-qgp
+coverage:
+  frequency: daily
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  The QGP is a dataset from the Central Bank of Brazil featuring names of individuals and entities temporarily barred from providing auditing services to financial institutions authorized by the Central Bank.
+description: |
+  The QGP, managed by the Central Bank of Brazil, is essential for regulatory 
+  compliance in the financial industry. It details names of persons and entities
+  facing temporary bans from offering auditing services to Central Bank-regulated institutions.
+  These restrictions, often a result of penalties in administrative proceedings,
+  aim to ensure the reliability and integrity of those in key auditing roles.
+publisher:
+  name: Banco Central do Brasil (BCB)
+  url: https://www.bcb.gov.br
+  official: true
+  country: "br"
+url: https://dadosabertos.bcb.gov.br/dataset/processo-administrativo-sancionador---qgi-e-qgp/resource/2a3bdb1e-7926-432e-8958-528a5a09a6b6
+data:
+  url: https://olinda.bcb.gov.br/olinda/servico/Gepad_QuadrosGeraisInternet/versao/v1/odata/QuadroGeralProibidos
+  format: JSON
