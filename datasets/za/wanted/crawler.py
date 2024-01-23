@@ -18,8 +18,9 @@ def crawl_person(context: Context, cell: html.HtmlElement):
     name, crime, status = map(str.strip, match.groups())
     last_name, first_name = map(str.strip, name.split(",", maxsplit=1))
 
-    # first name is considered a bare minimum to emit a person entity
-    if last_name in ["Unknown", "Uknown"]:
+    # either first or last name is considered a bare minimum to emit a person entity
+    unknown_spellings = ["Unknown", "Uknown"]
+    if first_name in unknown_spellings and last_name in unknown_spellings:
         return
 
     person = context.make("Person")
