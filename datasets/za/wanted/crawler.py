@@ -23,6 +23,14 @@ def crawl_person(context: Context, cell: html.HtmlElement):
     if first_name in unknown_spellings and last_name in unknown_spellings:
         return
 
+    if "," in first_name or "," in last_name:
+        context.log.warning(
+            "Possible problem parsing person name (extra comma)",
+            first_name=first_name,
+            last_name=last_name,
+            source_url=source_url,
+        )
+
     person = context.make("Person")
     
     # each wanted person has a dedicated details page 
