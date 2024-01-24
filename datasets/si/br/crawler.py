@@ -8,32 +8,33 @@ HEADERS = {"Cookie": "ORIGIN=KPK1&KPK2.KPK1"}
 def fetch_data(context: Context, offset, limit):
     page_url = f"https://erar.si/api/omejitve/?&draw=2&columns%5B0%5D%5Bdata%5D=org_naziv&columns%5B0%5D%5Bname%5D=&columns%5B0%5D%5Bsearchable%5D=true&columns%5B0%5D%5Borderable%5D=true&columns%5B0%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B0%5D%5Bsearch%5D%5Bregex%5D=false&columns%5B1%5D%5Bdata%5D=omejitev_do&columns%5B1%5D%5Bname%5D=&columns%5B1%5D%5Bsearchable%5D=true&columns%5B1%5D%5Borderable%5D=true&columns%5B1%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B1%5D%5Bsearch%5D%5Bregex%5D=false&columns%5B2%5D%5Bdata%5D=subjekt_naziv&columns%5B2%5D%5Bname%5D=&columns%5B2%5D%5Bsearchable%5D=true&columns%5B2%5D%5Borderable%5D=true&columns%5B2%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B2%5D%5Bsearch%5D%5Bregex%5D=false&columns%5B3%5D%5Bdata%5D=od&columns%5B3%5D%5Bname%5D=&columns%5B3%5D%5Bsearchable%5D=true&columns%5B3%5D%5Borderable%5D=true&columns%5B3%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B3%5D%5Bsearch%5D%5Bregex%5D=false&columns%5B4%5D%5Bdata%5D=do&columns%5B4%5D%5Bname%5D=&columns%5B4%5D%5Bsearchable%5D=true&columns%5B4%5D%5Borderable%5D=true&columns%5B4%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B4%5D%5Bsearch%5D%5Bregex%5D=false&columns%5B5%5D%5Bdata%5D=st_transakcij&columns%5B5%5D%5Bname%5D=&columns%5B5%5D%5Bsearchable%5D=true&columns%5B5%5D%5Borderable%5D=true&columns%5B5%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B5%5D%5Bsearch%5D%5Bregex%5D=false&order%5B0%5D%5Bcolumn%5D=0&order%5B0%5D%5Bdir%5D=asc&start={offset}&length={limit}&search%5Bvalue%5D=&search%5Bregex%5D=false&_=1706090961920"
 
-    response = context.fetch_response(page_url, headers=HEADERS)
-    return response.json()
+    response = context.fetch_json(page_url, headers=HEADERS, cache_days=1)
+    return response
 
 
 def create_entities(context: Context, record: Dict[str, Any]):
     organization = context.make("Organization")
 
-    organization_name = record.get("org_naziv")
-    organization_number = record.get("org_sifrapu")
+    organization_name = record.pop("org_naziv")
+    organization_number = record.pop("org_sifrapu")
 
     organization.id = context.make_id(organization_number or organization_name)
     organization.add("name", organization_name)
     organization.add("idNumber", organization_number)
 
     legal_entity = context.make("LegalEntity")
-    subject_name = record.get("subjekt_naziv")
-    registration_number = record.get("subjekt_maticna")
+    subject_name = record.pop("subjekt_naziv")
+    registration_number = record.pop("subjekt_maticna")
 
     if not (subject_name and registration_number):
-        context.log.error("Subject name and registration number not found")
+        context.log.warning("Subject name and registration number not found")
         return
 
     legal_entity.id = context.make_id(registration_number or subject_name)
     legal_entity.add("name", subject_name)
     legal_entity.add("registrationNumber", registration_number)
-    legal_entity.add("taxNumber", record.get("subjekt_davcna"))
+    legal_entity.add("taxNumber", record.pop("subjekt_davcna"))
+    legal_entity.add("topics", "debarment")
 
     if registration_number:
         legal_entity.add(
@@ -43,10 +44,11 @@ def create_entities(context: Context, record: Dict[str, Any]):
 
     validity_link = context.make("UnknownLink")
     validity_link.id = context.make_id(legal_entity.id)
-    validity_link.add("startDate", record.get("od"))
+    end_date = record.pop("do")
 
-    if not record.get("do").startswith("9999"):
-        validity_link.add("endDate", record.get("do"))
+    validity_link.add("startDate", record.pop("od"))
+    if not end_date.startswith("9999"):
+        validity_link.add("endDate", end_date)
 
     validity_link.add(
         "description",
