@@ -8,11 +8,11 @@ from zavod import helpers as h
 FORMATS = ["%d/%b/%Y"]
 REG_NRS = ["(Reg. No:", "(Reg. No.:", "(Reg. No.", "(Trade Register No.:"]
 
-MIRROR_URL = "https://data.opensanctions.org/contrib/adb_sanctions/data.html"
+# MIRROR_URL = "https://data.opensanctions.org/contrib/adb_sanctions/data.html"
 
 
 def crawl(context: Context):
-    path = context.fetch_resource("source.html", MIRROR_URL)
+    path = context.fetch_resource("source.html", context.data_url)
     context.export_resource(path, HTML, title=context.SOURCE_TITLE)
     with open(path, "r", encoding="ISO-8859-1") as fh:
         doc = html.parse(fh)
