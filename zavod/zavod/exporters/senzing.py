@@ -14,8 +14,6 @@ from zavod.entity import Entity
 from zavod.exporters.common import Exporter
 from zavod.util import write_json
 
-DOMAIN = "OS_ENTITY_ID"
-
 
 def push(obj: Dict[str, Any], section: str, value: Dict[str, Any]) -> None:
     if section not in obj:
@@ -49,9 +47,10 @@ class SenzingExporter(Exporter):
     def setup(self) -> None:
         super().setup()
         self.fh = open(self.path, "wb")
+        self.domain_name = "OPEN_SANCTIONS"
         self.source_name = f"OS_{self.dataset.name.upper()}"
-        if self.dataset.name in ("all", "default"):
-            self.source_name = "OPENSANCTIONS"
+        if self.dataset.is_collection:
+            self.source_name = self.domain_name
 
     def feed(self, entity: Entity) -> None:
         if not entity.schema.matchable:
@@ -113,7 +112,7 @@ class SenzingExporter(Exporter):
         map(entity, "vatCode", record, "IDENTIFIERS", "TAX_ID_NUMBER")
         map(entity, "leiCode", record, "IDENTIFIERS", "LEI_NUMBER")
         map(entity, "dunsCode", record, "IDENTIFIERS", "DUNS_NUMBER")
-        map(entity, "sourceUrl", record, "LINKS", "SOURCE_URL")
+        map(entity, "sourceUrl", record, "SOURCE_LINKS", "SOURCE_URL")
 
         for _, adj in self.view.get_adjacent(entity):
             if adj.schema.name == "Address":
@@ -148,11 +147,11 @@ class SenzingExporter(Exporter):
                     if s != entity.id and t != entity.id:
                         continue
                     edge = {
-                        "REL_ANCHOR_DOMAIN": DOMAIN,
-                        "REL_ANCHOR_ID": s,
-                        "REL_ANCHOR_ROLE": caption,
-                        "REL_POINTER_DOMAIN": DOMAIN,
-                        "REL_POINTER_ID": t,
+                        "REL_ANCHOR_DOMAIN": self.domain_name,
+                        "REL_ANCHOR_KEY": s,
+                        "REL_POINTER_ROLE": caption,
+                        "REL_POINTER_DOMAIN": self.domain_name,
+                        "REL_POINTER_KEY": t,
                     }
                     push(record, "RELATIONSHIPS", edge)
 
@@ -175,7 +174,7 @@ class SenzingExporter(Exporter):
                 push(record, "IDENTIFIERS", wd)
 
         if not is_qid(entity.id):
-            ident = {"OTHER_ID_TYPE": DOMAIN, "OTHER_ID_NUMBER": entity.id}
+            ident = {"OTHER_ID_TYPE": self.domain_name, "OTHER_ID_NUMBER": entity.id}
             push(record, "IDENTIFIERS", ident)
 
         record["URL"] = f"https://www.opensanctions.org/entities/{entity.id}/"
