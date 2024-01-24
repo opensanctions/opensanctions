@@ -178,7 +178,9 @@ class SenzingExporter(Exporter):
             ident = {"OTHER_ID_TYPE": self.domain_name, "OTHER_ID_NUMBER": entity.id}
             push(record, "IDENTIFIERS", ident)
 
-        record["URL"] = public_url(entity)
+        entity_url = public_url(entity)
+        if entity_url is not None:
+            record["URL"] = entity_url
         if entity.schema.is_a("Organization"):
             for addr in record.get("ADDRESSES", []):
                 addr["ADDR_TYPE"] = "BUSINESS"
