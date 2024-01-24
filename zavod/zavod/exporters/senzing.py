@@ -11,8 +11,9 @@ from rigour.ids.wikidata import is_qid
 from pprint import pprint  # noqa
 
 from zavod.entity import Entity
-from zavod.exporters.common import Exporter
 from zavod.util import write_json
+from zavod.exporters.common import Exporter
+from zavod.exporters.util import public_url
 
 
 def push(obj: Dict[str, Any], section: str, value: Dict[str, Any]) -> None:
@@ -177,7 +178,7 @@ class SenzingExporter(Exporter):
             ident = {"OTHER_ID_TYPE": self.domain_name, "OTHER_ID_NUMBER": entity.id}
             push(record, "IDENTIFIERS", ident)
 
-        record["URL"] = f"https://www.opensanctions.org/entities/{entity.id}/"
+        record["URL"] = public_url(entity)
         if entity.schema.is_a("Organization"):
             for addr in record.get("ADDRESSES", []):
                 addr["ADDR_TYPE"] = "BUSINESS"
