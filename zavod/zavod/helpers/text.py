@@ -107,3 +107,54 @@ def remove_bracketed(text: Optional[str]) -> Optional[str]:
     if text is None:
         return None
     return BRACKETED.sub(" ", text)
+
+def clean_br_cpf(cpf: str) -> str:
+    """Remove punctuation from a CPF number.
+    If it is already clean, it will return it as is.
+
+    The CPF number is a Brazilian tax identification number for individuals
+    that is formatted with punctuation (XXX.XXX.XXX-XX) to make it easier to
+    read. However, when saving the CPF number in the database, it's common
+    to remove the punctuation.
+
+    Args:
+        cpf: The CPF number to be cleaned.
+
+    Returns:
+        The cleaned CPF number.
+    """
+
+    # Remove formatting characters
+    cpf = cpf.replace(".", "").replace("-", "")
+
+    # If the CPF is not 11 digits long, it's invalid
+    if len(cpf) != 11:
+        return ""
+
+    return cpf
+
+def clean_br_cnpj(cnpj: str) -> str:
+    """Remove punctuation from a CNPJ number.
+    If it is already clean, it will return it as is.
+
+    The CNPJ number is a Brazilian tax identification number for companies
+    that is typically formatted with punctuation (XX.XXX.XXX/XXXX-XX) to make
+    it easier to read. However, when saving the CNPJ number in a database, 
+    it's common to remove the punctuation.
+
+    Args:
+        cnpj: The CNPJ number to be cleaned.
+
+    Returns:
+        The cleaned CNPJ number or an empty string if the CNPJ is not valid.
+    """
+
+    # Remove formatting characters
+    cnpj = cnpj.replace(".", "").replace("/", "").replace("-", "")
+
+    # Check if CNPJ is now only digits and 14 digits long
+    if len(cnpj) == 14 and cnpj.isdigit():
+        return cnpj
+
+    # Return an empty string if CNPJ is not valid
+    return "" 

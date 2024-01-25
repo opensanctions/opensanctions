@@ -16,10 +16,9 @@ def crawl_item(input_dict: dict, context: Context):
     """
 
     entity = context.make("Person")
-    # the CPF comes in formatted form (i.e. with punctuation, XXX.XXX.XXX-XX)
-    # and it's common practice to remove this punctuation when saving in the database
-    raw_tax_number = input_dict["cpf"]
-    tax_number = raw_tax_number.replace(".", "").replace("-", "")
+
+    # make sure the CPF does not have any punctuation
+    tax_number = h.clean_br_cpf(input_dict["cpf"])
 
     entity.id = context.make_slug(tax_number, prefix="br-cpf")
     entity.add("name", input_dict["nome"])

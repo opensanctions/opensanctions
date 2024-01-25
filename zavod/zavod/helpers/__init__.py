@@ -38,6 +38,7 @@ from zavod.helpers.names import make_name, apply_name
 from zavod.helpers.positions import make_position, make_occupancy
 from zavod.helpers.text import clean_note, is_empty, remove_bracketed
 from zavod.helpers.text import multi_split
+from zavod.helpers.text import clean_br_cnpj, clean_br_cpf
 from zavod.helpers.sanctions import make_sanction
 from zavod.helpers.addresses import make_address, apply_address, format_address
 from zavod.helpers.dates import extract_years, parse_date, check_no_year
