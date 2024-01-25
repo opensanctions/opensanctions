@@ -4,33 +4,37 @@ prefix: si-br
 url: https://erar.si/omejitve/
 summary: List of Business Restrictions in Slovenia
 description: >
-  This dataset provides information on entities subject to business restrictions and applicable to public sector bodies or organizations involved in public procurement processes or the awarding of concessions or public-private partnerships
+  This dataset provides information on entities subject to business restrictions and applicable to public sector bodies or organizations involved in public procurement processes 
+  or the awarding of concessions or public-private partnerships
 
-  According to the regulations, these entities are prohibited from ordering goods, services, or constructions, and from entering into partnerships or granting special rights to entities in which an official, or their family member, holds a managerial, 
-  administrative, or legal role, or has a significant financial stake exceeding five percent of founding rights, management, or capital. This measure is designed to prevent conflicts of interest and ensure transparency in public dealings.
+  According to the regulations, these entities are prohibited from ordering goods, services, or constructions, and from entering into partnerships or granting special rights to entities 
+  in which an official, or their family member, holds a managerial, administrative, or legal role, or has a significant financial stake exceeding five percent of founding rights, management, 
+  or capital. This measure is designed to prevent conflicts of interest and ensure transparency in public dealings.
 
-  This list is compiled using data provided by committed authorities, with officials required to report information about related entities within one month of assuming office and within eight days of any subsequent changes. 
-  Once received, the relevant authority must communicate this data to the Commission within 15 days. Consequently, the process of entering a specific entity onto the list may take up to 45 days from the start of a function, 
-  and changes may take up to 23 days. 
+  This list is compiled using data provided by committed authorities, with officials required to report information about related entities within one month of assuming office and within 
+  eight days of any subsequent changes. Once received, the relevant authority must communicate this data to the Commission within 15 days. Consequently, the process of entering a specific 
+  entity onto the list may take up to 45 days from the start of a function, and changes may take up to 23 days. 
 
   It's crucial to note that business restrictions come into effect by law immediately upon their occurrence, irrespective of whether the entity is officially registered on the list. 
   Therefore, the absence of an entity on the list does not negate the applicability of business restrictions with that entity.
 publisher:
-  name: Erar application
+  name: Komisija za preprečevanje korupcije
+  acronym: KPK
   description: >
-    Erar (Aerarium) is the Latin name of the treasury and literally means public finances. The application shows data on the use of public money in the Republic of Slovenia. 
-    Individual transactions, data on public procurement e-invoices and other bases for payments are shown.
+    The Commission for the Prevention of Corruption of the Republic of Slovenia is an independent state body in the Republic of Slovenia whose task is detection 
+    and prosecution in pre-criminal or criminal proceedings in the field of corruption. [Source: Wikipedia](https://sl.wikipedia.org/wiki/Komisija_za_prepre%C4%8Devanje_korupcije)
 
-    Developed by the Commission for the Prevention of Corruption, the Erar app enhances transparency by allowing the public and state authorities in Slovenia to access detailed information on 
-    transactions involving public institutions and state-owned entities. Covering various financial aspects such as salaries, social benefits, and subsidies, the platform aims to foster accountability, 
-    informed discussions, and mitigate risks associated with corruption and mismanagement. Utilizing data from multiple registers and institutions, the Erar app is a crucial tool in the Commission's mission 
-    to strengthen the rule of law, integrity, and transparency.
+    Erar is an app developed by the commision that enhances transparency by allowing the public and state authorities in Slovenia to access detailed information on 
+    transactions involving public institutions and state-owned entities. Covering various financial aspects such as salaries, social benefits, and subsidies, the platform aims 
+    to foster accountability, informed discussions, and mitigate risks associated with corruption and mismanagement. Utilizing data from multiple registers and institutions, 
+    the Erar app is a crucial tool in the Commission's mission to strengthen the rule of law, integrity, and transparency.
 
     While the Commission emphasizes the accuracy of published data, occasional discrepancies may occur, urging users to check their completeness, accuracy and up-to-dateness with the original 
-    administrator of the database before making decisions based on them. Due to such corrections, the published data may change at any time without prior notice.
+    administrator of the database before making decisions based on them. Due to such corrgotections, the published data may change at any time without prior notice.
+    [Source: Erar app](https://erar.si/doc/)
 
-  url: https://erar.si
+  url: https://www.kpk-rs.si/
   country: si
 data:
-  url: https://erar.si/api/omejitve/?
+  url: https://erar.si/api/omejitve/
   format: JSON
