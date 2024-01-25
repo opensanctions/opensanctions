@@ -16,20 +16,11 @@ def crawl_person(context: Context, cell: html.HtmlElement):
         return
 
     name, crime, status = map(str.strip, match.groups())
-    last_name, first_name = map(str.strip, name.split(",", maxsplit=1))
 
     # either first or last name is considered a bare minimum to emit a person entity
     unknown_spellings = ["Unknown", "Uknown"]
-    if first_name in unknown_spellings and last_name in unknown_spellings:
+    if sum(name.count(x) for x in unknown_spellings) >= 2:
         return
-
-    if "," in first_name or "," in last_name:
-        context.log.warning(
-            "Possible problem parsing person name (extra comma)",
-            first_name=first_name,
-            last_name=last_name,
-            source_url=source_url,
-        )
 
     person = context.make("Person")
     
@@ -38,11 +29,7 @@ def crawl_person(context: Context, cell: html.HtmlElement):
     id = parse_qs(urlparse(source_url).query)["bid"][0]
     person.id = context.make_slug(id)
 
-    h.apply_name(
-        person,
-        first_name=first_name,
-        last_name=last_name,
-    )
+    h.apply_name(person, full=name)
 
     person.add("sourceUrl", source_url)
     person.add("notes", f"{status} - {crime}")
