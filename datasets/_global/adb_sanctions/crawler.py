@@ -27,14 +27,14 @@ def crawl(context: Context):
         cells = dict(zip(headers, cells))
         cells.pop(None, None)
 
-        full_name = name = cells.pop("name")
+        full_name = name = cells.pop("name") or ""
         registration_number = None
         for splitter in REG_NRS:
             if splitter in name:
                 name, registration_number = name.split(splitter, 1)
                 registration_number = registration_number.replace(")", "")
 
-        country = cells.pop("nationality")
+        country = cells.pop("nationality") or ""
         country = country.replace("Non ADB Member Country", "")
         country = country.replace("Rep. of", "")
         entity = context.make("LegalEntity")
@@ -48,7 +48,7 @@ def crawl(context: Context):
         sanction = h.make_sanction(context, entity)
         sanction.add("reason", cells.pop("grounds"))
         sanction.add("program", cells.pop("sanction_type"))
-        date_range = cells.pop("effect_date_lapse_date", "")
+        date_range = cells.pop("effect_date_lapse_date") or ""
         if "|" in date_range:
             start_date, end_date = date_range.split("|")
             sanction.add("startDate", h.parse_date(start_date.strip(), FORMATS))
