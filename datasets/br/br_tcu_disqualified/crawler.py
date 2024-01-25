@@ -1,22 +1,6 @@
-from typing import List
 from zavod import Context, helpers as h
 
-
-def fetch_data(context: Context) -> List[dict]:
-    """
-    Fetches data from the website, or raises an exception on failure.
-
-    :param context: The context object.
-    :return: List of dicts containing data.
-    """
-    response = context.fetch_json(context.data_url)
-    if "items" not in response:
-        context.log.error("Items not found in JSON")
-        return []
-    return response["items"]
-
-
-def create_entity(input_dict: dict, context: Context):
+def crawl_item(input_dict: dict, context: Context):
     """
     Creates an entity from the raw data.
 
@@ -24,11 +8,15 @@ def create_entity(input_dict: dict, context: Context):
                        Should have at least following keys:
                         - cpf
                         - nome
+                        - processo
+                        - deliberacao
+                        - data_transito_julgado
+                        - data_final
     :param context: The context object.
     """
 
     entity = context.make("Person")
-    # the CPF comes in formatted form (i.e. with punctuaction, XXX.XXX.XXX-XX)
+    # the CPF comes in formatted form (i.e. with punctuation, XXX.XXX.XXX-XX)
     # and it's common practice to remove this punctuation when saving in the database
     raw_tax_number = input_dict["cpf"]
     tax_number = raw_tax_number.replace(".", "").replace("-", "")
@@ -38,23 +26,6 @@ def create_entity(input_dict: dict, context: Context):
     entity.add("taxNumber", tax_number)
     entity.add("country", "br")
     entity.add("topics", "debarment")
-
-    return entity
-
-
-def create_sanction(input_dict: dict, entity, context: Context):
-    """
-    Creates the sanction for a given entity and the raw data.
-
-    :param input_dict: Data dict extracted from source.
-                       Should have at least following keys:
-                        - processo
-                        - deliberacao
-                        - data_transito_julgado
-                        - data_final
-    :param entity: Entity the sanction refers to.
-    :param context: The context object.
-    """
 
     process_number = input_dict.pop("processo")
 
@@ -72,8 +43,12 @@ def create_sanction(input_dict: dict, entity, context: Context):
     sanction.add("startDate", input_dict.pop("data_transito_julgado"))
     sanction.add("endDate", input_dict.pop("data_final"))
 
-    return sanction
+    sanction.add("program", '''TCU Disqualified individuals based on Article 60 of Law 8.443/92 that
+                               restricts individuals from holding certain influential
+                               and sensitive positions in the public sector''')
 
+    context.emit(entity, target=True)
+    context.emit(sanction)
 
 def crawl(context: Context):
     """
@@ -84,9 +59,10 @@ def crawl(context: Context):
 
     :param context: The context object.
     """
-    data = fetch_data(context)
-    for line in data:
-        entity = create_entity(line, context)
-        sanction = create_sanction(line, entity, context)
-        context.emit(entity, target=True)
-        context.emit(sanction)
+    response = context.fetch_json(context.data_url)
+    if "items" not in response:
+        context.log.error("Items not found in JSON")
+        return
+
+    for item in response["items"]:
+        crawl_item(item, context)
