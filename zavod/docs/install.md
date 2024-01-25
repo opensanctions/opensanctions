@@ -64,3 +64,5 @@ If you encounter any errors during the installation, please consider googling er
   default it will contain cached artifacts and the generated output data. This
   defaults to the `data/` subdirectory of the current working directory when the
   `zavod` command is invoked.
+* `ZAVOD_RESOLVER_PATH` must be set to the path to a [nomenklatura](https://github.com/opensanctions/nomenklatura)
+  resolver JSON lines file. It can be an empty file. e.g. `data/resolver.ijson`

@@ -46,10 +46,8 @@ def crawl_person(
     context.log.debug("Unique ID {person_id}".format(person_id=person.id))
     # Add names in English and both Chinese writing systems
     h.apply_name(person, full=pages.en.pop("name"), lang="eng")
-    # commenting out awaiting confirmation that mapping these to the zho
-    # code doesn't resuult in known unappiness from the rest of the system
-    #h.apply_name(person, full=pages.hant.pop("name"), lang="zho")
-    #h.apply_name(person, full=pages.hans.pop("name"), lang="zho")
+    h.apply_name(person, full=pages.hant.pop("name"), lang="zho")
+    h.apply_name(person, full=pages.hans.pop("name"), lang="zho")
     for email in pages.en.pop("email_address", []):
         if email:
             context.log.debug("Email: {email}".format(email=email))
