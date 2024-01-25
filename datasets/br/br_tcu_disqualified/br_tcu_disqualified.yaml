@@ -1,4 +1,4 @@
-title: Brazil's Court of Account Disqualified Individuals
+title: Brazil's TCU list of individuals disqualified from public service
 entry_point: crawler.py
 prefix: br-tcu-disqualified
 coverage:
@@ -10,7 +10,7 @@ description: |
   The TCU Disqualified Individuals compiles a list of individuals who have 
   faced sanctions due to various offenses, resulting in their disqualification
   from occupying positions of trust or commissioned roles in governmental institutions.
-  This database enforces compliance with Article 60 of Law 8.443/92,
+  This database enables compliance with Article 60 of Law 8.443/92,
   ensuring that sanctioned individuals are appropriately restricted
   from holding certain influential and sensitive positions in the public sector.
 publisher:
