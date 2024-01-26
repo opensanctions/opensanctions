@@ -125,13 +125,13 @@ def clean_br_cpf(cpf: str) -> str:
     """
 
     # Remove formatting characters
-    cpf = cpf.replace(".", "").replace("-", "")
+    clean_cpf = cpf.replace(".", "").replace("-", "")
 
-    # If the CPF is not 11 digits long, it's invalid
-    if len(cpf) != 11:
-        return ""
+    # If the CPF is not 11 digits long, it's invalid and we return the original input
+    if len(clean_cpf) != 11 or (not clean_cpf.isdigit()):
+        return cpf
 
-    return cpf
+    return clean_cpf
 
 def clean_br_cnpj(cnpj: str) -> str:
     """Remove punctuation from a CNPJ number.
@@ -150,11 +150,10 @@ def clean_br_cnpj(cnpj: str) -> str:
     """
 
     # Remove formatting characters
-    cnpj = cnpj.replace(".", "").replace("/", "").replace("-", "")
+    clean_cnpj = cnpj.replace(".", "").replace("/", "").replace("-", "")
 
-    # Check if CNPJ is now only digits and 14 digits long
-    if len(cnpj) == 14 and cnpj.isdigit():
+    # Check if CNPJ is now only digits and 14 digits long, if it's not, then return original input
+    if len(clean_cnpj) != 14 or (not clean_cnpj.isdigit()):
         return cnpj
 
-    # Return an empty string if CNPJ is not valid
-    return "" 
+    return clean_cnpj
