@@ -3,15 +3,12 @@ from typing import Any, Dict
 
 
 def create_entities(context: Context, record: Dict[str, Any]):
-    organization_name = record.pop("org_naziv")
-    organization_number = record.pop("org_sifrapu")
-
     legal_entity = context.make("LegalEntity")
     subject_name = record.pop("subjekt_naziv")
     registration_number = record.pop("subjekt_maticna")
 
-    if not (subject_name and registration_number):
-        context.log.warning("Subject name and registration number not found")
+    if subject_name == "" and registration_number is None:
+        context.log.info("Subject name and registration number not found", record=record)
         return
 
     legal_entity.id = context.make_id(registration_number or subject_name)
@@ -19,6 +16,10 @@ def create_entities(context: Context, record: Dict[str, Any]):
     legal_entity.add("registrationNumber", registration_number)
     legal_entity.add("taxNumber", record.pop("subjekt_davcna"))
     legal_entity.add("topics", "debarment")
+    legal_entity.add("country", "si")
+
+    organization_name = record.pop("org_naziv")
+    organization_number = record.pop("org_sifrapu")
 
     if registration_number:
         legal_entity.add(
@@ -29,7 +30,7 @@ def create_entities(context: Context, record: Dict[str, Any]):
     start_date = record.pop("od")
     end_date = record.pop("do")
     if end_date.startswith("9999"):
-        end_date = "until cancelation"
+        end_date = "cancellation"
     else:
         end_date = f"to {end_date}"
 

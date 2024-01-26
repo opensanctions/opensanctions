@@ -1,6 +1,6 @@
 title: Slovenia Business Restrictions
 entry_point: crawler.py
-prefix: si-br
+prefix: si-conflicts
 url: https://erar.si/omejitve/
 summary: List of Business restrictions preventing conflict of interest in Slovenia
 description: >
