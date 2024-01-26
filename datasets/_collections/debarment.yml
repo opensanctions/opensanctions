@@ -20,6 +20,7 @@ children:
   - li_entsg
   - md_interdictie
   - no_nbim_exclusions
+  - si_conflicts
   - us_ddtc_debarred
   - us_sam_exclusions
   - worldbank_debarred
