@@ -34,7 +34,8 @@ data:
 lookups:
   unparsed_holders:
     options:
-      - match: "chief of state: co-chiefs of state Captain Regent Alessandro SCARANO and Adele TONNINI (for the period 1 April 2023 - 1 October 2023)"
+      # San-Marino
+      - match: "co-chiefs of state Captains Regent Alessandro SCARANO and Adele TONNINI (for the period 1 April 2023 - 1 October 2023)"
         holders:
           - role: co-chief of state
             name: Captain Regent Alessandro SCARANO
@@ -49,7 +50,7 @@ lookups:
           - role: chief of state
             name: TUIMALEALI'IFANO Va’aletoa Sualauvi II
             start_date: 21 July 2017
-      - match: "Deputy Prime Ministers SAIF bin Zayid Al Nuhayyan, MANSUR bin Zayid Al Nuhayyan (both since 11 May 2009), and MAKTUM bin Muhammad bin Rashid Al Maktum (since 25 September 2021)"
+      - match: "Deputy Prime Ministers SAIF bin Zayid Al Nuhayyan, MANSUR bin Zayid Al Nuhayyan (both since 11 May 2009) and MAKTUM bin Muhammad bin Rashid Al Maktum (since 25 September 2021)"
         holders:
           - role: Deputy Prime Minister
             name: SAIF bin Zayid Al-Nuhayyan
@@ -60,7 +61,8 @@ lookups:
           - role: Deputy Prime Minister
             name: MAKTUM bin Muhammad bin Rashid Al-Maktum
             start_date: 25 September 2021
-      - match: "Deputy Prime Ministers Wladyslaw KOSINIAK-KAMYSZ (since 11 December 2023), Krzysztof GAWKOWSKI (since 11 December 2023)"
+      # Poland
+      - match: "Deputy Prime Ministers Wladyslaw KOSINIAK-KAMYSZ, Krzysztof GAWKOWSKI (both since 11 December 2023)"
         holders:
           - role: Deputy Prime Minister
             name: Wladyslaw KOSINIAK-KAMYSZ
@@ -68,7 +70,8 @@ lookups:
           - role: Deputy Prime Minister
             name: Krzysztof GAWKOWSKI
             start_date: 11 December 2023
-      - match: "Deputy Prime Ministers Robert KALINAK (since 25 October 2023), Denisa SAKOVA (since 25 October 2023), Tomas TARABA (since 25 October 2023), and Peter KMEC (since 25 October 2023)"
+      # Slovakia
+      - match: "Deputy Prime Ministers Robert KALINAK, Denisa SAKOVA, Tomas TARABA (since 25 October 2023), and Peter KMEC (all since 25 October 2023)"
         holders:
           - role: Deputy Prime Minister
             name: Robert KALINAK
@@ -127,7 +130,8 @@ lookups:
           - role: Sovereign Council Chair and Commander-in-Chief of the Sudanese Armed Forces
             name: General Abd-al-Fatah al-BURHAN Abd-al-Rahman
             start_date:
-      - match: "Vice Presidents Riek MACHAR Teny Dhurgon, TABAN Deng Gai, James Wani IGGA, Rebecca Nyandeng Chol GARANG de Mabior, Hussein ABDELBAGI Ayii (since 22 February 2020)"
+      # South Sudan
+      - match: "Vice Presidents Riek MACHAR Teny Dhurgon, TABAN Deng Gai, James Wani IGGA, Rebecca Nyandeng Chol GARANG de Mabior, Hussein ABDELBAGI Ayii (all since 22 February 2020)"
         holders:
           - role: Vice President
             name: TABAN Deng Gai
@@ -170,7 +174,8 @@ lookups:
           - role: Chief of state
             name: TUIMALEALI'IFANO Va’aletoa Sualauvi II
             start_date: 21 July 2017
-      - match: "Deputy Premiers Yuriy TRUTNEV (since 31 August 2013), Tatiana Alekseyevna GOLIKOVA (since 18 May 2018), Dmitriy Yuriyevich GRIGORENKO, Viktoriya Valeriyevna ABRAMCHENKO, Aleksey Logvinovich OVERCHUK, Marat Shakirzyanovich KHUSNULLIN, Dmitriy Nikolayevich CHERNYSHENKO (since 21 January 2020), Aleksandr NOVAK (since 10 November 2020), Denis Valentinovich MANTUROV (since 15 July 2022)"
+      # Russia
+      - match: "Deputy Premiers Yuriy TRUTNEV (since 31 August 2013), Tatiana Alekseyevna GOLIKOVA (since 18 May 2018), Dmitriy Yuriyevich GRIGORENKO, Viktoriya Valeriyevna ABRAMCHENKO, Aleksey Logvinovich OVERCHUK, Marat Shakirzyanovich KHUSNULLIN, Dmitriy Nikolayevich CHERNYSHENKO (all since 21 January 2020), Aleksandr NOVAK (since 10 November 2020), Denis Valentinovich MANTUROV (since 15 July 2022)"
         holders:
           - role: Deputy Premier
             name: Yuriy TRUTNEV
@@ -228,7 +233,8 @@ lookups:
           - role: Deputy Prime Minister
             name: Carola SCHOUTEN
             start_date: 26 October 2017
-      - match: "deputy prime ministers Narayan Kaji SHRESTHA (since 26 December 2022), Purna Bahadur KHADKA (since 31 March 2023) (an)"
+      # Nepal
+      - match: "Deputy Prime Ministers Narayan Kaji SHRESTHA (since 26 December 2022), Purna Bahadur KHADKA (since 31 March 2023) (an)"
         holders:
           - role: deputy prime minister
             name: Narayan Kaji SHRESTHA
@@ -269,7 +275,7 @@ lookups:
           - role: President
             name: Latif RASHID
             start_date: 13 October 2022
-      - match: "Vice Presidents Salvador NASRALLA, Doris GUTIÉRREZ, and Renato FLORENTINO (since 27 January 2022)"
+      - match: "Vice Presidents Salvador NASRALLA, Doris GUTIÉRREZ, and Renato FLORENTINO (all since 27 January 2022)"
         holders:
           - role: Vice Presidents
             name: Salvador NASRALLA
@@ -327,7 +333,7 @@ lookups:
           - role: Chief of state
             name: Sir Tom J. MARSTERS
             start_date: 9 August 2013
-      - match: "Deputy Prime Ministers Jose MAKILA, Leonard She OKITUNDU, Henri MOVA Sankanyi (since February 2018) Jean-Pierre BEMBBA (since 23 March 2023)"
+      - match: "Deputy Prime Ministers Jose MAKILA, Leonard She OKITUNDU, Henri MOVA Sankanyi (since February 2018), Jean-Pierre BEMBBA (since 23 March 2023)"
         holders:
           - role: Deputy Prime Minister
             name: Jose MAKILA
@@ -360,7 +366,7 @@ lookups:
           - role: Chairman of the Presidency
             name: Zeljko KOMSIC
             start_date: 16 July 2023
-      - regex: "Deputy Prime Ministers Vincent Van QUICKENBORNE .+ Vincent VAN PETEGHEM .+ Frank VANDENBROUCKE .+ Pierre-Yves DERMAGNE .+ Petra DE SUTTER .+ Georges GILKINET .+ David CLARINVAL"
+      - regex: "Deputy Prime Ministers Vincent Van QUICKENBORNE, Vincent VAN PETEGHEM, Frank VANDENBROUCKE, Pierre-Yves DERMAGNE, Petra DE SUTTER, Georges GILKINET .+ David CLARINVAL .+"
         holders:
           - role: Deputy Prime Minister
             name: Vincent Van QUICKENBORNE
@@ -431,7 +437,7 @@ lookups:
             name: HAYBATULLAH Akhundzada
           - role: Amir-ul Momineen
             name: HAYBATULLAH Akhundzada
-      - match: "as of November 2021, the group had announced three acting “deputy prime ministers” - Abdul Ghani BERADER, Abdul Salam HANAFI, and Abdul KABIR"
+      - match: 'as of November 2021, the group had announced three "acting deputy prime ministers” - Abdul Ghani BERADER, Abdul Salam HANAFI, and Abdul KABIR'
         holders:
           - role: Acting Prime Minister
             name: Abdul Ghani BERADER
@@ -473,8 +479,27 @@ lookups:
             start_date: 24 November 2015
       - match: "chief of state: president (vacant)"
         holders: []
+      # Italy
+      - match: Deputy Prime Ministers Matteo SALVINI and Antonio TAIANI (since 22 October 2022)
+        holders:
+          - role: Deputy Prime Minister
+            name: Matteo SALVINI
+            start_date: 22 October 2022
+          - role: Deputy Prime Minister
+            name: Antonio TAIANI
+            start_date: 22 October 2022
+      # Laos
+      - match: Vice Presidents PANY Yathotou and BOUNTHONG Chitmany (since 22 March 2021)
+        holders:
+          - role: Vice President
+            name: PANY Yathotou
+            start_date: 22 March 2021
+          - role: Vice President
+            name: BOUNTHONG Chitmany
+            start_date: 22 March 2021
+      - match: 
       - regex:
-          - 'Overall Taliban Leader HAYBATULLAH Akhundzada serves as the head of the Taliban government as Amir-ul Momineennote - on 7 September 2021, the Taliban announced Mohammad HASSAN Akhund as the “acting prime minister” of the "caretaker government”'
+          - 'Overall Taliban Leader HAYBATULLAH Akhundzada serves as the head of the Taliban Government as Amir-ul Momineen'
           - "^the president is both chief of state and head of government"
           - "^note [-–] "
           - "^Heir Apparent"
@@ -529,7 +554,16 @@ lookups:
           - "on 4 September 2023, Gen. OLIGUI was sworn in as transitional president"
           - "note- interim prime minister"
           - "resigned on 7 November 2023 but remains in caretaker status until new elections on 10 March 2024\\)"
-          - "he succeeded his brother, Amir Sheikh NAWAF al-Ahmad al-Jabir al-Sabah, who died the same day"
+          # Kuweit
+          - "he succeeded his brother, Amir Sheikh NAWAF al-Ahmad al-Jabir al-Sabah following his death on 16 December 2023"
+          - note- the military government announced on 13 November 2023 that presidential and legislative elections will be held in August 2025
+          - in late February 2020, EMBALO inaugurated himself with only military leadership present, even though the Supreme Court of Justice had yet to rule on an electoral litigation appeal lodged by his political rival Domingos Simoes PEREIRA
+          # Italy
+          - "the deputy prime ministers' official titles are Vice Presidents of the Council of Ministers"
+          # Malaysia
+          - "he will be installed on 31 January 2024\\)"
+          # South Africa
+          - Deputy President David MABUZA resigned 1 March 2023
         holders: []
 
   type.country:
