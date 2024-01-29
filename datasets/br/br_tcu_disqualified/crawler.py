@@ -1,4 +1,5 @@
 from zavod import Context, helpers as h
+from rigour.ids.stdnum import CPF
 
 def crawl_item(input_dict: dict, context: Context):
     """
@@ -18,9 +19,14 @@ def crawl_item(input_dict: dict, context: Context):
     entity = context.make("Person")
 
     # make sure the CPF does not have any punctuation
-    tax_number = h.clean_br_cpf(input_dict["cpf"])
+    tax_number = CPF.normalize(input_dict["cpf"])
 
-    entity.id = context.make_slug(tax_number, prefix="br-cpf")
+    # if the tax number is None, it means it was invalid
+    if tax_number is None:
+        entity.id = context.make_id()
+    else:
+        entity.id = context.make_slug(tax_number, prefix="br-cpf")
+
     entity.add("name", input_dict["nome"])
     entity.add("taxNumber", tax_number)
     entity.add("country", "br")
