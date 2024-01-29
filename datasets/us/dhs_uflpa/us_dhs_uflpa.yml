@@ -38,6 +38,9 @@ data:
 lookups:
   type:
     options:
+      - match: 
+        - Lop County Hair Product Industrial Park
+        - No. 4 Vocation Skills Education Training Center (VSETC)
       - contains:
           - Co.
           - Group
