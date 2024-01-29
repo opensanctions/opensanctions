@@ -55,6 +55,8 @@ If you encounter any errors during the installation, please consider googling er
 !!! info "Please note"
     `zavod` has dependecies on PyICU - a library related to the transliteration of names in other alphabets to the latin character set - and Plyvel - a fast and feature-rich Python interface to LevelDB. The installation and configuration of both libraries can be complex due to system dependencies. Consider following the [PyICU](https://pypi.org/project/PyICU/) and [Plyvel](https://plyvel.readthedocs.io/en/latest/installation.html) documentation for the installation of both libraries.
 
+    Plyvel on Mac OS X: [issue](https://github.com/wbolster/plyvel/issues/114)
+
 ## Configuration
 
 `zavod` is inspired by the [twelve factor model](https://12factor.net/) and uses
