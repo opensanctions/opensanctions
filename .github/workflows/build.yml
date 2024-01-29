@@ -114,7 +114,7 @@ jobs:
     needs: [docker, python]
     steps:
       - name: Dispatch add-on build
-        uses: peter-evans/repository-dispatch@v2
+        uses: peter-evans/repository-dispatch@v3
         with:
           token: ${{ secrets.OPERATIONS_PAT }}
           repository: opensanctions/operations
