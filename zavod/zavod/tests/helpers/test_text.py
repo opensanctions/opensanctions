@@ -33,3 +33,4 @@ def test_clean_note():
     assert clean_note(None) == []
     assert clean_note(["hello"]) == ["hello"]
     assert clean_note(["hello", None]) == ["hello"]
+    
