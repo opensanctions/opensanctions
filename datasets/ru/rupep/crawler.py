@@ -210,13 +210,15 @@ def crawl_company_person_relation(
 
 
 def draft_position_name(role, company_name):
-    if company_name.startswith("The "):
+    if company_name.lower().startswith("the "):
         return f"{role} of {company_name}"
     else:
         return f"{role} of the {company_name}"
 
 
 def clean_position_name(role, company_name, preposition):
+    if not preposition:
+        raise ValueError("No preposition %s, %s" % (role, company_name))
     if company_name.startswith("Ministry"):
         company_name = company_name.replace("Ministry of ", "")
     return f"{role} {preposition} {company_name}"
@@ -250,7 +252,7 @@ def get_position_name(context, role, company_name) -> Optional[str]:
         else:
             return (
                 clean_position_name(
-                    role, company_name, pep_position.preposition or "of the"
+                    role, company_name, pep_position.preposition
                 ),
                 subnational_area,
                 True,
