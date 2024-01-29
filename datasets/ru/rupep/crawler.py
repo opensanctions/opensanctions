@@ -44,14 +44,15 @@ OBVIOUSLY_NOT_PEP_ROLES = {
 }
 REGEX_SUBNATIONAL = re.compile("(?P<area>\w{4,}) city|regional")
 PUNCTUATION = {
-    'Pc': '-',
-    'Pd': '-',
-    'Ps': '(',
-    'Pe': ')',
-    'Pi': '"',
-    'Pf': '"',
-    'Po': '-',
+    "Pc": "-",
+    "Pd": "-",
+    "Ps": "(",
+    "Pe": ")",
+    "Pi": '"',
+    "Pf": '"',
+    "Po": "-",
 }
+
 
 class Company:
     """Minimal information we want to hold in memory to pass between company and
@@ -259,7 +260,7 @@ def get_position_name(context, role, company_name) -> Optional[str]:
     if position_name == normality.latinize_text(position_name):
         return position_name, None, None
     else:
-        context.log.debug("Skipping cyrillic position name", name=position_name)
+        context.log.debug("Skipping probably yrillic position name", name=position_name)
         return None, None, False
 
 
@@ -272,7 +273,7 @@ def emit_pep_relationship(
     start_date: Optional[List[str]],
     end_date: Optional[List[str]],
     also: Optional[List[str]],
-    is_pep: Optional[bool] = None,
+    auto_pep: Optional[bool] = None,
 ) -> None:
     position = h.make_position(
         context,
@@ -280,7 +281,7 @@ def emit_pep_relationship(
         country=countries,
         subnational_area=subnational_area,
     )
-    categorisation = categorise(context, position, is_pep=is_pep)
+    categorisation = categorise(context, position, is_pep=auto_pep)
     if categorisation.is_pep:
         occupancy = h.make_occupancy(
             context,
