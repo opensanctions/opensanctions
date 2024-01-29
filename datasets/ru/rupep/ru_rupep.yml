@@ -9,8 +9,8 @@ deploy:
   memory: "2000Mi"
   cpu: "500m"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-exports:
-  - statistics.json
+#exports:
+#  - statistics.json
 summary: >
   RuPEP is a detailed database of politically exposed persons in Russia and
   Belarus maintained by qualified researchers
@@ -111,6 +111,10 @@ lookups:
           - "^deputy of the parliament of the .+ republic$"
           - "^the head of administration.+administration.*"
           - "^presidium member.+party.*"
+      - regex: "^deputy of the the state duma$"
+        name: Deputy of the State Duma
+      - regex: "^MP of the the state duma$"
+        name: MP of the State Duma
       - regex:
           - "^(the |deputy |first deputy |advisor to the |assistant to the )?minister.+ministry.+"
         preposition: of

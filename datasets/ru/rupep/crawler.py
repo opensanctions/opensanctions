@@ -31,6 +31,17 @@ SPLIT_ROLES = [
     "mp",
     "senator",
 ]
+OBVIOUSLY_NOT_PEP_ROLES = {
+    "CEO",
+    "owner",
+    "co-owner",
+    "founder",
+    "co-founder",
+    "employee",
+    "beneficiary",
+    "Senior Lecturer",
+    "shareholder",
+}
 REGEX_SUBNATIONAL = re.compile("(?P<area>\w{4,}) city|regional")
 
 
@@ -212,7 +223,7 @@ def get_subnational_area(scope, draft_position):
 
 
 def get_position_name(context, role, company_name) -> Optional[str]:
-    if role in ("CEO", "owner", "co-owner", "founder", "co-founder", "employee", "beneficiary", "Senior Lecturer", "shareholder"):
+    if role in OBVIOUSLY_NOT_PEP_ROLES:
         return None, None, False
     if "LLC" in company_name:
         return None, None, False
@@ -412,9 +423,9 @@ def crawl_person(
             collapse_spaces(company_name),
         )
 
-        if (
-            not position_name
-            or not emit_pep_relationship(
+        if not (
+            position_name
+            and emit_pep_relationship(
                 context,
                 entity,
                 position_name,
@@ -423,11 +434,11 @@ def crawl_person(
                 start_date[0] if start_date else None,
                 end_date[0] if end_date else None,
                 extra,
-                is_pep
+                is_pep,
             )
-            and crawl_company_person_relation(context, company, entity, rel_data)
         ):
-            company.emit = True
+            if crawl_company_person_relation(context, company, entity, rel_data):
+                company.emit = True
 
     data.pop("declarations", None)
     # h.audit_data(data)
