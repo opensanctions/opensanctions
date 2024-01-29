@@ -122,10 +122,11 @@ def crawl_program(context: Context, table, program: str, section: str) -> None:
 
 
 def crawl(context: Context):
-    doc = context.fetch_html(context.dataset.data.url, cache_days=7)
+    doc = context.fetch_html(context.data_url)
     tables = doc.findall('.//table[@class="usa-table"]')
     for table in tables:
         program_container = table.getprevious()
+        assert program_container is not None
         description = program_container.find(".//strong")
         section_link = program_container.find(".//a")
 
