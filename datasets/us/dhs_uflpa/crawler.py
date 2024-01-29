@@ -74,7 +74,7 @@ def crawl_program(context: Context, table, program: str, section: str) -> None:
             subject = res.subject
             object = res.object
         else:
-            entity_schema = "LegalEntity"
+            entity_schema = "Organization"
             rel_schema = "UnknownLink"
             subject = "subject"
             object = "object"
