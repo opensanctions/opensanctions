@@ -1,4 +1,4 @@
-from zavod.helpers.text import multi_split, remove_bracketed, is_empty, clean_note, clean_br_cnpj, clean_br_cpf
+from zavod.helpers.text import multi_split, remove_bracketed, is_empty, clean_note
 
 
 def test_multi_split():
@@ -33,4 +33,3 @@ def test_clean_note():
     assert clean_note(None) == []
     assert clean_note(["hello"]) == ["hello"]
     assert clean_note(["hello", None]) == ["hello"]
-    
