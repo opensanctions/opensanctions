@@ -1336,3 +1336,7 @@ lookups:
         code: ""
         label: "Chinland"
         decision: "ignore"
+      - match: "Q109534069"
+        code: ""
+        label: "Kingdom of Wolaita"
+        decision: "ignore"
