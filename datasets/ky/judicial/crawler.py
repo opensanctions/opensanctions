@@ -89,7 +89,7 @@ def crawl(context: Context):
 
     # Get Justices of Appeal
     justices_of_appeal_url = (
-        "https://www.judicial.ky/judicial-administration/justices-of-appeal"
+        "https://www.judicial.ky/judicial-administration/judges-of-appeal"
     )
 
     def get_name(elm):
@@ -103,7 +103,7 @@ def crawl(context: Context):
         return page.xpath('.//div[contains(@class, "accordian")]')[0].xpath(".//h4")
 
     justices_of_appeal = crawl_judges(
-        context, justices_of_appeal_url, "Justice of Appeal", get_name, get_judges
+        context, justices_of_appeal_url, "Judge of Appeal", get_name, get_judges
     )
     all_judges += justices_of_appeal
 

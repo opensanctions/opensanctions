@@ -23,3 +23,13 @@ publisher:
 data:
     url: "https://www.judicial.ky/judicial-administration/judges"
     format: HTML
+
+assertions:
+  min:
+    schema_entities:
+      Person: 14
+    country_entities:
+      ky: 16
+  max:
+    schema_entities:
+      Person: 24
