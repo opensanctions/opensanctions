@@ -43,7 +43,15 @@ OBVIOUSLY_NOT_PEP_ROLES = {
     "shareholder",
 }
 REGEX_SUBNATIONAL = re.compile("(?P<area>\w{4,}) city|regional")
-
+PUNCTUATION = {
+    'Pc': '-',
+    'Pd': '-',
+    'Ps': '(',
+    'Pe': ')',
+    'Pi': '"',
+    'Pf': '"',
+    'Po': '-',
+}
 
 class Company:
     """Minimal information we want to hold in memory to pass between company and
@@ -247,9 +255,11 @@ def get_position_name(context, role, company_name) -> Optional[str]:
                 True,
             )
     # Skip cyrillic names in the english field for now.
+    position_name = normality.category_replace(position_name, PUNCTUATION)
     if position_name == normality.latinize_text(position_name):
         return position_name, None, None
     else:
+        context.log.debug("Skipping cyrillic position name", name=position_name)
         return None, None, False
 
 
@@ -417,12 +427,14 @@ def crawl_person(
                 role, extra = role.split(",", 1)
                 break
 
-        position_name, subnational_area, is_pep = get_position_name(
+        # Is it automatically categorised as a PEP?
+        position_name, subnational_area, auto_pep = get_position_name(
             context,
             collapse_spaces(role),
             collapse_spaces(company_name),
         )
 
+        # Is it categorised as a PEP in the database?
         if not (
             position_name
             and emit_pep_relationship(
@@ -434,7 +446,7 @@ def crawl_person(
                 start_date[0] if start_date else None,
                 end_date[0] if end_date else None,
                 extra,
-                is_pep,
+                auto_pep,
             )
         ):
             if crawl_company_person_relation(context, company, entity, rel_data):
