@@ -1,0 +1,37 @@
+name: ve_asamblea_nacional
+title: Members of the National Assembly of Venezuela
+url: https://www.asambleanacional.gob.ve/diputados
+summary: >-
+  Members of the National Asssembly of Venezuela.
+description: |
+  This dataset lists the current members of the National Assembly
+  of the Bolivian Republic of Venezuela.
+
+  The data is collected from the official website of the National
+  Assembly.
+entry_point: crawler.py
+prefix: ve-asamblea-nacional
+publisher:
+  name: Asamblea Nacional de Venezuela
+  official: true
+  description:
+    National Assembly of the Bolivian Republic of Venezuela.
+
+    The National Assembly is the unicameral legislature of Venezuela.
+    It consists of 277 members elected for 5-year terms by mixed
+    member proportional representation, with 60% of members elected
+    directly by geographical constituencies and the remaining members
+    elected proportionally by party list.  In addition, 3 seats are
+    reserved for representatives of Indigenous communities.
+  country: ve
+  url: https://www.asambleanacional.gob.ve/
+data:
+  url: https://www.asambleanacional.gob.ve/diputados
+  format: HTML
+lookups:
+  type.date:
+    options:
+      - match: 28 de Octubre de 1.962
+        value: 1962-10-28
+      - match: 31 de enero de 1.981
+        value: 1981-01-31
