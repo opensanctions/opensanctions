@@ -8,10 +8,10 @@ TYPES = {"E": "LegalEntity", "P": "Person"}
 
 
 def crawl(context: Context):
-    regime = context.fetch_json(REGIME_URL)
+    regime = context.fetch_json(REGIME_URL, cache_days=1)
     for item in regime["data"]:
         regime_url = f"{REGIME_URL}/{item['id']}"
-        regime_data = context.fetch_json(regime_url)["data"]
+        regime_data = context.fetch_json(regime_url, cache_days=1)["data"]
         measures = regime_data.pop("measures")
         regime_data.pop("legal_acts", None)
         regime_data.pop("general_guidances", None)
@@ -35,8 +35,14 @@ def crawl(context: Context):
 
                     entity = context.make(schema)
                     entity.id = context.make_id(name, member["creation_date"])
+                    entity.add('topics', 'sanction')
+                    
                     if "(alias" in name:
                         name, _ = name.split("(alias", 1)
+
+                    if "\n" in name:
+                        name, notes = name.split("\n", 1)
+                        entity.add("notes", notes)
 
                     entity.add("name", name)
 

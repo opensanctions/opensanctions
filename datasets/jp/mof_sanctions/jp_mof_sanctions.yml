@@ -218,6 +218,9 @@ lookups:
     lowercase: true
     normalize: true
     options:
+      - match: 
+          - Commune of Bouhechana, Daïra de Lakhezara, Guelma, Algeria
+        value: Algeria
       - match: 米国。また、シリア国籍も所持していると見られる。
         values:
           - US
@@ -240,6 +243,8 @@ lookups:
         values:
           - Turkey
           - Jordan
+      - match: ハイチ共和国
+        value: China
   type.date:
     options:
       - match:

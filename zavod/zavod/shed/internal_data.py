@@ -1,5 +1,5 @@
 from pathlib import Path
-from google.cloud.storage import Client
+from google.cloud.storage import Client  # type: ignore
 
 
 def fetch_internal_data(key: str, path: Path) -> None:

@@ -39,6 +39,8 @@ children:
   - id_regional_2018
   - ky_judicial
   - ky_parliament
+  - lt_seimas
+  - mk_officials
   - ng_chipper_peps
   - ng_join_dots
   - ru_rupep

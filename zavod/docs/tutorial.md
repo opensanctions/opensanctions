@@ -59,8 +59,8 @@ prefix: eu-fsf
 # This section provides information about the original publisher of the data,
 # often a government authority:
 publisher:
-    name: European Union External Action Service
-    acronym: EEAS
+    name: European Union External Action Service (EEAS)
+    description: The EEAS is the EU's diplomatic service, and carries out the EU's foreign and security policy. 
     country: eu
     url: https://eeas.europa.eu/topics/sanctions-policy/8442/consolidated-list-of-sanctions_en
 
@@ -197,8 +197,9 @@ zavod export datasets/eu/fsf/eu_fsf_demo.yml
 
 This will log a number of different file types that are exported by default. A nice way
 to explore the output is using the JSON command line utility `jq` and your favourite text
-pager like `less` together to browse and search within the `[targets.nested.json](https://www.opensanctions.org/docs/bulk/json/#:~:text=targets.nested.json)`
-output using a command like
+pager like `less` together to browse and search within the
+[`targets.nested.json`](https://www.opensanctions.org/docs/bulk/json/#:~:text=targets.nested.json)
+and `statistics.json` outputs using a command like
 
 ```bash
 jq . data/datasets/eu_fsf_demo/targets.nested.json --color-output | less -R
@@ -210,6 +211,17 @@ Good things to check are
 - Spot checking some specific persons, companies, and relations between them, as relevant to your data
 - Any warnings in the crawler output
 
+### Add your crawler to a collection
+
+Our data is mostly used within a broader collection of datasets, and less often by accessing a specific dataset directly.
+
+Add your crawler to the most appropriate [collection](https://github.com/opensanctions/opensanctions/tree/main/datasets/_collections)
+based on the [kind of entities](https://www.opensanctions.org/docs/topics/) it is
+adding. Look for [similar datasets](https://www.opensanctions.org/datasets/)
+and see which collection they are directly included in.
+
+Broader collections include more specific collections and/or specific crawlers.
+
 ### Next steps
 
 You may now want to level up your crawler by looking at
@@ -217,6 +229,7 @@ You may now want to level up your crawler by looking at
 - [helpers](helpers.md) for common tasks,
 - [common patterns](patterns.md) for building crawlers,
 - the [PEPs guide](peps.md) if you're crawling Politically Exposed Persons and their Relatives and Close Associates.
+- the [merge checklist](merge_checklist) we'll follow before merging a new crawler
 
 ## Checklist
 

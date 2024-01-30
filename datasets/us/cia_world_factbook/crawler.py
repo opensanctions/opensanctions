@@ -25,7 +25,7 @@ REGEX_SKIP_CATEGORY_HTML = re.compile(
 REGEX_RELEVANT_CATEGORY = re.compile("^(chief of state|head of government): ")
 REGEX_HOLDER = re.compile(
     (
-        "(represented by )?"
+        "((New Zealand is )?represented by )?"
         "(?P<role>"
         "([Tt]ransitional |Transition |Interim |Acting )President"
         "|President of the Government"
@@ -56,7 +56,7 @@ REGEX_HOLDER = re.compile(
         "|Crown Prince"
         "|Emperor"
         "|Governor General of New Zealand"
-        "|(Vice |Acting |Lieutenant[ -])?Governor([ -]General)?( of the Commonwealth of Australia)?"
+        "|(Vice |Acting |Assistant |Lieutenant[ -])?Governor([ -]General)?( of the Commonwealth of Australia)?"
         "|Grand Duke"
         "|King"
         "|Lord of Mann"

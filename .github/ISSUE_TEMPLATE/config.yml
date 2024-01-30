@@ -1,0 +1,4 @@
+contact_links:
+  - name: Suggestions for data sources to add to OpenSanctions
+    url: https://github.com/opensanctions/crawler-planning/issues/new/choose
+    about: Do you know of a data source that you think would be great if added to OpenSanctions? Please follow this link, rather than creating an issue in this repository.
