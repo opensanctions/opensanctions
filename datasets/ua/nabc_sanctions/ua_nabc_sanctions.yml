@@ -134,6 +134,7 @@ lookups:
           - колега, друг
           - колега, бізнес партнер
           - Колега
+          - Протеже
         schema: Associate
         local: person
         remote: associate
