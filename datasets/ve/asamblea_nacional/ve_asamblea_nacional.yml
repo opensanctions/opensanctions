@@ -10,7 +10,7 @@ description: |
   The data is collected from the official website of the National
   Assembly.
 entry_point: crawler.py
-prefix: ve-asamblea-nacional
+prefix: ve-asamblea
 publisher:
   name: Asamblea Nacional de Venezuela
   official: true
