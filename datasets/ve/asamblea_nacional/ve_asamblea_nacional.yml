@@ -28,3 +28,10 @@ publisher:
 data:
   url: https://www.asambleanacional.gob.ve/diputados
   format: HTML
+lookups:
+  type.date:
+    options:
+      - match: 28 de Octubre de 1.962
+        value: 1962-10-28
+      - match: 31 de enero de 1.981
+        value: 1981-01-31
