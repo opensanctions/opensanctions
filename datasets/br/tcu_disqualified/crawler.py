@@ -23,7 +23,7 @@ def crawl_item(input_dict: dict, context: Context):
 
     # if the tax number is None, it means it was invalid
     if tax_number is None:
-        entity.id = context.make_id(input_dict["cpf"]+input_dict["nome"])
+        entity.id = context.make_id(input_dict["cpf"], input_dict["nome"])
     else:
         entity.id = context.make_slug(tax_number, prefix="br-cpf")
 
