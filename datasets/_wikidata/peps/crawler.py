@@ -77,16 +77,15 @@ def crawl_holder(
     context.emit(entity, target=True)
 
 
-def query_position_holders(context: Context, wd_position: Dict[str, str]) -> Generator[Dict[str, Any], None, None]:
+def query_position_holders(
+    context: Context, wd_position: Dict[str, str]
+) -> Generator[Dict[str, Any], None, None]:
+    context.log.info(
+        f"Crawling holders of position {wd_position['qid']} ({wd_position['label']})"
+    )
     vars = {"POSITION": wd_position["qid"]}
     response = run_query(
         context, context.data_url, "holders/holders", vars, cache_days=CACHE_MEDIUM
-    )
-    context.log.info(
-        (
-            f"Crawling holders of position {wd_position['qid']} ({wd_position['label']}), "
-            f"found {len(response.results)}"
-        )
     )
     for binding in response.results:
         start_date = truncate_date(
@@ -172,7 +171,9 @@ def query_positions(context: Context, country) -> Generator[Dict[str, Any], None
 
 
 def query_countries(context: Context):
-    response = run_query(context, context.data_url, "countries/all", cache_days=CACHE_MEDIUM)
+    response = run_query(
+        context, context.data_url, "countries/all", cache_days=CACHE_MEDIUM
+    )
     for binding in response.results:
         qid = binding.plain("country")
         label = binding.plain("countryLabel")

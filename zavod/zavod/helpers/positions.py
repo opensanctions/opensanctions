@@ -98,6 +98,7 @@ def make_occupancy(
     """Creates and returns an Occupancy entity if the arguments meet our criteria
     for PEP position occupancy, otherwise returns None. Also adds the position countries
     and the `role.pep` topic to the person if an Occupancy is returned.
+    **Emit the person after calling this to include these changes.**
 
     Unless `status` is overridden, Occupancies are only returned if end_date is None or
     less than the after-office period after current_time.

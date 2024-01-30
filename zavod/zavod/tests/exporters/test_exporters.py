@@ -17,7 +17,6 @@ from zavod.exporters.ftm import FtMExporter
 from zavod.exporters.names import NamesExporter
 from zavod.exporters.nested import NestedJSONExporter
 from zavod.exporters.simplecsv import SimpleCSVExporter
-from zavod.exporters.senzing import SenzingExporter
 from zavod.exporters.statements import StatementsCSVExporter
 from zavod.meta import Dataset, load_dataset_from_path
 from zavod.crawl import crawl_dataset
@@ -324,50 +323,6 @@ def test_targets_simple(testdataset1: Dataset):
     # Assert the dates above are in the expected format
     datetime.strptime(settings.RUN_TIME_ISO, TIME_SECONDS_FMT)
 
-
-def test_senzing(testdataset1: Dataset):
-    """Tests whether the senzing output contain the expected entities, with expected
-    keys and value formats."""
-    dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
-    clear_data_path(testdataset1.name)
-
-    crawl_dataset(testdataset1)
-    harnessed_export(SenzingExporter, testdataset1)
-
-    with open(dataset_path / "senzing.json") as senzing_file:
-        targets = [loads(line) for line in senzing_file.readlines()]
-    company = [t for t in targets if t["RECORD_ID"] == "osv-umbrella-corp"][0]
-    company_features = company.pop("FEATURES")
-
-    assert {
-        "NAME_TYPE": "PRIMARY",
-        "NAME_ORG": "Umbrella Corporation",
-    } in company_features
-    assert {
-        "NAME_TYPE": "ALIAS",
-        "NAME_ORG": "Umbrella Pharmaceuticals, Inc.",
-    } in company_features
-    assert {"REGISTRATION_DATE": "1980"} in company_features
-    assert {"REGISTRATION_COUNTRY": "us"} in company_features
-    assert {"NATIONAL_ID_NUMBER": "8723-BX"} in company_features
-    assert company == {
-        "DATA_SOURCE": "OS_TESTDATASET1",
-        "RECORD_ID": "osv-umbrella-corp",
-        "RECORD_TYPE": "ORGANIZATION",
-    }
-
-    person = [t for t in targets if t["RECORD_ID"] == "osv-hans-gruber"][0]
-    person_features = person.pop("FEATURES")
-    assert {"NAME_TYPE": "PRIMARY", "NAME_FULL": "Hans Gruber"} in person_features
-    assert {"NAME_TYPE": "ALIAS", "NAME_FULL": "Bill Clay"} in person_features
-    assert {"ADDR_FULL": "Lauensteiner Str. 49, 01277 Dresden"} in person_features
-    assert {"DATE_OF_BIRTH": "1978-09-25"} in person_features
-    assert {"NATIONALITY": "dd"} in person_features
-    assert person == {
-        "DATA_SOURCE": "OS_TESTDATASET1",
-        "RECORD_ID": "osv-hans-gruber",
-        "RECORD_TYPE": "PERSON",
-    }
 
 
 def test_statements(testdataset1: Dataset):

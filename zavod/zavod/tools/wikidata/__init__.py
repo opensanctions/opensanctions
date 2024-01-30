@@ -1,11 +1,11 @@
 from collections import defaultdict
 from itertools import groupby
-from languagecodes import iso_639_alpha2
 from nomenklatura import Store
 from nomenklatura.dataset import DS
 from nomenklatura.entity import CE
 from nomenklatura.judgement import Judgement
 from nomenklatura.statement.statement import Statement
+from rigour.langs import iso_639_alpha2
 from rigour.ids.wikidata import is_qid
 
 # They've done a partial attempt at adding types, then totally
