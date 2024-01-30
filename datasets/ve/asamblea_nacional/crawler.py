@@ -168,7 +168,7 @@ def crawl_members(context: Context, page: ElementOrTree):
 
 def crawl_member_list(context: Context) -> Iterator[ElementOrTree]:
     """Iterate through pages in member list from the website."""
-    context.log.debug(f"Fetching front page from {context.data_url}")
+    context.log.info(f"Fetching front page from {context.data_url}")
     page_number = 1
     page: HtmlElement = context.fetch_html(context.data_url, cache_days=1)
     yield page
