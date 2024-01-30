@@ -1,0 +1,24 @@
+title: Brazil's TCU list of individuals disqualified from public service
+entry_point: crawler.py
+prefix: br-tcu-disqualified
+coverage:
+  frequency: daily
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  The inabilitados do TCU database catalogs individuals sanctioned by Brazil's Tribunal de Contas da União, prohibiting them from commissioned government roles.
+description: |
+  The TCU Disqualified Individuals compiles a list of individuals who have 
+  faced sanctions due to various offenses, resulting in their disqualification
+  from occupying positions of trust or commissioned roles in governmental institutions.
+  This database enables compliance with Article 60 of Law 8.443/92,
+  ensuring that sanctioned individuals are appropriately restricted
+  from holding certain influential and sensitive positions in the public sector.
+publisher:
+  name: Tribunal de Contas da União (TCU)
+  url: https://portal.tcu.gov.br/inicio/
+  official: true
+  country: "br"
+url: "https://contas.tcu.gov.br/ords/f?p=1660:1:::NO:1::"
+data:
+  url: https://contas.tcu.gov.br/ords/condenacao/consulta/inabilitados
+  format: JSON
