@@ -29,6 +29,7 @@ children:
   - debarment
   - ransomwhere
   - br_bcb_disqualified_persons
+  - br_tcu_disqualified
   - ch_finma_rulings
   - ch_finma_warnings
   - eu_europol_wanted
