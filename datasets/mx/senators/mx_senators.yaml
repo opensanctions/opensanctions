@@ -1,0 +1,20 @@
+title: Mexico's senators
+entry_point: crawler.py
+prefix: mx-senators
+coverage:
+  frequency: daily
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Members of the Mexican Senate
+description: |
+  This dataset includes individuals that are currently senators in Mexico.
+publisher:
+  name: Senado de La República
+  description: Mexico's Senate
+  url: https://www.senado.gob.mx/
+  official: true
+  country: "mx"
+url: "https://www.senado.gob.mx/65/datosAbiertos/senadoresDatosAb"
+data:
+  url: https://micrositios.senado.gob.mx/datos_abiertos/
+  format: JSON
