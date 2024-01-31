@@ -1,7 +1,8 @@
 type: collection
 title: Warrants and Criminal Entities
+coverage:
+  frequency: daily
 deploy:
-  schedule: "1 */6 * * *"
   memory: "1500Mi"
 summary: >
   Companies and people implicated in or convicted of criminal activity,

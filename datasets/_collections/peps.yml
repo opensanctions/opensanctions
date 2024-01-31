@@ -1,5 +1,7 @@
 type: collection
 title: Politically Exposed Persons (PEPs)
+coverage:
+  frequency: daily
 deploy:
   schedule: "40 */6 * * *"
   memory: "1500Mi"

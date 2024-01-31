@@ -1,7 +1,8 @@
 type: collection
 title: Sanctioned securities
-deploy:
-  schedule: "@daily"
+coverage:
+  frequency: daily
+# deploy:
   # memory: "1000Mi"
 exports:
   - statistics.json
