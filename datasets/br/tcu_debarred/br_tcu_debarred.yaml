@@ -1,17 +1,18 @@
 title: Brazil's TCU list of Debarred Bidders
 entry_point: crawler.py
-prefix: br-tcu-debarred
+prefix: br-tcu-debar
 coverage:
   frequency: daily
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   The TCU list of Debarred Bidders is a catalog of individuals and companies sanctioned by Brazil's Tribunal de Contas da União, prohibiting them from participating in public procurement processes.
 description: |
-  The TCU compiles a list of those declared debarred to participate in federal public
+  The TCU compiles a list of those declared debarred from participating in federal public
   administration tenders, under the terms of art. 46 of the Organic Law of the Court (Law 8.443/92).
   Processes that are ongoing or whose decisions have not become final are not considered.
 publisher:
   name: Tribunal de Contas da União (TCU)
+  description: Brazil's Federal Court of Accounts
   url: https://portal.tcu.gov.br/inicio/
   official: true
   country: "br"

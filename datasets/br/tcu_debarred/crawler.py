@@ -1,4 +1,5 @@
 from zavod import Context, helpers as h
+from rigour.ids.stdnum_ import CPF, CNPJ
 
 def crawl_item(input_dict: dict, context: Context):
     """
@@ -22,22 +23,27 @@ def crawl_item(input_dict: dict, context: Context):
     # If it's length 18 with punctuation, then it is a CNPJ (XX.XXX.XXX/XXXX-XX)
     if len(raw_tax_number) == 18:
         entity.add_schema("Company")
-        tax_number = h.clean_br_cnpj(raw_tax_number)
+        tax_number = CNPJ.normalize(raw_tax_number)
         prefix = "br-cnpj"
 
     # If it's length 14 with punctuation, then it is a CPF (XXX.XXX.XXX-XX)
     elif len(raw_tax_number) == 14:
         entity.add_schema("Person")
-        tax_number = h.clean_br_cpf(raw_tax_number)
-        prefix = "br-cnpj"
+        tax_number = CPF.normalize(raw_tax_number)
+        prefix = "br-cpf"
 
     # If it's neither, then we just use the raw number
     else:
         context.log.warning("Entity type not defined by tax number")
-        tax_number = raw_tax_number
+        tax_number = None
         prefix = "br-unknown"
 
-    entity.id = context.make_slug(tax_number, prefix=prefix)
+
+    # If the tax number couldn't be defined as either a CPF or CNPJ, we generate a hash as the id
+    if tax_number is None:
+        entity.id = context.make_id(input_dict["cpf"], input_dict["nome"])
+    else:
+        entity.id = context.make_slug(tax_number, prefix=prefix)
     entity.add("name", input_dict["nome"])
     entity.add("taxNumber", tax_number)
     entity.add("country", "br")
