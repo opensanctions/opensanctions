@@ -1,4 +1,4 @@
-from zavod.helpers.text import multi_split, remove_bracketed, is_empty, clean_note, clean_br_cnpj, clean_br_cpf
+from zavod.helpers.text import multi_split, remove_bracketed, is_empty, clean_note
 
 
 def test_multi_split():
@@ -33,31 +33,3 @@ def test_clean_note():
     assert clean_note(None) == []
     assert clean_note(["hello"]) == ["hello"]
     assert clean_note(["hello", None]) == ["hello"]
-
-def test_clean_br_cpf():
-
-    # expected input
-    assert clean_br_cpf("123.456.789-00") == "12345678900"
-
-    # if it's already clean, then returns as is
-    assert clean_br_cpf("12345678900") == "12345678900"
-
-    # if it's invalid then returns as is
-    assert clean_br_cpf("abc") == "abc"
-
-    # if it's invalid then returns as is
-    assert clean_br_cpf("1234567890)[]") == "1234567890)[]"
-
-def test_clean_br_cnpj():
-
-    # expected input
-    assert clean_br_cnpj("12.345.678/9101-12") == "12345678910112"
-
-    # if it's already clean, then returns as is
-    assert clean_br_cnpj("12345678910112") == "12345678910112"
-
-    # if it's invalid then returns as is
-    assert clean_br_cnpj("abc") == "abc"
-
-    # if it's invalid then returns as is
-    assert clean_br_cpf("12345678910112)[]") == "12345678910112)[]"
