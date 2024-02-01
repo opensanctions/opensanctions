@@ -13,6 +13,7 @@ description: |
 children:
   - adb_sanctions
   - afdb_sanctions
+  - br_tcu_debarred
   - ebrd_ineligible
   - eu_edes
   - iadb_sanctions
