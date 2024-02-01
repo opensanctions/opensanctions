@@ -350,6 +350,7 @@ def parse_company(context: Context, el: Element):
     for successor in el.findall("./СвПреем"):
         successor_id = entity_id(
             context,
+            name=successor.get("НаимЮЛПолн"),
             inn=successor.get("ИНН"),
             ogrn=successor.get("ОГРН"),
         )
