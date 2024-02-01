@@ -30,15 +30,15 @@ def parse_name(name: Optional[str]) -> List[str]:
     if name is None:
         return []
     names: List[str] = []
-    if name.endswith(')'):
-        parts = name.rsplit('(', 1)
+    if name.endswith(")"):
+        parts = name.rsplit("(", 1)
         if len(parts) == 2:
             name = parts[0].strip()
-            alias = parts[1].strip(')').strip()
+            alias = parts[1].strip(")").strip()
             names.append(alias)
     names.append(name)
     return names
-    
+
 
 def elattr(el: Optional[Element], attr: str):
     if el is not None:
@@ -204,6 +204,7 @@ def parse_founder(context: Context, company: Entity, el: Element):
     ownership.add("summary", link_summary)
     ownership.add("recordId", link_record_id)
     ownership.add("date", link_date)
+    ownership.add("endDate", company.get("dissolutionDate"))
 
     meta = el.find("./ГРНДатаПерв")
     if meta is not None:
@@ -256,6 +257,7 @@ def parse_directorship(context: Context, company: Entity, el: Element):
     if date is not None:
         directorship.add("startDate", date.get("ДатаЗаписи"))
 
+    directorship.add("endDate", company.get("dissolutionDate"))
     context.emit(directorship)
 
 
@@ -324,6 +326,9 @@ def parse_company(context: Context, el: Element):
     entity.add("legalForm", el.get("ПолнНаимОПФ"))
     entity.add("incorporationDate", el.get("ДатаОГРН"))
 
+    for term_el in el.findall("./СвПрекрЮЛ"):
+        entity.add("dissolutionDate", term_el.get("ДатаПрекрЮЛ"))
+
     email_el = el.find("./СвАдрЭлПочты")
     if email_el is not None:
         entity.add("email", email_el.get("E-mail"))
@@ -341,6 +346,19 @@ def parse_company(context: Context, el: Element):
 
     for founder in el.findall("./СвУчредит/*"):
         parse_founder(context, entity, founder)
+
+    for successor in el.findall("./СвПреем"):
+        successor_id = entity_id(
+            context,
+            inn=successor.get("ИНН"),
+            ogrn=successor.get("ОГРН"),
+        )
+        if successor_id is not None:
+            succ = context.make("Succession")
+            succ.id = context.make_id(entity.id, 'successor', successor_id)
+            succ.add("successor", successor_id)
+            succ.add("predecessor", entity.id)
+            context.emit(succ)
 
     # pprint(entity.to_dict())
     context.emit(entity)
