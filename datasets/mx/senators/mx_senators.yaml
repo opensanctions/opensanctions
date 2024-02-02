@@ -7,7 +7,13 @@ load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Members of the Mexican Senate
 description: |
-  This dataset includes individuals that are currently senators in Mexico.
+  This dataset comprises information about current senators in Mexico,
+  who represent the upper house of the Mexican Congress known as the Senate.
+  It is constituted with a total of 128 seats, where each of the 32 states
+  elects three representatives, and an additional 32 are elected through
+  a national election, where the distribution of seats among political 
+  parties is proportional to their respective shares in the national vote.
+  Each senator serves a six-year term and, starting from 2018, can serve a second term.
 publisher:
   name: Senado de La República
   description: Mexico's Senate
