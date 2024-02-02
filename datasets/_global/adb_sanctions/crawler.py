@@ -8,11 +8,11 @@ from zavod import helpers as h
 FORMATS = ["%d/%b/%Y"]
 REG_NRS = ["(Reg. No:", "(Reg. No.:", "(Reg. No.", "(Trade Register No.:"]
 
-MIRROR_URL = "https://data.opensanctions.org/contrib/adb_sanctions/data.html"
+# MIRROR_URL = "https://data.opensanctions.org/contrib/adb_sanctions/data.html"
 
 
 def crawl(context: Context):
-    path = context.fetch_resource("source.html", MIRROR_URL)
+    path = context.fetch_resource("source.html", context.data_url)
     context.export_resource(path, HTML, title=context.SOURCE_TITLE)
     with open(path, "r", encoding="ISO-8859-1") as fh:
         doc = html.parse(fh)
@@ -27,14 +27,14 @@ def crawl(context: Context):
         cells = dict(zip(headers, cells))
         cells.pop(None, None)
 
-        full_name = name = cells.pop("name")
+        full_name = name = cells.pop("name") or ""
         registration_number = None
         for splitter in REG_NRS:
             if splitter in name:
                 name, registration_number = name.split(splitter, 1)
                 registration_number = registration_number.replace(")", "")
 
-        country = cells.pop("nationality")
+        country = cells.pop("nationality") or ""
         country = country.replace("Non ADB Member Country", "")
         country = country.replace("Rep. of", "")
         entity = context.make("LegalEntity")
@@ -48,7 +48,7 @@ def crawl(context: Context):
         sanction = h.make_sanction(context, entity)
         sanction.add("reason", cells.pop("grounds"))
         sanction.add("program", cells.pop("sanction_type"))
-        date_range = cells.pop("effect_date_lapse_date", "")
+        date_range = cells.pop("effect_date_lapse_date") or ""
         if "|" in date_range:
             start_date, end_date = date_range.split("|")
             sanction.add("startDate", h.parse_date(start_date.strip(), FORMATS))

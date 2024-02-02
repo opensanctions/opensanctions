@@ -1,5 +1,5 @@
 type: collection
-title: OpenSanctions Know-Your-Business Datasets
+title: Know-Your-Business (KYB) Datasets
 hidden: true
 deploy:
   memory: "2000Mi"

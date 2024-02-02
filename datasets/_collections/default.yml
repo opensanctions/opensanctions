@@ -17,9 +17,9 @@ exports:
   - targets.simple.csv
   - statements.csv
 summary: >
-  This collection includes most of the data collected by OpenSanctions which
-  meets quality standards and would be useful to an analyst or journalist
-  attempting to perform a due-diligence type task.
+  This distribution includes the data collected by OpenSanctions that
+  meets quality standards and would be useful in a screening system or
+  for investigative use.
 description: |
   This list can be used as the broadest available OpenSanctions dataset. It
   includes any entity that should receive enhanced public scrutiny - either

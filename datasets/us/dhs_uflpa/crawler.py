@@ -1,6 +1,7 @@
 from normality import collapse_spaces, slugify
 from zavod import Context
 from zavod import helpers as h
+from zavod.helpers.xml import ElementOrTree
 
 import re
 
@@ -47,7 +48,7 @@ def parse_names(name_field: str):
         return names
 
 
-def crawl_program(context: Context, table, program: str, section: str) -> None:
+def crawl_program(context: Context, table: ElementOrTree, program: str, section: str) -> None:
     headers = None
     for row in table.findall(".//tr"):
         if headers is None:
@@ -68,13 +69,13 @@ def crawl_program(context: Context, table, program: str, section: str) -> None:
             continue
 
         res = context.lookup("type", names["main"])
+        entity_schema = "Organization"
         if res:
-            entity_schema = res.entity_schema
+            entity_schema = res.entity_schema or entity_schema
             rel_schema = res.rel_schema
             subject = res.subject
             object = res.object
         else:
-            entity_schema = "LegalEntity"
             rel_schema = "UnknownLink"
             subject = "subject"
             object = "object"
@@ -122,10 +123,11 @@ def crawl_program(context: Context, table, program: str, section: str) -> None:
 
 
 def crawl(context: Context):
-    doc = context.fetch_html(context.dataset.data.url, cache_days=7)
+    doc = context.fetch_html(context.data_url)
     tables = doc.findall('.//table[@class="usa-table"]')
     for table in tables:
         program_container = table.getprevious()
+        assert program_container is not None
         description = program_container.find(".//strong")
         section_link = program_container.find(".//a")
 

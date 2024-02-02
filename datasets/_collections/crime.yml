@@ -1,7 +1,8 @@
 type: collection
 title: Warrants and Criminal Entities
+coverage:
+  frequency: daily
 deploy:
-  schedule: "1 */6 * * *"
   memory: "1500Mi"
 summary: >
   Companies and people implicated in or convicted of criminal activity,
@@ -29,6 +30,7 @@ children:
   - debarment
   - ransomwhere
   - br_bcb_disqualified_persons
+  - br_tcu_disqualified
   - ch_finma_rulings
   - ch_finma_warnings
   - eu_europol_wanted
@@ -40,3 +42,4 @@ children:
   - us_fbi_most_wanted
   - us_occ_enfact
   - us_sec_pause
+  - za_wanted

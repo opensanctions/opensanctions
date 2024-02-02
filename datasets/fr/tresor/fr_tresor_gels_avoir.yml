@@ -2963,3 +2963,49 @@ lookups:
           jurisdiction: fr
           registrationNumber: W9220127754
           incorporationDate: 2018-07-27
+      - match: "Type d'entité: entreprise contrôlée par l'État: /"
+        props:
+          legalForm: entreprise contrôlée par l'État
+      - match: "Lieu d’enregistrement: Damas, Syrie - Date d’enregistrement: 2007 - Principal établissement: Syrie: /"
+        props:
+          jurisdiction: sy
+          address: "Damas, Syrie"
+          incorporationDate: 2007
+      - match: "Type d'entité: société à responsabilité limitée (Limited Company) - Date d'enregistrement: 2018: /"
+        props:
+          legalForm: Limited Company
+          incorporationDate: 2018
+      - match: "Type d'entité: entité publique - Date d'enregistrement: 1993: /"
+        props:
+          legalForm: entité publique
+          incorporationDate: 1993
+      - match: "Lieu d’enregistrement: Damas, Syrie - Date d’enregistrement: 2023 - Principal établissement: Damas, Syrie: /"
+        props:
+          jurisdiction: sy
+          address: "Damas, Syrie"
+          incorporationDate: 2023
+      - match: "Type d'entité: société à responsabilité limitée (Limited Company) - Date d'enregistrement: 2009: /"
+        props:
+          legalForm: Limited Company
+          incorporationDate: 2009
+      - match: "Type d'entité: société à responsabilité limitée (Limited Company): /"
+        props:
+          legalForm: Limited Company
+      - match: "Lieu d’enregistrement: Damas, Syrie - Principal établissement: Syrie: /"
+        props:
+          jurisdiction: sy
+          address: "Damas, Syrie"
+      - match: "Lieu d’enregistrement: Syrie, Dubaï - Principal établissement: Damas, Syrie: /"
+        props:
+          jurisdiction:
+            - sy
+            - ae
+          address: "Damas, Syrie"
+      - match: "Lieu d’enregistrement: Damas, Syrie - Principal établissement: Damas, Syrie: /"
+        props:
+          jurisdiction: sy
+          address: "Damas, Syrie"
+      - match: "Type d'entité: entreprise contrôlée par l'État - Date d'enregistrement: 1997: /"
+        props:
+          legalForm: entreprise contrôlée par l'État
+          incorporationDate: 1997

@@ -7,6 +7,8 @@ def make_sanction(
     context: Context, entity: Entity, key: Optional[str] = None
 ) -> Entity:
     """Create a sanctions object derived from the dataset metadata.
+    The country, authority, sourceUrl, and subject entity properties
+    are automatically set.
 
     Args:
         context: The runner context with dataset metadata.

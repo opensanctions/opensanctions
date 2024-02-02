@@ -1,18 +1,26 @@
-from lxml import html
 import re
 
 from zavod.context import Context
 from zavod import helpers as h
+from zavod.helpers.xml import ElementOrTree
 
 
 COUNTRY_REGEX = re.compile(r"\((.*?)\)")
 
 
-def parse_html(doc):
-    for element in doc.find('.//div[@class="content"]').findall(".//ul/li/strong"):
+def parse_html(doc: ElementOrTree):
+    content = doc.find('.//div[@class="content"]')
+    if content is None:
+        raise ValueError("Cannot find content div")
+    for element in content.findall(".//ul/li/strong"):
         nro_element = element.getparent()
+        if nro_element is None:
+            continue
 
-        country_str = COUNTRY_REGEX.search(nro_element.text_content()).group(1).strip()
+        country_match = COUNTRY_REGEX.search(nro_element.text_content())
+        if country_match is None:
+            continue
+        country_str = country_match.group(1).strip()
 
         aliases_el = nro_element.find(".//ul")
         if aliases_el is None:
@@ -21,28 +29,38 @@ def parse_html(doc):
             aliases_str = (
                 aliases_el.text_content().replace("Known alias(es):", "").strip()
             )
-        aliases = [x.strip() for x in aliases_str.split(";") if not x.isupper()]
-        weak_aliases = [x for x in aliases_str.split(";") if x.isupper()]
+        
+        # FIX: it turns out that the listed aliases are in fact often subsidiaries
+        # so we're going to emit them separately from the main entity.
+        name = nro_element.find("strong").text
+        aliases = aliases_str.split(";")
+        weak_aliases = []
+        for alias in aliases:
+            if alias.isupper() or len(alias) < 5:
+                weak_aliases.append(alias)
+            else:
+                yield {
+                    "name": alias,
+                    "country": country_str,
+                    "notes": f"see: {name}",
+                }
 
         yield {
-            "name": nro_element.find("strong").text,
+            "name": name,
             "country": country_str,
-            "aliases": aliases,
             "weak_aliases": weak_aliases,
         }
+        
 
-
-def emit_nro(context, nro):
+def emit_nro(context: Context, nro):
     entity = context.make("Organization")
     entity.id = context.make_id("nro", nro["name"], nro["country"])
     entity.add("name", nro["name"])
-    entity.add("alias", nro["name"])
     entity.add("country", nro["country"])
+    entity.add("notes", nro.get("notes"))
     entity.add("topics", "export.control")
-    for alias in nro["aliases"]:
-        entity.add("alias", alias)
 
-    for alias in nro["weak_aliases"]:
+    for alias in nro.get('weak_aliases', []):
         entity.add("weakAlias", alias)
 
     context.emit(entity, target=True)
@@ -55,6 +73,6 @@ def emit_nro(context, nro):
 
 
 def crawl(context: Context):
-    doc = context.fetch_html(context.dataset.data.url, cache_days=1)
+    doc = context.fetch_html(context.data_url, cache_days=1)
     for nro in parse_html(doc):
         emit_nro(context, nro)

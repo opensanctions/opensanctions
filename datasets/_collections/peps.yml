@@ -1,5 +1,7 @@
 type: collection
 title: Politically Exposed Persons (PEPs)
+coverage:
+  frequency: daily
 deploy:
   schedule: "40 */6 * * *"
   memory: "1500Mi"
@@ -50,4 +52,5 @@ children:
   - us_plural_legislators
   - us_state_dept
   - uy_pep
+  - ve_asamblea_nacional
   - wd_peps
