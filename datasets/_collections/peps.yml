@@ -43,6 +43,7 @@ children:
   - ky_parliament
   - lt_seimas
   - mk_officials
+  - mx_senators
   - ng_chipper_peps
   - ng_join_dots
   - ru_rupep
