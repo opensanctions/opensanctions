@@ -98,7 +98,7 @@ def crawl(context: Context):
     response = context.fetch_json(senators_url)
 
     # We first define the Mexico Senator Position
-    position = h.make_position(context, "Senator", country="mx")
+    position = h.make_position(context, "Member of the Senate of Mexico", country="mx")
     categorisation = categorise(context, position, is_pep=True)
     context.emit(position)
 

@@ -1,6 +1,6 @@
 title: Mexico's senators
 entry_point: crawler.py
-prefix: mx-senators
+prefix: mx-sen
 coverage:
   frequency: daily
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
