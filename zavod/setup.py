@@ -59,7 +59,7 @@ setup(
             "mypy",
             "flake8>=2.6.0",
             "pytest",
-            "ruff==0.1.15",
+            "ruff==0.2.0",
             "pytest-cov",
             "lxml-stubs == 0.5.1",
             "coverage>=4.1",
