@@ -1,7 +1,7 @@
 type: collection
 title: Consolidated Sanctions
 deploy:
-  schedule: "30 */8 * * *"
+  schedule: "2 */5 * * *"
   memory: "1500Mi"
   command: /etl/scripts/export-sanctions.sh
   # premium: true
