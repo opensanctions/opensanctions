@@ -30,9 +30,10 @@ publisher:
 
 inputs:
   - sanctions
+  - ann_graph_topics
   - ext_cy_companies
   - ext_cz_business_register
-  # - ext_ee_ariregister
+  - ext_ee_ariregister
   - ext_gb_coh_psc
   - ext_gleif
   - ext_icij_offshoreleaks
@@ -54,6 +55,17 @@ config:
   fuzzy: false
   threshold: 0.7
   algorithm: regression-v1
+  topics:
+    - role.pep
+    - role.rca
+    - sanction
+    - sanction.linked
+    - debarment
+    - asset.frozen
+    - poi
+    - gov.soe
+    - corp.offshore
+    - corp.public
   schemata:
     - Company
     - Organization
