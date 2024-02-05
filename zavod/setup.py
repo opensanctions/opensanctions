@@ -23,7 +23,8 @@ setup(
     install_requires=[
         "followthemoney == 3.5.*",
         "nomenklatura[leveldb] == 3.10.*",
-        "plyvel == 1.5.0",
+        "plyvel == 1.5.1",
+        "rigour == 0.4.5",
         "datapatch >= 1.1,< 1.3",
         "fingerprints == 1.2.*",
         "addressformatting == 1.3.*",
