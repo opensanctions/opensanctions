@@ -3,9 +3,9 @@ title: OpenSanctions Default
 deploy:
   schedule: "30 */5 * * *"
   memory: "2000Mi"
-  memory_limit: "3000Mi"
-  cpu: "700m"
-  disk: "30Gi"
+  memory_limit: "2500Mi"
+  cpu: "800m"
+  disk: "25Gi"
   command: /etl/scripts/export-default.sh
   premium: true
 exports:
