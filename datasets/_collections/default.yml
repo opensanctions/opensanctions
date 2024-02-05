@@ -7,7 +7,7 @@ deploy:
   cpu: "700m"
   disk: "30Gi"
   command: /etl/scripts/export-default.sh
-  # premium: true
+  premium: true
 exports:
   - statistics.json
   - entities.ftm.json
