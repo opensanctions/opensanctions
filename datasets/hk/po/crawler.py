@@ -1,6 +1,6 @@
 from zavod import Context
 from zavod import helpers as h
-from zavod.logic.pep import categorise
+from zavod.logic.pep import OccupancyStatus, categorise
 
 from normality import collapse_spaces
 from xml.etree import ElementTree
@@ -31,7 +31,7 @@ def crawl_members(context: Context, section: str, elem: ElementTree):
     person_name = " ".join(person_name.split()[1:])
 
     position_name = member_header.split(",")[-1]
-    position_name = f"{position_name.strip()} ({section})"
+    position_name = f"{section} - {position_name.strip()}"
 
     person = context.make("Person")
     person.id = context.make_slug(person_name)
@@ -56,6 +56,7 @@ def crawl_members(context: Context, section: str, elem: ElementTree):
         person,
         position,
         categorisation=categorisation,
+        no_end_implies_current=True,
     )
 
     context.emit(person, target=True)
@@ -73,4 +74,3 @@ def crawl(context: Context):
 
         for elem in officials:
             crawl_members(context, section_name, elem)
-            # print()
