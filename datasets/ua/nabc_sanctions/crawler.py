@@ -15,6 +15,9 @@ COUNTRIES = {
 
 TRACK_COUNTRIES = ["ua", "eu", "us", "au", "ca", "ch", "es", "gb", "jp", "nz", "pl"]
 
+EXISTING_COMPANY_IDS = []
+EXISTING_PERSON_IDS = []
+
 
 def clean_row(row: Dict[str, Any]) -> Dict[str, Union[str, Dict[str, str]]]:
     data: Dict[str, Any] = {}
@@ -126,6 +129,13 @@ def crawl_common(context: Context, entity: Entity, row: Dict[str, Any]):
     for rel in iter_relations(context, row.pop("relations_company", [])):
         rel_name = rel.get("relation_name")
         rel_company_id = make_company_id(rel.get("company_id"))
+
+        if int(rel.get("company_id")) not in EXISTING_COMPANY_IDS:
+            context.log.warn(
+                f"Skipping: company {rel_company_id} does not exist in dataset"
+            )
+            continue
+
         rel = context.lookup("relations", rel_name)
         if rel is None:
             context.log.warn(
@@ -135,17 +145,24 @@ def crawl_common(context: Context, entity: Entity, row: Dict[str, Any]):
                 remote=rel_company_id,
             )
             continue
+
         rel_obj = context.make(rel.schema)
         rel_obj.id = context.make_id(rel_name, entity.id, rel_company_id)
         rel_obj.add(rel.local, entity.id)
         rel_obj.add(rel.remote, rel_company_id)
         rel_obj.add("role", rel_name)
         context.emit(rel_obj)
-        # print(entity.id, rel_name, rel_company_id)
 
     for rel in iter_relations(context, row.pop("relations_person", None)):
         rel_name = rel.get("relation_name")
         rel_person_id = make_person_id(rel.get("person_id"))
+
+        if int(rel.get("person_id")) not in EXISTING_PERSON_IDS:
+            context.log.warn(
+                f"Skipping: person {rel_person_id} does not exist in dataset"
+            )
+            continue
+
         rel = context.lookup("relations", rel_name)
         if rel is None:
             context.log.warn(
@@ -224,6 +241,21 @@ def crawl_company(context: Context) -> None:
         context.audit_data(row, ignore=ignores)
 
 
+def get_existing_companies(context: Context):
+    for row in json_listing(context, context.data_url, "v5/company"):
+        company_id = row.pop("company_id")
+        EXISTING_COMPANY_IDS.append(int(company_id))
+
+
+def get_existing_persons(context: Context):
+    for row in json_listing(context, context.data_url, "v5/person"):
+        person_id = row.pop("person_id", None)
+        EXISTING_PERSON_IDS.append(int(person_id))
+
+
 def crawl(context: Context) -> None:
+    get_existing_companies(context)
+    get_existing_persons(context)
+
     crawl_person(context)
     crawl_company(context)
