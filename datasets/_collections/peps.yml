@@ -33,6 +33,7 @@ children:
   - co_join_dots
   - cu_inventario_legislatura
   - de_abgeordnetenwatch
+  - ee_riigikogu
   - eu_cor_members
   - eu_meps
   - eu_public_functions
