@@ -29,6 +29,10 @@ PERSON_ENDPOINTS = {
 }
 
 
+CRAWLED_PERSONS = set()  # tracks person_ids that have already been crawled
+CRAWLED_COMPANIES = set()  # tracks company_ids that have already been crawled
+
+
 def clean_row(row: Dict[str, Any]) -> Dict[str, Union[str, Dict[str, str]]]:
     data: Dict[str, Any] = {}
     for k, v in row.items():
@@ -202,6 +206,11 @@ def crawl_person(context: Context) -> None:
             if person_id is None:
                 context.log.error("No person_id", name=row.get("name_en"))
                 continue
+
+            if int(person_id) in CRAWLED_PERSONS:
+                context.log.warn(f"Already crawled person_id {person_id}")
+                continue
+
             entity = context.make("Person")
             entity.id = make_person_id(person_id)
             entity.add("name", row.pop("name_en", None), lang="eng")
@@ -225,6 +234,7 @@ def crawl_person(context: Context) -> None:
             crawl_common(context, entity, row, sanction_status)
             context.emit(entity, target=True)
             context.audit_data(row)
+            CRAWLED_PERSONS.add(int(person_id))
 
 
 def crawl_company(context: Context) -> None:
@@ -232,6 +242,11 @@ def crawl_company(context: Context) -> None:
         for row in json_listing(context, context.data_url, endpoint):
             row = clean_row(row)
             company_id = row.pop("company_id")
+
+            if int(company_id) in CRAWLED_COMPANIES:
+                context.log.warn(f"Already crawled company_id {company_id}")
+                continue
+
             entity = context.make("Organization")
             entity.id = make_company_id(company_id)
             entity.add("name", row.pop("name_en", None), lang="eng")
@@ -256,6 +271,7 @@ def crawl_company(context: Context) -> None:
                 "logo",
             ]
             context.audit_data(row, ignore=ignores)
+            CRAWLED_COMPANIES.add(int(company_id))
 
 
 def get_existing_companies(context: Context):
