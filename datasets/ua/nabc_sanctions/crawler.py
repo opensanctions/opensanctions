@@ -15,8 +15,8 @@ COUNTRIES = {
 
 TRACK_COUNTRIES = ["ua", "eu", "us", "au", "ca", "ch", "es", "gb", "jp", "nz", "pl"]
 
-EXISTING_COMPANY_IDS = []
-EXISTING_PERSON_IDS = []
+EXISTING_COMPANY_IDS = set()
+EXISTING_PERSON_IDS = set()
 
 # endpoints to get companies with value indicating if sanctioned
 COMPANY_ENDPOINTS = {"v6/company/": True, "v6/company-warning/": False}
@@ -262,14 +262,14 @@ def get_existing_companies(context: Context):
     for endpoint in COMPANY_ENDPOINTS:
         for row in json_listing(context, context.data_url, endpoint):
             company_id = row.pop("company_id")
-            EXISTING_COMPANY_IDS.append(int(company_id))
+            EXISTING_COMPANY_IDS.add(int(company_id))
 
 
 def get_existing_persons(context: Context):
     for endpoint in PERSON_ENDPOINTS:
         for row in json_listing(context, context.data_url, endpoint):
             person_id = row.pop("person_id", None)
-            EXISTING_PERSON_IDS.append(int(person_id))
+            EXISTING_PERSON_IDS.add(int(person_id))
 
 
 def crawl(context: Context) -> None:
