@@ -1,43 +1,17 @@
 from zavod import Context, helpers as h
 from zavod.logic.pep import categorise
 
-def get_members_url(context: Context) -> list:
-    """
-    Fetches the URLs for the pages of each member from the main page.
-
-    :param context: The context object.
-
-    :return: The URLs for the pages.
-    """
-
-    try:
-        main_website = context.fetch_html(context.data_url)
-
-    except:
-        context.log.error("Couldn't fetch main website")
-        return None
+def get_members_urls(context: Context) -> list:
+    main_website = context.fetch_html(context.data_url)
 
     # this XPath corresponds to the a tags wit the links for a member page
     xpath_to_a_tags = "//*[@id='main']/section/div[2]/div/ul/li/div/div/ul/li[1]/h3/a"
 
     return [a_tag.get("href") for a_tag in main_website.xpath(xpath_to_a_tags)]
 
-def crawl_item(member_url: dict, context: Context):
-    """
-    Creates an entity, a position and a occupancy for each member,
-    we fetch the page of that member, extract the
-    relevant information and finally create
-    a Person, Position and Occupation.
+def crawl_item(member_url: str, context: Context):
 
-    :param member_url: The url for that member webpage
-    :param context: The context object.
-    """
-
-    HEADERS = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-    }
-
-    member_page_html = context.fetch_html(member_url, headers=HEADERS)
+    member_page_html = context.fetch_html(member_url)
 
     try:
         name = member_page_html.xpath('//*[@id="main"]/header/div/h1/text()')[0]
@@ -84,19 +58,10 @@ def crawl_item(member_url: dict, context: Context):
     
 
 def crawl(context: Context):
-    """
-    Entrypoint to the crawler.
+    members_urls = get_members_urls(context)
 
-    The crawler works by first getting the urls
-    for the pages of each member. And then
-    creating the entities.
-
-    :param context: The context object.
-    """
-    members_url = get_members_url(context)
-
-    if members_url is None:
+    if members_urls is None:
         return
 
-    for member_url in members_url:
+    for member_url in members_urls:
         crawl_item(member_url, context)
