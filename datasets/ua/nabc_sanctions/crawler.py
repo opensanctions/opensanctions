@@ -18,6 +18,16 @@ TRACK_COUNTRIES = ["ua", "eu", "us", "au", "ca", "ch", "es", "gb", "jp", "nz", "
 EXISTING_COMPANY_IDS = []
 EXISTING_PERSON_IDS = []
 
+# endpoints to get companies with value indicating if sanctioned
+COMPANY_ENDPOINTS = {"v6/company/": True, "v6/company-warning/": False}
+
+# endpoints to get persons with value indicating if sanctioned
+PERSON_ENDPOINTS = {
+    "v6/person/": True,
+    "v6/person-warning/": False,
+    "v6/person-relations/": False,
+}
+
 
 def clean_row(row: Dict[str, Any]) -> Dict[str, Union[str, Dict[str, str]]]:
     data: Dict[str, Any] = {}
@@ -78,6 +88,7 @@ def make_company_id(id: str) -> str:
 
 def json_listing(context: Context, url, name):
     full_url = urljoin(url, name)
+
     path = context.fetch_resource(f"{name}.json", full_url)
     context.export_resource(path, JSON, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
@@ -89,8 +100,12 @@ def json_listing(context: Context, url, name):
         yield clean_row(item)
 
 
-def crawl_common(context: Context, entity: Entity, row: Dict[str, Any]):
-    entity.add("topics", "sanction")
+def crawl_common(
+    context: Context, entity: Entity, row: Dict[str, Any], is_sanctioned: bool
+):
+    if is_sanctioned:
+        entity.add("topics", "sanction")
+
     country = row.pop("country", None)
     entity.add("country", COUNTRIES.get(country, country))
     keywords = ensure_list(row.pop("category", []))
@@ -180,77 +195,81 @@ def crawl_common(context: Context, entity: Entity, row: Dict[str, Any]):
 
 
 def crawl_person(context: Context) -> None:
-    for row in json_listing(context, context.data_url, "v5/person"):
-        row = clean_row(row)
-        person_id = row.pop("person_id", None)
-        if person_id is None:
-            context.log.error("No person_id", name=row.get("name_en"))
-            continue
-        entity = context.make("Person")
-        entity.id = make_person_id(person_id)
-        entity.add("name", row.pop("name_en", None), lang="eng")
-        entity.add("name", row.pop("name_ru", None), lang="rus")
-        entity.add("name", row.pop("name_uk", None), lang="ukr")
-        entity.add("birthDate", parse_date(row.pop("date_bd", None)))
-        entity.add("deathDate", parse_date(row.pop("date_dead", None)))
-        url = f"https://sanctions.nazk.gov.ua/sanction-person/{person_id}/"
-        entity.add("sourceUrl", url)
-        if row.get("city_bd_en") != "N/A":
-            entity.add("birthPlace", row.pop("city_bd_en", None), lang="eng")
-            entity.add("birthPlace", row.pop("city_bd_ru", None), lang="rus")
-            entity.add("birthPlace", row.pop("city_bd_uk", None), lang="ukr")
-        entity.add("position", row.pop("position_en", None), lang="eng")
-        entity.add("position", row.pop("position_ru", None), lang="rus")
-        entity.add("position", row.pop("position_uk", None), lang="ukr")
+    for endpoint, sanction_status in PERSON_ENDPOINTS.items():
+        for row in json_listing(context, context.data_url, endpoint):
+            row = clean_row(row)
+            person_id = row.pop("person_id", None)
+            if person_id is None:
+                context.log.error("No person_id", name=row.get("name_en"))
+                continue
+            entity = context.make("Person")
+            entity.id = make_person_id(person_id)
+            entity.add("name", row.pop("name_en", None), lang="eng")
+            entity.add("name", row.pop("name_ru", None), lang="rus")
+            entity.add("name", row.pop("name_uk", None), lang="ukr")
+            entity.add("birthDate", parse_date(row.pop("date_bd", None)))
+            entity.add("deathDate", parse_date(row.pop("date_dead", None)))
+            url = f"https://sanctions.nazk.gov.ua/sanction-person/{person_id}/"
+            entity.add("sourceUrl", url)
+            if row.get("city_bd_en") != "N/A":
+                entity.add("birthPlace", row.pop("city_bd_en", None), lang="eng")
+                entity.add("birthPlace", row.pop("city_bd_ru", None), lang="rus")
+                entity.add("birthPlace", row.pop("city_bd_uk", None), lang="ukr")
+            entity.add("position", row.pop("position_en", None), lang="eng")
+            entity.add("position", row.pop("position_ru", None), lang="rus")
+            entity.add("position", row.pop("position_uk", None), lang="ukr")
 
-        # TODO: emit image
-        row.pop("photo_name", None)
+            # TODO: emit image
+            row.pop("photo_name", None)
 
-        crawl_common(context, entity, row)
-        context.emit(entity, target=True)
-        context.audit_data(row)
+            crawl_common(context, entity, row, sanction_status)
+            context.emit(entity, target=True)
+            context.audit_data(row)
 
 
 def crawl_company(context: Context) -> None:
-    for row in json_listing(context, context.data_url, "v5/company"):
-        row = clean_row(row)
-        company_id = row.pop("company_id")
-        entity = context.make("Organization")
-        entity.id = make_company_id(company_id)
-        entity.add("name", row.pop("name_en", None), lang="eng")
-        entity.add("name", row.pop("name_uk", None), lang="ukr")
-        entity.add("name", row.pop("name_ru", None), lang="rus")
-        entity.add("notes", row.pop("comment", None), lang="ukr")
-        entity.add("innCode", row.pop("inn", None))
-        url = f"https://sanctions.nazk.gov.ua/en/sanction-company/{company_id}/"
-        entity.add("sourceUrl", url)
-        entity.add_cast("Company", "ogrnCode", row.pop("ogrn", None))
+    for endpoint, sanction_status in COMPANY_ENDPOINTS.items():
+        for row in json_listing(context, context.data_url, endpoint):
+            row = clean_row(row)
+            company_id = row.pop("company_id")
+            entity = context.make("Organization")
+            entity.id = make_company_id(company_id)
+            entity.add("name", row.pop("name_en", None), lang="eng")
+            entity.add("name", row.pop("name_uk", None), lang="ukr")
+            entity.add("name", row.pop("name_ru", None), lang="rus")
+            entity.add("notes", row.pop("comment", None), lang="ukr")
+            entity.add("innCode", row.pop("inn", None))
+            url = f"https://sanctions.nazk.gov.ua/en/sanction-company/{company_id}/"
+            entity.add("sourceUrl", url)
+            entity.add_cast("Company", "ogrnCode", row.pop("ogrn", None))
 
-        crawl_common(context, entity, row)
-        context.emit(entity, target=True)
-        row.pop("logo_en", None)
-        ignores = [
-            "my_status",
-            "status_partner_db",
-            "verified",
-            "chk_addr",
-            "chk_addr_en",
-            "chk_reason",
-            "logo",
-        ]
-        context.audit_data(row, ignore=ignores)
+            crawl_common(context, entity, row, sanction_status)
+            context.emit(entity, target=True)
+            row.pop("logo_en", None)
+            ignores = [
+                "my_status",
+                "status_partner_db",
+                "verified",
+                "chk_addr",
+                "chk_addr_en",
+                "chk_reason",
+                "logo",
+            ]
+            context.audit_data(row, ignore=ignores)
 
 
 def get_existing_companies(context: Context):
-    for row in json_listing(context, context.data_url, "v5/company"):
-        company_id = row.pop("company_id")
-        EXISTING_COMPANY_IDS.append(int(company_id))
+    for endpoint in COMPANY_ENDPOINTS:
+        for row in json_listing(context, context.data_url, endpoint):
+            company_id = row.pop("company_id")
+            EXISTING_COMPANY_IDS.append(int(company_id))
 
 
 def get_existing_persons(context: Context):
-    for row in json_listing(context, context.data_url, "v5/person"):
-        person_id = row.pop("person_id", None)
-        EXISTING_PERSON_IDS.append(int(person_id))
+    for endpoint in PERSON_ENDPOINTS:
+        for row in json_listing(context, context.data_url, endpoint):
+            person_id = row.pop("person_id", None)
+            EXISTING_PERSON_IDS.append(int(person_id))
 
 
 def crawl(context: Context) -> None:
