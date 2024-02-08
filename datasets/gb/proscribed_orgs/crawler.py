@@ -88,9 +88,12 @@ def crawl_group(context: Context, text: str, change_stack: List[str]):
             context.log.info(f"Adding alias: {alias}")
             h.apply_name(entity, alias, alias=True)
     sanction = h.make_sanction(context, entity)
-    sanction.add("authority", "UK Home Secretary")
     if add_date:
         sanction.add("startDate", add_date)
+    # For some reason make_sanction uses the top-level URL and
+    # publisher.name, which are not exactly accurate.
+    sanction.add("authority", "UK Home Secretary")
+    sanction.add("sourceUrl", context.data_url)
     context.emit(entity, target=True)
     context.emit(sanction)
 
