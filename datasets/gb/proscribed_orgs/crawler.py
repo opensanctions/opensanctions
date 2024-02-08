@@ -6,7 +6,7 @@ proscribed terrorist groups and organizations.
 import re
 from typing import List
 
-from zavod import Context, Entity
+from zavod import Context
 from zavod import helpers as h
 from lxml.html import HtmlElement
 
@@ -45,42 +45,54 @@ def crawl_group(context: Context, text: str, change_stack: List[str]):
         add_date = parse_comment(context, item)
         if add_date:
             break
-    context.log.info(f"Adding group: {text} ({add_date})")
-    group = context.make("Organization")
-    group.id = context.make_id(text)
-    context.log.debug(f"Unique ID {group.id}")
+    context.log.info(f"Adding group: {text} (starting {add_date})")
+    entity = context.make("Organization")
+    entity.id = context.make_id(text)
+    entity.add("topics", "crime.terror")
+    context.log.debug(f"Unique ID {entity.id}")
     names = []
     m = INCLUDING1_RE.match(text)
     if m:
         names.append(m.group(1))
         names.extend(COMMA_AND_RE.split(m.group(2)))
-        context.log.info(f"Including(1): {names}")
+        context.log.debug(f"Including(1): {names}")
     else:
         m = INCLUDING2_RE.match(text)
         if m:
             names.append(m.group(1))
             names.extend(COMMA_AND_RE.split(m.group(2)))
-            context.log.info(f"Including(2): {names}")
+            context.log.debug(f"Including(2): {names}")
         else:
             names.append(text)
-    context.log.info(f"Names and aliases: {names}")
+    context.log.debug(f"Names and aliases: {names}")
     alt_names = []
     for name in names:
         aka = []
         for m in ALIAS_RE.finditer(name):
-            aka.append(m.group(1).strip(JUNK))
+            alias = m.group(1)
+            context.log.debug(f"alias: {alias}")
+            # Special case for single nested parenthesis
+            before, _, after = alias.partition("(")
+            if after:
+                aka.append(before.strip(JUNK))
+                aka.append(after.strip(JUNK))
+            else:
+                aka.append(alias.strip(JUNK))
         aka.insert(0, ALIAS_RE.sub("", name).strip(JUNK))
         alt_names.append(aka)
-    context.log.info(f"Names and aliases: {alt_names}")
+    context.log.debug(f"Names and aliases: {alt_names}")
     for aka in alt_names:
         context.log.info(f"Adding primary name: {aka[0]}")
-        h.apply_name(group, aka[0])
+        h.apply_name(entity, aka[0])
         for alias in aka[1:]:
             context.log.info(f"Adding alias: {alias}")
-            h.apply_name(group, alias, alias=True)
-    sanction = h.make_sanction(context, group)
+            h.apply_name(entity, alias, alias=True)
+    sanction = h.make_sanction(context, entity)
+    sanction.add("authority", "UK Home Secretary")
     if add_date:
         sanction.add("startDate", add_date)
+    context.emit(entity, target=True)
+    context.emit(sanction)
 
 
 def crawl(context: Context):
@@ -91,7 +103,7 @@ def crawl(context: Context):
     page: HtmlElement = context.fetch_html(context.data_url, cache_days=1)
     ulists = page.find_class("LegUnorderedList")
     if len(ulists) > 1:
-        context.log.warning("More than one [@class=LegUnorderedList]" "found in text")
+        context.log.warning("Multiple [@class=LegUnorderedList] found in text")
     elif len(ulists) == 0:
         context.log.error("No [@class=LegUnorderedList] found in text")
         return
