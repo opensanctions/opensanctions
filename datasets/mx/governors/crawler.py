@@ -17,7 +17,7 @@ def extract_birth_place_and_date(link_governor_page, context: Context):
 
     response = context.fetch_html(link_governor_page)
 
-    path_to_information = '//*[@id="fContenido"]/div/div/div[2]/div/div/div/div[2]/div/div[1]/ul/li'
+    path_to_information = '//*[@id="fContenido"]//li'
 
     for element in response.xpath(path_to_information):
         text = ' '.join(element.itertext())
@@ -47,7 +47,7 @@ def crawl_item(input_html, link_governor_page, context: Context):
     # col-xs-12 col-sm-6 col-md-4 pb15 mix {name of the governor} [{state}] {start_date} {end_date}
     # We will then use a regex to extract the name, state, start_date and end_date
 
-    regex_pattern = r'col-xs-12 col-sm-6 col-md-4 pb15 mix (.*?) \[(.*?)\] (\d{2}/\d{2}/\d{4}) (\d{2}/\d{2}/\d{4})'
+    regex_pattern = r'^col-xs-12 col-sm-6 col-md-4 pb15 mix (.*?) \[(.*?)\] (\d{2}/\d{2}/\d{4}) (\d{2}/\d{2}/\d{4})$'
 
     match = re.match(regex_pattern, input_html.get('class'))
 
@@ -75,7 +75,7 @@ def crawl_item(input_html, link_governor_page, context: Context):
 
     if birth_place is not None:
         person.add("birthPlace", birth_place)
-        person.add("birthDate", h.parse_date(birth_date, formats=["%d/%m/%Y"])[0])
+        person.add("birthDate", h.parse_date(birth_date, formats=["%d/%m/%Y"]))
 
     name_of_position = "Governor of " + state.title()
     position = h.make_position(context, name_of_position, country="mx")
