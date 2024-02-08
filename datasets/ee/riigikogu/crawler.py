@@ -43,7 +43,7 @@ def crawl_item(member_url: dict, context: Context):
         name = member_page_html.xpath('//*[@id="main"]/header/div/h1/text()')[0]
     except:
         context.log.error("Couldn't find name")
-        name = ""
+        return
 
 
     entity = context.make("Person")
