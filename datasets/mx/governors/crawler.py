@@ -29,7 +29,7 @@ def extract_birth_place_and_date(link_governor_page, context: Context):
                 birth_date = match.group(2)
                 return birth_place, birth_date
 
-    context.log.warning("Failed to identify birth place and date, link: {}".format(link_governor_page))
+    context.log.info("Failed to identify birth place and date, link: {}".format(link_governor_page))
     return None, None
 
 
@@ -48,28 +48,27 @@ def crawl_item(input_html, context: Context):
     # col-xs-12 col-sm-6 col-md-4 pb15 mix {name of the governor} [{state}] {start_date} {end_date}
     # We will then use a regex to extract the name, state, start_date and end_date
 
-    regex_pattern = r'^col-xs-12 col-sm-6 col-md-4 pb15 mix (.*?) \[(.*?)\] (\d{2}/\d{2}/\d{4}) (\d{2}/\d{2}/\d{4})$'
+    regex_pattern = r"\[(.*?)\] (\d{2}/\d{2}/\d{4}) (\d{2}/\d{2}/\d{4})"
 
-    match = re.match(regex_pattern, input_html.get('class'))
+    match = re.search(regex_pattern, input_html.get('class'))
 
     if match is None:
         context.log.warning("Unable to extract information from HTML element")
 
-    name, state, start_date, end_date = match.group(1), match.group(2), match.group(3), match.group(4)
+    state, start_date, end_date = match.group(1), match.group(2), match.group(3)
 
-    person = context.make("Person")
-    person.id = context.make_id(name)
 
     # The names in the card always have a title as the first word, for example,
     # Ing. Carlos Lozano de la Torre, where Ing. stands for Engineer
     # We will add two name propreties, one with the "full" name
-    # and other with the clean name. The clean name
-    # can be retrived from the url to that governors page
+    # and other with the clean name.
+    name = input_html.xpath("./div/div/div/div[2]/h4/a/text()")[0].strip()
+    clean_name = " ".join(name.split()[1:])
+
+    person = context.make("Person")
+    person.id = context.make_id(name)
+
     person.add("name", name)
-    clean_name = (link_governor_page
-                  .replace("https://www.conago.org.mx/miembros/detalle/", "")
-                  .replace("-", " ")
-                  .title())
     person.add("name", clean_name)
 
     birth_place, birth_date = extract_birth_place_and_date(link_governor_page, context)
