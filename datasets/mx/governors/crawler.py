@@ -33,14 +33,15 @@ def extract_birth_place_and_date(link_governor_page, context: Context):
     return None, None
 
 
-def crawl_item(input_html, link_governor_page, context: Context):
+def crawl_item(input_html, context: Context):
     """
     Creates an entity, a position and a occupancy from the raw HTMLElement.
 
     :param input_html: The div representing that governor
-    :param link_governor_page: Link to that governor page
     :param context: The context object.
     """
+
+    link_governor_page = input_html.xpath("./div/div/div/div[1]/a/@href")[0]
 
     # The easiest way to get the data from the HTML is surprisingly from the text of the class
     # All the information in the web site is written there in the form:
@@ -119,6 +120,5 @@ def crawl(context: Context):
         return
 
     path_to_cards = '//*[@class="containerMixitup"]/div/div'
-    path_to_links = '//*[@class="containerMixitup"]/div/div/div/div/div/div[1]/a'
-    for (item, a_tag) in zip(response.xpath(path_to_cards), response.xpath(path_to_links)):
-        crawl_item(item, a_tag.get('href'), context)
+    for item in response.xpath(path_to_cards):
+        crawl_item(item, context)
