@@ -1,6 +1,6 @@
 import json
 from banal import ensure_list
-from typing import Any, Dict, Union
+from typing import Any, Dict, List
 from urllib.parse import urljoin
 from pantomime.types import JSON
 
@@ -33,7 +33,7 @@ CRAWLED_PERSONS = set()  # tracks person_ids that have already been crawled
 CRAWLED_COMPANIES = set()  # tracks company_ids that have already been crawled
 
 
-def clean_row(row: Dict[str, Any]) -> Dict[str, Union[str, Dict[str, str]]]:
+def clean_row(row: Dict[str, Any]) -> Dict[str, Any]:
     data: Dict[str, Any] = {}
     for k, v in row.items():
         if v is None:
@@ -110,7 +110,7 @@ def crawl_common(
 
     country = row.pop("country", None)
     entity.add("country", COUNTRIES.get(country, country))
-    keywords = ensure_list(row.pop("category", []))
+    keywords: List[str] = ensure_list(row.pop("category", []))
     keywords.extend(ensure_list(row.pop("subcategory_1", [])))
     keywords.extend(ensure_list(row.pop("subcategory_2", [])))
     keywords.extend(ensure_list(row.pop("subcategory_3", [])))
