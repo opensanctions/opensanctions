@@ -1,6 +1,6 @@
 import json
 from banal import ensure_list
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Generator
 from urllib.parse import urljoin
 from pantomime.types import JSON
 
@@ -19,7 +19,10 @@ EXISTING_COMPANY_IDS = set()
 EXISTING_PERSON_IDS = set()
 
 # endpoints to get companies with value indicating if sanctioned
-COMPANY_ENDPOINTS = {"v6/company/": True, "v6/company-warning/": False}
+COMPANY_ENDPOINTS = {
+    "v6/company/": True,
+    "v6/company-warning/": False,
+}
 
 # endpoints to get persons with value indicating if sanctioned
 PERSON_ENDPOINTS = {
@@ -90,9 +93,10 @@ def make_company_id(id: str) -> str:
     return f"ua-nazk-company-{id}"
 
 
-def json_listing(context: Context, url, name):
+def json_listing(
+    context: Context, url: str, name: str
+) -> Generator[Dict[str, Any], None, None]:
     full_url = urljoin(url, name)
-
     path = context.fetch_resource(f"{name}.json", full_url)
     context.export_resource(path, JSON, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
@@ -106,8 +110,7 @@ def json_listing(context: Context, url, name):
 
 def crawl_common(
     context: Context, entity: Entity, row: Dict[str, Any], is_sanctioned: bool
-):
-
+) -> None:
     country = row.pop("country", None)
     entity.add("country", COUNTRIES.get(country, country))
     keywords: List[str] = ensure_list(row.pop("category", []))
@@ -139,7 +142,8 @@ def crawl_common(
         sanction.add("reason", row.pop("reasoning_uk", None), lang="ukr")
         context.emit(sanction)
     else:
-        entity.add("notes", row.pop("reasoning_en", None), lang="en")
+        entity.add("topics", "poi")
+        entity.add("notes", row.pop("reasoning_en", None), lang="eng")
         entity.add("notes", row.pop("reasoning_ru", None), lang="rus")
         entity.add("notes", row.pop("reasoning_uk", None), lang="ukr")
 
@@ -154,7 +158,7 @@ def crawl_common(
         rel_company_id = make_company_id(rel.get("company_id"))
 
         if int(rel.get("company_id")) not in EXISTING_COMPANY_IDS:
-            context.log.warn(
+            context.log.info(
                 f"Skipping: company {rel_company_id} does not exist in dataset"
             )
             continue
@@ -181,7 +185,7 @@ def crawl_common(
         rel_person_id = make_person_id(rel.get("person_id"))
 
         if int(rel.get("person_id")) not in EXISTING_PERSON_IDS:
-            context.log.warn(
+            context.log.info(
                 f"Skipping: person {rel_person_id} does not exist in dataset"
             )
             continue
@@ -205,7 +209,6 @@ def crawl_common(
 def crawl_person(context: Context) -> None:
     for endpoint, sanction_status in PERSON_ENDPOINTS.items():
         for row in json_listing(context, context.data_url, endpoint):
-            row = clean_row(row)
             person_id = row.pop("person_id", None)
             if person_id is None:
                 context.log.error("No person_id", name=row.get("name_en"))
@@ -237,7 +240,7 @@ def crawl_person(context: Context) -> None:
             row.pop("photo_name", None)
 
             crawl_common(context, entity, row, sanction_status)
-            context.emit(entity, target=sanction_status)
+            context.emit(entity, target=True)
             context.audit_data(row)
             CRAWLED_PERSONS.add(int(person_id))
 
@@ -245,7 +248,6 @@ def crawl_person(context: Context) -> None:
 def crawl_company(context: Context) -> None:
     for endpoint, sanction_status in COMPANY_ENDPOINTS.items():
         for row in json_listing(context, context.data_url, endpoint):
-            row = clean_row(row)
             company_id = row.pop("company_id")
 
             if int(company_id) in CRAWLED_COMPANIES:
@@ -265,7 +267,7 @@ def crawl_company(context: Context) -> None:
             entity.add_cast("Company", "ogrnCode", row.pop("ogrn", None))
 
             crawl_common(context, entity, row, sanction_status)
-            context.emit(entity, target=sanction_status)
+            context.emit(entity, target=True)
             row.pop("logo_en", None)
             ignores = [
                 "my_status",
