@@ -64,6 +64,7 @@ inputs:
   - eu_cor_members
   - everypolitician
   - us_cia_world_leaders
+  - us_cia_world_factbook
   - us_congress
 
 config:
