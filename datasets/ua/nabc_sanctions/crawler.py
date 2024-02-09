@@ -107,8 +107,6 @@ def json_listing(context: Context, url, name):
 def crawl_common(
     context: Context, entity: Entity, row: Dict[str, Any], is_sanctioned: bool
 ):
-    if is_sanctioned:
-        entity.add("topics", "sanction")
 
     country = row.pop("country", None)
     entity.add("country", COUNTRIES.get(country, country))
@@ -127,17 +125,23 @@ def crawl_common(
     entity.add("address", row.pop("address_uk", None), lang="ukr")
     entity.add("address", row.pop("address_en", None), lang="eng")
 
-    sanction = h.make_sanction(context, entity)
-    sanction.add("startDate", row.pop("sanctions_ua_date", None))
-    if row.pop("sanctions_ua", None) == 1:
-        sanction.add("status", "active")
+    if is_sanctioned:
+        entity.add("topics", "sanction")
+        sanction = h.make_sanction(context, entity)
+        sanction.add("startDate", row.pop("sanctions_ua_date", None))
+        if row.pop("sanctions_ua", None) == 1:
+            sanction.add("status", "active")
 
-    sanction.add("sourceUrl", url_split(row.pop("url_ua", "")))
+        sanction.add("sourceUrl", url_split(row.pop("url_ua", "")))
 
-    sanction.add("reason", row.pop("reasoning_en", None), lang="eng")
-    sanction.add("reason", row.pop("reasoning_ru", None), lang="rus")
-    sanction.add("reason", row.pop("reasoning_uk", None), lang="ukr")
-    context.emit(sanction)
+        sanction.add("reason", row.pop("reasoning_en", None), lang="eng")
+        sanction.add("reason", row.pop("reasoning_ru", None), lang="rus")
+        sanction.add("reason", row.pop("reasoning_uk", None), lang="ukr")
+        context.emit(sanction)
+    else:
+        entity.add("notes", row.pop("reasoning_en", None), lang="en")
+        entity.add("notes", row.pop("reasoning_ru", None), lang="rus")
+        entity.add("notes", row.pop("reasoning_uk", None), lang="ukr")
 
     row.pop("status", None)
     row.pop("synchron", None)
@@ -208,8 +212,9 @@ def crawl_person(context: Context) -> None:
                 continue
 
             if int(person_id) in CRAWLED_PERSONS:
-                context.log.warn(f"Already crawled person_id {person_id}")
-                continue
+                raise RuntimeError(
+                    f"Already seen person_id {person_id} in another endpoint."
+                )
 
             entity = context.make("Person")
             entity.id = make_person_id(person_id)
@@ -232,7 +237,7 @@ def crawl_person(context: Context) -> None:
             row.pop("photo_name", None)
 
             crawl_common(context, entity, row, sanction_status)
-            context.emit(entity, target=True)
+            context.emit(entity, target=sanction_status)
             context.audit_data(row)
             CRAWLED_PERSONS.add(int(person_id))
 
@@ -244,8 +249,9 @@ def crawl_company(context: Context) -> None:
             company_id = row.pop("company_id")
 
             if int(company_id) in CRAWLED_COMPANIES:
-                context.log.warn(f"Already crawled company_id {company_id}")
-                continue
+                raise RuntimeError(
+                    f"Already seen company_id {company_id} in another endpoint."
+                )
 
             entity = context.make("Organization")
             entity.id = make_company_id(company_id)
@@ -259,7 +265,7 @@ def crawl_company(context: Context) -> None:
             entity.add_cast("Company", "ogrnCode", row.pop("ogrn", None))
 
             crawl_common(context, entity, row, sanction_status)
-            context.emit(entity, target=True)
+            context.emit(entity, target=sanction_status)
             row.pop("logo_en", None)
             ignores = [
                 "my_status",
