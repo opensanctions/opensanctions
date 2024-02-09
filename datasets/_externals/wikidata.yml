@@ -156,7 +156,6 @@ lookups:
           - Kingdom of Hejaz
           - Kingdom of Hungary
           - Kingdom of Iraq
-          - Kingdom of Italy
           - Kingdom of Libya
           - Kingdom of Naples
           - Kingdom of Navarre
@@ -482,6 +481,10 @@ lookups:
           - South Yemen
           - Yemen Arab Republic
         value: YE
+      - match:
+          - Kingdom of Sicily
+          - Kingdom of Italy
+        value: IT
       - match:
           - People's Republic of Bulgaria
           - Principality of Bulgaria
