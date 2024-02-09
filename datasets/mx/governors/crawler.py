@@ -62,14 +62,13 @@ def crawl_item(input_html, context: Context):
     # Ing. Carlos Lozano de la Torre, where Ing. stands for Engineer
     # We will add two name propreties, one with the "full" name
     # and other with the clean name.
-    name = input_html.xpath("./div/div/div/div[2]/h4/a/text()")[0].strip()
-    clean_name = " ".join(name.split()[1:])
-
+    raw_title = input_html.xpath("./div/div/div/div[2]/h4/a/text()")[0].strip()
+    name = re.sub(r"^([A-Z][a-z]*\.)+ ", "", raw_title)
+    
     person = context.make("Person")
     person.id = context.make_id(name)
 
     person.add("name", name)
-    person.add("name", clean_name)
 
     birth_place, birth_date = extract_birth_place_and_date(link_governor_page, context)
 
