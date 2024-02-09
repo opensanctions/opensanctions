@@ -1,9 +1,10 @@
 from zavod import Context
 from zavod import helpers as h
-from zavod.logic.pep import OccupancyStatus, categorise
+from zavod.logic.pep import categorise
 
 from normality import collapse_spaces
 from xml.etree import ElementTree
+import re
 
 
 def get_element_text(doc: ElementTree, xpath_value: str, to_remove=[], position=0):
@@ -19,7 +20,6 @@ def get_element_text(doc: ElementTree, xpath_value: str, to_remove=[], position=
 def crawl_members(context: Context, section: str, elem: ElementTree):
 
     url = elem.get("href")
-    url = context.data_url.replace("index.htm", url)
 
     doc = context.fetch_html(url, cache_days=1)
 
@@ -30,9 +30,6 @@ def crawl_members(context: Context, section: str, elem: ElementTree):
     person_title = person_name.split()[0]
     person_name = " ".join(person_name.split()[1:])
 
-    position_name = member_header.split(",")[-1]
-    position_name = f"{section} - {position_name.strip()}"
-
     person = context.make("Person")
     person.id = context.make_slug(person_name)
     person.add("name", person_name)
@@ -41,10 +38,13 @@ def crawl_members(context: Context, section: str, elem: ElementTree):
     person.add("description", member_desc)
     person.add("sourceUrl", url)
 
+    position_name = ",".join(member_header.split(",")[1:])
+    position_name = re.sub(
+        r"\b[A-Z]{2,5}(?:,\s*)?\b", "", position_name
+    )  # remove abbreviations
+    position_name = f"{position_name.strip()}"
     position = h.make_position(
-        context,
-        position_name,
-        country="hk",
+        context, position_name, country="hk", description=section
     )
 
     categorisation = categorise(context, position)
@@ -66,6 +66,7 @@ def crawl_members(context: Context, section: str, elem: ElementTree):
 
 def crawl(context: Context):
     doc = context.fetch_html(context.data_url, cache_days=1)
+    doc.make_links_absolute(context.data_url)
 
     for section in doc.xpath('//section[@class="blockItem"]'):
 

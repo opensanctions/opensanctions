@@ -1,4 +1,4 @@
-name: hk_po
+name: hk_principal_officials
 title: Principal Officals of Hong Kong
 prefix: hk-po
 url: https://www.gov.hk/en/about/govdirectory/po/index.htm
@@ -17,7 +17,7 @@ publisher:
   name: GovHK
   description: |
     GovHK is the one-stop portal of the Hong Kong Special Administrative Region Government.
-    It's main content is provided by participating Government bureaux and departments to make information and
+    Its main content is provided by participating Government bureaux and departments to make information and
     services of public sector easier to find and use.
   country: hk
   url: https://www.gov.hk/en/about/aboutus.htm
