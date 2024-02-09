@@ -92,7 +92,7 @@ def crawl_group(context: Context, text: str, change_stack: List[str]):
         sanction.add("startDate", add_date)
     # For some reason make_sanction uses the top-level URL and
     # publisher.name, which are not exactly accurate.
-    sanction.add("authority", "UK Home Secretary")
+    sanction.set("authority", "UK Home Secretary")
     sanction.add("sourceUrl", context.data_url)
     context.emit(entity, target=True)
     context.emit(sanction)
