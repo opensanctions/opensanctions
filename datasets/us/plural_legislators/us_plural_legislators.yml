@@ -70,7 +70,7 @@ lookups:
           - www.cityofmontebello.com
           - www.house.leg.state.mn.us
         value: null
-      - match: "mlsantiago@senado.pr.gov​"
+      - contains: "mlsantiago@senado.pr"
         # ^ this has a zero-width space at the end
         value: "mlsantiago@senado.pr.gov"
       - match: tcolpetzer@mcdonoughga.org.
