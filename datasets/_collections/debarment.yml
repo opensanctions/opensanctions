@@ -25,3 +25,4 @@ children:
   - us_ddtc_debarred
   - us_sam_exclusions
   - worldbank_debarred
+  - ohchr_settlements
