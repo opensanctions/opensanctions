@@ -29,8 +29,8 @@ publisher:
   official: true
 
 inputs:
-  - sanctions
   - ann_graph_topics
+  - debarment
   - ext_cy_companies
   - ext_cz_business_register
   - ext_ee_ariregister
@@ -39,12 +39,11 @@ inputs:
   - ext_icij_offshoreleaks
   - ext_lv_business_register
   - ext_md_companies
-  - opencorporates
   - ext_ru_egrul
-  - ru_rupep
-  - ru_rupep_companies
   - ext_ua_edr
-  - debarment
+  - opencorporates
+  - ru_rupep
+  - sanctions
 
 config:
   type: nomenklatura.enrich.yente:YenteEnricher
@@ -64,8 +63,6 @@ config:
     - asset.frozen
     - poi
     - gov.soe
-    - corp.offshore
-    - corp.public
   schemata:
     - Company
     - Organization

@@ -28,21 +28,21 @@ publisher:
   official: true
 
 inputs:
-  - sanctions
+  - ann_graph_topics
+  - debarment
   - ext_cy_companies
   - ext_cz_business_register
-  # - ext_ee_ariregister
+  - ext_ee_ariregister
   - ext_gb_coh_psc
   - ext_gleif
   - ext_icij_offshoreleaks
   - ext_lv_business_register
   - ext_md_companies
-  - opencorporates
   - ext_ru_egrul
-  - ru_rupep
-  - ru_rupep_companies
   - ext_ua_edr
-  - debarment
+  - opencorporates
+  - ru_rupep
+  - sanctions
 
 config:
   type: nomenklatura.enrich.yente:YenteEnricher
@@ -53,6 +53,15 @@ config:
   fuzzy: false
   threshold: 0.7
   algorithm: regression-v1
+  topics:
+    - role.pep
+    - role.rca
+    - sanction
+    - sanction.linked
+    - debarment
+    - asset.frozen
+    - poi
+    - gov.soe
   schemata:
     - Company
     - Organization
