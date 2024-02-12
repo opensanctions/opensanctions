@@ -39,6 +39,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     entity.add("program", section)
     entity.add("notes", f"Listed activities: {activities}")
     entity.add("notes", f"Date of last update: {date[0]}")
+    entity.add("topics", "debarment")
     if notes:
         entity.add("notes", notes)
     entity.add("sourceUrl", source_url)
