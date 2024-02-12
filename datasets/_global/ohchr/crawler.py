@@ -30,6 +30,12 @@ def crawl_row(context: Context, row: Dict[str, str]):
         source_url = row.pop("Source URL").strip()
     context.log.info(f"Processing row ID {row_id}: {name}")
     context.audit_data(row)
+    if section.startswith("A. ") or "no longer involved" in section:
+        context.log.info(
+            f"Skipping company {name} as marked as "
+            f"not involved (Section: {section})"
+        )
+        return
     entity = context.make("Company")
     entity.id = context.make_id(row_id, name, prev_name, country)
     context.log.debug(f"Unique ID {entity.id}")
