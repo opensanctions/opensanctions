@@ -36,6 +36,7 @@ children:
   - eu_europol_wanted
   - gb_coh_disqualified
   - gb_nca_most_wanted
+  - gb_proscribed_orgs
   - interpol_red_notices
   - nl_most_wanted
   - us_ddtc_enforcements
