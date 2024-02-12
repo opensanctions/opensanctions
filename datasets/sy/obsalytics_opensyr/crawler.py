@@ -28,6 +28,10 @@ TYPES = {
     # TODO: command-control relationship
 }
 
+IGNORE = [
+    'opensyr-node-1357'
+]
+
 directorship_titles = [
     "عضو مجلس إدارة",
     "عضو",
@@ -344,6 +348,8 @@ def crawl(context: Context):
         data = json.load(fh)
         for node in data["nodes"]:
             node_id = f"opensyr-node-{node['id']}"
+            if node_id in IGNORE:
+                continue
             for label in node["labels"]:
                 extract_node(context, node_id, label, node["data"])
         for rel in data["relations"]:
@@ -358,6 +364,8 @@ def crawl(context: Context):
                 continue
             source_id = f"opensyr-node-{rel['source_id']}"
             target_id = f"opensyr-node-{rel['target_id']}"
+            if source_id in IGNORE or target_id in IGNORE:
+                continue
             extract_relation(
                 context,
                 rel_id,
