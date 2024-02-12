@@ -49,7 +49,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     if notes:
         entity.add("notes", notes)
     entity.add("sourceUrl", source_url)
-    context.emit(entity)
+    context.emit(entity, target=True)
 
 
 def crawl_csv(context: Context, reader: Iterable[Dict[str, str]]):
