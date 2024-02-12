@@ -1,7 +1,7 @@
 import re
 import json
 from normality import slugify
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 from pantomime.types import JSON
 
 from zavod import Context, Entity
@@ -66,7 +66,7 @@ def apply(
     for field, lang in ((en_field, "eng"), (ar_field, "ara")):
         if field is None:
             continue
-        value = props.pop(field, None)
+        value: Any = props.pop(field, None)
         if date:
             value = parse_date(value)
         if value is not None and split is not None:
