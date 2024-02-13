@@ -39,6 +39,7 @@ children:
   - eu_public_functions
   - everypolitician
   - hk_legco
+  - hk_principal_officials
   - id_regional_2018
   - ky_judicial
   - ky_parliament
@@ -57,4 +58,3 @@ children:
   - uy_pep
   - ve_asamblea_nacional
   - wd_peps
-  - hk_po
