@@ -52,7 +52,7 @@ def crawl(context: Context) -> None:
                     patch.add("topics", "role.rca")
                     context.emit(patch)
 
-            if "sanction" in topics:
+            if "sanction" in topics and not entity.schema.is_a('Security'):
                 for other_id in adjacent.get(other_prop):
                     other = view.get_entity(other_id)
                     if other is None:

@@ -16,6 +16,8 @@ def crawl(context: Context):
     context.export_resource(path, HTML, title=context.SOURCE_TITLE)
 
     doc = html.fromstring(data_path.read_text())
+    for p in doc.xpath(".//p"):
+        p.tail = p.tail + "\n" if p.tail else "\n"
     table = doc.find('.//div[@class="content-block"]//table')
     assert table is not None, "No table found"
 

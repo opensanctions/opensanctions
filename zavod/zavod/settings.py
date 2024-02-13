@@ -22,6 +22,7 @@ DATA_PATH_ = env_str("ZAVOD_DATA_PATH", "data")
 DATA_PATH = Path(env_str("OPENSANCTIONS_DATA_PATH", DATA_PATH_)).resolve()
 
 # Per-run timestamp
+TIME_ZONE = env_str("TZ", "UTC")
 RUN_TIME = datetime.utcnow().replace(microsecond=0)
 RUN_TIME_ISO = RUN_TIME.isoformat(sep="T", timespec="seconds")
 RUN_DATE = RUN_TIME.date().isoformat()

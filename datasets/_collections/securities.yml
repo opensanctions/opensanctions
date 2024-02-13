@@ -1,7 +1,8 @@
 type: collection
 title: Sanctioned securities
-deploy:
-  schedule: "@daily"
+coverage:
+  frequency: daily
+# deploy:
   # memory: "1000Mi"
 exports:
   - statistics.json
@@ -32,6 +33,8 @@ children:
   - ru_nsd_isin
   - us_ofac_cons
   - us_ofac_sdn
+  - us_dhs_uflpa
+  - us_cuba_sanctions
   - openfigi
   - permid
   - research

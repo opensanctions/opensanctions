@@ -1,6 +1,6 @@
 import re
 import os
-from typing import Any
+from typing import Any, Dict
 from zipfile import ZipFile
 from pantomime.types import ZIP
 from yaml import safe_load
@@ -41,7 +41,9 @@ def crawl_person(context, jurisdictions, house_positions, data: dict[str, Any]):
     person.add("gender", data.pop("gender", None))
     person.add("birthDate", data.pop("birth_date", None))
     person.add("description", data.pop("biography", None))
-    person.add("email", data.pop("email", None))
+    email = data.pop("email", None)
+    if email is not None:
+        person.add("email", email.strip('.'))
     for party in data.pop("party", []):
         person.add("political", party.get("name", None))
     extras = data.pop("extras", {})
@@ -140,7 +142,7 @@ def crawl_jurisdictions(context: Context):
     jurisdictions = {}
     house_positions = {}
     headers = {"x-api-key": API_KEY}
-    query = {
+    query: Dict[str, Any] = {
         "page": 1,
         "classification": "state",
         "include": "organizations",

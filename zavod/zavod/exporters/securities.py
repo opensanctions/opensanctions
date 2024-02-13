@@ -7,6 +7,7 @@ from nomenklatura.util import bool_text
 from zavod.entity import Entity
 from zavod.logs import get_logger
 from zavod.exporters.common import Exporter
+from zavod.exporters.util import public_url
 
 COLUMNS = [
     "caption",
@@ -21,11 +22,14 @@ COLUMNS = [
     "id",
     "url",
     "datasets",
+    "risk_datasets",
     "aliases",
+    "referents",
 ]
 SANCTIONED = "sanction"
 PUBLIC = "corp.public"
 EO_14071 = "ru_nsd_isin"
+CONTEXT_DATASETS = set(["ru_nsd_isin", "permid", "openfigi", "research", "ext_gleif"])
 
 log = get_logger(__name__)
 
@@ -86,6 +90,7 @@ class SecuritiesExporter(Exporter):
         self._count_leis += len(leis)
         isins = self._get_isins(entity)
         self._count_isins += len(isins)
+        key_datasets = set(entity.datasets).difference(CONTEXT_DATASETS)
         row = [
             entity.caption,
             join_cell(leis),
@@ -97,9 +102,11 @@ class SecuritiesExporter(Exporter):
             bool_text(is_eo_14071),
             bool_text(is_public),
             entity.id,
-            f"https://www.opensanctions.org/entities/{entity.id}/",
+            public_url(entity),
             join_cell(entity.datasets),
+            join_cell(key_datasets),
             join_cell(self._get_aliases(entity)),
+            join_cell(entity.referents),
         ]
         self.csv.writerow(row)
 
@@ -107,8 +114,8 @@ class SecuritiesExporter(Exporter):
         self.fh.close()
         super().finish()
         log.info(
-            "Exported %d entities, %d LEIs and %d ISINs",
-            self._count_entities,
-            self._count_leis,
-            self._count_isins,
+            "Exported securities",
+            entities=self._count_entities,
+            leis=self._count_leis,
+            isins=self._count_isins,
         )

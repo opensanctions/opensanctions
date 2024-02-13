@@ -1,5 +1,7 @@
 type: collection
 title: Politically Exposed Persons (PEPs)
+coverage:
+  frequency: daily
 deploy:
   schedule: "40 */6 * * *"
   memory: "1500Mi"
@@ -24,18 +26,27 @@ description: |
   have been aggregated by other organizations.
 children:
   - ann_pep_positions
+  - ar_parliament
   - br_pep
+  - cl_info_probidad
   - co_funcion_publica
   - co_join_dots
   - cu_inventario_legislatura
   - de_abgeordnetenwatch
+  - ee_riigikogu
   - eu_cor_members
   - eu_meps
   - eu_public_functions
   - everypolitician
+  - hk_legco
+  - hk_principal_officials
   - id_regional_2018
   - ky_judicial
   - ky_parliament
+  - lt_seimas
+  - mk_officials
+  - mx_governors
+  - mx_senators
   - ng_chipper_peps
   - ng_join_dots
   - ru_rupep
@@ -44,4 +55,6 @@ children:
   - us_congress
   - us_plural_legislators
   - us_state_dept
+  - uy_pep
+  - ve_asamblea_nacional
   - wd_peps

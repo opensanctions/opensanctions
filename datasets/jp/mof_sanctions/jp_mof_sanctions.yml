@@ -218,6 +218,9 @@ lookups:
     lowercase: true
     normalize: true
     options:
+      - match: 
+          - Commune of Bouhechana, Daïra de Lakhezara, Guelma, Algeria
+        value: Algeria
       - match: 米国。また、シリア国籍も所持していると見られる。
         values:
           - US
@@ -240,6 +243,8 @@ lookups:
         values:
           - Turkey
           - Jordan
+      - match: ハイチ共和国
+        value: China
   type.date:
     options:
       - match:
@@ -284,7 +289,7 @@ lookups:
       - match: セルビア共和国ボル
         value: null
       - match: Born on 2 July 1974
-        value: "1074-07-02"
+        value: "1974-07-02"
       - match: 60年
         value: "1960"
       - match: "2007.713"

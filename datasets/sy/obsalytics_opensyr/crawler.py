@@ -1,7 +1,7 @@
 import re
 import json
 from normality import slugify
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 from pantomime.types import JSON
 
 from zavod import Context, Entity
@@ -27,6 +27,10 @@ TYPES = {
     "رابطة_روحية": "Associate"  # person->person: spiritual bond
     # TODO: command-control relationship
 }
+
+IGNORE = [
+    'opensyr-node-1357'
+]
 
 directorship_titles = [
     "عضو مجلس إدارة",
@@ -62,7 +66,7 @@ def apply(
     for field, lang in ((en_field, "eng"), (ar_field, "ara")):
         if field is None:
             continue
-        value = props.pop(field, None)
+        value: Any = props.pop(field, None)
         if date:
             value = parse_date(value)
         if value is not None and split is not None:
@@ -344,6 +348,8 @@ def crawl(context: Context):
         data = json.load(fh)
         for node in data["nodes"]:
             node_id = f"opensyr-node-{node['id']}"
+            if node_id in IGNORE:
+                continue
             for label in node["labels"]:
                 extract_node(context, node_id, label, node["data"])
         for rel in data["relations"]:
@@ -358,6 +364,8 @@ def crawl(context: Context):
                 continue
             source_id = f"opensyr-node-{rel['source_id']}"
             target_id = f"opensyr-node-{rel['target_id']}"
+            if source_id in IGNORE or target_id in IGNORE:
+                continue
             extract_relation(
                 context,
                 rel_id,

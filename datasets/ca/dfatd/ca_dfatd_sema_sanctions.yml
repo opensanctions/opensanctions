@@ -45,6 +45,8 @@ lookups:
     options:
       - contains: (JVCFOR)
         value: null
+      - match: Special Economic Measures (Hamas Terrorist Attacks) Regulations
+        value: PS
   type.date:
     options:
       - match: 1972-08-10 or 1972-08-11

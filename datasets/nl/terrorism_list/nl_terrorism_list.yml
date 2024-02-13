@@ -30,3 +30,10 @@ publisher:
 data:
   url: https://www.government.nl/binaries/government/documenten/reports/2016/01/15/national-terrorism-list/eng-terrorismelijst.ods
   format: ODS
+
+lookups:
+  type.date:
+    options:
+      - match:
+          - founded in 2018
+        value: 2018

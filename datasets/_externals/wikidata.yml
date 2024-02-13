@@ -64,6 +64,7 @@ inputs:
   - eu_cor_members
   - everypolitician
   - us_cia_world_leaders
+  - us_cia_world_factbook
   - us_congress
 
 config:
@@ -155,7 +156,6 @@ lookups:
           - Kingdom of Hejaz
           - Kingdom of Hungary
           - Kingdom of Iraq
-          - Kingdom of Italy
           - Kingdom of Libya
           - Kingdom of Naples
           - Kingdom of Navarre
@@ -343,6 +343,17 @@ lookups:
           - Kingdom of Lombardy–Venetia
           - Emirate of Cyrenaica
           - Federation of Arab Republics
+          - East Pakistan
+          - Akko Town
+          - Principality of Serbia
+          - Grand Principality of Moscow
+          - Medina community
+          - White movement
+          - Former Qin
+          - Egyptian Fatimid Caliphate
+          - Landgraviate of Hesse-Darmstadt
+          - Chōsen-seki
+          - Đại Cồ Việt
         value: null
       - match:
           - Cherokee Nation
@@ -392,7 +403,9 @@ lookups:
         values:
           - SUHH
           - BY
-      - match: Trucial States
+      - match:
+          - Trucial States
+          - Emirate of Dubai
         value: AE
       - match: Ghanaians
         value: Ghana
@@ -468,6 +481,10 @@ lookups:
           - South Yemen
           - Yemen Arab Republic
         value: YE
+      - match:
+          - Kingdom of Sicily
+          - Kingdom of Italy
+        value: IT
       - match:
           - People's Republic of Bulgaria
           - Principality of Bulgaria
@@ -548,6 +565,9 @@ lookups:
         value: Indonesia
       - match: French Cameroons
         value: Cameroon
+      - match:
+          - Israeli Civil Administration
+        value: Israel
   type.date:
     options:
       - match:
@@ -576,6 +596,7 @@ lookups:
           - non-binary
           - travesti
           - two-spirit
+          - intersex
         value: other
       - match: transgender
         value: null

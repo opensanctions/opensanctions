@@ -1,12 +1,12 @@
 from collections import defaultdict
 from itertools import groupby
-from languagecodes import iso_639_alpha2
 from nomenklatura import Store
 from nomenklatura.dataset import DS
 from nomenklatura.entity import CE
 from nomenklatura.judgement import Judgement
 from nomenklatura.statement.statement import Statement
-from nomenklatura.util import is_qid
+from rigour.langs import iso_639_alpha2
+from rigour.ids.wikidata import is_qid
 
 # They've done a partial attempt at adding types, then totally
 # deprioritised it.
@@ -208,7 +208,8 @@ class EditSession(Generic[DS, CE]):
             self.entity = entity
             self.source_urls = self._load_source_urls(entity)
 
-            self.qid = self.entity.id if is_qid(entity.id) else None
+            if self.entity.id is not None and is_qid(self.entity.id):
+                self.qid = self.entity.id
             if self.qid is None:
                 self._search_items()
             else:

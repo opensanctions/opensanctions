@@ -53,8 +53,9 @@ $ zavod --help
 If you encounter any errors during the installation, please consider googling errors related to libraries used by `zavod` (e.g.: SQLAlchemy, Python-Levenshtein, click, etc.).
 
 !!! info "Please note"
-    `zavod` has an optional dependency on PyICU, a library related to the transliteration of names in other alphabets to the latin character set. This library is not installed by default because its configuration can be tricky. Consider following [the PyICU documentation](https://pypi.org/project/PyICU/) to install this library and achieve better transliteration results.
+    `zavod` has dependecies on PyICU - a library related to the transliteration of names in other alphabets to the latin character set - and Plyvel - a fast and feature-rich Python interface to LevelDB. The installation and configuration of both libraries can be complex due to system dependencies. Consider following the [PyICU](https://pypi.org/project/PyICU/) and [Plyvel](https://plyvel.readthedocs.io/en/latest/installation.html) documentation for the installation of both libraries.
 
+    Plyvel on Mac OS X: [issue](https://github.com/wbolster/plyvel/issues/114)
 
 ## Configuration
 
@@ -65,3 +66,5 @@ If you encounter any errors during the installation, please consider googling er
   default it will contain cached artifacts and the generated output data. This
   defaults to the `data/` subdirectory of the current working directory when the
   `zavod` command is invoked.
+* `ZAVOD_RESOLVER_PATH` must be set to the path to a [nomenklatura](https://github.com/opensanctions/nomenklatura)
+  resolver JSON lines file. It can be an empty file. e.g. `data/resolver.ijson`
