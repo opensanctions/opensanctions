@@ -3,7 +3,13 @@ entry_point: crawler.py
 prefix: ohchr
 coverage:
   frequency: never
-  end: 2023-12-18
+  end: 2023-06-30
+publisher:
+  name: United Nations Human Rights Council
+  url: https://www.ohchr.org/
+  description: |
+    > The Human Rights Council is an intergovernmental body within the United Nations system made up of 47 States responsible for the promotion and protection of all human rights around the globe.
+url: https://www.ohchr.org/en/hr-bodies/hrc/regular-sessions/session31/database-hrc3136
 summary: >-
   Database of business enterprises involved in illegal settlement
   activity in the Occupied Palestinian Territory, including East
