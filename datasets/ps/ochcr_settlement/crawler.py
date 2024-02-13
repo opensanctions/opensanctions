@@ -24,8 +24,8 @@ def crawl_row(context: Context, row: Dict[str, str]):
     section = row.pop("Section").strip()
     date = h.parse_date(row.pop("Date"), DATE_FORMATS)
     # FIXME: maybe that trailing space will go away?
-    if "Source URL " in row:
-        source_url = row.pop("Source URL ").strip()
+    if "Source URL" in row:
+        source_url = row.pop("Source URL").strip()
     else:
         source_url = row.pop("Source URL").strip()
     context.log.info(f"Processing row ID {row_id}: {name}")
@@ -37,7 +37,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
         )
         return
     entity = context.make("Company")
-    entity.id = context.make_id(row_id, name, prev_name, country)
+    entity.id = context.make_id(name, country)
     context.log.debug(f"Unique ID {entity.id}")
     h.apply_name(entity, name)
     if prev_name:
