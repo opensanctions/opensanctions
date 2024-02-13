@@ -15,40 +15,42 @@ def crawl_item(member_url: str, context: Context):
 
     try:
         name = member_page_html.xpath('//*[@id="main"]/header/div/h1/text()')[0]
-    except:
+    except IndexError:
         context.log.error("Couldn't find name")
         return
 
-
     entity = context.make("Person")
     entity.id = context.make_id(name)
+    context.log.info(f"Full name {name} unique id {entity.id}")
+    h.apply_name(entity, full=name)
 
     try:
         # the phone number apparently is the first contact in the list
         # but to make sure we correctly get it, we based our xpath on the icon
         phone_number = member_page_html.xpath('//*[@class="icon icon-tel"]/../text()')[0].replace(" ", "")
         entity.add("phone", phone_number)
-    except:
+    except IndexError:
         context.log.warning("Couldn't find phone number")
 
     try:
         # we do the same as the phone number
         email = member_page_html.xpath('//*[@class="icon icon-mail"]/../text()')[0]
         entity.add("email", email)
-    except:
+    except IndexError:
         context.log.warning("Couldn't find e-mail")
 
-    position = h.make_position(context, "Member of the Riigikogu", country="ee")
-    categorisation = categorise(context, position, is_pep=True)
-
+    position = h.make_position(context, "Member of the Riigikogu", country="ee",
+                               topics=["gov.national", "gov.legislative"])
+    categorisation = categorise(context, position, True)
+    if not categorisation.is_pep:
+        return
     occupancy = h.make_occupancy(
-            context,
-            entity,
-            position,
-            True,
-            categorisation=categorisation,
-        )
-
+        context,
+        entity,
+        position,
+        no_end_implies_current=True,
+        categorisation=categorisation,
+    )
     if occupancy is None:
         return
 
