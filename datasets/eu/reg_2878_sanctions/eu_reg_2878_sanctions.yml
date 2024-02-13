@@ -1,0 +1,57 @@
+title: Entities sanctioned under EU Council Regulation 2023/2878
+entry_point: crawler.py
+prefix: eu-2878
+coverage:
+  frequency: never
+  end: 2023-12-18
+publisher:
+  name: Council of the European Union
+  country: eu
+  url: https://european-union.europa.eu/institutions-law-budget/institutions-and-bodies/search-all-eu-institutions-and-bodies/council-european-union_en
+  description:
+    The Council of the EU is the representative body of EU member
+    governments.  Together with the European Parliament, which
+    directly represents the people of the EU, it negotiates and adopts
+    EU laws and adopts the EU budget. It is also responsible for
+    coordinating EU policies, developing EU foreign policy and
+    concluding agreements between the EU and other countries and
+    organizations.
+url: https://eur-lex.europa.eu/eli/reg/2023/2878
+summary: >-
+  Supplemental list of people, companies, and organizations sanctioned
+  for involvement in Russia's invasion of Ukraine.
+description: |
+  Annex IV to Regulation 2023/2878, replacing Annex IV to Regulation
+  (EU) No 833/2014, lists persons, entities and bodies directly
+  supporting Russia’s military and industrial complex in its war of
+  aggression against Ukraine, on which tighter export restrictions
+  regarding dual-use goods and technology, as well as goods and
+  technology which might contribute to the technological enhancement
+  of Russia’s defence and security sector, are imposed.
+
+  In addition, in view of the key enabling role of electronic
+  components for use by Russia’s military and industrial complex in
+  supporting the war of aggression against Ukraine, this list also
+  includes certain entities in third countries other than Russia
+  involved in the circumvention of trade restrictions, as well as
+  certain Russian entities involved in the development, production and
+  supply of electronic components for Russia’s military and industrial
+  complex.
+
+  The data has been extracted manually from the [EU legislative
+  text](https://eur-lex.europa.eu/eli/reg/2023/2878).
+data:
+  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vQZckYoLdt6O3awOs8piaaWCtFlaKtCNpBWcb36bqakVid31-a-JqmHBri0vch2ggB9R-7yq3jiCarN/pub?gid=0&single=true&output=csv
+  format: CSV
+
+lookups:
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      - match:
+          - Autonomous Republic of Crimea, illegally annexed by Russia
+        value: ua-cri
+      - match:
+          - Zala Aero Group
+        value: ru
