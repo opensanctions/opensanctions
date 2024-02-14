@@ -68,3 +68,4 @@ If you encounter any errors during the installation, please consider googling er
   `zavod` command is invoked.
 * `ZAVOD_RESOLVER_PATH` must be set to the path to a [nomenklatura](https://github.com/opensanctions/nomenklatura)
   resolver JSON lines file. It can be an empty file. e.g. `data/resolver.ijson`
+* `ZAVOD_SYNC_POSITIONS` (default `True`) - When true, attempts to sync PEP positions with our positions database, requiring `ZAVOD_OPENSANCTIONS_API_KEY` to be set with a valid key. Usually best set to `False` in development.

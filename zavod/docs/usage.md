@@ -36,7 +36,3 @@ Then run the exporter with `--clear` to ensure the latest statements are include
 
 ```bash
 $ zavod export --clear ...```
-
-## Environment variables
-
-Zavod can be configured using a range of environment variables defined in `zavod.settings`. These are most-easily set during development in a `.envrc` file by installing [direnv](https://direnv.net/).

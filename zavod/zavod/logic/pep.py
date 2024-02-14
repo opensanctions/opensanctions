@@ -7,6 +7,8 @@ from zavod.context import Context
 from zavod import settings
 from zavod.entity import Entity
 
+NOTIFIED_SYNC_POSITIONS = False
+
 YEAR = 365  # days
 DEFAULT_AFTER_OFFICE = 5 * YEAR
 EXTENDED_AFTER_OFFICE = 20 * YEAR
@@ -51,12 +53,13 @@ def categorise(
       position: The position to be categorised
       is_pep: Initial value for is_pep in the database if it gets added.
     """
+    global NOTIFIED_SYNC_POSITIONS
     if not settings.SYNC_POSITIONS:
-        context.log.debug(
-            "Syncing positions is disabled - using categorisation provided by crawler, if any.",
-            countries=position.get("country"),
-            name=position.get("name"),
-        )
+        if not NOTIFIED_SYNC_POSITIONS:
+            context.log.info(
+                "Syncing positions is disabled - falling back to categorisation provided by crawler, if any."
+            )
+            NOTIFIED_SYNC_POSITIONS = True
         return PositionCategorisation(topics=position.get("topics"), is_pep=is_pep)
 
     if not settings.OPENSANCTIONS_API_KEY:
