@@ -43,15 +43,3 @@ description: |
 data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vQZckYoLdt6O3awOs8piaaWCtFlaKtCNpBWcb36bqakVid31-a-JqmHBri0vch2ggB9R-7yq3jiCarN/pub?gid=0&single=true&output=csv
   format: CSV
-
-lookups:
-  type.country:
-    lowercase: true
-    normalize: true
-    options:
-      - match:
-          - Autonomous Republic of Crimea, illegally annexed by Russia
-        value: ua-cri
-      - match:
-          - Zala Aero Group
-        value: ru

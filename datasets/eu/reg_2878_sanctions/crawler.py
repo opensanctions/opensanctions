@@ -16,11 +16,6 @@ def crawl_row(context: Context, row: Dict[str, str]):
     name = row.pop("Name").strip()
     country = row.pop("Country").strip()
 
-    # FIXME: Not sure of the correct way to automate this with
-    # lookups, is that documented anywhere? (using the "companies" key
-    # gives an exception that cannot be understood)
-    if name == "LLC CST":
-        name = "Zala Aero Group"
 
     context.log.info(f"Processing row ID {row_id}: {name}")
     entity = context.make(entity_type)
