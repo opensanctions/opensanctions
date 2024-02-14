@@ -81,6 +81,8 @@ This categorisation is used to determine whether a position, its holder(s), and
 the Occupancy entities relating them, should be emitted based on whether it is
 a PEP position, and the PEP duration of its scope.
 
+![Position categorisation UI](images/position-ui.png)
+
 To allow newly discovered positions to be added to the database, and to use the
 `is_pep` value from the database, call `zavod.logic.pep.categorise` with the Position.
 If the data source is known to only include PEP positions, or if the crawler only
@@ -90,7 +92,7 @@ in the database.
 **Only make occupancies and emit entities for which the returned `categorisation.is_pep` is `True`**.
 See example below.
 
-During development, it is normally best to run Zavod with the [environment variable](/usage#environment-variables)
+During development, it is normally best to run Zavod with the [environment variable](install.md#configuration)
 `ZAVOD_SYNC_POSITIONS` set to `false`, meaning the position topics and `is_pep` value supplied to
 `categorise` will be used locally, rather than any value in the database.
 
