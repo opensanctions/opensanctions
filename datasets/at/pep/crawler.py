@@ -20,7 +20,7 @@ def crawl_item(url_info_page: str, context: Context):
     person.add("firstName", first_name)
     person.add("lastName", last_name)
 
-    person.add("website", url_info_page)
+    person.add("sourceUrl", url_info_page)
 
     birth_date_in_german = info_page.find("//span[@itemprop='birthDate']/text()")
     if birth_date_in_german:
@@ -36,7 +36,8 @@ def crawl_item(url_info_page: str, context: Context):
     except:
         pass
 
-    position_name = info_page.xpath('//*[@id="app"]/main/div/div[4]/div[1]/div/div/div[2]/p/text()')[0]
+    # We first find the tag with the name, then go to the div that containts it, and finally find the p tag that is in bold
+    position_name = info_page.xpath("//span[@itemprop='http://schema.org/givenName']/../../p[contains(@class, 'bold')]")[0]
 
     position = h.make_position(context, position_name, country="at")
     categorisation = categorise(context, position, is_pep=True)
@@ -60,7 +61,7 @@ def crawl(context: Context):
     response = context.fetch_html(context.data_url)
 
     # XPath to the url for the pages of each politician
-    xpath_politician_page = '//*[@id="app"]/main/div[2]/div[1]/div/div[2]/a/@href'
+    xpath_politician_page = '//*[contains(@class, "abgeordneter")]/*/a/@href'
 
     for item in response.xpath(xpath_politician_page):
         crawl_item(item, context)
