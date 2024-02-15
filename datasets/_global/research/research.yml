@@ -9,7 +9,7 @@ exports:
 summary: |
   ISINs for specific securities subject to sanctions
 data:
-  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vTtQD9wiHuyl23NmrIeAACET4OohOXhmuxQv817FHHas8uO4k8VBzex25nIOPqsG9300aXJIqCZzo--/pub?gid=0&single=true&output=csv
+  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vTtQD9wiHuyl23NmrIeAACET4OohOXhmuxQv817FHHas8uO4k8VBzex25nIOPqsG9300aXJIqCZzo--/pub?gid=1612308021&single=true&output=csv
   format: csv
 publisher:
   name: OpenSanctions Team
