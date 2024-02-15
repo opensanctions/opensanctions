@@ -37,7 +37,7 @@ def crawl_item(url_info_page: str, context: Context):
         pass
 
     # We first find the tag with the name, then go to the div that containts it, and finally find the p tag that is in bold
-    position_name = info_page.xpath("//span[@itemprop='http://schema.org/givenName']/../../p[contains(@class, 'bold')]")[0]
+    position_name = info_page.xpath("//span[@itemprop='http://schema.org/givenName']/../../p[contains(@class, 'bold')]/text()")[0]
 
     position = h.make_position(context, position_name, country="at")
     categorisation = categorise(context, position, is_pep=True)
