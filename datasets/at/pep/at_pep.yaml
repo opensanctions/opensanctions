@@ -1,4 +1,4 @@
-title: Austria's Politicians 
+title: Austria Public Officials
 entry_point: crawler.py
 prefix: at-pep
 coverage:
@@ -7,10 +7,10 @@ load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   List of politicians and others officials from Austria.
 description: |
-  This dataset includes continuously updated dossiers of
+  This dataset identifies
   all members of the National Council, members of the Federal
   Government and the Bundesrat as well as all state governments
-  and state parliaments.  Other dossiers concern
+  and state parliaments.  Other significant posts in this dataset include
   the Federal President, the general secretaries of the
   ministries, the Ombudsmen and many more.
 publisher:

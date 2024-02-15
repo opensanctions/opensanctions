@@ -22,11 +22,9 @@ def crawl_item(url_info_page: str, context: Context):
 
     person.add("website", url_info_page)
 
-    try:
-        birth_date_in_german = info_page.xpath("//span[@itemprop='birthDate']/text()")[0]
+    birth_date_in_german = info_page.find("//span[@itemprop='birthDate']/text()")
+    if birth_date_in_german:
         person.add("birthDate", parse_german_date(birth_date_in_german))
-    except:
-        pass
 
     try:
         person.add("email", info_page.xpath("//a[@itemprop='http://schema.org/email']/text()")[0])
