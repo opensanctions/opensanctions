@@ -64,7 +64,7 @@ def categorise(
 
     if not settings.OPENSANCTIONS_API_KEY:
         context.log.error(
-            "Setting OPENSANCTIONS_API_KEY is required when SYNC_POSITIONS is true."
+            "Setting OPENSANCTIONS_API_KEY is required when ZAVOD_SYNC_POSITIONS is true."
         )
 
     url = f"{settings.OPENSANCTIONS_API_URL}/positions/{position.id}"
