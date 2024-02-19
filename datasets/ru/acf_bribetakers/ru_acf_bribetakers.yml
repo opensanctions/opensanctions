@@ -51,6 +51,8 @@ lookups:
         value: null
       - match: ".05.1959"
         value: "1959-05"
+      - match: "06.09.964"
+        value: 1964-09-06
       - match: "24 .08.1973"
         value: 1973-08-24
       - match: 15.05.1960 (07.07.1977)
