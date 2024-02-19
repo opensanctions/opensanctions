@@ -6,6 +6,7 @@ coverage:
   frequency: daily
 exports:
   - statistics.json
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   Additional findings regarding specific entities that have been gathered by
   the OpenSanctions team, included as corrections/errata.
