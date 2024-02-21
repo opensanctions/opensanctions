@@ -1,6 +1,5 @@
 from xml.etree import ElementTree
 from pantomime.types import XML
-
 from zavod import Context
 from zavod import helpers as h
 
@@ -52,9 +51,21 @@ def crawl_person(context: Context, node: ElementTree):
     if document_node is not None:
         document_type = document_node.findtext(".//DocumentType")
         document_number = document_node.findtext(".//DocumentNumber")
+        document_country = document_node.findtext(".//DocumentCountry")
+        document_country_code = document_node.findtext(".//DocumentCountryIso2Code")
 
         if document_type.lower() == "pase":
             entity.add("passportNumber", document_number)
+
+        identification_entity = context.make("Identification")
+        identification_entity.id = f"{document_type} - {document_number}"
+
+        identification_entity.add("type", document_type)
+        identification_entity.add("country", document_country_code)
+        identification_entity.add("number", document_number)
+        identification_entity.add("publisher", document_country)
+
+        entity.add("identification", identification_entity)
 
     return entity
 
