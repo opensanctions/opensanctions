@@ -1,16 +1,17 @@
-title: Latvial List of Sanctions
+name: lv_sanction_list
+title: Latvia List of Sanctions
 entry_point: crawler.py
 prefix: lv-sanction
-summary: List of Sanctions in Lativa
-description: |
+summary: List of Sanctions in Latvia
+description:
   This dataset contains lists of individuals or entities subject to international or national sanctions as specified by laws in Latvia
 
   International sanctions are imposed on subject in accordance to international laws as set by organizations such as the UN, EU or other international bodies.
 
-  National sanctions are determined by Latvia's legislative acts and international laws. They are imposed by the Cabinet of Ministers following procedures outlined 
+  National sanctions are determined by Latvia's legislative acts and international laws. They are imposed by the Cabinet of Ministers following procedures outlined
   in the Law on International Sanctions and National Sanctions of the Republic of Latvia.
 
-  It's important to note that the dataset only includes information on financial restrictions imposed on these individuals or entities and does not cover other types 
+  It's important to note that the dataset only includes information on financial restrictions imposed on these individuals or entities and does not cover other types
   of sanctions like restrictions on the circulation of goods.
 
 url: https://sankcijas.fid.gov.lv
