@@ -116,8 +116,9 @@ def crawl_person_person_relation(
         return
     other_pep = rel_data.pop("is_pep", False)
     other_wdid = clean_wdid(rel_data.pop("person_wikidata_id"))
+    other_id = person_id(context, other_rupep_id, other_wdid)
     other = context.make("Person")
-    other.id = person_id(context, other_rupep_id, other_wdid)
+    other.id = other_id
     if other.id is None:
         return
     other.add("name", rel_data.pop("person_en", None), lang="eng")
@@ -134,6 +135,11 @@ def crawl_person_person_relation(
             rel_type=rel_type,
             entity=entity,
             other=other,
+        )
+        return
+    if entity.id == other_id:
+        context.log.info(
+            "Skipping self-relation", id=other_id, schema=res.schema, rel_type=rel_type
         )
         return
 
@@ -251,9 +257,7 @@ def get_position_name(context, role, company_name) -> Optional[str]:
             return pep_position.name, subnational_area, True
         else:
             return (
-                clean_position_name(
-                    role, company_name, pep_position.preposition
-                ),
+                clean_position_name(role, company_name, pep_position.preposition),
                 subnational_area,
                 True,
             )
@@ -262,7 +266,9 @@ def get_position_name(context, role, company_name) -> Optional[str]:
     if position_name == normality.latinize_text(position_name):
         return position_name, None, None
     else:
-        context.log.debug("Skipping probably yrillic position name", name=position_name)
+        context.log.debug(
+            "Skipping probably cyrillic position name", name=position_name
+        )
         return None, None, False
 
 
@@ -542,6 +548,7 @@ def crawl_company(
         rel_type = rel_data.pop("relationship_type_en", None)
         rel_type_ru = rel_data.pop("relationship_type_ru", None)
         rel_type = rel_type or rel_type_ru
+
         res = context.lookup("company_company_relations", rel_type)
         if res is None:
             context.log.warn(
@@ -553,6 +560,15 @@ def crawl_company(
             continue
 
         if res.schema is None:
+            continue
+
+        if entity.id == other_id:
+            context.log.info(
+                "Skipping self-relation",
+                id=other_id,
+                schema=res.schema,
+                rel_type=rel_type,
+            )
             continue
 
         # if res.schema == "Organization" and res.from_prop == "asset":
