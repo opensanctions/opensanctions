@@ -1,0 +1,14 @@
+title: "Latvial List of Sanctions"
+entry_point: crawler.py
+prefix: lv-sanction-list
+summary: placeholder
+description: placeholder
+url: https://sankcijas.fid.gov.lv/en
+publisher:
+  name: Financial Intelligence Service
+  description: placeholder
+  url: https://sankcijas.fid.gov.lv
+  official: true
+data:
+  url: https://sankcijas.fid.gov.lv/files/LV_national_v2.xml
+  format: XML
