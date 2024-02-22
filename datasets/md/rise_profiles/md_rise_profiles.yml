@@ -132,6 +132,7 @@ lookups:
         schema: Ownership
         source: owner
         target: asset
+        target_schema: Company
         text: role
       - match:
           - mamă vitregă
@@ -141,6 +142,7 @@ lookups:
         source: person
         target: relative
         text: relationship
+        target_schema: Person
       - match:
           - fost avocat
           - fostă afacere

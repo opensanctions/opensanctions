@@ -20,8 +20,9 @@ def crawl_row(context: Context, row: Dict[str, str]):
     description_alt_lang = collapse_spaces(row.pop("Description alt lang"))
     if description_alt_lang:
         position.add("description", description_alt_lang, lang=row.pop("alt lang"))
-    #categorise(context, position, True)
-    context.emit(position)
+    categorisation = categorise(context, position, True)
+    if categorisation.is_pep:
+        context.emit(position)
 
 
 def crawl(context: Context):

@@ -1,20 +1,21 @@
-import os
 import re
 import ijson
-from itertools import chain
 from typing import Any, Dict, Optional, List, Tuple, Set
 from followthemoney import model
 from followthemoney.types import registry
 from normality import collapse_spaces
-from nomenklatura.util import is_qid
+from rigour.ids.wikidata import is_qid
+import normality
 
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.logic.pep import categorise
 from zavod.runtime.lookups import type_lookup
+from zavod.shed.internal_data import fetch_internal_data
 
-PASSWORD = os.environ.get("OPENSANCTIONS_RUPEP_PASSWORD")
+
+# PASSWORD = os.environ.get("OPENSANCTIONS_RUPEP_PASSWORD")
 FORMATS = ["%d.%m.%Y", "%m.%Y", "%Y", "%b. %d, %Y", "%B %d, %Y"]
 SPLIT_ROLES = [
     "deputy",
@@ -30,7 +31,27 @@ SPLIT_ROLES = [
     "mp",
     "senator",
 ]
+OBVIOUSLY_NOT_PEP_ROLES = {
+    "CEO",
+    "owner",
+    "co-owner",
+    "founder",
+    "co-founder",
+    "employee",
+    "beneficiary",
+    "Senior Lecturer",
+    "shareholder",
+}
 REGEX_SUBNATIONAL = re.compile("(?P<area>\w{4,}) city|regional")
+PUNCTUATION = {
+    "Pc": "-",
+    "Pd": "-",
+    "Ps": "(",
+    "Pe": ")",
+    "Pi": '"',
+    "Pf": '"',
+    "Po": "-",
+}
 
 
 class Company:
@@ -54,7 +75,7 @@ def clean_wdid(wikidata_id: Optional[str]):
 
 
 def person_id(context: Context, id: str, wikidata_id: Optional[str]):
-    if is_qid(wikidata_id):
+    if wikidata_id is not None and is_qid(wikidata_id):
         return wikidata_id
     # Sergei Glinka, information in RuPEP doesn't properly reflect he's
     # left some business relationships.
@@ -116,14 +137,15 @@ def crawl_person_person_relation(
         )
         return
 
-    # print("LINK", (entity.id, other.id))
-    id_a, id_b = sorted((entity.id, other.id))
     rel = context.make(res.schema)
-    id_a_short = short_id(context, id_a)
-    id_b_short = short_id(context, id_b)
+    id_a_short = short_id(context, entity.id)
+    id_b_short = short_id(context, other.id)
+    if id_a_short > id_b_short:
+        # For a pair, this is true in one direction and false in the other.
+        return
     rel.id = context.make_slug(id_a_short, res.schema, id_b_short)
-    rel.add(res.from_prop, id_a)
-    rel.add(res.to_prop, id_b)
+    rel.add(res.from_prop, entity.id)
+    rel.add(res.to_prop, other.id)
     rel.add(res.desc_prop, rel_type)
     rel.add("modifiedAt", parse_date(rel_data.pop("date_confirmed")))
     rel.add("startDate", parse_date(rel_data.pop("date_established")))
@@ -188,13 +210,15 @@ def crawl_company_person_relation(
 
 
 def draft_position_name(role, company_name):
-    if company_name.startswith("The "):
+    if company_name.lower().startswith("the "):
         return f"{role} of {company_name}"
     else:
         return f"{role} of the {company_name}"
 
 
 def clean_position_name(role, company_name, preposition):
+    if not preposition:
+        raise ValueError("No preposition %s, %s" % (role, company_name))
     if company_name.startswith("Ministry"):
         company_name = company_name.replace("Ministry of ", "")
     return f"{role} {preposition} {company_name}"
@@ -210,32 +234,40 @@ def get_subnational_area(scope, draft_position):
 
 
 def get_position_name(context, role, company_name) -> Optional[str]:
+    if role in OBVIOUSLY_NOT_PEP_ROLES:
+        return None, None, False
+    if "LLC" in company_name:
+        return None, None, False
     if role and company_name:
         position_name = draft_position_name(role, company_name)
     else:
         # context.warning("Not handling incomplete english yet")
-        return None, None
+        return None, None, False
 
     pep_position = context.lookup("pep_positions", position_name)
     if pep_position:
         subnational_area = get_subnational_area(pep_position.scope, position_name)
         if pep_position.name:
-            return pep_position.name, subnational_area
+            return pep_position.name, subnational_area, True
         else:
             return (
                 clean_position_name(
-                    role, company_name, pep_position.preposition or "of the"
+                    role, company_name, pep_position.preposition
                 ),
                 subnational_area,
+                True,
             )
-
-    # conext.log.warning("Unknown position", position=position_name)
-    return None, None
+    # Skip cyrillic names in the english field for now.
+    position_name = normality.category_replace(position_name, PUNCTUATION)
+    if position_name == normality.latinize_text(position_name):
+        return position_name, None, None
+    else:
+        context.log.debug("Skipping probably yrillic position name", name=position_name)
+        return None, None, False
 
 
 def emit_pep_relationship(
     context: Context,
-    org_id: str,
     person: Entity,
     position_name: str,
     countries: List[str],
@@ -243,6 +275,7 @@ def emit_pep_relationship(
     start_date: Optional[List[str]],
     end_date: Optional[List[str]],
     also: Optional[List[str]],
+    auto_pep: Optional[bool] = None,
 ) -> None:
     position = h.make_position(
         context,
@@ -250,7 +283,7 @@ def emit_pep_relationship(
         country=countries,
         subnational_area=subnational_area,
     )
-    categorisation = categorise(context, position, True)
+    categorisation = categorise(context, position, is_pep=auto_pep)
     if categorisation.is_pep:
         occupancy = h.make_occupancy(
             context,
@@ -264,6 +297,9 @@ def emit_pep_relationship(
             occupancy.add("description", also)
             context.emit(position)
             context.emit(occupancy)
+        return True
+    else:
+        return False
 
 
 def crawl_person(
@@ -382,7 +418,6 @@ def crawl_person(
                 company_id=rupep_company_id,
             )
             continue
-        company_entity_id = company_id(context, rupep_company_id)
 
         start_date = parse_date(rel_data.get("date_established", None))
         end_date = parse_date(rel_data.get("date_finished", None))
@@ -395,16 +430,18 @@ def crawl_person(
                 role, extra = role.split(",", 1)
                 break
 
-        position_name, subnational_area = get_position_name(
+        # Is it automatically categorised as a PEP?
+        position_name, subnational_area, auto_pep = get_position_name(
             context,
             collapse_spaces(role),
             collapse_spaces(company_name),
         )
 
-        if position_name:
-            emit_pep_relationship(
+        # Is it categorised as a PEP in the database?
+        if not (
+            position_name
+            and emit_pep_relationship(
                 context,
-                company_entity_id,
                 entity,
                 position_name,
                 company.countries,
@@ -412,8 +449,9 @@ def crawl_person(
                 start_date[0] if start_date else None,
                 end_date[0] if end_date else None,
                 extra,
+                auto_pep,
             )
-        else:
+        ):
             if crawl_company_person_relation(context, company, entity, rel_data):
                 company.emit = True
 
@@ -522,6 +560,9 @@ def crawl_company(
         rel = context.make(res.schema)
         id_a_short = short_id(context, entity.id)
         id_b_short = short_id(context, other_id)
+        if id_a_short > id_b_short:
+            # For a pair, this is true in one direction and false in the other.
+            continue
         rel.id = context.make_slug(id_a_short, res.schema, id_b_short)
         rel.add(res.from_prop, entity.id)
         rel.add(res.to_prop, other_id)
@@ -558,14 +599,13 @@ def crawl_company(
 
 
 def crawl(context: Context):
-    auth = ("opensanctions", PASSWORD)
-    companies_path = context.fetch_resource(
-        "companies.json", f"{context.data_url}/companies/json", auth=auth
-    )
-    persons_path = context.fetch_resource(
-        "persons.json", f"{context.data_url}/persons/json", auth=auth
-    )
-
+    # auth = ("opensanctions", PASSWORD)
+    companies_path = context.get_resource_path("companies.json")
+    if not companies_path.exists():
+        fetch_internal_data("rupep/20240118/companies.json", companies_path)
+    persons_path = context.get_resource_path("persons.json")
+    if not persons_path.exists():
+        fetch_internal_data("rupep/20240118/persons.json", persons_path)
     # Only emit companies and people who occur in the root array in the source data.
     # That's how RuPEP indicates that they are published and available for publication
     # in OpenSanctions.
@@ -603,7 +643,7 @@ def crawl(context: Context):
     max_propagations = 20
     while changed:
         if propagations >= max_propagations:
-            context.warning("Maxed out propagations. Not propagating further.")
+            context.log.warning("Maxed out propagations. Not propagating further.")
             break
         changed = False
         propagations += 1

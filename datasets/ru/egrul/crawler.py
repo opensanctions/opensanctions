@@ -1,7 +1,7 @@
 from lxml import etree
 from zipfile import ZipFile
 from urllib.parse import urljoin, urlparse
-from typing import Dict, Optional, Set, IO
+from typing import Dict, Optional, Set, IO, List
 from lxml.etree import _Element as Element, tostring
 from addressformatting import AddressFormatter
 
@@ -24,6 +24,20 @@ def dput(data: Dict[str, Optional[str]], name: str, value: Optional[str]):
     if not len(dd.strip()):
         return
     data[name] = value
+
+
+def parse_name(name: Optional[str]) -> List[str]:
+    if name is None:
+        return []
+    names: List[str] = []
+    if name.endswith(")"):
+        parts = name.rsplit("(", 1)
+        if len(parts) == 2:
+            name = parts[0].strip()
+            alias = parts[1].strip(")").strip()
+            names.append(alias)
+    names.append(name)
+    return names
 
 
 def elattr(el: Optional[Element], attr: str):
@@ -85,7 +99,7 @@ def make_org(context: Context, el: Element, local_id: Optional[str]) -> Entity:
         inn = name_el.get("ИНН")
         ogrn = name_el.get("ОГРН")
         entity.id = entity_id(context, name, inn, ogrn, local_id)
-        entity.add("name", name)
+        entity.add("name", parse_name(name))
         entity.add("innCode", inn)
         entity.add("ogrnCode", ogrn)
 
@@ -138,7 +152,7 @@ def parse_founder(context: Context, company: Entity, el: Element):
             inn = manager_el.get("ИНН")
             ogrn = manager_el.get("ОГРН")
             owner.id = entity_id(context, name, inn, ogrn, local_id)
-            owner.add("name", name)
+            owner.add("name", parse_name(name))
             owner.add("innCode", inn)
             owner.add("ogrnCode", ogrn)
     elif el.tag == "УчрРФСубМО":  # Russian public body
@@ -170,7 +184,7 @@ def parse_founder(context: Context, company: Entity, el: Element):
             inn = manager_el.get("ИНН")
             ogrn = manager_el.get("ОГРН")
             owner.id = entity_id(context, name, inn, ogrn, local_id)
-            owner.add("name", name)
+            owner.add("name", parse_name(name))
             owner.add("innCode", inn)
             owner.add("ogrnCode", ogrn)
     elif el.tag == "УчрРФСубМО":
@@ -190,6 +204,7 @@ def parse_founder(context: Context, company: Entity, el: Element):
     ownership.add("summary", link_summary)
     ownership.add("recordId", link_record_id)
     ownership.add("date", link_date)
+    ownership.add("endDate", company.get("dissolutionDate"))
 
     meta = el.find("./ГРНДатаПерв")
     if meta is not None:
@@ -242,6 +257,7 @@ def parse_directorship(context: Context, company: Entity, el: Element):
     if date is not None:
         directorship.add("startDate", date.get("ДатаЗаписи"))
 
+    directorship.add("endDate", company.get("dissolutionDate"))
     context.emit(directorship)
 
 
@@ -310,6 +326,9 @@ def parse_company(context: Context, el: Element):
     entity.add("legalForm", el.get("ПолнНаимОПФ"))
     entity.add("incorporationDate", el.get("ДатаОГРН"))
 
+    for term_el in el.findall("./СвПрекрЮЛ"):
+        entity.add("dissolutionDate", term_el.get("ДатаПрекрЮЛ"))
+
     email_el = el.find("./СвАдрЭлПочты")
     if email_el is not None:
         entity.add("email", email_el.get("E-mail"))
@@ -327,6 +346,20 @@ def parse_company(context: Context, el: Element):
 
     for founder in el.findall("./СвУчредит/*"):
         parse_founder(context, entity, founder)
+
+    for successor in el.findall("./СвПреем"):
+        successor_id = entity_id(
+            context,
+            name=successor.get("НаимЮЛПолн"),
+            inn=successor.get("ИНН"),
+            ogrn=successor.get("ОГРН"),
+        )
+        if successor_id is not None:
+            succ = context.make("Succession")
+            succ.id = context.make_id(entity.id, 'successor', successor_id)
+            succ.add("successor", successor_id)
+            succ.add("predecessor", entity.id)
+            context.emit(succ)
 
     # pprint(entity.to_dict())
     context.emit(entity)

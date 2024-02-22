@@ -6,7 +6,7 @@ coverage:
   frequency: never
   end: "2023-02-01"
 deploy:
-  schedule: "0 6 * * 0"
+  schedule: "@monthly"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   A knowledge graph of persons of interest inside Syria, including detailed
@@ -31,7 +31,7 @@ publisher:
   official: false
 url: https://www.opensyr.com/
 data:
-  url: https://data.opensanctions.org/contrib/opensyr/sy_obsalytics_opensyr_20230201.json
+  url: https://data.opensanctions.org/contrib/opensyr/opensyr-20230201.json
   format: FTM
 
 lookups:
@@ -39,7 +39,60 @@ lookups:
     lowercase: true
     normalize: true
     options:
-      - match: Female
+      - match:
+          - Female
+          - أنثى
+          - feminine
         value: female
-      - match: MALE
+      - match:
+          - MALE
+          - ذكر
         value: male
+  type.country:
+    options:
+      - match:
+          - Lower High 70-85%
+          - Upper Mid 55-70%
+          - Upper High 85-99%
+          - feminine
+          - أنثى
+        value: null
+      - match:
+          - سورية
+        value: SY
+      - match:
+          - إيرانية
+          - إيرانية
+        value: IR
+      - match:
+          - The United Arab Emirates
+        value: AE
+      - match:
+          - Kingdom Saudi Arabia
+        value: SA
+      - match:
+          - الإمارات العربية المتحدة ، سيشل
+          - United Arab Emirates, Seychelles
+        values:
+          - AE
+          - SC
+      - match:
+          - سوري، قطري
+          - سورية، قطرية
+          - Syrian, Qatari
+          - Syria, Qatari
+        values:
+          - SY
+          - QA
+      - match:
+          - الإمارات، سوريا
+          - UAE, Syria
+        values:
+          - AE
+          - SY
+      - match:
+          - سوريا ، لبنان
+          - Syria, Lebanon
+        values:
+          - SY
+          - LB

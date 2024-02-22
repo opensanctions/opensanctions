@@ -1,0 +1,33 @@
+title: "Canada Named Research Organizations list"
+entry_point: crawler.py
+prefix: ca-nro
+coverage:
+  frequency: daily
+deploy:
+  schedule: "0 5 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: |
+  List of universities, research institutes
+  and/or laboratories connected to military, national defence, or state security
+  entities that could pose a risk to Canada’s national security.
+description: |
+  The Canadian government maintains a list of universities, research institutes
+  and/or laboratories connected to military, national defence, or state security
+  entities that could pose a risk to Canada’s national security.
+
+  To ensure compliance with the Policy on Sensitive Technology Research and
+  Affiliations of Concern, all researchers involved in activities funded by a
+  research grant that advance a sensitive technology research area must review
+  the list of Named Research Organizations. This list is composed of research
+  organizations and institutions that pose the highest risk to Canada’s national
+  security due to their direct, or indirect connections with military, national
+  defence, and state security entities.
+url: https://science.gc.ca/site/science/en/safeguarding-your-research/guidelines-and-tools-implement-research-security/named-research-organizations
+publisher:
+  name: "Government of Canada"
+  country: ca
+  url: https://science.gc.ca/
+  official: true
+data:
+  url: "https://science.gc.ca/site/science/en/safeguarding-your-research/guidelines-and-tools-implement-research-security/named-research-organizations"
+  format: HTML

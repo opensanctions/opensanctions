@@ -48,7 +48,7 @@ def parse_result(context: Context, row: Dict[str, Any]):
 
     transliterations = row.pop("transliterations")
     for tl in transliterations.split("\n"):
-        tl = h.remove_bracketed(tl).strip()
+        tl = h.remove_bracketed(tl)
         entity.add("alias", tl)
     entity.add("birthDate", parse_date(dob), original_value=dob)
     entity.add("gender", row.pop("gender"))

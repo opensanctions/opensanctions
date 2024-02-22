@@ -4,8 +4,6 @@ entry_point: zavod.runner.enrich:enrich
 full_dataset: icij_offshoreleaks
 disabled: false
 hidden: false
-coverage:
-  frequency: weekly
 exports:
   - statistics.json
 deploy:
@@ -48,7 +46,7 @@ publisher:
   official: false
 
 inputs:
-  - sanctions
+  - ann_graph_topics
   - debarment
   - ext_cy_companies
   - ext_cz_business_register
@@ -62,7 +60,7 @@ inputs:
   - ext_ua_edr
   - opencorporates
   - ru_rupep
-  - ru_rupep_companies
+  - sanctions
 
 config:
   type: nomenklatura.enrich.yente:YenteEnricher
@@ -73,6 +71,15 @@ config:
   fuzzy: false
   threshold: 0.7
   algorithm: regression-v1
+  topics:
+    - role.pep
+    - role.rca
+    - sanction
+    - sanction.linked
+    - debarment
+    - asset.frozen
+    - poi
+    - gov.soe
   schemata:
     - Company
     - Organization

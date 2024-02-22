@@ -1,4 +1,5 @@
 import shutil
+import warnings
 from pathlib import Path
 from functools import cache
 from typing import cast, Dict, Optional, Type, TextIO
@@ -12,6 +13,9 @@ from zavod.exc import ConfigurationException
 
 log = get_logger(__name__)
 BLOB_CHUNK = 40 * 1024 * 1024
+warnings.filterwarnings(
+    "ignore", "Your application has authenticated using end user credentials"
+)
 
 
 class ArchiveObject(object):

@@ -26,3 +26,13 @@ publisher:
 data:
     url: https://parliament.ky/members/
     format: HTML
+
+assertions:
+  min:
+    schema_entities:
+      Person: 33
+    country_entities:
+      ky: 63
+  max:
+    schema_entities:
+      Person: 40

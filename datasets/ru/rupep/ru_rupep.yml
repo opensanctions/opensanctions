@@ -2,9 +2,10 @@ title: RuPEP Public Database of PEPs in Russia and Belarus
 entry_point: crawler.py
 prefix: rupep
 coverage:
-  frequency: daily
+  frequency: never
+  end: 2024-01-18
 deploy:
-  schedule: "30 */6 * * *"
+  schedule: "@weekly"
   memory: "2000Mi"
   cpu: "500m"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
@@ -31,6 +32,9 @@ description: |
   > of various analytical products or for other commercial purposes is prohibited.
   > The exception is the use of information by journalists, public figures and
   > analysts to prepare materials for the media, scientific research, etc.
+
+  **Update (2021-01-18):** We’ve stopped updating the RuPEP data while the RuPEP
+  team is re-launching its product and its commercial licensing strategy.
 publisher:
   name: RuPEP
   description: |
@@ -43,7 +47,7 @@ publisher:
   logo_url: "https://assets.opensanctions.org/images/publishers/rupep-logo.png"
 url: "https://rupep.org/en/%D0%B2%D0%BE%D0%BF%D1%80%D0%BE%D1%81%D1%8B-%D0%B8-%D0%BE%D1%82%D0%B2%D0%B5%D1%82%D1%8B/"
 data:
-  url: "https://rupep.org/opendata"
+  url: "https://rupep.org/en/faq/"
   format: JSON
 
 lookups:
@@ -91,7 +95,7 @@ lookups:
       - regex:
           - "^deputy of the .+ council of deputies$"
           - "^deputy of the .+ city council$"
-          - "^(deputy|mp) of the.+(city|regional|state) duma$"
+          - "^(deputy|mp) of the.+(city|regional) duma$"
           - "^deputy of the .+ regional court$"
           - "^(lieutenant |acting )?governor of the.*(government|administration).*$"
           - "^judge of the.+district court of"
@@ -107,6 +111,9 @@ lookups:
           - "^deputy of the parliament of the .+ republic$"
           - "^the head of administration.+administration.*"
           - "^presidium member.+party.*"
+        preposition: of the
+      - regex: "^(deputy|mp) of the state duma$"
+        preposition: of
       - regex:
           - "^(the |deputy |first deputy |advisor to the |assistant to the )?minister.+ministry.+"
         preposition: of
@@ -310,9 +317,19 @@ lookups:
         value: Syria
       - match: Объединённые Арабские Эмираты
         value: AE
-      - match: Territories occupied by Russia
+      - match:
+          - Territories occupied by Russia
+          - Russian-occupied territory of Ukraine
         values:
           - UA
+      - match: Russian-occupied territory of Moldova
+        values:
+          - MD-PMR
+      - match: 
+          - Оккупированная Россией территория Грузии
+          - Russian-occupied territory of Georgia
+        value:
+          - GE-AB
       - match: Бермудские острова
         value: BM
       - match: Багамские Острова

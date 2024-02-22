@@ -1,5 +1,5 @@
 import math
-from nomenklatura.util import is_qid
+from rigour.ids.wikidata import is_qid
 
 from zavod import Context
 from zavod import helpers as h
@@ -24,7 +24,7 @@ def crawl_politician(context: Context, politician_api_url: str):
 
 def crawl(context: Context):
     # Fetch the source data URL specified in the metadata to a local path:
-    api_response = context.fetch_json(context.dataset.data.url, cache_days=1)
+    api_response = context.fetch_json(context.data_url, cache_days=1)
     total_results = api_response.pop("meta").pop("result").pop("total")
     num_batches = math.ceil(total_results / 100)
 
@@ -36,7 +36,7 @@ def crawl(context: Context):
 
         if bi > 0:
             api_response = context.fetch_json(
-                context.dataset.data.url,
+                context.data_url,
                 params={"range_start": bi * 100},
                 cache_days=1,
             )
@@ -79,7 +79,7 @@ def crawl(context: Context):
             person = context.make("Person")
 
             politician_wikidata_id = politician_detail.pop("qid_wikidata")
-            if is_qid(politician_wikidata_id):
+            if politician_wikidata_id is not None and is_qid(politician_wikidata_id):
                 person.id = politician_wikidata_id
             else:
                 person.id = context.make_id(politician.pop("id"))

@@ -82,6 +82,10 @@ lookups:
         values:
           - Algeria
           - PS
+      - match: 
+          - Judea and Samaria Region
+        value:
+          - IL
   type.date:
     options:
       - match:

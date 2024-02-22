@@ -80,6 +80,8 @@ lookups:
         value: South Sudan
       - match: United Kingdom of Great Britain and Northern Irela
         value: GB
+      - match: Baghdad, Iraq
+        value: Iraq
   type.date:
     options:
       - match: 05021981

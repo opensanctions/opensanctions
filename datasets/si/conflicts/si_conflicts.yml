@@ -1,0 +1,34 @@
+title: Slovenia Business Restrictions
+entry_point: crawler.py
+prefix: si-conflicts
+url: https://erar.si/omejitve/
+summary: List of Business restrictions preventing conflict of interest in Slovenia
+description: >
+  Slovenian public bodies and organizations may not procure from entities in which an official in that organization or their family member is a manager, legal representative, or has 5% or more ownership.
+  
+  This is a list of entities where such a relationship exists, and the public organization is restricted/prohibited or permitted to engage in business activities in some instances with the entity. The restricted public organization is noted in the program property of each entity. **The restriction is only on the public organization where the public official has a role - it does not apply to the entire public sector.**
+  
+  **This is a preventative restriction by Komisija za preprečevanje korupcije and implies no wrongdoing.**
+
+  ### More detail from the publisher:
+  
+  > As the public sector conducts business with private-sector entities, certain corruption risks are generated, especially when individuals with personal interests in the business activity are involved. To safeguard public funds from being used for private gain, legal measures, such as restrictions on business activities and prohibitions, are implemented.
+  > These measures are outlined in the Integrity and Prevention of Corruption Act (IPCA) and focus on preventing corruption and avoiding conflicts of interest.
+  [From https://www.kpk-rs.si/en/restrictions-of-business-activities/](https://www.kpk-rs.si/en/restrictions-of-business-activities/)
+
+  ### Data gathering process
+
+    The data is gathered from the app [Erar](https://erar.si/doc/). It is a web application developed by the Komisija za preprečevanje korupcije to enhance transparency by allowing the public and state authorities in Slovenia to access detailed information on transactions involving public institutions and state-owned entities.
+  While the Commission emphasizes the accuracy of published data, occasional discrepancies may occur, urging users to check their completeness, accuracy and up-to-dateness with the original administrator of the database before making decisions based on them. Due to such corrections, the published data may change at any time without prior notice.
+
+publisher:
+  name: Komisija za preprečevanje korupcije
+  acronym: KPK
+  description: >
+    The Commission for the Prevention of Corruption of the Republic of Slovenia is an independent state body in the Republic of Slovenia whose task is detection 
+    and prosecution in pre-criminal or criminal proceedings in the field of corruption. [Source: Wikipedia](https://sl.wikipedia.org/wiki/Komisija_za_prepre%C4%8Devanje_korupcije)
+  url: https://www.kpk-rs.si/
+  country: si
+data:
+  url: https://erar.si/api/omejitve/
+  format: JSON

@@ -101,6 +101,8 @@ lookups:
           - Meroe Gold
           - Paramount Energy & Commodities SA
           - Central Bank of Russia
+          - Petrostroi-SPB Aktsionernoe Obshchestvo ATTK-NN
+          - Moscow Institute of Thermal Technology
         value: SAME
       - match: Subsidiary of the Organisation for Technological Industries (OTI) and therefore the Syrian Ministry of Defence
         values:
@@ -112,6 +114,11 @@ lookups:
           - JSC “Lengazpetstroy”
           - JSC “Volgogaz”
           - LLC ”NGKM”
+      - match: (1) BIC Bank (2) Zheng Heng (Cambodia) Co., Ltd (3) ZhengHeng Development Group
+        values:
+          - BIC Bank
+          - Zheng Heng (Cambodia) Co., Ltd
+          - ZhengHeng Development Group
       - match: Yuzhny Proyect (Southern Project),  affiliated with the Saint Petersburg-based Rossiya bank, which is co-owned by oligarch Yury KOVALCHUK (RUS0007)
         values:
           - Yuzhny Proyect

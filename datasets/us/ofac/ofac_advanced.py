@@ -377,7 +377,7 @@ def parse_id_reg_document(
     if conf.prop is not None:
         proxy.add(conf.prop, number)
 
-    if conf.identification or conf.passport:
+    if proxy.schema.is_a("Person") and (conf.identification or conf.passport):
         issue_date = None
         expire_date = None
         for date in reg_doc.findall("./DocumentDate"):

@@ -45,7 +45,7 @@ publisher:
 url: https://www.mof.go.jp/policy/international_policy/gaitame_kawase/gaitame/economic_sanctions/gaiyou.html
 data:
   url: https://www.mof.go.jp/policy/international_policy/gaitame_kawase/gaitame/economic_sanctions/list.html
-  format: XLS
+  format: XLSX
   lang: jpn
 
 lookups:
@@ -69,6 +69,7 @@ lookups:
           - イラク前政権の機関、高官又はその関係者等 （Ⅱ．決議第1483号23(a)の対象となる団体）
           - コンゴ民主共和国に対する武器禁輸措置等に違反した者等（団体とその他のグループ）
           - イラク前政権の機関、高官又はその関係者等 （Ⅲ．決議第1483号23(b）の対象となる団体）
+          - 資産凍結等の措置の対象となるロシア連邦及びベラルーシ共和国以外の国の団体
         contains:
           - （団体）
         value: Organization
@@ -217,6 +218,9 @@ lookups:
     lowercase: true
     normalize: true
     options:
+      - match: 
+          - Commune of Bouhechana, Daïra de Lakhezara, Guelma, Algeria
+        value: Algeria
       - match: 米国。また、シリア国籍も所持していると見られる。
         values:
           - US
@@ -233,16 +237,21 @@ lookups:
         value: null
       - match: サウディ・アラビア
         value: Saudi Arabia
+      - match: スロバキア共和国
+        value: Slovakia
       - match: トルコ、ヨルダン
         values:
           - Turkey
           - Jordan
+      - match: ハイチ共和国
+        value: China
   type.date:
     options:
       - match:
           - 10月10
           - 10月22
           - "59"
+          - "31"
           - 6月14
           - 7月10
           - おおむね30～35歳
@@ -253,6 +262,8 @@ lookups:
           - （偽造旅券より）
           # "Hijiri calendar"
           - "（ヒジュラ暦）"
+          - "の間"
+          - "から"
         value: null
       - match: Born on 10 July 1942
         value: "1942-07-10"
@@ -278,7 +289,7 @@ lookups:
       - match: セルビア共和国ボル
         value: null
       - match: Born on 2 July 1974
-        value: "1074-07-02"
+        value: "1974-07-02"
       - match: 60年
         value: "1960"
       - match: "2007.713"

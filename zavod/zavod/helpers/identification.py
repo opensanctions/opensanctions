@@ -1,7 +1,10 @@
 from typing import Optional
 
+from zavod.logs import get_logger
 from zavod.entity import Entity
 from zavod.context import Context
+
+log = get_logger(__name__)
 
 
 def make_identification(
@@ -40,7 +43,14 @@ def make_identification(
     holder_prop = proxy.schema.get("holder")
     assert holder_prop is not None
     assert holder_prop.range is not None
-    assert entity.schema.is_a(holder_prop.range)
+    if not entity.schema.is_a(holder_prop.range):
+        log.warning(
+            "Holder is not a valid type for %s" % schema,
+            entity_schema=entity.schema,
+            entity_id=entity.id,
+            number=number,
+        )
+        return None
 
     if number is None:
         return None

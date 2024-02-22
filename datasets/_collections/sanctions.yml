@@ -1,7 +1,7 @@
 type: collection
 title: Consolidated Sanctions
 deploy:
-  schedule: "30 */4 * * *"
+  schedule: "2 */5 * * *"
   memory: "1500Mi"
   command: /etl/scripts/export-sanctions.sh
   # premium: true
@@ -27,8 +27,10 @@ children:
   - ca_dfatd_sema_sanctions
   - ca_facfoa
   - ca_listed_terrorists
+  - ca_named_research_orgs
   - ch_seco_sanctions
   - eu_fsf
+  - eu_reg_2878_sanctions
   - eu_sanctions_map
   - eu_travel_bans
   - fr_tresor_gels_avoir

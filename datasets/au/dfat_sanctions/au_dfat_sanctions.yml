@@ -97,6 +97,8 @@ lookups:
         values:
           - Mauritania
           - Mali
+      - match: Türkiyish
+        value: Turkey
       - match:
           - Turkish/Jordanian
         values:
@@ -182,3 +184,5 @@ lookups:
           - 1962-06-10
       - match: 29-Aprl-1967
         value: "1967-04-29"
+      - match: 23-Apr-68
+        value: "1968-04-23"

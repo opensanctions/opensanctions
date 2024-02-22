@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Union
 from datetime import datetime
 from xlrd.book import Book  # type: ignore
 from xlrd.sheet import Cell  # type: ignore
@@ -27,3 +27,27 @@ def convert_excel_cell(book: Book, cell: Cell) -> Optional[str]:
         if cell.value is None:
             return None
         return str(cell.value)
+
+
+def convert_excel_date(value: Optional[Union[str, int, float]]) -> Optional[str]:
+    """Convert an Excel date to a string.
+
+    Args:
+        value: The Excel date value (e.g. 44876).
+
+    Returns:
+        The date value as a string, or `None` if the value is empty.
+    """
+    if value is None:
+        return None
+    if isinstance(value, str):
+        try:
+            value = float(value)
+        except ValueError:
+            return None
+    if isinstance(value, float):
+        value = int(value)
+    if value < 4_000 or value > 100_000:
+        return None
+    dt = datetime.fromordinal(datetime(1900, 1, 1).toordinal() + value - 2)
+    return datetime_iso(dt)

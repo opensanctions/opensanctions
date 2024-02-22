@@ -1,4 +1,5 @@
-FROM ubuntu:23.10
+FROM ubuntu:24.04
+
 LABEL org.opencontainers.image.title "OpenSanctions ETL"
 LABEL org.opencontainers.image.licenses MIT
 LABEL org.opencontainers.image.source https://github.com/opensanctions/opensanctions
@@ -7,8 +8,7 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get -qq -y update \
     && apt-get -qq -y upgrade \
     && apt-get -qq -y install locales ca-certificates tzdata curl python3-pip \
-    python3-icu python3-cryptography libicu-dev postgresql-client-common \
-    postgresql-client pkg-config libxml2-dev libxslt1-dev python3-dev python3-venv \
+    libicu-dev pkg-config libxml2-dev libxslt1-dev python3-dev python3-venv \
     libleveldb-dev libleveldb1d \
     && apt-get -qq -y autoremove \
     && apt-get clean \
@@ -25,8 +25,8 @@ ENV LANG="en_US.UTF-8" \
 
 RUN python3 -m venv /venv
 ENV PATH="/venv/bin:$PATH"
-RUN pip3 install --no-cache-dir -U pip six setuptools wheel \
-    && pip3 install --no-cache-dir -U "pyicu==2.12.0"
+RUN pip3 install --no-cache-dir -U pip six setuptools wheel
+RUN pip3 install --no-cache-dir -U "pyicu==2.12.0"
 
 COPY . /opensanctions
 RUN pip install --no-cache-dir -e /opensanctions/zavod

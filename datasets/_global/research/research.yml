@@ -1,0 +1,23 @@
+title: Custom research data
+prefix: osre
+disabled: false
+entry_point: crawler.py
+coverage:
+  frequency: daily
+exports:
+  - statistics.json
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: |
+  Additional findings regarding specific entities that have been gathered by
+  the OpenSanctions team, included as corrections/errata.
+description:
+  Includes ISINs for specific securities subject to sanctions
+data:
+  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vTtQD9wiHuyl23NmrIeAACET4OohOXhmuxQv817FHHas8uO4k8VBzex25nIOPqsG9300aXJIqCZzo--/pub?gid=1612308021&single=true&output=csv
+  format: csv
+publisher:
+  name: OpenSanctions Team
+  description: |
+    This data was curated by OpenSanctions and initially submitted by our users and customers.
+  url: https://www.opensanctions.org
+  official: false

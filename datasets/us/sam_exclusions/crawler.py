@@ -29,12 +29,20 @@ def read_rows(zip_path: Path) -> Generator[Dict[str, Any], None, None]:
                     yield row
 
 
-def crawl(context: Context) -> None:
+def crawl_data_url(context: Context) -> str:
     ms = str(int(time.time() * 1000))
     url = context.data_url.replace("RANDOM", ms)
     metadata = context.fetch_json(url)
     objects = metadata.pop("_embedded").pop("customS3ObjectSummaryList")
-    data_url = urljoin(DOWNLOAD_URL, objects[0]["key"])
+    for obj in objects:
+        data_url = urljoin(DOWNLOAD_URL, obj["key"])
+        if data_url.endswith(".ZIP"):
+            return data_url
+    raise RuntimeError("No ZIP file found")
+
+
+def crawl(context: Context) -> None:
+    data_url = crawl_data_url(context)
     path = context.fetch_resource("source.zip", data_url)
     context.export_resource(path, ZIP, title=context.SOURCE_TITLE)
     for row in read_rows(path):

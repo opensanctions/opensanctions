@@ -1,7 +1,8 @@
 type: collection
 title: Sanctioned securities
-deploy:
-  schedule: "@daily"
+coverage:
+  frequency: daily
+# deploy:
   # memory: "1000Mi"
 exports:
   - statistics.json
@@ -18,7 +19,7 @@ description: |
   and thus are subject to investment bans under US Executive Order (EO) 14071.
 
   See also:
-  * [Securities data in OpenSanctions](https://www.opensanctions.org/docs/bulk/faq/#securities)
+  * [Securities data in OpenSanctions](/docs/data/securities/)
   * [Russian NSD dataset](https://www.opensanctions.org/datasets/ru_nsd_isin/)
 children:
   - au_dfat_sanctions
@@ -26,11 +27,15 @@ children:
   - ch_seco_sanctions
   - eu_fsf
   - eu_sanctions_map
+  - eu_reg_2878_sanctions
   - ext_gleif
   - gb_hmt_invbans
   - gb_hmt_sanctions
   - ru_nsd_isin
   - us_ofac_cons
   - us_ofac_sdn
+  - us_dhs_uflpa
+  - us_cuba_sanctions
   - openfigi
   - permid
+  - research

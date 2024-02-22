@@ -13,9 +13,48 @@ FORMATS = ["%m/%d/%Y"]
 # Match space before comma or no space after comma
 REGEX_FIX_COMMA = re.compile(r"(\w)\s*,\s*(\w)")
 
+# Abakaliki South (PDP) Member of the House of Assembly Ebonyi State
+# Abia State Commissioner for Health
 
-def emit_position(context: Context, entity: Entity, name: str):
+# (Adavi, Okehi)member of the house of Representatives of the Federal Republic of Nigeria
+# Federal House of Rep, Ibarapa East/Ido Constituency, Oyo State
+# Anambra East/West Constituency House of Representative, Anambra State
+# Member of the House of Rep. of the FRN (Awka North, Awka South)
+# Member of the House of Rep. of Bende
+# Member Federal House of Representative (Badagry) Lagos State
+# Member of the House of Reps. Federal Republic of Nigeria, Bakura, Maradun
+# Member, Federal House of Representatives, ZANGO/BAURE constituency
+# Member, House of Rep. (Federal), Apa/Agatu Constituency
+# Member, House of Representative Abak/Etim Ekpo/Ika Federal Constituency
+REGEX_HOUSE_REP = re.compile(
+    r"(member(, federal|,| of( the))?|federal|constituency) house of rep(,|\.|s.|resentative)(?! (Deputy|Chairman))",
+    re.IGNORECASE,
+)
+
+# not
+# House of Representatives Deputy Chairman Army
+
+
+def crawl_position(context: Context, entity: Entity, name: str):
     name = REGEX_FIX_COMMA.sub(r"\1, \2", name)
+    name_lower = name.lower()
+
+    if "candidate" in name_lower:
+        entity.add("topics", "poi")
+        entity.add("country", "ng")
+        entity.add("position", name)
+        return
+
+    if REGEX_HOUSE_REP.search(name):
+        entity.add("position", name)
+        name = "Member of the Federal House of Representatives"
+
+    if name.startswith("Former "):
+        status = OccupancyStatus.ENDED
+        name = name.replace("Former ", "")
+    else:
+        status = OccupancyStatus.UNKNOWN
+
     position = h.make_position(context, name, country="ng")
     categorisation = categorise(context, position, True)
     if categorisation.is_pep:
@@ -24,7 +63,7 @@ def emit_position(context: Context, entity: Entity, name: str):
             entity,
             position,
             False,
-            status=OccupancyStatus.UNKNOWN,
+            status=status,
             categorisation=categorisation,
         )
         context.emit(position)
@@ -55,10 +94,10 @@ def crawl_row(context: Context, row: Dict[str, str]):
 
     previous_pos = collapse_spaces(row.pop("Previous Position")).strip()
     if previous_pos:
-        emit_position(context, entity, previous_pos)
+        crawl_position(context, entity, previous_pos)
     present_pos = collapse_spaces(row.pop("Present Position")).strip()
     if present_pos:
-        emit_position(context, entity, present_pos)
+        crawl_position(context, entity, present_pos)
 
     if not present_pos and not previous_pos:
         entity.add("topics", "role.pep")
