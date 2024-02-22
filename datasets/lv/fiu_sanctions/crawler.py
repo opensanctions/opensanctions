@@ -31,6 +31,8 @@ def crawl_person(context: Context, node: ElementTree):
     gender = node.findtext(".//Gender")
     if gender.lower() == "v":
         entity.add("gender", "male")
+    else:
+        context.log.warn(f"Unknown gender - {gender}")
 
     birth_node = node.find(".//Birth")
     if birth_node is not None:
@@ -47,14 +49,33 @@ def crawl_person(context: Context, node: ElementTree):
         nationality = citizenship_node.findtext(".//CitizenCountry")
         entity.add("nationality", nationality)
 
+    alias_node = node.find(".//Alias")
+    if alias_node is not None:
+        alias_full = alias_node.findtext(".//AliasWholeName")
+        entity.add("alias", alias_full)
+
     document_node = node.find(".//Document")
     if document_node is not None:
         document_type = document_node.findtext(".//DocumentType")
         document_number = document_node.findtext(".//DocumentNumber")
+        document_country_code = document_node.findtext(".//DocumentCountryIso2Code")
+
+        is_passport = False
         if document_type.lower() == "pase":
             entity.add("passportNumber", document_number)
+            is_passport = True
+        else:
+            context.log.warn(f"Unknown document ID - {document_type}")
 
-        entity.add("idNumber", document_number)
+        identification_entity = h.make_identification(
+            context,
+            entity,
+            number=document_number,
+            country=document_country_code,
+            doc_type=document_type,
+            passport=is_passport,
+        )
+        context.emit(identification_entity)
 
     return entity
 
@@ -66,6 +87,11 @@ def crawl_organization(context: Context, node: ElementTree):
     company_name = node.find(".//Name").findtext(".//WholeName")
     entity.add("name", company_name)
 
+    alias_node = node.find(".//Alias")
+    if alias_node is not None:
+        alias_full = alias_node.findtext(".//AliasWholeName")
+        entity.add("alias", alias_full)
+
     address_nodes = node.findall(".//Address")
     for address_node in address_nodes:
         whole_address = address_node.findtext(".//AddressWhole")
@@ -74,17 +100,17 @@ def crawl_organization(context: Context, node: ElementTree):
         city = address_node.findtext(".//AddressCity")
         country = address_node.findtext(".//AddressCountry")
 
-        address_entity = context.make("Address")
-        address_entity.id = context.make_slug(
-            whole_address, prefix="lv-sanction-company-address"
+        address_entity = h.make_address(
+            context,
+            full=whole_address,
+            remarks=address_remark,
+            street=street,
+            city=city,
+            country=country,
         )
-        address_entity.add("city", city)
-        address_entity.add("street", street)
-        address_entity.add("state", country)
-        address_entity.add("full", whole_address)
-        address_entity.add("remarks", address_remark)
-
         entity.add("addressEntity", address_entity)
+        context.emit(address_entity)
+
     return entity
 
 
