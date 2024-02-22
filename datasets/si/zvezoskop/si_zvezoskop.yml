@@ -1,4 +1,4 @@
-title: Slovenian political office holders from Relatioscope (Zvezoscope)
+title: Slovenian political officials from Zvezoskop
 entry_point: crawler.py
 prefix: si-zvezo
 coverage:
@@ -21,23 +21,44 @@ description: |
   It does so by presenting the career paths and points of convergence of politicians
   during their education and careers.
 publisher:
-  name: Oštro
+  name: Oštro (Slovenia)
   description: |
-    Oštro is a center for investigative journalism, investigating topics that
-    are in the public interest for people in the Adriatic region (Slovenia, Croatia,
-    Italy) and the neighborhood.
+    Oštro is a non-profit center for investigative journalism, investigating
+    topics that are in the public interest for people in the Adriatic region
+    (Slovenia, Croatia, Italy) and the neighborhood.
   url: https://www.ostro.si/en
   country: sl
   official: false
 url: http://www.zvezoskop.si/
 data:
-  url: https://docs.google.com/spreadsheets/d/readonlyversion
-  format: CSV
+  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vS_4mCNAXvhH1k96FwmUCgN6unnocpchDUXOkMUHz2uUw0VF-oAtdNItT0B4HHS6L3YBQDyqeV-9wvQ/pub?output=xlsx
+  format: XLSX
 
 lookups:
-  position:
+  roughly_pep:
     lowercase: true
     options:
-      - match: "mp, national assembly"
-        is_pep: true
-        label: "Member of Parliament"
+      - contains:
+          - alternate
+          - ambassador
+          - chair
+          - charge
+          - council
+          - commander
+          - "consul "
+          - diplomant
+          - director
+          - prosecutor
+          - judge
+          - mayor
+          - member of main board
+          - member of executive committee
+          - member of federal assembly
+          - member, representative
+          - minister
+          - presidency
+          - president
+      - match:
+        - mep
+        - mp
+
