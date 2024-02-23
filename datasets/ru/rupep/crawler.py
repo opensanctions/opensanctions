@@ -251,9 +251,7 @@ def get_position_name(context, role, company_name) -> Optional[str]:
             return pep_position.name, subnational_area, True
         else:
             return (
-                clean_position_name(
-                    role, company_name, pep_position.preposition
-                ),
+                clean_position_name(role, company_name, pep_position.preposition),
                 subnational_area,
                 True,
             )
@@ -308,7 +306,7 @@ def crawl_person(
     company_state: Dict[int, Company],
     data: Dict[str, Any],
 ):
-    is_pep = data.pop("is_pep", False)
+    they_pep = data.pop("is_pep", False)
     entity = context.make("Person")
     wikidata_id = clean_wdid(data.pop("wikidata_id", None))
     rupep_person_id = data.pop("id")
@@ -376,17 +374,6 @@ def crawl_person(
     for rel_data in data.pop("related_persons", []):
         crawl_person_person_relation(context, published_people, entity, rel_data)
 
-    data.pop("type_of_official_ru", None)
-    person_type = data.pop("type_of_official_en", None)
-    person_topic = context.lookup("person_type", person_type)
-    if person_topic is None:
-        context.log.warn("Unknown type of official", type=person_type)
-    else:
-        entity.add("topics", person_topic.value, original_value=person_type)
-    if is_pep:
-        entity.add("topics", "role.pep")
-    entity.add("status", person_type)
-
     data.pop("died", None)
     data.pop("tags", None)
     data.pop("reason_of_termination_en", None)
@@ -394,6 +381,7 @@ def crawl_person(
     # TODO: store images
     data.pop("photo", None)
 
+    we_pep = False
     for rel_data in data.pop("related_companies", []):
         company_name_ru = rel_data.get("to_company_ru", None)
         company_name_short_ru = rel_data.get("to_company_short_ru", None)
@@ -438,26 +426,37 @@ def crawl_person(
         )
 
         # Is it categorised as a PEP in the database?
-        if not (
-            position_name
-            and emit_pep_relationship(
-                context,
-                entity,
-                position_name,
-                company.countries,
-                subnational_area,
-                start_date[0] if start_date else None,
-                end_date[0] if end_date else None,
-                extra,
-                auto_pep,
-            )
+        if position_name and emit_pep_relationship(
+            context,
+            entity,
+            position_name,
+            company.countries,
+            subnational_area,
+            start_date[0] if start_date else None,
+            end_date[0] if end_date else None,
+            extra,
+            auto_pep,
         ):
+            we_pep = True
+        else:
             if crawl_company_person_relation(context, company, entity, rel_data):
                 company.emit = True
 
+    data.pop("type_of_official_ru", None)
+    person_type = data.pop("type_of_official_en", None)
+
+    res = context.lookup("person_type", person_type)
+    if res is None:
+        context.log.warn("Unknown type of official", type=person_type)
+    if res.value:
+        entity.add("topics", res.value, original_value=person_type)
+    elif not we_pep:
+        entity.add("topics", "poi")
+    entity.add("status", person_type)
+
     data.pop("declarations", None)
     # h.audit_data(data)
-    context.emit(entity, target=is_pep)
+    context.emit(entity, target=we_pep)
 
 
 def get_company_country(
