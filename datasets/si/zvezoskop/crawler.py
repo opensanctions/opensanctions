@@ -7,6 +7,7 @@ from rigour.ids.wikidata import is_qid
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.entity import Entity
 from zavod.logic.pep import categorise
 
 
@@ -19,7 +20,7 @@ def make_person_id(context: Context, id: str) -> str:
 
 def crawl_person(context: Context, row: Dict[str, str]) -> str:
     person = context.make("Person")
-    zvezo_id = row.pop("id_gni_live").strip()
+    zvezo_id = row.pop("id_gni_live")
     if not zvezo_id:
         return
     wikidata_id = row.pop("wikidata_id")
@@ -36,45 +37,51 @@ def crawl_person(context: Context, row: Dict[str, str]) -> str:
     person.add("gender", row.pop("gender"))
     person.add("sourceUrl", row.pop("zvezoskop_link"))
 
-    context.emit(person, target=True)
-    #context.audit_data(row, [
+    # context.audit_data(row, [
     #    "is_first_time_in_office",
     #    "time_in_office",
-    #])
-    return zvezo_id, person.id
+    # ])
+    return zvezo_id, person
 
 
 def en_label(institution_en: str, department_en: str, position_en: str) -> str:
-    if position_en.lower() == "minister":
+    if position_en.lower() == "minister" and institution_en.lower().startswith(
+        "ministry of"
+    ):
         label = f"Minister of {institution_en}"
         label = label.replace("Ministry of ", "")
-    else:
-        label = position_en
+        return label
+    if position_en == "MP":
+        return "Member of Parliament"
+    if position_en == "MEP":
+        return "Member of the European Parliament"
 
-        if department_en:
-            label += f", {department_en}"
+    label = position_en
 
-        if (
-            institution_en
-            and slugify(institution_en) not in slugify(label)
-        ):
-            label += f", {institution_en}"
+    if "director" in position_en.lower() and department_en:
+        label += f", {department_en}"
+
+    if institution_en and slugify(institution_en) not in slugify(label):
+        label += f", {institution_en}"
     return label
 
 
-def si_label(institution_si: str, department_si: str, position_si: str) -> Optional[str]:
+def si_label(institution_si: str, department_si: str, position_si: str) -> str:
+    if position_si.lower() in "poslanec":
+        return "Poslanec"
+    if position_si.lower() in "poslanka":
+        return "Poslanka"
     label = position_si
-    if department_si:
+    if "direktor" in position_si.lower() and department_si:
         label += f", {department_si}"
     if institution_si:
         label += f", {institution_si}"
     return label
 
 
-def crawl_cv_entry(context: Context, entity_ids: Dict[str, str], row: Dict[str, str]):
-    person = context.make("Person")
-    svezo_id = row.pop("id_gni_live").strip()    
-    person.id = entity_ids[svezo_id]
+def crawl_cv_entry(context: Context, entities: Dict[str, Entity], row: Dict[str, str]):
+    svezo_id = row.pop("id_gni_live")
+    person = entities[svezo_id]
 
     institution_en = row.pop("institution_en")
     department_en = row.pop("institution_department_en")
@@ -99,16 +106,18 @@ def crawl_cv_entry(context: Context, entity_ids: Dict[str, str], row: Dict[str, 
     }:
         label_si = si_label(institution_si, department_si, position_si)
         label_en = en_label(institution_en, department_en, position_en)
-       
+
+        if "candidate" in label_en.lower():
+            return False
         res = context.lookup("roughly_pep", label_en)
         if not res:
-            return
+            return False
 
         position = h.make_position(context, label_en, country="si")
         position.add("name", label_si, lang="slv")
         categorisation = categorise(context, position, is_pep=True)
         if not categorisation.is_pep:
-            return
+            return False
         start_day = row.pop("start_day")
         start_date = h.parse_date(start_day, FORMATS)[0] if start_day else None
         if not start_date:
@@ -127,12 +136,16 @@ def crawl_cv_entry(context: Context, entity_ids: Dict[str, str], row: Dict[str, 
                 end_month = row.pop("end_month")
                 if end_month:
                     end_date += "-" + end_month
+        assume_current = False
+        if end_date == "2100":
+            assume_current = True
+            end_date = None
 
         occupancy = h.make_occupancy(
             context,
             person,
             position,
-            False,
+            assume_current,
             start_date=start_date or None,
             end_date=end_date or None,
             categorisation=categorisation,
@@ -141,11 +154,12 @@ def crawl_cv_entry(context: Context, entity_ids: Dict[str, str], row: Dict[str, 
             context.emit(position)
             context.emit(occupancy)
             context.emit(person, target=True)
+            return True
     elif part_of_cv_en == "Leisure activities":  # leisure activities
-        return
+        return False
     else:
         context.log.warning(f"Unhandled part of CV: {part_of_cv_en}")
-        return
+        return False
 
 
 def header_names(cells, expected_columns: int):
@@ -179,12 +193,21 @@ def excel_records(path, sheet_name: str, expected_columns: int):
 
 
 def crawl(context: Context):
-    entity_ids = {}
+    entities = {}
+    all_zvezo_ids = set()
+    emitted = set()
     path = context.fetch_resource("zvezoskop.xlsx", context.data_url)
-    
+
     for row in excel_records(path, "persons_live", 16):
-        svezo_id, entity_id = crawl_person(context, row)
-        entity_ids[svezo_id] = entity_id
+        svezo_id, entity = crawl_person(context, row)
+        entities[svezo_id] = entity
+        all_zvezo_ids.add(svezo_id)
 
     for row in excel_records(path, "cv_live", 21):
-        crawl_cv_entry(context, entity_ids, row)
+        zvezo_id = row["id_gni_live"]
+        if crawl_cv_entry(context, entities, row):
+            emitted.add(zvezo_id)
+
+    not_emitted = all_zvezo_ids - emitted
+    if not_emitted:
+        context.log.warning("Not emitted persons", not_emitted=not_emitted)
