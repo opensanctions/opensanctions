@@ -45,7 +45,6 @@ lookups:
           - charge
           - council
           - commander
-          - "consul "
           - diplomant
           - director
           - prosecutor
@@ -60,4 +59,5 @@ lookups:
           - minister
           - presidency
           - president
+      - regex: ".*consul .*"
 

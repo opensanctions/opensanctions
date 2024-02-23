@@ -36,11 +36,20 @@ def crawl_person(context: Context, row: Dict[str, str]) -> str:
     person.add("birthDate", row.pop("year"))
     person.add("gender", row.pop("gender"))
     person.add("sourceUrl", row.pop("zvezoskop_link"))
-
-    # context.audit_data(row, [
-    #    "is_first_time_in_office",
-    #    "time_in_office",
-    # ])
+    person.add("political", row.pop("party_si") or None, lang="slv")
+    person.add("political", row.pop("party_en") or None, lang="eng")
+    	
+    context.audit_data(row, [
+        "id",
+        "is_first_time_in_office",
+        "time_in_office",
+        "asset_tracker_link",
+        "position_si",
+        "position_en",
+        "institution_si",
+        "institution_en",
+        "year",
+    ])
     return zvezo_id, person
 
 
@@ -84,12 +93,7 @@ def crawl_cv_entry(context: Context, entities: Dict[str, Entity], row: Dict[str,
     person = entities[svezo_id]
 
     institution_en = row.pop("institution_en")
-    department_en = row.pop("institution_department_en")
-    position_en = row.pop("position_en")
-
     institution_si = row.pop("institution_si")
-    department_si = row.pop("institution_department_si")
-    position_si = row.pop("position_si")
 
     part_of_cv_en = row.pop("part_of_cv_en")
 
@@ -99,67 +103,96 @@ def crawl_cv_entry(context: Context, entities: Dict[str, Entity], row: Dict[str,
         if institution_si:
             person.add("education", institution_si, lang="slv")
 
-    elif part_of_cv_en in {
+    elif part_of_cv_en == "Leisure activities":  # leisure activities
+        return False
+    elif part_of_cv_en not in {
         "Party position",
         "Work experience",
         "Advisory and supervisory functions",
     }:
-        label_si = si_label(institution_si, department_si, position_si)
-        label_en = en_label(institution_en, department_en, position_en)
-
-        if "candidate" in label_en.lower():
-            return False
-        res = context.lookup("roughly_pep", label_en)
-        if not res:
-            return False
-
-        position = h.make_position(context, label_en, country="si")
-        position.add("name", label_si, lang="slv")
-        categorisation = categorise(context, position, is_pep=True)
-        if not categorisation.is_pep:
-            return False
-        start_day = row.pop("start_day")
-        start_date = h.parse_date(start_day, FORMATS)[0] if start_day else None
-        if not start_date:
-            start_year = row.pop("start_year")
-            if start_year:
-                start_date = start_year
-                start_month = row.pop("start_month")
-                if start_month:
-                    start_date += "-" + start_month
-        end_day = row.pop("end_day")
-        end_date = h.parse_date(end_day, FORMATS)[0] if end_day else None
-        if not end_date:
-            end_year = row.pop("end_year")
-            if end_year:
-                end_date = end_year
-                end_month = row.pop("end_month")
-                if end_month:
-                    end_date += "-" + end_month
-        assume_current = False
-        if end_date == "2100":
-            assume_current = True
-            end_date = None
-
-        occupancy = h.make_occupancy(
-            context,
-            person,
-            position,
-            assume_current,
-            start_date=start_date or None,
-            end_date=end_date or None,
-            categorisation=categorisation,
-        )
-        if occupancy:
-            context.emit(position)
-            context.emit(occupancy)
-            context.emit(person, target=True)
-            return True
-    elif part_of_cv_en == "Leisure activities":  # leisure activities
-        return False
-    else:
         context.log.warning(f"Unhandled part of CV: {part_of_cv_en}")
         return False
+    
+    department_en = row.pop("institution_department_en")
+    position_en = row.pop("position_en")
+    department_si = row.pop("institution_department_si")
+    position_si = row.pop("position_si")
+
+    label_si = si_label(institution_si, department_si, position_si)
+    label_en = en_label(institution_en, department_en, position_en)
+
+    if "candidate" in label_en.lower():
+        return False
+    res = context.lookup("roughly_pep", label_en)
+    if not res:
+        return False
+
+    position = h.make_position(context, label_en, country="si")
+    position.add("name", label_si, lang="slv")
+    categorisation = categorise(context, position, is_pep=True)
+    if not categorisation.is_pep:
+        return False
+    start_day = row.pop("start_day")
+    start_date = h.parse_date(start_day, FORMATS)[0] if start_day else None
+    if not start_date:
+        start_year = row.pop("start_year")
+        if start_year:
+            start_date = start_year
+            start_month = row.pop("start_month")
+            if start_month:
+                start_date += "-" + start_month
+    end_day = row.pop("end_day")
+    end_date = h.parse_date(end_day, FORMATS)[0] if end_day else None
+    if not end_date:
+        end_year = row.pop("end_year")
+        if end_year:
+            end_date = end_year
+            end_month = row.pop("end_month")
+            if end_month:
+                end_date += "-" + end_month
+    assume_current = False
+    if end_date == "2100":
+        assume_current = True
+        end_date = None
+
+    occupancy = h.make_occupancy(
+        context,
+        person,
+        position,
+        assume_current,
+        start_date=start_date or None,
+        end_date=end_date or None,
+        categorisation=categorisation,
+    )
+    if occupancy:
+        notes_pos_si = row.pop("notes_position_si", None)
+        if notes_pos_si:
+            occupancy.add("summary", "Položaj: " + notes_pos_si, lang="slv")
+        notes_pos_en = row.pop("notes_position_en", None)
+        if notes_pos_en:
+            occupancy.add("summary", "Position: " + notes_pos_en, lang="eng")
+        notes_inst_si = row.pop("notes_institution_si", None)
+        if notes_inst_si:
+            occupancy.add("summary", "Institucija: " + notes_inst_si, lang="slv")
+        notes_inst_en = row.pop("notes_institution_en", None)
+        if notes_inst_en:
+            occupancy.add("summary", "Institution: " + notes_inst_en, lang="eng")
+
+        context.emit(position)
+        context.emit(occupancy)
+        context.emit(person, target=True)
+        context.audit_data(row, [
+            "id",
+            "person_name",
+            "start_month",
+            "start_year",
+            "end_month",
+            "end_year",
+            "institution_department_si",
+            "institution_department_en",
+            "part_of_cv",
+        ])
+        return True
 
 
 def header_names(cells, expected_columns: int):
