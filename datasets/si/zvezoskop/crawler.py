@@ -129,7 +129,7 @@ def crawl_cv_entry(context: Context, entities: Dict[str, Entity], row: Dict[str,
 
     position = h.make_position(context, label_en, country="si")
     position.add("name", label_si, lang="slv")
-    categorisation = categorise(context, position, is_pep=True)
+    categorisation = categorise(context, position, is_pep=None)
     if not categorisation.is_pep:
         return False
     start_day = row.pop("start_day")
