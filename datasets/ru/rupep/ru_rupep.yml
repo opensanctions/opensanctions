@@ -74,17 +74,14 @@ lookups:
           - "-"
           - "A person with significant political or public influence"
           - null
+          - Domestic Politically Exposed Person
+          - Foreign Politically Exposed Person
+          - International organization Politically Exposed Person
         value: null
       - match:
           - Close associate
           - Family member
         value: role.rca
-      - match:
-          - Domestic Politically Exposed Person
-          - Foreign Politically Exposed Person
-        value: role.pep
-      - match: International organization Politically Exposed Person
-        value: gov.igo
       - match:
           - Person under sanctions
         value: sanction
