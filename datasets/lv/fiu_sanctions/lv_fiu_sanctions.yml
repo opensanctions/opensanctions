@@ -1,0 +1,26 @@
+name: lv_fiu_sanctions
+title: Latvia FIU Sanctions
+entry_point: crawler.py
+prefix: lv-sanction
+summary: List of Sanctions in Latvia
+description:
+  This dataset contains lists of individuals or entities subject to national sanctions as specified by laws in Latvia
+
+  National sanctions are determined by Latvia's legislative acts and international laws. They are imposed by the Cabinet of Ministers following procedures outlined
+  in the Law on International Sanctions and National Sanctions of the Republic of Latvia.
+
+  It's important to note that the dataset only includes information on financial restrictions imposed on these individuals or entities and does not cover other types
+  of sanctions like restrictions on the circulation of goods.
+
+url: https://sankcijas.fid.gov.lv
+publisher:
+  name: Finanšu izlūkošanas dienests
+  description: |
+    > The Financial Intelligence Unit of Latvia is an independent authority and it's responsibility lies with prevention of money laundering in Latvia, with the goal of eliminating the possibility of using the Latvian financial system to launder money or finance terrorism.
+
+  url: https://fid.gov.lv/en
+  country: lv
+  official: true
+data:
+  url: https://sankcijas.fid.gov.lv/files/LV_national_v2.xml
+  format: XML
