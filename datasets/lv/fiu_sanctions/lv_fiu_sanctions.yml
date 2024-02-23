@@ -20,6 +20,7 @@ publisher:
 
   url: https://fid.gov.lv/en
   country: lv
+  official: true
 data:
   url: https://sankcijas.fid.gov.lv/files/LV_national_v2.xml
   format: XML
