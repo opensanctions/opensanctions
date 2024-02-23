@@ -49,8 +49,7 @@ def crawl_person(context: Context, node: ElementTree):
         nationality = citizenship_node.findtext(".//CitizenCountry")
         entity.add("nationality", nationality)
 
-    alias_node = node.find(".//Alias")
-    if alias_node is not None:
+    for alias_node in node.findall(".//Alias"):
         alias_full = alias_node.findtext(".//AliasWholeName")
         entity.add("alias", alias_full)
 
