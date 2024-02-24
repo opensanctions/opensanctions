@@ -26,15 +26,14 @@ def crawl_person(context: Context, node: _Element) -> Optional[Entity]:
     if name_node is None:
         context.log.error("No name for person", id=entity.id, node=node)
         return None
-    first_name = name_node.findtext(".//FirstName")
-    middle_name = name_node.findtext(".//MiddleName")
-    last_name = name_node.findtext(".//LastName")
-    full_name = name_node.findtext(".//WholeName")
 
-    entity.add("name", full_name)
-    entity.add("firstName", first_name)
-    entity.add("middleName", middle_name)
-    entity.add("lastName", last_name)
+    h.apply_name(
+        entity,
+        full=name_node.findtext(".//WholeName"),
+        first_name=name_node.findtext(".//FirstName"),
+        middle_name=name_node.findtext(".//MiddleName"),
+        last_name=name_node.findtext(".//LastName"),
+    )
 
     gender = node.findtext(".//Gender")
     if gender is not None and gender.lower() == "v":
@@ -58,8 +57,14 @@ def crawl_person(context: Context, node: _Element) -> Optional[Entity]:
         entity.add("nationality", nationality)
 
     for alias_node in node.findall(".//Alias"):
-        alias_full = alias_node.findtext(".//AliasWholeName")
-        entity.add("alias", alias_full)
+        h.apply_name(
+            entity,
+            full=alias_node.findtext(".//AliasWholeName"),
+            first_name=alias_node.findtext(".//AliasFirstName"),
+            middle_name=alias_node.findtext(".//AliasMiddleName"),
+            last_name=alias_node.findtext(".//AliasLastName"),
+            alias=True,
+        )
 
     for document_node in node.findall(".//Document"):
         document_type = document_node.findtext(".//DocumentType")
@@ -146,7 +151,7 @@ def crawl(context: Context):
         else:
             context.log.error("Invalid entity type", type=entity_type)
             continue
-        
+
         if entity is None:
             continue
 
