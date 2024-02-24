@@ -6,7 +6,8 @@ from zavod.context import Context
 from zavod.meta import Dataset
 from zavod.exporters.common import Exporter
 from zavod.exporters.ftm import FtMExporter
-from zavod.exporters.nested import NestedJSONExporter
+from zavod.exporters.nested import NestedTargetsJSONExporter
+from zavod.exporters.nested import NestedTopicsJSONExporter
 from zavod.exporters.names import NamesExporter
 from zavod.exporters.simplecsv import SimpleCSVExporter
 from zavod.exporters.senzing import SenzingExporter
@@ -22,7 +23,7 @@ log = get_logger(__name__)
 DEFAULT_EXPORTERS: Set[str] = {
     StatisticsExporter.FILE_NAME,
     FtMExporter.FILE_NAME,
-    NestedJSONExporter.FILE_NAME,
+    NestedTargetsJSONExporter.FILE_NAME,
     NamesExporter.FILE_NAME,
     SimpleCSVExporter.FILE_NAME,
     SenzingExporter.FILE_NAME,
@@ -30,7 +31,8 @@ DEFAULT_EXPORTERS: Set[str] = {
 EXPORTERS: Dict[str, Type[Exporter]] = {
     StatisticsExporter.FILE_NAME: StatisticsExporter,
     FtMExporter.FILE_NAME: FtMExporter,
-    NestedJSONExporter.FILE_NAME: NestedJSONExporter,
+    NestedTargetsJSONExporter.FILE_NAME: NestedTargetsJSONExporter,
+    NestedTopicsJSONExporter.FILE_NAME: NestedTopicsJSONExporter,
     NamesExporter.FILE_NAME: NamesExporter,
     SimpleCSVExporter.FILE_NAME: SimpleCSVExporter,
     SenzingExporter.FILE_NAME: SenzingExporter,
