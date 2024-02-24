@@ -121,7 +121,7 @@ def crawl_organization(context: Context, node: _Element) -> Optional[Entity]:
 
 
 def crawl(context: Context):
-    path = context.fetch_resource("lv_sanction_list.xml", context.data_url)
+    path = context.fetch_resource("source.xml", context.data_url)
     context.export_resource(path, XML, title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
     clean_doc = h.remove_namespace(doc)
