@@ -6,21 +6,9 @@ from zavod import Context, Entity
 from zavod import helpers as h
 
 
-def make_person_id(id: Optional[str]) -> str:
-    if id is None:
-        raise ValueError("ID for person is null")
-    return f"lv-sanction-person-{id}"
-
-
-def make_company_id(id: Optional[str]) -> str:
-    if id is None:
-        raise ValueError("ID for company is null")
-    return f"lv-sanction-company-{id}"
-
-
 def crawl_person(context: Context, node: _Element) -> Optional[Entity]:
     entity = context.make("Person")
-    entity.id = make_person_id(node.findtext(".//Id"))
+    entity.id = context.make_slug('person', node.findtext(".//Id"))
 
     name_node = node.find(".//Name")
     if name_node is None:
@@ -99,7 +87,7 @@ def crawl_person(context: Context, node: _Element) -> Optional[Entity]:
 
 def crawl_organization(context: Context, node: _Element) -> Optional[Entity]:
     entity = context.make("Organization")
-    entity.id = make_company_id(node.findtext(".//Id"))
+    entity.id = context.make_slug('org', node.findtext(".//Id"))
 
     company_name = node.find(".//Name")
     if company_name is None:
