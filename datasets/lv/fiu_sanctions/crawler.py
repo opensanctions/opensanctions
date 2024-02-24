@@ -1,23 +1,31 @@
-from xml.etree import ElementTree
+from typing import Optional
+from lxml.etree import _Element
 from pantomime.types import XML
-from zavod import Context
+
+from zavod import Context, Entity
 from zavod import helpers as h
 
 
-def make_person_id(id: str) -> str:
+def make_person_id(id: Optional[str]) -> str:
+    if id is None:
+        raise ValueError("ID for person is null")
     return f"lv-sanction-person-{id}"
 
 
-def make_company_id(id: str) -> str:
+def make_company_id(id: Optional[str]) -> str:
+    if id is None:
+        raise ValueError("ID for company is null")
     return f"lv-sanction-company-{id}"
 
 
-def crawl_person(context: Context, node: ElementTree):
-
+def crawl_person(context: Context, node: _Element) -> Optional[Entity]:
     entity = context.make("Person")
     entity.id = make_person_id(node.findtext(".//Id"))
 
     name_node = node.find(".//Name")
+    if name_node is None:
+        context.log.error("No name for person", id=entity.id, node=node)
+        return None
     first_name = name_node.findtext(".//FirstName")
     middle_name = name_node.findtext(".//MiddleName")
     last_name = name_node.findtext(".//LastName")
@@ -29,10 +37,10 @@ def crawl_person(context: Context, node: ElementTree):
     entity.add("lastName", last_name)
 
     gender = node.findtext(".//Gender")
-    if gender.lower() == "v":
+    if gender is not None and gender.lower() == "v":
         entity.add("gender", "male")
     else:
-        context.log.warn(f"Unknown gender - {gender}")
+        context.log.warn("Unknown gender", entity=entity, gender=gender)
 
     birth_node = node.find(".//Birth")
     if birth_node is not None:
@@ -53,9 +61,13 @@ def crawl_person(context: Context, node: ElementTree):
         alias_full = alias_node.findtext(".//AliasWholeName")
         entity.add("alias", alias_full)
 
-    document_node = node.find(".//Document")
-    if document_node is not None:
+    for document_node in node.findall(".//Document"):
         document_type = document_node.findtext(".//DocumentType")
+        if document_type is None:
+            context.log.error(
+                "Document has no type", document=document_node, entity=entity
+            )
+            continue
         document_number = document_node.findtext(".//DocumentNumber")
         document_country_code = document_node.findtext(".//DocumentCountryIso2Code")
 
@@ -66,7 +78,7 @@ def crawl_person(context: Context, node: ElementTree):
         else:
             context.log.warn(f"Unknown document ID - {document_type}")
 
-        identification_entity = h.make_identification(
+        ident = h.make_identification(
             context,
             entity,
             number=document_number,
@@ -74,17 +86,21 @@ def crawl_person(context: Context, node: ElementTree):
             doc_type=document_type,
             passport=is_passport,
         )
-        context.emit(identification_entity)
+        if ident is not None:
+            context.emit(ident)
 
     return entity
 
 
-def crawl_organization(context: Context, node: ElementTree):
+def crawl_organization(context: Context, node: _Element) -> Optional[Entity]:
     entity = context.make("Organization")
     entity.id = make_company_id(node.findtext(".//Id"))
 
-    company_name = node.find(".//Name").findtext(".//WholeName")
-    entity.add("name", company_name)
+    company_name = node.find(".//Name")
+    if company_name is None:
+        context.log.error("Company has no name", entity=entity)
+        return None
+    entity.add("name", company_name.findtext(".//WholeName"))
 
     alias_node = node.find(".//Alias")
     if alias_node is not None:
@@ -107,9 +123,7 @@ def crawl_organization(context: Context, node: ElementTree):
             city=city,
             country=country,
         )
-        entity.add("addressEntity", address_entity)
-        context.emit(address_entity)
-
+        h.apply_address(context, entity, address_entity)
     return entity
 
 
@@ -117,25 +131,31 @@ def crawl(context: Context):
     path = context.fetch_resource("lv_sanction_list.xml", context.data_url)
     context.export_resource(path, XML, title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
-    doc = h.remove_namespace(doc)
+    clean_doc = h.remove_namespace(doc)
 
-    for node in doc.findall(".//Entity"):
-
+    for node in clean_doc.findall(".//Entity"):
         entity_type = node.findtext(".//Type")
+        if entity_type is None:
+            context.log.error("No entity type", node=node)
+            continue
 
         if entity_type.lower() == "fp":
             entity = crawl_person(context, node)
         elif entity_type.lower() == "jp":
             entity = crawl_organization(context, node)
         else:
-            raise RuntimeError("Cannot not infer entity type")
+            context.log.error("Invalid entity type", type=entity_type)
+            continue
+        
+        if entity is None:
+            continue
 
         entity.add("topics", "sanction")
         sanction = h.make_sanction(context, entity)
-
         sanction.add("sourceUrl", node.findtext(".//Link"))
         sanction.add("startDate", node.findtext(".//ListedOn"))
         sanction.add("program", node.findtext(".//Program"))
         sanction.add("reason", node.findtext(".//Remark"))
 
         context.emit(entity, target=True)
+        context.emit(sanction)
