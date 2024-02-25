@@ -13,9 +13,8 @@ class NestedJSONExporter(Exporter):
 
     def feed(self, entity: Entity) -> None:
         if self.is_root(entity):
-            return
-        data = entity.to_nested_dict(self.view)
-        write_json(data, self.fh)
+            data = entity.to_nested_dict(self.view)
+            write_json(data, self.fh)
 
     def finish(self) -> None:
         self.fh.close()
