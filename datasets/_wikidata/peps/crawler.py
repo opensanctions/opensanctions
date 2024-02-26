@@ -1,6 +1,7 @@
+import time
+import countrynames
 from collections import defaultdict
 from typing import Dict, Optional, Any, List, Generator
-import countrynames
 from rigour.ids.wikidata import is_qid
 
 from zavod import Context
@@ -11,6 +12,7 @@ from zavod.logic.pep import PositionCategorisation, categorise
 from zavod.shed.wikidata.query import run_query, CACHE_MEDIUM
 
 DECISION_NATIONAL = "national"
+RETRIES = 5
 
 
 def keyword(topics: List[str]) -> Optional[str]:
@@ -84,9 +86,25 @@ def query_position_holders(
         f"Crawling holders of position {wd_position['qid']} ({wd_position['label']})"
     )
     vars = {"POSITION": wd_position["qid"]}
-    response = run_query(
-        context, context.data_url, "holders/holders", vars, cache_days=CACHE_MEDIUM
-    )
+    for i in range(1, RETRIES):
+        try:
+            response = run_query(
+                context,
+                context.data_url,
+                "holders/holders",
+                vars,
+                cache_days=CACHE_MEDIUM * i,
+            )
+            break
+        except Exception as e:
+            context.log.info(
+                f"Holder query failed, retrying {i}/{RETRIES}",
+                error=str(e),
+            )
+            if i == RETRIES - 1:
+                raise e
+            time.sleep(i)
+
     for binding in response.results:
         start_date = truncate_date(
             binding.plain("positionStart")
