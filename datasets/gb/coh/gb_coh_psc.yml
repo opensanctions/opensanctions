@@ -6,7 +6,7 @@ entry_point: psc_parse.py
 coverage:
   frequency: weekly
 deploy:
-  disk: 100Gi
+  disk: 200Gi
   cpu: 400m
   memory: 2500Mi
   premium: true
