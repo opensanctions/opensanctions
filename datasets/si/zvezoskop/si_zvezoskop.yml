@@ -76,11 +76,13 @@ lookups:
           - member of main board
           - member of executive committee
           - member of federal assembly
-          - member of parliament
           - member of the european parliament
           - member, representative
           - minister
+          - national assembly
+          - national council
           - presidency
           - president
-      - regex: ".*consul .*"
+          - representative
+      - regex: "\\bconsul\\b"
 
