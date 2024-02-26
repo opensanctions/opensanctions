@@ -70,7 +70,7 @@ def en_label(institution_en: str, department_en: str, position_en: str) -> str:
         return label
     # acronymns, and often party in institution
     if position_en == "MP":
-        return "Member of Parliament"
+        return "Member of the National Assembly of Slovenia"
     if position_en == "MEP":
         return "Member of the European Parliament"
     # Party in institution
