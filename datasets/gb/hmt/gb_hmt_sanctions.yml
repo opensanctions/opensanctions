@@ -103,6 +103,8 @@ lookups:
           - Central Bank of Russia
           - Petrostroi-SPB Aktsionernoe Obshchestvo ATTK-NN
           - Moscow Institute of Thermal Technology
+          - PARAMOUNT ENERGY & COMMODITIES DMCC
+          - AKTSIONERNOE OBSHCHESTVO ALYUMINIEVYE PRODUKTY - KHOLDING
         value: SAME
       - match: Subsidiary of the Organisation for Technological Industries (OTI) and therefore the Syrian Ministry of Defence
         values:
@@ -607,6 +609,18 @@ lookups:
           - 20shrhrabota@gmail.com
       - match: info@etemad mobin.com
         value: info@etemad-mobin.com
+      - match: (1) Info@sasta.ru (2) sastalogist@yandex.ru
+        values:
+          - Info@sasta.ru
+          - sastalogist@yandex.ru
+      - match: (1) Info@bpk-spb.ru (2) service@bpk.spb.ru
+        values:
+          - Info@bpk-spb.ru 
+          - service@bpk.spb.ru
+      - match: (1) azia@aziaship.com (2) business@aziaship.com
+        values:
+          - azia@aziaship.com
+          - business@aziaship.com
   type.gender:
     lowercase: true
     normalize: true
