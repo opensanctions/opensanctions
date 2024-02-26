@@ -40,6 +40,7 @@ children:
   - enrichers
 
   # misc
+  - research
   - ann_graph_topics
   - wd_oligarchs
   - wd_curated
