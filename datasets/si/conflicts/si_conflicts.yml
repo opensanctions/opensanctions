@@ -29,6 +29,7 @@ publisher:
     and prosecution in pre-criminal or criminal proceedings in the field of corruption. [Source: Wikipedia](https://sl.wikipedia.org/wiki/Komisija_za_prepre%C4%8Devanje_korupcije)
   url: https://www.kpk-rs.si/
   country: si
+  official: true
 data:
   url: https://erar.si/api/omejitve/
   format: JSON

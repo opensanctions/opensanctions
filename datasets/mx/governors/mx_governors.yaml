@@ -20,7 +20,6 @@ publisher:
   name: Conferencia Nacional de Gobernadores
   description: National Governors' Conference
   url: https://www.conago.org.mx
-  official: true
   country: "mx"
 url: "https://www.conago.org.mx/gobernadores/historicos"
 data:
