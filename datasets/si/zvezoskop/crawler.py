@@ -8,7 +8,7 @@ from rigour.ids.wikidata import is_qid
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
-from zavod.logic.pep import categorise
+from zavod.logic.pep import OccupancyStatus, categorise
 
 
 FORMATS = ["%d/%m/%Y"]
@@ -38,18 +38,26 @@ def crawl_person(context: Context, row: Dict[str, str]) -> str:
     person.add("sourceUrl", row.pop("zvezoskop_link"))
     person.add("political", row.pop("party_si") or None, lang="slv")
     person.add("political", row.pop("party_en") or None, lang="eng")
-    	
-    context.audit_data(row, [
-        "id",
-        "is_first_time_in_office",
-        "time_in_office",
-        "asset_tracker_link",
-        "position_si",
-        "position_en",
-        "institution_si",
-        "institution_en",
-        "year",
-    ])
+    asset_tracker_link = row.pop("asset_tracker_link")
+    if asset_tracker_link and asset_tracker_link != "N/A":
+        person.add(
+            "notes",
+            f"Also see this public official's assets tracked at {asset_tracker_link}",
+        )
+
+    context.audit_data(
+        row,
+        [
+            "id",
+            "is_first_time_in_office",
+            "time_in_office",
+            "position_si",
+            "position_en",
+            "institution_si",
+            "institution_en",
+            "year",
+        ],
+    )
     return zvezo_id, person
 
 
@@ -60,10 +68,14 @@ def en_label(institution_en: str, department_en: str, position_en: str) -> str:
         label = f"Minister of {institution_en}"
         label = label.replace("Ministry of ", "")
         return label
+    # acronymns, and often party in institution
     if position_en == "MP":
         return "Member of Parliament"
     if position_en == "MEP":
         return "Member of the European Parliament"
+    # Party in institution
+    if "councillor in" in position_en.lower():
+        return position_en
 
     label = position_en
 
@@ -76,10 +88,14 @@ def en_label(institution_en: str, department_en: str, position_en: str) -> str:
 
 
 def si_label(institution_si: str, department_si: str, position_si: str) -> str:
-    if position_si.lower() in "poslanec":
+    # Party in institution
+    if position_si.lower() == "poslan":
         return "Poslanec"
-    if position_si.lower() in "poslanka":
+    if position_si.lower() == "poslanka":
         return "Poslanka"
+    if "občinski svetnik v" in position_si.lower():
+        return position_si
+
     label = position_si
     if "direktor" in position_si.lower() and department_si:
         label += f", {department_si}"
@@ -112,7 +128,7 @@ def crawl_cv_entry(context: Context, entities: Dict[str, Entity], row: Dict[str,
     }:
         context.log.warning(f"Unhandled part of CV: {part_of_cv_en}")
         return False
-    
+
     department_en = row.pop("institution_department_en")
     position_en = row.pop("position_en")
     department_si = row.pop("institution_department_si")
@@ -155,6 +171,15 @@ def crawl_cv_entry(context: Context, entities: Dict[str, Entity], row: Dict[str,
         assume_current = True
         end_date = None
 
+    # Temporarily ignore position age to load as much as possible
+    # into Wikidata.
+    if assume_current:
+        status = OccupancyStatus.CURRENT
+    elif end_date:
+        status = OccupancyStatus.ENDED
+    else:
+        status = OccupancyStatus.UNKNOWN
+
     occupancy = h.make_occupancy(
         context,
         person,
@@ -163,6 +188,7 @@ def crawl_cv_entry(context: Context, entities: Dict[str, Entity], row: Dict[str,
         start_date=start_date or None,
         end_date=end_date or None,
         categorisation=categorisation,
+        status=status,
     )
     if occupancy:
         notes_pos_si = row.pop("notes_position_si", None)
@@ -181,17 +207,20 @@ def crawl_cv_entry(context: Context, entities: Dict[str, Entity], row: Dict[str,
         context.emit(position)
         context.emit(occupancy)
         context.emit(person, target=True)
-        context.audit_data(row, [
-            "id",
-            "person_name",
-            "start_month",
-            "start_year",
-            "end_month",
-            "end_year",
-            "institution_department_si",
-            "institution_department_en",
-            "part_of_cv",
-        ])
+        context.audit_data(
+            row,
+            [
+                "id",
+                "person_name",
+                "start_month",
+                "start_year",
+                "end_month",
+                "end_year",
+                "institution_department_si",
+                "institution_department_en",
+                "part_of_cv",
+            ],
+        )
         return True
 
 
