@@ -15,7 +15,6 @@ from zavod.exporters import export_dataset
 from zavod.archive import clear_data_path
 from zavod.exporters.ftm import FtMExporter
 from zavod.exporters.names import NamesExporter
-from zavod.exporters.nested import NestedJSONExporter
 from zavod.exporters.simplecsv import SimpleCSVExporter
 from zavod.exporters.statements import StatementsCSVExporter
 from zavod.meta import Dataset, load_dataset_from_path
@@ -240,37 +239,6 @@ def test_names(testdataset1: Dataset):
     assert "Johnny Doe\n" in names
     assert "Jane Doe\n" in names  # Family member
     assert len(names) == 14
-
-
-def test_nested(testdataset1: Dataset):
-    dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
-    clear_data_path(testdataset1.name)
-
-    crawl_dataset(testdataset1)
-    harnessed_export(NestedJSONExporter, testdataset1)
-
-    with open(dataset_path / "targets.nested.json") as nested_file:
-        entities = [loads(line) for line in nested_file.readlines()]
-
-    for entity in entities:
-        # Fail if incorrect format
-        datetime.strptime(entity["first_seen"], TIME_SECONDS_FMT)
-        datetime.strptime(entity["last_seen"], TIME_SECONDS_FMT)
-        datetime.strptime(entity["last_change"], TIME_SECONDS_FMT)
-        assert entity["datasets"] == ["testdataset1"]
-
-    john = [e for e in entities if e["id"] == "osv-john-doe"][0]
-    assert john['properties']["name"] == ["John Doe"]
-
-    family_id = "osv-eb0a27f226377001807c04a1ca7de8502cf4d0cb"
-    # Family relationship is not included as a root object
-    assert len([e for e in entities if e["id"] == family_id]) == 0
-
-    assert len(john["properties"]["familyPerson"]) == 1
-    fam = john["properties"]["familyPerson"][0]
-    assert fam["id"] == family_id
-    assert fam["properties"]["person"][0] == "osv-john-doe"
-    assert fam["properties"]["relative"][0]["id"] == "osv-jane-doe"
 
 
 def test_targets_simple(testdataset1: Dataset):

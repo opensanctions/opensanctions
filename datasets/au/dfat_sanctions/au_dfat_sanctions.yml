@@ -58,6 +58,7 @@ lookups:
     options:
       - match:
           - aka
+          - a
           - Original Script
         value: alias
       - match:
@@ -110,6 +111,8 @@ lookups:
         value: Lebanon
       - match: Ukranian
         value: UA
+      - match: Belarussian
+        value: BY
       - match: Tobago
         value: Trinidad
       - match: Herzegovina

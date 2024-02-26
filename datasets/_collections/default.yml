@@ -14,6 +14,7 @@ exports:
   - names.txt
   - senzing.json
   - targets.nested.json
+  - topics.nested.json
   - targets.simple.csv
   - statements.csv
 summary: >
