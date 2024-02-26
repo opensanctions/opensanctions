@@ -43,7 +43,7 @@ setup(
         "pyicu == 2.12.0",
         "pywikibot==8.6.0",
         "requests[security]",
-        "requests_oauthlib"
+        "requests_oauthlib",
         "sqlalchemy[mypy]",
         "structlog",
         "xlrd == 2.0.1",
