@@ -7,6 +7,7 @@ from nomenklatura.judgement import Judgement
 from nomenklatura.statement.statement import Statement
 from rigour.langs import iso_639_alpha2
 from rigour.ids.wikidata import is_qid
+from rigour.names import pick_name
 
 # They've done a partial attempt at adding types, then totally
 # deprioritised it.
@@ -588,9 +589,11 @@ class SessionDisplay(Widget):
             text += render_property(self.session.entity, "country")
             text += "Positions:\n"
             for pos_id, pos_names in self.session.position_labels.items():
-                text += f"  {pos_id}\n  {pos_names[0]} ({len(pos_names)})\n"
+                text += f"  {pos_id}\n"
+                for name in pos_names:
+                    text += f"    {name}\n"
                 for pos, occ in self.session.position_occupancies[pos_id]:
-                    text += f'    {occ.get("startDate")} {occ.get("endDate")}\n'
+                    text += f'      {occ.get("startDate")} {occ.get("endDate")}\n'
             text += "\nProposed actions:\n"
             for action in self.session.actions:
                 text += f"  {action}\n"
