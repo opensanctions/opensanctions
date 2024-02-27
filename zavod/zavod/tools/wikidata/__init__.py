@@ -579,7 +579,7 @@ class SessionDisplay(Widget):
     def render(self) -> RenderableType:
         if self.session.entity:
             text = f"Entity: https://www.opensanctions.org/entities/{self.session.entity.id}\n"
-            if is_qid(self.session.entity.id):
+            if self.session.entity.id is not None and is_qid(self.session.entity.id):
                 text += f"Wikidata: https://wikidata.org/wiki/{self.session.entity.id}\n"
             text += f"Names: {' · '.join(self.session.entity.get('name'))}\n\n"
 
