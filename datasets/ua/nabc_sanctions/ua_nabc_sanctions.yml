@@ -151,6 +151,7 @@ lookups:
           - Партнер та тримач активів
         contains:
           - Разом організовували схему
+          - псевдонімом SHAMAN
         schema: Associate
         local: person
         remote: associate
@@ -233,6 +234,7 @@ lookups:
           - Двоюрідний брат
         contains:
           - чоловік у цивільному шлюбі
+          - Є братом
         schema: Family
         local: person
         remote: relative
