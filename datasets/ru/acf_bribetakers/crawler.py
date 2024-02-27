@@ -27,6 +27,7 @@ def parse_result(context: Context, row: Dict[str, Any]):
     entity.id = context.make_id(name_en, name_ru, published_at, dob)
     entity.add("name", name_en, lang="eng")
     entity.add("name", h.remove_bracketed(name_en), lang="eng")
+    entity.add("topics", "poi")
     entity.add("alias", name_ru, lang="rus")
     # context.inspect(row)
     for tag in row.pop("tags"):

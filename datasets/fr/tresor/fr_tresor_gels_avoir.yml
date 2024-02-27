@@ -3009,3 +3009,6 @@ lookups:
         props:
           legalForm: entreprise contrôlée par l'État
           incorporationDate: 1997
+      - match: "Numéro d'immatriculation: 1022620011296"
+        props:
+          registrationNumber: 1022620011296
