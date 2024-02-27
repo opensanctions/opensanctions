@@ -242,7 +242,8 @@ lookups:
           - role: deputy prime minister
             name: Purna Bahadur KHADKA
             start_date: 31 March 2023
-      - match: "Transition Prime Minister Choguel MAIGA (appointed by Transitional President Assimi GOITA on 7 June 2021)note: former transition Prime Minister Moctar OUANE was arrested and detained by the military on 24 May 2021 and resigned on 26 May 2021"
+      # Mali
+      - match: "Transition Prime Minister Choguel MAIGA (appointed by Transition President Assimi GOITA on 7 June 2021)note: former transition Prime Minister Moctar OUANE was arrested and detained by the military on 24 May 2021 and resigned on 26 May 2021"
         holders:
           - role: Transition Prime Minister
             name: Choguel MAIGA
@@ -541,10 +542,10 @@ lookups:
             name: MBUMBA
             start_date: 4 February 2024
       # Niger
-      - match: President of the National Council for Safeguarding of the Homeland (CNSP) General Abdourahame TCHIANI (since 28 July 2023)
+      - match: President of the National Council for Safeguarding of the Homeland (CNSP) General Abdourahame TIANI (since 28 July 2023)
         holders:
           - role: President of the National Council for Safeguarding of the Homeland
-            name: General Abdourahame TCHIANI
+            name: General Abdourahame TIANI
             start_date: 28 July 2023
       # Yemen
       - match: Vice Chairpersons and Presidential Council members Sultan al-ARADA, Faraj Salmin al- BAHSANI, Brig. Gen. Abdullah Al-Alimi BA WAZIR, Uthman Hussain Faid al-MUJALI, TARIQ Muhammad Abdallah Salih, Brig. Gen., 'Abd-al-Rahman ABU ZARA'A al-Muharrami al-Yafai, Brig. Gen., Aydarus Qasim al-ZUBAYDI, Maj. Gen. (all since 19 April 2022)
@@ -644,6 +645,11 @@ lookups:
           # South Africa
           - Deputy President David MABUZA resigned 1 March 2023
           - "Prime Minister \\(in transition\\)"
+          # Chad
+          - the transition was extended for 24 months and the TMC was dissolved in October 2022, postponing elections until 31 October 2024
+          # Hungary
+          - "\\(vacant\\)"
+          - a replacement will be chosen in March 2024
         holders: []
 
   type.country:

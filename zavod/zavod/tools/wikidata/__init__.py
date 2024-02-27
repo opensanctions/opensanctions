@@ -578,23 +578,26 @@ class SessionDisplay(Widget):
 
     def render(self) -> RenderableType:
         if self.session.entity:
-            text = (
-                f"ID: {self.session.entity.id}\n"
-                f"Names: {' | '.join(self.session.entity.get('name'))}\n\n"
-            )
+            text = f"Entity: https://www.opensanctions.org/entities/{self.session.entity.id}\n"
+            if self.session.entity.id is not None and is_qid(self.session.entity.id):
+                text += f"Wikidata: https://wikidata.org/wiki/{self.session.entity.id}\n"
+            text += f"Names: {' · '.join(self.session.entity.get('name'))}\n\n"
+
             text += render_property(self.session.entity, "birthDate")
             text += render_property(self.session.entity, "gender")
             text += render_property(self.session.entity, "nationality")
             text += render_property(self.session.entity, "country")
             text += "Positions:\n"
             for pos_id, pos_names in self.session.position_labels.items():
-                text += f"  {pos_id}\n  {pos_names[0]} ({len(pos_names)})\n"
+                text += f"  {pos_id}\n"
+                for name in pos_names:
+                    text += f"    {name}\n"
                 for pos, occ in self.session.position_occupancies[pos_id]:
-                    text += f'    {occ.get("startDate")} {occ.get("endDate")}\n'
+                    text += f'      {occ.get("startDate")} {occ.get("endDate")}\n'
             text += "\nProposed actions:\n"
             for action in self.session.actions:
                 text += f"  {action}\n"
-            return Text(text)
+            return text
         else:
             return Text("No current entity")
 

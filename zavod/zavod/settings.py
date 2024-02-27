@@ -61,6 +61,8 @@ DB_BATCH_SIZE = int(env_str("ZAVOD_DB_BATCH_SIZE", "10000"))
 OPENSANCTIONS_API_URL = env.get("ZAVOD_OPENSANCTIONS_API_URL", "https://api.opensanctions.org")
 OPENSANCTIONS_API_KEY = env.get("ZAVOD_OPENSANCTIONS_API_KEY", None)
 
+SYNC_POSITIONS = as_bool(env_str("ZAVOD_SYNC_POSITIONS", "true"))
+
 # pywikibot settings for editing Wikidata 
 WD_CONSUMER_TOKEN = env.get("ZAVOD_WD_CONSUMER_TOKEN")
 WD_CONSUMER_SECRET = env.get("ZAVOD_WD_CONSUMER_SECRET")

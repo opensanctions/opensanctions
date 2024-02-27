@@ -21,6 +21,7 @@ publisher:
     services of public sector easier to find and use.
   country: hk
   url: https://www.gov.hk/en/about/aboutus.htm
+  official: true
 data:
   url: https://www.gov.hk/en/about/govdirectory/po/index.htm
   format: HTML

@@ -148,6 +148,10 @@ lookups:
         values:
           - hotelminsk@udp.gov.by
           - marketing@hotelminsk.by
+      - match: v.myshevskaya@rostvert.ru g.bunyaeva@rostvert.ru
+        values:
+          - v.myshevskaya@rostvert.ru
+          - g.bunyaeva@rostvert.ru
   type.gender:
     lowercase: true
     normalize: true

@@ -282,7 +282,11 @@ class Context:
             cache_days=cache_days,
         )
         if text is not None and len(text):
-            return json.loads(text)
+            try:
+                return json.loads(text)
+            except Exception:
+                self.clear_url(url, params)
+                raise
 
     def fetch_html(
         self,
@@ -314,8 +318,17 @@ class Context:
             cache_days=cache_days,
         )
         if text is not None and len(text):
-            return html.fromstring(text)
+            try:
+                return html.fromstring(text)
+            except Exception:
+                self.clear_url(url, params)
+                raise
         raise ValueError("Invalid HTML document: %s" % url)
+
+    def clear_url(self, url: str, params: ParamsType = None) -> None:
+        """Remove a given URL from the cache."""
+        url = build_url(url, params)
+        self.cache.delete(url)
 
     def parse_resource_xml(self, name: PathLike) -> etree._ElementTree:
         """Parse a file in the resource folder into an XML tree.

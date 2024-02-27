@@ -116,8 +116,9 @@ def crawl_person_person_relation(
         return
     other_pep = rel_data.pop("is_pep", False)
     other_wdid = clean_wdid(rel_data.pop("person_wikidata_id"))
+    other_id = person_id(context, other_rupep_id, other_wdid)
     other = context.make("Person")
-    other.id = person_id(context, other_rupep_id, other_wdid)
+    other.id = other_id
     if other.id is None:
         return
     other.add("name", rel_data.pop("person_en", None), lang="eng")
@@ -134,6 +135,11 @@ def crawl_person_person_relation(
             rel_type=rel_type,
             entity=entity,
             other=other,
+        )
+        return
+    if entity.id == other_id:
+        context.log.info(
+            "Skipping self-relation", id=other_id, schema=res.schema, rel_type=rel_type
         )
         return
 
@@ -251,9 +257,7 @@ def get_position_name(context, role, company_name) -> Optional[str]:
             return pep_position.name, subnational_area, True
         else:
             return (
-                clean_position_name(
-                    role, company_name, pep_position.preposition
-                ),
+                clean_position_name(role, company_name, pep_position.preposition),
                 subnational_area,
                 True,
             )
@@ -262,7 +266,9 @@ def get_position_name(context, role, company_name) -> Optional[str]:
     if position_name == normality.latinize_text(position_name):
         return position_name, None, None
     else:
-        context.log.debug("Skipping probably yrillic position name", name=position_name)
+        context.log.debug(
+            "Skipping probably cyrillic position name", name=position_name
+        )
         return None, None, False
 
 
@@ -308,14 +314,14 @@ def crawl_person(
     company_state: Dict[int, Company],
     data: Dict[str, Any],
 ):
-    is_pep = data.pop("is_pep", False)
+    they_pep = data.pop("is_pep", False)
     entity = context.make("Person")
     wikidata_id = clean_wdid(data.pop("wikidata_id", None))
     rupep_person_id = data.pop("id")
     entity.id = person_id(context, rupep_person_id, wikidata_id)
     if entity.id is None:
         return
-    entity.add("sourceUrl", data.pop("url_en", None))
+    # entity.add("sourceUrl", data.pop("url_en", None))
     data.pop("url_ru", None)
     entity.add("modifiedAt", data.pop("last_change", None))
     entity.add("wikidataId", wikidata_id)
@@ -376,17 +382,6 @@ def crawl_person(
     for rel_data in data.pop("related_persons", []):
         crawl_person_person_relation(context, published_people, entity, rel_data)
 
-    data.pop("type_of_official_ru", None)
-    person_type = data.pop("type_of_official_en", None)
-    person_topic = context.lookup("person_type", person_type)
-    if person_topic is None:
-        context.log.warn("Unknown type of official", type=person_type)
-    else:
-        entity.add("topics", person_topic.value, original_value=person_type)
-    if is_pep:
-        entity.add("topics", "role.pep")
-    entity.add("status", person_type)
-
     data.pop("died", None)
     data.pop("tags", None)
     data.pop("reason_of_termination_en", None)
@@ -394,6 +389,7 @@ def crawl_person(
     # TODO: store images
     data.pop("photo", None)
 
+    we_pep = False
     for rel_data in data.pop("related_companies", []):
         company_name_ru = rel_data.get("to_company_ru", None)
         company_name_short_ru = rel_data.get("to_company_short_ru", None)
@@ -438,26 +434,37 @@ def crawl_person(
         )
 
         # Is it categorised as a PEP in the database?
-        if not (
-            position_name
-            and emit_pep_relationship(
-                context,
-                entity,
-                position_name,
-                company.countries,
-                subnational_area,
-                start_date[0] if start_date else None,
-                end_date[0] if end_date else None,
-                extra,
-                auto_pep,
-            )
+        if position_name and emit_pep_relationship(
+            context,
+            entity,
+            position_name,
+            company.countries,
+            subnational_area,
+            start_date[0] if start_date else None,
+            end_date[0] if end_date else None,
+            extra,
+            auto_pep,
         ):
+            we_pep = True
+        else:
             if crawl_company_person_relation(context, company, entity, rel_data):
                 company.emit = True
 
+    data.pop("type_of_official_ru", None)
+    person_type = data.pop("type_of_official_en", None)
+
+    res = context.lookup("person_type", person_type)
+    if res is None:
+        context.log.warn("Unknown type of official", type=person_type)
+    if res.value:
+        entity.add("topics", res.value, original_value=person_type)
+    elif not we_pep:
+        entity.add("topics", "poi")
+    entity.add("status", person_type)
+
     data.pop("declarations", None)
     # h.audit_data(data)
-    context.emit(entity, target=is_pep)
+    context.emit(entity, target=we_pep)
 
 
 def get_company_country(
@@ -505,7 +512,7 @@ def crawl_company(
         schema = "Organization"
     entity = context.make(schema)
     entity.id = company_id(context, rupep_id)
-    entity.add("sourceUrl", data.pop("url_en", None))
+    # entity.add("sourceUrl", data.pop("url_en", None))
     data.pop("url_ru", None)
     entity.add("name", data.pop("name_en", None), lang="eng")
     entity.add("name", data.pop("name_ru", None), lang="rus")
@@ -542,6 +549,7 @@ def crawl_company(
         rel_type = rel_data.pop("relationship_type_en", None)
         rel_type_ru = rel_data.pop("relationship_type_ru", None)
         rel_type = rel_type or rel_type_ru
+
         res = context.lookup("company_company_relations", rel_type)
         if res is None:
             context.log.warn(
@@ -553,6 +561,15 @@ def crawl_company(
             continue
 
         if res.schema is None:
+            continue
+
+        if entity.id == other_id:
+            context.log.info(
+                "Skipping self-relation",
+                id=other_id,
+                schema=res.schema,
+                rel_type=rel_type,
+            )
             continue
 
         # if res.schema == "Organization" and res.from_prop == "asset":

@@ -56,7 +56,6 @@ inputs:
   - ext_ua_edr
   - opencorporates
   - ru_rupep
-  - ru_rupep_companies
   - sanctions
 
 config:
@@ -68,6 +67,15 @@ config:
   fuzzy: false
   threshold: 0.7
   algorithm: regression-v1
+  topics:
+    - role.pep
+    - role.rca
+    - sanction
+    - sanction.linked
+    - debarment
+    - asset.frozen
+    - poi
+    - gov.soe
   schemata:
     - Company
     - Organization

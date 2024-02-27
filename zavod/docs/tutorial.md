@@ -12,7 +12,7 @@ companies into a database.
     team does not automatically assume that responsibility for code contributed by
     others. See our general [inclusion critera](https://www.opensanctions.org/docs/criteria/).
 
-1. Make sure you have [installed zavod](install.md).
+1. Make sure you have [installed zavod](install.md) and [set the required environment variables](install.md#configuration), specifically `ZAVOD_RESOLVER_PATH` and `ZAVOD_SYNC_POSITIONS`.
 2. File a [GitHub issue](https://github.com/opensanctions/opensanctions/issues)
    to discuss the suggested source.
 3. Create a [YAML metadata](#data-source-metadata) description for the new source.
