@@ -1,17 +1,27 @@
-from datetime import datetime
-
 from zavod import Context, helpers as h
 from zavod.logic.pep import categorise
 
-import locale
-locale.setlocale(locale.LC_TIME, 'de_DE')
+MONTHS = {
+    "januar": "01",
+    "februar": "02",
+    "märz": "03",
+    "april": "04",
+    "mai": "05",
+    "juni": "06",
+    "juli": "07",
+    "august": "08",
+    "september": "09",
+    "oktober": "10",
+    "november": "11",
+    "dezember": "12",
+}
 
+def parse_date(text):
+    text = text.lower()
+    for de, en in MONTHS.items():
+        text = text.replace(de, en)
+    return h.parse_date(text, ["%d. %m %Y"])
 
-def parse_german_date(date_string):
-    try:
-        return datetime.strptime(date_string, "%d. %B %Y")
-    except ValueError:
-        return None
 
 def crawl_item(url_info_page: str, context: Context):
 
@@ -23,15 +33,16 @@ def crawl_item(url_info_page: str, context: Context):
     person = context.make("Person")
     person.id = context.make_id(first_name, last_name)
 
-    person.add("firstName", first_name)
-    person.add("lastName", last_name)
+    h.apply_name(person, first_name=first_name, last_name=last_name)
 
     person.add("sourceUrl", url_info_page)
 
     birth_date_in_german = info_page.findtext(".//span[@itemprop='birthDate']")
 
-    if birth_date_in_german and parse_german_date(birth_date_in_german):
-        person.add("birthDate", parse_german_date(birth_date_in_german))
+    if birth_date_in_german:
+        person.add("birthDate", parse_date(birth_date_in_german))
+    
+    person.add("birthPlace", info_page.findtext(".//span[@itemprop='birthPlace']"), lang="deu")
 
     email = info_page.findtext(".//a[@itemprop='http://schema.org/email']")
 
@@ -57,7 +68,7 @@ def crawl_item(url_info_page: str, context: Context):
             categorisation=categorisation,
         )
 
-    if occupancy is None:
+    if occupancy is not None:
         context.emit(person, target=True)
         context.emit(position)
         context.emit(occupancy)
