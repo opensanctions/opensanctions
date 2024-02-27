@@ -578,10 +578,11 @@ class SessionDisplay(Widget):
 
     def render(self) -> RenderableType:
         if self.session.entity:
-            text = (
-                f"ID: {self.session.entity.id}\n"
-                f"Names: {' | '.join(self.session.entity.get('name'))}\n\n"
-            )
+            text = f"Entity: https://www.opensanctions.org/entities/{self.session.entity.id}\n"
+            if is_qid(self.session.entity.id):
+                text += f"Wikidata: https://wikidata.org/wiki/{self.session.entity.id}\n"
+            text += f"Names: {' · '.join(self.session.entity.get('name'))}\n\n"
+
             text += render_property(self.session.entity, "birthDate")
             text += render_property(self.session.entity, "gender")
             text += render_property(self.session.entity, "nationality")
@@ -596,7 +597,7 @@ class SessionDisplay(Widget):
             text += "\nProposed actions:\n"
             for action in self.session.actions:
                 text += f"  {action}\n"
-            return Text(text)
+            return text
         else:
             return Text("No current entity")
 

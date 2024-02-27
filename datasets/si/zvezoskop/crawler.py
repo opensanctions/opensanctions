@@ -149,7 +149,7 @@ def crawl_cv_entry(context: Context, entities: Dict[str, Entity], row: Dict[str,
     if not categorisation.is_pep:
         return False
     start_day = row.pop("start_day")
-    start_date = h.parse_date(start_day, FORMATS)[0] if start_day else None
+    start_date = start_day
     if not start_date:
         start_year = row.pop("start_year")
         if start_year:
@@ -158,7 +158,7 @@ def crawl_cv_entry(context: Context, entities: Dict[str, Entity], row: Dict[str,
             if start_month:
                 start_date += "-" + start_month
     end_day = row.pop("end_day")
-    end_date = h.parse_date(end_day, FORMATS)[0] if end_day else None
+    end_date = end_day
     if not end_date:
         end_year = row.pop("end_year")
         if end_year:
