@@ -1,0 +1,29 @@
+title: Austria Public Officials
+entry_point: crawler.py
+prefix: at-pep
+coverage:
+  frequency: daily
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  List of politicians and others officials from Austria.
+description: |
+  This dataset identifies
+  all members of the National Council, members of the Federal
+  Government and the Bundesrat as well as all state governments
+  and state parliaments.  Other significant posts in this dataset include
+  the Federal President, the general secretaries of the
+  ministries, the Ombudsmen and many more.
+publisher:
+  name: Meine Abgeordneten
+  description: |
+   The “My Members of Parliament” platform is
+   a private initiative that was founded in 2011 by Respect.net
+   and operated together with WOTI World of Tomorrow Institute
+   (formerly Act.Now) from 2017 to 2021
+  url: https://www.meineabgeordneten.at/
+  official: false
+  country: "at"
+url: "https://www.meineabgeordneten.at/Abgeordnete"
+data:
+  url: https://www.meineabgeordneten.at/Abgeordnete
+  format: HTML
