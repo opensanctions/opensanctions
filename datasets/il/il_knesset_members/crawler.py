@@ -1,114 +1,94 @@
 from datetime import datetime
 import json
+from time import sleep
+from languagecodes import iso_639_alpha3
+
 from zavod import Context, helpers as h
+from zavod.entity import Entity
 from zavod.logic.pep import categorise
 
 DATE_FORMATS = ["%B %d, %Y"]
 
 
-def get_members_urls(context: Context) -> list:
-    # return list with dictionary containing id, name, url of member detail page and flag if member is currenttly within the knesset
-
-    # load members json file (note: it's XML when using the browser)
-    path = context.fetch_resource("members.json", context.data_url)
-
-    # save json file locally
-    context.export_resource(path, "text/json", title=context.SOURCE_TITLE)
-
-    # load json into list with dictionaries
-    with open(path, "r") as fh:
-        list_dict_members = json.load(fh)
-
-    # add url of member detail-page to the data
-    [
-        member.update(
-            {
-                "url": f'https://knesset.gov.il/WebSiteApi/knessetapi/MKs/GetMkDetailsContent?mkId={member["ID"]}&languageKey=en'
-            }
-        )
-        for member in list_dict_members
-    ]
-
-    return list_dict_members
+def crawl_position(context: Context, person: Entity, position: Entity, tenure):
+    occupancy = h.make_occupancy(
+        context,
+        person,
+        position,
+        no_end_implies_current=tenure.pop("isCurrentMk"),
+        # These are already ISO
+        start_date=tenure.pop("FromDate"),
+        end_date=tenure.pop("ToDate"),
+    )
+    if not occupancy:
+        return
+    context.emit(person, target=True)
+    context.emit(occupancy)
 
 
-def crawl_item(dict_member: dict, context: Context):
-    # fetch data from member detail-page and create the entities
+def crawl_positions(context: Context, person: Entity, member_id):
+    position = h.make_position(
+        context,
+        "Knesset Member",
+        country="il",
+        topics=["gov.national", "gov.legislative"],
+    )
+    categorisation = categorise(context, position, is_pep=True)
+    if not categorisation.is_pep:
+        return
+    context.emit(position)
 
-    try:
-        path = context.fetch_resource(
-            f"member_detail_{dict_member['ID']}.json", dict_member["url"]
-        )
-        context.export_resource(path, "text/json", title=context.SOURCE_TITLE)
-        with open(path, "r") as fh:
-            dict_member.update(json.load(fh))
-        context.log.info(
-            f"Parsed details for member: {dict_member['Name']} (ID:{dict_member['ID']})"
-        )
-    except Exception as e:
-        context.log.warning(
-            f"Couldn't parse details for member: {dict_member['Name']} (ID:{dict_member['ID']}), error: {e}"
-        )
+    positions_url = f"https://knesset.gov.il/WebSiteApi/knessetapi/MKs/GetMkPositions?mkId={member_id}&languageKey=en"
+    for row in context.fetch_json(positions_url, cache_days=7):
+        for tenure in row.pop("Tenure"):
+            crawl_position(context, person, position, tenure)
 
-    # add current members only
-    if dict_member["IsCurrent"] == True:
-        person = context.make("Person")
-        person.id = context.make_id(dict_member["Name"])
-        person.add("name", dict_member["Name"])
-        person.add("country", "il")
 
-        # parse dates
-        for date_field in ["DateOfBirth", "DeathDate"]:
-            if dict_member.get(date_field, False):
-                dict_member[date_field] = h.parse_date(
-                    dict_member[date_field], DATE_FORMATS
-                )[0]
+def crawl_item(context: Context, member_id: int, name: str, lang: str):
+    lang3 = iso_639_alpha3(lang)
+    # too many requests makes the knesset sad
+    # header_url = f"https://knesset.gov.il/WebSiteApi/knessetapi/MKs/GetMkdetailsHeader?mkId={member_id}&languageKey={lang}"
+    # header = context.fetch_json(header_url, cache_days=1)
+    content_url = f"https://knesset.gov.il/WebSiteApi/knessetapi/MKs/GetMkDetailsContent?mkId={member_id}&languageKey={lang}"
+    content = context.fetch_json(content_url, cache_days=7)
 
-        # split first and last name
-        name_parts = [part for part in dict_member["Name"].split(" ") if part != ""]
-        last_name = name_parts[-1]
-        first_names = " ".join(name_parts[:-1])
+    person = context.make("Person")
+    person.id = context.make_slug(member_id)
+    person.add("name", name, lang=lang3)
+    person.add(
+        "sourceUrl",
+        f"https://main.knesset.gov.il/{lang}/MK/APPS/mk/mk-personal-details/{member_id}",
+    )
+    if content:
+        person.add("birthPlace", content.pop("PlaceOfBirth"), lang=lang3)
 
-        h.apply_name(
-            person,
-            first_name=first_names,
-            last_name=last_name,
-        )
-        person.add("sourceUrl", dict_member["url"])
+    if lang == "en":
+        if content:
+            person.add(
+                "birthDate", h.parse_date(content.pop("DateOfBirth"), DATE_FORMATS)
+            )
+            person.add(
+                "deathDate", h.parse_date(content.pop("DeathDate"), DATE_FORMATS)
+            )
+        # person.add("email", header.pop("Email"))
+        # person.add("website", header.pop("Website"))
+        # person.add("political", header.pop("Faction"))
 
-        # create position
-        position = h.make_position(context, "Knesset member (2022-)", country="il")
-        categorisation = categorise(context, position, is_pep=True)
-
-        if not categorisation.is_pep:
-            return
-
-        # update if new knesset is elected
-        start_date_knesset_25th = datetime(2022, 11, 15)
-        end_date_knesset_25th = None
-
-        occupancy = h.make_occupancy(
-            context,
-            person,
-            position,
-            True,
-            start_date=end_date_knesset_25th,
-            categorisation=categorisation,
-        )
-
-        if occupancy is None:
-            return
-
-        context.emit(person, target=True)
-        context.emit(position)
-        context.emit(occupancy)
+        crawl_positions(context, person, member_id)
 
 
 def crawl(context: Context):
-    list_dict_members = get_members_urls(context)
+    for member in context.fetch_json(context.data_url, cache_days=7):
+        if not member.pop("IsCurrent"):
+            continue
+        sleep(0.5)
+        crawl_item(context, member["ID"], member["Name"], "en")
 
-    if list_dict_members is None:
-        return
-
-    for i, dict_member in enumerate(list_dict_members):
-        crawl_item(dict_member, context)
+    # This doesn't give us tons more data so if it's too slow, just take the hebrew
+    # name from the hebrew index and add it in the english run or something.
+    hebrew_url = context.data_url.replace("languageKey=en", "languageKey=he")
+    for member in context.fetch_json(hebrew_url, cache_days=7):
+        if not member.pop("IsCurrent"):
+            continue
+        sleep(0.5)
+        crawl_item(context, member["ID"], member["Name"], "he")

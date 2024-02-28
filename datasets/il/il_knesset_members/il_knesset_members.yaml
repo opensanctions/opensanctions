@@ -1,6 +1,6 @@
-title: Estonia Members of the Riigikogu
+title: Israel Knesset members
 entry_point: crawler.py
-prefix: il-knesset-members
+prefix: il-knesset
 coverage:
   frequency: daily
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
@@ -17,4 +17,17 @@ publisher:
 url: "https://knesset.gov.il/WebSiteApi/knessetapi/MKs/GetMksDropdown?languageKey=en"
 data:
   url: https://knesset.gov.il/WebSiteApi/knessetapi/MKs/GetMksDropdown?languageKey=en
-  format: XML
+  format: JSON
+
+assertions:
+  min:
+    schema_entities:
+      Person: 120
+      Position: 1
+    country_entities:
+      il: 121
+    countries: 1
+  max:
+    schema_entities:
+      Person: 150
+      Position: 1
