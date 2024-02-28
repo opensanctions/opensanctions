@@ -323,6 +323,7 @@ def crawl_person(
         return
     # entity.add("sourceUrl", data.pop("url_en", None))
     data.pop("url_ru", None)
+    data.pop("url_en", None)
     entity.add("modifiedAt", data.pop("last_change", None))
     entity.add("wikidataId", wikidata_id)
     entity.add("name", data.pop("full_name_en", None), lang="eng")
@@ -513,6 +514,7 @@ def crawl_company(
     entity = context.make(schema)
     entity.id = company_id(context, rupep_id)
     # entity.add("sourceUrl", data.pop("url_en", None))
+    data.pop("url_en", None)
     data.pop("url_ru", None)
     entity.add("name", data.pop("name_en", None), lang="eng")
     entity.add("name", data.pop("name_ru", None), lang="rus")
