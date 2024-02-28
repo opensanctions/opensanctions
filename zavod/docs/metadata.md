@@ -72,6 +72,7 @@ e.g. the following means
 - at least one entity for Brunei
 - at least 6 countries
 - at most 200 Persons
+- at most 40 Positions
 
 ```yaml
 assertions:
@@ -87,4 +88,5 @@ assertions:
   max:
     schema_entities:
       Person: 200
+      Position: 40
 ```
