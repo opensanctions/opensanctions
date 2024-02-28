@@ -25,5 +25,18 @@ publisher:
   country: "at"
 url: "https://www.meineabgeordneten.at/Abgeordnete"
 data:
-  url: https://www.meineabgeordneten.at/Abgeordnete
+  url: https://www.meineabgeordneten.at/Abgeordnete?partei=
   format: HTML
+
+
+assertions:
+  min:
+    schema_entities:
+      Person: 824
+      Position: 100
+    country_entities:
+      at: 900
+    countries: 1
+  max:
+    schema_entities:
+      Person: 900
