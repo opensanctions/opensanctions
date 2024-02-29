@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: usgsa
 coverage:
   frequency: daily
+  start: "2023-05-25"
 deploy:
   memory: "2Gi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}

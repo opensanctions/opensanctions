@@ -3,6 +3,7 @@ entry_point: ofac_advanced.py
 prefix: ofac
 coverage:
   frequency: daily
+  start: "2015-12-05"
 deploy:
   memory: 1300Mi
   memory_limit: "2Gi"
