@@ -81,7 +81,7 @@ def crawl(context: Context):
     for member in context.fetch_json(context.data_url, cache_days=7):
         if not member.pop("IsCurrent"):
             continue
-        sleep(0.5)
+        sleep(1)
         crawl_item(context, member["ID"], member["Name"], "en")
 
     # This doesn't give us tons more data so if it's too slow, just take the hebrew
@@ -90,5 +90,5 @@ def crawl(context: Context):
     for member in context.fetch_json(hebrew_url, cache_days=7):
         if not member.pop("IsCurrent"):
             continue
-        sleep(0.5)
+        sleep(1)
         crawl_item(context, member["ID"], member["Name"], "he")

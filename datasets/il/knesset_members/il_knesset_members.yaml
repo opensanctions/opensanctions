@@ -5,9 +5,11 @@ coverage:
   frequency: daily
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  Current Knesset Members of the Knesset
+  Current Members of Israel's house of representatives
 description: |
-  This dataset comprises information about current members of the Knesset, the Israeli house of representatives. The Knesset also supervises the work of the government (the executive branch) and carries out several quasi-judicial roles. As an electorate body, the Knesset elects the President of the State and the State Comptroller. The Knesset has 120 members and is located in Jerusalem.
+  This dataset comprises information about current members of the Knesset, the Israeli house of representatives.
+  
+  The Knesset also supervises the work of the government (the executive branch) and carries out several quasi-judicial roles. As an electorate body, the Knesset elects the President of the State and the State Comptroller. The Knesset has 120 members and is located in Jerusalem.
 publisher:
   name: Knesset
   description: Israeli house of representatives
