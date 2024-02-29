@@ -316,7 +316,11 @@ class EditSession(Generic[DS, CE]):
                     self._log("Adding qualifier...")
                     action.claim.addQualifier(claim)
                 self._log("Adding sources...")
-                action.claim.addSources(action.sources)
+                if action.claim.id == "P31":
+                    # We get an invalid json error response back if we try
+                    self._log("Skipping source for P31")
+                else:
+                    action.claim.addSources(action.sources)
             else:
                 raise ValueError("Unknown action: %r" % action)
         if created:
@@ -608,7 +612,7 @@ class SearchItem(ListItem):
     def render(self) -> Text:
         if self.result_item is None:
             return Text("Result not loaded yet.")
-        value = f'{self.result_item["id"]} {self.result_item["label"]}\n'
+        value = f'https://www.wikidata.org/wiki/{self.result_item["id"]}\n{self.result_item["label"]}\n'
         description = self.result_item.get("description", None)
         if description:
             value += f"  {description}\n"
@@ -736,7 +740,7 @@ class WikidataApp(App[int], Generic[DS, CE]):
                 )
             else:
                 self.log_display.write_line(
-                    "No results found. [p]ublish proposed wikidata item?"
+                    "No matching items found in Wikidata. [p]ublish proposed wikidata item?"
                 )
         else:
             self.log_display.write_line(
