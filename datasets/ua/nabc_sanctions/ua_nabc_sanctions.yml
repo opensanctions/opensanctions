@@ -250,6 +250,11 @@ lookups:
           - Moscow
           - МОСКВА
         value: Moscow
+  type.identifier:
+    options:
+      - match:
+          - "N/A"
+        value: null
   type.date:
     options:
       - match:

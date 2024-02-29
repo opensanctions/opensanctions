@@ -3090,3 +3090,19 @@ lookups:
       - match: "Numéro d’enregistrement: 1031624002937"
         props:
           ogrnCode: 1031624002937
+      - match: "Numéro d’immatriculation: 600122610"
+        props:
+          registrationNumber: 600122610
+      - match: "Numéro d’immatriculation - Date d'enregistrement : 04/01/1996: 600390798"
+        props:
+          registrationNumber: 600390798
+          incorporationDate: 1996-04-01
+      - match: "Type d’entité: entreprise fédérale d’État - Lieu d’enregistrement: Fédération de Russie, 393192, Tambov region, Kotovsk, Truda Ave., 23 - Date d’enregistrement: 16.8.2000: /"
+        props:
+          legalForm: entreprise fédérale d’État
+          jurisdiction: ru
+          address: "Fédération de Russie, 393192, Tambov region, Kotovsk, Truda Ave., 23"
+          incorporationDate: 2000-08-16
+      - match: "Numéro d’immatriculation: 600122610"
+        props:
+          registrationNumber: 600122610

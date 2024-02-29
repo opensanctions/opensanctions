@@ -121,6 +121,10 @@ lookups:
         values:
           - info@metallic-sy.com
           - shaamco@mail.sy
+      - contains: v.myshevskaya@rostvert.ru
+        values:
+          - v.myshevskaya@rostvert.ru 
+          - g.bunyaeva@rostvert.ru
   type.gender:
     lowercase: true
     normalize: true
