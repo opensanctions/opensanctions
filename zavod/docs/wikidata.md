@@ -1,7 +1,7 @@
 # Wikidata
 
 We import [Wikidata](https://www.wikidata.org/wiki/Wikidata:Main_Page) to
-OpenSanctions in two ways: using a [crawler](/tutorial) which
+OpenSanctions in two ways: using a [crawler](tutorial.md) which
 imports persons who have held any of a set of wikidata positions we have categorised as
 [Politically Exposed Person positions](https://opensanctions.org/pep), and using
 our [Wikidata Enricher](https://www.opensanctions.org/datasets/wikidata/).

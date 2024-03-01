@@ -384,6 +384,13 @@ class Context:
     def lookup_value(
         self, lookup: str, value: Optional[str], default: Optional[str] = None
     ) -> Optional[str]:
+        """Invoke a datapatch lookup defined in the dataset metadata.
+
+        Args:
+            lookup: The name of the lookup. The key under the dataset lookups property.
+            value: The data value to look up.
+            default: The default value to use if the lookup doesn't match the value.
+        """
         try:
             lookup_obj = self.get_lookup(lookup)
             return lookup_obj.get_value(value, default=default)
