@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: rupep
 coverage:
   frequency: never
+  start: 2022-02-25
   end: 2024-01-18
 deploy:
   schedule: "@weekly"

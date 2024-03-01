@@ -5,6 +5,7 @@ entry_point: crawler.py
 prefix: gb-proscribed
 coverage:
   frequency: daily
+  start: 2024-02-08
 summary: >-
   The United Kingdom's list of Proscribed Organizations under the
   Terrorism Act 2000

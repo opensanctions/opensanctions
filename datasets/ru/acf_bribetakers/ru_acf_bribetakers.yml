@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: acf
 coverage:
   frequency: daily
+  start: 2022-05-05
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   A list of key Russian decision-makers from government and business

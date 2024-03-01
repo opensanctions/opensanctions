@@ -4,6 +4,7 @@ prefix: de-oc
 disabled: false
 entry_point: parse.py
 coverage:
+  start: 2019-02-01
   end: 2019-02-01
   frequency: never
 deploy:

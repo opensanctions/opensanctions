@@ -5,6 +5,7 @@ entry_point: crawler
 prefix: de-aw
 coverage:
   frequency: daily
+  start: 2023-08-24
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Members of the German national legislature (The Bundestag)

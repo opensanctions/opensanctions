@@ -4,6 +4,7 @@ entry_point: crawler.py
 prefix: za-wanted
 coverage:
   frequency: daily
+  start: 2024-01-19
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Wanted persons list of South African Police Service

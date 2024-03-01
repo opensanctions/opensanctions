@@ -4,6 +4,7 @@ prefix: nv
 coverage:
   frequency: never
   end: "2021-02-08"
+  start: 2022-02-24
 deploy:
   schedule: "0 8 * * 4"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}

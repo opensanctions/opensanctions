@@ -6,6 +6,7 @@ disabled: false
 hidden: false
 coverage:
   frequency: never
+  start: 2022-02-23
   end: 2022-02-23
 exports:
   - statistics.json

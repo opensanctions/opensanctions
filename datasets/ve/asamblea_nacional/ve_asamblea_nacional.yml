@@ -1,6 +1,9 @@
 name: ve_asamblea_nacional
 title: Members of the National Assembly of Venezuela
 url: https://www.asambleanacional.gob.ve/diputados
+coverage:
+  frequency: daily
+  start: 2024-01-18
 summary: >-
   Members of the National Asssembly of Venezuela.
 description: |
