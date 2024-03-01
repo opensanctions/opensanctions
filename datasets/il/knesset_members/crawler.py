@@ -8,6 +8,8 @@ from zavod.entity import Entity
 from zavod.logic.pep import categorise
 
 DATE_FORMATS = ["%B %d, %Y"]
+CACHE_SHORT = 1
+CACHE_LONG = 14
 
 
 def crawl_position(context: Context, person: Entity, position: Entity, tenure):
@@ -39,7 +41,7 @@ def crawl_positions(context: Context, person: Entity, member_id):
     context.emit(position)
 
     positions_url = f"https://knesset.gov.il/WebSiteApi/knessetapi/MKs/GetMkPositions?mkId={member_id}&languageKey=en"
-    for row in context.fetch_json(positions_url, cache_days=7):
+    for row in context.fetch_json(positions_url, cache_days=CACHE_LONG):
         for tenure in row.pop("Tenure"):
             crawl_position(context, person, position, tenure)
 
@@ -47,7 +49,7 @@ def crawl_positions(context: Context, person: Entity, member_id):
 def crawl_item(context: Context, member_id: int, name: str, lang: str):
     lang3 = iso_639_alpha3(lang)
     content_url = f"https://knesset.gov.il/WebSiteApi/knessetapi/MKs/GetMkDetailsContent?mkId={member_id}&languageKey={lang}"
-    content = context.fetch_json(content_url, cache_days=7)
+    content = context.fetch_json(content_url, cache_days=CACHE_LONG)
 
     person = context.make("Person")
     person.id = context.make_slug(member_id)
@@ -72,9 +74,9 @@ def crawl_item(context: Context, member_id: int, name: str, lang: str):
 
 
 def crawl(context: Context):
-    for member in context.fetch_json(context.data_url, cache_days=7):
+    for member in context.fetch_json(context.data_url, cache_days=CACHE_SHORT):
         crawl_item(context, member["ID"], member["Name"], "en")
 
     hebrew_url = context.data_url.replace("languageKey=en", "languageKey=he")
-    for member in context.fetch_json(hebrew_url, cache_days=7):
+    for member in context.fetch_json(hebrew_url, cache_days=CACHE_SHORT):
         crawl_item(context, member["ID"], member["Name"], "he")
