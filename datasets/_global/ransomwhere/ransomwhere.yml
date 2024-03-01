@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: rwre
 coverage:
   frequency: daily
+  start: 2022-02-16
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Cryptocurrency addresses linked to payments for ransomware attacks

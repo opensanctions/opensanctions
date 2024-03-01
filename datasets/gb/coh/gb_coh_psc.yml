@@ -5,6 +5,7 @@ disabled: false
 entry_point: psc_parse.py
 coverage:
   frequency: weekly
+  start: 2023-07-28
 deploy:
   disk: 200Gi
   cpu: 400m

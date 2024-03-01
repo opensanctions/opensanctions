@@ -4,6 +4,7 @@ prefix: osv
 hidden: true
 coverage:
   frequency: daily
+  start: 2023-12-05
 summary: >
   This dataset is used for alerting tests.
 description: |

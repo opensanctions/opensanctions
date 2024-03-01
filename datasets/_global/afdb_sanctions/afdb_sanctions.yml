@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: afdb
 coverage:
   frequency: never
+  start: 2021-11-08
   end: 2023-11-10
 deploy:
   schedule: "@monthly"

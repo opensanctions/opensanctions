@@ -3,6 +3,7 @@ entry_point: interpol_api.py
 prefix: interpol-red
 coverage:
   frequency: daily
+  start: 2015-12-05
 deploy:
   schedule: "0 */9 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}

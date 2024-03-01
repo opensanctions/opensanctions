@@ -4,6 +4,7 @@ entry_point: crawler.py
 prefix: mk-officials
 coverage:
   frequency: daily
+  start: 2024-01-20
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Data on Politically Exposed Persons from asset declarations of elected and appointed officials in North Macedonia

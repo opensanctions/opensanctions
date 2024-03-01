@@ -13,6 +13,7 @@ deploy:
   # premium: true
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 coverage:
+  start: 2022-05-23
   end: 2023-07-26
   frequency: weekly
 summary: |

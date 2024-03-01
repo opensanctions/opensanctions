@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: trade-csl
 coverage:
   frequency: daily
+  start: 2021-06-18
 deploy:
   schedule: "20 */3 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}

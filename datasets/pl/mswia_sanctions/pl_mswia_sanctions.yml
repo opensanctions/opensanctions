@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: plmswia
 coverage:
   frequency: daily
+  start: "2022-04-29"
 deploy:
   schedule: "0 */8 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}

@@ -4,6 +4,7 @@ prefix: ltfiu
 coverage:
   country: lt
   frequency: never
+  start: 2023-05-16
   end: 2023-12-18
 deploy:
   schedule: "@weekly"

@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: cl-info-probidad
 coverage:
   frequency: daily
+  start: 2024-01-11
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Data on Politically Exposed Persons from asset and interest declarations of Chilean public officials

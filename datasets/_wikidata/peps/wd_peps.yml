@@ -4,6 +4,7 @@ prefix: wd
 # hidden: true
 coverage:
   frequency: daily
+  start: 2022-12-27
 deploy:
   schedule: "0 */6 * * *"
   memory: "2Gi"

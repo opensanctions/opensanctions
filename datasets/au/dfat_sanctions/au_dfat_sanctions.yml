@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: au-dfat
 coverage:
   frequency: daily
+  start: 2018-04-11
 deploy:
   schedule: "0 */2 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}

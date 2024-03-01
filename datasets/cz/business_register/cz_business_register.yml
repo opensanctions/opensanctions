@@ -5,6 +5,7 @@ disabled: false
 entry_point: crawler.py
 coverage:
   frequency: weekly
+  start: 2023-03-21
 deploy:
   disk: 30Gi
   premium: true

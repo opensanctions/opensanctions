@@ -3,6 +3,7 @@ prefix: arpet
 entry_point: crawler.py
 coverage:
   frequency: daily
+  start: 2022-02-06
 deploy:
   schedule: "0 */12 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
