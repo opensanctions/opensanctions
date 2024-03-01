@@ -89,10 +89,8 @@ def en_label(institution_en: str, department_en: str, position_en: str) -> str:
 
 def si_label(institution_si: str, department_si: str, position_si: str) -> str:
     # Party in institution
-    if position_si.lower() == "poslanec":
-        return "Poslanec"
-    if position_si.lower() == "poslanka":
-        return "Poslanka"
+    if position_si.lower() in {"poslanka", "poslanec"}:
+        return "Poslanka/Poslanec"
     if "občinski svetnik v" in position_si.lower():
         return position_si
 

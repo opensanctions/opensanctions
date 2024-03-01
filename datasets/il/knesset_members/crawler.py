@@ -8,6 +8,8 @@ from zavod.entity import Entity
 from zavod.logic.pep import categorise
 
 DATE_FORMATS = ["%B %d, %Y"]
+CACHE_SHORT = 1
+CACHE_LONG = 14
 
 
 def crawl_position(context: Context, person: Entity, position: Entity, tenure):
@@ -39,18 +41,15 @@ def crawl_positions(context: Context, person: Entity, member_id):
     context.emit(position)
 
     positions_url = f"https://knesset.gov.il/WebSiteApi/knessetapi/MKs/GetMkPositions?mkId={member_id}&languageKey=en"
-    for row in context.fetch_json(positions_url, cache_days=7):
+    for row in context.fetch_json(positions_url, cache_days=CACHE_LONG):
         for tenure in row.pop("Tenure"):
             crawl_position(context, person, position, tenure)
 
 
 def crawl_item(context: Context, member_id: int, name: str, lang: str):
     lang3 = iso_639_alpha3(lang)
-    # too many requests makes the knesset sad
-    # header_url = f"https://knesset.gov.il/WebSiteApi/knessetapi/MKs/GetMkdetailsHeader?mkId={member_id}&languageKey={lang}"
-    # header = context.fetch_json(header_url, cache_days=1)
     content_url = f"https://knesset.gov.il/WebSiteApi/knessetapi/MKs/GetMkDetailsContent?mkId={member_id}&languageKey={lang}"
-    content = context.fetch_json(content_url, cache_days=7)
+    content = context.fetch_json(content_url, cache_days=CACHE_LONG)
 
     person = context.make("Person")
     person.id = context.make_slug(member_id)
@@ -70,25 +69,14 @@ def crawl_item(context: Context, member_id: int, name: str, lang: str):
             person.add(
                 "deathDate", h.parse_date(content.pop("DeathDate"), DATE_FORMATS)
             )
-        # person.add("email", header.pop("Email"))
-        # person.add("website", header.pop("Website"))
-        # person.add("political", header.pop("Faction"))
 
         crawl_positions(context, person, member_id)
 
 
 def crawl(context: Context):
-    for member in context.fetch_json(context.data_url, cache_days=7):
-        if not member.pop("IsCurrent"):
-            continue
-        sleep(1)
+    for member in context.fetch_json(context.data_url, cache_days=CACHE_SHORT):
         crawl_item(context, member["ID"], member["Name"], "en")
 
-    # This doesn't give us tons more data so if it's too slow, just take the hebrew
-    # name from the hebrew index and add it in the english run or something.
     hebrew_url = context.data_url.replace("languageKey=en", "languageKey=he")
-    for member in context.fetch_json(hebrew_url, cache_days=7):
-        if not member.pop("IsCurrent"):
-            continue
-        sleep(1)
+    for member in context.fetch_json(hebrew_url, cache_days=CACHE_SHORT):
         crawl_item(context, member["ID"], member["Name"], "he")
