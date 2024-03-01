@@ -77,4 +77,4 @@ def crawl(context: Context):
 
     hebrew_url = context.data_url.replace("languageKey=en", "languageKey=he")
     for member in context.fetch_json(hebrew_url, cache_days=7):
-        crawl_item(context, member["ID"], "he")
+        crawl_item(context, member["ID"], member["Name"], "he")
