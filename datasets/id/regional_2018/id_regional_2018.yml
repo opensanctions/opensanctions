@@ -5,6 +5,7 @@ entry_point: crawler
 prefix: id-reg-2018
 coverage:
   frequency: daily
+  start: 2024-01-05
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   Governors, Regents, and Mayors elected in the 2018 Indonesian regional elections

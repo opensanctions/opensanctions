@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: europol
 coverage:
   frequency: daily
+  start: 2022-08-22
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: "Wanted fugitivies listed on a Europol-operated web site."
 description: >

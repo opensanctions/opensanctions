@@ -5,6 +5,7 @@ disabled: false
 entry_point: parse.py
 coverage:
   frequency: weekly
+  start: 2023-07-28
 deploy:
   disk: 30Gi
   memory: 2Gi
