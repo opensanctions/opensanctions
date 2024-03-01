@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: ebrd
 coverage:
   frequency: daily
+  start: 2021-11-11
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   The EBRD published integrity sanctions. The entities and individuals listed

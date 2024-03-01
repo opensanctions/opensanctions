@@ -2,6 +2,9 @@ name: hk_principal_officials
 title: Hong Kong Principal Officials
 prefix: hk-po
 url: https://www.gov.hk/en/about/govdirectory/po/index.htm
+coverage:
+  frequency: daily
+  start: 2024-02-07
 summary:
   Principal Officials of Hong Kong Special Administrative Region of the People's
   Republic of China.

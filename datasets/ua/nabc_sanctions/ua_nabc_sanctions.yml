@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: ua-nazk
 coverage:
   frequency: daily
+  start: 2022-04-16
 deploy:
   schedule: "0 */3 * * *"
   memory: 1500Mi

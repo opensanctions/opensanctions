@@ -5,6 +5,7 @@ disabled: false
 entry_point: crawler.py
 coverage:
   frequency: weekly
+  start: 2023-07-28 # TODO: what does gleif crawler from kyb/graph mean? does this go back further?
 deploy:
   disk: 50Gi
   memory: 1500Mi

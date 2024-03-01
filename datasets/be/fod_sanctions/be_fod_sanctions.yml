@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: be-fod
 coverage:
   frequency: daily
+  start: 2022-04-27
 deploy:
   schedule: "0 */3 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}

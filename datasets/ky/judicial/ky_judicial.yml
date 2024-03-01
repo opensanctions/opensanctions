@@ -5,6 +5,7 @@ entry_point: crawler
 prefix: ky-ja
 coverage:
   frequency: weekly
+  start: 2023-09-03
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 description: |
   Judicial Officers from Cayman Islands Judicial Administration
