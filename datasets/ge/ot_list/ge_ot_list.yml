@@ -31,4 +31,12 @@ publisher:
     state agencies, as well as international agreements, decisions by
     the Constitutional Court, local self-government acts, and public
     statements.
-
+assertions:
+  min:
+    schema_entities:
+      Person: 33
+    country_entities:
+      ge: 1
+  max:
+    schema_entities:
+      Person: 33
