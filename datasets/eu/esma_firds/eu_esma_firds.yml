@@ -2,10 +2,11 @@ title: "EU ESMA Financial Instruments Reference Data System (FIRDS)"
 entry_point: crawler.py
 prefix: eu-firds
 coverage:
-  frequency: weekly
+  frequency: monthly
+  start: 2024-03-02
 deploy:
-  memory: 3000Mi
-  memory_limit: 4000Mi
+  memory: 4000Mi
+  memory_limit: 4500Mi
   disk: 50Gi
 summary: >
   List of financial instruments and their reference data, as published by the
