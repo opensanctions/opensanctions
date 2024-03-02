@@ -96,3 +96,6 @@ def crawl(context: Context):
         decomment = (spam for spam in infh if spam[0] != "%")
         reader = csv.DictReader(decomment)
         crawl_csv(context, reader)
+
+    # NOTE: To get start dates we need this auxiliary CSV:
+    # https://data.senat.fr/data/senateurs/ODSEN_ELUSEN.csv
