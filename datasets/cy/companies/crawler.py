@@ -1,10 +1,7 @@
 import csv
-import secrets
-from requests.exceptions import HTTPError
-from typing import Dict, Optional, List
+from pathlib import Path
+from typing import Dict, Generator, Iterable, Optional
 from datetime import datetime
-from io import TextIOWrapper
-from zipfile import ZipFile
 from normality import collapse_spaces
 from followthemoney.util import join_text
 
@@ -28,15 +25,15 @@ def company_id(org_type: str, reg_nr: str) -> Optional[str]:
     return f"oc-companies-cy-{org_type_oc}{reg_nr}".lower()
 
 
-def iter_rows(zip: ZipFile, name: str):
-    with zip.open(name, "r") as fh:
-        wrapper = TextIOWrapper(fh, encoding="utf-8-sig")
-        for row in csv.DictReader(wrapper):
+def iter_rows(path: Path) -> Generator[Dict[str, str], None, None]:
+    with open(path, "r") as fh:
+        fh.read(1)  # bom
+        for row in csv.DictReader(fh):
             yield row
 
 
 def parse_organisations(
-    context: Context, rows: List[Dict[str, str]], addresses: Dict[str, str]
+    context: Context, rows: Iterable[Dict[str, str]], addresses: Dict[str, str]
 ) -> None:
     for row in rows:
         org_type = row.pop("ORGANISATION_TYPE_CODE")
@@ -77,7 +74,7 @@ def parse_organisations(
         context.audit_data(row, ignore=["NAME_STATUS_CODE", "NAME_STATUS"])
 
 
-def parse_officials(context: Context, rows: List[Dict[str, str]]) -> None:
+def parse_officials(context: Context, rows: Iterable[Dict[str, str]]) -> None:
     org_types = list(TYPES.keys())
     for row in rows:
         org_type = row.pop("ORGANISATION_TYPE_CODE")
@@ -103,7 +100,7 @@ def parse_officials(context: Context, rows: List[Dict[str, str]]) -> None:
         context.emit(link)
 
 
-def load_addresses(rows: List[Dict[str, str]]) -> Dict[str, str]:
+def load_addresses(rows: Iterable[Dict[str, str]]) -> Dict[str, str]:
     addresses: Dict[str, str] = {}
     for row in rows:
         seq_no = row.pop("ADDRESS_SEQ_NO")
@@ -121,52 +118,25 @@ def load_addresses(rows: List[Dict[str, str]]) -> Dict[str, str]:
 
 
 def crawl(context: Context) -> None:
-    for i in range(10):
-        try:
-            meta_url = context.data_url + "?_=" + secrets.token_hex(8)
-            meta = context.fetch_json(
-                meta_url, headers={"Accept": "application/json", "User-Agent": UA}
-            )
-            break
-        except HTTPError as http_error:
-            if i > 8:
-                raise http_error
-            context.log.warning("Retry", attempt=i, error=http_error)
+    headers = {"Accept": "application/json", "User-Agent": UA}
+    meta = context.fetch_json(context.data_url, headers=headers)
+
+    files: Dict[str, Path] = {}
+    for dist in meta['dcat:Distribution']:
+        dist_url = dist['dcat:downloadURL']['@rdf:resource']
+        file_name = dist_url.rsplit('/')[-1]
+        file_path = context.fetch_resource(file_name, dist_url)
+        files[file_name] = file_path
     
-    context.inspect(meta)
-    # for link in doc.findall(".//div[@class='main']//a"):
-    #     href = link.get("href")
-    #     if href is None or not href.endswith(".csv"):
-    #         continue
-    #     print(href)
-    # context.fetch_resource("data.zip", href)
-    # with ZipFile(context.get_resource_path("data.zip"), "r") as zip:
-    #     addresses: Dict[str, str] = {}
-    #     for name in zip.namelist():
-    #         if name.startswith("registered_office_"):
-    #             addresses = load_addresses(iter_rows(zip, name))
-
-    #     for name in zip.namelist():
-    #         context.log.info("Reading: %s in %s" % (name, context.get_resource_path("data.zip")))
-    #         if name.startswith("organisations_"):
-    #             rows = iter_rows(zip, name)
-    #             parse_organisations(context, rows, addresses)
-    #         if name.startswith("organisation_officials_"):
-    #             rows = iter_rows(zip, name)
-    #             parse_officials(context, rows)
-
-    # data_path = context.fetch_resource("data.zip", context.data_url)
-    # with ZipFile(data_path, "r") as zip:
-    #     addresses: Dict[str, str] = {}
-    #     for name in zip.namelist():
-    #         if name.startswith("registered_office_"):
-    #             addresses = load_addresses(iter_rows(zip, name))
-
-    #     for name in zip.namelist():
-    #         context.log.info("Reading: %s in %s" % (name, data_path))
-    #         if name.startswith("organisations_"):
-    #             rows = iter_rows(zip, name)
-    #             parse_organisations(context, rows, addresses)
-    #         if name.startswith("organisation_officials_"):
-    #             rows = iter_rows(zip, name)
-    #             parse_officials(context, rows)
+    for name, path in files.items():
+        if name.startswith("registered_office_"):
+            addresses = load_addresses(iter_rows(path))
+    
+    for name, path in files.items():
+        if name.startswith("organisations_"):
+            rows = iter_rows(path)
+            parse_organisations(context, rows, addresses)
+        if name.startswith("organisation_officials_"):
+            rows = iter_rows(path)
+            parse_officials(context, rows)
+    
