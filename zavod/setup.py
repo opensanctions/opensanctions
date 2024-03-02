@@ -46,6 +46,7 @@ setup(
         "requests_oauthlib",
         "sqlalchemy[mypy]",
         "structlog",
+        "transliterate",
         "xlrd == 2.0.1",
     ],
     tests_require=[],
