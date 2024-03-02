@@ -3,6 +3,10 @@ entry_point: crawler.py
 prefix: eu-firds
 coverage:
   frequency: weekly
+deploy:
+  memory: 1500Mi
+  memory_limit: 2500Mi
+  disk: 50Gi
 summary: >
   List of financial instruments and their reference data, as published by the
   European Securities and Markets Authority (ESMA).
