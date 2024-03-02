@@ -43,3 +43,14 @@ publisher:
 data:
   url: https://data.senat.fr/data/senateurs/ODSEN_GENERAL.csv
   format: CSV
+assertions:
+  min:
+    schema_entities:
+      Person: 300
+      Position: 1
+    country_entities:
+      fr: 1
+  max:
+    schema_entities:
+      Person: 400
+      Position: 1
