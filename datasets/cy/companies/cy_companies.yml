@@ -24,6 +24,7 @@ publisher:
   url: https://www.companies.gov.cy/en/
   country: cy
   official: true
+url: https://data.gov.cy/el/dataset/mitroo-eggegrammenon-etaireion-emporikon-eponymion-kai-synetairismon-stin-kypro
 data:
-  url: "https://www.data.gov.cy/el/dataset/1026/dcat-ap-2.0/json"
+  url: "https://data.gov.cy/el/dataset/1026/dcat-ap-2.0/json"
   format: CSV
