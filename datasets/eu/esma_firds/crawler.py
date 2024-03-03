@@ -1,32 +1,35 @@
-from lxml import etree
+from typing import IO
 from pathlib import Path
 from zipfile import ZipFile
+import xml.etree.ElementTree as ET
 
 from zavod import Context
-from zavod import helpers as h
-from zavod.helpers.xml import ElementOrTree
+
+NS = "{urn:iso:std:iso:20022:tech:xsd:auth.017.001.02}"
 
 
-def parse_xml_doc(context: Context, file: ElementOrTree) -> None:
-    doc = file.find('.//Document')
-    assert doc is not None, file
-    for ref in doc.findall('./FinInstrmRptgRefDataRpt/RefData'):
-        attr = ref.find('./FinInstrmGnlAttrbts')
+def parse_xml_doc(context: Context, file: IO[bytes]) -> None:
+    for (event, elem) in ET.iterparse(file, events=("end",)):
+        if event != "end" or elem.tag != f"{NS}RefData":
+            continue
+        attr = elem.find(f"./{NS}FinInstrmGnlAttrbts")
         if attr is None:
             continue
-        isin = attr.findtext('./Id')
+        isin = attr.findtext(f"./{NS}Id")
         if isin is None:
-            context.log.warn("No ISIN", ref=ref)
+            context.log.warn("No ISIN", elem=elem)
             continue
         security = context.make("Security")
         security.id = f"isin-{isin}"
-        security.add("name", attr.findtext('./FullNm'))
-        security.add("alias", attr.findtext('./ShrtNm'))
-        security.add("classification", attr.findtext('./ClssfctnTp'))
-        security.add("currency", attr.findtext('./NtnlCcy'))
-        security.add("createdAt", ref.findtext('./TradgVnRltdAttrbts/AdmssnApprvlDtByIssr'))
+        security.add("name", attr.findtext(f"./{NS}FullNm"))
+        security.add("alias", attr.findtext(f"./{NS}ShrtNm"))
+        security.add("classification", attr.findtext(f"./{NS}ClssfctnTp"))
+        security.add("currency", attr.findtext(f"./{NS}NtnlCcy"))
+        trading = elem.find(f"./{NS}TradgVnRltdAttrbts")
+        if trading is not None:
+            security.add("createdAt", trading.findtext(f"./{NS}AdmssnApprvlDtByIssr"))
 
-        lei = ref.findtext('./Issr')
+        lei = elem.findtext(f"./{NS}Issr")
         if lei is not None:
             lei_id = f"lei-{lei}"
             issuer = context.make("Organization")
@@ -34,7 +37,7 @@ def parse_xml_doc(context: Context, file: ElementOrTree) -> None:
             issuer.add("leiCode", lei)
             context.emit(issuer)
             security.add("issuer", lei_id)
-        
+
         context.emit(security)
 
 
@@ -43,8 +46,7 @@ def parse_xml_file(context: Context, path: Path) -> None:
         for name in archive.namelist():
             if name.endswith(".xml"):
                 with archive.open(name) as fh:
-                    doc = h.remove_namespace(etree.parse(fh))
-                    parse_xml_doc(context, doc)
+                    parse_xml_doc(context, fh)
 
 
 def get_full_dumps_index(context: Context):
@@ -67,12 +69,11 @@ def get_full_dumps_index(context: Context):
     resp = context.http.post(context.data_url, json=query)
     resp_data = resp.json()
     latest = None
-    for result in resp_data['response']['docs']:
-        if latest is not None and latest != result['publication_date']:
+    for result in resp_data["response"]["docs"]:
+        if latest is not None and latest != result["publication_date"]:
             break
-        latest = result['publication_date']
-        yield result['file_name'], result['download_link']
-    
+        latest = result["publication_date"]
+        yield result["file_name"], result["download_link"]
 
 
 def crawl(context: Context) -> None:
