@@ -20,11 +20,6 @@ UNUSED_FIELDS = [
     "Catégorie professionnelle",
     "Description de la profession",
 ]
-DATE_FORMATS = [
-    "%Y-%m-%d %H:%M:%S.0",
-    "%Y-%m-%d %H:%M:%S",
-    "%Y-%m-%d",
-]
 
 
 def crawl_row(context: Context, row: Dict[str, str]):
@@ -58,7 +53,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
         context.log.warning(f"Senator {given_name} {family_name} is not PEP")
         return
     person = context.make("Person")
-    person.id = context.make_id(senid)
+    person.id = context.make_slug(senid)
     context.log.debug(f"Unique ID {person.id}")
     h.apply_name(person, given_name=given_name, last_name=family_name,
                  lang="fra")
@@ -66,7 +61,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
         person.add("email", email)
     if birth_date:
         # Luckily they are all consistently formatted!
-        person.add("birthDate", h.parse_date(birth_date, DATE_FORMATS))
+        person.add("birthDate", birth_date)
     occupancy = h.make_occupancy(
         context,
         person,
@@ -80,12 +75,6 @@ def crawl_row(context: Context, row: Dict[str, str]):
         context.emit(occupancy)
 
 
-def crawl_csv(context: Context, reader: Iterable[Dict[str, str]]):
-    """Process the CSV data"""
-    for row in reader:
-        crawl_row(context, row)
-
-
 def crawl(context: Context):
     """Retrieve list of senators as CSV and emit PEP entities for
     currently serving senators."""
@@ -94,8 +83,8 @@ def crawl(context: Context):
     )
     with open(path, "rt", encoding="cp1252") as infh:
         decomment = (spam for spam in infh if spam[0] != "%")
-        reader = csv.DictReader(decomment)
-        crawl_csv(context, reader)
+        for row in csv.DictReader(decomment):
+            crawl_row(context, row)
 
     # NOTE: To get start dates we need this auxiliary CSV:
     # https://data.senat.fr/data/senateurs/ODSEN_ELUSEN.csv
