@@ -1,5 +1,6 @@
 from typing import Dict, Any, List, Optional, Set
 from requests.exceptions import HTTPError
+from time import sleep
 
 from zavod import Context
 from zavod import helpers as h
@@ -17,15 +18,19 @@ IGNORE_FIELDS = [
 MAX_RESULTS = 160
 SEEN_URLS: Set[str] = set()
 SEEN_IDS: Set[str] = set()
-COUNTRIES_URL = "https://www.interpol.int/en/How-we-work/Notices/View-Red-Notices"
+COUNTRIES_URL = "https://www.interpol.int/en/How-we-work/Notices/Red-Notices/View-Red-Notices"
 FORMATS = ["%Y/%m/%d", "%Y/%m", "%Y"]
 GENDERS = ["M", "F", "U"]
 AGE_MIN = 20
 AGE_MAX = 90
+HEADERS = {
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 (opensanctions.org)'
+}
 
 
 def get_countries(context: Context) -> List[Any]:
-    doc = context.fetch_html(COUNTRIES_URL, cache_days=CACHE_DAYS)
+    doc = context.fetch_html(COUNTRIES_URL, cache_days=CACHE_DAYS, headers=HEADERS)
+    sleep(3)
     path = ".//select[@id='arrestWarrantCountryId']/option"
     options: List[Any] = []
     for option in doc.findall(path):
@@ -34,6 +39,7 @@ def get_countries(context: Context) -> List[Any]:
         #     continue
         # label = collapse_spaces(option.text_content())
         options.append(option.get("value"))
+    print(options)
     return options
 
 
@@ -51,7 +57,7 @@ def crawl_notice(context: Context, notice: Dict[str, Any]) -> None:
     SEEN_URLS.add(url)
     # context.log.info("Crawl notice: %s" % url)
     try:
-        notice = context.fetch_json(url, cache_days=CACHE_DAYS)
+        notice = context.fetch_json(url, cache_days=CACHE_DAYS, headers=HEADERS)
     except HTTPError as err:
         if err.response.status_code == 404:
             return
@@ -61,6 +67,7 @@ def crawl_notice(context: Context, notice: Dict[str, Any]) -> None:
             error=err.response.status_code,
         )
         return
+    sleep(3)
     notice.pop("_links", {})
     notice.pop("_embedded", {})
     entity_id = notice.pop("entity_id")
@@ -107,6 +114,7 @@ def crawl_query(context: Context, query: Dict[str, Any]) -> int:
             context.data_url,
             params=params,
             cache_days=CACHE_DAYS,
+            headers=HEADERS
         )
     except HTTPError as err:
         if err.response.status_code == 404:
@@ -117,7 +125,7 @@ def crawl_query(context: Context, query: Dict[str, Any]) -> int:
             error=err.response.status_code,
         )
         return 0
-
+    sleep(3)
     total: int = data.get("total", 0)
     notices = data.get("_embedded", {}).get("notices", [])
     for notice in notices:
