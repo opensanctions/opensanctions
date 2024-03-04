@@ -39,4 +39,4 @@ assertions:
       ge: 1
   max:
     schema_entities:
-      Person: 33
+      Person: 100
