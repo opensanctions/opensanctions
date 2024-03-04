@@ -1,0 +1,56 @@
+title: French Senators
+prefix: fr-senat
+url: https://www.senat.fr/vos-senateurs.html
+coverage:
+  frequency: daily
+  start: 2024-03-01
+entry_point: crawler.py
+summary: >-
+  French Senators.
+description: |
+  This dataset lists the serving members of the French Senate.
+
+  The data is collected from the open data platform for the Senate,
+  which is the upper legislative chamber of the French government.  The
+  Senate is composed of 348 senators elected to six-year terms, with
+  half of its seats elected every three years.
+
+  The primary role of the Senate is to represent the territorial
+  entities (communes, départements, regions, overseas territories) of
+  France.  As such, it is elected not by popular suffrage but by an
+  electoral college composed of elected officials of these local
+  governments.
+
+  The function of the Senate is to examine and pass laws and to verify
+  and evaluate public policy and the functioning of the government.
+publisher:
+  name: La plateforme des données ouvertes du Sénat
+  description: |
+    The French Senate publishes comprehensive information about
+    current and past senators on an open data portal as a single
+    PostgreSQL database, as well as individual JSON, CSV, and XLSX
+    files for specific queris on this database.
+
+    This includes, among other things, term of office, territory
+    represented, and membership on commmissions, delegations,
+    international organizations, interparliamentary and
+    extraparliamentary committees.
+
+    Data is provided under the French Government's [Open License](https://www.etalab.gouv.fr/wp-content/uploads/2017/04/ETALAB-Licence-Ouverte-v2.0.pdf)
+  country: fr
+  url: https://data.senat.fr
+  official: true
+data:
+  url: https://data.senat.fr/data/senateurs/ODSEN_GENERAL.csv
+  format: CSV
+assertions:
+  min:
+    schema_entities:
+      Person: 300
+      Position: 1
+    country_entities:
+      fr: 1
+  max:
+    schema_entities:
+      Person: 400
+      Position: 1
