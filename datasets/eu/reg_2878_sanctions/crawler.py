@@ -16,7 +16,6 @@ def crawl_row(context: Context, row: Dict[str, str]):
     name = row.pop("Name").strip()
     country = row.pop("Country").strip()
 
-
     context.log.info(f"Processing row ID {row_id}: {name}")
     entity = context.make(entity_type)
     entity.id = context.make_id(row_id, name, country)

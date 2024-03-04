@@ -1,0 +1,42 @@
+title: Otkhozoria–Tatunashvili List
+entry_point: crawler.py
+prefix: ge-ot-list
+coverage:
+  frequency: daily
+  start: 2024-03-01
+summary: >-
+  List of individuals involved in crimes against Georgians in Abkhazia
+  and South Osssetia.
+description: |
+  The Otkhozoria–Tatunashvili List was originally adopted by the
+  parliament of Georgia on June 26, 2018 in response to the killings
+  of Archil Tatunashvili and Giga Otkhozoria by separatist authorities
+  in Russian-occupied regions of Georgia.  It lists a number of
+  individuals who have been found guilty or are awaiting trial for
+  crimes such as murder, kidnapping, torture, and inhumane treatment
+  against ethnic Georgians.
+url: https://matsne.gov.ge/ka/document/view/4234552?publication=0
+data:
+  url: https://matsne.gov.ge/ka/document/view/4234552?publication=0
+  format: HTML
+publisher:
+  name: საქართველოს საკანონმდებლო მაცნე
+  country: ge
+  url: https://matsne.gov.ge/en
+  description: |
+    The Legislative Herald of Georgia, established in 1998 under the
+    authority of the Ministry of Justice, is the official gazette of
+    Georgia.  Since 2011, it maintains a user-friendly, protected, and
+    regularly updated website providing all normative acts adopted by
+    state agencies, as well as international agreements, decisions by
+    the Constitutional Court, local self-government acts, and public
+    statements.
+assertions:
+  min:
+    schema_entities:
+      Person: 33
+    country_entities:
+      ge: 1
+  max:
+    schema_entities:
+      Person: 100
