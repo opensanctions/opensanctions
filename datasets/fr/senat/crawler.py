@@ -87,7 +87,7 @@ def crawl_csv(context: Context, reader: Iterable[Dict[str, str]]):
 
 
 def crawl(context: Context):
-    """Retrieve list of senators as CSV and emit POI entities for
+    """Retrieve list of senators as CSV and emit PEP entities for
     currently serving senators."""
     path = context.fetch_resource(
         "senators.csv", context.dataset.data.url
