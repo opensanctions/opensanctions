@@ -6,7 +6,7 @@ from zavod import helpers as h
 
 # Useful notes: https://www.fer.xyz/2021/08/interpol
 
-CACHE_DAYS = 3
+CACHE_DAYS = 15
 IGNORE_FIELDS = [
     "languages_spoken_ids",
     "hairs_id",
