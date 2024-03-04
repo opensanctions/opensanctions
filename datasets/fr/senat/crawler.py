@@ -42,8 +42,8 @@ def crawl_row(context: Context, row: Dict[str, str]):
     # Make a PEP entity
     position = h.make_position(
         context,
-        name="French Senator",
-        country="France",
+        name="Senator of the French Fifth Republic",
+        country="fr",
         topics=["gov.national", "gov.legislative"],
     )
     # is_pep=True because we expect all senators to be PEPs
