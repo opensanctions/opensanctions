@@ -23,6 +23,8 @@ TYPES = {
     "Entity": "LegalEntity",
     "Bank": "Company",
 }
+ASSOCIATE = ("associate", "close associate")
+FAMILY = ("relative", "wife", "son", "daughter", "nephew")
 
 
 def parse_date(value: Any) -> Any:
@@ -46,14 +48,14 @@ def parse_associates(context: Context, target: Entity, value: str) -> None:
     entity.id = context.make_slug("named", other)
     entity.add("name", other)
     context.emit(entity)
-    if link.lower().strip() == "associate":
+    if link.lower().strip() in ASSOCIATE:
         rel = context.make("UnknownLink")
         rel.id = context.make_id(target.id, entity.id, value)
         rel.add("subject", target)
         rel.add("object", entity)
         rel.add("role", value)
         context.emit(rel)
-    elif link.lower().strip() == "relative":
+    elif link.lower().strip() in FAMILY:
         rel = context.make("Family")
         rel.id = context.make_id(target.id, entity.id, value)
         rel.add("person", target)
