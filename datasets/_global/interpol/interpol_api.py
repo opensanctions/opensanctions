@@ -204,5 +204,5 @@ def crawl(context: Context) -> None:
         urls=len(SEEN_URLS),
     )
 
-    if any([k > 200 for k in STATUSES.keys()]):
+    if any([key > 200 for key in STATUSES.keys()]):
         raise RuntimeError("non-200 HTTP statuse codes %r" % STATUSES)
