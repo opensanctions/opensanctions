@@ -11,7 +11,7 @@ from zavod import helpers as h
 # Useful notes: https://www.fer.xyz/2021/08/interpol
 
 CACHE_VSHORT = 1
-CACHE_SHORT = 7
+CACHE_SHORT = 3
 CACHE_LONG = 14
 IGNORE_FIELDS = [
     "languages_spoken_ids",
