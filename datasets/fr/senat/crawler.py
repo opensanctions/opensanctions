@@ -3,7 +3,7 @@ Crawler for active French senators.
 """
 
 import csv
-from typing import Dict, Iterable
+from typing import Dict
 
 from zavod import Context
 from zavod import helpers as h
@@ -55,8 +55,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     person = context.make("Person")
     person.id = context.make_slug(senid)
     context.log.debug(f"Unique ID {person.id}")
-    h.apply_name(person, given_name=given_name, last_name=family_name,
-                 lang="fra")
+    h.apply_name(person, given_name=given_name, last_name=family_name, lang="fra")
     if email and email != "Non public":
         person.add("email", email)
     if birth_date:
@@ -78,9 +77,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
 def crawl(context: Context):
     """Retrieve list of senators as CSV and emit PEP entities for
     currently serving senators."""
-    path = context.fetch_resource(
-        "senators.csv", context.dataset.data.url
-    )
+    path = context.fetch_resource("senators.csv", context.data_url)
     with open(path, "rt", encoding="cp1252") as infh:
         decomment = (spam for spam in infh if spam[0] != "%")
         for row in csv.DictReader(decomment):
