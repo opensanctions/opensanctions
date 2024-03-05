@@ -138,22 +138,49 @@ def pick_country(context, *qids):
     return None
 
 
-def query_positions(context: Context, country) -> Generator[Dict[str, Any], None, None]:
+def query_positions(
+    context: Context, position_classes, country
+) -> Generator[Dict[str, Any], None, None]:
     """
     Yields an item for each position with all countries selected by pick_country().
 
     May return duplicates
     """
     context.log.info(f"Crawling positions for {country['qid']} ({country['label']})")
-
-    vars = {"COUNTRY": country["qid"]}
     position_countries = defaultdict(set)
 
-    # a) All positions by jurisdiction/country
+    # a.1) Instances of one or more subclasses of Q4164871 (position) by jurisdiction/country
+    country_results = []
+    for position_class in position_classes:
+        context.log.info(
+            f"Querying descendants of {position_class.plain('class')} ({position_class.plain('classLabel')})"
+        )
+        vars = {
+            "COUNTRY": country["qid"],
+            "CLASS": position_class.plain("class"),
+            "RELATION": "wdt:P31/wdt:P279*",
+        }
+        country_response = run_query(
+            context,
+            context.data_url,
+            "positions/country",
+            vars,
+            cache_days=CACHE_MEDIUM,
+        )
+        country_results.extend(country_response.results)
+    # a.2) Instances of Q4164871 (position) by jurisdiction/country
+    context.log.info(f"Querying instances of Q4164871")
+    vars = {
+        "COUNTRY": country["qid"],
+        "CLASS": "Q4164871",
+        "RELATION": "wdt:P31",
+    }
     country_response = run_query(
         context, context.data_url, "positions/country", vars, cache_days=CACHE_MEDIUM
     )
-    for bind in country_response.results:
+    country_results.extend(country_response.results)
+
+    for bind in country_results:
         country_res = pick_country(
             context,
             bind.plain("country"),
@@ -176,7 +203,7 @@ def query_positions(context: Context, country) -> Generator[Dict[str, Any], None
         if country_res is not None:
             position_countries[bind.plain("position")].add(country_res.code)
 
-    for bind in country_response.results + politician_response.results:
+    for bind in country_results + politician_response.results:
         date_abolished = bind.plain("abolished")
         if date_abolished is not None and date_abolished < "2000-01-01":
             context.log.info(f"Skipping abolished position: {bind.plain('position')}")
@@ -205,10 +232,17 @@ def query_countries(context: Context):
         }
 
 
+def query_position_classes(context: Context):
+    response = run_query(
+        context, context.data_url, "positions/subclasses", cache_days=CACHE_MEDIUM
+    )
+    return response.results
+
+
 def crawl(context: Context):
     seen_countries = set()
     seen_positions = set()
-    for country in query_countries(context):
+    for country in [{"qid": "Q142", "label": "france"}]:  # query_countries(context):
         if country["qid"] in seen_countries:
             continue
         seen_countries.add(country["qid"])
@@ -222,7 +256,9 @@ def crawl(context: Context):
         if country_res.decision != DECISION_NATIONAL:
             continue
 
-        for wd_position in query_positions(context, country):
+        position_classes = query_position_classes(context)
+
+        for wd_position in query_positions(context, position_classes, country):
             if wd_position["qid"] in seen_positions:
                 continue
 
