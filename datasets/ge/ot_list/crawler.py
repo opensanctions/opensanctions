@@ -46,7 +46,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     context.log.debug(f"Unique ID {person.id}")
     if birth_date != UNKNOWN:
         person.add("birthDate", h.parse_date(birth_date, DATE_FORMATS))
-    person.add("topics", "sanction")
+    person.add("topics", ["sanction", "crime.war"])
     person.add("country", "ge")
     extract_name(context, person, name)
     context.audit_data(row, UNUSED_FIELDS)
