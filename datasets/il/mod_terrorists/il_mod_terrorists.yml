@@ -87,6 +87,15 @@ lookups:
           - Judea and Samaria Region
         value:
           - IL
+      - match:
+          - "עיראק ולבנט - דרום מזרח אסיה"
+        values:
+          - Iraq
+      - match: 
+          - "עיראק ולבנט - חוראסאן"
+          - IRAQ AND LEVANT-KHORASAN
+        values:
+          - Iraq
   type.date:
     options:
       - match:
