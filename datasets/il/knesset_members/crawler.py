@@ -1,15 +1,17 @@
-from datetime import datetime
-import json
+from collections import defaultdict
 from time import sleep
 from languagecodes import iso_639_alpha3
+from requests import HTTPError
 
 from zavod import Context, helpers as h
 from zavod.entity import Entity
 from zavod.logic.pep import categorise
 
 DATE_FORMATS = ["%B %d, %Y"]
-CACHE_SHORT = 1
+CACHE_SHORT = 7
 CACHE_LONG = 14
+SLEEP_SECONDS = 5
+STATUSES = defaultdict(int)
 
 
 def crawl_position(context: Context, person: Entity, position: Entity, tenure):
@@ -41,7 +43,20 @@ def crawl_positions(context: Context, person: Entity, member_id):
     context.emit(position)
 
     positions_url = f"https://knesset.gov.il/WebSiteApi/knessetapi/MKs/GetMkPositions?mkId={member_id}&languageKey=en"
-    for row in context.fetch_json(positions_url, cache_days=CACHE_LONG):
+    try:
+        response = context.fetch_json(positions_url, cache_days=CACHE_LONG)
+    except HTTPError as err:
+        context.log.warning(
+            "HTTP error",
+            url=str(err.request.url),
+            error=err.response.status_code,
+        )
+        if err.response.status_code in {403, 503}:
+            context.log.info("Backing off to let server breathe...")
+            sleep(SLEEP_SECONDS)
+        STATUSES[err.response.status_code] += 1
+        return
+    for row in response:
         for tenure in row.pop("Tenure"):
             crawl_position(context, person, position, tenure)
 
@@ -49,7 +64,19 @@ def crawl_positions(context: Context, person: Entity, member_id):
 def crawl_item(context: Context, member_id: int, name: str, lang: str):
     lang3 = iso_639_alpha3(lang)
     content_url = f"https://knesset.gov.il/WebSiteApi/knessetapi/MKs/GetMkDetailsContent?mkId={member_id}&languageKey={lang}"
-    content = context.fetch_json(content_url, cache_days=CACHE_LONG)
+    try:
+        content = context.fetch_json(content_url, cache_days=CACHE_LONG)
+    except HTTPError as err:
+        context.log.warning(
+            "HTTP error",
+            url=str(err.request.url),
+            error=err.response.status_code,
+        )
+        if err.response.status_code in {403, 503}:
+            context.log.info("Backing off to let server breathe...")
+            sleep(SLEEP_SECONDS)
+        STATUSES[err.response.status_code] += 1
+        return
 
     person = context.make("Person")
     person.id = context.make_slug(member_id)
@@ -80,3 +107,6 @@ def crawl(context: Context):
     hebrew_url = context.data_url.replace("languageKey=en", "languageKey=he")
     for member in context.fetch_json(hebrew_url, cache_days=CACHE_SHORT):
         crawl_item(context, member["ID"], member["Name"], "he")
+
+    if any([key > 200 for key in STATUSES.keys()]):
+        raise RuntimeError("non-200 HTTP statuse codes %r" % STATUSES)
