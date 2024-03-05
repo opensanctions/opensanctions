@@ -1,7 +1,8 @@
 from collections import defaultdict
-from time import sleep
 from languagecodes import iso_639_alpha3
 from requests import HTTPError
+from requests.adapters import HTTPAdapter
+from urllib3.util import Retry
 
 from zavod import Context, helpers as h
 from zavod.entity import Entity
@@ -10,7 +11,6 @@ from zavod.logic.pep import categorise
 DATE_FORMATS = ["%B %d, %Y"]
 CACHE_SHORT = 7
 CACHE_LONG = 14
-SLEEP_SECONDS = 5
 STATUSES = defaultdict(int)
 
 
@@ -51,9 +51,6 @@ def crawl_positions(context: Context, person: Entity, member_id):
             url=str(err.request.url),
             error=err.response.status_code,
         )
-        if err.response.status_code in {403, 503}:
-            context.log.info("Backing off to let server breathe...")
-            sleep(SLEEP_SECONDS)
         STATUSES[err.response.status_code] += 1
         return
     for row in response:
@@ -72,9 +69,6 @@ def crawl_item(context: Context, member_id: int, name: str, lang: str):
             url=str(err.request.url),
             error=err.response.status_code,
         )
-        if err.response.status_code in {403, 503}:
-            context.log.info("Backing off to let server breathe...")
-            sleep(SLEEP_SECONDS)
         STATUSES[err.response.status_code] += 1
         return
 
@@ -101,6 +95,16 @@ def crawl_item(context: Context, member_id: int, name: str, lang: str):
 
 
 def crawl(context: Context):
+    retries = Retry(
+        total=5,
+        # go big or go home.
+        backoff_factor=3,
+        # 503 is a ban for a few seconds.
+        # 403 seems to mean you're banned for hours or more.
+        status_forcelist=[503],
+    )
+    context.http.mount("https://", HTTPAdapter(max_retries=retries))
+
     for member in context.fetch_json(context.data_url, cache_days=CACHE_SHORT):
         crawl_item(context, member["ID"], member["Name"], "en")
 
