@@ -1,8 +1,8 @@
-title: Otkhozoria–Tatunashvili List
+title: Georgian Otkhozoria–Tatunashvili List
 entry_point: crawler.py
 prefix: ge-ot-list
 coverage:
-  frequency: daily
+  frequency: weekly
   start: 2024-03-01
 summary: >-
   List of individuals involved in crimes against Georgians in Abkhazia
