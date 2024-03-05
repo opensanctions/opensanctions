@@ -3,7 +3,8 @@ Crawler for active French senators.
 """
 
 import csv
-from typing import Dict
+from typing import Dict, Tuple, Iterator
+from urllib.parse import urljoin
 
 from zavod import Context
 from zavod import helpers as h
@@ -22,7 +23,7 @@ UNUSED_FIELDS = [
 ]
 
 
-def crawl_row(context: Context, row: Dict[str, str]):
+def crawl_row(context: Context, row: Dict[str, str], start_dates: Dict[str, str]):
     """Process one row of the CSV data"""
     # Skip not currently serving senators
     status = row.pop("État")
@@ -61,11 +62,16 @@ def crawl_row(context: Context, row: Dict[str, str]):
     if birth_date:
         # Luckily they are all consistently formatted!
         person.add("birthDate", birth_date)
+    # NOTE: Start dates seem to be missing for senators elected in 2023
+    start_date = start_dates.get(senid)
+    if start_date is not None:
+        context.log.debug(f"Start date for {senid}: {start_date}")
     occupancy = h.make_occupancy(
         context,
         person,
         position,
         no_end_implies_current=True,
+        start_date=start_date,
         categorisation=categorisation,
     )
     if occupancy is not None:
@@ -74,14 +80,38 @@ def crawl_row(context: Context, row: Dict[str, str]):
         context.emit(occupancy)
 
 
+def crawl_mandates(
+    context: Context, reader: Iterator[Dict[str, str]]
+) -> Iterator[Tuple[str, str]]:
+    """Get start dates for senators by ID."""
+    for row in reader:
+        # Skip former senators
+        if row.pop("État Sénateur") != "ACTIF":
+            continue
+        # Skip reelection events
+        if row.pop("Motif début de mandat") != "Election":
+            continue
+        senid = row.pop("Matricule")
+        dt = row.pop("Date de début de mandat")
+        start_date = dt.split(maxsplit=1)[0]
+        yield senid, start_date
+
+
 def crawl(context: Context):
     """Retrieve list of senators as CSV and emit PEP entities for
     currently serving senators."""
+    # Get start dates from auxiliary CSV
+    path = context.fetch_resource(
+        "mandates.csv", urljoin(context.data_url, "/data/senateurs/ODSEN_ELUSEN.csv")
+    )
+    start_dates = {}
+    with open(path, "rt", encoding="cp1252") as infh:
+        decomment = (spam for spam in infh if spam[0] != "%")
+        start_dates.update(crawl_mandates(context, csv.DictReader(decomment)))
+
+    # Do main CSV
     path = context.fetch_resource("senators.csv", context.data_url)
     with open(path, "rt", encoding="cp1252") as infh:
         decomment = (spam for spam in infh if spam[0] != "%")
         for row in csv.DictReader(decomment):
-            crawl_row(context, row)
-
-    # NOTE: To get start dates we need this auxiliary CSV:
-    # https://data.senat.fr/data/senateurs/ODSEN_ELUSEN.csv
+            crawl_row(context, row, start_dates)
