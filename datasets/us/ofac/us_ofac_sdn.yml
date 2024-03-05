@@ -116,6 +116,7 @@ lookups:
           - British National Overseas Passport
           - Stateless Person Passport
         schema: Person
+        prop: passportNumber
         passport: true
       - match:
           - Commercial Registry Number
@@ -209,6 +210,7 @@ lookups:
           - UAE Identification
           - Romanian C.R.
         identification: true
+        prop: idNumber
       - # taxNumber only, no adjacent object
         match:
           - Tax ID No.
