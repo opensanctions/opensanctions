@@ -1,0 +1,19 @@
+title: Lithuanian Websites offering Illegal Financial Service
+title: Lithuanian Websites offering Illegal Financial Service
+entry_point: crawler.py
+prefix: lt-illegal-websites
+summary: placeholder
+coverage:
+  start: 2024-03-05
+  end: 2024-03-05
+description: placeholder
+publisher:
+  name: pass
+  description: pass
+  url: https://www.lb.lt/illegalwww?export=csv
+  country: lt
+  official: true
+url: https://www.lb.lt/illegalwww?export=csv
+data:
+  url: https://www.lb.lt/illegalwww?export=csv
+  format: CSV
