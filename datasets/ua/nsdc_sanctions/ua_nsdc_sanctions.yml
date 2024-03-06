@@ -1,4 +1,4 @@
-title: Ukraine National Security Sanctions
+title: Ukraine NSDC State Register of Sanctions
 entry_point: crawler.py
 prefix: ua-nsdc
 coverage:
@@ -10,9 +10,8 @@ load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   List of individuals and legal entities subject to restrictive measures.
 description: |
-  This dataset is derived from the COTA system run by NSDC. The published sanctions
-  list is based on press statements by the security council and may not be fully
-  comprehensive as the system is still under development.
+  This dataset is derived from the State Register of Sanctions run by NSDC. The
+  published sanctions list is based on press statements by the security council.
 publisher:
   name: National Security and Defense Council
   description: >
@@ -22,12 +21,70 @@ publisher:
   url: https://www.rnbo.gov.ua/en/
   country: ua
   official: true
-url: https://sanctions.nsdc.gov.ua/
+url: https://drs.nsdc.gov.ua/
 data:
-  url: https://sanctions.nsdc.gov.ua/api/sanctions/
+  url: https://api-drs.nsdc.gov.ua/
   format: JSON
 
 lookups:
+  type.country:
+    options:
+      - match: LN
+        value: UA-LPR
+      - match: DN
+        value: UA-DPR
+
+  attributes:
+    options:
+      - match: 
+          - Місце реєстрації
+          - Місце розташування
+          - Місцезнаходження
+          - "Місце розташування:"
+          - Місце реєстрації юридичної особи
+
+          # place of residence:
+          - Місце проживання
+        prop: address
+      - match: 
+          - IMO
+          - МФО
+        prop: registrationNumber
+      - match: 
+          # Reregistration
+          - Перереєстрація
+        contains:
+          - Перереєстрація
+          - перереєстроване відповідно до
+        prop: notes        
+      - match:
+          - Примітка
+        prop: notes
+      - match:
+          - Назва
+        prop: alias
+      - match:
+          - email
+          - "email: e-mail"
+        prop: email
+      - match: Місце народження
+        prop: birthPlace
+      - match: Зайнятість
+        prop: position
+      - match: Партійність
+        prop: political
+      - match:
+          - ОКАТО
+          - ОКОДУ
+          - ПФР
+          - ФСС
+          - Код ФСФР
+          - KRS (Krajowy Rejestr Sądowy)
+          - Номер документу з мікрофіші
+          - Реєстраційний номер мікрофіші
+        prop: registrationNumber
+  
+  # old API mappings:
   subject_types:
     map:
       individual: Person
