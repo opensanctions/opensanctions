@@ -20,12 +20,14 @@ def crawl_item(unid: str, context: Context):
     entity.add("sourceUrl", member_url)
 
     try:
+        # here we can't use the find method because we need the text() function in the xpath
         year_of_birth = response.xpath(".//*[text()='writeJsTrArr(\"form_birth_date_year\",\". gadā\")']/../text()")[0]
         entity.add("birthDate", year_of_birth)
     except:
         pass
 
     try:
+        # here we can't use the find method because we need the text() function in the xpath
         email = response.xpath(".//*[text()='writeJsTrArr(\"form_email\",\"E-pasta adrese\")']/../../span/a/text()")[0]
         entity.add("email", email)
 
