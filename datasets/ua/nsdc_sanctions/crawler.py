@@ -1,7 +1,7 @@
 import os
 from itertools import count
 from urllib.parse import urljoin
-from typing import Dict, Any
+from typing import Dict, Any, List, Optional
 
 from zavod import Context, Entity
 from zavod import helpers as h
@@ -103,7 +103,18 @@ def crawl_old_system(context: Context) -> None:
             break
 
 
-def crawl_common(context: Context, entity: Entity, item: Dict[str, Any]) -> None:
+def fetch_data(
+    context: Context, path: str, cache_days: Optional[int] = None
+) -> List[Dict[str, Any]]:
+    assert API_KEY, "Missing $OPENSANCTIONS_NSDC_API_KEY!"
+    headers = {"x-cota-public-api-key": API_KEY}
+    url = urljoin(context.data_url, path)
+    return context.fetch_json(url, headers=headers, cache_days=cache_days)
+
+
+def crawl_common(
+    context: Context, subject_id: str, entity: Entity, item: Dict[str, Any]
+) -> None:
     identifiers = item.pop("identifiers") or []
     for ident in identifiers:
         ident_id = ident.pop("id")
@@ -138,20 +149,37 @@ def crawl_common(context: Context, entity: Entity, item: Dict[str, Any]) -> None
 
     attributes = item.pop("attributes") or []
     for attr in attributes:
-        key = attr.pop('key')
+        key = attr.pop("key")
         result = context.lookup("attributes", key)
-        value = attr.pop('value')
-        value = value.replace('(росія)', '')
+        value = attr.pop("value")
+        value = value.replace("(росія)", "")
         if result is not None and result.prop is not None:
             entity.add(result.prop, value, lang="ukr")
-        elif key in ('КПП',):
-            if entity.schema.is_a('Organization'):
-                entity.add_cast('Company', 'kppCode', value)
+        elif key in ("КПП",):
+            if entity.schema.is_a("Organization"):
+                entity.add_cast("Company", "kppCode", value)
             else:
-                entity.add('registrationNumber', value)
+                entity.add("registrationNumber", value)
         else:
-            context.log.warn("Unknown attribute", key=key, value=value)
+            # context.log.warn("Unknown attribute", key=key, value=value)
+            entity.add('notes', f"{key}: {value}", lang="ukr")
 
+    for action in fetch_data(context, f"/subjects/{subject_id}/actions", cache_days=30):
+        sanction = h.make_sanction(context, entity, key=action['aid'])
+        sanction.add("status", action.pop("status"))
+        decree = action.pop("decree", None) or {}
+        sanction.add("sourceUrl", decree.pop("link", None))
+        sanction.add("startDate", decree.pop("date", None))
+        sanction.add("program", decree.pop("number", None))
+        sanction.add("endDate", action.pop("endDate", None))
+        sanction.add("duration", action.pop("term", None), lang="ukr")
+        restrictions = action.pop("restrictions", None) or []
+        for restr in restrictions:
+            sanction.add('provisions', restr['restriction'])
+        sanction.add('reason', action.pop('reason', None), lang="ukr")
+        context.emit(sanction)
+
+    entity.add("topics", "sanction")
     context.audit_data(item, ignore=["status"])
     context.emit(entity, target=True)
 
@@ -167,7 +195,7 @@ def crawl_indiviudal(context: Context, item: Dict[str, Any]) -> None:
     entity.add("nationality", item.pop("citizenships"))
     entity.add("birthDate", item.pop("bd"))
     entity.add("deathDate", item.pop("dd"))
-    crawl_common(context, entity, item)
+    crawl_common(context, subject_id, entity, item)
 
 
 def crawl_legal(context: Context, item: Dict[str, Any]) -> None:
@@ -181,19 +209,13 @@ def crawl_legal(context: Context, item: Dict[str, Any]) -> None:
     entity.add("jurisdiction", item.pop("citizenships"))
     entity.add("incorporationDate", item.pop("bd"))
     entity.add("dissolutionDate", item.pop("dd"))
-    crawl_common(context, entity, item)
+    crawl_common(context, subject_id, entity, item)
 
 
 def crawl(context: Context) -> None:
     # crawl_old_system(context)
-    assert API_KEY, "Missing $OPENSANCTIONS_NSDC_API_KEY!"
-    headers = {"x-cota-public-api-key": API_KEY}
-    individuals_url = urljoin(context.data_url, "/subjects/individual")
-    response = context.fetch_json(individuals_url, headers=headers)
-    for item in response:
+    for item in fetch_data(context, "/subjects/individual"):
         crawl_indiviudal(context, item)
 
-    legals_url = urljoin(context.data_url, "/subjects/legal")
-    response = context.fetch_json(legals_url, headers=headers)
-    for item in response:
+    for item in fetch_data(context, "/subjects/legal"):
         crawl_legal(context, item)

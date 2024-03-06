@@ -33,6 +33,30 @@ lookups:
         value: UA-LPR
       - match: DN
         value: UA-DPR
+      - match:
+          - громадянка України та Російської Федерації
+        values:
+          - UA
+          - RU
+      - match:
+          - з питань набуття громадянства України в установленому порядку особа не зверталася
+        value: null
+  type.date:
+    options:
+      - match: "1957-1959 роки"
+        values:
+          - 1957
+          - 1958
+          - 1959
+      - match: 01.01.1962 р.н.
+        value: 1962-01-01
+      - match: 21 березня 1945 р.
+        value: 1945-03-21
+      - match: 1984-1986 роки
+        values:
+          - 1984
+          - 1985
+          - 1986
 
   attributes:
     options:
@@ -45,6 +69,8 @@ lookups:
 
           # place of residence:
           - Місце проживання
+
+          - Уродженка
         prop: address
       - match: 
           - IMO
@@ -59,7 +85,14 @@ lookups:
         prop: notes        
       - match:
           - Примітка
+          - Інша інформація
         prop: notes
+      - match: 
+          - Дата народження
+        prop: birthDate
+      - match:
+          - звання
+        prop: title
       - match:
           - Назва
         prop: alias
@@ -74,6 +107,9 @@ lookups:
       - match: Партійність
         prop: political
       - match:
+          - Номер телефону
+        prop: phone
+      - match:
           - ОКАТО
           - ОКОДУ
           - ПФР
@@ -82,8 +118,20 @@ lookups:
           - KRS (Krajowy Rejestr Sądowy)
           - Номер документу з мікрофіші
           - Реєстраційний номер мікрофіші
+          - Номер посвідчення особи
         prop: registrationNumber
-  
+      - match:
+          - Permanent residence permit - посвідка на постійне проживання
+        prop: idNumber
+      - contains:
+          - Сайт так званого
+        prop: website
+      - contains:
+          - Громадянство
+        prop: nationality
+      - contains:
+          - нагорода
+        prop: notes
   # old API mappings:
   subject_types:
     map:
