@@ -38,6 +38,7 @@ children:
   - eu_meps
   - eu_public_functions
   - everypolitician
+  - fr_assemblee
   - fr_senat
   - hk_legco
   - hk_principal_officials
