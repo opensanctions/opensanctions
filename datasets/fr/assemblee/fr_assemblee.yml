@@ -1,18 +1,18 @@
-title: Members of the French National Assembly
+title: French National Assembly
 prefix: fr-assemblee
 url: https://www.assemblee-nationale.fr/dyn/vos-deputes
 coverage:
-  frequency: daily
+  frequency: weekly
   start: 2024-03-05
 entry_point: crawler.py
 summary: >-
   Members of the French National Assembly.
 description: |
-  This dataset lists the serving members of the French National Assembly.
+  This dataset lists the members of the French National Assembly.
 
   The data is collected from the open data platform for the National
   Assembly (Assemblée Nationale), which is the lower legislative
-  chamber of the French government.  The National Assembly is composed
+  chamber of the French Parliament.  The National Assembly is composed
   of 577 members (députés) elected to five-year terms.
 
   In contrast to the Senate, which represents the local and regional
@@ -39,7 +39,7 @@ publisher:
   url: https://data.assemblee-nationale.fr/
   official: true
 data:
-  url: https://data.assemblee-nationale.fr/static/openData/repository/16/amo/deputes_actifs_mandats_actifs_organes/AMO10_deputes_actifs_mandats_actifs_organes.json.zip
+  url: https://data.assemblee-nationale.fr/static/openData/repository/16/amo/tous_acteurs_mandats_organes_xi_legislature/AMO30_tous_acteurs_tous_mandats_tous_organes_historique.json.zip
   format: JSON
 assertions:
   min:
@@ -48,7 +48,12 @@ assertions:
       Position: 1
     country_entities:
       fr: 1
-  max:
-    schema_entities:
-      Person: 5000
-      Position: 1
+lookups:
+  type.country:
+    options:
+      - match: Centrafrique
+        value: Central African Republic
+      - match: Maryland (USA)
+        value: USA
+      - match: Corée
+        value: Korea

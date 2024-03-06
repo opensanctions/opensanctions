@@ -14,32 +14,60 @@ from zavod.logic.pep import categorise
 REGEX_PATH = re.compile(r"^json/acteur/")
 
 
+def is_not_nil(value: Any) -> bool:
+    """Null values could be `null` (parsed to None by JSON) or they
+    could be @xml:junk in a dictionary."""
+    try:
+        if value is None:
+            return False
+        if value.get("@xsi:nil") == "true":
+            return False
+    except AttributeError:
+        # It wasn't a dictionary and it wasn't None so it's not nil
+        pass
+    return True
+
+
 def crawl_collabos(
     context, person: Entity, uid: str, mandat: Dict[str, Any]
 ) -> Iterator[Entity]:
     """Add staff (parliamentry collaborators) as associates."""
-    collabos = mandat.pop("collaborateurs")["collaborateur"]
+    collabos = mandat.pop("collaborateurs")
+    if collabos is None:
+        return
+    collabos = collabos.get("collaborateur")
+    if collabos is None:
+        return
     if not isinstance(collabos, list):
         collabos = [collabos]
     for i, c in enumerate(collabos):
         collabo = context.make("Person")
-        collabo.id = context.make_slug(uid, f"collabo{i}")
+        prefix = c.pop("qualite")
+        first_name = c.pop("prenom")
+        last_name = c.pop("nom")
+        collabo.id = context.make_slug(uid, "collabo", prefix, first_name, last_name)
         h.apply_name(
             collabo,
-            prefix=c.pop("qualite"),
-            first_name=c.pop("prenom"),
-            last_name=c.pop("nom"),
+            prefix=prefix,
+            first_name=first_name,
+            last_name=last_name,
         )
         collabo.set("topics", "role.rca")
-        context.audit_data(c, ["dateDebut", "dateFin"])
         yield collabo
 
         link = context.make("Associate")
-        link.id = context.make_slug(uid, f"associate-collabo{i}")
+        link.id = context.make_slug(uid, f"associate", prefix, first_name, last_name)
         link.set("person", person)
         link.set("associate", collabo)
         link.set("relationship", "collaborateur")
+        start_date = c.pop("dateDebut")
+        if is_not_nil(start_date):
+            link.set("startDate", start_date)
+        end_date = c.pop("dateFin")
+        if is_not_nil(end_date):
+            link.set("endDate", end_date)
         yield link
+        context.audit_data(c)
 
 
 def crawl_acteur(context, data: Dict[str, Any]):
@@ -51,10 +79,11 @@ def crawl_acteur(context, data: Dict[str, Any]):
     # Member UID
     uid = acteur.pop("uid")
     uid_text = uid.pop("#text")
+    context.log.debug(f"Unique ID is {uid_text}")
     person.id = context.make_slug(uid_text)
     context.audit_data(uid, ["@xmlns:xsi", "@xsi:type"])
 
-    # Name and DOB
+    # Name DOB, POB, DOD (or DØD if you're Danish)
     ec = acteur.pop("etatCivil")
     ident = ec.pop("ident")
     h.apply_name(
@@ -65,18 +94,27 @@ def crawl_acteur(context, data: Dict[str, Any]):
         lang="fra",
     )
     context.audit_data(ident, ["alpha", "trigramme"])
-    dob = ec.pop("infoNaissance")
-    person.set("birthDate", h.parse_date(dob.pop("dateNais"), ["%Y-%m-%d"]))
-    person.set("birthPlace", dob.pop("villeNais"))
-    person.set("birthCountry", dob.pop("paysNais"))
+    birth = ec.pop("infoNaissance")
+    dob = birth.pop("dateNais")
+    if is_not_nil(dob):
+        person.set("birthDate", h.parse_date(dob, ["%Y-%m-%d"]))
+    city = birth.pop("villeNais")
+    if is_not_nil(city):
+        person.set("birthPlace", city)
+    country = birth.pop("paysNais")
+    if is_not_nil(country):
+        person.set("birthCountry", country)
     # Ignore birth departement for now
-    context.audit_data(dob, ["depNais"])
-    # Assume current MNAs are not dead
-    context.audit_data(ec, "dateDeces")
+    context.audit_data(birth, ["depNais"])
+    dod = ec.pop("dateDeces")
+    if is_not_nil(dod):
+        person.set("deathDate", h.parse_date(dod, ["%Y-%m-%d"]))
+    context.audit_data(ec)
 
     # We'll include this URL in the data as it's quite useful
     hatvp = acteur.pop("uri_hatvp")
-    person.set("sourceUrl", hatvp)
+    if is_not_nil(hatvp):
+        person.set("sourceUrl", hatvp)
 
     # Addresses and phone numbers are available because transparence!
     # But we do not include them because vie privée!
@@ -91,28 +129,39 @@ def crawl_acteur(context, data: Dict[str, Any]):
     categorisation = categorise(context, position, is_pep=True)
     if not categorisation.is_pep:
         return
-    # Occupancy data (there are many mandats but we only care about AN)
-    mandats = acteur.pop("mandats")["mandat"]
+    # Occupancy data (there are many mandats but we only care about
+    # ASSEMBLEE).
+    mandats = acteur.pop("mandats")
+    if mandats is None:
+        context.log.warning(f"No mandats found for {uid_text}")
+    mandats = mandats.get("mandat")
+    if mandats is None:
+        context.log.warning(f"No mandats found for {uid_text}")
+    if not isinstance(mandats, list):
+        mandats = [mandats]
     start_date = None
     entities: List[Entity] = []
     for mandat in mandats:
         if mandat.pop("typeOrgane") == "ASSEMBLEE":
             start_date = mandat.pop("dateDebut")
-            # Parliamentary collaborators (i.e. staff)
-            entities.extend(crawl_collabos(context, acteur, uid_text, mandat))
-            break
-    occupancy = h.make_occupancy(
-        context,
-        person,
-        position,
-        True,
-        start_date=start_date,
-        categorisation=categorisation,
-    )
-    if occupancy:
+            end_date = mandat.pop("dateFin")
+            occupancy = h.make_occupancy(
+                context,
+                person,
+                position,
+                True,
+                start_date=start_date,
+                end_date=end_date,
+                categorisation=categorisation,
+            )
+            if occupancy is not None:
+                entities.append(occupancy)
+                # Parliamentary collaborators (i.e. staff)
+                entities.extend(crawl_collabos(context, acteur, uid_text, mandat))
+    if entities:
+        context.log.debug(f"Emitting PEP entities for {uid_text}")
         context.emit(person, target=True)
         context.emit(position)
-        context.emit(occupancy)
         for entity in entities:
             context.emit(entity)
 
