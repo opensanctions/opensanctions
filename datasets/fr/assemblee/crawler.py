@@ -86,11 +86,13 @@ def crawl_acteur(context, data: Dict[str, Any]):
     # Name DOB, POB, DOD (or DØD if you're Danish)
     ec = acteur.pop("etatCivil")
     ident = ec.pop("ident")
+    given_name = ident.pop("prenom")
+    family_name = ident.pop("nom")
     h.apply_name(
         person,
         prefix=ident.pop("civ"),
-        first_name=ident.pop("prenom"),
-        last_name=ident.pop("nom"),
+        first_name=given_name,
+        last_name=family_name,
         lang="fra",
     )
     context.audit_data(ident, ["alpha", "trigramme"])
@@ -123,11 +125,13 @@ def crawl_acteur(context, data: Dict[str, Any]):
     # Now make position etc
     position = h.make_position(
         context,
-        "member of the French National Assembly",
+        "Member of the French National Assembly",
         country="fr",
+        topics=["gov.national", "gov.legislative"],
     )
     categorisation = categorise(context, position, is_pep=True)
     if not categorisation.is_pep:
+        context.log.warning(f"Member {given_name} {family_name} is not PEP")
         return
     # Occupancy data (there are many mandats but we only care about
     # ASSEMBLEE).
@@ -139,7 +143,6 @@ def crawl_acteur(context, data: Dict[str, Any]):
         context.log.warning(f"No mandats found for {uid_text}")
     if not isinstance(mandats, list):
         mandats = [mandats]
-    start_date = None
     entities: List[Entity] = []
     for mandat in mandats:
         if mandat.pop("typeOrgane") == "ASSEMBLEE":
