@@ -8,12 +8,12 @@ entry_point: crawler.py
 summary: >-
   French Senators.
 description: |
-  This dataset lists the serving members of the French Senate.
+  This dataset lists the members of the French Senate.
 
-  The data is collected from the open data platform for the Senate,
-  which is the upper legislative chamber of the French government.  The
-  Senate is composed of 348 senators elected to six-year terms, with
-  half of its seats elected every three years.
+  The data is collected from the open data platform for the Senate
+  (Sénat), which is the upper legislative chamber of the French
+  Parliament.  The Senate is composed of 348 senators elected to
+  six-year terms, with half of its seats elected every three years.
 
   The primary role of the Senate is to represent the territorial
   entities (communes, départements, regions, overseas territories) of
@@ -53,5 +53,4 @@ assertions:
       fr: 1
   max:
     schema_entities:
-      Person: 400
       Position: 1
