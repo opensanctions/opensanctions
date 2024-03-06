@@ -109,7 +109,7 @@ def crawl_row(
 
 def crawl_mandates(
     context: Context, reader: Iterator[Dict[str, str]]
-) -> Iterator[Tuple[Optional[str], Optional[str]]]:
+) -> Iterator[Tuple[str, Tuple[Optional[str], Optional[str]]]]:
     """Get mandates for senators by ID."""
     for row in reader:
         senid = row.pop("Matricule")
@@ -130,7 +130,7 @@ def crawl(context: Context):
     path = context.fetch_resource(
         "mandates.csv", urljoin(context.data_url, "/data/senateurs/ODSEN_ELUSEN.csv")
     )
-    mandates = {}
+    mandates: Dict[str, List[Tuple[Optional[str], Optional[str]]]] = {}
     with open(path, "rt", encoding="cp1252") as infh:
         decomment = (spam for spam in infh if spam[0] != "%")
         for senid, dates in crawl_mandates(context, csv.DictReader(decomment)):
