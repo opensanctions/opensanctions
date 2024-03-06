@@ -81,7 +81,11 @@ def crawl_row(
         return
     # Start dates seem to be missing for senators elected in 2023, so
     # we will need to add an occupancy for current senators even if
-    # they don't have any in the mandates
+    # they don't have any in the mandates file.
+    #
+    # When only adding these empty mandates to those missing mandates,
+    # we only got 252 senators with current occupancy, so let's add it to all
+    # with ACTIF, then we at least get 347 currents as of writing.
     mandates = mandate_dict.get(senid, [])
     if status == "ACTIF":
         mandates.append((None, None))
