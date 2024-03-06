@@ -50,7 +50,7 @@ class SenzingExporter(Exporter):
         self.fh = open(self.path, "wb")
         self.domain_name = "OPEN_SANCTIONS"
         self.source_name = f"OS_{self.dataset.name.upper()}"
-        if self.dataset.is_collection:
+        if self.dataset.is_collection and self.dataset.name != "openownership":
             self.source_name = self.domain_name
 
     def feed(self, entity: Entity) -> None:
