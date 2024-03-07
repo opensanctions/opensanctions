@@ -1,0 +1,25 @@
+title: Lithuania Illegal Gambling Operators 
+entry_point: crawler.py
+prefix: lt-illegal-gambling
+summary: >
+  List of illegal online gambling operators 
+description: |
+  In Lithuania, only proper licensed companies
+  having special permission for this activity
+  are authorized to offer online gambling in Lithuania.
+  Companies, being not licensed for gambling activity in
+  Lithuania and having not the mentioned permit but offering
+  their services in Lithuania, shall be treated as illegal
+  gambling operators. The order of gaming operation is
+  established in the Gaming Law of the Republic of Lithuania (hereinafter - Gaming Law).
+publisher:
+  name: Lošimų priežiūros tarnyba prie Lietuvos Respublikos finansų ministerijos
+  description: >
+    Gambling Supervision Service under the Ministry of Finance of the Republic of Lithuania
+  url: https://lpt.lrv.lt/en/
+  country: lt
+  official: true
+url: https://lpt.lrv.lt/en/news/updated-list-of-illegal-online-gaming-operators/
+data:
+  url: https://blokuojama.lpt.lt/nelegalios-losimu-veiklos-vykdytoju-sarasas/
+  format: HTML
