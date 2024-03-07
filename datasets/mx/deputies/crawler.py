@@ -35,6 +35,7 @@ def crawl_item(input_dict: dict, context: Context):
     context.emit(entity, target=True)
     context.emit(position)
     context.emit(occupancy)
+    context.audit_data(input_dict)
     
 
 def crawl(context: Context):
@@ -59,8 +60,11 @@ def crawl(context: Context):
     }
 
     # We are going to query the graphql endpoint to retrive the data and then process each item
-    response = requests.post('https://micrositios.diputados.gob.mx:4001/graphql', headers=HEADER, json=json_data).json()
+    ```suggestion
+    response = context.http.post('https://micrositios.diputados.gob.mx:4001/graphql', headers=HEADER, json=json_data)
+    response.raise_for_status()
+    results = response.json()
 
-    for item in response["data"]["allDiputados"]:
+    for item in results["data"]["allDiputados"]:
         crawl_item(item, context)
 
