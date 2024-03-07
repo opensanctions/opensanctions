@@ -153,7 +153,7 @@ def query_positions(
     country_results = []
     for position_class in position_classes:
         context.log.info(
-            f"Querying descendants of {position_class.get('qid')} ({position_class.get('label')})"
+            f"Querying descendants of {position_class['qid']} ({position_class['label']})"
         )
         vars = {
             "COUNTRY": country["qid"],
@@ -206,7 +206,7 @@ def query_positions(
     for bind in country_results + politician_response.results:
         date_abolished = bind.plain("abolished")
         if date_abolished is not None and date_abolished < "2000-01-01":
-            context.log.info(f"Skipping abolished position: {bind.plain('position')}")
+            context.log.debug(f"Skipping abolished position: {bind.plain('position')}")
             continue
         yield {
             "qid": bind.plain("position"),
@@ -240,19 +240,19 @@ def query_position_classes(context: Context):
     for binding in response.results:
         qid = binding.plain("class")
         label = binding.plain("classLabel")
-        res = context.lookup_value("position_subclasses", qid)
+        res = context.lookup("position_subclasses", qid)
         if res:
             if res.maybe_pep:
-                classes.append({"qid:": qid, "label": label})
+                classes.append({"qid": qid, "label": label})
         else:
-            context.log.warning(f"Unknown subclass of position: {qid} ({label})")
+            context.log.warning(f"Unknown subclass of position: '{qid}' ({label})")
     return classes
 
 
 def crawl(context: Context):
     seen_countries = set()
     seen_positions = set()
-    for country in [{"qid": "Q142", "label": "france"}]:  # query_countries(context):
+    for country in query_countries(context):
         if country["qid"] in seen_countries:
             continue
         seen_countries.add(country["qid"])
