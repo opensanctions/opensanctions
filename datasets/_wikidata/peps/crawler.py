@@ -153,11 +153,11 @@ def query_positions(
     country_results = []
     for position_class in position_classes:
         context.log.info(
-            f"Querying descendants of {position_class.plain('class')} ({position_class.plain('classLabel')})"
+            f"Querying descendants of {position_class.get('qid')} ({position_class.get('label')})"
         )
         vars = {
             "COUNTRY": country["qid"],
-            "CLASS": position_class.plain("class"),
+            "CLASS": position_class.get("qid"),
             "RELATION": "wdt:P31/wdt:P279*",
         }
         country_response = run_query(
@@ -236,7 +236,17 @@ def query_position_classes(context: Context):
     response = run_query(
         context, context.data_url, "positions/subclasses", cache_days=CACHE_MEDIUM
     )
-    return response.results
+    classes = []
+    for binding in response.results:
+        qid = binding.plain("class")
+        label = binding.plain("classLabel")
+        res = context.lookup_value("position_subclasses", qid)
+        if res:
+            if res.maybe_pep:
+                classes.append({"qid:": qid, "label": label})
+        else:
+            context.log.warning(f"Unknown subclass of position: {qid} ({label})")
+    return classes
 
 
 def crawl(context: Context):

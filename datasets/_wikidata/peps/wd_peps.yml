@@ -75,216 +75,304 @@ lookups:
     options:
       - maybe_pep: true
         match:
-          - wd:Q116 # t  monarch
-          - wd:Q26718 # t  Continental Congress
-          - wd:Q30461 # t  president
-          - wd:Q42841 # t  incumbent
-          - wd:Q58333 # t  Police and Crime Commissioner
-          - wd:Q83307 # t  minister
-          - wd:Q193391 # t  diplomat
-          - wd:Q207978 # t  consul
-          - wd:Q294414 # t  public office
-          - wd:Q303618 # t  diplomatic rank
-          - wd:Q334473 # t  division manager
-          - wd:Q337902 # t  naval rating
-          - wd:Q524778 # t  commissioner
-          - wd:Q620110 # t  Leader of the Opposition
-          - wd:Q740126 # t  President of the European Parliament
-          - wd:Q742482 # t  United States Assistant Secretary of State
-          - wd:Q759969 # t  supervisory board
-          - wd:Q766504 # t  undersecretary
-          - wd:Q854416 # t  head of the district council
-          - wd:Q1005815 # t  Federal Commissioner
-          - wd:Q1127270 # t  deputy chairperson
-          - wd:Q1207353 # t  head of department
-          - wd:Q1251441 # t  leader
-          - wd:Q1276214 # t  European Union Special Representative
-          - wd:Q1326365 # t  -elect
-          - wd:Q1414672 # t  legislative seat
-          - wd:Q1472275 # t  figurehead
-          - wd:Q1500391 # t  chief of municipal
-          - wd:Q1513949 # t  Returning officer
-          - wd:Q1516453 # t  lieutenant governor
-          - wd:Q1555246 # t  Supreme commanders of the Imperial and Royal Armed Forces
-          - wd:Q1654355 # t  Interior Minister of Prussia
-          - wd:Q1758037 # t  speaker
-          - wd:Q1837955 # t  Chief Minister of Punjab
-          - wd:Q1890052 # t  president of the court
-          - wd:Q1977915 # t  federal intervention in Argentina
-          - wd:Q2011359 # t  High steward
-          - wd:Q2086090 # t  commander
-          - wd:Q2101758 # t  police commissioner
-          - wd:Q2133201 # t  Procureur du Bien Public
-          - wd:Q2137774 # t  government governor
-          - wd:Q2546165 # t  Great Offices of State
-          - wd:Q2574878 # t  Council of war
-          - wd:Q2660216 # t  Vice President of Iran
-          - wd:Q2738644 # t  Federal ombudsman
-          - wd:Q2824523 # t  board member
-          - wd:Q2920659 # t  Cabinet Secretary
-          - wd:Q2998914 # t  county executive
-          - wd:Q3188077 # t  Citizenship judge
-          - wd:Q3250324 # t  deputy
-          - wd:Q3382119 # t  sub-prefect
-          - wd:Q3695530 # t  Chief Minister of Balochistan
-          - wd:Q4146697 # t  state position of the Russian Federation
-          - wd:Q4180896 # t  financial secretary
-          - wd:Q4189293 # t  rank
-          - wd:Q4489757 # t  consul
-          - wd:Q4516014 # t  rank
-          - wd:Q4676866 # t  acting governor
-          - wd:Q4816037 # t  Atlanta Chief of Police
-          - wd:Q4907518 # t  superior
-          - wd:Q5096852 # t  Chief Minister of Khyber Pakhtunkhwa
-          - wd:Q5123536 # t  city attorney
-          - wd:Q5124691 # t  civil servant of the People's Republic of China
-          - wd:Q5390229 # t  ambassador of Costa Rica
-          - wd:Q5663887 # t  alcaide
-          - wd:Q5928980 # t  jefe político superior
-          - wd:Q6857706 # t  military profession
-          - wd:Q6888512 # t  moderator
-          - wd:Q7210354 # t  Political officer
-          - wd:Q7239417 # t  precinct captain
-          - wd:Q7260481 # t  barangay captain
-          - wd:Q7315432 # t  Resident Commissioner
-          - wd:Q7494991 # t  Sheriff of Kolkata
-          - wd:Q7574852 # t  special prosecutor
-          - wd:Q7603902 # t  state treasurer
-          - wd:Q8135012 # t  Chief Minister of Gilgit-Baltistan
-          - wd:Q9200127 # t  member
-          - wd:Q10526703 # t  president for a Court of Appeal
-          - wd:Q10571975 # t  länsråd
-          - wd:Q11452125 # t  East Asian government official
-          - wd:Q11997597 # t  representative
-          - wd:Q12191080 # t  supreme commander
-          - wd:Q15735113 # t  Assistant Secretary
-          - wd:Q15894241 # t  assistant commissioner
-          - wd:Q16060143 # t  elected person
-          - wd:Q16171693 # t  President of the Ukrainian Supreme Court
-          - wd:Q16178337 # t  Chief of Staff of the Air Force (South Korea)
-          - wd:Q16492012 # t  Diputado del común
-          - wd:Q16631188 # t  military position
-          - wd:Q16863083 # t  Senior Member
-          - wd:Q18614659 # t  secretary of provincial committee of a Communist Party
-          - wd:Q19476593 # t  police rank
-          - wd:Q20473964 # t  Governor (Turkey)
-          - wd:Q20801619 # t  secrétaire général du ministère de la Justice
-          - wd:Q20900278 # t  Island Administrator
-          - wd:Q20995522 # t  title of nobility in the United Kingdom
-          - wd:Q21028311 # t  White House Cabinet Secretary
-          - wd:Q23307026 # t  Shadow minister
-          - wd:Q23541196 # t  Queen mothers in Africa
-          - wd:Q23644849 # t  Executive Secretary of the Secretariat
-          - wd:Q25906149 # t  Parliamentary Secretary
-          - wd:Q27791757 # t  diputado provincial de Sevilla
-          - wd:Q28172535 # t  Mayor of Peshawar
-          - wd:Q28381391 # t  supervising director
-          - wd:Q29646039 # t  ambassador of Tunisia
-          - wd:Q30148522 # t  head of state or government
-          - wd:Q42045197 # t  hereditary position
-          - wd:Q47520780 # t  Speaker of Doboj Assembly
-          - wd:Q49838176 # t  executives of counties in Maryland
-          - wd:Q56496216 # t  Secretario Particular de la Presidencia
-          - wd:Q56654089 # t  superintendent of Centro
-          - wd:Q56654091 # t  superintendent of Campo Grande
-          - wd:Q56654094 # t  superintendent of Jacarepaguá
-          - wd:Q56654096 # t  superintendent of Tijuca
-          - wd:Q56654098 # t  superintendent of Pavuna
-          - wd:Q56654100 # t  superintendent of Ramos
-          - wd:Q56654102 # t  superintendent of Inhaúma
-          - wd:Q56654104 # t  superintendent of Méier
-          - wd:Q56654106 # t  superintendent of Guaratiba
-          - wd:Q56654108 # t  superintendent of Ilha do Governador
-          - wd:Q56654110 # t  superintendent of Zona Sul
-          - wd:Q56654112 # t  superintendent of Santa Cruz
-          - wd:Q56654114 # t  superintendent of Irajá
-          - wd:Q56654116 # t  superintendent of Madureira
-          - wd:Q56654118 # t  superintendent of Bangu
-          - wd:Q56654120 # t  superintendent of Recreio e Vargens
-          - wd:Q56654122 # t  superintendent of Barra da Tijuca
-          - wd:Q56660333 # t  Commander-in-chief
-          - wd:Q73175308 # t  secretario regional ministerial de Chile
-          - wd:Q73864327 # t  Commander of the Joint Forces
-          - wd:Q83230308 # t  hereditary office
-          - wd:Q83856136 # t  legal position
-          - wd:Q90132546 # t  deputy minister
-          - wd:Q91936085 # t  ambassador of Oman
-          - wd:Q95637571 # t  deputy mayor
-          - wd:Q96034520 # t  Assistant Deputy Minister
-          - wd:Q98539289 # t  ambassador of Spain to Belize
-          - wd:Q103838820 # t  elected position
-          - wd:Q103888080 # t  audit committee member
-          - wd:Q104178983 # t  municipal judge
-          - wd:Q104180972 # t  alcaide-mor
-          - wd:Q105116421 # t  treasurer
-          - wd:Q106090919 # t  Deputy Mayor of London for Policing and Crime
-          - wd:Q107419604 # t  honorary consul of Ireland
-          - wd:Q107421982 # t  honorary consul of Sudan
-          - wd:Q107427335 # t  honorary consul of Barbados
-          - wd:Q107427462 # t  honorary consul of a country
-          - wd:Q107427486 # t  honorary consul to a country
-          - wd:Q107427695 # t  honorary consul of Rwanda
-          - wd:Q107427726 # t  honorary consul to Bangladesh
-          - wd:Q107427745 # t  honorary consul of Singapore
-          - wd:Q107427758 # t  honorary consul to Kazakhstan
-          - wd:Q107427787 # t  honorary consul to Pakistan
-          - wd:Q107711420 # t  Official Opposition Critic
-          - wd:Q108045966 # t  Cabinet attendee
-          - wd:Q108189937 # t  Office established
-          - wd:Q109274596 # t  Minister of Infrastructure and Transport of Guinea
-          - wd:Q109566783 # t  chief engineer for a state of the United States
-          - wd:Q110816129 # t  Command Deputy
-          - wd:Q110830453 # t  membre du Conseil supérieur de la magistrature
-          - wd:Q111924067 # t  Assistant Adjutant-General
-          - wd:Q112119463 # t  chief of staff
-          - wd:Q112806846 # t  appointed office
-          - wd:Q112806876 # t  appointed position
-          - wd:Q112817611 # t  président de la Commission électorale autonome
-          - wd:Q113364154 # t  director of land registry
-          - wd:Q113364155 # t  vice-director of land registry
-          - wd:Q116167676 # t  Président de Chambre à la Cour Suprême
-          - wd:Q116745877 # t  Shadow Minister of Agriculture, Animal Industries and Fisheries
-          - wd:Q116745922 # t  Shadow Minister for Education
-          - wd:Q116746063 # t  Shadow Minister for Disaster Preparedness
-          - wd:Q116746078 # t  In charge of Special Regions Affairs
-          - wd:Q116746090 # t  Shadow Minister for Local Government
-          - wd:Q116746100 # t  Shadow Minister for water and Environment
-          - wd:Q116746109 # t  Shadow Minister for Trade and Industry
-          - wd:Q116746116 # t  Shadow Minister in Uganda
-          - wd:Q116746128 # t  Shadow Minister for Energy and Minerals
-          - wd:Q116746731 # t  Shadow minister for Agriculture
-          - wd:Q116747202 # t  Shadow Minister for Science, Innovation and Technology
-          - wd:Q116748640 # t  Shadow Minister for Gender, Labour and Social Development
-          - wd:Q116748646 # t  Shadow Minister for Youth and Children Affairs
-          - wd:Q116752549 # t  Opposition Chief Whip
-          - wd:Q116752572 # t  Deputy Chief Opposition Whip
-          - wd:Q118954321 # t  Sheriff of Exeter
-          - wd:Q119794138 # t  honorary consul of Argentina
-          - wd:Q120599914 # t  Director of the Administrative Office of the United States Courts
-          - wd:Q121543752 # t  Deputy Mayor of West Yorkshire for Policing and Crime
-          - wd:Q123036378 # t  Board chairman
-          - wd:Q123202098 # t  deputy speaker
-          - wd:Q56810277 # t  Admiral of the Fleet
-          - wd:Q57028855 # t  Director of the National Intelligence Center
-          - wd:Q58412251 # t  judge of a United States court of appeals
-          - wd:Q58412318 # t  judge of a United States district court
-          - wd:Q58697599 # t  inspecteur général des services judiciaires
-          - wd:Q59156405 # t  secrétaire général du Conseil constitutionnel
-          - wd:Q59190554 # t  National coodinator for Intelligence and Fight against Terrorism
-          - wd:Q59289676 # t  Chief of staff of the French Ministry of the Interior
-          - wd:Q59422735 # t  magistrat élu au Conseil supérieur de la magistrature
-          - wd:Q59491901 # t  First President
-          - wd:Q60028304 # t  Lieutenant Governors of Brazil
-          - wd:Q60559440 # t  Secretary General of the Interministerial Committee for European Economic Cooperation Questions
-          - wd:Q60723182 # t  membre du Conseil supérieur de la magistrature en tant que personnalité extérieure
-          - wd:Q61022630 # t  officer
-          - wd:Q62056664 # t  president of chamber at the French Court of Audit
-          - wd:Q62122498 # t  maire de Tournan-en-Brie
-          - wd:Q62578836 # t  Permanent Representative of Hungary to the United Nations, New York
-          - wd:Q63456757 # t  ambassador of Hungary to Azerbaijan
+          - Q116 # t  monarch
+          - Q26718 # t  Continental Congress
+          - Q30461 # t  president
+          - Q42841 # t  incumbent
+          - Q58333 # t  Police and Crime Commissioner
+          - Q83307 # t  minister
+          - Q193391 # t  diplomat
+          - Q207978 # t  consul
+          - Q294414 # t  public office
+          - Q303618 # t  diplomatic rank
+          - Q334473 # t  division manager
+          - Q337902 # t  naval rating
+          - Q524778 # t  commissioner
+          - Q620110 # t  Leader of the Opposition
+          - Q740126 # t  President of the European Parliament
+          - Q742482 # t  United States Assistant Secretary of State
+          - Q759969 # t  supervisory board
+          - Q766504 # t  undersecretary
+          - Q854416 # t  head of the district council
+          - Q1005815 # t  Federal Commissioner
+          - Q1127270 # t  deputy chairperson
+          - Q1207353 # t  head of department
+          - Q1251441 # t  leader
+          - Q1276214 # t  European Union Special Representative
+          - Q1326365 # t  -elect
+          - Q1414672 # t  legislative seat
+          - Q1472275 # t  figurehead
+          - Q1500391 # t  chief of municipal
+          - Q1513949 # t  Returning officer
+          - Q1516453 # t  lieutenant governor
+          - Q1555246 # t  Supreme commanders of the Imperial and Royal Armed Forces
+          - Q1654355 # t  Interior Minister of Prussia
+          - Q1758037 # t  speaker
+          - Q1837955 # t  Chief Minister of Punjab
+          - Q1890052 # t  president of the court
+          - Q1977915 # t  federal intervention in Argentina
+          - Q2011359 # t  High steward
+          - Q2086090 # t  commander
+          - Q2101758 # t  police commissioner
+          - Q2133201 # t  Procureur du Bien Public
+          - Q2137774 # t  government governor
+          - Q2546165 # t  Great Offices of State
+          - Q2574878 # t  Council of war
+          - Q2660216 # t  Vice President of Iran
+          - Q2738644 # t  Federal ombudsman
+          - Q2824523 # t  board member
+          - Q2920659 # t  Cabinet Secretary
+          - Q2998914 # t  county executive
+          - Q3188077 # t  Citizenship judge
+          - Q3250324 # t  deputy
+          - Q3382119 # t  sub-prefect
+          - Q3695530 # t  Chief Minister of Balochistan
+          - Q4146697 # t  state position of the Russian Federation
+          - Q4180896 # t  financial secretary
+          - Q4189293 # t  rank
+          - Q4489757 # t  consul
+          - Q4516014 # t  rank
+          - Q4676866 # t  acting governor
+          - Q4816037 # t  Atlanta Chief of Police
+          - Q4907518 # t  superior
+          - Q5096852 # t  Chief Minister of Khyber Pakhtunkhwa
+          - Q5123536 # t  city attorney
+          - Q5124691 # t  civil servant of the People's Republic of China
+          - Q5390229 # t  ambassador of Costa Rica
+          - Q5663887 # t  alcaide
+          - Q5928980 # t  jefe político superior
+          - Q6857706 # t  military profession
+          - Q6888512 # t  moderator
+          - Q7210354 # t  Political officer
+          - Q7239417 # t  precinct captain
+          - Q7260481 # t  barangay captain
+          - Q7315432 # t  Resident Commissioner
+          - Q7494991 # t  Sheriff of Kolkata
+          - Q7574852 # t  special prosecutor
+          - Q7603902 # t  state treasurer
+          - Q8135012 # t  Chief Minister of Gilgit-Baltistan
+          - Q9200127 # t  member
+          - Q10526703 # t  president for a Court of Appeal
+          - Q10571975 # t  länsråd
+          - Q11452125 # t  East Asian government official
+          - Q11997597 # t  representative
+          - Q12191080 # t  supreme commander
+          - Q15735113 # t  Assistant Secretary
+          - Q15894241 # t  assistant commissioner
+          - Q16060143 # t  elected person
+          - Q16171693 # t  President of the Ukrainian Supreme Court
+          - Q16178337 # t  Chief of Staff of the Air Force (South Korea)
+          - Q16492012 # t  Diputado del común
+          - Q16631188 # t  military position
+          - Q16863083 # t  Senior Member
+          - Q18614659 # t  secretary of provincial committee of a Communist Party
+          - Q19476593 # t  police rank
+          - Q20473964 # t  Governor (Turkey)
+          - Q20801619 # t  secrétaire général du ministère de la Justice
+          - Q20900278 # t  Island Administrator
+          - Q20995522 # t  title of nobility in the United Kingdom
+          - Q21028311 # t  White House Cabinet Secretary
+          - Q23307026 # t  Shadow minister
+          - Q23541196 # t  Queen mothers in Africa
+          - Q23644849 # t  Executive Secretary of the Secretariat
+          - Q25906149 # t  Parliamentary Secretary
+          - Q27791757 # t  diputado provincial de Sevilla
+          - Q28172535 # t  Mayor of Peshawar
+          - Q28381391 # t  supervising director
+          - Q29646039 # t  ambassador of Tunisia
+          - Q30148522 # t  head of state or government
+          - Q42045197 # t  hereditary position
+          - Q47520780 # t  Speaker of Doboj Assembly
+          - Q49838176 # t  executives of counties in Maryland
+          - Q56496216 # t  Secretario Particular de la Presidencia
+          - Q56654089 # t  superintendent of Centro
+          - Q56654091 # t  superintendent of Campo Grande
+          - Q56654094 # t  superintendent of Jacarepaguá
+          - Q56654096 # t  superintendent of Tijuca
+          - Q56654098 # t  superintendent of Pavuna
+          - Q56654100 # t  superintendent of Ramos
+          - Q56654102 # t  superintendent of Inhaúma
+          - Q56654104 # t  superintendent of Méier
+          - Q56654106 # t  superintendent of Guaratiba
+          - Q56654108 # t  superintendent of Ilha do Governador
+          - Q56654110 # t  superintendent of Zona Sul
+          - Q56654112 # t  superintendent of Santa Cruz
+          - Q56654114 # t  superintendent of Irajá
+          - Q56654116 # t  superintendent of Madureira
+          - Q56654118 # t  superintendent of Bangu
+          - Q56654120 # t  superintendent of Recreio e Vargens
+          - Q56654122 # t  superintendent of Barra da Tijuca
+          - Q56660333 # t  Commander-in-chief
+          - Q73175308 # t  secretario regional ministerial de Chile
+          - Q73864327 # t  Commander of the Joint Forces
+          - Q83230308 # t  hereditary office
+          - Q83856136 # t  legal position
+          - Q90132546 # t  deputy minister
+          - Q91936085 # t  ambassador of Oman
+          - Q95637571 # t  deputy mayor
+          - Q96034520 # t  Assistant Deputy Minister
+          - Q98539289 # t  ambassador of Spain to Belize
+          - Q103838820 # t  elected position
+          - Q103888080 # t  audit committee member
+          - Q104178983 # t  municipal judge
+          - Q104180972 # t  alcaide-mor
+          - Q105116421 # t  treasurer
+          - Q106090919 # t  Deputy Mayor of London for Policing and Crime
+          - Q107419604 # t  honorary consul of Ireland
+          - Q107421982 # t  honorary consul of Sudan
+          - Q107427335 # t  honorary consul of Barbados
+          - Q107427462 # t  honorary consul of a country
+          - Q107427486 # t  honorary consul to a country
+          - Q107427695 # t  honorary consul of Rwanda
+          - Q107427726 # t  honorary consul to Bangladesh
+          - Q107427745 # t  honorary consul of Singapore
+          - Q107427758 # t  honorary consul to Kazakhstan
+          - Q107427787 # t  honorary consul to Pakistan
+          - Q107711420 # t  Official Opposition Critic
+          - Q108045966 # t  Cabinet attendee
+          - Q108189937 # t  Office established
+          - Q109274596 # t  Minister of Infrastructure and Transport of Guinea
+          - Q109566783 # t  chief engineer for a state of the United States
+          - Q110816129 # t  Command Deputy
+          - Q110830453 # t  membre du Conseil supérieur de la magistrature
+          - Q111924067 # t  Assistant Adjutant-General
+          - Q112119463 # t  chief of staff
+          - Q112806846 # t  appointed office
+          - Q112806876 # t  appointed position
+          - Q112817611 # t  président de la Commission électorale autonome
+          - Q113364154 # t  director of land registry
+          - Q113364155 # t  vice-director of land registry
+          - Q116167676 # t  Président de Chambre à la Cour Suprême
+          - Q116745877 # t  Shadow Minister of Agriculture, Animal Industries and Fisheries
+          - Q116745922 # t  Shadow Minister for Education
+          - Q116746063 # t  Shadow Minister for Disaster Preparedness
+          - Q116746078 # t  In charge of Special Regions Affairs
+          - Q116746090 # t  Shadow Minister for Local Government
+          - Q116746100 # t  Shadow Minister for water and Environment
+          - Q116746109 # t  Shadow Minister for Trade and Industry
+          - Q116746116 # t  Shadow Minister in Uganda
+          - Q116746128 # t  Shadow Minister for Energy and Minerals
+          - Q116746731 # t  Shadow minister for Agriculture
+          - Q116747202 # t  Shadow Minister for Science, Innovation and Technology
+          - Q116748640 # t  Shadow Minister for Gender, Labour and Social Development
+          - Q116748646 # t  Shadow Minister for Youth and Children Affairs
+          - Q116752549 # t  Opposition Chief Whip
+          - Q116752572 # t  Deputy Chief Opposition Whip
+          - Q118954321 # t  Sheriff of Exeter
+          - Q119794138 # t  honorary consul of Argentina
+          - Q120599914 # t  Director of the Administrative Office of the United States Courts
+          - Q121543752 # t  Deputy Mayor of West Yorkshire for Policing and Crime
+          - Q123036378 # t  Board chairman
+          - Q123202098 # t  deputy speaker
+          - Q56810277 # t  Admiral of the Fleet
+          - Q57028855 # t  Director of the National Intelligence Center
+          - Q58412251 # t  judge of a United States court of appeals
+          - Q58412318 # t  judge of a United States district court
+          - Q58697599 # t  inspecteur général des services judiciaires
+          - Q59156405 # t  secrétaire général du Conseil constitutionnel
+          - Q59190554 # t  National coodinator for Intelligence and Fight against Terrorism
+          - Q59289676 # t  Chief of staff of the French Ministry of the Interior
+          - Q59422735 # t  magistrat élu au Conseil supérieur de la magistrature
+          - Q59491901 # t  First President
+          - Q60028304 # t  Lieutenant Governors of Brazil
+          - Q60559440 # t  Secretary General of the Interministerial Committee for European Economic Cooperation Questions
+          - Q60723182 # t  membre du Conseil supérieur de la magistrature en tant que personnalité extérieure
+          - Q61022630 # t  officer
+          - Q62056664 # t  president of chamber at the French Court of Audit
+          - Q62122498 # t  maire de Tournan-en-Brie
+          - Q62578836 # t  Permanent Representative of Hungary to the United Nations, New York
+          - Q63456757 # t  ambassador of Hungary to Azerbaijan
       - maybe_pep: false
         match:
-  
+          - Q11271 # f  Benevolent Dictator for Life
+          - Q29182 # f  bishop
+          - Q212071 # f  rector
+          - Q368620 # f  Chief Apostle
+          - Q381136 # f  shareholder
+          - Q383865 # f  executive sponsor
+          - Q511138 # f  inspector
+          - Q659534 # f  Three Masters of the East Palace
+          - Q670556 # f  Captain of the Castle
+          - Q1017553 # f  business analyst
+          - Q1404101 # f  fellow
+          - Q1714036 # f  jury
+          - Q1766113 # f  lighthouse keeper
+          - Q1787679 # f  chief executive
+          - Q1807498 # f  social position
+          - Q2110002 # f  Cantonal Council of Zurich
+          - Q2114175 # f  provost
+          - Q2445218 # f  goalkeeper coach
+          - Q2450226 # f  founder of Catholic religious community
+          - Q2550689 # f  equity partner
+          - Q3149494 # f  printer to the King
+          - Q3290825 # f  churchwarden
+          - Q3504856 # f  substitute
+          - Q3643105 # f  Rain Queen
+          - Q4048723 # f  SEO specialist
+          - Q4102597 # f  job vacancy
+          - Q5428874 # f  faculty member
+          - Q7074545 # f  Oba of Lagos
+          - Q7140693 # f  partner
+          - Q7200276 # f  placeholder
+          - Q10438271 # f  office manager
+          - Q10543171 # f  chamber writer
+          - Q10561616 # f  liquidator
+          - Q11415594 # f  honorable position
+          - Q11488158 # f  corporate title
+          - Q11773926 # f  ecclesiastical occupation
+          - Q11952019 # f  profesor titular de escuela universitaria
+          - Q15140392 # f  founding member
+          - Q15143900 # f  United Nations Special Rapporteur
+          - Q15726407 # f  President of the World Esperanto Youth Organization
+          - Q19816651 # f  Order of Cardinals
+          - Q21114371 # f  episcopal title
+          - Q23685787 # f  working student
+          - Q28689677 # f  honorary secretary
+          - Q29982545 # f  function in the Evangelical Church of Czech Brethren
+          - Q30056203 # f  ambassador to Qatar
+          - Q30081888 # f  ambassador to Belarus
+          - Q30582382 # f  excavation director
+          - Q30682903 # f  data protection officer
+          - Q51321989 # f  Professional engineer
+          - Q55400987 # f  community councillor
+          - Q56514255 # f  information commissioner
+          - Q69282762 # f  Assistant general secretary of the International Astronomical Union
+          - Q73284086 # f  student representative
+          - Q81752537 # f  professorship
+          - Q91188763 # f  Eastern Orthodox religious occupation
+          - Q96437530 # f  directed by / from
+          - Q97468869 # f  French horn player
+          - Q100369292 # f   cycling officer
+          - Q101573121 # f  percussion teacher
+          - Q104716377 # f  secret collaborator
+          - Q105954233 # f  Pastor primarius der ev.-luth. Kirchengemeinder Sankt Andreasberg
+          - Q105954234 # f  Pastor diaconus der ev.-luth. Kirchengemeinder Sankt Andreasberg
+          - Q106730414 # f  student employee
+          - Q107453261 # f  representative of the Association of Silversmiths
+          - Q107453369 # f  Maltese Labour Party General Committee worker
+          - Q107453418 # f  Camera del Lavoro founder
+          - Q109828300 # f  court jeweler
+          - Q110904785 # f  Member of the Royal Swedish Academy of Music
+          - Q112074151 # f  head of a diocese
+          - Q112075451 # f  Technology Transfer Manager
+          - Q114962596 # f  historical position
+          - Q115154787 # f  church‘s ministry
+          - Q115988665 # f  student league chairperson
+          - Q116143301 # f  goaltending coach
+          - Q120034425 # f  illustrious son of Alaior
+          - Q122915673 # f  Clockmaker to the king
+          - Q124467322 # f  historical religious function
+          - Q124515690 # f  anglican episcopal title
+          - Q124662819 # f  Office dissolved
+          - Q57895872 # f  Chief Clerk of the Cortes Generales
+          - Q59312380 # f  Knight of the Order of Alcántara
+          - Q63187345 # f  religious occupation
+          - Q63187384 # f  Jewish religious occupation
+          - Q63188683 # f  Christian religious occupation
+          - Q63188808 # f  Catholic vocation
+          - Q65279813 # f  Designated School Official
+        
+
   country_decisions:
     options:
       - match: "Q145"
