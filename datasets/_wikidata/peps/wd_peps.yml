@@ -282,6 +282,78 @@ lookups:
           - Q62122498 # t  maire de Tournan-en-Brie
           - Q62578836 # t  Permanent Representative of Hungary to the United Nations, New York
           - Q63456757 # t  ambassador of Hungary to Azerbaijan
+          - Q854185 # t  Bezirksamtsleiter
+          - Q1006064 # t  Bundesgeschäftsführer
+          - Q1221110 # t  Dienstposten
+          - Q1221126 # t  Dienststellung
+          - Q1258312 # t  Säckelmeister
+          - Q1501906 # t  Generalpostmeister
+          - Q1795352 # t  Kämmerer
+          - Q1802914 # t  Landgerichtsrat
+          - Q2038497 # t  Q2038497
+          - Q2101555 # t  Politischer Leiter
+          - Q2246543 # t  Ruwaard
+          - Q2276758 # t  Q2276758
+          - Q2305417 # t  inspector general
+          - Q2324526 # t  Garpon
+          - Q2519100 # t  Vertreter des öffentlichen Interesses
+          - Q2528143 # t  Q2528143
+          - Q2932519 # t  Q2932519
+          - Q3043452 # t  Délégué interministériel à la sécurité routière
+          - Q3043455 # t  délégué militaire départemental
+          - Q3043456 # t  Délégué militaire régional
+          - Q3401661 # t  Premier bouteiller de Bretagne
+          - Q3933467 # t  responsible
+          - Q3969776 # t  Q3969776
+          - Q4498939 # t  Hokim
+          - Q5075784 # t  Amtsbürgermeister
+          - Q7231714 # t  Starosta
+          - Q7647118 # t  Surveyor General
+          - Q7832034 # t  trade commissioner
+          - Q7886633 # t  centenier
+          - Q9325187 # t  Q9325187
+          - Q10312791 # t   juiz de direito
+          - Q10312792 # t  juiz de fora
+          - Q10342662 # t  ouvidor-mor
+          - Q10544194 # t  Q10544194
+          - Q13142904 # t  Sechser
+          - Q14173978 # t  Q14173978
+          - Q14418847 # t  Q14418847
+          - Q15913260 # t  Q15913260
+          - Q16931516 # t  Muhandiram
+          - Q18677341 # t  Procurator
+          - Q20025378 # t  Q20025378
+          - Q20169991 # t  Kreisausschussinspektor
+          - Q20820583 # t  Postmaster General
+          - Q25457593 # t  Q25457593
+          - Q29110214 # t  Q29110214
+          - Q30103103 # t  Q30103103
+          - Q38097868 # t  Q38097868
+          - Q38267249 # t  Q38267249
+          - Q47529145 # t  Stationsleiter
+          - Q56500108 # t  Consejero de Gobierno
+          - Q81641582 # t  intendant of the généralité de Valenciennes
+          - Q84418077 # t  Q84418077
+          - Q98092253 # t  Q98092253
+          - Q102088897 # t  President of Vox Asturias
+          - Q104006894 # t  subprefeito
+          - Q104008340 # t  1.º prefeito
+          - Q104492321 # t  copeiro-mor
+          - Q104540886 # t  jurisdição do crime
+          - Q104871400 # t  Q104871400
+          - Q106581314 # t  Q106581314
+          - Q112660316 # t  Q112660316
+          - Q114850321 # t  Collector of Customs
+          - Q116878625 # t  Appellationsgerichtsrat
+          - Q116908879 # t  Community Board member
+          - Q117458668 # t  Oberappellationsgerichtsrat
+          - Q118109623 # t  Q118109623
+          - Q118278814 # t  président de l'Assemblée commune
+          - Q120633697 # t  antiabbot
+          - Q121620135 # t  Q121620135
+          - Q56669297 # t  superintendent
+          - Q60832272 # t  Grand voyer
+          - Q65238772 # t  intendant
       - maybe_pep: false
         match:
           - Q11271 # f  Benevolent Dictator for Life
@@ -371,8 +443,107 @@ lookups:
           - Q63188683 # f  Christian religious occupation
           - Q63188808 # f  Catholic vocation
           - Q65279813 # f  Designated School Official
-        
-
+          - Q228417 # f  Zugführer
+          - Q476987 # f  Führerreserve
+          - Q497960 # f  Rensho
+          - Q854246 # f  Bezirkskantor
+          - Q908892 # f  Machi-bugyō
+          - Q923724 # f  sinecure
+          - Q932945 # f  khatib
+          - Q1064555 # f  Kumari
+          - Q1241843 # f  Nāyaṉmār
+          - Q1274280 # f  Sanjak-bey
+          - Q1348170 # f  Fils de France
+          - Q1472626 # f  fuchsmajor
+          - Q1500489 # f  Shophet
+          - Q1660077 # f  Immissionsschutzbeauftragter
+          - Q1660824 # f  Integrationsbeauftragter
+          - Q1662558 # f  Informationsfreiheitsbeauftragter
+          - Q2004989 # f  conseiller en prévention
+          - Q2063282 # f  Q2063282
+          - Q2308372 # f  rosh yeshiva
+          - Q2358939 # f  Hogon
+          - Q2535820 # f  bugyō
+          - Q2629127 # f  Heren XIX
+          - Q2639225 # f  Procurator
+          - Q2937346 # f  Capitão do donatário
+          - Q2957753 # f  chargé d'études statistiques
+          - Q3139516 # f  Holy Orders
+          - Q3278533 # f  maisnier
+          - Q3408743 # f  seignory
+          - Q3508196 # f  syndic of coownership
+          - Q3622267 # f  Officium
+          - Q4993575 # f  Q4993575
+          - Q5640756 # f  Prócer del Reino
+          - Q6420026 # f  Kleagle
+          - Q6445724 # f  kurdaitcha
+          - Q6543099 # f  Q6543099
+          - Q6733284 # f  Maharana
+          - Q7231536 # f  Portcullis Pursuivant
+          - Q7370771 # f  Rouge Croix Pursuivant
+          - Q7538518 # f  Slains Pursuivant
+          - Q7559869 # f  Somerset Herald
+          - Q7710644 # f  Thantri
+          - Q10438569 # f  Q10438569
+          - Q10500711 # f  Q10500711
+          - Q10519151 # f  honorary member
+          - Q10686102 # f  Q10686102
+          - Q10887091 # f  Q10887091
+          - Q10910812 # f  Q10910812
+          - Q11533909 # f  Senshoku ginōshi
+          - Q11570792 # f  Q11570792
+          - Q11603279 # f  managerial staff
+          - Q11773928 # f  Q11773928
+          - Q11800539 # f  Q11800539
+          - Q11938128 # f  Mutasarrifate
+          - Q12038332 # f  Q12038332
+          - Q12056812 # f  Q12056812
+          - Q13122546 # f  Adhuri
+          - Q13365589 # f  principal
+          - Q15904441 # f  tulku lineage
+          - Q17070605 # f  Station House Officer
+          - Q18173381 # f  post of duty
+          - Q20616094 # f  Q20616094
+          - Q20778343 # f  Roman magistrate
+          - Q25387725 # f  Q25387725
+          - Q25394346 # f  proviseur
+          - Q25457610 # f  beugrás
+          - Q25490897 # f  Q25490897
+          - Q28409756 # f  Q28409756
+          - Q30926380 # f  guarda-roupa
+          - Q47181134 # f  Q47181134
+          - Q51073528 # f  Versicherungsbeamter
+          - Q65963788 # f  President of APOEL
+          - Q66332487 # f  President of Anorthosis Famagusta AC
+          - Q70581532 # f  Joan Playà Guirado
+          - Q71817123 # f  chronicler of Příbor
+          - Q85510760 # f  Lagerarzt (KZ)
+          - Q85515282 # f  Standortarzt (KZ)
+          - Q85954791 # f  President of Apollon Limassol FC
+          - Q87104570 # f  vice provost
+          - Q91443469 # f  Zechprobst
+          - Q97382722 # f  Q97382722
+          - Q97962756 # f  Great Officers of the Crown of Savoy
+          - Q104005945 # f  slave manumission official
+          - Q104212240 # f  auxiliary worker
+          - Q104531972 # f  tanador-mor
+          - Q106329013 # f  Konnetabel von Aragón
+          - Q107478229 # f  Werkreferent
+          - Q109044377 # f  Maréchal de Champagne
+          - Q110409475 # f  Wachtposten
+          - Q113840044 # f  modérateur
+          - Q114157430 # f  Q114157430
+          - Q114839449 # f  Q114839449
+          - Q114839541 # f  Q114839541
+          - Q117448532 # f  Q117448532
+          - Q123669978 # f  Nodocente
+          - Q124422714 # f  gosho
+          - Q58722446 # f  directeur de l'École nationale de la magistrature
+          - Q64008660 # f  Q64008660
+          - Q65557188 # f  President of Anorthosis Famagusta FC
+          - Q65798480 # f  President of AEL Limassol
+          - Q65962630 # f  President of AEK Larnaca        
+          
   country_decisions:
     options:
       - match: "Q145"
