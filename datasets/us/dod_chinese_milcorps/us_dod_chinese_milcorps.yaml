@@ -1,34 +1,44 @@
 name: us_dod_chinese_milcorps
 title: "Chinese military companies"
-url: https://www.defense.gov/News/Releases/Release/Article/3661985/dod-releases-list-of-peoples-republic-of-china-prc-military-companies-in-accord/
-summary: A list of companies identified as Chinese military companies operating in the United States.
-description: > 
-    Entities Identified as Chinese Military Companies Operating in the United States in accordance with Section 1260H of the William M. (“Mac”) Thornberry National Defense Authorization Act for Fiscal Year 2021 (Public Law 116-283).
-
-    > Updating the Section 1260H list of "Chinese military companies" is an important continuing effort in highlighting and countering the PRC's Military-Civil Fusion strategy.
-    > The PRC's Military-Civil Fusion strategy supports the modernization goals of the People's Liberation Army (PLA) by ensuring it can acquire advanced technologies and expertise developed by PRC companies, 
-    universities, and research programs that appear to be civilian entities. 
-    > Section 1260H directs the Department to begin identifying, among other things, Military-Civil Fusion contributors operating directly or indirectly in the United States.
-
-   The department will continue to update the list with additional entities as appropriate. However, this dataset is only updated occasionally by manual extraction.
-
-    While Section 1260H does not itself implement any prohibitions for identified companies, Section 805 of the FY 2024 NDAA prohibits DoD from entering into a contract with an entity on the 1260H list (Entity Prohibition) or purchasing, directly or indirectly, goods and services that include goods or services sourced from an entity on the 1260H list or any entity subject to the control of an entity on the 1260H list
-    [Crowell & Moring LLP](https://www.crowell.com/en/insights/client-alerts/dod-is-making-its-list-and-checking-it-twice-dod-updates-1260h-chinese-military-companies-list).
-
 entry_point: crawler.py
-
 prefix: us-dod-mil
+coverage:
+    frequency: never
+    start: 2024-01-31
+    end: 2024-01-31
+summary: >
+  A list of companies identified as Chinese military companies operating in the United States.
+description: |
+    Entities Identified as Chinese Military Companies Operating in the United States
+    in accordance with Section 1260H of the William M. (“Mac”) Thornberry National
+    Defense Authorization Act for Fiscal Year 2021 (Public Law 116-283).
 
+    > Updating the Section 1260H list of "Chinese military companies" is an important
+    > continuing effort in highlighting and countering the PRC's Military-Civil
+    > Fusion strategy.
+    > The PRC's Military-Civil Fusion strategy supports the modernization goals of
+    > the People's Liberation Army (PLA) by ensuring it can acquire advanced
+    > technologies and expertise developed by PRC companies, 
+    > universities, and research programs that appear to be civilian entities. 
+    > Section 1260H directs the Department to begin identifying, among other things,
+    > Military-Civil Fusion contributors operating directly or indirectly in the United States.
+
+    The department will continue to update the list with additional entities as
+    appropriate. However, this dataset is only updated occasionally by manual extraction.
+
+    While Section 1260H does not itself implement any prohibitions for identified
+    companies, Section 805 of the FY 2024 NDAA prohibits DoD from entering into a
+    contract with an entity on the 1260H list (Entity Prohibition) or purchasing,
+    directly or indirectly, goods and services that include goods or services
+    sourced from an entity on the 1260H list or any entity subject to the control
+    of an entity on the 1260H list 
+    [Crowell & Moring LLP](https://www.crowell.com/en/insights/client-alerts/dod-is-making-its-list-and-checking-it-twice-dod-updates-1260h-chinese-military-companies-list).
 publisher:
     name: U.S. Department of Defense
     country: us
     url: https://media.defense.gov/2024/Jan/31/2003384819/-1/-1/0/1260H-LIST.PDF
     official: true
+url: https://www.defense.gov/News/Releases/Release/Article/3661985/dod-releases-list-of-peoples-republic-of-china-prc-military-companies-in-accord/
 data:
     url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRlrR4f46lTXiAuIijw-0XcW1IXSlWv-duNEc8ha23SpRjGrP_RqJUjnAFv07VDvih025FS0gTdQZbh/pub?gid=0&single=true&output=csv
     format: CSV
-
-coverage:
-    frequency: never
-    start: 2024-01-31
-    end: 2024-01-31
