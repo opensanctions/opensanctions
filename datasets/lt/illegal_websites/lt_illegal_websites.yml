@@ -1,0 +1,26 @@
+title: Lithuania Illegal financial services
+entry_point: crawler.py
+prefix: lt-illegal-websites
+summary: List of websites that are offering illegal financial services in Lithuania
+coverage:
+  start: 2024-03-06
+  end: 2024-03-06
+  frequency: never
+description: |
+  This dataset contains a list of websites offering illegal financial services in Lithuania.
+  It publishes the company name, brand and domain of the illegal websites.
+  
+  This copy of the data is only updated occasionally.
+publisher:
+  name: Lietuvos bankas
+  description: >
+  The Bank of Lithuania is the Lithuanian member of the Eurosystem and has been 
+  the monetary authority for Lithuania from 1922 to 2014 
+  [Source: Wikipedia](https://en.wikipedia.org/wiki/Bank_of_Lithuania)
+  url: https://www.lb.lt
+  country: lt
+  official: true
+url: https://www.lb.lt/illegalwww
+data:
+  url: https://www.lb.lt/illegalwww?export=csv
+  format: CSV
