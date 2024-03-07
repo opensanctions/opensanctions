@@ -1,0 +1,25 @@
+title: "EU ESMA Suspensions and Removals"
+entry_point: crawler.py
+prefix: eu-saris
+coverage:
+  frequency: daily
+  start: 2024-03-07
+summary: >
+  List of suspended and removed financial instruments, as published by the
+  European Securities and Markets Authority (ESMA).
+description: |
+  Register on suspensions and removals of financial instruments from trading,
+  according to articles 32 and 52 of Directive 2014/65/EU (MIFID II).
+publisher:
+  name: European Securities and Markets Authority
+  description: |
+    ESMA is the EU’s financial markets regulator and supervisor. It publishes a
+    number of databases and registers, including the Financial Instruments Reference
+    Data System (FIRDS).
+  country: eu
+  url: https://www.esma.europa.eu/
+  official: true
+url: https://registers.esma.europa.eu/publication/searchRegister?core=esma_registers_saris_new
+data:
+  url: https://registers.esma.europa.eu/publication/searchRegister/doExportSarisCsv?core=esma_registers_saris_new
+  format: CSV
