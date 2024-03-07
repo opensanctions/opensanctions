@@ -1,0 +1,36 @@
+title: Israel Knesset members
+entry_point: crawler.py
+prefix: il-knesset
+coverage:
+  frequency: daily
+  start: 2024-02-28
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Current Members of Israel's house of representatives
+description: |
+  This dataset comprises information about current members of the Knesset, the Israeli house of representatives.
+  
+  The Knesset also supervises the work of the government (the executive branch) and carries out several quasi-judicial roles. As an electorate body, the Knesset elects the President of the State and the State Comptroller. The Knesset has 120 members and is located in Jerusalem.
+publisher:
+  name: Knesset
+  description: Israeli house of representatives
+  url: https://main.knesset.gov.il/
+  official: true
+  country: "il"
+url: "https://knesset.gov.il/WebSiteApi/knessetapi/MKs/GetMksDropdown?languageKey=en"
+data:
+  url: https://knesset.gov.il/WebSiteApi/knessetapi/MKs/GetMksDropdown?languageKey=en
+  format: JSON
+
+assertions:
+  min:
+    schema_entities:
+      Person: 120
+      Position: 1
+    country_entities:
+      il: 121
+    countries: 1
+  max:
+    schema_entities:
+      Person: 150
+      Position: 1

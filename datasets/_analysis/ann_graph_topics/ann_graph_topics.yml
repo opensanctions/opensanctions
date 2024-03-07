@@ -6,11 +6,13 @@ disabled: false
 hidden: true
 coverage:
   frequency: daily
+  start: 2023-12-21
 exports:
   - statistics.json
 deploy:
   memory: "1000Mi"
   memory_limit: "1500Mi"
+  schedule: "0 */6 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   Automatically generated graph-based topic annotations

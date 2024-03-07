@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: au-dfat
 coverage:
   frequency: daily
+  start: 2018-04-11
 deploy:
   schedule: "0 */2 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
@@ -58,6 +59,7 @@ lookups:
     options:
       - match:
           - aka
+          - a
           - Original Script
         value: alias
       - match:
@@ -110,6 +112,8 @@ lookups:
         value: Lebanon
       - match: Ukranian
         value: UA
+      - match: Belarussian
+        value: BY
       - match: Tobago
         value: Trinidad
       - match: Herzegovina

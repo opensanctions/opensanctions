@@ -5,6 +5,7 @@ disabled: false
 entry_point: parse.py
 coverage:
   frequency: never
+  start: 2023-07-28
   end: 2022-02-23
 deploy:
   schedule: "@monthly"

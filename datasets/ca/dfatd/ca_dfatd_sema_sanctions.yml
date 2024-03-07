@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: ca-sema
 coverage:
   frequency: daily
+  start: 2021-02-12
 deploy:
   schedule: "0 */3 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
@@ -45,6 +46,8 @@ lookups:
     options:
       - contains: (JVCFOR)
         value: null
+      - match: Special Economic Measures (Hamas Terrorist Attacks) Regulations
+        value: PS
   type.date:
     options:
       - match: 1972-08-10 or 1972-08-11

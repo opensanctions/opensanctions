@@ -38,6 +38,7 @@ publisher:
   country: ru
   official: true
 coverage:
+  start: 2022-01-01
   end: 2022-01-01
   frequency: never
 data:

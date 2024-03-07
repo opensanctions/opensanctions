@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: eu-pub
 coverage:
   frequency: daily
+  start: 2023-11-28
 deploy:
   schedule: "50 */3 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
@@ -61,5 +62,5 @@ data:
 lookups:
   type.country:
     options:
-      match: EL
-      value: GR
+      - match: EL
+        value: GR

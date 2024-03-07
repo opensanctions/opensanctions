@@ -3,6 +3,7 @@ entry_point: disqualified.py
 prefix: gb-coh
 coverage:
   frequency: daily
+  start: 2018-04-11
 deploy:
   schedule: "0 */12 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}

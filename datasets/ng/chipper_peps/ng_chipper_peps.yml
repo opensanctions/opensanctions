@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: ng-chip
 coverage:
   frequency: daily
+  start: 2023-11-22
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   PEP data collected by Chipper for Nigeria

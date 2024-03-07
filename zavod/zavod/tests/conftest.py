@@ -13,6 +13,7 @@ settings.ARCHIVE_BACKEND = "FileSystemBackend"
 settings.ARCHIVE_PATH = settings.DATA_PATH / "test_archive"
 settings.CACHE_DATABASE_URI = None
 settings.OPENSANCTIONS_API_KEY = "testkey"
+settings.SYNC_POSITIONS = True
 FIXTURES_PATH = Path(__file__).parent / "fixtures"
 DATASET_1_YML = FIXTURES_PATH / "testdataset1" / "testdataset1.yml"
 DATASET_2_YML = FIXTURES_PATH / "testdataset2" / "testdataset2.yml"

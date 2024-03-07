@@ -7,6 +7,8 @@ from zavod.context import Context
 from zavod import settings
 from zavod.entity import Entity
 
+NOTIFIED_SYNC_POSITIONS = False
+
 YEAR = 365  # days
 DEFAULT_AFTER_OFFICE = 5 * YEAR
 EXTENDED_AFTER_OFFICE = 20 * YEAR
@@ -22,6 +24,11 @@ class OccupancyStatus(Enum):
 
 
 class PositionCategorisation:
+    is_pep: Optional[bool]
+    """Whether the position denotes a politically exposed person or not"""
+    topics: List[str]
+    """The [role and scope](https://www.opensanctions.org/docs/topics/#politically-exposed-persons) of the position, as a list of topics"""
+
     def __init__(self, topics: List[str], is_pep: Optional[bool]):
         self.topics = topics
         self.is_pep = is_pep
@@ -46,14 +53,19 @@ def categorise(
       position: The position to be categorised
       is_pep: Initial value for is_pep in the database if it gets added.
     """
-    if settings.OPENSANCTIONS_API_KEY is None:
-        context.log.warning(
-            (
-                "OPENSANCTIONS_API_KEY not configured. Can't check "
-                f"{position.get('country')} {position.get('name')}"
+    global NOTIFIED_SYNC_POSITIONS
+    if not settings.SYNC_POSITIONS:
+        if not NOTIFIED_SYNC_POSITIONS:
+            context.log.info(
+                "Syncing positions is disabled - falling back to categorisation provided by crawler, if any."
             )
-        )
+            NOTIFIED_SYNC_POSITIONS = True
         return PositionCategorisation(topics=position.get("topics"), is_pep=is_pep)
+
+    if not settings.OPENSANCTIONS_API_KEY:
+        context.log.error(
+            "Setting OPENSANCTIONS_API_KEY is required when ZAVOD_SYNC_POSITIONS is true."
+        )
 
     url = f"{settings.OPENSANCTIONS_API_URL}/positions/{position.id}"
     headers = {"authorization": settings.OPENSANCTIONS_API_KEY}

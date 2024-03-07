@@ -5,8 +5,9 @@ disabled: false
 entry_point: psc_parse.py
 coverage:
   frequency: weekly
+  start: 2023-07-28
 deploy:
-  disk: 100Gi
+  disk: 200Gi
   cpu: 400m
   memory: 2500Mi
   premium: true
@@ -40,6 +41,9 @@ lookups:
           - Compaines House
           - CHANNEL ISLANDS
           - VIRGIN ISLANDS
+          - VIRGIN IS-US
+          - NETHERLANDS ANTILLES
+          - SOUTH-WEST AFRICA
         contains:
           - Register Of Companies
         value: null
@@ -50,3 +54,18 @@ lookups:
           - Other
           - N/A
           - None
+      - match:
+          - ROI
+          - IRISH REP
+        value: ie
+      - match: GUERNSEY REGISTRY, GUERNSEY
+        value: gg
+      - match: FAROE IS
+        value: fo
+      - match: REPUBLIC OF NIGERIA
+        value: ng
+      - match: ST VINCENT
+        value: vc
+      - match: YEMEN ARAB REPUBLIC
+        value: ye
+

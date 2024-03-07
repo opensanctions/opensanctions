@@ -29,3 +29,7 @@ Useful fields like the reason someone is sanctioned should be captured regardles
 reason = data.pop("expunerea-a-temeiului-de-includere-in-lista-a-operatorului-economic")
 sanction.add("reason", reason, lang="rom")
 ```
+
+## Use datapatch lookups to clean or map values from external forms to OpenSanctions
+
+See [Datapatches](datapatch_lookups.md)

@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: nz-ru
 coverage:
   frequency: daily
+  start: 2022-10-31
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   The New Zealand government's list of people and companies sanctioned in relation
@@ -35,3 +36,5 @@ lookups:
       - match:
           - unknown
         value: null
+      - match: 45352
+        value: 2023-03-02

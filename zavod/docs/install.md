@@ -55,6 +55,8 @@ If you encounter any errors during the installation, please consider googling er
 !!! info "Please note"
     `zavod` has dependecies on PyICU - a library related to the transliteration of names in other alphabets to the latin character set - and Plyvel - a fast and feature-rich Python interface to LevelDB. The installation and configuration of both libraries can be complex due to system dependencies. Consider following the [PyICU](https://pypi.org/project/PyICU/) and [Plyvel](https://plyvel.readthedocs.io/en/latest/installation.html) documentation for the installation of both libraries.
 
+    Plyvel on Mac OS X: [issue](https://github.com/wbolster/plyvel/issues/114)
+
 ## Configuration
 
 `zavod` is inspired by the [twelve factor model](https://12factor.net/) and uses
@@ -66,3 +68,6 @@ If you encounter any errors during the installation, please consider googling er
   `zavod` command is invoked.
 * `ZAVOD_RESOLVER_PATH` must be set to the path to a [nomenklatura](https://github.com/opensanctions/nomenklatura)
   resolver JSON lines file. It can be an empty file. e.g. `data/resolver.ijson`
+* `ZAVOD_SYNC_POSITIONS` (default `True`) - When true, attempts to sync PEP positions with our positions database, requiring `ZAVOD_OPENSANCTIONS_API_KEY` to be set with a valid key. Usually best set to `False` in development.
+* `ZAVOD_ARCHIVE_BACKEND` default `FileSystemBackend` which is usually good for crawler development. Can be `GoogleCloudBackend` which allows backfilling from the data lake, e.g. so that an exporter for a collection can backfill data it wants to load into its store from other crawlers.
+* `ZAVOD_ARCHIVE_BUCKET` - e.g. `data.opensanctions.org`

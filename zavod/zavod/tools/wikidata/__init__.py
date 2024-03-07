@@ -1,11 +1,11 @@
 from collections import defaultdict
 from itertools import groupby
-from languagecodes import iso_639_alpha2
 from nomenklatura import Store
 from nomenklatura.dataset import DS
 from nomenklatura.entity import CE
 from nomenklatura.judgement import Judgement
 from nomenklatura.statement.statement import Statement
+from rigour.langs import iso_639_alpha2
 from rigour.ids.wikidata import is_qid
 
 # They've done a partial attempt at adding types, then totally
@@ -316,7 +316,11 @@ class EditSession(Generic[DS, CE]):
                     self._log("Adding qualifier...")
                     action.claim.addQualifier(claim)
                 self._log("Adding sources...")
-                action.claim.addSources(action.sources)
+                if action.claim.id == "P31":
+                    # We get an invalid json error response back if we try
+                    self._log("Skipping source for P31")
+                else:
+                    action.claim.addSources(action.sources)
             else:
                 raise ValueError("Unknown action: %r" % action)
         if created:
@@ -578,23 +582,26 @@ class SessionDisplay(Widget):
 
     def render(self) -> RenderableType:
         if self.session.entity:
-            text = (
-                f"ID: {self.session.entity.id}\n"
-                f"Names: {' | '.join(self.session.entity.get('name'))}\n\n"
-            )
+            text = f"Entity: https://www.opensanctions.org/entities/{self.session.entity.id}\n"
+            if self.session.entity.id is not None and is_qid(self.session.entity.id):
+                text += f"Wikidata: https://wikidata.org/wiki/{self.session.entity.id}\n"
+            text += f"Names: {' · '.join(self.session.entity.get('name'))}\n\n"
+
             text += render_property(self.session.entity, "birthDate")
             text += render_property(self.session.entity, "gender")
             text += render_property(self.session.entity, "nationality")
             text += render_property(self.session.entity, "country")
             text += "Positions:\n"
             for pos_id, pos_names in self.session.position_labels.items():
-                text += f"  {pos_id}\n  {pos_names[0]} ({len(pos_names)})\n"
+                text += f"  {pos_id}\n"
+                for name in pos_names:
+                    text += f"    {name}\n"
                 for pos, occ in self.session.position_occupancies[pos_id]:
-                    text += f'    {occ.get("startDate")} {occ.get("endDate")}\n'
+                    text += f'      {occ.get("startDate")} {occ.get("endDate")}\n'
             text += "\nProposed actions:\n"
             for action in self.session.actions:
                 text += f"  {action}\n"
-            return Text(text)
+            return text
         else:
             return Text("No current entity")
 
@@ -605,7 +612,7 @@ class SearchItem(ListItem):
     def render(self) -> Text:
         if self.result_item is None:
             return Text("Result not loaded yet.")
-        value = f'{self.result_item["id"]} {self.result_item["label"]}\n'
+        value = f'https://www.wikidata.org/wiki/{self.result_item["id"]}\n{self.result_item["label"]}\n'
         description = self.result_item.get("description", None)
         if description:
             value += f"  {description}\n"
@@ -733,7 +740,7 @@ class WikidataApp(App[int], Generic[DS, CE]):
                 )
             else:
                 self.log_display.write_line(
-                    "No results found. [p]ublish proposed wikidata item?"
+                    "No matching items found in Wikidata. [p]ublish proposed wikidata item?"
                 )
         else:
             self.log_display.write_line(

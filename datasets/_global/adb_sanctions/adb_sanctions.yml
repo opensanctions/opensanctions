@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: adb
 coverage:
   frequency: daily
+  start: 2021-11-09
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   The ADB's published sanctions list. It contains the names of entities who violated

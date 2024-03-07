@@ -5,6 +5,7 @@ entry_point: crawler
 prefix: ky-ja
 coverage:
   frequency: weekly
+  start: 2023-09-03
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 description: |
   Judicial Officers from Cayman Islands Judicial Administration
@@ -23,3 +24,13 @@ publisher:
 data:
     url: "https://www.judicial.ky/judicial-administration/judges"
     format: HTML
+
+assertions:
+  min:
+    schema_entities:
+      Person: 14
+    country_entities:
+      ky: 16
+  max:
+    schema_entities:
+      Person: 24

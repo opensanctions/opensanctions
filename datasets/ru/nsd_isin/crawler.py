@@ -82,6 +82,7 @@ def crawl_item(context: Context, url: str):
     security.id = context.make_slug(isin_code)
     security.add("sourceUrl", url)
     security.add("country", "ru")
+    security.add("topics", "sanction")
     for prop, prop_val in values["security"].items():
         security.add(prop, prop_val)
     context.emit(security, target=True)

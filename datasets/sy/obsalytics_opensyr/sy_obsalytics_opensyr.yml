@@ -4,6 +4,7 @@ prefix: opensyr
 hidden: true
 coverage:
   frequency: never
+  start: "2022-10-19"
   end: "2023-02-01"
 deploy:
   schedule: "@monthly"

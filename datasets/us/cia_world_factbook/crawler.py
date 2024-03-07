@@ -20,12 +20,13 @@ REGEX_SKIP_CATEGORY_HTML = re.compile(
     "|<strong>chief of state:</strong> Notification Statement:"
     "|Prime Minister HUN MANET succeeded"
     "|<strong>note 1:</strong>"
+    "|<em>2013:</em>" # Georgia
     ")"
 )
 REGEX_RELEVANT_CATEGORY = re.compile("^(chief of state|head of government): ")
 REGEX_HOLDER = re.compile(
     (
-        "(represented by )?"
+        "((New Zealand is )?represented by )?"
         "(?P<role>"
         "([Tt]ransitional |Transition |Interim |Acting )President"
         "|President of the Government"
@@ -56,7 +57,7 @@ REGEX_HOLDER = re.compile(
         "|Crown Prince"
         "|Emperor"
         "|Governor General of New Zealand"
-        "|(Vice |Acting |Lieutenant[ -])?Governor([ -]General)?( of the Commonwealth of Australia)?"
+        "|(Vice |Acting |Assistant |Lieutenant[ -])?Governor([ -]General)?( of the Commonwealth of Australia)?"
         "|Grand Duke"
         "|King"
         "|Lord of Mann"
@@ -175,7 +176,7 @@ def crawl_country(context: Context, country: str) -> None:
         category_els = html.fromstring(category_html)
         label_els = category_els.findall("./strong")
         if len(label_els) != 1:
-            context.log.warning("Error parsing label", html=category_html)
+            context.log.warning("Error parsing label", html=category_html, url=source_url)
             continue
         label_text = label_els[0].text_content()
         if label_text in ["chief of state:", "head of government:"]:

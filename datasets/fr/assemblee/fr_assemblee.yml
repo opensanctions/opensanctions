@@ -1,0 +1,59 @@
+title: French National Assembly
+prefix: fr-assemblee
+url: https://www.assemblee-nationale.fr/dyn/vos-deputes
+coverage:
+  frequency: weekly
+  start: 2024-03-05
+entry_point: crawler.py
+summary: >-
+  Members of the French National Assembly.
+description: |
+  This dataset lists the members of the French National Assembly.
+
+  The data is collected from the open data platform for the National
+  Assembly (Assemblée Nationale), which is the lower legislative
+  chamber of the French Parliament.  The National Assembly is composed
+  of 577 members (députés) elected to five-year terms.
+
+  In contrast to the Senate, which represents the local and regional
+  governments (collectivités), the National Assembly represents the
+  people, and is elected by popular suffrage, by a two-round system in
+  single-member constituencies.  The number of constituencies is
+  proportional to the population, with the exception that each
+  département must have at least two representatives, and
+  constituencies may not cross departmental boundaries.
+
+  The function of the Parliament (including the Senate and the
+  National Assembly) is to examine and pass laws and to verify and
+  evaluate public policy and the functioning of the government.
+publisher:
+  name: data.assemblee-nationale.fr
+  description: |
+    The National Assembly maintains an open data site publishing
+    information about its membership and functioning (including
+    committees, meetings, sessions, and votes), in XML, JSON, and CSV
+    format.
+
+    Data is provided under the French Government's [Open License](https://www.etalab.gouv.fr/wp-content/uploads/2017/04/ETALAB-Licence-Ouverte-v2.0.pdf)
+  country: fr
+  url: https://data.assemblee-nationale.fr/
+  official: true
+data:
+  url: https://data.assemblee-nationale.fr/static/openData/repository/16/amo/tous_acteurs_mandats_organes_xi_legislature/AMO30_tous_acteurs_tous_mandats_tous_organes_historique.json.zip
+  format: JSON
+assertions:
+  min:
+    schema_entities:
+      Person: 550
+      Position: 1
+    country_entities:
+      fr: 1
+lookups:
+  type.country:
+    options:
+      - match: Centrafrique
+        value: Central African Republic
+      - match: Maryland (USA)
+        value: USA
+      - match: Corée
+        value: Korea

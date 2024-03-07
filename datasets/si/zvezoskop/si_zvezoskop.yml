@@ -1,0 +1,89 @@
+title: Slovenian political officials from Zvezoskop
+entry_point: crawler.py
+prefix: si-zvezo
+coverage:
+  frequency: never
+  start: 2024-02-01
+  end: 2024-02-01
+  schedule: "45 5 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Political office holders and their political career based on data presented
+  at Zvezoskop (roughly translated as Relationscope)
+description: |
+  This dataset contains information verified by Oštro Center for investigative
+  journalism on recent and current political posts held by Slovenian political
+  officials as of 1 February 2024. Basic biographical information is also available.
+  
+  The data was collected by Oštro, Center for investigative journalism in the
+  Adriatic region, based in Slovenia and published on [Zvezoskop](https://zvezoskop.si),
+  an interactive visualization of careers of government members, ministerial
+  secretaries and Members of Parliament.
+  
+  The information on Zvezoskop spans from educational years to current political
+  roles, current and past positions or roles of political officials in other
+  organizations, institutions, or companies, an overview of all the politicians
+  associated with an entity and insight into the educational, professional, and
+  interest profiles of political parties represented in Government and the Parliament.
+
+  In addition to providing the public with information about career trajectories
+  of political officials, Zvezoskop also enables them to conduct independent
+  research and discover career intersections. It is also providing voters with
+  access to credible and verified information on careers to assist them in making
+  informed decisions. It may be used as a tool for journalists, NGOs, academics,
+  and other researchers conducting independent research into political careers
+  and networks.
+publisher:
+  name: Oštro (Slovenia)
+  description: |
+    Oštro is a non-profit center for investigative journalism, investigating
+    topics that are in the public interest for people in the Adriatic region
+    (Slovenia, Croatia, Italy) and the neighborhood.
+  url: https://www.ostro.si/en
+  country: si
+  official: false
+url: http://www.zvezoskop.si/
+data:
+  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vS_4mCNAXvhH1k96FwmUCgN6unnocpchDUXOkMUHz2uUw0VF-oAtdNItT0B4HHS6L3YBQDyqeV-9wvQ/pub?output=xlsx
+  format: XLSX
+
+assertions:
+  min:
+    schema_entities:
+      Person: 160
+      Position: 200
+    countries: 1
+  max:
+    schema_entities:
+      Person: 160
+      Position: 300
+
+lookups:
+  roughly_pep:
+    lowercase: true
+    options:
+      - contains:
+          - alternate
+          - ambassador
+          - chair
+          - charge
+          - council
+          - commander
+          - diplomat
+          - director
+          - prosecutor
+          - judge
+          - mayor
+          - member of main board
+          - member of executive committee
+          - member of federal assembly
+          - member of the european parliament
+          - member, representative
+          - minister
+          - national assembly
+          - national council
+          - presidency
+          - president
+          - representative
+      - regex: "\\bconsul\\b"
+

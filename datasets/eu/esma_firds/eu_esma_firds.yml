@@ -1,0 +1,30 @@
+title: "EU ESMA Financial Instruments Reference Data System (FIRDS)"
+entry_point: crawler.py
+prefix: eu-firds
+coverage:
+  frequency: daily
+  start: 2024-03-02
+deploy:
+  memory: 2000Mi
+  memory_limit: 3000Mi
+  disk: 100Gi
+summary: >
+  List of financial instruments and their reference data, as published by the
+  European Securities and Markets Authority (ESMA).
+description: |
+  This is a dataset of financial instruments and their reference data, as published
+  by ESMA. The data establishes connections between financial instruments and their
+  issuers, and includes information such as the instrument's name, ISIN, and LEI.
+publisher:
+  name: European Securities and Markets Authority
+  description: |
+    ESMA is the EU’s financial markets regulator and supervisor. It publishes a
+    number of databases and registers, including the Financial Instruments Reference
+    Data System (FIRDS).
+  country: eu
+  url: https://www.esma.europa.eu/
+  official: true
+url: https://registers.esma.europa.eu/publication/searchRegister?core=esma_registers_firds_files
+data:
+  url: https://registers.esma.europa.eu/publication/searchRegister/doRelativeSearch
+  format: JSON

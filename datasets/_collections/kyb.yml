@@ -1,5 +1,5 @@
 type: collection
-title: OpenSanctions Know-Your-Business Datasets
+title: Know-Your-Business (KYB) Datasets
 hidden: true
 deploy:
   memory: "2000Mi"
@@ -16,17 +16,18 @@ description: |
   This dataset contains companies and persons not linked to any risk indication. It can
   be used to perform screening and know-your-business checks in the listed jurisdictions.
 datasets:
-  - us_corpwatch
   - cy_companies
   - cz_business_register
+  - de_offeneregister
+  - dk_cvr
   - ee_ariregister
+  - eu_esma_firds
   - gb_coh_psc
   - gleif
   - icij_offshoreleaks
   - lv_business_register
   - md_companies
   - ru_egrul
-  - ua_edr
   - sk_rpvs
-  - dk_cvr
-  - de_offeneregister
+  - ua_edr
+  - us_corpwatch

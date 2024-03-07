@@ -12,7 +12,7 @@ companies into a database.
     team does not automatically assume that responsibility for code contributed by
     others. See our general [inclusion critera](https://www.opensanctions.org/docs/criteria/).
 
-1. Make sure you have [installed zavod](install.md).
+1. Make sure you have [installed zavod](install.md) and [set the required environment variables](install.md#configuration), specifically `ZAVOD_RESOLVER_PATH` and `ZAVOD_SYNC_POSITIONS`.
 2. File a [GitHub issue](https://github.com/opensanctions/opensanctions/issues)
    to discuss the suggested source.
 3. Create a [YAML metadata](#data-source-metadata) description for the new source.
@@ -227,8 +227,9 @@ Broader collections include more specific collections and/or specific crawlers.
 You may now want to level up your crawler by looking at
 
 - [helpers](helpers.md) for common tasks,
-- [common patterns](patterns.md) for building crawlers,
+- [common patterns](best_practices/patterns.md) for building crawlers,
 - the [PEPs guide](peps.md) if you're crawling Politically Exposed Persons and their Relatives and Close Associates.
+- the [merge checklist](best_practices/merge_checklist.md) we'll follow before merging a new crawler
 
 ## Checklist
 

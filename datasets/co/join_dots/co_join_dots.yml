@@ -1,8 +1,9 @@
-title: Joining the Dots Colombia PEPs
+title: Colombia Joining the Dots PEPs
 entry_point: crawler.py
 prefix: co-dots
 coverage:
   frequency: daily
+  start: 2023-10-23
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Data on Politically Exposed Persons in Colombia from the Joining the Dots project.

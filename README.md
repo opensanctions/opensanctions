@@ -15,7 +15,7 @@ We build on top of the [Follow the Money](https://www.followthemoney.tech) frame
     * [FAQs](https://www.opensanctions.org/docs/faq/)
     * [API Documentation](https://api.opensanctions.org/)
 * [zavod Documentation](https://zavod.opensanctions.org/)
-* [Data Sources Roadmap](https://bit.ly/osa-sources) - See our current plans!
+* [Data Sources Roadmap](https://github.com/orgs/opensanctions/projects/2?pane=info) - See our current plans!
 * [Data Licensing Details](https://www.opensanctions.org/licensing/)
 * [Reach Out to Us](https://www.opensanctions.org/contact/)
 

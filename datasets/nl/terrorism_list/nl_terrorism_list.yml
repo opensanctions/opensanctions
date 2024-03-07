@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: nl-dnst
 coverage:
   frequency: daily
+  start: 2022-08-22
 deploy:
   schedule: "0 */6 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
@@ -30,3 +31,10 @@ publisher:
 data:
   url: https://www.government.nl/binaries/government/documenten/reports/2016/01/15/national-terrorism-list/eng-terrorismelijst.ods
   format: ODS
+
+lookups:
+  type.date:
+    options:
+      - match:
+          - founded in 2018
+        value: 2018

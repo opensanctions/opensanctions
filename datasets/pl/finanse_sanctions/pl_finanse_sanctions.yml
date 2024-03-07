@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: pl-fin
 coverage:
   frequency: daily
+  start: "2023-10-19"
 deploy:
   schedule: "0 */6 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}

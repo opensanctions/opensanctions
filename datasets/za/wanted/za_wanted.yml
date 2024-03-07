@@ -1,0 +1,27 @@
+name: za_wanted
+title: "South Africa Wanted Persons"
+entry_point: crawler.py
+prefix: za-wanted
+coverage:
+  frequency: daily
+  start: 2024-01-19
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Wanted persons list of South African Police Service
+description: |
+  Dataset with name, crime and status (suspect or wanted) published
+  by South African Police Service.
+
+  In the source url it's possible to see the crime circumstances
+  and other additional details (such as crime date and gender).
+
+publisher:
+    name: South African Police Service
+    acronym: SAPS
+    country: za
+    official: true
+    url: https://www.saps.gov.za/
+
+data:
+    url: https://www.saps.gov.za/crimestop/wanted/list.php
+    format: HTML

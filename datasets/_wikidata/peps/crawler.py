@@ -1,6 +1,7 @@
+import time
+import countrynames
 from collections import defaultdict
 from typing import Dict, Optional, Any, List, Generator
-import countrynames
 from rigour.ids.wikidata import is_qid
 
 from zavod import Context
@@ -11,6 +12,7 @@ from zavod.logic.pep import PositionCategorisation, categorise
 from zavod.shed.wikidata.query import run_query, CACHE_MEDIUM
 
 DECISION_NATIONAL = "national"
+RETRIES = 5
 
 
 def keyword(topics: List[str]) -> Optional[str]:
@@ -77,17 +79,32 @@ def crawl_holder(
     context.emit(entity, target=True)
 
 
-def query_position_holders(context: Context, wd_position: Dict[str, str]) -> Generator[Dict[str, Any], None, None]:
-    vars = {"POSITION": wd_position["qid"]}
-    response = run_query(
-        context, context.data_url, "holders/holders", vars, cache_days=CACHE_MEDIUM
-    )
+def query_position_holders(
+    context: Context, wd_position: Dict[str, str]
+) -> Generator[Dict[str, Any], None, None]:
     context.log.info(
-        (
-            f"Crawling holders of position {wd_position['qid']} ({wd_position['label']}), "
-            f"found {len(response.results)}"
-        )
+        f"Crawling holders of position {wd_position['qid']} ({wd_position['label']})"
     )
+    vars = {"POSITION": wd_position["qid"]}
+    for i in range(1, RETRIES):
+        try:
+            response = run_query(
+                context,
+                context.data_url,
+                "holders/holders",
+                vars,
+                cache_days=CACHE_MEDIUM * i,
+            )
+            break
+        except Exception as e:
+            context.log.info(
+                f"Holder query failed, retrying {i}/{RETRIES}",
+                error=str(e),
+            )
+            if i == RETRIES - 1:
+                raise e
+            time.sleep(i)
+
     for binding in response.results:
         start_date = truncate_date(
             binding.plain("positionStart")
@@ -172,7 +189,9 @@ def query_positions(context: Context, country) -> Generator[Dict[str, Any], None
 
 
 def query_countries(context: Context):
-    response = run_query(context, context.data_url, "countries/all", cache_days=CACHE_MEDIUM)
+    response = run_query(
+        context, context.data_url, "countries/all", cache_days=CACHE_MEDIUM
+    )
     for binding in response.results:
         qid = binding.plain("country")
         label = binding.plain("countryLabel")

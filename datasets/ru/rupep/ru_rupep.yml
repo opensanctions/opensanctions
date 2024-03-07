@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: rupep
 coverage:
   frequency: never
+  start: 2022-02-25
   end: 2024-01-18
 deploy:
   schedule: "@weekly"
@@ -44,7 +45,6 @@ publisher:
   url: "https://rupep.org/"
   country: ru
   official: false
-  logo_url: "https://assets.opensanctions.org/images/publishers/rupep-logo.png"
 url: "https://rupep.org/en/%D0%B2%D0%BE%D0%BF%D1%80%D0%BE%D1%81%D1%8B-%D0%B8-%D0%BE%D1%82%D0%B2%D0%B5%D1%82%D1%8B/"
 data:
   url: "https://rupep.org/en/faq/"
@@ -74,17 +74,14 @@ lookups:
           - "-"
           - "A person with significant political or public influence"
           - null
+          - Domestic Politically Exposed Person
+          - Foreign Politically Exposed Person
+          - International organization Politically Exposed Person
         value: null
       - match:
           - Close associate
           - Family member
         value: role.rca
-      - match:
-          - Domestic Politically Exposed Person
-          - Foreign Politically Exposed Person
-        value: role.pep
-      - match: International organization Politically Exposed Person
-        value: gov.igo
       - match:
           - Person under sanctions
         value: sanction
@@ -95,7 +92,7 @@ lookups:
       - regex:
           - "^deputy of the .+ council of deputies$"
           - "^deputy of the .+ city council$"
-          - "^(deputy|mp) of the.+(city|regional|state) duma$"
+          - "^(deputy|mp) of the.+(city|regional) duma$"
           - "^deputy of the .+ regional court$"
           - "^(lieutenant |acting )?governor of the.*(government|administration).*$"
           - "^judge of the.+district court of"
@@ -111,6 +108,9 @@ lookups:
           - "^deputy of the parliament of the .+ republic$"
           - "^the head of administration.+administration.*"
           - "^presidium member.+party.*"
+        preposition: of the
+      - regex: "^(deputy|mp) of the state duma$"
+        preposition: of
       - regex:
           - "^(the |deputy |first deputy |advisor to the |assistant to the )?minister.+ministry.+"
         preposition: of

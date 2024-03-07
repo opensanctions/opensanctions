@@ -275,5 +275,5 @@ def parse_psc_data(context: Context) -> None:
 
 
 def crawl(context: Context) -> None:
-    # parse_base_data(context)
+    parse_base_data(context)
     parse_psc_data(context)

@@ -5,6 +5,7 @@ entry_point: crawler
 prefix: ky-la
 coverage:
   frequency: daily
+  start: 2023-09-03
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   Members of the Parliament of the Cayman Islands.

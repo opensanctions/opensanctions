@@ -4,6 +4,7 @@ prefix: lv
 entry_point: crawler.py
 coverage:
   frequency: weekly
+  start: 2023-03-21
 deploy:
   disk: 50Gi
   memory: 2Gi

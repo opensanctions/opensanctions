@@ -4,6 +4,7 @@ prefix: wd
 # hidden: true
 coverage:
   frequency: daily
+  start: 2022-12-27
 deploy:
   schedule: "0 */6 * * *"
   memory: "2Gi"
@@ -1335,4 +1336,16 @@ lookups:
       - match: "Q124153644"
         code: ""
         label: "Chinland"
+        decision: "ignore"
+      - match: "Q109534069"
+        code: ""
+        label: "Kingdom of Wolaita"
+        decision: "ignore"
+      - match: "Q124535978"
+        code: ""
+        label: "Ashkenaz"
+        decision: "ignore"
+      - match: "Q124536190"
+        code: ""
+        label: "Havila"
         decision: "ignore"

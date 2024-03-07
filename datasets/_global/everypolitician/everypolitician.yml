@@ -3,8 +3,9 @@ entry_point: crawler.py
 prefix: evpo
 disabled: false
 coverage:
-  end: "2019-05-21"
   frequency: never
+  start: "2015-12-05"
+  end: "2019-05-21"
 deploy:
   memory: "2000Mi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
