@@ -1,0 +1,35 @@
+title: Latvian Saeima
+entry_point: crawler.py
+prefix: lv-sae
+coverage:
+  frequency: daily
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Members of the Latvian Saeima (Parliament)
+description: |
+  This dataset comprises information about current members of the Saeima.
+  The Saeima is the parliament of the Republic of Latvia. It is a unicameral
+  parliament consisting of 100 members who are elected by proportional represenation.
+  Elections are scheduled to be held once every four years.
+publisher:
+  name: Saeima
+  description: Latvia's parliament
+  url: https://www.saeima.lv/en
+  official: true
+  country: "lv"
+url: "https://titania.saeima.lv/personal/deputati/saeima14_depweb_public.nsf/deputies?OpenView&lang=EN&count=1000"
+data:
+  url: "https://titania.saeima.lv/personal/deputati/saeima14_depweb_public.nsf/deputies?OpenView&lang=EN&count=1000"
+  format: HTML
+
+assertions:
+  min:
+    schema_entities:
+      Person: 100
+      Position: 1
+    country_entities:
+      lv: 101
+    countries: 1
+  max:
+    schema_entities:
+      Person: 100
