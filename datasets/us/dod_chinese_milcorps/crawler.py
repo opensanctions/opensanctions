@@ -1,4 +1,4 @@
-from zavod import Context
+from zavod import Context, helpers
 import csv
 
 
@@ -21,5 +21,11 @@ def crawl(context: Context):
                 context.emit(parent)
                 entity.add("parent", parent)
             entity.add("topics", "debarment")
+            sanction = helpers.make_sanction(context, entity)
+            sanction.add(
+                "program",
+                "Section 1260H of the William M. (“Mac”) Thornberry National Defense Authorization Act for Fiscal Year 2021 (Public Law 116-283)",
+            )
+            context.emit(sanction)
             context.emit(entity, target=True)
             context.audit_data(row, ignore=["Name"])
