@@ -1,3 +1,4 @@
+from datetime import datetime
 import re
 
 from zavod import Context, helpers as h
@@ -15,26 +16,18 @@ def crawl_item(unid: str, context: Context):
     full_name = response.find('.//*[@id="ViewBlockTitle"]').text.replace(u'\xa0', u'')
 
     entity = context.make("Person")
-    entity.id = context.make_id(full_name)
+    entity.id = context.make_slug(full_name)
+    h.apply_name(entity, full_name)
 
     entity.add("sourceUrl", member_url)
 
-    try:
-        # here we can't use the find method because we need the text() function in the xpath
-        year_of_birth = response.xpath(".//*[text()='writeJsTrArr(\"form_birth_date_year\",\". gadā\")']/../text()")[0]
-        entity.add("birthDate", year_of_birth)
-    except:
-        pass
+    year_of_birth_el = response.xpath(".//*[text()='writeJsTrArr(\"form_birth_date_year\",\". gadā\")']/..")
+    entity.add("birthDate", year_of_birth_el[0].text_content())
 
-    try:
-        # here we can't use the find method because we need the text() function in the xpath
-        email = response.xpath(".//*[text()='writeJsTrArr(\"form_email\",\"E-pasta adrese\")']/../../span/a/text()")[0]
-        entity.add("email", email)
+    email_el = response.xpath(".//*[text()='writeJsTrArr(\"form_email\",\"E-pasta adrese\")']/../../span/a")
+    entity.add("email", email_el[0].text_content())
 
-    except:
-        pass
-
-    position = h.make_position(context, "Member of the Saeima", country="lv")
+    position = h.make_position(context, "deputy of Saeima", country="lv")
     categorisation = categorise(context, position, is_pep=True)
 
     occupancy = h.make_occupancy(
@@ -54,6 +47,9 @@ def crawl_item(unid: str, context: Context):
     
 
 def crawl(context: Context):
+    # check if it's time for the end of the term
+    if datetime.now().isoformat() > "2025":
+        context.log.warning("The 14th Saeima term is nearly over. These occupants will soon not be current.")
 
     response = context.fetch_html(context.data_url)
 

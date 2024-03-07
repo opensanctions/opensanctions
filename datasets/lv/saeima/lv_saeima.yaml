@@ -21,3 +21,15 @@ url: "https://titania.saeima.lv/personal/deputati/saeima14_depweb_public.nsf/dep
 data:
   url: "https://titania.saeima.lv/personal/deputati/saeima14_depweb_public.nsf/deputies?OpenView&lang=EN&count=1000"
   format: HTML
+
+assertions:
+  min:
+    schema_entities:
+      Person: 100
+      Position: 1
+    country_entities:
+      lv: 101
+    countries: 1
+  max:
+    schema_entities:
+      Person: 100
