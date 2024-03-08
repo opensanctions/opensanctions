@@ -61,6 +61,12 @@ def extract_dates(context, url, el):
         start_date = None
         end_date = None
         assume_current = False
+    start_date = start_date[0] if start_date else None
+    end_date = end_date[0] if end_date else None
+    if start_date == "?":
+        start_date = None
+    if end_date == "?":
+        end_date = None
     return start_date, end_date, assume_current
 
 
@@ -118,6 +124,8 @@ def crawl_mandate(context, url, person, el):
         context,
         person,
         position,
+        start_date=start_date,
+        end_date=end_date,
         no_end_implies_current=assume_current,
         categorisation=categorisation,
     )
