@@ -3,17 +3,23 @@ from zavod.logic.pep import categorise
 
 
 def crawl_item(input_dict: dict, context: Context):
-
     entity = context.make("Person")
-    entity.id = context.make_id(input_dict["NombreCompleto"])
-
+    parts = [input_dict["NombreCompleto"]]
+    state = input_dict.pop("Estado")
+    if state:
+        parts.append(state)
+    id = context.make_slug(parts)
+    entity.id = id
+    last_name = (
+        (input_dict.pop("PrimerApellido") or "")
+        + " "
+        + (input_dict.pop("SegundoApellido") or "")
+    ).strip()
     h.apply_name(
         entity,
         full=input_dict.pop("NombreCompleto"),
         first_name=input_dict.pop("Nombre"),
-        last_name=input_dict.pop("PrimerApellido") or ""
-        + " "
-        + input_dict.pop("SegundoApellido") or "",
+        last_name=last_name,
     )
 
     if input_dict["Telefono"] is not None:
@@ -41,7 +47,17 @@ def crawl_item(input_dict: dict, context: Context):
     context.emit(entity, target=True)
     context.emit(position)
     context.emit(occupancy)
-    context.audit_data(input_dict)
+    context.audit_data(input_dict, [
+        "Oid",
+        "Distrito",
+        "Legislacion",
+        "CabeceraMunicipal",
+        "Suplente",
+        "id_dip",
+        "IdDiputado",
+        "__typename",
+        "Licencia",
+    ])
 
 
 def crawl(context: Context):
