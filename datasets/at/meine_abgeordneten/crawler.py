@@ -30,8 +30,7 @@ def parse_date_in_german(text):
 
 
 def crawl_mandate(context, url, person, el):
-    """Returns true if dates could be parsed."""
-    print(url)
+    """Returns true if dates could be parsed for a PEP position."""
     active_date_el = el.find('.//span[@class="aktiv"]')
     inactive_dates_el = el.find('.//span[@class="inaktiv"]')
     if active_date_el is not None:
@@ -58,14 +57,13 @@ def crawl_mandate(context, url, person, el):
         end_date = None
         assume_current = False
 
-    #position_name_el = date_el.getparent().getnext()
     position_name_el = el.xpath('.//div[contains(@class, "funktionsText")]')
     if position_name_el:
         position_name_el = position_name_el[0]
     else:
         # I think this is a copy of the markup for mobile
         return
-    
+
     source_el = position_name_el.xpath('.//div[contains(@class, "source")]')[0]
     # Remove source and keep it, we'll use it later
     position_name_el.remove(source_el)
@@ -76,7 +74,7 @@ def crawl_mandate(context, url, person, el):
     position_parts = position_name.split("\n")
     position_name = position_parts[0]
 
-    print(start_date, "-", end_date, position_name)
+    print(" ", start_date, "-", end_date, position_name)
 
     if len(position_name) > 70:
         context.log.warning(
@@ -117,10 +115,33 @@ def crawl_mandate(context, url, person, el):
         context.emit(position)
         context.emit(occupancy)
 
-    return start_date or end_date
+        return start_date or end_date
+
+
+def crawl_title(context, url, person, el):
+    h1 = el.find(".//h1")
+    position_name = h1.getnext().text_content().strip()
+    position = h.make_position(context, position_name, country="at")
+    categorisation = categorise(context, position, is_pep=None)
+    if not categorisation.is_pep:
+        if categorisation.is_pep is None:
+            context.log.warning("Uncategorised position", position=position_name)
+        return
+    occupancy = h.make_occupancy(
+        context, 
+        person, 
+        position, 
+        no_end_implies_current=False, 
+        categorisation=categorisation
+    )
+    if occupancy is not None:
+        context.emit(person, target=True)
+        context.emit(position)
+        context.emit(occupancy)
 
 
 def crawl_item(url_info_page: str, context: Context):
+    print(url_info_page)
     info_page = context.fetch_html(url_info_page, cache_days=1)
 
     first_name = info_page.findtext(".//span[@itemprop='http://schema.org/givenName']")
@@ -131,35 +152,29 @@ def crawl_item(url_info_page: str, context: Context):
     person.id = context.make_slug(id)
 
     h.apply_name(person, first_name=first_name, last_name=last_name)
-
     person.add("sourceUrl", url_info_page)
-
     birth_date_in_german = info_page.findtext(".//span[@itemprop='birthDate']")
-
     if birth_date_in_german:
         person.add("birthDate", parse_date_in_german(birth_date_in_german))
-
     person.add(
         "birthPlace", info_page.findtext(".//span[@itemprop='birthPlace']"), lang="deu"
     )
-
-    email = info_page.findtext(".//a[@itemprop='http://schema.org/email']")
-
-    if email:
-        person.add("email", email)
-
-    phone = info_page.findtext(".//a[@itemprop='http://schema.org/telephone']")
-
-    if phone:
-        person.add("phone", phone.replace(" ", ""))
+    person.add("email", info_page.findtext(".//a[@itemprop='http://schema.org/email']"))
+    person.add(
+        "phone", info_page.findtext(".//a[@itemprop='http://schema.org/telephone']")
+    )
 
     parsed_some_mandatee_date = False
     for row in info_page.xpath(
         '//div[@id="mandate"]//div[contains(@class, "funktionszeile")]'
     ):
-        parsed_some_mandatee_date = parse_mandate(context, url_info_page, person, row)
+        if crawl_mandate(context, url_info_page, person, row):
+            parsed_some_mandatee_date = True
     if not parsed_some_mandatee_date:
-        context.log.warning("No mandate date parsed", url=url_info_page)
+        # Fall back to parsing a position from their title in the header
+        header_el = info_page.xpath('//div[contains(@class, "dossierKopf")]')[0]
+        crawl_title(context, url_info_page, person, header_el)
+
 
 def crawl(context: Context):
 
