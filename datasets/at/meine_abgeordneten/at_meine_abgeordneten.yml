@@ -28,7 +28,6 @@ data:
   url: https://www.meineabgeordneten.at/Abgeordnete?partei=
   format: HTML
 
-
 assertions:
   min:
     schema_entities:
@@ -40,3 +39,25 @@ assertions:
   max:
     schema_entities:
       Person: 900
+
+lookups:
+  position:
+    options:
+      - match: Mitglied des Bundesrates, ÖVPEingetreten für das am 31.5.2010 ausgeschiedene Mitglied des Bundesrates Dr. Georg Spiegelfeld-Schneeburg.
+        name: Mitglied des Bundesrates
+      - match: Mitglied des Gemeinderates von Hermagor - Pressegger See, Die Sozialdemokratische Partei Österreichs - Bürgermeister Siegfried Ronacher - SPÖ
+        name: Mitglied des Gemeinderates von Hermagor - Pressegger
+      - match: Mitglied des Gemeinderates von Kirchberg, Gemeinsam für Kirchberg-Wahlbündnis der Sozialdemokraten und Parteiunabhängigen Kirchberger-Innen - SPÖ-PUK
+        name: Mitglied des Gemeinderates von Kirchberg
+      - match: Abgeordneter zum Europäischen Parlament, Fraktion der Progressiven Allianz der Sozialdemokraten im Europäischen Parlament
+        name: Abgeordneter zum Europäischen Parlament
+      - match: Abgeordneter zum Europäischen Parlament, Fraktion der Progressiven Allianz der Sozialdemokraten im Europäischen Parlament
+        name: Abgeordneter zum Europäischen Parlament
+      - match: Vizepräsidentin des Europäischen Parlaments, Fraktion der Progressiven Allianz der Sozialdemokraten im Europäischen Parlament
+        name: Vizepräsidentin des Europäischen Parlaments
+      - match: Betraut mit der Leitung der zum Wirkungsbereich des Bundeskanzleramtes gehörenden Angelegenheiten für EU, Kunst, Kultur und Medien im Bundeskanzleramt
+        name: Betraut mit der Leitung der zum Wirkungsbereich des Bundeskanzleramtes gehörenden Angelegenheiten für EU, Kunst, Kultur und Medien im Bundeskanzleramt
+      - match: Mitglied der Bezirksvertretung ("Bezirksrat") von Wien-Döbling, Die GrünenMitglied des Finanz- und Bauausschusses und der Kulturkommission
+        name: Mitglied der Bezirksvertretung ("Bezirksrat") von Wien-Döbling
+      - match: Abgeordneter zum Europäischen Parlament, Fraktion der Progressiven Allianz der Sozialdemokraten im Europäischen Parlament
+        name: Abgeordneter zum Europäischen Parlament

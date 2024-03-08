@@ -1,6 +1,10 @@
+from collections import defaultdict
 import os
+from pprint import pprint
+import re
 from urllib.parse import urlparse
 from lxml import etree
+from normality import collapse_spaces
 
 from zavod import Context, helpers as h
 from zavod.logic.pep import categorise
@@ -20,7 +24,9 @@ MONTHS = {
     "november": "11",
     "dezember": "12",
 }
-
+PARTY_NAMES = defaultdict(int)
+PARTY_REGEX = re.compile(r"(\([\w ]+\)|, [\w ]+$)")
+MAX_POSITION_NAME_LENGTH = 120
 
 def parse_date_in_german(text):
     text = text.lower()
@@ -29,8 +35,7 @@ def parse_date_in_german(text):
     return h.parse_date(text, FORMATS)
 
 
-def crawl_mandate(context, url, person, el):
-    """Returns true if dates could be parsed for a PEP position."""
+def extract_dates(context, url, el):
     active_date_el = el.find('.//span[@class="aktiv"]')
     inactive_dates_el = el.find('.//span[@class="inaktiv"]')
     if active_date_el is not None:
@@ -56,6 +61,26 @@ def crawl_mandate(context, url, person, el):
         start_date = None
         end_date = None
         assume_current = False
+    return start_date, end_date, assume_current
+
+
+def strip_party_name(position_name):
+    party_match = PARTY_REGEX.search(position_name)
+    if party_match:
+        party_name = party_match.group(0).strip()
+        if (
+            len(party_name) <= 19
+            or "team" in party_name.lower()
+            or "partei" in party_name.lower()
+        ):
+            position_name = position_name.replace(party_name, "").strip()
+            PARTY_NAMES[party_name] += 1
+    return collapse_spaces(position_name)
+
+
+def crawl_mandate(context, url, person, el):
+    """Returns true if dates could be parsed for a PEP position."""
+    start_date, end_date, assume_current = extract_dates(context, url, el)
 
     position_name_el = el.xpath('.//div[contains(@class, "funktionsText")]')
     if position_name_el:
@@ -73,30 +98,18 @@ def crawl_mandate(context, url, person, el):
     position_name = position_name_el.text_content().strip()
     position_parts = position_name.split("\n")
     position_name = position_parts[0]
+    position_name = strip_party_name(position_name)
+    res = context.lookup("position", position_name)
+    if res:
+        position_name = res.name
 
-    print(" ", start_date, "-", end_date, position_name)
-
-    if len(position_name) > 70:
+    if len(position_name) > MAX_POSITION_NAME_LENGTH and not res:
         context.log.warning(
             "Unexpectedly long position name, possibly capturing more than the position name.",
             url=url,
             name=position_name,
         )
         return
-
-    # TODO: Make sure we strip party names from positions. e.g.
-    # after comma, but watch out for position names which include commas.
-    #   Vizebürgermeister von Feldkirch, FPÖ
-    #   Abgeordneter zum Landtag von Vorarlberg, FPÖ
-    # in parentheses
-    #   Schriftführerin zum Landtag (Die Grünen) in Tirol
-    #
-    # Listing parties is potentially not a good idea.
-    # Might have to use the fact that the party seems to be in the last bit of text after the bold bit???
-    #
-    # TODO: Add souorce links as occupany sourceUrl
-    #   e.g. https://www.meineabgeordneten.at/storage/quellen/10021/www.untersiebenbrunn.gv.at_2020-07-15_9037.jpg
-    # click on (i) to see
 
     position = h.make_position(context, position_name, country="at")
     categorisation = categorise(context, position, is_pep=True)
@@ -128,11 +141,11 @@ def crawl_title(context, url, person, el):
             context.log.warning("Uncategorised position", position=position_name)
         return
     occupancy = h.make_occupancy(
-        context, 
-        person, 
-        position, 
-        no_end_implies_current=False, 
-        categorisation=categorisation
+        context,
+        person,
+        position,
+        no_end_implies_current=False,
+        categorisation=categorisation,
     )
     if occupancy is not None:
         context.emit(person, target=True)
@@ -141,7 +154,6 @@ def crawl_title(context, url, person, el):
 
 
 def crawl_item(url_info_page: str, context: Context):
-    print(url_info_page)
     info_page = context.fetch_html(url_info_page, cache_days=1)
 
     first_name = info_page.findtext(".//span[@itemprop='http://schema.org/givenName']")
@@ -185,3 +197,5 @@ def crawl(context: Context):
 
     for item in response.xpath(xpath_politician_page):
         crawl_item(item, context)
+
+    pprint(PARTY_NAMES)
