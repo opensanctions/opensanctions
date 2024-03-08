@@ -29,6 +29,7 @@ children:
   - ca_listed_terrorists
   - ca_named_research_orgs
   - ch_seco_sanctions
+  - cn_sanctions
   - eu_fsf
   - eu_reg_2878_sanctions
   - eu_sanctions_map
