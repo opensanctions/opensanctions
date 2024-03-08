@@ -190,7 +190,8 @@ def crawl_item(url_info_page: str, context: Context):
     person.add(
         "birthPlace", info_page.findtext(".//span[@itemprop='birthPlace']"), lang="deu"
     )
-    person.add("email", info_page.findtext(".//a[@itemprop='http://schema.org/email']"))
+    email = info_page.findtext(".//a[@itemprop='http://schema.org/email']")
+    person.add("email", email.strip() if email else None)
     person.add(
         "phone", info_page.findtext(".//a[@itemprop='http://schema.org/telephone']")
     )

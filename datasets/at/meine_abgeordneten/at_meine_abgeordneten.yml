@@ -45,6 +45,14 @@ assertions:
       Person: 900
 
 lookups:
+  type.email:
+    options:
+      - match: michael.gorlitzer@wien.oevp.at,
+        value: michael.gorlitzer@wien.oevp.at
+        # zero width space... but why? how?!
+      - match: heike.grebien@​parlament.gv.at,
+        value: heike.grebien@parlament.gv.at
+
   position:
     options:
       - match: Mitglied des Bundesrates, ÖVPEingetreten für das am 31.5.2010 ausgeschiedene Mitglied des Bundesrates Dr. Georg Spiegelfeld-Schneeburg.
