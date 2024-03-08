@@ -127,7 +127,7 @@ def crawl_mandate(context, url, person, el):
         return
 
     position = h.make_position(context, position_name, country="at")
-    categorisation = categorise(context, position, is_pep=True)
+    categorisation = categorise(context, position, is_pep=None)
 
     occupancy = h.make_occupancy(
         context,
