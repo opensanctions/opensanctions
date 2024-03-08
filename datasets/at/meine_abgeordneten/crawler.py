@@ -84,6 +84,14 @@ def strip_party_name(position_name):
     return collapse_spaces(position_name)
 
 
+def crawl_sources(context, entity, el):
+    for source_el in el.xpath('.//p[contains(@class, "source")]'):
+        text = collapse_spaces(source_el.text_content())
+        entity.add("description", text)
+        for link in source_el.xpath(".//a"):
+            entity.add("sourceUrl", link.get("href"))
+                       
+
 def crawl_mandate(context, url, person, el):
     """Returns true if dates could be parsed for a PEP position."""
     start_date, end_date, assume_current = extract_dates(context, url, el)
@@ -95,9 +103,10 @@ def crawl_mandate(context, url, person, el):
         # I think this is a copy of the markup for mobile
         return
 
-    source_el = position_name_el.xpath('.//div[contains(@class, "source")]')[0]
     # Remove source and keep it, we'll use it later
+    source_el = position_name_el.xpath('.//div[contains(@class, "source")]')[0]
     position_name_el.remove(source_el)
+
     # Add line breaks so we can split on this
     for br in position_name_el.xpath(".//br"):
         br.tail = br.tail + "\n" if br.tail else "\n"
@@ -131,6 +140,7 @@ def crawl_mandate(context, url, person, el):
     )
 
     if occupancy is not None:
+        crawl_sources(context, occupancy, source_el)
         occupancy.add("description", position_parts[1:], lang="deu")
         context.emit(person, target=True)
         context.emit(position)
@@ -163,6 +173,7 @@ def crawl_title(context, url, person, el):
 
 def crawl_item(url_info_page: str, context: Context):
     info_page = context.fetch_html(url_info_page, cache_days=1)
+    info_page.make_links_absolute(url_info_page)
 
     first_name = info_page.findtext(".//span[@itemprop='http://schema.org/givenName']")
     last_name = info_page.findtext(".//span[@itemprop='http://schema.org/familyName']")
