@@ -23,7 +23,7 @@ def crawl_item(input_dict: dict, context: Context):
     entity.add("political", input_dict.pop("Partido"))
 
     position = h.make_position(
-        context, "Member of the Chamber of Deputies", country="mx"
+        context, "Member of the Chamber of Deputies of Mexico", country="mx"
     )
     categorisation = categorise(context, position, is_pep=True)
 
