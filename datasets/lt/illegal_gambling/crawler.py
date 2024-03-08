@@ -12,7 +12,7 @@ def crawl_item(item, context: Context):
         return
 
     entity = context.make("Organization")
-    entity.id = context.make_slug(domain, prefix="lt-illegal-gambling")
+    entity.id = context.make_slug(domain)
 
     entity.add("name", name)
     entity.add("website", domain)
