@@ -1,0 +1,17 @@
+name: pk_proscribed_persons
+title: Pakistan NACTA Proscribed Persons
+url: https://nacta.gov.pk/pp/
+entry_point: crawler.py
+prefix: pk-proscribed
+summary: placeholder
+description: placeholder
+publisher:
+  name: National Counter Terrorism Authority
+  acronym: NACTA
+  description: placeholder
+  url: https://nacta.gov.pk/
+  country: pk
+  official: true
+data:
+  url: https://nfs.punjab.gov.pk/Home/GetJosn?filter=
+  format: JSON
