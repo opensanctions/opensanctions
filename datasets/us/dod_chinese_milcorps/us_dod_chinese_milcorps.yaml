@@ -26,13 +26,13 @@ description: |
     The department will continue to update the list with additional entities as
     appropriate. However, this dataset is only updated occasionally by manual extraction.
 
-    While Section 1260H does not itself implement any prohibitions for identified
+    According to [Crowell & Moring LLP](https://www.crowell.com/en/insights/client-alerts/dod-is-making-its-list-and-checking-it-twice-dod-updates-1260h-chinese-military-companies-list),
+    while Section 1260H does not itself implement any prohibitions for identified
     companies, Section 805 of the FY 2024 NDAA prohibits DoD from entering into a
     contract with an entity on the 1260H list (Entity Prohibition) or purchasing,
     directly or indirectly, goods and services that include goods or services
     sourced from an entity on the 1260H list or any entity subject to the control
-    of an entity on the 1260H list 
-    [Crowell & Moring LLP](https://www.crowell.com/en/insights/client-alerts/dod-is-making-its-list-and-checking-it-twice-dod-updates-1260h-chinese-military-companies-list).
+    of an entity on the 1260H list
 publisher:
     name: U.S. Department of Defense
     country: us
