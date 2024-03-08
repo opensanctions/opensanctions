@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: az-fiu
 coverage:
   frequency: daily
+  start: 2022-07-12
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   Domestic list of natural and legal persons subject to sanctions

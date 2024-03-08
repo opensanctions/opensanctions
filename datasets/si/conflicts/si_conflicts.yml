@@ -3,6 +3,9 @@ entry_point: crawler.py
 prefix: si-conflicts
 url: https://erar.si/omejitve/
 summary: List of Business restrictions preventing conflict of interest in Slovenia
+coverage:
+  frequency: daily
+  start: 2024-01-24
 description: >
   Slovenian public bodies and organizations may not procure from entities in which an official in that organization or their family member is a manager, legal representative, or has 5% or more ownership.
   

@@ -1,8 +1,9 @@
-from datetime import datetime, time
 import openpyxl
 from openpyxl import Workbook
 from banal import as_bool
-from typing import Any, Dict
+from normality import stringify
+from datetime import datetime, time
+from typing import Any, Dict, List, Optional
 from pantomime.types import XLSX
 
 from zavod import Context, Entity
@@ -22,6 +23,8 @@ TYPES = {
     "Entity": "LegalEntity",
     "Bank": "Company",
 }
+ASSOCIATE = ("associate", "close associate")
+FAMILY = ("relative", "wife", "son", "daughter", "nephew")
 
 
 def parse_date(value: Any) -> Any:
@@ -45,14 +48,14 @@ def parse_associates(context: Context, target: Entity, value: str) -> None:
     entity.id = context.make_slug("named", other)
     entity.add("name", other)
     context.emit(entity)
-    if link.lower().strip() == "associate":
+    if link.lower().strip() in ASSOCIATE:
         rel = context.make("UnknownLink")
         rel.id = context.make_id(target.id, entity.id, value)
         rel.add("subject", target)
         rel.add("object", entity)
         rel.add("role", value)
         context.emit(rel)
-    elif link.lower().strip() == "relative":
+    elif link.lower().strip() in FAMILY:
         rel = context.make("Family")
         rel.id = context.make_id(target.id, entity.id, value)
         rel.add("person", target)
@@ -127,18 +130,18 @@ def crawl(context: Context):
     workbook: Workbook = openpyxl.load_workbook(path, read_only=True)
     has_listing = False
     for sheet in workbook.worksheets:
-        headers = None
+        headers: Optional[List[Optional[str]]] = None
         for row in sheet.rows:
             cells = [c.value for c in row]
             if "Unique Identifier" in cells and "DOB" in cells:
-                headers = cells
+                headers = [stringify(h) for h in cells]
                 has_listing = True
                 continue
             if headers is None:
                 continue
             data = dict(zip(headers, cells))
-            data.pop(None, None)
-            crawl_entity(context, data)
+            data_ = {k: v for k, v in data.items() if k is not None}
+            crawl_entity(context, data_)
 
     if not has_listing:
         context.log.error("Could not identify data sheet", sheets=workbook.sheetnames)

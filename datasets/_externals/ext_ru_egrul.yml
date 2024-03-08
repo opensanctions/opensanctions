@@ -6,6 +6,7 @@ disabled: false
 hidden: false
 coverage:
   schedule: "daily"
+  start: 2022-01-01
   end: 2022-01-01
 exports:
   - statistics.json

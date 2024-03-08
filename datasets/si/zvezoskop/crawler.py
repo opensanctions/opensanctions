@@ -89,10 +89,8 @@ def en_label(institution_en: str, department_en: str, position_en: str) -> str:
 
 def si_label(institution_si: str, department_si: str, position_si: str) -> str:
     # Party in institution
-    if position_si.lower() == "poslanec":
-        return "Poslanec"
-    if position_si.lower() == "poslanka":
-        return "Poslanka"
+    if position_si.lower() in {"poslanka", "poslanec"}:
+        return "Poslanka/Poslanec"
     if "občinski svetnik v" in position_si.lower():
         return position_si
 
@@ -171,15 +169,6 @@ def crawl_cv_entry(context: Context, entities: Dict[str, Entity], row: Dict[str,
         assume_current = True
         end_date = None
 
-    # Temporarily ignore position age to load as much as possible
-    # into Wikidata.
-    if assume_current:
-        status = OccupancyStatus.CURRENT
-    elif end_date:
-        status = OccupancyStatus.ENDED
-    else:
-        status = OccupancyStatus.UNKNOWN
-
     occupancy = h.make_occupancy(
         context,
         person,
@@ -188,7 +177,6 @@ def crawl_cv_entry(context: Context, entities: Dict[str, Entity], row: Dict[str,
         start_date=start_date or None,
         end_date=end_date or None,
         categorisation=categorisation,
-        status=status,
     )
     if occupancy:
         notes_pos_si = row.pop("notes_position_si", None)

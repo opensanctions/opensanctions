@@ -5,6 +5,7 @@ full_dataset: lv_business_register
 disabled: false
 coverage:
   frequency: weekly
+  start: 2023-03-21
 exports:
   - statistics.json
 deploy:

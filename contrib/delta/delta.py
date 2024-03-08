@@ -13,6 +13,8 @@ from requests.exceptions import RequestException
 
 log = logging.getLogger("delta")
 DATE_FORMAT = "%Y%m%d"
+DEFAULT_CUR = datetime.utcnow()
+DEFAULT_PREV = DEFAULT_CUR - timedelta(days=1)
 URL_PATTERN = "https://data.opensanctions.org/datasets/%s/%s/entities.ftm.json"
 DATA_PATH_TXT = os.environ.get("DELTA_DATA_PATH", "data")
 DATA_PATH = Path(DATA_PATH_TXT).resolve()
@@ -53,6 +55,7 @@ def entity_hash(data: Dict[str, Any]) -> str:
     data.pop("referents", None)
     data.pop("datasets", None)
     data.pop("caption", None)
+    data.pop("target", None)
     data["properties"].pop("modifiedAt", None)
     data["properties"].pop("education", None)
     data["properties"].pop("position", None)
@@ -80,9 +83,9 @@ def write_entity(fh: BinaryIO, data: Dict[str, Any], op: str):
     fh.write(orjson.dumps(out, option=orjson.OPT_APPEND_NEWLINE))
 
 
-def generate_delta(scope: str, dt: datetime):
-    db = dt - timedelta(hours=24)
-    cur_ts = dt.strftime(DATE_FORMAT)
+def generate_delta(scope: str, cur: datetime, prev: datetime):
+    # db = dt - timedelta(hours=24)
+    cur_ts = cur.strftime(DATE_FORMAT)
     try:
         cur_path = fetch_release(scope, cur_ts)
     except RequestException as re:
@@ -91,7 +94,7 @@ def generate_delta(scope: str, dt: datetime):
         # condition against the ETL.
         sys.exit(0)
     cur_hashes = compute_hashes(cur_path)
-    prev_ts = db.strftime(DATE_FORMAT)
+    prev_ts = prev.strftime(DATE_FORMAT)
     try:
         prev_path = fetch_release(scope, prev_ts)
     except RequestException as re:
@@ -141,12 +144,14 @@ def generate_delta(scope: str, dt: datetime):
 
 @click.command()
 @click.argument("dataset", type=str, default="default")
-@click.argument("date", type=str, default=datetime.utcnow().strftime(DATE_FORMAT))
-def generate_delta_cmd(dataset: str, date: str) -> None:
+@click.argument("current", type=str, default=DEFAULT_CUR.strftime(DATE_FORMAT))
+@click.argument("previous", type=str, default=DEFAULT_PREV.strftime(DATE_FORMAT))
+def generate_delta_cmd(dataset: str, current: str, previous: str) -> None:
     logging.basicConfig(level=logging.INFO)
     log.warning("This script uses OpenSanctions CC-BY-NC-licensed data!")
-    dt = datetime.strptime(date, DATE_FORMAT)
-    generate_delta(dataset, dt)
+    cur = datetime.strptime(current, DATE_FORMAT)
+    prev = datetime.strptime(previous, DATE_FORMAT)
+    generate_delta(dataset, cur, prev)
 
 
 if __name__ == "__main__":

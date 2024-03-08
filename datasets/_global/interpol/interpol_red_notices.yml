@@ -3,6 +3,7 @@ entry_point: interpol_api.py
 prefix: interpol-red
 coverage:
   frequency: daily
+  start: 2015-12-05
 deploy:
   schedule: "0 */9 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
@@ -34,6 +35,20 @@ url: https://www.interpol.int/How-we-work/Notices/View-Red-Notices
 data:
   url: https://ws-public.interpol.int/notices/v1/red
   format: xml
+
+assertions:
+  min:
+    schema_entities:
+      Person: 6700
+    country_entities:
+      ru: 2900
+      sv: 800
+      ar: 250
+      af: 5
+    countries: 125
+  max:
+    schema_entities:
+      Person: 10000
 
 lookups:
   type.country:

@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: eu-fsf
 coverage:
   frequency: daily
+  start: 2021-01-24
 deploy:
   schedule: "50 */2 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
@@ -148,7 +149,7 @@ lookups:
         values:
           - hotelminsk@udp.gov.by
           - marketing@hotelminsk.by
-      - match: v.myshevskaya@rostvert.ru g.bunyaeva@rostvert.ru
+      - contains: v.myshevskaya@rostvert.ru
         values:
           - v.myshevskaya@rostvert.ru
           - g.bunyaeva@rostvert.ru

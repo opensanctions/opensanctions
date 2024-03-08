@@ -5,6 +5,7 @@ entry_point: crawler
 prefix: ar-dep
 coverage:
   frequency: daily
+  start: 2023-12-31
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   Deputees of Argentina.

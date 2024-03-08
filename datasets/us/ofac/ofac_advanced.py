@@ -375,7 +375,10 @@ def parse_id_reg_document(
     proxy.add("country", country)
 
     if conf.prop is not None:
-        proxy.add(conf.prop, number)
+        if proxy.schema.is_a("Vessel") and conf.prop == 'idNumber':
+            proxy.add("imoNumber", number)
+        else:
+            proxy.add(conf.prop, number)
 
     if proxy.schema.is_a("Person") and (conf.identification or conf.passport):
         issue_date = None

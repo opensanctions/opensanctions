@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: ng-dots
 coverage:
   frequency: daily
+  start: 2023-10-20
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Data on Politically Exposed Persons in Nigeria and their relatives from the Joining the Dots project.

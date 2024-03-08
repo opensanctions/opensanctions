@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: gb-invban
 coverage:
   frequency: daily
+  start: 2023-10-17
 deploy:
   memory: "2Gi"
   schedule: "0 */12 * * *"

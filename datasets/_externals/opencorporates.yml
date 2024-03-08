@@ -4,6 +4,7 @@ entry_point: zavod.runner.enrich:enrich
 disabled: false
 coverage:
   frequency: weekly
+  start: 2022-05-23
 exports:
   - statistics.json
 deploy:

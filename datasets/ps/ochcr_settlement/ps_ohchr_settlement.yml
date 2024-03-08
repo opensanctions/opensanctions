@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: ohchr
 coverage:
   frequency: never
+  start: 2024-02-09
   end: 2023-06-30
 summary: >-
   Database of business enterprises involved in illegal settlement

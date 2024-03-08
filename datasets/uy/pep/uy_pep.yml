@@ -3,6 +3,9 @@ title: "Uruguayan Politically Exposed Persons (PEP)"
 url: https://www.gub.uy/secretaria-nacional-lucha-contra-lavado-activos-financiamiento-terrorismo/comunicacion/publicaciones/lista-pep
 prefix: uy-pep
 summary: List of Politically Exposed Persons (PEP) in Uruguay
+coverage:
+  frequency: daily
+  start: 2024-01-11
 description: |
   The National Secretariat for the Fight against Money Laundering and Financing of Terrorism (SENACLAFT) publishes the updated List of Politically Exposed Persons (PEP) for Uruguay. It serves as a reference for obligated entities in complying with regulations related to the prevention of money laundering and financing of terrorism.
 

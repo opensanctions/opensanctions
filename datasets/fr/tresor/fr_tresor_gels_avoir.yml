@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: fr-ga
 coverage:
   frequency: daily
+  start: 2021-02-12
 deploy:
   schedule: "30 */3 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
@@ -3011,4 +3012,98 @@ lookups:
           incorporationDate: 1997
       - match: "Numéro d'immatriculation: 1022620011296"
         props:
-          registrationNumber: 1022620011296
+          ogrnCode: 1022620011296
+      - match: "Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 14.12.2010: /"
+        props:
+          legalForm: société par actions
+          incorporationDate: 2010-12-14
+      - match: "Numéro d’enregistrement: 5107746017033"
+        props:
+          ogrnCode: 5107746017033
+      - match: "Numéro d’identification fiscale: 7715842760"
+        props:
+          innCode: 7715842760
+      - match: "KPP: 771501001"
+        schema: Company
+        props:
+          kppCode: 771501001
+      - match: "Type d’entité: Joint Stock Company (société par actions) - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 5.11.2008: /"
+        props:
+          legalForm: Joint Stock Company
+          jurisdiction: ru
+          incorporationDate: 2008-11-05
+      - match: "Numéro d'enregistrement : 1086726001614"
+        props:
+          ogrnCode: 1086726001614
+      - match: "Type d’entité: entreprise fédérale d’État - Lieu d’enregistrement: Fédération de Russie, 393192, Tambov region, Kotovsk, Truda Ave., 23 - Date d’enregistrement: 16.8.2000: /"
+        props:
+          legalForm: entreprise fédérale d’État
+          jurisdiction: ru
+          address: "Fédération de Russie, 393192, Tambov region, Kotovsk, Truda Ave., 23"
+          incorporationDate: 2000-08-16
+      - match: "Numéro d’enregistrement: 1026801010994"
+        props:
+          ogrnCode: 1026801010994
+      - match: "Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 28.4.1993: /"
+        props:
+          legalForm: société par actions
+          jurisdiction: ru
+          incorporationDate: 1993-04-28
+      - match: "Numéro d'enregistrement : 7704095273"
+        props:
+          innCode: 7704095273
+      - match: "OGRN: 770801001"
+        props:
+          innCode: 770801001
+      - match: "Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 3.12.2002: /"
+        props:
+          legalForm: société par actions
+          jurisdiction: ru
+          incorporationDate: 2002-12-03
+      - match: "Numéro d’enregistrement: 1027714027395"
+        props:
+          ogrnCode: 1027714027395
+      - match: "Numéro d’identification fiscale: 7714288059"
+        props:
+          innCode: 7714288059
+      - match: "Type d’entité: société publique par actions - Lieu d’enregistrement: Rostov, Moscou, Fédération de Russie - Date d’enregistrement: 23.9.2002: /"
+        props:
+          legalForm: société publique par actions
+          jurisdiction: ru
+          incorporationDate: 2002-09-23
+      - match: "Numéro d’enregistrement: 6161021690"
+        props:
+          registrationNumber: 6161021690
+      - match: "Type d’entité: société publique par actions - Lieu d’enregistrement: Ryazan, Fédération de Russie - Date d’enregistrement: 30.9.2002: /"
+        props:
+          legalForm: société publique par actions
+          jurisdiction: ru
+          incorporationDate: 2002-09-30
+      - match: "Numéro d’enregistrement: 6229004711"
+        props:
+          registrationNumber: 6229004711
+      - match: "Type d’entité: entreprise fédérale d’État - Lieu d’enregistrement: Fédération de Russie, 420032, Republic of Tatarstan, city of Kazan, Pervogo Maya Street, 14 - Date d’enregistrement: 25.6.2003: /"
+        props:
+          legalForm: entreprise fédérale d’État
+          jurisdiction: ru
+          address: "Fédération de Russie, 420032, Republic of Tatarstan, city of Kazan, Pervogo Maya Street, 14"
+          incorporationDate: 2003-06-25
+      - match: "Numéro d’enregistrement: 1031624002937"
+        props:
+          ogrnCode: 1031624002937
+      - match: "Numéro d’immatriculation: 600122610"
+        props:
+          registrationNumber: 600122610
+      - match: "Numéro d’immatriculation - Date d'enregistrement : 04/01/1996: 600390798"
+        props:
+          registrationNumber: 600390798
+          incorporationDate: 1996-04-01
+      - match: "Type d’entité: entreprise fédérale d’État - Lieu d’enregistrement: Fédération de Russie, 393192, Tambov region, Kotovsk, Truda Ave., 23 - Date d’enregistrement: 16.8.2000: /"
+        props:
+          legalForm: entreprise fédérale d’État
+          jurisdiction: ru
+          address: "Fédération de Russie, 393192, Tambov region, Kotovsk, Truda Ave., 23"
+          incorporationDate: 2000-08-16
+      - match: "Numéro d’immatriculation: 600122610"
+        props:
+          registrationNumber: 600122610

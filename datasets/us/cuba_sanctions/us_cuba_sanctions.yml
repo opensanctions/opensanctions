@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: us-cuba
 coverage:
   frequency: never
+  start: "2023-03-22"
   end: "2023-04-27"
 deploy:
   schedule: "0 6 * * 1"

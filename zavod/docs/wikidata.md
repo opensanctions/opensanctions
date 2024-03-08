@@ -1,7 +1,7 @@
 # Wikidata
 
 We import [Wikidata](https://www.wikidata.org/wiki/Wikidata:Main_Page) to
-OpenSanctions in two ways: using a [crawler](/tutorial) which
+OpenSanctions in two ways: using a [crawler](tutorial.md) which
 imports persons who have held any of a set of wikidata positions we have categorised as
 [Politically Exposed Person positions](https://opensanctions.org/pep), and using
 our [Wikidata Enricher](https://www.opensanctions.org/datasets/wikidata/).
@@ -33,8 +33,11 @@ with possible actions is loaded.
 
 ### Running zavod `wd-up`
 
-Set the following environment variables:
+In addition to basic zavod setup, the following environment variables:
 
+
+    ZAVOD_ARCHIVE_BUCKET=data.opensanctions.org
+    ZAVOD_ARCHIVE_BACKEND=GoogleCloudBackend
     ZAVOD_WD_CONSUMER_TOKEN
     ZAVOD_WD_CONSUMER_SECRET
     ZAVOD_WD_ACCESS_TOKEN
@@ -54,10 +57,17 @@ Set `ZAVOD_WD_USER` to the username used for the OAuth consumer.
 Set `PYWIKIBOT_DIR` to the directory directory with your `user-config.py` - 
 `.pywikibot` in this repository is probably sufficient.
 
-Run `wd-up` as follows:
+Copy an up to date resolve.ijson file to your `ZAVOD_RESOLVER_PATH`.
+
+Run `wd-up` as follows, changing for the dataset and country you'd like to sync up:
 
 ```
-zavod wd-up datasets/de/abgeordnetenwatch/de_abgeordnetenwatch.yml --country-adjective German --country-code de
+zavod wd-up \
+  --clear \
+  datasets/de/abgeordnetenwatch/de_abgeordnetenwatch.yml \
+  datasets/_analysis/ann_pep_positions/ann_pep_positions.yml \
+  --country-adjective German \
+  --country-code de
 ```
 
 - The panel on the left shows the current OpenSanctions entity, and below that the 
@@ -65,11 +75,13 @@ zavod wd-up datasets/de/abgeordnetenwatch/de_abgeordnetenwatch.yml --country-adj
 - The middle panel shows the search results for Wikidata items if the current entity
   does not have a QID. Highlight the right option using up/down arrows.
 - The panel on the right shows log of operations by `wd-up` and instructs your next step.
+- Press save after creating or resolving a wikidata item and remember to copy your resolve.ijson back and upstream the changes.
 
 Country adjective is used to generate descriptions like `German politician`.
+
 Country code is used to sanity check that the position refers to the country of
 the supplied nationality adjective. It only works if you supply matching arguments -
-it isn't clever.
+it isn't clever. Use lowercase like the data does.
 
 `wd-up` has the following limitations (and probably many more)
 
@@ -82,6 +94,6 @@ it isn't clever.
   - 'sex or gender'
   - 'birth date'
   - 'position held'
-- Only positions which have QIDs are considered.
+- Only positions which have QIDs are considered. You might benefit from doing an [xref](https://www.opensanctions.org/docs/identifiers/) between your dataset and wd_peps first.
 - Edits are only proposed if sources can be provided, except for labels, descriptions, and 'instance of'.
 - Sources are only proposed if a `sourceUrl` property is available for the entity with the same source dataset as the property being considered.

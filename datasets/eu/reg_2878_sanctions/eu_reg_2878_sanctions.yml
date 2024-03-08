@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: eu-2878
 coverage:
   frequency: never
+  start: 2023-12-18
   end: 2023-12-18
 publisher:
   name: Council of the European Union

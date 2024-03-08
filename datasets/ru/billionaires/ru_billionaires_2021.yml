@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: rubil
 coverage:
   frequency: never
+  start: 2022-01-01
   end: "2022-01-01"
 deploy:
   schedule: "0 6 * * 1"

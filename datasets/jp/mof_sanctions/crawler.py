@@ -19,6 +19,7 @@ SPLITS = ["(%s)" % char for char in string.ascii_lowercase]
 SPLITS = SPLITS + ["（%s）" % char for char in string.ascii_lowercase]
 # WTF full-width brackets?
 SPLITS = SPLITS + ["（a）", "（b）", "（c）", "\n"]
+SPLITS = SPLITS + ["; a.k.a.", "; a.k.a "]
 
 # DATE FORMATS
 FORMATS = ["%Y年%m月%d日", "%Y年%m月%d", "%Y年%m月", "%Y.%m.%d"]
@@ -68,10 +69,13 @@ def parse_date(text: List[str]) -> List[str]:
 def parse_names(names: List[str]) -> List[str]:
     cleaned = []
     for name in names:
+        # (a.k.a.:
+        # Full width colon. Yes really.
+        name = re.sub(r"[(（]a\.k\.a\.?[:：]? ?", "", name)
         name = name.replace("(original script:", "")
-        name = name.replace("(a.k.a.:", "")
-        name = name.replace("(a.k.a:", "")
         name = name.replace("(previously listed as", "")
+        name = name.replace("(formerly listed as", "")
+        name = name.replace("a.k.a., the following three aliases:", "")
         # name = name.replace(")", "")
         cleaned.append(name)
         no_brackets = BRACKETED.sub(" ", name).strip()

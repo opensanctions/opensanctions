@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: ua-sfms
 coverage:
   frequency: daily
+  start: 2021-02-12
 deploy:
   schedule: "0 */3 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}

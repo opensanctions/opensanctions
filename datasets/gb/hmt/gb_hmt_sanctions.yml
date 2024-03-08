@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: gb-hmt
 coverage:
   frequency: daily
+  start: "2015-12-05"
 deploy:
   memory: "2Gi"
   schedule: "0 */2 * * *"
