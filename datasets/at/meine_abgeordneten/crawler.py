@@ -29,7 +29,8 @@ def parse_date_in_german(text):
     return h.parse_date(text, FORMATS)
 
 
-def parse_mandate(context, url, person, el):
+def crawl_mandate(context, url, person, el):
+    """Returns true if dates could be parsed."""
     print(url)
     active_date_el = el.find('.//span[@class="aktiv"]')
     inactive_dates_el = el.find('.//span[@class="inaktiv"]')
@@ -39,18 +40,23 @@ def parse_mandate(context, url, person, el):
         )
         end_date = None
         assume_current = True
-        date_el = active_date_el
     elif inactive_dates_el is not None:
-        start_date, end_date = inactive_dates_el.text_content().split(" - ")
-        start_date = h.parse_date(start_date, FORMATS)
-        end_date = h.parse_date(end_date, FORMATS)
+        inactive_dates = inactive_dates_el.text_content()
+        if " - " in inactive_dates:
+            start_date, end_date = inactive_dates.split(" - ")
+            start_date = h.parse_date(start_date, FORMATS)
+            end_date = h.parse_date(end_date, FORMATS)
+        else:
+            start_date = None
+            end_date = None
         assume_current = False
-        date_el = inactive_dates_el
     else:
-        context.log.warning(
+        context.log.debug(
             "Can't parse date for mandate", url=url, text=el.text_content().strip()
         )
-        return
+        start_date = None
+        end_date = None
+        assume_current = False
 
     #position_name_el = date_el.getparent().getnext()
     position_name_el = el.xpath('.//div[contains(@class, "funktionsText")]')
@@ -70,10 +76,7 @@ def parse_mandate(context, url, person, el):
     position_parts = position_name.split("\n")
     position_name = position_parts[0]
 
-
-    print(position_name)
-    print("  ", start_date)
-    print("  ", end_date)
+    print(start_date, "-", end_date, position_name)
 
     if len(position_name) > 70:
         context.log.warning(
@@ -82,7 +85,6 @@ def parse_mandate(context, url, person, el):
             name=position_name,
         )
         return
-
 
     # TODO: Make sure we strip party names from positions. e.g.
     # after comma, but watch out for position names which include commas.
@@ -114,6 +116,8 @@ def parse_mandate(context, url, person, el):
         context.emit(person, target=True)
         context.emit(position)
         context.emit(occupancy)
+
+    return start_date or end_date
 
 
 def crawl_item(url_info_page: str, context: Context):
@@ -149,11 +153,13 @@ def crawl_item(url_info_page: str, context: Context):
     if phone:
         person.add("phone", phone.replace(" ", ""))
 
+    parsed_some_mandatee_date = False
     for row in info_page.xpath(
         '//div[@id="mandate"]//div[contains(@class, "funktionszeile")]'
     ):
-        parse_mandate(context, url_info_page, person, row)
-
+        parsed_some_mandatee_date = parse_mandate(context, url_info_page, person, row)
+    if not parsed_some_mandatee_date:
+        context.log.warning("No mandate date parsed", url=url_info_page)
 
 def crawl(context: Context):
 
