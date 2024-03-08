@@ -3107,3 +3107,63 @@ lookups:
       - match: "Numéro d’immatriculation: 600122610"
         props:
           registrationNumber: 600122610
+      - match: "Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 24.2.2016: Numéro d’enregistrement: 5029208152"
+        props:
+          jurisdiction: ru
+          incorporationDate: 2016-02-24
+          registrationNumber: 5029208152
+      - match: "Principal établissement: Fédération de Russie, Mytishchi"
+        props:
+          jurisdiction: ru
+          address: "Fédération de Russie, Mytishchi"
+      - match: "Type d’entité: société par actions - Date d’enregistrement: 14.10.2002: /"
+        props:
+          legalForm: société par actions
+          incorporationDate: 2002-10-14
+      - match: "Numéro d’identification fiscale: 7303026762"
+        props:
+          innCode: 7303026762
+      - match: "Type d’entité: entreprise d’État fédérale Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 13.12.2002 - Principal établissement: Fédération de Russie: Numéro d’enregistrement: 1020202089115"
+        props:
+          jurisdiction: ru
+          legalForm: entreprise d'État fédérale
+          incorporationDate: 2002-12-13
+          ogrnCode: 1020202089115
+      - match: "KPP: 026801001: Numéro d’identification fiscale: 0268005588"
+        schema: Company
+        props:
+          kppCode: 026801001
+          innCode: 0268005588
+      - match:
+          - "Type d’entité: société par actions: /"
+          - "Type d’entité: société publique par actions: /"
+        props:
+          legalForm: société par actions
+      - match: "Type d’entité: société par actions - Date d’enregistrement: 30.11.1992: /"
+        props:
+          legalForm: société par actions
+          incorporationDate: 1992-11-30
+      - match: "Numéro d’identification fiscale: 7702059030"
+        props:
+          innCode: 7702059030
+      - match: "Lieu d'enregistrement: Fédération de Russie, 620091, Sverdlovsk region, Yekaterinburg, Kosmonavtov Ave., building 18 - Date d'enregistrement: 31.5.1994 - Principal établissement: Fédération de Russie: Numéro d'identification fiscale: 6663003800"
+        props:
+          jurisdiction: ru
+          address: "Fédération de Russie, 620091, Sverdlovsk region, Yekaterinburg, Kosmonavtov Ave., building 18"
+          incorporationDate: 1994-05-31
+          innCode: 6663003800
+      - match: "Type d’entité: société par actions - Date d’enregistrement: 15.2.1994: /"
+        props:
+          legalForm: société par actions
+          incorporationDate: 1994-02-15
+      - match: "Numéro d’identification fiscale: 5259008768"
+        props:
+          innCode: 5259008768
+      - match: "Type d’entité: société à responsabilité limitée - Date d’enregistrement: 17.2.2005: /"
+        props:
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2005-02-17
+      - match: "Numéro d’identification fiscale: 3017041900"
+        props:
+          innCode: 3017041900
+          

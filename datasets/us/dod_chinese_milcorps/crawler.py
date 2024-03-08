@@ -2,8 +2,8 @@ from zavod import Context, helpers
 import csv
 
 
-def crawl(context: Context):
-    source_file = context.fetch_resource("source.csv", context.dataset.data.url)
+def crawl(context: Context) -> None:
+    source_file = context.fetch_resource("source.csv", context.data_url)
     with open(source_file, "r") as f:
         reader = csv.DictReader(f)
         for row in reader:
