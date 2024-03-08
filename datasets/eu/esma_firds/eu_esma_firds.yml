@@ -6,8 +6,8 @@ coverage:
   start: 2024-03-02
 deploy:
   memory: 2000Mi
-  memory_limit: 2500Mi
-  disk: 50Gi
+  memory_limit: 3000Mi
+  disk: 100Gi
 summary: >
   List of financial instruments and their reference data, as published by the
   European Securities and Markets Authority (ESMA).

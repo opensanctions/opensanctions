@@ -8,37 +8,41 @@ from zavod import Context
 NS = "{urn:iso:std:iso:20022:tech:xsd:auth.017.001.02}"
 
 
+def parse_element(context: Context, elem: ET.Element) -> None:
+    attr = elem.find(f"./{NS}FinInstrmGnlAttrbts")
+    if attr is None:
+        return
+    isin = attr.findtext(f"./{NS}Id")
+    if isin is None:
+        context.log.warn("No ISIN", elem=elem)
+        return
+    security = context.make("Security")
+    security.id = f"isin-{isin}"
+    security.add("name", attr.findtext(f"./{NS}FullNm"))
+    security.add("alias", attr.findtext(f"./{NS}ShrtNm"))
+    security.add("classification", attr.findtext(f"./{NS}ClssfctnTp"))
+    security.add("currency", attr.findtext(f"./{NS}NtnlCcy"))
+    trading = elem.find(f"./{NS}TradgVnRltdAttrbts")
+    if trading is not None:
+        security.add("createdAt", trading.findtext(f"./{NS}AdmssnApprvlDtByIssr"))
+
+    lei = elem.findtext(f"./{NS}Issr")
+    if lei is not None:
+        lei_id = f"lei-{lei}"
+        issuer = context.make("Organization")
+        issuer.id = lei_id
+        issuer.add("leiCode", lei)
+        context.emit(issuer)
+        security.add("issuer", lei_id)
+
+    context.emit(security)
+
+
 def parse_xml_doc(context: Context, file: IO[bytes]) -> None:
     for (event, elem) in ET.iterparse(file, events=("end",)):
-        if event != "end" or elem.tag != f"{NS}RefData":
-            continue
-        attr = elem.find(f"./{NS}FinInstrmGnlAttrbts")
-        if attr is None:
-            continue
-        isin = attr.findtext(f"./{NS}Id")
-        if isin is None:
-            context.log.warn("No ISIN", elem=elem)
-            continue
-        security = context.make("Security")
-        security.id = f"isin-{isin}"
-        security.add("name", attr.findtext(f"./{NS}FullNm"))
-        security.add("alias", attr.findtext(f"./{NS}ShrtNm"))
-        security.add("classification", attr.findtext(f"./{NS}ClssfctnTp"))
-        security.add("currency", attr.findtext(f"./{NS}NtnlCcy"))
-        trading = elem.find(f"./{NS}TradgVnRltdAttrbts")
-        if trading is not None:
-            security.add("createdAt", trading.findtext(f"./{NS}AdmssnApprvlDtByIssr"))
-
-        lei = elem.findtext(f"./{NS}Issr")
-        if lei is not None:
-            lei_id = f"lei-{lei}"
-            issuer = context.make("Organization")
-            issuer.id = lei_id
-            issuer.add("leiCode", lei)
-            context.emit(issuer)
-            security.add("issuer", lei_id)
-
-        context.emit(security)
+        if event == "end" and elem.tag == f"{NS}RefData":
+            parse_element(context, elem)
+            elem.clear()
 
 
 def parse_xml_file(context: Context, path: Path) -> None:

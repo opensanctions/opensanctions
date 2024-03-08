@@ -47,7 +47,9 @@ children:
   - ky_judicial
   - ky_parliament
   - lt_seimas
+  - lv_saeima
   - mk_officials
+  - mx_deputies
   - mx_governors
   - mx_senators
   - ng_chipper_peps

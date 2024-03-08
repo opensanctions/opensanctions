@@ -47,7 +47,8 @@ class NestedTopicsJSONExporter(NestedJSONExporter):
             "crime.theft",
             "crime.war",
             "crime.fin",
-            "crime.traffick" "corp.disqual",
+            "crime.traffick",
+            "corp.disqual",
             "export.control",
             "role.oligarch",
         ]
