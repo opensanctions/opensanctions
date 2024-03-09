@@ -9,8 +9,8 @@ deploy:
   schedule: "30 6 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  Partial data of individuals and organisations targeted by the Anti-Foreign
-  Sanctions Law and the Unreliable Entities List (UEL).
+  Individuals and organisations targeted by the Anti-Foreign Sanctions Law,
+  Counter-Measures List and the Unreliable Entities List (UEL).
 description: |
   China does not publish structured data on individuals and entities targeted by the
   country's sanctions legislation. This dataset is a partial list of individuals and
