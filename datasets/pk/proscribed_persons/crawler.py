@@ -25,7 +25,11 @@ def crawl_person(context: Context, row: dict):
     entity.add("topics", "sanction")
 
     address_entity = h.make_address(
-        context, state=province, region=district, full=f"{district}, {province}"
+        context,
+        state=province,
+        region=district,
+        full=f"{district}, {province}",
+        key=entity.id,
     )
     entity.add("addressEntity", address_entity)
 
