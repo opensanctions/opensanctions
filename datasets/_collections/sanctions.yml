@@ -66,3 +66,4 @@ children:
   - us_ofac_sdn
   - us_trade_csl
   - za_fic_sanctions
+  - pk_proscribed_persons
