@@ -43,8 +43,9 @@ def crawl_item(item, context: Context):
     name = item.pop("Name")
     domain = item.pop("Domain")
     contacts = item.pop("Contacts")
+    ruling_information = item.pop("Court information")
 
-    entity = context.make("Organization")
+    entity = context.make("Company")
     entity.id = context.make_slug(domain)
 
     entity.add("name", name)
@@ -62,6 +63,7 @@ def crawl_item(item, context: Context):
             entity.add("email", email)
 
     entity.add("topics", "crime")
+    entity.add("notes", f"Pripažino nelegaliu lošimų organizatoriumi: {ruling_information}", lang="lit")
 
     context.emit(entity, target=True)
 
