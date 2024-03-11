@@ -364,6 +364,7 @@ lookups:
           - Mohegan
           - New Spain
           - Republic of Prekmurje
+          - Rufino
         value: null
       - match:
           - Cherokee Nation
@@ -598,6 +599,7 @@ lookups:
       - match:
           - Female
           - trans woman
+          - intersex woman
         value: female
       - match:
           - genderfluid
