@@ -4,39 +4,42 @@ from typing import Generator, Dict, Tuple
 from normality import collapse_spaces
 from zavod import Context
 
+EXPECTED_HEADERS = [
+    [
+        "Nr.",
+        "Nelegalios lošimų veiklos vykdytojo duomenys",
+        "Teismo, kuris išdavė leidimą duoti privalomą nurodymą tinklo paslaugų teikėjui ir/ar finansų institucijai, pavadinimas, nutarties priėmimo data, numeris",
+    ],
+    [
+        "Pavadinimas",
+        "Interneto domeno vardas, identifikuojantis interneto svetainę",
+        "Kontaktiniai duomenys (el. paštas, tel. Nr.)",
+    ],
+]
+HEADERS = ["Number", "Name", "Domain", "Contacts", "Court information"]
+
 
 def parse_table(
     table,
-    skiprows=2,
-    headers=["Number", "Name", "Domain", "Contacts", "Court information"],
 ) -> Generator[Dict[str, str | Tuple[str]], None, None]:
-    '''
-    The first two rows of the table represent the headers, but they are not using the th tag and
-    so we are manually defining the column names.
+    """
+    The first two rows of the table represent the headers, but we're not going to
+    try and parse colspan and rowspan.
 
-    Args:
-        table: The table element to parse
-        skiprows: The number of rows to skip before parsing the table
-        headers: The headers to use for the table columns
     Returns:
         A generator that yields a dictionary of the table columns and values. The keys are the
-        column names and the values are the column values. If the column contains a link, the
-        value is a tuple containing the link text and the link URL.
+        column names and the values are the column values.
     Raises:
-        AssertionError: If the number of headers and columns do not match. This indicates that the
-        table is malformed.
-    '''
-    for row in table.findall(".//tr")[skiprows:]:
-        cells = []
-        for el in row.findall("./td"):
-            a = el.find(".//a")
-            if a is None:
-                cells.append(collapse_spaces(el.text_content()))
-            else:
-                cells.append((collapse_spaces(a.text_content()), a.get("href")))
+        AssertionError: If the headers don't match what we expect.
+    """
 
-        assert len(headers) == len(cells)
-        yield {hdr: c for hdr, c in zip(headers, cells)}
+    for row_ix, row in enumerate(table.findall(".//tr")):
+        cells = [collapse_spaces(cell.text_content()) for cell in row.findall("./td")]
+        if row_ix < len(EXPECTED_HEADERS):
+            assert cells == EXPECTED_HEADERS[row_ix], cells
+            continue
+        assert len(cells) == len(HEADERS), cells
+        yield {hdr: c for hdr, c in zip(HEADERS, cells, strict=True)}
 
 
 def crawl_item(item, context: Context):
@@ -68,8 +71,6 @@ def crawl_item(item, context: Context):
 
 def crawl(context: Context):
     response = context.fetch_html(context.data_url)
-
-    for item in parse_table(
-        response.find('.//*[@class="has-fixed-layout"]'), skiprows=2
-    ):
+    table = response.find('.//*[@class="has-fixed-layout"]')
+    for item in parse_table(table):
         crawl_item(item, context)
