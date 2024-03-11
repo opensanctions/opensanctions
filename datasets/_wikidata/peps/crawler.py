@@ -3,6 +3,9 @@ import countrynames
 from collections import defaultdict
 from typing import Dict, Optional, Any, List, Generator
 from rigour.ids.wikidata import is_qid
+from requests.exceptions import HTTPError
+from requests.adapters import HTTPAdapter
+from urllib3.util import Retry
 
 from zavod import Context
 from zavod import helpers as h
@@ -250,6 +253,14 @@ def query_position_classes(context: Context):
 
 
 def crawl(context: Context):
+    retries = Retry(
+        total=5,
+        backoff_factor=2,
+        status_forcelist=[500],
+        allowed_methods={"GET", "POST"},
+    )
+    context.http.mount("https://", HTTPAdapter(max_retries=retries))
+
     seen_countries = set()
     seen_positions = set()
     for country in query_countries(context):
