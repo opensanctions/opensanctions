@@ -14,9 +14,7 @@ def crawl_person(context: Context, row: dict):
     if cnic:
         entity.id = context.make_slug(cnic, prefix="pk-cnic")
     else:
-        entity.id = context.make_slug(
-            f"{person_name} - {district}, {province}", prefix="pk-proscribed"
-        )
+        entity.id = context.make_slug(person_name, district, province)
 
     name_split = person_name.split("@")
     if len(name_split) > 1:
