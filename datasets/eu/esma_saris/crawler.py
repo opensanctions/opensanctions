@@ -1,5 +1,6 @@
-from zavod import Context, helpers
 import csv
+
+from zavod import Context, helpers
 
 
 def crawl(context: Context) -> None:
@@ -17,10 +18,7 @@ def crawl(context: Context) -> None:
         "https://registers.esma.europa.eu/publication/searchRegister/doMainSearch",
         json=data,
     )
-    source_file = context.fetch_resource(
-        "source.csv",
-        context.dataset.data.url,
-    )
+    source_file = context.fetch_resource("source.csv", context.data_url)
     with open(source_file, "r") as f:
         reader = csv.DictReader(f)
         for row in reader:
@@ -51,8 +49,8 @@ def crawl(context: Context) -> None:
             if row.get("issuer") is not None:
                 issuer = context.make("LegalEntity")
                 if len(issuer) == 20:
+                    issuer.id = f"lei-{issuer}"
                     issuer.add("leiCode", issuer)
-                    issuer.id = "lei-" + issuer
                 else:
                     issuer.id = context.make_id(row.pop("issuer"))
                 issuer.add("name", row.pop("issuerName"))
