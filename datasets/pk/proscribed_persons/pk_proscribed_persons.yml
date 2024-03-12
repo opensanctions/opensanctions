@@ -1,6 +1,6 @@
 name: pk_proscribed_persons
 title: Pakistan NACTA Proscribed Persons
-url: https://nacta.gov.pk/pp/
+url: https://nacta.gov.pk/proscribed-persons
 entry_point: crawler.py
 prefix: pk-proscribed
 summary: List of Proscribed Persons in Pakistan
