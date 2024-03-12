@@ -1,5 +1,6 @@
 from zavod import Context
 from zavod import helpers as h
+from stdnum.pk import cnic as cnic_validator
 
 
 def crawl_person(context: Context, row: dict):
@@ -10,9 +11,9 @@ def crawl_person(context: Context, row: dict):
     district = row.pop("district")
 
     entity = context.make("Person")
-
-    if cnic:
+    if cnic_validator.is_valid(cnic):
         entity.id = context.make_slug(cnic, prefix="pk-cnic")
+        entity.add("idNumber", cnic)
     else:
         entity.id = context.make_slug(person_name, district, province)
 
@@ -22,7 +23,6 @@ def crawl_person(context: Context, row: dict):
         entity.add("alias", name_split[1:])
 
     entity.add("name", person_name)
-    entity.add("idNumber", cnic)
     entity.add("fatherName", father_name)
     entity.add("topics", "sanction")
     entity.add(
