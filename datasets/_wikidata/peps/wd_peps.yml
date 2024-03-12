@@ -354,6 +354,7 @@ lookups:
           - "Q56669297" # superintendent
           - "Q60832272" # Grand voyer
           - "Q65238772" # intendant
+          - "Q480319" # title of authority
       - maybe_pep: false
         match:
           - "Q11271" # Benevolent Dictator for Life
@@ -544,6 +545,7 @@ lookups:
           - "Q65798480" # President of AEL Limassol
           - "Q65962630" # President of AEK Larnaca      
           - "Q108377574" # Islamic religious occupation
+          - "Q21051103" # warden
           
   country_decisions:
     options:

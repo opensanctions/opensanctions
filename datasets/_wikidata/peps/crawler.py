@@ -263,6 +263,8 @@ def crawl(context: Context):
 
     seen_countries = set()
     seen_positions = set()
+    position_classes = query_position_classes(context)
+
     for country in query_countries(context):
         if country["qid"] in seen_countries:
             continue
@@ -276,8 +278,6 @@ def crawl(context: Context):
             continue
         if country_res.decision != DECISION_NATIONAL:
             continue
-
-        position_classes = query_position_classes(context)
 
         for wd_position in query_positions(context, position_classes, country):
             if wd_position["qid"] in seen_positions:
