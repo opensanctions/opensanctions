@@ -375,9 +375,12 @@ def parse_id_reg_document(
     proxy.add("country", country)
 
     if conf.prop is not None:
-        proxy.add(conf.prop, number)
+        if proxy.schema.is_a("Vessel") and conf.prop == 'idNumber':
+            proxy.add("imoNumber", number)
+        else:
+            proxy.add(conf.prop, number)
 
-    if conf.identification or conf.passport:
+    if proxy.schema.is_a("Person") and (conf.identification or conf.passport):
         issue_date = None
         expire_date = None
         for date in reg_doc.findall("./DocumentDate"):
@@ -512,6 +515,7 @@ def apply_feature(
     if isinstance(value, Entity):
         if feature == "Location":
             h.apply_address(context, proxy, value)
+            proxy.add("address", value.get("full"))
             return
         value = value.first("country")
         if value is None:

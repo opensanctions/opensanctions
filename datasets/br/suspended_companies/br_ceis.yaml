@@ -1,0 +1,30 @@
+title: Brazil National Register of Disreputable and Suspended Companies
+entry_point: crawler.py
+prefix: br-ceis
+coverage:
+  frequency: daily
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  The National Register of Ineligible and Suspended Companies (CEIS) lists individuals and companies sanctioned from public procurement in Brazil.
+description: |
+  The CEIS is an essential part of Brazil's Portal da Transparência,
+  providing a comprehensive list of individuals and companies that have faced sanctions restricting
+  their ability to participate in public tenders or contract with the public administration.
+  These sanctions include temporary suspension, declaration of ineligibility,
+  and other penalties under various Brazilian laws like the Bidding Law and the Anti-Corruption Law.
+
+  The CEIS not only promotes transparency for citizens but also serves
+  as a crucial reference for public managers in governmental procurement processes, 
+  ensuring compliance at all federal levels. 
+
+  The database is maintained under the mandate of the Anti-Corruption Law (Law No. 12.846/2013),
+  with the entries being directly fed by public entities responsible for the sanctions.
+publisher:
+  name: CGU (General Control Office of the Union)
+  url: https://portaldatransparencia.gov.br
+  official: true
+  country: "br"
+url: https://portaldatransparencia.gov.br/download-de-dados/ceis
+data:
+  url: https://portaldatransparencia.gov.br/download-de-dados/ceis
+  format: csv

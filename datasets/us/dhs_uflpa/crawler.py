@@ -1,7 +1,7 @@
-from pprint import pprint
 from normality import collapse_spaces, slugify
 from zavod import Context
 from zavod import helpers as h
+from zavod.helpers.xml import ElementOrTree
 
 import re
 
@@ -23,13 +23,13 @@ REGEX_NAME_STRUCTURE = re.compile(
     (
         "^"
         "(?P<main>[\w.,/&\(\) -]+?) ?"
-        "(\((and|including) [a-z]+ alias(es)? ?: (?P<alias_list>.+)\))? ?"
+        "(\(((and|including) [a-z]+ alias(es)? ?:|(formerly|also) known as) (?P<alias_list>.+)\))? ?"
         "(?P<subordinate_note>, and Subsidiaries| and (subsidiaries|its subordinate and affiliated entities))? ?"
         "(and its ([a-z]+ [a-zA-Z]+-based subsidiaries, which include|subsidiary) (?P<subsidiary_list>.+))?"
         "$"
     )
 )
-SPLITTERS = [", and ", "; and ", ", ", "; "]
+SPLITTERS = [" and formerly known as ", ", and ", "; and ", ", ", "; "]
 
 
 def parse_names(name_field: str):
@@ -48,7 +48,7 @@ def parse_names(name_field: str):
         return names
 
 
-def crawl_program(context: Context, table, program: str, section: str) -> None:
+def crawl_program(context: Context, table: ElementOrTree, program: str, section: str) -> None:
     headers = None
     for row in table.findall(".//tr"):
         if headers is None:
@@ -65,17 +65,17 @@ def crawl_program(context: Context, table, program: str, section: str) -> None:
 
         names = parse_names(name_field)
         if names is None:
-            context.log.warning("Couldn't parse name field", data)
+            context.log.warning("Couldn't parse name field", name_field)
             continue
 
         res = context.lookup("type", names["main"])
+        entity_schema = "Organization"
         if res:
-            entity_schema = res.entity_schema
+            entity_schema = res.entity_schema or entity_schema
             rel_schema = res.rel_schema
             subject = res.subject
             object = res.object
         else:
-            entity_schema = "LegalEntity"
             rel_schema = "UnknownLink"
             subject = "subject"
             object = "object"
@@ -123,10 +123,11 @@ def crawl_program(context: Context, table, program: str, section: str) -> None:
 
 
 def crawl(context: Context):
-    doc = context.fetch_html(context.dataset.data.url, cache_days=7)
+    doc = context.fetch_html(context.data_url)
     tables = doc.findall('.//table[@class="usa-table"]')
     for table in tables:
         program_container = table.getprevious()
+        assert program_container is not None
         description = program_container.find(".//strong")
         section_link = program_container.find(".//a")
 

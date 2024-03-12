@@ -11,7 +11,7 @@ from zavod import helpers as h
 FORMATS = ["%d %b %Y", "%d %B %Y", "%Y", "%b %Y", "%B %Y"]
 
 
-def parse_date(text: Optional[str]):
+def parse_date(text: Optional[str]) -> List[str]:
     if text is None or not len(text):
         return []
     text = text.replace("circa", "")
@@ -137,7 +137,11 @@ def parse_result(context: Context, result: Dict[str, Any]):
     assert not result.pop("vessel_type", None)
 
     for obj in parse_addresses(context, result.pop("addresses", [])):
-        h.apply_address(context, entity, obj)
+        # h.apply_address(context, entity, obj)
+        entity.add('address', obj.get('full'))
+        for country in obj.get('country'):
+            if country not in entity.countries:
+                entity.add('country', country)
 
     for ident in result.pop("ids", []):
         context.log.warning("Unknown ID type", id=ident)

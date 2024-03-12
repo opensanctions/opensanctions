@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: ua-sfms
 coverage:
   frequency: daily
+  start: 2021-02-12
 deploy:
   schedule: "0 */3 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
@@ -80,6 +81,8 @@ lookups:
         value: South Sudan
       - match: United Kingdom of Great Britain and Northern Irela
         value: GB
+      - match: Baghdad, Iraq
+        value: Iraq
   type.date:
     options:
       - match: 05021981

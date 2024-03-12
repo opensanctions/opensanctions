@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: eu-tb
 coverage:
   frequency: daily
+  start: 2022-06-02
 deploy:
   schedule: "0 */3 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}

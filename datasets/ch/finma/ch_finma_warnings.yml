@@ -1,0 +1,52 @@
+title: Swiss FINMA Warning List
+entry_point: crawler.py:crawl_warnings
+prefix: ch-finmawa
+coverage:
+  frequency: daily
+  start: 2023-11-20
+deploy:
+  memory: 1500Mi
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: |
+  Switzerland's financial regulator maintains and publishes a warning list of
+  companies and individuals who may be carrying out unauthorised services.
+description: |
+  > FINMA checks the companies and individuals on its warning list to see if
+  > they are providing unauthorised services. The findings, however, have so
+  > far been inconclusive because the companies and individuals concerned
+  > have not complied with the requirement to provide information, or the
+  > information they provided is false. Moreover, when FINMA investigations
+  > reveal an imminent and considerable threat to investors, the providers
+  > involved are also entered in the list. The fact that a company is on
+  > FINMA’s warning list does not automatically mean that its activities are
+  > unlawful. Their entry in the list does, however, highlight the lack of
+  > authorisation. The companies and individuals in question will be removed
+  > from the list once FINMA has completed its investigations and taken any
+  > appropriate measures.
+publisher:
+  name: "Swiss Financial Market Supervisory Authority FINMA"
+  description: |
+    FINMA is Switzerland’s independent financial-markets regulator. Its mandate
+    is to supervise banks, insurance companies, financial institutions,
+    collective investment schemes, and their asset managers and fund
+    management companies.
+  country: ch
+  url: https://www.finma.ch/en/
+  official: true
+url: https://www.finma.ch/en/finma-public/warning-list/
+data:
+  url: https://www.finma.ch/en/api/search/getresult
+  format: JSON
+
+lookups:
+  type.url:
+    options:
+      - match:
+          - "-"
+          - "--"
+          - "---"
+        value: null
+      - match: "www.http://goldos.co2g.de"
+        value: http://goldos.co2g.de
+      - match: "www.http://swiss-wealth.com"
+        value: http://swiss-wealth.com

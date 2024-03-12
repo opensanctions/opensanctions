@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: eu-fsf
 coverage:
   frequency: daily
+  start: 2021-01-24
 deploy:
   schedule: "50 */2 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
@@ -45,6 +46,11 @@ description: |
 
   The data is published in a password-protected area but the generated download links
   can be used to programmatically update the material.
+
+  This dataset covers, inter alia, the following EU policy mechanisms:
+
+  - Council Regulation (EC) No 2580/2001 imposing sanctions based on Council Common Position 2001/931/CFSP
+  - Council regulation (EU) 2016/1686 imposing sanctions based on Council Decision (CFSP) 2016/1693
 publisher:
   name: European External Action Service
   description: |
@@ -54,7 +60,7 @@ publisher:
   country: eu
   url: https://eeas.europa.eu/
   official: true
-url: https://eeas.europa.eu/topics/sanctions-policy/8442/consolidated-list-of-sanctions_en
+url: https://www.eeas.europa.eu/eeas/european-union-sanctions_en#10710
 data:
   url: https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=dG9rZW4tMjAxNw
   format: XML
@@ -143,6 +149,10 @@ lookups:
         values:
           - hotelminsk@udp.gov.by
           - marketing@hotelminsk.by
+      - contains: v.myshevskaya@rostvert.ru
+        values:
+          - v.myshevskaya@rostvert.ru
+          - g.bunyaeva@rostvert.ru
   type.gender:
     lowercase: true
     normalize: true

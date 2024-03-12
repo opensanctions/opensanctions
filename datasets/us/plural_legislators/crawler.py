@@ -1,6 +1,6 @@
 import re
 import os
-from typing import Any
+from typing import Any, Dict
 from zipfile import ZipFile
 from pantomime.types import ZIP
 from yaml import safe_load
@@ -8,6 +8,7 @@ from urllib.parse import urlencode
 
 from zavod.context import Context
 from zavod import helpers as h
+from zavod.logic.pep import categorise
 
 API_KEY = os.environ.get("OPENSANCTIONS_PLURAL_API_KEY")
 REGEX_PATH = re.compile(
@@ -40,7 +41,9 @@ def crawl_person(context, jurisdictions, house_positions, data: dict[str, Any]):
     person.add("gender", data.pop("gender", None))
     person.add("birthDate", data.pop("birth_date", None))
     person.add("description", data.pop("biography", None))
-    person.add("email", data.pop("email", None))
+    email = data.pop("email", None)
+    if email is not None:
+        person.add("email", email.strip('.'))
     for party in data.pop("party", []):
         person.add("political", party.get("name", None))
     extras = data.pop("extras", {})
@@ -96,6 +99,9 @@ def crawl_person(context, jurisdictions, house_positions, data: dict[str, Any]):
         position = h.make_position(
             context, position_name, country="us", subnational_area=jurisdiction_name
         )
+        categorisation = categorise(context, position, True)
+        if not categorisation.is_pep:
+            return
         start_date = role.get("start_date", None)
         end_date = role.get("end_date", None)
         occupancy = h.make_occupancy(
@@ -105,6 +111,7 @@ def crawl_person(context, jurisdictions, house_positions, data: dict[str, Any]):
             True,
             start_date=str(start_date) if start_date else None,
             end_date=str(end_date) if end_date else None,
+            categorisation=categorisation,
         )
         if occupancy:
             pep_entities.append(position)
@@ -135,7 +142,7 @@ def crawl_jurisdictions(context: Context):
     jurisdictions = {}
     house_positions = {}
     headers = {"x-api-key": API_KEY}
-    query = {
+    query: Dict[str, Any] = {
         "page": 1,
         "classification": "state",
         "include": "organizations",

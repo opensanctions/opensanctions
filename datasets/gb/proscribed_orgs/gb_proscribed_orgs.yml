@@ -1,0 +1,44 @@
+name: gb_proscribed_orgs
+title: UK Proscribed Terrorist Groups or Organizations
+url: https://www.gov.uk/government/publications/proscribed-terror-groups-or-organisations--2/proscribed-terrorist-groups-or-organisations-accessible-version
+entry_point: crawler.py
+prefix: gb-proscribed
+coverage:
+  frequency: daily
+  start: 2024-02-08
+summary: >-
+  The United Kingdom's list of Proscribed Organizations under the
+  Terrorism Act 2000
+description: |
+  Under the Terrorism Act 2000, the UK Home Secretary may proscribe an
+  organisation under certain criteria.  The complete list of
+  proscribed organizations is published in Schedule 2 of the Act.
+
+  It is a criminal offense to belong or profess to belong to a
+  proscribed organization, or to support (materially or morally) such
+  an organization.
+
+  These restrictions also apply to other groups proscribed under
+  previous legislation regarding the conflict in Northern Ireland.
+
+  You can find more information about proscription [in the Home
+  Office's Policy Paper
+  here](https://www.gov.uk/government/publications/proscribed-terror-groups-or-organisations--2/proscribed-terrorist-groups-or-organisations-accessible-version).
+publisher:
+  name: legislation.gov.uk
+  description: >-
+    [legislation.gov.uk](https://legislation.gov.uk) is the official
+    on-line publisher of legislation for the UK, including Scotland,
+    Wales, and Northern Ireland.  It is managed by the National
+    Archives, the official archive and publisher for the UK
+    government, under the authority of the Controller of HM Stationary
+    Office and the King's (or Queen's) Printer for Scotland.
+
+    Data is provided under the [Open Government
+    License](https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/)
+  url: https://legislation.gov.uk/
+  country: gb
+  official: true
+data:
+  url: https://www.legislation.gov.uk/ukpga/2000/11/schedule/2?view=plain
+  format: HTML

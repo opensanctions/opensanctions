@@ -5,7 +5,7 @@ from datetime import datetime
 from zavod.context import Context
 from zavod.entity import Entity
 from zavod import settings
-from zavod.logic.pep import occupancy_status, OccupancyStatus
+from zavod.logic.pep import occupancy_status, OccupancyStatus, PositionCategorisation
 
 
 def make_position(
@@ -25,9 +25,10 @@ def make_position(
     lang: Optional[str] = None,
     id_hash_prefix: Optional[str] = None,
 ) -> Entity:
-    """Create consistent position entities. Help make sure the same position
-    from different sources will end up with the same id, while different positions
-    don't end up overriding each other.
+    """Creates a Position entity.
+
+    Position categorisation should then be fetched using zavod.logic.pep.categorise
+    and the result's is_pep checked.
 
     Args:
         context: The context to create the entity in.
@@ -90,15 +91,18 @@ def make_occupancy(
     end_date: Optional[str] = None,
     birth_date: Optional[str] = None,
     death_date: Optional[str] = None,
+    categorisation: Optional[PositionCategorisation] = None,
     status: Optional[OccupancyStatus] = None,
+    propagate_country: bool = True,
 ) -> Optional[Entity]:
     """Creates and returns an Occupancy entity if the arguments meet our criteria
     for PEP position occupancy, otherwise returns None. Also adds the position countries
     and the `role.pep` topic to the person if an Occupancy is returned.
+    **Emit the person after calling this to include these changes.**
 
-    Unless `status` is overridden, Occupancies are only returned if end_date is None or 
+    Unless `status` is overridden, Occupancies are only returned if end_date is None or
     less than the after-office period after current_time.
-    
+
     current_time defaults to the process start date and time.
 
     The after-office threshold is determined based on the position topics.
@@ -126,6 +130,9 @@ def make_occupancy(
         end_date: Set if the date the person left the position is known.
         status: Overrides determining PEP occupancy status
     """
+    if categorisation is not None:
+        assert categorisation.is_pep, person
+
     if status is None:
         status = occupancy_status(
             context,
@@ -137,6 +144,7 @@ def make_occupancy(
             end_date,
             birth_date,
             death_date,
+            categorisation,
         )
     if status is None:
         return None
@@ -144,7 +152,14 @@ def make_occupancy(
     occupancy = context.make("Occupancy")
     # Include started and ended strings so that two occupancies, one missing start
     # and and one missing end, don't get normalisted to the same ID
-    parts = [person.id, position.id, "started", start_date, "ended", end_date]
+    parts = [
+        person.id,
+        position.id,
+        "started",
+        start_date,
+        "ended",
+        end_date,
+    ]
     occupancy.id = context.make_id(*parts)
     occupancy.add("holder", person)
     occupancy.add("post", position)
@@ -153,6 +168,7 @@ def make_occupancy(
     occupancy.add("status", status.value)
 
     person.add("topics", "role.pep")
-    person.add("country", position.get("country"))
+    if propagate_country:
+        person.add("country", position.get("country"))
 
     return occupancy

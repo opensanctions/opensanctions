@@ -10,7 +10,8 @@ from datapatch import LookupException, Result, Lookup
 from followthemoney.schema import Schema
 from followthemoney.util import make_entity_id
 from nomenklatura.cache import Cache
-from nomenklatura.util import normalize_url, ParamsType, PathLike
+from rigour.urls import build_url, ParamsType
+from nomenklatura.util import PathLike
 from structlog.contextvars import clear_contextvars, bind_contextvars
 
 from zavod import settings
@@ -220,7 +221,7 @@ class Context:
         headers: _Headers = None,
         auth: _Auth = None,
         cache_days: Optional[int] = None,
-    ) -> str:
+    ) -> Optional[str]:
         """Execute an HTTP GET request using the contexts' session and return
         the decoded response body. If a `cache_days` argument is provided, a
         cache will be used for the given number of days.
@@ -235,7 +236,7 @@ class Context:
         Returns:
             The decoded response body as a string.
         """
-        url = normalize_url(url, params)
+        url = build_url(url, params)
         if cache_days is not None:
             text = self.cache.get(url, max_age=cache_days)
             if text is not None:
@@ -281,7 +282,11 @@ class Context:
             cache_days=cache_days,
         )
         if text is not None and len(text):
-            return json.loads(text)
+            try:
+                return json.loads(text)
+            except Exception:
+                self.clear_url(url, params)
+                raise
 
     def fetch_html(
         self,
@@ -313,8 +318,17 @@ class Context:
             cache_days=cache_days,
         )
         if text is not None and len(text):
-            return html.fromstring(text)
+            try:
+                return html.fromstring(text)
+            except Exception:
+                self.clear_url(url, params)
+                raise
         raise ValueError("Invalid HTML document: %s" % url)
+
+    def clear_url(self, url: str, params: ParamsType = None) -> None:
+        """Remove a given URL from the cache."""
+        url = build_url(url, params)
+        self.cache.delete(url)
 
     def parse_resource_xml(self, name: PathLike) -> etree._ElementTree:
         """Parse a file in the resource folder into an XML tree.
@@ -370,6 +384,13 @@ class Context:
     def lookup_value(
         self, lookup: str, value: Optional[str], default: Optional[str] = None
     ) -> Optional[str]:
+        """Invoke a datapatch lookup defined in the dataset metadata.
+
+        Args:
+            lookup: The name of the lookup. The key under the dataset lookups property.
+            value: The data value to look up.
+            default: The default value to use if the lookup doesn't match the value.
+        """
         try:
             lookup_obj = self.get_lookup(lookup)
             return lookup_obj.get_value(value, default=default)

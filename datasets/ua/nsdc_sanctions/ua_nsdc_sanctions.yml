@@ -1,17 +1,17 @@
-title: Ukraine National Security Sanctions
+title: Ukraine NSDC State Register of Sanctions
 entry_point: crawler.py
 prefix: ua-nsdc
 coverage:
   frequency: daily
+  start: 2021-11-17
 deploy:
   schedule: "0 */3 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   List of individuals and legal entities subject to restrictive measures.
 description: |
-  This dataset is derived from the COTA system run by NSDC. The published sanctions
-  list is based on press statements by the security council and may not be fully
-  comprehensive as the system is still under development.
+  This dataset is derived from the State Register of Sanctions run by NSDC. The
+  published sanctions list is based on press statements by the security council.
 publisher:
   name: National Security and Defense Council
   description: >
@@ -21,12 +21,157 @@ publisher:
   url: https://www.rnbo.gov.ua/en/
   country: ua
   official: true
-url: https://sanctions.nsdc.gov.ua/
+url: https://drs.nsdc.gov.ua/
 data:
-  url: https://sanctions.nsdc.gov.ua/api/sanctions/
+  url: https://api-drs.nsdc.gov.ua/
   format: JSON
 
 lookups:
+  type.country:
+    normalize: true
+    options:
+      - match: LN
+        value: UA-LPR
+      - match: DN
+        value: UA-DPR
+      - match:
+          - громадянка України та Російської Федерації
+        values:
+          - UA
+          - RU
+      - match:
+          - з питань набуття громадянства України в установленому порядку особа не зверталася
+          - З питань набуття громадянства України в установленому порядку особа не зверталася
+          - має статус негромадянина Латвійської Республіки
+        value: null
+  type.date:
+    options:
+      - match: 
+          - 9 лютого
+        value: null
+      - match: "1957-1959 роки"
+        values:
+          - 1957
+          - 1958
+          - 1959
+      - match: в дужках вказано ще одна дата - (або 25 грудня 1959 р.)
+        value: 1959-12-25
+      - match: в дужках вказано ще одна дата - (або 31 травня 1952 р.)
+        value: 1952-05-31
+      - match: в дужках вказано ще одна дата - (або 13 червня 1990 р.)
+        value: 1990-06-13
+      - match: в дужках вказано ще одна дата - (1 грудня 1956 р.)
+        value: 1956-12-01
+      - match: в дужках вказано ще одна дата - (або 7 червня 1968 р.)
+        value: 1968-06-07
+      - match: 29.02.1963 (не валідна)
+        value: 1963-02
+      - match: 29 (24) лютого 1963 р.
+        value: 1963-02
+      - match: "(або 15 вересня 1951 р.)"
+        value: 1951-09-15
+      - match: "(або 15 вересня 1969 р.)"
+        value: 1969-09-15
+      - match: "(або 30 січня 1986 року)"
+        value: 1986-01-30
+      - match: в дужках вказано ще один день народження - 24 (28) серпня 1958 р.
+        values:
+          - 1958-08-24
+          - 1958-08-28
+      - match: 01.01.1962 р.н.
+        value: 1962-01-01
+      - match: 21 березня 1945 р.
+        value: 1945-03-21
+      - match: 1984-1986 роки
+        values:
+          - 1984
+          - 1985
+          - 1986
+  type.email:
+    options:
+      - match: "general@nn.sovfracht.ru (росія, директор)"
+        value: general@nn.sovfracht.ru
+      - match: "ceo@stg-m.ru (росія, директор)"
+        value: ceo@stg-m.ru
+      - match: "mh@mako-holding.com (Україна)"
+        value: mg@mako-holding.com
+
+
+  attributes:
+    options:
+      - match: 
+          - Місце реєстрації
+          - Місце розташування
+          - Місцезнаходження
+          - "Місце розташування:"
+          - Місце реєстрації юридичної особи
+
+          # place of residence:
+          - Місце проживання
+
+          - Уродженка
+        prop: address
+      - match: 
+          - IMO
+          - МФО
+        prop: registrationNumber
+      - match: 
+          # Reregistration
+          - Перереєстрація
+        contains:
+          - Перереєстрація
+          - перереєстроване відповідно до
+        prop: notes        
+      - match:
+          - Примітка
+          - Інша інформація
+        prop: notes
+      - match: 
+          - Дата народження
+        prop: birthDate
+      - match:
+          - звання
+        prop: title
+      - match:
+          - Назва
+        prop: alias
+      - match:
+          - email
+          - "email: e-mail"
+        prop: email
+      - match: Місце народження
+        prop: birthPlace
+      - match: Зайнятість
+        prop: position
+      - match: Партійність
+        prop: political
+      - match:
+          - Номер телефону
+        prop: phone
+      - match:
+          - ОКАТО
+          - ОКОДУ
+          - ПФР
+          - ФСС
+          - Код ФСФР
+          - KRS (Krajowy Rejestr Sądowy)
+          - Номер документу з мікрофіші
+          - Реєстраційний номер мікрофіші
+          - Номер посвідчення особи
+        prop: registrationNumber
+      - match:
+          - Permanent residence permit - посвідка на постійне проживання
+        prop: idNumber
+      - contains:
+          - Сайт так званого
+        prop: website
+      - contains:
+          - Громадянство
+        prop: nationality
+      - contains:
+          - нагорода
+        prop: notes
+  # old API mappings:
   subject_types:
     map:
       individual: Person
@@ -60,6 +205,7 @@ lookups:
       - match:
           - Permanent residence permit - посвідка на постійне проживання
           - Особистий номер офіцера
+          - refugee card
         value: idNumber
       - match:
           - ЄДРПОУ

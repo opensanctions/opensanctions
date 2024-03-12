@@ -1,7 +1,8 @@
 type: collection
 title: Warrants and Criminal Entities
+coverage:
+  frequency: daily
 deploy:
-  schedule: "1 */6 * * *"
   memory: "1500Mi"
 summary: >
   Companies and people implicated in or convicted of criminal activity,
@@ -28,11 +29,19 @@ children:
   - wanted
   - debarment
   - ransomwhere
-  - us_fbi_most_wanted
-  - interpol_red_notices
-  - gb_nca_most_wanted
+  - br_bcb_disqualified_persons
+  - br_tcu_disqualified
+  - ch_finma_rulings
+  - ch_finma_warnings
   - eu_europol_wanted
+  - gb_coh_disqualified
+  - gb_nca_most_wanted
+  - gb_proscribed_orgs
+  - interpol_red_notices
+  - lt_illegal_websites
   - nl_most_wanted
   - us_ddtc_enforcements
+  - us_fbi_most_wanted
   - us_occ_enfact
-  - gb_coh_disqualified
+  - us_sec_pause
+  - za_wanted

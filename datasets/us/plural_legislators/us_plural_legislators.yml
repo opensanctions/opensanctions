@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: plural
 coverage:
   frequency: weekly
+  start: 2023-08-22
 deploy:
   memory: "1000Mi"
 summary: >
@@ -65,12 +66,18 @@ lookups:
           - ebankslaw@aol.com@house.ms.gov
           - SenKean, Jr.@njleg.org
           - AsmVainieri Huttle@njleg.org
+          - https://sd30.senate.ca.gov/contact/message
         contains:
           - www.cityofmontebello.com
           - www.house.leg.state.mn.us
         value: null
+      - contains: "mlsantiago@senado.pr"
+        # ^ this has a zero-width space at the end
+        value: "mlsantiago@senado.pr.gov"
       - match: tcolpetzer@mcdonoughga.org.
         value: tcolpetzer@mcdonoughga.org
+      - match: chriswooten@schouse.gov.
+        value: chriswooten@schouse.gov
       - match: sensan buenaventura@capitol.hawaii.gov
         value: sensanbuenaventura@capitol.hawaii.gov
       - match: district@repkelly.com, mike@repkelly.com
@@ -87,3 +94,11 @@ lookups:
         value: mayor@cityofkaty.com
       - match: jrkillacky52@gmail,com
         value: jrkillacky52@gmail.com
+      - match: mayor@boonton.org.
+        value: mayor@boonton.org
+      - match: chriswooten@schouse.gov.
+        value: chriswooten@schouse.gov
+  type.gender:
+    options:
+      match: X
+      value: other

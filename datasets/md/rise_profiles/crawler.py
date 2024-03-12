@@ -102,7 +102,7 @@ def make_company(context: Context, url: str, name: str, attributes: dict):
     if founded:
         identification.append(founded)
     regno = attributes.pop("numar-de-identificare", None)
-    if regno:        
+    if regno:
         identification.append(regno)
     company.id = context.make_id(*identification)
 
@@ -154,18 +154,21 @@ def make_entity(context: Context, url: str, name: str, attributes: dict):
 
 
 def make_relation(context, source, description, target_name, target_url):
+    res = context.lookup("relations", description)
     target = None
     if target_url:
         target = crawl_entity(context, target_url, False)
         if target_url.startswith("connection.php"):
             context.emit(target)
     if target is None:
-        target = context.make("LegalEntity")
+        target_schema = (
+            res.target_schema if res and res.target_schema else "LegalEntity"
+        )
+        target = context.make(target_schema)
         target.id = context.make_id(target_name, "relation of", source.id)
         target.add("name", target_name)
         context.emit(target)
 
-    res = context.lookup("relations", description)
     schema = res.schema if res else "UnknownLink"
     source_key = res.source if res else "subject"
     target_key = res.target if res else "object"

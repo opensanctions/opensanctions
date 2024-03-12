@@ -4,14 +4,13 @@ entry_point: zavod.runner.enrich:enrich
 disabled: false
 coverage:
   frequency: weekly
+  start: 2022-05-23
 exports:
   - statistics.json
 deploy:
   # schedule: "1 22 * * *"
   memory: "2000Mi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-coverage:
-  frequency: daily
 summary: |
   The largest open database of company data in the world, with data from over 140 registries.
 description: |
@@ -89,6 +88,8 @@ lookups:
           - Channel Islands
           - "U"
           - "#"
+          - Republic Of
+          - Islamic Republic Of
         value: null
       - match:
           - IRLANDE, ou EIRE

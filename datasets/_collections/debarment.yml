@@ -13,12 +13,17 @@ description: |
 children:
   - adb_sanctions
   - afdb_sanctions
+  - br_tcu_debarred
+  - br_bcb_prohibited
   - ebrd_ineligible
   - eu_edes
   - iadb_sanctions
   - li_entsg
   - md_interdictie
   - no_nbim_exclusions
+  - ps_ohchr_settlement
+  - si_conflicts
   - us_ddtc_debarred
+  - us_dod_chinese_milcorps
   - us_sam_exclusions
   - worldbank_debarred

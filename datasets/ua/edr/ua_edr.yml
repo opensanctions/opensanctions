@@ -5,6 +5,7 @@ disabled: false
 entry_point: parse.py
 coverage:
   frequency: never
+  start: 2023-07-28
   end: 2022-02-23
 deploy:
   schedule: "@monthly"
@@ -30,5 +31,5 @@ publisher:
   country: ua
   official: true
 data:
-  url: "https://data.opensanctions.org/contrib/ua_edr/23022022.zip"
+  url: "https://usr.minjust.gov.ua/content/free-search"
   format: XML

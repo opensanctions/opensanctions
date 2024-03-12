@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: md-terr
 coverage:
   frequency: daily
+  start: 2023-10-20
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   Sanctions on persons and entities involved in terrorist activities and the 

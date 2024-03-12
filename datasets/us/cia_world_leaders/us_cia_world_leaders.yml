@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: us-cia
 coverage:
   frequency: daily
+  start: "2015-12-05"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   An index of most national-level cabinet members in world governments that
@@ -35,6 +36,15 @@ publisher:
 data:
   url: "https://www.cia.gov/resources/world-leaders/page-data/sq/d/3159235335.json"
   format: JSON
+
+assertions:
+  min:
+    schema_entities:
+      Person: 5700
+    countries: 195
+  max:
+    schema_entities:
+      Person: 6000
 
 lookups:
   position_topics:

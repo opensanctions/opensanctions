@@ -23,3 +23,5 @@ children:
   - ext_ru_egrul
   - ext_ua_edr
   - wikidata
+  - openfigi
+  - permid

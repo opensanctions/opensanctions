@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: acf
 coverage:
   frequency: daily
+  start: 2022-05-05
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   A list of key Russian decision-makers from government and business
@@ -47,9 +48,12 @@ lookups:
     options:
       - match:
           - 8 сентября
+          - 10 октября
         value: null
       - match: ".05.1959"
         value: "1959-05"
+      - match: "06.09.964"
+        value: 1964-09-06
       - match: "24 .08.1973"
         value: 1973-08-24
       - match: 15.05.1960 (07.07.1977)

@@ -3,6 +3,7 @@ entry_point: ofac_advanced.py
 prefix: ofac
 coverage:
   frequency: daily
+  start: "2015-12-05"
 deploy:
   memory: 1300Mi
   memory_limit: "2Gi"
@@ -115,6 +116,7 @@ lookups:
           - British National Overseas Passport
           - Stateless Person Passport
         schema: Person
+        prop: passportNumber
         passport: true
       - match:
           - Commercial Registry Number
@@ -143,6 +145,7 @@ lookups:
           - Economic Register Number (CBLS)
           - Trademark number
           - Permit Number
+          - Military Registration Number
         prop: registrationNumber
       - match:
           - Legal Entity Number
@@ -207,6 +210,7 @@ lookups:
           - UAE Identification
           - Romanian C.R.
         identification: true
+        prop: idNumber
       - # taxNumber only, no adjacent object
         match:
           - Tax ID No.
@@ -256,8 +260,7 @@ lookups:
           - "Listing Date (EO 14014 Directive 1):"
           - "Listing Date (CMIC)"
         prop: null
-      - match:
-          - Location
+      - match: Location
         prop: addressEntity
       - match: Gender
         schema: Person

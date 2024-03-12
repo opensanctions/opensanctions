@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: mymoha
 coverage:
   frequency: never
+  start: "2023-07-11"
   end: "2023-07-11"
 deploy:
   schedule: "@weekly"

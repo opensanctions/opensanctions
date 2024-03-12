@@ -1,10 +1,12 @@
-from typing import Dict, List, Optional
 import re
-import xlrd
+import xlrd  # type: ignore
 import string
-from datetime import datetime
+from datetime import datetime, date
+from openpyxl import load_workbook
+from openpyxl.cell import Cell
+from pantomime.types import XLSX, XLS
 from urllib.parse import urljoin
-from pantomime.types import XLS
+from typing import Dict, List, Optional
 from normality import collapse_spaces, stringify
 from normality.cleaning import decompose_nfkd
 
@@ -17,6 +19,7 @@ SPLITS = ["(%s)" % char for char in string.ascii_lowercase]
 SPLITS = SPLITS + ["（%s）" % char for char in string.ascii_lowercase]
 # WTF full-width brackets?
 SPLITS = SPLITS + ["（a）", "（b）", "（c）", "\n"]
+SPLITS = SPLITS + ["; a.k.a.", "; a.k.a "]
 
 # DATE FORMATS
 FORMATS = ["%Y年%m月%d日", "%Y年%m月%d", "%Y年%m月", "%Y.%m.%d"]
@@ -37,13 +40,28 @@ DATE_SPLITS = SPLITS + [
 DATE_CLEAN = re.compile(r"(\(|\)|（|）| |改訂日|改訂|まれ)")
 
 
-def parse_date(text: List[Optional[str]]) -> List[str]:
+def str_cell(cell: Cell) -> Optional[str]:
+    value = cell.value
+    if value is None:
+        return None
+    if isinstance(value, (datetime, date)):
+        return value.isoformat()
+    if isinstance(value, bool):
+        return str(value).lower()
+    return stringify(value)
+
+
+def parse_date(text: List[str]) -> List[str]:
     dates: List[str] = []
-    for date in h.multi_split(text, DATE_SPLITS):
-        cleaned = DATE_CLEAN.sub("", date)
+    for date_ in h.multi_split(text, DATE_SPLITS):
+        parsed = h.convert_excel_date(date_)
+        if parsed is not None:
+            dates.append(parsed)
+            continue
+        cleaned = DATE_CLEAN.sub("", date_)
         if cleaned:
             normal = decompose_nfkd(cleaned)
-            for parsed in h.parse_date(normal, FORMATS, default=date):
+            for parsed in h.parse_date(normal, FORMATS, default=date_):
                 dates.append(parsed)
     return dates
 
@@ -51,10 +69,13 @@ def parse_date(text: List[Optional[str]]) -> List[str]:
 def parse_names(names: List[str]) -> List[str]:
     cleaned = []
     for name in names:
+        # (a.k.a.:
+        # Full width colon. Yes really.
+        name = re.sub(r"[(（]a\.k\.a\.?[:：]? ?", "", name)
         name = name.replace("(original script:", "")
-        name = name.replace("(a.k.a.:", "")
-        name = name.replace("(a.k.a:", "")
         name = name.replace("(previously listed as", "")
+        name = name.replace("(formerly listed as", "")
+        name = name.replace("a.k.a., the following three aliases:", "")
         # name = name.replace(")", "")
         cleaned.append(name)
         no_brackets = BRACKETED.sub(" ", name).strip()
@@ -63,14 +84,14 @@ def parse_names(names: List[str]) -> List[str]:
     return cleaned
 
 
-def fetch_xls_url(context: Context) -> str:
+def fetch_excel_url(context: Context) -> str:
     params = {"_": context.data_time.date().isoformat()}
     doc = context.fetch_html(context.data_url, params=params)
     for link in doc.findall('.//div[@class="unique-block"]//a'):
         href = urljoin(context.data_url, link.get("href"))
-        if href.endswith(".xls"):
+        if href.endswith(".xlsx") or href.endswith(".xls"):
             return href
-    context.log.error("Could not find XLS file on MoF web site")
+    raise ValueError("Could not find XLS file on MoF web site")
 
 
 def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str]]):
@@ -139,9 +160,59 @@ def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str
     context.emit(sanction)
 
 
-def crawl(context: Context):
-    xls_url = fetch_xls_url(context)
-    path = context.fetch_resource("source.xls", xls_url)
+def crawl_xlsx(context: Context, url: str):
+    path = context.fetch_resource("source.xlsx", url)
+    context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
+
+    wb = load_workbook(path, read_only=True)
+    for sheet in wb.worksheets:
+        row0 = [str_cell(c) for c in list(sheet.iter_rows(0, 1))[0]]
+        sections = [str(c) for c in row0 if c is not None]
+        section = collapse_spaces(" / ".join(sections))
+        headers = None
+        for cells in sheet.iter_rows(1):
+            row = [str_cell(c) for c in cells]
+
+            # after a header is found, read normal data:
+            if headers is not None:
+                data: Dict[str, List[str]] = {}
+                for header, cell in zip(headers, row):
+                    if header is None:
+                        continue
+                    values = []
+                    if isinstance(cell, datetime):
+                        cell = cell.date()
+                    for value in h.multi_split(stringify(cell), SPLITS):
+                        if value is None:
+                            continue
+                        if value == "不明":
+                            continue
+                        if value is not None:
+                            values.append(value)
+                    data[header] = values
+                emit_row(context, sheet.title, section, data)
+
+            if not len(row) or row[0] is None:
+                continue
+            teaser = row[0].strip()
+            # the first column of the common headers:
+            if "告示日付" in teaser:  # jp: Notice date
+                if headers is not None:
+                    context.log.error("Found double header?", row=row)
+                # print("SHEET", sheet, row)
+                headers = []
+                for cell in row:
+                    cell = collapse_spaces(cell)
+                    header = context.lookup_value("columns", cell)
+                    if header is None:
+                        context.log.warning(
+                            "Unknown column title", column=cell, sheet=sheet.title
+                        )
+                    headers.append(header)
+
+
+def crawl_xls(context: Context, url: str):
+    path = context.fetch_resource("source.xls", url)
     context.export_resource(path, XLS, title=context.SOURCE_TITLE)
 
     xls = xlrd.open_workbook(path)
@@ -176,7 +247,7 @@ def crawl(context: Context):
                 continue
             teaser = row[0].strip()
             # the first column of the common headers:
-            if "告示日付" in teaser: # jp: Notice date
+            if "告示日付" in teaser:  # jp: Notice date
                 if headers is not None:
                     context.log.error("Found double header?", row=row)
                 # print("SHEET", sheet, row)
@@ -189,3 +260,13 @@ def crawl(context: Context):
                             "Unknown column title", column=cell, sheet=sheet.name
                         )
                     headers.append(header)
+
+
+def crawl(context: Context):
+    url = fetch_excel_url(context)
+    if url.endswith(".xlsx"):
+        crawl_xlsx(context, url)
+    elif url.endswith(".xls"):
+        crawl_xls(context, url)
+    else:
+        raise ValueError("Unknown file type: %s" % url)

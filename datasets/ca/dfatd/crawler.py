@@ -1,4 +1,3 @@
-from banal import first
 from lxml.etree import _Element
 from normality import collapse_spaces
 from pantomime.types import XML
@@ -6,7 +5,6 @@ from followthemoney.types import registry
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.runtime.lookups import type_lookup
 
 FORMATS = ["%Y", "%d-%m-%Y", "%b-%y"]
 

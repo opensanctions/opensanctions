@@ -1,0 +1,21 @@
+title: OpenSanctions Alert Testing
+entry_point: crawler.py
+prefix: osv
+hidden: true
+coverage:
+  frequency: daily
+  start: 2023-12-05
+summary: >
+  This dataset is used for alerting tests.
+description: |
+  **Do not include this data in production screening**
+publisher:
+  name: OpenSanctions
+  description: |
+    Manually created by the project team.
+  url: https://www.opensanctions.org
+  official: false
+url: https://docs.google.com/spreadsheets/d/1G375EPA0KnKzz_ZesSdP82RciQC1TbZQBpDmQPfKrPc/edit#gid=0
+data:
+  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vS6VlZVt7VnqaqT7NTd5bIzOWfl0nK-arw-s9zTb2SdPzKrgTmtgaQtnM6-Qvcz4vzF8AeQUl8DhLgq/pub?gid=0&single=true&output=csv
+  format: CSV

@@ -1,0 +1,75 @@
+title: Austria Public Officials
+entry_point: crawler.py
+prefix: at-meine-ab
+coverage:
+  start: 2024-03-08
+  frequency: daily
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  List of politicians and others officials from Austria.
+description: |
+  This dataset identifies
+  all members of the National Council, members of the Federal
+  Government and the Bundesrat as well as all state governments
+  and state parliaments.  Other significant posts in this dataset include
+  the Federal President, the general secretaries of the
+  ministries, the Ombudsmen and many more.
+
+  The sources of the data are thoroughly referenced on the source pages, which
+  contain significant contextual information about all representatives.
+publisher:
+  name: Meine Abgeordneten
+  description: |
+   The “My Members of Parliament” platform is
+   a private initiative that was founded in 2011 by Respect.net
+   and operated together with WOTI World of Tomorrow Institute
+   (formerly Act.Now) from 2017 to 2021
+  url: https://www.meineabgeordneten.at/
+  official: false
+  country: "at"
+url: "https://www.meineabgeordneten.at/Abgeordnete"
+data:
+  url: https://www.meineabgeordneten.at/Abgeordnete?partei=
+  format: HTML
+
+assertions:
+  min:
+    schema_entities:
+      Person: 824
+      Position: 100
+    country_entities:
+      at: 900
+    countries: 1
+  max:
+    schema_entities:
+      Person: 900
+
+lookups:
+  type.email:
+    options:
+      - match: michael.gorlitzer@wien.oevp.at,
+        value: michael.gorlitzer@wien.oevp.at
+        # zero width space... but why? how?!
+      - match: heike.grebien@​parlament.gv.at,
+        value: heike.grebien@parlament.gv.at
+
+  position:
+    options:
+      - match: Mitglied des Bundesrates, ÖVPEingetreten für das am 31.5.2010 ausgeschiedene Mitglied des Bundesrates Dr. Georg Spiegelfeld-Schneeburg.
+        name: Mitglied des Bundesrates
+      - match: Mitglied des Gemeinderates von Hermagor - Pressegger See, Die Sozialdemokratische Partei Österreichs - Bürgermeister Siegfried Ronacher - SPÖ
+        name: Mitglied des Gemeinderates von Hermagor - Pressegger
+      - match: Mitglied des Gemeinderates von Kirchberg, Gemeinsam für Kirchberg-Wahlbündnis der Sozialdemokraten und Parteiunabhängigen Kirchberger-Innen - SPÖ-PUK
+        name: Mitglied des Gemeinderates von Kirchberg
+      - match: Abgeordneter zum Europäischen Parlament, Fraktion der Progressiven Allianz der Sozialdemokraten im Europäischen Parlament
+        name: Abgeordneter zum Europäischen Parlament
+      - match: Abgeordneter zum Europäischen Parlament, Fraktion der Progressiven Allianz der Sozialdemokraten im Europäischen Parlament
+        name: Abgeordneter zum Europäischen Parlament
+      - match: Vizepräsidentin des Europäischen Parlaments, Fraktion der Progressiven Allianz der Sozialdemokraten im Europäischen Parlament
+        name: Vizepräsidentin des Europäischen Parlaments
+      - match: Betraut mit der Leitung der zum Wirkungsbereich des Bundeskanzleramtes gehörenden Angelegenheiten für EU, Kunst, Kultur und Medien im Bundeskanzleramt
+        name: Betraut mit der Leitung der zum Wirkungsbereich des Bundeskanzleramtes gehörenden Angelegenheiten für EU, Kunst, Kultur und Medien im Bundeskanzleramt
+      - match: Mitglied der Bezirksvertretung ("Bezirksrat") von Wien-Döbling, Die GrünenMitglied des Finanz- und Bauausschusses und der Kulturkommission
+        name: Mitglied der Bezirksvertretung ("Bezirksrat") von Wien-Döbling
+      - match: Abgeordneter zum Europäischen Parlament, Fraktion der Progressiven Allianz der Sozialdemokraten im Europäischen Parlament
+        name: Abgeordneter zum Europäischen Parlament

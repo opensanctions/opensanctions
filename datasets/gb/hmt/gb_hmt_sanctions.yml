@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: gb-hmt
 coverage:
   frequency: daily
+  start: "2015-12-05"
 deploy:
   memory: "2Gi"
   schedule: "0 */2 * * *"
@@ -101,6 +102,10 @@ lookups:
           - Meroe Gold
           - Paramount Energy & Commodities SA
           - Central Bank of Russia
+          - Petrostroi-SPB Aktsionernoe Obshchestvo ATTK-NN
+          - Moscow Institute of Thermal Technology
+          - PARAMOUNT ENERGY & COMMODITIES DMCC
+          - AKTSIONERNOE OBSHCHESTVO ALYUMINIEVYE PRODUKTY - KHOLDING
         value: SAME
       - match: Subsidiary of the Organisation for Technological Industries (OTI) and therefore the Syrian Ministry of Defence
         values:
@@ -112,6 +117,11 @@ lookups:
           - JSC “Lengazpetstroy”
           - JSC “Volgogaz”
           - LLC ”NGKM”
+      - match: (1) BIC Bank (2) Zheng Heng (Cambodia) Co., Ltd (3) ZhengHeng Development Group
+        values:
+          - BIC Bank
+          - Zheng Heng (Cambodia) Co., Ltd
+          - ZhengHeng Development Group
       - match: Yuzhny Proyect (Southern Project),  affiliated with the Saint Petersburg-based Rossiya bank, which is co-owned by oligarch Yury KOVALCHUK (RUS0007)
         values:
           - Yuzhny Proyect
@@ -498,7 +508,9 @@ lookups:
         values:
           - SUHH
           - UZ
-      - match: Occupied Palestinian Territories
+      - match:
+          - Occupied Palestinian Territories
+          - Gaza
         value: PS
       - match: to   Morocco
         value: Morocco
@@ -598,6 +610,18 @@ lookups:
           - 20shrhrabota@gmail.com
       - match: info@etemad mobin.com
         value: info@etemad-mobin.com
+      - match: (1) Info@sasta.ru (2) sastalogist@yandex.ru
+        values:
+          - Info@sasta.ru
+          - sastalogist@yandex.ru
+      - match: (1) Info@bpk-spb.ru (2) service@bpk.spb.ru
+        values:
+          - Info@bpk-spb.ru 
+          - service@bpk.spb.ru
+      - match: (1) azia@aziaship.com (2) business@aziaship.com
+        values:
+          - azia@aziaship.com
+          - business@aziaship.com
   type.gender:
     lowercase: true
     normalize: true

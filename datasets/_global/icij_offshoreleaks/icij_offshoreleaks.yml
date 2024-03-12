@@ -4,9 +4,10 @@ prefix: icijol
 # disabled: true
 entry_point: crawler.py
 coverage:
+  start: 2022-05-23
   end: 2023-07-26
 deploy:
-  # premium: true
+  schedule: "@monthly"
   memory: 2000Mi
   disk: 30Gi
 exports:

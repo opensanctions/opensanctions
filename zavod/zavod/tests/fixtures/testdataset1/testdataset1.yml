@@ -20,6 +20,17 @@ data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vTYliJOm1mk2PrsL0m_BVn2sEbpHIdQ2fuzavp0gqOLndgzCw7gtr9Npqwa_FerVrQBfYFiDeKuwfV-/pub?gid=0&single=true&output=csv
   format: CSV
 
+assertions:
+  min:
+    schema_entities:
+      Person: 10
+    country_entities:
+      de: 3
+    countries: 7
+  max:
+    country_entities:
+      de: 1
+
 lookups:
   plants:
     options:

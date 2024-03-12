@@ -5,6 +5,7 @@ from lxml.etree import _Element as Element, tostring
 from followthemoney.util import make_entity_id
 
 from zavod import Context
+from zavod.shed.internal_data import fetch_internal_data
 
 REMOVE = [
     "КІНЦЕВИЙ БЕНЕФІЦІАР ВЛАСНИК(КОНТРОЛЕР)",
@@ -138,7 +139,8 @@ def parse_uo(context: Context, fh: IO[bytes]):
 
 
 def crawl(context: Context):
-    path = context.fetch_resource("source.zip", context.data_url)
+    path = context.get_resource_path("source.zip")
+    fetch_internal_data("ua_edr/20220222.zip", path)
     context.log.info("Parsing: %s" % path)
     with ZipFile(path, "r") as zip:
         for name in zip.namelist():

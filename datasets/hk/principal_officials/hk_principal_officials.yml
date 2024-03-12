@@ -1,0 +1,30 @@
+name: hk_principal_officials
+title: Hong Kong Principal Officials
+prefix: hk-po
+url: https://www.gov.hk/en/about/govdirectory/po/index.htm
+coverage:
+  frequency: daily
+  start: 2024-02-07
+summary:
+  Principal Officials of Hong Kong Special Administrative Region of the People's
+  Republic of China.
+description: |
+  This dataset list the Principal Officals of Hong Kong Kong Special Administrative Region of the People's Republic of China.
+
+  According to the Basic Law, they are government officials who are nominated by the Chief Executive and appointed by the State Council of the People's Republic of China.
+  [Source: Wikipedia](https://en.wikipedia.org/wiki/Principal_officials_of_Hong_Kong)
+
+  This dataset publishes the name, position and description of the principal officals of Hong Kong.
+entry_point: crawler.py
+publisher:
+  name: GovHK
+  description: |
+    GovHK is the one-stop portal of the Hong Kong Special Administrative Region Government.
+    Its main content is provided by participating Government bureaux and departments to make information and
+    services of public sector easier to find and use.
+  country: hk
+  url: https://www.gov.hk/en/about/aboutus.htm
+  official: true
+data:
+  url: https://www.gov.hk/en/about/govdirectory/po/index.htm
+  format: HTML

@@ -15,10 +15,7 @@ from zavod.exporters import export_dataset
 from zavod.archive import clear_data_path
 from zavod.exporters.ftm import FtMExporter
 from zavod.exporters.names import NamesExporter
-from zavod.exporters.nested import NestedJSONExporter
 from zavod.exporters.simplecsv import SimpleCSVExporter
-from zavod.exporters.senzing import SenzingExporter
-from zavod.exporters.statistics import StatisticsExporter
 from zavod.exporters.statements import StatementsCSVExporter
 from zavod.meta import Dataset, load_dataset_from_path
 from zavod.crawl import crawl_dataset
@@ -51,7 +48,7 @@ def test_export(testdataset1: Dataset):
     crawl_dataset(testdataset1)
     export(testdataset1)
 
-    # it parses and finds expected number of entites
+    # it parses and finds expected number of entities
     assert (
         len(list(path_entities(dataset_path / "entities.ftm.json", EntityProxy))) == 11
     )
@@ -80,7 +77,7 @@ def test_export(testdataset1: Dataset):
         entities = [loads(line) for line in senzing_file.readlines()]
         assert len(entities) == 8
         for ent in entities:
-            assert ent["RECORD_TYPE"] in {"PERSON", "ORGANIZATION", "COMPANY"}
+            assert ent["RECORD_TYPE"] in {"PERSON", "ORGANIZATION"}
 
     with open(dataset_path / "statistics.json") as statistics_file:
         statistics = load(statistics_file)
@@ -157,13 +154,16 @@ def test_ftm(testdataset1: Dataset):
     entities = list(path_entities(dataset_path / "entities.ftm.json", StreamEntity))
     for entity in entities:
         # Fail if incorrect format
+        assert entity.first_seen is not None
         datetime.strptime(entity.first_seen, TIME_SECONDS_FMT)
+        assert entity.last_seen is not None
         datetime.strptime(entity.last_seen, TIME_SECONDS_FMT)
+        assert entity.last_change is not None
         datetime.strptime(entity.last_change, TIME_SECONDS_FMT)
         assert entity.datasets == {"testdataset1"}
 
     john = [e for e in entities if e.id == "osv-john-doe"][0]
-    john.get("name") == "John Doe"
+    assert john.get("name") == ["John Doe"]
 
     fam = [
         e for e in entities if e.id == "osv-eb0a27f226377001807c04a1ca7de8502cf4d0cb"
@@ -241,37 +241,6 @@ def test_names(testdataset1: Dataset):
     assert len(names) == 14
 
 
-def test_nested(testdataset1: Dataset):
-    dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
-    clear_data_path(testdataset1.name)
-
-    crawl_dataset(testdataset1)
-    harnessed_export(NestedJSONExporter, testdataset1)
-
-    with open(dataset_path / "targets.nested.json") as nested_file:
-        entities = [loads(line) for line in nested_file.readlines()]
-
-    for entity in entities:
-        # Fail if incorrect format
-        datetime.strptime(entity["first_seen"], TIME_SECONDS_FMT)
-        datetime.strptime(entity["last_seen"], TIME_SECONDS_FMT)
-        datetime.strptime(entity["last_change"], TIME_SECONDS_FMT)
-        assert entity["datasets"] == ["testdataset1"]
-
-    john = [e for e in entities if e["id"] == "osv-john-doe"][0]
-    john.get("name") == "John Doe"
-
-    family_id = "osv-eb0a27f226377001807c04a1ca7de8502cf4d0cb"
-    # Family relationship is not included as a root object
-    assert len([e for e in entities if e["id"] == family_id]) == 0
-
-    assert len(john["properties"]["familyPerson"]) == 1
-    fam = john["properties"]["familyPerson"][0]
-    assert fam["id"] == family_id
-    assert fam["properties"]["person"][0] == "osv-john-doe"
-    assert fam["properties"]["relative"][0]["id"] == "osv-jane-doe"
-
-
 def test_targets_simple(testdataset1: Dataset):
     dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
     clear_data_path(testdataset1.name)
@@ -322,95 +291,6 @@ def test_targets_simple(testdataset1: Dataset):
     # Assert the dates above are in the expected format
     datetime.strptime(settings.RUN_TIME_ISO, TIME_SECONDS_FMT)
 
-
-def test_senzing(testdataset1: Dataset):
-    """Tests whether the senzing output contain the expected entities, with expected
-    keys and value formats."""
-    dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
-    clear_data_path(testdataset1.name)
-
-    crawl_dataset(testdataset1)
-    harnessed_export(SenzingExporter, testdataset1)
-
-    with open(dataset_path / "senzing.json") as senzing_file:
-        targets = [loads(line) for line in senzing_file.readlines()]
-    company = [t for t in targets if t["RECORD_ID"] == "osv-umbrella-corp"][0]
-    company_features = company.pop("FEATURES")
-
-    assert {
-        "NAME_TYPE": "PRIMARY",
-        "NAME_ORG": "Umbrella Corporation",
-    } in company_features
-    assert {
-        "NAME_TYPE": "ALIAS",
-        "NAME_ORG": "Umbrella Pharmaceuticals, Inc.",
-    } in company_features
-    assert {"REGISTRATION_DATE": "1980"} in company_features
-    assert {"REGISTRATION_COUNTRY": "us"} in company_features
-    assert {"NATIONAL_ID_NUMBER": "8723-BX"} in company_features
-    assert company == {
-        "DATA_SOURCE": "OS_TESTDATASET1",
-        "RECORD_ID": "osv-umbrella-corp",
-        "RECORD_TYPE": "COMPANY",
-    }
-
-    person = [t for t in targets if t["RECORD_ID"] == "osv-hans-gruber"][0]
-    person_features = person.pop("FEATURES")
-    assert {"NAME_TYPE": "PRIMARY", "NAME_FULL": "Hans Gruber"} in person_features
-    assert {"NAME_TYPE": "ALIAS", "NAME_FULL": "Bill Clay"} in person_features
-    assert {"ADDR_FULL": "Lauensteiner Str. 49, 01277 Dresden"} in person_features
-    assert {"DATE_OF_BIRTH": "1978-09-25"} in person_features
-    assert {"NATIONALITY": "dd"} in person_features
-    assert person == {
-        "DATA_SOURCE": "OS_TESTDATASET1",
-        "RECORD_ID": "osv-hans-gruber",
-        "RECORD_TYPE": "PERSON",
-    }
-
-
-def test_statistics(testdataset1: Dataset):
-    dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
-    clear_data_path(testdataset1.name)
-
-    crawl_dataset(testdataset1)
-    harnessed_export(StatisticsExporter, testdataset1)
-
-    with open(dataset_path / "statistics.json") as statistics_file:
-        statistics = load(statistics_file)
-
-    assert statistics["entity_count"] == 11
-    assert statistics["target_count"] == 7
-    assert "Organization" in statistics["schemata"]
-    assert "Person" in statistics["schemata"]
-    assert len(statistics["schemata"]) == 6
-
-    thing_countries = statistics["things"]["countries"]
-    assert {"code": "de", "count": 2, "label": "Germany"} in thing_countries
-    assert {"code": "ca", "count": 1, "label": "Canada"} in thing_countries
-    assert len(thing_countries) == 6
-
-    thing_schemata = statistics["things"]["schemata"]
-    assert {
-        "name": "Person",
-        "count": 6,
-        "label": "Person",
-        "plural": "People",
-    } in thing_schemata
-    assert len(thing_schemata) == 3
-
-    target_countries = statistics["targets"]["countries"]
-    assert {"code": "de", "count": 2, "label": "Germany"} in target_countries
-    assert "ca" not in {f["code"] for f in target_countries}
-    assert len(target_countries) == 5
-
-    target_schemata = statistics["targets"]["schemata"]
-    assert {
-        "name": "Person",
-        "count": 5,
-        "label": "Person",
-        "plural": "People",
-    } in target_schemata
-    assert len(target_schemata) == 3
 
 
 def test_statements(testdataset1: Dataset):

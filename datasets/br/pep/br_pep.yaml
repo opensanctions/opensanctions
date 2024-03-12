@@ -1,0 +1,26 @@
+title: Brazil Politically Exposed Persons
+entry_point: crawler.py
+prefix: br-pep
+coverage:
+  frequency: daily
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  This datasets encompass brazilian PEPs divulgated by the CGU
+description: |
+  This registry is presented in an open format and sourced from various sectors/entities of the Public Administration.
+  Key sources include the Federal Court of Accounts (TCU),
+  the Federal Chamber (Câmara Federal), the Federal Senate (Senado Federal),
+  the Ministry of Economy, the Office of the Comptroller General (CGU),
+  and other relevant entities.
+  It lists public agents who currently hold or
+  have held significant public offices, jobs, 
+  or functions within the last five years.
+publisher:
+  name: CGU (General Control Office of the Union)
+  url: https://portaldatransparencia.gov.br
+  official: true
+  country: "br"
+url: https://portaldatransparencia.gov.br/download-de-dados/pep
+data:
+  url: https://portaldatransparencia.gov.br/download-de-dados/pep
+  format: csv

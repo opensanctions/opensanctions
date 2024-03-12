@@ -1,0 +1,71 @@
+title: OHCHR List of companies linked to illegal settlement in the West Bank
+entry_point: crawler.py
+prefix: ohchr
+coverage:
+  frequency: never
+  start: 2024-02-09
+  end: 2023-06-30
+summary: >-
+  Database of business enterprises involved in illegal settlement
+  activity in the Occupied Palestinian Territory, including East
+  Jerusalem.
+description: |
+  Following resolution 31/36 of the United Nations Human Rights
+  Council, adopted on 24 March 2016, the United Nations Office of the
+  High Commissioner for Human Rights maintains a database of business
+  enterprises involved in a specific set of activities supporting
+  illegal settlement activity in the West Bank, including East
+  Jerusalem.
+
+  Businesses named may be implicated in one or more of the 10
+  activites listed in the resolution, which are:
+
+  a. The supply of equipment and materials facilitating the
+  construction and the expansion of settlements and the wall, and
+  associated infrastructure;
+
+  b. The supply of surveillance and identification equipment for
+  settlements, the wall and checkpoints directly linked with
+  settlements;
+
+  c. The supply of equipment for the demolition of housing and
+  property, the destruction of agricultural farms, greenhouses, olive
+  groves and crops;
+
+  d. The supply of security services, equipment and materials to
+  enterprises operating in settlements;
+
+  e. The provision of services and utilities supporting the
+  maintenance and existence of settlements, including transport;
+
+  f. Banking and financial operations helping to develop, expand or
+  maintain settlements and their activities, including loans for
+  housing and the development of businesses;
+
+  g. The use of natural resources, in particular water and land, for
+  business purposes;
+
+  h. Pollution, and the dumping of waste in or its transfer to
+  Palestinian villages;
+
+  i. Captivity of the Palestinian financial and economic markets, as
+  well as practices that disadvantage Palestinian enterprises,
+  including through restrictions on movement, administrative and legal
+  constraints;
+
+  j. The use of benefits and reinvestments of enterprises owned
+  totally or partially by settlers for developing, expanding and
+  maintaining the settlements.
+  
+  The data has been extracted manually from the [30 June 2023 update PDF.](https://www.ohchr.org/sites/default/files/documents/hrbodies/hrcouncil/sessions-regular/session31/database-hrc3136/23-06-30-Update-israeli-settlement-opt-database-hrc3136.pdf).
+publisher:
+  name: United Nations Human Rights Council
+  country: zz
+  url: https://www.ohchr.org/
+  description: |
+    > The Human Rights Council is an intergovernmental body within the United Nations system made up of 47 States responsible for the promotion and protection of all human rights around the globe.
+  official: true
+url: https://www.ohchr.org/en/hr-bodies/hrc/regular-sessions/session31/database-hrc3136
+data:
+  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vT17qv7NxgWJnqmJJiGTncmAQeWI2QKW9Z92CZOXxWJi071xJr5V8CxtnB3AxgFkFZLCg2eGgBizxXs/pub?output=csv
+  format: CSV

@@ -1,0 +1,33 @@
+name: mk_officials
+title: "North Macedonia elected and appointed officials"
+entry_point: crawler.py
+prefix: mk-officials
+coverage:
+  frequency: daily
+  start: 2024-01-20
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Data on Politically Exposed Persons from asset declarations of elected and appointed officials in North Macedonia
+description: |
+  North Macedonia has an asset declaration system established by the Law
+  on Prevention of Corruption (LPC, 2002) for elected and appointed officials,
+  responsible persons in public entities dealing with State funds, and officials in State
+  bodies and municipal administrations, including judges and prosecutors. 
+  
+  The obligated personnel are required to submit asset declarations to designated offices
+  upon taking and leaving office and whenever a change in assets occurs that exceeds
+  twenty average salaries.
+
+publisher:
+    name: State Commission for Prevention of Corruption
+    acronym: SCPC
+    description: |
+      The State Commission for Prevention of Corruption (SCPC) is an autonomous and independent national body
+       assigned a variety of preventive and repressive functions against corruption.
+    country: mk
+    official: true
+    url: https://dksk.mk/
+
+data:
+    url: https://registar.dksk.mk/rest/institution-submission-form/paged
+    format: JSON

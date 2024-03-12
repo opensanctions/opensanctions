@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: mdrisepep
 coverage:
   frequency: weekly
+  start: 2023-05-24
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   People of Interest is an interactive database developed and managed by RISE Moldova.
@@ -132,6 +133,7 @@ lookups:
         schema: Ownership
         source: owner
         target: asset
+        target_schema: Company
         text: role
       - match:
           - mamă vitregă
@@ -141,6 +143,7 @@ lookups:
         source: person
         target: relative
         text: relationship
+        target_schema: Person
       - match:
           - fost avocat
           - fostă afacere

@@ -1,0 +1,49 @@
+title: China Sanctions lists (partial)
+entry_point: crawler.py
+prefix: cn-sanc
+coverage:
+  frequency: never
+  start: 2024-03-08
+  end: 2024-03-08
+deploy:
+  schedule: "30 6 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Individuals and organisations targeted by the Anti-Foreign Sanctions Law,
+  Counter-Measures List and the Unreliable Entities List (UEL).
+description: |
+  China does not publish structured data on individuals and entities targeted by the
+  country's sanctions legislation. This dataset is a partial list of individuals and
+  organisations that have been mentioned by spokespeople of the government as
+  designated.
+
+  Chinese sanctions are often framed as countermeasures against foreign sanctions
+  and to reprimand public figures for critizing China's policies, particularly
+  regarding Hong Kong, Taiwan, and Xinjiang province.
+
+  As of 2024-03-08, only two companies are officially listed as part of the Unreliable
+  Entities List (UEL).
+
+  **Note**: This dataset is not comprehensive and should be used as a research
+  tool but not as a definitive source of sanctions data on China.
+
+  * [How China imposes sanctions](https://merics.org/en/report/how-china-imposes-sanctions) (MERICS)
+  * [Rules on Counteracting Unjustified Extra-territorial Application of Foreign Legislation and Other Measures](http://english.mofcom.gov.cn/article/policyrelease/questions/202101/20210103029708.shtml)
+publisher:
+  name: Ministry of Commerce and Ministry of Foreign Affairs
+  country: cn
+  description:
+    The Ministry of Commerce of the People's Republic of China, is a state
+    agency of the People's Republic of China responsible for the regulation of
+    economic activities such as trade, commodity inspection and industry.
+
+    The Ministry of Foreign Affairs of the People's Republic of China is a
+    ministry of the Chinese government responsible for the country's foreign
+    relations.
+  url: https://www.mfa.gov.cn/wjb_673085/zfxxgk_674865/gknrlb/fzcqdcs/
+  official: true
+url: https://docs.google.com/spreadsheets/d/1DhQqlm2MHv3VpVjEJGstbBWlHV0eBJo-omMwn26TQw4/edit#gid=0
+data:
+  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vT0BEUqT1iKb-QP0LA52qSwq3KLiJpEzNO9MiSLvJCoJXOLxkSr5rYtEXzTw0IgJ0pfpF_qiwueHyOQ/pub?gid=0&single=true&output=csv
+  format: CSV
+

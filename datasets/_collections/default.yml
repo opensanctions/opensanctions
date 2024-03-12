@@ -1,24 +1,26 @@
 type: collection
 title: OpenSanctions Default
 deploy:
-  schedule: "30 */6 * * *"
+  schedule: "30 */5 * * *"
   memory: "2000Mi"
-  cpu: "400m"
-  disk: "20Gi"
+  memory_limit: "2500Mi"
+  cpu: "800m"
+  disk: "25Gi"
   command: /etl/scripts/export-default.sh
-  # premium: true
+  premium: true
 exports:
   - statistics.json
   - entities.ftm.json
   - names.txt
   - senzing.json
   - targets.nested.json
+  - topics.nested.json
   - targets.simple.csv
   - statements.csv
 summary: >
-  This collection includes most of the data collected by OpenSanctions which
-  meets quality standards and would be useful to an analyst or journalist
-  attempting to perform a due-diligence type task.
+  This distribution includes the data collected by OpenSanctions that
+  meets quality standards and would be useful in a screening system or
+  for investigative use.
 description: |
   This list can be used as the broadest available OpenSanctions dataset. It
   includes any entity that should receive enhanced public scrutiny - either
@@ -38,6 +40,8 @@ children:
   - enrichers
 
   # misc
+  - research
+  - ann_graph_topics
   - wd_oligarchs
   - wd_curated
   - ru_navalny35

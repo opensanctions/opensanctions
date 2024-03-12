@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: iadb
 coverage:
   frequency: never
+  start: 2021-10-22
   end: 2023-11-10
 deploy:
   schedule: "@monthly"

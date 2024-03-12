@@ -144,6 +144,7 @@ def parse_company(context: Context, data: Dict[str, Any]) -> None:
         )
         return
     company.add("name", name)
+    company.add("taxNumber", idno)
     company.add("incorporationDate", data.pop("Data înregistrării"))
     company.add("dissolutionDate", data.pop("Data lichidării"))
     company.add("jurisdiction", "md")

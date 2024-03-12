@@ -1,0 +1,19 @@
+type: collection
+title: "Non-deduplicated sanctioned entities"
+hidden: true
+deploy:
+  schedule: "@weekly"
+  memory: "1500Mi"
+exports:
+  - statistics.json
+  - entities.ftm.json
+  - senzing.json
+resolve: false
+summary: >
+  This is a testing dataset.
+description: |
+  A version of [the sanctions dataset](/datasets/sanctions/) where no 
+  de-duplication has been applied.
+
+children:
+  - sanctions

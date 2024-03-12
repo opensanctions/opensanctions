@@ -22,6 +22,8 @@ from zavod.tools.load_db import load_dataset_to_db
 from zavod.tools.dump_file import dump_dataset_to_file
 from zavod.tools.summarise import summarise as _summarise
 from zavod.exc import RunFailedException
+from zavod.tools.wikidata import run_app
+
 
 log = get_logger(__name__)
 STMT_FORMATS = click.Choice(FORMATS, case_sensitive=False)
@@ -308,3 +310,28 @@ def summarise(
     except Exception:
         log.exception("Failed to summarise: %s" % dataset_path)
         sys.exit(1)
+
+
+@cli.command("wd-up", help="Review and output possible wikidata updates.")
+@click.argument("dataset_paths", type=InPath, nargs=-1)
+@click.option("-c", "--clear", is_flag=True, default=False)
+@click.option("-a", "--country-adjective", type=str, required=True)
+@click.option("-d", "--country-code", type=str, required=True)
+@click.option("-f", "--focus-dataset", type=str, default=None)
+def wd_up(
+    dataset_paths: List[Path],
+    clear: bool,
+    country_code: str,
+    country_adjective: str,
+    focus_dataset: Optional[str] = None,
+) -> None:
+    dataset = _load_datasets(dataset_paths)
+    if clear:
+        clear_store(dataset)
+    store = get_store(dataset, external=False)
+    run_app(
+        store,
+        country_code=country_code,
+        country_adjective=country_adjective,
+        focus_dataset=focus_dataset,
+    )

@@ -10,7 +10,7 @@ from zavod import Context
 from zavod import helpers as h
 
 SPLITS = [" %s)" % char for char in string.ascii_lowercase]
-FORMATS = ["%d/%m/%Y", "%d %b. %Y", "%d %b.%Y", "%d %b %Y", "%d %B %Y"]
+FORMATS = ["%Y-%m-%d", "%d/%m/%Y", "%d %b. %Y", "%d %b.%Y", "%d %b %Y", "%d %B %Y"]
 FORMATS = FORMATS + ["%b. %Y", "%d %B. %Y", "%Y", "%m/%Y"]
 
 

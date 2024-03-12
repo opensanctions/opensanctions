@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: us-cia
 coverage:
   frequency: daily
+  start: "2023-09-21"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   An index of most national-level heads of state and heads of government
@@ -21,7 +22,7 @@ description: |
   > government, economy, energy, geography, environment, communications,
   > transportation, military, terrorism, and transnational issues for 266 world
   > entities.
-url: https://www.cia.gov/resources/world-leaders/foreign-governments/
+url: https://www.cia.gov/the-world-factbook/
 publisher:
   name: Central Intelligence Agency (CIA)
   url: https://www.cia.gov/
@@ -34,22 +35,23 @@ data:
 lookups:
   unparsed_holders:
     options:
-      - match: "chief of state: co-chiefs of state Captain Regent Alessandro SCARANO and Adele TONNINI (for the period 1 April 2023 - 1 October 2023)"
+      # San-Marino
+      - match: co-chiefs of state Captains Regent Filippo TAMAGNINI and Gaetano TROINA (for the period 1 October 2023 - 1 April 2024)
         holders:
-          - role: co-chief of state
-            name: Captain Regent Alessandro SCARANO
-            start_date: 1 April 2023
-            end_Date: 1 October 2023
-          - role: co-chief of state
-            name: Adele TONNINI
-            start_date: 1 April 2023
-            end_Date: 1 October 2023
+          - role: Co-chief of state
+            name: Filippo TAMAGNINI
+            start_date: 1 October 2023
+            end_date: 1 April 2024
+          - role: Co-chief of state
+            name: Gaetano Troina
+            start_date: 1 October 2023
+            end_date: 1 April 2024
       - match: "chief of state: TUIMALEALI'IFANO Va’aletoa Sualauvi II (since 21 July 2017)"
         holders:
           - role: chief of state
             name: TUIMALEALI'IFANO Va’aletoa Sualauvi II
             start_date: 21 July 2017
-      - match: "Deputy Prime Ministers SAIF bin Zayid Al Nuhayyan, MANSUR bin Zayid Al Nuhayyan (both since 11 May 2009), and MAKTUM bin Muhammad bin Rashid Al Maktum (since 25 September 2021)"
+      - match: "Deputy Prime Ministers SAIF bin Zayid Al Nuhayyan, MANSUR bin Zayid Al Nuhayyan (both since 11 May 2009) and MAKTUM bin Muhammad bin Rashid Al Maktum (since 25 September 2021)"
         holders:
           - role: Deputy Prime Minister
             name: SAIF bin Zayid Al-Nuhayyan
@@ -60,6 +62,38 @@ lookups:
           - role: Deputy Prime Minister
             name: MAKTUM bin Muhammad bin Rashid Al-Maktum
             start_date: 25 September 2021
+      # Poland
+      - match: "Deputy Prime Ministers Wladyslaw KOSINIAK-KAMYSZ, Krzysztof GAWKOWSKI (both since 11 December 2023)"
+        holders:
+          - role: Deputy Prime Minister
+            name: Wladyslaw KOSINIAK-KAMYSZ
+            start_date: 11 December 2023
+          - role: Deputy Prime Minister
+            name: Krzysztof GAWKOWSKI
+            start_date: 11 December 2023
+      # Slovakia
+      - match: "Deputy Prime Ministers Robert KALINAK, Denisa SAKOVA, Tomas TARABA, and Peter KMEC (all since 25 October 2023)"
+        holders:
+          - role: Deputy Prime Minister
+            name: Robert KALINAK
+            start_date: 25 October 2023
+          - role: Deputy Prime Minister
+            name: Denisa SAKOVA
+            start_date: 25 October 2023
+          - role: Deputy Prime Minister
+            name: Tomas TARABA
+            start_date: 25 October 2023
+          - role: Deputy Prime Minister
+            name: Peter KMEC
+            start_date: 25 October 2023
+      - match: "Deputy Prime Ministers Sainbuyen AMARSAIKHAN (since 8 September 2022) and Chimed KHURELBAATAR (since 5 January 2023)"
+        holders:
+          - role: Deputy Prime Minister
+            name: Sainbuyen AMARSAIKHAN
+            start_date: 8 September 2022
+          - role: Deputy Prime Minister
+            name: Chimed KHURELBAATAR
+            start_date: 5 January 2023
       - match: "Crown Prince KHALID bin Muhammad Al Nuhayyan, the eldest son of the monarch, born 14 November 1982"
         holders:
           - role: Crown Prince
@@ -97,7 +131,8 @@ lookups:
           - role: Sovereign Council Chair and Commander-in-Chief of the Sudanese Armed Forces
             name: General Abd-al-Fatah al-BURHAN Abd-al-Rahman
             start_date:
-      - match: "Vice Presidents TABAN Deng Gai, Riek MACHAR Teny Dhurgon, James Wani IGGA, Rebecca Nyandeng Chol GARANG de Mabior, Hussein ABDELBAGI Ayii (since 22 February 2020)"
+      # South Sudan
+      - match: "Vice Presidents Riek MACHAR Teny Dhurgon, TABAN Deng Gai, James Wani IGGA, Rebecca Nyandeng Chol GARANG de Mabior, Hussein ABDELBAGI Ayii (all since 22 February 2020)"
         holders:
           - role: Vice President
             name: TABAN Deng Gai
@@ -140,7 +175,8 @@ lookups:
           - role: Chief of state
             name: TUIMALEALI'IFANO Va’aletoa Sualauvi II
             start_date: 21 July 2017
-      - match: "Deputy Premiers Yuriy TRUTNEV (since 31 August 2013), Tatiana Alekseyevna GOLIKOVA (since 18 May 2018), Dmitriy Yuriyevich GRIGORENKO, Viktoriya Valeriyevna ABRAMCHENKO, Aleksey Logvinovich OVERCHUK, Marat Shakirzyanovich KHUSNULLIN, Dmitriy Nikolayevich CHERNYSHENKO (since 21 January 2020), Aleksandr NOVAK (since 10 November 2020), Denis Valentinovich MANTUROV (since 15 July 2022)"
+      # Russia
+      - match: "Deputy Premiers Yuriy TRUTNEV (since 31 August 2013), Tatiana Alekseyevna GOLIKOVA (since 18 May 2018), Dmitriy Yuriyevich GRIGORENKO, Viktoriya Valeriyevna ABRAMCHENKO, Aleksey Logvinovich OVERCHUK, Marat Shakirzyanovich KHUSNULLIN, Dmitriy Nikolayevich CHERNYSHENKO (all since 21 January 2020), Aleksandr NOVAK (since 10 November 2020), Denis Valentinovich MANTUROV (since 15 July 2022)"
         holders:
           - role: Deputy Premier
             name: Yuriy TRUTNEV
@@ -177,20 +213,6 @@ lookups:
           - role: Deputy Prime Minister
             name: Hunor KELEMEN
             start_date: 23 December 2020
-      - match: "Deputy Prime Ministers Piotr GLINSKI (since 16 November 2015), Jacek SASIN (since 15 November 2019), Henryk KOWALCZYK (since 26 October 2021), and Mariusz BLASZCZAK (since 22 June 2022)"
-        holders:
-          - role: Deputy Prime Minister
-            name: Piotr GLINSKI
-            start_date: 16 November 2015
-          - role: Deputy Prime Minister
-            name: Jacek SASIN
-            start_date: 15 November 2019
-          - role: Deputy Prime Minister
-            name: Henryk KOWALCZYK
-            start_date: 26 October 2021
-          - role: Deputy Prime Minister
-            name: Mariusz BLASZCZAK
-            start_date: 22 June 2022
       - match: "represented by UK High Commissioner to New Zealand and Governor (nonresident) of the Pitcairn Islands Iona THOMAS (since 9 August 2022)"
         holders:
           - role: UK High Commissioner to New Zealand and Governor (nonresident) of the Pitcairn Islands
@@ -212,7 +234,8 @@ lookups:
           - role: Deputy Prime Minister
             name: Carola SCHOUTEN
             start_date: 26 October 2017
-      - match: "deputy prime ministers Narayan Kaji SHRESTHA (since 26 December 2022), Purna Bahadur KHADKA (since 31 March 2023) (an)"
+      # Nepal
+      - match: "Deputy Prime Ministers Narayan Kaji SHRESTHA (since 26 December 2022), Purna Bahadur KHADKA (since 31 March 2023) (an)"
         holders:
           - role: deputy prime minister
             name: Narayan Kaji SHRESTHA
@@ -220,7 +243,8 @@ lookups:
           - role: deputy prime minister
             name: Purna Bahadur KHADKA
             start_date: 31 March 2023
-      - match: "Transition Prime Minister Choguel MAIGA (appointed by Transitional President Assimi GOITA on 7 June 2021)note: former transition Prime Minister Moctar OUANE was arrested and detained by the military on 24 May 2021 and resigned on 26 May 2021"
+      # Mali
+      - match: "Transition Prime Minister Choguel MAIGA (appointed by Transition President Assimi GOITA on 7 June 2021)note: former transition Prime Minister Moctar OUANE was arrested and detained by the military on 24 May 2021 and resigned on 26 May 2021"
         holders:
           - role: Transition Prime Minister
             name: Choguel MAIGA
@@ -253,7 +277,7 @@ lookups:
           - role: President
             name: Latif RASHID
             start_date: 13 October 2022
-      - match: "Vice Presidents Salvador NASRALLA, Doris GUTIÉRREZ, and Renato FLORENTINO (since 27 January 2022)"
+      - match: "Vice Presidents Salvador NASRALLA, Doris GUTIÉRREZ, and Renato FLORENTINO (all since 27 January 2022)"
         holders:
           - role: Vice Presidents
             name: Salvador NASRALLA
@@ -264,10 +288,11 @@ lookups:
           - role: Vice Presidents
             name: Renato FLORENTINO
             start_date: 27 January 2022
-      - match: "President Brig. Gen. (Ret.) Teodoro OBIANG Nguema Mbasogo (since 3 August 1979 when he seized power in a military coup)"
+      # Equatorial Guinea
+      - match: "President OBIANG Nguema Mbasogo (since 3 August 1979 when he seized power in a military coup)"
         holders:
           - role: President
-            name: Brig. Gen. (Ret.) Teodoro OBIANG Nguema Mbasogo
+            name: Teodoro OBIANG Nguema Mbasogo
             start_date: 3 August 1979
       - match: "Deputy Prime Ministers Ramiro VALDES Menendez, Ines Maria CHAPMAN Waugh, Jorge Luis TAPIA Fonseca, Alejandro GIL Fernandez, Ricardo CABRISAS Ruiz (since 21 December 2019), and Jorge Luis PERDOMO DI-LELLA (since 20 April 2021)"
         holders:
@@ -311,7 +336,7 @@ lookups:
           - role: Chief of state
             name: Sir Tom J. MARSTERS
             start_date: 9 August 2013
-      - match: "Deputy Prime Ministers Jose MAKILA, Leonard She OKITUNDU, Henri MOVA Sankanyi (since February 2018) Jean-Pierre BEMBBA (since 23 March 2023)"
+      - match: "Deputy Prime Ministers Jose MAKILA, Leonard She OKITUNDU, Henri MOVA Sankanyi (since February 2018), Jean-Pierre BEMBBA (since 23 March 2023)"
         holders:
           - role: Deputy Prime Minister
             name: Jose MAKILA
@@ -344,7 +369,7 @@ lookups:
           - role: Chairman of the Presidency
             name: Zeljko KOMSIC
             start_date: 16 July 2023
-      - regex: "Deputy Prime Ministers Vincent Van QUICKENBORNE .+ Vincent VAN PETEGHEM .+ Frank VANDENBROUCKE .+ Pierre-Yves DERMAGNE .+ Petra DE SUTTER .+ Georges GILKINET .+ David CLARINVAL"
+      - regex: "Deputy Prime Ministers Vincent Van QUICKENBORNE, Vincent VAN PETEGHEM, Frank VANDENBROUCKE, Pierre-Yves DERMAGNE, Petra DE SUTTER, Georges GILKINET .+ David CLARINVAL .+"
         holders:
           - role: Deputy Prime Minister
             name: Vincent Van QUICKENBORNE
@@ -415,7 +440,7 @@ lookups:
             name: HAYBATULLAH Akhundzada
           - role: Amir-ul Momineen
             name: HAYBATULLAH Akhundzada
-      - match: "as of November 2021, the group had announced three acting “deputy prime ministers” - Abdul Ghani BERADER, Abdul Salam HANAFI, and Abdul KABIR"
+      - match: 'as of November 2021, the group had announced three "acting deputy prime ministers” - Abdul Ghani BERADER, Abdul Salam HANAFI, and Abdul KABIR'
         holders:
           - role: Acting Prime Minister
             name: Abdul Ghani BERADER
@@ -445,10 +470,124 @@ lookups:
           - role: Interim Prime Minister
             name: Raymond Ndong Sima
             start_date: 8 September 2023
+      - match: President Mohamed MUIZZI ((sworn in 17 November 2023)
+        holders:
+          - role: President
+            name: Mohamed MUIZZI
+            start_date: 17 November 2023
+      - match: "Prime Minister Antonio Luis Santos da COSTA (since 24 November 2015"
+        holders:
+          - role: Prime Minister
+            name: Antonio Luis Santos da COSTA
+            start_date: 24 November 2015
       - match: "chief of state: president (vacant)"
         holders: []
+      # Italy
+      - match: Deputy Prime Ministers Matteo SALVINI and Antonio TAIANI (since 22 October 2022)
+        holders:
+          - role: Deputy Prime Minister
+            name: Matteo SALVINI
+            start_date: 22 October 2022
+          - role: Deputy Prime Minister
+            name: Antonio TAIANI
+            start_date: 22 October 2022
+      # Laos
+      - match: Vice Presidents PANY Yathotou and BOUNTHONG Chitmany (since 22 March 2021)
+        holders:
+          - role: Vice President
+            name: PANY Yathotou
+            start_date: 22 March 2021
+          - role: Vice President
+            name: BOUNTHONG Chitmany
+            start_date: 22 March 2021
+      # Congo, Democratic republic of the
+      - match: Deputy Prime Ministers Christophe LUTUNDULA (since 12 April 2021),Vital KAMERHE (since 23 March 2023), Peter KAZADI (23 March 2023), Jean-Pierre BEMBA (since 23 March 2023), Jean-Pierre LIHAU (since 12 April 2021)
+        holders:
+          - role: Deputy Prime Minister
+            name: Christophe LUTUNDULA
+            start_date: 12 April 2021
+          - role: Deputy Prime Minister
+            name: Vital KAMERHE
+            start_date: 23 March 2023
+          - role: Deputy Prime Minister
+            name: Peter KAZADI
+            start_date: 23 March 2023
+          - role: Deputy Prime Minister
+            name: Jean-Pierre BEMBA
+            start_date: 23 March 2023
+          - role: Deputy Prime Minister
+            name: Jean-Pierre LIHAU
+            start_date: 12 April 2021
+      # The Gambia
+      - match: Vice President Muhammed B.S. JALLOW (24 February 2023
+        holders:
+          - role: Vice President
+            name: Muhammed B.S. JALLOW
+            start_date: 24 February 2023
+      # Georgia
+      - match: Irakli KOBAKHIDZE was nominated as the new prime minister by the ruling party on 1 February 2024
+        holders:
+          - role: Prime Minister
+            name: Irakli KOBAKHIDZE
+            start_date: 1 February 2024
+      # Namibia
+      - match: Acting Vice President Netumbo NANDI-NDAITWAHNOTE (since 4 February 2024)
+        holders:
+          - role: Acting Vice President
+            name: Netumbo NANDI-NDAITWAH
+            start_date: 4 February 2024
+      # Namibia
+      - match: President Hage GEINGOB died on 4 February 2024, and Vice President MBUMBA was sworn in to run the government until the next presidential election in November 2024
+        holders:
+          - role: Acting President
+            name: MBUMBA
+            start_date: 4 February 2024
+      # Niger
+      - match: President of the National Council for Safeguarding of the Homeland (CNSP) General Abdourahame TIANI (since 28 July 2023)
+        holders:
+          - role: President of the National Council for Safeguarding of the Homeland
+            name: General Abdourahame TIANI
+            start_date: 28 July 2023
+      # Yemen
+      - match: Vice Chairpersons and Presidential Council members Sultan al-ARADA, Faraj Salmin al- BAHSANI, Brig. Gen. Abdullah Al-Alimi BA WAZIR, Uthman Hussain Faid al-MUJALI, TARIQ Muhammad Abdallah Salih, Brig. Gen., 'Abd-al-Rahman ABU ZARA'A al-Muharrami al-Yafai, Brig. Gen., Aydarus Qasim al-ZUBAYDI, Maj. Gen. (all since 19 April 2022)
+        holders:
+          - role: Vice Chairperson
+            name: Sultan al-ARADA
+            start_date: 19 April 2022
+          - role: Vice Chairperson
+            name: Faraj Salmin al-BAHSANI
+            start_date: 19 April 2022
+          - role: Vice Chairperson
+            name: Abdullah Al-Alimi BA WAZIR
+            start_date: 19 April 2022
+          - role: Vice Chairperson
+            name: Uthman Hussain Faid al-MUJALI
+            start_date: 19 April 2022
+          - role: Vice Chairperson
+            name: TARIQ Muhammad Abdallah Salih
+            start_date: 19 April 2022
+          - role: Vice Chairperson
+            name: Abd-al-Rahman ABU ZARA'A al-Muharrami al-Yafai
+            start_date: 19 April 2022
+          - role: Vice Chairperson
+            name: Aydarus Qasim al-ZUBAYDI
+            start_date: 19 April 2022
+      # Yemen
+      - match: on 5 February 2024, Foreign Minister Ahmad Awad Bin MUBAREK was appointed prime minister by the Presidential Council
+        holders:
+          - role: Prime Minister
+            name: Ahmad Awad Bin MUBAREK
+            start_date: 5 February 2024
+      # Guinea
+      - match: on 27 February 2024 Guinea's military leaders appointed Mamadou Oury BAH as prime minister
+        holders:
+          - role: Prime Minister
+            name: Mamadou Oury BAH
+            start_date: 27 February 2024
+      # Not additional heads, just notes
       - regex:
-          - 'Overall Taliban Leader HAYBATULLAH Akhundzada serves as the head of the Taliban government as Amir-ul Momineennote - on 7 September 2021, the Taliban announced Mohammad HASSAN Akhund as the “acting prime minister” of the "caretaker government”'
+          - subsequently, the Houthis and supporters of Yemen's first president, Ali Abdullah SALEH, seized the presidential palace and placed HADI under house arrest
+          - 'Overall Taliban Leader HAYBATULLAH Akhundzada serves as the head of the Taliban Government as Amir-ul Momineen'
           - "^the president is both chief of state and head of government"
           - "^note [-–] "
           - "^Heir Apparent"
@@ -502,6 +641,25 @@ lookups:
           - "inauguration scheduled for 17 November 2023"
           - "on 4 September 2023, Gen. OLIGUI was sworn in as transitional president"
           - "note- interim prime minister"
+          - "resigned on 7 November 2023 but remains in caretaker status until new elections on 10 March 2024\\)"
+          # Kuweit
+          - "he succeeded his brother, Amir Sheikh NAWAF al-Ahmad al-Jabir al-Sabah following his death on 16 December 2023"
+          - note- the military government announced on 13 November 2023 that presidential and legislative elections will be held in August 2025
+          - in late February 2020, EMBALO inaugurated himself with only military leadership present, even though the Supreme Court of Justice had yet to rule on an electoral litigation appeal lodged by his political rival Domingos Simoes PEREIRA
+          # Italy
+          - "the deputy prime ministers' official titles are Vice Presidents of the Council of Ministers"
+          # Malaysia
+          - "he will be installed on 31 January 2024\\)"
+          # South Africa
+          - Deputy President David MABUZA resigned 1 March 2023
+          - "Prime Minister \\(in transition\\)"
+          # Chad
+          - the transition was extended for 24 months and the TMC was dissolved in October 2022, postponing elections until 31 October 2024
+          # Hungary
+          - "\\(vacant\\)"
+          - a replacement will be chosen in March 2024
+          # Guinea
+          - "on 19 February 2024 Guinea's military leaders dissolved the government of Prime Minister Bernard GOUMOU"
         holders: []
 
   type.country:

@@ -5,7 +5,7 @@ from lxml import html
 
 from zavod import Context
 from zavod import helpers as h
-from zavod.logic.pep import OccupancyStatus
+from zavod.logic.pep import OccupancyStatus, categorise
 
 WEB_URL = "https://www.cia.gov/the-world-factbook/countries/%s"
 DATA_URL = (
@@ -20,14 +20,15 @@ REGEX_SKIP_CATEGORY_HTML = re.compile(
     "|<strong>chief of state:</strong> Notification Statement:"
     "|Prime Minister HUN MANET succeeded"
     "|<strong>note 1:</strong>"
+    "|<em>2013:</em>" # Georgia
     ")"
 )
 REGEX_RELEVANT_CATEGORY = re.compile("^(chief of state|head of government): ")
 REGEX_HOLDER = re.compile(
     (
-        "(represented by )?"
+        "((New Zealand is )?represented by )?"
         "(?P<role>"
-        "([Tt]ransitional |Transition |Interim )President"
+        "([Tt]ransitional |Transition |Interim |Acting )President"
         "|President of the Government"
         "|President of China"
         "|President of the Republic"
@@ -56,7 +57,7 @@ REGEX_HOLDER = re.compile(
         "|Crown Prince"
         "|Emperor"
         "|Governor General of New Zealand"
-        "|(Vice |Acting |Lieutenant[ -])?Governor([ -]General)?( of the Commonwealth of Australia)?"
+        "|(Vice |Acting |Assistant |Lieutenant[ -])?Governor([ -]General)?( of the Commonwealth of Australia)?"
         "|Grand Duke"
         "|King"
         "|Lord of Mann"
@@ -80,7 +81,7 @@ REGEX_HOLDER = re.compile(
         ") "
         "(?P<name>[\w,.'’\" -]+?) ?"
         "(\([\w \.]+\))? ?"
-        "\((since |born |reappointed )?(?P<start_date>\d* ?\w* ?\d{4} ?)\)"
+        "\((since |born |reappointed |sworn in )?(?P<start_date>\d* ?\w* ?\d{4} ?)\)"
     )
 )
 REGEX_CONTAINS_OTHER = re.compile(r"\b(and|of the) ")
@@ -94,7 +95,8 @@ REGEX_OTHER_ROLES = re.compile(
         "|Co-Vice President"
         "|Minister of State for Defense Affairs"
         "|Minister of State for Cabinet Affairs"
-        "|President of the Governorate of the Vatican City State is)"
+        "|President of the Governorate of the Vatican City State is"
+        "|Minister of Foreign Affairs)"
     )
 )
 SKIP_COUNTRIES = {
@@ -128,18 +130,21 @@ def emit_person(
         topics=position_topics,
         id_hash_prefix="us_cia_world_leaders",
     )
-    occupancy = h.make_occupancy(
-        context,
-        person,
-        position,
-        start_date=start_date[0] if start_date else None,
-        end_date=end_date[0] if end_date else None,
-        status=OccupancyStatus.CURRENT,
-    )
+    categorisation = categorise(context, position, True)
+    if categorisation.is_pep:
+        occupancy = h.make_occupancy(
+            context,
+            person,
+            position,
+            start_date=start_date[0] if start_date else None,
+            end_date=end_date[0] if end_date else None,
+            status=OccupancyStatus.CURRENT,
+            categorisation=categorisation,
+        )
 
-    context.emit(person, target=True)
-    context.emit(position)
-    context.emit(occupancy)
+        context.emit(person, target=True)
+        context.emit(position)
+        context.emit(occupancy)
 
 
 def get(items, key, value):
@@ -171,7 +176,7 @@ def crawl_country(context: Context, country: str) -> None:
         category_els = html.fromstring(category_html)
         label_els = category_els.findall("./strong")
         if len(label_els) != 1:
-            context.log.warning("Error parsing label", html=category_html)
+            context.log.warning("Error parsing label", html=category_html, url=source_url)
             continue
         label_text = label_els[0].text_content()
         if label_text in ["chief of state:", "head of government:"]:
@@ -218,7 +223,7 @@ def crawl_country(context: Context, country: str) -> None:
 
 
 def crawl(context: Context) -> None:
-    data = context.fetch_json(context.data_url, cache_days=5)
+    data = context.fetch_json(context.data_url, cache_days=1)
     countries = data["data"]["countries"]["nodes"]
     for c in countries:
         redirect = c["redirect"]

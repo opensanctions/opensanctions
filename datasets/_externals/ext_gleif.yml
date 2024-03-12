@@ -6,6 +6,7 @@ disabled: false
 hidden: false
 coverage:
   frequency: weekly
+  start: 2022-05-30
 exports:
   - statistics.json
 deploy:
@@ -15,8 +16,6 @@ deploy:
   disk: "20Gi"
   # premium: true
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-coverage:
-  frequency: weekly
 summary: |
   A concatenated data file of all entities which have been issued Legal
   Entity Identifier (LEI) codes.
@@ -48,7 +47,8 @@ publisher:
   url: https://www.gleif.org/en/about/this-is-gleif
 
 inputs:
-  - sanctions
+  - ann_graph_topics
+  - debarment
   - ext_cy_companies
   - ext_cz_business_register
   - ext_ee_ariregister
@@ -61,8 +61,7 @@ inputs:
   - ext_ua_edr
   - opencorporates
   - ru_rupep
-  - ru_rupep_companies
-  # - debarment
+  - sanctions
 
 config:
   type: nomenklatura.enrich.yente:YenteEnricher
@@ -73,6 +72,15 @@ config:
   fuzzy: false
   threshold: 0.5
   algorithm: regression-v1
+  topics:
+    - role.pep
+    - role.rca
+    - sanction
+    - sanction.linked
+    - debarment
+    - asset.frozen
+    - poi
+    - gov.soe
   schemata:
     - Company
     - Organization
