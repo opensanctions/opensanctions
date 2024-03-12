@@ -10,34 +10,32 @@ def crawl_person(context: Context, row: dict):
     district = row.pop("district")
 
     entity = context.make("Person")
-    entity.id = context.make_slug(
-        cnic or f"{person_name} - {district}, {province}", prefix="pk-cnic"
-    )
+
+    if cnic:
+        entity.id = context.make_slug(cnic, prefix="pk-cnic")
+    else:
+        entity.id = context.make_slug(
+            f"{person_name} - {district}, {province}", prefix="pk-proscribed"
+        )
+
     name_split = person_name.split("@")
     if len(name_split) > 1:
         person_name = name_split[0]
-        for alias in name_split[1:]:
-            entity.add("alias", alias)
+        entity.add("alias", name_split[1:])
 
     entity.add("name", person_name)
     entity.add("idNumber", cnic)
     entity.add("fatherName", father_name)
     entity.add("topics", "sanction")
-
-    address_entity = h.make_address(
-        context,
-        state=province,
-        region=district,
-        full=f"{district}, {province}",
-        key=entity.id,
+    entity.add(
+        "address",
+        f"{district}, {province}",
     )
-    entity.add("addressEntity", address_entity)
 
     sanction = h.make_sanction(context, entity)
     sanction.add("program", "4th Schedule under the Anti Terrorism Act, 1997")
 
     context.emit(entity, target=True)
-    context.emit(address_entity)
     context.emit(sanction)
 
     context.audit_data(row)
