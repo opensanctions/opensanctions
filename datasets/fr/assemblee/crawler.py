@@ -35,12 +35,15 @@ def crawl_collabos(
     collabos = mandat.pop("collaborateurs")
     if collabos is None:
         return
-    collabos = collabos.get("collaborateur")
+    if isinstance(collabos, dict):
+        collabos = collabos["collaborateur"]
     if collabos is None:
         return
     if not isinstance(collabos, list):
         collabos = [collabos]
-    for i, c in enumerate(collabos):
+    for c in collabos:
+        if c is None:
+            continue
         collabo = context.make("Person")
         prefix = c.pop("qualite")
         first_name = c.pop("prenom")
