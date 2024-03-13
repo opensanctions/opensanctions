@@ -1,0 +1,75 @@
+title: "EU ESMA Financial Instruments Reference Data System (FIRDS)"
+entry_point: crawler.py
+prefix: eu-firds
+full_dataset: eu_esma_firds
+coverage:
+  frequency: weekly
+  start: 2024-03-12
+exports:
+  - statistics.json
+deploy:
+  schedule: "1 10 * * *"
+  memory: 2000Mi
+  memory_limit: 3000Mi
+  disk: 100Gi
+summary: >
+  List of financial instruments and their reference data, as published by the
+  European Securities and Markets Authority (ESMA).
+description: |
+  This is a dataset of financial instruments and their reference data, as published
+  by ESMA. The data establishes connections between financial instruments and their
+  issuers, and includes information such as the instrument's name, ISIN, and LEI.
+publisher:
+  name: European Securities and Markets Authority
+  description: |
+    ESMA is the EU’s financial markets regulator and supervisor. It publishes a
+    number of databases and registers, including the Financial Instruments Reference
+    Data System (FIRDS).
+  country: eu
+  url: https://www.esma.europa.eu/
+  official: true
+url: https://registers.esma.europa.eu/publication/searchRegister?core=esma_registers_firds_files
+data:
+  url: https://registers.esma.europa.eu/publication/searchRegister/doRelativeSearch
+  format: JSON
+
+inputs:
+  - ann_graph_topics
+  - debarment
+  - ext_cy_companies
+  - ext_cz_business_register
+  - ext_ee_ariregister
+  - ext_gb_coh_psc
+  - ext_gleif
+  - ext_icij_offshoreleaks
+  - ext_lv_business_register
+  - ext_md_companies
+  - ext_ru_egrul
+  - ext_ua_edr
+  - opencorporates
+  - ru_rupep
+  - sanctions
+  - securities
+
+
+config:
+  type: nomenklatura.enrich.yente:YenteEnricher
+  api: https://api.graph.opensanctions.org/
+  dataset: eu_esma_firds
+  api_key: ${OPENSANCTIONS_GRAPH_API_KEY}
+  strip_namespace: true
+  fuzzy: false
+  threshold: 0.6
+  algorithm: logic-v1
+  topics:
+    - sanction
+    - sanction.linked
+    - debarment
+    - asset.frozen
+    - poi
+    - gov.soe
+  schemata:
+    - Company
+    - Organization
+    - Security
+  cache_days: 30
