@@ -21,7 +21,7 @@ HEADERS = ["Number", "Name", "Domain", "Contacts", "Court information"]
 
 def parse_table(
     table,
-) -> Generator[Dict[str, str | Tuple[str]], None, None]:
+) -> Generator[Dict[str, str], None, None]:
     """
     The first two rows of the table represent the headers, but we're not going to
     try and parse colspan and rowspan.
@@ -54,16 +54,9 @@ def crawl_item(item, context: Context):
     entity.add("name", name)
     entity.add("website", domain)
 
-    # We find all emails in the contacts field and add them to the entity
-    if isinstance(contacts, tuple):
-        for contact in contacts:
-            emails = re.findall(r"[\w\.-]+@[\w\.-]+", contact)
-            for email in emails:
-                entity.add("email", email)
-    else:
-        emails = re.findall(r"[\w\.-]+@[\w\.-]+", contacts)
-        for email in emails:
-            entity.add("email", email)
+    emails = re.findall(r"[\w\.-]+@[\w\.-]+", contacts)
+    for email in emails:
+        entity.add("email", email)
 
     entity.add("topics", "crime")
     entity.add("notes", f"Pripažino nelegaliu lošimų organizatoriumi: {ruling_information}", lang="lit")
