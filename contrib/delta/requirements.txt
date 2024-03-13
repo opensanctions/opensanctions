@@ -1,2 +1,4 @@
+click
 banal
 orjson
+requests

@@ -1,7 +1,7 @@
 import os
+import csv
 import sys
 import click
-from numpy import diff
 import orjson
 import logging
 import requests
@@ -25,6 +25,7 @@ OP_ADD = "ADDED"
 OP_REMOVE = "REMOVED"
 OP_MOD = "MODIFIED"
 OP_MERGED = "MERGED"
+OPS = (OP_ADD, OP_REMOVE, OP_MERGED, OP_MOD)
 
 
 def fetch_file(
@@ -117,7 +118,7 @@ def generate_delta(scope: str, cur: datetime, prev: datetime):
         for ent in iter_file(path):
             for ref in ent.get("referents", []):
                 mapping[ref] = ent["id"]
-    
+
     cur_hashes = compute_hashes(cur_path, mapping)
     prev_hashes = compute_hashes(prev_path, mapping)
     entities = set(cur_hashes.keys())
@@ -153,48 +154,86 @@ def generate_delta(scope: str, cur: datetime, prev: datetime):
         canonical_id = mapping.get(ent["id"], ent["id"])
         if canonical_id in ops:
             prev_entities[canonical_id] = ent
-    
+
     cur_entities = {}
     for ent in iter_file(cur_path):
         canonical_id = mapping.get(ent["id"], ent["id"])
         if canonical_id in ops:
             cur_entities[canonical_id] = ent
 
-    for entity_id, op in ops.items():
-        if op != OP_MOD:
-            continue
-        prev_ent = prev_entities[entity_id]
-        cur_ent = cur_entities[entity_id]
-        prev_props = prev_ent['properties']
-        cur_props = cur_ent['properties']
-        props = set(prev_props.keys())
-        props.update(cur_props.keys())
-        diffs = {}
-        for prop in props:
-            rem_vals = [v for v in prev_props.get(prop, []) if v not in cur_props.get(prop, [])]
-            add_vals = [v for v in cur_props.get(prop, []) if v not in prev_props.get(prop, [])]
-            if len(rem_vals) or len(add_vals):
-                diffs[prop] = {}
-            if len(rem_vals):
-                diffs[prop]["removed"] = rem_vals
-            if len(add_vals):
-                diffs[prop]["added"] = add_vals
-        
-        print(entity_id, diffs)
+    # for entity_id, op in ops.items():
+    #     if op != OP_MOD:
+    #         continue
+    #     prev_ent = prev_entities[entity_id]
+    #     cur_ent = cur_entities[entity_id]
+    #     prev_props = prev_ent['properties']
+    #     cur_props = cur_ent['properties']
+    #     props = set(prev_props.keys())
+    #     props.update(cur_props.keys())
+    #     diffs = {}
+    #     for prop in props:
+    #         rem_vals = [v for v in prev_props.get(prop, []) if v not in cur_props.get(prop, [])]
+    #         add_vals = [v for v in cur_props.get(prop, []) if v not in prev_props.get(prop, [])]
+    #         if len(rem_vals) or len(add_vals):
+    #             diffs[prop] = {}
+    #         if len(rem_vals):
+    #             diffs[prop]["removed"] = rem_vals
+    #         if len(add_vals):
+    #             diffs[prop]["added"] = add_vals
+    #     print(entity_id, diffs)
 
+    out_json = DATA_PATH.joinpath(f"delta/{cur_ts}/{scope}.delta.json")
+    out_json.parent.mkdir(exist_ok=True, parents=True)
+    with open(out_json, "wb") as outjson:
+        for op in OPS:
+            for entity_id, op_ in ops.items():
+                if op_ != op:
+                    continue
+                ent = cur_entities.get(entity_id) or prev_entities[entity_id]
+                # if op == OP_REMOVE:
+                #     log.info(
+                #         "Removed [%s:%s]: %s",
+                #         ent["id"],
+                #         ent["schema"],
+                #         ent["caption"],
+                #     )
+                write_entity(outjson, ent, op)
+    log.info("Wrote JSON: %s" % out_json.as_posix())  
 
-    out_path = DATA_PATH.joinpath(f"delta/{cur_ts}/{scope}.delta.json")
-    out_path.parent.mkdir(exist_ok=True, parents=True)
-    with open(out_path, "wb") as outfh:
-        for ent in iter_file(prev_path):
-            if ops.get(ent["id"]) == OP_REMOVE:
-                log.info("Removed [%s:%s]: %s", ent['id'], ent['schema'], ent['caption'])
-                write_entity(outfh, ent, OP_REMOVE)
-        for ent in iter_file(cur_path):
-            op = ops.get(ent["id"])
-            if op is not None:
-                write_entity(outfh, ent, op)
-    log.info("Wrote: %s" % out_path.as_posix())
+    out_csv = DATA_PATH.joinpath(f"delta/{cur_ts}/{scope}.delta.csv")
+    out_csv.parent.mkdir(exist_ok=True, parents=True)
+    with open(out_csv, "w") as outcsv:
+        fields = [
+            "op",
+            "schema",
+            "caption",
+            "id",
+            "url",
+            "topics",
+            "datasets",
+            "last_change",
+        ]
+        writer = csv.DictWriter(outcsv, fieldnames=fields)
+        writer.writeheader()
+        for op in OPS:
+            for entity_id, op_ in ops.items():
+                if op_ != op:
+                    continue
+                ent = cur_entities.get(entity_id) or prev_entities[entity_id]
+                props = ent.get("properties", {})
+                writer.writerow(
+                    {
+                        "op": op,
+                        "schema": ent["schema"],
+                        "caption": ent["caption"],
+                        "id": ent["id"],
+                        "url": f"https://www.opensanctions.org/entities/{ent['id']}/",
+                        "topics": ";".join(props.get("topics", [])),
+                        "datasets": ";".join(ent.get("datasets", [])),
+                        "last_change": ent.get("last_change", None),
+                    }
+                )
+    log.info("Wrote CSV: %s" % out_csv.as_posix())
 
 
 @click.command()

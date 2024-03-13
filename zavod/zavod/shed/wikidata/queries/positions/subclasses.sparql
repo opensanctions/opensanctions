@@ -1,0 +1,4 @@
+SELECT ?class ?classLabel WHERE {
+  ?class wdt:P279 wd:Q4164871 .
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "en,de,es,fr". }
+}

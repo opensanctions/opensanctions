@@ -1,0 +1,26 @@
+name: pk_proscribed_persons
+title: Pakistan NACTA Proscribed Persons
+url: https://nacta.gov.pk/proscribed-persons
+entry_point: crawler.py
+prefix: pk-proscribed
+summary: List of Proscribed Persons in Pakistan
+description: |
+  This dataset contains the list of proscribed persons in Pakistan.
+
+  Under the Anti Terrorism Act, 1997, any individual whom either there is a credible intelligence-information 
+  or who has a history of being linked to a Proscribed Organization can be proscribed by Home Department of a Province 
+  and can be subjected to restrictions on travel, speech and business.
+
+  These persons are then included in the 4th Schedule under the Anti Terrorism Act.
+publisher:
+  name: National Counter Terrorism Authority
+  acronym: NACTA
+  description: |
+    The National Counter Terrorism Authority (NACTA) is an Administative unit within the Ministry of Interior, under a National Coordinator.
+    It's powers and mandate are spelled out under Section 4 of [NACTA Act,2013](https://nacta.gov.pk/wp-content/uploads/2017/09/NACTA-Act.pdf)
+  url: https://nacta.gov.pk
+  country: pk
+  official: true
+data:
+  url: https://nfs.punjab.gov.pk/Home/GetJosn?filter=
+  format: JSON
