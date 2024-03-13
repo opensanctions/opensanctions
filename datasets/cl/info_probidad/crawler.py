@@ -51,7 +51,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
         context.log.warning(f"A new 'Cargo' '{position_name}' was identified")
 
     categorisation = categorise(
-        context, position, is_pep=getattr(position_lookup, "is_pep", None)
+        context, position, is_pep=position_lookup.is_pep
     )
 
     if not categorisation.is_pep:
