@@ -3,7 +3,7 @@ from typing import List, Optional
 from zavod.store import View
 
 
-def summarise(
+def summarize(
     view: View,
     schema: Optional[str],
     from_prop: Optional[str],
@@ -12,13 +12,13 @@ def summarise(
     to_props: List[str],
 ) -> None:
     """Print a summary of the entities in a view.
-    
+
     e.g.
     ```
     Martina Gießübel
-      link: startDate: ['2023-10-26'] endDate: ['2028-10-31'] 
+      link: startDate: ['2023-10-26'] endDate: ['2028-10-31']
       Member of the Landtag Bayern
-        entity: country: ['de'] 
+        entity: country: ['de']
     ```
     or
     ```
@@ -30,9 +30,9 @@ def summarise(
     or
     ```
     Margarita Nikolaevna Kotova
-      link: relationship: ['personal relationships'] 
+      link: relationship: ['personal relationships']
       Vladimir Alekseevich Gordeev
-      link: relationship: ['business relationships'] 
+      link: relationship: ['business relationships']
       Evgeniy Yur'yevich Vladimirov
     ```
     """

@@ -20,7 +20,7 @@ from zavod.dedupe import explode_cluster
 from zavod.publish import publish_dataset, publish_failure
 from zavod.tools.load_db import load_dataset_to_db
 from zavod.tools.dump_file import dump_dataset_to_file
-from zavod.tools.summarise import summarise as _summarise
+from zavod.tools.summarize import summarize as _summarize
 from zavod.exc import RunFailedException
 from zavod.tools.wikidata import run_app
 
@@ -258,7 +258,7 @@ def clear(dataset_path: Path) -> None:
         sys.exit(1)
 
 
-@cli.command("summarise", help="Sumamrise entities and links in a dataset")
+@cli.command("summarize")
 @click.argument("dataset_path", type=InPath)
 @click.option("-c", "--clear", is_flag=True, default=False)
 @click.option("-s", "--schema", type=str, default=None)
@@ -292,7 +292,7 @@ def clear(dataset_path: Path) -> None:
     multiple=True,
     help="The properties of the final entity to show",
 )
-def summarise(
+def summarize(
     dataset_path: Path,
     clear: bool = False,
     schema: Optional[str] = None,
@@ -301,18 +301,31 @@ def summarise(
     to_prop: Optional[str] = None,
     to_props: List[str] = [],
 ) -> None:
+    """Sumamrise entities and links in a dataset
+
+    Example to summarise the positions held by people in a dataset of political entities:
+
+    \b
+    zavod summarize \\
+        --schema Person \\
+        --from-prop positionOccupancies \\
+        --link-props startDate \\
+        --link-props endDate \\
+        --to-prop post \\
+        datasets/ng/join_dots/ng_join_dots.yml
+    """
     try:
         dataset = _load_dataset(dataset_path)
         if clear:
             clear_store(dataset)
         view = get_view(dataset, external=False)
-        _summarise(view, schema, from_prop, link_props, to_prop, to_props)
+        _summarize(view, schema, from_prop, link_props, to_prop, to_props)
     except Exception:
-        log.exception("Failed to summarise: %s" % dataset_path)
+        log.exception("Failed to summarize: %s" % dataset_path)
         sys.exit(1)
 
 
-@cli.command("wd-up", help="Review and output possible wikidata updates.")
+@cli.command("wd-up")
 @click.argument("dataset_paths", type=InPath, nargs=-1)
 @click.option("-c", "--clear", is_flag=True, default=False)
 @click.option("-a", "--country-adjective", type=str, required=True)
@@ -325,6 +338,18 @@ def wd_up(
     country_adjective: str,
     focus_dataset: Optional[str] = None,
 ) -> None:
+    """Interactively review and apply wikidata updates from OpenSanctions data.
+
+    Example:
+
+    \b
+    zavod wd-up \\
+        --clear \\
+        datasets/de/abgeordnetenwatch/de_abgeordnetenwatch.yml \\
+        datasets/_analysis/ann_pep_positions/ann_pep_positions.yml \\
+        --country-adjective German \\
+        --country-code de
+    """
     dataset = _load_datasets(dataset_paths)
     if clear:
         clear_store(dataset)

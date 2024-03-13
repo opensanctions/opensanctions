@@ -1,4 +1,4 @@
-from zavod.tools.summarise import summarise
+from zavod.tools.summarize import summarize
 from zavod.store import get_view
 from zavod.meta import Dataset
 from zavod.crawl import crawl_dataset
@@ -12,10 +12,10 @@ Oswell E. Spencer
 """
 
 
-def test_summarise(testdataset1: Dataset, capsys) -> None:
+def test_summarize(testdataset1: Dataset, capsys) -> None:
     crawl_dataset(testdataset1)
     view = get_view(testdataset1)
-    summarise(
+    summarize(
         view, "Person", "ownershipOwner", ["startDate", "endDate"], "asset", ["name"]
     )
     stdout = capsys.readouterr().out
