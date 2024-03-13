@@ -1,7 +1,6 @@
-from typing import Dict, Generator, List, Tuple
-from lxml import html
+from typing import Dict, Generator, Optional, Tuple
+from lxml.etree import _Element
 from normality import slugify, collapse_spaces
-from pantomime.types import HTML
 
 from zavod import Context
 from zavod import helpers as h
@@ -23,20 +22,21 @@ CONTACTS = [
     ("Direct:", "Direct:", "phone"),
 ]
 
-def parse_table(table) -> Generator[Dict[str, str | Tuple[str]], None, None]:
+
+def parse_table(table: _Element) -> Generator[Dict[str, Tuple[str, Optional[str]]], None, None]:
     headers = None
     for row in table.findall(".//tr"):
         if headers is None:
             headers = []
             for el in row.findall("./th"):
-                headers.append(slugify(el.text_content()))
+                headers.append((slugify(el.text_content()), None))
             continue
 
         cells = []
         for el in row.findall("./td"):
             a = el.find(".//a")
             if a is None:
-                cells.append(collapse_spaces(el.text_content()))
+                cells.append((collapse_spaces(el.text_content()), None))
             else:
                 cells.append((collapse_spaces(a.text_content()), a.get("href")))
 
@@ -48,17 +48,15 @@ def crawl_entity(context: Context, url: str, name: str, category: str) -> None:
     context.log.info("Crawling entity", url=url)
     doc = context.fetch_html(url, cache_days=1)
     res = context.lookup("schema", category)
+    if res is None or not isinstance(res.schema, str):
+        context.log.warning("No schema found for category", category=category)
+        return
     entity = context.make(res.schema)
     entity.id = context.make_id(name)
     entity.add("name", name)
 
     sanction = h.make_sanction(context, entity, key=category)
-    sanction.add(
-        "program",
-        f"Public Alerts: Unregistered Soliciting Entities (PAUSE)",
-    )
-    if category != "":
-        sanction.add("reason", category)
+    sanction.add("program", category)
 
     body_el = doc.find(".//div[@class='article-body']")
     if body_el is not None:
@@ -111,14 +109,18 @@ def crawl_entity(context: Context, url: str, name: str, category: str) -> None:
     context.emit(sanction)
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     doc = context.fetch_html(context.data_url, cache_days=1)
     doc.make_links_absolute(context.data_url)
 
     table = doc.find(".//table")
     for row in parse_table(table):
         name, url = row.pop("name")
+        if url is None:
+            context.log.warning("No URL", name=name)
+            continue
         name = name.replace("Name: ", "")
-        category = row.pop("category").replace("Category:", "").strip()
+        category, _ = row.pop("category")
+        category = category.replace("Category:", "").strip()
         crawl_entity(context, url, name, category)
         context.audit_data(row)

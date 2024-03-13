@@ -27,7 +27,7 @@ from zavod.runtime.timestamps import TimeStampIndex
 from zavod.runtime.cache import get_cache
 from zavod.http import fetch_file, make_session
 from zavod.logs import get_logger
-from zavod.util import join_slug, ElementOrTree
+from zavod.util import join_slug
 
 _Auth = Optional[Tuple[str, str]]
 _Headers = Optional[Mapping[str, str]]
@@ -295,7 +295,7 @@ class Context:
         headers: _Headers = None,
         auth: _Auth = None,
         cache_days: Optional[int] = None,
-    ) -> ElementOrTree:
+    ) -> etree._Element:
         """Execute an HTTP GET request using the contexts' session and return
         an HTML DOM object based on the response. If a `cache_days` argument
         is provided, a cache will be used for the given number of days.
