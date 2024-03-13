@@ -35,8 +35,10 @@ class PositionCategorisation:
 
 
 def get_categorisation(
-    context: Context, entity_id: str
+    context: Context, entity_id: str | None
 ) -> Optional[PositionCategorisation]:
+    if entity_id is None:
+        raise ValueError("entity_id is required")
     url = f"{settings.OPENSANCTIONS_API_URL}/positions/{entity_id}"
     res = context.http.get(url)
     if res.status_code == 200:
@@ -49,6 +51,7 @@ def get_categorisation(
         return None
     else:
         res.raise_for_status()
+        return None
 
 
 @cache
