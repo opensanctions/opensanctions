@@ -1,5 +1,5 @@
 title: "EU ESMA Financial Instruments Reference Data System (FIRDS)"
-entry_point: crawler.py
+entry_point: zavod.runner.enrich:enrich
 prefix: eu-firds
 full_dataset: eu_esma_firds
 coverage:
