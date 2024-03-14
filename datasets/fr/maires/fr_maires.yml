@@ -1,0 +1,40 @@
+title: French Mayors
+prefix: fr-maires
+url: https://www.data.gouv.fr/fr/datasets/repertoire-national-des-elus-1/
+coverage:
+  frequency: monthly
+  start: 2024-03-13
+entry_point: crawler.py
+summary: >-
+  Mayors of French municipalities.
+description: |
+  This dataset lists elected mayors of French cities, towns, and
+  boroughs (arrondissements).
+
+  The data is collected from the open data platform of the French
+  government.  The dataset itself is compiled by the French Ministry
+  of the Interior and Overseas using information from regional
+  prefectures, and is updated quarterly.
+publisher:
+  name: Plateforme ouverte des données publiques françaises
+  description: |
+    The portal data.gouv.fr, created by the Direction
+    Interministérielle du Numérique, is an open community platform
+    aiming to centralize and structure open data in France, in order
+    to encourage transparency and efficiency in the public sector
+    while facilitating the creation of new online services.
+
+    Data is provided under the French Government's [Open License](https://www.etalab.gouv.fr/wp-content/uploads/2017/04/ETALAB-Licence-Ouverte-v2.0.pdf)
+  country: fr
+  url: https://www.data.gouv.fr/en/
+  official: true
+data:
+  url: https://www.data.gouv.fr/fr/datasets/r/2876a346-d50c-4911-934e-19ee07b0e503
+  format: CSV
+assertions:
+  min:
+    schema_entities:
+      Person: 34000
+      Position: 34000
+    country_entities:
+      fr: 1
