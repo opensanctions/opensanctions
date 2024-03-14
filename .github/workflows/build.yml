@@ -2,6 +2,7 @@ name: build
 
 on:
   push: {}
+  pull_requests: {}
   workflow_dispatch: {}
 
 jobs:
@@ -70,6 +71,26 @@ jobs:
       - name: Export a single dataset
         run: |
           zavod export -c datasets/us/ofac/us_ofac_cons.yml
+      - name: Get modified datasets
+        id: modified_datasets
+        run: |
+          echo "crawler_yamls=$(contrib/changed_datasets.sh ${{ github.event.pull_request.base.sha || github.event.push.before }} ${{ github.sha || github.event.push.after }})" >> $GITHUB_OUTPUT
+      - name: Crawl modified datasets
+        if: ${{ steps.modified_datasets.outputs.crawler_yamls != '' }}
+        run: |
+          for dataset in $(python contrib/ci_datasets.py ${{ steps.modified_datasets.outputs.crawler_yamls }})
+          do
+              echo Running $dataset
+              zavod crawl -c $dataset
+          done
+      - name: Export modified datasets
+        if: ${{ steps.modified_datasets.outputs.crawler_yamls != '' }}
+        run: |
+          for dataset in $(python contrib/ci_datasets.py ${{ steps.modified_datasets.outputs.crawler_yamls }})
+          do
+              echo Exporting $dataset
+              zavod export -c $dataset
+          done
       - name: Publish a Python distribution to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         # working-directory: zavod
@@ -81,7 +102,7 @@ jobs:
           packages-dir: zavod/dist
 
   docker:
-    if: ${{ github.ref == 'refs/heads/main' }}
+    if: ${{ github.event_name && 'push' && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     needs: [python]
     steps:
@@ -107,27 +128,9 @@ jobs:
           tags: ghcr.io/opensanctions/opensanctions:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
-  
-  changedfiles:
-    runs-on: ubuntu-latest
-    steps:
-        # Make sure we have some code to diff.
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: Get changed files
-        id: changes
-        # Set outputs using the command.
-        run: |
-          echo ${{github.sha}}
-          echo "::set-output name=all::$(bin/changed_datasets.sh ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }})"
-    # Map a step output to a job output
-    outputs:
-      all: ${{ steps.changes.outputs.all}}
-
-    
 
   dispatch:
-    if: ${{ github.ref == 'refs/heads/main' }}
+    if: ${{ github.event_name && 'push' && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     needs: [docker, python]
     steps:

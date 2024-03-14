@@ -92,6 +92,9 @@ class Dataset(NKDataset):
         ```
         """
 
+        self.ci_test: bool = as_bool(data.get("ci_test", True))
+        """Whether this dataset should be automatically run in CI environments."""
+
     @cached_property
     def lookups(self) -> Dict[str, Lookup]:
         config = self._data.get("lookups", {})
