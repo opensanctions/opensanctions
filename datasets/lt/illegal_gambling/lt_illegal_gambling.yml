@@ -3,6 +3,9 @@ entry_point: crawler.py
 prefix: lt-gambling
 summary: >
   List of online gambling operators regarded as illegal in Lithuania
+coverage:
+  frequency: daily
+  start: 2024-03-07
 
 description: |
   In Lithuania, only properly licensed companies
@@ -25,3 +28,13 @@ url: https://lpt.lrv.lt/en/news/updated-list-of-illegal-online-gaming-operators/
 data:
   url: https://blokuojama.lpt.lt/nelegalios-losimu-veiklos-vykdytoju-sarasas/
   format: HTML
+
+lookups:
+  type.email:
+    options:
+      - match: support@royalpanda.com.
+        value: upport@royalpanda.com
+  type.url:
+    options:
+      - match: betwinner3com
+        value: null
