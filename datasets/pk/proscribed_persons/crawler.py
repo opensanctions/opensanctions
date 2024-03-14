@@ -15,6 +15,7 @@ def crawl_person(context: Context, row: dict):
     if cnic_validator.is_valid(cnic):
         entity.id = context.make_slug(cnic, prefix="pk-cnic")
         entity.add("idNumber", cnic)
+        entity.add("country", "pk")
     else:
         entity.id = context.make_slug(person_name, district, province)
 
