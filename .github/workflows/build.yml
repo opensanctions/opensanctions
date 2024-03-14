@@ -118,7 +118,7 @@ jobs:
         id: changes
         # Set outputs using the command.
         run: |
-          echo "::set-output name=all::$(git diff --name-only --diff-filter=ACMRT ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | xargs)"
+          echo "::set-output name=all::$(bin/changed_datasets.sh ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }})"
     # Map a step output to a job output
     outputs:
       all: ${{ steps.changes.outputs.all}}
