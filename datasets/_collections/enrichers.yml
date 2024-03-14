@@ -13,6 +13,7 @@ children:
   - ext_cy_companies
   - ext_cz_business_register
   - ext_ee_ariregister
+  - ext_eu_esma_firds
   - ext_gb_coh_psc
   - ext_gleif
   - ext_icij_offshoreleaks

@@ -29,6 +29,7 @@ children:
   - eu_sanctions_map
   - eu_reg_2878_sanctions
   - eu_esma_saris
+  - ext_eu_esma_firds
   - ext_gleif
   - gb_hmt_invbans
   - gb_hmt_sanctions
