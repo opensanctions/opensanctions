@@ -38,6 +38,7 @@ url: "https://open.pluralpolicy.com/data/"
 data:
   url: "https://github.com/openstates/people/archive/refs/heads/main.zip"
   format: YAML
+ci_test: false
 
 lookups:
   position:
