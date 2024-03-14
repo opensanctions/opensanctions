@@ -40,7 +40,7 @@ inputs:
   # - ext_cz_business_register
   # - ext_ee_ariregister
   # - ext_gb_coh_psc
-  # - ext_gleif
+  - ext_gleif
   # - ext_icij_offshoreleaks
   # - ext_lv_business_register
   # - ext_md_companies
@@ -48,7 +48,7 @@ inputs:
   # - ext_ua_edr
   # - opencorporates
   # - ru_rupep
-  # - sanctions
+  - sanctions
   - securities
 
 
