@@ -74,13 +74,9 @@ def crawl_item(item, context: Context):
 def crawl(context: Context):
     response = context.fetch_html(context.data_url)
     tables = response.findall('.//table')
-    found_table = False
     for table in tables:
         first_row = table.find('.//tr')
         if not "Nelegalios lošimų veiklos vykdytojo duomenys" in first_row.text_content():
             continue
-        found_table = True
         for item in parse_table(table):
             crawl_item(item, context)
-    if not found_table:
-        raise RuntimeError("Didn't find data table")

@@ -39,6 +39,7 @@ children:
   - gb_proscribed_orgs
   - interpol_red_notices
   - lt_illegal_websites
+  - lt_illegal_gambling
   - nl_most_wanted
   - us_ddtc_enforcements
   - us_fbi_most_wanted
@@ -46,3 +47,4 @@ children:
   - us_sec_pause
   - pk_proscribed_persons
   - za_wanted
+ci_test: false
