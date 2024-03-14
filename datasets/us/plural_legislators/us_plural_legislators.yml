@@ -1,4 +1,4 @@
-title: Plural Legislators (formerly OpenStates)
+title: US Legislators by Plural (formerly OpenStates)
 entry_point: crawler.py
 prefix: plural
 coverage:
