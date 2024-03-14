@@ -54,7 +54,6 @@ inputs:
   - ext_md_companies
   - opencorporates
   - ext_ru_egrul
-  - ru_rupep
   - ext_ua_edr
   - debarment
 

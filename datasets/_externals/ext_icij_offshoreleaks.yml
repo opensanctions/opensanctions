@@ -60,7 +60,6 @@ inputs:
   - ext_ru_egrul
   - ext_ua_edr
   - opencorporates
-  - ru_rupep
   - sanctions
 
 config:
