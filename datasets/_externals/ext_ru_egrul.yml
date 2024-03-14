@@ -80,8 +80,8 @@ config:
   schemata:
     - Company
     - Organization
-    # - LegalEntity
-    # - Person
+    - LegalEntity
+    - Person
   cache_days: 90
 
 lookups:

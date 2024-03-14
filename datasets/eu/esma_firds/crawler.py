@@ -19,6 +19,7 @@ def parse_element(context: Context, elem: ET.Element) -> None:
     security = context.make("Security")
     security.id = f"isin-{isin}"
     security.add("name", attr.findtext(f"./{NS}FullNm"))
+    security.add("isin", isin)
     security.add("alias", attr.findtext(f"./{NS}ShrtNm"))
     security.add("classification", attr.findtext(f"./{NS}ClssfctnTp"))
     security.add("currency", attr.findtext(f"./{NS}NtnlCcy"))
