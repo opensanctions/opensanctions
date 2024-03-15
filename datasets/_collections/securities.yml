@@ -2,8 +2,6 @@ type: collection
 title: Sanctioned securities
 coverage:
   frequency: daily
-# deploy:
-  # memory: "1000Mi"
 exports:
   - statistics.json
   - securities.csv
@@ -41,3 +39,4 @@ children:
   - openfigi
   - permid
   - research
+ci_test: false

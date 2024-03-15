@@ -34,6 +34,26 @@ class PositionCategorisation:
         self.is_pep = is_pep
 
 
+def get_categorisation(
+    context: Context, entity_id: str | None
+) -> Optional[PositionCategorisation]:
+    if entity_id is None:
+        raise ValueError("entity_id is required")
+    url = f"{settings.OPENSANCTIONS_API_URL}/positions/{entity_id}"
+    res = context.http.get(url)
+    if res.status_code == 200:
+        data = res.json()
+        return PositionCategorisation(
+            topics=data.get("topics", []),
+            is_pep=data.get("is_pep"),
+        )
+    elif res.status_code == 404:
+        return None
+    else:
+        res.raise_for_status()
+        return None
+
+
 @cache
 def categorise(
     context: Context,
@@ -53,29 +73,26 @@ def categorise(
       position: The position to be categorised
       is_pep: Initial value for is_pep in the database if it gets added.
     """
-    global NOTIFIED_SYNC_POSITIONS
-    if not settings.SYNC_POSITIONS:
-        if not NOTIFIED_SYNC_POSITIONS:
-            context.log.info(
-                "Syncing positions is disabled - falling back to categorisation provided by crawler, if any."
+    categorisation = get_categorisation(context, position.id)
+
+    if categorisation is None:
+        global NOTIFIED_SYNC_POSITIONS
+        if not settings.SYNC_POSITIONS:
+            if not NOTIFIED_SYNC_POSITIONS:
+                context.log.info(
+                    "Syncing positions is disabled - falling back to categorisation provided by crawler, if any."
+                )
+                NOTIFIED_SYNC_POSITIONS = True
+            return PositionCategorisation(topics=position.get("topics"), is_pep=is_pep)
+
+        if not settings.OPENSANCTIONS_API_KEY:
+            context.log.error(
+                "Setting OPENSANCTIONS_API_KEY is required when ZAVOD_SYNC_POSITIONS is true."
             )
-            NOTIFIED_SYNC_POSITIONS = True
-        return PositionCategorisation(topics=position.get("topics"), is_pep=is_pep)
 
-    if not settings.OPENSANCTIONS_API_KEY:
-        context.log.error(
-            "Setting OPENSANCTIONS_API_KEY is required when ZAVOD_SYNC_POSITIONS is true."
-        )
-
-    url = f"{settings.OPENSANCTIONS_API_URL}/positions/{position.id}"
-    headers = {"authorization": settings.OPENSANCTIONS_API_KEY}
-    res = context.http.get(url, headers=headers)
-
-    if res.status_code == 200:
-        data = res.json()
-    elif res.status_code == 404:
         context.log.info("Adding position not yet in database", entity_id=position.id)
         url = f"{settings.OPENSANCTIONS_API_URL}/positions/"
+        headers = {"authorization": settings.OPENSANCTIONS_API_KEY}
         body = {
             "entity_id": position.id,
             "caption": position.caption,
@@ -87,18 +104,12 @@ def categorise(
         res = context.http.post(url, headers=headers, json=body)
         res.raise_for_status()
         data = res.json()
-    elif res.status_code == 403:
-        context.log.warning(
-            (
-                "OPENSANCTIONS_API_KEY not authorised for positions."
-                " Falling back to provided topics and is_pep"
-            )
+        categorisation = PositionCategorisation(
+            topics=data.get("topics", []),
+            is_pep=data.get("is_pep"),
         )
-        return PositionCategorisation(topics=position.get("topics"), is_pep=is_pep)
-    else:
-        res.raise_for_status()
 
-    if data.get("is_pep") is None:
+    if categorisation.is_pep is None:
         context.log.debug(
             (
                 f'Position {position.get("country")} {position.get("name")}'
@@ -106,10 +117,7 @@ def categorise(
             )
         )
 
-    return PositionCategorisation(
-        topics=data.get("topics", []),
-        is_pep=data.get("is_pep"),
-    )
+    return categorisation
 
 
 @cache

@@ -19,7 +19,7 @@ summary: |
   providing fact-based information edited by humans and machines.
 description: |
   Wikidata serves as the source of much of the OpenSanctions data related to
-  politically exposed persons (PEPs). We also link up entities that are 
+  politically exposed persons (PEPs). We also link up entities that are
   sanctioned whenever a relevant Wikidata item is available.
 
   The Wikidata importer will also traverse family and personal relationships
@@ -44,6 +44,7 @@ publisher:
     sister projects including Wikipedia, Wikivoyage, Wiktionary, Wikisource, and others.
   url: https://www.wikidata.org
   official: false
+ci_test: false
 
 inputs:
   # Warning: cannot include wd_peps here otherwise it gets too recursive

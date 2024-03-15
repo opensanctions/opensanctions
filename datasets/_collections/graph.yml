@@ -44,3 +44,4 @@ datasets:
   - ru_myrotvorets_wagner
   - ransomwhere
   - kp_rusi_reports
+ci_test: false

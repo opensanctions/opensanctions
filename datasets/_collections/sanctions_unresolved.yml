@@ -17,3 +17,4 @@ description: |
 
 children:
   - sanctions
+ci_test: false

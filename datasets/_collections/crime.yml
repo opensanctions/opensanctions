@@ -5,13 +5,12 @@ coverage:
 deploy:
   memory: "1500Mi"
 summary: >
-  Companies and people implicated in or convicted of criminal activity,
-  including the "Most Wanted" lists of various countries and international
-  authorities.
+  Companies and people implicated in or convicted of criminal activity, including
+  the "Most Wanted" lists of various countries and international authorities.
 description: |
   This collection combines entities which have been involved in some form of
   criminal proceeding. The focus lies on corporate and financial fraud, and
-  political crimes. These actions can be considered adjacent to economic 
+  political crimes. These actions can be considered adjacent to economic
   and military sanctions and be included in the same vetting process.
 
   In the future, we hope to expand into several deep dives on specific subject
@@ -39,6 +38,7 @@ children:
   - gb_proscribed_orgs
   - interpol_red_notices
   - lt_illegal_websites
+  - lt_illegal_gambling
   - nl_most_wanted
   - us_ddtc_enforcements
   - us_fbi_most_wanted
@@ -46,3 +46,4 @@ children:
   - us_sec_pause
   - pk_proscribed_persons
   - za_wanted
+ci_test: false

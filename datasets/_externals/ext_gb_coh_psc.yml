@@ -37,6 +37,7 @@ publisher:
   url: https://www.gov.uk/government/organisations/companies-house
   country: gb
   official: true
+ci_test: false
 
 inputs:
   - ann_graph_topics

@@ -2,6 +2,7 @@ name: build
 
 on:
   push: {}
+  pull_request: {}
   workflow_dispatch: {}
 
 jobs:
@@ -64,12 +65,31 @@ jobs:
         working-directory: zavod
         run: |
           python setup.py sdist bdist_wheel
-      - name: Crawl a single dataset
+      - name: Get any modified dataset files
+        id: changed-files
+        uses: tj-actions/changed-files@v43
+        with:
+          files: 'datasets/**'
+      - name: Crawl modified datasets
+        if: ${{ steps.changed-files.outputs.all_changed_files != '' }}
         run: |
-          zavod crawl -c datasets/us/ofac/us_ofac_cons.yml
-      - name: Export a single dataset
+          set -euo pipefail
+          datasets=$(python contrib/ci_datasets.py ${{ steps.changed-files.outputs.all_changed_files }})
+          for dataset in $datasets
+          do
+              echo Crawling $dataset
+              zavod crawl -c $dataset
+          done
+      - name: Export modified datasets
+        if: ${{ steps.changed-files.outputs.all_changed_files != '' }}
         run: |
-          zavod export -c datasets/us/ofac/us_ofac_cons.yml
+          set -euo pipefail
+          datasets=$(python contrib/ci_datasets.py ${{ steps.changed-files.outputs.all_changed_files }})
+          for dataset in $datasets
+          do
+              echo Exporting $dataset
+              zavod export -c $dataset
+          done
       - name: Publish a Python distribution to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         # working-directory: zavod
@@ -81,7 +101,7 @@ jobs:
           packages-dir: zavod/dist
 
   docker:
-    if: ${{ github.ref == 'refs/heads/main' }}
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     needs: [python]
     steps:
@@ -109,7 +129,7 @@ jobs:
           cache-to: type=gha,mode=max
 
   dispatch:
-    if: ${{ github.ref == 'refs/heads/main' }}
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     needs: [docker, python]
     steps:

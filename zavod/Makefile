@@ -6,7 +6,7 @@ typecheck:
 	mypy --strict --exclude zavod/tests zavod/
 
 lint:
-	ruff zavod/
+	ruff check zavod/
 
 check: test typecheck lint
 

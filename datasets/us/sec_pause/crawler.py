@@ -1,6 +1,8 @@
 from typing import Dict, Generator, Optional, Tuple
 from lxml.etree import _Element
 from normality import slugify, collapse_spaces
+from requests.adapters import HTTPAdapter
+from urllib3.util import Retry
 
 from zavod import Context
 from zavod import helpers as h
@@ -23,13 +25,15 @@ CONTACTS = [
 ]
 
 
-def parse_table(table: _Element) -> Generator[Dict[str, Tuple[str, Optional[str]]], None, None]:
+def parse_table(
+    table: _Element,
+) -> Generator[Dict[str, Tuple[str, Optional[str]]], None, None]:
     headers = None
     for row in table.findall(".//tr"):
         if headers is None:
             headers = []
             for el in row.findall("./th"):
-                headers.append((slugify(el.text_content()), None))
+                headers.append(slugify(el.text_content()))
             continue
 
         cells = []
@@ -110,6 +114,9 @@ def crawl_entity(context: Context, url: str, name: str, category: str) -> None:
 
 
 def crawl(context: Context) -> None:
+    retries = Retry(total=5, backoff_factor=1)
+    context.http.mount("https://", HTTPAdapter(max_retries=retries))
+
     doc = context.fetch_html(context.data_url, cache_days=1)
     doc.make_links_absolute(context.data_url)
 

@@ -45,6 +45,7 @@ publisher:
     fact-checkers and data journalists who maintain the OffshoreLeaks database.
   url: https://www.icij.org/about/
   official: false
+ci_test: false
 
 inputs:
   - ann_graph_topics

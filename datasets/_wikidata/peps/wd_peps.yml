@@ -47,6 +47,7 @@ url: https://www.opensanctions.org/datasets/peps
 data:
   url: https://query.wikidata.org/sparql
   format: JSON
+ci_test: false
 
 assertions:
   min:
@@ -66,486 +67,486 @@ lookups:
   type.date:
     options:
       - match:
-        - "8034-06-14"
-        - "0011-06-04"
-        - "3004-03-14"
+          - "8034-06-14"
+          - "0011-06-04"
+          - "3004-03-14"
         value: null
   
   position_subclasses:
     options:
       - maybe_pep: true
         match:
-          - "Q116" # monarch
-          - "Q26718" # Continental Congress
-          - "Q30461" # president
-          - "Q42841" # incumbent
-          - "Q58333" # Police and Crime Commissioner
-          - "Q83307" # minister
-          - "Q193391" # diplomat
-          - "Q207978" # consul
-          - "Q294414" # public office
-          - "Q303618" # diplomatic rank
-          - "Q334473" # division manager
-          - "Q337902" # naval rating
-          - "Q524778" # commissioner
-          - "Q620110" # Leader of the Opposition
-          - "Q740126" # President of the European Parliament
-          - "Q742482" # United States Assistant Secretary of State
-          - "Q759969" # supervisory board
-          - "Q766504" # undersecretary
-          - "Q854416" # head of the district council
-          - "Q1005815" # Federal Commissioner
-          - "Q1127270" # deputy chairperson
-          - "Q1207353" # head of department
-          - "Q1251441" # leader
-          - "Q1276214" # European Union Special Representative
-          - "Q1326365" # -elect
-          - "Q1414672" # legislative seat
-          - "Q1472275" # figurehead
-          - "Q1500391" # chief of municipal
-          - "Q1513949" # Returning officer
-          - "Q1516453" # lieutenant governor
-          - "Q1555246" # Supreme commanders of the Imperial and Royal Armed Forces
-          - "Q1654355" # Interior Minister of Prussia
-          - "Q1758037" # speaker
-          - "Q1837955" # Chief Minister of Punjab
-          - "Q1890052" # president of the court
-          - "Q1977915" # federal intervention in Argentina
-          - "Q2011359" # High steward
-          - "Q2086090" # commander
-          - "Q2101758" # police commissioner
-          - "Q2133201" # Procureur du Bien Public
-          - "Q2137774" # government governor
-          - "Q2546165" # Great Offices of State
-          - "Q2574878" # Council of war
-          - "Q2660216" # Vice President of Iran
-          - "Q2738644" # Federal ombudsman
-          - "Q2824523" # board member
-          - "Q2920659" # Cabinet Secretary
-          - "Q2998914" # county executive
-          - "Q3188077" # Citizenship judge
-          - "Q3250324" # deputy
-          - "Q3382119" # sub-prefect
-          - "Q3695530" # Chief Minister of Balochistan
-          - "Q4146697" # state position of the Russian Federation
-          - "Q4180896" # financial secretary
-          - "Q4189293" # rank
-          - "Q4489757" # consul
-          - "Q4516014" # rank
-          - "Q4676866" # acting governor
-          - "Q4816037" # Atlanta Chief of Police
-          - "Q4907518" # superior
-          - "Q5096852" # Chief Minister of Khyber Pakhtunkhwa
-          - "Q5123536" # city attorney
-          - "Q5124691" # civil servant of the People's Republic of China
-          - "Q5390229" # ambassador of Costa Rica
-          - "Q5663887" # alcaide
-          - "Q5928980" # jefe político superior
-          - "Q6857706" # military profession
-          - "Q6888512" # moderator
-          - "Q7210354" # Political officer
-          - "Q7239417" # precinct captain
-          - "Q7260481" # barangay captain
-          - "Q7315432" # Resident Commissioner
-          - "Q7494991" # Sheriff of Kolkata
-          - "Q7574852" # special prosecutor
-          - "Q7603902" # state treasurer
-          - "Q8135012" # Chief Minister of Gilgit-Baltistan
-          - "Q9200127" # member
-          - "Q10526703" # president for a Court of Appeal
-          - "Q10571975" # länsråd
-          - "Q11452125" # East Asian government official
-          - "Q11997597" # representative
-          - "Q12191080" # supreme commander
-          - "Q15735113" # Assistant Secretary
-          - "Q15894241" # assistant commissioner
-          - "Q16060143" # elected person
-          - "Q16171693" # President of the Ukrainian Supreme Court
-          - "Q16178337" # Chief of Staff of the Air Force (South Korea)
-          - "Q16492012" # Diputado del común
-          - "Q16631188" # military position
-          - "Q16863083" # Senior Member
-          - "Q18614659" # secretary of provincial committee of a Communist Party
-          - "Q19476593" # police rank
-          - "Q20473964" # Governor (Turkey)
-          - "Q20801619" # secrétaire général du ministère de la Justice
-          - "Q20900278" # Island Administrator
-          - "Q20995522" # title of nobility in the United Kingdom
-          - "Q21028311" # White House Cabinet Secretary
-          - "Q23307026" # Shadow minister
-          - "Q23541196" # Queen mothers in Africa
-          - "Q23644849" # Executive Secretary of the Secretariat
-          - "Q25906149" # Parliamentary Secretary
-          - "Q27791757" # diputado provincial de Sevilla
-          - "Q28172535" # Mayor of Peshawar
-          - "Q28381391" # supervising director
-          - "Q29646039" # ambassador of Tunisia
-          - "Q30148522" # head of state or government
-          - "Q42045197" # hereditary position
-          - "Q47520780" # Speaker of Doboj Assembly
-          - "Q49838176" # executives of counties in Maryland
-          - "Q56496216" # Secretario Particular de la Presidencia
-          - "Q56654089" # superintendent of Centro
-          - "Q56654091" # superintendent of Campo Grande
-          - "Q56654094" # superintendent of Jacarepaguá
-          - "Q56654096" # superintendent of Tijuca
-          - "Q56654098" # superintendent of Pavuna
-          - "Q56654100" # superintendent of Ramos
-          - "Q56654102" # superintendent of Inhaúma
-          - "Q56654104" # superintendent of Méier
-          - "Q56654106" # superintendent of Guaratiba
-          - "Q56654108" # superintendent of Ilha do Governador
-          - "Q56654110" # superintendent of Zona Sul
-          - "Q56654112" # superintendent of Santa Cruz
-          - "Q56654114" # superintendent of Irajá
-          - "Q56654116" # superintendent of Madureira
-          - "Q56654118" # superintendent of Bangu
-          - "Q56654120" # superintendent of Recreio e Vargens
-          - "Q56654122" # superintendent of Barra da Tijuca
-          - "Q56660333" # Commander-in-chief
-          - "Q73175308" # secretario regional ministerial de Chile
-          - "Q73864327" # Commander of the Joint Forces
-          - "Q83230308" # hereditary office
-          - "Q83856136" # legal position
-          - "Q90132546" # deputy minister
-          - "Q91936085" # ambassador of Oman
-          - "Q95637571" # deputy mayor
-          - "Q96034520" # Assistant Deputy Minister
-          - "Q98539289" # ambassador of Spain to Belize
-          - "Q103838820" # elected position
-          - "Q103888080" # audit committee member
-          - "Q104178983" # municipal judge
-          - "Q104180972" # alcaide-mor
-          - "Q105116421" # treasurer
-          - "Q106090919" # Deputy Mayor of London for Policing and Crime
-          - "Q107419604" # honorary consul of Ireland
-          - "Q107421982" # honorary consul of Sudan
-          - "Q107427335" # honorary consul of Barbados
-          - "Q107427462" # honorary consul of a country
-          - "Q107427486" # honorary consul to a country
-          - "Q107427695" # honorary consul of Rwanda
-          - "Q107427726" # honorary consul to Bangladesh
-          - "Q107427745" # honorary consul of Singapore
-          - "Q107427758" # honorary consul to Kazakhstan
-          - "Q107427787" # honorary consul to Pakistan
-          - "Q107711420" # Official Opposition Critic
-          - "Q108045966" # Cabinet attendee
-          - "Q108189937" # Office established
-          - "Q109274596" # Minister of Infrastructure and Transport of Guinea
-          - "Q109566783" # chief engineer for a state of the United States
-          - "Q110816129" # Command Deputy
-          - "Q110830453" # membre du Conseil supérieur de la magistrature
-          - "Q111924067" # Assistant Adjutant-General
-          - "Q112119463" # chief of staff
-          - "Q112806846" # appointed office
-          - "Q112806876" # appointed position
-          - "Q112817611" # président de la Commission électorale autonome
-          - "Q113364154" # director of land registry
-          - "Q113364155" # vice-director of land registry
-          - "Q116167676" # Président de Chambre à la Cour Suprême
-          - "Q116745877" # Shadow Minister of Agriculture, Animal Industries and Fisheries
-          - "Q116745922" # Shadow Minister for Education
-          - "Q116746063" # Shadow Minister for Disaster Preparedness
-          - "Q116746078" # In charge of Special Regions Affairs
-          - "Q116746090" # Shadow Minister for Local Government
-          - "Q116746100" # Shadow Minister for water and Environment
-          - "Q116746109" # Shadow Minister for Trade and Industry
-          - "Q116746116" # Shadow Minister in Uganda
-          - "Q116746128" # Shadow Minister for Energy and Minerals
-          - "Q116746731" # Shadow minister for Agriculture
-          - "Q116747202" # Shadow Minister for Science, Innovation and Technology
-          - "Q116748640" # Shadow Minister for Gender, Labour and Social Development
-          - "Q116748646" # Shadow Minister for Youth and Children Affairs
-          - "Q116752549" # Opposition Chief Whip
-          - "Q116752572" # Deputy Chief Opposition Whip
-          - "Q118954321" # Sheriff of Exeter
-          - "Q119794138" # honorary consul of Argentina
-          - "Q120599914" # Director of the Administrative Office of the United States Courts
-          - "Q121543752" # Deputy Mayor of West Yorkshire for Policing and Crime
-          - "Q123036378" # Board chairman
-          - "Q123202098" # deputy speaker
-          - "Q56810277" # Admiral of the Fleet
-          - "Q57028855" # Director of the National Intelligence Center
-          - "Q58412251" # judge of a United States court of appeals
-          - "Q58412318" # judge of a United States district court
-          - "Q58697599" # inspecteur général des services judiciaires
-          - "Q59156405" # secrétaire général du Conseil constitutionnel
-          - "Q59190554" # National coodinator for Intelligence and Fight against Terrorism
-          - "Q59289676" # Chief of staff of the French Ministry of the Interior
-          - "Q59422735" # magistrat élu au Conseil supérieur de la magistrature
-          - "Q59491901" # First President
-          - "Q60028304" # Lieutenant Governors of Brazil
-          - "Q60559440" # Secretary General of the Interministerial Committee for European Economic Cooperation Questions
-          - "Q60723182" # membre du Conseil supérieur de la magistrature en tant que personnalité extérieure
-          - "Q61022630" # officer
-          - "Q62056664" # president of chamber at the French Court of Audit
-          - "Q62122498" # maire de Tournan-en-Brie
-          - "Q62578836" # Permanent Representative of Hungary to the United Nations, New York
-          - "Q63456757" # ambassador of Hungary to Azerbaijan
-          - "Q854185" # Bezirksamtsleiter
-          - "Q1006064" # Bundesgeschäftsführer
-          - "Q1221110" # Dienstposten
-          - "Q1221126" # Dienststellung
-          - "Q1258312" # Säckelmeister
-          - "Q1501906" # Generalpostmeister
-          - "Q1795352" # Kämmerer
-          - "Q1802914" # Landgerichtsrat
-          - "Q2038497" # Q2038497
-          - "Q2101555" # Politischer Leiter
-          - "Q2246543" # Ruwaard
-          - "Q2276758" # Q2276758
-          - "Q2305417" # inspector general
-          - "Q2324526" # Garpon
-          - "Q2519100" # Vertreter des öffentlichen Interesses
-          - "Q2528143" # Q2528143
-          - "Q2932519" # Q2932519
-          - "Q3043452" # Délégué interministériel à la sécurité routière
-          - "Q3043455" # délégué militaire départemental
-          - "Q3043456" # Délégué militaire régional
-          - "Q3401661" # Premier bouteiller de Bretagne
-          - "Q3933467" # responsible
-          - "Q3969776" # Q3969776
-          - "Q4498939" # Hokim
-          - "Q5075784" # Amtsbürgermeister
-          - "Q7231714" # Starosta
-          - "Q7647118" # Surveyor General
-          - "Q7832034" # trade commissioner
-          - "Q7886633" # centenier
-          - "Q9325187" # Q9325187
-          - "Q10312791" #  juiz de direito
-          - "Q10312792" # juiz de fora
-          - "Q10342662" # ouvidor-mor
-          - "Q10544194" # Q10544194
-          - "Q13142904" # Sechser
-          - "Q14173978" # Q14173978
-          - "Q14418847" # Q14418847
-          - "Q15913260" # Q15913260
-          - "Q16931516" # Muhandiram
-          - "Q18677341" # Procurator
-          - "Q20025378" # Q20025378
-          - "Q20169991" # Kreisausschussinspektor
-          - "Q20820583" # Postmaster General
-          - "Q25457593" # Q25457593
-          - "Q29110214" # Q29110214
-          - "Q30103103" # Q30103103
-          - "Q38097868" # Q38097868
-          - "Q38267249" # Q38267249
-          - "Q47529145" # Stationsleiter
-          - "Q56500108" # Consejero de Gobierno
-          - "Q81641582" # intendant of the généralité de Valenciennes
-          - "Q84418077" # Q84418077
-          - "Q98092253" # Q98092253
-          - "Q102088897" # President of Vox Asturias
-          - "Q104006894" # subprefeito
-          - "Q104008340" # 1.º prefeito
-          - "Q104492321" # copeiro-mor
-          - "Q104540886" # jurisdição do crime
-          - "Q104871400" # Q104871400
-          - "Q106581314" # Q106581314
-          - "Q112660316" # Q112660316
-          - "Q114850321" # Collector of Customs
-          - "Q116878625" # Appellationsgerichtsrat
-          - "Q116908879" # Community Board member
-          - "Q117458668" # Oberappellationsgerichtsrat
-          - "Q118109623" # Q118109623
-          - "Q118278814" # président de l'Assemblée commune
-          - "Q120633697" # antiabbot
-          - "Q121620135" # Q121620135
-          - "Q56669297" # superintendent
-          - "Q60832272" # Grand voyer
-          - "Q65238772" # intendant
-          - "Q480319" # title of authority
+          - "Q116"  # monarch
+          - "Q26718"  # Continental Congress
+          - "Q30461"  # president
+          - "Q42841"  # incumbent
+          - "Q58333"  # Police and Crime Commissioner
+          - "Q83307"  # minister
+          - "Q193391"  # diplomat
+          - "Q207978"  # consul
+          - "Q294414"  # public office
+          - "Q303618"  # diplomatic rank
+          - "Q334473"  # division manager
+          - "Q337902"  # naval rating
+          - "Q524778"  # commissioner
+          - "Q620110"  # Leader of the Opposition
+          - "Q740126"  # President of the European Parliament
+          - "Q742482"  # United States Assistant Secretary of State
+          - "Q759969"  # supervisory board
+          - "Q766504"  # undersecretary
+          - "Q854416"  # head of the district council
+          - "Q1005815"  # Federal Commissioner
+          - "Q1127270"  # deputy chairperson
+          - "Q1207353"  # head of department
+          - "Q1251441"  # leader
+          - "Q1276214"  # European Union Special Representative
+          - "Q1326365"  # -elect
+          - "Q1414672"  # legislative seat
+          - "Q1472275"  # figurehead
+          - "Q1500391"  # chief of municipal
+          - "Q1513949"  # Returning officer
+          - "Q1516453"  # lieutenant governor
+          - "Q1555246"  # Supreme commanders of the Imperial and Royal Armed Forces
+          - "Q1654355"  # Interior Minister of Prussia
+          - "Q1758037"  # speaker
+          - "Q1837955"  # Chief Minister of Punjab
+          - "Q1890052"  # president of the court
+          - "Q1977915"  # federal intervention in Argentina
+          - "Q2011359"  # High steward
+          - "Q2086090"  # commander
+          - "Q2101758"  # police commissioner
+          - "Q2133201"  # Procureur du Bien Public
+          - "Q2137774"  # government governor
+          - "Q2546165"  # Great Offices of State
+          - "Q2574878"  # Council of war
+          - "Q2660216"  # Vice President of Iran
+          - "Q2738644"  # Federal ombudsman
+          - "Q2824523"  # board member
+          - "Q2920659"  # Cabinet Secretary
+          - "Q2998914"  # county executive
+          - "Q3188077"  # Citizenship judge
+          - "Q3250324"  # deputy
+          - "Q3382119"  # sub-prefect
+          - "Q3695530"  # Chief Minister of Balochistan
+          - "Q4146697"  # state position of the Russian Federation
+          - "Q4180896"  # financial secretary
+          - "Q4189293"  # rank
+          - "Q4489757"  # consul
+          - "Q4516014"  # rank
+          - "Q4676866"  # acting governor
+          - "Q4816037"  # Atlanta Chief of Police
+          - "Q4907518"  # superior
+          - "Q5096852"  # Chief Minister of Khyber Pakhtunkhwa
+          - "Q5123536"  # city attorney
+          - "Q5124691"  # civil servant of the People's Republic of China
+          - "Q5390229"  # ambassador of Costa Rica
+          - "Q5663887"  # alcaide
+          - "Q5928980"  # jefe político superior
+          - "Q6857706"  # military profession
+          - "Q6888512"  # moderator
+          - "Q7210354"  # Political officer
+          - "Q7239417"  # precinct captain
+          - "Q7260481"  # barangay captain
+          - "Q7315432"  # Resident Commissioner
+          - "Q7494991"  # Sheriff of Kolkata
+          - "Q7574852"  # special prosecutor
+          - "Q7603902"  # state treasurer
+          - "Q8135012"  # Chief Minister of Gilgit-Baltistan
+          - "Q9200127"  # member
+          - "Q10526703"  # president for a Court of Appeal
+          - "Q10571975"  # länsråd
+          - "Q11452125"  # East Asian government official
+          - "Q11997597"  # representative
+          - "Q12191080"  # supreme commander
+          - "Q15735113"  # Assistant Secretary
+          - "Q15894241"  # assistant commissioner
+          - "Q16060143"  # elected person
+          - "Q16171693"  # President of the Ukrainian Supreme Court
+          - "Q16178337"  # Chief of Staff of the Air Force (South Korea)
+          - "Q16492012"  # Diputado del común
+          - "Q16631188"  # military position
+          - "Q16863083"  # Senior Member
+          - "Q18614659"  # secretary of provincial committee of a Communist Party
+          - "Q19476593"  # police rank
+          - "Q20473964"  # Governor (Turkey)
+          - "Q20801619"  # secrétaire général du ministère de la Justice
+          - "Q20900278"  # Island Administrator
+          - "Q20995522"  # title of nobility in the United Kingdom
+          - "Q21028311"  # White House Cabinet Secretary
+          - "Q23307026"  # Shadow minister
+          - "Q23541196"  # Queen mothers in Africa
+          - "Q23644849"  # Executive Secretary of the Secretariat
+          - "Q25906149"  # Parliamentary Secretary
+          - "Q27791757"  # diputado provincial de Sevilla
+          - "Q28172535"  # Mayor of Peshawar
+          - "Q28381391"  # supervising director
+          - "Q29646039"  # ambassador of Tunisia
+          - "Q30148522"  # head of state or government
+          - "Q42045197"  # hereditary position
+          - "Q47520780"  # Speaker of Doboj Assembly
+          - "Q49838176"  # executives of counties in Maryland
+          - "Q56496216"  # Secretario Particular de la Presidencia
+          - "Q56654089"  # superintendent of Centro
+          - "Q56654091"  # superintendent of Campo Grande
+          - "Q56654094"  # superintendent of Jacarepaguá
+          - "Q56654096"  # superintendent of Tijuca
+          - "Q56654098"  # superintendent of Pavuna
+          - "Q56654100"  # superintendent of Ramos
+          - "Q56654102"  # superintendent of Inhaúma
+          - "Q56654104"  # superintendent of Méier
+          - "Q56654106"  # superintendent of Guaratiba
+          - "Q56654108"  # superintendent of Ilha do Governador
+          - "Q56654110"  # superintendent of Zona Sul
+          - "Q56654112"  # superintendent of Santa Cruz
+          - "Q56654114"  # superintendent of Irajá
+          - "Q56654116"  # superintendent of Madureira
+          - "Q56654118"  # superintendent of Bangu
+          - "Q56654120"  # superintendent of Recreio e Vargens
+          - "Q56654122"  # superintendent of Barra da Tijuca
+          - "Q56660333"  # Commander-in-chief
+          - "Q73175308"  # secretario regional ministerial de Chile
+          - "Q73864327"  # Commander of the Joint Forces
+          - "Q83230308"  # hereditary office
+          - "Q83856136"  # legal position
+          - "Q90132546"  # deputy minister
+          - "Q91936085"  # ambassador of Oman
+          - "Q95637571"  # deputy mayor
+          - "Q96034520"  # Assistant Deputy Minister
+          - "Q98539289"  # ambassador of Spain to Belize
+          - "Q103838820"  # elected position
+          - "Q103888080"  # audit committee member
+          - "Q104178983"  # municipal judge
+          - "Q104180972"  # alcaide-mor
+          - "Q105116421"  # treasurer
+          - "Q106090919"  # Deputy Mayor of London for Policing and Crime
+          - "Q107419604"  # honorary consul of Ireland
+          - "Q107421982"  # honorary consul of Sudan
+          - "Q107427335"  # honorary consul of Barbados
+          - "Q107427462"  # honorary consul of a country
+          - "Q107427486"  # honorary consul to a country
+          - "Q107427695"  # honorary consul of Rwanda
+          - "Q107427726"  # honorary consul to Bangladesh
+          - "Q107427745"  # honorary consul of Singapore
+          - "Q107427758"  # honorary consul to Kazakhstan
+          - "Q107427787"  # honorary consul to Pakistan
+          - "Q107711420"  # Official Opposition Critic
+          - "Q108045966"  # Cabinet attendee
+          - "Q108189937"  # Office established
+          - "Q109274596"  # Minister of Infrastructure and Transport of Guinea
+          - "Q109566783"  # chief engineer for a state of the United States
+          - "Q110816129"  # Command Deputy
+          - "Q110830453"  # membre du Conseil supérieur de la magistrature
+          - "Q111924067"  # Assistant Adjutant-General
+          - "Q112119463"  # chief of staff
+          - "Q112806846"  # appointed office
+          - "Q112806876"  # appointed position
+          - "Q112817611"  # président de la Commission électorale autonome
+          - "Q113364154"  # director of land registry
+          - "Q113364155"  # vice-director of land registry
+          - "Q116167676"  # Président de Chambre à la Cour Suprême
+          - "Q116745877"  # Shadow Minister of Agriculture, Animal Industries and Fisheries
+          - "Q116745922"  # Shadow Minister for Education
+          - "Q116746063"  # Shadow Minister for Disaster Preparedness
+          - "Q116746078"  # In charge of Special Regions Affairs
+          - "Q116746090"  # Shadow Minister for Local Government
+          - "Q116746100"  # Shadow Minister for water and Environment
+          - "Q116746109"  # Shadow Minister for Trade and Industry
+          - "Q116746116"  # Shadow Minister in Uganda
+          - "Q116746128"  # Shadow Minister for Energy and Minerals
+          - "Q116746731"  # Shadow minister for Agriculture
+          - "Q116747202"  # Shadow Minister for Science, Innovation and Technology
+          - "Q116748640"  # Shadow Minister for Gender, Labour and Social Development
+          - "Q116748646"  # Shadow Minister for Youth and Children Affairs
+          - "Q116752549"  # Opposition Chief Whip
+          - "Q116752572"  # Deputy Chief Opposition Whip
+          - "Q118954321"  # Sheriff of Exeter
+          - "Q119794138"  # honorary consul of Argentina
+          - "Q120599914"  # Director of the Administrative Office of the United States Courts
+          - "Q121543752"  # Deputy Mayor of West Yorkshire for Policing and Crime
+          - "Q123036378"  # Board chairman
+          - "Q123202098"  # deputy speaker
+          - "Q56810277"  # Admiral of the Fleet
+          - "Q57028855"  # Director of the National Intelligence Center
+          - "Q58412251"  # judge of a United States court of appeals
+          - "Q58412318"  # judge of a United States district court
+          - "Q58697599"  # inspecteur général des services judiciaires
+          - "Q59156405"  # secrétaire général du Conseil constitutionnel
+          - "Q59190554"  # National coodinator for Intelligence and Fight against Terrorism
+          - "Q59289676"  # Chief of staff of the French Ministry of the Interior
+          - "Q59422735"  # magistrat élu au Conseil supérieur de la magistrature
+          - "Q59491901"  # First President
+          - "Q60028304"  # Lieutenant Governors of Brazil
+          - "Q60559440"  # Secretary General of the Interministerial Committee for European Economic Cooperation Questions
+          - "Q60723182"  # membre du Conseil supérieur de la magistrature en tant que personnalité extérieure
+          - "Q61022630"  # officer
+          - "Q62056664"  # president of chamber at the French Court of Audit
+          - "Q62122498"  # maire de Tournan-en-Brie
+          - "Q62578836"  # Permanent Representative of Hungary to the United Nations, New York
+          - "Q63456757"  # ambassador of Hungary to Azerbaijan
+          - "Q854185"  # Bezirksamtsleiter
+          - "Q1006064"  # Bundesgeschäftsführer
+          - "Q1221110"  # Dienstposten
+          - "Q1221126"  # Dienststellung
+          - "Q1258312"  # Säckelmeister
+          - "Q1501906"  # Generalpostmeister
+          - "Q1795352"  # Kämmerer
+          - "Q1802914"  # Landgerichtsrat
+          - "Q2038497"  # Q2038497
+          - "Q2101555"  # Politischer Leiter
+          - "Q2246543"  # Ruwaard
+          - "Q2276758"  # Q2276758
+          - "Q2305417"  # inspector general
+          - "Q2324526"  # Garpon
+          - "Q2519100"  # Vertreter des öffentlichen Interesses
+          - "Q2528143"  # Q2528143
+          - "Q2932519"  # Q2932519
+          - "Q3043452"  # Délégué interministériel à la sécurité routière
+          - "Q3043455"  # délégué militaire départemental
+          - "Q3043456"  # Délégué militaire régional
+          - "Q3401661"  # Premier bouteiller de Bretagne
+          - "Q3933467"  # responsible
+          - "Q3969776"  # Q3969776
+          - "Q4498939"  # Hokim
+          - "Q5075784"  # Amtsbürgermeister
+          - "Q7231714"  # Starosta
+          - "Q7647118"  # Surveyor General
+          - "Q7832034"  # trade commissioner
+          - "Q7886633"  # centenier
+          - "Q9325187"  # Q9325187
+          - "Q10312791"  #  juiz de direito
+          - "Q10312792"  # juiz de fora
+          - "Q10342662"  # ouvidor-mor
+          - "Q10544194"  # Q10544194
+          - "Q13142904"  # Sechser
+          - "Q14173978"  # Q14173978
+          - "Q14418847"  # Q14418847
+          - "Q15913260"  # Q15913260
+          - "Q16931516"  # Muhandiram
+          - "Q18677341"  # Procurator
+          - "Q20025378"  # Q20025378
+          - "Q20169991"  # Kreisausschussinspektor
+          - "Q20820583"  # Postmaster General
+          - "Q25457593"  # Q25457593
+          - "Q29110214"  # Q29110214
+          - "Q30103103"  # Q30103103
+          - "Q38097868"  # Q38097868
+          - "Q38267249"  # Q38267249
+          - "Q47529145"  # Stationsleiter
+          - "Q56500108"  # Consejero de Gobierno
+          - "Q81641582"  # intendant of the généralité de Valenciennes
+          - "Q84418077"  # Q84418077
+          - "Q98092253"  # Q98092253
+          - "Q102088897"  # President of Vox Asturias
+          - "Q104006894"  # subprefeito
+          - "Q104008340"  # 1.º prefeito
+          - "Q104492321"  # copeiro-mor
+          - "Q104540886"  # jurisdição do crime
+          - "Q104871400"  # Q104871400
+          - "Q106581314"  # Q106581314
+          - "Q112660316"  # Q112660316
+          - "Q114850321"  # Collector of Customs
+          - "Q116878625"  # Appellationsgerichtsrat
+          - "Q116908879"  # Community Board member
+          - "Q117458668"  # Oberappellationsgerichtsrat
+          - "Q118109623"  # Q118109623
+          - "Q118278814"  # président de l'Assemblée commune
+          - "Q120633697"  # antiabbot
+          - "Q121620135"  # Q121620135
+          - "Q56669297"  # superintendent
+          - "Q60832272"  # Grand voyer
+          - "Q65238772"  # intendant
+          - "Q480319"  # title of authority
       - maybe_pep: false
         match:
-          - "Q11271" # Benevolent Dictator for Life
-          - "Q29182" # bishop
-          - "Q212071" # rector
-          - "Q368620" # Chief Apostle
-          - "Q381136" # shareholder
-          - "Q383865" # executive sponsor
-          - "Q511138" # inspector
-          - "Q659534" # Three Masters of the East Palace
-          - "Q670556" # Captain of the Castle
-          - "Q1017553" # business analyst
-          - "Q1404101" # fellow
-          - "Q1714036" # jury
-          - "Q1766113" # lighthouse keeper
-          - "Q1787679" # chief executive
-          - "Q1807498" # social position
-          - "Q2110002" # Cantonal Council of Zurich
-          - "Q2114175" # provost
-          - "Q2445218" # goalkeeper coach
-          - "Q2450226" # founder of Catholic religious community
-          - "Q2550689" # equity partner
-          - "Q3149494" # printer to the King
-          - "Q3290825" # churchwarden
-          - "Q3504856" # substitute
-          - "Q3643105" # Rain Queen
-          - "Q4048723" # SEO specialist
-          - "Q4102597" # job vacancy
-          - "Q5428874" # faculty member
-          - "Q7074545" # Oba of Lagos
-          - "Q7140693" # partner
-          - "Q7200276" # placeholder
-          - "Q10438271" # office manager
-          - "Q10543171" # chamber writer
-          - "Q10561616" # liquidator
-          - "Q11415594" # honorable position
-          - "Q11488158" # corporate title
-          - "Q11773926" # ecclesiastical occupation
-          - "Q11952019" # profesor titular de escuela universitaria
-          - "Q15140392" # founding member
-          - "Q15143900" # United Nations Special Rapporteur
-          - "Q15726407" # President of the World Esperanto Youth Organization
-          - "Q19816651" # Order of Cardinals
-          - "Q21114371" # episcopal title
-          - "Q23685787" # working student
-          - "Q28689677" # honorary secretary
-          - "Q29982545" # function in the Evangelical Church of Czech Brethren
-          - "Q30056203" # ambassador to Qatar
-          - "Q30081888" # ambassador to Belarus
-          - "Q30582382" # excavation director
-          - "Q30682903" # data protection officer
-          - "Q51321989" # Professional engineer
-          - "Q55400987" # community councillor
-          - "Q56514255" # information commissioner
-          - "Q69282762" # Assistant general secretary of the International Astronomical Union
-          - "Q73284086" # student representative
-          - "Q81752537" # professorship
-          - "Q91188763" # Eastern Orthodox religious occupation
-          - "Q96437530" # directed by / from
-          - "Q97468869" # French horn player
-          - "Q100369292" #  cycling officer
-          - "Q101573121" # percussion teacher
-          - "Q104716377" # secret collaborator
-          - "Q105954233" # Pastor primarius der ev.-luth. Kirchengemeinder Sankt Andreasberg
-          - "Q105954234" # Pastor diaconus der ev.-luth. Kirchengemeinder Sankt Andreasberg
-          - "Q106730414" # student employee
-          - "Q107453261" # representative of the Association of Silversmiths
-          - "Q107453369" # Maltese Labour Party General Committee worker
-          - "Q107453418" # Camera del Lavoro founder
-          - "Q109828300" # court jeweler
-          - "Q110904785" # Member of the Royal Swedish Academy of Music
-          - "Q112074151" # head of a diocese
-          - "Q112075451" # Technology Transfer Manager
-          - "Q114962596" # historical position
-          - "Q115154787" # church‘s ministry
-          - "Q115988665" # student league chairperson
-          - "Q116143301" # goaltending coach
-          - "Q120034425" # illustrious son of Alaior
-          - "Q122915673" # Clockmaker to the king
-          - "Q124467322" # historical religious function
-          - "Q124515690" # anglican episcopal title
-          - "Q124662819" # Office dissolved
-          - "Q57895872" # Chief Clerk of the Cortes Generales
-          - "Q59312380" # Knight of the Order of Alcántara
-          - "Q63187345" # religious occupation
-          - "Q63187384" # Jewish religious occupation
-          - "Q63188683" # Christian religious occupation
-          - "Q63188808" # Catholic vocation
-          - "Q65279813" # Designated School Official
-          - "Q228417" # Zugführer
-          - "Q476987" # Führerreserve
-          - "Q497960" # Rensho
-          - "Q854246" # Bezirkskantor
-          - "Q908892" # Machi-bugyō
-          - "Q923724" # sinecure
-          - "Q932945" # khatib
-          - "Q1064555" # Kumari
-          - "Q1241843" # Nāyaṉmār
-          - "Q1274280" # Sanjak-bey
-          - "Q1348170" # Fils de France
-          - "Q1472626" # fuchsmajor
-          - "Q1500489" # Shophet
-          - "Q1660077" # Immissionsschutzbeauftragter
-          - "Q1660824" # Integrationsbeauftragter
-          - "Q1662558" # Informationsfreiheitsbeauftragter
-          - "Q2004989" # conseiller en prévention
-          - "Q2063282" # Q2063282
-          - "Q2308372" # rosh yeshiva
-          - "Q2358939" # Hogon
-          - "Q2535820" # bugyō
-          - "Q2629127" # Heren XIX
-          - "Q2639225" # Procurator
-          - "Q2937346" # Capitão do donatário
-          - "Q2957753" # chargé d'études statistiques
-          - "Q3139516" # Holy Orders
-          - "Q3278533" # maisnier
-          - "Q3408743" # seignory
-          - "Q3508196" # syndic of coownership
-          - "Q3622267" # Officium
-          - "Q4993575" # Q4993575
-          - "Q5640756" # Prócer del Reino
-          - "Q6420026" # Kleagle
-          - "Q6445724" # kurdaitcha
-          - "Q6543099" # Q6543099
-          - "Q6733284" # Maharana
-          - "Q7231536" # Portcullis Pursuivant
-          - "Q7370771" # Rouge Croix Pursuivant
-          - "Q7538518" # Slains Pursuivant
-          - "Q7559869" # Somerset Herald
-          - "Q7710644" # Thantri
-          - "Q10438569" # Q10438569
-          - "Q10500711" # Q10500711
-          - "Q10519151" # honorary member
-          - "Q10686102" # Q10686102
-          - "Q10887091" # Q10887091
-          - "Q10910812" # Q10910812
-          - "Q11533909" # Senshoku ginōshi
-          - "Q11570792" # Q11570792
-          - "Q11603279" # managerial staff
-          - "Q11773928" # Q11773928
-          - "Q11800539" # Q11800539
-          - "Q11938128" # Mutasarrifate
-          - "Q12038332" # Q12038332
-          - "Q12056812" # Q12056812
-          - "Q13122546" # Adhuri
-          - "Q13365589" # principal
-          - "Q15904441" # tulku lineage
-          - "Q17070605" # Station House Officer
-          - "Q18173381" # post of duty
-          - "Q20616094" # Q20616094
-          - "Q20778343" # Roman magistrate
-          - "Q25387725" # Q25387725
-          - "Q25394346" # proviseur
-          - "Q25457610" # beugrás
-          - "Q25490897" # Q25490897
-          - "Q28409756" # Q28409756
-          - "Q30926380" # guarda-roupa
-          - "Q47181134" # Q47181134
-          - "Q51073528" # Versicherungsbeamter
-          - "Q65963788" # President of APOEL
-          - "Q66332487" # President of Anorthosis Famagusta AC
-          - "Q70581532" # Joan Playà Guirado
-          - "Q71817123" # chronicler of Příbor
-          - "Q85510760" # Lagerarzt (KZ)
-          - "Q85515282" # Standortarzt (KZ)
-          - "Q85954791" # President of Apollon Limassol FC
-          - "Q87104570" # vice provost
-          - "Q91443469" # Zechprobst
-          - "Q97382722" # Q97382722
-          - "Q97962756" # Great Officers of the Crown of Savoy
-          - "Q104005945" # slave manumission official
-          - "Q104212240" # auxiliary worker
-          - "Q104531972" # tanador-mor
-          - "Q106329013" # Konnetabel von Aragón
-          - "Q107478229" # Werkreferent
-          - "Q109044377" # Maréchal de Champagne
-          - "Q110409475" # Wachtposten
-          - "Q113840044" # modérateur
-          - "Q114157430" # Q114157430
-          - "Q114839449" # Q114839449
-          - "Q114839541" # Q114839541
-          - "Q117448532" # Q117448532
-          - "Q123669978" # Nodocente
-          - "Q124422714" # gosho
-          - "Q58722446" # directeur de l'École nationale de la magistrature
-          - "Q64008660" # Q64008660
-          - "Q65557188" # President of Anorthosis Famagusta FC
-          - "Q65798480" # President of AEL Limassol
-          - "Q65962630" # President of AEK Larnaca      
-          - "Q108377574" # Islamic religious occupation
-          - "Q21051103" # warden
+          - "Q11271"  # Benevolent Dictator for Life
+          - "Q29182"  # bishop
+          - "Q212071"  # rector
+          - "Q368620"  # Chief Apostle
+          - "Q381136"  # shareholder
+          - "Q383865"  # executive sponsor
+          - "Q511138"  # inspector
+          - "Q659534"  # Three Masters of the East Palace
+          - "Q670556"  # Captain of the Castle
+          - "Q1017553"  # business analyst
+          - "Q1404101"  # fellow
+          - "Q1714036"  # jury
+          - "Q1766113"  # lighthouse keeper
+          - "Q1787679"  # chief executive
+          - "Q1807498"  # social position
+          - "Q2110002"  # Cantonal Council of Zurich
+          - "Q2114175"  # provost
+          - "Q2445218"  # goalkeeper coach
+          - "Q2450226"  # founder of Catholic religious community
+          - "Q2550689"  # equity partner
+          - "Q3149494"  # printer to the King
+          - "Q3290825"  # churchwarden
+          - "Q3504856"  # substitute
+          - "Q3643105"  # Rain Queen
+          - "Q4048723"  # SEO specialist
+          - "Q4102597"  # job vacancy
+          - "Q5428874"  # faculty member
+          - "Q7074545"  # Oba of Lagos
+          - "Q7140693"  # partner
+          - "Q7200276"  # placeholder
+          - "Q10438271"  # office manager
+          - "Q10543171"  # chamber writer
+          - "Q10561616"  # liquidator
+          - "Q11415594"  # honorable position
+          - "Q11488158"  # corporate title
+          - "Q11773926"  # ecclesiastical occupation
+          - "Q11952019"  # profesor titular de escuela universitaria
+          - "Q15140392"  # founding member
+          - "Q15143900"  # United Nations Special Rapporteur
+          - "Q15726407"  # President of the World Esperanto Youth Organization
+          - "Q19816651"  # Order of Cardinals
+          - "Q21114371"  # episcopal title
+          - "Q23685787"  # working student
+          - "Q28689677"  # honorary secretary
+          - "Q29982545"  # function in the Evangelical Church of Czech Brethren
+          - "Q30056203"  # ambassador to Qatar
+          - "Q30081888"  # ambassador to Belarus
+          - "Q30582382"  # excavation director
+          - "Q30682903"  # data protection officer
+          - "Q51321989"  # Professional engineer
+          - "Q55400987"  # community councillor
+          - "Q56514255"  # information commissioner
+          - "Q69282762"  # Assistant general secretary of the International Astronomical Union
+          - "Q73284086"  # student representative
+          - "Q81752537"  # professorship
+          - "Q91188763"  # Eastern Orthodox religious occupation
+          - "Q96437530"  # directed by / from
+          - "Q97468869"  # French horn player
+          - "Q100369292"  #  cycling officer
+          - "Q101573121"  # percussion teacher
+          - "Q104716377"  # secret collaborator
+          - "Q105954233"  # Pastor primarius der ev.-luth. Kirchengemeinder Sankt Andreasberg
+          - "Q105954234"  # Pastor diaconus der ev.-luth. Kirchengemeinder Sankt Andreasberg
+          - "Q106730414"  # student employee
+          - "Q107453261"  # representative of the Association of Silversmiths
+          - "Q107453369"  # Maltese Labour Party General Committee worker
+          - "Q107453418"  # Camera del Lavoro founder
+          - "Q109828300"  # court jeweler
+          - "Q110904785"  # Member of the Royal Swedish Academy of Music
+          - "Q112074151"  # head of a diocese
+          - "Q112075451"  # Technology Transfer Manager
+          - "Q114962596"  # historical position
+          - "Q115154787"  # church‘s ministry
+          - "Q115988665"  # student league chairperson
+          - "Q116143301"  # goaltending coach
+          - "Q120034425"  # illustrious son of Alaior
+          - "Q122915673"  # Clockmaker to the king
+          - "Q124467322"  # historical religious function
+          - "Q124515690"  # anglican episcopal title
+          - "Q124662819"  # Office dissolved
+          - "Q57895872"  # Chief Clerk of the Cortes Generales
+          - "Q59312380"  # Knight of the Order of Alcántara
+          - "Q63187345"  # religious occupation
+          - "Q63187384"  # Jewish religious occupation
+          - "Q63188683"  # Christian religious occupation
+          - "Q63188808"  # Catholic vocation
+          - "Q65279813"  # Designated School Official
+          - "Q228417"  # Zugführer
+          - "Q476987"  # Führerreserve
+          - "Q497960"  # Rensho
+          - "Q854246"  # Bezirkskantor
+          - "Q908892"  # Machi-bugyō
+          - "Q923724"  # sinecure
+          - "Q932945"  # khatib
+          - "Q1064555"  # Kumari
+          - "Q1241843"  # Nāyaṉmār
+          - "Q1274280"  # Sanjak-bey
+          - "Q1348170"  # Fils de France
+          - "Q1472626"  # fuchsmajor
+          - "Q1500489"  # Shophet
+          - "Q1660077"  # Immissionsschutzbeauftragter
+          - "Q1660824"  # Integrationsbeauftragter
+          - "Q1662558"  # Informationsfreiheitsbeauftragter
+          - "Q2004989"  # conseiller en prévention
+          - "Q2063282"  # Q2063282
+          - "Q2308372"  # rosh yeshiva
+          - "Q2358939"  # Hogon
+          - "Q2535820"  # bugyō
+          - "Q2629127"  # Heren XIX
+          - "Q2639225"  # Procurator
+          - "Q2937346"  # Capitão do donatário
+          - "Q2957753"  # chargé d'études statistiques
+          - "Q3139516"  # Holy Orders
+          - "Q3278533"  # maisnier
+          - "Q3408743"  # seignory
+          - "Q3508196"  # syndic of coownership
+          - "Q3622267"  # Officium
+          - "Q4993575"  # Q4993575
+          - "Q5640756"  # Prócer del Reino
+          - "Q6420026"  # Kleagle
+          - "Q6445724"  # kurdaitcha
+          - "Q6543099"  # Q6543099
+          - "Q6733284"  # Maharana
+          - "Q7231536"  # Portcullis Pursuivant
+          - "Q7370771"  # Rouge Croix Pursuivant
+          - "Q7538518"  # Slains Pursuivant
+          - "Q7559869"  # Somerset Herald
+          - "Q7710644"  # Thantri
+          - "Q10438569"  # Q10438569
+          - "Q10500711"  # Q10500711
+          - "Q10519151"  # honorary member
+          - "Q10686102"  # Q10686102
+          - "Q10887091"  # Q10887091
+          - "Q10910812"  # Q10910812
+          - "Q11533909"  # Senshoku ginōshi
+          - "Q11570792"  # Q11570792
+          - "Q11603279"  # managerial staff
+          - "Q11773928"  # Q11773928
+          - "Q11800539"  # Q11800539
+          - "Q11938128"  # Mutasarrifate
+          - "Q12038332"  # Q12038332
+          - "Q12056812"  # Q12056812
+          - "Q13122546"  # Adhuri
+          - "Q13365589"  # principal
+          - "Q15904441"  # tulku lineage
+          - "Q17070605"  # Station House Officer
+          - "Q18173381"  # post of duty
+          - "Q20616094"  # Q20616094
+          - "Q20778343"  # Roman magistrate
+          - "Q25387725"  # Q25387725
+          - "Q25394346"  # proviseur
+          - "Q25457610"  # beugrás
+          - "Q25490897"  # Q25490897
+          - "Q28409756"  # Q28409756
+          - "Q30926380"  # guarda-roupa
+          - "Q47181134"  # Q47181134
+          - "Q51073528"  # Versicherungsbeamter
+          - "Q65963788"  # President of APOEL
+          - "Q66332487"  # President of Anorthosis Famagusta AC
+          - "Q70581532"  # Joan Playà Guirado
+          - "Q71817123"  # chronicler of Příbor
+          - "Q85510760"  # Lagerarzt (KZ)
+          - "Q85515282"  # Standortarzt (KZ)
+          - "Q85954791"  # President of Apollon Limassol FC
+          - "Q87104570"  # vice provost
+          - "Q91443469"  # Zechprobst
+          - "Q97382722"  # Q97382722
+          - "Q97962756"  # Great Officers of the Crown of Savoy
+          - "Q104005945"  # slave manumission official
+          - "Q104212240"  # auxiliary worker
+          - "Q104531972"  # tanador-mor
+          - "Q106329013"  # Konnetabel von Aragón
+          - "Q107478229"  # Werkreferent
+          - "Q109044377"  # Maréchal de Champagne
+          - "Q110409475"  # Wachtposten
+          - "Q113840044"  # modérateur
+          - "Q114157430"  # Q114157430
+          - "Q114839449"  # Q114839449
+          - "Q114839541"  # Q114839541
+          - "Q117448532"  # Q117448532
+          - "Q123669978"  # Nodocente
+          - "Q124422714"  # gosho
+          - "Q58722446"  # directeur de l'École nationale de la magistrature
+          - "Q64008660"  # Q64008660
+          - "Q65557188"  # President of Anorthosis Famagusta FC
+          - "Q65798480"  # President of AEL Limassol
+          - "Q65962630"  # President of AEK Larnaca      
+          - "Q108377574"  # Islamic religious occupation
+          - "Q21051103"  # warden
           
   country_decisions:
     options:

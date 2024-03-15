@@ -35,6 +35,7 @@ url: https://www.interpol.int/How-we-work/Notices/View-Red-Notices
 data:
   url: https://ws-public.interpol.int/notices/v1/red
   format: xml
+ci_test: false
 
 assertions:
   min:

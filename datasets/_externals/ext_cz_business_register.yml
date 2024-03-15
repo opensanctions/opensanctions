@@ -28,6 +28,7 @@ publisher:
     registers).
   country: cz
   official: true
+ci_test: false
 
 inputs:
   - ann_graph_topics

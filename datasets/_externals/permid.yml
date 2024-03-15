@@ -28,6 +28,7 @@ publisher:
     With the merger of Refinitiv into LSEG, the PermID service (formerly Calais) is
     now offered as an open access API by the company.
   url: https://www.lseg.com/en/about-us/what-we-do
+ci_test: false
 
 inputs:
   - au_dfat_sanctions

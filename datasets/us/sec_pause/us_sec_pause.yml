@@ -69,11 +69,11 @@ lookups:
   type.email:
     options:
       - match:
-        - None
-        - none
-        - contact@DC Markets LLC
-        - support@247cryptotrade
-        - None provided
+          - None
+          - none
+          - contact@DC Markets LLC
+          - support@247cryptotrade
+          - None provided
         value: null
       - match: info.whitmanlg.com
         value: info@whitmanlg.com
@@ -84,13 +84,12 @@ lookups:
   type.url:
     options:
       - match:
-        - None
-        - None provided
-        - No website found
+          - None
+          - None provided
+          - No website found
         value: null
   type.phone:
     options:
       - match:
-        - None
+          - None
         value: null
-    
