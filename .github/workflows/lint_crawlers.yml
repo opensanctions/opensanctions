@@ -18,12 +18,7 @@ jobs:
       - name: Lint modiied dataset yamls
         if: ${{ steps.changed-yamls.outputs.all_changed_files != '' }}
         run: |
-          set -euxo pipefail
-          for dataset in ${{ steps.changed-yamls.outputs.all_changed_files }}
-          do
-              echo Linting $dataset
-              yamllint $dataset
-          done
+          yamllint ${{ steps.changed-yamls.outputs.all_changed_files }}
       - name: Get modified dataset python
         id: changed-python
         uses: tj-actions/changed-files@v43
