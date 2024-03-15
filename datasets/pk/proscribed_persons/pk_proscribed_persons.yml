@@ -4,6 +4,9 @@ url: https://nacta.gov.pk/proscribed-persons
 entry_point: crawler.py
 prefix: pk-proscribed
 summary: List of Proscribed Persons in Pakistan
+coverage:
+  frequency: daily
+  start: 2024-03-14
 description: |
   This dataset contains the list of proscribed persons in Pakistan.
 

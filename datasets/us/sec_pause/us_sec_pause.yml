@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: us-sec-pause
 coverage:
   frequency: daily
-  start: "2023-11-23"
+  start: 2023-11-23
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Entities that falsely claim to be registered, licensed, and/or located in the

@@ -4,7 +4,7 @@ entry_point: crawler.py
 prefix: us-dod-mil
 coverage:
     frequency: never
-    start: 2024-01-31
+    start: 2024-03-07
     end: 2024-01-31
 summary: >
   A list of companies identified as Chinese military companies operating in the United States.

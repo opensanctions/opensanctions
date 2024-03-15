@@ -1,3 +1,4 @@
+type: external
 title: "EU ESMA Financial Instruments Reference Data System (FIRDS)"
 entry_point: zavod.runner.enrich:enrich
 prefix: eu-firds

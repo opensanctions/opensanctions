@@ -1,6 +1,9 @@
 title: Lithuania Illegal Gambling Operators
 entry_point: crawler.py
 prefix: lt-gambling
+coverage:
+  frequency: daily
+  start: 2024-03-07
 summary: >
   List of online gambling operators regarded as illegal in Lithuania
 coverage:
