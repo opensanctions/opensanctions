@@ -16,7 +16,7 @@ jobs:
         with:
           files: 'datasets/**/*.y*ml'
       - name: Lint modiied dataset yamls
-        #if: ${{ steps.changed-yamls.outputs.all_changed_files != '' }}
+        if: ${{ steps.changed-yamls.outputs.all_changed_files != '' }}
         run: |
           for dataset in ${{ steps.changed-yamls.outputs.all_changed_files }}
           do

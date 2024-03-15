@@ -78,14 +78,11 @@ jobs:
         uses: tj-actions/changed-files@v43
         with:
           files: 'datasets/**'
-      - name: Get yaml files for modified datasets
-        id: modified_datasets
-        run: |
-          echo ${{ steps.changed-files.outputs.all_changed_files }}
       - name: Crawl modified datasets
         if: ${{ steps.changed-files.outputs.all_changed_files != '' }}
         run: |
-          dataset=$(python contrib/ci_datasets.py ${{ steps.changed-files.outputs.all_changed_files }})
+          set -euo pipefail
+          datasets=$(python contrib/ci_datasets.py ${{ steps.changed-files.outputs.all_changed_files }})
           for dataset in $datasets
           do
               echo Running $dataset
@@ -94,6 +91,7 @@ jobs:
       - name: Export modified datasets
         if: ${{ steps.changed-files.outputs.all_changed_files != '' }}
         run: |
+          set -euo pipefail
           datasets=$(python contrib/ci_datasets.py ${{ steps.changed-files.outputs.all_changed_files }})
           for dataset in $datasets
           do
