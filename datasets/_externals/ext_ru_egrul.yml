@@ -55,6 +55,7 @@ inputs:
   - ext_md_companies
   - ext_ru_egrul
   - ext_ua_edr
+  - ru_rupep
   - opencorporates
   - sanctions
 

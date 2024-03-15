@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: mx-dep
 coverage:
   frequency: daily
+  start: 2024-03-07
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Members of the Mexican Chamber of Deputies

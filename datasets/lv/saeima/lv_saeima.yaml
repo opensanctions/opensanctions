@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: lv-sae
 coverage:
   frequency: daily
+  start: 2024-03-07
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Members of the Latvian Saeima (Parliament)
