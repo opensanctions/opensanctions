@@ -38,3 +38,4 @@ children:
   - lv_business_register
   - sk_rpvs
   - dk_cvr
+ci_test: false

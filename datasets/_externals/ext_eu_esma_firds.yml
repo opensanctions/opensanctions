@@ -33,6 +33,7 @@ url: https://registers.esma.europa.eu/publication/searchRegister?core=esma_regis
 data:
   url: https://registers.esma.europa.eu/publication/searchRegister/doRelativeSearch
   format: JSON
+ci_test: false
 
 inputs:
   - ann_graph_topics

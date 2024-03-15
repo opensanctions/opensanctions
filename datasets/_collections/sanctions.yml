@@ -68,3 +68,4 @@ children:
   - us_ofac_sdn
   - us_trade_csl
   - za_fic_sanctions
+ci_test: false

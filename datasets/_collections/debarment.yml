@@ -27,3 +27,4 @@ children:
   - us_dod_chinese_milcorps
   - us_sam_exclusions
   - worldbank_debarred
+ci_test: false

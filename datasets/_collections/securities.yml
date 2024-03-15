@@ -41,3 +41,4 @@ children:
   - openfigi
   - permid
   - research
+ci_test: false

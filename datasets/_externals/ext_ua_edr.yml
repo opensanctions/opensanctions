@@ -51,6 +51,7 @@ publisher:
   url: https://usr.minjust.gov.ua/
   country: ua
   official: true
+ci_test: false
 
 inputs:
   - ann_graph_topics

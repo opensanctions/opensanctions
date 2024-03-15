@@ -40,6 +40,7 @@ publisher:
   url: https://www.companies.gov.cy/en/
   country: cy
   official: true
+ci_test: false
 
 inputs:
   - ann_graph_topics

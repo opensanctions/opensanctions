@@ -44,6 +44,7 @@ publisher:
     sister projects including Wikipedia, Wikivoyage, Wiktionary, Wikisource, and others.
   url: https://www.wikidata.org
   official: false
+ci_test: false
 
 inputs:
   # Warning: cannot include wd_peps here otherwise it gets too recursive

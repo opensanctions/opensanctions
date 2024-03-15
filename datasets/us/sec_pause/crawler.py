@@ -29,7 +29,7 @@ def parse_table(table: _Element) -> Generator[Dict[str, Tuple[str, Optional[str]
         if headers is None:
             headers = []
             for el in row.findall("./th"):
-                headers.append((slugify(el.text_content()), None))
+                headers.append(slugify(el.text_content()))
             continue
 
         cells = []
@@ -115,6 +115,7 @@ def crawl(context: Context) -> None:
 
     table = doc.find(".//table")
     for row in parse_table(table):
+        print(row)
         name, url = row.pop("name")
         if url is None:
             context.log.warning("No URL", name=name)

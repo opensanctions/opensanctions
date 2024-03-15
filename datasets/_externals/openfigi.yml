@@ -36,6 +36,7 @@ publisher:
     classes. Using OpenFigi, Financial instruments can be identified and mapped to their
     registered FIGI by various proprietary and standard identifiers.
   url: https://www.openfigi.com/
+ci_test: false
 
 inputs:
   - sanctions

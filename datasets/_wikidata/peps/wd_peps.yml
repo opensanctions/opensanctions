@@ -47,6 +47,7 @@ url: https://www.opensanctions.org/datasets/peps
 data:
   url: https://query.wikidata.org/sparql
   format: JSON
+ci_test: false
 
 assertions:
   min:
