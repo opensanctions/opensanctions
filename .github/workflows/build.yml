@@ -65,12 +65,6 @@ jobs:
         working-directory: zavod
         run: |
           python setup.py sdist bdist_wheel
-      - name: Crawl a single dataset
-        run: |
-          zavod crawl -c datasets/us/ofac/us_ofac_cons.yml
-      - name: Export a single dataset
-        run: |
-          zavod export -c datasets/us/ofac/us_ofac_cons.yml
       - name: Get any modified dataset files
         id: changed-files
         uses: tj-actions/changed-files@v43
