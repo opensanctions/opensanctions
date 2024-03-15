@@ -7,3 +7,4 @@ formatter:
   # > width, it won't split it up properly.
   # https://github.com/google/yamlfmt/blob/main/docs/config-file.md#note-on-max_line_length
   max_line_length: 80
+  retain_line_breaks: true
