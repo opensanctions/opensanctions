@@ -35,4 +35,9 @@ $ zavod crawl ...
 Then run the exporter with `--clear` to ensure the latest statements are included in the output:
 
 ```bash
-$ zavod export --clear ...```
+$ zavod export --clear ...
+```
+
+# Debugging Crawlers in VSCode
+It is possible to debug crawlers through the Python debugger that comes with the standard VSCode install. To enable it either rename `.vscode/launch.json.example` to `launch.json` or copy over the launch configuration you find in it to your own `launch.json` file. 
+You should now be able to run crawlers by navigating to their `.yaml` file and running the "Debug: Crawl of current .YAML" launch configuration.
