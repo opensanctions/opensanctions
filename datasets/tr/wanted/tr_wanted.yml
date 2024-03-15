@@ -1,0 +1,21 @@
+name: tr_wanted
+title: "Turkey Wanted Terrorists"
+entry_point: crawler.py
+prefix: tr-wanted
+coverage:
+  frequency: daily
+  start: 2024-03-15
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Wanted terrorists list of Turkey Ministry of Interior
+description: |
+  Wanted terrorists list of Turkey Ministry of Interior
+publisher:
+    name: Ministry of Interior
+    country: tr
+    official: true
+    url: https://en.terorarananlar.pol.tr/
+
+data:
+    url: https://www.terorarananlar.pol.tr/ISAYWebPart/TArananlar/GetTerorleArananlarList
+    format: JSON
