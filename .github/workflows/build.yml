@@ -85,7 +85,7 @@ jobs:
           datasets=$(python contrib/ci_datasets.py ${{ steps.changed-files.outputs.all_changed_files }})
           for dataset in $datasets
           do
-              echo Running $dataset
+              echo Crawling $dataset
               zavod crawl -c $dataset
           done
       - name: Export modified datasets

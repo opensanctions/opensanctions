@@ -18,8 +18,31 @@ jobs:
       - name: Lint modiied dataset yamls
         if: ${{ steps.changed-yamls.outputs.all_changed_files != '' }}
         run: |
+          set -euxo pipefail
           for dataset in ${{ steps.changed-yamls.outputs.all_changed_files }}
           do
               echo Linting $dataset
               yamllint $dataset
+          done
+      - name: Get modified dataset python
+        id: changed-python
+        uses: tj-actions/changed-files@v43
+        with:
+          files: 'datasets/**/*.py'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      - name: Install python linting dependencies
+        run: |
+          pip install --no-cache-dir -q black==24.2.0 ruff==0.3.2
+      - name: Lint modiied dataset python
+        if: ${{ steps.changed-python.outputs.all_changed_files != '' }}
+        run: |
+          set -euxo pipefail
+          for dataset in ${{ steps.changed-python.outputs.all_changed_files }}
+          do
+              echo Linting $dataset
+              ruff check $dataset
+              black --check $dataset
           done
