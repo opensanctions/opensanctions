@@ -73,25 +73,12 @@ jobs:
       - name: Export a single dataset
         run: |
           zavod export -c datasets/us/ofac/us_ofac_cons.yml
-      - name: Get modified dataset yamls
-        id: changed-yamls
-        uses: tj-actions/changed-files@v43
-        with:
-          files: 'datasets/**/*.y*ml'
-      - name: Lint modiied dataset yamls
-        if: ${{ steps.changed-yamls.outputs.all_changed_files != '' }}
-        run: |
-          for dataset in $(python contrib/ci_datasets.py ${{ steps.changed-yamls.outputs.all_changed_files }})
-          do
-              echo Linting $dataset
-              yamllint $dataset
-          done
       - name: Get any modified dataset files
         id: changed-files
         uses: tj-actions/changed-files@v43
         with:
           files: 'datasets/**'
-      - name: Get modified datasets
+      - name: Get yaml files for modified datasets
         id: modified_datasets
         run: |
           echo ${{ steps.changed-files.outputs.all_changed_files }}
