@@ -23,6 +23,7 @@ IGNORE_COLUMNS = [
     "RegimenPat",
 ]
 
+
 def crawl_row(context: Context, row: Dict[str, str]):
     person = context.make("Person")
 
