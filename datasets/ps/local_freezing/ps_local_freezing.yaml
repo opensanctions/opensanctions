@@ -5,21 +5,25 @@ coverage:
   frequency: daily
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  People who are sanctioned by the PMA in accordance with Security Council Resolutions to combat money laundering and the financing of terrorism .
+  People who are sanctioned by the PMA in accordance with Security Council 
+  Resolutions to combat money laundering and the financing of terrorism.
 description: |
-  The Palestine Monetary Authority (PMA) is a public institution
-  responsible for the formulation and implementation of monetary
-  and banking policies in Palestine.  The PMA operates by an act 
-  f the Palestine Legislative Council's PMA Law Number (2) of 1997,
-  which stipulated the proper authority and autonomy of the PMA and the Banking Law Number 9 of 2010.
   In Line with authorities of the "Security Council Resolutions Enforcing Committee",
   which formed according to Decree No. (14) of 2015 Concerning the Enforcement of
   Security Council Resolutions, the PMA publishes a Local Freezing List.
+  A freezing list is a list of people who are prohibited of transferring 
+  property or equipment's or other instrumentalities.
 publisher:
   name: Palestine Monetary Authority
   url: https://www.pma.ps/en/
   official: true
   country: "ps"
+  description: |
+    The Palestine Monetary Authority is a public institution responsible
+    for the formulation and implementation of monetary and banking
+    policies in Palestine. The PMA operates by an act of the Palestine
+    Legislative Council's PMA Law Number (2) of 1997, which stipulated
+    the proper authority and autonomy of the PMA and the Banking Law Number 9 of 2010.
 url: "https://www.pma.ps/en/Legislation//AMLCFT//LocalFreezingList"
 data:
   url: https://www.pma.ps/en/Legislation//AMLCFT//LocalFreezingList

@@ -1,13 +1,14 @@
 from typing import Generator, Dict, Tuple
 
-from normality import collapse_spaces
+from normality import collapse_spaces, slugify
 from zavod import Context, helpers as h
 
 HEADERS = ["Person Name", "ID", "Date of Freezing"]
 
+
 def parse_table(
     table,
-) -> Generator[Dict[str, str | Tuple[str]], None, None]:
+) -> Generator[Dict[str, str], None, None]:
     """
     The first row of the table represent the headers, but we're not going to
     try and parse colspan and rowspan.
@@ -19,9 +20,14 @@ def parse_table(
         AssertionError: If the headers don't match what we expect.
     """
 
-    for _, row in enumerate(table.findall(".//tr")[1:]):
+    headers = None
+
+    for _, row in enumerate(table.findall(".//tr")):
+        if headers is None:
+            headers = [slugify(el.text) for el in row.findall("./td")]
+            continue
         cells = [collapse_spaces(cell.text_content()) for cell in row.findall("./td")]
-        assert len(cells) == len(HEADERS), cells
+        assert len(cells) == len(headers), cells
 
         # The table has a last row with all empty values
         if all(c == "" for c in cells):
@@ -29,30 +35,45 @@ def parse_table(
 
         yield {hdr: c for hdr, c in zip(HEADERS, cells, strict=True)}
 
+
 def crawl_item(input_dict: dict, context: Context):
     entity = context.make("Person")
 
-    entity.id = context.make_slug(input_dict.pop("ID"))
+    id_ = input_dict.pop("ID")
+
+    entity.id = context.make_slug(id_)
+
+    entity.add("idNumber", id_)
+    entity.add("country", "ps")
 
     # We are going to split using the dot symbol used to represent the start of a new name
     # Then we will strip leading and trailling spaces
     # Finally, we will remove the information contained in the brackets, because they are not relevant
-    names = [name.strip() for name in input_dict.pop("Person Name").split("• ") if name.strip()]
+    names = [
+        name.strip()
+        for name in input_dict.pop("Person Name").split("• ")
+        if name.strip()
+    ]
     names = [h.remove_bracketed(name) for name in names]
 
     for name in names:
         entity.add("name", name)
 
     sanction = h.make_sanction(context, entity)
-    sanction.add("date", h.parse_date(input_dict.pop("Date of Freezing"), formats=["%d/%m/%Y"]))
+    sanction.add(
+        "date", h.parse_date(input_dict.pop("Date of Freezing"), formats=["%d/%m/%Y"])
+    )
+    sanction.add(
+        "program",
+        "Decree No. (14) of 2015 Concerning the Enforcement of Security Council Resolutions",
+    )
 
     context.emit(entity, target=True)
     context.emit(sanction)
     context.audit_data(input_dict)
 
+
 def crawl(context: Context):
-
-
     response = context.fetch_html(context.data_url)
 
     table = response.find(".//table")
