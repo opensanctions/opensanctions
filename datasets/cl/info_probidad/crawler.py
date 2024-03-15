@@ -23,6 +23,7 @@ IGNORE_COLUMNS = [
     "RegimenPat",
 ]
 
+
 def crawl_row(context: Context, row: Dict[str, str]):
     person = context.make("Person")
 
@@ -51,7 +52,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
         context.log.warning(f"A new 'Cargo' '{position_name}' was identified")
 
     categorisation = categorise(
-        context, position, is_pep=position_lookup.is_pep
+        context, position, is_pep=getattr(position_lookup, "is_pep", None)
     )
 
     if not categorisation.is_pep:
