@@ -76,7 +76,7 @@ lookups:
           - CHANNEL ISLANDS
           - Channel Islands
           - YYY
-          - VIRGIN ISLANDS # which???!?
+          - VIRGIN ISLANDS  # which???!?
         value: null
   type.country:
     lowercase: true

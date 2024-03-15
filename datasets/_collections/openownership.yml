@@ -16,7 +16,7 @@ summary: >
   Beneficial Ownership Data Standard (BODS).
 description: |
   The data in this collection is full beneficial ownership registers, not just the
-  subsets which are adjacent to sanctioned or other risky entities and thus included 
+  subsets which are adjacent to sanctioned or other risky entities and thus included
   in the [OpenSanctions default](/datasets/default/) dataset. This data is not fully
   internally resolved in the same way that the rest of OpenSanctions is.
 

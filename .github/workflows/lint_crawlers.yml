@@ -31,7 +31,7 @@ jobs:
       - name: Install python linting dependencies
         run: |
           pip install --no-cache-dir -q black==24.2.0 ruff==0.3.2
-      - name: Lint modiied dataset python
+      - name: Lint modified dataset python
         if: ${{ steps.changed-python.outputs.all_changed_files != '' }}
         run: |
           set -euxo pipefail

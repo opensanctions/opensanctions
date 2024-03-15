@@ -6,15 +6,15 @@ deploy:
   command: /etl/scripts/export-sanctions.sh
   # premium: true
 summary: >
-  Consolidated list of sanctioned entities designated by different 
+  Consolidated list of sanctioned entities designated by different
   countries and international organisations. This can include military,
   trade and travel restrictions.
 description: |
   This collection combines all designated entities from the various sanctions
-  lists included in OpenSanctions. It represents the broadest set of 
+  lists included in OpenSanctions. It represents the broadest set of
   sanctioned people, companies and other assets that is designated globally.
 
-  Virtually all sanctions lists are based on the [UN Security Council List](/datasets/un_sc_sanctions/), 
+  Virtually all sanctions lists are based on the [UN Security Council List](/datasets/un_sc_sanctions/),
   and add further listings based on national policies.
 
 children:

@@ -5,7 +5,7 @@ deploy:
   schedule: "1 */6 * * *"
   memory: "1500Mi"
 summary: >
-  Companies and people banned from participating in procurment tenders in 
+  Companies and people banned from participating in procurment tenders in
   a particular jurisdiction, or vis a vis a certain organisation.
 description: |
   Procurement exclusion (debarment) of companies involved in irregularities
