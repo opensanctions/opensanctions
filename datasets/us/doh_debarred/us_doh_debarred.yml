@@ -1,16 +1,16 @@
 name: us_doh_debarred
-title: Debarred people and companies from us department of health
+title:  US DOH Inspector General Exclusions
 entry_point: crawler.py
 coverage:
   frequency: daily
   start: "2024-03-13"
 summary: >
-  A list of debarred peoples and companies listed in US Department of Health and Human Service.
+  Peoples and companies excluded from Federally funded health care programs
 description: |
-  This dataset provides information on Individuals and entities debarred from participation in Medicare,
+  This dataset provides information on Individuals and entities excluded from participation in Medicare,
   Medicaid, and all other Federal health care programs for various reasons including conviction for Medicare 
   or Medicaid fraud.
-  Debarments are imposed under the authority of sections 1128 and 1156 of the Social Security Act.
+  Exclusions are imposed under the authority of sections 1128 and 1156 of the Social Security Act.
   
   From the OIG HHS page:
   > Exclusion from participation in Medicare, Medicaid, and all other Federal health care programs.
@@ -30,15 +30,17 @@ description: |
   For more information, refer to the [OIG's Exclusion Authorities FAQ page](https://oig.hhs.gov/faqs/exclusions-faq).
 
 publisher: 
-  name: U.S. Department of Health and Human Services Office of Inspector General
+  name: U.S. Department of Health and Human Services Office of Inspector General (OIG)
   description: |
-   OIG's LEIE provides information to the health care industry, patients and the public regarding 
-   individuals and entities currently excluded from participation in Medicare, Medicaid and all other
-   Federal health care programs.
+   OIG is the largest inspector general's office in the Federal Government responsible for oversight of the Department 
+   of Heallth and Human Services(HHS).The OIG team is made up of auditors, investigators, and experts in different areas. 
+   The OIG reports to both the Secretary of HHS and Congress. OIG's LEIE provides information to the health care industry,
+   patients and the public regarding individuals and entities currently excluded from participation in Medicare, Medicaid and
+   all other  Federal health care programs.
   country: us
-  url: https://oig.hhs.gov/exclusions/index.asp
+  url: https://oig.hhs.gov/
   official: true
-url: https://oig.hhs.gov/exclusions/exclusions_list.asp
+url: https://oig.hhs.gov/exclusions/index.asp
 data:
   url: https://oig.hhs.gov/exclusions/downloadables/UPDATED.csv
   format: CSV
@@ -46,10 +48,10 @@ data:
 assertions:
   min:
     schema_entities:
-      Person: 10000
-      Company: 1500
+      Person: 68000
+      Company: 3000
     countries: 1
   max:
     schema_entities:
-      Person: 150000
-      Company: 10000
+      Person: 92000
+      Company: 4000
