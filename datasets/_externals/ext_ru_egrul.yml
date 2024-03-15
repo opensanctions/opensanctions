@@ -18,10 +18,10 @@ deploy:
   premium: true
 # load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
-  Companies database of the Russian Federation as maintained and published by 
+  Companies database of the Russian Federation as maintained and published by
   the Federal Tax Service.
 description: |
-  The tax database of legal entities is probably the most detailed part of the 
+  The tax database of legal entities is probably the most detailed part of the
   companies registry (other fragments are maintained by the statistics body and
   others). The registry data must be purchased from the tax authority, but a
   full version of it has been released online by a Russian IT entrepreneur.

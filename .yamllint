@@ -2,6 +2,7 @@
 
 extends: default
 rules:
-    document-start: disable
-    line-length:
-        max: 90
+  document-start: disable
+  line-length: disable
+  indentation:
+    spaces: 2

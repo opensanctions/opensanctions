@@ -27,7 +27,8 @@ publisher:
   description: |
     The National Counter Terrorism Authority (NACTA) is an Administative
     unit within the Ministry of Interior, under a National Coordinator.
-    It's powers and mandate are spelled out under Section 4 of [NACTA Act,2013](https://nacta.gov.pk/wp-content/uploads/2017/09/NACTA-Act.pdf)
+    It's powers and mandate are spelled out under Section 4 of
+    [NACTA Act,2013](https://nacta.gov.pk/wp-content/uploads/2017/09/NACTA-Act.pdf)
   url: https://nacta.gov.pk
   country: pk
   official: true
