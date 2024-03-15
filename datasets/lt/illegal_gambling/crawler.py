@@ -76,7 +76,7 @@ def crawl(context: Context):
     tables = response.findall('.//table')
     for table in tables:
         first_row = table.find('.//tr')
-        if not "Nelegalios lošimų veiklos vykdytojo duomenys" in first_row.text_content():
+        if "Nelegalios lošimų veiklos vykdytojo duomenys" not in first_row.text_content():
             continue
         for item in parse_table(table):
             crawl_item(item, context)
