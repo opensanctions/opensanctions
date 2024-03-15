@@ -25,6 +25,7 @@ jobs:
     env:
       OPENSANCTIONS_DATABASE_URI: "postgresql://opensanctions:opensanctions@localhost/opensanctions"
       OPENSANCTIONS_RESOLVER_PATH: /dev/null
+      ZAVOD_SYNC_POSITIONS: false
 
     runs-on: ubuntu-latest
     strategy:
