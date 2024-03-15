@@ -1,7 +1,6 @@
 from typing import Dict, Generator, Optional, Tuple
 from lxml.etree import _Element
 from normality import slugify, collapse_spaces
-from requests.exceptions import HTTPError
 from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
 
