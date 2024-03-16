@@ -1,14 +1,9 @@
-from typing import Generator, Dict, Tuple
+from typing import Generator, Dict
 
 from normality import collapse_spaces, slugify
 from zavod import Context, helpers as h
 
-HEADERS = ["Person Name", "ID", "Date of Freezing"]
-
-
-def parse_table(
-    table,
-) -> Generator[Dict[str, str], None, None]:
+def parse_table(table) -> Generator[Dict[str, str], None, None]:
     """
     The first row of the table represent the headers, but we're not going to
     try and parse colspan and rowspan.
@@ -19,27 +14,30 @@ def parse_table(
     Raises:
         AssertionError: If the headers don't match what we expect.
     """
-
     headers = None
-
-    for _, row in enumerate(table.findall(".//tr")):
+    for row in table.findall(".//tr"):
         if headers is None:
-            headers = [slugify(el.text) for el in row.findall("./td")]
+            headers = []
+            for el in row.findall("./td"):
+                headers.append(slugify(el.text_content()))
             continue
-        cells = [collapse_spaces(cell.text_content()) for cell in row.findall("./td")]
-        assert len(cells) == len(headers), cells
+
+        cells = []
+        for el in row.findall("./td"):
+            cells.append(collapse_spaces(el.text_content()))
+
+        assert len(cells) == len(headers)
 
         # The table has a last row with all empty values
         if all(c == "" for c in cells):
             continue
 
-        yield {hdr: c for hdr, c in zip(HEADERS, cells, strict=True)}
-
+        yield {hdr: c for hdr, c in zip(headers, cells)}
 
 def crawl_item(input_dict: dict, context: Context):
     entity = context.make("Person")
 
-    id_ = input_dict.pop("ID")
+    id_ = input_dict.pop("id")
 
     entity.id = context.make_slug(id_)
 
@@ -51,7 +49,7 @@ def crawl_item(input_dict: dict, context: Context):
     # Finally, we will remove the information contained in the brackets, because they are not relevant
     names = [
         name.strip()
-        for name in input_dict.pop("Person Name").split("• ")
+        for name in input_dict.pop("person-name").split("• ")
         if name.strip()
     ]
     names = [h.remove_bracketed(name) for name in names]
@@ -61,7 +59,7 @@ def crawl_item(input_dict: dict, context: Context):
 
     sanction = h.make_sanction(context, entity)
     sanction.add(
-        "date", h.parse_date(input_dict.pop("Date of Freezing"), formats=["%d/%m/%Y"])
+        "date", h.parse_date(input_dict.pop("date-of-freezing"), formats=["%d/%m/%Y"])
     )
     sanction.add(
         "program",
