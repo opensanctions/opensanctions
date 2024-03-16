@@ -3,6 +3,7 @@ from typing import Generator, Dict
 from normality import collapse_spaces, slugify
 from zavod import Context, helpers as h
 
+
 def parse_table(table) -> Generator[Dict[str, str], None, None]:
     """
     The first row of the table represent the headers, but we're not going to
@@ -33,6 +34,7 @@ def parse_table(table) -> Generator[Dict[str, str], None, None]:
             continue
 
         yield {hdr: c for hdr, c in zip(headers, cells)}
+
 
 def crawl_item(input_dict: dict, context: Context):
     entity = context.make("Person")
