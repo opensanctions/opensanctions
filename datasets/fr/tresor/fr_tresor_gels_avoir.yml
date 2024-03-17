@@ -2652,7 +2652,7 @@ lookups:
           legalForm: société par actions non publique
           registrationNumber: 1025001627859
           incorporationDate: 2002-10-11
-      - match: "numéro d’identification: 13185231" 
+      - match: "numéro d’identification: 13185231"
         props:
           registrationNumber: 13185231
       - match: "INN: 5013045054"
@@ -3166,4 +3166,124 @@ lookups:
       - match: "Numéro d’identification fiscale: 3017041900"
         props:
           innCode: 3017041900
-          
+      - match: "Type d’entité: société par actions - Date d’enregistrement: 14.10.2002: /"
+        props:
+          legalForm: société par actions
+          incorporationDate: 2002-10-14
+      - match: "Lieu d'enregistrement: Fédération de Russie (606083, région de Nizhny Novgorod, district de Volodarsky, Mulino) - Date d'enregistrement: 14.12.2009 - Principal établissement: Fédération de Russie: 3666162144 (numéro d'identification fiscale)"
+        props:
+          jurisdiction: ru
+          address: "606083, région de Nizhny Novgorod, district de Volodarsky, Mulino"
+          incorporationDate: 2009-12-14
+          innCode: 3666162144
+      - match: "Personnes associées: Pavel Prigozhin; Mikhaïl Vatanin"
+        associates:
+          - Pavel Prigozhin
+          - Mikhaïl Vatanin
+      - match: "Fédération de Russie (125183, Moscou, Bolshaya Akademicheskaya st., 73 k. 3, premises. 5n) - Date d'enregistrement: 29.5.2020 - Principal établissement: Fédération de Russie: 9715384055 (numéro d'identification fiscale)"
+        props:
+          jurisdiction: ru
+          address: "125183, Moscou, Bolshaya Akademicheskaya st., 73 k. 3, premises. 5n"
+          incorporationDate: 2020-05-29
+          innCode: 9715384055
+      - match: "Type d’entité: société par actions - Date d’enregistrement: 15.2.1994: /"
+        props:
+          legalForm: société par actions
+          incorporationDate: 1994-02-15
+      - match: "Type d’entité: société à responsabilité limitée - Date d’enregistrement: 17.2.2005: /"
+        props:
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2005-02-17
+      - match: "Type d’entité: société à responsabilité limitée - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 27.11.2015: /"
+        props:
+          legalForm: société à responsabilité limitée
+          jurisdiction: ru
+          incorporationDate: 2015-11-27
+      - match: "Numéro d’enregistrement: 7804552300"
+        props:
+          registrationNumber: 7804552300
+      - match: "Type d’entité: société par actions - Lieu d’enregistrement: Moscou, Fédération de Russie - Date d’enregistrement: 18.7.2005: /"
+        props:
+          legalForm: société par actions
+          jurisdiction: ru
+          incorporationDate: 2005-07-18
+      - match: "Numéro d’identification fiscale: 7722307636"
+        props:
+          innCode: 7722307636
+      - match: "Type d’entité: société par actions - Date d’enregistrement: 16.10.2002: Numéro d’enregistrement: 1023302153456"
+        props:
+          legalForm: société par actions
+          incorporationDate: 2002-10-16
+          registrationNumber: 1023302153456
+      - match: "Type d’entité: société à responsabilité limitée - Date d’enregistrement: 27.3.2023: /"
+        props:
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2023-03-27
+      - match: "Numéro d’identification fiscale: 7718927027"
+        props:
+          innCode: 7718927027
+      - match: "Lieu d’enregistrement: Fédération de Russie, Omsk region, Omsk, Karl Marx Avenue, 41 - Date d’enregistrement: 24.7.2002 Principal établissement: Fédération de Russie: Numéro d’identification fiscale: 5508000955"
+        props:
+          jurisdiction: ru
+          address: "Fédération de Russie, Omsk region, Omsk, Karl Marx Avenue, 41"
+          incorporationDate: 2002-07-24
+          innCode: 5508000955
+      - match: "Type d’entité: société par actions - Date d’enregistrement: 29.11.2002: /"
+        props:
+          legalForm: société par actions
+          incorporationDate: 2002-11-29
+      - match: "Numéro d’identification fiscale: 6229031754"
+        props:
+          innCode: 6229031754
+      - match: "Type d’entité: fait partie du ministère russe de la défense - Lieu d’enregistrement: Fédération de Russie: /"
+        props:
+          legalForm: fait partie du ministère russe de la défense
+          jurisdiction: ru
+      - match: "Numéro d’enregistrement: 1165022050808"
+        props:
+          registrationNumber: 1165022050808
+      - match: "Numéro d’identification fiscale: 5022050639"
+        props:
+          innCode: 5022050639
+      - match: "Type d’entité: société par actions - Lieu d’enregistrement: Petrovsk, Fédération de Russie - Date d’enregistrement: 21.1.2014: /"
+        props:
+          legalForm: société par actions
+          jurisdiction: ru
+          incorporationDate: 2014-01-21
+      - match: "Type d’entité: fondation caritative: Lieu d’enregistrement: Minsk, République de Biélorussie"
+        props:
+          legalForm: fondation caritative
+          jurisdiction: by
+      - match: "Numéro d’enregistrement: 1057748152439"
+        props:
+          registrationNumber: 1057748152439
+      - match: "Lieu d’enregistrement: Moscou, Fédération de Russie - Date d’enregistrement: 8.9.2005: /"
+        props:
+          jurisdiction: ru
+          incorporationDate: 2005-09-08
+      - match: "Numéro d’enregistrement: 1116680000470"
+        props:
+          registrationNumber: 1116680000470
+      - match: "Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie, 624981, Sverdlovsk region, Serov city, Aglomeratchikov str. 10 - Date d’enregistrement: 23.12.2011: /"
+        props:
+          legalForm: société par actions
+          jurisdiction: ru
+          address: "Fédération de Russie, 624981, Sverdlovsk region, Serov city, Aglomeratchikov str. 10"
+          incorporationDate: 2011-12-23
+      - match: "Type d’entité: société à responsabilité limitée - Date d’enregistrement: 17.9.2013: /"
+        props:
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2013-09-17
+      - match: "Type d’entité: société par actions - Date d’enregistrement: 29.10.2002: Numéro d’enregistrement: 1025201420012"
+        props:
+          legalForm: société par actions
+          incorporationDate: 2002-10-29
+          registrationNumber: 1025201420012
+      - match: "Type d’entité: société par actions - Date d’enregistrement: 18.10.2002: Numéro d’enregistrement: 1027731005323"
+        props:
+          legalForm: société par actions
+          incorporationDate: 2002-10-18
+          registrationNumber: 1027731005323
+      - match: "Numéro d’identification fiscale: 3025037914"
+        props:
+          innCode: 3025037914
