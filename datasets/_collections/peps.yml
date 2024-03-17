@@ -3,7 +3,7 @@ title: Politically Exposed Persons (PEPs)
 coverage:
   frequency: daily
 deploy:
-  schedule: "40 */6 * * *"
+  schedule: "40 */12 * * *"
   memory: "1500Mi"
   memory_limit: "2000Mi"
   cpu: "500m"
