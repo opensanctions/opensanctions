@@ -36,6 +36,9 @@ data:
   url: https://ws-public.interpol.int/notices/v1/red
   format: xml
 ci_test: false
+http:
+  total_retries: 5
+  retry_statuses: [403]
 
 assertions:
   min:

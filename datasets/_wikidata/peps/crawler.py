@@ -253,14 +253,6 @@ def query_position_classes(context: Context):
 
 
 def crawl(context: Context):
-    retries = Retry(
-        total=5,
-        backoff_factor=2,
-        status_forcelist=[500],
-        allowed_methods={"GET", "POST"},
-    )
-    context.http.mount("https://", HTTPAdapter(max_retries=retries))
-
     seen_countries = set()
     seen_positions = set()
     position_classes = query_position_classes(context)

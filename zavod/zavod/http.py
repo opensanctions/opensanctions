@@ -3,16 +3,21 @@ from typing import Any, Optional
 from functools import partial
 from pathlib import Path
 from requests import Session
+from requests.adapters import HTTPAdapter
 from urllib3.exceptions import InsecureRequestWarning
+from urllib3.util import Retry
 
 from zavod import settings
 from zavod.logs import get_logger
+from zavod.meta.http import HTTP
 
 log = get_logger(__name__)
 warnings.filterwarnings("ignore", category=InsecureRequestWarning)
 
 
-def make_session(user_agent: str = settings.HTTP_USER_AGENT) -> Session:
+def make_session(
+    http_conf: HTTP, user_agent: str = settings.HTTP_USER_AGENT
+) -> Session:
     session = Session()
     session.headers["User-Agent"] = user_agent
     session.verify = False
@@ -20,6 +25,14 @@ def make_session(user_agent: str = settings.HTTP_USER_AGENT) -> Session:
         session.request,
         timeout=settings.HTTP_TIMEOUT,
     )
+    retries = Retry(
+        total=http_conf.total_retries,
+        backoff_factor=http_conf.backoff_factor,
+        status_forcelist=http_conf.retry_statuses,
+        allowed_methods=http_conf.retry_methods,
+    )
+    session.mount("https://", HTTPAdapter(max_retries=retries))
+    session.mount("http://", HTTPAdapter(max_retries=retries))
     return session
 
 

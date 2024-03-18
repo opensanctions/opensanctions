@@ -2,8 +2,6 @@ from collections import defaultdict
 from datetime import datetime
 from typing import Dict, Any, List, Optional, Set
 from requests.exceptions import HTTPError
-from requests.adapters import HTTPAdapter
-from urllib3.util import Retry
 
 from zavod import Context
 from zavod import helpers as h
@@ -141,9 +139,6 @@ def crawl(context: Context) -> None:
     # context.log.info("Loading interpol API cache...")
     # context.cache.preload("https://ws-public.interpol.int/notices/%")
     # crawl_query(context, {"sexId": "U"})
-
-    retries = Retry(total=5, backoff_factor=1, status_forcelist=[403])
-    context.http.mount("https://", HTTPAdapter(max_retries=retries))
 
     countries = get_countries(context)
     covered_countries = set()

@@ -21,6 +21,13 @@ url: "https://knesset.gov.il/WebSiteApi/knessetapi/MKs/GetMksDropdown?languageKe
 data:
   url: https://knesset.gov.il/WebSiteApi/knessetapi/MKs/GetMksDropdown?languageKey=en
   format: JSON
+http:
+  total_retries: 5
+  # go big or go home.
+  backoff_factor: 3
+  # 503 is a ban for a few seconds.
+  # 403 seems to mean you're banned for hours or more.
+  retry_statuses: [503]
 
 assertions:
   min:
