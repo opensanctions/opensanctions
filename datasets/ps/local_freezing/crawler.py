@@ -3,6 +3,8 @@ from typing import Generator, Dict
 from normality import collapse_spaces, slugify
 from zavod import Context, helpers as h
 
+FORMATS = ["%d/%m/%Y"]
+
 
 def parse_table(table) -> Generator[Dict[str, str], None, None]:
     """
@@ -45,6 +47,7 @@ def crawl_item(input_dict: dict, context: Context):
 
     entity.add("idNumber", id_)
     entity.add("country", "ps")
+    entity.add("topics", "sanction")
 
     # We are going to split using the dot symbol used to represent the start of a new name
     # Then we will strip leading and trailling spaces
@@ -61,9 +64,7 @@ def crawl_item(input_dict: dict, context: Context):
         entity.add("alias", aliases)
 
     sanction = h.make_sanction(context, entity)
-    sanction.add(
-        "date", h.parse_date(input_dict.pop("date-of-freezing"), formats=["%d/%m/%Y"])
-    )
+    sanction.add("startDate", h.parse_date(input_dict.pop("date-of-freezing"), FORMATS))
     sanction.add(
         "program",
         "Decree No. (14) of 2015 Concerning the Enforcement of Security Council Resolutions",
@@ -76,8 +77,6 @@ def crawl_item(input_dict: dict, context: Context):
 
 def crawl(context: Context):
     response = context.fetch_html(context.data_url)
-
     table = response.find(".//table")
-
     for item in parse_table(table):
         crawl_item(item, context)
