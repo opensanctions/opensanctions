@@ -51,10 +51,10 @@ Remember to give the context that people from different countries need to make s
 HTTP requests for GET requests are automatically retried for connection and HTTP errors. Some of this retry behaviour can be configured from the dataset metadata if needed.
 
 - `http`
-  - `retry_methods`: List of strings, [default](https://urllib3.readthedocs.io/en/stable/reference/urllib3.util.html#urllib3.util.Retry.DEFAULT_ALLOWED_METHODS) `['DELETE', 'GET', 'HEAD', 'OPTIONS', 'PUT', 'TRACE']`
-  - `max_retries`: integer in seconds, default `3`
-  - `backoff_factor`: float, default `1`. [Scales the exponential backoff](https://urllib3.readthedocs.io/en/stable/reference/urllib3.util.html#urllib3.util.Retry.DEFAULT_ALLOWED_METHODS:~:text=with%20None.-,backoff_factor,-(float)%20%E2%80%93).
-  - `retry_statuses`: List of integers of HTTP error codes to retry, default `[413, 429, 503]`.
+    - `backoff_factor`: float, default `1`. [Scales the exponential backoff](https://urllib3.readthedocs.io/en/stable/reference/urllib3.util.html#urllib3.util.Retry.DEFAULT_ALLOWED_METHODS:~:text=with%20None.-,backoff_factor,-(float)%20%E2%80%93).
+    - `max_retries`: integer in seconds, default `3`
+    - `retry_methods`: List of strings, [default](https://urllib3.readthedocs.io/en/stable/reference/urllib3.util.html#urllib3.util.Retry.DEFAULT_ALLOWED_METHODS) `['DELETE', 'GET', 'HEAD', 'OPTIONS', 'PUT', 'TRACE']`
+    - `retry_statuses`: List of integers of HTTP error codes to retry, default `[413, 429, 503]`.
   
 ### Data assertions
 
