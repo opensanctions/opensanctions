@@ -4,6 +4,7 @@ from zipfile import ZipFile
 import xml.etree.ElementTree as ET
 
 from zavod import Context
+from zavod import helpers as h
 
 NS = "{urn:iso:std:iso:20022:tech:xsd:auth.017.001.02}"
 
@@ -16,10 +17,8 @@ def parse_element(context: Context, elem: ET.Element) -> None:
     if isin is None:
         context.log.warn("No ISIN", elem=elem)
         return
-    security = context.make("Security")
-    security.id = f"isin-{isin}"
+    security = h.make_security(context, isin)
     security.add("name", attr.findtext(f"./{NS}FullNm"))
-    security.add("isin", isin)
     security.add("alias", attr.findtext(f"./{NS}ShrtNm"))
     security.add("classification", attr.findtext(f"./{NS}ClssfctnTp"))
     security.add("currency", attr.findtext(f"./{NS}NtnlCcy"))
