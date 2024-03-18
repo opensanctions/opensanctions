@@ -1,5 +1,4 @@
 from typing import Generator, Dict
-import re
 
 from normality import collapse_spaces, slugify
 from zavod import Context, helpers as h
