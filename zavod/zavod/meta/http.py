@@ -1,4 +1,4 @@
-from typing import Any, Collection, Dict, List
+from typing import Any, Dict, List
 from urllib3.util import Retry
 from banal import ensure_list
 
