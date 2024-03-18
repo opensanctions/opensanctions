@@ -1,4 +1,5 @@
 from typing import Generator, Dict
+import re
 
 from normality import collapse_spaces, slugify
 from zavod import Context, helpers as h
@@ -54,10 +55,11 @@ def crawl_item(input_dict: dict, context: Context):
         for name in input_dict.pop("person-name").split("• ")
         if name.strip()
     ]
-    names = [h.remove_bracketed(name) for name in names]
-
     for name in names:
-        entity.add("name", name)
+        parts = name.split("(")
+        entity.add("name", parts[0].strip())
+        aliases = [part.replace(")", "").strip() for part in parts[1:]]
+        entity.add("alias", aliases)
 
     sanction = h.make_sanction(context, entity)
     sanction.add(

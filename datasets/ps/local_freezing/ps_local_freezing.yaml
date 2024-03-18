@@ -11,8 +11,9 @@ description: |
   In Line with authorities of the "Security Council Resolutions Enforcing Committee",
   which formed according to Decree No. (14) of 2015 Concerning the Enforcement of
   Security Council Resolutions, the PMA publishes a Local Freezing List.
-  A freezing list is a list of people who are prohibited of transferring 
-  property or equipment's or other instrumentalities.
+
+  Persons named on this list are prohibited from moving or transferring 
+  property, equipment, or other instrumentalities.
 publisher:
   name: Palestine Monetary Authority
   url: https://www.pma.ps/en/
@@ -27,4 +28,4 @@ publisher:
 url: "https://www.pma.ps/en/Legislation//AMLCFT//LocalFreezingList"
 data:
   url: https://www.pma.ps/en/Legislation//AMLCFT//LocalFreezingList
-  format: HTML 
+  format: HTML
