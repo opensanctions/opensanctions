@@ -5,6 +5,7 @@ coverage:
   frequency: never
   start: 2024-02-09
   end: 2023-06-30
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   Database of business enterprises involved in illegal settlement
   activity in the Occupied Palestinian Territory, including East

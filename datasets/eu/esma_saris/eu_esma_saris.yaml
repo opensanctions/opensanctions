@@ -4,6 +4,7 @@ prefix: eu-saris
 coverage:
   frequency: daily
   start: 2024-03-12
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   List of suspended and removed financial instruments, as published by the
   European Securities and Markets Authority (ESMA). Where possible the listing
