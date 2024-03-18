@@ -3,9 +3,6 @@ import countrynames
 from collections import defaultdict
 from typing import Dict, Optional, Any, List, Generator
 from rigour.ids.wikidata import is_qid
-from requests.exceptions import HTTPError
-from requests.adapters import HTTPAdapter
-from urllib3.util import Retry
 
 from zavod import Context
 from zavod import helpers as h
@@ -172,7 +169,7 @@ def query_positions(
         )
         country_results.extend(country_response.results)
     # a.2) Instances of Q4164871 (position) by jurisdiction/country
-    context.log.info(f"Querying instances of Q4164871")
+    context.log.info("Querying instances of Q4164871 (position)")
     vars = {
         "COUNTRY": country["qid"],
         "CLASS": "Q4164871",

@@ -1,5 +1,4 @@
 from collections import defaultdict
-from datetime import datetime
 from typing import Dict, Any, List, Optional, Set
 from requests.exceptions import HTTPError
 
