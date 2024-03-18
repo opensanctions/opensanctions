@@ -39,7 +39,7 @@ def parse_element(context: Context, elem: ET.Element) -> None:
 
 
 def parse_xml_doc(context: Context, file: IO[bytes]) -> None:
-    for (event, elem) in ET.iterparse(file, events=("end",)):
+    for event, elem in ET.iterparse(file, events=("end",)):
         if event == "end" and elem.tag == f"{NS}RefData":
             parse_element(context, elem)
             elem.clear()
