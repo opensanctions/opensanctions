@@ -16,6 +16,7 @@ exports:
   - entities.ftm.json
   - senzing.json
 resolve: false
+ci_test: false
 summary: |
   Base data for all entities which have been issued Legal Entity Identifier
   (LEI) codes, as well as the relationships between them.

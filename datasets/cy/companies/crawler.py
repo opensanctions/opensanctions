@@ -7,8 +7,6 @@ from followthemoney.util import join_text
 
 from zavod import Context
 
-UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
-
 TYPES = {"C": "HE", "P": "S", "O": "AE", "N": "BN", "B": "B"}
 
 
@@ -118,20 +116,20 @@ def load_addresses(rows: Iterable[Dict[str, str]]) -> Dict[str, str]:
 
 
 def crawl(context: Context) -> None:
-    headers = {"Accept": "application/json", "User-Agent": UA}
+    headers = {"Accept": "application/json"}
     meta = context.fetch_json(context.data_url, headers=headers)
 
     files: Dict[str, Path] = {}
-    for dist in meta['dcat:Distribution']:
-        dist_url = dist['dcat:downloadURL']['@rdf:resource']
-        file_name = dist_url.rsplit('/')[-1]
+    for dist in meta["dcat:Distribution"]:
+        dist_url = dist["dcat:downloadURL"]["@rdf:resource"]
+        file_name = dist_url.rsplit("/")[-1]
         file_path = context.fetch_resource(file_name, dist_url)
         files[file_name] = file_path
-    
+
     for name, path in files.items():
         if name.startswith("registered_office_"):
             addresses = load_addresses(iter_rows(path))
-    
+
     for name, path in files.items():
         if name.startswith("organisations_"):
             rows = iter_rows(path)
@@ -139,4 +137,3 @@ def crawl(context: Context) -> None:
         if name.startswith("organisation_officials_"):
             rows = iter_rows(path)
             parse_officials(context, rows)
-    

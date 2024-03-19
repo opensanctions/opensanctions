@@ -1,0 +1,51 @@
+title: US Health and Human Sciences Inspector General Exclusions
+entry_point: crawler.py
+prefix: us-hhs-excl
+coverage:
+  frequency: daily
+  start: "2024-03-19"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  People and companies excluded from Federally funded health care programs
+description: |
+  This dataset represents the current
+  [List of Excluded Individuals/Entities](https://oig.hhs.gov/exclusions/exclusions_list.asp) (LEIE)
+  by the U.S. Department of Health and Human Services Office of Inspector General (OIG).
+
+  From the OIG's website:
+
+  > The OIG has the authority to exclude individuals and entities from Federally
+  > funded health care programs for a variety of reasons, including a conviction
+  > for Medicare or Medicaid fraud. Those that are excluded can receive no payment
+  > from Federal health care programs for any items or services they furnish,
+  > order, or prescribe. This includes those that provide health benefits funded
+  > directly or indirectly by the United States (other than the Federal Employees
+  > Health Benefits Plan).
+  
+  For more information about exclusion reason references, refer to the
+  [OIG's Exclusions FAQ page](https://oig.hhs.gov/faqs/exclusions-faq).
+
+publisher: 
+  name: U.S. Department of Health and Human Services Office of Inspector General (OIG)
+  description: |
+   The OIG aims to fight waste, fraud and abuse and to improving the efficiency of
+   Medicare, Medicaid and more than 100 other Department of Health & Human Services
+   (HHS) programs.
+  country: us
+  url: https://oig.hhs.gov/
+  official: true
+url: https://oig.hhs.gov/exclusions/index.asp
+data:
+  url: https://oig.hhs.gov/exclusions/downloadables/UPDATED.csv
+  format: CSV
+
+assertions:
+  min:
+    schema_entities:
+      Person: 68000
+      Company: 3000
+    countries: 1
+  max:
+    schema_entities:
+      Person: 92000
+      Company: 4000

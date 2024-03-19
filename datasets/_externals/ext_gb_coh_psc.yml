@@ -37,6 +37,7 @@ publisher:
   url: https://www.gov.uk/government/organisations/companies-house
   country: gb
   official: true
+ci_test: false
 
 inputs:
   - ann_graph_topics
@@ -61,7 +62,7 @@ config:
   api_key: ${OPENSANCTIONS_GRAPH_API_KEY}
   strip_namespace: true
   fuzzy: false
-  threshold: 0.7
+  threshold: 0.5
   algorithm: regression-v1
   topics:
     - role.pep

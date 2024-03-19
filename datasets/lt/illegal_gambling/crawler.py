@@ -3,6 +3,7 @@ from typing import Generator, Dict, Tuple
 
 from normality import collapse_spaces
 from zavod import Context
+from zavod import helpers as h
 
 EXPECTED_HEADERS = [
     [
@@ -51,7 +52,12 @@ def crawl_item(item, context: Context):
     entity = context.make("Company")
     entity.id = context.make_slug(domain)
 
-    entity.add("name", name)
+    names = []
+    #                               They differ. Really.
+    for name in h.multi_split(name, ["“, „", "“ „", "“", "”", "„"]):
+        if name.strip():
+            names.append(name.strip())
+    entity.add("name", names)
     entity.add("website", domain)
 
     # We find all emails in the contacts field and add them to the entity
@@ -66,13 +72,24 @@ def crawl_item(item, context: Context):
             entity.add("email", email)
 
     entity.add("topics", "crime")
-    entity.add("notes", f"Pripažino nelegaliu lošimų organizatoriumi: {ruling_information}", lang="lit")
+    entity.add(
+        "notes",
+        f"Pripažino nelegaliu lošimų organizatoriumi: {ruling_information}",
+        lang="lit",
+    )
 
     context.emit(entity, target=True)
 
 
 def crawl(context: Context):
     response = context.fetch_html(context.data_url)
-    table = response.find('.//*[@class="has-fixed-layout"]')
-    for item in parse_table(table):
-        crawl_item(item, context)
+    tables = response.findall(".//table")
+    for table in tables:
+        first_row = table.find(".//tr")
+        if (
+            "Nelegalios lošimų veiklos vykdytojo duomenys"
+            not in first_row.text_content()
+        ):
+            continue
+        for item in parse_table(table):
+            crawl_item(item, context)

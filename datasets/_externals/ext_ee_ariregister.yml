@@ -27,6 +27,7 @@ publisher:
     governmental agencies and self-employed persons.
   country: ee
   official: true
+ci_test: false
 
 inputs:
   - ann_graph_topics

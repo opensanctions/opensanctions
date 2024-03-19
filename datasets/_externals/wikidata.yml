@@ -19,7 +19,7 @@ summary: |
   providing fact-based information edited by humans and machines.
 description: |
   Wikidata serves as the source of much of the OpenSanctions data related to
-  politically exposed persons (PEPs). We also link up entities that are 
+  politically exposed persons (PEPs). We also link up entities that are
   sanctioned whenever a relevant Wikidata item is available.
 
   The Wikidata importer will also traverse family and personal relationships
@@ -44,6 +44,7 @@ publisher:
     sister projects including Wikipedia, Wikivoyage, Wiktionary, Wikisource, and others.
   url: https://www.wikidata.org
   official: false
+ci_test: false
 
 inputs:
   # Warning: cannot include wd_peps here otherwise it gets too recursive
@@ -365,6 +366,11 @@ lookups:
           - New Spain
           - Republic of Prekmurje
           - Rufino
+          - place of birth
+          - Prince-Bishopric of Liège
+          - Liu Song dynasty
+          - Duchy of Savoy
+          - Kathiri Sultanate
         value: null
       - match:
           - Cherokee Nation
@@ -387,7 +393,9 @@ lookups:
         value: RO
       - match: Congress Poland
         value: PL
-      - match: United Kingdom of the Netherlands
+      - match:
+          - United Kingdom of the Netherlands
+          - Dutch Republic
         value: NL
       - match: Kingdom of Ireland
         value: IE
@@ -429,6 +437,9 @@ lookups:
       - match: Republic of Vietnam
         value: VN
       - match:
+          - Lower Canada
+        value: Canada
+      - match:
           - Democratic Republic of Afghanistan
           - Emirate of Afghanistan
           - Islamic Emirate of Afghanistan
@@ -466,6 +477,7 @@ lookups:
           - Grand Duchy of Baden
           - Kingdom of Bavaria
           - Kingdom of Württemberg
+          - Electorate of Saxony
         value: DE
       - match: British Honduras
         value: BZ
@@ -588,6 +600,8 @@ lookups:
         value: null
       - match: "1949-02-29"
         value: 1949-02
+      - match: "1930-02-30"
+        value: 1930-02
       - match: "1935-06-31"
         value: 1935-06
       - match: "1973-09-31"

@@ -1,8 +1,6 @@
 from collections import defaultdict
 from languagecodes import iso_639_alpha3
 from requests import HTTPError
-from requests.adapters import HTTPAdapter
-from urllib3.util import Retry
 
 from zavod import Context, helpers as h
 from zavod.entity import Entity
@@ -95,16 +93,6 @@ def crawl_item(context: Context, member_id: int, name: str, lang: str):
 
 
 def crawl(context: Context):
-    retries = Retry(
-        total=5,
-        # go big or go home.
-        backoff_factor=3,
-        # 503 is a ban for a few seconds.
-        # 403 seems to mean you're banned for hours or more.
-        status_forcelist=[503],
-    )
-    context.http.mount("https://", HTTPAdapter(max_retries=retries))
-
     for member in context.fetch_json(context.data_url, cache_days=CACHE_SHORT):
         crawl_item(context, member["ID"], member["Name"], "en")
 

@@ -1,6 +1,7 @@
+from stdnum.pk import cnic as cnic_validator  # type: ignore
+
 from zavod import Context
 from zavod import helpers as h
-from stdnum.pk import cnic as cnic_validator
 
 
 def crawl_person(context: Context, row: dict):
@@ -14,6 +15,7 @@ def crawl_person(context: Context, row: dict):
     if cnic_validator.is_valid(cnic):
         entity.id = context.make_slug(cnic, prefix="pk-cnic")
         entity.add("idNumber", cnic)
+        entity.add("country", "pk")
     else:
         entity.id = context.make_slug(person_name, district, province)
 
@@ -24,11 +26,8 @@ def crawl_person(context: Context, row: dict):
 
     entity.add("name", person_name)
     entity.add("fatherName", father_name)
-    entity.add("topics", "sanction")
-    entity.add(
-        "address",
-        f"{district}, {province}",
-    )
+    entity.add("topics", "crime.terror")
+    entity.add("address", f"{district}, {province}")
 
     sanction = h.make_sanction(context, entity)
     sanction.add("program", "4th Schedule under the Anti Terrorism Act, 1997")

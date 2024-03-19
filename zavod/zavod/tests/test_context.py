@@ -1,6 +1,8 @@
+from typing import cast
 import pytest
 import requests_mock
 from datetime import datetime
+from requests.adapters import HTTPAdapter
 
 from zavod import settings
 from zavod.context import Context
@@ -110,6 +112,12 @@ def test_context_fetchers(testdataset1: Dataset):
             fh.write(src.read())
     doc = context.parse_resource_xml("doc.xml")
     assert "MyAddress" in doc.getroot().tag
+
+    adapter = cast(HTTPAdapter, context.http.get_adapter("https://test.com"))
+    assert adapter.max_retries.total == 1
+    assert adapter.max_retries.backoff_factor == 0.5
+    assert adapter.max_retries.status_forcelist == [418]
+    assert adapter.max_retries.allowed_methods == ["POST"]
 
     context.close()
 

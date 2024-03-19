@@ -1,5 +1,6 @@
 import pytest
 from nomenklatura.exceptions import MetadataException
+from zavod import settings
 
 from zavod.meta import get_catalog, Dataset, get_multi_dataset
 from zavod.meta.assertion import Assertion
@@ -13,6 +14,12 @@ TEST_DATASET = {
     "data": {
         "url": "https://example.com/data.csv",
         "format": "csv",
+    },
+    "http": {
+        "total_retries": 1,
+        "backoff_factor": 0.5,
+        "retry_statuses": [500],
+        "retry_methods": ["GET"],
     },
 }
 
@@ -54,6 +61,12 @@ def test_basic():
     os_data = coll_ds.to_opensanctions_dict()
     assert "collections" not in os_data, os_data
     assert os_data["sources"] == ["test"], os_data
+
+    assert test_ds.http.total_retries == 1
+    assert test_ds.http.retry_statuses == [500]
+    assert test_ds.http.retry_methods == ["GET"]
+    assert test_ds.http.backoff_factor == 0.5
+    assert test_ds.http.user_agent == settings.HTTP_USER_AGENT
 
 
 def test_validation(testdataset1: Dataset, testdataset2: Dataset):

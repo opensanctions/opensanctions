@@ -1,3 +1,4 @@
+type: external
 title: "EU ESMA Financial Instruments Reference Data System (FIRDS)"
 entry_point: zavod.runner.enrich:enrich
 prefix: eu-firds
@@ -13,8 +14,8 @@ deploy:
   memory_limit: 3000Mi
   disk: 100Gi
 summary: >
-  List of financial instruments and their reference data, as published by the
-  European Securities and Markets Authority (ESMA).
+  List of financial instruments and their reference data, as published by the European
+  Securities and Markets Authority (ESMA).
 description: |
   This is a dataset of financial instruments and their reference data, as published
   by ESMA. The data establishes connections between financial instruments and their
@@ -32,6 +33,7 @@ url: https://registers.esma.europa.eu/publication/searchRegister?core=esma_regis
 data:
   url: https://registers.esma.europa.eu/publication/searchRegister/doRelativeSearch
   format: JSON
+ci_test: false
 
 inputs:
   - ann_graph_topics
@@ -50,7 +52,6 @@ inputs:
   # - ru_rupep
   - sanctions
   - securities
-
 
 config:
   type: nomenklatura.enrich.yente:YenteEnricher

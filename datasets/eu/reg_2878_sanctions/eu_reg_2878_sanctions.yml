@@ -5,6 +5,7 @@ coverage:
   frequency: never
   start: 2023-12-18
   end: 2023-12-18
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 publisher:
   name: Council of the European Union
   country: eu

@@ -3,7 +3,7 @@ title: Politically Exposed Persons (PEPs)
 coverage:
   frequency: daily
 deploy:
-  schedule: "40 */6 * * *"
+  schedule: "40 */12 * * *"
   memory: "1500Mi"
   memory_limit: "2000Mi"
   cpu: "500m"
@@ -21,7 +21,7 @@ summary: >
   government.
 description: |
   This collection contains data about politically exposed persons (PEPs) from
-  multiple sources. We include lists of office-holders both directly from 
+  multiple sources. We include lists of office-holders both directly from
   official sources like governments and also from third-party sources that
   have been aggregated by other organizations.
 children:
@@ -66,3 +66,4 @@ children:
   - uy_pep
   - ve_asamblea_nacional
   - wd_peps
+ci_test: false

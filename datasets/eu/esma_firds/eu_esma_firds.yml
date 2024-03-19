@@ -8,6 +8,8 @@ deploy:
   memory: 2000Mi
   memory_limit: 3000Mi
   disk: 100Gi
+resolve: false
+ci_test: false
 summary: >
   List of financial instruments and their reference data, as published by the
   European Securities and Markets Authority (ESMA).

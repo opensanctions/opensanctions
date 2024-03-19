@@ -1,8 +1,9 @@
 type: collection
 title: All entities in OpenSanctions
 hidden: true
+coverage:
+  frequency: daily
 deploy:
-  schedule: "15 */6 * * *"
   memory: "1500Mi"
   memory_limit: "2500Mi"
   cpu: "500m"
@@ -21,8 +22,8 @@ description: |
 children:
   - validation
   - default
-  # - ru_rupep_companies
   - ru_fedsfm_wmd
   - ru_fedsfm_terror
   # - interpol_yellow_notices
   # - nominatim
+ci_test: false

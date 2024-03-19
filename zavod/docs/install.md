@@ -57,6 +57,8 @@ If you encounter any errors during the installation, please consider googling er
 
     Plyvel on Mac OS X: [issue](https://github.com/wbolster/plyvel/issues/114)
 
+For development you may also want to install `yamllint` - we use that to check for valid and correctly formatted yaml in datasets.
+
 ## Configuration
 
 `zavod` is inspired by the [twelve factor model](https://12factor.net/) and uses

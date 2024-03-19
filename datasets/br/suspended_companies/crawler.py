@@ -7,10 +7,6 @@ from zipfile import ZipFile
 from zavod import Context
 from zavod import helpers as h
 
-HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-}
-
 
 def get_csv_url(context: Context) -> str:
     """
@@ -25,8 +21,7 @@ def get_csv_url(context: Context) -> str:
     :return: The URL of the CSV file.
     """
 
-    # The header is necessary because the website blocks requests without a user agent.
-    doc = context.fetch_html(context.data_url, headers=HEADERS)
+    doc = context.fetch_html(context.data_url)
     path = "//script"
     date_pattern = re.compile(
         r'"ano"\s*:\s*"(\d+)",\s*"mes"\s*:\s*"(\d+)",\s*"dia"\s*:\s*"(\d+)"'
@@ -51,8 +46,7 @@ def get_data(csv_url: str, context: Context) -> List[dict]:
 
     :return: The data fetched from the website as a list of dicts.
     """
-    # The header is necessary because the website blocks requests without a user agent.
-    response = context.fetch_response(csv_url, headers=HEADERS)
+    response = context.fetch_response(csv_url)
     zip_file = ZipFile(io.BytesIO(response.content))
     file_name = zip_file.namelist()[0]
 
@@ -88,6 +82,7 @@ def create_entities(data: List[dict], context: Context) -> None:
         entity.add("name", raw_entity["NOME DO SANCIONADO"])
         entity.add("taxNumber", raw_entity["CPF OU CNPJ DO SANCIONADO"])
         entity.add("country", "br")
+        entity.add("topics", "debarment")
 
         sanction = h.make_sanction(context, entity)
         sanction.add("program", "Brazil disreputed and sanctioned companies")

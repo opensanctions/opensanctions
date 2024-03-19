@@ -33,6 +33,7 @@ publisher:
     OpenCorporates, is the largest open database of company data in the world, with data
     from over 140 registries.
   url: https://opencorporates.com/info/about/
+ci_test: false
 
 inputs:
   - sanctions
@@ -75,7 +76,7 @@ lookups:
           - CHANNEL ISLANDS
           - Channel Islands
           - YYY
-          - VIRGIN ISLANDS # which???!?
+          - VIRGIN ISLANDS  # which???!?
         value: null
   type.country:
     lowercase: true

@@ -10,7 +10,7 @@ __pycache__/
 *.sql
 .env
 .envrc
-.vscode
+.vscode/launch.json
 .idea/
 balkhashdb
 

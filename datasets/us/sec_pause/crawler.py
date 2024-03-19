@@ -23,13 +23,15 @@ CONTACTS = [
 ]
 
 
-def parse_table(table: _Element) -> Generator[Dict[str, Tuple[str, Optional[str]]], None, None]:
+def parse_table(
+    table: _Element,
+) -> Generator[Dict[str, Tuple[str, Optional[str]]], None, None]:
     headers = None
     for row in table.findall(".//tr"):
         if headers is None:
             headers = []
             for el in row.findall("./th"):
-                headers.append((slugify(el.text_content()), None))
+                headers.append(slugify(el.text_content()))
             continue
 
         cells = []

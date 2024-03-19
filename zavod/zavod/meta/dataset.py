@@ -13,6 +13,7 @@ from nomenklatura.util import datetime_iso
 from zavod import settings
 from zavod.logs import get_logger
 from zavod.meta.assertion import Assertion, parse_assertions
+from zavod.meta.http import HTTP
 from zavod.meta.data import Data
 
 log = get_logger(__name__)
@@ -91,6 +92,11 @@ class Dataset(NKDataset):
               Person: 180000
         ```
         """
+
+        self.ci_test: bool = as_bool(data.get("ci_test", True))
+        """Whether this dataset should be automatically run in CI environments."""
+
+        self.http: HTTP = HTTP(data.get("http", {}))
 
     @cached_property
     def lookups(self) -> Dict[str, Lookup]:

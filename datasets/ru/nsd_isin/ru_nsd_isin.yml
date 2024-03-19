@@ -6,6 +6,7 @@ coverage:
   frequency: daily
   start: 2022-11-17
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+ci_test: false
 summary: >
   ISIN security identifiers assigned in Russia and subject to a US investment
   ban.

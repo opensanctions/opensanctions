@@ -4,6 +4,7 @@ url: https://www.asambleanacional.gob.ve/diputados
 coverage:
   frequency: daily
   start: 2024-01-18
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   Members of the National Asssembly of Venezuela.
 description: |
