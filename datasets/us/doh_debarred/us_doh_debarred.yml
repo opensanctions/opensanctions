@@ -1,9 +1,10 @@
 name: us_doh_debarred
-title:  US DOH Inspector General Exclusions
+title: US Health and Human Sciences Inspector General Exclusions
 entry_point: crawler.py
 coverage:
   frequency: daily
   start: "2024-03-19"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   People and companies excluded from Federally funded health care programs
 description: |
@@ -25,11 +26,9 @@ description: |
 publisher: 
   name: U.S. Department of Health and Human Services Office of Inspector General (OIG)
   description: |
-   OIG is the largest inspector general's office in the Federal Government responsible for oversight of the Department 
-   of Heallth and Human Services(HHS).The OIG team is made up of auditors, investigators, and experts in different areas. 
-   The OIG reports to both the Secretary of HHS and Congress. OIG's LEIE provides information to the health care industry,
-   patients and the public regarding individuals and entities currently excluded from participation in Medicare, Medicaid and
-   all other  Federal health care programs.
+   The OIG aims to fight waste, fraud and abuse and to improving the efficiency of
+   Medicare, Medicaid and more than 100 other Department of Health & Human Services
+   (HHS) programs.
   country: us
   url: https://oig.hhs.gov/
   official: true

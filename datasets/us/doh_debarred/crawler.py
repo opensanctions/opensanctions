@@ -7,18 +7,20 @@ from zavod import Context
 FORMATS = ["%Y%m%d"]
 
 
-def get_first_line(row: Dict[str, Any]):
-    address = row.get("ADDRESS")
-    if address:
-        address_data = address
-    else:
-        address_data = row.get("ZIP")  # Use ZIP code as first line if no street
-    return address_data
+def is_zero(value: str) -> bool:
+    return all(c == "0" for c in value)
 
 
 def crawl_item(context: Context, row: Dict[str, Any]):
-    first_line = get_first_line(row)
-    if row["LASTNAME"].strip() or row["FIRSTNAME"].strip():
+    address = h.make_address(
+        context,
+        street=row.pop("ADDRESS"),
+        city=row.pop("CITY"),
+        state=row.pop("STATE"),
+        postal_code=row.pop("ZIP"),
+        country_code="us",
+    )
+    if row["LASTNAME"] or row["FIRSTNAME"]:
         entity = context.make("Person")
         first_name = row.pop("FIRSTNAME")
         mid_name = row.pop("MIDNAME")
@@ -28,7 +30,7 @@ def crawl_item(context: Context, row: Dict[str, Any]):
             middle_name=mid_name,
             last_name=last_name,
         )
-        entity.id = context.make_slug(full_name, first_line)
+        entity.id = context.make_slug(full_name, address.get("full")[0])
 
         h.apply_name(
             entity=entity,
@@ -47,24 +49,16 @@ def crawl_item(context: Context, row: Dict[str, Any]):
         entity.add("position", position)
     else:
         entity = context.make("Company")
-        name = row.pop("BUSNAME", None)
-        entity.id = context.make_slug(name, first_line)
+        name = row.pop("BUSNAME")
+        entity.id = context.make_slug(name, address.get("full")[0])
         entity.add("name", name)
         entity.add("description", row.pop("GENERAL") or None)
         entity.add("description", row.pop("SPECIALTY") or None)
 
-    address = h.make_address(
-        context,
-        street=row.pop("ADDRESS"),
-        city=row.pop("CITY"),
-        state=row.pop("STATE"),
-        postal_code=row.pop("ZIP"),
-        country_code="us",
-    )
     h.apply_address(context, entity, address)
     upin = row.pop("UPIN")
     if upin:
-        entity.add(("description", f"UPIN: {upin}"))
+        entity.add("description", f"UPIN: {upin}")
     npi = row.pop("NPI")
     if npi:
         entity.add("description", f"NPI: {npi}")
@@ -76,15 +70,22 @@ def crawl_item(context: Context, row: Dict[str, Any]):
     sanction.add("reason", row.pop("EXCLTYPE"))
     sanction.add("program", "US HHS OIG List of Excluded Individuals/Entities ")
     waiver_start = row.pop("WAIVERDATE")
-    if waiver_start != 0:
+    waiver_state = row.pop("WVRSTATE")
+    if waiver_start:
         waiver_description = (
             f"Waiver start date: {h.parse_date(waiver_start, FORMATS)[0]}"
         )
-        waiver_state = row.pop("WVRSTATE")
         if waiver_state:
-            waiver_description += f", State: {waiver_state}"
+            waiver_description += ", "
+    else:
+        waiver_description = ""
+    if waiver_state:
+        waiver_description += f"State: {waiver_state}"
+    if waiver_description:
+        waiver_description += ", Read more: https://oig.hhs.gov/exclusions/waivers.asp"
         sanction.add("provisions", waiver_description)
-    assert row.pop("REINDATE") == 0
+    reinvdate = row.pop("REINDATE")
+    assert reinvdate is None, reinvdate
     context.emit(sanction)
     context.emit(entity, target=True)
     context.audit_data(row)
@@ -95,4 +96,7 @@ def crawl(context: Context) -> None:
     with open(source_file, "r") as f:
         reader = csv.DictReader(f)
         for row in reader:
+            for key, value in row.items():
+                if is_zero(value):
+                    row[key] = None
             crawl_item(context, row)
