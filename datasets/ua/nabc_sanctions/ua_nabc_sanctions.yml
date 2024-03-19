@@ -55,6 +55,8 @@ lookups:
           - Покровитель Силантьева та ідеолог організації схем фінансування тероризму
         contains:
           - Kopy Goldfields
+          - Crime boss Oleg Medvedev
+          - https://home.treasury.gov/
         schema: UnknownLink
         local: subject
         remote: object
@@ -150,6 +152,7 @@ lookups:
           - Товариш і колега
           - Близький товариш
           - Партнер та тримач активів
+          - Партнери
         contains:
           - Разом організовували схему
           - псевдонімом SHAMAN

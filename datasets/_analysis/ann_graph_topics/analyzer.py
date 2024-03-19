@@ -51,7 +51,7 @@ def crawl(context: Context) -> None:
                     patch.id = other.id
                     patch.add("topics", "role.rca")
                     context.emit(patch)
-            
+
             # Family is eternal, business is time-bound:
             if len(adjacent.get("endDate", quiet=True)) > 0:
                 context.log.info(

@@ -43,6 +43,7 @@ from zavod.helpers.addresses import make_address, apply_address, format_address
 from zavod.helpers.dates import extract_years, parse_date, check_no_year
 from zavod.helpers.dates import parse_formats
 from zavod.helpers.identification import make_identification
+from zavod.helpers.securities import make_security
 from zavod.helpers.excel import convert_excel_cell, convert_excel_date
 from zavod.helpers.html import parse_table
 
@@ -62,6 +63,7 @@ __all__ = [
     "check_no_year",
     "convert_excel_cell",
     "convert_excel_date",
+    "make_security",
     "remove_namespace",
     "make_name",
     "apply_name",
