@@ -162,10 +162,10 @@ def crawl_common(
                 entity.add("registrationNumber", value)
         else:
             # context.log.warn("Unknown attribute", key=key, value=value)
-            entity.add('notes', f"{key}: {value}", lang="ukr")
+            entity.add("notes", f"{key}: {value}", lang="ukr")
 
     for action in fetch_data(context, f"/subjects/{subject_id}/actions", cache_days=30):
-        sanction = h.make_sanction(context, entity, key=action['aid'])
+        sanction = h.make_sanction(context, entity, key=action["aid"])
         sanction.add("status", action.pop("status"))
         decree = action.pop("decree", None) or {}
         sanction.add("sourceUrl", decree.pop("link", None))
@@ -175,8 +175,8 @@ def crawl_common(
         sanction.add("duration", action.pop("term", None), lang="ukr")
         restrictions = action.pop("restrictions", None) or []
         for restr in restrictions:
-            sanction.add('provisions', restr['restriction'])
-        sanction.add('reason', action.pop('reason', None), lang="ukr")
+            sanction.add("provisions", restr["restriction"])
+        sanction.add("reason", action.pop("reason", None), lang="ukr")
         context.emit(sanction)
 
     entity.add("topics", "sanction")

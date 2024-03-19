@@ -2,6 +2,7 @@ import time
 import countrynames
 from collections import defaultdict
 from typing import Dict, Optional, Any, List, Generator
+from fingerprints import clean_brackets
 from rigour.ids.wikidata import is_qid
 
 from zavod import Context
@@ -71,7 +72,7 @@ def crawl_holder(
     # print(holder.person_qid, death, start_date, end_date)
 
     if holder.get("person_label") != qid:
-        entity.add("name", holder.get("person_label"))
+        entity.add("name", clean_brackets(holder.get("person_label")).strip())
     entity.add("keywords", keyword(categorisation.topics))
 
     context.emit(position)

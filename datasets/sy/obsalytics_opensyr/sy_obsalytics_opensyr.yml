@@ -9,6 +9,7 @@ coverage:
 deploy:
   schedule: "@monthly"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+ci_test: false
 summary: >
   A knowledge graph of persons of interest inside Syria, including detailed
   information on family relationships and business ties.

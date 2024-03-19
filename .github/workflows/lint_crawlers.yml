@@ -39,5 +39,5 @@ jobs:
           do
               echo Linting $dataset
               ruff check $dataset
-              black --check $dataset
+              black --check --diff $dataset
           done
