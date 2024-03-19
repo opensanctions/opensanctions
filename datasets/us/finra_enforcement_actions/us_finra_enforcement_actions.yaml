@@ -18,7 +18,7 @@ description: |
 publisher:
   name: Financial Industry Regulatory Authority (FINRA)
   url: https://www.finra.org/#/
-  official: false
+  official: true
   country: "us"
 url: "https://www.finra.org/rules-guidance/oversight-enforcement/disciplinary-actions#:~:text=FINRA%20takes%20disciplinary%20actions%20against,the%20Municipal%20Securities%20Rulemaking%20Board."
 data:
