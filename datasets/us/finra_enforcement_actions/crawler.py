@@ -63,7 +63,7 @@ def crawl_item(input_dict: dict, html_element: _Element, context: Context):
     context.emit(entity, target=True)
     context.emit(sanction)
 
-    context.audit_data(input_dict)
+    context.audit_data(input_dict, ignore=["document-type"])
 
 
 def crawl(context: Context):
