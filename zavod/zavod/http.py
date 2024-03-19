@@ -15,11 +15,9 @@ log = get_logger(__name__)
 warnings.filterwarnings("ignore", category=InsecureRequestWarning)
 
 
-def make_session(
-    http_conf: HTTP, user_agent: str = settings.HTTP_USER_AGENT
-) -> Session:
+def make_session(http_conf: HTTP) -> Session:
     session = Session()
-    session.headers["User-Agent"] = user_agent
+    session.headers["User-Agent"] = http_conf.user_agent
     session.verify = False
     session.request = partial(  # type: ignore
         session.request,

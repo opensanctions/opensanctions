@@ -1,6 +1,7 @@
 from typing import Any, Dict, List
 from urllib3.util import Retry
 from banal import ensure_list
+from zavod import settings
 
 
 class HTTP(object):
@@ -15,3 +16,4 @@ class HTTP(object):
             data.get("retry_methods", Retry.DEFAULT_ALLOWED_METHODS)
         )
         self.retry_methods: List[str] = retry_methods
+        self.user_agent: str = data.get("user_agent", settings.HTTP_USER_AGENT)
