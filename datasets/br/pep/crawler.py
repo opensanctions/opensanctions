@@ -1,4 +1,3 @@
-import io
 import re
 import csv
 from typing import List
@@ -67,7 +66,6 @@ def get_data(csv_url: str, context: Context) -> List[dict]:
 
     :return: The data fetched from the website as a list of dicts.
     """
-    response = context.fetch_response(csv_url)
     path = context.fetch_resource("source.zip", csv_url)
     zip_file = ZipFile(path)
     file_name = zip_file.namelist()[0]

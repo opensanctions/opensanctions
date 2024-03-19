@@ -27,6 +27,10 @@ Remember to give the context that people from different countries need to make s
 - `deploy`
     - `schedule` - a cron style schedule defining what time and frequency a crawler should run, e.g `30 */6 * * *`
 
+### Continuous Integration
+
+- `ci_test` - boolean, default `true`. If true, the crawler is run when its python or yaml is modified in CI. Set to false for extremely slow crawlers, or those that require credentials, and then take extra care when modifying them.
+
 ### Exports
 
 - `exports` - An array of strings matching the [export formats](https://www.opensanctions.org/docs/bulk/), e.g. `"targets.nested.json"`. The default is best for most cases.
@@ -51,6 +55,7 @@ Remember to give the context that people from different countries need to make s
 HTTP requests for GET requests are automatically retried for connection and HTTP errors. Some of this retry behaviour can be configured from the dataset metadata if needed.
 
 - `http`
+    - `user_agent`: string, defaults to the value of the HTTP_USER_AGENT setting. Set a custom value for the `User-Agent` header if needed.
     - `backoff_factor`: float, default `1`. [Scales the exponential backoff](https://urllib3.readthedocs.io/en/stable/reference/urllib3.util.html#urllib3.util.Retry.DEFAULT_ALLOWED_METHODS:~:text=with%20None.-,backoff_factor,-(float)%20%E2%80%93).
     - `max_retries`: integer in seconds, default `3`
     - `retry_methods`: List of strings, [default](https://urllib3.readthedocs.io/en/stable/reference/urllib3.util.html#urllib3.util.Retry.DEFAULT_ALLOWED_METHODS) `['DELETE', 'GET', 'HEAD', 'OPTIONS', 'PUT', 'TRACE']`
