@@ -1,11 +1,10 @@
 import os
-from typing import Optional, List
+from typing import List
 from urllib.parse import urlencode, urljoin
 from requests.exceptions import HTTPError
 
 from zavod import helpers as h
-from zavod import Context, Entity
-from zavod import settings
+from zavod import Context
 from zavod.logic.pep import categorise
 
 API_KEY = os.environ.get("OPENSANCTIONS_US_CONGRESS_API_KEY")

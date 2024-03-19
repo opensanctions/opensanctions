@@ -107,7 +107,12 @@ def crawl_entity(context: Context, data: Dict[str, Any]):
         context.log.error("Unknown entity type", nature=nature)
         return
     entity = context.make(schema)
-    entity.id = context.make_slug(data.pop("IdRegistre"))
+    reg_id = data.pop("IdRegistre")
+    entity.id = context.make_slug(reg_id)
+    url = (
+        f"https://gels-avoirs.dgtresor.gouv.fr/Gels/RegistreDetail?idRegistre={reg_id}"
+    )
+    entity.add("sourceUrl", url)
     sanction = h.make_sanction(context, entity)
     for detail in data.pop("RegistreDetail"):
         field = detail.pop("TypeChamp")

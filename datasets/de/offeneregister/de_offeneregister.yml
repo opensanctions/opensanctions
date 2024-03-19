@@ -15,6 +15,7 @@ exports:
   - statistics.json
   - entities.ftm.json
 resolve: false
+ci_test: false
 summary: |
   The OpenCorporates dump of the german companies registry, recent until end of
   2018, as published via OffeneRegister.de. Includes companies (HRA/HRB),

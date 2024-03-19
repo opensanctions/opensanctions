@@ -14,6 +14,7 @@ exports:
   - statistics.json
   - entities.ftm.json
 resolve: false
+ci_test: false
 summary: |
   Combined data from the Panama Papers, Paradise Papers, Pandora Papers
   and other cross-border investigations conducted by ICIJ and its partners.

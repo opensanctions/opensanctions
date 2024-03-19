@@ -7,6 +7,7 @@ coverage:
 deploy:
   schedule: "0 */3 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+ci_test: false
 summary: >
   List of individuals and legal entities subject to restrictive measures.
 description: |
@@ -46,7 +47,7 @@ lookups:
         value: null
   type.date:
     options:
-      - match: 
+      - match:
           - 9 лютого
         value: null
       - match: "1957-1959 роки"
@@ -96,10 +97,9 @@ lookups:
       - match: "mh@mako-holding.com (Україна)"
         value: mg@mako-holding.com
 
-
   attributes:
     options:
-      - match: 
+      - match:
           - Місце реєстрації
           - Місце розташування
           - Місцезнаходження
@@ -111,22 +111,22 @@ lookups:
 
           - Уродженка
         prop: address
-      - match: 
+      - match:
           - IMO
           - МФО
         prop: registrationNumber
-      - match: 
+      - match:
           # Reregistration
           - Перереєстрація
         contains:
           - Перереєстрація
           - перереєстроване відповідно до
-        prop: notes        
+        prop: notes
       - match:
           - Примітка
           - Інша інформація
         prop: notes
-      - match: 
+      - match:
           - Дата народження
         prop: birthDate
       - match:
