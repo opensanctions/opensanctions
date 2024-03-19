@@ -1,5 +1,6 @@
 from zavod import Context
 from zavod import helpers as h
+from typing import Dict
 import urllib3
 import requests
 
@@ -27,7 +28,7 @@ class CustomSslContextHttpAdapter(requests.adapters.HTTPAdapter):
         self.poolmanager = urllib3.PoolManager(ssl_context=ctx)
 
 
-def crawl_row(context: Context, row):
+def crawl_row(context: Context, row: Dict[str, str]):
     person = context.make("Person")
 
     first_name = row.pop("Adi")
