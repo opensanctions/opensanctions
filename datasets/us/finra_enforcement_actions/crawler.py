@@ -1,5 +1,3 @@
-import re
-import requests
 from typing import Generator, Dict, Tuple, Optional
 from lxml.etree import _Element
 from normality import slugify, collapse_spaces
