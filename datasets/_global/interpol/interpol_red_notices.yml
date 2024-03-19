@@ -36,6 +36,10 @@ data:
   url: https://ws-public.interpol.int/notices/v1/red
   format: xml
 ci_test: false
+http:
+  total_retries: 5
+  retry_statuses: [403]
+  user_agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 (zavod; opensanctions.org)
 
 assertions:
   min:

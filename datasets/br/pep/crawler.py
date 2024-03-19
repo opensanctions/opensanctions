@@ -1,4 +1,3 @@
-import io
 import re
 import csv
 from typing import List
@@ -21,11 +20,6 @@ from zavod.logic.pep import categorise
 # 9: End_Date_Grace
 
 
-HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-}
-
-
 def parse_date(date_string):
     try:
         return datetime.strptime(date_string, "%d/%m/%Y").strftime("%Y-%m-%d")
@@ -46,9 +40,7 @@ def get_csv_url(context: Context) -> str:
 
     :return: The URL of the CSV file.
     """
-
-    # The header is necessary because the website blocks requests without a user agent.
-    doc = context.fetch_html(context.data_url, headers=HEADERS, cache_days=1)
+    doc = context.fetch_html(context.data_url, cache_days=1)
     path = "//script"
     date_pattern = re.compile(
         r'"ano"\s*:\s*"(\d+)",\s*"mes"\s*:\s*"(\d+)",\s*"dia"\s*:\s*'
@@ -74,9 +66,7 @@ def get_data(csv_url: str, context: Context) -> List[dict]:
 
     :return: The data fetched from the website as a list of dicts.
     """
-    # The header is necessary because the website blocks requests without a user agent.
-    response = context.fetch_response(csv_url, headers=HEADERS)
-    path = context.fetch_resource("source.zip", csv_url, headers=HEADERS)
+    path = context.fetch_resource("source.zip", csv_url)
     zip_file = ZipFile(path)
     file_name = zip_file.namelist()[0]
 
