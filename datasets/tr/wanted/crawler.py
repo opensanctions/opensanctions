@@ -3,6 +3,7 @@ from zavod import helpers as h
 from typing import Dict
 import urllib3
 import requests
+import datetime
 
 IGNORE_COLUMNS = [
     "ID",
@@ -51,6 +52,9 @@ def crawl_row(context: Context, row: Dict[str, str]):
 
 
 def crawl(context):
+    if datetime.datetime.now() > datetime.datetime(2024, 9, 15):
+        context.log.warn("Check if the SSL renegotiation strategy is still needed")
+
     headers = {
         "Content-Length": "0",
         "Content-Type": "application/json",
