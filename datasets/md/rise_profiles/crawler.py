@@ -33,6 +33,7 @@ def crawl_entity(context: Context, relative_url: str, follow_relations: bool = T
         type_el = None
     else:
         context.log.warn("Don't know how to handle url", url=relative_url)
+        return
 
     if hasattr(type_el, "text"):
         type_str = collapse_spaces(type_el.text)
@@ -52,6 +53,7 @@ def crawl_entity(context: Context, relative_url: str, follow_relations: bool = T
         entity = make_company(context, url, name, attributes)
     else:
         context.log.warn("Unhandled entity type", url, type_str)
+        return
 
     if follow_relations and entity is not None:
         for connection in doc.findall('.//div[@class="con"]'):
@@ -69,6 +71,7 @@ def crawl_entity(context: Context, relative_url: str, follow_relations: bool = T
                 target_url = related_entity_link.get("href")
             make_relation(context, entity, description, target_name, target_url)
 
+    entity.add("topics", "sanction")
     return entity
 
 
@@ -88,7 +91,6 @@ def make_person(
     person.add("birthDate", birth_date)
     person.add("birthPlace", attributes.pop("locul-nasterii", None), lang="ron")
     person.add("nationality", attributes.pop("cetatenie", "").split(","))
-    person.add("topics", "poi")
 
     if attributes:
         context.log.info(f"More info to be added to {name}", attributes, url)

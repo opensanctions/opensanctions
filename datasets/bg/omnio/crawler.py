@@ -51,6 +51,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
         quiet=True,
     )
 
+    entity.add("topics", "sanction")
     entity.add("alias", row.pop("Aliases", "").split(";"))
     entity.add("alias", row.pop("Aliases_BG", "").split(";"), lang="bul")
     entity.add("country", row.pop("Countries_of_Residence", "").split(";"))
