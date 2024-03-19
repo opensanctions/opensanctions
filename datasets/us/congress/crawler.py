@@ -1,11 +1,10 @@
 import os
-from typing import Optional, List
+from typing import List
 from urllib.parse import urlencode, urljoin
 from requests.exceptions import HTTPError
 
 from zavod import helpers as h
-from zavod import Context, Entity
-from zavod import settings
+from zavod import Context
 from zavod.logic.pep import categorise
 
 API_KEY = os.environ.get("OPENSANCTIONS_US_CONGRESS_API_KEY")
@@ -16,6 +15,9 @@ def crawl_positions(context: Context, member, entity):
     entities = []
     for term in terms:
         res = context.lookup("position", term["chamber"])
+        if res is None:
+            context.log.warn("Unknown chamber", chamber=term["chamber"])
+            continue
         position = h.make_position(context, res.name, country="us")
         categorisation = categorise(context, position)
         if categorisation.is_pep:
@@ -36,6 +38,7 @@ def crawl_positions(context: Context, member, entity):
 
 def crawl_member(context: Context, bioguide_id: str):
     url = urljoin(context.data_url, bioguide_id)
+    assert API_KEY is not None, "No $OPENSANCTIONS_US_CONGRESS_API_KEY key set."
     headers = {"x-api-key": API_KEY}
     member = context.fetch_json(url, headers=headers, cache_days=30)["member"]
     context.log.info("Crawling member: %s" % member.get("directOrderName"))

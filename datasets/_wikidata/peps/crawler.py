@@ -2,10 +2,8 @@ import time
 import countrynames
 from collections import defaultdict
 from typing import Dict, Optional, Any, List, Generator
+from fingerprints import clean_brackets
 from rigour.ids.wikidata import is_qid
-from requests.exceptions import HTTPError
-from requests.adapters import HTTPAdapter
-from urllib3.util import Retry
 
 from zavod import Context
 from zavod import helpers as h
@@ -74,7 +72,7 @@ def crawl_holder(
     # print(holder.person_qid, death, start_date, end_date)
 
     if holder.get("person_label") != qid:
-        entity.add("name", holder.get("person_label"))
+        entity.add("name", clean_brackets(holder.get("person_label")).strip())
     entity.add("keywords", keyword(categorisation.topics))
 
     context.emit(position)
@@ -172,7 +170,7 @@ def query_positions(
         )
         country_results.extend(country_response.results)
     # a.2) Instances of Q4164871 (position) by jurisdiction/country
-    context.log.info(f"Querying instances of Q4164871")
+    context.log.info("Querying instances of Q4164871 (position)")
     vars = {
         "COUNTRY": country["qid"],
         "CLASS": "Q4164871",
@@ -253,14 +251,6 @@ def query_position_classes(context: Context):
 
 
 def crawl(context: Context):
-    retries = Retry(
-        total=5,
-        backoff_factor=2,
-        status_forcelist=[500],
-        allowed_methods={"GET", "POST"},
-    )
-    context.http.mount("https://", HTTPAdapter(max_retries=retries))
-
     seen_countries = set()
     seen_positions = set()
     position_classes = query_position_classes(context)

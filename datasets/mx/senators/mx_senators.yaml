@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: mx-sen
 coverage:
   frequency: daily
+  start: 2024-01-31
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Members of the Mexican Senate

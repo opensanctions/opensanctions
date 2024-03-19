@@ -60,7 +60,10 @@ lookups:
         value: Vessel
       - match: Aircraft
         value: Airplane
-
+  type.date:
+    options:
+      - match: "3033-01-17"
+        value: null
   type.address:
     lowercase: true
     options:

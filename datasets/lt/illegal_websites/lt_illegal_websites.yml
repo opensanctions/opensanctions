@@ -5,6 +5,7 @@ coverage:
   start: 2024-03-06
   end: 2024-03-06
   frequency: never
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   List of websites that are offering illegal financial services in Lithuania
 description: |

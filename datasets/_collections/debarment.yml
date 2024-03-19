@@ -13,8 +13,9 @@ description: |
 children:
   - adb_sanctions
   - afdb_sanctions
-  - br_tcu_debarred
   - br_bcb_prohibited
+  - br_ceis
+  - br_tcu_debarred
   - ebrd_ineligible
   - eu_edes
   - iadb_sanctions
@@ -25,6 +26,7 @@ children:
   - si_conflicts
   - us_ddtc_debarred
   - us_dod_chinese_milcorps
+  - us_hss_exclusions
   - us_sam_exclusions
   - worldbank_debarred
 ci_test: false

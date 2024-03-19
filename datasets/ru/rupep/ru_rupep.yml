@@ -10,6 +10,7 @@ deploy:
   memory: "2000Mi"
   cpu: "500m"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+ci_test: false
 exports:
   - statistics.json
 summary: >
@@ -322,7 +323,7 @@ lookups:
       - match: Russian-occupied territory of Moldova
         values:
           - MD-PMR
-      - match: 
+      - match:
           - Оккупированная Россией территория Грузии
           - Russian-occupied territory of Georgia
         value:

@@ -356,7 +356,7 @@ def parse_company(context: Context, el: Element):
         )
         if successor_id is not None:
             succ = context.make("Succession")
-            succ.id = context.make_id(entity.id, 'successor', successor_id)
+            succ.id = context.make_id(entity.id, "successor", successor_id)
             succ.add("successor", successor_id)
             succ.add("predecessor", entity.id)
             context.emit(succ)

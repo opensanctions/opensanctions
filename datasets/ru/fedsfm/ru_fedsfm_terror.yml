@@ -4,7 +4,7 @@ prefix: ruterr
 disabled: true
 coverage:
   frequency: never
-  start: 2021-11-21
+  start: "2021-11-21"
   end: "2022-02-24"
 deploy:
   schedule: "0 22 * * 3"

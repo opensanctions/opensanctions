@@ -53,7 +53,6 @@ inputs:
   - sanctions
   - securities
 
-
 config:
   type: nomenklatura.enrich.yente:YenteEnricher
   api: https://api.graph.opensanctions.org/

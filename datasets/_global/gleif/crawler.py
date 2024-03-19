@@ -193,9 +193,7 @@ def parse_lei_file(context: Context, fh: BinaryIO) -> None:
         for isin in isins.get(lei, []):
             proxy.add_schema("Company")
             proxy.add("topics", "corp.public")
-            security = context.make("Security")
-            security.id = f"isin-{isin}"
-            security.add("isin", isin)
+            security = h.make_security(context, isin)
             security.add("issuer", proxy.id)
             security.add("country", entity.findtext("LegalJurisdiction"))
             context.emit(security)

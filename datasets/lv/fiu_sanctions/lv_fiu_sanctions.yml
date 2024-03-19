@@ -7,6 +7,7 @@ summary: >
 coverage:
   start: 2024-02-24
   frequency: daily
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 description:
   This dataset contains lists of individuals or entities subject to national
   sanctions as specified by laws in Latvia.

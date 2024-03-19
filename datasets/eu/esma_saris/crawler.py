@@ -1,6 +1,7 @@
 import csv
 
-from zavod import Context, helpers
+from zavod import Context
+from zavod import helpers as h
 
 
 def crawl(context: Context) -> None:
@@ -22,16 +23,14 @@ def crawl(context: Context) -> None:
     with open(source_file, "r") as f:
         reader = csv.DictReader(f)
         for row in reader:
-            entity = context.make("Security")
             isin = row.pop("instrumentIdentifier")
             if isin is None:
                 context.log.warn("No ISIN", row=row)
                 return
-            entity.id = f"isin-{isin}"
-            entity.add("isin", isin)
+            entity = h.make_security(context, isin)
             entity.add("name", row.pop("instrumentFullName", isin))
 
-            sanction = helpers.make_sanction(context, entity)
+            sanction = h.make_sanction(context, entity)
             sanction.id = context.make_id(row.pop("id"))
             sanction.add("program", "ESMA")
             sanction.add("provisions", row.pop("actionType"))

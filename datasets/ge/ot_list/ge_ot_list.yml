@@ -4,6 +4,7 @@ prefix: ge-ot-list
 coverage:
   frequency: weekly
   start: 2024-03-01
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   List of individuals involved in crimes against Georgians in Abkhazia
   and South Osssetia.
