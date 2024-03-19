@@ -82,6 +82,7 @@ def create_entities(data: List[dict], context: Context) -> None:
         entity.add("name", raw_entity["NOME DO SANCIONADO"])
         entity.add("taxNumber", raw_entity["CPF OU CNPJ DO SANCIONADO"])
         entity.add("country", "br")
+        entity.add("topics", "debarment")
 
         sanction = h.make_sanction(context, entity)
         sanction.add("program", "Brazil disreputed and sanctioned companies")

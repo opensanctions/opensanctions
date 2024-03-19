@@ -21,8 +21,6 @@ companies into a database.
 
 ## Data source metadata
 
-This is a brief instruction. See the full [metadata documentation](metadata.md).
-
 Before programming a crawler script, you need to create a YAML file with some basic metadata to describe the new dataset. That information includes the dataset name (which is normally derived from the YAML file name), information about the source publisher and the source data URL.
 
 The metadata file must also include a reference to the entry point, the Python code that should be executed in order to crawl the source.
@@ -38,12 +36,16 @@ Create a new YAML file at the path ``datasets/cc/source/cc_source.yml`` replacin
     readers will understand the scope and limitations of the dataset. For simple
     crawlers, writing the metadata can take as much time as writing the code.
 
-The contents of the new metadata file should look something like this:
+The contents of the new metadata file should look something like this. This is a brief example. See the full [metadata documentation](metadata.md) for all the required fields:
 
 ```yaml
 name: eu_fsf_demo
 title: "Financial Sanctions Files (FSF)"
 url: https://eeas.europa.eu/
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+coverage:
+    frequency: daily
+    start: 2024-03-19
 
 # The description should be extensive, and can use markdown for formatting:
 description: >
@@ -60,6 +62,7 @@ prefix: eu-fsf
 # often a government authority:
 publisher:
     name: European Union External Action Service (EEAS)
+    official: true
     description: The EEAS is the EU's diplomatic service, and carries out the EU's foreign and security policy. 
     country: eu
     url: https://eeas.europa.eu/topics/sanctions-policy/8442/consolidated-list-of-sanctions_en
@@ -247,4 +250,5 @@ When contributing a new data source, or some other change, make sure of the foll
   introduced upstream (e.g. a new country code or sanction program) will cause a warning
   to be emitted. [Warnings](https://www.opensanctions.org/issues) are checked regularly to identify when a crawler needs attention.
   Info and lower level logs are useful for debugging with the `-v` flag.
-* Bonus points: your Python code is linted and formatted with ``black``.
+* Make sure your Python code is linted and formatted with ``black``.
+* Make sure your yaml is linted with yamllint.

@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: ps-freezing
 coverage:
   frequency: daily
+  start: 2024-03-19
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   People who are sanctioned by the PMA in accordance with Security Council 

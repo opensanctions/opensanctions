@@ -3,6 +3,7 @@ from typing import Generator, Dict, Tuple
 
 from normality import collapse_spaces
 from zavod import Context
+from zavod import helpers as h
 
 EXPECTED_HEADERS = [
     [
@@ -51,7 +52,12 @@ def crawl_item(item, context: Context):
     entity = context.make("Company")
     entity.id = context.make_slug(domain)
 
-    entity.add("name", name)
+    names = []
+    #                               They differ. Really.
+    for name in h.multi_split(name, ["“, „", "“ „", "“", "”", "„"]):
+        if name.strip():
+            names.append(name.strip())
+    entity.add("name", names)
     entity.add("website", domain)
 
     # We find all emails in the contacts field and add them to the entity

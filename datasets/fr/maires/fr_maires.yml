@@ -4,6 +4,7 @@ url: https://www.data.gouv.fr/fr/datasets/repertoire-national-des-elus-1/
 coverage:
   frequency: monthly
   start: 2024-03-13
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 entry_point: crawler.py
 summary: >-
   Mayors of French municipalities.

@@ -4,6 +4,7 @@ prefix: lt-gambling
 coverage:
   frequency: daily
   start: 2024-03-07
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   List of online gambling operators regarded as illegal in Lithuania
 

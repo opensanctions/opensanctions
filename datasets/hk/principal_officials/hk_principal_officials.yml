@@ -5,6 +5,7 @@ url: https://www.gov.hk/en/about/govdirectory/po/index.htm
 coverage:
   frequency: daily
   start: 2024-02-07
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary:
   Principal Officials of Hong Kong Special Administrative Region of the People's
   Republic of China.

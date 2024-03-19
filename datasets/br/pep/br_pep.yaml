@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: br-pep
 coverage:
   frequency: daily
+  start: "2023-12-06"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   This datasets encompass brazilian PEPs divulgated by the CGU

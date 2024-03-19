@@ -6,6 +6,7 @@ summary: List of Business restrictions preventing conflict of interest in Sloven
 coverage:
   frequency: daily
   start: 2024-01-24
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 description: >
   Slovenian public bodies and organizations may not procure from entities in which an official in that organization or their family member is a manager, legal representative, or has 5% or more ownership.
   
@@ -36,3 +37,4 @@ publisher:
 data:
   url: https://erar.si/api/omejitve/
   format: JSON
+ci_test: false

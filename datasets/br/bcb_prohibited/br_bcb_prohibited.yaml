@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: br-qgp
 coverage:
   frequency: daily
+  start: "2024-01-23"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   The QGP is a dataset from the Central Bank of Brazil featuring names of individuals and entities temporarily barred from providing auditing services to financial institutions authorized by the Central Bank.
