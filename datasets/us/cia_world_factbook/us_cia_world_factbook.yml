@@ -579,7 +579,7 @@ lookups:
             name: Ahmad Awad Bin MUBAREK
             start_date: 5 February 2024
       # Guinea
-      - match: on 27 February 2024 Guinea's military leaders appointed Mamadou Oury BAH as prime minister
+      - match: on 27 February 2024, Guinea's military leaders appointed Mamadou Oury BAH as prime minister
         holders:
           - role: Prime Minister
             name: Mamadou Oury BAH
@@ -587,7 +587,10 @@ lookups:
       # Not additional heads, just notes
       - regex:
           - subsequently, the Houthis and supporters of Yemen's first president, Ali Abdullah SALEH, seized the presidential palace and placed HADI under house arrest
-          - 'Overall Taliban Leader HAYBATULLAH Akhundzada serves as the head of the Taliban Government as Amir-ul Momineen'
+          # Afghanistan
+          - 'overall Taliban Leader HAYBATULLAH Akhundzada serves as the head of the Taliban as Amir-ul Momineen and as such is seen by the Taliban as head of state'
+          - 'he resides and issues decrees from the city of Kandahar while the legacy government ministries operate from Kabul'
+          - 'overall Taliban Leader HAYBATULLAH Akhundzada is the \[so-called\] Amir-ul Momineen of the Taliban and is seen by them as a head of government'
           - "^the president is both chief of state and head of government"
           - "^note [-–] "
           - "^Heir Apparent"

@@ -21,6 +21,7 @@ REGEX_SKIP_CATEGORY_HTML = re.compile(
     "|Prime Minister HUN MANET succeeded"
     "|<strong>note 1:</strong>"
     "|<em>2013:</em>" # Georgia
+    "|note 1:.+" # Afghanistan
     ")"
 )
 REGEX_RELEVANT_CATEGORY = re.compile("^(chief of state|head of government): ")
