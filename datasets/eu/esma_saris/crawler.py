@@ -39,11 +39,13 @@ def crawl(context: Context) -> None:
             sanction.add("startDate", row.pop("effectiveFrom"))
             sanction.add("country", row.pop("memberStateOfNotifyingCA"))
             sanction.set("authority", row.pop("notifyingCA"))
+            target = False
             if row.get("effectiveTo") is not None:
                 sanction.add("endDate", row.pop("effectiveTo"))
             else:
                 entity.add("topic", "sanction")
-            context.emit(sanction, target=False)
+                target = True
+            context.emit(sanction, target=target)
 
             if row.get("issuer") is not None:
                 issuer = context.make("LegalEntity")
