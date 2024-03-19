@@ -46,4 +46,5 @@ children:
   - us_sec_pause
   - pk_proscribed_persons
   - za_wanted
+  - tr_wanted
 ci_test: false
