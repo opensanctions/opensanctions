@@ -1,4 +1,4 @@
-title: FINRA Enforcement Actions
+title: US FINRA Enforcement Actions
 entry_point: crawler.py
 prefix: us-finra-enfor
 coverage:
@@ -7,7 +7,7 @@ load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Firms and individuals that violated FINRA rules
 description: |
-  This dataset comprises firmas and individuals who FINRA have taken
+  This dataset comprises firms and individuals who FINRA have taken
   disciplinary actions against for violations of its rules,
   federal securities laws, rules, and regulations or
   the rules of the Municipal Securities Rulemaking Board.
@@ -22,5 +22,5 @@ publisher:
   country: "us"
 url: "https://www.finra.org/rules-guidance/oversight-enforcement/disciplinary-actions#:~:text=FINRA%20takes%20disciplinary%20actions%20against,the%20Municipal%20Securities%20Rulemaking%20Board."
 data:
-  url: https://www.finra.org/rules-guidance/oversight-enforcement/finra-disciplinary-actions?search=&firms=&individuals=&field_fda_case_id_txt=&field_core_official_dt%5Bmin%5D=&field_core_official_dt%5Bmax%5D=&field_fda_document_type_tax=All&token=f8W1uC3kpshSH5QzszZnszbMmQxZ77JDjlLYn16IuOw
+  url: https://www.finra.org/rules-guidance/oversight-enforcement/finra-disciplinary-actions
   format: HTML
