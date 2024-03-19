@@ -4,12 +4,16 @@ entry_point: crawler.py
 prefix: tr-wanted
 coverage:
   frequency: daily
-  start: 2024-03-15
+  start: 2024-03-19
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Wanted terrorists list of Turkey Ministry of Interior
 description: |
-  Wanted terrorists list of Turkey Ministry of Interior
+  Turkey has published a list of its most wanted terrorists, which includes details such as names, birth years, and places of birth. 
+  
+  These individuals are classified into five color-coded categories, ranging from red (kırmızı) — indicating the most wanted — to blue (mavi), green (yeşil), orange (turuncu), and grey (gri). 
+  
+  Each category corresponds to a different reward amount for information that leads to the capture of these wanted individuals.
 publisher:
     name: Ministry of Interior
     country: tr
