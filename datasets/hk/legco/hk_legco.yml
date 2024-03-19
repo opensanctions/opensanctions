@@ -37,3 +37,7 @@ publisher:
 data:
   url: https://app4.legco.gov.hk/mapi/en/api/LASS/getListMember
   format: JSON
+http:
+  # We occasionally get a 400 in CI but when checking the URL manually it works
+  # so it looks a bit like a load or rate limiting thing.
+  retry_statuses: [400]
