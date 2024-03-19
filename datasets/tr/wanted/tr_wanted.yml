@@ -15,11 +15,11 @@ description: |
   
   Each category corresponds to a different reward amount for information that leads to the capture of these wanted individuals.
 publisher:
-    name: Ministry of Interior
-    country: tr
-    official: true
-    url: https://en.terorarananlar.pol.tr/
+  name: Ministry of Interior
+  country: tr
+  official: true
+  url: https://en.terorarananlar.pol.tr/
 
 data:
-    url: https://www.terorarananlar.pol.tr/ISAYWebPart/TArananlar/GetTerorleArananlarList
-    format: JSON
+  url: https://www.terorarananlar.pol.tr/ISAYWebPart/TArananlar/GetTerorleArananlarList
+  format: JSON
