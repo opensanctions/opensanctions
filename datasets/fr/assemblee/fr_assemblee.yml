@@ -42,6 +42,7 @@ publisher:
 data:
   url: https://data.assemblee-nationale.fr/static/openData/repository/16/amo/tous_acteurs_mandats_organes_xi_legislature/AMO30_tous_acteurs_tous_mandats_tous_organes_historique.json.zip
   format: JSON
+ci_test: false
 assertions:
   min:
     schema_entities:

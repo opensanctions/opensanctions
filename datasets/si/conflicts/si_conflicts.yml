@@ -37,3 +37,4 @@ publisher:
 data:
   url: https://erar.si/api/omejitve/
   format: JSON
+ci_test: false
