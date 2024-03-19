@@ -56,6 +56,7 @@ def crawl_entity(context: Context, url: str, name: str, category: str) -> None:
     entity = context.make(res.schema)
     entity.id = context.make_id(name)
     entity.add("name", name)
+    entity.add("topics", "crime.fraud")
 
     sanction = h.make_sanction(context, entity, key=category)
     sanction.add("program", category)
