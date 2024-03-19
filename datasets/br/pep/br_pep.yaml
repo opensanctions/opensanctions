@@ -25,3 +25,4 @@ url: https://portaldatransparencia.gov.br/download-de-dados/pep
 data:
   url: https://portaldatransparencia.gov.br/download-de-dados/pep
   format: csv
+ci_test: false
