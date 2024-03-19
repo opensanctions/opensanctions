@@ -39,6 +39,7 @@ def crawl_restricted_entities(context: Context):
             proxy.add("sector", row.pop("Sector"))
             proxy.add("classification", row.pop("Category"))
             proxy.add("sourceUrl", row.pop("SourceURL"))
+            proxy.add("topics", "sanction")
 
             sanction = h.make_sanction(context, proxy)
             sanction.add("startDate", row.pop("EffectiveDate"))
