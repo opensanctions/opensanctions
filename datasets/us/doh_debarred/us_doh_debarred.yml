@@ -3,31 +3,24 @@ title:  US DOH Inspector General Exclusions
 entry_point: crawler.py
 coverage:
   frequency: daily
-  start: "2024-03-13"
+  start: "2024-03-19"
 summary: >
-  Peoples and companies excluded from Federally funded health care programs
+  People and companies excluded from Federally funded health care programs
 description: |
-  This dataset provides information on Individuals and entities excluded from participation in Medicare,
-  Medicaid, and all other Federal health care programs for various reasons including conviction for Medicare 
-  or Medicaid fraud.
-  Exclusions are imposed under the authority of sections 1128 and 1156 of the Social Security Act.
-  
-  From the OIG HHS page:
-  > Exclusion from participation in Medicare, Medicaid, and all other Federal health care programs.
-  > Excluded receive no payment from Federal health care programs for any items or services they
-  > furnish,order, or prescribe.
-  >
-  > Anyone who hires an individual or entity on the LEIE may be subject to civil monetary penalties (CMP).
-  > It affect ability to claims payment for health services they provide but doesn't affect 
-  > their right to receive benefits under Federal Health care programs.
-  >
-  > For exclusions implemented before August 4, 1997, the exclusion covers only the following Federal health care programs:
-  > Medicare, Medicaid, Maternal and Child Health Services Block Grant, Block Grants to States for Social Services, and
-  > State Children's Health Insurance programs.
-  >
-  > Individuals and entities who have been reinstated are removed from the LEIE.
+  This dataset represents the current
+  [List of Excluded Individuals/Entities](https://oig.hhs.gov/exclusions/exclusions_list.asp) (LEIE)
+  by the U.S. Department of Health and Human Services Office of Inspector General (OIG).
 
-  For more information, refer to the [OIG's Exclusion Authorities FAQ page](https://oig.hhs.gov/faqs/exclusions-faq).
+  > The OIG has the authority to exclude individuals and entities from Federally
+  > funded health care programs for a variety of reasons, including a conviction
+  > for Medicare or Medicaid fraud. Those that are excluded can receive no payment
+  > from Federal health care programs for any items or services they furnish,
+  > order, or prescribe. This includes those that provide health benefits funded
+  > directly or indirectly by the United States (other than the Federal Employees
+  > Health Benefits Plan).
+  
+  For more information about exclusion reason references, refer to the
+  [OIG's Exclusions FAQ page](https://oig.hhs.gov/faqs/exclusions-faq).
 
 publisher: 
   name: U.S. Department of Health and Human Services Office of Inspector General (OIG)
