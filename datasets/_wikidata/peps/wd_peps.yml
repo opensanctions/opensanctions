@@ -48,6 +48,13 @@ data:
   url: https://query.wikidata.org/sparql
   format: JSON
 ci_test: false
+http:
+  total_retries: 5
+  backoff_factor: 2
+  retry_statuses: [500]
+  retry_methods:
+    - GET
+    - POST
 
 assertions:
   min:

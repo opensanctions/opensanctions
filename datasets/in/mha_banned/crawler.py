@@ -20,13 +20,15 @@ CLEAN = [
 ]
 REGEX_PERSON_PREFIX = re.compile(r"^\d+\.")
 
+
 def parse_names(field: str) -> List[str]:
     names: List[str] = []
-    for value in field.split(';'):
+    for value in field.split(";"):
         value = value.strip()
         if len(value):
             names.append(value)
     return names
+
 
 def crawl_sheet(context: Context):
     path = context.fetch_resource("accommodations.csv", SHEET_URL)
@@ -44,16 +46,16 @@ def crawl_sheet(context: Context):
             entity.id = context.make_id(id_, name, source_url)
             assert entity.id is not None, row
             named_ids[name] = entity.id
-            entity.add('name', name)
-            entity.add('notes', row.pop("Notes"))
+            entity.add("name", name)
+            entity.add("notes", row.pop("Notes"))
             entity.add("topics", "sanction")
             entity.add("sourceUrl", source_url)
             entity.add("alias", parse_names(row.pop("Aliases")))
             entity.add("weakAlias", parse_names(row.pop("Weak")))
 
             sanction = h.make_sanction(context, entity, id_)
-            sanction.add('program', row.pop("Designation"))
-            sanction.add('authorityId', id_)
+            sanction.add("program", row.pop("Designation"))
+            sanction.add("authorityId", id_)
 
             linked = row.pop("Linked", "").strip()
             if len(linked) and linked in named_ids:
@@ -62,7 +64,7 @@ def crawl_sheet(context: Context):
                 rel.add("subject", named_ids[linked])
                 rel.add("object", entity.id)
                 context.emit(rel)
-            
+
             context.emit(entity, target=True)
             context.emit(sanction)
 
@@ -70,9 +72,8 @@ def crawl_sheet(context: Context):
 def crawl(context: Context):
     crawl_sheet(context)
     path = context.fetch_resource(
-         "organisations.html",
-         context.data_url + "banned-organisations",
-    #     headers={"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "},
+        "organisations.html",
+        context.data_url + "banned-organisations",
     )
     context.export_resource(path, HTML)
     context.export_resource(path, HTML, title="Banned organisations")

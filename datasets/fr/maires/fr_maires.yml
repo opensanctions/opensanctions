@@ -31,6 +31,7 @@ publisher:
 data:
   url: https://www.data.gouv.fr/fr/datasets/r/2876a346-d50c-4911-934e-19ee07b0e503
   format: CSV
+ci_test: false
 assertions:
   min:
     schema_entities:

@@ -1,8 +1,6 @@
 from typing import Dict, Generator, Optional, Tuple
 from lxml.etree import _Element
 from normality import slugify, collapse_spaces
-from requests.adapters import HTTPAdapter
-from urllib3.util import Retry
 
 from zavod import Context
 from zavod import helpers as h
@@ -114,9 +112,6 @@ def crawl_entity(context: Context, url: str, name: str, category: str) -> None:
 
 
 def crawl(context: Context) -> None:
-    retries = Retry(total=5, backoff_factor=1)
-    context.http.mount("https://", HTTPAdapter(max_retries=retries))
-
     doc = context.fetch_html(context.data_url, cache_days=1)
     doc.make_links_absolute(context.data_url)
 
