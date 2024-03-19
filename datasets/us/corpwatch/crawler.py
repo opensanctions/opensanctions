@@ -73,9 +73,9 @@ def parse_company_locations(context: Context, row: Row):
         country_code = clean(row.pop("country_code")) or ""
         proxy.add("country", country_code)
         street = [s for s in (row.pop("street_1"), row.pop("street_2")) if clean(s)]
-        street = ", ".join(street)
+        street_ = ", ".join(street)
         address = h.format_address(
-            street=street,
+            street=street_,
             postal_code=clean(row.pop("postal_code")),
             city=clean(row.pop("city")),
             state=clean(row.pop("state")),

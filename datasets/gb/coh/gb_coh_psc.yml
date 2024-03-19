@@ -16,6 +16,7 @@ exports:
   - entities.ftm.json
   - senzing.json
 resolve: false
+ci_test: false
 summary: |
   The database of beneficial owners of companies incorporated in England, Wales,
   Scotland and Northern Ireland.
@@ -68,4 +69,3 @@ lookups:
         value: vc
       - match: YEMEN ARAB REPUBLIC
         value: ye
-
