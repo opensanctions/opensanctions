@@ -1,6 +1,6 @@
-name: us_doh_debarred
 title: US Health and Human Sciences Inspector General Exclusions
 entry_point: crawler.py
+prefix: us-hss-excl
 coverage:
   frequency: daily
   start: "2024-03-19"
@@ -11,6 +11,8 @@ description: |
   This dataset represents the current
   [List of Excluded Individuals/Entities](https://oig.hhs.gov/exclusions/exclusions_list.asp) (LEIE)
   by the U.S. Department of Health and Human Services Office of Inspector General (OIG).
+
+  From the OIG's website:
 
   > The OIG has the authority to exclude individuals and entities from Federally
   > funded health care programs for a variety of reasons, including a conviction
