@@ -5,6 +5,7 @@ coverage:
   frequency: weekly
   start: 2023-05-24
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+ci_test: false
 summary: >
   People of Interest is an interactive database developed and managed by RISE Moldova.
   It is a work in progress journalistic project.
