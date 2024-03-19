@@ -1,4 +1,4 @@
-from typing import Dict, Any, Optional
+from typing import Optional
 from normality import slugify, collapse_spaces
 import re
 from lxml import html
@@ -20,8 +20,8 @@ REGEX_SKIP_CATEGORY_HTML = re.compile(
     "|<strong>chief of state:</strong> Notification Statement:"
     "|Prime Minister HUN MANET succeeded"
     "|<strong>note 1:</strong>"
-    "|<em>2013:</em>" # Georgia
-    "|note 1:.+" # Afghanistan
+    "|<em>2013:</em>"  # Georgia
+    "|note 1:.+"  # Afghanistan
     ")"
 )
 REGEX_RELEVANT_CATEGORY = re.compile("^(chief of state|head of government): ")
@@ -177,7 +177,9 @@ def crawl_country(context: Context, country: str) -> None:
         category_els = html.fromstring(category_html)
         label_els = category_els.findall("./strong")
         if len(label_els) != 1:
-            context.log.warning("Error parsing label", html=category_html, url=source_url)
+            context.log.warning(
+                "Error parsing label", html=category_html, url=source_url
+            )
             continue
         label_text = label_els[0].text_content()
         if label_text in ["chief of state:", "head of government:"]:
