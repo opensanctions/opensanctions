@@ -3,26 +3,55 @@ from followthemoney.types import registry
 from zavod.context import Context
 from zavod.meta.dataset import Dataset
 from zavod.store import View
+from zavod.zavod.entity import Entity
 
 
-def find_dangling(context: Context, dataset: Dataset, view: View) -> None:
-    for idx, entity in enumerate(view.entities()):
-        for prop in entity.iter_properties():
-            if prop.type == registry.entity:
-                for other_id in entity.get(prop):
-                    if not view.has_entity(other_id):
+def find_dangling(context: Context, view: View, entity: Entity) -> None:
+    for prop in entity.iter_properties():
+        if prop.type != registry.entity:
+            return
+        for other_id in entity.get(prop):
+            if view.has_entity(other_id):
+                return
+    context.log.error(
+        f"{entity.id} references missing id {other_id}"
+    )
+
+
+def find_self_references(context: Context, view: View, entity: Entity) -> None:
+    if not entity.schema.is_a("Thing"):
+        return
+    for prop in entity.iter_properties():
+        if prop.type != registry.entity:
+            continue
+        if prop.range.is_a("Thing"):
+            for other_id in entity.get(prop):
+                if other_id == entity.id:
+                    context.log.error(
+                        f"{entity.id} references itself on {prop.name}."
+                    )
+        elif prop.range.is_a("Interval"):
+            for other_id in entity.get(prop):
+                other = view.get_entity(other_id)
+                for other_prop in other.iter_properties():
+                    if other_prop.type != registry.entity:
+                        return
+                    if other_prop.reverse == prop:
+                        return
+                    if entity.id in other.get(other_prop):
                         context.log.error(
-                            "{entity.id} references missing id" % other_id
+                            f"{entity.id} references itself on {prop.name} via {other.id}'s {other_prop.name}."
                         )
-
-        if idx > 0 and idx % 10000 == 0:
-            context.log.info("Verified %s entities..." % idx, dataset=dataset.name)
-
+                
 
 def verify_dataset(dataset: Dataset, view: View) -> None:
     try:
         context = Context(dataset)
         context.begin(clear=False)
-        find_dangling(context, dataset, view)
+        for idx, entity in enumerate(view.entities()):
+            find_dangling(context, view, entity)
+            find_self_references(context, view, entity)
+            if idx > 0 and idx % 10000 == 0:
+                context.log.info("Verified %s entities..." % idx, dataset=dataset.name)
     finally:
         context.close()
