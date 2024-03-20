@@ -31,7 +31,6 @@ def crawl(context: Context) -> None:
             entity.add("name", row.pop("instrumentFullName", isin))
 
             sanction = h.make_sanction(context, entity)
-            sanction.id = context.make_id(row.pop("id"))
             sanction.add("program", "ESMA")
             sanction.add("provisions", row.pop("actionType"))
             sanction.add("reason", row.pop("reasonsForTheAction"))
@@ -39,23 +38,21 @@ def crawl(context: Context) -> None:
             sanction.add("startDate", row.pop("effectiveFrom"))
             sanction.add("country", row.pop("memberStateOfNotifyingCA"))
             sanction.set("authority", row.pop("notifyingCA"))
-            target = False
             if row.get("effectiveTo") is not None:
                 sanction.add("endDate", row.pop("effectiveTo"))
             else:
-                entity.add("topic", "sanction")
-                target = True
-            context.emit(sanction, target=target)
-
-            if row.get("issuer") is not None:
+                entity.add("topics", "sanction")
+            context.emit(sanction)
+            issuer_id = row.pop("issuer", "").strip()
+            if issuer_id != "":
                 issuer = context.make("LegalEntity")
-                if len(issuer) == 20:
-                    issuer.id = f"lei-{issuer}"
-                    issuer.add("leiCode", issuer)
+                if len(issuer_id) == 20:
+                    issuer.id = f"lei-{issuer_id}"
+                    issuer.add("leiCode", issuer_id)
                 else:
-                    issuer.id = context.make_id(row.pop("issuer"))
+                    issuer.id = context.make_id(issuer_id)
                 issuer.add("name", row.pop("issuerName"))
-                context.emit(issuer, target=False)
+                context.emit(issuer)
                 entity.add("issuer", issuer)
 
             context.emit(entity, target=True)
