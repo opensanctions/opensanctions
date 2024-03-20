@@ -23,6 +23,7 @@ from zavod.tools.dump_file import dump_dataset_to_file
 from zavod.tools.summarize import summarize as _summarize
 from zavod.exc import RunFailedException
 from zavod.tools.wikidata import run_app
+from zavod.verify import verify_dataset
 
 
 log = get_logger(__name__)
@@ -62,6 +63,21 @@ def crawl(dataset_path: Path, dry_run: bool = False, clear: bool = False) -> Non
     try:
         crawl_dataset(dataset, dry_run=dry_run)
     except RunFailedException:
+        sys.exit(1)
+
+
+@cli.command("verify", help="Check the integrity of a dataset")
+@click.argument("dataset_path", type=InPath)
+@click.option("-c", "--clear", is_flag=True, default=False)
+def verify(dataset_path: Path, clear: bool = False) -> None:
+    try:
+        dataset = _load_dataset(dataset_path)
+        if clear:
+            clear_store(dataset)
+        view = get_view(dataset, external=False)
+        verify_dataset(dataset, view)
+    except Exception:
+        log.exception("Failed verifying dataset: %s" % dataset_path)
         sys.exit(1)
 
 
@@ -119,6 +135,7 @@ def run(
     try:
         clear_store(dataset)
         view = get_view(dataset, external=False)
+        verify_dataset(dataset, view)
         export_dataset(dataset, view)
         view.store.close()
         publish_dataset(dataset, latest=latest)
