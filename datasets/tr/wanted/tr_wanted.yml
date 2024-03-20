@@ -1,5 +1,5 @@
 name: tr_wanted
-title: "Turkey Wanted Terrorists"
+title: "Turkey Ministry Of Interior Terrorist Wanted List"
 entry_point: crawler.py
 prefix: tr-wanted
 coverage:
