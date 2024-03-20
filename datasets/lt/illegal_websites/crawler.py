@@ -1,6 +1,5 @@
 import csv
 from typing import Dict
-from pantomime.types import CSV
 from zavod import Context
 import shutil
 

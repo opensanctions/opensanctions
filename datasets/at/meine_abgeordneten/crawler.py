@@ -3,7 +3,6 @@ import os
 from pprint import pprint
 import re
 from urllib.parse import urlparse
-from lxml import etree
 from normality import collapse_spaces
 
 from zavod import Context, helpers as h

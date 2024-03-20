@@ -1,7 +1,6 @@
 import re
 from typing import List, Tuple
 from lxml import html
-from normality import slugify, collapse_spaces
 from pantomime.types import HTML
 
 from zavod import Context

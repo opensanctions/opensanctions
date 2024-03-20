@@ -200,7 +200,7 @@ def parse_company(line):
     company_name = line[40:].strip("< \n")
     company_status_code = line[9].replace(" ", "UKN")  # " " means status not known
     company_status = COMPANY_STATUS.get(company_status_code)
-    number_of_officers = line[32:36]  # not really needed.
+    # number_of_officers = line[32:36]  # not really needed.
 
     company = model.make_entity("Company")
     # uk-ch company numbers are truly unique. Don't create hash key.
@@ -242,9 +242,9 @@ def parse_appointment_line(line):
 
 def process_file(filepath):
 
-    for ix, l in enumerate(read_appointments(filepath)):
+    for ix, line in enumerate(read_appointments(filepath)):
         print(f"Appointment line at index {ix}\n")
-        parse_appointment_line(l)
+        parse_appointment_line(line)
 
 
 def process_directory(dirpath):

@@ -59,7 +59,7 @@ def crawl_collabos(
         yield collabo
 
         link = context.make("Associate")
-        link.id = context.make_slug(uid, f"associate", prefix, first_name, last_name)
+        link.id = context.make_slug(uid, "associate", prefix, first_name, last_name)
         link.set("person", person)
         link.set("associate", collabo)
         link.set("relationship", "collaborateur")

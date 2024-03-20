@@ -1,5 +1,3 @@
-from lxml import html, etree
-from datetime import datetime
 from zavod import Context
 from zavod import helpers as h
 from zavod.logic.pep import categorise
@@ -59,7 +57,7 @@ def crawl_person(context: Context, element) -> dict:
         person_data["term_end"] = h.parse_date(person_data["term_end"], FORMATS)[0]
     person_data["block"] = _extract_text(element, ".//td[7]/text()")
 
-    context.log.debug(f"Finished crawl person", person=person_data)
+    context.log.debug("Finished crawl person", person=person_data)
     return person_data
 
 

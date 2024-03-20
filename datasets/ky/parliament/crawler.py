@@ -3,7 +3,6 @@ from normality import collapse_spaces
 from pantomime.types import CSV
 from typing import Dict
 import re
-from lxml import etree
 
 from zavod import Context
 from zavod import helpers as h

@@ -1,9 +1,8 @@
 import re
-from datetime import datetime
 from typing import Any, Dict, Generator, List, Optional
 import openpyxl
 from pantomime.types import XLSX
-from normality import slugify, stringify
+from normality import slugify
 
 from zavod import Context
 from zavod import helpers as h
