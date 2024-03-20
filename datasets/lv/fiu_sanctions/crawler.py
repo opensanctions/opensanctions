@@ -8,7 +8,7 @@ from zavod import helpers as h
 
 def crawl_person(context: Context, node: _Element) -> Optional[Entity]:
     entity = context.make("Person")
-    entity.id = context.make_slug('person', node.findtext(".//Id"))
+    entity.id = context.make_slug("person", node.findtext(".//Id"))
 
     name_node = node.find(".//Name")
     if name_node is None:
@@ -87,7 +87,7 @@ def crawl_person(context: Context, node: _Element) -> Optional[Entity]:
 
 def crawl_organization(context: Context, node: _Element) -> Optional[Entity]:
     entity = context.make("Organization")
-    entity.id = context.make_slug('org', node.findtext(".//Id"))
+    entity.id = context.make_slug("org", node.findtext(".//Id"))
 
     company_name = node.find(".//Name")
     if company_name is None:

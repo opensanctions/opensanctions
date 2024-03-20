@@ -47,17 +47,20 @@ def crawl_item(input_dict: dict, context: Context):
     context.emit(entity, target=True)
     context.emit(position)
     context.emit(occupancy)
-    context.audit_data(input_dict, [
-        "Oid",
-        "Distrito",
-        "Legislacion",
-        "CabeceraMunicipal",
-        "Suplente",
-        "id_dip",
-        "IdDiputado",
-        "__typename",
-        "Licencia",
-    ])
+    context.audit_data(
+        input_dict,
+        [
+            "Oid",
+            "Distrito",
+            "Legislacion",
+            "CabeceraMunicipal",
+            "Suplente",
+            "id_dip",
+            "IdDiputado",
+            "__typename",
+            "Licencia",
+        ],
+    )
 
 
 def crawl(context: Context):

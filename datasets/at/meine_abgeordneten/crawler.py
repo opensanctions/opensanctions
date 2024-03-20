@@ -28,6 +28,7 @@ PARTY_NAMES = defaultdict(int)
 PARTY_REGEX = re.compile(r"(\([\w ]+\)|, [\w ]+$)")
 MAX_POSITION_NAME_LENGTH = 120
 
+
 def parse_date_in_german(text):
     text = text.lower()
     for de, en in MONTHS.items():
@@ -90,7 +91,7 @@ def crawl_sources(context, entity, el):
         entity.add("description", text)
         for link in source_el.xpath(".//a"):
             entity.add("sourceUrl", link.get("href"))
-                       
+
 
 def crawl_mandate(context, url, person, el):
     """Returns true if dates could be parsed for a PEP position."""

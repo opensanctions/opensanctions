@@ -47,7 +47,7 @@ def create_entity(input_dict: dict, context: Context):
     entity.add("name", input_dict["Nome"])
     entity.add("taxNumber", tax_number)
     entity.add("country", "br")
-    entity.add('topics', 'debarment')
+    entity.add("topics", "debarment")
 
     return entity
 
@@ -70,7 +70,8 @@ def create_sanction(input_dict: dict, entity, context: Context):
 
     sanction = h.make_sanction(context, entity, key=pas)
     sanction.add(
-        "program", "Brazil's Central Bank General Register of Persons and Companies Prohibited from Offering Auditing Services"
+        "program",
+        "Brazil's Central Bank General Register of Persons and Companies Prohibited from Offering Auditing Services",
     )
 
     # The ID of the process

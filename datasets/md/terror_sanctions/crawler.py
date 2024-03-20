@@ -23,6 +23,7 @@ def clean_name(string: str):
     name = re.sub("[\[\(\., ]+$", "", string)
     return name
 
+
 def parse_names(string: str) -> Tuple[str, List[str]]:
     parts = string.split("alias")
     name = clean_name(parts[0])

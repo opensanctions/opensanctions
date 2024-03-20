@@ -30,7 +30,7 @@ def extract_name(context: Context, person: Entity, name: str):
     m = PATROYNMIC.search(name)
     if m is not None:
         patronym = m.group(1)
-        name = name[:m.start()] + name[m.end():]
+        name = name[: m.start()] + name[m.end() :]
         context.log.debug(f"Patroynmic: {m.group(1)}")
     h.apply_name(person, full=name, patronymic=patronym, lang="geo")
 

@@ -375,7 +375,7 @@ def parse_id_reg_document(
     proxy.add("country", country)
 
     if conf.prop is not None:
-        if proxy.schema.is_a("Vessel") and conf.prop == 'idNumber':
+        if proxy.schema.is_a("Vessel") and conf.prop == "idNumber":
             proxy.add("imoNumber", number)
         else:
             proxy.add(conf.prop, number)

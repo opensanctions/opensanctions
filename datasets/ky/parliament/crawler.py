@@ -36,6 +36,7 @@ REGEX_POSITIONISH = re.compile(
 )
 REGEX_NAME = re.compile(r"^[\w\.“”’-]+( [\w\.“”’-]+){1,3}$")
 
+
 def crawl_card_2021(context: Context, position: str, el: ElementOrTree):
     name_el = el.find("./h1")
     name = name_el.text

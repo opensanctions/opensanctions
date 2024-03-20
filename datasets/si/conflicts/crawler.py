@@ -8,7 +8,9 @@ def create_entities(context: Context, record: Dict[str, Any]):
     registration_number = record.pop("subjekt_maticna")
 
     if subject_name == "" and registration_number is None:
-        context.log.info("Subject name and registration number not found", record=record)
+        context.log.info(
+            "Subject name and registration number not found", record=record
+        )
         return
 
     legal_entity.id = context.make_id(registration_number or subject_name)

@@ -42,7 +42,6 @@ def parse_table(table: ElementOrTree) -> List[Dict[str, Any]]:
     return rows
 
 
-
 def crawl(context: Context):
     doc = context.fetch_html(context.data_url)
     doc.make_links_absolute(context.data_url)
