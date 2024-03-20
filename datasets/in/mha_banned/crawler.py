@@ -1,6 +1,7 @@
 import re
 import csv
 from lxml import html
+from urllib.parse import urljoin
 from typing import List, Dict
 from normality import collapse_spaces
 from pantomime.types import HTML, CSV
@@ -9,6 +10,7 @@ from zavod import Context
 from zavod import helpers as h
 
 SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTc-EkLWZgLKDPVvcrCoKLp17EEo535uP1EMcLKFl_b6T3z6Tq99BrI3R9GhxKirgRoozND1xQ48O4-/pub?output=csv"
+OVERVIEW_URL = "https://www.mha.gov.in/en/divisionofmha/counter-terrorism-and-counter-radicalization-division"
 
 CLEAN = [
     ", all its formations and front organizations.",
@@ -31,13 +33,38 @@ def parse_names(field: str) -> List[str]:
 
 
 def crawl_sheet(context: Context):
-    path = context.fetch_resource("accommodations.csv", SHEET_URL)
+    overview = context.fetch_html(OVERVIEW_URL)
+    overview_urls: List[str] = [
+        "https://www.mha.gov.in/sites/default/files/2024-01/NAMESOFUNLAWFULASSOCIATIONS_05012024_0.pdf"
+    ]
+    for a in overview.findall(".//a"):
+        overview_urls.append(urljoin(OVERVIEW_URL, a.get("href")))
+    h.assert_url_hash(
+        context,
+        "https://www.mha.gov.in/sites/default/files/2023-06/TERRORIST_ORGANIZATIONS_10032023.pdf",
+        "8b563dccdbbb8d497572d3687f7be976fa9702cc",
+    )
+    h.assert_url_hash(
+        context,
+        "https://www.mha.gov.in/sites/default/files/2024-03/Listof57terrorists_07032024.pdf",
+        "310081dd2bd196140f76705d10447ea2dcf924e5",
+    )
+    assoc_html = context.fetch_html(
+        "https://www.mha.gov.in/en/commoncontent/unlawful-associations-under-section-3-of-unlawful-activities-prevention-act-1967"
+    )
+    h.assert_dom_hash(
+        assoc_html.find('.//div[@class="view-content"]'),
+        "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+    )
+    path = context.fetch_resource("source.csv", SHEET_URL)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     named_ids: Dict[str, str] = {}
     with open(path, "r") as fh:
         for row in csv.DictReader(fh):
             entity = context.make(row.pop("Type", "LegalEntity"))
             source_url = row.pop("SourceURL")
+            if source_url not in overview_urls:
+                context.log.warn("Source URL not in overview page", url=source_url)
             id_ = row.pop("ID")
             name = row.pop("Name")
             if name is None:
@@ -75,8 +102,7 @@ def crawl(context: Context):
         "organisations.html",
         context.data_url + "banned-organisations",
     )
-    context.export_resource(path, HTML)
-    context.export_resource(path, HTML, title="Banned organisations")
+    context.export_resource(path, HTML, title="Source data: Banned organisations")
     with open(path, "rb") as fh:
         doc = html.fromstring(fh.read())
     for row in doc.findall('.//div[@class="field-content"]//table//tr'):
