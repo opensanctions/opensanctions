@@ -47,7 +47,7 @@ from zavod.helpers.identification import make_identification
 from zavod.helpers.securities import make_security
 from zavod.helpers.excel import convert_excel_cell, convert_excel_date
 from zavod.helpers.html import parse_table
-from zavod.helpers.change import assert_dom_hash, assert_url_hash
+from zavod.helpers.change import assert_dom_hash, assert_url_hash, assert_html_url_hash
 
 __all__ = [
     "clean_note",
@@ -74,4 +74,5 @@ __all__ = [
     "parse_table",
     "assert_dom_hash",
     "assert_url_hash",
+    "assert_html_url_hash",
 ]

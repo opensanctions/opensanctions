@@ -5,7 +5,7 @@ from normality import collapse_spaces
 
 from zavod.logs import get_logger
 from zavod.context import Context
-from zavod.helpers.xml import ElementOrTree
+from zavod.util import ElementOrTree
 
 log = get_logger(__name__)
 
@@ -40,32 +40,51 @@ def assert_url_hash(
     return True
 
 
+def _compute_node_hash(node: Optional[ElementOrTree]) -> Optional[str]:
+    digest = sha1()
+    if node is None:
+        return None
+    serialised = etree.tostring(
+        node,
+        with_comments=False,
+        pretty_print=True,
+        method="c14n2",
+    )
+    text = collapse_spaces(serialised.decode("utf-8").lower())
+    if text is None:
+        return None
+    digest.update(text.replace(" ", "").encode("utf-8"))
+    return digest.hexdigest()
+
+
 def assert_dom_hash(
     node: Optional[ElementOrTree], hash: str, raise_exc: bool = False
 ) -> bool:
     """Assert that a DOM node has a given SHA1 hash."""
-    digest = sha1()
-    if node is not None:
-        serialised = etree.tostring(
-            node,
-            with_comments=False,
-            pretty_print=True,
-            method="c14n2",
-        )
-        text = collapse_spaces(serialised.lower())
-        if text is not None:
-            digest.update(text.replace(" ", "").encode("utf-8"))
-    actual = digest.hexdigest()
+    actual = _compute_node_hash(node)
     if actual != hash:
         if raise_exc:
-            msg = f"Expected hash {hash}, got {actual} for {node}"
+            msg = f"Expected hash {hash}, got {actual} for {node!r}"
             raise AssertionError(msg)
         else:
             log.warning(
                 "DOM hash changed: %s" % node,
                 expected=hash,
                 actual=actual,
-                node=node,
+                node=repr(node),
             )
         return False
     return True
+
+
+def assert_html_url_hash(
+    context: Context,
+    url: str,
+    hash: str,
+    path: Optional[str] = None,
+    raise_exc: bool = False,
+) -> bool:
+    """Assert that an HTML document located at the URL has a given SHA1 hash."""
+    doc = context.fetch_html(url)
+    node = doc.find(path) if path is not None else doc
+    return assert_dom_hash(node, hash, raise_exc=raise_exc)

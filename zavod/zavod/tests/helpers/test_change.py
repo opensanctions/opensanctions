@@ -40,8 +40,8 @@ def test_assert_url_hash(vcontext: Context):
 
 def test_assert_dom_hash():
     doc = html.fromstring("<html><body>hello, world!</body></html>")
-    assert assert_dom_hash(doc, "da39a3ee5e6b4b0d3255bfef95601890afd80709")
+    assert assert_dom_hash(doc, "4b5f0790985812c511f5d01e807c739625104288")
     assert not assert_dom_hash(doc, "1f09d30c707d53f3d16c530dd73d70a6ce7596a9")
 
     doc = html.fromstring("<html><body>hello,   World!</body></html>")
-    assert assert_dom_hash(doc, "da39a3ee5e6b4b0d3255bfef95601890afd80709")
+    assert assert_dom_hash(doc, "4b5f0790985812c511f5d01e807c739625104288")

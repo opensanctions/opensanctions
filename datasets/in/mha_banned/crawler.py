@@ -49,12 +49,11 @@ def crawl_sheet(context: Context):
         "https://www.mha.gov.in/sites/default/files/2024-03/Listof57terrorists_07032024.pdf",
         "310081dd2bd196140f76705d10447ea2dcf924e5",
     )
-    assoc_html = context.fetch_html(
-        "https://www.mha.gov.in/en/commoncontent/unlawful-associations-under-section-3-of-unlawful-activities-prevention-act-1967"
-    )
-    h.assert_dom_hash(
-        assoc_html.find('.//div[@class="view-content"]'),
-        "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+    h.assert_html_url_hash(
+        context,
+        "https://www.mha.gov.in/en/commoncontent/unlawful-associations-under-section-3-of-unlawful-activities-prevention-act-1967",
+        "8083796343ff1c23e64f7b7dc7136cdb28fabf7a",
+        path='.//div[@class="view-content"]',
     )
     path = context.fetch_resource("source.csv", SHEET_URL)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
