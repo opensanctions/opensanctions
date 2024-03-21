@@ -14,7 +14,7 @@ def check_dangling_references(context: Context, view: View, entity: Entity) -> N
             if view.has_entity(other_id):
                 continue
             context.log.error(
-                f"{entity.id} property {prop.name} references missing id {other_id}."
+                f"{entity.id} property {prop.name} references missing id {other_id}"
             )
 
 
@@ -23,17 +23,20 @@ def check_self_references(context: Context, view: View, entity: Entity) -> None:
     if not entity.schema.is_a("Thing"):
         return
     for prop, other in view.get_adjacent(entity):
-        #if prop.range is not None and not prop.range.is_a("Interval"):
-        #    continue
         for other_prop in other.iterprops():
             if other_prop.type != registry.entity:
                 continue
             if other_prop.reverse == prop:
                 continue
             if entity.id in other.get(other_prop):
-                context.log.error(
-                    f"{entity.id} references itself via {prop.name} -> {other.id} -> {other_prop.name}."
+                context.log.warning(
+                    f"{entity.id} references itself via {prop.name} -> {other.id} -> {other_prop.name}"
                 )
+
+
+def check_topicless_target(context: Context, view: View, entity: Entity) -> None:
+    if entity.target and not entity.get("topics"):
+        context.log.warning(f"{entity.id} is a target but has no topics", entity=entity)
 
 
 def verify_dataset(dataset: Dataset, view: View) -> None:
@@ -43,7 +46,7 @@ def verify_dataset(dataset: Dataset, view: View) -> None:
         for idx, entity in enumerate(view.entities()):
             check_dangling_references(context, view, entity)
             check_self_references(context, view, entity)
-            # check_topicless_target(context, view, entity)
+            check_topicless_target(context, view, entity)
 
             if idx > 0 and idx % 10000 == 0:
                 context.log.info("Verified %s entities..." % idx, dataset=dataset.name)
