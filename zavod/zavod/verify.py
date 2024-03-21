@@ -7,12 +7,14 @@ from zavod.entity import Entity
 
 
 def check_dangling_references(context: Context, view: View, entity: Entity) -> None:
+    print(entity.schema)
     for prop in entity.iterprops():
+        print("  ", prop.name, prop.type, prop.range)
         if prop.type != registry.entity:
-            return
+            continue
         for other_id in entity.get(prop):
             if view.has_entity(other_id):
-                return
+                continue
             context.log.error(f"{entity.id} property {prop.name} references missing id {other_id}")
 
 
