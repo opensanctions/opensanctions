@@ -1,14 +1,8 @@
-from collections import defaultdict
-from typing import Dict, List, Any, Optional, Set, cast
-from followthemoney import model
-from followthemoney.types import registry
+from typing import Dict, Any, Optional, cast
 from zavod.context import Context
 
 from zavod.entity import Entity
-from zavod.archive import STATISTICS_FILE
-from zavod.exporters.common import Exporter
 from zavod.meta.assertion import Assertion, Comparison, Metric
-from zavod.util import write_json
 from zavod.exporters.statistics import Statistics
 from zavod.verifiers.common import BaseVerifier
 from zavod.store import View
