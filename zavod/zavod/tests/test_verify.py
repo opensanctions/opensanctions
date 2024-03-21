@@ -33,7 +33,7 @@ def test_dangling_references(testdataset3) -> None:
         "error: td3-child-of-nonexistent-co property parent references missing id td3-nonexistent-co"
     ) in logs, logs 
     assert (
-        "td3-asset-of-nonexistent-co-ownership-nonexistent-co property owner references missing id td3-nonexistent-co"
+        "error: td3-asset-of-nonexistent-co-ownership-nonexistent-co property owner references missing id td3-nonexistent-co"
     ) in logs, logs 
 
 
