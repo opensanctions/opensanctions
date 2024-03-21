@@ -84,3 +84,5 @@ apicache-py3
 
 # Emacs
 *~
+
+.vscode

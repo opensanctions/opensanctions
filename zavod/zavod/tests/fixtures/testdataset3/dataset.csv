@@ -1,0 +1,7 @@
+id,name,parent_id,owner_id,topics,is_target
+parent-of-another-co,Parent of another co,,,,false
+owner-of-self-co,Owner of self co,,owner-of-self-co,sanction,true
+owner-of-another-co,Owner of another co,,,,false
+asset-of-another-co,Asset of another co,,owner-of-another-co,sanction,true
+child-of-nonexistent-co,Child of nonexistent co,nonexistent-co,,sanction,true
+asset-of-nonexistent-co,Asset of nonexistent co,,nonexistent-co,sanction,true
