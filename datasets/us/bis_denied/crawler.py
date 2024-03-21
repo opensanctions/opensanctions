@@ -12,6 +12,7 @@ def parse_row(context: Context, row):
     entity.id = context.make_slug(row.get("Effective_Date"), row.get("Name"))
     entity.add("name", row.get("Name"))
     entity.add("notes", row.get("Action"))
+    entity.add("topics", "sanction")
     entity.add("country", row.get("Country"))
     entity.add("modifiedAt", row.get("Last_Update"))
 
@@ -24,7 +25,7 @@ def parse_row(context: Context, row):
         region=row.get("State"),
         country_code=country_code,
     )
-    h.apply_address(context, entity, address)
+    h.copy_address(entity, address)
     context.emit(entity, target=True)
 
     citation = row.get("FR_Citation")
