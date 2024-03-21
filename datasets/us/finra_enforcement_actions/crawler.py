@@ -5,7 +5,6 @@ from zavod import Context, helpers as h
 
 
 def clean_name(name):
-
     matches = {
         ", LLC": " LLC",
         ", L.L.C": " L.L.C",
@@ -66,7 +65,6 @@ def crawl_item(input_dict: dict, context: Context):
     # so we abort the crawl
     if "," in name:
         return
-
 
     entity = context.make(schema)
     entity.id = context.make_slug(name)
