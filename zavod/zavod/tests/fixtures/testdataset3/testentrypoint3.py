@@ -1,10 +1,8 @@
 from pathlib import Path
 from typing import Dict
 import csv
-from datetime import datetime
 
 from zavod.context import Context
-from zavod import helpers as h
 
 LOCAL_PATH = Path(__file__).parent / "dataset.csv"
 

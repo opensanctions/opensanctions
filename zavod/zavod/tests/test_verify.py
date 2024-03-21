@@ -1,9 +1,3 @@
-# dangling reference on a thing
-# dangling reference on an interval
-# direct self reference - FTP already prevents this
-# self reference 1 level deep
-from json import load
-from structlog import get_logger
 from structlog.testing import capture_logs
 
 from zavod.context import Context
@@ -11,7 +5,6 @@ from zavod.store import get_store
 from zavod.verify import check_dangling_references, check_self_references
 from zavod.archive import clear_data_path
 from zavod.crawl import crawl_dataset
-from zavod import settings
 
 
 def test_dangling_references(testdataset3) -> None:
@@ -29,7 +22,7 @@ def test_dangling_references(testdataset3) -> None:
     store.close()
     context.close()
 
-    logs = [f"{l['log_level']}: {l['event']}" for l in cap_logs]
+    logs = [f"{entry['log_level']}: {entry['event']}" for entry in cap_logs]
     assert (
         "error: td3-child-of-nonexistent-co property parent references missing id td3-nonexistent-co."
     ) in logs, logs
@@ -51,13 +44,13 @@ def test_self_references(testdataset3) -> None:
     context.close()
     store.close()
 
-    logs = [f"{l['log_level']}: {l['event']}" for l in cap_logs]
+    logs = [f"{entry['log_level']}: {entry['event']}" for entry in cap_logs]
     assert (
-        "error: td3-owner-of-self-co references itself on ownershipOwner"
-        " via td3-owner-of-self-co-ownership-owner-of-self-co's asset."
+        "error: td3-owner-of-self-co references itself via ownershipOwner"
+        " -> td3-owner-of-self-co-ownership-owner-of-self-co -> asset."
     ) in logs, logs
     assert (
-        "error: td3-owner-of-self-co references itself on ownershipAsset"
-        " via td3-owner-of-self-co-ownership-owner-of-self-co's owner."
+        "error: td3-owner-of-self-co references itself via ownershipAsset"
+        " -> td3-owner-of-self-co-ownership-owner-of-self-co -> owner."
     ) in logs, logs
     assert len(logs) == 2, logs

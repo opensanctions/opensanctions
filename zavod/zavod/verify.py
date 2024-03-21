@@ -23,8 +23,8 @@ def check_self_references(context: Context, view: View, entity: Entity) -> None:
     if not entity.schema.is_a("Thing"):
         return
     for prop, other in view.get_adjacent(entity):
-        if not prop.range.is_a("Interval"):
-            continue
+        #if prop.range is not None and not prop.range.is_a("Interval"):
+        #    continue
         for other_prop in other.iterprops():
             if other_prop.type != registry.entity:
                 continue
@@ -32,7 +32,7 @@ def check_self_references(context: Context, view: View, entity: Entity) -> None:
                 continue
             if entity.id in other.get(other_prop):
                 context.log.error(
-                    f"{entity.id} references itself on {prop.name} via {other.id}'s {other_prop.name}."
+                    f"{entity.id} references itself via {prop.name} -> {other.id} -> {other_prop.name}."
                 )
 
 
