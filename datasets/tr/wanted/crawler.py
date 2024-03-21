@@ -44,7 +44,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     person.add("birthPlace", place_of_birth)
     person.add("birthDate", date_of_birth)
     person.add("program", f"{context.dataset.title} - {row.pop('TKategoriAdi')} List")
-    person.add("topics", "crime")
+    person.add("topics", "poi")
     person.add("country", "tr")
     context.emit(person, target=True)
 
