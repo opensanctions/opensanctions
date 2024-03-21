@@ -3,11 +3,11 @@ from followthemoney.types import registry
 from zavod.context import Context
 from zavod.meta.dataset import Dataset
 from zavod.store import View
-from zavod.zavod.entity import Entity
+from zavod.entity import Entity
 
 
-def find_dangling(context: Context, view: View, entity: Entity) -> None:
-    for prop in entity.iter_properties():
+def check_dangling_references(context: Context, view: View, entity: Entity) -> None:
+    for prop in entity.iterprops():
         if prop.type != registry.entity:
             return
         for other_id in entity.get(prop):
@@ -18,10 +18,10 @@ def find_dangling(context: Context, view: View, entity: Entity) -> None:
     )
 
 
-def find_self_references(context: Context, view: View, entity: Entity) -> None:
+def check_self_references(context: Context, view: View, entity: Entity) -> None:
     if not entity.schema.is_a("Thing"):
         return
-    for prop in entity.iter_properties():
+    for prop in entity.iterprops():
         if prop.type != registry.entity:
             continue
         if prop.range.is_a("Thing"):
@@ -33,7 +33,7 @@ def find_self_references(context: Context, view: View, entity: Entity) -> None:
         elif prop.range.is_a("Interval"):
             for other_id in entity.get(prop):
                 other = view.get_entity(other_id)
-                for other_prop in other.iter_properties():
+                for other_prop in other.iterprops():
                     if other_prop.type != registry.entity:
                         return
                     if other_prop.reverse == prop:
@@ -49,8 +49,10 @@ def verify_dataset(dataset: Dataset, view: View) -> None:
         context = Context(dataset)
         context.begin(clear=False)
         for idx, entity in enumerate(view.entities()):
-            find_dangling(context, view, entity)
-            find_self_references(context, view, entity)
+            check_dangling_references(context, view, entity)
+            check_self_references(context, view, entity)
+            # check_topicless_target(context, view, entity)
+
             if idx > 0 and idx % 10000 == 0:
                 context.log.info("Verified %s entities..." % idx, dataset=dataset.name)
     finally:
