@@ -23,7 +23,7 @@ from zavod.tools.dump_file import dump_dataset_to_file
 from zavod.tools.summarize import summarize as _summarize
 from zavod.exc import RunFailedException
 from zavod.tools.wikidata import run_app
-from zavod.verify import verify_dataset
+from zavod.verifiers import verify_dataset
 
 
 log = get_logger(__name__)
