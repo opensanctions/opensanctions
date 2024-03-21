@@ -76,7 +76,10 @@ def crawl_entity(context: Context, data: Dict[str, Any]) -> None:
         context.log.error("Unknown entity type", type=entity_type)
         return None
     entity = context.make(TYPES[entity_type])
-    entity.id = context.make_slug(unique_id)
+    first_name = data.pop("First name")
+    middle_name = data.pop("Middle name(s)")
+    last_name = data.pop("Last name")
+    entity.id = context.make_slug(unique_id, first_name, last_name, strict=False)
     entity.add("topics", "sanction")
     if entity_type == "Bank":
         entity.add("topics", "fin.bank")
@@ -85,9 +88,9 @@ def crawl_entity(context: Context, data: Dict[str, Any]) -> None:
 
     h.apply_name(
         entity,
-        first_name=data.pop("First name"),
-        middle_name=data.pop("Middle name(s)"),
-        last_name=data.pop("Last name"),
+        first_name=first_name,
+        middle_name=middle_name,
+        last_name=last_name,
         quiet=True,
     )
 
@@ -111,6 +114,7 @@ def crawl_entity(context: Context, data: Dict[str, Any]) -> None:
         parse_associates(context, entity, associates)
 
     sanction = h.make_sanction(context, entity)
+    sanction.add("program", "Russia Sanctions Act 2022")
     sanction.add("startDate", data.pop("Date of Sanction"))
     sanction.add("modifiedAt", parse_date(data.pop("Date of Additional Sanction")))
     sanction.add("status", data.pop("Sanction Status"))
