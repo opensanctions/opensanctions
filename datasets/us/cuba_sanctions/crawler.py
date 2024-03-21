@@ -9,6 +9,13 @@ ENTITIES_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQMquWjNWZ09dm9_
 
 
 def crawl_accommodations(context: Context):
+    h.assert_html_url_hash(
+        context,
+        "https://www.state.gov/cuba-sanctions/cuba-prohibited-accommodations-list/cuba-prohibited-accommodations-list-initial-publication/",
+        "7a2be818841181e19a1988c4d86789087d245c31",
+        path='.//div[@class="entry-content"]',
+    )
+
     path = context.fetch_resource("accommodations.csv", ACCOMMODATIONS_URL)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
@@ -26,6 +33,13 @@ def crawl_accommodations(context: Context):
 
 
 def crawl_restricted_entities(context: Context):
+    h.assert_html_url_hash(
+        context,
+        "https://www.state.gov/cuba-restricted-list/list-of-restricted-entities-and-subentities-associated-with-cuba-effective-january-8-2021/",
+        "d51568c7e6acb7da68cbf6c2a54987ea6fd5ff53",
+        path='.//div[@class="entry-content"]',
+    )
+
     path = context.fetch_resource("restricted_entities.csv", ENTITIES_URL)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
@@ -39,6 +53,7 @@ def crawl_restricted_entities(context: Context):
             proxy.add("sector", row.pop("Sector"))
             proxy.add("classification", row.pop("Category"))
             proxy.add("sourceUrl", row.pop("SourceURL"))
+            proxy.add("topics", "sanction")
 
             sanction = h.make_sanction(context, proxy)
             sanction.add("startDate", row.pop("EffectiveDate"))

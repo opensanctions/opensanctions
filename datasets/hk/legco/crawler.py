@@ -152,6 +152,7 @@ def crawl_member(
             context.audit_data(page, ignore=UNUSED_PAGE_FIELDS + PAGE_FIELDS)
     context.audit_data(member, ignore=UNUSED_LIST_FIELDS)
 
+    person.add("topics", ["gov.national", "gov.legislative", "role.pep"])
     context.emit(person, target=True)
     context.emit(position)
     occupancy = h.make_occupancy(

@@ -50,7 +50,7 @@ def parse_date(text):
 
 
 def parse_details(context: Context, entity: Entity, text: str):
-    for (chop, prop) in CHOPSKA:
+    for chop, prop in CHOPSKA:
         parts = text.rsplit(chop, 1)
         text = parts[0]
         if len(parts) > 1:
@@ -117,6 +117,7 @@ def crawl_excel(context: Context, url: str):
             sanction.add("startDate", listing_date)
             sanction.add("endDate", row.pop("data_wykreslenia_z_listy", None))
 
+            entity.add("topics", "sanction")
             context.audit_data(row)
             context.emit(entity, target=True)
             context.emit(sanction)

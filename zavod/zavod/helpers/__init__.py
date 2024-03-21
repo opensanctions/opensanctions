@@ -33,6 +33,7 @@ def crawl(context: Context) -> None:
 Any data wrangling code that is repeated in three or more crawlers should
 be considered for inclusion in the helper library.
 """
+
 from zavod.helpers.xml import remove_namespace
 from zavod.helpers.names import make_name, apply_name
 from zavod.helpers.positions import make_position, make_occupancy
@@ -46,6 +47,7 @@ from zavod.helpers.identification import make_identification
 from zavod.helpers.securities import make_security
 from zavod.helpers.excel import convert_excel_cell, convert_excel_date
 from zavod.helpers.html import parse_table
+from zavod.helpers.change import assert_dom_hash, assert_url_hash, assert_html_url_hash
 
 __all__ = [
     "clean_note",
@@ -70,4 +72,7 @@ __all__ = [
     "make_position",
     "make_occupancy",
     "parse_table",
+    "assert_dom_hash",
+    "assert_url_hash",
+    "assert_html_url_hash",
 ]

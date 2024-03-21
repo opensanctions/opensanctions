@@ -167,6 +167,7 @@ def parse_infractions(context: Context, doc) -> None:
         sanction.add(
             "reason", f"Infraction against Liechtenstein Posted Workers Act, {law}"
         )
+        company.add("topics", "debarment")
         context.emit(sanction)
         context.emit(company, target=True)
 
