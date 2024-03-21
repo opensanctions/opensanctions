@@ -206,3 +206,20 @@ def apply_address(context: Context, entity: Entity, address: Optional[Entity]) -
     if address.has("full"):
         entity.add("addressEntity", address)
         context.emit(address)
+
+
+def copy_address(entity: Entity, address: Optional[Entity]) -> None:
+    """Assign to full address text and country directly to the given entity.
+
+    This is an alternative to using `apply_address` when the address should
+    be inlined into the entity, instead of emitting a separate address object.
+
+    Args:
+        entity: The entity to be assigned the address.
+        address: The address entity to be copied into the entity.
+    """
+    if address is not None:
+        entity.add("address", address.get("full"))
+        for country in address.get("country"):
+            if country not in entity.countries:
+                entity.add("country", country)
