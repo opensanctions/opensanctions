@@ -1,10 +1,7 @@
-import re
 from typing import Any, Dict, List
-from lxml import html
 from normality import slugify, collapse_spaces
-from pantomime.types import HTML
 
-from zavod import Context, Entity
+from zavod import Context
 from zavod import helpers as h
 from zavod.util import ElementOrTree
 
@@ -40,7 +37,6 @@ def parse_table(table: ElementOrTree) -> List[Dict[str, Any]]:
         assert len(headers) == len(cells)
         rows.append({hdr: c for hdr, c in zip(headers, cells)})
     return rows
-
 
 
 def crawl(context: Context):

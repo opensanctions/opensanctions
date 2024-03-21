@@ -1,5 +1,4 @@
 from normality import collapse_spaces
-from pantomime.types import CSV
 from typing import Dict
 import csv
 
@@ -11,7 +10,7 @@ from zavod.logic.pep import categorise
 def crawl_row(context: Context, row: Dict[str, str]):
     if row.pop("Status") != "Position for territory":
         return
-    
+
     position = h.make_position(
         context,
         row.pop("Position"),

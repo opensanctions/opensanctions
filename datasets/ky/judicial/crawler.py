@@ -1,6 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
+from urllib.parse import urljoin
 
 from zavod import Context
 from zavod import helpers as h
@@ -47,12 +45,10 @@ def emit_entities(context: Context, entities_data):
 
 
 def crawl(context: Context):
-    request_response = context.fetch_html(context.dataset.data.url, cache_days=30)
-
     all_judges = []
 
     # Get Chief Justice
-    chief_justice_url = "https://www.judicial.ky/judicial-administration/chief-justice"
+    chief_justice_url = urljoin(context.data_url, "chief-justice")
 
     def get_name(elm):
         return (
@@ -70,9 +66,7 @@ def crawl(context: Context):
     all_judges += chief_justice
 
     # Get President of court
-    president_court_url = (
-        "https://www.judicial.ky/judicial-administration/president-court-of-appeal"
-    )
+    president_court_url = urljoin(context.data_url, "president-court-of-appeal")
 
     def get_name(elm):
         return (
@@ -88,9 +82,7 @@ def crawl(context: Context):
     all_judges += president_court
 
     # Get Justices of Appeal
-    justices_of_appeal_url = (
-        "https://www.judicial.ky/judicial-administration/judges-of-appeal"
-    )
+    justices_of_appeal_url = urljoin(context.data_url, "judges-of-appeal")
 
     def get_name(elm):
         elm_text = elm.text_content()

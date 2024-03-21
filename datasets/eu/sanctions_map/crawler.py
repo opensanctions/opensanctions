@@ -35,8 +35,8 @@ def crawl(context: Context):
 
                     entity = context.make(schema)
                     entity.id = context.make_id(name, member["creation_date"])
-                    entity.add('topics', 'sanction')
-                    
+                    entity.add("topics", "sanction")
+
                     if "(alias" in name:
                         name, _ = name.split("(alias", 1)
 

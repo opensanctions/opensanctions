@@ -1,6 +1,7 @@
 from zavod import Context, helpers as h
 from rigour.ids.stdnum_ import CPF
 
+
 def crawl_item(input_dict: dict, context: Context):
     """
     Creates an entity from the raw data.
@@ -48,12 +49,16 @@ def crawl_item(input_dict: dict, context: Context):
     sanction.add("startDate", input_dict.pop("data_transito_julgado"))
     sanction.add("endDate", input_dict.pop("data_final"))
 
-    sanction.add("program", '''TCU Disqualified individuals based on Article 60 of Law 8.443/92 that
+    sanction.add(
+        "program",
+        """TCU Disqualified individuals based on Article 60 of Law 8.443/92 that
                                restricts individuals from holding certain influential
-                               and sensitive positions in the public sector''')
+                               and sensitive positions in the public sector""",
+    )
 
     context.emit(entity, target=True)
     context.emit(sanction)
+
 
 def crawl(context: Context):
     """

@@ -3,7 +3,7 @@ import csv
 from zavod import Context
 from zavod import helpers as h
 
-FORMAT = ['%d.%m.%y']
+FORMAT = ["%d.%m.%y"]
 
 
 def crawl(context: Context) -> None:
@@ -25,8 +25,8 @@ def crawl(context: Context) -> None:
             sanction = h.make_sanction(context, entity)
             sanction.set("authority", row.pop("Body", None))
             sanction.add("program", row.pop("List", None))
-            sanction.add('startDate', h.parse_date(row.pop('Date', None), FORMAT))
-            sanction.add('sourceUrl', row.pop('Source URL', None))
+            sanction.add("startDate", h.parse_date(row.pop("Date", None), FORMAT))
+            sanction.add("sourceUrl", row.pop("Source URL", None))
             context.emit(sanction)
             context.emit(entity, target=True)
             context.audit_data(row)

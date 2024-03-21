@@ -1,7 +1,6 @@
 import re
 from typing import List, Tuple
 from lxml import html
-from normality import slugify, collapse_spaces
 from pantomime.types import HTML
 
 from zavod import Context
@@ -22,6 +21,7 @@ def clean_name(string: str):
     name = re.sub("^[\]\), ]+", "", string)
     name = re.sub("[\[\(\., ]+$", "", string)
     return name
+
 
 def parse_names(string: str) -> Tuple[str, List[str]]:
     parts = string.split("alias")

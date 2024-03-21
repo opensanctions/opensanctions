@@ -3,7 +3,6 @@ import os
 from pprint import pprint
 import re
 from urllib.parse import urlparse
-from lxml import etree
 from normality import collapse_spaces
 
 from zavod import Context, helpers as h
@@ -27,6 +26,7 @@ MONTHS = {
 PARTY_NAMES = defaultdict(int)
 PARTY_REGEX = re.compile(r"(\([\w ]+\)|, [\w ]+$)")
 MAX_POSITION_NAME_LENGTH = 120
+
 
 def parse_date_in_german(text):
     text = text.lower()
@@ -90,7 +90,7 @@ def crawl_sources(context, entity, el):
         entity.add("description", text)
         for link in source_el.xpath(".//a"):
             entity.add("sourceUrl", link.get("href"))
-                       
+
 
 def crawl_mandate(context, url, person, el):
     """Returns true if dates could be parsed for a PEP position."""

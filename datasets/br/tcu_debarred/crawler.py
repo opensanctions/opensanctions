@@ -1,6 +1,7 @@
 from zavod import Context, helpers as h
 from rigour.ids.stdnum_ import CPF, CNPJ
 
+
 def crawl_item(input_dict: dict, context: Context):
     """
     Creates an entity from the raw data.
@@ -38,7 +39,6 @@ def crawl_item(input_dict: dict, context: Context):
         tax_number = None
         prefix = "br-unknown"
 
-
     # If the tax number couldn't be defined as either a CPF or CNPJ, we generate a hash as the id
     if tax_number is None:
         entity.id = context.make_id(input_dict["cpf"], input_dict["nome"])
@@ -65,12 +65,17 @@ def crawl_item(input_dict: dict, context: Context):
     sanction.add("startDate", input_dict.pop("data_transito_julgado"))
     sanction.add("endDate", input_dict.pop("data_final"))
 
-    sanction.add("program", '''TCU Debarred entities based on Article 46 of Law 8.443/92 that
-                               restricts entities from participating in 
-                               public biddings''')
+    sanction.add(
+        "program",
+        (
+            "TCU Debarred entities based on Article 46 of Law 8.443/92 that"
+            "restricts entities from participating in public biddings"
+        ),
+    )
 
     context.emit(entity, target=True)
     context.emit(sanction)
+
 
 def crawl(context: Context):
     """

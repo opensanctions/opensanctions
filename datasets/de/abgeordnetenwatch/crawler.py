@@ -67,9 +67,9 @@ def crawl(context: Context):
                 context,
                 name="Member of the {}".format(parliament_label_long),
                 country="Germany",
-                subnational_area=parliament_label
-                if parliament_label != "Bundestag"
-                else None,
+                subnational_area=(
+                    parliament_label if parliament_label != "Bundestag" else None
+                ),
             )
 
             politician_fullname = politician.pop("label")
@@ -112,7 +112,7 @@ def crawl(context: Context):
                 True,
                 start_date=mandate_start_date,
                 end_date=mandate_end_date,
-                categorisation=categorisation
+                categorisation=categorisation,
             )
             if occupancy:
                 context.emit(person, target=True)

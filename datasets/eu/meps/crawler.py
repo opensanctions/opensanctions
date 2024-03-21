@@ -14,7 +14,9 @@ def split_name(name):
     return None, None
 
 
-def crawl_node(context: Context, node, position: Entity, categorisation: PositionCategorisation):
+def crawl_node(
+    context: Context, node, position: Entity, categorisation: PositionCategorisation
+):
     mep_id = node.findtext(".//id")
     person = context.make("Person")
     person.id = context.make_slug(mep_id)
@@ -28,7 +30,9 @@ def crawl_node(context: Context, node, position: Entity, categorisation: Positio
     person.add("nationality", node.findtext(".//country"))
     person.add("topics", "role.pep")
 
-    occupancy = h.make_occupancy(context, person, position, categorisation=categorisation)
+    occupancy = h.make_occupancy(
+        context, person, position, categorisation=categorisation
+    )
 
     context.emit(occupancy)
     context.emit(person, target=True)
@@ -70,7 +74,7 @@ def crawl(context: Context):
         context,
         "Member of the European Parliament",
         country="eu",
-        topics=["gov.igo", "gov.legislative"]
+        topics=["gov.igo", "gov.legislative"],
     )
     categorisation = categorise(context, position, True)
     context.emit(position)

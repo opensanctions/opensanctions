@@ -1,7 +1,7 @@
 import re
 from datetime import datetime
 from urllib.parse import urljoin, unquote
-from typing import Dict, Optional
+from typing import Dict, Optional, Set
 from followthemoney.helpers import post_summary
 
 from zavod import Context
