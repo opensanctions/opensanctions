@@ -46,8 +46,19 @@ def crawl_row(context: Context, row: Dict[str, str]):
     person.add("program", f"{context.dataset.title} - {row.pop('TKategoriAdi')} List")
     person.add("topics", "crime")
     person.add("country", "tr")
-
     context.emit(person, target=True)
+
+    organization = context.make("Organization")
+    organization_name = row.pop("TOrgutAdi")
+    organization.id = context.make_id(organization_name)
+    organization.add("name", organization_name)
+    context.emit(organization)
+
+    link = context.make("UnknownLink")
+    link.id = context.make_id(person.id, organization.id)
+    link.add("subject", person)
+    link.add("object", organization)
+    context.emit(link)
 
     context.audit_data(row, IGNORE_COLUMNS)
 
