@@ -1,13 +1,11 @@
 from collections import defaultdict
-from typing import Dict, List, Any, Optional, Set, cast
+from typing import Dict, List, Any, Optional, Set
 from followthemoney import model
 from followthemoney.types import registry
-from zavod.context import Context
 
 from zavod.entity import Entity
 from zavod.archive import STATISTICS_FILE
 from zavod.exporters.common import Exporter
-from zavod.meta.assertion import Assertion, Comparison, Metric
 from zavod.util import write_json
 
 
@@ -40,7 +38,7 @@ def get_country_facets(countries: Dict[str, int]) -> List[Any]:
 
 
 class Statistics(object):
-    def __init__(self):
+    def __init__(self) -> None:
         self.entity_count = 0
         self.last_change: Optional[str] = None
         self.schemata: Set[str] = set()
@@ -78,7 +76,7 @@ class Statistics(object):
             else:
                 self.last_change = max(self.last_change, entity.last_change)
 
-    def as_dict(self):
+    def as_dict(self) -> Dict[str, Any]:
         return {
             "last_change": self.last_change,
             "schemata": list(self.schemata),

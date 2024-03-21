@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Type
 from followthemoney.types import registry
 
 from zavod.context import Context
@@ -7,7 +7,6 @@ from zavod.store import View
 from zavod.entity import Entity
 from zavod.verifiers.assertions import AssertionsVerifier
 from zavod.verifiers.common import BaseVerifier
-from zavod.meta import dataset
 
 
 class DanglingReferencesVerifier(BaseVerifier):
@@ -57,7 +56,7 @@ class TopiclessTargetVerifier(BaseVerifier):
             )
 
 
-VERIFIERS: List[BaseVerifier] = [
+VERIFIERS: List[Type[BaseVerifier]] = [
     DanglingReferencesVerifier,
     SelfReferenceVerifier,
     TopiclessTargetVerifier,
