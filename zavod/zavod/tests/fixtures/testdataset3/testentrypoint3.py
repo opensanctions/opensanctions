@@ -11,7 +11,8 @@ LOCAL_PATH = Path(__file__).parent / "dataset.csv"
 
 def crawl_row(context: Context, row: Dict[str, str]):
     entity = context.make("Company")
-    entity.id = context.make_slug(row.pop("id"))
+    id = row.pop("id")
+    entity.id = context.make_slug(id)
     entity.add("name", row.pop("name"))
     entity.add("topics", row.pop("topics") or None)
     parent_id = row.pop("parent_id") or None
@@ -20,7 +21,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     owner_id = row.pop("owner_id") or None
     if owner_id:
         ownership = context.make("Ownership")
-        ownership.id = context.make_slug(entity.id, owner_id)
+        ownership.id = context.make_slug(id, "ownership", owner_id)
         ownership.add("asset", entity)
         ownership.add("owner", context.make_slug(owner_id))
         context.emit(ownership)

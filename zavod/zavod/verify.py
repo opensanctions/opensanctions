@@ -13,9 +13,7 @@ def check_dangling_references(context: Context, view: View, entity: Entity) -> N
         for other_id in entity.get(prop):
             if view.has_entity(other_id):
                 return
-    context.log.error(
-        f"{entity.id} references missing id {other_id}"
-    )
+            context.log.error(f"{entity.id} property {prop.name} references missing id {other_id}")
 
 
 def check_self_references(context: Context, view: View, entity: Entity) -> None:
@@ -27,9 +25,7 @@ def check_self_references(context: Context, view: View, entity: Entity) -> None:
         if prop.range.is_a("Thing"):
             for other_id in entity.get(prop):
                 if other_id == entity.id:
-                    context.log.error(
-                        f"{entity.id} references itself on {prop.name}."
-                    )
+                    context.log.error(f"{entity.id} references itself on {prop.name}.")
         elif prop.range.is_a("Interval"):
             for other_id in entity.get(prop):
                 other = view.get_entity(other_id)
@@ -42,7 +38,7 @@ def check_self_references(context: Context, view: View, entity: Entity) -> None:
                         context.log.error(
                             f"{entity.id} references itself on {prop.name} via {other.id}'s {other_prop.name}."
                         )
-                
+
 
 def verify_dataset(dataset: Dataset, view: View) -> None:
     try:
