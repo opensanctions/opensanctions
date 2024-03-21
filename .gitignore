@@ -11,6 +11,7 @@ __pycache__/
 .env
 .envrc
 .vscode/launch.json
+.pre-commit-config.yaml
 .idea/
 balkhashdb
 
