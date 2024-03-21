@@ -4,9 +4,9 @@ prefix: in-mha
 coverage:
   frequency: never
   start: 2023-02-16
-  end: 2024-03-20
+  end: 2024-03-21
 deploy:
-  schedule: "@weekly"
+  schedule: "@daily"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   List of banned organizations under the Unlawful Activities (Prevention) Act.
