@@ -5,3 +5,4 @@ owner-of-another-co,Owner of another co,,,,false
 asset-of-another-co,Asset of another co,,owner-of-another-co,sanction,true
 child-of-nonexistent-co,Child of nonexistent co,nonexistent-co,,sanction,true
 asset-of-nonexistent-co,Asset of nonexistent co,,nonexistent-co,sanction,true
+target-no-topic-co,Target no topic co,,,,true
