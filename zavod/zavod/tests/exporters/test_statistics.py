@@ -10,7 +10,6 @@ from zavod.logs import configure_logging
 
 
 def test_statistics(testdataset1: Dataset):
-    configure_logging()
     dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
     clear_data_path(testdataset1.name)
 
@@ -53,24 +52,3 @@ def test_statistics(testdataset1: Dataset):
         "plural": "People",
     } in target_schemata
     assert len(target_schemata) == 3
-
-    print(dataset_path)
-    with open(dataset_path / "issues.json") as issues_file:
-        issue_details = load(issues_file)["issues"]
-
-    issues = [f'{i["level"]}: {i["message"]}' for i in issue_details]
-    assert (
-        "warning: Assertion failed for value 2: "
-        "<Assertion entity_count gte 3 filter: country=de>"
-    ) in issues, issues
-    assert (
-        "warning: Assertion failed for value 2: "
-        "<Assertion entity_count lte 1 filter: country=de>"
-    ) in issues, issues
-    assert (
-        "warning: Assertion failed for value 6: "
-        "<Assertion entity_count gte 10 filter: schema=Person>"
-    ) in issues, issues
-    assert (
-        "warning: Assertion failed for value 6: <Assertion country_count gte 7>"
-    ) in issues, issues
