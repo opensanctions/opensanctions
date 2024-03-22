@@ -1,3 +1,10 @@
+import random
+
+from requests import HTTPError
+
+from zavod import Context
+from zavod import helpers as h
+
 
 TEST_IDS = [635390, 635_301, 0]
 
@@ -28,6 +35,19 @@ class PinregSession:
             if response.pop('message') == 'Klaida' and response.pop('status') == 404:
                 self.context.log.info(f'No record for deklaracija {id:06d}')
 
+def parse_declarant(context:Context, declarant_data:dict) -> None:
+    declarant = context.make("Person")
+    first_name = declarant_data.pop('vardas')
+    last_name = declarant_data.pop('pavarde')
+    person_id = declarant_data.pop('asmensKodas') # this identifier is often missing
+    declarant.id = context.make_id(person_id, first_name, last_name)
+    declarant.add('firstName', first_name)
+    declarant.add('registrationNumber', person_id)
+    declarant.add('lastName', last_name)
+    declarant.add('birthDate', declarant_data.pop('gimimoData'))
+    declarant.add('legalForm', declarant_data.pop('asmensTipas'))
+    context.audit_data(declarant_data)
+    context.emit(declarant, target=True)
 
 def crawl(context: Context) -> None:
     """exhaustively scans PINREG portal and emits all deklaracijos"""
@@ -36,3 +56,4 @@ def crawl(context: Context) -> None:
         if not (record := pinreg.get_deklaracija_by_id(deklaracija_id)): 
             continue
         print(record)
+        parse_declarant(context, record.pop('teikejas'))
