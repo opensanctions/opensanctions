@@ -3,7 +3,11 @@ from structlog.testing import capture_logs
 
 from zavod.context import Context
 from zavod.store import get_store
-from zavod.validators import DanglingReferencesValidator, SelfReferenceValidator, TopiclessTargetValidator
+from zavod.validators import (
+    DanglingReferencesValidator,
+    SelfReferenceValidator,
+    TopiclessTargetValidator,
+)
 from zavod.archive import clear_data_path
 from zavod.crawl import crawl_dataset
 from zavod.validators.assertions import AssertionsValidator

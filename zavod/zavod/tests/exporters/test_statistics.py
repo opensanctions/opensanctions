@@ -6,7 +6,6 @@ from zavod.exporters.statistics import StatisticsExporter
 from zavod.meta import Dataset
 from zavod.crawl import crawl_dataset
 from zavod.tests.exporters.util import harnessed_export
-from zavod.logs import configure_logging
 
 
 def test_statistics(testdataset1: Dataset):

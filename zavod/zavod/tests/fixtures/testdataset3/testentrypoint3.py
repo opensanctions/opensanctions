@@ -23,7 +23,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
         ownership.add("asset", entity)
         ownership.add("owner", context.make_slug(owner_id))
         context.emit(ownership)
-    context.emit(entity, target=row.pop("is_target") ==  "true")
+    context.emit(entity, target=row.pop("is_target") == "true")
     context.audit_data(row)
 
 
