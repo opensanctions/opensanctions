@@ -20,7 +20,7 @@ description: |
   and tracking the individuals who hold this post at different times.
 
   The set of posts and positions that are tracked are curated by the OpenSanctions team
-  and will include:
+  prioritises:
 
   * National legislatures
   * National cabinets and ministerial positions
@@ -1713,6 +1713,7 @@ lookups:
         code: "US"
         label: "United States of America"
         decision: "national"
+        include_local: true
       - match: "Q31"
         code: "BE"
         label: "Belgium"

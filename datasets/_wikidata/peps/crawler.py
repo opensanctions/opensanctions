@@ -256,6 +256,7 @@ def crawl(context: Context):
     position_classes = query_position_classes(context)
 
     for country in query_countries(context):
+        include_local = False
         if country["qid"] in seen_countries:
             continue
         seen_countries.add(country["qid"])
@@ -268,6 +269,8 @@ def crawl(context: Context):
             continue
         if country_res.decision != DECISION_NATIONAL:
             continue
+        if getattr(country_res, "include_local", False):
+            include_local = True
 
         for wd_position in query_positions(context, position_classes, country):
             if wd_position["qid"] in seen_positions:
@@ -280,7 +283,9 @@ def crawl(context: Context):
                 wikidata_id=wd_position["qid"],
             )
             categorisation = categorise(context, position, is_pep=None)
-            if not categorisation.is_pep or "gov.muni" in categorisation.topics:
+            if not categorisation.is_pep:
+                continue
+            if not include_local and ("gov.muni" in categorisation.topics):
                 continue
 
             for holder in query_position_holders(context, wd_position):
