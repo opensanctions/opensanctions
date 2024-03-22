@@ -4,7 +4,7 @@ from zavod.context import Context
 from zavod.entity import Entity
 from zavod.meta.assertion import Assertion, Comparison, Metric
 from zavod.exporters.statistics import Statistics
-from zavod.verifiers.common import BaseVerifier
+from zavod.validators.common import BaseValidator
 from zavod.store import View
 
 
@@ -53,7 +53,7 @@ def check_assertion(
         context.log.warning(f"Assertion failed for value {value}: {assertion}")
 
 
-class AssertionsVerifier(BaseVerifier):
+class AssertionsValidator(BaseValidator):
     def __init__(self, context: Context, view: View) -> None:
         super().__init__(context, view)
         self.stats = Statistics()

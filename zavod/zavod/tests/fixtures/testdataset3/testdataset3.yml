@@ -1,5 +1,5 @@
 entry_point: testentrypoint3
-title: Validation dataset for verify step
+title: Validation dataset for validation step
 prefix: td3
 hidden: true
 summary: >

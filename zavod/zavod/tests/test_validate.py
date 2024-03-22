@@ -1,8 +1,9 @@
+import pytest
 from structlog.testing import capture_logs
 
 from zavod.context import Context
 from zavod.store import get_store
-from zavod.verify import check_dangling_references, check_self_references, check_topicless_target
+from zavod.validators import DanglingReferencesValidator, SelfReferenceValidator, TopiclessTargetValidator
 from zavod.archive import clear_data_path
 from zavod.crawl import crawl_dataset
 
@@ -16,8 +17,12 @@ def test_dangling_references(testdataset3) -> None:
     view = store.view(testdataset3)
 
     with capture_logs() as cap_logs:
+        validator = DanglingReferencesValidator(context, view)
         for entity in view.entities():
-            check_dangling_references(context, view, entity)
+            validator.feed(entity)
+        with pytest.raises(ValueError) as exc_info:
+            validator.finish()
+        assert str(exc_info.value) == "Dangling references found"
 
     store.close()
     context.close()
@@ -38,9 +43,10 @@ def test_self_references(testdataset3) -> None:
     view = store.view(testdataset3)
 
     with capture_logs() as cap_logs:
+        validator = SelfReferenceValidator(context, view)
         for entity in view.entities():
-            check_self_references(context, view, entity)
-
+            validator.feed(entity)
+        validator.finish()
     context.close()
     store.close()
 
@@ -62,9 +68,10 @@ def test_topicless_targets(testdataset3) -> None:
     view = store.view(testdataset3)
 
     with capture_logs() as cap_logs:
+        validator = TopiclessTargetValidator(context, view)
         for entity in view.entities():
-            check_topicless_target(context, view, entity)
-
+            validator.feed(entity)
+        validator.finish()
     context.close()
     store.close()
 

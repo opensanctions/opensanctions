@@ -5,11 +5,11 @@ from zavod.context import Context
 from zavod.meta.dataset import Dataset
 from zavod.store import View
 from zavod.entity import Entity
-from zavod.verifiers.assertions import AssertionsVerifier
-from zavod.verifiers.common import BaseVerifier
+from zavod.validators.assertions import AssertionsValidator
+from zavod.validators.common import BaseValidator
 
 
-class DanglingReferencesVerifier(BaseVerifier):
+class DanglingReferencesValidator(BaseValidator):
     def __init__(self, context: Context, view: View) -> None:
         super().__init__(context, view)
         self.fail = False
@@ -32,7 +32,7 @@ class DanglingReferencesVerifier(BaseVerifier):
 
 
 # FollowTheMoney prevents direct self-references so we check 1 level deep
-class SelfReferenceVerifier(BaseVerifier):
+class SelfReferenceValidator(BaseValidator):
     def feed(self, entity: Entity) -> None:
         if not entity.schema.is_a("Thing"):
             return
@@ -48,7 +48,7 @@ class SelfReferenceVerifier(BaseVerifier):
                     )
 
 
-class TopiclessTargetVerifier(BaseVerifier):
+class TopiclessTargetValidator(BaseValidator):
     def feed(self, entity: Entity) -> None:
         if entity.target and not entity.get("topics"):
             self.context.log.warning(
@@ -56,28 +56,28 @@ class TopiclessTargetVerifier(BaseVerifier):
             )
 
 
-VERIFIERS: List[Type[BaseVerifier]] = [
-    DanglingReferencesVerifier,
-    SelfReferenceVerifier,
-    TopiclessTargetVerifier,
-    AssertionsVerifier,
+VALIDATORS: List[Type[BaseValidator]] = [
+    DanglingReferencesValidator,
+    SelfReferenceValidator,
+    TopiclessTargetValidator,
+    AssertionsValidator,
 ]
 
 
-def verify_dataset(dataset: Dataset, view: View) -> None:
+def validate_dataset(dataset: Dataset, view: View) -> None:
     try:
         context = Context(dataset)
         context.begin(clear=False)
 
-        verifiers = [verifier(context, view) for verifier in VERIFIERS]
+        validators = [validator(context, view) for validator in VALIDATORS]
         for idx, entity in enumerate(view.entities()):
             if idx > 0 and idx % 10000 == 0:
                 context.log.info("Verified %s entities..." % idx, dataset=dataset.name)
 
-            for verifier in verifiers:
-                verifier.feed(entity)
+            for validator in validators:
+                validator.feed(entity)
 
-        for verifier in verifiers:
-            verifier.finish()
+        for validator in validators:
+            validator.finish()
     finally:
         context.close()
