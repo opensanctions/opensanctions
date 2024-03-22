@@ -81,6 +81,16 @@ jobs:
               echo Crawling $dataset
               zavod crawl -c $dataset
           done
+      - name: Validate modified datasets
+        if: ${{ steps.changed-files.outputs.all_changed_files != '' }}
+        run: |
+          set -euo pipefail
+          datasets=$(python contrib/ci_datasets.py ${{ steps.changed-files.outputs.all_changed_files }})
+          for dataset in $datasets
+          do
+              echo Validating $dataset
+              zavod validate -c $dataset
+          done
       - name: Export modified datasets
         if: ${{ steps.changed-files.outputs.all_changed_files != '' }}
         run: |
