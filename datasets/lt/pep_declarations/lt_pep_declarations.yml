@@ -1,0 +1,21 @@
+title: Lithuanian PEP Declarations
+entry_point: crawler.py
+prefix: lt-pep-declarations
+coverage:
+  frequency: daily
+  start: "2024-04-01"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Lithuanian PEPs, their declared organizational belongings, and those of their spouse.
+description: |
+  Placeholder
+publisher:
+  name: Lithuanian Chief Official Ethics Commission
+  url: https://vtek.lt/
+  official: true
+  country: "lt"
+url: 
+data:
+  url: https://pinreg.vtek.lt/app/deklaraciju-paieska
+  format: JSON
+ci_test: false
