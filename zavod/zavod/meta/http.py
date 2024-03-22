@@ -13,7 +13,7 @@ class HTTP(object):
         )
         self.retry_statuses: List[int] = statuses
         retry_methods = ensure_list(
-            data.get("retry_methods", Retry.DEFAULT_ALLOWED_METHODS)
+            data.get("retry_methods", list(Retry.DEFAULT_ALLOWED_METHODS))
         )
         self.retry_methods: List[str] = retry_methods
         self.user_agent: str = data.get("user_agent", settings.HTTP_USER_AGENT)
