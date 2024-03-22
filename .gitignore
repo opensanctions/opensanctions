@@ -11,6 +11,7 @@ __pycache__/
 .env
 .envrc
 .vscode/launch.json
+.vscode/settings.json
 .idea/
 balkhashdb
 
@@ -84,5 +85,3 @@ apicache-py3
 
 # Emacs
 *~
-
-.vscode

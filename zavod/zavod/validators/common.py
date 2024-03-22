@@ -3,7 +3,7 @@ from zavod.store import View
 from zavod.entity import Entity
 
 
-class BaseVerifier(object):
+class BaseValidator(object):
     def __init__(self, context: Context, view: View) -> None:
         self.context = context
         self.view = view
