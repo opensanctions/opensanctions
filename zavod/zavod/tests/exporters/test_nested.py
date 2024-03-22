@@ -13,7 +13,6 @@ from zavod.tests.exporters.util import harnessed_export
 TIME_SECONDS_FMT = "%Y-%m-%dT%H:%M:%S"
 
 
-
 def test_nested_targets(testdataset1: Dataset):
     dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
     clear_data_path(testdataset1.name)
@@ -32,7 +31,7 @@ def test_nested_targets(testdataset1: Dataset):
         assert entity["datasets"] == ["testdataset1"]
 
     john = [e for e in entities if e["id"] == "osv-john-doe"][0]
-    assert john['properties']["name"] == ["John Doe"]
+    assert john["properties"]["name"] == ["John Doe"]
 
     family_id = "osv-eb0a27f226377001807c04a1ca7de8502cf4d0cb"
     # Family relationship is not included as a root object
@@ -63,8 +62,8 @@ def test_nested_topics(testdataset1: Dataset):
         datetime.strptime(entity["last_seen"], TIME_SECONDS_FMT)
         datetime.strptime(entity["last_change"], TIME_SECONDS_FMT)
         assert entity["datasets"] == ["testdataset1"]
-        topics = entity['properties']['topics']
+        topics = entity["properties"]["topics"]
         assert len(NestedTopicsJSONExporter._TOPICS.intersection(topics)) > 0
 
     john = [e for e in entities if e["id"] == "osv-mierscheid"][0]
-    assert john['properties']["name"] == ["Jakob Maria Mierscheid"]
+    assert john["properties"]["name"] == ["Jakob Maria Mierscheid"]
