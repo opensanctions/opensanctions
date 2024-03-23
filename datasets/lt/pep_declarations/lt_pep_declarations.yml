@@ -15,7 +15,7 @@ publisher:
   url: https://vtek.lt/
   official: true
   country: "lt"
-url: 
+url:
 data:
   url: https://pinreg.vtek.lt/app/deklaraciju-paieska
   format: JSON
