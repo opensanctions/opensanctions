@@ -4,7 +4,7 @@ prefix: esma-sanctions
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 coverage:
   frequency: daily
-  start: 2024-03-20
+  start: 2024-03-21
 summary: |
   List of sanctioned entities, as published by the European Securities and Markets Authority (ESMA).
 description: |

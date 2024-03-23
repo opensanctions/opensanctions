@@ -1,3 +1,4 @@
+from typing import Optional
 from lxml import html
 
 from zavod import Context, helpers
@@ -19,7 +20,7 @@ def get_json(context: Context, batch_size: int):
         cont = resp["response"]["numFound"] >= params["start"]
 
 
-def parse_name(name_markup: str) -> str:
+def parse_name(name_markup: str) -> Optional[str]:
     """
     Remove markup from name if present.
     """
@@ -54,6 +55,7 @@ def crawl(context: Context) -> None:
             entity.id = id_hash
         entity.add("name", parse_name(row.pop("sn_entityName", None)))
         entity.add("name", parse_name(row.pop("sn_otherEntityName", None)))
+        entity.add("topics", "sanction")
 
         sanction = helpers.make_sanction(context, entity)
         sanction.add("program", row.pop("sn_sanctionLegalFrameworkName", None))
