@@ -1,12 +1,13 @@
-title: Lithuanian PEP Declarations
+title: Lithuanian PEP Affiliation Declarations
 entry_point: crawler.py
 prefix: lt-pep-declarations
 coverage:
-  frequency: daily
+  frequency: monthly
   start: "2024-04-01"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: >
-  Lithuanian PEPs, their declared organizational belongings, and those of their spouse.
+summary: |
+  Lithuanian PEPs, their declared affiliations, the positions
+  they've held, and those of their spouse.
 description: |
   Placeholder
 publisher:
