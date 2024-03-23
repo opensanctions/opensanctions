@@ -1,12 +1,16 @@
 import random
+from typing import Optional
 
 from requests import HTTPError
-
-from zavod import Context
+from time import sleep
+from rich import print
+from zavod import Context, Entity
 from zavod import helpers as h
 
 
-TEST_IDS = [635390, 635_301, 0]
+DEKLARACIJA_ID_RANGE = range(301_730, 637_217)
+# sample 5 for dev purposes
+DEKLARACIJA_ID_RANGE = random.sample(DEKLARACIJA_ID_RANGE, 5)
 
 class PinregSession:
     """object for interactacting with PINREG portal"""
@@ -16,15 +20,16 @@ class PinregSession:
         guest_id = random.randint(0, 9_999_999) # random guest token
         self._guest_token = f"c{guest_id:07d}"
 
-    def get_deklaracija_by_id(self, id: int) -> dict[any]:
-        self.context.log.info(f'Processing deklaracija {id:06d}')
+    def get_deklaracija_by_id(self, id: int) -> Optional[dict[any]]:
+        id_str = f"{id:06d}"
+        self.context.log.info(f'Processing deklaracija {id_str}')
         try: 
             return self.context.fetch_json(
-                url=f"https://pinreg.vtek.lt/external/deklaracijos/{id:06d}/perziura/viesa",
+                url=f"https://pinreg.vtek.lt/external/deklaracijos/{id_str}/perziura/viesa",
                 params = {'v': self._guest_token},
                 headers = {
                     'Accept': 'application/json',
-                    'Referer': f'https://pinreg.vtek.lt/app/pid-perziura/{id:06d}',
+                    'Referer': f'https://pinreg.vtek.lt/app/pid-perziura/{id_str}',
                     'DNT': '1',
                     'Connection': 'keep-alive'
                 },
@@ -32,28 +37,46 @@ class PinregSession:
             )
         except HTTPError as ex:
             response = ex.response.json()
-            if response.pop('message') == 'Klaida' and response.pop('status') == 404:
-                self.context.log.info(f'No record for deklaracija {id:06d}')
+            if status_code := response.pop('status') == 404:
+                self.context.log.info(f'No record for deklaracija {id_str}')
+            else:
+                self.context.log.error(f'{status_code} error for deklaracija {id_str}')
 
-def parse_declarant(context:Context, declarant_data:dict) -> None:
-    declarant = context.make("Person")
-    first_name = declarant_data.pop('vardas')
-    last_name = declarant_data.pop('pavarde')
-    person_id = declarant_data.pop('asmensKodas') # this identifier is often missing
-    declarant.id = context.make_id(person_id, first_name, last_name)
-    declarant.add('firstName', first_name)
-    declarant.add('registrationNumber', person_id)
-    declarant.add('lastName', last_name)
-    declarant.add('birthDate', declarant_data.pop('gimimoData'))
-    declarant.add('legalForm', declarant_data.pop('asmensTipas'))
-    context.audit_data(declarant_data)
-    context.emit(declarant, target=True)
+def make_person(context:Context, data:dict) -> Entity:
+    person = context.make("Person")
+    first_name = data.pop('vardas')
+    last_name = data.pop('pavarde')
+    person_id = data.pop('asmensKodas', None) # this identifier is often missing
+    person.id = context.make_id(person_id, first_name, last_name)
+    person.add('firstName', first_name)
+    person.add('registrationNumber', person_id)
+    person.add('lastName', last_name)
+    person.add('birthDate', data.pop('gimimoData', None))
+    person.add('legalForm', data.pop('asmensTipas', None))
+    context.audit_data(data)
+    return person
+
+def make_marriage(context:Context, person:Entity, spouse:Entity) -> Entity:
+    marriage = context.make('Family')
+    marriage.id = context.make_id(person.id, spouse.id)
+    marriage.add('relationship', 'Spouse')
+    marriage.add('person', person)
+    marriage.add('relative', spouse)
+    return marriage
 
 def crawl(context: Context) -> None:
     """exhaustively scans PINREG portal and emits all deklaracijos"""
+
     pinreg = PinregSession(context)
-    for deklaracija_id in TEST_IDS: # range(0, 999_999):
-        if not (record := pinreg.get_deklaracija_by_id(deklaracija_id)): 
+    for deklaracija_id in DEKLARACIJA_ID_RANGE: 
+        sleep(.2)
+        if not (record := pinreg.get_deklaracija_by_id(deklaracija_id)):
             continue
-        print(record)
-        parse_declarant(context, record.pop('teikejas'))
+
+        declarant = make_person(context, record.pop('teikejas'))
+        if spouse_data := record.pop('sutuoktinis'):
+            spouse = make_person(context, spouse_data)
+            marriage = make_marriage(context, declarant, spouse)
+            context.emit(spouse, target=False)
+            context.emit(marriage)
+        context.emit(declarant, target=True)
