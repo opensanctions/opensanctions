@@ -5,6 +5,7 @@ from followthemoney.types import registry
 from zavod import Context
 
 IGNORE_SCHEMATA = ["Event", "Documentation", "Document"]
+IGNORE_PROPS = ["proof"]
 
 
 def parse_entity(context: Context, data: Dict[str, Any]) -> None:
@@ -14,6 +15,8 @@ def parse_entity(context: Context, data: Dict[str, Any]) -> None:
     entity.id = context.make_slug(data["id"])
     for prop_name, values in data["properties"].items():
         prop = entity.schema.get(prop_name)
+        if prop_name in IGNORE_PROPS:
+            continue
         if prop is None:
             alias_prop = context.lookup_value("props", prop_name)
             if alias_prop is None:
