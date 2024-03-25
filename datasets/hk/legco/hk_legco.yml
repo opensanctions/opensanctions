@@ -40,3 +40,16 @@ data:
 # This isn't that big, but we keep getting 400s in CI when it works locally
 # and in prod.
 ci_test: false
+
+assertions:
+  min:
+    schema_entities:
+      Person: 85
+      Position: 1
+    country_entities:
+      hk: 85
+    countries: 1
+  max:
+    schema_entities:
+      Person: 95
+      Position: 2
