@@ -1,11 +1,11 @@
-from typing import Optional
+from typing import Optional, Dict, Any
 from lxml import html
 
 from zavod import Context, helpers
 
 
-def get_json(context: Context, batch_size: int):
-    params = {
+def get_json(context: Context, batch_size: int) -> Dict[str, Any]:
+    params: Dict[str, Any] = {
         "q": "*",
         "rows": batch_size,
         "start": 0,
@@ -42,6 +42,7 @@ def crawl(context: Context) -> None:
         if id_hash is None or row.get("sn_sanctionEsmaID") is None:
             # This is a very common case that we're currently ignoring where
             # the entity are persons mentioned in a plain text or on some other URL.
+            context.log.info("Skipping row without entity or sanction ID", row=row)
             continue
         entity = context.make("Company")
         if row.get("sn_entityLEI") is not None:
