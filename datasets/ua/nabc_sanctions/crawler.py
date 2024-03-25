@@ -93,9 +93,7 @@ def make_company_id(id: str) -> str:
     return f"ua-nazk-company-{id}"
 
 
-def json_listing(
-    context: Context, url: str, name: str
-) -> Generator[Dict[str, Any], None, None]:
+def json_listing(context: Context, name: str) -> Generator[Dict[str, Any], None, None]:
     path = context.get_resource_path(f"{name}.json")
     fetch_internal_data(f"{INTERNAL_PREFIX}{name}.json", path)
     with open(path, "r") as fh:
@@ -210,7 +208,7 @@ def crawl_common(
 
 def crawl_person(context: Context) -> None:
     for endpoint, sanction_status in PERSON_ENDPOINTS.items():
-        for row in json_listing(context, context.data_url, endpoint):
+        for row in json_listing(context, endpoint):
             person_id = row.pop("person_id", None)
             if person_id is None:
                 context.log.error("No person_id", name=row.get("name_en"))
@@ -249,7 +247,7 @@ def crawl_person(context: Context) -> None:
 
 def crawl_company(context: Context) -> None:
     for endpoint, sanction_status in COMPANY_ENDPOINTS.items():
-        for row in json_listing(context, context.data_url, endpoint):
+        for row in json_listing(context, endpoint):
             company_id = row.pop("company_id")
 
             if int(company_id) in CRAWLED_COMPANIES:
@@ -286,14 +284,14 @@ def crawl_company(context: Context) -> None:
 
 def get_existing_companies(context: Context):
     for endpoint in COMPANY_ENDPOINTS:
-        for row in json_listing(context, context.data_url, endpoint):
+        for row in json_listing(context, endpoint):
             company_id = row.pop("company_id")
             EXISTING_COMPANY_IDS.add(int(company_id))
 
 
 def get_existing_persons(context: Context):
     for endpoint in PERSON_ENDPOINTS:
-        for row in json_listing(context, context.data_url, endpoint):
+        for row in json_listing(context, endpoint):
             person_id = row.pop("person_id", None)
             EXISTING_PERSON_IDS.add(int(person_id))
 
