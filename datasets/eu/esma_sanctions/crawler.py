@@ -40,9 +40,8 @@ def crawl(context: Context) -> None:
             row.get("sn_otherEntityLEI"),
         )
         if id_hash is None or row.get("sn_sanctionEsmaID") is None:
-            context.log.warn(
-                "Response missing entity or sanction identifier.", response=row
-            )
+            # This is a very common case that we're currently ignoring where
+            # the entity are persons mentioned in a plain text or on some other URL.
             continue
         entity = context.make("Company")
         if row.get("sn_entityLEI") is not None:
