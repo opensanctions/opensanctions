@@ -1,8 +1,6 @@
 import json
 from banal import ensure_list
 from typing import Any, Dict, List, Generator
-from urllib.parse import urljoin
-from pantomime.types import JSON
 
 from zavod import Context, Entity
 from zavod import helpers as h
