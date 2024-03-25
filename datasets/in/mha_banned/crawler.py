@@ -52,7 +52,7 @@ def crawl_sheet(context: Context):
     h.assert_html_url_hash(
         context,
         "https://www.mha.gov.in/en/commoncontent/unlawful-associations-under-section-3-of-unlawful-activities-prevention-act-1967",
-        "d91d503a0b73804d7fb8301e974ca8b59097db12",
+        "80a088d3beaacb217c207682f454044939aaf976",
         path='.//div[@class="view-content"]',
     )
     path = context.fetch_resource("source.csv", SHEET_URL)

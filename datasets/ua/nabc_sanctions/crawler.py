@@ -1,11 +1,10 @@
 import json
 from banal import ensure_list
 from typing import Any, Dict, List, Generator
-from urllib.parse import urljoin
-from pantomime.types import JSON
 
 from zavod import Context, Entity
 from zavod import helpers as h
+from zavod.shed.internal_data import fetch_internal_data
 
 COUNTRIES = {
     "SCT": "GB-SCT",
@@ -14,6 +13,7 @@ COUNTRIES = {
 }
 
 TRACK_COUNTRIES = ["ua", "eu", "us", "au", "ca", "ch", "es", "gb", "jp", "nz", "pl"]
+INTERNAL_PREFIX = "ua_nabc_sanctions/20240324/"
 
 EXISTING_COMPANY_IDS = set()
 EXISTING_PERSON_IDS = set()
@@ -96,14 +96,16 @@ def make_company_id(id: str) -> str:
 def json_listing(
     context: Context, url: str, name: str
 ) -> Generator[Dict[str, Any], None, None]:
-    full_url = urljoin(url, name)
-    path = context.fetch_resource(f"{name}.json", full_url)
-    context.export_resource(path, JSON, title=context.SOURCE_TITLE)
+    path = context.get_resource_path(f"{name}.json")
+    fetch_internal_data(f"{INTERNAL_PREFIX}{name}.json", path)
     with open(path, "r") as fh:
         resp_data = json.load(fh)
+    if "data" not in resp_data:
+        context.log.error("No data in response", data=resp_data)
+        raise ValueError("No data in response")
     data = resp_data["data"]
     if isinstance(data, dict):
-        raise ValueError("Listing did not return an array: %s" % full_url)
+        raise ValueError("Listing did not return an array: %s" % name)
     for item in data:
         yield clean_row(item)
 
