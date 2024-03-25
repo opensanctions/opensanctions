@@ -55,7 +55,7 @@ def crawl_item(context: Context, row: Dict[str, Any]):
         entity.add("description", row.pop("GENERAL") or None)
         entity.add("description", row.pop("SPECIALTY") or None)
 
-    h.apply_address(context, entity, address)
+    h.copy_address(entity, address)
     upin = row.pop("UPIN")
     if upin:
         entity.add("description", f"UPIN: {upin}")

@@ -87,9 +87,7 @@ def crawl(context: Context) -> None:
             country=row.pop("Country", None),
             state=row.pop("State / Province", None),
         )
-        if address is not None:
-            entity.add("address", address.get("full"))
-            entity.add("country", address.get("country"))
+        h.copy_address(entity, address)
         # h.apply_address(context, entity, address)
 
         agency = row.pop("Excluding Agency")
