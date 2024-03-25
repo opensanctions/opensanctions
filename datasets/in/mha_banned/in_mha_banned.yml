@@ -4,7 +4,7 @@ prefix: in-mha
 coverage:
   frequency: never
   start: 2023-02-16
-  end: 2024-03-21
+  end: 2024-03-25
 deploy:
   schedule: "@daily"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
