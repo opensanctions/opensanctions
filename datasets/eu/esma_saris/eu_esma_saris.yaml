@@ -58,7 +58,7 @@ lookups:
           - "7_OLD_Other disorderly trading conditions"
           - "Removal"
           - null
-        value: "corp.disqual"
+        value: "poi"
       - match:
           - "Trading ban - EU sanctions"
           - "Trading ban - indirect effect of sanctions"

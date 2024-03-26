@@ -42,8 +42,9 @@ def crawl(context: Context) -> None:
             end_date = row.pop("effectiveTo")
             sanction.add("endDate", end_date)
             if end_date:
-                entity.add("topics", "poi")
+                is_target = False
             else:
+                is_target = True
                 topic = context.lookup_value("reason_topic", reason)
                 if topic is None:
                     context.log.warn("No topic defined for reason", reason=reason)
@@ -61,7 +62,7 @@ def crawl(context: Context) -> None:
                 context.emit(issuer)
                 entity.add("issuer", issuer)
 
-            context.emit(entity, target=True)
+            context.emit(entity, target=is_target)
             context.audit_data(
                 row,
                 ignore=[
