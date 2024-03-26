@@ -23,6 +23,8 @@ def keyword(topics: List[str]) -> Optional[str]:
         return "State government"
     if "gov.igo" in topics:
         return "International organization"
+    if "gov.muni" in topics:
+        return "Local government"
     return None
 
 

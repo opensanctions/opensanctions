@@ -554,6 +554,7 @@ lookups:
           - "Q65962630"  # President of AEK Larnaca      
           - "Q108377574"  # Islamic religious occupation
           - "Q21051103"  # warden
+          - "Q2382776"  # no-show job
           
   country_decisions:
     options:
