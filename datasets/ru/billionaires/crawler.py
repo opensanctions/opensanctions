@@ -19,6 +19,8 @@ def crawl_row(context: Context, row: Dict[str, str]):
     entity.add("wikidataId", qid)
     topics = [t.strip() for t in row.get("topics", "").split(";")]
     topics = [t for t in topics if len(t)]
+    if len(topics) == 0:
+        topics.append("poi")
     entity.add("topics", topics)
     context.emit(entity, target=True)
 
