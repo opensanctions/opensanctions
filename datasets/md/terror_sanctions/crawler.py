@@ -45,6 +45,7 @@ def crawl(context: Context):
         name, aliases = parse_names(row.pop("persoana-fizica-entitate"))
         entity.id = context.make_id(name, *sorted(birth_dates))
         entity.add("name", name)
+        entity.add("topics", "sanction")
         if aliases:
             entity.add("alias", aliases)
         if birth_dates:
