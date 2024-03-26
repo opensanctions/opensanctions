@@ -20,7 +20,7 @@ description: |
   and tracking the individuals who hold this post at different times.
 
   The set of posts and positions that are tracked are curated by the OpenSanctions team
-  and will include:
+  prioritises:
 
   * National legislatures
   * National cabinets and ministerial positions
@@ -554,6 +554,7 @@ lookups:
           - "Q65962630"  # President of AEK Larnaca      
           - "Q108377574"  # Islamic religious occupation
           - "Q21051103"  # warden
+          - "Q2382776"  # no-show job
           
   country_decisions:
     options:
@@ -1713,6 +1714,7 @@ lookups:
         code: "US"
         label: "United States of America"
         decision: "national"
+        include_local: true
       - match: "Q31"
         code: "BE"
         label: "Belgium"
