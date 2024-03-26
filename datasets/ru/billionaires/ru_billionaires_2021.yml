@@ -29,3 +29,11 @@ data:
   # OpenSanctions Wikidata Curated Entities
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vQsmLFolFMG4eKTx9rEoJEoZEYjOlO1Vorw_wCc4rCEZCbC_0eNHGjgg57WjBDghnsQuIFRsuUTNyfu/pub?gid=451837843&output=csv
   format: CSV
+
+assertions:
+  min:
+    schema_entities:
+      Person: 101
+  max:
+    schema_entities:
+      Person: 105

@@ -29,3 +29,13 @@ url: https://drive.google.com/file/d/1A9l5SqqbFBw3kGkQzWKfSyI-qQXBFme3/edit?fbcl
 data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vQsmLFolFMG4eKTx9rEoJEoZEYjOlO1Vorw_wCc4rCEZCbC_0eNHGjgg57WjBDghnsQuIFRsuUTNyfu/pub?gid=110001778&output=csv
   format: CSV
+
+assertions:
+  min:
+    schema_entities:
+      Person: 31
+      Organization: 2
+  max:
+    schema_entities:
+      Person: 35
+      Organization: 4
