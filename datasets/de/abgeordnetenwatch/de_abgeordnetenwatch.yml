@@ -1,5 +1,5 @@
 name: de_abgeordnetenwatch
-title: "Members of German Legislatures from AbgeordnetenWatch"
+title: "German Legislators from AbgeordnetenWatch"
 url: https://www.abgeordnetenwatch.de
 entry_point: crawler
 prefix: de-aw

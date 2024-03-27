@@ -4,10 +4,10 @@ from click.testing import CliRunner
 from zavod import settings
 from zavod.meta import Dataset
 from zavod.dedupe import get_resolver
-from zavod.cli import crawl, run, publish, export, clear
+from zavod.cli import crawl, run, publish, export, clear, validate
 from zavod.cli import load_db, dump_file, xref, xref_prune
 from zavod.archive import dataset_state_path
-from zavod.tests.conftest import DATASET_1_YML
+from zavod.tests.conftest import DATASET_1_YML, DATASET_3_YML
 
 
 def test_crawl_dataset():
@@ -32,6 +32,17 @@ def test_export_dataset():
     assert result.exit_code != 0, result.output
     result = runner.invoke(export, [DATASET_1_YML.as_posix()])
     assert result.exit_code == 0, result.output
+    shutil.rmtree(settings.DATA_PATH)
+
+
+def test_validate_dataset():
+    runner = CliRunner()
+    result = runner.invoke(validate, ["/dev/null"])
+    assert result.exit_code != 0, result.output
+    result = runner.invoke(validate, [DATASET_1_YML.as_posix()])
+    assert result.exit_code == 0, result.output
+    result = runner.invoke(validate, [DATASET_3_YML.as_posix()])
+    assert result.exit_code != 0, result.output
     shutil.rmtree(settings.DATA_PATH)
 
 

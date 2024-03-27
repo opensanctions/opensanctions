@@ -292,7 +292,6 @@ def test_targets_simple(testdataset1: Dataset):
     datetime.strptime(settings.RUN_TIME_ISO, TIME_SECONDS_FMT)
 
 
-
 def test_statements(testdataset1: Dataset):
     dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
     clear_data_path(testdataset1.name)
