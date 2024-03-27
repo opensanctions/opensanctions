@@ -218,11 +218,11 @@ lookups:
           - role: UK High Commissioner to New Zealand and Governor (nonresident) of the Pitcairn Islands
             name: Iona THOMAS
             start_date: 9 August 2022
-      - match: "the UK and New Zealand are represented by New Zealand High Commissioner Helen TUNNAH (since July 2020)"
+      - match: "the UK and New Zealand are represented by New Zealand High Commissioner Mark GIBBS (since 5 March 2024)"
         holders:
           - role: New Zealand High Commissioner
-            name: Helen TUNNAH
-            start_date: July 2020
+            name: Mark GIBBS
+            start_date: 5 March 2024
       - match: "Deputy Prime Ministers Sigrid KAAG and Wopke HOEKSTRA (since 10 January 2022), Carola SCHOUTEN (since 26 October 2017)"
         holders:
           - role: Deputy Prime Minister
@@ -235,14 +235,20 @@ lookups:
             name: Carola SCHOUTEN
             start_date: 26 October 2017
       # Nepal
-      - match: "Deputy Prime Ministers Narayan Kaji SHRESTHA (since 26 December 2022), Purna Bahadur KHADKA (since 31 March 2023) (an)"
+      - match: "Deputy Prime Ministers Narayan Kaji SHRESTHA (since 26 December 2022), Rabi LAMICHHANE (since 26 December 2022), Raghubir MAHASETH (since 6 March 2024), Upendra YADAV (since 10 March 2024) (an)"
         holders:
           - role: deputy prime minister
             name: Narayan Kaji SHRESTHA
             start_date: 26 December 2022
           - role: deputy prime minister
-            name: Purna Bahadur KHADKA
-            start_date: 31 March 2023
+            name: Rabi LAMICHHANE
+            start_date: 26 December 2022
+          - role: deputy prime minister
+            name: Raghubir MAHASETH
+            start_date: 6 March 2024
+          - role: deputy prime minister
+            name: Upendra YADAV
+            start_date: 10 March 2024
       # Mali
       - match: "Transition Prime Minister Choguel MAIGA (appointed by Transition President Assimi GOITA on 7 June 2021)note: former transition Prime Minister Moctar OUANE was arrested and detained by the military on 24 May 2021 and resigned on 26 May 2021"
         holders:
@@ -354,21 +360,28 @@ lookups:
         holders:
           - role: Administrator
             name: Kit PYMAN
-      - match: "Denis BECIROVIC (presidency member since 16 November 2022 - Bosniak seat)"
+      # Bosnia and Herzegovina
+      - match: "Chairperson of the Presidency Denis BECIROVIC (chairperson since 16 March 2024"
         holders:
-          - role: presidency member
+          - role: Chairperson of the Presidency
             name: Denis BECIROVIC
-            start_date: 16 November 2022
+            start_date: 16 March 2024
       - match: "Zeljka CVIJANOVIC (presidency member since 16 November 2022 - Serb seat)"
         holders:
-          - role: presidency member
+          - role: Presidency member
             name: Zeljka CVIJANOVIC
             start_date: 16 November 2022
-      - match: "Chairman of the Presidency Zeljko KOMSIC (chairman since 16 July 2023"
+      - match: Zeljko KOMSIC (presidency member since 20 November 2018 - Croat seat)
         holders:
-          - role: Chairman of the Presidency
+          - role: Presidency member
             name: Zeljko KOMSIC
-            start_date: 16 July 2023
+            start_date: 20 November 2018
+      - match: Chairperson of the Council of Ministers Borjana KRISTO (since 25 January 2023)
+        holders:
+          - role: Chairperson of the Council of Ministers
+            name: Borjana KRISTO
+            start_date: 25 January 2023
+      # Belgium
       - regex: "Deputy Prime Ministers Vincent Van QUICKENBORNE, Vincent VAN PETEGHEM, Frank VANDENBROUCKE, Pierre-Yves DERMAGNE, Petra DE SUTTER, Georges GILKINET .+ David CLARINVAL .+"
         holders:
           - role: Deputy Prime Minister
