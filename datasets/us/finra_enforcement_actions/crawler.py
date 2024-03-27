@@ -4,7 +4,7 @@ from normality import slugify, collapse_spaces
 from zavod import Context, helpers as h
 
 
-def clean_name(name):
+def clean_name(name: str):
     matches = {
         ", LLC": " LLC",
         ", L.L.C": " L.L.C",
@@ -23,7 +23,7 @@ def clean_name(name):
         name = name.replace(old, new)
 
     # If the string ends in a comma, the last comma is unnecessary (e.g. Goldman Sachs & Co. LLC,)
-    if name != "" and name[-1] == ",":
+    if name.endswith(","):
         return name[:-1]
 
     return name
@@ -60,10 +60,7 @@ def crawl_item(input_dict: dict, context: Context):
     case_id, source_url = input_dict.pop("case-id")
     date = input_dict.pop("action-date-sort-ascending")[0]
 
-    # If there is a comma in the name
-    # we cannot know if it's two separate entities or just one
-    # so we abort the crawl
-    if "," in name:
+    if not name:
         return
 
     entity = context.make(schema)
@@ -94,7 +91,7 @@ def crawl(context: Context):
 
     while True:
         url = base_url + "?page=" + str(page_num)
-        response = context.fetch_html(url, cache_days=1)
+        response = context.fetch_html(url, cache_days=7)
         response.make_links_absolute(url)
         table = response.find(".//table")
 
