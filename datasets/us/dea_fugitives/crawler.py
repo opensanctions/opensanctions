@@ -51,6 +51,7 @@ def crawl_item(fugitive_url: str, context: Context):
 
     sanction.add("description", sanction_description)
     sanction.add("sourceUrl", fugitive_url)
+    entity.add("topics", "crime")
 
     context.emit(entity, target=True)
     context.emit(sanction)
