@@ -2,11 +2,11 @@ title: Ukraine NABC Sanctions Tracker
 entry_point: crawler.py
 prefix: ua-nazk
 coverage:
-  frequency: daily
+  frequency: never
   start: 2022-04-16
   end: 2024-03-25
 deploy:
-  schedule: "0 */3 * * *"
+  schedule: "@weekly"
   memory: 1500Mi
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 ci_test: false

@@ -38,3 +38,28 @@ url: https://registers.esma.europa.eu/publication/searchRegister?core=esma_regis
 data:
   url: https://registers.esma.europa.eu/publication/searchRegister/doExportSarisCsv?core=esma_registers_saris_new
   format: CSV
+
+lookups:
+  reason_topic:
+    options:
+      - match:
+          - "01. Inside Info"
+          - "02. Market Abuse"
+          - "4_OLD_Suspected market abuse"
+        value: "crime.fin"
+      - match:
+          - "03. Other suspension"
+          - "04. Take-over bid"
+          - "1_OLD_Market management arrangements"
+          - "2_OLD_Undisclosed price sensitive information (awaiting public release)"
+          - "3_OLD_Issuers failure to disclose periodic information on time"
+          - "5_OLD_Other noncompliance with rules of regulated market"
+          - "6_OLD_Filling of tender offers and related events"
+          - "7_OLD_Other disorderly trading conditions"
+          - "Removal"
+          - null
+        value: "poi"
+      - match:
+          - "Trading ban - EU sanctions"
+          - "Trading ban - indirect effect of sanctions"
+        value: "sanction"

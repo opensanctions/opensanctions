@@ -147,7 +147,11 @@ lookups:
           - Permit Number
           - Military Registration Number
           - C.I.N.
+          - Registration Certificate Number (Dubai)
         prop: registrationNumber
+      - match:
+          - Russian State Individual Business Registration Number Pattern (OGRNIP)
+        prop: ogrnCode
       - match:
           - Legal Entity Number
           - LE Number
