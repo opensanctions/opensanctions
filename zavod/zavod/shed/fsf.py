@@ -145,13 +145,14 @@ def parse_entry(context: Context, entry: Element) -> None:
             elif child.tag == "remark":
                 entity.add("notes", child.text)
             elif child.tag == "contactInfo":
-                prop = context.lookup_value("contact_info", child.get("key"))
-                if prop is None:
+                res = context.lookup("contact_info", child.get("key"))
+                if res is None:
                     context.log.warning("Unknown contact info", node=child)
                 else:
-                    values = h.multi_split(child.get("value"), [",", ";"])
-                    values = [v.strip() for v in values]
-                    entity.add(prop, values)
+                    if res.prop is not None:
+                        values = h.multi_split(child.get("value"), [",", ";"])
+                        values = [v.strip() for v in values]
+                        entity.add(res.prop, values)
             else:
                 context.log.warning("Unknown address component", node=child)
 

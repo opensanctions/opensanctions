@@ -593,6 +593,10 @@ lookups:
       - match:
           - Israeli Civil Administration
         value: Israel
+      - match:
+          - Basque Country
+          - Catalana
+        value: ES
   type.date:
     options:
       - match:
