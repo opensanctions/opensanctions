@@ -146,6 +146,7 @@ lookups:
           - Trademark number
           - Permit Number
           - Military Registration Number
+          - C.I.N.
         prop: registrationNumber
       - match:
           - Legal Entity Number
