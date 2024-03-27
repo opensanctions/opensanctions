@@ -16,3 +16,14 @@ publisher:
   url: https://www.opensanctions.org
   official: false
 url: https://github.com/opensanctions/opensanctions
+
+assertions:
+  min:
+    schema_entities:
+      Company: 10
+    country_entities:
+      de: 3
+    countries: 7
+  max:
+    country_entities:
+      de: 1

@@ -86,12 +86,12 @@ def test_topicless_targets(testdataset3) -> None:
     assert len(logs) == 1, logs
 
 
-def test_assertions(testdataset1) -> None:
-    clear_data_path(testdataset1.name)
-    crawl_dataset(testdataset1)
-    context = Context(testdataset1)
-    store = get_store(testdataset1)
-    view = store.view(testdataset1)
+def test_assertions(testdataset3) -> None:
+    clear_data_path(testdataset3.name)
+    crawl_dataset(testdataset3)
+    context = Context(testdataset3)
+    store = get_store(testdataset3)
+    view = store.view(testdataset3)
 
     with capture_logs() as cap_logs:
         validator = AssertionsValidator(context, view)
@@ -113,8 +113,8 @@ def test_assertions(testdataset1) -> None:
         "<Assertion entity_count lte 1 filter: country=de>"
     ) in logs, logs
     assert (
-        "warning: Assertion failed for value 6: "
-        "<Assertion entity_count gte 10 filter: schema=Person>"
+        "warning: Assertion failed for value 7: "
+        "<Assertion entity_count gte 10 filter: schema=Company>"
     ) in logs, logs
     assert (
         "warning: Assertion failed for value 6: <Assertion country_count gte 7>"
