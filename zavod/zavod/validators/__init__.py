@@ -18,7 +18,7 @@ class DanglingReferencesValidator(BaseValidator):
             for other_id in entity.get(prop):
                 if self.view.has_entity(other_id):
                     continue
-                self.context.log.error(
+                self.context.log.warning(
                     f"{entity.id} property {prop.name} references missing id {other_id}"
                 )
                 self.fail = True
@@ -37,13 +37,13 @@ class SelfReferenceValidator(BaseValidator):
                 if other_prop.reverse == prop:
                     continue
                 if entity.id in other.get(other_prop):
-                    self.context.log.warning(
+                    self.context.log.info(
                         f"{entity.id} references itself via {prop.name} -> {other.id} -> {other_prop.name}"
                     )
 
 
 class TopiclessTargetValidator(BaseValidator):
-    
+
     def feed(self, entity: Entity) -> None:
         if entity.target and not entity.get("topics"):
             self.context.log.warning(
