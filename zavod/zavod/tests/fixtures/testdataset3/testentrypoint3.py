@@ -13,6 +13,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     entity.id = context.make_slug(id)
     entity.add("name", row.pop("name"))
     entity.add("topics", row.pop("topics") or None)
+    entity.add("country", row.pop("country"))
     parent_id = row.pop("parent_id") or None
     if parent_id:
         entity.add("parent", context.make_slug(parent_id))
