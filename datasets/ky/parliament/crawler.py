@@ -3,7 +3,6 @@ from normality import collapse_spaces
 from pantomime.types import CSV
 from typing import Dict
 import re
-from lxml import etree
 
 from zavod import Context
 from zavod import helpers as h
@@ -35,6 +34,7 @@ REGEX_POSITIONISH = re.compile(
     r"(Minister|Attorney|Governor|Member|Parliamentary|Leader|Speaker)"
 )
 REGEX_NAME = re.compile(r"^[\w\.“”’-]+( [\w\.“”’-]+){1,3}$")
+
 
 def crawl_card_2021(context: Context, position: str, el: ElementOrTree):
     name_el = el.find("./h1")

@@ -133,8 +133,8 @@ lookups:
           - fondator, deține 100%
         schema: Ownership
         source: owner
-        target: asset
-        target_schema: Company
+        dest: asset
+        dest_schema: Company
         text: role
       - match:
           - mamă vitregă
@@ -142,9 +142,9 @@ lookups:
           - soț
         schema: Family
         source: person
-        target: relative
+        dest: relative
         text: relationship
-        target_schema: Person
+        dest_schema: Person
       - match:
           - fost avocat
           - fostă afacere
@@ -160,15 +160,15 @@ lookups:
           - membru
         schema: Membership
         source: member
-        target: organization
+        dest: organization
         text: role
-      # Relationships that make more sense reversed - the target is the object
+      # Relationships that make more sense reversed - the dest is the object
       - match:
           - șefă # head
           - fost șef # former boss
         schema: UnknownLink
         source: object
-        target: subject
+        dest: subject
         text: role
 
   type.country:

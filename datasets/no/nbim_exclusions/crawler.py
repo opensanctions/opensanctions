@@ -1,10 +1,7 @@
-import re
 from typing import Any, Dict, List
-from lxml import html
 from normality import slugify, collapse_spaces
-from pantomime.types import HTML
 
-from zavod import Context, Entity
+from zavod import Context
 from zavod import helpers as h
 from zavod.util import ElementOrTree
 
@@ -42,7 +39,6 @@ def parse_table(table: ElementOrTree) -> List[Dict[str, Any]]:
     return rows
 
 
-
 def crawl(context: Context):
     doc = context.fetch_html(context.data_url)
     doc.make_links_absolute(context.data_url)
@@ -53,19 +49,14 @@ def crawl(context: Context):
         entity.id = context.make_slug(name)
         entity.add("name", name)
         entity.add("notes", data.pop(1) or None)
+        decision = data.pop("decision")
+        topic = context.lookup_value("decision_topic", decision)
+        if topic is None:
+            context.log.warning("Unexpected decision", decision=decision)
+        entity.add("topics", topic)
 
         sanction = h.make_sanction(context, entity)
-
-        decision = data.pop("decision")
         sanction.add("description", decision)
-        match decision:
-            case "Exclusion":
-                entity.add("topics", "debarment")
-            case "Observation":
-                pass
-            case _:
-                context.log.warning("Unexpected decision", decision=decision)
-
         sanction.add("sourceUrl", url)
         sanction.add("program", data.pop("category"))
         sanction.add("reason", data.pop("criterion"))

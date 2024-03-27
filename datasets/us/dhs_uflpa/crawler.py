@@ -48,7 +48,9 @@ def parse_names(name_field: str):
         return names
 
 
-def crawl_program(context: Context, table: ElementOrTree, program: str, section: str) -> None:
+def crawl_program(
+    context: Context, table: ElementOrTree, program: str, section: str
+) -> None:
     headers = None
     for row in table.findall(".//tr"):
         if headers is None:

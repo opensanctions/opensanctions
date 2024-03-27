@@ -20,14 +20,14 @@ APPOINTMENT_TYPES = {
     "13": "current-manager-appointed-under-the-caice-act",
     "17": "current-se-member-of-administrative-organ",
     "18": "current-se-member-of-supervisory-organ",
-    "19": "current-se-member-of-management-organ"
+    "19": "current-se-member-of-management-organ",
 }
 COMPANY_STATUS = {
     "C": "converted-or-closed-company",
     "D": "dissolved-company",
     "L": "company-in-liquidation",
     "R": "company-in-receivership",
-    "UKN": None
+    "UKN": None,
 }
 
 WRITE_DIR = "output_files"
@@ -79,24 +79,27 @@ def parse_officer(line):
     # <USUAL RESIDENTIAL COUNTRY |-> 'ura_country'
     # <                          |-> 'filler_b'
 
-    remainder_data = line[76:].rstrip(' \n').split('<')
-    remainder_data_nullified = [x.strip() if x.strip() else None for x in remainder_data]
+    remainder_data = line[76:].rstrip(" \n").split("<")
+    remainder_data_nullified = [
+        x.strip() if x.strip() else None for x in remainder_data
+    ]
     remainder_fields = [
-        'title',
-        'name',
-        'surname',
-        'honours',  # skip for now. Could join with title and add as title.
-        'service_address_care_of',
-        'service_address_po_box',
-        'service_address_line_1',
-        'service_address_line_2',
-        'service_address_post_town',
-        'service_address_county',
-        'service_address_country',
-        'occupation',
-        'nationality',
-        'ura_country',
-        'filler_b']
+        "title",
+        "name",
+        "surname",
+        "honours",  # skip for now. Could join with title and add as title.
+        "service_address_care_of",
+        "service_address_po_box",
+        "service_address_line_1",
+        "service_address_line_2",
+        "service_address_post_town",
+        "service_address_county",
+        "service_address_country",
+        "occupation",
+        "nationality",
+        "ura_country",
+        "filler_b",
+    ]
 
     service_address_post_code = line[48:56].strip()
     remainder_dict = dict(zip(remainder_fields, remainder_data_nullified))
@@ -104,8 +107,10 @@ def parse_officer(line):
     # pnr available for both natural and corporate officers
     officer.add("idNumber", pnr)
 
-    if officer.schema == model.get('Person'):
-        name_components = list(filter(None, [remainder_dict.get("name"), remainder_dict.get("surname")]))
+    if officer.schema == model.get("Person"):
+        name_components = list(
+            filter(None, [remainder_dict.get("name"), remainder_dict.get("surname")])
+        )
         full_name = " ".join(name_components)  # do not pop
         dob = full_dob or partial_dob
         officer.make_id("ch_appointment", pnr, dob, full_name)
@@ -119,8 +124,12 @@ def parse_officer(line):
         officer.add("country", remainder_dict.pop("ura_country"))
         officer.add("position", remainder_dict.pop("occupation"))
 
-    if officer.schema == model.get('Company'):  # company names are stored as "surname", add both to be safe.
-        name_components = list(filter(None, [remainder_dict.get("name"), remainder_dict.get("surname")]))
+    if officer.schema == model.get(
+        "Company"
+    ):  # company names are stored as "surname", add both to be safe.
+        name_components = list(
+            filter(None, [remainder_dict.get("name"), remainder_dict.get("surname")])
+        )
         full_name = " ".join(name_components)
         officer.make_id("ch_appointment", pnr, full_name)
         officer.add("name", remainder_dict.pop("name"))
@@ -148,7 +157,9 @@ def parse_officer(line):
     addr.add("country", country)
 
     # use the full address to make the id
-    full = full_address(street, street2, street3, po_box, postal_code, region, city, country)
+    full = full_address(
+        street, street2, street3, po_box, postal_code, region, city, country
+    )
     addr.add("full", full)
     addr.id = address_id(full)
 
@@ -173,34 +184,35 @@ def parse_officer(line):
     address_path = WRITE_DIR + address_file
     appointments_path = WRITE_DIR + appointments_file
 
-    with open(officer_path, 'a') as f:
+    with open(officer_path, "a") as f:
         f.write(json.dumps(officer.to_dict()) + "\n")
 
-    with open(address_path, 'a') as f:
+    with open(address_path, "a") as f:
         f.write(json.dumps(addr.to_dict()) + "\n")
 
-    with open(appointments_path, 'a') as f:
+    with open(appointments_path, "a") as f:
         f.write(json.dumps(link.to_dict()) + "\n")
 
 
 def parse_company(line):
 
     company_nr = line[0:8]
-    company_name = line[40:].strip('< \n')
+    company_name = line[40:].strip("< \n")
     company_status_code = line[9].replace(" ", "UKN")  # " " means status not known
     company_status = COMPANY_STATUS.get(company_status_code)
-    number_of_officers = line[32:36]  # not really needed.
+    # number_of_officers = line[32:36]  # not really needed.
 
     company = model.make_entity("Company")
-    company.id = company_id(company_nr)  # uk-ch company numbers are truly unique. Don't create hash key.
+    # uk-ch company numbers are truly unique. Don't create hash key.
+    company.id = company_id(company_nr)
     company.add("status", company_status)
     company.add("name", company_name)
 
     # emit jsonl file
-    companies_file = '/companies_with_appointments_to_them.jsonl'
+    companies_file = "/companies_with_appointments_to_them.jsonl"
     path = WRITE_DIR + companies_file
 
-    with open(path, 'a') as f:
+    with open(path, "a") as f:
         f.write(json.dumps(company.to_dict()) + "\n")
 
 
@@ -209,7 +221,7 @@ def parse_appointment_line(line):
     # DDDD == first line
     # digit only = last line
 
-    if line.startswith('DDDD') or line.strip().isdigit():
+    if line.startswith("DDDD") or line.strip().isdigit():
         return
 
     # if the line is not header or footer, ger record type.
@@ -230,13 +242,13 @@ def parse_appointment_line(line):
 
 def process_file(filepath):
 
-    for ix, l in enumerate(read_appointments(filepath)):
+    for ix, line in enumerate(read_appointments(filepath)):
         print(f"Appointment line at index {ix}\n")
-        parse_appointment_line(l)
+        parse_appointment_line(line)
 
 
 def process_directory(dirpath):
-    pattern = f'{dirpath}/Prod216*.dat'
+    pattern = f"{dirpath}/Prod216*.dat"
     tp = ThreadPool(10)
 
     # check we have all files we want to process.

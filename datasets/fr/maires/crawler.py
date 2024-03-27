@@ -14,7 +14,7 @@ UNUSED_FIELDS = [
     "Libellé de la catégorie socio-professionnelle",
     "Date de début de la fonction",
     "Code de la collectivité à statut particulier",
-    "Code du département"
+    "Code du département",
 ]
 DATE_FORMATS = ["%d/%m/%Y"]
 
@@ -39,9 +39,7 @@ def crawl_row(
 
     # Make a PEP entity
     person = context.make("Person")
-    person.id = context.make_id(
-        munid, family_name, given_name, birth_date
-    )
+    person.id = context.make_id(munid, family_name, given_name, birth_date)
     context.log.debug(f"Unique ID {person.id}")
     h.apply_name(person, given_name=given_name, last_name=family_name, lang="fra")
     if birth_date:

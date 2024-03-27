@@ -29,3 +29,4 @@ publisher:
 data:
   url: "https://www.abgeordnetenwatch.de/api/v2/candidacies-mandates?type=mandate"
   format: JSON
+ci_test: false

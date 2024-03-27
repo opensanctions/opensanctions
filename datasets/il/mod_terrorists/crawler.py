@@ -193,7 +193,7 @@ def crawl_organizations(context: Context):
         context.emit(sanction)
         context.audit_data(record)
 
-    for (subject, object) in links:
+    for subject, object in links:
         subject_id = seq_ids.get(subject)
         object_id = seq_ids.get(object)
         if subject_id is None or object_id is None:

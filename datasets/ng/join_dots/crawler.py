@@ -1,8 +1,6 @@
 import openpyxl
-from typing import Any, Dict, Generator, List, Optional, Set, Tuple
-from collections import defaultdict
+from typing import Any, Dict, Generator, List, Optional, Tuple
 from normality import collapse_spaces, slugify
-from datetime import datetime
 from pantomime.types import XLSX
 import re
 

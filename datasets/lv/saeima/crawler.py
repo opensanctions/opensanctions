@@ -5,7 +5,6 @@ from zavod import Context, helpers as h
 from zavod.logic.pep import categorise
 
 
-
 def crawl_item(unid: str, context: Context):
 
     member_url = f"https://titania.saeima.lv/personal/deputati/saeima14_depweb_public.nsf/0/{unid}?OpenDocument&lang=EN"
@@ -13,7 +12,7 @@ def crawl_item(unid: str, context: Context):
     response = context.fetch_html(member_url)
 
     # The title string is starting with two \xa0 characters, which are blank spaces, we will remove them
-    full_name = response.find('.//*[@id="ViewBlockTitle"]').text.replace(u'\xa0', u'')
+    full_name = response.find('.//*[@id="ViewBlockTitle"]').text.replace("\xa0", "")
 
     entity = context.make("Person")
     entity.id = context.make_slug(full_name)
@@ -21,22 +20,26 @@ def crawl_item(unid: str, context: Context):
 
     entity.add("sourceUrl", member_url)
 
-    year_of_birth_el = response.xpath(".//*[text()='writeJsTrArr(\"form_birth_date_year\",\". gadā\")']/..")
+    year_of_birth_el = response.xpath(
+        './/*[text()=\'writeJsTrArr("form_birth_date_year",". gadā")\']/..'
+    )
     entity.add("birthDate", year_of_birth_el[0].text_content())
 
-    email_el = response.xpath(".//*[text()='writeJsTrArr(\"form_email\",\"E-pasta adrese\")']/../../span/a")
+    email_el = response.xpath(
+        './/*[text()=\'writeJsTrArr("form_email","E-pasta adrese")\']/../../span/a'
+    )
     entity.add("email", email_el[0].text_content())
 
     position = h.make_position(context, "deputy of Saeima", country="lv")
     categorisation = categorise(context, position, is_pep=True)
 
     occupancy = h.make_occupancy(
-            context,
-            entity,
-            position,
-            True,
-            categorisation=categorisation,
-        )
+        context,
+        entity,
+        position,
+        True,
+        categorisation=categorisation,
+    )
 
     if occupancy is None:
         return
@@ -44,12 +47,14 @@ def crawl_item(unid: str, context: Context):
     context.emit(entity, target=True)
     context.emit(position)
     context.emit(occupancy)
-    
+
 
 def crawl(context: Context):
     # check if it's time for the end of the term
     if datetime.now().isoformat() > "2025":
-        context.log.warning("The 14th Saeima term is nearly over. These occupants will soon not be current.")
+        context.log.warning(
+            "The 14th Saeima term is nearly over. These occupants will soon not be current."
+        )
 
     response = context.fetch_html(context.data_url)
 

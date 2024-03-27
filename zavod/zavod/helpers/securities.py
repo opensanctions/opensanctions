@@ -9,6 +9,6 @@ def make_security(context: Context, isin: str) -> Entity:
     entity.id = f"isin-{isin}"
     entity.add("isin", isin)
     cc = isin[:2]
-    if cc not in ("XS",):
+    if cc not in ("XS", "CS"):
         entity.add("country", cc)
     return entity

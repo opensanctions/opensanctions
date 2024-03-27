@@ -81,7 +81,7 @@ def crawl(context: Context):
 
         delay_until_date = None
         delay_note = None
-        delay  = data.pop("mentiuni")
+        delay = data.pop("mentiuni")
         if delay:
             date_match = REGEX_DELAY.match(delay)
             if date_match:

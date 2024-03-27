@@ -50,3 +50,5 @@ lookups:
         value: null
       - match: "0203-05-10"
         value: "2023-05-10"
+      - match: "0204-04-20"
+        value: "2024-04-20"

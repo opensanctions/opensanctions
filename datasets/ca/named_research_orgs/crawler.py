@@ -29,7 +29,7 @@ def parse_html(doc: ElementOrTree):
             aliases_str = (
                 aliases_el.text_content().replace("Known alias(es):", "").strip()
             )
-        
+
         # FIX: it turns out that the listed aliases are in fact often subsidiaries
         # so we're going to emit them separately from the main entity.
         name = nro_element.find("strong").text
@@ -50,7 +50,7 @@ def parse_html(doc: ElementOrTree):
             "country": country_str,
             "weak_aliases": weak_aliases,
         }
-        
+
 
 def emit_nro(context: Context, nro):
     entity = context.make("Organization")
@@ -60,7 +60,7 @@ def emit_nro(context: Context, nro):
     entity.add("notes", nro.get("notes"))
     entity.add("topics", "export.control")
 
-    for alias in nro.get('weak_aliases', []):
+    for alias in nro.get("weak_aliases", []):
         entity.add("weakAlias", alias)
 
     context.emit(entity, target=True)

@@ -205,14 +205,14 @@ def parse_row(context: Context, row):
     passport_number = row.pop("Individual_PassportNumber", None)
     passport_numbers = split_items(passport_number)
     entity.add_cast("Person", "passportNumber", passport_numbers)
-    passport_detail = row.pop("Individual_PassportDetails", None)
+    row.pop("Individual_PassportDetails", None)
     # passport_details = split_items(passport_detail)
     # TODO: where do I stuff this?
 
     ni_number = row.pop("Individual_NINumber", None)
     ni_numbers = split_items(ni_number)
     entity.add_cast("Person", "idNumber", ni_numbers)
-    ni_detail = row.pop("Individual_NIDetails", None)
+    row.pop("Individual_NIDetails", None)
     # ni_details = split_items(ni_detail)
     # TODO: where do I stuff this?
 

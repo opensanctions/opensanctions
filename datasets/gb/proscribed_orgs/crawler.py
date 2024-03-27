@@ -17,9 +17,7 @@ INCLUDING2_RE = re.compile(r"(.*),?\s*including\s+(.*)", re.IGNORECASE)
 COMMA_AND_RE = re.compile(r",\s+|\s+and\s+", re.IGNORECASE)
 ALIAS_RE = re.compile(r"\s+\(([^)]+)\)")
 JUNK = " ,.;\t\r\n"
-DATE_FORMATS = [
-    "%d.%m.%Y"
-]
+DATE_FORMATS = ["%d.%m.%Y"]
 
 
 def parse_comment(context: Context, text: str) -> List[str]:

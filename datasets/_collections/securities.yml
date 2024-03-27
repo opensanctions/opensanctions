@@ -9,9 +9,10 @@ summary: >
   Sanctioned companies from a selected set of European and US sanctions lists,
   and their associated securities identifiers, including LEI and ISIN codes.
 description: |
-  This collection produces a specialised export of all sanctioned organizations,
-  with a column to designate their LEI codes, where available. We also include
-  a column that lists all known ISINs associated with each company.
+  This collection produces a [specialised export of all sanctioned
+  organizations](/docs/data/securities/), with a column to designate their
+  LEI codes, where available. We also include a column that lists all known
+  ISINs associated with each company.
 
   The table also lists all Russian companies that have been assigned an ISIN,
   and thus are subject to investment bans under US Executive Order (EO) 14071.
@@ -27,6 +28,7 @@ children:
   - eu_sanctions_map
   - eu_reg_2878_sanctions
   - eu_esma_saris
+  - eu_esma_sanctions
   - ext_eu_esma_firds
   - ext_gleif
   - gb_hmt_invbans

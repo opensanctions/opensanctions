@@ -33,12 +33,13 @@ ci_test: false
 assertions:
   min:
     schema_entities:
-      Person: 120
+      Person: 400
       Position: 1
     country_entities:
-      il: 121
+      il: 400
     countries: 1
   max:
     schema_entities:
-      Person: 150
+      # Big enough for 496 current/ex members plus new cohort
+      Person: 620
       Position: 1

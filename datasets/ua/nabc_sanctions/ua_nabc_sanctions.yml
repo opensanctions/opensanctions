@@ -2,16 +2,21 @@ title: Ukraine NABC Sanctions Tracker
 entry_point: crawler.py
 prefix: ua-nazk
 coverage:
-  frequency: daily
+  frequency: never
   start: 2022-04-16
+  end: 2024-03-25
 deploy:
-  schedule: "0 */3 * * *"
+  schedule: "@weekly"
   memory: 1500Mi
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+ci_test: false
 summary: >
   A list of suggested Russia-related sanctions targets composed by the
   Ukrainian anti-corruption agency.
 description: |
+  **Update 2024-03-25**: The dataset has been discontinued and merged with the
+  [State Sanctions Register](/datasets/ua_nsdc_sanctions/).
+
   > The War and Sanctions website engages citizens in the sanctioning process, and
   > gives people power to hold accountable the people fueling Russia's war against
   > Ukraine. It follows in the epistolary tradition of the classic novel that shares
