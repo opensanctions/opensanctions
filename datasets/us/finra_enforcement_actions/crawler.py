@@ -4,6 +4,31 @@ from normality import slugify, collapse_spaces
 from zavod import Context, helpers as h
 
 
+def clean_name(name):
+    matches = {
+        ", LLC": " LLC",
+        ", L.L.C": " L.L.C",
+        ", Inc": " Inc",
+        ", Jr": " Jr",
+        ", JR": " JR",
+        ", INC": " INC",
+        ", L.P.": " L.P.",
+        ", LP": " LP",
+        ", Sr.": " Sr.",
+        ", SR.": " SR.",
+    }
+
+    # We first remove the comma using a pattern match
+    for old, new in matches.items():
+        name = name.replace(old, new)
+
+    # If the string ends in a comma, the last comma is unnecessary (e.g. Goldman Sachs & Co. LLC,)
+    if name != "" and name[-1] == ",":
+        return name[:-1]
+
+    return name
+
+
 def parse_table(
     table: _Element,
 ) -> Generator[Dict[str, Tuple[str, Optional[str]]], None, None]:
@@ -24,28 +49,22 @@ def parse_table(
                 cells.append((collapse_spaces(a.text_content()), a.get("href")))
 
         assert len(headers) == len(cells)
-        yield {hdr: c for hdr, c in zip(headers, cells)}, row
+        yield {hdr: c for hdr, c in zip(headers, cells)}
 
 
-def crawl_item(input_dict: dict, html_element: _Element, context: Context):
+def crawl_item(input_dict: dict, context: Context):
     schema = "LegalEntity"
 
-    # We try to find if it's a person or company using the icon class
-    if html_element.find(".//i") is None:
-        # If we don't have the name, we disconsider this line
-        # Otherwise, we continue the code using the LegalEntity schema
-        if input_dict["firms-individuals"][0] == "":
-            return
-    elif "user" in html_element.find(".//i").get("class"):
-        schema = "Person"
-
-    elif "building" in html_element.find(".//i").get("class"):
-        schema = "Company"
-
-    name = input_dict.pop("firms-individuals")[0]
+    name = clean_name(input_dict.pop("firms-individuals")[0])
     case_summary = input_dict.pop("case-summary")[0]
     case_id, source_url = input_dict.pop("case-id")
     date = input_dict.pop("action-date-sort-ascending")[0]
+
+    # If there is a comma in the name
+    # we cannot know if it's two separate entities or just one
+    # so we abort the crawl
+    if "," in name:
+        return
 
     entity = context.make(schema)
     entity.id = context.make_slug(name)
@@ -75,14 +94,14 @@ def crawl(context: Context):
 
     while True:
         url = base_url + "?page=" + str(page_num)
-        response = context.fetch_html(url)
+        response = context.fetch_html(url, cache_days=1)
         response.make_links_absolute(url)
         table = response.find(".//table")
 
         if table is None:
             break
 
-        for item, html_element in parse_table(table):
-            crawl_item(item, html_element, context)
+        for item in parse_table(table):
+            crawl_item(item, context)
 
         page_num += 1
