@@ -24,9 +24,7 @@ def test_dangling_references(testdataset3) -> None:
         validator = DanglingReferencesValidator(context, view)
         for entity in view.entities():
             validator.feed(entity)
-        with pytest.raises(ValueError) as exc_info:
-            validator.finish()
-        assert str(exc_info.value) == "Dangling references found"
+        validator.finish()
 
     store.close()
     context.close()
@@ -99,7 +97,9 @@ def test_assertions(testdataset1) -> None:
         validator = AssertionsValidator(context, view)
         for entity in view.entities():
             validator.feed(entity)
-        validator.finish()
+        with pytest.raises(RuntimeError) as excinfo:
+            validator.finish()
+        assert str(excinfo.value) == "One or more assertions failed."
     context.close()
     store.close()
 

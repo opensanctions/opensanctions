@@ -10,9 +10,6 @@ from zavod.validators.common import BaseValidator
 
 
 class DanglingReferencesValidator(BaseValidator):
-    def __init__(self, context: Context, view: View) -> None:
-        super().__init__(context, view)
-        self.fail = False
 
     def feed(self, entity: Entity) -> None:
         for prop in entity.iterprops():
@@ -26,13 +23,10 @@ class DanglingReferencesValidator(BaseValidator):
                 )
                 self.fail = True
 
-    def finish(self) -> None:
-        if self.fail:
-            raise ValueError("Dangling references found")
-
 
 # FollowTheMoney prevents direct self-references so we check 1 level deep
 class SelfReferenceValidator(BaseValidator):
+
     def feed(self, entity: Entity) -> None:
         if not entity.schema.is_a("Thing"):
             return
@@ -49,6 +43,7 @@ class SelfReferenceValidator(BaseValidator):
 
 
 class TopiclessTargetValidator(BaseValidator):
+    
     def feed(self, entity: Entity) -> None:
         if entity.target and not entity.get("topics"):
             self.context.log.warning(
