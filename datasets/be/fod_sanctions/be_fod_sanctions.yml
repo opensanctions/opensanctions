@@ -46,11 +46,15 @@ lookups:
       - match: enterprise
         value: Organization
   contact_info:
-    map:
-      PHONE: phone
-      FAX: phone
-      EMAIL: email
-      WEB: website
+    options:
+      - match: PHONE
+        prop: phone
+      - match: FAX
+        prop: phone
+      - match: EMAIL
+        prop: email
+      - match: WEB
+        prop: website
   identification_type:
     options:
       - match:
