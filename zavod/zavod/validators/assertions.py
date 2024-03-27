@@ -44,23 +44,31 @@ def get_value(stats: Dict[str, Any], assertion: Assertion) -> Optional[int]:
 
 def check_assertion(
     context: Context, stats: Dict[str, Any], assertion: Assertion
-) -> None:
+) -> bool:
+    """Returns true if the assertion is valid, false otherwise."""
     value = get_value(stats, assertion)
     if value is None:
         context.log.warning(f"Value not found for assertion {assertion}")
-        return
+        return False
     if not compare_threshold(value, assertion.comparison, assertion.threshold):
         context.log.warning(f"Assertion failed for value {value}: {assertion}")
+        return False
+    return True
 
 
 class AssertionsValidator(BaseValidator):
     def __init__(self, context: Context, view: View) -> None:
         super().__init__(context, view)
         self.stats = Statistics()
+        self.failed = False
 
     def feed(self, entity: Entity) -> None:
         self.stats.observe(entity)
 
     def finish(self) -> None:
         for assertion in self.context.dataset.assertions:
-            check_assertion(self.context, self.stats.as_dict(), assertion)
+            if not check_assertion(self.context, self.stats.as_dict(), assertion):
+                self.failed = True
+        
+        if self.failed:
+            raise RuntimeError("One or more assertions failed.")
