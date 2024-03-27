@@ -77,7 +77,7 @@ def validate(dataset_path: Path, clear: bool = False) -> None:
         view = get_view(dataset, external=False)
         validate_dataset(dataset, view)
     except Exception:
-        log.exception("Failed validateing dataset: %s" % dataset_path)
+        log.exception("Failed validating dataset: %s" % dataset_path)
         sys.exit(1)
 
 
