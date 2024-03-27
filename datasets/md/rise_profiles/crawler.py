@@ -162,9 +162,7 @@ def make_relation(context, source, description, dest_name, dest_url):
         if dest_url.startswith("connection.php"):
             context.emit(dest)
     if dest is None:
-        dest_schema = (
-            res.dest_schema if res and res.dest_schema else "LegalEntity"
-        )
+        dest_schema = res.dest_schema if res and res.dest_schema else "LegalEntity"
         dest = context.make(dest_schema)
         dest.id = context.make_id(dest_name, "relation of", source.id)
         dest.add("name", dest_name)
