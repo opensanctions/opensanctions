@@ -31,10 +31,10 @@ def test_dangling_references(testdataset3) -> None:
 
     logs = [f"{entry['log_level']}: {entry['event']}" for entry in cap_logs]
     assert (
-        "error: td3-child-of-nonexistent-co property parent references missing id td3-nonexistent-co"
+        "warning: td3-child-of-nonexistent-co property parent references missing id td3-nonexistent-co"
     ) in logs, logs
     assert (
-        "error: td3-asset-of-nonexistent-co-ownership-nonexistent-co property owner references missing id td3-nonexistent-co"
+        "warning: td3-asset-of-nonexistent-co-ownership-nonexistent-co property owner references missing id td3-nonexistent-co"
     ) in logs, logs
     assert len(logs) == 2, logs
 
@@ -56,11 +56,11 @@ def test_self_references(testdataset3) -> None:
 
     logs = [f"{entry['log_level']}: {entry['event']}" for entry in cap_logs]
     assert (
-        "warning: td3-owner-of-self-co references itself via ownershipOwner"
+        "info: td3-owner-of-self-co references itself via ownershipOwner"
         " -> td3-owner-of-self-co-ownership-owner-of-self-co -> asset"
     ) in logs, logs
     assert (
-        "warning: td3-owner-of-self-co references itself via ownershipAsset"
+        "info: td3-owner-of-self-co references itself via ownershipAsset"
         " -> td3-owner-of-self-co-ownership-owner-of-self-co -> owner"
     ) in logs, logs
     assert len(logs) == 2, logs
