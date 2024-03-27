@@ -1,10 +1,13 @@
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Generator
+from rigour.ids import LEI
 from lxml import html
 
 from zavod import Context, helpers
 
 
-def get_json(context: Context, batch_size: int) -> Dict[str, Any]:
+def get_json(
+    context: Context, batch_size: int
+) -> Generator[Dict[str, Any], None, None]:
     params: Dict[str, Any] = {
         "q": "*",
         "rows": batch_size,
@@ -45,12 +48,14 @@ def crawl(context: Context) -> None:
             context.log.info("Skipping row without entity or sanction ID", row=row)
             continue
         entity = context.make("Company")
-        if row.get("sn_entityLEI") is not None:
-            entity.id = f"lei-{row.get('sn_entityLEI')}"
-            entity.add("leiCode", row.pop("sn_entityLEI", None))
-        elif row.get("sn_otherEntityLEI") is not None:
-            entity.id = f"lei-{row.get('sn_otherEntityLEI')}"
-            entity.add("leiCode", row.pop("sn_otherEntityLEI", None))
+        lei = row.pop("sn_entityLEI", None)
+        other_lei = row.pop("sn_otherEntityLEI", None)
+        if lei is not None and LEI.is_valid(lei):
+            entity.id = f"lei-{lei}"
+            entity.add("leiCode", lei)
+        elif other_lei is not None and LEI.is_valid(other_lei):
+            entity.id = f"lei-{other_lei}"
+            entity.add("leiCode", other_lei)
         else:
             entity.id = id_hash
         entity.add("name", parse_name(row.pop("sn_entityName", None)))
