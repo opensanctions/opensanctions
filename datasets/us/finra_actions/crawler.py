@@ -100,6 +100,7 @@ def crawl(context: Context):
     page_num = 0
 
     while True:
+        context.log.info(f"Crawling page {page_num}")
         url = base_url + "?page=" + str(page_num)
         response = context.fetch_html(url, cache_days=7)
         response.make_links_absolute(url)
