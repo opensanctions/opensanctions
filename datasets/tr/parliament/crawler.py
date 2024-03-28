@@ -22,31 +22,33 @@ COOKIES = {
     "X-CSRF-TOKEN-TBMM.WEB.Mvc.Prod": "CfDJ8CkHnVQPiEpDsBJK_N1e34PHppvGDOo-wZx4HU0VNisFZzxsu-kWlCNfCSem82uKbPV04Ldqh7YKetmhNFE-BUK3RD8_fnMQFdkeDNYDaBUMQeXaMtHHu9JY0Ga-Tn76rwiOactMR_PlXO_iz2Y6Azs",
 }
 
+
 def parse_table(table):
-     """This function is used to parse the table of Informations
-     about the deputy and return as a dict.
-     """
+    """This function is used to parse the table of Informations
+    about the deputy and return as a dict.
+    """
 
-     info_dict = {}
+    info_dict = {}
 
-     # The second column is the two dots, so we ignore it
-     for row in table.findall(".//tr"):
-         label = row.find(".//td[1]").text_content().strip()
-         description = row.find(".//td[3]").text_content().strip()
-         info_dict[label] = description
+    # The second column is the two dots, so we ignore it
+    for row in table.findall(".//tr"):
+        label = row.find(".//td[1]").text_content().strip()
+        description = row.find(".//td[3]").text_content().strip()
+        info_dict[label] = description
 
-     return info_dict
+    return info_dict
 
 
 def crawl_item(deputy_url: str, context: Context):
-
     response = context.http.get(deputy_url, headers=HEADERS, cookies=COOKIES)
 
     doc = html.fromstring(response.text)
 
-    name = doc.findtext('.//*[@id="content-title-type"]/span').replace(' - ')
-    place_year_of_birth = doc.findtext('.//*[@class="col-md-12 profile-ozgecmis-div"]/span/div[1]').split(',')[0]
-    place_of_birth, year_of_birth = place_year_of_birth.split(' – ')
+    name = doc.findtext('.//*[@id="content-title-type"]/span').replace(" - ")
+    place_year_of_birth = doc.findtext(
+        './/*[@class="col-md-12 profile-ozgecmis-div"]/span/div[1]'
+    ).split(",")[0]
+    place_of_birth, year_of_birth = place_year_of_birth.split(" – ")
 
     info_dict = parse_table(doc.find(".//table"))
 
@@ -68,16 +70,18 @@ def crawl_item(deputy_url: str, context: Context):
     if "Adres" in info_dict:
         entity.add("address", info_dict["Adres"])
 
-    position = h.make_position(context, "Member of the Grand National Assembly", country="tr")
+    position = h.make_position(
+        context, "Member of the Grand National Assembly", country="tr"
+    )
     categorisation = categorise(context, position, is_pep=True)
 
     occupancy = h.make_occupancy(
-            context,
-            entity,
-            position,
-            True,
-            categorisation=categorisation,
-        )
+        context,
+        entity,
+        position,
+        True,
+        categorisation=categorisation,
+    )
 
     if occupancy:
         occupancy.add("sourceUrl", deputy_url)
@@ -88,7 +92,6 @@ def crawl_item(deputy_url: str, context: Context):
 
 
 def crawl(context: Context):
-
     # We are going to first get the url for the page of each deputy
     response = context.fetch_html(context.data_url, headers=HEADERS)
     response.make_links_absolute(context.data_url)
