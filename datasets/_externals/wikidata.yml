@@ -373,6 +373,7 @@ lookups:
           - Kathiri Sultanate
           - Suriye Özgür
           - Kingdom of Tlemcen
+          - Syrian Federation
         value: null
       - match:
           - Cherokee Nation
@@ -419,6 +420,7 @@ lookups:
           - French First Republic
           - French Third Republic
           - Kingdom of France
+          - Corsica
         value: France
       - match: Byelorussian Soviet Socialist Republic
         values:

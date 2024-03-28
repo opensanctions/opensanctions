@@ -1,5 +1,7 @@
+import re
 import json
-from typing import Any, Dict
+from typing import Any, Dict, Optional
+from normality import slugify
 from prefixdate import parse_parts
 from pantomime.types import JSON
 
@@ -12,15 +14,50 @@ SCHEMATA = {
     "Navire": "Vessel",
 }
 
+SPLITS = {
+    "Type d'entité": "legalForm",
+    "Date d'enregistrement": "incorporationDate",
+    "Lieu d'enregistrement": "address",
+    "Principal établissement": "jurisdiction",
+    "Établissement principal": "jurisdiction",
+    "OGRN": "ogrnCode",
+    "KPP": "kppCode",
+    "INN": "innCode",
+    "PSRN:": "registrationNumber",
+    "Principal lieu d'activité": "country",
+    "Numéro d'enregistrement national principal": "registrationNumber",
+    "Numéro d'enregistrement national": "registrationNumber",
+    "Numéro d'enregistrement": "registrationNumber",
+    "Numéros d'enregistrement": "registrationNumber",
+    "Numéro d'identification fiscale": "taxNumber",
+    "Numéro fiscal": "taxNumber",
+    "Entités associées": "*ASSOCIATES",
+}
+
+
+def clean_key(key: str) -> Optional[str]:
+    return slugify(key)
+
+
+def parse_split(context: Context, entity: Entity, full: str):
+    full = full.replace("’", "'")
+    splits = "|".join(SPLITS.keys())
+    splits = f"({splits})"
+    splits_re = re.compile(splits, re.IGNORECASE)
+    parts = splits_re.split(full)
+    print(parts)
+
 
 def parse_identification(
     context: Context,
     entity: Entity,
     value: Dict[str, str],
 ):
+
     comment = value.pop("Commentaire")
     content = value.pop("Identification")
     full = f"{comment}: {content}".replace("::", ":").strip().strip(":").strip()
+    # parse_split(context, entity, full)
     result = context.lookup("identification", full)
     if result is None:
         context.log.warning("Unknown identification type", identification=full)
