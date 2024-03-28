@@ -27,6 +27,7 @@ url: "https://www.finra.org/rules-guidance/oversight-enforcement/disciplinary-ac
 data:
   url: https://www.finra.org/rules-guidance/oversight-enforcement/finra-disciplinary-actions
   format: HTML
+ci_test: false
 
 assertions:
   min:
