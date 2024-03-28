@@ -10,5 +10,5 @@ description: |
   New datasets come here to see if they behave themselves in the bigger system
   before being moved to a collection under default.
 children:
-  - us_finra_actions.yml
+  - us_finra_actions
 ci_test: false
