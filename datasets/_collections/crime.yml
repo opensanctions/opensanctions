@@ -40,6 +40,7 @@ children:
   - lt_illegal_websites
   - lt_illegal_gambling
   - nl_most_wanted
+  - us_dea_fugitives
   - us_ddtc_enforcements
   - us_fbi_most_wanted
   - us_occ_enfact
