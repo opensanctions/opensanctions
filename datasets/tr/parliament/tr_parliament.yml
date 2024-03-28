@@ -1,0 +1,37 @@
+title: Grand National Assembly of Turkey
+entry_point: crawler.py
+prefix: tr-parl
+coverage:
+  frequency: daily
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Members of the Grand National Assembly of Turkey
+description: |
+  The Grand National Assembly of Turkey is the unicameral Turkish legislature.
+  It is the sole body given the legislative prerogatives by the Turkish Constitution.
+  There are 600 members of parliament (deputies) who are elected for a five-year term
+  from 87 electoral districts which represent the 81 administrative provinces of Turkey
+  (Istanbul and Ankara are divided into three electoral districts whereas
+  İzmir and Bursa are divided into two each because of its large populations).
+publisher:
+  name: Türkiye Büyük Millet Meclisi
+  description: Grand Nationasl Assembly of Turkey
+  url: https://www.tbmm.gov.tr/
+  official: true
+  country: "tr"
+url: "https://www.tbmm.gov.tr/milletvekili/liste"
+data:
+  url: https://www.tbmm.gov.tr/milletvekili/AllList
+  format: HTML
+
+assertions:
+  min:
+    schema_entities:
+      Person: 600
+      Position: 1
+    country_entities:
+      tr: 600 
+    countries: 1
+  max:
+    schema_entities:
+      Person: 600
