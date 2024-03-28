@@ -146,6 +146,7 @@ lookups:
           - Trademark number
           - Permit Number
           - Military Registration Number
+          - C.I.N.
           - Registration Certificate Number (Dubai)
         prop: registrationNumber
       - match:
