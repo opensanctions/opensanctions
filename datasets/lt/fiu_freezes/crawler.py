@@ -31,7 +31,7 @@ def crawl(context: Context):
         nr = data.pop("nr")
         company_name = data.pop(
             "fizinio_ar_juridinio_asmens_kurio_turtas_isaldytas_pavadinimas"
-        )
+        ).split("\n")[0].strip()
         reg_nr = data.pop("imones_kodas")
         measures = data.pop("isaldyto_turto_rusis").split("\n")
         legal_grounds = data.pop("reglamentas_kurio_pagrindu_taikomas_turto_isaldymas")
