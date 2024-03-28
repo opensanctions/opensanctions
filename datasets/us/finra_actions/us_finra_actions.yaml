@@ -32,10 +32,10 @@ ci_test: false
 assertions:
   min:
     schema_entities:
-      Person: 13000
+      LegalEntity: 13000
   max:
     schema_entities:
-      Person: 15000
+      LegalEntity: 15000
 
 lookups:
   comma_names:
