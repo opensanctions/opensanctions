@@ -60,7 +60,7 @@ def parse_table(
             if a is None:
                 cells.append((el.text_content(), None))
             else:
-                cells.append((a.text_content(), a.get("href")))
+                cells.append((el.text_content(), a.get("href")))
 
         assert len(headers) == len(cells)
         yield {hdr: c for hdr, c in zip(headers, cells)}
@@ -71,9 +71,10 @@ def crawl_item(input_dict: dict, context: Context):
     names = []
     for dirty_name in input_dict.pop("firms-individuals")[0].split("\n"):
         names.extend(clean_names(context, dirty_name))
-    case_summary = input_dict.pop("case-summary")[0]
+    case_summary = input_dict.pop("case-summary")[0].strip()
     case_id, source_url = input_dict.pop("case-id")
-    date = input_dict.pop("action-date-sort-ascending")[0]
+    date = input_dict.pop("action-date-sort-ascending")[0].strip()
+    formatted_date = h.parse_date(date, formats=["%m/%d/%Y"])[0]
 
     for name in names:
         entity = context.make(schema)
@@ -84,8 +85,9 @@ def crawl_item(input_dict: dict, context: Context):
         context.emit(entity, target=True)
 
         sanction = h.make_sanction(context, entity, key=case_id)
-        sanction.add("description", case_summary)
-        sanction.add("date", h.parse_date(date, formats=["%m/%d/%Y"]))
+        description = f"{formatted_date}: {case_summary}"
+        sanction.add("description", description)
+        sanction.add("summary", f"Case ID {case_id.strip()}")
         sanction.add("sourceUrl", source_url)
         context.emit(sanction)
 
