@@ -1,0 +1,388 @@
+title: US FINRA Enforcement Actions
+entry_point: crawler.py
+prefix: us-finra
+coverage:
+  frequency: daily
+  start: "2024-03-28"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Firms and individuals that violated FINRA rules
+description: |
+  This dataset comprises firms and individuals against whom FINRA has taken
+  disciplinary actions for violations of its rules,
+  federal securities laws, rules, and regulations or
+  the rules of the Municipal Securities Rulemaking Board.
+
+  Documentation of disciplinary actions found here can include official
+  complaints, decisions, and settlement agreements.
+publisher:
+  name: Financial Industry Regulatory Authority (FINRA)
+  description: |
+    > is authorized by Congress to protect America’s investors by making sure
+    > the broker-dealer industry operates fairly and honestly.
+  url: https://www.finra.org/#/
+  official: true
+  country: "us"
+url: "https://www.finra.org/rules-guidance/oversight-enforcement/disciplinary-actions#:~:text=FINRA%20takes%20disciplinary%20actions%20against,the%20Municipal%20Securities%20Rulemaking%20Board."
+data:
+  url: https://www.finra.org/rules-guidance/oversight-enforcement/finra-disciplinary-actions
+  format: HTML
+ci_test: false
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 13000
+  max:
+    schema_entities:
+      LegalEntity: 15000
+
+lookups:
+  comma_names:
+    lowercase: true
+    options:
+      - match: "ameriprise advisor services inc., h&r block financial advisors inc."
+        names:
+          - Ameriprise advisor services inc.
+          - H&R Block Financial Advisors Inc.
+      - match: "banc of america securities llc (now known as merrill lynch, pierce, fenner & smith inc."
+        names:
+          - Banc of America Securities LLC (now known as Merrill Lynch, Pierce, Fenner & Smith Inc.)
+      - match: "banc of america securities llc (now known as merrill lynch, pierce, fenner & smith inc.)"
+        names:
+          - Banc of America Securities LLC (now known as Merrill Lynch, Pierce, Fenner & Smith Inc.)
+      - match: "bannon, ohanesian, & lecours inc."
+        names:
+          - Bannon, Ohanesian, & Lecours Inc.
+      - match: "bear, stearns & co. inc."
+        names:
+          - Bear, Stearns & Co. Inc.
+      - match: "berthel, fisher & co. financial services inc."
+        names:
+          - Berthel, Fisher & Co. Financial Services Inc.
+      - match: "berthel, fisher & company financial services inc."
+        names:
+          - Berthel, Fisher & Company Financial Services Inc.
+      - match: "bishop, rosen & co. inc."
+        names:
+          - Bishop, Rosen & Co. Inc.
+      - match: "braymen, lambert and noel securities ltd"
+        names:
+          - Braymen, Lambert and Noel Securities Ltd
+      - match: "brean murray, carret & co. llc"
+        names:
+          - Brean Murray, Carret & Co. LLC
+      - match: "brean murray, carret & co. llc."
+        names:
+          - Brean Murray, Carret & Co. LLC
+      - match: "brean murray, carret & co."
+        names:
+          - Brean Murray, Carret & Co.
+      - match: "buckman, buckman & reid inc."
+        names:
+          - Buckman, Buckman & Reid Inc.
+      - match: "buckman, buckman & reid"
+        names:
+          - Buckman, Buckman & Reid
+      - match: "butler, wick and co. inc."
+        names:
+          - Butler, Wick and Co. Inc.
+      - match: "cadaret, grant & co. inc."
+        names:
+          - Cadaret, Grant & Co. Inc.
+      - match: "chapin, davis"
+        names:
+          - Chapin, Davis
+      - match: "clayton lowell, & conger inc."
+        names:
+          - Clayton Lowell, & Conger Inc.
+      - match: "clayton, dunning & company inc."
+        names:
+          - Clayton, Dunning & Company Inc.
+      - match: "crowell weedon & co., now known as crowell weedon, a division of d.a. davidson & co."
+        names:
+          - Crowell Weedon & Co., now known as Crowell Weedon, a division of D.A. Davidson & Co.
+      - match: "crowell, weedon & co."
+        names:
+          - Crowell, Weedon & Co.
+      - match: "crowell, weedon & co., now known as crowell weedon, a division of d.a. davidson & co."
+        names:
+          - Crowell, Weedon & Co., now known as Crowell Weedon, a division of D.A. Davidson & Co.
+      - match: "friedman, billings, ramsey & co. inc."
+        names:
+          - Friedman, Billings, Ramsey & Co. Inc.
+      - match: "goldman sachs & co. llc (f/k/a goldman, sachs & co.)"
+        names:
+          - Goldman Sachs & Co. LLC (f/k/a Goldman, Sachs & Co.)
+      - match: "goldman sachs execution & clearing l.p., goldman, sachs & co."
+        names:
+          - Goldman Sachs Execution & Clearing L.P.
+          - Goldman, Sachs & Co.
+      - match: "goldman, sachs & co. llc (f/k/a goldman, sachs & co.)"
+        names:
+          - Goldman, Sachs & Co. LLC (f/k/a Goldman, Sachs & Co
+      - match: "goldman, sachs & co."
+        names:
+          - Goldman, Sachs & Co.
+      - match: "goldman, sachs and co."
+        names:
+          - Goldman, Sachs and Co.
+      - match: "gregory, zent & swanson inc."
+        names:
+          - Gregory, Zent & Swanson Inc.
+      - match: "hattier sandford & reynoir, l.l.p."
+        names:
+          - Hattier Sandford & Reynoir, L.L.P.
+      - match: "hattier, sanford & reynoir, llp"
+        names:
+          - Hattier, Sanford & Reynoir, LLP
+      - match: "hill, thompson, magid & co. inc."
+        names:
+          - Hill, Thompson, Magid & Co. Inc.
+      - match: "hornor, townsend & kent inc."
+        names:
+          - Hornor, Townsend & Kent Inc.
+      - match: "hornor, townsend & kent llc"
+        names:
+          - Hornor, Townsend & Kent LLC
+      - match: "j.h. darbie & co. inc., wolf a. popper inc."
+        names:
+          - J.H. Darbie & Co. Inc.
+          - Wolf A. Popper Inc.
+      - match: "keefe, bruyette & woods inc."
+        names:
+          - Keefe, Bruyette & Woods Inc.
+      - match: "keefe, bruyette and woods inc."
+        names:
+          - Keefe, Bruyette and Woods Inc.
+      - match: "landenburg, thalmann & co. incorporated"
+        names:
+          - Landenburg, Thalmann & Co. Incorporated
+      - match: "li kopp (also known as \"sabrina kopp,\" \"li guo,\" and \"sabrina guo\""
+        names:
+          - Li Kopp (also known as "Sabrina Kopp," "Li Guo," and "Sabrina Guo"
+      - match: "mcginn, smith & co. inc."
+        names:
+          - McGinn, Smith & Co. Inc.
+      - match: "merill lynch, pierce, fenner & smith incorporated"
+        names:
+          - Merill Lynch, Pierce, Fenner & Smith Incorporated
+      - match: "merrill lynch professional clearing corp., merrill lynch, pierce, fenner & smith incorporated"
+        names:
+          - Merrill Lynch Professional Clearing Corp.
+          - Merrill Lynch, Pierce, Fenner & Smith Incorporated
+      - match: "merrill lynch, pierce fenner & smith inc."
+        names:
+          - Merrill Lynch, Pierce Fenner & Smith Inc.
+      - match: "merrill lynch, pierce fenner & smith incorporated"
+        names:
+          - Merrill Lynch, Pierce Fenner & Smith Incorporated
+      - match: "merrill lynch, pierce, fenner & smith ,incorporated"
+        names:
+          - Merrill Lynch, Pierce, Fenner & Smith ,Incorporated
+      - match: "merrill lynch, pierce, fenner & smith inc"
+        names:
+          - Merrill Lynch, Pierce, Fenner & Smith Inc
+      - match: "merrill lynch, pierce, fenner & smith inc."
+        names:
+          - Merrill Lynch, Pierce, Fenner & Smith Inc.
+      - match: "merrill lynch, pierce, fenner & smith incorporated (\"merrill lynch\" or the \"firm\")"
+        names:
+          - Merrill Lynch, Pierce, Fenner & Smith Incorporated
+      - match: "merrill lynch, pierce, fenner & smith incorporated"
+        names:
+          - Merrill Lynch, Pierce, Fenner & Smith Incorporated
+      - match: "merrill lynch, pierce, fenner & smtih inc."
+        names:
+          - Merrill Lynch, Pierce, Fenner & Smtih Inc.
+      - match: "merrill lynch, pierce, fenner and smith inc."
+        names:
+          - Merrill Lynch, Pierce, Fenner and Smith Inc.
+      - match: "merrill lynch, pierce, fenner and smith incorporated"
+        names:
+          - Merrill Lynch, Pierce, Fenner and Smith Incorporated
+      - match: "merrill lynch, pierce, fenner, & smith incorporated"
+        names:
+          - Merrill Lynch, Pierce, Fenner, & Smith Incorporated
+      - match: "merrill, lynch, pierce, fenner & smith inc."
+        names:
+          - Merrill, Lynch, Pierce, Fenner & Smith Inc.
+      - match: "merrill, lynch, pierce, fenner & smith incorporated"
+        names:
+          - Merrill, Lynch, Pierce, Fenner & Smith Incorporated
+      - match: "morgan keegan & company inc. (morgan keegan,\" \"respondent\" or \"the firm\")"
+        names:
+          - Morgan Keegan & Company Inc.
+      - match: "morgan stanley & co. incorporated, morgan stanley smith barney llc"
+        names:
+          - Morgan Stanley & Co. Incorporated
+          - Morgan Stanley Smith Barney LLC
+      - match: "morgan stanley dw inc., morgan stanley & co. inc."
+        names:
+          - Morgan Stanley DW Inc.
+          - Morgan Stanley & Co. Inc.
+      - match: "morgan stanley smith barney llc, morgan stanley & co. llc"
+        names:
+          - Morgan Stanley Smith Barney LLC
+          - Morgan Stanley & Co. LLC
+      - match: "morgan stanley smith barney, morgan stanley & co. llc"
+        names:
+          - Morgan Stanley Smith Barney
+          - Morgan Stanley & Co. LLC
+      - match: "oppenheimber & co. inc., f/k/a fahnestock & co. inc."
+        names:
+          - Oppenheimber & Co. Inc.
+          - F/K/A Fahnestock & Co. Inc.
+      - match: "peacock, hislop, staley and given inc."
+        names:
+          - Peacock, Hislop, Staley and Given Inc.
+      - match: "perrin, holden & davenport capital corp."
+        names:
+          - Perrin, Holden & Davenport Capital Corp.
+      - match: "perrin, holden and davenport capital corp."
+        names:
+          - Perrin, Holden and Davenport Capital Corp.
+      - match: "perrin, holden and davenport capital corporation"
+        names:
+          - Perrin, Holden and Davenport Capital Corporation
+      - match: "peyton, chandler & sullivan inc."
+        names:
+          - Peyton, Chandler & Sullivan Inc.
+      - match: "pickering energy partners inc. n/k/a tudor, pickering & co. securities inc."
+        names:
+          - Pickering Energy Partners Inc. n/k/a Tudor, Pickering & Co. Securities Inc.
+      - match: "prager, sealy & co. llc"
+        names:
+          - Prager, Sealy & Co. LLC
+      - match: "pryor, counts & co. inc."
+        names:
+          - Pryor, Counts & Co. Inc.
+      - match: "r.m. duncan securities inc, calton and associates inc"
+        names:
+          - R.M. Duncan Securities Inc
+          - Calton and Associates Inc
+      - match: "raymond james & associates inc, (\"raymond james,\" \"respondent\" or \"the firm\""
+        names:
+          - Raymond James & Associates Inc
+      - match: "raymond james & associates inc., raymond james financial services inc."
+        names:
+          - Raymond James & Associates Inc.
+          - Raymond James Financial Services Inc.
+      - match: "raymond james and associates inc., raymond james financial services inc."
+        names:
+          - Raymond James and Associates Inc.
+          - Raymond James Financial Services Inc.
+      - match: "raymond james financial services inc., raymond james & associates inc."
+        names:
+          - Raymond James Financial Services Inc.
+          - Raymond James & Associates Inc.
+      - match: "richards, merrill & peterson inc."
+        names:
+          - Richards, Merrill & Peterson Inc.
+      - match: "rives, leavell & co."
+        names:
+          - Rives, Leavell & Co.
+      - match: "ross, sinclaire & associates llc"
+        names:
+          - Ross, Sinclaire & Associates LLC
+      - match: "royal alliance associates inc., sunamerica securities inc., spelman & co. inc., sentra securities corporation, fsc 
+      securities corporation, advantage capital corporation"
+        names:
+          - Royal Alliance Associates Inc.
+          - SunAmerica Securities Inc.
+          - Spelman & Co. Inc.
+          - Sentra Securities Corporation
+          - FSC Securities Corporation
+          - Advantage Capital Corporation
+      - match: "ruane, cunniff & goldfarb llc"
+        names:
+          - Ruane, Cunniff & Goldfarb LLC
+      - match: "ryan beck & co. inc., stifel nicolaus & company inc."
+        names:
+          - Ryan Beck & Co. Inc.
+          - Stifel Nicolaus & Company Inc.
+      - match: "sanctuary securities inc., (formerly known as david a. noyes & company)"
+        names:
+          - Sanctuary Securities Inc.
+          - (formerly known as David A. Noyes & Company)
+      - match: "sandler, o'neill & partners l.p."
+        names:
+          - Sandler, O'Neill & Partners L.P.
+      - match: "scott & stringfellow llc (\"scott & stringfellow,\" \"respondent\" or \"the firm\")"
+        names:
+          - Scott & Stringfellow LLC
+      - match: "securities management & research inc., berthel fisher & company financial services inc."
+        names:
+          - Securities Management & Research Inc.
+          - Berthel Fisher & Company Financial Services Inc.
+      - match: "siebert, brandford, shank and co. l.l.c."
+        names:
+          - Siebert, Brandford, Shank and Co. L.L.C.
+      - match: "smith, moore & co."
+        names:
+          - Smith, Moore & Co.
+      - match: "spear, leeds & kellogg l.p."
+        names:
+          - Spear, Leeds & Kellogg L.P.
+      - match: "stark, salter and smith"
+        names:
+          - Stark, Salter and Smith
+      - match: "sterne, agee & leach inc"
+        names:
+          - Sterne, Agee & Leach Inc
+      - match: "sterne, agee & leach inc."
+        names:
+          - Sterne, Agee & Leach Inc.
+      - match: "sterne, agee and leach inc."
+        names:
+          - Sterne, Agee and Leach Inc.
+      - match: "sterne, agee, & leach inc."
+        names:
+          - Sterne, Agee, & Leach Inc.
+      - match: "stifel, nicolaus & co. inc."
+        names:
+          - Stifel, Nicolaus & Co. Inc.
+      - match: "stifel, nicolaus & company inc."
+        names:
+          - Stifel, Nicolaus & Company Inc.
+      - match: "stifel, nicolaus & company incorporated"
+        names:
+          - Stifel, Nicolaus & Company Incorporated
+      - match: "stifel, nicolaus & company incorporated, century securities associates inc."
+        names:
+          - Stifel, Nicolaus & Company Incorporated
+          - Century Securities Associates Inc.
+      - match: "stifel, nicolaus & company"
+        names:
+          - Stifel, Nicolaus & Company
+      - match: "stifel, nicolaus & company, stifel independent advisors llc"
+        names:
+          - Stifel, Nicolaus & Company
+          - Stifel Independent Advisors LLC
+      - match: "stoever, glass & company inc."
+        names:
+          - Stoever, Glass & Company Inc.
+      - match: "stoever, glass and company inc."
+        names:
+          - Stoever, Glass and Company Inc.
+      - match: "strand, atkinson, williams & york inc."
+        names:
+          - Strand, Atkinson, Williams & York Inc.
+      - match: "strand, williams & york inc."
+        names:
+          - Strand, Williams & York Inc.
+      - match: "trubee, collins and co. inc."
+        names:
+          - Trubee, Collins and Co. Inc.
+      - match: "weller, anderson & co. ltd."
+        names:
+          - Weller, Anderson & Co. Ltd.
+      - match: "westhoff, cone and holmstedt"
+        names:
+          - Westhoff, Cone and Holmstedt
+      - match: "wilson-davis & co,. inc."
+        names:
+          - Wilson-Davis & Co,. Inc.
+      - match: "wulff, hansen & co."
+        names:
+          - Wulff, Hansen & Co.
