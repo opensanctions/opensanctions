@@ -4,48 +4,34 @@ from normality import slugify, collapse_spaces
 from zavod import Context, helpers as h
 import re
 
-REGEX_AND = re.compile(r"(\band\b|&)", re.I)
+REGEX_AND = re.compile(r"(\band\b|&|\+)", re.I)
 REGEX_JUST_A_NAME = re.compile(r"^[a-z]+, [a-z]+$", re.I)
+REGEX_CLEAN_SUFFIX = re.compile(r", \b(LLC|L\.L\.C|Inc|Jr|INC|L\.P|LP|Sr|III|II|IV|S\.A|LTD|USA INC|\(?A/K/A|\(?N\.K\.A|\(?N/K/A|\(?F\.K\.A|formerly known as|INCORPORATED)\b", re.I)
 
 
-def clean_names(name: str) -> List[str]:
-    if not name:
+def clean_names(context: Context, text: str) -> List[str]:
+    text = collapse_spaces(text)
+    if not text:
         return []
     
-    matches = {
-        ", LLC": " LLC",
-        ", L.L.C": " L.L.C",
-        ", Inc": " Inc",
-        ", Jr": " Jr",
-        ", JR": " JR",
-        ", INC": " INC",
-        ", L.P.": " L.P.",
-        ", LP": " LP",
-        ", Sr.": " Sr.",
-        ", SR.": " SR.",
-        ", II": " II",
-        ", III": " III",
-        ", IV": " IV",
-        ", S.A.": " S.A.",
-        ", LTD": " LTD",
-        ", USA INC": " USA INC",
-    }
-
-    # We first remove the comma using a pattern match
-    for old, new in matches.items():
-        name = name.replace(old, new)
-
+    text = REGEX_CLEAN_SUFFIX.sub(r" \1", text)
     # If the string ends in a comma, the last comma is unnecessary (e.g. Goldman Sachs & Co. LLC,)
-    if name.endswith(","):
-        name = name[:-1]
+    if text.endswith(","):
+        text = text[:-1]
     
-    if not REGEX_AND.search(name) and not REGEX_JUST_A_NAME.match(name):
-        parts = [n.strip() for n in name.split(",")]
-        if len(parts) > 1:
-            print("      ".join(parts))
-        return parts
-
-    return [name]
+    if not REGEX_AND.search(text) and not REGEX_JUST_A_NAME.match(text):
+        names = [n.strip() for n in text.split(",")]
+        return names
+    else:
+        if "," in text:
+            res = context.lookup("comma_names", text)
+            if res:
+                return res.names
+            else:
+                context.log.warning("Not sure how to split on comma.", text=text.lower())
+                return [text]
+        else:
+            return [text]
 
 
 def parse_table(
@@ -67,9 +53,9 @@ def parse_table(
 
             a = el.find(".//a")
             if a is None:
-                cells.append((collapse_spaces(el.text_content()), None))
+                cells.append((el.text_content(), None))
             else:
-                cells.append((collapse_spaces(a.text_content()), a.get("href")))
+                cells.append((a.text_content(), a.get("href")))
 
         assert len(headers) == len(cells)
         yield {hdr: c for hdr, c in zip(headers, cells)}
@@ -79,13 +65,12 @@ def crawl_item(input_dict: dict, context: Context):
     schema = "LegalEntity"
     names = []
     for dirty_name in input_dict.pop("firms-individuals")[0].split("\n"):
-        names.extend(clean_names(dirty_name))
+        names.extend(clean_names(context, dirty_name))
     case_summary = input_dict.pop("case-summary")[0]
     case_id, source_url = input_dict.pop("case-id")
     date = input_dict.pop("action-date-sort-ascending")[0]
 
     for name in names:
-        print("name: %r" % name)
         entity = context.make(schema)
         entity.id = context.make_slug(name)
         entity.add("name", name)
