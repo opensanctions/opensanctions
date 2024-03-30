@@ -86,7 +86,7 @@ def crawl_page(context: Context, page_number: int) -> int:
 
         context.emit(entity, target=True)
 
-        if "director" in item:
+        if item.get("director"):
             director = context.make("Person")
             director.id = context.make_id("DIRECTOR", entity.id, item["director"])
             director.add("name", item["director"], lang="rus")
@@ -113,7 +113,7 @@ def crawl(context: Context):
 
     num_pages = crawl_page(context, 1)
 
-    context.log.warning(f"Total pages: {num_pages}")
+    context.log.info(f"Total pages: {num_pages}")
 
     for page_number in range(2, num_pages + 1):
         sleep(SLEEP_TIME)
