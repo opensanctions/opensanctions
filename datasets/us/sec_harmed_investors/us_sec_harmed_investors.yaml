@@ -1,0 +1,698 @@
+title: US SEC actions due to harmed Investors
+entry_point: crawler.py
+prefix: us-sec-harm
+coverage:
+  frequency: daily
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Enforcement actions against persons and firms that had harmed investors
+description: |
+  This dataset contains information about SEC enforcement actions where
+  the defendants or respondents were ordered to pay financial judgments.
+  In these instances, the SEC may work to distribute these funds to investors
+  who were harmed.
+publisher:
+  name: U.S. Securities and Exchange Commission
+  description: Mexico's Senate
+  url: https://www.sec.gov
+  official: true
+  country: "us"
+url: "https://www.sec.gov/enforce/information-for-harmed-investors"
+data:
+  url: https://www.sec.gov/enforce/information-for-harmed-investors
+  format: HTML
+
+lookups:
+  comma_names:
+    lowercase: true
+    options:
+      - match: "agfeed industries inc., songyan li, junhong xiong, selina jin, shaobo ouyang, k. ivan gothner and edward pazdro"
+        names:
+          - Agfeed Industries Inc.
+          - Songyan Li
+          - Junhong Xiong
+          - Selina Jin
+          - Shaobo Ouyang
+          - K. Ivan Gothner
+          - Edward Pazdro
+      - match: "angelo haligiannis, sterling watters group lp, sterling watters capital advisors llc and sterling watters capital management inc."
+        names:
+          - Angelo Haligiannis
+          - Sterling Watters Group LP
+          - Sterling Watters Capital Advisors LLC
+          - Sterling Watters Capital Management Inc
+      - match: "angelo mozilo, david sambol and eric sieracki (former executives of countrywide financial corporation)"
+        names:
+          - Angelo Mozilo
+          - David Sambol
+          - Eric Sieracki
+      - match: "augustine capital management llc (f/k/a augustine capital management inc.), john t. porter, and thomas f. duszynski, cpa"
+        names:
+          - Augustine Capital Management LLC
+          - John T. Porter
+          - Thomas F. Duszynski
+      - match: "cihc inc., conseco services llc, and conseco equity sales inc."
+        names:
+          - CIHC Inc
+          - Conseco Services LLC
+          - Conseco Equity Sales Inc
+      - match: "clovis oncology inc., patrick j. mahaffy, and erle t. mast"
+        names:
+          - Clovis Oncology Inc
+          - Patrick J. Mahaffy
+          - Erle T. Mast
+      - match: "ar capital llc, nicholas s. schorsch, and brian s. block"
+        names:
+          - Ar Capital LLC
+          - Nicholas S. Schorsch
+          - Brian S. Block
+      - match: "a chicago convention center llc, anshoo r. sethi, and international regional center trust of chicago llc"
+        names:
+          - A Chicago Convention Center LLC
+          - Anshoo R. Sethi
+          - International Regional Center Trust of Chicago LLC
+      - match: "homeland safety international inc. f/k/a sniffex inc., mark b. lindberg, petar d. mihaylov, yuri p. markov, paul b. johnson, nicholas v. klausgaard, and ilona v. klausgaard"
+        names:
+          - Homeland Safety International Inc
+          - Mark B. Lindberg
+          - Petar D. Mihaylov
+          - Yuri P. Markov
+          - Paul B. Johnson
+          - Nicholas V. Klausgaard
+          - Ilona V. Klausgaard
+      - match: "resolute capital partners ltd llc, homebound resources llc, thomas j. powell, and stefan t. toth"
+        names:
+          - Resolute Capital Partners Ltd LLC
+          - Homebound Resources LLC
+          - Thomas J. Powell
+          - Stefan T. Toth
+      - match: "stefan h. benger, shb capital inc., jason b. meyers, international capital financial resources llc, philip t. powers, handler, thayer & duggan llc, frank i. reinschreiber, and global financial management llc, cta worldwide services, sa, and stephan von hase"
+        names:
+          - Stefan H. Benger
+          - SHB Capital Inc
+          - Jason B. Meyers
+          - International Capital Financial Resources LLC
+          - Philip T. Powers
+          - Handler
+          - Thayer & Duggan LLC
+          - Frank I. Reinschreiber
+          - Global Financial Management LLC
+          - CTA Worldwide Services, SA
+          - Stephan von Hase
+      - match: "william j. bowser, christopher j. ashby, scott w. beynon, and jordan s. nelson"
+        names: 
+          - William J. Bowser
+          - Christopher J. Ashby
+          - Scott W. Beynon
+          - Jordan S. Nelson
+      - match: "aegon usa investment management llc, transamerica asset management inc., transamerica capital inc., and transamerica financial advisors inc."
+        names:
+          - Aegon USA Investment Management LLC
+          - Transamerica Asset Management Inc
+          - Transamerica Capital Inc
+          - Transamerica Financial Advisors Inc
+      - match: "aimsi technologies inc., reginald hall, harris dempsey \"butch\" ballow, everett bassie, winfried fields and bruce charles pollock"
+        names:
+          - AIMSI Technologies Inc
+          - Reginald Hall
+          - Harris Dempsey "Butch" Ballow
+          - Everett Bassie
+          - Winfried Fields and Bruce Charles Pollock
+      - match: "anne m. pember, casper sabatino, kevin t. kearney, and cosmo corigliano"
+        names:
+          - Anne M. Pember
+          - Casper Sabatino
+          - Kevin T. Kearney
+          - Cosmo Corigliano
+      - match: "bayerische motoren werke aktiengesellschaft, bmw of north america llc, and bmw us capital llc"
+        names:
+          - Bayerische Motoren Werke Aktiengesellschaft
+          - BMW of North America LLC
+          - BMW US Capital LLC
+      - match: "biochemics inc., john j. masiz, craig medoff and gregory s. kroning"
+        names:
+          - Biochemics Inc
+          - John J. Masiz
+          - Craig Medoff
+          - Gregory S. Kroning
+      - match: "blockchain credit partners d/b/a defi money market, gregory keough, and derek acree"
+        names:
+          - Blockchain Credit Partners
+          - Defi Money Market
+          - Gregory Keough
+          - Derek Acree
+      - match: "brooge energy limited, nicolaas lammert paardenkooper, and lina saheb" 
+        names:
+          - Brooge Energy Limited
+          - Nicolaas Lammert Paardenkooper
+          - Lina Saheb
+      - match: "brantley capital management llc, robert pinkas, and tab keplinger"
+        names:
+          - Brantley Capital Management LLC
+          - Robert Pinkas
+          - Tab Keplinger
+      - match: "broadwind energy inc., j. cameron drecoll, and stephanie k. kushner"
+        names:
+          - Broadwind Energy Inc
+          - J. Cameron Drecoll
+          - Stephanie K. Kushner
+      - match: "centaurus financial inc., ricky a mantei, and atul makharia"
+        names:
+          - Centaurus Financial Inc
+          - Ricky A Mantei
+          - Atul Makharia
+      - match: "charles c. slowey jr., endeavor partners llc, endeavor capital management group llc, edward d. puttick sr., advanced planning securities inc., gregory l. oldham, glenn r. harris, and oldham harris inc."
+        names:
+          - Charles C. Slowey Jr.
+          - Endeavor Partners LLC
+          - Endeavor Capital Management Group LLC
+          - Edward D. Puttick Sr.
+          - Advanced Planning Securities Inc.
+          - Gregory L. Oldham
+          - Glenn R. Harris
+          - Oldham Harris Inc.
+      - match: "the children’s internet inc., nasser hamedani, sholeh hamedani, two dog net inc., peter perez, and cort poyner" 
+        names:
+          - The Children’s Internet Inc
+          - Nasser Hamedani
+          - Sholeh Hamedani
+          - Two Dog Net Inc.
+          - Peter Perez
+          - Cort Poyner
+      - match: "ckb168 holdings ltd., win168 biz solutions ltd., ckb168 ltd., ckb168 biz solution inc., cyber kids best education ltd, rayla melcher santos, hung wai shern, rui ling leung, daliang guo, yao lin, chih hsuan lin, wen chen hwang, toni tong chen, cheongwha chang, joan congyi ma, and heidi mao liu"
+        names:
+          - CKB168 Holdings Ltd
+          - Win168 Biz Solutions Ltd
+          - CKB168 Ltd
+          - CKB168 Biz Solution Inc
+          - Cyber Kids Best Education Ltd
+          - Rayla Melcher Santos
+          - Hung Wai Shern
+          - Rui Ling Leung
+          - Daliang Guo
+          - Yao Lin
+          - Chih Hsuan Lin
+          - Wen Chen Hwang
+          - Toni Tong Chen
+          - Cheongwha Chang
+          - Joan Congyi Ma
+          - Heidi Mao Liu
+      - match: "collins & aikman corporation, david a. stockman, j. michael stepp, gerald e. jones, david r. cosgrove, elkin b. mccallum, paul c. barnaba, john g. galante, christopher m. williams, and thomas v. gougherty"
+        names:
+          - Collins & Aikman Corporation
+          - David A. Stockman
+          - J. Michael Stepp
+          - Gerald E. Jones
+          - David R. Cosgrove
+          - Elkin B. McCallum
+          - Paul C. Barnaba
+          - John G. Galante
+          - Christopher M. Williams
+          - Thomas V. Gougherty
+      - match: "computer sciences corporation, michael laphen, michael wayne banks, claus zilmer, and paul wakefield"
+        names:
+          - Computer Sciences Corporation
+          - Michael Laphen
+          - Michael Wayne Banks
+          - Claus Zilmer
+          - Paul Wakefield
+      - match: "cr intrinsic investors llc, matthew martoma, and dr. sidney gilman"
+        names:
+          - CR Intrinsic Investors LLC
+          - Matthew Martoma
+          - Dr. Sidney Gilman
+      - match: "creative learning corp., brain pappas, daniel o’donnell and, michelle cote"
+        names:
+          - Creative Learning Corp.
+          - Brain Pappas
+          - Daniel O’Donnell
+          - Michelle Cote
+      - match: "a.c.l.n. ltd., abderrazak \"aldo\" labiad, joseph j.h. bisschops, alex de ridder, bdo international (cyprus), minas ioannou, christakis ioannou, emerald sea marine inc., pearlrose holdings international s.a., and scott investments s.a."
+        names:
+          - ACNL Ltd
+          - Abderrazak "Aldo" Labiad
+          - Joseph J.H. Bisschops
+          - Alex De Ridder
+          - BDO International
+          - Minas Ioannou
+          - Christakis Ioannou
+          - Emerald Sea Marine Inc.
+          - Pearlrose Holdings International SA
+          - Scott Investments SA
+      - match: "aic inc., community bankers securities llc, nicholas d. skaltsounis, john b. guyette and john r. graves"
+        names:
+          - AIC Inc
+          - Community Bankers Securities LLC
+          - Nicholas D. Skaltsounis
+          - John B. Guyette
+          - John R. Graves
+      - match: "alternate energy holdings inc., donald l. gillispie, and jennifer ransom"
+        names:
+          - Alternate Energy Holdings Inc
+          - Donald L. Gillispie
+          - Jennifer Ransom
+      - match: "arista power inc., peter kolokouris, william a. schmitz, michael t. hughes, and the kolokouris family traders"
+        names:
+          - Arista Power Inc
+          - Peter Kolokouris
+          - William A. Schmitz
+          - Michael T. Hughes
+          - The Kolokouris Family Traders
+      - match: "aveo pharmaceuticals inc., tuan ha-ngoc, david johnston, and william slichenmyer"
+        names:
+          - Aveo Pharmaceuticals Inc
+          - Tuan Ha-Ngoc
+          - David Johnston
+          - William Slichenmyer
+      - match: "bank of america, n.a., banc of america mortgage securities inc., and merrill lynch, pierce, fenner &smith inc. f/k/a banc of america securities llc"
+        names:
+          - Bank of America, n.a.
+          - Banc of America Mortgage Securities Inc.
+          - Merrill Lynch, Pierce, Fenner & Smith Inc 
+      - match: "blackbird capital partners llc, andrew d. kelley, and paul h. shumway"
+        names:
+          - Blackbird Capital Partners LLC
+          - Andrew D. Kelley
+          - Paul H. Shumway
+      - match: "credit suisse securities (usa) llc, dlj mortgage capital inc., credit suisse first boston mortgage acceptance corp., credit suisse first boston mortgage securities corp., and asset backed securities corporation"
+        names: 
+          - Credit Suisse Securities LLC
+          - DLJ Mortgage Capital Inc.
+          - Credit Suisse First Boston Mortgage Acceptance Corp.
+          - Credit Suisse First Boston Mortgage Securities Corp.
+          - Asset Backed Securities Corporation
+      - match: "daniel rivera, matthew rivera, and robbins lane properties inc."
+        names: 
+          - Daniel Rivera
+          - Matthew Rivera
+          - Robbins Lane Properties Inc.
+      - match: "david s. haddad, trafalgar square risk management llc, and new england re llc"
+        names:
+          - David S. Haddad
+          - Trafalgar Square Risk Management LLC
+          - New England RE LLC
+      - match: "dell inc., michael s. dell, kevin b. rollins, james schneider, leslie l. jackson, and nicholas a.r. dunning"
+        names:
+          - Dell Inc.
+          - Michael S. Dell
+          - Kevin B. Rollins
+          - James Schneider
+          - Leslie L. Jackson
+          - Nicholas A.R. Dunning
+      - match: "dennis s. herula, mary lee capalbo, martin d. fife, farouk a. khan, seaview development and holdings ltd, michael a. clarke, robert m. wachtel, johan c. hertzog, and charles w. sullivan"
+        names:
+          - Dennis S. Herula
+          - Mary Lee Capalbo
+          - Martin D. Fife
+          - Farouk A. Khan
+          - Seaview Development and Holdings Ltd
+          - Michael A. Clarke
+          - Robert M. Wachtel
+          - Johan C. Hertzog
+          - Charles W. Sullivan
+      - match: "derik j. todd, madison capital energy income fund ii gp llc, big horn minerals llc, madison capital investments llc, and madison royalty management llc"
+        names:
+          - Derik J. Todd
+          - Madison Capital Energy Income Fund II GP LLC
+          - Big Horn Minerals LLC
+          - Madison Capital Investments LLC
+          - Madison Royalty Management LLC
+      - match: "eric j. aronson, vincent j. buonauro jr., robert s. kondratick, frederic h. aaron, permapave industries llc, permapave usa corp., permapave distributions inc., permeable solutions inc., verigreen llc, and interlink-us-network ltd."
+        names:
+          - Eric J. Aronson
+          - Vincent J. Buonauro Jr.
+          - Robert S. Kondratick
+          - Frederic H. Aaron
+          - Permapave Industries LLC
+          - Permapave USA Corp.
+          - Permapave Distributions Inc.
+          - Permeable Solutions Inc.
+          - Verigreen LLC
+          - Interlink-us-network Ltd.
+      - match: "eric d. lyons, synchrony capital gp llc, synchrony group llc, and synchrony capital group"
+        names:
+          - Eric D. Lyons
+          - Synchrony Capital GP LLC
+          - Synchrony Group LLC
+          - Synchrony Capital Group
+      - match: "federal home loan mortgage corporation, david w. glenn, vaughn a. clarke, robert c. dean, and nazir g. dossani"
+        names:
+          - Federal Home Loan Mortgage Corporation
+          - David W. Gleen
+          - Vaughn A. Clarke
+          - Robert C. Dean
+          - Nazir G. Dossani
+      - match: "fiore j. gallucci, ronald a. manzo, and gary b. taffet"
+        names:
+          - Fiore J. Gallucci
+          - Ronald A. Manzo
+          - Gary B. Taffet
+      - match: "fortius financial advisors llc, jeff m. bollinger, and gary e. oliver"
+        names:
+          - Fortius Financial Advisors LLC
+          - Jeff M. Bollinger
+          - Gary E. Oliver
+      - match: "foundations asset management llc, michael w. shamburger, and rob e. wedel"
+        names:
+          - Foundations Asset Management LLC
+          - Michael W. Shamburger
+          - Rob E. Wedel
+      - match: "gianluca di nardo, corralero holdings inc., oscar ronzoni, paolo busardo, tatus corp., and a-round investment, sa (drs technologies inc. and american power conversion corp.)"
+        names:
+          - Gianluca Di Nardo
+          - Corralero Holdings Inc.
+          - Oscar Ronzoni
+          - Paolo Busardo
+          - Tatus Corp.
+          - A-round Investment, SA
+      - match: "gregg c. lorenzo, francis v. lorenzo, and charles vista llc"
+        names:
+          - Gregg C. Lorenzo
+          - Francis V. Lorenzo
+          - Charles Vista LLC
+      - match: "greneco llc, gene d. larson, gregory k. womack, and womack investment advisers inc."
+        names:
+          - Greneco LLC
+          - Gene D. Larson
+          - Gregory K. Womack
+          - Womack Investment Advisers Inc.
+      - match: "g-trade services llc, convergex global markets, and convergex execution solutions llc"
+        names:
+          - G-trade Services LLC
+          - Convergex Global Markets
+          - Convergex Execution Solutions LLC
+      - match: "gtv media group inc., saraca media group inc., and voice of guo media inc."
+        names:
+          - GTV Media Group Inc.
+          - Saraca Media Group Inc.
+          - Voice of Guo Media Inc.
+      - match: "haidar capital management llc, haidar capital advisors llc, and said n. haidar"
+        names:
+          - Haidar Capital Management LLC
+          - Haidar Capital Advisors LLC
+          - Said N. Haidar
+      - match: "hazem khalid al-braikan, kipco asset management company, and al-raya investment company"
+        names:
+          - Hazem Khalid Al-Braikan
+          - Kipco Asset Management Company
+          - Al-raya Investment Company
+      - match: "health enhancement products inc., howard r. baer and kevin c. baer"
+        names:
+          - Health Enhancement Products Inc.
+          - Howard R. Baer
+          - Kevin C. Baer
+      - match: "health insurance innovations inc., now named benefytt technologies inc., and gavin d. southwell"
+        names:
+          - Health Insurance Innovations Inc.
+          - Benefytt Technologies Inc.
+          - Gavin D. Southwell
+      - match: "hidalgo mining corp., john w. boyer, and joshua f. mcalees"
+        names:
+          - Hidalgo Mining Corp.
+          - Jogn W. Boyer
+          - Joshua F. Mcalees
+      - match: "homes inc., homesinc renaissance llc, christopher a. faulkner, matthew rapoport, and earl nelson davenport"
+        names:
+          - Homes Inc.
+          - Homesinc Renaissance LLC
+          - Christopher A. Faulkner
+          - Matthew Rapoport
+          - Earl Nelson Davenport
+      - match: "hope advisors llc, karen bruton, todd wortman, and dawn roberts"
+        names:
+          - Hope Advisors LLC
+          - Karen Bruton
+          - Todd Wortman
+          - Dawn Roberts
+      - match: "houston american energy corp., john f. terwilliger, undiscovered equities inc., and kevin t. mcknight"
+        names:
+          - Houston American Energy Corp.
+          - John F. Terwilliger
+          - Undiscovered Equities Inc.
+          - Kevin T. Mcknight
+      - match: "icp asset management llc, thomas priore, icp securities llc and institutional credit partners llc"
+        names:
+          - ICP Asset Management LLC
+          - Thomas Priore
+          - ICP Securities LLC
+          - Institutional Credit Partners LLC
+      - match: "james e. gansman, donna b. murdoch, and gerald l. brodsky"
+        names:
+          - James E. Gansman
+          - Donna B. Murdoch
+          - Gerald L. Brodsky
+      - match: "jay daniel seinfeld, sara beth postma, traditions capital management llc, and hospice patient aid program inc."
+        names:
+          - Jay Daniel Seinfeld
+          - Sara Beth Postma
+          - Traditions Capital Management LLC
+          - Hospice Patient Aid Program Inc.
+      - match: "jeffrey o. friedland, global corporate strategies llc, and intivia pharma llc"
+        names:
+          - Jeffrey O. Friedland
+          - Global Corporate Strategies LLC
+          - Intivia Phrama LLC
+      - match: "j.p. morgan securities llc, emc mortgage llc, bear stearns asset backed securities i llc, structured asset mortgage investments ii inc., saco i inc., and j.p. morgan acceptance corporation i"
+        names:
+          - J.P. Morgan Securities LLC
+          - Emc Mortgage LLC
+          - Bear Stearns Asset Backed Securities I LLC
+          - Structured Asset Mortgage Investments II Inc.
+          - Saco I Inc.
+          - J.P. Morgan Acceptance Corporation I
+      - match: "jp turner & company llc, and william l. mello"
+        names:
+          - JP Turner & Company LLC
+          - William L. Mello
+      - match: "km advisory services (kathryn jane meredith, d/b/a km advisory services, and john paul harnish, d/b/a km advisory services)"
+        names:
+          - KM Advisory Services
+          - Kathryn Jane Meredith
+          - John Paul Harnish
+      - match: "k&l international enterprises inc., signature leisure inc., signature worldwide advisors llc, stephen w. carnes, lawrence a. powalisz, enzyme environmental solutions inc. and jared e. hochstedler"
+        names:
+          - K&L International Enterprises Inc.
+          - Signature Leisure Inc.
+          - Signature Worldwide Advisors LLC
+          - Stephen W. Carnes
+          - Lawrence A. Powalisz
+          - Enzyme Environmental Solutions Inc.
+          - Jared E. Hochstedler
+      - match: "logitech international s.a., michael doktorczyk, and sherralyn bolles, cpa"
+        names:
+          - Logitech International S.A.
+          - Michael Doktorczyk
+          - Sherralyn Bolles
+      - match: "longfin corp., venkata s. meenavalli, amro izzelden altahwi a/k/a andy altahawi, suresh tammineedi, and dorababu penumarthi"
+        names:
+          - Longfin Corp.
+          - Venkata S. Meenavalli
+          - Amro Izzelden Altahwi
+          - Suresh Tammineedi
+          - Dorababu Penumarthi
+      - match: "macquarie capital (usa) inc., aaron black, and william fang (puda coal inc.)"
+        names:
+          - Macquarie Capital (Usa) Inc.
+          - Aaron Black
+          - William Fang
+      - match: "magnachip semiconductor corporation and margaret hye-ryoung sakai, cpa"
+        names:
+          - Magnachip Semiconductor Corporation
+          - Margaret Hye-Ryoung Sakai
+      - match: "mancera, s.c., alejandro valdez mendoza, c.p., and angel radames corral nieblas, c.p."
+        names:
+          - Mancera, S.C.
+          - Alejandro Valdez Mendoza
+          - Angel Radames Corral Nieblas
+      - match: "maxwell technologies inc., van m. andrews, david j. schramm, and james w. dewitt jr., cpa"
+        names:
+          - Maxwell Technologies Inc.
+          - Van M. Andrews
+          - David J. Schramm
+          - James W. Dewitt Jr.
+      - match: "mcdermott investment advisors llc, dean patrick mcdermott, and mcdermott investment services"
+        names:
+          - McDermott Investment Advisors LLC
+          - Dean Patrick McDermott
+          - McDermott Investment Services
+      - match: "mergenet medical inc., bruce matthew sher, shara anne hernandez, and peter anthony decicco jr."
+        names:
+          - Mergenet Medical Inc.
+          - Bruce Matthew Sher
+          - Shara Anne Hernandez
+          - Peter Anthony Decicco Jr.
+      - match: "middlecove capital llc, and noah l. myers"
+        names:
+          - Middlecove Capital LLC
+          - Noah L. Myers
+      - match: "miller energy resources inc., paul w. boyd, cpa, david m. hall, and carlton w. vogt iii, cpa"
+        names:
+          - Miller Energy Resources Inc.
+          - Paul W. Boyd
+          - David M. Hall
+          - Carlton W. Vogt III
+      - match: "mmr investment bankers llc (d/b/a mmr inc.), william g. martin jr., eugene r. rankin, john a. hubert, and aaron d. fimreite"
+        names:
+          - MMR Investment Bankers LLC
+          - William G. Martin Jr.
+          - Eugene R. Rankin
+          - John A. Hubert
+          - Aaron D. Fimreite
+      - match: "momentus inc., stable road acquisition corp., src-ni holdings llc, and brian kabot"
+        names:
+          - Momentus Inc.
+          - Stable Road Acquisition Corp.
+          - SRC-NI Holdings LLC
+          - Brian Kabot
+      - match: "morgan stanley and co. llc, morgan stanley abs capital i inc., and morgan stanley mortgage capital holdings llc"
+        names:
+          - Morgan Stanley and Co. LLC
+          - Morgan Stanley Abs Capital I Inc.
+          - Morgan Stanley Mortgage Capital Holdings LLC
+      - match: "murdoch security & investigations inc., robert goldstein, and william vassell"
+        names:
+          - Murdoch Security & Investigations Inc.
+          - Robert Goldstein
+          - William Vassell
+      - match: "palm house hotel, lllp, south atlantic regional center llc, joseph j. walsh sr., and robert v. matthews"
+        names:
+          - Palm House Hotel LLLP
+          - South Atlantic Regional Center LLC
+          - Joseph J. Walsh Sr.
+          - Robert V. Matthews
+      - match: "penson financial services inc., penson worldwide inc., philip a. pendergraft, kevin w. mcaleer, cpa, thomas r. johnson, and charles w. yancey"
+        names:
+          - Penson Financial Services Inc.
+          - Penson Worldwide Inc.
+          - Philip A. Pendergraft
+          - Kevin W. Mcaleer
+          - Thomas R. Johnson
+          - Charles W. Yancey
+      - match: "peter r. kohli, dms advisors inc., and marshad capital group inc."
+        names:
+          - Peter R. Kohli
+          - DMS Advisors Inc.
+          - Marshad Capital Group Inc.
+      - match: "plexcorps, dominic lacroix, and sabrina paradis-royer"
+        names:
+          - Plexcorps
+          - Dominic Lacroix
+          - Sabrina Paradis-Royer
+      - match: "recycle tech inc., kevin sepe, ronny j. halperin, ryan gonzalez, otc solutions llc, anthony thompson, pudong llc, jay fung, and david rees"
+        names:
+          - Recycle Tech Inc.
+          - Kevin Sepe
+          - Ronny J. Halperin
+          - Ryan Gonzalez
+          - OTC Solutions LLC
+          - Anthony Thompson
+          - Pudong LLC
+          - Jay Fung
+          - David Rees
+      - match: "reginald (\"reggie\") middleton, veritaseum inc., and veritaseum llc"
+        names:
+          - Reginald Middleton
+          - Veritaseum Inc.
+          - Veritaseum LLC
+      - match: "renew spinal care inc., laserscopic medical clinic llc, joe samuel bailey, barry edward mitchell, laurence grossnickle, and charles clement goubert jr."
+        names:
+          - Renew Spinal Care Inc.
+          - Laserscopic Medical Clinic LLC
+          - Joe Samuel Bailey
+          - Barry Edward Mitchell
+          - Laurence Grossnickle
+          - Charles Clement Goubert Jr.
+      - match: "ronald e. walblay, ryholland fielder inc., and energy securities inc."
+        names:
+          - Ronald E. Walblay
+          - Ryholland Fielder Inc.
+          - Energy Securities Inc.
+      - match: "ross, sinclaire & associates llc and murray sinclaire jr."
+        names:
+          - Ross, Sinclair & Associates LLC
+          - Murray Sinclair Jr.
+      - match: "stifel, nicolaus & co. inc. and david w. noack (wisconsin school district)"
+        names:
+          - Stifel, Nicolaus & Co. Inc.
+          - David W. Noack
+      - match: "strong capital management inc., strong investor services inc., strong investments inc., richard s. strong, thomas a. hooker jr. and anthony j. d'amato"
+        names:
+          - Strong Capital Management Inc.
+          - Strong Investor Services Inc.
+          - Strong Investments Inc.
+          - Richard S. Strong
+          - Thomas A. Hooker Jr.
+          - Anthony J. D'amato
+      - match: "swapnil j. rege, swapstar capital llc, and reema rege"
+        names:
+          - Swapnil J. Rege
+          - Swapstar Capital LLC
+          - Reema Rege
+      - match: "thomas gity sr., thomas gity jr., and treasury coast property enterprises llc"
+        names:
+          - Thomas Gity Sr.
+          - Thomas Gity Jr.
+          - Treasury Coast Property Enterprises LLC
+      - match: "united american ventures llc, philip lee david jack thomas, eric j. hollowell, matthew a. dies, integra investment group llc, and anthony j. oliva"
+        names:
+          - United American Ventures LLC
+          - Philip Lee David Jack Thomas
+          - Eric J. Hollowell
+          - Matthew A. Dies
+          - Integra Investment Group LLC
+          - Anthony J. Oliva
+      - match: "united development funding iii lp, united development funding iv, hollis m. greenlaw, benjamin l. wissink, theodore f. etter, cara d. obert, and david a. hanson"
+        names:
+          - United Development Funding III LP
+          - United Development Funding IV
+          - Hollis M. Greenlaw
+          - Benjamin L. Wissink
+          - Theodore F. Etter
+          - Cara D. Obert
+          - David A. Hanson
+      - match: "united rentals inc., - michael j. nolan, joseph f. apuzzo, john n. milne, and terex corporation"
+        names:
+          - United Rentals Inc.
+          - Michael J. Nolan
+          - Joseph F. Apuzzo
+          - John N. Milne
+          - Terex Corporation
+      - match: "veros partners inc., matthew d. haab, jeffrey b. risinger, veros farm loan holding llc, tobin j. senefeld, farm growcap llc, and pincap llc"
+        names:
+          - Veros Partners Inc.
+          - Matthew D. Haab
+          - Jeffrey B. Risinger
+          - Veros Farm Loan Holding LLC
+          - Tobin J. Senefeld
+          - Farm Growcap LLC
+          - Pincap LLC
+      - match: "vitesse semiconductor corporation, louis r. tomasetta, eugene f. hovanec, yatin d. mody and nicole r. kaplan"
+        names:
+          - Vitesse Semiconductor Corporation
+          - Louis R. Tomasetta
+          - Eugene F. Hovanec
+          - Yatin D. Mody
+          - Nicole R. Kaplan
+      - match: "walter ng, kelly ng, bruce horwitz, and the mortgage fund llc"
+        names:
+          - Walter Ng
+          - Kelly Ng
+          - Bruce Horwitz
+          - The Mortgage Fund LLC
+      - match: "weatherford international plc, f/k/a weatherford international ltd., james hudgins, cpa, and darryl kitay, cpa"
+        names:
+          - Weatherford International PLC
+          - Weatherford International Ltd.
+          - James Hudgins
+          - Darryl Kitay
+      - match: "weston capital asset management llc, albert hallac, and keith wellner"
+        names:
+          - Weston Capital Asset Management LLC
+          - Albert Hallac
+          - Keith Wellner
+      - match: "william b. fretz jr., john p. freeman, covenant capital management partners l.p., and covenant partners l.p."
+        names:
+          - William B. Fretz Jr.
+          - John P. Freemna
+          - Covenant Capital Management Partners L.P.
+          - Covenant Partners L.P.
