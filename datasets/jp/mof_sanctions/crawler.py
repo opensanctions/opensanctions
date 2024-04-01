@@ -10,7 +10,7 @@ from typing import Dict, List, Optional
 from normality import collapse_spaces, stringify
 from normality.cleaning import decompose_nfkd
 
-from zavod import Context
+from zavod import Context, Entity
 from zavod import helpers as h
 
 BRACKETED = re.compile(r"(\([^\(\)]*\)|\[[^\[\]]*\])")
@@ -84,6 +84,23 @@ def parse_names(names: List[str]) -> List[str]:
     return cleaned
 
 
+def parse_notes(context: Context, entity: Entity, notes: List[str]) -> None:
+    for note in notes:
+
+        cryptos = h.extract_cryptos(note)
+        for curr, key in cryptos.items():
+            wallet = context.make("CryptoWallet")
+            wallet.id = context.make_slug(curr, key)
+            wallet.add("currency", curr)
+            wallet.add("publicKey", key)
+            wallet.add("topics", "sanction")
+            wallet.add("holder", entity.id)
+            context.emit(wallet)
+
+        clean = h.clean_note(note)
+        entity.add("notes", clean)
+
+
 def fetch_excel_url(context: Context) -> str:
     params = {"_": context.data_time.date().isoformat()}
     doc = context.fetch_html(context.data_url, params=params)
@@ -121,8 +138,10 @@ def emit_row(context: Context, sheet: str, section: str, row: Dict[str, List[str
     entity.add_cast("Person", "passportNumber", row.pop("passport_number", []))
     entity.add("idNumber", row.pop("id_number", []))
     entity.add("idNumber", row.pop("identification_number", []))
-    entity.add("notes", h.clean_note(row.pop("other_information", None)))
-    entity.add("notes", h.clean_note(row.pop("details", None)))
+    parse_notes(context, entity, row.pop("other_information", []))
+    parse_notes(context, entity, row.pop("details", []))
+    # entity.add("notes", h.clean_note(row.pop("other_information", None)))
+    # entity.add("notes", h.clean_note(row.pop("details", None)))
     entity.add("phone", row.pop("phone", []))
     entity.add("phone", row.pop("fax", []))
 
@@ -169,6 +188,9 @@ def crawl_xlsx(context: Context, url: str):
         row0 = [str_cell(c) for c in list(sheet.iter_rows(0, 1))[0]]
         sections = [str(c) for c in row0 if c is not None]
         section = collapse_spaces(" / ".join(sections))
+        if section is None:
+            context.log.warning("No section found", sheet=sheet.title)
+            continue
         headers = None
         for cells in sheet.iter_rows(1):
             row = [str_cell(c) for c in cells]
@@ -221,6 +243,9 @@ def crawl_xls(context: Context, url: str):
         row0 = [h.convert_excel_cell(xls, c) for c in sheet.row(0)]
         sections = [c for c in row0 if c is not None]
         section = collapse_spaces(" / ".join(sections))
+        if section is None:
+            context.log.warning("No section found", sheet=sheet.name)
+            continue
         for r in range(1, sheet.nrows):
             row = [h.convert_excel_cell(xls, c) for c in sheet.row(r)]
 

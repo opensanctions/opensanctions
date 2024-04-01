@@ -11,7 +11,7 @@ INTERPOL_URL = re.compile(INTERPOL_URL_, re.IGNORECASE)
 BRACKETED = re.compile(r"\(.*\)")
 
 
-def clean_note(text: Union[Optional[str], List[Optional[str]]]) -> List[str]:
+def clean_note(text: Optional[Union[str, List[str], List[None]]]) -> List[str]:
     """Remove a set of specific text sections from notes supplied by sanctions data
     publishers. These include cross-references to the Security Council web site and
     the Interpol web site.
