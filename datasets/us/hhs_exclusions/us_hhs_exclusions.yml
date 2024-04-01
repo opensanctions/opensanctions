@@ -21,16 +21,16 @@ description: |
   > order, or prescribe. This includes those that provide health benefits funded
   > directly or indirectly by the United States (other than the Federal Employees
   > Health Benefits Plan).
-  
+
   For more information about exclusion reason references, refer to the
   [OIG's Exclusions FAQ page](https://oig.hhs.gov/faqs/exclusions-faq).
 
-publisher: 
+publisher:
   name: U.S. Department of Health and Human Services Office of Inspector General (OIG)
   description: |
-   The OIG aims to fight waste, fraud and abuse and to improving the efficiency of
-   Medicare, Medicaid and more than 100 other Department of Health & Human Services
-   (HHS) programs.
+    The OIG aims to fight waste, fraud and abuse and to improving the efficiency of
+    Medicare, Medicaid and more than 100 other Department of Health & Human Services
+    (HHS) programs.
   country: us
   url: https://oig.hhs.gov/
   official: true
@@ -38,6 +38,7 @@ url: https://oig.hhs.gov/exclusions/index.asp
 data:
   url: https://oig.hhs.gov/exclusions/downloadables/UPDATED.csv
   format: CSV
+  lang: eng
 
 assertions:
   min:

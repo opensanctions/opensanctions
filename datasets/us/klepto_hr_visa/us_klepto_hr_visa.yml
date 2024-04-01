@@ -36,6 +36,7 @@ publisher:
 data:
   url: https://www.state.gov/reports/report-to-congress-on-anti-kleptocracy-and-human-rights-visa-restrictions-public-listing/
   format: HTML
+  lang: eng
 http:
   user_agent: "Mozilla/5.0 (zavod, https://opensanctions.org)"
 
