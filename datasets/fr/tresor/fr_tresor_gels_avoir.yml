@@ -3287,3 +3287,148 @@ lookups:
       - match: "Numéro d’identification fiscale: 3025037914"
         props:
           innCode: 3025037914
+      - match: "Type d’entité: société par actions - Date d’enregistrement: 14.10.2002: /"
+        props:
+          legalForm: société par actions
+          incorporationDate: 2002-10-14
+      - match: "Type d’entité: société par actions - Date d’enregistrement: 15.2.1994: /"
+        props:
+          legalForm: société par actions
+          incorporationDate: 1994-02-15
+      - match: "Type d’entité: société à responsabilité limitée - Date d’enregistrement: 17.2.2005: /"
+        props:
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2005-02-17
+      - match: "Type d’entité: société par actions - Lieu d’enregistrement: Petrovsk, Fédération de Russie - Date d’enregistrement: 21.1.2014: /"
+        props:
+          legalForm: société par actions
+          jurisdiction: ru
+          incorporationDate: 2014-01-21
+      - match: "OGRN: 1146444000010"
+        props:
+          ogrnCode: 1146444000010
+      - match: "Numéro d’identification fiscale: 6444009038"
+        props:
+          innCode: 6444009038
+      - match: "Type d’entité: organisation non gouvernementale"
+        props:
+          legalForm: organisation non gouvernementale
+      - match: "Lieu d’enregistrement: Fédération de Russie, 420036, Republic of Tatarstan, Kazan, Dementyeva st., 1 - Type d’entité: société par actions - Date d’enregistrement: 23.4.2002 Principal établissement: Fédération de Russie: Numéro d’identification fiscale: 1661008339"
+        props:
+          jurisdiction: ru
+          address: "Fédération de Russie, 420036, Republic of Tatarstan, Kazan, Dementyeva st., 1"
+          legalForm: société par actions
+          incorporationDate: 2002-04-23
+          innCode: 1661008339
+      - match: "Type d’entité: société par actions - Lieu d’enregistrement: Saint-Pétersbourg, Fédération de Russie - Date d’enregistrement: 18.5.2006: /"
+        props:
+          legalForm: société par actions
+          jurisdiction: ru
+          incorporationDate: 2006-05-18
+      - match: "Numéro d’identification fiscale: 7842335610"
+        props:
+          innCode: 7842335610
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Saint-Pétersbourg, Fédération de Russie : Numéro d'enregistrement: 1227800167242"
+        props:
+          legalForm: société par actions
+          jurisdiction: ru
+          registrationNumber: 1227800167242
+      - match: "Type d’entité: société par actions - Date d’enregistrement: 7.5.2008: Numéro d’enregistrement: 1085261002628"
+        props:
+          legalForm: société par actions
+          incorporationDate: 2008-05-07
+          registrationNumber: 1085261002628
+      - match: "Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 5.6.2009: /"
+        props:
+          legalForm: société par actions
+          jurisdiction: ru
+          incorporationDate: 2009-06-05
+      - match: "Numéro d’enregistrement: 2340020470"
+        props:
+          registrationNumber: 2340020470
+      - match: "Type d’entité: entreprise fédérale d’État - Lieu d’enregistrement: Fédération de Russie, 393192, Tambov region, Kotovsk, Truda Ave., 23 - Date d’enregistrement: 16.8.2000: /"
+        props:
+          legalForm: entreprise fédérale d’État
+          jurisdiction: ru
+          address: "Fédération de Russie, 393192, Tambov region, Kotovsk, Truda Ave., 23"
+          incorporationDate: 2000-08-16
+      - match: "Type d’entité: entreprise publique fédérale - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 30.3.1992: /"
+        props:
+          legalForm: entreprise publique fédérale
+          jurisdiction: ru
+          incorporationDate: 1992-03-30
+      - match:
+          - "Lieu d’enregistrement: République populaire démocratique de Corée"
+          - "Principal établissement: République populaire démocratique de Corée"
+        props:
+          jurisdiction: kp
+      - match: "Type d’entité: société par actions - Lieu d’enregistrement: 01, Yuzhny mkr, Iskitim, Novosibirsk region, 633208, Fédération de Russie Date d’enregistrement: 1.7.2011 - Principal établissement: Fédération de Russie: Numéro d’enregistrement: 1115483001567"
+        props:
+          jurisdiction: ru
+          address: "01, Yuzhny mkr, Iskitim, Novosibirsk region, 633208, Fédération de Russie"
+          legalForm: société par actions
+          incorporationDate: 2011-07-01
+          registrationNumber: 1115483001567
+      - match: "Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie, Saint-Pétersbourg - Date d’enregistrement: 13.5.1992 Principal établissement: Fédération de Russie: Numéro d’enregistrement: 7814027653"
+        props:
+          jurisdiction: ru
+          address: "Fédération de Russie, Saint-Pétersbourg"
+          legalForm: société par actions
+          incorporationDate: 1992-05-13
+          registrationNumber: 7814027653
+      - match: "Type d’entité: société par actions - Date d’enregistrement: 5.5.2003: /"
+        props:
+          legalForm: société par actions
+          incorporationDate: 2003-05-05
+      - match: "Numéro d’identification fiscale: 7825507108"
+        props:
+          innCode: 7825507108
+      - match: "Lieu d’enregistrement: Moscou, Fédération de Russie - Date d’enregistrement: 8.5.2009 - Type d’entité: société publique par actions: Numéro d’enregistrement: 1097746281160"
+        props:
+          jurisdiction: ru
+          address: "Moscou, Fédération de Russie"
+          incorporationDate: 2009-05-08
+          legalForm: société publique par actions
+          registrationNumber: 1097746281160
+      - match: "Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie, 191014, Saint-Pétersbourg, Paradnaya st., 8 - Date d’enregistrement: 16.8.2010: /"
+        props:
+          legalForm: société par actions
+          jurisdiction: ru
+          address: "Fédération de Russie, 191014, Saint-Pétersbourg, Paradnaya st., 8"
+          incorporationDate: 2010-08-16
+      - match: "Numéro d’enregistrement: 1107847269045"
+        props:
+          registrationNumber: 1107847269045
+      - match: "Type d’entité: société par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 13.3.2009: /"
+        props:
+          legalForm: société par actions
+          jurisdiction: ru
+          incorporationDate: 2009-03-13
+      - match: "Numéro d’enregistrement: 6453104288"
+        props:
+          registrationNumber: 6453104288
+      - match: "Type d’entité: société à responsabilité limitée Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 27.10.2003 - Principal établissement: Fédération de Russie: Numéro d’enregistrement: 1037723044039"
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2003-10-27
+          registrationNumber: 1037723044039
+      - match: "Lieu d’enregistrement: Moscou, Fédération de Russie: /"
+        props:
+          jurisdiction: ru
+          address: "Moscou, Fédération de Russie"
+      - match: "Type d’entité: société par actions - Date d’enregistrement: 3.10.2002: /"
+        props:
+          legalForm: société par actions
+          incorporationDate: 2002-10-03
+      - match: "Numéro d’identification fiscale: 4345047310"
+        props:
+          innCode: 4345047310
+      - match: "Type d’entité: société par actions - Lieu d’enregistrement: Moscou, Fédération de Russie - Date d’enregistrement: 22.6.2005: /"
+        props:
+          legalForm: société par actions
+          jurisdiction: ru
+          incorporationDate: 2005-06-22
+      - match: "Numéro d’enregistrement: 7733546058"
+        props:
+          registrationNumber: 7733546058

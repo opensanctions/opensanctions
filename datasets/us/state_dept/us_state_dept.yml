@@ -5,6 +5,7 @@ coverage:
   frequency: daily
   start: "2023-10-17"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+ci_test: false
 summary: |
   Senior officials in the US Department of State
 description: |
@@ -31,6 +32,7 @@ publisher:
 data:
   url: https://www.state.gov/biographies-list/
   format: HTML
+  lang: eng
 http:
   user_agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3 (zavod, https://opensanctions.org)
   retry_statuses:

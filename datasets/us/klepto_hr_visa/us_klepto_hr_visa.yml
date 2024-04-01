@@ -5,6 +5,7 @@ coverage:
   frequency: daily
   start: "2023-10-18"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+ci_test: false
 summary: |
   US Visa restrictions on officials of foreign governments and family members
   credibly implicated in corruption or human rights violations
@@ -36,6 +37,7 @@ publisher:
 data:
   url: https://www.state.gov/reports/report-to-congress-on-anti-kleptocracy-and-human-rights-visa-restrictions-public-listing/
   format: HTML
+  lang: eng
 http:
   user_agent: "Mozilla/5.0 (zavod, https://opensanctions.org)"
 
