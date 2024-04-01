@@ -1,0 +1,28 @@
+name: tj_companies
+title: Unified State Register of taxpayers in the Republic of Tajikistan
+prefix: tj
+disabled: false
+entry_point: crawler
+coverage:
+  frequency: weekly
+  start: 2023-03-21
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+deploy:
+  # premium: true
+resolve: false
+ci_test: false
+http:
+  total_retries: 5
+  backoff_factor: 3
+  retry_statuses: [503, 429, 403]
+
+summary: |
+  Information about legal taxpayers, legal entities, representatives of branches and foreign organizations, individual entrepreneurs
+url: https://andoz.tj/ForTaxpayer/UnifiedStateRegister
+publisher:
+  name: Tax committee under the Government of the Republic of Tajikistan
+  country: tj
+  url: https://andoz.tj/
+  description: |
+    Tax committee under the Government of the Republic of Tajikistan is a holder of the company registry.
+  official: true
