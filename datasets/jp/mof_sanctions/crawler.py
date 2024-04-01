@@ -169,6 +169,9 @@ def crawl_xlsx(context: Context, url: str):
         row0 = [str_cell(c) for c in list(sheet.iter_rows(0, 1))[0]]
         sections = [str(c) for c in row0 if c is not None]
         section = collapse_spaces(" / ".join(sections))
+        if section is None:
+            context.log.warning("No section found", sheet=sheet.title)
+            continue
         headers = None
         for cells in sheet.iter_rows(1):
             row = [str_cell(c) for c in cells]
@@ -221,6 +224,9 @@ def crawl_xls(context: Context, url: str):
         row0 = [h.convert_excel_cell(xls, c) for c in sheet.row(0)]
         sections = [c for c in row0 if c is not None]
         section = collapse_spaces(" / ".join(sections))
+        if section is None:
+            context.log.warning("No section found", sheet=sheet.name)
+            continue
         for r in range(1, sheet.nrows):
             row = [h.convert_excel_cell(xls, c) for c in sheet.row(r)]
 
