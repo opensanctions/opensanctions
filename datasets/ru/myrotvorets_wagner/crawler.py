@@ -7,6 +7,7 @@ from pantomime.types import ZIP
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.shed.internal_data import fetch_internal_data
 
 HEADERS = [
     "name_eng",
@@ -30,8 +31,11 @@ def read_zip_csv(context: Context, path: Path) -> Generator[Dict[str, Any], None
 
 
 def crawl(context: Context) -> None:
-    path = context.fetch_resource("source.zip", context.data_url)
-    context.export_resource(path, ZIP, title=context.SOURCE_TITLE)
+    # path = context.fetch_resource("source.zip", context.data_url)
+    # context.export_resource(path, ZIP, title=context.SOURCE_TITLE)
+
+    path = context.get_resource_path("source.zip")
+    fetch_internal_data("ru_myrotvorets_wagner/20240401/source.zip", path)
 
     for data in read_zip_csv(context, path):
         source_url = data.get("source_url")

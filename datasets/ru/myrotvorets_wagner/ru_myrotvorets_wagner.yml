@@ -2,8 +2,11 @@ title: Russian PMC Wagner mercenaries (Myrotvorets list)
 entry_point: crawler.py
 prefix: rumy
 coverage:
-  frequency: daily
+  frequency: never
   start: 2023-07-20
+  end: 2024-04-01
+deploy:
+  schedule: "@monthly"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   A list of Russian soldiers, PMC Wagner members and other criminals.
