@@ -7,6 +7,7 @@ coverage:
   end: 2024-04-01
 deploy:
   schedule: "@monthly"
+ci_test: false
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   A list of Russian soldiers, PMC Wagner members and other criminals.
