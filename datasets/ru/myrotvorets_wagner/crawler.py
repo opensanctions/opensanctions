@@ -3,7 +3,6 @@ from pathlib import Path
 from zipfile import ZipFile
 from io import TextIOWrapper
 from typing import Any, Dict, Generator
-from pantomime.types import ZIP
 
 from zavod import Context
 from zavod import helpers as h
