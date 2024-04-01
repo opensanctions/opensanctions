@@ -28,6 +28,7 @@ url: https://api.congress.gov/
 data:
   url: https://api.congress.gov/v3/member/
   format: JSON
+  lang: eng
 publisher:
   name: Library of Congress
   country: us
