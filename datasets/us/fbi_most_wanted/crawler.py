@@ -51,7 +51,7 @@ def crawl_person(context: Context, url: str) -> None:
     # Add aditional information
     rows = table.findall(".//tr")
     for item in rows:
-        cells = [c.text.strip() for c in item.findall("./td")]
+        cells = [c.text.strip() for c in item.findall("./td")]  # type: ignore
         if len(cells) != 2:
             context.log.error("Invalid fact table entry", cells=cells)
             continue
@@ -77,9 +77,18 @@ def crawl_person(context: Context, url: str) -> None:
                 if len(date) > 1:
                     person.add("birthDate", h.parse_date(date, FORMATS))
         elif key in IGNORE_FIELDS:
-            continue
+            note = "%s: %s" % (key, value)
+            person.add("notes", note)
         else:
-            context.inspect(item)
+            context.log.warn("Unknown field in table", key=key, value=value)
+
+    remarks = doc.findtext('.//div[@class="wanted-person-remarks"]/p')
+    person.add("notes", remarks)
+
+    caution = doc.findtext('.//div[@class="wanted-person-caution"]/p')
+    person.add("notes", caution)
+
+    context.inspect(person)
     context.emit(person, target=True)
 
 
@@ -112,8 +121,11 @@ def crawl_type(context: Context, type: str, query_id: str):
             total_pages = math.ceil(total_results / 40)
 
         details = doc.find('.//div[@class="query-results pat-pager"]')
+        if details is None:
+            context.log.error("Cannot find details", url=url)
+            continue
         for row in details.findall(".//ul/li"):
-            href = row.xpath(".//a")[0].get("href")
+            href: str = row.xpath(".//a")[0].get("href")  # type: ignore
             crawl_person(context, href)
 
 
