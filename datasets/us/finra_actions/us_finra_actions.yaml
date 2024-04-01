@@ -27,6 +27,7 @@ url: "https://www.finra.org/rules-guidance/oversight-enforcement/disciplinary-ac
 data:
   url: https://www.finra.org/rules-guidance/oversight-enforcement/finra-disciplinary-actions
   format: HTML
+  lang: eng
 ci_test: false
 
 assertions:
@@ -158,7 +159,7 @@ lookups:
       - match: "landenburg, thalmann & co. incorporated"
         names:
           - Landenburg, Thalmann & Co. Incorporated
-      - match: "li kopp (also known as \"sabrina kopp,\" \"li guo,\" and \"sabrina guo\""
+      - match: 'li kopp (also known as "sabrina kopp," "li guo," and "sabrina guo"'
         names:
           - Li Kopp (also known as "Sabrina Kopp," "Li Guo," and "Sabrina Guo"
       - match: "mcginn, smith & co. inc."
@@ -186,7 +187,7 @@ lookups:
       - match: "merrill lynch, pierce, fenner & smith inc."
         names:
           - Merrill Lynch, Pierce, Fenner & Smith Inc.
-      - match: "merrill lynch, pierce, fenner & smith incorporated (\"merrill lynch\" or the \"firm\")"
+      - match: 'merrill lynch, pierce, fenner & smith incorporated ("merrill lynch" or the "firm")'
         names:
           - Merrill Lynch, Pierce, Fenner & Smith Incorporated
       - match: "merrill lynch, pierce, fenner & smith incorporated"
@@ -210,7 +211,7 @@ lookups:
       - match: "merrill, lynch, pierce, fenner & smith incorporated"
         names:
           - Merrill, Lynch, Pierce, Fenner & Smith Incorporated
-      - match: "morgan keegan & company inc. (morgan keegan,\" \"respondent\" or \"the firm\")"
+      - match: 'morgan keegan & company inc. (morgan keegan," "respondent" or "the firm")'
         names:
           - Morgan Keegan & Company Inc.
       - match: "morgan stanley & co. incorporated, morgan stanley smith barney llc"
@@ -261,7 +262,7 @@ lookups:
         names:
           - R.M. Duncan Securities Inc
           - Calton and Associates Inc
-      - match: "raymond james & associates inc, (\"raymond james,\" \"respondent\" or \"the firm\""
+      - match: 'raymond james & associates inc, ("raymond james," "respondent" or "the firm"'
         names:
           - Raymond James & Associates Inc
       - match: "raymond james & associates inc., raymond james financial services inc."
@@ -285,8 +286,7 @@ lookups:
       - match: "ross, sinclaire & associates llc"
         names:
           - Ross, Sinclaire & Associates LLC
-      - match: "royal alliance associates inc., sunamerica securities inc., spelman & co. inc., sentra securities corporation, fsc 
-      securities corporation, advantage capital corporation"
+      - match: "royal alliance associates inc., sunamerica securities inc., spelman & co. inc., sentra securities corporation, fsc securities corporation, advantage capital corporation"
         names:
           - Royal Alliance Associates Inc.
           - SunAmerica Securities Inc.
@@ -308,7 +308,7 @@ lookups:
       - match: "sandler, o'neill & partners l.p."
         names:
           - Sandler, O'Neill & Partners L.P.
-      - match: "scott & stringfellow llc (\"scott & stringfellow,\" \"respondent\" or \"the firm\")"
+      - match: 'scott & stringfellow llc ("scott & stringfellow," "respondent" or "the firm")'
         names:
           - Scott & Stringfellow LLC
       - match: "securities management & research inc., berthel fisher & company financial services inc."

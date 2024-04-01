@@ -40,3 +40,4 @@ publisher:
 data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vSzazpcuxJ2nMTUWVRNONPuxCzRxdZL2bOtClMc6bVJkyS8VC32nwUFkYpx2yOFeU2mDSr2Wyps0LxK/pub?gid=0&output=csv
   format: CSV
+  lang: eng
