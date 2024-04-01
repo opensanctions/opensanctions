@@ -88,7 +88,7 @@ def crawl_person(context: Context, url: str) -> None:
     caution = doc.findtext('.//div[@class="wanted-person-caution"]/p')
     person.add("notes", caution)
 
-    context.inspect(person)
+    # context.inspect(person)
     context.emit(person, target=True)
 
 

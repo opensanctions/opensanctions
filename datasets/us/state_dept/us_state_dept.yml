@@ -5,6 +5,7 @@ coverage:
   frequency: daily
   start: "2023-10-17"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+ci_test: false
 summary: |
   Senior officials in the US Department of State
 description: |
