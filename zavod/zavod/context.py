@@ -1,17 +1,18 @@
-import json
-from lxml import html, etree
+import hashlib
 from pathlib import Path
 from datetime import datetime
-from requests import Response
-from prefixdate import DatePrefix
 from functools import cached_property
 from typing import Any, Optional, Union, Dict, List, Tuple, Mapping
+import orjson
+from requests import Response
+from prefixdate import DatePrefix
+from lxml import html, etree
 from datapatch import LookupException, Result, Lookup
 from followthemoney.schema import Schema
 from followthemoney.util import make_entity_id
 from nomenklatura.cache import Cache
-from rigour.urls import build_url, ParamsType
 from nomenklatura.util import PathLike
+from rigour.urls import build_url, ParamsType
 from structlog.contextvars import clear_contextvars, bind_contextvars
 
 from zavod import settings
@@ -31,6 +32,7 @@ from zavod.util import join_slug
 
 _Auth = Optional[Tuple[str, str]]
 _Headers = Optional[Mapping[str, str]]
+_Body = Optional[Union[Dict, List[Tuple]]]
 
 
 class Context:
@@ -190,26 +192,49 @@ class Context:
         )
 
     def fetch_response(
-        self, url: str, headers: _Headers = None, auth: _Auth = None
+        self,
+        url: str,
+        headers: _Headers = None,
+        auth: _Auth = None,
+        method: str = "GET",
+        data: _Body = None,
     ) -> Response:
-        """Execute an HTTP GET request using the contexts' session.
+        """Execute an HTTP request using the contexts' session.
 
         Args:
             url: The URL to be fetched.
             headers: HTTP request headers to be included.
             auth: HTTP basic authorization username and password to be included.
-
+            method: The HTTP method to use for the request.
+            data: The data to be sent in the request body.
         Returns:
             A response object.
         """
-        self.log.debug("HTTP GET", url=url)
+        self.log.debug(f"HTTP {method}", url=url)
         timeout = (settings.HTTP_TIMEOUT, settings.HTTP_TIMEOUT)
-        response = self.http.get(
+
+        kwargs = {
+            "headers": headers,
+            "auth": auth,
+            "timeout": timeout,
+            "data": data,
+        }
+
+        # This mimics the allow_redirects login found in requests.sessions
+        if method in ["GET", "OPTIONS"]:
+            kwargs["allow_redirects"] = True
+        elif method == "HEAD":
+            kwargs["allow_redirects"] = False
+        elif method in ["POST", "PUT", "PATCH", "DELETE"]:
+            # Deliberately noop for the sake of explicitness
+            pass
+        else:
+            raise ValueError(f"Unsupported HTTP method: {method}")
+
+        response = self.http.request(
+            method,
             url,
-            headers=headers,
-            auth=auth,
-            timeout=timeout,
-            allow_redirects=True,
+            **kwargs,
         )
         response.raise_for_status()
         return response
@@ -221,8 +246,10 @@ class Context:
         headers: _Headers = None,
         auth: _Auth = None,
         cache_days: Optional[int] = None,
+        method: str = "GET",
+        data: _Body = None,
     ) -> Optional[str]:
-        """Execute an HTTP GET request using the contexts' session and return
+        """Execute an HTTP request using the contexts' session and return
         the decoded response body. If a `cache_days` argument is provided, a
         cache will be used for the given number of days.
 
@@ -232,24 +259,41 @@ class Context:
             headers: HTTP request headers to be included.
             auth: HTTP basic authorization username and password to be included.
             cache_days: Number of days to retain cached responses for.
+            method: The HTTP method to use for the request.
+            data: The data to be sent in the request body.
 
         Returns:
             The decoded response body as a string.
         """
         url = build_url(url, params)
+
         if cache_days is not None:
-            text = self.cache.get(url, max_age=cache_days)
+            fingerprint = self.get_request_fingerprint(
+                url=url, auth=auth, method=method, data=data
+            )
+            text = None
+
+            if method == "GET":
+                # keeping the old caching keys that was GET requests only
+                text = self.cache.get(url, max_age=cache_days)
+
+            if text is None:
+                # if the old cache is empty, try to get the cache by fingerprint
+                text = self.cache.get(fingerprint, max_age=cache_days)
+
             if text is not None:
-                self.log.debug("HTTP cache hit", url=url)
+                self.log.debug("HTTP cache hit", url=url, fingerprint=fingerprint)
                 return text
 
-        response = self.fetch_response(url, headers=headers, auth=auth)
+        response = self.fetch_response(
+            url, headers=headers, auth=auth, method=method, data=data
+        )
         text = response.text
         if text is None:
             return None
 
         if cache_days is not None:
-            self.cache.set(url, text)
+            self.cache.set(fingerprint, text)
         return text
 
     def fetch_json(
@@ -259,8 +303,10 @@ class Context:
         headers: _Headers = None,
         auth: _Auth = None,
         cache_days: Optional[int] = None,
+        method: str = "GET",
+        data: _Body = None,
     ) -> Any:
-        """Execute an HTTP GET request using the contexts' session and return
+        """Execute an HTTP request using the contexts' session and return
         a JSON-decoded object based on the response. If a `cache_days` argument
         is provided, a cache will be used for the given number of days.
 
@@ -270,6 +316,7 @@ class Context:
             headers: HTTP request headers to be included.
             auth: HTTP basic authorization username and password to be included.
             cache_days: Number of days to retain cached responses for.
+            method: The HTTP method to use for the request.
 
         Returns:
             The decoded response body as a JSON-decoded object.
@@ -280,12 +327,18 @@ class Context:
             headers=headers,
             auth=auth,
             cache_days=cache_days,
+            method=method,
+            data=data,
         )
+
         if text is not None and len(text):
             try:
-                return json.loads(text)
+                return orjson.loads(text)
             except Exception:
-                self.clear_url(url, params)
+                fingerprint = self.get_request_fingerprint(
+                    url=url, auth=auth, method=method, data=data
+                )
+                self.clear_url(fingerprint)
                 raise
 
     def fetch_html(
@@ -295,8 +348,10 @@ class Context:
         headers: _Headers = None,
         auth: _Auth = None,
         cache_days: Optional[int] = None,
+        method: str = "GET",
+        data: _Body = None,
     ) -> etree._Element:
-        """Execute an HTTP GET request using the contexts' session and return
+        """Execute an HTTP request using the contexts' session and return
         an HTML DOM object based on the response. If a `cache_days` argument
         is provided, a cache will be used for the given number of days.
 
@@ -306,7 +361,8 @@ class Context:
             headers: HTTP request headers to be included.
             auth: HTTP basic authorization username and password to be included.
             cache_days: Number of days to retain cached responses for.
-
+            method: The HTTP method to use for the request.
+            data: The data to be sent in the request body.
         Returns:
             An lxml-based DOM of the web page that has been returned.
         """
@@ -316,19 +372,61 @@ class Context:
             headers=headers,
             auth=auth,
             cache_days=cache_days,
+            method=method,
+            data=data,
         )
         if text is not None and len(text):
             try:
                 return html.fromstring(text)
             except Exception:
-                self.clear_url(url, params)
+                fingerprint = self.get_request_fingerprint(
+                    url=url, auth=auth, method=method, data=data
+                )
+                self.clear_url(fingerprint)
                 raise
         raise ValueError("Invalid HTML document: %s" % url)
 
-    def clear_url(self, url: str, params: ParamsType = None) -> None:
-        """Remove a given URL from the cache."""
-        url = build_url(url, params)
-        self.cache.delete(url)
+    def clear_url(self, fingerprint: str) -> None:
+        """
+        Remove a given URL from the cache using request fingerprint
+        Args:
+            fingerprint: The unique fingerprint of the request.
+        Returns:
+            None
+        """
+        self.cache.delete(fingerprint)
+
+    def get_request_fingerprint(
+        self,
+        url: str,
+        auth: Optional[_Auth] = None,
+        method: str = "GET",
+        data: Any = None,
+    ) -> str:
+        """
+        Generate a unique fingerprint for an HTTP request.
+        Args:
+            url: The URL of the request.
+            auth: The authentication credentials.
+            method: The HTTP method of the request.
+            data: The data to be sent in the request body.
+        Returns:
+            A unique fingerprint for the request (url + hashed payload).
+        """
+
+        hsh = hashlib.sha1(
+            orjson.dumps(
+                {
+                    "url": url,
+                    "auth": auth,
+                    "method": method,
+                    "data": data,
+                },
+                option=orjson.OPT_NON_STR_KEYS | orjson.OPT_SORT_KEYS,
+            )
+        ).hexdigest()
+
+        return f"{url}[{hsh}]"
 
     def parse_resource_xml(self, name: PathLike) -> etree._ElementTree:
         """Parse a file in the resource folder into an XML tree.
