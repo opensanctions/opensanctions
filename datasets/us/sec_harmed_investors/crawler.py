@@ -13,16 +13,7 @@ REGEX_CLEAN_SUFFIX = re.compile(
 )
 
 HEADERS = {
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-    "Sec-Fetch-Site": "none",
-    # 'Cookie': 'ak_bmsc=A3C2A6E89561F03D019B7734CFF74908~000000000000000000000000000000~YAAQhaQSApS3YzeOAQAAQZRchhcbv/xfRTuurBlBJl6VzAfZ/ifQYmrSUNge7/vRJzWj05BGj22SJ/LzW2hkTOz4/JTneZSfo3pDs0yRmzPN06Tc6QxB/NJQJsteHGD8MSznKOUx1vqME1i8bGDOl35p0XWgXLTAx7hk5hASEHylVgn2cnZZ6IJqDpaQSYfjRQANXPeObZ409eo5TEfF49QH6pvvzM2GjCQJfl88KWrrXzOJmBhPuBJ3GlFz6rRVhwN+o9Z6u6MwVc2n5XSW28aZUIQDxxgC/gyhxI+pfypXliyX2+k/Wc7bup/FSoP39MgWqJ46woBjktMm7HtpZ0/Q0HcsLeFK+JnThAhiH9jMK/L94YXnSzRsC/g3tu5FBVhkWWiWhw==',
-    # 'Accept-Encoding': 'gzip, deflate, br',
-    "Sec-Fetch-Mode": "navigate",
-    "Host": "www.sec.gov",
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15",
-    "Accept-Language": "en-GB,en-US;q=0.9,en;q=0.8",
-    "Sec-Fetch-Dest": "document",
-    "Connection": "keep-alive",
 }
 
 
@@ -78,5 +69,7 @@ def crawl(context: Context):
 
     response.make_links_absolute(context.data_url)
 
-    for item in response.findall(".//div[@class='article-body']/ul[2]/li/a"):
+    for item in response.xpath(
+        './/*[contains(text(), "Search Cases:")]/../following-sibling::ul/li/a'
+    ):
         crawl_item(item, context)
