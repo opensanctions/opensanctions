@@ -14,7 +14,7 @@ def get_element_text(doc: ElementTree, xpath_value: str, to_remove=[], position=
     for string in to_remove:
         element_text = element_text.replace(string, "")
 
-    return collapse_spaces(element_text.strip())
+    return collapse_spaces( element_text.strip() ) 
 
 
 def crawl_members(context: Context, section: str, elem: ElementTree):
