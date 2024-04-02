@@ -12,8 +12,12 @@ description: |
   In these instances, the SEC may work to distribute these funds to investors
   who were harmed.
 publisher:
-  name: U.S. Securities and Exchange Commission
-  description: Mexico's Senate
+  name: US Securities and Exchange Commission (SEC)
+  description: |
+    > The federal securities laws empower the Securities and Exchange Commission (SEC)
+    > with broad authority over all aspects of the securities industry. The SEC’s
+    > mission is to protect investors; maintain fair, orderly, and efficient markets;
+    > and facilitate capital formation.
   url: https://www.sec.gov
   official: true
   country: "us"
