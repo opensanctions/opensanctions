@@ -88,7 +88,7 @@ def parse_notes(context: Context, entity: Entity, notes: List[str]) -> None:
     for note in notes:
 
         cryptos = h.extract_cryptos(note)
-        for curr, key in cryptos.items():
+        for key, curr in cryptos.items():
             wallet = context.make("CryptoWallet")
             wallet.id = context.make_slug(curr, key)
             wallet.add("currency", curr)
