@@ -7,7 +7,7 @@ from rigour.urls import build_url
 
 BASE_URL = "https://data.egov.kz/datasets/view?index=gbd_ul"
 CRAWL_URL = "https://data.egov.kz/datasets/getdata"
-CACHE_DAYS = 7
+CACHE_DAYS = 30
 SLEEP_TIME = 1
 
 FORMDATA = {
