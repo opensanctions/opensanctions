@@ -47,17 +47,11 @@ def crawl_item(deputy_url: str, context: Context):
     doc = html.fromstring(response.text)
 
     name = doc.findtext('.//*[@id="content-title-type"]/span').replace(" - ")
-    place_year_of_birth = doc.findtext(
-        './/*[@class="col-md-12 profile-ozgecmis-div"]/span/div[1]'
-    ).split(",")[0]
-    place_of_birth, year_of_birth = place_year_of_birth.split(" – ")
 
     info_dict = parse_table(doc.find(".//table"))
 
     entity = context.make("Person")
     entity.id = context.make_id(name)
-    entity.add("birthPlace", place_of_birth)
-    entity.add("birthDate", year_of_birth)
     entity.add("sourceUrl", deputy_url)
 
     if "E-Posta" in info_dict:
