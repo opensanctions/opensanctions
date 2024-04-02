@@ -15,6 +15,18 @@ IGNORE_COLUMNS = [
     "TKategoriID",  # CategoryID
     "Sil",  # Delete
 ]
+# red (kırmızı) — indicating the most wanted — to blue (mavi), green (yeşil), orange (turuncu), and grey (gri).
+COLOURS = {
+    "kırmızı": "red",
+    "mavi": "blue",
+    "yeşil": "green",
+    "turuncu": "orange",
+    "gri": "grey",
+}
+
+
+def colour_en(colour: str) -> str:
+    return COLOURS[colour]
 
 
 # solution from https://github.com/urllib3/urllib3/issues/2653#issuecomment-1733417634
@@ -43,7 +55,10 @@ def crawl_row(context: Context, row: Dict[str, str]):
 
     person.add("birthPlace", place_of_birth)
     person.add("birthDate", date_of_birth)
-    person.add("program", f"{context.dataset.title} - {row.pop('TKategoriAdi')} List")
+    person.add(
+        "program",
+        f"{context.dataset.title} - {colour_en(row.pop('TKategoriAdi'))} List",
+    )
     person.add("topics", "poi")
     person.add("country", "tr")
     context.emit(person, target=True)
