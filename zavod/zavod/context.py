@@ -1,4 +1,3 @@
-import hashlib
 from pathlib import Path
 from datetime import datetime
 from functools import cached_property
@@ -14,6 +13,7 @@ from nomenklatura.cache import Cache
 from nomenklatura.util import PathLike
 from rigour.urls import build_url, ParamsType
 from structlog.contextvars import clear_contextvars, bind_contextvars
+from banal import hash_data
 
 from zavod import settings
 from zavod.audit import inspect
@@ -32,7 +32,7 @@ from zavod.util import join_slug
 
 _Auth = Optional[Tuple[str, str]]
 _Headers = Optional[Mapping[str, str]]
-_Body = Optional[Union[Dict, List[Tuple]]]
+_Body = Optional[Union[Mapping[str, str], List[Tuple[str, str]]]]
 
 
 class Context:
@@ -213,7 +213,7 @@ class Context:
         self.log.debug(f"HTTP {method}", url=url)
         timeout = (settings.HTTP_TIMEOUT, settings.HTTP_TIMEOUT)
 
-        kwargs = {
+        kwargs: Dict[str, Any] = {
             "headers": headers,
             "auth": auth,
             "timeout": timeout,
@@ -414,17 +414,14 @@ class Context:
             A unique fingerprint for the request (url + hashed payload).
         """
 
-        hsh = hashlib.sha1(
-            orjson.dumps(
-                {
-                    "url": url,
-                    "auth": auth,
-                    "method": method,
-                    "data": data,
-                },
-                option=orjson.OPT_NON_STR_KEYS | orjson.OPT_SORT_KEYS,
-            )
-        ).hexdigest()
+        hsh = hash_data(
+            {
+                "url": url,
+                "auth": auth,
+                "method": method,
+                "data": data,
+            }
+        )
 
         return f"{url}[{hsh}]"
 
