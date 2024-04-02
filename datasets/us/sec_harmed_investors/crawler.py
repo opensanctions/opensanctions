@@ -31,7 +31,7 @@ def clean_names(context: Context, text: str) -> List[str]:
         names = [n.strip() for n in text.split(",")]
         return names
     else:
-        if "," in text:
+        if ("," in text or " and " in text):
             res = context.lookup("comma_names", text)
             if res:
                 return res.names
