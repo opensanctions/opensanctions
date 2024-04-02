@@ -1,8 +1,9 @@
 from followthemoney import model
 from nomenklatura.entity import CompositeEntity
+from structlog.testing import capture_logs
 
 from zavod.context import Context
-from zavod.helpers import make_name, apply_name
+from zavod.helpers import make_name, apply_name, split_comma_names
 
 
 ENTITY = {
@@ -81,3 +82,27 @@ def test_company_name(vcontext: Context):
     assert entity.get("name") == []
     assert "Hansen Enterprises" in entity.get("alias")
     assert entity.get("firstName", quiet=True) == []
+
+
+def test_split_comma_names(vcontext: Context, caplog):
+    assert split_comma_names(vcontext, "") == []
+    assert split_comma_names(vcontext, "John Smith") == ["John Smith"]
+    assert split_comma_names(vcontext, "Smith, John") == ["Smith, John"]
+    assert split_comma_names(vcontext, "John Smith, Jr.") == ["John Smith Jr."]
+    assert split_comma_names(vcontext, "A B C, D E F") == ["A B C", "D E F"]
+    assert split_comma_names(vcontext, "A B C, Ltd., D E F, Inc.") == [
+        "A B C Ltd.",
+        "D E F Inc.",
+    ]
+    assert split_comma_names(vcontext, "A B and C, D E F, John Lookups Smith") == [
+        "A B and C",
+        "D E F"
+        "John Lookups Smith",
+    ]
+
+    # Not in lookups
+    assert split_comma_names(vcontext, "A, B and C Ltd.") == ["A, B and C Ltd."]
+    with capture_logs() as cap_logs:
+        assert split_comma_names(vcontext, "A B and C, D E F") == ["A B and C, D E F"]
+    logs = [f"{entry['log_level']}: {entry['event']}" for entry in cap_logs]
+    assert "warning: Not sure how to split on comma." in logs
