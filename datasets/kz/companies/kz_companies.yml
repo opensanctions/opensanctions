@@ -17,7 +17,13 @@ http:
   retry_statuses: [503, 429, 403]
 
 summary: |
-  All companies in Kazakhstan, with information on their directors.
+  All companies in Kazakhstan, with information on their directors. The information includes
+  the full name of the company (including organization form), the current status, BIN (might 
+  be absent for older companies) a company profile according to General Classifier of 
+  Economic Activities, the address and the date of registration. Information is available in
+  Kazakh and russian languages (except for the name of the director, which is usually russian).
+  The information about branches, short name of the company, founders and beneficiary owners
+  is not available through this source.
 url: https://data.egov.kz/datasets/view?index=gbd_ul
 publisher:
   name: Ministry of Justice of the Republic of Kazakhstan
@@ -26,3 +32,6 @@ publisher:
   description: |
     The Ministry provides legal support for the activities of the state, supports the rule of law in the work of state bodies, organizations, officials and citizens, provides protection of the rights and legal interests of citizens and organizations.
   official: true
+data:
+  url: "https://data.egov.kz/datasets/getdata"
+  format: JSON
