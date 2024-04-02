@@ -96,7 +96,7 @@ def test_split_comma_names(vcontext: Context, caplog):
     ]
     assert split_comma_names(vcontext, "A B and C, D E F, John Lookups Smith") == [
         "A B and C",
-        "D E F"
+        "D E F",
         "John Lookups Smith",
     ]
 

@@ -189,7 +189,7 @@ def split_comma_names(context: Context, text: str) -> List[str]:
     """Split a string of multiple names that may contain company and individual names,
     some including commas, into individual names without breaking partnership names
     like "A, B and C Inc" or individuals like "Smith, Jane".
-    
+
     To make life easier, commas are stripped from company type suffixes like "Blue, LLC"
 
     If the string can't be split into whole names reliably, a datapatch is looked up
@@ -221,4 +221,3 @@ def split_comma_names(context: Context, text: str) -> List[str]:
                 return [text]
         else:
             return [text]
-    

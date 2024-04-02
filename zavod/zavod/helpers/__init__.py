@@ -33,6 +33,7 @@ def crawl(context: Context) -> None:
 Any data wrangling code that is repeated in three or more crawlers should
 be considered for inclusion in the helper library.
 """
+
 from zavod.helpers.xml import remove_namespace
 from zavod.helpers.names import make_name, apply_name, split_comma_names
 from zavod.helpers.positions import make_position, make_occupancy
@@ -70,5 +71,5 @@ __all__ = [
     "make_position",
     "make_occupancy",
     "parse_table",
-    "split_comma_names"
+    "split_comma_names",
 ]
