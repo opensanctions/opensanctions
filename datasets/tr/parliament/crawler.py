@@ -22,6 +22,8 @@ COOKIES = {
     "X-CSRF-TOKEN-TBMM.WEB.Mvc.Prod": "CfDJ8CkHnVQPiEpDsBJK_N1e34PHppvGDOo-wZx4HU0VNisFZzxsu-kWlCNfCSem82uKbPV04Ldqh7YKetmhNFE-BUK3RD8_fnMQFdkeDNYDaBUMQeXaMtHHu9JY0Ga-Tn76rwiOactMR_PlXO_iz2Y6Azs",
 }
 
+REGEX_PHONE = re.compile(r"\+\d{2} \(\d{3}\) \d{3} \d{2} \d{2}")
+
 
 def parse_table(table):
     """This function is used to parse the table of Informations
@@ -61,9 +63,8 @@ def crawl_item(deputy_url: str, context: Context):
         entity.add("email", info_dict["E-Posta"])
 
     if "Telefon" in info_dict:
-        phone_number_pattern = r"\+\d{2} \(\d{3}\) \d{3} \d{2} \d{2}"
 
-        phone_numbers = re.findall(phone_number_pattern, info_dict["Telefon"])
+        phone_numbers = REGEX_PHONE.findall(info_dict["Telefon"])
         for phone_number in phone_numbers:
             entity.add("phone", phone_number)
 
