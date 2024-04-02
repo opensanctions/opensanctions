@@ -16,7 +16,7 @@ description: |
   are believed to be highly dangerous and pose a significant
   risk to public safety.
 publisher:
-  name: US's Drug Enforcement Administration
+  name: US Drug Enforcement Administration
   url: https://www.dea.gov
   official: true
   country: "us"
