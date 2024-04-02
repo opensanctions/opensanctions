@@ -1,15 +1,8 @@
-import os
-import sys
+import logging
+from pathlib import Path
+
 import click
 import orjson
-import logging
-import requests
-from banal import hash_data
-from collections import Counter
-from typing import Any, BinaryIO, Dict, Generator
-from pathlib import Path
-from datetime import datetime, timedelta
-from requests.exceptions import RequestException
 
 log = logging.getLogger("delta")
 
