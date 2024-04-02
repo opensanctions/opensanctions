@@ -101,8 +101,17 @@ def test_split_comma_names(vcontext: Context, caplog):
     ]
 
     # Not in lookups
+
+    # Shouldn't be split
     assert split_comma_names(vcontext, "A, B and C Ltd.") == ["A, B and C Ltd."]
+    # Would have been nice if this could be split
+    assert split_comma_names(
+        vcontext,
+        "songyan li, junhong xiong, k. ivan gothner and edward pazdro"
+    ) == ["songyan li, junhong xiong, k. ivan gothner and edward pazdro"]
+    
     with capture_logs() as cap_logs:
+        # Would have been nice if this could be split
         assert split_comma_names(vcontext, "A B and C, D E F") == ["A B and C, D E F"]
     logs = [f"{entry['log_level']}: {entry['event']}" for entry in cap_logs]
     assert "warning: Not sure how to split on comma." in logs
