@@ -36,7 +36,7 @@ def crawl_item(fugitive_url: str, context: Context):
     if "Year of Birth" in info_dict:
         entity.add("birthDate", info_dict["Year of Birth"])
 
-    sanction_description = "".join(
+    description = "".join(
         [
             d.text_content()
             for d in response.findall('.//div[@class="meta"]')
@@ -44,17 +44,12 @@ def crawl_item(fugitive_url: str, context: Context):
         ]
     )
 
-    if "NCIC #" in info_dict:
-        sanction = h.make_sanction(context, entity, key=info_dict["NCIC #"])
-    else:
-        sanction = h.make_sanction(context, entity)
+    entity.add("description", description)
+    entity.add("sourceUrl", fugitive_url)
 
-    sanction.add("description", sanction_description)
-    sanction.add("sourceUrl", fugitive_url)
     entity.add("topics", "crime")
 
     context.emit(entity, target=True)
-    context.emit(sanction)
 
 
 def crawl(context: Context):
@@ -68,6 +63,10 @@ def crawl(context: Context):
         url = base_url + "?page=" + str(page_num)
         response = context.fetch_html(url, cache_days=1)
         response.make_links_absolute(url)
+
+        # If there are no more fugitives, we can stop crawling.
+        if len(response.findall('.//div[@class="teaser "]/div/h3/a')) == 0:
+            break
 
         for item in response.findall('.//div[@class="teaser "]/div/h3/a'):
             crawl_item(item.get("href"), context)
