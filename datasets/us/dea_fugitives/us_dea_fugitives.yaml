@@ -24,3 +24,8 @@ url: "https://www.dea.gov/fugitives/all"
 data:
   url: https://www.dea.gov/fugitives/all
   format: HTML
+ci_test: false
+http:
+  total_retries: 5
+  backoff_factor: 2
+  retry_statuses: [403]
