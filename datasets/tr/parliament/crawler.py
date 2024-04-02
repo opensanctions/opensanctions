@@ -58,6 +58,7 @@ def crawl_item(deputy_url: str, context: Context):
     entity.id = context.make_id(name)
     entity.add("birthPlace", place_of_birth)
     entity.add("birthDate", year_of_birth)
+    entity.add("sourceUrl", deputy_url)
 
     if "E-Posta" in info_dict:
         entity.add("email", info_dict["E-Posta"])
@@ -85,7 +86,6 @@ def crawl_item(deputy_url: str, context: Context):
     )
 
     if occupancy:
-        occupancy.add("sourceUrl", deputy_url)
 
         context.emit(entity, target=True)
         context.emit(position)
