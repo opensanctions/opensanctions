@@ -4,10 +4,10 @@ entry_point: crawler.py
 prefix: tr-wanted
 coverage:
   frequency: daily
-  start: 2024-03-19
+  start: 2024-04-02
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  Wanted terrorists list of Türkiye Ministry of Interior
+  List of people considered wanted for terrorism by the Türkiye Ministry of Interior
 description: |
   Türkiye has published a list of its most wanted terrorists, which includes details such as names, birth years, and places of birth. 
   
@@ -19,9 +19,9 @@ description: |
   how individuals can be removed, 
   and how authorities can establish or manage the list.
 
-  * [Turkey’s terror list: An attack on lawyers and human rights](https://lawyersforlawyers.org/en/turkeys-terror-list-an-attack-on-lawyers-and-human-rights/)
+  See [Turkey’s terror list: An attack on lawyers and human rights](https://lawyersforlawyers.org/en/turkeys-terror-list-an-attack-on-lawyers-and-human-rights/)
 publisher:
-  name: Ministry of Interior
+  name: Türkiye Ministry of Interior
   country: tr
   official: true
   url: https://en.terorarananlar.pol.tr/
