@@ -1855,3 +1855,7 @@ lookups:
         code: ""
         label: "Principality of Achaea"
         decision: "ignore"
+      - match: "Q98807804"
+        code: ""
+        label: "annexation of the Free City of Frankfurt by Prussia"
+        decision: "ignore"

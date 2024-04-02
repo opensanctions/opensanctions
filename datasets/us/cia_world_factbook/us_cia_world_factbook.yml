@@ -494,8 +494,6 @@ lookups:
           - role: Prime Minister
             name: Antonio Luis Santos da COSTA
             start_date: 24 November 2015
-      - match: "chief of state: president (vacant)"
-        holders: []
       # Italy
       - match: Deputy Prime Ministers Matteo SALVINI and Antonio TAIANI (since 22 October 2022)
         holders:
@@ -598,6 +596,26 @@ lookups:
           - role: Prime Minister
             name: Mamadou Oury BAH
             start_date: 27 February 2024
+      # Libya
+      - match: President, Presidential Council, Mohammed Al MENFI (since 5 February 2021)
+        holders:
+          - role: President, Presidential Council
+            name: Mohammed Al MENFI
+            start_date: 5 February 2021
+      - match: GNU Interim Prime Minister Abdul Hamid DUBAYBAH (since 5 February 2021)
+        holders:
+          - role: Interim Prime Minister
+            name: Abdul Hamid DUBAYBAH
+            start_date: 5 February 2021
+      # Oman
+      - match: Sultan and Prime HAITHAM bin Tarik Al Said (since 11 January 2020)
+        holders:
+          - role: Sultan
+            name: HAITHAM bin Tarik Al Said
+            start_date: 11 January 2020
+          - role: Prime Minister
+            name: HAITHAM bin Tarik Al Said
+            start_date: 11 January 2020
       # Not additional heads, just notes
       - regex:
           - subsequently, the Houthis and supporters of Yemen's first president, Ali Abdullah SALEH, seized the presidential palace and placed HADI under house arrest
@@ -677,6 +695,9 @@ lookups:
           - a replacement will be chosen in March 2024
           # Guinea
           - "on 19 February 2024 Guinea's military leaders dissolved the government of Prime Minister Bernard GOUMOU"
+          # Bulgaria
+          - "Vacant \\(since 6 March 2024\\)"
+          - "chief of state: president \\(vacant\\)"
         holders: []
 
   type.country:
