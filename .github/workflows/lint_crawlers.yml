@@ -21,7 +21,7 @@ jobs:
           yamllint ${{ steps.changed-yamls.outputs.all_changed_files }}
       - name: Get modified dataset python
         id: changed-python
-        uses: tj-actions/changed-files@v43
+        uses: tj-actions/changed-files@v44
         with:
           files: 'datasets/**/*.py'
       - uses: actions/setup-python@v5
