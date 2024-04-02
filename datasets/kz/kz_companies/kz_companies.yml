@@ -1,0 +1,28 @@
+name: kz_companies
+title: State Register of legal entities in the Republic of Kazakhstan
+prefix: kz
+disabled: false
+entry_point: crawler
+coverage:
+  frequency: weekly
+  start: 2023-03-21
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+deploy:
+  # premium: true
+resolve: false
+ci_test: false
+http:
+  total_retries: 5
+  backoff_factor: 3
+  retry_statuses: [503, 429, 403]
+
+summary: |
+  All companies in Kazakhstan, with information on their directors.
+url: https://data.egov.kz/datasets/view?index=gbd_ul
+publisher:
+  name: Ministry of Justice of the RK
+  country: kz
+  url: https://www.gov.kz/memleket/entities/adilet?lang=en
+  description: |
+    The Ministry of Justice of the Republic of Kazakhstan is a holder of the company registry.
+  official: true
