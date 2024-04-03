@@ -25,7 +25,8 @@ Remember to give the context that people from different countries need to make s
 ### Deployment
 
 - `deploy`
-    - `schedule` - a cron style schedule defining what time and frequency a crawler should run, e.g `30 */6 * * *`
+    - `schedule` - `string` - a cron style schedule defining what time and frequency a crawler should run, e.g `30 */6 * * *`
+    - `premium` - `boolean` - whether its compute instance may be evicted, restarting the job. Set to `true` for jobs running for several hours.
 
 ### Continuous Integration
 
