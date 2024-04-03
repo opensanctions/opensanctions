@@ -1,4 +1,4 @@
-
+TS=$(shell date +%Y%m%d)
 
 tmp:
 	mkdir -p tmp
@@ -11,3 +11,6 @@ tmp/iso9362_bic.pdf: tmp
 
 tmp/iso.csv: tmp/tabula.jar tmp/iso9362_bic.pdf
 	java -jar tmp/tabula.jar --pages all --format CSV tmp/iso9362_bic.pdf -o tmp/iso.csv
+
+upload::
+	gsutil cp tmp/* "gs://internal-data.opensanctions.org/iso9362_bic/$(TS)/"
