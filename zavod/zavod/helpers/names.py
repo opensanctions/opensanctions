@@ -7,7 +7,7 @@ from zavod.context import Context
 from zavod.entity import Entity
 
 REGEX_AND = re.compile(r"(\band\b|&|\+)", re.I)
-REGEX_JUST_A_NAME = re.compile(r"^[a-z]+, [a-z]+$", re.I)
+REGEX_LNAME_FNAME = re.compile(r"^\w+, \w+$", re.I)
 REGEX_CLEAN_COMMA = re.compile(
     r", \b(LLC|L\.L\.C|Inc|Jr|INC|L\.P|LP|Sr|III|II|IV|S\.A|LTD|USA INC|\(?A/K/A|\(?N\.K\.A|\(?N/K/A|\(?F\.K\.A|formerly known as|INCORPORATED)\b",  # noqa
     re.I,
@@ -206,7 +206,7 @@ def split_comma_names(context: Context, text: str) -> List[str]:
     if text.endswith(","):
         text = text[:-1]
 
-    if not REGEX_AND.search(text) and not REGEX_JUST_A_NAME.match(text):
+    if not REGEX_AND.search(text) and not REGEX_LNAME_FNAME.match(text):
         names = [n.strip() for n in text.split(",")]
         return names
     else:
