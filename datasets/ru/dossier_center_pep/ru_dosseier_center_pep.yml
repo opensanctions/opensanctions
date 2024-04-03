@@ -1,0 +1,21 @@
+name: ru_dossier_center_pep
+title: Russian PEP List published by Dossier Center
+url: https://peps.dossier.center/
+prefix: ru-dc-pep
+summary: List of Politically Exposed Persons (PEP) in Russia published by Dossier Center
+description: |
+  This dataset publishes the list of possible orgaizers oKremlin organized crime group
+  and their probable accomplices with brief profiles.
+
+entry_point: crawler.py
+publisher:
+  name: Dossier Center
+  description: |
+    The Dossier Center is a non-profit project of Mikhail Khodorkovsky.  Its goal is to promote
+    the formation of a rule of law state and civil society in Russia
+  country: ru
+  url: https://dossier.center/
+  official: false
+data:
+  url: https://peps.dossier.center/list/
+  format: HTML
