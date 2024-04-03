@@ -1,7 +1,4 @@
-from time import sleep
-
 from zavod import Context
-from zavod import helpers as h
 
 CACHE_DAYS = 30
 
