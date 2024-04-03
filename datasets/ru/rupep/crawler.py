@@ -314,7 +314,7 @@ def crawl_person(
     company_state: Dict[int, Company],
     data: Dict[str, Any],
 ):
-    they_pep = data.pop("is_pep", False)
+    data.pop("is_pep", False)
     entity = context.make("Person")
     wikidata_id = clean_wdid(data.pop("wikidata_id", None))
     rupep_person_id = data.pop("id")

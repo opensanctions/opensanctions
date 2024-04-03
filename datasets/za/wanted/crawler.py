@@ -7,6 +7,7 @@ from zavod import helpers as h
 
 REGEX_PATTERN = re.compile("(.+)\((.+)\)(.+)")
 
+
 def crawl_person(context: Context, cell: html.HtmlElement):
     source_url = cell.xpath(".//a/@href")[0]
     match = REGEX_PATTERN.match(cell.text_content())
@@ -23,8 +24,8 @@ def crawl_person(context: Context, cell: html.HtmlElement):
         return
 
     person = context.make("Person")
-    
-    # each wanted person has a dedicated details page 
+
+    # each wanted person has a dedicated details page
     # which appears to be a unique identifier
     id = parse_qs(urlparse(source_url).query)["bid"][0]
     person.id = context.make_slug(id)
@@ -41,7 +42,7 @@ def crawl_person(context: Context, cell: html.HtmlElement):
 
 def crawl(context):
     doc = context.fetch_html(context.dataset.data.url, cache_days=1)
-    # makes it easier to extract dedicated details page 
+    # makes it easier to extract dedicated details page
     doc.make_links_absolute(context.dataset.data.url)
     cells = doc.xpath("//td[.//a[contains(@href, 'detail.php')]]")
 

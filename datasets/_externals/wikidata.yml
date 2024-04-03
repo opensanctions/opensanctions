@@ -367,6 +367,13 @@ lookups:
           - Republic of Prekmurje
           - Rufino
           - place of birth
+          - Prince-Bishopric of Liège
+          - Liu Song dynasty
+          - Duchy of Savoy
+          - Kathiri Sultanate
+          - Suriye Özgür
+          - Kingdom of Tlemcen
+          - Syrian Federation
         value: null
       - match:
           - Cherokee Nation
@@ -389,7 +396,9 @@ lookups:
         value: RO
       - match: Congress Poland
         value: PL
-      - match: United Kingdom of the Netherlands
+      - match:
+          - United Kingdom of the Netherlands
+          - Dutch Republic
         value: NL
       - match: Kingdom of Ireland
         value: IE
@@ -411,6 +420,7 @@ lookups:
           - French First Republic
           - French Third Republic
           - Kingdom of France
+          - Corsica
         value: France
       - match: Byelorussian Soviet Socialist Republic
         values:
@@ -430,6 +440,9 @@ lookups:
         value: RO
       - match: Republic of Vietnam
         value: VN
+      - match:
+          - Lower Canada
+        value: Canada
       - match:
           - Democratic Republic of Afghanistan
           - Emirate of Afghanistan
@@ -468,6 +481,7 @@ lookups:
           - Grand Duchy of Baden
           - Kingdom of Bavaria
           - Kingdom of Württemberg
+          - Electorate of Saxony
         value: DE
       - match: British Honduras
         value: BZ
@@ -581,6 +595,10 @@ lookups:
       - match:
           - Israeli Civil Administration
         value: Israel
+      - match:
+          - Basque Country
+          - Catalana
+        value: ES
   type.date:
     options:
       - match:
@@ -590,6 +608,8 @@ lookups:
         value: null
       - match: "1949-02-29"
         value: 1949-02
+      - match: "1930-02-30"
+        value: 1930-02
       - match: "1935-06-31"
         value: 1935-06
       - match: "1973-09-31"

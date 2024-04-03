@@ -49,4 +49,4 @@ config:
   api_key: ${OPENFIGI_API_KEY}
   schemata:
     - Security
-  cache_days: 30
+  cache_days: 60

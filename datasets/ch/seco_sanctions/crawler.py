@@ -115,7 +115,7 @@ def parse_name(context: Context, entity: Entity, node: Element):
             parts.append((part_type, lang, script, order, spelling.text))
 
     ordered: Dict[Tuple[MayStr, MayStr], Dict[int, List[MayStr]]] = {}
-    for (part_type, lang, script, order, value) in parts:
+    for part_type, lang, script, order, value in parts:
         # if part_type in ("suffix", "title"):
         #     print("XXX", part_type, value)
 

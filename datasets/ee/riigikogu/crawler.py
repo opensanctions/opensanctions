@@ -1,6 +1,7 @@
 from zavod import Context, helpers as h
 from zavod.logic.pep import categorise
 
+
 def get_members_urls(context: Context) -> list:
     main_website = context.fetch_html(context.data_url)
 
@@ -8,6 +9,7 @@ def get_members_urls(context: Context) -> list:
     xpath_to_a_tags = "//*[@id='main']/section/div[2]/div/ul/li/div/div/ul/li[1]/h3/a"
 
     return [a_tag.get("href") for a_tag in main_website.xpath(xpath_to_a_tags)]
+
 
 def crawl_item(member_url: str, context: Context):
 
@@ -27,7 +29,8 @@ def crawl_item(member_url: str, context: Context):
     try:
         # the phone number apparently is the first contact in the list
         # but to make sure we correctly get it, we based our xpath on the icon
-        phone_number = member_page_html.xpath('//*[@class="icon icon-tel"]/../text()')[0].replace(" ", "")
+        phone_els = member_page_html.xpath('//*[@class="icon icon-tel"]/../text()')
+        phone_number = phone_els[0].replace(" ", "")
         entity.add("phone", phone_number)
     except IndexError:
         context.log.warning("Couldn't find phone number")
@@ -39,8 +42,12 @@ def crawl_item(member_url: str, context: Context):
     except IndexError:
         context.log.warning("Couldn't find e-mail")
 
-    position = h.make_position(context, "Member of the Riigikogu", country="ee",
-                               topics=["gov.national", "gov.legislative"])
+    position = h.make_position(
+        context,
+        "Member of the Riigikogu",
+        country="ee",
+        topics=["gov.national", "gov.legislative"],
+    )
     categorisation = categorise(context, position, True)
     if not categorisation.is_pep:
         return
@@ -57,7 +64,7 @@ def crawl_item(member_url: str, context: Context):
     context.emit(entity, target=True)
     context.emit(position)
     context.emit(occupancy)
-    
+
 
 def crawl(context: Context):
     members_urls = get_members_urls(context)

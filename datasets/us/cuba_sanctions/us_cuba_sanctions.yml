@@ -32,3 +32,5 @@ data:
   url: https://docs.google.com/spreadsheets/d/1kkl5JhsE-w3m8veU4DrkwTOGMmkAniMc0GsyJFJMFck/edit#gid=1890354374https://www.bis.doc.gov/dpl/dpl.txt
   format: CSV
   lang: eng
+http:
+  user_agent: "Mozilla/5.0 (zavod, https://opensanctions.org)"

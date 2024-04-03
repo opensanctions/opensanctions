@@ -41,6 +41,7 @@ url: http://everypolitician.org
 data:
   url: https://data.opensanctions.org/contrib/everypolitician/countries.json
   format: JSON
+ci_test: false
 
 lookups:
   org_id:

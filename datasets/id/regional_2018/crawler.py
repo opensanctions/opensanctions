@@ -1,16 +1,17 @@
 import re
-from datetime import datetime
 from typing import Any, Dict, Generator, List, Optional
 import openpyxl
 from pantomime.types import XLSX
-from normality import slugify, stringify
+from normality import slugify
 
 from zavod import Context
 from zavod import helpers as h
 from zavod.logic.pep import categorise
 
 
-REGEX_TITLE = re.compile(r"^(Drs\. |Dr\. |Ir\. |Hj\. |PROF\. |IRJEN POL\. \(Purn\) |Dra\. )*", re.IGNORECASE)
+REGEX_TITLE = re.compile(
+    r"^(Drs\. |Dr\. |Ir\. |Hj\. |PROF\. |IRJEN POL\. \(Purn\) |Dra\. )*", re.IGNORECASE
+)
 
 
 def worksheet_rows(sheet) -> Generator[Dict[str, Any], None, None]:
@@ -30,7 +31,9 @@ def clean_name(name: str) -> str:
     return name
 
 
-def crawl_person(context: Context, name, jurisdiction, position_ind, position_eng, topics):
+def crawl_person(
+    context: Context, name, jurisdiction, position_ind, position_eng, topics
+):
     entity = context.make("Person")
     entity.id = context.make_slug(jurisdiction, name)
     entity.add("name", name)
@@ -59,14 +62,23 @@ def crawl_person(context: Context, name, jurisdiction, position_ind, position_en
     context.emit(occupancy)
 
 
-def crawl_pair(context: Context, row, head_ind, head_eng, deputy_ind, deputy_eng, jurisdiction_column, topics):
+def crawl_pair(
+    context: Context,
+    row,
+    head_ind,
+    head_eng,
+    deputy_ind,
+    deputy_eng,
+    jurisdiction_column,
+    topics,
+):
     head_name, deputy_name = row["nama_paslon"].split("/")
     head_name = clean_name(head_name)
     deputy_name = clean_name(deputy_name)
     jurisdiction = row[jurisdiction_column].title()
     crawl_person(context, head_name, jurisdiction, head_ind, head_eng, topics)
     crawl_person(context, deputy_name, jurisdiction, deputy_ind, deputy_eng, topics)
-    
+
 
 def crawl(context: Context):
     path = context.fetch_resource("individuals.xlsx", context.data_url)

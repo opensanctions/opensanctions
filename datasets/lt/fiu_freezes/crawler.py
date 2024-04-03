@@ -29,8 +29,10 @@ def crawl(context: Context):
             continue
         data = dict(zip(headers, cells))
         nr = data.pop("nr")
-        company_name = data.pop(
-            "fizinio_ar_juridinio_asmens_kurio_turtas_isaldytas_pavadinimas"
+        company_name = (
+            data.pop("fizinio_ar_juridinio_asmens_kurio_turtas_isaldytas_pavadinimas")
+            .split("\n")[0]
+            .strip()
         )
         reg_nr = data.pop("imones_kodas")
         measures = data.pop("isaldyto_turto_rusis").split("\n")

@@ -33,6 +33,7 @@ def crawl_entity(context: Context, relative_url: str, follow_relations: bool = T
         type_el = None
     else:
         context.log.warn("Don't know how to handle url", url=relative_url)
+        return
 
     if hasattr(type_el, "text"):
         type_str = collapse_spaces(type_el.text)
@@ -45,13 +46,14 @@ def crawl_entity(context: Context, relative_url: str, follow_relations: bool = T
 
     entity = None
     if entity_type is None:
-        entity = make_entity(context, url, name, attributes)
+        entity = make_legal_entity(context, url, name, attributes)
     elif entity_type.value == "person":
         entity = make_person(context, url, name, type_str, attributes)
     elif entity_type.value == "company":
         entity = make_company(context, url, name, attributes)
     else:
         context.log.warn("Unhandled entity type", url, type_str)
+        return
 
     if follow_relations and entity is not None:
         for connection in doc.findall('.//div[@class="con"]'):
@@ -62,12 +64,12 @@ def crawl_entity(context: Context, relative_url: str, follow_relations: bool = T
                 description = None
             else:
                 description = collapse_spaces(relationship_el.text_content())
-            target_name = collapse_spaces(related_entity_el.text_content())
+            dest_name = collapse_spaces(related_entity_el.text_content())
             if related_entity_link is None:
-                target_url = None
+                dest_url = None
             else:
-                target_url = related_entity_link.get("href")
-            make_relation(context, entity, description, target_name, target_url)
+                dest_url = related_entity_link.get("href")
+            make_relation(context, entity, description, dest_name, dest_url)
 
     return entity
 
@@ -88,7 +90,6 @@ def make_person(
     person.add("birthDate", birth_date)
     person.add("birthPlace", attributes.pop("locul-nasterii", None), lang="ron")
     person.add("nationality", attributes.pop("cetatenie", "").split(","))
-    person.add("topics", "poi")
 
     if attributes:
         context.log.info(f"More info to be added to {name}", attributes, url)
@@ -117,7 +118,7 @@ def make_company(context: Context, url: str, name: str, attributes: dict):
     return company
 
 
-def make_entity(context: Context, url: str, name: str, attributes: dict):
+def make_legal_entity(context: Context, url: str, name: str, attributes: dict):
     entity = context.make("LegalEntity")
     identification = [COUNTRY, name]
     # founded = parse_date(attributes.get("data-fondarii"))
@@ -153,31 +154,29 @@ def make_entity(context: Context, url: str, name: str, attributes: dict):
     return entity
 
 
-def make_relation(context, source, description, target_name, target_url):
+def make_relation(context, source, description, dest_name, dest_url):
     res = context.lookup("relations", description)
-    target = None
-    if target_url:
-        target = crawl_entity(context, target_url, False)
-        if target_url.startswith("connection.php"):
-            context.emit(target)
-    if target is None:
-        target_schema = (
-            res.target_schema if res and res.target_schema else "LegalEntity"
-        )
-        target = context.make(target_schema)
-        target.id = context.make_id(target_name, "relation of", source.id)
-        target.add("name", target_name)
-        context.emit(target)
+    dest = None
+    if dest_url:
+        dest = crawl_entity(context, dest_url, False)
+        if dest_url.startswith("connection.php"):
+            context.emit(dest)
+    if dest is None:
+        dest_schema = res.dest_schema if res and res.dest_schema else "LegalEntity"
+        dest = context.make(dest_schema)
+        dest.id = context.make_id(dest_name, "relation of", source.id)
+        dest.add("name", dest_name)
+        context.emit(dest)
 
     schema = res.schema if res else "UnknownLink"
     source_key = res.source if res else "subject"
-    target_key = res.target if res else "object"
+    dest_key = res.dest if res else "object"
     description_key = res.text if res else "role"
 
     relation = context.make(schema)
-    relation.id = context.make_id(target.id, "related to", source.id)
+    relation.id = context.make_id(dest.id, "related to", source.id)
     relation.add(source_key, source.id)
-    relation.add(target_key, target.id)
+    relation.add(dest_key, dest.id)
     relation.add(description_key, description, lang="ron")
     context.emit(relation)
 
@@ -197,6 +196,7 @@ def crawl(context: Context):
         for link in profiles:
             entity = crawl_entity(context, link.get("href"))
             if entity:
+                entity.add("topics", "poi")
                 context.emit(entity, target=True)
 
         query["br"] = query["br"] + len(profiles)

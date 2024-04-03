@@ -4,6 +4,7 @@ url: https://www.assemblee-nationale.fr/dyn/vos-deputes
 coverage:
   frequency: weekly
   start: 2024-03-05
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 entry_point: crawler.py
 summary: >-
   Members of the French National Assembly.
@@ -27,7 +28,7 @@ description: |
   National Assembly) is to examine and pass laws and to verify and
   evaluate public policy and the functioning of the government.
 publisher:
-  name: data.assemblee-nationale.fr
+  name: National Assembly of France
   description: |
     The National Assembly maintains an open data site publishing
     information about its membership and functioning (including
@@ -41,6 +42,7 @@ publisher:
 data:
   url: https://data.assemblee-nationale.fr/static/openData/repository/16/amo/tous_acteurs_mandats_organes_xi_legislature/AMO30_tous_acteurs_tous_mandats_tous_organes_historique.json.zip
   format: JSON
+ci_test: false
 assertions:
   min:
     schema_entities:

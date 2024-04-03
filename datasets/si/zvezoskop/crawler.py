@@ -1,14 +1,13 @@
 from datetime import datetime
-from normality import collapse_spaces, slugify, stringify
+from normality import slugify, stringify
 from openpyxl import load_workbook
-from pantomime.types import CSV
-from typing import Dict, Optional
+from typing import Dict
 from rigour.ids.wikidata import is_qid
 
 from zavod import Context
 from zavod import helpers as h
 from zavod.entity import Entity
-from zavod.logic.pep import OccupancyStatus, categorise
+from zavod.logic.pep import categorise
 
 
 FORMATS = ["%d/%m/%Y"]

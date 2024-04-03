@@ -64,7 +64,7 @@ def crawl_section(context: Context, url: str, section: ElementOrTree):
             context.emit(entity, target=True)
             context.emit(sanction)
         else:
-            context.log.warning(f"Cannot parse item", item=item_text)
+            context.log.warning("Cannot parse item", item=item_text)
 
 
 def crawl_report(context: Context, url: str):

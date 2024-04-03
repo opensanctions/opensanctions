@@ -7,6 +7,7 @@ summary: List of Proscribed Persons in Pakistan
 coverage:
   frequency: daily
   start: 2024-03-14
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 description: |
   This dataset contains the list of proscribed persons in Pakistan.
 

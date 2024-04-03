@@ -92,5 +92,6 @@ def crawl(context: Context):
         if not entity.has("name"):
             context.log.info("Entity has no name", id=entity.id, narrative=narrative)
         # print(entity.id, narrative, text)
+        entity.add("topics", "sanction")
         context.emit(entity, target=True)
         context.emit(sanction)

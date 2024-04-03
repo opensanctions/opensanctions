@@ -24,13 +24,11 @@ TYPES = {
     "رابطة_تنظيمية": "Associate",  # person->person: regulatory association
     "رابطة_دم": "Family",  # person->person: blood bond
     "رابطة_مصلحية": "Associate",  # person->person: association of interest
-    "رابطة_روحية": "Associate"  # person->person: spiritual bond
+    "رابطة_روحية": "Associate",  # person->person: spiritual bond
     # TODO: command-control relationship
 }
 
-IGNORE = [
-    'opensyr-node-1357'
-]
+IGNORE = ["opensyr-node-1357"]
 
 directorship_titles = [
     "عضو مجلس إدارة",

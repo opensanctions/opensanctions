@@ -33,18 +33,23 @@ def crawl(context: Context) -> None:
 Any data wrangling code that is repeated in three or more crawlers should
 be considered for inclusion in the helper library.
 """
+
 from zavod.helpers.xml import remove_namespace
-from zavod.helpers.names import make_name, apply_name
+from zavod.helpers.names import make_name, apply_name, split_comma_names
 from zavod.helpers.positions import make_position, make_occupancy
 from zavod.helpers.text import clean_note, is_empty, remove_bracketed
 from zavod.helpers.text import multi_split
 from zavod.helpers.sanctions import make_sanction
-from zavod.helpers.addresses import make_address, apply_address, format_address
+from zavod.helpers.addresses import make_address, format_address
+from zavod.helpers.addresses import copy_address, apply_address
 from zavod.helpers.dates import extract_years, parse_date, check_no_year
 from zavod.helpers.dates import parse_formats
 from zavod.helpers.identification import make_identification
+from zavod.helpers.securities import make_security
 from zavod.helpers.excel import convert_excel_cell, convert_excel_date
 from zavod.helpers.html import parse_table
+from zavod.helpers.crypto import extract_cryptos
+from zavod.helpers.change import assert_dom_hash, assert_url_hash, assert_html_url_hash
 
 __all__ = [
     "clean_note",
@@ -54,6 +59,7 @@ __all__ = [
     "make_address",
     "format_address",
     "apply_address",
+    "copy_address",
     "make_sanction",
     "make_identification",
     "extract_years",
@@ -62,10 +68,16 @@ __all__ = [
     "check_no_year",
     "convert_excel_cell",
     "convert_excel_date",
+    "make_security",
     "remove_namespace",
     "make_name",
     "apply_name",
     "make_position",
     "make_occupancy",
     "parse_table",
+    "extract_cryptos",
+    "assert_dom_hash",
+    "assert_url_hash",
+    "assert_html_url_hash",
+    "split_comma_names",
 ]

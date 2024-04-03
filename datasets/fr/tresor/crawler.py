@@ -1,5 +1,7 @@
+import re
 import json
-from typing import Any, Dict
+from typing import Any, Dict, Optional
+from normality import slugify
 from prefixdate import parse_parts
 from pantomime.types import JSON
 
@@ -11,6 +13,74 @@ SCHEMATA = {
     "Personne morale": "Organization",
     "Navire": "Vessel",
 }
+
+SPLITS = {
+    "Type d'entité": "legalForm",
+    "Date d'enregistrement": "incorporationDate",
+    "Lieu d'enregistrement": "address",
+    "Principal établissement": "jurisdiction",
+    "Établissement principal": "jurisdiction",
+    "OGRN": "ogrnCode",
+    "KPP": "kppCode",
+    "INN": "innCode",
+    "PSRN:": "registrationNumber",
+    "Principal lieu d'activité": "country",
+    "Numéro d'enregistrement national principal": "registrationNumber",
+    "Numéro d'enregistrement national": "registrationNumber",
+    "Numéro d'enregistrement": "registrationNumber",
+    "Numéros d'enregistrement": "registrationNumber",
+    "Numéro d'identification fiscale": "taxNumber",
+    "Numéro fiscal": "taxNumber",
+    "Entités associées": "*ASSOCIATES",
+}
+
+
+def clean_key(key: str) -> Optional[str]:
+    return slugify(key)
+
+
+def parse_split(context: Context, entity: Entity, full: str):
+    full = full.replace("’", "'")
+    splits = "|".join(SPLITS.keys())
+    splits = f"({splits})"
+    splits_re = re.compile(splits, re.IGNORECASE)
+    parts = splits_re.split(full)
+    print(parts)
+
+
+def parse_identification(
+    context: Context,
+    entity: Entity,
+    value: Dict[str, str],
+):
+
+    comment = value.pop("Commentaire")
+    content = value.pop("Identification")
+    full = f"{comment}: {content}".replace("::", ":").strip().strip(":").strip()
+    # parse_split(context, entity, full)
+    result = context.lookup("identification", full)
+    if result is None:
+        context.log.warning("Unknown identification type", identification=full)
+        return
+    if result.schema is not None:
+        entity.add_schema(result.schema)
+    if result.note:
+        entity.add("notes", full, lang="fra")
+    if result.props:
+        for prop, value in result.props.items():
+            entity.add(prop, value, lang="fra", original_value=full)
+    if result.associates:
+        for associate in result.associates:
+            other = context.make("LegalEntity")
+            other.id = context.make_slug("named", associate)
+            other.add("name", associate, lang="fra")
+            context.emit(other)
+
+            link = context.make("UnknownLink")
+            link.id = context.make_id(entity.id, other.id)
+            link.add("subject", entity)
+            link.add("object", other)
+            context.emit(link)
 
 
 def apply_prop(context: Context, entity: Entity, sanction: Entity, field: str, value):
@@ -48,32 +118,7 @@ def apply_prop(context: Context, entity: Entity, sanction: Entity, field: str, v
     elif field == "PASSEPORT":
         entity.add("passportNumber", value.pop("NumeroPasseport"))
     elif field == "IDENTIFICATION":
-        comment = value.pop("Commentaire")
-        content = value.pop("Identification")
-        full = f"{comment}: {content}".replace("::", ":").strip().strip(":").strip()
-        result = context.lookup("identification", full)
-        if result is None:
-            context.log.warning("Unknown identification type", identification=full)
-            return
-        if result.schema is not None:
-            entity.add_schema(result.schema)
-        if result.note:
-            entity.add("notes", full, lang="fra")
-        if result.props:
-            for prop, value in result.props.items():
-                entity.add(prop, value, lang="fra", original_value=full)
-        if result.associates:
-            for associate in result.associates:
-                other = context.make("LegalEntity")
-                other.id = context.make_slug("named", associate)
-                other.add("name", associate, lang="fra")
-                context.emit(other)
-
-                link = context.make("UnknownLink")
-                link.id = context.make_id(entity.id, other.id)
-                link.add("subject", entity)
-                link.add("object", other)
-                context.emit(link)
+        parse_identification(context, entity, value)
     elif field == "AUTRE_IDENTITE":
         entity.add("idNumber", value.pop("NumeroCarte"))
     elif field == "REFERENCE_UE":
@@ -99,7 +144,12 @@ def crawl_entity(context: Context, data: Dict[str, Any]):
         context.log.error("Unknown entity type", nature=nature)
         return
     entity = context.make(schema)
-    entity.id = context.make_slug(data.pop("IdRegistre"))
+    reg_id = data.pop("IdRegistre")
+    entity.id = context.make_slug(reg_id)
+    url = (
+        f"https://gels-avoirs.dgtresor.gouv.fr/Gels/RegistreDetail?idRegistre={reg_id}"
+    )
+    entity.add("sourceUrl", url)
     sanction = h.make_sanction(context, entity)
     for detail in data.pop("RegistreDetail"):
         field = detail.pop("TypeChamp")

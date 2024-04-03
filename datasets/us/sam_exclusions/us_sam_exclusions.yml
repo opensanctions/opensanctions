@@ -7,6 +7,7 @@ coverage:
 deploy:
   memory: "2Gi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+ci_test: false
 summary: >
   A database of suppliers who have been excluded from participating in US federal
   procurement.
@@ -33,6 +34,7 @@ url: https://sam.gov/data-services/Exclusions/Public%20V2?privacy=Public
 data:
   url: "https://sam.gov/api/prod/fileextractservices/v1/api/listfiles?random=RANDOM&domain=Exclusions/Public%20V2&privacy=Public"
   format: CSV
+  lang: eng
 
 lookups:
   classifications:

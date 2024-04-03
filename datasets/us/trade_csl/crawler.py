@@ -138,10 +138,7 @@ def parse_result(context: Context, result: Dict[str, Any]):
 
     for obj in parse_addresses(context, result.pop("addresses", [])):
         # h.apply_address(context, entity, obj)
-        entity.add('address', obj.get('full'))
-        for country in obj.get('country'):
-            if country not in entity.countries:
-                entity.add('country', country)
+        h.copy_address(entity, obj)
 
     for ident in result.pop("ids", []):
         context.log.warning("Unknown ID type", id=ident)

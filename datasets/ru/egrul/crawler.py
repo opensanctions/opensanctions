@@ -348,17 +348,26 @@ def parse_company(context: Context, el: Element):
         parse_founder(context, entity, founder)
 
     for successor in el.findall("./СвПреем"):
+        succ_name = successor.get("НаимЮЛПолн")
+        succ_inn = successor.get("ИНН")
+        succ_ogrn = successor.get("ОГРН")
         successor_id = entity_id(
             context,
-            name=successor.get("НаимЮЛПолн"),
-            inn=successor.get("ИНН"),
-            ogrn=successor.get("ОГРН"),
+            name=succ_name,
+            inn=succ_inn,
+            ogrn=succ_ogrn,
         )
         if successor_id is not None:
             succ = context.make("Succession")
-            succ.id = context.make_id(entity.id, 'successor', successor_id)
+            succ.id = context.make_id(entity.id, "successor", successor_id)
             succ.add("successor", successor_id)
             succ.add("predecessor", entity.id)
+            succ_entity = context.make("Company")
+            succ_entity.id = successor_id
+            succ_entity.add("name", succ_name)
+            succ_entity.add("innCode", succ_inn)
+            succ_entity.add("ogrnCode", succ_ogrn)
+            context.emit(succ_entity)
             context.emit(succ)
 
     # pprint(entity.to_dict())

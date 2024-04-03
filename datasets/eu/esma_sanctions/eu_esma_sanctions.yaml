@@ -1,0 +1,26 @@
+title: "EU ESMA Sanctions"
+entry_point: crawler.py
+prefix: esma-sanctions
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+coverage:
+  frequency: daily
+  start: 2024-03-21
+summary: |
+  List of sanctioned entities, as published by the European Securities and Markets Authority (ESMA).
+description: |
+  Register of entities sanctioned by European NCAs and maintained by ESMA.
+  The directives and regulations underpinning the sanctions can be found in the [Interactive Single Rulebook.](https://www.esma.europa.eu/publications-and-data/interactive-single-rulebook)
+  > Compilation of sanctions applied and published in Member States under CSDR, EMIR, MAD, MAR, MiFID, SFTR, UCITS.
+publisher:
+  name: European Securities and Markets Authority
+  description: |
+    ESMA is the EU’s financial markets regulator and supervisor. It publishes a
+    number of databases and registers, including the Financial Instruments Reference
+    Data System (FIRDS).
+  country: eu
+  url: https://www.esma.europa.eu/
+  official: true
+url: https://registers.esma.europa.eu/publication/searchRegister?core=esma_registers_sanctions
+data:
+  url: https://registers.esma.europa.eu/solr/esma_registers_sanctions/select
+  format: JSON

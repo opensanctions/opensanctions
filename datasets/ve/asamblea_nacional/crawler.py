@@ -72,7 +72,7 @@ def crawl_infobox(context: Context, person: Entity, infobox: HtmlElement):
         identity = m.group(1)
         identity = identity.strip(" .;,")
         context.log.debug(f"ID Number: {identity}")
-        h.make_identification(context, person, identity)
+        person.add("idNumber", identity)
 
 
 def crawl_member_page(context: Context, person: Entity, name: str, href: str):

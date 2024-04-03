@@ -6,6 +6,7 @@ summary: Current and recent Members of the Seimas
 coverage:
   frequency: daily
   start: 2024-01-18
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 description: >
   The Seimas of the Republic of Lithuania is the unicameral parliament 
   responsible for exercising legislative power in Lithuania

@@ -52,7 +52,7 @@ class Context:
         self.issues = DatasetIssues(dataset)
         self.resources = DatasetResources(dataset)
         self.log = get_logger(dataset.name)
-        self.http = make_session()
+        self.http = make_session(dataset.http)
         self._cache: Optional[Cache] = None
         self._timestamps: Optional[TimeStampIndex] = None
 

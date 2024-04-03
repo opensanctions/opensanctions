@@ -6,6 +6,9 @@ coverage:
   frequency: never
   start: 2024-03-07
   end: 2024-01-31
+deploy:
+  schedule: "@monthly"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   A list of companies identified as Chinese military companies operating in the United States.
 description: |
@@ -42,3 +45,4 @@ url: https://www.defense.gov/News/Releases/Release/Article/3661985/dod-releases-
 data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRlrR4f46lTXiAuIijw-0XcW1IXSlWv-duNEc8ha23SpRjGrP_RqJUjnAFv07VDvih025FS0gTdQZbh/pub?gid=0&single=true&output=csv
   format: CSV
+  lang: eng

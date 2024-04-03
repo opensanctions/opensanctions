@@ -19,7 +19,11 @@ url: https://github.com/opensanctions/opensanctions
 data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vTYliJOm1mk2PrsL0m_BVn2sEbpHIdQ2fuzavp0gqOLndgzCw7gtr9Npqwa_FerVrQBfYFiDeKuwfV-/pub?gid=0&single=true&output=csv
   format: CSV
-
+http:
+  total_retries: 1
+  backoff_factor: 0.5
+  retry_methods: [POST]
+  retry_statuses: [418]
 assertions:
   min:
     schema_entities:
@@ -47,6 +51,15 @@ lookups:
           - oak
           - pine
         value: Tree
+
+  comma_names:
+    lowercase: true
+    options:
+      - match: A B and C, D E F, John Lookups Smith
+        names:
+          - A B and C
+          - D E F
+          - John Lookups Smith
 
   type.address:
     normalize: true

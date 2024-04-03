@@ -6,6 +6,7 @@ entry_point: parse.py
 coverage:
   frequency: weekly
   start: 2023-03-21
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 deploy:
   disk: 30Gi
   memory: 2Gi
@@ -14,6 +15,7 @@ exports:
   - statistics.json
   - entities.ftm.json
 resolve: false
+ci_test: false
 summary: |
   All companies in Moldova, with information on their founders, beneficial
   owners and directors.

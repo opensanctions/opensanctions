@@ -44,7 +44,11 @@ lookups:
     options:
       - match: "3017-08-22"
         value: 2017-08-22
-      - match: "3033-09-30"
+      - match:
+          - "3033-01-17"
+          - "3033-09-30"
         value: null
       - match: "0203-05-10"
         value: "2023-05-10"
+      - match: "0204-04-20"
+        value: "2024-04-20"

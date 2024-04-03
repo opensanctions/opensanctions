@@ -7,6 +7,7 @@ coverage:
   frequency: daily
   start: 2023-08-03
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+ci_test: false
 summary: >
   Current and recent members of the United States Senate and House of Representatives
 description: >
@@ -27,6 +28,7 @@ url: https://api.congress.gov/
 data:
   url: https://api.congress.gov/v3/member/
   format: JSON
+  lang: eng
 publisher:
   name: Library of Congress
   country: us

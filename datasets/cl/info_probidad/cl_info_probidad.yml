@@ -160,6 +160,7 @@ lookups:
       - match: "CONTRALOR REGIONAL"
       - match: "CONTRATA GRADO 12 ASISTENTE SOCIAL"
       - match: "COORDINADOR"
+      - match: "COORDINADOR COMITÉ DE AUDITORÍA PARLAMENTARIA"
       - match: "COORDINADOR DEPTO. RELACIONES PÚBLICAS"
       - match: "COORDINADOR TERRITORIAL"
       - match: "COORDINADOR/A REGIONAL"
@@ -174,6 +175,8 @@ lookups:
       - match: "DIPUTADO/DA"
       - match: "DIRECTIVO"
       - match: "DIRECTIVO JEFE DE SECCION"
+      - match: "DIRECTIVO JEFE DE DEPARTAMENTO"
+        is_pep: true
       - match: "DIRECTIVOS"
       - match: "DIRECTOR"
       - match: "DIRECTOR (A) NACIONAL"
@@ -406,13 +409,18 @@ lookups:
       - match: "MINISTRO DE ECONOMÍA FOMENTO Y TURISMO"
         is_pep: true
       - match: "MINISTRO DE FE"
+        is_pep: true
       - match: "MINISTRO DE RELACIONES EXTERIORES"
         is_pep: true
       - match: "MINISTRO DEL TRIBUNAL CALIFICADOR DE ELECCIONES"
       - match: "MINISTRO SUPLENTE"
+        is_pep: true
       - match: "MINISTRO TITULAR"
+        is_pep: true
       - match: "MINISTRO(A)"
+        is_pep: true
       - match: "MINISTRO(A) DESARROLLO SOCIAL"
+        is_pep: true
       - match: "MINISTRO/A"
         is_pep: true
       - match: "NOTARIO"
@@ -445,6 +453,7 @@ lookups:
       - match: "PRIMER SECRETARIO"
       - match: "PRIMER SECRETARIO O CÓNSUL DE PRIMERA CLASE, CUARTA CATEGORÍA EXTERIOR"
       - match: "PROFESIONAL"
+      - match: "PROFESIONAL COMITÉ DE AUDITORÍA PARLAMENTARIA"
       - match: "PROFESIONAL DAF"
       - match: "PROFESIONAL DE LA SALUD"
       - match: "PROFESIONAL DEPARTAMENTO DE ALIMENTACIÓN ESCOLAR"
@@ -587,8 +596,13 @@ lookups:
       - match: "TERCER SECRETARIO O CÓNSUL DE TERCERA CLASE, SEXTA CATEGORÍA EXTERIOR"
       - match: "TERCERA SECRETARIA O CÓNSUL DE TERCERA CLASE, SEXTA CATEGORÍA EXTERIOR"
       - match: "TESORERO"
+        is_pep: true
       - match: "TESORERO GENERAL"
+        is_pep: true
       - match: "TESORERO GENERAL DE LA REPUBLICA"
+        is_pep: true
+      - match: "TESORERO/A GENERAL DE LA REPUBLICA"
+        is_pep: true
       - match: "VICEPRESIDENTA/E EJECUTIVA/O"
       - match: "VICEPRESIDENTE"
         is_pep: true

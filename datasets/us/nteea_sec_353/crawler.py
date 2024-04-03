@@ -19,7 +19,10 @@ def crawl_row(context: Context, row: Dict[str, str]):
     report_date = row.pop("report-date")
     sanction.add("listingDate", report_date)
     sanction.add("reason", row.pop("reason"))
-    sanction.add("program","Section 353(b) of the United States - Northern Triangle Enhanced Engagement Act")
+    sanction.add(
+        "program",
+        "Section 353(b) of the United States - Northern Triangle Enhanced Engagement Act",
+    )
     sanction.add("description", f"Published in {report_date} report.")
 
     context.emit(entity, target=True)

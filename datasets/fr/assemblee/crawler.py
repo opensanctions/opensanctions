@@ -59,7 +59,7 @@ def crawl_collabos(
         yield collabo
 
         link = context.make("Associate")
-        link.id = context.make_slug(uid, f"associate", prefix, first_name, last_name)
+        link.id = context.make_slug(uid, "associate", prefix, first_name, last_name)
         link.set("person", person)
         link.set("associate", collabo)
         link.set("relationship", "collaborateur")
@@ -163,7 +163,7 @@ def crawl_acteur(context, data: Dict[str, Any]):
             if occupancy is not None:
                 entities.append(occupancy)
                 # Parliamentary collaborators (i.e. staff)
-                entities.extend(crawl_collabos(context, acteur, uid_text, mandat))
+                entities.extend(crawl_collabos(context, person, uid_text, mandat))
     if entities:
         context.log.debug(f"Emitting PEP entities for {uid_text}")
         context.emit(person, target=True)

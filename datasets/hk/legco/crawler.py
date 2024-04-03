@@ -151,14 +151,14 @@ def crawl_member(
         else:
             context.audit_data(page, ignore=UNUSED_PAGE_FIELDS + PAGE_FIELDS)
     context.audit_data(member, ignore=UNUSED_LIST_FIELDS)
-
-    context.emit(person, target=True)
-    context.emit(position)
-    occupancy = h.make_occupancy(
-        context, person, position, True, categorisation=categorisation
-    )
-    if occupancy is not None:
-        context.emit(occupancy)
+    for position in positions:
+        occupancy = h.make_occupancy(
+            context, person, position, True, categorisation=categorisation
+        )
+        if occupancy is not None:
+            context.emit(person, target=True)
+            context.emit(position)
+            context.emit(occupancy)
 
 
 def crawl(context: Context):

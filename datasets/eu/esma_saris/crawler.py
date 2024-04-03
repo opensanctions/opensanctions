@@ -1,6 +1,7 @@
 import csv
 
-from zavod import Context, helpers
+from zavod import Context
+from zavod import helpers as h
 
 
 def crawl(context: Context) -> None:
@@ -22,42 +23,46 @@ def crawl(context: Context) -> None:
     with open(source_file, "r") as f:
         reader = csv.DictReader(f)
         for row in reader:
-            entity = context.make("Security")
             isin = row.pop("instrumentIdentifier")
             if isin is None:
                 context.log.warn("No ISIN", row=row)
                 return
-            entity.id = f"isin-{isin}"
-            entity.add("isin", isin)
+            entity = h.make_security(context, isin)
             entity.add("name", row.pop("instrumentFullName", isin))
 
-            sanction = helpers.make_sanction(context, entity)
-            sanction.id = context.make_id(row.pop("id"))
+            sanction = h.make_sanction(context, entity, key=row.pop("id"))
             sanction.add("program", "ESMA")
             sanction.add("provisions", row.pop("actionType"))
-            sanction.add("reason", row.pop("reasonsForTheAction"))
+            reason = row.pop("reasonsForTheAction")
+            sanction.add("reason", reason)
             sanction.add("description", row.pop("comments"))
             sanction.add("startDate", row.pop("effectiveFrom"))
             sanction.add("country", row.pop("memberStateOfNotifyingCA"))
             sanction.set("authority", row.pop("notifyingCA"))
-            if row.get("effectiveTo") is not None:
-                sanction.add("endDate", row.pop("effectiveTo"))
+            end_date = row.pop("effectiveTo")
+            sanction.add("endDate", end_date)
+            if end_date:
+                is_target = False
             else:
-                entity.add("topic", "sanction")
-            context.emit(sanction, target=False)
-
-            if row.get("issuer") is not None:
+                is_target = True
+                topic = context.lookup_value("reason_topic", reason)
+                if topic is None:
+                    context.log.warn("No topic defined for reason", reason=reason)
+                entity.add("topics", topic)
+            context.emit(sanction)
+            issuer_id = row.pop("issuer", "").strip()
+            if issuer_id != "":
                 issuer = context.make("LegalEntity")
-                if len(issuer) == 20:
-                    issuer.id = f"lei-{issuer}"
-                    issuer.add("leiCode", issuer)
+                if len(issuer_id) == 20:
+                    issuer.id = f"lei-{issuer_id}"
+                    issuer.add("leiCode", issuer_id)
                 else:
-                    issuer.id = context.make_id(row.pop("issuer"))
+                    issuer.id = context.make_id(issuer_id)
                 issuer.add("name", row.pop("issuerName"))
-                context.emit(issuer, target=False)
+                context.emit(issuer)
                 entity.add("issuer", issuer)
 
-            context.emit(entity, target=True)
+            context.emit(entity, target=is_target)
             context.audit_data(
                 row,
                 ignore=[
@@ -66,7 +71,6 @@ def crawl(context: Context) -> None:
                     "historicalStatus",
                     "markets",
                     "timestamp",
-                    "id",
                     "onGoing",
                 ],
             )

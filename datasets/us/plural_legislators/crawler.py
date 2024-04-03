@@ -43,7 +43,7 @@ def crawl_person(context, jurisdictions, house_positions, data: dict[str, Any]):
     person.add("description", data.pop("biography", None))
     email = data.pop("email", None)
     if email is not None:
-        person.add("email", email.strip('.'))
+        person.add("email", email.strip("."))
     for party in data.pop("party", []):
         person.add("political", party.get("name", None))
     extras = data.pop("extras", {})
@@ -164,14 +164,14 @@ def crawl_jurisdictions(context: Context):
                 if type == "legislature":
                     house_positions[(code, type)] = f'Member of the {org["name"]}'
                 if type == "upper":
-                    house_positions[
-                        (code, type)
-                    ] = f'Member of the {name} {org["name"]}'
+                    house_positions[(code, type)] = (
+                        f'Member of the {name} {org["name"]}'
+                    )
                 if type == "lower":
                     representative = org["districts"][0]["role"]
-                    house_positions[
-                        (code, type)
-                    ] = f'Member of the {name} {org["name"]} of {representative}s'
+                    house_positions[(code, type)] = (
+                        f'Member of the {name} {org["name"]} of {representative}s'
+                    )
 
         if query.get("page") == result.get("pagination").get("max_page", None):
             break

@@ -1,0 +1,15 @@
+type: collection
+title: Incoming
+hidden: true
+deploy:
+  schedule: "1 */6 * * *"
+  memory: "1500Mi"
+summary: >
+  A place for new datasets to be checked before moving to default
+description: |
+  New datasets come here to see if they behave themselves in the bigger system
+  before being moved to a collection under default.
+children:
+  - us_finra_actions
+  - tr_wanted
+ci_test: false

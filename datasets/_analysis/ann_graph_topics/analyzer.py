@@ -51,7 +51,7 @@ def crawl(context: Context) -> None:
                     patch.id = other.id
                     patch.add("topics", "role.rca")
                     context.emit(patch)
-            
+
             # Family is eternal, business is time-bound:
             if len(adjacent.get("endDate", quiet=True)) > 0:
                 context.log.info(
@@ -61,7 +61,11 @@ def crawl(context: Context) -> None:
                 )
                 continue
 
-            if "sanction" in topics and not entity.schema.is_a("Security"):
+            if "sanction" in topics:
+                if entity.schema.is_a("Security"):
+                    continue
+                if adjacent.schema.is_a("Occupancy"):
+                    continue
                 for other_id in adjacent.get(other_prop):
                     other = view.get_entity(other_id)
                     if other is None:

@@ -51,4 +51,4 @@ inputs:
 config:
   type: nomenklatura.enrich.permid:PermIDEnricher
   api_token: ${PERMID_API_TOKEN}
-  cache_days: 15
+  cache_days: 30

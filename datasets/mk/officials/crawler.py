@@ -1,5 +1,4 @@
 from typing import Dict
-import requests
 
 from zavod import Context
 from zavod import helpers as h
