@@ -2,11 +2,9 @@ from time import sleep
 
 from zavod import Context
 from zavod import helpers as h
-from rigour.urls import build_url
 
 
 BASE_URL = "https://data.egov.kz/datasets/view?index=gbd_ul"
-CRAWL_URL = "https://data.egov.kz/datasets/getdata"
 CACHE_DAYS = 30
 SLEEP_TIME = 1
 
@@ -54,8 +52,9 @@ def crawl_page(context: Context, page_number: int) -> int:
     formdata["page"] = str(page_number)
 
     data = context.fetch_json(
-        CRAWL_URL,
-        cache_days=CACHE_DAYS,
+        context.data_url,
+        # To avoid caching the number of pages, we set cache_days=0 for the first page.
+        cache_days=0 if page_number == 1 else CACHE_DAYS,
         headers=HEADERS,
         params=formdata,
     )
@@ -82,8 +81,6 @@ def crawl_page(context: Context, page_number: int) -> int:
                 entity.add(v, item.get(k), lang=lang)
 
         entity.add("country", "kz")
-        entity.add("sourceUrl", build_url(CRAWL_URL, params=formdata))
-
         context.emit(entity, target=True)
 
         if item.get("director"):
