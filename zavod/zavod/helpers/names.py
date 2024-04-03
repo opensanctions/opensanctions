@@ -1,8 +1,17 @@
-from typing import Optional
+from typing import List, Optional, cast
 from normality import collapse_spaces
 from followthemoney.util import join_text
+import re
 
+from zavod.context import Context
 from zavod.entity import Entity
+
+REGEX_AND = re.compile(r"(\band\b|&|\+)", re.I)
+REGEX_LNAME_FNAME = re.compile(r"^\w+, \w+$", re.I)
+REGEX_CLEAN_COMMA = re.compile(
+    r", \b(LLC|L\.L\.C|Inc|Jr|INC|L\.P|LP|Sr|III|II|IV|S\.A|LTD|USA INC|\(?A/K/A|\(?N\.K\.A|\(?N/K/A|\(?F\.K\.A|formerly known as|INCORPORATED)\b",  # noqa
+    re.I,
+)
 
 
 def make_name(
@@ -174,3 +183,41 @@ def apply_name(
     )
     if full is not None and len(full):
         entity.add(name_prop, full, quiet=quiet, lang=lang)
+
+
+def split_comma_names(context: Context, text: str) -> List[str]:
+    """Split a string of multiple names that may contain company and individual names,
+    some including commas, into individual names without breaking partnership names
+    like "A, B and C Inc" or individuals like "Smith, Jane".
+
+    To make life easier, commas are stripped from company type suffixes like "Blue, LLC"
+
+    If the string can't be split into whole names reliably, a datapatch is looked up
+    under the `comma_names` key, which should contain a list of names in the `names`
+    attribute. If no match is found, the name is returned as a single item list,
+    and a warning emitted.
+    """
+    text = collapse_spaces(text) or ""
+    if not text:
+        return []
+
+    text = REGEX_CLEAN_COMMA.sub(r" \1", text)
+    # If the string ends in a comma, the last comma is unnecessary (e.g. Goldman Sachs & Co. LLC,)
+    if text.endswith(","):
+        text = text[:-1]
+
+    if not REGEX_AND.search(text) and not REGEX_LNAME_FNAME.match(text):
+        names = [n.strip() for n in text.split(",")]
+        return names
+    else:
+        if "," in text:
+            res = context.lookup("comma_names", text)
+            if res:
+                return cast("List[str]", res.names)
+            else:
+                context.log.warning(
+                    "Not sure how to split on comma.", text=text.lower()
+                )
+                return [text]
+        else:
+            return [text]
