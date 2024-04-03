@@ -1,4 +1,9 @@
 from zavod import Context, helpers as h
+from time import sleep
+
+# 1s delay seems to be enough to avoid getting blocked, while it takes a long
+# time to get unblocked after about 10 requests.
+SLEEP_SECONDS = 1
 
 
 def parse_table(table):
@@ -19,22 +24,16 @@ def parse_table(table):
 
 
 def crawl_item(fugitive_url: str, context: Context):
-    response = context.fetch_html(fugitive_url)
+    response = context.fetch_html(fugitive_url, cache_days=7)
 
     name = response.findtext('.//h2[@class="fugitive__title"]')
     info_dict = parse_table(response.find(".//table"))
 
     entity = context.make("Person")
     entity.id = context.make_id(name)
+    entity.add("gender", info_dict.pop("Sex", None))
 
-    if "Sex" in info_dict:
-        if info_dict["Sex"] == "Male":
-            entity.add("gender", "male")
-        else:
-            entity.add("gender", "female")
-
-    if "Year of Birth" in info_dict:
-        entity.add("birthDate", info_dict["Year of Birth"])
+    entity.add("birthDate", info_dict.pop("Year of Birth", None))
 
     description = "".join(
         [
@@ -69,6 +68,7 @@ def crawl(context: Context):
             break
 
         for item in response.findall('.//div[@class="teaser "]/div/h3/a'):
+            sleep(SLEEP_SECONDS)
             crawl_item(item.get("href"), context)
 
         page_num += 1
