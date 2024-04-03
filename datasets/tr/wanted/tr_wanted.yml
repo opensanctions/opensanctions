@@ -1,0 +1,31 @@
+name: tr_wanted
+title: "Türkiye Ministry Of Interior Terrorist Wanted List"
+entry_point: crawler.py
+prefix: tr-wanted
+coverage:
+  frequency: daily
+  start: 2024-04-02
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  List of people considered wanted for terrorism by the Türkiye Ministry of Interior
+description: |
+  Türkiye has published a list of its most wanted terrorists, which includes details such as names, birth years, and places of birth. 
+  
+  These individuals are classified into five color-coded categories, ranging from red (kırmızı) — indicating the most wanted — to blue (mavi), green (yeşil), orange (turuncu), and grey (gri). 
+  
+  Each category corresponds to a different reward amount for information that leads to the capture of these wanted individuals.
+
+  **Note**: There are concerns about the list lacking a proper legal foundation due to the absence of a legal provision that regulates who can be included, 
+  how individuals can be removed, 
+  and how authorities can establish or manage the list.
+
+  See [Turkey’s terror list: An attack on lawyers and human rights](https://lawyersforlawyers.org/en/turkeys-terror-list-an-attack-on-lawyers-and-human-rights/)
+publisher:
+  name: Türkiye Ministry of Interior
+  country: tr
+  official: true
+  url: https://en.terorarananlar.pol.tr/
+
+data:
+  url: https://www.terorarananlar.pol.tr/ISAYWebPart/TArananlar/GetTerorleArananlarList
+  format: JSON
