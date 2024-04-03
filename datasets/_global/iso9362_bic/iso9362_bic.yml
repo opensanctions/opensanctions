@@ -13,7 +13,7 @@ deploy:
 exports:
   - statistics.json
   - entities.ftm.json
-# ci_test: false
+ci_test: false
 summary: |
   Reference data for SWIFT BIC code, including bank names and addresses.
 description: |
