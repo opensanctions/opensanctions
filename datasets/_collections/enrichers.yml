@@ -27,6 +27,4 @@ children:
   - openfigi
   - permid
 
-  # TODO: this is small enough we don't need to make an enricher:
-  - iso9362_bic
 ci_test: false

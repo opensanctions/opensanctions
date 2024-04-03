@@ -53,4 +53,7 @@ children:
   - ru_myrotvorets_wagner
   - ransomwhere
   - kp_rusi_reports
+
+  # TODO: this is small enough we don't need to make an enricher:
+  - iso9362_bic
 ci_test: false
