@@ -3,10 +3,7 @@ from time import sleep
 from zavod import Context
 from zavod import helpers as h
 
-
-BASE_URL = "https://data.egov.kz/datasets/view?index=gbd_ul"
 CACHE_DAYS = 30
-SLEEP_TIME = 1
 
 FORMDATA = {
     "index": "gbd_ul",
@@ -33,7 +30,7 @@ FIELDS_MAPPING = {
 
 
 HEADERS = {
-    "Referer": BASE_URL,
+    "Referer": "https://data.egov.kz/datasets/view?index=gbd_ul",
     "X-Requested-With": "XMLHttpRequest",
 }
 
