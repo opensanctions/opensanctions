@@ -16,5 +16,4 @@ children:
   - eu_europol_wanted
   - nl_most_wanted
   - za_wanted
-  - tr_wanted
 ci_test: false

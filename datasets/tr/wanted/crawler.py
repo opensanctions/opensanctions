@@ -15,7 +15,6 @@ IGNORE_COLUMNS = [
     "TKategoriID",  # CategoryID
     "Sil",  # Delete
 ]
-# red (kırmızı) — indicating the most wanted — to blue (mavi), green (yeşil), orange (turuncu), and grey (gri).
 COLOURS = {
     "kırmızı": "red",
     "mavi": "blue",
