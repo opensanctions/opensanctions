@@ -1,0 +1,30 @@
+title: Israel Sanctioned Crypto Wallets List
+entry_point: crawler.py
+prefix: il-nbctf
+coverage:
+  frequency: never
+  start: 2021-10-22
+deploy:
+  schedule: "0 */6 * * *"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: |
+  Crypto wallets seized by the Israeli government.
+description: |
+  A list of seizure orders issued by the Israeli government against crypto wallets
+  with the most regularly seen authrorization being the Anti-Terrorism law 5776-2016.
+
+  This copy of the data is only updated occasionally.
+publisher:
+  name: "National Bureau for Counter Terror Financing"
+  description: |
+    The National Bureau for Counter Terror Financing (NBCTF), at the Ministry of Defense,
+    was established with the aim of unifying and concentrating national efforts to counter
+    financial infrastructure of terrorist organizations, perpetrators and parties involved
+    in Terror Financing.
+  country: il
+  url: https://nbctf.mod.gov.il/en/aboutus/Pages/mandate.aspx
+  official: true
+url: https://nbctf.mod.gov.il/en/Minister%20Sanctions/PropertyPerceptions/Pages/Blockchain1.aspx
+data:
+  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRWfPqec5nU9pMkUpcDVdO3a9S5AfPtJzeHkOZ1NEWvp03uk-f8zWy46O0D3pzbeV67Ega1t6DwQ8xd/pub?gid=414584047&single=true&output=csv
+  format: CSV
