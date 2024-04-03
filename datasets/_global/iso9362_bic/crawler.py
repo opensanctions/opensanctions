@@ -11,6 +11,7 @@ def crawl(context: Context) -> None:
 
     data_path = context.get_resource_path("source.csv")
     fetch_internal_data("iso9362_bic/20240403/iso.csv.clean.csv", data_path)
+    context.export_resource(data_path, "text/csv", title="ISO 9362 BIC Codes (CSV)")
 
     with open(data_path, "r") as fh:
         reader = csv.DictReader(fh)
