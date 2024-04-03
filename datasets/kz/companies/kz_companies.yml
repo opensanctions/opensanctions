@@ -6,7 +6,6 @@ entry_point: crawler
 coverage:
   frequency: weekly
   start: 2023-03-21
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 deploy:
   # premium: true
 resolve: false
