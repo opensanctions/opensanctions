@@ -1,16 +1,16 @@
 import csv
 
 from zavod import Context
+from zavod import helpers as h
 from zavod.shed.internal_data import fetch_internal_data
 
 
 def crawl(context: Context) -> None:
     hash_ = "6e93644d142c4950603061cd484c487f76300cd0"
-    # h.assert_url_hash(context, context.data_url, hash_)
+    h.assert_url_hash(context, context.data_url, hash_)
 
     data_path = context.get_resource_path("source.csv")
-    if not data_path.exists():
-        fetch_internal_data("iso9362_bic/20240403/iso.csv.clean.csv", data_path)
+    fetch_internal_data("iso9362_bic/20240403/iso.csv.clean.csv", data_path)
 
     with open(data_path, "r") as fh:
         reader = csv.DictReader(fh)
