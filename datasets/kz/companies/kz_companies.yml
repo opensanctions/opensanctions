@@ -1,6 +1,6 @@
 name: kz_companies
 title: State Register of legal entities in the Republic of Kazakhstan
-prefix: kz
+prefix: kz-reg
 disabled: false
 entry_point: crawler
 coverage:

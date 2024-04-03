@@ -61,14 +61,15 @@ def crawl_page(context: Context, page_number: int) -> int:
 
     for item in data["elements"]:
         if item["datereg"]:
-            plus_idx = item["datereg"].find("+")
-            item["datereg"] = h.parse_date(
-                item["datereg"][0:plus_idx] if plus_idx != -1 else item["datereg"],
-                ["%Y-%m-%d"],
-            )[0]
+            item["datereg"] = item["datereg"][:10]
 
         entity = context.make("Company")
-        entity.id = context.make_id("KZCompany", item["id"], item["bin"])
+        if item["bin"]:
+            entity.id = context.make_slug("co", item["bin"])
+        else:
+            entity.id = context.make_id(
+                "company", item["id"], item["namekz"] or item["nameru"]
+            )
 
         for k, v in FIELDS_MAPPING.items():
             if k in item and item.get(k):
@@ -113,5 +114,4 @@ def crawl(context: Context):
     context.log.info(f"Total pages: {num_pages}")
 
     for page_number in range(2, num_pages + 1):
-        sleep(SLEEP_TIME)
         crawl_page(context, page_number)
