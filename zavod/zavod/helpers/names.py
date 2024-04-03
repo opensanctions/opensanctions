@@ -210,13 +210,13 @@ def split_comma_names(context: Context, text: str) -> List[str]:
         names = [n.strip() for n in text.split(",")]
         return names
     else:
-        if "," in text:
+        if ("," in text) or (" and " in text):
             res = context.lookup("comma_names", text)
             if res:
                 return cast("List[str]", res.names)
             else:
                 context.log.warning(
-                    "Not sure how to split on comma.", text=text.lower()
+                    "Not sure how to split on comma or and.", text=text.lower()
                 )
                 return [text]
         else:

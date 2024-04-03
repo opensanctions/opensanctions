@@ -115,3 +115,9 @@ def test_split_comma_names(vcontext: Context, caplog):
         assert split_comma_names(vcontext, "A B and C, D E F") == ["A B and C, D E F"]
     logs = [f"{entry['log_level']}: {entry['event']}" for entry in cap_logs]
     assert "warning: Not sure how to split on comma." in logs
+
+    # We cannot not decide in a case like A and B Ltd. It can be the name of one company or two seperate entities
+    with capture_logs() as cap_logs:
+        assert split_comma_names(vcontext, "A and B Ltd.") == ["A", "B Ltd."]
+    logs = [f"{entry['log_level']}: {entry['event']}" for entry in cap_logs]
+    assert "warning: Not sure how to split on comma." in logs
