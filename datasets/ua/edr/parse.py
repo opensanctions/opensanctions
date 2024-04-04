@@ -106,8 +106,9 @@ def parse_uo(context: Context, fh: IO[bytes]):
             directorship.add("director", director)
             context.emit(director)
 
+        adj_unique_id = unique_id or company.id
         for founder in el.findall("./FOUNDERS/FOUNDER"):
-            parse_owner(context, company.id, unique_id, founder)
+            parse_owner(context, company.id, adj_unique_id, founder)
             # founder_name = founder.text
             # capital = None
             # if founder_name is None:
@@ -116,7 +117,7 @@ def parse_uo(context: Context, fh: IO[bytes]):
             #     print("FOUNDER", founder.text)
 
         for bene in el.findall("./BENEFICIARIES/BENEFICIARY"):
-            parse_owner(context, company.id, unique_id, bene)
+            parse_owner(context, company.id, adj_unique_id, bene)
             # if bene.text is None:
             #     continue
             # if "причина відсутності:" in bene.text:
@@ -140,7 +141,7 @@ def parse_uo(context: Context, fh: IO[bytes]):
 
 def crawl(context: Context):
     path = context.get_resource_path("source.zip")
-    fetch_internal_data("ua_edr/20220222.zip", path)
+    fetch_internal_data("ua_edr/23022022.zip", path)
     context.log.info("Parsing: %s" % path)
     with ZipFile(path, "r") as zip:
         for name in zip.namelist():
