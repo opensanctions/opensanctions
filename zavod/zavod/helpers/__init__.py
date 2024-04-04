@@ -35,7 +35,7 @@ be considered for inclusion in the helper library.
 """
 
 from zavod.helpers.xml import remove_namespace
-from zavod.helpers.names import make_name, apply_name
+from zavod.helpers.names import make_name, apply_name, split_comma_names
 from zavod.helpers.positions import make_position, make_occupancy
 from zavod.helpers.text import clean_note, is_empty, remove_bracketed
 from zavod.helpers.text import multi_split
@@ -79,4 +79,5 @@ __all__ = [
     "assert_dom_hash",
     "assert_url_hash",
     "assert_html_url_hash",
+    "split_comma_names",
 ]

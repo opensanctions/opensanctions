@@ -52,6 +52,15 @@ lookups:
           - pine
         value: Tree
 
+  comma_names:
+    lowercase: true
+    options:
+      - match: A B and C, D E F, John Lookups Smith
+        names:
+          - A B and C
+          - D E F
+          - John Lookups Smith
+
   type.address:
     normalize: true
     lowercase: true
