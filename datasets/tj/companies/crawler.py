@@ -31,14 +31,21 @@ def get_callback_pagination_params(page: int) -> str:
     return f"c0:KV|2;[];GB|20;12|PAGERONCLICK3|PN{page};"
 
 
-def fetch_form_params(context: Context) -> Dict[str, Any]:
+def fetch_form_params(context: Context, section: str) -> Dict[str, Any]:
     """
     This is a helper function to make the first request and get the form params
     for ASP.NET form.
+    Args:
+        context: The context object for the current dataset.
+        section: Registry section (physical, foreing, legal)
+    Returns:
+        The form params as a dict.
     """
     params: Dict[str, str] = {}
 
-    response = context.fetch_html(context.data_url, cache_days=CACHE_DAYS)
+    response = context.fetch_html(
+        context.data_url.format(section=section), cache_days=CACHE_DAYS
+    )
     for s in response.findall(".//input[@type='hidden']"):
         name = s.get("name")
         value = s.get("value")
@@ -58,29 +65,61 @@ def fetch_form_params(context: Context) -> Dict[str, Any]:
     params["ASPxComboBox1_DDDWS"] = "0:0:12000:792:80:0:-10000:-10000:1"
     params["ASPxComboBox1$DDD$L"] = "3"
     params["ASPxGridView1$CallbackState"] = (
-        "BwIHAgIERGF0YQaIBAAAAADT5AgA0+QIAAAAAAAKAAAAAAUAAAADRUlOA0VJTgcAAAZOYW1lUnUHTmFtZSBSdQcAAAdzdWJqZWN0B3N1YmplY3QHAAAIZERhdGVSZWcKZCBEYXRlIFJlZwcAAARzSU5OBXMgSU5OBwAAAAAAAAcABwAHAAcABv//BwIKMDIzMDAwMjA1MwcCGNCb0LjQutCy0LjQtNC40YDQvtCy0LDQvQcCG9Ka0L7QtNC40YDQvtCyINK20LDQvNGI0LXQtAcCCjE2LjAzLjUyMDAHAgkwMjUxMDM3MjUHAAcABv//BwIKNzMzMDAwMDA2OAcCGNCb0LjQutCy0LjQtNC40YDQvtCy0LDQvQcCH9Cl0YPQtNC+0LjQtdCyINCh0LDQudGE0YPQtNC40L0HAgoyNy4wMi41MjAwBwIJNzM1MDI0Mjc3BwAHAAb//wcCCjEyMzAwMDc0NjAHAhbQlNC10LnRgdGC0LLRg9GO0YnQuNC5BwIn0KHRg9C70LDQudC80L7QvdC+0LIg0JDQsdC00YPSk9Cw0YTQvtGABwIKMDUuMDYuNTAwOQcCCTEyNTIwODMyOAcABwAG//8HAgoyMzMwMDAxNzc3BwIY0JvQuNC60LLQuNC00LjRgNC+0LLQsNC9BwIj0KHQsNGE0LDRgNC+0LIg0JTQsNCy0LvQsNGC0YXRg9GH0LAHAgozMS4xMi4zMjAwBwIJMjM1MDAzOTcyBwAHAAb//wcCCjEyMzAwMTEyOTIHAhjQm9C40LrQstC40LTQuNGA0L7QstCw0L0HAh/QnNGD0YXQsNC80LDQtNC40LXQsiDQn9GD0LvQsNGCBwIKMTIuMTIuMzEyOAcCCTEyNTQzMTI4MwcABwAG//8HAgo2MDMwMDI1NzUxBwIY0JvQuNC60LLQuNC00LjRgNC+0LLQsNC9BwIb0KjQvtGF0L7St9Cw0LXQsiDTrtC60YLQsNC8BwIKMDMuMDMuMzAwOQcCCTYwNTA0MTUxNwcABwAG//8HAgowNDMwMDQwNTgyBwIW0JTQtdC50YHRgtCy0YPRjtGJ0LjQuQcCH9Ch0L7Qu9C40LXQsiDQodCw0LjQtNK30LDQvNC+0LsHAgowMS4xMC4zMDA3BwIJMDQ1MzE3MjI0BwAHAAb//wcCCjA0MzAwMjY5NzkHAhjQm9C40LrQstC40LTQuNGA0L7QstCw0L0HAhnQkNC30LjQvNC+0LIg0JHQsNGF0YDQvtC8BwIKMjguMDQuMjUwMAcCCTA0NTE4NjkxNAcABwAG//8HAgowNTMwMDQxNTA5BwIW0JTQtdC50YHRgtCy0YPRjtGJ0LjQuQcCGdCd0L7RgNCx0L7QtdCyINCQ0YXQvNCw0LQHAgowOC4wNS4yMjA4BwIJMDU1MDcwNzU5BwAHAAb//wcCCjAzMzAwMTAwMzgHAhjQm9C40LrQstC40LTQuNGA0L7QstCw0L0HAhvQodCw0L3Qs9C+0LLQsCDQl9GD0LvRhNC40Y8HAgoxMS4xMC4yMjA3BwIJMDM1MTIyMTM4AgVTdGF0ZQdBBwUHAAIBBwECAQcCAgEHAwIBBwQCAQcABwAHAAcABQAAAIAJAgAJAgACAAMHBAIABwACAQXT5AgABwACAQcABwA="
+        "BwIHAgIERGF0YQaIBAAAAADT5AgA0+QIAAAAAAAKAAAAAAUAAAADRUlOA0VJTgcAAAZOYW"
+        "1lUnUHTmFtZSBSdQcAAAdzdWJqZWN0B3N1YmplY3QHAAAIZERhdGVSZWcKZCBEYXRlIFJl"
+        "ZwcAAARzSU5OBXMgSU5OBwAAAAAAAAcABwAHAAcABv//BwIKMDIzMDAwMjA1MwcCGNCb0L"
+        "jQutCy0LjQtNC40YDQvtCy0LDQvQcCG9Ka0L7QtNC40YDQvtCyINK20LDQvNGI0LXQtAcC"
+        "CjE2LjAzLjUyMDAHAgkwMjUxMDM3MjUHAAcABv//BwIKNzMzMDAwMDA2OAcCGNCb0LjQut"
+        "Cy0LjQtNC40YDQvtCy0LDQvQcCH9Cl0YPQtNC+0LjQtdCyINCh0LDQudGE0YPQtNC40L0H"
+        "AgoyNy4wMi41MjAwBwIJNzM1MDI0Mjc3BwAHAAb//wcCCjEyMzAwMDc0NjAHAhbQlNC10L"
+        "nRgdGC0LLRg9GO0YnQuNC5BwIn0KHRg9C70LDQudC80L7QvdC+0LIg0JDQsdC00YPSk9Cw"
+        "0YTQvtGABwIKMDUuMDYuNTAwOQcCCTEyNTIwODMyOAcABwAG//8HAgoyMzMwMDAxNzc3Bw"
+        "IY0JvQuNC60LLQuNC00LjRgNC+0LLQsNC9BwIj0KHQsNGE0LDRgNC+0LIg0JTQsNCy0LvQ"
+        "sNGC0YXRg9GH0LAHAgozMS4xMi4zMjAwBwIJMjM1MDAzOTcyBwAHAAb//wcCCjEyMzAwMT"
+        "EyOTIHAhjQm9C40LrQstC40LTQuNGA0L7QstCw0L0HAh/QnNGD0YXQsNC80LDQtNC40LXQ"
+        "siDQn9GD0LvQsNGCBwIKMTIuMTIuMzEyOAcCCTEyNTQzMTI4MwcABwAG//8HAgo2MDMwMD"
+        "I1NzUxBwIY0JvQuNC60LLQuNC00LjRgNC+0LLQsNC9BwIb0KjQvtGF0L7St9Cw0LXQsiDT"
+        "rtC60YLQsNC8BwIKMDMuMDMuMzAwOQcCCTYwNTA0MTUxNwcABwAG//8HAgowNDMwMDQwNT"
+        "gyBwIW0JTQtdC50YHRgtCy0YPRjtGJ0LjQuQcCH9Ch0L7Qu9C40LXQsiDQodCw0LjQtNK3"
+        "0LDQvNC+0LsHAgowMS4xMC4zMDA3BwIJMDQ1MzE3MjI0BwAHAAb//wcCCjA0MzAwMjY5Nz"
+        "kHAhjQm9C40LrQstC40LTQuNGA0L7QstCw0L0HAhnQkNC30LjQvNC+0LIg0JHQsNGF0YDQ"
+        "vtC8BwIKMjguMDQuMjUwMAcCCTA0NTE4NjkxNAcABwAG//8HAgowNTMwMDQxNTA5BwIW0J"
+        "TQtdC50YHRgtCy0YPRjtGJ0LjQuQcCGdCd0L7RgNCx0L7QtdCyINCQ0YXQvNCw0LQHAgow"
+        "OC4wNS4yMjA4BwIJMDU1MDcwNzU5BwAHAAb//wcCCjAzMzAwMTAwMzgHAhjQm9C40LrQst"
+        "C40LTQuNGA0L7QstCw0L0HAhvQodCw0L3Qs9C+0LLQsCDQl9GD0LvRhNC40Y8HAgoxMS4x"
+        "MC4yMjA3BwIJMDM1MTIyMTM4AgVTdGF0ZQdBBwUHAAIBBwECAQcCAgEHAwIBBwQCAQcABw"
+        "AHAAcABQAAAIAJAgAJAgACAAMHBAIABwACAQXT5AgABwACAQcABwA="
     )
     params["__CALLBACKPARAM"] = "c0:KV|2;[];GB|20;12|PAGERONCLICK3|PN0;"
 
     return params
 
 
-def crawl_page(context: Context, params: Dict[str, str], page_number: int) -> int:
+def crawl_page(
+    context: Context,
+    section: str,
+    params: Dict[str, str],
+    page_number: int,
+) -> int:
     """
     Crawls a single page of the Tadjikistan data portal and emits the data.
     Args:
         context: The context object for the current dataset.
+        section: section of the registry (currently there are three)
         params: The form params to use for the request.
         page_number: The page number to crawl.
     Returns:
         The total number of pages.
     """
+    entity_type = "Company"
+    if section == "physical":
+        entity_type = "Person"
 
     local_params = params.copy()
     local_params["__CALLBACKPARAM"] = get_callback_pagination_params(page_number)
 
     response = context.fetch_text(
-        url=context.data_url,
+        url=context.data_url.format(section=section),
         method="POST",
         data=local_params,
         cache_days=CACHE_DAYS,
@@ -124,8 +163,8 @@ def crawl_page(context: Context, params: Dict[str, str], page_number: int) -> in
             ["%d.%m.%Y"],
         )[0]
 
-        entity = context.make("Company")
-        entity.id = context.make_id("TJCompany", item["ein"], item["inn"])
+        entity = context.make(entity_type)
+        entity.id = context.make_id(f"TJ{entity_type}", item["ein"], item["inn"])
         entity.add("name", item["name"], lang="tgk")
         entity.add("incorporationDate", item["date_of_reg"])
         entity.add("status", item["status"], lang="rus")
@@ -135,7 +174,6 @@ def crawl_page(context: Context, params: Dict[str, str], page_number: int) -> in
         # https://andoz.tj/docs/postanovleniya-pravitelstvo/Resolution__№323_ru.pdf
         # Раками Мушаххаси Андозсупоранда (РМА/INN) Идентификационный Номер Плательщика, Taxpayer Identification Number
         # Раками Ягонаи Мушаххас (РЯМ/EIN) Уникальный уникальный номер, Unique Unique Number
-
         entity.add("taxNumber", item["inn"])
         entity.add("registrationNumber", item["ein"])
 
@@ -150,13 +188,23 @@ def crawl(context: Context):
     of the register of taxpayers.
     """
 
-    # First we need to get the form params right
-    form_params = fetch_form_params(context)
+    for section in ["physical", "foreing", "legal"]:  # Yeah, foreiNG
+        context.log.info(f"Processing section: {section}")
 
-    num_pages = crawl_page(context=context, params=form_params, page_number=0)
+        # First we need to get the form params right
+        form_params = fetch_form_params(context, section=section)
 
-    context.log.info(f"Total pages: {num_pages}")
+        num_pages = crawl_page(
+            context=context, params=form_params, section=section, page_number=0
+        )
 
-    for page_number in range(1, num_pages + 1):
-        sleep(SLEEP_TIME)
-        crawl_page(context=context, params=form_params, page_number=page_number)
+        context.log.info(f"Total pages: {num_pages}")
+
+        for page_number in range(1, num_pages + 1):
+            sleep(SLEEP_TIME)
+            crawl_page(
+                context=context,
+                section=section,
+                params=form_params,
+                page_number=page_number,
+            )
