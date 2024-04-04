@@ -34,6 +34,7 @@ def crawl_item(fugitive_url: str, context: Context):
     entity.add("gender", info_dict.pop("Sex", None))
 
     entity.add("birthDate", info_dict.pop("Year of Birth", None))
+    entity.add("name", name)
 
     description = "".join(
         [
