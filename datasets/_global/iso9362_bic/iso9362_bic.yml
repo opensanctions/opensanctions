@@ -5,7 +5,7 @@ prefix: bic
 entry_point: crawler.py
 coverage:
   start: 2024-04-03
-  end: 2023-03-16
+  end: 2024-03-16
 deploy:
   schedule: "@monthly"
   # memory: 2000Mi
