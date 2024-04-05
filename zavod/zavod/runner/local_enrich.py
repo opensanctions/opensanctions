@@ -80,3 +80,5 @@ def enrich(context: Context) -> None:
             #        continue
             #    # self.log.info("Added", entity=adjacent)
             #    context.emit(adjacent)
+
+    resolver.save()
