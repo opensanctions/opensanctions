@@ -1,4 +1,4 @@
-title: US's DEA Fugitives
+title: US DEA Fugitives
 entry_point: crawler.py
 prefix: us-dea-fugi
 coverage:
@@ -8,15 +8,18 @@ load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Fugitives from the US's Drug Enforcement Administration
 description: |
-  The Drug Enforcement Administration's (DEA) most wanted list consists
-  of the world's most dangerous drug traffickers and criminal organizations.
-  The individuals on the list are wanted for a variety of offenses,
-  including criminal conspiracy, money laundering, trafficking of
-  illegal substances, and murder.  The most wanted criminals
-  are believed to be highly dangerous and pose a significant
-  risk to public safety.
+  The Drug Enforcement Administration's (DEA) consists of persons alleged to have
+  committed federal violations of laws and regulations related to controlled
+  substances.
+
+  This dataset includes basic demographic information, as well as a summary of
+  what they are accused of.
 publisher:
   name: US Drug Enforcement Administration
+  description: >
+    The DEA is a U.S. agency tasked with enforcing U.S. controlled substance laws and
+    regulations, and to enable the justice system to take action on those
+    contravening these laws and regulations.
   url: https://www.dea.gov
   official: true
   country: "us"
