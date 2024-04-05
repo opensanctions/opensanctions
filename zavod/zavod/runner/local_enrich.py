@@ -20,19 +20,20 @@ def enrich(context: Context) -> None:
     target_view = get_view(context.dataset)
     context.log.info("Getting view of inputs")
     input_view = get_view(get_multi_dataset(context.dataset.inputs))
-    union_datasets = context.dataset.inputs + [context.dataset.name]
-    context.log.info("Getting view of inputs and target dataset together")
-    union_store = get_multi_dataset(union_datasets)
-    union_view = get_view(union_store)
 
-    # Index
-    index = Index(union_view)
-    index.build()
-
+    # Dodgy index
+    context.log.info("Building dodgy combined index")
+    index = Index(target_view)
+    for entity in target_view.entities():
+        index.index(entity)
+    for entity in input_view.entities():
+        index.index(entity)
+    index.commit()
+    
     resolver = get_resolver()
     threshold = context.dataset.threshold
     
-    # Get pairs
+    # Get pairs - basically anything where something matches
     for idx, ((left_id, right_id), tf_score) in enumerate(index.pairs()):
         if not (
             (input_view.has_entity(left_id) and target_view.has_entity(right_id))
@@ -40,15 +41,18 @@ def enrich(context: Context) -> None:
         ):
             continue
 
-        if not union_store.resolver.check_candidate(left_id, right_id):
+        # decide which is the "match" and which is the subject
+        if input_view.has_entity(left_id):
+            entity = input_view.get_entity(left_id)
+            match = target_view.get_entity(right_id)
+        else:
+            entity = input_view.get_entity(right_id)
+            match = target_view.get_entity(left_id)
+
+        if entity is None or entity.id is None or match is None or match.id is None:
             continue
 
-        left = union_view.get_entity(left_id.id)
-        right = union_view.get_entity(right_id.id)
-        if left is None or left.id is None or right is None or right.id is None:
-            continue
-
-        if not left.schema.can_match(right.schema):
+        if not entity.schema.can_match(match.schema):
             continue
 
         judgement = resolver.get_judgement(left_id, right_id)
@@ -56,19 +60,13 @@ def enrich(context: Context) -> None:
         # For unjudged candidates, compute a score and put it in the
         # xref cache so the user can decide:
         if judgement == Judgement.NO_JUDGEMENT:
-            result = DefaultAlgorithm.compare(left, right)
+            result = DefaultAlgorithm.compare(entity, match)
             if threshold is None or result.score >= threshold:
-                context.log.info("Match [%s]: %.2f -> %s" % (left, result.score, right))
+                context.log.info("Match [%s]: %.2f -> %s" % (entity, result.score, match))
                 resolver.suggest(left_id, right_id, result.score, user="os-enrich")
-        # decide which is the "match" and which is the subject
-        if input_view.has_entity(left_id):
-            entity = left
-            match = right
-        else:
-            entity = right
-            match = left
+
         if judgement not in (Judgement.NEGATIVE, Judgement.POSITIVE):
-            result = DefaultAlgorithm.compare(left, right)
+            result = DefaultAlgorithm.compare(entity, match)
             if threshold is None or result.score >= threshold:
                 context.emit(match, external=True)
 
