@@ -1,4 +1,4 @@
-from zavod import Context, helpers as h
+from zavod import Context
 from time import sleep
 
 # 1s delay seems to be enough to avoid getting blocked, while it takes a long
