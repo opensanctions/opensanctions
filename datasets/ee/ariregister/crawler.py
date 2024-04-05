@@ -85,7 +85,7 @@ def make_officer(context: Context, data: Item, company_id: str) -> Entity:
         ident_id = make_entity_id(address)
         if ident_id is None:
             ident_id = id_number or company_id
-        proxy.id = context.make_slug("officer", proxy.caption, ident_id)
+        proxy.id = context.make_slug("officer", first_name, last_name, ident_id)
 
     if legal_form == "F":
         proxy.add_schema("Person")
