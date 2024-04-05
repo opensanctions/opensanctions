@@ -1,6 +1,6 @@
 type: external
 title: State Register of legal entities in the Republic of Moldova
-entry_point: zavod.runner.enrich:enrich
+entry_point: zavod.runner.local_enrich:enrich
 full_dataset: md_companies
 disabled: false
 hidden: false
