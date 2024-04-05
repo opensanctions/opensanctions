@@ -9,10 +9,11 @@ from zavod import Context
 from zavod import helpers as h
 
 
-def parse_row(context: Context, headers: List[str], row: List[str]):
+def parse_row(context: Context, headers: List[str], row: List[str], sanctioned: bool):
     entity = context.make("LegalEntity")
     entity.id = context.make_id(*row)
-    entity.add("topics", "sanction")
+    if sanctioned:
+        entity.add("topics", "sanction")
     sanction = h.make_sanction(context, entity)
     address = {}
     for (header, lang, type_), value_ in zip(headers, row):
@@ -49,6 +50,7 @@ def parse_row(context: Context, headers: List[str], row: List[str]):
 def parse_excel(context: Context, path: Path):
     xls = xlrd.open_workbook(path)
     for sheet in xls.sheets():
+        sanctioned = "رفع الإدراج" not in sheet.name
         headers = None
         for r in range(1, sheet.nrows):
             row = [h.convert_excel_cell(xls, c) for c in sheet.row(r)]
@@ -65,7 +67,7 @@ def parse_excel(context: Context, path: Path):
                 continue
             if headers is None:
                 continue
-            parse_row(context, headers, row)
+            parse_row(context, headers, row, sanctioned)
 
 
 def crawl(context: Context):
