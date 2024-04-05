@@ -31,7 +31,7 @@ def enrich(context: Context) -> None:
     index.commit()
     
     resolver = get_resolver()
-    threshold = context.dataset.threshold
+    threshold = context.dataset.config.get("threshold", 0.5)
     
     # Get pairs - basically anything where something matches
     for idx, ((left_id, right_id), tf_score) in enumerate(index.pairs()):
@@ -58,7 +58,8 @@ def enrich(context: Context) -> None:
         judgement = resolver.get_judgement(left_id, right_id)
 
         # For unjudged candidates, compute a score and put it in the
-        # xref cache so the user can decide:
+        # xref cache.
+        # Just for debugging - to see what's gone into external this round
         if judgement == Judgement.NO_JUDGEMENT:
             result = DefaultAlgorithm.compare(entity, match)
             if threshold is None or result.score >= threshold:
