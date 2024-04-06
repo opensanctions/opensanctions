@@ -41,6 +41,7 @@ children:
   - gb_hmt_sanctions
   - ge_ot_list
   - il_mod_terrorists
+  - il_mod_crypto
   - in_mha_banned
   - jp_mof_sanctions
   - kg_fiu_national
