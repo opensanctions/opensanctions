@@ -8,7 +8,7 @@ coverage:
   start: 2023-03-21
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 deploy:
-  # premium: true
+  premium: true
 resolve: false
 ci_test: false
 http:
