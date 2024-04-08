@@ -1,5 +1,5 @@
 name: tj_companies
-title: Unified State Register of taxpayers in the Republic of Tajikistan
+title: Tajikistan Unified State Register of taxpayers
 prefix: tj
 disabled: false
 entry_point: crawler
