@@ -17,6 +17,7 @@ BIRTHDATE = re.compile(r"fecha de nacimiento\s*:\s*(.*)$", re.I | re.MULTILINE)
 BIRTHPLACE = re.compile(r"lugar de nacimiento\s*:\s*(.*)$", re.I | re.MULTILINE)
 IDENTITY = re.compile(r"(?:c\.i|cédula de identidad)\s*:\s*(\S+)", re.I)
 WS = re.compile(r"\s+")
+KNOWN_ERRORS = {"https://www.asambleanacional.gob.ve/diputado/vega-sosamaria-gabriela"}
 
 
 def extract_marked_content(infobox: HtmlElement) -> str:
@@ -82,7 +83,7 @@ def crawl_member_page(context: Context, person: Entity, name: str, href: str):
     try:
         page = context.fetch_html(href, cache_days=1)
     except Exception as err:
-        if href == "https://www.asambleanacional.gob.ve/diputado/vega-sosamaria-gabriela":
+        if href in KNOWN_ERRORS:
             context.log.info(f"Exception when fetching {href}: {err}")
             return
         raise
