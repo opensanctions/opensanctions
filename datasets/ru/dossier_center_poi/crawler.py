@@ -118,7 +118,7 @@ def crawl_person(context: Context, url: str, accomplice: bool = False):
     person.add("nationality", citizenships)
     person.add("notes", [reason_on_list, possible_violation])
     person.add(
-        "summary", "Probable Accomplices" if accomplice else "Probable Organizers"
+        "summary", "Probable Accomplice" if accomplice else "Probable Organizer"
     )
     person.add("position", position_name)
 
