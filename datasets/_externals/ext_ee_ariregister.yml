@@ -1,6 +1,6 @@
 type: external
 title: Estonia e-Business Register (E-äriregister)
-entry_point: zavod.runner.local_enrich:enrich
+entry_point: zavod.runner.enrich:enrich
 full_dataset: ee_ariregister
 prefix: ee
 disabled: false
@@ -46,7 +46,7 @@ inputs:
   - sanctions
 
 config:
-  type: nomenklatura.enrich.yente:YenteEnricher
+  type: zavod.runner.local_enricher:LocalEnricher
   api: https://api.graph.opensanctions.org/
   dataset: ee_ariregister
   api_key: ${OPENSANCTIONS_GRAPH_API_KEY}
@@ -68,4 +68,3 @@ config:
     - Organization
     # - LegalEntity
     # - Person
-  cache_days: 30
