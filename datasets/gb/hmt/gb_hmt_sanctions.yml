@@ -476,7 +476,9 @@ lookups:
           - UA
       - match: "-"
         value: null
-      - match: former USSR, now Azerbaijan
+      - match:
+          - former USSR, now Azerbaijan
+          - Azerbaijan (former USSR)
         values:
           - SUHH
           - AZ
@@ -495,25 +497,62 @@ lookups:
       - match:
           - Former USSR Currently Belarus
           - Former USSR Now Belarus
+          - Russia (now Belarus)
+          - Belarusian SSR, (now Belarus)
         values:
           - SUHH
           - BY
+      - match:
+          - Russian SFSR, (now Russian Federation)
+          - USSR (now Russian Federation)
+          - Russian Federation (as at November 2010)
+          - Komi ASSR (now Russian Federation)
+          - Russian Soviet Federative Socialist Republic (RSFSR)
+          - Yakut Autonomous SSR (now Russian Federation)
+          - Russia (former USSR)
+          - Russia (former Russian SFSR)
+        value: RU
       - match: Afghanistan   Afghanistan
         value: AF
-      - match: Kazakh Soviet Socialist Republic
+      - match:
+          - Kazakh Soviet Socialist Republic
+          - Kazakh Soviet Socialist Republic (now Kazakhstan)
         values:
           - SUHH
           - KZ
-      - match: Uzbek SSR
+      - match:
+          - Uzbek SSR
+          - Uzbekistan SSR (now Uzbekistan)
         values:
           - SUHH
           - UZ
+      - match:
+          - Georgia (former USSR)
+        values:
+          - SUHH
+          - GE
+      - match:
+          - USSR (now Moldova)
+          - Moldovan SSR (now Republic of Moldova)
+        values:
+          - SUHH
+          - MD
       - match:
           - Occupied Palestinian Territories
           - Gaza
         value: PS
       - match: to   Morocco
         value: Morocco
+      - match:
+          - Congo (Democratic Republic)
+          - Congo (Democratic Republic of the)
+        value: CD
+      - match:
+          - (1-3) Libya
+        value: LY
+      - match:
+          - Iraq (previous address)
+        value: IQ
   type.email:
     options:
       - match: "Email: scot50@scn-net.org"
@@ -616,7 +655,7 @@ lookups:
           - sastalogist@yandex.ru
       - match: (1) Info@bpk-spb.ru (2) service@bpk.spb.ru
         values:
-          - Info@bpk-spb.ru 
+          - Info@bpk-spb.ru
           - service@bpk.spb.ru
       - match: (1) azia@aziaship.com (2) business@aziaship.com
         values:
