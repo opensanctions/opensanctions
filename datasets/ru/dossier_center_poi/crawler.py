@@ -21,7 +21,6 @@ def to_date(date_str: str) -> datetime:
 def get_element_text(doc: ElementTree, xpath_value: str, to_remove=[], position=0):
     element_tags = doc.xpath(xpath_value)
     element_text = "".join([tag.text_content() for tag in element_tags])
-    # element_text = element_tags.text_content() if element_tags else ""
 
     for string in to_remove:
         element_text = element_text.replace(string, "")
@@ -48,7 +47,6 @@ def crawl_persons_list(context: Context, url: str, accomplices: bool = False):
 
     for anchor in doc.xpath('//div[@class="b-archive-item"]//a'):
         anchor_url = anchor.get("href")
-        print(anchor_url)
         crawl_person(context, anchor_url, accomplices)
 
     next_page = doc.xpath(
@@ -87,17 +85,11 @@ def crawl_person(context: Context, url: str, accomplice: bool = False):
     place_of_birth = re.sub(date_pattern, "", birth_date_n_palce)
     place_of_birth = place_of_birth.strip(", ")
 
-    citizenship = get_element_text(
+    citizenships = get_element_text(
         doc,
         '//div[@class="b-pr-section__label"][contains(.//text(), "Гражданство")]//following-sibling::div[@class="b-pr-section__value"]',
     )
-    nationality = None
-    if "Кипр" in citizenship:
-        nationality = "cy"
-    elif "Российская" in citizenship or "РФ" in citizenship:
-        nationality = "ru"
-    else:
-        context.log.warn(f"Unknown nationality: {citizenship}")
+    citizenships = citizenships.split(",")
 
     reason_on_list = doc.xpath(
         '//div[contains(@class,"b-pr-section")][contains(.//*//text(), "Почему")]/*'
@@ -118,32 +110,19 @@ def crawl_person(context: Context, url: str, accomplice: bool = False):
     person.add("name", person_name)
     person.add("alias", alias)
     person.add("sourceUrl", url)
+    person.add("topics", "poi")
 
     if date_of_birth:
         person.add("birthDate", to_date(date_of_birth))
     person.add("birthPlace", place_of_birth)
-    person.add("nationality", nationality)
+    person.add("nationality", citizenships)
     person.add("notes", [reason_on_list, possible_violation])
     person.add(
         "summary", "Probable Accomplices" if accomplice else "Probable Organizers"
     )
-
-    position = h.make_position(context, position_name, country="ru")
-
-    categorisation = categorise(context, position)
-    if not categorisation.is_pep:
-        return
-
-    occupancy = h.make_occupancy(
-        context,
-        person,
-        position,
-        categorisation=categorisation,
-    )
+    person.add("position", position_name)
 
     context.emit(person, target=True)
-    context.emit(position)
-    context.emit(occupancy)
 
 
 def crawl(context: Context):
