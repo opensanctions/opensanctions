@@ -8,6 +8,7 @@ from urllib.parse import urljoin
 from followthemoney.types import registry
 from followthemoney.namespace import Namespace
 from rigour.urls import build_url
+
 # make temporary directory
 from tempfile import TemporaryDirectory
 
@@ -26,7 +27,7 @@ from zavod.store import get_store
 
 log = logging.getLogger(__name__)
 
-MATCH_CANDIDATES = 20
+MATCH_CANDIDATES = 10
 
 
 # need catalog to get dataset by name zavod.meta.get_catalog().require(dataset_)
@@ -46,12 +47,14 @@ class LocalEnricher(Enricher):
         self._index.build()
         self._algorithm = get_algorithm(config.pop("algorithm", "best"))
         self._threshold = config.pop("threshold")
-        
-        
+        self._ns: Optional[Namespace] = None
+        if self.get_config_bool("strip_namespace"):
+            self._ns = Namespace()
+
     def match(self, entity: CE) -> Generator[CE, None, None]:
         for match_id, index_score in self._index.match(entity)[:MATCH_CANDIDATES]:
             match = self._view.get_entity(match_id)
-            
+
             if not entity.schema.can_match(match.schema):
                 continue
 
@@ -62,8 +65,17 @@ class LocalEnricher(Enricher):
             if result.score >= self._threshold:
                 yield match
 
+    def _traverse_nested(self, entity: CE, depth: int) -> Generator[CE, None, None]:
+        if depth == 0:
+            return
+
+        if self._ns is not None:
+            entity = self._ns.apply(entity)
+
+        yield entity
+
+        for prop, adjacent in self._view.get_adjacent(entity):
+            yield from self._traverse_nested(adjacent, depth - 1)
 
     def expand(self, entity: CE, match: CE) -> Generator[CE, None, None]:
-        # yield the entities that would be nested
-        #raise NotImplementedError()
-        yield match
+        yield from self._traverse_nested(match, 2)
