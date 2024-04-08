@@ -82,8 +82,10 @@ def crawl_member_page(context: Context, person: Entity, name: str, href: str):
     try:
         page = context.fetch_html(href, cache_days=1)
     except Exception as err:
-        context.log.info(f"Exception when fetching {href}: {err}")
-        return
+        if href == "https://www.asambleanacional.gob.ve/diputado/vega-sosamaria-gabriela":
+            context.log.info(f"Exception when fetching {href}: {err}")
+            return
+        raise
     # Try to find a CV (not always present)
     tabs = page.find(".//ul[@uk-tab]")
     if tabs is None:
