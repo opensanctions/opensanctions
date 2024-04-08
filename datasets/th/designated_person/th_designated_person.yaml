@@ -1,0 +1,23 @@
+title: Thailand's Designated Persons List
+entry_point: crawler.py
+prefix: th-des
+coverage:
+  frequency: daily
+  start: 2024-04-08
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  List of Designated Persons from Thailand's AMLO
+description: |
+  This dataset comprises information about designated persons published by
+  Thailand's Anti Money Laundring Office (AMLO)
+  under the Counter-Terrorism and Proliferation
+  Financing Act B.E. 2559 section 7
+publisher:
+  name: Thailand's Anti Money Laundring Office
+  url: https://www.amlo.go.th/index.php/en/
+  official: true
+  country: "th"
+url: "https://amlo.go.th/index.php/en/high-risk-countries-designated-list/2016-06-04-14-50-52"
+data:
+  url: https://aps.amlo.go.th/aps/public/thailandlist/search?un_name=&un_registration_number=&passport_no=&un_id=
+  format: HTML
