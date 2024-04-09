@@ -9,6 +9,7 @@ from zavod import helpers as h
 
 CACHE_DAYS = 0  # since the forms are using session ids, which is unique every time
 SLEEP_TIME = 1  # seconds
+BASE_URL = "https://registry.andoz.tj/{section}.aspx?lang=ru"
 
 
 def get_callback_pagination_params(page: int) -> str:
@@ -44,7 +45,7 @@ def fetch_form_params(context: Context, section: str) -> Dict[str, Any]:
     params: Dict[str, str] = {}
 
     response = context.fetch_html(
-        context.data_url.format(section=section), cache_days=CACHE_DAYS
+        BASE_URL.format(section=section), cache_days=CACHE_DAYS
     )
     for s in response.findall(".//input[@type='hidden']"):
         name = s.get("name")
@@ -114,12 +115,14 @@ def crawl_page(
     entity_type = "Company"
     if section == "physical":
         entity_type = "Person"
+    elif section == "foreing":
+        entity_type = "LegalEntity"
 
     local_params = params.copy()
     local_params["__CALLBACKPARAM"] = get_callback_pagination_params(page_number)
 
     response = context.fetch_text(
-        url=context.data_url.format(section=section),
+        url=BASE_URL.format(section=section),
         method="POST",
         data=local_params,
         cache_days=CACHE_DAYS,
@@ -173,7 +176,8 @@ def crawl_page(
         # I'm not sure if I'm right about mapping of this two fields, that's all I found
         # https://andoz.tj/docs/postanovleniya-pravitelstvo/Resolution__№323_ru.pdf
         # Раками Мушаххаси Андозсупоранда (РМА/INN) Идентификационный Номер Плательщика, Taxpayer Identification Number
-        # Раками Ягонаи Мушаххас (РЯМ/EIN) Уникальный уникальный номер, Unique Unique Number
+        # Раками Ягонаи Мушаххас (РЯМ/EIN) Employer Identification number,
+        # https://learn.microsoft.com/en-us/partner-center/reg-number-id
         entity.add("taxNumber", item["inn"])
         entity.add("registrationNumber", item["ein"])
 
