@@ -29,6 +29,7 @@ jobs:
           python-version: '3.11'
           cache: 'pip'
       - name: Install python linting dependencies
+        working-directory: zavod
         run: |
           pip install -q -e ".[dev]"
       - name: Lint modified dataset python
