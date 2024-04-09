@@ -7,22 +7,11 @@ from lxml.etree import _Element
 from lxml import html
 
 COOKIES = {
-    "__arcsjs": "63473924c2c19b588d6ca3319fffc36d",
+    "__arcsjs": "8a2384791b1205e4d6d743f70f6ae2e1",
 }
 
 HEADERS = {
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-    "Sec-Fetch-Site": "same-origin",
-    "Accept-Language": "en-GB,en-US;q=0.9,en;q=0.8",
-    # 'Accept-Encoding': 'gzip, deflate, br',
-    "Sec-Fetch-Mode": "navigate",
-    "Cache-Control": "max-age=0",
-    "Host": "sanctionlist.mfa.ir",
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15",
-    "Connection": "keep-alive",
-    "Referer": "https://sanctionlist.mfa.ir/portal/catalogsearch/139",
-    # 'Cookie': '__arcsjs=71c9c92122ecd03ad7bdac3a80a59f49; ASP.NET_SessionId=ve13dq42fjqs1srmxfd4upf4; YSP_AntiXsrfTokenKey=9bc69b92a58840039fc4f120a95a9492',
-    "Sec-Fetch-Dest": "document",
 }
 
 
@@ -50,9 +39,7 @@ def crawl_item(url: str, context: Context):
     schema = (
         "Person"
         if sanction_type == "Individual"
-        else "Company"
-        if sanction_type == "Entity"
-        else "LegalEntity"
+        else "Company" if sanction_type == "Entity" else "LegalEntity"
     )
 
     name = info_dict.pop("Name")
@@ -105,4 +92,5 @@ def crawl(context: Context):
             break
 
         for url in new_urls:
+            context.log.info(url)
             crawl_item(url, context)
