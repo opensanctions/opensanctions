@@ -1,6 +1,6 @@
 name: tj_companies
 title: Tajikistan Unified State Register of taxpayers
-prefix: tj
+prefix: tj-reg
 disabled: false
 entry_point: crawler
 coverage:
