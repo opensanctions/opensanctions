@@ -71,5 +71,4 @@ children:
   - us_ofac_sdn
   - us_trade_csl
   - za_fic_sanctions
-  - ru_dosseier_center_poi.yml
 ci_test: false
