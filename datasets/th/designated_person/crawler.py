@@ -26,7 +26,7 @@ def crawl_item(url: str, context: Context):
 
     entity.add("name", en_name, lang="en")
     entity.add("name", th_name, lang="th")
-    entity.add("topics", "crime")
+    entity.add("topics", "sanction")
 
     if "Date of Birth" in info_dict:
         entity.add(
@@ -34,8 +34,7 @@ def crawl_item(url: str, context: Context):
             h.parse_date(info_dict.pop("Date of Birth"), formats=["%d-%m-%Y"]),
         )
 
-    if "Nationality" in info_dict and info_dict["Nationality"] != "":
-        entity.add("nationality", info_dict.pop("Nationality"))
+        entity.add("nationality", info_dict.pop("Nationality", None) or None)
 
     if "Phone Number" in info_dict and info_dict["Phone Number"] != "":
         entity.add("phone", info_dict.pop("Phone Number"))
