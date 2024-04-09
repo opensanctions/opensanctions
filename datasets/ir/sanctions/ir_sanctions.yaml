@@ -1,0 +1,29 @@
+title: Iran's sanctions list
+entry_point: crawler.py
+prefix: ir-san
+coverage:
+  frequency: daily
+  start: 2024-04-09
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Individuals and entities in the sanctions list of the Islamic Republic of Iran
+description: |
+  This dataset comprises information about Individuals and entities currently sanctioned
+  by the Islamic Republic of Iran. The penalties prescribed by law for these individuals
+  and entities are as follows:
+    - Denial of issuing entry visa to the territory of Islamic Republic of Iran
+    - Seizure of all assets and properties belonging to these individuals and
+     entities located in the territory under jurisdiction of Islamic Republic
+     of Iran by the Judiciary
+    - Freezing of all financial transactions of these individuals and entities
+    taking place in financial and banking system of Islamic Republic of Iran by
+    The Ministry of Economic and Finance Affairs, and closure of their bank accounts
+publisher:
+  name: Ministry of Foreign Affairs
+  url: https://en.mfa.ir
+  official: true
+  country: "ir"
+url: "https://sanctionlist.mfa.ir"
+data:
+  url: https://sanctionlist.mfa.ir/portal/catalogsearch/139
+  format: HTML
