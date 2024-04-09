@@ -58,11 +58,11 @@ def crawl_person(context: Context, url: str, accomplice: bool = False):
     person_name = get_element_text(
         doc, '//div[@class="b-pr-section__field bottom-gap p-compact"]//p[1]'
     )
-    alias_match = re.search(r"\((.*?)\)", person_name)
-    if alias_match:
-        alias = alias_match.group(1)
+    latinised_match = re.search(r"\((.*?)\)", person_name)
+    if latinised_match:
+        latinised = latinised_match.group(1)
     else:
-        alias = None
+        latinised = None
     person_name = re.sub(r"\(.*?\)", "", person_name)
 
     position_name = get_element_text(
@@ -103,8 +103,8 @@ def crawl_person(context: Context, url: str, accomplice: bool = False):
 
     person = context.make("Person")
     person.id = context.make_slug(person_name)
-    person.add("name", person_name)
-    person.add("alias", alias)
+    person.add("name", person_name, lang="rus")
+    person.add("name", latinised)
     person.add("sourceUrl", url)
     person.add("topics", "poi")
 
