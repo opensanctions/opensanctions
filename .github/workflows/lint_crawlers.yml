@@ -30,7 +30,7 @@ jobs:
           cache: 'pip'
       - name: Install python linting dependencies
         run: |
-          pip install --no-cache-dir -q black==24.2.0 ruff==0.3.2
+          pip install -q -e ".[dev]"
       - name: Lint modified dataset python
         if: ${{ steps.changed-python.outputs.all_changed_files != '' }}
         run: |
