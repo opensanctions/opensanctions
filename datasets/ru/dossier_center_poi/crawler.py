@@ -1,11 +1,7 @@
-from lxml import html
-from normality import slugify, collapse_spaces
-from pantomime.types import HTML
+from normality import collapse_spaces
 from xml.etree import ElementTree
-from zavod.logic.pep import categorise
 
 from zavod import Context
-from zavod import helpers as h
 from datetime import datetime
 import re
 
@@ -117,9 +113,7 @@ def crawl_person(context: Context, url: str, accomplice: bool = False):
     person.add("birthPlace", place_of_birth)
     person.add("nationality", citizenships)
     person.add("notes", [reason_on_list, possible_violation])
-    person.add(
-        "summary", "Probable Accomplice" if accomplice else "Probable Organizer"
-    )
+    person.add("summary", "Probable Accomplice" if accomplice else "Probable Organizer")
     person.add("position", position_name)
 
     context.emit(person, target=True)
