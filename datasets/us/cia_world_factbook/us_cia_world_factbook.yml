@@ -161,16 +161,17 @@ lookups:
           - role: Deputy Prime Minister
             name: Richard SULIK
             start_date: 21 March 2020
-      - match: "co-chiefs of state Captain Regent Alessandro SCARANO and Adele TONNINI (for the period 1 April 2023 - 1 October 2023)"
+      # San Marino
+      - match: "co-chiefs of state Captains Regent Alessandro ROSSI and Milena GASPERONI (for the period 1 April 2024 - 30 September 2024)"
         holders:
           - role: Co-chief of state
-            name: Captain Regent Alessandro SCARANO
-            start_date: 1 April 2023
-            end_date: 1 October 2023
+            name: Alessandro ROSSI
+            start_date: 1 April 2024
+            end_date: 30 September 2024
           - role: Co-chief of state
-            name: Adele TONNINI
-            start_date: 1 April 2023
-            end_date: 1 October 2023
+            name: Milena GASPERONI
+            start_date: 1 April 2024
+            end_date: 30 September 2024
       - match: "TUIMALEALI'IFANO Va’aletoa Sualauvi II (since 21 July 2017)"
         holders:
           - role: Chief of state
@@ -382,12 +383,17 @@ lookups:
           - role: Chairperson of the Council of Ministers
             name: Borjana KRISTO
             start_date: 25 January 2023
+      # Serbia
+      - match: "Ivica DACIC will be acting prime minister until the next election (date not yet set)"
+        holders:
+          - role: Acting Prime Minister
+            name: Ivica DACIC
       # Belgium
-      - regex: "Deputy Prime Ministers Vincent Van QUICKENBORNE, Vincent VAN PETEGHEM, Frank VANDENBROUCKE, Pierre-Yves DERMAGNE, Petra DE SUTTER, Georges GILKINET .+ David CLARINVAL .+"
+      - match: "Deputy Prime Ministers Paul Van TIGCHELT (since 22 October 2023), Vincent VAN PETEGHEM, Frank VANDENBROUCKE, Pierre-Yves DERMAGNE, Petra DE SUTTER, Georges GILKINET (all since 1 October 2020), David CLARINVAL (since 15 July 2022)"
         holders:
           - role: Deputy Prime Minister
-            name: Vincent Van QUICKENBORNE
-            start_date: 1 October 2020
+            name: Paul Van TIGCHELT
+            start_date: 22 October 2023
           - role: Deputy Prime Minister
             name: Vincent VAN PETEGHEM
             start_date: 1 October 2020
@@ -406,6 +412,7 @@ lookups:
           - role: Deputy Prime Minister
             name: David CLARINVAL
             start_date: 15 July 2022
+
       - match: "Deputy Prime Ministers Ihar PETRYSHENKA (since 18 August 2018), Anatol SIVAK (since 1 September 2020), Leanid ZAYATS (since 21 March 2022), Petr PARKHOMCHYK (since 16 August 2022)"
         holders:
           - role: Deputy Prime Minister
@@ -561,35 +568,40 @@ lookups:
             name: General Abdourahame TIANI
             start_date: 28 July 2023
       # Yemen
-      - match: Vice Chairpersons and Presidential Council members Sultan al-ARADA, Faraj Salmin al- BAHSANI, Brig. Gen. Abdullah Al-Alimi BA WAZIR, Uthman Hussain Faid al-MUJALI, TARIQ Muhammad Abdallah Salih, Brig. Gen., 'Abd-al-Rahman ABU ZARA'A al-Muharrami al-Yafai, Brig. Gen., Aydarus Qasim al-ZUBAYDI, Maj. Gen. (all since 19 April 2022)
+      - match: "Vice Chairpersons and Presidential Leadership Council members Sultan al-ARADA, Faraj Salmin al- BAHSANI, Brig. Gen. Abdullah Al-Alimi BA WAZIR, Uthman Hussain Faid al-MUJALI, TARIQ Muhammad Abdallah Salih, Brig. Gen., 'Abd-al-Rahman ABU ZARA'A al-Muharrami al-Yafai, Brig. Gen., Aydarus Qasim al-ZUBAYDI, Maj. Gen. (all since 19 April 2022)"
         holders:
-          - role: Vice Chairperson
+          - role: Presidential Leadership Council member
             name: Sultan al-ARADA
             start_date: 19 April 2022
-          - role: Vice Chairperson
+          - role: Presidential Leadership Council member
             name: Faraj Salmin al-BAHSANI
             start_date: 19 April 2022
-          - role: Vice Chairperson
+          - role: Presidential Leadership Council member
             name: Abdullah Al-Alimi BA WAZIR
             start_date: 19 April 2022
-          - role: Vice Chairperson
+          - role: Presidential Leadership Council member
             name: Uthman Hussain Faid al-MUJALI
             start_date: 19 April 2022
-          - role: Vice Chairperson
+          - role: Presidential Leadership Council member
             name: TARIQ Muhammad Abdallah Salih
             start_date: 19 April 2022
-          - role: Vice Chairperson
-            name: Abd-al-Rahman ABU ZARA'A al-Muharrami al-Yafai
+          - role: Presidential Leadership Council member
+            name: \'Abd-al-Rahman ABU ZARA\'A al-Muharrami al-Yafai
             start_date: 19 April 2022
-          - role: Vice Chairperson
+          - role: Presidential Leadership Council member
             name: Aydarus Qasim al-ZUBAYDI
             start_date: 19 April 2022
       # Yemen
-      - match: on 5 February 2024, Foreign Minister Ahmad Awad Bin MUBAREK was appointed prime minister by the Presidential Council
+      - match: on 5 February 2024, Foreign Minister Ahmad Awad Bin MUBAREK was appointed prime minister by the Presidential Leadership Council
         holders:
           - role: Prime Minister
             name: Ahmad Awad Bin MUBAREK
             start_date: 5 February 2024
+      - match: "Chairperson, Presidential Leadership Council Rashad Muhammad al-ALIMI, Dr. (since 19 April 2022)"
+        holders:
+          - role: Chairperson, Presidential Leadership Council
+            name: Rashad Muhammad al-ALIMI
+            start_date: 19 April 2022
       # Guinea
       - match: on 27 February 2024, Guinea's military leaders appointed Mamadou Oury BAH as prime minister
         holders:

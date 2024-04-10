@@ -374,6 +374,10 @@ lookups:
           - Suriye Özgür
           - Kingdom of Tlemcen
           - Syrian Federation
+          - Tartary
+          - Tibet Autonomous Region
+          - Kingdom of Montenegro
+          - State of Slovenes, Croats and Serbs
         value: null
       - match:
           - Cherokee Nation
@@ -638,5 +642,6 @@ lookups:
           - MALE
           - trans man
           - cisgender male
+          - cisgender man
           - transmasculine
         value: male

@@ -12,4 +12,5 @@ description: |
 children:
   - us_finra_actions
   - tr_wanted
+  - ru_dossier_center_poi
 ci_test: false

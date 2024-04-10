@@ -125,6 +125,8 @@ def crawl_common(
             entity.add("ogrnCode", ident_value)
         elif ident_id == "reg:okpo":
             entity.add("okpoCode", ident_value)
+        elif ident_id in ("reg:person_ro", "reg:person_il"):
+            entity.add("idNumber", ident_value)
         elif ident_id in ("reg:edrpou", "reg:r_n", "reg:regon", "reg:unzr", None):
             entity.add("registrationNumber", ident_value)
         elif ident_id in (

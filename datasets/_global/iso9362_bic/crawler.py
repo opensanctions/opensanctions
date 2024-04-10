@@ -6,7 +6,7 @@ from zavod.shed.internal_data import fetch_internal_data
 
 
 def crawl(context: Context) -> None:
-    hash_ = "6e93644d142c4950603061cd484c487f76300cd0"
+    hash_ = "85bdc3c638d87cccc5d0679abb7649f05a269c4b"
     h.assert_url_hash(context, context.data_url, hash_)
 
     data_path = context.get_resource_path("source.csv")

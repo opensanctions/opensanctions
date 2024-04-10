@@ -17,7 +17,7 @@ BRACKETED = re.compile(r"(\([^\(\)]*\)|\[[^\[\]]*\])")
 
 SPLITS = ["(%s)" % char for char in string.ascii_lowercase]
 SPLITS = SPLITS + ["（%s）" % char for char in string.ascii_lowercase]
-# WTF full-width brackets?
+# WTF full-width brackets!
 SPLITS = SPLITS + ["（a）", "（b）", "（c）", "\n"]
 SPLITS = SPLITS + ["; a.k.a.", "; a.k.a "]
 
