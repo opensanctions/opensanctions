@@ -1,0 +1,26 @@
+title: Malaysia's Financial Consumer Alert List
+entry_point: crawler.py
+prefix: my-ale
+coverage:
+  frequency: daily
+  start: 2024-04-10
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Entities who have been wrongly represented as being licensed by the BNM.
+description: |
+  The FCA List is updated based on information received by BNM from members
+  of the public, after conducting necessary assessments on the reported
+  entities and schemes. Consumers may refer to the FCA List as one
+  of several ways to check if an entity or a scheme has been
+  identified as one that has not been authorised by BNM
+  to offer financial products or services that are regulated by BNM.
+publisher:
+  name: Bank Negara Malaysia
+  description: Central Bank of Malaysia
+  url: https://www.bnm.gov.my
+  official: true
+  country: "my"
+url: "https://www.bnm.gov.my/financial-consumer-alert-list"
+data:
+  url: https://www.bnm.gov.my/financial-consumer-alert-list
+  format: HTML
