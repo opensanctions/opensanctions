@@ -1,7 +1,8 @@
 import warnings
-from typing import Any, Optional
+from typing import Any, Optional, Tuple, Mapping, Union, List
 from functools import partial
 from pathlib import Path
+from banal import hash_data
 from requests import Session
 from requests.adapters import HTTPAdapter
 from urllib3.exceptions import InsecureRequestWarning
@@ -13,6 +14,10 @@ from zavod.meta.http import HTTP
 
 log = get_logger(__name__)
 warnings.filterwarnings("ignore", category=InsecureRequestWarning)
+
+_Auth = Optional[Tuple[str, str]]
+_Headers = Optional[Mapping[str, str]]
+_Body = Optional[Union[Mapping[str, str], List[Tuple[str, str]]]]
 
 
 def make_session(http_conf: HTTP) -> Session:
@@ -32,6 +37,26 @@ def make_session(http_conf: HTTP) -> Session:
     session.mount("https://", HTTPAdapter(max_retries=retries))
     session.mount("http://", HTTPAdapter(max_retries=retries))
     return session
+
+
+def request_hash(
+    url: str,
+    auth: Optional[_Auth] = None,
+    method: str = "GET",
+    data: Any = None,
+) -> str:
+    """
+    Generate a unique fingerprint for an HTTP request.
+    Args:
+        url: The URL of the request.
+        auth: The authentication credentials.
+        method: The HTTP method of the request.
+        data: The data to be sent in the request body.
+    Returns:
+        A unique fingerprint for the request (url + hashed payload).
+    """
+    hsh = hash_data((auth, method, data))
+    return f"{url}[{hsh}]"
 
 
 def fetch_file(
