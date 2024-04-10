@@ -92,7 +92,6 @@ def test_context_get_fetchers(testdataset1: Dataset):
 
     # Extra check that cache is there
     fingerprint = request_hash("https://test.com/bla", method="GET")
-
     assert context.cache.get(fingerprint, max_age=14) is not None
 
     with requests_mock.Mocker() as m:
