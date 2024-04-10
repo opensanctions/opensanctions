@@ -81,10 +81,14 @@ lookups:
         value: US
       - match: china (prc)
         value: China
-      - match: north korea (dprk)
+      - match:
+          - north korea (dprk)
+          - dprk individual
         value: North Korea
       - match: "people's republic of china (prc)"
         value: China
+      - match: russian individual
+        value: Russia
       - match:
           - "turkish individual"
           - "turkey (turkiye)"
