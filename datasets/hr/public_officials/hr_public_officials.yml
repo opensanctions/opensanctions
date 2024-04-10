@@ -1,0 +1,23 @@
+name: hr_public_officials
+title: Croatian State Registry of Public Officials
+prefix: hr-public-officials 
+url: https://www.sukobinteresa.hr/hr/registar-duznosnika
+coverage:
+  frequency: daily
+  start: 2024-04-10
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary:
+  placeholder
+description: |
+  placeholder
+entry_point: crawler.py
+publisher:
+  name: Povjerenstvo za odlučivanje o sukobu interesa
+  description: |
+    placeholder
+  country: hr
+  url: https://www.sukobinteresa.hr/hr
+  official: true
+data:
+  url: https://www.sukobinteresa.hr/export/registar_duznosnika.csv
+  format: CSV
