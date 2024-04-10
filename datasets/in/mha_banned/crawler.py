@@ -11,6 +11,7 @@ from zavod import helpers as h
 
 SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTc-EkLWZgLKDPVvcrCoKLp17EEo535uP1EMcLKFl_b6T3z6Tq99BrI3R9GhxKirgRoozND1xQ48O4-/pub?output=csv"
 OVERVIEW_URL = "https://www.mha.gov.in/en/divisionofmha/counter-terrorism-and-counter-radicalization-division"
+ASSOCIATIONS_URL = "https://www.mha.gov.in/en/commoncontent/unlawful-associations-under-section-3-of-unlawful-activities-prevention-act-1967"
 
 CLEAN = [
     ", all its formations and front organizations.",
@@ -32,7 +33,30 @@ def parse_names(field: str) -> List[str]:
     return names
 
 
-def crawl_sheet(context: Context):
+def crawl_associations(context: Context) -> None:
+    doc = context.fetch_html(ASSOCIATIONS_URL)
+    content = doc.find('.//div[@class="view-content"]')
+    assert content is not None
+    section_title = content.findtext(".//h3")
+    for row in content.findall(".//tr"):
+        cells = row.findall(".//td")
+        if len(cells) != 3:
+            continue
+        num, name, link = cells
+        link_a = link.find(".//a")
+        link_href = link_a.get("href") if link_a is not None else None
+        if link_href is not None:
+            link_href = urljoin(ASSOCIATIONS_URL, link_href)
+        assoc = context.make("Organization")
+        assoc.id = context.make_id(num.text, name.text)
+        assoc.add("name", name.text)
+        assoc.add("topics", "sanction")
+        assoc.add("sourceUrl", link_href)
+        assoc.add("program", section_title)
+        context.emit(assoc, target=True)
+
+
+def crawl_sheet(context: Context) -> None:
     overview = context.fetch_html(OVERVIEW_URL)
     overview_urls: List[str] = [
         "https://www.mha.gov.in/sites/default/files/2024-01/NAMESOFUNLAWFULASSOCIATIONS_05012024_0.pdf"
@@ -49,12 +73,7 @@ def crawl_sheet(context: Context):
         "https://www.mha.gov.in/sites/default/files/2024-03/Listof57terrorists_07032024.pdf",
         "310081dd2bd196140f76705d10447ea2dcf924e5",
     )
-    h.assert_html_url_hash(
-        context,
-        "https://www.mha.gov.in/en/commoncontent/unlawful-associations-under-section-3-of-unlawful-activities-prevention-act-1967",
-        "d91d503a0b73804d7fb8301e974ca8b59097db12",
-        path='.//div[@class="view-content"]',
-    )
+
     path = context.fetch_resource("source.csv", SHEET_URL)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     named_ids: Dict[str, str] = {}
@@ -97,6 +116,7 @@ def crawl_sheet(context: Context):
 
 def crawl(context: Context):
     crawl_sheet(context)
+    crawl_associations(context)
     path = context.fetch_resource(
         "organisations.html",
         context.data_url + "banned-organisations",

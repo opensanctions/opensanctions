@@ -47,13 +47,12 @@ def crawl_row(context: Context, row: Dict[str, str]):
     )
 
     # 'cargos' can be marked as PEPs for all institutions in cl_info_probidad.yml
-    position_lookup = context.lookup("positions", position_name)
-    if not position_lookup:
-        context.log.warning(f"A new 'Cargo' '{position_name}' was identified")
+    res = context.lookup("positions", position_name)
+    if not res:
+        context.log.warning(f"A new 'Cargo' (post) '{position_name}' was identified")
+        return
 
-    categorisation = categorise(
-        context, position, is_pep=getattr(position_lookup, "is_pep", None)
-    )
+    categorisation = categorise(context, position, res.is_pep)
 
     if not categorisation.is_pep:
         return

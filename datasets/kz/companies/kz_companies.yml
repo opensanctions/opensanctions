@@ -1,0 +1,42 @@
+name: kz_companies
+title: State Register of legal entities in the Republic of Kazakhstan
+prefix: kz-reg
+disabled: false
+entry_point: crawler
+coverage:
+  frequency: weekly
+  start: 2023-03-21
+deploy:
+  premium: true
+resolve: false
+ci_test: false
+http:
+  total_retries: 5
+  backoff_factor: 3
+  retry_statuses: [503, 429, 403]
+
+summary: |
+  This dataset comrpises all companies and other types of entities registered
+  with the Kazakhstan state register of legal entities.
+
+  The information includes the full name of the company (including organization
+  form), one director, the current status, the BIN (might be absent for older companies)
+  a company profile according to General Classifier of Economic Activities, the
+  address, and the date of registration.
+
+  Information is available in Kazakh and Russian languages (except for the name
+  of the director, which is usually russian).
+
+  While available in the official register, the short name of the company, and founders
+  are not available through this source.
+url: https://data.egov.kz/datasets/view?index=gbd_ul
+publisher:
+  name: Ministry of Justice of the Republic of Kazakhstan
+  country: kz
+  url: https://www.gov.kz/memleket/entities/adilet?lang=en
+  description: |
+    The Ministry provides legal support for the activities of the state, supports the rule of law in the work of state bodies, organizations, officials and citizens, provides protection of the rights and legal interests of citizens and organizations.
+  official: true
+data:
+  url: "https://data.egov.kz/datasets/getdata"
+  format: JSON

@@ -1,10 +1,14 @@
+from typing import Optional, Dict, Any, Generator
+from rigour.ids import LEI
 from lxml import html
 
 from zavod import Context, helpers
 
 
-def get_json(context: Context, batch_size: int):
-    params = {
+def get_json(
+    context: Context, batch_size: int
+) -> Generator[Dict[str, Any], None, None]:
+    params: Dict[str, Any] = {
         "q": "*",
         "rows": batch_size,
         "start": 0,
@@ -19,7 +23,7 @@ def get_json(context: Context, batch_size: int):
         cont = resp["response"]["numFound"] >= params["start"]
 
 
-def parse_name(name_markup: str) -> str:
+def parse_name(name_markup: str) -> Optional[str]:
     """
     Remove markup from name if present.
     """
@@ -39,21 +43,24 @@ def crawl(context: Context) -> None:
             row.get("sn_otherEntityLEI"),
         )
         if id_hash is None or row.get("sn_sanctionEsmaID") is None:
-            context.log.warn(
-                "Response missing entity or sanction identifier.", response=row
-            )
+            # This is a very common case that we're currently ignoring where
+            # the entity are persons mentioned in a plain text or on some other URL.
+            context.log.info("Skipping row without entity or sanction ID", row=row)
             continue
         entity = context.make("Company")
-        if row.get("sn_entityLEI") is not None:
-            entity.id = f"lei-{row.get('sn_entityLEI')}"
-            entity.add("leiCode", row.pop("sn_entityLEI", None))
-        elif row.get("sn_otherEntityLEI") is not None:
-            entity.id = f"lei-{row.get('sn_otherEntityLEI')}"
-            entity.add("leiCode", row.pop("sn_otherEntityLEI", None))
+        lei = row.pop("sn_entityLEI", None)
+        other_lei = row.pop("sn_otherEntityLEI", None)
+        if lei is not None and LEI.is_valid(lei):
+            entity.id = f"lei-{lei}"
+            entity.add("leiCode", lei)
+        elif other_lei is not None and LEI.is_valid(other_lei):
+            entity.id = f"lei-{other_lei}"
+            entity.add("leiCode", other_lei)
         else:
             entity.id = id_hash
         entity.add("name", parse_name(row.pop("sn_entityName", None)))
         entity.add("name", parse_name(row.pop("sn_otherEntityName", None)))
+        entity.add("topics", "sanction")
 
         sanction = helpers.make_sanction(context, entity)
         sanction.add("program", row.pop("sn_sanctionLegalFrameworkName", None))

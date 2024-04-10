@@ -53,4 +53,5 @@ children:
   - ru_myrotvorets_wagner
   - ransomwhere
   - kp_rusi_reports
+  - iso9362_bic
 ci_test: false

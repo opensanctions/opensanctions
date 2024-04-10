@@ -253,14 +253,20 @@ def parse_psc_data(context: Context) -> None:
         # psc.add("jurisdiction", ident.pop("place_registered", None), quiet=True)
         # if len(ident):
         #     pprint(ident)
-
+        asset_id = company_id(context, company_nr)
         link = context.make("Ownership")
         link.id = context.make_slug("stmt", company_nr, psc_id)
         link.add("owner", psc.id)
         link.add("recordId", psc_id)
-        link.add("asset", company_id(context, company_nr))
+        link.add("asset", asset_id)
         link.add("startDate", data.pop("notified_on"))
         link.add("endDate", data.pop("ceased_on", None))
+
+        # Generate at least a stub of a company for dissolved companies which
+        # aren't in the base data.
+        asset = context.make("Company")
+        asset.id = asset_id
+        asset.add("registrationNumber", company_nr)
 
         for nature in data.pop("natures_of_control", []):
             nature = nature.replace("-", " ").capitalize()
@@ -272,6 +278,7 @@ def parse_psc_data(context: Context) -> None:
         context.audit_data(data)
         context.emit(psc)
         context.emit(link)
+        context.emit(asset)
 
 
 def crawl(context: Context) -> None:

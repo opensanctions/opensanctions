@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Get modified dataset yamls
         id: changed-yamls
-        uses: tj-actions/changed-files@v43
+        uses: tj-actions/changed-files@v44
         with:
           files: 'datasets/**/*.y*ml'
       - name: Lint modiied dataset yamls
@@ -21,7 +21,7 @@ jobs:
           yamllint ${{ steps.changed-yamls.outputs.all_changed_files }}
       - name: Get modified dataset python
         id: changed-python
-        uses: tj-actions/changed-files@v43
+        uses: tj-actions/changed-files@v44
         with:
           files: 'datasets/**/*.py'
       - uses: actions/setup-python@v5
@@ -29,8 +29,9 @@ jobs:
           python-version: '3.11'
           cache: 'pip'
       - name: Install python linting dependencies
+        working-directory: zavod
         run: |
-          pip install --no-cache-dir -q black==24.2.0 ruff==0.3.2
+          pip install -q -e ".[dev]"
       - name: Lint modified dataset python
         if: ${{ steps.changed-python.outputs.all_changed_files != '' }}
         run: |

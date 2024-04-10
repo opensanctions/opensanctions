@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Dict, Any, List
 from banal import first
 from normality import stringify, collapse_spaces
 from pantomime.types import XML
@@ -8,7 +8,7 @@ from zavod import Context
 from zavod import helpers as h
 
 FORMATS = ["%d/%m/%Y", "00/%m/%Y", "%m/%Y", "00/00/%Y", "%Y"]
-COUNTRY_SPLIT = ["(1)", "(2)", "(3)", ". "]
+COUNTRY_SPLIT = ["(1)", "(2)", "(3)", "(4)", "(5)", "(6)", "(7)", ". "]
 
 TYPES = {
     "Individual": "Person",
@@ -30,11 +30,12 @@ NAME_TYPES = {
 }
 
 
-def parse_countries(text):
-    countries = set()
+def parse_countries(text: Any) -> List[str]:
+    countries: List[str] = []
     for country in h.multi_split(text, COUNTRY_SPLIT):
-        country = h.remove_bracketed(country)
-        countries.add(country)
+        country_ = h.remove_bracketed(country)
+        if country_ is not None:
+            countries.append(country)
     return countries
 
 
@@ -60,7 +61,7 @@ def split_items(text, comma=False):
         parts = rest.split(f"({num})")
         if len(parts) > 1:
             match = collapse_spaces(parts[0])
-            if len(match):
+            if match is not None and len(match):
                 items.append(match)
             rest = parts[1]
     if comma and text == rest:
@@ -73,7 +74,7 @@ def split_new(text):
     return h.multi_split(text, [". ", ", "])
 
 
-def parse_row(context: Context, row):
+def parse_row(context: Context, row: Dict[str, Any]):
     group_type = row.pop("GroupTypeDescription")
     schema = TYPES.get(group_type)
     if schema is None:
@@ -258,7 +259,19 @@ def parse_row(context: Context, row):
     else:
         context.log.warning("Unknown GrpStatus", value=grp_status)
 
-    entity.add("notes", h.clean_note(row.pop("OtherInformation", None)))
+    notes = row.pop("OtherInformation", None)
+    entity.add("notes", h.clean_note(notes))
+    if isinstance(notes, str):
+        cryptos = h.extract_cryptos(notes)
+        for key, curr in cryptos.items():
+            wallet = context.make("CryptoWallet")
+            wallet.id = context.make_slug(curr, key)
+            wallet.add("currency", curr)
+            wallet.add("publicKey", key)
+            wallet.add("topics", "sanction")
+            wallet.add("holder", entity.id)
+            context.emit(wallet, target=True)
+
     context.audit_data(row, ignore=["NonLatinScriptLanguage", "NonLatinScriptType"])
 
     entity.add("topics", "sanction")
@@ -284,7 +297,7 @@ def crawl(context: Context):
     path = context.fetch_resource("source.xml", context.data_url)
     context.export_resource(path, XML, title=context.SOURCE_TITLE)
     doc = context.parse_resource_xml(path)
-    doc = h.remove_namespace(doc)
+    el = h.remove_namespace(doc)
 
-    for el in doc.findall(".//FinancialSanctionsTarget"):
-        parse_row(context, make_row(el))
+    for row_el in el.findall(".//FinancialSanctionsTarget"):
+        parse_row(context, make_row(row_el))

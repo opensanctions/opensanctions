@@ -14,6 +14,7 @@ from datetime import datetime, timedelta
 from requests.exceptions import RequestException
 
 log = logging.getLogger("delta")
+ENCODING = "utf-8"
 DATE_FORMAT = "%Y%m%d"
 DEFAULT_CUR = datetime.utcnow()
 DEFAULT_PREV = DEFAULT_CUR - timedelta(days=2)
@@ -198,11 +199,11 @@ def generate_delta(scope: str, cur: datetime, prev: datetime):
                 #         ent["caption"],
                 #     )
                 write_entity(outjson, ent, op)
-    log.info("Wrote JSON: %s" % out_json.as_posix())  
+    log.info("Wrote JSON: %s" % out_json.as_posix())
 
     out_csv = DATA_PATH.joinpath(f"delta/{cur_ts}/{scope}.delta.csv")
     out_csv.parent.mkdir(exist_ok=True, parents=True)
-    with open(out_csv, "w") as outcsv:
+    with open(out_csv, "w", encoding=ENCODING) as outcsv:
         fields = [
             "op",
             "schema",
@@ -213,7 +214,7 @@ def generate_delta(scope: str, cur: datetime, prev: datetime):
             "datasets",
             "last_change",
         ]
-        writer = csv.DictWriter(outcsv, fieldnames=fields)
+        writer = csv.DictWriter(outcsv, fieldnames=fields, dialect=csv.excel)
         writer.writeheader()
         for op in OPS:
             for entity_id, op_ in ops.items():

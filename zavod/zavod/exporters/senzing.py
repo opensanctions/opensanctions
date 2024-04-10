@@ -145,16 +145,21 @@ class SenzingExporter(Exporter):
                 targets = adj.get(adj.schema.target_prop)
                 caption = adj.first("role", quiet=True) or adj.caption
                 for s, t in product(sources, targets):
-                    if s != entity.id and t != entity.id:
-                        continue
-                    edge = {
-                        "REL_ANCHOR_DOMAIN": self.domain_name,
-                        "REL_ANCHOR_KEY": s,
-                        "REL_POINTER_ROLE": caption,
-                        "REL_POINTER_DOMAIN": self.domain_name,
-                        "REL_POINTER_KEY": t,
-                    }
-                    push(record, "RELATIONSHIPS", edge)
+                    # if s != entity.id and t != entity.id:
+                    #     continue
+                    if s == entity.id:
+                        edge = {
+                            "REL_POINTER_ROLE": caption,
+                            "REL_POINTER_DOMAIN": self.domain_name,
+                            "REL_POINTER_KEY": t,
+                        }
+                        push(record, "RELATIONSHIPS", edge)
+                    if t == entity.id:
+                        edge = {
+                            "REL_ANCHOR_DOMAIN": self.domain_name,
+                            "REL_ANCHOR_KEY": entity.id,
+                        }
+                        push(record, "RELATIONSHIPS", edge)
 
         seen_identifiers = set()
         for ident in record.get("IDENTIFIERS", []):

@@ -26,4 +26,5 @@ children:
   - wikidata
   - openfigi
   - permid
+
 ci_test: false

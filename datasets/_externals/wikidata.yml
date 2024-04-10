@@ -371,6 +371,13 @@ lookups:
           - Liu Song dynasty
           - Duchy of Savoy
           - Kathiri Sultanate
+          - Suriye Özgür
+          - Kingdom of Tlemcen
+          - Syrian Federation
+          - Tartary
+          - Tibet Autonomous Region
+          - Kingdom of Montenegro
+          - State of Slovenes, Croats and Serbs
         value: null
       - match:
           - Cherokee Nation
@@ -417,6 +424,7 @@ lookups:
           - French First Republic
           - French Third Republic
           - Kingdom of France
+          - Corsica
         value: France
       - match: Byelorussian Soviet Socialist Republic
         values:
@@ -591,6 +599,10 @@ lookups:
       - match:
           - Israeli Civil Administration
         value: Israel
+      - match:
+          - Basque Country
+          - Catalana
+        value: ES
   type.date:
     options:
       - match:
@@ -630,5 +642,6 @@ lookups:
           - MALE
           - trans man
           - cisgender male
+          - cisgender man
           - transmasculine
         value: male

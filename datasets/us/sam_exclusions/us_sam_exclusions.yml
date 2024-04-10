@@ -34,6 +34,7 @@ url: https://sam.gov/data-services/Exclusions/Public%20V2?privacy=Public
 data:
   url: "https://sam.gov/api/prod/fileextractservices/v1/api/listfiles?random=RANDOM&domain=Exclusions/Public%20V2&privacy=Public"
   format: CSV
+  lang: eng
 
 lookups:
   classifications:

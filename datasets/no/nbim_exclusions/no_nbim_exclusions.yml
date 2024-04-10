@@ -43,3 +43,11 @@ publisher:
 data:
   url: https://www.nbim.no/en/responsible-investment/ethical-exclusions/exclusion-of-companies/
   format: HTML
+
+lookups:
+  decision_topic:
+    options:
+      - match: Exclusion
+        value: debarment
+      - match: Observation
+        value: poi

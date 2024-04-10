@@ -1,13 +1,16 @@
 from typing import cast
+from datetime import datetime
+
 import pytest
 import requests_mock
-from datetime import datetime
 from requests.adapters import HTTPAdapter
+import orjson
 
 from zavod import settings
 from zavod.context import Context
 from zavod.meta import Dataset
 from zavod.entity import Entity
+from zavod.http import request_hash
 from zavod.crawl import crawl_dataset
 from zavod.archive import iter_dataset_statements
 from zavod.runtime.sink import DatasetSink
@@ -76,7 +79,7 @@ def test_context_dry_run(testdataset1: Dataset):
     assert list(context.issues.all()) == []
 
 
-def test_context_fetchers(testdataset1: Dataset):
+def test_context_get_fetchers(testdataset1: Dataset):
     context = Context(testdataset1)
 
     with requests_mock.Mocker() as m:
@@ -86,6 +89,10 @@ def test_context_fetchers(testdataset1: Dataset):
 
     text = context.fetch_text("https://test.com/bla", cache_days=14)
     assert text == "Hello, World!"
+
+    # Extra check that cache is there
+    fingerprint = request_hash("https://test.com/bla", method="GET")
+    assert context.cache.get(fingerprint, max_age=14) is not None
 
     with requests_mock.Mocker() as m:
         m.get("/bla", json={"msg": "Hello, World!"})
@@ -118,6 +125,71 @@ def test_context_fetchers(testdataset1: Dataset):
     assert adapter.max_retries.backoff_factor == 0.5
     assert adapter.max_retries.status_forcelist == [418]
     assert adapter.max_retries.allowed_methods == ["POST"]
+
+    context.close()
+
+
+def test_context_post_fetchers(testdataset1: Dataset):
+    context = Context(testdataset1)
+
+    with requests_mock.Mocker() as m:
+        m.post("/bla", text="Hello, World!")
+        text = context.fetch_text(
+            "https://test.com/bla", cache_days=14, method="POST", data={"foo": "bar"}
+        )
+        assert text == "Hello, World!"
+
+    # Testing caching
+    text = context.fetch_text(
+        "https://test.com/bla", cache_days=14, method="POST", data={"foo": "bar"}
+    )
+    assert text == "Hello, World!"
+
+    # Testing cache miss
+    with requests_mock.Mocker() as m:
+        m.post("/bla", text="Not Hello, not World!")
+
+        # That one comes from cache:
+        text = context.fetch_text(
+            "https://test.com/bla", cache_days=14, method="POST", data={"foo": "bar"}
+        )
+        assert text == "Hello, World!"
+
+        # That one misses the cache because of different data:
+        text = context.fetch_text(
+            "https://test.com/bla", cache_days=14, method="POST", data={"fooz": "barz"}
+        )
+        assert text == "Not Hello, not World!"
+
+    with requests_mock.Mocker() as m:
+        m.post("/bla", json={"msg": "Hello, World!"})
+        data = context.fetch_json("https://test.com/bla", method="POST")
+        assert data["msg"] == "Hello, World!"
+
+    with requests_mock.Mocker() as m:
+        html = "<html><h1>Hello, World!</h1></html>"
+        m.post("/bla", text=html)
+        doc = context.fetch_html("https://test.com/bla", method="POST")
+        assert doc.findtext(".//h1") == "Hello, World!"
+
+    context.close()
+
+
+def test_context_fetchers_exceptions(testdataset1: Dataset):
+    context = Context(testdataset1)
+
+    with pytest.raises(ValueError, match="Unsupported HTTP method.+"):
+        context.fetch_text("https://test.com/bla", cache_days=0, method="PLOP")
+
+    with pytest.raises(orjson.JSONDecodeError, match="unexpected.+"):
+        with requests_mock.Mocker() as m:
+            m.get("/bla", text='{"msg": "Hello, World!"')
+            context.fetch_json("https://test.com/bla", cache_days=10)
+
+    fingerprint = request_hash("https://test.com/bla", method="GET")
+
+    # Checking that cleanup function wiped the cache properly
+    assert context.cache.get(fingerprint, max_age=10) is None
 
     context.close()
 

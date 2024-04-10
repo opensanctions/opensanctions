@@ -36,6 +36,7 @@ url: https://www.treasury.gov/resource-center/sanctions/Pages/default.aspx
 data:
   url: https://www.treasury.gov/ofac/downloads/sanctions/1.0/sdn_advanced.xml
   format: XML
+  lang: eng
 
 lookups:
   relations:
@@ -146,7 +147,12 @@ lookups:
           - Trademark number
           - Permit Number
           - Military Registration Number
+          - C.I.N.
+          - Registration Certificate Number (Dubai)
         prop: registrationNumber
+      - match:
+          - Russian State Individual Business Registration Number Pattern (OGRNIP)
+        prop: ogrnCode
       - match:
           - Legal Entity Number
           - LE Number

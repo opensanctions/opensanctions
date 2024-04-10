@@ -40,16 +40,25 @@ def assert_url_hash(
     return True
 
 
-def _compute_node_hash(node: Optional[ElementOrTree]) -> Optional[str]:
+def _compute_node_hash(
+    node: Optional[ElementOrTree], text_only: bool = False
+) -> Optional[str]:
     digest = sha1()
     if node is None:
         return None
-    serialised = etree.tostring(
-        node,
-        with_comments=False,
-        pretty_print=True,
-        method="c14n2",
-    )
+    if text_only:
+        serialised = etree.tostring(
+            node,
+            method="text",
+            encoding="utf-8",
+        )
+    else:
+        serialised = etree.tostring(
+            node,
+            with_comments=False,
+            pretty_print=True,
+            method="c14n2",
+        )
     text = collapse_spaces(serialised.decode("utf-8").lower())
     if text is None:
         return None
@@ -58,10 +67,13 @@ def _compute_node_hash(node: Optional[ElementOrTree]) -> Optional[str]:
 
 
 def assert_dom_hash(
-    node: Optional[ElementOrTree], hash: str, raise_exc: bool = False
+    node: Optional[ElementOrTree],
+    hash: str,
+    raise_exc: bool = False,
+    text_only: bool = False,
 ) -> bool:
     """Assert that a DOM node has a given SHA1 hash."""
-    actual = _compute_node_hash(node)
+    actual = _compute_node_hash(node, text_only=text_only)
     if actual != hash:
         if raise_exc:
             msg = f"Expected hash {hash}, got {actual} for {node!r}"
@@ -83,8 +95,9 @@ def assert_html_url_hash(
     hash: str,
     path: Optional[str] = None,
     raise_exc: bool = False,
+    text_only: bool = False,
 ) -> bool:
     """Assert that an HTML document located at the URL has a given SHA1 hash."""
     doc = context.fetch_html(url)
     node = doc.find(path) if path is not None else doc
-    return assert_dom_hash(node, hash, raise_exc=raise_exc)
+    return assert_dom_hash(node, hash, raise_exc=raise_exc, text_only=text_only)

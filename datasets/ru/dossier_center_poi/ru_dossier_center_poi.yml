@@ -1,0 +1,36 @@
+name: ru_dossier_center_poi
+title: Russian Persons of Intererst published by Dossier Center
+url: https://peps.dossier.center/
+prefix: ru-dc-poi
+summary: Persons of Interest (POI) in Russia published by Dossier Center
+description: |
+  This dataset publishes the list of possible organizers of the Kremlin organized crime group
+  and their probable accomplices with brief profiles.
+
+entry_point: crawler.py
+publisher:
+  name: Dossier Center
+  description: |
+    The Dossier Center is a group of independent civil activists. Its goal is to promote
+    the formation of a rule of law state and civil society in Russia.
+  country: ru
+  url: https://dossier.center/
+  official: false
+data:
+  url: https://peps.dossier.center/list/
+  format: HTML
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+
+lookups:
+  type.country:
+    options:
+      - match: Кипр
+        value: cy
+      - match:
+          - Российская Федерация
+          - РФ
+        value: ru
+      - match: Израиль
+        value: il
+      - match: Финляндия
+        value: fi

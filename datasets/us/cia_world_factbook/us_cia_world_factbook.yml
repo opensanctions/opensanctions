@@ -31,6 +31,7 @@ publisher:
 data:
   url: "https://www.cia.gov/the-world-factbook/page-data/sq/d/1627106492.json"
   format: JSON
+  lang: eng
 
 lookups:
   unparsed_holders:
@@ -160,16 +161,17 @@ lookups:
           - role: Deputy Prime Minister
             name: Richard SULIK
             start_date: 21 March 2020
-      - match: "co-chiefs of state Captain Regent Alessandro SCARANO and Adele TONNINI (for the period 1 April 2023 - 1 October 2023)"
+      # San Marino
+      - match: "co-chiefs of state Captains Regent Alessandro ROSSI and Milena GASPERONI (for the period 1 April 2024 - 30 September 2024)"
         holders:
           - role: Co-chief of state
-            name: Captain Regent Alessandro SCARANO
-            start_date: 1 April 2023
-            end_date: 1 October 2023
+            name: Alessandro ROSSI
+            start_date: 1 April 2024
+            end_date: 30 September 2024
           - role: Co-chief of state
-            name: Adele TONNINI
-            start_date: 1 April 2023
-            end_date: 1 October 2023
+            name: Milena GASPERONI
+            start_date: 1 April 2024
+            end_date: 30 September 2024
       - match: "TUIMALEALI'IFANO Va’aletoa Sualauvi II (since 21 July 2017)"
         holders:
           - role: Chief of state
@@ -218,11 +220,11 @@ lookups:
           - role: UK High Commissioner to New Zealand and Governor (nonresident) of the Pitcairn Islands
             name: Iona THOMAS
             start_date: 9 August 2022
-      - match: "the UK and New Zealand are represented by New Zealand High Commissioner Helen TUNNAH (since July 2020)"
+      - match: "the UK and New Zealand are represented by New Zealand High Commissioner Mark GIBBS (since 5 March 2024)"
         holders:
           - role: New Zealand High Commissioner
-            name: Helen TUNNAH
-            start_date: July 2020
+            name: Mark GIBBS
+            start_date: 5 March 2024
       - match: "Deputy Prime Ministers Sigrid KAAG and Wopke HOEKSTRA (since 10 January 2022), Carola SCHOUTEN (since 26 October 2017)"
         holders:
           - role: Deputy Prime Minister
@@ -235,14 +237,20 @@ lookups:
             name: Carola SCHOUTEN
             start_date: 26 October 2017
       # Nepal
-      - match: "Deputy Prime Ministers Narayan Kaji SHRESTHA (since 26 December 2022), Purna Bahadur KHADKA (since 31 March 2023) (an)"
+      - match: "Deputy Prime Ministers Narayan Kaji SHRESTHA (since 26 December 2022), Rabi LAMICHHANE (since 26 December 2022), Raghubir MAHASETH (since 6 March 2024), Upendra YADAV (since 10 March 2024) (an)"
         holders:
           - role: deputy prime minister
             name: Narayan Kaji SHRESTHA
             start_date: 26 December 2022
           - role: deputy prime minister
-            name: Purna Bahadur KHADKA
-            start_date: 31 March 2023
+            name: Rabi LAMICHHANE
+            start_date: 26 December 2022
+          - role: deputy prime minister
+            name: Raghubir MAHASETH
+            start_date: 6 March 2024
+          - role: deputy prime minister
+            name: Upendra YADAV
+            start_date: 10 March 2024
       # Mali
       - match: "Transition Prime Minister Choguel MAIGA (appointed by Transition President Assimi GOITA on 7 June 2021)note: former transition Prime Minister Moctar OUANE was arrested and detained by the military on 24 May 2021 and resigned on 26 May 2021"
         holders:
@@ -354,26 +362,38 @@ lookups:
         holders:
           - role: Administrator
             name: Kit PYMAN
-      - match: "Denis BECIROVIC (presidency member since 16 November 2022 - Bosniak seat)"
+      # Bosnia and Herzegovina
+      - match: "Chairperson of the Presidency Denis BECIROVIC (chairperson since 16 March 2024"
         holders:
-          - role: presidency member
+          - role: Chairperson of the Presidency
             name: Denis BECIROVIC
-            start_date: 16 November 2022
+            start_date: 16 March 2024
       - match: "Zeljka CVIJANOVIC (presidency member since 16 November 2022 - Serb seat)"
         holders:
-          - role: presidency member
+          - role: Presidency member
             name: Zeljka CVIJANOVIC
             start_date: 16 November 2022
-      - match: "Chairman of the Presidency Zeljko KOMSIC (chairman since 16 July 2023"
+      - match: Zeljko KOMSIC (presidency member since 20 November 2018 - Croat seat)
         holders:
-          - role: Chairman of the Presidency
+          - role: Presidency member
             name: Zeljko KOMSIC
-            start_date: 16 July 2023
-      - regex: "Deputy Prime Ministers Vincent Van QUICKENBORNE, Vincent VAN PETEGHEM, Frank VANDENBROUCKE, Pierre-Yves DERMAGNE, Petra DE SUTTER, Georges GILKINET .+ David CLARINVAL .+"
+            start_date: 20 November 2018
+      - match: Chairperson of the Council of Ministers Borjana KRISTO (since 25 January 2023)
+        holders:
+          - role: Chairperson of the Council of Ministers
+            name: Borjana KRISTO
+            start_date: 25 January 2023
+      # Serbia
+      - match: "Ivica DACIC will be acting prime minister until the next election (date not yet set)"
+        holders:
+          - role: Acting Prime Minister
+            name: Ivica DACIC
+      # Belgium
+      - match: "Deputy Prime Ministers Paul Van TIGCHELT (since 22 October 2023), Vincent VAN PETEGHEM, Frank VANDENBROUCKE, Pierre-Yves DERMAGNE, Petra DE SUTTER, Georges GILKINET (all since 1 October 2020), David CLARINVAL (since 15 July 2022)"
         holders:
           - role: Deputy Prime Minister
-            name: Vincent Van QUICKENBORNE
-            start_date: 1 October 2020
+            name: Paul Van TIGCHELT
+            start_date: 22 October 2023
           - role: Deputy Prime Minister
             name: Vincent VAN PETEGHEM
             start_date: 1 October 2020
@@ -392,6 +412,7 @@ lookups:
           - role: Deputy Prime Minister
             name: David CLARINVAL
             start_date: 15 July 2022
+
       - match: "Deputy Prime Ministers Ihar PETRYSHENKA (since 18 August 2018), Anatol SIVAK (since 1 September 2020), Leanid ZAYATS (since 21 March 2022), Petr PARKHOMCHYK (since 16 August 2022)"
         holders:
           - role: Deputy Prime Minister
@@ -480,8 +501,6 @@ lookups:
           - role: Prime Minister
             name: Antonio Luis Santos da COSTA
             start_date: 24 November 2015
-      - match: "chief of state: president (vacant)"
-        holders: []
       # Italy
       - match: Deputy Prime Ministers Matteo SALVINI and Antonio TAIANI (since 22 October 2022)
         holders:
@@ -549,47 +568,72 @@ lookups:
             name: General Abdourahame TIANI
             start_date: 28 July 2023
       # Yemen
-      - match: Vice Chairpersons and Presidential Council members Sultan al-ARADA, Faraj Salmin al- BAHSANI, Brig. Gen. Abdullah Al-Alimi BA WAZIR, Uthman Hussain Faid al-MUJALI, TARIQ Muhammad Abdallah Salih, Brig. Gen., 'Abd-al-Rahman ABU ZARA'A al-Muharrami al-Yafai, Brig. Gen., Aydarus Qasim al-ZUBAYDI, Maj. Gen. (all since 19 April 2022)
+      - match: "Vice Chairpersons and Presidential Leadership Council members Sultan al-ARADA, Faraj Salmin al- BAHSANI, Brig. Gen. Abdullah Al-Alimi BA WAZIR, Uthman Hussain Faid al-MUJALI, TARIQ Muhammad Abdallah Salih, Brig. Gen., 'Abd-al-Rahman ABU ZARA'A al-Muharrami al-Yafai, Brig. Gen., Aydarus Qasim al-ZUBAYDI, Maj. Gen. (all since 19 April 2022)"
         holders:
-          - role: Vice Chairperson
+          - role: Presidential Leadership Council member
             name: Sultan al-ARADA
             start_date: 19 April 2022
-          - role: Vice Chairperson
+          - role: Presidential Leadership Council member
             name: Faraj Salmin al-BAHSANI
             start_date: 19 April 2022
-          - role: Vice Chairperson
+          - role: Presidential Leadership Council member
             name: Abdullah Al-Alimi BA WAZIR
             start_date: 19 April 2022
-          - role: Vice Chairperson
+          - role: Presidential Leadership Council member
             name: Uthman Hussain Faid al-MUJALI
             start_date: 19 April 2022
-          - role: Vice Chairperson
+          - role: Presidential Leadership Council member
             name: TARIQ Muhammad Abdallah Salih
             start_date: 19 April 2022
-          - role: Vice Chairperson
-            name: Abd-al-Rahman ABU ZARA'A al-Muharrami al-Yafai
+          - role: Presidential Leadership Council member
+            name: \'Abd-al-Rahman ABU ZARA\'A al-Muharrami al-Yafai
             start_date: 19 April 2022
-          - role: Vice Chairperson
+          - role: Presidential Leadership Council member
             name: Aydarus Qasim al-ZUBAYDI
             start_date: 19 April 2022
       # Yemen
-      - match: on 5 February 2024, Foreign Minister Ahmad Awad Bin MUBAREK was appointed prime minister by the Presidential Council
+      - match: on 5 February 2024, Foreign Minister Ahmad Awad Bin MUBAREK was appointed prime minister by the Presidential Leadership Council
         holders:
           - role: Prime Minister
             name: Ahmad Awad Bin MUBAREK
             start_date: 5 February 2024
+      - match: "Chairperson, Presidential Leadership Council Rashad Muhammad al-ALIMI, Dr. (since 19 April 2022)"
+        holders:
+          - role: Chairperson, Presidential Leadership Council
+            name: Rashad Muhammad al-ALIMI
+            start_date: 19 April 2022
       # Guinea
       - match: on 27 February 2024, Guinea's military leaders appointed Mamadou Oury BAH as prime minister
         holders:
           - role: Prime Minister
             name: Mamadou Oury BAH
             start_date: 27 February 2024
+      # Libya
+      - match: President, Presidential Council, Mohammed Al MENFI (since 5 February 2021)
+        holders:
+          - role: President, Presidential Council
+            name: Mohammed Al MENFI
+            start_date: 5 February 2021
+      - match: GNU Interim Prime Minister Abdul Hamid DUBAYBAH (since 5 February 2021)
+        holders:
+          - role: Interim Prime Minister
+            name: Abdul Hamid DUBAYBAH
+            start_date: 5 February 2021
+      # Oman
+      - match: Sultan and Prime HAITHAM bin Tarik Al Said (since 11 January 2020)
+        holders:
+          - role: Sultan
+            name: HAITHAM bin Tarik Al Said
+            start_date: 11 January 2020
+          - role: Prime Minister
+            name: HAITHAM bin Tarik Al Said
+            start_date: 11 January 2020
       # Not additional heads, just notes
       - regex:
           - subsequently, the Houthis and supporters of Yemen's first president, Ali Abdullah SALEH, seized the presidential palace and placed HADI under house arrest
           # Afghanistan
-          - 'overall Taliban Leader HAYBATULLAH Akhundzada serves as the head of the Taliban as Amir-ul Momineen and as such is seen by the Taliban as head of state'
-          - 'he resides and issues decrees from the city of Kandahar while the legacy government ministries operate from Kabul'
+          - "overall Taliban Leader HAYBATULLAH Akhundzada serves as the head of the Taliban as Amir-ul Momineen and as such is seen by the Taliban as head of state"
+          - "he resides and issues decrees from the city of Kandahar while the legacy government ministries operate from Kabul"
           - 'overall Taliban Leader HAYBATULLAH Akhundzada is the \[so-called\] Amir-ul Momineen of the Taliban and is seen by them as a head of government'
           - "^the president is both chief of state and head of government"
           - "^note [-–] "
@@ -663,6 +707,9 @@ lookups:
           - a replacement will be chosen in March 2024
           # Guinea
           - "on 19 February 2024 Guinea's military leaders dissolved the government of Prime Minister Bernard GOUMOU"
+          # Bulgaria
+          - "Vacant \\(since 6 March 2024\\)"
+          - "chief of state: president \\(vacant\\)"
         holders: []
 
   type.country:

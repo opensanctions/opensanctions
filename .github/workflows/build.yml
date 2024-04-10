@@ -68,7 +68,7 @@ jobs:
           python setup.py sdist bdist_wheel
       - name: Get any modified dataset files
         id: changed-files
-        uses: tj-actions/changed-files@v43
+        uses: tj-actions/changed-files@v44
         with:
           files: 'datasets/**'
       - name: Crawl modified datasets

@@ -30,6 +30,7 @@ def crawl(context: Context) -> None:
         entity.add("address", row.pop("ecOpAddress"))
         entity.add("country", row.pop("ecOpCountryCode"))
         entity.add("country", row.pop("ecOpCountryName"))
+        entity.add("topics", "debarment")
 
         sanction = h.make_sanction(context, entity)
         sanction.add("summary", row.pop("comments").replace("<br>", "\n"))

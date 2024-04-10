@@ -20,7 +20,7 @@ description: |
   and tracking the individuals who hold this post at different times.
 
   The set of posts and positions that are tracked are curated by the OpenSanctions team
-  and will include:
+  prioritises:
 
   * National legislatures
   * National cabinets and ministerial positions
@@ -554,6 +554,7 @@ lookups:
           - "Q65962630"  # President of AEK Larnaca      
           - "Q108377574"  # Islamic religious occupation
           - "Q21051103"  # warden
+          - "Q2382776"  # no-show job
           
   country_decisions:
     options:
@@ -1077,6 +1078,10 @@ lookups:
         code: "SK"
         label: "Slovakia"
         decision: "national"
+      - match: "Q154401"
+        code: ""
+        label: " Slovak Republic"
+        decision: "ignore"
       - match: "Q215"
         code: "SI"
         label: "Slovenia"
@@ -1713,6 +1718,7 @@ lookups:
         code: "US"
         label: "United States of America"
         decision: "national"
+        include_local: true
       - match: "Q31"
         code: "BE"
         label: "Belgium"
@@ -1844,4 +1850,12 @@ lookups:
       - match: "Q81931"
         code: ""
         label: "Confederate States"
+        decision: "ignore"
+      - match: "Q332005"
+        code: ""
+        label: "Principality of Achaea"
+        decision: "ignore"
+      - match: "Q98807804"
+        code: ""
+        label: "annexation of the Free City of Frankfurt by Prussia"
         decision: "ignore"
