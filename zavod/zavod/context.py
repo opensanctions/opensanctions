@@ -1,8 +1,8 @@
+import orjson
 from pathlib import Path
 from datetime import datetime
 from functools import cached_property
-from typing import Any, Optional, Union, Dict, List, Tuple, Mapping
-import orjson
+from typing import Any, Optional, Union, Dict, List
 from requests import Response
 from prefixdate import DatePrefix
 from lxml import html, etree
@@ -13,7 +13,6 @@ from nomenklatura.cache import Cache
 from nomenklatura.util import PathLike
 from rigour.urls import build_url, ParamsType
 from structlog.contextvars import clear_contextvars, bind_contextvars
-from banal import hash_data
 
 from zavod import settings
 from zavod.audit import inspect
@@ -26,13 +25,10 @@ from zavod.runtime.issues import DatasetIssues
 from zavod.runtime.resources import DatasetResources
 from zavod.runtime.timestamps import TimeStampIndex
 from zavod.runtime.cache import get_cache
-from zavod.http import fetch_file, make_session
+from zavod.http import fetch_file, make_session, request_hash
+from zavod.http import _Auth, _Headers, _Body
 from zavod.logs import get_logger
 from zavod.util import join_slug
-
-_Auth = Optional[Tuple[str, str]]
-_Headers = Optional[Mapping[str, str]]
-_Body = Optional[Union[Mapping[str, str], List[Tuple[str, str]]]]
 
 
 class Context:
@@ -268,9 +264,7 @@ class Context:
         url = build_url(url, params)
 
         if cache_days is not None:
-            fingerprint = self.get_request_fingerprint(
-                url=url, auth=auth, method=method, data=data
-            )
+            fingerprint = request_hash(url, auth=auth, method=method, data=data)
             text = None
 
             if method == "GET":
@@ -335,9 +329,7 @@ class Context:
             try:
                 return orjson.loads(text)
             except Exception:
-                fingerprint = self.get_request_fingerprint(
-                    url=url, auth=auth, method=method, data=data
-                )
+                fingerprint = request_hash(url, auth=auth, method=method, data=data)
                 self.clear_url(fingerprint)
                 raise
 
@@ -379,9 +371,7 @@ class Context:
             try:
                 return html.fromstring(text)
             except Exception:
-                fingerprint = self.get_request_fingerprint(
-                    url=url, auth=auth, method=method, data=data
-                )
+                fingerprint = request_hash(url, auth=auth, method=method, data=data)
                 self.clear_url(fingerprint)
                 raise
         raise ValueError("Invalid HTML document: %s" % url)
@@ -395,35 +385,6 @@ class Context:
             None
         """
         self.cache.delete(fingerprint)
-
-    def get_request_fingerprint(
-        self,
-        url: str,
-        auth: Optional[_Auth] = None,
-        method: str = "GET",
-        data: Any = None,
-    ) -> str:
-        """
-        Generate a unique fingerprint for an HTTP request.
-        Args:
-            url: The URL of the request.
-            auth: The authentication credentials.
-            method: The HTTP method of the request.
-            data: The data to be sent in the request body.
-        Returns:
-            A unique fingerprint for the request (url + hashed payload).
-        """
-
-        hsh = hash_data(
-            {
-                "url": url,
-                "auth": auth,
-                "method": method,
-                "data": data,
-            }
-        )
-
-        return f"{url}[{hsh}]"
 
     def parse_resource_xml(self, name: PathLike) -> etree._ElementTree:
         """Parse a file in the resource folder into an XML tree.

@@ -10,6 +10,7 @@ from zavod import settings
 from zavod.context import Context
 from zavod.meta import Dataset
 from zavod.entity import Entity
+from zavod.http import request_hash
 from zavod.crawl import crawl_dataset
 from zavod.archive import iter_dataset_statements
 from zavod.runtime.sink import DatasetSink
@@ -90,10 +91,7 @@ def test_context_get_fetchers(testdataset1: Dataset):
     assert text == "Hello, World!"
 
     # Extra check that cache is there
-    fingerprint = context.get_request_fingerprint(
-        url="https://test.com/bla", method="GET"
-    )
-
+    fingerprint = request_hash("https://test.com/bla", method="GET")
     assert context.cache.get(fingerprint, max_age=14) is not None
 
     with requests_mock.Mocker() as m:
@@ -174,7 +172,6 @@ def test_context_post_fetchers(testdataset1: Dataset):
         doc = context.fetch_html("https://test.com/bla", method="POST")
         assert doc.findtext(".//h1") == "Hello, World!"
 
-
     context.close()
 
 
@@ -189,12 +186,13 @@ def test_context_fetchers_exceptions(testdataset1: Dataset):
             m.get("/bla", text='{"msg": "Hello, World!"')
             context.fetch_json("https://test.com/bla", cache_days=10)
 
-    fingerprint = context.get_request_fingerprint(url="https://test.com/bla", method="GET")
+    fingerprint = request_hash("https://test.com/bla", method="GET")
 
     # Checking that cleanup function wiped the cache properly
     assert context.cache.get(fingerprint, max_age=10) is None
 
     context.close()
+
 
 def test_crawl_dataset(testdataset1: Dataset):
     DatasetSink(testdataset1).clear()
