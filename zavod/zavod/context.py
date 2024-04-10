@@ -13,7 +13,6 @@ from nomenklatura.cache import Cache
 from nomenklatura.util import PathLike
 from rigour.urls import build_url, ParamsType
 from structlog.contextvars import clear_contextvars, bind_contextvars
-from banal import hash_data
 
 from zavod import settings
 from zavod.audit import inspect
