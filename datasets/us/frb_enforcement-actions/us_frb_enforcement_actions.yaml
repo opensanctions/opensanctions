@@ -1,0 +1,30 @@
+title: US's Federal Reserve Enforcement Actions
+entry_point: crawler.py
+prefix: us-fed
+coverage:
+  frequency: daily
+  start: 2024-04-10
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Enforcement actions against entities and individuals for violations of laws, rules, or regulations
+description: |
+  This dataset comprises information about individuals and entities that have
+  have violated laws, rules, or regulations, unsafe or unsound practices,
+  breaches of fiduciary duty, and violations of final orders. Formal
+  enforcement actions include cease and desist orders, written
+  agreements, prompt corrective action directives, removal and
+  prohibition orders, and orders assessing civil money penalties.
+publisher:
+  name: US's Federal Reserve
+  url: https://www.federalreserve.gov/aboutthefed.htm
+  official: true
+  country: "us"
+url: "https://www.federalreserve.gov/supervisionreg/enforcement-actions-about.htm"
+data:
+  url: https://www.federalreserve.gov/supervisionreg/files/enforcementactions.csv
+  format: CSV
+
+lookups:
+  comma_names:
+    lowercase: true
+    options:
