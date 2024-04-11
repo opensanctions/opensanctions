@@ -4,19 +4,25 @@ prefix: hr-public-officials
 url: https://www.sukobinteresa.hr/hr/registar-duznosnika
 coverage:
   frequency: daily
-  start: 2024-04-10
+  start: 2024-04-11
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary:
-  placeholder
-description: |
-  placeholder
+summary: >
+  This dataset documents Croatian public officials, their positions, and affiliations. 
+  It is published daily by the Commission for Decisions on Public Interest 
+  Povjerenstvo za odlučivanje o sukobu interesa), and intended to be referenced in 
+  investigating conflicts of interest.
+description: >
+  Each record contains a Croatian public official and up to two roles, the start and 
+  end dates, and the associated legal entity. 
 entry_point: crawler.py
 publisher:
   name: Povjerenstvo za odlučivanje o sukobu interesa
-  description: |
-    placeholder
+  description: >
+    The Commission for Decisions on Public Interest (Povjerenstvo za odlučivanje o 
+    sukobu interesa) is a government body responsible for preventing conflicts of 
+    interest between private and public interests.
   country: hr
-  url: https://www.sukobinteresa.hr/hr
+  url: https://www.sukobinteresa.hr/
   official: true
 data:
   url: https://www.sukobinteresa.hr/export/registar_duznosnika.csv
