@@ -1,0 +1,230 @@
+title: Malaysian's Securities Comission Sanctions
+entry_point: crawler.py
+prefix: my-aob
+coverage:
+  frequency: daily
+  start: 2024-04-12
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Auditors sanctioned by the Malaysian's Securities Comission Audit Oversight Board
+description: |
+  This dataset comprises information about auditors sanctioned by
+  the Malaysian's Securities Comission Audit Oversight Board,
+  The focus of AOB enforcement is whether the auditors comply
+  with the recognised auditing and ethical standards.
+  Such action from the AOB may not necessary imply the audited
+  financial statement does not give a true and fair view.
+  The sanctions are: 
+    - Directing the person in breach to comply with the
+    provisions of Part IIIA of the SCA or any condition,
+    written notice or guidelines; 
+    - Reprimand; 
+    - Requiring professional education to be undertaken; 
+    - Assigning a reviewer to oversee an audit
+    that is undertaken by the auditor concerned; 
+    - Financial penalty of not exceeding RM500,000; 
+    - Prohibit the person concerned from accepting any
+    public interest entity or schedule fund as its clients
+    or preparing reports in relation to financial
+    information of any public interest entity or schedule
+    fund, as may be required under the securities laws
+    or guidelines issued by the Commission,
+    for a period not exceeding twelve months; and 
+    - Prohibit the person concerned from auditing financial
+    statements or preparing reports in relation to
+    financial information of a public interest entity
+    or schedule fund, as may be required under the
+    securities laws or guidelines issued by the Commission,
+    for a period not exceeding twelve months or permanently.
+publisher:
+  name: Suruhanjaya Sekuriti Malaysia
+  description: Securities Commission Malaysia
+  url: https://www.sc.com.my
+  official: true
+  country: "my"
+url: "https://www.sc.com.my/aob/aob-enforcement"
+data:
+  url: https://www.sc.com.my/aob/aobs-sanctions
+  format: HTML
+
+lookups:
+  clean_names:
+    lowercase: true
+    options:
+      - match: Nexia SSY PLT (AF 2009) (“Nexia”)
+        names:
+          - Nexia SSY PLT 
+      - match: Michelle Yong Voon Sze (“Michelle”) of Nexia SSY PLT (AF 2009) is the engagement partner for the audit of a Public Interest Entity (“PIE”) for the financial period ended 30 June 2021.
+        names:
+          - Michelle Yong Voon Sze
+      - match: Jayapalasingam A/L Kandiah (“Jayapalasingam”) of Nexia SSY PLT (AF 2009) is the Engagement Quality Control Reviewer for the audit of a Public Interest Entity (“PIE”) for the financial period ended 30 June 2021.
+        names:
+          - Jayapalasingam
+      - match: Chia Kwong Chow (“Chia”) of K. C. Chia & Noor (AF 0922) is the engagement partner for the audit of a Public Interest Entity (“PIE”) for the financial period ended 30 June 2020.
+        names:
+          - Chia Kwong Chow
+      - match: Tai Yoong Noor (“Tai”) of K. C. Chia & Noor (AF 0922) is the Engagement Quality Control Reviewer for the audit of a Public Interest Entity (“PIE”) for the financial period ended 30 June 2020.
+        names:
+          - Tai Yoong Noor
+      - match: Yean Wai Nye (“Yean”) of T. H. Kuan & Co. (AF 1216) is the engagement partner for the audit of a Public Interest Entity (“PIE”) for the financial year ended 31 March 2021.
+        names:
+          - Yean Wai Nye
+      - match: Charles Lee King Long (“Lee”) of Kreston John & Gan (AF 0113) is the engagement partner for the audit of a public interest entity (“PIE”) for the financial year ended 31 December 2016.
+        names:
+          - Charles Lee King Long
+      - match: Gan Kim Guan (“Gan”) of Kreston John & Gan (AF 0113) is the engagement quality control reviewer for the audit of a public interest entity ("PIE") for the financial year ended 31 December 2016.
+        names:
+          - Gan Kim Guan
+      - match: Ong & Wong Chartered Accountants (AF 0241) (“Ong & Wong”).
+        names:
+          - Ong & Wong Chartered Accountants
+      - match: Ong Koon Liang (“Koon Liang”) of Ong & Wong Chartered Accountants (AF 0241) is the engagement partner for the audit of a Public Interest Entity (“PIE”) for the financial year ended 31 January 2019.
+        names:
+          - Ong Koon Liang
+      - match: Ong Kong Lai (“Kong Lai”) of Ong & Wong Chartered Accountants (AF 0241) is the engagement partner for the audit of a Public Interest Entity (“PIE”) for the financial year ended 31 December 2019.
+        names:
+          - Ong Kong Lai
+      - match: Wong Cham Mew (“Cham Mew”) of Ong & Wong Chartered Accountants (AF 0241) is the Engagement Quality Control Reviewer for the audit of two Public Interest Entity (“PIE”).
+        names:
+          - Wong Cham Mew
+      - match: Jamal, Amin & Partners (“JAP”)
+        names:
+          - Jamal, Amin & Partners
+      - match: Ahmad Hilmy Bin Johari (“Hilmy”) of Jamal, Amin & Partners (“JAP”) is the engagement partner for the audit of a public interest entity (“PIE”) for the financial year ended 30 June 2019.
+        names:
+          - Ahmad Hilmy Bin Johari
+      - match: Sharinah Binti Mohamed Iqbal (“Sharinah”) of PKF is the engagement partner for the audit of a public interest entity (“PIE”) for the financial year ended 30 June 2019.
+        names:
+          - Sharinah Binti Mohamed Iqbal
+      - match: UHY Hacker Young LLP
+        names:
+          - UHY Hacker Young LLP
+      - match: RSL PLT (AF 0071) With effect from 10 December 2020, RSL PLT (AF 0071) is known as LTTH PLT (AF 0071) (“the Firm”).
+        names:
+          - RSL PLT
+      - match: Lim Lip Chin (“LLC”) of RSL PLT (AF 0071) was the engagement partner for the audit of a public interest entity for the financial year ended 31 March 2018. With effect from 10 December 2020, RSL PLT (AF 0071) is known as LTTH PLT (AF 0071).
+        names:
+          - Lim Lip Chin
+      - match: Lim Sang Chee (“LSC”) of RSL PLT (AF 0071) was the engagement quality control reviewer for the audit of a public interest entity for the financial year ended 31 March 2018. With effect from 10 December 2020, RSL PLT (AF 0071) is known as LTTH PLT (AF 0071).
+        names:
+          - Lim Sang Chee
+      - match: Muhamad Hafiz Bin Che Yusof of Morison AAC PLT was the engagement partner for the audit of a public interest entity for the financial year ended 31 July 2016.
+        names:
+          - Muhamad Hafiz Bin Che Yusof
+      - match: Sandra Segaran a/l Muniandy @ Krishnan (“Sandra”), partner of Ernst & Young PLT responsible for the audit engagement of a public interest entity for the financial year ended 31 December 2018.
+        names:
+          - Sandra Segaran
+      - match: UHY (AF 1411) ("Firm")
+        names:
+          - UHY
+      - match: Chan Jee Peng ("CJP"), partner of UHY. CJP was the engagement partner in the audit of a PIE for the financial period ended 31 March 2015.
+        names:
+          - Chan Jee Peng
+      - match: Chengco PLT (AF 0886) ("Chengco")
+        names:
+          - Chengco PLT
+      - match: Hong Thuan Boon (HTB) of Chengco HTB was the engagement partner for the audit of a public interest entity for the financial year ended 31 December 2017.
+        names:
+          - Hong Thuan Boon
+      - match: Liew Kwai Choy (LKC) of Chengco LKC was the Engagement Quality Control Reviewer for the audit of a public interest entity for the financial period ended 31 December 2017.
+        names:
+          - Liew Kwai Choy
+      - match: Yap Peng Boon (YBP) of Chengco YPB was the engagement partner for the audit of a public interest entity for the financial year ended 31 December 2014.
+        names:
+          - Yap Peng Boon
+      - match: Andrew Heng of Baker Tilly Monteiro Heng PLT (AF 0117) was the Engagement Partner for the audit of a public interest entity (PIE) for the financial year ended 31 December 2014
+        names:
+          - Andrew Heng
+      - match: Afrizan Tarmili Khairul Azhar (AF 1300)(“AFTAAS”)
+        names:
+          - Afrizan Tarmili Khairul Azhar
+      - match: Datuk Mohd Afrizan Bin Husain (“MAH”) of AFTAAS was the engagement partner for the audit of a public interest entity for the financial year ended 30 June 2018 and the engagement quality control reviewer for the audit of a public interest entity for the financial year ended 31 December 2017.
+        names:
+          - Datuk Mohd Afrizan Bin Husain
+      - match: Haji Tamili Dulah Kusni ("TDK") of AFTAAS was the engagement quality control reviewer for the audit of a public interest entity for the financial year ended 30 June 2018.
+        names:
+          - Haji Tamili Dulah Kusni
+      - match: Khairul Azahar Bin Ariffin ("KAA") of AFTAAS was the engagement partner for the audit of a public interest entity for the financial year ended 31 December 2017.
+        names:
+          - Khairul Azahar Bin Ariffin
+      - match: Huang Khean Yeong ("HKY") of Deloitte PLT (AF 0080) was the engagement partner for the audit of a public interest entity for the financial year ended 31 December 2016.
+        names:
+          - Huang Khean Yeong
+      - match: Elwyn Tang Boon Hiap of CHI-LLTC who was the engagement partner in the audit of a public listed entity for the financial year ended 30 April 2015.
+        names:
+          - Elwyn Tang Boon Hiap
+      - match: Sathiea Seelean A/L Manickam of Morison Anuarul Azizan Chew Engagement partner in the audit of a public listed entity for the financial year ended 31 December 2011.
+        names:
+          - Sathiea Seelean
+      - match: Tan Poh Ling, former partner of Morison Anuarul Azizan Chew Engagement partner in the audit of a public listed entity for the financial year ended 31 December 2012.
+        names:
+          - Tan Poh Ling
+      - match: Chuah Soo Huat (CSH), former partner of PKF. CSH was the engagement partner in the audit of a public listed company for the financial year ended 31 December 2012.
+        names:
+          - Chuah Soo Huat
+      - match: Siew Boon Yeong & Associates (AF 0660)
+        names:
+          - Siew Boon Yeong & Associates
+      - match: Dato' Siew Boon Yeong of Siew Boon Yeong & Associates Engagement partner in the audit of public listed entities (PIEs) for the financial years ended 31 December 2016, 31 January 2017 and 31 March 2017, respectively.
+        names:
+          - Dato' Siew Boon Yeong
+      - match: Lim Teik Ee former partner of Siew Boon Yeong & Associates Engagement Quality Control Reviewer (EQCR) in the audit of public listed entities for the financial years ended 31 December 2016, 31 January 2017 and 31 March 2017, respectively.
+        names:
+          - Lim Teik Ee
+      - match: Gary Yong Yoon Shing of Nexia SSY (AF 002009) Engagement partner in the audit of a PIE for the financial year ended 31 December 2012.
+        names:
+          - Gary Yong Yoon Shing
+      - match: Jason Sia Sze Wan of Nexia SSY. Engagement partner in the audit of a PIE for the financial year ended 31 December 2012.
+        names:
+          - Jason Sia Sze Wan
+      - match: Lye Ghee Kang of CAS Malaysia PLT (AF 1476) who was the engagement partner in the audit of a PIE for the financial years ended 30 April 2017.
+        names:
+          - Lye Ghee Kang
+      - match: McMillan Woods Mea (AF 001995) (“MWM”)
+        names:
+          - McMillan Woods Mea
+      - match: Mea Fatt Leong (“MFL”) of McMillan Woods Mea MFL was the engagement partner in the audit of a public listed company for the financial year ended 31 December 2016.
+        names:
+          - Mea Fatt Leong
+      - match: Wong Joo Hua (“WJH”) of McMillan Woods Mea WJH was the Engagement Quality Control Reviewer (EQCR) in the audit of a public listed company for the financial year ended 31 December 2016.
+        names:
+          - Wong Joo Hua
+      - match: Adam Selamat bin Musa Partner of Adam & Co who was the engagement partner in the audit of a public listed entity for the financial year ended 31 December 2013.
+        names:
+          - Adam Selamat bin Musa
+      - match: Lee Kok Wai Partner of Crowe Horwath who was the engagement partner in the audit of a public interest entity (PIE) for the financial year ended 31 October 2010.
+        names:
+          - Lee Kok Wai
+      - match: Chan Kee Hwa Partner of Khoo Wong & Chan who was the engagement partner in the audit of a public interest entity (PIE) for the financial year ended 31 March 2011.
+        names:
+          - Chan Kee Hwa
+      - match: Tan Chin Huat Partner of STYL Associates who was the engagement partner in the audit of a public interest entity (PIE) for the financial year ended 31 December 2010.
+        names:
+          - Tan Chin Huat
+      - match: Wong Shan Ty Partner of Ong & Wong who was the engagement partner in the audit of a public interest entity (PIE) for the financial year ended 30 September 2011.
+        names:
+          - Wong Shan Ty
+      - match: Cheah Choong Keong Partner of C.K. Cheah & Co. who was the engagement partner in the audit of a public interest entity (PIE) for the financial year ended 30 September 2011.
+        names:
+          - Cheah Choong Keong
+      - match: Dr. Abd Halim Bin Husin Partner of Wong Weng Foo & Co. who was the engagement partner in the audit of a public interest entity (PIE) for the financial year ended 30 June 2011.
+        names:
+          - Abd Halim Bin Husin
+      - match: Mohd. Neezal bin Md. Noordin Partner of AljeffriDean who was the engagement partner in the audit of a public interest entity (PIE) for the financial year ended 31 March 2011.
+        names:
+          - Mohd. Neezal bin Md. Noordin
+      - match: Alvin, Tee Guan Pian (Partner of UHY who was the engagement partner in the audit of a public interest entity for the financial year ended 31 July 2010)
+        names:
+          - Alvin, Tee Guan Pian
+      - match: Liew Tip Chan(Sole proprietor of T.C. Liew & Co. who was the engagement partner in the audit of a public interest entity (PIE) for the financial year ended 31 January 2011.)
+        names:
+          - Liew Tip Chan
+      - match: Lim Kok Beng Partner of Ong Boon Bah & Co who was the engagement partner in the audit of a public interest entity (PIE) for the financial year ended 30 June 2011.
+        names:
+          - Lim Kok Beng
+      - match: Yeo Eng Hui Partner of STYL Associates who was the engagement partner in the audit of a public interest entity (PIE) for the financial year ended 31 December 2010.
+        names:
+          - Yeo Eng Hui
+      - match: Wong Weng Foo & Co. (the Audit Firm)
+        names:
+          - Wong Weng Foo & Co. 
