@@ -16,11 +16,11 @@ http:
   retry_statuses: [503, 429, 403]
 
 summary: |
-  Information from the Unified State Register of taxpayers of the Republic of Tajikistan.
+  Legal and natural entities in the Unified State Register of taxpayers of the Republic of Tajikistan.
 description: |
   The registry has 3 sections for taxpayers: legal entities, representatives of branches and foreign 
   organizations and individual entrepreneurs.
-  legal entities has two identification numbers: ein (РЯМ) and inn (РМА), date of registration,
+  legal entities has two identification numbers: EIN (РЯМ) and INN (РМА), date of registration,
   status and the name of the organization.
 url: https://andoz.tj/ForTaxpayer/UnifiedStateRegister
 publisher:
@@ -28,7 +28,7 @@ publisher:
   country: tj
   url: https://andoz.tj/
   description: |
-    Tax committee under the Government of the Republic of Tajikistan is a holder of the company registry.
+    The tax committee under the Government of the Republic of Tajikistan is a holder of the company registry.
     It carries out state registration of legal entities, individual entrepreneurs branches and 
     representative offices foreign legal entities, ensures maintenance of the Unified State 
     Register and access to its information State Register and access to its information
@@ -36,3 +36,12 @@ publisher:
 data:
   url: https://andoz.tj/ForTaxpayer/UnifiedStateRegister
   format: HTML
+
+lookups:
+  headers:
+    map:
+      EIN: ein
+      INN: inn
+      Полное название: name
+      Дата ре-гистрации: date_of_reg
+      Статус: status

@@ -1,6 +1,5 @@
 from typing import Any, Dict
 import re
-from time import sleep
 from lxml import html
 
 from zavod import Context
@@ -8,7 +7,6 @@ from zavod import helpers as h
 
 
 CACHE_DAYS = 0  # since the forms are using session ids, which is unique every time
-SLEEP_TIME = 1  # seconds
 BASE_URL = "https://registry.andoz.tj/{section}.aspx?lang=ru"
 
 
@@ -112,11 +110,13 @@ def crawl_page(
     Returns:
         The total number of pages.
     """
-    entity_type = "Company"
+    context.log.info(f"Section {section} page {page_number}")
     if section == "physical":
         entity_type = "Person"
     elif section == "foreing":
         entity_type = "LegalEntity"
+    elif section == "legal":
+        entity_type = "Company"
 
     local_params = params.copy()
     local_params["__CALLBACKPARAM"] = get_callback_pagination_params(page_number)
@@ -146,20 +146,24 @@ def crawl_page(
     except ValueError:
         context.log.warning(f"Cannot find max page among pages {pages}")
 
+    headers = []
+
+    for cell in dom.xpath('//tr[@id="ASPxGridView1_DXHeadersRow0"]/td'):
+        value = cell.text_content()
+        value = re.sub(r"\\[rnt]", "", value)
+        headers.append(context.lookup_value("headers", value))
+    if not all(headers):
+        raise ValueError("Failed to translate some header: %s" % headers)
+
     for tr in dom.xpath(
         "descendant-or-self::*[@id = 'ASPxGridView1_DXMainTable']/"
         "descendant-or-self::*/tr[@class and contains(concat(' ', "
         "normalize-space(@class), ' '), ' dxgvDataRow_Office2003Blue')]"
     ):
         cells = tr.xpath("td")
-        if len(cells) != 5:
-            context.log.warning(
-                f"Cannot parse a row {values}, skipping the rest of the page"
-            )
-            break
 
         values = [cell.text.strip() for cell in cells]
-        item = dict(zip(["ein", "inn", "name", "date_of_reg", "status"], values))
+        item = dict(zip(headers, values))
 
         item["date_of_reg"] = h.parse_date(
             item["date_of_reg"],
@@ -173,7 +177,6 @@ def crawl_page(
         entity.add("status", item["status"], lang="rus")
         entity.add("country", "tj")
 
-        # I'm not sure if I'm right about mapping of this two fields, that's all I found
         # https://andoz.tj/docs/postanovleniya-pravitelstvo/Resolution__№323_ru.pdf
         # Раками Мушаххаси Андозсупоранда (РМА/INN) Идентификационный Номер Плательщика, Taxpayer Identification Number
         # Раками Ягонаи Мушаххас (РЯМ/EIN) Employer Identification number,
@@ -205,7 +208,6 @@ def crawl(context: Context):
         context.log.info(f"Total pages: {num_pages}")
 
         for page_number in range(1, num_pages + 1):
-            sleep(SLEEP_TIME)
             crawl_page(
                 context=context,
                 section=section,
