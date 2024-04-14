@@ -7,6 +7,8 @@ import re
 from typing import Dict, List, Literal, Any
 from zipfile import ZipFile
 
+from lxml.html import document_fromstring
+
 from zavod import Context
 from zavod import helpers as h
 from zavod.logic.pep import categorise
@@ -19,11 +21,55 @@ UNUSED_FIELDS = [
     "totalIncomes",
 ]
 SupportedLanguage = Literal["en", "hy"]
+BORN = "ծնվել"  # Often Ծնվել (title case)
+IN_THE_YEAR = "թվականին"  # Often թ. (similar to Russian году / г.)
+MONTHS = [  # Note: nominative
+    "հունվար",
+    "փետրվար",
+    "մարտ",
+    "ապրիլ",
+    "մայիս",
+    "հունիս",
+    "հուլիս",
+    "օգոստոս",
+    "սեպտեմբեր",
+    "հոկտեմբեր",
+    "նոյեմբեր",
+    "դեկտեմբեր",
+]
+HY_BIRTHDATE = re.compile(
+    r"ծնվել է (\d+)\s*(?:թվականին|թվականի|թ.)(?:,?\s+(\S+)\s+(\d+)\s*[–-]\s*ին)?", re.I
+)
+EN_BIRTH = re.compile(
+    r"born\s+(?:on\s+)?(\S+)\s+(\d+)\s*(?:,|in)\s*(\d+)(?:\s*in\s+([^\.]+))?", re.I
+)
 
 
-def crawl_person(context: Context, zipfh: ZipFile, person_id: int):
-    """Try to crawl some personal info from the HTML in
-    person/{person_id}-{lang}.html"""
+def crawl_person(
+    context: Context, zipfh: ZipFile, person_id: int, data: Dict[str, Any]
+):
+    """Create entites for a PEP"""
+    # We might have valid HTML, but we might also have an incomplete
+    # page with a "Parse Error".  In any case we are really just
+    # looking for date and place of birth.
+    english = document_fromstring(
+        zipfh.read(f"hetq-data/person/{person_id}-en.html")
+    ).text_content()
+    # Try to get date / place in English if possible
+    m = EN_BIRTH.search(english)
+    if m:
+        context.log.info(f"Found English birth info for {person_id}: {m.groups()}")
+    else:
+        armenian = document_fromstring(
+            zipfh.read(f"hetq-data/person/{person_id}-hy.html")
+        ).text_content()
+        # In Armenian we do date only because otherwise we'd need a
+        # lemmatizer to map e.g. Երեւանում -> Երևան
+        m = HY_BIRTHDATE.search(armenian)
+        if m:
+            context.log.info(f"Found Armenian birthdate for {person_id}: {m.groups()}")
+        else:
+            context.log.warning(f"No birth info found for {person_id}")
 
 
 def crawl_list(
@@ -34,7 +80,8 @@ def crawl_list(
     lang: SupportedLanguage,
 ):
     """Accumulate person info from yearly list.  Do not actually
-    create entities yet because we want to verify some stuff."""
+    create entities yet because we want to track them across multiple
+    years."""
     for entry in data:
         personID = entry.pop("personID")
         fullName = entry.pop("fullName")
@@ -80,11 +127,9 @@ def crawl_lists(context: Context, zipfh: ZipFile):
         with zipfh.open(info.filename) as infh:
             data = json.load(infh)
             crawl_list(context, peps, data, year, lang)
-    # Now that we have the PEPs we can grab some personal data
-
-    # And we can grab their connections
-
-    # And we can create entities
+    # Now that we have the PEPs we can grab some personal data and create entities
+    for person_id, data in peps.items():
+        crawl_person(context, zipfh, person_id, data)
 
 
 def crawl(context: Context):
