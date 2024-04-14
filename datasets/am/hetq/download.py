@@ -5,7 +5,6 @@ Download JSON from the data.hetq.am API / website
 import argparse
 import json
 import logging
-import urllib.request
 import requests
 
 import lxml.html
