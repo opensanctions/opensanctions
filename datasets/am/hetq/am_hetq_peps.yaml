@@ -2,9 +2,9 @@ title: Armenian PEP Assets Public Database
 prefix: am-hetq
 url: https://data.hetq.am/
 coverage:
-    frequency: never
-    start: 2024-04-13
-    end: 2024-04-13
+  frequency: never
+  start: 2024-04-13
+  end: 2024-04-13
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 entry_point: crawler.py
 summary: >-
