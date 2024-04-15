@@ -5,6 +5,8 @@ from rigour.ids.wikidata import is_qid
 
 from zavod import Context
 
+CAATSA_URL = "https://info.publicintelligence.net/USTreasury-RussianOligarchs-2018.pdf"
+
 
 def crawl_row(context: Context, row: Dict[str, str]):
     qid = row.get("qid", "").strip()
@@ -15,7 +17,13 @@ def crawl_row(context: Context, row: Dict[str, str]):
         return
     entity = context.make("Person")
     entity.id = qid
-    entity.add("topics", "role.oligarch")
+    entity.add("name", row.pop("name"), lang="eng")
+    entity.add("topics", row.pop("topics", "").split(";"))
+    if row.pop("caatsa2018") == "yes":
+        msg = "Mentioned in 2018 CAATSA report on Russian oligarchs"
+        entity.add("notes", msg, lang="eng")
+        entity.add("sourceUrl", CAATSA_URL)
+    # context.inspect(entity)
     context.emit(entity, target=True)
 
 

@@ -254,7 +254,7 @@ class Context:
             params: URL query parameters to be included in the URL.
             headers: HTTP request headers to be included.
             auth: HTTP basic authorization username and password to be included.
-            cache_days: Number of days to retain cached responses for.
+            cache_days: Number of days to retain cached responses for. `None` to disable.
             method: The HTTP method to use for the request.
             data: The data to be sent in the request body.
 
