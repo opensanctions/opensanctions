@@ -5,8 +5,9 @@ from lxml import html
 from zavod import Context
 from zavod import helpers as h
 
-
-CACHE_DAYS = 0  # since the forms are using session ids, which is unique every time
+# Don't hit the cache for this - these long jobs stop the db from vacuuming
+# if they do.
+ZERO_CACHE_DAYS = 0
 BASE_URL = "https://registry.andoz.tj/{section}.aspx?lang=ru"
 
 
@@ -43,7 +44,7 @@ def fetch_form_params(context: Context, section: str) -> Dict[str, Any]:
     params: Dict[str, str] = {}
 
     response = context.fetch_html(
-        BASE_URL.format(section=section), cache_days=CACHE_DAYS
+        BASE_URL.format(section=section), cache_days=ZERO_CACHE_DAYS
     )
     for s in response.findall(".//input[@type='hidden']"):
         name = s.get("name")
@@ -125,7 +126,7 @@ def crawl_page(
         url=BASE_URL.format(section=section),
         method="POST",
         data=local_params,
-        cache_days=CACHE_DAYS,
+        cache_days=ZERO_CACHE_DAYS,
     )
 
     _, raw_payload = response.split("(", 1)
