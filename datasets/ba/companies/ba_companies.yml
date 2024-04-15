@@ -1,0 +1,48 @@
+name: ba_companies
+title: Registers of business entities in Bosnia and Herzegovina
+prefix: ba-reg
+disabled: false
+entry_point: crawler
+coverage:
+  frequency: monthly
+  start: 2023-03-21
+deploy:
+  premium: true
+resolve: false
+ci_test: false
+http:
+  total_retries: 5
+  backoff_factor: 3
+  retry_statuses: [503, 429, 403]
+
+summary: |
+  Information from the Registers of business entities in Bosnia and Herzegovina.
+description: |
+  The registry information is retrieved using the filtering on combination of the city name and 
+  the time period when changes to the company were made. One page contains upto 500 records.
+  Company record has an information on the founders (persons and legal entities), managers as well
+  as the information on company registration number, unique number, address and optional additional
+  address, short and long name of the company, status and the date of the latest change.
+url: https://bizreg.pravosudje.ba
+publisher:
+  name: Federal Ministry of Justice and Judiciary Commission of District Brcko BiH
+  country: ba
+  url: https://bizreg.pravosudje.ba
+  description: |
+    The database of available electronic court registers of business entities:
+    Register of Business Entities in the District Brčko of BiH, Register of Business
+    Entities in the Federation of BiH and the Register of Business Entities in Republika Srpska.
+    The electronic court registers contain information on all business/legal entities
+    that are required to register by the Laws on Registration of Business Entities
+    (a business company or an enterprise established for the purpose of economic activity,
+    a cooperative or a cooperative association or any other legal entity performing an
+    economic activity established in accordance with the specific laws of both entities
+    and District Brčko with the aim of generating profit); since the moment those electronic
+    registers were introduced in the registration courts. Available information from electronic
+    registers is for informational purposes only and it cannot substitute a certified document
+    – certificate from the register of business entities from a relevant registration court –
+    which is issued upon request of an interested party as per a prescribed procedure.
+  official: true
+data:
+  url: https://bizreg.pravosudje.ba/pls/apex/f?p=186
+  format: HTML
