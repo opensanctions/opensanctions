@@ -64,6 +64,13 @@ def fetch_form_params(context: Context, section: str) -> Dict[str, Any]:
     params["ASPxComboBox1"] = "Наименование"
     params["ASPxComboBox1_DDDWS"] = "0:0:12000:792:80:0:-10000:-10000:1"
     params["ASPxComboBox1$DDD$L"] = "3"
+    # looks roughly like an ASPX viewstate, basically some non-text mixed with a
+    # page of results like
+    #
+    # EIN Name    Ru  subject d Date Reg  s INN
+    # 0230002053  Ликвидирован    Қодиров Ҷамшед  16.03.5200  025103725
+    # 7330000068  Ликвидирован    Худоиев Сайфудин    27.02.5200  735024277
+    #
     params["ASPxGridView1$CallbackState"] = (
         "BwIHAgIERGF0YQaIBAAAAADT5AgA0+QIAAAAAAAKAAAAAAUAAAADRUlOA0VJTgcAAAZOYW"
         "1lUnUHTmFtZSBSdQcAAAdzdWJqZWN0B3N1YmplY3QHAAAIZERhdGVSZWcKZCBEYXRlIFJl"
@@ -121,9 +128,9 @@ def crawl_page(
 
     local_params = params.copy()
     local_params["__CALLBACKPARAM"] = get_callback_pagination_params(page_number)
-
+    url = BASE_URL.format(section=section)
     response = context.fetch_text(
-        url=BASE_URL.format(section=section),
+        url=url,
         method="POST",
         data=local_params,
         cache_days=CACHE_DAYS_DISABLED,
@@ -133,9 +140,6 @@ def crawl_page(
     raw_payload = raw_payload.strip("()")
     matches = re.search(r"'result':'(.*)'", raw_payload, re.M | re.S)
 
-    if not matches:
-        return 0
-
     dom = html.fromstring(matches.group(1))
     pages = [
         el.text
@@ -144,8 +148,9 @@ def crawl_page(
 
     try:
         max_page = max(map(lambda x: int(x.strip("[]")), pages))
-    except ValueError:
-        context.log.warning(f"Cannot find max page among pages {pages}")
+    except Exception as e:
+        context.log.error("Failed to parse max page", pages=pages, payload=raw_payload)
+        raise
 
     headers = []
 
