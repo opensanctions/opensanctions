@@ -808,6 +808,10 @@ lookups:
         names:
           - FCA US LLC
           - Fiat Chrysler Automobiles N.V.
+      - match: fieldman rolapp & associates inc., and anna sarabian
+        names:
+          - Fieldman Rolapp & Associates Inc.
+          - Anna Sarabian
       - match: fieldstone financial management group llc and kristofor r. behn
         names:
           - Fieldstone Financial Management Group LLC
