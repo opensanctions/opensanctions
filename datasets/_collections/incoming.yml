@@ -13,4 +13,5 @@ children:
   - us_finra_actions
   - ru_dossier_center_poi
   - tj_companies
+  - am_hetq_peps
 ci_test: false
