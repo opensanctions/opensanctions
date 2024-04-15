@@ -12,7 +12,7 @@ from lxml.html import document_fromstring
 from zavod import Context, Entity
 from zavod import helpers as h
 from zavod.logic.pep import categorise
-
+from zavod.shed.internal_data import fetch_internal_data
 
 UNUSED_FIELDS = [
     "urlImage",
@@ -111,16 +111,17 @@ def add_armenian_name(
 
 def crawl_person(
     context: Context, zipfh: ZipFile, person_id: int, data: Dict[str, Any]
-):
+) -> Union[Entity, None]:
     """Create entites for a PEP"""
     birth_date, birth_place = get_birth_info(context, zipfh, person_id)
     name_en = data.get("name_en", "").strip()
     name_hy = data.get("name_hy", "").strip()
     if name_en == "" and name_hy == "":
         context.log.warning(f"Skipping person {person_id} with no name")
-        return
+        return None
     person = context.make("Person")
     person.id = context.make_slug(str(person_id))
+    context.log.info(f"Unique ID {person.id} for {person_id} ({name_en} / {name_hy})")
     if name_en:
         add_armenian_name(context, person, name_en, "en")
     if name_hy:
@@ -133,41 +134,47 @@ def crawl_person(
     position_hy = data.get("position_hy", "").strip()
     position_name = position_en or position_hy
     context.log.debug(f"position: {position_name} years: {data['years']}")
-    if position_name:
-        position = h.make_position(
-            context,
-            name=position_name,
-            country="am",
-        )
-        categorisation = categorise(context, position, is_pep=True)
-        if not categorisation.is_pep:
-            context.log.warning(f"Person {person_id} is not PEP")
-            return
-        occupancy = h.make_occupancy(
-            context,
-            person,
-            position,
-            start_date=str(min(data["years"])),
-            end_date=str(max(data["years"]) + 1),
-            categorisation=categorisation,
-        )
-        context.log.debug(f"categorization {categorisation} occupancy {occupancy}")
-        if occupancy is not None:
-            context.emit(person, target=True)
-            context.emit(position)
-            context.emit(occupancy)
+    if not position_name:
+        context.log.warning(f"Skipping person {person_id} with no position")
+        return None
+    position = h.make_position(
+        context,
+        name=position_name,
+        country="am",
+    )
+    categorisation = categorise(context, position, is_pep=True)
+    if not categorisation.is_pep:
+        context.log.warning(f"Person {person_id} is not PEP")
+        return None
+    occupancy = h.make_occupancy(
+        context,
+        person,
+        position,
+        start_date=str(min(data["years"])),
+        # skip this for now as it's not an explicit end date, and we
+        # get basically no PEPs as the data is old
+        # end_date=str(max(data["years"]) + 1),
+        categorisation=categorisation,
+    )
+    context.log.debug(f"categorization {categorisation} occupancy {occupancy}")
+    if occupancy is not None:
+        context.emit(person, target=True)
+        context.emit(position)
+        context.emit(occupancy)
+        return person
+    context.log.info(f"No entities emitted for {person_id} ({name_en} / {name_hy})")
+    return None
 
 
 def crawl_list(
     context: Context,
-    peps: Dict[int, Any],
+    peps: Dict[int, Dict[str, Any]],
     data: List[Dict[str, Any]],
     year: int,
     lang: SupportedLanguage,
 ):
     """Accumulate person info from yearly list.  Do not actually
-    create entities yet because we want to track them across multiple
-    years."""
+    create entities yet because they might not be PEPs."""
     for entry in data:
         personID = entry.pop("personID")
         fullName = entry.pop("fullName")
@@ -197,6 +204,59 @@ def crawl_list(
                 assert pep[f"position_{lang}"] == lastPosition
 
 
+def crawl_relations(
+    context: Context, zipfh: ZipFile, peps: Dict[int, Dict[str, Any]], person_id: int
+):
+    """Read relation graph and create entities."""
+    if person_id not in peps or "entity" not in peps[person_id]:
+        context.log.debug(f"Skipping relations for {person_id}: is not PEP")
+        return
+    # Unnecessary to use the Armenian versions here since the data is the same
+    graph = json.loads(zipfh.read(f"hetq-data/relations/{person_id}-en.json"))
+    if not graph:
+        context.log.warning(
+            f"Graph from hetq-data/relations/{person_id}-en.json is empty"
+        )
+        return
+    # Node IDs *should* be "n{person_id}" but let's map them to be sure
+    node_to_person = {}
+    for n in graph.get("nodes", []):
+        if "id" not in n and "personID" not in n:
+            context.log.warning(
+                f"Strange relation node for {person_id} with no id/personID: {n}"
+            )
+            continue
+        node_to_person[n["id"]] = n["personID"]
+    for e in graph.get("edges", []):
+        source = node_to_person.get(e.get("source"))
+        if source is None:
+            context.log.warning(f"Unknown source node in edge: {e}")
+            continue
+        # Also unnecessary to follow all the edges, only ones exiting
+        # the PEP in question
+        if source != person_id:
+            continue
+        target = node_to_person.get(e.get("target"))
+        if target is None:
+            context.log.warning(f"Unknown target node in edge: {e}")
+            continue
+        if target not in peps or "entity" not in peps[target]:
+            context.log.debug(f"Skipping relation {person_id}:{target} is not PEP")
+            continue
+        relationship = e.get("label")
+        if relationship is None:
+            context.log.debug(f"Skipping relation {person_id}:{target} has no label")
+            continue
+        context.log.info(f"Relation {person_id}:{target}:{relationship}")
+        # There are only family relations it seems
+        relation = context.make("Family")
+        relation.id = context.make_slug("relation", source, target)
+        relation.add("person", peps[source]["entity"])
+        relation.add("relative", peps[target]["entity"])
+        relation.add("relationship", relation)
+        context.emit(relation)
+
+
 def crawl_lists(context: Context, zipfh: ZipFile):
     """Read lists of PEPs for each year covered, matching names and
     accumulating years in which the PEP was active."""
@@ -215,11 +275,19 @@ def crawl_lists(context: Context, zipfh: ZipFile):
             crawl_list(context, peps, data, year, lang)
     # Now that we have the PEPs we can grab some personal data and create entities
     for person_id, data in peps.items():
-        crawl_person(context, zipfh, person_id, data)
+        person = crawl_person(context, zipfh, person_id, data)
+        if person is not None:
+            peps[person_id]["entity"] = person
+    # And create relations between entities
+    for person_id, data in peps.items():
+        crawl_relations(context, zipfh, peps, person_id)
 
 
 def crawl(context: Context):
     """Download the zip of Hetq data and create PEPs."""
-    path = context.fetch_resource("hetq-data.zip", context.data_url)
-    with ZipFile(path) as zipfh:
+    # FIXME: Uncomment this once internal data works
+    # data_path = context.get_resource_path("hetq-data.zip")
+    # fetch_internal_data("am_hetq_peps/20240415/hetq-data.zip", data_path)
+    data_path = context.fetch_resource("hetq-data.zip", "https://drive.usercontent.google.com/download?id=1TZaLf0x8GeBxUrC50qGoGi5C9MNh0GSK")
+    with ZipFile(data_path) as zipfh:
         crawl_lists(context, zipfh)

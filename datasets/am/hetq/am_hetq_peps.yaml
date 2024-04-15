@@ -3,8 +3,8 @@ prefix: am-hetq
 url: https://data.hetq.am/
 coverage:
   frequency: never
-  start: 2024-04-13
-  end: 2024-04-13
+  start: 2024-04-15
+  end: 2024-04-15
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 entry_point: crawler.py
 summary: >-
@@ -13,6 +13,8 @@ description: |
   This dataset lists Armenian parliamentarians and other high-ranking
   officials and their associates compiled by Hetq Online.  The data
   covers the period from 2011 to 2019.
+
+  The data has been archived from the data.hetq.am API on 2024-04-15.
 publisher:
   name: Hetq Online
   country: am
@@ -33,5 +35,5 @@ publisher:
     available and reusable for the public at large.
   official: false
 data:
-  url: https://drive.usercontent.google.com/download?id=1TZaLf0x8GeBxUrC50qGoGi5C9MNh0GSK&export=download&authuser=0
+  url: https://data.hetq.am/api/v2/
   format: JSON
