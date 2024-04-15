@@ -7,12 +7,14 @@ import re
 from typing import Dict, List, Literal, Any, Tuple, Union
 from zipfile import ZipFile
 
-from lxml.html import document_fromstring
+from lxml.html import document_fromstring, HtmlElement
 
 from zavod import Context, Entity
 from zavod import helpers as h
 from zavod.logic.pep import categorise
-from zavod.shed.internal_data import fetch_internal_data
+
+# FIXME: Uncomment this when internal data works
+# from zavod.shed.internal_data import fetch_internal_data
 
 UNUSED_FIELDS = [
     "urlImage",
@@ -58,9 +60,10 @@ def get_birth_info(
     # We might have valid HTML, but we might also have an incomplete
     # page with a "Parse Error".  In any case we are really just
     # looking for date and place of birth, so use the text.
-    english = document_fromstring(
+    doc: HtmlElement = document_fromstring(
         zipfh.read(f"hetq-data/person/{person_id}-en.html")
-    ).text_content()
+    )
+    english = doc.text_content()
     # Try to get date / place in English if possible
     birth_date = birth_place = None
     m = EN_BIRTH.search(english)
@@ -69,9 +72,8 @@ def get_birth_info(
         month, day, year, birth_place = m.groups()
         birth_date = " ".join((month, day, year))
     else:
-        armenian = document_fromstring(
-            zipfh.read(f"hetq-data/person/{person_id}-hy.html")
-        ).text_content()
+        doc = document_fromstring(zipfh.read(f"hetq-data/person/{person_id}-hy.html"))
+        armenian = doc.text_content()
         # In Armenian we don't use the place of birth because it is in
         # locative case and we don't have a lemmatizer.
         m = HY_BIRTHDATE.search(armenian)
@@ -80,8 +82,8 @@ def get_birth_info(
             year, month, day = m.groups()
             birth_date = year
             if month is not None:
-                for idx, m in enumerate(MONTHS):
-                    if month.startswith(m):
+                for idx, monthname in enumerate(MONTHS):
+                    if month.startswith(monthname):
                         birth_date = f"{year}-{idx + 1}-{day}"
                         break
     return birth_date, birth_place
@@ -99,7 +101,7 @@ def add_armenian_name(
         )
         h.apply_name(person, name, lang=lang)
         return
-    kwargs = {
+    kwargs: Dict[str, Any] = {
         "last_name": parts[0],
         "patronymic": parts[-1],
         "lang": lang,
@@ -260,7 +262,7 @@ def crawl_relations(
 def crawl_lists(context: Context, zipfh: ZipFile):
     """Read lists of PEPs for each year covered, matching names and
     accumulating years in which the PEP was active."""
-    peps = {}
+    peps: Dict[int, Dict[str, Any]] = {}
     for info in zipfh.infolist():
         # zipfile.Path would be good for this but it may not work
         # correctly in all versions of Python
@@ -272,7 +274,7 @@ def crawl_lists(context: Context, zipfh: ZipFile):
         context.log.debug(f"Reading PEPs in {lang} for {year} from {info.filename}")
         with zipfh.open(info.filename) as infh:
             data = json.load(infh)
-            crawl_list(context, peps, data, year, lang)
+            crawl_list(context, peps, data, year, lang)  # type: ignore
     # Now that we have the PEPs we can grab some personal data and create entities
     for person_id, data in peps.items():
         person = crawl_person(context, zipfh, person_id, data)
@@ -288,6 +290,9 @@ def crawl(context: Context):
     # FIXME: Uncomment this once internal data works
     # data_path = context.get_resource_path("hetq-data.zip")
     # fetch_internal_data("am_hetq_peps/20240415/hetq-data.zip", data_path)
-    data_path = context.fetch_resource("hetq-data.zip", "https://drive.usercontent.google.com/download?id=1TZaLf0x8GeBxUrC50qGoGi5C9MNh0GSK")
+    data_path = context.fetch_resource(
+        "hetq-data.zip",
+        "https://drive.usercontent.google.com/download?id=1TZaLf0x8GeBxUrC50qGoGi5C9MNh0GSK",
+    )
     with ZipFile(data_path) as zipfh:
         crawl_lists(context, zipfh)

@@ -87,7 +87,7 @@ def download_people_pages(lang: LANGUAGE, outdir: Path):
     """Get the page for each PEP (no JSON available it seems)."""
     frontdir = outdir / "front"
     # Merge all of them to get unique person ids
-    person_ids = set()
+    person_ids: Set[int] = set()
     for path in frontdir.glob("*.json"):
         with open(path, "rt") as infh:
             person_ids.update(e["personID"] for e in json.load(infh))
