@@ -1,23 +1,28 @@
-title: Thailand's Designated Persons List
+title: Thailand Designated Persons List
 entry_point: crawler.py
 prefix: th-des
 coverage:
   frequency: daily
-  start: 2024-04-08
+  start: 2024-04-15
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  List of Designated Persons from Thailand's AMLO
+  Designation of persons suspected to be connected with terrorism or terrorism financing
 description: |
   This dataset comprises information about designated persons published by
-  Thailand's Anti Money Laundring Office (AMLO)
-  under the Counter-Terrorism and Proliferation
-  Financing Act B.E. 2559 section 7
+  Thailand's Anti Money Laundring Office (AMLO) under the Counter-Terrorism and
+  Proliferation Financing Act B.E. 2559 section 7
   
   According to the act:
   
-    > ...[R]eporting entities and persons in possession of the assets of the designated persons [will be informed to]  Freeze the assets of the designated persons or a person acting on behalf of, or at the direction of, or an undertaking owned or controlled by such persons, directly or indirectly
+  > ...[R]eporting entities and persons in possession of the assets of the
+  > persons [will be informed to] freeze the assets of the designated persons
+  > or a person acting on behalf of, or at the direction of, or an undertaking
+  > owned or controlled by such persons, directly or indirectly
 publisher:
-  name: Thailand's Anti Money Laundring Office
+  name: Thailand's Anti Money Laundring Office (AMLO)
+  description: >
+    The AMLO is an independent government agency mandated under Section 40 of the
+    Anti-Money Laundering Act, 1999 and is answerable to the Prime Minister.
   url: https://www.amlo.go.th/index.php/en/
   official: true
   country: "th"
