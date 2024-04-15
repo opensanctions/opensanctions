@@ -7,7 +7,7 @@ from zavod import helpers as h
 
 # Don't hit the cache for this - these long jobs stop the db from vacuuming
 # if they do.
-ZERO_CACHE_DAYS = 0
+CACHE_DAYS_DISABLED = None
 BASE_URL = "https://registry.andoz.tj/{section}.aspx?lang=ru"
 
 
@@ -44,7 +44,7 @@ def fetch_form_params(context: Context, section: str) -> Dict[str, Any]:
     params: Dict[str, str] = {}
 
     response = context.fetch_html(
-        BASE_URL.format(section=section), cache_days=ZERO_CACHE_DAYS
+        BASE_URL.format(section=section), cache_days=CACHE_DAYS_DISABLED
     )
     for s in response.findall(".//input[@type='hidden']"):
         name = s.get("name")
@@ -126,7 +126,7 @@ def crawl_page(
         url=BASE_URL.format(section=section),
         method="POST",
         data=local_params,
-        cache_days=ZERO_CACHE_DAYS,
+        cache_days=CACHE_DAYS_DISABLED,
     )
 
     _, raw_payload = response.split("(", 1)

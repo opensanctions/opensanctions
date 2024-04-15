@@ -2,7 +2,7 @@ from zavod import Context
 
 # Don't hit the cache for this - these long jobs stop the db from vacuuming
 # if they do.
-ZERO_CACHE_DAYS = 0
+CACHE_DAYS_DISABLED = None
 
 FORMDATA = {
     "index": "gbd_ul",
@@ -49,7 +49,7 @@ def crawl_page(context: Context, page_number: int) -> int:
 
     data = context.fetch_json(
         context.data_url,
-        cache_days=ZERO_CACHE_DAYS,
+        cache_days=CACHE_DAYS_DISABLED,
         headers=HEADERS,
         params=formdata,
     )
