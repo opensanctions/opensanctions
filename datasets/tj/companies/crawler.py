@@ -148,7 +148,7 @@ def crawl_page(
 
     try:
         max_page = max(map(lambda x: int(x.strip("[]")), pages))
-    except Exception as e:
+    except Exception:
         context.log.error("Failed to parse max page", pages=pages, payload=raw_payload)
         raise
 
