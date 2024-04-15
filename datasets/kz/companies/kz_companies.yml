@@ -4,7 +4,7 @@ prefix: kz-reg
 disabled: false
 entry_point: crawler
 coverage:
-  frequency: weekly
+  frequency: monthly
   start: 2023-03-21
 deploy:
   premium: true
