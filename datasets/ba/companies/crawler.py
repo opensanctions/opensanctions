@@ -250,11 +250,11 @@ def crawl_details(context: Context, record: Dict[str, str]) -> None:
         )
 
         # JD: Not sure if we can use it.
-        cap_paid = founders_page.xpath(
-            "//td[contains(text(),"
-            + ' "Kapital [uplaćeni]")'
-            + "]/following-sibling::td/text()"
-        )
+        # cap_paid = founders_page.xpath(
+        #     "//td[contains(text(),"
+        #     + ' "Kapital [uplaćeni]")'
+        #     + "]/following-sibling::td/text()"
+        # )
 
         shares = founders_page.xpath(
             "//td[contains(text(),"
