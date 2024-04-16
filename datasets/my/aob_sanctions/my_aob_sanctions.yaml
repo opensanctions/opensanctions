@@ -51,6 +51,24 @@ data:
   format: HTML
 
 lookups:
+  columns:
+    options:
+      - match:
+        - Auditor
+        - Parties Involved
+        value: name
+      - match:
+        - Date of Action
+        - Date of AOB's Action
+        value: date
+      - match:
+        - Brief Description of Breach
+        - Brief Description of Misconduct
+        value: description
+      - match: 
+        - Nature of Breach
+        - Nature of Misconduct
+        value: reason
   clean_names:
     lowercase: true
     options:
