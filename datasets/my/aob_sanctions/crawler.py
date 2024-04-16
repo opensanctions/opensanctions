@@ -40,21 +40,15 @@ def parse_table(table: _Element) -> Generator[Dict[str, str], None, None]:
 
 
 def crawl_item(input_dict: dict, context: Context):
-    name_col = "Auditor" if "Auditor" in input_dict else "Parties Involved"
-    date_col = (
-        "Date of Action" if "Date of Action" in input_dict else "Date of AOB's Action"
-    )
-    description_col = (
-        "Brief Description of Breach"
-        if "Brief Description of Breach" in input_dict
-        else "Brief Description of Misconduct"
-    )
-    reason_col = (
-        "Nature of Breach"
-        if "Nature of Breach" in input_dict
-        else "Nature of Misconduct"
-    )
-    name = input_dict.pop(name_col)
+
+    dict_keys = list(input_dict.keys())
+
+    for column in dict_keys:
+        new_column = context.lookup_value("columns", column)
+        if new_column is not None:
+            input_dict[new_column] = input_dict.pop(column)
+
+    name = input_dict.pop("name")
 
     res = context.lookup("clean_names", name)
     clean_names = cast("List[str]", res.names)
@@ -70,13 +64,13 @@ def crawl_item(input_dict: dict, context: Context):
         entity.add("name", clean_name)
         sanction = h.make_sanction(context, entity)
 
-        sanction.add("description", input_dict.pop(description_col))
-        sanction.add("reason", input_dict.pop(reason_col))
+        sanction.add("description", input_dict.pop("description"))
+        sanction.add("reason", input_dict.pop("reason"))
         sanction.add("provisions", input_dict.pop("Action Taken"))
 
         sanction.add(
             "date",
-            h.parse_date(input_dict.pop(date_col), formats=["%d %B %Y"]),
+            h.parse_date(input_dict.pop("date"), formats=["%d %B %Y"]),
         )
 
         context.emit(entity, target=True)
