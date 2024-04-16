@@ -62,6 +62,8 @@ def crawl_item(input_dict: dict, context: Context):
         entity.id = context.make_id(clean_name)
 
         entity.add("name", clean_name)
+        entity.add("topics", "crime.fin")
+        entity.add("country", "my")
         sanction = h.make_sanction(context, entity)
 
         sanction.add("description", input_dict.pop("description"))
