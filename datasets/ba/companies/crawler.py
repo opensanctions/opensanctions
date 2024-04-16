@@ -10,7 +10,7 @@ from zavod import Context
 # Unfortunatelly no cache for the listing page, as the state of the current
 # page is stored in the session and no cache for details page, as
 # the url is always changing
-CACHE_DAYS = 0
+CACHE_DAYS = None
 SLEEP_TIME = 0.1  # seconds
 
 BASE_URL = "https://bizreg.pravosudje.ba/pls/apex/"
