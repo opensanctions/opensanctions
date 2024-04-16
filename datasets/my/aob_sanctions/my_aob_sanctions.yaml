@@ -1,4 +1,4 @@
-title: Malaysian's Securities Comission Sanctions
+title: Malaysia Securities Commission AOB Enforcements
 entry_point: crawler.py
 prefix: my-aob
 coverage:
@@ -6,15 +6,18 @@ coverage:
   start: 2024-04-12
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  Auditors sanctioned by the Malaysian's Securities Comission Audit Oversight Board
+  Enforcement actions against auditors by the Malaysian Securities Commission Audit Oversight Board
 description: |
   This dataset comprises information about auditors sanctioned by
-  the Malaysian's Securities Comission Audit Oversight Board,
+  the Malaysian's Securities Comission Audit Oversight Board.
+  
   The focus of AOB enforcement is whether the auditors comply
   with the recognised auditing and ethical standards.
   Such action from the AOB may not necessary imply the audited
   financial statement does not give a true and fair view.
-  The sanctions are: 
+  
+  Potential sanctions are: 
+  
     - Directing the person in breach to comply with the
     provisions of Part IIIA of the SCA or any condition,
     written notice or guidelines; 
