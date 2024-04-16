@@ -72,6 +72,7 @@ def crawl_item(input_dict: dict, context: Context):
 
         sanction.add("description", input_dict.pop(description_col))
         sanction.add("reason", input_dict.pop(reason_col))
+        sanction.add("provisions", input_dict.pop("Action Taken"))
 
         sanction.add(
             "date",
@@ -81,7 +82,7 @@ def crawl_item(input_dict: dict, context: Context):
         context.emit(entity, target=True)
         context.emit(sanction)
 
-        context.audit_data(input_dict, ignore=["No.", "No", "Action Taken"])
+        context.audit_data(input_dict, ignore=["No.", "No"])
 
 
 def crawl(context: Context):
