@@ -67,8 +67,10 @@ def parse_entry(context: Context, node: _Element):
 
     names = node.findtext("./Aliases")
     if names is not None:
-        for name in names.split(", "):
-            entity.add("alias", collapse_spaces(name))
+        for name in h.multi_split(names, [", ", " (a.k.a.", "; a.k.a. ", "ALIAS: ", "Hebrew: ", "Arabic: "]):
+            trim_name = collapse_spaces(name)
+            entity.add("alias", trim_name or None)
+            
 
     context.emit(entity, target=True)
     context.emit(sanction)
