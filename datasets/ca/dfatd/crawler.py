@@ -7,6 +7,7 @@ from zavod import Context
 from zavod import helpers as h
 
 FORMATS = ["%Y", "%d-%m-%Y", "%b-%y"]
+ALIAS_SPLITS = [", ", " (a.k.a.", "; a.k.a. ", "ALIAS: ", "Hebrew: ", "Arabic: "]
 
 
 def parse_date(date):
@@ -67,10 +68,9 @@ def parse_entry(context: Context, node: _Element):
 
     names = node.findtext("./Aliases")
     if names is not None:
-        for name in h.multi_split(names, [", ", " (a.k.a.", "; a.k.a. ", "ALIAS: ", "Hebrew: ", "Arabic: "]):
+        for name in h.multi_split(names, ALIAS_SPLITS):
             trim_name = collapse_spaces(name)
             entity.add("alias", trim_name or None)
-            
 
     context.emit(entity, target=True)
     context.emit(sanction)
