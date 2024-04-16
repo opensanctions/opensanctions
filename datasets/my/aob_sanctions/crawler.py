@@ -56,8 +56,8 @@ def crawl_item(input_dict: dict, context: Context):
     )
     name = input_dict.pop(name_col)
 
-    clean_names = context.lookup("clean_names", name)
-    clean_names = cast("List[str]", clean_names.names)
+    res = context.lookup("clean_names", name)
+    clean_names = cast("List[str]", res.names)
 
     for clean_name in clean_names:
         if not clean_name:
