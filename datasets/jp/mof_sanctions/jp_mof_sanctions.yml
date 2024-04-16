@@ -246,6 +246,8 @@ lookups:
           - Jordan
       - match: ハイチ共和国
         value: China
+      - match: タンザニア共和国
+        value: tz
   type.date:
     options:
       - match:
