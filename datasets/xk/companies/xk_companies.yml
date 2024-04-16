@@ -1,0 +1,38 @@
+name: xk_companies
+title: Kosovo Registry of Business Organizations and Trade Names.
+prefix: xk-reg
+disabled: false
+entry_point: crawler
+coverage:
+  frequency: monthly
+  start: 2023-03-21
+deploy:
+  premium: true
+resolve: false
+ci_test: false
+http:
+  total_retries: 5
+  backoff_factor: 3
+  retry_statuses: [503, 429, 403]
+
+summary: |
+  Business Registration Agency carries out the registration of all business organisations 
+  and foreign business organization. It contains current information on the company,
+  its founders and the legal representatives of the company as well as company profile
+description: |
+  TBA
+url: https://arbk.rks-gov.net/
+publisher:
+  name: The Business Registration Agency under the Ministry of Trade and Industry of the Republic of Kosovo
+  country: xk
+  url: https://arbk.rks-gov.net/
+  description: |
+    The Business Registration Agency operates within the Ministry of Trade and Industry which is
+    the only responsible institution for the registration of Kosovo businesses. KBRA operates based
+    on an electronic data system, as a simpler process, faster, free of cost for the registration
+    of start-up business through the connections of 29 municipal registration centres (with the
+    possibility of increase) known as "one-stop-shop" solutions with central office of the KBRA
+  official: true
+data:
+  url: https://arbk.rks-gov.net/TableSearch
+  format: JSON
