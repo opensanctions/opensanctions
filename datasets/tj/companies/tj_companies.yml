@@ -14,6 +14,7 @@ http:
   total_retries: 5
   backoff_factor: 3
   retry_statuses: [503, 429, 403]
+  retry_methods: [GET, POST]
 
 summary: |
   Legal and natural entities in the Unified State Register of taxpayers of the Republic of Tajikistan.
