@@ -3455,8 +3455,8 @@ lookups:
           incorporationDate: 2008-05-07
           registrationNumber: 1085261002628
       - match:
-        - "Zones d'activité: bande de Gaza, Cisjordanie, Sud-Liban"
-        - "Zones d’activité: bande de Gaza, Cisjordanie, Sud-Liban"
+          - "Zones d'activité: bande de Gaza, Cisjordanie, Sud-Liban"
+          - "Zones d’activité: bande de Gaza, Cisjordanie, Sud-Liban"
         props:
           country:
             - Gaza Strip
