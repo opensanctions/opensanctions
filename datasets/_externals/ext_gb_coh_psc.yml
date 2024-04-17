@@ -56,7 +56,7 @@ inputs:
   - sanctions
 
 config:
-  type: nomenklatura.enrich.yente:YenteEnricher
+  type: zavod.runner.local_enricher:LocalEnricher
   api: https://api.graph.opensanctions.org/
   dataset: gb_coh_psc
   api_key: ${OPENSANCTIONS_GRAPH_API_KEY}
