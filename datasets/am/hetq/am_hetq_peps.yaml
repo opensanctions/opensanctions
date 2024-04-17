@@ -1,0 +1,39 @@
+title: Armenian PEP Assets Public Database
+prefix: am-hetq
+url: https://data.hetq.am/
+coverage:
+  frequency: never
+  start: 2024-04-15
+  end: 2024-04-15
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+entry_point: crawler.py
+summary: >-
+  List of Armenian PEPs.
+description: |
+  This dataset lists Armenian parliamentarians and other high-ranking
+  officials and their associates compiled by Hetq Online.  The data
+  covers the period from 2011 to 2019.
+
+  The data has been archived from the data.hetq.am API on 2024-04-15.
+publisher:
+  name: Hetq Online
+  country: am
+  url: https://hetq.am/
+  description:
+    Hetq Online is an Armenian investigative journalism organization
+    and news portal.
+
+    Hetq Online has been published in Yerevan since 2001 by the
+    Association of Investigative Journalists NGO. In 2004 the
+    organization re-registered as the Investigative Journalists
+    NGO. Initially publishing content in Armenian, Hetq Online has
+    also been publishing its articles and investigations in the
+    English language since 2002.
+
+    data.hetq.am is a supplement to Hetq data journalism. Launched in
+    2019, it seeks to make data from official and non-official sources
+    available and reusable for the public at large.
+  official: false
+data:
+  url: https://data.hetq.am/api/v2/
+  format: JSON

@@ -14,4 +14,5 @@ children:
   - ru_dossier_center_poi
   - tj_companies
   - th_amlo
+  - am_hetq_peps
 ci_test: false
