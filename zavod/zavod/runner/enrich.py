@@ -59,9 +59,10 @@ def save_match(
 
 
 def enrich(context: Context) -> None:
-    view = get_view(get_multi_dataset(context.dataset.inputs))
+    # view = get_view(get_multi_dataset(context.dataset.inputs))
     resolver = get_resolver()
     enricher = dataset_enricher(context.dataset, context.cache)
+    return
     threshold = float(context.dataset.config.get("threshold", 0.7))
     try:
         for entity_idx, entity in enumerate(view.entities()):
