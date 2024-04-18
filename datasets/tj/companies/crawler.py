@@ -180,7 +180,7 @@ def crawl_page(
     data_rows = dom.xpath(
         "descendant-or-self::*[@id = 'ASPxGridView1_DXMainTable']/"
         "descendant-or-self::*/tr[@class and contains(concat(' ', "
-        "normalize-space(@class), ' '), ' dxgvDataRow_Office2003Bluee')]"
+        "normalize-space(@class), ' '), ' dxgvDataRow_Office2003Blue')]"
     )
     if len(data_rows) == 0:
         if retries > 0:
