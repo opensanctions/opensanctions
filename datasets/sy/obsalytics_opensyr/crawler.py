@@ -1,4 +1,3 @@
-import re
 import json
 from normality import slugify
 from typing import Any, Dict, List, Optional
@@ -42,7 +41,7 @@ directorship_titles = [
     "رئيس مجلس الإدارة",
 ]
 
-SPLITS = ["(a.k.a", "; a.k.a", ", ", "; "]
+SPLITS = ["(a.k.a. ", "; a.k.a. ", ", ", "; ", " ،", "ا،", "، ", "، ا", " |", "| "]
 
 
 def parse_date(date: Optional[str]) -> Optional[str]:
