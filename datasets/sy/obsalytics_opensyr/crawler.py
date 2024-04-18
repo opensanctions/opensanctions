@@ -41,7 +41,20 @@ directorship_titles = [
     "رئيس مجلس الإدارة",
 ]
 
-SPLITS = ["(a.k.a. ", "; a.k.a. ", ", ", "; ", " ،", "ا،", "، ", "، ا", " |", "| "]
+SPLITS = [
+    "(a.k.a. ",
+    "; a.k.a. ",
+    ", ",
+    "; ",
+    " ،",
+    "ا،",
+    "، ",
+    "، ا",
+    " |",
+    "| ",
+    '"',
+    "Arabic:",
+]
 
 
 def parse_date(date: Optional[str]) -> Optional[str]:
