@@ -30,10 +30,6 @@ log = logging.getLogger(__name__)
 MATCH_CANDIDATES = 10
 
 
-# need catalog to get dataset by name zavod.meta.get_catalog().require(dataset_)
-# need a path to store the store zavod.store.get_store(dataset)
-
-
 class LocalEnricher(Enricher):
     """Uses a local index to look up entities in a given dataset."""
 
