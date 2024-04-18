@@ -13,7 +13,11 @@ description: |
   A list of seizure orders issued by the Israeli government against crypto wallets
   with the most regularly seen authrorization being the Anti-Terrorism law 5776-2016.
 
-  This copy of the data is only updated occasionally.
+  The NBCTF website uses scraping protection which makes it impossible for us to
+  update the data fully automatically. It is periodically checked for freshness.
+
+  **The initial version of this dataset was prepared by our partners at
+  [Thetaray](https://www.thetaray.com/).**
 publisher:
   name: "National Bureau for Counter Terror Financing"
   description: |

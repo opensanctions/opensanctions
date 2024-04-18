@@ -1,8 +1,6 @@
 from zavod import Context
 
-# Don't hit the cache for this - these long jobs stop the db from vacuuming
-# if they do.
-CACHE_DAYS_DISABLED = None
+CACHE_DAYS = 30
 
 FORMDATA = {
     "index": "gbd_ul",
@@ -49,10 +47,12 @@ def crawl_page(context: Context, page_number: int) -> int:
 
     data = context.fetch_json(
         context.data_url,
-        cache_days=CACHE_DAYS_DISABLED,
+        # To avoid caching the number of pages, we set cache_days=0 for the first page.
+        cache_days=0 if page_number == 1 else CACHE_DAYS,
         headers=HEADERS,
         params=formdata,
     )
+    context.cache.flush()
 
     for item in data["elements"]:
         if item["datereg"]:

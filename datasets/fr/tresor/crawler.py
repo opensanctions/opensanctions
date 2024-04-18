@@ -16,6 +16,7 @@ SCHEMATA = {
 
 SPLITS = {
     "Type d'entité": "legalForm",
+    "Type d’entité": "legalForm",
     "Date d'enregistrement": "incorporationDate",
     "Lieu d'enregistrement": "address",
     "Principal établissement": "jurisdiction",

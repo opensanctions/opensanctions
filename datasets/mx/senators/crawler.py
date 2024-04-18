@@ -43,10 +43,14 @@ def crawl_item(input_dict: dict, position, categorisation, context: Context):
     """
 
     entity = context.make("Person")
-    entity.id = context.make_id(input_dict["Apellidos"], input_dict["Nombre"])
-
-    entity.add("lastName", input_dict.pop("Apellidos"))
-    entity.add("firstName", input_dict.pop("Nombre"))
+    entity.id = context.make_id(
+        input_dict["idSenador"], input_dict["Apellidos"], input_dict["Nombre"]
+    )
+    h.apply_name(
+        entity,
+        first_name=input_dict.pop("Nombre"),
+        last_name=input_dict.pop("Apellidos"),
+    )
 
     gender = (
         "male"

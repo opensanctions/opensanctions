@@ -1,13 +1,14 @@
 from typing import Any, Dict
 import re
 from lxml import html
+from time import sleep
 
 from zavod import Context
 from zavod import helpers as h
 
-# Don't hit the cache for this - these long jobs stop the db from vacuuming
-# if they do.
-CACHE_DAYS_DISABLED = None
+# Don't use the cache at all - the forms use unique session IDs each time.
+CACHE_DAYS = None
+RETRIES = 3
 BASE_URL = "https://registry.andoz.tj/{section}.aspx?lang=ru"
 
 
@@ -44,7 +45,7 @@ def fetch_form_params(context: Context, section: str) -> Dict[str, Any]:
     params: Dict[str, str] = {}
 
     response = context.fetch_html(
-        BASE_URL.format(section=section), cache_days=CACHE_DAYS_DISABLED
+        BASE_URL.format(section=section), cache_days=CACHE_DAYS
     )
     for s in response.findall(".//input[@type='hidden']"):
         name = s.get("name")
@@ -107,6 +108,7 @@ def crawl_page(
     section: str,
     params: Dict[str, str],
     page_number: int,
+    retries: int,
 ) -> int:
     """
     Crawls a single page of the Tadjikistan data portal and emits the data.
@@ -130,10 +132,7 @@ def crawl_page(
     local_params["__CALLBACKPARAM"] = get_callback_pagination_params(page_number)
     url = BASE_URL.format(section=section)
     response = context.fetch_text(
-        url=url,
-        method="POST",
-        data=local_params,
-        cache_days=CACHE_DAYS_DISABLED,
+        url=url, method="POST", data=local_params, cache_days=CACHE_DAYS
     )
 
     _, raw_payload = response.split("(", 1)
@@ -150,7 +149,25 @@ def crawl_page(
         max_page = max(map(lambda x: int(x.strip("[]")), pages))
     except Exception:
         context.log.error("Failed to parse max page", pages=pages, payload=raw_payload)
-        raise
+        # example error seen here:
+        # {'error':{'message':'Истекло время ожидания (Timeout). Время ожидания
+        # истекло до завершения операции или сервер не отвечает.'}
+        # translation:
+        # Timeout has expired. The timeout occurred before the operation was
+        # completed or the server did not respond.
+        if retries > 0:
+            context.log.info("No pagination controls, retrying.")
+            sleep(2 ** (RETRIES - retries))
+            return crawl_page(
+                context=context,
+                section=section,
+                params=params,
+                page_number=page_number,
+                retries=retries - 1,
+            )
+        else:
+            context.log.error("Exceeded retries.")
+            raise
 
     headers = []
 
@@ -160,12 +177,27 @@ def crawl_page(
         headers.append(context.lookup_value("headers", value))
     if not all(headers):
         raise ValueError("Failed to translate some header: %s" % headers)
-
-    for tr in dom.xpath(
+    data_rows = dom.xpath(
         "descendant-or-self::*[@id = 'ASPxGridView1_DXMainTable']/"
         "descendant-or-self::*/tr[@class and contains(concat(' ', "
         "normalize-space(@class), ' '), ' dxgvDataRow_Office2003Blue')]"
-    ):
+    )
+    if len(data_rows) == 0:
+        if retries > 0:
+            context.log.info("No data rows, retrying")
+            sleep(2 ** (RETRIES - retries))
+            return crawl_page(
+                context=context,
+                section=section,
+                params=params,
+                page_number=page_number,
+                retries=retries - 1,
+            )
+        else:
+            context.log.error("Exceeded retries.")
+            raise RuntimeError("No data rows found")
+
+    for tr in data_rows:
         cells = tr.xpath("td")
 
         values = [cell.text.strip() for cell in cells]
@@ -208,7 +240,11 @@ def crawl(context: Context):
         form_params = fetch_form_params(context, section=section)
 
         num_pages = crawl_page(
-            context=context, params=form_params, section=section, page_number=0
+            context=context,
+            params=form_params,
+            section=section,
+            page_number=0,
+            retries=RETRIES,
         )
 
         context.log.info(f"Total pages: {num_pages}")
@@ -219,4 +255,5 @@ def crawl(context: Context):
                 section=section,
                 params=form_params,
                 page_number=page_number,
+                retries=RETRIES,
             )
