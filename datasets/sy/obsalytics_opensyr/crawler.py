@@ -1,7 +1,7 @@
 import re
 import json
 from normality import slugify
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 from pantomime.types import JSON
 
 from zavod import Context, Entity
@@ -42,6 +42,8 @@ directorship_titles = [
     "رئيس مجلس الإدارة",
 ]
 
+SPLITS = ["(a.k.a", "; a.k.a", ", ", "; "]
+
 
 def parse_date(date: Optional[str]) -> Optional[str]:
     if date is None:
@@ -59,7 +61,7 @@ def apply(
     en_field: Optional[str] = None,
     ar_field: Optional[str] = None,
     date: bool = False,
-    split: Optional[str] = None,
+    splits: Optional[List[str]] = None,
 ) -> None:
     for field, lang in ((en_field, "eng"), (ar_field, "ara")):
         if field is None:
@@ -67,8 +69,8 @@ def apply(
         value: Any = props.pop(field, None)
         if date:
             value = parse_date(value)
-        if value is not None and split is not None:
-            splitted = re.split("[،;'\\:\"|<,./<>?]", value)
+        if value is not None and splits is not None:
+            splitted = h.multi_split(value, splits)
             value = [x.strip() for x in splitted if x]
         entity.add(prop, value, lang=lang, quiet=True)
 
@@ -100,7 +102,8 @@ def extract_node(
     apply(entity, props, "name", "201_full_name", "101_الاسم_الكامل")
     entity.add("keywords", props.pop("102_وسوم", "").split("|"))  # TODO: map to topics?
     entity.add("keywords", props.pop("202_tags", "").split("|"))  # TODO: map to topics?
-    apply(entity, props, "alias", "203_alises", "103_أسماء_بدیلة", split=", ")
+
+    apply(entity, props, "alias", "203_alises", "103_أسماء_بدیلة", splits=SPLITS)
     apply(entity, props, "firstName", "204_first_name", "104_الاسم_الأول")
     apply(entity, props, "fatherName", "205_father_name", "105_اسم_الأب")
     apply(entity, props, "middleName", "206_grandparent_name", "106_اسم_الجد")
@@ -123,7 +126,8 @@ def extract_node(
     apply(entity, props, "name", "601_org_name", "501_اسم_المنظمة")
     entity.add("keywords", props.pop("602_tags", "").split("|"))  # TODO: map to topics?
     entity.add("keywords", props.pop("502_وسوم", "").split("|"))  # TODO: map to topics?
-    apply(entity, props, "alias", "603_org_alias", "503_شھرة_المنظمة", split=", ")
+
+    apply(entity, props, "alias", "603_org_alias", "503_شھرة_المنظمة", splits=SPLITS)
     apply(entity, props, "country", "604_country_of_origin", "504_بلد_المنشأ")
     apply(
         entity,
