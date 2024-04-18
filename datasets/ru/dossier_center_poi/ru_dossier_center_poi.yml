@@ -4,9 +4,25 @@ url: https://peps.dossier.center/
 prefix: ru-dc-poi
 summary: Persons of Interest (POI) in Russia published by Dossier Center
 description: |
-  This dataset publishes the list of possible organizers of the Kremlin organized crime group
+  This dataset publishes a list of possible organizers of the Kremlin organized crime group
   and their probable accomplices with brief profiles.
 
+  This list is assembled by independent civil activists to map out the network of
+  influence of leadership in the Russian government connected to organized crime.
+
+  Their approach, translated from their website:
+
+  > We refer to investigations already conducted by journalists and civil activists,
+  > and we continue these investigations on our own and with the efforts of concerned
+  > citizens.
+  >
+  > The information we collect should serve as the basis for conducting an inspection
+  > by law enforcement agencies and subsequent initiation of criminal cases in Russia
+  > and abroad.
+
+  > We will be grateful for your help in replenishing and correcting the list, as well
+  > as in clarifying the facts and circumstances of the crimes committed and being
+  > committed by these persons.
 entry_point: crawler.py
 publisher:
   name: Dossier Center

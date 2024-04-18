@@ -11,7 +11,6 @@ description: |
   before being moved to a collection under default.
 children:
   - us_finra_actions
-  - ru_dossier_center_poi
   - tj_companies
-  - th_amlo
+  - th_designated_person
 ci_test: false
