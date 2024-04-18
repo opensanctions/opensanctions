@@ -48,6 +48,7 @@ def build_relations_url(lang: LANGUAGE, person_id: int):
 def download_front_page(lang: LANGUAGE, outdir: Path):
     """Download all data from the front page for each year available."""
     pagepath = outdir / "front" / f"{lang}.html"
+    pagepath.parent.mkdir(parents=True, exist_ok=True)
     if pagepath.exists():
         LOGGER.info("Skipping existing file %s", pagepath)
     else:
@@ -83,6 +84,22 @@ def download_front_page(lang: LANGUAGE, outdir: Path):
             json.dump(entries, outfh, indent=2, ensure_ascii=False)
 
 
+def download_people_page(lang: LANGUAGE, outdir: Path, person: int):
+    personpath = outdir / "person" / f"{person}-{lang}.html"
+    if personpath.exists():
+        LOGGER.info("Skipping existing file %s", personpath)
+        return
+    url = PERSONPAGE % {"lang": lang, "person": person}
+    LOGGER.info("Downloading profile from %s", url)
+    r = requests.get(url, headers=CHROME_HEADER)
+    if r.status_code == 404:
+        r.raise_for_status()
+    elif r.status_code != 200:
+        LOGGER.warning("Got weird status %d for %s", r.status_code, url)
+    with open(personpath, "wt") as page:
+        page.write(r.text)
+
+
 def download_people_pages(lang: LANGUAGE, outdir: Path):
     """Get the page for each PEP (no JSON available it seems)."""
     frontdir = outdir / "front"
@@ -94,39 +111,42 @@ def download_people_pages(lang: LANGUAGE, outdir: Path):
     LOGGER.info("Got %d unique person IDs for %s", len(person_ids), lang)
     (outdir / "person").mkdir(parents=True, exist_ok=True)
     for person in person_ids:
-        personpath = outdir / "person" / f"{person}-{lang}.html"
-        if personpath.exists():
-            LOGGER.info("Skipping existing file %s", personpath)
-            continue
-        url = PERSONPAGE % {"lang": lang, "person": person}
-        LOGGER.info("Downloading profile from %s", url)
-        r = requests.get(url, headers=CHROME_HEADER)
-        if r.status_code == 404:
-            r.raise_for_status()
-        elif r.status_code != 200:
-            LOGGER.warning("Got weird status %d for %s", r.status_code, url)
-        with open(personpath, "wt") as page:
-            page.write(r.text)
+        download_people_page(lang, outdir, person)
     return person_ids
 
 
 def download_relations_pages(person_ids: Set[int], lang: LANGUAGE, outdir: Path):
     """Get relation graph for each PEP (in JSON not SVG thankfully)."""
     (outdir / "relations").mkdir(parents=True, exist_ok=True)
+    more_person_ids = set()
     for person in person_ids:
         personpath = outdir / "relations" / f"{person}-{lang}.json"
         if personpath.exists():
             LOGGER.info("Skipping existing file %s", personpath)
+        else:
+            url = RELATIONS % {"lang": lang, "person": person}
+            LOGGER.info("Downloading relations graph from %s", url)
+            r = requests.get(url)
+            if r.status_code == 404:
+                r.raise_for_status()
+            elif r.status_code != 200:
+                LOGGER.warning("Got weird status %d for %s", r.status_code, url)
+            with open(personpath, "wt") as page:
+                json.dump(r.json(), page, indent=2, ensure_ascii=False)
+        with open(personpath, "rt") as infh:
+            graph = json.load(infh)
+        if not graph:
             continue
-        url = RELATIONS % {"lang": lang, "person": person}
-        LOGGER.info("Downloading relations graph from %s", url)
-        r = requests.get(url)
-        if r.status_code == 404:
-            r.raise_for_status()
-        elif r.status_code != 200:
-            LOGGER.warning("Got weird status %d for %s", r.status_code, url)
-        with open(personpath, "wt") as page:
-            json.dump(r.json(), page, indent=2, ensure_ascii=False)
+        # Ensure we get profile pages for people named in the relations graph
+        for n in graph.get("nodes", []):
+            relative_id = n.get("personID")
+            if relative_id is None:
+                continue
+            if relative_id in person_ids:
+                continue
+            download_people_page(lang, outdir, relative_id)
+            more_person_ids.add(relative_id)
+    person_ids.update(more_person_ids)
 
 
 def download_officialtypes(outdir: Path):
