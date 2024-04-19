@@ -47,6 +47,7 @@ setup(
         "sqlalchemy[mypy]",
         "structlog",
         "xlrd == 2.0.1",
+        "cryptography",
     ],
     tests_require=[],
     entry_points={
