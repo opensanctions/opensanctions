@@ -269,6 +269,7 @@ def crawl_relations(
     # Only person IDs for PEPs are actually named in the front-page
     # list, but we will include their families as POIs as well.
     crawl_missing_pois(context, zipfh, missing_pois, persons)
+    seen = set()
     for e in itertools.chain(graph_en["edges"], graph_hy["edges"]):
         source = node_to_person.get(e.get("source"))
         if source is None:
@@ -278,11 +279,15 @@ def crawl_relations(
         if target is None:
             context.log.warning(f"Unknown target node in edge: {e}")
             continue
+        if (source, target) in seen:
+            context.log.debug(f"Relation {source}:{target} already exists")
+            continue
+        seen.add((source, target))
         relationship = e.get("label")
         if relationship is None:
             context.log.debug(f"Skipping relation {person_id}:{target} has no label")
             continue
-        context.log.info(f"Relation {person_id}:{target}:{relationship}")
+        context.log.info(f"Relation {source}:{target}:{relationship}")
         # There are only family relations it seems
         relation = context.make("Family")
         relation.id = context.make_slug("relation", str(source), str(target))
@@ -315,7 +320,7 @@ def crawl_lists(context: Context, zipfh: ZipFile):
         if person is not None:
             persons[person_id]["entity"] = person
     # And create relations between entities
-    for person_id, data in persons.items():
+    for person_id in list(persons.keys()):
         crawl_relations(context, zipfh, persons, person_id)
 
 
