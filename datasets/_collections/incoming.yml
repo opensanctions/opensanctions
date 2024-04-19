@@ -13,4 +13,5 @@ children:
   - us_finra_actions
   - tj_companies
   - th_designated_person
+  - us_fcc_covered_list
 ci_test: false
