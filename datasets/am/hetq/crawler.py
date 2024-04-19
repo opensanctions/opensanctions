@@ -223,7 +223,10 @@ def crawl_missing_pois(
         if person_id in persons:
             context.log.debug(f"Already crawled missing POI {person_id}")
             continue
-        crawl_person(context, zipfh, person_id, data)
+        persons[person_id] = data
+        person = crawl_person(context, zipfh, person_id, data)
+        if person is not None:
+            data["entity"] = person
 
 
 def crawl_relations(
