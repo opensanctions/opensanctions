@@ -8,8 +8,8 @@ from copy import deepcopy
 
 PATH = "zavod.runner.local_enricher:LocalEnricher"
 DATASET_DATA = {
-    "name": "nominatim",
-    "title": "Nomimatim",
+    "name": "some_registry",
+    "title": "Some Company Registry",
     "config": {"dataset": "testdataset1", "threshold": 0.7},
 }
 

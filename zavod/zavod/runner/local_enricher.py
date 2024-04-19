@@ -27,9 +27,10 @@ class LocalEnricher(Enricher):
     by the matching algorithm to determine if they are a match.
 
     Configuration:
+        `config.dataset`: `str` - the name of the dataset to enrich against.
         `config.threshold`: `float` - the threshold to be considered a match
             according to the matching algorithm used.
-        `config.algorithm`: `str` (default logic-vs) - the name of the algorithm
+        `config.algorithm`: `str` (default logic-v1) - the name of the algorithm
             to use for matching.
     """
 

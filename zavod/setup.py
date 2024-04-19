@@ -22,7 +22,7 @@ setup(
     zip_safe=False,
     install_requires=[
         "followthemoney == 3.5.*",
-        "nomenklatura[leveldb] == 3.10.*",
+        "nomenklatura[leveldb] @ git+https://github.com/opensanctions/nomenklatura.git#pudo/index-match", #== 3.10.*",
         "plyvel == 1.5.1",
         "rigour == 0.5.2",
         "datapatch >= 1.1,< 1.3",
