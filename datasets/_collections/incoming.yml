@@ -12,5 +12,4 @@ description: |
 children:
   - us_finra_actions
   - tj_companies
-  - th_designated_person
 ci_test: false
