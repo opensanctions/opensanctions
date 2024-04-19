@@ -40,10 +40,13 @@ def crawl_item(input_dict: dict, context: Context):
     entity.id = context.make_id(name)
 
     entity.add("name", name)
+    entity.add("topics", "poi")
 
     # There can be multiple websites for each entity
-    for website in re.findall(REGEX_URLS, input_dict.pop("Website")):
+    properties_text = input_dict.pop("Website")
+    for website in re.findall(REGEX_URLS, properties_text):
         entity.add("website", website)
+    entity.add("notes", properties_text)
 
     sanction = h.make_sanction(context, entity)
 

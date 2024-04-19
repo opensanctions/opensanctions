@@ -6,15 +6,28 @@ coverage:
   end: 2024-04-16
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  Entities who have been wrongly represented as being licensed by the BNM.
+  Entities who have been wrongly represented as being licensed by the Central Bank of Malaysia.
 description: |
-  The FCA List is updated based on information received by BNM from members
-  of the public, after conducting necessary assessments on the reported
-  entities and schemes. Consumers may refer to the FCA List as one
-  of several ways to check if an entity or a scheme has been
-  identified as one that has not been authorised by BNM
-  to offer financial products or services that are regulated by BNM.
-  Note: This data is only updated occasionally because of anti-crawlers restrictions.
+  From the Bank Negara Malaysia website:
+
+  > The Financial Consumer Alert List (FCA List) is a guide to enhance the
+  > awareness on entities or schemes which may have been wrongly perceived
+  > or represented as being licensed or regulated by Bank Negara Malaysia (BNM).  
+  >
+  > The FCA List is updated based on information received by BNM from members of
+  > the public, after conducting necessary assessments on the reported entities
+  > and schemes. Consumers may refer to the FCA List as one of several ways to
+  > check if an entity or a scheme has been identified as one that has not been
+  > authorised by BNM to offer financial products or services that are regulated
+  > by BNM.
+  >
+  > The absence or subsequent removal of an entity or a scheme from the FCA List
+  > however should not be construed as confirmation that such entity or scheme is
+  > or has been licensed or regulated by BNM. As with any financial investment,
+  > consumers are advised to exercise due care when investing in any entity or
+  > financial scheme.
+
+  Note that this dataset is only updated occasionally.
 publisher:
   name: Bank Negara Malaysia
   description: Central Bank of Malaysia
