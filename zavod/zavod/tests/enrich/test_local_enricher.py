@@ -1,12 +1,9 @@
-import requests_mock
 from nomenklatura.cache import Cache
 from zavod.crawl import crawl_dataset
 from zavod.meta import Dataset
-from nomenklatura.enrich import get_enricher, enrich, match
+from nomenklatura.enrich import get_enricher
 from nomenklatura.enrich.common import Enricher
 from nomenklatura.entity import CompositeEntity
-from nomenklatura.judgement import Judgement
-from nomenklatura.resolver import Resolver
 from copy import deepcopy
 
 PATH = "zavod.runner.local_enricher:LocalEnricher"

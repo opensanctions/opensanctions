@@ -1,26 +1,14 @@
-import os
-from pathlib import Path
-import time
 import logging
-from banal import ensure_list
-from typing import Any, Generator, Optional, Dict, List
-from urllib.parse import urljoin
-from followthemoney.types import registry
+from typing import Generator, Optional
 from followthemoney.namespace import Namespace
-from rigour.urls import build_url
 
-# make temporary directory
-from tempfile import TemporaryDirectory
-
-from nomenklatura.entity import CE, CompositeEntity
+from nomenklatura.entity import CE
 from nomenklatura.dataset import DS
 from nomenklatura.cache import Cache
 from nomenklatura.enrich.common import Enricher, EnricherConfig
 from nomenklatura.enrich.common import EnrichmentException
 from nomenklatura import Index
 from nomenklatura.matching import get_algorithm
-from nomenklatura.resolver import Resolver
-from nomenklatura.store.level import LevelDBStore
 from zavod.meta import get_catalog
 from zavod.store import get_store
 
@@ -37,7 +25,7 @@ class LocalEnricher(Enricher):
     Candidates are selected for matching based on the number of tokens
     they share with the entity being matched. Candidates are then scored
     by the matching algorithm to determine if they are a match.
-    
+
     Configuration:
         `config.threshold`: `float` - the threshold to be considered a match
             according to the matching algorithm used.
