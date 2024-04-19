@@ -31,7 +31,19 @@ MATCH_CANDIDATES = 10
 
 
 class LocalEnricher(Enricher):
-    """Uses a local index to look up entities in a given dataset."""
+    """
+    Uses a local index to look up entities in a given dataset.
+
+    Candidates are selected for matching based on the number of tokens
+    they share with the entity being matched. Candidates are then scored
+    by the matching algorithm to determine if they are a match.
+    
+    Configuration:
+        `config.threshold`: `float` - the threshold to be considered a match
+            according to the matching algorithm used.
+        `config.algorithm`: `str` (default logic-vs) - the name of the algorithm
+            to use for matching.
+    """
 
     def __init__(self, dataset: DS, cache: Cache, config: EnricherConfig):
         super().__init__(dataset, cache, config)
