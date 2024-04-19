@@ -1,7 +1,11 @@
 from typing import Dict
 from lxml.etree import _Element
+import re
 
 from zavod import Context, helpers as h
+
+
+REGEX_CLEAN_NAME = re.compile(r"^\d\. ")
 
 
 def parse_table(
@@ -10,6 +14,10 @@ def parse_table(
     return {
         row.findtext(".//th"): row.findtext(".//td") for row in table.findall(".//tr")
     }
+
+
+def clean_name(name: str) -> str:
+    return REGEX_CLEAN_NAME.sub("", name)
 
 
 def crawl_item(url: str, context: Context):
@@ -28,7 +36,7 @@ def crawl_item(url: str, context: Context):
     entity.id = context.make_slug(en_name, birth_date_parsed)
 
     entity.add("name", en_name, lang="en")
-    entity.add("name", th_name, lang="th")
+    entity.add("name", clean_name(th_name), lang="th")
     entity.add("topics", "sanction")
 
     if birth_date_parsed:
