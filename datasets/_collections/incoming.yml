@@ -13,4 +13,5 @@ children:
   - us_finra_actions
   - tj_companies
   - th_designated_person
+  - my_consumer_alert_list
 ci_test: false
