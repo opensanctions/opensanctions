@@ -42,7 +42,6 @@ children:
   - nl_most_wanted
   - us_ddtc_enforcements
   - us_fbi_most_wanted
-  - us_finra_enforcement_actions
   - us_occ_enfact
   - us_sec_pause
   - pk_proscribed_persons

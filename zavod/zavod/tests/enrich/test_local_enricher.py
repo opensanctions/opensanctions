@@ -33,7 +33,7 @@ def make_entity(dataset):
 
 
 def test_enrich(testdataset1: Dataset):
-    """"""
+    """We match and expand an entity with a similar name"""
     crawl_dataset(testdataset1)
     enricher = load_enricher(DATASET_DATA)
     entity = make_entity(testdataset1)
@@ -50,7 +50,7 @@ def test_enrich(testdataset1: Dataset):
 
 
 def test_threshold(testdataset1: Dataset):
-    """"""
+    """We don't match an entity if its score is lower than the threshold."""
     crawl_dataset(testdataset1)
     dataset_data = deepcopy(DATASET_DATA)
     dataset_data["config"]["threshold"] = 0.99
