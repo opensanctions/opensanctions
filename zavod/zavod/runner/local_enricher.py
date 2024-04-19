@@ -41,7 +41,10 @@ class LocalEnricher(Enricher):
         self._view = store.default_view(external=False)
         self._index = Index(self._view)
         self._index.build()
-        self._algorithm = get_algorithm(config.pop("algorithm", "best"))
+        algo_name = config.pop("algorithm", "logic-v1")
+        self._algorithm = get_algorithm(algo_name)
+        if self._algorithm is None:
+            raise EnrichmentException(f"Unknown algorithm: {algo_name}")
         self._threshold = config.pop("threshold")
         self._ns: Optional[Namespace] = None
         if self.get_config_bool("strip_namespace"):
