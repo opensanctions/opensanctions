@@ -11,8 +11,7 @@ description: |
   before being moved to a collection under default.
 children:
   - us_finra_actions
-  - ru_dossier_center_poi
   - tj_companies
-  - th_amlo
   - am_hetq_peps
+  - us_fcc_covered_list
 ci_test: false

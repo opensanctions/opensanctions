@@ -8,6 +8,7 @@ coverage:
   start: 2023-03-21
 deploy:
   premium: true
+  memory: 2500Mi
 resolve: false
 ci_test: false
 http:
