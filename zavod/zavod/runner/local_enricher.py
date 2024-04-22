@@ -9,6 +9,7 @@ from nomenklatura.enrich.common import Enricher, EnricherConfig
 from nomenklatura.enrich.common import EnrichmentException
 from nomenklatura import Index
 from nomenklatura.matching import get_algorithm
+
 from zavod.meta import get_catalog
 from zavod.store import get_store
 
@@ -53,7 +54,9 @@ class LocalEnricher(Enricher):
 
     def match(self, entity: CE) -> Generator[CE, None, None]:
         for match_id, index_score in self._index.match(entity)[:MATCH_CANDIDATES]:
-            match = self._view.get_entity(match_id)
+            match = self._view.get_entity(match_id.id)
+            if match is None:
+                continue
 
             if not entity.schema.can_match(match.schema):
                 continue
@@ -61,6 +64,8 @@ class LocalEnricher(Enricher):
             if index_score == 0:
                 continue
 
+            if self._algorithm is None:
+                raise EnrichmentException("No algorithm specified")
             result = self._algorithm.compare(entity, match)
             if result.score >= self._threshold:
                 yield match
