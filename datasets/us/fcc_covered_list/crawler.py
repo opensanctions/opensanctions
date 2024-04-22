@@ -50,10 +50,11 @@ def crawl_item(input_dict: dict, context: Context):
 
 
 def crawl(context: Context):
-    h.assert_url_hash(
-        context,
-        context.dataset.url,
-        "c89f87926db3e1794109f1cd0128f554358bd180",
+    doc = context.fetch_html(context.dataset.url)
+    table = doc.xpath('.//div[contains(@class, "page-body")]')[0]
+    h.assert_dom_hash(
+        table,
+        "c47d35f846646698c9a61a43c31916c1eff4724b",
     )
 
     path = context.fetch_resource("source.csv", context.data_url)

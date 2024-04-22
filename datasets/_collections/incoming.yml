@@ -12,5 +12,4 @@ description: |
 children:
   - us_finra_actions
   - tj_companies
-  - us_fcc_covered_list
 ci_test: false
