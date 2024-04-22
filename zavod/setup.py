@@ -40,7 +40,7 @@ setup(
         "pantomime == 0.6.1",
         "prefixdate",
         "psycopg2-binary",
-        "pyicu == 2.12.0",
+        "pyicu == 2.13",
         "pywikibot==9.0.0",
         "requests[security]",
         "requests_oauthlib",
