@@ -8,7 +8,7 @@ def crawl_item(input_dict: dict, context: Context):
     name = input_dict.pop("Entity Name")
     description = input_dict.pop("Covered Equipment or Services")
     start_date = h.parse_date(
-        input_dict.pop("Date of Inclusion on Covered List"), formats=["%b %d, %Y"]
+        input_dict.pop("Date of Inclusion on Covered List"), formats=["%B %d, %Y"]
     )
 
     entity = context.make("Company")
