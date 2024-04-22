@@ -1,6 +1,7 @@
-from zavod import Context, helpers as h
-import datetime
 import csv
+from pantomime.types import CSV
+
+from zavod import Context, helpers as h
 
 
 def crawl_item(input_dict: dict, context: Context):
@@ -13,25 +14,24 @@ def crawl_item(input_dict: dict, context: Context):
     entity = context.make("Company")
     entity.id = context.make_slug(name)
     entity.add("name", name)
-    entity.add("topics", "sanction")
+    entity.add("topics", "debarment")
 
-    for subsidiary_name in input_dict.pop("Subsidiary Names").split(","):
+    for subsidiary_name in input_dict.pop("Subsidiary Names").split(";"):
+        subsidiary_name = subsidiary_name.strip()
         if subsidiary_name == "":
             continue
 
         subsidiary = context.make("Company")
         subsidiary.id = context.make_slug(subsidiary_name)
         subsidiary.add("name", subsidiary_name)
-        subsidiary.add("topics", "sanction")
+        subsidiary.add("topics", "debarment")
 
         ownership = context.make("Ownership")
-        ownership.id = context.make_slug(name, subsidiary_name)
+        ownership.id = context.make_id(name, subsidiary_name)
         ownership.add("asset", subsidiary)
-        ownership.add("percentage", "100%")
         ownership.add("owner", entity)
 
         subsidiary_sanction = h.make_sanction(context, subsidiary)
-
         subsidiary_sanction.add("description", description)
         subsidiary_sanction.add("startDate", start_date)
 
@@ -40,7 +40,6 @@ def crawl_item(input_dict: dict, context: Context):
         context.emit(subsidiary_sanction)
 
     sanction = h.make_sanction(context, entity)
-
     sanction.add("description", description)
     sanction.add("startDate", start_date)
 
@@ -51,10 +50,15 @@ def crawl_item(input_dict: dict, context: Context):
 
 
 def crawl(context: Context):
-    if datetime.datetime.now() > datetime.datetime(2024, 9, 19):
-        context.log.warn("Check if there's an update of the data on the website.")
+    h.assert_url_hash(
+        context,
+        context.dataset.url,
+        "c89f87926db3e1794109f1cd0128f554358bd180",
+    )
 
-    data_path = context.dataset.base_path / "data.csv"
+    path = context.fetch_resource("source.csv", context.data_url)
+    context.export_resource(path, CSV, title=context.SOURCE_TITLE)
 
-    for item in csv.DictReader(open(data_path, encoding="utf-8-sig"), delimiter=";"):
-        crawl_item(item, context)
+    with open(path) as fh:
+        for item in csv.DictReader(fh):
+            crawl_item(item, context)

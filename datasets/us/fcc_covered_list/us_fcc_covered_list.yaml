@@ -1,35 +1,49 @@
-title: US FCC Covered List
+title: US FCC Section 2 of The Secure Networks Act "Covered List"
 entry_point: crawler.py
-prefix: us-fcc-lis
+prefix: us-fcc-cov
 coverage:
   frequency: never
-  start: "2021-03-12"
-  end: "2024-09-19"
+  start: "2021-04-22"
+  end: "2024-04-22"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  Firms and individuals that violated FINRA rules
   List of companies that produce equipment and services covered
-  by section 2 of the secure networks act
+  by section 2 of the Secure Networks Act
 description: |
-  Section 1.50002 of the Commission's rules directs the Public
-  Safety and Homeland Security Bureau to publish a list of
-  communications equipment and services (Covered List) that
-  are deemed to pose an unacceptable risk to the national
-  security of the United States or the security and safety
-  of United States persons, based exclusively on any of
-  four sources for such a determination and that such
-  equipment or services possess certain capabilities as
-  enumerated in section 2(a) of the Secure and Trusted
-  Communications Networks Act of 2019, Pub. L. No. 116-124,
-  133 Stat. 158 (2020) (codified as amended at 47 U.S.C. §§ 1601–1609)
+  This dataset consists of entities listed on the FCC Covered List. That list is described as
+
+  > communications equipment and services
+  > deemed to pose an unacceptable risk to the national security of the United States
+  > or the security and safety of United States persons based exclusively on any of
+  > four sources for such a determination and that such equipment or services possess
+  > certain capabilities as enumerated in section 2(a) of the Secure and Trusted
+  > Communications Networks Act of 2019, Pub. L. No. 116-124, 133 Stat. 158 (2020)
+  > (codified as amended at 47 U.S.C. §§ 1601–1609)
+
+  Further noted on the list:
+
+  > The inclusion of producers or providers of equipment or services identified on this
+  > list should be read to include the subsidiaries and affiliates of such entities.
+
+  > Where equipment or services on the list are identified by category, such category
+  > should be construed to include only equipment or services capable of the functions
+  > outlined in sections 2(b)(2)(A), (B), or (C) of the Secure and Trusted Communications
+  > Networks Act of 2019, 47 U.S.C. § 1601(b)(2)(A)-(C).
+
 publisher:
-  name: US's Federal Communications Comission
+  name: US Federal Communications Comission (FCC)
+  description: |
+    > The Federal Communications Commission regulates interstate and international
+    > communications by radio, television, wire, satellite, and cable in all 50
+    > states, the District of Columbia and U.S. territories. An independent U.S.
+    > government agency overseen by Congress, the Commission is the federal agency
+    > responsible for implementing and enforcing America’s communications law and
+    > regulations.
   url: https://www.fcc.gov
   official: true
   country: "us"
 url: "https://www.fcc.gov/supplychain/coveredlist"
 data:
-  url: "https://www.fcc.gov/supplychain/coveredlist"
-  format: HTML
+  url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQCtBj1fAWXKlV5yhN38V66umTej12IlkQGzXGWC5LR7RCEPHlLMaBwqWpey6oHkShbyYYgRGm_0AbO/pub?output=csv"
+  format: CSV
   lang: eng
-ci_test: false
