@@ -1,5 +1,4 @@
 import csv
-from collections.abc import Mapping, Sequence
 from datetime import datetime
 from typing import Any, Optional
 
@@ -98,10 +97,14 @@ def validate_headers(context: Context, headers: list) -> None:
         context.log.warn(f"Unexpected column headers: {headers[:len(FIELD_NAMES):]}")
 
 
-def extract_dict_keys_by_prefix(data: dict, key_names: list[str], prefix: str) -> dict[str:Any]:
+def extract_dict_keys_by_prefix(
+    data: dict, key_names: list[str], prefix: str
+) -> dict[str:Any]:
     """Pops dict keys in `key_names` if the key starts with `prefix`.
     Returns a new dict and removes keys from old dict"""
-    return {k.removeprefix(prefix): data.pop(k) for k in key_names if k.startswith(prefix)}
+    return {
+        k.removeprefix(prefix): data.pop(k) for k in key_names if k.startswith(prefix)
+    }
 
 
 def crawl(context: Context):
@@ -110,7 +113,6 @@ def crawl(context: Context):
     context.export_resource(file_path, CSV, title=context.SOURCE_TITLE)
     with open(file_path, encoding="utf-8-sig") as fh:
         reader = csv.DictReader(fh, fieldnames=FIELD_NAMES, delimiter=";")
-        column_headers = next(reader)
         for row in reader:
             person = make_person(context, row.pop("Ime"), row.pop("Prezime"))
 
