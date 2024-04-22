@@ -5,7 +5,7 @@ Crawler for PEP data downloaded from data.hetq.am
 import itertools
 import json
 import re
-from typing import Dict, List, Literal, Any, Tuple, Union
+from typing import Dict, List, Literal, Any, Optional, Tuple, Union
 from zipfile import ZipFile
 
 from lxml.html import document_fromstring, HtmlElement
@@ -13,9 +13,7 @@ from lxml.html import document_fromstring, HtmlElement
 from zavod import Context, Entity
 from zavod import helpers as h
 from zavod.logic.pep import categorise
-
-# FIXME: Uncomment this when internal data works
-# from zavod.shed.internal_data import fetch_internal_data
+from zavod.shed.internal_data import fetch_internal_data
 
 UNUSED_FIELDS = [
     "urlImage",
@@ -90,32 +88,10 @@ def get_birth_info(
     return birth_date, birth_place
 
 
-def add_armenian_name(
-    context: Context, person: Entity, name: str, lang: SupportedLanguage
-):
-    """Parse and add a name to a person."""
-    parts = name.split()
-    # Armenian names are FAMILY GIVEN (PATRONYMIC) but there might be multiple given names
-    if len(parts) < 3 or len(parts) > 6:
-        context.log.warning(
-            f"Name {name} has {len(parts)} parts, don't know what to do"
-        )
-        h.apply_name(person, name, lang=lang)
-        return
-    kwargs: Dict[str, Any] = {
-        "last_name": parts[0],
-        "patronymic": parts[-1],
-        "lang": lang,
-    }
-    for i in range(1, len(parts) - 1):
-        kwargs[f"name{i}"] = parts[i]
-    h.apply_name(person, **kwargs)
-
-
 def crawl_person(
     context: Context, zipfh: ZipFile, person_id: int, data: Dict[str, Any]
-) -> Union[Entity, None]:
-    """Create entites for a PEP"""
+) -> Optional[Entity]:
+    """Create person and position/occupancy if applicable."""
     birth_date, birth_place = get_birth_info(context, zipfh, person_id)
     name_en = data.get("name_en", "").strip()
     name_hy = data.get("name_hy", "").strip()
@@ -124,11 +100,11 @@ def crawl_person(
         return None
     person = context.make("Person")
     person.id = context.make_slug(str(person_id))
-    context.log.info(f"Unique ID {person.id} for {person_id} ({name_en} / {name_hy})")
+    context.log.debug(f"Unique ID {person.id} for {person_id} ({name_en} / {name_hy})")
     if name_en:
-        add_armenian_name(context, person, name_en, "en")
+        person.add("name", name_en, lang="en")
     if name_hy:
-        add_armenian_name(context, person, name_hy, "hy")
+        person.add("name", name_hy, lang="hy")
     if birth_date is not None:
         person.add("birthDate", h.parse_date(birth_date, DATE_FORMATS))
     if birth_place is not None:
@@ -155,11 +131,11 @@ def crawl_person(
                 person,
                 position,
                 start_date=str(min(data["years"])),
-                # last year of activity is not an explicit end date, so do
-                # not use it as such, particularly since we would get
-                # basically no PEPs as the data is old (for example the
-                # current PM of Armenia as of 2024 would not be considered
-                # a PEP, which is obviously not true!)
+                # last year of activity is not necessarily when they departed the
+                # position, it's just as likely the last year in which the site was
+                # updated.
+                end_date=None,
+                no_end_implies_current=False,
                 categorisation=categorisation,
             )
             context.log.debug(f"categorization {categorisation} occupancy {occupancy}")
@@ -254,18 +230,18 @@ def crawl_relations(
     node_to_person = {}
     missing_pois = {}
     for n in graph_en["nodes"]:
-        person_id = n["personID"]
-        node_to_person[n["id"]] = person_id
-        if person_id not in persons:
-            missing_pois[person_id] = {"name_en": n["label"]}
+        node_person_id = n["personID"]
+        node_to_person[n["id"]] = node_person_id
+        if node_person_id not in persons:
+            missing_pois[node_person_id] = {"name_en": n["label"]}
     for n in graph_hy["nodes"]:
-        person_id = n["personID"]
-        assert node_to_person[n["id"]] == person_id
-        if person_id not in persons:
-            if person_id not in missing_pois:
-                context.log.debug("Person {person_id} only shown in Armenian")
-                missing_pois[person_id] = {}
-            missing_pois[person_id]["name_hy"] = n["label"]
+        node_person_id = n["personID"]
+        assert node_to_person[n["id"]] == node_person_id
+        if node_person_id not in persons:
+            if node_person_id not in missing_pois:
+                context.log.debug("Person {node_person_id} only shown in Armenian")
+                missing_pois[node_person_id] = {}
+            missing_pois[node_person_id]["name_hy"] = n["label"]
     # Only person IDs for PEPs are actually named in the front-page
     # list, but we will include their families as POIs as well.
     crawl_missing_pois(context, zipfh, missing_pois, persons)
@@ -285,15 +261,15 @@ def crawl_relations(
         seen.add((source, target))
         relationship = e.get("label")
         if relationship is None:
-            context.log.debug(f"Skipping relation {person_id}:{target} has no label")
+            context.log.warning(f"Skipping relation {person_id}:{target} has no label")
             continue
-        context.log.info(f"Relation {source}:{target}:{relationship}")
+        context.log.debug(f"Relation {source}:{target}:{relationship}")
         # There are only family relations it seems
         relation = context.make("Family")
         relation.id = context.make_slug("relation", str(source), str(target))
         relation.add("person", persons[source]["entity"])
         relation.add("relative", persons[target]["entity"])
-        relation.add("relationship", relation)
+        relation.add("relationship", relationship)
         context.emit(relation)
 
 
@@ -326,12 +302,8 @@ def crawl_lists(context: Context, zipfh: ZipFile):
 
 def crawl(context: Context):
     """Download the zip of Hetq data and create Person entities."""
-    # FIXME: Uncomment this once internal data works
-    # data_path = context.get_resource_path("hetq-data.zip")
-    # fetch_internal_data("am_hetq_peps/20240415/hetq-data.zip", data_path)
-    data_path = context.fetch_resource(
-        "hetq-data.zip",
-        "https://drive.usercontent.google.com/download?id=1TZaLf0x8GeBxUrC50qGoGi5C9MNh0GSK&confirm=t&uuid=e62dc2f8-7c99-41f0-ab37-b29044c8ae59&at=APZUnTXIcTtSTOo7iCr3UfC8LB5t%3A1713471512279",
-    )
+
+    data_path = context.get_resource_path("hetq-data.zip")
+    fetch_internal_data("am_hetq_peps/20240422/hetq-data.zip", data_path)
     with ZipFile(data_path) as zipfh:
         crawl_lists(context, zipfh)

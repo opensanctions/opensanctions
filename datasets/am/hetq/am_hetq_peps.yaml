@@ -1,20 +1,25 @@
-title: Armenian PEP Assets Public Database
+title: Armenia public officials and associates by Hetq Online
 prefix: am-hetq
 url: https://data.hetq.am/
 coverage:
   frequency: never
-  start: 2024-04-15
-  end: 2024-04-15
+  start: 2024-04-22
+  end: 2024-04-22
+deploy:
+  schedule: "7 20 3 * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 entry_point: crawler.py
 summary: >-
-  List of Armenian PEPs.
+  List of Armenian public officials and their family members.
 description: |
   This dataset lists Armenian parliamentarians and other high-ranking
   officials and their associates compiled by Hetq Online.  The data
   covers the period from 2011 to 2019.
 
-  The data has been archived from the data.hetq.am API on 2024-04-15.
+  The data has been collected from the Armenian parliamentary website
+  as well as income and asset declarations submitted by officials.
+
+  The data has been archived from the data.hetq.am API on 2024-04-22.
 publisher:
   name: Hetq Online
   country: am
@@ -37,3 +42,17 @@ publisher:
 data:
   url: https://data.hetq.am/api/v2/
   format: JSON
+# No access to the internal data bucket
+ci_test: false
+
+
+assertions:
+  min:
+    schema_entities:
+      Person: 7800
+      Position: 700
+    country_entities:
+      am: 1341
+  max:
+    schema_entities:
+      Person: 8000
