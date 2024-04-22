@@ -12,4 +12,5 @@ description: |
 children:
   - us_finra_actions
   - tj_companies
+  - am_hetq_peps
 ci_test: false
