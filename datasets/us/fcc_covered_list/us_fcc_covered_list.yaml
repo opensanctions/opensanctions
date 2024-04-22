@@ -1,0 +1,35 @@
+title: US FCC Covered List
+entry_point: crawler.py
+prefix: us-fcc-lis
+coverage:
+  frequency: never
+  start: "2021-03-12"
+  end: "2024-09-19"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Firms and individuals that violated FINRA rules
+  List of companies that produce equipment and services covered
+  by section 2 of the secure networks act
+description: |
+  Section 1.50002 of the Commission's rules directs the Public
+  Safety and Homeland Security Bureau to publish a list of
+  communications equipment and services (Covered List) that
+  are deemed to pose an unacceptable risk to the national
+  security of the United States or the security and safety
+  of United States persons, based exclusively on any of
+  four sources for such a determination and that such
+  equipment or services possess certain capabilities as
+  enumerated in section 2(a) of the Secure and Trusted
+  Communications Networks Act of 2019, Pub. L. No. 116-124,
+  133 Stat. 158 (2020) (codified as amended at 47 U.S.C. §§ 1601–1609)
+publisher:
+  name: US's Federal Communications Comission
+  url: https://www.fcc.gov
+  official: true
+  country: "us"
+url: "https://www.fcc.gov/supplychain/coveredlist"
+data:
+  url: "https://www.fcc.gov/supplychain/coveredlist"
+  format: HTML
+  lang: eng
+ci_test: false
