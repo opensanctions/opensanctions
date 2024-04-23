@@ -1,6 +1,6 @@
 from io import StringIO
 import csv
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
 
 from zavod import Context, helpers as h
 
@@ -16,6 +16,8 @@ def crawl_item(input_dict: dict, context: Context):
     effective_date = input_dict.pop("Effective Date")
     termination_date = input_dict.pop("Termination Date")
     url = input_dict.pop("URL")
+    provisions = input_dict.pop("Action")
+    sanction_description = input_dict.pop("Note")
 
     for name in names:
         entity = context.make(schema)
@@ -24,6 +26,8 @@ def crawl_item(input_dict: dict, context: Context):
 
         sanction = h.make_sanction(context, entity)
         sanction.add("startDate", h.parse_date(effective_date, formats=["%Y-%m-%d"]))
+        sanction.add("provisions", provisions)
+        sanction.add("description", sanction_description)
 
         if url != "DNE":
             sanction.add("sourceUrl", url)
@@ -37,21 +41,15 @@ def crawl_item(input_dict: dict, context: Context):
         context.emit(sanction)
 
     # Individual Affiliation = The bank of the individual
-    # Action = What enforcement action was taken
     # Name = the string that appears in the url column
-    # Note = Other additional information
     context.audit_data(
-        input_dict, ignore=["Individual Affiliation", "Action", "Name", "Note"]
+        input_dict, ignore=["Individual Affiliation", "Name"]
     )
 
 
 def crawl(context: Context):
     response = context.fetch_text(context.data_url)
 
-    parsed_url = urlparse(context.data_url)
-
-    base_url = f"{parsed_url.scheme}://{parsed_url.netloc}"
-
     for item in csv.DictReader(StringIO(response)):
-        item["URL"] = base_url + item["URL"]
+        item["URL"] = urljoin(context.data_url, item["URL"])
         crawl_item(item, context)
