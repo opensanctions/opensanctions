@@ -1,5 +1,4 @@
 import csv
-from datetime import datetime
 from typing import Any, Optional
 
 from pantomime.types import CSV
@@ -24,17 +23,18 @@ DEDUPED_COLUMN_NAMES = [
 EXPECTED_COLUMNS = [
     "Ime",
     "Prezime",
-    "Primarna dužnost", 
+    "Primarna dužnost",
     "Pravna osoba u kojoj obnaša dužnost",
     "Datum početka obnašanja dužnosti",
     "Datum kraja obnašanja dužnosti",
-    "Sekundarna dužnost", 
+    "Sekundarna dužnost",
     "Pravna osoba u kojoj obnaša dužnost",
     "Datum početka obnašanja dužnosti",
     "Datum kraja obnašanja dužnosti",
 ]
 
 DATE_FORMATS = ["%d/%m/%Y"]
+
 
 def make_legal_entity(context: Context, legal_entity_name: str) -> Optional[Entity]:
     legal_entity: Optional[Entity] = None
@@ -46,15 +46,17 @@ def make_legal_entity(context: Context, legal_entity_name: str) -> Optional[Enti
     return legal_entity
 
 
-def make_affiliation_entities(context: Context, person: Entity, data: dict) -> tuple[Optional[Entity]]:
+def make_affiliation_entities(
+    context: Context, person: Entity, data: dict
+) -> tuple[Optional[Entity]]:
     """Creates Position and Occupancy provided that the Occupancy meets OpenSanctions criteria.
-      * A position's name include the title and optionally the name of the legal entity
-      * A position with a legal entity but no title is titled 'Unknown position'
-      * All positions (and Occupancies, Persons) are assumed to be Croatian
-      * Positions with start and/or end date but no position name or legal entity name are discarded
+    * A position's name include the title and optionally the name of the legal entity
+    * A position with a legal entity but no title is titled 'Unknown position'
+    * All positions (and Occupancies, Persons) are assumed to be Croatian
+    * Positions with start and/or end date but no position name or legal entity name are discarded
     """
 
-    title =  data.pop("dužnost")
+    title = data.pop("dužnost")
     legal_entity_name = data.pop("Pravna osoba u kojoj obnaša dužnost")
     start_date = data.pop("Datum početka obnašanja dužnosti")
     end_date = data.pop("Datum kraja obnašanja dužnosti")
@@ -63,16 +65,11 @@ def make_affiliation_entities(context: Context, person: Entity, data: dict) -> t
     if not any([title, legal_entity_name]):
         return None, None
 
-    position_name = title or 'Unknown position'
+    position_name = title or "Unknown position"
     if legal_entity_name:
-        position_name = f'{position_name}, {legal_entity_name}'
+        position_name = f"{position_name}, {legal_entity_name}"
 
-    position = h.make_position(
-        context,
-        position_name,
-        topics=None,
-        country='HR'
-    )
+    position = h.make_position(context, position_name, topics=None, country="HR")
 
     categorisation = categorise(context, position, is_pep=True)
     occupancy = h.make_occupancy(
@@ -101,13 +98,15 @@ def make_person(context: Context, first_name: str, last_name: str) -> Entity:
 def validate_column_names(context: Context, column_names: list) -> None:
     """Raises AssertionError if expected columns are missing or not in the expected order.
     If the columns are present, but extra columns are also present, allows the crawl to continue
-    but logs the extra columns. 
+    but logs the extra columns.
     Note: This CSV has duplicate column names.
     """
     error_message = f"Column names do not match: {column_names}"
     assert column_names[: len(EXPECTED_COLUMNS)] == EXPECTED_COLUMNS, error_message
     if len(column_names) > len(EXPECTED_COLUMNS):
-        context.log.warn(f"Unexpected column headers: {column_names[:len(EXPECTED_COLUMNS):]}")
+        context.log.warn(
+            f"Unexpected column headers: {column_names[:len(EXPECTED_COLUMNS):]}"
+        )
 
 
 def extract_dict_keys_by_prefix(
@@ -131,14 +130,26 @@ def crawl(context: Context):
         for row in reader:
             person = make_person(context, row.pop("Ime"), row.pop("Prezime"))
 
-            affiliation_1 = extract_dict_keys_by_prefix(row, DEDUPED_COLUMN_NAMES, "Primarna ")
-            position_1, occupancy_1 = make_affiliation_entities(context, person, affiliation_1)
+            affiliation_1 = extract_dict_keys_by_prefix(
+                row, DEDUPED_COLUMN_NAMES, "Primarna "
+            )
+            position_1, occupancy_1 = make_affiliation_entities(
+                context, person, affiliation_1
+            )
 
-            affiliation_2 = extract_dict_keys_by_prefix(row, DEDUPED_COLUMN_NAMES, "Sekundarna ")
-            position_2, occupancy_2 = make_affiliation_entities(context, person, affiliation_2)
+            affiliation_2 = extract_dict_keys_by_prefix(
+                row, DEDUPED_COLUMN_NAMES, "Sekundarna "
+            )
+            position_2, occupancy_2 = make_affiliation_entities(
+                context, person, affiliation_2
+            )
 
             context.audit_data(row)
 
             if occupancy_1 or occupancy_2:
-                [context.emit(ent) for ent in [position_1, position_2, occupancy_1, occupancy_2] if ent is not None]
+                [
+                    context.emit(ent)
+                    for ent in [position_1, position_2, occupancy_1, occupancy_2]
+                    if ent is not None
+                ]
                 context.emit(person, target=True)
