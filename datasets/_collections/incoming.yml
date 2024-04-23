@@ -13,4 +13,5 @@ children:
   - us_finra_actions
   - tj_companies
   - my_consumer_alert_list
+  - am_hetq_peps
 ci_test: false
