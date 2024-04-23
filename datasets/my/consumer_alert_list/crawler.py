@@ -69,6 +69,7 @@ def crawl(context: Context):
     if datetime.datetime.now() > datetime.datetime(2024, 9, 16):
         context.log.warn("Check if there's an update of the data behind the bot check.")
 
+    # Update by saving page rendered in the browser.
     data_path = context.dataset.base_path / "data.html"
     doc = html.fromstring(data_path.read_text())
 

@@ -3,7 +3,8 @@ entry_point: crawler.py
 prefix: my-ale
 coverage:
   frequency: never
-  end: 2024-04-16
+  start: 2024-04-23
+  end: 2024-04-23
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Entities who have been wrongly represented as being licensed by the Central Bank of Malaysia.
