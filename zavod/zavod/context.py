@@ -25,7 +25,7 @@ from zavod.runtime.issues import DatasetIssues
 from zavod.runtime.resources import DatasetResources
 from zavod.runtime.timestamps import TimeStampIndex
 from zavod.runtime.cache import get_cache
-from zavod.http import fetch_file, make_session, request_hash
+from zavod.http import fetch_file, make_session, request_hash, unblocking_fetch
 from zavod.http import _Auth, _Headers, _Body
 from zavod.logs import get_logger
 from zavod.util import join_slug
@@ -244,6 +244,7 @@ class Context:
         cache_days: Optional[int] = None,
         method: str = "GET",
         data: _Body = None,
+        unblock_at_cost: bool = False,
     ) -> Optional[str]:
         """Execute an HTTP request using the contexts' session and return
         the decoded response body. If a `cache_days` argument is provided, a
@@ -257,6 +258,7 @@ class Context:
             cache_days: Number of days to retain cached responses for. `None` to disable.
             method: The HTTP method to use for the request.
             data: The data to be sent in the request body.
+            unblock_at_cost: Use an unblocking service, potentially costing money.
 
         Returns:
             The decoded response body as a string.
@@ -279,10 +281,13 @@ class Context:
                 self.log.debug("HTTP cache hit", url=url, fingerprint=fingerprint)
                 return text
 
-        response = self.fetch_response(
-            url, headers=headers, auth=auth, method=method, data=data
-        )
-        text = response.text
+        if unblock_at_cost:
+            text = unblocking_fetch(url, headers=headers, auth=auth)
+        else:
+            response = self.fetch_response(
+                url, headers=headers, auth=auth, method=method, data=data
+            )
+            text = response.text
         if text is None:
             return None
 
@@ -299,6 +304,7 @@ class Context:
         cache_days: Optional[int] = None,
         method: str = "GET",
         data: _Body = None,
+        unblock_at_cost: bool = False,
     ) -> Any:
         """Execute an HTTP request using the contexts' session and return
         a JSON-decoded object based on the response. If a `cache_days` argument
@@ -311,6 +317,7 @@ class Context:
             auth: HTTP basic authorization username and password to be included.
             cache_days: Number of days to retain cached responses for.
             method: The HTTP method to use for the request.
+            unblock_at_cost: Use an unblocking service, potentially costing money.
 
         Returns:
             The decoded response body as a JSON-decoded object.
@@ -323,6 +330,7 @@ class Context:
             cache_days=cache_days,
             method=method,
             data=data,
+            unblock_at_cost=unblock_at_cost,
         )
 
         if text is not None and len(text):
@@ -342,6 +350,7 @@ class Context:
         cache_days: Optional[int] = None,
         method: str = "GET",
         data: _Body = None,
+        unblock_at_cost: bool = False,
     ) -> etree._Element:
         """Execute an HTTP request using the contexts' session and return
         an HTML DOM object based on the response. If a `cache_days` argument
@@ -355,6 +364,7 @@ class Context:
             cache_days: Number of days to retain cached responses for.
             method: The HTTP method to use for the request.
             data: The data to be sent in the request body.
+            unblock_at_cost: Use an unblocking service, potentially costing money.
         Returns:
             An lxml-based DOM of the web page that has been returned.
         """
@@ -366,6 +376,7 @@ class Context:
             cache_days=cache_days,
             method=method,
             data=data,
+            unblock_at_cost=unblock_at_cost,
         )
         if text is not None and len(text):
             try:

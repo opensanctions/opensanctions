@@ -3,10 +3,12 @@ from typing import Any, Optional, Tuple, Mapping, Union, List
 from functools import partial
 from pathlib import Path
 from banal import hash_data
+import requests
 from requests import Session
 from requests.adapters import HTTPAdapter
 from urllib3.exceptions import InsecureRequestWarning
 from urllib3.util import Retry
+from rigour.urls import ParamsType
 
 from zavod import settings
 from zavod.logs import get_logger
@@ -79,3 +81,34 @@ def fetch_file(
             for chunk in res.iter_content(chunk_size=8192 * 10):
                 fh.write(chunk)
     return out_path
+
+
+def unblocking_fetch(
+    url: str,
+    params: ParamsType = None,
+    headers: _Headers = None,
+    auth: _Auth = None,
+    method: str = "GET",
+    data: _Body = None,
+) -> str:
+    if method != "GET":
+        raise NotImplementedError(
+            "Only GET requests are supported for browserHtml unblocking"
+        )
+    if auth or headers:
+        raise NotImplementedError(
+            "Headers are not supported for browserHtml unblocking"
+        )
+    if data:
+        raise NotImplementedError(
+            "POST Data is not supported for browserHtml unblocking"
+        )
+
+    api_response = requests.post(
+        "https://api.zyte.com/v1/extract",
+        auth=(settings.ZYTE_API_KEY, ""),
+        json={"url": url, "browserHtml": True},
+    )
+    api_response.raise_for_status()
+    print(api_response.json())
+    return api_response.json()["browserHtml"]
