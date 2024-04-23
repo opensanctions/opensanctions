@@ -13,4 +13,5 @@ children:
   - us_finra_actions
   - tj_companies
   - am_hetq_peps
+  - nz_designated_terrorists
 ci_test: false
