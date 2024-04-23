@@ -1,11 +1,9 @@
 name: docs
 
-
-on: [push, workflow_dispatch]
-# on:
-#   push:
-#     branches: ["main"]
-#   workflow_dispatch:
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -43,16 +41,12 @@ jobs:
         working-directory: zavod
         run: mkdocs build -c -d site
       - name: Upload artifact
-        # just to test without deploying
-        if: ${{ github.ref == 'refs/heads/main' }}
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./zavod/site
 
   # Deployment job
   deploy:
-    # just to test without deploying
-    if: ${{ github.ref == 'refs/heads/main' }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
