@@ -33,9 +33,8 @@ EXPECTED_COLUMNS = [
     "Datum početka obnašanja dužnosti",
     "Datum kraja obnašanja dužnosti",
 ]
-def convert_date(date: Optional[str]) -> Optional[str]:
-    return datetime.strptime(date, "%d/%m/%Y").strftime("%Y-%m-%d") if date else None
 
+DATE_FORMATS = ["%d/%m/%Y"]
 
 def make_legal_entity(context: Context, legal_entity_name: str) -> Optional[Entity]:
     legal_entity: Optional[Entity] = None
@@ -69,6 +68,7 @@ def handle_affiliation_data(context: Context, person: Entity, data: dict) -> Non
             position_name,
             topics=None,
             organization=legal_entity,
+            country='HR'
         )
 
         categorisation = categorise(context, position, is_pep=True)
@@ -79,8 +79,8 @@ def handle_affiliation_data(context: Context, person: Entity, data: dict) -> Non
             no_end_implies_current=True,
             categorisation=categorisation,
             propagate_country=True,
-            start_date=convert_date(start_date),
-            end_date=convert_date(end_date),
+            start_date=h.parse_date(start_date, DATE_FORMATS).pop(),
+            end_date=h.parse_date(end_date, DATE_FORMATS).pop(),
         )
         if occupancy:
             context.emit(position)
