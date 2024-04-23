@@ -45,7 +45,7 @@ def crawl_item(input_dict: dict, context: Context):
     # There can be multiple websites for each entity
     properties_text = input_dict.pop("Website")
     for website in re.findall(REGEX_URLS, properties_text):
-        entity.add("website", website)
+        entity.add("website", website.strip(","))
     entity.add("notes", properties_text)
 
     sanction = h.make_sanction(context, entity)
