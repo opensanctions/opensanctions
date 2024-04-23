@@ -1,6 +1,7 @@
 from io import StringIO
 import csv
-from urllib.parse import urlparse, urljoin
+from datetime import datetime
+from urllib.parse import urljoin
 
 from zavod import Context, helpers as h
 
@@ -24,6 +25,9 @@ def crawl_item(input_dict: dict, context: Context):
         entity.id = context.make_id(name)
         entity.add("name", name)
 
+        if schema == "Company":
+            entity.add("topics", "fin.bank")
+
         sanction = h.make_sanction(context, entity)
         sanction.add("startDate", h.parse_date(effective_date, formats=["%Y-%m-%d"]))
         sanction.add("provisions", provisions)
@@ -33,9 +37,17 @@ def crawl_item(input_dict: dict, context: Context):
             sanction.add("sourceUrl", url)
 
         if termination_date != "":
+            # if the termination date, is in the future, we assume the entity is still in the crime.fin topic
+            if termination_date > datetime.today().strftime("%Y-%m-%d"):
+                entity.add("topics", "crime.fin")
+
             sanction.add(
                 "endDate", h.parse_date(termination_date, formats=["%Y-%m-%d"])
             )
+        # if it doesn't have a termination date, we assume the entity is still in the crime.fin topic
+        else:
+            entity.add("topics", "crime.fin")
+            
 
         context.emit(entity, target=True)
         context.emit(sanction)
