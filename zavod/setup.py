@@ -41,7 +41,7 @@ setup(
         "prefixdate",
         "psycopg2-binary",
         "pyicu == 2.12.0",
-        "pywikibot==9.0.0",
+        "pywikibot==9.1.0",
         "requests[security]",
         "requests_oauthlib",
         "sqlalchemy[mypy]",
