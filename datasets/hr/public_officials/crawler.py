@@ -46,46 +46,48 @@ def make_legal_entity(context: Context, legal_entity_name: str) -> Optional[Enti
     return legal_entity
 
 
-def handle_affiliation_data(context: Context, person: Entity, data: dict) -> None:
-    """Creates, emits Position, Occupancy, and optionally a LegalEntity provided that the Occupancy meets
-    OpenSanctions criteria.
-    Note that the provided data is incomplete and the modeling reflects this:
-      * A position name with no legal entity name results in a position with no Organization reference
-      * A legal entity name with no position name results in an position named "Unspecified position"
-         with organizational reference
-      * A start and/or end date with no position name or legal entity name results in an unspecified position
-         with no organizational reference. This is done for fidelity to the source.
+def make_affiliation_entities(context: Context, person: Entity, data: dict) -> tuple[Optional[Entity]]:
+    """Creates Position and Occupancy provided that the Occupancy meets OpenSanctions criteria.
+      * A position's name include the title and optionally the name of the legal entity
+      * A position with a legal entity but no title is titled 'Unknown position'
+      * All positions (and Occupancies, Persons) are assumed to be Croatian
+      * Positions with start and/or end date but no position name or legal entity name are discarded
     """
+
+    title =  data.pop("dužnost")
     legal_entity_name = data.pop("Pravna osoba u kojoj obnaša dužnost")
-    position_name = data.pop("dužnost")
     start_date = data.pop("Datum početka obnašanja dužnosti")
     end_date = data.pop("Datum kraja obnašanja dužnosti")
-    if any([legal_entity_name, position_name, start_date, end_date]):
-        legal_entity = make_legal_entity(context, legal_entity_name)
-        position_name = position_name or "Unspecified position"
-        position = h.make_position(
-            context,
-            position_name,
-            topics=None,
-            organization=legal_entity,
-            country='HR'
-        )
-
-        categorisation = categorise(context, position, is_pep=True)
-        occupancy = h.make_occupancy(
-            context,
-            person,
-            position,
-            no_end_implies_current=True,
-            categorisation=categorisation,
-            propagate_country=True,
-            start_date=h.parse_date(start_date, DATE_FORMATS).pop(),
-            end_date=h.parse_date(end_date, DATE_FORMATS).pop(),
-        )
-        if occupancy:
-            context.emit(position)
-            context.emit(occupancy)
     context.audit_data(data)
+
+    if not any([title, legal_entity_name]):
+        return None, None
+
+    position_name = title or 'Unknown position'
+    if legal_entity_name:
+        position_name = f'{position_name}, {legal_entity_name}'
+
+    position = h.make_position(
+        context,
+        position_name,
+        topics=None,
+        country='HR'
+    )
+
+    categorisation = categorise(context, position, is_pep=True)
+    occupancy = h.make_occupancy(
+        context,
+        person,
+        position,
+        no_end_implies_current=True,
+        categorisation=categorisation,
+        propagate_country=True,
+        start_date=h.parse_date(start_date, DATE_FORMATS).pop(),
+        end_date=h.parse_date(end_date, DATE_FORMATS).pop(),
+    )
+    if occupancy:
+        return position, occupancy
+    return None, None
 
 
 def make_person(context: Context, first_name: str, last_name: str) -> Entity:
@@ -93,8 +95,6 @@ def make_person(context: Context, first_name: str, last_name: str) -> Entity:
     person.id = context.make_slug(first_name, last_name)
     person.add("firstName", first_name)
     person.add("lastName", last_name)
-    person.add("country", "LT")
-    person.add("topics", "role.pep")
     return person
 
 
@@ -121,7 +121,7 @@ def extract_dict_keys_by_prefix(
 
 
 def crawl(context: Context):
-    """Fetches the current CSV file and crawls each row, making persons, legal entities, and positions"""
+    """Fetches the current CSV file and crawls each row, making persons, occupancies and positions"""
     file_path = context.fetch_resource("daily_csv_release", context.data_url)
     context.export_resource(file_path, CSV, title=context.SOURCE_TITLE)
     with open(file_path, encoding="utf-8-sig") as fh:
@@ -132,10 +132,13 @@ def crawl(context: Context):
             person = make_person(context, row.pop("Ime"), row.pop("Prezime"))
 
             affiliation_1 = extract_dict_keys_by_prefix(row, DEDUPED_COLUMN_NAMES, "Primarna ")
-            handle_affiliation_data(context, person, affiliation_1)
+            position_1, occupancy_1 = make_affiliation_entities(context, person, affiliation_1)
 
             affiliation_2 = extract_dict_keys_by_prefix(row, DEDUPED_COLUMN_NAMES, "Sekundarna ")
-            handle_affiliation_data(context, person, affiliation_2)
+            position_2, occupancy_2 = make_affiliation_entities(context, person, affiliation_2)
 
             context.audit_data(row)
-            context.emit(person, target=True)
+
+            if occupancy_1 or occupancy_2:
+                [context.emit(ent) for ent in [position_1, position_2, occupancy_1, occupancy_2] if ent is not None]
+                context.emit(person, target=True)
