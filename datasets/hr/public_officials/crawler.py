@@ -8,7 +8,7 @@ from zavod import Context, Entity
 from zavod import helpers as h
 from zavod.logic.pep import categorise
 
-FIELD_NAMES = [
+DEDUPED_COLUMN_NAMES = [
     "Ime",
     "Prezime",
     "Primarna dužnost",  # first affiliation
@@ -21,7 +21,18 @@ FIELD_NAMES = [
     "Sekundarna Datum kraja obnašanja dužnosti",
 ]
 
-
+EXPECTED_COLUMNS = [
+    "Ime",
+    "Prezime",
+    "Primarna dužnost", 
+    "Pravna osoba u kojoj obnaša dužnost",
+    "Datum početka obnašanja dužnosti",
+    "Datum kraja obnašanja dužnosti",
+    "Sekundarna dužnost", 
+    "Pravna osoba u kojoj obnaša dužnost",
+    "Datum početka obnašanja dužnosti",
+    "Datum kraja obnašanja dužnosti",
+]
 def convert_date(date: Optional[str]) -> Optional[str]:
     return datetime.strptime(date, "%d/%m/%Y").strftime("%Y-%m-%d") if date else None
 
@@ -87,14 +98,16 @@ def make_person(context: Context, first_name: str, last_name: str) -> Entity:
     return person
 
 
-def validate_headers(context: Context, headers: list) -> None:
-    """Raises AssertionError if columns are missing or not in the expected order.
-    Logs extra columns. Note: This CSV has duplicate column names.
+def validate_column_names(context: Context, column_names: list) -> None:
+    """Raises AssertionError if expected columns are missing or not in the expected order.
+    If the columns are present, but extra columns are also present, allows the crawl to continue
+    but logs the extra columns. 
+    Note: This CSV has duplicate column names.
     """
-    error_message = f"Unexpected column headers: {headers}"
-    assert headers[: len(FIELD_NAMES)] == FIELD_NAMES, error_message
-    if len(headers) > len(FIELD_NAMES):
-        context.log.warn(f"Unexpected column headers: {headers[:len(FIELD_NAMES):]}")
+    error_message = f"Column names do not match: {column_names}"
+    assert column_names[: len(EXPECTED_COLUMNS)] == EXPECTED_COLUMNS, error_message
+    if len(column_names) > len(EXPECTED_COLUMNS):
+        context.log.warn(f"Unexpected column headers: {column_names[:len(EXPECTED_COLUMNS):]}")
 
 
 def extract_dict_keys_by_prefix(
@@ -112,14 +125,16 @@ def crawl(context: Context):
     file_path = context.fetch_resource("daily_csv_release", context.data_url)
     context.export_resource(file_path, CSV, title=context.SOURCE_TITLE)
     with open(file_path, encoding="utf-8-sig") as fh:
-        reader = csv.DictReader(fh, fieldnames=FIELD_NAMES, delimiter=";")
+        reader = csv.DictReader(fh, fieldnames=DEDUPED_COLUMN_NAMES, delimiter=";")
+        column_names = list(next(reader).values())
+        validate_column_names(context, column_names)
         for row in reader:
             person = make_person(context, row.pop("Ime"), row.pop("Prezime"))
 
-            affiliation_1 = extract_dict_keys_by_prefix(row, FIELD_NAMES, "Primarna ")
+            affiliation_1 = extract_dict_keys_by_prefix(row, DEDUPED_COLUMN_NAMES, "Primarna ")
             handle_affiliation_data(context, person, affiliation_1)
 
-            affiliation_2 = extract_dict_keys_by_prefix(row, FIELD_NAMES, "Sekundarna ")
+            affiliation_2 = extract_dict_keys_by_prefix(row, DEDUPED_COLUMN_NAMES, "Sekundarna ")
             handle_affiliation_data(context, person, affiliation_2)
 
             context.audit_data(row)
