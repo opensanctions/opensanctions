@@ -162,7 +162,9 @@ def fetch_company(context: Context, company_id: int) -> None:
         if company.get("NUI"):
             entity.id = context.make_id("XKCompany-nui", company.get("NUI"))
         elif company.get("NumriBiznesit"):
-            entity.id = context.make_id("XKCompany-biznesit", company.get("NumriBiznesit"))
+            entity.id = context.make_id(
+                "XKCompany-biznesit", company.get("NumriBiznesit")
+            )
         elif company.get("NumriFiskal"):
             entity.id = context.make_id("XKCompany-fiskal", company.get("NumriFiskal"))
         else:
