@@ -58,6 +58,7 @@ children:
   - ps_local_freezing
   - qa_nctc_sanctions
   - sg_terrorists
+  - th_designated_person
   - ua_nabc_sanctions
   - ua_nsdc_sanctions
   - ua_sfms_blacklist
