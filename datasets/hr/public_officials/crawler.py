@@ -91,7 +91,7 @@ def make_person(
     positions = sorted(p for p in [primary, secondary] if p is not None)
     position = positions[0] if positions else None
     person = context.make("Person")
-    person.id = context.make_id(first_name, last_name, position, strict=False)
+    person.id = context.make_id(first_name, last_name, position)
     h.apply_name(person, first_name=first_name, last_name=last_name)
     return person
 
