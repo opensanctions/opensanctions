@@ -1,6 +1,6 @@
-title: New Zeland's Designated Terrorist Entities
+title: New Zeland Designated Terrorist Entities
 entry_point: crawler.py
-prefix: nz-des-ter
+prefix: nz-terr
 coverage:
   frequency: daily
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}

@@ -47,11 +47,10 @@ def crawl_item(input_dict: dict, context: Context):
 
     organization = context.make("Organization")
     organization.id = context.make_slug(name)
-    organization.add("topics", "crime")
+    organization.add("topics", "sanction")
 
     organization.add("name", name)
-    for alias in aliases:
-        organization.add("alias", alias)
+    organization.add("alias", aliases)
 
     sanction = h.make_sanction(context, organization)
 
