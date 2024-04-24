@@ -9,6 +9,7 @@ from requests.adapters import HTTPAdapter
 from urllib3.exceptions import InsecureRequestWarning
 from urllib3.util import Retry
 from rigour.urls import ParamsType
+from urllib.parse import urlencode
 
 from zavod import settings
 from zavod.logs import get_logger
@@ -85,7 +86,6 @@ def fetch_file(
 
 def unblocking_fetch(
     url: str,
-    params: ParamsType = None,
     headers: _Headers = None,
     auth: _Auth = None,
     method: str = "GET",
@@ -104,11 +104,12 @@ def unblocking_fetch(
             "POST Data is not supported for browserHtml unblocking"
         )
 
+    log.debug(f"Zyte API browserHtml {method} {url}")
+
     api_response = requests.post(
         "https://api.zyte.com/v1/extract",
         auth=(settings.ZYTE_API_KEY, ""),
         json={"url": url, "browserHtml": True},
     )
     api_response.raise_for_status()
-    print(api_response.json())
     return api_response.json()["browserHtml"]

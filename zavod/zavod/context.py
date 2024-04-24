@@ -282,7 +282,7 @@ class Context:
                 return text
 
         if unblock_at_cost:
-            text = unblocking_fetch(url, headers=headers, auth=auth)
+            text = unblocking_fetch(url, headers=headers, auth=auth, data=data)
         else:
             response = self.fetch_response(
                 url, headers=headers, auth=auth, method=method, data=data
