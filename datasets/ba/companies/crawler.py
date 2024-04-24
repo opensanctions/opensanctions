@@ -177,12 +177,10 @@ def parse_city(
 
 def crawl_details(context: Context, record: Dict[str, str]) -> None:
     """
-    Fetches the details of a company from the website.
+    Fetches and emits the details of a company from the website.
     Args:
         context: The context object for the current dataset.
         record: The record to fetch the details for.
-    Returns:
-        The details of the company as a dict.
     """
     details_page = context.fetch_html(record["details_url"], headers=HEADER)
 
