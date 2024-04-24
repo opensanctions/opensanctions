@@ -11,5 +11,4 @@ description: |
   before being moved to a collection under default.
 children:
   - us_finra_actions
-  - tj_companies
 ci_test: false
