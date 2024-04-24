@@ -38,12 +38,10 @@ def parse_table(
 
 def crawl_item(input_dict: dict, context: Context):
     # aliases will be either a list of size one or None if there is no aliases
-    name, *aliases = (
-        input_dict.pop("terrorist-entity")[0].strip().split("\n\t\t\t\t", 1)
-    )
+    name, *aliases = input_dict.pop("terrorist-entity")[0].split("Also known as ")
 
     # We remove the prefix and split in the commas
-    aliases = aliases[0].replace("Also known as ", "").split(", ") if aliases else []
+    aliases = aliases[0].split(", ") if aliases else []
 
     organization = context.make("Organization")
     organization.id = context.make_slug(name)
