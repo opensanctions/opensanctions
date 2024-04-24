@@ -86,5 +86,10 @@ def crawl(context: Context):
 
     response.make_links_absolute(context.data_url)
 
+    table = response.find(".//table")
+
+    if table.findtext(".//caption/strong") != "Alphabetical list of Designated Terrorist Entities in New Zealand pursuant to UNSC Resolution 1373":
+        context.log.error("Structure of the website changed, this might not be the correct table")
+
     for item in parse_table(response.find(".//table")):
         crawl_item(item, context)
