@@ -89,7 +89,11 @@ def get_birth_info(
 
 
 def crawl_person(
-    context: Context, zipfh: ZipFile, person_id: int, data: Dict[str, Any], is_target: bool
+    context: Context,
+    zipfh: ZipFile,
+    person_id: int,
+    data: Dict[str, Any],
+    is_target: bool,
 ) -> Optional[Entity]:
     """Create person and position/occupancy if applicable."""
     birth_date, birth_place = get_birth_info(context, zipfh, person_id)
