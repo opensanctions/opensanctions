@@ -3,6 +3,7 @@ import csv
 from datetime import datetime
 from urllib.parse import urljoin
 import re
+from followthemoney.types import registry
 
 from zavod import Context, helpers as h
 
@@ -126,9 +127,19 @@ def is_only_one_name(txt: str) -> bool:
         bool: If the txt is the name of only one bank.
     """
 
+    # We are going to remove trailing spaces and commas to deal with cases such as "ABC, new york, new york,"
+    txt = txt.strip().rstrip(",")
+
     matches = re.match(ONE_NAME_PATTERN, txt)
 
-    if matches is not None and matches.group(1).lower() in US_STATES_NAMES_AND_ACRONYMS:
+    if matches is None:
+        return False
+
+
+    is_us_state = matches.group(1).lower() in US_STATES_NAMES_AND_ACRONYMS
+    is_country = (registry.country.clean(matches.group(1).lower(), fuzzy=True) is not None)
+
+    if is_us_state or is_country:
         return True
 
     return False
