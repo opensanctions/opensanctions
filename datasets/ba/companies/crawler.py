@@ -21,11 +21,6 @@ TOUCH_URL = DICTS_URL
 # URL to retrieve the list of companies
 RETRIEVE_URL = f"{BASE_URL}/f"
 
-HEADER = {
-    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit"
-    + "/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36"
-}
-
 
 def get_secret_param(context: Context) -> str:
     """
@@ -69,7 +64,6 @@ def seed_city(context: Context, secret_param: str) -> List[Dict[str, str]]:
         url=DICTS_URL,
         method="POST",
         data=payload,
-        headers=HEADER,
         cache_days=CACHE_DAYS,
     )
     cities = re.findall(r'id: (\d+), data: "([\w /-]+)"', resp)
@@ -132,7 +126,6 @@ def parse_city(
         url=TOUCH_URL,
         method="POST",
         data=TOUCH_PAYLOAD1,
-        headers=HEADER,
         cache_days=CACHE_DAYS,
     )
 
@@ -140,7 +133,6 @@ def parse_city(
         url=TOUCH_URL,
         method="POST",
         data=TOUCH_PAYLOAD2,
-        headers=HEADER,
         cache_days=CACHE_DAYS,
     )
 
@@ -148,7 +140,6 @@ def parse_city(
         url=RETRIEVE_URL,
         method="POST",
         data=RETRIEVE_PAYLOAD,
-        headers=HEADER,
         cache_days=CACHE_DAYS,
     )
 
@@ -166,9 +157,6 @@ def parse_city(
         record["address"] = row[3].text
         record["date_of_last_decision"] = row[4].text
         record["details_url"] = urljoin(BASE_URL, row[1][0].attrib["href"])
-        record["key"] = "::".join(
-            [record.get("registration_number", {}), record.get("name", {})]
-        )
 
         records.append(record)
 
@@ -184,7 +172,7 @@ def crawl_details(context: Context, record: Dict[str, str]) -> None:
     Returns:
         The details of the company as a dict.
     """
-    details_page = context.fetch_html(record["details_url"], headers=HEADER)
+    details_page = context.fetch_html(record["details_url"])
 
     legal_form = details_page.xpath(
         "//td[contains(text(),"
@@ -213,12 +201,11 @@ def crawl_details(context: Context, record: Dict[str, str]) -> None:
         + ' "Unique Identification Number")'
         + "]/following-sibling::td/text()"
     )
-    # JD: Jedinstveni identifikacioni broj - JIB or UIN
+    # Jedinstveni identifikacioni broj - JIB or UIN
     # https://www.vatify.eu/bosnia-and-herzegovina-vat-number.html
     if uin:
         record["unique_id"] = uin[0]
 
-    # JD: Don't know if we need this one
     customs_number = details_page.xpath(
         "//td[contains(text(),"
         + ' "Customs Number")'
@@ -226,7 +213,11 @@ def crawl_details(context: Context, record: Dict[str, str]) -> None:
     )
 
     if customs_number and customs_number[0].replace("\xa0", " ").strip():
-        record["customs_number"] = customs_number[0]
+        record["customs_number"] = f"Customs number: {customs_number[0]}"
+
+    founders_people = []
+    founders_companies = []
+    managers = []
 
     try:
         founders_url = urljoin(
@@ -235,7 +226,7 @@ def crawl_details(context: Context, record: Dict[str, str]) -> None:
     except IndexError:
         context.log.warning("Details page empty")
     else:
-        founders_page = context.fetch_html(founders_url, headers=HEADER)
+        founders_page = context.fetch_html(founders_url)
 
         names = founders_page.xpath(
             "//td[contains(text(),"
@@ -243,18 +234,11 @@ def crawl_details(context: Context, record: Dict[str, str]) -> None:
             + "]/following-sibling::td/text()"
         )
 
-        cap_contr = founders_page.xpath(
+        cap_paid = founders_page.xpath(
             "//td[contains(text(),"
-            + ' "Kapital [ugovoreni]")'
+            + ' "Kapital [uplaćeni]")'
             + "]/following-sibling::td/text()"
         )
-
-        # JD: Not sure if we can use it.
-        # cap_paid = founders_page.xpath(
-        #     "//td[contains(text(),"
-        #     + ' "Kapital [uplaćeni]")'
-        #     + "]/following-sibling::td/text()"
-        # )
 
         shares = founders_page.xpath(
             "//td[contains(text(),"
@@ -274,18 +258,15 @@ def crawl_details(context: Context, record: Dict[str, str]) -> None:
             + "]/following-sibling::td/text()"
         )
 
-        founders_people = []
         for i, name in enumerate(names):
             founders_people.append(
                 {
                     "name": name,
-                    "capital_contracted": cap_contr[i],
-                    "capital_paid": cap_contr[i],
+                    "capital_paid": cap_paid[i],
                     "shares": shares[i],
                 }
             )
 
-        founders_companies = []
         for i, bd in enumerate(basic_data):
             parsed_bd = list(map(str.strip, bd.split(" ,")))
             # JD: Name might be Dioničari prema evidenciji Registra vrijednosnih papir F BiH
@@ -310,11 +291,10 @@ def crawl_details(context: Context, record: Dict[str, str]) -> None:
                 }
             )
 
-        managers = []
         managers_url = urljoin(
             BASE_URL, founders_page.xpath('//*[@id="podmeni"]/p/a')[1].attrib["href"]
         )
-        managers_page = context.fetch_html(managers_url, headers=HEADER)
+        managers_page = context.fetch_html(managers_url)
         managers_names = managers_page.xpath(
             "//td[contains(text()," + ' "Name")]/' + "following-sibling::td/text()"
         )
@@ -345,9 +325,14 @@ def crawl_details(context: Context, record: Dict[str, str]) -> None:
 
     finally:
         entity = context.make("Company")
-        entity.id = context.make_id(
-            "BACompany", record["registration_number"], record["name"]
-        )
+        if record.get("registration_number"):
+            entity.id = context.make_id(
+                "BACompany", record["registration_number"]
+            )
+        else:
+            entity.id = context.make_id(
+                "BACompany", record["name"]
+            )
 
         entity.add("name", record["name"], lang="bos")
         entity.add("name", record["abbreviation"], lang="bos")
@@ -366,6 +351,9 @@ def crawl_details(context: Context, record: Dict[str, str]) -> None:
         if record.get("unique_id"):
             entity.add("registrationNumber", record["unique_id"])
 
+        if record.get("customs_number"):
+            entity.add("description", record["customs_number"], lang="eng")
+
         entity.add("sourceUrl", record["details_url"])
         entity.add("modifiedAt", record["date_of_last_decision"])
         entity.add("retrievedAt", datetime.datetime.now().isoformat())
@@ -383,8 +371,9 @@ def crawl_details(context: Context, record: Dict[str, str]) -> None:
             own.add("owner", founder.id)
             own.add("ownershipType", "Founder", lang="eng")
 
-            # JD: Not sure where to map shares and capital_contracted
             own.add("sharesValue", person["capital_paid"])
+            if person["shares"].replace("\xa0", " ").strip("	 -"):
+                own.add("sharesCount", person["shares"])
             context.emit(own)
 
         for comp in founders_companies:
@@ -412,17 +401,17 @@ def crawl_details(context: Context, record: Dict[str, str]) -> None:
 
             context.emit(own)
 
-        for man in managers:
+        for manager in managers:
             director = context.make("Person")
-            director.id = context.make_id("BAdirector", entity.id, man["name"])
-            director.add("name", man["name"], lang="bos")
+            director.id = context.make_id("BAdirector", entity.id, manager["name"])
+            director.add("name", manager["name"], lang="bos")
             context.emit(director)
 
             rel = context.make("Directorship")
             rel.id = context.make_id("BADirectorship", entity.id, director.id)
-            rel.add("role", man["position"], lang="bos")
+            rel.add("role", manager["position"], lang="bos")
             # JD: Should it be description or notes or status or summary?
-            rel.add("description", man["authorizations"], lang="bos")
+            rel.add("description", manager["authorizations"], lang="bos")
             rel.add("director", director)
             rel.add("organization", entity)
 
@@ -482,7 +471,7 @@ def crawl(context: Context):
     )
 
     total = 0
-    recs = []
+
     for city in cities:
         # Lets grab try to grab all records to see if it's less than 500
         new_recs = parse_city(
@@ -507,16 +496,18 @@ def crawl(context: Context):
                     f'{city["city"]}, {period[0]}-{period[1]}: {len(new_recs)}'
                 )
                 total += len(new_recs)
-                recs += new_recs
+
+                for rec in new_recs:
+                    sleep(SLEEP_TIME)
+                    crawl_details(context, rec)
 
                 sleep(SLEEP_TIME)
         else:
             context.log.debug(f'{city["city"]}, all the time: {len(new_recs)}')
             total += len(new_recs)
-            recs += new_recs
+
+            for rec in new_recs:
+                sleep(SLEEP_TIME)
+                crawl_details(context, rec)
 
     context.log.debug("Total records: ", total)
-
-    for rec in recs:
-        crawl_details(context, rec)
-        sleep(SLEEP_TIME)
