@@ -324,13 +324,9 @@ def crawl_details(context: Context, record: Dict[str, str]) -> None:
     finally:
         entity = context.make("Company")
         if record.get("registration_number"):
-            entity.id = context.make_id(
-                "BACompany", record["registration_number"]
-            )
+            entity.id = context.make_id("BACompany", record["registration_number"])
         else:
-            entity.id = context.make_id(
-                "BACompany", record["name"]
-            )
+            entity.id = context.make_id("BACompany", record["name"])
 
         entity.add("name", record["name"], lang="bos")
         entity.add("name", record["abbreviation"], lang="bos")
