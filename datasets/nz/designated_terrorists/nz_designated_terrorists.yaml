@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: nz-terr
 coverage:
   frequency: daily
+  start: 2024-04-24
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Individuals and entities that have been designated terrorists by the New Zeland government
