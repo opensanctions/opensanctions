@@ -1,5 +1,5 @@
 import csv
-from typing import Any, Optional
+from typing import Any, List, Optional
 
 from pantomime.types import CSV
 
@@ -36,19 +36,21 @@ EXPECTED_COLUMNS = [
 DATE_FORMATS = ["%d/%m/%Y"]
 
 
-def make_legal_entity(context: Context, legal_entity_name: str) -> Optional[Entity]:
-    legal_entity: Optional[Entity] = None
+def make_position_name(data: dict) -> Optional[str]:
+    title = data.pop("dužnost")
+    legal_entity_name = data.pop("Pravna osoba u kojoj obnaša dužnost")
+    if not any([title, legal_entity_name]):
+        return None
+
+    position_name = title or "Unknown position"
     if legal_entity_name:
-        legal_entity = context.make("LegalEntity")
-        legal_entity.id = context.make_slug(legal_entity_name)
-        legal_entity.add("name", legal_entity_name)
-        context.emit(legal_entity)
-    return legal_entity
+        position_name = f"{position_name}, {legal_entity_name}"
+    return position_name
 
 
 def make_affiliation_entities(
-    context: Context, person: Entity, data: dict
-) -> tuple[Optional[Entity]]:
+    context: Context, person: Entity, position_name: str, data: dict
+) -> List[Entity]:
     """Creates Position and Occupancy provided that the Occupancy meets OpenSanctions criteria.
     * A position's name include the title and optionally the name of the legal entity
     * A position with a legal entity but no title is titled 'Unknown position'
@@ -56,18 +58,9 @@ def make_affiliation_entities(
     * Positions with start and/or end date but no position name or legal entity name are discarded
     """
 
-    title = data.pop("dužnost")
-    legal_entity_name = data.pop("Pravna osoba u kojoj obnaša dužnost")
     start_date = data.pop("Datum početka obnašanja dužnosti")
     end_date = data.pop("Datum kraja obnašanja dužnosti")
     context.audit_data(data)
-
-    if not any([title, legal_entity_name]):
-        return None, None
-
-    position_name = title or "Unknown position"
-    if legal_entity_name:
-        position_name = f"{position_name}, {legal_entity_name}"
 
     position = h.make_position(context, position_name, topics=None, country="HR")
 
@@ -82,16 +75,24 @@ def make_affiliation_entities(
         start_date=h.parse_date(start_date, DATE_FORMATS).pop(),
         end_date=h.parse_date(end_date, DATE_FORMATS).pop(),
     )
+    entities = []
     if occupancy:
-        return position, occupancy
-    return None, None
+        entities.extend([position, occupancy])
+    return entities
 
 
-def make_person(context: Context, first_name: str, last_name: str) -> Entity:
+def make_person(
+    context: Context,
+    first_name: str,
+    last_name: str,
+    primary: Optional[str],
+    secondary: Optional[str],
+) -> Entity:
+    positions = sorted(p for p in [primary, secondary] if p is not None)
+    position = positions[0] if positions else None
     person = context.make("Person")
-    person.id = context.make_slug(first_name, last_name)
-    person.add("firstName", first_name)
-    person.add("lastName", last_name)
+    person.id = context.make_id(first_name, last_name, position, strict=False)
+    h.apply_name(person, first_name=first_name, last_name=last_name)
     return person
 
 
@@ -128,28 +129,38 @@ def crawl(context: Context):
         column_names = list(next(reader).values())
         validate_column_names(context, column_names)
         for row in reader:
-            person = make_person(context, row.pop("Ime"), row.pop("Prezime"))
+            position_entities = []
 
-            affiliation_1 = extract_dict_keys_by_prefix(
+            primary_data = extract_dict_keys_by_prefix(
                 row, DEDUPED_COLUMN_NAMES, "Primarna "
             )
-            position_1, occupancy_1 = make_affiliation_entities(
-                context, person, affiliation_1
-            )
-
-            affiliation_2 = extract_dict_keys_by_prefix(
+            primary_position_name = make_position_name(primary_data)
+            secondary_data = extract_dict_keys_by_prefix(
                 row, DEDUPED_COLUMN_NAMES, "Sekundarna "
             )
-            position_2, occupancy_2 = make_affiliation_entities(
-                context, person, affiliation_2
+            secondary_position_name = make_position_name(secondary_data)
+            person = make_person(
+                context,
+                row.pop("Ime"),
+                row.pop("Prezime"),
+                primary_position_name,
+                secondary_position_name,
+            )
+
+            position_entities.extend(
+                make_affiliation_entities(
+                    context, person, primary_position_name, primary_data
+                )
+            )
+            position_entities.extend(
+                make_affiliation_entities(
+                    context, person, secondary_position_name, secondary_data
+                )
             )
 
             context.audit_data(row)
 
-            if occupancy_1 or occupancy_2:
-                [
-                    context.emit(ent)
-                    for ent in [position_1, position_2, occupancy_1, occupancy_2]
-                    if ent is not None
-                ]
+            if position_entities:
+                for entity in position_entities:
+                    context.emit(entity)
                 context.emit(person, target=True)
