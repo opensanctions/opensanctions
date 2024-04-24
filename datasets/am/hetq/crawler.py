@@ -89,7 +89,7 @@ def get_birth_info(
 
 
 def crawl_person(
-    context: Context, zipfh: ZipFile, person_id: int, data: Dict[str, Any]
+    context: Context, zipfh: ZipFile, person_id: int, data: Dict[str, Any], is_target: bool
 ) -> Optional[Entity]:
     """Create person and position/occupancy if applicable."""
     birth_date, birth_place = get_birth_info(context, zipfh, person_id)
@@ -144,7 +144,7 @@ def crawl_person(
                 context.emit(position)
     # Emit all the persons anyway
     person.add("topics", "poi")
-    context.emit(person, target=True)
+    context.emit(person, target=is_target)
     return person
 
 
@@ -200,7 +200,7 @@ def crawl_missing_pois(
             context.log.debug(f"Already crawled missing POI {person_id}")
             continue
         persons[person_id] = data
-        person = crawl_person(context, zipfh, person_id, data)
+        person = crawl_person(context, zipfh, person_id, data, False)
         if person is not None:
             data["entity"] = person
 
@@ -261,7 +261,7 @@ def crawl_relations(
         seen.add((source, target))
         relationship = e.get("label")
         if relationship is None:
-            context.log.warning(f"Skipping relation {person_id}:{target} has no label")
+            context.log.info(f"Skipping relation {person_id}:{target} has no label")
             continue
         context.log.debug(f"Relation {source}:{target}:{relationship}")
         # There are only family relations it seems
@@ -292,7 +292,7 @@ def crawl_lists(context: Context, zipfh: ZipFile):
     # Now that we have the persons we can grab some personal data and
     # create Persons
     for person_id, data in persons.items():
-        person = crawl_person(context, zipfh, person_id, data)
+        person = crawl_person(context, zipfh, person_id, data, is_target=True)
         if person is not None:
             persons[person_id]["entity"] = person
     # And create relations between entities

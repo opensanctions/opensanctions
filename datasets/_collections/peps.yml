@@ -25,6 +25,7 @@ description: |
   official sources like governments and also from third-party sources that
   have been aggregated by other organizations.
 children:
+  - am_hetq_officials
   - ann_pep_positions
   - ar_parliament
   - at_meine_abgeordneten
