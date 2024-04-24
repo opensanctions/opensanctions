@@ -11,8 +11,4 @@ description: |
   before being moved to a collection under default.
 children:
   - us_finra_actions
-  - tj_companies
-  - my_consumer_alert_list
-  - am_hetq_peps
-  - hr_public_officials
 ci_test: false
