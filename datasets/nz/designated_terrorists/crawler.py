@@ -40,7 +40,6 @@ def crawl_item(input_dict: dict, context: Context):
     # aliases will be either a list of size one or None if there is no aliases
     name, *aliases = input_dict.pop("terrorist-entity")[0].split("Also known as ")
 
-    # We remove the prefix and split in the commas
     aliases = aliases[0].split(", ") if aliases else []
 
     organization = context.make("Organization")
