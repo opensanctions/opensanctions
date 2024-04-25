@@ -12,12 +12,20 @@ description: |
   have violated laws, rules, or regulations, unsafe or unsound practices,
   breaches of fiduciary duty, and violations of final orders.
   
-  Formal enforcement actions include cease and desist orders, written
-  agreements, prompt corrective action directives, removal and
-  prohibition orders, and orders assessing civil money penalties.
+  From their website:
+
+  > Generally, the Federal Reserve takes formal enforcement actions against the
+  > above entities and individuals for violations of laws, rules, or regulations,
+  > unsafe or unsound practices, breaches of fiduciary duty, and violations of
+  > final orders. Formal enforcement actions include cease and desist orders,
+  > written agreements, prompt corrective action directives, removal and prohibition
+  > orders, and orders assessing civil money penalties.
 publisher:
   name: US Federal Reserve
   url: https://www.federalreserve.gov/aboutthefed.htm
+  description: >
+    The Federal Reserve works to promote the effective operation of the U.S.
+    economy and, more generally, the public interest.
   official: true
   country: "us"
 url: "https://www.federalreserve.gov/supervisionreg/enforcement-actions-about.htm"
@@ -26,6 +34,14 @@ data:
   format: CSV
 
 lookups:
+  type.country:
+    options:
+      - match: Peoples Republic of China
+        value: China
+      - match:
+          - Indiana
+          - Illnois
+        value: null
   comma_names:
     lowercase: true
     options:

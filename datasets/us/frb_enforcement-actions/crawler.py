@@ -119,7 +119,7 @@ REGEX_CLEAN_COMMA = re.compile(
 )
 
 
-def is_only_one_name(txt: str) -> bool:
+def only_one_name(txt: str) -> tuple[str | None, str | None]:
     """Function to test if a given test is only the name of one bank. The names of the banks
     are structured as "[name of bank], [city], [state]". We are going to verify if the text matches
     this pattern and if the final part is indeed a US state, if it is, we can safely assume the text
@@ -130,11 +130,11 @@ def is_only_one_name(txt: str) -> bool:
         txt (str): The text to be tested
 
     Returns:
-        bool: If the txt is the name of only one bank.
+        tuple: The name, if it could be extracted, and the locality string, if it could also be extracted.
     """
 
     if "," not in txt and " and " not in txt:
-        return True
+        return (txt, None)
 
     # We are going to remove trailing spaces and commas to deal with cases such as "ABC, new york, new york,"
     txt = txt.strip().rstrip(",")
@@ -142,22 +142,23 @@ def is_only_one_name(txt: str) -> bool:
     matches = re.match(ONE_NAME_PATTERN, txt)
 
     if matches is None:
-        return False
-
+        return (None, None)
 
     is_us_state = matches.group(1).lower() in US_STATES_NAMES_AND_ACRONYMS
-    is_country = (registry.country.clean(matches.group(1).lower(), fuzzy=True) is not None)
+    is_country = (
+        registry.country.clean(matches.group(1).lower(), fuzzy=True) is not None
+    )
 
     if is_us_state or is_country:
-        return True
+        return txt.split(", ", 1)
 
-    return False
+    return (None, None)
 
 
 def crawl_item(input_dict: dict, context: Context):
     if input_dict["Individual"]:
         schema = "Person"
-        names = [input_dict.pop("Individual")]
+        names = [(input_dict.pop("Individual"), None)]
     else:
         schema = "Company"
         raw_name = input_dict.pop("Banking Organization")
@@ -171,32 +172,44 @@ def crawl_item(input_dict: dict, context: Context):
 
         for banking_organization in banking_organizations:
             # If the name is only one name, we can safely assume it is the name of only one bank
-            if is_only_one_name(banking_organization):
-                names.append(banking_organization)
+            name, locality = only_one_name(banking_organization)
+            if name:
+                names.append((name, locality))
             # If the name has " and " and all the names are only one name, we can safely assume it is the name of multiple banks separeted by and
-            elif " and " in banking_organization and all([is_only_one_name(name) for name in banking_organization.split(" and ")]):
-                names.extend(banking_organization.split(" and "))
+            elif " and " in banking_organization:
+                orgs = banking_organization.split(" and ")
+                split_orgs = [only_one_name(org) for org in orgs]
+                if all(org[0] for org in split_orgs):
+                    names.extend(split_orgs)
             # Else, we are going to split the names by the comma
             else:
                 res = context.lookup("comma_names", banking_organization)
                 if res:
-                    names.extend(cast("List[str]", res.names))
+                    names.extend([(n, None) for n in res.names])
                 else:
                     context.log.warning(
-                        "Not sure how to split on comma or and.", text=banking_organization.lower()
+                        "Not sure how to split on comma or and.",
+                        text=banking_organization.lower(),
                     )
-                    names.extend([banking_organization])
+                    names.extend([(banking_organization, None)])
 
     effective_date = input_dict.pop("Effective Date")
     termination_date = input_dict.pop("Termination Date")
     url = input_dict.pop("URL")
     provisions = input_dict.pop("Action")
     sanction_description = input_dict.pop("Note")
-
-    for name in names:
+    for name, locality in names:
         entity = context.make(schema)
         entity.id = context.make_id(name)
         entity.add("name", name)
+
+        if locality:
+            entity.add("address", locality)
+            parts = locality.split(", ")
+            if (
+                parts[1].lower() not in US_STATES_NAMES_AND_ACRONYMS
+            ) and registry.country.clean(parts[1], fuzzy=True):
+                entity.add("country", parts[1])
 
         if schema == "Company":
             entity.add("topics", "fin.bank")
@@ -217,11 +230,13 @@ def crawl_item(input_dict: dict, context: Context):
             sanction.add(
                 "endDate", h.parse_date(termination_date, formats=["%Y-%m-%d"])
             )
+            is_target = False
         # if it doesn't have a termination date, we assume the entity is still in the crime.fin topic
         else:
             entity.add("topics", "crime.fin")
+            is_target = True
 
-        context.emit(entity, target=True)
+        context.emit(entity, target=is_target)
         context.emit(sanction)
 
     # Individual Affiliation = The bank of the individual
