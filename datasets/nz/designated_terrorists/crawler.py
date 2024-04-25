@@ -85,7 +85,10 @@ def crawl(context: Context):
     table = response.find(".//table")
 
     caption = table.findtext(".//caption/strong")
-    assert caption == "Alphabetical list of Designated Terrorist Entities in New Zealand pursuant to UNSC Resolution 1373", caption
+    assert (
+        caption
+        == "Alphabetical list of Designated Terrorist Entities in New Zealand pursuant to UNSC Resolution 1373"
+    ), caption
 
     for item in parse_table(response.find(".//table")):
         crawl_item(item, context)
