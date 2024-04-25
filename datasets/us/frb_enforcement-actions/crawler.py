@@ -1,3 +1,4 @@
+from typing import List, cast
 from io import StringIO
 import csv
 from datetime import datetime
@@ -112,13 +113,18 @@ US_STATES_NAMES_AND_ACRONYMS = [
 ]
 
 ONE_NAME_PATTERN = r"^[^,]+, [^,]+, ([^,]+)$"
+REGEX_CLEAN_COMMA = re.compile(
+    r", \b(LLC|L\.L\.C|Inc|Jr|INC|L\.P|LP|Sr|III|II|IV|S\.A|LTD|USA INC|\(?A/K/A|\(?N\.K\.A|\(?N/K/A|\(?F\.K\.A|formerly known as|INCORPORATED)\b",  # noqa
+    re.I,
+)
 
 
 def is_only_one_name(txt: str) -> bool:
     """Function to test if a given test is only the name of one bank. The names of the banks
     are structured as "[name of bank], [city], [state]". We are going to verify if the text matches
     this pattern and if the final part is indeed a US state, if it is, we can safely assume the text
-    is the name of only one bank.
+    is the name of only one bank. Also, if the text doesn't have commas or and, we can safely assume
+    it is the name of only one bank.
 
     Args:
         txt (str): The text to be tested
@@ -126,6 +132,9 @@ def is_only_one_name(txt: str) -> bool:
     Returns:
         bool: If the txt is the name of only one bank.
     """
+
+    if "," not in txt and " and " not in txt:
+        return True
 
     # We are going to remove trailing spaces and commas to deal with cases such as "ABC, new york, new york,"
     txt = txt.strip().rstrip(",")
@@ -151,18 +160,32 @@ def crawl_item(input_dict: dict, context: Context):
         names = [input_dict.pop("Individual")]
     else:
         schema = "Company"
-        banking_organization = input_dict.pop("Banking Organization")
+        raw_name = input_dict.pop("Banking Organization")
 
-        if is_only_one_name(banking_organization):
-            names = [banking_organization]
-        elif " and " in banking_organization and all([is_only_one_name(name) for name in banking_organization.split(" and ")]):
-            names = banking_organization.split(" and ")
-        else:
-            names = [
-                name
-                for possible_name in banking_organization.split(";")
-                for name in h.split_comma_names(context, possible_name)
-            ]
+        # We are going to remove the commas that are not useful (such as the ones that are before the INC, LLC, etc)
+        raw_name = REGEX_CLEAN_COMMA.sub(r" \1", raw_name)
+
+        # We can safely split the names by the semicolon, as the semicolon is used to separate the names of the banks
+        banking_organizations = raw_name.split(";")
+        names = []
+
+        for banking_organization in banking_organizations:
+            # If the name is only one name, we can safely assume it is the name of only one bank
+            if is_only_one_name(banking_organization):
+                names.append(banking_organization)
+            # If the name has " and " and all the names are only one name, we can safely assume it is the name of multiple banks separeted by and
+            elif " and " in banking_organization and all([is_only_one_name(name) for name in banking_organization.split(" and ")]):
+                names.extend(banking_organization.split(" and "))
+            # Else, we are going to split the names by the comma
+            else:
+                res = context.lookup("comma_names", banking_organization)
+                if res:
+                    names.extend(cast("List[str]", res.names))
+                else:
+                    context.log.warning(
+                        "Not sure how to split on comma or and.", text=banking_organization.lower()
+                    )
+                    names.extend([banking_organization])
 
     effective_date = input_dict.pop("Effective Date")
     termination_date = input_dict.pop("Termination Date")
