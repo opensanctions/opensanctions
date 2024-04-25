@@ -832,10 +832,10 @@ lookups:
       - match: ally financial inc. detroit, michigan
         names:
           - Ally Financial Inc., Detroit, Michigan
-      - match:  ally bank midvale, utah
+      - match: ally bank midvale, utah
         names:
           - Ally Bank, Midvale, Utah
-      - match:  residential capital llc minneapolis, minnesota
+      - match: residential capital llc minneapolis, minnesota
         names:
           - Residential Capital LLC, Minneapolis, Minnesota
       - match: the pnc financial services group inc.pittsburgh, pennsylvania
@@ -871,7 +871,7 @@ lookups:
       - match: first bancshares inc., of cold spring, cold spring, minnesota
         names:
           - First Bancshares Inc., of Cold Spring, Cold Spring, Minnesota
-      - match:  abigail adams national bancorp inc., washington, d.c.
+      - match: abigail adams national bancorp inc., washington, d.c.
         names:
           - Abigail Adams National Bancorp Inc., Washington, D.C.
       - match: cecil bank, elkton maryland
@@ -903,14 +903,14 @@ lookups:
       - match: butler bancorp, mhc, lowell, massachusetts
         names:
           - Butler Bancorp, MHC, Lowell, Massachusetts
-      - match:  capitol bancorp ltd., second-tier bank holding companies
+      - match: capitol bancorp ltd., second-tier bank holding companies
         names:
           - Capitol Bancorp Ltd.
           - Second-Tier Bank Holding Companies
       - match: bank hapoalim, b.m., tel aviv, israel
         names:
           - Bank Hapoalim, B.M., Tel Aviv
-      - match:  bank hapoalim, b.m., miami branch, aventura, florida
+      - match: bank hapoalim, b.m., miami branch, aventura, florida
         names:
           - Bank Hapoalim, B.M., Miami Branch, Aventura, Florida
       - match: 1st financial bank, overland park, kansas (now known as alterra bank)

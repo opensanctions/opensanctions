@@ -216,7 +216,7 @@ def crawl_item(input_dict: dict, context: Context):
         if schema == "Company":
             entity.add("topics", "fin.bank")
 
-        sanction = h.make_sanction(context, entity)
+        sanction = h.make_sanction(context, entity, key=[effective_date])
         sanction.add("startDate", h.parse_date(effective_date, formats=["%Y-%m-%d"]))
         sanction.add("provisions", provisions)
         sanction.add("description", sanction_description)
