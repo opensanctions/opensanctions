@@ -56,7 +56,7 @@ setup(
     },
     extras_require={
         "dev": [
-            "black==24.3.0",
+            "black==24.4.1",
             "wheel>=0.29.0",
             "twine",
             "mypy",
