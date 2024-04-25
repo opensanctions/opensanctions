@@ -159,8 +159,10 @@ def crawl_item(input_dict: dict, context: Context):
     if input_dict["Individual"]:
         schema = "Person"
         names = [(input_dict.pop("Individual"), None)]
+        affiliation = input_dict.pop("Individual Affiliation")
     else:
         schema = "Company"
+        affiliation = None
         raw_name = input_dict.pop("Banking Organization")
 
         # We are going to remove the commas that are not useful (such as the ones that are before the INC, LLC, etc)
@@ -200,7 +202,7 @@ def crawl_item(input_dict: dict, context: Context):
     sanction_description = input_dict.pop("Note")
     for name, locality in names:
         entity = context.make(schema)
-        entity.id = context.make_id(name)
+        entity.id = context.make_id(name, affiliation, locality)
         entity.add("name", name)
 
         if locality:
@@ -239,9 +241,8 @@ def crawl_item(input_dict: dict, context: Context):
         context.emit(entity, target=is_target)
         context.emit(sanction)
 
-    # Individual Affiliation = The bank of the individual
     # Name = the string that appears in the url column
-    context.audit_data(input_dict, ignore=["Individual Affiliation", "Name"])
+    context.audit_data(input_dict, ignore=["Name"])
 
 
 def crawl(context: Context):
