@@ -80,13 +80,12 @@ def crawl_item(input_dict: dict, context: Context):
 
 def crawl(context: Context):
     response = context.fetch_html(context.data_url)
-
     response.make_links_absolute(context.data_url)
 
     table = response.find(".//table")
 
-    if table.findtext(".//caption/strong") != "Alphabetical list of Designated Terrorist Entities in New Zealand pursuant to UNSC Resolution 1373":
-        context.log.error("Structure of the website changed, this might not be the correct table")
+    caption = table.findtext(".//caption/strong")
+    assert caption == "Alphabetical list of Designated Terrorist Entities in New Zealand pursuant to UNSC Resolution 1373", caption
 
     for item in parse_table(response.find(".//table")):
         crawl_item(item, context)
