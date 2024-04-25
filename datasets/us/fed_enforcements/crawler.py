@@ -1,4 +1,3 @@
-from typing import List, cast
 from io import StringIO
 import csv
 from datetime import datetime
