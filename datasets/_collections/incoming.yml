@@ -10,5 +10,4 @@ description: |
   before being moved to a collection under default.
 children:
   - us_finra_actions
-  - us_fed_enforcements
 ci_test: false
