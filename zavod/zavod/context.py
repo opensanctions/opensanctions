@@ -266,7 +266,6 @@ class Context:
         if cache_days is not None:
             fingerprint = request_hash(url, auth=auth, method=method, data=data)
             text = None
-
             if method == "GET":
                 # keeping the old caching keys that was GET requests only
                 text = self.cache.get(url, max_age=cache_days)
