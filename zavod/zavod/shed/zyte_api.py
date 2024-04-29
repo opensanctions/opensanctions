@@ -28,6 +28,7 @@ def fetch_html(
 ) -> etree._Element:
     """
     Fetch a web page using the Zyte API.
+
     Args:
         context: The context object.
         url: The URL of the web page.
@@ -39,6 +40,9 @@ def fetch_html(
         fingerprint: The cache key for this request, if customisation is needed.
         retries: The number of times to retry if unblocking fails.
         backoff_factor: Factor to scale the pause between retries.
+
+    Returns:
+        The parsed HTML document serialized from the DOM.
     """
     if settings.ZYTE_API_KEY is None:
         raise RuntimeError("ZYTE_API_KEY is not set")
