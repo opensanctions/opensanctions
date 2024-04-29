@@ -1,96 +1,65 @@
-import re
-import requests
-
-from zavod import Context, helpers as h
+from urllib.parse import urlencode
+from normality import collapse_spaces
 from typing import Dict
 from lxml.etree import _Element
-from lxml import html
 
-COOKIES = {
-    "__arcsjs": "8a2384791b1205e4d6d743f70f6ae2e1",
-}
-
-HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15",
-}
+from zavod import Context, helpers as h
+from zavod.shed.zyte_api import fetch_html
 
 
-def parse_table(
-    doc: _Element,
-) -> Dict[str, str]:
-    return {
-        item.find('.//*[@class="fg-item-title"]')
-        .text_content()
-        .strip(): item.find('.//*[@class="fg-item-info"]')
-        .text_content()
-        .strip()
-        for item in doc.findall('.//*[@class="fg-item-box"]')
-    }
+def crawl_item(context: Context, row: Dict[str, str]):
+    entity_type = row.pop("sanction-type")
+    schema = context.lookup_value("schema", entity_type)
+    if not schema:
+        context.log.warning(f"Unknown schema: {entity_type}")
 
-
-def crawl_item(url: str, context: Context):
-    response = requests.get(url, headers=HEADERS, cookies=COOKIES)
-
-    doc = html.fromstring(response.text)
-
-    info_dict = parse_table(doc)
-
-    sanction_type = info_dict.pop("Sanction Type")
-    schema = (
-        "Person"
-        if sanction_type == "Individual"
-        else "Company" if sanction_type == "Entity" else "LegalEntity"
-    )
-
-    name = info_dict.pop("Name")
-
-    # Sometimes the date has double white spaces
-    sanction_date = re.sub(r"\s+", " ", info_dict.pop("Sanction Date"))
-    sanction_date = h.parse_date(sanction_date, formats=["%B %d %Y"])
-
-    sanction_title = info_dict.pop("Sanction Title")
+    name = row.pop("name")
+    position = row.pop("position").strip()
 
     entity = context.make(schema)
-    entity.id = context.make_id(name)
+    entity.id = context.make_id(name, position)
 
     entity.add("name", name)
-    entity.add("country", info_dict.pop("Country", None) or None)
-    entity.add("program", info_dict.pop("Program", None) or None)
+    entity.add("country", row.pop("country") or None)
+    entity.add("topics", "poi")
+    if schema == "Person" and position.replace("-", ""):
+        entity.add("position", position)
 
     sanction = h.make_sanction(context, entity)
+    sanction_date = collapse_spaces(row.pop("sanction-date"))
+    sanction_date = h.parse_date(sanction_date, formats=["%B %d %Y"])
     sanction.add("date", sanction_date)
-    sanction.add("description", sanction_title)
+    sanction.add("description", row.pop("sanction-title"))
 
     context.emit(entity, target=True)
     context.emit(sanction)
+    context.audit_data(row, ignore=[None])
 
-    position_name = info_dict.pop("Position")
 
-    if position_name != "-":
-        position = h.make_position(context, position_name)
-        context.emit(position)
-
-    context.audit_data(info_dict)
+def unblock_validator(el: _Element) -> bool:
+    return "Lookup Results" in el.text_content()
 
 
 def crawl(context: Context):
     page = 1
+    max_page = None
 
-    # We are going to iterate over the pages until there is no item left
-    while True:
-        list_url = context.data_url + f"?page={page}&startrow={50*(page-1)}"
-
-        response = requests.get(list_url, headers=HEADERS, cookies=COOKIES)
-
-        doc = html.fromstring(response.text)
-
-        doc.make_links_absolute(list_url)
-
-        new_urls = [a.get("href") for a in doc.findall(".//tr/td/a")]
-
-        if len(new_urls) == 0:
+    while max_page is None or page <= max_page:
+        params = {"page": page}
+        qs = urlencode(params)
+        url = f"{context.data_url}?{qs}"
+        doc = fetch_html(context, url, unblock_validator, cache_days=7)
+        pagenums = [
+            int(el.text_content())
+            for el in doc.xpath('//*[contains(@class, "pageinationnum")]')
+        ]
+        max_page = max(pagenums)
+        rows = h.parse_table(doc.find(".//table"))
+        if not rows:
             break
 
-        for url in new_urls:
-            context.log.info(url)
-            crawl_item(url, context)
+        for row in rows:
+            crawl_item(context, row)
+
+        page += 1
+        assert page < 20, page
