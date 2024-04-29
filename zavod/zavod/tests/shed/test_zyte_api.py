@@ -2,7 +2,6 @@ import pytest
 import requests_mock
 
 from zavod.context import Context
-from zavod.meta.dataset import Dataset
 from zavod.shed.zyte_api import UnblockFailedException, fetch_html
 
 
@@ -28,7 +27,7 @@ def test_fetch(vcontext: Context):
         request2 = m.request_history[1]
         request_body2 = request2.json()
         assert request_body2["actions"] == [action], request_body2
-        assert request_body2["javascript"] == True, request_body2
+        assert request_body2["javascript"], request_body2
 
 
 def test_unblock_failed(vcontext: Context):
