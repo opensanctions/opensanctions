@@ -105,16 +105,19 @@ def crawl(context: Context) -> None:
         sanction.add("endDate", parse_date(row.pop("Termination Date")))
         sanction.add("summary", row.pop("Additional Comments", None))
 
-        context.audit_data(row, ignore=[
-            "CT Code",
-            "Open Data Flag",
-            # The NPI (National Provider Identifier) is a unique identification number
-            # for covered health care providers. It is an optional field for exclusion
-            # records.
-            "NPI",
-            # Commercial And Government Entity (CAGE) Code
-            "CAGE",
-        ])
+        context.audit_data(
+            row,
+            ignore=[
+                "CT Code",
+                "Open Data Flag",
+                # The NPI (National Provider Identifier) is a unique identification number
+                # for covered health care providers. It is an optional field for exclusion
+                # records.
+                "NPI",
+                # Commercial And Government Entity (CAGE) Code
+                "CAGE",
+            ],
+        )
         context.emit(sanction)
         context.emit(entity, target=True)
     # print(data_url)
