@@ -6,7 +6,7 @@ coverage:
   start: 2024-04-24
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  Individuals and entities that have been designated terrorists by the New Zeland government.
+  Individuals and entities that have been designated terrorists by the New Zealand government.
 description: |
   This dataset comprises organizations sanctioned by the government of New Zealand
   in support of UN Security Council Resolution 1373.
