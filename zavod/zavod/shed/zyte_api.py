@@ -1,6 +1,5 @@
 from typing import Any, Callable, Dict, Optional
 
-import requests
 from lxml import html, etree
 from time import sleep
 
@@ -72,7 +71,7 @@ def fetch_html(
 
     context.log.debug(f"Zyte API request: {url}", data=zyte_data)
     zyte_data["url"] = url
-    api_response = requests.post(
+    api_response = context.http.post(
         "https://api.zyte.com/v1/extract",
         auth=(settings.ZYTE_API_KEY, ""),
         json=zyte_data,
