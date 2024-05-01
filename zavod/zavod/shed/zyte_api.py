@@ -82,12 +82,13 @@ def fetch_html(
     doc = html.fromstring(text)
 
     if not unblock_validator(doc):
-        if retries > 0:
+        if previous_retries < retries:
             pause = backoff_factor * (2 ** (previous_retries + 1))
             context.log.debug(
                 f"Unblocking failed, sleeping {pause}s then retrying",
                 url=url,
                 retries=retries,
+                previous_retries=previous_retries,
             )
             sleep(pause)
             return fetch_html(
@@ -97,7 +98,7 @@ def fetch_html(
                 actions,
                 javascript=javascript,
                 cache_days=cache_days,
-                retries=retries - 1,
+                retries=retries,
                 backoff_factor=backoff_factor,
                 previous_retries=previous_retries + 1,
             )
