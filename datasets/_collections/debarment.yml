@@ -29,5 +29,6 @@ children:
   - us_fcc_covered_list
   - us_hhs_exclusions
   - us_sam_exclusions
+  - us_special_leg
   - worldbank_debarred
 ci_test: false
