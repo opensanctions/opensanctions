@@ -43,6 +43,7 @@ children:
   - il_mod_terrorists
   - il_mod_crypto
   - in_mha_banned
+  - ir_sanctions
   - jp_mof_sanctions
   - kg_fiu_national
   - kz_afmrk_sanctions
