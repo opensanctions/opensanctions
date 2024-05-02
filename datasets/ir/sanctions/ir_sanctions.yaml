@@ -34,6 +34,19 @@ data:
 # requires API key
 ci_test: false
 
+assertions:
+  min:
+    schema_entities:
+      Person: 230
+    country_entities:
+      us: 150
+      gb: 30
+      ca: 2
+    countries: 1
+  max:
+    schema_entities:
+      Person: 330
+
 lookups:
   schema:
     map:
