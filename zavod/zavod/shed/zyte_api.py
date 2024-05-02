@@ -1,6 +1,5 @@
 from typing import Any, Callable, Dict, Optional
 
-import requests
 from lxml import html, etree
 from time import sleep
 
@@ -28,6 +27,7 @@ def fetch_html(
 ) -> etree._Element:
     """
     Fetch a web page using the Zyte API.
+
     Args:
         context: The context object.
         url: The URL of the web page.
@@ -39,6 +39,9 @@ def fetch_html(
         fingerprint: The cache key for this request, if customisation is needed.
         retries: The number of times to retry if unblocking fails.
         backoff_factor: Factor to scale the pause between retries.
+
+    Returns:
+        The parsed HTML document serialized from the DOM.
     """
     if settings.ZYTE_API_KEY is None:
         raise RuntimeError("ZYTE_API_KEY is not set")
@@ -68,7 +71,7 @@ def fetch_html(
 
     context.log.debug(f"Zyte API request: {url}", data=zyte_data)
     zyte_data["url"] = url
-    api_response = requests.post(
+    api_response = context.http.post(
         "https://api.zyte.com/v1/extract",
         auth=(settings.ZYTE_API_KEY, ""),
         json=zyte_data,
@@ -79,12 +82,13 @@ def fetch_html(
     doc = html.fromstring(text)
 
     if not unblock_validator(doc):
-        if retries > 0:
+        if previous_retries < retries:
             pause = backoff_factor * (2 ** (previous_retries + 1))
             context.log.debug(
                 f"Unblocking failed, sleeping {pause}s then retrying",
                 url=url,
                 retries=retries,
+                previous_retries=previous_retries,
             )
             sleep(pause)
             return fetch_html(
@@ -94,7 +98,7 @@ def fetch_html(
                 actions,
                 javascript=javascript,
                 cache_days=cache_days,
-                retries=retries - 1,
+                retries=retries,
                 backoff_factor=backoff_factor,
                 previous_retries=previous_retries + 1,
             )

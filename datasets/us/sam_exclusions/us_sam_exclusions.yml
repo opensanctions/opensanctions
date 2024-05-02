@@ -36,6 +36,17 @@ data:
   format: CSV
   lang: eng
 
+assertions:
+  min:
+    schema_entities:
+      Person: 88000
+      Company: 5900
+      LegalEntity: 1500
+    countries: 90
+  max:
+    schema_entities:
+      Person: 100000
+
 lookups:
   classifications:
     options:

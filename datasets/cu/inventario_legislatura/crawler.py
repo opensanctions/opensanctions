@@ -74,8 +74,8 @@ def crawl(context: Context):
             entity,
             position,
             start_date=inception_date,
-            end_date=dissolution_date,
-            no_end_implies_current=True,
+            end_date=None,
+            no_end_implies_current=False,
             categorisation=categorisation,
         )
         context.emit(occupancy)
