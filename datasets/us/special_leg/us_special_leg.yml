@@ -9,7 +9,7 @@ deploy:
   schedule: "@monthly"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  A list of companies whose products and services excluded from procurement via one or more acts of Congress
+  A list of companies whose products and/or services are excluded from procurement via one or more acts of Congress
 description: |
   This dataset lists entities named in legislation passed by the U.S. Congress to be
   excluded from procurement in specific circumstances.
