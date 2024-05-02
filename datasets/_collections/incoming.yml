@@ -10,4 +10,6 @@ description: |
   before being moved to a collection under default.
 children:
   - us_finra_actions
+  - ir_sanctions
+  - dk_pep
 ci_test: false
