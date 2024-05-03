@@ -24,9 +24,9 @@ def crawl_item(context: Context, item: etree):
         return
     deputy_url = anchor.get("href")
     name = anchor.text_content().strip()
-    party = (
-        item.xpath('//div[contains(@class, "text-right")]')[0].text_content().strip()
-    )
+    party_els = item.xpath('.//div[contains(@class, "text-right")]')
+    assert len(party_els) == 1
+    party = party_els[0].text_content().strip()
 
     entity = context.make("Person")
     entity.id = context.make_slug(name, party)
