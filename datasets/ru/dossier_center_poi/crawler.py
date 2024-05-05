@@ -90,14 +90,14 @@ def crawl_person(context: Context, url: str, accomplice: bool = False):
     reason_on_list = doc.xpath(
         '//div[contains(@class,"b-pr-section")][contains(.//*//text(), "Почему")]/*'
     )
-    reason_on_list = "\n".join(
+    reason_on_list = " | ".join(
         [collapse_spaces(tag.text_content()) for tag in reason_on_list]
     )
 
     possible_violation = doc.xpath(
         '//div[contains(@class,"b-pr-section")][contains(.//*//text(), "Возможные")]/*'
     )
-    possible_violation = "\n".join(
+    possible_violation = " | ".join(
         [collapse_spaces(tag.text_content()) for tag in possible_violation]
     )
 

@@ -106,6 +106,7 @@ lookups:
           - Moscow Institute of Thermal Technology
           - PARAMOUNT ENERGY & COMMODITIES DMCC
           - AKTSIONERNOE OBSHCHESTVO ALYUMINIEVYE PRODUKTY - KHOLDING
+          - Sudan Master Technology
         value: SAME
       - match: Subsidiary of the Organisation for Technological Industries (OTI) and therefore the Syrian Ministry of Defence
         values:

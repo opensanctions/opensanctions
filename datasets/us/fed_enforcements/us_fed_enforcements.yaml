@@ -1,0 +1,1056 @@
+title: US Federal Reserve Enforcement Actions
+entry_point: crawler.py
+prefix: us-fed
+coverage:
+  frequency: daily
+  start: 2024-04-10
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Enforcement actions against entities and individuals for violations of laws, rules, or regulations
+description: |
+  This dataset comprises information about individuals and entities that have
+  have violated laws, rules, or regulations, unsafe or unsound practices,
+  breaches of fiduciary duty, and violations of final orders.
+  
+  From their website:
+
+  > Generally, the Federal Reserve takes formal enforcement actions against the
+  > above entities and individuals for violations of laws, rules, or regulations,
+  > unsafe or unsound practices, breaches of fiduciary duty, and violations of
+  > final orders. Formal enforcement actions include cease and desist orders,
+  > written agreements, prompt corrective action directives, removal and prohibition
+  > orders, and orders assessing civil money penalties.
+publisher:
+  name: US Federal Reserve
+  url: https://www.federalreserve.gov/aboutthefed.htm
+  description: >
+    The Federal Reserve works to promote the effective operation of the U.S.
+    economy and, more generally, the public interest.
+  official: true
+  country: "us"
+url: "https://www.federalreserve.gov/supervisionreg/enforcement-actions-about.htm"
+data:
+  url: https://www.federalreserve.gov/supervisionreg/files/enforcementactions.csv
+  format: CSV
+
+lookups:
+  type.country:
+    options:
+      - match: Peoples Republic of China
+        value: China
+      - match:
+          - Indiana
+          - Illnois
+        value: null
+  comma_names:
+    lowercase: true
+    options:
+      - match: bank bumiputra malaysia berhad, kuala lumpur, malaysia, bank bumiputra malaysia berhad, los angeles, ca and bank bumiputra malaysia berhad, new york, ny
+        names:
+          - Bank Bumiputra Malaysia Berhad, Kuala Lumpur, Malaysia
+          - Bank Bumiputra Malaysia Berhad, Los Angeles, CA
+          - Bank Bumiputra Malaysia Berhad, New York, NY
+      - match: banca nazionale del lavoro, rome, italy, banca nazionale del lavoro, atlanta, ga and banca nazionale del lavoro, new york, ny
+        names:
+          - Banca Nazionale del Lavoro, Rome, Italy
+          - Banca Nazionale del Lavoro, Atlanta, GA
+          - Banca Nazionale del Lavoro, New York, NY
+      - match: sailors and merchants bank and trust, vienna, va and first potomac bancorp inc., mclean, va
+        names:
+          - Sailors and Merchants Bank and Trust, Vienna, VA
+          - First Potomac Bancorp Inc., McLean, VA
+      - match: bank of seoul, seoul, korea, bank of seoul, los angeles, ca, bank of seoul, new york, ny and bank of seoul, philadelphia, pa
+        names:
+          - Bank of Seoul, Seoul, Korea
+          - Bank of Seoul, Los Angeles, CA
+          - Bank of Seoul, New York, NY
+          - Bank of Seoul, Philadelphia, PA
+      - match: bank of seoul, seoul, korea and bank of seoul, los angeles ca
+        names:
+          - Bank of Seoul, Seoul, Korea
+          - Bank of Seoul, Los Angeles, CA
+      - match: banksouth corporation, first chattanooga corporation and citizens bank, lawton, ok
+        names:
+          - Banksouth Corporation
+          - First Chattanooga Corporation
+          - Citizens Bank, Lawton, OK
+      - match: united mizrahi bank ltd., tel aviv, israel and united mizrahi bank ltd., los angeles, ca
+        names:
+          - United Mizrahi Bank Ltd., Tel Aviv, Israel
+          - United Mizrahi Bank Ltd., Los Angeles, CA
+      - match: the governor and company of the bank of ireland, dublin, ireland and bank of ireland first holdings inc., manchester, nh
+        names:
+          - The Governor and Company of the Bank of Ireland, Dublin, Ireland
+          - Bank of Ireland First Holdings Inc., Manchester, NH
+      - match: first & peoples bancshares inc., russell, kentucky
+        names:
+          - First & Peoples Bancshares Inc., Russell, Kentucky
+      - match: peoples-marion bancorp inc., marion, kentucky and the peoples bank, marion, kentucky
+        names: 
+          - Peoples-Marion Bancorp Inc., Marion, Kentucky
+          - The Peoples Bank, Marion, Kentucky
+      - match: industrial and commercial bank of china ltd., beijing, people’s republic of china and industrial and commercial bank of china ltd. new york branch, new york, new york
+        names:
+          - Industrial and Commercial Bank of China Ltd., Beijing, People’s Republic of China
+          - Industrial and Commercial Bank of China Ltd. New York Branch, New York, New York
+      - match: gardner bancshares inc., lenexa, kansas and small business bank, lenexa, kansas
+        names:
+          - Gardner Bancshares Inc., Lenexa, Kansas
+          - Small Business Bank, Lenexa, Kansas
+      - match: industrial and commercial bank of china ltd., beijing, people's republic of china
+        names:
+          - Industrial and Commercial Bank of China Ltd., Beijing, People's Republic of China
+      - match: industrial and commercial bank of china ltd, new york branch, new york, new york
+        names:
+          - Industrial and Commercial Bank of China Ltd, New York Branch, New York, New York
+      - match: and nano banc, irvine, california
+        names:
+          - Nano Banc, Irvine, California
+      - match: and credit suisse ag, new york branch, new york, new york
+        names:
+          - Credit Suisse AG, New York Branch, New York, New York
+      - match: société générale s.a. and société générale, new york branch
+        names:
+          - Société Générale S.A.
+          - Société Générale, New York Branch
+      - match: unicredit, s.p.a, unicredit bank ag, and unicredit bank austria ag
+        names:
+          - UniCredit, S.p.A
+          - UniCredit Bank AG
+          - UniCredit Bank Austria AG
+      - match: unicredit, s.p.a, unicredit bank ag, and unicredit bank austria ag
+        names:
+          - UniCredit, S.p.A
+          - UniCredit Bank AG
+          - UniCredit Bank Austria AG
+      - match: standard chartered plc, london, united kingdom, standard chartered bank, london, united kingdom, and standard charter bank new york branch, new york, new york
+        names:
+          - Standard Chartered PLC, London, United Kingdom
+          - Standard Chartered Bank, London, United Kingdom
+          - Standard Charter Bank New York Branch, New York, New York
+      - match: standard chartered plc, london, united kingdom, standard chartered bank, london, united kingdom, and standard charter bank new york branch, new york, new york
+        names:
+          - Standard Chartered PLC, London, United Kingdom
+          - Standard Chartered Bank, London, United Kingdom
+          - Standard Charter Bank New York Branch, New York, New York
+      - match: princeton capital holdings llc, princeton capital llc, and princap holdings one llc
+        names:
+          - Princeton Capital Holdings LLC
+          - Princeton Capital LLC
+          - PrinCap Holdings One LLC
+      - match: united bank limited, karachi, pakistan and united bank limited, new york branch, new york, new york
+        names:
+          - United Bank Limited, Karachi, Pakistan
+          - United Bank Limited, New York Branch, New York, New York
+      - match: hua nan commercial bank limited and hua nan commercial bank limited new york agency
+        names:
+          - Hua Nan Commercial Bank Limited
+          - Hua Nan Commercial Bank Limited New York Agency
+      - match: industrial and commercial bank of china ltd., beijing, people's republic of china industrial and commercial bank of china ltd., new york branch, new york, new york
+        names:
+          - Industrial and Commercial Bank of China Ltd., Beijing, People's Republic of China
+          - Industrial and Commercial Bank of China Ltd., New York Branch, New York, New York
+      - match: u.s. bancorp and usb americas holding company
+        names:
+          - U.S. Bancorp
+          - USB Americas Holding Company
+      - match: u.s. bancorp and usb americas holding company
+        names:
+          - U.S. Bancorp
+          - USB Americas Holding Company
+      - match: wayne bank and trust company
+        names:
+          - Wayne Bank and Trust Company
+      - match: the bank & trust, s.s.b.
+        names:
+          - The Bank & Trust, S.S.B.
+      - match: federal one holdings llc, milton, massachusetts and admirals bancorp inc., boston, massachusetts
+        names:
+          - Federal One Holdings LLC, Milton, Massachusetts
+          - Admirals Bancorp Inc., Boston, Massachusetts
+      - match: bnp paribas s.a., paris, france, bnp paribas usa inc., new york, new york, and bnp paribas securities corp., new york, new york
+        names:
+          - BNP Paribas S.A., Paris, France
+          - BNP Paribas USA Inc., New York, New York
+          - BNP Paribas Securities Corp., New York, New York
+      - match: deutsche bank ag, frankfurt, germany, deutsche bank ag new york branch, new york, new york, db usa corporation, new york, new york, and deutsche bank trust company americas, new york, new york
+        names:
+          - Deutsche Bank AG, Frankfurt, Germany
+          - Deutsche Bank AG New York Branch, New York, New York
+          - DB USA Corporation, New York, New York
+          - Deutsche Bank Trust Company Americas, New York, New York
+      - match: santander holdings usa inc., boston, massachusetts and santander consumer usa inc., dallas, texas
+        names:
+          - Santander Holdings USA Inc., Boston, Massachusetts
+          - Santander Consumer USA Inc., Dallas, Texas
+      - match: nonghyup bank, seoul, korea and nonghyup bank, new york branch, new york, new york
+        names:
+          - Nonghyup Bank, Seoul, Korea
+          - Nonghyup Bank, New York Branch, New York, New York
+      - match: banco bilbao vizcaya argentaria s.a., bilbao, spain, and bbva securities inc., new york, new york
+        names:
+          - Banco Bilbao Vizcaya Argentaria S.A., Bilbao, Spain
+          - BBVA Securities Inc., New York, New York
+      - match: rock bancshares inc. and heartland bank, little rock, arkansas
+        names:
+          - Rock Bancshares Inc.
+          - Heartland Bank, Little Rock, Arkansas
+      - match: affinity financial corporation, newport beach, california, and waterfield financial services inc. (now known as affinity financial centers inc.), indianapolis, indiana
+        names:
+          - Affinity Financial Corporation, Newport Beach, California
+          - Waterfield Financial Services Inc. (now known as Affinity Financial Centers Inc.), Indianapolis, Indiana
+      - match: national bank of pakistan, karachi, pakistan and national bank of pakistan, new york branch
+        names:
+          - National Bank of Pakistan, Karachi, Pakistan
+          - National Bank of Pakistan, New York Branch
+      - match: hazard bancorp, hazard, kentucky, and peoples bank and trust company of hazard, hazard, kentucky
+        names:
+          - Hazard Bancorp, Hazard, Kentucky
+          - Peoples Bank and Trust Company of Hazard, Hazard, Kentucky
+      - match: the royal bank of scotland plc, edinburgh, scotland and rbs securities inc.stamford, connecticut
+        names:
+          - The Royal Bank of Scotland PLC, Edinburgh, Scotland
+          - RBS Securities Inc., Stamford, Connecticut
+      - match: jpmorgan chase & co. new york, new york
+        names:
+          - JPMorgan Chase & Co., New York, New York
+      - match: jpmorgan chase & co.new york, new york
+        names:
+          - JPMorgan Chase & Co., New York, New York
+      - match: ubs ag zurich, switzerland and ubs ag stamford branch, stamford, connecticut
+        names:
+          - UBS AG Zurich, Switzerland
+          - UBS AG Stamford Branch, Stamford, Connecticut
+      - match: jack henry & associates inc., monett, missouri
+        names:
+          - Jack Henry & Associates Inc., Monett, Missouri
+      - match: and gmac mortgage llc. fort washington, pennsylvania
+        names:
+          - GMAC Mortgage LLC. Fort Washington, Pennsylvania
+      - match: commerce bank and trust holding company employee stock ownership plan, and commerce bank and trust holding company, both of topeka, kansas
+        names:
+          - Commerce Bank and Trust Holding Company Employee Stock Ownership Plan
+          - Commerce Bank and Trust Holding Company, Topeka, Kansas
+      - match: bank of montreal, montreal canada, bmo financial corp., wilmington, delaware, and bank of montreal chicago branch, chicago, illinois
+        names:
+          - Bank of Montreal, Montreal Canada
+          - BMO Financial Corp., Wilmington, Delaware
+          - Bank of Montreal Chicago Branch, Chicago, Illinois
+      - match: hsh nordbank ag, hamburg, germany and hsh nordbank ag, new york branch, new york, new york
+        names:
+          - HSH Nordbank AG, Hamburg, Germany
+          - HSH Nordbank AG, New York Branch, New York, New York
+      - match: citigroup inc. new york, new york and citifinancial credit company, baltimore, maryland
+        names:
+          - Citigroup Inc., New York, New York
+          - Citifinancial Credit Company, Baltimore, Maryland
+      - match: jpmorgan chase & co.new york, new york and emc mortgage corporation, lewisville, texas
+        names:
+          - JPMorgan Chase & Co., New York, New York
+          - EMC Mortgage Corporation, Lewisville, Texas
+      - match: hsbc north america holdings inc., new york, new york and hsbc finance corporation, mettawa, illinois
+        names:
+          - HSBC North America Holdings Inc., New York, New York
+          - HSBC Finance Corporation, Mettawa, Illinois
+      - match: suntrust banks inc. atlanta, georgia suntrust bank atlanta, georgia and suntrust mortgage inc. richmond, virginia
+        names:
+          - SunTrust Banks Inc., Atlanta, Georgia
+          - SunTrust Bank, Atlanta, Georgia
+          - SunTrust Mortgage Inc., Richmond, Virginia
+      - match: hsbc holdings plc london, united kingdom and hsbc north america holdings inc.new york, new york
+        names:
+          - HSBC Holdings PLC, London, United Kingdom
+          - HSBC North America Holdings Inc., New York, New York
+      - match: patapsco bancorp inc. and the patapsco bank, both of dundalk, maryland
+        names:
+          - Patapsco Bancorp Inc.
+          - The Patapsco Bank, Dundalk, Maryland
+      - match: american express company. new york, new york and american express travel related services company inc. new york, new york.
+        names:
+          - American Express Company, New York, New York
+          - American Express Travel Related Services Company Inc., New York, New York
+      - match: american express company. new york, new york. and american express travel. related services company inc. new york, new york.
+        names:
+          - American Express Company, New York, New York
+          - American Express Travel Related Services Company Inc., New York, New York
+      - match: pnbk sponsor llc, pnbk investment partners llc, pnbk holdings llc, and patriot national bancorp inc., all of stamford, connecticut
+        names:
+          - PNBK Sponsor LLC
+          - PNBK Investment Partners LLC
+          - PNBK Holdings LLC
+          - Patriot National Bancorp Inc., Stamford, Connecticut
+      - match: first mutual of richmond inc. and richmond mutual bancorporation inc., both of richmond, indiana
+        names:
+          - First Mutual of Richmond Inc.
+          - Richmond Mutual Bancorporation Inc., Richmond, Indiana
+      - match: acme holding company inc., employee stock ownership plan, acme holding company inc., and allied bank, all of mulberry, arkansas
+        names:
+          - Acme Holding Company Inc., Employee Stock Ownership Plan
+          - Acme Holding Company Inc.
+          - Allied Bank, Mulberry, Arkansas
+      - match: banco espírito santo s.a. (banco espirito santo s.a.), lisbon, portugal and espírito santo e comercial de lisboa (espirito santo e comercial de lisboa) inc., newark, new jersey
+        names:
+          - Banco Espírito Santo S.A. (Banco Espirito Santo S.A.), Lisbon, Portugal
+          - Espírito Santo e Comercial de Lisboa (Espírito Santo e Comercial de Lisboa) Inc., Newark, New Jersey
+      - match: orrstown financial services inc, and orrstown bank, both of shippensburg, pennsylvania
+        names:
+          - Orrstown Financial Services Inc.
+          - Orrstown Bank, Shippensburg, Pennsylvania
+      - match: and gmac mortgage llc, fort washington, pennsylvania
+        names:
+          - GMAC Mortgage LLC, Fort Washington, Pennsylvania
+      - match: bank of hampton roads, norfolk, virginia, successor by merger with gateway bank and trust, elizabeth city, north carolina
+        names:
+          - Bank of Hampton Roads, Norfolk, Virginia
+          - Successor by Merger with Gateway Bank and Trust, Elizabeth City, North Carolina
+      - match: patriot bancshares inc., houston, texas, and patriot holdings nevada inc., reno, nevada
+        names:
+          - Patriot Bancshares Inc., Houston, Texas
+          - Patriot Holdings Nevada Inc., Reno, Nevada
+      - match: capital funding bancorp inc. and cfg community bank, both of baltimore, maryland
+        names:
+          - Capital Funding Bancorp Inc.
+          - CFG Community Bank, Baltimore, Maryland
+      - match: jco ventures llc, union, jco partners l.p., jco partners ii l.p., hao management company llc, hao partners l.p., hao partners ii l.p., foj management company llc, foj partners l.p., foj partners ii l.p., and arthur financial corporation, all of union, south carolina
+        names:
+          - JCO Ventures LLC, Union, South Carolina
+          - JCO Partners L.P.
+          - JCO Partners II L.P.
+          - HAO Management Company LLC
+          - HAO Partners L.P.
+          - HAO Partners II L.P.
+          - FOJ Management Company LLC
+          - FOJ Partners L.P.
+          - FOJ Partners II L.P.
+          - Arthur Financial Corporation, Union, South Carolina
+      - match: and the royal bank of scotland n.v. chicago branch, chicago, illinois
+        names:
+          - The Royal Bank of Scotland N.V. Chicago Branch, Chicago, Illinois
+      - match: wells fargo & company, san francisco, california wells fargo financial inc., des moines, iowa
+        names:
+          - Wells Fargo & Company, San Francisco, California
+          - Wells Fargo Financial Inc., Des Moines, Iowa
+      - match: jones bancshares l.p. and primesouth bancshares inc., both of waycross, georgia
+        names:
+          - Jones Bancshares L.P., Waycross, Georgia
+          - PrimeSouth Bancshares Inc., Waycross, Georgia
+      - match: pgb holdings inc. and pacific global bank, both of chicago, illinois
+        names:
+          - PGB Holdings Inc.
+          - Pacific Global Bank, Chicago, Illinois
+      - match: virginia community bankshares inc. and virginia community bank, both of louisa, virginia
+        names:
+          - Virginia Community Bankshares Inc.
+          - Virginia Community Bank, Louisa, Virginia
+      - match: firstfed bancorp inc. employee stock ownership plan and firstfed bancorp inc., both of bessemer, alabama
+        names:
+          - FirstFed Bancorp Inc. Employee Stock Ownership Plan
+          - FirstFed Bancorp Inc., Bessemer, Alabama
+      - match: jll associates g.p. fch l.l.c., jll associates fch l.p., jll partners fund fch l.p., jll/fch holdings i l.l.c, all of new york, new york and fc holdings inc., webster, texas
+        names:
+          - JLL Associates G.P. FCH L.L.C., New York, New York
+          - JLL Associates FCH L.P., New York, New York
+          - JLL Partners Fund FCH L.P., New York, New York
+          - JLL/FCH Holdings I L.L.C, New York, New York
+          - FC Holdings Inc., Webster, Texas
+      - match: plainscapital bank, and primelending a plainscapital company, dallas, texas
+        names:
+          - PlainsCapital Bank, Dallas, Texas
+          - PrimeLending a PlainsCapital Company, Dallas, Texas
+      - match: f & m holding company inc., manchester, georgia
+        names:
+          - F & M Holding Company Inc., Manchester, Georgia
+      - match: four oaks fincorp inc. and four oaks bank & trust company, both of four oaks, north carolina
+        names:
+          - Four Oaks Fincorp Inc.
+          - Four Oaks Bank & Trust Company, Four Oaks, North Carolina
+      - match: north texas bancshares inc., dallas, texas, and north texas bancshare of delaware inc., wilmington, delaware
+        names:
+          - North Texas Bancshares Inc., Dallas, Texas
+          - North Texas Bancshare of Delaware Inc., Wilmington, Delaware
+      - match: johnson financial group inc. and johnson bank, both of racine, wisconsin
+        names:
+          - Johnson Financial Group Inc.
+          - Johnson Bank, Racine, Wisconsin
+      - match: banco industrial de venezuela, c.a., caracas, venezuela, banco industrial de venezuela, c.a. new york agency, new york, ny and banco industrial de venezuela, c.a. miami agency, miami, fl
+        names:
+          - Banco Industrial de Venezuela, C.A., Caracas, Venezuela
+          - Banco Industrial de Venezuela, C.A. New York Agency, New York, NY
+          - Banco Industrial de Venezuela, C.A. Miami Agency, Miami, FL
+      - match: merscorp inc. and mortgage electronicregistration systems inc., both of reston, virginia
+        names:
+          - Merscorp Inc., Reston, Virginia
+          - Mortgage ElectronicRegistration Systems Inc., Reston, Virginia
+      - match: and lps default solutions inc., mendota heights, minnesota
+        names:
+          - LPS Default Solutions Inc., Mendota Heights, Minnesota
+      - match: suntrust banks inc., atlanta, georgia suntrust bank, atlanta, georgia and suntrust mortgage inc., richmond, virginia
+        names:
+          - SunTrust Banks Inc., Atlanta, Georgia
+          - SunTrust Bank, Atlanta, Georgia
+          - SunTrust Mortgage Inc., Richmond, Virginia
+      - match: hsbc north america holdings inc., new york, new york and hsbc finance corporation, mettawa, illinois
+        names:
+          - HSBC North America Holdings Inc., New York, New York
+          - HSBC Finance Corporation, Mettawa, Illinois
+      - match: and gmac mortgage llc, fort washington, pennsylvania
+        names:
+          - GMAC Mortgage LLC, Fort Washington, Pennsylvania
+      - match: first financial holding co. ltd. and first commercial bank ltd., both of taipei, taiwan, and first commercial bank los angeles branch, los angeles, california
+        names:
+          - First Financial Holding Co. Ltd.
+          - First Commercial Bank Ltd., Taipei, Taiwan
+          - First Commercial Bank Los Angeles Branch, Los Angeles, California
+      - match: rurban financial corp. and rurbanc data services inc., both of defiance, ohio
+        names:
+          - Rurban Financial Corp., Defiance, Ohio
+          - Rurbanc Data Services Inc., Defiance, Ohio
+      - match: stark bank group ltd. and first american bank, both of fort dodge, iowa
+        names:
+          - Stark Bank Group Ltd.
+          - First American Bank, Fort Dodge, Iowa
+      - match: florida bank group inc. and florida bank, both of tampa, florida
+        names:
+          - Florida Bank Group Inc.
+          - Florida Bank, Tampa, Florida
+      - match: farmers and merchants bancshares inc., burlington, iowa
+        names:
+          - Farmers and Merchants Bancshares Inc., Burlington, Iowa
+      - match: eastern virginia bankshares inc. and evb, both of tappahannock, virginia
+        names:
+          - Eastern Virginia Bankshares Inc.
+          - EVB, Tappahannock, Virginia
+      - match: miners and merchants bancorp inc., grundy, virginia
+        names:
+          - Miners and Merchants Bancorp Inc., Grundy, Virginia
+      - match: consolidated bank and trust company, richmond, virginia
+        names:
+          - Consolidated Bank and Trust Company, Richmond, Virginia
+      - match: and bank of whitman, colfax, washington
+        names:
+          - Bank of Whitman, Colfax, Washington
+      - match: peoples bank and trust company, troy, missouri
+        names:
+          - Peoples Bank and Trust Company, Troy, Missouri
+      - match: tower bank & trust company, fort wayne, indiana
+        names:
+          - Tower Bank & Trust Company, Fort Wayne, Indiana
+      - match: east dubuque bancshares inc., east dubuque, illinois and east dubuque savings bank, dubuque, iowa
+        names:
+          - East Dubuque Bancshares Inc., East Dubuque, Illinois
+          - East Dubuque Savings Bank, Dubuque, Iowa
+      - match: pb financial group inc., denver, colorado and premier bank, denver, colorado
+        names:
+          - PB Financial Group Inc., Denver, Colorado
+          - Premier Bank, Denver, Colorado
+      - match: first banks inc., st. louis, missouri, the san francisco company, clayton, missouri, and first bank, creve coeur, missouri
+        names:
+          - First Banks Inc., St. Louis, Missouri
+          - The San Francisco Company, Clayton, Missouri
+          - First Bank, Creve Coeur, Missouri
+      - match: united security bancshares inc., and united security bank, both of fresno, california
+        names:
+          - United Security Bancshares Inc.
+          - United Security Bank, Fresno, California
+      - match: first chicago bank & trust, chicago, illinois
+        names:
+          - First Chicago Bank & Trust, Chicago, Illinois
+      - match: guaranty bank & trust company, denver, colorado
+        names:
+          - Guaranty Bank & Trust Company, Denver, Colorado
+      - match: midwest bank and trust company, elmwood park, illnois
+        names:
+          - Midwest Bank and Trust Company, Elmwood Park, Illinois
+      - match: irwin union bank and trust company, columbus, indiana
+        names:
+          - Irwin Union Bank and Trust Company, Columbus, Indiana
+      - match: it & s of iowa inc., oskaloosa, iowa
+        names:
+          - IT & S of Iowa Inc., Oskaloosa, Iowa
+      - match: and ffc financial corporation, st. louis, missouri
+        names:
+          - FFC Financial Corporation, St. Louis, Missouri
+      - match: dresdner bank ag, frankfurt, germany, and dresdner bank ag, new york branch, new york, new york
+        names:
+          - Dresdner Bank AG, Frankfurt, Germany
+          - Dresdner Bank AG, New York Branch, New York, New York
+      - match: irwin financial corporation, columbus, indiana, irwin union bank and trust company, columbus, indiana
+        names:
+          - Irwin Financial Corporation, Columbus, Indiana
+          - Irwin Union Bank and Trust Company, Columbus, Indiana
+      - match: banco industrial de venezuela, c.a., caracas, venezuela, banco industrial de venezuela, c.a. new york agency, new york, ny and banco industrial de venezuela, c.a. miami agency, miami, fl
+        names:
+          - Banco Industrial de Venezuela, C.A., Caracas, Venezuela
+          - Banco Industrial de Venezuela, C.A. New York Agency, New York, NY
+          - Banco Industrial de Venezuela, C.A. Miami Agency, Miami, FL
+      - match: progress bancshares inc., sullivan, mo and progress bank of missouri, sullivan, mo
+        names:
+          - Progress Bancshares Inc., Sullivan, MO
+          - Progress Bank of Missouri, Sullivan, MO
+      - match: sella holding banca, s.p.a., biella, italy and sella holding banca, s.p.a. d/b/a banca sella, s.p.a. miami agency, miami, florida
+        names:
+          - Sella Holding Banca, S.p.A., Biella, Italy
+          - Sella Holding Banca, S.p.A.
+          - Banca Sella, S.p.A. Miami Agency, Miami, Florida
+      - match: r&g financial corporation, hato rey, san juan, puerto rico
+        names:
+          - R&G Financial Corporation, Hato Rey, San Juan, Puerto Rico
+      - match: banco industrial de venezuela, c.a., caracas, venezuela, banco industrial de venezuela, c.a. new york agency, new york, ny and banco industrial de venezuela, c.a. miami agency, miami, fl
+        names:
+          - Banco Industrial de Venezuela, C.A., Caracas, Venezuela
+          - Banco Industrial de Venezuela, C.A. New York Agency, New York, NY
+          - Banco Industrial de Venezuela, C.A. Miami Agency, Miami, FL
+      - match: ameribanc holdings inc., durango, co and the bank of durango, durango, co
+        names:
+          - AmeriBanc Holdings Inc., Durango, CO
+          - The Bank of Durango, Durango, CO
+      - match: standard chartered plc, london, united kingdom, standard chartered bank, london, united kingdom, and standard chartered bank new york branch, new york, ny
+        names:
+          - Standard Chartered PLC, London, United Kingdom
+          - Standard Chartered Bank, London, United Kingdom
+          - Standard Charter Bank New York Branch, New York, NY
+      - match: abn amro bank, n.v., amsterdam, the netherlands and abn amro bank, n.v. new york branch, new york, ny
+        names:
+          - ABN AMRO Bank, N.V., Amsterdam, The Netherlands
+          - ABN AMRO Bank, N.V. New York Branch, New York, NY
+      - match: riggs national corporation, washington, d.c. and riggs international banking corporation, miami, fl
+        names:
+          - Riggs National Corporation, Washington, D.C.
+          - Riggs International Banking Corporation, Miami, FL
+      - match: utah bancshares inc., ephraim, ut and bank of ephraim, ephraim, ut
+        names:
+          - Utah Bancshares Inc., Ephraim, UT
+          - Bank of Ephraim, Ephraim, UT
+      - match: midwest banc holdings inc., melrose park, il and midwest bank and trust company, elmwood park, il
+        names:
+          - Midwest Banc Holdings Inc., Melrose Park, IL
+          - Midwest Bank and Trust Company, Elmwood Park, IL
+      - match: cowboy state bancorp inc., ranchester, wy and cowboy state bank, ranchester, wy
+        names:
+          - Cowboy State Bancorp Inc., Ranchester, WY
+          - Cowboy State Bank, Ranchester, WY
+      - match: credit agricole s.a., paris france and credit lyonnais s.a., paris, france
+        names:
+          - Credit Agricole S.A., Paris France
+          - Credit Lyonnais S.A., Paris, France
+      - match: united national corporation, sioux falls, sd, first premier bank, sioux falls, sd and premier bankcard inc., sioux falls, sd
+        names:
+          - United National Corporation, Sioux Falls, SD
+          - First Premier Bank, Sioux Falls, SD
+          - Premier Bankcard Inc., Sioux Falls, SD
+      - match: westlb ag, dusseldorf, germany and westlb, new york branch, new york, ny
+        names:
+          - WestLB AG, Dusseldorf, Germany
+          - WestLB, New York Branch, New York, NY
+      - match: westlb ag, dusseldorf, germany and westlb, new york branch, new york, ny
+        names:
+          - WestLB AG, Dusseldorf, Germany
+          - WestLB, New York Branch, New York, NY
+      - match: gold banc corporation inc., leawood, kansas, and gold bank, leawood, kansas
+        names:
+          - Gold Banc Corporation Inc., Leawood, Kansas
+          - Gold Bank, Leawood, Kansas
+      - match: metamora bancorp inc., metamora, oh and the metamora state bank, metamora, oh
+        names:
+          - Metamora Bancorp Inc., Metamora, OH
+          - The Metamora State Bank, Metamora, OH
+      - match: broadstreet inc., atlanta, ga and amtrade international bank of georgia, atlanta, ga
+        names:
+          - BroadStreet Inc., Atlanta, GA
+          - AmTrade International Bank of Georgia, Atlanta, GA
+      - match: rurban financial corp., defiance, oh and the state bank and trust company, defiance, oh
+        names:
+          - Rurban Financial Corp., Defiance, OH
+          - The State Bank and Trust Company, Defiance, OH
+      - match: first american bancorp inc., stonewall, ok and first american bank, stonewall, ok
+        names:
+          - First American Bancorp Inc., Stonewall, OK
+          - First American Bank, Stonewall, OK
+      - match: allied irish banks, p.l.c., dublin, ireland, allfirst financial inc., baltimore, md and allfirst bank, baltimore, md
+        names:
+          - Allied Irish Banks, P.L.C., Dublin, Ireland
+          - Allfirst Financial Inc., Baltimore, MD
+          - Allfirst Bank, Baltimore, MD
+      - match: msb shares inc., jonesboro, ar and midsouth bank, jonesboro, ar
+        names:
+          - MSB Shares Inc., Jonesboro, AR
+          - Midsouth Bank, Jonesboro, AR
+      - match: dexia s.a., brussels, belgium, dexia bank belgium s.a., brussels, belgium and dexia credit local de france, paris, france
+        names:
+          - Dexia S.A., Brussels, Belgium
+          - Dexia Bank Belgium S.A., Brussels, Belgium
+          - Dexia Credit Local de France, Paris, France
+      - match: state bank of india, mumbai, india, state bank of india broadway branch, new york, ny, state bank of india flushing branch, flushing, ny, state bank of india park avenue branch, new york, ny, state bank of india chicago branch, chicago, il and state bank of india los angeles agency, los angeles, ca
+        names:
+          - State Bank of India, Mumbai, India
+          - State Bank of India Broadway Branch, New York, NY
+          - State Bank of India Flushing Branch, Flushing, NY
+          - State Bank of India Park Avenue Branch, New York, NY
+          - State Bank of India Chicago Branch, Chicago, IL
+          - State Bank of India Los Angeles Agency, Los Angeles, CA
+      - match: caisse nationale de credit argricole, paris, france, credit agricole indosuez, paris, france and credit agricole indosuez, new york branch, new york, ny
+        names:
+          - Caisse Nationale de Credit Argricole, Paris, France
+          - Credit Agricole Indosuez, Paris, France
+          - Credit Agricole Indosuez, New York Branch, New York, NY
+      - match: csb bancorp inc., millersburg, oh and the commercial and savings bank of millersburg, millersburg, oh
+        names:
+          - CSB Bancorp Inc., Millersburg, OH
+          - The Commercial and Savings Bank of Millersburg, Millersburg, OH
+      - match: olathe bancorporation inc., olathe, co and olathe state bank, olathe, co
+        names:
+          - Olathe Bancorporation Inc., Olathe, CO
+          - Olathe State Bank, Olathe, CO
+      - match: independent southern bancshares inc. employee stock ownership trust, brownsville, tn and independent southern bancshares inc., brownsville, tn
+        names:
+          - Independent Southern Bancshares Inc. Employee Stock Ownership Trust, Brownsville, TN
+          - Independent Southern Bancshares Inc., Brownsville, TN
+      - match: banco bilbao vizcaya argentaria s.a., madrid, spain, banco bilbao vizcaya s.a. miami agency, miami, fl, and banco bilbao vizcaya s.a., new york branch, new york, ny
+        names:
+          - Banco Bilbao Vizcaya Argentaria S.A., Madrid, Spain
+          - Banco Bilbao Vizcaya S.A. Miami Agency, Miami, FL
+          - Banco Bilbao Vizcaya S.A. New York Branch, New York, NY
+      - match: korea exchange bank, seoul, korea, korea exchange bank los angeles agency, los angeles, ca, korea exchange bank chicago branch, chicago, il, korea exchange bank broadway branch, new york, ny, korea exchange bank new york branch, new york, ny and korea exchange bank seattle branch, seattle, wa
+        names:
+          - Korea Exchange Bank, Seoul, Korea
+          - Korea Exchange Bank Los Angeles Agency, Los Angeles, CA
+          - Korea Exchange Bank Chicago Branch, Chicago, IL
+          - Korea Exchange Bank Broadway Branch, New York, NY
+          - Korea Exchange Bank New York Branch, New York, NY
+          - Korea Exchange Bank Seattle Branch, Seattle, WA
+      - match: united bancshares inc., philadelphia, pa and united bank of philadelphia, philadelphia, pa
+        names:
+          - United Bancshares Inc., Philadelphia, PA
+          - United Bank of Philadelphia, Philadelphia, PA
+      - match: heritage bancorp company inc., cleveland, ok and first bank of cleveland, cleveland, ok
+        names:
+          - Heritage Bancorp Company Inc., Cleveland, OK
+          - First Bank of Cleveland, Cleveland, OK
+      - match: american national bancshares of wichita inc., whichita, ks and american bank, wichita, ks
+        names:
+          - American National Bancshares of Wichita Inc., Whichita, KS
+          - American Bank, Wichita, KS
+      - match: first security bancshares inc., lake park, ia and security state bank, milford, ia
+        names:
+          - First Security Bancshares Inc., Lake Park, IA
+          - Security State Bank, Milford, IA
+      - match: banco popular de ecuador s.a., quito, ecuador and banco popular de ecuador s.a., miami agency, miami, fl
+        names:
+          - Banco Popular de Ecuador S.A., Quito, Ecuador
+          - Banco Popular de Ecuador S.A., Miami Agency, Miami, FL
+      - match: banco atlantico s.a., barcelona, spain and banco atlantico s.a., new york agency, new york, ny
+        names:
+          - Banco Atlantico S.A., Barcelona, Spain
+          - Banco Atlantico S.A., New York Agency, New York, NY
+      - match: foxdale bancorp inc., south elgin, il and foxdale bank, south elgin, il
+        names:
+          - Foxdale Bancorp Inc., South Elgin, IL
+          - Foxdale Bank, South Elgin, IL
+      - match: first utah bancorporation, salt lake city, ut, first utah bank, salt lake city, ut and premier data corporation, salt lake city, ut
+        names:
+          - First Utah Bancorporation, Salt Lake City, UT
+          - First Utah Bank, Salt Lake City, UT
+          - Premier Data Corporation, Salt Lake City, UT
+      - match: adairsville bancshares inc., adairsville, ga and bank of adairsville, adairsville, ga
+        names:
+          - Adairsville Bancshares Inc., Adairsville, GA
+          - Bank of Adairsville, Adairsville, GA
+      - match: p.t. ekspor impor bank indonesia (persero) jakarta, indonesia and p.t. ekspor impor bank indonesia (persero) new york agency, new york, ny
+        names:
+          - P.T. Ekspor Impor Bank Indonesia (Persero), Jakarta, Indonesia
+          - P.T. Ekspor Impor Bank Indonesia (Persero) New York Agency, New York, NY
+      - match: habib bank ag zurich, switzerland and habib bank ag zurich, los angeles branch, los angeles, ca
+        names:
+          - Habib Bank AG Zurich, Switzerland
+          - Habib Bank AG Zurich, Los Angeles Branch, Los Angeles, CA
+      - match: skandinaviska enskilda banken, stockholm, sweden, skandinaviska enskilda banken, new york, ny and skandinaviska enskilda banken corporation, new york, ny
+        names:
+          - Skandinaviska Enskilda Banken, Stockholm, Sweden
+          - Skandinaviska Enskilda Banken, New York, NY
+          - Skandinaviska Enskilda Banken Corporation, New York, NY
+      - match: the asahi bank ltd., tokyo, japan and the asahi bank ltd., new york, ny
+        names:
+          - The Asahi Bank Ltd., Tokyo, Japan
+          - The Asahi Bank Ltd., New York, NY
+      - match: banco latino c.a. s.a.c.a., caracas, venezuela and banco latino international, miami, fl
+        names:
+          - Banco Latino C.A. S.A.C.A., Caracas, Venezuela
+          - Banco Latino International, Miami, FL
+      - match: national bank of greece s.a., athens, greece and national bank of greece s.a., boston, ma
+        names:
+          - National Bank of Greece S.A., Athens, Greece
+          - National Bank of Greece S.A., Boston, MA
+      - match: banque worms s.a., paris, france and banque worms capital corporation, new york, ny
+        names:
+          - Banque Worms S.A., Paris, France
+          - Banque Worms Capital Corporation, New York, NY
+      - match: banque worms s.a., paris, france and banque worms capital corporation, new york, ny
+        names:
+          - Banque Worms S.A., Paris, France
+          - Banque Worms Capital Corporation, New York, NY
+      - match: the daiwa bank, limited, osaka, japan, and the daiwa bank limited new york branch, new york, new york
+        names:
+          - The Daiwa Bank, Limited, Osaka, Japan
+          - The Daiwa Bank Limited New York Branch, New York, New York
+      - match: charter state bank, beebe, ar and charter mortgage and investments inc., north little rock, ar
+        names:
+          - Charter State Bank, Beebe, AR
+          - Charter Mortgage and Investments Inc., North Little Rock, AR
+      - match: the daiwa bank, limited, osaka, japan, and the daiwa bank limited new york branch, new york, new york
+        names:
+          - The Daiwa Bank, Limited, Osaka, Japan
+          - The Daiwa Bank Limited New York Branch, New York, New York
+      - match: first state bank of maple park and maple park bancshares inc., maple park, il
+        names:
+          - First State Bank of Maple Park
+          - Maple Park Bancshares Inc., Maple Park, IL
+      - match: execufirst bancorp inc., and first executive bank, philadelphia, pa
+        names:
+          - Execufirst Bancorp Inc.
+          - First Executive Bank, Philadelphia, PA
+      - match: bankers trust new york corporation, bankers trust company and bt securities corporation, new york, ny
+        names:
+          - Bankers Trust New York Corporation
+          - Bankers Trust Company
+          - BT Securities Corporation, New York, NY
+      - match: bank melli iran, tehran, iran, bank melli iran, new york, ny and bank melli iran, los angeles, ca
+        names:
+          - Bank Melli Iran, Tehran, Iran
+          - Bank Melli Iran, New York, NY
+          - Bank Melli Iran, Los Angeles, CA
+      - match: citizens bancshares inc., and citizens first bank of walnut, walnut, il
+        names:
+          - Citizens Bancshares Inc.
+          - Citizens First Bank of Walnut, Walnut, IL
+      - match: national bank of greece s.a., athens, greece, national bank of greece s.a., boston, ma and national bank of greece s.a., chicago, il
+        names:
+          - National Bank of Greece S.A., Athens, Greece
+          - National Bank of Greece S.A., Boston, MA
+          - National Bank of Greece S.A., Chicago, IL
+      - match: lombard bank ltd., republic of vanuatu and lombard credit corporation, miami, fl
+        names:
+          - Lombard Bank Ltd., Republic of Vanuatu
+          - Lombard Credit Corporation, Miami, FL
+      - match: bangkok metropolitan bank, pcl, bangkok, thailand and bangkok metropolitan bank, pcl, san francisco, ca
+        names:
+          - Bangkok Metropolitan Bank, PCL, Bangkok, Thailand
+          - Bangkok Metropolitan Bank, PCL, San Francisco, CA
+      - match: sebastian bankshares inc., barling, ar and river valley bank & trust, lavaca, ar
+        names:
+          - Sebastian Bankshares Inc., Barling, AR
+          - River Valley Bank & Trust, Lavaca, AR
+      - match: pacific inland bancorp, anaheim, ca, pacific inland mortgage company, san jose, ca and pacific inland bank, anaheim, ca
+        names:
+          - Pacific Inland Bancorp, Anaheim, CA
+          - Pacific Inland Mortgage Company, San Jose, CA
+          - Pacific Inland Bank, Anaheim, CA
+      - match: dyer f&m bancshares inc., dyer, tn
+        names:
+          - Dyer F&M Bancshares Inc., Dyer, TN
+      - match: constitution bancorp inc., and constitution bank, philadelphia, pa
+        names:
+          - Constitution Bancorp Inc.
+          - Constitution Bank, Philadelphia, PA
+      - match: csb bancshares inc., and citizens state bank and trust company, ellsworth, ks
+        names:
+          - CSB Bancshares Inc.
+          - Citizens State Bank and Trust Company, Ellsworth, KS
+      - match: perry county bancorp inc., and duquoin state bank, duquoin, il
+        names:
+          - Perry County Bancorp Inc.
+          - Duquoin State Bank, Duquoin, IL
+      - match: vic sather & associates inc., bloomington, mn
+        names:
+          - Vic Sather & Associates Inc., Bloomington, MN
+      - match: pitcairn private bank and pitcairn bancorp inc., jenkintown, pa
+        names:
+          - Pitcairn Private Bank
+          - Pitcairn Bancorp Inc., Jenkintown, PA
+      - match: farmers bank and trust company and farmers bancorp inc., blytheville, ar
+        names:
+          - Farmers Bank and Trust Company
+          - Farmers Bancorp Inc., Blytheville, AR
+      - match: first american corporation and first american bancshares inc., washington, dc
+        names:
+          - First American Corporation
+          - First American Bancshares Inc., Washington, DC
+      - match: bank of credit and commerce inernational s.a. luxembourg
+        names:
+          - Bank of Credit and Commerce Inernational S.A., Luxembourg
+      - match: first state bank of mathis, mathis, tx and south texas bancshares inc., beeville, tx
+        names:
+          - First State Bank of Mathis, Mathis, TX
+          - South Texas Bancshares Inc., Beeville, TX
+      - match: bcci holdings (luxembourg) s.a., luxembourg, luxembourg and bank of credit and commerce international s.a., luxembourg, luxembourg
+        names:
+          - BCCI Holdings (Luxembourg) S.A., Luxembourg, Luxembourg
+          - Bank of Credit and Commerce International S.A., Luxembourg, Luxembourg
+      - match: credit commerce american holdings, n.v., netherlands antilles and bcci
+        names:
+          - Credit Commerce American Holdings, N.V., Netherlands Antilles
+          - BCCI
+      - match: the goldman sachs group inc.new york, new york and goldman sachs bank usa, new york, new york
+        names:
+          - The Goldman Sachs Group Inc., New York, New York
+          - Goldman Sachs Bank USA, New York, New York
+      - match: ubs group ag, zurich, switzerland, credit suisse ag, zurich, switzerland, credit suisse holdings (usa) inc., new york, new york, credit suisse ag, new york branch, new york, new york
+        names:
+          - UBS Group AG, Zurich, Switzerland
+          - Credit Suisse AG, Zurich, Switzerland
+          - Credit Suisse Holdings (USA) Inc., New York, New York
+          - Credit Suisse AG, New York Branch, New York, New York
+      - match: brookline bankbrookline, massachusetts
+        names:
+          - Brookline Bank, Brookline, Massachusetts
+      - match: first ipswich bankipswich, massachusetts
+        names:
+          - First Ipswich Bank, Ipswich, Massachusetts
+      - match: credit agricole s.a. paris, france
+        names:
+          - Credit Agricole S.A., Paris, France
+      - match: citigroup inc. new york, new york
+        names:
+          - Citigroup Inc., New York, New York
+      - match: barclays bank plc london, england
+        names:
+          - Barclays Bank PLC, London, England
+      - match: ubs ag zurich, switzerland
+        names:
+          - UBS AG, Zurich, Switzerland
+      - match: suntrust banks inc., atlanta, georgia suntrust bank, atlanta, georgia suntrust mortgage inc., richmond, virginia
+        names:
+          - SunTrust Banks Inc., Atlanta, Georgia
+          - SunTrust Bank, Atlanta, Georgia
+          - SunTrust Mortgage Inc., Richmond, Virginia
+      - match: credit suisse agzurich, switzerland
+        names:
+          - Credit Suisse AG, Zurich, Switzerland
+      - match: the royal bank of scotland group plc, edinburgh, scotland the royal bank of scotland plc, edinburgh, scotland
+        names:
+          - The Royal Bank of Scotland Group PLC, Edinburgh, Scotland
+          - The Royal Bank of Scotland PLC, Edinburgh, Scotland
+      - match: ally financial inc. detroit, michigan
+        names:
+          - Ally Financial Inc., Detroit, Michigan
+      - match: ally bank midvale, utah
+        names:
+          - Ally Bank, Midvale, Utah
+      - match: residential capital llc minneapolis, minnesota
+        names:
+          - Residential Capital LLC, Minneapolis, Minnesota
+      - match: the pnc financial services group inc.pittsburgh, pennsylvania
+        names:
+          - The PNC Financial Services Group Inc., Pittsburgh, Pennsylvania
+      - match: u.s. bancorpminneapolis, minnesota
+        names:
+          - U.S. Bancorp, Minneapolis, Minnesota
+      - match: standard chartered plc london, united kingdom standard chartered bank london, united kingdom standard chartered bank new york branch new york, new york
+        names:
+          - Standard Chartered PLC, London, United Kingdom
+          - Standard Chartered Bank, London, United Kingdom
+          - Standard Chartered Bank New York Branch, New York, New York
+      - match: macon bancorp, franklin, north carolina (now known as entegra financial corp.)
+        names:
+          - Macon Bancorp, Franklin, North Carolina
+          - Entegra Financial Corp.
+      - match: robertson holding company l.p., unified shares llc, commercial bancgroup inc., commercial bank, all of harrogate, tennessee
+        names:
+          - Robertson Holding Company L.P.
+          - Unified Shares LLC
+          - Commercial BancGroup Inc.
+          - Commercial Bank, Harrogate, Tennessee
+      - match: the goldman sachs group inc., new york, new york, goldman sachs bank usa, new york, new york
+        names:
+          - The Goldman Sachs Group Inc., New York, New York
+          - Goldman Sachs Bank USA, New York, New York
+      - match: banco industrial de venezuela, c. a. caracas, venezuela banco industrial de venezuela, c. a. new york agency new york, new york banco industrial de venezuela, c. a. miami agency miami, florida
+        names:
+          - Banco Industrial de Venezuela, C. A., Caracas, Venezuela
+          - Banco Industrial de Venezuela, C. A. New York Agency, New York, New York
+          - Banco Industrial de Venezuela, C. A. Miami Agency, Miami, Florida
+      - match: first bancshares inc., of cold spring, cold spring, minnesota
+        names:
+          - First Bancshares Inc., of Cold Spring, Cold Spring, Minnesota
+      - match: abigail adams national bancorp inc., washington, d.c.
+        names:
+          - Abigail Adams National Bancorp Inc., Washington, D.C.
+      - match: cecil bank, elkton maryland
+        names:
+          - Cecil Bank, Elkton, Maryland
+      - match: bnb financial services corporation, new york, new york (now known as hana financial group inc., seoul, republic of korea)
+        names:
+          - BNB Financial Services Corporation, New York, New York
+          - Hana Financial Group Inc., Seoul, Republic of Korea
+      - match: fcb florida bancorporation inc., orlando, florida, first commercial bank of florida, orlando, florida
+        names:
+          - FCB Florida Bancorporation Inc., Orlando, Florida
+          - First Commercial Bank of Florida, Orlando, Florida
+      - match: banktennessee bancshares inc., collierville, tennessee, banktennessee, collierville, tennessee
+        names:
+          - BankTennessee Bancshares Inc., Collierville, Tennessee
+          - BankTennessee, Collierville, Tennessee
+      - match: granvalor holding ltd., tortola, british virgin islands, international bancorp of miami inc., coral gables, florida
+        names:
+          - Granvalor Holding Ltd., Tortola, British Virgin Islands
+          - International Bancorp of Miami Inc., Coral Gables, Florida
+      - match: credit suisse ag zurich, switzerland
+        names:
+          - Credit Suisse AG, Zurich, Switzerland
+      - match: ogden bancshares inc., boone, iowa (now known as visionbankshares inc.)
+        names:
+          - Ogden Bancshares Inc., Boone, Iowa
+          - VisionBankshares Inc.
+      - match: butler bancorp, mhc, lowell, massachusetts
+        names:
+          - Butler Bancorp, MHC, Lowell, Massachusetts
+      - match: capitol bancorp ltd., second-tier bank holding companies
+        names:
+          - Capitol Bancorp Ltd.
+          - Second-Tier Bank Holding Companies
+      - match: bank hapoalim, b.m., tel aviv, israel
+        names:
+          - Bank Hapoalim, B.M., Tel Aviv
+      - match: bank hapoalim, b.m., miami branch, aventura, florida
+        names:
+          - Bank Hapoalim, B.M., Miami Branch, Aventura, Florida
+      - match: 1st financial bank, overland park, kansas (now known as alterra bank)
+        names:
+          - 1st Financial Bank, Overland Park, Kansas
+          - Alterra Bank
+      - match: america west bank members, l.c., layton, utah
+        names:
+          - America West Bank Members, L.C., Layton, Utah
+      - match: team financial inc., paola, kansas, post bancorp inc., colorado springs, colorado, team financial acquisition subsidiary inc., paola, kansas
+        names:
+          - Team Financial Inc., Paola, Kansas
+          - Post Bancorp Inc., Colorado Springs, Colorado
+          - Team Financial Acquisition Subsidiary Inc., Paola, Kansas
+      - match: capitalsouth bancorp, birmingham, alabama, capitalsouth bank, birmingham, alabama
+        names:
+          - CapitalSouth Bancorp, Birmingham, Alabama
+          - CapitalSouth Bank, Birmingham, Alabama
+      - match: riverside gulf coast banking company, cape coral, florida, riverside bank of the gulf coast, cape coral, florida
+        names:
+          - Riverside Gulf Coast Banking Company, Cape Coral, Florida
+          - Riverside Bank of the Gulf Coast, Cape Coral, Florida
+      - match: paramount bancorp inc., farmington hills, michigan, paramount bank, farmington hills, michigan
+        names:
+          - Paramount Bancorp Inc., Farmington Hills, Michigan
+          - Paramount Bank, Farmington Hills, Michigan
+      - match: remo duquoin llc, privee llc, republic federal bancorp inc., miami, florida
+        names:
+          - Remo Duquoin LLC
+          - Privee LLC
+          - Republic Federal Bancorp Inc., Miami, Florida
+      - match: warren bancorp inc., warren, michigan, warren bank, warren, michigan
+        names:
+          - Warren Bancorp Inc., Warren, Michigan
+          - Warren Bank, Warren, Michigan
+      - match: first georgia community corp., jackson, georgia, first georgia community bank, jackson, georgia
+        names:
+          - First Georgia Community Corp., Jackson, Georgia
+          - First Georgia Community Bank, Jackson, Georgia
+      - match: newnan coweta bancshares inc., newnan, georgia, neighborhood community bank, newnan, georgia
+        names:
+          - Newnan Coweta Bancshares Inc., Newnan, Georgia
+          - Neighborhood Community Bank, Newnan, Georgia
+      - match: orion bancorp inc., naples, florida, orion bank, naples, florida
+        names:
+          - Orion Bancorp Inc., Naples, Florida
+          - Orion Bank, Naples, Florida
+      - match: capital corp of the west, merced, california, county bank, merced, california
+        names:
+          - Capital Corp of the West, Merced, California
+          - County Bank, Merced, California
+      - match: marshall bankfirst corp., minneapolis, minnesota, bankfirst, sioux falls, south dakota
+        names:
+          - Marshall BankFirst Corp., Minneapolis, Minnesota
+          - BankFirst, Sioux Falls, South Dakota
+      - match: mitsubishi ufj financial group inc., tokyo, japan, the bank of tokyo-mitsubishi ufj ltd., tokyo, japan, the bank of tokyo-mitsubishi ufj ltd. new york branch, new york, ny
+        names:
+          - Mitsubishi UFJ Financial Group Inc., Tokyo, Japan
+          - The Bank of Tokyo-Mitsubishi UFJ Ltd., Tokyo, Japan
+          - The Bank of Tokyo-Mitsubishi UFJ Ltd. New York Branch, New York, NY
+      - match: abn amro bank n.v., amsterdam, the netherlands, abn amro bank, n.v. new york branch, new york, ny, abn amro bank n.v. chicago branch, chicago, il
+        names:
+          - ABN AMRO Bank N.V., Amsterdam, The Netherlands
+          - ABN AMRO Bank, N.V. New York Branch, New York, NY
+          - ABN AMRO Bank N.V. Chicago Branch, Chicago, IL
+      - match: traders bank, a banking corporation, spencer, wv
+        names:
+          - Traders Bank, A Banking Corporation, Spencer, WV
+      - match: cib marine bancshares inc.pewaukee, wi
+        names:
+          - CIB Marine Bancshares Inc., Pewaukee, WI
+      - match: ubs, ag, zurich, switzerland
+        names:
+          - UBS AG, Zurich, Switzerland
+      - match: credit agricole s.a., paris, france, credit agricole indosuez, paris, france, credit agricole indosuez new york branch, new york, ny, credit lyonnais s.a., paris, france, credit lyonnais s.a. new york branch, new york, ny
+        names:
+          - Credit Agricole S.A., Paris, France
+          - Credit Agricole Indosuez, Paris, France
+          - Credit Agricole Indosuez New York Branch, New York, NY
+          - Credit Lyonnais S.A., Paris, France
+          - Credit Lyonnais S.A. New York Branch, New York, NY
+      - match: credit lyonnais s.a.paris, france
+        names:
+          - Credit Lyonnais S.A., Paris, France
+      - match: credit agricole s.a.paris, france
+        names:
+          - Credit Agricole S.A., Paris, France
+      - match: premier financial bancorp inc.huntington, wv
+        names:
+          - Premier Financial Bancorp Inc., Huntington, WV
+      - match: people's bancshares inc.new bedford, ma
+        names:
+          - People's Bancshares Inc., New Bedford, MA
+      - match: banco union s.a.c.a., caracas, venezuela, banco union s.a.c.a. miami agency, miami, fl, banco union s.a.c.a. new york agency, new york, ny
+        names:
+          - Banco Union S.A.C.A., Caracas, Venezuela
+          - Banco Union S.A.C.A. Miami Agency, Miami, FL
+          - Banco Union S.A.C.A. New York Agency, New York, NY
+      - match: unity bancorp inc.clinton, nj
+        names:
+          - Unity Bancorp Inc., Clinton, NJ
+      - match: b.o.t. corporation, n.v., curacao, netherlands antilles
+        names:
+          - B.O.T. Corporation, N.V., Curacao, Netherlands Antilles
+      - match: shorebank, cleveland, cleveland, oh
+        names:
+          - ShoreBank, Cleveland, Cleveland, OH
+      - match: banco santander, spain
+        names:
+          - Banco Santander, Spain
+      - match: banco internacional s.a. (bital), mexico
+        names:
+          - Banco Internacional S.A. (Bital), Mexico
+      - match: banca serfin s.a., mexico
+        names:
+          - Banca Serfin S.A., Mexico
+      - match: banco nacional de mexico (banamex), mexico
+        names:
+          - Banco Nacional de Mexico (Banamex), Mexico
+      - match: bangkok metropolitan bank, pcl, bangkok, thailand
+        names:
+          - Bangkok Metropolitan Bank, PCL, Bangkok, Thailand
+      - match: the bank of corning, corning, oh (now known as north valley bank, zanesville, ohio)
+        names:
+          - The Bank of Corning, Corning, OH
+          - North Valley Bank, Zanesville, Ohio
+      - match: execufirst bancorp inc., and  first executive bank, philadelphia, pa
+        names:
+          - Execufirst Bancorp Inc.
+          - First Executive Bank, Philadelphia, PA
+      - match: bank bumiputra malaysia berhad, kuala lumpur, malaysia, bank bumiputra malaysia berhad, los angeles, ca  and bank bumiputra malaysia berhad,  new york, ny
+        names:
+          - Bank Bumiputra Malaysia Berhad, Kuala Lumpur, Malaysia
+          - Bank Bumiputra Malaysia Berhad, Los Angeles, CA
+          - Bank Bumiputra Malaysia Berhad, New York, NY
+      - match: banca nazionale del lavoro, rome, italy, banca  nazionale del lavoro, atlanta, ga and banca nazionale del lavoro, new york, ny
+        names:
+          - Banca Nazionale del Lavoro, Rome, Italy
+          - Banca  Nazionale del Lavoro, Atlanta, GA
+          - Banca Nazionale del Lavoro, New York, NY
+      - match: greater southwest bancshares inc., employee stock ownership plan, irving, tx
+        names:
+          - Greater Southwest Bancshares Inc., Employee Stock Ownership Plan, Irving, TX

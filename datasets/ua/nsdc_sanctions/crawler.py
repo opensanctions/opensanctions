@@ -9,6 +9,7 @@ from zavod import helpers as h
 PASSWORD = os.environ.get("OPENSANCTIONS_NSDC_PASSWORD")
 API_KEY = os.environ.get("OPENSANCTIONS_NSDC_API_KEY")
 CODES = {"DN": "UA-DPR", "LN": "UA-LPR"}
+CACHE_LONG = 7
 
 
 def crawl_item(context: Context, item: Dict[str, Any]) -> None:
@@ -166,7 +167,9 @@ def crawl_common(
             # context.log.warn("Unknown attribute", key=key, value=value)
             entity.add("notes", f"{key}: {value}", lang="ukr")
 
-    for action in fetch_data(context, f"/subjects/{subject_id}/actions", cache_days=30):
+    for action in fetch_data(
+        context, f"/subjects/{subject_id}/actions", cache_days=CACHE_LONG
+    ):
         sanction = h.make_sanction(context, entity, key=action["aid"])
         sanction.add("status", action.pop("status"))
         decree = action.pop("decree", None) or {}

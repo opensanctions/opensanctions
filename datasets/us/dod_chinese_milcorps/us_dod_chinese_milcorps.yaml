@@ -38,8 +38,14 @@ description: |
   of an entity on the 1260H list
 publisher:
   name: U.S. Department of Defense
+  description: >
+    The Department of Defense's stated mission is to provide the military forces needed
+    to deter war and ensure the nation's security. The Army, Marine Corps, Navy, Air
+    Force, Space Force and Coast Guard are the armed forces of the United States. The
+    Army National Guard and the Air National Guard are reserve components of their
+    services and operate in part under state authority.
   country: us
-  url: https://media.defense.gov/2024/Jan/31/2003384819/-1/-1/0/1260H-LIST.PDF
+  url: https://www.defense.gov/
   official: true
 url: https://www.defense.gov/News/Releases/Release/Article/3661985/dod-releases-list-of-peoples-republic-of-china-prc-military-companies-in-accord/
 data:

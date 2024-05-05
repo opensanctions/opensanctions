@@ -56,13 +56,13 @@ setup(
     },
     extras_require={
         "dev": [
-            "black==24.3.0",
+            "black==24.4.1",
             "wheel>=0.29.0",
             "twine",
             "mypy",
             "flake8>=2.6.0",
             "pytest",
-            "ruff==0.3.5",
+            "ruff==0.4.1",
             "pytest-cov",
             "lxml-stubs == 0.5.1",
             "coverage>=4.1",

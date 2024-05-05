@@ -435,6 +435,7 @@ lookups:
           - role: Deputy Prime Minister
             name: Tigran KHACHATRYAN
             start_date: 19 December 2022
+      # Andorra
       - match: "Xavier Espot ZAMORA (since 16 May 2019)"
         holders:
           - role: Head of government
@@ -455,6 +456,11 @@ lookups:
           - role: Head of state
             name: Patrick STROZDA
             start_date: 14 May 2017
+      - match: represented by Eduard Ibanez PULIDO (since 27 November 2023)
+        holders:
+          - role: Head of state
+            name: Eduard Ibanez PULIDO
+            start_date: 27 November 2023
       - match: "Overall Taliban Leader HAYBATULLAH Akhundzada serves as the head of the Taliban government as Amir-ul Momineen"
         holders:
           - role: Overall Taliban Leader
@@ -727,4 +733,5 @@ lookups:
       - match:
           - Dhekelia
           - Akrotiri
+          - Akrotiri and Dhekelia
         value: gb

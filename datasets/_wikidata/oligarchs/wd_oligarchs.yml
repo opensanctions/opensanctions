@@ -1,4 +1,4 @@
-title: Russian Oligarch Database
+title: Russian Oligarch/Billionaires Database
 entry_point: crawler.py
 prefix: wdoli
 coverage:
@@ -8,7 +8,7 @@ load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 exports:
   - statistics.json
 summary: >
-  A list of oiligarchs from CIS countries, most notably the Russian
+  A list of billionaires and oligarchs from CIS countries, most notably the Russian
   Federation.
 description: |
   This list was developed by the OpenSanctions team in cooperation with
@@ -21,9 +21,9 @@ description: |
   the bulk of the list is sourced from existing lists of key Russian businesspeople
   and political power brokers. It includes persons based on the following sources:
 
-  * US Section 241 CAATSA Report from 2018
+  * [US Section 241 CAATSA Report](https://info.publicintelligence.net/USTreasury-RussianOligarchs-2018.pdf) from 2018
   * The [Navalny 35](/dataset/ru_navalny35/)
-  * Forbes List of Russian Billionaires 2021
+  * Forbes List of Russian Billionaires, as of 2021
   * Forbes List of Ukrainian Billionaires
 publisher:
   name: OpenSanctions
