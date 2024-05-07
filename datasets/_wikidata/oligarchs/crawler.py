@@ -15,6 +15,8 @@ def crawl_row(context: Context, row: Dict[str, str]):
     if not is_qid(qid):
         context.log.warning("No valid QID", qid=qid)
         return
+    if row.get("left_russia") == "yes":
+        return
     entity = context.make("Person")
     entity.id = qid
     entity.add("name", row.pop("name"), lang="eng")
