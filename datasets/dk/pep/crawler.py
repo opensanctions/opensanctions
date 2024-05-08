@@ -8,7 +8,7 @@ from datetime import datetime
 from zavod import Context, helpers as h
 from zavod.logic.pep import categorise
 
-RESOURCEs = [
+RESOURCES = [
     "PEP_listen.xlsx",
     "PEP_listen_faeroeerne.xlsx",
     "PEP_listen_groenland.xlsx",
@@ -25,6 +25,13 @@ def header_names(cells):
         headers.append(slugify(cell, "_").lower())
     return headers
 
+def parse_date(date: str) -> datetime:
+    dates = h.parse_date(date, formats=["%d.%m.%Y"])
+
+    if dates:
+        return dates[0]
+
+    return None
 
 def parse_old_pep(
     sheet: openpyxl.worksheet.worksheet.Worksheet,
@@ -113,7 +120,7 @@ def crawl_current_pep_item(input_dict: dict, context: Context):
     h.apply_name(entity, first_name=first_name, last_name=last_name)
 
     entity.add(
-        "birthDate", h.parse_date(input_dict.pop("birth-date"), formats=["%d.%m.%Y"])
+        "birthDate", parse_date(input_dict.pop("birth-date"))
     )
 
     position = h.make_position(
@@ -126,7 +133,7 @@ def crawl_current_pep_item(input_dict: dict, context: Context):
         entity,
         position,
         True,
-        start_date=h.parse_date(input_dict.pop("start-date"), formats=["%d.%m.%Y"])[0],
+        start_date=parse_date(input_dict.pop("start-date")),
         categorisation=categorisation,
     )
 
@@ -150,7 +157,7 @@ def crawl_old_pep_item(input_dict: dict, context: Context):
 
     if "fodselsdato" in input_dict:
         birth_date = input_dict.pop("fodselsdato")
-        entity.add("birthDate", h.parse_date(birth_date, formats=["%d.%m.%Y"]))
+        entity.add("birthDate", parse_date(birth_date))
 
     position = h.make_position(
         context, input_dict.pop(position_col), country="dk", lang="dk"
@@ -161,9 +168,7 @@ def crawl_old_pep_item(input_dict: dict, context: Context):
         entity,
         position,
         True,
-        end_date=h.parse_date(
-            input_dict.pop("fjernet_fra_pep_listen_dato"), formats=["%d.%m.%Y"]
-        )[0],
+        end_date=parse_date(input_dict.pop("fjernet_fra_pep_listen_dato")),
         categorisation=categorise(context, position, is_pep=True),
     )
 
@@ -176,7 +181,7 @@ def crawl_old_pep_item(input_dict: dict, context: Context):
 
 
 def crawl(context: Context):
-    for name in RESOURCEs:
+    for name in RESOURCES:
         path = context.fetch_resource(name, BASE_URL + name)
         context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 

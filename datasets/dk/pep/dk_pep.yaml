@@ -15,10 +15,15 @@ description: |
   PEPs associated with them. 
 publisher:
   name: Finanstilsynet
-  description: Danish Financial Supervisory Authority
   url: https://www.finanstilsynet.dk/
   official: true
   country: "dk"
+  description: The Danish Financial Supervisory Authority is
+   the financial regulatory authority of the Danish government
+   responsible for the regulation of financial markets in Denmark,
+   it is part of the Ministry of Economic and Business Affairs
+   and also acts as secretariat for the Financial Business Council,
+   the Danish Securities Council and the Money and Pension Panel.
 url: "https://www.finanstilsynet.dk/tal-og-fakta/pep-liste"
 data:
   url: "https://www.finanstilsynet.dk/tal-og-fakta/pep-liste"
