@@ -5,8 +5,8 @@ coverage:
   frequency: daily
   start: "2023-10-23"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: >
-  Data on Politically Exposed Persons in Colombia from the Joining the Dots project.
+summary: >-
+  Data on Politically Exposed Persons in Colombia from the Joining the Dots project
 description: |
   This is a dataset of Politically Exposed Persons (PEPs) in Colombia as part of the Joining the Dots project.
 
