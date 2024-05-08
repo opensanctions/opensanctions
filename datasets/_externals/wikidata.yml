@@ -380,6 +380,12 @@ lookups:
           - Kingdom of Montenegro
           - State of Slovenes, Croats and Serbs
           - Sokoto Caliphate
+          - Khazar Khaganate
+          - Songhai Empire
+          - Abdullahi Bala Shehu
+          - British America
+          - Gaochang
+          - French Annam
         value: null
       - match:
           - Cherokee Nation
@@ -405,6 +411,7 @@ lookups:
       - match:
           - United Kingdom of the Netherlands
           - Dutch Republic
+          - Northern Netherlands
         value: NL
       - match: Kingdom of Ireland
         value: IE
@@ -620,6 +627,8 @@ lookups:
         value: 1935-06
       - match: "1973-09-31"
         value: 1973-09
+      - match: "1765-09-31"
+        value: 1765-09
   type.gender:
     lowercase: true
     normalize: true
