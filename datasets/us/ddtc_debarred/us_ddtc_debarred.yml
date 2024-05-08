@@ -5,7 +5,7 @@ coverage:
   frequency: daily
   start: "2023-10-13"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: |
+summary: >-
   Companies and individuals prohibited from participating in export of defence articles
   and services as a consequence of violation of the Arms Export Control Act (AECA)
 description: |

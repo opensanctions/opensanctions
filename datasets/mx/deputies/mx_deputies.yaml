@@ -5,8 +5,8 @@ coverage:
   frequency: daily
   start: 2024-03-07
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: >
-  Members of the Mexican Chamber of Deputies
+summary: >-
+  Current members of the Mexican lower house, the Chamber of Deputies
 description: |
   This dataset comprises information about current deputies in Mexico who
   represent the lower house of the Mexican Congress, known as the House of

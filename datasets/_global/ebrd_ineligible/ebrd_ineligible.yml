@@ -5,9 +5,9 @@ coverage:
   frequency: daily
   start: 2021-11-11
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: |
+summary: >-
   The EBRD published integrity sanctions. The entities and individuals listed
-  are ineligible to become a Bank Counterparty for the periods indicated.
+  are ineligible to become a Bank Counterparty for the periods indicated
 description: |
   The EBRD presents several separate tables of ineligble entities, including 
   one with cross-debarred entities, those originated within EBRD, and sanctions

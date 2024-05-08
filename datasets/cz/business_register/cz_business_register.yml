@@ -14,7 +14,8 @@ exports:
   - statistics.json
   - entities.ftm.json
 resolve: false
-summary: |
+ci_test: false
+summary: >-
   Czech business register with company metadata and directorships as obtained
   from the open data xml dump by ARES.
 publisher:

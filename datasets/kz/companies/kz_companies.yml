@@ -16,7 +16,7 @@ http:
   backoff_factor: 3
   retry_statuses: [503, 429, 403]
 
-summary: |
+summary: >-
   This dataset comrpises all companies and other types of entities registered
   with the Kazakhstan state register of legal entities.
 

@@ -17,7 +17,7 @@ exports:
   - senzing.json
 resolve: false
 ci_test: false
-summary: |
+summary: >-
   The database of beneficial owners of companies incorporated in England, Wales,
   Scotland and Northern Ireland.
 publisher:

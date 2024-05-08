@@ -7,7 +7,7 @@ coverage:
 deploy:
   schedule: "0 */3 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: |
+summary: >-
   Sanctions imposed by Japan under its Foreign Exchange and Foreign Trade Law.
 description: |
   > The Foreign Exchange Law is based on the free conduct of foreign transactions,

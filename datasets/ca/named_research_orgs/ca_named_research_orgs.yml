@@ -7,7 +7,7 @@ coverage:
 deploy:
   schedule: "0 5 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: |
+summary: >-
   List of universities, research institutes
   and/or laboratories connected to military, national defence, or state security
   entities that could pose a risk to Canada’s national security.

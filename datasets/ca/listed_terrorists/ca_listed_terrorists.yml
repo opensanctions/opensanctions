@@ -7,9 +7,9 @@ coverage:
 deploy:
   schedule: "0 */6 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: |
+summary: >-
   The Canadian governments own list of people and organizations associated with 
-  terrorism.
+  terrorism
 description: |
   > The listing of an entity is a public means of identifying a group or individual as
   > being associated with terrorism. The definition of an entity includes a person,

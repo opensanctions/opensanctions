@@ -6,7 +6,7 @@ coverage:
   start: "2023-08-14"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  Members of the 10. Legislature of the National Assembly of People's Power.
+  Members of the 10. Legislature of the National Assembly of People's Power
 description: |
   Parliament of Cuba for the years 2023-2028 as of the start of the term.
 
