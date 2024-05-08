@@ -5,7 +5,7 @@ coverage:
   frequency: daily
   start: 2023-10-20
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: |
+summary: >-
   Sanctions on persons and entities involved in terrorist activities and the 
   proliferation of weapons of masss destruction
 description: |

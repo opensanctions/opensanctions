@@ -15,10 +15,12 @@ exports:
   - entities.ftm.json
   - senzing.json
 resolve: false
-summary: |
-  Danish companies have to report beneficial owners (‘reelle ejere’) who directly control a company.
-  Beneficial owners can be Danish or foreign natural persons. Data is collected by the Danish
-  Business Authority.
+summary: >-
+  Danish companies have to report beneficial owners (‘reelle ejere’) who directly 
+  control a company
+description: |
+  Beneficial owners can be Danish or foreign natural persons.
+  Data is collected by the Danish Business Authority.
 publisher:
   name: OpenOwnership
   url: https://www.openownership.org

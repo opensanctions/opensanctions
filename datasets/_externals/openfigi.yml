@@ -13,8 +13,8 @@ deploy:
   memory: 1000Mi
   memory_limit: 1500Mi
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: |
-  Securities with FIGI identifiers matching sanctioned companies.
+summary: >-
+  Securities with FIGI identifiers matching risk-linked companies
 description: |
   Securities in this dataset have been linked to sanctioned companies.
 

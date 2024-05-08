@@ -16,9 +16,9 @@ coverage:
   start: 2022-05-23
   end: 2023-07-26
   frequency: weekly
-summary: |
+summary: >-
   Combined data from the Panama Papers, Paradise Papers, Pandora Papers
-  and other cross-border investigations conducted by ICIJ and its partners.
+  and other cross-border investigations conducted by ICIJ and its partners
 description: |
   > The International Consortium of Investigative Journalists obtained the data through five massive leaks:
   >

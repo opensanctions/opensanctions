@@ -5,14 +5,14 @@ coverage:
   frequency: daily
   start: 2024-03-12
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: |
+summary: >-
   List of suspended and removed financial instruments, as published by the
-  European Securities and Markets Authority (ESMA). Where possible the listing
-  includes the suspending authority.
+  European Securities and Markets Authority (ESMA).
 description: |
   Register on suspensions and removals of financial instruments from trading,
-  according to articles 32 and 52 of Directive 2014/65/EU (MIFID II). 
-  
+  according to articles 32 and 52 of Directive 2014/65/EU (MIFID II). Where
+  possible, the listing includes the suspending authority.
+
   > ESMA is responsible only for the accurate reproduction of the relevant part
   > of the notifications received from the national competent authorities. 
   > ESMA does not provide any representation or warranty that the content of the
@@ -24,7 +24,7 @@ description: |
   > Please note that following this/these suspension/s, other market/s or
   > national competent authority/ies may suspend the same or related financial
   > instruments as well, according to Articles 32 and 52 MiFID. 
-  > No information about those follow-up suspensions will be displayed on this website. 
+  > No information about those follow-up suspensions will be displayed on this website.
 publisher:
   name: European Securities and Markets Authority
   description: |

@@ -5,7 +5,7 @@ coverage:
   frequency: daily
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  Members of the Grand National Assembly of Türkiye
+  Current military members of the Grand National Assembly of Türkiye
 description: |
   The Grand National Assembly of Turkey is the unicameral Turkish legislature.
 

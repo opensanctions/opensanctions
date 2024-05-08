@@ -16,7 +16,7 @@ http:
   retry_statuses: [503, 429, 403]
   retry_methods: [GET, POST]
 
-summary: |
+summary: >-
   Legal and natural entities in the Unified State Register of taxpayers of the Republic of Tajikistan.
 description: |
   The registry has 3 sections for taxpayers: legal entities, representatives of branches and foreign 

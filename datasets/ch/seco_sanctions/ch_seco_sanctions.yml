@@ -8,9 +8,9 @@ deploy:
   schedule: "10 */2 * * *"
   memory: 1500Mi
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: |
+summary: >-
   Switzerland manages a sanctions lists with a high degree of detail on the
-  individuals that are subject to it's embargoes.
+  individuals that are subject to it's embargoes
 description: |
   The Confederation can adopt coercive measures to enforce sanctions that have
   been decided by the United Nations Organization, the Organization for Security

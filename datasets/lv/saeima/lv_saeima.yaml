@@ -5,8 +5,8 @@ coverage:
   frequency: daily
   start: 2024-03-07
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: >
-  Members of the Latvian Saeima (Parliament)
+summary: >-
+  Members of the Saeima, the unicameral parliament of Latvia
 description: |
   This dataset comprises information about current members of the Saeima.
   The Saeima is the parliament of the Republic of Latvia. It is a unicameral

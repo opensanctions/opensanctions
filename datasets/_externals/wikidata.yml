@@ -14,9 +14,9 @@ deploy:
   memory: "3000Mi"
   premium: true
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: |
+summary: >-
   Wikidata is the structured data project of the Wikipedia community,
-  providing fact-based information edited by humans and machines.
+  providing fact-based information edited by humans and machines
 description: |
   Wikidata serves as the source of much of the OpenSanctions data related to
   politically exposed persons (PEPs). We also link up entities that are

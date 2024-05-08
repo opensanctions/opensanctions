@@ -16,7 +16,7 @@ exports:
   - senzing.json
 resolve: false
 ci_test: false
-summary: |
+summary: >-
   Data is collected by the Ministry of Justice of the Slovak Republic in the ‘Register
   partnerov verejného sektora’ (RPVS), and covers entities benefiting from public
   funding or conducting business with the state, so-called ‘Partners of Public

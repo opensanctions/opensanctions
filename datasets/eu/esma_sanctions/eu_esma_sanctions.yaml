@@ -5,8 +5,9 @@ load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 coverage:
   frequency: daily
   start: 2024-03-21
-summary: |
-  List of sanctioned entities, as published by the European Securities and Markets Authority (ESMA).
+summary: >-
+  List of sanctioned entities, as published by the European Securities and Markets
+  Authority (ESMA).
 description: |
   Register of entities sanctioned by European NCAs and maintained by ESMA.
   The directives and regulations underpinning the sanctions can be found in the [Interactive Single Rulebook.](https://www.esma.europa.eu/publications-and-data/interactive-single-rulebook)
