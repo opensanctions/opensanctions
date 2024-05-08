@@ -12,32 +12,29 @@ def is_zero(value: str) -> bool:
 
 
 def crawl_item(context: Context, row: Dict[str, Any]):
-    address = h.make_address(
-        context,
-        street=row.pop("ADDRESS"),
-        city=row.pop("CITY"),
-        state=row.pop("STATE"),
-        postal_code=row.pop("ZIP"),
-        country_code="us",
+    city = row.pop("CITY")
+    zip_code = row.pop("ZIP")
+    first_name = row.pop("FIRSTNAME")
+    last_name = row.pop("LASTNAME")
+    middle_name = row.pop("MIDNAME")
+    bus_name = row.pop("BUSNAME")
+    id_name = h.make_name(
+        full=bus_name,
+        first_name=first_name,
+        middle_name=middle_name,
+        last_name=last_name,
     )
-    if row["LASTNAME"] or row["FIRSTNAME"]:
-        entity = context.make("Person")
-        first_name = row.pop("FIRSTNAME")
-        mid_name = row.pop("MIDNAME")
-        last_name = row.pop("LASTNAME")
-        full_name = h.make_name(
-            first_name=first_name,
-            middle_name=mid_name,
-            last_name=last_name,
-        )
-        entity.id = context.make_slug(full_name, address.get("full")[0])
+    entity = context.make("LegalEntity")
+    entity.id = context.make_slug(id_name, zip_code, city, strict=False)
 
+    if first_name or last_name:
+        entity.add_schema("Person")
         h.apply_name(
             entity=entity,
-            full=full_name,
             first_name=first_name,
-            middle_name=mid_name,
+            middle_name=middle_name,
             last_name=last_name,
+            lang="eng",
         )
         entity.add("birthDate", h.parse_date(row.pop("DOB", None), FORMATS))
         general_role = row.pop("GENERAL")
@@ -48,13 +45,19 @@ def crawl_item(context: Context, row: Dict[str, Any]):
             position = general_role
         entity.add("position", position)
     else:
-        entity = context.make("Company")
-        name = row.pop("BUSNAME")
-        entity.id = context.make_slug(name, address.get("full")[0])
-        entity.add("name", name)
+        entity.add_schema("Company")
+        entity.add("name", bus_name)
         entity.add("description", row.pop("GENERAL") or None)
         entity.add("description", row.pop("SPECIALTY") or None)
 
+    address = h.make_address(
+        context,
+        street=row.pop("ADDRESS"),
+        city=city,
+        state=row.pop("STATE"),
+        postal_code=zip_code,
+        country_code="us",
+    )
     h.copy_address(entity, address)
     upin = row.pop("UPIN")
     if upin:
