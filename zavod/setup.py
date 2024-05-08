@@ -21,7 +21,7 @@ setup(
     package_data={"": ["zavod/data/*", "zavod/py.typed"]},
     zip_safe=False,
     install_requires=[
-        "followthemoney == 3.5.*",
+        "followthemoney == 3.6.*",
         "nomenklatura[leveldb] == 3.10.*",
         "plyvel == 1.5.1",
         "rigour == 0.5.2",
