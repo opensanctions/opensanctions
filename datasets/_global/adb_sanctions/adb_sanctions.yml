@@ -5,6 +5,7 @@ coverage:
   frequency: daily
   start: 2021-11-09
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+ci_test: false
 summary: >-
   The ADB's published sanctions list. It contains the names of entities who violated
   the sanctions while ineligible; entities who committed second and subsequent
