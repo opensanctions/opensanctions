@@ -1,8 +1,7 @@
-from typing import Generator, cast
+from typing import Generator, cast, List
 from zavod import Context, helpers as h
 import openpyxl
 from openpyxl import load_workbook
-from typing import Generator
 from pantomime.types import XLSX
 from normality import stringify, slugify
 from datetime import datetime
