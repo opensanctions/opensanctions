@@ -14,7 +14,8 @@ exports:
   - statistics.json
   - entities.ftm.json
 resolve: false
-summary: |
+ci_test: false
+summary: >-
   Czech business register with company metadata and directorships as obtained
   from the open data xml dump by ARES.
 publisher:
@@ -28,6 +29,7 @@ publisher:
     registers).
   country: cz
   official: true
+url: https://ares.gov.cz/stranky/otevrena-data
 data:
-  url: "https://wwwinfo.mfcr.cz/_konec/ares_vreo_all.tar.gz"
+  url: "https://ares.gov.cz/otevrena-data/ares_vreo_all.tar.gz"
   format: XML+TAR+GZIP

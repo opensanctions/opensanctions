@@ -14,8 +14,8 @@ exports:
   - statistics.json
   - entities.ftm.json
 ci_test: false
-summary: |
-  Reference data for SWIFT BIC code, including bank names and addresses.
+summary: >-
+  Reference data for SWIFT BIC code, including bank names and addresses
 description: |
   > BIC is the International Standard ISO 9362:2014. This standard specifies
   > the elements and structure of a universal identifier code, the business

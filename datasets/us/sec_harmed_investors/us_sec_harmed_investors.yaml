@@ -4,7 +4,7 @@ prefix: us-sec-harm
 coverage:
   frequency: daily
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: |
+summary: >-
   Enforcement actions against persons and firms that had harmed investors
 description: |
   This dataset contains information about SEC enforcement actions where
@@ -808,6 +808,10 @@ lookups:
         names:
           - FCA US LLC
           - Fiat Chrysler Automobiles N.V.
+      - match: fieldman rolapp & associates inc., and anna sarabian
+        names:
+          - Fieldman Rolapp & Associates Inc.
+          - Anna Sarabian
       - match: fieldstone financial management group llc and kristofor r. behn
         names:
           - Fieldstone Financial Management Group LLC
@@ -822,7 +826,7 @@ lookups:
           - FEF Distributors LLC
       - match: focus media holding limited and jason jiang
         names:
-          - Focus Media Holding Limited 
+          - Focus Media Holding Limited
           - Jason Jiang
       - match: fortress investment management llc and william m. malloy iii
         names:
@@ -834,7 +838,7 @@ lookups:
           - Shawn Sokolosky
       - match: garrett m. o'rourke and michael j. black
         names:
-          - Garrett M. O'rourke 
+          - Garrett M. O'rourke
           - Michael J. Black
       - match: geluk capital management ltd and douglas gerald fathers
         names:

@@ -30,3 +30,20 @@ url: https://registers.esma.europa.eu/publication/searchRegister?core=esma_regis
 data:
   url: https://registers.esma.europa.eu/publication/searchRegister/doRelativeSearch
   format: JSON
+
+lookups:
+  type.country:
+    options:
+      - match: EZ
+        value: EU
+      - match:
+          - XD
+          - QS
+          - NS
+          - XC
+          - QO
+          - YY
+          - QM
+          - XF
+          - AN
+        value: null

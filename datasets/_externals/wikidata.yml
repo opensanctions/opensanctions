@@ -14,9 +14,9 @@ deploy:
   memory: "3000Mi"
   premium: true
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: |
+summary: >-
   Wikidata is the structured data project of the Wikipedia community,
-  providing fact-based information edited by humans and machines.
+  providing fact-based information edited by humans and machines
 description: |
   Wikidata serves as the source of much of the OpenSanctions data related to
   politically exposed persons (PEPs). We also link up entities that are
@@ -56,7 +56,7 @@ inputs:
   - wd_oligarchs
   - wd_curated
   - wanted
-  - ru_rupep
+  # - ru_rupep
   - ru_navalny35
   - ru_myrotvorets_wagner
   - ru_billionaires_2021
@@ -106,6 +106,7 @@ lookups:
           - Cisleithania
           - Cossack Hetmanate
           - County of Mark
+          - Cretan State
           - Crown of Aragon
           - Delhi Sultanate
           - Democratic Kampuchea
@@ -378,6 +379,13 @@ lookups:
           - Tibet Autonomous Region
           - Kingdom of Montenegro
           - State of Slovenes, Croats and Serbs
+          - Sokoto Caliphate
+          - Khazar Khaganate
+          - Songhai Empire
+          - Abdullahi Bala Shehu
+          - British America
+          - Gaochang
+          - French Annam
         value: null
       - match:
           - Cherokee Nation
@@ -403,6 +411,7 @@ lookups:
       - match:
           - United Kingdom of the Netherlands
           - Dutch Republic
+          - Northern Netherlands
         value: NL
       - match: Kingdom of Ireland
         value: IE
@@ -618,6 +627,8 @@ lookups:
         value: 1935-06
       - match: "1973-09-31"
         value: 1973-09
+      - match: "1765-09-31"
+        value: 1765-09
   type.gender:
     lowercase: true
     normalize: true

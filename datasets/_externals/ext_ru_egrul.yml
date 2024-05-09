@@ -17,7 +17,7 @@ deploy:
   memory_limit: "2000Mi"
   premium: true
 # load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: |
+summary: >-
   Companies database of the Russian Federation as maintained and published by
   the Federal Tax Service.
 description: |
@@ -56,7 +56,7 @@ inputs:
   - ext_md_companies
   - ext_ru_egrul
   - ext_ua_edr
-  - ru_rupep
+  # - ru_rupep
   - opencorporates
   - sanctions
 

@@ -10,11 +10,10 @@ deploy:
   schedule: "@monthly"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 
-summary: |
+summary: >-
   Companies and persons against whom a legally binding sanction
   has been imposed in accordance with articles 7 and 9 of the
   Liechtenstein Posted Workers Act (Entsendegesetz, EntsG)
-
 description: |
   The Office of Economic Affairs of the Principality of Liechtenstein
   publishes a list of companies and persons against whom a legally binding

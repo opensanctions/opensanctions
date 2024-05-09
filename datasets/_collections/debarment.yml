@@ -26,7 +26,9 @@ children:
   - si_conflicts
   - us_ddtc_debarred
   - us_dod_chinese_milcorps
+  - us_fcc_covered_list
   - us_hhs_exclusions
   - us_sam_exclusions
+  - us_special_leg
   - worldbank_debarred
 ci_test: false

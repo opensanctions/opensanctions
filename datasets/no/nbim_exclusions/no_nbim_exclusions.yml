@@ -7,7 +7,7 @@ coverage:
 deploy:
   schedule: "0 3 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: |
+summary: >-
   Companies excluded from investment by Norway's Government Pension Fund Global, or listed for observation.
 description: |
   This dataset lists companies which are excluded from investment by Norway's

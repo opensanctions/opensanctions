@@ -7,7 +7,7 @@ coverage:
 deploy:
   schedule: "0 */6 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: |
+summary: >-
   The Dutch government's sanctions list of people suspected of involvement in
   terroristic activities.
 description: |

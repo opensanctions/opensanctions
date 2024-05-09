@@ -8,8 +8,8 @@ coverage:
 deploy:
   schedule: "@daily"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: |
-  List of banned organizations under the Unlawful Activities (Prevention) Act.
+summary: >-
+  List of banned organizations under the Unlawful Activities (Prevention) Act
 description: |
   The [relevant law](https://www.mha.gov.in/sites/default/files/A1967-37.pdf).
 publisher:

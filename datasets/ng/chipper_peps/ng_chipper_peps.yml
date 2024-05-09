@@ -6,7 +6,7 @@ coverage:
   start: 2023-11-22
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  PEP data collected by Chipper for Nigeria
+  National and sub-national Nigerian Politically Exposed Persons collected by Chipper
 description: |
   This is a vast dataset of politically exposed persons in Nigeria collected by
   Chipper to support their risk management practices.
@@ -36,8 +36,8 @@ lookups:
       - match: Male `
         value: Male
       - match:
-        - 7
-        - 40
+          - 7
+          - 40
         value: null
   type.date:
     options:

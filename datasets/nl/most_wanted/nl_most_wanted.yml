@@ -5,7 +5,7 @@ coverage:
   frequency: daily
   start: 2023-01-24
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: |
+summary: >-
   The most wanted persons are suspected of serious crimes and are ranked
   high on the police's hit list.
 description: |

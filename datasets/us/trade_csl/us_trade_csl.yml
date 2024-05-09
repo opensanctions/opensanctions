@@ -7,7 +7,7 @@ coverage:
 deploy:
   schedule: "20 */3 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: |
+summary: >-
   The Consolidated Screening List (CSL) is a list of parties for which the United
   States Government maintains restrictions on certain exports, reexports, or transfers
   of items.

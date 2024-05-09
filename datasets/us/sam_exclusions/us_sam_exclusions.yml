@@ -36,6 +36,17 @@ data:
   format: CSV
   lang: eng
 
+assertions:
+  min:
+    schema_entities:
+      Person: 88000
+      Company: 5900
+      LegalEntity: 1500
+    countries: 90
+  max:
+    schema_entities:
+      Person: 100000
+
 lookups:
   classifications:
     options:
@@ -50,6 +61,35 @@ lookups:
         value: LegalEntity
       - match: Vessel
         value: Vessel
+  schema.override:
+    options:
+      - match:
+          - S4MR3P6CX
+          - S4MR4999H
+          - S4MR3R3JF
+          - S4MR49988
+          - S4MR4998D
+          - S4MR497ZT
+          - S4MR7WR4R
+          - S4MRB1HC6
+          - S4MRCPCSH
+          - S4MRDWHPT
+          - S4MRB1H8P
+          - S4MR3R1J3
+          - S4MRJFY6F
+          - S4MRDWHP1
+          - S4MR95R1F
+          - S4MRDWHPY
+          - S4MR95R1G
+          - S4MRB1H8Y
+          - S4MR478NL
+          - S4MRB1HC1
+          - S4MR478NR
+        value: Company
+      - match:
+          - S4MRFLWH0
+          - S4MRFLTRS
+        value: Person
   type.address:
     lowercase: true
     options:

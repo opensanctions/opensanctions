@@ -7,9 +7,9 @@ coverage:
 deploy:
   schedule: "0 */3 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: |
+summary: >-
   Belgium extends the European FSF sanctions list on the basis of a national terrorist
-  list, issued by the National Security Council.
+  list, issued by the National Security Council
 description: |
   Financial sanctions are restrictive measures that are taken in respect of countries,
   individuals or entities with the aim of putting an end to breaches of international
@@ -128,7 +128,7 @@ lookups:
           - shaamco@mail.sy
       - contains: v.myshevskaya@rostvert.ru
         values:
-          - v.myshevskaya@rostvert.ru 
+          - v.myshevskaya@rostvert.ru
           - g.bunyaeva@rostvert.ru
   type.gender:
     lowercase: true
