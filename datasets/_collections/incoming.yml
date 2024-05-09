@@ -10,4 +10,5 @@ description: |
   before being moved to a collection under default.
 children:
   - us_finra_actions
+  - fr_interest_representative
 ci_test: false

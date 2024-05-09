@@ -1,0 +1,28 @@
+title: French Interest Representatives 
+entry_point: crawler.py
+prefix: fr-int
+coverage:
+  frequency: daily
+  start: 2024-05-08
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Individuals and organizations that are self declared interest representatives
+description: |
+  Since July 1, 2017, interest representatives have been required to register on
+  the AGORA digital directory. It aims to provide information to citizens on the
+  relations between interest representatives and public officials when public decisions are taken.
+  Thus, it is possible to consult a series of information to know the identity of the
+  interest representatives registered in the directory (type of organization,
+  contact details, identity of managers, customers, fields of activity, etc.) and the
+  annual activity reports of each interest representative that detail their lobbying
+  actions.
+publisher:
+  name: Haute Autorité Pour La Transparence de La Vie Publique
+  description: High Authority for Transparency in Public Life
+  url: https://www.hatvp.fr
+  official: true
+  country: "fr"
+url: "https://www.hatvp.fr/le-repertoire/"
+data:
+  url: http://www.hatvp.fr/agora/opendata/agora_repertoire_opendata.json
+  format: JSON
