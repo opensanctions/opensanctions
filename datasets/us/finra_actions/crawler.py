@@ -45,14 +45,14 @@ def crawl_item(input_dict: dict, context: Context):
         entity = context.make(schema)
         entity.id = context.make_slug(name)
         entity.add("name", name)
-        entity.add("topics", "crime.fin")
+        entity.add("topics", "reg.action")
         entity.add("country", "us")
         context.emit(entity, target=True)
 
         sanction = h.make_sanction(context, entity, key=case_id)
         description = f"{formatted_date}: {case_summary}"
         sanction.add("description", description)
-        sanction.add("summary", f"Case ID {case_id.strip()}")
+        sanction.add("authorityId", case_id.strip())
         sanction.add("sourceUrl", source_url)
         context.emit(sanction)
 

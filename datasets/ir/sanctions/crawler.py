@@ -10,8 +10,9 @@ from zavod.shed.zyte_api import fetch_html
 def crawl_item(context: Context, row: Dict[str, str]):
     entity_type = row.pop("sanction-type")
     schema = context.lookup_value("schema", entity_type)
-    if not schema:
+    if schema is None:
         context.log.warning(f"Unknown schema: {entity_type}")
+        return
 
     name = row.pop("name")
     position = row.pop("position").strip()
@@ -21,14 +22,14 @@ def crawl_item(context: Context, row: Dict[str, str]):
 
     entity.add("name", name)
     entity.add("country", row.pop("country") or None)
-    entity.add("topics", "poi")
+    entity.add("topics", "sanction.counter")
     if schema == "Person" and position.replace("-", ""):
         entity.add("position", position)
 
     sanction = h.make_sanction(context, entity)
     sanction_date = collapse_spaces(row.pop("sanction-date"))
-    sanction_date = h.parse_date(sanction_date, formats=["%B %d %Y"])
-    sanction.add("date", sanction_date)
+    sanction_dates = h.parse_date(sanction_date, formats=["%B %d %Y"])
+    sanction.add("date", sanction_dates)
     sanction.add("description", row.pop("sanction-title"))
 
     context.emit(entity, target=True)
