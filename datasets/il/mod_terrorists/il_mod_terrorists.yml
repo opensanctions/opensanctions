@@ -56,7 +56,10 @@ lookups:
         values:
           - Jordan
           - Kuweit
-      - match: Ramallah
+      - match:
+          - Ramallah
+          - Khan Younis, Gaza
+          - אזרחות פלסטינית
         value: PS
       - match: תוניס
         value: Tunisia

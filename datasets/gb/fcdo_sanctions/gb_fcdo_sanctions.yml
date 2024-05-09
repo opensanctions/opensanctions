@@ -1,19 +1,23 @@
-title: The UK Sanctions List 
+title: The UK Sanctions List
 entry_point: crawler.py
 prefix: gb-fcdo
 disabled: false
 coverage:
   frequency: daily
-  start: 2024-05-08
+  start: 2024-05-09
+deploy:
+  schedule: "0 */2 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: >
-  List of UK sanctions collated by the Foreign, Commonwealth & Development Office.
+summary: >-
+  UK sanctions collated by the Foreign, Commonwealth & Development Office
 description: |
   As described by the [FCDO](https://www.gov.uk/government/publications/the-uk-sanctions-list):
 
-  > The UK government publishes the UK Sanctions List, which provides details of those designated under regulations 
-  > made under the Sanctions Act. The list also details which sanctions measures apply to these persons or ships, 
-  > and in the case of UK designations, provides a statement of reasons for the designation.
+  > The UK government publishes the UK Sanctions List, which provides
+  > details of those designated under regulations made under the Sanctions
+  > Act. The list also details which sanctions measures apply to these
+  > persons or ships, and in the case of UK designations, provides a
+  > statement of reasons for the designation.
 url: https://www.gov.uk/government/publications/the-uk-sanctions-list
 publisher:
   name: Foreign, Commonwealth & Development Office (FCDO)
@@ -29,8 +33,63 @@ data:
   format: HTML
 
 lookups:
+  languages:
+    options:
+      - match: Arabic
+        value: ara
+      - match: Chinese
+        value: zho
+      - match: Russian
+        value: rus
+      - match: Belarusian
+        value: bel
+      - match: Bosnian
+        value: bos
+      - match: Korean
+        value: kor
+      - match: Romanian; Moldavian; Moldovan
+        value: ron
+      - match: Persian
+        value: fas
+      - match: Ukrainian
+        value: ukr
+      - match: Greek
+        value: ell
+      - match: Hebrew
+        value: heb
+      - match: Bulgarian
+        value: bul
+      - match: Serbian
+        value: srp
+      - match: Turkish
+        value: tur
+  name_type:
+    lowercase: true
+    normalize: true
+    options:
+      - match:
+          - "Primary name"
+          - "Primary name variation"
+        value: name
+      - match: "Alias"
+        value: alias
   type.country:
     normalize: true
     options:
       - match: Congo (Democratic Republic)
         value: Democratic Republic of Congo
+  type.email:
+    options:
+      - match:
+          - "Email:"
+          - www.140zavod.by
+          - and
+          - request@mehr
+          - fci.ir
+          - info@etemad
+          - mobin.com
+          - www.surena
+          - gc.com
+          - Unknown
+          - www.mtsbank.ru
+        value: null
