@@ -1,7 +1,7 @@
+from collections import defaultdict
 from typing import Dict, List, Tuple
 from urllib.parse import urljoin
 import re
-from time import sleep
 import datetime
 
 from zavod import Context
@@ -11,7 +11,6 @@ from zavod import Context
 # page is stored in the session and no cache for details page, as
 # the url is always changing
 CACHE_DAYS = None
-SLEEP_TIME = 0.1  # seconds
 
 BASE_URL = "https://bizreg.pravosudje.ba/pls/apex/"
 # URL to retrieve the list of cities
@@ -20,6 +19,16 @@ DICTS_URL = f"{BASE_URL}/wwv_flow.show"
 TOUCH_URL = DICTS_URL
 # URL to retrieve the list of companies
 RETRIEVE_URL = f"{BASE_URL}/f"
+
+FOUNDER_DENY_LIST = {
+    "-",
+    "Dioničari prema evidenciji Registra vrijednosnih papir F BiH",
+    "Dioničari prema knjizi Dioničara",
+    "dioničari prema listi u prilogu",
+    "prema listi  dioničari",
+    "prema listi dioničari",
+}
+FOUNDERS_SEEN = defaultdict(int)
 
 
 def get_secret_param(context: Context) -> str:
@@ -267,8 +276,6 @@ def crawl_details(context: Context, record: Dict[str, str]) -> None:
 
         for i, bd in enumerate(basic_data):
             parsed_bd = list(map(str.strip, bd.split(" ,")))
-            # JD: Name might be Dioničari prema evidenciji Registra vrijednosnih papir F BiH
-            # Shareholders according to the records of the FBiH Securities Register
             company_name = parsed_bd[0]
 
             # includes country
@@ -324,8 +331,9 @@ def crawl_details(context: Context, record: Dict[str, str]) -> None:
     finally:
         entity = context.make("Company")
         if record.get("registration_number"):
-            entity.id = context.make_id("BACompany", record["registration_number"])
+            entity.id = context.make_slug("BACompany", record["registration_number"])
         else:
+            assert record["name"]
             entity.id = context.make_id("BACompany", record["name"])
 
         entity.add("name", record["name"], lang="bos")
@@ -335,13 +343,12 @@ def crawl_details(context: Context, record: Dict[str, str]) -> None:
 
         entity.add("country", "ba")
         entity.add("address", record["address"], lang="bos")
-        if record["address_additional"]:
+        if "address_additional" in record:
             entity.add("address", record["address_additional"], lang="bos")
 
         entity.add("legalForm", record["legal_form"], lang="bos")
         entity.add("registrationNumber", record["registration_number"])
 
-        # JD: LegalEntity:idNumber probably?
         if record.get("unique_id"):
             entity.add("registrationNumber", record["unique_id"])
 
@@ -354,6 +361,9 @@ def crawl_details(context: Context, record: Dict[str, str]) -> None:
         context.emit(entity, target=True)
 
         for person in founders_people:
+            if person["name"] in FOUNDER_DENY_LIST:
+                continue
+            FOUNDERS_SEEN[person["name"]] += 1
             founder = context.make("Person")
             founder.id = context.make_id("BAFounder", entity.id, person["name"])
             founder.add("name", person["name"], lang="bos")
@@ -371,6 +381,9 @@ def crawl_details(context: Context, record: Dict[str, str]) -> None:
             context.emit(own)
 
         for comp in founders_companies:
+            if comp["name"] in FOUNDER_DENY_LIST:
+                continue
+            FOUNDERS_SEEN[comp["name"]] += 1
             founder_company = context.make("LegalEntity")
             founder_company.id = context.make_id(
                 "BAFounderCompany", entity.id, comp["name"]
@@ -404,7 +417,6 @@ def crawl_details(context: Context, record: Dict[str, str]) -> None:
             rel = context.make("Directorship")
             rel.id = context.make_id("BADirectorship", entity.id, director.id)
             rel.add("role", manager["position"], lang="bos")
-            # JD: Should it be description or notes or status or summary?
             rel.add("description", manager["authorizations"], lang="bos")
             rel.add("director", director)
             rel.add("organization", entity)
@@ -475,7 +487,6 @@ def crawl(context: Context):
             from_date="",
             to_date="",
         )
-        sleep(SLEEP_TIME)
 
         if len(new_recs) == 500:
             for period in periods:
@@ -492,16 +503,23 @@ def crawl(context: Context):
                 total += len(new_recs)
 
                 for rec in new_recs:
-                    sleep(SLEEP_TIME)
                     crawl_details(context, rec)
 
-                sleep(SLEEP_TIME)
         else:
             context.log.debug(f'{city["city"]}, all the time: {len(new_recs)}')
             total += len(new_recs)
 
             for rec in new_recs:
-                sleep(SLEEP_TIME)
                 crawl_details(context, rec)
+
+    for name, count in FOUNDERS_SEEN.items():
+        if count > 20:
+            context.log.warning("Possible note instead of name", name=name, count=count)
+        if "dioničari" in name.lower():
+            context.log.warning(
+                "Possible note instead of name (containing dioničari)",
+                name=name,
+                count=count,
+            )
 
     context.log.debug("Total records: ", total)
