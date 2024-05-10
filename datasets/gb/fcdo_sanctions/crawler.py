@@ -206,4 +206,3 @@ def crawl(context: Context):
             context.emit(sanction)
         except ValueError as e:
             context.log.error(f"Failed to parse designation with id {unique_id}: {e}")
-            continue

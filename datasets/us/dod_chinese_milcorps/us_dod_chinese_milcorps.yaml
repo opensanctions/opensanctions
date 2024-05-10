@@ -1,5 +1,5 @@
 name: us_dod_chinese_milcorps
-title: "Chinese military companies"
+title: "US DoD Chinese military companies"
 entry_point: crawler.py
 prefix: us-dod-mil
 coverage:
