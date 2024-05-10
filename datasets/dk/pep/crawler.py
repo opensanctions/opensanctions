@@ -9,11 +9,19 @@ from zavod import Context, helpers as h
 from zavod.logic.pep import categorise
 
 RESOURCES = [
-    "PEP_listen.xlsx",
-    "PEP_listen_faeroeerne.xlsx",
-    "PEP_listen_groenland.xlsx",
+    ("dk", "dan", "PEP_listen.xlsx"),
+    ("fo", "fao", "PEP_listen_faeroeerne.xlsx"),
+    ("gl", "kal", "PEP_listen_groenland.xlsx"),
 ]
-
+CURRENT_HEADERS = [
+    None,
+    "Navn",
+    None,
+    "Stillingsbetegnelse ",
+    "Fødselsdato",
+    "Tilføjet på PEP-listen (dato)",
+    "Ny på PEP-listen (x)",
+]
 BASE_URL = "https://www.finanstilsynet.dk/-/media/Tal-og-fakta/PEP/"
 
 
@@ -25,6 +33,7 @@ def header_names(cells):
         headers.append(slugify(cell, "_").lower())
     return headers
 
+
 def parse_date(date: str) -> datetime:
     dates = h.parse_date(date, formats=["%d.%m.%Y"])
 
@@ -32,6 +41,7 @@ def parse_date(date: str) -> datetime:
         return dates[0]
 
     return None
+
 
 def parse_old_pep(
     sheet: openpyxl.worksheet.worksheet.Worksheet,
@@ -77,7 +87,11 @@ def parse_current_pep(
     for idx, row in enumerate(sheet.rows):
         # First row is just the date and name of the dataset
         # Second row is the header
-        if idx in [0, 1]:
+        if idx == 0:
+            continue
+        elif idx == 1:
+            heads = [c.value for c in row]
+            assert heads[:7] == CURRENT_HEADERS, heads[:7]
             continue
 
         # Every row can be either:
@@ -111,7 +125,7 @@ def parse_current_pep(
             context.log.warning(f"Couldn't parse row: {[c.value for c in row]}")
 
 
-def crawl_current_pep_item(input_dict: dict, context: Context):
+def crawl_current_pep_item(context: Context, country: str, lang: str, input_dict: dict):
     first_name = input_dict.pop("first-name")
     last_name = input_dict.pop("last-name")
 
@@ -119,12 +133,27 @@ def crawl_current_pep_item(input_dict: dict, context: Context):
     entity.id = context.make_slug(first_name, last_name)
     h.apply_name(entity, first_name=first_name, last_name=last_name)
 
-    entity.add(
-        "birthDate", parse_date(input_dict.pop("birth-date"))
-    )
+    entity.add("birthDate", parse_date(input_dict.pop("birth-date")))
+    list_name = input_dict.pop("list-name")
+    affiliation = input_dict.pop("position")
+
+    if list_name == "Medlemmer af Folketinget":
+        position_name = "Member of the Folketing"
+    elif list_name == "Medlemmer af Europaparlamentet":
+        position_name = "Member of the European Parliament"
+    elif "Medlemmer af Lagtinget" in list_name:
+        position_name = "Member of the Lagting"
+    elif "Medlemmer" in list_name and "Inatsisartut" in list_name:
+        position_name = "Member of the Inatsisartut"
+    elif "partiernes styrelsesorganer" in list_name:
+        position_name = "Member of leadership of " + (affiliation or "a political party")
+    else:
+        position_name = affiliation
+    assert position_name != "Socialdemokratiet"
+    assert position_name is not None, entity.id
 
     position = h.make_position(
-        context, input_dict.pop("position"), country="dk", lang="dk"
+        context, position_name, country=country, lang=lang
     )
     categorisation = categorise(context, position, is_pep=True)
 
@@ -142,10 +171,10 @@ def crawl_current_pep_item(input_dict: dict, context: Context):
         context.emit(position)
         context.emit(occupancy)
 
-    context.audit_data(input_dict, ignore=["list-name"])
+    context.audit_data(input_dict)
 
 
-def crawl_old_pep_item(input_dict: dict, context: Context):
+def crawl_old_pep_item(context: Context, country: str, lang: str, input_dict: dict):
     last_name = input_dict.pop("efternavn")
     first_name = input_dict.pop("fornavn")
 
@@ -160,7 +189,7 @@ def crawl_old_pep_item(input_dict: dict, context: Context):
         entity.add("birthDate", parse_date(birth_date))
 
     position = h.make_position(
-        context, input_dict.pop(position_col), country="dk", lang="dk"
+        context, input_dict.pop(position_col), country=country, lang=lang
     )
 
     occupation = h.make_occupancy(
@@ -181,7 +210,7 @@ def crawl_old_pep_item(input_dict: dict, context: Context):
 
 
 def crawl(context: Context):
-    for name in RESOURCES:
+    for country, lang, name in RESOURCES:
         path = context.fetch_resource(name, BASE_URL + name)
         context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
@@ -189,8 +218,8 @@ def crawl(context: Context):
 
         # Crawl old PEP list
         for item in parse_old_pep(wb["Tidligere PEP'ere"]):
-            crawl_old_pep_item(item, context)
+            crawl_old_pep_item(context, country, lang, item)
 
         # Crawl current PEP list
         for item in parse_current_pep(wb["Nuværende PEP'ere"], context):
-            crawl_current_pep_item(item, context)
+            crawl_current_pep_item(context, country, lang, item)
