@@ -1,8 +1,10 @@
 import sys
 import logging
 import structlog
+import os
+import re
 from pathlib import Path
-from typing import Optional
+from typing import Callable, Optional
 from lxml.etree import _Element, tostring
 from followthemoney.schema import Schema
 
@@ -14,6 +16,81 @@ from structlog.types import Processor
 from zavod import settings
 
 Event = MutableMapping[str, str]
+
+
+REDACT_IGNORE_LIST = {
+    "OLDPWD",
+    "PWD",
+    "VIRTUAL_ENV",
+    "HOME",
+    "ZAVOD_DATA_PATH",
+    "ZAVOD_RESOLVER_PATH",
+    # The URL redaction will handle these
+    "ZAVOD_DATABASE_URI",
+    "OPENSANCTIONS_DATABASE_URI",
+}
+REDACT_MIN_LENGTH = 5
+URI_WITH_CREDENTIALS = r"(\w+)://[^:]+:[^@]+@"
+REGEX_URI_WITH_CREDENTIALS = re.compile(URI_WITH_CREDENTIALS)
+
+
+class RedactingProcessor():
+    """A structlog processor that redact sensitive information from log messages."""
+
+    def __init__(self, repl_pattrns: Dict[str, str | Callable[[str], str]]) -> None:
+        self.repl_regexes = {re.compile(p): r for p, r in repl_pattrns.items()}
+
+    def __call__(
+        self, logger: Any, method_name: str, event_dict: Event
+    ) -> Event:
+        return self.redact_dict(event_dict)
+
+    def redact_dict(self, dict_: Event) -> Event:
+        for key, value in dict_.items():
+            if isinstance(value, str):
+                value = self.redact_str(value)
+            elif isinstance(value, dict):
+                value = self.redact_dict(value)
+            elif isinstance(value, list):
+                value = self.redact_list(value)
+            dict_[key] = value
+        return dict_
+
+    def redact_list(self, list_: List[Any]) -> List[Any]:
+        for ix, value in enumerate(list_):
+            if isinstance(value, dict):
+                value = self.redact_dict(value)
+            if isinstance(value, str):
+                value = self.redact_str(value)
+            if isinstance(value, list):
+                value = self.redact_list(value)
+            list_[ix] = value
+        return list_
+
+    def redact_str(self, string: str) -> str:
+        for regex, replacement in self.repl_regexes.items():
+            if callable(replacement):
+                string = replacement(string)
+            else:
+                string = regex.sub(replacement, string)
+        return string
+
+
+def redact_uri_credentials(uri: str) -> str:
+    """Redact the password from a database URI."""
+    return REGEX_URI_WITH_CREDENTIALS.sub(r"\1://***:***@", uri)
+
+
+def configure_redactor() -> Callable[[Any, str, Event], Event]:
+    pattern_map: Dict[str, str | Callable[[str], str]] = dict()
+    for key, value in os.environ.items():
+        if key in REDACT_IGNORE_LIST:
+            continue
+        if len(value) < REDACT_MIN_LENGTH:
+            continue
+        pattern_map[re.escape(value)] = f"### Redacted env var {key} ###"
+    pattern_map[URI_WITH_CREDENTIALS] = redact_uri_credentials
+    return RedactingProcessor(pattern_map)
 
 
 def configure_logging(level: int = logging.DEBUG) -> None:
@@ -29,6 +106,8 @@ def configure_logging(level: int = logging.DEBUG) -> None:
         log_issue,
     ]
 
+    # Note: Redaction is only happening on string values, so make sure production
+    # environments format logs as strings before the redaction processor.
     if settings.LOG_JSON:
         processors.append(structlog.processors.TimeStamper(fmt="iso"))
         processors.append(format_json)
@@ -50,7 +129,8 @@ def configure_logging(level: int = logging.DEBUG) -> None:
         )
 
     all_processors = processors + [
-        structlog.stdlib.ProcessorFormatter.wrap_for_formatter
+        configure_redactor(),
+        structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
     ]
 
     # configuration for structlog based loggers
