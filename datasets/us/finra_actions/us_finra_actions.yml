@@ -6,20 +6,19 @@ coverage:
   start: "2024-03-28"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  Firms and individuals that violated FINRA rules
+  Firms and individuals that have violated FINRA rules
 description: |
   This dataset comprises firms and individuals against whom FINRA has taken
-  disciplinary actions for violations of its rules,
-  federal securities laws, rules, and regulations or
-  the rules of the Municipal Securities Rulemaking Board.
+  disciplinary actions for violations of its rules, federal securities laws,
+  rules, and regulations or the rules of the Municipal Securities Rulemaking Board.
 
   Documentation of disciplinary actions found here can include official
   complaints, decisions, and settlement agreements.
 publisher:
   name: Financial Industry Regulatory Authority (FINRA)
   description: |
-    > is authorized by Congress to protect America’s investors by making sure
-    > the broker-dealer industry operates fairly and honestly.
+    FINRA is authorized by Congress to protect America's investors by making sure
+    the broker-dealer industry operates fairly and honestly.
   url: https://www.finra.org/#/
   official: true
   country: "us"
@@ -386,3 +385,18 @@ lookups:
       - match: "wulff, hansen & co."
         names:
           - Wulff, Hansen & Co.
+      - match: lh ross and company inc.
+        names:
+          - LH Ross and Company Inc.
+      - match: standard and poor's secrities inc.
+        names:
+          - Standard and Poor's Secrities Inc.
+      - match: ryan beck and co. inc.
+        names:
+          - Ryan Beck and Co. Inc.
+      - match: american funds and trusts inc.
+        names:
+          - American Funds and Trusts Inc.
+      - match: oppenheimer and co. inc.
+        names:
+          - Oppenheimer and Co. Inc.

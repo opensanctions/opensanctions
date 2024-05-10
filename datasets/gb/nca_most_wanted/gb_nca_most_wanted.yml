@@ -1,4 +1,4 @@
-title: NCA Most Wanted
+title: UK NCA Most Wanted
 entry_point: crawler.py
 prefix: gb-nca
 disabled: false

@@ -1,6 +1,8 @@
+import os
 from typing import IO
 from pathlib import Path
 from zipfile import ZipFile
+from tempfile import TemporaryDirectory
 import xml.etree.ElementTree as ET
 
 from zavod import Context
@@ -46,11 +48,16 @@ def parse_xml_doc(context: Context, file: IO[bytes]) -> None:
 
 
 def parse_xml_file(context: Context, path: Path) -> None:
-    with ZipFile(path) as archive:
-        for name in archive.namelist():
-            if name.endswith(".xml"):
-                with archive.open(name) as fh:
+    with TemporaryDirectory() as tmpdir:
+        with ZipFile(path) as archive:
+            for name in archive.namelist():
+                if not name.endswith(".xml"):
+                    continue
+                tmpfile = archive.extract(name, path=tmpdir)
+                context.log.info("Reading XML file", path=tmpfile)
+                with open(tmpfile, "rb") as fh:
                     parse_xml_doc(context, fh)
+                os.unlink(tmpfile)
 
 
 def get_full_dumps_index(context: Context):

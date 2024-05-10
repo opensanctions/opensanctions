@@ -7,7 +7,7 @@ coverage:
   frequency: daily
   start: 2023-09-03
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: |
+summary: >-
   Current and recent Members of the Parliament of the Cayman Islands
 description: |
   Members of the Parliament of the Cayman Islands as listed on the parliamentary

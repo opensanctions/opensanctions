@@ -15,7 +15,7 @@ deploy:
   memory: "1000Mi"
   memory_limit: "2000Mi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: |
+summary: >-
   The beneficial ownership database of legal entities registered in Ukraine (EDR)
 description: |
   Publication of this data has been suspended since the Russian attack on Feburary

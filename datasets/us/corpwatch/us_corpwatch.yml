@@ -14,7 +14,7 @@ exports:
   - entities.ftm.json
 resolve: false
 ci_test: false
-summary: |
+summary: >-
   Subsidiary relationship information from Exhibit 21 of companies' 10-K
   filings with the SEC (global subsidiaries of all publicly-listed companies
   in the US).

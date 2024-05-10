@@ -10,6 +10,10 @@ deploy:
   disk: 100Gi
 resolve: false
 ci_test: false
+exports:
+  - statistics.json
+  - entities.ftm.json
+  - senzing.json
 summary: >
   List of financial instruments and their reference data, as published by the
   European Securities and Markets Authority (ESMA).
@@ -30,3 +34,21 @@ url: https://registers.esma.europa.eu/publication/searchRegister?core=esma_regis
 data:
   url: https://registers.esma.europa.eu/publication/searchRegister/doRelativeSearch
   format: JSON
+
+lookups:
+  type.country:
+    options:
+      - match: EZ
+        value: EU
+      - match:
+          - XD
+          - QS
+          - NS
+          - XC
+          - QO
+          - YY
+          - QM
+          - QX
+          - XF
+          - AN
+        value: null

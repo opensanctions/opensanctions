@@ -6,7 +6,7 @@ coverage:
   start: 2024-01-12
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
-  Members of the Hong Kong Legislative Council.
+  Members of the Legislative Council of the Hong Kong SAR
 description: |
   This dataset lists the current members of the Legislative Council of
   the Hong Kong Special Administrative Region of the People's

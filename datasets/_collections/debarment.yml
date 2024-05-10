@@ -30,5 +30,6 @@ children:
   - us_hhs_exclusions
   - us_sam_exclusions
   - us_special_leg
+  - us_finra_actions
   - worldbank_debarred
 ci_test: false

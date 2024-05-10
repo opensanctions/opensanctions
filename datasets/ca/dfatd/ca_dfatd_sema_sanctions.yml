@@ -7,9 +7,9 @@ coverage:
 deploy:
   schedule: "0 */3 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: |
+summary: >-
   Sanctions imposed by Canada on specific countries, organizations, or individuals 
-  under the Special Economic Measures Act (SEMA) and JVCFOA.
+  under the Special Economic Measures Act (SEMA) and JVCFOA
 description: |
   Sanctions imposed by Canada on specific countries, organizations, or individuals vary
   and can encompass a variety of measures, including restricting or prohibiting trade,

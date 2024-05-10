@@ -7,8 +7,8 @@ coverage:
 deploy:
   schedule: "0 */6 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: |
-  Terrorist organizations and individuals as designated by the Israeli government.
+summary: >-
+  Terrorist organizations and individuals as designated by the Israeli government
 description: |
   > According to the Defense Regulations (Emergency), 1945 and the Prohibition on
   > Terrorist Financing Law 5765-2004 and Designations on Terrorist Organizations
@@ -56,7 +56,10 @@ lookups:
         values:
           - Jordan
           - Kuweit
-      - match: Ramallah
+      - match:
+          - Ramallah
+          - Khan Younis, Gaza
+          - אזרחות פלסטינית
         value: PS
       - match: תוניס
         value: Tunisia
@@ -83,7 +86,7 @@ lookups:
         values:
           - Algeria
           - PS
-      - match: 
+      - match:
           - Judea and Samaria Region
         value:
           - IL
@@ -91,7 +94,7 @@ lookups:
           - "עיראק ולבנט - דרום מזרח אסיה"
         values:
           - Iraq
-      - match: 
+      - match:
           - "עיראק ולבנט - חוראסאן"
           - IRAQ AND LEVANT-KHORASAN
         values:

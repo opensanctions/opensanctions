@@ -7,7 +7,7 @@ coverage:
 deploy:
   schedule: "0 */6 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: |
+summary: >-
   The US banking regulator OCC publishes a list of companies and individuals
   against which punitive measures have been applied.
 description: |
