@@ -146,15 +146,15 @@ def crawl_current_pep_item(context: Context, country: str, lang: str, input_dict
     elif "Medlemmer" in list_name and "Inatsisartut" in list_name:
         position_name = "Member of the Inatsisartut"
     elif "partiernes styrelsesorganer" in list_name:
-        position_name = "Member of leadership of " + (affiliation or "a political party")
+        position_name = "Member of leadership of " + (
+            affiliation or "a political party"
+        )
     else:
         position_name = affiliation
     assert position_name != "Socialdemokratiet"
     assert position_name is not None, entity.id
 
-    position = h.make_position(
-        context, position_name, country=country, lang=lang
-    )
+    position = h.make_position(context, position_name, country=country, lang=lang)
     categorisation = categorise(context, position, is_pep=True)
 
     occupancy = h.make_occupancy(
