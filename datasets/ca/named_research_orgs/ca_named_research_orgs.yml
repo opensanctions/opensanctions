@@ -1,4 +1,4 @@
-title: "Canada Named Research Organizations list"
+title: "Canadian Named Research Organizations list"
 entry_point: crawler.py
 prefix: ca-nro
 coverage:

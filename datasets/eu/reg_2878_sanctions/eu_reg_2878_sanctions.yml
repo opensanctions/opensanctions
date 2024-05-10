@@ -1,4 +1,4 @@
-title: Entities sanctioned under EU Council Regulation 2023/2878
+title: EU Council Regulation 2023/2878 Sanctioned entities
 entry_point: crawler.py
 prefix: eu-2878
 coverage:
@@ -10,8 +10,7 @@ publisher:
   name: Council of the European Union
   country: eu
   url: https://european-union.europa.eu/institutions-law-budget/institutions-and-bodies/search-all-eu-institutions-and-bodies/council-european-union_en
-  description:
-    The Council of the EU is the representative body of EU member
+  description: The Council of the EU is the representative body of EU member
     governments.  Together with the European Parliament, which
     directly represents the people of the EU, it negotiates and adopts
     EU laws and adopts the EU budget. It is also responsible for
