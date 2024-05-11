@@ -54,7 +54,7 @@ class GoogleCloudObject(ArchiveObject):
 
     def __init__(self, backend: "GoogleCloudBackend", name: str) -> None:
         self.backend = backend
-        self.name = {name}
+        self.name = name
         self._blob: Optional[Blob] = None
 
     @property
