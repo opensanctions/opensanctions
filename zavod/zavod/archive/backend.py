@@ -54,7 +54,7 @@ class GoogleCloudObject(ArchiveObject):
 
     def __init__(self, backend: "GoogleCloudBackend", name: str) -> None:
         self.backend = backend
-        self.name = f"datasets/{name}"
+        self.name = {name}
         self._blob: Optional[Blob] = None
 
     @property
@@ -85,7 +85,7 @@ class GoogleCloudObject(ArchiveObject):
         )
 
     def republish(self, source: str) -> None:
-        source_blob = self.backend.bucket.get_blob(f"datasets/{source}")
+        source_blob = self.backend.bucket.get_blob(source)
         if source_blob is None:
             raise RuntimeError("Object does not exist: %s" % source)
         # TODO: add if_generation_match

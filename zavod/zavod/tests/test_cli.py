@@ -56,7 +56,7 @@ def test_dump_file():
 
 
 def test_run_dataset(testdataset1: Dataset):
-    latest_path = settings.ARCHIVE_PATH / "latest" / testdataset1.name
+    latest_path = settings.ARCHIVE_PATH / "datasets" / "latest" / testdataset1.name
     assert not latest_path.exists()
     runner = CliRunner()
     result = runner.invoke(run, ["/dev/null"])

@@ -3,12 +3,15 @@ import shutil
 from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Optional, Generator, TextIO
+from tempfile import NamedTemporaryFile
+from rigour.mime.types import JSON
 
 from zavod.logs import get_logger
 from nomenklatura.statement import Statement
 from nomenklatura.statement.serialize import unpack_row
 
 from zavod import settings
+from zavod.runs import RunHistory, RunID
 from zavod.archive.backend import get_archive_backend, ArchiveObject
 
 if TYPE_CHECKING:
@@ -23,11 +26,12 @@ ISSUES_FILE = "issues.json"
 RESOURCES_FILE = "resources.json"
 INDEX_FILE = "index.json"
 CATALOG_FILE = "catalog.json"
+HISTORY_FILE = "meta.json"
 
 
 def get_backfill_object(dataset_name: str, resource: str) -> ArchiveObject:
     backend = get_archive_backend()
-    name = f"{settings.BACKFILL_RELEASE}/{dataset_name}/{resource}"
+    name = f"datasets/{settings.BACKFILL_RELEASE}/{dataset_name}/{resource}"
     return backend.get_object(name)
 
 
@@ -56,12 +60,12 @@ def publish_resource(
     if dataset_name is not None:
         assert path.relative_to(dataset_data_path(dataset_name))
         resource = f"{dataset_name}/{resource}"
-    release_name = f"{settings.RELEASE}/{resource}"
+    release_name = f"datasets/{settings.RELEASE}/{resource}"
     release_object = backend.get_object(release_name)
     release_object.publish(path, mime_type=mime_type)
 
     if latest and settings.RELEASE != "latest":
-        latest_name = f"latest/{resource}"
+        latest_name = f"datasets/latest/{resource}"
         latest_object = backend.get_object(latest_name)
         latest_object.republish(release_name)
 
@@ -120,6 +124,35 @@ def get_dataset_index(dataset_name: str, backfill: bool = True) -> Optional[Path
     if path is not None and path.exists():
         return path
     return None
+
+
+def get_dataset_history(dataset_name: str) -> RunHistory:
+    name = f"runs/{dataset_name}/{HISTORY_FILE}"
+    backend = get_archive_backend()
+    object = backend.get_object(name)
+    if not object.exists():
+        return RunHistory([])
+    data = object.open().read()
+    return RunHistory.from_json(data)
+
+
+def publish_dataset_history(dataset_name: str, run_id: RunID) -> None:
+    """Publish the history of runs for a given dataset to the data lake."""
+    history = get_dataset_history(dataset_name)
+    if history.latest != run_id:
+        history = history.append(run_id)
+    backend = get_archive_backend()
+
+    with NamedTemporaryFile("w") as fh:
+        tmp_path = Path(fh.name)
+        fh.write(history.to_json())
+        fh.flush()
+        name = f"runs/{dataset_name}/{HISTORY_FILE}"
+        object = backend.get_object(name)
+        object.publish(tmp_path, mime_type=JSON)
+        name = f"runs/{dataset_name}/{run_id.id}/{HISTORY_FILE}"
+        object = backend.get_object(name)
+        object.publish(tmp_path, mime_type=JSON)
 
 
 def _read_fh_statements(fh: TextIO, external: bool) -> StatementGen:

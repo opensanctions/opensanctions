@@ -12,8 +12,9 @@ from zavod.exc import RunFailedException
 
 
 def test_publish_dataset(testdataset1: Dataset):
-    release_path = settings.ARCHIVE_PATH / settings.RELEASE / testdataset1.name
-    latest_path = settings.ARCHIVE_PATH / "latest" / testdataset1.name
+    arch_path = settings.ARCHIVE_PATH / "datasets"
+    release_path = arch_path / settings.RELEASE / testdataset1.name
+    latest_path = arch_path / "latest" / testdataset1.name
     assert not release_path.joinpath(INDEX_FILE).exists()
     assert not latest_path.joinpath(INDEX_FILE).exists()
     clear_store(testdataset1)
@@ -46,7 +47,8 @@ def test_publish_dataset(testdataset1: Dataset):
 
 
 def test_publish_failure(testdataset1: Dataset):
-    latest_path = settings.ARCHIVE_PATH / "latest" / testdataset1.name
+    arch_path = settings.ARCHIVE_PATH / "datasets"
+    latest_path = arch_path / "latest" / testdataset1.name
     assert testdataset1.data is not None
     testdataset1.data.format = "FAIL"
     try:

@@ -25,6 +25,7 @@ def get_opensanctions_catalog(scope: Dataset) -> Dict[str, Any]:
     log.info("Generating catalog", schemata=len(schemata), datasets=len(datasets))
     return {
         "datasets": datasets,
+        "run_id": str(settings.RUN_ID),
         "run_time": settings.RUN_TIME_ISO,
         "dataset_url": settings.DATASET_URL,
         "statements_url": stmt_url,

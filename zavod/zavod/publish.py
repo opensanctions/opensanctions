@@ -1,6 +1,10 @@
+from rigour.mime.types import JSON
+
+from zavod import settings
 from zavod.meta import Dataset
 from zavod.logs import get_logger
 from zavod.archive import publish_resource, dataset_resource_path
+from zavod.archive import publish_dataset_history
 from zavod.archive import INDEX_FILE, CATALOG_FILE, ISSUES_FILE, ISSUES_LOG
 from zavod.archive import STATEMENTS_FILE, RESOURCES_FILE, STATISTICS_FILE
 from zavod.runtime.resources import DatasetResources
@@ -34,8 +38,9 @@ def publish_dataset(dataset: Dataset, latest: bool = True) -> None:
         if not path.is_file():
             log.error("Metadata file not found: %s" % path, dataset=dataset.name)
             continue
-        mime_type = "application/json" if meta.endswith(".json") else None
+        mime_type = JSON if meta.endswith(".json") else None
         publish_resource(path, dataset.name, meta, latest=latest, mime_type=mime_type)
+    publish_dataset_history(dataset.name, settings.RUN_ID)
 
 
 def publish_failure(dataset: Dataset, latest: bool = True) -> None:
@@ -55,5 +60,5 @@ def publish_failure(dataset: Dataset, latest: bool = True) -> None:
         if not path.is_file():
             log.error("Metadata file not found: %s" % path, dataset=dataset.name)
             continue
-        mime_type = "application/json" if meta.endswith(".json") else None
+        mime_type = JSON if meta.endswith(".json") else None
         publish_resource(path, dataset.name, meta, latest=latest, mime_type=mime_type)
