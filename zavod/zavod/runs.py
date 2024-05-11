@@ -1,7 +1,8 @@
 import os
+import json
 import string
 import secrets
-from typing import Any
+from typing import Any, List, Iterator, Optional
 from datetime import datetime, timezone
 
 
@@ -49,3 +50,45 @@ class RunID(object):
 
     def __eq__(self, other: Any) -> bool:
         return self.id == str(other)
+
+    def __hash__(self) -> int:
+        return hash(self.id)
+
+
+class RunHistory(object):
+    """A class to represent a history of run IDs."""
+
+    LENGTH = 300
+
+    def __init__(self, items: List[RunID]) -> None:
+        self.items = items
+
+    def append(self, run_id: RunID) -> "RunHistory":
+        """Creates a new history with the given RunID appended."""
+        items = list(self.items)
+        items.append(run_id)
+        return RunHistory(items[-self.LENGTH :])
+
+    @property
+    def latest(self) -> Optional[RunID]:
+        if not len(self.items):
+            return None
+        return self.items[-1]
+
+    def to_json(self) -> str:
+        """Return a JSON representation of the run history."""
+        items = [str(run) for run in self.items[-self.LENGTH :]]
+        return json.dumps({"items": items})
+
+    @classmethod
+    def from_json(cls, data: str) -> "RunHistory":
+        """Create a run history from a JSON representation."""
+        items = json.loads(data).get("items", [])
+        items = [RunID.from_string(item) for item in items]
+        return cls(items)
+
+    def __iter__(self) -> Iterator[RunID]:
+        return iter(self.items)
+
+    def __len__(self) -> int:
+        return len(self.items)
