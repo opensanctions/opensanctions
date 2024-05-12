@@ -8,8 +8,8 @@ from zavod import Context, Entity
 from zavod import helpers as h
 
 DEKLARACIJA_ID_RANGE = range(301_730, 637_217)
-# sample 5 for dev purposes
-DEKLARACIJA_ID_RANGE = random.sample(DEKLARACIJA_ID_RANGE, 5)
+# sample 50 for dev purposes
+DEKLARACIJA_ID_RANGE = random.sample(DEKLARACIJA_ID_RANGE, 50)
 
 
 class PinregSession:
@@ -72,14 +72,42 @@ def crawl(context: Context) -> None:
 
     pinreg = PinregSession(context)
     for deklaracija_id in DEKLARACIJA_ID_RANGE:
-        sleep(0.2)
+        sleep(0.3)
         if not (record := pinreg.get_deklaracija_by_id(deklaracija_id)):
             continue
 
+        assert record.pop('id') == deklaracija_id
+
+        submission_date = record.pop('pateikimoData')
+        reasons_for_submission = record.pop("teikimoPriezastysPavadinimai")
+        submission_status = record.pop("viesumoStatusas")
+        nondisclosure_reason = record.pop("neviesinimoPriezastis")
+        declaration_type = record.pop("deklaracijosTipas")
+
+        # uncertain values
+        submission_session_end_date = record.pop("viesumoNutraukimoData")
+        other_data = record.pop("kitiDuomenys")
+        other_data_fa = record.pop("kitiDuomenysFa")
+        is_employee_of_institution = record.pop("teikejasYraIstaigosDarbuotojas")
+        potential_related_declarations = record.pop('deklaracijosAtsiradesGalimasRysys')
+        individual_activities_declarations = record.pop("deklaracijosIndividualiosVeiklos")
+        declaration_fa = record.pop("deklaracijosFaRysiai")
+
+        # likely irrelevant values
+        is_latest_version = record.pop("yraNaujausiaVersija")
+        reasons_for_submission_code = record.pop("teikimoPriezastys")
+        old_declaration_id:Optional[str] = record.pop("senosPidId", None)
         declarant = make_person(context, record.pop("teikejas"))
-        if spouse_data := record.pop("sutuoktinis"):
+        positions:list[dict] = record.pop("darbovietes")
+
+        spouse_data:Optional[dict] = record.pop("sutuoktinis", None)
+        spouse_positions:Optional[list[dict]] = record.pop("sutuoktinioDarbovietes", None)
+        if spouse_data is not None:
             spouse = make_person(context, spouse_data)
             marriage = make_marriage(context, declarant, spouse)
             context.emit(spouse, target=False)
             context.emit(marriage)
+        related_transactions:Optional[list[dict]] = record.pop("rysiaiDelSandoriu", None)
+        related_legal_entities:Optional[list[dict]] = record.pop("rysiaiSuJa", None)
         context.emit(declarant, target=True)
+        context.audit_data(record)
