@@ -1,4 +1,3 @@
-from collections import defaultdict
 from typing import Dict, List, Tuple
 from urllib.parse import urljoin
 import re
@@ -28,7 +27,6 @@ FOUNDER_DENY_LIST = {
     "prema listi  dioničari",
     "prema listi dioničari",
 }
-FOUNDERS_SEEN = defaultdict(int)
 
 # MBS	12-34-5678-90	2 digits "-" 2 digits "-" 4 digits "-" 2 digits
 # MBS	1-2345-67	1 digit "-" 4 digits "-" 2 digits
@@ -383,7 +381,6 @@ def crawl_details(context: Context, record: Dict[str, str]) -> None:
         for person in founders_people:
             if person["name"] in FOUNDER_DENY_LIST:
                 continue
-            FOUNDERS_SEEN[person["name"]] += 1
             founder = context.make("Person")
             founder.id = context.make_id("BAFounder", entity.id, person["name"])
             founder.add("name", person["name"], lang="bos")
@@ -403,7 +400,12 @@ def crawl_details(context: Context, record: Dict[str, str]) -> None:
         for comp in founders_companies:
             if comp["name"] in FOUNDER_DENY_LIST:
                 continue
-            FOUNDERS_SEEN[comp["name"]] += 1
+            if "dioničari" in comp["name"].lower():
+                context.log.warning(
+                    "Possible note instead of name (containing dioničari)",
+                    name=name,
+                )
+
             founder_company = context.make("LegalEntity")
             founder_company.id = context.make_id(
                 "BAFounderCompany", entity.id, comp["name"]
@@ -531,15 +533,3 @@ def crawl(context: Context):
 
             for rec in new_recs:
                 crawl_details(context, rec)
-
-    for name, count in FOUNDERS_SEEN.items():
-        if count > 20:
-            context.log.warning("Possible note instead of name", name=name, count=count)
-        if "dioničari" in name.lower():
-            context.log.warning(
-                "Possible note instead of name (containing dioničari)",
-                name=name,
-                count=count,
-            )
-
-    context.log.debug("Total records: ", total)
