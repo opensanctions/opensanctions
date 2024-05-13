@@ -13,7 +13,7 @@ ci_test: false
 http:
   total_retries: 5
   backoff_factor: 3
-  retry_statuses: [503, 429, 403]
+  retry_statuses: [503, 429, 403, 504]
   retry_methods: [GET, POST]
 
 summary: >-
