@@ -1,4 +1,3 @@
-from collections import defaultdict
 from typing import Dict, List, Tuple
 from urllib.parse import urljoin
 import re
