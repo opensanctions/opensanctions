@@ -6,6 +6,9 @@ entry_point: crawler
 coverage:
   frequency: monthly
   start: 2023-03-21
+exports:
+  - statistics.json
+  - entities.ftm.json
 deploy:
   premium: true
   memory: 2500Mi
