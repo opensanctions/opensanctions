@@ -50,6 +50,8 @@ lookups:
         value: PS
       - match: Special Economic Measures (Extremist Settler Violence) Regulations
         value: IL
+      - match: Hamas Terrorist Attacks
+        value: PS
   type.date:
     options:
       - match: 1972-08-10 or 1972-08-11

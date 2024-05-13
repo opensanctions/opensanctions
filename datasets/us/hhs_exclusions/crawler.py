@@ -26,6 +26,14 @@ def crawl_item(context: Context, row: Dict[str, Any]):
     )
     entity = context.make("LegalEntity")
     entity.id = context.make_slug(id_name, zip_code, city, strict=False)
+    if entity.id is None:
+        context.log.warning(
+            "No id for entity",
+            name=id_name,
+            zip_code=zip_code,
+            city=city,
+        )
+        return
 
     if first_name or last_name:
         entity.add_schema("Person")
