@@ -30,6 +30,26 @@ FOUNDER_DENY_LIST = {
 }
 FOUNDERS_SEEN = defaultdict(int)
 
+# MBS	12-34-5678-90	2 digits "-" 2 digits "-" 4 digits "-" 2 digits
+# MBS	1-2345-67	1 digit "-" 4 digits "-" 2 digits
+# MBS	1-123	1 digit "-" 3 digits
+# MBS	1-1234	1 digit "-" 4 digits
+# MBS	1-12345	1 digit "-" 5 digits
+# JIB	1234567890123	13 digits
+# PIB	123456789012	12 digits
+REGEX_ROUGH_REGNO = re.compile(r"^\d+-?\d{2,}-?[\d-]+$")
+
+
+def roughly_valid_regno(regno: str) -> bool:
+    """
+    Check if the registration number is valid
+    Args:
+        regno: The registration number to check.
+    Returns:
+        True if the registration number is valid, False otherwise.
+    """
+    return bool(REGEX_ROUGH_REGNO.match(regno))
+
 
 def get_secret_param(context: Context) -> str:
     """
@@ -330,8 +350,8 @@ def crawl_details(context: Context, record: Dict[str, str]) -> None:
 
     finally:
         entity = context.make("Company")
-        if record.get("registration_number"):
-            entity.id = context.make_slug("BACompany", record["registration_number"])
+        if roughly_valid_regno(record.get("registration_number")):
+            entity.id = context.make_slug(record["registration_number"])
         else:
             assert record["name"]
             entity.id = context.make_id("BACompany", record["name"])
