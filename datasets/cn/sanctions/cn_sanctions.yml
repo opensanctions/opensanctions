@@ -4,7 +4,7 @@ prefix: cn-sanc
 coverage:
   frequency: never
   start: 2024-03-08
-  end: 2024-03-08
+  end: 2024-05-08
 deploy:
   schedule: "30 6 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}

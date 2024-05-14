@@ -17,7 +17,7 @@ deploy:
   memory_limit: "2000Mi"
   premium: true
 # load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: |
+summary: >-
   Companies database of the Russian Federation as maintained and published by
   the Federal Tax Service.
 description: |
@@ -42,6 +42,8 @@ publisher:
   country: ru
   official: true
 ci_test: false
+http:
+  retry_methods: [GET, POST]
 
 inputs:
   - ann_graph_topics

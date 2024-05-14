@@ -1,0 +1,32 @@
+name: hr_public_officials
+title: Croatia State Registry of Public Officials
+prefix: hr-pub
+url: https://www.sukobinteresa.hr/hr/registar-duznosnika
+coverage:
+  frequency: daily
+  start: 2024-04-24
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Senior public officials in Croatia by the Commission for Decisions on Public Interest
+description: >
+  This dataset documents Croatian public officials, their positions, and affiliations.
+
+  It is published daily by the Commission for Decisions on Public Interest
+  Povjerenstvo za odlučivanje o sukobu interesa), and intended to be referenced in
+  investigating conflicts of interest.
+
+  Only officials who have held some position falling within our PEP criteria within our
+  PEP retention period are included.
+entry_point: crawler.py
+publisher:
+  name: Povjerenstvo za odlučivanje o sukobu interesa
+  description: >
+    The Commission for Decisions on Public Interest (Povjerenstvo za odlučivanje o
+    sukobu interesa) is a government body responsible for preventing conflicts of
+    interest between private and public interests.
+  country: hr
+  url: https://www.sukobinteresa.hr/
+  official: true
+data:
+  url: https://www.sukobinteresa.hr/export/registar_duznosnika.csv
+  format: CSV

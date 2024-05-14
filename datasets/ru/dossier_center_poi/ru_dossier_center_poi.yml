@@ -1,8 +1,8 @@
 name: ru_dossier_center_poi
-title: Russian Persons of Intererst published by Dossier Center
+title: Russian Persons of Interest published by Dossier Center
 url: https://peps.dossier.center/
 prefix: ru-dc-poi
-summary: Persons of Interest (POI) in Russia published by Dossier Center
+summary: People identified to be connected to crime at the Dossier Center
 description: |
   This dataset publishes a list of possible organizers of the Kremlin organized crime group
   and their probable accomplices with brief profiles.

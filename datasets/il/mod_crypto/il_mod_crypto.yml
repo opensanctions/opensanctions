@@ -7,8 +7,9 @@ coverage:
 deploy:
   schedule: "0 */6 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: |
-  Crypto wallets seized by the Israeli government.
+summary: >-
+  Cryptocurrency wallets seized by the Israeli government using
+  Administrative Seizure Orders
 description: |
   A list of seizure orders issued by the Israeli government against crypto wallets
   with the most regularly seen authrorization being the Anti-Terrorism law 5776-2016.

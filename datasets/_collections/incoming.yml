@@ -1,9 +1,8 @@
 type: collection
 title: Incoming
 hidden: true
-deploy:
-  schedule: "1 */6 * * *"
-  memory: "1500Mi"
+coverage:
+  frequency: daily
 summary: >
   A place for new datasets to be checked before moving to default
 description: |
@@ -11,6 +10,4 @@ description: |
   before being moved to a collection under default.
 children:
   - us_finra_actions
-  - tj_companies
-  - th_designated_person
 ci_test: false

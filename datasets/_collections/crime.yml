@@ -39,11 +39,13 @@ children:
   - interpol_red_notices
   - lt_illegal_websites
   - lt_illegal_gambling
+  - my_consumer_alert_list
   - nl_most_wanted
   - pk_proscribed_persons
   - us_dea_fugitives
   - us_ddtc_enforcements
   - us_fbi_most_wanted
+  - us_fed_enforcements
   - us_occ_enfact
   - us_sec_pause
   - us_sec_harmed_investors

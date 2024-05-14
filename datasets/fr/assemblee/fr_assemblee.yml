@@ -7,7 +7,7 @@ coverage:
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 entry_point: crawler.py
 summary: >-
-  Members of the French National Assembly.
+  Current and recent Members of the French National Assembly
 description: |
   This dataset lists the members of the French National Assembly.
 

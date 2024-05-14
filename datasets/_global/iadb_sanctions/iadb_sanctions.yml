@@ -8,7 +8,7 @@ coverage:
 deploy:
   schedule: "@monthly"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: |
+summary: >-
   The firms and individuals listed have been sanctioned for having engaged in
   fraudulent, corrupt, collusive, coercive or obstructive practices, in
   violation of the IDB Group’s Sanctions Procedures and anti-corruption policies.

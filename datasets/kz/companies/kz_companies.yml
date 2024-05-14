@@ -6,6 +6,9 @@ entry_point: crawler
 coverage:
   frequency: monthly
   start: 2023-03-21
+exports:
+  - statistics.json
+  - entities.ftm.json
 deploy:
   premium: true
   memory: 2500Mi
@@ -16,7 +19,7 @@ http:
   backoff_factor: 3
   retry_statuses: [503, 429, 403]
 
-summary: |
+summary: >-
   This dataset comrpises all companies and other types of entities registered
   with the Kazakhstan state register of legal entities.
 

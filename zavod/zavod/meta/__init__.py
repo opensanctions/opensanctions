@@ -51,6 +51,7 @@ def get_multi_dataset(names: List[str]) -> Dataset:
             "name": name,
             "title": name,
             "datasets": names,
+            "summary": "Synthetic, ad-hoc virtual collection for multiple input datasets",
             "hidden": True,
         }
         scope = catalog.make_dataset(data)

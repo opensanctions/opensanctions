@@ -13,6 +13,7 @@ from zavod.entity import Entity
 from zavod.http import request_hash
 from zavod.crawl import crawl_dataset
 from zavod.archive import iter_dataset_statements
+from zavod.runtime.cache import get_cache, get_engine, get_metadata
 from zavod.runtime.sink import DatasetSink
 from zavod.exc import RunFailedException
 from zavod.runtime.loader import load_entry_point
@@ -68,6 +69,8 @@ def test_context_helpers(testdataset1: Dataset):
     context.data_time = other
     assert context.data_time_iso == other.isoformat(sep="T", timespec="seconds")
 
+    context.close()
+
 
 def test_context_dry_run(testdataset1: Dataset):
     context = Context(testdataset1, dry_run=True)
@@ -87,8 +90,11 @@ def test_context_get_fetchers(testdataset1: Dataset):
         text = context.fetch_text("https://test.com/bla", cache_days=14)
         assert text == "Hello, World!"
 
-    text = context.fetch_text("https://test.com/bla", cache_days=14)
-    assert text == "Hello, World!"
+        # Testing caching
+        text = context.fetch_text("https://test.com/bla", cache_days=14)
+        assert text == "Hello, World!"
+
+        assert m.call_count == 1
 
     # Extra check that cache is there
     fingerprint = request_hash("https://test.com/bla", method="GET")
@@ -127,6 +133,9 @@ def test_context_get_fetchers(testdataset1: Dataset):
     assert adapter.max_retries.allowed_methods == ["POST"]
 
     context.close()
+    get_cache.cache_clear()
+    get_engine.cache_clear()
+    get_metadata.cache_clear()
 
 
 def test_context_post_fetchers(testdataset1: Dataset):
@@ -139,11 +148,13 @@ def test_context_post_fetchers(testdataset1: Dataset):
         )
         assert text == "Hello, World!"
 
-    # Testing caching
-    text = context.fetch_text(
-        "https://test.com/bla", cache_days=14, method="POST", data={"foo": "bar"}
-    )
-    assert text == "Hello, World!"
+        # Testing caching
+        text = context.fetch_text(
+            "https://test.com/bla", cache_days=14, method="POST", data={"foo": "bar"}
+        )
+        assert text == "Hello, World!"
+
+        assert m.call_count == 1
 
     # Testing cache miss
     with requests_mock.Mocker() as m:
@@ -173,6 +184,9 @@ def test_context_post_fetchers(testdataset1: Dataset):
         assert doc.findtext(".//h1") == "Hello, World!"
 
     context.close()
+    get_cache.cache_clear()
+    get_engine.cache_clear()
+    get_metadata.cache_clear()
 
 
 def test_context_fetchers_exceptions(testdataset1: Dataset):

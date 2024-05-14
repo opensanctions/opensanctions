@@ -1875,3 +1875,7 @@ lookups:
         code: ""
         label: "annexation of the Free City of Frankfurt by Prussia"
         decision: "ignore"
+      - match: "Q16761250"
+        code: ""
+        label: "Republika Srpska"
+        decision: "ignore"

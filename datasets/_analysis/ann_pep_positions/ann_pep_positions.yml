@@ -14,7 +14,7 @@ deploy:
   memory_limit: "1500Mi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 ci_test: false
-summary: |
+summary: >-
   Entity categorisation decisions by the OpenSanctions team.
 description: |
   The annotations dataset consists of detail added by the OpenSanctions team
