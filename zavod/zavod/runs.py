@@ -1,7 +1,7 @@
 import os
 import json
 import string
-import secrets
+import random
 from typing import Any, List, Iterator, Optional
 from datetime import datetime, timezone
 
@@ -19,8 +19,8 @@ class RunID(object):
         now = datetime.now().astimezone(timezone.utc)
         now = now.replace(tzinfo=None)
         now = now.replace(microsecond=0)
-        key = [secrets.choice(string.ascii_uppercase) for _ in range(4)]
-        return cls(now, "".join(key))
+        key = "".join(random.sample(string.ascii_uppercase, 4))
+        return cls(now, key)
 
     @classmethod
     def from_string(cls, id: str) -> "RunID":
@@ -60,14 +60,15 @@ class RunHistory(object):
 
     LENGTH = 300
 
-    def __init__(self, items: List[RunID]) -> None:
+    def __init__(self, items: List[RunID], max_length: int = LENGTH) -> None:
         self.items = items
+        self.max_length = max_length
 
     def append(self, run_id: RunID) -> "RunHistory":
         """Creates a new history with the given RunID appended."""
         items = list(self.items)
         items.append(run_id)
-        return RunHistory(items[-self.LENGTH :])
+        return RunHistory(items[-self.max_length :])
 
     @property
     def latest(self) -> Optional[RunID]:
