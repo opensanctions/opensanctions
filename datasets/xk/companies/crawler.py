@@ -157,11 +157,19 @@ def fetch_company(context: Context, company_id: int) -> None:
             context.log.warning("Unknown company type: ", company_type)
 
         status = company.get("StatusiARBK")
-        if status not in STATUSES:
-            context.log.warning("Unknown status: ", status)
 
         entity = context.make("Company")
-        entity.id = context.make_id("XKCompany", company_id)
+        if company.get("NUI"):
+            entity.id = context.make_id("XKCompany-nui", company.get("NUI"))
+        elif company.get("NumriBiznesit"):
+            entity.id = context.make_id(
+                "XKCompany-biznesit", company.get("NumriBiznesit")
+            )
+        elif company.get("NumriFiskal"):
+            entity.id = context.make_id("XKCompany-fiskal", company.get("NumriFiskal"))
+        else:
+            entity.id = context.make_id("XKCompany", company_id)
+
         entity.add("country", "xk")
 
         for orig_field, field_def in FIELDS_MAPPING.items():
@@ -204,13 +212,6 @@ def fetch_company(context: Context, company_id: int) -> None:
                 state=company.pop("Komuna"),
             )
             h.apply_address(context, entity, address)
-
-        if company.get("NumriPunetoreve"):
-            entity.add(
-                "notes",
-                f'Number of employees: {company.pop("NumriPunetoreve")}',
-                lang="eng",
-            )
 
         if company.get("Shteti") != "1":
             context.log.warning(
@@ -271,6 +272,7 @@ def fetch_company(context: Context, company_id: int) -> None:
                 "VendiID",
                 "Latitude",
                 "Longtitude",
+                "NumriPunetoreve",
             ],
         )
         context.emit(entity, target=True)
