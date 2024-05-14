@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Optional, Generator, TextIO
 from tempfile import NamedTemporaryFile
+from functools import lru_cache
 from rigour.mime.types import JSON
 
 from zavod.logs import get_logger
@@ -20,13 +21,14 @@ if TYPE_CHECKING:
 log = get_logger(__name__)
 StatementGen = Generator[Statement, None, None]
 STATEMENTS_FILE = "statements.pack"
+ENTITIES_FILE = "entities.ftm.json"
 STATISTICS_FILE = "statistics.json"
 ISSUES_LOG = "issues.log"
 ISSUES_FILE = "issues.json"
 RESOURCES_FILE = "resources.json"
 INDEX_FILE = "index.json"
 CATALOG_FILE = "catalog.json"
-HISTORY_FILE = "meta.json"
+HISTORY_FILE = "history.json"
 
 
 def get_backfill_object(dataset_name: str, resource: str) -> ArchiveObject:
@@ -126,6 +128,7 @@ def get_dataset_index(dataset_name: str, backfill: bool = True) -> Optional[Path
     return None
 
 
+@lru_cache(maxsize=500)
 def get_dataset_history(dataset_name: str) -> RunHistory:
     name = f"runs/{dataset_name}/{HISTORY_FILE}"
     backend = get_archive_backend()
@@ -136,23 +139,46 @@ def get_dataset_history(dataset_name: str) -> RunHistory:
     return RunHistory.from_json(data)
 
 
+def get_previous_run_object(dataset_name: str, resource: str) -> ArchiveObject:
+    backend = get_archive_backend()
+    history = get_dataset_history(dataset_name)
+    if history.latest is None:
+        return backend.get_object(f"runs/{dataset_name}/NULL")
+    name = f"runs/{dataset_name}/{history.latest.id}/{resource}"
+    return backend.get_object(name)
+
+
 def publish_dataset_history(dataset_name: str, run_id: RunID) -> None:
     """Publish the history of runs for a given dataset to the data lake."""
     history = get_dataset_history(dataset_name)
-    if history.latest != run_id:
+    if run_id not in history.items:
         history = history.append(run_id)
     backend = get_archive_backend()
+    path = dataset_resource_path(dataset_name, HISTORY_FILE)
 
-    with NamedTemporaryFile("w") as fh:
-        tmp_path = Path(fh.name)
+    with open(path, "w") as fh:
         fh.write(history.to_json())
-        fh.flush()
-        name = f"runs/{dataset_name}/{HISTORY_FILE}"
-        object = backend.get_object(name)
-        object.publish(tmp_path, mime_type=JSON)
-        name = f"runs/{dataset_name}/{run_id.id}/{HISTORY_FILE}"
-        object = backend.get_object(name)
-        object.publish(tmp_path, mime_type=JSON)
+
+    name = f"runs/{dataset_name}/{HISTORY_FILE}"
+    object = backend.get_object(name)
+    object.publish(path, mime_type=JSON)
+    name = f"runs/{dataset_name}/{run_id.id}/{HISTORY_FILE}"
+    object = backend.get_object(name)
+    object.publish(path, mime_type=JSON)
+
+
+def publish_run_resource(
+    path: Path,
+    dataset_name: str,
+    run_id: RunID,
+    resource: str,
+    mime_type: Optional[str] = None,
+) -> None:
+    """Publish a file in the given run's directory of the given dataset."""
+    name = f"runs/{dataset_name}/{run_id.id}/{resource}"
+    backend = get_archive_backend()
+    object = backend.get_object(name)
+    object.publish(path, mime_type=mime_type)
 
 
 def _read_fh_statements(fh: TextIO, external: bool) -> StatementGen:
@@ -176,11 +202,14 @@ def _iter_scope_statements(dataset: "Dataset", external: bool = True) -> Stateme
             yield from _read_fh_statements(fh, external)
         return
 
-    object = get_backfill_object(dataset.name, STATEMENTS_FILE)
+    object = get_previous_run_object(dataset.name, STATEMENTS_FILE)
+    if not object.exists():
+        object = get_backfill_object(dataset.name, STATEMENTS_FILE)
     if object.exists():
         log.info(
             "Streaming backfilled statements...",
             backfill_dataset=dataset.name,
+            object=object.name,
         )
         with object.open() as fh:
             yield from _read_fh_statements(fh, external)
@@ -192,11 +221,14 @@ def iter_previous_statements(dataset: "Dataset", external: bool = True) -> State
     """Load the statements from the previous release of the dataset by streaming them
     from the data archive."""
     for scope in dataset.leaves:
-        object = get_backfill_object(scope.name, STATEMENTS_FILE)
+        object = get_previous_run_object(dataset.name, STATEMENTS_FILE)
+        if not object.exists():
+            object = get_backfill_object(dataset.name, STATEMENTS_FILE)
         if object.exists():
             log.info(
                 "Streaming backfilled statements...",
                 dataset=scope.name,
+                object=object.name,
             )
             with object.open() as fh:
                 yield from _read_fh_statements(fh, external)

@@ -4,9 +4,10 @@ from zavod import settings
 from zavod.meta import Dataset
 from zavod.logs import get_logger
 from zavod.archive import publish_resource, dataset_resource_path
-from zavod.archive import publish_dataset_history
+from zavod.archive import publish_dataset_history, publish_run_resource
 from zavod.archive import INDEX_FILE, CATALOG_FILE, ISSUES_FILE, ISSUES_LOG
 from zavod.archive import STATEMENTS_FILE, RESOURCES_FILE, STATISTICS_FILE
+from zavod.archive import ENTITIES_FILE
 from zavod.runtime.resources import DatasetResources
 from zavod.exporters import write_dataset_index, write_issues
 
@@ -28,6 +29,14 @@ def publish_dataset(dataset: Dataset, latest: bool = True) -> None:
             latest=latest,
             mime_type=resource.mime_type,
         )
+        if resource.name == ENTITIES_FILE:
+            publish_run_resource(
+                path,
+                dataset.name,
+                settings.RUN_ID,
+                resource.name,
+                mime_type=resource.mime_type,
+            )
     files = [RESOURCES_FILE, INDEX_FILE]
     if dataset.entry_point is not None:
         files.extend([ISSUES_LOG, ISSUES_FILE, STATEMENTS_FILE])
@@ -40,6 +49,14 @@ def publish_dataset(dataset: Dataset, latest: bool = True) -> None:
             continue
         mime_type = JSON if meta.endswith(".json") else None
         publish_resource(path, dataset.name, meta, latest=latest, mime_type=mime_type)
+        if meta == STATEMENTS_FILE:
+            publish_run_resource(
+                path,
+                dataset.name,
+                settings.RUN_ID,
+                meta,
+                mime_type=mime_type,
+            )
     publish_dataset_history(dataset.name, settings.RUN_ID)
 
 
