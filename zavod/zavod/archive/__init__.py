@@ -3,7 +3,6 @@ import shutil
 from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Optional, Generator, TextIO
-from tempfile import NamedTemporaryFile
 from functools import lru_cache
 from rigour.mime.types import JSON
 
@@ -31,14 +30,14 @@ CATALOG_FILE = "catalog.json"
 HISTORY_FILE = "history.json"
 
 
-def get_backfill_object(dataset_name: str, resource: str) -> ArchiveObject:
+def get_release_object(dataset_name: str, resource: str) -> ArchiveObject:
     backend = get_archive_backend()
     name = f"datasets/{settings.BACKFILL_RELEASE}/{dataset_name}/{resource}"
     return backend.get_object(name)
 
 
 def backfill_resource(dataset_name: str, resource: str, path: Path) -> Optional[Path]:
-    object = get_backfill_object(dataset_name, resource)
+    object = get_release_object(dataset_name, resource)
     if object.exists():
         log.info(
             "Backfilling dataset resource...",
@@ -204,7 +203,7 @@ def _iter_scope_statements(dataset: "Dataset", external: bool = True) -> Stateme
 
     object = get_previous_run_object(dataset.name, STATEMENTS_FILE)
     if not object.exists():
-        object = get_backfill_object(dataset.name, STATEMENTS_FILE)
+        object = get_release_object(dataset.name, STATEMENTS_FILE)
     if object.exists():
         log.info(
             "Streaming backfilled statements...",
@@ -223,7 +222,7 @@ def iter_previous_statements(dataset: "Dataset", external: bool = True) -> State
     for scope in dataset.leaves:
         object = get_previous_run_object(dataset.name, STATEMENTS_FILE)
         if not object.exists():
-            object = get_backfill_object(dataset.name, STATEMENTS_FILE)
+            object = get_release_object(dataset.name, STATEMENTS_FILE)
         if object.exists():
             log.info(
                 "Streaming backfilled statements...",
