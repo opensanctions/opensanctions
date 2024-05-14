@@ -4,7 +4,6 @@ from pathlib import Path
 from functools import cache
 from typing import cast, Dict, Optional, Type, TextIO
 from google.cloud.storage import Client, Blob  # type: ignore
-from google.cloud.storage.retry import DEFAULT_RETRY  # type: ignore
 
 from zavod import settings
 from zavod.logs import get_logger
@@ -80,9 +79,7 @@ class GoogleCloudObject(ArchiveObject):
     def publish(self, source: Path, mime_type: Optional[str] = None) -> None:
         self._blob = self.backend.bucket.blob(self.name)
         log.info(f"Uploading blob: {source.name}", blob_name=self.name)
-        self._blob.upload_from_filename(
-            source, content_type=mime_type, retry=DEFAULT_RETRY
-        )
+        self._blob.upload_from_filename(source, content_type=mime_type)
 
     def republish(self, source: str) -> None:
         source_blob = self.backend.bucket.get_blob(source)
