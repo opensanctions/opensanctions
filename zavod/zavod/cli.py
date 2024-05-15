@@ -77,7 +77,7 @@ def validate(dataset_path: Path, clear: bool = False) -> None:
         view = get_view(dataset, external=False)
         validate_dataset(dataset, view)
     except Exception:
-        log.exception("Failed validating dataset: %s" % dataset_path)
+        log.exception("Dataset %s failed validation." % dataset_path)
         sys.exit(1)
 
 
@@ -136,6 +136,11 @@ def run(
         clear_store(dataset)
         view = get_view(dataset, external=False)
         validate_dataset(dataset, view)
+    except Exception:
+        log.exception("Dataset %s failed validation." % dataset.name)
+        publish_failure(dataset, latest=latest)
+        sys.exit(1)
+    try:
         export_dataset(dataset, view)
         view.store.close()
         publish_dataset(dataset, latest=latest)
