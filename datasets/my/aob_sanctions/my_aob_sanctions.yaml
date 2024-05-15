@@ -64,20 +64,20 @@ lookups:
   columns:
     options:
       - match:
-        - Auditor
-        - Parties Involved
+          - Auditor
+          - Parties Involved
         value: parties
       - match:
-        - Date of Action
-        - Date of AOB's Action
+          - Date of Action
+          - Date of AOB's Action
         value: date
       - match:
-        - Brief Description of Breach
-        - Brief Description of Misconduct
+          - Brief Description of Breach
+          - Brief Description of Misconduct
         value: description
       - match: 
-        - Nature of Breach
-        - Nature of Misconduct
+          - Nature of Breach
+          - Nature of Misconduct
         value: reason
   name:
     map:

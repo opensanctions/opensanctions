@@ -1,4 +1,4 @@
-from typing import Generator, Dict, cast
+from typing import Generator, Dict
 from lxml.etree import _Element, tostring
 from normality import collapse_spaces, slugify
 
