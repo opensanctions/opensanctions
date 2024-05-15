@@ -274,7 +274,5 @@ def crawl(context: Context):
 
     # we don't know how many will fail, but we know a bunch always respond HTTP 500.
     # Let's start with 1000 and see.
-    if fails > 1000:
-        assert fails < 1000, fails
-    else:
-        context.log.info(f"Finished with {fails} fails")
+    assert fails < 1000, fails
+    context.log.info(f"Finished with {fails} fails")
