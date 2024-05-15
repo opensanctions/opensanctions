@@ -1,11 +1,14 @@
 name: ba_companies
-title: Registers of business entities in Bosnia and Herzegovina
+title: Bosnia and Herzegovina Registers of businesses
 prefix: ba-reg
 disabled: false
 entry_point: crawler
 coverage:
   frequency: monthly
   start: 2023-03-21
+exports:
+  - statistics.json
+  - entities.ftm.json
 deploy:
   premium: true
 resolve: false
