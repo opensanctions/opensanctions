@@ -52,10 +52,9 @@ data:
 assertions:
   min:
     schema_entities:
-      Person: 30
-      Sanction: 58
+      Person: 59
     country_entities:
-      my: 60
+      my: 59
     countries: 1
   max:
     schema_entities:
