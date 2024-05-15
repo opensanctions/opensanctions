@@ -1,7 +1,6 @@
 import os
 import re
 from typing import Any, Dict
-from time import sleep
 from datetime import datetime, timezone, timedelta
 from base64 import b64encode
 
@@ -13,42 +12,14 @@ from normality import slugify
 from zavod import Context
 from zavod import helpers as h
 
-SLEEP_TIME = 0.2
-API_KEY = os.environ.get("KOSOVO_ENCRYPTION_KEY", "")
+KOSOVO_REGISTRY_KEY = os.environ.get("OPENSANCTIONS_KOSOVO_REGISTRY_KEY", "")
 assert (
-    API_KEY
-), "Please provide the Kosovo API key in the environment variable KOSOVO_ENCRYPTION_KEY"
-
-
-COMPANY_TYPES = {
-    "Shoqëri me përgjegjësi të kufizuara": "Limited Liability Company",
-    "Biznes individual": "Individual business",
-    "Ortakëri e përgjithshme": "General partnership",
-    "Dega e Shoqërisë së Huaj": "Branch of a foreign company",
-    # AKM is probably Association of Kosovo Municipalities (AKM)
-    "Ndërmarrje tjera nën juridiksion të AKM": "Other enterprises under the jurisdiction of the AKM",
-    "Ortakëri e kufizuar": "Limited partnership",
-    "Shoqëri aksionare": "Joint stock company",
-    "Ndërmarrje publike": "Public enterprise",
-    "Kooperativa Bujqësore": "Agricultural cooperative",
-    "Zyra e Përfaqësisë në Kosovë": "Representative office in Kosovo",
-}
-
-STATUSES = {
-    "Regjistruar": "Registered",
-    "Shuar": "Closed",
-    # No idea what this means
-    "Pasiv-09/06/2022": "Passive-09/06/2022",
-    "Anuluar nga sistemi": "Canceled by the system",
-}
-
+    KOSOVO_REGISTRY_KEY
+), "Please provide the Kosovo API key in the environment variable OPENSANCTIONS_KOSOVO_REGISTRY_KEY"
 
 FIELDS_MAPPING = {
     "EmriBiznesit": {"field": "name", "lang": "sqi"},
     "EmriTregtar": {"field": "name", "lang": "sqi"},
-    "LlojiBiznesit": {"field": "legalForm", "lang": "sqi"},
-    # Status in KBRA
-    "StatusiARBK": {"field": "status", "lang": "sqi"},
     # Unique identification number
     "NUI": {"field": "registrationNumber"},
     # Business number
@@ -61,8 +32,7 @@ FIELDS_MAPPING = {
     "Email": {"field": "email"},
 }
 
-# "Komuna": "Prishtinë",
-# "Vendi": "Prishtinë",
+REGEX_ROUGHLY_VALID_REGNO = re.compile(r"^\d{8,9}$")
 
 
 def norm_h(string: str) -> str:
@@ -112,9 +82,13 @@ def parse_date(text: str) -> Any:
     )
 
 
+def roughly_valid_regno(regno: str) -> bool:
+    return bool(REGEX_ROUGHLY_VALID_REGNO.match(regno))
+
+
 def get_the_key() -> str:
     # Key and IV must be bytes, here assuming they are the same.
-    key = iv = API_KEY.encode("utf-8")  # Key and IV as bytes
+    key = iv = KOSOVO_REGISTRY_KEY.encode("utf-8")  # Key and IV as bytes
 
     # Message to encrypt
     # Looks like we can safely use timestamp in the future.
@@ -133,9 +107,11 @@ def get_the_key() -> str:
     return b64encode(encrypted).decode()
 
 
-def fetch_company(context: Context, company_id: int) -> None:
+def fetch_company(context: Context, company_id: int) -> int:
     """
     Fetch a single company from the Kosovo Registry of Business Organizations and Trade Names.
+
+    Returns HTTP status code.
     """
     try:
         resp = context.fetch_json(
@@ -152,21 +128,13 @@ def fetch_company(context: Context, company_id: int) -> None:
         founders = resp[0].get("pronaret", [])
         representatives = resp[0].get("perfaqesuesit", [])
 
-        company_type = company.get("LlojiBiznesit")
-        if company_type not in COMPANY_TYPES:
-            context.log.warning("Unknown company type: ", company_type)
-
-        status = company.get("StatusiARBK")
-
         entity = context.make("Company")
-        if company.get("NUI"):
-            entity.id = context.make_id("XKCompany-nui", company.get("NUI"))
-        elif company.get("NumriBiznesit"):
-            entity.id = context.make_id(
-                "XKCompany-biznesit", company.get("NumriBiznesit")
-            )
-        elif company.get("NumriFiskal"):
-            entity.id = context.make_id("XKCompany-fiskal", company.get("NumriFiskal"))
+        if roughly_valid_regno(company.get("NUI")):
+            entity.id = context.make_slug("nui", company.get("NUI"))
+        elif roughly_valid_regno(company.get("NumriBiznesit")):
+            entity.id = context.make_slug("biznesit", company.get("NumriBiznesit"))
+        elif roughly_valid_regno(company.get("NumriFiskal")):
+            entity.id = context.make_slug("fiskal", company.get("NumriFiskal"))
         else:
             entity.id = context.make_id("XKCompany", company_id)
 
@@ -180,11 +148,21 @@ def fetch_company(context: Context, company_id: int) -> None:
                     lang=field_def.get("lang"),
                 )
 
-        if company_type in COMPANY_TYPES:
-            entity.add("legalForm", COMPANY_TYPES[company_type], lang="eng")
+        company_type_sqi = company.pop("LlojiBiznesit")
+        company_type_eng = context.lookup_value("company_type", company_type_sqi, None)
+        if company_type_eng:
+            entity.add("legalForm", company_type_eng, lang="eng")
+        elif company_type_sqi:
+            context.log.info("Unknown company type: ", type=company_type_sqi)
+            entity.add("legalForm", company_type_sqi, lang="sqi")
 
-        if status in STATUSES:
-            entity.add("status", STATUSES[status], lang="eng")
+        status_sqi = company.pop("StatusiARBK")
+        status_eng = context.lookup_value("status", status_sqi, None)
+        if status_eng:
+            entity.add("status", status_eng, lang="eng")
+        elif status_sqi:
+            context.log.info("Unknown status: ", status=status_sqi)
+            entity.add("status", status_sqi, lang="sqi")
 
         if company.get("DataRegjistrimit"):
             entity.add("incorporationDate", parse_date(company.pop("DataRegjistrimit")))
@@ -208,7 +186,6 @@ def fetch_company(context: Context, company_id: int) -> None:
                 street=company.pop("Adresa"),
                 city=company.pop("Vendi"),
                 country_code="xk",
-                # Should it be county or region?
                 state=company.pop("Komuna"),
             )
             h.apply_address(context, entity, address)
@@ -220,7 +197,7 @@ def fetch_company(context: Context, company_id: int) -> None:
 
         if activities:
             for act in activities:
-                entity.add("sector", act.get("Pershkrimi", ""), lang="eng")
+                entity.add("sector", act.get("Pershkrimi", None), lang="eng")
 
         for founder_data in founders:
             # Don't know if there might be companies
@@ -238,7 +215,6 @@ def fetch_company(context: Context, company_id: int) -> None:
 
             own.add("ownershipType", "Founder", lang="eng")
 
-            # JD: Not sure where to map shares and capital_contracted
             own.add("sharesValue", founder_data["Kapitali"])
             own.add("percentage", founder_data["KapitaliPerqindje"])
             context.emit(own)
@@ -255,7 +231,6 @@ def fetch_company(context: Context, company_id: int) -> None:
             rel.id = context.make_id("XKDirectorship", entity.id, director.id)
             rel.add("role", rep["Pozita"], lang="sqi")
 
-            # JD: Should it be description or notes or status or summary?
             rel.add("description", rep["Autorizimet"], lang="sqi")
             rel.add("director", director)
             rel.add("organization", entity)
@@ -276,9 +251,11 @@ def fetch_company(context: Context, company_id: int) -> None:
             ],
         )
         context.emit(entity, target=True)
+        return True
 
     except requests.exceptions.HTTPError as exc:
         context.log.warning(f"Failed to fetch company {company_id}: {type(exc)}, {exc}")
+        return False
 
 
 def crawl(context: Context):
@@ -286,8 +263,18 @@ def crawl(context: Context):
     Main function to crawl and process data from the Kosovo Registry of Business
     Organizations and Trade Names.
     """
-    for company_id in range(1, 260000):  # 260000):
+    fails = 0
+
+    for company_id in range(1, 260000):
         if company_id % 100 == 0:
             context.log.info(f"Fetching company {company_id}")
-        fetch_company(context, company_id)
-        sleep(SLEEP_TIME)
+        successful = fetch_company(context, company_id)
+        if not successful:
+            fails += 1
+
+    # we don't know how many will fail, but we know a bunch always respond HTTP 500.
+    # Let's start with 1000 and see.
+    if fails > 1000:
+        assert fails < 1000, fails
+    else:
+        context.log.info(f"Finished with {fails} fails")
