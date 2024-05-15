@@ -36,3 +36,23 @@ publisher:
 data:
   url: https://arbk.rks-gov.net/TableSearch
   format: JSON
+
+lookups:
+  company_type:
+    map:
+      Shoqëri me përgjegjësi të kufizuara: Limited Liability Company
+      Biznes individual: Individual business
+      Ortakëri e përgjithshme: General partnership
+      Dega e Shoqërisë së Huaj: Branch of a foreign company
+      # AKM is probably Association of Kosovo Municipalities (AKM)
+      Ndërmarrje tjera nën juridiksion të AKM: Other enterprises under the jurisdiction of the AKM
+      Ortakëri e kufizuar: Limited partnership
+      Shoqëri aksionare: Joint stock company
+      Ndërmarrje publike: Public enterprise
+      Kooperativa Bujqësore: Agricultural cooperative
+      Zyra e Përfaqësisë në Kosovë: Representative office in Kosovo
+  status:
+    map:
+      Regjistruar: Registered
+      Shuar: Closed
+      Anuluar nga sistemi: Canceled by the system
