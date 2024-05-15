@@ -4,6 +4,14 @@ from normality import collapse_spaces, slugify
 
 from zavod import Context, helpers as h
 
+SPLITTERS = [
+    "(",
+    "former partner of",
+    "partner of",
+    "Partner of",
+    " of ",
+]
+
 
 def parse_table(table: _Element) -> Generator[Dict[str, str], None, None]:
     """
@@ -48,37 +56,39 @@ def crawl_item(input_dict: dict, context: Context):
         if new_column is not None:
             input_dict[new_column] = input_dict.pop(column)
 
-    name = input_dict.pop("name")
+    parties = input_dict.pop("parties")
+    # The abbreviation a/l stands for anak lelaki, which means "son of" (s/o) in Malay
+    split_parties = h.multi_split(parties, SPLITTERS)
+    if len(split_parties) > 1:
+        clean_name = split_parties[0]
+    else:
+        clean_name = context.lookup_value("name", parties)
+    if clean_name is None:
+        context.log.warning(f"Unable to parse parties: {parties}")
+        return
 
-    res = context.lookup("clean_names", name)
-    clean_names = cast("List[str]", res.names)
+    entity = context.make("Person")
+    entity.id = context.make_id(clean_name)
 
-    for clean_name in clean_names:
-        if not clean_name:
-            context.log.warning(f"Unable to parse name: {name}")
-            return
+    entity.add("name", clean_name)
+    entity.add("topics", "reg.warn")
+    entity.add("country", "my")
+    entity.add("description", parties)
+    
+    sanction = h.make_sanction(context, entity)
+    sanction.add("description", input_dict.pop("description"))
+    sanction.add("reason", input_dict.pop("reason"))
+    sanction.add("provisions", input_dict.pop("Action Taken"))
 
-        entity = context.make("Person")
-        entity.id = context.make_id(clean_name)
+    sanction.add(
+        "date",
+        h.parse_date(input_dict.pop("date"), formats=["%d %B %Y"]),
+    )
 
-        entity.add("name", clean_name)
-        entity.add("topics", "reg.warn")
-        entity.add("country", "my")
-        sanction = h.make_sanction(context, entity)
+    context.emit(entity, target=True)
+    context.emit(sanction)
 
-        sanction.add("description", input_dict.pop("description"))
-        sanction.add("reason", input_dict.pop("reason"))
-        sanction.add("provisions", input_dict.pop("Action Taken"))
-
-        sanction.add(
-            "date",
-            h.parse_date(input_dict.pop("date"), formats=["%d %B %Y"]),
-        )
-
-        context.emit(entity, target=True)
-        context.emit(sanction)
-
-        context.audit_data(input_dict, ignore=["No.", "No"])
+    context.audit_data(input_dict, ignore=["No.", "No"])
 
 
 def crawl(context: Context):
