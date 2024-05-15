@@ -356,22 +356,16 @@ def crawl_details(context: Context, record: Dict[str, str]) -> None:
 
         entity.add("name", record["name"], lang="bos")
         entity.add("name", record["abbreviation"], lang="bos")
-        if record.get("status_bankruptcy"):
-            entity.add("status", record["status_bankruptcy"], lang="bos")
+        entity.add("status", record.get("status_bankruptcy", None), lang="bos")
 
         entity.add("country", "ba")
         entity.add("address", record["address"], lang="bos")
-        if "address_additional" in record:
-            entity.add("address", record["address_additional"], lang="bos")
+        entity.add("address", record.get("address_additional", None), lang="bos")
 
-        entity.add("legalForm", record["legal_form"], lang="bos")
+        entity.add("legalForm", record.get("legal_form", None), lang="bos")
         entity.add("registrationNumber", record["registration_number"])
-
-        if record.get("unique_id"):
-            entity.add("registrationNumber", record["unique_id"])
-
-        if record.get("customs_number"):
-            entity.add("description", record["customs_number"], lang="eng")
+        entity.add("registrationNumber", record.get("unique_id", None))
+        entity.add("description", record.get("customs_number", None), lang="eng")
 
         entity.add("sourceUrl", record["details_url"])
         entity.add("modifiedAt", record["date_of_last_decision"])
