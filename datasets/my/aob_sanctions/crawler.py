@@ -1,5 +1,5 @@
 from typing import Generator, Dict, cast
-from lxml.etree import _Element
+from lxml.etree import _Element, tostring
 from normality import collapse_spaces, slugify
 
 from zavod import Context, helpers as h
@@ -24,6 +24,9 @@ def parse_table(table: _Element) -> Generator[Dict[str, str], None, None]:
         AssertionError: If the headers don't match what we expect.
     """
     headers = [th.text_content().strip() for th in table.findall(".//th")]
+    # Rowspan state for last column. Value may be used by next row if span > 1.
+    rowspan_value = None
+    rowspan = 1
     for row in table.findall(".//tr")[1:]:
         if headers is None:
             headers = []
@@ -32,22 +35,40 @@ def parse_table(table: _Element) -> Generator[Dict[str, str], None, None]:
             continue
 
         cells = []
-        for el in row.findall("./td"):
-            cells.append(collapse_spaces(el.text_content()))
+        for idx, el in enumerate(row.findall("./td")):
+            value = collapse_spaces(el.text_content())
+            cells.append(value)
 
-        # There are some incorrect rows with a smaller
-        # number of values, we'll just ignore those
-        if len(cells) != len(headers):
-            continue
+            # handle rowspan for last column
+            if idx == len(headers) - 1:
+                if el.get("rowspan") is None:
+                    rowspan_value = None
+                    rowspan = 1
+                else:
+                    assert rowspan == 1, (
+                        "Can't start new rowspan before previous one finished",
+                        rowspan,
+                        tostring(row),
+                    )
+                    rowspan_value = value
+                    rowspan = int(el.get("rowspan"))
+
+        if len(cells) == len(headers) - 1:
+            assert rowspan > 1, (
+                "Can't use rowspan value when we're not in its span",
+                rowspan,
+            )
+            cells.append(rowspan_value)
+            rowspan -= 1
+        assert len(cells) == len(headers), (len(cells), len(headers))
 
         # The table has a last row with all empty values
         if all(c == "" for c in cells):
             continue
-
         yield {hdr: c for hdr, c in zip(headers, cells)}
 
 
-def crawl_item(input_dict: dict, context: Context):
+def crawl_item(context: Context, input_dict: dict):
 
     dict_keys = list(input_dict.keys())
 
@@ -68,20 +89,20 @@ def crawl_item(input_dict: dict, context: Context):
         return
 
     entity = context.make("Person")
-    entity.id = context.make_id(clean_name)
+    entity.id = context.make_id(parties)
 
     entity.add("name", clean_name)
     entity.add("topics", "reg.warn")
     entity.add("country", "my")
     entity.add("description", parties)
-    
+
     sanction = h.make_sanction(context, entity)
     sanction.add("description", input_dict.pop("description"))
     sanction.add("reason", input_dict.pop("reason"))
     sanction.add("provisions", input_dict.pop("Action Taken"))
 
     sanction.add(
-        "date",
+        "startDate",
         h.parse_date(input_dict.pop("date"), formats=["%d %B %Y"]),
     )
 
@@ -97,4 +118,4 @@ def crawl(context: Context):
     # There is a table for each year
     for table in response.findall(".//table"):
         for item in parse_table(table):
-            crawl_item(item, context)
+            crawl_item(context, item)
