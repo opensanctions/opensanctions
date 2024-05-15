@@ -30,18 +30,25 @@ def crawl(context: Context) -> None:
             entity = h.make_security(context, isin)
             entity.add("name", row.pop("instrumentFullName", isin))
 
-            sanction = h.make_sanction(context, entity)
+            sanction = h.make_sanction(context, entity, key=row.pop("id"))
             sanction.add("program", "ESMA")
             sanction.add("provisions", row.pop("actionType"))
-            sanction.add("reason", row.pop("reasonsForTheAction"))
+            reason = row.pop("reasonsForTheAction")
+            sanction.add("reason", reason)
             sanction.add("description", row.pop("comments"))
             sanction.add("startDate", row.pop("effectiveFrom"))
             sanction.add("country", row.pop("memberStateOfNotifyingCA"))
             sanction.set("authority", row.pop("notifyingCA"))
-            if row.get("effectiveTo") is not None:
-                sanction.add("endDate", row.pop("effectiveTo"))
+            end_date = row.pop("effectiveTo")
+            sanction.add("endDate", end_date)
+            if end_date:
+                is_target = False
             else:
-                entity.add("topics", "sanction")
+                is_target = True
+                topic = context.lookup_value("reason_topic", reason)
+                if topic is None:
+                    context.log.warn("No topic defined for reason", reason=reason)
+                entity.add("topics", topic)
             context.emit(sanction)
             issuer_id = row.pop("issuer", "").strip()
             if issuer_id != "":
@@ -55,7 +62,7 @@ def crawl(context: Context) -> None:
                 context.emit(issuer)
                 entity.add("issuer", issuer)
 
-            context.emit(entity, target=True)
+            context.emit(entity, target=is_target)
             context.audit_data(
                 row,
                 ignore=[
@@ -64,7 +71,6 @@ def crawl(context: Context) -> None:
                     "historicalStatus",
                     "markets",
                     "timestamp",
-                    "id",
                     "onGoing",
                 ],
             )

@@ -7,6 +7,7 @@ coverage:
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 deploy:
   memory: "1000Mi"
+ci_test: false
 summary: >
   Open data on state legislators in the United States of America.
 description: |
@@ -39,7 +40,7 @@ url: "https://open.pluralpolicy.com/data/"
 data:
   url: "https://github.com/openstates/people/archive/refs/heads/main.zip"
   format: YAML
-ci_test: false
+  lang: eng
 
 lookups:
   position:

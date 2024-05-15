@@ -13,7 +13,8 @@ exports:
   - statistics.json
   - entities.ftm.json
 resolve: false
-summary: |
+ci_test: false
+summary: >-
   Cypriot open data on companies, which names their officers but not any shareholders.
 publisher:
   name: Department of the Registrar of Companies and Intellectual Property
@@ -30,4 +31,3 @@ data:
   format: CSV
 http:
   user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
-ci_test: false

@@ -45,21 +45,68 @@ def crawl(context: Context) -> None:
     data_url = crawl_data_url(context)
     path = context.fetch_resource("source.zip", data_url)
     context.export_resource(path, ZIP, title=context.SOURCE_TITLE)
+    schemata: Dict[str, str] = {}
     for row in read_rows(path):
         classification = row.pop("Classification")
         schema = context.lookup_value("classifications", classification)
         if schema is None:
             context.log.warn("Unknown classification", classification=classification)
             continue
-        entity = context.make(schema)
+        agency = row.pop("Excluding Agency")
+        if agency == "TREAS-OFAC":
+            # cf. us_ofac_sdn, us_ofac_cons
+            continue
+
         sam_number = row.pop("SAM Number")
+        override_schema = context.lookup_value("schema.override", sam_number)
+        schema = override_schema or schema
+        entity = context.make(schema)
+        zip_code = row.pop("Zip Code", None)
         entity.id = context.make_slug(sam_number)
+        if agency in ("HHS", "OPM"):
+            id_name = h.make_name(
+                full=row.get("Name"),
+                first_name=row.get("First"),
+                middle_name=row.get("Middle"),
+                last_name=row.get("Last"),
+            )
+            id_zip = zip_code
+            if id_zip is not None and len(id_zip) > 5:
+                id_zip = id_zip[:5]
+            entity.id = context.make_slug(
+                id_name,
+                id_zip,
+                row.get("City"),
+                strict=False,
+                prefix="us-fed-excl",
+            )
+
+        if entity.id is None:
+            context.log.warning(
+                "No id for entity",
+                sam_number=sam_number,
+                name=row.get("Name"),
+            )
+            continue
+
+        if entity.id in schemata and not entity.schema.is_a(schemata[entity.id]):
+            context.log.warning(
+                "Schema mismatch",
+                entity_id=entity.id,
+                sam_number=sam_number,
+                name=row.get("Name"),
+                schema=entity.schema.name,
+                prev_schema=schemata[entity.id],
+            )
+            continue
+        schemata[entity.id] = entity.schema.name
+
         creation_date = parse_date(row.pop("Creation_Date", None))
         entity.add("createdAt", creation_date)
         entity.add("topics", "debarment")
         entity.add("notes", row.pop("Cross-Reference", None))
         entity.add_cast(
-            "Ogranization",
+            "Organization",
             "registrationNumber",
             row.pop("Unique Entity ID", None),
         )
@@ -83,20 +130,17 @@ def crawl(context: Context) -> None:
             street2=row.pop("Address 2", None),
             # street3=row.pop("Address 3", None),
             city=row.pop("City", None),
-            postal_code=row.pop("Zip Code", None),
+            postal_code=zip_code,
             country=row.pop("Country", None),
             state=row.pop("State / Province", None),
         )
         h.copy_address(entity, address)
         # h.apply_address(context, entity, address)
 
-        agency = row.pop("Excluding Agency")
-        if agency == "TREAS-OFAC":
-            # cf. us_ofac_sdn, us_ofac_cons
-            continue
         sanction = h.make_sanction(context, entity, key=agency)
         if agency is not None and len(agency):
             sanction.set("authority", agency)
+            # entity.set("program", agency)
         sanction.add("authorityId", sam_number)
         sanction.add("program", row.pop("Exclusion Program"))
         sanction.add("provisions", row.pop("Exclusion Type"))
@@ -105,18 +149,23 @@ def crawl(context: Context) -> None:
         sanction.add("endDate", parse_date(row.pop("Termination Date")))
         sanction.add("summary", row.pop("Additional Comments", None))
 
-        # The NPI (National Provider Identifier) is a unique identification number
-        # for covered health care providers. It is an optional field for exclusion
-        # records.
-        row.pop("NPI", None)
+        npi = row.pop("NPI", None)
+        if npi is not None and len(npi):
+            entity.add("description", f"NPI: {npi}")
 
-        row.pop("CT Code", None)
-        row.pop("Open Data Flag")
-
-        # Commercial And Government Entity (CAGE) Code
-        row.pop("CAGE", None)
-
-        context.audit_data(row)
+        context.audit_data(
+            row,
+            ignore=[
+                "CT Code",
+                "Open Data Flag",
+                # The NPI (National Provider Identifier) is a unique identification number
+                # for covered health care providers. It is an optional field for exclusion
+                # records.
+                "NPI",
+                # Commercial And Government Entity (CAGE) Code
+                "CAGE",
+            ],
+        )
         context.emit(sanction)
         context.emit(entity, target=True)
     # print(data_url)

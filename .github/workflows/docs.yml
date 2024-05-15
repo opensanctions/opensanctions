@@ -27,6 +27,7 @@ jobs:
           sudo apt-get install -y -qq libicu-dev
       - uses: actions/setup-python@v5
         with:
+          python-version: "3.11"
           cache: 'pip'
       - name: Install requirements
         working-directory: zavod
@@ -35,7 +36,7 @@ jobs:
           pip install --no-cache-dir -q -e ".[docs]"
       - name: Setup Pages
         id: pages
-        uses: actions/configure-pages@v4
+        uses: actions/configure-pages@v5
       - name: Build with mkdocs
         working-directory: zavod
         run: mkdocs build -c -d site

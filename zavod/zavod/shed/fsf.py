@@ -4,6 +4,7 @@ from banal import as_bool
 from typing import Optional
 from prefixdate import parse_parts
 from followthemoney.types import registry
+from rigour.langs import iso_639_alpha3
 
 from zavod import Context, Entity
 from zavod import helpers as h
@@ -83,9 +84,31 @@ def parse_entry(context: Context, entry: Element) -> None:
     entity.add("notes", h.clean_note(entry.findtext("./remark")))
     entity.add("topics", "sanction")
     parse_sanctions(context, entity, entry)
+    # context.inspect(entry)
 
     for name in entry.findall("./nameAlias"):
         is_weak = not as_bool(name.get("strong"))
+        remark = name.findtext("./remark")
+        if remark is not None:
+            # context.inspect(name)
+            lremark = remark.lower()
+            if "low quality" in lremark or "lo quality" in lremark:
+                is_weak = True
+                remark = None
+            elif "ood quality" in lremark or "god quality" in lremark:
+                remark = None
+            elif "high quality" in lremark:
+                remark = None
+            elif "quality" in lremark:
+                context.log.warning("Unknown quality", remark=remark)
+            elif "alias" in lremark:
+                context.log.warning("Unknown alias remark", remark=remark)
+            entity.add("notes", remark, quiet=True)
+        lang2 = name.get("nameLanguage")
+        lang = iso_639_alpha3(lang2) if lang2 else None
+        if lang is None and lang2 is not None and len(lang2):
+            context.log.warning("Unknown language", lang=lang2)
+            continue
         h.apply_name(
             entity,
             full=name.get("wholeName"),
@@ -94,10 +117,11 @@ def parse_entry(context: Context, entry: Element) -> None:
             last_name=name.get("lastName"),
             is_weak=is_weak,
             quiet=True,
+            lang=lang,
         )
-        entity.add("title", name.get("title"), quiet=True)
-        entity.add("position", name.get("function"), quiet=True)
-        entity.add("gender", name.get("gender"), quiet=True)
+        entity.add("title", name.get("title"), quiet=True, lang=lang)
+        entity.add("position", name.get("function"), quiet=True, lang=lang)
+        entity.add("gender", name.get("gender"), quiet=True, lang=lang)
 
     for node in entry.findall("./identification"):
         doc_type = node.get("identificationTypeCode")
@@ -131,8 +155,8 @@ def parse_entry(context: Context, entry: Element) -> None:
             )
             if passport is not None:
                 passport.add("number", latin_number)
-                for remark in node.findall("./remark"):
-                    passport.add("summary", remark.text)
+                for remark_node in node.findall("./remark"):
+                    passport.add("summary", remark_node.text)
                 context.emit(passport)
 
     for node in entry.findall("./address"):
@@ -145,13 +169,14 @@ def parse_entry(context: Context, entry: Element) -> None:
             elif child.tag == "remark":
                 entity.add("notes", child.text)
             elif child.tag == "contactInfo":
-                prop = context.lookup_value("contact_info", child.get("key"))
-                if prop is None:
+                res = context.lookup("contact_info", child.get("key"))
+                if res is None:
                     context.log.warning("Unknown contact info", node=child)
                 else:
-                    values = h.multi_split(child.get("value"), [",", ";"])
-                    values = [v.strip() for v in values]
-                    entity.add(prop, values)
+                    if res.prop is not None:
+                        values = h.multi_split(child.get("value"), [",", ";"])
+                        values = [v.strip() for v in values]
+                        entity.add(res.prop, values)
             else:
                 context.log.warning("Unknown address component", node=child)
 

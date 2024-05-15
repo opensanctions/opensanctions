@@ -1,6 +1,7 @@
 title: RuPEP Public Database of PEPs in Russia and Belarus
 entry_point: crawler.py
 prefix: rupep
+disabled: true
 coverage:
   frequency: never
   start: 2022-02-25
@@ -9,7 +10,7 @@ deploy:
   schedule: "@weekly"
   memory: "2000Mi"
   cpu: "500m"
-load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+# load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 ci_test: false
 exports:
   - statistics.json
@@ -37,6 +38,10 @@ description: |
 
   **Update (2021-01-18):** We’ve stopped updating the RuPEP data while the RuPEP
   team is re-launching its product and its commercial licensing strategy.
+
+  **WARNING (2024-04-01):** The RuPEP dataset will be removed from OpenSanctions
+  on April 13, 2024. If you want to use the dataset after that date, please contact
+  the RuPEP team directly.
 publisher:
   name: RuPEP
   description: |

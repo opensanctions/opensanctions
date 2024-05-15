@@ -1,0 +1,30 @@
+title: New Zealand Designated Terrorist Entities
+entry_point: crawler.py
+prefix: nz-terr
+coverage:
+  frequency: daily
+  start: 2024-04-24
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Individuals and entities that have been designated terrorists by the New Zealand government.
+description: |
+  This dataset comprises organizations sanctioned by the government of New Zealand
+  in support of UN Security Council Resolution 1373.
+  
+  In line with its UN Security Council commitments, New Zealand also lists
+  organizations and individuals designated under UNSC
+  [Resolutions 1267/1989/2253 and 1988](https://www.police.govt.nz/advice/personal-community/counterterrorism/designated-entities/lists-associated-with-resolutions-1267-1989-2253-1988)
+  but these have not been repeated in this dataset.
+publisher:
+  name: New Zealand Police
+  description: |
+    New Zealand Police delivers services that ensure people can be safe and feel
+    safe in their homes, on our roads and in their communities.
+  url: https://www.police.govt.nz
+  official: true
+  country: "nz"
+url: "https://www.police.govt.nz/advice/personal-community/counterterrorism/designated-entities"
+data:
+  url: https://www.police.govt.nz/advice/personal-community/counterterrorism/designated-entities/lists-associated-with-resolution-1373
+  format: HTML
+  lang: eng

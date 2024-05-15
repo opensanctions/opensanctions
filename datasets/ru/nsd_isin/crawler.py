@@ -6,6 +6,7 @@ from urllib.parse import urljoin
 from requests.exceptions import RequestException
 
 from zavod import Context
+from zavod import helpers as h
 
 MONTHS = {
     "сентября": "Sep",
@@ -74,25 +75,23 @@ def crawl_item(context: Context, url: str):
 
         values[result.entity][result.prop].append(value)
 
-    isin_code = first(values["security"].get("isin"))
+    isin_code = first(values["security"].get("isin", []))
     if isin_code is None:
         context.log.warn("No ISIN code on page", url=url)
         return
-    security = context.make("Security")
-    security.id = context.make_slug(isin_code)
+    security = h.make_security(context, isin_code)
     security.add("sourceUrl", url)
-    security.add("country", "ru")
     security.add("topics", "sanction")
     for prop, prop_val in values["security"].items():
         security.add(prop, prop_val)
     context.emit(security, target=True)
 
     issuer = context.make("LegalEntity")
-    inn_code = first(values["issuer"].get("innCode"))
+    inn_code = first(values["issuer"].get("innCode", []))
     if inn_code is not None:
         issuer.id = f"ru-inn-{inn_code}"
     else:
-        issuer_name = first(values["issuer"].get("name"))
+        issuer_name = first(values["issuer"].get("name", []))
         if issuer_name is None:
             return
         issuer.id = context.make_id(isin_code, issuer_name)

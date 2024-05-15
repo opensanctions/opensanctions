@@ -1,3 +1,4 @@
+from typing import Optional, List
 from pantomime.types import XML
 
 from zavod import Context
@@ -14,11 +15,12 @@ CATEGORY1_EXPORT = "terrorism-financiers-source.xml"
 CATEGORY2_EXPORT = "terrorists-source.xml"
 
 
-def added_date_from_note(text: str) -> str | None:
+def added_date_from_note(text: str) -> Optional[List[str]]:
     # "Added from"
     if text and text.startswith("включен от"):
         start_date = text.replace("включен от ", "").strip()
         return h.parse_date(start_date, FORMATS)
+    return None
 
 
 def make_entity(context: Context, el, schema, entity_id, topics, program):
@@ -76,8 +78,7 @@ def crawl_financiers(context: Context):
             names = el.findtext(tag)
             if names is None:
                 continue
-            names = names.split("; ")
-            entity.add("name", names)
+            entity.add("name", names.split("; "))
         context.emit(entity, target=True)
 
 

@@ -1,0 +1,44 @@
+title: "US Special Legislative Exclusions"
+entry_point: crawler.py
+prefix: us-leg
+coverage:
+  frequency: never
+  start: 2024-05-02
+  end: 2024-05-02
+deploy:
+  schedule: "@monthly"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >-
+  A list of companies whose products and/or services are excluded from
+  procurement by acts of Congress
+description: |
+  This dataset lists entities named in legislation passed by the U.S. Congress to be
+  excluded from procurement in specific circumstances.
+
+  Section 889 of the [John S. McCain National Defense Authorization Act for Fiscal
+  Year 2019 (Public Law 115 - 232)](https://www.congress.gov/115/plaws/publ232/PLAW-115publ232.pdf)
+  lists a number of entities from whom specific goods or services may not be
+  procured by executive agencies. The same restrictions apply to to their subsidiaries
+  and affiliates.
+
+  Section 5949 of the [James M. Inhofe National Defense Authorization Act for Fiscal Year 202 (Public Law 117-263)](https://www.congress.gov/117/bills/hr7776/BILLS-117hr7776enr.pdf)
+  lists a number of entities from whom specific goods or services may not be
+  procured by executive agencies for use in critical systems. The same restrictions
+  apply to to their subsidiaries, successors, and affiliates.
+
+  Additional pieces of legislation may be added to this dataset from time to time.
+
+  **This dataset is manually maintained and not automatically updated with new legislation.**
+publisher:
+  name: U.S. Congress
+  description: >
+    The United States Congress is the legislature of the federal government of the
+    United States.
+  country: us
+  url: https://www.congress.gov/
+  official: true
+url: https://docs.google.com/spreadsheets/d/18p4GLexZuK0XHZFOXXdSCreVVtxf3H0ERwlTEbQJmdo/edit#gid=0
+data:
+  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vSVatiUNMn-TatTYOQhYOPbEBRBwmoBG6LtaJklPPzLju1x-qrJxxBlsDwuis3IyKz77dHp3xvvnMRb/pub?gid=0&single=true&output=csv
+  format: CSV
+  lang: eng

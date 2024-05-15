@@ -39,6 +39,7 @@ url: https://www.sec.gov/enforce/public-alerts
 data:
   url: https://www.sec.gov/enforce/public-alerts
   format: HTML
+  lang: eng
 
 lookups:
   schema:

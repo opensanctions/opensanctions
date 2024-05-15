@@ -73,11 +73,17 @@ lookups:
       - match: enterprise
         value: Organization
   contact_info:
-    map:
-      PHONE: phone
-      FAX: phone
-      EMAIL: email
-      WEB: website
+    options:
+      - match: PHONE
+        prop: phone
+      - match: FAX
+        prop: phone
+      - match: EMAIL
+        prop: email
+      - match: WEB
+        prop: website
+      - match: EMAILjur@skb-turbina.comPHONE+7 (351) 7751037WEBhttps://www.skb-turbina.com/
+        prop: null
   identification_type:
     options:
       - match:

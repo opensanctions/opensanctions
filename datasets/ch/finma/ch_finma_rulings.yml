@@ -7,9 +7,9 @@ coverage:
 deploy:
   memory: 1500Mi
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: |
+summary: >-
   Switzerland's financial regulator maintains and publishes final
-  rulings naming those involved in financial misconduct.
+  rulings naming those involved in financial misconduct
 description: |
   > Article 34 FINMASA gives FINMA the power to publish all or part of
   > its final rulings on serious violations of supervisory law, including

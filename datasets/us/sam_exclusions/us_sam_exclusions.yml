@@ -34,6 +34,18 @@ url: https://sam.gov/data-services/Exclusions/Public%20V2?privacy=Public
 data:
   url: "https://sam.gov/api/prod/fileextractservices/v1/api/listfiles?random=RANDOM&domain=Exclusions/Public%20V2&privacy=Public"
   format: CSV
+  lang: eng
+
+assertions:
+  min:
+    schema_entities:
+      Person: 88000
+      Company: 5900
+      LegalEntity: 1500
+    countries: 90
+  max:
+    schema_entities:
+      Person: 100000
 
 lookups:
   classifications:
@@ -49,6 +61,50 @@ lookups:
         value: LegalEntity
       - match: Vessel
         value: Vessel
+  schema.override:
+    options:
+      - match:
+          - S4MR3P6CX
+          - S4MR3R1J3
+          - S4MR3R3JF
+          - S4MR478NL
+          - S4MR478NR
+          - S4MR497ZT
+          - S4MR49988
+          - S4MR4998D
+          - S4MR4999H
+          - S4MR4JGN1
+          - S4MR52R80
+          - S4MR52SM0
+          - S4MR555HB
+          - S4MR5W235
+          - S4MR5XN55
+          - S4MR5XYCY
+          - S4MR5Y9D6
+          - S4MR64R24
+          - S4MR7WR4R
+          - S4MR95R1F
+          - S4MR95R1G
+          - S4MRB1H8P
+          - S4MRB1H8Y
+          - S4MRB1HC1
+          - S4MRB1HC6
+          - S4MRCPCSH
+          - S4MRDWHP1
+          - S4MRDWHPT
+          - S4MRDWHPY
+          - S4MRG9QY7
+          - S4MRH473N
+          - S4MRHTJFR
+          - S4MRJFY6F
+          - S4MRN6RML
+          - S4MRN6RMN
+          - S4MRN6RMQ
+        value: Company
+      - match:
+          - S4MRFLWH0
+          - S4MRFLTRS
+        value: Person
   type.address:
     lowercase: true
     options:

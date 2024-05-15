@@ -2,12 +2,12 @@ title: French Mayors
 prefix: fr-maires
 url: https://www.data.gouv.fr/fr/datasets/repertoire-national-des-elus-1/
 coverage:
-  frequency: monthly
+  frequency: weekly
   start: 2024-03-13
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 entry_point: crawler.py
 summary: >-
-  Mayors of French municipalities.
+  Mayors of French cities, towns, and arrondissements
 description: |
   This dataset lists elected mayors of French cities, towns, and
   boroughs (arrondissements).

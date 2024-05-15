@@ -20,7 +20,17 @@ publisher:
     sister projects including Wikipedia, Wikivoyage, Wiktionary, Wikisource, and others.
   url: https://www.wikidata.org
   official: false
-url: https://docs.google.com/spreadsheets/d/1Yp51aX3tU1CezqaQZH-V2R_7P8gp82pQq2rzwumA2wU/edit#gid=0
+url: https://docs.google.com/spreadsheets/d/1UyVYpg8jF6q4zRGGlIu_SaEe_QKqfhNcEHG5KurL_r8/edit#gid=0
 data:
-  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRJGZGTZ1EZ-FSghkXqHQFNmWlPC6MkruipeSvzji4xtW_jXLay_f3px7xl_SrJII0ARqeGqxzfAF4J/pub?gid=0&single=true&output=csv&
+  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vQsmLFolFMG4eKTx9rEoJEoZEYjOlO1Vorw_wCc4rCEZCbC_0eNHGjgg57WjBDghnsQuIFRsuUTNyfu/pub?gid=0&output=csv
   format: CSV
+
+assertions:
+  min:
+    schema_entities:
+      Person: 131
+      Organization: 2
+  max:
+    schema_entities:
+      Person: 135
+      Organization: 4

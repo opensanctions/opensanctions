@@ -44,11 +44,11 @@ def oc_url(reg_nr: str) -> str:
     return f"https://opencorporates.com/companies/lv/{reg_nr}"
 
 
-def make_bank_account(context: Context, row: Item):
-    account = context.make("BankAccount")
-    account.id = context.make_slug("iban", row["sepa"])
-    account.add("iban", row["sepa"])
-    return account
+# def make_bank_account(context: Context, row: Item):
+#     account = context.make("BankAccount")
+#     account.id = context.make_slug("iban", row["sepa"])
+#     account.add("iban", row["sepa"])
+#     return account
 
 
 def parse_register(context: Context, row: Item):
@@ -65,16 +65,16 @@ def parse_register(context: Context, row: Item):
     company.add("dissolutionDate", row["terminated"])
     company.add("status", row["closed"])
 
-    if row["sepa"]:
-        bankAccount = make_bank_account(context, row)
-        ownership = context.make("Ownership")
-        ownership.id = context.make_slug(
-            "bankaccountholder", company.id, bankAccount.id
-        )
-        ownership.add("owner", company)
-        ownership.add("asset", bankAccount)
-        context.emit(bankAccount)
-        context.emit(ownership)
+    # if row["sepa"]:
+    #     bankAccount = make_bank_account(context, row)
+    #     ownership = context.make("Ownership")
+    #     ownership.id = context.make_slug(
+    #         "bankaccountholder", company.id, bankAccount.id
+    #     )
+    #     ownership.add("owner", company)
+    #     ownership.add("asset", bankAccount)
+    #     context.emit(bankAccount)
+    #     context.emit(ownership)
 
     context.emit(company)
 

@@ -31,6 +31,7 @@ url: https://www.isin.ru/ru/ru_isin/news_c/
 data:
   url: https://www.isin.ru/ru/ru_isin/news_c/
   format: HTML
+  lang: rus
 
 lookups:
   fields:

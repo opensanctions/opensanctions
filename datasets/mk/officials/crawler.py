@@ -11,6 +11,16 @@ IGNORE_COLUMNS = [
 ]
 
 
+def make_position_name(position, institution) -> str:
+    if position is None and institution is not None:
+        return institution.strip()
+    if position is not None and institution is None:
+        return position.strip()
+    if position and institution:
+        return f"{position.strip()}, {institution.strip()}"
+    raise ValueError("No position or institution")
+
+
 def crawl_row(context: Context, row: Dict[str, str]):
     person = context.make("Person")
 
@@ -30,7 +40,10 @@ def crawl_row(context: Context, row: Dict[str, str]):
     )
 
     position = h.make_position(
-        context, f"{position_name}, {position_institution}", country="mk", lang="mkd"
+        context,
+        make_position_name(position_name, position_institution),
+        country="mk",
+        lang="mkd",
     )
 
     categorisation = categorise(context, position, is_pep=True)

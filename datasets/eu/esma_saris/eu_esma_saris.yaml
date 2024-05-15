@@ -5,14 +5,14 @@ coverage:
   frequency: daily
   start: 2024-03-12
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: |
+summary: >-
   List of suspended and removed financial instruments, as published by the
-  European Securities and Markets Authority (ESMA). Where possible the listing
-  includes the suspending authority.
+  European Securities and Markets Authority (ESMA).
 description: |
   Register on suspensions and removals of financial instruments from trading,
-  according to articles 32 and 52 of Directive 2014/65/EU (MIFID II). 
-  
+  according to articles 32 and 52 of Directive 2014/65/EU (MIFID II). Where
+  possible, the listing includes the suspending authority.
+
   > ESMA is responsible only for the accurate reproduction of the relevant part
   > of the notifications received from the national competent authorities. 
   > ESMA does not provide any representation or warranty that the content of the
@@ -24,7 +24,7 @@ description: |
   > Please note that following this/these suspension/s, other market/s or
   > national competent authority/ies may suspend the same or related financial
   > instruments as well, according to Articles 32 and 52 MiFID. 
-  > No information about those follow-up suspensions will be displayed on this website. 
+  > No information about those follow-up suspensions will be displayed on this website.
 publisher:
   name: European Securities and Markets Authority
   description: |
@@ -38,3 +38,28 @@ url: https://registers.esma.europa.eu/publication/searchRegister?core=esma_regis
 data:
   url: https://registers.esma.europa.eu/publication/searchRegister/doExportSarisCsv?core=esma_registers_saris_new
   format: CSV
+
+lookups:
+  reason_topic:
+    options:
+      - match:
+          - "01. Inside Info"
+          - "02. Market Abuse"
+          - "4_OLD_Suspected market abuse"
+        value: "crime.fin"
+      - match:
+          - "03. Other suspension"
+          - "04. Take-over bid"
+          - "1_OLD_Market management arrangements"
+          - "2_OLD_Undisclosed price sensitive information (awaiting public release)"
+          - "3_OLD_Issuers failure to disclose periodic information on time"
+          - "5_OLD_Other noncompliance with rules of regulated market"
+          - "6_OLD_Filling of tender offers and related events"
+          - "7_OLD_Other disorderly trading conditions"
+          - "Removal"
+          - null
+        value: "poi"
+      - match:
+          - "Trading ban - EU sanctions"
+          - "Trading ban - indirect effect of sanctions"
+        value: "sanction"

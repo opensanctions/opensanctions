@@ -1,4 +1,4 @@
-title: Mexico's governors
+title: Mexico governors
 entry_point: crawler.py
 prefix: mx-gov
 coverage:
@@ -6,22 +6,24 @@ coverage:
   start: "2024-02-03"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  Current and former state governors from Mexico
+  Current and former governors of Mexico states and the Head of Government of Mexico City.
 description: |
   This dataset includes information about current and
-  former state governors from Mexico. Mexico is a
-  federation comprising 32 states, each with its own
-  governor. The Head of Government of Mexico City is
-  not considered a governorship but is included in this list.
-  State governors serve six-year terms, and, similar to
-  the President of Mexico, they are prohibited from
-  seeking reelection. Individuals who have previously
+  former state governors from Mexico.
+
+  Mexico is a federation comprising 32 states, each with its own governor. The
+  Head of Government of Mexico City is not considered a governorship but is
+  included in this list.
+
+  State governors serve six-year terms, and, similar to the President of Mexico,
+  they are prohibited from seeking reelection. Individuals who have previously
   held a governorship are ineligible to run for or serve in the post again.
 publisher:
   name: Conferencia Nacional de Gobernadores
   description: National Governors' Conference
   url: https://www.conago.org.mx
   country: "mx"
+  official: false
 url: "https://www.conago.org.mx/gobernadores/historicos"
 data:
   url: https://www.conago.org.mx/gobernadores/historicos

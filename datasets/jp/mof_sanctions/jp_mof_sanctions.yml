@@ -7,7 +7,7 @@ coverage:
 deploy:
   schedule: "0 */3 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: |
+summary: >-
   Sanctions imposed by Japan under its Foreign Exchange and Foreign Trade Law.
 description: |
   > The Foreign Exchange Law is based on the free conduct of foreign transactions,
@@ -219,7 +219,7 @@ lookups:
     lowercase: true
     normalize: true
     options:
-      - match: 
+      - match:
           - Commune of Bouhechana, Daïra de Lakhezara, Guelma, Algeria
         value: Algeria
       - match: 米国。また、シリア国籍も所持していると見られる。
@@ -246,6 +246,8 @@ lookups:
           - Jordan
       - match: ハイチ共和国
         value: China
+      - match: タンザニア共和国
+        value: tz
   type.date:
     options:
       - match:

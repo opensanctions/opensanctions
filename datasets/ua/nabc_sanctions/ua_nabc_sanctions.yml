@@ -15,14 +15,14 @@ summary: >
   Ukrainian anti-corruption agency.
 description: |
   **Update 2024-03-25**: The dataset has been discontinued and merged with the
-  [State Sanctions Register](/datasets/ua_nsdc_sanctions/).
+  [State Sanctions Register](/datasets/ua_nsdc_sanctions/). A [Ukrainian
+  newspaper](https://www.eurointegration.com.ua/articles/2024/03/21/7182170/) 
+  explains that this is the result of Western pressure.
 
   > The War and Sanctions website engages citizens in the sanctioning process, and
   > gives people power to hold accountable the people fueling Russia's war against
   > Ukraine. It follows in the epistolary tradition of the classic novel that shares
   > a similar name.
-
-  (That'sa pretty amazing mission statement for a government project!)
 
   The dataset contains information on individuals and entities subject to sanctions
   as well information on individuals and entities that are likely to be subjected to

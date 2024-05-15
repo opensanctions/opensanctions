@@ -5,7 +5,7 @@ coverage:
   frequency: daily
   start: 2022-07-12
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: |
+summary: >
   Domestic list of natural and legal persons subject to sanctions
 description: |
   This sanctions list is published by the Government of Azerbaijan. For context, 

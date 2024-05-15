@@ -26,5 +26,14 @@ publisher:
   country: ru
 url: https://en.wikipedia.org/wiki/List_of_Russian_billionaires
 data:
-  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRJGZGTZ1EZ-FSghkXqHQFNmWlPC6MkruipeSvzji4xtW_jXLay_f3px7xl_SrJII0ARqeGqxzfAF4J/pub?gid=209370162&single=true&output=csv
+  # OpenSanctions Wikidata Curated Entities
+  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vQsmLFolFMG4eKTx9rEoJEoZEYjOlO1Vorw_wCc4rCEZCbC_0eNHGjgg57WjBDghnsQuIFRsuUTNyfu/pub?gid=451837843&output=csv
   format: CSV
+
+assertions:
+  min:
+    schema_entities:
+      Person: 101
+  max:
+    schema_entities:
+      Person: 105
