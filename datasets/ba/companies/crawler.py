@@ -403,7 +403,7 @@ def crawl_details(context: Context, record: Dict[str, str]) -> None:
             if "dioničari" in comp["name"].lower():
                 context.log.warning(
                     "Possible note instead of name (containing dioničari)",
-                    name=name,
+                    name=comp["name"],
                 )
 
             founder_company = context.make("LegalEntity")
