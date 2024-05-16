@@ -8,6 +8,5 @@ summary: >
 description: |
   New datasets come here to see if they behave themselves in the bigger system
   before being moved to a collection under default.
-children:
-  - my_aob_sanctions
+children: []
 ci_test: false
