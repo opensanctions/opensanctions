@@ -40,9 +40,8 @@ def test_validate_dataset():
     result = runner.invoke(validate, ["/dev/null"])
     assert result.exit_code != 0, result.output
     result = runner.invoke(validate, [DATASET_1_YML.as_posix()])
-    assert result.exit_code == 0, result.output
-    result = runner.invoke(validate, [DATASET_3_YML.as_posix()])
     assert result.exit_code != 0, result.output
+    assert "No entities validated" in result.output, result.output
     shutil.rmtree(settings.DATA_PATH)
 
 
@@ -86,6 +85,14 @@ def test_run_dataset(testdataset1: Dataset):
     assert latest_path.exists()
     assert latest_path.joinpath("index.json").exists()
     assert latest_path.joinpath("entities.ftm.json").exists()
+    shutil.rmtree(settings.DATA_PATH)
+
+
+def test_run_validation_failed(testdataset3: Dataset):
+    runner = CliRunner()
+    result = runner.invoke(run, [DATASET_3_YML.as_posix()])
+    assert result.exit_code != 0, result.output
+    assert "Assertion failed for value" in result.output, result.output
     shutil.rmtree(settings.DATA_PATH)
 
 
