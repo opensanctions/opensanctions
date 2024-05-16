@@ -12,6 +12,11 @@ from normality import slugify
 from zavod import Context
 from zavod import helpers as h
 
+# On 2024-05-16 we saw 19017.
+# It seems to always be the same companies, so they're probably deleted but
+# not serving 404, or corrupt or something.
+EXPECTED_FAILS = 20000
+
 KOSOVO_REGISTRY_KEY = os.environ.get("OPENSANCTIONS_KOSOVO_REGISTRY_KEY", "")
 assert (
     KOSOVO_REGISTRY_KEY
@@ -161,7 +166,7 @@ def fetch_company(context: Context, company_id: int) -> int:
         if status_eng:
             entity.add("status", status_eng, lang="eng")
         elif status_sqi:
-            context.log.info("Unknown status: ", status=status_sqi)
+            context.log.info("Unknown status", status=status_sqi)
             entity.add("status", status_sqi, lang="sqi")
 
         if company.get("DataRegjistrimit"):
@@ -272,7 +277,5 @@ def crawl(context: Context):
         if not successful:
             fails += 1
 
-    # we don't know how many will fail, but we know a bunch always respond HTTP 500.
-    # Let's start with 1000 and see.
-    assert fails < 1000, fails
+    assert fails < EXPECTED_FAILS, ("More fails than expected", fails)
     context.log.info(f"Finished with {fails} fails")
