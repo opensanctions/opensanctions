@@ -1,4 +1,4 @@
-from typing import List, Type
+from typing import List, Set, Type
 from followthemoney.types import registry
 
 from zavod.context import Context
@@ -10,6 +10,7 @@ from zavod.validators.common import BaseValidator
 
 
 class DanglingReferencesValidator(BaseValidator):
+    """Warns if an entity references an entity that is not in the store."""
 
     def feed(self, entity: Entity) -> None:
         for prop in entity.iterprops():
@@ -26,6 +27,7 @@ class DanglingReferencesValidator(BaseValidator):
 
 # FollowTheMoney prevents direct self-references so we check 1 level deep
 class SelfReferenceValidator(BaseValidator):
+    """Warns if an entity references itself via one adjacent entity."""
 
     def feed(self, entity: Entity) -> None:
         if not entity.schema.is_a("Thing"):
@@ -43,6 +45,7 @@ class SelfReferenceValidator(BaseValidator):
 
 
 class TopiclessTargetValidator(BaseValidator):
+    """Warns if a target entity has no topics."""
 
     def feed(self, entity: Entity) -> None:
         if entity.target and not entity.get("topics"):
@@ -51,15 +54,36 @@ class TopiclessTargetValidator(BaseValidator):
             )
 
 
+class NotEmptyValidator(BaseValidator):
+    """Aborts if no entities are validated."""
+
+    def __init__(self, context: Context, view: View):
+        super().__init__(context, view)
+        self.abort = True
+
+    def feed(self, entity: Entity) -> None:
+        self.abort = False
+
+    def finish(self) -> None:
+        if self.abort:
+            self.context.log.error("No entities validated")
+
+
 VALIDATORS: List[Type[BaseValidator]] = [
     DanglingReferencesValidator,
     SelfReferenceValidator,
     TopiclessTargetValidator,
     AssertionsValidator,
+    NotEmptyValidator,
 ]
 
 
-def validate_dataset(dataset: Dataset, view: View) -> None:
+def validate_dataset(dataset: Dataset, view: View) -> bool:
+    """
+    Run all validators on the given view.
+
+    Returns True if publication should be aborted.
+    """
     try:
         context = Context(dataset)
         context.begin(clear=False)
@@ -72,7 +96,13 @@ def validate_dataset(dataset: Dataset, view: View) -> None:
             for validator in validators:
                 validator.feed(entity)
 
+        abort = False
         for validator in validators:
             validator.finish()
+            if validator.abort:
+                abort = True
+
+        return abort
+
     finally:
         context.close()

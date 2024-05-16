@@ -57,10 +57,12 @@ def check_assertion(
 
 
 class AssertionsValidator(BaseValidator):
+    """Aborts if any dataset assertion fails."""
+
     def __init__(self, context: Context, view: View) -> None:
         super().__init__(context, view)
         self.stats = Statistics()
-        self.failed = False
+        self.abort = False
 
     def feed(self, entity: Entity) -> None:
         self.stats.observe(entity)
@@ -68,7 +70,7 @@ class AssertionsValidator(BaseValidator):
     def finish(self) -> None:
         for assertion in self.context.dataset.assertions:
             if not check_assertion(self.context, self.stats.as_dict(), assertion):
-                self.failed = True
-        
-        if self.failed:
-            raise RuntimeError("One or more assertions failed.")
+                self.abort = True
+
+        if self.abort:
+            self.context.log.error("One or more assertions failed.")
