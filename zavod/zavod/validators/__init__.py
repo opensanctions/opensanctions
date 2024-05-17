@@ -54,7 +54,7 @@ class TopiclessTargetValidator(BaseValidator):
             )
 
 
-class NotEmptyValidator(BaseValidator):
+class EmptyValidator(BaseValidator):
     """Aborts if no entities are validated."""
 
     def __init__(self, context: Context, view: View):
@@ -66,7 +66,7 @@ class NotEmptyValidator(BaseValidator):
 
     def finish(self) -> None:
         if self.abort:
-            self.context.log.error("No entities validated")
+            self.context.log.error("No entities validated.")
 
 
 VALIDATORS: List[Type[BaseValidator]] = [
@@ -74,7 +74,7 @@ VALIDATORS: List[Type[BaseValidator]] = [
     SelfReferenceValidator,
     TopiclessTargetValidator,
     AssertionsValidator,
-    NotEmptyValidator,
+    EmptyValidator,
 ]
 
 
