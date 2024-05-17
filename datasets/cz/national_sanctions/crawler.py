@@ -1,4 +1,4 @@
-from typing import Generator, cast, List
+from typing import Generator
 import openpyxl
 from openpyxl import load_workbook
 from pantomime.types import XLSX
