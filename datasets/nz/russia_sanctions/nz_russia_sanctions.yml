@@ -38,3 +38,5 @@ lookups:
         value: null
       - match: 45352
         value: 2023-03-02
+      - match: 45429
+        value: 2024-05-19
