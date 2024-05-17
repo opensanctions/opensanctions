@@ -1,4 +1,4 @@
-from typing import List, Set, Type
+from typing import List, Type
 from followthemoney.types import registry
 
 from zavod.context import Context

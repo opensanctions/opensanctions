@@ -1,5 +1,5 @@
 import json
-from zavod.logs import configure_logging, reset_logging
+from zavod.logs import configure_logging
 from zavod.archive import ISSUES_FILE, dataset_resource_path
 from zavod.context import Context
 from zavod.meta import Dataset
@@ -49,4 +49,3 @@ def test_issue_logger(testdataset1: Dataset):
     context = Context(testdataset1)
     context.begin(clear=True)
     assert len(list(context.issues.all())) == 0
-    reset_logging()
