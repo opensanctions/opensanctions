@@ -46,6 +46,8 @@ publisher:
   url: https://www.icij.org/about/
   official: false
 ci_test: false
+http:
+  retry_methods: [GET, POST]
 
 inputs:
   - ann_graph_topics

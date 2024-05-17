@@ -48,7 +48,9 @@ lookups:
         value: null
       - match: Special Economic Measures (Hamas Terrorist Attacks) Regulations
         value: PS
-      - match: Special Economic Measures (Extremist Settler Violence) Regulations
+      - match:
+          - Special Economic Measures (Extremist Settler Violence) Regulations
+          - Extremist Settler Violence
         value: IL
       - match: Hamas Terrorist Attacks
         value: PS
