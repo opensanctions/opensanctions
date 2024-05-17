@@ -24,7 +24,6 @@ url: "https://mzv.gov.cz/jnp/cz/zahranicni_vztahy/sankcni_politika/sankcni_sezna
 data:
   url: https://mzv.gov.cz/jnp/cz/zahranicni_vztahy/sankcni_politika/sankcni_seznam_cr/vnitrostatni_sankcni_seznam.html
   format: XLSX
-ci_test: false
 
 lookups:
   type.country:
