@@ -1,5 +1,4 @@
 from typing import Type
-import pytest
 from structlog.testing import capture_logs
 
 from zavod.context import Context

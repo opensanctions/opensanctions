@@ -1,4 +1,3 @@
-from typing import Optional
 from zavod.context import Context
 from zavod.store import View
 from zavod.entity import Entity
