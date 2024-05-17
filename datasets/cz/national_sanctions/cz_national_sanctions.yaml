@@ -27,19 +27,18 @@ data:
 ci_test: false
 
 lookups:
-  countries_names:
+  type.country:
     lowercase: true
     options:
-      - match: "Ruská federace"
-        names:
-          - Russia
-      - match: "dříve Ukrajina, dnes pravděpodobně Ruská federace"
-        names:
-          - Russia
-      - match: "Ukrajina, Stát Izrael"
-        names:
-          - Ukraine
-          - Israel
+      - match:
+          - "Ruská federace"
+          - dnes pravděpodobně Ruská federace
+        value: RU
+      - match:
+          - "dříve Ukrajina"
+          - "Ukrajina"
+        value: UA
+      - match: "Stát Izrael"
+        value: Israel
       - match: "Česká republika"
-        names:
-          - Czech Republic
+        value: Czech Republic
