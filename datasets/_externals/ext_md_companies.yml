@@ -26,6 +26,8 @@ publisher:
     The P.I. “Public Services Agency” is a holder of the basic state information resources.
   official: true
 ci_test: false
+http:
+  retry_methods: [GET, POST]
 
 inputs:
   - ann_graph_topics
