@@ -70,6 +70,10 @@ def configure_logging(level: int = logging.DEBUG) -> None:
     logger.addHandler(handler)
 
 
+def reset_logging():
+    structlog.reset_defaults()
+
+
 def get_logger(name: str) -> structlog.stdlib.BoundLogger:
     return get_raw_logger(name)
 
