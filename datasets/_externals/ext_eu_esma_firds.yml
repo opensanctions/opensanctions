@@ -34,6 +34,8 @@ data:
   url: https://registers.esma.europa.eu/publication/searchRegister/doRelativeSearch
   format: JSON
 ci_test: false
+http:
+  retry_methods: [GET, POST]
 
 inputs:
   - ann_graph_topics
