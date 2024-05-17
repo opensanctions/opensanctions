@@ -22,12 +22,11 @@ class DanglingReferencesValidator(BaseValidator):
                 self.context.log.warning(
                     f"{entity.id} property {prop.name} references missing id {other_id}"
                 )
-                self.fail = True
 
 
 # FollowTheMoney prevents direct self-references so we check 1 level deep
 class SelfReferenceValidator(BaseValidator):
-    """Warns if an entity references itself via one adjacent entity."""
+    """Info level log if an entity references itself via one adjacent entity."""
 
     def feed(self, entity: Entity) -> None:
         if not entity.schema.is_a("Thing"):
@@ -91,7 +90,7 @@ def validate_dataset(dataset: Dataset, view: View) -> bool:
         validators = [validator(context, view) for validator in VALIDATORS]
         for idx, entity in enumerate(view.entities()):
             if idx > 0 and idx % 10000 == 0:
-                context.log.info("Verified %s entities..." % idx, dataset=dataset.name)
+                context.log.info("Validated %s entities..." % idx, dataset=dataset.name)
 
             for validator in validators:
                 validator.feed(entity)
