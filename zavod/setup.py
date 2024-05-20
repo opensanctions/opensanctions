@@ -24,6 +24,8 @@ setup(
         "followthemoney == 3.6.*",
         "nomenklatura[leveldb] == 3.11.*",
         "plyvel == 1.5.1",
+        "redis == 5.0.1",
+        "fakeredis == 2.23.2",
         "rigour == 0.5.2",
         "datapatch >= 1.1,< 1.3",
         "fingerprints == 1.2.*",
