@@ -106,7 +106,7 @@ def parse_entry(context: Context, entry: Element) -> None:
                 remark = None
             elif "quality" in lremark:
                 context.log.warning("Unknown quality", remark=remark)
-            elif REGEX_LEADER_ALIAS.match(lremark):
+            elif REGEX_LEADER_ALIAS.search(lremark):
                 pass
             elif "alias" in lremark:
                 context.log.warning("Unknown alias remark", remark=remark)
