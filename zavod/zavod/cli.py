@@ -77,7 +77,7 @@ def validate(dataset_path: Path, clear: bool = False) -> None:
         view = get_view(dataset, external=False)
         validate_dataset(dataset, view)
     except Exception:
-        log.exception("Failed to validate %r" % dataset_path)
+        log.exception("Validation failed for %r" % dataset_path)
         sys.exit(1)
 
 
@@ -126,16 +126,23 @@ def run(
         log.info("Dataset is disabled, skipping: %s" % dataset.name)
         publish_failure(dataset, latest=latest)
         sys.exit(0)
+    # Crawl
     if dataset.entry_point is not None and not dataset.is_collection:
         try:
-            # Crawl
             crawl_dataset(dataset, dry_run=False)
-            # Validate
-            view = get_view(dataset, external=False)
-            validate_dataset(dataset, view)
         except RunFailedException:
             publish_failure(dataset, latest=latest)
             sys.exit(1)
+    # Validate
+    try:
+        clear_store(dataset)
+        view = get_view(dataset, external=False)
+        if not dataset.is_collection:
+            validate_dataset(dataset, view)
+    except Exception:
+        log.exception("Validation failed for %r" % dataset.name)
+        publish_failure(dataset, latest=latest)
+        sys.exit(1)
     # Export and Publish
     try:
         export_dataset(dataset, view)
