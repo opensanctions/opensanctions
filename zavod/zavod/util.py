@@ -7,6 +7,7 @@ import re
 
 log = logging.getLogger(__name__)
 ElementOrTree = Union[etree._Element, etree._ElementTree]
+MAX_ID_LENGTH = 200
 
 
 def join_slug(
@@ -14,7 +15,7 @@ def join_slug(
     prefix: Optional[str] = None,
     sep: str = "-",
     strict: bool = True,
-    max_len: int = 255
+    max_len: int = MAX_ID_LENGTH
 ) -> Optional[str]:
     sections = [slugify(p, sep=sep) for p in parts]
     if strict and None in sections:
@@ -46,12 +47,15 @@ def write_json(data: Dict[str, Any], fh: IO[bytes]) -> None:
 
 # https://stackoverflow.com/a/49146722/330558
 def remove_emoji(string: str) -> str:
-    emoji_pattern = re.compile("["
-                           u"\U0001F600-\U0001F64F"  # emoticons
-                           u"\U0001F300-\U0001F5FF"  # symbols & pictographs
-                           u"\U0001F680-\U0001F6FF"  # transport & map symbols
-                           u"\U0001F1E0-\U0001F1FF"  # flags (iOS)
-                           u"\U00002702-\U000027B0"
-                           u"\U000024C2-\U0001F251"
-                           "]+", flags=re.UNICODE)
-    return emoji_pattern.sub(r'', string)
+    emoji_pattern = re.compile(
+        "["
+        "\U0001F600-\U0001F64F"  # emoticons
+        "\U0001F300-\U0001F5FF"  # symbols & pictographs
+        "\U0001F680-\U0001F6FF"  # transport & map symbols
+        "\U0001F1E0-\U0001F1FF"  # flags (iOS)
+        "\U00002702-\U000027B0"
+        "\U000024C2-\U0001F251"
+        "]+",
+        flags=re.UNICODE,
+    )
+    return emoji_pattern.sub(r"", string)
