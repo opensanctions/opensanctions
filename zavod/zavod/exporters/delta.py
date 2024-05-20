@@ -30,8 +30,10 @@ class DeltaExporter(Exporter):
 
     def generate(self, previous: Optional[str]) -> Generator[Any, None, None]:
         if previous is None:
-            for add in self.view.entities():
-                yield {"op": "ADDED", "entity": add.to_dict()}
+            # The redis store doesn't offer a delta image, so we're doing
+            # a full export here.
+            for initial in self.view.entities():
+                yield {"op": "ADD", "entity": initial.to_dict()}
             return
         prev_hashes = f"delta:hash:{self.dataset.name}:{previous}"
         prev_entities = f"delta:ents:{self.dataset.name}:{previous}"
