@@ -78,6 +78,7 @@ def validate(dataset_path: Path, clear: bool = False) -> None:
         validate_dataset(dataset, view)
     except Exception:
         log.exception("Validation failed for %r" % dataset_path)
+        view.store.close()
         sys.exit(1)
 
 
@@ -142,6 +143,7 @@ def run(
     except Exception:
         log.exception("Validation failed for %r" % dataset.name)
         publish_failure(dataset, latest=latest)
+        view.store.close()
         sys.exit(1)
     # Export and Publish
     try:
