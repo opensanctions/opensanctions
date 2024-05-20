@@ -5,13 +5,9 @@ from zavod.meta.assertion import parse_assertions, Comparison, Metric
 
 CONFIG = {
     "min": {
-        "schema_entities": {
-            "Person": 1
-        },
+        "schema_entities": {"Person": 1},
     },
-    "max": {
-        "countries": 1
-    }
+    "max": {"countries": 1},
 }
 
 
@@ -36,12 +32,12 @@ def test_parse_assertions():
     config["min"]["schema_entities"] = 1
     with pytest.raises(Exception):
         list(parse_assertions(config))
-        
+
     config = deepcopy(CONFIG)
     config["min"]["schema_entities"]["Person"] = "foo"
     with pytest.raises(Exception):
         list(parse_assertions(config))
-        
+
     config = deepcopy(CONFIG)
     config["whatever"] = config.pop("min")
     with pytest.raises(ValueError):

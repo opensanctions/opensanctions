@@ -1,0 +1,29 @@
+entry_point: testentrypoint3
+title: Validation dataset for validation step
+prefix: td3
+hidden: true
+summary: >
+  This dataset is used to validate and test the OpenSanctions data processing pipeline validation step.
+description: |
+  **Do not include this data in production screening**
+
+  This dataset contains a series of fictional characters. It is used to test the proper
+  functioning of the OpenSanctions data delivery mechanism.
+publisher:
+  name: OpenSanctions
+  description: |
+    Manually created by the project team.
+  url: https://www.opensanctions.org
+  official: false
+url: https://github.com/opensanctions/opensanctions
+
+assertions:
+  min:
+    schema_entities:
+      Company: 10
+    country_entities:
+      de: 3
+    countries: 7
+  max:
+    country_entities:
+      de: 1
