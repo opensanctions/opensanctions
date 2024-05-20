@@ -1,7 +1,9 @@
 from typing import List, Type
 from followthemoney.types import registry
 
+from zavod.archive import dataset_data_path
 from zavod.context import Context
+from zavod.exc import RunFailedException
 from zavod.meta.dataset import Dataset
 from zavod.store import View
 from zavod.entity import Entity
@@ -77,7 +79,7 @@ VALIDATORS: List[Type[BaseValidator]] = [
 ]
 
 
-def validate_dataset(dataset: Dataset, view: View) -> bool:
+def validate_dataset(dataset: Dataset, view: View) -> None:
     """
     Run all validators on the given view.
 
@@ -86,6 +88,10 @@ def validate_dataset(dataset: Dataset, view: View) -> bool:
     try:
         context = Context(dataset)
         context.begin(clear=False)
+        context.log.info(
+            "Validating dataset",
+            dataset=dataset_data_path(dataset.name),
+        )
 
         validators = [validator(context, view) for validator in VALIDATORS]
         for idx, entity in enumerate(view.entities()):
@@ -101,7 +107,8 @@ def validate_dataset(dataset: Dataset, view: View) -> bool:
             if validator.abort:
                 abort = True
 
-        return abort
+        if abort:
+            raise RunFailedException("Validation caused abort.")
 
     finally:
         context.close()
