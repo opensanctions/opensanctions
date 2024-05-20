@@ -3,8 +3,21 @@ from urllib.parse import urljoin
 import re
 import datetime
 
+import requests
+
 from zavod import Context
 
+# It looks like a colon in the company name might break their site, but
+# AL YAHMADI za razvoj i projekte Društvo sa ograničenom odgovornošću Sarajevo
+# Na engleskom jeziku: AL YAHMADI for development and projects Limited Liability Company Sarajevo
+# https://bizreg.pravosudje.ba/pls/apex/f?p=186:13:3129288602127392::NO:RP,13:P13_P_POS_ID,P13_XMBS,P13_NAZIV:11563166%2C65-01-0620-17%2C%5CAL%20YAHMADI%20za%20razvoj%20i%20projekte%20Dru%C5%A1tvo%20sa%20ograni%C4%8Denom%20odgovorno%C5%A1%C4%87u%20Sarajevo%0D%0ANa%20engleskom%20jeziku:%20AL%20YAHMADI%20for%20development%20and%20projects%20Limited%20Liability%20Company%20Sarajevo\&cs=3819C1F7C88FC875F599B4E719587FBBE
+# shows an error page, while
+# PROJEKT ŽIVOTA I KOMUNIKACIJA d.o.o. Mostar, firma na njemačkom jeziku: Lebensart & kommunikation d.o.o. Mostar
+# https://bizreg.pravosudje.ba/pls/apex/f?p=186:13:3129288602127392::NO:RP,13:P13_P_POS_ID,P13_XMBS,P13_NAZIV:21131241%2C58-01-0068-09%2C%5CPROJEKT%20%C5%BDIVOTA%20I%20KOMUNIKACIJA%20d.o.o.%20Mostar%2C%20firma%20na%20njema%C4%8Dkom%20jeziku:%20Lebensart%20&%20kommunikation%20d.o.o.%20Mostar\&cs=372A07D95AE8C2719A055669223E4025E
+# responds 400
+#
+# Other companies with Na engleskom jeziku: don't error.
+EXPECTED_ERRORS = 10
 
 # Unfortunatelly no cache for the listing page, as the state of the current
 # page is stored in the session and no cache for details page, as
@@ -197,7 +210,13 @@ def crawl_details(context: Context, record: Dict[str, str]) -> None:
         context: The context object for the current dataset.
         record: The record to fetch the details for.
     """
-    details_page = context.fetch_html(record["details_url"])
+    try:
+        details_page = context.fetch_html(record["details_url"])
+    except requests.exceptions.HTTPError as exc:
+        context.log.warning(
+            f"Failed to fetch company {record["details_url"]}: {type(exc)}, {exc}"
+        )
+        return False
 
     legal_form = details_page.xpath(
         "//td[contains(text(),"
@@ -356,22 +375,16 @@ def crawl_details(context: Context, record: Dict[str, str]) -> None:
 
         entity.add("name", record["name"], lang="bos")
         entity.add("name", record["abbreviation"], lang="bos")
-        if record.get("status_bankruptcy"):
-            entity.add("status", record["status_bankruptcy"], lang="bos")
+        entity.add("status", record.get("status_bankruptcy", None), lang="bos")
 
         entity.add("country", "ba")
         entity.add("address", record["address"], lang="bos")
-        if "address_additional" in record:
-            entity.add("address", record["address_additional"], lang="bos")
+        entity.add("address", record.get("address_additional", None), lang="bos")
 
-        entity.add("legalForm", record["legal_form"], lang="bos")
+        entity.add("legalForm", record.get("legal_form", None), lang="bos")
         entity.add("registrationNumber", record["registration_number"])
-
-        if record.get("unique_id"):
-            entity.add("registrationNumber", record["unique_id"])
-
-        if record.get("customs_number"):
-            entity.add("description", record["customs_number"], lang="eng")
+        entity.add("registrationNumber", record.get("unique_id", None))
+        entity.add("description", record.get("customs_number", None), lang="eng")
 
         entity.add("sourceUrl", record["details_url"])
         entity.add("modifiedAt", record["date_of_last_decision"])
@@ -444,6 +457,7 @@ def crawl_details(context: Context, record: Dict[str, str]) -> None:
             rel.add("organization", entity)
 
             context.emit(rel)
+        return True
 
 
 def generate_periods(
@@ -499,6 +513,7 @@ def crawl(context: Context):
     )
 
     total = 0
+    error_count = 0
 
     for city in cities:
         # Lets grab try to grab all records to see if it's less than 500
@@ -532,4 +547,6 @@ def crawl(context: Context):
             total += len(new_recs)
 
             for rec in new_recs:
-                crawl_details(context, rec)
+                if not crawl_details(context, rec):
+                    error_count += 1
+    assert error_count < EXPECTED_ERRORS, f"Too many errors: {error_count}"

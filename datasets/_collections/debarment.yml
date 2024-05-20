@@ -21,6 +21,7 @@ children:
   - iadb_sanctions
   - li_entsg
   - md_interdictie
+  - my_aob_sanctions
   - no_nbim_exclusions
   - ps_ohchr_settlement
   - si_conflicts

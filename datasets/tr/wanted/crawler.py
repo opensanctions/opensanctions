@@ -58,7 +58,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
         "program",
         f"{context.dataset.title} - {colour_en(row.pop('TKategoriAdi'))} List",
     )
-    person.add("topics", "poi")
+    person.add("topics", "sanction.counter")
     person.add("country", "tr")
     context.emit(person, target=True)
 
