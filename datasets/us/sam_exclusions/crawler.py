@@ -149,6 +149,9 @@ def crawl(context: Context) -> None:
         sanction.add("endDate", parse_date(row.pop("Termination Date")))
         sanction.add("summary", row.pop("Additional Comments", None))
 
+        # The NPI (National Provider Identifier) is a unique identification number
+        # for covered health care providers. It is an optional field for exclusion
+        # records.
         npi = row.pop("NPI", None)
         if npi is not None and len(npi):
             entity.add("description", f"NPI: {npi}")
