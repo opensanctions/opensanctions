@@ -28,7 +28,6 @@ IGNORE_FIELDS = (
 SPLIT_DATES = re.compile("([^,]+,[^,]+)")
 
 
-
 def index_validator(doc: etree._Element) -> bool:
     return doc.find('.//div[@class="row top-total"]//p') is not None
 
