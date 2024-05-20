@@ -87,7 +87,7 @@ class Store(LevelDBStore[Dataset, Entity]):
             return None
         if entity is not None:
             if entity.id is not None:
-                entity.extra_referents.update(self.resolver.get_referents(entity.id))
+                entity.extra_referents.update(self.linker.get_referents(entity.id))
             entity = simplify_dates(entity)
             entity = simplify_undirected(entity)
         return entity

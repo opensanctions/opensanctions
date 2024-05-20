@@ -33,7 +33,7 @@ def publish_dataset(dataset: Dataset, latest: bool = True) -> None:
             publish_run_resource(
                 path,
                 dataset.name,
-                settings.RUN_ID,
+                settings.RUN_VERSION,
                 resource.name,
                 mime_type=resource.mime_type,
             )
@@ -53,11 +53,11 @@ def publish_dataset(dataset: Dataset, latest: bool = True) -> None:
             publish_run_resource(
                 path,
                 dataset.name,
-                settings.RUN_ID,
+                settings.RUN_VERSION,
                 meta,
                 mime_type=mime_type,
             )
-    publish_dataset_history(dataset.name, settings.RUN_ID)
+    publish_dataset_history(dataset.name, settings.RUN_VERSION)
 
 
 def publish_failure(dataset: Dataset, latest: bool = True) -> None:

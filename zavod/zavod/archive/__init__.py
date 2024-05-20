@@ -9,9 +9,9 @@ from rigour.mime.types import JSON
 from zavod.logs import get_logger
 from nomenklatura.statement import Statement
 from nomenklatura.statement.serialize import unpack_row
+from nomenklatura.versions import Version, VersionHistory
 
 from zavod import settings
-from zavod.runs import RunHistory, RunID
 from zavod.archive.backend import get_archive_backend, ArchiveObject
 
 if TYPE_CHECKING:
@@ -128,30 +128,35 @@ def get_dataset_index(dataset_name: str, backfill: bool = True) -> Optional[Path
 
 
 @lru_cache(maxsize=500)
-def get_dataset_history(dataset_name: str) -> RunHistory:
+def get_dataset_history(dataset_name: str) -> VersionHistory:
     name = f"runs/{dataset_name}/{HISTORY_FILE}"
     backend = get_archive_backend()
     object = backend.get_object(name)
     if not object.exists():
-        return RunHistory([])
+        return VersionHistory([])
     data = object.open().read()
-    return RunHistory.from_json(data)
+    return VersionHistory.from_json(data)
 
 
-def get_previous_run_object(dataset_name: str, resource: str) -> ArchiveObject:
+def get_run_object(
+    dataset_name: str, resource: str, version: Optional[str] = None
+) -> ArchiveObject:
+    if version is None:
+        history = get_dataset_history(dataset_name)
+        if history.latest is not None:
+            version = history.latest.id
+        else:
+            version = "NULL"
     backend = get_archive_backend()
-    history = get_dataset_history(dataset_name)
-    if history.latest is None:
-        return backend.get_object(f"runs/{dataset_name}/NULL")
-    name = f"runs/{dataset_name}/{history.latest.id}/{resource}"
+    name = f"runs/{dataset_name}/{version}/{resource}"
     return backend.get_object(name)
 
 
-def publish_dataset_history(dataset_name: str, run_id: RunID) -> None:
+def publish_dataset_history(dataset_name: str, version: Version) -> None:
     """Publish the history of runs for a given dataset to the data lake."""
     history = get_dataset_history(dataset_name)
-    if run_id not in history.items:
-        history = history.append(run_id)
+    if version not in history.items:
+        history = history.append(version)
     backend = get_archive_backend()
     path = dataset_resource_path(dataset_name, HISTORY_FILE)
 
@@ -161,7 +166,7 @@ def publish_dataset_history(dataset_name: str, run_id: RunID) -> None:
     name = f"runs/{dataset_name}/{HISTORY_FILE}"
     object = backend.get_object(name)
     object.publish(path, mime_type=JSON)
-    name = f"runs/{dataset_name}/{run_id.id}/{HISTORY_FILE}"
+    name = f"runs/{dataset_name}/{version.id}/{HISTORY_FILE}"
     object = backend.get_object(name)
     object.publish(path, mime_type=JSON)
 
@@ -169,12 +174,12 @@ def publish_dataset_history(dataset_name: str, run_id: RunID) -> None:
 def publish_run_resource(
     path: Path,
     dataset_name: str,
-    run_id: RunID,
+    version: Version,
     resource: str,
     mime_type: Optional[str] = None,
 ) -> None:
     """Publish a file in the given run's directory of the given dataset."""
-    name = f"runs/{dataset_name}/{run_id.id}/{resource}"
+    name = f"runs/{dataset_name}/{version.id}/{resource}"
     backend = get_archive_backend()
     object = backend.get_object(name)
     object.publish(path, mime_type=mime_type)
@@ -201,7 +206,7 @@ def _iter_scope_statements(dataset: "Dataset", external: bool = True) -> Stateme
             yield from _read_fh_statements(fh, external)
         return
 
-    object = get_previous_run_object(dataset.name, STATEMENTS_FILE)
+    object = get_run_object(dataset.name, STATEMENTS_FILE)
     if not object.exists():
         object = get_release_object(dataset.name, STATEMENTS_FILE)
     if object.exists():
@@ -220,7 +225,7 @@ def iter_previous_statements(dataset: "Dataset", external: bool = True) -> State
     """Load the statements from the previous release of the dataset by streaming them
     from the data archive."""
     for scope in dataset.leaves:
-        object = get_previous_run_object(dataset.name, STATEMENTS_FILE)
+        object = get_run_object(dataset.name, STATEMENTS_FILE)
         if not object.exists():
             object = get_release_object(dataset.name, STATEMENTS_FILE)
         if object.exists():

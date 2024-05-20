@@ -29,7 +29,7 @@ def get_base_dataset_metadata(dataset: Dataset) -> Dict[str, Any]:
         "issue_levels": {},
         "issue_count": 0,
         "updated_at": settings.RUN_TIME_ISO,
-        "version": str(settings.RUN_ID),
+        "version": str(settings.RUN_VERSION),
         "index_url": dataset.make_public_url("index.json"),
         "issues_url": dataset.make_public_url("issues.json"),
     }

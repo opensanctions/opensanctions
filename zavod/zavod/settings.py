@@ -3,7 +3,7 @@ from pathlib import Path
 from banal import as_bool
 from normality import stringify
 
-from zavod.runs import RunID
+from nomenklatura.versions import Version
 
 
 def env_str(name: str, default: str) -> str:
@@ -24,10 +24,10 @@ DATA_PATH = Path(env_str("OPENSANCTIONS_DATA_PATH", DATA_PATH_)).resolve()
 
 # Per-run timestamp
 TIME_ZONE = env_str("TZ", "UTC")
-RUN_ID = RunID.from_env("ZAVOD_RUN_ID")
-RUN_TIME = RUN_ID.dt
-RUN_TIME_ISO = RUN_ID.dt.isoformat(sep="T", timespec="seconds")
-RUN_DATE = RUN_ID.dt.date().isoformat()
+RUN_VERSION = Version.from_env("ZAVOD_VERSION")
+RUN_TIME = RUN_VERSION.dt
+RUN_TIME_ISO = RUN_VERSION.dt.isoformat(sep="T", timespec="seconds")
+RUN_DATE = RUN_VERSION.dt.date().isoformat()
 
 # Release version
 RELEASE = env_str("ZAVOD_RELEASE", RUN_TIME.strftime("%Y%m%d"))

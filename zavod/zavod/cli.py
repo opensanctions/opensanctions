@@ -226,8 +226,9 @@ def dedupe(dataset_paths: List[Path], clear: bool = False) -> None:
     dataset = _load_datasets(dataset_paths)
     if clear:
         clear_store(dataset)
+    resolver = get_resolver()
     store = get_store(dataset, external=True)
-    dedupe_ui(store, url_base="https://opensanctions.org/entities/%s/")
+    dedupe_ui(resolver, store, url_base="https://opensanctions.org/entities/%s/")
 
 
 @cli.command("explode-cluster", help="Destroy a cluster of deduplication matches")
