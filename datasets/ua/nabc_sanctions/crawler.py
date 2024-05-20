@@ -129,7 +129,9 @@ def crawl_common(
     entity.add("address", row.pop("address_en", None), lang="eng")
 
     if is_sanctioned:
-        entity.add("topics", "sanction")
+        # FIXME: when this is live again
+        # entity.add("topics", "sanction")
+        entity.add("topics", "poi")
         sanction = h.make_sanction(context, entity)
         sanction.add("startDate", row.pop("sanctions_ua_date", None))
         if row.pop("sanctions_ua", None) == 1:
