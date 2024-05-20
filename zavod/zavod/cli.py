@@ -354,8 +354,10 @@ def wd_up(
     dataset = _load_datasets(dataset_paths)
     if clear:
         clear_store(dataset)
+    resolver = get_resolver()
     store = get_store(dataset, external=False)
     run_app(
+        resolver,
         store,
         country_code=country_code,
         country_adjective=country_adjective,

@@ -3,6 +3,7 @@ from itertools import groupby
 from nomenklatura import Store
 from nomenklatura.dataset import DS
 from nomenklatura.entity import CE
+from nomenklatura.resolver import Resolver
 from nomenklatura.judgement import Judgement
 from nomenklatura.statement.statement import Statement
 from rigour.langs import iso_639_alpha2
@@ -164,6 +165,7 @@ class EditSession(Generic[DS, CE]):
 
     def __init__(
         self,
+        resolver: Resolver[CE],
         store: Store[DS, CE],
         country_code: str,
         country_adjective: str,
@@ -171,7 +173,7 @@ class EditSession(Generic[DS, CE]):
         app: "WikidataApp[DS, CE]",
     ):
         self._store = store
-        self._resolver = store.resolver
+        self._resolver = resolver
         self.is_resolver_dirty = False
         self._app = app
         self._view = store.default_view(external=False)
@@ -584,7 +586,9 @@ class SessionDisplay(Widget):
         if self.session.entity:
             text = f"Entity: https://www.opensanctions.org/entities/{self.session.entity.id}\n"
             if self.session.entity.id is not None and is_qid(self.session.entity.id):
-                text += f"Wikidata: https://wikidata.org/wiki/{self.session.entity.id}\n"
+                text += (
+                    f"Wikidata: https://wikidata.org/wiki/{self.session.entity.id}\n"
+                )
             text += f"Names: {' · '.join(self.session.entity.get('name'))}\n\n"
 
             text += render_property(self.session.entity, "birthDate")
@@ -813,6 +817,7 @@ class WikidataApp(App[int], Generic[DS, CE]):
 
 
 def run_app(
+    resolver: Resolver[CE],
     store: Store[DS, CE],
     country_code: str,
     country_adjective: str,
@@ -820,6 +825,6 @@ def run_app(
 ) -> None:
     app = WikidataApp[DS, CE]()
     app.session = EditSession[DS, CE](
-        store, country_code, country_adjective, focus_dataset, app
+        resolver, store, country_code, country_adjective, focus_dataset, app
     )
     app.run()
