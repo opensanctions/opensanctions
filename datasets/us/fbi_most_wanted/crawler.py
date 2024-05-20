@@ -2,9 +2,11 @@ import re
 import math
 from itertools import count
 from typing import Optional
+from lxml import etree
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.shed.zyte_api import fetch_html
 
 FORMATS = (
     "%B %d, %Y",
@@ -26,8 +28,16 @@ IGNORE_FIELDS = (
 SPLIT_DATES = re.compile("([^,]+,[^,]+)")
 
 
+def index_validator(doc: etree._Element) -> bool:
+    return doc.find('.//div[@class="row top-total"]//p') is not None
+
+
+def detail_Validator(doc: etree._Element) -> bool:
+    return doc.find('.//h1[@class="documentFirstHeading"]') is not None
+
+
 def crawl_person(context: Context, url: str) -> None:
-    doc = context.fetch_html(url, cache_days=7)
+    doc = fetch_html(context, url, detail_Validator, cache_days=7)
     name = doc.findtext('.//h1[@class="documentFirstHeading"]')
     if name is None:
         context.log.error("Cannot find name table", url=url)
@@ -100,7 +110,7 @@ def crawl_type(context: Context, type: str, query_id: str):
         url = FBI_URL % (type, query_id, page)
         # print(url)
         context.log.info("Fetching %s" % url)
-        doc = context.fetch_html(url)
+        doc = fetch_html(context, url, index_validator)
 
         if total_pages is None:
             # Get total results count
