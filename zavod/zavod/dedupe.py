@@ -55,6 +55,7 @@ def blocking_xref(
         raise ValueError("Invalid algorithm: %s" % algorithm)
     range = model.get(schema_range) if schema_range is not None else None
     xref(
+        resolver,
         store,
         limit=limit,
         range=range,

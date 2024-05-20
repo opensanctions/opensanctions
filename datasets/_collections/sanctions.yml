@@ -30,6 +30,7 @@ children:
   - ca_named_research_orgs
   - ch_seco_sanctions
   - cn_sanctions
+  - cz_national_sanctions
   - eu_fsf
   - eu_reg_2878_sanctions
   - eu_sanctions_map
