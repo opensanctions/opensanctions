@@ -22,7 +22,7 @@ setup(
     zip_safe=False,
     install_requires=[
         "followthemoney == 3.6.*",
-        "nomenklatura[leveldb] == 3.10.*",
+        "nomenklatura[leveldb] == 3.11.*",
         "plyvel == 1.5.1",
         "rigour == 0.5.2",
         "datapatch >= 1.1,< 1.3",
