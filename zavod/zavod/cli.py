@@ -89,7 +89,7 @@ def export(dataset_path: Path, clear: bool = False) -> None:
         dataset = _load_dataset(dataset_path)
         if clear:
             clear_store(dataset)
-        view = get_view(dataset, external=False)
+        view = get_view(dataset, external=False, linker=True)
         export_dataset(dataset, view)
     except Exception:
         log.exception("Failed to export: %s" % dataset_path)
@@ -136,7 +136,7 @@ def run(
     # Validate
     try:
         clear_store(dataset)
-        view = get_view(dataset, external=False)
+        view = get_view(dataset, external=False, linker=True)
         if not dataset.is_collection:
             validate_dataset(dataset, view)
     except Exception:
