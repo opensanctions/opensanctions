@@ -107,6 +107,8 @@ def crawl_item(input_dict: dict, context: Context):
         entity.add("birthDate", parse_date(translate_date(birth_date)))
         entity.add("nationality", countries.split(", "), lang="cz")
 
+    entity.add("topics", "sanction")
+
     # Další identifikační údaje
     # -> Other identification data
     entity.add("notes", input_dict.pop("dalsi_identifikacni_udaje"), lang="cz")
