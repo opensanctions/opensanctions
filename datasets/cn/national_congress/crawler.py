@@ -16,7 +16,7 @@ def crawl_item(input_dict: dict, context: Context):
     entity.id = context.make_slug(name, ethnicity, gender, delegation)
 
     entity.add("name", name, lang="chi")
-    entity.add("gender", context.lookup("gender", gender))
+    entity.add("gender", gender)
     entity.add("ethnicity", ethnicity, lang="chi")
 
     position = h.make_position(
