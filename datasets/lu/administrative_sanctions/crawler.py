@@ -51,8 +51,7 @@ def crawl_item(url: str, context: Context):
 
     entity = context.make("LegalEntity")
     entity.id = context.make_id(*names)
-    for name in names:
-        entity.add("name", name)
+    entity.add("name", names)
 
     entity.add("topics", "crime.fin")
 
