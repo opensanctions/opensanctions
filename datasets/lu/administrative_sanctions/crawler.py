@@ -23,8 +23,11 @@ def parse_date(date: str) -> str:
     for french_month in FRENCH_TO_ENGLISH_MONTHS:
         date = date.replace(french_month, FRENCH_TO_ENGLISH_MONTHS[french_month])
 
+    # Replacing 1er with 1
+    date = date.replace("1er", "1")
+
     try:
-        return datetime.strptime(date, "%d %b %Y")
+        return datetime.strptime(date, "%d %B %Y")
     except:
         return None
 
@@ -34,7 +37,7 @@ def crawl_item(url: str, context: Context):
 
     # The title is in the format "Sanction administrative du XX XXXX 20XX"
     title = response.find('.//*[@class="single-news__title"]')
-    date = title.text_content().strip().replace("Sanction administrative du ", "")
+    date = ' '.join(title.text_content().strip().split(" ")[-3:])
     subtitle = (
         response.find('.//*[@class="single-news__subtitle"]').text_content().strip()
     )
