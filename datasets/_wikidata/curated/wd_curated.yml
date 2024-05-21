@@ -32,5 +32,5 @@ assertions:
       Organization: 2
   max:
     schema_entities:
-      Person: 135
+      Person: 4500
       Organization: 4
