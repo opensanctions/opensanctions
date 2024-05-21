@@ -1,4 +1,5 @@
 from typing import cast
+import re
 
 from zavod import Context, helpers as h
 from datetime import datetime
@@ -17,6 +18,11 @@ FRENCH_TO_ENGLISH_MONTHS = {
     "novembre": "november",
     "décembre": "december",
 }
+
+SUBTITLE_PATTERN = re.compile(
+    r"^(Sanction|Sanctions|amende) (administrative|administratives) ((prononcée|prononcées) à l’encontre d[eu]|imposée à) (gestionnaire de fonds d’investissement alternatifs|gestionnaire de fonds d’investissement|l’entreprise d’investissement|l’établissement de paiement|professionnel du secteur financier|l’établissement de crédit|cabinet de révision agréé|la société d’investissement à capital variable|gestionnaire du fonds d’investissement)?\s*",
+    re.IGNORECASE,
+)
 
 
 def parse_date(date: str) -> str:
@@ -37,16 +43,27 @@ def crawl_item(url: str, context: Context):
 
     # The title is in the format "Sanction administrative du XX XXXX 20XX"
     title = response.find('.//*[@class="single-news__title"]')
-    date = ' '.join(title.text_content().strip().split(" ")[-3:])
+    date = " ".join(title.text_content().strip().split(" ")[-3:])
     subtitle = (
         response.find('.//*[@class="single-news__subtitle"]').text_content().strip()
     )
-    res = context.lookup("subtitle_to_names", subtitle)
-    if res:
-        names = cast("List[str]", res.names)
+
+    stripped_subtitle = SUBTITLE_PATTERN.sub("", subtitle, count=1)
+
+    # Check if it's starts with a upper case and if the pattern was removed
+    if (
+        stripped_subtitle[0] == stripped_subtitle[0].upper()
+        and stripped_subtitle != subtitle
+    ):
+        names = [stripped_subtitle]
+    # Else, try to find the name of the company
     else:
-        context.log.warning("Can't find the name of the company", text=subtitle)
-        names = [subtitle]
+        res = context.lookup("subtitle_to_names", subtitle)
+        if res:
+            names = cast("List[str]", res.names)
+        else:
+            context.log.warning("Can't find the name of the company", text=subtitle)
+            names = [subtitle]
 
     # If the subtitle doesn't contain any names
     if not names:
@@ -70,7 +87,6 @@ def crawl_item(url: str, context: Context):
 
 
 def crawl(context: Context):
-
     base_url = "https://www.cssf.lu/fr/publications-donnees/page/{}/?content_type=1387%2C623%2C625"
 
     idx = 1

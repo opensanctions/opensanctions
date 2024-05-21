@@ -36,307 +36,24 @@ lookups:
   subtitle_to_names:
     lowercase: true
     options:
-      - match: "Sanctions administratives prononcées à l’encontre de l’entreprise d’investissement HMS LUX S.A."
-        names:
-          - HMS LUX S.A. 
-      - match: "sanction administrative prononcée à l’encontre de baumann & partners s.a."
-        names:
-          - Baumann & Partners S.A.
-      - match: "Sanction administrative prononcée à l’encontre de l’entreprise d’investissement Fuchs & Associés Finance S.A. (en liquidation)"
-        names:
-          - Fuchs & Associés Finance S.A.
-      - match: "Sanction administrative prononcée à l’encontre du gestionnaire de fonds d’investissement M7 Portuguese Active Fund General Partner S.à r.l."
-        names:
-          - M7 Portuguese Active Fund General Partner S.à r.l.
-      - match: "Sanction administrative prononcée à l’encontre de TALABOT INVESTMENTS LLP"
-        names:
-          - TALABOT INVESTMENTS LLP
-      - match: "Sanction administrative prononcée à l’encontre de l’établissement de paiement Sogexia S.A"
-        names:
-          - Sogexia S.A.
-      - match: "Sanction administrative prononcée à l’encontre du professionnel du secteur financier POST Luxembourg"
-        names:
-          - POST Luxembourg
-      - match: "Sanction administrative prononcée à l’encontre de Intertrust (Luxembourg) S.à r.l."
-        names:
-          - Intertrust (Luxembourg) S.à r.l.
-      - match: "Sanction administrative prononcée à l’encontre de l’entreprise d’investissement Moventum S.C.A."
-        names:
-          - Moventum S.C.A.
-      - match: "Sanction administrative prononcée à l’encontre de l’établissement de crédit Mizuho Trust & Banking (Luxembourg) S.A."
-        names:
-          - Mizuho Trust & Banking (Luxembourg) S.A.
-      - match: "Amende administrative prononcée à l’encontre de Corestate Capital Holding S.A."
-        names:
-          - Corestate Capital Holding S.A.
-      - match: "Sanction administrative prononcée à l’encontre de l’entreprise d’investissement Almagest Wealth Management S.A."
-        names:
-          - Almagest Wealth Management S.A.
-      - match: "Sanction administrative prononcée à l’encontre du gestionnaire de fonds d’investissement Universal-Investment-Luxembourg S.A."
-        names:
-          - Universal-Investment-Luxembourg S.A.
-      - match: "Sanction administrative prononcée à l’encontre de l’entreprise d’investissement GSLP International S.à r.l."
-        names:
-          - GSLP International S.à r.l.
-      - match: "Sanction administrative administrative prononcée à l’encontre du gestionnaire de fonds d’investissement alternatifs enregistré FONDS AAA S.À R.L."
-        names:
-          - FONDS AAA S.À R.L.
-      - match: "Sanction administrative prononcée à l’encontre du gestionnaire de fonds d’investissement Duff & Phelps (Luxembourg) Management Company S.à r.l."
-        names:
-          - Duff & Phelps (Luxembourg) Management Company S.à r.l.
-      - match: "Sanction administrative prononcée à l’encontre de Monsieur Cyrille Vanhees"
-        names:
-          - Cyrille Vanhees
-      - match: "Sanction administrative prononcée à l’encontre du gestionnaire de fonds d’investissement Finexis S.A."
-        names:
-          - Finexis S.A.
-      - match: "Sanction administrative prononcée à l’encontre de l’entreprise d’investissement STEVENS ET DE MUNTER S.A."
-        names:
-          - STEVENS ET DE MUNTER S.A.
-      - match: "Sanction administrative prononcée à l’encontre de l’établissement de crédit RBC Investor Services Bank S.A."
-        names:
-          - RBC Investor Services Bank S.A.
-      - match: "Sanction administrative prononcée à l’encontre de Monsieur Karl Horsburgh"
-        names:
-          - Karl Horsburgh
-      - match: "Sanction administrative prononcée à l’encontre de Monsieur Bertrand Grabisch"
-        names:
-          - Bertrand Grabisch
-      - match: "Sanction administrative prononcée à l’encontre de l’établissement de crédit Banque Puilaetco Dewaay Luxembourg S.A."
-        names:
-          - Banque Puilaetco Dewaay Luxembourg S.A.
-      - match: "Décision constatant la perte de l’honorabilité professionnelle de Monsieur Fabien GAGLIO"
-        names:
-          - Fabien Gaglio
-      - match: "Décision constatant la perte de l’honorabilité professionnelle de Monsieur Michael OBSIEGER"
-        names:
-          - Michael Obsieger
-      - match: "Sanction administrative prononcée à l’encontre de l’établissement de crédit European Depositary Bank S.A."
-        names:
-          - European Depositary Bank S.A.
-      - match: "Sanction administrative prononcée à l’encontre de l’établissement de crédit Natixis Wealth Management Luxembourg"
-        names:
-          - Natixis Wealth Management Luxembourg
-      - match: "Sanction administrative prononcée à l’encontre du PSF de support Atos Luxembourg PSF S.A."
-        names:
-          - Atos Luxembourg PSF S.A.
-      - match: "Sanction administrative prononcée à l’encontre de l’établissement de crédit Banque de Luxembourg S.A."
-        names:
-          - Banque de Luxembourg S.A.
-      - match: "Sanction administrative prononcée à l’encontre du gestionnaire de fonds d’investissement GAM (Luxembourg) S.A."
-        names:
-          - GAM (Luxembourg) S.A.
-      - match: "Sanction administrative prononcée à l’encontre du gestionnaire de fonds d’investissement ShelteR Investment Management"
-        names:
-          - ShelteR Investment Management
-      - match: "Sanction administrative prononcée à l’encontre de Reyl Prime Solutions S.A. (en liquidation volontaire)"
-        names:
-          - Reyl Prime Solutions S.A.
-      - match: "Amende administrative prononcée à l’encontre de Transnet Soc Ltd"
-        names:
-          - Transnet Soc Ltd
-      - match: "Sanction administrative prononcée à l’encontre du gestionnaire de fonds d’investissement IFP Investment Management S.A."
-        names:
-          - IFP Investment Management S.A.
-      - match: "Sanction administrative prononcée à l’encontre du gestionnaire de fonds d’investissement Pharus Management Lux S.A."
-        names:
-          - Pharus Management Lux S.A.
-      - match: "Sanction administrative prononcée à l’encontre du gestionnaire de fonds d’investissement alternatifs LIA Luxembourg Investment Advisors S.à r.l."
-        names:
-          - LIA Luxembourg Investment Advisors S.à r.l.
-      - match: "Sanction administrative prononcée à l’encontre du gestionnaire de fonds d’investissement Federale Management S.A."
-        names:
-          - Federale Management S.A.
-      - match: "Sanction administrative prononcée à l’encontre du gestionnaire de fonds d’investissement alternatifs Agriland Management S.A."
-        names:
-          - Agriland Management S.A.
-      - match: Sanction administrative prononcée à l’encontre du gestionnaire de fonds d’investissement AXXION S.A.
-        names:
-          - AXXION S.A.
-      - match: Sanction administrative prononcée à l’encontre du gestionnaire de fonds d’investissement HANSAINVEST LUX S.A.
-        names:
-          - HANSAINVEST LUX S.A.
-      - match: Sanction administrative prononcée à l’encontre de Monsieur Edward Kostka
-        names:
-          - Edward Kostka
-      - match: Décision constatant la perte de l’honorabilité professionnelle de Monsieur Marc AMBROISIEN 
-        names:
-          Marc Ambroisien
-      - match: Sanctions administratives et avertissement prononcés à l’encontre de l’établissement de crédit Banque de Patrimoines Privés S.A.
-        names:
-          - Banque de Patrimoines Privés S.A.
-      - match: Sanction administrative prononcée à l’encontre de l’entreprise d’investissement HMS LUX S.A.
-        names:
-          - HMS LUX S.A.
-      - match: Sanction administrative prononcée à l’encontre de l’établissement de crédit Compagnie de Banque Privée Quilvest S.A.
-        names:
-          - Compagnie de Banque Privée Quilvest S.A.
-      - match: Sanction administrative prononcée à l’encontre de Öhman Bank S.A.
-        names:
-          - Öhman Bank S.A.
-      - match: Sanction administrative prononcée à l’encontre du gestionnaire de fonds d’investissement CANDRIAM LUXEMBOURG
-        names:
-          - Candriam Luxembourg
-      - match: Sanction administrative prononcée à l’encontre du gestionnaire de fonds d’investissement Quamvest S.A.
-        names:
-          - Quamvest S.A.
-      - match: Sanction administrative prononcée à l’encontre de l’entreprise d’investissement OPPORTUNITÉ LUXEMBOURG S.A.
-        names:
-          - Opportunité Luxembourg S.A.
-      - match: Sanction administrative prononcée à l’encontre du gestionnaire de fonds d’investissement Notz, Stucki Europe S.A.
-        names:
-          - Notz, Stucki Europe S.A.
-      - match: Sanction administrative prononcée à l’encontre du gestionnaire de fonds d’investissement Edmond de Rothschild Asset Management (Luxembourg) S.A.
-        names:
-          - Edmond de Rothschild Asset Management (Luxembourg) S.A.
-      - match: Sanction administrative prononcée à l’encontre de la société d’investissement à capital variable PRAEFINIUM
-        names:
-          - Praefinium
-      - match: Sanction administrative prononcée à l’encontre du PSF de support DXC Technology Luxembourg S.A.
-        names:
-          - DXC Technology Luxembourg S.A.
-      - match: Sanction administrative imposée à Lemanik Asset Management S.A.
-        names:
-          - Lemanik Asset Management S.A.
-      - match: Sanctions administratives prononcées à l’encontre du gestionnaire de fonds d’investissement Invesco Real Estate Management S.à r.l.
-        names:
-          - Invesco Real Estate Management S.à r.l.
-      - match: Sanction administrative prononcée à l’encontre du gestionnaire de fonds d’investissement alternatifs Glacier Capital S.à r.l.
-        names:
-          - Glacier Capital S.à r.l.
-      - match: Sanction administrative prononcée à l’encontre de l’entreprise d’investissement BOS Wealth Management Europe S.A.
-        names:
-          - BOS Wealth Management Europe S.A.
-      - match: Sanction administrative prononcée à l’encontre du gestionnaire de fonds d’investissement alternatifs Voskhod Capital S.à r.l.
-        names:
-          - Voskhod Capital S.à r.l.
-      - match: Sanction administrative prononcée à l’encontre du gestionnaire de fonds d’investissement alternatifs Max Gain Capital S.à r.l.
-        names:
-          - Max Gain Capital S.à r.l.
-      - match: Sanction administrative prononcée à l’encontre de l’établissement de crédit Banque J. Safra Sarasin (Luxembourg) S.A.
-        names:
-          - Banque J. Safra Sarasin (Luxembourg) S.A.
-      - match: Sanctions administratives prononcées à l’encontre de l’entreprise d’investissement Fuchs & Associés Finance S.A.
-        names:
-          - Fuchs & Associés Finance S.A.
-      - match: Sanction administrative prononcée à l’encontre du gestionnaire de fonds d’investissement LRI Invest S.A.
-        names:
-          - LRI Invest S.A.
-      - match: Sanction administrative prononcée à l’encontre du gestionnaire de fonds d’investissement alternatifs Lafayette Industriebeteiligungen S.à r.l.
-        names:
-          - Lafayette Industriebeteiligungen S.à r.l.
-      - match: Sanction administrative prononcée à l’encontre du PSF spécialisé Alter Domus Depositary Services S.à r.l.
-        names:
-          - Alter Domus Depositary Services S.à r.l.
-      - match: Sanction administrative prononcée à l’encontre du gestionnaire du fonds d’investissement WRM Capital Asset Management S.à r.l.
-        names:
-          - WRM Capital Asset Management S.à r.l.
-      - match: Sanction administrative prononcée à l’encontre du PSF spécialisé Apex Fund Services (Malta) Ltd, Luxembourg Branch
-        names:
-          - Apex Fund Services (Malta) Ltd, Luxembourg Branch
-      - match: Sanction administrative prononcée à l’encontre du Professionnel du Secteur Financier (PSF) VISTRA (Luxembourg) S.à.r.l.
-        names:
-          - VISTRA (Luxembourg) S.à.r.l.
-      - match: Sanction administrative prononcée à l’encontre de l’établissement de crédit Banque Internationale à Luxembourg S.A.
-        names:
-          - Banque Internationale à Luxembourg S.A.
-      - match: Sanction administrative prononcée à l’encontre du gestionnaire de fonds d’investissement Natixis Investment Managers S.A.
-        names:
-          - Natixis Invest Managers S.A.
-      - match: Sanction administrative prononcée à l’encontre de l’établissement de crédit Banque de Commerce et de Placements S.A., succursale de Luxembourg
-        names:
-          - Banque de Commerce et de Placements S.A., succursale de Luxembourg
-      - match: Sanction administrative prononcée à l’encontre du gestionnaire du fonds d’investissement Corestate Capital Fund Management S.à r.l
-        names:
-          - Corestate Capital Fund Management S.à r.l
-      - match: Sanction administrative prononcée à l’encontre de l’établissement de paiement Sogexia S.A.
-        names:
-          - Sogexia S.A.
-      - match: Sanction administrative prononcée à l’encontre du PSF spécialisé Reference Financial Services S.A.
-        names:
-          - Reference Financial Services S.A.
-      - match: Amende administrative prononcée à l’encontre de ADLER Group S.A.
-        names:
-          - ADLER Group S.A.
-      - match: Sanction administrative prononcée à l’encontre de Gazprom Capital LLC
-        names:
-          - Gazprom Capital LLC
-      - match: Sanctions administratives prononcées à l’encontre du gestionnaire de fonds d’investissement Invesco Real Estate Management S.à r.l.
-        names:
-          - Invesco Real Estate Management S.à r.l.
-      - match: Sanction administrative prononcée à l’encontre du gestionnaire de fonds d’investissement Luxcellence Management Company S.A.
-        names:
-          - Luxcellence Management Company S.A.
-      - match: Sanction administrative prononcée à l’encontre de l’établissement de crédit Banque Degroof Petercam Luxembourg S.A.
-        names:
-          - Banque Degroof Petercam Luxembourg S.A.
-      - match: Sanction administrative prononcée à l’encontre du PSF spécialisé Intertrust (Luxembourg) S.à r.l.
-        names:
-          - Intertrust (Luxembourg) S.à r.l.
-      - match: Sanction administrative prononcée à l’encontre de M. ARKADIY KOFMAN-LAPIRO
-        names:
-          - ARKADIY KOFMAN-LAPIRO
-      - match: Amende administrative prononcée à l’encontre de Fab Cbo 2003-I B.V.
-        names:
-          - Fab Cbo 2003-I B.V.
-      - match: Sanction administrative prononcée à l’encontre du gestionnaire de fonds d’investissement Alter Domus Management Company S.A. (anciennement dénommé Luxembourg Fund Partners S.A.)
-        names:
-          - Alter Domus Management Company S.A.
-          - Luxembourg Fund Partners S.A. 
-      - match: Sanction administrative prononcée à l’encontre du gestionnaire de fonds d’investissement FundRock Management Company S.A.
-        names:
-          - FundRock Management Company S.A.
-      - match: Sanction administrative prononcée à l’encontre du gestionnaire de fonds d’investissement Pemberton Asset Management S.A.
-        names:
-          - Pemberton Asset Management S.A.
-      - match: Sanction administrative prononcée à l’encontre du gestionnaire de fonds d’investissement Sparinvest S.A.
-        names:
-          - Sparinvest S.A.
-      - match: Sanction administrative prononcée à l’encontre du gestionnaire de fonds d’investissement alternatifs Bedrock I GP S.à r.l.
-        names:
-          - Bedrock I GP S.à r.l.
-      - match: Sanction administrative prononcée à l’encontre du gestionnaire de fonds d’investissement Eso Management (Luxembourg) Limited Sarl
-        names:
-          - Eso Management (Luxembourg) Limited Sarl
-      - match: Sanction administrative prononcée à l’encontre du gestionnaire de fonds d’investissement alternatifs Mbu General Partners
-        names:
-          - Mbu General Partners
-      - match: Sanction administrative prononcée à l’encontre de l’établissement de crédit Novo Banco S.A., succursale de Luxembourg
-        names:
-          - Novo Banco S.A., succursale de Luxembourg
-      - match: Sanction administrative prononcée à l’encontre du cabinet de révision agréé C-CLERC S.A.
-        names:
-          - C-CLERC S.A.
-      - match: Sanction administrative prononcée à l’encontre du gestionnaire de fonds d’investissement BNY Mellon Fund Management (Luxembourg) S.A.
-        names:
-          - BNY Mellon Fund Management (Luxembourg) S.A.
-      - match: Sanction administrative prononcée à l’encontre de l’établissement de crédit Mirabaud & Cie (Europe) S.A.
-        names:
-          - Mirabaud & Cie (Europe) S.A.
-      - match: Sanction administrative prononcée à l’encontre du PSF spécialisé Stratego Trust S.A.
-        names:
-          - Stratego Trust S.A.
       - match: Amende administrative prononcée à l’encontre d’Agate Assets S.A.
         names:
           - Agate Assets S.A.
-      - match: Sanction administrative prononcée à l’encontre du gestionnaire de fonds d’investissement alternatifs Infrastructure PPP Africa Management S.A.
+      - match: Sanctions administratives et avertissement prononcés à l’encontre de l’établissement de crédit Banque de Patrimoines Privés S.A.
         names:
-          - Infrastructure PPP Africa Management S.A.
-      - match: Sanction administrative prononcée à l’encontre de l’établissement de crédit RCB Bank Ltd., Luxembourg branch
+          - Banque de Patrimoines Privés S.A.
+      - match: Décision constatant la perte de l’honorabilité professionnelle de Monsieur Marc AMBROISIEN
         names:
-          - RCB Bank Ltd., Luxembourg branch
-      - match: Sanctions administratives prononcées à l’encontre de l’entreprise d’investissement Vimco Luxembourg S.A.
+          - Marc Ambroisien
+      - match: Sanction administrative administrative prononcée à l’encontre du gestionnaire de fonds d’investissement alternatifs enregistré FONDS AAA S.À R.L.
         names:
-          - Vimco Luxembourg S.A.
-      - match: Saanction administrative prononcée à l’encontre du gestionnaire de fonds d’investissement Amundi Luxembourg S.A.
+          - FONDS AAA S.À R.L.
+      - match: Décision constatant la perte de l’honorabilité professionnelle de Monsieur Fabien GAGLIO
         names:
-          - Amundi Luxembourg S.A.
-      - match: Amende administrative prononcée à l’encontre de KSG Agro S.A.
+      - match: Sanctions et mesures administratives prononcées à l’encontre de quatorze professionnels agréés ou enregistrés soumis à la surveillance de la Commission de Surveillance du Secteur Financier (la « CSSF ») en matière de lutte contre le blanchiment et le financement du terrorisme
         names:
-          - KSG Agro S.A.
-      - match: Sanction administrative prononcée à l’encontre du PSF spécialisé Agir Luxembourg S.A.
+      - match: Sanction administrative prononcée à l’encontre d’une entreprise d’investissement 
         names:
-          - Agir Luxembourg
       - match: Sanction administrative prononcée à l’encontre d’un réviseur d’entreprises agréé
         names:
       - match: Sanction administrative prononcée à l’encontre d’un PSF spécialisé
@@ -345,69 +62,29 @@ lookups:
         names:
       - match: Sanction administrative prononcée à l’encontre d’un gestionnaire de fonds d’investissement
         names:
+      - match: Sanction administrative prononcée à l’encontre d’un réviseur d’entreprises agréé
+        names:
       - match: Sanctions administratives prononcées à l’encontre de trois réviseurs d’entreprises agréés
         names:
-      - match: Sanction administrative prononcée à l’encontre de deux gérants de l’associé commandité d’un fonds d’investissement spécialisé
-        names:
       - match: Sanction administrative prononcée à l’encontre de cinq administrateurs de l’associé commandité d’un fonds d’investissement spécialisé
-        names:
-      - match: Sanction administrative prononcée à l’encontre d’un gestionnaire de fonds d’investissement
         names:
       - match: Sanction administrative prononcée à l’encontre d’un gestionnaire de fonds d’investissement alternatifs
         names:
       - match: Sanction administrative prononcée à l’encontre de trois gestionnaires de fonds d’investissement alternatifs
         names:
-      - match: Amende administrative prononcée à l’encontre de Gaz Capital S.A.
-        names:
-          - Gaz Capital S.A.
-      - match: Sanction administrative prononcée à l’encontre du gestionnaire de fonds d’investissement Franklin Templeton International Services S.à r.l.
-        names:
-          - Franklin Templeton International Services S.à r.l.
-      - match: Sanction administrative prononcée à l’encontre du gestionnaire de fonds d’investissement JPMorgan Asset Management (Europe) S.à r.l.
-        names:
-          - JPMorgan Asset Management (Europe) S.à r.l.
-      - match: Sanction administrative prononcée à l’encontre du PSF spécialisé Maitland Luxembourg S.A.
-        names:
-          - Maitland Luxembourg S.A.
-      - match: Sanction administrative prononcée à l’encontre du gestionnaire de fonds d’investissement Amundi Luxembourg S.A.
-        names:
-          - Amundi Luxembourg S.A.
-      - match: Sanction administrative prononcée à l’encontre d’un établissement de paiement autorisé
-        names:
-      - match: Sanction administrative prononcée à l’encontre d’un PSF de support
-        names:
-      - match: Sanction administrative prononcée à l’encontre d’un établissement de crédit
-        names:
-      - match: Sanction administrative imposée au titre de l’article 25(2) de la Loi Transparence en date du 20 août 2020
-        names:
-      - match: Sanctions et mesures administratives prononcées à l’encontre de quatorze professionnels agréés ou enregistrés soumis à la surveillance de la Commission de Surveillance du Secteur Financier (la « CSSF ») en matière de lutte contre le blanchiment et le financement du terrorisme
-        names:
-      - match: Sanction administrative imposée au titre de l’article 25(2) de la Loi Transparence en date du 18 juin 2019
-        names:
-      - match: Sanction administrative imposée au titre de l’article 25(2) de la Loi Transparence en date du 21 mai 2019
-        names:
-      - match: Sanction administrative prononcée à l’encontre du PSF de support onepoint PSF
-        names:
-          - onepoint PSF
-      - match: Sanction administrative prononcée à l’encontre du gestionnaire de fonds d’investissement alternatifs Historic Car Invest
-        names:
-          - Historic Car Invest
-      - match: Sanction administrative prononcée à l’encontre du gestionnaire de fonds d’investissement alternatifs Gpmg
-        names:
-          - Gpmg
-      - match: Sanction administrative prononcée à l’encontre de l’établissement de paiement Unzer Luxembourg S.A.
-        names:
-          - Unzer Luxembourg S.A.
-      - match: Sanction administrative prononcée à l’encontre du gestionnaire de fonds d’investissement Generali Investments Luxembourg S.A.
-        names:
-          - Generali Investments Luxembourg S.A.
       - match: Sanctions administratives prononcées à l’encontre de deux réviseurs d’entreprises agréés
+        names:
+      - match: Sanction administrative prononcée à l’encontre d’un établissement de paiement autorisé
         names:
       - match: Sanction administrative prononcée à l’encontre d’un établissement de paiement
         names:
-      - match: Sanction administrative prononcée à l’encontre d’une entreprise d’investissement
+      - match: Sanction administrative prononcée à l’encontre d’un établissement de crédit
         names:
-      - match: Sanction administrative prononcée à l’encontre de l’établissement de crédit BEMO EUROPE – Banque Privée S.A.
+      - match: Sanction administrative imposée au titre de l’article 25(2) de la Loi Transparence en date du 21 mai 2019
         names:
-          - BEMO EUROPE - Banque Privée S.A.
-          
+      - match: Sanction administrative imposée au titre de l’article 25(2) de la Loi Transparence en date du 18 juin 2019
+        names:
+      - match: Sanction administrative prononcée à l’encontre de deux gérants de l’associé commandité d’un fonds d’investissement spécialisé
+        names:
+      - match: Sanction administrative imposée au titre de l’article 25(2) de la Loi Transparence en date du 20 août 2020
+        names:
