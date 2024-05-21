@@ -14,7 +14,8 @@ description: |
   by the CSSF.
 publisher:
   name: Commission de Surveillance du Secteur Financier
-  description: The Commission de Surveillance du Secteur Financier (CSSF)
+  description: |
+    The Commission de Surveillance du Secteur Financier (CSSF)
    is the main financial regulatory authority in Luxembourg.
    Since 2014, it has been the country's national competent
    authority within European Banking Supervision. The CSSF
@@ -29,7 +30,7 @@ publisher:
 url: "https://www.cssf.lu/fr/publications-donnees/?content_type=1387%2C623%2C625"
 data:
   url: https://www.cssf.lu/fr/publications-donnees/page/1/?content_type=1387%2C623%2C625
-  format: PDF 
+  format: HTML 
 
 lookups:
   subtitle_to_names:

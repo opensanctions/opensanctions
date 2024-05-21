@@ -46,7 +46,7 @@ def crawl_item(url: str, context: Context):
         names = [subtitle]
 
     # If the subtitle doesn't contain any names
-    if not names or len(names) == 0:
+    if not names:
         return
 
     entity = context.make("LegalEntity")
@@ -54,7 +54,7 @@ def crawl_item(url: str, context: Context):
     for name in names:
         entity.add("name", name)
 
-    entity.add("topics", "reg.warn")
+    entity.add("topics", "crime.fin")
 
     sanction = context.make("Sanction")
     sanction.id = context.make_slug(title)
@@ -68,15 +68,6 @@ def crawl_item(url: str, context: Context):
 
 
 def crawl(context: Context):
-    """
-    Entrypoint to the crawler.
-
-    The crawler works by first finding the url for the senators data,
-    then fetching the data from the URL as a JSON.
-    Finally we create the entities.
-
-    :param context: The context object.
-    """
 
     base_url = "https://www.cssf.lu/fr/publications-donnees/page/{}/?content_type=1387%2C623%2C625"
 
