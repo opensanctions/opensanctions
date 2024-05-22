@@ -137,7 +137,7 @@ jobs:
           pull: true
           push: true
           tags: ghcr.io/opensanctions/opensanctions:latest
-          cache-from: type=gha
+          # cache-from: type=gha
           cache-to: type=gha,mode=max
 
   dispatch:
