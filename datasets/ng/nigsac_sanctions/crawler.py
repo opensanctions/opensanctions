@@ -9,7 +9,6 @@ from zavod.entity import Entity
 
 
 FORMATS = ["%m/%d/%Y"]
-ENTITIES_AS_INDIVIDUALS = {"ANSARUL", "JAMA'ATU", "YAN", "INDIGENOUS", "ISLAMIC"}
 
 
 def parse_date(text: str) -> Optional[str]:
@@ -68,11 +67,13 @@ def crawl_individual(context: Context, url: str, data: Dict[str, str]):
     middle_name = data.pop("middlename")
     last_name = data.pop("surname")
 
-    if first_name.strip() in ENTITIES_AS_INDIVIDUALS:
-        name = h.make_name(
-            first_name=first_name, middle_name=middle_name, last_name=last_name
-        )
-        data["entity-name"] = name
+    full_name = h.make_name(
+        first_name=first_name, middle_name=middle_name, last_name=last_name
+    )
+    res = context.lookup("entities_as_individuals", full_name)
+    if res is not None:
+        for key, value in res.props.items():
+            data[key] = value
         data["incorporation-number"] = None
         data["incorporation-date"] = None
         data["referance-number"] = None
@@ -108,8 +109,10 @@ def crawl_entity(context: Context, url: str, data: Dict[str, str]):
     name = data.pop("entity-name")
     entity.id = context.make_id(name)
     entity.add("name", name)
+    entity.add("alias", data.pop("aliases", None))
     entity.add("incorporationDate", parse_date(data.pop("incorporation-date")))
     entity.add("registrationNumber", data.pop("incorporation-number"))
+    entity.add("country", data.pop("country", None))
 
     sanction_ref = data.pop("referance-number")
     sanction = h.make_sanction(context, entity, key=sanction_ref)
