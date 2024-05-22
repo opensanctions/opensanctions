@@ -6,7 +6,7 @@ coverage:
   start: "2024-03-28"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  Firms and individuals that have violated FINRA rules
+  Firms and individuals that have faced FINRA disciplinary actions
 description: |
   This dataset comprises firms and individuals against whom FINRA has taken
   disciplinary actions for violations of its rules, federal securities laws,
@@ -121,7 +121,9 @@ lookups:
       - match: "goldman, sachs & co. llc (f/k/a goldman, sachs & co.)"
         names:
           - Goldman, Sachs & Co. LLC (f/k/a Goldman, Sachs & Co
-      - match: "goldman, sachs & co."
+      - match:
+          - "goldman, sachs & co."
+          - "goldman, sachs & co"
         names:
           - Goldman, Sachs & Co.
       - match: "goldman, sachs and co."
@@ -583,3 +585,9 @@ lookups:
       - match: wilson-davis and co. inc.
         names:
           - Wilson-Davis and Co. Inc.
+      - match: "waddell and reed inc."
+        names:
+          - Waddell and Reed Inc.
+      - match: "fbr capital markets and co."
+        names:
+          - FBR Capital Markets and Co.
