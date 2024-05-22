@@ -36,10 +36,10 @@ publisher:
     The NSC by virtue of Section 10 of the TPPA 2022 is empowered to enforce the
     implementation of all the UNSCRs contained in Schedule 1 of the Terrorism (Prevention
     and Prohibition) Act 2022.
-  url: https://apps.nfiu.gov.ng/nigsac/AboutUs
+  url: https://nigsac.gov.ng/AboutUs
   country: ng
   official: true
-url: https://apps.nfiu.gov.ng/nigsac/Sanctions
+url: https://nigsac.gov.ng/IndSancList
 data:
   url: https://nigsac.gov.ng/IndSancList
   format: HTML
@@ -55,3 +55,35 @@ assertions:
     schema_entities:
       Person: 50
       LegalEntity: 20
+
+lookups:
+  entities_as_individuals:
+    options:
+      - match: YAN BINDIGA GROUP NLBDG
+        props:
+          entity-name: Yan Bindiga Group
+          country: Nigeria
+      - match: YAN TAÁDDA GROUP
+        props:
+          entity-name: Yan Taadda Group
+          country: Nigeria
+      - match: INDIGENOUS PEOPLE OF BIAFRA (IPOB)
+        props:
+          entity-name: Indigenous People of Biafra
+          aliases: IPOB
+          country: Nigeria
+      - match: ISLAMIC STATE OF WEST AFRICA PROVINCE (ISWAP)
+        props:
+          entity-name: THE ISAMALIC STATE OF WEST AFRICA PROVINCE
+          aliases: ISWAP
+          country: Nigeria
+      - match: ANSARUL MUSLIMINA FI BILADIS SUDAN (ANSARU)
+        props:
+          entity-name: Ansarul Muslimina Fi Biladis Sudan
+          aliases: ANSARU
+          country: Nigeria
+      - match: JAMA'ATU AHLIS SUNNA LIDDA'AWATI WAL-JIHAD
+        props:
+          entity-name: Boko Haram
+          aliases: JAMA'ATU AHLIS SUNNA LIDDA'AWATI WAL-JIHAD
+          country: Nigeria
