@@ -9,6 +9,7 @@ from zavod.entity import Entity
 
 
 FORMATS = ["%m/%d/%Y"]
+ENTITIES_AS_INDIVIDUALS = {"ANSARUL", "JAMA'ATU", "YAN", "INDIGENOUS", "ISLAMIC"}
 
 
 def parse_date(text: str) -> Optional[str]:
@@ -62,12 +63,24 @@ def crawl_common(context: Context, url: str, entity: Entity, sanction: Entity, d
     context.audit_data(data)
 
 
-def crawl_individual(context: Context, url):
-    data = crawl_page(context, url)
-    entity = context.make("Person")
+def crawl_individual(context: Context, url: str, data: Dict[str, str]):
     first_name = data.pop("first-name")
     middle_name = data.pop("middlename")
     last_name = data.pop("surname")
+
+    if first_name.strip() in ENTITIES_AS_INDIVIDUALS:
+        name = h.make_name(
+            first_name=first_name, middle_name=middle_name, last_name=last_name
+        )
+        data["entity-name"] = name
+        data["incorporation-number"] = None
+        data["incorporation-date"] = None
+        data["referance-number"] = None
+        data.pop("nationality")
+        crawl_entity(context, url, data)
+        return
+
+    entity = context.make("Person")
     birth_place = format_birth_place(data.pop("birth-city"), data.pop("birth-country"))
     birth_date = parse_date(data.pop("date-of-birth"))
     entity.id = context.make_id(
@@ -90,10 +103,11 @@ def crawl_individual(context: Context, url):
     crawl_common(context, url, entity, sanction, data)
 
 
-def crawl_entity(context: Context, url: str):
-    data = crawl_page(context, url)
+def crawl_entity(context: Context, url: str, data: Dict[str, str]):
     entity = context.make("LegalEntity")
-    entity.id = context.make_id(data.pop("entity-name"))
+    name = data.pop("entity-name")
+    entity.id = context.make_id(name)
+    entity.add("name", name)
     entity.add("incorporationDate", parse_date(data.pop("incorporation-date")))
     entity.add("registrationNumber", data.pop("incorporation-number"))
 
@@ -117,11 +131,15 @@ def crawl(context: Context):
     for row in individual_tables[0].xpath(".//tr"):
         if row.find(".//th") is not None:
             continue
-        crawl_individual(context, row.xpath(".//a[text() = 'Details']/@href")[0])
+        url = row.xpath(".//a[text() = 'Details']/@href")[0]
+        data = crawl_page(context, url)
+        crawl_individual(context, url, data)
 
     entity_tables = doc.xpath(".//h6[text() = 'Entity']/following-sibling::table[1]")
     assert len(entity_tables) == 1, entity_tables
     for row in entity_tables[0].xpath(".//tr"):
         if row.find(".//th") is not None:
             continue
-        crawl_entity(context, row.xpath(".//a[text() = 'Details']/@href")[0])
+        url = row.xpath(".//a[text() = 'Details']/@href")[0]
+        data = crawl_page(context, url)
+        crawl_entity(context, url, data)
