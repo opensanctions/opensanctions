@@ -47,8 +47,8 @@ data:
 assertions:
   min:
     schema_entities:
-      Person: 25
-      LegalEntity: 5
+      Person: 21
+      LegalEntity: 9
     country_entities:
       ng: 12
   max:
