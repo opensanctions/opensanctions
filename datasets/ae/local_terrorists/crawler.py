@@ -41,7 +41,7 @@ def parse_row(context: Context, headers: List[str], row: List[str], sanctioned: 
         entity.add(header, value, lang=lang)
 
     context.emit(sanction)
-    context.emit(entity, target=True)
+    context.emit(entity, target=sanctioned)
     if len(address):
         addr = h.make_address(context, **address)
         h.apply_address(context, entity, addr)

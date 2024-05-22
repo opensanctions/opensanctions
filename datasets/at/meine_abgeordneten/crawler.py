@@ -1,4 +1,5 @@
 from collections import defaultdict
+from datetime import datetime
 import os
 from pprint import pprint
 import re
@@ -6,7 +7,7 @@ from urllib.parse import urlparse
 from normality import collapse_spaces
 
 from zavod import Context, helpers as h
-from zavod.logic.pep import categorise
+from zavod.logic.pep import OccupancyStatus, categorise
 
 FORMATS = ["%d. %m %Y", "%d.%m.%Y", "%m/%Y"]
 MONTHS = {
@@ -166,7 +167,13 @@ def crawl_title(context, url, person, el):
         position,
         no_end_implies_current=False,
         categorisation=categorisation,
+        # At 2024-05-21 I saw a position updated 2024-01-19 so this site is maintained.
+        # https://www.meineabgeordneten.at/Abgeordnete/wolfgang.handler
+        status=OccupancyStatus.UNKNOWN,
     )
+    context.log.info("Using position from title section", url=url)
+    if datetime.now().isoformat() > "2025-05-21":
+        context.log.warning("Verify again that the site is kept up to date")
     if occupancy is not None:
         context.emit(person, target=True)
         context.emit(position)
