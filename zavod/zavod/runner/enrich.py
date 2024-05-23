@@ -67,6 +67,8 @@ def enrich(context: Context) -> None:
         for entity_idx, entity in enumerate(view.entities()):
             if entity_idx > 0 and entity_idx % 1000 == 0:
                 context.cache.flush()
+            if entity_idx > 0 and entity_idx % 100 == 0:
+                context.log.info("Enriched %s entities..." % entity_idx)
             context.log.debug("Enrich query: %r" % entity)
             try:
                 for match in enricher.match_wrapped(entity):

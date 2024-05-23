@@ -44,7 +44,7 @@ class LocalEnricher(Enricher):
         target_dataset = get_catalog().require(target_dataset_name)
         store = get_store(target_dataset)
         self._view = store.default_view(external=False)
-        self._index = DuckDBIndex(self._view, Path(mkdtemp()) / "duckdb_index.db")
+        self._index = DuckDBIndex(self._view, Path(mkdtemp()))
         self._index.build()
         algo_name = config.pop("algorithm", "logic-v1")
         self._algorithm = get_algorithm(algo_name)
