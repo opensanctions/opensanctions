@@ -8,14 +8,7 @@ from zavod import helpers as h
 from zavod.entity import Entity
 
 
-FORMATS = ["%m/%d/%Y"]
-
-
-def parse_date(text: str) -> Optional[str]:
-    if not text:
-        return None
-    date, _time, _ampm = text.split(" ")
-    return h.parse_date(date, FORMATS)
+FORMATS = ["%m/%d/%Y %H:%M:%S %p"]
 
 
 def format_birth_place(city, country):
@@ -28,7 +21,7 @@ def format_birth_place(city, country):
     return None
 
 
-def crawl_page(context: Context, url) -> Dict[str, str]:
+def parse_page(context: Context, url) -> Dict[str, str]:
     doc = context.fetch_html(url, cache_days=1)
     data = dict()
     for dt in doc.findall(".//dt"):
@@ -52,9 +45,9 @@ def crawl_common(context: Context, url: str, entity: Entity, sanction: Entity, d
     entity.add("topics", "sanction")
     entity.add("notes", data.pop("narrative-summary"))
 
-    sanction.add("startDate", parse_date(data.pop("sanction-date")))
+    sanction.add("startDate", h.parse_date(data.pop("sanction-date"), FORMATS))
     sanction.add("reason", data.pop("reason-for-designation"))
-    sanction.add("listingDate", parse_date(data.pop("record-date")))
+    sanction.add("listingDate", h.parse_date(data.pop("record-date"), FORMATS))
     sanction.add("description", data.pop("press-release"))
 
     context.emit(entity, target=True)
@@ -83,7 +76,7 @@ def crawl_individual(context: Context, url: str, data: Dict[str, str]):
 
     entity = context.make("Person")
     birth_place = format_birth_place(data.pop("birth-city"), data.pop("birth-country"))
-    birth_date = parse_date(data.pop("date-of-birth"))
+    birth_date = h.parse_date(data.pop("date-of-birth"), FORMATS)
     entity.id = context.make_id(
         first_name, middle_name, last_name, birth_place, birth_date
     )
@@ -110,7 +103,9 @@ def crawl_entity(context: Context, url: str, data: Dict[str, str]):
     entity.id = context.make_id(name)
     entity.add("name", name)
     entity.add("alias", data.pop("aliases", None))
-    entity.add("incorporationDate", parse_date(data.pop("incorporation-date")))
+    entity.add(
+        "incorporationDate", h.parse_date(data.pop("incorporation-date"), FORMATS)
+    )
     entity.add("registrationNumber", data.pop("incorporation-number"))
     entity.add("country", data.pop("country", None))
 
@@ -135,7 +130,7 @@ def crawl(context: Context):
         if row.find(".//th") is not None:
             continue
         url = row.xpath(".//a[text() = 'Details']/@href")[0]
-        data = crawl_page(context, url)
+        data = parse_page(context, url)
         crawl_individual(context, url, data)
 
     entity_tables = doc.xpath(".//h6[text() = 'Entity']/following-sibling::table[1]")
@@ -144,5 +139,5 @@ def crawl(context: Context):
         if row.find(".//th") is not None:
             continue
         url = row.xpath(".//a[text() = 'Details']/@href")[0]
-        data = crawl_page(context, url)
+        data = parse_page(context, url)
         crawl_entity(context, url, data)
