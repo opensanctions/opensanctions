@@ -3,13 +3,14 @@ from zavod import settings
 from zavod.meta import Dataset
 from zavod.archive import get_dataset_resource, publish_resource
 from zavod.archive import clear_data_path, dataset_data_path
+from zavod.archive import DATASETS
 
 
 def test_archive_publish(testdataset1: Dataset):
     name = "foo.json"
     data_path = dataset_data_path(testdataset1.name)
     local_path = get_dataset_resource(testdataset1, name)
-    dataset_archive_path = settings.ARCHIVE_PATH / "datasets"
+    dataset_archive_path = settings.ARCHIVE_PATH / DATASETS
     assert not local_path.exists()
     with open(local_path, "w") as fh:
         fh.write("hello, world!\n")

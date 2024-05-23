@@ -4,7 +4,7 @@ from zavod import settings
 from zavod.meta import Dataset
 from zavod.logs import get_logger
 from zavod.archive import publish_resource, dataset_resource_path
-from zavod.archive import publish_dataset_history, publish_run_resource
+from zavod.archive import publish_dataset_history, publish_artifact
 from zavod.archive import INDEX_FILE, CATALOG_FILE, ISSUES_FILE, ISSUES_LOG
 from zavod.archive import STATEMENTS_FILE, RESOURCES_FILE, STATISTICS_FILE
 from zavod.archive import ENTITIES_FILE
@@ -30,7 +30,7 @@ def publish_dataset(dataset: Dataset, latest: bool = True) -> None:
             mime_type=resource.mime_type,
         )
         if resource.name == ENTITIES_FILE:
-            publish_run_resource(
+            publish_artifact(
                 path,
                 dataset.name,
                 settings.RUN_VERSION,
@@ -50,7 +50,7 @@ def publish_dataset(dataset: Dataset, latest: bool = True) -> None:
         mime_type = JSON if meta.endswith(".json") else None
         publish_resource(path, dataset.name, meta, latest=latest, mime_type=mime_type)
         if meta == STATEMENTS_FILE:
-            publish_run_resource(
+            publish_artifact(
                 path,
                 dataset.name,
                 settings.RUN_VERSION,

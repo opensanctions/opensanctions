@@ -19,6 +19,8 @@ if TYPE_CHECKING:
 
 log = get_logger(__name__)
 StatementGen = Generator[Statement, None, None]
+DATASETS = "datasets"
+ARTIFACTS = "artifacts"
 STATEMENTS_FILE = "statements.pack"
 ENTITIES_FILE = "entities.ftm.json"
 STATISTICS_FILE = "statistics.json"
@@ -32,7 +34,7 @@ HISTORY_FILE = "history.json"
 
 def get_release_object(dataset_name: str, resource: str) -> ArchiveObject:
     backend = get_archive_backend()
-    name = f"datasets/{settings.BACKFILL_RELEASE}/{dataset_name}/{resource}"
+    name = f"{DATASETS}/{settings.BACKFILL_RELEASE}/{dataset_name}/{resource}"
     return backend.get_object(name)
 
 
@@ -61,18 +63,18 @@ def publish_resource(
     if dataset_name is not None:
         assert path.relative_to(dataset_data_path(dataset_name))
         resource = f"{dataset_name}/{resource}"
-    release_name = f"datasets/{settings.RELEASE}/{resource}"
+    release_name = f"{DATASETS}/{settings.RELEASE}/{resource}"
     release_object = backend.get_object(release_name)
     release_object.publish(path, mime_type=mime_type)
 
     if latest and settings.RELEASE != "latest":
-        latest_name = f"datasets/latest/{resource}"
+        latest_name = f"{DATASETS}/latest/{resource}"
         latest_object = backend.get_object(latest_name)
         latest_object.republish(release_name)
 
 
 def datasets_path() -> Path:
-    return settings.DATA_PATH / "datasets"
+    return settings.DATA_PATH / DATASETS
 
 
 def _state_path() -> Path:
@@ -129,7 +131,7 @@ def get_dataset_index(dataset_name: str, backfill: bool = True) -> Optional[Path
 
 @lru_cache(maxsize=500)
 def get_dataset_history(dataset_name: str) -> VersionHistory:
-    name = f"runs/{dataset_name}/{HISTORY_FILE}"
+    name = f"{ARTIFACTS}/{dataset_name}/{HISTORY_FILE}"
     backend = get_archive_backend()
     object = backend.get_object(name)
     if not object.exists():
@@ -138,7 +140,7 @@ def get_dataset_history(dataset_name: str) -> VersionHistory:
     return VersionHistory.from_json(data)
 
 
-def get_run_object(
+def get_artifact_object(
     dataset_name: str, resource: str, version: Optional[str] = None
 ) -> ArchiveObject:
     if version is None:
@@ -148,7 +150,7 @@ def get_run_object(
         else:
             version = "NULL"
     backend = get_archive_backend()
-    name = f"runs/{dataset_name}/{version}/{resource}"
+    name = f"{ARTIFACTS}/{dataset_name}/{version}/{resource}"
     return backend.get_object(name)
 
 
@@ -163,15 +165,15 @@ def publish_dataset_history(dataset_name: str, version: Version) -> None:
     with open(path, "w") as fh:
         fh.write(history.to_json())
 
-    name = f"runs/{dataset_name}/{HISTORY_FILE}"
+    name = f"{ARTIFACTS}/{dataset_name}/{HISTORY_FILE}"
     object = backend.get_object(name)
     object.publish(path, mime_type=JSON)
-    name = f"runs/{dataset_name}/{version.id}/{HISTORY_FILE}"
+    name = f"{ARTIFACTS}/{dataset_name}/{version.id}/{HISTORY_FILE}"
     object = backend.get_object(name)
     object.publish(path, mime_type=JSON)
 
 
-def publish_run_resource(
+def publish_artifact(
     path: Path,
     dataset_name: str,
     version: Version,
@@ -179,7 +181,7 @@ def publish_run_resource(
     mime_type: Optional[str] = None,
 ) -> None:
     """Publish a file in the given run's directory of the given dataset."""
-    name = f"runs/{dataset_name}/{version.id}/{resource}"
+    name = f"{ARTIFACTS}/{dataset_name}/{version.id}/{resource}"
     backend = get_archive_backend()
     object = backend.get_object(name)
     object.publish(path, mime_type=mime_type)
@@ -206,7 +208,7 @@ def _iter_scope_statements(dataset: "Dataset", external: bool = True) -> Stateme
             yield from _read_fh_statements(fh, external)
         return
 
-    object = get_run_object(dataset.name, STATEMENTS_FILE)
+    object = get_artifact_object(dataset.name, STATEMENTS_FILE)
     if not object.exists():
         object = get_release_object(dataset.name, STATEMENTS_FILE)
     if object.exists():
@@ -225,7 +227,7 @@ def iter_previous_statements(dataset: "Dataset", external: bool = True) -> State
     """Load the statements from the previous release of the dataset by streaming them
     from the data archive."""
     for scope in dataset.leaves:
-        object = get_run_object(dataset.name, STATEMENTS_FILE)
+        object = get_artifact_object(dataset.name, STATEMENTS_FILE)
         if not object.exists():
             object = get_release_object(dataset.name, STATEMENTS_FILE)
         if object.exists():
