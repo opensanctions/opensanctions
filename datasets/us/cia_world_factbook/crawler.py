@@ -36,7 +36,7 @@ REGEX_HOLDER = re.compile(
         "|President of Territorial Council"
         "|President of the Territorial Assembly"
         "|President of the Swiss Confederation"
-        "|President of the Government of Spain \(prime minister-equivalent\)"
+        r"|President of the Government of Spain \(prime minister-equivalent\)"
         "|President of the Pontifical Commission for the State of Vatican City"
         "|(First |Second |Executive |Co-)?(Vice |Deputy )President(-elect)?"
         "|President(-elect)?"
@@ -77,12 +77,12 @@ REGEX_HOLDER = re.compile(
         "|Sultan and Prime Minister"
         "|Supreme Leader"
         "|Supreme People's Assembly President"
-        "|Taoiseach \(Prime Minister\)"
-        "|\(Ulu o Tokelau\)"
+        r"|Taoiseach \(Prime Minister\)"
+        r"|\(Ulu o Tokelau\)"
         ") "
-        "(?P<name>[\w,.'’\" -]+?) ?"
-        "(\([\w \.]+\))? ?"
-        "\((since |born |reappointed |sworn in )?(?P<start_date>\d* ?\w* ?\d{4} ?)\)"
+        r"(?P<name>[\w,.'’\" -]+?) ?"
+        r"(\([\w \.]+\))? ?"
+        r"\((since |born |reappointed |sworn in )?(?P<start_date>\d* ?\w* ?\d{4} ?)\)"
     )
 )
 REGEX_CONTAINS_OTHER = re.compile(r"\b(and|of the) ")

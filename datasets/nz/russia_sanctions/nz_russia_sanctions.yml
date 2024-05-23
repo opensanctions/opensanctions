@@ -5,7 +5,7 @@ coverage:
   frequency: daily
   start: 2022-10-31
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: |
+summary: >-
   The New Zealand government's list of people and companies sanctioned in relation
   to the Russian attack on Ukraine.
 description: |
@@ -38,3 +38,5 @@ lookups:
         value: null
       - match: 45352
         value: 2023-03-02
+      - match: 45429
+        value: 2024-05-19

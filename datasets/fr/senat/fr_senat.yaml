@@ -7,7 +7,7 @@ coverage:
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 entry_point: crawler.py
 summary: >-
-  French Senators.
+  Current and recent Members of the French Senate with itemised terms of office
 description: |
   This dataset lists the members of the French Senate.
 

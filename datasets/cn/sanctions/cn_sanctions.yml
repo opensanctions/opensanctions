@@ -4,7 +4,7 @@ prefix: cn-sanc
 coverage:
   frequency: never
   start: 2024-03-08
-  end: 2024-03-08
+  end: 2024-05-22
 deploy:
   schedule: "30 6 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
@@ -42,7 +42,7 @@ publisher:
     relations.
   url: https://www.mfa.gov.cn/wjb_673085/zfxxgk_674865/gknrlb/fzcqdcs/
   official: false
-url: https://docs.google.com/spreadsheets/d/1DhQqlm2MHv3VpVjEJGstbBWlHV0eBJo-omMwn26TQw4/edit#gid=0
+url: https://docs.google.com/spreadsheets/d/1DhQqlm2MHv3VpVjEJGstbBWlHV0eBJo-omMwn26TQw4/edit#gid=1070466538
 data:
-  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vT0BEUqT1iKb-QP0LA52qSwq3KLiJpEzNO9MiSLvJCoJXOLxkSr5rYtEXzTw0IgJ0pfpF_qiwueHyOQ/pub?gid=0&single=true&output=csv
+  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vT0BEUqT1iKb-QP0LA52qSwq3KLiJpEzNO9MiSLvJCoJXOLxkSr5rYtEXzTw0IgJ0pfpF_qiwueHyOQ/pub?gid=1070466538&single=true&output=csv
   format: CSV

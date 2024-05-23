@@ -16,9 +16,9 @@ deploy:
   disk: "20Gi"
   # premium: true
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: |
+summary: >-
   A concatenated data file of all entities which have been issued Legal
-  Entity Identifier (LEI) codes.
+  Entity Identifier (LEI) codes
 description: |
   Legal Entity Identifiers (LEIs) are global company identification numbers. They
   are meant to be used in international transactions in the future, backed by an
@@ -46,6 +46,8 @@ publisher:
     organization headquartered in Basel, Switzerland.
   url: https://www.gleif.org/en/about/this-is-gleif
 ci_test: false
+http:
+  retry_methods: [GET, POST]
 
 inputs:
   - ann_graph_topics

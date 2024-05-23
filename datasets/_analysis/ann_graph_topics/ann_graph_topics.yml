@@ -15,7 +15,7 @@ deploy:
   schedule: "0 */6 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 ci_test: false
-summary: |
+summary: >
   Automatically generated graph-based topic annotations
 description: |
   This data sources stores annotations of entities which are adjacent to other

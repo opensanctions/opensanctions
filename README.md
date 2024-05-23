@@ -12,11 +12,11 @@ We build on top of the [Follow the Money](https://www.followthemoney.tech) frame
 ## Quick Links
 * [OpenSanctions Website](https://www.opensanctions.org/)
     * [Datasets](https://www.opensanctions.org/datasets/)
-    * [FAQs](https://www.opensanctions.org/docs/faq/)
-    * [API Documentation](https://api.opensanctions.org/)
+    * [FAQs](https://www.opensanctions.org/faq/)
 * [zavod Documentation](https://zavod.opensanctions.org/)
 * [Data Sources Roadmap](https://github.com/orgs/opensanctions/projects/2?pane=info) - See our current plans!
 * [Data Licensing Details](https://www.opensanctions.org/licensing/)
+    * [API Documentation](https://api.opensanctions.org/)
 * [Reach Out to Us](https://www.opensanctions.org/contact/)
 
 ## Collaborate with us in Development
@@ -63,4 +63,4 @@ docker compose run --rm app zavod crawl datasets/de/abgeordnetenwatch/de_abgeord
 
 ## Licensing
 
-The code within this repository is licensed under MIT. For content and data, we adhere to [CC 4.0 Attribution-NonCommercial](https://www.opensanctions.org/licensing/).
+The code within this repository is licensed under the MIT License. For content and data, we adhere to [CC 4.0 Attribution-NonCommercial](https://www.opensanctions.org/licensing/).

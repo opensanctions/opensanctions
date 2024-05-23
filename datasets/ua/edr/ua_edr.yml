@@ -17,7 +17,7 @@ exports:
   - senzing.json
 resolve: false
 ci_test: false
-summary: |
+summary: >-
   The beneficial ownership database of legal entities registered in Ukraine (EDR)
 resources:
   - name: entities.ftm.json

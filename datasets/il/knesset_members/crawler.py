@@ -1,5 +1,6 @@
+from typing import Dict
 from collections import defaultdict
-from languagecodes import iso_639_alpha3
+from rigour.langs import iso_639_alpha3
 from requests import HTTPError
 
 from zavod import Context, helpers as h
@@ -9,7 +10,7 @@ from zavod.logic.pep import categorise
 DATE_FORMATS = ["%B %d, %Y"]
 CACHE_SHORT = 7
 CACHE_LONG = 14
-STATUSES = defaultdict(int)
+STATUSES: Dict[int, int] = defaultdict(int)
 
 
 def crawl_position(context: Context, person: Entity, position: Entity, tenure):
@@ -71,7 +72,7 @@ def crawl_item(context: Context, member_id: int, name: str, lang: str):
         return
 
     person = context.make("Person")
-    person.id = context.make_slug(member_id)
+    person.id = context.make_slug(str(member_id))
     person.add("name", name, lang=lang3)
     person.add(
         "sourceUrl",

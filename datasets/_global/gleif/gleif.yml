@@ -17,9 +17,9 @@ exports:
   - senzing.json
 resolve: false
 ci_test: false
-summary: |
+summary: >-
   Base data for all entities which have been issued Legal Entity Identifier
-  (LEI) codes, as well as the relationships between them.
+  (LEI) codes, as well as the relationships between them
 publisher:
   name: Global Legal Entity Identifier Foundation (GLEIF)
   description: |

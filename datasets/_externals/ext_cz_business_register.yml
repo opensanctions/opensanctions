@@ -14,7 +14,7 @@ deploy:
   memory: "1000Mi"
   memory_limit: "2000Mi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: |
+summary: >-
   Czech business register with company metadata and directorships as obtained
   from the open data xml dump by ARES.
 publisher:
@@ -29,6 +29,8 @@ publisher:
   country: cz
   official: true
 ci_test: false
+http:
+  retry_methods: [GET, POST]
 
 inputs:
   - ann_graph_topics

@@ -14,7 +14,7 @@ deploy:
   memory: "1000Mi"
   memory_limit: "2000Mi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: |
+summary: >-
   Cypriot open data on companies, which names officers but no shareholders.
 description: |
   > Register of registered organizations in Cyprus, kept at the office of
@@ -41,6 +41,8 @@ publisher:
   country: cy
   official: true
 ci_test: false
+http:
+  retry_methods: [GET, POST]
 
 inputs:
   - ann_graph_topics

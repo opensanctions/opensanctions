@@ -5,7 +5,6 @@ from typing import Optional, Dict
 CRYPTOS = {
     "ETH": "0x[a-fA-F0-9]{40}",
     "BTC": "bc1[a-zA-HJ-NP-Z0-9]{25,39}|[13][a-km-zA-HJ-NP-Z1-9]{25,39}",
-    "USDT": "0x[a-fA-F0-9]{40}",
     "DASH": "X[1-9A-HJ-NP-Za-km-z]{33}",
     "XMR": "4[0-9AB][1-9A-HJ-NP-Za-km-z]{93}",
     "XRP": "r[0-9a-zA-Z]{24,34}",

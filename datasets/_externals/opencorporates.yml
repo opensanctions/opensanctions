@@ -11,7 +11,7 @@ deploy:
   # schedule: "1 22 * * *"
   memory: "2000Mi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: |
+summary: >-
   The largest open database of company data in the world, with data from over 140 registries.
 description: |
   OpenCorporates is a global database of companies, their directors and regulatory filings.
@@ -76,7 +76,7 @@ lookups:
           - CHANNEL ISLANDS
           - Channel Islands
           - YYY
-          - VIRGIN ISLANDS  # which???!?
+          - VIRGIN ISLANDS # which???!?
         value: null
   type.country:
     lowercase: true

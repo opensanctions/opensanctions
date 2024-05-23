@@ -7,7 +7,7 @@ coverage:
 deploy:
   schedule: "20 */3 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: |
+summary: >-
   The Consolidated Screening List (CSL) is a list of parties for which the United
   States Government maintains restrictions on certain exports, reexports, or transfers
   of items.
@@ -81,10 +81,14 @@ lookups:
         value: US
       - match: china (prc)
         value: China
-      - match: north korea (dprk)
+      - match:
+          - north korea (dprk)
+          - dprk individual
         value: North Korea
       - match: "people's republic of china (prc)"
         value: China
+      - match: russian individual
+        value: Russia
       - match:
           - "turkish individual"
           - "turkey (turkiye)"

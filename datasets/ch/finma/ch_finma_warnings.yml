@@ -7,9 +7,9 @@ coverage:
 deploy:
   memory: 1500Mi
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: |
+summary: >-
   Switzerland's financial regulator maintains and publishes a warning list of
-  companies and individuals who may be carrying out unauthorised services.
+  companies and individuals who may be carrying out unauthorised services
 description: |
   > FINMA checks the companies and individuals on its warning list to see if
   > they are providing unauthorised services. The findings, however, have so

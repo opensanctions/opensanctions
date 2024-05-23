@@ -9,7 +9,7 @@ load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 exports:
   - statistics.json
   - entities.ftm.json
-summary: |
+summary: >-
   A database of entities and events related to North Korea's sanctions
   evasion efforts.
 description: |

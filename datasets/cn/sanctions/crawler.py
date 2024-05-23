@@ -1,9 +1,16 @@
 import csv
+from typing import Optional, List
 
 from zavod import Context
 from zavod import helpers as h
 
 FORMAT = ["%d.%m.%y"]
+
+
+def parse_date(date: Optional[str]) -> Optional[List[str]]:
+    if date is None:
+        return None
+    return h.parse_date(date, FORMAT)
 
 
 def crawl(context: Context) -> None:
@@ -18,14 +25,16 @@ def crawl(context: Context) -> None:
             qid = row.pop("QID", None)
             entity.id = qid or context.make_id(name)
             entity.add("wikidataId", qid)
-            entity.add("name", name)
+            entity.add("name", name, lang="eng")
+            entity.add("alias", row.pop("Chinese name"), lang="zho")
             entity.add("country", row.pop("Country", None))
-            entity.add("notes", row.pop("Summary", None))
-            entity.add("topics", "poi")
+            entity.add("notes", row.pop("Summary", None), lang="eng")
+            entity.add("topics", "sanction.counter")
             sanction = h.make_sanction(context, entity)
             sanction.set("authority", row.pop("Body", None))
             sanction.add("program", row.pop("List", None))
-            sanction.add("startDate", h.parse_date(row.pop("Date", None), FORMAT))
+            sanction.add("startDate", parse_date(row.pop("Date", None)))
+            sanction.add("endDate", parse_date(row.pop("End date", None)))
             sanction.add("sourceUrl", row.pop("Source URL", None))
             context.emit(sanction)
             context.emit(entity, target=True)

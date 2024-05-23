@@ -6,20 +6,19 @@ coverage:
   start: "2024-03-28"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  Firms and individuals that violated FINRA rules
+  Firms and individuals that have faced FINRA disciplinary actions
 description: |
   This dataset comprises firms and individuals against whom FINRA has taken
-  disciplinary actions for violations of its rules,
-  federal securities laws, rules, and regulations or
-  the rules of the Municipal Securities Rulemaking Board.
+  disciplinary actions for violations of its rules, federal securities laws,
+  rules, and regulations or the rules of the Municipal Securities Rulemaking Board.
 
   Documentation of disciplinary actions found here can include official
   complaints, decisions, and settlement agreements.
 publisher:
   name: Financial Industry Regulatory Authority (FINRA)
   description: |
-    > is authorized by Congress to protect America’s investors by making sure
-    > the broker-dealer industry operates fairly and honestly.
+    FINRA is authorized by Congress to protect America's investors by making sure
+    the broker-dealer industry operates fairly and honestly.
   url: https://www.finra.org/#/
   official: true
   country: "us"
@@ -122,7 +121,9 @@ lookups:
       - match: "goldman, sachs & co. llc (f/k/a goldman, sachs & co.)"
         names:
           - Goldman, Sachs & Co. LLC (f/k/a Goldman, Sachs & Co
-      - match: "goldman, sachs & co."
+      - match:
+          - "goldman, sachs & co."
+          - "goldman, sachs & co"
         names:
           - Goldman, Sachs & Co.
       - match: "goldman, sachs and co."
@@ -386,3 +387,207 @@ lookups:
       - match: "wulff, hansen & co."
         names:
           - Wulff, Hansen & Co.
+      - match: lh ross and company inc.
+        names:
+          - LH Ross and Company Inc.
+      - match: standard and poor's secrities inc.
+        names:
+          - Standard and Poor's Secrities Inc.
+      - match: ryan beck and co. inc.
+        names:
+          - Ryan Beck and Co. Inc.
+      - match: american funds and trusts inc.
+        names:
+          - American Funds and Trusts Inc.
+      - match: oppenheimer and co. inc.
+        names:
+          - Oppenheimer and Co. Inc.
+      - match: a.r. schmeidler and co. inc.
+        names:
+          - A.R. Schmeidler and Co. Inc.
+      - match: adp clearing and outsourcing services inc.
+        names:
+          - ADP Clearing and Outsourcing Services Inc.
+      - match: allen and company llc
+        names:
+          - Allen and Company LLC
+      - match: b.c. ziegler and company
+        names:
+          - B.C. Ziegler and Company
+      - match: bear, stearns & co,. inc.
+        names:
+          - Bear, Stearns & Co,. Inc.
+      - match: bernard herold and co. inc.
+        names:
+          - Bernard Herold and Co. Inc.
+      - match: boenning and scattergood inc.
+        names:
+          - Boenning and Scattergood Inc.
+      - match: cantor fitzgerald and co.
+        names:
+          - Cantor Fitzgerald and Co.
+      - match: chapdelaine corporate securities and co.
+        names:
+          - Chapdelaine Corporate Securities and Co.
+      - match: charles schwab and company inc.
+        names:
+          - Charles Schwab and Company Inc.
+      - match: clark dodge and co. inc.
+        names:
+          - Clark Dodge and Co. Inc.
+      - match: coburn and meredith inc.
+        names:
+          - Coburn and Meredith Inc.
+      - match: cowen and company
+        names:
+          - Cowen and Company
+      - match: cowen and company llc
+        names:
+          - Cowen and Company LLC
+      - match: crews and associates inc.
+        names:
+          - Crews and Associates Inc.
+      - match: cullum and burks securities inc.
+        names:
+          - Cullum and Burks Securities Inc.
+      - match: d.a. davidson and co.
+        names:
+          - D.A. Davidson and Co.
+      - match: dahlman rose and company llc
+        names:
+          - Dahlman Rose and Company LLC
+      - match: dash financial technologies llc (f/k/a dash financial llc and electronic brokerage systems llc)
+        names:
+          - Dash Financial Technologies LLC (f/k/a Dash Financial LLC and Electronic Brokerage Systems LLC)
+      - match: donnelly penman and partners
+        names:
+          - Donnelly Penman and Partners
+      - match: dougherty and company llc
+        names:
+          - Dougherty and Company LLC
+      - match: edward d. jones and co. l.p.
+        names:
+          - Edward D. Jones and Co. L.P.
+      - match: farina and associates inc.
+        names:
+          - Farina and Associates Inc.
+      - match: fox and company investments inc.
+        names:
+          - Fox and Company Investments Inc.
+      - match: g.a. repple and company
+        names:
+          - G.A. Repple and Company
+      - match: goldman sachs execution and clearing l.p.
+        names:
+          - Goldman Sachs Execution and Clearing L.P.
+      - match: griffin mills and long llc
+        names:
+          - Griffin Mills and Long LLC
+      - match: hill thompson magid and co. inc.
+        names:
+          - Hill Thompson Magid and Co. Inc.
+      - match: howe barnes hoefer and arnett inc.
+        names:
+          - Howe Barnes Hoefer and Arnett Inc.
+      - match: industrial and commercial bank of china financial services llc
+        names:
+          - Industrial and Commercial Bank of China Financial Services LLC
+      - match: integrated trading and investments inc.
+        names:
+          - Integrated Trading and Investments Inc.
+      - match: israel a. englander and co. llc
+        names:
+          - Israel A. Englander and Co. LLC
+      - match: j.p. turner and company l.l.c.
+        names:
+          - J.P. Turner and Company L.L.C.
+      - match: james i. black and company
+        names:
+          - James I. Black and Company
+      - match: laidlaw and company (uk) ltd.
+        names:
+          - Laidlaw and Company (UK) Ltd.
+      - match: leerink swann and company
+        names:
+          - Leerink Swann and Company
+      - match: merrill lynch pierce fenner and smith incorporated
+        names:
+          - Merrill Lynch Pierce Fenner and Smith Incorporated
+      - match: merriman curhan ford and co.
+        names:
+          - Merriman Curhan Ford and Co.
+      - match: morgan keegan and company inc.
+        names:
+          - Morgan Keegan and Company Inc.
+      - match: morgan stanley and co. incorporated
+        names:
+          - Morgan Stanley and Co. Incorporated
+      - match: morgan stanley and co. llc
+        names:
+          - Morgan Stanley and Co. LLC
+      - match: murphy and durieu
+        names:
+          - Murphy and Durieu
+      - match: needham and company llc
+        names:
+          - Needham and Company LLC
+      - match: pennaluna and company
+        names:
+          - Pennaluna and Company
+      - match: piper jaffray and co.
+        names:
+          - Piper Jaffray and Co.
+      - match: r. seelaus and co. inc.
+        names:
+          - R. Seelaus and Co. Inc.
+      - match: raymond james and associates inc.
+        names:
+          - Raymond James and Associates Inc.
+      - match: ridge clearing and outsourcing soultions inc
+        names:
+          - Ridge Clearing and Outsourcing Soultions Inc
+      - match: samuel a. ramirez and co. inc.
+        names:
+          - Samuel A. Ramirez and Co. Inc.
+      - match: scott and stringfellow llc
+        names:
+          - Scott and Stringfellow LLC
+      - match: spelman and co.
+        names:
+          - Spelman and Co.
+      - match: sterne agee and leach inc.
+        names:
+          - Sterne Agee and Leach Inc.
+      - match: sungard brokerage & securities services llc, f/k/a assent llc
+        names:
+          - Sungard Brokerage & Securities Services LLC f/k/a Assent LLC
+      - match: tradition securities and derivatives inc.
+        names:
+          - Tradition Securities and Derivatives Inc.
+      - match: tradition securities and derivatives llc
+        names:
+          - Tradition Securities and Derivatives LLC
+      - match: trautman wasserman and company inc.
+        names:
+          - Trautman Wasserman and Company
+      - match: virtu americas llc (f/k/a kcg americas llc and knight capital americas llc)
+        names:
+          - Virtu Americas LLC f/k/a KCG Americas LLC and Knight Capital Americas LLC
+      - match: w. r. hambrecht and co. llc
+        names:
+          - W. R. Hambrecht and Co. LLC
+      - match: weeden and co. l.p.
+        names:
+          - Weeden and Co. L.P.
+      - match: william blair and company l.l.c.
+        names:
+          - William Blair and Company L.L.C.
+      - match: wilson-davis and co. inc.
+        names:
+          - Wilson-Davis and Co. Inc.
+      - match: "waddell and reed inc."
+        names:
+          - Waddell and Reed Inc.
+      - match: "fbr capital markets and co."
+        names:
+          - FBR Capital Markets and Co.

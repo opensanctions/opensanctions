@@ -15,7 +15,7 @@ deploy:
   memory: "800Mi"
   memory_limit: "1500Mi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: |
+summary: >-
   A collection of all companies registered in Estonia, including directors and
   beneficial owners.
 publisher:
@@ -28,6 +28,8 @@ publisher:
   country: ee
   official: true
 ci_test: false
+http:
+  retry_methods: [GET, POST]
 
 inputs:
   - ann_graph_topics

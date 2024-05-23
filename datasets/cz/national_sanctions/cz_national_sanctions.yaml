@@ -1,0 +1,43 @@
+title: Czech Republic National Sanctions
+entry_point: crawler.py
+prefix: cz-san
+coverage:
+  frequency: daily
+  start: "2024-05-03"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Legal entities sanctioned by the Czech Republic Ministry of Foreign Affairs
+description: |
+  According to Act No. 1/2023 Coll. on restrictive measures against certain serious
+  acts applied in international relations, the Ministry of Foreign Affairs maintains
+  a national sanctions list and publishes it on its website. The entry on the
+  national sanctions list mainly contains the entity's identification data,
+  a description of the action punishable under the relevant European Union regulation,
+  the scope of restrictive measures against the entity and the date of publication of the entry.
+publisher:
+  name: Ministr zahraničních věcí
+  description: Minister of Foreign Affairs
+  url: https://mzv.gov.cz/jnp/cz/index.html
+  official: true
+  country: "cz"
+url: "https://mzv.gov.cz/jnp/cz/zahranicni_vztahy/sankcni_politika/sankcni_seznam_cr/vnitrostatni_sankcni_seznam.html"
+data:
+  url: https://mzv.gov.cz/jnp/cz/zahranicni_vztahy/sankcni_politika/sankcni_seznam_cr/vnitrostatni_sankcni_seznam.html
+  format: XLSX
+
+lookups:
+  type.country:
+    lowercase: true
+    options:
+      - match:
+          - "Ruská federace"
+          - dnes pravděpodobně Ruská federace
+        value: RU
+      - match:
+          - "dříve Ukrajina"
+          - "Ukrajina"
+        value: UA
+      - match: "Stát Izrael"
+        value: Israel
+      - match: "Česká republika"
+        value: Czech Republic

@@ -14,9 +14,9 @@ deploy:
   memory: "3000Mi"
   premium: true
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-summary: |
+summary: >-
   Wikidata is the structured data project of the Wikipedia community,
-  providing fact-based information edited by humans and machines.
+  providing fact-based information edited by humans and machines
 description: |
   Wikidata serves as the source of much of the OpenSanctions data related to
   politically exposed persons (PEPs). We also link up entities that are
@@ -45,6 +45,13 @@ publisher:
   url: https://www.wikidata.org
   official: false
 ci_test: false
+http:
+  total_retries: 5
+  backoff_factor: 2
+  retry_statuses: [413, 429, 503, 500]
+  retry_methods:
+    - GET
+    - POST
 
 inputs:
   # Warning: cannot include wd_peps here otherwise it gets too recursive
@@ -56,7 +63,7 @@ inputs:
   - wd_oligarchs
   - wd_curated
   - wanted
-  - ru_rupep
+  # - ru_rupep
   - ru_navalny35
   - ru_myrotvorets_wagner
   - ru_billionaires_2021
@@ -106,6 +113,7 @@ lookups:
           - Cisleithania
           - Cossack Hetmanate
           - County of Mark
+          - Cretan State
           - Crown of Aragon
           - Delhi Sultanate
           - Democratic Kampuchea
@@ -374,6 +382,19 @@ lookups:
           - Suriye Özgür
           - Kingdom of Tlemcen
           - Syrian Federation
+          - Tartary
+          - Tibet Autonomous Region
+          - Kingdom of Montenegro
+          - State of Slovenes, Croats and Serbs
+          - Sokoto Caliphate
+          - Khazar Khaganate
+          - Songhai Empire
+          - Abdullahi Bala Shehu
+          - British America
+          - Gaochang
+          - French Annam
+          - Oudh State
+          - Afro-Peruvian
         value: null
       - match:
           - Cherokee Nation
@@ -399,6 +420,7 @@ lookups:
       - match:
           - United Kingdom of the Netherlands
           - Dutch Republic
+          - Northern Netherlands
         value: NL
       - match: Kingdom of Ireland
         value: IE
@@ -599,6 +621,10 @@ lookups:
           - Basque Country
           - Catalana
         value: ES
+      - match: Muscat and Oman
+        value: OM
+      - match: Funtua
+        value: NG
   type.date:
     options:
       - match:
@@ -614,6 +640,8 @@ lookups:
         value: 1935-06
       - match: "1973-09-31"
         value: 1973-09
+      - match: "1765-09-31"
+        value: 1765-09
   type.gender:
     lowercase: true
     normalize: true
@@ -638,5 +666,6 @@ lookups:
           - MALE
           - trans man
           - cisgender male
+          - cisgender man
           - transmasculine
         value: male

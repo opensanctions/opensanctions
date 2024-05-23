@@ -69,7 +69,7 @@ def test_basic():
     assert test_ds.http.user_agent == settings.HTTP_USER_AGENT
 
 
-def test_validation(testdataset1: Dataset, testdataset2: Dataset):
+def test_validation(testdataset1: Dataset, testdataset3: Dataset):
     assert testdataset1.name == "testdataset1"
     assert testdataset1.publisher is not None
     assert testdataset1.publisher.name == "OpenSanctions"
@@ -77,9 +77,9 @@ def test_validation(testdataset1: Dataset, testdataset2: Dataset):
     assert len(testdataset1.children) == 0
     assert len(testdataset1.datasets) == 1
     assert len(testdataset1.inputs) == 0
-    assert len(testdataset1.assertions) == 4
-    assert isinstance(testdataset1.assertions[0], Assertion)
-    assert testdataset2.assertions == []
+    assert len(testdataset1.assertions) == 0
+    assert len(testdataset3.assertions) == 4
+    assert isinstance(testdataset3.assertions[0], Assertion)
 
 
 def test_validation_os_dict(testdataset1: Dataset, collection: Dataset):

@@ -4,8 +4,8 @@ prefix: bic
 # disabled: true
 entry_point: crawler.py
 coverage:
-  start: 2024-04-03
-  end: 2023-03-16
+  start: 2024-04-04
+  end: 2024-03-16
 deploy:
   schedule: "@monthly"
   # memory: 2000Mi
@@ -14,8 +14,8 @@ exports:
   - statistics.json
   - entities.ftm.json
 ci_test: false
-summary: |
-  Reference data for SWIFT BIC code, including bank names and addresses.
+summary: >-
+  Reference data for SWIFT BIC code, including bank names and addresses
 description: |
   > BIC is the International Standard ISO 9362:2014. This standard specifies
   > the elements and structure of a universal identifier code, the business
@@ -29,7 +29,7 @@ description: |
 
   Branch information has been excluded from this dataset.
 publisher:
-  name: Society for Worldwide Interbank Financial Telecommunication (Swift)
+  name: Society for Worldwide Interbank Financial Telecommunication (SWIFT)
   description: |
     SWIFT is a global member-owned cooperative that provides secure financial
     messaging services. It is used by more than 11,000 financial institutions

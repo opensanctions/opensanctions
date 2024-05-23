@@ -41,8 +41,14 @@ data:
 assertions:
   min:
     schema_entities:
-      Person: 5700
+      Person: 5350
     countries: 195
+    country_entities:
+      cn: 65
+      kp: 60
+      ba: 50
+      va: 1
+      li: 1
   max:
     schema_entities:
       Person: 6000

@@ -1,21 +1,26 @@
 name: kz_companies
-title: State Register of legal entities in the Republic of Kazakhstan
+title: Kazakhstan State Register of legal entities
 prefix: kz-reg
 disabled: false
 entry_point: crawler
 coverage:
-  frequency: weekly
+  frequency: monthly
   start: 2023-03-21
+exports:
+  - statistics.json
+  - entities.ftm.json
 deploy:
   premium: true
+  memory: 2500Mi
 resolve: false
 ci_test: false
 http:
   total_retries: 5
   backoff_factor: 3
   retry_statuses: [503, 429, 403]
-
-summary: |
+summary: >
+  Companies and other entities registered in the Republic of Kazakhstan and their director.
+description: |
   This dataset comrpises all companies and other types of entities registered
   with the Kazakhstan state register of legal entities.
 
