@@ -39,7 +39,6 @@ def parse_date(date: str) -> str:
 
 
 def crawl_item(card, context: Context):
-
     # The title is in the format "Sanction administrative du XX XXXX 20XX"
     title = card.find(".//*[@class='library-element__title']")
     date = " ".join(title.text_content().strip().split(" ")[-3:])
@@ -55,14 +54,24 @@ def crawl_item(card, context: Context):
         and stripped_subtitle != subtitle
     ):
         names = [stripped_subtitle]
-    # Else, try to find the name of the company
+    # Else, try to find the name of the company on the subtitle
     else:
         res = context.lookup("subtitle_to_names", subtitle)
         if res:
             names = cast("List[str]", res.names)
         else:
-            context.log.warning("Can't find the name of the company", text=subtitle)
-            names = [subtitle]
+            # Try to look up based on the URL
+            pdf_res = context.lookup("url_to_names", title.find(".//a").get("href"))
+
+            if pdf_res:
+                names = cast("List[str]", pdf_res.names)
+
+            else:
+                context.log.warning(
+                    "Can't find the name of the company",
+                    text=title.find(".//a").get("href"),
+                )
+                names = [subtitle]
 
     # If the subtitle doesn't contain any names
     if not names:
@@ -72,7 +81,7 @@ def crawl_item(card, context: Context):
     entity.id = context.make_id(*names)
     entity.add("name", names)
 
-    entity.add("topics", "reg.warn")
+    # entity.add("topics", "reg.warn")
 
     sanction = context.make("Sanction")
     sanction.id = context.make_slug(title)
