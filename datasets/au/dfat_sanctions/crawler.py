@@ -179,7 +179,8 @@ def crawl(context: Context):
             if last_clean_ref != reference:
                 iteration = (iteration or 0) + 1
                 reference_iteration[reference] = iteration
-            # Stash clean ref before we iteration
+            # Stash clean ref before adding suffix
+            # to simplify detecting contiguous blocks
             last_clean_ref = reference
 
             # Add suffix so that this block is treated as distinct block from
