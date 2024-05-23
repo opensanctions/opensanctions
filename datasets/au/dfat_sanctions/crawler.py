@@ -52,11 +52,11 @@ def clean_date(date):
     return dates
 
 
-def clean_reference(ref: str) -> Optional[int]:
+def clean_reference(ref: str) -> Optional[str]:
     number = ref
     while len(number):
         try:
-            return int(number)
+            return str(int(number))
         except Exception:
             number = number[:-1]
     raise ValueError()
@@ -147,7 +147,8 @@ def crawl(context: Context):
     workbook: openpyxl.Workbook = openpyxl.load_workbook(path, read_only=True)
     references = defaultdict(list)
     raw_references: Set[str] = set()
-    # duplicates = set()
+    reference_iteration: Dict[str, int] = dict()
+    last_clean_ref = None
     for sheet in workbook.worksheets:
         headers: Optional[List[str]] = None
         for row in sheet.rows:
@@ -156,30 +157,49 @@ def crawl(context: Context):
                 headers = [slugify(h, sep="_") for h in cells]
                 continue
             row = dict(zip(headers, cells))
+
+            # get raw ref
             raw_ref = row.get("reference")
             if raw_ref is None:
+                context.log.warning("No reference", row=row)
                 continue
             raw_ref = str(raw_ref)
+            # get clean ref
+            reference = clean_reference(raw_ref)
+            if reference is None:
+                context.log.warning("Couldn't clean raw reference", ref=raw_ref)
+                continue
+
+            iteration = reference_iteration.get(reference, None)
+
+            # If we've seen this reference before,
+            # add a suffix to each new non-contiguous block.
+
+            # first row of contiguous block of clean reference
+            if last_clean_ref != reference:
+                iteration = (iteration or 0) + 1
+                reference_iteration[reference] = iteration
+            # Stash clean ref before we iteration
+            last_clean_ref = reference
+
+            # Add suffix so that this block is treated as distinct block from
+            # earlier iterations of this reference
+            if iteration > 1:
+                context.log.warning(
+                    "Already seen reference. Adding iteration suffix.",
+                    ref=reference,
+                    iteration=iteration,
+                )
+                reference = f"{reference}-{iteration}"
+                raw_ref = f"{raw_ref}-{iteration}"
+
+            # Sanity check that this raw reference isn't duplicated
+            # within its clean ref block
             if raw_ref in raw_references:
                 raise ValueError("Duplicate reference: %s" % raw_ref)
-                # duplicates.add(raw_ref)
-
             raw_references.add(raw_ref)
-            reference = clean_reference(raw_ref)
-            if reference is not None:
-                references[reference].append(row)
 
-    # xls = xlrd.open_workbook(path)
-    # ws = xls.sheet_by_index(0)
-    # headers = [slugify(h, sep="_") for h in ws.row_values(0)]
-    # references = defaultdict(list)
-    # for r in range(1, ws.nrows):
-    #     cells = [h.convert_excel_cell(xls, c) for c in ws.row(r)]
-    #     row = dict(zip(headers, cells))
-    #     reference = clean_reference(row.get("reference"))
-    #     references[reference].append(row)
+            references[reference].append(row)
 
     for ref, rows in references.items():
         parse_reference(context, ref, rows)
-
-    # print("Duplicates:", duplicates)
