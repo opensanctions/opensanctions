@@ -14,13 +14,20 @@ class DatasetResources(object):
         self.dataset = dataset
         self.path = dataset_resource_path(dataset.name, RESOURCES_FILE)
 
+    def _store_resources(self, resources: List[DataResource]) -> None:
+        with open(self.path, "w") as fh:
+            objs = [r.to_opensanctions_dict() for r in resources]
+            json.dump({"resources": objs}, fh, indent=2)
+
     def save(self, resource: DataResource) -> None:
         resources = [r for r in self.all() if r.name != resource.name]
         resources.append(resource)
         resources = sorted(resources, key=lambda r: r.name)
-        with open(self.path, "w") as fh:
-            objs = [r.to_opensanctions_dict() for r in resources]
-            json.dump({"resources": objs}, fh, indent=2)
+        self._store_resources(resources)
+
+    def remove(self, name: str) -> None:
+        resources = [r for r in self.all() if r.name != name]
+        self._store_resources(resources)
 
     def all(self) -> List[DataResource]:
         resources: List[DataResource] = []
