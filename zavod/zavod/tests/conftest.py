@@ -1,17 +1,19 @@
 import pytest
 from pathlib import Path
 from tempfile import mkdtemp, mkstemp
+from nomenklatura import settings as nk_settings
 
 from zavod import settings
 from zavod.context import Context
 from zavod.meta import get_catalog, load_dataset_from_path, Dataset
 from zavod.dedupe import get_resolver
 
+nk_settings.TESTING = True
 settings.DATA_PATH = Path(mkdtemp()).resolve()
 settings.RESOLVER_PATH = settings.DATA_PATH.joinpath("resolver.ijson").as_posix()
 settings.ARCHIVE_BACKEND = "FileSystemBackend"
 settings.ARCHIVE_PATH = settings.DATA_PATH / "test_archive"
-settings.CACHE_DATABASE_URI = None
+settings.CACHE_DATABASE_URI = "sqlite:///:memory:"
 settings.OPENSANCTIONS_API_KEY = "testkey"
 settings.SYNC_POSITIONS = True
 settings.ZYTE_API_KEY = "zyte-test-key"
