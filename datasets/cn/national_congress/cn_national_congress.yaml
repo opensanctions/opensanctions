@@ -18,11 +18,13 @@ description: |
   simultaneously and the party and the NPC typically includes
   all of the senior officials in Chinese politics.
 publisher:
-  name: 全国人民代表大会
-  description: National People's Congress
-  url: http://www.npc.gov.cn
-  official: true
-  country: "cn"
+  name: Wikipedia
+  description: |
+   Wikipedia article about the List of deputies
+   to the 14th National People's Congress
+  url: https://zh.wikipedia.org/wiki/第十四届全国人民代表大会代表名单
+  official: false
+  country: "zz"
 url: http://www.npc.gov.cn
 data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRWjzoZCQ4SSJGimuIP_ESCS23ZO2HWO7ENuwNr_4yjiXigeCezqtVz5rUOmUj3AfHeLyAalUiBmG1D/pub?output=csv
