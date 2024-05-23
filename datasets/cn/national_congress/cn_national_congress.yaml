@@ -25,6 +25,7 @@ publisher:
   country: "cn"
 url: http://www.npc.gov.cn
 data:
+  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRWjzoZCQ4SSJGimuIP_ESCS23ZO2HWO7ENuwNr_4yjiXigeCezqtVz5rUOmUj3AfHeLyAalUiBmG1D/pub?output=csv
   format: CSV
 
 lookups:
