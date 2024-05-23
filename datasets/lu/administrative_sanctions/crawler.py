@@ -72,7 +72,7 @@ def crawl_item(card, context: Context):
     entity.id = context.make_id(*names)
     entity.add("name", names)
 
-    entity.add("topics", "crime.fin")
+    entity.add("topics", "reg.warn")
 
     sanction = context.make("Sanction")
     sanction.id = context.make_slug(title)
