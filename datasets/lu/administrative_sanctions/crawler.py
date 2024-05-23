@@ -1,7 +1,7 @@
 from typing import cast
 import re
 
-from zavod import Context, helpers as h
+from zavod import Context
 from datetime import datetime
 
 FRENCH_TO_ENGLISH_MONTHS = {
@@ -38,14 +38,13 @@ def parse_date(date: str) -> str:
         return None
 
 
-def crawl_item(url: str, context: Context):
-    response = context.fetch_html(url)
+def crawl_item(card, context: Context):
 
     # The title is in the format "Sanction administrative du XX XXXX 20XX"
-    title = response.find('.//*[@class="single-news__title"]')
+    title = card.find(".//*[@class='library-element__title']")
     date = " ".join(title.text_content().strip().split(" ")[-3:])
     subtitle = (
-        response.find('.//*[@class="single-news__subtitle"]').text_content().strip()
+        card.find(".//*[@class='library-element__subtitle']").text_content().strip()
     )
 
     stripped_subtitle = SUBTITLE_PATTERN.sub("", subtitle, count=1)
@@ -79,7 +78,7 @@ def crawl_item(url: str, context: Context):
     sanction.id = context.make_slug(title)
     sanction.add("date", parse_date(date))
 
-    for a in response.findall('.//*[@class="doc-link-title"]'):
+    for a in card.xpath(".//a[contains(@class, 'pdf')]"):
         sanction.add("sourceUrl", a.get("href"))
 
     context.emit(entity, target=True)
@@ -96,11 +95,11 @@ def crawl(context: Context):
 
         idx += 1
 
-        # Find all links to the sanctions
-        a_tags = response.findall('.//*[@class="library-element__title"]/a')
+        # Find all cards to the sanctions
+        cards = response.findall(".//li[@class='library-element']")
 
-        if not a_tags:
+        if not cards:
             break
 
-        for a in a_tags:
-            crawl_item(a.get("href"), context)
+        for card in cards:
+            crawl_item(card, context)
