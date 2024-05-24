@@ -16,7 +16,7 @@ log = get_logger(__name__)
 def get_dataset_statistics(dataset: Dataset) -> Dict[str, Any]:
     """This reads the file produced by the statistics exporter which contains entity
     counts for the dataset, aggregated by various criteria."""
-    statistics_path = get_dataset_artifact(dataset, STATISTICS_FILE)
+    statistics_path = get_dataset_artifact(dataset.name, STATISTICS_FILE)
     if not statistics_path.is_file():
         log.error("No statistics file found", dataset=dataset.name)
         return {}
@@ -62,7 +62,7 @@ def get_catalog_dataset(dataset: Dataset) -> Dict[str, Any]:
     """Get a metadata description of a single dataset, retaining timestamp information
     for the last export, but updating some other metadata."""
     meta = get_base_dataset_metadata(dataset)
-    path = get_dataset_artifact(dataset, INDEX_FILE)
+    path = get_dataset_artifact(dataset.name, INDEX_FILE)
     if path.is_file():
         with open(path, "r") as fh:
             meta.update(json.load(fh))

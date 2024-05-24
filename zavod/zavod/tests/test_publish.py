@@ -4,7 +4,7 @@ from nomenklatura.versions import VersionHistory
 
 from zavod import settings
 from zavod.meta import Dataset
-from zavod.archive import get_dataset_resource, clear_data_path
+from zavod.archive import get_dataset_artifact, clear_data_path
 from zavod.archive import iter_dataset_statements, iter_previous_statements
 from zavod.archive import STATISTICS_FILE, INDEX_FILE, STATEMENTS_FILE
 from zavod.archive import DATASETS, ARTIFACTS, HISTORY_FILE
@@ -62,9 +62,9 @@ def test_publish_dataset(testdataset1: Dataset):
     clear_data_path(testdataset1.name)
     assert len(list(iter_dataset_statements(testdataset1))) > 5
     assert len(list(iter_previous_statements(testdataset1))) > 5
-    path = get_dataset_resource(testdataset1, INDEX_FILE, backfill=False)
+    path = get_dataset_artifact(testdataset1.name, INDEX_FILE, backfill=False)
     assert not path.exists()
-    path = get_dataset_resource(testdataset1, INDEX_FILE, backfill=True)
+    path = get_dataset_artifact(testdataset1.name, INDEX_FILE, backfill=True)
     assert path.exists()
 
     shutil.rmtree(latest_path)

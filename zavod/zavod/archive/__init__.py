@@ -4,13 +4,12 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Optional, Generator, TextIO, Set
 from rigour.mime.types import JSON
-
-from zavod.logs import get_logger
 from nomenklatura.statement import Statement
 from nomenklatura.statement.serialize import unpack_row
 from nomenklatura.versions import Version, VersionHistory
 
 from zavod import settings
+from zavod.logs import get_logger
 from zavod.archive.backend import get_archive_backend, ArchiveObject
 
 if TYPE_CHECKING:
@@ -29,26 +28,6 @@ RESOURCES_FILE = "resources.json"
 INDEX_FILE = "index.json"
 CATALOG_FILE = "catalog.json"
 HISTORY_FILE = "history.json"
-
-
-def _get_release_object(dataset_name: str, resource: str) -> ArchiveObject:
-    backend = get_archive_backend()
-    name = f"{DATASETS}/{settings.BACKFILL_RELEASE}/{dataset_name}/{resource}"
-    return backend.get_object(name)
-
-
-def backfill_resource(dataset_name: str, resource: str, path: Path) -> Optional[Path]:
-    object = _get_release_object(dataset_name, resource)
-    if object.exists():
-        log.info(
-            "Backfilling dataset resource...",
-            dataset=dataset_name,
-            resource=resource,
-            object=object.name,
-        )
-        object.backfill(path)
-        return path
-    return None
 
 
 def publish_resource(
@@ -105,50 +84,26 @@ def dataset_resource_path(dataset_name: str, resource: str) -> Path:
     return dataset_path.joinpath(resource)
 
 
-def get_dataset_resource(
-    dataset: "Dataset",
-    resource: str,
-    backfill: bool = True,
-    force_backfill: bool = False,
-) -> Path:
-    path = dataset_resource_path(dataset.name, resource)
-    if path.exists() and not force_backfill:
-        return path
-    if backfill or force_backfill:
-        backfill_resource(dataset.name, resource, path)
-    return path
-
-
 def get_dataset_artifact(
-    dataset: "Dataset",
+    dataset_name: str,
     resource: str,
     backfill: bool = True,
-    force_backfill: bool = False,
     version: Optional[str] = None,
 ) -> Path:
-    path = dataset_resource_path(dataset.name, resource)
-    if path.exists() and not force_backfill:
+    path = dataset_resource_path(dataset_name, resource)
+    if path.exists():
         return path
-    if backfill or force_backfill:
-        object = get_artifact_object(dataset.name, resource, version)
+    if backfill:
+        object = get_artifact_object(dataset_name, resource, version)
         if object is not None:
             log.info(
                 "Backfilling dataset artifact...",
-                dataset=dataset.name,
+                dataset=dataset_name,
                 resource=resource,
                 object=object.name,
             )
             object.backfill(path)
     return path
-
-
-def get_dataset_index(dataset_name: str, backfill: bool = True) -> Optional[Path]:
-    path: Optional[Path] = dataset_resource_path(dataset_name, INDEX_FILE)
-    if path is not None and not path.exists() and backfill:
-        path = backfill_resource(dataset_name, INDEX_FILE, path)
-    if path is not None and path.exists():
-        return path
-    return None
 
 
 def _get_history_object(

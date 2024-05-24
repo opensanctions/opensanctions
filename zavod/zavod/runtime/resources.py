@@ -33,7 +33,7 @@ class DatasetResources(object):
         resources: List[DataResource] = []
         data: Dict[str, Any] = {}
         if not self.path.exists():
-            self.path = get_dataset_artifact(self.dataset, RESOURCES_FILE)
+            self.path = get_dataset_artifact(self.dataset.name, RESOURCES_FILE)
         if self.path.exists():
             with open(self.path, "r") as fh:
                 data = json.load(fh)
