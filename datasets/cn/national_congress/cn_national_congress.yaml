@@ -31,7 +31,7 @@ data:
   format: CSV
 
 lookups:
-  gender:
+  type.gender:
     options:
       - match: 男
         name: male
@@ -41,7 +41,7 @@ lookups:
 assertions:
   min:
     schema_entities:
-      Person: 2977
+      Person: 2953
   max:
     schema_entities:
-      Person: 2977
+      Person: 2952
