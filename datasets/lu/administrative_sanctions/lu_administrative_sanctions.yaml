@@ -33,6 +33,7 @@ data:
   format: HTML 
 
 lookups:
+  # For when we can't automatically parse the name from the subtitle.
   subtitle_to_names:
     lowercase: true
     options:
@@ -51,6 +52,7 @@ lookups:
       - match: Décision constatant la perte de l’honorabilité professionnelle de Monsieur Fabien GAGLIO
         names:
           - Fabien Gaglio
+  # If the name isn't in the subtitle, map the detail URL to the name, if one is present in the PDFs.
   url_to_names:
     lowercase: true
     options:

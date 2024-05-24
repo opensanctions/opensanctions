@@ -1,8 +1,9 @@
-from typing import cast
+from typing import List, cast
 import re
+from datetime import datetime
 
 from zavod import Context
-from datetime import datetime
+from zavod import helpers as h
 
 FRENCH_TO_ENGLISH_MONTHS = {
     "janvier": "january",
@@ -45,7 +46,7 @@ def crawl_item(card, context: Context):
     subtitle = (
         card.find(".//*[@class='library-element__subtitle']").text_content().strip()
     )
-
+    detail_url = title.find(".//a").get("href")
     stripped_subtitle = SUBTITLE_PATTERN.sub("", subtitle, count=1)
 
     # Check if it's starts with a upper case and if the pattern was removed
@@ -60,12 +61,11 @@ def crawl_item(card, context: Context):
         if res:
             names = cast("List[str]", res.names)
         else:
-            # Try to look up based on the URL
-            pdf_res = context.lookup("url_to_names", title.find(".//a").get("href"))
+            # Try to look up based on the detail URL
+            url_to_name_res = context.lookup("url_to_names", detail_url)
 
-            if pdf_res:
-                names = cast("List[str]", pdf_res.names)
-
+            if url_to_name_res:
+                names = cast("List[str]", url_to_name_res.names)
             else:
                 context.log.warning(
                     "Can't find the name of the company",
@@ -80,13 +80,12 @@ def crawl_item(card, context: Context):
     entity = context.make("LegalEntity")
     entity.id = context.make_id(*names)
     entity.add("name", names)
+    entity.add("topics", "reg.warn")
 
-    # entity.add("topics", "reg.warn")
-
-    sanction = context.make("Sanction")
-    sanction.id = context.make_slug(title)
+    sanction = h.make_sanction(context, entity, title.text_content().strip())
     sanction.add("date", parse_date(date))
 
+    sanction.add("sourceUrl", detail_url)
     for a in card.xpath(".//a[contains(@class, 'pdf')]"):
         sanction.add("sourceUrl", a.get("href"))
 
