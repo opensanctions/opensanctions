@@ -5,14 +5,14 @@ from nomenklatura.kv import get_redis, close_redis, b, bv
 
 from zavod import settings
 from zavod.entity import Entity
-from zavod.archive import iter_dataset_versions_desc
+from zavod.archive import DELTA_FILE, iter_dataset_versions_desc
 from zavod.exporters.common import Exporter
 from zavod.util import write_json
 
 
 class DeltaExporter(Exporter):
     TITLE = "Delta files"
-    FILE_NAME = "entities.delta.json"
+    FILE_NAME = DELTA_FILE
     MIME_TYPE = "application/json"
 
     def setup(self) -> None:

@@ -30,33 +30,8 @@ CATALOG_FILE = "catalog.json"
 HISTORY_FILE = "history.json"
 
 
-def publish_resource(
-    path: Path,
-    dataset_name: Optional[str],
-    resource: str,
-    latest: bool = True,
-    mime_type: Optional[str] = None,
-) -> None:
-    backend = get_archive_backend()
-    if dataset_name is not None:
-        assert path.relative_to(dataset_data_path(dataset_name))
-        resource = f"{dataset_name}/{resource}"
-    release_name = f"{DATASETS}/{settings.RELEASE}/{resource}"
-    release_object = backend.get_object(release_name)
-    release_object.publish(path, mime_type=mime_type)
-
-    if latest and settings.RELEASE != "latest":
-        latest_name = f"{DATASETS}/latest/{resource}"
-        latest_object = backend.get_object(latest_name)
-        latest_object.republish(release_name)
-
-
 def datasets_path() -> Path:
     return settings.DATA_PATH / DATASETS
-
-
-def _state_path() -> Path:
-    return settings.DATA_PATH / "state"
 
 
 def dataset_data_path(dataset_name: str) -> Path:
@@ -68,7 +43,7 @@ def dataset_data_path(dataset_name: str) -> Path:
 def dataset_state_path(dataset_name: str) -> Path:
     """The state directory is outside the main data directory and is used for temporary
     processing artifacts (like the materialised graph, and the timestamp index)."""
-    path = _state_path() / dataset_name
+    path = dataset_data_path(dataset_name) / "_state"
     path.mkdir(parents=True, exist_ok=True)
     return path.resolve()
 
@@ -76,7 +51,6 @@ def dataset_state_path(dataset_name: str) -> Path:
 def clear_data_path(dataset_name: str) -> None:
     """Delete all recorded data for a given dataset."""
     shutil.rmtree(dataset_data_path(dataset_name), ignore_errors=True)
-    shutil.rmtree(dataset_state_path(dataset_name), ignore_errors=True)
 
 
 def dataset_resource_path(dataset_name: str, resource: str) -> Path:
@@ -162,7 +136,7 @@ def get_artifact_object(
 
 
 def publish_dataset_history(dataset_name: str, version: Version) -> None:
-    """Publish the history of runs for a given dataset to the data lake."""
+    """Publish the history of versions for a given dataset to the artifact directory."""
     data = _get_history_object(dataset_name)
     history = VersionHistory.from_json(data or "{}")
     if version not in history.items:
@@ -188,11 +162,33 @@ def publish_artifact(
     resource: str,
     mime_type: Optional[str] = None,
 ) -> None:
-    """Publish a file in the given run's directory of the given dataset."""
+    """Publish a file in the given versions artifact directory of the dataset."""
     name = f"{ARTIFACTS}/{dataset_name}/{version.id}/{resource}"
     backend = get_archive_backend()
     object = backend.get_object(name)
     object.publish(path, mime_type=mime_type)
+
+
+def publish_resource(
+    path: Path,
+    dataset_name: Optional[str],
+    resource: str,
+    latest: bool = True,
+    mime_type: Optional[str] = None,
+) -> None:
+    """Resources are files published to the main publication directory of the dataset."""
+    backend = get_archive_backend()
+    if dataset_name is not None:
+        assert path.relative_to(dataset_data_path(dataset_name))
+        resource = f"{dataset_name}/{resource}"
+    release_name = f"{DATASETS}/{settings.RELEASE}/{resource}"
+    release_object = backend.get_object(release_name)
+    release_object.publish(path, mime_type=mime_type)
+
+    if latest and settings.RELEASE != "latest":
+        latest_name = f"{DATASETS}/latest/{resource}"
+        latest_object = backend.get_object(latest_name)
+        latest_object.republish(release_name)
 
 
 def _read_fh_statements(fh: TextIO, external: bool) -> StatementGen:
