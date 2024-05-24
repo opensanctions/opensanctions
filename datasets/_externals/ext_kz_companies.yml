@@ -1,0 +1,80 @@
+type: external
+title: Kazakhstan State Register of legal entities
+entry_point: zavod.runner.enrich:enrich
+full_dataset: kz_companies
+disabled: false
+hidden: false
+coverage:
+  frequency: weekly
+  start: 2024-05-24
+exports:
+  - statistics.json
+deploy:
+  memory: "1000Mi"
+  memory_limit: "2000Mi"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >-
+  Enrichment of companies and other entities found in the Kazakhstan state register of legal entities.
+description: |
+  This dataset comprises companies and other types of entities from the
+  Kazakhstan state register of legal entities matched with
+  entities in the OpenSanctions database.
+
+  The information includes the full name of the company (including organization
+  form), one director, the current status, the BIN (might be absent for older companies)
+  a company profile according to General Classifier of Economic Activities, the
+  address, and the date of registration.
+
+  Information is available in Kazakh and Russian languages (except for the name
+  of the director, which is usually russian).
+url: https://data.egov.kz/datasets/view?index=gbd_ul
+publisher:
+  name: Ministry of Justice of the Republic of Kazakhstan
+  description: |
+    The Ministry provides legal support for the activities of the state, supports
+    the rule of law in the work of state bodies, organizations, officials and citizens,
+    provides protection of the rights and legal interests of citizens and organizations.
+  url: https://www.gov.kz/memleket/entities/adilet?lang=en
+  country: kz
+  official: true
+ci_test: false
+
+inputs:
+  - ann_graph_topics
+  - sanctions
+  - ext_cy_companies
+  - ext_cz_business_register
+  - ext_ee_ariregister
+  - ext_gb_coh_psc
+  - ext_gleif
+  - ext_icij_offshoreleaks
+  - ext_lv_business_register
+  - ext_md_companies
+  - opencorporates
+  - ext_ru_egrul
+  - ext_ua_edr
+  - debarment
+
+config:
+  type: nomenklatura.enrich.yente:YenteEnricher
+  api: https://api.graph.opensanctions.org/
+  dataset: kz_companies
+  api_key: ${OPENSANCTIONS_GRAPH_API_KEY}
+  strip_namespace: true
+  fuzzy: false
+  threshold: 0.7
+  algorithm: regression-v1
+  topics:
+    - role.pep
+    - role.rca
+    - sanction
+    - sanction.linked
+    - debarment
+    - asset.frozen
+    - poi
+    - gov.soe
+  schemata:
+    - Company
+    - Organization
+    # - LegalEntity
+  cache_days: 30
