@@ -38,10 +38,10 @@ class DeltaExporter(Exporter):
         prev_hashes = f"delta:hash:{self.dataset.name}:{previous}"
         prev_entities = f"delta:ents:{self.dataset.name}:{previous}"
         changed_hashes = self.redis.sdiff([self.hashes, prev_hashes])
-        for hash in changed_hashes:
+        for hash in changed_hashes:  # type: ignore
             b_entity_id, _ = bv(hash).split(b":", 1)
             entity_id = b_entity_id.decode("utf-8")
-            is_curr = self.redis.sismember(self.entities, b_entity_id)
+            is_curr = self.redis.sismember(self.entities, entity_id)
             if not is_curr:
                 yield {"op": "DEL", "entity": {"id": entity_id}}
                 continue
