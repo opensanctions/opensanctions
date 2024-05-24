@@ -33,6 +33,10 @@ data:
   format: HTML 
 
 lookups:
+  type.date:
+    options:
+      - match: Mesure administrative
+        value: null
   # For when we can't automatically parse the name from the subtitle.
   subtitle_to_names:
     lowercase: true
