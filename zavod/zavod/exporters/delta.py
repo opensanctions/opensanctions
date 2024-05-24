@@ -5,7 +5,7 @@ from nomenklatura.kv import get_redis, close_redis, b, bv
 
 from zavod import settings
 from zavod.entity import Entity
-from zavod.archive import get_dataset_history
+from zavod.archive import iter_dataset_versions_desc
 from zavod.exporters.common import Exporter
 from zavod.util import write_json
 
@@ -37,7 +37,7 @@ class DeltaExporter(Exporter):
             return
         prev_hashes = f"delta:hash:{self.dataset.name}:{previous}"
         prev_entities = f"delta:ents:{self.dataset.name}:{previous}"
-        changed_hashes = self.redis.sdiff(self.hashes, prev_hashes)
+        changed_hashes = self.redis.sdiff([self.hashes, prev_hashes])
         for hash in changed_hashes:
             b_entity_id, _ = bv(hash).split(b":", 1)
             entity_id = b_entity_id.decode("utf-8")
@@ -48,7 +48,7 @@ class DeltaExporter(Exporter):
             entity = self.view.get_entity(entity_id)
             if entity is None:  # wat
                 continue
-            is_prev = self.redis.sismember(prev_entities, b_entity_id)
+            is_prev = self.redis.sismember(prev_entities, entity_id)
             if not is_prev:
                 yield {"op": "ADD", "entity": entity.to_dict()}
                 continue
@@ -56,8 +56,15 @@ class DeltaExporter(Exporter):
             yield {"op": "MOD", "entity": entity.to_dict()}
 
     def finish(self) -> None:
-        history = get_dataset_history(self.dataset)
-        version = history.latest.id if history.latest else None
+        version: Optional[str] = None
+
+        # FIXME: this is a bit of a hack, but we need to find the last
+        # version that has a delta state in the redis store.
+        for v in iter_dataset_versions_desc(self.dataset.name):
+            if self.redis.exists(f"delta:ents:{self.dataset.name}:{v.id}"):
+                version = v.id
+                break
+
         with open(self.path, "wb") as fh:
             for op in self.generate(version):
                 write_json(op, fh)
