@@ -2,7 +2,7 @@ import json
 from typing import Dict, Any, List
 
 from zavod.meta import Dataset, DataResource
-from zavod.archive import dataset_resource_path, backfill_resource
+from zavod.archive import dataset_resource_path, get_dataset_artifact
 from zavod.archive import RESOURCES_FILE
 
 
@@ -33,7 +33,7 @@ class DatasetResources(object):
         resources: List[DataResource] = []
         data: Dict[str, Any] = {}
         if not self.path.exists():
-            backfill_resource(self.dataset.name, RESOURCES_FILE, self.path)
+            self.path = get_dataset_artifact(self.dataset, RESOURCES_FILE)
         if self.path.exists():
             with open(self.path, "r") as fh:
                 data = json.load(fh)

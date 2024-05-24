@@ -2,8 +2,7 @@ import csv
 import shutil
 from pathlib import Path
 from typing import TYPE_CHECKING
-from typing import Optional, Generator, TextIO
-from functools import lru_cache
+from typing import Optional, Generator, TextIO, Set
 from rigour.mime.types import JSON
 
 from zavod.logs import get_logger
@@ -32,14 +31,14 @@ CATALOG_FILE = "catalog.json"
 HISTORY_FILE = "history.json"
 
 
-def get_release_object(dataset_name: str, resource: str) -> ArchiveObject:
+def _get_release_object(dataset_name: str, resource: str) -> ArchiveObject:
     backend = get_archive_backend()
     name = f"{DATASETS}/{settings.BACKFILL_RELEASE}/{dataset_name}/{resource}"
     return backend.get_object(name)
 
 
 def backfill_resource(dataset_name: str, resource: str, path: Path) -> Optional[Path]:
-    object = get_release_object(dataset_name, resource)
+    object = _get_release_object(dataset_name, resource)
     if object.exists():
         log.info(
             "Backfilling dataset resource...",
@@ -120,6 +119,29 @@ def get_dataset_resource(
     return path
 
 
+def get_dataset_artifact(
+    dataset: "Dataset",
+    resource: str,
+    backfill: bool = True,
+    force_backfill: bool = False,
+    version: Optional[str] = None,
+) -> Path:
+    path = dataset_resource_path(dataset.name, resource)
+    if path.exists() and not force_backfill:
+        return path
+    if backfill or force_backfill:
+        object = get_artifact_object(dataset.name, resource, version)
+        if object is not None:
+            log.info(
+                "Backfilling dataset artifact...",
+                dataset=dataset.name,
+                resource=resource,
+                object=object.name,
+            )
+            object.backfill(path)
+    return path
+
+
 def get_dataset_index(dataset_name: str, backfill: bool = True) -> Optional[Path]:
     path: Optional[Path] = dataset_resource_path(dataset_name, INDEX_FILE)
     if path is not None and not path.exists() and backfill:
@@ -129,29 +151,67 @@ def get_dataset_index(dataset_name: str, backfill: bool = True) -> Optional[Path
     return None
 
 
-@lru_cache(maxsize=500)
-def get_dataset_history(dataset_name: str) -> VersionHistory:
-    name = f"{ARTIFACTS}/{dataset_name}/{HISTORY_FILE}"
+def _get_history_object(
+    dataset_name: str, version: Optional[str] = None
+) -> Optional[str]:
     backend = get_archive_backend()
+    name = f"{ARTIFACTS}/{dataset_name}/{HISTORY_FILE}"
+    if version is not None:
+        name = f"{ARTIFACTS}/{dataset_name}/{version}/{HISTORY_FILE}"
     object = backend.get_object(name)
-    if not object.exists():
+    if object.exists():
+        return object.open().read()
+    return None
+
+
+def iter_dataset_versions_desc(dataset_name: str) -> Generator[Version, None, None]:
+    """Iterate over all versions of a given dataset."""
+    data = _get_history_object(dataset_name)
+    seen: Set[str] = set()
+    while True:
+        if data is None:
+            break
+        history = VersionHistory.from_json(data)
+        for version in history.items[::-1]:
+            if version.id not in seen:
+                yield version
+                seen.add(version.id)
+        if len(history.items) < 2:
+            break
+        data = _get_history_object(dataset_name, history.items[0].id)
+
+
+def get_dataset_history(dataset_name: str) -> VersionHistory:
+    """Load the history of runs for a given dataset from the data lake."""
+    data = _get_history_object(dataset_name)
+    if data is None:
         return VersionHistory([])
-    data = object.open().read()
     return VersionHistory.from_json(data)
 
 
 def get_artifact_object(
     dataset_name: str, resource: str, version: Optional[str] = None
-) -> ArchiveObject:
-    if version is None:
-        history = get_dataset_history(dataset_name)
-        if history.latest is not None:
-            version = history.latest.id
-        else:
-            version = "NULL"
+) -> Optional[ArchiveObject]:
     backend = get_archive_backend()
-    name = f"{ARTIFACTS}/{dataset_name}/{version}/{resource}"
-    return backend.get_object(name)
+    if version is not None:
+        name = f"{ARTIFACTS}/{dataset_name}/{version}/{resource}"
+        object = backend.get_object(name)
+        if object.exists():
+            return object
+    else:
+        for v in iter_dataset_versions_desc(dataset_name):
+            name = f"{ARTIFACTS}/{dataset_name}/{v.id}/{resource}"
+            object = backend.get_object(name)
+            if object.exists():
+                return object
+
+    # FIXME: legacy fallback option of using the latest release
+    # REMOVE THIS AFTER MIGRATION
+    name = f"{DATASETS}/latest/{dataset_name}/{resource}"
+    object = backend.get_object(name)
+    if object.exists():
+        return object
+    return None
 
 
 def publish_dataset_history(dataset_name: str, version: Version) -> None:
@@ -209,9 +269,7 @@ def _iter_scope_statements(dataset: "Dataset", external: bool = True) -> Stateme
         return
 
     object = get_artifact_object(dataset.name, STATEMENTS_FILE)
-    if not object.exists():
-        object = get_release_object(dataset.name, STATEMENTS_FILE)
-    if object.exists():
+    if object is not None:
         log.info(
             "Streaming backfilled statements...",
             backfill_dataset=dataset.name,
@@ -228,9 +286,7 @@ def iter_previous_statements(dataset: "Dataset", external: bool = True) -> State
     from the data archive."""
     for scope in dataset.leaves:
         object = get_artifact_object(dataset.name, STATEMENTS_FILE)
-        if not object.exists():
-            object = get_release_object(dataset.name, STATEMENTS_FILE)
-        if object.exists():
+        if object is not None:
             log.info(
                 "Streaming backfilled statements...",
                 dataset=scope.name,

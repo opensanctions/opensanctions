@@ -6,8 +6,9 @@ from followthemoney.proxy import EntityProxy
 from typing import Any, Dict, Generator, Optional, TypedDict, BinaryIO, cast
 from nomenklatura.util import datetime_iso
 
+from zavod import settings
 from zavod.meta import Dataset
-from zavod.archive import dataset_resource_path, get_dataset_resource
+from zavod.archive import dataset_resource_path, get_dataset_artifact
 from zavod.archive import ISSUES_LOG, ISSUES_FILE
 
 
@@ -29,7 +30,7 @@ class DatasetIssues(object):
     def __init__(self, dataset: Dataset) -> None:
         self.dataset = dataset
         self.fh: Optional[BinaryIO] = None
-        get_dataset_resource(self.dataset, ISSUES_LOG)
+        get_dataset_artifact(self.dataset, ISSUES_LOG)
 
     def write(self, event: Dict[str, Any]) -> None:
         if self.fh is None:
@@ -89,7 +90,7 @@ class DatasetIssues(object):
         """Iterate over all issues in the log."""
         self.close()
         for scope in self.dataset.leaves:
-            path = get_dataset_resource(scope, ISSUES_LOG)
+            path = get_dataset_artifact(scope, ISSUES_LOG)
             if not path.is_file():
                 continue
             with open(path, "rb") as fh:

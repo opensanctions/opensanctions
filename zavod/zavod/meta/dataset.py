@@ -23,11 +23,12 @@ class Dataset(NKDataset):
     def __init__(self, catalog: "DataCatalog[Dataset]", data: Dict[str, Any]):
         super().__init__(catalog, data)
         assert self.name == slugify(self.name, sep="_"), "Dataset name is invalid"
-        (len(self.summary or "") > 50) or log.warning(
-            "Dataset summary must be at least 50 chars.",
-            dataset=self.name,
-            summary=self.summary,
-        )
+        if len(self.summary or "") < 50:
+            log.warning(
+                "Dataset summary must be at least 50 chars.",
+                dataset=self.name,
+                summary=self.summary,
+            )
         self.catalog: "DataCatalog[Dataset]" = catalog  # type: ignore
         self.prefix: str = data.get("prefix", slugify(self.name, sep="-")).strip()
         assert self.prefix == slugify(self.prefix, sep="-"), (
