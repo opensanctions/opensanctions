@@ -136,14 +136,6 @@ def iter_dataset_versions_desc(dataset_name: str) -> Generator[Version, None, No
         data = _get_history_object(dataset_name, history.items[0].id)
 
 
-def get_dataset_history(dataset_name: str) -> VersionHistory:
-    """Load the history of runs for a given dataset from the data lake."""
-    data = _get_history_object(dataset_name)
-    if data is None:
-        return VersionHistory([])
-    return VersionHistory.from_json(data)
-
-
 def get_artifact_object(
     dataset_name: str, resource: str, version: Optional[str] = None
 ) -> Optional[ArchiveObject]:
@@ -171,7 +163,8 @@ def get_artifact_object(
 
 def publish_dataset_history(dataset_name: str, version: Version) -> None:
     """Publish the history of runs for a given dataset to the data lake."""
-    history = get_dataset_history(dataset_name)
+    data = _get_history_object(dataset_name)
+    history = VersionHistory.from_json(data or "{}")
     if version not in history.items:
         history = history.append(version)
     backend = get_archive_backend()
