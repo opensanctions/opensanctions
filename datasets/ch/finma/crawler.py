@@ -9,7 +9,6 @@ FORMATS = ["%d.%m.%Y"]
 
 def crawl(context: Context, data: Dict[str, Any]):
     res = context.http.post(context.data_url, data=data)
-    print(res.json())
     for item in res.json()["Items"]:
         url = urljoin(context.data_url, item.pop("Link"))
         entity = context.make("LegalEntity")
