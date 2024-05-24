@@ -8,5 +8,6 @@ summary: >
 description: |
   New datasets come here to see if they behave themselves in the bigger system
   before being moved to a collection under default.
-children: []
+children:
+  - lu_administrative_sanctions
 ci_test: false
