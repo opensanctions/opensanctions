@@ -32,11 +32,7 @@ def parse_date(date: str) -> str:
 
     # Replacing 1er with 1
     date = date.replace("1er", "1")
-
-    try:
-        return datetime.strptime(date, "%d %B %Y")
-    except:
-        return None
+    return h.parse_date(date, ["%d %B %Y"])
 
 
 def crawl_item(card, context: Context):
