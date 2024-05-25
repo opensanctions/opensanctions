@@ -27,7 +27,7 @@ ISSUES_FILE = "issues.json"
 RESOURCES_FILE = "resources.json"
 INDEX_FILE = "index.json"
 CATALOG_FILE = "catalog.json"
-HISTORY_FILE = "history.json"
+VERSIONS_FILE = "versions.json"
 
 
 def datasets_path() -> Path:
@@ -84,16 +84,16 @@ def _get_history_object(
     dataset_name: str, version: Optional[str] = None
 ) -> Optional[str]:
     backend = get_archive_backend()
-    name = f"{ARTIFACTS}/{dataset_name}/{HISTORY_FILE}"
+    name = f"{ARTIFACTS}/{dataset_name}/{VERSIONS_FILE}"
     if version is not None:
-        name = f"{ARTIFACTS}/{dataset_name}/{version}/{HISTORY_FILE}"
+        name = f"{ARTIFACTS}/{dataset_name}/{version}/{VERSIONS_FILE}"
     object = backend.get_object(name)
     if object.exists():
         return object.open().read()
     return None
 
 
-def iter_dataset_versions_desc(dataset_name: str) -> Generator[Version, None, None]:
+def iter_dataset_versions(dataset_name: str) -> Generator[Version, None, None]:
     """Iterate over all versions of a given dataset."""
     data = _get_history_object(dataset_name)
     seen: Set[str] = set()
@@ -120,7 +120,7 @@ def get_artifact_object(
         if object.exists():
             return object
     else:
-        for v in iter_dataset_versions_desc(dataset_name):
+        for v in iter_dataset_versions(dataset_name):
             name = f"{ARTIFACTS}/{dataset_name}/{v.id}/{resource}"
             object = backend.get_object(name)
             if object.exists():
@@ -142,15 +142,15 @@ def publish_dataset_history(dataset_name: str, version: Version) -> None:
     if version not in history.items:
         history = history.append(version)
     backend = get_archive_backend()
-    path = dataset_resource_path(dataset_name, HISTORY_FILE)
+    path = dataset_resource_path(dataset_name, VERSIONS_FILE)
 
     with open(path, "w") as fh:
         fh.write(history.to_json())
 
-    name = f"{ARTIFACTS}/{dataset_name}/{HISTORY_FILE}"
+    name = f"{ARTIFACTS}/{dataset_name}/{VERSIONS_FILE}"
     object = backend.get_object(name)
     object.publish(path, mime_type=JSON)
-    name = f"{ARTIFACTS}/{dataset_name}/{version.id}/{HISTORY_FILE}"
+    name = f"{ARTIFACTS}/{dataset_name}/{version.id}/{VERSIONS_FILE}"
     object = backend.get_object(name)
     object.publish(path, mime_type=JSON)
 

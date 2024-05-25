@@ -5,7 +5,7 @@ from nomenklatura.kv import get_redis, close_redis, b, bv
 
 from zavod import settings
 from zavod.entity import Entity
-from zavod.archive import DELTA_FILE, iter_dataset_versions_desc
+from zavod.archive import DELTA_FILE, iter_dataset_versions
 from zavod.exporters.common import Exporter
 from zavod.util import write_json
 
@@ -60,7 +60,7 @@ class DeltaExporter(Exporter):
 
         # FIXME: this is a bit of a hack, but we need to find the last
         # version that has a delta state in the redis store.
-        for v in iter_dataset_versions_desc(self.dataset.name):
+        for v in iter_dataset_versions(self.dataset.name):
             if self.redis.exists(f"delta:ents:{self.dataset.name}:{v.id}"):
                 version = v.id
                 break

@@ -7,7 +7,7 @@ from zavod.meta import Dataset
 from zavod.archive import get_dataset_artifact, clear_data_path
 from zavod.archive import iter_dataset_statements, iter_previous_statements
 from zavod.archive import STATISTICS_FILE, INDEX_FILE, STATEMENTS_FILE
-from zavod.archive import DATASETS, ARTIFACTS, HISTORY_FILE
+from zavod.archive import DATASETS, ARTIFACTS, VERSIONS_FILE
 from zavod.crawl import crawl_dataset
 from zavod.store import get_view, clear_store
 from zavod.exporters import export_dataset
@@ -16,7 +16,7 @@ from zavod.exc import RunFailedException
 
 
 def _read_history(dataset_name: str) -> Optional[VersionHistory]:
-    fn = settings.ARCHIVE_PATH / ARTIFACTS / dataset_name / HISTORY_FILE
+    fn = settings.ARCHIVE_PATH / ARTIFACTS / dataset_name / VERSIONS_FILE
     if not fn.exists():
         return None
     with open(fn, "r") as fh:
