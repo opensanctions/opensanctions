@@ -14,6 +14,7 @@ from zavod.entity import Entity
 from zavod.archive import DELTA_FILE, DATASETS, ARTIFACTS
 from zavod.archive import publish_dataset_history
 from zavod.exporters import export_dataset
+from zavod.exporters.delta import DeltaExporter
 
 
 ENTITY_A = {"id": "EA", "schema": "Person", "properties": {"name": ["Alice"]}}
@@ -109,3 +110,11 @@ def test_delta_exporter(testdataset1: Dataset):
                 assert data["op"] == "DEL"
             if data["entity"]["id"] == "ECX":
                 assert data["op"] == "DEL"
+
+    # test the cleanup
+    publish_dataset_history(testdataset1.name, settings.RUN_VERSION)
+    assert len(redis.keys()) > 0
+    DeltaExporter.cleanup(testdataset1.name, keep=10)
+    assert len(redis.keys()) > 0
+    DeltaExporter.cleanup(testdataset1.name, keep=0)
+    assert len(redis.keys()) == 0, redis.keys()

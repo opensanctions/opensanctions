@@ -78,3 +78,16 @@ class DeltaExporter(Exporter):
             for op in self.generate(version):
                 write_json(op, fh)
         super().finish()
+
+    @classmethod
+    def cleanup(cls, dataset_name: str, keep: int = 3) -> None:
+        redis = get_redis()
+        for idx, v in enumerate(iter_dataset_versions(dataset_name)):
+            if idx < keep:
+                continue
+            redis.delete(
+                f"delta:ents:{dataset_name}:{v.id}",
+                f"delta:hash:{dataset_name}:{v.id}",
+                f"delta:fwd:{dataset_name}",
+                f"delta:bwd:{dataset_name}",
+            )
