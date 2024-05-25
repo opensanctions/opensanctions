@@ -1,6 +1,6 @@
 from banal import hash_data
 from typing import Any, Generator, Optional
-from nomenklatura.kv import get_redis, close_redis, b, bv
+from nomenklatura.kv import get_redis, b, bv
 
 
 from zavod import settings
@@ -35,12 +35,20 @@ class DeltaExporter(Exporter):
             for initial in self.view.entities():
                 yield {"op": "ADD", "entity": initial.to_dict()}
             return
+        tmp_fwd = f"delta:fwd:{self.dataset.name}"
+        tmp_bwd = f"delta:bwd:{self.dataset.name}"
         prev_hashes = f"delta:hash:{self.dataset.name}:{previous}"
         prev_entities = f"delta:ents:{self.dataset.name}:{previous}"
-        changed_hashes = self.redis.sdiff([self.hashes, prev_hashes])
-        for hash in changed_hashes:
+        self.redis.sdiffstore(tmp_fwd, [self.hashes, prev_hashes])
+        self.redis.sdiffstore(tmp_bwd, [prev_hashes, self.hashes])
+        changed_hashes = self.redis.sunion([tmp_fwd, tmp_bwd])
+        prev_id: Optional[str] = None
+        for hash in sorted(changed_hashes):
             b_entity_id, _ = bv(hash).split(b":", 1)
             entity_id = b_entity_id.decode("utf-8")
+            if entity_id == prev_id:
+                continue
+            prev_id = entity_id
             is_curr = self.redis.sismember(self.entities, entity_id)
             if not is_curr:
                 yield {"op": "DEL", "entity": {"id": entity_id}}
@@ -54,6 +62,7 @@ class DeltaExporter(Exporter):
                 continue
 
             yield {"op": "MOD", "entity": entity.to_dict()}
+        self.redis.delete(tmp_fwd, tmp_bwd)
 
     def finish(self) -> None:
         version: Optional[str] = None
@@ -69,4 +78,3 @@ class DeltaExporter(Exporter):
             for op in self.generate(version):
                 write_json(op, fh)
         super().finish()
-        close_redis()

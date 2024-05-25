@@ -22,8 +22,6 @@ DATASET_1_YML = FIXTURES_PATH / "testdataset1" / "testdataset1.yml"
 DATASET_2_YML = FIXTURES_PATH / "testdataset2" / "testdataset2.yml"
 DATASET_2_EXPORT_YML = FIXTURES_PATH / "testdataset2" / "testdataset2_export.yml"
 COLLECTION_YML = FIXTURES_PATH / "collection.yml"
-ANALYZER_YML = FIXTURES_PATH / "analyzer.yml"
-ENRICHER_YML = FIXTURES_PATH / "enricher.yml"
 XML_DOC = FIXTURES_PATH / "doc.xml"
 
 
@@ -65,13 +63,13 @@ def vcontext(testdataset1) -> Context:
 @pytest.fixture(scope="function")
 def analyzer(testdataset1) -> Dataset:
     assert testdataset1 is not None
-    return load_dataset_from_path(ANALYZER_YML)
+    return load_dataset_from_path(FIXTURES_PATH / "analyzer.yml")
 
 
 @pytest.fixture(scope="function")
 def enricher(testdataset1) -> Dataset:
     assert testdataset1 is not None
-    return load_dataset_from_path(ENRICHER_YML)
+    return load_dataset_from_path(FIXTURES_PATH / "enricher.yml")
 
 
 @pytest.fixture(scope="function")

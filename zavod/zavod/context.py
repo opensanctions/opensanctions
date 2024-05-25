@@ -54,6 +54,7 @@ class Context:
         self._cache: Optional[Cache] = None
         self._timestamps: Optional[TimeStampIndex] = None
 
+        self.version = settings.RUN_VERSION
         self._data_time: datetime = settings.RUN_TIME
         # If the dataset has a fixed end time which is in the past,
         # use that as the data time:
