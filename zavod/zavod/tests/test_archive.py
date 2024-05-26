@@ -32,6 +32,7 @@ def test_archive_publish(testdataset1: Dataset):
 
 
 def test_artifact_backfill(testdataset1: Dataset):
+    clear_data_path(testdataset1.name)
     name = "foo.json"
     local_path = dataset_resource_path(testdataset1.name, name)
     assert not local_path.exists()

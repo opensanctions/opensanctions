@@ -6,11 +6,12 @@ from zavod.meta import Dataset
 from zavod.dedupe import get_resolver
 from zavod.cli import crawl, run, publish, export, clear
 from zavod.cli import load_db, dump_file, xref, xref_prune
-from zavod.archive import dataset_state_path
+from zavod.archive import dataset_state_path, clear_data_path
 from zavod.tests.conftest import DATASET_1_YML
 
 
 def test_crawl_dataset():
+    clear_data_path("testdataset1")
     runner = CliRunner()
     result = runner.invoke(crawl, ["/dev/null"])
     path = settings.DATA_PATH / "datasets" / "testdataset1"
