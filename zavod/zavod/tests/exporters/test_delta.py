@@ -64,7 +64,7 @@ def test_delta_exporter(testdataset1: Dataset):
     writer.add_entity(e(ENTITY_A))
     writer.add_entity(e(ENTITY_B))
     changed = deepcopy(ENTITY_C)
-    changed["properties"]["name"] = ["Charlie"]
+    changed["properties"] = {"name": ["Charlie"]}
     writer.add_entity(e(changed))
     writer.add_entity(e(ENTITY_CX))
     writer.flush()
@@ -86,13 +86,13 @@ def test_delta_exporter(testdataset1: Dataset):
     # Round 3: check that the delta exporter can handle resolver changes
     publish_dataset_history(testdataset1.name, settings.RUN_VERSION)
     settings.RUN_VERSION = Version.new()
-    canon_id = resolver.decide(ENTITY_CX["id"], ENTITY_C["id"], Judgement.POSITIVE)
+    canon_id = resolver.decide("EC", "ECX", Judgement.POSITIVE)
     store = MemoryStore(testdataset1, resolver)
     writer = store.writer()
     writer.add_entity(e(ENTITY_A))
     writer.add_entity(e(ENTITY_B))
     changed = deepcopy(ENTITY_C)
-    changed["properties"]["name"] = ["Charlie"]
+    changed["properties"] = {"name": ["Charlie"]}
     writer.add_entity(e(changed))
     writer.add_entity(e(ENTITY_CX))
     writer.flush()
