@@ -118,7 +118,11 @@ class FileSystemObject(ArchiveObject):
         return open(self.path, "r", buffering=BLOB_CHUNK)
 
     def backfill(self, dest: Path) -> None:
-        log.info(f"Copying file: {self.path.stem}", dest=dest.as_posix())
+        log.info(
+            f"Copying file: {self.path.stem}",
+            source=self.path.as_posix(),
+            dest=dest.as_posix(),
+        )
         shutil.copyfile(self.path, dest)
 
     def publish(self, source: Path, mime_type: str | None = None) -> None:

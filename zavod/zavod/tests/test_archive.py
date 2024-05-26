@@ -4,7 +4,7 @@ from zavod.meta import Dataset
 from zavod.archive import get_dataset_artifact, publish_resource, publish_artifact
 from zavod.archive import clear_data_path, dataset_data_path, dataset_resource_path
 from zavod.archive import publish_dataset_history
-from zavod.archive import DATASETS, ARTIFACTS
+from zavod.archive import DATASETS, ARTIFACTS, VERSIONS_FILE
 
 
 def test_archive_publish(testdataset1: Dataset):
@@ -32,20 +32,25 @@ def test_archive_publish(testdataset1: Dataset):
 
 
 def test_artifact_backfill(testdataset1: Dataset):
-    shutil.rmtree(settings.DATA_PATH / ARTIFACTS, ignore_errors=True)
-    shutil.rmtree(settings.DATA_PATH / DATASETS, ignore_errors=True)
+    shutil.rmtree(settings.ARCHIVE_PATH / ARTIFACTS, ignore_errors=True)
+    shutil.rmtree(settings.ARCHIVE_PATH / DATASETS, ignore_errors=True)
     name = "foo.json"
     local_path = dataset_resource_path(testdataset1.name, name)
     assert not local_path.exists()
     with open(local_path, "w") as fh:
         fh.write("hello, world!\n")
 
+    artifacts_path = settings.ARCHIVE_PATH / ARTIFACTS / testdataset1.name
     publish_artifact(local_path, testdataset1.name, settings.RUN_VERSION, name)
+    assert artifacts_path.is_dir()
     local_path.unlink()
     local_path = get_dataset_artifact(testdataset1.name, name)
     # Data is unpublished:
+    versions_file = artifacts_path / VERSIONS_FILE
+    assert not versions_file.exists()
     assert not local_path.exists()
     publish_dataset_history(testdataset1.name, settings.RUN_VERSION)
+    assert versions_file.exists()
     local_path = get_dataset_artifact(testdataset1.name, name)
     assert local_path.exists()
 
