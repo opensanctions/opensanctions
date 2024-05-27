@@ -6,6 +6,7 @@ from zavod.logs import get_logger
 from zavod.meta import Dataset
 from zavod.archive import INDEX_FILE, STATISTICS_FILE, ISSUES_FILE, CATALOG_FILE
 from zavod.archive import get_dataset_artifact, dataset_resource_path
+from zavod.runtime.urls import make_published_url, make_artifact_url
 from zavod.runtime.resources import DatasetResources
 from zavod.runtime.issues import DatasetIssues, Issue
 from zavod.util import write_json
@@ -25,13 +26,14 @@ def get_dataset_statistics(dataset: Dataset) -> Dict[str, Any]:
 
 
 def get_base_dataset_metadata(dataset: Dataset) -> Dict[str, Any]:
+    version = str(settings.RUN_VERSION)
     meta = {
         "issue_levels": {},
         "issue_count": 0,
         "updated_at": settings.RUN_TIME_ISO,
-        "version": str(settings.RUN_VERSION),
-        "index_url": dataset.make_public_url("index.json"),
-        "issues_url": dataset.make_public_url("issues.json"),
+        "version": version,
+        "index_url": make_published_url(dataset.name, "index.json"),
+        "issues_url": make_artifact_url(dataset.name, version, "issues.json"),
     }
     resources = DatasetResources(dataset)
     meta["resources"] = [r.to_opensanctions_dict() for r in resources.all()]

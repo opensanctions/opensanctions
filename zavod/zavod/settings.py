@@ -33,9 +33,8 @@ RUN_DATE = RUN_VERSION.dt.date().isoformat()
 RELEASE = env_str("ZAVOD_RELEASE", RUN_TIME.strftime("%Y%m%d"))
 
 # Public URL version
-PUBLIC_DOMAIN = env_str("ZAVOD_PUBLIC_DOMAIN", "data.opensanctions.org")
-DATASET_URL = f"https://{PUBLIC_DOMAIN}/datasets/{RELEASE}/"
-DATASET_URL = env_str("ZAVOD_DATASET_URL", DATASET_URL)
+ARCHIVE_SITE = env_str("ZAVOD_ARCHIVE_SITE", "https://data.opensanctions.org")
+WEB_SITE = env_str("ZAVOD_WEB_SITE", "https://www.opensanctions.org")
 
 # Bucket to back-fill missing data artifacts from
 ARCHIVE_BACKEND = env.get("ZAVOD_ARCHIVE_BACKEND", "FileSystemBackend")

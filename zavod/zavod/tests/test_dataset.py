@@ -4,6 +4,7 @@ from zavod import settings
 
 from zavod.meta import get_catalog, Dataset, get_multi_dataset
 from zavod.meta.assertion import Assertion
+from zavod.runtime.urls import make_published_url
 
 
 TEST_DATASET = {
@@ -47,9 +48,9 @@ def test_basic():
     assert test_ds.data.url is not None
     assert test_ds.disabled is False
     assert not len(test_ds.inputs)
-    url = test_ds.make_public_url("foo")
-    assert url.startswith("https://data.opensanctions.org/"), url
-    assert url.endswith("/foo"), url
+    url = make_published_url(test_ds.name, "foo.json")
+    assert url.startswith("https://data.opensanctions.org/datasets/"), url
+    assert url.endswith(f"{test_ds.name}/foo.json"), url
     os_data = test_ds.to_opensanctions_dict()
     assert os_data["name"] == "test", os_data
     assert os_data["collections"] == ["collection"], os_data

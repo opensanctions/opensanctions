@@ -6,8 +6,8 @@ from nomenklatura.util import bool_text
 
 from zavod.entity import Entity
 from zavod.logs import get_logger
+from zavod.runtime.urls import make_entity_url
 from zavod.exporters.common import Exporter
-from zavod.exporters.util import public_url
 
 COLUMNS = [
     "caption",
@@ -102,7 +102,7 @@ class SecuritiesExporter(Exporter):
             bool_text(is_eo_14071),
             bool_text(is_public),
             entity.id,
-            public_url(entity),
+            make_entity_url(entity),
             join_cell(entity.datasets),
             join_cell(key_datasets),
             join_cell(self._get_aliases(entity)),
