@@ -20,10 +20,10 @@ description: |
 publisher:
   name: Meine Abgeordneten
   description: |
-   The “My Members of Parliament” platform is
-   a private initiative that was founded in 2011 by Respect.net
-   and operated together with WOTI World of Tomorrow Institute
-   (formerly Act.Now) from 2017 to 2021
+    The “My Members of Parliament” platform is
+    a private initiative that was founded in 2011 by Respect.net
+    and operated together with WOTI World of Tomorrow Institute
+    (formerly Act.Now) from 2017 to 2021
   url: https://www.meineabgeordneten.at/
   official: false
   country: "at"
@@ -73,3 +73,7 @@ lookups:
         name: Mitglied der Bezirksvertretung ("Bezirksrat") von Wien-Döbling
       - match: Abgeordneter zum Europäischen Parlament, Fraktion der Progressiven Allianz der Sozialdemokraten im Europäischen Parlament
         name: Abgeordneter zum Europäischen Parlament
+      - match:
+          - Kandidat zur EU-Wahl 2024
+          - Kandidatin zur EU-Wahl 2024
+        name: Kandidat zur EU-Wahl 2024
