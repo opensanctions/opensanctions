@@ -546,6 +546,10 @@ lookups:
         values:
           - SUHH
           - UZ
+      - match: Kirghiz Soviet Socialist Republic
+        values:
+          - SUHH
+          - KG
       - match: Kingdom of Portugal
         value: Portugal
       - contains:
