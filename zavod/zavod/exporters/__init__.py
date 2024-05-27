@@ -15,6 +15,7 @@ from zavod.exporters.statistics import StatisticsExporter
 from zavod.exporters.peps import PEPSummaryExporter
 from zavod.exporters.securities import SecuritiesExporter
 from zavod.exporters.statements import StatementsCSVExporter
+from zavod.exporters.delta import DeltaExporter
 from zavod.exporters.metadata import write_dataset_index, write_issues
 from zavod.exporters.metadata import write_catalog
 
@@ -39,6 +40,7 @@ EXPORTERS: Dict[str, Type[Exporter]] = {
     PEPSummaryExporter.FILE_NAME: PEPSummaryExporter,
     SecuritiesExporter.FILE_NAME: SecuritiesExporter,
     StatementsCSVExporter.FILE_NAME: StatementsCSVExporter,
+    DeltaExporter.FILE_NAME: DeltaExporter,
 }
 
 __all__ = ["export_dataset", "write_dataset_index", "write_issues"]

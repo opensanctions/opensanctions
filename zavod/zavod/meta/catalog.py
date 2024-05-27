@@ -4,7 +4,7 @@ from pathlib import Path
 from nomenklatura.dataset import DataCatalog
 
 from zavod.meta.dataset import Dataset
-from zavod.archive import get_dataset_index
+from zavod.archive import get_dataset_artifact, INDEX_FILE
 
 
 class ArchiveBackedCatalog(DataCatalog[Dataset]):
@@ -26,7 +26,7 @@ class ArchiveBackedCatalog(DataCatalog[Dataset]):
         dataset = super().get(name)
         if dataset is not None:
             return dataset
-        path = get_dataset_index(name)
-        if path is not None:
+        path = get_dataset_artifact(name, INDEX_FILE)
+        if path.exists():
             return self.load_yaml(path)
         return None

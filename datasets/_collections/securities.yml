@@ -38,6 +38,8 @@ children:
   - us_ofac_sdn
   - us_dhs_uflpa
   - us_cuba_sanctions
+  - us_dod_chinese_milcorps
+  - us_special_leg
   - openfigi
   - permid
   - research

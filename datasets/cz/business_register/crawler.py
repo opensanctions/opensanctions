@@ -60,8 +60,12 @@ def make_company(context: Context, tree: ElementOrTree) -> Optional[Entity]:
     return proxy
 
 
-def parse_xml(context: Context, reader: IO[bytes]):
-    tree = etree.parse(reader)
+def parse_xml(context: Context, reader: IO[bytes], file_name: str):
+    try:
+        tree = etree.parse(reader)
+    except etree.XMLSyntaxError:
+        context.log.warning("Invalid XML file: %s" % file_name)
+        return
     company = make_company(context, tree)
     if company is None or company.id is None:
         return
@@ -106,7 +110,7 @@ def crawl(context: Context):
             if res is None:
                 context.log.warn("Cannot read: %s" % archive_member.name)
                 continue
-            parse_xml(context, res)
+            parse_xml(context, res, archive_member.name)
             archive_member = f.next()
             if idx and idx % 10_000 == 0:
                 context.log.info("Parse item %d ..." % idx)

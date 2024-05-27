@@ -45,6 +45,13 @@ publisher:
   url: https://www.wikidata.org
   official: false
 ci_test: false
+http:
+  total_retries: 5
+  backoff_factor: 2
+  retry_statuses: [413, 429, 503, 500]
+  retry_methods:
+    - GET
+    - POST
 
 inputs:
   # Warning: cannot include wd_peps here otherwise it gets too recursive
@@ -386,6 +393,8 @@ lookups:
           - British America
           - Gaochang
           - French Annam
+          - Oudh State
+          - Afro-Peruvian
         value: null
       - match:
           - Cherokee Nation
@@ -537,6 +546,10 @@ lookups:
         values:
           - SUHH
           - UZ
+      - match: Kirghiz Soviet Socialist Republic
+        values:
+          - SUHH
+          - KG
       - match: Kingdom of Portugal
         value: Portugal
       - contains:
@@ -612,6 +625,10 @@ lookups:
           - Basque Country
           - Catalana
         value: ES
+      - match: Muscat and Oman
+        value: OM
+      - match: Funtua
+        value: NG
   type.date:
     options:
       - match:

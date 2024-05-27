@@ -2,7 +2,7 @@ import json
 from typing import Dict, Any, List
 
 from zavod.meta import Dataset, DataResource
-from zavod.archive import dataset_resource_path, backfill_resource
+from zavod.archive import dataset_resource_path, get_dataset_artifact
 from zavod.archive import RESOURCES_FILE
 
 
@@ -14,19 +14,26 @@ class DatasetResources(object):
         self.dataset = dataset
         self.path = dataset_resource_path(dataset.name, RESOURCES_FILE)
 
+    def _store_resources(self, resources: List[DataResource]) -> None:
+        with open(self.path, "w") as fh:
+            objs = [r.to_opensanctions_dict() for r in resources]
+            json.dump({"resources": objs}, fh, indent=2)
+
     def save(self, resource: DataResource) -> None:
         resources = [r for r in self.all() if r.name != resource.name]
         resources.append(resource)
         resources = sorted(resources, key=lambda r: r.name)
-        with open(self.path, "w") as fh:
-            objs = [r.to_opensanctions_dict() for r in resources]
-            json.dump({"resources": objs}, fh, indent=2)
+        self._store_resources(resources)
+
+    def remove(self, name: str) -> None:
+        resources = [r for r in self.all() if r.name != name]
+        self._store_resources(resources)
 
     def all(self) -> List[DataResource]:
         resources: List[DataResource] = []
         data: Dict[str, Any] = {}
         if not self.path.exists():
-            backfill_resource(self.dataset.name, RESOURCES_FILE, self.path)
+            self.path = get_dataset_artifact(self.dataset.name, RESOURCES_FILE)
         if self.path.exists():
             with open(self.path, "r") as fh:
                 data = json.load(fh)

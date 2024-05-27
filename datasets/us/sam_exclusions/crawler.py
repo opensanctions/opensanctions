@@ -45,6 +45,7 @@ def crawl(context: Context) -> None:
     data_url = crawl_data_url(context)
     path = context.fetch_resource("source.zip", data_url)
     context.export_resource(path, ZIP, title=context.SOURCE_TITLE)
+    schemata: Dict[str, str] = {}
     for row in read_rows(path):
         classification = row.pop("Classification")
         schema = context.lookup_value("classifications", classification)
@@ -79,6 +80,27 @@ def crawl(context: Context) -> None:
                 strict=False,
                 prefix="us-fed-excl",
             )
+
+        if entity.id is None:
+            context.log.warning(
+                "No id for entity",
+                sam_number=sam_number,
+                name=row.get("Name"),
+            )
+            continue
+
+        if entity.id in schemata and not entity.schema.is_a(schemata[entity.id]):
+            context.log.warning(
+                "Schema mismatch",
+                entity_id=entity.id,
+                sam_number=sam_number,
+                name=row.get("Name"),
+                schema=entity.schema.name,
+                prev_schema=schemata[entity.id],
+            )
+            continue
+        schemata[entity.id] = entity.schema.name
+
         creation_date = parse_date(row.pop("Creation_Date", None))
         entity.add("createdAt", creation_date)
         entity.add("topics", "debarment")
@@ -127,6 +149,9 @@ def crawl(context: Context) -> None:
         sanction.add("endDate", parse_date(row.pop("Termination Date")))
         sanction.add("summary", row.pop("Additional Comments", None))
 
+        # The NPI (National Provider Identifier) is a unique identification number
+        # for covered health care providers. It is an optional field for exclusion
+        # records.
         npi = row.pop("NPI", None)
         if npi is not None and len(npi):
             entity.add("description", f"NPI: {npi}")

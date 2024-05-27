@@ -4,7 +4,6 @@ from pathlib import Path
 from functools import cache
 from typing import cast, Dict, Optional, Type, TextIO
 from google.cloud.storage import Client, Blob  # type: ignore
-from google.cloud.storage.retry import DEFAULT_RETRY  # type: ignore
 
 from zavod import settings
 from zavod.logs import get_logger
@@ -54,7 +53,7 @@ class GoogleCloudObject(ArchiveObject):
 
     def __init__(self, backend: "GoogleCloudBackend", name: str) -> None:
         self.backend = backend
-        self.name = f"datasets/{name}"
+        self.name = name
         self._blob: Optional[Blob] = None
 
     @property
@@ -80,12 +79,10 @@ class GoogleCloudObject(ArchiveObject):
     def publish(self, source: Path, mime_type: Optional[str] = None) -> None:
         self._blob = self.backend.bucket.blob(self.name)
         log.info(f"Uploading blob: {source.name}", blob_name=self.name)
-        self._blob.upload_from_filename(
-            source, content_type=mime_type, retry=DEFAULT_RETRY
-        )
+        self._blob.upload_from_filename(source, content_type=mime_type)
 
     def republish(self, source: str) -> None:
-        source_blob = self.backend.bucket.get_blob(f"datasets/{source}")
+        source_blob = self.backend.bucket.get_blob(source)
         if source_blob is None:
             raise RuntimeError("Object does not exist: %s" % source)
         # TODO: add if_generation_match
@@ -121,7 +118,11 @@ class FileSystemObject(ArchiveObject):
         return open(self.path, "r", buffering=BLOB_CHUNK)
 
     def backfill(self, dest: Path) -> None:
-        log.info(f"Copying file: {self.path.stem}", dest=dest.as_posix())
+        log.info(
+            f"Copying file: {self.path.stem}",
+            source=self.path.as_posix(),
+            dest=dest.as_posix(),
+        )
         shutil.copyfile(self.path, dest)
 
     def publish(self, source: Path, mime_type: str | None = None) -> None:

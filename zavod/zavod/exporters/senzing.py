@@ -12,8 +12,8 @@ from pprint import pprint  # noqa
 
 from zavod.entity import Entity
 from zavod.util import write_json
+from zavod.runtime.urls import make_entity_url
 from zavod.exporters.common import Exporter
-from zavod.exporters.util import public_url
 
 
 def push(obj: Dict[str, Any], section: str, value: Dict[str, Any]) -> None:
@@ -183,7 +183,7 @@ class SenzingExporter(Exporter):
             ident = {"OTHER_ID_TYPE": self.domain_name, "OTHER_ID_NUMBER": entity.id}
             push(record, "IDENTIFIERS", ident)
 
-        entity_url = public_url(entity)
+        entity_url = make_entity_url(entity)
         if entity_url is not None:
             record["URL"] = entity_url
         if entity.schema.is_a("Organization"):

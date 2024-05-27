@@ -157,4 +157,3 @@ def test_categorise_unauthorised(testdataset1: Dataset):
         with pytest.raises(requests.exceptions.HTTPError) as exc:
             categorise(context, position)
         assert exc.value.response.status_code == 401
-

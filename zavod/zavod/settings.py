@@ -1,8 +1,9 @@
 from os import environ as env
 from pathlib import Path
 from banal import as_bool
-from datetime import datetime
 from normality import stringify
+
+from nomenklatura.versions import Version
 
 
 def env_str(name: str, default: str) -> str:
@@ -23,17 +24,17 @@ DATA_PATH = Path(env_str("OPENSANCTIONS_DATA_PATH", DATA_PATH_)).resolve()
 
 # Per-run timestamp
 TIME_ZONE = env_str("TZ", "UTC")
-RUN_TIME = datetime.utcnow().replace(microsecond=0)
-RUN_TIME_ISO = RUN_TIME.isoformat(sep="T", timespec="seconds")
-RUN_DATE = RUN_TIME.date().isoformat()
+RUN_VERSION = Version.from_env("ZAVOD_VERSION")
+RUN_TIME = RUN_VERSION.dt
+RUN_TIME_ISO = RUN_VERSION.dt.isoformat(sep="T", timespec="seconds")
+RUN_DATE = RUN_VERSION.dt.date().isoformat()
 
 # Release version
 RELEASE = env_str("ZAVOD_RELEASE", RUN_TIME.strftime("%Y%m%d"))
 
 # Public URL version
-PUBLIC_DOMAIN = env_str("ZAVOD_PUBLIC_DOMAIN", "data.opensanctions.org")
-DATASET_URL = f"https://{PUBLIC_DOMAIN}/datasets/{RELEASE}/"
-DATASET_URL = env_str("ZAVOD_DATASET_URL", DATASET_URL)
+ARCHIVE_SITE = env_str("ZAVOD_ARCHIVE_SITE", "https://data.opensanctions.org")
+WEB_SITE = env_str("ZAVOD_WEB_SITE", "https://www.opensanctions.org")
 
 # Bucket to back-fill missing data artifacts from
 ARCHIVE_BACKEND = env.get("ZAVOD_ARCHIVE_BACKEND", "FileSystemBackend")
@@ -58,12 +59,14 @@ CACHE_DATABASE_URI = env.get("OPENSANCTIONS_DATABASE_URI", CACHE_DATABASE_URI)
 # Load DB batch size
 DB_BATCH_SIZE = int(env_str("ZAVOD_DB_BATCH_SIZE", "10000"))
 
-OPENSANCTIONS_API_URL = env.get("ZAVOD_OPENSANCTIONS_API_URL", "https://api.opensanctions.org")
+OPENSANCTIONS_API_URL = env.get(
+    "ZAVOD_OPENSANCTIONS_API_URL", "https://api.opensanctions.org"
+)
 OPENSANCTIONS_API_KEY = env.get("ZAVOD_OPENSANCTIONS_API_KEY", None)
 
 SYNC_POSITIONS = as_bool(env_str("ZAVOD_SYNC_POSITIONS", "true"))
 
-# pywikibot settings for editing Wikidata 
+# pywikibot settings for editing Wikidata
 WD_CONSUMER_TOKEN = env.get("ZAVOD_WD_CONSUMER_TOKEN")
 WD_CONSUMER_SECRET = env.get("ZAVOD_WD_CONSUMER_SECRET")
 WD_ACCESS_TOKEN = env.get("ZAVOD_WD_ACCESS_TOKEN")

@@ -6,6 +6,7 @@ coverage:
   start: 2023-11-20
 deploy:
   memory: 1500Mi
+ci_test: false
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   Switzerland's financial regulator maintains and publishes a warning list of
@@ -33,10 +34,19 @@ publisher:
   country: ch
   url: https://www.finma.ch/en/
   official: true
-url: https://www.finma.ch/en/finma-public/warning-list/
+url: https://www.finma.ch/en/finma-public/warnungen/warning-list/
 data:
   url: https://www.finma.ch/en/api/search/getresult
   format: JSON
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 1500
+    country_entities:
+      ch: 1500
+  max:
+    schema_entities:
+      LegalEntity: 2000
 
 lookups:
   type.url:

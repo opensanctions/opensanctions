@@ -57,6 +57,10 @@ lookups:
         value: Syria
       - match: Sudanese by birth
         value: Sudan
+      - match: Kenya, Somalia
+        values:
+          - Kenya
+          - Somalia
       - match: Kuwaiti citizenship withdrawn in 2002
         value: null
       - match: United States. Also believed to hold Syrian nationality

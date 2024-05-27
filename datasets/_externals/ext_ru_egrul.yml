@@ -42,6 +42,8 @@ publisher:
   country: ru
   official: true
 ci_test: false
+http:
+  retry_methods: [GET, POST]
 
 inputs:
   - ann_graph_topics
