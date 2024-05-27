@@ -6,6 +6,7 @@ from requests import HTTPError
 
 from zavod import Context, Entity
 from zavod import helpers as h
+from zavod.logic.pep import categorise
 
 DEKLARACIJA_ID_RANGE = range(301_730, 637_217)
 # sample 50 for dev purposes
@@ -22,7 +23,6 @@ class PinregSession:
 
     def get_deklaracija_by_id(self, id: int) -> Optional[dict[any]]:
         id_str = f"{id:06d}"
-        self.context.log.info(f"Processing deklaracija {id_str}")
         try:
             return self.context.fetch_json(
                 url=f"https://pinreg.vtek.lt/external/deklaracijos/{id_str}/perziura/viesa",
@@ -38,9 +38,11 @@ class PinregSession:
         except HTTPError as ex:
             response = ex.response.json()
             if status_code := response.pop("status") == 404:
-                self.context.log.info(f"No record for deklaracija {id_str}")
+                self.context.log.info(f"deklaracija {id_str} does not exist")
             else:
-                self.context.log.error(f"{status_code} error for deklaracija {id_str}")
+                self.context.log.error(
+                    f"deklaracija {id_str} skipped due to {status_code} error."
+                )
 
 
 def make_person(context: Context, data: dict) -> Entity:
@@ -67,6 +69,68 @@ def make_marriage(context: Context, person: Entity, spouse: Entity) -> Entity:
     return marriage
 
 
+def parse_affiliations(
+    context: Context, person: Entity, affiliations: list[dict], is_pep: bool = True
+) -> list[tuple[Entity]]:
+    """
+    Args:
+        context (Context)
+        affiliations (list[dict]): A list of dicts, where each dict refers to a place
+         of work and a sub-list of positions.
+        is_pep (bool, optional): Defaults to True.
+
+    Returns:
+        list[tuple[Entity]]: a flattened list of tuples, where each is
+        a position and occupancy. Occupancies that do not meet OpenSanctions criteria
+        are skipped.
+    """
+    entities = []
+    for data in affiliations:
+        entity_is_legal_entity: bool = data.pop("yraJuridinisAsmuo")
+        entity_is_lithuanian: bool = data.pop("registruotaLietuvoje")
+        legal_entity_code: Optional[str] = data.pop("jaKodas")
+        entity_name = data.pop("pavadinimas")
+        affiliation_start_date: str = data.pop("rysioPradzia")
+        affiliation_type = data.pop("darbovietesTipas")
+        data_sources = data.pop("duomenuSaltiniai")
+        filed_automatically: bool = data.pop("uzpildytaAutomatiskai")
+        entity_must_be_declared: bool = data.pop("privaluDeklaruoti")
+        entity_legal_form: str = data.pop("jaTeisinesFormosPavadinimas")
+
+        for role in data.pop("pareigos"):
+            position_name: Optional[str] = role.pop("pareigos")
+            legal_code: Optional[str] = role.pop("teisejoKodas")
+            role_must_be_declared: Optional[bool] = role.pop("privaluDeklaruoti")
+            nature_of_duties: str = role.pop("pareiguTipasPavadinimas")
+            position = h.make_position(
+                context,
+                name=position_name or "Unknown position",
+                topics=None,
+                country="LT" if entity_is_lithuanian else None,
+            )
+
+            categorisation = categorise(
+                context,
+                position,
+                is_pep=is_pep,
+            )
+
+            occupancy = h.make_occupancy(
+                context,
+                person,
+                position,
+                no_end_implies_current=False,
+                start_date=affiliation_start_date,
+                categorisation=categorisation,
+                propagate_country=True,
+            )
+            context.audit_data(role)
+            if occupancy:
+                entities.append((position, occupancy))
+        context.audit_data(data)
+    return entities
+
+
 def crawl(context: Context) -> None:
     """exhaustively scans PINREG portal and emits all deklaracijos"""
 
@@ -76,38 +140,60 @@ def crawl(context: Context) -> None:
         if not (record := pinreg.get_deklaracija_by_id(deklaracija_id)):
             continue
 
-        assert record.pop('id') == deklaracija_id
+        assert record.pop("id") == deklaracija_id
 
-        submission_date = record.pop('pateikimoData')
+        submission_date = record.pop("pateikimoData")
         reasons_for_submission = record.pop("teikimoPriezastysPavadinimai")
         submission_status = record.pop("viesumoStatusas")
         nondisclosure_reason = record.pop("neviesinimoPriezastis")
         declaration_type = record.pop("deklaracijosTipas")
 
+        # declarant data
+        declarant = make_person(context, record.pop("teikejas"))
+        declarant_affiliations: list[dict] = record.pop("darbovietes")
+        declarant_offices = parse_affiliations(
+            context, declarant, declarant_affiliations
+        )
+        for position, occupancy in declarant_offices:
+            context.emit(position, target=False)
+            context.emit(occupancy, target=False)
+        if not declarant_offices:
+            context.log.info(
+                f"deklaracija {deklaracija_id} has no relevant occupancies."
+            )
+            continue
+        context.log.info(f"deklaracija {deklaracija_id} processing.")
+
+        """If the spouse is included in the declaration, and the spouse's occupancies
+        meet OpenSanctions criteria, emit the spouse, the marriage, and the occupancies/positions."""
+        spouse_data: Optional[dict] = record.pop("sutuoktinis", None)
+        spouse = make_person(context, spouse_data) if spouse_data else None
+        spouse_affiliations: list[dict] = record.pop("sutuoktinioDarbovietes", [])
+        spouse_offices = parse_affiliations(context, spouse, spouse_affiliations)
+        if spouse is not None and spouse_offices:
+            for position, occupancy in spouse_offices:
+                context.emit(position, target=False)
+                context.emit(occupancy, target=False)
+            marriage = make_marriage(context, declarant, spouse)
+            context.emit(spouse, target=False)
+            context.emit(marriage)
+
         # uncertain values
+        related_transactions: Optional[list[dict]] = record.pop(
+            "rysiaiDelSandoriu", None
+        )
+        related_legal_entities: Optional[list[dict]] = record.pop("rysiaiSuJa", None)
+        context.emit(declarant, target=True)
         submission_session_end_date = record.pop("viesumoNutraukimoData")
         other_data = record.pop("kitiDuomenys")
         other_data_fa = record.pop("kitiDuomenysFa")
         is_employee_of_institution = record.pop("teikejasYraIstaigosDarbuotojas")
-        potential_related_declarations = record.pop('deklaracijosAtsiradesGalimasRysys')
-        individual_activities_declarations = record.pop("deklaracijosIndividualiosVeiklos")
+        potential_related_declarations = record.pop("deklaracijosAtsiradesGalimasRysys")
+        individual_activities_declarations = record.pop(
+            "deklaracijosIndividualiosVeiklos"
+        )
         declaration_fa = record.pop("deklaracijosFaRysiai")
-
-        # likely irrelevant values
         is_latest_version = record.pop("yraNaujausiaVersija")
         reasons_for_submission_code = record.pop("teikimoPriezastys")
-        old_declaration_id:Optional[str] = record.pop("senosPidId", None)
-        declarant = make_person(context, record.pop("teikejas"))
-        positions:list[dict] = record.pop("darbovietes")
-
-        spouse_data:Optional[dict] = record.pop("sutuoktinis", None)
-        spouse_positions:Optional[list[dict]] = record.pop("sutuoktinioDarbovietes", None)
-        if spouse_data is not None:
-            spouse = make_person(context, spouse_data)
-            marriage = make_marriage(context, declarant, spouse)
-            context.emit(spouse, target=False)
-            context.emit(marriage)
-        related_transactions:Optional[list[dict]] = record.pop("rysiaiDelSandoriu", None)
-        related_legal_entities:Optional[list[dict]] = record.pop("rysiaiSuJa", None)
-        context.emit(declarant, target=True)
+        old_declaration_id: Optional[str] = record.pop("senosPidId", None)
         context.audit_data(record)
