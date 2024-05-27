@@ -32,6 +32,9 @@ def test_export_index(testdataset1: Dataset, testdataset2: Dataset):
 
     with open(settings.DATA_PATH / "datasets" / "index.json") as index_file:
         index = load(index_file)
+        assert "datasets" in index
+        assert "run_version" in index
+        assert "run_time" in index
         datasets = {r["name"] for r in index["datasets"]}
         assert "testdataset1" in datasets
         assert "testdataset2" in datasets

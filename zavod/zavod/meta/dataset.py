@@ -3,7 +3,6 @@ from banal import ensure_list, ensure_dict, as_bool
 from typing import Dict, Any, Optional, List, Set
 from normality import slugify
 from pathlib import Path
-from urllib.parse import urljoin
 from functools import cached_property
 from datapatch import get_lookups, Lookup
 from nomenklatura.dataset import Dataset as NKDataset
@@ -23,11 +22,12 @@ class Dataset(NKDataset):
     def __init__(self, catalog: "DataCatalog[Dataset]", data: Dict[str, Any]):
         super().__init__(catalog, data)
         assert self.name == slugify(self.name, sep="_"), "Dataset name is invalid"
-        (len(self.summary or "") > 50) or log.warning(
-            "Dataset summary must be at least 50 chars.",
-            dataset=self.name,
-            summary=self.summary,
-        )
+        if len(self.summary or "") < 50:
+            log.warning(
+                "Dataset summary must be at least 50 chars.",
+                dataset=self.name,
+                summary=self.summary,
+            )
         self.catalog: "DataCatalog[Dataset]" = catalog  # type: ignore
         self.prefix: str = data.get("prefix", slugify(self.name, sep="-")).strip()
         assert self.prefix == slugify(self.prefix, sep="-"), (
@@ -114,11 +114,6 @@ class Dataset(NKDataset):
         if not isinstance(data_config, dict) or not len(data_config):
             return None
         return Data(data_config)
-
-    def make_public_url(self, path: str) -> str:
-        """Generate a public URL for a file within the dataset context."""
-        url = urljoin(settings.DATASET_URL, f"{self.name}/")
-        return urljoin(url, path)
 
     def to_dict(self) -> Dict[str, Any]:
         """Generate a metadata export, not including operational details."""

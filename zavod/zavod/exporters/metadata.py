@@ -5,7 +5,8 @@ from zavod import settings
 from zavod.logs import get_logger
 from zavod.meta import Dataset
 from zavod.archive import INDEX_FILE, STATISTICS_FILE, ISSUES_FILE, CATALOG_FILE
-from zavod.archive import get_dataset_resource, dataset_resource_path
+from zavod.archive import get_dataset_artifact, dataset_resource_path
+from zavod.runtime.urls import make_published_url, make_artifact_url
 from zavod.runtime.resources import DatasetResources
 from zavod.runtime.issues import DatasetIssues, Issue
 from zavod.util import write_json
@@ -16,7 +17,7 @@ log = get_logger(__name__)
 def get_dataset_statistics(dataset: Dataset) -> Dict[str, Any]:
     """This reads the file produced by the statistics exporter which contains entity
     counts for the dataset, aggregated by various criteria."""
-    statistics_path = get_dataset_resource(dataset, STATISTICS_FILE)
+    statistics_path = get_dataset_artifact(dataset.name, STATISTICS_FILE)
     if not statistics_path.is_file():
         log.error("No statistics file found", dataset=dataset.name)
         return {}
@@ -25,12 +26,14 @@ def get_dataset_statistics(dataset: Dataset) -> Dict[str, Any]:
 
 
 def get_base_dataset_metadata(dataset: Dataset) -> Dict[str, Any]:
+    version = str(settings.RUN_VERSION)
     meta = {
         "issue_levels": {},
         "issue_count": 0,
         "updated_at": settings.RUN_TIME_ISO,
-        "index_url": dataset.make_public_url("index.json"),
-        "issues_url": dataset.make_public_url("issues.json"),
+        "version": version,
+        "index_url": make_published_url(dataset.name, "index.json"),
+        "issues_url": make_artifact_url(dataset.name, version, "issues.json"),
     }
     resources = DatasetResources(dataset)
     meta["resources"] = [r.to_opensanctions_dict() for r in resources.all()]
@@ -61,7 +64,7 @@ def get_catalog_dataset(dataset: Dataset) -> Dict[str, Any]:
     """Get a metadata description of a single dataset, retaining timestamp information
     for the last export, but updating some other metadata."""
     meta = get_base_dataset_metadata(dataset)
-    path = get_dataset_resource(dataset, INDEX_FILE)
+    path = get_dataset_artifact(dataset.name, INDEX_FILE)
     if path.is_file():
         with open(path, "r") as fh:
             meta.update(json.load(fh))

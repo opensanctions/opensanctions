@@ -12,7 +12,7 @@ from zavod import settings
 from zavod.store import get_view
 from zavod.dedupe import get_resolver
 from zavod.exporters import export_dataset
-from zavod.archive import clear_data_path
+from zavod.archive import clear_data_path, DATASETS
 from zavod.exporters.ftm import FtMExporter
 from zavod.exporters.names import NamesExporter
 from zavod.exporters.simplecsv import SimpleCSVExporter
@@ -42,7 +42,7 @@ def export(dataset: Dataset) -> None:
 
 
 def test_export(testdataset1: Dataset):
-    dataset_path = settings.DATA_PATH / "datasets" / testdataset1.name
+    dataset_path = settings.DATA_PATH / DATASETS / testdataset1.name
     clear_data_path(testdataset1.name)
 
     crawl_dataset(testdataset1)

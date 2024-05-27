@@ -5,25 +5,14 @@ on:
   - pull_request
   - workflow_dispatch
 
+permissions:
+  packages: write
+  id-token: write
+  
+
 jobs:
   python:
-    services:
-      db:
-        image: postgres:13
-        env:
-          POSTGRES_PASSWORD: opensanctions
-          POSTGRES_USER: opensanctions
-          POSTGRES_DB: opensanctions
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
-
     env:
-      OPENSANCTIONS_DATABASE_URI: "postgresql://opensanctions:opensanctions@localhost/opensanctions"
       OPENSANCTIONS_RESOLVER_PATH: /dev/null
       ZAVOD_SYNC_POSITIONS: false
 
@@ -107,8 +96,6 @@ jobs:
         # working-directory: zavod
         if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/zavod')
         with:
-          user: __token__
-          password: ${{ secrets.pypi_password }}
           skip-existing: true
           packages-dir: zavod/dist
 

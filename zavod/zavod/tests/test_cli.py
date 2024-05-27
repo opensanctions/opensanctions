@@ -59,14 +59,23 @@ def test_dump_file():
     out_path = dataset_state_path("x") / "out.csv"
     result = runner.invoke(cli, ["dump-file", "/dev/null", out_path.as_posix()])
     assert result.exit_code != 0, result.output
-    result = runner.invoke(cli, ["dump-file", DATASET_1_YML.as_posix(), out_path.as_posix()])
+    result = runner.invoke(
+        cli, ["dump-file", DATASET_1_YML.as_posix(), out_path.as_posix()]
+    )
     assert result.exit_code == 0, result.output
     shutil.rmtree(settings.DATA_PATH)
 
 
 def test_run_dataset(testdataset1: Dataset):
-    latest_path = settings.ARCHIVE_PATH / "latest" / testdataset1.name
+    latest_path = settings.ARCHIVE_PATH / "datasets" / "latest" / testdataset1.name
+    artifacts_path = (
+        settings.ARCHIVE_PATH
+        / "artifacts"
+        / testdataset1.name
+        / settings.RUN_VERSION.id
+    )
     assert not latest_path.exists()
+    assert not artifacts_path.exists()
     runner = CliRunner()
     result = runner.invoke(cli, ["run", "/dev/null"])
     assert result.exit_code != 0, result.output
@@ -76,7 +85,7 @@ def test_run_dataset(testdataset1: Dataset):
     assert latest_path.joinpath("index.json").exists()
     assert latest_path.joinpath("entities.ftm.json").exists()
     # Validation issues in a published run are published
-    with open(latest_path / "issues.json", "r") as f:
+    with open(artifacts_path / "issues.json", "r") as f:
         assert "is a target but has no topics" in f.read()
     shutil.rmtree(latest_path)
 
@@ -87,18 +96,23 @@ def test_run_dataset(testdataset1: Dataset):
     assert latest_path.exists()
     assert latest_path.joinpath("index.json").exists()
     assert latest_path.joinpath("entities.ftm.json").exists()
-    shutil.rmtree(settings.DATA_PATH)
+    # shutil.rmtree(settings.DATA_PATH)
 
 
 def test_run_validation_failed(testdataset3: Dataset):
-    latest_path = settings.ARCHIVE_PATH / "latest" / testdataset3.name
-    assert not (latest_path / "issues.json").exists()
+    artifacts_path = (
+        settings.ARCHIVE_PATH
+        / "artifacts"
+        / testdataset3.name
+        / settings.RUN_VERSION.id
+    )
+    assert not (artifacts_path / "issues.json").exists()
     runner = CliRunner()
     result = runner.invoke(cli, ["run", "--latest", DATASET_3_YML.as_posix()])
     assert result.exit_code != 0, result.output
     # Validation issues in an aborted run are published
     assert "Assertion failed for value" in result.output, result.output
-    with open(latest_path / "issues.json", "r") as f:
+    with open(artifacts_path / "issues.json", "r") as f:
         assert "Assertion failed for value" in f.read()
     shutil.rmtree(settings.DATA_PATH)
 
@@ -124,5 +138,3 @@ def test_xref_dataset(testdataset1: Dataset):
     get_resolver.cache_clear()
     resolver = get_resolver()
     assert len(resolver.edges) == 0
-
-    shutil.rmtree(settings.DATA_PATH)
