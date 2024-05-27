@@ -80,6 +80,7 @@ def publish_failure(dataset: Dataset, latest: bool = True) -> None:
     dataset_resource_path(dataset.name, STATISTICS_FILE).unlink(missing_ok=True)
     dataset_resource_path(dataset.name, INDEX_FILE).unlink(missing_ok=True)
     dataset_resource_path(dataset.name, CATALOG_FILE).unlink(missing_ok=True)
+    dataset_resource_path(dataset.name, RESOURCES_FILE).unlink(missing_ok=True)
     write_issues(dataset)
     write_dataset_index(dataset)
     path = dataset_resource_path(dataset.name, INDEX_FILE)
