@@ -25,6 +25,6 @@ publisher:
   url: http://www.fiu.az/en/info
   official: true
 data:
-  url: "http://www.fiu.az/en/sanctions/internal-sanctioned"
-  format: XLS
+  url: "http://hms.gov.az/az/siyahi"
+  format: XML
   lang: aze
