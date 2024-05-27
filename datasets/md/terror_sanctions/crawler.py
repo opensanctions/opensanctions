@@ -18,8 +18,8 @@ def parse_birth_dates(string: str) -> List[str]:
 
 
 def clean_name(string: str):
-    name = re.sub("^[\]\), ]+", "", string)
-    name = re.sub("[\[\(\., ]+$", "", string)
+    name = re.sub(r"^[\]\), ]+", "", string)
+    name = re.sub(r"[\[\(\., ]+$", "", string)
     return name
 
 
