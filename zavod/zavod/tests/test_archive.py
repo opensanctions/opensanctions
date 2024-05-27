@@ -32,8 +32,6 @@ def test_archive_publish(testdataset1: Dataset):
 
 
 def test_artifact_backfill(testdataset1: Dataset):
-    shutil.rmtree(settings.ARCHIVE_PATH / ARTIFACTS, ignore_errors=True)
-    shutil.rmtree(settings.ARCHIVE_PATH / DATASETS, ignore_errors=True)
     name = "foo.json"
     local_path = dataset_resource_path(testdataset1.name, name)
     assert not local_path.exists()
@@ -53,5 +51,3 @@ def test_artifact_backfill(testdataset1: Dataset):
     assert versions_file.exists()
     local_path = get_dataset_artifact(testdataset1.name, name)
     assert local_path.exists()
-
-    clear_data_path(testdataset1.name)

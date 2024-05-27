@@ -1,7 +1,10 @@
 import pytest
+import shutil
 from pathlib import Path
 from tempfile import mkdtemp, mkstemp
 from nomenklatura import settings as nk_settings
+from nomenklatura.db import get_engine
+from nomenklatura.kv import get_redis
 
 from zavod import settings
 from zavod.context import Context
@@ -26,12 +29,16 @@ XML_DOC = FIXTURES_PATH / "doc.xml"
 
 
 @pytest.fixture(autouse=True)
-def clear_catalog():
+def wrap_test():
     _, path = mkstemp(suffix=".ijson")
+    shutil.rmtree(settings.ARCHIVE_PATH, ignore_errors=True)
+    shutil.rmtree(settings.DATA_PATH / "datasets", ignore_errors=True)
     settings.RESOLVER_PATH = path
     get_resolver.cache_clear()
     yield
     get_catalog.cache_clear()
+    get_engine.cache_clear()
+    get_redis.cache_clear()
 
 
 @pytest.fixture(scope="function")
@@ -63,16 +70,22 @@ def vcontext(testdataset1) -> Context:
 @pytest.fixture(scope="function")
 def analyzer(testdataset1) -> Dataset:
     assert testdataset1 is not None
-    return load_dataset_from_path(FIXTURES_PATH / "analyzer.yml")
+    ds = load_dataset_from_path(FIXTURES_PATH / "analyzer.yml")
+    assert ds is not None, "Failed to load analyzer dataset"
+    return ds
 
 
 @pytest.fixture(scope="function")
 def enricher(testdataset1) -> Dataset:
     assert testdataset1 is not None
-    return load_dataset_from_path(FIXTURES_PATH / "enricher.yml")
+    ds = load_dataset_from_path(FIXTURES_PATH / "enricher.yml")
+    assert ds is not None, "Failed to load enricher dataset"
+    return ds
 
 
 @pytest.fixture(scope="function")
 def collection(testdataset1) -> Dataset:
     assert testdataset1 is not None
-    return load_dataset_from_path(COLLECTION_YML)
+    ds = load_dataset_from_path(COLLECTION_YML)
+    assert ds is not None, "Failed to load collection dataset"
+    return ds
