@@ -573,6 +573,11 @@ lookups:
           - role: President of the National Council for Safeguarding of the Homeland
             name: General Abdourahame TIANI
             start_date: 28 July 2023
+      - match: CNSP Prime Minister Ali Mahaman Lamine ZEINE (since 9 August 2023)
+        holders:
+          - role: CNSP Prime Minister
+            name: Ali Mahaman Lamine ZEINE
+            start_date: 9 August 2023
       # Yemen
       - match: "Vice Chairpersons and Presidential Leadership Council members Sultan al-ARADA, Faraj Salmin al- BAHSANI, Brig. Gen. Abdullah Al-Alimi BA WAZIR, Uthman Hussain Faid al-MUJALI, TARIQ Muhammad Abdallah Salih, Brig. Gen., 'Abd-al-Rahman ABU ZARA'A al-Muharrami al-Yafai, Brig. Gen., Aydarus Qasim al-ZUBAYDI, Maj. Gen. (all since 19 April 2022)"
         holders:
@@ -716,6 +721,10 @@ lookups:
           # Bulgaria
           - "Vacant \\(since 6 March 2024\\)"
           - "chief of state: president \\(vacant\\)"
+          # Haiti
+          - a nine-member Presidential Transitional Council, equipped with presidential powers, was sworn in on 25 April 2024 and will remain in place until 7 February 2026
+          # Iran
+          - on 19 May 2024, President Ebrahim RAISI died in a helicopter crash
         holders: []
 
   type.country:

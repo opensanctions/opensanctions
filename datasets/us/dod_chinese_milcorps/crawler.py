@@ -11,6 +11,7 @@ def crawl(context: Context) -> None:
             name = row.pop("Clean Name")
             entity.id = context.make_id(name)
             entity.add("name", name)
+            entity.add("alias", row.pop("Name", None))
             entity.add("alias", row.pop("Alias", None))
             entity.add("notes", row.pop("Note", None))
             parent_name = row.pop("Parent Name", None)
@@ -26,6 +27,8 @@ def crawl(context: Context) -> None:
                 "program",
                 "Section 1260H of the William M. (“Mac”) Thornberry National Defense Authorization Act for Fiscal Year 2021 (Public Law 116-283)",
             )
+            sanction.add("startDate", row.pop("Start date", None))
+            sanction.add("endDate", row.pop("End date", None))
             context.emit(sanction)
             context.emit(entity, target=True)
-            context.audit_data(row, ignore=["Name"])
+            context.audit_data(row)

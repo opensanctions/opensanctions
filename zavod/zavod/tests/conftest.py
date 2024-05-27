@@ -24,6 +24,7 @@ FIXTURES_PATH = Path(__file__).parent / "fixtures"
 DATASET_1_YML = FIXTURES_PATH / "testdataset1" / "testdataset1.yml"
 DATASET_2_YML = FIXTURES_PATH / "testdataset2" / "testdataset2.yml"
 DATASET_2_EXPORT_YML = FIXTURES_PATH / "testdataset2" / "testdataset2_export.yml"
+DATASET_3_YML = FIXTURES_PATH / "testdataset3" / "testdataset3.yml"
 COLLECTION_YML = FIXTURES_PATH / "collection.yml"
 XML_DOC = FIXTURES_PATH / "doc.xml"
 
@@ -51,6 +52,13 @@ def testdataset1() -> Dataset:
 @pytest.fixture(scope="function")
 def testdataset2() -> Dataset:
     dataset = load_dataset_from_path(DATASET_2_YML)
+    assert dataset is not None
+    return dataset
+
+
+@pytest.fixture(scope="function")
+def testdataset3() -> Dataset:
+    dataset = load_dataset_from_path(DATASET_3_YML)
     assert dataset is not None
     return dataset
 

@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import List, Optional
 from followthemoney.exc import InvalidData
 from nomenklatura.statement import Statement
-from nomenklatura.resolver import Resolver
+from nomenklatura.resolver import Linker
 from nomenklatura.store.base import View as BaseView
 from nomenklatura.store.level import LevelDBStore
 from nomenklatura.publish.dates import simplify_dates
@@ -19,7 +19,9 @@ log = get_logger(__name__)
 View = BaseView[Dataset, Entity]
 
 
-def get_store(dataset: Dataset, external: bool = False) -> "Store":
+def get_store(
+    dataset: Dataset, external: bool = False, linker: bool = False
+) -> "Store":
     resolver = get_dataset_resolver(dataset)
     aggregator_path = dataset_state_path(dataset.name)
     suffix = "external" if external else "internal"
@@ -29,8 +31,11 @@ def get_store(dataset: Dataset, external: bool = False) -> "Store":
     if not external:
         external_path = aggregator_path / f"{dataset.name}.external.store"
         if external_path.is_dir():
-            return get_store(dataset, external=True)
-    store = Store(dataset, resolver, dataset_path)
+            return get_store(dataset, external=True, linker=linker)
+    linker_inst: Linker[Entity] = resolver
+    if linker:
+        linker_inst = resolver.get_linker()
+    store = Store(dataset, linker_inst, dataset_path)
     store.build(external=external)
     return store
 
@@ -46,8 +51,8 @@ def clear_store(dataset: Dataset) -> None:
         shutil.rmtree(internal_path, ignore_errors=True)
 
 
-def get_view(dataset: Dataset, external: bool = False) -> View:
-    store = get_store(dataset, external=external)
+def get_view(dataset: Dataset, external: bool = False, linker: bool = False) -> View:
+    store = get_store(dataset, external=external, linker=linker)
     return store.default_view(external=external)
 
 
@@ -55,10 +60,10 @@ class Store(LevelDBStore[Dataset, Entity]):
     def __init__(
         self,
         dataset: Dataset,
-        resolver: Resolver[Entity],
+        linker: Linker[Entity],
         path: Path,
     ):
-        super().__init__(dataset, resolver, path)
+        super().__init__(dataset, linker, path)
         self.entity_class = Entity
 
     def build(self, external: bool = False) -> None:

@@ -23,6 +23,7 @@ from zavod.tools.dump_file import dump_dataset_to_file
 from zavod.tools.summarize import summarize as _summarize
 from zavod.exc import RunFailedException
 from zavod.tools.wikidata import run_app
+from zavod.validators import validate_dataset
 
 
 log = get_logger(__name__)
@@ -65,6 +66,22 @@ def crawl(dataset_path: Path, dry_run: bool = False, clear: bool = False) -> Non
         sys.exit(1)
 
 
+@cli.command("validate", help="Check the integrity of a dataset")
+@click.argument("dataset_path", type=InPath)
+@click.option("-c", "--clear", is_flag=True, default=False)
+def validate(dataset_path: Path, clear: bool = False) -> None:
+    try:
+        dataset = _load_dataset(dataset_path)
+        if clear:
+            clear_store(dataset)
+        view = get_view(dataset, external=False)
+        validate_dataset(dataset, view)
+    except Exception:
+        log.exception("Validation failed for %r" % dataset_path)
+        view.store.close()
+        sys.exit(1)
+
+
 @cli.command("export", help="Export data from a specific dataset")
 @click.argument("dataset_path", type=InPath)
 @click.option("-c", "--clear", is_flag=True, default=False)
@@ -73,7 +90,7 @@ def export(dataset_path: Path, clear: bool = False) -> None:
         dataset = _load_dataset(dataset_path)
         if clear:
             clear_store(dataset)
-        view = get_view(dataset, external=False)
+        view = get_view(dataset, external=False, linker=True)
         export_dataset(dataset, view)
     except Exception:
         log.exception("Failed to export: %s" % dataset_path)
@@ -110,15 +127,26 @@ def run(
         log.info("Dataset is disabled, skipping: %s" % dataset.name)
         publish_failure(dataset, latest=latest)
         sys.exit(0)
+    # Crawl
     if dataset.entry_point is not None and not dataset.is_collection:
         try:
             crawl_dataset(dataset, dry_run=False)
         except RunFailedException:
             publish_failure(dataset, latest=latest)
             sys.exit(1)
+    # Validate
     try:
         clear_store(dataset)
-        view = get_view(dataset, external=False)
+        view = get_view(dataset, external=False, linker=True)
+        if not dataset.is_collection:
+            validate_dataset(dataset, view)
+    except Exception:
+        log.exception("Validation failed for %r" % dataset.name)
+        publish_failure(dataset, latest=latest)
+        view.store.close()
+        sys.exit(1)
+    # Export and Publish
+    try:
         export_dataset(dataset, view)
         view.store.close()
         publish_dataset(dataset, latest=latest)

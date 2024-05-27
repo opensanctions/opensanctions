@@ -28,6 +28,8 @@ publisher:
     in the territory of the Republic of Latvia.
   official: true
 ci_test: false
+http:
+  retry_methods: [GET, POST]
 
 inputs:
   - ann_graph_topics

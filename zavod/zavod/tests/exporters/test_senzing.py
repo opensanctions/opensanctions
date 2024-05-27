@@ -39,7 +39,7 @@ def test_senzing(testdataset1: Dataset):
     assert company["DATA_SOURCE"] == "OS_TESTDATASET1"
     assert company["RECORD_ID"] == "osv-umbrella-corp"
     assert company["RECORD_TYPE"] == "ORGANIZATION"
-    assert '/entities/osv-umbrella-corp' in company["URL"]
+    assert "/entities/osv-umbrella-corp" in company["URL"]
     assert company["LAST_CHANGE"] is not None
 
     person = [t for t in targets if t["RECORD_ID"] == "osv-hans-gruber"][0]
