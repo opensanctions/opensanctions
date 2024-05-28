@@ -88,7 +88,7 @@ def crawl_item(context: Context, input_dict: dict):
         context.log.warning(f"Unable to parse parties: {parties}")
         return
 
-    entity = context.make("Person")
+    entity = context.make("LegalEntity")
     entity.id = context.make_id(parties)
 
     entity.add("name", clean_name)

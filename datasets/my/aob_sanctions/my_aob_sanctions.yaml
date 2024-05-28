@@ -52,13 +52,13 @@ data:
 assertions:
   min:
     schema_entities:
-      Person: 59
+      LegalEntity: 59
     country_entities:
       my: 59
     countries: 1
   max:
     schema_entities:
-      Person: 100
+      LegalEntity: 100
 
 lookups:
   columns:
