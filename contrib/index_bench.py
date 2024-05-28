@@ -70,10 +70,10 @@ def main(
                 candidate = target_view.get_entity(ident.id)
             if candidate_log:
                 candidate_log_fw.write(
-                    f"Candidate %.2f: {ident.id} {candidate.get('name')}\n" % score
+                    "Candidate %.2f: %s %r\n" % (score, ident.id, candidate.get('name'))
                 )
             if show_candidates:
-                print("Candidate", "%.3f" % score, candidate.get("name"))
+                print("Candidate", "%.3f" % score, candidate.id, candidate.get("name"))
         subjects_searched += 1
     matching_end_ts = datetime.now()
     print(f"Blocking took {matching_end_ts - matching_start_ts}")
