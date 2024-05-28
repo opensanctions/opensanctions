@@ -5,6 +5,14 @@ deploy:
   memory: "1500Mi"
   command: /etl/scripts/export-sanctions.sh
   # premium: true
+exports:
+  - statistics.json
+  - entities.ftm.json
+  - entities.delta.json
+  - names.txt
+  - senzing.json
+  - targets.nested.json
+  - targets.simple.csv
 summary: >
   Consolidated list of sanctioned entities designated by different
   countries and international organisations. This can include military,
