@@ -9,9 +9,10 @@ def crawl_item(input_dict: dict, context: Context):
     ethnicity = input_dict.pop("民族")
     gender = input_dict.pop("性别")
     birth_date = input_dict.pop("出生日期")
+    delegation = input_dict.pop("代表团")
 
     entity = context.make("Person")
-    entity.id = context.make_id(name, ethnicity, gender, birth_date)
+    entity.id = context.make_id(name, ethnicity, gender, birth_date, delegation)
 
     entity.add("name", name, lang="chi")
     entity.add("gender", gender)
@@ -20,6 +21,7 @@ def crawl_item(input_dict: dict, context: Context):
         "birthDate", h.parse_date(birth_date, formats=["%Y年%m月"])
     )
     entity.add("political", input_dict.pop("政党"))
+    entity.add("position", delegation, lang="chi")
 
     position = h.make_position(
         context, "Member of the National People’s Congress", country="cn"
@@ -51,5 +53,4 @@ def crawl(context: Context):
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
         for i, item in enumerate(csv.DictReader(fh)):
-            context.log.info(i)
             crawl_item(item, context)

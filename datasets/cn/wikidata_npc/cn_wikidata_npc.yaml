@@ -43,7 +43,7 @@ lookups:
 assertions:
   min:
     schema_entities:
-      Person: 2953
+      Person: 2955
   max:
     schema_entities:
-      Person: 2952
+      Person: 2955
