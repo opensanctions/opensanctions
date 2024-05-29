@@ -1,22 +1,25 @@
-title: China National People's Congress
+title: China National People's Congress on Wikipedia
 entry_point: crawler.py
-prefix: cn-npc
+prefix: cn-npc-wik
 coverage:
   frequency: never 
-  start: 2024-05-16
-  end: 2024-05-16
+  start: 2024-05-29
+  end: 2024-05-29
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Current members of the Chinese National People's Congress
 description: |
   The National People's Congress (NPC) is the highest organ of
   state power of the People's Republic of China. It is the only 
-  branch of the Chinese government, and is unicameral. The NPC
+  branch of the Chinese government, and is unicameral.
+  
+  The NPC
   is elected for a term of five years, and the last election
   was held in 2023. Delegates to the National People's Congress
   are allowed to hold seats in other bodies of government
   simultaneously and the party and the NPC typically includes
   all of the senior officials in Chinese politics.
+
   Data sourced from Wikipedia licensed Creative Commons
   Attribution-Share Alike 4.0.
 publisher:
@@ -29,21 +32,34 @@ publisher:
   country: "zz"
 url: http://www.npc.gov.cn
 data:
-  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRWjzoZCQ4SSJGimuIP_ESCS23ZO2HWO7ENuwNr_4yjiXigeCezqtVz5rUOmUj3AfHeLyAalUiBmG1D/pub?output=csv
-  format: CSV
+  url: https://zh.wikipedia.org/wiki/第十四届全国人民代表大会代表名单
+  format: HTML
 
 lookups:
   type.gender:
     options:
       - match: 男
-        name: male
+        value: male
       - match: 女
-        name: female
+        value: female
+  type.date:
+    options:
+      - match: 鹤壁市豫剧团团长
+        value: null
+  headers:
+    map:
+      姓名: name
+      政党: party
+      性别: gender
+      民族: ethnicity
+      出生日期: date_of_birth
+      职务: position
+      备注: remarks
 
 assertions:
   min:
     schema_entities:
-      Person: 2955
+      Person: 2940
   max:
     schema_entities:
-      Person: 2955
+      Person: 2970
