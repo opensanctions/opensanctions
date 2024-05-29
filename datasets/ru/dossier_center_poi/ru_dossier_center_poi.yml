@@ -39,6 +39,7 @@ data:
   url: https://peps.dossier.center/list/
   format: HTML
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+ci_test: false
 
 lookups:
   type.country:
