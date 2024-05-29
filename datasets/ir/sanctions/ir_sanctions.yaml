@@ -56,3 +56,7 @@ lookups:
     options:
       match: December 122022
       value: null
+  type.country:
+    options:
+      - match: The European Union (EU)
+        value: eu
