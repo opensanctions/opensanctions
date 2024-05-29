@@ -56,18 +56,18 @@ class TopiclessTargetValidator(BaseValidator):
 
 
 class EmptyValidator(BaseValidator):
-    """Aborts if no entities are validated."""
+    """Warn if no entities are validated."""
 
     def __init__(self, context: Context, view: View):
         super().__init__(context, view)
-        self.abort = True
+        self.is_empty = True
 
     def feed(self, entity: Entity) -> None:
-        self.abort = False
+        self.is_empty = False
 
     def finish(self) -> None:
-        if self.abort:
-            self.context.log.error("No entities validated.")
+        if self.is_empty:
+            self.context.log.warning("No entities validated.")
 
 
 VALIDATORS: List[Type[BaseValidator]] = [
