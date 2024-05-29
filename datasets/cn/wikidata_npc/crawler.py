@@ -1,9 +1,8 @@
 from collections import defaultdict
-import csv
 import shutil
 from typing import Dict, Generator, cast
 from normality import collapse_spaces
-from pantomime.types import CSV, HTML
+from pantomime.types import HTML
 from lxml import html
 from lxml.html import HtmlElement
 import re
@@ -22,9 +21,8 @@ SKIP_SUBHEADERS = {
     "中央提名",
     "陕西省提名",
 }
-IGNORE_DUPES = {
-    "cn-npc-22933e40a3e1f8cb38f88643263186428150bf6d"
-}
+IGNORE_DUPES = {"cn-npc-22933e40a3e1f8cb38f88643263186428150bf6d"}
+
 
 def crawl_item(
     context: Context,
@@ -59,7 +57,7 @@ def crawl_item(
         False,
         start_date="2023",
         categorisation=categorisation,
-        status=OccupancyStatus.UNKNOWN
+        status=OccupancyStatus.UNKNOWN,
     )
 
     entity.add("description", input_dict.pop("remarks", None))
@@ -108,6 +106,14 @@ def parse_table(
 
 def crawl(context: Context):
     # curl https://zh.wikipedia.org/wiki/%E7%AC%AC%E5%8D%81%E5%9B%9B%E5%B1%8A%E5%85%A8%E5%9B%BD%E4%BA%BA%E6%B0%91%E4%BB%A3%E8%A1%A8%E5%A4%A7%E4%BC%9A%E4%BB%A3%E8%A1%A8%E5%90%8D%E5%8D%95 -o datasets/cn/wikidata_npc/source.html
+    # and check the diff
+    h.assert_html_url_hash(
+        context,
+        context.data_url,
+        "95592e9f57cdc5ef1f5447d2b38a49b88ccc97d8",
+        ".//main",
+        text_only=True,
+    )
     data_path = context.dataset.base_path / "source.html"
     path = context.get_resource_path("source.html")
     shutil.copyfile(data_path, path)
