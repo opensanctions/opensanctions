@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: my-aob
 coverage:
   frequency: daily
-  start: 2024-04-12
+  start: "2024-05-16"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Enforcement actions against auditors by the Malaysian Securities Commission Audit Oversight Board

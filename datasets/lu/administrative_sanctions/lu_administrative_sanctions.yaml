@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: lu-san
 coverage:
   frequency: daily
-  start: 2024-05-14
+  start: "2024-05-29"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Administrative sanctions issued by the Luxembourg financial regulator.

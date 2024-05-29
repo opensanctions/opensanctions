@@ -4,7 +4,7 @@ url: https://www.ppatk.go.id/link/read/23/dttot-proliferasi-wmd.html
 entry_point: crawler
 coverage:
   frequency: daily
-  start: 2024-05-28
+  start: "2024-05-29"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
   A list of suspected terrorists and terrorist organizations as determined by the Central Jakarta District Court.
