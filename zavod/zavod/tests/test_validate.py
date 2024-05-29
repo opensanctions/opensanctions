@@ -112,5 +112,5 @@ def test_empty(testdataset3) -> None:
     clear_data_path(testdataset3.name)
     validator, cap_logs = run_validator(EmptyValidator, testdataset3)
     logs = [f"{entry['log_level']}: {entry['event']}" for entry in cap_logs]
-    assert "error: No entities validated." in logs, logs
-    assert validator.abort is True
+    assert "warning: No entities validated." in logs, logs
+    assert validator.abort is False
