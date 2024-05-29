@@ -209,5 +209,5 @@ lookups:
           - Податковий номер
         prop: taxNumber
       - match:
-        - Дата реєстрації
+          - Дата реєстрації
         value: incorporationDate
