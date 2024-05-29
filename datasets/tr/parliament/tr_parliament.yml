@@ -3,6 +3,7 @@ entry_point: crawler.py
 prefix: tr-parl
 coverage:
   frequency: daily
+  start: "2024-05-02"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Current military members of the Grand National Assembly of Türkiye

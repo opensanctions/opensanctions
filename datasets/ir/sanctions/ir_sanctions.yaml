@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: ir-san
 coverage:
   frequency: daily
-  start: 2024-04-29
+  start: "2024-05-02"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Individuals and entities in the sanctions list of the Islamic Republic of Iran
