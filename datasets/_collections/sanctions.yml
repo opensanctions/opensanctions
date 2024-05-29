@@ -50,6 +50,7 @@ children:
   - gb_hmt_sanctions
   - gb_fcdo_sanctions
   - ge_ot_list
+  - id_dttot
   - il_mod_terrorists
   - il_mod_crypto
   - in_mha_banned
