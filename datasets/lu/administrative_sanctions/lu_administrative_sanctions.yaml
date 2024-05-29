@@ -30,7 +30,7 @@ publisher:
 url: "https://www.cssf.lu/fr/publications-donnees/?content_type=1387%2C623%2C625"
 data:
   url: https://www.cssf.lu/fr/publications-donnees/page/1/?content_type=1387%2C623%2C625
-  format: HTML 
+  format: HTML
 
 lookups:
   type.date:
@@ -153,3 +153,6 @@ lookups:
         names:
       - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-16-05-2019-3/
         names:
+      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-12-fevrier-2024/
+        names:
+          - Madame Someya QALAM
