@@ -1,5 +1,5 @@
 from banal import hash_data
-from typing import Any, Generator, Optional
+from typing import Any, Generator, Optional, Set
 from nomenklatura.kv import get_redis, b, bv
 
 
@@ -78,16 +78,24 @@ class DeltaExporter(Exporter):
             for op in self.generate(version):
                 write_json(op, fh)
         super().finish()
+        self.cleanup(self.dataset.name)
 
     @classmethod
-    def cleanup(cls, dataset_name: str, keep: int = 3) -> None:
+    def cleanup(cls, dataset_name: str, keep: int = 5) -> None:
+        """Remove old delta state from the redis store."""
+        # This is built in such a way that it'll also clean up any
+        # dangling delta state from runs that never got published.
         redis = get_redis()
+        current: Set[bytes] = set()
         for idx, v in enumerate(iter_dataset_versions(dataset_name)):
-            if idx < keep:
-                continue
-            redis.delete(
-                f"delta:ents:{dataset_name}:{v.id}",
-                f"delta:hash:{dataset_name}:{v.id}",
-                f"delta:fwd:{dataset_name}",
-                f"delta:bwd:{dataset_name}",
-            )
+            if idx >= keep:
+                break
+            current.add(b(f"delta:ents:{dataset_name}:{v.id}"))
+            current.add(b(f"delta:hash:{dataset_name}:{v.id}"))
+        for key in redis.keys(f"delta:ents:{dataset_name}:*"):
+            if key not in current:
+                redis.delete(key)
+        for key in redis.keys(f"delta:hash:{dataset_name}:*"):
+            if key not in current:
+                redis.delete(key)
+        redis.delete(f"delta:fwd:{dataset_name}", f"delta:bwd:{dataset_name}")
