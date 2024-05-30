@@ -7,6 +7,7 @@ import logging
 from followthemoney.cli.util import InPath
 import sys
 
+from zavod.archive import dataset_state_path
 from zavod.cli import _load_dataset
 from zavod.meta import get_catalog, get_multi_dataset, load_dataset_from_path
 from zavod.store import get_store, get_view
@@ -56,17 +57,13 @@ def main(
         baseline_store = get_store(dataset, external=True)
         baseline_view = baseline_store.default_view(external=True)
         for entity in baseline_view.entities():
-            internal = None
-            external = None
+            if not entity.schema.matchable:
+                continue
+            external = False
             for stmt in entity.statements:
                 if stmt.external:
                     external = True
-                else:
-                    internal = True
-            baseline[entity.id] = bool(external)
-            print(internal, external)
-            if internal and external:
-                print("    ####    #### internal and external!")
+            baseline[entity.id] = external
         log.info(f"Loaded {len(baseline)} baseline entity IDs")
 
     subjects_searched = 0
@@ -81,7 +78,9 @@ def main(
 
     log.info(f"Creating {fq_class} index")
     index_start_ts = datetime.now()
-    index: BaseIndex = class_(target_view)
+    state_path = dataset_state_path(dataset.name)
+    index: BaseIndex = class_(target_view, state_path, dataset.config.get("index_options", dict()))
+
     log.info(f"Indexing {target_dataset.name}")
     index.build()
     index_end_ts = datetime.now()
@@ -97,7 +96,7 @@ def main(
         if log_entities:
             log.info(f"Entity {subjects_searched}: {entity.id} {entity.get("name")}")
 
-        for ident, score in index.match(entity)[:100]:
+        for ident, score in index.match(entity):
             if log_entities:
                 candidate = target_view.get_entity(ident.id)
                 log.info(
