@@ -1,0 +1,15 @@
+title: "United States Secret Service Most Wanted Fugitives"
+entry_point: crawler.py
+prefix: usss-most-wanted
+summary: "Wanted fugitivies listed on United States Secret Service website."
+description: >
+  This dataset publishes the details of the most wanted fugitives listed on the United States Secret Service website.
+url: https://www.secretservice.gov/investigations/mostwanted
+publisher:
+  name: United States Secret Service
+  country: us
+  url: https://www.secretservice.gov/
+  official: true
+data:
+  url: https://www.secretservice.gov/investigations/mostwanted
+  format: HTML
