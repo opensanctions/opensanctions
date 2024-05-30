@@ -1,10 +1,11 @@
+import gc
 from typing import List, Optional, TYPE_CHECKING
 from pathlib import Path
 from functools import cache
 from zavod.entity import Entity
 from followthemoney import model
 from nomenklatura.xref import xref
-from nomenklatura.resolver import Resolver, Identifier
+from nomenklatura.resolver import Resolver, Identifier, Linker
 from nomenklatura.judgement import Judgement
 from nomenklatura.matching import DefaultAlgorithm, get_algorithm
 
@@ -33,6 +34,19 @@ def get_dataset_resolver(dataset: Dataset) -> Resolver[Entity]:
     if not dataset.resolve:
         return Resolver()
     return get_resolver()
+
+
+def get_dataset_linker(dataset: Dataset) -> Linker[Entity]:
+    """Get a resolver linker for the given dataset."""
+    if not dataset.resolve:
+        return Linker[Entity]({})
+    not_loaded = get_resolver.cache_info().currsize == 0
+    resolver = get_resolver()
+    linker = resolver.get_linker()
+    if not_loaded:
+        get_resolver.cache_clear()
+        gc.collect()
+    return linker
 
 
 def blocking_xref(

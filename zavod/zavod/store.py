@@ -12,7 +12,7 @@ from nomenklatura.publish.edges import simplify_undirected
 from zavod.logs import get_logger
 from zavod.entity import Entity
 from zavod.meta import Dataset
-from zavod.dedupe import get_dataset_resolver
+from zavod.dedupe import get_dataset_resolver, get_dataset_linker
 from zavod.archive import dataset_state_path, iter_dataset_statements
 
 log = get_logger(__name__)
@@ -22,19 +22,19 @@ View = BaseView[Dataset, Entity]
 def get_store(
     dataset: Dataset, external: bool = False, linker: bool = False
 ) -> "Store":
-    resolver = get_dataset_resolver(dataset)
+    if linker:
+        linker_inst = get_dataset_linker(dataset)
+    else:
+        linker_inst = get_dataset_resolver(dataset)
     aggregator_path = dataset_state_path(dataset.name)
     suffix = "external" if external else "internal"
     dataset_path = aggregator_path / f"{dataset.name}.{suffix}.store"
     if dataset_path.is_dir():
-        return Store(dataset, resolver, dataset_path)
+        return Store(dataset, linker_inst, dataset_path)
     if not external:
         external_path = aggregator_path / f"{dataset.name}.external.store"
         if external_path.is_dir():
             return get_store(dataset, external=True, linker=linker)
-    linker_inst: Linker[Entity] = resolver
-    if linker:
-        linker_inst = resolver.get_linker()
     store = Store(dataset, linker_inst, dataset_path)
     store.build(external=external)
     return store
