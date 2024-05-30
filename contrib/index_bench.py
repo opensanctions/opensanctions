@@ -7,18 +7,16 @@ import logging
 from followthemoney.cli.util import InPath
 import sys
 
-from zavod.archive import STATEMENTS_FILE, _read_fh_statements, backfill_resource, dataset_resource_path, dataset_state_path, get_dataset_resource, iter_dataset_statements
 from zavod.cli import _load_dataset
 from zavod.meta import get_catalog, get_multi_dataset, load_dataset_from_path
 from zavod.store import get_store, get_view
-
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
 
 handler = logging.StreamHandler(sys.stdout)
 handler.setLevel(logging.INFO)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 handler.setFormatter(formatter)
 log.addHandler(handler)
 
@@ -48,24 +46,34 @@ def main(
     compare_with_prod: bool = False,
 ):
     dataset = _load_dataset(dataset_path)
+    class_ = get_class(fq_class)
 
     if compare_with_prod:
         baseline: Dict[str, bool] = dict()
         candidates_in_baseline = set()
-        positive_candidates = 0
-        external_candidates = 0
-        statements_path = dataset_resource_path(dataset.name, STATEMENTS_FILE)
-        backfill_resource(dataset, STATEMENTS_FILE, statements_path)
-        log.info("Loading baseline data")
-        for stmt in iter_dataset_statements(dataset, external=True):
-            # Don't do any counting here because statements aren't deduped.
-            if stmt.prop == "id":
-                baseline[stmt.canonical_id] = stmt.external
+        positive_candidates = set()
+        external_candidates = set()
+        baseline_store = get_store(dataset, external=True)
+        baseline_view = baseline_store.default_view(external=True)
+        for entity in baseline_view.entities():
+            internal = None
+            external = None
+            for stmt in entity.statements:
+                if stmt.external:
+                    external = True
+                else:
+                    internal = True
+            baseline[entity.id] = bool(external)
+            print(internal, external)
+            if internal and external:
+                print("    ####    #### internal and external!")
         log.info(f"Loaded {len(baseline)} baseline entity IDs")
 
     subjects_searched = 0
-    class_ = get_class(fq_class)
+
     subject_view = get_view(get_multi_dataset(dataset.inputs))
+    log.info(f"Enriching {dataset.inputs} ({subject_view.scope.name})")
+
     target_dataset_name = dataset.config.pop("dataset")
     target_dataset = get_catalog().require(target_dataset_name)
     store = get_store(target_dataset)
@@ -74,7 +82,7 @@ def main(
     log.info(f"Creating {fq_class} index")
     index_start_ts = datetime.now()
     index: BaseIndex = class_(target_view)
-    log.info(f"Indexing {target_dataset}")
+    log.info(f"Indexing {target_dataset.name}")
     index.build()
     index_end_ts = datetime.now()
     log.info(f"Indexing took {index_end_ts - index_start_ts}")
@@ -88,20 +96,22 @@ def main(
             continue
         if log_entities:
             log.info(f"Entity {subjects_searched}: {entity.id} {entity.get("name")}")
-        
-        for ident, score in index.match(entity)[:10]:
+
+        for ident, score in index.match(entity)[:100]:
             if log_entities:
                 candidate = target_view.get_entity(ident.id)
-                log.info("Candidate %.3f %s %r", score, candidate.id, candidate.get("name"))
-            
+                log.info(
+                    "Candidate %.3f %s %r", score, candidate.id, candidate.get("name")
+                )
+
             if compare_with_prod:
                 if ident.id in baseline:
                     candidates_in_baseline.add(ident.id)
                     if baseline[ident.id]:
-                        external_candidates += 1
+                        external_candidates.add(ident.id)
                     else:
-                        positive_candidates += 1
-                
+                        positive_candidates.add(ident.id)
+
         subjects_searched += 1
     matching_end_ts = datetime.now()
     log.info(f"Blocking took {matching_end_ts - matching_start_ts}")
@@ -123,8 +133,18 @@ def main(
                 else:
                     non_candidate_positives.add(entity_id)
 
-        log.info(f"Positive matches as candidates: %d/%d (%.2f%%)", positive_candidates, total_positives, positive_candidates / total_positives * 100)
-        log.info(f"Externals as candidates: %d/%d (%.2f%%)", external_candidates, total_externals, external_candidates / total_externals * 100)
+        log.info(
+            f"Positive matches as candidates: %d/%d (%.2f%%)",
+            len(positive_candidates),
+            total_positives,
+            len(positive_candidates) / total_positives * 100,
+        )
+        log.info(
+            f"Externals as candidates: %d/%d (%.2f%%)",
+            len(external_candidates),
+            total_externals,
+            len(external_candidates) / total_externals * 100,
+        )
 
         with open("positive_match_misses.txt", "w") as f:
             for entity_id in non_candidate_positives:
