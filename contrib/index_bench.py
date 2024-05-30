@@ -3,12 +3,23 @@ from typing import Optional, Type
 import click
 from nomenklatura.index.common import BaseIndex
 from datetime import datetime
+import logging
+from followthemoney.cli.util import InPath
+import sys
 
 from zavod.cli import _load_dataset
 from zavod.meta import get_catalog, get_multi_dataset, load_dataset_from_path
 from zavod.store import get_store, get_view
-from followthemoney.cli.util import InPath
 
+
+log = logging.getLogger(__name__)
+log.setLevel(logging.DEBUG)
+
+handler = logging.StreamHandler(sys.stdout)
+handler.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+log.addHandler(handler)
 
 def get_class(fq_class: str) -> Type[BaseIndex]:
     module_name, class_name = fq_class.rsplit(".", 1)
@@ -22,8 +33,7 @@ def get_class(fq_class: str) -> Type[BaseIndex]:
 
 
 @click.option("--exit-after-entities", is_flag=False, default=None, type=int)
-@click.option("--show-candidates", is_flag=True, default=False)
-@click.option("--candidate-log", type=str, default=None)
+@click.option("--log-entities", is_flag=True, default=False)
 @click.argument("fq_class", type=str)
 @click.argument("dataset_path", type=InPath)
 @click.command()
@@ -31,8 +41,7 @@ def main(
     dataset_path: str,
     fq_class: str,
     exit_after_entities: Optional[int] = None,
-    show_candidates: bool = False,
-    candidate_log: Optional[str] = None,
+    log_entities: bool = False,
 ):
     subjects_searched = 0
     class_ = get_class(fq_class)
@@ -42,41 +51,32 @@ def main(
     target_dataset = get_catalog().require(target_dataset_name)
     store = get_store(target_dataset)
     target_view = store.default_view(external=False)
-    if candidate_log:
-        candidate_log_fw = open(candidate_log, "w")
 
-    print(f"Creating {fq_class} index")
+    log.info(f"Creating {fq_class} index")
     index_start_ts = datetime.now()
     index: BaseIndex = class_(target_view)
-    print(f"Indexing...")
+    log.info(f"Indexing {target_dataset}")
     index.build()
     index_end_ts = datetime.now()
-    print(f"Indexing took {index_end_ts - index_start_ts}")
+    log.info(f"Indexing took {index_end_ts - index_start_ts}")
 
-    print("Blocking entities")
+    log.info("Blocking entities")
     matching_start_ts = datetime.now()
     for entity in subject_view.entities():
         if exit_after_entities is not None and subjects_searched >= exit_after_entities:
             break
         if not entity.schema.matchable:
             continue
-        print(f"Entity {subjects_searched}:", entity.id, entity.get("name"))
-        if candidate_log:
-            candidate_log_fw.write(
-                f"Entity {subjects_searched}: {entity.id} {entity.get('name')}\n"
-            )
+        if log_entities:
+            log.info(f"Entity {subjects_searched}: {entity.id} {entity.get("name")}")
+        
         for ident, score in index.match(entity)[:10]:
-            if candidate_log or show_candidates:
+            if log_entities:
                 candidate = target_view.get_entity(ident.id)
-            if candidate_log:
-                candidate_log_fw.write(
-                    "Candidate %.2f: %s %r\n" % (score, ident.id, candidate.get('name'))
-                )
-            if show_candidates:
-                print("Candidate", "%.3f" % score, candidate.id, candidate.get("name"))
+                log.info("Candidate %.3f %s %r", score, candidate.id, candidate.get("name"))
         subjects_searched += 1
     matching_end_ts = datetime.now()
-    print(f"Blocking took {matching_end_ts - matching_start_ts}")
+    log.info(f"Blocking took {matching_end_ts - matching_start_ts}")
 
 
 if __name__ == "__main__":
