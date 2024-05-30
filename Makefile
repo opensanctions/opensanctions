@@ -9,13 +9,13 @@ COMPOSE_CMD := $(if $(shell which docker-compose 2>/dev/null),docker-compose,doc
 all: run
 
 workdir:
-	mkdir -p data/postgres
+	mkdir -p data/kvrocks
 
 build:
 	$(COMPOSE_CMD) build --pull
 
-services:
-	$(COMPOSE_CMD) up -d --remove-orphans db
+services: workdir
+	$(COMPOSE_CMD) up -d --remove-orphans kv
 
 shell: build workdir services
 	$(COMPOSE_CMD) run --rm app bash
