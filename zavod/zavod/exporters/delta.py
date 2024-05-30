@@ -78,7 +78,6 @@ class DeltaExporter(Exporter):
             for op in self.generate(version):
                 write_json(op, fh)
         super().finish()
-        self.cleanup(self.dataset.name)
 
     @classmethod
     def cleanup(cls, dataset_name: str, keep: int = 5) -> None:
