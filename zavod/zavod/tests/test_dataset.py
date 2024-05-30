@@ -4,6 +4,7 @@ from zavod import settings
 
 from zavod.meta import get_catalog, Dataset, get_multi_dataset
 from zavod.meta.assertion import Assertion
+from zavod.runtime.urls import make_published_url
 
 
 TEST_DATASET = {
@@ -47,9 +48,9 @@ def test_basic():
     assert test_ds.data.url is not None
     assert test_ds.disabled is False
     assert not len(test_ds.inputs)
-    url = test_ds.make_public_url("foo")
-    assert url.startswith("https://data.opensanctions.org/"), url
-    assert url.endswith("/foo"), url
+    url = make_published_url(test_ds.name, "foo.json")
+    assert url.startswith("https://data.opensanctions.org/datasets/"), url
+    assert url.endswith(f"{test_ds.name}/foo.json"), url
     os_data = test_ds.to_opensanctions_dict()
     assert os_data["name"] == "test", os_data
     assert os_data["collections"] == ["collection"], os_data
@@ -69,7 +70,7 @@ def test_basic():
     assert test_ds.http.user_agent == settings.HTTP_USER_AGENT
 
 
-def test_validation(testdataset1: Dataset, testdataset2: Dataset):
+def test_validation(testdataset1: Dataset, testdataset3: Dataset):
     assert testdataset1.name == "testdataset1"
     assert testdataset1.publisher is not None
     assert testdataset1.publisher.name == "OpenSanctions"
@@ -77,9 +78,9 @@ def test_validation(testdataset1: Dataset, testdataset2: Dataset):
     assert len(testdataset1.children) == 0
     assert len(testdataset1.datasets) == 1
     assert len(testdataset1.inputs) == 0
-    assert len(testdataset1.assertions) == 4
-    assert isinstance(testdataset1.assertions[0], Assertion)
-    assert testdataset2.assertions == []
+    assert len(testdataset1.assertions) == 0
+    assert len(testdataset3.assertions) == 4
+    assert isinstance(testdataset3.assertions[0], Assertion)
 
 
 def test_validation_os_dict(testdataset1: Dataset, collection: Dataset):

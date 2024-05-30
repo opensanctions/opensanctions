@@ -12,8 +12,9 @@ def crawl(context: Context, data: Dict[str, Any]):
     for item in res.json()["Items"]:
         url = urljoin(context.data_url, item.pop("Link"))
         entity = context.make("LegalEntity")
-        entity.id = context.make_slug(item.pop("Id"))
-        entity.add("name", item.pop("Title"))
+        name = item.pop("Title")
+        entity.id = context.make_slug(name)
+        entity.add("name", name)
         entity.add("country", "ch")
         entity.add("topics", "crime.fin")
         entity.add("sourceUrl", url)
@@ -55,7 +56,7 @@ def crawl(context: Context, data: Dict[str, Any]):
 
 
 def crawl_warnings(context: Context):
-    data = {"ds": "{77BC25B0-F2B7-4AA2-B0D8-5837913D9B93}", "Order": "1"}
+    data = {"ds": "{1C6B8731-638C-4003-A93C-A625BF7A6800}", "Order": "1"}
     crawl(context, data)
 
 

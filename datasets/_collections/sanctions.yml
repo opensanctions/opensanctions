@@ -5,6 +5,14 @@ deploy:
   memory: "1500Mi"
   command: /etl/scripts/export-sanctions.sh
   # premium: true
+exports:
+  - statistics.json
+  - entities.ftm.json
+  - entities.delta.json
+  - names.txt
+  - senzing.json
+  - targets.nested.json
+  - targets.simple.csv
 summary: >
   Consolidated list of sanctioned entities designated by different
   countries and international organisations. This can include military,
@@ -30,6 +38,7 @@ children:
   - ca_named_research_orgs
   - ch_seco_sanctions
   - cn_sanctions
+  - cz_national_sanctions
   - eu_fsf
   - eu_reg_2878_sanctions
   - eu_sanctions_map
@@ -41,6 +50,7 @@ children:
   - gb_hmt_sanctions
   - gb_fcdo_sanctions
   - ge_ot_list
+  - id_dttot
   - il_mod_terrorists
   - il_mod_crypto
   - in_mha_banned

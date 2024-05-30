@@ -5,6 +5,7 @@ from typing import Optional, Dict, Any
 from nomenklatura.dataset import DataResource as NKDataResource
 
 from zavod.archive import dataset_data_path
+from zavod.runtime.urls import make_published_url
 from zavod.meta.dataset import Dataset
 
 
@@ -43,7 +44,7 @@ class DataResource(NKDataResource):
             "checksum": checksum,
             "mime_type": mime_type,
             "size": size,
-            "url": dataset.make_public_url(name),
+            "url": make_published_url(dataset.name, name),
         }
         return cls(data)
 

@@ -1,97 +1,143 @@
 from lxml import html
-from typing import Optional
+from typing import Dict
 from pantomime.types import HTML
+from normality import collapse_spaces, slugify
 
 from zavod import Context
 from zavod import helpers as h
-
-FORMATS = ["%d/%m/%Y", "%d %B %Y"]
-
-TAGS = {
-    "Phone": ("LegalEntity", "phone"),
-    "Address": ("LegalEntity", "address"),
-    "Passport No": ("Person", "passportNumber"),
-    "DOB": ("Person", "birthDate"),
-    "AKA": ("LegalEntity", "alias"),
-}
+from zavod.entity import Entity
 
 
-def split_narrative(line: str, tag: str) -> Optional[str]:
-    try:
-        _, value = line.split(tag, 1)
-        return value.strip()
-    except ValueError:
-        return None
+FORMATS = ["%m/%d/%Y %H:%M:%S %p"]
 
 
-def parse_date(date: str):
-    date = date.strip()
-    return h.parse_date(date, FORMATS)
+def format_birth_place(city, country):
+    if city and country:
+        return f"{city}, {country}"
+    if city:
+        return city
+    if country:
+        return country
+    return None
+
+
+def parse_page(context: Context, url) -> Dict[str, str]:
+    doc = context.fetch_html(url, cache_days=1)
+    data = dict()
+    for dt in doc.findall(".//dt"):
+        key = slugify(dt.text_content())
+        next = dt.getnext()
+        if next is None:
+            value = None
+        elif next.tag == "dt":
+            value = None
+        elif next.tag == "dd":
+            value = collapse_spaces(next.text_content())
+        else:
+            context.log.warning("Unexpected tag after key", key=key, tag=next, url=url)
+            value = None
+        data[key] = value
+    return data
+
+
+def crawl_common(context: Context, url: str, entity: Entity, sanction: Entity, data):
+    entity.add("sourceUrl", url)
+    entity.add("topics", "sanction")
+    entity.add("notes", data.pop("narrative-summary"))
+
+    sanction.add("startDate", h.parse_date(data.pop("sanction-date"), FORMATS))
+    sanction.add("reason", data.pop("reason-for-designation"))
+    sanction.add("listingDate", h.parse_date(data.pop("record-date"), FORMATS))
+    sanction.add("description", data.pop("press-release"))
+
+    context.emit(entity, target=True)
+    context.emit(sanction)
+    context.audit_data(data)
+
+
+def crawl_individual(context: Context, url: str, data: Dict[str, str]):
+    first_name = data.pop("first-name")
+    middle_name = data.pop("middlename")
+    last_name = data.pop("surname")
+
+    full_name = h.make_name(
+        first_name=first_name, middle_name=middle_name, last_name=last_name
+    )
+    res = context.lookup("entities_as_individuals", full_name)
+    if res is not None:
+        for key, value in res.props.items():
+            data[key] = value
+        data["incorporation-number"] = None
+        data["incorporation-date"] = None
+        data["referance-number"] = None
+        data.pop("nationality")
+        crawl_entity(context, url, data)
+        return
+
+    entity = context.make("Person")
+    birth_place = format_birth_place(data.pop("birth-city"), data.pop("birth-country"))
+    birth_date = h.parse_date(data.pop("date-of-birth"), FORMATS)
+    entity.id = context.make_id(
+        first_name, middle_name, last_name, birth_place, birth_date
+    )
+    h.apply_name(
+        entity, first_name=first_name, middle_name=middle_name, last_name=last_name
+    )
+    entity.add("alias", data.pop("aliases"))
+    entity.add("birthDate", birth_date)
+    entity.add("birthPlace", birth_place)
+    entity.add("nationality", data.pop("nationality"))
+    entity.add("address", data.pop("address"))
+    entity.add("notes", data.pop("comments"))
+    phone = data.pop("phone-number")
+    phone = phone.replace("- ", "") if phone else phone
+    entity.add("phone", phone)
+
+    sanction = h.make_sanction(context, entity)
+    crawl_common(context, url, entity, sanction, data)
+
+
+def crawl_entity(context: Context, url: str, data: Dict[str, str]):
+    entity = context.make("LegalEntity")
+    name = data.pop("entity-name")
+    entity.id = context.make_id(name)
+    entity.add("name", name)
+    entity.add("alias", data.pop("aliases", None))
+    entity.add(
+        "incorporationDate", h.parse_date(data.pop("incorporation-date"), FORMATS)
+    )
+    entity.add("registrationNumber", data.pop("incorporation-number"))
+    entity.add("country", data.pop("country", None))
+
+    sanction_ref = data.pop("referance-number")
+    sanction = h.make_sanction(context, entity, key=sanction_ref)
+    sanction.add("authorityId", sanction_ref)
+    crawl_common(context, url, entity, sanction, data)
 
 
 def crawl(context: Context):
     path = context.fetch_resource("source.html", context.data_url)
     context.export_resource(path, HTML, title=context.SOURCE_TITLE)
     with open(path, "r") as fh:
-        doc = html.parse(fh)
-    for item in doc.findall('.//div[@class="accordion-item"]'):
-        entity = context.make("LegalEntity")
-        entity.id = context.make_id(item.findtext(".//h5"))
+        doc = html.fromstring(fh.read())
+    doc.make_links_absolute(context.data_url)
 
-        # Manual parsing ftw
-        result = context.lookup("props", entity.id)
-        if result is not None:
-            for prop, value in result.props.items():
-                entity.add(prop, value)
-
-        press_release: Optional[str] = None
-        narrative: Optional[str] = None
-        for div in item.findall(".//div"):
-            div_id = div.get("id")
-            if div_id is not None and div_id.startswith("London"):
-                press_release = div.text_content().strip()
-            if div_id is not None and div_id.startswith("Paris"):
-                narrative = div.findtext(".//textarea")
-        sanction = h.make_sanction(context, entity)
-        sanction.add("description", press_release)
-        if narrative is None:
-            context.log.warn("No narrative", id=entity.id, press_release=press_release)
+    individual_tables = doc.xpath(
+        ".//h6[text() = 'Individual']/following-sibling::table[1]"
+    )
+    assert len(individual_tables) == 1, individual_tables
+    for row in individual_tables[0].xpath(".//tr"):
+        if row.find(".//th") is not None:
             continue
-        texts = narrative.strip().split("\n")
-        notes_parsed = False
-        if len(texts) > 1:
-            header, lines = texts[0], texts[1:]
-            if "-" in header:
-                auth_id, name = header.split("-", 1)
-                entity.add("name", name)
-                sanction.add("authorityId", auth_id)
-                for line in lines:
-                    reason = split_narrative(line, "Reason for designation:")
-                    if reason is not None:
-                        sanction.add("reason", reason)
-                        continue
-                    reg_date = split_narrative(line, "Date of Registration:")
-                    if reg_date is not None:
-                        sanction.add("startDate", parse_date(reg_date))
-                        continue
-                    if ":" in line:
-                        tag, value = line.split(":", 1)
-                        if tag in TAGS:
-                            tag_schema, tag_prop = TAGS[tag]
-                            if tag_prop == "birthDate":
-                                value = parse_date(value)
-                            if tag_prop == "phone":
-                                value = value.split(",")
-                            entity.add_cast(tag_schema, tag_prop, value)
-                            continue
-                    context.log.warn("Unparsed line", line=line)
+        url = row.xpath(".//a[text() = 'Details']/@href")[0]
+        data = parse_page(context, url)
+        crawl_individual(context, url, data)
 
-        if not notes_parsed:
-            entity.add("notes", narrative.strip())
-
-        if not entity.has("name"):
-            context.log.info("Entity has no name", id=entity.id, narrative=narrative)
-        # print(entity.id, narrative, text)
-        entity.add("topics", "sanction")
-        context.emit(entity, target=True)
-        context.emit(sanction)
+    entity_tables = doc.xpath(".//h6[text() = 'Entity']/following-sibling::table[1]")
+    assert len(entity_tables) == 1, entity_tables
+    for row in entity_tables[0].xpath(".//tr"):
+        if row.find(".//th") is not None:
+            continue
+        url = row.xpath(".//a[text() = 'Details']/@href")[0]
+        data = parse_page(context, url)
+        crawl_entity(context, url, data)

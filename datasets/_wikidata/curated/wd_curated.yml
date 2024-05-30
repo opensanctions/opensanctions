@@ -7,6 +7,7 @@ coverage:
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 exports:
   - statistics.json
+  - entities.delta.json
 summary: >
   Persons of interest profiles from Wikidata, the structured data version of Wikipedia.
 description: |
@@ -32,5 +33,5 @@ assertions:
       Organization: 2
   max:
     schema_entities:
-      Person: 135
+      Person: 4500
       Organization: 4

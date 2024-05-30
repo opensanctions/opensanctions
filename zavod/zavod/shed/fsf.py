@@ -5,9 +5,14 @@ from typing import Optional
 from prefixdate import parse_parts
 from followthemoney.types import registry
 from rigour.langs import iso_639_alpha3
+import re
 
 from zavod import Context, Entity
 from zavod import helpers as h
+
+# e.g. FDLR-FOCA is led by i“Lieutenant-General” Gaston Iyamuremye, alias Rumuli
+#      or Victor Byiringiro and “General” Pacifique Ntawunguka, alias Omegam.
+REGEX_LEADER_ALIAS = re.compile(r"led by .+ alias")
 
 
 def parse_country(node: Element) -> Optional[str]:
@@ -101,6 +106,8 @@ def parse_entry(context: Context, entry: Element) -> None:
                 remark = None
             elif "quality" in lremark:
                 context.log.warning("Unknown quality", remark=remark)
+            elif REGEX_LEADER_ALIAS.search(lremark):
+                pass
             elif "alias" in lremark:
                 context.log.warning("Unknown alias remark", remark=remark)
             entity.add("notes", remark, quiet=True)
