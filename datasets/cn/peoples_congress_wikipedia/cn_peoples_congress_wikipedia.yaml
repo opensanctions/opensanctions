@@ -3,8 +3,8 @@ entry_point: crawler.py
 prefix: cn-npc-wik
 coverage:
   frequency: never 
-  start: 2024-05-29
-  end: 2024-05-29
+  start: 2024-05-30
+  end: 2024-05-30
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Current members of the Chinese National People's Congress
@@ -22,15 +22,17 @@ description: |
 
   Data sourced from Wikipedia licensed Creative Commons
   Attribution-Share Alike 4.0.
+
+  See also their [official website](http://www.npc.gov.cn).
 publisher:
   name: Wikipedia
   description: |
    Wikipedia article about the List of deputies
    to the 14th National People's Congress
-  url: https://zh.wikipedia.org/wiki/第十四届全国人民代表大会代表名单
+  url: https://zh.wikipedia.org/
   official: false
   country: "zz"
-url: http://www.npc.gov.cn
+url: https://zh.wikipedia.org/wiki/第十四届全国人民代表大会代表名单
 data:
   url: https://zh.wikipedia.org/wiki/第十四届全国人民代表大会代表名单
   format: HTML

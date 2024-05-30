@@ -43,7 +43,9 @@ def crawl_item(
     entity.add("birthDate", h.parse_date(birth_date, formats=["%Y年%m月"]))
     entity.add("political", input_dict.pop("party"))
     entity.add("position", input_dict.pop("position", None), lang="chi")
-    entity.add("address", delegation, lang="chi")
+    entity.add(
+        "description", delegation + " delegation" if delegation else None, lang="chi"
+    )
 
     position = h.make_position(
         context, "Member of the National People’s Congress", country="cn"
