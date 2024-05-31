@@ -181,22 +181,23 @@ def crawl(context: Context) -> None:
             context.emit(spouse, target=False)
             context.emit(marriage)
 
-        # uncertain values
-        related_transactions: Optional[list[dict]] = record.pop(
-            "rysiaiDelSandoriu", None
-        )
         related_legal_entities: Optional[list[dict]] = record.pop("rysiaiSuJa", None)
+
+        # ignored values
+        for ignored_key in [
+            "rysiaiDelSandoriu",
+            "viesumoNutraukimoData",
+            "kitiDuomenys",
+            "kitiDuomenysFa",
+            "teikejasYraIstaigosDarbuotojas",
+            "deklaracijosAtsiradesGalimasRysys",
+            "senosPidId",
+            "teikimoPriezastys",
+            "deklaracijosFaRysiai",
+            "yraNaujausiaVersija",
+            "deklaracijosIndividualiosVeiklos",
+        ]:
+            record.pop(ignored_key)
+
         context.emit(declarant, target=True)
-        submission_session_end_date = record.pop("viesumoNutraukimoData")
-        other_data = record.pop("kitiDuomenys")
-        other_data_fa = record.pop("kitiDuomenysFa")
-        is_employee_of_institution = record.pop("teikejasYraIstaigosDarbuotojas")
-        potential_related_declarations = record.pop("deklaracijosAtsiradesGalimasRysys")
-        individual_activities_declarations = record.pop(
-            "deklaracijosIndividualiosVeiklos"
-        )
-        declaration_fa = record.pop("deklaracijosFaRysiai")
-        is_latest_version = record.pop("yraNaujausiaVersija")
-        reasons_for_submission_code = record.pop("teikimoPriezastys")
-        old_declaration_id: Optional[str] = record.pop("senosPidId", None)
         context.audit_data(record)
