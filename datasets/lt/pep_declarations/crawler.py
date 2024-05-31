@@ -99,13 +99,13 @@ def parse_affiliations(
         entity_legal_form: str = data.pop("jaTeisinesFormosPavadinimas")
 
         for role in data.pop("pareigos"):
-            position_name: Optional[str] = role.pop("pareigos")
+            position_name:str = role.pop("pareigos") or "Unknown position"
             legal_code: Optional[str] = role.pop("teisejoKodas")
             role_must_be_declared: Optional[bool] = role.pop("privaluDeklaruoti")
             nature_of_duties: str = role.pop("pareiguTipasPavadinimas")
             position = h.make_position(
                 context,
-                name=position_name or "Unknown position",
+                name=', '.join([position_name, entity_name]),
                 topics=None,
                 country="LT" if entity_is_lithuanian else None,
             )
