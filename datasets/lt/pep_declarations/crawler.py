@@ -47,7 +47,9 @@ def make_person(context: Context, data: dict) -> Entity:
     person = context.make("Person")
     first_name = data.pop("vardas")
     last_name = data.pop("pavarde")
-    person_id: Optional[str] = data.pop("asmensKodas", None)  # this identifier is often missing
+    person_id: Optional[str] = data.pop(
+        "asmensKodas", None
+    )  # this identifier is often missing
     birth_date: Optional[str] = data.pop("gimimoData", None)
     person.id = context.make_id(person_id, first_name, last_name)
     person.add("firstName", first_name)
@@ -99,13 +101,13 @@ def parse_affiliations(
         entity_legal_form: str = data.pop("jaTeisinesFormosPavadinimas")
 
         for role in data.pop("pareigos"):
-            position_name:str = role.pop("pareigos") or "Unknown position"
+            position_name: str = role.pop("pareigos") or "Unknown position"
             legal_code: Optional[str] = role.pop("teisejoKodas")
             role_must_be_declared: Optional[bool] = role.pop("privaluDeklaruoti")
             nature_of_duties: str = role.pop("pareiguTipasPavadinimas")
             position = h.make_position(
                 context,
-                name=', '.join([position_name, entity_name]),
+                name=", ".join([position_name, entity_name]),
                 topics=None,
                 country="LT" if entity_is_lithuanian else None,
             )
