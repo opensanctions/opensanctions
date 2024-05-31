@@ -43,10 +43,12 @@ def test_enrich(testdataset1: Dataset):
 
     adjacent = list(enricher.expand(entity, results[0]))
     assert len(adjacent) == 2, adjacent
-    adjacent.remove(results[0])
+    
     assert adjacent[0].schema.name == "Ownership"
     assert adjacent[0].get("owner") == ["osv-oswell-spencer"]
     assert adjacent[0].get("asset") == ["osv-umbrella-corp"]
+    assert adjacent[1].schema.name == "Person"
+    assert adjacent[1].id == "osv-oswell-spencer"
 
 
 def test_threshold(testdataset1: Dataset):
