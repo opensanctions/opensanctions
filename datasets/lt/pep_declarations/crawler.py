@@ -63,7 +63,9 @@ def make_person(context: Context, data: dict) -> Entity:
 def make_spouse(context: Context, person: Entity, spouse: Entity) -> Entity:
     relationship = context.make("Family")
     relationship.id = context.make_id(person.id, spouse.id)
-    relationship.add("relationship", "Sutuoktinis, sugyventinis ar partneris", lang="lit")
+    relationship.add(
+        "relationship", "Sutuoktinis, sugyventinis ar partneris", lang="lit"
+    )
     relationship.add("person", person)
     relationship.add("relative", spouse)
     return relationship
@@ -166,15 +168,15 @@ def crawl(context: Context) -> None:
 
         """If the spouse is included in the declaration, and the spouse's occupancies
         meet OpenSanctions criteria, emit the spouse, the marriage, and the occupancies/positions."""
-        spouse_data: Optional[dict] = record.pop("sutuoktinis", None)
-        spouse = make_person(context, spouse_data) if spouse_data else None
         spouse_affiliations: list[dict] = record.pop("sutuoktinioDarbovietes", [])
-        spouse_offices = parse_affiliations(context, spouse, spouse_affiliations)
-        if spouse is not None and spouse_offices:
-            for position, occupancy in spouse_offices:
-                context.emit(position, target=False)
-                context.emit(occupancy, target=False)
+        if spouse_data := record.pop("sutuoktinis", None):
+            spouse = make_person(context, spouse_data) if spouse_data else None
             marriage = make_spouse(context, declarant, spouse)
+            spouse_offices = parse_affiliations(context, spouse, spouse_affiliations)
+            if spouse_offices:
+                for position, occupancy in spouse_offices:
+                    context.emit(position, target=False)
+                    context.emit(occupancy, target=False)
             context.emit(spouse, target=False)
             context.emit(marriage)
 
