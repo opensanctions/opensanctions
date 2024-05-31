@@ -46,40 +46,43 @@ def main(
     log_entities: bool = False,
     compare_with_prod: bool = False,
 ):
-    dataset = _load_dataset(dataset_path)
+    baseline_dataset = _load_dataset(dataset_path)
     class_ = get_class(fq_class)
 
+    target_dataset_name = baseline_dataset.config.pop("dataset")
+    target_dataset = get_catalog().require(target_dataset_name)
+    target_store = get_store(target_dataset)
+    target_view = target_store.default_view(external=False)
+
     if compare_with_prod:
-        baseline: Dict[str, bool] = dict()
-        candidates_in_baseline = set()
+        baseline_internals = set()
+        baseline_externals = set()
         positive_candidates = set()
         external_candidates = set()
-        baseline_store = get_store(dataset, external=True)
+        
+        baseline_store = get_store(baseline_dataset, external=True)
         baseline_view = baseline_store.default_view(external=True)
         for entity in baseline_view.entities():
             if not entity.schema.matchable:
                 continue
-            external = False
             for stmt in entity.statements:
+                if not statement.pr
                 if stmt.external:
-                    external = True
-            baseline[entity.id] = external
-        log.info(f"Loaded {len(baseline)} baseline entity IDs")
+                    baseline_externals.add(entity.id)
+                else:
+                    baseline_internals.add(entity.id)
+        log.info(f"Loaded {len(baseline_internals)} baseline internal entity IDs")
+        log.info(f"Loaded {len(baseline_externals)} baseline external entity IDs")
 
     subjects_searched = 0
 
-    subject_view = get_view(get_multi_dataset(dataset.inputs))
-    log.info(f"Enriching {dataset.inputs} ({subject_view.scope.name})")
-
-    target_dataset_name = dataset.config.pop("dataset")
-    target_dataset = get_catalog().require(target_dataset_name)
-    store = get_store(target_dataset)
-    target_view = store.default_view(external=False)
+    subject_view = get_view(get_multi_dataset(baseline_dataset.inputs))
+    log.info(f"Enriching {baseline_dataset.inputs} ({subject_view.scope.name})")
 
     log.info(f"Creating {fq_class} index")
     index_start_ts = datetime.now()
-    state_path = dataset_state_path(dataset.name)
-    index: BaseIndex = class_(target_view, state_path, dataset.config.get("index_options", dict()))
+    state_path = dataset_state_path(baseline_dataset.name)
+    index: BaseIndex = class_(target_view, state_path, baseline_dataset.config.get("index_options", dict()))
 
     log.info(f"Indexing {target_dataset.name}")
     index.build()
@@ -104,52 +107,35 @@ def main(
                 )
 
             if compare_with_prod:
-                if ident.id in baseline:
-                    candidates_in_baseline.add(ident.id)
-                    if baseline[ident.id]:
-                        external_candidates.add(ident.id)
-                    else:
-                        positive_candidates.add(ident.id)
+                if ident.id in baseline_internals:
+                    positive_candidates.add(ident.id)
+                if ident.id in baseline_externals:
+                    external_candidates.add(ident.id)
 
         subjects_searched += 1
     matching_end_ts = datetime.now()
     log.info(f"Blocking took {matching_end_ts - matching_start_ts}")
 
     if compare_with_prod:
-        non_candidate_positives: Set[str] = set()
-        non_candidate_externals: Set[str] = set()
-        total_positives = 0
-        total_externals = 0
-
-        for entity_id, external in baseline.items():
-            if external:
-                total_externals += 1
-            else:
-                total_positives += 1
-            if entity_id not in candidates_in_baseline:
-                if external:
-                    non_candidate_externals.add(entity_id)
-                else:
-                    non_candidate_positives.add(entity_id)
 
         log.info(
             f"Positive matches as candidates: %d/%d (%.2f%%)",
             len(positive_candidates),
-            total_positives,
-            len(positive_candidates) / total_positives * 100,
+            len(baseline_internals),
+            len(positive_candidates) / len(baseline_internals) * 100,
         )
         log.info(
             f"Externals as candidates: %d/%d (%.2f%%)",
             len(external_candidates),
-            total_externals,
-            len(external_candidates) / total_externals * 100,
+            len(baseline_externals),
+            len(external_candidates) / len(baseline_externals) * 100,
         )
 
         with open("positive_match_misses.txt", "w") as f:
-            for entity_id in non_candidate_positives:
+            for entity_id in baseline_internals - positive_candidates:
                 f.write(entity_id + "\n")
         with open("external_misses.txt", "w") as f:
-            for entity_id in non_candidate_externals:
+            for entity_id in baseline_externals - external_candidates:
                 f.write(entity_id + "\n")
 
 
