@@ -112,7 +112,7 @@ def apply_prop(context: Context, entity: Entity, sanction: Entity, field: str, v
             full=value.pop("Adresse"),
             country=value.pop("Pays"),
         )
-        h.apply_address(context, entity, address)
+        h.copy_address(entity, address)
     elif field == "LIEU_DE_NAISSANCE":
         entity.add("birthPlace", value.pop("Lieu"), lang="fra")
         entity.add("country", value.pop("Pays"), lang="fra")

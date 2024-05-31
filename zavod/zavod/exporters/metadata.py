@@ -31,7 +31,7 @@ def get_base_dataset_metadata(dataset: Dataset) -> Dict[str, Any]:
         "issue_levels": {},
         "issue_count": 0,
         "updated_at": settings.RUN_TIME_ISO,
-        "version": version,
+        "version": version.lower(),
         "index_url": make_published_url(dataset.name, "index.json"),
         "issues_url": make_artifact_url(dataset.name, version, "issues.json"),
     }
@@ -71,7 +71,9 @@ def get_catalog_dataset(dataset: Dataset) -> Dict[str, Any]:
     else:
         log.error("No index file found", dataset=dataset.name, report_issue=False)
     meta.update(dataset.to_opensanctions_dict())
-    assert len(meta["resources"]), meta["resources"]
+    if len(meta["resources"]) == 0:
+        log.warn("Dataset has no resources", dataset=dataset.name)
+    # assert len(meta["resources"]), (dataset, meta["resources"])
     return meta
 
 

@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: us-finra
 coverage:
   frequency: daily
-  start: "2024-03-28"
+  start: "2024-05-09"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Firms and individuals that have faced FINRA disciplinary actions

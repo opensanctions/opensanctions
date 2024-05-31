@@ -225,11 +225,13 @@ def _iter_scope_statements(dataset: "Dataset", external: bool = True) -> Stateme
     log.error(f"Cannot load statements for: {dataset.name}")
 
 
-def iter_previous_statements(dataset: "Dataset", external: bool = True) -> StatementGen:
+def iter_previous_statements(
+    dataset: "Dataset", external: bool = True, version: Optional[str] = None
+) -> StatementGen:
     """Load the statements from the previous release of the dataset by streaming them
     from the data archive."""
     for scope in dataset.leaves:
-        object = get_artifact_object(dataset.name, STATEMENTS_FILE)
+        object = get_artifact_object(dataset.name, STATEMENTS_FILE, version)
         if object is not None:
             log.info(
                 "Streaming backfilled statements...",

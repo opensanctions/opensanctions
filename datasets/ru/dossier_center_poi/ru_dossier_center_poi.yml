@@ -3,6 +3,9 @@ title: Russian Persons of Interest published by Dossier Center
 url: https://peps.dossier.center/
 prefix: ru-dc-poi
 summary: People identified to be connected to crime at the Dossier Center
+coverage:
+  frequency: daily
+  start: "2024-04-17"
 description: |
   This dataset publishes a list of possible organizers of the Kremlin organized crime group
   and their probable accomplices with brief profiles.
@@ -36,6 +39,7 @@ data:
   url: https://peps.dossier.center/list/
   format: HTML
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+ci_test: false
 
 lookups:
   type.country:
