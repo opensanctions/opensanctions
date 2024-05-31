@@ -30,10 +30,8 @@ class PinregSession:
                 headers={
                     "Accept": "application/json",
                     "Referer": f"https://pinreg.vtek.lt/app/pid-perziura/{id_str}",
-                    "DNT": "1",
-                    "Connection": "keep-alive",
                 },
-                cache_days=90,
+                cache_days=30,
             )
         except HTTPError as ex:
             response = ex.response.json()
