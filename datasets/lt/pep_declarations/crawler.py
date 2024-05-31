@@ -60,13 +60,13 @@ def make_person(context: Context, data: dict) -> Entity:
     return person
 
 
-def make_marriage(context: Context, person: Entity, spouse: Entity) -> Entity:
-    marriage = context.make("Family")
-    marriage.id = context.make_id(person.id, spouse.id)
-    marriage.add("relationship", "Spouse")
-    marriage.add("person", person)
-    marriage.add("relative", spouse)
-    return marriage
+def make_spouse(context: Context, person: Entity, spouse: Entity) -> Entity:
+    relationship = context.make("Family")
+    relationship.id = context.make_id(person.id, spouse.id)
+    relationship.add("relationship", "Sutuoktinis, sugyventinis ar partneris", lang="lit")
+    relationship.add("person", person)
+    relationship.add("relative", spouse)
+    return relationship
 
 
 def parse_affiliations(
@@ -174,7 +174,7 @@ def crawl(context: Context) -> None:
             for position, occupancy in spouse_offices:
                 context.emit(position, target=False)
                 context.emit(occupancy, target=False)
-            marriage = make_marriage(context, declarant, spouse)
+            marriage = make_spouse(context, declarant, spouse)
             context.emit(spouse, target=False)
             context.emit(marriage)
 
