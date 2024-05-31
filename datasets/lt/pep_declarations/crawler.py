@@ -47,12 +47,13 @@ def make_person(context: Context, data: dict) -> Entity:
     person = context.make("Person")
     first_name = data.pop("vardas")
     last_name = data.pop("pavarde")
-    person_id = data.pop("asmensKodas", None)  # this identifier is often missing
+    person_id: Optional[str] = data.pop("asmensKodas", None)  # this identifier is often missing
+    birth_date: Optional[str] = data.pop("gimimoData", None)
     person.id = context.make_id(person_id, first_name, last_name)
     person.add("firstName", first_name)
     person.add("registrationNumber", person_id)
     person.add("lastName", last_name)
-    person.add("birthDate", data.pop("gimimoData", None))
+    person.add("birthDate", birth_date)
     person.add("legalForm", data.pop("asmensTipas", None))
     context.audit_data(data)
     return person
