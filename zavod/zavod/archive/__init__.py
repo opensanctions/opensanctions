@@ -80,7 +80,7 @@ def get_dataset_artifact(
     return path
 
 
-def _get_history_object(
+def get_versions_data(
     dataset_name: str, version: Optional[str] = None
 ) -> Optional[str]:
     backend = get_archive_backend()
@@ -95,7 +95,7 @@ def _get_history_object(
 
 def iter_dataset_versions(dataset_name: str) -> Generator[Version, None, None]:
     """Iterate over all versions of a given dataset."""
-    data = _get_history_object(dataset_name)
+    data = get_versions_data(dataset_name)
     seen: Set[str] = set()
     while True:
         if data is None:
@@ -107,7 +107,7 @@ def iter_dataset_versions(dataset_name: str) -> Generator[Version, None, None]:
                 seen.add(version.id)
         if len(history.items) < 2:
             break
-        data = _get_history_object(dataset_name, history.items[0].id)
+        data = get_versions_data(dataset_name, history.items[0].id)
 
 
 def get_artifact_object(
@@ -135,22 +135,14 @@ def get_artifact_object(
     return None
 
 
-def publish_dataset_history(dataset_name: str, version: Version) -> None:
+def publish_dataset_version(dataset_name: str) -> None:
     """Publish the history of versions for a given dataset to the artifact directory."""
-    data = _get_history_object(dataset_name)
-    history = VersionHistory.from_json(data or "{}")
-    if version not in history.items:
-        history = history.append(version)
-    backend = get_archive_backend()
     path = dataset_resource_path(dataset_name, VERSIONS_FILE)
+    if not path.exists():
+        raise RuntimeError(f"Version history not found: {dataset_name}")
 
-    with open(path, "w") as fh:
-        fh.write(history.to_json())
-
+    backend = get_archive_backend()
     name = f"{ARTIFACTS}/{dataset_name}/{VERSIONS_FILE}"
-    object = backend.get_object(name)
-    object.publish(path, mime_type=JSON)
-    name = f"{ARTIFACTS}/{dataset_name}/{version.id}/{VERSIONS_FILE}"
     object = backend.get_object(name)
     object.publish(path, mime_type=JSON)
 

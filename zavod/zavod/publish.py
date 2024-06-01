@@ -4,10 +4,10 @@ from zavod import settings
 from zavod.meta import Dataset
 from zavod.logs import get_logger
 from zavod.archive import publish_resource, dataset_resource_path
-from zavod.archive import publish_dataset_history, publish_artifact
+from zavod.archive import publish_dataset_version, publish_artifact
 from zavod.archive import INDEX_FILE, CATALOG_FILE, ISSUES_FILE, ISSUES_LOG
 from zavod.archive import STATEMENTS_FILE, RESOURCES_FILE, STATISTICS_FILE
-from zavod.archive import DELTA_FILE
+from zavod.archive import DELTA_FILE, VERSIONS_FILE
 from zavod.runtime.resources import DatasetResources
 from zavod.exporters import write_dataset_index, write_issues
 
@@ -18,6 +18,7 @@ ARTIFACTS = [
     INDEX_FILE,
     STATEMENTS_FILE,
     STATISTICS_FILE,
+    VERSIONS_FILE,
     RESOURCES_FILE,
     DELTA_FILE,
 ]
@@ -34,7 +35,7 @@ def _publish_artifacts(dataset: Dataset) -> None:
                 artifact,
                 mime_type=JSON if artifact.endswith(".json") else None,
             )
-    publish_dataset_history(dataset.name, settings.RUN_VERSION)
+    publish_dataset_version(dataset.name)
 
 
 def publish_dataset(dataset: Dataset, latest: bool = True) -> None:
@@ -90,3 +91,4 @@ def publish_failure(dataset: Dataset, latest: bool = True) -> None:
     publish_resource(path, dataset.name, INDEX_FILE, latest=latest, mime_type=JSON)
     _publish_artifacts(dataset)
     dataset_resource_path(dataset.name, RESOURCES_FILE).unlink(missing_ok=True)
+    dataset_resource_path(dataset.name, VERSIONS_FILE).unlink(missing_ok=True)
