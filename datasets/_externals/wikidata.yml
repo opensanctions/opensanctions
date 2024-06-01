@@ -395,6 +395,11 @@ lookups:
           - French Annam
           - Oudh State
           - Afro-Peruvian
+          - Manchester City F.C.
+          - Later Shu
+          - Eastern Jin dynasty
+          - Kingdom of the Suebi
+          - Later Tang dynasty
         value: null
       - match:
           - Cherokee Nation
@@ -663,6 +668,7 @@ lookups:
           - travesti
           - two-spirit
           - intersex
+          - eunuch
         value: other
       - match: transgender
         value: null
