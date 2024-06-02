@@ -6,4 +6,4 @@ jane-doe,Person,Jane Doe,Jane Smith,,1972,Paraguay,,,,,,,,,,,true
 hans-gruber,Person,Hans Gruber,Bill Clay,Freedom fighter,1978-09-25,East Germany,,,,,,,Dresden,Lauensteiner Str. 49,01277,,true
 umbrella-corp,Company,Umbrella Corporation,"Umbrella Pharmaceuticals, Inc. ",,1980,United States,8723-BX,,,,,,,,,,true
 oswell-spencer,Person,Oswell E. Spencer,Ozwell E. Spencer; オズウェル,,1923,Japan,,Ownership,umbrella-corp,1968,2003,Founder,,,,crime.boss,true
-johnny-does,Person,Johnny Doe,John Ignatius Doe,,1975,Canada,,,,,,,,,,,false
+johnny-does,Person,Johnny Doe,John Ignatius Doe,,1975,Canada,,Family,oswell-spencer,,,,,,,,false

@@ -48,10 +48,13 @@ inputs:
   - sanctions
 
 config:
-  type: nomenklatura.enrich.yente:YenteEnricher
+  type: zavod.runner.local_enricher:LocalEnricher
   api: https://api.graph.opensanctions.org/
   dataset: ee_ariregister
   api_key: ${OPENSANCTIONS_GRAPH_API_KEY}
+  index_options:
+    memory_budget: 1024 # MB
+    max_candidates: 100
   strip_namespace: true
   fuzzy: false
   threshold: 0.7
@@ -70,4 +73,3 @@ config:
     - Organization
     # - LegalEntity
     # - Person
-  cache_days: 30
