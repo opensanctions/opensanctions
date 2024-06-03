@@ -101,6 +101,7 @@ lookups:
     options:
       - match:
           - Місце реєстрації
+          - "Місце реєстрації: "
           - Місце розташування
           - Місцезнаходження
           - "Місце розташування:"
@@ -110,6 +111,11 @@ lookups:
           - Місце проживання
 
           - Уродженка
+          - Фізична адреса
+          - Юридична адреса
+          - Місцезнаходження офісу
+          - Місцезнаходження юридичної особи
+          - Поштова адреса
         prop: address
       - match:
           - IMO
@@ -128,15 +134,27 @@ lookups:
         prop: notes
       - match:
           - Дата народження
+          - дата народження
+          - Дата нродження
         prop: birthDate
       - match:
           - звання
+          - науковий ступінь
+          - військове звання
+          - Науковий ступінь
+          - Військове звання
         prop: title
       - match:
           - Назва
+          - Колишня назва
+          - вигадана назва
+          - колишня назва
+          - зміна назви
+          - стара назва
         prop: alias
       - match:
           - email
+          - Email
           - "email: e-mail"
         prop: email
       - match: Місце народження
@@ -158,70 +176,38 @@ lookups:
           - Номер документу з мікрофіші
           - Реєстраційний номер мікрофіші
           - Номер посвідчення особи
+          - Номер індивідуального підприємця
+          - Реєстраційний номер адвокатської діяльності
         prop: registrationNumber
+      - match:
+          - ОДРН
+        prop: ogrnCode
+      - match:
+          - Особистий номер офіцера
+        prop: idNumber
       - match:
           - Permanent residence permit - посвідка на постійне проживання
         prop: idNumber
       - contains:
           - Сайт так званого
         prop: website
+        weight: 2   # To fix the issue when same entity contains website and notes
       - contains:
           - Громадянство
         prop: nationality
       - contains:
           - нагорода
+          - Нагорода
+          - нагороди
+          - Розшук
+          - освіта
         prop: notes
-  # old API mappings:
-  subject_types:
-    map:
-      individual: Person
-      legal: Organization
-  ident_types:
-    options:
+      - contains:
+          - "Зайнятість:"
+        prop: position
       - match:
-          - ІПН
-        value: innCode
+          - Податковий номер
+        prop: taxNumber
       - match:
-          - ОДРН
-          - ОДРНІП
-          - ОДРНПП
-        value: ogrnCode
-      - match:
-          - ОКПО
-        value: okpoCode
-      - match:
-          - КПП
-        value: kppCode
-        schema: Company
-      - match:
-          - Номер телефону
-        value: phone
-      - match:
-          - Паспорт
-          - Дипломатичний паспорт
-          - Закордонний паспорт
-          - Службовий паспорт
-        value: passportNumber
-      - match:
-          - Permanent residence permit - посвідка на постійне проживання
-          - Особистий номер офіцера
-          - refugee card
-        value: idNumber
-      - match:
-          - ЄДРПОУ
-          - ЄДРЮО
-          - УНЗР
-          - Реєстраційний номер
-          - Реєстраційний номер адвокатської діяльності
-          - МФО
-          - KRS (Krajowy Rejestr Sądowy)
-          - REGON (Rejestr Gospodarki Narodowej)
-          - ОКАТО
-        value: registrationNumber
-      - match:
-          - Генеральна ліцензія на здійснення банківських операцій
-          - Кореспондентський рахунок
-          - Розрахунковий рахунок
-          - Абонентська скринька
-          - Посвідчення адвокатської діяльності
-        value: null
+          - Дата реєстрації
+        value: incorporationDate
