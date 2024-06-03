@@ -1,8 +1,10 @@
 from lxml import etree
+from lxml.etree import _Element as Element, tostring
 from zipfile import ZipFile
 from urllib.parse import urljoin, urlparse
 from typing import Dict, Optional, Set, IO, List
-from lxml.etree import _Element as Element, tostring
+from collections import defaultdict
+
 from addressformatting import AddressFormatter
 
 from zavod import Context, Entity
@@ -17,13 +19,13 @@ def tag_text(el: Element) -> str:
     return tostring(el, encoding="utf-8").decode("utf-8")
 
 
-def dput(data: Dict[str, Optional[str]], name: str, value: Optional[str]):
-    if value is None or not len(value.strip()):
+def dput(data: Dict[str, Optional[List[str]]], name: str, value: Optional[str]):
+    if value is None or not value.strip():
         return
     dd = value.replace("-", "")
-    if not len(dd.strip()):
+    if not dd.strip():
         return
-    data[name] = value
+    data[name].append(value)
 
 
 def parse_name(name: Optional[str]) -> List[str]:
@@ -118,7 +120,9 @@ def make_org(context: Context, el: Element, local_id: Optional[str]) -> Entity:
     return entity
 
 
-def parse_founder(context: Context, company: Entity, el: Element):
+def parse_founder(
+    context: Context, company: Entity, el: Element, revision: str = "default"
+):
     meta = el.find("./ГРНДатаПерв")
     owner = context.make("LegalEntity")
     local_id = company.id
@@ -225,21 +229,21 @@ def parse_founder(context: Context, company: Entity, el: Element):
     if reliable_el is not None:
         ownership.add("summary", reliable_el.get("ТекстНедДанУчр"))
 
-    # pprint(owner.to_dict())
-    context.emit(owner)
+    context.emit(owner, revision=revision)
 
-    # pprint(ownership.to_dict())
-    context.emit(ownership)
+    context.emit(ownership, revision=revision)
 
 
-def parse_directorship(context: Context, company: Entity, el: Element):
+def parse_directorship(
+    context: Context, company: Entity, el: Element, revision: str = "default"
+):
     # TODO: can we use the ГРН as a fallback ID?
     director = make_person(context, el, company.id)
     if director is None:
         # context.log.warn("Directorship has no person", company=company.id)
         return
 
-    context.emit(director)
+    context.emit(director, revision=revision)
 
     role = el.find("./СвДолжн")
     if role is None:
@@ -258,38 +262,30 @@ def parse_directorship(context: Context, company: Entity, el: Element):
         directorship.add("startDate", date.get("ДатаЗаписи"))
 
     directorship.add("endDate", company.get("dissolutionDate"))
-    context.emit(directorship)
+    context.emit(directorship, revision=revision)
 
 
 def parse_address(context: Context, entity: Entity, el: Element):
-    data: Dict[str, Optional[str]] = {}
+    data: Dict[str, Optional[List[str]]] = defaultdict(list)
     country = "ru"
-    if el.tag == "АдресРФ":  # normal address
-        # print(tag_text(el))
-        pass
-    elif el.tag == "СвМНЮЛ":  # location of legal entity
-        # print(tag_text(el))
-        pass
-    elif el.tag == "СвАдрЮЛФИАС":  # special structure?
-        # print(tag_text(el))
+    if el.tag in [
+        "АдресРФ",  # normal address
+        "СвМНЮЛ",  # location of legal entity
+        "СвАдрЮЛФИАС",  # special structure?
+        "СвРешИзмМН",  # address change
+        "СвМНЮЛ",  # location of legal entity
+    ]:
         pass
     elif el.tag == "СвНедАдресЮЛ":  # missing address
-        # print(el.get("ТекстНедАдресЮЛ"))
         return None  # ignore this one entirely
-    elif el.tag == "СвРешИзмМН":  # address change
-        # print(tag_text(el))
-        # print(el.get("ТекстРешИзмМН"))
-        pass
     else:
         context.log.warn("Unknown address type", tag=el.tag)
         return
 
     # FIXME: this is a complete mess
     dput(data, "postcode", el.get("Индекс"))
-    dput(data, "postcode", el.get("ИдНом"))
     dput(data, "house", el.get("Дом"))
     dput(data, "house_number", el.get("Корпус"))
-    dput(data, "neighbourhood", el.get("Кварт"))
     dput(data, "neighbourhood", el.get("Кварт"))
     dput(data, "city", el.findtext("./НаимРегион"))
     dput(data, "city", elattr(el.find("./Регион"), "НаимРегион"))
@@ -297,14 +293,23 @@ def parse_address(context: Context, entity: Entity, el: Element):
     dput(data, "town", elattr(el.find("./НаселПункт"), "НаимНаселПункт"))
     dput(data, "municipality", elattr(el.find("./МуниципРайон"), "Наим"))
     dput(data, "suburb", elattr(el.find("./НаселенПункт"), "Наим"))
+    dput(data, "road", elattr(el.find("./ЭлУлДорСети"), "Тип"))
     dput(data, "road", elattr(el.find("./ЭлУлДорСети"), "Наим"))
+    dput(data, "road", elattr(el.find("./Улица"), "ТипУлица"))
     dput(data, "road", elattr(el.find("./Улица"), "НаимУлица"))
+    dput(data, "house", elattr(el.find("./Здание"), "Д."))
+    dput(data, "house", elattr(el.find("./Здание"), "ЛИТЕРА"))
+    dput(data, "house", elattr(el.find("./ПомещЗдания"), "Тип"))
     dput(data, "house", elattr(el.find("./ПомещЗдания"), "Номер"))
-    address = aformatter.one_line(data, country=country)
+
+    address = aformatter.one_line(
+        {k: " ".join(v) for k, v in data.items()}, country=country
+    )
+
     entity.add("address", address)
 
 
-def parse_company(context: Context, el: Element):
+def parse_company(context: Context, el: Element, revision: str = "default"):
     entity = context.make("Company")
     inn = el.get("ИНН")
     ogrn = el.get("ОГРН")
@@ -342,10 +347,10 @@ def parse_company(context: Context, el: Element):
 
     # prokura or directors etc.
     for director in el.findall("./СведДолжнФЛ"):
-        parse_directorship(context, entity, director)
+        parse_directorship(context, entity, director, revision=revision)
 
     for founder in el.findall("./СвУчредит/*"):
-        parse_founder(context, entity, founder)
+        parse_founder(context, entity, founder, revision=revision)
 
     for successor in el.findall("./СвПреем"):
         succ_name = successor.get("НаимЮЛПолн")
@@ -367,14 +372,13 @@ def parse_company(context: Context, el: Element):
             succ_entity.add("name", succ_name)
             succ_entity.add("innCode", succ_inn)
             succ_entity.add("ogrnCode", succ_ogrn)
-            context.emit(succ_entity)
-            context.emit(succ)
+            context.emit(succ_entity, revision=revision)
+            context.emit(succ, revision=revision)
 
-    # pprint(entity.to_dict())
-    context.emit(entity)
+    context.emit(entity, revision=revision)
 
 
-def parse_sole_trader(context: Context, el: Element):
+def parse_sole_trader(context: Context, el: Element, revision: str = "default"):
     inn = el.get("ИННФЛ")
     ogrn = el.get("ОГРНИП")
     entity = context.make("LegalEntity")
@@ -386,22 +390,22 @@ def parse_sole_trader(context: Context, el: Element):
     entity.add("ogrnCode", ogrn)
     entity.add("innCode", inn)
     entity.add("legalForm", el.get("НаимВидИП"))
-    context.emit(entity)
+    context.emit(entity, revision=revision)
 
 
-def parse_xml(context: Context, handle: IO[bytes]):
+def parse_xml(context: Context, handle: IO[bytes], revision: str = "default"):
     doc = etree.parse(handle)
     for el in doc.findall(".//СвЮЛ"):
-        parse_company(context, el)
+        parse_company(context, el, revision=revision)
     for el in doc.findall(".//СвИП"):
-        parse_sole_trader(context, el)
+        parse_sole_trader(context, el, revision=revision)
 
 
 def parse_examples(context: Context):
-    for inn in ["7709383684", "7704667322", "9710075695"]:
+    for inn in ["7709383684", "7704667322", "9710075695", "7813654884"]:
         path = context.fetch_resource("%s.xml" % inn, INN_URL % inn)
         with open(path, "rb") as fh:
-            parse_xml(context, fh)
+            parse_xml(context, fh, revision="example")
 
 
 def crawl_index(context: Context, url: str) -> Set[str]:
@@ -435,6 +439,7 @@ def crawl_archive(context: Context, url: str) -> None:
 
 
 def crawl(context: Context) -> None:
+    parse_examples(context)
     # TODO: thread pool execution
-    for archive_url in sorted(crawl_index(context, context.data_url)):
-        crawl_archive(context, archive_url)
+    # for archive_url in sorted(crawl_index(context, context.data_url)):
+    #     crawl_archive(context, archive_url)

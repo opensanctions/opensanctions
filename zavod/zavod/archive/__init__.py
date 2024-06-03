@@ -68,15 +68,15 @@ def get_dataset_artifact(
     if path.exists():
         return path
     if backfill:
-        object = get_artifact_object(dataset_name, resource, version)
-        if object is not None:
+        obj = get_artifact_object(dataset_name, resource, version)
+        if obj is not None:
             log.info(
                 "Backfilling dataset artifact...",
                 dataset=dataset_name,
                 resource=resource,
-                object=object.name,
+                object=obj.name,
             )
-            object.backfill(path)
+            obj.backfill(path)
     return path
 
 
@@ -87,9 +87,9 @@ def _get_history_object(
     name = f"{ARTIFACTS}/{dataset_name}/{VERSIONS_FILE}"
     if version is not None:
         name = f"{ARTIFACTS}/{dataset_name}/{version}/{VERSIONS_FILE}"
-    object = backend.get_object(name)
-    if object.exists():
-        return object.open().read()
+    obj = backend.get_object(name)
+    if obj.exists():
+        return obj.open().read()
     return None
 
 
@@ -116,22 +116,22 @@ def get_artifact_object(
     backend = get_archive_backend()
     if version is not None:
         name = f"{ARTIFACTS}/{dataset_name}/{version}/{resource}"
-        object = backend.get_object(name)
-        if object.exists():
-            return object
+        obj = backend.get_object(name)
+        if obj.exists():
+            return obj
     else:
         for v in iter_dataset_versions(dataset_name):
             name = f"{ARTIFACTS}/{dataset_name}/{v.id}/{resource}"
-            object = backend.get_object(name)
-            if object.exists():
-                return object
+            obj = backend.get_object(name)
+            if obj.exists():
+                return obj
 
     # FIXME: legacy fallback option of using the latest release
     # REMOVE THIS AFTER MIGRATION
     name = f"{DATASETS}/latest/{dataset_name}/{resource}"
-    object = backend.get_object(name)
-    if object.exists():
-        return object
+    obj = backend.get_object(name)
+    if obj.exists():
+        return obj
     return None
 
 
@@ -144,15 +144,15 @@ def publish_dataset_history(dataset_name: str, version: Version) -> None:
     backend = get_archive_backend()
     path = dataset_resource_path(dataset_name, VERSIONS_FILE)
 
-    with open(path, "w") as fh:
+    with open(path, "w", encoding="utf-8") as fh:
         fh.write(history.to_json())
 
     name = f"{ARTIFACTS}/{dataset_name}/{VERSIONS_FILE}"
-    object = backend.get_object(name)
-    object.publish(path, mime_type=JSON)
+    obj = backend.get_object(name)
+    obj.publish(path, mime_type=JSON)
     name = f"{ARTIFACTS}/{dataset_name}/{version.id}/{VERSIONS_FILE}"
-    object = backend.get_object(name)
-    object.publish(path, mime_type=JSON)
+    obj = backend.get_object(name)
+    obj.publish(path, mime_type=JSON)
 
 
 def publish_artifact(
@@ -165,8 +165,8 @@ def publish_artifact(
     """Publish a file in the given versions artifact directory of the dataset."""
     name = f"{ARTIFACTS}/{dataset_name}/{version.id}/{resource}"
     backend = get_archive_backend()
-    object = backend.get_object(name)
-    object.publish(path, mime_type=mime_type)
+    obj = backend.get_object(name)
+    obj.publish(path, mime_type=mime_type)
 
 
 def publish_resource(
@@ -208,18 +208,18 @@ def iter_dataset_statements(dataset: "Dataset", external: bool = True) -> Statem
 def _iter_scope_statements(dataset: "Dataset", external: bool = True) -> StatementGen:
     path = dataset_resource_path(dataset.name, STATEMENTS_FILE)
     if path.exists():
-        with open(path, "r") as fh:
+        with open(path, "r", encoding="utf-8") as fh:
             yield from _read_fh_statements(fh, external)
         return
 
-    object = get_artifact_object(dataset.name, STATEMENTS_FILE)
-    if object is not None:
+    obj = get_artifact_object(dataset.name, STATEMENTS_FILE)
+    if obj is not None:
         log.info(
             "Streaming backfilled statements...",
             backfill_dataset=dataset.name,
-            object=object.name,
+            object=obj.name,
         )
-        with object.open() as fh:
+        with obj.open() as fh:
             yield from _read_fh_statements(fh, external)
         return
     log.error(f"Cannot load statements for: {dataset.name}")
@@ -231,12 +231,13 @@ def iter_previous_statements(
     """Load the statements from the previous release of the dataset by streaming them
     from the data archive."""
     for scope in dataset.leaves:
-        object = get_artifact_object(dataset.name, STATEMENTS_FILE, version)
-        if object is not None:
+        obj = get_artifact_object(dataset.name, STATEMENTS_FILE, version)
+
+        if obj is not None:
             log.info(
                 "Streaming backfilled statements...",
                 dataset=scope.name,
-                object=object.name,
+                object=obj.name,
             )
-            with object.open() as fh:
+            with obj.open() as fh:
                 yield from _read_fh_statements(fh, external)
