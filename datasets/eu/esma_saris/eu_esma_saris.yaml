@@ -62,4 +62,4 @@ lookups:
       - match:
           - "Trading ban - EU sanctions"
           - "Trading ban - indirect effect of sanctions"
-        value: "sanction"
+        value: "reg.warn"
