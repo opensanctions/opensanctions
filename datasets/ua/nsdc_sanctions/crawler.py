@@ -64,16 +64,22 @@ def crawl_common(
         value = attr.pop("value")
         value = value.replace("(росія)", "")
 
-        if result is not None and result.prop is not None:
-            entity.add(result.prop, value, lang="ukr")
+        if result is not None:
+            if result.prop is not None:
+                entity.add(result.prop, value, lang="ukr")
         elif key in ("КПП",):
             if entity.schema.is_a("Organization"):
                 entity.add_cast("Company", "kppCode", value)
             else:
                 entity.add("registrationNumber", value)
         else:
-            context.log.warn("Unknown attribute", key=key, value=value)
-            entity.add("notes", f"{key}: {value}", lang="ukr")
+            override_res = context.lookup("overrides", f"{key}: {value}")
+            if override_res:
+                for override in override_res.items:
+                    entity.add(override["prop"], override["value"], lang="ukr")
+            else:
+                context.log.info("Unknown attribute", key=key, value=value)
+                entity.add("notes", f"{key}: {value}", lang="ukr")
 
     for action in fetch_data(
         context, f"/subjects/{subject_id}/actions", cache_days=CACHE_LONG

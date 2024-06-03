@@ -88,6 +88,8 @@ lookups:
           - 1984
           - 1985
           - 1986
+      - match: в серпні 1980 року
+        value: 1980-08
   type.email:
     options:
       - match: "general@nn.sovfracht.ru (росія, директор)"
@@ -99,6 +101,10 @@ lookups:
 
   attributes:
     options:
+      - match:
+          - Державний номер авто
+          - Посвідчення адвокатської діяльності
+        prop: null
       - match:
           - Місце реєстрації
           - "Місце реєстрації: "
@@ -131,6 +137,7 @@ lookups:
       - match:
           - Примітка
           - Інша інформація
+          - Інші відомості
         prop: notes
       - match:
           - Дата народження
@@ -178,6 +185,7 @@ lookups:
           - Номер посвідчення особи
           - Номер індивідуального підприємця
           - Реєстраційний номер адвокатської діяльності
+          - Водійське посвідчення
         prop: registrationNumber
       - match:
           - ОДРН
@@ -211,3 +219,16 @@ lookups:
       - match:
           - Дата реєстрації
         value: incorporationDate
+
+  overrides:
+    options:
+      - match: "Місце проживання: м. Севастополь, АР Крим Адреса реєстрації: Російська Федерація, м. Омськ, вул. Лукашевича, буд. 1а, кв. 66"
+        items:
+          - prop: address
+            value: м. Севастополь, АР Крим
+          - prop: address
+            value: Російська Федерація, м. Омськ, вул. Лукашевича, буд. 1а, кв. 66
+      - match: "Місце розташування: Esentepe Mah, Harman 1 Sk. Duran Is Merkezi, Blok No : 4/8, Sisli, Istanbul, Turkiye"
+        items:
+          - prop: address
+            value: Esentepe Mah, Harman 1 Sk. Duran Is Merkezi, Blok No 4/8, Sisli, Istanbul, Turkiye
