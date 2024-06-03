@@ -35,7 +35,6 @@ def save_match(
     if not entity.schema.can_match(match.schema):
         return None
     judgement = resolver.get_judgement(match.id, entity.id)
-
     # For unjudged candidates, compute a score and put it in the
     # xref cache so the user can decide:
     if judgement == Judgement.NO_JUDGEMENT:

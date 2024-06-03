@@ -14,7 +14,7 @@ from nomenklatura.matching import get_algorithm
 
 from zavod.archive import dataset_state_path
 from zavod.meta import get_catalog
-from zavod.store import get_store
+from zavod.store import get_store, get_view
 
 
 log = logging.getLogger(__name__)
@@ -42,8 +42,7 @@ class LocalEnricher(Enricher):
         super().__init__(dataset, cache, config)
         target_dataset_name = config.pop("dataset")
         target_dataset = get_catalog().require(target_dataset_name)
-        store = get_store(target_dataset)
-        self._view = store.default_view(external=False)
+        self._view = get_view(target_dataset, external=False)
         state_path = dataset_state_path(dataset.name)
         self._index = TantivyIndex(
             self._view, state_path, dataset.config.get("index_options", {})
@@ -67,9 +66,6 @@ class LocalEnricher(Enricher):
             if not entity.schema.can_match(match.schema):
                 continue
 
-            if index_score == 0:
-                continue
-
             if self._algorithm is None:
                 raise EnrichmentException("No algorithm specified")
             result = self._algorithm.compare(entity, match)
@@ -82,15 +78,8 @@ class LocalEnricher(Enricher):
         if self._ns is not None:
             entity = self._ns.apply(entity)
 
-        # Don't bother yielding the starting entity
-        if len(path) > 0:
-            yield entity
+        yield entity
 
-        # TODO:
-        # Without this we hit max recursion depth on ee_ariregister.
-        # Should this be configurable? do we want to try and go as deep
-        # as we can without blowing up? Is it really so dense enough to
-        # blow up or is there a bug?
         if len(path) > 1:
             return
 
