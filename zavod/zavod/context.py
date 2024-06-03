@@ -9,6 +9,7 @@ from lxml import html, etree
 from datapatch import LookupException, Result, Lookup
 from followthemoney.schema import Schema
 from followthemoney.util import make_entity_id
+from nomenklatura.versions import Version
 from nomenklatura.cache import Cache
 from nomenklatura.util import PathLike
 from rigour.urls import build_url, ParamsType
@@ -19,6 +20,7 @@ from zavod.audit import inspect
 from zavod.meta import Dataset, DataResource
 from zavod.entity import Entity
 from zavod.archive import dataset_resource_path, dataset_data_path
+from zavod.runtime.versions import make_version, get_latest
 from zavod.runtime.stats import ContextStats
 from zavod.runtime.sink import DatasetSink
 from zavod.runtime.issues import DatasetIssues
@@ -75,6 +77,11 @@ class Context:
         return self._cache
 
     @property
+    def version(self) -> Version:
+        """The current version of the dataset."""
+        return get_latest(self.dataset.name, backfill=False) or settings.RUN_VERSION
+
+    @property
     def timestamps(self) -> TimeStampIndex:
         """An index of the first_seen time of every statement previous emitted by
         the dataset. This is used to determine if a statement is new or not."""
@@ -121,6 +128,7 @@ class Context:
             dataset=self.dataset.name,
             context=self,
         )
+        make_version(self.dataset.name, overwrite=True)
         if clear and not self.dry_run:
             self.resources.clear()
             self.issues.clear()

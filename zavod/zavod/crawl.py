@@ -29,6 +29,7 @@ def crawl_dataset(dataset: Dataset, dry_run: bool = False) -> ContextStats:
             "Running dataset",
             data_path=dataset_data_path(dataset.name),
             data_time=context.data_time_iso,
+            version=context.version.id,
         )
         entry_point = load_entry_point(dataset)
         entry_point(context)

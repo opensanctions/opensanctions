@@ -1,5 +1,5 @@
 import time
-from typing import List, Optional
+from typing import List, Optional, Iterable
 from datetime import datetime, timedelta
 from redis.exceptions import ConnectionError, TimeoutError
 from followthemoney.exc import InvalidData
@@ -13,8 +13,10 @@ from nomenklatura.publish.edges import simplify_undirected
 from zavod.logs import get_logger
 from zavod.entity import Entity
 from zavod.meta import Dataset
+from zavod.runtime.versions import get_latest
 from zavod.dedupe import get_dataset_resolver, get_dataset_linker
 from zavod.archive import iter_previous_statements, iter_dataset_versions
+from zavod.archive import iter_dataset_statements
 
 log = get_logger(__name__)
 View = VersionedRedisView[Dataset, Entity]
@@ -30,34 +32,20 @@ def get_store(
         linker_inst = get_dataset_linker(dataset)
     else:
         linker_inst = get_dataset_resolver(dataset)
-    # aggregator_path = dataset_state_path(dataset.name)
-    # suffix = "external" if external else "internal"
-    # dataset_path = aggregator_path / f"{dataset.name}.{suffix}.store"
-    # if dataset_path.is_dir():
-    #     return Store(dataset, linker_inst, dataset_path)
-    # if not external:
-    #     external_path = aggregator_path / f"{dataset.name}.external.store"
-    #     if external_path.is_dir():
-    #         return get_store(dataset, external=True, linker=linker)
     store = Store(dataset, linker_inst)
     sync_scope(store, dataset)
-    # store.build(external=external)
     return store
 
 
 def clear_store(dataset: Dataset) -> None:
     """Delete the store graph for the given dataset."""
     store = get_store(dataset)
-    versions = store.get_history(dataset.name)
-    for version in versions:
-        store.drop_version(dataset.name, version)
-    # aggregator_path = dataset_state_path(dataset.name)
-    # external_path = aggregator_path / f"{dataset.name}.external.store"
-    # if external_path.exists():
-    #     shutil.rmtree(external_path, ignore_errors=True)
-    # internal_path = aggregator_path / f"{dataset.name}.internal.store"
-    # if internal_path.exists():
-    #     shutil.rmtree(internal_path, ignore_errors=True)
+    latest = get_latest(dataset.name, backfill=False)
+    if latest is not None:
+        store.drop_version(dataset.name, latest.id)
+    # versions = store.get_history(dataset.name)
+    # for version in versions:
+    #     store.drop_version(dataset.name, version)
 
 
 def get_view(dataset: Dataset, external: bool = False, linker: bool = False) -> View:
@@ -65,24 +53,41 @@ def get_view(dataset: Dataset, external: bool = False, linker: bool = False) -> 
     return store.view(dataset, external=external)
 
 
+def _write_statements(
+    store: VersionedRedisStore,
+    dataset: Dataset,
+    version: str,
+    statements: Iterable[Statement],
+) -> int:
+    stmts = 0
+    writer = store.writer(dataset, version=version)
+    for stmt in statements:
+        stmts += 1
+        if stmts % 10_000 == 0:
+            log.info(
+                "Loading [%s]: %d..." % (dataset.name, stmts),
+                version=version,
+            )
+        writer.add_statement(stmt)
+    if stmts > 0:
+        writer.flush()
+        writer.release()
+    return stmts
+
+
 def sync_dataset(store: VersionedRedisStore, dataset: Dataset):
     versions = store.get_history(dataset.name)
+    latest = get_latest(dataset.name, backfill=False)
+    if latest is not None and latest.id not in versions:
+        statements = iter_dataset_statements(dataset)
+        _write_statements(store, dataset, latest.id, statements)
+
     for version in iter_dataset_versions(dataset.name):
         if version.id in versions:
             return
-        stmts = 0
-        writer = store.writer(dataset, version=version.id)
-        for stmt in iter_previous_statements(dataset, version=version.id):
-            stmts += 1
-            if stmts % 10_000 == 0:
-                log.info(
-                    "Loading [%s]: %d..." % (dataset.name, stmts),
-                    version=version.id,
-                )
-            writer.add_statement(stmt)
-        if stmts > 0:
-            writer.flush()
-            writer.release()
+        statements = iter_previous_statements(dataset, version=version.id)
+        count = _write_statements(store, dataset, version.id, statements)
+        if count > 0:
             for old in versions:
                 if old != version.id:
                     old_version = Version.from_string(old)
@@ -109,22 +114,6 @@ class Store(VersionedRedisStore[Dataset, Entity]):
     ):
         super().__init__(dataset, linker)
         self.entity_class = Entity
-
-    # def build(self, external: bool = False) -> None:
-    #     """Pre-load all entity cache objects from the given scope dataset."""
-    #     log.info("Building local LevelDB aggregator...", scope=self.dataset.name)
-    #     idx = 0
-    #     with self.writer() as writer:
-    #         stmts = iter_dataset_statements(self.dataset, external=external)
-    #         for idx, stmt in enumerate(stmts):
-    #             if idx > 0 and idx % 100000 == 0:
-    #                 log.info(
-    #                     "Indexing aggregator...",
-    #                     statements=idx,
-    #                     scope=self.dataset.name,
-    #                 )
-    #             writer.add_statement(stmt)
-    #     log.info("Local cache complete.", scope=self.dataset.name, statements=idx)
 
     def assemble(self, statements: List[Statement]) -> Optional[Entity]:
         """Build an entity proxy from a set of cached statements, considering

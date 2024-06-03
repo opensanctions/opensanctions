@@ -26,4 +26,4 @@ def test_store_access(testdataset1: Dataset):
     assert entity.last_seen == settings.RUN_TIME_ISO
     view2.store.close()
     clear_store(testdataset1)
-    assert not store.path.exists()
+    assert not store.get_latest(testdataset1.name)

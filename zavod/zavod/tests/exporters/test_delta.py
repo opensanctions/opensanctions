@@ -2,6 +2,7 @@ import json
 import shutil
 from copy import deepcopy
 from typing import Any, Dict
+from nomenklatura.kv import get_redis
 from nomenklatura.versions import Version
 from nomenklatura.store import MemoryStore
 from nomenklatura.judgement import Judgement
@@ -25,6 +26,8 @@ ENTITY_D = {"id": "ED", "schema": "Person", "properties": {"name": ["Dory"]}}
 
 
 def test_delta_exporter(testdataset1: Dataset):
+    redis = get_redis()
+    assert len(redis.keys()) == 0
     settings.RUN_VERSION = Version.new()
     testdataset1.exports = {DELTA_FILE}
     archive_path = settings.DATA_PATH / ARTIFACTS

@@ -28,6 +28,8 @@ def get_dataset_statistics(dataset: Dataset) -> Dict[str, Any]:
 
 def get_base_dataset_metadata(dataset: Dataset) -> Dict[str, Any]:
     version = get_latest(dataset.name, backfill=True)
+    if version is None:
+        raise ValueError(f"No version found for dataset: {dataset.name}")
     meta = {
         "issue_levels": {},
         "issue_count": 0,
