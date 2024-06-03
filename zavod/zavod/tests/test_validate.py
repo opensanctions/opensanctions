@@ -4,6 +4,7 @@ from structlog.testing import capture_logs
 from zavod.context import Context
 from zavod.meta.dataset import Dataset
 from zavod.store import get_store
+from zavod.dedupe import get_dataset_linker
 from zavod.validators import (
     DanglingReferencesValidator,
     SelfReferenceValidator,
@@ -18,7 +19,8 @@ from zavod.validators.common import BaseValidator
 
 def run_validator(clazz: Type[BaseValidator], dataset: Dataset):
     context = Context(dataset)
-    store = get_store(dataset)
+    linker = get_dataset_linker(dataset)
+    store = get_store(dataset, linker)
     view = store.view(dataset)
 
     with capture_logs() as cap_logs:
@@ -63,7 +65,7 @@ def test_self_references(testdataset3) -> None:
         " -> td3-owner-of-self-co-ownership-owner-of-self-co -> owner"
     ) in logs, logs
     assert len(logs) == 2, logs
-    validator.abort is False
+    assert validator.abort is False
 
 
 def test_topicless_targets(testdataset3) -> None:

@@ -48,7 +48,7 @@ def test_artifact_backfill(testdataset1: Dataset):
     versions_file = artifacts_path / VERSIONS_FILE
     assert not versions_file.exists()
     assert not local_path.exists()
-    make_version(testdataset1.name)
+    make_version(testdataset1, settings.RUN_VERSION)
     publish_dataset_version(testdataset1.name)
     assert versions_file.exists()
     local_path = get_dataset_artifact(testdataset1.name, name)

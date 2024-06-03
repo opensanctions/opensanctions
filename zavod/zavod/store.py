@@ -14,7 +14,7 @@ from zavod.logs import get_logger
 from zavod.entity import Entity
 from zavod.meta import Dataset
 from zavod.runtime.versions import get_latest
-from zavod.dedupe import get_dataset_resolver, get_dataset_linker
+from zavod.dedupe import get_dataset_resolver
 from zavod.archive import iter_previous_statements, iter_dataset_versions
 from zavod.archive import iter_dataset_statements
 
@@ -25,21 +25,16 @@ RETAIN_DAYS = 4
 RETAIN_TIME = datetime.now().replace(tzinfo=None) - timedelta(days=RETAIN_DAYS)
 
 
-def get_store(
-    dataset: Dataset, external: bool = False, linker: bool = False
-) -> "Store":
-    if linker:
-        linker_inst = get_dataset_linker(dataset)
-    else:
-        linker_inst = get_dataset_resolver(dataset)
-    store = Store(dataset, linker_inst)
+def get_store(dataset: Dataset, linker: Linker[Entity]) -> "Store":
+    store = Store(dataset, linker)
     sync_scope(store, dataset)
     return store
 
 
 def clear_store(dataset: Dataset) -> None:
     """Delete the store graph for the given dataset."""
-    store = get_store(dataset)
+    resolver = get_dataset_resolver(dataset)
+    store = Store(dataset, resolver)
     latest = get_latest(dataset.name, backfill=False)
     if latest is not None:
         store.drop_version(dataset.name, latest.id)
@@ -48,8 +43,8 @@ def clear_store(dataset: Dataset) -> None:
     #     store.drop_version(dataset.name, version)
 
 
-def get_view(dataset: Dataset, external: bool = False, linker: bool = False) -> View:
-    store = get_store(dataset, external=external, linker=linker)
+def get_view(dataset: Dataset, linker: Linker[Entity], external: bool = False) -> View:
+    store = get_store(dataset, linker)
     return store.view(dataset, external=external)
 
 

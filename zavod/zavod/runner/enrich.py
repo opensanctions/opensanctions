@@ -59,8 +59,9 @@ def save_match(
 
 
 def enrich(context: Context) -> None:
-    view = get_view(get_multi_dataset(context.dataset.inputs))
     resolver = get_resolver()
+    scope = get_multi_dataset(context.dataset.inputs)
+    view = get_view(scope, resolver)
     enricher = dataset_enricher(context.dataset, context.cache)
     threshold = float(context.dataset.config.get("threshold", 0.7))
     try:

@@ -1,4 +1,3 @@
-import shutil
 from typing import Optional
 from nomenklatura.versions import VersionHistory
 
@@ -11,6 +10,7 @@ from zavod.archive import DATASETS, ARTIFACTS, VERSIONS_FILE
 from zavod.crawl import crawl_dataset
 from zavod.store import get_view, clear_store
 from zavod.exporters import export_dataset
+from zavod.dedupe import get_resolver
 from zavod.publish import publish_dataset, publish_failure
 from zavod.exc import RunFailedException
 
@@ -24,6 +24,7 @@ def _read_history(dataset_name: str) -> Optional[VersionHistory]:
 
 
 def test_publish_dataset(testdataset1: Dataset):
+    resolver = get_resolver()
     art_path = settings.ARCHIVE_PATH / ARTIFACTS
     arch_path = settings.ARCHIVE_PATH / DATASETS
     release_path = arch_path / settings.RELEASE / testdataset1.name
@@ -34,7 +35,7 @@ def test_publish_dataset(testdataset1: Dataset):
     assert history is None
     clear_store(testdataset1)
     crawl_dataset(testdataset1)
-    view = get_view(testdataset1)
+    view = get_view(testdataset1, resolver)
     export_dataset(testdataset1, view)
 
     publish_dataset(testdataset1, latest=False)
@@ -67,9 +68,6 @@ def test_publish_dataset(testdataset1: Dataset):
     path = get_dataset_artifact(testdataset1.name, INDEX_FILE, backfill=True)
     assert path.exists()
 
-    shutil.rmtree(latest_path)
-    shutil.rmtree(release_path)
-
 
 def test_publish_failure(testdataset1: Dataset):
     arch_path = settings.ARCHIVE_PATH / DATASETS
@@ -94,5 +92,3 @@ def test_publish_failure(testdataset1: Dataset):
     assert artifact_path.joinpath("issues.json").exists()
     assert artifact_path.joinpath("index.json").exists()
     assert latest_path.joinpath("index.json").exists()
-
-    shutil.rmtree(latest_path)

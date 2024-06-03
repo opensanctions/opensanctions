@@ -1,11 +1,13 @@
 from zavod.context import Context
 from zavod.store import get_store
+from zavod.dedupe import get_dataset_linker
 
 
 def harnessed_export(exporter_class, dataset) -> None:
     context = Context(dataset)
     context.begin(clear=False)
-    store = get_store(dataset)
+    linker = get_dataset_linker(dataset)
+    store = get_store(dataset, linker)
     view = store.view(dataset)
 
     exporter = exporter_class(context, view)

@@ -37,7 +37,8 @@ default_exports = {
 
 
 def export(dataset: Dataset) -> None:
-    view = get_view(dataset)
+    resolver = get_resolver()
+    view = get_view(dataset, resolver)
     export_dataset(dataset, view)
 
 

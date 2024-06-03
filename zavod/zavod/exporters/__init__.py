@@ -1,9 +1,11 @@
 from typing import List, Dict, Type, Set
 
+from zavod import settings
 from zavod.logs import get_logger
 from zavod.store import View
 from zavod.context import Context
 from zavod.meta import Dataset
+from zavod.runtime.versions import make_version
 from zavod.exporters.common import Exporter
 from zavod.exporters.ftm import FtMExporter
 from zavod.exporters.nested import NestedTargetsJSONExporter
@@ -80,6 +82,7 @@ def export_data(context: Context, view: View) -> None:
 def export_dataset(dataset: Dataset, view: View) -> None:
     """Dump the contents of the dataset to the output directory."""
     try:
+        make_version(dataset, settings.RUN_VERSION, overwrite=False)
         context = Context(dataset)
         context.begin(clear=False)
         export_data(context, view)

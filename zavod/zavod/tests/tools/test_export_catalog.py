@@ -6,11 +6,13 @@ from zavod import settings
 from zavod.tests.conftest import COLLECTION_YML
 from zavod.crawl import crawl_dataset
 from zavod.store import get_view
+from zavod.dedupe import get_resolver
 from zavod.exporters import export_dataset
 
 
 def export(dataset: Dataset) -> None:
-    view = get_view(dataset)
+    resolver = get_resolver()
+    view = get_view(dataset, resolver)
     export_dataset(dataset, view)
 
 

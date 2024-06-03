@@ -1,10 +1,8 @@
 import json
-import shutil
 from copy import deepcopy
 from typing import Any, Dict
 from nomenklatura.kv import get_redis
 from nomenklatura.versions import Version
-from nomenklatura.store import MemoryStore
 from nomenklatura.judgement import Judgement
 from nomenklatura.resolver import Resolver
 
@@ -12,8 +10,9 @@ from zavod import settings
 from zavod.meta import Dataset
 from zavod.entity import Entity
 from zavod.runtime.versions import make_version
-from zavod.archive import DELTA_FILE, DATASETS, ARTIFACTS
+from zavod.archive import DELTA_FILE, DATASETS
 from zavod.archive import publish_dataset_version
+from zavod.store import get_store
 from zavod.exporters import export_dataset
 from zavod.exporters.delta import DeltaExporter
 
@@ -28,24 +27,23 @@ ENTITY_D = {"id": "ED", "schema": "Person", "properties": {"name": ["Dory"]}}
 def test_delta_exporter(testdataset1: Dataset):
     redis = get_redis()
     assert len(redis.keys()) == 0
-    settings.RUN_VERSION = Version.new()
     testdataset1.exports = {DELTA_FILE}
-    archive_path = settings.DATA_PATH / ARTIFACTS
     dataset_path = settings.DATA_PATH / DATASETS / testdataset1.name
-    shutil.rmtree(archive_path, ignore_errors=True)
-    shutil.rmtree(dataset_path, ignore_errors=True)
     resolver = Resolver[Entity]()
+    store = get_store(testdataset1, Resolver[Entity]())
 
     def e(data: Dict[str, Any]) -> Entity:
         return resolver.apply(Entity.from_data(testdataset1, data))
 
-    store = MemoryStore(testdataset1, resolver)
-    writer = store.writer()
+    version = Version.new("aaa")
+    make_version(testdataset1, version, overwrite=True)
+    writer = store.writer(version=version.id)
     writer.add_entity(e(ENTITY_B))
     writer.add_entity(e(ENTITY_C))
     writer.add_entity(e(ENTITY_CX))
     writer.add_entity(e(ENTITY_D))
     writer.flush()
+    writer.release()
     view = store.view(testdataset1)
     assert len(list(view.entities())) == 4
     export_dataset(testdataset1, view)
@@ -56,12 +54,12 @@ def test_delta_exporter(testdataset1: Dataset):
         for data in objects:
             assert data["op"] == "ADD"
 
-    make_version(testdataset1.name)
     publish_dataset_version(testdataset1.name)
     # assert False, list(get_redis().keys())
-    settings.RUN_VERSION = Version.new()
-    store = MemoryStore(testdataset1, resolver)
-    writer = store.writer()
+
+    version2 = Version.new("bbb")
+    make_version(testdataset1, version2, overwrite=True)
+    writer = store.writer(version=version2.id)
     writer.add_entity(e(ENTITY_A))
     writer.add_entity(e(ENTITY_B))
     changed = deepcopy(ENTITY_C)
@@ -69,7 +67,10 @@ def test_delta_exporter(testdataset1: Dataset):
     writer.add_entity(e(changed))
     writer.add_entity(e(ENTITY_CX))
     writer.flush()
+    writer.release()
+    assert len(store.get_history(testdataset1.name)) == 2
     view = store.view(testdataset1)
+    assert view.vers[0][1] == version2.id
 
     export_dataset(testdataset1, view)
     assert dataset_path.joinpath(DELTA_FILE).exists()
@@ -85,12 +86,11 @@ def test_delta_exporter(testdataset1: Dataset):
                 assert data["op"] == "DEL"
 
     # Round 3: check that the delta exporter can handle resolver changes
-    make_version(testdataset1.name)
     publish_dataset_version(testdataset1.name)
-    settings.RUN_VERSION = Version.new()
+    version3 = Version.new("ccc")
+    make_version(testdataset1, version3, overwrite=True)
     canon_id = resolver.decide("EC", "ECX", Judgement.POSITIVE)
-    store = MemoryStore(testdataset1, resolver)
-    writer = store.writer()
+    writer = store.writer(version=version3.id)
     writer.add_entity(e(ENTITY_A))
     writer.add_entity(e(ENTITY_B))
     changed = deepcopy(ENTITY_C)
@@ -98,6 +98,8 @@ def test_delta_exporter(testdataset1: Dataset):
     writer.add_entity(e(changed))
     writer.add_entity(e(ENTITY_CX))
     writer.flush()
+    writer.release()
+    assert len(store.get_history(testdataset1.name)) == 3
     view = store.view(testdataset1)
 
     export_dataset(testdataset1, view)
@@ -114,7 +116,6 @@ def test_delta_exporter(testdataset1: Dataset):
                 assert data["op"] == "DEL"
 
     # test the cleanup
-    make_version(testdataset1.name)
     publish_dataset_version(testdataset1.name)
     assert len(redis.keys()) > 0
     DeltaExporter.cleanup(testdataset1.name, keep=10)

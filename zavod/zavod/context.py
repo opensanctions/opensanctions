@@ -20,7 +20,7 @@ from zavod.audit import inspect
 from zavod.meta import Dataset, DataResource
 from zavod.entity import Entity
 from zavod.archive import dataset_resource_path, dataset_data_path
-from zavod.runtime.versions import make_version, get_latest
+from zavod.runtime.versions import get_latest
 from zavod.runtime.stats import ContextStats
 from zavod.runtime.sink import DatasetSink
 from zavod.runtime.issues import DatasetIssues
@@ -128,7 +128,6 @@ class Context:
             dataset=self.dataset.name,
             context=self,
         )
-        make_version(self.dataset.name, overwrite=True)
         if clear and not self.dry_run:
             self.resources.clear()
             self.issues.clear()

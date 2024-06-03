@@ -2,8 +2,6 @@ from banal import hash_data
 from typing import Any, Generator, Optional, Set
 from nomenklatura.kv import get_redis, b, bv
 
-
-from zavod import settings
 from zavod.entity import Entity
 from zavod.archive import DELTA_FILE, iter_dataset_versions
 from zavod.exporters.common import Exporter
@@ -18,8 +16,9 @@ class DeltaExporter(Exporter):
     def setup(self) -> None:
         super().setup()
         self.redis = get_redis()
-        self.hashes = f"delta:hash:{self.dataset.name}:{settings.RUN_VERSION}"
-        self.entities = f"delta:ents:{self.dataset.name}:{settings.RUN_VERSION}"
+        ver = f"{self.dataset.name}:{self.context.version.id}"
+        self.hashes = f"delta:hash:{ver}"
+        self.entities = f"delta:ents:{ver}"
 
     def feed(self, entity: Entity) -> None:
         if entity.id is None:

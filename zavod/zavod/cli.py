@@ -15,7 +15,8 @@ from zavod.crawl import crawl_dataset
 from zavod.store import get_view, get_store, clear_store
 from zavod.archive import clear_data_path
 from zavod.exporters import export_dataset
-from zavod.dedupe import get_resolver, blocking_xref, merge_entities
+from zavod.dedupe import get_resolver, get_dataset_linker
+from zavod.dedupe import blocking_xref, merge_entities
 from zavod.dedupe import explode_cluster
 from zavod.publish import publish_dataset, publish_failure
 from zavod.tools.load_db import load_dataset_to_db
@@ -72,9 +73,10 @@ def crawl(dataset_path: Path, dry_run: bool = False, clear: bool = False) -> Non
 def validate(dataset_path: Path, clear: bool = False) -> None:
     try:
         dataset = _load_dataset(dataset_path)
+        linker = get_dataset_linker(dataset)
         if clear:
             clear_store(dataset)
-        view = get_view(dataset, external=False)
+        view = get_view(dataset, linker, external=False)
         validate_dataset(dataset, view)
     except Exception:
         log.exception("Validation failed for %r" % dataset_path)
@@ -88,9 +90,10 @@ def validate(dataset_path: Path, clear: bool = False) -> None:
 def export(dataset_path: Path, clear: bool = False) -> None:
     try:
         dataset = _load_dataset(dataset_path)
+        linker = get_dataset_linker(dataset)
         if clear:
             clear_store(dataset)
-        view = get_view(dataset, external=False, linker=True)
+        view = get_view(dataset, linker, external=False)
         export_dataset(dataset, view)
     except Exception:
         log.exception("Failed to export: %s" % dataset_path)
@@ -134,10 +137,12 @@ def run(
         except RunFailedException:
             publish_failure(dataset, latest=latest)
             sys.exit(1)
+
+    linker = get_dataset_linker(dataset)
     # Validate
     try:
         clear_store(dataset)
-        view = get_view(dataset, external=False, linker=True)
+        view = get_view(dataset, linker, external=False)
         if not dataset.is_collection:
             validate_dataset(dataset, view)
     except Exception:
@@ -223,9 +228,10 @@ def xref(
     schema: Optional[str] = None,
 ) -> None:
     dataset = _load_datasets(dataset_paths)
+    resolver = get_resolver()
     if clear:
         clear_store(dataset)
-    store = get_store(dataset, external=True)
+    store = get_store(dataset, resolver)
     blocking_xref(
         store,
         limit=limit,
@@ -252,10 +258,10 @@ def xref_prune() -> None:
 @click.option("-c", "--clear", is_flag=True, default=False)
 def dedupe(dataset_paths: List[Path], clear: bool = False) -> None:
     dataset = _load_datasets(dataset_paths)
+    resolver = get_resolver()
     if clear:
         clear_store(dataset)
-    resolver = get_resolver()
-    store = get_store(dataset, external=True)
+    store = get_store(dataset, resolver)
     dedupe_ui(resolver, store, url_base="https://opensanctions.org/entities/%s/")
 
 
@@ -345,9 +351,10 @@ def summarize(
     """
     try:
         dataset = _load_dataset(dataset_path)
+        resolver = get_resolver()
         if clear:
             clear_store(dataset)
-        view = get_view(dataset, external=False)
+        view = get_view(dataset, resolver, external=False)
         _summarize(view, schema, from_prop, link_props, to_prop, to_props)
     except Exception:
         log.exception("Failed to summarize: %s" % dataset_path)
@@ -380,10 +387,10 @@ def wd_up(
         --country-code de
     """
     dataset = _load_datasets(dataset_paths)
+    resolver = get_resolver()
     if clear:
         clear_store(dataset)
-    resolver = get_resolver()
-    store = get_store(dataset, external=False)
+    store = get_store(dataset, resolver)
     run_app(
         resolver,
         store,
