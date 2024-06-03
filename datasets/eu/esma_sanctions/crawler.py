@@ -60,7 +60,7 @@ def crawl(context: Context) -> None:
             entity.id = id_hash
         entity.add("name", parse_name(row.pop("sn_entityName", None)))
         entity.add("name", parse_name(row.pop("sn_otherEntityName", None)))
-        entity.add("topics", "sanction")
+        entity.add("topics", "reg.warn")
 
         sanction = helpers.make_sanction(context, entity)
         sanction.add("program", row.pop("sn_sanctionLegalFrameworkName", None))
