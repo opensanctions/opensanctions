@@ -58,8 +58,8 @@ lookups:
           - "7_OLD_Other disorderly trading conditions"
           - "Removal"
           - null
-        value: "poi"
+        value: "reg.warn"
       - match:
           - "Trading ban - EU sanctions"
           - "Trading ban - indirect effect of sanctions"
-        value: "reg.warn"
+        value: "sanction"
