@@ -27,6 +27,7 @@ def test_store_access(testdataset1: Dataset):
     assert entity.first_seen == settings.RUN_TIME_ISO
     assert entity.last_seen == settings.RUN_TIME_ISO
     view2.store.close()
-    clear_store(testdataset1)
     store = get_store(testdataset1, resolver)
+    clear_store(testdataset1)
+    assert store.get_history(testdataset1.name) == []
     assert store.get_latest(testdataset1.name) is None

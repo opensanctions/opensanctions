@@ -1,12 +1,10 @@
 from typing import List, Type
 from followthemoney.types import registry
 
-from zavod import settings
 from zavod.archive import dataset_data_path
 from zavod.context import Context
 from zavod.exc import RunFailedException
 from zavod.meta.dataset import Dataset
-from zavod.runtime.versions import make_version
 from zavod.store import View
 from zavod.entity import Entity
 from zavod.validators.assertions import AssertionsValidator
@@ -88,7 +86,6 @@ def validate_dataset(dataset: Dataset, view: View) -> None:
     Returns True if publication should be aborted.
     """
     try:
-        make_version(dataset, settings.RUN_VERSION, overwrite=False)
         context = Context(dataset)
         context.begin(clear=False)
         context.log.info(

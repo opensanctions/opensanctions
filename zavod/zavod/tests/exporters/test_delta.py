@@ -30,7 +30,7 @@ def test_delta_exporter(testdataset1: Dataset):
     testdataset1.exports = {DELTA_FILE}
     dataset_path = settings.DATA_PATH / DATASETS / testdataset1.name
     resolver = Resolver[Entity]()
-    store = get_store(testdataset1, Resolver[Entity]())
+    store = get_store(testdataset1, resolver)
 
     def e(data: Dict[str, Any]) -> Entity:
         return resolver.apply(Entity.from_data(testdataset1, data))
@@ -117,6 +117,8 @@ def test_delta_exporter(testdataset1: Dataset):
 
     # test the cleanup
     publish_dataset_version(testdataset1.name)
+    for v in store.get_history(testdataset1.name):
+        store.drop_version(testdataset1.name, v)
     assert len(redis.keys()) > 0
     DeltaExporter.cleanup(testdataset1.name, keep=10)
     assert len(redis.keys()) > 0

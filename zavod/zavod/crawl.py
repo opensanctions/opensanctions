@@ -8,7 +8,6 @@ from zavod.exc import RunFailedException
 from zavod.archive import dataset_data_path
 from zavod.runtime.stats import ContextStats
 from zavod.runtime.loader import load_entry_point
-from zavod.runtime.versions import make_version
 from zavod.runner.enrich import dataset_enricher
 
 # HACK: Importing the enrich module in the test avoids a segfault otherwise happening
@@ -26,7 +25,6 @@ def crawl_dataset(dataset: Dataset, dry_run: bool = False) -> ContextStats:
 
     try:
         context.begin(clear=True)
-        make_version(dataset, settings.RUN_VERSION, overwrite=True)
         context.log.info(
             "Running dataset",
             data_path=dataset_data_path(dataset.name),
