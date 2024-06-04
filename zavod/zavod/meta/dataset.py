@@ -1,12 +1,12 @@
 import os
-from banal import ensure_list, ensure_dict, as_bool
 from typing import Dict, Any, Optional, List, Set
-from normality import slugify
 from pathlib import Path
 from functools import cached_property
+
+from banal import ensure_list, ensure_dict, as_bool
+from normality import slugify
 from datapatch import get_lookups, Lookup
-from nomenklatura.dataset import Dataset as NKDataset
-from nomenklatura.dataset import DataCatalog, DataCoverage
+from nomenklatura.dataset import DataCatalog, DataCoverage, Dataset as NKDataset
 from nomenklatura.util import datetime_iso
 
 from zavod import settings

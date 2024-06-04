@@ -52,7 +52,7 @@ class Context:
         self.log = get_logger(dataset.name)
         self.http = make_session(dataset.http)
         self._cache: Optional[Cache] = None
-        self._timestamps: Optional[TimeStampIndex] = None
+        self._timestamps: Dict[str, TimeStampIndex] = {}
 
         self._data_time: datetime = settings.RUN_TIME
         # If the dataset has a fixed end time which is in the past,
@@ -74,13 +74,13 @@ class Context:
             self._cache = get_cache(self.dataset)
         return self._cache
 
-    @property
-    def timestamps(self) -> TimeStampIndex:
+    def timestamps(self, revision: str = "default") -> TimeStampIndex:
         """An index of the first_seen time of every statement previous emitted by
         the dataset. This is used to determine if a statement is new or not."""
-        if self._timestamps is None:
-            self._timestamps = TimeStampIndex.build(self.dataset)
-        return self._timestamps
+        if self._timestamps.get(revision, None) is None:
+            self._timestamps[revision] = TimeStampIndex.build(self.dataset, revision=revision)
+
+        return self._timestamps[revision]
 
     @property
     def data_url(self) -> str:
@@ -131,8 +131,8 @@ class Context:
         self.http.close()
         if self._cache is not None:
             self._cache.close()
-        if self._timestamps is not None:
-            self._timestamps.close()
+        for index in self._timestamps.values():
+            index.close()
         self.sink.close()
         clear_contextvars()
         self.issues.close()
@@ -503,7 +503,8 @@ class Context:
             self.log.warn("Unexpected data found", data=cleaned)
 
     def emit(
-        self, entity: Entity, target: bool = False, external: bool = False
+        self, entity: Entity, target: bool = False, external: bool = False,
+        revision: str = "default"
     ) -> None:
         """Send an entity from the crawling/runner process to be stored.
 
@@ -527,6 +528,8 @@ class Context:
                 targets=self.stats.targets,
                 statements=self.stats.statements,
             )
+
+        timestamps = self.timestamps(revision)
         for stmt in entity.statements:
             if stmt.lang is None:
                 stmt.lang = self.lang
@@ -538,7 +541,7 @@ class Context:
             stmt.first_seen = self.data_time_iso
             stmt.last_seen = self.data_time_iso
             if not self.dry_run:
-                stmt.first_seen = self.timestamps.get(stmt.id, self.data_time_iso)
+                stmt.first_seen = timestamps.get(stmt.id, self.data_time_iso)
                 self.sink.emit(stmt)
             self.stats.statements += 1
 

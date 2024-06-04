@@ -10,12 +10,12 @@ log = get_logger(__name__)
 
 
 class TimeStampIndex(object):
-    def __init__(self, dataset: Dataset) -> None:
-        path = dataset_state_path(dataset.name) / "timestamps"
+    def __init__(self, dataset: Dataset, revision: str="default") -> None:
+        path = dataset_state_path(dataset.name) / f"timestamps_{revision}"
         self.db = plyvel.DB(path.as_posix(), create_if_missing=True)
 
     def index(self, statements: Iterable[Statement]) -> None:
-        log.info("Building timestamp index...")
+        log.info(f"Building timestamp index... {self.db.name!r}")
         batch = self.db.write_batch()
         idx = 0
         for idx, stmt in enumerate(statements):
@@ -31,8 +31,8 @@ class TimeStampIndex(object):
         log.info("Index ready.", count=idx)
 
     @classmethod
-    def build(cls, dataset: Dataset) -> "TimeStampIndex":
-        index = cls(dataset)
+    def build(cls, dataset: Dataset, revision: str="defalut") -> "TimeStampIndex":
+        index = cls(dataset, revision=revision)
         index.index(iter_previous_statements(dataset, external=False))
         return index
 
