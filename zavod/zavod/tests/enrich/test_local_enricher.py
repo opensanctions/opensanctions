@@ -1,4 +1,7 @@
+import shutil
 from nomenklatura.cache import Cache
+from zavod import settings
+from zavod.context import Context
 from zavod.crawl import crawl_dataset
 from zavod.meta import Dataset
 from nomenklatura.enrich import get_enricher
@@ -14,12 +17,11 @@ DATASET_DATA = {
 }
 
 
-def load_enricher(dataset_data):
+def load_enricher(context: Context, dataset_data):
     enricher_cls = get_enricher(PATH)
     assert issubclass(enricher_cls, Enricher)
     dataset = Dataset.make(dataset_data)
-    cache = Cache.make_default(dataset)
-    return enricher_cls(dataset, cache, dataset.config)
+    return enricher_cls(dataset, context.cache, dataset.config)
 
 
 def make_entity(dataset):
@@ -32,31 +34,37 @@ def make_entity(dataset):
     return ent
 
 
-def test_enrich(testdataset1: Dataset):
+def test_enrich(vcontext: Context):
     """We match and expand an entity with a similar name"""
-    crawl_dataset(testdataset1)
-    enricher = load_enricher(DATASET_DATA)
-    entity = make_entity(testdataset1)
+    crawl_dataset(vcontext.dataset)
+    enricher = load_enricher(vcontext, DATASET_DATA)
+    entity = make_entity(vcontext.dataset)
     results = list(enricher.match(entity))
     assert len(results) == 1, results
     assert str(results[0].id) == "osv-umbrella-corp", results[0]
 
-    adjacent = list(enricher.expand(entity, results[0]))
-    assert len(adjacent) == 2, adjacent
+    internals = list(enricher.expand(entity, results[0]))
+    assert len(internals) == 3, internals
 
-    assert adjacent[0].schema.name == "Ownership"
-    assert adjacent[0].get("owner") == ["osv-oswell-spencer"]
-    assert adjacent[0].get("asset") == ["osv-umbrella-corp"]
-    assert adjacent[1].schema.name == "Person"
-    assert adjacent[1].id == "osv-oswell-spencer"
+    assert internals[0].schema.name == "Company"
+    assert internals[0].id == "osv-umbrella-corp"
+    assert internals[1].schema.name == "Ownership"
+    assert internals[1].get("owner") == ["osv-oswell-spencer"]
+    assert internals[1].get("asset") == ["osv-umbrella-corp"]
+    assert internals[2].schema.name == "Person"
+    assert internals[2].id == "osv-oswell-spencer"
+
+    shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
 
 
-def test_threshold(testdataset1: Dataset):
+def test_threshold(vcontext: Context):
     """We don't match an entity if its score is lower than the threshold."""
-    crawl_dataset(testdataset1)
+    crawl_dataset(vcontext.dataset)
     dataset_data = deepcopy(DATASET_DATA)
     dataset_data["config"]["threshold"] = 0.99
-    enricher = load_enricher(dataset_data)
-    entity = make_entity(testdataset1)
+    enricher = load_enricher(vcontext, dataset_data)
+    entity = make_entity(vcontext.dataset)
     results = list(enricher.match(entity))
     assert len(results) == 0, results
+
+    shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
