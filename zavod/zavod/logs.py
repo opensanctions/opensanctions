@@ -82,6 +82,10 @@ def redact_uri_credentials(uri: str) -> str:
 
 
 def configure_redactor() -> Callable[[Any, str, Event], Event]:
+    """
+    Configure a redacting processor redacting env var values with some variable
+    that contained that value.
+    """
     pattern_map: Dict[str, str | Callable[[str], str]] = dict()
     for key, value in os.environ.items():
         if key in REDACT_IGNORE_LIST:
