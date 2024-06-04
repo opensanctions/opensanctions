@@ -10,9 +10,9 @@ from zavod import settings
 from zavod.context import Context
 from zavod.meta import Dataset
 from zavod.entity import Entity
-from zavod.http import request_hash
 from zavod.crawl import crawl_dataset
 from zavod.archive import iter_dataset_statements
+from zavod.runtime.http_ import request_hash
 from zavod.runtime.cache import get_cache, get_engine, get_metadata
 from zavod.runtime.sink import DatasetSink
 from zavod.exc import RunFailedException

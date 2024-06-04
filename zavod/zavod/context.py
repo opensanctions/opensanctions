@@ -28,8 +28,8 @@ from zavod.runtime.resources import DatasetResources
 from zavod.runtime.timestamps import TimeStampIndex
 from zavod.runtime.cache import get_cache
 from zavod.runtime.versions import make_version
-from zavod.http import fetch_file, make_session, request_hash
-from zavod.http import _Auth, _Headers, _Body
+from zavod.runtime.http_ import fetch_file, make_session, request_hash
+from zavod.runtime.http_ import _Auth, _Headers, _Body
 from zavod.logs import get_logger
 from zavod.util import join_slug
 
