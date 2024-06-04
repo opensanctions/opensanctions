@@ -19,13 +19,20 @@ class DeltaExporter(Exporter):
         ver = f"{self.dataset.name}:{self.context.version.id}"
         self.hashes = f"delta:hash:{ver}"
         self.entities = f"delta:ents:{ver}"
+        self.ents_buffer: Set[bytes] = set()
+        self.hash_buffer: Set[bytes] = set()
 
     def feed(self, entity: Entity) -> None:
         if entity.id is None:
             return
-        self.redis.sadd(self.entities, b(entity.id))
+        if len(self.ents_buffer) > 500:
+            self.redis.sadd(self.entities, *self.ents_buffer)
+            self.ents_buffer.clear()
+            self.redis.sadd(self.hashes, *self.hash_buffer)
+            self.hash_buffer.clear()
+        self.ents_buffer.add(b(entity.id))
         entity_hash = hash_data((entity.id, entity.schema.name, entity.properties))
-        self.redis.sadd(self.hashes, b(f"{entity.id}:{entity_hash}"))
+        self.hash_buffer.add(b(f"{entity.id}:{entity_hash}"))
 
     def generate(self, previous: Optional[str]) -> Generator[Any, None, None]:
         if previous is None:
@@ -64,6 +71,9 @@ class DeltaExporter(Exporter):
         self.redis.delete(tmp_fwd, tmp_bwd)
 
     def finish(self) -> None:
+        if len(self.ents_buffer):
+            self.redis.sadd(self.entities, *self.ents_buffer)
+            self.redis.sadd(self.hashes, *self.hash_buffer)
         version: Optional[str] = None
 
         # FIXME: this is a bit of a hack, but we need to find the last
