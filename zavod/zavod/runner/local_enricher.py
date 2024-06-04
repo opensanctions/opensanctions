@@ -19,8 +19,6 @@ from zavod.store import get_store, get_view
 
 log = logging.getLogger(__name__)
 
-MATCH_CANDIDATES = 10
-
 
 class LocalEnricher(Enricher):
     """
@@ -58,7 +56,7 @@ class LocalEnricher(Enricher):
             self._ns = Namespace()
 
     def match(self, entity: CE) -> Generator[CE, None, None]:
-        for match_id, index_score in self._index.match(entity)[:MATCH_CANDIDATES]:
+        for match_id, index_score in self._index.match(entity):
             match = self._view.get_entity(match_id.id)
             if match is None:
                 continue
