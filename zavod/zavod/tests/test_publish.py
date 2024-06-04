@@ -8,7 +8,7 @@ from zavod.archive import iter_dataset_statements, iter_previous_statements
 from zavod.archive import STATISTICS_FILE, INDEX_FILE, STATEMENTS_FILE
 from zavod.archive import DATASETS, ARTIFACTS, VERSIONS_FILE
 from zavod.crawl import crawl_dataset
-from zavod.store import get_view, clear_store
+from zavod.store import get_store
 from zavod.exporters import export_dataset
 from zavod.dedupe import get_resolver
 from zavod.publish import publish_dataset, publish_failure
@@ -33,9 +33,10 @@ def test_publish_dataset(testdataset1: Dataset):
     assert not latest_path.joinpath(INDEX_FILE).exists()
     history = _read_history(testdataset1.name)
     assert history is None
-    clear_store(testdataset1)
     crawl_dataset(testdataset1)
-    view = get_view(testdataset1, resolver)
+    store = get_store(testdataset1, resolver)
+    store.sync()
+    view = store.view(testdataset1)
     export_dataset(testdataset1, view)
 
     publish_dataset(testdataset1, latest=False)

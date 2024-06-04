@@ -14,6 +14,7 @@ def test_store_access(testdataset1: Dataset):
     assert not len(resolver.edges)
 
     store = get_store(testdataset1, resolver)
+    store.sync()
     blocking_xref(store)
     assert len(resolver.edges)
     for edge in resolver.edges.values():
@@ -29,6 +30,7 @@ def test_resolve_dedupe(testdataset1: Dataset):
     assert len(resolver.edges) == 0
     resolver.decide("osv-john-doe", "osv-johnny-does", Judgement.POSITIVE, user="test")
     store = get_store(testdataset1, resolver)
+    store.sync()
     view = store.default_view()
     for ent in view.entities():
         assert ent.id != "osv-john-doe"

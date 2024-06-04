@@ -1,7 +1,7 @@
 import json
 from zavod import settings
 from zavod.meta import Dataset
-from zavod.store import get_view
+from zavod.store import get_store
 from zavod.dedupe import get_resolver
 from zavod.crawl import crawl_dataset
 from zavod.exporters import export_dataset
@@ -11,7 +11,9 @@ def test_metadata_collection_export(testdataset1: Dataset, collection: Dataset) 
     resolver = get_resolver()
     ds_path = settings.DATA_PATH / "datasets" / testdataset1.name
     crawl_dataset(testdataset1)
-    view = get_view(testdataset1, resolver)
+    store = get_store(testdataset1, resolver)
+    store.sync()
+    view = store.view(testdataset1)
     export_dataset(testdataset1, view)
     assert ds_path.is_dir()
     catalog_path = ds_path / "catalog.json"
@@ -25,7 +27,6 @@ def test_metadata_collection_export(testdataset1: Dataset, collection: Dataset) 
         assert len(index["resources"]) > 2
 
     collection_path = settings.DATA_PATH / "datasets" / collection.name
-    view = get_view(collection, resolver)
     export_dataset(collection, view)
     assert collection_path.is_dir()
     catalog_path = collection_path / "catalog.json"

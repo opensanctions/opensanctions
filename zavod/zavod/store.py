@@ -1,5 +1,5 @@
 import time
-from typing import List, Optional, Iterable
+from typing import List, Optional, Iterable, Dict
 from datetime import datetime, timedelta
 from redis.exceptions import ConnectionError, TimeoutError
 from followthemoney.exc import InvalidData
@@ -27,29 +27,17 @@ RETAIN_TIME = datetime.now().replace(tzinfo=None) - timedelta(days=RETAIN_DAYS)
 
 def get_store(dataset: Dataset, linker: Linker[Entity]) -> "Store":
     store = Store(dataset, linker)
-    sync_scope(store, dataset)
+    # sync_scope(store, dataset)
     return store
 
 
-def clear_store(dataset: Dataset) -> None:
-    """Delete the store graph for the given dataset."""
-    resolver = get_dataset_resolver(dataset)
-    store = Store(dataset, resolver)
-    latest = get_latest(dataset.name, backfill=False)
-    if latest is not None:
-        store.drop_version(dataset.name, latest.id)
-    # versions = store.get_history(dataset.name)
-    # for version in versions:
-    #     store.drop_version(dataset.name, version)
-
-
-def get_view(dataset: Dataset, linker: Linker[Entity], external: bool = False) -> View:
-    store = get_store(dataset, linker)
-    return store.view(dataset, external=external)
+# def get_view(dataset: Dataset, linker: Linker[Entity], external: bool = False) -> View:
+#     store = get_store(dataset, linker)
+#     return store.view(dataset, external=external)
 
 
 def _write_statements(
-    store: VersionedRedisStore,
+    store: "Store",
     dataset: Dataset,
     version: str,
     statements: Iterable[Statement],
@@ -70,7 +58,7 @@ def _write_statements(
     return stmts
 
 
-def sync_dataset(store: VersionedRedisStore, dataset: Dataset):
+def sync_dataset(store: "Store", dataset: Dataset) -> None:
     versions = store.get_history(dataset.name)
     latest = get_latest(dataset.name, backfill=False)
     if latest is not None and latest.id not in versions:
@@ -92,7 +80,7 @@ def sync_dataset(store: VersionedRedisStore, dataset: Dataset):
             return
 
 
-def sync_scope(store: VersionedRedisStore, scope: Dataset) -> None:
+def sync_scope(store: "Store", scope: Dataset) -> None:
     for dataset in scope.leaves:
         try:
             sync_dataset(store, dataset)
@@ -110,6 +98,20 @@ class Store(VersionedRedisStore[Dataset, Entity]):
         super().__init__(dataset, linker)
         self.entity_class = Entity
 
+    def view(
+        self, dataset: Dataset, external: bool = False, versions: Dict[str, str] = {}
+    ) -> View:
+        """Define source dataset versions for the store view."""
+        versions_: Dict[str, str] = {}
+        # for ds in dataset.leaf_names:
+        #     if ds in versions:
+        #         versions_[ds] = versions[ds]
+        #         continue
+        #     version = get_latest(ds, backfill=True)
+        #     if version is not None:
+        #         versions_[ds] = version.id
+        return super().view(dataset, external=external, versions=versions_)
+
     def assemble(self, statements: List[Statement]) -> Optional[Entity]:
         """Build an entity proxy from a set of cached statements, considering
         only those statements that belong to the given sources."""
@@ -124,3 +126,22 @@ class Store(VersionedRedisStore[Dataset, Entity]):
             entity = simplify_dates(entity)
             entity = simplify_undirected(entity)
         return entity
+
+    def sync(self, clear: bool = False) -> None:
+        self.clear_latest()
+        sync_scope(self, self.dataset)
+
+    def clear_latest(self) -> None:
+        """Delete the working directory data for the latest version of the dataset
+        from this store."""
+        for ds in self.dataset.leaves:
+            latest = get_latest(ds.name, backfill=False)
+            if latest is not None:
+                self.drop_version(ds.name, latest.id)
+
+    # def clear_all(self) -> None:
+    #     """Delete all data for the dataset from this store."""
+    #     for ds in self.dataset.leaves:
+    #         for version in self.get_history(ds.name):
+    #             self.drop_version(ds.name, version)
+    #     self.clear_latest()

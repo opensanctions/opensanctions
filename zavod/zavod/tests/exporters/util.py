@@ -8,6 +8,7 @@ def harnessed_export(exporter_class, dataset) -> None:
     context.begin(clear=False)
     linker = get_dataset_linker(dataset)
     store = get_store(dataset, linker)
+    store.sync()
     view = store.view(dataset)
 
     exporter = exporter_class(context, view)

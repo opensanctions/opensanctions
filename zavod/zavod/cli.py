@@ -12,7 +12,7 @@ from zavod import settings
 from zavod.logs import configure_logging, get_logger
 from zavod.meta import load_dataset_from_path, get_multi_dataset, Dataset
 from zavod.crawl import crawl_dataset
-from zavod.store import get_view, get_store, clear_store
+from zavod.store import get_store
 from zavod.archive import clear_data_path
 from zavod.exporters import export_dataset
 from zavod.dedupe import get_resolver, get_dataset_linker
@@ -71,16 +71,15 @@ def crawl(dataset_path: Path, dry_run: bool = False, clear: bool = False) -> Non
 @click.argument("dataset_path", type=InPath)
 @click.option("-c", "--clear", is_flag=True, default=False)
 def validate(dataset_path: Path, clear: bool = False) -> None:
+    dataset = _load_dataset(dataset_path)
+    linker = get_dataset_linker(dataset)
+    store = get_store(dataset, linker)
+    store.sync(clear=clear)
     try:
-        dataset = _load_dataset(dataset_path)
-        linker = get_dataset_linker(dataset)
-        if clear:
-            clear_store(dataset)
-        view = get_view(dataset, linker, external=False)
-        validate_dataset(dataset, view)
+        validate_dataset(dataset, store.view(dataset, external=False))
     except Exception:
         log.exception("Validation failed for %r" % dataset_path)
-        view.store.close()
+        store.close()
         sys.exit(1)
 
 
@@ -91,10 +90,9 @@ def export(dataset_path: Path, clear: bool = False) -> None:
     try:
         dataset = _load_dataset(dataset_path)
         linker = get_dataset_linker(dataset)
-        if clear:
-            clear_store(dataset)
-        view = get_view(dataset, linker, external=False)
-        export_dataset(dataset, view)
+        store = get_store(dataset, linker)
+        store.sync(clear=clear)
+        export_dataset(dataset, store.view(dataset, external=False))
     except Exception:
         log.exception("Failed to export: %s" % dataset_path)
         sys.exit(1)
@@ -139,10 +137,11 @@ def run(
             sys.exit(1)
 
     linker = get_dataset_linker(dataset)
+    store = get_store(dataset, linker)
     # Validate
     try:
-        clear_store(dataset)
-        view = get_view(dataset, linker, external=False)
+        store.sync(clear=True)
+        view = store.view(dataset, external=False)
         if not dataset.is_collection:
             validate_dataset(dataset, view)
     except Exception:
@@ -153,7 +152,6 @@ def run(
     # Export and Publish
     try:
         export_dataset(dataset, view)
-        view.store.close()
         publish_dataset(dataset, latest=latest)
 
         if not dataset.is_collection and dataset.load_db_uri is not None:
@@ -229,9 +227,8 @@ def xref(
 ) -> None:
     dataset = _load_datasets(dataset_paths)
     resolver = get_resolver()
-    if clear:
-        clear_store(dataset)
     store = get_store(dataset, resolver)
+    store.sync(clear=clear)
     blocking_xref(
         store,
         limit=limit,
@@ -259,9 +256,8 @@ def xref_prune() -> None:
 def dedupe(dataset_paths: List[Path], clear: bool = False) -> None:
     dataset = _load_datasets(dataset_paths)
     resolver = get_resolver()
-    if clear:
-        clear_store(dataset)
     store = get_store(dataset, resolver)
+    store.sync(clear=clear)
     dedupe_ui(resolver, store, url_base="https://opensanctions.org/entities/%s/")
 
 
@@ -352,9 +348,9 @@ def summarize(
     try:
         dataset = _load_dataset(dataset_path)
         resolver = get_resolver()
-        if clear:
-            clear_store(dataset)
-        view = get_view(dataset, resolver, external=False)
+        store = get_store(dataset, resolver)
+        store.sync(clear=clear)
+        view = store.view(dataset, external=False)
         _summarize(view, schema, from_prop, link_props, to_prop, to_props)
     except Exception:
         log.exception("Failed to summarize: %s" % dataset_path)
@@ -388,9 +384,8 @@ def wd_up(
     """
     dataset = _load_datasets(dataset_paths)
     resolver = get_resolver()
-    if clear:
-        clear_store(dataset)
     store = get_store(dataset, resolver)
+    store.sync(clear=clear)
     run_app(
         resolver,
         store,

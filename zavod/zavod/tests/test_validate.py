@@ -21,6 +21,7 @@ def run_validator(clazz: Type[BaseValidator], dataset: Dataset):
     context = Context(dataset)
     linker = get_dataset_linker(dataset)
     store = get_store(dataset, linker)
+    store.sync()
     view = store.view(dataset)
 
     with capture_logs() as cap_logs:

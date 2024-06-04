@@ -1,5 +1,5 @@
 from zavod.tools.summarize import summarize
-from zavod.store import get_view
+from zavod.store import get_store
 from zavod.dedupe import get_resolver
 from zavod.meta import Dataset
 from zavod.crawl import crawl_dataset
@@ -16,7 +16,9 @@ Oswell E. Spencer
 def test_summarize(testdataset1: Dataset, capsys) -> None:
     crawl_dataset(testdataset1)
     resolver = get_resolver()
-    view = get_view(testdataset1, resolver)
+    store = get_store(testdataset1, resolver)
+    store.sync()
+    view = store.view(testdataset1)
     summarize(
         view, "Person", "ownershipOwner", ["startDate", "endDate"], "asset", ["name"]
     )
