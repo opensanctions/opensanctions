@@ -1,7 +1,6 @@
 from pathlib import Path
 import shutil
 import click
-from nomenklatura.statement import Statement
 from nomenklatura.resolver import Linker
 from nomenklatura.store.base import View as BaseView
 from tempfile import mkdtemp
@@ -114,19 +113,19 @@ def main(a_path: Path, b_path: Path, working_dir: Path, clear: bool = False):
     log.info(f"b.externals: {len(b_externals)}")
 
     in_a_not_b_internals = dict(a_internals.items() - b_internals.items())
-    dump_dict("in_a_not_b_internals.jsonlines", in_a_not_b_internals)
+    dump_dict(working_dir / "in_a_not_b_internals.jsonlines", in_a_not_b_internals)
     print(f"in_a_not_b_internals: {len(in_a_not_b_internals)}")
 
     in_b_not_a_internals = dict(b_internals.items() - a_internals.items())
-    dump_dict("in_b_not_a_internals.jsonlines", in_b_not_a_internals)
+    dump_dict(working_dir / "in_b_not_a_internals.jsonlines", in_b_not_a_internals)
     print(f"in_b_not_a_internals: {len(in_b_not_a_internals)}")
 
     in_a_not_b_externals = dict(a_externals.items() - b_externals.items())
-    dump_dict("in_a_not_b_externals.jsonlines", in_a_not_b_externals)
+    dump_dict(working_dir / "in_a_not_b_externals.jsonlines", in_a_not_b_externals)
     print(f"in_a_not_b_externals: {len(in_a_not_b_externals)}")
 
     in_b_not_a_externals = dict(b_externals.items() - a_externals.items())
-    dump_dict("in_b_not_a_externals.jsonlines", in_b_not_a_externals)
+    dump_dict(working_dir / "in_b_not_a_externals.jsonlines", in_b_not_a_externals)
     print(f"in_b_not_a_externals: {len(in_b_not_a_externals)}")
 
 
