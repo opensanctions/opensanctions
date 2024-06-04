@@ -38,7 +38,9 @@ def crawl_item(context: Context, row: Dict[str, str]):
     context.audit_data(row, ignore=[None])
 
 
-def parse_table(context: Context, table: HtmlElement) -> Generator[Dict[str, str], None, None]:
+def parse_table(
+    context: Context, table: HtmlElement
+) -> Generator[Dict[str, str], None, None]:
     headers = None
     for row in table.findall(".//tr"):
         if headers is None:
