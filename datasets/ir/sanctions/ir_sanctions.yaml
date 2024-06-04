@@ -37,15 +37,16 @@ ci_test: false
 assertions:
   min:
     schema_entities:
-      Person: 230
+      Person: 300
     country_entities:
       us: 150
+      eu: 50
       gb: 30
       ca: 2
-    countries: 1
+    countries: 2
   max:
     schema_entities:
-      Person: 330
+      Person: 500
 
 lookups:
   schema:

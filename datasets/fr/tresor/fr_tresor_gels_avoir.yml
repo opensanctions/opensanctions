@@ -3808,7 +3808,7 @@ lookups:
         props:
           idNumber: 14005997725
           jurisdiction: ir
-      - match: "Type d’entité: société à responsabilité limitée (SARL) - Lieu d’enregistrement: Iran - Date d’enregistrement: 13.7.2016 - Principal établissement: Iran: /"
+      - match: "Type d’entité: société à responsabilité limitée (SARL) - Lieu d’enregistrement: Iran  - Date d’enregistrement: 13.7.2016 - Principal établissement: Iran: /"
         props:
           legalForm: société à responsabilité limitée
           jurisdiction: ir
