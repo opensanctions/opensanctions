@@ -197,12 +197,21 @@ def iter_dataset_statements(dataset: "Dataset", external: bool = True) -> Statem
         yield from _iter_scope_statements(scope, external=external)
 
 
-def _iter_scope_statements(dataset: "Dataset", external: bool = True) -> StatementGen:
+def iter_local_statements(dataset: "Dataset", external: bool = True) -> StatementGen:
+    """Create a generator that yields all statements in the given dataset."""
+    assert not dataset.is_collection
     path = dataset_resource_path(dataset.name, STATEMENTS_FILE)
-    if path.exists():
-        with open(path, "r") as fh:
-            yield from _read_fh_statements(fh, external)
-        return
+    if not path.exists():
+        raise FileNotFoundError(f"Statements not found: {dataset.name}")
+    with open(path, "r") as fh:
+        yield from _read_fh_statements(fh, external)
+
+
+def _iter_scope_statements(dataset: "Dataset", external: bool = True) -> StatementGen:
+    try:
+        yield from iter_local_statements(dataset, external=external)
+    except FileNotFoundError:
+        pass
 
     object = get_artifact_object(dataset.name, STATEMENTS_FILE)
     if object is not None:

@@ -29,6 +29,9 @@ RUN_TIME = RUN_VERSION.dt
 RUN_TIME_ISO = RUN_VERSION.dt.isoformat(sep="T", timespec="seconds")
 RUN_DATE = RUN_VERSION.dt.date().isoformat()
 
+# Store configuration
+STORE_RETAIN_DAYS = int(env_str("ZAVOD_STORE_RETAIN_DAYS", "3"))
+
 # Release version
 RELEASE = env_str("ZAVOD_RELEASE", RUN_TIME.strftime("%Y%m%d"))
 

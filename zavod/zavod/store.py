@@ -1,6 +1,6 @@
 import time
 from typing import List, Optional, Iterable, Dict
-from datetime import datetime, timedelta
+from datetime import timedelta
 from redis.exceptions import ConnectionError, TimeoutError
 from followthemoney.exc import InvalidData
 from nomenklatura.statement import Statement
@@ -10,30 +10,21 @@ from nomenklatura.store.versioned import VersionedRedisStore, VersionedRedisView
 from nomenklatura.publish.dates import simplify_dates
 from nomenklatura.publish.edges import simplify_undirected
 
+from zavod import settings
 from zavod.logs import get_logger
 from zavod.entity import Entity
 from zavod.meta import Dataset
 from zavod.runtime.versions import get_latest
-from zavod.dedupe import get_dataset_resolver
 from zavod.archive import iter_previous_statements, iter_dataset_versions
-from zavod.archive import iter_dataset_statements
+from zavod.archive import iter_local_statements
 
 log = get_logger(__name__)
 View = VersionedRedisView[Dataset, Entity]
 
-RETAIN_DAYS = 4
-RETAIN_TIME = datetime.now().replace(tzinfo=None) - timedelta(days=RETAIN_DAYS)
-
 
 def get_store(dataset: Dataset, linker: Linker[Entity]) -> "Store":
     store = Store(dataset, linker)
-    # sync_scope(store, dataset)
     return store
-
-
-# def get_view(dataset: Dataset, linker: Linker[Entity], external: bool = False) -> View:
-#     store = get_store(dataset, linker)
-#     return store.view(dataset, external=external)
 
 
 def _write_statements(
@@ -43,7 +34,7 @@ def _write_statements(
     statements: Iterable[Statement],
 ) -> int:
     stmts = 0
-    writer = store.writer(dataset, version=version)
+    writer = store.writer(dataset, version=version, timestamps=False)
     for stmt in statements:
         stmts += 1
         if stmts % 10_000 == 0:
@@ -54,39 +45,32 @@ def _write_statements(
         writer.add_statement(stmt)
     if stmts > 0:
         writer.flush()
-        writer.release()
     return stmts
 
 
 def sync_dataset(store: "Store", dataset: Dataset) -> None:
     versions = store.get_history(dataset.name)
     latest = get_latest(dataset.name, backfill=False)
-    if latest is not None and latest.id not in versions:
-        statements = iter_dataset_statements(dataset)
+    if latest is not None and not store.has_version(dataset.name, latest.id):
+        statements = iter_local_statements(dataset)
         _write_statements(store, dataset, latest.id, statements)
 
+    retain_delta = timedelta(days=settings.STORE_RETAIN_DAYS)
+    retain_time = settings.RUN_TIME - retain_delta
     for version in iter_dataset_versions(dataset.name):
         if version.id in versions:
             return
         statements = iter_previous_statements(dataset, version=version.id)
         count = _write_statements(store, dataset, version.id, statements)
         if count > 0:
+            store.release_version(dataset.name, version.id)
             for old in versions:
                 if old != version.id:
                     old_version = Version.from_string(old)
-                    if old_version.dt < RETAIN_TIME:
+                    if old_version.dt < retain_time:
                         log.info("Drop old version: %s" % dataset.name, version=old)
                         store.drop_version(dataset.name, old)
             return
-
-
-def sync_scope(store: "Store", scope: Dataset) -> None:
-    for dataset in scope.leaves:
-        try:
-            sync_dataset(store, dataset)
-        except (ConnectionError, TimeoutError):
-            log.exception("Connection error while loading dataset: %s" % dataset.name)
-            time.sleep(10)
 
 
 class Store(VersionedRedisStore[Dataset, Entity]):
@@ -103,13 +87,13 @@ class Store(VersionedRedisStore[Dataset, Entity]):
     ) -> View:
         """Define source dataset versions for the store view."""
         versions_: Dict[str, str] = {}
-        # for ds in dataset.leaf_names:
-        #     if ds in versions:
-        #         versions_[ds] = versions[ds]
-        #         continue
-        #     version = get_latest(ds, backfill=True)
-        #     if version is not None:
-        #         versions_[ds] = version.id
+        for ds in dataset.leaf_names:
+            if ds in versions:
+                versions_[ds] = versions[ds]
+                continue
+            version = get_latest(ds, backfill=False)
+            if version is not None:
+                versions_[ds] = version.id
         return super().view(dataset, external=external, versions=versions_)
 
     def assemble(self, statements: List[Statement]) -> Optional[Entity]:
@@ -128,8 +112,16 @@ class Store(VersionedRedisStore[Dataset, Entity]):
         return entity
 
     def sync(self, clear: bool = False) -> None:
-        self.clear_latest()
-        sync_scope(self, self.dataset)
+        if clear:
+            self.clear_latest()
+        for dataset in self.dataset.leaves:
+            try:
+                sync_dataset(self, dataset)
+            except (ConnectionError, TimeoutError):
+                log.exception(
+                    "Connection error while loading dataset: %s" % dataset.name
+                )
+                time.sleep(10)
 
     def clear_latest(self) -> None:
         """Delete the working directory data for the latest version of the dataset
