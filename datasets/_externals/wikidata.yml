@@ -660,6 +660,7 @@ lookups:
           - Female
           - trans woman
           - intersex woman
+          - cisgender woman
         value: female
       - match:
           - genderfluid
