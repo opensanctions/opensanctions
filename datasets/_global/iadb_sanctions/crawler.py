@@ -75,7 +75,7 @@ def crawl(context: Context):
             entity.add(prop, country)
 
         end_date = h.parse_date(row.pop("to", None), FORMATS)
-        is_active = end_date and end_date[0] > datetime.now().isoformat()
+        is_active = not end_date or end_date[0] > datetime.now().isoformat()
         if is_active:
             entity.add("topics", "debarment")
 
