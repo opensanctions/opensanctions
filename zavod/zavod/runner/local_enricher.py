@@ -76,6 +76,9 @@ class LocalEnricher(Enricher):
         if self._ns is not None:
             entity = self._ns.apply(entity)
 
+        if entity.id is None:
+            return
+
         yield entity
 
         if len(path) > 1:
