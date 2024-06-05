@@ -1,5 +1,6 @@
 import pytest
 import requests_mock
+from base64 import b64encode
 
 from zavod.context import Context
 from zavod.meta.dataset import Dataset
@@ -7,7 +8,7 @@ from zavod.runtime.cache import get_cache, get_engine, get_metadata
 from zavod.shed.zyte_api import UnblockFailedException, fetch_html
 
 
-def test_fetch(testdataset1: Dataset):
+def test_browser_html(testdataset1: Dataset):
     context = Context(testdataset1)
 
     def validator(el):
@@ -24,7 +25,8 @@ def test_fetch(testdataset1: Dataset):
         assert m.call_count == 1
         request = m.request_history[0]
         request_body = request.json()
-        assert "javascript" not in request.json()
+        assert "javascript" not in request_body
+        assert request_body["browserHtml"] is True, request_body
         assert request_body["url"] == "https://test.com/bla", request_body
         assert request_body["actions"] == [], request_body
 
@@ -40,6 +42,41 @@ def test_fetch(testdataset1: Dataset):
         request_body2 = request2.json()
         assert request_body2["actions"] == [action], request_body2
         assert request_body2["javascript"], request_body2
+
+    context.close()
+
+
+def test_http_response_body(testdataset1: Dataset):
+    context = Context(testdataset1)
+
+    def validator(el):
+        return True
+
+    with requests_mock.Mocker() as m:
+        m.post(
+            "https://api.zyte.com/v1/extract",
+            json={
+                "httpResponseBody": b64encode(
+                    "<html><h1>Hello, World!</h1></html>".encode()
+                ).decode(),
+                "httpResponseHeaders": [
+                    {"name": "content-type", "value": "text/html charset=iso-8859-1"}
+                ],
+            },
+        )
+        doc = fetch_html(
+            context, "https://test.com/bla", validator, html_source="httpResponseBody"
+        )
+        el = doc.find(".//h1")
+        assert el.text == "Hello, World!"
+        assert m.call_count == 1
+        request = m.request_history[0]
+        request_body = request.json()
+        assert request_body["httpResponseBody"] is True, request_body
+        assert request_body["httpResponseHeaders"] is True, request_body
+        assert "javascript" not in request_body
+        assert request_body["url"] == "https://test.com/bla", request_body
+        assert request_body["actions"] == [], request_body
 
     context.close()
 

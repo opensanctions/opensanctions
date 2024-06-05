@@ -1,7 +1,8 @@
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 from lxml import html, etree
 from time import sleep
+from base64 import b64decode
 
 from zavod import settings
 from zavod.context import Context
@@ -13,11 +14,17 @@ class UnblockFailedException(RuntimeError):
         super().__init__(f"Unblocking failed for URL: {url}")
 
 
+def get_charset(headers: List[Dict[str, str]]) -> str:
+    content_type = [h["value"] for h in headers if h["name"] == "content-type"][0]
+    return content_type.split("charset=")[-1]
+
+
 def fetch_html(
     context: Context,
     url: str,
     unblock_validator: Callable[[etree._Element], bool],
     actions: list[Dict[str, Any]] = [],
+    html_source: str = "browserHtml",
     javascript: Optional[bool] = None,
     cache_days: Optional[int] = None,
     fingerprint: Optional[str] = None,
@@ -34,6 +41,7 @@ def fetch_html(
         unblock_validator: A function that checks if the page is unblocked
             successfully. This is important to ensure we don't cache pages
             that weren't actually unblocked successfully.
+        html_source: browserHtml | httpResponseBody
         javascript: Whether to execute JavaScript on the page.
         cache_days: The number of days to cache the page.
         fingerprint: The cache key for this request, if customisation is needed.
@@ -47,8 +55,9 @@ def fetch_html(
         raise RuntimeError("ZYTE_API_KEY is not set")
 
     zyte_data = {
-        "browserHtml": True,
         "actions": actions,
+        html_source: True,
+        "httpResponseHeaders": True,
     }
     if javascript is not None:
         zyte_data["javascript"] = javascript
@@ -77,8 +86,11 @@ def fetch_html(
         json=zyte_data,
     )
     api_response.raise_for_status()
-    text = api_response.json()["browserHtml"]
+    text = api_response.json()[html_source]
     assert text is not None
+    if html_source == "httpResponseBody":
+        charset = get_charset(api_response.json()["httpResponseHeaders"])
+        text = b64decode(text).decode(charset)
     doc = html.fromstring(text)
 
     if not unblock_validator(doc):
@@ -96,6 +108,7 @@ def fetch_html(
                 url,
                 unblock_validator,
                 actions,
+                html_source=html_source,
                 javascript=javascript,
                 cache_days=cache_days,
                 retries=retries,
