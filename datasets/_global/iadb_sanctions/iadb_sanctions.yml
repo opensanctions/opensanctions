@@ -66,3 +66,7 @@ lookups:
     options:
       - match: Regional
         value: null
+  type.date:
+    options:
+      - match: Ongoing
+        value: null
