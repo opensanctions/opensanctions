@@ -52,8 +52,11 @@ def sync_dataset(store: "Store", dataset: Dataset) -> None:
     versions = store.get_history(dataset.name)
     latest = get_latest(dataset.name, backfill=False)
     if latest is not None and not store.has_version(dataset.name, latest.id):
-        statements = iter_local_statements(dataset)
-        _write_statements(store, dataset, latest.id, statements)
+        try:
+            statements = iter_local_statements(dataset)
+            _write_statements(store, dataset, latest.id, statements)
+        except FileNotFoundError:
+            log.info("No local statements found", dataset=dataset.name)
 
     retain_delta = timedelta(days=settings.STORE_RETAIN_DAYS)
     retain_time = settings.RUN_TIME - retain_delta
