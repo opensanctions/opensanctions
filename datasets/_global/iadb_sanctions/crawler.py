@@ -74,8 +74,18 @@ def crawl(context: Context):
             prop = "nationality" if schema == "Person" else "jurisdiction"
             entity.add(prop, country)
 
-        end_date = h.parse_date(row.pop("to", None), FORMATS)
-        is_active = not end_date or end_date[0] > datetime.now().isoformat()
+        end_dates = h.parse_date(row.pop("to", None), FORMATS)
+        is_active = False
+        if end_dates:
+            end_date = end_dates[0]
+            today = datetime.now().isoformat()[:10]
+            if len(end_date) == 4:
+                today = today[:4]
+                context.log.warning("Only parsed year", name=title, date=end_date)
+            is_active = today < end_date
+        else:
+            is_active = True
+
         if is_active:
             entity.add("topics", "debarment")
 
