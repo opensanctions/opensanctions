@@ -1,12 +1,13 @@
+from copy import deepcopy
+from nomenklatura.enrich import get_enricher
+from nomenklatura.enrich.common import Enricher
+from nomenklatura.entity import CompositeEntity
 import shutil
+
 from zavod import settings
 from zavod.context import Context
 from zavod.crawl import crawl_dataset
 from zavod.meta import Dataset
-from nomenklatura.enrich import get_enricher
-from nomenklatura.enrich.common import Enricher
-from nomenklatura.entity import CompositeEntity
-from copy import deepcopy
 
 PATH = "zavod.runner.local_enricher:LocalEnricher"
 DATASET_DATA = {
