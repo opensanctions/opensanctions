@@ -1,5 +1,4 @@
 import shutil
-from nomenklatura.cache import Cache
 from zavod import settings
 from zavod.context import Context
 from zavod.crawl import crawl_dataset
