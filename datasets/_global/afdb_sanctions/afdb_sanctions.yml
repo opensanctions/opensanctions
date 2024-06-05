@@ -38,6 +38,18 @@ url: https://www.afdb.org/en/projects-operations/debarment-and-sanctions-procedu
 data:
   url: https://www.afdb.org/en/projects-operations/debarment-and-sanctions-procedures
   format: HTML
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 850
+    country_entities:
+      cn: 100
+      ng: 30
+      in: 30
+      de: 1
+  max:
+    schema_entities:
+      LegalEntity: 1100
 
 lookups:
   types:
@@ -51,3 +63,9 @@ lookups:
     options:
       - match: Guinée Conakry
         value: Guinea
+  type.date:
+    options:
+      - match: 10/31/23
+        value: 2023-10-31
+      - match: 10/30/28
+        value: 2028-10-30
