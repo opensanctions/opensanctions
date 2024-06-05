@@ -88,6 +88,26 @@ lookups:
           - 1984
           - 1985
           - 1986
+      - match: в серпні 1980 року
+        value: 1980-08
+      - match: 16 (17) жовтня 1969 р.
+        values:
+          - 1969-10-16
+          - 1969-10-17
+      - match: 13 жовтня 1987 р. або 7 червня 1968 р.
+        values:
+          - 1987-10-13
+          - 1968-06-07
+      - match: в дужках додано (1953 р.)
+        value: 1953
+      - match: 24 (28) серпня 1958 р
+        values:
+          - 1958-08-24
+          - 1958-08-28
+      - match: 6 березня 1960 р. або 1 грудня 1956 р.
+        values:
+          - 1960-03-06
+          - 1956-12-01
   type.email:
     options:
       - match: "general@nn.sovfracht.ru (росія, директор)"
@@ -100,7 +120,12 @@ lookups:
   attributes:
     options:
       - match:
+          - Державний номер авто
+          - Посвідчення адвокатської діяльності
+        prop: null
+      - match:
           - Місце реєстрації
+          - "Місце реєстрації: "
           - Місце розташування
           - Місцезнаходження
           - "Місце розташування:"
@@ -110,6 +135,11 @@ lookups:
           - Місце проживання
 
           - Уродженка
+          - Фізична адреса
+          - Юридична адреса
+          - Місцезнаходження офісу
+          - Місцезнаходження юридичної особи
+          - Поштова адреса
         prop: address
       - match:
           - IMO
@@ -125,18 +155,31 @@ lookups:
       - match:
           - Примітка
           - Інша інформація
+          - Інші відомості
         prop: notes
       - match:
           - Дата народження
+          - дата народження
+          - Дата нродження
         prop: birthDate
       - match:
           - звання
+          - науковий ступінь
+          - військове звання
+          - Науковий ступінь
+          - Військове звання
         prop: title
       - match:
           - Назва
+          - Колишня назва
+          - вигадана назва
+          - колишня назва
+          - зміна назви
+          - стара назва
         prop: alias
       - match:
           - email
+          - Email
           - "email: e-mail"
         prop: email
       - match: Місце народження
@@ -158,70 +201,52 @@ lookups:
           - Номер документу з мікрофіші
           - Реєстраційний номер мікрофіші
           - Номер посвідчення особи
+          - Номер індивідуального підприємця
+          - Реєстраційний номер адвокатської діяльності
+          - Водійське посвідчення
         prop: registrationNumber
+      - match:
+          - ОДРН
+        prop: ogrnCode
+      - match:
+          - Особистий номер офіцера
+        prop: idNumber
       - match:
           - Permanent residence permit - посвідка на постійне проживання
         prop: idNumber
       - contains:
           - Сайт так званого
         prop: website
+        weight: 2   # To fix the issue when same entity contains website and notes
       - contains:
           - Громадянство
         prop: nationality
       - contains:
           - нагорода
+          - Нагорода
+          - нагороди
+          - Розшук
+          - освіта
         prop: notes
-  # old API mappings:
-  subject_types:
-    map:
-      individual: Person
-      legal: Organization
-  ident_types:
+      - contains:
+          - "Зайнятість:"
+        prop: position
+      - match:
+          - Податковий номер
+        prop: taxNumber
+      - match:
+          - Дата реєстрації
+        value: incorporationDate
+
+  overrides:
     options:
-      - match:
-          - ІПН
-        value: innCode
-      - match:
-          - ОДРН
-          - ОДРНІП
-          - ОДРНПП
-        value: ogrnCode
-      - match:
-          - ОКПО
-        value: okpoCode
-      - match:
-          - КПП
-        value: kppCode
-        schema: Company
-      - match:
-          - Номер телефону
-        value: phone
-      - match:
-          - Паспорт
-          - Дипломатичний паспорт
-          - Закордонний паспорт
-          - Службовий паспорт
-        value: passportNumber
-      - match:
-          - Permanent residence permit - посвідка на постійне проживання
-          - Особистий номер офіцера
-          - refugee card
-        value: idNumber
-      - match:
-          - ЄДРПОУ
-          - ЄДРЮО
-          - УНЗР
-          - Реєстраційний номер
-          - Реєстраційний номер адвокатської діяльності
-          - МФО
-          - KRS (Krajowy Rejestr Sądowy)
-          - REGON (Rejestr Gospodarki Narodowej)
-          - ОКАТО
-        value: registrationNumber
-      - match:
-          - Генеральна ліцензія на здійснення банківських операцій
-          - Кореспондентський рахунок
-          - Розрахунковий рахунок
-          - Абонентська скринька
-          - Посвідчення адвокатської діяльності
-        value: null
+      - match: "Місце проживання: м. Севастополь, АР Крим Адреса реєстрації: Російська Федерація, м. Омськ, вул. Лукашевича, буд. 1а, кв. 66"
+        items:
+          - prop: address
+            value: м. Севастополь, АР Крим
+          - prop: address
+            value: Російська Федерація, м. Омськ, вул. Лукашевича, буд. 1а, кв. 66
+      - match: "Місце розташування: Esentepe Mah, Harman 1 Sk. Duran Is Merkezi, Blok No : 4/8, Sisli, Istanbul, Turkiye"
+        items:
+          - prop: address
+            value: Esentepe Mah, Harman 1 Sk. Duran Is Merkezi, Blok No 4/8, Sisli, Istanbul, Turkiye

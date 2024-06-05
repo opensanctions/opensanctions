@@ -8,7 +8,7 @@ from pantomime.types import XLSX
 from zavod import Context
 from zavod import helpers as h
 
-FORMATS = ["%m/%d/%Y %H:00:00 AM"]
+FORMATS = ["%m/%d/%Y %H:00:00 AM", "%b %d, %Y"]
 
 
 def parse_countries(countries: Optional[str]) -> List[str]:
@@ -68,12 +68,26 @@ def crawl(context: Context):
         title = row.pop("title")
         entity.id = context.make_slug(entity_type, title)
         entity.add("name", title)
-        entity.add("topics", "debarment")
         entity.add("alias", row.pop("other_name", None))
         entity.add("country", parse_countries(row.pop("country", None)))
         for country in parse_countries(row.pop("nationality", None)):
             prop = "nationality" if schema == "Person" else "jurisdiction"
             entity.add(prop, country)
+
+        end_dates = h.parse_date(row.pop("to", None), FORMATS)
+        is_active = False
+        if end_dates:
+            end_date = end_dates[0]
+            today = datetime.now().isoformat()[:10]
+            if len(end_date) == 4:
+                today = today[:4]
+                context.log.warning("Only parsed year", name=title, date=end_date)
+            is_active = today < end_date
+        else:
+            is_active = True
+
+        if is_active:
+            entity.add("topics", "debarment")
 
         sanction = h.make_sanction(context, entity)
         # sanction.add("status", row.pop("statusName"))
@@ -82,8 +96,8 @@ def crawl(context: Context):
         sanction.add("authority", row.pop("idb_sanction_source", None))
         sanction.add("program", row.pop("idb_sanction_type", None))
         sanction.add("startDate", h.parse_date(row.pop("from", None), FORMATS))
-        sanction.add("endDate", h.parse_date(row.pop("to", None), FORMATS))
+        sanction.add("endDate", end_date)
 
         context.emit(sanction)
-        context.emit(entity, target=True)
+        context.emit(entity, target=is_active)
         context.audit_data(row)

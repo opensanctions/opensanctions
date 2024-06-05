@@ -37,11 +37,10 @@ def parse_date(date: str) -> str:
 def crawl_item(card, context: Context):
     # The title is in the format "Sanction administrative du XX XXXX 20XX"
     title = card.find(".//*[@class='library-element__title']")
-    date = " ".join(title.text_content().strip().split(" ")[-3:])
-    subtitle = (
-        card.find(".//*[@class='library-element__subtitle']").text_content().strip()
-    )
     detail_url = title.find(".//a").get("href")
+    date = " ".join(title.text_content().strip().split(" ")[-3:])
+    subtitle_el = card.find(".//*[@class='library-element__subtitle']")
+    subtitle = subtitle_el.text_content().strip()
     stripped_subtitle = SUBTITLE_PATTERN.sub("", subtitle, count=1)
 
     # Check if it's starts with a upper case and if the pattern was removed
@@ -76,6 +75,9 @@ def crawl_item(card, context: Context):
     entity.id = context.make_id(*names)
     entity.add("name", names)
     entity.add("topics", "reg.warn")
+    subtitle_link = subtitle_el.find(".//a")
+    if subtitle_link is not None:
+        entity.add("sourceUrl", subtitle_link.get("href"))
 
     sanction = h.make_sanction(context, entity, title.text_content().strip())
     sanction.add("date", parse_date(date))
@@ -94,7 +96,9 @@ def crawl(context: Context):
     idx = 1
 
     while True:
-        response = context.fetch_html(base_url.format(idx))
+        url = base_url.format(idx)
+        response = context.fetch_html(url)
+        response.make_links_absolute(url)
 
         idx += 1
 

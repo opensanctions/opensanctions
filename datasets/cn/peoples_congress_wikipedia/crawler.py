@@ -112,7 +112,7 @@ def crawl(context: Context):
     h.assert_html_url_hash(
         context,
         context.data_url,
-        "95592e9f57cdc5ef1f5447d2b38a49b88ccc97d8",
+        "e889e12ffbd7cdc60249393a12a899e084514056",
         ".//main",
         text_only=True,
     )

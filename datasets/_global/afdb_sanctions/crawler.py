@@ -1,10 +1,10 @@
-import shutil
-from lxml import html
+from lxml import etree
 from normality import slugify, collapse_spaces
-from pantomime.types import HTML
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.shed.zyte_api import fetch_html
+
 
 FORMATS = ["%d-%b-%Y"]
 
@@ -16,18 +16,14 @@ def parse_date(text):
     return h.parse_date(text, FORMATS)
 
 
-def crawl(context: Context):
-    # Cloudflare blocks access to our crawler:
-    # path = context.fetch_resource("source.html", context.data_url)
-    # context.export_resource(path, HTML, title=context.SOURCE_TITLE)
+def unblock_validator(doc: etree._Element) -> bool:
+    return doc.find(".//table[@id='datatable-1']") is not None
 
-    assert context.dataset.base_path is not None
-    data_path = context.dataset.base_path / "data.html"
-    path = context.get_resource_path("source.html")
-    shutil.copyfile(data_path, path)
-    context.export_resource(path, HTML, title=context.SOURCE_TITLE)
-    with open(path, "r") as fh:
-        doc = html.parse(fh)
+
+def crawl(context: Context):
+    doc = fetch_html(
+        context, context.data_url, unblock_validator, html_source="httpResponseBody"
+    )
 
     table = doc.find('.//table[@id="datatable-1"]')
     headers = None
