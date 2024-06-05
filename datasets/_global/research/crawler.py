@@ -41,7 +41,7 @@ def crawl(context: Context):
             if schema is None or schema not in model.schemata:
                 context.log.warn("Invalid schema", schema=schema, entity_id=entity_id)
                 continue
-            if entity is None or entity.id != row["id"]:
+            if entity is None or entity.id != entity_id:
                 if entity is not None:
                     context.emit(entity)
                 entity = context.make(schema)

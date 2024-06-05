@@ -44,7 +44,7 @@ def fetch_html(
         The parsed HTML document serialized from the DOM.
     """
     if settings.ZYTE_API_KEY is None:
-        raise RuntimeError("ZYTE_API_KEY is not set")
+        raise RuntimeError("OPENSANCTIONS_ZYTE_API_KEY is not set")
 
     zyte_data = {
         "browserHtml": True,
