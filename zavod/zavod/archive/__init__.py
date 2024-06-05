@@ -216,7 +216,7 @@ def _iter_scope_statements(dataset: "Dataset", external: bool = True) -> Stateme
     object = get_artifact_object(dataset.name, STATEMENTS_FILE)
     if object is not None:
         log.info(
-            "Streaming backfilled statements...",
+            "Streaming statements...",
             backfill_dataset=dataset.name,
             object=object.name,
         )

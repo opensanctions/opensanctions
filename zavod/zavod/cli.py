@@ -107,11 +107,11 @@ def publish(dataset_path: Path, latest: bool = False) -> None:
     version = get_latest(dataset.name, backfill=False)
     if version is None:
         raise click.ClickException("No version to publish: %s" % dataset.name)
-    linker = get_dataset_linker(dataset)
+    # linker = get_dataset_linker(dataset)
     try:
-        store = get_store(dataset, linker)
+        # store = get_store(dataset, linker)
         publish_dataset(dataset, latest=latest)
-        store.release_version(dataset.name, version.id)
+        # store.release_version(dataset.name, version.id)
     except Exception:
         log.exception("Failed to publish: %s" % dataset_path)
         sys.exit(1)
@@ -163,7 +163,6 @@ def run(
     try:
         export_dataset(dataset, view)
         publish_dataset(dataset, latest=latest)
-        store.release_version(dataset.name, version.id)
 
         if not dataset.is_collection and dataset.load_db_uri is not None:
             log.info("Loading dataset into database...", dataset=dataset.name)
