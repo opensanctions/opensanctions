@@ -1,6 +1,5 @@
 from lxml import etree
 from normality import slugify, collapse_spaces
-from pantomime.types import HTML
 
 from zavod import Context
 from zavod import helpers as h
