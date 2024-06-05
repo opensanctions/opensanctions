@@ -7,6 +7,7 @@ coverage:
   end: 2024-06-04
 deploy:
   schedule: "@daily"
+ci_test: false
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   Individuals and firms that have been sanctioned by AfDB, for having 
