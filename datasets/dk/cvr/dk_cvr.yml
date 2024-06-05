@@ -8,12 +8,12 @@ coverage:
   start: 2023-01-01
 deploy:
   disk: 10Gi
-  memory: 3Gi
+  memory: 5Gi
   # premium: true
 exports:
   - statistics.json
   - entities.ftm.json
-  - senzing.json
+  # - senzing.json
 resolve: false
 ci_test: false
 summary: >-
