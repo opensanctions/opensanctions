@@ -404,3 +404,7 @@ def wd_up(
         country_adjective=country_adjective,
         focus_dataset=focus_dataset,
     )
+
+
+if __name__ == "__main__":
+    cli()
