@@ -1,5 +1,5 @@
 import logging
-from typing import Generator, List, Optional, Type
+from typing import Generator, List, Optional, Tuple, Type
 from followthemoney.namespace import Namespace
 from followthemoney.types import registry
 
@@ -51,7 +51,8 @@ class LocalEnricher(Enricher):
         self._algorithm = get_algorithm(algo_name)
         if self._algorithm is None:
             raise EnrichmentException(f"Unknown algorithm: {algo_name}")
-        self._threshold = config.pop("threshold")
+        self._cutoff = config.pop("cutoff", 0.5)
+        self._limit = config.pop("limit", 5)
         self._ns: Optional[Namespace] = None
         if self.get_config_bool("strip_namespace"):
             self._ns = Namespace()
@@ -60,6 +61,8 @@ class LocalEnricher(Enricher):
         return class_.from_statements(self.dataset, entity.statements)
 
     def match(self, entity: CE) -> Generator[CE, None, None]:
+        scores: List[Tuple[float, CE]] = []
+
         for match_id, index_score in self._index.match(entity):
             match = self._view.get_entity(match_id.id)
             if match is None:
@@ -71,13 +74,17 @@ class LocalEnricher(Enricher):
             if self._algorithm is None:
                 raise EnrichmentException("No algorithm specified")
             result = self._algorithm.compare(entity, match)
-            if result.score < self._threshold:
+            if result.score < self._cutoff:
                 continue
 
             proxy = self.entity_from_statements(type(entity), match)
             if self._ns is not None:
                 proxy = self._ns.apply(proxy)
 
+            scores.append((result.score, proxy))
+
+        scores.sort(key=lambda s: s[0], reverse=True)
+        for _, proxy in scores[: self._limit]:
             yield proxy
 
     def _traverse_nested(
