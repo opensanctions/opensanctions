@@ -68,18 +68,19 @@ def crawl_item(context: Context, row: Dict[str, Any]):
     )
     h.copy_address(entity, address)
     upin = row.pop("UPIN")
+    # A unique physician identification number (UPIN) was a six-character
+    # alpha-numeric identifier used by Medicare to identify doctors in
+    # the United States.
     if upin:
         entity.add("description", f"UPIN: {upin}")
-    npi = row.pop("NPI")
-    if npi:
-        entity.add("description", f"NPI: {npi}")
+    entity.add("npiCode", row.pop("NPI", None))
     entity.add("topics", "debarment")
     entity.add("country", "us")
 
     sanction = h.make_sanction(context, entity)
     sanction.add("startDate", h.parse_date(row.pop("EXCLDATE"), FORMATS))
     sanction.add("reason", row.pop("EXCLTYPE"))
-    sanction.add("program", "US HHS OIG List of Excluded Individuals/Entities ")
+    sanction.add("program", "US HHS OIG List of Excluded Individuals/Entities")
     waiver_start = row.pop("WAIVERDATE")
     waiver_state = row.pop("WVRSTATE")
     if waiver_start:
