@@ -15,7 +15,7 @@ build:
 	$(COMPOSE_CMD) build --pull
 
 services: workdir
-	$(COMPOSE_CMD) up -d --remove-orphans kv
+# 	$(COMPOSE_CMD) up -d --remove-orphans kv
 
 shell: build workdir services
 	$(COMPOSE_CMD) run --rm app bash
