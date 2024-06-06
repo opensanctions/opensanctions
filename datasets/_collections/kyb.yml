@@ -19,7 +19,7 @@ datasets:
   - cy_companies
   - cz_business_register
   - de_offeneregister
-  - dk_cvr
+  # - dk_cvr
   - ee_ariregister
   - eu_esma_firds
   - gb_coh_psc
