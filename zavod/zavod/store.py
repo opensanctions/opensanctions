@@ -1,5 +1,5 @@
 import shutil
-import plyvel
+import plyvel  # type: ignore
 from typing import List, Optional
 from followthemoney.exc import InvalidData
 from nomenklatura.statement import Statement
@@ -62,14 +62,21 @@ class Store(LevelDBStore[Dataset, Entity]):
         with self.writer() as writer:
             stmts = iter_dataset_statements(self.dataset, external=True)
             for idx, stmt in enumerate(stmts):
-                if idx > 0 and idx % 10_000 == 0:
+                if idx > 0 and idx % 50_000 == 0:
                     log.info(
                         "Indexing aggregator...",
                         statements=idx,
                         scope=self.dataset.name,
+                        dataset=stmt.dataset,
                     )
                 writer.add_statement(stmt)
         self.db.put(ds_key, b"1")
+        self.db.compact_range()
+        log.info(
+            "Local LevelDB aggregator is ready.",
+            scope=self.dataset.name,
+            statements=idx,
+        )
 
     def clear(self) -> None:
         """Delete the working directory data for the latest version of the dataset

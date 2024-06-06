@@ -39,7 +39,7 @@ default_exports = {
 def export(dataset: Dataset) -> None:
     resolver = get_resolver()
     store = get_store(dataset, resolver)
-    store.sync()
+    store.sync(clear=True)
     view = store.view(dataset)
     export_dataset(dataset, view)
 

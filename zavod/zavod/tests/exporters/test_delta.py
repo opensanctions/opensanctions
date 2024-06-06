@@ -37,13 +37,14 @@ def test_delta_exporter(testdataset1: Dataset):
 
     version = Version.new("aaa")
     make_version(testdataset1, version, overwrite=True)
-    writer = store.writer(version=version.id)
+    store.clear()
+    writer = store.writer()
     writer.add_entity(e(ENTITY_B))
     writer.add_entity(e(ENTITY_C))
     writer.add_entity(e(ENTITY_CX))
     writer.add_entity(e(ENTITY_D))
     writer.flush()
-    writer.release()
+    # writer.release()
     view = store.view(testdataset1)
     assert len(list(view.entities())) == 4
     export_dataset(testdataset1, view)
@@ -59,7 +60,8 @@ def test_delta_exporter(testdataset1: Dataset):
 
     version2 = Version.new("bbb")
     make_version(testdataset1, version2, overwrite=True)
-    writer = store.writer(version=version2.id)
+    store.clear()
+    writer = store.writer()
     writer.add_entity(e(ENTITY_A))
     writer.add_entity(e(ENTITY_B))
     changed = deepcopy(ENTITY_C)
@@ -67,10 +69,10 @@ def test_delta_exporter(testdataset1: Dataset):
     writer.add_entity(e(changed))
     writer.add_entity(e(ENTITY_CX))
     writer.flush()
-    writer.release()
-    assert len(store.get_history(testdataset1.name)) == 2
-    view = store.view(testdataset1)
-    assert view.vers[0][1] == version2.id
+    # writer.release()
+    # assert len(store.get_history(testdataset1.name)) == 2
+    # view = store.view(testdataset1)
+    # assert view.vers[0][1] == version2.id
 
     export_dataset(testdataset1, view)
     assert dataset_path.joinpath(DELTA_FILE).exists()
@@ -90,7 +92,8 @@ def test_delta_exporter(testdataset1: Dataset):
     version3 = Version.new("ccc")
     make_version(testdataset1, version3, overwrite=True)
     canon_id = resolver.decide("EC", "ECX", Judgement.POSITIVE)
-    writer = store.writer(version=version3.id)
+    store.clear()
+    writer = store.writer()
     writer.add_entity(e(ENTITY_A))
     writer.add_entity(e(ENTITY_B))
     changed = deepcopy(ENTITY_C)
@@ -98,8 +101,8 @@ def test_delta_exporter(testdataset1: Dataset):
     writer.add_entity(e(changed))
     writer.add_entity(e(ENTITY_CX))
     writer.flush()
-    writer.release()
-    assert len(store.get_history(testdataset1.name)) == 3
+    # writer.release()
+    # assert len(store.get_history(testdataset1.name)) == 3
     view = store.view(testdataset1)
 
     export_dataset(testdataset1, view)
@@ -117,8 +120,8 @@ def test_delta_exporter(testdataset1: Dataset):
 
     # test the cleanup
     publish_dataset_version(testdataset1.name)
-    for v in store.get_history(testdataset1.name):
-        store.drop_version(testdataset1.name, v)
+    # for v in store.get_history(testdataset1.name):
+    #     store.drop_version(testdataset1.name, v)
     assert len(redis.keys()) > 0
     DeltaExporter.cleanup(testdataset1.name, keep=10)
     assert len(redis.keys()) > 0

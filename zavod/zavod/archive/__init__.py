@@ -217,7 +217,7 @@ def _iter_scope_statements(dataset: "Dataset", external: bool = True) -> Stateme
     if object is not None:
         log.info(
             "Streaming statements...",
-            backfill_dataset=dataset.name,
+            dataset=dataset.name,
             object=object.name,
         )
         with object.open() as fh:
