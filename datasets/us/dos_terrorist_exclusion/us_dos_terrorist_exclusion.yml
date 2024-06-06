@@ -1,0 +1,206 @@
+title: US Department of State Terrorist Exclusion
+entry_point: crawler.py
+prefix: us-dos-terr
+coverage:
+  frequency: daily
+  start: "2024-06-06"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Organizations designated as terrorist for immigration purposes.
+description: |
+  Section 411 of the USA PATRIOT ACT of 2001 (8 U.S.C. § 1182) authorized
+  the Secretary of State, in consultation with or upon the request of the
+  Attorney General, to designate terrorist organizations for immigration purposes.
+
+  An organization can be placed on the TEL if the Secretary of State finds that the organization:
+
+    - commits or incites to commit, under circumstances indicating an intention to cause
+      death or serious bodily injury, a terrorist activity;
+    - prepares or plans a terrorist activity;
+    - gathers information on potential targets for terrorist activity; or
+    - provides material support to further terrorist activity.
+publisher:
+  name: United States Department of State
+  description: |
+    The United States Department of State (DOS) is an executive department of
+    the U.S. federal government responsible for the country's foreign policy
+    and relations. 
+  url: https://www.state.gov
+  official: true
+  country: "us"
+url: "https://www.state.gov/terrorist-exclusion-list/"
+data:
+  url: https://www.state.gov/terrorist-exclusion-list/
+  format: HTML
+  lang: eng
+ci_test: false
+
+lookups:
+  aliases:
+    lowercase: true
+    options:
+      - match: Afghan Support Committee (a.k.a. Ahya ul Turas; a.k.a. Jamiat Ayat-ur-Rhas al Islamia; a.k.a. Jamiat Ihya ul Turath al Islamia; a.k.a. Lajnat el Masa Eidatul Afghania)
+        names:
+          - Ahya ul Turas
+          - Jamiat Ayat-ur-Rhas al Islamia
+          - Jamiat Ihya ul Turath al Islamia
+          - Lajnat el Masa Eidatul Afghania
+      - match: Al Taqwa Trade, Property and Industry Company Ltd. (f.k.a. Al Taqwa Trade, Property and Industry; f.k.a. Al Taqwa Trade, Property and Industry Establishment; f.k.a. Himmat Establishment; a.k.a. Waldenberg, AG)
+        names:
+          - Al Taqwa Trade, Property and Industry
+          - Al Taqwa Trade, Property and Industry Establishment
+          - Himmat Establishment
+          - Waldenberg, AG
+      - match: Al-Ittihad al-Islami (AIAI)
+        names:
+          - AIAI
+      - match: Al-Wafa al-Igatha al-Islamia (a.k.a. Wafa Humanitarian Organization; a.k.a. Al Wafa; a.k.a. Al Wafa Organization)
+        names:
+          - Wafa Humanitarian Organization
+          - Al Wafa
+          - Al Wafa Organization
+      - match: Alex Boncayao Brigade (ABB)
+        names:
+          - ABB
+      - match: Army for the Liberation of Rwanda (ALIR) (a.k.a. Interahamwe, Former Armed Forces (EX-FAR))
+        names:
+          - ALIR
+          - Interahamwe
+          - Former Armed Forces
+      - match: Bank Al Taqwa Ltd. (a.k.a. Al Taqwa Bank; a.k.a. Bank Al Taqwa)
+        names:
+          - Al Taqwa Bank
+          - Bank Al Taqwa
+      - match: Continuity Irish Republican Army (CIRA) (a.k.a. Continuity Army Council)
+        names:
+          - CIRA
+          - Continuity Army Council
+      - match: Dhamat Houmet Daawa Salafia (a.k.a. Group Protectors of Salafist Preaching; a.k.a. Houmat Ed Daawa Es Salifiya; a.k.a. Katibat El Ahoual; a.k.a. Protectors of the Salafist Predication; a.k.a. El-Ahoual Battalion; a.k.a. Katibat El Ahouel; a.k.a. Houmate Ed-Daawa Es-Salafia; a.k.a. the Horror Squadron; a.k.a. Djamaat Houmat Eddawa Essalafia; a.k.a. Djamaatt Houmat Ed Daawa Es Salafiya; a.k.a. Salafist Call Protectors; a.k.a. Djamaat Houmat Ed Daawa Es Salafiya; a.k.a. Houmate el Da’awaa es-Salafiyya; a.k.a. Protectors of the Salafist Call; a.k.a. Houmat ed-Daaoua es-Salafia; a.k.a. Group of Supporters of the Salafiste Trend; a.k.a. Group of Supporters of the Salafist Trend)
+        names:
+          - Group Protectors of Salafist Preaching
+          - Houmat Ed Daawa Es Salifiya
+          - Katibat El Ahoual
+          - Protectors of the Salafist Predication
+          - El-Ahoual Battalion
+          - Katibat El Ahouel
+          - Houmate Ed-Daawa Es-Salafia
+          - the Horror Squadron
+          - Djamaat Houmat Eddawa Essalafia
+          - Djamaatt Houmat Ed Daawa Es Salafiya
+          - Salafist Call Protectors
+          - Djamaat Houmat Ed Daawa Es Salafiya
+          - Houmate el Da’awaa es-Salafiyya
+          - Protectors of the Salafist Call
+          - Houmat ed-Daaoua es-Salafia
+          - Group of Supporters of the Salafiste Trend
+          - Group of Supporters of the Salafist Trend
+      - match: Antifascist Resistance Group (GRAPO) (a.k.a. Grupo de Resistencia Anti-Fascista Premero De Octubre)
+        names:
+          - GRAPO
+          - Grupo de Resistencia Anti-Fascista Premero De Octubre
+      - match: Harakat ul Jihad i Islami (HUJI)
+        names:
+          - HUJI
+      - match: Jamiat ul-Mujahideen (JUM)
+        names:
+          - JUM
+      - match: Japanese Red Army (JRA)
+        names:
+          - JRA
+      - match: Lashkar-e-Tayyiba (LET) (a.k.a. Army of the Righteous)
+        names:
+          - LET
+          - Army of the Righteous
+      - match: Loyalist Volunteer Force (LVF)
+        names:
+          - LVF
+      - match: Moroccan Islamic Combatant Group (a.k.a. GICM; a.k.a. Groupe Islamique Combattant Marocain)
+        names:
+          - GICM
+          - Groupe Islamique Combattant Marocain
+      - match: Nada Management Organization (f.k.a. Al Taqwa Management Organization SA)
+        names:
+          - Al Taqwa Management Organization SA
+      - match: New People’s Army (NPA)
+        names:
+          - NPA
+      - match: Orange Volunteers (OV)
+        names:
+          - OV
+      - match: People Against Gangsterism and Drugs (PAGAD)
+        names:
+          - PAGAD
+      - match: Red Brigades-Combatant Communist Party (BR-PCC)
+        names:
+          - BR-PCC
+      - match: Red Hand Defenders (RHD)
+        names:
+          - RHD
+      - match: Revival of Islamic Heritage Society (Pakistan and Afghanistan offices — Kuwait office not designated) (a.k.a. Jamia Ihya ul Turath; a.k.a. Jamiat Ihia Al- Turath Al-Islamiya; a.k.a. Revival of Islamic Society Heritage on the African Continent)
+        names:
+          - Jamia Ihya ul Turath
+          - Jamiat Ihia Al- Turath Al-Islamiya
+          - Revival of Islamic Society Heritage on the African Continent
+      - match: Revolutionary United Front (RUF)
+        names:
+          - RUF
+      - match: Salafist Group for Call and Combat (GSPC)
+        names:
+          - GSPC
+      - match: The Allied Democratic Forces (ADF)
+        names:
+          - ADF
+      - match: The Islamic International Brigade (a.k.a. International Battalion, a.k.a. Islamic Peacekeeping International Brigade, a.k.a. Peacekeeping Battalion, a.k.a. The International Brigade, a.k.a. The Islamic Peacekeeping Army, a.k.a. The Islamic Peacekeeping Brigade)
+        names:
+          - International Battalion
+          - Islamic Peacekeeping International Brigade
+          - Peacekeeping Battalion
+          - The International Brigade
+          - The Islamic Peacekeeping Army
+          - The Islamic Peacekeeping Brigade
+      - match: The Lord’s Resistance Army (LRA)
+        names:
+          - LRA
+      - match: The Riyadus-Salikhin Reconnaissance and Sabotage Battalion of Chechen Martyrs (a.k.a. Riyadus-Salikhin Reconnaissance and Sabotage Battalion, a.k.a. Riyadh-as-Saliheen, a.k.a. the Sabotage and Military Surveillance Group of the Riyadh al-Salihin Martyrs, a.k.a. Riyadus-Salikhin Reconnaissance and Sabotage Battalion of Shahids (Martyrs))
+        names:
+          - Riyadus-Salikhin Reconnaissance and Sabotage Battalion
+          - Riyadh-as-Saliheen
+          - the Sabotage and Military Surveillance Group of the Riyadh al-Salihin Martyrs
+          - Riyadus-Salikhin Reconnaissance and Sabotage Battalion of Shahids
+      - match: The Special Purpose Islamic Regiment (a.k.a. the Islamic Special Purpose Regiment, a.k.a. the al-Jihad-Fisi-Sabililah Special Islamic Regiment, a.k.a. Islamic Regiment of Special Meaning)
+        names:
+          - the Islamic Special Purpose Regiment
+          - the al-Jihad-Fisi-Sabililah Special Islamic Regiment
+          - Islamic Regiment of Special Meaning
+      - match: Tunisian Combat Group (a.k.a. GCT, a.k.a. Groupe Combattant Tunisien, a.k.a. Jama’a Combattante Tunisien, a.k.a. JCT; a.k.a. Tunisian Combatant Group)
+        names:
+          - GCT
+          - Groupe Combattant Tunisien
+          - Jama’a Combattante Tunisien
+          - JCT
+          - Tunisian Combatant Group
+      - match: Ulster Defense Association (a.k.a. Ulster Freedom Fighters)
+        names:
+          - Ulster Freedom Fighters
+      - match: Ummah Tameer E-Nau (UTN) (a.k.a. Foundation for Construction; a.k.a. Nation Building; a.k.a. Reconstruction Foundation; a.k.a. Reconstruction of the Islamic Community; a.k.a. Reconstruction of the Muslim Ummah; a.k.a. Ummah Tameer I-Nau; a.k.a. Ummah Tameer E-Nau; a.k.a. Ummah Tameer-I-Pau)
+        names:
+          - Foundation for Construction
+          - Nation Building
+          - Reconstruction Foundation
+          - Reconstruction of the Islamic Community
+          - Reconstruction of the Muslim Ummah
+          - Ummah Tameer I-Nau
+          - Ummah Tameer E-Nau
+          - Ummah Tameer-I-Pau
+      - match: First of October Antifascist Resistance Group (GRAPO) (a.k.a. Grupo de Resistencia Anti-Fascista Premero De Octubre)
+        names:
+          - GRAPO
+          - Grupo de Resistencia Anti-Fascista Premero De Octubre
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 56
+  max:
+    schema_entities:
+      LegalEntity: 56
+      
