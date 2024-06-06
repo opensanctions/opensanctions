@@ -6,6 +6,7 @@ from typing import Optional, Dict, Any, Generator
 from zipfile import ZipFile
 from urllib.parse import urljoin
 from pantomime.types import ZIP
+from followthemoney import model
 
 from zavod import Context
 from zavod import helpers as h
@@ -110,11 +111,18 @@ def crawl(context: Context) -> None:
             "registrationNumber",
             row.pop("Unique Entity ID", None),
         )
-        entity.add_cast("Organization", "cageCode", row.pop("CAGE", None))
+        cage = row.pop("CAGE", None)
+        if cage is not None and len(cage) and entity.schema.is_a("Person"):
+            schema_ = model.get("LegalEntity")
+            assert schema_ is not None
+            entity.schema = schema_
+        entity.add_cast("Organization", "cageCode", cage)
         # The NPI (National Provider Identifier) is a unique identification number
         # for covered health care providers. It is an optional field for exclusion
         # records.
-        entity.add("npiCode", row.pop("NPI", None))
+        npi = row.pop("NPI", None)
+        if npi is not None and len(npi):
+            entity.add("npiCode", npi)
 
         h.apply_name(
             entity,
