@@ -127,3 +127,5 @@ lookups:
         value: XK
       - match: SCG
         value: CSXX
+      - match: XWB
+        value: PS
