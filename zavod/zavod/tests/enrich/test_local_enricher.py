@@ -57,11 +57,25 @@ def test_enrich(vcontext: Context):
     shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
 
 
-def test_threshold(vcontext: Context):
-    """We don't match an entity if its score is lower than the threshold."""
+def test_cutoff(vcontext: Context):
+    """We don't match an entity if its score is lower than the cutoff."""
     crawl_dataset(vcontext.dataset)
     dataset_data = deepcopy(DATASET_DATA)
-    dataset_data["config"]["threshold"] = 0.99
+    dataset_data["config"]["cutoff"] = 0.99
+    enricher = load_enricher(vcontext, dataset_data)
+    entity = make_entity(vcontext.dataset)
+    results = list(enricher.match(entity))
+    assert len(results) == 0, results
+
+    shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
+
+
+
+def test_limit(vcontext: Context):
+    """We only return limit matches per entity"""
+    crawl_dataset(vcontext.dataset)
+    dataset_data = deepcopy(DATASET_DATA)
+    dataset_data["config"]["limit"] = 0
     enricher = load_enricher(vcontext, dataset_data)
     entity = make_entity(vcontext.dataset)
     results = list(enricher.match(entity))
