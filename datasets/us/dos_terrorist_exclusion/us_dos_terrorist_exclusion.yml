@@ -38,8 +38,8 @@ ci_test: false
 assertions:
   min:
     schema_entities:
-      LegalEntity: 56
+      LegalEntity: 40
   max:
     schema_entities:
-      LegalEntity: 66
+      LegalEntity: 70
       
