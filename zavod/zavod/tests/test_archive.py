@@ -4,7 +4,7 @@ from zavod.meta import Dataset
 from zavod.runtime.versions import make_version
 from zavod.archive import get_dataset_artifact, publish_resource, publish_artifact
 from zavod.archive import clear_data_path, dataset_data_path, dataset_resource_path
-from zavod.archive import publish_dataset_version
+from zavod.archive import publish_dataset_version, get_archive_backend
 from zavod.archive import DATASETS, ARTIFACTS, VERSIONS_FILE
 
 
@@ -25,6 +25,17 @@ def test_archive_publish(testdataset1: Dataset):
     assert not latest_path.exists()
     publish_resource(local_path, testdataset1.name, name, latest=True)
     assert latest_path.exists()
+
+    backend = get_archive_backend()
+    object_name = f"{DATASETS}/{settings.RELEASE}/{testdataset1.name}/{name}"
+    object = backend.get_object(object_name)
+    assert object.exists()
+    assert object.size() > 0
+
+    other_name = f"{DATASETS}/{settings.RELEASE}/{testdataset1.name}/{name}.xxx"
+    other = backend.get_object(other_name)
+    assert not other.exists()
+    assert other.size() == 0
 
     shutil.rmtree(dataset_archive_path / "latest")
     assert data_path.is_dir()

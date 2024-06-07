@@ -24,6 +24,9 @@ class ArchiveObject(object):
     def exists(self) -> bool:
         raise NotImplementedError
 
+    def size(self) -> int:
+        raise NotImplementedError
+
     def backfill(self, dest: Path) -> None:
         raise NotImplementedError
 
@@ -64,6 +67,11 @@ class GoogleCloudObject(ArchiveObject):
 
     def exists(self) -> bool:
         return self.blob is not None
+
+    def size(self) -> int:
+        if self.blob is None:
+            return 0
+        return self.blob.size or 0
 
     def open(self) -> TextIO:
         if self.blob is None:
@@ -113,6 +121,11 @@ class FileSystemObject(ArchiveObject):
 
     def exists(self) -> bool:
         return self.path.exists()
+
+    def size(self) -> int:
+        if not self.path.exists():
+            return 0
+        return self.path.stat().st_size
 
     def open(self) -> TextIO:
         return open(self.path, "r", buffering=BLOB_CHUNK)
