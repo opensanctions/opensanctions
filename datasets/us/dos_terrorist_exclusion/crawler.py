@@ -10,12 +10,14 @@ def crawl_item(raw_name: str, context: Context):
     entity = context.make("LegalEntity")
 
     names = h.multi_split(
-        raw_name, ["; a.k.a.", "(a.k.a", "(f.k.a.", "; f.k.a", ", a.k.a"]
+        raw_name, ["; a.k.a.", "(a.k.a.", "(f.k.a.", "; f.k.a.", ", a.k.a."]
     )
 
     entity.id = context.make_id(names)
 
     for name in names:
+        # If there is some name with a ) at the end without a (, we remove it
+        name = name if "(" not in name and name[-1] == ")" else name[:-1]
         entity.add("name", name)
 
     entity.add("topics", "crime.terror")
