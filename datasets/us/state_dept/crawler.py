@@ -10,7 +10,7 @@ DATE_FORMAT = ["%B %d, %Y"]
 
 
 def crawl_bio_page(context: Context, url: str):
-    doc = context.fetch_html(url, cache_days=1)
+    doc = context.fetch_html(url)
     name = collapse_spaces(
         doc.xpath(".//h1[contains(@class, 'featured-content__headline')]")[
             0
@@ -100,9 +100,9 @@ def get_next_link(doc) -> Optional[str]:
 
 
 def crawl(context: Context) -> Optional[str]:
-    doc = context.fetch_html(context.data_url, cache_days=1)
+    doc = context.fetch_html(context.data_url)
     crawl_index_page(context, doc)
     while next_link := get_next_link(doc):
         context.log.info(f"Crawling index page {next_link}")
-        doc = context.fetch_html(next_link, cache_days=1)
+        doc = context.fetch_html(next_link)
         crawl_index_page(context, doc)
