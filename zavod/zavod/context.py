@@ -548,6 +548,8 @@ class Context:
             stmt.last_seen = self.data_time_iso
             if not self.dry_run:
                 stmt.first_seen = self.timestamps.get(stmt.id, self.data_time_iso)
+                if stmt.first_seen != self.data_time_iso:
+                    self.stats.changed += 1
                 self.sink.emit(stmt)
             self.stats.statements += 1
 

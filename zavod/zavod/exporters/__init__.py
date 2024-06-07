@@ -86,8 +86,8 @@ def export_dataset(dataset: Dataset, view: View) -> None:
         export_data(context, view)
 
         # Export full metadata
-        write_dataset_index(dataset)
         write_issues(dataset)
+        write_dataset_index(dataset)
         write_catalog(dataset)
     finally:
         context.close()

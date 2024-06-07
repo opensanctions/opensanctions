@@ -1,6 +1,5 @@
 from rigour.mime.types import JSON
 
-from zavod import settings
 from zavod.meta import Dataset
 from zavod.logs import get_logger
 from zavod.archive import publish_resource, dataset_resource_path

@@ -1,5 +1,5 @@
 import json
-from typing import Any, Dict, cast, List
+from typing import Any, Dict, List
 
 from zavod import settings
 from zavod.logs import get_logger
@@ -15,37 +15,33 @@ from zavod.util import write_json
 log = get_logger(__name__)
 
 
-def get_dataset_statistics(dataset: Dataset) -> Dict[str, Any]:
-    """This reads the file produced by the statistics exporter which contains entity
-    counts for the dataset, aggregated by various criteria."""
-    statistics_path = get_dataset_artifact(dataset.name, STATISTICS_FILE)
-    if not statistics_path.is_file():
-        log.error("No statistics file found", dataset=dataset.name)
-        return {}
-    with open(statistics_path, "r") as fh:
-        return cast(Dict[str, Any], json.load(fh))
-
-
 def get_base_dataset_metadata(dataset: Dataset) -> Dict[str, Any]:
-    version = get_latest(dataset.name, backfill=True)
-    if version is None:
-        raise ValueError(f"No version found for dataset: {dataset.name}")
     meta = {
         "issue_levels": {},
         "issue_count": 0,
         "updated_at": settings.RUN_TIME_ISO,
-        "version": version.id.lower(),
         "index_url": make_published_url(dataset.name, "index.json"),
-        "issues_url": make_artifact_url(dataset.name, version.id, "issues.json"),
     }
+
+    # This reads the file produced by the statistics exporter which
+    # contains entity counts for the dataset, aggregated by various
+    # criteria:
+    statistics_path = get_dataset_artifact(dataset.name, STATISTICS_FILE)
+    if statistics_path.is_file():
+        with open(statistics_path, "r") as fh:
+            stats: Dict[str, Any] = json.load(fh)
+            meta.update(stats)
+
     resources = DatasetResources(dataset)
     meta["resources"] = [r.to_opensanctions_dict() for r in resources.all()]
-    meta.update(get_dataset_statistics(dataset))
     return meta
 
 
 def write_dataset_index(dataset: Dataset) -> None:
     """Export dataset metadata to index.json."""
+    version = get_latest(dataset.name, backfill=True)
+    if version is None:
+        raise ValueError(f"No version found for dataset: {dataset.name}")
     index_path = dataset_resource_path(dataset.name, INDEX_FILE)
     log.info(
         "Writing dataset index",
@@ -59,6 +55,8 @@ def write_dataset_index(dataset: Dataset) -> None:
         meta["issue_levels"] = issues.by_level()
         meta["issue_count"] = sum(meta["issue_levels"].values())
     meta["last_export"] = settings.RUN_TIME_ISO
+    meta["version"] = version.id.lower()
+    meta["issues_url"] = make_artifact_url(dataset.name, version.id, "issues.json")
     with open(index_path, "wb") as fh:
         write_json(meta, fh)
 

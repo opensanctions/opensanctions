@@ -10,5 +10,6 @@ class ContextStats(object):
 
     def reset(self) -> None:
         self.statements = 0
+        self.changed = 0
         self.entities = 0
         self.targets = 0

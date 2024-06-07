@@ -42,6 +42,7 @@ def crawl_dataset(dataset: Dataset, dry_run: bool = False) -> ContextStats:
             "Run completed",
             entities=context.stats.entities,
             statements=context.stats.statements,
+            changed=context.stats.changed,
         )
         if settings.DEBUG:
             context.debug_lookups()
