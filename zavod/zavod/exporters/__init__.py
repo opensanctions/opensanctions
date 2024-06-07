@@ -17,7 +17,7 @@ from zavod.exporters.securities import SecuritiesExporter
 from zavod.exporters.statements import StatementsCSVExporter
 from zavod.exporters.delta import DeltaExporter
 from zavod.exporters.metadata import write_dataset_index, write_issues
-from zavod.exporters.metadata import write_catalog
+from zavod.exporters.metadata import write_catalog, write_delta_index
 
 log = get_logger(__name__)
 
@@ -87,6 +87,7 @@ def export_dataset(dataset: Dataset, view: View) -> None:
 
         # Export full metadata
         write_issues(dataset)
+        write_delta_index(dataset)
         write_dataset_index(dataset)
         write_catalog(dataset)
     finally:

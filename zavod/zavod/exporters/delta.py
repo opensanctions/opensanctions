@@ -1,7 +1,7 @@
 from typing import Any, Generator
 
 from zavod.entity import Entity
-from zavod.archive import ENTITIES_DELTA_FILE
+from zavod.archive import DELTA_EXPORT_FILE
 from zavod.exporters.common import Exporter
 from zavod.runtime.delta import HashDelta
 from zavod.util import write_json
@@ -9,7 +9,7 @@ from zavod.util import write_json
 
 class DeltaExporter(Exporter):
     TITLE = "Delta files"
-    FILE_NAME = ENTITIES_DELTA_FILE
+    FILE_NAME = DELTA_EXPORT_FILE
     MIME_TYPE = "application/json"
 
     def setup(self) -> None:

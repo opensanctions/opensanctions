@@ -29,7 +29,6 @@ class HashDelta(object):
     def backfill(self) -> None:
         for version in iter_dataset_versions(self.dataset.name):
             obj = get_artifact_object(self.dataset.name, HASH_FILE, version.id)
-            print("CHECK", obj, version)
             if obj is None or version == self.curr:
                 continue
             self.prev = version

@@ -1,6 +1,7 @@
 import csv
 import shutil
 from pathlib import Path
+from functools import lru_cache
 from typing import TYPE_CHECKING
 from typing import Optional, Generator, TextIO, Set
 from rigour.mime.types import JSON
@@ -21,7 +22,8 @@ DATASETS = "datasets"
 ARTIFACTS = "artifacts"
 STATEMENTS_FILE = "statements.pack"
 HASH_FILE = "entities.hash"
-ENTITIES_DELTA_FILE = "entities.delta.json"
+DELTA_EXPORT_FILE = "entities.delta.json"
+DELTA_INDEX_FILE = "delta.json"
 STATISTICS_FILE = "statistics.json"
 ISSUES_LOG = "issues.log"
 ISSUES_FILE = "issues.json"
@@ -81,6 +83,7 @@ def get_dataset_artifact(
     return path
 
 
+@lru_cache(maxsize=1000)
 def get_versions_data(
     dataset_name: str, version: Optional[str] = None
 ) -> Optional[str]:
@@ -146,6 +149,7 @@ def publish_dataset_version(dataset_name: str) -> None:
     name = f"{ARTIFACTS}/{dataset_name}/{VERSIONS_FILE}"
     object = backend.get_object(name)
     object.publish(path, mime_type=JSON)
+    get_versions_data.cache_clear()
 
 
 def publish_artifact(

@@ -4,8 +4,10 @@ from typing import Any, Dict, List
 from zavod import settings
 from zavod.logs import get_logger
 from zavod.meta import Dataset
-from zavod.archive import INDEX_FILE, STATISTICS_FILE, ISSUES_FILE, CATALOG_FILE
-from zavod.archive import get_dataset_artifact, dataset_resource_path
+from zavod.archive import INDEX_FILE, STATISTICS_FILE, ISSUES_FILE
+from zavod.archive import CATALOG_FILE, DELTA_INDEX_FILE, DELTA_EXPORT_FILE
+from zavod.archive import get_dataset_artifact, get_artifact_object
+from zavod.archive import iter_dataset_versions, dataset_resource_path
 from zavod.runtime.urls import make_published_url, make_artifact_url
 from zavod.runtime.resources import DatasetResources
 from zavod.runtime.issues import DatasetIssues, Issue
@@ -20,7 +22,7 @@ def get_base_dataset_metadata(dataset: Dataset) -> Dict[str, Any]:
         "issue_levels": {},
         "issue_count": 0,
         "updated_at": settings.RUN_TIME_ISO,
-        "index_url": make_published_url(dataset.name, "index.json"),
+        "index_url": make_published_url(dataset.name, INDEX_FILE),
     }
 
     # This reads the file produced by the statistics exporter which
@@ -46,6 +48,7 @@ def write_dataset_index(dataset: Dataset) -> None:
     log.info(
         "Writing dataset index",
         path=index_path,
+        version=version.id,
         is_collection=dataset.is_collection,
     )
     meta = get_base_dataset_metadata(dataset)
@@ -56,7 +59,27 @@ def write_dataset_index(dataset: Dataset) -> None:
         meta["issue_count"] = sum(meta["issue_levels"].values())
     meta["last_export"] = settings.RUN_TIME_ISO
     meta["version"] = version.id.lower()
-    meta["issues_url"] = make_artifact_url(dataset.name, version.id, "issues.json")
+    meta["issues_url"] = make_artifact_url(dataset.name, version.id, ISSUES_FILE)
+
+    delta_index_path = dataset_resource_path(dataset.name, DELTA_INDEX_FILE)
+    if delta_index_path.is_file():
+        # Only generated for successful exports:
+        meta["delta_url"] = make_artifact_url(
+            dataset.name, version.id, DELTA_INDEX_FILE
+        )
+    else:
+        # If the delta index is not available, try to find the newest delta index
+        # generate the URL from that:
+        for version in iter_dataset_versions(dataset.name):
+            object = get_artifact_object(
+                dataset.name, DELTA_EXPORT_FILE, version=version.id
+            )
+            if object is not None:
+                meta["delta_url"] = make_artifact_url(
+                    dataset.name, version.id, DELTA_INDEX_FILE
+                )
+                break
+
     with open(index_path, "wb") as fh:
         write_json(meta, fh)
 
@@ -103,6 +126,43 @@ def write_issues(dataset: Dataset, max_export: int = 1_000) -> None:
     log.info("Writing dataset issues list...", path=issues_path.as_posix())
     with open(issues_path, "wb") as fh:
         data = {"issues": export_issues}
+        write_json(data, fh)
+
+
+def write_delta_index(
+    dataset: Dataset, max_versions: int = 100, include_latest: bool = True
+) -> None:
+    """Export list of delta data versions for the dataset with their URLs
+    associated."""
+    versions: Dict[str, str] = {}
+
+    # This hasn't been uploaded yet, but will become available at the same
+    # time as the index file:
+    latest = get_latest(dataset.name, backfill=False)
+    if latest is not None and include_latest:
+        data_path = dataset_resource_path(dataset.name, DELTA_EXPORT_FILE)
+        if data_path.is_file() and data_path.stat().st_size > 0:
+            versions[latest.id] = make_artifact_url(
+                dataset.name, latest.id, DELTA_EXPORT_FILE
+            )
+
+    # Get the most recent versions of the dataset:
+    for version in iter_dataset_versions(dataset.name):
+        if version.id in versions:
+            continue
+        object = get_artifact_object(
+            dataset.name, DELTA_EXPORT_FILE, version=version.id
+        )
+        if object is not None and object.size() > 0:
+            versions[version.id] = make_artifact_url(
+                dataset.name, version.id, DELTA_EXPORT_FILE
+            )
+        if len(versions) >= max_versions:
+            break
+    index_path = dataset_resource_path(dataset.name, DELTA_INDEX_FILE)
+    log.info("Writing delta versions index...", path=index_path.as_posix())
+    with open(index_path, "wb") as fh:
+        data = {"versions": versions, "updated_at": settings.RUN_TIME_ISO}
         write_json(data, fh)
 
 
