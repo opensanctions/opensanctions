@@ -12,26 +12,12 @@ def crawl_item(raw_name: str, context: Context):
 
     entity = context.make("LegalEntity")
 
-    # If it does not have parenthesis, that it doesn't have aliases
-    if "(" not in raw_name:
-        name = raw_name
-        aliases = []
+    names = h.multi_split(raw_name, ["; a.k.a.", "(a.k.a", "(f.k.a.", "; f.k.a", ", a.k.a"])
 
-    else:
-        name = h.remove_bracketed(raw_name)
-
-        res = context.lookup("aliases", raw_name)
-        if res:
-            aliases = cast("List[str]", res.names)
-        else:
-            context.log.warning(f"Could not find aliases for {raw_name}")
-            aliases = []
-
-    entity.id = context.make_id(name)
-    entity.add("name", name)
-
-    for alias in aliases:
-        entity.add("alias", alias)
+    entity.id = context.make_id(names)
+    
+    for name in names:
+        entity.add("name", name)
 
     entity.add("topics", "crime.terror")
 
