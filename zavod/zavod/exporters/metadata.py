@@ -162,7 +162,7 @@ def write_delta_index(
     index_path = dataset_resource_path(dataset.name, DELTA_INDEX_FILE)
     log.info("Writing delta versions index...", path=index_path.as_posix())
     with open(index_path, "wb") as fh:
-        data = {"versions": versions, "updated_at": settings.RUN_TIME_ISO}
+        data = {"versions": versions}
         write_json(data, fh)
 
 
