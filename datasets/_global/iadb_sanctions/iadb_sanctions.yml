@@ -4,7 +4,7 @@ prefix: iadb
 coverage:
   frequency: never
   start: 2021-10-22
-  end: 2023-11-10
+  end: 2024-06-04
 deploy:
   schedule: "@monthly"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
@@ -65,4 +65,8 @@ lookups:
     normalize: true
     options:
       - match: Regional
+        value: null
+  type.date:
+    options:
+      - match: Ongoing
         value: null

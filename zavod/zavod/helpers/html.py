@@ -16,5 +16,5 @@ def parse_table(table: HtmlElement) -> Generator[Dict[str, str], None, None]:
             continue
 
         cells = [collapse_spaces(el.text_content()) for el in row.findall("./td")]
-        assert len(headers) == len(cells)
+        assert len(headers) == len(cells), (headers, cells)
         yield {hdr: c for hdr, c in zip(headers, cells)}

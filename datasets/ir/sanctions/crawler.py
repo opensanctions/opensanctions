@@ -1,7 +1,8 @@
 from urllib.parse import urlencode
-from normality import collapse_spaces
-from typing import Dict
+from normality import collapse_spaces, slugify
+from typing import Dict, Generator, cast
 from lxml.etree import _Element
+from lxml.html import HtmlElement
 
 from zavod import Context, helpers as h
 from zavod.shed.zyte_api import fetch_html
@@ -37,6 +38,25 @@ def crawl_item(context: Context, row: Dict[str, str]):
     context.audit_data(row, ignore=[None])
 
 
+def parse_table(
+    context: Context, table: HtmlElement
+) -> Generator[Dict[str, str], None, None]:
+    headers = None
+    for row in table.findall(".//tr"):
+        if headers is None:
+            headers = []
+            for el in row.findall("./th"):
+                eltree = cast(HtmlElement, el)
+                headers.append(slugify(eltree.text_content()))
+            continue
+
+        cells = [collapse_spaces(el.text_content()) for el in row.findall("./td")]
+        if len(headers) != len(cells):
+            context.log.info("Skipping row with misaligned cells", row=row)
+            continue
+        yield {hdr: c for hdr, c in zip(headers, cells)}
+
+
 def unblock_validator(el: _Element) -> bool:
     return "Lookup Results" in el.text_content()
 
@@ -55,7 +75,7 @@ def crawl(context: Context):
             for el in doc.xpath('//*[contains(@class, "pageinationnum")]')
         ]
         max_page = max(pagenums)
-        rows = h.parse_table(doc.find(".//table"))
+        rows = parse_table(context, doc.find(".//table"))
         if not rows:
             break
 

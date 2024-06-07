@@ -3787,3 +3787,29 @@ lookups:
           address: "Prague"
           incorporationDate: 2023-03-14
           registrationNumber: CZ05185327
+      - match: "Lieu d'enregistrement: Damas, Syrie - Date d'enregistrement: 2007 - Principal établissement: Syrie: /"
+        props:
+          jurisdiction: sy
+          address: "Damas, Syrie"
+          incorporationDate: 2007
+      - match: "Type d’entité: entité publique - Lieu d’enregistrement: Bandar Abbas, Iran - Date d’enregistrement: 1981 - Principal établissement: Iran: /"
+        props:
+          jurisdiction: ir
+          address: "Bandar Abbas, Iran"
+          incorporationDate: 1981
+      - match: "Entité publique: /"
+        props:
+          legalForm: entité publique
+      - match: "Numéro d’enregistrement: (Iran): 495080"
+        props:
+          registrationNumber: 495080
+          jurisdiction: ir
+      - match: "Numéro d’identification national (Iran): 14005997725"
+        props:
+          idNumber: 14005997725
+          jurisdiction: ir
+      - match: "Type d’entité: société à responsabilité limitée (SARL) - Lieu d’enregistrement: Iran  - Date d’enregistrement: 13.7.2016 - Principal établissement: Iran: /"
+        props:
+          legalForm: société à responsabilité limitée
+          jurisdiction: ir
+          incorporationDate: 2016-07-13
