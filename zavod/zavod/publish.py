@@ -6,7 +6,7 @@ from zavod.archive import publish_resource, dataset_resource_path
 from zavod.archive import publish_dataset_version, publish_artifact
 from zavod.archive import INDEX_FILE, CATALOG_FILE, ISSUES_FILE, ISSUES_LOG
 from zavod.archive import STATEMENTS_FILE, RESOURCES_FILE, STATISTICS_FILE
-from zavod.archive import DELTA_FILE, VERSIONS_FILE, HASH_FILE
+from zavod.archive import ENTITIES_DELTA_FILE, VERSIONS_FILE, HASH_FILE
 from zavod.runtime.resources import DatasetResources
 from zavod.runtime.versions import get_latest
 from zavod.exporters import write_dataset_index, write_issues
@@ -20,7 +20,7 @@ ARTIFACTS = [
     STATISTICS_FILE,
     VERSIONS_FILE,
     RESOURCES_FILE,
-    DELTA_FILE,
+    ENTITIES_DELTA_FILE,
     HASH_FILE,
 ]
 
@@ -86,6 +86,7 @@ def publish_failure(dataset: Dataset, latest: bool = True) -> None:
     dataset_resource_path(dataset.name, INDEX_FILE).unlink(missing_ok=True)
     dataset_resource_path(dataset.name, CATALOG_FILE).unlink(missing_ok=True)
     dataset_resource_path(dataset.name, RESOURCES_FILE).unlink(missing_ok=True)
+    dataset_resource_path(dataset.name, ENTITIES_DELTA_FILE).unlink(missing_ok=True)
     write_issues(dataset)
     write_dataset_index(dataset)
     path = dataset_resource_path(dataset.name, INDEX_FILE)

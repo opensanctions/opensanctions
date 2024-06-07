@@ -9,7 +9,7 @@ from zavod import settings
 from zavod.meta import Dataset
 from zavod.entity import Entity
 from zavod.runtime.versions import make_version
-from zavod.archive import DELTA_FILE, DATASETS
+from zavod.archive import ENTITIES_DELTA_FILE, DATASETS
 from zavod.store import get_store
 from zavod.exporters import export_dataset
 from zavod.publish import _publish_artifacts
@@ -23,7 +23,7 @@ ENTITY_D = {"id": "ED", "schema": "Person", "properties": {"name": ["Dory"]}}
 
 
 def test_delta_exporter(testdataset1: Dataset):
-    testdataset1.exports = {DELTA_FILE}
+    testdataset1.exports = {ENTITIES_DELTA_FILE}
     dataset_path = settings.DATA_PATH / DATASETS / testdataset1.name
     resolver = Resolver[Entity]()
     store = get_store(testdataset1, resolver)
@@ -43,8 +43,8 @@ def test_delta_exporter(testdataset1: Dataset):
     view = store.view(testdataset1)
     assert len(list(view.entities())) == 4
     export_dataset(testdataset1, view)
-    assert dataset_path.joinpath(DELTA_FILE).exists()
-    with open(dataset_path.joinpath(DELTA_FILE), "r") as fh:
+    assert dataset_path.joinpath(ENTITIES_DELTA_FILE).exists()
+    with open(dataset_path.joinpath(ENTITIES_DELTA_FILE), "r") as fh:
         objects = [json.loads(line) for line in fh.readlines()]
         assert len(objects) == 4, objects
         for data in objects:
@@ -65,8 +65,8 @@ def test_delta_exporter(testdataset1: Dataset):
     writer.flush()
 
     export_dataset(testdataset1, view)
-    assert dataset_path.joinpath(DELTA_FILE).exists()
-    with open(dataset_path.joinpath(DELTA_FILE), "r") as fh:
+    assert dataset_path.joinpath(ENTITIES_DELTA_FILE).exists()
+    with open(dataset_path.joinpath(ENTITIES_DELTA_FILE), "r") as fh:
         objects = [json.loads(line) for line in fh.readlines()]
         assert len(objects) == 3, [o["entity"]["id"] for o in objects]
         for data in objects:
@@ -96,8 +96,8 @@ def test_delta_exporter(testdataset1: Dataset):
     view = store.view(testdataset1)
 
     export_dataset(testdataset1, view)
-    assert dataset_path.joinpath(DELTA_FILE).exists()
-    with open(dataset_path.joinpath(DELTA_FILE), "r") as fh:
+    assert dataset_path.joinpath(ENTITIES_DELTA_FILE).exists()
+    with open(dataset_path.joinpath(ENTITIES_DELTA_FILE), "r") as fh:
         objects = [json.loads(line) for line in fh.readlines()]
         assert len(objects) == 3, [o["entity"]["id"] for o in objects]
         for data in objects:
