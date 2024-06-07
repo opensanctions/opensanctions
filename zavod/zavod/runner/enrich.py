@@ -35,13 +35,6 @@ def save_match(
     if not entity.schema.can_match(match.schema):
         return None
     judgement = resolver.get_judgement(match.id, entity.id)
-    # For unjudged candidates, compute a score and put it in the
-    # xref cache so the user can decide:
-    if judgement == Judgement.NO_JUDGEMENT:
-        result = DefaultAlgorithm.compare(entity, match)
-        if threshold is None or result.score >= threshold:
-            context.log.info("Match [%s]: %.2f -> %s" % (entity, result.score, match))
-            resolver.suggest(entity.id, match.id, result.score, user="os-enrich")
 
     if judgement not in (Judgement.NEGATIVE, Judgement.POSITIVE):
         context.emit(match, external=True)

@@ -28,12 +28,17 @@ class LocalEnricher(Enricher):
     they share with the entity being matched. Candidates are then scored
     by the matching algorithm to determine if they are a match.
 
-    Configuration:
-        `config.dataset`: `str` - the name of the dataset to enrich against.
-        `config.threshold`: `float` - the threshold to be considered a match
-            according to the matching algorithm used.
-        `config.algorithm`: `str` (default logic-v1) - the name of the algorithm
-            to use for matching.
+    Args:
+        `config`: a dictionary of configuration options.
+          `dataset`: `str` - the name of the dataset to enrich against.
+          `cutoff`: `float` - the minimum score required to be a match.
+          `limit`: `int` - the maximum number of top scoring matches to return.
+          `algorithm`: `str` (default logic-v1) - the name of the algorithm
+              to use for matching.
+          `index_options`: `dict` - options to pass to the index.
+            `max_candidates`: `int` - the maximum number of search results to score
+              (default 100).
+            `memory_budget`: `int` - the amount of memory to use for indexing in MB
     """
 
     def __init__(self, dataset: DS, cache: Cache, config: EnricherConfig):
@@ -48,9 +53,11 @@ class LocalEnricher(Enricher):
         self._index.build()
 
         algo_name = config.pop("algorithm", "logic-v1")
-        self._algorithm = get_algorithm(algo_name)
-        if self._algorithm is None:
+        _algorithm = get_algorithm(algo_name)
+        if _algorithm is None:
             raise EnrichmentException(f"Unknown algorithm: {algo_name}")
+        self._algorithm = _algorithm
+        self._threshold = config.pop("threshold", None)
         self._cutoff = config.pop("cutoff", 0.5)
         self._limit = config.pop("limit", 5)
         self._ns: Optional[Namespace] = None
@@ -71,8 +78,6 @@ class LocalEnricher(Enricher):
             if not entity.schema.can_match(match.schema):
                 continue
 
-            if self._algorithm is None:
-                raise EnrichmentException("No algorithm specified")
             result = self._algorithm.compare(entity, match)
             if result.score < self._cutoff:
                 continue
@@ -84,7 +89,7 @@ class LocalEnricher(Enricher):
             scores.append((result.score, proxy))
 
         scores.sort(key=lambda s: s[0], reverse=True)
-        for _, proxy in scores[: self._limit]:
+        for algo_score, proxy in scores[: self._limit]:
             yield proxy
 
     def _traverse_nested(

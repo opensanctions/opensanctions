@@ -13,7 +13,7 @@ PATH = "zavod.runner.local_enricher:LocalEnricher"
 DATASET_DATA = {
     "name": "some_registry",
     "title": "Some Company Registry",
-    "config": {"dataset": "testdataset1", "threshold": 0.7},
+    "config": {"dataset": "testdataset1", "cutoff": 0.5},
 }
 
 
