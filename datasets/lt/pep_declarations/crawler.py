@@ -145,7 +145,9 @@ def crawl(context: Context) -> None:
 
         assert record.pop("id") == deklaracija_id
 
+        # metadata
         submission_date = record.pop("pateikimoData")
+        modified_at = record.pop("viesumoNutraukimoData")
         reasons_for_submission = record.pop("teikimoPriezastysPavadinimai")
         submission_status = record.pop("viesumoStatusas")
         nondisclosure_reason = record.pop("neviesinimoPriezastis")
@@ -186,7 +188,6 @@ def crawl(context: Context) -> None:
         # ignored values
         for ignored_key in [
             "rysiaiDelSandoriu",
-            "viesumoNutraukimoData",
             "kitiDuomenys",
             "kitiDuomenysFa",
             "teikejasYraIstaigosDarbuotojas",
