@@ -20,6 +20,7 @@ StatementGen = Generator[Statement, None, None]
 DATASETS = "datasets"
 ARTIFACTS = "artifacts"
 STATEMENTS_FILE = "statements.pack"
+HASH_FILE = "entities.hash"
 DELTA_FILE = "entities.delta.json"
 STATISTICS_FILE = "statistics.json"
 ISSUES_LOG = "issues.log"

@@ -28,6 +28,7 @@ DEFAULT_EXPORTERS: Set[str] = {
     NamesExporter.FILE_NAME,
     SimpleCSVExporter.FILE_NAME,
     SenzingExporter.FILE_NAME,
+    DeltaExporter.FILE_NAME,
 }
 EXPORTERS: Dict[str, Type[Exporter]] = {
     StatisticsExporter.FILE_NAME: StatisticsExporter,

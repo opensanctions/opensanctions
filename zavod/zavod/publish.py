@@ -7,8 +7,9 @@ from zavod.archive import publish_resource, dataset_resource_path
 from zavod.archive import publish_dataset_version, publish_artifact
 from zavod.archive import INDEX_FILE, CATALOG_FILE, ISSUES_FILE, ISSUES_LOG
 from zavod.archive import STATEMENTS_FILE, RESOURCES_FILE, STATISTICS_FILE
-from zavod.archive import DELTA_FILE, VERSIONS_FILE
+from zavod.archive import DELTA_FILE, VERSIONS_FILE, HASH_FILE
 from zavod.runtime.resources import DatasetResources
+from zavod.runtime.versions import get_latest
 from zavod.exporters import write_dataset_index, write_issues
 
 log = get_logger(__name__)
@@ -21,17 +22,21 @@ ARTIFACTS = [
     VERSIONS_FILE,
     RESOURCES_FILE,
     DELTA_FILE,
+    HASH_FILE,
 ]
 
 
 def _publish_artifacts(dataset: Dataset) -> None:
+    version = get_latest(dataset.name, backfill=False)
+    if version is None:
+        raise ValueError(f"No working version found for dataset: {dataset.name}")
     for artifact in ARTIFACTS:
         path = dataset_resource_path(dataset.name, artifact)
         if path.is_file():
             publish_artifact(
                 path,
                 dataset.name,
-                settings.RUN_VERSION,
+                version,
                 artifact,
                 mime_type=JSON if artifact.endswith(".json") else None,
             )

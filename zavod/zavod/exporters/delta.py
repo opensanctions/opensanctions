@@ -1,10 +1,9 @@
-from banal import hash_data
-from typing import Any, Generator, Optional, Set
-from nomenklatura.kv import get_redis, b, bv
+from typing import Any, Generator
 
 from zavod.entity import Entity
-from zavod.archive import DELTA_FILE, iter_dataset_versions
+from zavod.archive import DELTA_FILE
 from zavod.exporters.common import Exporter
+from zavod.runtime.delta import HashDelta
 from zavod.util import write_json
 
 
@@ -15,95 +14,25 @@ class DeltaExporter(Exporter):
 
     def setup(self) -> None:
         super().setup()
-        self.redis = get_redis()
-        ver = f"{self.dataset.name}:{self.context.version.id}"
-        self.hashes = f"delta:hash:{ver}"
-        self.entities = f"delta:ents:{ver}"
-        self.ents_buffer: Set[bytes] = set()
-        self.hash_buffer: Set[bytes] = set()
+        self.delta = HashDelta(self.dataset)
+        self.delta.backfill()
 
     def feed(self, entity: Entity) -> None:
-        if entity.id is None:
-            return
-        if len(self.ents_buffer) > 500:
-            self.redis.sadd(self.entities, *self.ents_buffer)
-            self.ents_buffer.clear()
-            self.redis.sadd(self.hashes, *self.hash_buffer)
-            self.hash_buffer.clear()
-        self.ents_buffer.add(b(entity.id))
-        entity_hash = hash_data((entity.id, entity.schema.name, entity.properties))
-        self.hash_buffer.add(b(f"{entity.id}:{entity_hash}"))
+        self.delta.feed(entity)
 
-    def generate(self, previous: Optional[str]) -> Generator[Any, None, None]:
-        if previous is None:
-            # The redis store doesn't offer a delta image, so we're doing
-            # a full export here.
-            for initial in self.view.entities():
-                yield {"op": "ADD", "entity": initial.to_dict()}
-            return
-        tmp_fwd = f"delta:fwd:{self.dataset.name}"
-        tmp_bwd = f"delta:bwd:{self.dataset.name}"
-        prev_hashes = f"delta:hash:{self.dataset.name}:{previous}"
-        prev_entities = f"delta:ents:{self.dataset.name}:{previous}"
-        self.redis.sdiffstore(tmp_fwd, [self.hashes, prev_hashes])
-        self.redis.sdiffstore(tmp_bwd, [prev_hashes, self.hashes])
-        changed_hashes = self.redis.sunion([tmp_fwd, tmp_bwd])
-        prev_id: Optional[str] = None
-        for hash in sorted(changed_hashes):
-            b_entity_id, _ = bv(hash).split(b":", 1)
-            entity_id = b_entity_id.decode("utf-8")
-            if entity_id == prev_id:
-                continue
-            prev_id = entity_id
-            is_curr = self.redis.sismember(self.entities, entity_id)
-            if not is_curr:
+    def generate(self) -> Generator[Any, None, None]:
+        for op, entity_id in self.delta.generate():
+            if op == "DEL":
                 yield {"op": "DEL", "entity": {"id": entity_id}}
                 continue
             entity = self.view.get_entity(entity_id)
-            if entity is None:  # wat
+            if entity is None:  # watman
                 continue
-            is_prev = self.redis.sismember(prev_entities, entity_id)
-            if not is_prev:
-                yield {"op": "ADD", "entity": entity.to_dict()}
-                continue
-
-            yield {"op": "MOD", "entity": entity.to_dict()}
-        self.redis.delete(tmp_fwd, tmp_bwd)
+            yield {"op": op, "entity": entity.to_dict()}
 
     def finish(self) -> None:
-        if len(self.ents_buffer):
-            self.redis.sadd(self.entities, *self.ents_buffer)
-            self.redis.sadd(self.hashes, *self.hash_buffer)
-        version: Optional[str] = None
-
-        # FIXME: this is a bit of a hack, but we need to find the last
-        # version that has a delta state in the redis store.
-        for v in iter_dataset_versions(self.dataset.name):
-            if self.redis.exists(f"delta:ents:{self.dataset.name}:{v.id}"):
-                version = v.id
-                break
-
         with open(self.path, "wb") as fh:
-            for op in self.generate(version):
+            for op in self.generate():
                 write_json(op, fh)
+        self.delta.close()
         super().finish()
-
-    @classmethod
-    def cleanup(cls, dataset_name: str, keep: int = 5) -> None:
-        """Remove old delta state from the redis store."""
-        # This is built in such a way that it'll also clean up any
-        # dangling delta state from runs that never got published.
-        redis = get_redis()
-        current: Set[bytes] = set()
-        for idx, v in enumerate(iter_dataset_versions(dataset_name)):
-            if idx >= keep:
-                break
-            current.add(b(f"delta:ents:{dataset_name}:{v.id}"))
-            current.add(b(f"delta:hash:{dataset_name}:{v.id}"))
-        for key in redis.keys(f"delta:ents:{dataset_name}:*"):
-            if key not in current:
-                redis.delete(key)
-        for key in redis.keys(f"delta:hash:{dataset_name}:*"):
-            if key not in current:
-                redis.delete(key)
-        redis.delete(f"delta:fwd:{dataset_name}", f"delta:bwd:{dataset_name}")
