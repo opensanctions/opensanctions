@@ -3813,3 +3813,18 @@ lookups:
           legalForm: société à responsabilité limitée
           jurisdiction: ir
           incorporationDate: 2016-07-13
+      - match: "déclarée à la préfecture du Nord (59) le 23 février 2018 sous le numéro W595030728: W595030728"
+        props:
+          jurisdiction: fr
+          registrationNumber: W595030728
+          incorporationDate: 2018-02-23
+      - match: "déclarée à la préfecture du Rhône (69) le 23 novembre 2009 sous le numéro W691075246: W691075246"
+        props:
+          jurisdiction: fr
+          registrationNumber: W691075246
+          incorporationDate: 2009-11-23
+      - match: "déclarée à la préfecture de police (75) le 28 mars 1990, sous le numéro W751148995: W751148995"
+        props:
+          jurisdiction: fr
+          registrationNumber: W751148995
+          incorporationDate: 1990-03-28
