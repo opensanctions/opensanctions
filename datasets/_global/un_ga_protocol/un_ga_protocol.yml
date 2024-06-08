@@ -1,0 +1,36 @@
+title: UN Heads of State, Heads of Government and Ministers for Foreign Affairs
+entry_point: crawler.py
+prefix: unprot
+coverage:
+  frequency: daily
+  start: "2024-06-12"
+deploy:
+  schedule: "@weekly"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  The UN's list of senior government officials in all of its member states.
+description: |
+  > The Protocol and Liaison Service maintains a list of Heads of State, Heads
+  > of Government, and Ministers for Foreign Affairs of all Member States
+  > based on the information provided by the Permanent Missions.
+publisher:
+  name: United Nations Protocol Service
+  description: |
+    The Protocol and Liaison Service within the Department for General Assembly
+    and Conference Management (DGACM) serves the protocol needs of the
+    Secretariat, including those of the Secretary-General, the Deputy
+    Secretary-General and the President of the General Assembly.
+  url: "https://www.un.org/dgacm/en/content/protocol"
+  official: true
+url: "https://www.un.org/dgacm/en/content/protocol/hshgnfa"
+data:
+  url: https://www.un.org/dgacm/en/content/protocol/hshgnfa
+  format: PDF
+
+lookups:
+  names:
+    options:
+      - match:
+          - No Prime Minister
+          - Same as Head of State
+        value: ""
