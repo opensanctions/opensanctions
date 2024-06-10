@@ -1,8 +1,8 @@
-from typing import Any, Callable, Dict, List, Optional
-
 from lxml import html, etree
 from time import sleep
 from base64 import b64decode
+from typing import Any, Callable, Dict, List, Optional
+
 
 from zavod import settings
 from zavod.context import Context

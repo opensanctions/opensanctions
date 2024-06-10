@@ -8,7 +8,7 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get -qq -y update \
     && apt-get -qq -y upgrade \
     && apt-get -qq -y install locales apt-transport-https ca-certificates gnupg \
-    tzdata curl python3-pip  python3-dev python3-venv \
+    tzdata curl python3-pip  python3-dev python3-venv poppler-utils \
     libicu-dev pkg-config libxml2-dev libxslt1-dev libleveldb-dev libleveldb1d \
     && apt-get -qq -y autoremove \
     && apt-get clean \
