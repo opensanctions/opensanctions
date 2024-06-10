@@ -1,0 +1,44 @@
+title: US Department of State Terrorist Exclusion
+entry_point: crawler.py
+prefix: us-dos-terr
+coverage:
+  frequency: daily
+  start: "2024-06-06"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Organizations designated as terrorist for immigration purposes.
+description: |
+  Section 411 of the USA PATRIOT ACT of 2001 (8 U.S.C. § 1182) authorized
+  the Secretary of State, in consultation with or upon the request of the
+  Attorney General, to designate terrorist organizations for immigration purposes.
+
+  An organization can be placed on the TEL if the Secretary of State finds that the organization:
+
+    - commits or incites to commit, under circumstances indicating an intention to cause
+      death or serious bodily injury, a terrorist activity;
+    - prepares or plans a terrorist activity;
+    - gathers information on potential targets for terrorist activity; or
+    - provides material support to further terrorist activity.
+publisher:
+  name: US State Department
+  description: |
+    The United States Department of State (DOS) is an executive department of
+    the U.S. federal government responsible for the country's foreign policy
+    and relations. 
+  url: https://www.state.gov
+  official: true
+  country: "us"
+url: "https://www.state.gov/terrorist-exclusion-list/"
+data:
+  url: https://www.state.gov/terrorist-exclusion-list/
+  format: HTML
+  lang: eng
+ci_test: false
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 40
+  max:
+    schema_entities:
+      LegalEntity: 70
