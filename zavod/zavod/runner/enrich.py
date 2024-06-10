@@ -3,7 +3,6 @@ from nomenklatura.judgement import Judgement
 from nomenklatura.resolver import Resolver
 from nomenklatura.cache import Cache
 from nomenklatura.enrich import Enricher, EnrichmentException, get_enricher
-from nomenklatura.matching import DefaultAlgorithm
 
 from zavod.meta import Dataset, get_multi_dataset
 from zavod.entity import Entity
