@@ -48,7 +48,7 @@ inputs:
   - sanctions
 
 config:
-  type: zavod.runner.local_enricher:LocalEnricher
+  type: nomenklatura.enrich.yente:YenteEnricher
   api: https://api.graph.opensanctions.org/
   dataset: ee_ariregister
   api_key: ${OPENSANCTIONS_GRAPH_API_KEY}
