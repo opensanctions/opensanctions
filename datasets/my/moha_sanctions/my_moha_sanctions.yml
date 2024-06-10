@@ -4,17 +4,14 @@ prefix: mymoha
 coverage:
   frequency: never
   start: "2023-07-11"
-  end: "2023-07-11"
 deploy:
   schedule: "@weekly"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+ci_test: false
 summary: >
   The Malaysian Home Affairs list designates those found to be involved in acts
   of terrorism.
 description: |
-  The list cannot be extracted fully automatically.
-  **This extract is dated July 11, 2023.**
-
   > This list is made by the Minister of Home Affairs under the section 66B (1) of
   > the Anti-Money Laundering, Anti-Terrorism Financing and Proceeds From Illegal
   > Activities 2001 [Act 613]. Under section 66B (1) of the Act 613,
@@ -29,6 +26,10 @@ description: |
   >
   > the Minister of Home Affairs may, by order published in the Gazette, declare the
   > entity to be a specified entity.
+
+  **Note:** This crawler uses an LLM-based approach to extract the data from
+  the PDF file. We are still working on improving the quality of that process
+  in order to ensure the highest possible accuracy.
 publisher:
   name: Ministry of Home Affairs (Kementerian Dalam Negeri)
   description: |
@@ -41,6 +42,7 @@ url: https://www.moha.gov.my/index.php/en/maklumat-perkhidmatan/membanteras-pemb
 data:
   url: https://www.moha.gov.my/index.php/en/maklumat-perkhidmatan/membanteras-pembiayaan-keganasan2/senarai-kementerian-dalam-negeri
   format: PDF
+  lang: msa
 http:
   user_agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36" (zavod; opensanctions.org)
 
@@ -60,8 +62,24 @@ lookups:
         value: India
       - match: Idlib, Syria
         value: Syria
-      - match: Filipina (Pemastautin Tetap di Malaysi
+      - match:
+          - Filipina (Pemastautin Tetap di Malaysi
+          - Filipina (Pemaustautin Tetap di Malaysia)
         value: Philippines
+      - match: Pemastautin Tetap di Malaysia
+        value: Malaysia
+      - match: a) Algeria
+        value: Algeria
+      - match: b) Mali
+        value: Mali
+      - match: c) Mauritania
+        value: Mauritania
+      - match: d) Morocco
+        value: Morocco
+      - match: e) Niger
+        value: Niger
+      - match: f) Tunisia
+        value: Tunisia
   type.date:
     options:
       - match: 20.02.1976 13.02.1975 15.02.1976 07.01.1977
