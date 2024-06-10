@@ -2,8 +2,8 @@ title: UN Heads of State, Heads of Government and Ministers for Foreign Affairs
 entry_point: crawler.py
 prefix: unprot
 coverage:
-  frequency: daily
-  start: "2024-06-12"
+  frequency: weekly
+  start: "2024-06-10"
 deploy:
   schedule: "@weekly"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
@@ -39,3 +39,7 @@ lookups:
           - No Prime Minister
           - Same as Head of State
         value: ""
+  type.date:
+    options:
+      - match: Jul-21
+        value: null
