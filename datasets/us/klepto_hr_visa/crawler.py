@@ -84,7 +84,9 @@ def crawl_report(context: Context, url: str):
         },
     ]
     context.log.info(f"Crawling {url}")
-    doc = fetch_html(context, url, report_unblock_validator, actions=actions, cache_days=1)
+    doc = fetch_html(
+        context, url, report_unblock_validator, actions=actions, cache_days=1
+    )
     for section in doc.findall(".//section[@class='entry-content']"):
         crawl_section(context, url, section)
 
@@ -104,7 +106,13 @@ def crawl(context: Context) -> Optional[str]:
             "timeout": 15,
         },
     ]
-    doc = fetch_html(context, context.data_url, index_unblock_validator, actions=actions, cache_days=1)
+    doc = fetch_html(
+        context,
+        context.data_url,
+        index_unblock_validator,
+        actions=actions,
+        cache_days=1,
+    )
     for option in doc.find(".//nav[@id='report-nav']").xpath(".//option"):
         url = option.get("value")
         if url != "":
