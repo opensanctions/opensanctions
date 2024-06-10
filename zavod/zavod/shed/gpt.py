@@ -39,7 +39,7 @@ def run_image_prompt(
     prompt: str,
     image_path: Path,
     max_tokens: int = 3000,
-    cache_days: int = 60,
+    cache_days: int = 100,
     model: str = "gpt-4o",
 ) -> Any:
     """Run an image prompt."""
