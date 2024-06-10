@@ -17,5 +17,4 @@ children:
   - nl_most_wanted
   - tr_wanted
   - za_wanted
-  - us_ss_most_wanted
 ci_test: false

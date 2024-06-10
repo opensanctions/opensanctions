@@ -4,14 +4,21 @@ from xml.etree import ElementTree
 from normality import collapse_spaces
 
 
-def get_element_text(doc: ElementTree, xpath_value: str, to_remove=[], position=0):
+def get_element_text(doc: ElementTree, xpath_value: str, to_remove=[]) -> str:
+    """Extract text from from an xpath
+
+    Args:
+        doc (ElementTree): HTML Tree
+        xpath_value (str):  xpath to extract text from
+        to_remove (list, optional): string to remove in the extracted text.
+    """
     element_tags = doc.xpath(xpath_value)
 
     tag_list = []
     for tag in element_tags:
         try:
             tag_list.append(tag.text_content())
-        except Exception:
+        except AttributeError:  #  node is already a text content
             tag_list.append(tag)
     element_text = "".join(tag_list)
 
@@ -22,21 +29,20 @@ def get_element_text(doc: ElementTree, xpath_value: str, to_remove=[], position=
 
 
 def crawl(context: Context):
-    base_url = context.data_url
+    doc = context.fetch_html(context.data_url, cache_days=1)
+    doc.make_links_absolute(context.data_url)
 
-    doc = context.fetch_html(base_url, cache_days=1)
-    doc.make_links_absolute(base_url)
-
-    for person_link in doc.xpath(
+    for person_node in doc.xpath(
         './/div[@id="block-af1-content"]//div[contains(@class, "grid-col")][contains(@class, "margin")]//a'
     ):
-
-        url = person_link.get("href")
+        url = person_node.get("href")
         crawl_person(context, url)
 
 
 def crawl_person(context: Context, url: str):
     doc = context.fetch_html(url, cache_days=1)
+
+    name = get_element_text(doc, '//h1[contains(@class, "page-title")]')
 
     alias = get_element_text(
         doc,
@@ -66,6 +72,7 @@ def crawl_person(context: Context, url: str):
 
     person = context.make("Person")
     person.id = context.make_slug(person_id)
+    person.add("name", name)
     person.add("topics", "crime")
     person.add("sourceUrl", url)
     person.add("alias", alias.split(","))

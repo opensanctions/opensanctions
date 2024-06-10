@@ -51,5 +51,4 @@ children:
   - us_sec_pause
   - us_sec_harmed_investors
   - za_wanted
-  - us_ss_most_wanted
 ci_test: false
