@@ -13,8 +13,9 @@ from nomenklatura.index.tantivy_index import TantivyIndex
 from nomenklatura.matching import get_algorithm, LogicV1
 
 from zavod.archive import dataset_state_path
+from zavod.dedupe import get_resolver
 from zavod.meta import get_catalog
-from zavod.store import get_view
+from zavod.store import get_store
 
 
 log = logging.getLogger(__name__)
@@ -48,7 +49,10 @@ class LocalEnricher(Enricher):
         super().__init__(dataset, cache, config)
         target_dataset_name = config.pop("dataset")
         target_dataset = get_catalog().require(target_dataset_name)
-        self._view = get_view(target_dataset, external=False)
+        resolver = get_resolver()
+        target_store = get_store(target_dataset, resolver)
+        target_store.sync()
+        self._view = target_store.view(target_dataset)
         state_path = dataset_state_path(dataset.name)
         self._index = TantivyIndex(
             self._view, state_path, config.get("index_options", {})

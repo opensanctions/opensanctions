@@ -39,7 +39,7 @@ class TimeStampIndex(object):
     def get(self, id: Optional[str], default: str) -> str:
         if id is None:
             return default
-        first_seen: Optional[bytes] = self.db.get(id.encode("utf-8"))
+        first_seen: Optional[bytes] = self.db.get(id.encode("utf-8"), fill_cache=False)
         if first_seen is not None:
             return first_seen.decode("utf-8")
         return default

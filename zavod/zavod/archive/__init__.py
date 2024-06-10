@@ -1,6 +1,7 @@
 import csv
 import shutil
 from pathlib import Path
+from functools import lru_cache
 from typing import TYPE_CHECKING
 from typing import Optional, Generator, TextIO, Set
 from rigour.mime.types import JSON
@@ -20,7 +21,9 @@ StatementGen = Generator[Statement, None, None]
 DATASETS = "datasets"
 ARTIFACTS = "artifacts"
 STATEMENTS_FILE = "statements.pack"
-DELTA_FILE = "entities.delta.json"
+HASH_FILE = "entities.hash"
+DELTA_EXPORT_FILE = "entities.delta.json"
+DELTA_INDEX_FILE = "delta.json"
 STATISTICS_FILE = "statistics.json"
 ISSUES_LOG = "issues.log"
 ISSUES_FILE = "issues.json"
@@ -80,7 +83,8 @@ def get_dataset_artifact(
     return path
 
 
-def _get_history_object(
+@lru_cache(maxsize=1000)
+def get_versions_data(
     dataset_name: str, version: Optional[str] = None
 ) -> Optional[str]:
     backend = get_archive_backend()
@@ -95,7 +99,7 @@ def _get_history_object(
 
 def iter_dataset_versions(dataset_name: str) -> Generator[Version, None, None]:
     """Iterate over all versions of a given dataset."""
-    data = _get_history_object(dataset_name)
+    data = get_versions_data(dataset_name)
     seen: Set[str] = set()
     while True:
         if data is None:
@@ -107,7 +111,7 @@ def iter_dataset_versions(dataset_name: str) -> Generator[Version, None, None]:
                 seen.add(version.id)
         if len(history.items) < 2:
             break
-        data = _get_history_object(dataset_name, history.items[0].id)
+        data = get_versions_data(dataset_name, history.items[0].id)
 
 
 def get_artifact_object(
@@ -135,24 +139,17 @@ def get_artifact_object(
     return None
 
 
-def publish_dataset_history(dataset_name: str, version: Version) -> None:
+def publish_dataset_version(dataset_name: str) -> None:
     """Publish the history of versions for a given dataset to the artifact directory."""
-    data = _get_history_object(dataset_name)
-    history = VersionHistory.from_json(data or "{}")
-    if version not in history.items:
-        history = history.append(version)
-    backend = get_archive_backend()
     path = dataset_resource_path(dataset_name, VERSIONS_FILE)
+    if not path.exists():
+        raise RuntimeError(f"Version history not found: {dataset_name}")
 
-    with open(path, "w") as fh:
-        fh.write(history.to_json())
-
+    backend = get_archive_backend()
     name = f"{ARTIFACTS}/{dataset_name}/{VERSIONS_FILE}"
     object = backend.get_object(name)
     object.publish(path, mime_type=JSON)
-    name = f"{ARTIFACTS}/{dataset_name}/{version.id}/{VERSIONS_FILE}"
-    object = backend.get_object(name)
-    object.publish(path, mime_type=JSON)
+    get_versions_data.cache_clear()
 
 
 def publish_artifact(
@@ -205,18 +202,27 @@ def iter_dataset_statements(dataset: "Dataset", external: bool = True) -> Statem
         yield from _iter_scope_statements(scope, external=external)
 
 
-def _iter_scope_statements(dataset: "Dataset", external: bool = True) -> StatementGen:
+def iter_local_statements(dataset: "Dataset", external: bool = True) -> StatementGen:
+    """Create a generator that yields all statements in the given dataset."""
+    assert not dataset.is_collection
     path = dataset_resource_path(dataset.name, STATEMENTS_FILE)
-    if path.exists():
-        with open(path, "r") as fh:
-            yield from _read_fh_statements(fh, external)
-        return
+    if not path.exists():
+        raise FileNotFoundError(f"Statements not found: {dataset.name}")
+    with open(path, "r") as fh:
+        yield from _read_fh_statements(fh, external)
+
+
+def _iter_scope_statements(dataset: "Dataset", external: bool = True) -> StatementGen:
+    try:
+        yield from iter_local_statements(dataset, external=external)
+    except FileNotFoundError:
+        pass
 
     object = get_artifact_object(dataset.name, STATEMENTS_FILE)
     if object is not None:
         log.info(
-            "Streaming backfilled statements...",
-            backfill_dataset=dataset.name,
+            "Streaming statements...",
+            dataset=dataset.name,
             object=object.name,
         )
         with object.open() as fh:

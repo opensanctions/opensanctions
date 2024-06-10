@@ -12,11 +12,13 @@ from zavod import settings
 from zavod.logs import configure_logging, get_logger
 from zavod.meta import load_dataset_from_path, get_multi_dataset, Dataset
 from zavod.crawl import crawl_dataset
-from zavod.store import get_view, get_store, clear_store
+from zavod.store import get_store
 from zavod.archive import clear_data_path
 from zavod.exporters import export_dataset
-from zavod.dedupe import get_resolver, blocking_xref, merge_entities
+from zavod.dedupe import get_resolver, get_dataset_linker
+from zavod.dedupe import blocking_xref, merge_entities
 from zavod.dedupe import explode_cluster
+from zavod.runtime.versions import get_latest
 from zavod.publish import publish_dataset, publish_failure
 from zavod.tools.load_db import load_dataset_to_db
 from zavod.tools.dump_file import dump_dataset_to_file
@@ -70,15 +72,15 @@ def crawl(dataset_path: Path, dry_run: bool = False, clear: bool = False) -> Non
 @click.argument("dataset_path", type=InPath)
 @click.option("-c", "--clear", is_flag=True, default=False)
 def validate(dataset_path: Path, clear: bool = False) -> None:
+    dataset = _load_dataset(dataset_path)
+    linker = get_dataset_linker(dataset)
+    store = get_store(dataset, linker)
+    store.sync(clear=clear)
     try:
-        dataset = _load_dataset(dataset_path)
-        if clear:
-            clear_store(dataset)
-        view = get_view(dataset, external=False)
-        validate_dataset(dataset, view)
+        validate_dataset(dataset, store.view(dataset, external=False))
     except Exception:
         log.exception("Validation failed for %r" % dataset_path)
-        view.store.close()
+        store.close()
         sys.exit(1)
 
 
@@ -88,10 +90,10 @@ def validate(dataset_path: Path, clear: bool = False) -> None:
 def export(dataset_path: Path, clear: bool = False) -> None:
     try:
         dataset = _load_dataset(dataset_path)
-        if clear:
-            clear_store(dataset)
-        view = get_view(dataset, external=False, linker=True)
-        export_dataset(dataset, view)
+        linker = get_dataset_linker(dataset)
+        store = get_store(dataset, linker)
+        store.sync(clear=clear)
+        export_dataset(dataset, store.view(dataset, external=False))
     except Exception:
         log.exception("Failed to export: %s" % dataset_path)
         sys.exit(1)
@@ -101,9 +103,15 @@ def export(dataset_path: Path, clear: bool = False) -> None:
 @click.argument("dataset_path", type=InPath)
 @click.option("-l", "--latest", is_flag=True, default=False)
 def publish(dataset_path: Path, latest: bool = False) -> None:
+    dataset = _load_dataset(dataset_path)
+    version = get_latest(dataset.name, backfill=False)
+    if version is None:
+        raise click.ClickException("No version to publish: %s" % dataset.name)
+    # linker = get_dataset_linker(dataset)
     try:
-        dataset = _load_dataset(dataset_path)
+        # store = get_store(dataset, linker)
         publish_dataset(dataset, latest=latest)
+        # store.release_version(dataset.name, version.id)
     except Exception:
         log.exception("Failed to publish: %s" % dataset_path)
         sys.exit(1)
@@ -134,10 +142,16 @@ def run(
         except RunFailedException:
             publish_failure(dataset, latest=latest)
             sys.exit(1)
+
+    linker = get_dataset_linker(dataset)
+    store = get_store(dataset, linker)
+    version = get_latest(dataset.name, backfill=False)
+    if version is None:
+        raise click.ClickException("No version to publish: %s" % dataset.name)
     # Validate
     try:
-        clear_store(dataset)
-        view = get_view(dataset, external=False, linker=True)
+        store.sync(clear=True)
+        view = store.view(dataset, external=False)
         if not dataset.is_collection:
             validate_dataset(dataset, view)
     except Exception:
@@ -148,7 +162,6 @@ def run(
     # Export and Publish
     try:
         export_dataset(dataset, view)
-        view.store.close()
         publish_dataset(dataset, latest=latest)
 
         if not dataset.is_collection and dataset.load_db_uri is not None:
@@ -223,9 +236,9 @@ def xref(
     schema: Optional[str] = None,
 ) -> None:
     dataset = _load_datasets(dataset_paths)
-    if clear:
-        clear_store(dataset)
-    store = get_store(dataset, external=True)
+    resolver = get_resolver()
+    store = get_store(dataset, resolver)
+    store.sync(clear=clear)
     blocking_xref(
         store,
         limit=limit,
@@ -252,10 +265,9 @@ def xref_prune() -> None:
 @click.option("-c", "--clear", is_flag=True, default=False)
 def dedupe(dataset_paths: List[Path], clear: bool = False) -> None:
     dataset = _load_datasets(dataset_paths)
-    if clear:
-        clear_store(dataset)
     resolver = get_resolver()
-    store = get_store(dataset, external=True)
+    store = get_store(dataset, resolver)
+    store.sync(clear=clear)
     dedupe_ui(resolver, store, url_base="https://opensanctions.org/entities/%s/")
 
 
@@ -345,9 +357,10 @@ def summarize(
     """
     try:
         dataset = _load_dataset(dataset_path)
-        if clear:
-            clear_store(dataset)
-        view = get_view(dataset, external=False)
+        resolver = get_resolver()
+        store = get_store(dataset, resolver)
+        store.sync(clear=clear)
+        view = store.view(dataset, external=False)
         _summarize(view, schema, from_prop, link_props, to_prop, to_props)
     except Exception:
         log.exception("Failed to summarize: %s" % dataset_path)
@@ -380,10 +393,9 @@ def wd_up(
         --country-code de
     """
     dataset = _load_datasets(dataset_paths)
-    if clear:
-        clear_store(dataset)
     resolver = get_resolver()
-    store = get_store(dataset, external=False)
+    store = get_store(dataset, resolver)
+    store.sync(clear=clear)
     run_app(
         resolver,
         store,
@@ -391,3 +403,7 @@ def wd_up(
         country_adjective=country_adjective,
         focus_dataset=focus_dataset,
     )
+
+
+if __name__ == "__main__":
+    cli()

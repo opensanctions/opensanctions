@@ -1,21 +1,17 @@
-import shutil
-from lxml import html
 from typing import List, Optional
 from normality import slugify
-from pantomime.types import HTML
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.shed.zyte_api import fetch_html
+
+
+def unblock_validator(el) -> bool:
+    return "Fizinio ar juridinio asmens, kurio turtas įšaldytas" in el.text_content()
 
 
 def crawl(context: Context):
-    assert context.dataset.base_path is not None
-    data_path = context.dataset.base_path / "data.html"
-    path = context.get_resource_path("source.html")
-    shutil.copyfile(data_path, path)
-    context.export_resource(path, HTML, title=context.SOURCE_TITLE)
-
-    doc = html.fromstring(data_path.read_text())
+    doc = fetch_html(context, context.data_url, unblock_validator)
     for p in doc.xpath(".//p"):
         p.tail = p.tail + "\n" if p.tail else "\n"
     table = doc.find('.//div[@class="content-block"]//table')

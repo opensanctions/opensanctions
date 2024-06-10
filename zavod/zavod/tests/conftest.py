@@ -4,7 +4,6 @@ from pathlib import Path
 from tempfile import mkdtemp, mkstemp
 from nomenklatura import settings as nk_settings
 from nomenklatura.db import get_engine
-from nomenklatura.kv import get_redis
 
 from zavod import settings
 from zavod.context import Context
@@ -39,7 +38,6 @@ def wrap_test():
     yield
     get_catalog.cache_clear()
     get_engine.cache_clear()
-    get_redis.cache_clear()
 
 
 @pytest.fixture(scope="function")

@@ -27,3 +27,14 @@ url: https://www.fntt.lt/lt/tarptautines-finansines-sankcijos/4166
 data:
   url: https://fntt.lrv.lt/lt/tarptautines-finansines-sankcijos/
   format: html
+ci_test: false
+
+assertions:
+  min:
+    schema_entities:
+      Company: 15
+      LegalEntity: 10
+  max:
+    schema_entities:
+      Company: 25
+      LegalEntity: 20

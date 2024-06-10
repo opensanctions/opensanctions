@@ -9,7 +9,7 @@ from nomenklatura.statement.serialize import read_path_statements
 from datetime import datetime
 
 from zavod import settings
-from zavod.store import get_view
+from zavod.store import get_store
 from zavod.dedupe import get_resolver
 from zavod.exporters import export_dataset
 from zavod.archive import clear_data_path, DATASETS
@@ -37,7 +37,10 @@ default_exports = {
 
 
 def export(dataset: Dataset) -> None:
-    view = get_view(dataset)
+    resolver = get_resolver()
+    store = get_store(dataset, resolver)
+    store.sync(clear=True)
+    view = store.view(dataset)
     export_dataset(dataset, view)
 
 

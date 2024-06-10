@@ -4,13 +4,35 @@ from normality import collapse_spaces
 from zavod import Context
 from zavod import helpers as h
 from zavod.logic.pep import categorise
+from zavod.shed.zyte_api import fetch_html
 
 
 DATE_FORMAT = ["%B %d, %Y"]
 
 
+def bio_unblock_validator(doc: ElementTree) -> bool:
+    return len(doc.xpath(".//h1[contains(@class, 'featured-content__headline')]")) > 0
+
+
 def crawl_bio_page(context: Context, url: str):
-    doc = context.fetch_html(url, cache_days=1)
+    actions = [
+        {
+            "action": "waitForSelector",
+            "selector": {
+                "type": "xpath",
+                "value": "//h1[contains(@class, 'featured-content__headline')]",
+            },
+            "timeout": 15,
+        },
+    ]
+    doc = fetch_html(
+        context,
+        url,
+        bio_unblock_validator,
+        actions=actions,
+        javascript=True,
+        cache_days=30,
+    )
     name = collapse_spaces(
         doc.xpath(".//h1[contains(@class, 'featured-content__headline')]")[
             0
@@ -99,10 +121,30 @@ def get_next_link(doc) -> Optional[str]:
         return el.get("href")
 
 
+def index_unblock_validator(doc: ElementTree) -> bool:
+    return len(doc.xpath(".//a[contains(@class, 'biography-collection__link')]")) > 0
+
+
 def crawl(context: Context) -> Optional[str]:
-    doc = context.fetch_html(context.data_url, cache_days=1)
+    actions = [
+        {
+            "action": "waitForSelector",
+            "selector": {
+                "type": "xpath",
+                "value": "//a[contains(@class, 'biography-collection__link')]",
+            },
+            "timeout": 15,
+        },
+    ]
+    doc = fetch_html(
+        context,
+        context.data_url,
+        index_unblock_validator,
+        actions=actions,
+        cache_days=1,
+    )
     crawl_index_page(context, doc)
     while next_link := get_next_link(doc):
         context.log.info(f"Crawling index page {next_link}")
-        doc = context.fetch_html(next_link, cache_days=1)
+        doc = fetch_html(context, next_link, index_unblock_validator, cache_days=1)
         crawl_index_page(context, doc)

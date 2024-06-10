@@ -110,6 +110,13 @@ def crawl(context: Context) -> None:
             "registrationNumber",
             row.pop("Unique Entity ID", None),
         )
+        entity.add("cageCode", row.pop("CAGE", None), quiet=True)
+        # The NPI (National Provider Identifier) is a unique identification number
+        # for covered health care providers. It is an optional field for exclusion
+        # records.
+        npi = row.pop("NPI", None)
+        if npi is not None and len(npi):
+            entity.add("npiCode", npi)
 
         h.apply_name(
             entity,
@@ -149,25 +156,9 @@ def crawl(context: Context) -> None:
         sanction.add("endDate", parse_date(row.pop("Termination Date")))
         sanction.add("summary", row.pop("Additional Comments", None))
 
-        # The NPI (National Provider Identifier) is a unique identification number
-        # for covered health care providers. It is an optional field for exclusion
-        # records.
-        npi = row.pop("NPI", None)
-        if npi is not None and len(npi):
-            entity.add("description", f"NPI: {npi}")
-
         context.audit_data(
             row,
-            ignore=[
-                "CT Code",
-                "Open Data Flag",
-                # The NPI (National Provider Identifier) is a unique identification number
-                # for covered health care providers. It is an optional field for exclusion
-                # records.
-                "NPI",
-                # Commercial And Government Entity (CAGE) Code
-                "CAGE",
-            ],
+            ignore=["CT Code", "Open Data Flag"],
         )
         context.emit(sanction)
         context.emit(entity, target=True)
