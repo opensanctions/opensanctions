@@ -110,9 +110,7 @@ def crawl(context: Context) -> None:
             "registrationNumber",
             row.pop("Unique Entity ID", None),
         )
-        cage = row.pop("CAGE", None)
-        if cage is not None and len(cage) and not entity.schema.is_a("Person"):
-            entity.add_cast("Organization", "cageCode", cage)
+        entity.add("cageCode", row.pop("CAGE", None), quiet=True)
         # The NPI (National Provider Identifier) is a unique identification number
         # for covered health care providers. It is an optional field for exclusion
         # records.
