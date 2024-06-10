@@ -1,8 +1,5 @@
-import shutil
-from lxml import html
 from typing import List, Optional
 from normality import slugify
-from pantomime.types import HTML
 
 from zavod import Context
 from zavod import helpers as h
