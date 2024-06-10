@@ -5,7 +5,7 @@ coverage:
   frequency: weekly
   start: 2024-06-10
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-ci_test: true
+ci_test: false
 summary: >-
   Sanctions imposed by Japan under its Foreign Exchange and Foreign Trade Law.
 description: |
@@ -25,6 +25,8 @@ data:
   url: https://www.meti.go.jp/english/policy/external_economy/trade_control/index.html#Endu
   format: PDF
   lang: jpn
+http:
+  user_agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 (zavod; opensanctions.org)
 
 lookups:
   type.country:

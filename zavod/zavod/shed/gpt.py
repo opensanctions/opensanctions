@@ -40,6 +40,7 @@ def run_image_prompt(
     image_path: Path,
     max_tokens: int = 3000,
     cache_days: int = 60,
+    model: str = "gpt-4o",
 ) -> Any:
     """Run an image prompt."""
     client = get_client()
@@ -51,9 +52,9 @@ def run_image_prompt(
     if cached_data is not None:
         log.info("GPT cache hit: %s" % image_path.name)
         return cached_data
-    log.info("Running GPT for: %s" % image_path.name)
+    log.info("Prompting %r for: %s" % (model, image_path.name))
     response = client.chat.completions.create(
-        model="gpt-4o",
+        model=model,
         messages=[
             {
                 "role": "user",
