@@ -5,6 +5,7 @@ import re
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.shed.zyte_api import fetch_html
 from zavod.util import ElementOrTree
 
 
@@ -67,15 +68,51 @@ def crawl_section(context: Context, url: str, section: ElementOrTree):
             context.log.warning("Cannot parse item", item=item_text)
 
 
+def report_unblock_validator(doc: ElementOrTree) -> bool:
+    return len(doc.xpath(".//section[@class='entry-content']")) > 0
+
+
 def crawl_report(context: Context, url: str):
+    actions = [
+        {
+            "action": "waitForSelector",
+            "selector": {
+                "type": "xpath",
+                "value": ".//section[@class='entry-content']",
+            },
+            "timeout": 15,
+        },
+    ]
     context.log.info(f"Crawling {url}")
-    doc = context.fetch_html(url, cache_days=1)
+    doc = fetch_html(
+        context, url, report_unblock_validator, actions=actions, cache_days=1
+    )
     for section in doc.findall(".//section[@class='entry-content']"):
         crawl_section(context, url, section)
 
 
+def index_unblock_validator(doc: ElementOrTree) -> bool:
+    return len(doc.xpath(".//nav[@id='report-nav']")) > 0
+
+
 def crawl(context: Context) -> Optional[str]:
-    doc = context.fetch_html(context.data_url, cache_days=1)
+    actions = [
+        {
+            "action": "waitForSelector",
+            "selector": {
+                "type": "xpath",
+                "value": ".//nav[@id='report-nav']",
+            },
+            "timeout": 15,
+        },
+    ]
+    doc = fetch_html(
+        context,
+        context.data_url,
+        index_unblock_validator,
+        actions=actions,
+        cache_days=1,
+    )
     for option in doc.find(".//nav[@id='report-nav']").xpath(".//option"):
         url = option.get("value")
         if url != "":
