@@ -4,7 +4,8 @@ from typing import Any, Dict, Optional
 from zavod import Context, Entity
 from zavod import settings
 from zavod.meta import get_multi_dataset
-from zavod.store import get_view
+from zavod.store import get_store
+from zavod.dedupe import get_dataset_linker
 
 
 @cache
@@ -36,7 +37,10 @@ def analyze_position(context: Context, entity: Entity) -> None:
 
 
 def crawl(context: Context) -> None:
-    view = get_view(get_multi_dataset(context.dataset.inputs))
+    scope = get_multi_dataset(context.dataset.inputs)
+    linker = get_dataset_linker(scope)
+    store = get_store(scope, linker)
+    view = store.view(scope)
     position_count = 0
 
     for entity_idx, entity in enumerate(view.entities()):

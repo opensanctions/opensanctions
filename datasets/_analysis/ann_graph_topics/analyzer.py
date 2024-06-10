@@ -2,11 +2,15 @@ from followthemoney.types import registry
 
 from zavod import Context
 from zavod.meta import get_multi_dataset
-from zavod.store import get_view
+from zavod.store import get_store
+from zavod.dedupe import get_dataset_linker
 
 
 def crawl(context: Context) -> None:
-    view = get_view(get_multi_dataset(context.dataset.inputs))
+    scope = get_multi_dataset(context.dataset.inputs)
+    linker = get_dataset_linker(scope)
+    store = get_store(scope, linker)
+    view = store.view(scope)
 
     for entity_idx, entity in enumerate(view.entities()):
         if entity_idx > 0 and entity_idx % 1000 == 0:
