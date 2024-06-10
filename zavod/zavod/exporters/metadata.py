@@ -159,6 +159,9 @@ def write_delta_index(
             )
         if len(versions) >= max_versions:
             break
+    if len(versions) == 0:
+        log.info("No delta versions found", dataset=dataset.name)
+        return
     index_path = dataset_resource_path(dataset.name, DELTA_INDEX_FILE)
     log.info("Writing delta versions index...", path=index_path.as_posix())
     with open(index_path, "wb") as fh:
