@@ -56,6 +56,7 @@ children:
   - in_mha_banned
   - ir_sanctions
   - jp_mof_sanctions
+  - jp_meti_eul
   - kg_fiu_national
   - kz_afmrk_sanctions
   - lt_fiu_freezes
