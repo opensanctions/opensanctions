@@ -52,12 +52,8 @@ config:
   api: https://api.graph.opensanctions.org/
   dataset: ee_ariregister
   api_key: ${OPENSANCTIONS_GRAPH_API_KEY}
-  index_options:
-    memory_budget: 1024 # MB
-    max_candidates: 100
   strip_namespace: true
   fuzzy: false
-  cutoff: 0.5
   threshold: 0.7
   algorithm: regression-v1
   topics:

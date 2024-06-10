@@ -31,14 +31,18 @@ class LocalEnricher(Enricher):
     Args:
         `config`: a dictionary of configuration options.
           `dataset`: `str` - the name of the dataset to enrich against.
-          `cutoff`: `float` - the minimum score required to be a match.
-          `limit`: `int` - the maximum number of top scoring matches to return.
+          `cutoff`: `float` - (default 0.5) the minimum score required to be a match.
+          `limit`: `int` - (default 5) the maximum number of top scoring matches
+            to return.
           `algorithm`: `str` (default logic-v1) - the name of the algorithm
               to use for matching.
           `index_options`: `dict` - options to pass to the index.
-            `max_candidates`: `int` - the maximum number of search results to score
-              (default 100).
-            `memory_budget`: `int` - the amount of memory to use for indexing in MB
+            `max_candidates`: `int` - (default 100) the maximum number of search
+              results to score.
+            `memory_budget`: `int` - (default 100) the amount of memory to use for
+              indexing in MB
+            `threshold`: `float` - (default 1.0) the minimum tantivy score required
+              to be scored by `algorithm`.
     """
 
     def __init__(self, dataset: DS, cache: Cache, config: EnricherConfig):
