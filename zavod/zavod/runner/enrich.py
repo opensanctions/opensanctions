@@ -9,7 +9,7 @@ from zavod.meta import Dataset, get_multi_dataset
 from zavod.entity import Entity
 from zavod.context import Context
 from zavod.dedupe import get_resolver
-from zavod.store import get_view
+from zavod.store import get_store
 
 
 def dataset_enricher(dataset: Dataset, cache: Cache) -> Enricher:
@@ -59,8 +59,11 @@ def save_match(
 
 
 def enrich(context: Context) -> None:
-    view = get_view(get_multi_dataset(context.dataset.inputs))
     resolver = get_resolver()
+    scope = get_multi_dataset(context.dataset.inputs)
+    store = get_store(scope, resolver)
+    store.sync()
+    view = store.view(scope)
     enricher = dataset_enricher(context.dataset, context.cache)
     threshold = float(context.dataset.config.get("threshold", 0.7))
     try:
