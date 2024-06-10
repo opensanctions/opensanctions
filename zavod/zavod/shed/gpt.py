@@ -51,6 +51,7 @@ def run_image_prompt(
     if cached_data is not None:
         log.info("GPT cache hit: %s" % image_path.name)
         return cached_data
+    log.info("Running GPT for: %s" % image_path.name)
     response = client.chat.completions.create(
         model="gpt-4o",
         messages=[

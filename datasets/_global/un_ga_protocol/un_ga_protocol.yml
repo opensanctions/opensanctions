@@ -14,6 +14,10 @@ description: |
   > The Protocol and Liaison Service maintains a list of Heads of State, Heads
   > of Government, and Ministers for Foreign Affairs of all Member States
   > based on the information provided by the Permanent Missions.
+
+  **Note:** This crawler uses an LLM-based approach to extract the data from
+  the PDF file. We are still working on improving the quality of that process
+  in order to ensure the highest possible accuracy.
 publisher:
   name: United Nations Protocol Service
   description: |

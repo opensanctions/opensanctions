@@ -1,0 +1,33 @@
+title: Japan META End User List
+entry_point: crawler.py
+prefix: ja-eul
+coverage:
+  frequency: weekly
+  start: 2024-06-10
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+ci_test: true
+summary: >-
+  Sanctions imposed by Japan under its Foreign Exchange and Foreign Trade Law.
+description: |
+  TODO
+publisher:
+  name: "Ministry of Economy, Trade and Industry"
+  description: |
+    METI’s mission is to develop Japan’s economy and industry by focusing on promoting
+    economic vitality in private companies and smoothly advancing external economic
+    relationships, and to secure stable and efficient supply of energy and mineral
+    resources.
+  country: jp
+  url: https://www.meti.go.jp/
+  official: true
+url: https://www.meti.go.jp/english/policy/external_economy/trade_control/index.html#Endu
+data:
+  url: https://www.meti.go.jp/english/policy/external_economy/trade_control/index.html#Endu
+  format: PDF
+  lang: jpn
+
+lookups:
+  type.country:
+    options:
+      - match: "Republic of Lebanon"
+        value: Lebanon
