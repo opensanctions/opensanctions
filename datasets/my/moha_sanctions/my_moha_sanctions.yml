@@ -39,8 +39,10 @@ publisher:
   official: true
 url: https://www.moha.gov.my/index.php/en/maklumat-perkhidmatan/membanteras-pembiayaan-keganasan2/senarai-kementerian-dalam-negeri
 data:
-  url: https://www.moha.gov.my/images/SenaraiKementerianDalamNegeri/SENARAI_KDN_2023_PINDAAN_FINAL.pdf
+  url: https://www.moha.gov.my/index.php/en/maklumat-perkhidmatan/membanteras-pembiayaan-keganasan2/senarai-kementerian-dalam-negeri
   format: PDF
+http:
+  user_agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36" (zavod; opensanctions.org)
 
 lookups:
   type.country:
