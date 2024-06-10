@@ -77,4 +77,3 @@ config:
     - Company
     - Organization
     # - LegalEntity
-  cache_days: 30

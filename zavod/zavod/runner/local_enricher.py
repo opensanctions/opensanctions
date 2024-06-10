@@ -10,7 +10,7 @@ from nomenklatura.cache import Cache
 from nomenklatura.enrich.common import Enricher, EnricherConfig
 from nomenklatura.enrich.common import EnrichmentException
 from nomenklatura.index.tantivy_index import TantivyIndex
-from nomenklatura.matching import get_algorithm
+from nomenklatura.matching import get_algorithm, LogicV1
 
 from zavod.archive import dataset_state_path
 from zavod.meta import get_catalog
@@ -24,8 +24,7 @@ class LocalEnricher(Enricher):
     """
     Uses a local index to look up entities in a given dataset.
 
-    Candidates are selected for matching based on the number of tokens
-    they share with the entity being matched. Candidates are then scored
+    Candidates are selected for matching using search index. Candidates are then scored
     by the matching algorithm to determine if they are a match.
 
     Args:
@@ -56,7 +55,7 @@ class LocalEnricher(Enricher):
         )
         self._index.build()
 
-        algo_name = config.pop("algorithm", "logic-v1")
+        algo_name = config.pop("algorithm", LogicV1.NAME)
         _algorithm = get_algorithm(algo_name)
         if _algorithm is None:
             raise EnrichmentException(f"Unknown algorithm: {algo_name}")
