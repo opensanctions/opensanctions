@@ -18,7 +18,7 @@ from zavod.exporters import export_dataset
 from zavod.dedupe import get_resolver, get_dataset_linker
 from zavod.dedupe import blocking_xref, merge_entities
 from zavod.dedupe import explode_cluster
-from zavod.runtime.versions import get_latest
+from zavod.runtime.versions import make_version
 from zavod.publish import publish_dataset, publish_failure
 from zavod.tools.load_db import load_dataset_to_db
 from zavod.tools.dump_file import dump_dataset_to_file
@@ -104,14 +104,9 @@ def export(dataset_path: Path, clear: bool = False) -> None:
 @click.option("-l", "--latest", is_flag=True, default=False)
 def publish(dataset_path: Path, latest: bool = False) -> None:
     dataset = _load_dataset(dataset_path)
-    version = get_latest(dataset.name, backfill=False)
-    if version is None:
-        raise click.ClickException("No version to publish: %s" % dataset.name)
-    # linker = get_dataset_linker(dataset)
+    make_version(dataset, settings.RUN_VERSION, overwrite=False)
     try:
-        # store = get_store(dataset, linker)
         publish_dataset(dataset, latest=latest)
-        # store.release_version(dataset.name, version.id)
     except Exception:
         log.exception("Failed to publish: %s" % dataset_path)
         sys.exit(1)
@@ -142,12 +137,11 @@ def run(
         except RunFailedException:
             publish_failure(dataset, latest=latest)
             sys.exit(1)
+    else:
+        make_version(dataset, settings.RUN_VERSION, overwrite=True)
 
     linker = get_dataset_linker(dataset)
     store = get_store(dataset, linker)
-    version = get_latest(dataset.name, backfill=False)
-    if version is None:
-        raise click.ClickException("No version to publish: %s" % dataset.name)
     # Validate
     try:
         store.sync(clear=True)
