@@ -11,7 +11,8 @@ description: >
   The dataset includes details such as the fugitive's name, date of birth, aliases, summary of the criminal case, and relevant links to them.
 
 url: https://www.secretservice.gov/investigations/mostwanted
-
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+coverage: monthly
 publisher:
   name: United States Secret Service
   acronym: USSS
