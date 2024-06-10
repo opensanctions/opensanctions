@@ -9,18 +9,15 @@ COMPOSE_CMD := $(if $(shell which docker-compose 2>/dev/null),docker-compose,doc
 all: run
 
 workdir:
-	mkdir -p data/kvrocks
+	mkdir -p data/
 
 build:
 	$(COMPOSE_CMD) build --pull
 
-services: workdir
-# 	$(COMPOSE_CMD) up -d --remove-orphans kv
-
-shell: build workdir services
+shell: build workdir
 	$(COMPOSE_CMD) run --rm app bash
 
-run: build workdir services
+run: build workdir
 	$(COMPOSE_CMD) run --rm app opensanctions run
 
 stop:

@@ -1,43 +1,9 @@
 
 services:
-  # kv:
-  #   image: apache/kvrocks:2.8.0
-  #   expose:
-  #     - "6666"
-  #   ports:
-  #     - "127.0.0.1:6666:6666"
-  #   container_name: kv
-  #   ulimits:
-  #     memlock:
-  #       soft: -1
-  #       hard: -1
-  #   volumes:
-  #     - "./data/kvrocks:/data"
-  #   tmpfs:
-  #     - "/tmp"
-  #   command:
-  #     # - kvrocks
-  #     - "-c"
-  #     - "/var/lib/kvrocks/kvrocks.conf"
-  #     - "--bind"
-  #     - "0.0.0.0"
-  #     - "--port"
-  #     - "6666"
-  #     - "--dir"
-  #     - "/data"
-  #     # use 512MB of memory for the block cache:
-  #     - "--rocksdb.block_cache_size"
-  #     - "512"
-  #   deploy:
-  #     restart_policy:
-  #       condition: on-failure
-
   app:
     build: .
     image: ghcr.io/opensanctions/opensanctions:latest
     hostname: work
-    environment:
-      NOMENKLATURA_REDIS_URL: redis://kv:6666/0
     volumes:
       - "./data:/opensanctions/data"
       - "./opensanctions:/opensanctions/opensanctions"
