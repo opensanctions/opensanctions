@@ -24,12 +24,12 @@ publisher:
 url: "https://www.althingi.is/altext/cv/en/"
 data:
   url: https://www.althingi.is/altext/cv/en/
-  format: HTML 
+  format: HTML
 
 assertions:
-   min:
-     schema_entities:
-       Person: 55
-   max:
-     schema_entities:
-       Person: 70
+  min:
+    schema_entities:
+      Person: 55
+  max:
+    schema_entities:
+      Person: 70
