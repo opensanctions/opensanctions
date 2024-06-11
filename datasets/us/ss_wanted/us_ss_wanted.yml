@@ -1,18 +1,21 @@
 title: "United States Secret Service Most Wanted Fugitives"
 entry_point: crawler.py
-prefix: us-ss-wanted
+prefix: us-sswant
 summary: "Wanted fugitivies listed on United States Secret Service website."
 description: >
   This dataset publishes the details of the most wanted fugitives listed on the United States Secret Service website.
 
-  Individuals in this list are involved in one or more financial crime, including but not limited to counterfeiting, 
+  Individuals in this list are involved in one or more financial crimes, including but not limited to counterfeiting, 
   bank fraud, hacking, crypto and credit card fraud. 
 
   The dataset includes details such as the fugitive's name, date of birth, aliases, summary of the criminal case, and relevant links to them.
 
 url: https://www.secretservice.gov/investigations/mostwanted
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-coverage: monthly
+coverage:
+  frequency: monthly
+  start: "2024-05-30"
+
 publisher:
   name: United States Secret Service
   acronym: USSS
@@ -42,12 +45,7 @@ assertions:
     schema_entities:
       Person: 24
     country_entities:
-      md: 2
-      ru: 11
-      ua: 6
-      ng: 1
-      ro: 1
-      ma: 1
+      ru: 8
+      ua: 4
       us: 1
-      cr: 1
     countries: 8
