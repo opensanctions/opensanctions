@@ -24,3 +24,9 @@ url: https://www.ebrd.com/ineligible-entities.html
 data:
   url: https://www.ebrd.com/ineligible-entities.html
   format: HTML
+
+lookups:
+  type.country:
+    options:
+      match: Republic of Türkiye
+      value: tr
