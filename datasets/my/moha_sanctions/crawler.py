@@ -1,8 +1,9 @@
+import re
 from normality import slugify
 from banal import ensure_list, first
 from urllib.parse import urljoin
 from rigour.mime.types import PDF
-from typing import Dict, Union, List, Optional
+from typing import Dict, List, Optional, Any
 
 from zavod import Context
 from zavod import helpers as h
@@ -23,6 +24,28 @@ of the values in the cell separated as strings.
 """
 
 
+def clean_row(row: Dict[str, Any]) -> Dict[str, List[str]]:
+    out: Dict[str, List[str]] = {}
+    for key, values in row.items():
+        clean_key = slugify(key, sep="_")
+        if clean_key is None:
+            continue
+        if not isinstance(values, list):
+            values = [values]
+        cleaned: List[str] = []
+        for val in values:
+            if val is None:
+                continue
+            val = str(val).strip()
+            if val == "-":
+                continue
+            val_ = re.sub(r"^[a-z]\) ", " ", val)
+            cleaned.append(val_.strip())
+        if len(cleaned):
+            out[clean_key] = cleaned
+    return out
+
+
 def parse_date(date: Optional[str]) -> List[str]:
     if date is None:
         return []
@@ -35,7 +58,7 @@ def unblock_validator(el) -> bool:
     return "SANCTION LIST MADE BY THE MINISTRY OF HOME AFFAIRS" in el.text_content()
 
 
-def crawl_person(context: Context, data: Dict[str, Union[str, List[str]]]):
+def crawl_person(context: Context, data: Dict[str, List[str]]):
     entity = context.make("Person")
     code = first(data.pop("rujukan", []))
     code = code or first(data.pop("no_rujukan", []))
@@ -59,7 +82,12 @@ def crawl_person(context: Context, data: Dict[str, Union[str, List[str]]]):
     entity.add("address", data.pop("alamat", []))
 
     sanction = h.make_sanction(context, entity)
-    for fld in ["tarikh_disenaraikan", "tarikh_disenaraiaken", "tarikh_disenarai"]:
+    for fld in [
+        "tarikh_disenaraikan",
+        "tarikh_disenaraiaken",
+        "tarikh_disenarai",
+        "tarikh_disenaraihan",
+    ]:
         for date in ensure_list(data.pop(fld, [])):
             sanction.add("listingDate", parse_date(date))
     sanction.add("authorityId", code)
@@ -69,7 +97,7 @@ def crawl_person(context: Context, data: Dict[str, Union[str, List[str]]]):
     context.audit_data(data, ignore=["no"])
 
 
-def crawl_group(context: Context, data: Dict[str, Union[str, List[str]]]):
+def crawl_group(context: Context, data: Dict[str, List[str]]):
     entity = context.make("Organization")
     code = first(data.pop("no_ruj"))
     if code is None:
@@ -108,12 +136,7 @@ def crawl(context: Context):
     for page_path in h.make_pdf_page_images(path):
         data = run_image_prompt(context, PROMPT, page_path)
         for row in data["rows"]:
-            norm_ = {
-                slugify(k, sep="_"): v
-                for k, v in row.items()
-                if v is not None and str(v).strip() != "-" and v != ["-"]
-            }
-            norm = {k: v for k, v in norm_.items() if k is not None}
+            norm = clean_row(row)
             if "rujukan" in norm and "warganegara" in norm:
                 crawl_person(context, norm)
             elif "no_rujukan" in norm and "warganegara" in norm:

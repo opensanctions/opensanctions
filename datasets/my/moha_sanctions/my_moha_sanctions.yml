@@ -63,21 +63,12 @@ lookups:
       - match:
           - Filipina (Pemastautin Tetap di Malaysi
           - Filipina (Pemaustautin Tetap di Malaysia)
+          - Filipina (Pemastautin Tetap di Malaysia)
         value: Philippines
-      - match: Pemastautin Tetap di Malaysia
+      - match:
+          - Pemastautin Tetap di Malaysia
+          - (Pemasautin Tetap di Malaysia)
         value: Malaysia
-      - match: a) Algeria
-        value: Algeria
-      - match: b) Mali
-        value: Mali
-      - match: c) Mauritania
-        value: Mauritania
-      - match: d) Morocco
-        value: Morocco
-      - match: e) Niger
-        value: Niger
-      - match: f) Tunisia
-        value: Tunisia
   type.date:
     options:
       - match: 20.02.1976 13.02.1975 15.02.1976 07.01.1977
