@@ -40,6 +40,7 @@ def crawl(context: Context) -> None:
     scope = get_multi_dataset(context.dataset.inputs)
     linker = get_dataset_linker(scope)
     store = get_store(scope, linker)
+    store.sync()
     view = store.view(scope)
     position_count = 0
 
