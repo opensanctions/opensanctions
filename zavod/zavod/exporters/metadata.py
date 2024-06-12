@@ -6,6 +6,7 @@ from zavod.logs import get_logger
 from zavod.meta import Dataset
 from zavod.archive import INDEX_FILE, STATISTICS_FILE, ISSUES_FILE
 from zavod.archive import CATALOG_FILE, DELTA_INDEX_FILE, DELTA_EXPORT_FILE
+from zavod.archive import ARTIFACT_FILES
 from zavod.archive import get_dataset_artifact, get_artifact_object
 from zavod.archive import iter_dataset_versions, dataset_resource_path
 from zavod.runtime.urls import make_published_url, make_artifact_url
@@ -35,7 +36,11 @@ def get_base_dataset_metadata(dataset: Dataset) -> Dict[str, Any]:
             meta.update(stats)
 
     resources = DatasetResources(dataset)
-    meta["resources"] = [r.to_opensanctions_dict() for r in resources.all()]
+    meta["resources"] = [
+        r.to_opensanctions_dict()
+        for r in resources.all()
+        if r.name not in ARTIFACT_FILES
+    ]
     return meta
 
 
