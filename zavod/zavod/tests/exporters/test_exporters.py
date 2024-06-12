@@ -25,7 +25,6 @@ from zavod.tests.exporters.util import harnessed_export
 
 TIME_SECONDS_FMT = "%Y-%m-%dT%H:%M:%S"
 
-always_exports = {"statistics.json"}
 default_exports = {
     "entities.ftm.json",
     "names.txt",
@@ -62,7 +61,7 @@ def test_export(testdataset1: Dataset):
         assert index["entity_count"] == 11
         assert index["target_count"] == 7
         resources = {r["name"] for r in index["resources"]}
-        for r in set.union(default_exports, always_exports):
+        for r in default_exports:
             assert r in resources
 
     with open(dataset_path / "names.txt") as names_file:
@@ -73,7 +72,7 @@ def test_export(testdataset1: Dataset):
 
     with open(dataset_path / "resources.json") as resources_file:
         resources = {r["name"] for r in load(resources_file)["resources"]}
-        for r in set.union(default_exports, always_exports):
+        for r in default_exports:
             assert r in resources
 
     with open(dataset_path / "senzing.json") as senzing_file:
@@ -110,17 +109,18 @@ def test_minimal_export_config(testdataset2: Dataset):
     with open(dataset_path / "index.json") as index_file:
         index = load(index_file)
         resources = {r["name"] for r in index["resources"]}
-        for r in always_exports:
-            assert r in resources
         for r in default_exports:
             assert r not in resources
 
     with open(dataset_path / "resources.json") as resources_file:
         resources = {r["name"] for r in load(resources_file)["resources"]}
-        for r in always_exports:
-            assert r in resources
         for r in default_exports:
             assert r not in resources
+
+    # make sure the stats are still written:
+    with open(dataset_path / "statistics.json") as statistics_file:
+        statistics = load(statistics_file)
+        assert statistics["entity_count"] == 18
 
 
 def test_custom_export_config(testdataset2_export: Dataset):
@@ -134,14 +134,14 @@ def test_custom_export_config(testdataset2_export: Dataset):
     with open(dataset_path / "index.json") as index_file:
         index = load(index_file)
         resources = {r["name"] for r in index["resources"]}
-        for r in set.union(always_exports, {"names.txt", "pep-positions.json"}):
+        for r in {"names.txt", "pep-positions.json"}:
             assert r in resources
         for r in default_exports - {"names.txt", "pep-positions.json"}:
             assert r not in resources
 
     with open(dataset_path / "resources.json") as resources_file:
         resources = {r["name"] for r in load(resources_file)["resources"]}
-        for r in set.union(always_exports, {"names.txt", "pep-positions.json"}):
+        for r in {"names.txt", "pep-positions.json"}:
             assert r in resources
         for r in default_exports - {"names.txt", "pep-positions.json"}:
             assert r not in resources

@@ -31,6 +31,18 @@ RESOURCES_FILE = "resources.json"
 INDEX_FILE = "index.json"
 CATALOG_FILE = "catalog.json"
 VERSIONS_FILE = "versions.json"
+ARTIFACT_FILES = [
+    ISSUES_FILE,
+    ISSUES_LOG,
+    INDEX_FILE,
+    STATEMENTS_FILE,
+    STATISTICS_FILE,
+    VERSIONS_FILE,
+    RESOURCES_FILE,
+    DELTA_EXPORT_FILE,
+    DELTA_INDEX_FILE,
+    HASH_FILE,
+]
 
 
 def datasets_path() -> Path:
