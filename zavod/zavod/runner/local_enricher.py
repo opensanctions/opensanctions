@@ -53,9 +53,9 @@ class LocalEnricher(Enricher):
         target_store = get_store(target_dataset, resolver)
         target_store.sync()
         self._view = target_store.view(target_dataset)
-        state_path = dataset_state_path(dataset.name)
+        index_path = dataset_state_path(dataset.name) / "tantivy-enrich-index"
         self._index = TantivyIndex(
-            self._view, state_path, config.get("index_options", {})
+            self._view, index_path, config.get("index_options", {})
         )
         self._index.build()
 
@@ -72,12 +72,17 @@ class LocalEnricher(Enricher):
             self._ns = Namespace()
 
     def entity_from_statements(self, class_: Type[CE], entity: CompositeEntity) -> CE:
+        if type(entity) == class_:
+            return entity
         return class_.from_statements(self.dataset, entity.statements)
 
     def match(self, entity: CE) -> Generator[CE, None, None]:
         scores: List[Tuple[float, CE]] = []
 
-        for match_id, index_score in self._index.match(entity):
+        store_type_entity = self.entity_from_statements(
+            self._view.store.entity_class, entity
+        )
+        for match_id, index_score in self._index.match(store_type_entity):
             match = self._view.get_entity(match_id.id)
             if match is None:
                 continue

@@ -1,6 +1,7 @@
 import pytest
 from nomenklatura.judgement import Judgement
 
+from zavod.archive import dataset_state_path
 from zavod.meta import Dataset
 from zavod.store import get_store
 from zavod.crawl import crawl_dataset
@@ -15,7 +16,8 @@ def test_store_access(testdataset1: Dataset):
 
     store = get_store(testdataset1, resolver)
     store.sync()
-    blocking_xref(store)
+    state_path = dataset_state_path(testdataset1.name)
+    blocking_xref(store, state_path)
     assert len(resolver.edges)
     for edge in resolver.edges.values():
         assert edge.score is not None
