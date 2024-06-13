@@ -6,7 +6,10 @@ import re
 from zavod import Context, helpers as h
 from normality import collapse_spaces
 
+from zavod.shed.zyte_api import fetch_html
+
 REGEX_URLS = r"(https?://[^\s]+)"
+TABLE_XPATH = ".//div[@class='article-content']//table"
 
 
 def parse_table(table: _Element) -> Generator[Dict[str, str], None, None]:
@@ -65,13 +68,27 @@ def crawl_item(input_dict: dict, context: Context):
     context.audit_data(input_dict)
 
 
+def unblock_validator(doc: html.HtmlElement) -> bool:
+    return doc.find(TABLE_XPATH) is not None
+
+
 def crawl(context: Context):
-    if datetime.datetime.now() > datetime.datetime(2024, 9, 16):
-        context.log.warn("Check if there's an update of the data behind the bot check.")
+    actions = [
+        {
+            "action": "waitForSelector",
+            "selector": {
+                "type": "xpath",
+                "value": "//select[@name='example_length']",
+            },
+            "timeout": 15,
+        },
+    ]
+    doc = fetch_html(
+        context,
+        context.data_url,
+        unblock_validator,
+        actions=actions,
+    )
 
-    # Update by saving page rendered in the browser.
-    data_path = context.dataset.base_path / "data.html"
-    doc = html.fromstring(data_path.read_text())
-
-    for item in parse_table(doc.find(".//table")):
+    for item in parse_table(doc.find(TABLE_XPATH)):
         crawl_item(item, context)
