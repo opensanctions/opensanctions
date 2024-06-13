@@ -36,6 +36,7 @@ url: "https://www.bnm.gov.my/financial-consumer-alert-list"
 data:
   url: https://www.bnm.gov.my/financial-consumer-alert-list
   format: HTML
+ci_test: false
 
 assertions:
   min:

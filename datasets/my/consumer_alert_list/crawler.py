@@ -1,5 +1,4 @@
 from typing import Generator, Dict
-import datetime
 from lxml.etree import _Element
 from lxml import html
 import re
