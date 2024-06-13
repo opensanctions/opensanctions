@@ -1,0 +1,45 @@
+title: Egypt Domestic Terrorist List
+entry_point: crawler.py
+prefix: eg-terr
+coverage:
+  frequency: daily
+  start: 2024-06-12
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  List of local terrorist entities and terrorists pursuant to Security Council resolution 1373
+description: |
+  This dataset comprises entites and individuals sanctioned by the government of Egypt
+  in support of UN Security Council Resolution 1373.
+
+  This resolution was adopted in response to the terrorist attacks on September 11, 2001,
+  and it imposes various legal obligations on member states to combat terrorism.
+  
+publisher:
+  name: وحدة مكافحة غسل الأموال وتمويل الإرهاب المصرية 
+  description: |
+   The Anti-Money Laundering and Financing of Terrorism Unit was established under the
+   Anti-Money Laundering Law issued by Law No. 80 of 2002, which is the Egyptian Financial
+   Investigation Unit
+  url: https://mlcu.org.eg/ar/
+  official: true
+  country: "eg"
+url: "https://mlcu.org.eg/ar/3125/قوائم-ادراج-الكيانات-الارهابية-والارهابيين-المحلية-عملا-بقرار-مجلس-الامن-1373"
+data:
+  url: https://mlcu.org.eg/ar/3125/قوائم-ادراج-الكيانات-الارهابية-والارهابيين-المحلية-عملا-بقرار-مجلس-الامن-1373
+  format: HTML
+
+lookups:
+  type.country:
+    lowercase: true
+    options:
+      - match: فلسطيني
+        value: Palestinian
+      - match: عراقي
+        value: Iraqi
+      - match: مصري/كندي
+        value:
+          - Egyptian
+          - Canadian
+      - match: مصرية
+        value:
+          - Egyptian
