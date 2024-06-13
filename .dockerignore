@@ -2,6 +2,8 @@ data/
 docs/
 dist/
 build/
+.vscode
+.ruff_cache
 .envrc
 Makefile
 Dockerfile
@@ -13,6 +15,7 @@ Dockerfile
 venv
 *.pyc
 *.egg-info
+nomenklatura.db
 __pycache__
 zavod/build
 zavod/dist
