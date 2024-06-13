@@ -53,10 +53,9 @@ def crawl(context: Context) -> None:
             context.log.warn("Unknown classification", classification=classification)
             continue
         agency = row.pop("Excluding Agency")
-        if agency == "TREAS-OFAC":
-            # cf. us_ofac_sdn, us_ofac_cons
-            continue
-
+        # if agency == "TREAS-OFAC":
+        #     # cf. us_ofac_sdn, us_ofac_cons
+        #     continue
         sam_number = row.pop("SAM Number")
         override_schema = context.lookup_value("schema.override", sam_number)
         schema = override_schema or schema
