@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Optional, Dict, Any, Generator
 from zipfile import ZipFile
 from urllib.parse import urljoin
-from pantomime.types import ZIP
+from rigour.mime.types import ZIP
 
 from zavod import Context
 from zavod import helpers as h

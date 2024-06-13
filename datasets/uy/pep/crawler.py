@@ -1,6 +1,6 @@
 from zavod import Context
 from typing import Dict, List, Optional
-from pantomime.types import XLSX
+from rigour.mime.types import XLSX
 import openpyxl
 from normality import slugify
 from zavod import helpers as h

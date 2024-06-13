@@ -1,4 +1,4 @@
-from pantomime.types import CSV
+from rigour.mime.types import CSV
 from urllib.parse import urlparse
 from typing import Dict
 import os

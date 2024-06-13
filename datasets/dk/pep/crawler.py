@@ -1,7 +1,7 @@
 import openpyxl
 from openpyxl import load_workbook
 from typing import Generator
-from pantomime.types import XLSX
+from rigour.mime.types import XLSX
 from normality import stringify, slugify
 from datetime import datetime
 

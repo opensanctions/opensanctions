@@ -1,5 +1,5 @@
 from typing import Optional, List
-from pantomime.types import XML
+from rigour.mime.types import XML
 
 from zavod import Context
 from zavod import helpers as h

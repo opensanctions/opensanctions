@@ -1,7 +1,7 @@
 from typing import Optional, Dict, Any, List
 from banal import first
 from normality import stringify, collapse_spaces
-from pantomime.types import XML
+from rigour.mime.types import XML
 from followthemoney.util import join_text
 
 from zavod import Context

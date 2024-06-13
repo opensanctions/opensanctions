@@ -2,7 +2,7 @@ from collections import defaultdict
 import shutil
 from typing import Dict, Generator, cast
 from normality import collapse_spaces
-from pantomime.types import HTML
+from rigour.mime.types import HTML
 from lxml import html
 from lxml.html import HtmlElement
 import re

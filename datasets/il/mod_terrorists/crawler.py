@@ -1,7 +1,7 @@
 import re
 from datetime import datetime
 from openpyxl import load_workbook
-from pantomime.types import XLSX
+from rigour.mime.types import XLSX
 from normality import slugify, stringify
 
 from zavod import Context

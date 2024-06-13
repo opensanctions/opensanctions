@@ -2,7 +2,7 @@ import re
 import os
 from typing import Any, Dict
 from zipfile import ZipFile
-from pantomime.types import ZIP
+from rigour.mime.types import ZIP
 from yaml import safe_load
 from urllib.parse import urlencode
 
