@@ -3,13 +3,21 @@
 Some things that are easy to forget but critical for new crawlers
 
 - Metadata
+    - required fields for crawlers are normally
+        - `coverage`
+            - `frequency` (normally `daily`, but `weekly` for zyte and gpt crawlers, and `monthly` for company registers)
+            - `start` (updated to the current day when releasing)
+        - `load_db_uri: ${OPENSANCTIONS_DATABASE_URI}` for everything except company registers
+        - `assertions` - see [Data Assertions](../metadata.md#data-assertions)
     - dataset name is clear and conforms to convention
     - dataset title is concise and meaningful
     - dataset prefix is short yet meaningful
-    - publisher country code is correct
+    - publisher - see if there's another dataset with the same publisher that you can copy from
+        - country code is correct
+        - description is often skipped, but it's important
 - Crawler
     - It emits as many entities as are available at the source
-    - When first added, it doesn't emit warnings or errors (excpet transient, e.g. network timeout/server error that can be expected to go away tomorrow)
+    - When first added, it doesn't emit warnings or errors (except transient, e.g. network timeout/server error that can be expected to go away tomorrow)
         - **note:** code designed to warn when there are issues with the data if something changes later is very welcome!
     - all IDs are created via `Context.make_slug` or `Context.make_id` (it enforces validity)
       - QIDs validated by is_qid are an exception
