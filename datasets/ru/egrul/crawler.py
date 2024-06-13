@@ -1,8 +1,11 @@
-from lxml import etree
-from zipfile import ZipFile
 from urllib.parse import urljoin, urlparse
-from typing import Dict, Optional, Set, IO, List
+from typing import Dict, Optional, Set, IO, List, Any
+from collections import defaultdict
+from zipfile import ZipFile
+
+from lxml import etree
 from lxml.etree import _Element as Element, tostring
+
 from addressformatting import AddressFormatter
 
 from zavod import Context, Entity
@@ -14,19 +17,45 @@ aformatter = AddressFormatter()
 
 
 def tag_text(el: Element) -> str:
+    """
+    Convert an XML element to a string, preserving the encoding.
+    Args:
+        el: The XML element to convert.
+    Returns:
+        The XML element as a string.
+    """
     return tostring(el, encoding="utf-8").decode("utf-8")
 
 
-def dput(data: Dict[str, Optional[str]], name: str, value: Optional[str]):
-    if value is None or not len(value.strip()):
+def dput(data: Dict[str, List[str | None]], name: str, value: Optional[str]) -> None:
+    """
+    A setter for the address data dictionary.
+    Address data dictionary allows to accumulate values under the same key.
+
+    Args:
+        data: The address data dictionary.
+        name: The key to set.
+        value: The value to add.
+    Returns:
+        None
+    """
+
+    if value is None or not value.strip():
         return
     dd = value.replace("-", "")
-    if not len(dd.strip()):
+    if not dd.strip():
         return
-    data[name] = value
+    data[name].append(value)
 
 
 def parse_name(name: Optional[str]) -> List[str]:
+    """
+    A simple rule-based parser for names, which can contain aliases in parentheses.
+    Args:
+        name: The name to parse.
+    Returns:
+        A list of names.
+    """
     if name is None:
         return []
     names: List[str] = []
@@ -40,7 +69,16 @@ def parse_name(name: Optional[str]) -> List[str]:
     return names
 
 
-def elattr(el: Optional[Element], attr: str):
+def elattr(el: Optional[Element], attr: str) -> Any:
+    """
+    Get an attribute from an XML element.
+    Args:
+        el: The XML element.
+        attr: The attribute to get.
+    Returns:
+        The attribute value or None.
+    """
+
     if el is not None:
         return el.get(attr)
 
@@ -52,6 +90,19 @@ def entity_id(
     ogrn: Optional[str] = None,
     local_id: Optional[str] = None,
 ) -> Optional[str]:
+    """
+    Generate an entity ID from the given parameters.
+    The priorities are: INN, OGRN, local_id/name.
+
+    Args:
+        context: The processing context.
+        name: The name of the entity.
+        inn: The INN of the entity.
+        ogrn: The OGRN of the entity.
+        local_id: A local ID for the entity.
+    Returns:
+        The entity ID or None.
+    """
     if inn is not None:
         return context.make_slug("inn", inn)
     if ogrn is not None:
@@ -64,6 +115,15 @@ def entity_id(
 def make_person(
     context: Context, el: Element, local_id: Optional[str]
 ) -> Optional[Entity]:
+    """
+    Parse a person from the XML element.
+    Args:
+        context: The processing context.
+        el: The XML element.
+        local_id: A local ID for the entity.
+    Returns:
+        The person entity or None.
+    """
     name_el = el.find(".//СвФЛ")
     if name_el is None:
         return None
@@ -92,6 +152,15 @@ def make_person(
 
 
 def make_org(context: Context, el: Element, local_id: Optional[str]) -> Entity:
+    """
+    Parse an organization from the XML element.
+    Args:
+        context: The processing context.
+        el: The XML element.
+        local_id: A local ID for the entity.
+    Returns:
+        The organization entity.
+    """
     entity = context.make("Organization")
     name_el = el.find("./НаимИННЮЛ")
     if name_el is not None:
@@ -118,7 +187,16 @@ def make_org(context: Context, el: Element, local_id: Optional[str]) -> Entity:
     return entity
 
 
-def parse_founder(context: Context, company: Entity, el: Element):
+def parse_founder(context: Context, company: Entity, el: Element) -> None:
+    """
+    Parse a founder from the XML element and emit entity.
+    Args:
+        context: The processing context.
+        company: The company entity.
+        el: The XML element.
+    Returns:
+        None
+    """
     meta = el.find("./ГРНДатаПерв")
     owner = context.make("LegalEntity")
     local_id = company.id
@@ -135,7 +213,6 @@ def parse_founder(context: Context, company: Entity, el: Element):
     elif el.tag == "УчрЮЛИн":  # Foreign company
         owner = make_org(context, el, local_id)
     elif el.tag == "УчрЮЛРос":  # Russian legal entity
-        # print(tag_text(el))
         owner = make_org(context, el, local_id)
     elif el.tag == "УчрПИФ":  # Mutual investment fund
         # TODO: nested ownership structure, make Security
@@ -225,14 +302,20 @@ def parse_founder(context: Context, company: Entity, el: Element):
     if reliable_el is not None:
         ownership.add("summary", reliable_el.get("ТекстНедДанУчр"))
 
-    # pprint(owner.to_dict())
     context.emit(owner)
-
-    # pprint(ownership.to_dict())
     context.emit(ownership)
 
 
-def parse_directorship(context: Context, company: Entity, el: Element):
+def parse_directorship(context: Context, company: Entity, el: Element) -> None:
+    """
+    Parse a directorship from the XML element and emit entity.
+    Args:
+        context: The processing context.
+        company: The company entity.
+        el: The XML element.
+    Returns:
+        None
+    """
     # TODO: can we use the ГРН as a fallback ID?
     director = make_person(context, el, company.id)
     if director is None:
@@ -261,50 +344,105 @@ def parse_directorship(context: Context, company: Entity, el: Element):
     context.emit(directorship)
 
 
-def parse_address(context: Context, entity: Entity, el: Element):
-    data: Dict[str, Optional[str]] = {}
+def parse_address(context: Context, entity: Entity, el: Element) -> None:
+    """
+    Parse an address from the XML element and set to entity.
+    Args:
+        context: The processing context.
+        entity: The entity to attach the address to.
+        el: The XML element.
+    Returns:
+        None
+    """
+
+    data: Dict[str, Optional[List[str]]] = defaultdict(list)
     country = "ru"
-    if el.tag == "АдресРФ":  # normal address
-        # print(tag_text(el))
+    # ФИАС - Федеральная информационная адресная система (since 2011,
+    # https://ru.wikipedia.org/wiki/Федеральная_информационная_адресная_система)
+    # КЛАДР - Классификатор адресов Российской Федерации (old one, since 17.11.2005)
+
+    # According to this source: https://www.garant.ru/products/ipo/prime/doc/74812994/
+    if el.tag in [
+        "АдресРФ",  # КЛАДР address structure, Сведения об адресе юридического лица (в структуре КЛАДР)
+        "СвАдрЮЛФИАС",  # ФИАС address structure, Сведения об адресе юридического лица (в структуре ФИАС)
+        "СвРешИзмМН",  # address change, Сведения о принятии юридическим лицом решения об изменении места нахождения
+    ]:
         pass
-    elif el.tag == "СвМНЮЛ":  # location of legal entity
-        # print(tag_text(el))
-        pass
-    elif el.tag == "СвАдрЮЛФИАС":  # special structure?
-        # print(tag_text(el))
-        pass
-    elif el.tag == "СвНедАдресЮЛ":  # missing address
-        # print(el.get("ТекстНедАдресЮЛ"))
+    elif el.tag in [
+        "СвНедАдресЮЛ",  # Information about address inaccuracy, Сведения о недостоверности адреса
+        "СвМНЮЛ",  # this seems to be  a general location (up to town), not an address,
+        # Сведения о месте нахождения юридического лица
+    ]:
         return None  # ignore this one entirely
-    elif el.tag == "СвРешИзмМН":  # address change
-        # print(tag_text(el))
-        # print(el.get("ТекстРешИзмМН"))
-        pass
     else:
         context.log.warn("Unknown address type", tag=el.tag)
         return
 
-    # FIXME: this is a complete mess
-    dput(data, "postcode", el.get("Индекс"))
-    dput(data, "postcode", el.get("ИдНом"))
-    dput(data, "house", el.get("Дом"))
-    dput(data, "house_number", el.get("Корпус"))
-    dput(data, "neighbourhood", el.get("Кварт"))
-    dput(data, "neighbourhood", el.get("Кварт"))
-    dput(data, "city", el.findtext("./НаимРегион"))
+    # Still a mess, but at least I gave it some love and order
+    dput(data, "postcode", el.get("Индекс"))  # Zip code
+    dput(
+        data, "city", el.findtext("./НаимРегион")
+    )  # Наименование субъекта Российской Федерации, (either a region or big city
+    # such as Moscow or St. Petersburg), see https://выставить-счет.рф/classifier/regions/
+
+    dput(data, "city", elattr(el.find("./Город"), "ТипГород"))
+    dput(data, "city", elattr(el.find("./Город"), "НаимГород"))
     dput(data, "city", elattr(el.find("./Регион"), "НаимРегион"))
     dput(data, "state", elattr(el.find("./Район"), "НаимРайон"))
-    dput(data, "town", elattr(el.find("./НаселПункт"), "НаимНаселПункт"))
-    dput(data, "municipality", elattr(el.find("./МуниципРайон"), "Наим"))
-    dput(data, "suburb", elattr(el.find("./НаселенПункт"), "Наим"))
+
+    dput(
+        data, "town", elattr(el.find("./НаселПункт"), "НаимНаселПункт")
+    )  # Сведения об адресообразующем элементе населенный пункт
+    dput(
+        data, "town", elattr(el.find("./НаселенПункт"), "Наим")
+    )  # Населенный пункт (город, деревня, село и прочее)
+
+    dput(
+        data, "suburb", elattr(el.find("./ГородСелПоселен"), "Наим")
+    )  # Городское поселение / сельское поселение / межселенная территория в
+    # составе муниципального района / внутригородской район городского округа
+
+    dput(
+        data, "municipality", elattr(el.find("./МуниципРайон"), "Наим")
+    )  # Municipality
+
+    dput(
+        data, "road", elattr(el.find("./ЭлУлДорСети"), "Тип")
+    )  # Элемент улично-дорожной сети (street, road, etc.)
     dput(data, "road", elattr(el.find("./ЭлУлДорСети"), "Наим"))
+
+    dput(data, "road", elattr(el.find("./Улица"), "ТипУлица"))  # Street
     dput(data, "road", elattr(el.find("./Улица"), "НаимУлица"))
-    dput(data, "house", elattr(el.find("./ПомещЗдания"), "Номер"))
-    address = aformatter.one_line(data, country=country)
+
+    # To be honest I don't understand the difference between these house and house_number fields
+    dput(data, "house_number", el.get("Дом"))
+    dput(data, "house_number", el.get("Корпус"))
+
+    for bld in el.findall("./Здание"):
+        dput(data, "house_number", bld.get("Тип"))
+        dput(data, "house_number", bld.get("Номер"))
+
+    # To @pudo: this is an apartment/flat number/floor number/office number which is not
+    # directly supported by the addressformatting library. I'm commenting it out for now.
+    # dput(data, "house", elattr(el.find("./ПомещЗдания"), "Тип"))
+    # dput(data, "house", elattr(el.find("./ПомещЗдания"), "Номер"))
+    # dput(data, "neighbourhood", el.get("Кварт")) this is actually a flat number or office number
+
+    address = aformatter.one_line(
+        {k: " ".join(v) for k, v in data.items()}, country=country
+    )
     entity.add("address", address)
 
 
-def parse_company(context: Context, el: Element):
+def parse_company(context: Context, el: Element) -> None:
+    """
+    Parse a company from the XML element and emit entities.
+    Args:
+        context: The processing context.
+        el: The XML element.
+    Returns:
+        None
+    """
     entity = context.make("Company")
     inn = el.get("ИНН")
     ogrn = el.get("ОГРН")
@@ -367,14 +505,55 @@ def parse_company(context: Context, el: Element):
             succ_entity.add("name", succ_name)
             succ_entity.add("innCode", succ_inn)
             succ_entity.add("ogrnCode", succ_ogrn)
+
+            # To @pudo: not sure if I got your idea right
+            succ_entity.add("innCode", inn)
+            succ_entity.add("ogrnCode", ogrn)
+
             context.emit(succ_entity)
             context.emit(succ)
 
-    # pprint(entity.to_dict())
+    # To @pudo: Also adding this for the predecessor
+    for predecessor in el.findall("./СвПредш"):
+        pred_name = predecessor.get("НаимЮЛПолн")
+        pred_inn = predecessor.get("ИНН")
+        pred_ogrn = predecessor.get("ОГРН")
+        predecessor_id = entity_id(
+            context,
+            name=pred_name,
+            inn=pred_inn,
+            ogrn=pred_ogrn,
+        )
+        if predecessor_id is not None:
+            pred = context.make("Succession")
+            pred.id = context.make_id(entity.id, "predecessor", predecessor_id)
+            pred.add("predecessor", predecessor_id)
+            pred.add("successor", entity.id)
+            pred_entity = context.make("Company")
+            pred_entity.id = predecessor_id
+            pred_entity.add("name", pred_name)
+            pred_entity.add("innCode", pred_inn)
+            pred_entity.add("ogrnCode", pred_ogrn)
+
+            # To @pudo: not sure if I got your idea right
+            pred_entity.add("innCode", inn)
+            pred_entity.add("ogrnCode", ogrn)
+
+            context.emit(pred_entity)
+            context.emit(pred)
+
     context.emit(entity)
 
 
-def parse_sole_trader(context: Context, el: Element):
+def parse_sole_trader(context: Context, el: Element) -> None:
+    """
+    Parse a sole trader from the XML element and emit entities.
+    Args:
+        context: The processing context.
+        el: The XML element.
+    Returns:
+        None
+    """
     inn = el.get("ИННФЛ")
     ogrn = el.get("ОГРНИП")
     entity = context.make("LegalEntity")
@@ -389,7 +568,15 @@ def parse_sole_trader(context: Context, el: Element):
     context.emit(entity)
 
 
-def parse_xml(context: Context, handle: IO[bytes]):
+def parse_xml(context: Context, handle: IO[bytes]) -> None:
+    """
+    Parse an XML file and emit entities from СвЮЛ/СвИп elements found
+    Args:
+        context: The processing context.
+        handle: The XML file handle.
+    Returns:
+        None
+    """
     doc = etree.parse(handle)
     for el in doc.findall(".//СвЮЛ"):
         parse_company(context, el)
@@ -398,13 +585,37 @@ def parse_xml(context: Context, handle: IO[bytes]):
 
 
 def parse_examples(context: Context):
-    for inn in ["7709383684", "7704667322", "9710075695"]:
+    """
+    Parse some example INN numbers from cached xml files (debug purposes only).
+    Args:
+        context: The processing context.
+    """
+    # This subset contains a mix of companies with different address structures
+    # and an example of successor/predecessor relationship
+    for inn in [
+        "7709383684",
+        "7704667322",
+        "9710075695",
+        "7813654884",
+        "1122031001454",
+        "1025002029580",
+        "1131001011283",
+        "1088601000047",
+    ]:
         path = context.fetch_resource("%s.xml" % inn, INN_URL % inn)
         with open(path, "rb") as fh:
             parse_xml(context, fh)
 
 
 def crawl_index(context: Context, url: str) -> Set[str]:
+    """
+    Crawl an index page with ZIP archives and return the URLs.
+    Args:
+        context: The processing context.
+        url: The URL to crawl.
+    Returns:
+        A set of ZIP archive URLs.
+    """
     archives: Set[str] = set()
     doc = context.fetch_html(url)
     for a in doc.findall(".//a"):
@@ -419,6 +630,14 @@ def crawl_index(context: Context, url: str) -> Set[str]:
 
 
 def crawl_archive(context: Context, url: str) -> None:
+    """
+    Crawl an archive and parse the XML files inside.
+    Args:
+        context: The processing context.
+        url: The URL to crawl.
+    Returns:
+        None
+    """
     url_path = urlparse(url).path.lstrip("/")
     path = context.fetch_resource(url_path, url)
     try:
