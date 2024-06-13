@@ -59,6 +59,7 @@ def blocking_xref(
     algorithm: str = DefaultAlgorithm.NAME,
     focus_dataset: Optional[str] = None,
     schema_range: Optional[str] = None,
+    conflicting_match_threshold: Optional[float] = None,
     index: str = TantivyIndex.name,
 ) -> None:
     """This runs the deduplication process, which compares all entities in the given
@@ -97,6 +98,7 @@ def blocking_xref(
         focus_dataset=focus_dataset,
         algorithm=algorithm_type,
         user=AUTO_USER,
+        conflicting_match_threshold=conflicting_match_threshold,
         index_class=index_class,
     )
     resolver.save()
