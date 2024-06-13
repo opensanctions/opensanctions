@@ -368,6 +368,7 @@ lookups:
           - "Q480319" # title of authority
       - maybe_pep: false
         match:
+          - "Q102300761" # rector of the Federal University of Bahia
           - "Q11271" # Benevolent Dictator for Life
           - "Q29182" # bishop
           - "Q212071" # rector
@@ -1881,4 +1882,8 @@ lookups:
       - match: "Q16761250"
         code: ""
         label: "Republika Srpska"
+        decision: "ignore"
+      - match: "Q3236289"
+        code: ""
+        label: "Prisoner in the Vatican"
         decision: "ignore"
