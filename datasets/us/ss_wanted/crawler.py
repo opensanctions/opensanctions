@@ -78,7 +78,7 @@ def crawl_person(context: Context, url: str):
     person.add("alias", alias.split(","))
     person.add("birthDate", h.parse_date(date_of_birth, ["%b %d, %Y", "%B %d, %Y"]))
     person.add("summary", case_summary)
-    person.add("notes", f"Revelank links: {', '.join(links)}")
+    person.add("notes", f"Relevant links: {', '.join(links)}")
     person.add("nationality", nationality)
 
     context.emit(person, target=True)
