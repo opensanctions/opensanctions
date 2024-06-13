@@ -52,13 +52,13 @@ def test_export(testdataset1: Dataset):
 
     # it parses and finds expected number of entities
     assert (
-        len(list(path_entities(dataset_path / "entities.ftm.json", EntityProxy))) == 11
+        len(list(path_entities(dataset_path / "entities.ftm.json", EntityProxy))) == 12
     )
 
     with open(dataset_path / "index.json") as index_file:
         index = load(index_file)
         assert index["name"] == testdataset1.name
-        assert index["entity_count"] == 11
+        assert index["entity_count"] == 12
         assert index["target_count"] == 7
         resources = {r["name"] for r in index["resources"]}
         for r in default_exports:
@@ -83,7 +83,7 @@ def test_export(testdataset1: Dataset):
 
     with open(dataset_path / "statistics.json") as statistics_file:
         statistics = load(statistics_file)
-        assert statistics["entity_count"] == 11
+        assert statistics["entity_count"] == 12
         assert statistics["target_count"] == 7
 
     with open(dataset_path / "targets.nested.json") as targets_nested_file:
@@ -186,7 +186,7 @@ def test_ftm_referents(testdataset1: Dataset):
     harnessed_export(FtMExporter, testdataset1)
 
     entities = list(path_entities(dataset_path / "entities.ftm.json", EntityProxy))
-    assert len(entities) == 10
+    assert len(entities) == 11
 
     john = [e for e in entities if e.id == identifier][0]
     john_dict = john.to_dict()
@@ -209,13 +209,13 @@ def test_ftm_referents(testdataset1: Dataset):
     other_dataset_id = "td2-freddie-bloggs"
     harnessed_export(FtMExporter, collection)
     entities = list(path_entities(collection_path / "entities.ftm.json", EntityProxy))
-    assert len(entities) == 28
+    assert len(entities) == 29
 
     resolver.decide("osv-john-doe", other_dataset_id, Judgement.POSITIVE, user="test")
     clear_data_path(collection.name)
     harnessed_export(FtMExporter, collection)
     entities = list(path_entities(collection_path / "entities.ftm.json", EntityProxy))
-    assert len(entities) == 27  # After deduplication there's one less entity
+    assert len(entities) == 28  # After deduplication there's one less entity
     assert [] == [e for e in entities if e.id == other_dataset_id]
 
     john = [e for e in entities if e.id == identifier][0]
@@ -305,4 +305,4 @@ def test_statements(testdataset1: Dataset):
     path = dataset_path / "statements.csv"
     statements = list(read_path_statements(path, CSV, Statement))
     entities = [s.canonical_id for s in statements if s.prop == Statement.BASE]
-    assert len(entities) == 11
+    assert len(entities) == 12

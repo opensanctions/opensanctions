@@ -3,7 +3,6 @@ from nomenklatura.judgement import Judgement
 from nomenklatura.resolver import Resolver
 from nomenklatura.cache import Cache
 from nomenklatura.enrich import Enricher, EnrichmentException, get_enricher
-from nomenklatura.matching import DefaultAlgorithm
 
 from zavod.meta import Dataset, get_multi_dataset
 from zavod.entity import Entity
@@ -36,14 +35,6 @@ def save_match(
         return None
     judgement = resolver.get_judgement(match.id, entity.id)
 
-    # For unjudged candidates, compute a score and put it in the
-    # xref cache so the user can decide:
-    if judgement == Judgement.NO_JUDGEMENT:
-        result = DefaultAlgorithm.compare(entity, match)
-        if threshold is None or result.score >= threshold:
-            context.log.info("Match [%s]: %.2f -> %s" % (entity, result.score, match))
-            resolver.suggest(entity.id, match.id, result.score, user="os-enrich")
-
     if judgement not in (Judgement.NEGATIVE, Judgement.POSITIVE):
         context.emit(match, external=True)
 
@@ -61,6 +52,9 @@ def save_match(
 def enrich(context: Context) -> None:
     resolver = get_resolver()
     scope = get_multi_dataset(context.dataset.inputs)
+    context.log.info(
+        "Enriching %s (%s)" % (scope.name, [d.name for d in scope.datasets])
+    )
     store = get_store(scope, resolver)
     store.sync()
     view = store.view(scope)
@@ -70,6 +64,8 @@ def enrich(context: Context) -> None:
         for entity_idx, entity in enumerate(view.entities()):
             if entity_idx > 0 and entity_idx % 1000 == 0:
                 context.cache.flush()
+            if entity_idx > 0 and entity_idx % 10000 == 0:
+                context.log.info("Enriched %s entities..." % entity_idx)
             context.log.debug("Enrich query: %r" % entity)
             try:
                 for match in enricher.match_wrapped(entity):

@@ -13,7 +13,7 @@ inputs:
   - testdataset1
 
 config:
-  type: zavod.tests.test_enrichment:StubEnricher
+  type: zavod.tests.enrich.test_enrichment:StubEnricher
 # config:
 #   type: nomenklatura.enrich.wikidata:WikidataEnricher
 #   label_cache_days: 90

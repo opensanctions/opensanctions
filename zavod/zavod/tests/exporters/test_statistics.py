@@ -18,7 +18,7 @@ def test_statistics(testdataset1: Dataset):
     with open(dataset_path / "statistics.json") as statistics_file:
         statistics = load(statistics_file)
 
-    assert statistics["entity_count"] == 11
+    assert statistics["entity_count"] == 12
     assert statistics["target_count"] == 7
     assert "Organization" in statistics["schemata"]
     assert "Person" in statistics["schemata"]
