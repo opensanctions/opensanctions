@@ -237,10 +237,22 @@ def parse_founder(context: Context, company: Entity, el: Element) -> None:
         if pb_name_el is not None:
             # Name of the owning authority
             pb_name = pb_name_el.get("НаимМО")
+            pb_code = pb_name_el.get("КодУчрРФСубМО")
+            pb_region = pb_name_el.get("НаимРегион")
+            if pb_code == "1":
+                pb_region = "Российская Федерация"
+
+            # That's our default owner in case managing body is not found
+            owner = context.make("PublicBody")
+
             if pb_name is not None:
-                owner = context.make("Organization")
                 owner.id = entity_id(context, name=pb_name, local_id=local_id)
                 owner.add("name", pb_name)
+            else:
+                # to @pudo: I'm using local_id==state here to glue together the regions
+                # let me know if you want me to switch it to local_id
+                owner.id = entity_id(context, name=pb_region, local_id="state")
+                owner.add("name", pb_region)
 
         # managing body:
         pb_el = el.find("./СвОргОсущПр")
