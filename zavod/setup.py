@@ -22,7 +22,7 @@ setup(
     zip_safe=False,
     install_requires=[
         "followthemoney == 3.6.*",
-        "nomenklatura[leveldb,tantivy] @ git+https://github.com/opensanctions/nomenklatura.git@tantivy-dedupe",
+        "nomenklatura[leveldb,tantivy] == 3.12.0",
         "plyvel == 1.5.1",
         "redis[hiredis] == 5.0.4",
         "fakeredis == 2.23.2",
