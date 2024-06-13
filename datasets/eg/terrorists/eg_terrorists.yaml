@@ -37,10 +37,9 @@ lookups:
       - match: عراقي
         value: Iraqi
       - match: مصري/كندي
-        value:
+        values:
           - Egyptian
           - Canadian
       - match: مصرية
         value:
           - Egyptian
-          
