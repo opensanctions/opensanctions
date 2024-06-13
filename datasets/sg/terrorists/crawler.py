@@ -1,6 +1,6 @@
 import re
 from lxml import html
-from pantomime.types import HTML
+from rigour.mime.types import HTML
 
 from zavod import Context
 from zavod import helpers as h

@@ -3,7 +3,7 @@ from typing import List
 from pathlib import Path
 from normality import collapse_spaces
 from urllib.parse import urljoin
-from pantomime.types import XLS
+from rigour.mime.types import XLS
 
 from zavod import Context
 from zavod import helpers as h

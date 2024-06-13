@@ -1,6 +1,6 @@
 from normality import slugify
 import openpyxl
-from pantomime.types import XLSX
+from rigour.mime.types import XLSX
 from typing import Any, Dict, List, Optional
 
 from zavod import Context

@@ -1,6 +1,6 @@
 import json
 from typing import List
-from pantomime.types import JSON
+from rigour.mime.types import JSON
 from prefixdate import parse_formats
 
 from zavod import Context

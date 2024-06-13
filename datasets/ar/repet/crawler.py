@@ -1,6 +1,6 @@
 import json
 from typing import Dict, Optional
-from pantomime.types import JSON
+from rigour.mime.types import JSON
 
 from zavod import Context, Entity
 from zavod import helpers as h

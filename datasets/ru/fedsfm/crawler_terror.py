@@ -1,5 +1,5 @@
 from lxml import html
-from pantomime.types import HTML
+from rigour.mime.types import HTML
 from prefixdate import parse_format
 
 from zavod import Context

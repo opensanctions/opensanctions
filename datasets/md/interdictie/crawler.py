@@ -2,7 +2,7 @@ import re
 from typing import List
 from lxml import html
 from normality import slugify, collapse_spaces
-from pantomime.types import HTML
+from rigour.mime.types import HTML
 
 from zavod import Context, Entity
 from zavod import helpers as h

@@ -1,6 +1,6 @@
 from typing import Optional
 from lxml.etree import _Element
-from pantomime.types import XML
+from rigour.mime.types import XML
 
 from zavod import Context, Entity
 from zavod import helpers as h

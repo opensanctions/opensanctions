@@ -1,7 +1,7 @@
 import csv
 from typing import Any, List, Optional
 
-from pantomime.types import CSV
+from rigour.mime.types import CSV
 
 from zavod import Context, Entity
 from zavod import helpers as h

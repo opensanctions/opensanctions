@@ -2,7 +2,7 @@ import openpyxl
 from urllib.parse import urljoin
 from typing import List, Optional
 from normality import slugify
-from pantomime.types import XLSX
+from rigour.mime.types import XLSX
 
 from zavod import Context, Entity
 from zavod import helpers as h

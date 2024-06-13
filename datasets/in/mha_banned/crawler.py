@@ -4,7 +4,7 @@ from lxml import html
 from urllib.parse import urljoin
 from typing import List, Dict
 from normality import collapse_spaces
-from pantomime.types import HTML, CSV
+from rigour.mime.types import HTML, CSV
 
 from zavod import Context
 from zavod import helpers as h

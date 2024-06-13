@@ -3,7 +3,7 @@ import json
 from typing import Any, Dict, Optional
 from normality import slugify
 from prefixdate import parse_parts
-from pantomime.types import JSON
+from rigour.mime.types import JSON
 
 from zavod import Context, Entity
 from zavod import helpers as h
