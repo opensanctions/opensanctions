@@ -1,6 +1,5 @@
 import json
 from zavod import Context, helpers as h
-import re
 
 
 def crawl_item(input_dict: dict, context: Context):
