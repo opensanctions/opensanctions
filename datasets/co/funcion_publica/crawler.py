@@ -1,6 +1,6 @@
 from datetime import datetime
 from normality import collapse_spaces, slugify
-from pantomime.types import CSV
+from rigour.mime.types import CSV
 from typing import Dict, List, Tuple
 import csv
 

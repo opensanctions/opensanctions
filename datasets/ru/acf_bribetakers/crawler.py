@@ -1,7 +1,7 @@
 import re
 import json
 from typing import Any, Dict, Iterable, Optional
-from pantomime.types import JSON
+from rigour.mime.types import JSON
 
 from zavod import Context
 from zavod import helpers as h

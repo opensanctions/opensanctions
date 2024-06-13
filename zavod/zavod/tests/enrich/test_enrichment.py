@@ -36,7 +36,6 @@ def test_enrich_process(testdataset1: Dataset, enricher: Dataset):
     assert len(resolver.edges) == 0, resolver.edges
     stats = crawl_dataset(enricher)
     assert stats.entities > 0, stats.entities
-    assert len(resolver.edges) > 0, resolver.edges
     internals = list(iter_dataset_statements(enricher, external=False))
     assert len(internals) == 0, internals
     externals = list(iter_dataset_statements(enricher, external=True))

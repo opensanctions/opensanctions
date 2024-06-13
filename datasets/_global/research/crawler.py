@@ -1,7 +1,7 @@
 import csv
 from normality import stringify
 from typing import Dict, Optional
-from pantomime.types import CSV
+from rigour.mime.types import CSV
 from followthemoney import model
 
 from zavod import Context, Entity

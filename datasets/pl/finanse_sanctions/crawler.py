@@ -17,7 +17,7 @@
 # Date of listing
 
 from normality import collapse_spaces
-from pantomime.types import CSV
+from rigour.mime.types import CSV
 from typing import Dict
 import csv
 

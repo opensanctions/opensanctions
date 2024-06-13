@@ -22,7 +22,7 @@ setup(
     zip_safe=False,
     install_requires=[
         "followthemoney == 3.6.*",
-        "nomenklatura[leveldb] == 3.11.*",
+        "nomenklatura[leveldb,tantivy] == 3.12.0",
         "plyvel == 1.5.1",
         "redis[hiredis] == 5.0.5",
         "fakeredis == 2.23.2",
@@ -36,7 +36,7 @@ setup(
         "jinja2",
         "types-jinja2",
         "lxml == 5.2.2",
-        "openpyxl == 3.1.3",
+        "openpyxl == 3.1.4",
         "orjson == 3.10.4",
         "ijson > 3.2, < 4.0",
         "pantomime == 0.6.1",

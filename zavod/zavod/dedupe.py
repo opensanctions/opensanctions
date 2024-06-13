@@ -1,13 +1,15 @@
 import gc
-from typing import List, Optional, TYPE_CHECKING
+from typing import List, Optional, TYPE_CHECKING, Type
 from pathlib import Path
 from functools import cache
+from nomenklatura import Index, TantivyIndex
 from zavod.entity import Entity
 from followthemoney import model
 from nomenklatura.xref import xref
 from nomenklatura.resolver import Resolver, Identifier, Linker
 from nomenklatura.judgement import Judgement
 from nomenklatura.matching import DefaultAlgorithm, get_algorithm
+from nomenklatura.index import BaseIndex
 
 from zavod import settings
 from zavod.logs import get_logger
@@ -51,12 +53,14 @@ def get_dataset_linker(dataset: Dataset) -> Linker[Entity]:
 
 def blocking_xref(
     store: "Store",
+    state_path: Path,
     limit: int = 5000,
     auto_threshold: Optional[float] = None,
     algorithm: str = DefaultAlgorithm.NAME,
     focus_dataset: Optional[str] = None,
     schema_range: Optional[str] = None,
     conflicting_match_threshold: Optional[float] = None,
+    index: str = TantivyIndex.name,
 ) -> None:
     """This runs the deduplication process, which compares all entities in the given
     dataset against each other, and stores the highest-scoring candidates for human
@@ -64,14 +68,29 @@ def blocking_xref(
     """
     resolver = get_resolver()
     resolver.prune()
-    log.info("Xref running, algorithm: %r" % algorithm, auto_threshold=auto_threshold)
+    log.info(
+        "Xref running, algorithm: %r" % algorithm,
+        index=index,
+        auto_threshold=auto_threshold,
+    )
     algorithm_type = get_algorithm(algorithm)
     if algorithm_type is None:
         raise ValueError("Invalid algorithm: %s" % algorithm)
     range = model.get(schema_range) if schema_range is not None else None
+
+    if index == TantivyIndex.name:
+        index_class: Type[BaseIndex[Dataset, Entity]] = TantivyIndex
+        index_dir = state_path / "tantivy-dedupe-index"
+    elif index == Index.name:
+        index_class = Index
+        index_dir = state_path / "dedupe-index"
+    else:
+        raise ValueError("Invalid index: %s" % index)
+
     xref(
         resolver,
         store,
+        index_dir=index_dir,
         limit=limit,
         range=range,
         scored=True,
@@ -80,6 +99,7 @@ def blocking_xref(
         algorithm=algorithm_type,
         user=AUTO_USER,
         conflicting_match_threshold=conflicting_match_threshold,
+        index_class=index_class,
     )
     resolver.save()
 

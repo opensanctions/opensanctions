@@ -4,7 +4,7 @@ from banal import as_bool
 from normality import stringify
 from datetime import datetime, time
 from typing import Any, Dict, List, Optional
-from pantomime.types import XLSX
+from rigour.mime.types import XLSX
 
 from zavod import Context, Entity
 from zavod import helpers as h

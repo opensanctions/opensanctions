@@ -1,7 +1,7 @@
 import json
 from normality import slugify
 from typing import Any, Dict, List, Optional
-from pantomime.types import JSON
+from rigour.mime.types import JSON
 
 from zavod import Context, Entity
 from zavod import helpers as h

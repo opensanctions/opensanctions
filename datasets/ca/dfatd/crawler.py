@@ -1,6 +1,6 @@
 from lxml.etree import _Element
 from normality import collapse_spaces
-from pantomime.types import XML
+from rigour.mime.types import XML
 from followthemoney.types import registry
 
 from zavod import Context
