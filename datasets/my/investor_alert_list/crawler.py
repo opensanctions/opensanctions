@@ -2,6 +2,7 @@ import json
 from zavod import Context, helpers as h
 import re
 
+
 def crawl_item(input_dict: dict, context: Context):
 
     name = input_dict.pop("name")
@@ -38,13 +39,13 @@ def crawl(context: Context):
     target_script = None
 
     for script in response.findall(".//script"):
-        if script.text is not None and script.text.strip().startswith('$X.PMD'):
+        if script.text is not None and script.text.strip().startswith("$X.PMD"):
             target_script = script
             break
 
     target_script = target_script.text_content().replace("$X.PMD = ", "")
 
-    idx = target_script.find(';$X.PPG')
+    idx = target_script.find(";$X.PPG")
 
     full_data = json.loads(target_script[:idx])
 
