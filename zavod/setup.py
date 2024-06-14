@@ -37,7 +37,7 @@ setup(
         "types-jinja2",
         "lxml == 5.2.2",
         "openpyxl == 3.1.4",
-        "orjson == 3.10.4",
+        "orjson == 3.10.5",
         "ijson > 3.2, < 4.0",
         "pantomime == 0.6.1",
         "prefixdate",
