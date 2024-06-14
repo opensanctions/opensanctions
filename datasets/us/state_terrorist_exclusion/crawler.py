@@ -20,7 +20,7 @@ def crawl_item(raw_name: str, context: Context):
         name = name[:-1] if "(" not in name and name[-1] == ")" else name
         entity.add("name", name)
 
-    entity.add("topics", "crime.terror")
+    entity.add("topics", "sanction")
     entity.add(
         "program",
         "Section 411 of the USA PATRIOT ACT of 2001 (8 U.S.C. § 1182) Terrorist Exclusion List (TEL) ",

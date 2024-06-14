@@ -25,6 +25,20 @@ description: |
   Virtually all sanctions lists are based on the [UN Security Council List](/datasets/un_sc_sanctions/),
   and add further listings based on national policies.
 
+  The sanctions included here generally impose one or more restrictions like
+
+  * freezing of assets
+  * banning financial transactions, except sometimes for personal living expenses
+  * travel bans
+
+  They may be imposed as a consequence of activities such as funding or association
+  with organisations involved in terrorism or human rights abuses, or for other
+  geopolitical reasons.
+
+  This excludes restrictions sometimes termed as sanctions such as those imposed
+  by financial regulators for financial misconduct, or debarments restricting procurement.
+  Those are included in the [Crime collection](/datasets/crime) instead.
+
 children:
   - ae_local_terrorists
   - ar_repet
@@ -78,6 +92,7 @@ children:
   - ua_nsdc_sanctions
   - ua_sfms_blacklist
   - un_sc_sanctions
+  - us_state_terrorist_exclusion
   - us_bis_denied
   - us_cuba_sanctions
   - us_dhs_uflpa
