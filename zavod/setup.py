@@ -24,7 +24,7 @@ setup(
         "followthemoney == 3.6.*",
         "nomenklatura[leveldb,tantivy] == 3.12.0",
         "plyvel == 1.5.1",
-        "redis[hiredis] == 5.0.5",
+        "redis[hiredis] == 5.0.6",
         "fakeredis == 2.23.2",
         "rigour == 0.5.2",
         "datapatch >= 1.1,< 1.3",
