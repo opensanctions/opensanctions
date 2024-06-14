@@ -78,6 +78,7 @@ children:
   - ua_nsdc_sanctions
   - ua_sfms_blacklist
   - un_sc_sanctions
+  - us_state_terrorist_exclusion
   - us_bis_denied
   - us_cuba_sanctions
   - us_dhs_uflpa
