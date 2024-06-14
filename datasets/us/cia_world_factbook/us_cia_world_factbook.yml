@@ -639,6 +639,18 @@ lookups:
           - role: Prime Minister
             name: HAITHAM bin Tarik Al Said
             start_date: 11 January 2020
+      # Benin
+      - match: President Patrice TALON
+        holders:
+          - role: President
+            name: Patrice TALON
+            start_date: 6 April 2016
+      # Burundi
+      - match: Minister Gervais NDIRAKOBUCA (since 7 September 2022)
+        holders:
+          - role: Prime Minister
+            name: Gervais NDIRAKOBUCA
+            start_date: 7 September 2022
       # Not additional heads, just notes
       - regex:
           - subsequently, the Houthis and supporters of Yemen's first president, Ali Abdullah SALEH, seized the presidential palace and placed HADI under house arrest

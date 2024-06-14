@@ -3828,3 +3828,10 @@ lookups:
           jurisdiction: fr
           registrationNumber: W751148995
           incorporationDate: 1990-03-28
+      - match: "déclarée le 1er juillet 2019 à la préfecture de police de Paris (75) sous le numéro W751252965 et le numéro SIREN 889271375 : W751252965"
+        props:
+          jurisdiction: fr
+          registrationNumber:
+            - W751252965
+            - "889271375"
+          incorporationDate: 2019-07-01
