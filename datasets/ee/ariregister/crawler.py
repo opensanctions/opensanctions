@@ -150,6 +150,10 @@ def parse_general(context: Context, row: Item):
         if contact["liik"] == "EMAIL":
             proxy.add("email", value)
         elif contact["liik"] == "WWW":
+            if "://" in value:
+                scheme, url = value.split("://", 1)
+                if scheme not in ("http", "https"):
+                    value = f"http://{url}"
             proxy.add("website", value)
         elif contact["liik"] in ("MOB", "TEL"):
             proxy.add("phone", value)
