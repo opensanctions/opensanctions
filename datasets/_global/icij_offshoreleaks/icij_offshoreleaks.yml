@@ -493,6 +493,8 @@ lookups:
   type.date:
     options:
       - regex: 0\d{3}-\d{2}-\d{2}
+        match:
+          - "*"
         value: null
       - match: 18/19/2015
         value: "2015"
@@ -542,6 +544,16 @@ lookups:
         value: 2015-04-28
       - match: "OCT-2019"
         value: "2019-10"
+      - match: 5012-05-22
+        value: "2012-05-22"
+      - match: 3008-03-03
+        value: "2008-03-03"
+      - match: 3003-08-06
+        value: "2003-08-06"
+      - match: 5005-11-02
+        value: "2005-11-02"
+      - match: 5015-08-28
+        value: "2015-08-28"
 
   type.country:
     options:

@@ -104,6 +104,12 @@ lookups:
       - match:
           - S4MRFLWH0
           - S4MRFLTRS
+          - S4MR47VPQ
+          - S4MR47FRC
+          - S4MR47FDZ
+          - S4MR47MZT
+          - S4MR473KX
+          - S4MR479RJ
         value: Person
   type.address:
     lowercase: true
