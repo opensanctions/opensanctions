@@ -50,5 +50,6 @@ children:
   - us_occ_enfact
   - us_sec_pause
   - us_sec_harmed_investors
+  - us_ss_wanted
   - za_wanted
 ci_test: false

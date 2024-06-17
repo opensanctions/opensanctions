@@ -1,15 +1,17 @@
-title: "United States Secret Service Most Wanted Fugitives"
+title: "US Secret Service Most Wanted Fugitives"
 entry_point: crawler.py
 prefix: us-sswant
 summary: "Wanted fugitivies listed on United States Secret Service website."
-description: >
-  This dataset publishes the details of the most wanted fugitives listed on the United States Secret Service website.
+description: |
+  This dataset publishes the details of fugitives listed by the United States
+  Secret Service.
 
-  Individuals in this list are involved in one or more financial crimes, including but not limited to counterfeiting, 
-  bank fraud, hacking, crypto and credit card fraud. 
+  Individuals in this list are alleged to be, or indicted on charges of being
+  involved in one or more financial crimes, including but not limited to counterfeiting,
+  bank fraud, hacking, crypto and credit card fraud.
 
-  The dataset includes details such as the fugitive's name, date of birth, aliases, summary of the criminal case, and relevant links to them.
-
+  The dataset includes details such as the fugitive's name, date of birth, aliases,
+  summary of the criminal case, and relevant links to them.
 url: https://www.secretservice.gov/investigations/mostwanted
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 coverage:
@@ -19,14 +21,14 @@ coverage:
 publisher:
   name: United States Secret Service
   acronym: USSS
-  description: |
-    The United States Secret Service (USSS) is a federal law enforcement agency under the Department of Homeland Security 
-    charged with conducting criminal investigations and protecting U.S. political leaders, their families, and visiting 
-    heads of state or government. [Source](https://en.wikipedia.org/wiki/United_States_Secret_Service)
-
-    They also protect the integrity of the U.S. currency and investigate crimes against the U.S. financial system committed by criminals 
-    around the world and in cyberspace.
-
+  description: >
+    The United States Secret Service (USSS) is a federal law enforcement agency
+    under the Department of Homeland Security charged with conducting criminal
+    investigations and protecting U.S. political leaders, their families, and
+    visiting heads of state or government. [Source](https://en.wikipedia.org/wiki/United_States_Secret_Service)
+    They also protect the integrity of the U.S. currency and investigate crimes
+    against the U.S. financial system committed by criminals around the world and
+    in cyberspace.
   country: us
   url: https://www.secretservice.gov/
   official: true
@@ -47,5 +49,5 @@ assertions:
     country_entities:
       ru: 8
       ua: 4
-      us: 1
-    countries: 8
+      ng: 1
+    countries: 6
