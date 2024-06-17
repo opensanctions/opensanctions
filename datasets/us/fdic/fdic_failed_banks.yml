@@ -1,0 +1,24 @@
+name: fdic_failed_banks
+title: "FDIC Failed Banks"
+url: https://www.fdic.gov/resources/resolutions/bank-failures/failed-bank-list/
+load_db_uri: \${OPENSANCTIONS_DATABASE_URI}
+coverage:
+  frequency: daily
+  start: 2000-01-01
+
+description: >
+  The FDIC provides a list of bank failures and the institutions that acquired them.
+
+entry_point: datasets/us/fdic/fdic_failed_banks.py
+prefix: fdic
+
+publisher:
+  name: Federal Deposit Insurance Corporation (FDIC)
+  official: true
+  description: The FDIC is an independent agency of the United States government that protects the funds depositors place in banks and savings associations.
+  country: us
+  url: https://www.fdic.gov/
+
+data:
+  url: https://www.fdic.gov/resources/resolutions/bank-failures/failed-bank-list/
+  format: HTML
