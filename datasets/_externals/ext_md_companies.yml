@@ -26,8 +26,6 @@ publisher:
     The P.I. “Public Services Agency” is a holder of the basic state information resources.
   official: true
 ci_test: false
-http:
-  retry_methods: [GET, POST]
 
 inputs:
   - ann_graph_topics
@@ -46,8 +44,7 @@ inputs:
   - sanctions
 
 config:
-  type: nomenklatura.enrich.yente:YenteEnricher
-  api: https://api.graph.opensanctions.org/
+  type: zavod.runner.local_enricher:LocalEnricher
   dataset: md_companies
   api_key: ${OPENSANCTIONS_GRAPH_API_KEY}
   strip_namespace: true
@@ -68,4 +65,16 @@ config:
     - Organization
     # - LegalEntity
     # - Person
-  cache_days: 30
+
+assertions:
+  min:
+    schema_entities:
+      Company: 10
+      LegalEntity: 18
+    country_entities:
+      md: 10
+    countries: 1
+  max:
+    schema_entities:
+      Company: 40
+      LegalEntity: 60
