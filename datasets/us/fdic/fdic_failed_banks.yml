@@ -9,7 +9,7 @@ coverage:
 description: >
   The FDIC provides a list of bank failures and the institutions that acquired them.
 
-entry_point: datasets/us/fdic/fdic_failed_banks.py
+entry_point: failed_bank_list_crawler.py
 prefix: fdic
 
 publisher:

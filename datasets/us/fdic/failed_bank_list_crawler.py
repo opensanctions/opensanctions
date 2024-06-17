@@ -23,7 +23,7 @@ def parse_data(context, doc):
     for el in elements:
         context.log.info(f"Element content: {html.tostring(el, pretty_print=True)}")
         text_content = el.text_content().strip()
-        column_position = el.xpath('count(preceding-sibling::*) + 1')[0]
+        column_position = el.xpath('count(preceding-sibling::*) + 1')
         context.log.info(f"Processing element in column position: {column_position} with text: {text_content}")
 
         if column_position == 1:
@@ -51,15 +51,14 @@ def parse_data(context, doc):
 
 def emit_row(context, row):
     if len(row) == 7:  # Ensure all fields are present
-        entity = context.make("Bank")
+        entity = context.make("LegalEntity")
         entity.id = context.make_id(row['bank_name'], row['closing_date'])
         entity.add("name", row['bank_name'])
-        entity.add("city", row['city'])
-        entity.add("state", row['state'])
-        entity.add("certNumber", row['cert_number'])
-        entity.add("acquiringInstitution", row['acquiring_institution'])
-        entity.add("closingDate", row['closing_date'])
-        entity.add("fund", row['fund'])
+        entity.add("address", ", ".join([row['city'], row['state']]))
+        entity.add("description", f"Cert number {row['cert_number']}")
+        #entity.add("acquiringInstitution", row['acquiring_institution'])
+        entity.add("dissolutionDate", row['closing_date'])
+        entity.add("description", f"Fund: {row['fund']}")
         context.emit(entity, target=True)
         context.log.info(f"Emitted entity for bank: {row['bank_name']}")
     else:
