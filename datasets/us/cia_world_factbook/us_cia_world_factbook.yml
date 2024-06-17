@@ -737,6 +737,8 @@ lookups:
           - a nine-member Presidential Transitional Council, equipped with presidential powers, was sworn in on 25 April 2024 and will remain in place until 7 February 2026
           # Iran
           - on 19 May 2024, President Ebrahim RAISI died in a helicopter crash
+          # Angola - already emitted in chief of state entry incl date.
+          - President Joao Manuel Goncalves LOURENCO
         holders: []
 
   type.country:
