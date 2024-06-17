@@ -72,9 +72,9 @@ assertions:
     schema_entities:
       Company: 83
       Person: 22
-      LegalEntity: 11
+      LegalEntity: 10
     country_entities:
-      ee: 95
+      ee: 94
       ua: 7
       cy: 3
     countries: 6
