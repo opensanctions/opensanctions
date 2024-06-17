@@ -20,8 +20,23 @@ FRENCH_TO_ENGLISH_MONTHS = {
 }
 
 SUBTITLE_PATTERN = re.compile(
-    r"^(Sanction|Sanctions|amende) (administrative|administratives) ((prononcée|prononcées) à l’encontre d[eu]|imposée à) (gestionnaire de fonds d’investissement alternatifs|gestionnaire de fonds d’investissement|l’entreprise d’investissement|l’établissement de paiement|professionnel du secteur financier|l’établissement de crédit|cabinet de révision agréé|la société d’investissement à capital variable|gestionnaire du fonds d’investissement)?\s*",
-    re.IGNORECASE,
+    r"""
+^(Sanctions?|amende)\s(administrative|administratives)\s
+(prononcées?\sà\sl’encontre\sd[eu]|imposée\sà)\s
+(
+    gestionnaire\sde\sfonds\sd’investissement\salternatifs?|
+    gestionnaire\sde\sfonds\sd’investissement|
+    l’entreprise\sd’investissement|
+    l’établissement\sde\spaiement|
+    professionnel\sdu\ssecteur\sfinancier|
+    l’établissement\sde\scrédit|
+    cabinet\sde\srévision\sagréé|
+    la\ssociété\sd’investissement\sà\scapital\svariable|
+    gestionnaire\sdu\sfonds\sd’investissement
+)?
+\s*
+""",
+    re.IGNORECASE | re.VERBOSE,
 )
 
 
