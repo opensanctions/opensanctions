@@ -15,8 +15,8 @@ description: |
 url: https://www.secretservice.gov/investigations/mostwanted
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 coverage:
-  frequency: monthly
-  start: "2024-06-13"
+  frequency: daily
+  start: "2024-06-17"
 
 publisher:
   name: United States Secret Service
