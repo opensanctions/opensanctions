@@ -44,7 +44,8 @@ inputs:
   - sanctions
 
 config:
-  type: zavod.runner.local_enricher:LocalEnricher
+  type: nomenklatura.enrich.yente:YenteEnricher
+  api: https://api.graph.opensanctions.org/
   dataset: md_companies
   api_key: ${OPENSANCTIONS_GRAPH_API_KEY}
   strip_namespace: true
@@ -65,6 +66,7 @@ config:
     - Organization
     # - LegalEntity
     # - Person
+  cache_days: 30
 
 assertions:
   min:

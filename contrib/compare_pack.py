@@ -36,7 +36,7 @@ class Store(BaseStore):
         dataset = Dataset(catalog, metadata)
         resolver = get_dataset_resolver(dataset)
         linker: Linker[Entity] = resolver.get_linker()
-        super().__init__(dataset, linker, path)
+        super().__init__(dataset, linker)
         self.entity_class = Entity
         self.statements_path = statements_path
 
