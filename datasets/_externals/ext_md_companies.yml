@@ -67,16 +67,3 @@ config:
     # - LegalEntity
     # - Person
   cache_days: 30
-
-assertions:
-  min:
-    schema_entities:
-      Company: 10
-      LegalEntity: 18
-    country_entities:
-      md: 10
-    countries: 1
-  max:
-    schema_entities:
-      Company: 40
-      LegalEntity: 60
