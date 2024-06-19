@@ -11,9 +11,10 @@ from nomenklatura.enrich.common import Enricher, EnricherConfig
 from nomenklatura.enrich.common import EnrichmentException
 from nomenklatura.index.tantivy_index import TantivyIndex
 from nomenklatura.matching import get_algorithm, LogicV1
+from nomenklatura.resolver.linker import Linker
 
+from zavod.entity import Entity
 from zavod.archive import dataset_state_path
-from zavod.dedupe import get_resolver
 from zavod.meta import get_catalog
 from zavod.store import get_store
 
@@ -49,8 +50,10 @@ class LocalEnricher(Enricher):
         super().__init__(dataset, cache, config)
         target_dataset_name = config.pop("dataset")
         target_dataset = get_catalog().require(target_dataset_name)
-        resolver = get_resolver()
-        target_store = get_store(target_dataset, resolver)
+        # target_linker = get_dataset_linker(target_dataset)
+        # TODO: Workaround until company register datasets have resolve key archived.
+        target_linker = Linker[Entity]({})
+        target_store = get_store(target_dataset, target_linker)
         target_store.sync()
         self._view = target_store.view(target_dataset)
         index_path = dataset_state_path(dataset.name) / "tantivy-enrich-index"

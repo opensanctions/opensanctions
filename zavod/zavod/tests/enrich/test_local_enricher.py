@@ -70,7 +70,6 @@ def test_cutoff(vcontext: Context):
     shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
 
 
-
 def test_limit(vcontext: Context):
     """We only return limit matches per entity"""
     crawl_dataset(vcontext.dataset)
