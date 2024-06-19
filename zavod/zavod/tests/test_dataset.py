@@ -12,6 +12,7 @@ TEST_DATASET = {
     "title": "Test Dataset",
     "hidden": True,
     "prefix": "xx",
+    "resolve": False,
     "data": {
         "url": "https://example.com/data.csv",
         "format": "csv",
@@ -54,6 +55,7 @@ def test_basic():
     os_data = test_ds.to_opensanctions_dict()
     assert os_data["name"] == "test", os_data
     assert os_data["collections"] == ["collection"], os_data
+    assert os_data["resolve"] is False, os_data
 
     assert coll_ds.hidden is False
     assert coll_ds.is_collection is True
@@ -62,6 +64,7 @@ def test_basic():
     os_data = coll_ds.to_opensanctions_dict()
     assert "collections" not in os_data, os_data
     assert os_data["sources"] == ["test"], os_data
+    assert os_data["resolve"] is True, os_data
 
     assert test_ds.http.total_retries == 1
     assert test_ds.http.retry_statuses == [500]

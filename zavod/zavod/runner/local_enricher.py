@@ -52,6 +52,7 @@ class LocalEnricher(Enricher):
         target_dataset = get_catalog().require(target_dataset_name)
         # target_linker = get_dataset_linker(target_dataset)
         # TODO: Workaround until company register datasets have resolve key archived.
+        # Should be latest 2024-07-20
         target_linker = Linker[Entity]({})
         target_store = get_store(target_dataset, target_linker)
         target_store.sync()
