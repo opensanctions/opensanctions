@@ -28,7 +28,21 @@ publisher:
 
     This authority also acts as secretariat for the Financial Business Council,
     the Danish Securities Council and the Money and Pension Panel.
-url: "https://www.finanstilsynet.dk/tal-og-fakta/pep-liste"
+url: https://www.finanstilsynet.dk/lovgivning/pep-listen
 data:
-  url: "https://www.finanstilsynet.dk/tal-og-fakta/pep-liste"
+  url: https://www.finanstilsynet.dk/lovgivning/pep-listen
   format: XLSX
+
+assertions:
+  min:
+    schema_entities:
+      Person: 1200
+      Position: 400
+    country_entities:
+      dk: 1200
+      fo: 250
+      gl: 130
+  max:
+    schema_entities:
+      Person: 1800
+      Position: 600

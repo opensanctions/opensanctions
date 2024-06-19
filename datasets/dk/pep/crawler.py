@@ -9,9 +9,9 @@ from zavod import Context, helpers as h
 from zavod.logic.pep import categorise
 
 RESOURCES = [
-    ("dk", "dan", "PEP_listen.xlsx"),
-    ("fo", "fao", "PEP_listen_faeroeerne.xlsx"),
-    ("gl", "kal", "PEP_listen_groenland.xlsx"),
+    ("dk", "dan", "dk.xlsx", "PEP_listen.xlsx"),
+    ("fo", "fao", "fo.xlsx", "PEP_listen f"),
+    ("gl", "kal", "gl.xlsx", "PEP_listen g"),
 ]
 CURRENT_HEADERS = [
     None,
@@ -22,7 +22,6 @@ CURRENT_HEADERS = [
     "Tilføjet på PEP-listen (dato)",
     "Ny på PEP-listen (x)",
 ]
-BASE_URL = "https://www.finanstilsynet.dk/-/media/Tal-og-fakta/PEP/"
 
 
 def header_names(cells):
@@ -210,8 +209,13 @@ def crawl_old_pep_item(context: Context, country: str, lang: str, input_dict: di
 
 
 def crawl(context: Context):
-    for country, lang, name in RESOURCES:
-        path = context.fetch_resource(name, BASE_URL + name)
+    doc = context.fetch_html(context.data_url)
+    doc.make_links_absolute(context.data_url)
+
+    for country, lang, name, file_pattern in RESOURCES:
+        links = doc.xpath(f'//a[contains(@href, "{file_pattern}")]')
+        assert len(links) == 1, (file_pattern, links)
+        path = context.fetch_resource(name, links[0].get("href"))
         context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
 
         wb = load_workbook(path, read_only=True)
