@@ -1,12 +1,10 @@
-import re
 import csv
 from typing import List
 from zipfile import ZipFile
+from datetime import datetime, timedelta
 
 from zavod import Context
 from zavod import helpers as h
-from datetime import datetime
-
 from zavod.logic.pep import categorise
 
 # 1: CPF
@@ -40,19 +38,12 @@ def get_csv_url(context: Context) -> str:
 
     :return: The URL of the CSV file.
     """
-    doc = context.fetch_html(context.data_url, cache_days=1)
-    path = "//script"
-    date_pattern = re.compile(
-        r'"ano"\s*:\s*"(\d+)",\s*"mes"\s*:\s*"(\d+)",\s*"dia"\s*:\s*'
-    )
-    for script in doc.xpath(path):
-        if script.text:
-            match = date_pattern.search(script.text)
-            if match:
-                # we can ignore the day since it won't be used to build the url
-                year, month = match.groups()
-                return context.data_url + f"/{year}{month}"
-
+    for i in range(13):
+        prev = datetime.now() - timedelta(days=i * 28)
+        url = context.data_url + f"/{prev.strftime('%Y%m')}"
+        resp = context.http.head(url, allow_redirects=True)
+        if resp.status_code == 200:
+            return url
     raise ValueError("Data URL not found")
 
 
