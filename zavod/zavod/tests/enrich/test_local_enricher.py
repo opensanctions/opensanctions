@@ -24,25 +24,34 @@ def load_enricher(context: Context, dataset_data):
     return enricher_cls(dataset, context.cache, dataset.config)
 
 
-def make_entity(dataset):
-    data = {
-        "schema": "LegalEntity",
-        "id": "xxx",
-        "properties": {"name": ["Umbrella Corp."]},
-    }
-    ent = CompositeEntity.from_data(dataset, data)
-    return ent
+UMBRELLA_CORP = {
+    "schema": "LegalEntity",
+    "id": "xxx",
+    "properties": {"name": ["Umbrella Corp."]},
+}
+
+
+JON_DOE = {
+    "schema": "Person",
+    "id": "osv-john-doe",  # Same as in the dataset
+    "properties": {"name": ["Jon Doe"]},
+}
 
 
 def test_enrich(vcontext: Context):
     """We match and expand an entity with a similar name"""
     crawl_dataset(vcontext.dataset)
     enricher = load_enricher(vcontext, DATASET_DATA)
-    entity = make_entity(vcontext.dataset)
+    entity = CompositeEntity.from_data(vcontext.dataset, UMBRELLA_CORP)
+
+    # Match
     results = list(enricher.match(entity))
     assert len(results) == 1, results
     assert str(results[0].id) == "osv-umbrella-corp", results[0]
+    # Distinguish from same ID test for e.g. positive decisions
+    assert results[0].id != entity.id
 
+    # Expand
     internals = list(enricher.expand(entity, results[0]))
     assert len(internals) == 3, internals
 
@@ -57,18 +66,33 @@ def test_enrich(vcontext: Context):
     shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
 
 
+def test_enrich_id_match(vcontext: Context):
+    """We match and expand an entity with a similar name and same ID"""
+    crawl_dataset(vcontext.dataset)
+    enricher = load_enricher(vcontext, DATASET_DATA)
+    entity = CompositeEntity.from_data(vcontext.dataset, JON_DOE)
+
+    # Match
+    results = list(enricher.match(entity))
+    assert len(results) == 2, results
+    assert str(results[0].id) == entity.id, results[0]
+    assert str(results[1].id) != entity.id, results[1].to_dict()
+    assert "Doe" in results[1].get("name")[0], results[1].to_dict()
+
+    shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
+
+
 def test_cutoff(vcontext: Context):
     """We don't match an entity if its score is lower than the cutoff."""
     crawl_dataset(vcontext.dataset)
     dataset_data = deepcopy(DATASET_DATA)
     dataset_data["config"]["cutoff"] = 0.99
     enricher = load_enricher(vcontext, dataset_data)
-    entity = make_entity(vcontext.dataset)
+    entity = CompositeEntity.from_data(vcontext.dataset, UMBRELLA_CORP)
     results = list(enricher.match(entity))
     assert len(results) == 0, results
 
     shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
-
 
 
 def test_limit(vcontext: Context):
@@ -77,7 +101,7 @@ def test_limit(vcontext: Context):
     dataset_data = deepcopy(DATASET_DATA)
     dataset_data["config"]["limit"] = 0
     enricher = load_enricher(vcontext, dataset_data)
-    entity = make_entity(vcontext.dataset)
+    entity = CompositeEntity.from_data(vcontext.dataset, UMBRELLA_CORP)
     results = list(enricher.match(entity))
     assert len(results) == 0, results
 

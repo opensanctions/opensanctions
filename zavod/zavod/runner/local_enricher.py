@@ -11,7 +11,6 @@ from nomenklatura.enrich.common import Enricher, EnricherConfig
 from nomenklatura.enrich.common import EnrichmentException
 from nomenklatura.index.tantivy_index import TantivyIndex
 from nomenklatura.matching import get_algorithm, LogicV1
-from nomenklatura.resolver import Identifier
 
 from zavod.archive import dataset_state_path
 from zavod.dedupe import get_resolver
@@ -84,9 +83,10 @@ class LocalEnricher(Enricher):
         )
 
         # The index won't provide an entity with the same ID so get it directly
-        same_id_match = self._view.get_entity(entity.id)
-        if same_id_match is not None:
-            yield same_id_match
+        if entity.id is not None:
+            same_id_match = self._view.get_entity(entity.id)
+            if same_id_match is not None:
+                yield self.entity_from_statements(type(entity), same_id_match)
 
         for match_id, index_score in self._index.match(store_type_entity):
             match = self._view.get_entity(match_id.id)
