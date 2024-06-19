@@ -2,6 +2,7 @@ entry_point: testentrypoint1
 title: OpenSanctions Validation Dataset
 prefix: osv
 hidden: true
+resolve: false
 summary: >
   This dataset is used to validate and test the OpenSanctions data processing pipeline.
 description: |

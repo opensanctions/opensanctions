@@ -182,6 +182,7 @@ def test_ftm_referents(testdataset1: Dataset):
     identifier = resolver.decide(
         "osv-john-doe", "osv-johnny-does", Judgement.POSITIVE, user="test"
     )
+    testdataset1.resolve = True
     crawl_dataset(testdataset1)
     harnessed_export(FtMExporter, testdataset1)
 
