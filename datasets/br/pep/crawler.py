@@ -1,4 +1,3 @@
-import re
 import csv
 from typing import List
 from zipfile import ZipFile
@@ -6,8 +5,6 @@ from datetime import datetime, timedelta
 
 from zavod import Context
 from zavod import helpers as h
-from datetime import datetime
-
 from zavod.logic.pep import categorise
 
 # 1: CPF
