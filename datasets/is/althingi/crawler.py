@@ -33,7 +33,9 @@ def crawl_item(member_url: str, name: str, context: Context):
     # The birth date has a suffix that we need to remove
     person.add(
         "birthDate",
-        h.parse_date(re.sub(SUFFIX_PATTERN, "", birth_date), formats=["Date of Birth: %B %d, %Y"]),
+        h.parse_date(
+            re.sub(SUFFIX_PATTERN, "", birth_date), formats=["Date of Birth: %B %d, %Y"]
+        ),
     )
     person.add("phone", telephone)
     person.add("political", party)
