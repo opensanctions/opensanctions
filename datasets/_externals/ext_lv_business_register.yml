@@ -14,8 +14,9 @@ deploy:
   memory_limit: "2000Mi"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
-  The Latvian company registry lists directors, shareholders and beneficial owners
-  as well as bank accounts for all companies and traders in the country
+  Directors, shareholders and beneficial owners
+  as well as bank accounts for companies and traders in the country's Register of Enterprises
+  which match or are related to entities in the OpenSanctions database
 publisher:
   name: Latvijas Republikas Uzņēmumu reģistrs
   url: https://www.ur.gov.lv/lv/
@@ -28,8 +29,6 @@ publisher:
     in the territory of the Republic of Latvia.
   official: true
 ci_test: false
-http:
-  retry_methods: [GET, POST]
 
 inputs:
   - ann_graph_topics
@@ -48,12 +47,9 @@ inputs:
   - sanctions
 
 config:
-  type: nomenklatura.enrich.yente:YenteEnricher
-  api: https://api.graph.opensanctions.org/
+  type: zavod.runner.local_enricher:LocalEnricher
   dataset: lv_business_register
-  api_key: ${OPENSANCTIONS_GRAPH_API_KEY}
   strip_namespace: true
-  fuzzy: false
   threshold: 0.7
   algorithm: regression-v1
   topics:
@@ -70,4 +66,3 @@ config:
     - Organization
     # - LegalEntity
     # - Person
-  cache_days: 30
