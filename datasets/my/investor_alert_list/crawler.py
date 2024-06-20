@@ -1,4 +1,6 @@
 import json
+import re
+
 from zavod import Context
 
 
@@ -12,10 +14,11 @@ def crawl_item(input_dict: dict, context: Context):
 
     entity = context.make("LegalEntity")
     entity.id = context.make_id(name)
-    entity.add("topics", "sanction")
-    entity.add("name", name)
-    entity.add("address", input_dict.pop("address"))
-    entity.add("notes", input_dict.pop("remark"))
+    entity.add("name", name.split(" / "))
+    address = input_dict.pop("address").replace("N/A", "")
+    addresses = re.split(r"\b\d\) ", address)
+    entity.add("address", addresses)
+    entity.add("notes", input_dict.pop("remark").split("\n"))
     entity.add("topics", "crime.fin")
     if potential_clone:
         entity.add("description", "Potential clone entity")

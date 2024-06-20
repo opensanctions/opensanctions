@@ -41,6 +41,7 @@ children:
   - lt_illegal_gambling
   - lu_administrative_sanctions
   - my_consumer_alert_list
+  - my_investor_alert_list
   - nl_most_wanted
   - pk_proscribed_persons
   - us_dea_fugitives
