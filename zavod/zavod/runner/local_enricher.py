@@ -85,7 +85,8 @@ class LocalEnricher(Enricher):
             self._view.store.entity_class, entity
         )
 
-        # The index won't provide an entity with the same ID so get it directly
+        # Make sure an entity with the same ID is yielded. E.g. a QID or ID scheme
+        # intentionally consistent between datasets.
         if entity.id is not None:
             same_id_match = self._view.get_entity(entity.id)
             if same_id_match is not None:

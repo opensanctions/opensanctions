@@ -31,10 +31,12 @@ UMBRELLA_CORP = {
 }
 
 
-JON_DOE = {
+JON_DOVER = {
     "schema": "Person",
-    "id": "osv-john-doe",  # Same as in the dataset
-    "properties": {"name": ["Jon Doe"]},
+    "id": "abc-jona-dova",  # Initially different from dataset
+    "properties": {
+        "name": ["Jonathan Dover"]  # Different from dataset
+    },
 }
 
 
@@ -48,8 +50,6 @@ def test_enrich(vcontext: Context):
     results = list(enricher.match(entity))
     assert len(results) == 1, results
     assert str(results[0].id) == "osv-umbrella-corp", results[0]
-    # Distinguish from same ID test for e.g. positive decisions
-    assert results[0].id != entity.id
 
     # Expand
     internals = list(enricher.expand(entity, results[0]))
@@ -67,17 +67,20 @@ def test_enrich(vcontext: Context):
 
 
 def test_enrich_id_match(vcontext: Context):
-    """We match and expand an entity with a similar name and same ID"""
+    """We match an entity with same ID"""
     crawl_dataset(vcontext.dataset)
     enricher = load_enricher(vcontext, DATASET_DATA)
-    entity = CompositeEntity.from_data(vcontext.dataset, JON_DOE)
+    entity = CompositeEntity.from_data(vcontext.dataset, JON_DOVER)
 
-    # Match
+    # Not a match with a different ID
+    assert entity.id != "osv-john-doe"
+    assert len(list(enricher.match(entity))) == 0
+
+    # But when the id matches, it's a match
+    entity.id = "osv-john-doe"
     results = list(enricher.match(entity))
-    assert len(results) == 2, results
+    assert len(results) == 1, results
     assert str(results[0].id) == entity.id, results[0]
-    assert str(results[1].id) != entity.id, results[1].to_dict()
-    assert "Doe" in results[1].get("name")[0], results[1].to_dict()
 
     shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
 
