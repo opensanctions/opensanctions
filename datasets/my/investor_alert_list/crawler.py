@@ -1,5 +1,5 @@
 import json
-from zavod import Context, helpers as h
+from zavod import Context
 
 
 def crawl_item(input_dict: dict, context: Context):
