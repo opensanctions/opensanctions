@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: is-par
 coverage:
   frequency: daily
-  start: 2024-06-11
+  start: 2024-06-20
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Members of the Iceland parliament, known as the Althingi
