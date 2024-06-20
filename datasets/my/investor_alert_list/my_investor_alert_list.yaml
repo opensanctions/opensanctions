@@ -1,4 +1,4 @@
-title: Malaysia Securities Comission Investor Alert List
+title: Malaysia Securities Commission Investor Alert List
 entry_point: crawler.py
 prefix: my-inval
 coverage:
