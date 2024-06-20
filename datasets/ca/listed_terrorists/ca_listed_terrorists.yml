@@ -39,6 +39,14 @@ data:
   url: "https://www.publicsafety.gc.ca/cnt/_xml/lstd-ntts-eng.xml"
   format: XML
 
+assertions:
+  min:
+    schema_entities:
+      Organization: 65
+  max:
+    schema_entities:
+      Organization: 100
+
 lookups:
   type.date:
     options:

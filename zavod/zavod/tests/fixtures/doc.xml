@@ -1,4 +1,6 @@
 <?xml version="1.0"?>
+<!-- This is a comment in the root -->
 <x:MyAddress xmlns:x="http://www.ibm.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ibm.com x.xsd">
+    <!-- This is a nested comment -->
     <x:name>Peter Smith</x:name>
 </x:MyAddress>
