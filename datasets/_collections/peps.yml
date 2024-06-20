@@ -50,6 +50,7 @@ children:
   - hr_public_officials
   - id_regional_2018
   - il_knesset_members
+  - is_althingi
   - ky_judicial
   - ky_parliament
   - lt_seimas

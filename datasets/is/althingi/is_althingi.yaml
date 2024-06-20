@@ -16,8 +16,8 @@ description: |
   increase to seven. The constituency boundaries and the number of seats
   allocated to each constituency are fixed by legislation
 publisher:
-  name: Althingi
-  description: Iceland parliament
+  name: Alþingi
+  description: The parliament of Iceland
   url: https://www.althingi.is/
   official: true
   country: "is"
