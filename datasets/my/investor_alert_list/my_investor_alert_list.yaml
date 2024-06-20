@@ -1,0 +1,45 @@
+title: Malaysia Securities Commission Investor Alert List
+entry_point: crawler.py
+prefix: my-inval
+coverage:
+  frequency: daily
+  start: 2024-06-13
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Individuals and entities that are unauthorized to provide investment services
+description: |
+  This list contains the names of entities and individuals unauthorised 
+  to provide investment services under the Malaysia Securities Comission.
+  Some entities in this list may impersonate legitimate entities which
+  are described as “potential clone”.
+publisher:
+  name: Suruhanjaya Sekuriti
+  description: |
+    The Securities Commission Malaysia is a Malaysian statutory body with
+    responsibility for the development and regulation of capital markets
+    in the country.
+  url: https://www.sc.com.my
+  official: true
+  country: "my"
+url: "https://www.sc.com.my/investor-alert-list"
+data:
+  url: https://www.sc.com.my/investor-alert-list
+  format: HTML
+  lang: eng
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 1350
+  max:
+    schema_entities:
+      LegalEntity: 1500
+
+lookups:
+  type.url:
+    lowercase: true
+    options:
+      - match:
+          - N/A
+          - all pages relating to Futurebarrel on facebook
+        value: null

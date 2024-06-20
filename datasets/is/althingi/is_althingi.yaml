@@ -1,0 +1,35 @@
+title: Iceland parliament
+entry_point: crawler.py
+prefix: is-par
+coverage:
+  frequency: daily
+  start: 2024-06-20
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Members of the Iceland parliament, known as the Althingi
+description: |
+  This dataset comprises information about current members of the Althingi,
+  which is the supreme national parliament of Iceland. The unicameral
+  parliament has 63 members, and is elected every four years based on
+  party-list proportional representation. The constitution of Iceland
+  provides for six electoral constituencies with the possibility of an
+  increase to seven. The constituency boundaries and the number of seats
+  allocated to each constituency are fixed by legislation
+publisher:
+  name: Althingi
+  description: Iceland parliament
+  url: https://www.althingi.is/
+  official: true
+  country: "is"
+url: "https://www.althingi.is/altext/cv/en/"
+data:
+  url: https://www.althingi.is/altext/cv/en/
+  format: HTML
+
+assertions:
+  min:
+    schema_entities:
+      Person: 55
+  max:
+    schema_entities:
+      Person: 70

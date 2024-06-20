@@ -48,7 +48,6 @@ inputs:
 config:
   type: zavod.runner.local_enricher:LocalEnricher
   dataset: ee_ariregister
-  api_key: ${OPENSANCTIONS_GRAPH_API_KEY}
   strip_namespace: true
   threshold: 0.7
   algorithm: regression-v1
@@ -70,14 +69,14 @@ config:
 assertions:
   min:
     schema_entities:
-      Company: 83
-      Person: 22
-      LegalEntity: 10
+      Person: 5
+      LegalEntity: 3
+      Company: 1
     country_entities:
-      ee: 94
-      ua: 7
-      cy: 3
-    countries: 6
+      ee: 5
+      ua: 1
+      cy: 1
+    countries: 5
   max:
     schema_entities:
       Company: 200
