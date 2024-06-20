@@ -6,10 +6,13 @@ coverage:
   start: 2024-06-13
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  Individuals and entities that are unauthorized to provide investment services
+  Individuals and entities provide investment services without registration with
+  the Malaysia Securities Commission.
 description: |
-  This list contains the names of entities and individuals unauthorised 
-  to provide investment services under the Malaysia Securities Comission.
+  This list contains the names of entities and individuals providing investment services
+  despite not being registered with, and authorised to do so by Malaysia Securities
+  Commission.
+
   Some entities in this list may impersonate legitimate entities which
   are described as “potential clone”.
 publisher:
