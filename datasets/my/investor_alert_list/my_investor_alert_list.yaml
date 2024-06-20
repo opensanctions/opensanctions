@@ -27,6 +27,14 @@ data:
   format: HTML
   lang: eng
 
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 1350
+  max:
+    schema_entities:
+      LegalEntity: 1500
+
 lookups:
   type.url:
     lowercase: true
