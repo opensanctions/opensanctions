@@ -7,6 +7,7 @@ def crawl_item(input_dict: dict, context: Context):
     name = input_dict.pop("name")
 
     # If it's a potential clone, we remove the "potential clone" from the name
+    potential_clone = "Potential clone entity – " in name
     name = name.replace("Potential clone entity – ", "")
 
     entity = context.make("LegalEntity")
@@ -15,19 +16,17 @@ def crawl_item(input_dict: dict, context: Context):
     entity.add("name", name)
     entity.add("address", input_dict.pop("address"))
     entity.add("notes", input_dict.pop("remark"))
+    entity.add("topics", "crime.fin")
+    if potential_clone:
+        entity.add("description", "Potential clone entity")
 
     for website in input_dict.pop("website").split(" | "):
-        entity.add("sourceUrl", website)
-
-    sanction = h.make_sanction(context, entity)
-
-    sanction.add("date", h.parse_date(input_dict.pop("date"), formats=["%Y"]))
+        entity.add("website", website)
 
     context.emit(entity, target=True)
-    context.emit(sanction)
 
     # group is just the alphabetical order of the name
-    context.audit_data(input_dict, ignore=["group"])
+    context.audit_data(input_dict, ignore=["group", "date"])
 
 
 def crawl(context: Context):
