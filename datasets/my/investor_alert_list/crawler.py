@@ -2,7 +2,6 @@ import json
 import re
 
 from zavod import Context
-from zavod import helpers as h
 
 
 def crawl_item(input_dict: dict, context: Context):
