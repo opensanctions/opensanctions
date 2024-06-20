@@ -46,6 +46,7 @@ def crawl_item(member_url: str, name: str, context: Context):
         person.add("sourceUrl", link)
 
     position = h.make_position(context, "Member of the Althing")
+    position.add("country", "is")
     categorisation = categorise(context, position, is_pep=True)
 
     occupancy = h.make_occupancy(
