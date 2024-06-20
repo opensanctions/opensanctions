@@ -55,7 +55,13 @@ def test_basic():
     os_data = test_ds.to_opensanctions_dict()
     assert os_data["name"] == "test", os_data
     assert os_data["collections"] == ["collection"], os_data
+    assert test_ds.resolve is False
     assert os_data["resolve"] is False, os_data
+    # Explicit True is also read correctly
+    resolve_meta = TEST_DATASET.copy()
+    resolve_meta["resolve"] = True
+    resolve_ds = catalog.make_dataset(resolve_meta)
+    assert resolve_ds.resolve is True
 
     assert coll_ds.hidden is False
     assert coll_ds.is_collection is True
@@ -64,7 +70,11 @@ def test_basic():
     os_data = coll_ds.to_opensanctions_dict()
     assert "collections" not in os_data, os_data
     assert os_data["sources"] == ["test"], os_data
-    assert os_data["resolve"] is True, os_data
+    # When resolve isn't set in the metadata, it defaults to True.
+    assert "resolve" not in TEST_COLLECTION
+    assert coll_ds.resolve is True
+    # When it's true, it isn't dumped.
+    assert "resolve" not in os_data, os_data
 
     assert test_ds.http.total_retries == 1
     assert test_ds.http.retry_statuses == [500]

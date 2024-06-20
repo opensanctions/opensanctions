@@ -120,7 +120,8 @@ class Dataset(NKDataset):
         data = super().to_dict()
         data["hidden"] = self.hidden
         data["disabled"] = self.disabled
-        data["resolve"] = self.resolve
+        if not self.resolve:
+            data["resolve"] = False
         if self.data:
             data["data"] = self.data.to_dict()
         if self.full_dataset is not None:

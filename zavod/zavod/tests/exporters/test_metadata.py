@@ -25,6 +25,8 @@ def test_metadata_collection_export(testdataset1: Dataset, collection: Dataset) 
         index = json.load(fh)
         assert index["updated_at"] == settings.RUN_TIME_ISO
         assert len(index["resources"]) > 2
+        # When resolve is false, the resolve key is exported with correct value
+        assert testdataset1.resolve is False
         assert index["resolve"] is False, index
 
     collection_path = settings.DATA_PATH / "datasets" / collection.name
@@ -33,7 +35,9 @@ def test_metadata_collection_export(testdataset1: Dataset, collection: Dataset) 
 
     with open(collection_path / "index.json", "r") as fh:
         collection_index = json.load(fh)
-        assert collection_index["resolve"] is True
+        # When resolve is true, the resolve key is not exported.
+        assert collection.resolve is True
+        assert "resolve" not in collection_index
 
     catalog_path = collection_path / "catalog.json"
     assert catalog_path.is_file()
