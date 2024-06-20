@@ -27,13 +27,13 @@ def crawl_item(member_url: str, name: str, context: Context):
         email = None
 
     person = context.make("Person")
-    person.id = context.make_id(name)
+    person.id = context.make_id(name, birth_date)
 
     person.add("name", name)
     # The birth date has a suffix that we need to remove
     person.add(
         "birthDate",
-        h.parse_date(re.sub(SUFFIX_PATTERN, "", birth_date), formats=["%B %d, %Y"]),
+        h.parse_date(re.sub(SUFFIX_PATTERN, "", birth_date), formats=["Date of Birth: %B %d, %Y"]),
     )
     person.add("phone", telephone)
     person.add("political", party)
