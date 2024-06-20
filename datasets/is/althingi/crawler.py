@@ -45,7 +45,7 @@ def crawl_item(member_url: str, name: str, context: Context):
     for link in social_media_links:
         person.add("sourceUrl", link)
 
-    position = h.make_position(context, "Member of the Alþingi")
+    position = h.make_position(context, "Member of the Althing")
     categorisation = categorise(context, position, is_pep=True)
 
     occupancy = h.make_occupancy(
