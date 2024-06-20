@@ -14,9 +14,6 @@ def crawl_item(member_url: str, name: str, context: Context):
     birth_date = response.xpath(".//*[text()='Date of Birth:']/..")[0].text_content()
     party = response.xpath(".//*[text()='Party:']/..")[0].text_content()
     telephone = response.find(".//*[@class='tel']").text_content()
-    social_media_links = [
-        a.get("href") for a in response.findall(".//*[@class='socialmedia']/li/a")
-    ]
 
     # The email is generate by a script on the page, so we need to extract it from there
     email_script = response.find(
@@ -42,8 +39,7 @@ def crawl_item(member_url: str, name: str, context: Context):
     person.add("political", party)
     person.add("email", email)
 
-    for link in social_media_links:
-        person.add("sourceUrl", link)
+    person.add("sourceUrl", member_url)
 
     position = h.make_position(context, "Member of the Althing")
     position.add("country", "is")
