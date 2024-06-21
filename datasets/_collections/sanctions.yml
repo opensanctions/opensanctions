@@ -88,7 +88,8 @@ children:
   - qa_nctc_sanctions
   - sg_terrorists
   - th_designated_person
-  - ua_nabc_sanctions
+  # disable until the new site is online:
+  # - ua_nabc_sanctions
   - ua_nsdc_sanctions
   - ua_sfms_blacklist
   - un_sc_sanctions
