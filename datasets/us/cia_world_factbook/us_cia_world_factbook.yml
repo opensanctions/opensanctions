@@ -651,6 +651,12 @@ lookups:
           - role: Prime Minister
             name: Gervais NDIRAKOBUCA
             start_date: 7 September 2022
+      # Iran
+      - match: Acting President Mohammad MOKHER
+        holders:
+          - role: Acting President
+            name: Mohammad Mokhber
+            start_date: 20 May 2024
       # Not additional heads, just notes
       - regex:
           - subsequently, the Houthis and supporters of Yemen's first president, Ali Abdullah SALEH, seized the presidential palace and placed HADI under house arrest
