@@ -1,4 +1,4 @@
-title: US FCC Section 2 of The Secure Networks Act "Covered List"
+title: US FCC Covered List
 entry_point: crawler.py
 prefix: us-fcc-cov
 coverage:
