@@ -657,6 +657,12 @@ lookups:
           - role: Acting President
             name: Mohammad Mokhber
             start_date: 20 May 2024
+      # Afghanistan
+      - match: "Taliban Leader HAYBATULLAH Akhundzada (since 15 August 2021)"
+        holders:
+          - role: Taliban Leader
+            name: HAYBATULLAH Akhundzada
+            start_date: 15 August 2021
       # Not additional heads, just notes
       - regex:
           - subsequently, the Houthis and supporters of Yemen's first president, Ali Abdullah SALEH, seized the presidential palace and placed HADI under house arrest
