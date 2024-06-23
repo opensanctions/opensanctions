@@ -17,7 +17,8 @@ description: |
   have held significant public offices, jobs, 
   or functions within the last five years.
 publisher:
-  name: CGU (General Control Office of the Union)
+  name: General Control Office of the Union
+  acronym: CGU
   url: https://portaldatransparencia.gov.br
   official: true
   country: "br"
