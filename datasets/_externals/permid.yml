@@ -23,7 +23,7 @@ description: |
   > identity they each represent.
 url: https://permid.org/about
 publisher:
-  name: LSEG/Refinitiv
+  name: LSEG
   description: |
     With the merger of Refinitiv into LSEG, the PermID service (formerly Calais) is
     now offered as an open access API by the company.

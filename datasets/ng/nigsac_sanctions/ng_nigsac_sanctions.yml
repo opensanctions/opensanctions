@@ -25,7 +25,8 @@ description: |
 
   For specific regulatory requirements, [see here](https://apps.nfiu.gov.ng/nigsac/NiraReports).
 publisher:
-  name: Nigeria Sanctions Committe (NigSac)
+  name: Nigeria Sanctions Committe
+  acronym: NigSac
   description: |
     The Nigeria Sanctions Committee (“NSC”) is Chaired by the Honourable Attorney-General
     of the Federation and Minister of Justice and is empowered to make all necessary,

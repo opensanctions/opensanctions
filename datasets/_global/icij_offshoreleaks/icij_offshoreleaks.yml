@@ -19,7 +19,8 @@ summary: >-
   Combined data from the Panama Papers, Paradise Papers, Pandora Papers
   and other cross-border investigations conducted by ICIJ and its partners.
 publisher:
-  name: International Consortium of Investigative Journalists (ICIJ)
+  name: International Consortium of Investigative Journalists
+  acronym: ICIJ
   description: |
     ICIJ is a global network of reporters and media organizations that cooperate on
     large-scale cross-border investigations. Its core team is a group of editors, 

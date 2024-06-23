@@ -22,6 +22,7 @@ description: |
 url: https://apps.occ.gov/EASearch/
 publisher:
   name: "Office of the Comptroller of the Currency"
+  acronym: OCC
   description: |
     The OCC charters, regulates, and supervises all national banks and federal
     savings associations as well as federal branches and agencies of foreign

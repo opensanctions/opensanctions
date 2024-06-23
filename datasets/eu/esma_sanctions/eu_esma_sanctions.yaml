@@ -14,6 +14,7 @@ description: |
   > Compilation of sanctions applied and published in Member States under CSDR, EMIR, MAD, MAR, MiFID, SFTR, UCITS.
 publisher:
   name: European Securities and Markets Authority
+  acronym: ESMA
   description: |
     ESMA is the EU’s financial markets regulator and supervisor. It publishes a
     number of databases and registers, including the Financial Instruments Reference

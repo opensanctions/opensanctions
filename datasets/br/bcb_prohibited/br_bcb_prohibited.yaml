@@ -14,7 +14,8 @@ description: |
   These restrictions, often a result of penalties in administrative proceedings,
   aim to ensure the reliability and integrity of those in key auditing roles.
 publisher:
-  name: Banco Central do Brasil (BCB)
+  name: Banco Central do Brasil
+  acronym: BCB
   description: The Central Bank of Brazil
   url: https://www.bcb.gov.br
   official: true

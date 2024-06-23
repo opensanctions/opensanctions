@@ -1,4 +1,4 @@
-title: US Uyghur Forced Labor Prevention Act (UFLPA) Entity List
+title: US UFLPA Entity List
 entry_point: crawler.py
 prefix: us-uflpa
 coverage:
@@ -24,7 +24,8 @@ description: |
   \- [DHS](https://www.dhs.gov/uflpa)
 url: https://www.dhs.gov/uflpa-entity-list
 publisher:
-  name: U.S. Department of Homeland Security
+  name: Department of Homeland Security
+  acronym: DHS
   description: |
     The Department of Homeland Security is the federal department responsible for public security,
     including counter terrorism, border security, security of cyberspace and critical infrastructure,

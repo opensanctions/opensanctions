@@ -20,7 +20,8 @@ description: |
   Policy context on the [Ministry of Commerce and Industry website](https://www.moci.gov.qa/en/anti-money-laundering-and-terrorism-financing/legal-framework/).
 
 publisher:
-  name: National Counter Terrorism Committee (NCTC)
+  name: National Counter Terrorism Committee
+  acronym: NCTC
   description: |
     The committee assumes its responsibilities in one of the most important
     security areas in order to ensure the achievement of the strategy of

@@ -34,7 +34,8 @@ description: |
   > Current and past agreements are provided
 url: "https://www.pmddtc.state.gov/ddtc_public/ddtc_public?id=ddtc_kb_article_page&sys_id=384b968adb3cd30044f9ff621f961941"
 publisher:
-  name: US State Department Directorate of Defense Trade Controls
+  name: Directorate of Defense Trade Controls
+  acronym: DDTC
   description: |
     The Directorate of Defense Trade Controls (DDTC) ensures commercial exports
     of defense articles and defense services advance U.S. national security and

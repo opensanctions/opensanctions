@@ -27,6 +27,7 @@ description: |
   > No information about those follow-up suspensions will be displayed on this website.
 publisher:
   name: European Securities and Markets Authority
+  acronym: ESMA
   description: |
     ESMA is the EU’s financial markets regulator and supervisor. It publishes a
     number of databases and registers, including the Financial Instruments Reference

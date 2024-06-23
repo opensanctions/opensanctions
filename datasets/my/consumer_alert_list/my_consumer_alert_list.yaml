@@ -28,6 +28,7 @@ description: |
   > financial scheme.
 publisher:
   name: Bank Negara Malaysia
+  acronym: BNM
   description: Central Bank of Malaysia
   url: https://www.bnm.gov.my
   official: true

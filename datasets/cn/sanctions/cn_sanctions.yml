@@ -30,9 +30,11 @@ description: |
   * [How China imposes sanctions](https://merics.org/en/report/how-china-imposes-sanctions) (MERICS)
   * [Rules on Counteracting Unjustified Extra-territorial Application of Foreign Legislation and Other Measures](http://english.mofcom.gov.cn/article/policyrelease/questions/202101/20210103029708.shtml)
 publisher:
-  name: Ministry of Commerce and Ministry of Foreign Affairs
-  country: cn
-  description:
+  name: OpenSanctions
+  description: |
+    This dataset comnbines data published by various government departments,
+    including:
+
     The Ministry of Commerce of the People's Republic of China, is a state
     agency of the People's Republic of China responsible for the regulation of
     economic activities such as trade, commodity inspection and industry.
@@ -40,7 +42,7 @@ publisher:
     The Ministry of Foreign Affairs of the People's Republic of China is a
     ministry of the Chinese government responsible for the country's foreign
     relations.
-  url: https://www.mfa.gov.cn/wjb_673085/zfxxgk_674865/gknrlb/fzcqdcs/
+  # url: https://www.mfa.gov.cn/wjb_673085/zfxxgk_674865/gknrlb/fzcqdcs/
   official: false
 url: https://docs.google.com/spreadsheets/d/1DhQqlm2MHv3VpVjEJGstbBWlHV0eBJo-omMwn26TQw4/edit#gid=1070466538
 data:

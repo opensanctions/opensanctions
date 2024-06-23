@@ -29,7 +29,8 @@ description: |
 
   Branch information has been excluded from this dataset.
 publisher:
-  name: Society for Worldwide Interbank Financial Telecommunication (SWIFT)
+  name: Society for Worldwide Interbank Financial Telecommunication
+  acronym: SWIFT
   description: |
     SWIFT is a global member-owned cooperative that provides secure financial
     messaging services. It is used by more than 11,000 financial institutions

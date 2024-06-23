@@ -15,6 +15,7 @@ description: |
   which are formed from the representatives of national parties aligned with that group.
 publisher:
   name: European Parliament
+  acronym: EP
   description: |
     The European Parliament is the legislative branch of the European Union. Together with
     the Council of the European Union and the European Commission it devises and adopts 

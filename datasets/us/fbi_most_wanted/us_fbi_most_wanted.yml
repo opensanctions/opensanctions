@@ -24,7 +24,8 @@ description: |
   > a robber and member of the Holden Keating Gang on the day of the list's inception
 url: https://www.fbi.gov/wanted
 publisher:
-  name: Federal Bureau of Investigation (FBI)
+  name: Federal Bureau of Investigation
+  acronym: FBI
   description: >
     The Federal Bureau of Investigation is the domestic intelligence and security service of
     the United States and its principal federal law enforcement agency.

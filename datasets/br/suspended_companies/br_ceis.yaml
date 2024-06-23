@@ -21,7 +21,8 @@ description: |
   The database is maintained under the mandate of the Anti-Corruption Law (Law No. 12.846/2013),
   with the entries being directly fed by public entities responsible for the sanctions.
 publisher:
-  name: CGU (General Control Office of the Union)
+  name: General Control Office of the Union
+  acronym: CGU
   url: https://portaldatransparencia.gov.br
   official: true
   country: "br"

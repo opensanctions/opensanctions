@@ -20,7 +20,8 @@ description: |
   > statement of reasons for the designation.
 url: https://www.gov.uk/government/publications/the-uk-sanctions-list
 publisher:
-  name: Foreign, Commonwealth & Development Office (FCDO)
+  name: Foreign, Commonwealth & Development Office
+  acronym: FCDO
   description: >
     The FCDO pursue our national interests and those of British citizens. The FCDO safeguards the UK’s security,
     defend our values, reduce poverty and tackle global challenges with our international partners.

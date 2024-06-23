@@ -14,7 +14,8 @@ summary: >
 description: |
   A small set of Lithuanian companies published by the country's financial intelligence unit.
 publisher:
-  name: Finansinių Nusikaltimų Tyrimo Tarnyba (FIU)
+  name: Finansinių Nusikaltimų Tyrimo Tarnyba
+  acronym: FIU
   description: |
     The Financial Crimes Investigation Service at the Ministry of Internal Affairs of the
     Republic of Lithuania (Finansinių Nusikaltimų Tyrimo Tarnyba Prie Lietuvos Respublikos

@@ -23,6 +23,7 @@ description: |
   issuers, and includes information such as the instrument's name, ISIN, and LEI.
 publisher:
   name: European Securities and Markets Authority
+  acronym: ESMA
   description: |
     ESMA is the EU’s financial markets regulator and supervisor. It publishes a
     number of databases and registers, including the Financial Instruments Reference

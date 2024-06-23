@@ -1,4 +1,4 @@
-title: CIA World Factbook heads of state and government
+title: US CIA World Factbook heads of state and government
 entry_point: crawler.py
 prefix: us-cia
 coverage:
@@ -24,7 +24,8 @@ description: |
   > entities.
 url: https://www.cia.gov/the-world-factbook/
 publisher:
-  name: Central Intelligence Agency (CIA)
+  name: Central Intelligence Agency
+  acronym: CIA
   url: https://www.cia.gov/
   country: us
   official: true

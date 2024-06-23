@@ -22,7 +22,8 @@ description: |
   > transactions pursuant to financial sanctions imposed in the United Nations
   > Security Council Resolutions.
 publisher:
-  name: Financial Intelligence Centre (FIC)
+  name: Financial Intelligence Centre
+  acronym: FIC
   description: |
     The Financial Intelligence Centre (FIC) exists to apply measures outlined in
     the Financial Intelligence Centre Act, 2001 (Act 38 of 2001), which are

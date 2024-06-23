@@ -24,6 +24,7 @@ description: |
   members of the US and UK governments, militaries, as well as journalists.
 publisher:
   name: Iran Ministry of Foreign Affairs
+  acronym: MFA
   url: https://en.mfa.ir
   official: true
   country: "ir"

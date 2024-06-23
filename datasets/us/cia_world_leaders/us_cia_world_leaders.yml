@@ -1,4 +1,4 @@
-title: CIA World Leaders
+title: US CIA World Leaders
 entry_point: crawler.py
 prefix: us-cia
 coverage:
@@ -29,7 +29,8 @@ description: |
   > included.
 url: https://www.cia.gov/resources/world-leaders/foreign-governments/
 publisher:
-  name: Central Intelligence Agency (CIA)
+  name: Central Intelligence Agency
+  acronym: CIA
   url: https://www.cia.gov/
   country: us
   official: true
