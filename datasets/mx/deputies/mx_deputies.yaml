@@ -1,4 +1,4 @@
-title: Mexico's deputies
+title: Mexico Chamber of Deputies
 entry_point: crawler.py
 prefix: mx-dep
 coverage:

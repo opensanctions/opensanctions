@@ -15,7 +15,8 @@ description: |
   Documentation of disciplinary actions found here can include official
   complaints, decisions, and settlement agreements.
 publisher:
-  name: Financial Industry Regulatory Authority (FINRA)
+  name: Financial Industry Regulatory Authority
+  acronym: FINRA
   description: |
     FINRA is authorized by Congress to protect America's investors by making sure
     the broker-dealer industry operates fairly and honestly.

@@ -14,6 +14,7 @@ description: |
   chamber of deputies is one of two houses of parliament in Argentina.
 publisher:
   name: Honorable Cámara de Diputados de la Nación Argentina
+  acronym: HCDN
   official: true
   description: >
     The Honorable Chamber of Deputies of Argentina

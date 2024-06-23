@@ -30,6 +30,7 @@ description: |
 url: https://www.state.gov/reports/section-353-corrupt-and-undemocratic-actors-report-2023/
 publisher:
   name: US State Department
+  acronym: State
   description: |
     The U.S. State Department's stated mission is to protect and promote U.S. 
     security, prosperity, and democratic values and shape an international

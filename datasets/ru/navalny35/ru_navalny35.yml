@@ -18,7 +18,8 @@ description: |
   Russian security services. It designates individuals who are directly or
   indirectly responsible for the attack.
 publisher:
-  name: Anti-Corruption Foundation (FBK)
+  name: Anti-Corruption Foundation
+  acronym: ACF
   description: |
     Фонд борьбы с коррупцией is an anti-corruption NGO linked to the political
     network of imprisoned Russian opposition leader Alexei Navalny.

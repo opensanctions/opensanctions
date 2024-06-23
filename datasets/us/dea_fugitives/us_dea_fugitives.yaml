@@ -15,7 +15,8 @@ description: |
   This dataset includes basic demographic information, as well as a summary of
   what they are accused of.
 publisher:
-  name: US Drug Enforcement Administration
+  name: Drug Enforcement Administration
+  acronym: DEA
   description: >
     The DEA is a U.S. agency tasked with enforcing U.S. controlled substance laws and
     regulations, and to enable the justice system to take action on those

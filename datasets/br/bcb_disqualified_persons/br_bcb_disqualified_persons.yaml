@@ -14,7 +14,8 @@ description: |
   are temporarily prohibited from occupying key positions such as administrators
   or board members in financial or consortium administration entities.
 publisher:
-  name: Banco Central do Brasil (BCB)
+  name: Banco Central do Brasil
+  acronym: BCB
   description: The Central Bank of Brazil
   url: https://www.bcb.gov.br
   official: true

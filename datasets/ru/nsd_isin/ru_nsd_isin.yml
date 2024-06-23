@@ -19,6 +19,7 @@ description: |
   This data source is based on [prior work by Owais Arshad](https://github.com/DtorrX/effective-bassoon).
 publisher:
   name: National Settlement Depository
+  acronym: NSD
   description: |
     «Национальный расчетный депозитарий» (НКО АО НРД, NSD) is the central depository of
     the Russian Federation. The status of the central depository was assigned by the

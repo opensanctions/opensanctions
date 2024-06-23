@@ -9,7 +9,6 @@ coverage:
 deploy:
   schedule: "@monthly"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
-
 summary: >-
   Companies and persons against whom a legally binding sanction
   has been imposed in accordance with articles 7 and 9 of the
@@ -25,6 +24,7 @@ description: |
 
 publisher:
   name: Office of Economic Affairs
+  acronym: AVW
   description: |
     The Office of Economic Affairs is a government agency
     of the Principality of Liechtenstein. It is part of

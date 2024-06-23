@@ -13,7 +13,8 @@ description: |
   this dataset. We have configured the crawler to check regularly if the PDF
   file is updated.
 publisher:
-  name: Administration for the Prevention of Money Laundering (APML)
+  name: Administration for the Prevention of Money Laundering
+  acronym: APML
   description: |
     The APML is an administrative body within the Ministry of Finance. Its powers are
     governed in the Law on the Prevention of Money Laundering and the Financing of

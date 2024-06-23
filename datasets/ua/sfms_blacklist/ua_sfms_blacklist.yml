@@ -21,9 +21,11 @@ description: |
 
   A PDF version is [available here](https://fiu.gov.ua/assets/userfiles/Terror/BlackListFull.pdf).
 publisher:
-  name: Державна служба фінансового моніторингу України (Держфінмоніторинг)
+  name: State Finance Monitoring Service
+  acronym: SFMS
   description: >
-    The State Finance Monitoring Service (SFMS) is a national center for receiving and
+    The State Finance Monitoring Service (SFMS, Державна служба фінансового моніторингу
+    України (Держфінмоніторинг) is a national center for receiving and
     analyzing reports of suspicious transactions and other information related to money
     laundering related to predicate offenses and terrorist financing, and to disseminate
     the results of this analysis.

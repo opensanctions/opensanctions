@@ -17,6 +17,7 @@ description: |
   İzmir and Bursa are divided into two each because of its large populations).
 publisher:
   name: Türkiye Büyük Millet Meclisi
+  acronym: TBMM
   description: Grand National Assembly of Türkiye
   url: https://www.tbmm.gov.tr/
   official: true

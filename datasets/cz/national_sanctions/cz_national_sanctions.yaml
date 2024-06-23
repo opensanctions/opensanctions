@@ -15,7 +15,8 @@ description: |
   a description of the action punishable under the relevant European Union regulation,
   the scope of restrictive measures against the entity and the date of publication of the entry.
 publisher:
-  name: Ministr zahraničních věcí
+  name: Ministr Zahraničních Věcí
+  acronym: MZV
   description: Minister of Foreign Affairs
   url: https://mzv.gov.cz/jnp/cz/index.html
   official: true

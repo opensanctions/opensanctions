@@ -1,5 +1,5 @@
 name: us_congress
-title: Members of the United States Congress
+title: US Members of the Congress
 prefix: us-congress
 disabled: false
 entry_point: crawler.py

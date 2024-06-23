@@ -21,7 +21,8 @@ summary: >-
   Base data for all entities which have been issued Legal Entity Identifier
   (LEI) codes, as well as the relationships between them
 publisher:
-  name: Global Legal Entity Identifier Foundation (GLEIF)
+  name: Global Legal Entity Identifier Foundation
+  acronym: GLEIF
   description: |
     Established by the Financial Stability Board in June 2014, the Global Legal Entity
     Identifier Foundation (GLEIF) is tasked to support the implementation and use

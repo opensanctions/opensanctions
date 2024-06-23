@@ -1,5 +1,5 @@
 type: external
-title: Czechia business register
+title: Czech Republic Business Register
 entry_point: zavod.runner.enrich:enrich
 full_dataset: cz_business_register
 disabled: false

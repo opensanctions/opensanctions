@@ -1,4 +1,4 @@
-title: PEPs from Chile interest and asset declarations
+title: PEPs from Chile Interest and Asset Declarations
 entry_point: crawler.py
 prefix: cl-info-probidad
 coverage:
@@ -28,7 +28,8 @@ description: |
   The declarations are published by a joint initiative between the Consejo para la Transparencia (CPLT) and
   the Contraloría General de la República (CGR).
 publisher:
-  name: Consejo para la Transparencia (CPLT)
+  name: Consejo para la Transparencia
+  acronym: CPLT
   description: |
     The Council for Transparency (CPLT) is an autonomous public organization established by the 
     Law on the Transparency of Public Functions and Access to Information on Public Administration
@@ -127,7 +128,7 @@ lookups:
         match:
           - CANDIDATO A ELECCIONES PRIMARIAS ALCALDE 2024
           - CANDIDATO A ELECCIONES PRIMARIAS GORE 2024
-      - is_pep: null  # haven't looked closely yet
+      - is_pep: null # haven't looked closely yet
         match:
           - "ABOGADA"
           - "ABOGADO"
