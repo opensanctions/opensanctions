@@ -17,8 +17,9 @@ description: |
   The list is minimalistic and has limited quality, but I think we're giving points
   for enthusiasm here.
 publisher:
-  name: ФИНАНСОВОЙ РАЗВЕДКИ ПРИ ПРАВИТЕЛЬСТВЕ КЫРГЫЗСКОЙ РЕСПУБЛИКИ (ГСФР)
-  acronym: SFIS
+  name: караштуу Финансылык чалгындоо мамлекеттик кызматы
+  name_en: Financial Intelligence Kyrgyz Republic
+  acronym: FIU
   url: https://fiu.gov.kg/
   country: kg
   official: true

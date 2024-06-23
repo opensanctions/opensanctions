@@ -18,6 +18,7 @@ description: >
   and cities (70% of all EU legislation).
 publisher:
   name: European Committee of the Regions
+  acronym: CoR
   country: eu
   url: https://cor.europa.eu/en
   official: true

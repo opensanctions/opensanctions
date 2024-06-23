@@ -22,6 +22,7 @@ description: |
   > authorised users involved in the implementation of the EU budget.
 publisher:
   name: European Commission
+  acronym: EC
   description: |
     The European Commission is the executive branch of the European Union. It has
     set up a panel which administers the EDES system and will handle the removal
