@@ -1,4 +1,4 @@
-title: "EU ESMA Financial Instruments Reference Data System (FIRDS)"
+title: "EU Financial Instruments Reference Data System (FIRDS)"
 entry_point: crawler.py
 prefix: eu-firds
 coverage:

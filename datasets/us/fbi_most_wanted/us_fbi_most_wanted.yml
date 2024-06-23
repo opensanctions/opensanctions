@@ -1,4 +1,4 @@
-title: FBI Most Wanted
+title: US FBI Most Wanted
 entry_point: crawler.py
 prefix: us-fbi
 disabled: false

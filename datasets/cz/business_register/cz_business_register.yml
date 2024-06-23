@@ -1,5 +1,5 @@
 name: cz_business_register
-title: Czechia business register
+title: Czech Republic Business Register
 prefix: cz
 disabled: false
 entry_point: crawler.py

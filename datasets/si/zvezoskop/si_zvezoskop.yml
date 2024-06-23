@@ -1,4 +1,4 @@
-title: Slovenian political officials from Zvezoskop
+title: Slovenian Political Officials from Zvezoskop
 entry_point: crawler.py
 prefix: si-zvezo
 coverage:
@@ -14,12 +14,12 @@ description: |
   This dataset contains information verified by Oštro Center for investigative
   journalism on recent and current political posts held by Slovenian political
   officials as of 1 February 2024. Basic biographical information is also available.
-  
+
   The data was collected by Oštro, Center for investigative journalism in the
   Adriatic region, based in Slovenia and published on [Zvezoskop](https://zvezoskop.si),
   an interactive visualization of careers of government members, ministerial
   secretaries and Members of Parliament.
-  
+
   The information on Zvezoskop spans from educational years to current political
   roles, current and past positions or roles of political officials in other
   organizations, institutions, or companies, an overview of all the politicians
@@ -34,7 +34,7 @@ description: |
   and other researchers conducting independent research into political careers
   and networks.
 publisher:
-  name: Oštro (Slovenia)
+  name: Oštro
   description: |
     Oštro is a non-profit center for investigative journalism, investigating
     topics that are in the public interest for people in the Adriatic region
@@ -86,4 +86,3 @@ lookups:
           - president
           - representative
       - regex: "\\bconsul\\b"
-

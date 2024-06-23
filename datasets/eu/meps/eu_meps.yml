@@ -1,4 +1,4 @@
-title: Members of the European Parliament
+title: European Parliament Members
 entry_point: crawler.py
 prefix: eu-meps
 coverage:

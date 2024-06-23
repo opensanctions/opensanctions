@@ -1,5 +1,5 @@
 type: external
-title: LSEG PermID Open Data
+title: PermID Open Data
 entry_point: zavod.runner.enrich:enrich
 disabled: false
 hidden: false

@@ -1,4 +1,4 @@
-title: China Sanctions lists (partial)
+title: China Sanctions Research
 entry_point: crawler.py
 prefix: cn-sanc
 coverage:

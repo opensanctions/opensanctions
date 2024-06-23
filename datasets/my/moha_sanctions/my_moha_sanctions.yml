@@ -1,4 +1,4 @@
-title: Malaysian MOHA Sanctions List
+title: Malaysia MOHA Sanctions List
 entry_point: crawler.py
 prefix: mymoha
 coverage:

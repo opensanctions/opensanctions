@@ -1,4 +1,4 @@
-title: Iran sanctions list
+title: Iran Sanctions List
 entry_point: crawler.py
 prefix: ir-san
 coverage:
