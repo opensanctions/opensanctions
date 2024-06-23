@@ -65,3 +65,19 @@ config:
     - Organization
     # - LegalEntity
     # - Person
+
+assertions:
+  min:
+    schema_entities:
+      Person: 5
+      LegalEntity: 3
+      Company: 1
+    country_entities:
+      ee: 5
+      ua: 1
+      cy: 1
+    countries: 5
+  max:
+    schema_entities:
+      Company: 200
+      Person: 100

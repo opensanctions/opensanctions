@@ -34,7 +34,7 @@ class LocalEnricher(Enricher):
           `dataset`: `str` - the name of the dataset to enrich against.
           `cutoff`: `float` - (default 0.5) the minimum score required to be a match.
           `limit`: `int` - (default 5) the maximum number of top scoring matches
-            to return.
+            to return. It's possible for one more match to be returned if its ID matched.
           `algorithm`: `str` (default logic-v1) - the name of the algorithm
               to use for matching.
           `index_options`: `dict` - options to pass to the index.
@@ -67,9 +67,8 @@ class LocalEnricher(Enricher):
         if _algorithm is None:
             raise EnrichmentException(f"Unknown algorithm: {algo_name}")
         self._algorithm = _algorithm
-        self._threshold = config.pop("threshold", None)
-        self._cutoff = config.pop("cutoff", 0.5)
-        self._limit = config.pop("limit", 5)
+        self._cutoff = float(config.pop("cutoff", 0.5))
+        self._limit = int(config.pop("limit", 5))
         self._ns: Optional[Namespace] = None
         if self.get_config_bool("strip_namespace"):
             self._ns = Namespace()
@@ -85,6 +84,14 @@ class LocalEnricher(Enricher):
         store_type_entity = self.entity_from_statements(
             self._view.store.entity_class, entity
         )
+
+        # Make sure an entity with the same ID is yielded. E.g. a QID or ID scheme
+        # intentionally consistent between datasets.
+        if entity.id is not None:
+            same_id_match = self._view.get_entity(entity.id)
+            if same_id_match is not None:
+                yield self.entity_from_statements(type(entity), same_id_match)
+
         for match_id, index_score in self._index.match(store_type_entity):
             match = self._view.get_entity(match_id.id)
             if match is None:
