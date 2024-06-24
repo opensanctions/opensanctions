@@ -1,4 +1,4 @@
-title: Custom research data
+title: OpenSanctions Research Data
 prefix: osre
 disabled: false
 entry_point: crawler.py
