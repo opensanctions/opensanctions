@@ -1,5 +1,4 @@
 import csv
-from io import TextIOWrapper
 from typing import Dict, Any
 from zipfile import ZipFile
 from datetime import datetime, timedelta
@@ -96,10 +95,13 @@ def crawl(context: Context):
     """
     csv_url = get_csv_url(context)
     path = context.fetch_resource("source.zip", csv_url)
+    work_dir = path.parent / "files"
+    work_dir.mkdir(exist_ok=True)
     with ZipFile(path) as zip_file:
         for file_name in zip_file.namelist():
-            with zip_file.open(file_name) as file:
-                wrapper = TextIOWrapper(file, "iso-8859-1")
-                reader = csv.DictReader(wrapper, delimiter=";")
+            context.log.info(f"Extracting {file_name}")
+            file_path = zip_file.extract(file_name, work_dir)
+            with open(file_path, "r", encoding="iso-8859-1") as fh:
+                reader = csv.DictReader(fh, delimiter=";")
                 for row in reader:
                     create_entity(row, context)
