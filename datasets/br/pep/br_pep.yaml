@@ -4,6 +4,9 @@ prefix: br-pep
 coverage:
   frequency: daily
   start: "2023-12-06"
+deploy:
+  memory: 1Gi
+  memory_limit: 2Gi
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   This datasets encompass brazilian PEPs divulgated by the CGU
