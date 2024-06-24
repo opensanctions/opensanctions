@@ -1,4 +1,4 @@
-title: Brazil's TCU list of Debarred Bidders
+title: Brazil List of Debarred Bidders
 entry_point: crawler.py
 prefix: br-tcu-debar
 coverage:

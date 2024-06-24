@@ -30,7 +30,8 @@ data:
   format: JSON
   lang: eng
 publisher:
-  name: Library of Congress
+  name: United States Congress
+  acronym: Congress
   country: us
   url: https://www.loc.gov/
   official: true

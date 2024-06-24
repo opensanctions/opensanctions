@@ -15,7 +15,8 @@ description: |
   A small set of Lithuanian companies published by the country's financial intelligence unit.
 publisher:
   name: Finansinių Nusikaltimų Tyrimo Tarnyba
-  acronym: FIU
+  name_en: Financial Crimes Investigation Service
+  acronym: FNTT
   description: |
     The Financial Crimes Investigation Service at the Ministry of Internal Affairs of the
     Republic of Lithuania (Finansinių Nusikaltimų Tyrimo Tarnyba Prie Lietuvos Respublikos
