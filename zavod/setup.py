@@ -43,7 +43,7 @@ setup(
         "prefixdate",
         "psycopg2-binary",
         "pyicu == 2.13.1",
-        "pywikibot==9.1.3",
+        "pywikibot==9.2.0",
         "openai >= 1.33.0, < 2.0.0",
         "requests[security]",
         "requests_oauthlib",
