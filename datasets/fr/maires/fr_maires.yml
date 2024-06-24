@@ -17,7 +17,8 @@ description: |
   of the Interior and Overseas using information from regional
   prefectures, and is updated quarterly.
 publisher:
-  name: Plateforme ouverte des données publiques françaises
+  name: Ministère de l'Intérieur et des Outre-Mer
+  acronym: MIOM
   description: |
     The portal data.gouv.fr, created by the Direction
     Interministérielle du Numérique, is an open community platform
