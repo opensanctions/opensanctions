@@ -1,8 +1,6 @@
 import re
-import requests
 
 from zavod import Context, helpers as h
-from zavod.logic.pep import categorise
 
 
 BELARUS_URL = (
