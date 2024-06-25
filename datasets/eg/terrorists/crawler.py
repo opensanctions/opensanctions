@@ -92,11 +92,10 @@ def crawl_terrorist(input_dict: dict, context: Context):
 
     sanction.add("listingDate", parse_date(input_dict.pop("tarykh_alnshr")))
     sanction.add("recordId", input_dict.pop("rqm_alqdyt"))
+    sanction.add("authorityId", input_dict.pop("rqm_qrar_adraj_alarhabyyn"))
     sanction.add(
         "summary",
-        "Terrorist Listing Decision Number: {}, Publication Page: {}".format(
-            input_dict.pop("rqm_qrar_adraj_alarhabyyn"), input_dict.pop("dd_alnshr")
-        ),
+        "Publication Page: {}".format(input_dict.pop("dd_alnshr")),
     )
 
     context.emit(person, target=True)
