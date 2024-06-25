@@ -43,3 +43,11 @@ lookups:
       - match: مصرية
         value:
           - Egyptian
+
+assertions:
+  min:
+    schema_entities:
+      Person: 3600
+  max:
+    schema_entities:
+      Person: 3900

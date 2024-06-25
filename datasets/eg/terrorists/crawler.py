@@ -114,6 +114,7 @@ def crawl_terrorist_entities(input_dict: dict, context: Context):
     entity = context.make("LegalEntity")
     entity.id = context.make_id(name)
     entity.add("name", name)
+    entity.add("topics", "crime.terror")
 
     sanction = h.make_sanction(context, entity)
     sanction.add("recordId", input_dict.pop("rqm_alqdyt"))
@@ -137,6 +138,7 @@ def crawl_legal_persons(input_dict: dict, context: Context):
 
     company.add("address", input_dict.pop("almqr"))
     company.add("notes", input_dict.pop("rqm_alsjl_altjary_mshhrt_brqm"))
+    company.add("topics", "crime.terror")
 
     sanction = h.make_sanction(context, company)
     sanction.add("recordId", input_dict.pop("rqm_alqdyt"))
