@@ -29,6 +29,41 @@ data:
   format: HTML
 
 lookups:
+  columns:
+    options:
+      - match: الاسم
+        value: name
+      - match: اسم آخر
+        value: alias
+      - match: الرقم القومي
+        value: national_id
+      - match: جواز السفر
+        value: passport
+      - match: الجنسية
+        value: nationality
+      - match: رقم القضية 
+        value: case_number
+      - match: رقم قرار ادراج الارهابيين
+        value: terrorist_desgination_decision_number
+      - match: تاريخ النشر
+        value: date_of_publication
+      - match: عدد النشر
+        value: number_of_publication
+      - match: اسم الكيان
+        value: name
+      - match: التحديثات
+        value: updates
+      - match: مسلسل
+        value: series
+      - match: العدد بالجريدة الرسمية
+        value: issue_in_official_gazette
+      - match: اسم الشخص الاعتباري
+        value: name
+      - match: رقم السجل التجاري مشهرة برقم
+        value: commercial_registration_number
+      - match: المقر
+        value: headquarters
+      
   type.country:
     lowercase: true
     options:

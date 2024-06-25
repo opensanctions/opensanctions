@@ -33,6 +33,7 @@ def parse_date(date_str: str) -> datetime:
 
 
 def parse_sheet(
+    context: Context,
     sheet: openpyxl.worksheet.worksheet.Worksheet,
     skiprows: int = 0,
 ) -> Generator[dict, None, None]:
@@ -53,7 +54,10 @@ def parse_sheet(
             for idx, cell in enumerate(cells):
                 if cell is None:
                     cell = f"column_{idx}"
-                headers.append(slugify(cell, "_").lower())
+                translated_cell = context.lookup_value("columns", cell)
+                if translated_cell is None:
+                    translated_cell = slugify(cell)
+                headers.append(translated_cell)
             continue
 
         record = {}
@@ -68,25 +72,26 @@ def parse_sheet(
 
 def crawl_terrorist(input_dict: dict, context: Context):
 
-    first_name = input_dict.pop("alasm")
-    last_name = input_dict.pop("asm_akhr")
+    name = input_dict.pop("name")
+    alias = input_dict.pop("alias")
 
     person = context.make("Person")
-    person.id = context.make_id(first_name, last_name)
-    h.apply_name(person, first_name=first_name, last_name=last_name)
-    person.add("nationality", input_dict.pop("aljnsyt"), lang="ar")
-    person.add("passportNumber", input_dict.pop("jwaz_alsfr"))
-    person.add("idNumber", input_dict.pop("alrqm_alqwmy"))
+    person.id = context.make_id(name, alias)
+    person.add("name", name)
+    person.add("alias", alias)
+    person.add("nationality", input_dict.pop("nationality"), lang="ar")
+    person.add("passportNumber", input_dict.pop("passport"))
+    person.add("idNumber", input_dict.pop("national_id"))
     person.add("topics", "crime.terror")
 
     sanction = h.make_sanction(context, person)
 
-    sanction.add("listingDate", parse_date(input_dict.pop("tarykh_alnshr")))
-    sanction.add("recordId", input_dict.pop("rqm_alqdyt"))
-    sanction.add("authorityId", input_dict.pop("rqm_qrar_adraj_alarhabyyn"))
+    sanction.add("listingDate", parse_date(input_dict.pop("date_of_publication")))
+    sanction.add("recordId", input_dict.pop("case_number"))
+    sanction.add("authorityId", input_dict.pop("terrorist_desgination_decision_number"))
     sanction.add(
         "summary",
-        "Publication Page: {}".format(input_dict.pop("dd_alnshr")),
+        "Publication Page: {}".format(input_dict.pop("number_of_publication")),
     )
 
     context.emit(person, target=True)
@@ -96,7 +101,7 @@ def crawl_terrorist(input_dict: dict, context: Context):
 
 def crawl_terrorist_entities(input_dict: dict, context: Context):
 
-    name = input_dict.pop("asm_alkyan")
+    name = input_dict.pop("name")
 
     if not name:
         return
@@ -107,17 +112,17 @@ def crawl_terrorist_entities(input_dict: dict, context: Context):
     entity.add("topics", "crime.terror")
 
     sanction = h.make_sanction(context, entity)
-    sanction.add("recordId", input_dict.pop("rqm_alqdyt"))
-    sanction.add("summary", input_dict.pop("althdythat"), lang="ar")
+    sanction.add("recordId", input_dict.pop("case_number"))
+    sanction.add("summary", input_dict.pop("updates"), lang="ar")
 
     context.emit(entity, target=True)
     context.emit(sanction)
-    context.audit_data(input_dict, ignore=["mslsl", "aldd_baljrydt_alrsmyt"])
+    context.audit_data(input_dict, ignore=["series", "issue_in_official_gazette"])
 
 
 def crawl_legal_persons(input_dict: dict, context: Context):
 
-    name = input_dict.pop("asm_alshkhs_alatbary")
+    name = input_dict.pop("name")
 
     if not name:
         return
@@ -126,17 +131,17 @@ def crawl_legal_persons(input_dict: dict, context: Context):
     company.id = context.make_id(name)
     company.add("name", name)
 
-    company.add("address", input_dict.pop("almqr"))
-    company.add("notes", input_dict.pop("rqm_alsjl_altjary_mshhrt_brqm"))
+    company.add("address", input_dict.pop("headquarters"))
+    company.add("registrationNumber", input_dict.pop("commercial_registration_number"))
     company.add("topics", "crime.terror")
 
     sanction = h.make_sanction(context, company)
-    sanction.add("recordId", input_dict.pop("rqm_alqdyt"))
-    sanction.add("summary", input_dict.pop("althdythat"), lang="ar")
+    sanction.add("recordId", input_dict.pop("case_number"))
+    sanction.add("summary", input_dict.pop("updates"), lang="ar")
 
     context.emit(company, target=True)
     context.emit(sanction)
-    context.audit_data(input_dict, ignore=["mslsl", "aldd_baljrydt_alrsmyt"])
+    context.audit_data(input_dict, ignore=["series", "issue_in_official_gazette"])
 
 
 def crawl(context: Context):
@@ -150,11 +155,11 @@ def crawl(context: Context):
 
     wb = load_workbook(path, read_only=True)
 
-    for item in parse_sheet(wb["الإرهابيين"]):
+    for item in parse_sheet(context, wb["الإرهابيين"]):
         crawl_terrorist(item, context)
 
-    for item in parse_sheet(wb["الكيانات الإرهابية"], skiprows=1):
+    for item in parse_sheet(context, wb["الكيانات الإرهابية"], skiprows=1):
         crawl_terrorist_entities(item, context)
 
-    for item in parse_sheet(wb["الشخصيات الاعتبارية"], skiprows=1):
+    for item in parse_sheet(context, wb["الشخصيات الاعتبارية"], skiprows=1):
         crawl_legal_persons(item, context)
