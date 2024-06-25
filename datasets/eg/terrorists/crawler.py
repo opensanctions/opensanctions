@@ -7,7 +7,8 @@ from pantomime.types import XLSX
 from normality import stringify, slugify
 from datetime import datetime
 
-def arabic_to_western(arabic_date):
+
+def arabic_to_latin(arabic_date):
     arabic_numerals = "٠١٢٣٤٥٦٧٨٩"
     western_numerals = "0123456789"
     transtable = str.maketrans(arabic_numerals, western_numerals)
@@ -19,7 +20,7 @@ def parse_date(date_str: str) -> datetime:
     if not date_str:
         return None
 
-    western_date = arabic_to_western(date_str)
+    western_date = arabic_to_latin(date_str)
 
     # We first check if it's just one date
     try:
@@ -74,12 +75,13 @@ def crawl_terrorist(input_dict: dict, context: Context):
 
     name = input_dict.pop("name")
     alias = input_dict.pop("alias")
+    case_number = input_dict.pop("case_number")
 
     person = context.make("Person")
-    person.id = context.make_id(name, alias)
+    person.id = context.make_id(name, alias, case_number)
     person.add("name", name)
     person.add("alias", alias)
-    person.add("nationality", input_dict.pop("nationality"), lang="ar")
+    person.add("nationality", input_dict.pop("nationality"), lang="ara")
     person.add("passportNumber", input_dict.pop("passport"))
     person.add("idNumber", input_dict.pop("national_id"))
     person.add("topics", "crime.terror")
@@ -87,7 +89,7 @@ def crawl_terrorist(input_dict: dict, context: Context):
     sanction = h.make_sanction(context, person)
 
     sanction.add("listingDate", parse_date(input_dict.pop("date_of_publication")))
-    sanction.add("recordId", input_dict.pop("case_number"))
+    sanction.add("recordId", case_number)
     sanction.add("authorityId", input_dict.pop("terrorist_desgination_decision_number"))
     sanction.add(
         "summary",
@@ -102,18 +104,19 @@ def crawl_terrorist(input_dict: dict, context: Context):
 def crawl_terrorist_entities(input_dict: dict, context: Context):
 
     name = input_dict.pop("name")
+    case_number = input_dict.pop("case_number")
 
     if not name:
         return
 
     entity = context.make("LegalEntity")
-    entity.id = context.make_id(name)
+    entity.id = context.make_id(name, case_number)
     entity.add("name", name)
     entity.add("topics", "crime.terror")
 
     sanction = h.make_sanction(context, entity)
-    sanction.add("recordId", input_dict.pop("case_number"))
-    sanction.add("summary", input_dict.pop("updates"), lang="ar")
+    sanction.add("recordId", case_number)
+    sanction.add("summary", input_dict.pop("updates"), lang="ara")
 
     context.emit(entity, target=True)
     context.emit(sanction)
@@ -123,23 +126,24 @@ def crawl_terrorist_entities(input_dict: dict, context: Context):
 def crawl_legal_persons(input_dict: dict, context: Context):
 
     name = input_dict.pop("name")
+    case_number = input_dict.pop("case_number")
 
     if not name:
         return
 
-    company = context.make("Company")
-    company.id = context.make_id(name)
-    company.add("name", name)
+    entity = context.make("LegalEntity")
+    entity.id = context.make_id(name, case_number)
+    entity.add("name", name)
 
-    company.add("address", input_dict.pop("headquarters"))
-    company.add("registrationNumber", input_dict.pop("commercial_registration_number"))
-    company.add("topics", "crime.terror")
+    entity.add("address", input_dict.pop("headquarters"))
+    entity.add("registrationNumber", input_dict.pop("commercial_registration_number"))
+    entity.add("topics", "crime.terror")
 
-    sanction = h.make_sanction(context, company)
-    sanction.add("recordId", input_dict.pop("case_number"))
-    sanction.add("summary", input_dict.pop("updates"), lang="ar")
+    sanction = h.make_sanction(context, entity)
+    sanction.add("recordId", case_number)
+    sanction.add("summary", input_dict.pop("updates"), lang="ara")
 
-    context.emit(company, target=True)
+    context.emit(entity, target=True)
     context.emit(sanction)
     context.audit_data(input_dict, ignore=["series", "issue_in_official_gazette"])
 

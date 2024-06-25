@@ -82,7 +82,7 @@ lookups:
 assertions:
   min:
     schema_entities:
-      Person: 3600
+      Person: 4000
   max:
     schema_entities:
-      Person: 3900
+      Person: 4400
