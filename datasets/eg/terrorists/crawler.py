@@ -1,4 +1,3 @@
-from normality import slugify
 from zavod import Context, helpers as h
 from typing import Generator
 import openpyxl
