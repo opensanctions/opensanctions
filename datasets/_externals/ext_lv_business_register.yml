@@ -19,6 +19,7 @@ summary: >-
   which match or are related to entities in the OpenSanctions database
 publisher:
   name: Latvijas Republikas Uzņēmumu reģistrs
+  acronym: UR
   url: https://www.ur.gov.lv/lv/
   country: lv
   description: |

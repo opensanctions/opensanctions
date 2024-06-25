@@ -3836,3 +3836,7 @@ lookups:
             - W751252965
             - "889271375"
           incorporationDate: 2019-07-01
+      - match: "Type d’entité: entité publique - Lieu d’enregistrement: Iran - Principal établissement: Iran: /"
+        props:
+          jurisdiction: ir
+          legalForm: entité publique

@@ -21,6 +21,7 @@ summary: >-
 url: https://data.gov.lv/dati/lv/dataset/uz
 publisher:
   name: Latvijas Republikas Uzņēmumu reģistrs
+  acronym: UR
   url: https://www.ur.gov.lv/lv/
   country: lv
   description: |
