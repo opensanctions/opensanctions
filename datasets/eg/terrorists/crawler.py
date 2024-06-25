@@ -1,20 +1,11 @@
-from typing import Generator, Dict, Tuple, Optional
-from lxml.etree import _Element
 from normality import slugify
 from zavod import Context, helpers as h
-import re
 from typing import Generator
 import openpyxl
 from openpyxl import load_workbook
 from pantomime.types import XLSX
 from normality import stringify, slugify
 from datetime import datetime
-from rigour.names import pick_name
-
-HEADERS = {
-    "User-Agent": "AAA",
-}
-
 
 def arabic_to_western(arabic_date):
     arabic_numerals = "٠١٢٣٤٥٦٧٨٩"
@@ -149,7 +140,7 @@ def crawl_legal_persons(input_dict: dict, context: Context):
 
 
 def crawl(context: Context):
-    response = context.fetch_html(context.data_url, headers=HEADERS)
+    response = context.fetch_html(context.data_url)
     response.make_links_absolute(context.data_url)
 
     excel_link = response.find(".//*[@class='LinkStyle AutoDownload']").get("href")
