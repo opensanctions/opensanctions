@@ -1,0 +1,35 @@
+title: Estonia International Sanctions Act List
+entry_point: crawler.py
+prefix: ee-san
+coverage:
+  frequency: daily
+  start: 2024-06-25
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Individuals and entities sanctioned by the Estonia government
+description: |
+  This dataset contains information about individuals and entities
+  sanctioned by the government of Estonia in accordance with section
+  27 of the International Sanctions Act, the sanctions are imposed
+  by a regulation of the Government of the Republic on the proposal
+  of the Ministry of Foreign Affairs. The subjects of the sanctions
+  are designated by a directive of the minister in charge of the
+  policy sector.
+publisher:
+  name: Välisministeerium
+  description: Ministry of Foreign Affairs
+  url: https://www.vm.ee/
+  official: true
+  country: "ee"
+url: https://www.vm.ee/en/activity/international-sanctions/sanctions-government-republic-estonia
+data:
+  url: https://www.vm.ee/en/activity/international-sanctions/sanctions-government-republic-estonia
+  format: HTML
+
+assertions:
+  min:
+    schema_entities:
+      Person: 300
+  max:
+    schema_entities:
+      Person: 350
