@@ -20,6 +20,7 @@ publisher:
   description: Ministry of Foreign Affairs
   url: https://www.vm.ee/
   official: true
+  acronym: VM
   country: "ee"
 url: https://www.vm.ee/en/activity/international-sanctions/sanctions-government-republic-estonia
 data:
