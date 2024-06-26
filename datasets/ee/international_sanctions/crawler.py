@@ -27,7 +27,12 @@ def crawl_item_belarus(raw_name: str, context: Context):
     for alias in aliases:
         entity.add("alias", alias)
 
+    sanction = h.make_sanction(context, entity)
+    sanction.add("sourceUrl", BELARUS_URL)
+    sanction.add("description", "The sanctions of the Government of the Republic in view of the situation in Belarus")
+
     context.emit(entity, target=True)
+    context.emit(sanction)
 
 
 def crawl_item_human_rights(raw_name: str, context: Context):
@@ -47,7 +52,12 @@ def crawl_item_human_rights(raw_name: str, context: Context):
     for alias in aliases:
         entity.add("alias", alias)
 
+    sanction = h.make_sanction(context, entity)
+    sanction.add("sourceUrl", HUMAN_RIGHTS_URL)
+    sanction.add("description", "Sanction of the Government of the Republic to ensure following of human rights")
+
     context.emit(entity, target=True)
+    context.emit(sanction)
 
 
 def crawl(context: Context):
