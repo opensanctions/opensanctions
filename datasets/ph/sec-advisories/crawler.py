@@ -3,6 +3,7 @@ from lxml.etree import _Element
 
 from zavod import Context, helpers as h
 
+
 def crawl_item(li_tag: _Element, context: Context):
 
     name = li_tag.findtext(".//a/b")
@@ -17,13 +18,16 @@ def crawl_item(li_tag: _Element, context: Context):
         if not res:
             name = li_tag.find(".//a").text_content()
             description = None
-            context.log.warning("Can't find the name of the entity " + li_tag.find(".//a").text_content())
+            context.log.warning(
+                "Can't find the name of the entity "
+                + li_tag.find(".//a").text_content()
+            )
             return
 
         name = cast("str", res.name)
         description = cast("str", res.description)
 
-    source_url = li_tag.find(".//a").get('href')
+    source_url = li_tag.find(".//a").get("href")
     date = li_tag.findtext(".//*[@class='myDate']")
 
     entity = context.make("LegalEntity")
