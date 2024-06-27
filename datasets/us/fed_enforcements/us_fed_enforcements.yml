@@ -1055,3 +1055,8 @@ lookups:
       - match: greater southwest bancshares inc., employee stock ownership plan, irving, tx
         names:
           - Greater Southwest Bancshares Inc., Employee Stock Ownership Plan, Irving, TX
+      - match: pedcor financial llc, carmel, indiana, pedcor financial bancorp, carmel, indiana, fidelity federal bancorp, evansville, indiana
+        names:
+          - Pedcor Financial LLC, Carmel, Indiana
+          - Pedcor Financial Bancorp, Carmel, Indiana
+          - Fidelity Federal Bancorp, Evansville, Indiana
