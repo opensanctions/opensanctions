@@ -6,8 +6,11 @@ import xlrd
 
 from zavod import Context, helpers as h
 
-SEBI_DEBARRMENT_URL = 'https://nsearchives.nseindia.com/content/press/prs_ra_sebi.xls'
-OTHER_DEBARRMENT_URL = 'https://nsearchives.nseindia.com/content/press/prs_ra_others.xls'
+SEBI_DEBARRMENT_URL = "https://nsearchives.nseindia.com/content/press/prs_ra_sebi.xls"
+OTHER_DEBARRMENT_URL = (
+    "https://nsearchives.nseindia.com/content/press/prs_ra_others.xls"
+)
+
 
 def parse_sheet(
     sheet,
@@ -56,16 +59,23 @@ def crawl_item(input_dict: dict, context: Context):
 
     sanction = h.make_sanction(context, entity, key=input_dict.pop("nse_circular_no"))
 
-    sanction.add("date", h.parse_date(input_dict.pop("order_date"), formats=["%d-%b-%y"]))
+    sanction.add(
+        "date", h.parse_date(input_dict.pop("order_date"), formats=["%d-%b-%y"])
+    )
     if input_dict.get("order_particulars"):
-        sanction.add("description", "Order Particulars: "+input_dict.pop("order_particulars"))
+        sanction.add(
+            "description", "Order Particulars: " + input_dict.pop("order_particulars")
+        )
     sanction.add("duration", input_dict.pop("period"))
 
     context.emit(entity, target=True)
     context.emit(sanction)
 
     # There is some random data in the 17 and 18 columns
-    context.audit_data(input_dict, ignore=['date_of_nse_circular', 'column_17', 'column_18', 'column_9'])
+    context.audit_data(
+        input_dict,
+        ignore=["date_of_nse_circular", "column_17", "column_18", "column_9"],
+    )
 
 
 def crawl(context: Context):
@@ -75,7 +85,7 @@ def crawl(context: Context):
 
     wb_sebi = xlrd.open_workbook(path_sebi)
 
-    for item in parse_sheet(wb_sebi['Sheet 1']):
+    for item in parse_sheet(wb_sebi["Sheet 1"]):
         crawl_item(item, context)
 
     path_other = context.fetch_resource("other.xls", SEBI_DEBARRMENT_URL)
@@ -83,5 +93,5 @@ def crawl(context: Context):
 
     wb_other = xlrd.open_workbook(path_other)
 
-    for item in parse_sheet(wb_other['Sheet 1']):
+    for item in parse_sheet(wb_other["Sheet 1"]):
         crawl_item(item, context)
