@@ -23,14 +23,16 @@ publisher:
   country: "cz"
 url: "https://mzv.gov.cz/jnp/cz/zahranicni_vztahy/sankcni_politika/sankcni_seznam_cr/vnitrostatni_sankcni_seznam.html"
 data:
-  url: https://mzv.gov.cz/jnp/cz/zahranicni_vztahy/sankcni_politika/sankcni_seznam_cr/vnitrostatni_sankcni_seznam.html
-  format: XLSX
+  url: https://mzv.gov.cz/jnp/cz/o_ministerstvu/otevrena_data/vnitrostatni_sankcni_seznam/index.html
+  format: CSV
 
 lookups:
   type.country:
     lowercase: true
+    normalize: true
     options:
       - match:
+          - "Ruská federace"
           - "Ruská federace"
           - dnes pravděpodobně Ruská federace
         value: RU
@@ -38,7 +40,8 @@ lookups:
           - "dříve Ukrajina"
           - "Ukrajina"
         value: UA
-      - match: "Stát Izrael"
+      - match:
+          - "Stát Izrael"
         value: Israel
       - match: "Česká republika"
         value: Czech Republic
