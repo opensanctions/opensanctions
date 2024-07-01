@@ -54,6 +54,10 @@ lookups:
         value: Organization
       - match: شخص إرهابي
         value: Person
+  schema.override:
+    options:
+      - match: ae-lt-4b28aec2925637dfe72b2f5130eb6d17eb6f7777
+        value: Vessel
   headers:
     normalize: true
     options:
