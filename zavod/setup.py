@@ -25,7 +25,7 @@ setup(
         "nomenklatura[leveldb,tantivy] == 3.12.*",
         "plyvel == 1.5.1",
         "redis[hiredis] == 5.0.6",
-        "fakeredis == 2.23.2",
+        "fakeredis == 2.23.3",
         "rigour == 0.5.2",
         "datapatch >= 1.1,< 1.3",
         "fingerprints == 1.2.*",
