@@ -1,14 +1,13 @@
-from typing import List, Optional, TYPE_CHECKING, Type
+from typing import List, Optional, TYPE_CHECKING
 from pathlib import Path
 from functools import cache
-from nomenklatura import Index, TantivyIndex
+from nomenklatura.index.tantivy_index import TantivyIndex
 from zavod.entity import Entity
 from followthemoney import model
 from nomenklatura.xref import xref
 from nomenklatura.resolver import Resolver, Identifier, Linker
 from nomenklatura.judgement import Judgement
 from nomenklatura.matching import DefaultAlgorithm, get_algorithm
-from nomenklatura.index import BaseIndex
 
 from zavod import settings
 from zavod.logs import get_logger
@@ -21,26 +20,28 @@ log = get_logger(__name__)
 AUTO_USER = "zavod/xref"
 
 
-def _get_resolver() -> Resolver[Entity]:
-    """Load the deduplication resolver."""
+def _get_resolver_path() -> Path:
+    """Get the path to the deduplication resolver."""
     if settings.RESOLVER_PATH is None:
         raise RuntimeError("Please set $ZAVOD_RESOLVER_PATH.")
-    log.info("Loading resolver from: %s" % settings.RESOLVER_PATH)
-    return Resolver.load(Path(settings.RESOLVER_PATH))
+    return Path(settings.RESOLVER_PATH)
 
 
 @cache
 def get_resolver() -> Resolver[Entity]:
     """Load the deduplication resolver."""
-    return _get_resolver()
+    path = _get_resolver_path()
+    log.info("Loading resolver from: %s" % path.as_posix())
+    return Resolver.load(path)
 
 
-@cache
 def get_dataset_linker(dataset: Dataset) -> Linker[Entity]:
     """Get a resolver linker for the given dataset."""
     if not dataset.resolve:
         return Linker[Entity]({})
-    return _get_resolver().get_linker()
+    path = _get_resolver_path()
+    log.info("Loading linker from: %s" % path.as_posix())
+    return Resolver.load_linker(path)
 
 
 def blocking_xref(
