@@ -1,0 +1,37 @@
+title: India National Stock Exchange Debarred Entities
+entry_point: crawler.py
+prefix: in-nse-deb
+coverage:
+  frequency: daily
+  start: "2024-05-20"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  List of Debarred Entities based on orders / directions from SEBI and other Competent Authorities
+description: |
+  This dataset contains a list of entities that have been debarred by the National
+  Stock Exchange of India (NSE) based on orders / directions from the Securities
+  and Exchange Board of India (SEBI) and other Competent Authorities.
+  The debarred entities are prohibited from selling securities in the market.
+
+publisher:
+  name: National Stock Exchange of India Limited
+  acronym: NSE
+  description: |
+    National Stock Exchange of India Limited (NSE) is one of the leading stock exchanges
+    in India, based in Mumbai. NSE is under the ownership of various financial institutions
+    such as banks and insurance companies
+  url: https://www.nseindia.com
+  official: true
+  country: "in"
+url: "https://www.nseindia.com/regulations/member-sebi-debarred-entities"
+data:
+  url: https://www.nseindia.com/regulations/member-sebi-debarred-entities
+  format: HTML
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 10000
+  max:
+    schema_entities:
+      LegalEntity: 11000
