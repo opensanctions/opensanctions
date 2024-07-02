@@ -69,15 +69,7 @@ def blocking_xref(
     if algorithm_type is None:
         raise ValueError("Invalid algorithm: %s" % algorithm)
     range = model.get(schema_range) if schema_range is not None else None
-
-    if index == TantivyIndex.name:
-        index_class: Type[BaseIndex[Dataset, Entity]] = TantivyIndex
-        index_dir = state_path / "tantivy-dedupe-index"
-    elif index == Index.name:
-        index_class = Index
-        index_dir = state_path / "dedupe-index"
-    else:
-        raise ValueError("Invalid index: %s" % index)
+    index_dir = state_path / f"dedupe-index-{index}"
 
     xref(
         resolver,
@@ -91,7 +83,7 @@ def blocking_xref(
         algorithm=algorithm_type,
         user=AUTO_USER,
         conflicting_match_threshold=conflicting_match_threshold,
-        index_class=index_class,
+        index_type=index,
     )
     resolver.save()
 

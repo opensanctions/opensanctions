@@ -4,7 +4,7 @@ import logging
 from pathlib import Path
 from typing import Optional, List
 from followthemoney.cli.util import InPath, OutPath
-from nomenklatura import TantivyIndex
+from nomenklatura.index.tantivy_index import TantivyIndex
 from nomenklatura.tui import dedupe_ui
 from nomenklatura.statement import CSV, FORMATS
 from nomenklatura.matching import DefaultAlgorithm
