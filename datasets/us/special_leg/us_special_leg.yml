@@ -30,7 +30,8 @@ description: |
 
   **This dataset is manually maintained and not automatically updated with new legislation.**
 publisher:
-  name: U.S. Congress
+  name: United States Congress
+  acronym: Congress
   description: >
     The United States Congress is the legislature of the federal government of the
     United States.

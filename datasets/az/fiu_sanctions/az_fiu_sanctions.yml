@@ -16,6 +16,7 @@ description: |
 url: http://www.fiu.az/en/sanctions/internal-sanctioned
 publisher:
   name: "Azerbaijan Financial Monitoring Service"
+  acronym: FMS
   description: |
     The Financial Monitoring Service of the Republic of Azerbaijan (FMS) is a body
     exercising powers in the field of anti-money laundering and combating the

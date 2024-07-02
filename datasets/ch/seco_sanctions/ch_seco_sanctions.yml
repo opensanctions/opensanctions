@@ -22,7 +22,8 @@ description: |
   * [List of enforcement measures](https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/sanktionsmassnahmen.html)
   * [Switzerland's role in international sanctions](https://www.seco.admin.ch/seco/de/home/Aussenwirtschaftspolitik_Wirtschaftliche_Zusammenarbeit/Wirtschaftsbeziehungen/exportkontrollen-und-sanktionen/sanktionen-embargos/die-schweiz-und-internationale-sanktionen.html)
 publisher:
-  name: "State Secretariat for Economic Affairs (SECO)"
+  name: State Secretariat for Economic Affairs
+  acronym: SECO
   description: |
     The State Secretariat for Economic Affairs is the Swiss governments 
     center of competence for economic, labour and trade matters.

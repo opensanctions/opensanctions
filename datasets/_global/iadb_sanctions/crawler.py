@@ -3,7 +3,7 @@ from typing import Optional, List
 from normality import slugify, stringify
 from openpyxl import load_workbook
 from datetime import datetime
-from pantomime.types import XLSX
+from rigour.mime.types import XLSX
 
 from zavod import Context
 from zavod import helpers as h

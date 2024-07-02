@@ -1,4 +1,4 @@
-title: Mexico governors
+title: Mexico Governors
 entry_point: crawler.py
 prefix: mx-gov
 coverage:

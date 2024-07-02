@@ -1,59 +1,26 @@
 import shutil
-from pathlib import Path
+import plyvel  # type: ignore
 from typing import List, Optional
 from followthemoney.exc import InvalidData
 from nomenklatura.statement import Statement
 from nomenklatura.resolver import Linker
-from nomenklatura.store.base import View as BaseView
-from nomenklatura.store.level import LevelDBStore
+from nomenklatura.store.level import LevelDBStore, LevelDBView
 from nomenklatura.publish.dates import simplify_dates
 from nomenklatura.publish.edges import simplify_undirected
 
 from zavod.logs import get_logger
 from zavod.entity import Entity
 from zavod.meta import Dataset
-from zavod.dedupe import get_dataset_resolver
-from zavod.archive import dataset_state_path, iter_dataset_statements
+from zavod.archive import dataset_state_path
+from zavod.archive import iter_dataset_statements
 
 log = get_logger(__name__)
-View = BaseView[Dataset, Entity]
+View = LevelDBView[Dataset, Entity]
 
 
-def get_store(
-    dataset: Dataset, external: bool = False, linker: bool = False
-) -> "Store":
-    resolver = get_dataset_resolver(dataset)
-    aggregator_path = dataset_state_path(dataset.name)
-    suffix = "external" if external else "internal"
-    dataset_path = aggregator_path / f"{dataset.name}.{suffix}.store"
-    if dataset_path.is_dir():
-        return Store(dataset, resolver, dataset_path)
-    if not external:
-        external_path = aggregator_path / f"{dataset.name}.external.store"
-        if external_path.is_dir():
-            return get_store(dataset, external=True, linker=linker)
-    linker_inst: Linker[Entity] = resolver
-    if linker:
-        linker_inst = resolver.get_linker()
-    store = Store(dataset, linker_inst, dataset_path)
-    store.build(external=external)
+def get_store(dataset: Dataset, linker: Linker[Entity]) -> "Store":
+    store = Store(dataset, linker)
     return store
-
-
-def clear_store(dataset: Dataset) -> None:
-    """Delete the store graph for the given dataset."""
-    aggregator_path = dataset_state_path(dataset.name)
-    external_path = aggregator_path / f"{dataset.name}.external.store"
-    if external_path.exists():
-        shutil.rmtree(external_path, ignore_errors=True)
-    internal_path = aggregator_path / f"{dataset.name}.internal.store"
-    if internal_path.exists():
-        shutil.rmtree(internal_path, ignore_errors=True)
-
-
-def get_view(dataset: Dataset, external: bool = False, linker: bool = False) -> View:
-    store = get_store(dataset, external=external, linker=linker)
-    return store.default_view(external=external)
 
 
 class Store(LevelDBStore[Dataset, Entity]):
@@ -61,26 +28,13 @@ class Store(LevelDBStore[Dataset, Entity]):
         self,
         dataset: Dataset,
         linker: Linker[Entity],
-        path: Path,
     ):
+        path = dataset_state_path(dataset.name) / "store"
         super().__init__(dataset, linker, path)
         self.entity_class = Entity
 
-    def build(self, external: bool = False) -> None:
-        """Pre-load all entity cache objects from the given scope dataset."""
-        log.info("Building local LevelDB aggregator...", scope=self.dataset.name)
-        idx = 0
-        with self.writer() as writer:
-            stmts = iter_dataset_statements(self.dataset, external=external)
-            for idx, stmt in enumerate(stmts):
-                if idx > 0 and idx % 100000 == 0:
-                    log.info(
-                        "Indexing aggregator...",
-                        statements=idx,
-                        scope=self.dataset.name,
-                    )
-                writer.add_statement(stmt)
-        log.info("Local cache complete.", scope=self.dataset.name, statements=idx)
+    def view(self, scope: Dataset, external: bool = False) -> View:
+        return LevelDBView(self, scope, external=external)
 
     def assemble(self, statements: List[Statement]) -> Optional[Entity]:
         """Build an entity proxy from a set of cached statements, considering
@@ -96,3 +50,37 @@ class Store(LevelDBStore[Dataset, Entity]):
             entity = simplify_dates(entity)
             entity = simplify_undirected(entity)
         return entity
+
+    def sync(self, clear: bool = False) -> None:
+        if clear:
+            self.clear()
+        ds_key = f"dataset:{self.dataset.name}".encode("utf-8")
+        if self.db.get(ds_key):
+            return
+        log.info("Building local LevelDB aggregator...", scope=self.dataset.name)
+        idx = 0
+        with self.writer() as writer:
+            stmts = iter_dataset_statements(self.dataset, external=True)
+            for idx, stmt in enumerate(stmts):
+                if idx > 0 and idx % 50_000 == 0:
+                    log.info(
+                        "Indexing aggregator...",
+                        statements=idx,
+                        scope=self.dataset.name,
+                        dataset=stmt.dataset,
+                    )
+                writer.add_statement(stmt)
+        self.db.put(ds_key, b"1")
+        self.db.compact_range()
+        log.info(
+            "Local LevelDB aggregator is ready.",
+            scope=self.dataset.name,
+            statements=idx,
+        )
+
+    def clear(self) -> None:
+        """Delete the working directory data for the latest version of the dataset
+        from this store."""
+        self.db.close()
+        shutil.rmtree(self.path, ignore_errors=True)
+        self.db = plyvel.DB(self.path.as_posix(), create_if_missing=True)

@@ -1,5 +1,5 @@
 type: external
-title: Russian Unified State Register of Legal Entities (EGRUL)
+title: Russian Unified State Register of Legal Entities (as at Jan 1, 2022)
 entry_point: zavod.runner.enrich:enrich
 full_dataset: ru_egrul
 disabled: false
@@ -26,11 +26,14 @@ description: |
   others). The registry data must be purchased from the tax authority, but a
   full version of it has been released online by a Russian IT entrepreneur.
 
-  This snapshot is dated 2022-01-01, in order to meet a compromise between using
-  fresh data, and avoiding information loss via intra-war data removals.
+  **Note:** This snapshot is dated 2022-01-01, in order to meet a compromise
+  between using fresh data, and avoiding information loss via intra-war data
+  removals.
 url: https://egrul.itsoft.ru/
 publisher:
   name: Федеральная Налоговая Служба
+  name_en: Federal Taxation Service
+  acronym: FNS
   description: |
     The Federal Tax Service of the Russian Federation is an authorized federal
     executive body that carries out state registration of legal entities, individuals

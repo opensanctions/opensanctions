@@ -1,0 +1,45 @@
+title: Japan METI End User List
+entry_point: crawler.py
+prefix: jp-eul
+coverage:
+  frequency: weekly
+  start: 2024-06-10
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+ci_test: false
+summary: >-
+  Sanctions imposed by Japan under its Foreign Exchange and Foreign Trade Law.
+description: |
+  > The Ministry of Economy, Trade and Industry (METI) has issued the End User
+  > List, providing exporters with information on foreign entities for which
+  > concern cannot be eliminated regarding involvement in activities such as
+  > the development of weapons of mass destruction (WMDs) and missiles, for
+  > the purpose of enhancing the effectiveness of the catch-all control on
+  > cargos and other loads relating to WMDs and missiles.
+
+  **Note:** This crawler uses an LLM-based approach to extract the data from
+  the PDF file. We are still working on improving the quality of that process
+  in order to ensure the highest possible accuracy.
+publisher:
+  name: "Ministry of Economy, Trade and Industry"
+  acronym: METI
+  description: |
+    METI’s mission is to develop Japan’s economy and industry by focusing on promoting
+    economic vitality in private companies and smoothly advancing external economic
+    relationships, and to secure stable and efficient supply of energy and mineral
+    resources.
+  country: jp
+  url: https://www.meti.go.jp/
+  official: true
+url: https://www.meti.go.jp/english/policy/external_economy/trade_control/index.html#Endu
+data:
+  url: https://www.meti.go.jp/english/policy/external_economy/trade_control/index.html#Endu
+  format: PDF
+  lang: jpn
+http:
+  user_agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 (zavod; opensanctions.org)
+
+lookups:
+  type.country:
+    options:
+      - match: "Republic of Lebanon"
+        value: Lebanon

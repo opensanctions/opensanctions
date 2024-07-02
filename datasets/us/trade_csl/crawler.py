@@ -1,7 +1,7 @@
 import json
 from typing import Any, Dict, List, Optional, Generator
 from banal import ensure_list
-from pantomime.types import JSON
+from rigour.mime.types import JSON
 from followthemoney.types import registry
 
 from zavod import Context, Entity

@@ -8,6 +8,7 @@ coverage:
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 publisher:
   name: Council of the European Union
+  acronym: Council
   country: eu
   url: https://european-union.europa.eu/institutions-law-budget/institutions-and-bodies/search-all-eu-institutions-and-bodies/council-european-union_en
   description: The Council of the EU is the representative body of EU member

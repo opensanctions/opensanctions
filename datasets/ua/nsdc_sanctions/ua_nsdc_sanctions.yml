@@ -15,6 +15,7 @@ description: |
   published sanctions list is based on press statements by the security council.
 publisher:
   name: National Security and Defense Council
+  acronym: NSDC
   description: >
     The National Security and Defense Council (Рада національної безпеки і оборони
     України) of Ukraine is the coordinating body in matters pertaining to national
@@ -217,7 +218,7 @@ lookups:
       - contains:
           - Сайт так званого
         prop: website
-        weight: 2   # To fix the issue when same entity contains website and notes
+        weight: 2 # To fix the issue when same entity contains website and notes
       - contains:
           - Громадянство
         prop: nationality

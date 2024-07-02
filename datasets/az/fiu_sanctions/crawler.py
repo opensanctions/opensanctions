@@ -1,5 +1,5 @@
 from lxml import etree
-from pantomime.types import XML
+from rigour.mime.types import XML
 from datetime import datetime
 
 from zavod import Context

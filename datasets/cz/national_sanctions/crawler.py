@@ -1,9 +1,8 @@
-from typing import Generator
-import openpyxl
-from openpyxl import load_workbook
-from pantomime.types import XLSX
-from normality import stringify, slugify
-from datetime import datetime
+import csv
+from typing import Dict, Optional
+from urllib.parse import urljoin
+from rigour.mime.types import CSV
+from normality import slugify
 from rigour.names import pick_name
 
 from zavod import Context, helpers as h
@@ -37,129 +36,107 @@ def parse_date(string):
     return h.parse_date(string, formats=["%d. %B %Y"])
 
 
-def parse_sheet(
-    sheet: openpyxl.worksheet.worksheet.Worksheet,
-) -> Generator[dict, None, None]:
-    headers = None
-    for row in sheet:
-        cells = [c.value for c in row]
-        if headers is None:
-            headers = []
-            for idx, cell in enumerate(cells):
-                if cell is None:
-                    cell = f"column_{idx}"
-                headers.append(slugify(cell, "_").lower())
-            continue
-
-        record = {}
-        for header, value in zip(headers, cells):
-            if isinstance(value, datetime):
-                value = value.date()
-            record[header] = stringify(value)
-        if len(record) == 0:
-            continue
-        yield record
-
-
-def crawl_item(input_dict: dict, context: Context):
+def crawl_item(row: Dict[str, str], context: Context):
     # Jméno fyzické osoby
     # -> First name of the natural person
-    first_name = input_dict.pop("jmeno_fyzicke_osoby")
+    first_field = row.pop("jmeno_fyzicke_osoby", "").strip('"').strip()
+    first_names = first_field.split("/")
 
     # Příjmení fyzické osoby / Název právnické osoby / Označení nebo název entity
     # -> Last name of the natural person / Name of the legal entity / Designation or name of the entity
-    last_name = input_dict.pop(
+    name_field = row.pop(
         "prijmeni_fyzicke_osoby_nazev_pravnicke_osoby_oznaceni_nebo_nazev_entity"
     )
+    name = str(name_field)
 
-    # Skip cancelled
-    if "zrušeno" in last_name.lower():
-        return
+    cancel_text: Optional[str] = None
+    if "Zápis byl zrušen" in name:
+        idx = name.index("Zápis byl zrušen")
+        name = name[:idx].strip()
+        cancel_text = name[idx:].strip()
+    names = name.split("/")
 
     # Datum narození fyzické osoby
     # -> Date of birth of the natural person
-    birth_date = input_dict.pop("datum_narozeni_fyzicke_osoby")
+    birth_date = row.pop("datum_narozeni_fyzicke_osoby")
 
     # Státní příslušnost fyzické osoby / sídlo právnické osoby
     # -> Nationality of the natural person / registered office of the legal entity
-    countries = input_dict.pop("statni_prislusnost_fyzicke_osoby_sidlo_pravnicke_osoby")
+    countries = row.pop("statni_prislusnost_fyzicke_osoby_sidlo_pravnicke_osoby")
 
-    if first_name is None:
+    if len(first_field) == 0:
         entity = context.make("LegalEntity")
-        entity.id = context.make_id(last_name, countries)
+        entity.id = context.make_id(name_field, first_field, countries)
         # There can be multiple names which are separated by /
-        for name in last_name.split("/"):
-            entity.add("name", name)
-
-        entity.add("mainCountry", countries.split(", "), lang="cz")
+        entity.add("name", names)
+        entity.add("country", countries.split(", "), lang="ces")
     else:
         entity = context.make("Person")
-        entity.id = context.make_id(first_name, last_name, birth_date, countries)
+        entity.id = context.make_id(name_field, first_field, countries)
         # There can be multiple names which are separated by /
-        lastnames = [n.strip() for n in last_name.split("/")]
-        entity.add("lastName", lastnames)
-        firstnames = [n.strip() for n in first_name.split("/")]
-        entity.add("firstName", firstnames)
+        entity.add("lastName", names)
+        entity.add("firstName", first_names)
         h.apply_name(
-            entity, first_name=pick_name(firstnames), last_name=pick_name(lastnames)
+            entity,
+            first_name=pick_name(first_names),
+            last_name=pick_name(names),
         )
 
         entity.add("birthDate", parse_date(translate_date(birth_date)))
-        entity.add("nationality", countries.split(", "), lang="cz")
-
-    entity.add("topics", "sanction")
+        entity.add("nationality", countries.split(", "), lang="ces")
 
     # Další identifikační údaje
     # -> Other identification data
-    entity.add("notes", input_dict.pop("dalsi_identifikacni_udaje"), lang="cz")
+    entity.add("notes", row.pop("dalsi_identifikacni_udaje"), lang="ces")
 
+    entity.add("topics", "sanction")
     sanction = h.make_sanction(context, entity)
     sanction.add(
         "startDate",
-        parse_date(translate_date(input_dict.pop("datum_zapisu"))),
+        parse_date(translate_date(row.pop("datum_zapisu"))),
     )
 
     # Popis postižitelného jednání -> Description of punishable conduct
-    sanction.add("reason", input_dict.pop("popis_postizitelneho_jednani"), lang="cz")
+    sanction.add("reason", row.pop("popis_postizitelneho_jednani"), lang="ces")
 
     # Omezující opatření -> Restrictive measures
-    sanction.add("provisions", input_dict.pop("omezujici_opatreni"), lang="cz")
+    sanction.add("provisions", row.pop("omezujici_opatreni"), lang="ces")
 
     # Číslo usnesení vlády
     # -> Government resolution number
-    sanction.add("recordId", input_dict.pop("cislo_usneseni_vlady"), lang="cz")
+    sanction.add("recordId", row.pop("cislo_usneseni_vlady"), lang="ces")
 
     # Ustanovení předpisu Evropské unie, jehož skutkovou podstatu subjekt jednáním naplnil
     # -> Provision of the European Union regulation, the factual basis of which the subject fulfilled by action
-    sanction.add(
-        "program",
-        input_dict.pop(
-            "ustanoveni_predpisu_evropske_unie_jehoz_skutkovou_podstatu_subjekt_jednanim_naplnil"
-        ),
-        lang="cz",
+    provision = row.pop(
+        "ustanoveni_predpisu_evropske_unie_jehoz_skutkovou_podstatu_subjekt_jednanim_naplnil"
     )
+    sanction.add("program", provision, lang="ces")
+    sanction.add("status", cancel_text, lang="ces")
 
     context.emit(entity, target=True)
     context.emit(sanction)
 
-    context.audit_data(input_dict)
+    context.audit_data(row)
+
+
+def crawl_csv_url(context: Context):
+    doc = context.fetch_html(context.data_url)
+    for a in doc.findall(".//div[@id='content']//a"):
+        href = a.get("href")
+        if href is not None and href.endswith(".csv"):
+            return urljoin(context.data_url, href)
+    raise ValueError("No XLSX file found")
 
 
 def crawl(context: Context):
     # First we find the link to the excel file
+    csv_url = crawl_csv_url(context)
+    path = context.fetch_resource("source.csv", csv_url)
+    context.export_resource(path, CSV, title=context.SOURCE_TITLE)
 
-    response = context.fetch_html(context.data_url)
-    response.make_links_absolute(context.data_url)
-
-    # The link is the a tag with the title "Vnitrostátní sankční seznam" (National Sanctions List)
-    # And the href contains ".xlsx"
-    xpath = './/a[contains(@href, ".xlsx")][@title="Vnitrostátní sankční seznam"]'
-
-    excel_link = response.xpath(xpath)[0].get("href")
-    path = context.fetch_resource("list.xlsx", excel_link)
-    context.export_resource(path, XLSX, title=context.SOURCE_TITLE)
-
-    wb = load_workbook(path, read_only=True)
-
-    for item in parse_sheet(wb["List1"]):
-        crawl_item(item, context)
+    with open(path, "r") as fh:
+        for record in csv.DictReader(fh):
+            row_ = {slugify(k, "_"): str(v) for k, v in record.items() if v is not None}
+            row = {k: v for k, v in row_.items() if k is not None}
+            crawl_item(row, context)

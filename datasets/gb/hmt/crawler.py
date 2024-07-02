@@ -1,7 +1,7 @@
 from typing import Optional, Dict, Any, List
 from banal import first
 from normality import stringify, collapse_spaces
-from pantomime.types import XML
+from rigour.mime.types import XML
 from followthemoney.util import join_text
 
 from zavod import Context
@@ -147,7 +147,7 @@ def parse_row(context: Context, row: Dict[str, Any]):
     entity.add_cast("Person", "birthDate", dob)
 
     cob = parse_countries(row.pop("Individual_CountryOfBirth", None))
-    entity.add_cast("Person", "country", cob)
+    entity.add_cast("Person", "birthCountry", cob)
 
     nationalities = parse_countries(row.pop("Individual_Nationality", None))
     entity.add_cast("Person", "nationality", nationalities)

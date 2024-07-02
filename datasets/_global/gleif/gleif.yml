@@ -21,7 +21,8 @@ summary: >-
   Base data for all entities which have been issued Legal Entity Identifier
   (LEI) codes, as well as the relationships between them
 publisher:
-  name: Global Legal Entity Identifier Foundation (GLEIF)
+  name: Global Legal Entity Identifier Foundation
+  acronym: GLEIF
   description: |
     Established by the Financial Stability Board in June 2014, the Global Legal Entity
     Identifier Foundation (GLEIF) is tasked to support the implementation and use
@@ -57,10 +58,20 @@ lookups:
         value: GQ
       - match: GB-ENG
         value: GB
+      - match: BE-VLG
+        value: BE
+
   type.date:
     options:
       - regex: 0\d{3}-\d{2}-\d{2}
         match:
           - 9940-12-31
           - 3032-04-05
+          - 9930-01-11
+          - 9980-12-31
+          - 9970-12-01
         value: null
+      - match: 3015-10-30
+        value: 2015-10-30
+      - match: 3008-01-29
+        value: 2008-01-29

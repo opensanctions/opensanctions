@@ -21,6 +21,7 @@ description: |
   data processing and inappropriate data structures used by the XML files.
 publisher:
   name: Office of Financial Sanctions Implementation
+  acronym: OFSI
   description: >
     OFSI is part of Her Majesty's Treasury. It helps to ensure that financial
     sanctions are properly understood, implemented and enforced in the United Kingdom.

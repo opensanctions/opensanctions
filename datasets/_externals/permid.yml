@@ -1,5 +1,5 @@
 type: external
-title: LSEG PermID Open Data
+title: PermID Open Data
 entry_point: zavod.runner.enrich:enrich
 disabled: false
 hidden: false
@@ -23,7 +23,8 @@ description: |
   > identity they each represent.
 url: https://permid.org/about
 publisher:
-  name: LSEG/Refinitiv
+  name: London Stock Exchange Group
+  acronym: LSEG
   description: |
     With the merger of Refinitiv into LSEG, the PermID service (formerly Calais) is
     now offered as an open access API by the company.

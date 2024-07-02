@@ -1,5 +1,5 @@
 name: mk_officials
-title: "North Macedonia elected and appointed officials"
+title: "North Macedonia Elected and Appointed Officials"
 entry_point: crawler.py
 prefix: mk-officials
 coverage:
@@ -14,7 +14,7 @@ description: |
   on Prevention of Corruption (LPC, 2002) for elected and appointed officials,
   responsible persons in public entities dealing with State funds, and officials
   in State bodies and municipal administrations, including judges and prosecutors. 
-  
+
   The obligated personnel are required to submit asset declarations to designated offices
   upon taking and leaving office and whenever a change in assets occurs that exceeds
   twenty average salaries.

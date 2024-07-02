@@ -18,6 +18,7 @@ description: |
   * [List of Restricted Entities and Subentities Associated With Cuba](https://www.state.gov/cuba-restricted-list/list-of-restricted-entities-and-subentities-associated-with-cuba-effective-january-8-2021/)
 publisher:
   name: US State Department
+  acronym: State
   description: |
     The Counter Threat Finance and Sanctions division (TFS) is responsible for developing
     and implementing sanctions to counter threats to national security posed by
@@ -32,5 +33,4 @@ data:
   url: https://docs.google.com/spreadsheets/d/1kkl5JhsE-w3m8veU4DrkwTOGMmkAniMc0GsyJFJMFck/edit#gid=1890354374https://www.bis.doc.gov/dpl/dpl.txt
   format: CSV
   lang: eng
-http:
-  user_agent: "Mozilla/5.0 (zavod, https://opensanctions.org)"
+ci_test: false

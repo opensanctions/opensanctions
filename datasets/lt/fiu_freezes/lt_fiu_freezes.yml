@@ -1,4 +1,4 @@
-title: Lithuanian FIU International Sanctions
+title: Lithuanian International Sanctions
 entry_point: crawler.py
 prefix: ltfiu
 coverage:
@@ -14,7 +14,9 @@ summary: >
 description: |
   A small set of Lithuanian companies published by the country's financial intelligence unit.
 publisher:
-  name: Finansinių Nusikaltimų Tyrimo Tarnyba (FIU)
+  name: Finansinių Nusikaltimų Tyrimo Tarnyba
+  name_en: Financial Crimes Investigation Service
+  acronym: FNTT
   description: |
     The Financial Crimes Investigation Service at the Ministry of Internal Affairs of the
     Republic of Lithuania (Finansinių Nusikaltimų Tyrimo Tarnyba Prie Lietuvos Respublikos
@@ -27,3 +29,14 @@ url: https://www.fntt.lt/lt/tarptautines-finansines-sankcijos/4166
 data:
   url: https://fntt.lrv.lt/lt/tarptautines-finansines-sankcijos/
   format: html
+ci_test: false
+
+assertions:
+  min:
+    schema_entities:
+      Company: 15
+      LegalEntity: 10
+  max:
+    schema_entities:
+      Company: 25
+      LegalEntity: 20

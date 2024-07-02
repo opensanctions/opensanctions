@@ -1,9 +1,6 @@
 from collections import defaultdict
-import shutil
 from typing import Dict, Generator, cast
 from normality import collapse_spaces
-from pantomime.types import HTML
-from lxml import html
 from lxml.html import HtmlElement
 import re
 
@@ -107,21 +104,7 @@ def parse_table(
 
 
 def crawl(context: Context):
-    # curl https://zh.wikipedia.org/wiki/%E7%AC%AC%E5%8D%81%E5%9B%9B%E5%B1%8A%E5%85%A8%E5%9B%BD%E4%BA%BA%E6%B0%91%E4%BB%A3%E8%A1%A8%E5%A4%A7%E4%BC%9A%E4%BB%A3%E8%A1%A8%E5%90%8D%E5%8D%95 -o datasets/cn/wikidata_npc/source.html
-    # and check the diff
-    h.assert_html_url_hash(
-        context,
-        context.data_url,
-        "e889e12ffbd7cdc60249393a12a899e084514056",
-        ".//main",
-        text_only=True,
-    )
-    data_path = context.dataset.base_path / "source.html"
-    path = context.get_resource_path("source.html")
-    shutil.copyfile(data_path, path)
-    context.export_resource(path, HTML, title=context.SOURCE_TITLE)
-    with open(path, "r") as fh:
-        doc = html.parse(fh)
+    doc = context.fetch_html(context.data_url)
     ids = defaultdict(int)
 
     for h3 in doc.findall(".//h3"):

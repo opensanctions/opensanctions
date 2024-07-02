@@ -28,6 +28,8 @@ description: |
 url: https://egrul.itsoft.ru/
 publisher:
   name: Федеральная Налоговая Служба
+  name_en: Federal Taxation Service
+  acronym: FNS
   description: |
     The Federal Tax Service of the Russian Federation is an authorized federal
     executive body that carries out state registration of legal entities, individuals

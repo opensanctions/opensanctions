@@ -1,47 +1,42 @@
 from rigour.mime.types import JSON
 
-from zavod import settings
 from zavod.meta import Dataset
 from zavod.logs import get_logger
 from zavod.archive import publish_resource, dataset_resource_path
-from zavod.archive import publish_dataset_history, publish_artifact
-from zavod.archive import INDEX_FILE, CATALOG_FILE, ISSUES_FILE, ISSUES_LOG
+from zavod.archive import publish_dataset_version, publish_artifact
+from zavod.archive import INDEX_FILE, CATALOG_FILE
 from zavod.archive import STATEMENTS_FILE, RESOURCES_FILE, STATISTICS_FILE
-from zavod.archive import DELTA_FILE
+from zavod.archive import VERSIONS_FILE, ARTIFACT_FILES
+from zavod.archive import DELTA_EXPORT_FILE, DELTA_INDEX_FILE
 from zavod.runtime.resources import DatasetResources
+from zavod.runtime.versions import get_latest
 from zavod.exporters import write_dataset_index, write_issues
 
 log = get_logger(__name__)
-ARTIFACTS = [
-    ISSUES_FILE,
-    ISSUES_LOG,
-    INDEX_FILE,
-    STATEMENTS_FILE,
-    STATISTICS_FILE,
-    RESOURCES_FILE,
-    DELTA_FILE,
-]
 
 
 def _publish_artifacts(dataset: Dataset) -> None:
-    for artifact in ARTIFACTS:
+    version = get_latest(dataset.name, backfill=False)
+    if version is None:
+        raise ValueError(f"No working version found for dataset: {dataset.name}")
+    for artifact in ARTIFACT_FILES:
         path = dataset_resource_path(dataset.name, artifact)
         if path.is_file():
             publish_artifact(
                 path,
                 dataset.name,
-                settings.RUN_VERSION,
+                version,
                 artifact,
                 mime_type=JSON if artifact.endswith(".json") else None,
             )
-    publish_dataset_history(dataset.name, settings.RUN_VERSION)
+    publish_dataset_version(dataset.name)
 
 
 def publish_dataset(dataset: Dataset, latest: bool = True) -> None:
     """Upload a dataset to the archive."""
     resources = DatasetResources(dataset)
     for resource in resources.all():
-        if resource.name in ARTIFACTS:
+        if resource.name in ARTIFACT_FILES:
             # This is a bit hacky: the delta exporter and statistics exporter are
             # generating artifacts used for internal purposes, but they should
             # not be included in the dataset metadata.
@@ -81,6 +76,8 @@ def publish_failure(dataset: Dataset, latest: bool = True) -> None:
     dataset_resource_path(dataset.name, INDEX_FILE).unlink(missing_ok=True)
     dataset_resource_path(dataset.name, CATALOG_FILE).unlink(missing_ok=True)
     dataset_resource_path(dataset.name, RESOURCES_FILE).unlink(missing_ok=True)
+    dataset_resource_path(dataset.name, DELTA_EXPORT_FILE).unlink(missing_ok=True)
+    dataset_resource_path(dataset.name, DELTA_INDEX_FILE).unlink(missing_ok=True)
     write_issues(dataset)
     write_dataset_index(dataset)
     path = dataset_resource_path(dataset.name, INDEX_FILE)
@@ -90,3 +87,4 @@ def publish_failure(dataset: Dataset, latest: bool = True) -> None:
     publish_resource(path, dataset.name, INDEX_FILE, latest=latest, mime_type=JSON)
     _publish_artifacts(dataset)
     dataset_resource_path(dataset.name, RESOURCES_FILE).unlink(missing_ok=True)
+    dataset_resource_path(dataset.name, VERSIONS_FILE).unlink(missing_ok=True)

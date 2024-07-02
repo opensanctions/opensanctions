@@ -26,6 +26,7 @@ description: |
 url: https://www.uaeiec.gov.ae/en-us/un-page?p=1#
 publisher:
   name: "Executive Office for Control & Non-proliferation"
+  acronym: EOCN
   description: |
     The EOCN was established in the United Arab Emirates in 2009 as a body
     responsible for preventing the illegal and unauthorized circulation of
@@ -53,6 +54,10 @@ lookups:
         value: Organization
       - match: شخص إرهابي
         value: Person
+  schema.override:
+    options:
+      - match: ae-lt-4b28aec2925637dfe72b2f5130eb6d17eb6f7777
+        value: Vessel
   headers:
     normalize: true
     options:

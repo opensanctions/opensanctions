@@ -38,6 +38,7 @@ description: |
   (This also seems to include US OFAC SDN/CONS data.)
 publisher:
   name: Department of the Commerce - International Trade Administration
+  acronym: ITA
   country: us
   url: https://www.trade.gov/
   official: true

@@ -21,7 +21,8 @@ description: |
   Nationals" or "SDNs." Their assets are blocked and U.S. persons are generally
   prohibited from dealing with them.
 publisher:
-  name: Office of Foreign Assets Control (OFAC)
+  name: Office of Foreign Assets Control
+  acronym: OFAC
   description: >
     OFAC is a divison of the United States Department of the Treasury that administers
     and enforces economic and trade sanctions based on US foreign policy and national

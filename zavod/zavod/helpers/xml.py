@@ -17,6 +17,10 @@ def remove_namespace(el: ElementOrTree) -> ElementOrTree:
         An updated element tree with the namespaces removed.
     """
     for elem in el.iter():
+        # https://stackoverflow.com/a/47233934
+        if elem.tag is etree.Comment:  # type: ignore
+            # Can't make a QName from a comment
+            continue
         elem.tag = etree.QName(elem).localname
         for key, value in list(elem.attrib.items()):
             local_key = etree.QName(key).localname

@@ -9,7 +9,7 @@ from nomenklatura.statement.serialize import read_path_statements
 from datetime import datetime
 
 from zavod import settings
-from zavod.store import get_view
+from zavod.store import get_store
 from zavod.dedupe import get_resolver
 from zavod.exporters import export_dataset
 from zavod.archive import clear_data_path, DATASETS
@@ -25,7 +25,6 @@ from zavod.tests.exporters.util import harnessed_export
 
 TIME_SECONDS_FMT = "%Y-%m-%dT%H:%M:%S"
 
-always_exports = {"statistics.json"}
 default_exports = {
     "entities.ftm.json",
     "names.txt",
@@ -37,7 +36,10 @@ default_exports = {
 
 
 def export(dataset: Dataset) -> None:
-    view = get_view(dataset)
+    resolver = get_resolver()
+    store = get_store(dataset, resolver)
+    store.sync(clear=True)
+    view = store.view(dataset)
     export_dataset(dataset, view)
 
 
@@ -50,16 +52,16 @@ def test_export(testdataset1: Dataset):
 
     # it parses and finds expected number of entities
     assert (
-        len(list(path_entities(dataset_path / "entities.ftm.json", EntityProxy))) == 11
+        len(list(path_entities(dataset_path / "entities.ftm.json", EntityProxy))) == 12
     )
 
     with open(dataset_path / "index.json") as index_file:
         index = load(index_file)
         assert index["name"] == testdataset1.name
-        assert index["entity_count"] == 11
+        assert index["entity_count"] == 12
         assert index["target_count"] == 7
         resources = {r["name"] for r in index["resources"]}
-        for r in set.union(default_exports, always_exports):
+        for r in default_exports:
             assert r in resources
 
     with open(dataset_path / "names.txt") as names_file:
@@ -70,7 +72,7 @@ def test_export(testdataset1: Dataset):
 
     with open(dataset_path / "resources.json") as resources_file:
         resources = {r["name"] for r in load(resources_file)["resources"]}
-        for r in set.union(default_exports, always_exports):
+        for r in default_exports:
             assert r in resources
 
     with open(dataset_path / "senzing.json") as senzing_file:
@@ -81,7 +83,7 @@ def test_export(testdataset1: Dataset):
 
     with open(dataset_path / "statistics.json") as statistics_file:
         statistics = load(statistics_file)
-        assert statistics["entity_count"] == 11
+        assert statistics["entity_count"] == 12
         assert statistics["target_count"] == 7
 
     with open(dataset_path / "targets.nested.json") as targets_nested_file:
@@ -107,17 +109,18 @@ def test_minimal_export_config(testdataset2: Dataset):
     with open(dataset_path / "index.json") as index_file:
         index = load(index_file)
         resources = {r["name"] for r in index["resources"]}
-        for r in always_exports:
-            assert r in resources
         for r in default_exports:
             assert r not in resources
 
     with open(dataset_path / "resources.json") as resources_file:
         resources = {r["name"] for r in load(resources_file)["resources"]}
-        for r in always_exports:
-            assert r in resources
         for r in default_exports:
             assert r not in resources
+
+    # make sure the stats are still written:
+    with open(dataset_path / "statistics.json") as statistics_file:
+        statistics = load(statistics_file)
+        assert statistics["entity_count"] == 18
 
 
 def test_custom_export_config(testdataset2_export: Dataset):
@@ -131,14 +134,14 @@ def test_custom_export_config(testdataset2_export: Dataset):
     with open(dataset_path / "index.json") as index_file:
         index = load(index_file)
         resources = {r["name"] for r in index["resources"]}
-        for r in set.union(always_exports, {"names.txt", "pep-positions.json"}):
+        for r in {"names.txt", "pep-positions.json"}:
             assert r in resources
         for r in default_exports - {"names.txt", "pep-positions.json"}:
             assert r not in resources
 
     with open(dataset_path / "resources.json") as resources_file:
         resources = {r["name"] for r in load(resources_file)["resources"]}
-        for r in set.union(always_exports, {"names.txt", "pep-positions.json"}):
+        for r in {"names.txt", "pep-positions.json"}:
             assert r in resources
         for r in default_exports - {"names.txt", "pep-positions.json"}:
             assert r not in resources
@@ -179,11 +182,12 @@ def test_ftm_referents(testdataset1: Dataset):
     identifier = resolver.decide(
         "osv-john-doe", "osv-johnny-does", Judgement.POSITIVE, user="test"
     )
+    testdataset1.resolve = True
     crawl_dataset(testdataset1)
-    harnessed_export(FtMExporter, testdataset1)
+    harnessed_export(FtMExporter, testdataset1, linker=resolver)
 
     entities = list(path_entities(dataset_path / "entities.ftm.json", EntityProxy))
-    assert len(entities) == 10
+    assert len(entities) == 11
 
     john = [e for e in entities if e.id == identifier][0]
     john_dict = john.to_dict()
@@ -204,15 +208,15 @@ def test_ftm_referents(testdataset1: Dataset):
     collection_path = settings.DATA_PATH / "datasets" / collection.name
     crawl_dataset(dataset2)
     other_dataset_id = "td2-freddie-bloggs"
-    harnessed_export(FtMExporter, collection)
+    harnessed_export(FtMExporter, collection, linker=resolver)
     entities = list(path_entities(collection_path / "entities.ftm.json", EntityProxy))
-    assert len(entities) == 28
+    assert len(entities) == 29
 
     resolver.decide("osv-john-doe", other_dataset_id, Judgement.POSITIVE, user="test")
     clear_data_path(collection.name)
-    harnessed_export(FtMExporter, collection)
+    harnessed_export(FtMExporter, collection, linker=resolver)
     entities = list(path_entities(collection_path / "entities.ftm.json", EntityProxy))
-    assert len(entities) == 27  # After deduplication there's one less entity
+    assert len(entities) == 28  # After deduplication there's one less entity
     assert [] == [e for e in entities if e.id == other_dataset_id]
 
     john = [e for e in entities if e.id == identifier][0]
@@ -302,4 +306,4 @@ def test_statements(testdataset1: Dataset):
     path = dataset_path / "statements.csv"
     statements = list(read_path_statements(path, CSV, Statement))
     entities = [s.canonical_id for s in statements if s.prop == Statement.BASE]
-    assert len(entities) == 11
+    assert len(entities) == 12

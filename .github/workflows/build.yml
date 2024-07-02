@@ -33,7 +33,7 @@ jobs:
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
-          sudo apt-get install -y -qq libicu-dev
+          sudo apt-get install -y -qq libicu-dev poppler-utils
       - name: Install zavod dependencies
         working-directory: zavod
         run: |
@@ -118,7 +118,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push release
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           pull: true

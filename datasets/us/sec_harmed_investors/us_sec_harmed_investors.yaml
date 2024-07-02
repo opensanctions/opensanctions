@@ -1,4 +1,4 @@
-title: US SEC actions due to harmed investors
+title: US SEC Actions Due to Harmed Investors
 entry_point: crawler.py
 prefix: us-sec-harm
 coverage:
@@ -13,7 +13,8 @@ description: |
   In these instances, the SEC may work to distribute these funds to investors
   who were harmed.
 publisher:
-  name: US Securities and Exchange Commission (SEC)
+  name: Securities and Exchange Commission
+  acronym: SEC
   description: |
     > The federal securities laws empower the Securities and Exchange Commission (SEC)
     > with broad authority over all aspects of the securities industry. The SEC’s

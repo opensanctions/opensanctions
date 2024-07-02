@@ -30,7 +30,8 @@ description: |
   > - other particularly serious violations of fundamental ethical norms
 url: https://www.nbim.no/en/responsible-investment/ethical-exclusions/exclusion-of-companies/
 publisher:
-  name: Norges Bank Investment Management (NBIM)
+  name: Norges Bank Investment Management
+  acronym: NBIM
   description: |
     Norges Bank Investment Management (NBIM) is a branch of Norges Bank, Norway's central bank.
     It is responsible for the operational management of Norway's Government Pension Fund Global.

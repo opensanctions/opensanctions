@@ -120,6 +120,8 @@ class Dataset(NKDataset):
         data = super().to_dict()
         data["hidden"] = self.hidden
         data["disabled"] = self.disabled
+        if not self.resolve:
+            data["resolve"] = False
         if self.data:
             data["data"] = self.data.to_dict()
         if self.full_dataset is not None:
@@ -131,6 +133,7 @@ class Dataset(NKDataset):
         data = self.to_dict()
         assert self._type in ("collection", "source", "external"), self._type
         data.pop("resources", None)
+        data.pop("version", None)
         # data.pop("children", None)
         # data.pop("datasets", None)
         data["type"] = self._type

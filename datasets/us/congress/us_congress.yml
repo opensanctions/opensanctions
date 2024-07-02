@@ -1,5 +1,5 @@
 name: us_congress
-title: Members of the United States Congress
+title: US Members of the Congress
 prefix: us-congress
 disabled: false
 entry_point: crawler.py
@@ -30,7 +30,8 @@ data:
   format: JSON
   lang: eng
 publisher:
-  name: Library of Congress
+  name: United States Congress
+  acronym: Congress
   country: us
   url: https://www.loc.gov/
   official: true

@@ -25,6 +25,7 @@ resources:
     mime_type: application/json+ftm
 publisher:
   name: Ministry of Justice of Ukraine
+  acronym: MinJust
   description: |
     The database is managed and - in peacetime - published by the Department
     for State Registration and Notariat.

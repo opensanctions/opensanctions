@@ -1,4 +1,4 @@
-title: Mexico senators
+title: Mexico Senate
 entry_point: crawler.py
 prefix: mx-sen
 coverage:

@@ -1,5 +1,5 @@
 name: id_dttot
-title: Indonesian List of Suspected Terrorists and Terrorist Organizations 
+title: Indonesian List of Suspected Terrorists and Terrorist Organizations
 url: https://www.ppatk.go.id/link/read/23/dttot-proliferasi-wmd.html
 entry_point: crawler
 coverage:
@@ -13,10 +13,13 @@ description: >
   > Prevention and Eradication of Criminal Acts of Terrorism Financing, the following are the DTTOTs that have received  
   > determination from the Central Jakarta District Court.
 publisher:
-  name: "The Indonesian Financial Transaction Reports and Analysis Center (PPATK)"
+  name: "Indonesian Financial Transaction Reports and Analysis Center"
+  acronym: PPATK
   official: true
   description: |
-    The Indonesian Financial Transaction Reports and Analysis Center (Indonesian: Pusat Pelaporan dan Analisis Transaksi Keuangan) or PPATK is a government agency of Indonesia responsible for financial intelligence.
+    The Indonesian Financial Transaction Reports and Analysis Center (Indonesian:
+    Pusat Pelaporan dan Analisis Transaksi Keuangan) or PPATK is a government
+    agency of Indonesia responsible for financial intelligence.
   country: id
   url: https://www.ppatk.go.id/
 data:
@@ -25,10 +28,10 @@ data:
 lookups:
   type:
     options:
-      - match: 
+      - match:
           - Orang
         value: Person
-      - match: 
+      - match:
           - Korporasi
         value: Organization
   headers:

@@ -4,7 +4,7 @@ from typing import List, Optional, Set, Tuple, Dict, Any
 from collections import defaultdict
 from normality import slugify
 from datetime import datetime
-from pantomime.types import XLSX
+from rigour.mime.types import XLSX
 
 from zavod import Context
 from zavod import helpers as h

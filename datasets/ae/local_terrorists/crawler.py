@@ -1,17 +1,21 @@
 import xlrd
-from typing import List
+from typing import List, Optional
 from pathlib import Path
 from normality import collapse_spaces
 from urllib.parse import urljoin
-from pantomime.types import XLS
+from rigour.mime.types import XLS
 
 from zavod import Context
 from zavod import helpers as h
 
 
-def parse_row(context: Context, headers: List[str], row: List[str], sanctioned: bool):
-    entity = context.make("LegalEntity")
-    entity.id = context.make_id(*row)
+def parse_row(
+    context: Context, headers: List[str], row: List[Optional[str]], sanctioned: bool
+):
+    entity_id = context.make_id(*row)
+    schema = context.lookup_value("schema.override", entity_id, "LegalEntity")
+    entity = context.make(schema)
+    entity.id = entity_id
     if sanctioned:
         entity.add("topics", "sanction")
     sanction = h.make_sanction(context, entity)
@@ -28,7 +32,7 @@ def parse_row(context: Context, headers: List[str], row: List[str], sanctioned: 
             schema = context.lookup_value("categories", value)
             if schema is None:
                 context.log.error("Unknown category", category=value)
-            else:
+            elif not entity.schema.is_a("Vessel"):
                 entity.add_schema(schema)
             continue
         if header in ("program", "listingDate", "endDate", "provisions"):
@@ -40,18 +44,19 @@ def parse_row(context: Context, headers: List[str], row: List[str], sanctioned: 
         # print(header, value)
         entity.add(header, value, lang=lang)
 
-    context.emit(sanction)
-    context.emit(entity, target=sanctioned)
     if len(address):
         addr = h.make_address(context, **address)
-        h.apply_address(context, entity, addr)
+        h.copy_address(entity, addr)
+
+    context.emit(sanction)
+    context.emit(entity, target=sanctioned)
 
 
 def parse_excel(context: Context, path: Path):
     xls = xlrd.open_workbook(path)
     for sheet in xls.sheets():
         sanctioned = "رفع الإدراج" not in sheet.name
-        headers = None
+        headers: Optional[List[str]] = None
         for r in range(1, sheet.nrows):
             row = [h.convert_excel_cell(xls, c) for c in sheet.row(r)]
             if "#" in row[0]:

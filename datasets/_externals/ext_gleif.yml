@@ -35,7 +35,8 @@ description: |
   (updated daily).
 url: https://www.gleif.org/en/lei-data/gleif-concatenated-file
 publisher:
-  name: Global Legal Entity Identifier Foundation (GLEIF)
+  name: Global Legal Entity Identifier Foundation
+  acronym: GLEIF
   description: |
     Established by the Financial Stability Board in June 2014, the Global Legal Entity
     Identifier Foundation (GLEIF) is tasked to support the implementation and use

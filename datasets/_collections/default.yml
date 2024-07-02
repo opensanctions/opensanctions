@@ -11,6 +11,7 @@ deploy:
 exports:
   - statistics.json
   - entities.ftm.json
+  - entities.delta.json
   - names.txt
   - senzing.json
   - targets.nested.json

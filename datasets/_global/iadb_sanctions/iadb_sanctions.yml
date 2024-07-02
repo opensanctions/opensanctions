@@ -4,7 +4,7 @@ prefix: iadb
 coverage:
   frequency: never
   start: 2021-10-22
-  end: 2024-06-04
+  end: 2024-06-13
 deploy:
   schedule: "@monthly"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
@@ -42,6 +42,7 @@ description: |
   individual directly or indirectly controls.
 publisher:
   name: "Inter-American Development Bank"
+  acronym: IADB
   description: |
     The Inter-American Development Bank (IDB, IADB, BID) provides development financing
     in Latin America and the Caribbean. It was established in 1959.

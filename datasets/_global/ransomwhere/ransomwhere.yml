@@ -16,9 +16,10 @@ description: |
   payments in such attacks. The [ransomwhe.re](https://ransomwhe.re) site collects
   addresses (accounts) that are known to be linked to these payments.
 publisher:
-  name: ransomwhe.re / Jack Cable
+  name: Jack Cable
   url: https://cablej.io/
   official: false
+  country: us
 url: https://ransomwhe.re/#browse
 data:
   url: https://api.ransomwhe.re/export

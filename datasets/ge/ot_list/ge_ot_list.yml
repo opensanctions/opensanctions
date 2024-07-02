@@ -22,6 +22,8 @@ data:
   format: HTML
 publisher:
   name: საქართველოს საკანონმდებლო მაცნე
+  name_en: Legislative Gazette of Georgia
+  acronym: Matsne
   country: ge
   url: https://matsne.gov.ge/en
   description: |

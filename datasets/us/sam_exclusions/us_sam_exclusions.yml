@@ -21,7 +21,8 @@ description: |
   > links include the three-digit Julian date for easier identification of the most
   > recent file.
 publisher:
-  name: General Services Administration (GSA)
+  name: General Services Administration
+  acronym: GSA
   description: >
     GSA's acquisition solutions offer private sector professional services, equipment,
     supplies, and IT to government organizations and the military. GSA also promotes
@@ -104,6 +105,12 @@ lookups:
       - match:
           - S4MRFLWH0
           - S4MRFLTRS
+          - S4MR47VPQ
+          - S4MR47FRC
+          - S4MR47FDZ
+          - S4MR47MZT
+          - S4MR473KX
+          - S4MR479RJ
         value: Person
   type.address:
     lowercase: true

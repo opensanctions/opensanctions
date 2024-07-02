@@ -1,6 +1,6 @@
 from lxml import html
 from typing import Dict
-from pantomime.types import HTML
+from rigour.mime.types import HTML
 from normality import collapse_spaces, slugify
 
 from zavod import Context

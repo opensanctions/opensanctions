@@ -1,4 +1,4 @@
-title: Japan Economic sanctions and list of eligible people
+title: Japan Economic Sanctions and List of Eligible People
 entry_point: crawler.py
 prefix: ja-mof
 coverage:
@@ -35,6 +35,7 @@ description: |
   > in the above.
 publisher:
   name: "Ministry of Finance"
+  acronym: MoF
   description: |
     The Ministry of Finance (財務省) is the Japanese ministry that has
     jurisdiction over ensuring sound finances, realizing fair taxation,

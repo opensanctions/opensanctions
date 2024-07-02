@@ -1,4 +1,4 @@
-title: Moldovan sanctions for terrorism and proliferation of WMD
+title: Moldovan Sanctions for Terrorism and Proliferation of WMD
 entry_point: crawler.py
 prefix: md-terr
 coverage:
@@ -43,6 +43,7 @@ description: |
       by Resolution 2231 (2015), according to annex no. 5.
 publisher:
   name: Centrul Antiterorist al Serviciului de Informaţii şi Securitate al Republicii Moldova
+  acronym: CAS-SIS
   description: The Anti-Terrorist Center of the Intelligence and Security Service of the Republic of Moldova
   country: md
   url: https://antiteror.sis.md/

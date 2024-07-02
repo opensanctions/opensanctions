@@ -4,7 +4,7 @@ import string
 from datetime import datetime, date
 from openpyxl import load_workbook
 from openpyxl.cell import Cell
-from pantomime.types import XLSX, XLS
+from rigour.mime.types import XLSX, XLS
 from urllib.parse import urljoin
 from typing import Dict, List, Optional
 from normality import collapse_spaces, stringify

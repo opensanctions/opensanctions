@@ -1,11 +1,11 @@
 import csv
 from typing import Dict
-from pantomime.types import CSV
+from rigour.mime.types import CSV
 from rigour.ids.wikidata import is_qid
 
 from zavod import Context
 
-CAATSA_URL = "https://info.publicintelligence.net/USTreasury-RussianOligarchs-2018.pdf"
+CAATSA_URL = "https://prod-upp-image-read.ft.com/40911a30-057c-11e8-9650-9c0ad2d7c5b5"
 
 
 def crawl_row(context: Context, row: Dict[str, str]):

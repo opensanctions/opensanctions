@@ -1,7 +1,7 @@
 import openpyxl
 from typing import Any, Dict, Generator, List, Optional, Tuple
 from normality import collapse_spaces, slugify
-from pantomime.types import XLSX
+from rigour.mime.types import XLSX
 import re
 
 from zavod import Context

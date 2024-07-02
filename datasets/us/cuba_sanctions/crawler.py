@@ -1,20 +1,37 @@
 import csv
-from pantomime.types import CSV
+from rigour.mime.types import CSV
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.shed.zyte_api import fetch_html
 
+ORIGINAL_ACCOMMODATIONS_URL = "https://www.state.gov/cuba-sanctions/cuba-prohibited-accommodations-list/cuba-prohibited-accommodations-list-initial-publication/"
 ACCOMMODATIONS_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQMquWjNWZ09dm9_mu9NKrxR33c6pe4hpiGFeheFT4tDZXwpelLudcYdCdME820aKJJo8TfMKbtoXTh/pub?gid=1890354374&single=true&output=csv"
+ORIGINAL_ENTITIES_URL = "https://www.state.gov/cuba-restricted-list/list-of-restricted-entities-and-subentities-associated-with-cuba-effective-january-8-2021/"
 ENTITIES_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQMquWjNWZ09dm9_mu9NKrxR33c6pe4hpiGFeheFT4tDZXwpelLudcYdCdME820aKJJo8TfMKbtoXTh/pub?gid=0&single=true&output=csv"
+CONTENT_XPATH = ".//div[@class='entry-content']"
+ACTIONS = [
+    {
+        "action": "waitForSelector",
+        "selector": {
+            "type": "xpath",
+            "value": CONTENT_XPATH,
+        },
+        "timeout": 15,
+    },
+]
+
+
+def unblock_validator(doc):
+    return doc.find(CONTENT_XPATH) is not None
 
 
 def crawl_accommodations(context: Context):
-    h.assert_html_url_hash(
-        context,
-        "https://www.state.gov/cuba-sanctions/cuba-prohibited-accommodations-list/cuba-prohibited-accommodations-list-initial-publication/",
-        "7a2be818841181e19a1988c4d86789087d245c31",
-        path='.//div[@class="entry-content"]',
+    doc = fetch_html(
+        context, ORIGINAL_ACCOMMODATIONS_URL, unblock_validator, actions=ACTIONS
     )
+    node = doc.find(CONTENT_XPATH)
+    h.assert_dom_hash(node, "7a2be818841181e19a1988c4d86789087d245c31")
 
     path = context.fetch_resource("accommodations.csv", ACCOMMODATIONS_URL)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
@@ -33,12 +50,9 @@ def crawl_accommodations(context: Context):
 
 
 def crawl_restricted_entities(context: Context):
-    h.assert_html_url_hash(
-        context,
-        "https://www.state.gov/cuba-restricted-list/list-of-restricted-entities-and-subentities-associated-with-cuba-effective-january-8-2021/",
-        "d51568c7e6acb7da68cbf6c2a54987ea6fd5ff53",
-        path='.//div[@class="entry-content"]',
-    )
+    doc = fetch_html(context, ORIGINAL_ENTITIES_URL, unblock_validator, actions=ACTIONS)
+    node = doc.find(CONTENT_XPATH)
+    h.assert_dom_hash(node, "d51568c7e6acb7da68cbf6c2a54987ea6fd5ff53")
 
     path = context.fetch_resource("restricted_entities.csv", ENTITIES_URL)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)

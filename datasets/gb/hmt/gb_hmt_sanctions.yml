@@ -21,6 +21,7 @@ description: |
   data processing and inappropriate data structures used by the XML files.
 publisher:
   name: Office of Financial Sanctions Implementation
+  acronym: OFSI
   description: >
     OFSI is part of Her Majesty's Treasury. It helps to ensure that financial
     sanctions are properly understood, implemented and enforced in the United Kingdom.
@@ -107,6 +108,8 @@ lookups:
           - PARAMOUNT ENERGY & COMMODITIES DMCC
           - AKTSIONERNOE OBSHCHESTVO ALYUMINIEVYE PRODUKTY - KHOLDING
           - Sudan Master Technology
+          - Ministerstvo Promyshlennosti I Torgovli Rossiiskoi Federatsiikii
+          - PJSC Novatek
         value: SAME
       - match: Subsidiary of the Organisation for Technological Industries (OTI) and therefore the Syrian Ministry of Defence
         values:
@@ -475,7 +478,9 @@ lookups:
         values:
           - SUHH
           - UA
-      - match: "-"
+      - match:
+          - "-"
+          - 111141
         value: null
       - match:
           - former USSR, now Azerbaijan

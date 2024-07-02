@@ -29,6 +29,7 @@ description: |
 url: https://finance.belgium.be/en/treasury/financial-sanctions
 publisher:
   name: "Federal Public Service Finance"
+  acronym: FOD
   description: |
     The Federale Overheidsdienst Financien (FOD) is the finance ministry of Belgium.
   country: be

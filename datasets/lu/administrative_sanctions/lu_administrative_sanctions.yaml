@@ -14,6 +14,7 @@ description: |
   by the CSSF.
 publisher:
   name: Commission de Surveillance du Secteur Financier
+  acronym: CSSF
   description: |
     The Commission de Surveillance du Secteur Financier (CSSF)
     is the main financial regulatory authority in Luxembourg.
@@ -69,90 +70,52 @@ lookups:
       - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-18-juin-2019-2/
         names:
           - KSG Agro S.A.
-      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du16-05-2019/
-        names:
-      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-14-decembre-2023/
-        names:
-      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-11-janvier-2024/
-        names:
-      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-6-novembre-2023/
-        names:
-      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-23-octobre-2023/
-        names:
-      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-17-avril-2023/
-        names:
-      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-28-septembre-2022/
-        names:
-      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-3-octobre-2022/
-        names:
-      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-10-octobre-2022/
-        names:
-      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-2-aout-2022/
-        names:
-      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-2-aout-2022-2/
-        names:
-      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-2-aout-2022-3/
-        names:
-      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-18-juillet-2022/
-        names:
-      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-9-juin-2022/
-        names:
-      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-11-mars-2022-2/
-        names:
-      - match: https://www.cssf.lu/fr/Document/sanctions-administratives-du-19-avril-2022/
-        names:
-      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-28-janvier-2022/
-        names:
-      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-26-octobre-2021/
-        names:
-      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-16-decembre-2021/
-        names:
-      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-20-septembre-2021/
-        names:
-      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-20-septembre-2021-2/
-        names:
-      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-30-juin-2021-2/
-        names:
-      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-1er-juillet-2021/
-        names:
-      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-10-mai-2021/
-        names:
-      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-19-janvier-2021/
-        names:
-      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-19-janvier-2021-2/
-        names:
-      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-9-decembre-2020/
-        names:
-      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-19-octobre-2020/
-        names:
-      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-16-septembre-2020/
-        names:
-      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-16-septembre-2020-2/
-        names:
-      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-27-04-2020/
-        names:
-      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-27-04-2020-2/
-        names:
-      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-28-novembre-2019/
-        names:
-      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-11-11-2019/
-        names:
-      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-8-octobre-2019/
-        names:
-      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-27-novembre-2019/
-        names:
-      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-15-novembre-2019/
-        names:
-      - match: https://www.cssf.lu/fr/Document/sanctions-et-mesures-administratives-du-19-juillet-2019/
-        names:
-      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-04-10-2019/
-        names:
-      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-16-05-2019/
-        names:
-      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-16-05-2019-2/
-        names:
-      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-16-05-2019-3/
-        names:
       - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-12-fevrier-2024/
         names:
           - Madame Someya QALAM
+      # Anonymous:
+      - match:
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du16-05-2019/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-11-janvier-2024/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-6-novembre-2023/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-23-octobre-2023/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-17-avril-2023/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-28-septembre-2022/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-3-octobre-2022/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-10-octobre-2022/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-2-aout-2022/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-2-aout-2022-2/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-14-decembre-2023/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-2-aout-2022-3/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-18-juillet-2022/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-9-juin-2022/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-11-mars-2022-2/
+          - https://www.cssf.lu/fr/Document/sanctions-administratives-du-19-avril-2022/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-28-janvier-2022/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-26-octobre-2021/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-16-decembre-2021/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-20-septembre-2021/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-20-septembre-2021-2/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-30-juin-2021-2/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-1er-juillet-2021/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-10-mai-2021/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-19-janvier-2021/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-19-janvier-2021-2/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-9-decembre-2020/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-19-octobre-2020/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-16-septembre-2020/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-16-septembre-2020-2/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-27-04-2020/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-27-04-2020-2/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-28-novembre-2019/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-11-11-2019/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-8-octobre-2019/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-27-novembre-2019/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-15-novembre-2019/
+          - https://www.cssf.lu/fr/Document/sanctions-et-mesures-administratives-du-19-juillet-2019/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-04-10-2019/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-16-05-2019/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-16-05-2019-2/
+          - https://www.cssf.lu/fr/Document/sanction-administrative-du-16-05-2019-3/
+          - https://www.cssf.lu/fr/Document/sanctions-administratives-du-17-janvier-2024/
+        names: []

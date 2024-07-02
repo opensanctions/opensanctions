@@ -5,12 +5,16 @@ from zavod.tools.export_catalog import export_index
 from zavod import settings
 from zavod.tests.conftest import COLLECTION_YML
 from zavod.crawl import crawl_dataset
-from zavod.store import get_view
+from zavod.store import get_store
+from zavod.dedupe import get_resolver
 from zavod.exporters import export_dataset
 
 
 def export(dataset: Dataset) -> None:
-    view = get_view(dataset)
+    resolver = get_resolver()
+    store = get_store(dataset, resolver)
+    store.sync()
+    view = store.view(dataset)
     export_dataset(dataset, view)
 
 
@@ -33,7 +37,7 @@ def test_export_index(testdataset1: Dataset, testdataset2: Dataset):
     with open(settings.DATA_PATH / "datasets" / "index.json") as index_file:
         index = load(index_file)
         assert "datasets" in index
-        assert "run_version" in index
+        assert "run_version" not in index
         assert "run_time" in index
         datasets = {r["name"] for r in index["datasets"]}
         assert "testdataset1" in datasets

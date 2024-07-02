@@ -5,8 +5,7 @@ from pathlib import Path
 from typing import Optional, Dict, Any, Generator
 from zipfile import ZipFile
 from urllib.parse import urljoin
-from pantomime.types import ZIP
-from followthemoney import model
+from rigour.mime.types import ZIP
 
 from zavod import Context
 from zavod import helpers as h
@@ -54,10 +53,6 @@ def crawl(context: Context) -> None:
             context.log.warn("Unknown classification", classification=classification)
             continue
         agency = row.pop("Excluding Agency")
-        if agency == "TREAS-OFAC":
-            # cf. us_ofac_sdn, us_ofac_cons
-            continue
-
         sam_number = row.pop("SAM Number")
         override_schema = context.lookup_value("schema.override", sam_number)
         schema = override_schema or schema
@@ -104,19 +99,17 @@ def crawl(context: Context) -> None:
 
         creation_date = parse_date(row.pop("Creation_Date", None))
         entity.add("createdAt", creation_date)
-        entity.add("topics", "debarment")
+        if agency == "TREAS-OFAC":
+            entity.add("topics", "sanction")
+        else:
+            entity.add("topics", "debarment")
         entity.add("notes", row.pop("Cross-Reference", None))
         entity.add_cast(
             "Organization",
             "registrationNumber",
             row.pop("Unique Entity ID", None),
         )
-        cage = row.pop("CAGE", None)
-        if cage is not None and len(cage) and entity.schema.is_a("Person"):
-            schema_ = model.get("LegalEntity")
-            assert schema_ is not None
-            entity.schema = schema_
-        entity.add_cast("Organization", "cageCode", cage)
+        entity.add("cageCode", row.pop("CAGE", None), quiet=True)
         # The NPI (National Provider Identifier) is a unique identification number
         # for covered health care providers. It is an optional field for exclusion
         # records.

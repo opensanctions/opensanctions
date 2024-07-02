@@ -1,10 +1,11 @@
 from typing import List, Optional, TYPE_CHECKING
 from pathlib import Path
 from functools import cache
+from nomenklatura.index.tantivy_index import TantivyIndex
 from zavod.entity import Entity
 from followthemoney import model
 from nomenklatura.xref import xref
-from nomenklatura.resolver import Resolver, Identifier
+from nomenklatura.resolver import Resolver, Identifier, Linker
 from nomenklatura.judgement import Judgement
 from nomenklatura.matching import DefaultAlgorithm, get_algorithm
 
@@ -19,29 +20,40 @@ log = get_logger(__name__)
 AUTO_USER = "zavod/xref"
 
 
+def _get_resolver_path() -> Path:
+    """Get the path to the deduplication resolver."""
+    if settings.RESOLVER_PATH is None:
+        raise RuntimeError("Please set $ZAVOD_RESOLVER_PATH.")
+    return Path(settings.RESOLVER_PATH)
+
+
 @cache
 def get_resolver() -> Resolver[Entity]:
     """Load the deduplication resolver."""
-    if settings.RESOLVER_PATH is None:
-        raise RuntimeError("Please set $ZAVOD_RESOLVER_PATH.")
-    log.info("Loading resolver from: %s" % settings.RESOLVER_PATH)
-    return Resolver.load(Path(settings.RESOLVER_PATH))
+    path = _get_resolver_path()
+    log.info("Loading resolver from: %s" % path.as_posix())
+    return Resolver.load(path)
 
 
-def get_dataset_resolver(dataset: Dataset) -> Resolver[Entity]:
-    """Get a resolver for the given dataset."""
+def get_dataset_linker(dataset: Dataset) -> Linker[Entity]:
+    """Get a resolver linker for the given dataset."""
     if not dataset.resolve:
-        return Resolver()
-    return get_resolver()
+        return Linker[Entity]({})
+    path = _get_resolver_path()
+    log.info("Loading linker from: %s" % path.as_posix())
+    return Resolver.load_linker(path)
 
 
 def blocking_xref(
     store: "Store",
+    state_path: Path,
     limit: int = 5000,
     auto_threshold: Optional[float] = None,
     algorithm: str = DefaultAlgorithm.NAME,
     focus_dataset: Optional[str] = None,
     schema_range: Optional[str] = None,
+    conflicting_match_threshold: Optional[float] = None,
+    index: str = TantivyIndex.name,
 ) -> None:
     """This runs the deduplication process, which compares all entities in the given
     dataset against each other, and stores the highest-scoring candidates for human
@@ -49,14 +61,21 @@ def blocking_xref(
     """
     resolver = get_resolver()
     resolver.prune()
-    log.info("Xref running, algorithm: %r" % algorithm, auto_threshold=auto_threshold)
+    log.info(
+        "Xref running, algorithm: %r" % algorithm,
+        index=index,
+        auto_threshold=auto_threshold,
+    )
     algorithm_type = get_algorithm(algorithm)
     if algorithm_type is None:
         raise ValueError("Invalid algorithm: %s" % algorithm)
     range = model.get(schema_range) if schema_range is not None else None
+    index_dir = state_path / f"dedupe-index-{index}"
+
     xref(
         resolver,
         store,
+        index_dir=index_dir,
         limit=limit,
         range=range,
         scored=True,
@@ -64,6 +83,8 @@ def blocking_xref(
         focus_dataset=focus_dataset,
         algorithm=algorithm_type,
         user=AUTO_USER,
+        conflicting_match_threshold=conflicting_match_threshold,
+        index_type=index,
     )
     resolver.save()
 

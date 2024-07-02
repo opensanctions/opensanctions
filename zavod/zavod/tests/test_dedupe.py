@@ -1,8 +1,9 @@
 import pytest
 from nomenklatura.judgement import Judgement
 
+from zavod.archive import dataset_state_path
 from zavod.meta import Dataset
-from zavod.store import get_store, clear_store
+from zavod.store import get_store
 from zavod.crawl import crawl_dataset
 from zavod.dedupe import get_resolver, blocking_xref, AUTO_USER
 from zavod.dedupe import merge_entities, explode_cluster
@@ -13,15 +14,16 @@ def test_store_access(testdataset1: Dataset):
     resolver = get_resolver()
     assert not len(resolver.edges)
 
-    store = get_store(testdataset1, external=True)
-    blocking_xref(store)
+    store = get_store(testdataset1, resolver)
+    store.sync()
+    state_path = dataset_state_path(testdataset1.name)
+    blocking_xref(store, state_path)
     assert len(resolver.edges)
     for edge in resolver.edges.values():
         assert edge.score is not None
         assert edge.score >= 0.0
         assert edge.judgement == Judgement.NO_JUDGEMENT
         assert edge.user == AUTO_USER
-    clear_store(testdataset1)
 
 
 def test_resolve_dedupe(testdataset1: Dataset):
@@ -29,7 +31,8 @@ def test_resolve_dedupe(testdataset1: Dataset):
     resolver = get_resolver()
     assert len(resolver.edges) == 0
     resolver.decide("osv-john-doe", "osv-johnny-does", Judgement.POSITIVE, user="test")
-    store = get_store(testdataset1)
+    store = get_store(testdataset1, resolver)
+    store.sync()
     view = store.default_view()
     for ent in view.entities():
         assert ent.id != "osv-john-doe"
@@ -39,7 +42,6 @@ def test_resolve_dedupe(testdataset1: Dataset):
     assert ent_count == stats.entities - 1
     assert len(resolver.edges) == 2
     get_resolver.cache_clear()
-    clear_store(testdataset1)
 
 
 def test_resolver_tools():

@@ -1,4 +1,4 @@
-title: Brazil's TCU list of Debarred Bidders
+title: Brazil List of Debarred Bidders
 entry_point: crawler.py
 prefix: br-tcu-debar
 coverage:
@@ -12,7 +12,8 @@ description: |
   administration tenders, under the terms of art. 46 of the Organic Law of the Court (Law 8.443/92).
   Processes that are ongoing or whose decisions have not become final are not considered.
 publisher:
-  name: Tribunal de Contas da União (TCU)
+  name: Tribunal de Contas da União
+  acronym: TCU
   description: Brazil's Federal Court of Accounts
   url: https://portal.tcu.gov.br/inicio/
   official: true

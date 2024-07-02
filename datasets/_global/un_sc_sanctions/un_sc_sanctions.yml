@@ -27,7 +27,8 @@ description: |
   > 
   > The Council applies sanctions with ever-increasing cognisance of the rights of those targeted. In the 2005 World Summit declaration, the General Assembly called on the Security Council, with the support of the Secretary-General, to ensure that fair and clear procedures are in place for the imposition and lifting of sanctions measures. The establishment of a focal point for de-listing, and the Office of the Ombudsperson to the ISIL (Da'esh) & Al-Qaida Sanctions Committee are examples of this approach in practice.
 publisher:
-  name: United Nations Security Council (UN SC)
+  name: United Nations Security Council
+  acronym: UNSC
   description: |
     The Security Council is one of the principal organs of the United Nations, charged with 
     ensuring international peace and security. Its powers include establishing peacekeeping

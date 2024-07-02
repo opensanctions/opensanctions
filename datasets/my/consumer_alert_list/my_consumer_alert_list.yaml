@@ -1,10 +1,9 @@
-title: Malaysia's Financial Consumer Alert List
+title: Malaysia Financial Consumer Alert List
 entry_point: crawler.py
 prefix: my-ale
 coverage:
-  frequency: never
+  frequency: daily
   start: 2024-04-23
-  end: 2024-04-23
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Entities who have been wrongly represented as being licensed by the Central Bank of Malaysia.
@@ -27,10 +26,9 @@ description: |
   > or has been licensed or regulated by BNM. As with any financial investment,
   > consumers are advised to exercise due care when investing in any entity or
   > financial scheme.
-
-  Note that this dataset is only updated occasionally.
 publisher:
   name: Bank Negara Malaysia
+  acronym: BNM
   description: Central Bank of Malaysia
   url: https://www.bnm.gov.my
   official: true
@@ -39,3 +37,12 @@ url: "https://www.bnm.gov.my/financial-consumer-alert-list"
 data:
   url: https://www.bnm.gov.my/financial-consumer-alert-list
   format: HTML
+ci_test: false
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 490
+  max:
+    schema_entities:
+      LegalEntity: 600

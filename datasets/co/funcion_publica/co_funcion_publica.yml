@@ -1,4 +1,4 @@
-title: Colombian Administrative Department of Public Service PEP Declarations
+title: Colombian PEP Declarations
 entry_point: crawler.py
 prefix: co-funpub
 coverage:
@@ -23,7 +23,7 @@ description: |
   held by public servants in Colombia. We link to their Curriculim Vitae and asset declarations when available.
   It currently excludes the contractor
   information available at the same website.
-  
+
   We periodically supplement the data from the online search tool with their Excel download
   which contains a little more information for a selection of people, although
   the criteria for selection is unclear. While their Excel file data dictionary states that
@@ -31,7 +31,9 @@ description: |
   the case so we include the stated end date but indicate occupancy status as unknown.
 publisher:
   name: Deparatamento Administrativo del la Funcion Publica
-  description: The Colombian Administrative Department of Public Service    
+  name_en: Administrative Department of Public Service
+  acronym: DAFP
+  description: The Colombian Administrative Department of Public Service
   url: https://www.funcionpublica.gov.co/
   country: co
   official: true
@@ -124,4 +126,3 @@ lookups:
         topics:
           - gov.national
           - gov.judicial
-

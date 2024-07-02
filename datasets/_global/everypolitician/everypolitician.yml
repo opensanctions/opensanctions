@@ -20,7 +20,7 @@ description: |
 
   The project was [shut down in June 2019](https://www.mysociety.org/2019/06/26/placing-everypolitician-on-hold/)
   ceasing updates to this dataset.
-  
+
   OpenSanctions continues to include members from this dataset which meet our standard
   criteria of PEP classification: national legislature members are included for 20 years
   after they held a position if an end date is known, otherwise for 40 years after they
@@ -31,7 +31,8 @@ description: |
   improve PEP coverage through more current sources.
 
 publisher:
-  name: MySociety (UK Citizens Online Democracy)
+  name: UK Citizens Online Democracy
+  acronym: MySociety
   description: |
     MySociety is a non-profit group developing online technologies that empower citizens
     to participate in politics and civic life.

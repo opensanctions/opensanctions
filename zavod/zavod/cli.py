@@ -4,6 +4,7 @@ import logging
 from pathlib import Path
 from typing import Optional, List
 from followthemoney.cli.util import InPath, OutPath
+from nomenklatura.index.tantivy_index import TantivyIndex
 from nomenklatura.tui import dedupe_ui
 from nomenklatura.statement import CSV, FORMATS
 from nomenklatura.matching import DefaultAlgorithm
@@ -12,11 +13,13 @@ from zavod import settings
 from zavod.logs import configure_logging, get_logger
 from zavod.meta import load_dataset_from_path, get_multi_dataset, Dataset
 from zavod.crawl import crawl_dataset
-from zavod.store import get_view, get_store, clear_store
-from zavod.archive import clear_data_path
+from zavod.store import get_store
+from zavod.archive import clear_data_path, dataset_state_path
 from zavod.exporters import export_dataset
-from zavod.dedupe import get_resolver, blocking_xref, merge_entities
+from zavod.dedupe import get_resolver, get_dataset_linker
+from zavod.dedupe import blocking_xref, merge_entities
 from zavod.dedupe import explode_cluster
+from zavod.runtime.versions import make_version
 from zavod.publish import publish_dataset, publish_failure
 from zavod.tools.load_db import load_dataset_to_db
 from zavod.tools.dump_file import dump_dataset_to_file
@@ -70,15 +73,15 @@ def crawl(dataset_path: Path, dry_run: bool = False, clear: bool = False) -> Non
 @click.argument("dataset_path", type=InPath)
 @click.option("-c", "--clear", is_flag=True, default=False)
 def validate(dataset_path: Path, clear: bool = False) -> None:
+    dataset = _load_dataset(dataset_path)
+    linker = get_dataset_linker(dataset)
+    store = get_store(dataset, linker)
+    store.sync(clear=clear)
     try:
-        dataset = _load_dataset(dataset_path)
-        if clear:
-            clear_store(dataset)
-        view = get_view(dataset, external=False)
-        validate_dataset(dataset, view)
+        validate_dataset(dataset, store.view(dataset, external=False))
     except Exception:
         log.exception("Validation failed for %r" % dataset_path)
-        view.store.close()
+        store.close()
         sys.exit(1)
 
 
@@ -88,10 +91,10 @@ def validate(dataset_path: Path, clear: bool = False) -> None:
 def export(dataset_path: Path, clear: bool = False) -> None:
     try:
         dataset = _load_dataset(dataset_path)
-        if clear:
-            clear_store(dataset)
-        view = get_view(dataset, external=False, linker=True)
-        export_dataset(dataset, view)
+        linker = get_dataset_linker(dataset)
+        store = get_store(dataset, linker)
+        store.sync(clear=clear)
+        export_dataset(dataset, store.view(dataset, external=False))
     except Exception:
         log.exception("Failed to export: %s" % dataset_path)
         sys.exit(1)
@@ -101,8 +104,9 @@ def export(dataset_path: Path, clear: bool = False) -> None:
 @click.argument("dataset_path", type=InPath)
 @click.option("-l", "--latest", is_flag=True, default=False)
 def publish(dataset_path: Path, latest: bool = False) -> None:
+    dataset = _load_dataset(dataset_path)
+    make_version(dataset, settings.RUN_VERSION, overwrite=False)
     try:
-        dataset = _load_dataset(dataset_path)
         publish_dataset(dataset, latest=latest)
     except Exception:
         log.exception("Failed to publish: %s" % dataset_path)
@@ -134,10 +138,15 @@ def run(
         except RunFailedException:
             publish_failure(dataset, latest=latest)
             sys.exit(1)
+    else:
+        make_version(dataset, settings.RUN_VERSION, overwrite=True)
+
+    linker = get_dataset_linker(dataset)
+    store = get_store(dataset, linker)
     # Validate
     try:
-        clear_store(dataset)
-        view = get_view(dataset, external=False, linker=True)
+        store.sync(clear=True)
+        view = store.view(dataset, external=False)
         if not dataset.is_collection:
             validate_dataset(dataset, view)
     except Exception:
@@ -148,12 +157,11 @@ def run(
     # Export and Publish
     try:
         export_dataset(dataset, view)
-        view.store.close()
         publish_dataset(dataset, latest=latest)
 
         if not dataset.is_collection and dataset.load_db_uri is not None:
             log.info("Loading dataset into database...", dataset=dataset.name)
-            load_dataset_to_db(dataset, dataset.load_db_uri, external=external)
+            load_dataset_to_db(dataset, linker, dataset.load_db_uri, external=external)
         log.info("Dataset run is complete :)", dataset=dataset.name)
     except Exception:
         log.exception("Failed to export and publish %r" % dataset.name)
@@ -173,8 +181,10 @@ def load_db(
 ) -> None:
     try:
         dataset = _load_dataset(dataset_path)
+        linker = get_dataset_linker(dataset)
         load_dataset_to_db(
             dataset,
+            linker,
             database_uri,
             batch_size=batch_size,
             external=external,
@@ -194,8 +204,10 @@ def dump_file(
 ) -> None:
     try:
         dataset = _load_dataset(dataset_path)
+        linker = get_dataset_linker(dataset)
         dump_dataset_to_file(
             dataset,
+            linker,
             out_path,
             format=format.lower(),
             external=external,
@@ -213,26 +225,40 @@ def dump_file(
 @click.option("-s", "--schema", type=str, default=None)
 @click.option("-a", "--algorithm", type=str, default=DefaultAlgorithm.NAME)
 @click.option("-t", "--threshold", type=float, default=None)
+@click.option("-", "--threshold", type=float, default=None)
+@click.option(
+    "-m",
+    "--conflicting-match-threshold",
+    type=float,
+    default=None,
+    help="Threshold for conflicting match reporting",
+)
+@click.option("-i", "--index", type=str, default=TantivyIndex.name)
 def xref(
     dataset_paths: List[Path],
     clear: bool,
     limit: int,
     threshold: Optional[float],
     algorithm: str,
+    index: str,
     focus_dataset: Optional[str] = None,
     schema: Optional[str] = None,
+    conflicting_match_threshold: Optional[float] = None,
 ) -> None:
     dataset = _load_datasets(dataset_paths)
-    if clear:
-        clear_store(dataset)
-    store = get_store(dataset, external=True)
+    resolver = get_resolver()
+    store = get_store(dataset, resolver)
+    store.sync(clear=clear)
     blocking_xref(
         store,
+        dataset_state_path(dataset.name),
         limit=limit,
         auto_threshold=threshold,
         algorithm=algorithm,
         focus_dataset=focus_dataset,
         schema_range=schema,
+        conflicting_match_threshold=conflicting_match_threshold,
+        index=index,
     )
 
 
@@ -252,10 +278,9 @@ def xref_prune() -> None:
 @click.option("-c", "--clear", is_flag=True, default=False)
 def dedupe(dataset_paths: List[Path], clear: bool = False) -> None:
     dataset = _load_datasets(dataset_paths)
-    if clear:
-        clear_store(dataset)
     resolver = get_resolver()
-    store = get_store(dataset, external=True)
+    store = get_store(dataset, resolver)
+    store.sync(clear=clear)
     dedupe_ui(resolver, store, url_base="https://opensanctions.org/entities/%s/")
 
 
@@ -345,9 +370,10 @@ def summarize(
     """
     try:
         dataset = _load_dataset(dataset_path)
-        if clear:
-            clear_store(dataset)
-        view = get_view(dataset, external=False)
+        resolver = get_resolver()
+        store = get_store(dataset, resolver)
+        store.sync(clear=clear)
+        view = store.view(dataset, external=False)
         _summarize(view, schema, from_prop, link_props, to_prop, to_props)
     except Exception:
         log.exception("Failed to summarize: %s" % dataset_path)
@@ -380,10 +406,9 @@ def wd_up(
         --country-code de
     """
     dataset = _load_datasets(dataset_paths)
-    if clear:
-        clear_store(dataset)
     resolver = get_resolver()
-    store = get_store(dataset, external=False)
+    store = get_store(dataset, resolver)
+    store.sync(clear=clear)
     run_app(
         resolver,
         store,
@@ -391,3 +416,7 @@ def wd_up(
         country_adjective=country_adjective,
         focus_dataset=focus_dataset,
     )
+
+
+if __name__ == "__main__":
+    cli()

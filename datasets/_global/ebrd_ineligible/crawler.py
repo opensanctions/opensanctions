@@ -1,6 +1,6 @@
 from lxml import html
 from normality import slugify, collapse_spaces
-from pantomime.types import HTML
+from rigour.mime.types import HTML
 
 from zavod import Context
 from zavod import helpers as h

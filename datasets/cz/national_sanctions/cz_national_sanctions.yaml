@@ -15,21 +15,24 @@ description: |
   a description of the action punishable under the relevant European Union regulation,
   the scope of restrictive measures against the entity and the date of publication of the entry.
 publisher:
-  name: Ministr zahraničních věcí
+  name: Ministr Zahraničních Věcí
+  acronym: MZV
   description: Minister of Foreign Affairs
   url: https://mzv.gov.cz/jnp/cz/index.html
   official: true
   country: "cz"
 url: "https://mzv.gov.cz/jnp/cz/zahranicni_vztahy/sankcni_politika/sankcni_seznam_cr/vnitrostatni_sankcni_seznam.html"
 data:
-  url: https://mzv.gov.cz/jnp/cz/zahranicni_vztahy/sankcni_politika/sankcni_seznam_cr/vnitrostatni_sankcni_seznam.html
-  format: XLSX
+  url: https://mzv.gov.cz/jnp/cz/o_ministerstvu/otevrena_data/vnitrostatni_sankcni_seznam/index.html
+  format: CSV
 
 lookups:
   type.country:
     lowercase: true
+    normalize: true
     options:
       - match:
+          - "Ruská federace"
           - "Ruská federace"
           - dnes pravděpodobně Ruská federace
         value: RU
@@ -37,7 +40,8 @@ lookups:
           - "dříve Ukrajina"
           - "Ukrajina"
         value: UA
-      - match: "Stát Izrael"
+      - match:
+          - "Stát Izrael"
         value: Israel
       - match: "Česká republika"
         value: Czech Republic

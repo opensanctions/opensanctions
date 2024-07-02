@@ -1,6 +1,6 @@
 import string
 from lxml import html
-from pantomime.types import HTML
+from rigour.mime.types import HTML
 from normality import collapse_spaces
 from followthemoney import model
 from followthemoney.types import registry

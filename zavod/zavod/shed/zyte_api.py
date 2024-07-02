@@ -1,12 +1,12 @@
-from typing import Any, Callable, Dict, List, Optional
-
 from lxml import html, etree
 from time import sleep
 from base64 import b64decode
+from typing import Any, Callable, Dict, List, Optional
+
 
 from zavod import settings
 from zavod.context import Context
-from zavod.http import request_hash
+from zavod.runtime.http_ import request_hash
 
 
 class UnblockFailedException(RuntimeError):

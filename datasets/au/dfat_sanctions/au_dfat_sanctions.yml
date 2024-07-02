@@ -25,7 +25,8 @@ description: |
   ASO maintains the list and updates it regularly.
 url: https://www.dfat.gov.au/international-relations/security/sanctions/Pages/sanctions
 publisher:
-  name: "Department of Foreign Affairs and Trade (DFAT)"
+  name: "Department of Foreign Affairs and Trade"
+  acronym: DFAT
   description: |
     The Australian Sanctions Office (ASO) is the Australian Government’s sanctions
     regulator. It sits within DFAT’s Legal Division in the International Security,

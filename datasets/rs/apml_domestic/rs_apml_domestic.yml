@@ -1,0 +1,41 @@
+title: Serbian Domestic List of Designated Persons
+entry_point: crawler.py
+prefix: rsdom
+coverage:
+  frequency: weekly
+  start: 2024-06-13
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Serbias domestic sanctions list is applied together with the UN global lists.
+description: |
+  The data for this is in a very badly scanned PDF. The data is manually
+  extracted and put into a Google Sheet, which is then used as the source for
+  this dataset. We have configured the crawler to check regularly if the PDF
+  file is updated.
+publisher:
+  name: Administration for the Prevention of Money Laundering
+  acronym: APML
+  description: |
+    The APML is an administrative body within the Ministry of Finance. Its powers are
+    governed in the Law on the Prevention of Money Laundering and the Financing of
+    Terrorism (AML/CFT Law). In accordance with the AML/CFT Law, the APML performs
+    financial-intelligence activities: it collects, processes, analyses and disseminates
+    to the competent authorities information, data and documentation obtained in
+    line with the AML/CFT Law, and performs other activities related to the
+    prevention and detection of money laundering and terrorism financing in
+    accordance with the law.
+  url: https://www.apml.gov.rs/english/introduction
+  country: rs
+  official: true
+url: https://www.apml.gov.rs/english/targeted-financial-sanctions
+data:
+  url: https://www.apml.gov.rs/english/lists-of-designated-persons-search-engine
+  format: PDF
+
+lookups:
+  type.country:
+    options:
+      - match: Serbian, Croatian
+        values:
+          - Serbian
+          - Croatian

@@ -35,7 +35,16 @@ def crawl_common(
             entity.add("okpoCode", ident_value)
         elif ident_id in ("reg:person_ro", "reg:person_il"):
             entity.add("idNumber", ident_value)
-        elif ident_id in ("reg:edrpou", "reg:r_n", "reg:regon", "reg:unzr", None):
+        elif ident_id in (
+            "reg:edrpou",
+            "reg:r_n",
+            "reg:regon",
+            "reg:unzr",
+            "reg:nl",
+            "reg:cy",
+            "reg:sy",
+            None,
+        ):
             entity.add("registrationNumber", ident_value)
         elif ident_id in (
             "doc:passport",

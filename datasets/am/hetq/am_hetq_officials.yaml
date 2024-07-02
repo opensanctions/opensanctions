@@ -1,4 +1,4 @@
-title: Armenia public officials and associates by Hetq Online
+title: Armenia Public Officials and Associates
 prefix: am-hetq
 url: https://data.hetq.am/
 coverage:
@@ -24,8 +24,7 @@ publisher:
   name: Hetq Online
   country: am
   url: https://hetq.am/
-  description:
-    Hetq Online is an Armenian investigative journalism organization
+  description: Hetq Online is an Armenian investigative journalism organization
     and news portal.
 
     Hetq Online has been published in Yerevan since 2001 by the
@@ -44,7 +43,6 @@ data:
   format: JSON
 # No access to the internal data bucket
 ci_test: false
-
 
 assertions:
   min:

@@ -37,7 +37,8 @@ description: |
   sourced from an entity on the 1260H list or any entity subject to the control
   of an entity on the 1260H list
 publisher:
-  name: U.S. Department of Defense
+  name: Department of Defense
+  acronym: DoD
   description: >
     The Department of Defense's stated mission is to provide the military forces needed
     to deter war and ensure the nation's security. The Army, Marine Corps, Navy, Air
