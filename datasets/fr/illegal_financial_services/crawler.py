@@ -6,8 +6,6 @@ from normality import slugify
 from zavod import Context, helpers as h
 
 
-
-
 def crawl_item(row: Dict[str, str], context: Context):
 
     entity = context.make("LegalEntity")
@@ -27,7 +25,7 @@ def crawl_item(row: Dict[str, str], context: Context):
 
 def crawl(context: Context):
     response = context.fetch_html(context.data_url)
-    csv_url = response.find('.//*[@title="Télécharger le fichier"]').get('href')
+    csv_url = response.find('.//*[@title="Télécharger le fichier"]').get("href")
     path = context.fetch_resource("source.csv", csv_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
 
