@@ -24,13 +24,6 @@ setup(
         "followthemoney == 3.6.*",
         "nomenklatura[leveldb,tantivy] == 3.12.4",
         "plyvel == 1.5.1",
-<<<<<<< pudo/linker-simplify
-        # "redis[hiredis] == 5.0.6",
-        # "fakeredis == 2.23.2",
-=======
-        "redis[hiredis] == 5.0.7",
-        "fakeredis == 2.23.3",
->>>>>>> main
         "rigour == 0.5.2",
         "datapatch >= 1.1,< 1.3",
         "fingerprints == 1.2.*",
