@@ -1,4 +1,3 @@
-import gc
 from typing import List, Optional, TYPE_CHECKING, Type
 from pathlib import Path
 from functools import cache
@@ -22,8 +21,7 @@ log = get_logger(__name__)
 AUTO_USER = "zavod/xref"
 
 
-@cache
-def get_resolver() -> Resolver[Entity]:
+def _get_resolver() -> Resolver[Entity]:
     """Load the deduplication resolver."""
     if settings.RESOLVER_PATH is None:
         raise RuntimeError("Please set $ZAVOD_RESOLVER_PATH.")
@@ -31,24 +29,18 @@ def get_resolver() -> Resolver[Entity]:
     return Resolver.load(Path(settings.RESOLVER_PATH))
 
 
-def get_dataset_resolver(dataset: Dataset) -> Resolver[Entity]:
-    """Get a resolver for the given dataset."""
-    if not dataset.resolve:
-        return Resolver()
-    return get_resolver()
+@cache
+def get_resolver() -> Resolver[Entity]:
+    """Load the deduplication resolver."""
+    return _get_resolver()
 
 
+@cache
 def get_dataset_linker(dataset: Dataset) -> Linker[Entity]:
     """Get a resolver linker for the given dataset."""
     if not dataset.resolve:
         return Linker[Entity]({})
-    not_loaded = get_resolver.cache_info().currsize == 0
-    resolver = get_resolver()
-    linker = resolver.get_linker()
-    if not_loaded:
-        get_resolver.cache_clear()
-        gc.collect()
-    return linker
+    return _get_resolver().get_linker()
 
 
 def blocking_xref(
