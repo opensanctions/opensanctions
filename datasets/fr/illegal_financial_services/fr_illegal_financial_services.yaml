@@ -30,22 +30,10 @@ data:
   url: https://www.data.gouv.fr/fr/datasets/listes-noires-des-entites-non-autorisees-a-proposer-des-produits-ou-services-financiers-en-france/#/information
   format: HTML
 
-lookups:
-  type.country:
-    lowercase: true
-    normalize: true
-    options:
-      - match:
-          - "Ruská federace"
-          - "Ruská federace"
-          - dnes pravděpodobně Ruská federace
-        value: RU
-      - match:
-          - "dříve Ukrajina"
-          - "Ukrajina"
-        value: UA
-      - match:
-          - "Stát Izrael"
-        value: Israel
-      - match: "Česká republika"
-        value: Czech Republic
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 2300
+  max:
+    schema_entities:
+      LegalEntity: 2600
