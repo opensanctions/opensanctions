@@ -4,7 +4,7 @@ import logging
 from pathlib import Path
 from typing import Optional, List
 from followthemoney.cli.util import InPath, OutPath
-from nomenklatura import TantivyIndex
+from nomenklatura.index.tantivy_index import TantivyIndex
 from nomenklatura.tui import dedupe_ui
 from nomenklatura.statement import CSV, FORMATS
 from nomenklatura.matching import DefaultAlgorithm
@@ -161,7 +161,7 @@ def run(
 
         if not dataset.is_collection and dataset.load_db_uri is not None:
             log.info("Loading dataset into database...", dataset=dataset.name)
-            load_dataset_to_db(dataset, dataset.load_db_uri, external=external)
+            load_dataset_to_db(dataset, linker, dataset.load_db_uri, external=external)
         log.info("Dataset run is complete :)", dataset=dataset.name)
     except Exception:
         log.exception("Failed to export and publish %r" % dataset.name)
@@ -181,8 +181,10 @@ def load_db(
 ) -> None:
     try:
         dataset = _load_dataset(dataset_path)
+        linker = get_dataset_linker(dataset)
         load_dataset_to_db(
             dataset,
+            linker,
             database_uri,
             batch_size=batch_size,
             external=external,
@@ -202,8 +204,10 @@ def dump_file(
 ) -> None:
     try:
         dataset = _load_dataset(dataset_path)
+        linker = get_dataset_linker(dataset)
         dump_dataset_to_file(
             dataset,
+            linker,
             out_path,
             format=format.lower(),
             external=external,

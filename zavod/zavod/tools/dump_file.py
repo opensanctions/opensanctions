@@ -1,15 +1,21 @@
 from pathlib import Path
+from nomenklatura.resolver import Linker
 from nomenklatura.statement.serialize import get_statement_writer
 
 from zavod.logs import get_logger
 from zavod.meta import Dataset
+from zavod.entity import Entity
 from zavod.tools.util import iter_output_statements
 
 log = get_logger(__name__)
 
 
 def dump_dataset_to_file(
-    scope: Dataset, out_path: Path, format: str, external: bool = True
+    scope: Dataset,
+    linker: Linker[Entity],
+    out_path: Path,
+    format: str,
+    external: bool = True,
 ) -> None:
     """Dump all the statements in the given scope to a file in one of the
     formats supported by nomenklatura.
@@ -24,7 +30,7 @@ def dump_dataset_to_file(
         writer = get_statement_writer(fh, format)
         total_count: int = 0
         for dataset in scope.leaves:
-            stmts = iter_output_statements(dataset, external=external)
+            stmts = iter_output_statements(dataset, linker, external=external)
             for idx, stmt in enumerate(stmts):
                 total_count += 1
                 writer.write(stmt)

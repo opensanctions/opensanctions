@@ -1,15 +1,13 @@
-import gc
-from typing import List, Optional, TYPE_CHECKING, Type
+from typing import List, Optional, TYPE_CHECKING
 from pathlib import Path
 from functools import cache
-from nomenklatura import Index, TantivyIndex
+from nomenklatura.index.tantivy_index import TantivyIndex
 from zavod.entity import Entity
 from followthemoney import model
 from nomenklatura.xref import xref
 from nomenklatura.resolver import Resolver, Identifier, Linker
 from nomenklatura.judgement import Judgement
 from nomenklatura.matching import DefaultAlgorithm, get_algorithm
-from nomenklatura.index import BaseIndex
 
 from zavod import settings
 from zavod.logs import get_logger
@@ -22,33 +20,28 @@ log = get_logger(__name__)
 AUTO_USER = "zavod/xref"
 
 
+def _get_resolver_path() -> Path:
+    """Get the path to the deduplication resolver."""
+    if settings.RESOLVER_PATH is None:
+        raise RuntimeError("Please set $ZAVOD_RESOLVER_PATH.")
+    return Path(settings.RESOLVER_PATH)
+
+
 @cache
 def get_resolver() -> Resolver[Entity]:
     """Load the deduplication resolver."""
-    if settings.RESOLVER_PATH is None:
-        raise RuntimeError("Please set $ZAVOD_RESOLVER_PATH.")
-    log.info("Loading resolver from: %s" % settings.RESOLVER_PATH)
-    return Resolver.load(Path(settings.RESOLVER_PATH))
-
-
-def get_dataset_resolver(dataset: Dataset) -> Resolver[Entity]:
-    """Get a resolver for the given dataset."""
-    if not dataset.resolve:
-        return Resolver()
-    return get_resolver()
+    path = _get_resolver_path()
+    log.info("Loading resolver from: %s" % path.as_posix())
+    return Resolver.load(path)
 
 
 def get_dataset_linker(dataset: Dataset) -> Linker[Entity]:
     """Get a resolver linker for the given dataset."""
     if not dataset.resolve:
         return Linker[Entity]({})
-    not_loaded = get_resolver.cache_info().currsize == 0
-    resolver = get_resolver()
-    linker = resolver.get_linker()
-    if not_loaded:
-        get_resolver.cache_clear()
-        gc.collect()
-    return linker
+    path = _get_resolver_path()
+    log.info("Loading linker from: %s" % path.as_posix())
+    return Resolver.load_linker(path)
 
 
 def blocking_xref(
@@ -77,15 +70,7 @@ def blocking_xref(
     if algorithm_type is None:
         raise ValueError("Invalid algorithm: %s" % algorithm)
     range = model.get(schema_range) if schema_range is not None else None
-
-    if index == TantivyIndex.name:
-        index_class: Type[BaseIndex[Dataset, Entity]] = TantivyIndex
-        index_dir = state_path / "tantivy-dedupe-index"
-    elif index == Index.name:
-        index_class = Index
-        index_dir = state_path / "dedupe-index"
-    else:
-        raise ValueError("Invalid index: %s" % index)
+    index_dir = state_path / f"dedupe-index-{index}"
 
     xref(
         resolver,
@@ -99,7 +84,7 @@ def blocking_xref(
         algorithm=algorithm_type,
         user=AUTO_USER,
         conflicting_match_threshold=conflicting_match_threshold,
-        index_class=index_class,
+        index_type=index,
     )
     resolver.save()
 
