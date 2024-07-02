@@ -24,8 +24,13 @@ setup(
         "followthemoney == 3.6.*",
         "nomenklatura[leveldb,tantivy] == 3.12.4",
         "plyvel == 1.5.1",
+<<<<<<< pudo/linker-simplify
         # "redis[hiredis] == 5.0.6",
         # "fakeredis == 2.23.2",
+=======
+        "redis[hiredis] == 5.0.7",
+        "fakeredis == 2.23.3",
+>>>>>>> main
         "rigour == 0.5.2",
         "datapatch >= 1.1,< 1.3",
         "fingerprints == 1.2.*",
@@ -36,7 +41,7 @@ setup(
         "jinja2",
         "types-jinja2",
         "lxml == 5.2.2",
-        "openpyxl == 3.1.4",
+        "openpyxl == 3.1.5",
         "orjson == 3.10.5",
         "ijson > 3.2, < 4.0",
         "pantomime == 0.6.1",
