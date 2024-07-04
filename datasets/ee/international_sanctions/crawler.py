@@ -1,16 +1,20 @@
 import re
 
-from zavod import Context, helpers as h
+from zavod import Context
+from zavod import helpers as h
 
 
 BELARUS_URL = (
     "https://www.vm.ee/en/sanctions-government-republic-view-situation-belarus"
 )
+BELARUS_DESC = "The sanctions of the Government of the Republic in view of the situation in Belarus"
 HUMAN_RIGHTS_URL = "https://www.vm.ee/subjektide-nimekiri-vabariigi-valitsuse-sanktsioon-inimoiguste-jargimise-tagamiseks"
+HUMAN_RIGHTS_DESC = (
+    "Sanction of the Government of the Republic to ensure following of human rights"
+)
 
 
 def crawl_item_belarus(raw_name: str, context: Context):
-
     match = re.search(r"([^\(\n]+)\s*(?:\((.+)\))?", raw_name)
     if match:
         name = match.group(1)
@@ -29,14 +33,13 @@ def crawl_item_belarus(raw_name: str, context: Context):
 
     sanction = h.make_sanction(context, entity)
     sanction.add("sourceUrl", BELARUS_URL)
-    sanction.add("description", "The sanctions of the Government of the Republic in view of the situation in Belarus")
+    sanction.add("description", BELARUS_DESC)
 
     context.emit(entity, target=True)
     context.emit(sanction)
 
 
 def crawl_item_human_rights(raw_name: str, context: Context):
-
     match = re.search(r"\d+\.\s*([^(\n]+)(?:\s*\(also\s*([^)]+)\))?", raw_name)
     if match:
         name = match.group(1).strip()
@@ -54,7 +57,7 @@ def crawl_item_human_rights(raw_name: str, context: Context):
 
     sanction = h.make_sanction(context, entity)
     sanction.add("sourceUrl", HUMAN_RIGHTS_URL)
-    sanction.add("description", "Sanction of the Government of the Republic to ensure following of human rights")
+    sanction.add("description", HUMAN_RIGHTS_DESC)
 
     context.emit(entity, target=True)
     context.emit(sanction)
