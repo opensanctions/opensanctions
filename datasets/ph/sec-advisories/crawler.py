@@ -24,15 +24,18 @@ def crawl_item(li_tag: _Element, context: Context):
             )
             return
 
-        name = cast("str", res.name)
+        names = cast("List[str]", res.name)
         description = cast("str", res.description)
+
+    names = [name] if not isinstance(name, list) else name
 
     source_url = li_tag.find(".//a").get("href")
     date = li_tag.findtext(".//*[@class='myDate']")
 
     entity = context.make("LegalEntity")
-    entity.id = context.make_id(name)
-    entity.add("name", name)
+    entity.id = context.make_id(names)
+    for name in names:
+        entity.add("name", name)
     entity.add("topics", "reg.warn")
 
     sanction = h.make_sanction(context, entity)

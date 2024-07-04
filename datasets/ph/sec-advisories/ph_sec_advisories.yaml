@@ -51,3 +51,769 @@ lookups:
       - match: "CRYPTO HUB FINANCEThis is to inform the public that CRYPTO HUB FINANCE is NOT AUTHORIZED TO SOLICIT INVESTMENTS FROM THE PUBLICCRYPTO HUB FINANCE"
         name: CRYPTO HUB FINANCE
         description: "Crypto Hub Finance is not authorized to solicit investments from the public."
+      - match: "ELIZABETH ESTY SAVE LIVES BINARY OPTION TRADING INC.The public is advised NOT TO INVEST or to STOP INVESTING in the investment scheme of ELIZABETH ESTY SAVE LIVES BINARY OPTION TRADING INC."
+        name: ELIZABETH ESTY SAVE LIVES BINARY OPTION TRADING INC.
+        description: "The public is advised NOT TO INVEST or to STOP INVESTING in the investment scheme of ELIZABETH ESTY SAVE LIVES BINARY OPTION TRADING INC."
+      - match: "BITPRIME / BITPRIME COMPUTER SOFTWARE TRADING / ARIANE ESTOLONIO-BITPRIME SOFTWARE OPCThe public is advised NOT TO INVEST or to STOP INVESTING in the investment scheme of BITPRIME / BITPRIME COMPUTER SOFTWARE TRADING / ARIANE ESTOLONIO-BITPRIME SOFTWARE OPC"
+        name: BITPRIME / BITPRIME COMPUTER SOFTWARE TRADING / ARIANE ESTOLONIO-BITPRIME SOFTWARE OPC
+        description: "The public is advised NOT TO INVEST or to STOP INVESTING in the investment scheme of BITPRIME / BITPRIME COMPUTER SOFTWARE TRADING / ARIANE ESTOLONIO-BITPRIME SOFTWARE OPC"
+      - match: "UPSYS DAILY TRADINGUPSYS DAILY TRADING is not authorized to solicit investments from the public"
+        name: UPSYS DAILY TRADING
+        description: "Upsys Daily Trading is not authorized to solicit investments from the public"
+      - match: "DISCLAIMER AND NON-AFFILIATION OF MR. NIÑO WENDEL I. CATULPOS WITH THE SECURITIES AND EXCHANGE COMMISSION"
+        name: MR. NIÑO WENDEL I. CATULPOS
+        description: "Mr. Niño Wendel I. Catulpos is not affiliated with the Securities and Exchange Commission"
+      - match: SEC ADVISORY ON ADVANCE FEE LOAN SCAM
+        name: 
+        description: 
+      - match: "AA CASTRO CONSTRUCTION AND AGGREGATES TRADING / AA CASTRO HAULING CONSTRUCTION MANAGEMENT AND AGGREGATES TRADING OPC The public is advised to NOT TO INVEST or STOP INVESTING in any investment scheme offered by AA CASTRO CONSTRUCTION AND AGGREGATES TRADING/ AA CASTRO HAULING CONSTRUCTION MANAGEMENT AND AGGREGATES TRADING OPC"
+        name: AA CASTRO CONSTRUCTION AND AGGREGATES TRADING / AA CASTRO HAULING CONSTRUCTION MANAGEMENT AND AGGREGATES TRADING OPC
+        description: "The public is advised to NOT TO INVEST or STOP INVESTING in any investment scheme offered by AA CASTRO CONSTRUCTION AND AGGREGATES TRADING/ AA CASTRO HAULING CONSTRUCTION MANAGEMENT AND AGGREGATES TRADING OPC"
+      - match: "SEC HAS RECEIVED INFORMATION THAT CERTAIN FACEBOOK PAGES HAVE BEEN SOLICITING PERSONAL INFORMATION FROM THE PUBLIC THROUGH THE USE OF GOOGLE FORMS FOR PURPOSES OF ALLEGEDLY FILING A PETITION"
+        name: 
+        description:
+      - match: "G-HARVEST INCORPORATED / GREAT HARVEST INCORPORATED (GHI)G-HARVEST INCORPORATED / GREAT HARVEST INCORPORATED (GHI) is NOT AUTHORIZED to solicit investments from the public as it did not secure prior registration and/or license to solicit investment from the Commission"
+        name: G-HARVEST INCORPORATED / GREAT HARVEST INCORPORATED (GHI)
+        description: "G-Harvest Incorporated / Great Harvest Incorporated (GHI) is not authorized to solicit investments from the public as it did not secure prior registration and/or license to solicit investment from the Commission"
+      - match: "FRIEND$HIP/FRIEND$HIP PHILIPPINES The public is hereby informed that FRIEND$HIP/FRIEND$HIP PHILIPPINES is not registered with the Commission and is not authorized to solicit investments from the public."
+        name: FRIEND$HIP/FRIEND$HIP PHILIPPINES
+        description: "Friend$hip/Friend$hip Philippines is not registered with the Commission and is not authorized to solicit investments from the public."
+      - match: "ADVISORY ON THE USE OF THE SEC OFFICIAL LOGO IN SOCIAL MEDIA"
+        name: 
+        description:
+      - match: "COINDEORO HOLDINGS INC / COIN DE ORO"
+        name: COINDEORO HOLDINGS INC / COIN DE ORO
+        description: 
+      - match: "FINANCING INTERNATIONAL-CASINO and/or CASINO VIP FINANCING BY CATHLYNE PAPASIN and/or CASINO VIP FINANCING and/or FORTUNE DRAGON CASINO FINANCING"
+        name:
+          - FINANCING INTERNATIONAL-CASINO
+          - CASINO VIP FINANCING BY CATHLYNE PAPASIN
+          - CASINO VIP FINANCING
+          - FORTUNE DRAGON CASINO FINANCING
+        description:
+      - match: "PDEA Compliance Service Advisory "
+        name:
+        description:
+      - match: "Pre-need Corporations"
+        name:
+        description:
+      - match: "Beware of Investment Scams!!!"
+        name:
+        description:
+      - match: "Investment Scam in Tandag City, Surigao Del Sur"
+        name:
+        description:
+      - match: "Fraudulent Scheme or Investment Scam in Imus Cavite"
+        name:
+        description:
+      - match: "SEC Advisory on CONNECTACONS, INC."
+        name: CONNECTACONS, INC.
+        description:
+      - match: "SEC Advisory on ONELINE MARKETING SCHEME : ONLINE CASH PALUWAGAN"
+        name: 
+        description:
+      - match: "SEC Advisory on BIZ TOWER MINI"
+        name: 
+        description:
+      - match: "FUTURE NET-NETWORKING MARKETING ASSOCIATION OF THE PHILIPPINES, INC."
+        name: FUTURE NET-NETWORKING MARKETING ASSOCIATION OF THE PHILIPPINES, INC.
+        description:
+      - match: "Ok’s Global Wellness, Inc."
+        name: Ok’s Global Wellness, Inc.
+        description:
+      - match: "SEC Advisory on 1Riders Power Team, Inc."
+        name: 1Riders Power Team, Inc.
+        description:
+      - match: "North East Luzon Foundation, Inc."
+        name: North East Luzon Foundation, Inc.
+        description:
+      - match: "Temecula Financial Resources, Inc"
+        name: Temecula Financial Resources, Inc
+        description:
+      - match: "Cardlinks Teleconn Insurance Agency"
+        name: Cardlinks Teleconn Insurance Agency
+        description:
+      - match: "Crown Regency Holiday International, Inc., Fuente Triangle Realty Development Corporation, Megatrend Realty Network, Inc., and Boracay Multiple Properties Developers, Inc."
+        name:
+          - Crown Regency Holiday International, Inc.
+          - Fuente Triangle Realty Development Corporation
+          - Megatrend Realty Network, Inc.
+          - Boracay Multiple Properties Developers, Inc.
+        description:
+      - match: ONE LIGHTNING CORPORATION
+        name: ONE LIGHTNING CORPORATION
+        description:
+      - match: J79 GALORE ONLINE MARKETING
+        name: J79 GALORE ONLINE MARKETING
+        description:
+      - match: ANG BAGONG LAHING FILIPINO DEVELOPMENT FOUNDATION, INC.
+        name: ANG BAGONG LAHING FILIPINO DEVELOPMENT FOUNDATION, INC.
+        description:
+      - match: SEC Advisory on SUCCESS200 INTERNATIONAL MARKETING CORPORATION, aka SUCESS200
+        name: 
+          - SUCCESS200 INTERNATIONAL MARKETING CORPORATION
+          - SUCESS200
+        description:
+      - match: SEC Advisory on MUTUAL UNIVERSE CORPORATION
+        name: MUTUAL UNIVERSE CORPORATION
+        description:
+      - match: SEC Advisory on KLIKMART SHOPPING CLUB CORP. aka “KLIKMART REWARDS”
+        name:
+          - KLIKMART SHOPPING CLUB CORP.
+          - KLIKMART REWARDS
+        description:
+      - match: SEC Advisory on ADS ZENS BROKER, CORPORATION
+        name: ADS ZENS BROKER, CORPORATION
+        description:
+      - match: SEC Advisory on Reyality Investment Corporation
+        name: Reyality Investment Corporation
+        description:
+      - match: SEC Advisory on “ONELINE” “MONOLINE” MARKETING SCHEME
+        name:
+        description:
+      - match: SEC Advisory on Evergreen Company
+        name: Evergreen Company
+        description:
+      - match: Central Mindanao Mutual Benefit Association, Inc. (CMMBAI)
+        name: Central Mindanao Mutual Benefit Association, Inc. (CMMBAI)
+        description:
+      - match: "Email Scam : Change of Supplier Bank Details"
+        name:
+        description:
+      - match: SEC Advisory on CBR Global Group
+        name: CBR Global Group
+        description:
+      - match: Alien Infiltration of Retail Trade Industry in Negros Province
+        name:
+        description:
+      - match: Xinagasia Marketing Corporation
+        name: Xinagasia Marketing Corporation
+        description:
+      - match: 410 Business Empire Inc.
+        name: 410 Business Empire Inc.
+        description:
+      - match: EMGOLDEX PHILIPPINES
+        name: EMGOLDEX PHILIPPINES
+        description:
+      - match: HYPER PROGRAM INTL. DIRECT SALES AND TRADING CORP./ HPI DIRECT SALES AND TRADING CORP
+        name:
+          - HYPER PROGRAM INTL. DIRECT SALES AND TRADING CORP.
+          - HPI DIRECT SALES AND TRADING CORP
+        description:
+      - match: Visioner2020 Int’l Traders Inc.
+        name: Visioner2020 Int’l Traders Inc.
+        description:
+      - match: Confidentiality of SEC Investigations
+        name:
+        description:
+      - match: GOLDXTREME TRADING CO.
+        name: GOLDXTREME TRADING CO.
+        description:
+      - match: Interpol issues global alert for potentially lethal illicit diet drug
+        name:
+        description:
+      - match: SEC Advisory on F.L.A.G PROSPERITY MARKETING INC. aka FREEDOM LIFE ADVANCED GLOBAL PROSPERITY MARKETING INC.
+        name: 
+          - F.L.A.G PROSPERITY MARKETING INC.
+          - FREEDOM LIFE ADVANCED GLOBAL PROSPERITY MARKETING INC.
+        description:
+      - match: SEC Advisory on WEALTH BUILDER ADVERTISING
+        name: WEALTH BUILDER ADVERTISING
+        description:
+      - match: SEC Advisory on CAPITOL HILLS GOLF & COUNTRY CLUB, INC.
+        name: CAPITOL HILLS GOLF & COUNTRY CLUB, INC.
+        description:
+      - match: ALLIANCE OF NETWORKERS OF THE PHILS ORGANIZATION, INC. (“ANPO”)
+        name: ALLIANCE OF NETWORKERS OF THE PHILS ORGANIZATION, INC.
+        description:
+      - match: SEC Advisory on BRIDGES TEAM EFFORT NETWORK AND MARKETING CORP. (“BRIDGES TEAM EFFORT”)
+        name: BRIDGES TEAM EFFORT NETWORK AND MARKETING CORP.
+        description:
+      - match: JACAMA SALES AND MARKETING
+        name: JACAMA SALES AND MARKETING
+        description:
+      - match: JAP RATTANCO
+        name: JAP RATTANCO
+        description:
+      - match: Caceres Lending Investor Company
+        name: Caceres Lending Investor Company
+        description:
+      - match: ECC Livelihood Social Services, Inc.
+        name: ECC Livelihood Social Services, Inc.
+        description:
+      - match: Double your money scam in Pagadian City
+        name:
+        description:
+      - match: Finance Global Marketing Services
+        name:
+        description:
+      - match: SEC Advisory on Profit Clicking JSS-Tripler Justbeenpaid
+        name: JSS-Tripler Justbeenpaid
+        description:
+      - match: Foreign Exchange Trading
+        name:
+        description:
+      - match: Honesty, Unity, Love, and Loyalty (HULL) for Self Reliance Association, Inc.
+        name: Honesty, Unity, Love, and Loyalty (HULL) for Self Reliance Association, Inc.
+        description:
+      - match: Asian Precious Metals, Inc and Advanced Recovery System, Inc.
+        name: Asian Precious Metals, Inc and Advanced Recovery System, Inc.
+        description:
+      - match: Grand Alliance of Business Leaders Association, Inc.
+        name: Grand Alliance of Business Leaders Association, Inc.
+        description:
+      - match: Branch Offices of Foreign Stock Corporations and Regional Operating Headquarters (ROHQ)/Regional Headquarters (RHQ) of Multinational Companies
+        name:
+        description:
+      - match: SEC Advisory on GRANDTIME AUTOMOBILE INC. (also being referred to as “GRAND TIME or GTA”) 
+        name: GRANDTIME AUTOMOBILE INC. 
+        description:
+      - match: SEC Advisory on ONE DREAM GLOBAL MARKETING, INC.
+        name: ONE DREAM GLOBAL MARKETING, INC.
+        description:
+      - match: SEC Advisory on GLOBAL INTERGOLD
+        name: GLOBAL INTERGOLD
+        description:
+      - match: SEC Advisory on DIRECT MARKETING GROUP INTERNATIONAL CORPORATION doing Business as DMG International
+        name:
+          - DIRECT MARKETING GROUP INTERNATIONAL CORPORATION
+          - DMG International
+        description:
+      - match: SEC Advisory on SMARTPAY INTERNATIONAL
+        name: SMARTPAY INTERNATIONAL
+        description:
+      - match: 24K TIMESGOLD INTERNATIONAL MARKETING INC. (also known as “TIMESGOLD”)
+        name: 24K TIMESGOLD INTERNATIONAL MARKETING INC.
+        description:
+      - match: STARJED MICRO FINANCING CORP. (also known as “STARJED”) 
+        name: STARJED MICRO FINANCING CORP. 
+        description:
+      - match: JETHCLICK, JETHCLICK INTERNATIONAL, JETHCLICK by JETHRHO, and JETRHRO CORP
+        name:
+          - JETHCLICK
+          - JETHCLICK INTERNATIONAL
+          - JETHCLICK by JETHRHO
+          - JETRHRO CORP
+        description:
+      - match: YouTube videos featuring the alleged news relayed by anchors, ROGER ABING CAMINGAWAN and DANIEL FLASH VILLAS in their radio broadcast stating, among others, that KAPA Community Ministry International, Inc. (KAPA) 
+        name: KAPA Community Ministry International, Inc. (KAPA)
+        description:
+      - match: WBA DEVELOPMENT CORPORATION, WBA ADVERTISING, WEALTH BUILDER ADVERTISING, WEALTH BUILDER ACCELERATOR, WEALTH BUILDER- ACCELERATOR-WBA ADVERTISING PHILIPPINES
+        name:
+          - WBA DEVELOPMENT CORPORATION
+          - WBA ADVERTISING
+          - WEALTH BUILDER ADVERTISING
+          - WEALTH BUILDER ACCELERATOR
+          - WEALTH BUILDER- ACCELERATOR
+          - WBA ADVERTISING PHILIPPINES
+        description:
+      - match: TECHNOVANTI NETELIGENCE, INC. (TECHNOVANTI)
+        name: TECHNOVANTI NETELIGENCE, INC.
+        description:
+      - match: PAYASIAN SOLUTIONS PTE. LIMITED/PAYASIAN PTE. LIMITED CORPORATION
+        name:
+          - PAYASIAN SOLUTIONS PTE. LIMITED
+          - PAYASIAN PTE. LIMITED CORPORATION
+        description:
+      - match: GIVE AND SHARE E-COMMERCE SOLUTIONS, INC./GAS E-COMMERCE SOLUTIONS, INC.
+        name: 
+          - GIVE AND SHARE E-COMMERCE SOLUTIONS, INC.
+          - GAS E-COMMERCE SOLUTIONS, INC.
+        description:
+      - match: MYBITCLAIM TRADING CORPORATION
+        name: MYBITCLAIM TRADING CORPORATION
+        description:
+      - match: HYBRID GAMEFOWL HOLDINGS, INC.
+        name: HYBRID GAMEFOWL HOLDINGS, INC.
+        description:
+      - match: LION CITY FINANCE GROUP, INC.
+        name: LION CITY FINANCE GROUP, INC.
+        description:
+      - match: MAX4UNLIMITED CO. and MAX4 UNLI CORPORATION
+        name:
+          - MAX4UNLIMITED CO.
+          - MAX4 UNLI CORPORATION
+        description:
+      - match: PIGDEALS INTERNATIONAL HOLDINGS, INC. under CEO Dwayne Ramos Walberg and President Rocky Gonzales Manalo and PIGDEALS AGRIVENTURES HOG FARM TRADING under Rocky Manalo Gonzales (Proprietor)
+        name:
+          - PIGDEALS INTERNATIONAL HOLDINGS, INC.
+          - PIGDEALS AGRIVENTURES HOG FARM TRADING
+        description:
+      - match: Right Circle Inc.
+        name: Right Circle Inc.
+        description:
+      - match: WHERETOGO TRAVEL ADVERTISING COMPANY/WHERETOGO ADVERTISING
+        name:
+          - WHERETOGO TRAVEL ADVERTISING COMPANY
+          - WHERETOGO ADVERTISING
+        description:
+      - match: EASY PLAY operated by JENICA SARAH REGANIT
+        name: EASY PLAY
+        description:
+      - match: WEECLICK CLUB
+        name: WEECLICK CLUB
+        description:
+      - match: PAYS UP ONLINE MARKETING BUSINESS INC. and PAYS-UPGEN MARKETING BUSINESS UNLIMITED INC.
+        name:
+          - PAYS UP ONLINE MARKETING BUSINESS INC.
+          - PAYS-UPGEN MARKETING BUSINESS UNLIMITED INC.
+        description:
+      - match: WMAC Holdings Corporation
+        name: WMAC Holdings Corporation
+        description:
+      - match: FORWARD DIRECT SELLING CORPORATION
+        name: FORWARD DIRECT SELLING CORPORATION
+        description:
+      - match: SEC Advisory on STARNET LIFESTYLE GENERAL TRADING INC.
+        name: STARNET LIFESTYLE GENERAL TRADING INC.
+        description:
+      - match: DRAGON ONE NETWORK TRENDS CORPORATION
+        name: DRAGON ONE NETWORK TRENDS CORPORATION
+        description:
+      - match: Pretty Pink Holdings Co. Inc., aka Pretty Pink, Pretty Pink Online Shop, Pretty Pink Money Tree, Carissa Love, Pretty Pink Money Tree Investing
+        name:
+          - Pretty Pink Holdings Co. Inc.
+          - Pretty Pink
+          - Pretty Pink Online Shop
+          - Pretty Pink Money Tree
+          - Carissa Love
+          - Pretty Pink Money Tree Investing
+        description:
+      - match: "SEC CDO Case No. 09-15-023In the matter of: KLIKMART SHOPPING CLUB CORP. and KLIKMART DRAGON, INC,"
+        name:
+          - KLIKMART SHOPPING CLUB CORP.
+          - KLIKMART DRAGON, INC
+        description:
+      - match: Lucky9Lives Marketing Corporation
+        name: Lucky9Lives Marketing Corporation
+        description:
+      - match: Affinity Investment Group
+        name: Affinity Investment Group
+        description:
+      - match: My Science of Success Marketing, Inc.
+        name: My Science of Success Marketing, Inc.
+        description:
+      - match: Pyramid Marketing / Investment Taking Activities in Palawan
+        name: 
+        description:
+      - match: YEHEEY ITRAFFIC SYSTEM INC. (“YEHEEY”)
+        name: YEHEEY ITRAFFIC SYSTEM INC.
+        description:
+      - match: BUILDING OUR SUCCESS STORIES NETWORK INC. (“BOSS NETWORK”)
+        name: 
+          - BUILDING OUR SUCCESS STORIES NETWORK INC.
+          - BOSS NETWORK
+        description:
+      - match: Paysmart Limited Philippines
+        name: Paysmart Limited Philippines
+        description:
+      - match: Extreme Hataw Enterprises
+        name: Extreme Hataw Enterprises
+        description:
+      - match: Paid to Click
+        name:
+        description:
+      - match: Warning on Online Investments Unregistered Entities Soliciting Online Investments
+        name:
+        description:
+      - match: Advisory on Cloud Mining Contracts
+        name:
+        description:
+      - match: ONECASH TRADING
+        name: ONECASH TRADING
+        description:
+      - match: PBB150 TRADING
+        name: PBB150 TRADING
+        description:
+      - match: SEC Advisory on Retail Trade
+        name:
+        description:
+      - match: First Galleon Family Fund, Inc.
+        name: First Galleon Family Fund, Inc.
+        description:
+      - match: Unauthorized Sale of Pre-need Plan and Life Insurance and Pyramiding Scam in Davao City
+        name: 
+        description:
+      - match: RECANELI PHILS. INTL. FOUNDATION INC. and PHILS. RECANELI MOTHER INTL. FOUNDATION THE VOICE FOR GLOBAL SOLUTIONS ON POVERTY
+        name:
+          - RECANELI PHILS. INTL. FOUNDATION INC.
+          - PHILS. RECANELI MOTHER INTL. FOUNDATION THE VOICE FOR GLOBAL SOLUTIONS ON POVERTY
+        description:
+      - match: Foreign Currency Trading and Commodities Futures Contracts of METISETRADE, INC
+        name: METISETRADE, INC
+        description:
+      - match: Term Limits for Independent Directors
+        name:
+        description:
+      - match: SEC Advisory on Submission of the Annual Corporate Governance Report (ACGR) Together with the Annual Report
+        name:
+        description:
+      - match: Pedvel Marketing / PV and VV Potential Development Ventures Corporation / Potential Economic Venture Consumers Cooperative a.k.a PEDVEL
+        name:
+          - Pedvel Marketing
+          - VV Potential Development Ventures Corporation
+          - Potential Economic Venture Consumers Cooperative
+          - PEDVEL
+        description:
+      - match: FarmOn/FarmOn Agricultural Production is not registered with the commission and not authorized to solicit Investments through its website.www.farmon.ph
+        name: FarmOn/FarmOn Agricultural Production
+        description: FarmOn/FarmOn Agricultural Production is not registered with the commission and not authorized to solicit Investments through its website.
+      - match: Dollar International Investment Program
+        name:
+        description:
+      - match: JUST 950
+        name: JUST 950
+        description:
+      - match: Investment Scam in Marinduque
+        name: 
+        description:
+      - match: Bullion Buyer Ltd.
+        name: Bullion Buyer Ltd.
+        description:
+      - match: BrainMax Holdings and Trading, Inc.
+        name: BrainMax Holdings and Trading, Inc.
+        description:
+      - match: MGC FOREX PHILIPPINES
+        name: MGC FOREX PHILIPPINES
+        description:
+      - match: XTRADE.COM is NOT Registered with SEC
+        name: XTRADE.COM
+        description: Xtrade.com is not registered with the SEC
+      - match: "WARNING! RE: ONLINE LENDING"
+        name:
+        description:
+      - match: LETS PHILIPPINES HUMANITARIAN FOUNDATION
+        name: LETS PHILIPPINES HUMANITARIAN FOUNDATION
+        description:
+      - match: RU AFFILIATES
+        name: RU AFFILIATES
+        description:
+      - match: PLUGGLE, INC
+        name: PLUGGLE, INC
+        description:
+      - match: My Community E-Commerce System Inc. also known as My Community Credit Cooperative
+        name:
+          - My Community E-Commerce System Inc.
+          - My Community Credit Cooperative
+        description:
+      - match: Corporations Dealing in Gold and Silver
+        name:
+        description:
+      - match: 1LEGACY (FORMERLY SECRET2SUCCESS)
+        name: 
+          - 1LEGACY
+          - SECRET2SUCCESS
+        description:
+      - match: WAHANA CREDIT AND LOAN CORPORATION / WAHANA MULTI PURPOSE BANK
+        name:
+          - WAHANA CREDIT AND LOAN CORPORATION
+          - WAHANA MULTI PURPOSE BANK
+        description:
+      - match: COIN-OPTION.COM
+        name: COIN-OPTION.COM
+        description:
+      - match: Delisting of Calata Corporation by the Philippine Stock Exchange
+        name: Calata Corporation
+        description:
+      - match: Blazing Traders and Trader Online
+        name:
+          - Blazing Traders
+          - Trader Online
+        description:
+      - match: 'CRYPTO EXPERT, INC., doing business as CRYPTOEXPERT TRADING or CRYPTOEXPERT: MUTUAL FUNDS AND TRADING EXPERT (Hereafter “CRYPTOEXPERT”)'
+        name: 
+          - CRYPTO EXPERT, INC.
+          - CRYPTOEXPERT TRADING
+          - "CRYPTOEXPERT: MUTUAL FUNDS AND TRADING EXPERT"
+          - CRYPTOEXPERT
+        description:
+      - match: MONEY TREE 250
+        name: MONEY TREE 250
+        description:
+      - match: PAYSBOOK E-COMMERCE SYSTEM CO. LTD (Hereafter “PAYSBOOK”)
+        name: 
+          - PAYSBOOK E-COMMERCE SYSTEM CO. LTD
+          - PAYSBOOK
+        description:
+      - match: PUREWEALTH EBC CORPORATION (Hereafter “PUREWEALTH”) is offering a cryptocurrency called PUREPOUND to the public
+        name:
+          - PUREWEALTH EBC CORPORATION
+          - PUREWEALTH
+        description: PUREWEALTH EBC CORPORATION is offering a cryptocurrency called PUREPOUND to the public
+      - match: ALMASAI FINANCE AND INVESTMENT/ALMASAI EQUITY HOLDINGS CORP.
+        name:
+          - ALMASAI FINANCE AND INVESTMENT
+          - ALMASAI EQUITY HOLDINGS CORP
+        description:
+      - match: Bank Certificate of Deposit of Paid-up Capital
+        name:
+        description:
+      - match: All Listed, Public and Mutual Funds Companies re Clarification on the Term Limits of Independent Directors
+        name:
+        description:
+      - match: The public is hereby warned concerning the investment taking activities of SHOPPERS’ CIRCLE, a business brand adopted by Jmatth General Merchandise
+        name:
+          - SHOPPERS’ CIRCLE
+          - Jmatth General Merchandise
+        description:
+      - match: Techno Innovation Marketing Enterprise Corporation/Time Corporation
+        name:
+          - Techno Innovation Marketing Enterprise Corporation
+          - Time Corporation
+        description:
+      - match: ASHOKFX
+        name: ASHOKFX
+        description:
+      - match: 419 Scam
+        name: 419 Scam
+        description:
+      - match: Five-Six Money Lenders
+        name: Five-Six Money Lenders
+        description:
+      - match: Informal Lenders
+        name:
+        description:
+      - match: Sureadz/Sureadz, J.I. Joe Marketing, 7seals Trading And Fazcoin Marketing Services
+        name:
+          - Sureadz/Sureadz
+          - J.I. Joe Marketing
+          - 7seals Trading
+          - Fazcoin Marketing Services
+        description:
+      - match: DIGITAL CURRENCY CO. LTD.
+        name: DIGITAL CURRENCY CO. LTD.
+        description:
+      - match: PLANPROMATRIX ONLINE CO.
+        name: PLANPROMATRIX ONLINE CO.
+        description:
+      - match: PLANETBIZ INTERNATIONAL INC.
+        name: PLANETBIZ INTERNATIONAL INC.
+        description:
+      - match: Keen and Accurate Holistic Trading Corporation
+        name: Keen and Accurate Holistic Trading Corporation
+        description:
+      - match: Pre-selling of Securities to the Public in the form of Shares Stock in Hospitals
+        name:
+        description:
+      - match: Pre-selling securities to the public in the form of shares of stock in hospitals
+        name:
+        description:
+      - match: FREE TRAINING SEMINARS PROMOTING FOREIGN-REGISTERED ELECTRONIC INVESTMENT PLATFORMS
+        name:
+        description:
+      - match: BETTER ADSOURCE SYSTEM, INC. / BETTER ADSOURCE ADVERTISING SERVICES
+        name:
+          - BETTER ADSOURCE SYSTEM, INC.
+          - BETTER ADSOURCE ADVERTISING SERVICES
+        description:
+      - match: SENIOR CITIZEN AND ELDERLY WELFARE CLUB OF THE PHILIPPINES, INC.
+        name: SENIOR CITIZEN AND ELDERLY WELFARE CLUB OF THE PHILIPPINES, INC.
+        description:
+      - match: BROILERPRENEUR CORPORATION and SUPER LIVESTOCK HOLDINGS INC.
+        name:
+          - BROILERPRENEUR CORPORATION
+          - SUPER LIVESTOCK HOLDINGS INC.
+        description:
+      - match: JY BEAUTY AND FASHION MARKETING
+        name: JY BEAUTY AND FASHION MARKETING
+        description:
+      - match: G. M. PINEDA CONSTRUCTION AND DEVELOPMENT
+        name: G. M. PINEDA CONSTRUCTION AND DEVELOPMENT
+        description:
+      - match: SHANTAL
+        name: SHANTAL
+        description:
+      - match: BRIX VENTURES INCORPORATED
+        name: BRIX VENTURES INCORPORATED
+        description:
+      - match: YELLOWDOT TRANSPORT TERMINAL INC.
+        name: YELLOWDOT TRANSPORT TERMINAL INC.
+        description:
+      - match: SGP DRAGON TRADING CORPORATION
+        name: SGP DRAGON TRADING CORPORATION
+        description:
+      - match: BRENDAHL CRUZ HOLDINGS, INC. and SCENTKOWORLD CORPORATION
+        name:
+          - BRENDAHL CRUZ HOLDINGS, INC.
+          - SCENTKOWORLD CORPORATION
+        description:
+      - match: TOGACHAT ACADEMY PHILIPPINES INC.
+        name: TOGACHAT ACADEMY PHILIPPINES INC.
+        description:
+      - match: JAPHET TABALE and TABALE CACAO FARMS
+        name:
+          - JAPHET TABALE
+          - TABALE CACAO FARMS
+        description:
+      - match: PAYCHECK AB ONLINE SERVICES CO.
+        name: PAYCHECK AB ONLINE SERVICES CO.
+        description:
+      - match: UNLISHOP E-COMMERCE ADVERTISING SYSTEM COMPANY DOING BUSINESS UNDER UNLISHOP E-COMMERCE ADVERTISING SYSTEM (Hereafter “UNLISHOP”)
+        name:
+          - UNLISHOP E-COMMERCE ADVERTISING SYSTEM COMPANY
+          - UNLISHOP E-COMMERCE ADVERTISING SYSTEM
+          - UNLISHOP
+      - match: REQUIZA AGRICULTURAL PRODUCTS TRADING
+        name: REQUIZA AGRICULTURAL PRODUCTS TRADING
+        description:
+      - match: THE PHILIPPINES GOOD SAMARITAN RIDERS ASSOCIATION
+        name: THE PHILIPPINES GOOD SAMARITAN RIDERS ASSOCIATION
+        description:
+      - match: MUNIFICENCE MINISTRY
+        name: MUNIFICENCE MINISTRY
+        description:
+      - match: EVER ARM ANY MARKETING
+        name: EVER ARM ANY MARKETING
+        description:
+      - match: Unregistered Investment Entities
+        name:
+        description:
+      - match: ADA FARM AGRI VENTURES
+        name: ADA FARM AGRI VENTURES
+        description:
+      - match: BROILERPRENUER CORPORATION
+        name: BROILERPRENUER CORPORATION
+        description:
+      - match: RIGEN MARKETING
+        name: RIGEN MARKETING
+        description:
+      - match: GLOBAL DREAM ZION
+        name: GLOBAL DREAM ZION
+        description:
+      - match: LDT AGRO INDUSTRIAL HUB CORPORATION / VCM-NW Corporation
+        name:
+          - LDT AGRO INDUSTRIAL HUB CORPORATION
+          - VCM-NW Corporation
+        description:
+      - match: RAZZLEDAZZLE ENTERPRISE
+        name: RAZZLEDAZZLE ENTERPRISE
+        description:
+      - match: MONSPACE PHILIPPINES
+        name: MONSPACE PHILIPPINES
+        description:
+      - match: Programme Blessing for the Filipino People Association Inc.
+        name: 
+        description:
+      - match: SEC Advisory on Initial Coin Offerings
+        name:
+        description:
+      - match: ALIFELONG MARKETING AND SERVICES INC.
+        name: ALIFELONG MARKETING AND SERVICES INC.
+        description:
+      - match: KAPPA (Kabus Padatoon)
+        name:
+          - KAPPA
+          - Kabus Padatoon
+        description:
+      - match: Golden Heart Helping Hand Foundation
+        name: Golden Heart Helping Hand Foundation
+        description:
+      - match: JJ Poor to Rich
+        name: JJ Poor to Rich
+        description:
+      - match: EMMRJ LENDING INVESTORS CORP./EMMRJ LOAN CONSULTANCY CORP.
+        name:
+          - EMMRJ LENDING INVESTORS CORP.
+          - EMMRJ LOAN CONSULTANCY CORP.
+        description:
+      - match: Advisory on Freedom Traders Club and Ploutos Coin
+        name:
+        description:
+      - match: Organico Agribusiness Ventures Corporation
+        name:
+        description:
+      - match: SEC DISCLAIMER – YEHEEY ITRAFFIC SYSTEM INC. (“YEHEEY”)
+        name: 
+          - YEHEEY ITRAFFIC SYSTEM INC.
+          - YEHEEY
+        description:
+      - match: AIRBIT CLUB and GO88 VENTURES, INC.,
+        name:
+          - AIRBIT CLUB
+          - GO88 VENTURES, INC.
+        description:
+      - match: DREAMCONNECT INTERNATIONAL CORPORATION
+        name: DREAMCONNECT INTERNATIONAL CORPORATION
+        description:
+      - match: NUTRIWEALTH MULTI-PURPOSE COOPERATIVE
+        name: NUTRIWEALTH MULTI-PURPOSE COOPERATIVE
+        description:
+      - match: Unitynet Corporation
+        name: Unitynet Corporation
+        description:
+      - match: Fraudulent Investment Scam in Tungawan Zamboanga
+        name:
+        description:
+      - match: PHILCROWD.COM
+        name: PHILCROWD.COM
+        description:
+      - match: BIBLI ONLINE STORE
+        name: BIBLI ONLINE STORE
+        description:
+      - match: KAPA COMMUNITY MINISTRY INTERNATIONAL, INC.
+        name: KAPA COMMUNITY MINISTRY INTERNATIONAL, INC.
+        description:
+      - match: BIOGLOW LAUNDRY SHOP
+        name: BIOGLOW LAUNDRY SHOP
+        description:
+      - match: FOREIGN EXCHANGE TRADING IS ILLEGAL IN THE PHILIPPINES
+        name: FOREIGN EXCHANGE TRADING IS ILLEGAL IN THE PHILIPPINES
+        description:
+      - match: ORRO PLATTA MANNA CORPORATION
+        name: ORRO PLATTA MANNA CORPORATION
+        description:
+      - match: ANGEL INVESTOR GROUP, INC.
+        name: ANGEL INVESTOR GROUP, INC.
+        description:
+      - match: Selling of Proprietary/Non-Propietary shares/membership certificates/timeshares by unauthorized/unlicensed persons.
+        name:
+        description:
+      - match: Unity Wealth Marketing, which is also using the names UWealth Premium and Unitywealth 100
+        name:
+          - Unity Wealth Marketing
+          - UWealth Premium
+          - Unitywealth 100
+        description:
+      - match: ALMAMICO (Alabel-Maasim Small Scale Mining Cooperative)/ALAMCCO (Alabel-Maasim Credit Cooperative)
+        name:
+          - ALMAMICO
+          - Alabel-Maasim Small Scale Mining Cooperative
+          - ALAMCCO
+          - Alabel-Maasim Credit Cooperative
+        description:
+      - match: DV BOER FARM CORPORATION
+        name: DV BOER FARM CORPORATION
+        description:
+      - match: KAPA-COMMUNITY MINISTRY INTERNATIONAL, INC. (KAPA)
+        name: KAPA-COMMUNITY MINISTRY INTERNATIONAL, INC.
+        description:
+      - match: SECRET2SUCCESS
+        name: SECRET2SUCCESS
+        description:
+      - match: The Public is hereby Advised to Exercise Caution in Dealing with Individual Formerly Connected with the Philippine Stock Exchange
+        name:
+        description:
+      - match: UPDATED ADVISORY ON NORTH EAST LUZON FOUNDATION, INC.
+        name: NORTH EAST LUZON FOUNDATION, INC.
+        description:
+      - match: PAYSBOOK E-COMMERCE SYSTEM CO. LTD
+        name: PAYSBOOK E-COMMERCE SYSTEM CO. LTD
+        description:
+      - match: Online Paluwagan
+        name: Online Paluwagan
+        description:
+      - match: BSP Advisory – ” Warning on Unauthorized Deposit-taking Activities” / ” Babala Ukol sa mga Tumatanggap ng Deposito ng Walang Pahintulot
+        name: 
+        description:
+      - match: EMGOLDEX PHILIPPINES` Pinoy Style Patak Patak
+        name: EMGOLDEX PHILIPPINES
+        description:
+      - match: OFWs Philhealth Remittances
+        name: OFWs Philhealth Remittances
+        description:
+      - match: Guidelines in Buying Shares or Membership Certificates in Resorts and Clubs
+        name:
+        description:
+      - match: Advisory on Financial.Org
+        name:
+        description:
