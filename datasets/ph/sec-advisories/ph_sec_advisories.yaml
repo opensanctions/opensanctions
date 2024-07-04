@@ -15,6 +15,7 @@ description: |
 
 publisher:
   name: Philippines Securities and Exchange Commission
+  acronym: SEC
   description: |
     The Securities and Exchange Commission is the agency
     of the Government of the Philippines charged with the
