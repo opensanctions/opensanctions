@@ -33,7 +33,7 @@ def crawl_item(li_tag: _Element, context: Context):
     entity = context.make("LegalEntity")
     entity.id = context.make_id(name)
     entity.add("name", name)
-    entity.add("topics", "sanction")
+    entity.add("topics", "reg.warn")
 
     sanction = h.make_sanction(context, entity)
     sanction.add("description", description)
