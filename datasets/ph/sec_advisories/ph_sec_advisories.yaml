@@ -157,6 +157,10 @@ lookups:
           - "1LEGACY (FORMERLY SECRET2SUCCESS)"
           - "KAPPA (Kabus Padatoon)"
           - EASY PLAY operated by JENICA SARAH REGANIT
+          - EMGOLDEX PHILIPPINES
+          - DRAGON ONE NETWORK TRENDS CORPORATION
+          - LETS PHILIPPINES HUMANITARIAN FOUNDATION
+          - RU AFFILIATES
       - match:
           - "Alien Infiltration of Retail Trade Industry in Negros Province"
           - "Beware of Investment Scams!!!"
@@ -197,7 +201,6 @@ lookups:
           - "Term Limits for Independent Directors"
           - "Submission of the Annual Corporate Governance Report (ACGR) Together with the Annual Report"
           - "Retail Trade"
-          
         ignore: true
       - match: "HOUSE OF FOREX / H. FLORES BUSINESS CONSULTANCY SERVICES is NOT AUTHORIZED TO SOLICIT INVESTMENTS FROM THE PUBLIC"
         name: HOUSE OF FOREX / H. FLORES BUSINESS CONSULTANCY SERVICES 
@@ -344,10 +347,6 @@ lookups:
       #   name: "WAHANA CREDIT AND LOAN CORPORATION / WAHANA MULTI PURPOSE BANK"
       # - match: "My Community E-Commerce System Inc. also known as My Community Credit Cooperative"
       #   name: "My Community E-Commerce System Inc. also known as My Community Credit Cooperative"
-      # - match: "RU AFFILIATES"
-      #   name: "RU AFFILIATES"
-      # - match: "LETS PHILIPPINES HUMANITARIAN FOUNDATION"
-      #   name: "LETS PHILIPPINES HUMANITARIAN FOUNDATION"
       # - match: "XTRADE.COM is NOT Registered with SEC"
       #   name: "XTRADE.COM is NOT Registered with SEC"
       # - match: "Sureadz/Sureadz, J.I. Joe Marketing, 7seals Trading And Fazcoin Marketing Services"
@@ -360,8 +359,6 @@ lookups:
       #   name: "FarmOn/FarmOn Agricultural Production is not registered with the commission and not authorized to solicit Investments through its website.www.farmon.ph"
       # - match: "Pretty Pink Holdings Co. Inc., aka Pretty Pink, Pretty Pink Online Shop, Pretty Pink Money Tree, Carissa Love, Pretty Pink Money Tree Investing"
       #   name: "Pretty Pink Holdings Co. Inc., aka Pretty Pink, Pretty Pink Online Shop, Pretty Pink Money Tree, Carissa Love, Pretty Pink Money Tree Investing"
-      # - match: "DRAGON ONE NETWORK TRENDS CORPORATION"
-      #   name: "DRAGON ONE NETWORK TRENDS CORPORATION"
       # - match: "SEC CDO Case No. 09-15-023In the matter of: KLIKMART SHOPPING CLUB CORP. and KLIKMART DRAGON, INC,"
       #   name: "SEC CDO Case No. 09-15-023In the matter of: KLIKMART SHOPPING CLUB CORP. and KLIKMART DRAGON, INC,"
       # - match: "STARJED MICRO FINANCING CORP. (also known as \u201cSTARJED\u201d)"
@@ -388,8 +385,6 @@ lookups:
       #   name: "RECANELI PHILS. INTL. FOUNDATION INC. and PHILS. RECANELI MOTHER INTL. FOUNDATION THE VOICE FOR GLOBAL SOLUTIONS ON POVERTY"
       # - match: "Branch Offices of Foreign Stock Corporations and Regional Operating Headquarters (ROHQ)/Regional Headquarters (RHQ) of Multinational Companies"
       #   name: "Branch Offices of Foreign Stock Corporations and Regional Operating Headquarters (ROHQ)/Regional Headquarters (RHQ) of Multinational Companies"
-      # - match: "EMGOLDEX PHILIPPINES"
-      #   name: "EMGOLDEX PHILIPPINES"
       # - match: "EMGOLDEX PHILIPPINES` Pinoy Style Patak Patak"
       #   name: "EMGOLDEX PHILIPPINES` Pinoy Style Patak Patak"
       # - match: "Asian Precious Metals, Inc and Advanced Recovery System, Inc."
