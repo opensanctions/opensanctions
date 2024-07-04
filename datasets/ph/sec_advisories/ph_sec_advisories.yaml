@@ -203,7 +203,9 @@ lookups:
           - "Retail Trade"
         ignore: true
       - match: "HOUSE OF FOREX / H. FLORES BUSINESS CONSULTANCY SERVICES is NOT AUTHORIZED TO SOLICIT INVESTMENTS FROM THE PUBLIC"
-        name: HOUSE OF FOREX / H. FLORES BUSINESS CONSULTANCY SERVICES 
+        name:
+          - HOUSE OF FOREX
+          - H. FLORES BUSINESS CONSULTANCY SERVICES
         description: "House of Forex / H. Flores Business Consultancy Services is not authorized to solicit investments from the public."
       - match: "KITO-KIKO VARIETY SHOP/KITO-KIKO INCORP."
         name: KITO-KIKO VARIETY SHOP/KITO-KIKO INCORP.
@@ -243,13 +245,13 @@ lookups:
           - FRIEND$HIP/FRIEND$HIP PHILIPPINES"
         description: "The public is hereby informed that FRIEND$HIP/FRIEND$HIP PHILIPPINES is not registered with the Commission and is not authorized to solicit investments from the public."
       - match: "JETHCLICK, JETHCLICK INTERNATIONAL, JETHCLICK by JETHRHO, and JETRHRO CORP"
-        name: 
+        name:
           - JETHCLICK
           - JETHCLICK INTERNATIONAL
           - JETHCLICK by JETHRHO
           - JETRHRO CORP"
       - match: "YouTube videos featuring the alleged news relayed by anchors, ROGER ABING CAMINGAWAN and DANIEL FLASH VILLAS in their radio broadcast stating, among others, that KAPA Community Ministry International, Inc. (KAPA)"
-        name: 
+        name:
           - KAPA Community Ministry International, Inc. (KAPA)"
       - match: "WBA DEVELOPMENT CORPORATION, WBA ADVERTISING, WEALTH BUILDER ADVERTISING, WEALTH BUILDER ACCELERATOR, WEALTH BUILDER- ACCELERATOR-WBA ADVERTISING PHILIPPINES"
         name:
@@ -260,7 +262,7 @@ lookups:
           - WEALTH BUILDER- ACCELERATOR
           - WBA ADVERTISING PHILIPPINES"
       - match: "PAYASIAN SOLUTIONS PTE. LIMITED/PAYASIAN PTE. LIMITED CORPORATION"
-        name: 
+        name:
           - PAYASIAN SOLUTIONS PTE. LIMITED
           - PAYASIAN PTE. LIMITED CORPORATION"
       - match: "COINDEORO HOLDINGS INC / COIN DE ORO"
@@ -268,17 +270,17 @@ lookups:
           - COINDEORO HOLDINGS INC
           - COIN DE ORO"
       - match: "FINANCING INTERNATIONAL-CASINO and/or CASINO VIP FINANCING BY CATHLYNE PAPASIN and/or CASINO VIP FINANCING and/or FORTUNE DRAGON CASINO FINANCING"
-        name: 
+        name:
           - FINANCING INTERNATIONAL-CASINO
           - CASINO VIP FINANCING BY CATHLYNE PAPASIN
           - CASINO VIP FINANCING
           - FORTUNE DRAGON CASINO FINANCING
       - match: "GIVE AND SHARE E-COMMERCE SOLUTIONS, INC./GAS E-COMMERCE SOLUTIONS, INC."
-        name: 
+        name:
           - GIVE AND SHARE E-COMMERCE SOLUTIONS, INC.
           - GAS E-COMMERCE SOLUTIONS, INC.
       - match: "MAX4UNLIMITED CO. and MAX4 UNLI CORPORATION"
-        name: 
+        name:
           - MAX4UNLIMITED CO.
           - MAX4 UNLI CORPORATION
       - match: "PIGDEALS INTERNATIONAL HOLDINGS, INC. under CEO Dwayne Ramos Walberg and President Rocky Gonzales Manalo and PIGDEALS AGRIVENTURES HOG FARM TRADING under Rocky Manalo Gonzales (Proprietor)"
