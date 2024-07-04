@@ -1,5 +1,5 @@
-# import json
 from typing import cast
+from banal import ensure_list
 from lxml.etree import _Element
 
 from zavod import Context
@@ -8,6 +8,7 @@ from zavod import helpers as h
 
 def crawl_item(li_tag: _Element, context: Context) -> None:
     name = li_tag.findtext(".//a/b")
+    names = [] if name is None else [name]
     li_link = li_tag.find(".//a")
     if li_link is None:
         return
@@ -18,39 +19,36 @@ def crawl_item(li_tag: _Element, context: Context) -> None:
 
     if name is None:
         long_name = li_link.text_content()
-        long_name = long_name.replace('SEC Advisory on', '').strip()
+        long_name = long_name.replace("SEC Advisory on", "").strip()
         res = context.lookup("names", long_name)
         if not res:
             name = long_name
             description = None
-            context.log.warning(
-                "No lookup for name: %s" % long_name
-            )
-            # print("- %s" % json.dumps(long_name))
+            # context.log.warning("No lookup for name: %s" % long_name)
+            import json
+
+            print("- match: %s" % json.dumps(long_name))
+            print("  name: %s" % json.dumps(long_name))
             return
 
         if res.ignore is True:
             return
 
         if res.name is not None:
-            name = cast("str", res.name)
-        description = cast("str", res.description)
+            names = [str(n) for n in ensure_list(res.name)]
+        description = cast("str", res.description) or long_name
 
     source_url = li_link.get("href")
     date = li_tag.findtext(".//*[@class='myDate']")
 
     entity = context.make("LegalEntity")
     entity.id = context.make_id(source_url)
-    entity.add("name", name)
+    entity.add("name", names)
     entity.add("topics", "reg.warn")
-
-    sanction = h.make_sanction(context, entity)
-    sanction.add("description", description)
-    sanction.add("sourceUrl", source_url)
-    sanction.add("date", h.parse_date(date, formats=["%d %M %Y"]))
-
+    entity.add("notes", description)
+    entity.add("sourceUrl", source_url)
+    entity.add("createdAt", h.parse_date(date, formats=["%d %M %Y"]))
     context.emit(entity, target=True)
-    context.emit(sanction)
 
 
 def crawl(context: Context):
