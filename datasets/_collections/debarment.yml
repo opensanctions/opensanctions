@@ -1,8 +1,9 @@
 type: collection
 title: Debarred Companies and Individuals
-hidden: false
+coverage:
+  frequency: daily
 deploy:
-  schedule: "1 */9 * * *"
+  schedule: "1 */4 * * *"
   memory: "1500Mi"
 summary: >
   Entities banned from participating in procurment tenders in
