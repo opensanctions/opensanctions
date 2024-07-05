@@ -11,6 +11,7 @@ summary: >
 description: |
   Used internally for de-duplication.
 children:
+  - de_bka_wanted
   - eu_europol_wanted
   - gb_nca_most_wanted
   - interpol_red_notices
