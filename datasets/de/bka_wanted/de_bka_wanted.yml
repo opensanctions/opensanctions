@@ -25,6 +25,7 @@ coverage:
 data:
   url: https://www.bka.de/SiteGlobals/Forms/Suche/Fahndungsliste_Personenfahndung_Formular.html
   format: HTML
+  lang: deu
 lookups:
   type.gender:
     lowercase: true
