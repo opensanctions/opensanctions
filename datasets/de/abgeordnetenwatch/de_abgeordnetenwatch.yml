@@ -29,4 +29,5 @@ publisher:
 data:
   url: "https://www.abgeordnetenwatch.de/api/v2/candidacies-mandates?type=mandate"
   format: JSON
+  lang: deu
 ci_test: false
