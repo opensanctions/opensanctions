@@ -12,7 +12,8 @@ deploy:
   schedule: "1 10 * * *"
   memory: 2000Mi
   memory_limit: 3000Mi
-  disk: 300Gi
+  disk: 100Gi
+  disk_limit: 300Gi
 summary: >
   List of financial instruments and their reference data, as published by the European
   Securities and Markets Authority (ESMA).
