@@ -1,4 +1,4 @@
-title: "FDIC Failed Banks"
+title: "US FDIC Failed Banks"
 url: https://www.fdic.gov/resources/resolutions/bank-failures/failed-bank-list/
 entry_point: crawler.py
 prefix: us-fdic

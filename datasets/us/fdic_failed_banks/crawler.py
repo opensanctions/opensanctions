@@ -42,6 +42,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     entity.add("name", bank_name)
     entity.add("topics", "fin.bank")
     entity.add("topics", "reg.warn")
+    entity.add("jurisdicton", "us")
     entity.add("notes", f"Cert number {row.get('Cert', '')}")
     entity.add("dissolutionDate", closing_date_iso)
     entity.add("notes", f"Fund: {row.get('Fund', '')}")
