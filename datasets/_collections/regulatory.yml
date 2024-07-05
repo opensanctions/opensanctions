@@ -1,7 +1,9 @@
 type: collection
-title: Regulatory watchlists
+title: Regulatory Watchlists
+coverage:
+  frequency: daily
 deploy:
-  schedule: "1 */9 * * *"
+  schedule: "1 */4 * * *"
   memory: "1500Mi"
 summary: >
   Entities that are subject to regulatory actions and restrictions
@@ -13,10 +15,10 @@ description: |
   These watchlists are maintained by government agencies, international
   organizations, or other regulatory bodies.
 children:
-  - br_suspended_companies
   - br_tcu_disqualified
   - ch_finma_rulings
   - ch_finma_warnings
+  - eu_esma_sanctions
   - lt_illegal_gambling
   - lt_illegal_websites
   - lu_administrative_sanctions
@@ -24,8 +26,8 @@ children:
   - my_consumer_alert_list
   - my_investor_alert_list
   - no_nbim_exclusions
-  - ps_ohchr_settlement
   - ph_sec_advisories
+  - ps_ohchr_settlement
   - us_ddtc_debarred
   - us_ddtc_enforcements
   - us_dod_chinese_milcorps
