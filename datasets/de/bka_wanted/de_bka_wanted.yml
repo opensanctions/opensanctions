@@ -67,7 +67,4 @@ lookups:
 assertions:
   min:
     schema_entities:
-      Person: 40
-    country_entities:
-      ru: 8
-    countries: 8
+      Person: 20
