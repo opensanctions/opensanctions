@@ -1,35 +1,31 @@
+from typing import List
+from lxml.etree import _Element
+
 from zavod import Context
 from zavod import helpers as h
-from xml.etree import ElementTree
-from normality import collapse_spaces
 
 
-def get_element_text(
-    doc: ElementTree, xpath_value: str, to_remove=[], join_str=""
-) -> str:
+def get_element_text(doc: _Element, xpath_value: str, join_str: str = " ") -> List[str]:
     """Extract text from from an xpath
 
     Args:
         doc (ElementTree): HTML Tree
         xpath_value (str):  xpath to extract text from
-        to_remove (list, optional): string to remove in the extracted text.
         join_str (str): String to and join the extracted text
     """
-    element_tags = doc.xpath(xpath_value)
-
     tag_list = []
-    for tag in element_tags:
+    for tag in doc.xpath(xpath_value):
         try:
-            tag_list.append(tag.text_content())
+            content = tag.text_content()
+            if len(content.strip()):
+                tag_list.append(content)
         except AttributeError:  #  node is already a text content
             tag_list.append(tag)
+    return tag_list
 
-    element_text = join_str.join(tag_list)
 
-    for string in to_remove:
-        element_text = element_text.replace(string, "")
-
-    return collapse_spaces(element_text.strip())
+def info_xpath(field: str) -> str:
+    return f'//li[@class="c-listitem-detailinfos"][.//span[contains(.//text(),"{field}")]]//span[contains(@class,"c-value-detailinfos")]'
 
 
 def crawl(context: Context):
@@ -48,77 +44,52 @@ def crawl(context: Context):
 def crawl_person(context: Context, url: str):
     doc = context.fetch_html(url, cache_days=1)
 
-    name = get_element_text(doc, '//div[contains(@class, "headerContent")]//h1')
-    last_name = get_element_text(
-        doc,
-        '//li[@class="c-listitem-detailinfos"][.//span[contains(.//text(),"Familienname")]]//span[contains(@class,"c-value-detailinfos")]',
-    )
-    first_name = get_element_text(
-        doc,
-        '//li[@class="c-listitem-detailinfos"][.//span[contains(.//text(),"Vorname")]]//span[contains(@class,"c-value-detailinfos")]',
-    )
+    names = doc.xpath('.//div[contains(@class, "headerContent")]//h1//text()')
+    name = " ".join(names).strip()
+
+    offense = get_element_text(doc, info_xpath("Delikt"))
+    person = context.make("Person")
+    person.id = context.make_id(name, offense)
+    person.add("name", name)
+    person.add("topics", "crime")
+    person.add("sourceUrl", url)
+    person.add("notes", f"Delikt: {offense}")
+
+    first_name = get_element_text(doc, info_xpath("Vorname"))
+    person.add("firstName", first_name)
+
+    last_name = get_element_text(doc, info_xpath("Familienname"))
+    person.add("lastName", last_name)
 
     summary = get_element_text(doc, '//div[@class="sachverhalt"]//p', join_str="\n")
+    person.add("summary", summary)
+
     more_details = get_element_text(
         doc, '//div[@class="c-futherinfo-wrapper"]//p', join_str="\n"
     )
+    person.add("description", more_details)
 
-    alias = get_element_text(
-        doc,
-        './/li[@class="c-listitem-detailinfos"][.//span[contains(.//text(),"Alias")]]//span[contains(@class,"c-value-detailinfos")]',
-    )
-    alias = alias.split(",")
+    for aliases in get_element_text(doc, info_xpath("Alias")):
+        for alias in aliases.split(","):
+            prop = "alias" if " " in alias else "weakAlias"
+            person.add(prop, alias)
 
-    date_of_birth = get_element_text(
-        doc,
-        '//li[@class="c-listitem-detailinfos"][.//span[contains(.//text(),"Geburtsdatum")]]//span[contains(@class,"c-value-detailinfos")]',
-    )
-    date_of_birth = h.parse_date(date_of_birth, ["%d.%m.%Y"])
-    place_of_birth = get_element_text(
-        doc,
-        '//li[@class="c-listitem-detailinfos"][.//span[contains(.//text(),"Geburtsort")]]//span[contains(@class,"c-value-detailinfos")]',
-    )
-    nationality = get_element_text(
-        doc,
-        '//li[@class="c-listitem-detailinfos"][.//span[contains(.//text(),"Staatsangehörigkeit")]]//span[contains(@class,"c-value-detailinfos")]',
-    )
-    nationality = nationality.split(",")
+    for dob in get_element_text(doc, info_xpath("Geburtsdatum")):
+        person.add("birthDate", h.parse_date(dob, ["%d.%m.%Y"]))
 
-    gender = get_element_text(
-        doc,
-        '//li[@class="c-listitem-detailinfos"][.//span[contains(.//text(),"Geschlecht")]]//span[contains(@class,"c-value-detailinfos")]',
-    )
+    for pob in get_element_text(doc, info_xpath("Geburtsort")):
+        person.add("birthPlace", pob)
 
-    offense = get_element_text(
-        doc,
-        '//li[@class="c-listitem-detailinfos"][.//span[contains(.//text(),"Delikt")]]//span[contains(@class,"c-value-detailinfos")]',
-    )
-    offense_time = get_element_text(
-        doc,
-        '//li[@class="c-listitem-detailinfos"][.//span[contains(.//text(),"Zeit")]]//span[contains(@class,"c-value-detailinfos")]',
-    )
-    crime_scene = get_element_text(
+    person.add("nationality", get_element_text(doc, info_xpath("Staatsangehörigkeit")))
+    person.add("gender", get_element_text(doc, info_xpath("Geschlecht")))
+
+    for offense_time in get_element_text(doc, info_xpath("Zeit")):
+        person.add("notes", f"Zeit: {offense_time}")
+
+    for place in get_element_text(
         doc,
         '//span[text()[contains(.,"Tatort")]]//following-sibling::span',
-    )
-
-    notes = [f"Delikt: {offense}", f"Zeit: {offense_time}", f"Tatort:{crime_scene}"]
-    notes = "\n".join(notes)
-
-    person = context.make("Person")
-    person.id = context.make_slug(f"{name}-{offense_time}")
-    person.add("name", name)
-    person.add("firstName", first_name)
-    person.add("secondName", last_name)
-    person.add("topics", "crime")
-    person.add("sourceUrl", url)
-    person.add("alias", alias)
-    person.add("gender", gender)
-    person.add("birthPlace", place_of_birth)
-    person.add("birthDate", date_of_birth)
-    person.add("summary", summary)
-    person.add("description", more_details)
-    person.add("nationality", nationality)
-    person.add("notes", notes)
+    ):
+        person.add("notes", f"Tatort: {place}")
 
     context.emit(person, target=True)
