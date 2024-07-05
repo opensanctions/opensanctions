@@ -82,24 +82,10 @@ def crawl(context: Context):
     context.export_resource(source_path, "text/csv", title="FDIC Failed Banks CSV file")
 
     # Attempt to open the CSV file with different encodings
-    encodings = [
-        "latin-1",
-        "iso-8859-1",
-    ]  # figure out which one 'latin-1', 'iso-8859-1' 'utf-8',
 
-    for encoding in encodings:
-        try:
-            with open(source_path, "r", encoding=encoding) as csvfile:
-                reader = csv.DictReader(csvfile)
-                for row in reader:
-                    crawl_row(context, row)
-            break  # Successfully read, exit the loop
-        except UnicodeDecodeError as e:
-            context.log.warning(f"Failed to read CSV with encoding {encoding}: {e}")
+    with open(source_path, "r", encoding="latin-1") as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            crawl_row(context, row)
 
     context.log.info("Finished processing FDIC Failed Bank List")
-
-    if encoding == encodings[-1]:  # If no encoding works, raise an error
-        raise ValueError(
-            "Failed to decode CSV with any provided encoding. Check if source file matches expected format or has a different encoding."
-        )

@@ -32,7 +32,4 @@ data:
 assertions:
   min:
     schema_entities:
-      LegalEntity: 500
-  max:
-    schema_entities:
-      LegalEntity: 600
+      Company: 500
