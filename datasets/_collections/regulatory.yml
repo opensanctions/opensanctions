@@ -7,10 +7,10 @@ summary: >
   Entities that are subject to regulatory actions and restrictions
 description: |
   This collection includes datasets that track individuals and entities that
-  are subject to regulatory actions and restrictions, such as exclusion from certain 
-  industr, debarments, or
-  other forms of exclusion from certain activities or jurisdictions. These
-  datasets are often maintained by government agencies, international
+  are subject to regulatory actions and restrictions, such as investor warnings,
+  penalities and fines, or bans from specific activities or industries. 
+
+  These watchlists are maintained by government agencies, international
   organizations, or other regulatory bodies.
 children:
   - br_suspended_companies
