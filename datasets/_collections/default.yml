@@ -37,6 +37,7 @@ children:
   - crime
   - peps
   - debarment
+  - regulatory
   - wanted
   - enrichers
 

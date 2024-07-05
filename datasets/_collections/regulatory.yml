@@ -1,0 +1,41 @@
+type: collection
+title: Regulatory watchlists
+deploy:
+  schedule: "1 */9 * * *"
+  memory: "1500Mi"
+summary: >
+  Entities that are subject to regulatory actions and restrictions
+description: |
+  This collection includes datasets that track individuals and entities that
+  are subject to regulatory actions and restrictions, such as exclusion from certain 
+  industr, debarments, or
+  other forms of exclusion from certain activities or jurisdictions. These
+  datasets are often maintained by government agencies, international
+  organizations, or other regulatory bodies.
+children:
+  - br_suspended_companies
+  - br_tcu_disqualified
+  - ch_finma_rulings
+  - ch_finma_warnings
+  - lt_illegal_gambling
+  - lt_illegal_websites
+  - lu_administrative_sanctions
+  - my_aob_sanctions
+  - my_consumer_alert_list
+  - my_investor_alert_list
+  - no_nbim_exclusions
+  - ps_ohchr_settlement
+  - ph_sec_advisories
+  - us_ddtc_debarred
+  - us_ddtc_enforcements
+  - us_dod_chinese_milcorps
+  - us_fcc_covered_list
+  - us_fed_enforcements
+  - us_finra_actions
+  - us_hhs_exclusions
+  - us_occ_enfact
+  - us_sam_exclusions
+  - us_sec_harmed_investors
+  - us_sec_pause
+  - us_special_leg
+ci_test: false
