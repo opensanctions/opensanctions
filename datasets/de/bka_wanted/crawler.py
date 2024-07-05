@@ -1,5 +1,6 @@
 from typing import List
 from lxml.etree import _Element
+from normality import collapse_spaces
 
 from zavod import Context
 from zavod import helpers as h
@@ -17,7 +18,8 @@ def get_element_text(doc: _Element, xpath_value: str, join_str: str = " ") -> Li
     for tag in doc.xpath(xpath_value):
         try:
             content = tag.text_content()
-            if len(content.strip()):
+            content = content.replace("\xad", "").strip()
+            if len(content):
                 tag_list.append(content)
         except AttributeError:  #  node is already a text content
             tag_list.append(tag)
@@ -45,9 +47,11 @@ def crawl_person(context: Context, url: str):
     doc = context.fetch_html(url, cache_days=1)
 
     names = doc.xpath('.//div[contains(@class, "headerContent")]//h1//text()')
-    name = " ".join(names).strip()
+    name = collapse_spaces(" ".join(names).replace("\xad", ""))
+    if name is None or "Unbekannte Person" in name:
+        return
 
-    offense = get_element_text(doc, info_xpath("Delikt"))
+    offense = ", ".join(get_element_text(doc, info_xpath("Delikt")))
     person = context.make("Person")
     person.id = context.make_id(name, offense)
     person.add("name", name)
@@ -61,12 +65,11 @@ def crawl_person(context: Context, url: str):
     last_name = get_element_text(doc, info_xpath("Familienname"))
     person.add("lastName", last_name)
 
-    summary = get_element_text(doc, '//div[@class="sachverhalt"]//p', join_str="\n")
+    summary = "\n".join(get_element_text(doc, '//div[@class="sachverhalt"]//p'))
     person.add("summary", summary)
 
-    more_details = get_element_text(
-        doc, '//div[@class="c-futherinfo-wrapper"]//p', join_str="\n"
-    )
+    more_details_ = get_element_text(doc, '//div[@class="c-futherinfo-wrapper"]//p')
+    more_details = "\n".join(more_details_)
     person.add("description", more_details)
 
     for aliases in get_element_text(doc, info_xpath("Alias")):
@@ -86,10 +89,8 @@ def crawl_person(context: Context, url: str):
     for offense_time in get_element_text(doc, info_xpath("Zeit")):
         person.add("notes", f"Zeit: {offense_time}")
 
-    for place in get_element_text(
-        doc,
-        '//span[text()[contains(.,"Tatort")]]//following-sibling::span',
-    ):
+    place_xpath = '//span[text()[contains(.,"Tatort")]]//following-sibling::span'
+    for place in get_element_text(doc, place_xpath):
         person.add("notes", f"Tatort: {place}")
 
     context.emit(person, target=True)
