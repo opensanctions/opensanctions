@@ -1,0 +1,38 @@
+name: fdic_failed_banks
+title: "FDIC Failed Banks"
+url: https://www.fdic.gov/resources/resolutions/bank-failures/failed-bank-list/
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+coverage:
+  frequency: daily
+  start: 2024-07-05
+
+summary: >
+  The FDIC provides a list of bank failures and the institutions that acquired them.
+
+description: |
+  The FDIC Failed Banks dataset includes information about banks in the United States that have failed since October 1, 2000. 
+  The data provides details such as the name of the failed bank, the city and state it was located in, the acquiring institution, and the closing date.
+
+entry_point: crawler.py
+prefix: us-fdic
+
+publisher:
+  name: Federal Deposit Insurance Corporation
+  acronym: FDIC
+  official: true
+  description: |
+    The FDIC is an independent agency of the United States government that protects the funds depositors place in banks and savings associations.
+  country: us
+  url: https://www.fdic.gov/
+
+data:
+  url: https://www.fdic.gov/resources/resolutions/bank-failures/failed-bank-list/banklist.csv
+  format: csv
+
+assertions:
+  min:
+    schema_entities:
+      LegalEntity: 500
+  max:
+    schema_entities:
+      LegalEntity: 600

@@ -1,0 +1,103 @@
+import csv
+from zavod import Context
+from zavod import helpers as h
+from typing import Dict
+
+
+def clean_row(row: Dict[str, str]) -> Dict[str, str]:
+    """Clean non-standard spaces from row keys and values."""
+    return {
+        k.replace("\xa0", " ").strip(): v.replace("\xa0", " ").strip()
+        for k, v in row.items()
+    }
+
+
+def convert_date(date_str: str) -> list[str]:
+    """Convert various date formats to 'YYYY-MM-DD'."""
+    formats = [
+        "%B %d, %Y",  # 'Month DD, YYYY' format
+        "%d-%b-%y",  # 'DD-MMM-YY' format
+    ]
+    return h.parse_date(date_str, formats, default=None)
+
+
+def crawl_row(context: Context, row: Dict[str, str]):
+    row = clean_row(row)  # Clean the row before processing
+
+    # Ensure the row contains necessary data
+    if not row:
+        return
+
+    bank_name = row.get("Bank Name", "").strip()
+    closing_date = row.get("Closing Date", "").strip()
+    closing_date_iso = convert_date(closing_date)  # Convert closing date to ISO format
+
+    if not bank_name or not closing_date:
+        context.log.warning("Missing bank name or closing date", row=row)
+        return
+
+    acquiring_institution = row.get("Acquiring Institution", "").strip()
+    entity = context.make("Company")
+    entity.id = context.make_id(bank_name, closing_date)
+    entity.add("name", bank_name)
+    entity.add("notes", f"Cert number {row.get('Cert', '')}")
+    entity.add("dissolutionDate", closing_date_iso)
+    entity.add("notes", f"Fund: {row.get('Fund', '')}")
+
+    # Check if acquiring_institution has a value
+    if acquiring_institution:
+        succ_entity = context.make("Company")
+        succ_entity.id = context.make_id(acquiring_institution)
+        succ_entity.add("name", acquiring_institution)
+        succ = context.make("Succession")
+        succ.id = context.make_id(entity.id, "successor", succ_entity.id)
+
+        succ.add("predecessor", entity.id)
+        succ.add("successor", succ_entity.id)
+
+        context.emit(succ)
+        context.emit(succ_entity)
+
+    address = h.make_address(
+        context,
+        city=row.pop("City"),
+        state=row.pop("State"),
+        country_code="us",
+    )
+    h.copy_address(entity, address)
+
+    context.emit(entity, target=True)
+    context.log.info(f"Emitted entity for bank: {bank_name}")
+
+
+def crawl(context: Context):
+    context.log.info("Fetching data from FDIC Failed Bank List")
+
+    # Fetch the CSV file from the source URL
+    source_path = context.fetch_resource("source.csv", context.data_url)
+
+    # Register the CSV file as a resource with the dataset
+    context.export_resource(source_path, "text/csv", title="FDIC Failed Banks CSV file")
+
+    # Attempt to open the CSV file with different encodings
+    encodings = [
+        "latin-1",
+        "iso-8859-1",
+    ]  # figure out which one 'latin-1', 'iso-8859-1' 'utf-8',
+
+    for encoding in encodings:
+        try:
+            with open(source_path, "r", encoding=encoding) as csvfile:
+                reader = csv.DictReader(csvfile)
+                for row in reader:
+                    crawl_row(context, row)
+            break  # Successfully read, exit the loop
+        except UnicodeDecodeError as e:
+            context.log.warning(f"Failed to read CSV with encoding {encoding}: {e}")
+
+    context.log.info("Finished processing FDIC Failed Bank List")
+
+    if encoding == encodings[-1]:  # If no encoding works, raise an error
+        raise ValueError(
+            "Failed to decode CSV with any provided encoding. Check if source file matches expected format or has a different encoding."
+        )
