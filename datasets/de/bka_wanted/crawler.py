@@ -66,11 +66,11 @@ def crawl_person(context: Context, url: str):
     person.add("lastName", last_name)
 
     summary = "\n".join(get_element_text(doc, '//div[@class="sachverhalt"]//p'))
-    person.add("summary", summary)
+    person.add("notes", summary)
 
     more_details_ = get_element_text(doc, '//div[@class="c-futherinfo-wrapper"]//p')
     more_details = "\n".join(more_details_)
-    person.add("description", more_details)
+    person.add("notes", more_details)
 
     for aliases in get_element_text(doc, info_xpath("Alias")):
         for alias in aliases.split(","):

@@ -21,7 +21,7 @@ publisher:
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 coverage:
   frequency: monthly
-  start: "2024-06-20"
+  start: "2024-07-05"
 data:
   url: https://www.bka.de/SiteGlobals/Forms/Suche/Fahndungsliste_Personenfahndung_Formular.html
   format: HTML
