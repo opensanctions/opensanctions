@@ -1,25 +1,28 @@
 import re
-import lxml
-import shutil
 from datetime import datetime
+from io import IOBase
 from typing import Optional
+
+from pdfminer.high_level import extract_pages
+from pdfminer.layout import LAParams, LTTextBoxHorizontal
 
 from zavod import Context, Entity
 from zavod import helpers as h
 
-
 MONTHS_DE = {
-    # We won’t know until January 2024 if the site uses the Austrian name
-    # or the German/Swiss name for the month January.
-    "Januar": "January",
-    "Jänner": "January",
-    "Februar": "February",
-    "März": "March",
-    "Mai": "May",
-    "Juni": "June",
-    "Juli": "July",
-    "Oktober": "October",
-    "Dezember": "December",
+    "Januar": 1,
+    "Jänner": 1,
+    "Februar": 2,
+    "März": 3,
+    "April": 4,
+    "Mai": 5,
+    "Juni": 6,
+    "Juli": 7,
+    "August": 8,
+    "September": 9,
+    "Oktober": 10,
+    "November": 11,
+    "Dezember": 12,
 }
 
 
@@ -33,22 +36,22 @@ COUNTRY_CODES = {
 
 
 ADDRESS_FIXES = {
-    "Alte Tiefenaustrasse 6, 3050 Bern": "Alte Tiefenaustrasse 6, CH-3050 Bern",
-    "Bachwisenstrasse 7c, 9200 CH-Gossau SG": "Bachwisenstrasse 7c, CH-9200 Gossau SG",
-    "Industrie Allmend 31, 4629 Fulenbach": "Industrie Allmend 31, CH-4629 Fulenbach",
-    "Hagenholzstrasse 81a, 8050 CH-Zürich": "Hagenholzstrasse 81a, CH-8050 Zürich",
+    "Alte Tiefenaustrasse 6, 3050 Bern": "Alte Tiefenaustrasse 6, CH‐3050 Bern",
+    "Bachwisenstrasse 7c, 9200 CH-Gossau SG": "Bachwisenstrasse 7c, CH‐9200 Gossau SG",
+    "Industrie Allmend 31, 4629 Fulenbach": "Industrie Allmend 31, CH‐4629 Fulenbach",
+    "Hagenholzstrasse 81a, 8050 CH‐Zürich": "Hagenholzstrasse 81a, CH‐8050 Zürich",
+    "Tiefenackerstrasse 59 CH‐9450 Altstätten": "Tiefenackerstrasse 59, CH‐9450 Altstätten",
+    "Unterdorfstrasse 94, 9443 Widnau": "Unterdorfstrasse 94, CH‐9443 Widnau",
 }
 
 
-def parse_data_time(doc) -> Optional[datetime]:
-    text = doc.xpath("//p[starts-with(., 'Stand:')]/strong")[0].text
-    for de, en in MONTHS_DE.items():
-        # Adding space to prevent replacing Jänner -> January -> Januaryy
-        text = text.replace(de + " ", en + " ")
-    if date := h.parse_date(text, ["%d. %B %Y"]):
-        return datetime.strptime(date[0], "%Y-%m-%d")
-    else:
-        return None
+def parse_data_time(rows: list[str]) -> Optional[datetime]:
+    for row in rows:
+        if m := re.match(r"^Stand: .+ (\d+)\. ([A-Za-zä]+) (\d{4})$", row[0]):
+            return datetime(
+                year=int(m.group(3)), month=MONTHS_DE[m.group(2)], day=int(m.group(1))
+            )
+    return None
 
 
 def parse_address(context: Context, addr: str) -> Optional[Entity]:
@@ -56,7 +59,7 @@ def parse_address(context: Context, addr: str) -> Optional[Entity]:
     parts = [p.strip() for p in addr.split(",")]
     street = parts[0]
     country_code, postal_code, city = None, None, None
-    if m := re.match(r"(A|D|F|I|[A-Z]{2})[- ]\s*([\d\-]+) (.+)", parts[-1]):
+    if m := re.match(r"(A|D|F|I|[A-Z]{2})[‐ ]\s*([\d‐\-]+) (.+)", parts[-1]):
         country_code = COUNTRY_CODES.get(m.group(1), m.group(1).lower())
         postal_code, city = m.group(2), m.group(3)
     if not country_code or not city:
@@ -75,12 +78,16 @@ def parse_target(
     context: Context, name: str, address: Optional[Entity], date: str
 ) -> Optional[Entity]:
     name = " ".join(name.replace("\u00a0", " ").split())
-    person = context.make("Person")
     m = re.search(r"^(.+), (Frau|Herr[n]?) (.+)$", name)
+
+    company_name = m.group(1).strip() if m else name.strip()
+    company = context.make("Company")
+    company.id = context.make_id("Company", company_name)
+    company.add("name", company_name)
+    h.apply_address(context, company, address)
     if m is None:
-        context.log.warn(f'Cannot parse target "{name}"')
-        return None
-    company_name = m.group(1)
+        return company
+
     gender = {"Frau": "female", "Herr": "male", "Herrn": "male"}[m.group(2)]
     w = m.group(3).split()
     if len(w) >= 3 and " ".join(w[-2:] + w[:-2]) in name:
@@ -90,6 +97,7 @@ def parse_target(
         # "Schreindorfer Benedikt Clemens, Herr Benedikt Clemens Schreindorfer"
         # "Wilhelm Alexander, Herr Alexander Wilhelm"
         given_name, family_name = " ".join(w[:-1]), w[-1]
+    person = context.make("Person")
     person.id = context.make_id("Person", given_name, family_name, gender)
     h.apply_name(person, given_name=given_name, last_name=family_name)
     person.add("gender", gender)
@@ -99,11 +107,6 @@ def parse_target(
         h.apply_address(context, person, address)
         context.emit(person, target=True)
         return person
-
-    company = context.make("Company")
-    company.id = context.make_id("Company", company_name)
-    company.add("name", company_name)
-    h.apply_address(context, company, address)
 
     emp = context.make("Employment")
     emp.id = context.make_id("Employment", person.id, company.id)
@@ -117,13 +120,53 @@ def parse_target(
     return company
 
 
-def parse_debarments(context: Context, doc) -> None:
-    table = doc.xpath(
-        "//h2[text()='Laufende und abgelaufene Entsendesperren"
-        + " (Art. 7 Abs. 2 Entsendegesetz)']/following::table[1]"
-    )[0]
-    for row in table.xpath("tbody/tr")[1:]:
-        [start, name, addr, law, end] = row.xpath("descendant::*/text()")
+def extract_rows(pdf: IOBase) -> list[str]:
+    # PDFMiner has a built-in layout analysis engine, but does not work well
+    # for the layout of the debarment PDFs published by Liechtenstein.
+    # Therefore we find all text boxes on a page, group them by lines,
+    # and then extract (and clean up) the text in those boxes.
+    lines = [[]]
+    params = LAParams(boxes_flow=None, line_margin=0)
+    for page in extract_pages(pdf, laparams=params):
+        y = 1e9
+        boxes = [b for b in page if isinstance(b, LTTextBoxHorizontal)]
+        for box in sorted(boxes, key=lambda b: -b.y0):
+            if abs(box.y0 - y) < 2.0:
+                lines[-1].append(box)
+            else:
+                lines.append([box])
+                y = box.y0
+    # PDFMiner is sometimes too eager grouping words into text boxes.
+    # For the Liechtenstein PDFs, we can work around this.
+    fixup = re.compile(r"\d{2}\.\d{2}\.\d{4} .+$")
+    rows = []
+    for line in lines:
+        row = [
+            # Clean up whitespace.
+            " ".join(box.get_text().replace("\u00A0", " ").split())
+            for box in sorted(line, key=lambda b: b.x0)
+        ]
+        if len(row) > 0:
+            if fixup.match(row[0]):
+                date, rest = row[0].split(" ", 1)
+                row = [date, rest] + row[1:]
+            rows.append(row)
+    return rows
+
+
+def crawl_debarments(context: Context) -> None:
+    path = context.fetch_resource("sperren.pdf", context.data_url)
+    with open(path, "rb") as pdf:
+        rows = extract_rows(pdf)
+    if data_time := parse_data_time(rows):
+        context.log.info(f"Parsing data version of {data_time}")
+        context.data_time = data_time
+    else:
+        context.log.warn("Failed to parse data_time")
+    for row in rows:
+        if len(row) != 5 or row[-1] == "Ende der Sperre":
+            continue
+        [start, name, addr, law, end] = row
         address = parse_address(context, addr)
         start = h.parse_date(start, ["%d.%m.%Y"])
         end = h.parse_date(end, ["%d.%m.%Y"])
@@ -148,12 +191,22 @@ def parse_debarments(context: Context, doc) -> None:
         context.emit(company, target=True)
 
 
-def parse_infractions(context: Context, doc) -> None:
-    table = doc.xpath(
-        "//h2[text()='Übertretungen (Art. 9 Entsendegesetz)']/following::table[1]"
-    )[0]
-    for row in table.xpath("tbody/tr")[1:]:
-        [date, name, addr, law] = row.xpath("descendant::*/text()")
+def crawl_infractions(context: Context) -> None:
+    path = context.fetch_resource("uebertretungen.pdf", context.data_url)
+    with open(path, "rb") as pdf:
+        rows = extract_rows(pdf)
+    if data_time := parse_data_time(rows):
+        context.log.info(f"Parsing data version of {data_time}")
+        context.data_time = data_time
+    else:
+        context.log.warn("Failed to parse data_time")
+    for row in rows:
+        if len(row) == 1 or row[0].startswith("In Rechtskraft"):
+            continue
+        if len(row) != 4:
+            context.log.warn(f"Cannot split row: {row}")
+            continue
+        [date, name, addr, law] = row
         address = parse_address(context, addr)
         date = h.parse_date(date, ["%d.%m.%Y"])
         company = parse_target(context, name, address, date)
@@ -170,21 +223,3 @@ def parse_infractions(context: Context, doc) -> None:
         company.add("topics", "debarment")
         context.emit(sanction)
         context.emit(company, target=True)
-
-
-def crawl(context: Context):
-    assert context.dataset.base_path is not None
-    data_path = context.dataset.base_path / "data.html"
-    source_path = context.get_resource_path("source.html")
-    shutil.copyfile(data_path, source_path)
-    # source_path = context.fetch_resource("source.html", context.data_url)
-    context.export_resource(source_path, "text/html", title="Source HTML file")
-    with open(source_path, "r") as fh:
-        doc = lxml.html.fromstring(fh.read())  # invalid XML, need HTML parser
-    if data_time := parse_data_time(doc):
-        context.log.info(f"Parsing data version of {data_time}")
-        context.data_time = data_time
-    else:
-        context.log.warn("Failed to parse data_time")
-    parse_debarments(context, doc)
-    parse_infractions(context, doc)
