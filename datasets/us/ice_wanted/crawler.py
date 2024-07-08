@@ -150,6 +150,4 @@ def crawl(context: Context):
         crime_summary = person_node.xpath('.//div[@class="mw-wantfor"]')[
             0
         ].text_content()
-        print(crime_summary)
-        print(url)
         crawl_person(context, url, crime_summary)
