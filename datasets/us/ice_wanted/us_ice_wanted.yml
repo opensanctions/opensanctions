@@ -1,0 +1,38 @@
+title: "U.S. Immigration and Customs Enforcement Most Wanted Fugitives"
+entry_point: crawler.py
+prefix: us-ice-want
+summary: "Most Wanted Fugitives by the U.S. Immigration and Customs Enforcement (ICE)."
+description: |
+url: https://www.ice.gov/most-wanted
+# load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+# coverage:
+#   frequency: daily
+#   start: "2024-06-17"
+publisher:
+  name: United States Immigration and Customs Enforcement
+  acronym: ICE
+  description: >
+
+  country: us
+  url: https://www.ice.gov/
+  official: true
+data:
+  url: https://www.ice.gov/most-wanted
+  format: HTML
+lookups:
+  type.string:
+    lowercase: true
+    options:
+      - match:
+          - N/A
+        value: null
+  type.gender:
+    lowercase: true
+    normalize: true
+    options:
+      - match: MALE
+        value: male
+assertions:
+  min:
+    schema_entities:
+      Person: 35
