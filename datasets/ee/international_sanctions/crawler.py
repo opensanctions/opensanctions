@@ -18,7 +18,7 @@ def crawl_item_belarus(raw_name: str, context: Context):
     match = re.search(r"([^\(\n]+)\s*(?:\((.+)\))?", raw_name)
     if match:
         name = match.group(1)
-        aliases = match.group(2).split("; ") if match.group(2) else []
+        aliases = h.multi_split(match.group(2), [";", ","])
     else:
         context.log.warning(f"Could not parse name: {raw_name}")
         return
@@ -64,7 +64,6 @@ def crawl_item_human_rights(raw_name: str, context: Context):
 
 
 def crawl(context: Context):
-
     response = context.fetch_html(BELARUS_URL)
     xpath = ".//*[@class='col-lg-6 col-xl-6 mb-2 mb-xl-0']/div/div/ol/li"
 
