@@ -44,7 +44,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     # Add names
     entity.add("name", original_name, lang="lav")
     entity.add("name", row.get("name"), lang="eng")
-    entity.add("alias", name_in_brackets, lang="lav")
+    entity.add("alias", name_in_brackets, lang="eng")
 
     # Add birth date
     if birth_date:
