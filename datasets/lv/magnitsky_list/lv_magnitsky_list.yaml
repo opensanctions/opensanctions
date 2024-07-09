@@ -1,0 +1,29 @@
+title: Latvia Designated Persons Under Magnitsky Amendments
+entry_point: crawler.py
+prefix: lv-mag
+url: https://likumi.lv/ta/id/297012-par-aicinajumu-noteikt-sankcijas-sergeja-magnitska-lieta-iesaistitajam-personam
+summary: >-
+  The sanctions list aims to prevent foreign individuals involved involved in serious human 
+  rights violations, corruption and other forms of crime from entering Latvia.
+coverage:
+  frequency: monthly
+  start: 2024-07-09
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+description: |
+    The dataset contains information on individuals targeted by the Republic of Latvia for serious 
+    human rights violations, corruption, and other crimes. Inspired by international precedents, including the US, 
+    Estonia, Canada, the UK, and Lithuania, Latvia aims to implement targeted sanctions such as travel bans and asset 
+    freezes. The goal is to prevent these individuals from entering Latvia, designating them as persona non grata.
+publisher:
+  name: LEGAL ACTS OF THE REPUBLIC OF LATVIA
+  acronym: LIKUMI
+  description: |
+    Likumi.lv is a website of legal acts that ensures free access to systematised (consolidated) legal acts of the Republic of Latvia.
+    [Source: Official Website](https://likumi.lv/about.php)
+  url: https://likumi.lv/ta/id/297012-par-aicinajumu-noteikt-sankcijas-sergeja-magnitska-lieta-iesaistitajam-personam
+  country: lv
+  official: true
+data:
+  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vSunoJfLBwlOnxZhBXw8MjeqyGTts_2hxOwFZWIueWqgksJ21sNiuTnTzM9I9c1BKsDeYaOhH_LK6OD/pub?output=csv
+  file_name: source.csv
+  format: csv
