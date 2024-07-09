@@ -29,11 +29,13 @@ def crawl(context: Context):
         path, mime_type="application/json", title=context.SOURCE_TITLE
     )
 
+    # Open the file and process its content within the `with` block
     with open(path, "r", encoding="utf-8") as fh:
         data = json.load(fh)
         print(f"Fetched data: {data}")  # Debug statement to confirm data fetch
-        # Checking data limits
-        check_data_limits(data)
+
+    # Checking data limits
+    check_data_limits(data)
 
     for entry in data.get("list", []):
         print(f"Processing entry: {entry}")  # Debug statement for each entry
@@ -66,5 +68,3 @@ def crawl(context: Context):
         # Emit entities
         context.emit(person, target=True)
         context.emit(sanction)
-
-    print("Crawling completed.")  # Debug statement for completion
