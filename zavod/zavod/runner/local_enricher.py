@@ -1,6 +1,5 @@
 import logging
-from typing import Generator, List, Optional, Tuple, Type
-from followthemoney.namespace import Namespace
+from typing import Generator, List, Tuple, Type
 from followthemoney.types import registry
 
 from nomenklatura import CompositeEntity
