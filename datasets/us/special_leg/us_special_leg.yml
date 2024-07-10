@@ -4,7 +4,7 @@ prefix: us-leg
 coverage:
   frequency: never
   start: 2024-05-02
-  end: 2024-05-02
+  end: 2024-07-09
 deploy:
   schedule: "@monthly"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
@@ -20,6 +20,12 @@ description: |
   lists a number of entities from whom specific goods or services may not be
   procured by executive agencies. The same restrictions apply to to their subsidiaries
   and affiliates.
+
+  Section 1286 of the [John S. McCain National Defense Authorization Act for Fiscal
+  Year 2019 (Public Law 115 - 232)](https://www.congress.gov/115/plaws/publ232/PLAW-115publ232.pdf)
+  required the DoD to publish lists of those foreign institutions that have been
+  confirmed as engaging in problematic activity as described in Section 1286(c)(8)(A)
+  of the law. Those lists are included in the version as of FY22.
 
   Section 5949 of the [James M. Inhofe National Defense Authorization Act for Fiscal Year 202 (Public Law 117-263)](https://www.congress.gov/117/bills/hr7776/BILLS-117hr7776enr.pdf)
   lists a number of entities from whom specific goods or services may not be
