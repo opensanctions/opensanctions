@@ -4163,5 +4163,3 @@ lookups:
       - match: "Type d'entité: organisation non  gouvernementale"
         props:
           legalForm: organisation non gouvernementale
-
-      
