@@ -3921,6 +3921,7 @@ lookups:
           incorporationDate: 2004-09-17
           innCode: 2005504830
       - match: "KPP: 200501001"
+        schema: Company
         props:
           kppCode: 200501001
       - match: "Type d'entité: société par actions - Lieu d'enregistrement: Saint-Pétersbourg et Moscou, Fédération de Russie - Date d'enregistrement: 1988: 1027739028712"
@@ -3947,6 +3948,7 @@ lookups:
           legalForm: entreprise unitaire publique fédérale
           incorporationDate: 2023-06-08
       - match: "Numéro d'identification fiscale: 7704857789 - Date d'enregistrement: 2007: KPP: 770401001"
+        schema: Company
         props:
           innCode: 7704857789
           incorporationDate: 2007
@@ -3981,6 +3983,7 @@ lookups:
         props:
           innCode: 774301001
       - match: "KPP: 7704223366"
+        schema: Company
         props:
           kppCode: 7704223366
       - match: "Numéro OGRN: 1027700590521"
@@ -4076,8 +4079,10 @@ lookups:
       - match: "Type d'entité: organisation non gouvernementale"
         props:
           legalForm: organisation non gouvernementale
-
-
-
+      - match: "Numéro d’enregistrement: 1237700470842"
+        props:
+          registrationNumber: 1237700470842
       
+      
+
       
