@@ -30,7 +30,12 @@ class ArchiveObject(object):
     def backfill(self, dest: Path) -> None:
         raise NotImplementedError
 
-    def publish(self, source: Path, mime_type: Optional[str] = None) -> None:
+    def publish(
+        self,
+        source: Path,
+        mime_type: Optional[str] = None,
+        immutable: bool = False,
+    ) -> None:
         raise NotImplementedError
 
     def republish(self, source: str) -> None:
@@ -84,8 +89,15 @@ class GoogleCloudObject(ArchiveObject):
             raise RuntimeError("Object does not exist: %s" % self.name)
         self.blob.download_to_filename(dest)
 
-    def publish(self, source: Path, mime_type: Optional[str] = None) -> None:
+    def publish(
+        self,
+        source: Path,
+        mime_type: Optional[str] = None,
+        immutable: bool = False,
+    ) -> None:
         self._blob = self.backend.bucket.blob(self.name)
+        if immutable:
+            self._blob.cache_control = f"public, max-age={84600 * 60}"
         log.info(f"Uploading blob: {source.name}", blob_name=self.name)
         self._blob.upload_from_filename(source, content_type=mime_type)
 
@@ -138,7 +150,12 @@ class FileSystemObject(ArchiveObject):
         )
         shutil.copyfile(self.path, dest)
 
-    def publish(self, source: Path, mime_type: str | None = None) -> None:
+    def publish(
+        self,
+        source: Path,
+        mime_type: str | None = None,
+        immutable: bool = False,
+    ) -> None:
         log.info(
             f"Copying file: {self.path.name} to archive",
             source=source,
