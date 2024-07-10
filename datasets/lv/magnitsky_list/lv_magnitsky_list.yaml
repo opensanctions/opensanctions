@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: lv-mag
 url: https://likumi.lv/ta/id/297012-par-aicinajumu-noteikt-sankcijas-sergeja-magnitska-lieta-iesaistitajam-personam
 summary: >-
-  The sanctions list aims to prevent foreign individuals involved involved in serious human 
+  The sanctions list aims to prevent foreign individuals involved in serious human 
   rights violations, corruption and other forms of crime from entering Latvia.
 coverage:
   frequency: monthly
