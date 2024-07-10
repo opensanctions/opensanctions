@@ -4082,7 +4082,86 @@ lookups:
       - match: "Numéro d’enregistrement: 1237700470842"
         props:
           registrationNumber: 1237700470842
-      
-      
+      - match: "Type d’entité: société par actions - Lieu d’enregistrement: Moscou, Fédération de Russie - Date d’enregistrement: 12.7.2023: /"
+        props:
+          jurisdiction: ru
+          address: "Moscou, Fédération de Russie"
+          legalForm: société par actions
+          incorporationDate: 2023-07-12
+      - match: "Lieu d'enregistrement: Moscou, Fédération de Russie - Date d'enregistrement: 19.9.2014 -Principal établissement: Fédération de Russie: 1147799015231"
+        props:
+          jurisdiction: ru
+          address: "Moscou, Fédération de Russie"
+          incorporationDate: 2014-09-19
+          registrationNumber: 1147799015231
+      - match: "Type d'entité: Société par actions ouverte"
+        props:
+          legalForm: société par actions ouverte
+      - match: "Lieu d'enregistrement: Leningradskaya ul., bâtiment 41 Gourzouf, Yalta, Crimée Ukraine - Date d'enregistrement: 15.8.2014 - Principal établissement: Crimée, Ukraine: /"
+        props:
+          jurisdiction: ua
+          address: "Leningradskaya ul., bâtiment 41 Gourzouf, Yalta, Crimée Ukraine"
+          incorporationDate: 2014-08-15
+      - match: "Numéro d'enregistrement: 1025203720189"
+        props:
+          registrationNumber: 1025203720189
+      - match: "Numéro d'identification fiscale: 5262008630"
+        props:
+          innCode: 5262008630
+      - match: "Type d'entité: Société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 2.7.1990 (date de constitution: 30.7.2002) - Principal établissement: Fédération de Russie: /"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 1990-07-02
+      - match: "Numéro d'enregistrement: 1227700284470"
+        props:
+          registrationNumber: 1227700284470
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Moscou, Fédération de Russie - Date d'enregistrement: 18.5.2022: /"
+        props:
+          jurisdiction: ru
+          address: "Moscou, Fédération de Russie"
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2022-05-18
+      - match: "1077328004841"
+        props:
+          registrationNumber: 1077328004841
+      - match: "Date d'enregistrement: 9.7.2007 - Type d'entité: société à responsabilité limitée - Principal établissement: Fédération de Russie -: 1077757722206"
+        props:
+          incorporationDate: 2007-07-09
+          legalForm: société à responsabilité limitée
+          registrationNumber: 1077757722206
+      - match: "Numéro d'identification fiscale: 7725611507"
+        props:
+          innCode: 7725611507
+      - match: "Type d'entité: Société par actions ouverte - Lieu d'enregistrement: Biélorussie - Date d'enregistrement: 24.3.1992. Principal établissement: Biélorussie: OKPO: 14541426"
+        props:
+          jurisdiction: by
+          legalForm: société par actions ouverte
+          incorporationDate: 1992-03-24
+          registrationNumber: 14541426
+      - match: "Numéro d’enregistrement: 1193926007153"
+        props:
+          registrationNumber: 1193926007153
+      - match: "Type d’entité: société à responsabilité limitée internationale: /"
+        props:
+          legalForm: société à responsabilité limitée internationale
+      - match: "Type d'entité: entreprise unitaire publique fédérale - Lieu d'enregistrement: Donetsk, Ukraine - Date d'enregistrement: 8.6.2023  - Principal établissement: Ukraine: /"
+        props:
+          jurisdiction: ua
+          address: "Donetsk, Ukraine"
+          legalForm: entreprise unitaire publique fédérale
+          incorporationDate: 2023-06-08
+      - match: "Type d’entité: société par actions - Lieu d’enregistrement: Moscou, Fédération de Russie - Date d’enregistrement: 12.7.2023: /"
+        props:
+          jurisdiction: ru
+          address: "Moscou, Fédération de Russie"
+          legalForm: société par actions
+          incorporationDate: 2023-07-12
+      - match: "Numéro d’enregistrement: 1237700470842"
+        props:
+          registrationNumber: 1237700470842
+      - match: "Type d'entité: organisation non  gouvernementale"
+        props:
+          legalForm: organisation non gouvernementale
 
       
