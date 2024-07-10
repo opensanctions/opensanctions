@@ -6,14 +6,6 @@ from zavod import Context
 # Define constants for date parsing
 DATE_FORMATS = ["%Y-%m-%d", "%Y"]
 
-# Normalized country names
-NORMALIZED_COUNTRIES = {"Krievijas Federācija": "Russia"}
-
-
-def normalize_country(country: str) -> str:
-    """Normalize the country name to a standard format"""
-    return NORMALIZED_COUNTRIES.get(country, country)
-
 
 def crawl_row(context: Context, row: Dict[str, str]):
     """Process one row of the CSV data"""
@@ -23,11 +15,6 @@ def crawl_row(context: Context, row: Dict[str, str]):
     country = row.get("Country")
     source_url = row.get("Source URL")
 
-    if country:
-        normalized_country = normalize_country(country)
-    else:
-        normalized_country = None
-
     # Create a Person entity
     entity = context.make("Person")
     entity.id = context.make_slug(original_name, birth_date)
@@ -35,15 +22,8 @@ def crawl_row(context: Context, row: Dict[str, str]):
     # Add names
     entity.add("name", original_name, lang="lav")
     entity.add("name", name_in_brackets, lang="eng")
-    # entity.add("alias", name_in_brackets, lang="eng")
-
-    # Add birth date
-    if birth_date:
-        entity.add("birthDate", birth_date)
-
-    # Add nationality if present
-    if normalized_country:
-        entity.add("country", normalized_country, lang="eng")
+    entity.add("birthDate", birth_date)
+    entity.add("country", country, lang="eng")
 
     # Create a Sanction entity
     sanction = h.make_sanction(context, entity)

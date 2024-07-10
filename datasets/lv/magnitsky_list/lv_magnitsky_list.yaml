@@ -15,7 +15,7 @@ description: |
     Estonia, Canada, the UK, and Lithuania, Latvia aims to implement targeted sanctions such as travel bans and asset 
     freezes. The goal is to prevent these individuals from entering Latvia, designating them as persona non grata.
 publisher:
-  name: LEGAL ACTS OF THE REPUBLIC OF LATVIA
+  name: Legal Acts Of The Republic Of Latvia
   acronym: LIKUMI
   description: |
     Likumi.lv is a website of legal acts that ensures free access to systematised (consolidated) legal acts of the Republic of Latvia.
@@ -27,3 +27,11 @@ data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vSunoJfLBwlOnxZhBXw8MjeqyGTts_2hxOwFZWIueWqgksJ21sNiuTnTzM9I9c1BKsDeYaOhH_LK6OD/pub?output=csv
   file_name: source.csv
   format: csv
+
+lookups:
+  type.country:
+    lowercase: true
+    normalize: true
+    options:
+      match: Krievijas Federācija
+      value: RU
