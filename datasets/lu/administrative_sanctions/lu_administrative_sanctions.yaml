@@ -57,6 +57,9 @@ lookups:
       - match: Décision constatant la perte de l’honorabilité professionnelle de Monsieur Fabien GAGLIO
         names:
           - Fabien Gaglio
+      - match: Sanction administrative prononcée à l’encontre du réviseur d’entreprises agréé, Monsieur Thierry GRUN
+        names:
+          - Thierry Grun
   # If the name isn't in the subtitle, map the detail URL to the name, if one is present in the PDFs.
   url_to_names:
     lowercase: true
