@@ -1,4 +1,3 @@
-from pprint import pprint
 import requests
 from zavod import Context, helpers as h
 
@@ -63,7 +62,6 @@ HARD_CODED_DATA = [
 def fetch_new_links(context: Context) -> None:
     response = requests.get(QUERY_URL)
     data = response.json()
-    pprint(data)
 
     # Check the 'numFound' field in the response
     num_found = data.get("response", {}).get("numFound", 0)
@@ -94,3 +92,4 @@ def process_hardcoded_data(context: Context):
 
 def crawl(context: Context):
     process_hardcoded_data(context)
+    fetch_new_links(context)
