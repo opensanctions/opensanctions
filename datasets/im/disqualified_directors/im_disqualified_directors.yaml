@@ -1,0 +1,37 @@
+title: Isle of Man FSA Disqualified Directors
+entry_point: crawler.py
+prefix: im-dis-dir
+coverage:
+  frequency: daily
+  start: "2024-07-09"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Individuals disqualified to work in corporate governace of companies
+description: |
+  The Isle of Man Financial Services Authority may petition the High
+  Court of Justice of the Isle of Man under Section 3 (1) (a) of the
+  Company Officers (Disqualification) Act 2009 seeking disqualification
+  of that person from acting as:
+
+   - a director, secretary or registered agent;
+   - a liquidator;
+   - a receiver;
+   - a person holding an office under any relevant foreign law analogous to any of the offices specified in paragraph (a), (b) or (c) in respect of a company; or
+   - a person who, in any way, whether directly or indirectly, is concerned or takes part in the promotion, formation or management of a company.
+
+  The period of disqualification can range from a minimum of 2 years to a maximum of 15 years.
+
+
+publisher:
+  name: The Isle of Man Financial Services Authority
+  acronym: IOMFSA
+  description: |
+    The IOMFSA is the regulatory body responsible for
+    overseeing the financial services sector on the Isle of Man
+  url: https://www.iomfsa.im
+  official: true
+  country: "im"
+url: "https://www.iomfsa.im/enforcement/disqualified-directors/"
+data:
+  url: https://www.iomfsa.im/enforcement/disqualified-directors/
+  format: HTML
