@@ -54,7 +54,7 @@ children:
   - cn_sanctions
   - cz_national_sanctions
   - eu_fsf
-  - eu_reg_2878_sanctions
+  - eu_journal_sanctions
   - eu_sanctions_map
   - eu_travel_bans
   - eu_esma_saris
@@ -74,7 +74,9 @@ children:
   - kg_fiu_national
   - kz_afmrk_sanctions
   - lt_fiu_freezes
+  - lt_magnitsky_amendments
   - lv_fiu_sanctions
+  - lv_magnitsky_list
   - md_terror_sanctions
   - my_moha_sanctions
   - ng_nigsac_sanctions
