@@ -82,7 +82,7 @@ def process_hardcoded_data(context: Context):
         entity.add("country", "Ireland")
         entity.add("alias", data["4. Alias"])
         entity.add("notes", data["2. Declaration"][0])
-        entity.add("topics", "export.control")
+        entity.add("topics", "sanction")
         entity.add("sourceUrl", nro["url"])
         context.emit(entity, target=True)
 
