@@ -90,6 +90,15 @@ def crawl_common(
                 context.log.info("Unknown attribute", key=key, value=value)
                 entity.add("notes", f"{key}: {value}", lang="ukr")
 
+    for name in entity.names:
+        if len(name) > 300:
+            context.log.warn(
+                "Entity name too long",
+                id=entity.id,
+                name=name,
+                subject_id=subject_id,
+            )
+
     for action in fetch_data(
         context, f"/subjects/{subject_id}/actions", cache_days=CACHE_LONG
     ):
@@ -112,10 +121,6 @@ def crawl_common(
         context.emit(sanction)
 
     entity.add("topics", "sanction")
-    for name in entity.names:
-        if len(name) > 300:
-            context.log.warn("Entity name too long", id=entity.id, name=name)
-
     context.audit_data(item, ignore=["status"])
     context.emit(entity, target=True)
 

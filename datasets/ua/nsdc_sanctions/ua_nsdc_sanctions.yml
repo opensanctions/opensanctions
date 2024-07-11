@@ -29,11 +29,36 @@ data:
   format: JSON
 
 lookups:
-  type.name:
-    - contains: "1027739597819"
-      values:
-        - Tovarystvo z obmezhenoiu vidpovidalnistiu "Raiffaizen-Lizynh"
-        - Limited Liability Company "Raiffeisen-Leasing"
+  # type.name:
+  #   options:
+  #   - contains: "1027739597819"
+  #     values:
+  #       - Tovarystvo z obmezhenoiu vidpovidalnistiu "Raiffaizen-Lizynh"
+  #       - Limited Liability Company "Raiffeisen-Leasing"
+  #   - contains: 'Telekanaly "RTR-Planeta", informatsiinyi kanal "Rosiia-24",'
+  #     values:
+  #       - Federalnoho derzhavnoho unitarnoho pidpryiemstva "Vserosiiska derzhavna televiziina i radiomovna kompaniia"
+  #   - contains: 'Телеканали "РТР-Планета", інформаційний канал "Росія-24",'
+  #     values:
+  #       - Федерального державного унітарного підприємства "Всеросійська державна телевізійна і радіомовна компанія"
+  #   - match: 'Tovarystvo z obmezhenoiu vidpovidalnistiu "Transportni avtomatyzovani informatsiini systemy – TAIS" (Obshchestvo s ohranychennoi otvetstvennostiu "Transportnye avtomatyzyrovannye ynformatsyonnye systemy – TAYS", Tovarystvo z obmezhenoiu vidpovidalnistiu "Transportni avtomatyzovani informatsiini systemy – TAYiS")'
+  #     values:
+  #       - Tovarystvo z obmezhenoiu vidpovidalnistiu "Transportni avtomatyzovani informatsiini systemy – TAIS
+  #       - Obshchestvo s ohranychennoi otvetstvennostiu "Transportnye avtomatyzyrovannye ynformatsyonnye systemy – TAYS"
+  #       - Tovarystvo z obmezhenoiu vidpovidalnistiu "Transportni avtomatyzovani informatsiini systemy – TAYiS"
+  #   - match: 'Товариство з обмеженою відповідальністю "Транспортні автоматизовані інформаційні системи – ТАІС" (Общество с ограниченной ответственностью "Транспортные автоматизированные информационные системы – ТАИС", Товариство з обмеженою відповідальністю "Транспортні автоматизовані інформаційні системи – ТАЇС")'
+  #     values:
+  #       - Товариство з обмеженою відповідальністю "Транспортні автоматизовані інформаційні системи – ТАІС"
+  #       - Общество с ограниченной ответственностью "Транспортные автоматизированные информационные системы – ТАИС"
+  #       - Товариство з обмеженою відповідальністю "Транспортні автоматизовані інформаційні системи – ТАЇС"
+  #   - match: 'Platizhna orhanizatsiia mizhnarodnoyi platizhnoyi systemy "Kolibri", yakoiu upravliaie publichne aktsionerne tovarystvo "Sberbank Rosiyi" (Platizhna orhanizatsiia mizhnarodnoyi platizhnoyi systemy "Kolibri", yakoiu keruie publichne aktsionerne tovarystvo "Oshchadbank Rosiyi", publychnoe aktsyonernoe obshchestvo "Sberbank Rossyy", stara nazva – "Blits")'
+  #     values:
+  #       - Platizhna orhanizatsiia mizhnarodnoyi platizhnoyi systemy "Kolibri", yakoiu upravliaie publichne aktsionerne tovarystvo "Sberbank Rosiyi"
+  #       - Platizhna orhanizatsiia mizhnarodnoyi platizhnoyi systemy "Kolibri", yakoiu keruie publichne aktsionerne tovarystvo "Oshchadbank Rosiyi"
+  #       - publychnoe aktsyonernoe obshchestvo "Sberbank Rossyy", stara nazva – "Blits"
+  #   - match: 'Платіжна організація міжнародної платіжної системи "Колібрі", якою управляє публічне акціонерне товариство "Сбербанк Росії" (Платіжна організація міжнародної платіжної системи "Колібрі", якою керує публічне акціонерне товариство "Ощадбанк Росії", публичное акционерное общество "Сбербанк России", стара назва – "Бліц")'
+  #     values:
+
   type.country:
     normalize: true
     options:
