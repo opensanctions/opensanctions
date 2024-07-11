@@ -35,3 +35,11 @@ url: "https://www.iomfsa.im/enforcement/disqualified-directors/"
 data:
   url: https://www.iomfsa.im/enforcement/disqualified-directors/
   format: HTML
+
+assertions:
+  min:
+    schema_entities:
+      Person: 10
+  max:
+    schema_entities:
+      Person: 40
