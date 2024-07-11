@@ -7,7 +7,7 @@ coverage:
   frequency: monthly
   start: 2024-07-05
 summary: >
-  The dataset includes Unlawful Organisation (Suppression) Orders from 1939 and 1983 in the Irish Statute Book, designating specific organizations as unlawful
+  The dataset includes Unlawful Organisation (Suppression) Orders from 1939 and 1983 in the Irish Statute Book, designating specific organisations as unlawful
   under the Offences Against the State Act 1939.
 description: |
   This dataset includes the Unlawful Organisation (Suppression) Orders from 1939 and 1983 as published in the Irish Statute Book. These orders, issued 
