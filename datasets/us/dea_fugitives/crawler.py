@@ -11,16 +11,13 @@ def parse_table(table):
     """This function is used to parse the table of Labels and Descriptions
     about the fugitive and return as a dict.
     """
-
     info_dict = {}
-
     # The first row will always be the header (Label, Description)
     # So we can skip it.
     for row in table.findall(".//tr")[1:]:
         label = row.findtext(".//td[1]")
         description = row.findtext(".//td[2]")
         info_dict[label] = description
-
     return info_dict
 
 
@@ -38,6 +35,7 @@ def crawl_item(fugitive_url: str, context: Context):
     entity.add("gender", info_dict.pop("Sex", None))
     entity.add("birthDate", info_dict.pop("Year of Birth", None))
     entity.add("address", info_dict.pop("Last Known Address", None))
+    entity.add("ethnicity", info_dict.pop("Race", None))
 
     description = "".join(
         [
@@ -47,7 +45,12 @@ def crawl_item(fugitive_url: str, context: Context):
         ]
     )
     entity.add("notes", description)
+
+    for key, val in info_dict.items():
+        entity.add("notes", f"{key}: {val}")
+
     context.emit(entity, target=True)
+    # context.audit_data(info_dict)
 
 
 def crawl(context: Context):
