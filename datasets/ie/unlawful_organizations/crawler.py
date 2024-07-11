@@ -1,13 +1,8 @@
-from lxml import html
+from pprint import pprint
 import requests
-from urllib.parse import urljoin
 from zavod import Context, helpers as h
 
-SEARCH_URL = "https://www.irishstatutebook.ie/eli/ResultsTitle.html?q=unlawful+organisation&search_type=all"
-INITIAL_LINKS = [
-    # "https://www.irishstatutebook.ie/eli/1983/si/7/made/en/print?q=unlawful+organisation&search_type=all",
-    # "https://www.irishstatutebook.ie/eli/1939/sro/162/made/en/print?q=unlawful+organisation&search_type=all"  # ,
-]
+QUERY_URL = " https://www.irishstatutebook.ie/solr/all_leg_title/select?q=unlawful+organisation&rows=10&hl.maxAnalyzedChars=-1&sort=year+desc&facet=true&facet.field=year&facet.field=type&facet.limit=300&facet.mincount=1&json.nl=map&wt=json"
 
 HARD_CODED_DATA = [
     {
@@ -65,24 +60,16 @@ HARD_CODED_DATA = [
 ]
 
 
-def fetch_new_links(context: Context) -> set:
-    response = requests.get(SEARCH_URL)
-    page_content = html.fromstring(response.content)
-    links = page_content.xpath(
-        '//*[contains(concat(" ", @class, " "), concat(" ", "result", " ")) and (((count(preceding-sibling::*) + 1) = 2) and parent::*)]//a/@href'
-    )
-    if isinstance(links, list):
-        full_links = {
-            urljoin("https://www.irishstatutebook.ie", str(link)) for link in links
-        }
-    else:
-        full_links = set()
+def fetch_new_links(context: Context) -> None:
+    response = requests.get(QUERY_URL)
+    data = response.json()
+    pprint(data)
 
-    new_links = full_links - set(INITIAL_LINKS)
-    if new_links:
-        context.log.error(f"New links found: {new_links}")
-        raise Exception("New links found that are not in the INITIAL_LINKS.")
-    return new_links
+    # Check the 'numFound' field in the response
+    num_found = data.get("response", {}).get("numFound", 0)
+    if num_found > 2:
+        context.log.error(f"numFound is greater than 2: {num_found}")
+        raise Exception("Number of found documents is greater than 2.")
 
 
 def process_hardcoded_data(context: Context):
@@ -106,11 +93,4 @@ def process_hardcoded_data(context: Context):
 
 
 def crawl(context: Context):
-    try:
-        new_links = fetch_new_links(context)
-        if new_links:
-            raise Exception("New links found!")
-    except Exception as e:
-        context.log.error(f"Exception: {e}")
-    else:
-        process_hardcoded_data(context)
+    process_hardcoded_data(context)

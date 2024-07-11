@@ -1,11 +1,11 @@
 title: Ireland Unlawful Organisation (Suppression) Orders
-url: https://www.fdic.gov/resources/resolutions/bank-failures/failed-bank-list/
+url: https://www.irishstatutebook.ie/eli/ResultsTitle.html?q=unlawful+organisation&search_type=all
 entry_point: crawler.py
 prefix: ie-eisb
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 coverage:
   frequency: monthly
-  start: 2024-07-05
+  start: 2024-07-11
 summary: >
   The dataset includes Unlawful Organisation (Suppression) Orders from 1939 and 1983 in the Irish Statute Book, designating specific organisations as unlawful
   under the Offences Against the State Act 1939.
