@@ -112,6 +112,10 @@ def crawl_common(
         context.emit(sanction)
 
     entity.add("topics", "sanction")
+    for name in entity.names:
+        if len(name) > 300:
+            context.log.warn("Entity name too long", id=entity.id, name=name)
+
     context.audit_data(item, ignore=["status"])
     context.emit(entity, target=True)
 

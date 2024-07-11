@@ -29,6 +29,11 @@ data:
   format: JSON
 
 lookups:
+  type.name:
+    - contains: "1027739597819"
+      values:
+        - Tovarystvo z obmezhenoiu vidpovidalnistiu "Raiffaizen-Lizynh"
+        - Limited Liability Company "Raiffeisen-Leasing"
   type.country:
     normalize: true
     options:
