@@ -1,0 +1,29 @@
+title: Top Most Wanted Persons in the Cordillera Regions
+entry_point: crawler.py
+prefix: ph
+coverage:
+  frequency: weekly
+  start: "2024-07-10"
+deploy:
+  schedule: "@weekly"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  The dataset contains information about individuals currently most wanted by the Philippine National Police in the Cordillera Region.
+description: |
+  The dataset contains detailed information about individuals wanted by the police authorities in the Cordillera Region. It includes 
+  various categories of criminals and terrorists, including communists and locals, who have rewards associated with their capture. 
+  The dataset includes each person's name, reward amount, offences, and case-control number (CC No.).
+publisher:
+  name: Philippine National Police
+  acronym: PNP
+  description: |
+    The Cordillera Autonomous Region was established in 1987, leading to the creation of the Police Regional Office Cordillera, 
+    which is responsible for maintaining peace and order in the Cordillera Region. The Philippine Constabulary was replaced by 
+    the Philippine National Police in January 1991. Their main duty is to enforce the law, prevent and control crimes, 
+    maintain peace and order, and ensure public safety and internal security with the active support of the community.
+  url: https://procor.pnp.gov.ph
+  official: true
+url: https://procor.pnp.gov.ph/crime-investigation/most-wanted-persons/
+data:
+  url: https://procor.pnp.gov.ph/wp-content/uploads/2022/02/TERRORIST-GROUP2-1024x929.jpg
+  format: jpg
