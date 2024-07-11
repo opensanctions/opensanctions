@@ -91,5 +91,5 @@ def process_hardcoded_data(context: Context):
 
 
 def crawl(context: Context):
-    process_hardcoded_data(context)
     fetch_new_links(context)
+    process_hardcoded_data(context)
