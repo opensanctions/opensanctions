@@ -1,0 +1,45 @@
+title: "U.S. Immigration and Customs Enforcement Most Wanted Fugitives"
+entry_point: crawler.py
+prefix: us-ice-want
+summary: "The Most Wanted Fugitives published by the U.S. Immigration and Customs Enforcement (ICE)."
+description: |
+  This dataset contains the list of individuals most wanted by the ICE.
+  Individuals in this list are involved in some form of crime such as human trafficking and smuggling, money laundering,
+  manslaughter, narcotics, gang membership etc.
+
+url: https://www.ice.gov/most-wanted
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+coverage:
+  frequency: daily
+  start: "2024-07-18"
+publisher:
+  name: United States Immigration and Customs Enforcement
+  acronym: ICE
+  description: |
+    The U.S. Immigration and Customs Enforcement (ICE) is a federal law enforcement agency under the 
+    U.S. Department of Homeland Security. ICE's stated mission is to protect the United States from cross-border 
+    crime and undocumented immigration that threaten national security and public safety. 
+    [Source](https://en.wikipedia.org/wiki/U.S._Immigration_and_Customs_Enforcement)
+  country: us
+  url: https://www.ice.gov/
+  official: true
+data:
+  url: https://www.ice.gov/most-wanted
+  format: HTML
+lookups:
+  type.string:
+    lowercase: true
+    options:
+      - match:
+          - N/A
+        value: null
+  type.gender:
+    lowercase: true
+    normalize: true
+    options:
+      - match: MALE
+        value: male
+assertions:
+  min:
+    schema_entities:
+      Person: 35
