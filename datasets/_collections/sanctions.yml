@@ -58,6 +58,7 @@ children:
   - eu_sanctions_map
   - eu_travel_bans
   - eu_esma_saris
+  - eu_sanctions
   - ee_international_sanctions
   - fr_tresor_gels_avoir
   - gb_hmt_invbans
