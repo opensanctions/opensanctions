@@ -36,6 +36,13 @@ def make_session(http_conf: HTTP) -> Session:
     )
     session.mount("https://", HTTPAdapter(max_retries=retries))
     session.mount("http://", HTTPAdapter(max_retries=retries))
+    zyte_retries = Retry(
+        total=10,
+        backoff_factor=3,
+        status_forcelist=list(Retry.RETRY_AFTER_STATUS_CODES) + [520],
+        allowed_methods=["POST"],
+    )
+    session.mount("https://api.zyte.com/v1/extract", HTTPAdapter(max_retries=zyte_retries))
     return session
 
 
