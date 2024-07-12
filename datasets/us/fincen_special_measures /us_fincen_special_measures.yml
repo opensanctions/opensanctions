@@ -39,4 +39,15 @@ data:
 assertions:
   min:
     schema_entities:
-      Company: 500
+      PublicBody: 3
+
+
+lookups:
+  target_type:
+    options:
+      - match:
+        - "Burma****"
+        - "Nauru"
+        - "Islamic Republic of Iran"
+        - "Ukraine"
+        schema: PublicBody

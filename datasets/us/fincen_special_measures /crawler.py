@@ -4,14 +4,6 @@ from zavod import helpers as h
 from typing import Dict
 
 
-def clean_row(row: Dict[str, str]) -> Dict[str, str]:
-    """Clean non-standard spaces from row keys and values."""
-    return {
-        k.replace("\xa0", " ").strip(): v.replace("\xa0", " ").strip()
-        for k, v in row.items()
-    }
-
-
 def convert_date(date_str: str) -> list[str]:
     """Convert various date formats to 'YYYY-MM-DD'."""
     formats = [
@@ -19,6 +11,23 @@ def convert_date(date_str: str) -> list[str]:
         "%d-%b-%y",  # 'DD-MMM-YY' format
     ]
     return h.parse_date(date_str, formats, default=None)
+
+
+def parse_table(table: HtmlElement) -> Generator[Dict[str, str], None, None]:
+    headers = None
+    for row in table.findall(".//tr"):
+        if headers is None:
+            headers = []
+            for el in row.findall("./th"):
+                # Workaround because lxml-stubs doesn't yet support HtmlElement
+                # https://github.com/lxml/lxml-stubs/pull/71
+                eltree = cast(HtmlElement, el)
+                headers.append(slugify(eltree.text_content()))
+            continue
+
+        cells = [collapse_spaces(el.text_content()) for el in row.findall("./td")]
+        assert len(headers) == len(cells), (headers, cells)
+        yield {hdr: c for hdr, c in zip(headers, cells)}
 
 
 def crawl_row(context: Context, row: Dict[str, str]):
