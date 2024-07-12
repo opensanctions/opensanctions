@@ -1,0 +1,42 @@
+name: fincen_special_measures
+title: "FinCEN 311 and 9714 Special Measures"
+url: https://www.fincen.gov/resources/statutes-and-regulations/311-and-9714-special-measures
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+coverage:
+  frequency: daily
+  start: 2024-07-12
+
+summary: >
+  FinCEN, part of the U.S. Department of the Treasury, fights money laundering, safeguards the financial system, and promotes national
+  security through gathering and sharing financial intelligence.
+
+description: |
+  FinCEN, a bureau of the U.S. Department of the Treasury, aims to safeguard the financial system, combat money laundering, 
+  and promote national security by collecting, analyzing, and disseminating financial intelligence. It exercises regulatory 
+  functions under the Bank Secrecy Act, works with international organizations, and supports law enforcement at all levels. As 
+  the Financial Intelligence Unit for the United States, FinCEN exchanges financial information with counterparts worldwide to 
+  support financial crime investigations.
+
+entry_point: crawler.py
+prefix: us-fincen
+
+publisher:
+  name: Financial Crimes Enforcement Network
+  acronym: FinCEN
+  official: true
+  description: |
+    The Financial Crimes Enforcement Network (FinCEN) is a bureau of the United States Department of the Treasury that collects and 
+    analyzes information about financial transactions in order to combat domestic and international money laundering, terrorist financing, 
+    and other financial crimes.
+
+  country: us
+  url: https://www.fincen.gov
+
+data:
+  url: https://www.fincen.gov/resources/statutes-and-regulations/311-and-9714-special-measures
+  format: html
+
+assertions:
+  min:
+    schema_entities:
+      Company: 500
