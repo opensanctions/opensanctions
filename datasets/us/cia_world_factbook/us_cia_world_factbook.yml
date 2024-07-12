@@ -37,6 +37,12 @@ data:
 lookups:
   unparsed_holders:
     options:
+      # Australia
+      - match: "represented by Governor General Samantha (Sam) MOSTYN (since 1 July 2024)"
+        holders:
+          - role: Governor General
+            name: Samantha MOSTYN
+            start date: 1 July 2024
       # San-Marino
       - match: co-chiefs of state Captains Regent Filippo TAMAGNINI and Gaetano TROINA (for the period 1 October 2023 - 1 April 2024)
         holders:
