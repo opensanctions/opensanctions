@@ -29,7 +29,3 @@ data:
   url: https://www.migracija.lt/external/nam/search?pageNo=0&pageSize=400&language=lt
   file_name: source.json
   format: JSON
-config:
-  topic: 
-    - sanction
-    - sanction.linked
