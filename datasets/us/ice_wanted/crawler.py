@@ -17,7 +17,7 @@ def get_element_text(doc: ElementTree, xpath_value: str, to_remove=[]) -> str:
     for tag in element_tags:
         tag_list.append(tag.text_content())
 
-    element_text = "".join(tag_list)
+    element_text = " ".join(tag_list)
 
     for string in to_remove:
         element_text = element_text.replace(string, "")
