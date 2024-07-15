@@ -45,6 +45,7 @@ def crawl_item(context: Context, row: Dict[str, str]):
     pdf_link_finding = row.get("pdf_link_finding", None)
     pdf_link_nprm = row.get("pdf_link_nprm", None)
     pdf_link_final_rule = row.get("pdf_link_final_rule", None)
+    pdf_link_rescinded = row.get("pdf_link_rescinded", None)
 
     # Convert relative URLs to full URLs
     if pdf_link_finding and pdf_link_finding.startswith("/"):
@@ -53,6 +54,8 @@ def crawl_item(context: Context, row: Dict[str, str]):
         pdf_link_nprm = BASE_URL + pdf_link_nprm
     if pdf_link_final_rule and pdf_link_final_rule.startswith("/"):
         pdf_link_final_rule = BASE_URL + pdf_link_final_rule
+    if pdf_link_rescinded and pdf_link_rescinded.startswith("/"):
+        pdf_link_rescinded = BASE_URL + pdf_link_rescinded
 
     # Create and add details to the sanction
     sanction = h.make_sanction(context, entity)
@@ -77,6 +80,8 @@ def crawl_item(context: Context, row: Dict[str, str]):
         sanction.add("description", pdf_link_nprm)  # NPRM PDF link
     if pdf_link_final_rule:
         sanction.add("description", pdf_link_final_rule)  # Final Rule PDF link
+    if pdf_link_rescinded:
+        sanction.add("description", pdf_link_rescinded)  # Rescinded PDF link
 
     # Emit the entity and the sanction
     context.emit(entity, target=True)
@@ -94,7 +99,14 @@ def parse_table(table: html.HtmlElement) -> Generator[Dict[str, str], None, None
                 else "company"
                 for el in row.findall("./th")
             ]
-            headers.extend(["pdf_link_finding", "pdf_link_nprm", "pdf_link_final_rule"])
+            headers.extend(
+                [
+                    "pdf_link_finding",
+                    "pdf_link_nprm",
+                    "pdf_link_final_rule",
+                    "pdf_link_rescinded",
+                ]
+            )
             continue
         cells = [el.text_content().strip() for el in row.findall("./td")]
 
@@ -102,6 +114,7 @@ def parse_table(table: html.HtmlElement) -> Generator[Dict[str, str], None, None
         pdf_link_finding = None
         pdf_link_nprm = None
         pdf_link_final_rule = None
+        pdf_link_rescinded = None
 
         pdf_links = row.findall(".//a[@href]")
 
@@ -115,14 +128,16 @@ def parse_table(table: html.HtmlElement) -> Generator[Dict[str, str], None, None
                     pdf_link_nprm = pdf_link
                 elif i == 2:
                     pdf_link_final_rule = pdf_link
+                elif i == 3:
+                    pdf_link_rescinded = pdf_link
 
         if (
-            len(cells) != len(headers) - 3
+            len(cells) != len(headers) - 4
         ):  # Minus three because we added the 'pdf_link_*' headers
             continue
         cells.extend(
-            [pdf_link_finding, pdf_link_nprm, pdf_link_final_rule]
-        )  # Append the extracted PDF links
+            [pdf_link_finding, pdf_link_nprm, pdf_link_final_rule, pdf_link_rescinded]
+        )
         yield {header: cell for header, cell in zip(headers, cells)}
 
 
