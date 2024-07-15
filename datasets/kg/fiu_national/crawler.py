@@ -11,7 +11,7 @@ def parse_person(context: Context, node: Element):
     entity = context.make("Person")
     entity.id = context.make_id(
         node.tag,
-        node.findtext("./Number"),
+        node.findtext("./DateInclusion"),
         node.findtext("./Name"),
         node.findtext("./Patronomic"),
         node.findtext("./Surname"),
@@ -30,7 +30,7 @@ def parse_person(context: Context, node: Element):
 def parse_legal(context: Context, node: Element):
     entity = context.make("LegalEntity")
     names = node.findtext("./Name")
-    entity.id = context.make_id(node.tag, node.findtext("./Number"), names)
+    entity.id = context.make_id(node.tag, node.findtext("./DateInclusion"), names)
     entity.add("name", names.split(", "))
     parse_common(context, node, entity)
 
