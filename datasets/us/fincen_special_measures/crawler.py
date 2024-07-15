@@ -5,6 +5,8 @@ from zavod import Context, helpers as h
 from slugify import slugify
 from typing import Dict, Generator
 
+BASE_URL = "https://www.fincen.gov"
+
 
 def convert_date(date_str: str) -> str or None:
     """Convert various date formats to 'YYYY-MM-DD'."""
@@ -32,13 +34,25 @@ def convert_date(date_str: str) -> str or None:
 
 def crawl_item(context: Context, row: Dict[str, str]):
     # Create the entity based on the schema
-    print(row)
     name = row.pop("company")
     schema = context.lookup_value("target_type", name, default="Company")
     entity = context.make(schema)
     entity.id = context.make_slug(name)
     entity.add("name", name)
     entity.add("topics", "sanction")
+
+    # Extract PDF links
+    pdf_link_finding = row.get("pdf_link_finding", None)
+    pdf_link_nprm = row.get("pdf_link_nprm", None)
+    pdf_link_final_rule = row.get("pdf_link_final_rule", None)
+
+    # Convert relative URLs to full URLs
+    if pdf_link_finding and pdf_link_finding.startswith("/"):
+        pdf_link_finding = BASE_URL + pdf_link_finding
+    if pdf_link_nprm and pdf_link_nprm.startswith("/"):
+        pdf_link_nprm = BASE_URL + pdf_link_nprm
+    if pdf_link_final_rule and pdf_link_final_rule.startswith("/"):
+        pdf_link_final_rule = BASE_URL + pdf_link_final_rule
 
     # Create and add details to the sanction
     sanction = h.make_sanction(context, entity)
@@ -56,6 +70,14 @@ def crawl_item(context: Context, row: Dict[str, str]):
     if rescinded_date != "---":
         sanction.add("endDate", convert_date(rescinded_date))
 
+    # Add description with the PDF link
+    if pdf_link_finding:
+        sanction.add("description", pdf_link_finding)  # Finding PDF link
+    if pdf_link_nprm:
+        sanction.add("description", pdf_link_nprm)  # NPRM PDF link
+    if pdf_link_final_rule:
+        sanction.add("description", pdf_link_final_rule)  # Final Rule PDF link
+
     # Emit the entity and the sanction
     context.emit(entity, target=True)
     context.emit(sanction)
@@ -72,16 +94,36 @@ def parse_table(table: html.HtmlElement) -> Generator[Dict[str, str], None, None
                 else "company"
                 for el in row.findall("./th")
             ]
+            headers.extend(["pdf_link_finding", "pdf_link_nprm", "pdf_link_final_rule"])
             continue
         cells = [el.text_content().strip() for el in row.findall("./td")]
-        if len(cells) != len(headers):
+
+        # Extract PDF links from the relevant columns
+        pdf_link_finding = None
+        pdf_link_nprm = None
+        pdf_link_final_rule = None
+
+        pdf_links = row.findall(".//a[@href]")
+
+        # Assuming the order of links in the row corresponds to the columns: Finding, NPRM, and Final Rule.
+        for i, pdf_link_element in enumerate(pdf_links):
+            pdf_link = pdf_link_element.get("href")
+            if pdf_link.endswith(".pdf"):
+                if i == 0:
+                    pdf_link_finding = pdf_link
+                elif i == 1:
+                    pdf_link_nprm = pdf_link
+                elif i == 2:
+                    pdf_link_final_rule = pdf_link
+
+        if (
+            len(cells) != len(headers) - 3
+        ):  # Minus three because we added the 'pdf_link_*' headers
             continue
-        # yield {header: cell for header, cell in zip(headers, cells)}
-        row_dict = {header: cell for header, cell in zip(headers, cells)}
-        row_dict["match"] = row_dict.get(
-            "match", ""
-        ).strip()  # Ensure match value is stripped of whitespace
-        yield row_dict
+        cells.extend(
+            [pdf_link_finding, pdf_link_nprm, pdf_link_final_rule]
+        )  # Append the extracted PDF links
+        yield {header: cell for header, cell in zip(headers, cells)}
 
 
 # Main crawl function to fetch and process data.
