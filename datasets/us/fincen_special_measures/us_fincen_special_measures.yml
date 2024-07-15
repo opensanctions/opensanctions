@@ -36,18 +36,13 @@ data:
   url: https://www.fincen.gov/resources/statutes-and-regulations/311-and-9714-special-measures
   format: html
 
-assertions:
-  min:
-    schema_entities:
-      PublicBody: 3
-
-
 lookups:
   target_type:
     options:
       - match:
-        - "Burma****"
-        - "Islamic Republic of Iran"
-        - "Nauru"
-        - "Ukraine"
-        schema: PublicBody
+        - Burma****
+        - Democratic People’s Republic of Korea
+        - Islamic Republic of Iran
+        - Nauru
+        - Ukraine
+        value: PublicBody

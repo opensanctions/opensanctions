@@ -1,38 +1,62 @@
 from lxml import html
-import requests
-from urllib.parse import urljoin
+import re
+from datetime import datetime
 from zavod import Context, helpers as h
 from slugify import slugify
-from typing import Dict, Generator, List
+from typing import Dict, Generator
 
 
-# Convert various date formats to 'YYYY-MM-DD'.
-def convert_date(date_str: str) -> List[str]:
+def convert_date(date_str: str) -> str or None:
+    """Convert various date formats to 'YYYY-MM-DD'."""
+    # Regular expression to find dates in the format 'MM/DD/YYYY'
+    date_pattern = re.compile(r"(\d{1,2}/\d{1,2}/\d{4})")
+    match = date_pattern.search(date_str)
+    if match:
+        date_str = match.group(1)  # Extract the first matching date
+
     formats = [
         "%m/%d/%Y",  # 'MM/DD/YYYY' format
         "%B %d, %Y",  # 'Month DD, YYYY' format
         "%d-%b-%y",  # 'DD-MMM-YY' format
     ]
-    return h.parse_date(date_str, formats, default=None)
+
+    for fmt in formats:
+        try:
+            # Parse the date string and return in 'YYYY-MM-DD' format
+            return datetime.strptime(date_str, fmt).strftime("%Y-%m-%d")
+        except ValueError:
+            continue
+
+    return None
 
 
-# Process each row and emit an entity and sanction record.
 def crawl_item(context: Context, row: Dict[str, str]):
-    entity = context.make("Company")
+    # Create the entity based on the schema
+    print(row)
     name = row.pop("company")
+    schema = context.lookup_value("target_type", name, default="Company")
+    entity = context.make(schema)
     entity.id = context.make_slug(name)
     entity.add("name", name)
-    entity.add("country", "us")
     entity.add("topics", "sanction")
 
+    # Create and add details to the sanction
     sanction = h.make_sanction(context, entity)
-    sanction.add("startDate", row.get("comments", "").replace("<br>", "\n"))
-    sanction.add("endDate", row.get("grounds", "").replace("<br>", "\n"))
     sanction.add("country", "us")
-    sanction.add("provisions", row.get("typeLabel", ""))
-    sanction.add("startDate", convert_date(row.get("from", "")))
-    sanction.add("endDate", convert_date(row.get("to", "")))
+    finding_date = row.get("finding", "")
+    nprm_date = row.get("notice_of_proposed_rulemaking", "")
+    listing_date = finding_date if finding_date else nprm_date
+    listing_date = convert_date(listing_date)
+    sanction.add("listingDate", listing_date)
+    final_rule_date = row.get("final_rule", "")
+    if final_rule_date != "---":
+        sanction.add("startDate", convert_date(final_rule_date))
 
+    rescinded_date = row.get("rescinded", "")
+    if rescinded_date != "---":
+        sanction.add("endDate", convert_date(rescinded_date))
+
+    # Emit the entity and the sanction
     context.emit(entity, target=True)
     context.emit(sanction)
 
@@ -52,17 +76,17 @@ def parse_table(table: html.HtmlElement) -> Generator[Dict[str, str], None, None
         cells = [el.text_content().strip() for el in row.findall("./td")]
         if len(cells) != len(headers):
             continue
-        yield {header: cell for header, cell in zip(headers, cells)}
+        # yield {header: cell for header, cell in zip(headers, cells)}
+        row_dict = {header: cell for header, cell in zip(headers, cells)}
+        row_dict["match"] = row_dict.get(
+            "match", ""
+        ).strip()  # Ensure match value is stripped of whitespace
+        yield row_dict
 
 
 # Main crawl function to fetch and process data.
 def crawl(context: Context):
-    context.log.info("Fetching data from FinCen Special Measures List")
-    response = requests.get(
-        "https://www.fincen.gov/resources/statutes-and-regulations/311-and-9714-special-measures"
-    )
-    doc = html.fromstring(response.content)
-
+    doc = context.fetch_html(context.data_url)
     table = doc.get_element_by_id("special-measures-table")
     if table is not None:
         for row in parse_table(table):
