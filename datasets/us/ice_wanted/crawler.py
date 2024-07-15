@@ -32,6 +32,10 @@ def crawl_person(context: Context, url: str, wanted_for: str):
         doc,
         '//div[contains(@class, "field--name-field-most-wanted-name")]//div[contains(@class, "field__item")]',
     )
+    alias = get_element_text(
+        doc,
+        '//div[contains(@class, "field--name-field-most-wanted-alias")]//div[contains(@class, "field__item")]',
+    )
 
     gender = get_element_text(
         doc,
@@ -93,6 +97,7 @@ def crawl_person(context: Context, url: str, wanted_for: str):
     person = context.make("Person")
     person.id = context.make_slug(person_id)
     person.add("name", name)
+    person.add("alias", alias.split("; "))
     person.add("topics", "crime")
     person.add("sourceUrl", url)
     person.add("summary", summary)
