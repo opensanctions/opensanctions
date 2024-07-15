@@ -19,6 +19,7 @@ _Auth = Optional[Tuple[str, str]]
 _Headers = Optional[Mapping[str, str]]
 _Body = Optional[Union[Mapping[str, str], List[Tuple[str, str]]]]
 
+
 def make_session(http_conf: HTTP) -> Session:
     session = Session()
     session.headers["User-Agent"] = http_conf.user_agent
