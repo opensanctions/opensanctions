@@ -664,6 +664,11 @@ lookups:
           - role: Acting President
             name: Mohammad Mokhber
             start_date: 20 May 2024
+      - match: President-elect Masoud PEZESHKIAN (assumes office on 30 July 2024)
+        holders:
+          - role: President-elect
+            name: Masoud PEZESHKIAN
+            start_date: 30 July 2024
       # Afghanistan
       - match: "Taliban Leader HAYBATULLAH Akhundzada (since 15 August 2021)"
         holders:
