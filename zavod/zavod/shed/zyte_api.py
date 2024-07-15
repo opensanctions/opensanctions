@@ -2,11 +2,16 @@ from lxml import html, etree
 from time import sleep
 from base64 import b64decode
 from typing import Any, Callable, Dict, List, Optional
-
+from requests import Session
+from requests.adapters import HTTPAdapter
+from urllib3 import Retry
 
 from zavod import settings
 from zavod.context import Context
-from zavod.runtime.http_ import request_hash, ZYTE_API_URL
+from zavod.runtime.http_ import request_hash
+
+
+ZYTE_API_URL = "https://api.zyte.com/v1/extract"
 
 
 class UnblockFailedException(RuntimeError):
@@ -17,6 +22,16 @@ class UnblockFailedException(RuntimeError):
 def get_charset(headers: List[Dict[str, str]]) -> str:
     content_type = [h["value"] for h in headers if h["name"] == "content-type"][0]
     return content_type.split("charset=")[-1]
+
+
+def configure_session(session: Session) -> None:
+    zyte_retries = Retry(
+        total=10,
+        backoff_factor=3,
+        status_forcelist=list(Retry.RETRY_AFTER_STATUS_CODES) + [520],
+        allowed_methods=["POST"],
+    )
+    session.mount(ZYTE_API_URL, HTTPAdapter(max_retries=zyte_retries))
 
 
 def fetch_html(
@@ -41,6 +56,7 @@ def fetch_html(
         unblock_validator: A function that checks if the page is unblocked
             successfully. This is important to ensure we don't cache pages
             that weren't actually unblocked successfully.
+        actions: A list of dicts of actions to attempt on a rendered page.
         html_source: browserHtml | httpResponseBody
         javascript: Whether to execute JavaScript on the page.
         cache_days: The number of days to cache the page.
@@ -80,6 +96,7 @@ def fetch_html(
 
     context.log.debug(f"Zyte API request: {url}", data=zyte_data)
     zyte_data["url"] = url
+    configure_session(context.http)
     api_response = context.http.post(
         ZYTE_API_URL,
         auth=(settings.ZYTE_API_KEY, ""),
