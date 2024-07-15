@@ -6,7 +6,7 @@ summary: >-
   The sanctions list aims to prevent foreign individuals involved in gross human rights violations, 
   money laundering, and corruption from entering Lithuania.
 coverage:
-  frequency: monthly
+  frequency: daily
   start: 2024-07-09
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 description: |
