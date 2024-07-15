@@ -19,6 +19,8 @@ _Auth = Optional[Tuple[str, str]]
 _Headers = Optional[Mapping[str, str]]
 _Body = Optional[Union[Mapping[str, str], List[Tuple[str, str]]]]
 
+ZYTE_API_URL = "https://api.zyte.com/v1/extract"
+
 
 def make_session(http_conf: HTTP) -> Session:
     session = Session()
@@ -36,13 +38,14 @@ def make_session(http_conf: HTTP) -> Session:
     )
     session.mount("https://", HTTPAdapter(max_retries=retries))
     session.mount("http://", HTTPAdapter(max_retries=retries))
+    # Zyte API
     zyte_retries = Retry(
         total=10,
         backoff_factor=3,
         status_forcelist=list(Retry.RETRY_AFTER_STATUS_CODES) + [520],
         allowed_methods=["POST"],
     )
-    session.mount("https://api.zyte.com/v1/extract", HTTPAdapter(max_retries=zyte_retries))
+    session.mount(ZYTE_API_URL, HTTPAdapter(max_retries=zyte_retries))
     return session
 
 
