@@ -45,6 +45,7 @@ def crawl(context: Context):
         person.id = person_id
         person.add("name", f"{entry.get('vardas')} {entry.get('pavarde')}", lang="lit")
         person.add("birthDate", h.parse_date(entry.get("gimimoData"), DATE_FORMATS))
+        person.add("topics", "sanction")
         gender = map_gender(entry.get("lytis"))
         if gender:
             person.add("gender", gender)

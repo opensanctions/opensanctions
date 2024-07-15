@@ -71,7 +71,7 @@ class LocalEnricher(Enricher):
         self._limit = int(config.pop("limit", 5))
 
     def entity_from_statements(self, class_: Type[CE], entity: CompositeEntity) -> CE:
-        if type(entity) == class_:
+        if type(entity) is class_:
             return entity
         return class_.from_statements(self.dataset, entity.statements)
 

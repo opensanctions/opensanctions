@@ -4,9 +4,6 @@ prefix: afdb
 coverage:
   frequency: daily
   start: 2021-11-08
-  end: 2024-06-04
-deploy:
-  schedule: "@daily"
 ci_test: false
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-

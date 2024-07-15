@@ -76,6 +76,9 @@ lookups:
       - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-12-fevrier-2024/
         names:
           - Madame Someya QALAM
+      - match: https://www.cssf.lu/fr/Document/sanction-administrative-du-2-avril-2024/
+        names:
+          - abrdn Investments Luxembourg S.A.
       # Anonymous:
       - match:
           - https://www.cssf.lu/fr/Document/sanction-administrative-du16-05-2019/
