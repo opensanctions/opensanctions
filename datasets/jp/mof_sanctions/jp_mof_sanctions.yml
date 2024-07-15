@@ -114,6 +114,7 @@ lookups:
           - 別 名
           - 別 称 ・ 別 名
           - 別称・旧称
+          - 別称
         value: alias
       - match:
           - 称 号

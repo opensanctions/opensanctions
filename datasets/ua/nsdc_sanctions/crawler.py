@@ -20,9 +20,28 @@ def fetch_data(
     return context.fetch_json(url, headers=headers, cache_days=cache_days)
 
 
+def check_name(context: Context, entity: Entity, subject_id: str, name: str) -> bool:
+    if len(name) > 300:
+        context.log.warn(
+            "Entity name too long",
+            id=entity.id,
+            name=name,
+            subject_id=subject_id,
+        )
+        return False
+    return True
+
+
 def crawl_common(
     context: Context, subject_id: str, entity: Entity, item: Dict[str, Any]
 ) -> None:
+    name = item.pop("name")
+    if check_name(context, entity, subject_id, name):
+        entity.add("name", name, lang="ukr")
+    name_translit = item.pop("translit")
+    if check_name(context, entity, subject_id, name_translit):
+        entity.add("name", name_translit, lang="eng")
+
     identifiers = item.pop("identifiers") or []
     for ident in identifiers:
         ident_id = ident.pop("id")
@@ -118,12 +137,8 @@ def crawl_common(
 
 def crawl_indiviudal(context: Context, item: Dict[str, Any]) -> None:
     subject_id = item.pop("sid")
-
-    name = item.pop("name")
     entity = context.make("Person")
-    entity.id = context.make_slug(subject_id, name)
-    entity.add("name", name, lang="ukr")
-    entity.add("name", item.pop("translit"), lang="eng")
+    entity.id = context.make_slug(subject_id, item.get("name"))
     entity.add("alias", item.pop("aliases"))
     entity.add("nationality", item.pop("citizenships"))
     entity.add("birthDate", item.pop("bd"))
@@ -133,11 +148,8 @@ def crawl_indiviudal(context: Context, item: Dict[str, Any]) -> None:
 
 def crawl_legal(context: Context, item: Dict[str, Any]) -> None:
     subject_id = item.pop("sid")
-    name = item.pop("name")
     entity = context.make("Organization")
-    entity.id = context.make_slug(subject_id, name)
-    entity.add("name", name, lang="ukr")
-    entity.add("name", item.pop("translit"), lang="eng")
+    entity.id = context.make_slug(subject_id, item.get("name"))
     entity.add("alias", item.pop("aliases"))
     entity.add("jurisdiction", item.pop("citizenships"))
     entity.add("incorporationDate", item.pop("bd"))

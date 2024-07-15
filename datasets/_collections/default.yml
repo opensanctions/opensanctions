@@ -34,9 +34,11 @@ description: |
   dates or full given names.
 children:
   - sanctions
+  - eu_sanctions
   - crime
   - peps
   - debarment
+  - regulatory
   - wanted
   - enrichers
 

@@ -1,6 +1,5 @@
 import logging
-from typing import Generator, List, Optional, Tuple, Type
-from followthemoney.namespace import Namespace
+from typing import Generator, List, Tuple, Type
 from followthemoney.types import registry
 
 from nomenklatura import CompositeEntity
@@ -70,12 +69,9 @@ class LocalEnricher(Enricher):
         self._algorithm = _algorithm
         self._cutoff = float(config.pop("cutoff", 0.5))
         self._limit = int(config.pop("limit", 5))
-        self._ns: Optional[Namespace] = None
-        if self.get_config_bool("strip_namespace"):
-            self._ns = Namespace()
 
     def entity_from_statements(self, class_: Type[CE], entity: CompositeEntity) -> CE:
-        if type(entity) == class_:
+        if type(entity) is class_:
             return entity
         return class_.from_statements(self.dataset, entity.statements)
 
@@ -106,9 +102,6 @@ class LocalEnricher(Enricher):
                 continue
 
             proxy = self.entity_from_statements(type(entity), match)
-            if self._ns is not None:
-                proxy = self._ns.apply(proxy)
-
             scores.append((result.score, proxy))
 
         scores.sort(key=lambda s: s[0], reverse=True)
@@ -138,8 +131,6 @@ class LocalEnricher(Enricher):
                 continue
 
             proxy = self.entity_from_statements(type(entity), adjacent)
-            if self._ns is not None:
-                entity = self._ns.apply(proxy)
             yield from self._traverse_nested(proxy, next_path)
 
     def expand(self, entity: CE, match: CE) -> Generator[CE, None, None]:
