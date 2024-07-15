@@ -41,6 +41,7 @@ data:
   url: https://www.sec.gov/enforce/public-alerts
   format: HTML
   lang: eng
+ci_test: false
 
 lookups:
   schema:
