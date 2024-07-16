@@ -1,4 +1,3 @@
-name: fincen_special_measures
 title: "FinCEN 311 and 9714 Special Measures"
 url: https://www.fincen.gov/resources/statutes-and-regulations/311-and-9714-special-measures
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
