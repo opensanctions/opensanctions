@@ -133,7 +133,7 @@ def parse_table(table: html.HtmlElement) -> Generator[Dict[str, str], None, None
 
         if (
             len(cells) != len(headers) - 4
-        ):  # Minus three because we added the 'pdf_link_*' headers
+        ):  # Minus four because we added the 'pdf_link_*' headers
             continue
         cells.extend(
             [pdf_link_finding, pdf_link_nprm, pdf_link_final_rule, pdf_link_rescinded]
