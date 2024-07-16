@@ -33,9 +33,9 @@ lookups:
   target_type:
     options:
       - match:
-        - "Burma****"
-        - "Democratic People’s Republic of Korea"
-        - "Islamic Republic of Iran"
-        - "Nauru"
-        - "Ukraine"
+          - "Burma****"
+          - "Democratic People’s Republic of Korea"
+          - "Islamic Republic of Iran"
+          - "Nauru"
+          - "Ukraine"
         value: PublicBody
