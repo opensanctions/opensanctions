@@ -1,0 +1,30 @@
+title: Announcement DL 2/2002 of the Austrian National Bank (Measures restricting capital and payment transactions to combat terrorism)
+entry_point: crawler.py
+prefix: au
+coverage:
+  frequency: weekly
+  start: "2024-07-16"
+deploy:
+  schedule: "@weekly"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  The dataset contains Austrian National Bank regulations aimed at combating terrorism, including DL 2/2002, applicable to specified 
+  individuals' assets under the 2010 Sanctions Act (SanktG).
+description: |
+  The dataset comprises unofficial versions of regulations provided by the Austrian National Bank (OeNB) aimed at combating terrorism through capital and payment traffic restriction
+  measures. It includes the original regulation published in September 2002 as DL 2/2002. According to the Sanctions Act 2010 (SanktG), the regulation DL 2/2002, as amended by DL 1/2009,
+  is considered a valid regulation under § 2 para. 1 SanktG. This regulation applies to all assets of the individuals specified in the document.
+publisher:
+  name: Austrian National Bank
+  acronym: OeNB
+  description: |
+    The Oesterreichische Nationalbank (OeNB) is the central bank of the Republic of Austria and a key member of the European System of Central Banks (ESCB).
+    It plays a vital role in shaping economic development both in Austria and the euro area while maintaining independence from directives. The OeNB's core
+    responsibilities encompass cash management, monetary policy, financial market stability, statistics, and payment transactions.
+  url: https://www.oenb.at
+  official: false
+url: https://www.oenb.at/Ueber-Uns/Rechtliche-Grundlagen/Verordnungen-nach-DevG.html
+data:
+  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vSuNicMIsLe0OOhS8Xcru4a3QpEZMRvlHmN3E0r4hTLXjvyD7ha0MX8RZuUxsguhel141SkCf1Tm5G-/pub?gid=0&single=true&output=csv
+  file_name: source.csv
+  format: csv
