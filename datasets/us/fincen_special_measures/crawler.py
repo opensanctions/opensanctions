@@ -2,7 +2,7 @@ from lxml import html
 import re
 from datetime import datetime
 from zavod import Context, helpers as h
-from slugify import slugify
+from normality import slugify
 from typing import Dict, Generator
 
 BASE_URL = "https://www.fincen.gov"
@@ -21,23 +21,17 @@ def convert_date(date_str: str) -> str or None:
         "%B %d, %Y",  # 'Month DD, YYYY' format
         "%d-%b-%y",  # 'DD-MMM-YY' format
     ]
-
-    for fmt in formats:
-        try:
-            # Parse the date string and return in 'YYYY-MM-DD' format
-            return datetime.strptime(date_str, fmt).strftime("%Y-%m-%d")
-        except ValueError:
-            continue
-
-    return None
+    return h.parse_date(date_str, formats)
 
 
 def crawl_item(context: Context, row: Dict[str, str]):
     # Create the entity based on the schema
     name = row.pop("company")
-    schema = context.lookup_value("target_type", name, default="Company")
+    schema = context.lookup_value("target_type", name)
+    if schema is None:
+        schema = "Company"
     entity = context.make(schema)
-    entity.id = context.make_slug(name)
+    entity.id = context.make_id(name)
     entity.add("name", name)
     entity.add("topics", "sanction")
 
