@@ -157,7 +157,14 @@ def only_one_name(txt: str) -> tuple[str | None, str | None]:
 def crawl_item(input_dict: dict, context: Context):
     if input_dict["Individual"]:
         schema = "Person"
-        names = [(input_dict.pop("Individual"), None)]
+        individual_name = input_dict.pop("Individual")
+
+        names = [(individual_name, None)]
+        result = context.lookup("individual_name", individual_name)
+        if result:
+            names = [(n, None) for n in result.values]
+        elif len(individual_name) > 50:
+            context.log.warn("Name too long", name=individual_name)
         affiliation = input_dict.pop("Individual Affiliation")
     else:
         schema = "Company"
