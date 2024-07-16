@@ -19,6 +19,7 @@ from zavod.store import get_store
 
 
 log = logging.getLogger(__name__)
+EXPAND_LIMIT = 9999
 
 
 class LocalEnricher(Enricher):
@@ -109,12 +110,13 @@ class LocalEnricher(Enricher):
             yield proxy
 
     def _traverse_nested(
-        self, entity: CE, path: List[str] = []
+        self, entity: CE, path: List[str] = [], count: int = 0
     ) -> Generator[CE, None, None]:
         if entity.id is None:
             return
 
         yield entity
+        count += 1
 
         if len(path) > 1:
             return
@@ -129,9 +131,13 @@ class LocalEnricher(Enricher):
                 continue
             if adjacent.id in path:
                 continue
+            if count >= EXPAND_LIMIT:
+                log.info(f"Reached expand limit ({EXPAND_LIMIT})")
+                return
 
             proxy = self.entity_from_statements(type(entity), adjacent)
-            yield from self._traverse_nested(proxy, next_path)
+            yield from self._traverse_nested(proxy, next_path, count)
+            count += 1
 
     def expand(self, entity: CE, match: CE) -> Generator[CE, None, None]:
         yield from self._traverse_nested(match)
