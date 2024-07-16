@@ -1,6 +1,5 @@
 from lxml import html
 import re
-from datetime import datetime
 from zavod import Context, helpers as h
 from normality import slugify
 from typing import Dict, Generator
@@ -88,7 +87,7 @@ def parse_table(table: html.HtmlElement) -> Generator[Dict[str, str], None, None
     for row in table.findall(".//tr"):
         if headers is None:
             headers = [
-                slugify(el.text_content(), separator="_")
+                slugify(el.text_content(), sep="_")
                 if el.text_content().strip()
                 else "company"
                 for el in row.findall("./th")
