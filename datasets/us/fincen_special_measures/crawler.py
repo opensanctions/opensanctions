@@ -3,17 +3,16 @@ import re
 from zavod import Context, helpers as h
 from normality import slugify
 from typing import Dict, Generator
+from typing import Optional
 
 BASE_URL = "https://www.fincen.gov"
 
 
-def convert_date(date_str: str) -> str or None:
+def convert_date(date_str: str) -> Optional[str]:
     """Convert various date formats to 'YYYY-MM-DD'."""
     # Regular expression to find dates in the format 'MM/DD/YYYY'
     date_pattern = re.compile(r"(\d{1,2}/\d{1,2}/\d{4})")
-    match = date_pattern.search(date_str)
-    if match:
-        date_str = match.group(1)  # Extract the first matching date
+    date_pattern.search(date_str)
 
     formats = [
         "%m/%d/%Y",  # 'MM/DD/YYYY' format
@@ -32,7 +31,12 @@ def crawl_item(context: Context, row: Dict[str, str]):
     entity = context.make(schema)
     entity.id = context.make_id(name)
     entity.add("name", name)
-    entity.add("topics", "sanction")
+    # Adjust the topic based on the presence of "final rule"
+    final_rule = row.get("final_rule", "").lower()
+    if final_rule and final_rule != "---":
+        entity.add("topics", "sanction")
+    else:
+        entity.add("topics", "reg.warn")
 
     # Extract PDF links
     pdf_link_finding = row.get("pdf_link_finding", None)
@@ -52,7 +56,6 @@ def crawl_item(context: Context, row: Dict[str, str]):
 
     # Create and add details to the sanction
     sanction = h.make_sanction(context, entity)
-    sanction.add("country", "us")
     finding_date = row.get("finding", "")
     nprm_date = row.get("notice_of_proposed_rulemaking", "")
     listing_date = finding_date if finding_date else nprm_date
@@ -65,19 +68,22 @@ def crawl_item(context: Context, row: Dict[str, str]):
     rescinded_date = row.get("rescinded", "")
     if rescinded_date != "---":
         sanction.add("endDate", convert_date(rescinded_date))
+        context.emit(entity, target=True)
+    else:
+        context.emit(entity, target=False)
 
     # Add description with the PDF link
     if pdf_link_finding:
-        sanction.add("description", pdf_link_finding)  # Finding PDF link
+        sanction.add("sourceUrl", pdf_link_finding)  # Finding PDF link
     if pdf_link_nprm:
-        sanction.add("description", pdf_link_nprm)  # NPRM PDF link
+        sanction.add("sourceUrl", pdf_link_nprm)  # NPRM PDF link
     if pdf_link_final_rule:
-        sanction.add("description", pdf_link_final_rule)  # Final Rule PDF link
+        sanction.add("sourceUrl", pdf_link_final_rule)  # Final Rule PDF link
     if pdf_link_rescinded:
-        sanction.add("description", pdf_link_rescinded)  # Rescinded PDF link
+        sanction.add("sourceUrl", pdf_link_rescinded)  # Rescinded PDF link
 
     # Emit the entity and the sanction
-    context.emit(entity, target=True)
+    # context.emit(entity)
     context.emit(sanction)
 
 
@@ -143,5 +149,3 @@ def crawl(context: Context):
     if table is not None:
         for row in parse_table(table):
             crawl_item(context, row)
-    else:
-        context.log.error("Table with id 'special-measures-table' not found.")

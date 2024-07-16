@@ -20,9 +20,8 @@ publisher:
   acronym: FinCEN
   official: true
   description: |
-    The Financial Crimes Enforcement Network (FinCEN) is a bureau of the United States Department of the Treasury that collects and 
-    analyzes information about financial transactions in order to combat domestic and international money laundering, terrorist financing, 
-    and other financial crimes.
+    FinCEN, a bureau of the US Treasury, collects and analyzes financial transaction information to combat money laundering and 
+    terrorist financing.
 
   country: us
   url: https://www.fincen.gov
@@ -39,3 +38,12 @@ lookups:
           - "Nauru"
           - "Ukraine"
         value: PublicBody
+assertions:
+  min:
+    schema_entities:
+      PublicBody: 4
+      Company: 20
+  max: 
+    schema_entities:
+      PublicBody: 5
+      Company: 40
