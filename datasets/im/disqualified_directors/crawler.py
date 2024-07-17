@@ -55,18 +55,20 @@ def parse_period(period: str) -> Tuple[str, str]:
 def crawl_item(item: Dict[str, str], context: Context):
 
     name = item.pop("Name")
+    if item["Date of Birth"] != "Not known":
+        birth_date = h.parse_date(item.pop("Date of Birth"), formats=["%d %B %Y"])
+    else:
+        birth_date = None
+        item.pop("Date of Birth")
+    address = item.pop("Address (at date of disqualification)")
 
     person = context.make("Person")
-    person.id = context.make_id(name)
+    person.id = context.make_id(name, birth_date, address)
     person.add("name", name)
-    person.add("address", item.pop("Address (at date of disqualification)"))
-    if item["Date of Birth"] != "Not known":
-        person.add(
-            "birthDate", h.parse_date(item.pop("Date of Birth"), formats=["%d %B %Y"])
-        )
-    else:
-        item.pop("Date of Birth")
+    person.add("address", address)
+    person.add("birthDate", birth_date)
     person.add("topics", "corp.disqual")
+    person.add("country", "im")
 
     sanction = h.make_sanction(context, person)
     sanction.add("duration", item.pop("Period of Disqualification"))
