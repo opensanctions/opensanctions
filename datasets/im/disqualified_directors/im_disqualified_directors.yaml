@@ -1,6 +1,6 @@
 title: Isle of Man FSA Disqualified Directors
 entry_point: crawler.py
-prefix: im-dis-dir
+prefix: im-dir
 coverage:
   frequency: daily
   start: "2024-07-09"
