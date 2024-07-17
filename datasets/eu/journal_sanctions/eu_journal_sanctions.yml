@@ -4,7 +4,7 @@ prefix: eu-oj
 coverage:
   frequency: never
   start: 2023-12-18
-  end: 2023-12-18
+  end: 2024-07-17
 deploy:
   schedule: "@hourly"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
