@@ -111,12 +111,15 @@ class LocalEnricher(Enricher):
     def _traverse_nested(
         self, entity: CE, path: List[str] = []
     ) -> Generator[CE, None, None]:
+        """Expand starting from a match, recursing to related non-edge entities"""
         if entity.id is None:
             return
 
         yield entity
 
         if len(path) > 1:
+            return
+        if not entity.schema.edge and len(path) > 0:
             return
 
         next_path = list(path)

@@ -27,6 +27,11 @@ JON_DOVER = {
         "name": ["Jonathan Dover"]  # Different from dataset
     },
 }
+AAA_USD_ISK = {
+    "schema": "Security",
+    "id": "us-aaa-usd-isk",
+    "properties": {"name": ["AAA USD ISK"]},
+}
 AAA_BANK = {
     "schema": "Organization",
     "id": "us-aaa-inc",
@@ -89,7 +94,30 @@ def test_enrich_id_match(vcontext: Context):
 
 
 def test_expand_securities(vcontext: Context, testdataset_securities: Dataset):
-    """we only traverse a graph of securities and issuer once per match"""
+    """test that we don't expand to sibling securities via the issuer"""
+    crawl_dataset(testdataset_securities)
+    enricher = load_enricher(vcontext, DATASET_DATA, "testdataset_securities")
+    entity = CompositeEntity.from_data(vcontext.dataset, AAA_USD_ISK)
+
+    # Match
+    results = list(enricher.match(entity))
+    assert len(results) == 2, results  # USD EUR is also a match
+    assert str(results[0].id) == "osv-isin-a", results[0]
+
+    # Expand
+    internals = list(enricher.expand(entity, results[0]))
+    assert len(internals) == 2, internals
+
+    assert internals[0].schema.name == "Security"
+    assert internals[0].id == "osv-isin-a"
+    assert internals[1].schema.name == "Organization"
+    assert internals[1].id == "osv-lei-a"
+
+    shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
+
+
+def test_expand_issuers(vcontext: Context, testdataset_securities: Dataset):
+    """test that we expand to the securities of an issuer"""
     crawl_dataset(testdataset_securities)
     enricher = load_enricher(vcontext, DATASET_DATA, "testdataset_securities")
     entity = CompositeEntity.from_data(vcontext.dataset, AAA_BANK)
@@ -103,13 +131,12 @@ def test_expand_securities(vcontext: Context, testdataset_securities: Dataset):
     internals = list(enricher.expand(entity, results[0]))
     assert len(internals) == 3, internals
 
-    assert internals[0].schema.name == "Company"
-    assert internals[0].id == "osv-umbrella-corp"
-    assert internals[1].schema.name == "Ownership"
-    assert internals[1].get("owner") == ["osv-oswell-spencer"]
-    assert internals[1].get("asset") == ["osv-umbrella-corp"]
-    assert internals[2].schema.name == "Person"
-    assert internals[2].id == "osv-oswell-spencer"
+    assert internals[0].schema.name == "Organization"
+    assert internals[0].id == "osv-lei-a"
+    assert internals[1].schema.name == "Security"
+    assert internals[2].schema.name == "Security"
+    assert internals[1].id != internals[2].id
+    assert internals[1].id[:-1] == internals[2].id[:-1] == "osv-isin-"
 
     shutil.rmtree(settings.DATA_PATH, ignore_errors=True)
 
