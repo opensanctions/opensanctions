@@ -4,7 +4,6 @@ prefix: ca-facfoa
 coverage:
   frequency: never
   start: 2023-04-12
-  end: 2023-04-12
 deploy:
   schedule: "0 5 * * 4"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
