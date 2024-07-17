@@ -40,11 +40,11 @@ AAA_BANK = {
 
 
 def load_enricher(context: Context, dataset_data, target_dataset: str):
-    dataset_data_ = deepcopy(dataset_data)
-    dataset_data["config"]["dataset"] = target_dataset
+    dataset_data_copy = deepcopy(dataset_data)
+    dataset_data_copy["config"]["dataset"] = target_dataset
     enricher_cls = get_enricher(PATH)
     assert issubclass(enricher_cls, Enricher)
-    dataset = Dataset.make(dataset_data)
+    dataset = Dataset.make(dataset_data_copy)
     return enricher_cls(dataset, context.cache, dataset.config)
 
 

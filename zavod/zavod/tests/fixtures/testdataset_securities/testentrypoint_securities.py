@@ -1,7 +1,6 @@
 import csv
 from pathlib import Path
 from typing import Dict
-from pantomime.types import CSV
 
 from zavod.context import Context
 
@@ -23,7 +22,6 @@ def crawl_row(context: Context, row: Dict[str, str]):
 
 
 def crawl(context: Context):
-    data_path = context.get_resource_path("source.csv")
     with open(LOCAL_PATH, "r") as fh:
         for row in csv.DictReader(fh):
             crawl_row(context, row)
