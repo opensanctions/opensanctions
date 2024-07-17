@@ -28,25 +28,22 @@ def crawl_row(context: Context, row: Dict[str, str]):
         #     entity.id = context.make_id(first_name, last_name)
         entity = context.make("Person")
         entity.id = context.make_id(full_name)
-    entity.add("birthDate", birth_date)
-    entity.add("birthPlace", birth_place, lang="eng")
-    entity.add("passportNumber", passport_number)
-
-    # Create an Organization entity if it's an organization
-    if row.get("type") == "Organization":
-        entity = context.make("Organization")
-        entity.id = context.make_id(full_name)
-        entity.add("name", full_name)
-        entity.add("otherNames", row.get("other name"))
-        entity.add("alias", alias, lang="eng")
+        entity.add("birthDate", birth_date)
         entity.add("birthPlace", birth_place, lang="eng")
         entity.add("passportNumber", passport_number)
 
+    # Create an Organization entity if it's an organization
+    elif row.get("type") == "Organization":
+        entity = context.make("Organization")
+        entity.id = context.make_id(full_name)
+        entity.add("name", full_name)
+        entity.add("alias", row.get("other name"))
+        entity.add("weakAlias", alias, lang="eng")
+
     if entity:
         entity.add("topics", "sanction")
-
-    sanction = h.make_sanction(context, entity)
-    sanction.add("reason", reason, lang="deu")
+        sanction = h.make_sanction(context, entity)
+        sanction.add("reason", reason, lang="deu")
 
     # Emit entities
     context.emit(entity, target=True)
