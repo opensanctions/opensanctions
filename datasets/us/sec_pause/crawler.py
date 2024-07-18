@@ -1,9 +1,15 @@
 from typing import Dict, Generator, Optional, Tuple
 from lxml.etree import _Element
 from normality import slugify, collapse_spaces
+from time import sleep
 
 from zavod import Context
 from zavod import helpers as h
+from zavod.shed.zyte_api import fetch_html
+
+# Ensure never more than 10 requests per second
+# https://www.sec.gov/about/privacy-information#security
+SLEEP = 0.1
 
 CONTACTS = [
     ("Phone:", "Phone:", "phone"),
@@ -33,7 +39,6 @@ def parse_table(
             for el in row.findall("./th"):
                 headers.append(slugify(el.text_content()))
             continue
-
         cells = []
         for el in row.findall("./td"):
             a = el.find(".//a")
@@ -46,9 +51,13 @@ def parse_table(
         yield {hdr: c for hdr, c in zip(headers, cells)}
 
 
+def detail_unblock_validator(doc: _Element) -> bool:
+    return len(doc.xpath(".//h1[contains(@class, 'page-title__heading')]")) > 0
+
+
 def crawl_entity(context: Context, url: str, name: str, category: str) -> None:
     context.log.info("Crawling entity", url=url)
-    doc = context.fetch_html(url, cache_days=1)
+    doc = fetch_html(context, url, detail_unblock_validator, cache_days=1)
     res = context.lookup("schema", category)
     if res is None or not isinstance(res.schema, str):
         context.log.warning("No schema found for category", category=category)
@@ -57,28 +66,21 @@ def crawl_entity(context: Context, url: str, name: str, category: str) -> None:
     entity.id = context.make_id(name)
     entity.add("name", name)
     entity.add("topics", "crime.fraud")
+    entity.add("sourceUrl", url)
 
     sanction = h.make_sanction(context, entity, key=category)
     sanction.add("program", category)
 
-    body_el = doc.find(".//div[@class='article-body']")
-    if body_el is not None:
-        body = body_el.text_content().strip()
+    body_els = doc.xpath(".//div[contains(@class, 'field--name-body')]")
+    if body_els:
+        body = body_els[0].text_content().strip()
         entity.add("notes", body)
 
-    container = doc.xpath(
-        ".//div[contains(@class, 'stylized-box-1 public-alerts--unregistered-soliciting-entities-pause')]"
-    )[0]
-    container.remove(container.find(".//h2"))
-    container.remove(container.find(".//h1"))
-    contacts_container = container.findall("./")
-    if len(contacts_container) != 1:
-        context.log.warning(
-            "Couldn't find single child contacts container",
-            count=len(contacts_container),
-        )
-    else:
-        contacts_container = contacts_container[0]
+    contacts_containers = doc.xpath(
+        ".//div[contains(@class, 'field--name-field-public-alerts-contact')]"
+    )
+    if contacts_containers:
+        contacts_container = contacts_containers[0]
         contacts = contacts_container.text_content()
         contacts = contacts.replace(" :", ":")
         address = []
@@ -112,12 +114,18 @@ def crawl_entity(context: Context, url: str, name: str, category: str) -> None:
     context.emit(sanction)
 
 
+def index_unblock_validator(doc: _Element) -> bool:
+    return len(doc.xpath(".//table[contains(@class, 'usa-table')]")) > 0
+
+
 def crawl(context: Context) -> None:
-    doc = context.fetch_html(context.data_url, cache_days=1)
+    sleep(SLEEP)
+    doc = fetch_html(context, context.data_url, index_unblock_validator, cache_days=1)
     doc.make_links_absolute(context.data_url)
 
-    table = doc.find(".//table")
+    table = doc.xpath(".//table[contains(@class, 'usa-table')]")[0]
     for row in parse_table(table):
+        sleep(SLEEP)
         name, url = row.pop("name")
         if url is None:
             context.log.warning("No URL", name=name)

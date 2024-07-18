@@ -17,7 +17,6 @@ load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 coverage:
   frequency: daily
   start: "2024-06-17"
-
 publisher:
   name: United States Secret Service
   acronym: USSS

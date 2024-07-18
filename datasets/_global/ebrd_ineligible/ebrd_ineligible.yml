@@ -1,4 +1,4 @@
-title: EBRD Ineligible entities
+title: EBRD Ineligible Entities
 entry_point: crawler.py
 prefix: ebrd
 coverage:
@@ -14,6 +14,7 @@ description: |
   resulting from third-party finding. It's unclear if these overlap.
 publisher:
   name: "European Bank for Reconstruction and Development"
+  acronym: EBRD
   description: |
     The European Bank for Reconstruction and Development (EBRD) was founded in 1991
     to create a new post-Cold War era in central and eastern Europe.

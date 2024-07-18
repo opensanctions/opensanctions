@@ -1,10 +1,9 @@
-title: US FCC Section 2 of The Secure Networks Act "Covered List"
+title: US FCC Covered List
 entry_point: crawler.py
 prefix: us-fcc-cov
 coverage:
   frequency: never
   start: "2021-04-22"
-  end: "2024-04-22"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   List of companies that produce equipment and services covered
@@ -33,7 +32,8 @@ description: |
   This dataset is manually maintained and is updated shortly after changes to the source.
 
 publisher:
-  name: US Federal Communications Comission (FCC)
+  name: Federal Communications Comission
+  acronym: FCC
   description: |
     > The Federal Communications Commission regulates interstate and international
     > communications by radio, television, wire, satellite, and cable in all 50

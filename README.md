@@ -13,11 +13,11 @@ We build on top of the [Follow the Money](https://www.followthemoney.tech) frame
 * [OpenSanctions Website](https://www.opensanctions.org/)
     * [Datasets](https://www.opensanctions.org/datasets/)
     * [FAQs](https://www.opensanctions.org/faq/)
+* [Contributing](https://www.opensanctions.org/docs/opensource/contributing/)
 * [zavod Documentation](https://zavod.opensanctions.org/)
-* [Data Sources Roadmap](https://github.com/orgs/opensanctions/projects/2?pane=info) - See our current plans!
 * [Data Licensing Details](https://www.opensanctions.org/licensing/)
-    * [API Documentation](https://api.opensanctions.org/)
-* [Reach Out to Us](https://www.opensanctions.org/contact/)
+* [API Documentation](https://api.opensanctions.org/)
+* [Contact](https://www.opensanctions.org/contact/)
 
 ## Collaborate with us in Development
 

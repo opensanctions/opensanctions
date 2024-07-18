@@ -1,4 +1,4 @@
-title: French Freezing of Assets
+title: French National Asset Freezing System
 entry_point: crawler.py
 prefix: fr-ga
 coverage:
@@ -22,7 +22,8 @@ description: |
   lists all the people, entities and vessels affected by the asset freezing
   measures in force throughout France.
 publisher:
-  name: Ministry of Economy, Finance, and Recovery
+  name: Direction Générale du Trésor
+  acronym: DGT
   country: fr
   url: https://www.tresor.economie.gouv.fr/
   official: true
@@ -3835,3 +3836,349 @@ lookups:
             - W751252965
             - "889271375"
           incorporationDate: 2019-07-01
+      - match: "Type d’entité: entité publique - Lieu d’enregistrement: Iran - Principal établissement: Iran: /"
+        props:
+          jurisdiction: ir
+          legalForm: entité publique
+      - match: "Numéro d'enregistrement: 9103003070"
+        props:
+          registrationNumber: 9103003070
+      - match: "UNP: 100185185"
+        props:
+          taxNumber: 100185185
+      - match: "Lieu d'enregistrement: Fédération de Russie, 125284, Moscou, Leningradskiy Prospekt, d. 31a, str. 1 - Type d'entité: société par actions -Date d'enregistrement: 20.12.2002 -Principal établissement: Fédération de Russi e: Numéro d'identification fiscale: 0814118403"
+        props:
+          jurisdiction: ru
+          address: "Fédération de Russie, 125284, Moscou, Leningradskiy Prospekt, d. 31a, str. 1"
+          legalForm: société par actions
+          incorporationDate: 2002-12-20
+          innCode: 0814118403
+      - match: "Lieu d'enregistrement: Fédération de Russie, 620024, Ekaterinbourg, ulitsa Simkaya, d. 2 - Type d'entité: société par actions - Date d'enregistrement: 18.5.2009 - Principal établissement: Fédération de Russie: Numéro d'identification fiscale: 6674331056"
+        props:
+          jurisdiction: ru
+          address: "Fédération de Russie, 620024, Ekaterinbourg, ulitsa Simkaya, d. 2"
+          legalForm: société par actions
+          incorporationDate: 2009-05-18
+          innCode: 6674331056
+      - match: "Date d’enregistrement: 20.5.2019, (enregistrement en tant que petite et moyenne entreprise) - 10.7.2023 (enregistrement en tant que petite entreprise): /"
+        props:
+          incorporationDate: 2019-05-20
+      - match: "Type d’entité: société anonyme par actions - Lieu d’enregistrement: Fédération de Russie - Date d’enregistrement: 4.3.2006 - Principal établissement: Khimki, Fédération de Russie: /"
+        props:
+          jurisdiction: ru
+          address: "Khimki, Fédération de Russie"
+          legalForm: société anonyme par actions
+          incorporationDate: 2006-03-04
+      - match: "Numéro d’enregistrement: 1067746341024"
+        props:
+          registrationNumber: 1067746341024
+      - match: "Numéro d’identification fiscale: 7708591995"
+        props:
+          innCode: 7708591995
+      - match: "Numéro d'enregistrement: 1135050007400"
+        props:
+          registrationNumber: 1135050007400
+      - match: "Numéro d'identification fiscale: 5050108496"
+        props:
+          innCode: 5050108496
+      - match: "Type d'entité: Société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 31.12.2013 - Principal établissement: Fédération de Russie: /"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2013-12-31
+      - match: "Type d'entité: Société par actions - Lieu d'enregistrement: 672530, territoire de Transbaïkalie, district de Tchita, 1 Atamanovskoye, Atamanovka, ul. Zavodskaya, d.1 - Date d'enregistrement: 11.6.2009: /"
+        props:
+          jurisdiction: ru
+          address: "672530, territoire de Transbaïkalie, district de Tchita, 1 Atamanovskoye, Atamanovka, ul. Zavodskaya, d.1"
+          legalForm: société par actions
+          incorporationDate: 2009-06-11
+      - match: "Numéro d'identification fiscale: 7524015624"
+        props:
+          innCode: 7524015624
+      - match: "Type d'entité: Société par actions - Lieu d'enregistrement: 672530, territoire de Transbaïkalie, district de Tchita, 1 Atamanovskoye, Atamanovka, ul. Zavodskaya, d.1 - Date d'enregistrement: 11.6.2009 - Principal établissement: Fédération de Russie: /"
+        props:
+          jurisdiction: ru
+          address: "672530, territoire de Transbaïkalie, district de Tchita, 1 Atamanovskoye, Atamanovka, ul. Zavodskaya, d.1"
+          legalForm: société par actions
+          incorporationDate: 2009-06-11
+      - match: "Type d'entité: société par action"
+        props:
+          legalForm: société par action
+      - match: "Lieu d'enregistrement: 67811 Amurskaya oblast, Belogorskiy Rayon, Vozhaevka, Fédération de Russie - Date d'enregistrement: 25.5.2009- Principal établissement: Fédération de Russie: Numéro d'identification fiscale: 2811005250"
+        props:
+          jurisdiction: ru
+          address: "67811 Amurskaya oblast, Belogorskiy Rayon, Vozhaevka"
+          incorporationDate: 2009-05-25
+          innCode: 2811005250
+      - match: "Type d'entité: société par actions cotée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 10.11.1993 (date de constitution: 12.9.2002) - Principal établissement: Fédération de Russie - Numéro d'identification fiscale: 7449006184: 1027402696023"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions cotée
+          incorporationDate: 1993-11-10
+          registrationNumber: 1027402696023
+      - match: "Date d'enregistrement: 17.9.2004: Numéro d'identification fiscale: 2005504830"
+        props:
+          incorporationDate: 2004-09-17
+          innCode: 2005504830
+      - match: "KPP: 200501001"
+        schema: Company
+        props:
+          kppCode: 200501001
+      - match: "Type d'entité: société par actions - Lieu d'enregistrement: Saint-Pétersbourg et Moscou, Fédération de Russie - Date d'enregistrement: 1988: 1027739028712"
+        props:
+          jurisdiction: ru
+          address: "Saint-Pétersbourg et Moscou"
+          legalForm: société par actions
+          incorporationDate: 1988
+          registrationNumber: 1027739028712
+      - match: "Type d’entité: société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 12.11.1993: 1027700032161"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 1993-11-12
+          registrationNumber: 1027700032161
+      - match: "Principal établissement: Fédération de Russie: Numéro d'identification fiscale: 7713005406"
+        props:
+          jurisdiction: ru
+          innCode: 7713005406
+      - match: "Type d'entité: entreprise unitaire publique fédérale - Lieu d'enregistrement: Donetsk, Ukraine - Date d'enregistrement: 8.6.2023 - Principal établissement: Ukraine: /"
+        props:
+          jurisdiction: ua
+          address: "Donetsk, Ukraine"
+          legalForm: entreprise unitaire publique fédérale
+          incorporationDate: 2023-06-08
+      - match: "Numéro d'identification fiscale: 7704857789 - Date d'enregistrement: 2007: KPP: 770401001"
+        schema: Company
+        props:
+          innCode: 7704857789
+          incorporationDate: 2007
+          kppCode: 770401001
+      - match: "Numéro d'enregistrement: 1207700325590"
+        props:
+          registrationNumber: 1207700325590
+      - match: "Type d'entité: Société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 7.9.2020 - Principal établissement: Fédération de Russie: /"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2020-09-07
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 3.2.2016 - Principal établissement: Fédération de Russie - Numéro d'identification fiscale: 7811285656: 1167847076825"
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2016-02-03
+          innCode: 7811285656
+          registrationNumber: 1167847076825
+      - match: "Type d'entité: société à responsabilité limitée"
+        props:
+          legalForm: société à responsabilité limitée
+      - match: "Numéro d'enregistrement: 2508064833"
+        props:
+          registrationNumber: 2508064833
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Nakhodka, Fédération de Russie - Principal établissement: Nakhodka, Fédération de Russie: /"
+        props:
+          jurisdiction: ru
+          address: "Nakhodka, Fédération de Russie"
+          legalForm: société à responsabilité limitée
+      - match: "Numéro d'identification fiscale: 774301001"
+        props:
+          innCode: 774301001
+      - match: "KPP: 7704223366"
+        schema: Company
+        props:
+          kppCode: 7704223366
+      - match: "Numéro OGRN: 1027700590521"
+        props:
+          ogrnCode: 1027700590521
+      - match: "Lieu d'enregistrement: Moscou, Fédération de Russie - Date d'enregistrement: 9.1.2016: /"
+        props:
+          jurisdiction: ru
+          address: "Moscou, Fédération de Russie"
+          incorporationDate: 2016-01-09
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie, 105082, Moscou, Rubtsovskaya nab., 3 p. 1 -Date d'enregistrement: 29.4.2011 - Principal établissement: Moscou, Fédération de Russie: OGRN: 1117746345166"
+        props:
+          jurisdiction: ru
+          address: "Fédération de Russie, 105082, Moscou, Rubtsovskaya nab., 3 p. 1"
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2011-04-29
+          registrationNumber: 1117746345166
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 26.9.2016 - Principal établissement: Fédération de Russie - Numéro d'identification fiscale: 5050127869: 1165050054949"
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2016-09-26
+          innCode: 5050127869
+          registrationNumber: 1165050054949
+      - match: "Numéro d'enregistrement: 1025203020193"
+        props:
+          registrationNumber: 1025203020193
+      - match: "Numéro d'identification fiscale: 5260003387"
+        props:
+          innCode: 5260003387
+      - match: "Type d'entité: établissement scientifique relevant du budget de l'État fédéral - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 12.4.1993 (date de constitution: 11.9.2002) - Principal établissement: Fédération de Russie: /"
+        props:
+          jurisdiction: ru
+          legalForm: établissement scientifique relevant du budget de l'État fédéral
+          incorporationDate: 1993-04-12
+      - match: "Lieu d'enregistrement: Fédération de Russie, 123298, Moscou, ulitsa Narodnogo Opolcheniya, d. 40, k. 2- Type d'entité: société à responsabilité limitée - Date d'enregistrement: 25.11.2002 - Principal établissement: Fédération de Russie: Numéro d'identification fiscale: 8608049090"
+        props:
+          jurisdiction: ru
+          address: "Fédération de Russie, 123298, Moscou, ulitsa Narodnogo Opolcheniya, d. 40, k. 2"
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2002-11-25
+          innCode: 8608049090
+      - match: "Type d'entité: société à responsabilité limitée"
+        props:
+          legalForm: société à responsabilité limitée
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 6.3.2019 - Principal établissement: Fédération de Russie - Numéro d'identification fiscale: 7816691806: 119784705296"
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2019-03-06
+          innCode: 7816691806
+          registrationNumber: 119784705296
+      - match: "Numéro d'enregistrement: 1147746324340"
+        props:
+          registrationNumber: 1147746324340
+      - match: "Numéro d'identification fiscale: 7704859803"
+        props:
+          innCode: 7704859803
+      - match: "Type d'entité: Société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 26.3.2014 - Principal établissement: Fédération de Russie: /"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 2014-03-26
+      - match: "Lieu d'enregistrement: 630004, Ulitsa Lenina d. 52, Novossibirsk, Fédération de Russie - Type d'entité: société à responsabilité limitée - Date d'enregistrement: 27.4.2015 - Principal établissement: Fédération de Russie: Numéro d'identification fiscale: 5407223338"
+        props:
+          jurisdiction: ru
+          address: "630004, Ulitsa Lenina d. 52, Novossibirsk"
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2015-04-27
+          innCode: 5407223338
+      - match: "Type d'entité: société par action"
+        props:
+          legalForm: société par action
+      - match: "Type d'entité: Compagnie aérienne / Société par actions ouverte - Lieu d'enregistrement: Iekaterinbourg, Fédération de Russie - Date d'enregistrement: 28.12.1993 - Principal établissement: Fédération de Russie: /"
+        props:
+          jurisdiction: ru
+          address: "Iekaterinbourg, Fédération de Russie"
+          legalForm: société par actions ouverte
+          incorporationDate: 1993-12-28
+      - match: "Numéros d'enregistrement: 6608003013"
+        props:
+          registrationNumber: 6608003013
+      - match: "Numéros d'enregistrement: 668501001"
+        props:
+          registrationNumber: 668501001
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 18.6.2010 - Principal établissement: Fédération de Russie - Numéro d'identification fiscale: 5008054416: 1105047006954"
+        props:
+          jurisdiction: ru
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2010-06-18
+          innCode: 5008054416
+          registrationNumber: 1105047006954
+      - match: "Type d'entité: organisation non gouvernementale"
+        props:
+          legalForm: organisation non gouvernementale
+      - match: "Numéro d’enregistrement: 1237700470842"
+        props:
+          registrationNumber: 1237700470842
+      - match: "Type d’entité: société par actions - Lieu d’enregistrement: Moscou, Fédération de Russie - Date d’enregistrement: 12.7.2023: /"
+        props:
+          jurisdiction: ru
+          address: "Moscou, Fédération de Russie"
+          legalForm: société par actions
+          incorporationDate: 2023-07-12
+      - match: "Lieu d'enregistrement: Moscou, Fédération de Russie - Date d'enregistrement: 19.9.2014 -Principal établissement: Fédération de Russie: 1147799015231"
+        props:
+          jurisdiction: ru
+          address: "Moscou, Fédération de Russie"
+          incorporationDate: 2014-09-19
+          registrationNumber: 1147799015231
+      - match: "Type d'entité: Société par actions ouverte"
+        props:
+          legalForm: société par actions ouverte
+      - match: "Lieu d'enregistrement: Leningradskaya ul., bâtiment 41 Gourzouf, Yalta, Crimée Ukraine - Date d'enregistrement: 15.8.2014 - Principal établissement: Crimée, Ukraine: /"
+        props:
+          jurisdiction: ua
+          address: "Leningradskaya ul., bâtiment 41 Gourzouf, Yalta, Crimée Ukraine"
+          incorporationDate: 2014-08-15
+      - match: "Numéro d'enregistrement: 1025203720189"
+        props:
+          registrationNumber: 1025203720189
+      - match: "Numéro d'identification fiscale: 5262008630"
+        props:
+          innCode: 5262008630
+      - match: "Type d'entité: Société par actions - Lieu d'enregistrement: Fédération de Russie - Date d'enregistrement: 2.7.1990 (date de constitution: 30.7.2002) - Principal établissement: Fédération de Russie: /"
+        props:
+          jurisdiction: ru
+          legalForm: société par actions
+          incorporationDate: 1990-07-02
+      - match: "Numéro d'enregistrement: 1227700284470"
+        props:
+          registrationNumber: 1227700284470
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Moscou, Fédération de Russie - Date d'enregistrement: 18.5.2022: /"
+        props:
+          jurisdiction: ru
+          address: "Moscou, Fédération de Russie"
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2022-05-18
+      - match: "1077328004841"
+        props:
+          registrationNumber: 1077328004841
+      - match: "Date d'enregistrement: 9.7.2007 - Type d'entité: société à responsabilité limitée - Principal établissement: Fédération de Russie -: 1077757722206"
+        props:
+          incorporationDate: 2007-07-09
+          legalForm: société à responsabilité limitée
+          registrationNumber: 1077757722206
+      - match: "Numéro d'identification fiscale: 7725611507"
+        props:
+          innCode: 7725611507
+      - match: "Type d'entité: Société par actions ouverte - Lieu d'enregistrement: Biélorussie - Date d'enregistrement: 24.3.1992. Principal établissement: Biélorussie: OKPO: 14541426"
+        props:
+          jurisdiction: by
+          legalForm: société par actions ouverte
+          incorporationDate: 1992-03-24
+          registrationNumber: 14541426
+      - match: "Numéro d’enregistrement: 1193926007153"
+        props:
+          registrationNumber: 1193926007153
+      - match: "Type d’entité: société à responsabilité limitée internationale: /"
+        props:
+          legalForm: société à responsabilité limitée internationale
+      - match: "Type d'entité: entreprise unitaire publique fédérale - Lieu d'enregistrement: Donetsk, Ukraine - Date d'enregistrement: 8.6.2023  - Principal établissement: Ukraine: /"
+        props:
+          jurisdiction: ua
+          address: "Donetsk, Ukraine"
+          legalForm: entreprise unitaire publique fédérale
+          incorporationDate: 2023-06-08
+      - match: "Type d’entité: société par actions - Lieu d’enregistrement: Moscou, Fédération de Russie - Date d’enregistrement: 12.7.2023: /"
+        props:
+          jurisdiction: ru
+          address: "Moscou, Fédération de Russie"
+          legalForm: société par actions
+          incorporationDate: 2023-07-12
+      - match: "Numéro d’enregistrement: 1237700470842"
+        props:
+          registrationNumber: 1237700470842
+      - match: "Type d'entité: organisation non  gouvernementale"
+        props:
+          legalForm: organisation non gouvernementale
+      - match: "Date d'enregistrement: 2021: /"
+        props:
+          incorporationDate: 2021
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Téhéran, Iran - Date d'enregistrement: 24.10.2016 - Principal établissement: Iran: /"
+        props:
+          jurisdiction: ir
+          address: "Téhéran, Iran"
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2016-10-24
+      - match: "Numéro d’identification national: 14006189580"
+        props:
+          idNumber: 14006189580
+      - match: "Numéro d’enregistrement: 498744"
+        props:
+          registrationNumber: 498744
+      - match: "Lieu d'enregistrement: Iran - Date d'enregistrement: 2014 - Principal établissement: Iran: /"
+        props:
+          jurisdiction: ir
+          incorporationDate: 2014

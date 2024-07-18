@@ -31,6 +31,7 @@ description: |
 url: https://www.gov.uk/guidance/people-with-significant-control-pscs
 publisher:
   name: UK Companies House
+  acronym: CoH
   description: |
     Companies House is the UK body responsible for managing the incorporation of
     limited companies, and the maintenance of their records.

@@ -10,14 +10,14 @@ summary: >
 description: |
   This dataset comprises information about auditors sanctioned by
   the Malaysian's Securities Commission Audit Oversight Board.
-  
+
   The focus of AOB enforcement is whether the auditors comply
   with the recognised auditing and ethical standards.
   Such action from the AOB may not necessary imply the audited
   financial statement does not give a true and fair view.
-  
+
   Potential sanctions are: 
-  
+
     - Directing the person in breach to comply with the
     provisions of Part IIIA of the SCA or any condition,
     written notice or guidelines; 
@@ -41,6 +41,7 @@ description: |
     for a period not exceeding twelve months or permanently.
 publisher:
   name: Suruhanjaya Sekuriti Malaysia
+  acronym: SC
   description: Securities Commission Malaysia
   url: https://www.sc.com.my
   official: true
@@ -75,7 +76,7 @@ lookups:
           - Brief Description of Breach
           - Brief Description of Misconduct
         value: description
-      - match: 
+      - match:
           - Nature of Breach
           - Nature of Misconduct
         value: reason

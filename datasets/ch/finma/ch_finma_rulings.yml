@@ -16,7 +16,8 @@ description: |
   > personal details of those involved, once a ruling has become legally
   > binding and it provides for this.
 publisher:
-  name: "Swiss Financial Market Supervisory Authority FINMA"
+  name: Swiss Financial Market Supervisory Authority
+  acronym: FINMA
   description: |
     FINMA is Switzerland’s independent financial-markets regulator. Its mandate
     is to supervise banks, insurance companies, financial institutions,

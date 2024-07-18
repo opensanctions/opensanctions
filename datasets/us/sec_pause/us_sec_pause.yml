@@ -26,7 +26,8 @@ description: |
   > If you have information, questions or comments about the entities on
   > this list, submit a question or complaint to the SEC.
 publisher:
-  name: US Securities and Exchange Commission (SEC)
+  name: Securities and Exchange Commission
+  acronym: SEC
   description: |
     > The federal securities laws empower the Securities and Exchange Commission (SEC)
     > with broad authority over all aspects of the securities industry. The SEC’s
@@ -40,6 +41,7 @@ data:
   url: https://www.sec.gov/enforce/public-alerts
   format: HTML
   lang: eng
+ci_test: false
 
 lookups:
   schema:

@@ -1,10 +1,12 @@
 from sqlalchemy import MetaData, create_engine
 from sqlalchemy.pool import NullPool
+from nomenklatura.resolver import Linker
 from nomenklatura.statement.db import make_statement_table, insert_dataset
 
 from zavod import settings
 from zavod.logs import get_logger
 from zavod.meta import Dataset
+from zavod.entity import Entity
 from zavod.tools.util import iter_output_statements
 
 log = get_logger(__name__)
@@ -12,6 +14,7 @@ log = get_logger(__name__)
 
 def load_dataset_to_db(
     scope: Dataset,
+    linker: Linker[Entity],
     database_uri: str,
     batch_size: int = settings.DB_BATCH_SIZE,
     external: bool = True,
@@ -34,6 +37,6 @@ def load_dataset_to_db(
             engine,
             table,
             dataset.name,
-            iter_output_statements(dataset, external=external),
+            iter_output_statements(dataset, linker, external=external),
             batch_size=batch_size,
         )

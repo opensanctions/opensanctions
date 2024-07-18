@@ -1,20 +1,19 @@
-title: Lithuanian FIU International Sanctions
+title: Lithuanian International Sanctions
 entry_point: crawler.py
 prefix: ltfiu
 coverage:
   country: lt
-  frequency: never
+  frequency: daily
   start: 2023-05-16
-  end: 2023-12-18
-deploy:
-  schedule: "@weekly"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   A list of entities whose property is legally owned or controlled by a sanctioned entity.
 description: |
   A small set of Lithuanian companies published by the country's financial intelligence unit.
 publisher:
-  name: Finansinių Nusikaltimų Tyrimo Tarnyba (FIU)
+  name: Finansinių Nusikaltimų Tyrimo Tarnyba
+  name_en: Financial Crimes Investigation Service
+  acronym: FNTT
   description: |
     The Financial Crimes Investigation Service at the Ministry of Internal Affairs of the
     Republic of Lithuania (Finansinių Nusikaltimų Tyrimo Tarnyba Prie Lietuvos Respublikos
@@ -36,5 +35,5 @@ assertions:
       LegalEntity: 10
   max:
     schema_entities:
-      Company: 25
-      LegalEntity: 20
+      Company: 100
+      LegalEntity: 100

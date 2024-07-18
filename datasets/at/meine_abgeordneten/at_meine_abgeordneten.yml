@@ -1,4 +1,4 @@
-title: Austria Public Officials from Meine Abgeordneten
+title: Austria Public Officials
 entry_point: crawler.py
 prefix: at-meine-ab
 coverage:

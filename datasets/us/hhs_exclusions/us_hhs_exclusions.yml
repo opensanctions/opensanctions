@@ -26,7 +26,8 @@ description: |
   [OIG's Exclusions FAQ page](https://oig.hhs.gov/faqs/exclusions-faq).
 
 publisher:
-  name: U.S. Department of Health and Human Services Office of Inspector General (OIG)
+  name: Department of Health and Human Services Office of Inspector General
+  acronym: OIG
   description: |
     The OIG aims to fight waste, fraud and abuse and to improving the efficiency of
     Medicare, Medicaid and more than 100 other Department of Health & Human Services

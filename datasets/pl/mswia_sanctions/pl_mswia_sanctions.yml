@@ -1,4 +1,4 @@
-title: Polish list of persons and entities subject to sanctions
+title: Polish List of Persons and Entities Subject to Sanctions
 entry_point: crawler.py
 prefix: plmswia
 coverage:
@@ -25,6 +25,7 @@ description: |
   > national security are applied
 publisher:
   name: Ministerstwo Spraw Wewnętrznych i Administracji
+  acronym: MSWiA
   description: |
     Department of Public Order within the Ministry of the Interior of Poland.
   url: https://www.gov.pl/web/mswia

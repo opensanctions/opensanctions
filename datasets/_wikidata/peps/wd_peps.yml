@@ -368,6 +368,7 @@ lookups:
           - "Q480319" # title of authority
       - maybe_pep: false
         match:
+          - "Q8191099" # affiliate
           - "Q102300761" # rector of the Federal University of Bahia
           - "Q11271" # Benevolent Dictator for Life
           - "Q29182" # bishop
@@ -1880,10 +1881,18 @@ lookups:
         label: "annexation of the Free City of Frankfurt by Prussia"
         decision: "ignore"
       - match: "Q16761250"
-        code: ""
+        code: "BA"
         label: "Republika Srpska"
-        decision: "ignore"
+        decision: "national"
       - match: "Q3236289"
         code: ""
         label: "Prisoner in the Vatican"
+        decision: "ignore"
+      - match: "Q17050654"
+        code: ""
+        label: "Lechia"
+        decision: "ignore"
+      - match: "Q126726574"
+        code: ""
+        label: "Kingdom of Martabam-hongsawatoi"
         decision: "ignore"

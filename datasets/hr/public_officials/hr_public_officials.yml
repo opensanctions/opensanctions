@@ -20,6 +20,7 @@ description: >
 entry_point: crawler.py
 publisher:
   name: Povjerenstvo za odlučivanje o sukobu interesa
+  acronym: Sukobu Interesa
   description: >
     The Commission for Decisions on Public Interest (Povjerenstvo za odlučivanje o
     sukobu interesa) is a government body responsible for preventing conflicts of

@@ -1,8 +1,8 @@
+import re
+import csv
 from normality import collapse_spaces
 from rigour.mime.types import CSV
-from typing import Dict
-import csv
-import re
+from typing import Dict, Optional
 
 from zavod import Context
 from zavod import helpers as h
@@ -33,6 +33,12 @@ REGEX_HOUSE_REP = re.compile(
 
 # not
 # House of Representatives Deputy Chairman Army
+
+
+def has_length(name: Optional[str], length: int):
+    if name is None:
+        return False
+    return len(name.strip().strip(".")) >= length
 
 
 def crawl_position(context: Context, entity: Entity, name: str):
@@ -66,8 +72,9 @@ def crawl_position(context: Context, entity: Entity, name: str):
             status=status,
             categorisation=categorisation,
         )
-        context.emit(position)
-        context.emit(occupancy)
+        if occupancy is not None:
+            context.emit(position)
+            context.emit(occupancy)
     else:
         entity.add("position", name)
         entity.add("topics", "poi")
@@ -79,11 +86,33 @@ def crawl_row(context: Context, row: Dict[str, str]):
     if not identifier:
         return
     entity.id = context.make_slug(identifier)
+    first_name = row.pop("First Name")
+    middle_name = row.pop("Middle Name")
+    last_name = row.pop("Last Name")
+
+    if not has_length(last_name, 2):
+        context.log.warning(
+            "Invalid last name",
+            last_name=last_name,
+            identifier=identifier,
+            first_name=first_name,
+        )
+        return
+
+    if not has_length(first_name, 2):
+        context.log.warning(
+            "Very short first name",
+            first_name=first_name,
+            identifier=identifier,
+            last_name=last_name,
+        )
+        return
+
     h.apply_name(
         entity,
-        first_name=row.pop("First Name"),
-        middle_name=row.pop("Middle Name"),
-        last_name=row.pop("Last Name"),
+        first_name=first_name,
+        middle_name=middle_name,
+        last_name=last_name,
     )
     entity.add("title", collapse_spaces(row.pop("Title")))
     entity.add("gender", row.pop("Gender"))

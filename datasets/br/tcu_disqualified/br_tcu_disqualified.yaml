@@ -1,4 +1,4 @@
-title: Brazil's TCU list of individuals disqualified from public service
+title: Brazil List of Individuals Disqualified from Public Service
 entry_point: crawler.py
 prefix: br-tcu-disq
 coverage:
@@ -15,7 +15,8 @@ description: |
   ensuring that sanctioned individuals are appropriately restricted
   from holding certain influential and sensitive positions in the public sector.
 publisher:
-  name: Tribunal de Contas da União (TCU)
+  name: Tribunal de Contas da União
+  acronym: TCU
   description: Brazil's Federal Court of Accounts
   url: https://portal.tcu.gov.br/inicio/
   official: true

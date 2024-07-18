@@ -1,4 +1,4 @@
-title: Serbian domestic list of designated persons
+title: Serbian Domestic List of Designated Persons
 entry_point: crawler.py
 prefix: rsdom
 coverage:
@@ -13,7 +13,8 @@ description: |
   this dataset. We have configured the crawler to check regularly if the PDF
   file is updated.
 publisher:
-  name: Administration for the Prevention of Money Laundering (APML)
+  name: Administration for the Prevention of Money Laundering
+  acronym: APML
   description: |
     The APML is an administrative body within the Ministry of Finance. Its powers are
     governed in the Law on the Prevention of Money Laundering and the Financing of
@@ -24,7 +25,7 @@ publisher:
     prevention and detection of money laundering and terrorism financing in
     accordance with the law.
   url: https://www.apml.gov.rs/english/introduction
-  country: sg
+  country: rs
   official: true
 url: https://www.apml.gov.rs/english/targeted-financial-sanctions
 data:

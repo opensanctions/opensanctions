@@ -28,6 +28,9 @@ datasets:
   - kz_companies
   - lv_business_register
   - md_companies
+  # - tj_companies
+  # - xk_companies
+  # - ba_companies
   - ru_egrul
   - sk_rpvs
   - ua_edr

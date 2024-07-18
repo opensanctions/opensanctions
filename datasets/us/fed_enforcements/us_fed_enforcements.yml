@@ -11,7 +11,7 @@ description: |
   This dataset comprises information about individuals and entities that have
   have violated laws, rules, or regulations, unsafe or unsound practices,
   breaches of fiduciary duty, and violations of final orders.
-  
+
   From their website:
 
   > Generally, the Federal Reserve takes formal enforcement actions against the
@@ -21,7 +21,8 @@ description: |
   > written agreements, prompt corrective action directives, removal and prohibition
   > orders, and orders assessing civil money penalties.
 publisher:
-  name: US Federal Reserve
+  name: Federal Reserve Board
+  acronym: FRB
   url: https://www.federalreserve.gov/aboutthefed.htm
   description: >
     The Federal Reserve works to promote the effective operation of the U.S.
@@ -42,6 +43,41 @@ lookups:
           - Indiana
           - Illnois
         value: null
+  individual_name:
+    options:
+      - match: "Carl V. Thomas, Eva June Thomas, Stephen P. Thomas, Mary Beth Thomas, Marguerite Thomas, Charles Tomlinson, Herbert Phillips, Lloyd Phillips, R.L. Phillips, Stanley Phillips, Rhonda Phillips, Scott Ward, Angela Ward, Forrest Buckley, James C. Crowe, Johnny V. Jones, Harper Guinn and Jeff Guinn"
+        values:
+          - Carl V. Thomas
+          - Eva June Thomas
+          - Stephen P. Thomas
+          - Mary Beth Thomas
+          - Marguerite Thomas
+          - Charles Tomlinson
+          - Herbert Phillips
+          - Lloyd Phillips
+          - R.L. Phillips
+          - Stanley Phillips
+          - Rhonda Phillips
+          - Scott Ward
+          - Angela Ward
+          - Forrest Buckley
+          - James C. Crowe
+          - Johnny V. Jones
+          - Harper Guinn
+          - Jeff Guinn
+      - match: "Department of Private Affairs of Sheikh Zayed bin Sultan Al-Nahyan"
+        values:
+          - Sheikh Zayed bin Sultan Al-Nahyan
+      - match: "Members of the Board of Directors of the Abu Dhabi Investment Authority"
+        # cf. https://www.adia.ae/en/pr/2022/pdf/adia-2022_board-of-directors.pdf
+        values:
+          - H.H. Sheikh Tahnoun bin Zayed Al Nahyan
+          - H.H. Sheikh Khaled bin Mohamed bin Zayed Al Nahyan
+          - H.H. Sheikh Mansour bin Zayed Al Nahyan
+          - H.H. Sheikh Hamed bin Zayed Al Nahyan
+          - H.E. Khalil Mohammed Sharif Foulathi
+          - H.E. Jassem Mohamed Bu Ataba Al Zaabi
+          - H.E. Hamad Mohammed Al Hurr Al Suwaidi
   comma_names:
     lowercase: true
     options:
@@ -86,7 +122,7 @@ lookups:
         names:
           - First & Peoples Bancshares Inc., Russell, Kentucky
       - match: peoples-marion bancorp inc., marion, kentucky and the peoples bank, marion, kentucky
-        names: 
+        names:
           - Peoples-Marion Bancorp Inc., Marion, Kentucky
           - The Peoples Bank, Marion, Kentucky
       - match: industrial and commercial bank of china ltd., beijing, people’s republic of china and industrial and commercial bank of china ltd. new york branch, new york, new york
@@ -1054,3 +1090,8 @@ lookups:
       - match: greater southwest bancshares inc., employee stock ownership plan, irving, tx
         names:
           - Greater Southwest Bancshares Inc., Employee Stock Ownership Plan, Irving, TX
+      - match: pedcor financial llc, carmel, indiana, pedcor financial bancorp, carmel, indiana, fidelity federal bancorp, evansville, indiana
+        names:
+          - Pedcor Financial LLC, Carmel, Indiana
+          - Pedcor Financial Bancorp, Carmel, Indiana
+          - Fidelity Federal Bancorp, Evansville, Indiana

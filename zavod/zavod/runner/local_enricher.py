@@ -1,6 +1,5 @@
 import logging
-from typing import Generator, List, Optional, Tuple, Type
-from followthemoney.namespace import Namespace
+from typing import Generator, List, Tuple, Type
 from followthemoney.types import registry
 
 from nomenklatura import CompositeEntity
@@ -34,7 +33,7 @@ class LocalEnricher(Enricher):
           `dataset`: `str` - the name of the dataset to enrich against.
           `cutoff`: `float` - (default 0.5) the minimum score required to be a match.
           `limit`: `int` - (default 5) the maximum number of top scoring matches
-            to return.
+            to return. It's possible for one more match to be returned if its ID matched.
           `algorithm`: `str` (default logic-v1) - the name of the algorithm
               to use for matching.
           `index_options`: `dict` - options to pass to the index.
@@ -52,6 +51,7 @@ class LocalEnricher(Enricher):
         target_dataset = get_catalog().require(target_dataset_name)
         # target_linker = get_dataset_linker(target_dataset)
         # TODO: Workaround until company register datasets have resolve key archived.
+        # Should be latest 2024-07-20
         target_linker = Linker[Entity]({})
         target_store = get_store(target_dataset, target_linker)
         target_store.sync()
@@ -67,15 +67,11 @@ class LocalEnricher(Enricher):
         if _algorithm is None:
             raise EnrichmentException(f"Unknown algorithm: {algo_name}")
         self._algorithm = _algorithm
-        self._threshold = config.pop("threshold", None)
-        self._cutoff = config.pop("cutoff", 0.5)
-        self._limit = config.pop("limit", 5)
-        self._ns: Optional[Namespace] = None
-        if self.get_config_bool("strip_namespace"):
-            self._ns = Namespace()
+        self._cutoff = float(config.pop("cutoff", 0.5))
+        self._limit = int(config.pop("limit", 5))
 
     def entity_from_statements(self, class_: Type[CE], entity: CompositeEntity) -> CE:
-        if type(entity) == class_:
+        if type(entity) is class_:
             return entity
         return class_.from_statements(self.dataset, entity.statements)
 
@@ -85,6 +81,14 @@ class LocalEnricher(Enricher):
         store_type_entity = self.entity_from_statements(
             self._view.store.entity_class, entity
         )
+
+        # Make sure an entity with the same ID is yielded. E.g. a QID or ID scheme
+        # intentionally consistent between datasets.
+        if entity.id is not None:
+            same_id_match = self._view.get_entity(entity.id)
+            if same_id_match is not None:
+                yield self.entity_from_statements(type(entity), same_id_match)
+
         for match_id, index_score in self._index.match(store_type_entity):
             match = self._view.get_entity(match_id.id)
             if match is None:
@@ -98,9 +102,6 @@ class LocalEnricher(Enricher):
                 continue
 
             proxy = self.entity_from_statements(type(entity), match)
-            if self._ns is not None:
-                proxy = self._ns.apply(proxy)
-
             scores.append((result.score, proxy))
 
         scores.sort(key=lambda s: s[0], reverse=True)
@@ -110,12 +111,15 @@ class LocalEnricher(Enricher):
     def _traverse_nested(
         self, entity: CE, path: List[str] = []
     ) -> Generator[CE, None, None]:
+        """Expand starting from a match, recursing to related non-edge entities"""
         if entity.id is None:
             return
 
         yield entity
 
         if len(path) > 1:
+            return
+        if not entity.schema.edge and len(path) > 0:
             return
 
         next_path = list(path)
@@ -130,8 +134,6 @@ class LocalEnricher(Enricher):
                 continue
 
             proxy = self.entity_from_statements(type(entity), adjacent)
-            if self._ns is not None:
-                entity = self._ns.apply(proxy)
             yield from self._traverse_nested(proxy, next_path)
 
     def expand(self, entity: CE, match: CE) -> Generator[CE, None, None]:

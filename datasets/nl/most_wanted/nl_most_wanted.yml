@@ -1,4 +1,4 @@
-title: "Netherlands Police Nationale Opsporingslijst (Wanted)"
+title: "Netherlands Police Nationale Opsporingslijst"
 entry_point: crawler.py
 prefix: nl-wanted
 coverage:

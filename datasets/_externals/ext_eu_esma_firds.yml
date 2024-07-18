@@ -1,5 +1,5 @@
 type: external
-title: "EU ESMA Financial Instruments Reference Data System (FIRDS)"
+title: "EU Financial Instruments Reference Data System (FIRDS)"
 entry_point: zavod.runner.enrich:enrich
 prefix: eu-firds
 full_dataset: eu_esma_firds
@@ -10,9 +10,10 @@ exports:
   - statistics.json
 deploy:
   schedule: "1 10 * * *"
-  memory: 2000Mi
+  memory: 2500Mi
   memory_limit: 3000Mi
   disk: 100Gi
+  disk_limit: 300Gi
 summary: >
   List of financial instruments and their reference data, as published by the European
   Securities and Markets Authority (ESMA).
@@ -22,6 +23,7 @@ description: |
   issuers, and includes information such as the instrument's name, ISIN, and LEI.
 publisher:
   name: European Securities and Markets Authority
+  acronym: ESMA
   description: |
     ESMA is the EU’s financial markets regulator and supervisor. It publishes a
     number of databases and registers, including the Financial Instruments Reference
@@ -56,7 +58,7 @@ inputs:
   - securities
 
 config:
-  type: nomenklatura.enrich.yente:YenteEnricher
+  type: zavod.runner.local_enricher:LocalEnricher
   api: https://api.graph.opensanctions.org/
   dataset: eu_esma_firds
   api_key: ${OPENSANCTIONS_GRAPH_API_KEY}
@@ -64,13 +66,14 @@ config:
   fuzzy: false
   threshold: 0.6
   algorithm: logic-v1
-  # topics:
-  #   - sanction
-  #   - sanction.linked
-  #   - debarment
-  #   - asset.frozen
-  #   - poi
-  #   - gov.soe
+  topics:
+    - sanction
+    - sanction.linked
+    - sanction.counter
+    - debarment
+    - asset.frozen
+    - poi
+    - gov.soe
   schemata:
     - Company
     - Organization

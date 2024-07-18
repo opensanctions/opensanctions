@@ -4,9 +4,6 @@ prefix: afdb
 coverage:
   frequency: daily
   start: 2021-11-08
-  end: 2024-06-04
-deploy:
-  schedule: "@daily"
 ci_test: false
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
@@ -26,6 +23,7 @@ description: |
   the stipulated periods.
 publisher:
   name: "African Development Bank Group"
+  acronym: AfDB
   description: |
     The African Development Bank (AfDB) Group is a regional multilateral development
     finance institution established to contribute to the economic development and

@@ -1,11 +1,12 @@
 type: collection
-title: Debarment
-hidden: true
+title: Debarred Companies and Individuals
+coverage:
+  frequency: daily
 deploy:
-  schedule: "1 */6 * * *"
+  schedule: "1 */4 * * *"
   memory: "1500Mi"
 summary: >
-  Companies and people banned from participating in procurment tenders in
+  Entities banned from participating in procurment tenders in
   a particular jurisdiction, or vis a vis a certain organisation.
 description: |
   Procurement exclusion (debarment) of companies involved in irregularities
@@ -21,8 +22,6 @@ children:
   - iadb_sanctions
   - li_entsg
   - md_interdictie
-  - my_aob_sanctions
-  - no_nbim_exclusions
   - ps_ohchr_settlement
   - si_conflicts
   - us_ddtc_debarred
@@ -31,6 +30,5 @@ children:
   - us_hhs_exclusions
   - us_sam_exclusions
   - us_special_leg
-  - us_finra_actions
   - worldbank_debarred
 ci_test: false

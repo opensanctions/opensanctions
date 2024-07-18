@@ -15,7 +15,9 @@ description: |
   list](/datasets/un_sc_sanctions/), so it is tempting to assume it is a simple
   reproduction of that list.
 publisher:
-  name: Ministry of Justice and Human Rights
+  name: Ministerio de Justicia
+  acronym: MdJ
+  name_en: Ministry of Justice and Human Rights
   description: |
     The Ministerio de Justicia y Derechos Humanos
   country: ar

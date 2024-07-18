@@ -8,6 +8,10 @@ on:
     - cron: "0 0 * * *"
   workflow_dispatch: {}
 
+permissions:
+  packages: write
+  id-token: write
+
 jobs:
   docker:
     if: ${{ github.ref == 'refs/heads/main' }}
@@ -27,7 +31,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push release
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true

@@ -1,4 +1,4 @@
-title: OHCHR List of companies linked to illegal settlement in the West Bank
+title: OHCHR List of Companies Linked to Illegal Settlement in the West Bank
 entry_point: crawler.py
 prefix: ohchr
 coverage:
@@ -57,10 +57,11 @@ description: |
   j. The use of benefits and reinvestments of enterprises owned
   totally or partially by settlers for developing, expanding and
   maintaining the settlements.
-  
+
   The data has been extracted manually from the [30 June 2023 update PDF.](https://www.ohchr.org/sites/default/files/documents/hrbodies/hrcouncil/sessions-regular/session31/database-hrc3136/23-06-30-Update-israeli-settlement-opt-database-hrc3136.pdf).
 publisher:
   name: United Nations Human Rights Council
+  acronym: OHCHR
   country: zz
   url: https://www.ohchr.org/
   description: |

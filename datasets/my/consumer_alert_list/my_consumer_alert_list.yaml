@@ -1,4 +1,4 @@
-title: Malaysia's Financial Consumer Alert List
+title: Malaysia Financial Consumer Alert List
 entry_point: crawler.py
 prefix: my-ale
 coverage:
@@ -28,6 +28,7 @@ description: |
   > financial scheme.
 publisher:
   name: Bank Negara Malaysia
+  acronym: BNM
   description: Central Bank of Malaysia
   url: https://www.bnm.gov.my
   official: true

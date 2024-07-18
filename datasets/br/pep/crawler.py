@@ -1,5 +1,5 @@
 import csv
-from typing import List
+from typing import Dict, Any
 from zipfile import ZipFile
 from datetime import datetime, timedelta
 
@@ -47,64 +47,40 @@ def get_csv_url(context: Context) -> str:
     raise ValueError("Data URL not found")
 
 
-def get_data(csv_url: str, context: Context) -> List[dict]:
-    """
-    Fetches the CSV file as a zip from the website decompresses it and parses it using the csv library
-    and returns the data as a list of dicts.
-
-    :param csv_url: The URL of the CSV file.
-    :param context: The context object.
-
-    :return: The data fetched from the website as a list of dicts.
-    """
-    path = context.fetch_resource("source.zip", csv_url)
-    zip_file = ZipFile(path)
-    file_name = zip_file.namelist()[0]
-
-    csv_str = zip_file.read(file_name).decode("iso-8859-1")
-    lines = csv_str.splitlines()
-
-    reader = csv.DictReader(lines, delimiter=";")
-
-    return [row for row in reader]
-
-
-def create_entities(data: List[dict], context: Context) -> None:
+def create_entity(raw_entity: Dict[str, Any], context: Context) -> None:
     """
     Creates entities from the data fetched from the website.
 
     :param data: The data fetched from the website as a list of dicts.
     :param context: The context object.
     """
+    person = context.make("Person")
+    # We can't use only the CPF (tax number) as an id because here it comes anonimized (12345678910 -> ***456789**)
+    person.id = context.make_id(raw_entity["CPF"] + raw_entity["Nome_PEP"])
+    person.add("name", raw_entity["Nome_PEP"])
+    person.add("taxNumber", raw_entity["CPF"])
 
-    for raw_entity in data:
-        person = context.make("Person")
-        # We can't use only the CPF (tax number) as an id because here it comes anonimized (12345678910 -> ***456789**)
-        person.id = context.make_id(raw_entity["CPF"] + raw_entity["Nome_PEP"])
-        person.add("name", raw_entity["Nome_PEP"])
-        person.add("taxNumber", raw_entity["CPF"])
+    position_name = f'{raw_entity["Descrição_Função"]}, {raw_entity["Nome_Órgão"]}'
+    position = h.make_position(context, position_name, country="br")
+    categorisation = categorise(context, position, is_pep=True)
 
-        position_name = f'{raw_entity["Descrição_Função"]}, {raw_entity["Nome_Órgão"]}'
-        position = h.make_position(context, position_name, country="br")
-        categorisation = categorise(context, position, is_pep=True)
+    if not categorisation.is_pep:
+        return
 
-        if not categorisation.is_pep:
-            return
+    occupancy = h.make_occupancy(
+        context,
+        person,
+        position,
+        False,
+        start_date=parse_date(raw_entity["Data_Início_Exercício"]),
+        end_date=parse_date(raw_entity["Data_Fim_Exercício"]),
+        categorisation=categorisation,
+    )
 
-        occupancy = h.make_occupancy(
-            context,
-            person,
-            position,
-            False,
-            start_date=parse_date(raw_entity["Data_Início_Exercício"]),
-            end_date=parse_date(raw_entity["Data_Fim_Exercício"]),
-            categorisation=categorisation,
-        )
-
-        if occupancy is not None:
-            context.emit(person, target=True)
-            context.emit(position)
-            context.emit(occupancy)
+    if occupancy is not None:
+        context.emit(person, target=True)
+        context.emit(position)
+        context.emit(occupancy)
 
 
 def crawl(context: Context):
@@ -118,5 +94,14 @@ def crawl(context: Context):
     :param context: The context object.
     """
     csv_url = get_csv_url(context)
-    data = get_data(csv_url, context)
-    create_entities(data, context)
+    path = context.fetch_resource("source.zip", csv_url)
+    work_dir = path.parent / "files"
+    work_dir.mkdir(exist_ok=True)
+    with ZipFile(path) as zip_file:
+        for file_name in zip_file.namelist():
+            context.log.info(f"Extracting {file_name}")
+            file_path = zip_file.extract(file_name, work_dir)
+            with open(file_path, "r", encoding="iso-8859-1") as fh:
+                reader = csv.DictReader(fh, delimiter=";")
+                for row in reader:
+                    create_entity(row, context)

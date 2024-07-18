@@ -18,6 +18,7 @@ summary: >-
   Cypriot open data on companies, which names their officers but not any shareholders.
 publisher:
   name: Department of the Registrar of Companies and Intellectual Property
+  acronym: DRCIP
   description: |
     Competent Service for the registration and maintenance of the register
     of Companies, Cooperatives, Trade Names, Trade Marks, Patents,

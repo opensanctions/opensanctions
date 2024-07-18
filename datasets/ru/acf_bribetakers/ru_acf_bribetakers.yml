@@ -1,4 +1,4 @@
-title: ACF List of bribetakers and warmongers
+title: ACF List of War Enablers
 entry_point: crawler.py
 prefix: acf
 coverage:
@@ -6,14 +6,26 @@ coverage:
   start: 2022-05-05
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  A list of key Russian decision-makers from government and business
-  composed by ACF/FBK, the anti-corruption investigative organization
+  A list of Russian decision-makers from government and business
+  composed by ACF/FBK, the anti-corruption organization
   founded by Alexei Navalny
-description: >
-  Putin and his accomplices (officials, oligarchs, propagandists), as well as
-  > yachts and mansions, which, we hope, they will soon be deprived of.
+description: |
+  > The Sanctions Tracker website collects the names of those people 
+  > who should be subject to international sanctions for participating
+  > in the criminal war against Ukraine, for supporting Russian aggression,
+  > or for aiding the Putin regime. Here is a simple and convenient
+  > mechanism to work with the complete categorized list, which is
+  > posted on the ACF website.
+  >
+  > This list is the result of the work of the Anti-Corruption Foundation,
+  > founded in 2011 by Alexei Navalny, a leading opponent of the Putin
+  > regime. We have invested in the list more than a decade of experience
+  > in anti-corruption investigations and a deep understanding of how the
+  > Russian government functions and at what point a blow to it can be
+  > most painful.
 publisher:
-  name: Anti-Corruption Foundation (ACF)
+  name: Anti-Corruption Foundation
+  acronym: ACF
   description: |
     ACF is the international division of Фонд борьбы с коррупцией (FBK), the anti-corruption
     investigative team founded by Alexei Navalny.
