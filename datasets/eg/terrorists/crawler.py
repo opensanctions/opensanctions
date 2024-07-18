@@ -85,7 +85,7 @@ def crawl_terrorist(input_dict: dict, context: Context):
     person.add("idNumber", input_dict.pop("national_id"))
     person.add("topics", "sanction.counter")
 
-    sanction = h.make_sanction(context, person)
+    sanction = h.make_sanction(context, person, case_number)
     sanction.add("listingDate", parse_date(input_dict.pop("date_of_publication")))
     sanction.add("description", f"Case number: {case_number}")
     sanction.add("authorityId", input_dict.pop("terrorist_desgination_decision_number"))
@@ -114,7 +114,7 @@ def crawl_terrorist_entities(input_dict: dict, context: Context):
     entity.add("topics", "sanction.counter")
 
     gazette_issue = input_dict.pop("issue_in_official_gazette")
-    sanction = h.make_sanction(context, entity, case_number)
+    sanction = h.make_sanction(context, entity, case_number + gazette_issue)
     sanction.add("description", f"Case number: {case_number}")
     sanction.add("description", f"Issue in official gazette: {gazette_issue}")
     sanction.add("summary", input_dict.pop("updates"), lang="ara")
@@ -142,7 +142,7 @@ def crawl_legal_persons(input_dict: dict, context: Context):
     entity.add("topics", "sanction.counter")
 
     gazette_issue = input_dict.pop("issue_in_official_gazette")
-    sanction = h.make_sanction(context, entity, gazette_issue)
+    sanction = h.make_sanction(context, entity, case_number + gazette_issue)
     sanction.add("description", f"Case number: {case_number}")
     sanction.add("description", f"Issue in official gazette: {gazette_issue}")
     sanction.add("summary", input_dict.pop("updates"), lang="ara")
