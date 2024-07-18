@@ -89,7 +89,16 @@ class LocalEnricher(Enricher):
             if same_id_match is not None:
                 yield self.entity_from_statements(type(entity), same_id_match)
 
-        for match_id, index_score in self._index.match(store_type_entity):
+        search_results = self._index.match(store_type_entity)
+        if len(search_results) == 0:
+            return
+        total_search_score = sum(r[1] for r in search_results)
+        mean_search_score = total_search_score / len(search_results)
+
+        for match_id, search_score in search_results:
+            if search_score < mean_search_score:
+                break
+
             match = self._view.get_entity(match_id.id)
             if match is None:
                 continue
