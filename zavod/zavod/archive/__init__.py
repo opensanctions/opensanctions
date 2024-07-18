@@ -44,7 +44,9 @@ ARTIFACT_FILES = [
     HASH_FILE,
 ]
 # Set a shorter cache TTL for index/meta files:
-SHORT_LIVED = (INDEX_FILE, ISSUES_FILE, CATALOG_FILE)
+SHORT_LIVED = (INDEX_FILE, CATALOG_FILE)
+TTL_SHORT = 5 * 60
+TTL_LONG = 3 * 24 * 60 * 60
 
 
 def datasets_path() -> Path:
@@ -162,7 +164,7 @@ def publish_dataset_version(dataset_name: str) -> None:
     backend = get_archive_backend()
     name = f"{ARTIFACTS}/{dataset_name}/{VERSIONS_FILE}"
     object = backend.get_object(name)
-    object.publish(path, mime_type=JSON)
+    object.publish(path, mime_type=JSON, ttl=TTL_SHORT)
     get_versions_data.cache_clear()
 
 
@@ -177,7 +179,7 @@ def publish_artifact(
     name = f"{ARTIFACTS}/{dataset_name}/{version.id}/{resource}"
     backend = get_archive_backend()
     object = backend.get_object(name)
-    object.publish(path, mime_type=mime_type, ttl=24 * 60 * 60 * 10)
+    object.publish(path, mime_type=mime_type, ttl=TTL_LONG)
 
 
 def publish_resource(
@@ -189,12 +191,12 @@ def publish_resource(
 ) -> None:
     """Resources are files published to the main publication directory of the dataset."""
     backend = get_archive_backend()
+    ttl = TTL_SHORT if resource in SHORT_LIVED else None
     if dataset_name is not None:
         assert path.relative_to(dataset_data_path(dataset_name))
         resource = f"{dataset_name}/{resource}"
     release_name = f"{DATASETS}/{settings.RELEASE}/{resource}"
     release_object = backend.get_object(release_name)
-    ttl = (5 * 60) if resource in SHORT_LIVED else None
     release_object.publish(path, mime_type=mime_type, ttl=ttl)
 
     if latest and settings.RELEASE != "latest":
