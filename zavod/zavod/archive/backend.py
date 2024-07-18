@@ -98,7 +98,7 @@ class GoogleCloudObject(ArchiveObject):
         self._blob = self.backend.bucket.blob(self.name)
         if ttl is not None:
             self._blob.cache_control = f"public, max-age={ttl}"
-        log.info(f"Uploading blob: {source.name}", blob_name=self.name)
+        log.info(f"Uploading blob: {source.name}", blob_name=self.name, max_age=ttl)
         self._blob.upload_from_filename(source, content_type=mime_type)
 
     def republish(self, source: str) -> None:
