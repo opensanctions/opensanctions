@@ -9,8 +9,8 @@ from datetime import datetime
 
 def arabic_to_latin(arabic_date):
     arabic_numerals = "٠١٢٣٤٥٦٧٨٩"
-    western_numerals = "0123456789"
-    transtable = str.maketrans(arabic_numerals, western_numerals)
+    latin_numerals = "0123456789"
+    transtable = str.maketrans(arabic_numerals, latin_numerals)
     return arabic_date.translate(transtable)
 
 
@@ -19,15 +19,15 @@ def parse_date(date_str: str) -> datetime:
     if not date_str:
         return None
 
-    western_date = arabic_to_latin(date_str)
+    latin_date = arabic_to_latin(date_str)
 
     # We first check if it's just one date
     try:
-        return datetime.strptime(western_date, "%Y/%m/%d")
+        return datetime.strptime(latin_date, "%Y/%m/%d")
     except ValueError:
         # Otherwise we check if the first line is a date
         try:
-            return datetime.strptime(western_date.split("\n")[0], "%d/%m/%Y")
+            return datetime.strptime(latin_date.split("\n")[0], "%d/%m/%Y")
         except ValueError:
             return None
 
@@ -73,26 +73,25 @@ def parse_sheet(
 def crawl_terrorist(input_dict: dict, context: Context):
 
     name = input_dict.pop("name")
-    alias = input_dict.pop("alias")
     case_number = input_dict.pop("case_number")
 
     person = context.make("Person")
-    person.id = context.make_id(name, alias, case_number)
+    person.id = context.make_id(name, case_number)
     person.add("name", name)
-    person.add("alias", alias)
+    person.add("alias", input_dict.pop("alias"))
     person.add("nationality", input_dict.pop("nationality"), lang="ara")
+    person.add("country", "eg")
     person.add("passportNumber", input_dict.pop("passport"))
     person.add("idNumber", input_dict.pop("national_id"))
-    person.add("topics", "crime.terror")
+    person.add("topics", "sanction.counter")
 
     sanction = h.make_sanction(context, person)
-
     sanction.add("listingDate", parse_date(input_dict.pop("date_of_publication")))
-    sanction.add("recordId", case_number)
+    sanction.add("description", f"Case number: {case_number}")
     sanction.add("authorityId", input_dict.pop("terrorist_desgination_decision_number"))
     sanction.add(
-        "summary",
-        "Publication Page: {}".format(input_dict.pop("number_of_publication")),
+        "description",
+        f"Publication Page: {input_dict.pop('number_of_publication')}",
     )
 
     context.emit(person, target=True)
@@ -111,15 +110,18 @@ def crawl_terrorist_entities(input_dict: dict, context: Context):
     entity = context.make("LegalEntity")
     entity.id = context.make_id(name, case_number)
     entity.add("name", name)
-    entity.add("topics", "crime.terror")
+    entity.add("country", "eg")
+    entity.add("topics", "sanction.counter")
 
-    sanction = h.make_sanction(context, entity)
-    sanction.add("recordId", case_number)
+    gazette_issue = input_dict.pop("issue_in_official_gazette")
+    sanction = h.make_sanction(context, entity, case_number)
+    sanction.add("description", f"Case number: {case_number}")
+    sanction.add("description", f"Issue in official gazette: {gazette_issue}")
     sanction.add("summary", input_dict.pop("updates"), lang="ara")
 
     context.emit(entity, target=True)
     context.emit(sanction)
-    context.audit_data(input_dict, ignore=["series", "issue_in_official_gazette"])
+    context.audit_data(input_dict, ignore=["series"])
 
 
 def crawl_legal_persons(input_dict: dict, context: Context):
@@ -133,18 +135,21 @@ def crawl_legal_persons(input_dict: dict, context: Context):
     entity = context.make("LegalEntity")
     entity.id = context.make_id(name, case_number)
     entity.add("name", name)
+    entity.add("country", "eg")
 
     entity.add("address", input_dict.pop("headquarters"))
     entity.add("registrationNumber", input_dict.pop("commercial_registration_number"))
-    entity.add("topics", "crime.terror")
+    entity.add("topics", "sanction.counter")
 
-    sanction = h.make_sanction(context, entity)
-    sanction.add("recordId", case_number)
+    gazette_issue = input_dict.pop("issue_in_official_gazette")
+    sanction = h.make_sanction(context, entity, gazette_issue)
+    sanction.add("description", f"Case number: {case_number}")
+    sanction.add("description", f"Issue in official gazette: {gazette_issue}")
     sanction.add("summary", input_dict.pop("updates"), lang="ara")
 
     context.emit(entity, target=True)
     context.emit(sanction)
-    context.audit_data(input_dict, ignore=["series", "issue_in_official_gazette"])
+    context.audit_data(input_dict, ignore=["series"])
 
 
 def crawl(context: Context):

@@ -3,19 +3,25 @@ entry_point: crawler.py
 prefix: eg-terr
 coverage:
   frequency: daily
-  start: 2024-06-12
+  start: 2024-07-19
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   List of local terrorist entities and terrorists pursuant to Security Council resolution 1373
 description: |
-  This dataset comprises entites and individuals sanctioned by the government of Egypt
+  This dataset comprises entities and individuals sanctioned by the government of Egypt
   in support of UN Security Council Resolution 1373.
 
   This resolution was adopted in response to the terrorist attacks on September 11, 2001,
   and it imposes various legal obligations on member states to combat terrorism.
-  
+
+  **Note**: [Concerns have been raised](https://www.cfjustice.org/ar/%D9%85%D8%B5%D8%B1-%D9%82%D8%B1%D8%A7%D8%B1-%D8%AA%D9%85%D8%AF%D9%8A%D8%AF-%D8%A5%D8%AF%D8%B1%D8%A7%D8%AC-1526-%D9%85%D8%B5%D8%B1%D9%8A%D9%8B%D8%A7-%D8%B9%D9%84%D9%89-%D9%82%D9%88%D8%A7%D8%A6%D9%85/)
+  about the potential use of anti-terrorism legislation by the Egyptian government to
+  suppress political dissent, including
+  [by the UN Human Rights Office of the High Commissioner for Human Rights (OHCHR)](https://www.ohchr.org/en/press-releases/2020/04/egypts-updated-terrorism-law-opens-door-more-rights-abuses-says-un-expert?LangID=E&NewsID=25787)
 publisher:
-  name: وحدة مكافحة غسل الأموال وتمويل الإرهاب المصرية 
+  name: وحدة مكافحة غسل الأموال وتمويل الإرهاب المصرية
+  name_en: Money Laundering Combating Unit
+  acronymn: MLCU
   description: |
    The Anti-Money Laundering and Financing of Terrorism Unit was established under the
    Anti-Money Laundering Law issued by Law No. 80 of 2002, which is the Egyptian Financial
