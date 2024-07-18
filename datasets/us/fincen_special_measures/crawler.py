@@ -30,8 +30,8 @@ def crawl_item(context: Context, row: Dict[str, str]):
     entity.id = context.make_id(name)
     entity.add("name", name)
     # Adjust the topic based on the presence of "final rule"
-    final_rule = row.get("final_rule", "").lower()
-    if final_rule and final_rule != "---":
+    final_rule = row.get("final_rule", "").strip().lower()
+    if final_rule and final_rule != "---" and final_rule != "":
         entity.add("topics", "sanction")
     else:
         entity.add("topics", "reg.warn")
