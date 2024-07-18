@@ -175,7 +175,7 @@ def publish_artifact(
     name = f"{ARTIFACTS}/{dataset_name}/{version.id}/{resource}"
     backend = get_archive_backend()
     object = backend.get_object(name)
-    object.publish(path, mime_type=mime_type, immutable=True)
+    object.publish(path, mime_type=mime_type, max_age=24 * 60 * 60)
 
 
 def publish_resource(
@@ -192,7 +192,8 @@ def publish_resource(
         resource = f"{dataset_name}/{resource}"
     release_name = f"{DATASETS}/{settings.RELEASE}/{resource}"
     release_object = backend.get_object(release_name)
-    release_object.publish(path, mime_type=mime_type)
+    max_age = 5 * 60 if resource in (INDEX_FILE, ISSUES_FILE, CATALOG_FILE) else None
+    release_object.publish(path, mime_type=mime_type, max_age=max_age)
 
     if latest and settings.RELEASE != "latest":
         latest_name = f"{DATASETS}/latest/{resource}"

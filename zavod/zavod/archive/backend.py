@@ -93,11 +93,11 @@ class GoogleCloudObject(ArchiveObject):
         self,
         source: Path,
         mime_type: Optional[str] = None,
-        immutable: bool = False,
+        max_age: Optional[int] = None,
     ) -> None:
         self._blob = self.backend.bucket.blob(self.name)
-        if immutable:
-            self._blob.cache_control = f"public, max-age={84600 * 60}"
+        if max_age is not None:
+            self._blob.cache_control = f"public, max-age={max_age}"
         log.info(f"Uploading blob: {source.name}", blob_name=self.name)
         self._blob.upload_from_filename(source, content_type=mime_type)
 
