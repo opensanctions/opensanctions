@@ -91,7 +91,7 @@ def parse_table(table: html.HtmlElement) -> Generator[Dict[str, str], None, None
                 # https://github.com/lxml/lxml-stubs/pull/71
                 eltree = cast(html.HtmlElement, el)
                 headers.append(slugify(eltree.text_content()))
-            assert headers[0] == None, headers
+            assert headers[0] is None, headers
             assert len(set(headers)) == len(headers), headers
             headers[0] = "name"
             continue
