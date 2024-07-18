@@ -3,10 +3,10 @@ import re
 from zavod import Context, helpers as h
 from normality import slugify
 from typing import Dict, Generator, cast
-from typing import Optional
+from typing import List
 
 
-def convert_date(date_str: str) -> Optional[str]:
+def convert_date(date_str: str) -> List[str]:
     """Convert various date formats to 'YYYY-MM-DD'."""
     # Regular expression to find dates in the format 'MM/DD/YYYY'
     date_pattern = re.compile(r"(\d{1,2}/\d{1,2}/\d{4})")
@@ -17,7 +17,8 @@ def convert_date(date_str: str) -> Optional[str]:
         "%B %d, %Y",  # 'Month DD, YYYY' format
         "%d-%b-%y",  # 'DD-MMM-YY' format
     ]
-    return h.parse_date(date_str, formats)
+    date = h.parse_date(date_str, formats)
+    return date
 
 
 def crawl_item(context: Context, row: Dict[str, str]):
