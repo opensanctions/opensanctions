@@ -20,6 +20,7 @@ children:
   - tr_wanted
   - us_dea_fugitives
   - us_fbi_most_wanted
+  - us_ice_wanted
   - us_ss_wanted
   - za_wanted
 ci_test: false
