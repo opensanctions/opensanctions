@@ -1,27 +1,27 @@
-title: Announcement DL 2/2002 of the Austrian National Bank (Measures restricting capital and payment transactions to combat terrorism)
+title: Austrian National Bank Regulations on Terrorism Financing Restrictions
 entry_point: crawler.py
 prefix: au
 coverage:
   frequency: weekly
-  start: "2024-07-16"
+  start: "2024-07-18"
 deploy:
   schedule: "@weekly"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  The dataset contains Austrian National Bank regulations aimed at combating terrorism, including DL 2/2002, applicable to specified individuals' 
-  assets under the 2010 Sanctions Act (SanktG).
+  This dataset compiles Austrian National Bank regulations aimed at combating terrorism through restrictions on capital and payment transactions, 
+  covering the assets of designated individuals under the 2010 Sanctions Act.
 description: |
   The dataset comprises unofficial versions of regulations provided by the Austrian National Bank (OeNB) aimed at combating terrorism through capital
-  and payment traffic restriction measures. It includes the original regulation published in September 2002 as DL 2/2002. According to the Sanctions Act
-  2010 (SanktG), the regulation DL 2/2002, as amended by DL 1/2009, is considered a valid regulation under § 2 para. 1 SanktG. This regulation applies to
-  all assets of the individuals specified in the document.
+  and payment traffic restriction measures. It covers regulations DL 2/2002 and its 8th amendment DL 1/2009. These regulations are considered valid under 
+  the 2010 Sanctions Act and cover assets of specified organizations and individuals.
 publisher:
   name: Austrian National Bank
   acronym: OeNB
   description: |
-    The Oesterreichische Nationalbank (OeNB) is the central bank of the Republic of Austria and a key member of the European System of Central Banks (ESCB). 
-    It plays a vital role in shaping economic development both in Austria and the euro area while maintaining independence from directives. The OeNB's core 
-    responsibilities encompass cash management, monetary policy, financial market stability, statistics, and payment transactions.
+    The Oesterreichische Nationalbank (OeNB) is the central bank of the Republic of Austria and as such an integral part of the European System of Central 
+    Banks (ESCB). The OeNB contributes, in the public interest, to monetary and economic policy decision-making in Austria and the euro area. Its core business 
+    areas are cash management, monetary policy, financial stability, statistics, and payments.
+    [Source: Official Website](hhttps://www.oenb.at/en/)
   url: https://www.oenb.at
   official: false
 url: https://www.oenb.at/Ueber-Uns/Rechtliche-Grundlagen/Verordnungen-nach-DevG.html

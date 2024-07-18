@@ -40,7 +40,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     alias = data.pop("alias", None)
     notes = data.pop("notes", None)
     reason = data.pop("reason", None)
-    birth_date = parse_date_time(data.pop("date of birth"))
+    birth_date = h.parse_date(data.pop("date of birth"), DATE_FORMATS)
     country = data.pop("country", None)
     birth_place = data.pop("place of birth", None)
     id_number = data.pop("ID card no.", None)
