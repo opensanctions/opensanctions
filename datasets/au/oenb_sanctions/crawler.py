@@ -5,7 +5,7 @@ from typing import Optional, Dict
 import zavod.helpers as h
 from zavod import Context
 
-DATE_FORMATS = ["%d. %m. %Y", "%d. %B %Y"]
+DATE_FORMATS = ["%d.%m.%Y", "%d. %m %Y"]
 MONTHS_DE = {
     "Januar": 1,
     "Februar": 2,
@@ -27,10 +27,11 @@ def parse_date_time(text: str) -> Optional[datetime]:
         return None
     for de, number in MONTHS_DE.items():
         # Replace German month names with numbers
-        text = re.sub(rf"\b{de}\b", str(number), text)
-    if date := h.parse_date(text, ["%d. %m. %Y"]):
-        return datetime.strptime(date[0], "%Y-%m-%d")
-    return None
+        text = re.sub(rf"\b{de}\b", str(number) + ".", text)
+    text = text.replace(" ", "")
+    date = h.parse_date(text, DATE_FORMATS)
+    print(text, date)
+    return date
 
 
 def crawl_row(context: Context, row: Dict[str, str]):
@@ -40,7 +41,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     alias = data.pop("alias", None)
     notes = data.pop("notes", None)
     reason = data.pop("reason", None)
-    birth_date = h.parse_date(data.pop("date of birth"), DATE_FORMATS)
+    birth_date = parse_date_time(data.pop("date of birth"))
     country = data.pop("country", None)
     birth_place = data.pop("place of birth", None)
     id_number = data.pop("ID card no.", None)

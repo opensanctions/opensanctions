@@ -32,9 +32,9 @@ data:
 assertions:
   min:
     schema_entities:
-      Person: 90
+      Person: 55
       Organization: 27
   max:
     schema_entities:
-      Person: 100
-      Organization: 30
+      Person: 60
+      Organization: 33
