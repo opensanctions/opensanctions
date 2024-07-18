@@ -1,7 +1,6 @@
 import csv
 import re
-from datetime import datetime
-from typing import Optional, Dict
+from typing import Dict, List
 import zavod.helpers as h
 from zavod import Context
 
