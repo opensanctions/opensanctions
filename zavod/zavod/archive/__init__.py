@@ -43,6 +43,8 @@ ARTIFACT_FILES = [
     DELTA_INDEX_FILE,
     HASH_FILE,
 ]
+# Set a shorter cache TTL for index/meta files:
+SHORT_LIVED = (INDEX_FILE, ISSUES_FILE, CATALOG_FILE)
 
 
 def datasets_path() -> Path:
@@ -175,7 +177,7 @@ def publish_artifact(
     name = f"{ARTIFACTS}/{dataset_name}/{version.id}/{resource}"
     backend = get_archive_backend()
     object = backend.get_object(name)
-    object.publish(path, mime_type=mime_type, immutable=True)
+    object.publish(path, mime_type=mime_type, ttl=24 * 60 * 60 * 10)
 
 
 def publish_resource(
@@ -192,7 +194,8 @@ def publish_resource(
         resource = f"{dataset_name}/{resource}"
     release_name = f"{DATASETS}/{settings.RELEASE}/{resource}"
     release_object = backend.get_object(release_name)
-    release_object.publish(path, mime_type=mime_type)
+    ttl = (5 * 60) if resource in SHORT_LIVED else None
+    release_object.publish(path, mime_type=mime_type, ttl=ttl)
 
     if latest and settings.RELEASE != "latest":
         latest_name = f"{DATASETS}/latest/{resource}"
