@@ -22,7 +22,7 @@ MONTHS_DE = {
 }
 
 
-def parse_date_time(text: str) -> Optional[datetime]:
+def parse_date_time(text: str) -> List[str]:
     if not text:
         return None
     for de, number in MONTHS_DE.items():
@@ -30,7 +30,6 @@ def parse_date_time(text: str) -> Optional[datetime]:
         text = re.sub(rf"\b{de}\b", str(number) + ".", text)
     text = text.replace(" ", "")
     date = h.parse_date(text, DATE_FORMATS)
-    print(text, date)
     return date
 
 
@@ -50,7 +49,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
 
     if entity_type == "Person":
         entity = context.make("Person")
-        entity.id = context.make_id(full_name, birth_place)
+        entity.id = context.make_id(full_name, birth_place, birth_date)
         entity.add("name", h.split_comma_names(context, full_name))
         entity.add("alias", other_name)
         entity.add("birthDate", birth_date)
