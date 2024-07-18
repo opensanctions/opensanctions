@@ -1,4 +1,5 @@
-title: Announcement DL 2/2002 of the Austrian National Bank (Measures restricting capital and payment transactions to combat terrorisentry_point: crawler.py
+title: Announcement DL 2/2002 of the Austrian National Bank (Measures restricting capital and payment transactions to combat terrorism
+entry_point: crawler.py
 prefix: au
 coverage:
   frequency: weekly
@@ -36,4 +37,4 @@ assertions:
     schema_entities:
       Person: 100
       Organization: 30
-     
+    
