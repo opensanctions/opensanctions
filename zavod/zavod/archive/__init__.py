@@ -177,7 +177,7 @@ def publish_artifact(
     name = f"{ARTIFACTS}/{dataset_name}/{version.id}/{resource}"
     backend = get_archive_backend()
     object = backend.get_object(name)
-    object.publish(path, mime_type=mime_type, ttl=24 * 60 * 60)
+    object.publish(path, mime_type=mime_type, ttl=24 * 60 * 60 * 10)
 
 
 def publish_resource(
