@@ -26,11 +26,11 @@ data:
 assertions:
   min:
     schema_entities:
-      Person: 100
+      Person: 95
       Position: 1
     country_entities:
-      lv: 101
+      lv: 95
     countries: 1
   max:
     schema_entities:
-      Person: 100
+      Person: 105

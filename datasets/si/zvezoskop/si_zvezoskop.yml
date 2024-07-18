@@ -4,7 +4,6 @@ prefix: si-zvezo
 coverage:
   frequency: never
   start: 2024-02-01
-  end: 2024-02-01
   schedule: "45 5 * * *"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
