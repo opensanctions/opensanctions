@@ -1,53 +1,81 @@
 import csv
-from typing import Dict
+import re
+from datetime import datetime
+from typing import Optional, Dict
 import zavod.helpers as h
 from zavod import Context
 
-# Define constants for date parsing
-DATE_FORMATS = ["%d. %m. %Y"]
+DATE_FORMATS = ["%d. %m. %Y", "%d. %B %Y"]
+MONTHS_DE = {
+    "Januar": 1,
+    "Februar": 2,
+    "März": 3,
+    "April": 4,
+    "Mai": 5,
+    "Juni": 6,
+    "Juli": 7,
+    "August": 8,
+    "September": 9,
+    "Oktober": 10,
+    "November": 11,
+    "Dezember": 12,
+}
+
+
+def parse_date_time(text: str) -> Optional[datetime]:
+    if not text:
+        return None
+    for de, number in MONTHS_DE.items():
+        # Replace German month names with numbers
+        text = re.sub(rf"\b{de}\b", str(number), text)
+    if date := h.parse_date(text, ["%d. %m. %Y"]):
+        return datetime.strptime(date[0], "%Y-%m-%d")
+    return None
 
 
 def crawl_row(context: Context, row: Dict[str, str]):
-    full_name = row.get("name")
-    alias = row.get("alias")
-    birth_date = h.parse_date(row.get("date of birth"), DATE_FORMATS)
-    birth_place = row.get("place of birth")
-    passport_number = row.get("ID card no.")
-    reason = row.get("reason")
+    data = dict(row)
+    full_name = data.pop("name", None)
+    other_name = data.pop("other name", None)
+    alias = data.pop("alias", None)
+    notes = data.pop("notes", None)
+    reason = data.pop("reason", None)
+    birth_date = parse_date_time(data.pop("date of birth"))
+    country = data.pop("country", None)
+    birth_place = data.pop("place of birth", None)
+    id_number = data.pop("ID card no.", None)
+    source = data.pop("source", None)
+    entity_type = data.pop("type", None)
 
-    # Create a Person entity
-    if row.get("type") == "Person":
-        # if full_name and "," in full_name:
-        #     last_name, first_name = map(str.strip, full_name.split(",", 1))
-        # else:
-        #     first_name, last_name = None, full_name  # Adjust based on contextual needs
-
-        # entity = context.make("Person")
-        # if first_name and last_name:
-        #     h.apply_name(entity, first_name=first_name, last_name=last_name)
-        #     entity.id = context.make_id(first_name, last_name)
+    if entity_type == "Person":
         entity = context.make("Person")
-        entity.id = context.make_id(full_name)
+        entity.id = context.make_id(full_name, birth_place)
+        entity.add("name", h.split_comma_names(context, full_name))
+        entity.add("alias", other_name)
         entity.add("birthDate", birth_date)
-        entity.add("birthPlace", birth_place, lang="eng")
-        entity.add("passportNumber", passport_number)
-
-    # Create an Organization entity if it's an organization
-    elif row.get("type") == "Organization":
+        entity.add("birthPlace", birth_place, lang="spa")
+        entity.add("country", country, lang="deu")
+        entity.add("idNumber", id_number)
+        entity.add("sourceUrl", source)
+    elif entity_type == "Organization":
         entity = context.make("Organization")
-        entity.id = context.make_id(full_name)
+        entity.id = context.make_id(full_name, source)
         entity.add("name", full_name)
-        entity.add("alias", row.get("other name"))
-        entity.add("weakAlias", alias, lang="eng")
+        entity.add("alias", other_name)
+        entity.add("weakAlias", alias)
+        entity.add("notes", notes, lang="deu")
+        entity.add("sourceUrl", source)
 
+    # Proceed only if the entity was created
     if entity:
         entity.add("topics", "sanction")
         sanction = h.make_sanction(context, entity)
         sanction.add("reason", reason, lang="deu")
-
-    # Emit entities
-    context.emit(entity, target=True)
-    context.emit(sanction)
+        # Emit the entities
+        context.emit(entity, target=True)
+        context.emit(sanction)
+    # Log warnings if there are unhandled fields remaining in the dict
+    context.audit_data(data)
 
 
 def crawl(context: Context):
