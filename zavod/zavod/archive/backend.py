@@ -34,7 +34,7 @@ class ArchiveObject(object):
         self,
         source: Path,
         mime_type: Optional[str] = None,
-        immutable: bool = False,
+        ttl: Optional[int] = False,
     ) -> None:
         raise NotImplementedError
 
@@ -93,11 +93,11 @@ class GoogleCloudObject(ArchiveObject):
         self,
         source: Path,
         mime_type: Optional[str] = None,
-        max_age: Optional[int] = None,
+        ttl: Optional[int] = None,
     ) -> None:
         self._blob = self.backend.bucket.blob(self.name)
-        if max_age is not None:
-            self._blob.cache_control = f"public, max-age={max_age}"
+        if ttl is not None:
+            self._blob.cache_control = f"public, max-age={ttl}"
         log.info(f"Uploading blob: {source.name}", blob_name=self.name)
         self._blob.upload_from_filename(source, content_type=mime_type)
 
@@ -154,7 +154,7 @@ class FileSystemObject(ArchiveObject):
         self,
         source: Path,
         mime_type: str | None = None,
-        immutable: bool = False,
+        ttl: Optional[int] = None,
     ) -> None:
         log.info(
             f"Copying file: {self.path.name} to archive",
