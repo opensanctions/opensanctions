@@ -614,7 +614,9 @@ lookups:
           - AM
       - match: Kingdom of Serbia
         value: Serbia
-      - match: Federation of Malaya
+      - match: 
+          - Federation of Malaya
+          - Kedah Sultanate
         value: Malaysia
       - match:
           - Azad Kashmir
