@@ -3,10 +3,10 @@ entry_point: crawler.py
 prefix: im-dir
 coverage:
   frequency: daily
-  start: "2024-07-09"
+  start: "2024-07-18"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  Individuals disqualified to work in corporate governace of companies
+  Individuals disqualified from working in corporate governance
 description: |
   The Isle of Man Financial Services Authority may petition the High
   Court of Justice of the Isle of Man under Section 3 (1) (a) of the
@@ -20,8 +20,6 @@ description: |
    - a person who, in any way, whether directly or indirectly, is concerned or takes part in the promotion, formation or management of a company.
 
   The period of disqualification can range from a minimum of 2 years to a maximum of 15 years.
-
-
 publisher:
   name: The Isle of Man Financial Services Authority
   acronym: IOMFSA
