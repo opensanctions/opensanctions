@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: eg-terr
 coverage:
   frequency: daily
-  start: 2024-07-19
+  start: "2024-07-18"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   List of local terrorist entities and terrorists pursuant to Security Council resolution 1373

@@ -30,6 +30,8 @@ children:
   - ransomwhere
   - br_bcb_disqualified_persons
   - br_tcu_disqualified
+  - eg_terrorists
   - gb_coh_disqualified
   - gb_proscribed_orgs
+  - im_disqualified_directors
 ci_test: false
