@@ -1896,3 +1896,12 @@ lookups:
         code: ""
         label: "Kingdom of Martabam-hongsawatoi"
         decision: "ignore"
+      - match: "Q127424576"
+        code: ""
+        label: "Kingdom of Notsé"
+        decision: "ignore"
+      - match: "Q188736"
+        code: "BA"
+        label: "Bosna"
+        decision: "national"
+
