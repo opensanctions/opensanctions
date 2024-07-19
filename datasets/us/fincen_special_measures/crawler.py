@@ -10,7 +10,7 @@ def convert_date(date_str: str) -> List[str]:
     """Convert various date formats to 'YYYY-MM-DD'."""
     # Regular expression to find dates in the format 'MM/DD/YYYY'
     date_pattern = re.compile(r"(\d{1,2}/\d{1,2}/\d{4})")
-    date_pattern.search(date_str)
+    date_pattern.findall(date_str)
 
     formats = ["%m/%d/%Y"]  # 'MM/DD/YYYY' format
     date = h.parse_date(date_str, formats)
