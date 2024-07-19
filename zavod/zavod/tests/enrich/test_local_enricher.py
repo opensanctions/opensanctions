@@ -20,6 +20,11 @@ UMBRELLA_CORP = {
     "id": "xxx",
     "properties": {"name": ["Umbrella Corp."]},
 }
+JOHN_DOE = {
+    "schema": "Person",
+    "id": "abc-john-doe",
+    "properties": {"name": ["John Doe"]},
+}
 JON_DOVER = {
     "schema": "Person",
     "id": "abc-jona-dova",  # Initially different from dataset
@@ -46,6 +51,19 @@ def load_enricher(context: Context, dataset_data, target_dataset: str):
     assert issubclass(enricher_cls, Enricher)
     dataset = Dataset.make(dataset_data_copy)
     return enricher_cls(dataset, context.cache, dataset.config)
+
+
+def test_match(vcontext: Context):
+    """We match multiple values similar enough to the entity"""
+    crawl_dataset(vcontext.dataset)
+    enricher = load_enricher(vcontext, DATASET_DATA, "testdataset1")
+    entity = CompositeEntity.from_data(vcontext.dataset, JOHN_DOE)
+
+    # Match
+    results = list(enricher.match(entity))
+    assert len(results) == 2, results
+    assert str(results[0].id) == "osv-john-doe", results[0]
+    assert str(results[1].id) == "osv-johnny-does", results[1]
 
 
 def test_enrich(vcontext: Context):
@@ -101,7 +119,7 @@ def test_expand_securities(vcontext: Context, testdataset_securities: Dataset):
 
     # Match
     results = list(enricher.match(entity))
-    assert len(results) == 2, results  # USD EUR is also a match
+    assert len(results) == 1, results
     assert str(results[0].id) == "osv-isin-a", results[0]
 
     # Expand

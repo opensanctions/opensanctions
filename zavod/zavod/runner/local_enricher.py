@@ -37,12 +37,6 @@ class LocalEnricher(Enricher):
           `algorithm`: `str` (default logic-v1) - the name of the algorithm
               to use for matching.
           `index_options`: `dict` - options to pass to the index.
-            `max_candidates`: `int` - (default 100) the maximum number of search
-              results to score.
-            `memory_budget`: `int` - (default 100) the amount of memory to use for
-              indexing in MB
-            `threshold`: `float` - (default 1.0) the minimum tantivy score required
-              to be scored by `algorithm`.
     """
 
     def __init__(self, dataset: DS, cache: Cache, config: EnricherConfig):
