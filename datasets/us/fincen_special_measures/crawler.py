@@ -12,11 +12,7 @@ def convert_date(date_str: str) -> List[str]:
     date_pattern = re.compile(r"(\d{1,2}/\d{1,2}/\d{4})")
     date_pattern.search(date_str)
 
-    formats = [
-        "%m/%d/%Y",  # 'MM/DD/YYYY' format
-        "%B %d, %Y",  # 'Month DD, YYYY' format
-        "%d-%b-%y",  # 'DD-MMM-YY' format
-    ]
+    formats = ["%m/%d/%Y"]  # 'MM/DD/YYYY' format
     date = h.parse_date(date_str, formats)
     return date
 
@@ -32,7 +28,12 @@ def crawl_item(context: Context, row: Dict[str, str]):
     entity.add("name", name)
     # Adjust the topic based on the presence of "final rule"
     final_rule = row.get("final_rule", "").strip().lower()
-    if final_rule and final_rule != "---" and final_rule != "":
+    rescinded_date = row.get("rescinded").text_content()
+    if (
+        final_rule
+        and final_rule != "---"
+        and (not rescinded_date or rescinded_date == "---")
+    ):
         entity.add("topics", "sanction")
     else:
         entity.add("topics", "reg.warn")
@@ -68,15 +69,14 @@ def crawl_item(context: Context, row: Dict[str, str]):
     if final_rule_date != "---":
         sanction.add("startDate", convert_date(final_rule_date))
 
-    rescinded_date = row.get("rescinded").text_content()
-    if rescinded_date != "---":
+    # rescinded_date = row.get("rescinded").text_content()
+    if rescinded_date != "---" and rescinded_date != "":
         sanction.add("endDate", convert_date(rescinded_date))
         context.emit(entity, target=True)
     else:
         context.emit(entity, target=False)
 
-    # Emit the entity and the sanction
-    # context.emit(entity)
+    # Emit the sanction
     context.emit(sanction)
 
 
@@ -92,11 +92,12 @@ def parse_table(table: html.HtmlElement) -> Generator[Dict[str, str], None, None
                 eltree = cast(html.HtmlElement, el)
                 headers.append(slugify(eltree.text_content()))
             assert headers[0] is None, headers
+            # no duplicate column headers
             assert len(set(headers)) == len(headers), headers
             headers[0] = "name"
             continue
 
-        cells = row.findall("./td")  # <--- edited here
+        cells = row.findall("./td")
         if len(cells) == 1:
             continue
         assert len(headers) == len(cells), (headers, cells)
