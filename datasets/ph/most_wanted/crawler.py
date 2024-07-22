@@ -10,15 +10,16 @@ def crawl_row(context: Context, row: Dict[str, str]):
     offense = data.pop("offense", None)
     case_number = data.pop("case number", None)
     source = data.pop("source", None)
+    reward = data.pop("reward", None)
 
     entity = context.make("Person")
-    entity.id = context.make_id(full_name, offense, case_number)
+    entity.id = context.make_id(full_name, case_number, reward)
     entity.add("name", full_name)
     entity.add("sourceUrl", source)
 
     # Proceed only if the entity was created
     if entity:
-        entity.add("topics", "crime")
+        entity.add("topics", "wanted")
         sanction = h.make_sanction(context, entity)
         sanction.add("reason", offense)
         sanction.add("program", "Most Wanted")
