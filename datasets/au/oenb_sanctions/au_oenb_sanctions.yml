@@ -1,19 +1,18 @@
 title: Austrian National Bank Regulations on Terrorism Financing Restrictions
 entry_point: crawler.py
-prefix: au
+prefix: at-nbter
 coverage:
   frequency: weekly
-  start: "2024-07-18"
+  start: "2024-07-22"
 deploy:
   schedule: "@weekly"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  This dataset compiles Austrian National Bank regulations aimed at combating terrorism through restrictions on capital and payment transactions, 
-  covering the assets of designated individuals under the 2010 Sanctions Act.
+  This dataset compiles Austrian National Bank regulations aimed at combating terrorism through financial restrictions under the 2010 Sanctions Act.
 description: |
-  The dataset comprises unofficial versions of regulations provided by the Austrian National Bank (OeNB) aimed at combating terrorism through capital
-  and payment traffic restriction measures. It covers regulations DL 2/2002 and its 8th amendment DL 1/2009. These regulations are considered valid under 
-  the 2010 Sanctions Act and cover assets of specified organizations and individuals.
+  The dataset includes details about restricted assets for organizations and individuals as per the Austrian National Bank regulations DL 2/2002 and 
+  its 8th amendment, DL 1/2009, related to capital and payment traffic restrictions for combating terrorism. Please note that the source is manually 
+  curated and does not automatically update with changes to the official regulations.
 publisher:
   name: Austrian National Bank
   acronym: OeNB
@@ -22,8 +21,9 @@ publisher:
     Banks (ESCB). The OeNB contributes, in the public interest, to monetary and economic policy decision-making in Austria and the euro area. Its core business 
     areas are cash management, monetary policy, financial stability, statistics, and payments.
     [Source: Official Website](hhttps://www.oenb.at/en/)
+  country: at
   url: https://www.oenb.at
-  official: false
+  official: true
 url: https://www.oenb.at/Ueber-Uns/Rechtliche-Grundlagen/Verordnungen-nach-DevG.html
 data:
   url: https://docs.google.com/spreadsheets/d/e/2PACX-1vSuNicMIsLe0OOhS8Xcru4a3QpEZMRvlHmN3E0r4hTLXjvyD7ha0MX8RZuUxsguhel141SkCf1Tm5G-/pub?gid=0&single=true&output=csv

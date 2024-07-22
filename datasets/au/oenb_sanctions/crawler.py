@@ -33,23 +33,23 @@ def parse_date_time(text: str) -> List[str]:
 
 
 def crawl_row(context: Context, row: Dict[str, str]):
-    data = dict(row)
-    full_name = data.pop("name", None)
-    other_name = data.pop("other name", None)
-    alias = data.pop("alias", None)
-    notes = data.pop("notes", None)
-    reason = data.pop("reason", None)
-    birth_date = parse_date_time(data.pop("date of birth"))
-    country = data.pop("country", None)
-    birth_place = data.pop("place of birth", None)
-    id_number = data.pop("ID card no.", None)
-    source = data.pop("source", None)
-    entity_type = data.pop("type", None)
+    full_name = row.pop("name")
+    other_name = row.pop("other name")
+    alias = row.pop("alias")
+    notes = row.pop("notes")
+    reason = row.pop("reason")
+    birth_date = parse_date_time(row.pop("date of birth"))
+    country = row.pop("country")
+    birth_place = row.pop("place of birth")
+    id_number = row.pop("ID card no.")
+    source = row.pop("source")
+    entity_type = row.pop("type")
 
+    entity = None
     if entity_type == "Person":
         entity = context.make("Person")
         entity.id = context.make_id(full_name, birth_place, birth_date)
-        entity.add("name", h.split_comma_names(context, full_name))
+        entity.add("name", full_name)  # still need to split it
         entity.add("alias", other_name)
         entity.add("birthDate", birth_date)
         entity.add("birthPlace", birth_place, lang="spa")
@@ -61,9 +61,11 @@ def crawl_row(context: Context, row: Dict[str, str]):
         entity.id = context.make_id(full_name, source)
         entity.add("name", full_name)
         entity.add("alias", other_name)
-        entity.add("weakAlias", alias)
+        entity.add("alias", alias)
         entity.add("notes", notes, lang="deu")
         entity.add("sourceUrl", source)
+    else:
+        context.log.warning("Unhandled entity type", type=entity_type)
 
     # Proceed only if the entity was created
     if entity:
@@ -73,8 +75,6 @@ def crawl_row(context: Context, row: Dict[str, str]):
         # Emit the entities
         context.emit(entity, target=True)
         context.emit(sanction)
-    # Log warnings if there are unhandled fields remaining in the dict
-    context.audit_data(data)
 
 
 def crawl(context: Context):
