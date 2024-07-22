@@ -6,15 +6,17 @@ from typing import Dict, Generator, cast
 from typing import List
 
 
+REGEX_DATE = re.compile(r"(\d{1,2}/\d{1,2}/\d{4})")
+
+
 def convert_date(date_str: str) -> List[str]:
     """Convert various date formats to 'YYYY-MM-DD'."""
-    # Regular expression to find dates in the format 'MM/DD/YYYY'
-    date_pattern = re.compile(r"(\d{1,2}/\d{1,2}/\d{4})")
-    date_pattern.findall(date_str)
-
+    dates = REGEX_DATE.findall(date_str)
+    parsed = []
     formats = ["%m/%d/%Y"]  # 'MM/DD/YYYY' format
-    date = h.parse_date(date_str, formats)
-    return date
+    for str in dates:
+        parsed.extend(h.parse_date(str, formats))
+    return parsed
 
 
 def crawl_item(context: Context, row: Dict[str, str]):
@@ -42,22 +44,11 @@ def crawl_item(context: Context, row: Dict[str, str]):
     sanction = h.make_sanction(context, entity)
 
     # Extract PDF links
-    sanction.add(
-        "sourceUrl", [e.get("href") for e in row.get("finding").findall(".//a")]
-    )
-    sanction.add(
-        "sourceUrl",
-        [
-            e.get("href")
-            for e in row.get("notice-of-proposed-rulemaking").findall(".//a")
-        ],
-    )
-    sanction.add(
-        "sourceUrl", [e.get("href") for e in row.get("rescinded").findall(".//a")]
-    )
-    sanction.add(
-        "sourceUrl", [e.get("href") for e in row.get("final-rule").findall(".//a")]
-    )
+    anchors = row.get("finding").findall(".//a")
+    anchors.extend(row.get("notice-of-proposed-rulemaking").findall(".//a"))
+    anchors.extend(row.get("rescinded").findall(".//a"))
+    anchors.extend(row.get("final-rule").findall(".//a"))
+    sanction.add("sourceUrl", [a.get("href") for a in anchors])
 
     finding_date = row.get("finding").text_content()
     nprm_date = row.get("notice-of-proposed-rulemaking").text_content()
