@@ -100,6 +100,8 @@ lookups:
           - IRAQ AND LEVANT-KHORASAN
         values:
           - Iraq
+      - match: Saada, Yemen
+        value: Yemen
   type.date:
     options:
       - match:
