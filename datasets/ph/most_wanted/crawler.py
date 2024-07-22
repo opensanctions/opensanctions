@@ -5,27 +5,18 @@ from zavod import Context
 
 
 def crawl_row(context: Context, row: Dict[str, str]):
-    data = dict(row)
-    full_name = data.pop("name", None)
-    offense = data.pop("offense", None)
-    case_number = data.pop("case number", None)
-    source = data.pop("source", None)
-    reward = data.pop("reward", None)
+    full_name = row.get("name")
+    offense = row.get("offense")
+    case_number = row.get("case number")
 
     entity = context.make("Person")
-    entity.id = context.make_id(full_name, case_number, reward)
+    entity.id = context.make_id(full_name, case_number, offense)
     entity.add("name", full_name)
-    entity.add("sourceUrl", source)
     entity.add("topics", "wanted")
-
-    sanction = h.make_sanction(context, entity)
-    sanction.add("reason", offense)
-    sanction.add("program", "Most Wanted")
+    entity.add("notes", offense)
+    entity.add("notes", case_number)
     # Emit the entities
     context.emit(entity, target=True)
-    context.emit(sanction)
-    # Log warnings if there are unhandled fields remaining in the dict
-    context.audit_data(data)
 
 
 def crawl(context: Context):

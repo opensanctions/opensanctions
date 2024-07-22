@@ -1,8 +1,8 @@
-title: Top Most Wanted Persons in the Cordillera Regions
+title: Philippines Top Most Wanted Persons in the Cordillera Regions
 entry_point: crawler.py
 prefix: ph
 coverage:
-  frequency: weekly
+  frequency: never
   start: "2024-07-22"
 deploy:
   schedule: "@weekly"
@@ -11,8 +11,8 @@ summary: >
   The dataset contains information about individuals currently most wanted by the Philippine National Police in the Cordillera Region.
 description: |
   The dataset contains detailed information about individuals wanted by the police authorities in the Cordillera Region. It includes 
-  various categories of criminals and terrorists, including communists and locals, who have rewards associated with their capture. 
-  The dataset includes each person's name, reward amount, offences, and case-control number (CC No.).
+  various categories of criminals and terrorists, who have rewards associated with their capture. The dataset includes each person's 
+  name, reward amount, offences, and case-control number (CC No.).
 publisher:
   name: Philippine National Police
   acronym: PNP
