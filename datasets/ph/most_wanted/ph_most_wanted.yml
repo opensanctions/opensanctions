@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: ph
 coverage:
   frequency: weekly
-  start: "2024-07-10"
+  start: "2024-07-22"
 deploy:
   schedule: "@weekly"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
@@ -25,5 +25,6 @@ publisher:
   official: true
 url: https://procor.pnp.gov.ph/crime-investigation/most-wanted-persons/
 data:
-  url: https://procor.pnp.gov.ph/wp-content/uploads/2022/02/TERRORIST-GROUP2-1024x929.jpg
-  format: jpg
+  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRzdHciKqVlSVaHkD-OfiEuTghAZnOePxSHoCpxbUp6j1YQCcu2TdW9A8xJZAv09PfIXDfQJ5_EDe7f/pub?gid=0&single=true&output=csv
+  format: csv
+

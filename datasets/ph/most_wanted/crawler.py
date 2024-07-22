@@ -1,29 +1,39 @@
-from rigour.mime.types import PDF
-from urllib.parse import urljoin
-
+import csv
+from typing import Dict
+import zavod.helpers as h
 from zavod import Context
-from zavod import helpers as h
-from zavod.shed.gpt import run_image_prompt
+
+
+def crawl_row(context: Context, row: Dict[str, str]):
+    data = dict(row)
+    full_name = data.pop("name", None)
+    reward = data.pop("reward", None)
+    offense = data.pop("offense", None)
+    case_number = data.pop("case number", None)
+    source = data.pop("source", None)
+
+    entity = context.make("Person")
+    entity.id = context.make_id(full_name, offense, case_number)
+    entity.add("name", full_name)
+    entity.add("sourceUrl", source)
+
+    # Proceed only if the entity was created
+    if entity:
+        entity.add("topics", "crime")
+        sanction = h.make_sanction(context, entity)
+        sanction.add("reason", offense)
+        sanction.add("program", "Most Wanted")
+        sanction.add("description", reward)
+        # Emit the entities
+        context.emit(entity, target=True)
+        context.emit(sanction)
+    # Log warnings if there are unhandled fields remaining in the dict
+    context.audit_data(data)
 
 
 def crawl(context: Context):
-    # Fetch the source data URL specified in the metadata to a local path:
-    source_path = context.fetch_resource("source.jpg", context.dataset.data.url)
-
-    # Assuming the image is fetched correctly, now we need to process it.
-    with open(source_path, "rb") as fh:
-        image_data = fh.read()
-
-    # Use run_image_prompt to process the image and extract text
-    extracted_text = run_image_prompt(image_data)
-
-    # Log the length of the extracted text for debugging purposes
-    context.log.info(f"Extracted text length: {len(extracted_text)}")
-
-    # Assuming extracted_text contains the relevant data, you can now process it further
-    # For the sake of this example, we'll just log the extracted text
-    context.log.info(f"Extracted text: {extracted_text}")
-
-    # You can also register the image file as a resource with the dataset that
-    # will be included in the exported metadata index:
-    context.export_resource(source_path, title="Source data image file")
+    path = context.fetch_resource("source.csv", context.data_url)
+    with open(path, "r", encoding="utf-8") as fh:
+        reader = csv.DictReader(fh)
+        for row in reader:
+            crawl_row(context, row)
