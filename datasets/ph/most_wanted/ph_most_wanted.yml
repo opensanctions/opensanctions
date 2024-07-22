@@ -34,4 +34,3 @@ assertions:
   max: 
     schema_entities:
       Person: 87
-
