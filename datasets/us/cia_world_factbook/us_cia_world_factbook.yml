@@ -134,11 +134,10 @@ lookups:
           - role: Supreme Assembly Chairman
             name: Emomali RAHMON
             start_date: 19 November 1992
-      - match: "Sovereign Council Chair and Commander-in-Chief of the Sudanese Armed Forces General Abd-al-Fatah al-BURHAN Abd-al-Rahman"
+      - match: "Sovereign Council Chair and Commander-in-Chief of the Sudanese Armed Forces General Abd-al-Fattah al-BURHAN Abd-al-Rahman"
         holders:
           - role: Sovereign Council Chair and Commander-in-Chief of the Sudanese Armed Forces
-            name: General Abd-al-Fatah al-BURHAN Abd-al-Rahman
-            start_date:
+            name: General Abd-al-Fattah al-BURHAN Abd-al-Rahman
       # South Sudan
       - match: "Vice Presidents Riek MACHAR Teny Dhurgon, TABAN Deng Gai, James Wani IGGA, Rebecca Nyandeng Chol GARANG de Mabior, Hussein ABDELBAGI Ayii (all since 22 February 2020)"
         holders:
