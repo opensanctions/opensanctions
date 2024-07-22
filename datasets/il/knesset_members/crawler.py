@@ -8,8 +8,8 @@ from zavod.entity import Entity
 from zavod.logic.pep import categorise
 
 DATE_FORMATS = ["%B %d, %Y"]
-CACHE_SHORT = 7
-CACHE_LONG = 14
+CACHE_SHORT = 1
+CACHE_LONG = 30
 STATUSES: Dict[int, int] = defaultdict(int)
 
 
