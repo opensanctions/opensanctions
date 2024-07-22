@@ -275,7 +275,9 @@ def parse_psc_data(context: Context) -> None:
         if data.pop("is_sanctioned", False):
             psc.add("topics", "sanction")
 
-        context.audit_data(data)
+        context.audit_data(
+            data, ignore=["service_address_is_same_as_registered_office_address"]
+        )
         context.emit(psc)
         context.emit(link)
         context.emit(asset)
