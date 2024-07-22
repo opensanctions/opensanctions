@@ -232,6 +232,7 @@ def iter_local_statements(dataset: "Dataset", external: bool = True) -> Statemen
 def _iter_scope_statements(dataset: "Dataset", external: bool = True) -> StatementGen:
     try:
         yield from iter_local_statements(dataset, external=external)
+        return
     except FileNotFoundError:
         pass
 
