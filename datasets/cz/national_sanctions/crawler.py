@@ -1,4 +1,6 @@
 import csv
+import io
+import re
 from typing import Dict, Optional
 from urllib.parse import urljoin
 from rigour.mime.types import CSV
@@ -129,14 +131,25 @@ def crawl_csv_url(context: Context):
     raise ValueError("No XLSX file found")
 
 
-def crawl(context: Context):
+def crawl(context: Context) -> None:
     # First we find the link to the excel file
     csv_url = crawl_csv_url(context)
     path = context.fetch_resource("source.csv", csv_url)
     context.export_resource(path, CSV, title=context.SOURCE_TITLE)
 
     with open(path, "r") as fh:
-        for record in csv.DictReader(fh):
+        fdata = fh.read()
+        fdata = re.sub(
+            r"\"+(?=[^\",])", '"', fdata
+        )  # Singlify all double quotes in front of a non-comma/quote character
+        fdata = re.sub(
+            r"(?<=[^\",])\"+", '"', fdata
+        )  # Singlify all double quotes after a non-comma/quote character
+        fdata = re.sub(
+            r"(?<=,)\"+(?=,)", '""', fdata
+        )  # Switch all quotes between commas with two quotes
+        strio = io.StringIO(fdata)
+        for record in csv.DictReader(strio):
             row_ = {slugify(k, "_"): str(v) for k, v in record.items() if v is not None}
             row = {k: v for k, v in row_.items() if k is not None}
             crawl_item(row, context)

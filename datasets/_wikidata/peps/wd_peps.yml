@@ -368,6 +368,7 @@ lookups:
           - "Q480319" # title of authority
       - maybe_pep: false
         match:
+          - "Q8191099" # affiliate
           - "Q102300761" # rector of the Federal University of Bahia
           - "Q11271" # Benevolent Dictator for Life
           - "Q29182" # bishop
@@ -1895,3 +1896,11 @@ lookups:
         code: ""
         label: "Kingdom of Martabam-hongsawatoi"
         decision: "ignore"
+      - match: "Q127424576"
+        code: ""
+        label: "Kingdom of Notsé"
+        decision: "ignore"
+      - match: "Q188736"
+        code: "BA"
+        label: "Bosna"
+        decision: "national"

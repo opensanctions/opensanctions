@@ -37,6 +37,12 @@ data:
 lookups:
   unparsed_holders:
     options:
+      # Australia
+      - match: "represented by Governor General Samantha (Sam) MOSTYN (since 1 July 2024)"
+        holders:
+          - role: Governor General
+            name: Samantha MOSTYN
+            start date: 1 July 2024
       # San-Marino
       - match: co-chiefs of state Captains Regent Filippo TAMAGNINI and Gaetano TROINA (for the period 1 October 2023 - 1 April 2024)
         holders:
@@ -128,11 +134,10 @@ lookups:
           - role: Supreme Assembly Chairman
             name: Emomali RAHMON
             start_date: 19 November 1992
-      - match: "Sovereign Council Chair and Commander-in-Chief of the Sudanese Armed Forces General Abd-al-Fatah al-BURHAN Abd-al-Rahman"
+      - match: "Sovereign Council Chair and Commander-in-Chief of the Sudanese Armed Forces General Abd-al-Fattah al-BURHAN Abd-al-Rahman"
         holders:
           - role: Sovereign Council Chair and Commander-in-Chief of the Sudanese Armed Forces
-            name: General Abd-al-Fatah al-BURHAN Abd-al-Rahman
-            start_date:
+            name: General Abd-al-Fattah al-BURHAN Abd-al-Rahman
       # South Sudan
       - match: "Vice Presidents Riek MACHAR Teny Dhurgon, TABAN Deng Gai, James Wani IGGA, Rebecca Nyandeng Chol GARANG de Mabior, Hussein ABDELBAGI Ayii (all since 22 February 2020)"
         holders:
@@ -658,6 +663,11 @@ lookups:
           - role: Acting President
             name: Mohammad Mokhber
             start_date: 20 May 2024
+      - match: President-elect Masoud PEZESHKIAN (assumes office on 30 July 2024)
+        holders:
+          - role: President-elect
+            name: Masoud PEZESHKIAN
+            start_date: 30 July 2024
       # Afghanistan
       - match: "Taliban Leader HAYBATULLAH Akhundzada (since 15 August 2021)"
         holders:

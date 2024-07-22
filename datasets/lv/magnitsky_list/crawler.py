@@ -24,6 +24,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     entity.add("name", name_in_brackets, lang="eng")
     entity.add("birthDate", birth_date)
     entity.add("country", country, lang="eng")
+    entity.add("topics", "sanction")
 
     # Create a Sanction entity
     sanction = h.make_sanction(context, entity)

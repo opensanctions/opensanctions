@@ -4163,3 +4163,22 @@ lookups:
       - match: "Type d'entité: organisation non  gouvernementale"
         props:
           legalForm: organisation non gouvernementale
+      - match: "Date d'enregistrement: 2021: /"
+        props:
+          incorporationDate: 2021
+      - match: "Type d'entité: société à responsabilité limitée - Lieu d'enregistrement: Téhéran, Iran - Date d'enregistrement: 24.10.2016 - Principal établissement: Iran: /"
+        props:
+          jurisdiction: ir
+          address: "Téhéran, Iran"
+          legalForm: société à responsabilité limitée
+          incorporationDate: 2016-10-24
+      - match: "Numéro d’identification national: 14006189580"
+        props:
+          idNumber: 14006189580
+      - match: "Numéro d’enregistrement: 498744"
+        props:
+          registrationNumber: 498744
+      - match: "Lieu d'enregistrement: Iran - Date d'enregistrement: 2014 - Principal établissement: Iran: /"
+        props:
+          jurisdiction: ir
+          incorporationDate: 2014

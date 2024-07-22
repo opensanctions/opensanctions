@@ -33,3 +33,4 @@ publisher:
 data:
   url: "https://daten.offeneregister.de/de_companies_ocdata.jsonl.bz2"
   format: JSONL
+  lang: deu

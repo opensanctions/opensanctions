@@ -26,31 +26,12 @@ description: |
     some sensational way.
 children:
   - wanted
-  - debarment
+  - regulatory
   - ransomwhere
   - br_bcb_disqualified_persons
   - br_tcu_disqualified
-  - ch_finma_rulings
-  - ch_finma_warnings
-  - eu_europol_wanted
+  - eg_terrorists
   - gb_coh_disqualified
-  - gb_nca_most_wanted
   - gb_proscribed_orgs
-  - interpol_red_notices
-  - lt_illegal_websites
-  - lt_illegal_gambling
-  - lu_administrative_sanctions
-  - my_consumer_alert_list
-  - my_investor_alert_list
-  - nl_most_wanted
-  - pk_proscribed_persons
-  - us_dea_fugitives
-  - us_ddtc_enforcements
-  - us_fbi_most_wanted
-  - us_fed_enforcements
-  - us_occ_enfact
-  - us_sec_pause
-  - us_sec_harmed_investors
-  - us_ss_wanted
-  - za_wanted
+  - im_disqualified_directors
 ci_test: false
