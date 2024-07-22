@@ -28,6 +28,7 @@ def clean_text(text: str) -> str:
 def crawl_item(
     context: Context,
     input_dict: dict,
+    delegation: str,
 ):
     name = clean_text(input_dict.pop("name").text_content())
     ethnicity = clean_text(input_dict.pop("ethnicity").text_content())
@@ -37,7 +38,6 @@ def crawl_item(
         birth_date = birth_date_el.text_content()
     else:
         birth_date = None
-    delegation = clean_text(input_dict.pop("delegation"))
 
     entity = context.make("Person")
     entity.id = context.make_id(name, ethnicity, gender, birth_date, delegation)
@@ -90,7 +90,9 @@ def strip_note(text: str) -> str:
     return REGEX_STRIP_NOTE.sub("", text)
 
 
-def parse_table(context: Context, table: HtmlElement, delegation: str):
+def parse_table(
+    context: Context, table: HtmlElement
+) -> Generator[Dict[str, HtmlElement], None, None]:
     headers = None
     for row in table.findall(".//tr"):
         if headers is None:
@@ -111,7 +113,6 @@ def parse_table(context: Context, table: HtmlElement, delegation: str):
         # populate cells
         cells = row.findall("./td")
         row = {hdr: c for hdr, c in zip(headers, cells)}
-        row["delegation"] = delegation
         yield row
 
 
@@ -128,8 +129,8 @@ def crawl(context: Context):
         if table.tag != "table":
             table = table.getnext()
         assert table.tag == "table"
-        for row in parse_table(context, table, delegation_name):
-            id = crawl_item(context, row)
+        for row in parse_table(context, table):
+            id = crawl_item(context, row, delegation_name)
             ids[id] += 1
     context.log.info(f"{len(ids)} unique IDs")
     for id, count in ids.items():
