@@ -17,15 +17,13 @@ def crawl_row(context: Context, row: Dict[str, str]):
     entity.add("name", full_name)
     entity.add("sourceUrl", source)
 
-    # Proceed only if the entity was created
-    if entity:
-        entity.add("topics", "wanted")
-        sanction = h.make_sanction(context, entity)
-        sanction.add("reason", offense)
-        sanction.add("program", "Most Wanted")
-        # Emit the entities
-        context.emit(entity, target=True)
-        context.emit(sanction)
+    entity.add("topics", "wanted")
+    sanction = h.make_sanction(context, entity)
+    sanction.add("reason", offense)
+    sanction.add("program", "Most Wanted")
+    # Emit the entities
+    context.emit(entity, target=True)
+    context.emit(sanction)
     # Log warnings if there are unhandled fields remaining in the dict
     context.audit_data(data)
 
