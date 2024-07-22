@@ -7,7 +7,6 @@ from zavod import Context
 def crawl_row(context: Context, row: Dict[str, str]):
     data = dict(row)
     full_name = data.pop("name", None)
-    reward = data.pop("reward", None)
     offense = data.pop("offense", None)
     case_number = data.pop("case number", None)
     source = data.pop("source", None)
@@ -23,7 +22,6 @@ def crawl_row(context: Context, row: Dict[str, str]):
         sanction = h.make_sanction(context, entity)
         sanction.add("reason", offense)
         sanction.add("program", "Most Wanted")
-        sanction.add("description", reward)
         # Emit the entities
         context.emit(entity, target=True)
         context.emit(sanction)
