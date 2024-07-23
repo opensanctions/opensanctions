@@ -1,5 +1,4 @@
-from pprint import pprint
-from typing import List, Set
+from typing import Any, Set
 from urllib.parse import urlencode
 from datetime import datetime, timedelta
 import re
@@ -10,23 +9,52 @@ from zavod.context import Context
 from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.logic.pep import categorise, OccupancyStatus
+from zavod.shed.gpt import run_text_prompt
 
 
 DECLARATION_LIST_URL = "https://declaration.acb.gov.ge/Home/DeclarationList"
 REGEX_CHANGE_PAGE = re.compile(r"changePage\((\d+), \d+\)")
 FORMATS = ["%d.%m.%Y"]  # 04.12.2023
 _18_YEARS_AGO = (datetime.now() - timedelta(days=18 * 365)).isoformat()
+NAME_TRANSLIT_PROMPT = """
+Transliterate the following name from Georgian, returning a JSON object where the
+ key 'eng' has the value in latin script for English pronunciation, the key 'ara'
+ has the value in Arabic script, and the key 'rus' has the value in Cyrillic script
+ for russian pronunciation.
+"""
+POSITION_TRANS_PROMPT = """
+Translate the following public office position label from Georgian, returning a JSON
+object where the key 'eng' has the value in English.
+"""
 
 
 def name_slug(first_name, last_name):
     return slugify(first_name, last_name)
 
 
-def crawl_linked_enterprise(context: Context, pep: Entity, item: dict, source: str) -> None:
+def apply_translit_names(
+    context: Context, entity: Entity, first_name: str, last_name
+) -> Any:
+    first_response = run_text_prompt(context, NAME_TRANSLIT_PROMPT, first_name)
+    last_response = run_text_prompt(context, NAME_TRANSLIT_PROMPT, last_name)
+    for lang in ["eng", "ara", "rus"]:
+        h.apply_name(
+            entity,
+            first_name=first_response[lang],
+            last_name=last_response[lang],
+            lang=lang,
+        )
+
+
+def crawl_linked_enterprise(
+    context: Context, pep: Entity, item: dict, source: str
+) -> None:
     company = context.make("Company")
     name = item.pop("Name")
     company.id = context.make_id(name)
     company.add("name", name, lang="geo")
+    for lang, value in run_text_prompt(context, NAME_TRANSLIT_PROMPT, name).items():
+        company.add("name", value, lang=lang)
     company.add("sourceUrl", source)
     context.emit(company)
 
@@ -36,7 +64,7 @@ def crawl_linked_enterprise(context: Context, pep: Entity, item: dict, source: s
     pep_link.add("object", company)
     context.emit(pep_link)
 
-    enterprice_name = item.pop("EnterpriceName") # sic
+    enterprice_name = item.pop("EnterpriceName")  # sic
     linked_company = context.make("Company")
     linked_company.id = context.make_id(enterprice_name)
     linked_company.add("name", enterprice_name, lang="geo")
@@ -88,6 +116,7 @@ def crawl_assets_for_family(
         person = context.make("Person")
         person.id = context.make_id(last_name, last_name, relationship, pep.id)
         h.apply_name(person, first_name=first_name, last_name=last_name, lang="geo")
+        apply_translit_names(context, person, first_name, last_name)
         person.add("topics", "role.rca")
 
         rel_entity = context.make("Family")
@@ -115,6 +144,7 @@ def crawl_family(
     person = context.make("Person")
     person.id = context.make_id(first_name, last_name, birth_date, birth_place)
     h.apply_name(person, first_name=first_name, last_name=last_name, lang="geo")
+    apply_translit_names(context, person, first_name, last_name)
     person.add("birthDate", birth_date)
     person.add("birthPlace", birth_place, lang="geo")
     person.add("topics", "role.rca")
@@ -142,6 +172,7 @@ def crawl_declaration(context: Context, item: dict, is_current_year) -> None:
     person = context.make("Person")
     person.id = context.make_id(first_name, last_name, birth_date, birth_place)
     h.apply_name(person, first_name=first_name, last_name=last_name, lang="geo")
+    apply_translit_names(context, person, first_name, last_name)
     person.add("birthDate", birth_date)
     person.add("birthPlace", birth_place, lang="geo")
     declaration_url = (
@@ -149,20 +180,22 @@ def crawl_declaration(context: Context, item: dict, is_current_year) -> None:
     )
     person.add("sourceUrl", declaration_url)
 
-    position = item.pop("Position")
+    position_geo = item.pop("Position")
     organization = item.pop("Organisation")
-    if len(position) < 30:
-        position = f"{position}, {organization}"
-    if "კანდიდატი" in position:  # Candidate
-        context.log.debug(f"Skipping candidate {position}")
+    if len(position_geo) < 30:
+        position_geo = f"{position_geo}, {organization}"
+    if "კანდიდატი" in position_geo:  # Candidate
+        context.log.debug(f"Skipping candidate {position_geo}")
         return
 
     position = h.make_position(
         context,
-        position,
+        position_geo,
         country="ge",
         lang="geo",
     )
+    position_eng = run_text_prompt(context, POSITION_TRANS_PROMPT, position_geo)["eng"]
+    position.add("name", position_eng, lang="eng")
     categorisation = categorise(context, position, is_pep=True)
     if not categorisation.is_pep:
         return
@@ -175,7 +208,6 @@ def crawl_declaration(context: Context, item: dict, is_current_year) -> None:
     )
     if not occupancy:
         return
-
     context.emit(position)
     context.emit(occupancy)
     context.emit(person, target=True)
@@ -186,16 +218,24 @@ def crawl_declaration(context: Context, item: dict, is_current_year) -> None:
         if minor:
             minor_family.add(minor)
 
-    crawl_assets_for_family(context, minor_family, item, "Properties", person, declaration_url)
+    crawl_assets_for_family(
+        context, minor_family, item, "Properties", person, declaration_url
+    )
     crawl_assets_for_family(
         context, minor_family, item, "MovableProperties", person, declaration_url
     )
-    crawl_assets_for_family(context, minor_family, item, "Securities", person, declaration_url)
+    crawl_assets_for_family(
+        context, minor_family, item, "Securities", person, declaration_url
+    )
     crawl_assets_for_family(
         context, minor_family, item, "BankAccounts", person, declaration_url
     )
-    crawl_assets_for_family(context, minor_family, item, "Cashes", person, declaration_url)
-    crawl_assets_for_family(context, minor_family, item, "Enterprice", person, declaration_url)
+    crawl_assets_for_family(
+        context, minor_family, item, "Cashes", person, declaration_url
+    )
+    crawl_assets_for_family(
+        context, minor_family, item, "Enterprice", person, declaration_url
+    )
 
     for enterprise in item.pop("LinkedEnterprice"):
         crawl_linked_enterprise(context, person, enterprise, declaration_url)
