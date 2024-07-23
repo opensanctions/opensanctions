@@ -75,4 +75,5 @@ def enrich(context: Context) -> None:
         resolver.save()
         context.log.info("Enrichment process complete.")
     finally:
+        enricher.log_ranks()
         enricher.close()

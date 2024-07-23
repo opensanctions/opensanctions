@@ -1,3 +1,4 @@
+from collections import defaultdict
 import logging
 from typing import Generator, List, Tuple, Type
 from followthemoney.types import registry
@@ -11,11 +12,13 @@ from nomenklatura.enrich.common import EnrichmentException
 from nomenklatura.index.tantivy_index import TantivyIndex
 from nomenklatura.matching import get_algorithm, LogicV1
 from nomenklatura.resolver.linker import Linker
+from nomenklatura.judgement import Judgement
 
 from zavod.entity import Entity
 from zavod.archive import dataset_state_path
 from zavod.meta import get_catalog
 from zavod.store import get_store
+from zavod.dedupe import get_resolver
 
 
 log = logging.getLogger(__name__)
@@ -69,6 +72,9 @@ class LocalEnricher(Enricher):
         self._algorithm = _algorithm
         self._cutoff = float(config.pop("cutoff", 0.5))
         self._limit = int(config.pop("limit", 5))
+        self.resolver = get_resolver()
+        self.ranks = defaultdict(set)
+
 
     def entity_from_statements(self, class_: Type[CE], entity: CompositeEntity) -> CE:
         if type(entity) is class_:
@@ -89,7 +95,12 @@ class LocalEnricher(Enricher):
             if same_id_match is not None:
                 yield self.entity_from_statements(type(entity), same_id_match)
 
-        for match_id, index_score in self._index.match(store_type_entity):
+        for rank, (match_id, index_score) in enumerate(self._index.match(store_type_entity)):
+            judgement = self.resolver.get_judgement(match_id, entity.id)
+            if judgement == Judgement.POSITIVE:
+                log.info("Rank %r score %.1f %s for %s", rank, index_score, match_id.id, entity.id)
+                self.ranks[rank].add(match_id)
+
             match = self._view.get_entity(match_id.id)
             if match is None:
                 continue
@@ -138,3 +149,7 @@ class LocalEnricher(Enricher):
 
     def expand(self, entity: CE, match: CE) -> Generator[CE, None, None]:
         yield from self._traverse_nested(match)
+    
+    def log_ranks(self):
+        for rank, matches in sorted(self.ranks.items()):
+            log.info("Rank %r %r %r", rank, len(matches), [i.id for i in list(matches)[:3]])
