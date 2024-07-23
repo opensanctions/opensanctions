@@ -17,11 +17,11 @@ publisher:
   acronym: CNP
   official: true
   description: |
-  The Spanish National Police is an armed institution, civil in nature, which presents a hierarchical structure
-  and has the mission of protecting the free exercise of citizens’ rights and liberties, and of guaranteeing their 
-  security. Its scope of action is the whole of the national territory.
-country: es
-url: https://www.policia.es/_es/index.php
+    The Spanish National Police is an armed institution, civil in nature, which presents a hierarchical structure
+    and has the mission of protecting the free exercise of citizens’ rights and liberties, and of guaranteeing their 
+    security. Its scope of action is the whole of the national territory.
+  country: es
+  url: https://www.policia.es/_es/index.php
 data:
   url: https://www.policia.es/_es/colabora_masbuscados.php#
   format: html
