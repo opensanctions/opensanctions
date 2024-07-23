@@ -25,3 +25,11 @@ url: "https://www.guernseyregistry.com/article/4036/Disqualified-Directors"
 data:
   url: https://www.guernseyregistry.com/article/4036/Disqualified-Directors
   format: HTML
+
+assertions:
+  min:
+    schema_entities:
+      Person: 4
+  max:
+    schema_entities:
+      Person: 20
