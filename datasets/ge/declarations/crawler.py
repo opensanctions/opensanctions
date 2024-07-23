@@ -1,16 +1,56 @@
 from urllib.parse import urlencode
-from zavod.context import Context
 from datetime import datetime
 import re
 
+from zavod.context import Context
+from zavod import helpers as h
+from zavod.logic.pep import categorise, OccupancyStatus
 
 
 DECLARATION_LIST_URL = "https://declaration.acb.gov.ge/Home/DeclarationList"
 REGEX_CHANGE_PAGE = re.compile(r"changePage\((\d+), \d+\)")
+FORMATS = ["%d.%m.%Y"]  # 04.12.2023
 
 
-def crawl_declaration(context: Context, item: dict) -> None:
-    print(item["Id"], item["FirstName"], item["LastName"])
+def crawl_declaration(context: Context, item: dict, is_current_year) -> None:
+    first_name = item.pop("FirstName")
+    last_name = item.pop("LastName")
+    birth_place = item.pop("BirthPlace")
+    birth_date = h.parse_date(item.pop("BirthDate"), FORMATS)
+    person = context.make("Person")
+    person.id = context.make_id(first_name, last_name, birth_date, birth_place)
+    h.apply_name(person, first_name=first_name, last_name=last_name)
+    person.add("birthDate", birth_date)
+    person.add("birthPlace", birth_place)
+
+    position = item.pop("Position")
+    if "კანდიდატი" in position:  # Candidate
+        print(f"Skipping candidate {position}")
+        return
+
+    position = h.make_position(
+        context,
+        position,
+        country="ge",
+    )
+    categorisation = categorise(context, position, is_pep=True)
+    if not categorisation.is_pep:
+        return
+    occupancy = h.make_occupancy(
+        context,
+        person,
+        position,
+        categorisation=categorisation,
+        status=OccupancyStatus.CURRENT if is_current_year else OccupancyStatus.UNKNOWN,
+    )
+    if not occupancy:
+        return
+
+    context.emit(position)
+    context.emit(occupancy)
+    context.emit(person, target=True)
+
+    family_members = item.pop("FamilyMembers")
 
 
 def query_declaration(context: Context, year: int, name: str, cache_days: int) -> None:
@@ -42,6 +82,6 @@ def crawl(context: Context) -> None:
                 name = row.find(".//h3").text_content()
                 declarations = query_declaration(context, year, name, cache_days)
                 for declaration in declarations:
-                    crawl_declaration(context, declaration)
-            
+                    crawl_declaration(context, declaration, year == current_year)
+
             page += 1
