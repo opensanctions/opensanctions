@@ -12,6 +12,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     entity.id = context.make_id(full_name, case_number, offense)
     entity.add("name", full_name)
     entity.add("topics", "wanted")
+    entity.add("country", "ph")
     entity.add("notes", offense)
     entity.add("notes", case_number)
     # Emit the entities

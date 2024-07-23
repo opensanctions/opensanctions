@@ -11,7 +11,7 @@ summary: >
   The dataset contains information about individuals currently most wanted by the Philippine National Police in the Cordillera Region.
 description: |
   The dataset contains detailed information about individuals wanted by the police authorities in the Cordillera Region. It includes 
-  various categories of criminals and terrorists, who have rewards associated with their capture. The dataset includes each person's 
+  various categories of criminals and terrorists. The dataset includes each person's 
   name, reward amount, offences, and case-control number (CC No.).
 publisher:
   name: Philippine National Police
