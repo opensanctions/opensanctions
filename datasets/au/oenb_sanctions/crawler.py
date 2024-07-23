@@ -34,7 +34,8 @@ def parse_date_time(text: str) -> List[str]:
 
 def crawl_row(context: Context, row: Dict[str, str]):
     full_name = row.pop("name")
-    other_name = row.pop("other name")
+    # Split `other_name` on `/` and trim any extra whitespace
+    other_names = row.pop("other name").split("/")
     alias = row.pop("alias")
     notes = row.pop("notes")
     reason = row.pop("reason")
@@ -50,7 +51,8 @@ def crawl_row(context: Context, row: Dict[str, str]):
         entity = context.make("Person")
         entity.id = context.make_id(full_name, birth_place, birth_date)
         entity.add("name", full_name)  # still need to split it
-        entity.add("alias", other_name)
+        for name in other_names:  # Add other_name parts to alias
+            entity.add("alias", name.strip())
         entity.add("birthDate", birth_date)
         entity.add("birthPlace", birth_place, lang="spa")
         entity.add("country", country, lang="deu")
@@ -60,7 +62,8 @@ def crawl_row(context: Context, row: Dict[str, str]):
         entity = context.make("Organization")
         entity.id = context.make_id(full_name, source)
         entity.add("name", full_name)
-        entity.add("alias", other_name)
+        for name in other_names:  # Add other_name parts to alias
+            entity.add("alias", name.strip())
         entity.add("alias", alias)
         entity.add("notes", notes, lang="deu")
         entity.add("sourceUrl", source)
@@ -71,6 +74,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     if entity:
         entity.add("topics", "sanction")
         sanction = h.make_sanction(context, entity)
+        # sanction.id = context.make_id(full_name, birth_place, id_number)
         sanction.add("reason", reason, lang="deu")
         # Emit the entities
         context.emit(entity, target=True)
