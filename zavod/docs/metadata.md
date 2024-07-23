@@ -40,7 +40,9 @@ Remember to give the context that people from different countries need to make s
 ### Publisher
 
 - `publisher`
-    - `name` - The publisher's official name. If this is by default in a primary non-english language from the originating country, use that language here, and the english form in `publisher.description`.
+    - `name` - The publisher's official name. If this is by default in a primary non-english language from the originating country, use that language here, and the english form in `publisher.name_en`.
+    - `name_en` - Their name in English, ideally the official form, otherwise a translation.
+    - `acronym` - Add if there's an official acronym, e.g. check in their domain name, footer, about page.
     - `description` - This can be one to two paragraphs of text. Use the publisher description field to explain to someone from a country other than the publisher who the publisher is, and why they do what they do. 
     - `url` - The home page of their official website
     - `country` - The Alpha-2 or two-letter ISO 3166-1 
