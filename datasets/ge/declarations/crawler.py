@@ -1,6 +1,10 @@
+from pprint import pprint
+from typing import List, Set
 from urllib.parse import urlencode
 from datetime import datetime, timedelta
 import re
+
+from normality import slugify
 
 from zavod.context import Context
 from zavod import helpers as h
@@ -14,15 +18,99 @@ FORMATS = ["%d.%m.%Y"]  # 04.12.2023
 _18_YEARS_AGO = (datetime.now() - timedelta(days=18 * 365)).isoformat()
 
 
+def name_slug(first_name, last_name):
+    return slugify(first_name, last_name)
+
+
+def crawl_linked_enterprise(context: Context, pep: Entity, item: dict, source: str) -> None:
+    company = context.make("Company")
+    name = item.pop("Name")
+    company.id = context.make_id(name)
+    company.add("name", name, lang="geo")
+    company.add("sourceUrl", source)
+    context.emit(company)
+
+    pep_link = context.make("UnknownLink")
+    pep_link.id = context.make_id(pep.id, "linked enterprise", company.id)
+    pep_link.add("subject", pep)
+    pep_link.add("object", company)
+    context.emit(pep_link)
+
+    enterprice_name = item.pop("EnterpriceName") # sic
+    linked_company = context.make("Company")
+    linked_company.id = context.make_id(enterprice_name)
+    linked_company.add("name", enterprice_name, lang="geo")
+    linked_company.add("sourceUrl", source)
+    context.emit(linked_company)
+
+    company_link = context.make("Ownership")
+    company_link.id = context.make_id(pep.id, "owns", linked_company.id)
+    company_link.add("owner", company)
+    company_link.add("asset", linked_company)
+    company_link.add("percentage", item.pop("Share"))
+    context.emit(company_link)
+
+    for partner_dict in item.pop("EnterprisePartners"):
+        partner_name = partner_dict.pop("FullName")
+        if partner_name is None:
+            continue
+        partner = context.make("LegalEntity")
+        partner.id = context.make_id(partner_name)
+        partner.add("name", partner_name, lang="geo")
+        partner.add("address", partner_dict.pop("LegalAddress"), lang="geo")
+        partner.add("sourceUrl", source)
+        context.emit(partner)
+
+        rel = context.make("UnknownLink")
+        rel.id = context.make_id(pep.id, "partner of linked enterprise", partner.id)
+        rel.add("subject", linked_company)
+        rel.add("object", partner)
+        context.emit(rel)
+
+
+def crawl_assets_for_family(
+    context: Context, minors: Set[str], item: dict, key: str, pep: Entity, source: str
+):
+    rels = item.pop(key)
+    for rel in rels:
+        first_name = rel.pop("OwnerFirstName")
+        last_name = rel.pop("OwnerLatsName")
+        slug = name_slug(first_name, last_name)
+        if slug in minors:
+            context.log.debug("Skipping minor with asset", source=source)
+            return
+        relationship = rel.pop("RelationName")
+        # skip themselves, just care about family
+        if first_name in pep.get("firstName") and last_name in pep.get("lastName"):
+            continue
+        if not relationship:
+            continue
+        person = context.make("Person")
+        person.id = context.make_id(last_name, last_name, relationship, pep.id)
+        h.apply_name(person, first_name=first_name, last_name=last_name, lang="geo")
+        person.add("topics", "role.rca")
+
+        rel_entity = context.make("Family")
+        rel_entity.id = context.make_id(pep.id, relationship, person.id)
+        rel_entity.add("person", pep)
+        rel_entity.add("relative", person)
+        rel_entity.add("relationship", relationship, lang="geo")
+        rel_entity.add("sourceUrl", source)
+
+        context.emit(person)
+        context.emit(rel_entity)
+
+
 def crawl_family(
     context: Context, pep: Entity, rel: dict, declaration_url: str
-) -> None:
+) -> str | None:
+    """Returns slug of family member if they're a minor"""
     first_name = rel.pop("FirstName")
     last_name = rel.pop("LastName")
     birth_date = h.parse_date(rel.pop("BirthDate"), FORMATS)
     if birth_date[0] > _18_YEARS_AGO:
         context.log.debug("Skipping minor", birth_date=birth_date)
-        return
+        return name_slug(first_name, last_name)
     birth_place = rel.pop("BirthPlace")
     person = context.make("Person")
     person.id = context.make_id(first_name, last_name, birth_date, birth_place)
@@ -42,6 +130,7 @@ def crawl_family(
 
     context.emit(person)
     context.emit(rel_entity)
+    context.audit_data(rel)
 
 
 def crawl_declaration(context: Context, item: dict, is_current_year) -> None:
@@ -65,7 +154,7 @@ def crawl_declaration(context: Context, item: dict, is_current_year) -> None:
     if len(position) < 30:
         position = f"{position}, {organization}"
     if "კანდიდატი" in position:  # Candidate
-        print(f"Skipping candidate {position}")
+        context.log.debug(f"Skipping candidate {position}")
         return
 
     position = h.make_position(
@@ -91,8 +180,40 @@ def crawl_declaration(context: Context, item: dict, is_current_year) -> None:
     context.emit(occupancy)
     context.emit(person, target=True)
 
+    minor_family = set()
     for rel in item.pop("FamilyMembers"):
-        crawl_family(context, person, rel, declaration_url)
+        minor = crawl_family(context, person, rel, declaration_url)
+        if minor:
+            minor_family.add(minor)
+
+    crawl_assets_for_family(context, minor_family, item, "Properties", person, declaration_url)
+    crawl_assets_for_family(
+        context, minor_family, item, "MovableProperties", person, declaration_url
+    )
+    crawl_assets_for_family(context, minor_family, item, "Securities", person, declaration_url)
+    crawl_assets_for_family(
+        context, minor_family, item, "BankAccounts", person, declaration_url
+    )
+    crawl_assets_for_family(context, minor_family, item, "Cashes", person, declaration_url)
+    crawl_assets_for_family(context, minor_family, item, "Enterprice", person, declaration_url)
+
+    for enterprise in item.pop("LinkedEnterprice"):
+        crawl_linked_enterprise(context, person, enterprise, declaration_url)
+
+    context.audit_data(
+        item,
+        ignore=[
+            "Organisation",
+            "VersionId",
+            "DateEdited",
+            "DeclarationSubmitDate",
+            "Jobs",
+            "Contracts",
+            "Gifts",
+            "InOuts",
+            "DeclarationHistory",
+        ],
+    )
 
 
 def query_declaration(context: Context, year: int, name: str, cache_days: int) -> None:
