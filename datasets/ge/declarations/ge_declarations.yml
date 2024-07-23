@@ -10,6 +10,10 @@ summary: >-
 description: |
   The Georgian Anti-Corruption law of 2015 requires public officials to submit
   annual declarations of their assets, as well as members of their family and their assets.
+
+  Officials making declarations here include national and sub-national members of the executive,
+  legislature and judiciary. These are included in our dataset as Politically Exposed Persons,
+  as well as their members of family. We exclude candidates who have not yet been elected.
 url: https://declaration.acb.gov.ge/
 data:
   # Don't fetch this without query parameters - it just selects everything and times out
@@ -28,12 +32,14 @@ publisher:
      prevent conflicts of interest in public institutions and develop relevant proposals
      and recommendations.
   official: true
+ci_test: false
+
 assertions:
   min:
     schema_entities:
-      Person: 33
+      Person: 9000
     country_entities:
       ge: 1
   max:
     schema_entities:
-      Person: 100
+      Person: 14000
