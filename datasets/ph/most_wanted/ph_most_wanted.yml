@@ -16,6 +16,7 @@ description: |
 publisher:
   name: Philippine National Police
   acronym: PNP
+  country: ph
   description: |
     The Cordillera Autonomous Region was established in 1987, leading to the creation of the Police Regional Office Cordillera, 
     which is responsible for maintaining peace and order in the Cordillera Region. The Philippine Constabulary was replaced by 
