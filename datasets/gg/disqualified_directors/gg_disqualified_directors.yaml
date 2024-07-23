@@ -1,4 +1,4 @@
-title:  Guernsey Disqualified Directors
+title: Guernsey Disqualified Directors
 entry_point: crawler.py
 prefix: gg-dir
 coverage:
