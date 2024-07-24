@@ -4,8 +4,8 @@ entry_point: crawler.py
 prefix: ro-onpcsb
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 coverage:
-  frequency: daily
-  start: 2024-07-23
+  frequency: never
+  start: 2024-07-24
 summary: >
   The dataset contains information about suspected individuals and organizations involved in terrorism, approved by the Government of Romania
   and based on UN Security Council data.
@@ -37,6 +37,5 @@ assertions:
       Organization: 200
   max:
     schema_entities:
-      Person: 60
-      Organization: 250
-
+      Person: 55
+      Organization: 215
