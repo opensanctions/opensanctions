@@ -27,10 +27,16 @@ publisher:
   url: https://www.onpcsb.ro
 
 data:
-  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRFekp6FAf9e2-N1J0F29u5m__66hxDTCFHbO6ICm_gKqTXehdLRkPWK_4x3JuhPKt2eHmdYYN2qsOh/pub?gid=0&single=true&output=csv
+  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRFekp6FAf9e2-N1J0F29u5m__66hxDTCFHbO6ICm_gKqTXehdLRkPWK_4x3JuhPKt2eHmdYYN2qsOh/pub?gid=846601144&single=true&output=csv
   format: csv
 
 assertions:
   min:
     schema_entities:
-      Person: 20
+      Person: 45
+      Organization: 200
+  max:
+    schema_entities:
+      Person: 60
+      Organization: 250
+

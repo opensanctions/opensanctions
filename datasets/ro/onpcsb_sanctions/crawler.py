@@ -5,6 +5,23 @@ import re
 from typing import List
 
 
+DATE_FORMATS = ["%d.%m.%Y", "%d. %m %Y"]
+MONTHS_EN = {
+    "January": 1,
+    "February": 2,
+    "March": 3,
+    "April": 4,
+    "May": 5,
+    "June": 6,
+    "July": 7,
+    "August": 8,
+    "September": 9,
+    "October": 10,
+    "November": 11,
+    "December": 12,
+}
+
+
 def parse_date_time(text: str) -> List[str]:
     if not text:
         return None
@@ -23,11 +40,17 @@ def crawl_row(context: Context, row: Dict[str, str]):
     birth_place = row.pop("place of birth")
     nationality = row.pop("nationality")
     passport_number = row.pop("passport No.")
+    position = row.pop("position")
     residence = row.pop("residence")
     domicile = row.pop("domicile")
     fiscal_code = row.pop("fiscal code")
     phone_number = row.pop("phone number")
     address = row.pop("address")
+    address_1 = row.pop("address line 1")
+    address_2 = row.pop("address line 2")
+    address_3 = row.pop("address line 3")
+    city = row.pop("city")
+    region = row.pop("region (province)")
     country = row.pop("country")
     entity_type = row.pop("type")
 
@@ -47,11 +70,18 @@ def crawl_row(context: Context, row: Dict[str, str]):
         entity.add("phone", phone_number)
         entity.add("topics", "sanction")
         entity.add("country", "ro")
+        entity.add("position", position)
     elif entity_type == "Organization":
         entity = context.make("Organization")
         entity.id = context.make_id(full_name, address)
         entity.add("name", full_name)
         entity.add("address", address)
+        entity.add("address", address_1)
+        entity.add("address", address_2)
+        entity.add("address", address_3)
+        entity.add("city", city)
+        entity.add("jurisdiction", country)
+        entity.add("region", region)
         entity.add("country", country)
     else:
         context.log.warning("Unhandled entity type", type=entity_type)
