@@ -1,6 +1,6 @@
 from typing import Generator, Dict, Tuple, Optional
 from lxml.etree import _Element, tostring
-from normality import slugify
+from normality import collapse_spaces, slugify
 from zavod import Context, helpers as h
 
 
@@ -70,15 +70,27 @@ def crawl(context: Context):
         context.log.info(f"Crawling page {page_num}")
         url = base_url + "?page=" + str(page_num)
         response = context.fetch_html(url, cache_days=7)
+        table = response.find(".//table")
+
+        if collapse_spaces(tostring(response)) == "":
+            raise Exception("Empty response")
+
+        if table is None:
+            if response.find(".//div[@class='view-empty']") is not None:
+                break
+
+            context.log.info(
+                "Table not found. Retrying", url=url, html=tostring(response)
+            )
+            response = context.fetch_html(url, cache_days=0)
+
         response.make_links_absolute(url)
         table = response.find(".//table")
 
-        if table is None:
-            # Log final page to see if we can tell why we sometimes miss some entities
-            context.log.info("Table not found", url=url, html=tostring(response))
-            break
-
-        for item in parse_table(table):
+        rows = parse_table(table)
+        for item in rows:
             crawl_item(item, context)
 
         page_num += 1
+        if page_num > 3000:
+            raise Exception("Too many pages")
