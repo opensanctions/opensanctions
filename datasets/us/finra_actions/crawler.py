@@ -1,5 +1,5 @@
 from typing import Generator, Dict, Tuple, Optional
-from lxml.etree import _Element
+from lxml.etree import _Element, tostring
 from normality import slugify
 from zavod import Context, helpers as h
 
@@ -74,6 +74,8 @@ def crawl(context: Context):
         table = response.find(".//table")
 
         if table is None:
+            # Log final page to see if we can tell why we sometimes miss some entities
+            context.log.info("Table not found", url=url, html=tostring(response))
             break
 
         for item in parse_table(table):
