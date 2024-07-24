@@ -7,9 +7,9 @@ from rigour.mime.types import HTML
 from zavod import Context, Entity
 from zavod import helpers as h
 
-REGEX_DELAY = re.compile(".+(\d{2}[\.\/]\d{2}[\.\/]\d{4})$")
+REGEX_DELAY = re.compile(r".+(\d{2}[\.\/]\d{2}[\.\/]\d{4})$")
 # e.g. 6/23 from "6/23 din 02.05.2023"
-REGEX_SANCTION_NUMBER = re.compile(".*(\d+\/\d+)[\w ]+(\d{2}[\.\/]\d{2}[\.\/]\d{4}).*")
+REGEX_SANCTION_NUMBER = re.compile(r".*(\d+\/\d+)[\w ]+(\d{2}[\.\/]\d{2}[\.\/]\d{4}).*")
 REGEX_MEMBER_GROUPS = (
     "^(?P<unknown>[\w, \(\)%\.]+)?"
     "("
