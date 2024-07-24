@@ -28,10 +28,25 @@ GENDERS = ["M", "F", "U"]
 AGE_MIN = 20
 AGE_MAX = 90
 STATUSES = defaultdict(int)
+HEADERS = {
+    #"accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+    #"accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
+    #"cache-control": "max-age=0",
+    #"priority": "u=0, i",
+    #"sec-ch-ua": '"Not/A)Brand";v="8", "Chromium";v="126", "Google Chrome";v="126"',
+    #"sec-ch-ua-mobile": '?0',
+    #"sec-ch-ua-platform": '"macOS"',
+    #"sec-fetch-dest": "document",
+    "sec-fetch-mode": "navigate",
+    "sec-fetch-site": "none",
+    "sec-fetch-user": "?1",
+    "upgrade-insecure-requests": "1",
+    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 (zavod; opensanctions.org)",
+}
 
 
 def get_countries(context: Context) -> List[Any]:
-    doc = context.fetch_html(COUNTRIES_URL, cache_days=CACHE_VSHORT)
+    doc = context.fetch_html(COUNTRIES_URL, cache_days=CACHE_VSHORT, headers=HEADERS)
     path = ".//select[@id='arrestWarrantCountryId']/option"
     options: List[Any] = []
     for option in doc.findall(path):
@@ -57,7 +72,7 @@ def crawl_notice(context: Context, notice: Dict[str, Any]) -> None:
     SEEN_URLS.add(url)
     # context.log.info("Crawl notice: %s" % url)
     try:
-        notice = context.fetch_json(url, cache_days=CACHE_LONG)
+        notice = context.fetch_json(url, cache_days=CACHE_LONG, headers=HEADERS)
     except HTTPError as err:
         if err.response.status_code == 404:
             return
@@ -111,7 +126,7 @@ def crawl_query(context: Context, query: Dict[str, Any]) -> int:
     params["resultPerPage"] = MAX_RESULTS
     try:
         data = context.fetch_json(
-            context.data_url, params=params, cache_days=CACHE_SHORT
+            context.data_url, params=params, cache_days=CACHE_SHORT, headers=HEADERS
         )
     except HTTPError as err:
         if err.response.status_code == 404:
