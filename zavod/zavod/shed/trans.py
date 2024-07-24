@@ -1,4 +1,4 @@
-from typing import Dict, Tuple
+from typing import Dict, Optional, Tuple
 
 from zavod.context import Context
 from zavod.entity import Entity
@@ -44,7 +44,7 @@ def apply_translit_names(
     input_code: str,
     first_name: str,
     last_name: str,
-    output: Dict[str, Tuple[str, str]] = {"eng": ["Latin", "English"]},
+    output: Dict[str, Tuple[str, str]] = {"eng": ("Latin", "English")},
 ) -> None:
     """
     Apply transliterated names to an entity.
@@ -74,8 +74,8 @@ def apply_translit_full_name(
     entity: Entity,
     input_code: str,
     name: str,
-    output: Dict[str, Tuple[str, str]] = {"eng": ["Latin", "English"]},
-    prompt: str = None,
+    output: Dict[str, Tuple[str, str]] = {"eng": ("Latin", "English")},
+    prompt: Optional[str] = None,
 ) -> None:
     """
     Apply transliterated name to an entity.

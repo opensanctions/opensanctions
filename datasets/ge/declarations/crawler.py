@@ -128,11 +128,12 @@ def crawl_enterprise(context: Context, pep: Entity, item: dict, source: str) -> 
         partner_name = partner_dict.pop("FullName")
         if partner_name is None:
             continue
+        address = partner_dict.pop("LegalAddress")
         partner = context.make("LegalEntity")
-        partner.id = context.make_id(partner_name)
+        partner.id = context.make_id(company.id, partner_name, address)
         partner.add("name", partner_name, lang="kat")
         apply_translit_full_name(context, partner, "kat", partner_name, TRANSLIT_OUTPUT)
-        partner.add("address", partner_dict.pop("LegalAddress"), lang="kat")
+        partner.add("address", address, lang="kat")
         partner.add("sourceUrl", source)
         context.emit(partner)
 
@@ -144,15 +145,19 @@ def crawl_enterprise(context: Context, pep: Entity, item: dict, source: str) -> 
 
     if linked := item.pop("LinkedEnterprises"):
         context.log.warning("Linked enterprises not handled", linked=linked)
-    context.audit_data(item, ignore=[
-        "EndDateType",
-        "EndDateName",
-        "RegistrationAgency",
-        "Income",
-        "AbbreviationName",
-        "OtherAbbreviationName",
-        "AbbreviationTypeId",
-    ])
+    context.audit_data(
+        item,
+        ignore=[
+            "EndDateType",
+            "EndDateName",
+            "RegistrationAgency",
+            "Income",
+            "IncomeCurrencyName",
+            "AbbreviationName",
+            "OtherAbbreviationName",
+            "AbbreviationTypeId",
+        ],
+    )
 
 
 def crawl_assets_for_family(
@@ -173,7 +178,7 @@ def crawl_assets_for_family(
         if not relationship:
             continue
         person = context.make("Person")
-        person.id = context.make_id(last_name, last_name, relationship, pep.id)
+        person.id = context.make_id(first_name, last_name, relationship, pep.id)
         h.apply_name(person, first_name=first_name, last_name=last_name, lang="kat")
         apply_translit_names(
             context, person, "kat", first_name, last_name, TRANSLIT_OUTPUT
