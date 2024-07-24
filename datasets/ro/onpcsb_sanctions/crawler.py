@@ -44,7 +44,10 @@ def crawl_row(context: Context, row: Dict[str, str]):
         if birth_date_2:
             entity.add("birthDate", birth_date_2)
         entity.add("birthPlace", birth_place)
-        entity.add("nationality", nationality)
+        # Handle multiple nationalities
+        nationalities = nationality.split("/")
+        for nation in nationalities:
+            entity.add("nationality", nation.strip())
         entity.add("passportNumber", passport_number)
         entity.add("address", address_1)
         entity.add("address", address_2)
