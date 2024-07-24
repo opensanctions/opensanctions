@@ -45,12 +45,13 @@ def crawl_row(context: Context, row: Dict[str, str]):
     id_number = row.pop("ID card no.")
     source = row.pop("source")
     entity_type = row.pop("type")
+    topics = row.pop("topics")
 
     entity = None
     if entity_type == "Person":
         entity = context.make("Person")
         entity.id = context.make_id(full_name, birth_place, birth_date)
-        entity.add("name", full_name)  # still need to split it
+        entity.add("name", full_name)
         for name in other_names:  # Add other_name parts to alias
             entity.add("alias", name.strip())
         entity.add("birthDate", birth_date)
@@ -72,13 +73,16 @@ def crawl_row(context: Context, row: Dict[str, str]):
 
     # Proceed only if the entity was created
     if entity:
-        entity.add("topics", "sanction")
-        sanction = h.make_sanction(context, entity)
-        # sanction.id = context.make_id(full_name, birth_place, id_number)
-        sanction.add("reason", reason, lang="deu")
-        # Emit the entities
-        context.emit(entity, target=True)
-        context.emit(sanction)
+        if topics == "sanction":
+            entity.add("topics", "sanction")
+            sanction = h.make_sanction(context, entity)
+            sanction.add("reason", reason, lang="deu")
+            context.emit(entity, target=True)
+            context.emit(sanction)
+        elif topics is None:
+            context.emit(entity, target=False)
+        else:
+            context.emit(entity, target=False)
 
 
 def crawl(context: Context):
