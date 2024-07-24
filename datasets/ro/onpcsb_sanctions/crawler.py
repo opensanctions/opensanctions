@@ -1,7 +1,6 @@
 import csv
 from typing import Dict
 from zavod import Context, helpers as h
-import re
 from typing import List
 
 
