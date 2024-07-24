@@ -14,6 +14,9 @@ description: |
   Officials making declarations here include national and sub-national members of the executive,
   legislature and judiciary. These are included in our dataset as Politically Exposed Persons,
   as well as their members of family. We exclude candidates who have not yet been elected.
+
+  **Note:** This crawler uses an LLM-based approach to transliterate person and company names
+  and translate position labels.
 url: https://declaration.acb.gov.ge/
 data:
   # Don't fetch this without query parameters - it just selects everything and times out

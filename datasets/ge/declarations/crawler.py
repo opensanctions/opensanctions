@@ -1,4 +1,4 @@
-from typing import Any, Set
+from typing import Set
 from urllib.parse import urlencode
 from datetime import datetime, timedelta
 import re
@@ -9,41 +9,26 @@ from zavod.context import Context
 from zavod import helpers as h
 from zavod.entity import Entity
 from zavod.logic.pep import categorise, OccupancyStatus
-from zavod.shed.gpt import run_text_prompt
-
+from zavod.shed.trans import (
+    apply_translit_full_name,
+    apply_translit_names,
+    make_position_translation_prompt,
+)
 
 DECLARATION_LIST_URL = "https://declaration.acb.gov.ge/Home/DeclarationList"
 REGEX_CHANGE_PAGE = re.compile(r"changePage\((\d+), \d+\)")
 FORMATS = ["%d.%m.%Y"]  # 04.12.2023
 _18_YEARS_AGO = (datetime.now() - timedelta(days=18 * 365)).isoformat()
-NAME_TRANSLIT_PROMPT = """
-Transliterate the following name from Georgian, returning a JSON object where the
- key 'eng' has the value in latin script for English pronunciation, the key 'ara'
- has the value in Arabic script, and the key 'rus' has the value in Cyrillic script
- for russian pronunciation.
-"""
-POSITION_TRANS_PROMPT = """
-Translate the following public office position label from Georgian, returning a JSON
-object where the key 'eng' has the value in English.
-"""
+TRANSLIT_OUTPUT = {
+    "eng": ("Latin", "English"),
+    "rus": ("Cyrillic", "Russian"),
+    "ara": ("Arabic", "Arabic"),
+}
+POSITION_PROMPT = prompt = make_position_translation_prompt("kat")
 
 
 def name_slug(first_name, last_name):
     return slugify(first_name, last_name)
-
-
-def apply_translit_names(
-    context: Context, entity: Entity, first_name: str, last_name
-) -> Any:
-    first_response = run_text_prompt(context, NAME_TRANSLIT_PROMPT, first_name)
-    last_response = run_text_prompt(context, NAME_TRANSLIT_PROMPT, last_name)
-    for lang in ["eng", "ara", "rus"]:
-        h.apply_name(
-            entity,
-            first_name=first_response[lang],
-            last_name=last_response[lang],
-            lang=lang,
-        )
 
 
 def crawl_linked_enterprise(
@@ -52,9 +37,8 @@ def crawl_linked_enterprise(
     company = context.make("Company")
     name = item.pop("Name")
     company.id = context.make_id(name)
-    company.add("name", name, lang="geo")
-    for lang, value in run_text_prompt(context, NAME_TRANSLIT_PROMPT, name).items():
-        company.add("name", value, lang=lang)
+    company.add("name", name, lang="kat")
+    apply_translit_full_name(context, company, "kat", name, TRANSLIT_OUTPUT)
     company.add("sourceUrl", source)
     context.emit(company)
 
@@ -67,7 +51,10 @@ def crawl_linked_enterprise(
     enterprice_name = item.pop("EnterpriceName")  # sic
     linked_company = context.make("Company")
     linked_company.id = context.make_id(enterprice_name)
-    linked_company.add("name", enterprice_name, lang="geo")
+    linked_company.add("name", enterprice_name, lang="kat")
+    apply_translit_full_name(
+        context, linked_company, "kat", enterprice_name, TRANSLIT_OUTPUT
+    )
     linked_company.add("sourceUrl", source)
     context.emit(linked_company)
 
@@ -84,8 +71,9 @@ def crawl_linked_enterprise(
             continue
         partner = context.make("LegalEntity")
         partner.id = context.make_id(partner_name)
-        partner.add("name", partner_name, lang="geo")
-        partner.add("address", partner_dict.pop("LegalAddress"), lang="geo")
+        partner.add("name", partner_name, lang="kat")
+        apply_translit_full_name(context, partner, "kat", partner_name, TRANSLIT_OUTPUT)
+        partner.add("address", partner_dict.pop("LegalAddress"), lang="kat")
         partner.add("sourceUrl", source)
         context.emit(partner)
 
@@ -115,15 +103,17 @@ def crawl_assets_for_family(
             continue
         person = context.make("Person")
         person.id = context.make_id(last_name, last_name, relationship, pep.id)
-        h.apply_name(person, first_name=first_name, last_name=last_name, lang="geo")
-        apply_translit_names(context, person, first_name, last_name)
+        h.apply_name(person, first_name=first_name, last_name=last_name, lang="kat")
+        apply_translit_names(
+            context, person, "kat", first_name, last_name, TRANSLIT_OUTPUT
+        )
         person.add("topics", "role.rca")
 
         rel_entity = context.make("Family")
         rel_entity.id = context.make_id(pep.id, relationship, person.id)
         rel_entity.add("person", pep)
         rel_entity.add("relative", person)
-        rel_entity.add("relationship", relationship, lang="geo")
+        rel_entity.add("relationship", relationship, lang="kat")
         rel_entity.add("sourceUrl", source)
 
         context.emit(person)
@@ -143,10 +133,10 @@ def crawl_family(
     birth_place = rel.pop("BirthPlace")
     person = context.make("Person")
     person.id = context.make_id(first_name, last_name, birth_date, birth_place)
-    h.apply_name(person, first_name=first_name, last_name=last_name, lang="geo")
-    apply_translit_names(context, person, first_name, last_name)
+    h.apply_name(person, first_name=first_name, last_name=last_name, lang="kat")
+    apply_translit_names(context, person, "kat", first_name, last_name, TRANSLIT_OUTPUT)
     person.add("birthDate", birth_date)
-    person.add("birthPlace", birth_place, lang="geo")
+    person.add("birthPlace", birth_place, lang="kat")
     person.add("topics", "role.rca")
 
     relationship = rel.pop("Relationship")
@@ -154,8 +144,8 @@ def crawl_family(
     rel_entity.id = context.make_id(pep.id, relationship, person.id)
     rel_entity.add("person", pep)
     rel_entity.add("relative", person)
-    rel_entity.add("relationship", relationship, lang="geo")
-    rel_entity.add("description", rel.pop("Comment"), lang="geo")
+    rel_entity.add("relationship", relationship, lang="kat")
+    rel_entity.add("description", rel.pop("Comment"), lang="kat")
     rel_entity.add("sourceUrl", declaration_url)
 
     context.emit(person)
@@ -171,31 +161,32 @@ def crawl_declaration(context: Context, item: dict, is_current_year) -> None:
     birth_date = h.parse_date(item.pop("BirthDate"), FORMATS)
     person = context.make("Person")
     person.id = context.make_id(first_name, last_name, birth_date, birth_place)
-    h.apply_name(person, first_name=first_name, last_name=last_name, lang="geo")
-    apply_translit_names(context, person, first_name, last_name)
+    h.apply_name(person, first_name=first_name, last_name=last_name, lang="kat")
+    apply_translit_names(context, person, "kat", first_name, last_name, TRANSLIT_OUTPUT)
     person.add("birthDate", birth_date)
-    person.add("birthPlace", birth_place, lang="geo")
+    person.add("birthPlace", birth_place, lang="kat")
     declaration_url = (
         f"https://declaration.acb.gov.ge/Home/DownloadPdf/{declaration_id}"
     )
     person.add("sourceUrl", declaration_url)
 
-    position_geo = item.pop("Position")
+    position_kat = item.pop("Position")
     organization = item.pop("Organisation")
-    if len(position_geo) < 30:
-        position_geo = f"{position_geo}, {organization}"
-    if "კანდიდატი" in position_geo:  # Candidate
-        context.log.debug(f"Skipping candidate {position_geo}")
+    if len(position_kat) < 30:
+        position_kat = f"{position_kat}, {organization}"
+    if "კანდიდატი" in position_kat:  # Candidate
+        context.log.debug(f"Skipping candidate {position_kat}")
         return
 
     position = h.make_position(
         context,
-        position_geo,
+        position_kat,
         country="ge",
-        lang="geo",
+        lang="kat",
     )
-    position_eng = run_text_prompt(context, POSITION_TRANS_PROMPT, position_geo)["eng"]
-    position.add("name", position_eng, lang="eng")
+    apply_translit_full_name(
+        context, position, "kat", position_kat, TRANSLIT_OUTPUT, POSITION_PROMPT
+    )
     categorisation = categorise(context, position, is_pep=True)
     if not categorisation.is_pep:
         return
