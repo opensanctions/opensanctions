@@ -1,3 +1,4 @@
+from copy import deepcopy
 from typing import Set
 from urllib.parse import urlencode
 from datetime import datetime, timedelta
@@ -31,39 +32,97 @@ def name_slug(first_name, last_name):
     return slugify(first_name, last_name)
 
 
-def crawl_linked_enterprise(
-    context: Context, pep: Entity, item: dict, source: str
-) -> None:
-    company = context.make("Company")
+# This seems a bit too distant to put time into verifying properly right now.
+# e.g. https://declaration.acb.gov.ge/Home/DownloadPdf/155243
+# The PEP is Koba Kobaladze
+# Their family member is Ketevan Jabakhidze
+# Delis LLC is linked to Ketevan
+# https://www.companyinfo.ge/en/corporations/448641
+# The link isn't directly to the company, but apparently to a related person
+#
+# def crawl_linked_enterprise(
+#     context: Context, pep: Entity, item: dict, source: str
+# ) -> None:
+#     print(item)
+#     company = context.make("Company")
+#     name = item.pop("Name")
+#     company.id = context.make_id(name)
+#     company.add("name", name, lang="kat")
+#     apply_translit_full_name(context, company, "kat", name, TRANSLIT_OUTPUT)
+#     company.add("sourceUrl", source)
+#     context.emit(company)
+#
+#     pep_link = context.make("UnknownLink")
+#     pep_link.id = context.make_id(pep.id, "linked enterprise", company.id)
+#     !!! see note above pep_link.add("subject", pep)
+#     pep_link.add("object", company)
+#     context.emit(pep_link)
+#
+#     enterprice_name = item.pop("EnterpriceName")  # sic
+#     linked_company = context.make("Company")
+#     linked_company.id = context.make_id(enterprice_name)
+#     linked_company.add("name", enterprice_name, lang="kat")
+#     apply_translit_full_name(
+#         context, linked_company, "kat", enterprice_name, TRANSLIT_OUTPUT
+#     )
+#     linked_company.add("sourceUrl", source)
+#     context.emit(linked_company)
+#
+#     company_link = context.make("Ownership")
+#     company_link.id = context.make_id(pep.id, "owns", linked_company.id)
+#     company_link.add("owner", company)
+#     company_link.add("asset", linked_company)
+#     company_link.add("percentage", item.pop("Share"))
+#     context.emit(company_link)
+#
+#     for partner_dict in item.pop("EnterprisePartners"):
+#         partner_name = partner_dict.pop("FullName")
+#         if partner_name is None:
+#             continue
+#         partner = context.make("LegalEntity")
+#         partner.id = context.make_id(partner_name)
+#         partner.add("name", partner_name, lang="kat")
+#         apply_translit_full_name(context, partner, "kat", partner_name, TRANSLIT_OUTPUT)
+#         partner.add("address", partner_dict.pop("LegalAddress"), lang="kat")
+#         partner.add("sourceUrl", source)
+#         context.emit(partner)
+#
+#         rel = context.make("UnknownLink")
+#         rel.id = context.make_id(pep.id, "partner of linked enterprise", partner.id)
+#         rel.add("subject", linked_company)
+#         rel.add("object", partner)
+#         context.emit(rel)
+
+
+def crawl_enterprise(context: Context, pep: Entity, item: dict, source: str) -> None:
+    first_name = item.pop("OwnerFirstName")
+    last_name = item.pop("OwnerLatsName")
     name = item.pop("Name")
+    # Skip family member enterprises
+    if not (first_name in pep.get("firstName") and last_name in pep.get("lastName")):
+        return
+    legal_form = item.pop("PartnershipFormName")
+    if legal_form == "ინდივიდუალური მეწარმე":  # Individual enterprise
+        return
+    company = context.make("Company")
     company.id = context.make_id(name)
     company.add("name", name, lang="kat")
     apply_translit_full_name(context, company, "kat", name, TRANSLIT_OUTPUT)
+    company.add("address", item.pop("EnterpriseAddress"), lang="kat")
+    company.add("incorporationDate", h.parse_date(item.pop("RegisterDate"), FORMATS))
+    company.add("legalForm", legal_form, lang="kat")
     company.add("sourceUrl", source)
     context.emit(company)
 
-    pep_link = context.make("UnknownLink")
-    pep_link.id = context.make_id(pep.id, "linked enterprise", company.id)
-    pep_link.add("subject", pep)
-    pep_link.add("object", company)
-    context.emit(pep_link)
-
-    enterprice_name = item.pop("EnterpriceName")  # sic
-    linked_company = context.make("Company")
-    linked_company.id = context.make_id(enterprice_name)
-    linked_company.add("name", enterprice_name, lang="kat")
-    apply_translit_full_name(
-        context, linked_company, "kat", enterprice_name, TRANSLIT_OUTPUT
-    )
-    linked_company.add("sourceUrl", source)
-    context.emit(linked_company)
-
-    company_link = context.make("Ownership")
-    company_link.id = context.make_id(pep.id, "owns", linked_company.id)
-    company_link.add("owner", company)
-    company_link.add("asset", linked_company)
-    company_link.add("percentage", item.pop("Share"))
-    context.emit(company_link)
+    ownership = context.make("Ownership")
+    ownership.id = context.make_id(pep.id, "owns", company.id)
+    ownership.add("owner", pep)
+    ownership.add("asset", company)
+    ownership.add("percentage", item.pop("Share"))
+    ownership.add("startDate", h.parse_date(item.pop("StartDate"), FORMATS))
+    ownership.add("endDate", h.parse_date(item.pop("EndDate", None), FORMATS))
+    ownership.add("description", item.pop("Comment", None), lang="kat")
+    context.emit(ownership)
 
     for partner_dict in item.pop("EnterprisePartners"):
         partner_name = partner_dict.pop("FullName")
@@ -79,9 +138,21 @@ def crawl_linked_enterprise(
 
         rel = context.make("UnknownLink")
         rel.id = context.make_id(pep.id, "partner of linked enterprise", partner.id)
-        rel.add("subject", linked_company)
+        rel.add("subject", company)
         rel.add("object", partner)
         context.emit(rel)
+
+    if linked := item.pop("LinkedEnterprises"):
+        context.log.warning("Linked enterprises not handled", linked=linked)
+    context.audit_data(item, ignore=[
+        "EndDateType",
+        "EndDateName",
+        "RegistrationAgency",
+        "Income",
+        "AbbreviationName",
+        "OtherAbbreviationName",
+        "AbbreviationTypeId",
+    ])
 
 
 def crawl_assets_for_family(
@@ -172,7 +243,7 @@ def crawl_declaration(context: Context, item: dict, is_current_year) -> None:
 
     position_kat = item.pop("Position")
     organization = item.pop("Organisation")
-    if len(position_kat) < 30:
+    if len(position_kat) < 35:
         position_kat = f"{position_kat}, {organization}"
     if "კანდიდატი" in position_kat:  # Candidate
         context.log.debug(f"Skipping candidate {position_kat}")
@@ -224,16 +295,19 @@ def crawl_declaration(context: Context, item: dict, is_current_year) -> None:
     crawl_assets_for_family(
         context, minor_family, item, "Cashes", person, declaration_url
     )
+    for enterprise in item.get("Enterprice"):
+        crawl_enterprise(context, person, deepcopy(enterprise), declaration_url)
     crawl_assets_for_family(
         context, minor_family, item, "Enterprice", person, declaration_url
     )
 
-    for enterprise in item.pop("LinkedEnterprice"):
-        crawl_linked_enterprise(context, person, enterprise, declaration_url)
+    # for enterprise in item.pop("LinkedEnterprice"):
+    #    crawl_linked_enterprise(context, person, enterprise, declaration_url)
 
     context.audit_data(
         item,
         ignore=[
+            "LinkedEnterprice",
             "Organisation",
             "VersionId",
             "DateEdited",

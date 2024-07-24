@@ -10,6 +10,9 @@ Transliterate the following name from the language denoted by the ISO 639-2 Code
  returning a JSON object where
 
 {output_bullets}.
+
+If it looks like a company name, translate the prefix or suffix indicating the legal form,
+e.g. the Georgian შპს to Ltd, or the Russian ООО to LLC.
 """
 POSITION_TRANS_PROMPT = """
 Translate the following public office position label from the language denoted by the
