@@ -79,7 +79,9 @@ def crawl(context: Context):
             if response.find(".//div[@class='view-empty']") is not None:
                 break
 
-            context.log.info("Table not found. Retrying", url=url, html=tostring(response))
+            context.log.info(
+                "Table not found. Retrying", url=url, html=tostring(response)
+            )
             response = context.fetch_html(url, cache_days=0)
 
         response.make_links_absolute(url)
