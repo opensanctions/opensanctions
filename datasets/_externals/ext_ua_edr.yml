@@ -73,7 +73,10 @@ inputs:
 
 config:
   type: zavod.runner.local_enricher:LocalEnricher
-  limit: 50
+  limit: 100
+  index_options:
+    max_candidates: 100
+    threshold: 800
   api: https://api.graph.opensanctions.org/
   dataset: ua_edr
   api_key: ${OPENSANCTIONS_GRAPH_API_KEY}
