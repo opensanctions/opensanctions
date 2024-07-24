@@ -1,5 +1,5 @@
 from typing import Generator, Dict, Tuple, Optional
-from lxml.etree import _Element
+from lxml.etree import _Element, tostring
 from normality import slugify
 from zavod import Context, helpers as h
 
@@ -68,12 +68,14 @@ def crawl(context: Context):
 
     while True:
         context.log.info(f"Crawling page {page_num}")
-        url = base_url + "?page=" + str(page_num)
+        url = base_url + "?search=daniel+robert+rozzi&page=" + str(page_num)
         response = context.fetch_html(url, cache_days=7)
         response.make_links_absolute(url)
         table = response.find(".//table")
 
         if table is None:
+            # Log final page to see if we can tell why we sometimes miss some entities
+            context.log.info("Table not found", url=url, html=tostring(response))
             break
 
         for item in parse_table(table):
