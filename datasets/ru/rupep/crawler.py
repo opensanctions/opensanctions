@@ -42,7 +42,7 @@ OBVIOUSLY_NOT_PEP_ROLES = {
     "Senior Lecturer",
     "shareholder",
 }
-REGEX_SUBNATIONAL = re.compile("(?P<area>\w{4,}) city|regional")
+REGEX_SUBNATIONAL = re.compile(r"(?P<area>\w{4,}) city|regional")
 PUNCTUATION = {
     "Pc": "-",
     "Pd": "-",
