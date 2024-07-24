@@ -2,7 +2,7 @@ title: Austrian National Bank Regulations on Terrorism Financing Restrictions
 entry_point: crawler.py
 prefix: at-nbter
 coverage:
-  frequency: weekly
+  frequency: never
   start: "2024-07-22"
 deploy:
   schedule: "@weekly"
