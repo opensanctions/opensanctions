@@ -39,7 +39,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     birth_date = parse_date_time(row.pop("date of birth"))  # still to adjust
     birth_place = row.pop("place of birth")
     nationality = row.pop("nationality")
-    passport_number = row.pop("passport No.")
+    passport_number = row.pop("passport no.")
     position = row.pop("position")
     residence = row.pop("residence")
     domicile = row.pop("domicile")
@@ -79,9 +79,9 @@ def crawl_row(context: Context, row: Dict[str, str]):
         entity.add("address", address_1)
         entity.add("address", address_2)
         entity.add("address", address_3)
-        entity.add("city", city)
+        entity.add("address", city)
         entity.add("jurisdiction", country)
-        entity.add("region", region)
+        entity.add("address", region)
         entity.add("country", country)
     else:
         context.log.warning("Unhandled entity type", type=entity_type)
