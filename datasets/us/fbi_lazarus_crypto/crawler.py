@@ -21,10 +21,11 @@ def crawl_row(context: Context, row: Dict[str, str]):
     wallet = context.make("CryptoWallet")
     wallet.id = context.make_id(publicKey, network)
     wallet.add("publicKey", publicKey)
-    wallet.add("notes", network)
+    wallet.add("currency", network)
     if linked_to:
         wallet.add("holder", organization.id)  # Link the wallet to the organization
     wallet.add("topics", "crime.fin")
+    wallet.add("topics", "crime.cyber")
 
     context.emit(wallet)
 
