@@ -38,7 +38,9 @@ def crawl_item(item: Dict[str, str], context: Context):
     person.add("name", name)
     person.add("country", "gg")
 
-    end_date = h.parse_date(item.pop("End of disqualification period"), formats=["%d.%m.%Y"])
+    end_date = h.parse_date(
+        item.pop("End of disqualification period"), formats=["%d.%m.%Y"]
+    )
 
     if end_date and end_date[0] < datetime.now().isoformat():
         ended = True
