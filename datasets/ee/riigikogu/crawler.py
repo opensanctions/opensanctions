@@ -12,7 +12,6 @@ def get_members_urls(context: Context) -> list:
 
 
 def crawl_item(member_url: str, context: Context):
-
     member_page_html = context.fetch_html(member_url)
 
     try:
@@ -33,7 +32,9 @@ def crawl_item(member_url: str, context: Context):
         phone_number = phone_els[0].replace(" ", "")
         entity.add("phone", phone_number)
     except IndexError:
-        context.log.warning("Couldn't find phone number")
+        # Only log a warning if the name is not "Hele Everaus" or "Kaja Kallas"
+        if name not in ["Hele Everaus", "Kaja Kallas", "Mart Võrklaev"]:
+            context.log.warning("Couldn't find phone number for", name=name)
 
     try:
         # we do the same as the phone number
