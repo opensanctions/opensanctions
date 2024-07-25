@@ -1,7 +1,6 @@
 import csv
 from typing import Dict
 from zavod import Context, helpers as h
-from typing import List
 
 
 DATE_FORMATS = ["%m/%d/%Y", "%Y"]
