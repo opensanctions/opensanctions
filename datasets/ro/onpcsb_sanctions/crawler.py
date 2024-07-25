@@ -7,14 +7,6 @@ from typing import List
 DATE_FORMATS = ["%m/%d/%Y", "%Y"]
 
 
-# def parse_date(text: str) -> List[str]:
-#     # add a function to handle multiple entires
-#     if not text:
-#         return []
-#     date = h.parse_date(text, DATE_FORMATS)
-#     return date
-
-
 def crawl_row(context: Context, row: Dict[str, str]):
     full_name = row.pop("name")
     other_name = h.multi_split(row.pop("other name"), [",", ";"])
@@ -40,9 +32,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
         country=country,
     )
     entity_type = row.pop("type")
-    # raw_data = row.pop("parsed data")
 
-    entity = None
     if entity_type == "Person":
         entity = context.make("Person")
         entity.id = context.make_id(full_name, birth_date_1, birth_place)
@@ -55,23 +45,34 @@ def crawl_row(context: Context, row: Dict[str, str]):
         # Handle multiple nationalities
         entity.add("nationality", [n.strip() for n in nationality.split("/")])
         entity.add("passportNumber", passport_number)
+        h.copy_address(entity, address)
         entity.add("address", address)
         entity.add("taxNumber", fiscal_code)
         entity.add("phone", phone_number)
-        entity.add("topics", "sanction")
         entity.add("position", position)
+        entity.add("topics", "sanction")
+        entity.add(
+            "program",
+            "Romania Government Decision No. 1.272/2005: List of Suspected Terrorists",
+        )
+        # Emit the entity
+        context.emit(entity, target=True)
     elif entity_type == "Organization":
         entity = context.make("Organization")
         entity.id = context.make_id(full_name, po_box, address_1)
         entity.add("name", full_name)
         entity.add("alias", other_name)  # separated by semicolon
+        h.copy_address(entity, address)
         entity.add("address", address)
-        entity.add("program", "sanction")
+        entity.add("topics", "sanction")
+        entity.add(
+            "program",
+            "Romania Government Decision No. 1.272/2005: List of Suspected Terrorists",
+        )
+        # Emit the entity
+        context.emit(entity, target=True)
     else:
         context.log.warning("Unhandled entity type", type=entity_type)
-
-        # Emit the entities
-        context.emit(entity, target=True)
 
 
 def crawl(context: Context):
