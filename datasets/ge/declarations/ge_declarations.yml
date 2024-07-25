@@ -40,9 +40,9 @@ ci_test: false
 assertions:
   min:
     schema_entities:
-      Person: 9000
+      Person: 13000
     country_entities:
       ge: 1
   max:
     schema_entities:
-      Person: 14000
+      Person: 17000
