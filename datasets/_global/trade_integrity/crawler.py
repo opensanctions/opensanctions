@@ -51,18 +51,28 @@ def crawl(context: Context) -> None:
         address = item.get("addressString")
         country_code = item.get("countryCode")
         amount_of_transactions = item.get("amountOfTransactionsUSD")
-        number_of_transactions = item.get("numberOfTransactions")
+        # number_of_transactions = item.get("numberOfTransactions")
         latitude = item.get("latitude")
         longitude = item.get("longitude")
 
         # Create a Company entity for each item
         company = context.make("Company")
         company.id = context.make_id(company_name, address)
-        company.add("address", address)
+        # company.add("address", address)
+        company.add("name", company_name)
         company.add("country", country_code)
         company.add("amountUsd", amount_of_transactions)
-        company.add("notes", number_of_transactions)
-        company.add("address", latitude)
-        company.add("address", longitude)
+        # company.add("notes", number_of_transactions)
+        # company.add("address", latitude)
+        # company.add("address", longitude)
 
         context.emit(company)
+
+        address = context.make("Address")
+        address.id = context.make_id(longitude, latitude)
+        address.add("address", address)
+        address.add("longitude", longitude)
+        address.add("latitude", latitude)
+        address.add("addressEntity", company.id)
+
+        context.emit(address)
