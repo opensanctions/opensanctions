@@ -1,0 +1,41 @@
+title: Lazarus Group Cyber Actors Crypto Wallets
+entry_point: crawler.py
+prefix: fbi-lazarus
+coverage:
+  frequency: never
+  start: "2024-07-25"
+deploy:
+  schedule: "@weekly"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  The dataset contains cryptocurrency addresses connected to the $41 million theft from Stake.com, attributed to the Lazarus Group.
+description: |
+  The dataset comprises cryptocurrency addresses linked to the theft of $41 million from Stake.com, attributed to the Lazarus Group, also known as APT38. 
+  Each address is associated with one of four blockchain networks: Ethereum, Binance Smart Chain, Polygon, and Bitcoin. According to the FBI, the Lazarus Group, 
+  a North Korean  state-sponsored hacking organization, has been involved in numerous high-profile cybercrimes globally.
+publisher:
+  name: Federal Bureau of Investigation
+  acronym: FBI
+  description: |
+    The Federal Bureau of Investigation (FBI) is the domestic intelligence and security service of the United States and its principal federal law enforcement agency.
+    A leading U.S. counterterrorism, counterintelligence, and criminal investigative organization, the FBI has jurisdiction over violations of more than 200 categories 
+    of federal crimes. Despite its domestic focus, the FBI also maintains a significant international footprint, operating 60 Legal Attache (LEGAT) offices and 15 sub-offices
+    in U.S. embassies and consulates across the globe. 
+    [Source: Wikipedia](https://en.wikipedia.org/wiki/Federal_Bureau_of_Investigation)
+  country: us
+  url: https://www.fbi.gov
+  official: true
+url: https://www.fbi.gov/news/press-releases/fbi-identifies-lazarus-group-cyber-actors-as-responsible-for-theft-of-41-million-from-stakecom
+data:
+  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRKLdZ8_uJx9iA3Z5i6THpJF2SxcRQ5z4nOJ_qz3HqFH3wRHZwYZYBCI1iSus-vuQB4_NCMUHpQuQaf/pub?gid=0&single=true&output=csv
+  file_name: source.csv
+  format: csv
+assertions:
+  min:
+    schema_entities:
+      CryptoWallet: 30
+      Organization: 1
+  max:
+    schema_entities:
+      CryptoWallet: 35
+      Organization: 1
