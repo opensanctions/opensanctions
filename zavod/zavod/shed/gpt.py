@@ -73,3 +73,43 @@ def run_image_prompt(
     data = json.loads(response.choices[0].message.content)
     context.cache.set_json(cache_key, data)
     return data
+
+
+def run_text_prompt(
+    context: Context,
+    prompt: str,
+    string: str,
+    max_tokens: int = 3000,
+    cache_days: int = 100,
+    model: str = "gpt-4o",
+) -> Any:
+    """Run a text prompt."""
+    client = get_client()
+    cache_hash = sha1(string.encode("utf-8"))
+    cache_hash.update(prompt.encode("utf-8"))
+    cache_key = cache_hash.hexdigest()
+    cached_data = context.cache.get_json(cache_key, max_age=cache_days)
+    if cached_data is not None:
+        log.info("GPT cache hit: %s" % string[:50])
+        return cached_data
+    log.info("Prompting %r for: %s" % (model, string[:50]))
+    response = client.chat.completions.create(
+        model=model,
+        messages=[
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": prompt},
+                    {"type": "text", "text": string},
+                ],
+            }
+        ],
+        response_format={"type": "json_object"},
+        max_tokens=max_tokens,
+    )
+    assert len(response.choices) > 0
+    assert response.choices[0].message is not None
+    assert response.choices[0].message.content is not None
+    data = json.loads(response.choices[0].message.content)
+    context.cache.set_json(cache_key, data)
+    return data

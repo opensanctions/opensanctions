@@ -1,0 +1,48 @@
+title: Georgia Public Official Asset Declarations
+entry_point: crawler.py
+prefix: ge-dec
+coverage:
+  frequency: weekly
+  start: 2024-07-24
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >-
+  Politically exposed persons from Georgia based on property declarations of public officials.
+description: |
+  The Georgian Anti-Corruption law of 2015 requires public officials to submit
+  annual declarations of their assets, as well as members of their family and their assets.
+
+  Officials making declarations here include national and sub-national members of the executive,
+  legislature and judiciary. These are included in our dataset as Politically Exposed Persons,
+  as well as their members of family. We exclude candidates who have not yet been elected.
+
+  **Note:** This crawler uses an LLM-based approach to transliterate person and company names
+  and translate position labels.
+url: https://declaration.acb.gov.ge/
+data:
+  # Don't fetch this without query parameters - it just selects everything and times out
+  url: https://declaration.acb.gov.ge/Api/Declarations
+  format: HTML
+publisher:
+  name: ანტიკორუფციული ბიურო
+  name_en: Anti-Corruption bureau of Georgia
+  acronym: ACB
+  country: ge
+  url: https://acb.gov.ge/
+  description: |
+     The Anti-Corruption Bureau determines the general policy of fighting against
+     corruption, to develop a national anti-corruption strategy and action plan and
+     to monitor the implementation of the mentioned plan. It seeks to prevent, detect and
+     prevent conflicts of interest in public institutions and develop relevant proposals
+     and recommendations.
+  official: true
+ci_test: false
+
+assertions:
+  min:
+    schema_entities:
+      Person: 13000
+    country_entities:
+      ge: 1
+  max:
+    schema_entities:
+      Person: 17000
