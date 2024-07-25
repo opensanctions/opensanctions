@@ -46,6 +46,9 @@ def parse_sheet(
 def crawl_item(input_dict: dict, context: Context):
     name = input_dict.pop("entity_individual_name")
     pan = input_dict.pop("pan")
+    # It's a target if it wasn't revoked
+    target = (input_dict["period"] is None) or ("Revoked" not in input_dict["period"])
+    topics = "sanction" if target else "reg.action"
 
     if name is None:
         return
@@ -54,21 +57,23 @@ def crawl_item(input_dict: dict, context: Context):
     entity.id = context.make_id(name, pan)
     entity.add("name", name)
     entity.add("taxNumber", pan)
-    entity.add("topics", "reg.warn")
+    entity.add("topics", topics)
     entity.add("idNumber", input_dict.pop("din_cin_of_entities_debarred"))
 
     sanction = h.make_sanction(context, entity, key=input_dict.pop("nse_circular_no"))
 
+    context.log.info(input_dict.get("order_date"))
     sanction.add(
-        "date", h.parse_date(input_dict.pop("order_date"), formats=["%d-%b-%y"])
+        "date", h.parse_date(input_dict.pop("order_date"), formats=["%Y-%m-%d"])
     )
     if input_dict.get("order_particulars"):
         sanction.add(
             "description", "Order Particulars: " + input_dict.pop("order_particulars")
         )
+
     sanction.add("duration", input_dict.pop("period"))
 
-    context.emit(entity, target=True)
+    context.emit(entity, target=target)
     context.emit(sanction)
 
     # There is some random data in the 17 and 18 columns
