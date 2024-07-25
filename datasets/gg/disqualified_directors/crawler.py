@@ -1,6 +1,7 @@
 from typing import Generator, Dict
 from lxml.etree import _Element
 from normality import collapse_spaces
+from datetime import datetime
 
 from zavod import Context, helpers as h
 
@@ -35,7 +36,17 @@ def crawl_item(item: Dict[str, str], context: Context):
     person = context.make("Person")
     person.id = context.make_id(name)
     person.add("name", name)
-    person.add("topics", "corp.disqual")
+    person.add("country", "gg")
+
+    end_date = h.parse_date(
+        item.pop("End of disqualification period"), formats=["%d.%m.%Y"]
+    )
+
+    if end_date and end_date[0] < datetime.now().isoformat():
+        ended = True
+    else:
+        ended = False
+        person.add("topics", "corp.disqual")
 
     sanction = h.make_sanction(context, person)
     sanction.add(
@@ -46,10 +57,10 @@ def crawl_item(item: Dict[str, str], context: Context):
     sanction.add("duration", item.pop("Period of disqualification"))
     sanction.add(
         "endDate",
-        h.parse_date(item.pop("End of disqualification period"), formats=["%d.%m.%Y"]),
+        end_date,
     )
 
-    context.emit(person, target=True)
+    context.emit(person, target=not ended)
     context.emit(sanction)
 
     context.audit_data(item)
