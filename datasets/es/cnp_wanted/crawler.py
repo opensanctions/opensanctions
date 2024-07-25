@@ -24,7 +24,7 @@ def crawl_item(context: Context, row: Dict[str, str]):
     crime = row.pop("Crime")
     birth_place = row.pop("Birth Place")
     entity = context.make("Person")
-    entity.id = context.make_id(name, crime)
+    entity.id = context.make_id(name, birth_place)
     entity.add("name", name)
     entity.add("topics", "wanted")
     entity.add("notes", crime, lang="spa")
