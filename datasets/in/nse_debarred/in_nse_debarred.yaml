@@ -17,9 +17,8 @@ publisher:
   name: National Stock Exchange of India Limited
   acronym: NSE
   description: |
-    National Stock Exchange of India Limited (NSE) is one of the leading stock exchanges
-    in India, based in Mumbai. NSE is under the ownership of various financial institutions
-    such as banks and insurance companies
+    National Stock Exchange of India Limited (NSE) is a stock exchange
+    based in Mumbai, India. NSE is under the ownership of various domestic and foreign companies.
   url: https://www.nseindia.com
   official: true
   country: "in"

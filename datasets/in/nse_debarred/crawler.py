@@ -54,7 +54,7 @@ def crawl_item(input_dict: dict, context: Context):
     entity.id = context.make_id(name, pan)
     entity.add("name", name)
     entity.add("taxNumber", pan)
-    entity.add("topics", "sanction")
+    entity.add("topics", "reg.warn")
     entity.add("idNumber", input_dict.pop("din_cin_of_entities_debarred"))
 
     sanction = h.make_sanction(context, entity, key=input_dict.pop("nse_circular_no"))
@@ -88,7 +88,7 @@ def crawl(context: Context):
     for item in parse_sheet(wb_sebi["Sheet 1"]):
         crawl_item(item, context)
 
-    path_other = context.fetch_resource("other.xls", SEBI_DEBARRMENT_URL)
+    path_other = context.fetch_resource("other.xls", OTHER_DEBARRMENT_URL)
     context.export_resource(path_other, XLS, title=context.SOURCE_TITLE)
 
     wb_other = xlrd.open_workbook(path_other)
