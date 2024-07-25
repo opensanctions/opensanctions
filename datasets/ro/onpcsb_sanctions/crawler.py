@@ -24,13 +24,21 @@ def crawl_row(context: Context, row: Dict[str, str]):
     nationality = row.pop("nationality")
     passport_number = row.pop("passport no.")
     position = row.pop("position")
-    postal_code = row.pop("postal code")
+    po_box = row.pop("postal code")
     fiscal_code = row.pop("fiscal code")
     phone_number = row.pop("phone number")
     address_1 = row.pop("address_1")
     address_2 = row.pop("address_2")
     city = row.pop("city")
     country = row.pop("country")
+    address = h.make_address(
+        context,
+        full=address_1,
+        remarks=address_2,
+        po_box=po_box,
+        city=city,
+        country=country,
+    )
     entity_type = row.pop("type")
     raw_data = row.pop("parsed data")
 
@@ -49,9 +57,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
         for nation in nationalities:
             entity.add("nationality", nation.strip())
         entity.add("passportNumber", passport_number)
-        entity.add("address", address_1)
-        entity.add("address", address_2)
-        entity.add("address", postal_code)
+        entity.add("address", address)
         entity.add("taxNumber", fiscal_code)
         entity.add("phone", phone_number)
         entity.add("topics", "sanction")
@@ -61,9 +67,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
         entity.id = context.make_id(raw_data)
         entity.add("name", full_name)
         entity.add("alias", other_name)  # separated by semicolon
-        entity.add("address", address_1)
-        entity.add("address", address_2)
-        entity.add("address", city)
+        entity.add("address", address)
         entity.add("country", country)
     else:
         context.log.warning("Unhandled entity type", type=entity_type)
