@@ -77,13 +77,20 @@ class DeltaExporter(Exporter):
         self.delta.close()
         if self.db:
             with self.db.connect() as conn:
-                ins = insert(delta_counts).values(
+                values = {
+                    "added": self.counts["ADD"],
+                    "modified": self.counts["MOD"],
+                    "deleted": self.counts["DEL"],
+                }
+                stmt = insert(delta_counts).values(
                     dataset=self.dataset.name,
                     run_id=str(self.context.version),
-                    added=self.counts["ADD"],
-                    modified=self.counts["MOD"],
-                    deleted=self.counts["DEL"],
+                    **values
                 )
-                conn.execute(ins)
+                stmt = stmt.on_conflict_do_update(
+                    index_elements=["dataset", "run_id"], set_=values
+                )
+                conn.execute(stmt)
                 conn.commit()
+
         super().finish()
