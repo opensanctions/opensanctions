@@ -5,7 +5,7 @@ coverage:
   frequency: daily
   start: 2024-07-22
 summary: >
-  The dataset contains information about individuals wanted by the Spanish National Police.
+  Individuals wanted by the Spanish National Police.
 description: |
   This dataset includes detailed information on individuals currently sought by Spanish law enforcement. 
   Each entry provides the wanted person's name, place of birth, and alleged crimes, facilitating public 
@@ -18,7 +18,7 @@ publisher:
   official: true
   description: |
     The Spanish National Police is an armed institution, civil in nature, which presents a hierarchical structure
-    and has the mission of protecting the free exercise of citizens’ rights and liberties, and of guaranteeing their 
+    and has the mission of protecting the free exercise of citizens' rights and liberties, and of guaranteeing their 
     security. Its scope of action is the whole of the national territory.
   country: es
   url: https://www.policia.es/_es/index.php
