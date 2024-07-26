@@ -3,7 +3,7 @@ url: https://www.policia.es/_es/colabora_masbuscados.php#
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 coverage:
   frequency: daily
-  start: 2024-07-22
+  start: 2024-07-26
 summary: >
   Individuals wanted by the Spanish National Police.
 description: |
