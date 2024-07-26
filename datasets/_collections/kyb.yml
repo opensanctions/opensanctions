@@ -2,11 +2,13 @@ type: collection
 title: Know-Your-Business (KYB) Datasets
 hidden: true
 deploy:
-  memory: "2000Mi"
+  memory: "3000Mi"
   disk: "200Gi"
+  cpu: "1000m"
   premium: true
 coverage:
   frequency: monthly
+ci_test: false
 exports:
   - statistics.json
 summary: >
@@ -35,4 +37,4 @@ datasets:
   - sk_rpvs
   - ua_edr
   - us_corpwatch
-ci_test: false
+
