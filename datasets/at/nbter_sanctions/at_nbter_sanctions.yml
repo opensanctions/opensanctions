@@ -3,12 +3,12 @@ entry_point: crawler.py
 prefix: at-nbter
 coverage:
   frequency: never
-  start: "2024-07-22"
+  start: "2024-07-26"
 deploy:
   schedule: "@weekly"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  This dataset compiles Austrian National Bank regulations aimed at combating terrorism through financial restrictions under the 2010 Sanctions Act.
+  Regulations aimed at combating terrorism through financial restrictions under the 2010 Sanctions Act.
 description: |
   The dataset includes details about restricted assets for organizations and individuals as per the Austrian National Bank regulations DL 2/2002 and 
   its 8th amendment, DL 1/2009, related to capital and payment traffic restrictions for combating terrorism. Please note that the source is manually 
