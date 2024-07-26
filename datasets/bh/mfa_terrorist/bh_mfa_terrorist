@@ -1,0 +1,31 @@
+title: "Organizations Designated as Terrorist by Bahrain"
+url: https://en.wikipedia.org/wiki/Organizations_designated_as_terrorist_by_Bahrain
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+coverage:
+  frequency: daily
+  start: 2024-07-26
+summary: >
+  Organizations currently designated as terrorist by the Kingdom of Bahrain.
+description: |
+  Detailed information on organizations designated as terrorist by the Kingdom of Bahrain as listed on the Wikipedia page.
+entry_point: crawler.py
+prefix:  bh-mfa
+publisher:
+  name: Ministry of Foreign Affairs of the Kingdom of Bahrain.
+  acronym: mofa
+  official: true
+  description: |
+    The Government of Bahrain, through its Ministry of Interior and associated security agencies, identifies and designates organizations that 
+    pose a threat to national security as terrorist entities. This is part of a broader strategy to combat terrorism and ensure public safety.
+  country: bh
+  url: https://www.mofa.gov.bh/ar/home/
+data:
+  url: https://en.wikipedia.org/wiki/Organizations_designated_as_terrorist_by_Bahrain
+  format: html
+assertions:
+  min:
+    schema_entities:
+      Person: 1
+  max: 
+    schema_entities:
+      Person: 10
