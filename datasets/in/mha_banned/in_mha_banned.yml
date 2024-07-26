@@ -22,13 +22,13 @@ publisher:
   country: in
   url: https://www.mha.gov.in/en/page/about-ministry
   official: true
-url: https://www.mha.gov.in/en/banned-organisations
+url: https://www.mha.gov.in/en/divisionofmha/counter-terrorism-and-counter-radicalization-division
 data:
-  url: https://www.mha.gov.in/en/
+  url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTc-EkLWZgLKDPVvcrCoKLp17EEo535uP1EMcLKFl_b6T3z6Tq99BrI3R9GhxKirgRoozND1xQ48O4-/pub?output=csv"
   format: HTML
 
 assertions:
   min:
     schema_entities:
-      Person: 56
-      Organization: 37
+      Person: 57  # In the name of the doc
+      Organization: 50

@@ -1,14 +1,14 @@
-title: Lazarus Group Cyber Actors Crypto Wallets
+title: US FBI Lazarus Group Crypto Wallets
 entry_point: crawler.py
 prefix: fbi-lazarus
 coverage:
   frequency: never
-  start: "2024-07-25"
+  start: "2024-07-26"
 deploy:
   schedule: "@weekly"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  The dataset contains cryptocurrency addresses connected to the $41 million theft from Stake.com, attributed to the Lazarus Group.
+  Cryptocurrency addresses connected to the $41 million theft from Stake.com, attributed to the Lazarus Group.
 description: |
   The dataset comprises cryptocurrency addresses linked to the theft of $41 million from Stake.com, attributed to the Lazarus Group, also known as APT38. 
   Each address is associated with one of four blockchain networks: Ethereum, Binance Smart Chain, Polygon, and Bitcoin. According to the FBI, the Lazarus Group, 
@@ -18,7 +18,7 @@ publisher:
   acronym: FBI
   description: |
     The Federal Bureau of Investigation (FBI) is the domestic intelligence and security service of the United States and its principal federal law enforcement agency.
-    A leading U.S. counterterrorism, counterintelligence, and criminal investigative organization, the FBI has jurisdiction over violations of more than 200 categories 
+    A leading U.S. counterterrorism, counter-intelligence, and criminal investigative organization, the FBI has jurisdiction over violations of more than 200 categories 
     of federal crimes. Despite its domestic focus, the FBI also maintains a significant international footprint, operating 60 Legal Attache (LEGAT) offices and 15 sub-offices
     in U.S. embassies and consulates across the globe. 
     [Source: Wikipedia](https://en.wikipedia.org/wiki/Federal_Bureau_of_Investigation)
