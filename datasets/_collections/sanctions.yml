@@ -42,6 +42,7 @@ description: |
 children:
   - ae_local_terrorists
   - ar_repet
+  - at_nbter_sanctions
   - au_dfat_sanctions
   - az_fiu_sanctions
   - be_fod_sanctions
