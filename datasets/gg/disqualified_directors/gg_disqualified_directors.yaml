@@ -8,10 +8,12 @@ load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Company directors who have been disqualified by the Court
 description: |
-  The Companies (Guernsey) Law, 2008 (Amendment) Ordinance,
-  2015 allows any person subject to a disqualification to apply
-  to the Court for an order stating that the restriction/prohibition
-  on them being appointed or holding office as a director shall not apply.
+  The Royal Court of Guernsey has the power to disqualify individuals from
+  being appointed as a director or other officer of a company, or participating
+  in the formation, management or promotion of a company
+  (Companies (Guernsey) Law 2008).
+
+  This dataset lists persons disqualified in this way as published by the Guernsey Registry.
 publisher:
   name: Guernsey Registry
   acronym: GR
