@@ -1,0 +1,39 @@
+title: List of Prohibited Persons or Groups in the National Strategy and Action Plan (2076-2081) of the Government of Nepal
+entry_point: crawler.py
+prefix: np-mha
+coverage:
+  frequency: never
+  start: "2024-07-26"
+deploy:
+  schedule: "@weekly"
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+summary: >
+  Compilatiom of entries from the Ministry of Home Affairs, Government of Nepal, outlining individuals and groups targeted under the National Strategy and Action Plan (2076-2081).
+description: |
+    The dataset includes details about sanctioned entities, both individuals and organizations, as per the National Strategy and Action Plan (2076-2081) of the Government of Nepal. 
+    This list aims to elucidate measures taken to restrict activities and freeze assets of those involved in terrorism, money laundering, and other unlawful acts. The list is manually 
+    curated and is not automatically updated with changes or new entries from the official regulations.
+publisher:
+  name: Ministry of Home Affairs, Government of Nepal
+  acronym: MOHA
+  description: |
+    The Ministry of Home Affairs is responsible for maintaining internal security, law and order, and handling disaster management and border affairs in Nepal. As a pivotal government 
+    body, MOHA plays a significant role in the implementation of national security strategies and regulations.
+    [Source: Official Website](https://moha.gov.np)
+  country: np
+  url: https://moha.gov.np
+  official: true
+url: https://moha.gov.np/post/sanction-list-1
+data:
+  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRjmBwNMs9LjiE6_EVpcGpEeJ0-Rw1lNOcLBMYEkVSQ3o42APy9lmE3OiTBt-RMRUferY2pH6c3D7Rj/pub?gid=0&single=true&output=csv
+  file_name: source.csv
+  format: csv
+assertions:
+  min:
+    schema_entities:
+      Person: 15
+      Organization: 45
+  max:
+    schema_entities:
+      Person: 20
+      Organization: 55
