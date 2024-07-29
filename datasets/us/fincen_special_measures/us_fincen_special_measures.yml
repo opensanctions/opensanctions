@@ -1,18 +1,18 @@
-title: "FinCEN 311 and 9714 Special Measures"
+title: "US FinCEN 311 and 9714 Special Measures"
 url: https://www.fincen.gov/resources/statutes-and-regulations/311-and-9714-special-measures
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 coverage:
   frequency: daily
-  start: 2024-07-16
+  start: 2024-07-26
 summary: >
   FinCEN, part of the U.S. Department of the Treasury, fights money laundering, safeguards the financial system, and promotes national
   security through gathering and sharing financial intelligence.
 description: |
-  FinCEN, a bureau of the U.S. Department of the Treasury, aims to safeguard the financial system, combat money laundering, 
-  and promote national security by collecting, analyzing, and disseminating financial intelligence. It exercises regulatory 
-  functions under the Bank Secrecy Act, works with international organizations, and supports law enforcement at all levels. As 
-  the Financial Intelligence Unit for the United States, FinCEN exchanges financial information with counterparts worldwide to 
-  support financial crime investigations.
+  FinCEN issues special measures under Section 311 of the USA PATRIOT Act and
+  Section 9714 of the Combating Russian Money Laundering Act (Public Law 116-283).
+  They issue notices of proposed rulemaking for public comment, and measures
+  imposing restrictions on banking services that may be offered to named entities
+  or jurisdictions.
 entry_point: crawler.py
 prefix: us-fincen
 publisher:

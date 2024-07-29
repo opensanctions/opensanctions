@@ -101,6 +101,8 @@ def crawl_enterprise(context: Context, pep: Entity, item: dict, source: str) -> 
     # Skip family member enterprises
     if not (first_name in pep.get("firstName") and last_name in pep.get("lastName")):
         return
+    if item.pop("RelationName"):
+        return
     legal_form = item.pop("PartnershipFormName")
     if legal_form == "ინდივიდუალური მეწარმე":  # Individual enterprise
         return
@@ -148,6 +150,7 @@ def crawl_enterprise(context: Context, pep: Entity, item: dict, source: str) -> 
     context.audit_data(
         item,
         ignore=[
+            "OwnerId",
             "EndDateType",
             "EndDateName",
             "RegistrationAgency",

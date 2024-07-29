@@ -3,7 +3,7 @@ entry_point: crawler.py
 prefix: ge-dec
 coverage:
   frequency: weekly
-  start: 2024-07-24
+  start: 2024-07-25
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >-
   Politically exposed persons from Georgia based on property declarations of public officials.
@@ -40,9 +40,9 @@ ci_test: false
 assertions:
   min:
     schema_entities:
-      Person: 9000
+      Person: 13000
     country_entities:
       ge: 1
   max:
     schema_entities:
-      Person: 14000
+      Person: 17000
