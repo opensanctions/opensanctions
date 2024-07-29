@@ -90,5 +90,6 @@ def export_dataset(dataset: Dataset, view: View) -> None:
         write_delta_index(dataset)
         write_dataset_index(dataset)
         write_catalog(dataset)
+        log.info("Exported dataset: %s" % dataset.name, dataset=dataset.name)
     finally:
         context.close()
