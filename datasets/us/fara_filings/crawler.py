@@ -114,24 +114,36 @@ def crawl(context: Context) -> None:
         agency_client_info = get_agency_client(context, registration_number)
         if agency_client_info:
             # Add relevant agency client information to the company entity
-            agency_client_name = agency_client_info.get("Foreign_principal")
-
+            p_name = agency_client_info.get("Foreign_principal")
+            p_zip_code = agency_client_info.get("Zip")
+            p_registration_number = agency_client_info.get("Registration_number")
+            p_address_raw = agency_client_info.get("Address_1")
+            p_address_raw2 = agency_client_info.get("Address_2")
+            p_registrant = agency_client_info.get("Registrant_name")
+            p_city = agency_client_info.get("City")
+            p_country = agency_client_info.get("Country_location_represented")
+            address = h.make_address(
+                context,
+                street=p_address_raw,
+                street2=p_address_raw2,
+                city=p_city,
+                postal_code=p_zip_code,
+                country=p_country,
+            )
+            p_reg_date = h.parse_date(
+                agency_client_info.get("Registration_date"), DATE_FORMAT
+            )
             # Now create a new Company entity for the agency client
             principal = context.make("LegalEntity")
-            principal.id = context.make_id(registration_number, agency_client_name)
-            principal.add("name", agency_client_name)
+            principal.id = context.make_id(registration_number, p_name)
+            principal.add("name", p_name)
             principal.add("address", address)
-            # principal.add("city", agency_client_info.get("City"))
-            # principal.add("state", agency_client_info.get("State"))
-            # principal.add("zip", agency_client_info.get("Zip"))
             principal.add(
                 "country",
                 agency_client_info.get("Country_location_represented"),
             )
-            principal.add(
-                "registrationNumber", agency_client_info.get("Registration_number")
-            )
-            principal.add("notes", agency_client_info.get("Registrant_name"))
+            principal.add("registrationNumber", p_registration_number)
+            principal.add("incorporationDate", p_reg_date)
 
             # Emit the new agency client entity
             context.emit(principal)
