@@ -4194,4 +4194,4 @@ lookups:
       - match: "Date de création: 15.12.2023 - Lieu de création: Kenya: /"
         props:
           jurisdiction: ke
-          incorporationDate: 2023-12-15
+          incorporationDate: "2023-12-15"
