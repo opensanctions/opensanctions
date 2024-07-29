@@ -76,9 +76,14 @@ def parse_result(context: Context, result: Dict[str, Any]):
     if schema is None:
         context.log.error("Unknown result type", type=type_)
         return
+
     entity = context.make(schema)
     entity.id = context.make_slug(result.pop("id"))
-    entity.add("topics", "sanction")
+    source = result.pop("source", "")
+    if source.startswith("Unverified List"):
+        entity.add("topics", "export.control")
+    else:
+        entity.add("topics", "sanction")
 
     entity_number = result.pop("entity_number", None)
     is_ofac = False
@@ -153,7 +158,7 @@ def parse_result(context: Context, result: Dict[str, Any]):
     sanction.add("startDate", result.pop("start_date", None))
     sanction.add("endDate", result.pop("end_date", None))
     sanction.add("country", "us")
-    sanction.add("authority", result.pop("source", None))
+    sanction.add("authority", source)
     sanction.add("sourceUrl", result.pop("source_information_url"))
     result.pop("source_list_url")
 
