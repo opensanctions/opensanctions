@@ -4191,7 +4191,3 @@ lookups:
           jurisdiction: kp
           description: centre de rétention
           address: "Comté d’Onsong, province de Hamgyong du Nord, République populaire démocratique de Corée (RPDC)"
-      - match: "Date de création: 15.12.2023 - Lieu de création: Kenya: /"
-        props:
-          jurisdiction: ke
-          incorporationDate: "2023-12-15"
