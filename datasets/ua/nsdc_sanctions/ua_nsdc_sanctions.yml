@@ -29,8 +29,61 @@ data:
   format: JSON
 
 lookups:
-  # type.name:
-  #   options:
+   type.name:
+     options:
+     - name: "Філія Державного унітарного підприємства "Республіки Крим" "Кримські морські порти" "Держгідрографія" (Филиал Государственного унитарного предприятия "Республики Крым" "Крымские морские порты" "Госгидрография", Філія Державного унітарного підприємства "Республіки Крим" "Кримські морські порти" "Держгідрографія")"
+       alias: ""Держгідрографія""
+     - name: "Filiia Derzhavnoho unitarnoho pidpryiemstva "Respubliky Krym" "Krymski morski porty" "Derzhhidrohrafiia" (Fylyal Hosudarstvennoho unytarnoho predpryiatyia "Respublyky Krym" "Krymskye morskye porty" "Hoshydrohrafyia", Filiia Derzhavnoho unitarnoho pidpryiemstva "Respubliky Krym" "Krymski morski porty" "Derzhhidrohrafiia")"
+       alias: ""Derzhhidrohrafiia""
+     - name: "Філія Державного унітарного підприємства "Республіки Крим" "Кримські морські порти" "Ялтинський торговельний порт" (Филиал Государственного унитарного предприятия "Республики Крым" "Крымские морские порты" "Ялтинский торговый порт", Філія Державного унітарного підприємства "Республіки Крим" "Кримські морські порти" "Ялтинський торговельний порт")"
+       alias: ""Ялтинський торговельний порт""
+     - name: "Filiia Derzhavnoho unitarnoho pidpryiemstva "Respubliky Krym" "Krymski morski porty" "Ialtynskyi torhovelnyi port" (Fylyal Hosudarstvennoho unytarnoho predpryiatyia "Respublyky Krym" "Krymskye morskye porty" "Ialtynskyi torhovyi port", Filiia Derzhavnoho unitarnoho pidpryiemstva "Respubliky Krym" "Krymski morski porty" "Ialtynskyi torhovelnyi port")"
+       alias: ""Ialtynskyi torhovelnyi port""
+     - name: "Філія Державного унітарного підприємства "Республіки Крим" "Кримські морські порти" "Феодосійський торговельний порт" (Филиал Государственного унитарного предприятия "Республики Крым" "Крымские морские порты" "Феодосийский торговый порт, Філія Державного унітарного підприємства "Республіки Крим" "Кримські морські порти" "Феодосійський торговельний порт")"
+        alias: ""Феодосійський торговельний порт""
+     - name: "Filiia Derzhavnoho unitarnoho pidpryiemstva "Respubliky Krym" "Krymski morski porty" "Feodosiiskyi torhovelnyi port" (Fylyal Hosudarstvennoho unytarnoho predpryiatyia "Respublyky Krym" "Krymskye morskye porty" "Feodosyiskyi torhovyi port, Filiia Derzhavnoho unitarnoho pidpryiemstva "Respubliky Krym" "Krymski morski porty" "Feodosiiskyi torhovelnyi port")"
+        alias: ""Feodosiiskyi torhovelnyi port""
+     - name: "Філія Державного унітарного підприємства "Республіки Крим" "Кримські морські порти" "Керченський торговельний порт" (Филиал Государственного унитарного предприятия "Республики Крым" "Крымские морские порты" "Керченский торговый порт", Філія Державного унітарного підприємства "Республіки Крим" "Кримські морські порти" "Керченський торговельний порт")"
+        alias: ""Керченський торговельний порт""
+     - name: "Filiia Derzhavnoho unitarnoho pidpryiemstva "Respubliky Krym" "Krymski morski porty" "Kerchenskyi torhovelnyi port" (Fylyal Hosudarstvennoho unytarnoho predpryiatyia "Respublyky Krym" "Krymskye morskye porty" "Kerchenskyi torhovyi port", Filiia Derzhavnoho unitarnoho pidpryiemstva "Respubliky Krym" "Krymski morski porty" "Kerchenskyi torhovelnyi port")"
+        alias: ""Kerchenskyi torhovelnyi port""
+     - name: "Філія Державного унітарного підприємства "Республіки Крим" "Кримські морські порти" "Євпаторійський торговельний порт" (Филиал Государственного унитарного предприятия "Республики Крым" "Крымские морские порты" "Евпаторийский торговый порт", Філія Державного унітарного підприємства "Республіки Крим" "Кримські морські порти" "Євпаторійський торговельний порт")"
+        alias: ""Євпаторійський торговельний порт""
+     - name: "Filiia Derzhavnoho unitarnoho pidpryiemstva "Respubliky Krym" "Krymski morski porty" "Ievpatoriiskyi torhovelnyi port" (Fylyal Hosudarstvennoho unytarnoho predpryiatyia "Respublyky Krym" "Krymskye morskye porty" "Evpatoryiskyi torhovyi port", Filiia Derzhavnoho unitarnoho pidpryiemstva "Respubliky Krym" "Krymski morski porty" "Ievpatoriiskyi torhovelnyi port")"
+        alias: ""Ievpatoriiskyi torhovelnyi port""
+     - name: "Derzhavne unitarne pidpryiemstvo "Navchalno-doslidnyi pleminnyi ptakhivnytskyi zavod imeni Frunze" (Hosudarstvennoe unytarnoe predpryiatye "Uchebno-opytnyi plemennoi ptytsevodcheskyi zavod ymeny Frunze", Derzhavne unitarne pidpryiemstvo "Navchalno-doslidnyi pleminnyi ptakhivnytskyi zavod imeni Frunze")"
+        alias: ""Navchalno-doslidnyi pleminnyi ptakhivnytskyi zavod imeni Frunze""
+     - name: "Федеральне державне унітарне підприємство "Ордена Трудового Червоного Прапора науково- дослідний інститут радіо" (Федеральне державне унітарне підприємство "Ордена Трудового Червоного Прапора російський науково-дослідний інститут радіо імені М.Й.Кривошєєва", Федеральное государственное унитарное предприятие "Ордена Трудового Красного Знамени российский научно-исследовательский институт радио имени М.И.Кривошеева")"
+          alias: ""Федеральне державне унітарне підприємство "Ордена Трудового Червоного Прапора науково- дослідний інститут радіо""
+     - name: "Federalne derzhavne unitarne pidpryiemstvo "Ordena Trudovoho Chervonoho Prapora naukovo- doslidnyi instytut radio" (Federalne derzhavne unitarne pidpryiemstvo "Ordena Trudovoho Chervonoho Prapora rosiiskyi naukovo-doslidnyi instytut radio imeni M.I.Kryvoshieieva", Federalnoe hosudarstvennoe unytarnoe predpryiatye "Ordena Trudovoho Krasnoho Znameny rossyiskyi nauchno-yssledovatelskyi ynstytut radyo ymeny M.Y.Kryvosheeva")"
+        alias: ""Federalne derzhavne unitarne pidpryiemstvo "Ordena Trudovoho Chervonoho Prapora naukovo- doslidnyi instytut radio""
+     - name: "Holovne upravlinnia sanatorno-kurortnykh zakladiv v Avtonomnii Respublitsi Krym Derzhavnoho upravlinnia spravamy (Terytorialne upravlinnia Upravlinnia spravamy Prezydenta Rosiiskoyi Federatsiyi v Respublitsi Krym, Terrytoryalnoe upravlenye Upravlenyia delamy Prezydenta Rossyiskoi Federatsyy v Respublyke Krym)"
+        alias: ""Holovne upravlinnia sanatorno-kurortnykh zakladiv v Avtonomnii Respublitsi Krym""
+     - name: "ДЕРЖАВНЕ ПІДПРИЄМСТВО "ВИПРОБУВАЛЬНИЙ ЦЕНТР "ОМЕГА" (Филиал федерального государственного унитарного предприятия Ордена Трудового Красного Знамени Научно-исследовательский институт радио – Севастопольский «Испытательный центр «Омега», Філія федерального державного унітарного підприємства Ордена Трудового Червоного Прапора Науково-дослідний інститут радіо – Севастопольський «Випробувальний центр «Омега»)"
+        alias: """ВИПРОБУВАЛЬНИЙ ЦЕНТР "ОМЕГА""
+     - name: "DERZhAVNE PIDPRYIeMSTVO "VYPROBUVALNYI TsENTR "OMEHA" (Fylyal federalnoho hosudarstvennoho unytarnoho predpryiatyia Ordena Trudovoho Krasnoho Znameny Nauchno-yssledovatelskyi ynstytut radyo – Sevastopolskyi «Yspytatelnyi tsentr «Omeha», Filiia federalnoho derzhavnoho unitarnoho pidpryiemstva Ordena Trudovoho Chervonoho Prapora Naukovo-doslidnyi instytut radio – Sevastopolskyi «Vyprobuvalnyi tsentr «Omeha»)"
+        alias: """VYPROBUVALNYI TSENTR "OMEHA""
+     - name: "Товариство з обмеженою відповідальністю Розрахункова небанківська кредитна організація "Платежный центр" (Общество с ограниченной ответственностью Расчётная небанковская кредитная организация "Платежный центр", Товариство з обмеженою відповідальністю Розрахункова небанківська кредитна організація "Платіжний центр")"
+        alias: ""Платежный центр""
+     - name: "Tovarystvo z obmezhenoiu vidpovidalnistiu Rozrakhunkova nebankivska kredytna orhanizatsiia "Platezhnyi tsentr" (Obshchestvo s ohranychennoi otvetstvennostiu Raschёtnaia nebankovskaia kredytnaia orhanyzatsyia "Platezhnyi tsentr", Tovarystvo z obmezhenoiu vidpovidalnistiu Rozrakhunkova nebankivska kredytna orhanizatsiia "Platizhnyi tsentr")"
+        alias: ""Platezhnyi tsentr""
+     - name: "Платіжна організація міжнародної платіжної системи "Колібрі", якою управляє публічне акціонерне товариство "Сбербанк Росії" (Платіжна організація міжнародної платіжної системи "Колібрі", якою керує публічне акціонерне товариство "Ощадбанк Росії", публичное акционерное общество "Сбербанк России", стара назва – "Бліц")"
+        alias: ""Платіжна організація міжнародної платіжної системи "Колібрі""
+     - name: "Platizhna orhanizatsiia mizhnarodnoyi platizhnoyi systemy "Kolibri", yakoiu upravliaie publichne aktsionerne tovarystvo "Sberbank Rosiyi" (Platizhna orhanizatsiia mizhnarodnoyi platizhnoyi systemy "Kolibri", yakoiu keruie publichne aktsionerne tovarystvo "Oshchadbank Rosiyi", publychnoe aktsyonernoe obshchestvo "Sberbank Rossyy", stara nazva – "Blits")"
+        alias: ""Platizhna orhanizatsiia mizhnarodnoyi platizhnoyi systemy "Kolibri""
+     - name: "Товариство з обмеженою відповідальністю "Транспортні автоматизовані інформаційні системи – ТАЇС" (Общество с ограниченной ответственностью "Транспортные автоматизированные информационные системы – ТАИС", Товариство з обмеженою відповідальністю "Транспортні автоматизовані інформаційні системи – ТАЇС")"
+        alias: ""Транспортні автоматизовані інформаційні системи – ТАЇС""
+     - name: "Tovarystvo z obmezhenoiu vidpovidalnistiu "Transportni avtomatyzovani informatsiini systemy – TAIS" (Obshchestvo s ohranychennoi otvetstvennostiu "Transportnye avtomatyzyrovannye ynformatsyonnye systemy – TAYS", Tovarystvo z obmezhenoiu vidpovidalnistiu "Transportni avtomatyzovani informatsiini systemy – TAYiS")"
+        alias: ""Transportni avtomatyzovani informatsiini systemy – TAIS""
+     - name: "Телеканали "РТР-Планета", інформаційний канал "Росія-24", які входять до структури Федерального державного унітарного підприємства "Всеросійська державна телевізійна і радіомовна компанія" (Телеканали "РТР-Планета", інформаційний канал "Росія-24", які входять до структури Федерального державного унітарного підприємства "Всеросійська державна телевізійна і радіомовна компанія", Телеканалы "РТР-Планета", информационный канал "Россия-24", которые входят в структуру Федерального государственного унитарного предприятия "Всероссийская государственная телевизионная и радиовещательная компания")"
+        alias: 
+        - "РТР-Планета"
+        - "Росія-24"
+     - name: "Telekanaly "RTR-Planeta", informatsiinyi kanal "Rosiia-24", yaki vkhodiat do struktury Federalnoho derzhavnoho unitarnoho pidpryiemstva "Vserosiiska derzhavna televiziina i radiomovna kompaniia" (Telekanaly "RTR-Planeta", informatsiinyi kanal "Rosiia-24", yaki vkhodiat do struktury Federalnoho derzhavnoho unitarnoho pidpryiemstva "Vserosiiska derzhavna televiziina i radiomovna kompaniia", Telekanaly "RTR-Planeta", ynformatsyonnyi kanal "Rossyia-24", kotorye vkhodiat v strukturu Federalnoho hosudarstvennoho unytarnoho predpryiatyia "Vserossyiskaia hosudarstvennaia televyzyonnaia y radyoveshchatelnaia kompanyia")"
+        alias: 
+        - "RTR-Planeta"
+        - "Rosiia-24"
+
   #   - contains: "1027739597819"
   #     values:
   #       - Tovarystvo z obmezhenoiu vidpovidalnistiu "Raiffaizen-Lizynh"
