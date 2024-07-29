@@ -58,6 +58,8 @@ def crawl_row(context: Context, row: Dict[str, str]):
         entity.add("notes", remarks)
         for a in alias:  # Add aliases
             entity.add("alias", a.strip())
+        for a in address:
+            entity.add("address", a.strip())
         if sanction_status == "ACTIVE":
             entity.add("topics", "sanction")
             sanction = h.make_sanction(context, entity)
