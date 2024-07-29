@@ -12,20 +12,19 @@ summary: >
   outlining individuals and groups targeted under the National Strategy and Action 
   Plan (2076-2081).
 description: |
-    Details about sanctioned entities, both individuals and 
-    organizations, as per the National Strategy and Action Plan (2076-2081) of the 
-    Government of Nepal. This list aims to elucidate measures taken to restrict activities
-    and freeze assets of those involved in terrorism, money laundering, and other unlawful 
-    acts. The list is manually curated and is not automatically updated with changes or new 
-    entries from the official regulations.
+    The list contains individuals or groups identified as prohibited by the Government of 
+    Nepal under the National Strategy and Action Plan (2076-2081) to prevent money 
+    laundering and terrorist financing. The data includes names, aliases, birth dates, 
+    birthplaces, and addresses of these prohibited individuals and groups.
 publisher:
   name: Ministry of Home Affairs, Government of Nepal
   acronym: MOHA
   description: |
-    The Ministry of Home Affairs is responsible for maintaining internal security, law 
-    and order, and handling disaster management and border affairs in Nepal. As a pivotal 
-    government body, MOHA plays a significant role in the implementation of national security 
-    strategies and regulations.
+    The Ministry of Home Affairs in Nepal, established in 2008, is responsible for managing
+    the country's internal affairs and ensuring peace, security, and good governance. It 
+    oversees 77 district administration offices, along with various departments and security 
+    agencies, operating from the central to the local level. Its main objective is to protect 
+    citizens' lives, property, and freedoms by upholding law and order.
     [Source: Official Website](https://moha.gov.np)
   country: np
   url: https://moha.gov.np
