@@ -13,7 +13,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     # Split `alias` on `;` and trim any extra whitespace
     alias = row.pop("alias").split(";")
     birth_date = h.parse_date(row.pop("date of birth"), DATE_FORMATS)
-    birth_place = row.pop("place of birth")  # .split(";")
+    birth_place = row.pop("place of birth").split(";")
     nationality = row.pop("nationality").split(";")
     pass_no = row.pop("passport no").split(";")
     national_id = row.pop("national id")
