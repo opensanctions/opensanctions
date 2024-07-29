@@ -24,6 +24,7 @@ def crawl_item(context: Context, row: Dict[str, str]):
     entity.id = context.make_id(name, link)
     entity.add("name", name)
     entity.add("topics", "sanction")
+    entity.add("topics", "crime.terror")
 
     if link:
         entity.add("sourceUrl", link)
