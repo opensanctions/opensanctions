@@ -301,7 +301,7 @@ lookups:
       - contains:
           - Сайт так званого
         prop: website
-        weight: 2 # To fix the issue when same entity contains website and notes
+        weight: 2  # To fix the issue when same entity contains website and notes
       - contains:
           - Громадянство
         prop: nationality
