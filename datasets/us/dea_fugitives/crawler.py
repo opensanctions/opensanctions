@@ -22,6 +22,7 @@ HEADERS = {
     "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 (zavod; opensanctions.org)",
 }
 
+
 def parse_table(table):
     """This function is used to parse the table of Labels and Descriptions
     about the fugitive and return as a dict.
