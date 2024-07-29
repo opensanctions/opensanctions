@@ -29,8 +29,8 @@ data:
   format: JSON
 
 lookups:
-   type.name:
-     options:
+  type.name:
+    options:
      - name: "Філія Державного унітарного підприємства "Республіки Крим" "Кримські морські порти" "Держгідрографія" (Филиал Государственного унитарного предприятия "Республики Крым" "Крымские морские порты" "Госгидрография", Філія Державного унітарного підприємства "Республіки Крим" "Кримські морські порти" "Держгідрографія")"
        alias: ""Держгідрографія""
      - name: "Filiia Derzhavnoho unitarnoho pidpryiemstva "Respubliky Krym" "Krymski morski porty" "Derzhhidrohrafiia" (Fylyal Hosudarstvennoho unytarnoho predpryiatyia "Respublyky Krym" "Krymskye morskye porty" "Hoshydrohrafyia", Filiia Derzhavnoho unitarnoho pidpryiemstva "Respubliky Krym" "Krymski morski porty" "Derzhhidrohrafiia")"
