@@ -118,7 +118,7 @@ def crawl(context: Context) -> None:
 
             # Now create a new Company entity for the agency client
             principal = context.make("LegalEntity")
-            principal.id = context.make_slug("reg", registration_number)
+            principal.id = context.make_id(registration_number, agency_client_name)
             principal.add("name", agency_client_name)
             principal.add("address", address)
             # principal.add("city", agency_client_info.get("City"))
