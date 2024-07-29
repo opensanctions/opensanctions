@@ -8,7 +8,7 @@ deploy:
   schedule: "@weekly"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  Compilatiom of entries from the Ministry of Home Affairs, Government of Nepal,
+  Compilation of entries from the Ministry of Home Affairs, Government of Nepal,
   outlining individuals and groups targeted under the National Strategy and Action 
   Plan (2076-2081).
 description: |

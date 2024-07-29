@@ -7,7 +7,7 @@ DATE_FORMATS = ["%m/%d/%Y"]
 
 
 def crawl_row(context: Context, row: Dict[str, str]):
-    internal_id = row.pop("code")
+    unscId = row.pop("code")
     entity_type = row.pop("type")
     name = row.pop("name")
     # Split `alias` on `;` and trim any extra whitespace
@@ -25,7 +25,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
     entity = None
     if entity_type == "INDIVIDUALS":
         entity = context.make("Person")
-        entity.id = context.make_id(name, birth_date, internal_id)
+        entity.id = context.make_id(name, birth_date, unscId)
         entity.add("name", name)
         for a in alias:  # Add aliases
             entity.add("alias", a.strip())
@@ -45,6 +45,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
             entity.add("topics", "sanction")
             sanction = h.make_sanction(context, entity)
             sanction.add("listingDate", listing_date)
+            sanction.add("unscId", unscId)
             context.emit(entity, target=True)
             context.emit(sanction)
         elif sanction_status == "REMOVED":
@@ -61,6 +62,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
             entity.add("topics", "sanction")
             sanction = h.make_sanction(context, entity)
             sanction.add("listingDate", listing_date)
+            sanction.add("unscId", unscId)
             context.emit(entity, target=True)
             context.emit(sanction)
         elif sanction_status == "REMOVED":
