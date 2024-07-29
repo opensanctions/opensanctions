@@ -7,22 +7,34 @@ coverage:
   frequency: never
   start: 2024-07-25
 summary: >
-  Information on suspected terrorism involvement approved by the Government of Romania and based on the UN Security Council data.
+  Information on suspected terrorism involvement approved by the Government of
+  Romania and based on the UN Security Council data.
 description: |
-  The dataset contains a list of individuals and organizations suspected of committing or funding terrorist activities. It was approved 
-  by the Government of Romania through Decision No. 1.272/2005 and is based on information from the UN Security Council. For individuals, 
-  it includes personal details such as names, dates and places of birth, nationalities, and passport numbers. For entities, the entries include 
-  names, alternate names (if any), addresses, and other relevant details. The purpose of this list is to help prevent and combat terrorism. According 
-  to the law referenced by this publication, the transfer of assets by these entities is prohibited and is to be blocked.
+  The dataset contains a list of individuals and organizations suspected of
+  committing or funding terrorist activities. It was approved by the Government
+  of Romania through Decision No. 1.272/2005 and is based on information from the
+  UN Security Council.
+
+  For individuals, it includes personal details such as names, dates and places
+  of birth, nationalities, and passport numbers. For entities, the entries include
+  names, alternate names (if any), addresses, and other relevant details.
+
+  The purpose of this list is to help prevent and combat terrorism. According to
+  the Law No. 535 of November 25, 2004 referenced by Decision No. 1.272/2005, the
+  transfer of assets by these entities is prohibited and is to be blocked.
 publisher:
   name: The National Office for the Prevention and Combating of Money Laundering of Romania 
   acronym: ONPCSB
   official: true
   description: |
-    The National Office for the Prevention and Combating of Money Laundering (ONPCSB) in Romania operates as the country's Financial Intelligence Unit. 
-    It receives, analyzes, and disseminates financial information related to money laundering and terrorist financing, ensuring compliance with European 
-    directives and coordinating national efforts to prevent financial crimes. The Office also collaborates internationally and participates in the National 
-    System for Preventing and Combating Terrorism to assess risks and prevent financing flows to terrorist groups.
+    The National Office for the Prevention and Combating of Money Laundering (ONPCSB)
+    in Romania operates as the country's Financial Intelligence Unit. It receives,
+    analyzes, and disseminates financial information related to money laundering
+    and terrorist financing, ensuring compliance with European directives and
+    coordinating national efforts to prevent financial crimes. The Office also
+    collaborates internationally and participates in the National System for Preventing
+    and Combating Terrorism to assess risks and prevent financing flows to terrorist
+    groups.
   country: ro
   url: https://www.onpcsb.ro
 

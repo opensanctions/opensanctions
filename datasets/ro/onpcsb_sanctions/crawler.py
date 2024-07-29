@@ -36,7 +36,7 @@ def crawl_row(context: Context, row: Dict[str, str]):
         entity = context.make("Person")
         entity.id = context.make_id(full_name, birth_date_1, birth_place)
         entity.add("name", full_name)
-        entity.add("alias", other_name)  # separated by comma
+        entity.add("alias", other_name)
         entity.add("birthDate", birth_date_1)
         if birth_date_2:
             entity.add("birthDate", birth_date_2)
@@ -45,7 +45,6 @@ def crawl_row(context: Context, row: Dict[str, str]):
         entity.add("nationality", [n.strip() for n in nationality.split("/")])
         entity.add("passportNumber", passport_number)
         h.copy_address(entity, address)
-        entity.add("address", address)
         entity.add("taxNumber", fiscal_code)
         entity.add("phone", phone_number)
         entity.add("position", position)
@@ -60,9 +59,8 @@ def crawl_row(context: Context, row: Dict[str, str]):
         entity = context.make("Organization")
         entity.id = context.make_id(full_name, po_box, address_1)
         entity.add("name", full_name)
-        entity.add("alias", other_name)  # separated by semicolon
+        entity.add("alias", other_name)
         h.copy_address(entity, address)
-        entity.add("address", address)
         entity.add("topics", "sanction")
         entity.add(
             "program",
