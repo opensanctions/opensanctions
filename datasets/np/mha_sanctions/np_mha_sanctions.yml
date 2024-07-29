@@ -31,7 +31,7 @@ publisher:
   official: true
 url: https://moha.gov.np/post/sanction-list-1
 data:
-  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRjmBwNMs9LjiE6_EVpcGpEeJ0-Rw1lNOcLBMYEkVSQ3o42APy9lmE3OiTBt-RMRUferY2pH6c3D7Rj/pubhtml?gid=0&single=true
+  url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRjmBwNMs9LjiE6_EVpcGpEeJ0-Rw1lNOcLBMYEkVSQ3o42APy9lmE3OiTBt-RMRUferY2pH6c3D7Rj/pub?output=csv
   file_name: source.csv
   format: csv
 assertions:
