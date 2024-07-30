@@ -18,8 +18,8 @@ def get_value(
 def parse_json(context: Context) -> Generator[dict, None, None]:
     # ** Loop through both Active and Terminated registrants **
     status_links = [
-        # "https://efile.fara.gov/api/v1/Registrants/json/Active",
-        "https://efile.fara.gov/api/v1/Registrants/json/Terminated"  # ,
+        "https://efile.fara.gov/api/v1/Registrants/json/Active",
+        "https://efile.fara.gov/api/v1/Registrants/json/Terminated",
     ]
 
     for link in status_links:
@@ -74,8 +74,8 @@ def get_agency_client(
     """Fetch agency client information for a given registration number."""
     # ** Loop through both Active and Terminated agency client links **
     agency_links = [
-        #  f"https://efile.fara.gov/api/v1/ForeignPrincipals/json/Active/{registration_number}",
-        f"https://efile.fara.gov/api/v1/ForeignPrincipals/json/Terminated/{registration_number}"  # ,
+        f"https://efile.fara.gov/api/v1/ForeignPrincipals/json/Active/{registration_number}",
+        f"https://efile.fara.gov/api/v1/ForeignPrincipals/json/Terminated/{registration_number}",
     ]
 
     for agency_url in agency_links:
@@ -116,7 +116,7 @@ def get_agency_client(
 
 
 def crawl(context: Context) -> None:
-    max_entities_to_capture = 1  # Limit to the first entity
+    max_entities_to_capture = 1000  # Limit to the first entity
     request_count = 0
 
     for item in parse_json(context):
