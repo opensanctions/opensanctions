@@ -45,8 +45,9 @@ def http_get(
                     raise AbortCrawl()
                 context.log.warn(f"Rate limit exceeded, sleeping {SLEEP}s...")
                 time.sleep(SLEEP)
-            context.log.exception("Failed to fetch data: %s" % url)
-            return None
+            else:
+                context.log.exception("Failed to fetch data: %s" % url)
+                return None
 
 
 def crawl_item(context: Context, listing: Dict[str, Any]) -> None:
