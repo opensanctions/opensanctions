@@ -1,5 +1,4 @@
 import time
-from networkx import random_powerlaw_tree_sequence
 from requests.exceptions import HTTPError
 from typing import Generator, Optional
 from zavod import Context, helpers as h
