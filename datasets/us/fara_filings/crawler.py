@@ -18,8 +18,8 @@ def get_value(
 def parse_json(context: Context) -> Generator[dict, None, None]:
     # ** Loop through both Active and Terminated registrants **
     status_links = [
-        "https://efile.fara.gov/api/v1/Registrants/json/Active",
-        "https://efile.fara.gov/api/v1/Registrants/json/Terminated",
+        # "https://efile.fara.gov/api/v1/Registrants/json/Active",
+        "https://efile.fara.gov/api/v1/Registrants/json/Terminated"
     ]
 
     for link in status_links:
@@ -28,12 +28,22 @@ def parse_json(context: Context) -> Generator[dict, None, None]:
         # Check the response status
         if response.status_code == 200:
             data = response.json()
-            # Check if "REGISTRANTS_ACTIVE" and "ROW" keys exist
+            # ** Update parsing logic for both Active and Terminated registrants **
             if "REGISTRANTS_ACTIVE" in data and "ROW" in data["REGISTRANTS_ACTIVE"]:
                 registrants = data["REGISTRANTS_ACTIVE"]["ROW"]
                 context.log.info(f"Fetched {len(registrants)} results from {link}.")
                 for item in registrants:
                     yield item
+
+            elif (
+                "REGISTRANTS_TERMINATED" in data
+                and "ROW" in data["REGISTRANTS_TERMINATED"]
+            ):
+                registrants = data["REGISTRANTS_TERMINATED"]["ROW"]
+                context.log.info(
+                    f"Fetched {len(registrants)} terminated results from {link}."
+                )
+                yield registrants  # Note: This might need to be further adjusted based on the data structure
             else:
                 context.log.info("No data found in the expected format.")
         elif response.status_code == 400:
@@ -59,8 +69,8 @@ def get_agency_client(
     """Fetch agency client information for a given registration number."""
     # ** Loop through both Active and Terminated agency client links **
     agency_links = [
-        f"https://efile.fara.gov/api/v1/ForeignPrincipals/json/Active/{registration_number}",
-        f"https://efile.fara.gov/api/v1/ForeignPrincipals/json/Terminated/{registration_number}",
+        # f"https://efile.fara.gov/api/v1/ForeignPrincipals/json/Active/{registration_number}",
+        f"https://efile.fara.gov/api/v1/ForeignPrincipals/json/Terminated/{registration_number}"
     ]
 
     for agency_url in agency_links:
@@ -73,6 +83,11 @@ def get_agency_client(
                 and "ROW" in data["FOREIGNPRINCIPALS_ACTIVE"]
             ):
                 return data["FOREIGNPRINCIPALS_ACTIVE"]["ROW"]
+            elif (
+                "FOREIGNPRINCIPALS_TERMINATED" in data
+                and "ROW" in data["FOREIGNPRINCIPALS_TERMINATED"]
+            ):
+                return data["FOREIGNPRINCIPALS_TERMINATED"]["ROW"]
             else:
                 context.log.info(
                     f"No agency client found for registration number {registration_number}."
@@ -97,7 +112,7 @@ def get_agency_client(
 
 
 def crawl(context: Context) -> None:
-    max_entities_to_capture = 10  # Limit to the first entity
+    max_entities_to_capture = 3  # Limit to the first entity
     request_count = 0
 
     for item in parse_json(context):
@@ -191,4 +206,4 @@ def crawl(context: Context) -> None:
             break  # Exit after capturing the first 5 entities
 
         # Wait for 15 seconds before the next request
-        time.sleep(15)
+        time.sleep(12)
