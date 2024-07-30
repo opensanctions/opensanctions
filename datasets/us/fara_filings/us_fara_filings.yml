@@ -1,0 +1,29 @@
+title: "Foreign Agents Registration Act"
+url: https://efile.fara.gov/ords/fara/f?p=107:21
+entry_point: crawler.py
+prefix: us-fara
+ci_test: false
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+coverage:
+  frequency: daily
+  start: 2024-07-29
+summary: >
+   The US Foreign Agents Registration Act (FARA) dataset provides information about entities 
+   and individuals registered under the FARA act.
+description: |
+   Detailed information on entities and individuals who are registered under the US Foreign
+   Agents Registration Act (FARA).
+publisher:
+  name: United States Department of Justice
+  acronym: DOJ
+  official: true
+  description: |
+     The United States Department of Justice is a federal executive department of the U.S. 
+     government tasked with the enforcement of federal law and administration of justice in 
+     the United States.
+  country: us
+  url: https://www.justice.gov/
+
+data:
+  url: https://efile.fara.gov/api/v1/Registrants/json/Active
+  format: json
