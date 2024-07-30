@@ -51,7 +51,8 @@ publisher:
   official: true
 url: https://find-and-update.company-information.service.gov.uk/register-of-disqualifications/A
 data:
-  url: https://api.companieshouse.gov.uk/search/disqualified-officers
+  url: https://api.company-information.service.gov.uk/search/disqualified-officers
+  # url: https://api-sandbox.company-information.service.gov.uk/search/disqualified-officers
   format: json
 
 lookups:

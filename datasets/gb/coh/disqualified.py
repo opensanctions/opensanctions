@@ -16,10 +16,6 @@ class AbortCrawl(Exception):
 
 API_KEY = os.environ.get("OPENSANCTIONS_COH_API_KEY", "")
 AUTH = (API_KEY, "")
-SEARCH_URL = (
-    "https://api.company-information.service.gov.uk/search/disqualified-officers"
-)
-# SEARCH_URL = "https://api-sandbox.company-information.service.gov.uk/search/disqualified-officers"
 API_URL = "https://api.company-information.service.gov.uk/"
 WEB_URL = "https://find-and-update.company-information.service.gov.uk/register-of-disqualifications/A"
 SLEEP = 315
@@ -153,7 +149,7 @@ def crawl(context: Context) -> None:
                     "start_index": str(start_index),
                     "items_per_page": "100",
                 }
-                data = http_get(context, SEARCH_URL, params=params, cache_days=5)
+                data = http_get(context, context.data_url, params=params, cache_days=5)
                 if data is None:
                     break
                 context.log.info("Search: %s" % letter, start_index=start_index)
