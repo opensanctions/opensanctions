@@ -1,5 +1,4 @@
 from datetime import datetime
-import random
 from time import sleep
 from typing import Optional
 
@@ -11,7 +10,8 @@ from zavod.logic.pep import OccupancyStatus, categorise
 
 DEKLARACIJA_ID_RANGE = range(301_730, 637_217)
 # sample 50 for dev purposes
-#DEKLARACIJA_ID_RANGE = random.sample(DEKLARACIJA_ID_RANGE, 5000)
+# import random
+# DEKLARACIJA_ID_RANGE = random.sample(DEKLARACIJA_ID_RANGE, 5000)
 GUEST_ID = 9179496
 
 
@@ -36,7 +36,7 @@ class PinregSession:
             )
         except HTTPError as ex:
             response = ex.response.json()
-            if status_code := response.pop("status") == 404:
+            if response.pop("status") == 404:
                 self.context.log.debug(f"deklaracija {id_str} does not exist")
             else:
                 raise
@@ -55,9 +55,8 @@ def make_person(context: Context, declaration_id: int, data: dict) -> Entity:
     h.apply_name(person, first_name=first_name, last_name=last_name)
     person.add("birthDate", birth_date)
     person.add("legalForm", data.pop("asmensTipas", None))
-    # context.audit_data(data, ignore=[
-    #    "yraJuridinisAsmuo",  # is legal person
-    # ])
+    person.add("sourceUrl", f"https://pinreg.vtek.lt/app/pid-perziura/{declaration_id}")
+    context.audit_data(data)
     return person
 
 
@@ -136,15 +135,18 @@ def parse_affiliations(
             )
             if occupancy:
                 entities.append((position, occupancy))
-        context.audit_data(affiliation, [
-            "privaluDeklaruoti",  # must declare
-            "yraJuridinisAsmuo",  # is legal person
-            "jaKodas",  # code
-            "darbovietesTipas",  # workplace type
-            "duomenuSaltiniai",  # data sources
-            "uzpildytaAutomatiskai",  # filled automatically
-            "jaTeisinesFormosPavadinimas",  # legal form
-        ])
+        context.audit_data(
+            affiliation,
+            [
+                "privaluDeklaruoti",  # must declare
+                "yraJuridinisAsmuo",  # is legal person
+                "jaKodas",  # code
+                "darbovietesTipas",  # workplace type
+                "duomenuSaltiniai",  # data sources
+                "uzpildytaAutomatiskai",  # filled automatically
+                "jaTeisinesFormosPavadinimas",  # legal form
+            ],
+        )
     return entities
 
 
@@ -202,10 +204,10 @@ def crawl(context: Context) -> None:
                 "kitiDuomenys",  # other data
                 "kitiDuomenysFa",  # other data
                 "teikejasYraIstaigosDarbuotojas",  # declarant is an employee of the institution
-                #"deklaracijosAtsiradesGalimasRysys",  # possible relationship
+                "deklaracijosAtsiradesGalimasRysys",  # possible relationship
                 "senosPidId",  # old PID ID
                 "teikimoPriezastys",  # reasons for submission
-                #"deklaracijosFaRysiai",  # relationships
+                "deklaracijosFaRysiai",  # relationships
                 "yraNaujausiaVersija",  # newest version
                 "deklaracijosIndividualiosVeiklos",  # individual activities
             ],

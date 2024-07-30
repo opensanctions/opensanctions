@@ -1,20 +1,29 @@
-title: Lithuanian PEPs from the register of private interests
+title: Lithuania PEPs from the register of private interests
 entry_point: crawler.py
 prefix: lt-pinreg
 coverage:
   frequency: monthly
-  start: "2024-04-01"
+  start: "2024-07-31"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: |
-  Lithuanian PEPs, their declared affiliations, the positions
-  they've held, and those of their spouse.
+  Lithuanian PEPs based on official declarations of personal interests.
 description: |
-  Placeholder
+  The Law on Harmonization of Public and Private Interests Article 2, Paragraph 5
+  and Article 4, Paragraph 3 require persons in positions that can influence the
+  decisions of state institutions to declare their private interests.
+
+  The [list of roles required to submit declarations](https://vtek.lt/privaciu-interesu-deklaravimas/kas-turi-deklaruoti/)
+  includes state politicians, party leadership, public servants, judges, and even
+  medical personnel in positions of influence in their institutions.
 publisher:
   name: Lithuanian Chief Official Ethics Commission
+  acronym: VTEK
   url: https://vtek.lt/
   official: true
   country: "lt"
+  description: >
+    Supreme Official Ethics Commission (VTEK) works to ensure that public institutions
+    and the persons working in them ethically serve the people.
 url: https://pinreg.vtek.lt/app/
 data:
   url: https://pinreg.vtek.lt/app/deklaraciju-paieska
