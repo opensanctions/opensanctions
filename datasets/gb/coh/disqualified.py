@@ -4,7 +4,7 @@ import string
 from itertools import count
 from typing import Dict, Any, Optional
 from urllib.parse import urljoin
-from requests.exceptions import HTTPError, RequestException, RetryError
+from requests.exceptions import HTTPError, RetryError
 
 from zavod import Context
 from zavod import helpers as h
@@ -39,19 +39,13 @@ def http_get(
                 auth=AUTH,
                 cache_days=cache_days,
             )
-        except RetryError as rer:
-            if attempt > 5:
-                raise AbortCrawl()
-            context.log.warn(f"Rate limit exceeded ({rer}), sleeping {SLEEP}s...")
-            time.sleep(SLEEP)
-        except HTTPError as err:
-            if err.response.status_code == 429 or "429" in str(err):
+        except (RetryError, HTTPError) as err:
+            if isinstance(err, RetryError) or err.response.status_code == 429:
                 if attempt > 5:
                     raise AbortCrawl()
                 context.log.warn(
                     f"Rate limit exceeded, sleeping {SLEEP}s...",
-                    error=err.response.text,
-                    status=err.response.status_code,
+                    error=str(err),
                 )
                 time.sleep(SLEEP)
             else:
@@ -89,18 +83,18 @@ def crawl_item(context: Context, listing: Dict[str, Any]) -> None:
         person.add("nationality", nationality.split(","))
     person.add("birthDate", data.pop("date_of_birth", None))
 
-    address = listing.get("address", {})
+    address_data = listing.get("address", {}) or {}
     address = h.make_address(
         context,
         full=listing.get("address_snippet"),
-        street=address.get("address_line_1"),
-        street2=address.get("premises"),
-        city=address.get("locality"),
-        postal_code=address.get("postal_code"),
-        region=address.get("region"),
+        street=address_data.get("address_line_1"),
+        street2=address_data.get("premises"),
+        city=address_data.get("locality"),
+        postal_code=address_data.get("postal_code"),
+        region=address_data.get("region"),
         # country_code=person.first("nationality"),
     )
-    h.apply_address(context, person, address)
+    h.copy_address(person, address)
 
     for disqual in data.pop("disqualifications", []):
         case_id = disqual.get("case_identifier")
@@ -116,15 +110,15 @@ def crawl_item(context: Context, listing: Dict[str, Any]) -> None:
         sanction.add("country", "gb")
         context.emit(sanction)
 
-        address = disqual.get("address", {})
+        address_data = disqual.get("address", {}) or {}
         address = h.make_address(
             context,
             full=listing.get("address_snippet"),
-            street=address.get("address_line_1"),
-            street2=address.get("premises"),
-            city=address.get("locality"),
-            postal_code=address.get("postal_code"),
-            region=address.get("region"),
+            street=address_data.get("address_line_1"),
+            street2=address_data.get("premises"),
+            city=address_data.get("locality"),
+            postal_code=address_data.get("postal_code"),
+            region=address_data.get("region"),
             # country_code=person.first("nationality"),
         )
 
@@ -135,7 +129,7 @@ def crawl_item(context: Context, listing: Dict[str, Any]) -> None:
             company.add("jurisdiction", "gb")
             # company.add("topics", "crime")
             context.emit(company)
-            h.apply_address(context, company, address)
+            h.copy_address(company, address)
 
             directorship = context.make("Directorship")
             directorship.id = context.make_id(person.id, company.id)
@@ -166,7 +160,7 @@ def crawl(context: Context) -> None:
                 for item in data.pop("items", []):
                     crawl_item(context, item)
                 start_index = data["start_index"] + data["items_per_page"]
-                if data["total_results"] < start_index:
+                if data["total_results"] < start_index or start_index >= 1000:
                     break
     except AbortCrawl:
         context.log.info("Rate limit exceeded, aborting.")

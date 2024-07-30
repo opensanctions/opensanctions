@@ -67,4 +67,9 @@ lookups:
       - match: 
           - Other
           - Not Known
+          - Unknown
         value: null
+      - match: Botswanan
+        value: Botswana
+      - match: Citizen Of Seychelles
+        value: Seychelles
