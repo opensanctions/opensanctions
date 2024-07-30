@@ -145,7 +145,7 @@ def crawl(context: Context) -> None:
                 context.log.info("Search: %s" % letter, start_index=start_index)
                 for item in data.pop("items", []):
                     crawl_item(context, item)
-                    time.sleep(1.5)
+                    time.sleep(3)
                 start_index = data["start_index"] + data["items_per_page"]
                 if data["total_results"] < start_index:
                     break
