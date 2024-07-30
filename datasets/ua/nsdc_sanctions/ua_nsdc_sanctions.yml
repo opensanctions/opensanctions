@@ -33,7 +33,7 @@ lookups:
     options:
       - match: "Філія Державного унітарного підприємства \"Республіки Крим\" \"Кримські морські порти\" \"Держгідрографія\" (Филиал Государственного унитарного предприятия \"Республики Крым\" \"Крымские морские порты\" \"Госгидрография\", Філія Державного унітарного підприємства \"Республіки Крим\" \"Кримські морські порти\" \"Держгідрографія\")"
         values: 
-         - Філія Державного унітарного підприємства \"Республіки Крим\" \"Кримські морські порти\" \"Держгідрографія\"
+          - Філія Державного унітарного підприємства \"Республіки Крим\" \"Кримські морські порти\" \"Держгідрографія\"
           - Филиал Государственного унитарного предприятия \"Республики Крым\" \"Крымские морские порты\" \"Госгидрография\"
       - match: "Filiia Derzhavnoho unitarnoho pidpryiemstva \"Respubliky Krym\" \"Krymski morski porty\" \"Derzhhidrohrafiia\" (Fylyal Hosudarstvennoho unytarnoho predpryiatyia \"Respublyky Krym\" \"Krymskye morskye porty\" \"Hoshydrohrafyia\", Filiia Derzhavnoho unitarnoho pidpryiemstva \"Respubliky Krym\" \"Krymski morski porty\" \"Derzhhidrohrafiia\")"
         values: 
@@ -95,9 +95,9 @@ lookups:
           - Філія федерального державного унітарного підприємства Ордена Трудового Червоного Прапора Науково-дослідний інститут радіо – Севастопольський «Випробувальний центр «Омега»
       - match: "DERZhAVNE PIDPRYIeMSTVO \"VYPROBUVALNYI TsENTR \"OMEHA\" (Fylyal federalnoho hosudarstvennoho unytarnoho predpryiatyia Ordena Trudovoho Krasnoho Znameny Nauchno-yssledovatelskyi ynstytut radyo – Sevastopolskyi «Yspytatelnyi tsentr «Omeha», Filiia federalnoho derzhavnoho unitarnoho pidpryiemstva Ordena Trudovoho Chervonoho Prapora Naukovo-doslidnyi instytut radio – Sevastopolskyi «Vyprobuvalnyi tsentr «Omeha»)"
         values:
-        - DERZhAVNE PIDPRYIeMSTVO \"VYPROBUVALNYI TsENTR \"OMEHA\"
-        - Fylyal federalnoho hosudarstvennoho unytarnoho predpryiatyia Ordena Trudovoho Krasnoho Znameny Nauchno-yssledovatelskyi ynstytut radyo – Sevastopolskyi «Yspytatelnyi tsentr «Omeha»
-        - Filiia federalnoho derzhavnoho unitarnoho pidpryiemstva Ordena Trudovoho Chervonoho Prapora Naukovo-doslidnyi instytut radio – Sevastopolskyi «Vyprobuvalnyi tsentr «Omeha»
+          - DERZhAVNE PIDPRYIeMSTVO \"VYPROBUVALNYI TsENTR \"OMEHA\"
+          - Fylyal federalnoho hosudarstvennoho unytarnoho predpryiatyia Ordena Trudovoho Krasnoho Znameny Nauchno-yssledovatelskyi ynstytut radyo – Sevastopolskyi «Yspytatelnyi tsentr «Omeha»
+          - Filiia federalnoho derzhavnoho unitarnoho pidpryiemstva Ordena Trudovoho Chervonoho Prapora Naukovo-doslidnyi instytut radio – Sevastopolskyi «Vyprobuvalnyi tsentr «Omeha»
       - match: "Товариство з обмеженою відповідальністю Розрахункова небанківська кредитна організація \"Платежный центр\" (Общество с ограниченной ответственностью Расчётная небанковская кредитная организация \"Платежный центр\", Товариство з обмеженою відповідальністю Розрахункова небанківська кредитна організація \"Платіжний центр\")"
         values:
           - Товариство з обмеженою відповідальністю Розрахункова небанківська кредитна організація \"Платежный центр\"
@@ -118,8 +118,8 @@ lookups:
           - Общество с ограниченной ответственностью \"Транспортные автоматизированные информационные системы – ТАИС\"
       - match: "Tovarystvo z obmezhenoiu vidpovidalnistiu \"Transportni avtomatyzovani informatsiini systemy – TAIS\" (Obshchestvo s ohranychennoi otvetstvennostiu \"Transportnye avtomatyzyrovannye ynformatsyonnye systemy – TAYS\", Tovarystvo z obmezhenoiu vidpovidalnistiu \"Transportni avtomatyzovani informatsiini systemy – TAYiS\")"
         values:
-         - Tovarystvo z obmezhenoiu vidpovidalnistiu \"Transportni avtomatyzovani informatsiini systemy – TAIS\"
-         - Obshchestvo s ohranychennoi otvetstvennostiu \"Transportnye avtomatyzyrovannye ynformatsyonnye systemy – TAYS\"
+          - Tovarystvo z obmezhenoiu vidpovidalnistiu \"Transportni avtomatyzovani informatsiini systemy – TAIS\"
+          - Obshchestvo s ohranychennoi otvetstvennostiu \"Transportnye avtomatyzyrovannye ynformatsyonnye systemy – TAYS\"
       - match: "Телеканали \"РТР-Планета\", інформаційний канал \"Росія-24\", які входять до структури Федерального державного унітарного підприємства \"Всеросійська державна телевізійна і радіомовна компанія\" (Телеканали \"РТР-Планета\", інформаційний канал \"Росія-24\", які входять до структури Федерального державного унітарного підприємства \"Всеросійська державна телевізійна і радіомовна компанія\", Телеканалы \"РТР-Планета\", информационный канал \"Россия-24\", которые входят в структуру Федерального государственного унитарного предприятия \"Всероссийская государственная телевизионная и радиовещательная компания\")"
         values:  
           - "РТР-Планета"
