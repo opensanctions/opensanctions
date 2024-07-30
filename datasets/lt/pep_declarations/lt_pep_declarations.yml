@@ -1,6 +1,6 @@
-title: Lithuanian PEP Affiliation Declarations
+title: Lithuanian PEPs from the register of private interests
 entry_point: crawler.py
-prefix: lt-pep-declarations
+prefix: lt-pinreg
 coverage:
   frequency: monthly
   start: "2024-04-01"
@@ -15,7 +15,7 @@ publisher:
   url: https://vtek.lt/
   official: true
   country: "lt"
-url:
+url: https://pinreg.vtek.lt/app/
 data:
   url: https://pinreg.vtek.lt/app/deklaraciju-paieska
   format: JSON

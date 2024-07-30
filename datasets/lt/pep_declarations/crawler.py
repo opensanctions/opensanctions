@@ -36,7 +36,7 @@ class PinregSession:
         except HTTPError as ex:
             response = ex.response.json()
             if status_code := response.pop("status") == 404:
-                self.context.log.info(f"deklaracija {id_str} does not exist")
+                self.context.log.debug(f"deklaracija {id_str} does not exist")
             else:
                 self.context.log.error(
                     f"deklaracija {id_str} skipped due to {status_code} error."
