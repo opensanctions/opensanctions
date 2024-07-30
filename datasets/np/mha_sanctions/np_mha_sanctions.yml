@@ -1,4 +1,4 @@
-title: List of Prohibited Persons or Groups in the National Strategy and Action Plan (2076-2081) of the Government of Nepal
+title: Nepal Prohibited Persons or Groups according per National Strategy and Action Plan (2076-2081)
 entry_point: crawler.py
 prefix: np-mha
 coverage:
@@ -8,9 +8,9 @@ deploy:
   schedule: "@weekly"
 load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
-  Compilation of entries from the Ministry of Home Affairs, Government of Nepal,
-  outlining individuals and groups targeted under the National Strategy and Action 
-  Plan (2076-2081).
+  List of Prohibited Persons or Groups in the National Strategy and Action Plan of the 
+  Government of Nepal for Prevention of Money Laundering and Financial Investment in Terrorist 
+  Activities (2076-2081)
 description: |
     The list contains individuals or groups identified as prohibited by the Government of 
     Nepal under the National Strategy and Action Plan (2076-2081) to prevent money 

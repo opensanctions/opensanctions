@@ -41,13 +41,13 @@ def crawl_row(context: Context, row: Dict[str, str]):
         for a in address:
             entity.add("address", address)
         entity.add("notes", remarks)
+        sanction = h.make_sanction(context, entity)
+        sanction.add("listingDate", listing_date)
+        sanction.add("unscId", unsc_id)
+        context.emit(sanction)
         if sanction_status == "ACTIVE":
             entity.add("topics", "sanction")
-            sanction = h.make_sanction(context, entity)
-            sanction.add("listingDate", listing_date)
-            sanction.add("unscId", unsc_id)
             context.emit(entity, target=True)
-            context.emit(sanction)
         elif sanction_status == "REMOVED":
             context.emit(entity, target=False)
 
@@ -60,13 +60,13 @@ def crawl_row(context: Context, row: Dict[str, str]):
             entity.add("alias", a.strip())
         for a in address:
             entity.add("address", a.strip())
+        sanction = h.make_sanction(context, entity)
+        sanction.add("listingDate", listing_date)
+        sanction.add("unscId", unsc_id)
+        context.emit(sanction)
         if sanction_status == "ACTIVE":
             entity.add("topics", "sanction")
-            sanction = h.make_sanction(context, entity)
-            sanction.add("listingDate", listing_date)
-            sanction.add("unscId", unsc_id)
             context.emit(entity, target=True)
-            context.emit(sanction)
         elif sanction_status == "REMOVED":
             context.emit(entity, target=False)
     else:
