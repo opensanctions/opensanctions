@@ -19,7 +19,7 @@ def parse_json(context: Context) -> Generator[dict, None, None]:
     # ** Loop through both Active and Terminated registrants **
     status_links = [
         # "https://efile.fara.gov/api/v1/Registrants/json/Active",
-        "https://efile.fara.gov/api/v1/Registrants/json/Terminated"
+        "https://efile.fara.gov/api/v1/Registrants/json/Terminated"  # ,
     ]
 
     for link in status_links:
@@ -35,15 +35,22 @@ def parse_json(context: Context) -> Generator[dict, None, None]:
                 for item in registrants:
                     yield item
 
-            elif (
-                "REGISTRANTS_TERMINATED" in data
-                and "ROW" in data["REGISTRANTS_TERMINATED"]
-            ):
-                registrants = data["REGISTRANTS_TERMINATED"]["ROW"]
-                context.log.info(
-                    f"Fetched {len(registrants)} terminated results from {link}."
-                )
-                yield registrants  # Note: This might need to be further adjusted based on the data structure
+            elif "REGISTRANTS_TERMINATED" in data:
+                # Handling for Terminated registrants (check list format)
+                terminated_data = data["REGISTRANTS_TERMINATED"].get("ROW")
+                if isinstance(terminated_data, list):
+                    context.log.info(
+                        f"Fetched {len(terminated_data)} terminated results from {link}."
+                    )
+                    for item in terminated_data:
+                        yield item
+                else:
+                    # If ROW is not a list, yield directly if it's a dictionary
+                    context.log.info(
+                        "No detailed terminated records found. Check the structure."
+                    )
+                    yield terminated_data
+
             else:
                 context.log.info("No data found in the expected format.")
         elif response.status_code == 400:
@@ -60,8 +67,6 @@ def parse_json(context: Context) -> Generator[dict, None, None]:
                 f"Unexpected status code: {response.status_code}, {response.text}"
             )
 
-    return None
-
 
 def get_agency_client(
     context: Context, registration_number: Optional[str]
@@ -69,8 +74,8 @@ def get_agency_client(
     """Fetch agency client information for a given registration number."""
     # ** Loop through both Active and Terminated agency client links **
     agency_links = [
-        # f"https://efile.fara.gov/api/v1/ForeignPrincipals/json/Active/{registration_number}",
-        f"https://efile.fara.gov/api/v1/ForeignPrincipals/json/Terminated/{registration_number}"
+        #  f"https://efile.fara.gov/api/v1/ForeignPrincipals/json/Active/{registration_number}",
+        f"https://efile.fara.gov/api/v1/ForeignPrincipals/json/Terminated/{registration_number}"  # ,
     ]
 
     for agency_url in agency_links:
@@ -107,12 +112,11 @@ def get_agency_client(
             )
         # ** Break the loop and return if we found a valid response **
         return None
-
     return None
 
 
 def crawl(context: Context) -> None:
-    max_entities_to_capture = 3  # Limit to the first entity
+    max_entities_to_capture = 1  # Limit to the first entity
     request_count = 0
 
     for item in parse_json(context):
@@ -168,7 +172,6 @@ def crawl(context: Context) -> None:
                 DATE_FORMAT,
             )
             p_termination_date = h.parse_date(
-                # ** Corrected the way to parse termination date **
                 agency_client_info.get("Foreign_principal_termination_date"),
                 DATE_FORMAT,
             )
@@ -187,6 +190,7 @@ def crawl(context: Context) -> None:
 
             # Emit the new agency client entity
             context.emit(principal)
+
         context.emit(company)
 
         if company and principal:
