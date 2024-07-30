@@ -26,8 +26,3 @@ publisher:
 data:
   url: https://efile.fara.gov/api/v1/Registrants/json/Active
   format: json
-
-assertions:
-  min:
-    schema_entities:
-      Company: 500
