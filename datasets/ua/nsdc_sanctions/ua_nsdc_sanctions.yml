@@ -118,16 +118,15 @@ lookups:
           - Общество с ограниченной ответственностью \"Транспортные автоматизированные информационные системы – ТАИС\"
       - match: "Tovarystvo z obmezhenoiu vidpovidalnistiu \"Transportni avtomatyzovani informatsiini systemy – TAIS\" (Obshchestvo s ohranychennoi otvetstvennostiu \"Transportnye avtomatyzyrovannye ynformatsyonnye systemy – TAYS\", Tovarystvo z obmezhenoiu vidpovidalnistiu \"Transportni avtomatyzovani informatsiini systemy – TAYiS\")"
         values:
-          - Tovarystvo z obmezhenoiu vidpovidalnistiu \"Transportni avtomatyzovani informatsiini systemy – TAIS\"
-          - Obshchestvo s ohranychennoi otvetstvennostiu \"Transportnye avtomatyzyrovannye ynformatsyonnye systemy – TAYS\"
+         - Tovarystvo z obmezhenoiu vidpovidalnistiu \"Transportni avtomatyzovani informatsiini systemy – TAIS\"
+         - Obshchestvo s ohranychennoi otvetstvennostiu \"Transportnye avtomatyzyrovannye ynformatsyonnye systemy – TAYS\"
       - match: "Телеканали \"РТР-Планета\", інформаційний канал \"Росія-24\", які входять до структури Федерального державного унітарного підприємства \"Всеросійська державна телевізійна і радіомовна компанія\" (Телеканали \"РТР-Планета\", інформаційний канал \"Росія-24\", які входять до структури Федерального державного унітарного підприємства \"Всеросійська державна телевізійна і радіомовна компанія\", Телеканалы \"РТР-Планета\", информационный канал \"Россия-24\", которые входят в структуру Федерального государственного унитарного предприятия \"Всероссийская государственная телевизионная и радиовещательная компания\")"
         values:  
           - "РТР-Планета"
           - "Росія-24"
           - "Россия-24"
-        values: 
       - match: "Telekanaly \"RTR-Planeta\", informatsiinyi kanal \"Rosiia-24\", yaki vkhodiat do struktury Federalnoho derzhavnoho unitarnoho pidpryiemstva \"Vserosiiska derzhavna televiziina i radiomovna kompaniia\" (Telekanaly \"RTR-Planeta\", informatsiinyi kanal \"Rosiia-24\", yaki vkhodiat do struktury Federalnoho derzhavnoho unitarnoho pidpryiemstva \"Vserosiiska derzhavna televiziina i radiomovna kompaniia\", Telekanaly \"RTR-Planeta\", ynformatsyonnyi kanal \"Rossyia-24\", kotorye vkhodiat v strukturu Federalnoho hosudarstvennoho unytarnoho predpryiatyia \"Vserossyiskaia hosudarstvennaia televyzyonnaia y radyoveshchatelnaia kompanyia\")"
-        value: 
+        values: 
           - "RTR-Planeta"
           - "Rosiia-24"
           - "Rossyia-24"
