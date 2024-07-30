@@ -1,28 +1,40 @@
 import time
-from requests.exceptions import HTTPError
-from typing import Generator, Optional
+from itertools import count
+from requests.exceptions import HTTPError, RetryError
+from typing import Any, Dict, Generator, Optional
 from zavod import Context, helpers as h
 
+SLEEP = 5
 DATE_FORMAT = ["%m/%d/%Y"]
+
+
+def http_get(
+    context: Context,
+    url,
+    cache_days: Optional[int] = None,
+) -> Optional[Dict[str, Any]]:
+    for attempt in count(1):
+        try:
+            return context.fetch_json(url, cache_days=cache_days)
+        except (RetryError, HTTPError) as err:
+            if isinstance(err, RetryError) or err.response.status_code == 429:
+                if attempt > 5:
+                    raise RuntimeError("Rate limit exceeded.")
+                context.log.warn(
+                    f"Rate limit exceeded, sleeping {SLEEP}s...",
+                    error=str(err),
+                )
+                time.sleep(SLEEP * 5)
+            else:
+                context.log.exception("Failed to fetch data: %s" % url)
+                return None
 
 
 def fetch_registrants(context: Context) -> Generator[dict, None, None]:
     # ** Loop through both Active and Terminated registrants **
-    status_links = [
-        "https://efile.fara.gov/api/v1/Registrants/json/Active",
-        "https://efile.fara.gov/api/v1/Registrants/json/Terminated",
-    ]
-
-    for link in status_links:
-        # Use fetch_json to get the response
-        try:
-            data = context.fetch_json(link, cache_days=1)
-        except HTTPError as err:
-            context.log.error(f"Failed to fetch data from {link}: {err}")
-            if err.response.status_code == 429:
-                time.sleep(10)
-            return
-
+    for status in ("Active", "Terminated"):
+        url = f"https://efile.fara.gov/api/v1/Registrants/json/{status}"
+        data = http_get(context, url, cache_days=1)
         # Check if data is a dictionary
         if not isinstance(data, dict):
             context.log.error("Response data is not in the expected dictionary format.")
@@ -41,22 +53,14 @@ def fetch_registrants(context: Context) -> Generator[dict, None, None]:
 def fetch_principals(
     context: Context, registration_number: Optional[str]
 ) -> Generator[dict, None, None]:
-    """Fetch agency client information for a given registration number."""
-    # ** Loop through both Active and Terminated agency client links **
+    """Fetch principal information for a given registration number."""
+    # ** Loop through both Active and Terminated principals links **
 
     for status, days in (("Active", 5), ("Terminated", 180)):
         url = f"https://efile.fara.gov/api/v1/ForeignPrincipals/json/{status}/{registration_number}"
-        try:
-            data = context.fetch_json(url, cache_days=days)
-        except HTTPError as err:
-            context.log.error(f"Failed to fetch data for principals using URL: {url}.")
-            if err.response.status_code == 429:
-                time.sleep(10)
-            return
+        data = http_get(context, url, cache_days=1)
         if not isinstance(data, dict):
-            context.log.error(
-                f"Failed to fetch data for agency client using URL: {url}."
-            )
+            context.log.error(f"Failed to fetch data for principals: {url}.")
             return
 
         principals = data.get("FOREIGNPRINCIPALS_ACTIVE")
@@ -102,6 +106,8 @@ def crawl(context: Context) -> None:
 
         context.audit_data(item)
         context.emit(company)
+
+        context.log.info(f"Fetching principals for {registration_number}...")
 
         # Fetch agency client information
         for principal_item in fetch_principals(context, registration_number):
@@ -153,11 +159,4 @@ def crawl(context: Context) -> None:
             )
             context.emit(representation)
 
-        # # Increment request count and wait
-        # request_count += 1
-        # if request_count >= max_entities_to_capture:
-        #     context.log.info("Captured the maximum number of entities.")
-        #     break  # Exit after capturing the first 5 entities
-
-        # Wait for 15 seconds before the next request
-        time.sleep(2)
+        time.sleep(SLEEP)
