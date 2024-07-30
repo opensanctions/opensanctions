@@ -4,7 +4,7 @@ import string
 from itertools import count
 from typing import Dict, Any, Optional
 from urllib.parse import urljoin
-from requests.exceptions import HTTPError
+from requests.exceptions import HTTPError, RequestException, RetryError
 
 from zavod import Context
 from zavod import helpers as h
@@ -39,11 +39,20 @@ def http_get(
                 auth=AUTH,
                 cache_days=cache_days,
             )
+        except RetryError as rer:
+            if attempt > 5:
+                raise AbortCrawl()
+            context.log.warn(f"Rate limit exceeded ({rer}), sleeping {SLEEP}s...")
+            time.sleep(SLEEP)
         except HTTPError as err:
-            if err.response.status_code in (429, 416):
-                if attempt > 3:
+            if err.response.status_code == 429 or "429" in str(err):
+                if attempt > 5:
                     raise AbortCrawl()
-                context.log.warn(f"Rate limit exceeded, sleeping {SLEEP}s...")
+                context.log.warn(
+                    f"Rate limit exceeded, sleeping {SLEEP}s...",
+                    error=err.response.text,
+                    status=err.response.status_code,
+                )
                 time.sleep(SLEEP)
             else:
                 context.log.exception("Failed to fetch data: %s" % url)
@@ -152,7 +161,7 @@ def crawl(context: Context) -> None:
                 }
                 data = http_get(context, SEARCH_URL, params=params, cache_days=5)
                 if data is None:
-                    return
+                    break
                 context.log.info("Search: %s" % letter, start_index=start_index)
                 for item in data.pop("items", []):
                     crawl_item(context, item)

@@ -64,5 +64,7 @@ lookups:
     lowercase: true
     normalize: true
     options:
-      - match: Other
+      - match: 
+          - Other
+          - Not Known
         value: null
