@@ -1,0 +1,32 @@
+title: "CBP Withhold Release Orders and Findings"
+url: https://www.cbp.gov/trade/forced-labor/withhold-release-orders-and-findings
+entry_point: crawler.py
+prefix: cbp-forced-labor
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+coverage:
+  frequency: daily
+  start: 2024-07-05
+summary: >
+  The CBP provides a list of Withhold Release Orders (WROs) related to imports that may 
+  involve forced labor.
+description: |
+  The CBP Withhold Release Orders and Findings dataset includes information about specific 
+  shipments and products that may be tainted by forced labor practices. The data provides 
+  details such as the company name, product description, and date of issuance of the order.
+publisher:
+  name: U.S. Customs and Border Protection
+  acronym: CBP
+  official: true
+  description: |
+    The CBP is a unified border agency within the Department of Homeland Security (DHS) charged 
+    with the regulation and facilitation of international trade, collection of import duties, and 
+    enforcement of U.S. trade laws.
+country: us
+url: https://www.cbp.gov/
+data:
+  url: https://www.cbp.gov/trade/forced-labor/withhold-release-orders-and-findings
+  format: html
+assertions:
+  min:
+    schema_entities:
+      Company: 200
