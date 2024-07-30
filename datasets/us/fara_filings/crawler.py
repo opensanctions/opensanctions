@@ -76,9 +76,6 @@ def fetch_principals(
 
 
 def crawl(context: Context) -> None:
-    max_entities_to_capture = 5  # Limit to the first entity
-    request_count = 0
-
     for item in fetch_registrants(context):
         # Extract relevant fields from each item
         address = h.make_address(
