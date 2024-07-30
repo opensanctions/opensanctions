@@ -58,7 +58,11 @@ def crawl_row(context: Context, row: Dict[str, str]):
                 number = p_parts[1].strip()
                 # Create an identification object associated with the entity
                 passport = h.make_identification(
-                    context, entity=entity, country=country, number=number, passport=True
+                    context,
+                    entity=entity,
+                    country=country,
+                    number=number,
+                    passport=True,
                 )
                 if passport is not None:
                     context.emit(passport)
