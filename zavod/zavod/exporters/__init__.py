@@ -1,4 +1,6 @@
-from typing import List, Dict, Type, Set
+from typing import List, Dict, Type, Set, DefaultDict
+from collections import defaultdict
+from time import time
 
 from zavod.logs import get_logger
 from zavod.store import View
@@ -53,6 +55,7 @@ def export_data(context: Context, view: View) -> None:
         exporter_names.update(DEFAULT_EXPORTERS)
     exporter_names.add(StatisticsExporter.FILE_NAME)
     exporters: List[Exporter] = []
+    timings: DefaultDict[str, float] = defaultdict(float)
     for name in exporter_names:
         clazz = EXPORTERS.get(name)
         if clazz is None:
@@ -72,8 +75,13 @@ def export_data(context: Context, view: View) -> None:
         if idx > 0 and idx % 10000 == 0:
             log.info("Exported %s entities..." % idx, dataset=context.dataset.name)
         for exporter in exporters:
+            t1 = time()
             exporter.feed(entity)
+            t2 = time()
+            timings[type(exporter).__name__] += t2 - t1
 
+    for exporter, seconds in timings.items():
+        log.info("Exporter %s took %.2f seconds" % (exporter, seconds))
     for exporter in exporters:
         exporter.finish()
 
