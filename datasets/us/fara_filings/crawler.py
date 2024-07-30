@@ -124,7 +124,7 @@ def get_agency_client(
             )
         else:
             context.log.error(
-                f"Response is not in expected dictionary format for agency client."
+                "Response is not in expected dictionary format for agency client."
             )
 
     return None
