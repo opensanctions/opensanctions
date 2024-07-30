@@ -23,18 +23,17 @@ def parse_json(context: Context) -> Generator[dict, None, None]:
     ]
 
     for link in status_links:
-        response = context.http.get(link)
+        # Use fetch_json to get the response
+        data = context.fetch_json(link, cache_days=1)
 
-        # Check the response status
-        if response.status_code == 200:
-            data = response.json()
+        # Check if data is a dictionary
+        if isinstance(data, dict):
             # ** Update parsing logic for both Active and Terminated registrants **
             if "REGISTRANTS_ACTIVE" in data and "ROW" in data["REGISTRANTS_ACTIVE"]:
                 registrants = data["REGISTRANTS_ACTIVE"]["ROW"]
                 context.log.info(f"Fetched {len(registrants)} results from {link}.")
                 for item in registrants:
                     yield item
-
             elif "REGISTRANTS_TERMINATED" in data:
                 # Handling for Terminated registrants (check list format)
                 terminated_data = data["REGISTRANTS_TERMINATED"].get("ROW")
@@ -50,22 +49,32 @@ def parse_json(context: Context) -> Generator[dict, None, None]:
                         "No detailed terminated records found. Check the structure."
                     )
                     yield terminated_data
-
             else:
                 context.log.info("No data found in the expected format.")
-        elif response.status_code == 400:
-            context.log.error(f"Bad request: {response.status_code}, {response.text}")
-        elif response.status_code == 429:
-            context.log.error(
-                f"Too Many Requests: {response.status_code}, {response.text}"
-            )
-            time.sleep(10)  # Wait for the window to reset
-        elif response.status_code == 500:
-            context.log.error(f"Server error: {response.status_code}, {response.text}")
         else:
-            context.log.error(
-                f"Unexpected status code: {response.status_code}, {response.text}"
-            )
+            context.log.error("Response data is not in the expected dictionary format.")
+
+        # Error handling based on expected status codes
+        if data is None:  # Handle cases where fetch_json might return None
+            context.log.error("Failed to fetch data, received None.")
+        elif isinstance(data, dict):
+            if data.get("status_code") == 400:
+                context.log.error(
+                    f"Bad request: {data['status_code']}, {data.get('text')}"
+                )
+            elif data.get("status_code") == 429:
+                context.log.error(
+                    f"Too Many Requests: {data['status_code']}, {data.get('text')}"
+                )
+                time.sleep(10)  # Wait for the window to reset
+            elif data.get("status_code") == 500:
+                context.log.error(
+                    f"Server error: {data['status_code']}, {data.get('text')}"
+                )
+            else:
+                context.log.error(
+                    f"Unexpected status code: {data.get('status_code')}, {data.get('text')}"
+                )
 
 
 def get_agency_client(
@@ -79,44 +88,50 @@ def get_agency_client(
     ]
 
     for agency_url in agency_links:
-        response = context.http.get(agency_url)
-        if response.status_code == 200:
-            data = response.json()
-            # Check if "FOREIGNPRINCIPALS_ACTIVE" and "ROW" keys exist
-            if (
-                "FOREIGNPRINCIPALS_ACTIVE" in data
-                and "ROW" in data["FOREIGNPRINCIPALS_ACTIVE"]
-            ):
-                return data["FOREIGNPRINCIPALS_ACTIVE"]["ROW"]
-            elif (
-                "FOREIGNPRINCIPALS_TERMINATED" in data
-                and "ROW" in data["FOREIGNPRINCIPALS_TERMINATED"]
-            ):
-                return data["FOREIGNPRINCIPALS_TERMINATED"]["ROW"]
+        data = context.fetch_json(
+            agency_url, cache_days=1
+        )  # Use fetch_json to get the response
+
+        # ** Check if data is a dictionary **
+        if isinstance(data, dict):
+            # ** Check for Active and Terminated Foreign Principals **
+            if "FOREIGNPRINCIPALS_ACTIVE" in data:
+                if isinstance(data["FOREIGNPRINCIPALS_ACTIVE"]["ROW"], list):
+                    return data["FOREIGNPRINCIPALS_ACTIVE"]["ROW"][
+                        0
+                    ]  # Return the first item if it's a list
+                return data["FOREIGNPRINCIPALS_ACTIVE"]["ROW"]  # Return the dictionary
+
+            elif "FOREIGNPRINCIPALS_TERMINATED" in data:
+                if isinstance(data["FOREIGNPRINCIPALS_TERMINATED"]["ROW"], list):
+                    return data["FOREIGNPRINCIPALS_TERMINATED"]["ROW"][
+                        0
+                    ]  # Return the first item if it's a list
+                return data["FOREIGNPRINCIPALS_TERMINATED"][
+                    "ROW"
+                ]  # Return the dictionary
+
             else:
                 context.log.info(
                     f"No agency client found for registration number {registration_number}."
                 )
                 return None
-        elif response.status_code == 400:
+
+        # ** Handle cases where fetch_json might return None or not a dictionary **
+        if data is None:
             context.log.error(
-                f"Bad request for agency client: {response.status_code}, {response.text}"
+                f"Failed to fetch data for agency client using URL: {agency_url}. Received None."
             )
-        elif response.status_code == 404:
+        else:
             context.log.error(
-                f"Agency client not found for registration number {registration_number}."
+                f"Response is not in expected dictionary format for agency client."
             )
-        elif response.status_code == 500:
-            context.log.error(
-                f"Server error while fetching agency client: {response.status_code}, {response.text}"
-            )
-        # ** Break the loop and return if we found a valid response **
-        return None
+
     return None
 
 
 def crawl(context: Context) -> None:
-    max_entities_to_capture = 1000  # Limit to the first entity
+    max_entities_to_capture = 1  # Limit to the first entity
     request_count = 0
 
     for item in parse_json(context):
