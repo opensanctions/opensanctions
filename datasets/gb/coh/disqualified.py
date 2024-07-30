@@ -1,6 +1,7 @@
 import os
+import time
 import string
-from typing import Optional, Dict, Any
+from typing import Dict, Any
 from urllib.parse import urljoin
 from requests.exceptions import HTTPError
 
@@ -14,36 +15,19 @@ class AbortCrawl(Exception):
 
 API_KEY = os.environ.get("OPENSANCTIONS_COH_API_KEY", "")
 AUTH = (API_KEY, "")
-SEARCH_URL = "https://api.companieshouse.gov.uk/search/disqualified-officers"
-API_URL = "https://api.companieshouse.gov.uk/"
-WEB_URL = "https://beta.companieshouse.gov.uk/register-of-disqualifications/A"
-
-
-def http_get(
-    context: Context,
-    url,
-    params: Optional[Dict[str, Any]] = None,
-    cache_days: Optional[int] = None,
-) -> Optional[Dict[str, Any]]:
-    try:
-        return context.fetch_json(
-            url,
-            params=params,
-            auth=AUTH,
-            cache_days=cache_days,
-        )
-    except HTTPError as err:
-        if err.response.status_code in (429, 416):
-            raise AbortCrawl()
-        context.log.info("HTTP error: %r", err)
-        return None
+SEARCH_URL = (
+    "https://api.company-information.service.gov.uk/search/disqualified-officers"
+)
+# SEARCH_URL = "https://api-sandbox.company-information.service.gov.uk/search/disqualified-officers"
+API_URL = "https://api.company-information.service.gov.uk/"
+WEB_URL = "https://find-and-update.company-information.service.gov.uk/register-of-disqualifications/A"
 
 
 def crawl_item(context: Context, listing: Dict[str, Any]) -> None:
     links = listing.get("links", {})
     url = urljoin(API_URL, links.get("self"))
     try:
-        data = context.fetch_json(url, auth=AUTH, cache_days=14)
+        data = context.fetch_json(url, auth=AUTH, cache_days=45)
     except HTTPError as err:
         if err.response.status_code in (429, 416):
             raise AbortCrawl()
@@ -62,12 +46,13 @@ def crawl_item(context: Context, listing: Dict[str, Any]) -> None:
     source_url = urljoin(WEB_URL, links.get("self"))
     person.add("sourceUrl", source_url)
 
-    last_name = data.pop("surname", None)
-    person.add("lastName", last_name)
-    forename = data.pop("forename", None)
-    person.add("firstName", forename)
-    other_forenames = data.pop("other_forenames", None)
-    person.add("middleName", other_forenames)
+    h.apply_name(
+        person,
+        first_name=data.pop("forename", None),
+        last_name=data.pop("surname", None),
+        middle_name=data.pop("other_forenames", None),
+        lang="eng",
+    )
     person.add("title", data.pop("title", None))
 
     nationality = data.pop("nationality", None)
@@ -150,16 +135,17 @@ def crawl(context: Context) -> None:
                         SEARCH_URL,
                         params=params,
                         auth=AUTH,
-                        cache_days=4,
+                        cache_days=10,
                     )
                 except HTTPError as err:
                     if err.response.status_code in (429, 416):
                         raise AbortCrawl()
                     context.log.exception("HTTP error: %s" % SEARCH_URL)
                     break
-                data = http_get(context, SEARCH_URL, params=params)
+                context.log.info("Search: %s" % letter, start_index=start_index)
                 for item in data.pop("items", []):
                     crawl_item(context, item)
+                    time.sleep(1.5)
                 start_index = data["start_index"] + data["items_per_page"]
                 if data["total_results"] < start_index:
                     break
