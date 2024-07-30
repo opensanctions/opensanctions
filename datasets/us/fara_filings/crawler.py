@@ -164,4 +164,4 @@ def crawl(context: Context) -> None:
         #     break  # Exit after capturing the first 5 entities
 
         # Wait for 15 seconds before the next request
-        time.sleep(1)
+        time.sleep(2)
