@@ -1,3 +1,17 @@
+"""
+# Occasional issues:
+
+## Crawl completes but fewer than asserted entities are emitted.
+
+Running the crawler locally the next day results in the expected number
+of entities being emitted.
+
+The crawl runs to the same number of pages (1231 in querystring) as usual.
+It's not clear whether entities are removed and then new entities added by
+the time we check the issue, or whether there's a bug. Keeping an eye on this
+for a bit longer (2024-07-31)
+"""
+
 from typing import Generator, Dict, Tuple, Optional
 from lxml.etree import _Element, tostring
 from normality import collapse_spaces, slugify
