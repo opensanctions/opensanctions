@@ -43,6 +43,8 @@ data:
   url: https://datos.cplt.cl/catalogos/infoprobidad/csvdeclaraciones
   format: csv
 
+ci_test: false
+
 lookups:
   positions:
     options:
