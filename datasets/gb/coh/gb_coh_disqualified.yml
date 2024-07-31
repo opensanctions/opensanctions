@@ -69,8 +69,16 @@ lookups:
           - Other
           - Not Known
           - Unknown
+          - Not Disclosed
         value: null
       - match: Botswanan
         value: Botswana
       - match: Citizen Of Seychelles
         value: Seychelles
+      - match: 
+          - Brithish
+        value: Great Britain
+  type.date:
+    options:
+      - match: "3018-12-12"
+        value: "2018-12-12"
