@@ -36,11 +36,18 @@ def crawl_common(
     context: Context, subject_id: str, entity: Entity, item: Dict[str, Any]
 ) -> None:
     name = item.pop("name")
-    if check_name(context, entity, subject_id, name):
-        entity.add("name", name, lang="ukr")
-    name_translit = item.pop("translit")
-    if check_name(context, entity, subject_id, name_translit):
-        entity.add("name", name_translit, lang="eng")
+    name_result = context.lookup("name", name)
+    if name_result:
+        names = name_result.values
+        for name in names:
+            if check_name(context, entity, subject_id, name):
+                entity.add("name", name)
+    else:
+        if check_name(context, entity, subject_id, name):
+            entity.add("name", name, lang="ukr")
+        name_translit = item.pop("translit")
+        if check_name(context, entity, subject_id, name_translit):
+            entity.add("name", name_translit, lang="eng")
 
     identifiers = item.pop("identifiers") or []
     for ident in identifiers:
@@ -158,8 +165,10 @@ def crawl_legal(context: Context, item: Dict[str, Any]) -> None:
 
 
 def crawl(context: Context) -> None:
-    for item in fetch_data(context, "/v2/subjects?subjectType=individual"):
-        crawl_indiviudal(context, item)
+    #for item in fetch_data(context, "/v2/subjects?subjectType=individual"):
+    #    crawl_indiviudal(context, item)
 
     for item in fetch_data(context, "/v2/subjects?subjectType=legal"):
+        if item.get("sid") != 10048:
+            continue
         crawl_legal(context, item)
