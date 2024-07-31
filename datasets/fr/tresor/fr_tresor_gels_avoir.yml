@@ -4262,7 +4262,6 @@ lookups:
           - Khatam al-Anbiya Construction Headquarters (KAA)
         props:
           legalForm: entreprise publique
-        props:
           jurisdiction: ir
       - match: "Lieu d'enregistrement: Mashad, Iran - Date d'enregistrement: 1993 - Établissement principal: Mashad, Iran: /"
         props:
