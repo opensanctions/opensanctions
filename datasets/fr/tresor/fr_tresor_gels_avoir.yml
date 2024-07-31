@@ -4304,7 +4304,7 @@ lookups:
           websites:
             - pouyaair.com
             - yasair.com
-          legalForm: compagnie aérienne de fret
+          sector: compagnie aérienne de fret
       - match: "Lieu d'enregistrement: Téhéran, Iran: Établissement principal: Iran"
         props:
           jurisdiction: ir
