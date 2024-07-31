@@ -94,12 +94,21 @@ class LocalEnricher(Enricher):
             same_id_match = self._view.get_entity(entity.id)
             if same_id_match is not None:
                 yield self.entity_from_statements(type(entity), same_id_match)
-
-        for rank, (match_id, index_score) in enumerate(self._index.match(store_type_entity)):
+        search_results = self._index.match(store_type_entity)
+        for rank, (match_id, index_score) in enumerate(search_results):
             judgement = self.resolver.get_judgement(match_id, entity.id)
             if judgement == Judgement.POSITIVE:
-                log.info("Rank %r score %.1f %s for %s", rank, index_score, match_id.id, entity.id)
+                log.info("Pos rank %r score %.1f %s for %s", rank, index_score, match_id.id, entity.id)
                 self.ranks[rank].add(match_id)
+                if rank > 10:
+                    log.info("")
+                    log.info(entity.to_dict())
+                    for match_id_, index_score_ in search_results:
+                        entity_ = self._view.get_entity(match_id_.id)
+                        log.info("Cand rank %r score %.1f %s %r", rank, index_score_, match_id_.id, entity.get("name"))
+                        if match_id == match_id_:
+                             log.info("^^^^^")
+                    log.info("")
 
             match = self._view.get_entity(match_id.id)
             if match is None:
