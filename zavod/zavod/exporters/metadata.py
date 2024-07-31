@@ -114,7 +114,7 @@ def get_catalog_dataset(dataset: Dataset) -> Dict[str, Any]:
         log.error("No index file found", dataset=dataset.name, report_issue=False)
     meta.update(dataset.to_opensanctions_dict())
     if len(meta["resources"]) == 0:
-        log.warn("Dataset has no resources", dataset=dataset.name)
+        log.info("Dataset has no resources", dataset=dataset.name)
     return meta
 
 

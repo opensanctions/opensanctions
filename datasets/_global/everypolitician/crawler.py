@@ -10,7 +10,7 @@ from zavod.logic.pep import categorise
 
 
 PHONE_SPLITS = [",", "/", "(1)", "(2)", "(3)", "(4)", "(5)", "(6)", "(7)", "(8)"]
-PHONE_REMOVE = re.compile("(ex|ext|extension|fax|tel|\:|\-)", re.IGNORECASE)
+PHONE_REMOVE = re.compile(r"(ex|ext|extension|fax|tel|\:|\-)", re.IGNORECASE)
 
 
 def clean_emails(emails):

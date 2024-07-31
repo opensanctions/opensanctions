@@ -5,7 +5,7 @@ import re
 
 from zavod import helpers as h
 
-REGEX_PATTERN = re.compile("(.+)\((.+)\)(.+)")
+REGEX_PATTERN = re.compile(r"(.+)\((.+)\)(.+)")
 
 
 def crawl_person(context: Context, cell: html.HtmlElement):
