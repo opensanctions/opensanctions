@@ -1,4 +1,5 @@
 from collections import defaultdict
+from decimal import Decimal
 import logging
 from typing import Generator, List, Tuple, Type
 from followthemoney.types import registry
@@ -74,6 +75,7 @@ class LocalEnricher(Enricher):
         self._limit = int(config.pop("limit", 5))
         self.resolver = get_resolver()
         self.ranks = defaultdict(set)
+        self.rounded_score_ranks = defaultdict(set)
 
 
     def entity_from_statements(self, class_: Type[CE], entity: CompositeEntity) -> CE:
@@ -95,17 +97,27 @@ class LocalEnricher(Enricher):
             if same_id_match is not None:
                 yield self.entity_from_statements(type(entity), same_id_match)
         search_results = self._index.match(store_type_entity)
+        last_rounded_score = None
+        score_group = 0
         for rank, (match_id, index_score) in enumerate(search_results):
+            rounded_score = round(Decimal(index_score), 0)
+            if rounded_score != last_rounded_score:
+                score_group += 1
+                last_rounded_score = rounded_score
+            #if score_group > 10:
+            #    break
             judgement = self.resolver.get_judgement(match_id, entity.id)
             if judgement == Judgement.POSITIVE:
-                log.info("Pos rank %r score %.1f %s for %s", rank, index_score, match_id.id, entity.id)
+                log.info("Pos group %r rank %r score %.1f %s for %s", score_group, rank, index_score, match_id.id, entity.id)
                 self.ranks[rank].add(match_id)
+                self.rounded_score_ranks[score_group].add(match_id)
+
                 if rank > 10:
                     log.info("")
                     log.info(entity.to_dict())
-                    for match_id_, index_score_ in search_results:
+                    for rank_, (match_id_, index_score_) in enumerate(search_results):
                         entity_ = self._view.get_entity(match_id_.id)
-                        log.info("Cand rank %r score %.1f %s %r", rank, index_score_, match_id_.id, entity.get("name"))
+                        log.info("Cand rank %r score %.1f %s %r", rank_, index_score_, match_id_.id, entity_.get("name"))
                         if match_id == match_id_:
                              log.info("^^^^^")
                     log.info("")
@@ -162,3 +174,5 @@ class LocalEnricher(Enricher):
     def log_ranks(self):
         for rank, matches in sorted(self.ranks.items()):
             log.info("Rank %r %r %r", rank, len(matches), [i.id for i in list(matches)[:3]])
+        for group, matches in sorted(self.rounded_score_ranks.items()):
+            log.info("Score group %r %r %r", group, len(matches), [i.id for i in list(matches)[:3]])
