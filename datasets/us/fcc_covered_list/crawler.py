@@ -54,7 +54,7 @@ def crawl(context: Context):
     table = doc.xpath('.//div[contains(@class, "page-body")]')[0]
     h.assert_dom_hash(
         table,
-        "c47d35f846646698c9a61a43c31916c1eff4724b",
+        "8c0f889c0e7e0110f84f3c481e2055108c60c2c8",
     )
 
     path = context.fetch_resource("source.csv", context.data_url)

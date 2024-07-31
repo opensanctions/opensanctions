@@ -991,3 +991,7 @@ lookups:
         names:
           - Wisteria Global Inc.
           - Hiroshi Fujigami
+      - match: terraform labs pte ltd. and do hyeong kwon
+        names:
+          - Terraform Labs Pte Ltd.
+          - Do Hyeong Kwon

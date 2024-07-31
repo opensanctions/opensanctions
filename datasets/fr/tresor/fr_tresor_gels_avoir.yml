@@ -4182,3 +4182,16 @@ lookups:
         props:
           jurisdiction: ir
           incorporationDate: 2014
+      - match: "Type d’entité: gang haïtien opérant principalement dans les départements de l’Artibonite et du Nord-Ouest: /"
+        props:
+          description: gang haïtien
+          address: "départements de l’Artibonite et du Nord-Ouest"
+      - match: "Type d’entité: centre de rétention - Lieu d’enregistrement: Comté d’Onsong, province de Hamgyong du Nord, République populaire démocratique de Corée (RPDC): /"
+        props:
+          jurisdiction: kp
+          description: centre de rétention
+          address: "Comté d’Onsong, province de Hamgyong du Nord, République populaire démocratique de Corée (RPDC)"
+      - match: "Date de création: 15.12.2023 - Lieu de création: Kenya: /"
+        props:
+          jurisdiction: ke
+          incorporationDate: 2023-12-15

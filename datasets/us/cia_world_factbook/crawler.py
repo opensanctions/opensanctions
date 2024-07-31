@@ -27,7 +27,7 @@ REGEX_SKIP_CATEGORY_HTML = re.compile(
     "|note [1-6]:.+"  # Afghanistan
     ")"
 )
-REGEX_RELEVANT_CATEGORY = re.compile("^(chief of state|head of government): ")
+REGEX_RELEVANT_CATEGORY = re.compile(r"^(chief of state|head of government): ")
 REGEX_HOLDER = re.compile(
     (
         "((New Zealand is )?represented by )?"
