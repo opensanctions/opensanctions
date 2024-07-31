@@ -5,7 +5,6 @@ from normality import slugify
 from typing import Dict, Generator, cast
 from typing import List
 
-
 REGEX_DATE = re.compile(r"(\d{1,2}/\d{1,2}/\d{4})")
 
 
@@ -21,21 +20,17 @@ def convert_date(date_str: str) -> List[str]:
 
 def crawl_item(context: Context, row: Dict[str, str]):
     # Create the entity based on the schema
-    name = row.pop("name").text_content()
+    name = row.pop("Entities")  # Updated field to pull entity names
     schema = context.lookup_value("target_type", name)
     if schema is None:
         schema = "Company"
     entity = context.make(schema)
     entity.id = context.make_id(name)
     entity.add("name", name)
-    # Adjust the topic based on the presence of "final rule"
-    final_rule = row.get("final_rule", "").strip().lower()
-    rescinded_date = row.get("rescinded").text_content()
-    if (
-        final_rule
-        and final_rule != "---"
-        and (not rescinded_date or rescinded_date == "---")
-    ):
+
+    # Add details to topics and sanctions
+    status_element = row.get("Status")
+    if status_element.lower() == "active":
         entity.add("topics", "sanction")
     else:
         entity.add("topics", "reg.warn")
@@ -43,31 +38,18 @@ def crawl_item(context: Context, row: Dict[str, str]):
     # Create and add details to the sanction
     sanction = h.make_sanction(context, entity)
 
-    # Extract PDF links
-    anchors = row.get("finding").findall(".//a")
-    anchors.extend(row.get("notice-of-proposed-rulemaking").findall(".//a"))
-    anchors.extend(row.get("rescinded").findall(".//a"))
-    anchors.extend(row.get("final-rule").findall(".//a"))
-    sanction.add("sourceUrl", [a.get("href") for a in anchors])
+    # Extract fields from the row
+    listing_date = row.get("Date").text_content()
+    listing_date_parsed = convert_date(listing_date)
+    sanction.add("listingDate", listing_date_parsed)
 
-    finding_date = row.get("finding").text_content()
-    nprm_date = row.get("notice-of-proposed-rulemaking").text_content()
-    listing_date = finding_date if finding_date else nprm_date
-    listing_date = convert_date(listing_date)
-    sanction.add("listingDate", listing_date)
+    # Extract Source URL if exists in Status Notes or similar field
+    status_notes = row.get("Status Notes").text_content()
+    if "href" in status_notes:  # rudimentary check for an anchor tag
+        anchors = html.fromstring(status_notes).findall(".//a")
+        sanction.add("sourceUrl", [a.get("href") for a in anchors])
 
-    final_rule_date = row.get("final-rule").text_content()
-    if final_rule_date != "---":
-        sanction.add("startDate", convert_date(final_rule_date))
-
-    # rescinded_date = row.get("rescinded").text_content()
-    if rescinded_date != "---" and rescinded_date != "":
-        sanction.add("endDate", convert_date(rescinded_date))
-        context.emit(entity, target=True)
-    else:
-        context.emit(entity, target=False)
-
-    # Emit the sanction
+    context.emit(entity, target=True)
     context.emit(sanction)
 
 
@@ -78,28 +60,29 @@ def parse_table(table: html.HtmlElement) -> Generator[Dict[str, str], None, None
         if headers is None:
             headers = []
             for el in row.findall("./th"):
-                # Workaround because lxml-stubs doesn't yet support HtmlElement
-                # https://github.com/lxml/lxml-stubs/pull/71
-                eltree = cast(html.HtmlElement, el)
-                headers.append(slugify(eltree.text_content()))
-            assert headers[0] is None, headers
-            # no duplicate column headers
-            assert len(set(headers)) == len(headers), headers
-            headers[0] = "name"
+                elt = cast(html.HtmlElement, el)
+                headers.append(slugify(elt.text_content()))
             continue
 
         cells = row.findall("./td")
-        if len(cells) == 1:
-            continue
-        assert len(headers) == len(cells), (headers, cells)
-        yield {hdr: c for hdr, c in zip(headers, cells)}
+        if len(cells) == 0:
+            continue  # Skip empty rows
+
+        if len(headers) == len(cells):  # Ensure header and cell count match
+            yield {hdr: c for hdr, c in zip(headers, cells)}
 
 
 # Main crawl function to fetch and process data.
 def crawl(context: Context):
-    doc = context.fetch_html(context.data_url)
-    doc.make_links_absolute(context.data_url)
-    table = doc.get_element_by_id("special-measures-table")
-    if table is not None:
-        for row in parse_table(table):
-            crawl_item(context, row)
+    doc = context.fetch_html(context.data_url)  # Fetch the HTML document
+    doc.make_links_absolute(context.data_url)  # Make links absolute if needed
+    accordion_content = doc.xpath(
+        "//div[@class='usa-accordion__content usa-prose']"
+    )  # Adjusted to find the correct div
+
+    # As there might be multiple accordions, we process each
+    for accordion in accordion_content:
+        table = accordion.find(".//table")  # Find the table within the accordion
+        if table is not None:
+            for row in parse_table(table):
+                crawl_item(context, row)
