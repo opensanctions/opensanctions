@@ -43,7 +43,6 @@ def crawl_common(
         for name in names:
             if check_name(context, entity, subject_id, name):
                 entity.add("name", name)
-                print(entity)
     else:
         if check_name(context, entity, subject_id, name):
             entity.add("name", name, lang="ukr")
@@ -171,20 +170,20 @@ def crawl(context: Context) -> None:
     #     crawl_indiviudal(context, item)
     for item in fetch_data(context, "/v2/subjects?subjectType=legal"):
         sids = [
-            10048,
+            # 10048,
             15605,
-            15604,
-            15603,
-            15602,
-            15601,
-            15583,
-            13138,
-            10346,
-            10339,
-            10257,
-            10256,
-            10255,
-            10048,
+            # 15604,
+            # 15603,
+            # 15602,
+            # 15601,
+            # 15583,
+            # 13138,
+            # 10346,
+            # 10339,
+            # 10257,
+            # 10256,
+            # 10255,
+            # 10048,
         ]
         for sid in sids:
             if item.get("sid") != sid:
