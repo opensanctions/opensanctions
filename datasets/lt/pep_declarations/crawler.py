@@ -1,5 +1,4 @@
 from datetime import datetime
-from time import sleep
 from typing import Optional
 
 from requests import HTTPError
@@ -9,12 +8,13 @@ from zavod import helpers as h
 from zavod.logic.pep import OccupancyStatus, categorise
 
 DEKLARACIJA_ID_RANGE = range(301_730, 1_000_000)
+# We'll stop after MAX_GAP consecutive 404s
+MAX_GAP = 200
 # sample 50 for dev purposes
 # import random
 # DEKLARACIJA_ID_RANGE = random.sample(DEKLARACIJA_ID_RANGE, 5000)
 GUEST_ID = 9179496
-# We'll stop after MAX_GAP consecutive 404s
-MAX_GAP = 200
+
 
 class PinregSession:
     """object for interactacting with PINREG portal"""
