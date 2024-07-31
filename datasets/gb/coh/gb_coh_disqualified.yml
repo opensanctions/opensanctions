@@ -43,7 +43,7 @@ publisher:
   name: The Insolvency Service
   acronym: CoH
   description: >
-    Tthe Insolvency Service is an executive agency, sponsored by the Department
+    The Insolvency Service is an executive agency, sponsored by the Department
     for Business, Energy & Industrial Strategy. It is responsible for
     bankruptcies, but also the handling of financial wrong-doing.
   url: https://www.gov.uk/government/organisations/insolvency-service
@@ -51,7 +51,8 @@ publisher:
   official: true
 url: https://find-and-update.company-information.service.gov.uk/register-of-disqualifications/A
 data:
-  url: https://api.companieshouse.gov.uk/search/disqualified-officers
+  url: https://api.company-information.service.gov.uk/search/disqualified-officers
+  # url: https://api-sandbox.company-information.service.gov.uk/search/disqualified-officers
   format: json
 
 lookups:
@@ -64,5 +65,12 @@ lookups:
     lowercase: true
     normalize: true
     options:
-      - match: Other
+      - match: 
+          - Other
+          - Not Known
+          - Unknown
         value: null
+      - match: Botswanan
+        value: Botswana
+      - match: Citizen Of Seychelles
+        value: Seychelles

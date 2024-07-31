@@ -1,0 +1,47 @@
+title: "Foreign Agents Registration Act"
+url: https://efile.fara.gov/ords/fara/f?p=107:21
+entry_point: crawler.py
+prefix: us-fara
+ci_test: false
+load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
+coverage:
+  frequency: daily
+  start: 2024-07-29
+summary: >
+   The US Foreign Agents Registration Act (FARA) dataset provides information about entities 
+   and individuals registered under the FARA act.
+description: |
+   The Foreign Agents Registration Act (FARA) was established in 1938. FARA mandates that 
+   certain agents of foreign principals engaged in political or other specified activities 
+   must regularly disclose their relationship with the foreign principal, as well as their 
+   activities, finances, and expenditures related to those activities. This disclosure allows 
+   the government and the American people to assess the activities of these individuals as 
+   foreign agents.
+publisher:
+  name: United States Department of Justice
+  acronym: DOJ
+  official: true
+  description: |
+     The United States Department of Justice is a federal executive department of the U.S. 
+     government tasked with the enforcement of federal law and administration of justice in 
+     the United States. It's led by the U.S. Attorney General, is dedicated to upholding the 
+     rule of law, ensuring safety, and protecting civil rights. With over 115,000 employees and 
+     more than 40 component organizations, the Department operates from its headquarters in 
+     Washington, D.C., and maintains field offices across all U.S. states and territories, as 
+     well as in over 50 countries worldwide. 
+  country: us
+  url: https://www.justice.gov/
+
+data:
+  url: https://efile.fara.gov/api/v1/Registrants/json/Active
+  format: json
+
+assertions:
+  min:
+    schema_entities:
+      Company: 6820
+      LegalEntity: 17130
+  max:
+    schema_entities:
+      Person: 6850
+      LegalEntity: 17200

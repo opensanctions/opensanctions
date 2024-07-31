@@ -1,3 +1,15 @@
+"""
+# Occasional issues:
+
+## 500 Server Error: SPARQL Request Failed for url: https://datos.cplt.cl/catalogos/infoprobidad/csvdeclaraciones
+
+This happens for a few days, then it goes away again for a few weeks.
+
+We've emailed them about it, but since it comes back from time to time, it's probably
+related to how their data grows, and who knows whether someone takes action or it
+just fixes itself. Give it a few days.
+"""
+
 from rigour.mime.types import CSV
 from urllib.parse import urlparse
 from typing import Dict
