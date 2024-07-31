@@ -2299,7 +2299,7 @@ lookups:
           website:
             - http://pouyaair.com
             - http://yasair.com
-          legalForm: compagnie aérienne de fret
+          sector: compagnie aérienne de fret
       - match:
           "Type d’entité: filiale de l’Organisation des industries aérospatiales (AIO):
           /"
