@@ -4200,50 +4200,47 @@ lookups:
           jurisdiction: ir
           legalForm: entreprise publique
       - match: "Entités associées: Ammunition and Metallurgy Industries Group [Groupe des industries des munitions et de la métallurgie] (AMIG); ministère de la défense et de la logistique des forces armées (MODAFL); Defense Industries Organization [Organisation des industries de la défense] (DIO): /"
-        props:
-          associates:
-            - Ammunition and Metallurgy Industries Group
-            - ministère de la défense et de la logistique des forces armées
-            - Defense Industries Organization
+        associates:
+          - Ammunition and Metallurgy Industries Group
+          - ministère de la défense et de la logistique des forces armées
+          - Defense Industries Organization
       - match: "Ali Akbar Tabatabaei (IRGC); Azim Aghajani (IRGC) - Entités associées: Corps des gardiens de la révolution islamique (IRGC): Personnes associées"
-        props:
-          associates:
-            - Ali Akbar Tabatabaei (IRGC)
-            - Azim Aghajani(IRGC)
-            - Corps des gardiens de la révolution islamique (IRGC)
+        associates:
+          - Ali Akbar Tabatabaei (IRGC)
+          - Azim Aghajani(IRGC)
+          - Corps des gardiens de la révolution islamique (IRGC)
       - match: "Type d'entité: entité publique - Lieu d'enregistrement: Téhéran, Iran - Établissement principal: Téhéran, Iran - Entités associées: ministère de la défense et de la logistique des forces armées (MODAFL); Defense Industries Organization [Organisation des industries de la défense] (DIO): /"
+        associates:
+          - ministère de la défense et de la logistique des forces armées (MODAFL)
+          - Defense Industries Organization (DIO)
+          - Organisation des industries de la défense
         props:
           jurisdiction: ir
           legalForm: entité publique
           address: "Téhéran, Iran"
-          associates:
-            - ministère de la défense et de la logistique des forces armées (MODAFL)
-            - Defense Industries Organization (DIO)
-            - Organisation des industries de la défense
       - match: "Lieu d'enregistrement: Téhéran, Iran - Établissement principal: Iran: /"
         props:
           jurisdiction: ir
           address: "Téhéran, Iran"
       - match: "Entités associées: Shahid Sattari Industries; Parchin Ammunition Industries; 7th of Tir Industries Complex; Yazd Metallurgy Industries; Khorasan Metallurgy Industries. Shahid Sayyade Shirazi Industries; Defense Industries Organization [Organisation des industries de la défense] (DIO): /"
-        props:
-          associates:
-            - Shahid Sattari Industries
-            - Parchin Ammunition Industries
-            - 7th of Tir Industries Complex
-            - Yazd Metallurgy Industries
-            - Khorasan Metallurgy Industries
-            - Shahid Sayyade Shirazi Industries
-            - Defense Industries Organization (DIO)
-            - Organisation des industries de la défense
+        associates:
+          - Shahid Sattari Industries
+          - Parchin Ammunition Industries
+          - 7th of Tir Industries Complex
+          - Yazd Metallurgy Industries
+          - Khorasan Metallurgy Industries
+          - Shahid Sayyade Shirazi Industries
+          - Defense Industries Organization (DIO)
+          - Organisation des industries de la défense
       - match: "Date d'enregistrement: 1989 et 1990 - Entités associées: Corps des gardiens de la révolution islamique (IRGC); Khatam al-Anbiya Construction Headquarters (KAA): Lieu d'enregistrement: Iran"
+        associates:
+          - Corps des gardiens de la révolution islamique (IRGC)
+          - Khatam al-Anbiya Construction Headquarters (KAA)
         props:
           jurisdiction: ir
           incorporationDate:
             - 1989
             - 1990
-          associates:
-            - Corps des gardiens de la révolution islamique (IRGC)
-            - Khatam al-Anbiya Construction Headquarters (KAA)
       - match: "Date de création: 15.12.2023 - Lieu de création: Kenya: /"
         props:
           jurisdiction: ke
@@ -4255,44 +4252,41 @@ lookups:
           taxNumber: 411315443678
           registrationNumber: 860
       - match: "Defense Industries Organization [Organisation des industries de la défense] (DIO); Ammunition and Metallurgy Industries Group [Groupe des industries des munitions et de la métallurgie] (AMIG); Shahid Sayyad Shirazi Industrie: Entités associées"
-        props:
-          associates:
-            - Defense Industries Organization (DIO)
-            - Ammunition and Metallurgy Industries Group (AMIG)
-            - Shahid Sayyad Shirazi Industrie
+        associates:
+          - Defense Industries Organization (DIO)
+          - Ammunition and Metallurgy Industries Group (AMIG)
+          - Shahid Sayyad Shirazi Industrie
       - match: "Lieu d'enregistrement: Iran - Établissement principal: Iran - Entités associées: Corps des gardiens de la révolution islamique (IRGC); Khatam al-Anbiya Construction Headquarters (KAA): Type d'entité: entreprise publique"
+        associates:
+          - Corps des gardiens de la révolution islamique (IRGC)
+          - Khatam al-Anbiya Construction Headquarters (KAA)
+          legalForm: entreprise publique
         props:
           jurisdiction: ir
-          associates:
-            - Corps des gardiens de la révolution islamique (IRGC)
-            - Khatam al-Anbiya Construction Headquarters (KAA)
-          legalForm: entreprise publique
       - match: "Lieu d'enregistrement: Mashad, Iran - Date d'enregistrement: 1993 - Établissement principal: Mashad, Iran: /"
         props:
           jurisdiction: ir
           address: "Mashad, Iran"
           incorporationDate: 1993
       - match: "Entités associées: Defense Industries Organization [Organisation des industries de la défense] (DIO); Ammunition and Metallurgy Industries Group [Groupe des industries des munitions et de la métallurgie] (AMIG): /"
-        props:
-          associates:
-            - Defense Industries Organization (DIO)
-            - Ammunition and Metallurgy Industries Group (AMIG)
+        associates:
+          - Defense Industries Organization (DIO)
+          - Ammunition and Metallurgy Industries Group (AMIG)
       - match: "No d'enregistrement: société coopérative no 892"
         props:
           registrationNumber: 892
       - match: "ministère de la défense et de la logistique des forces armées (MODAFL); Defense Industries Organization [Organisation des industries de la défense] (DIO); Aerospace Industries Organization [Organisation des industries aérospatiales] (AIO); Iran Electronic Industries (IEI): Entités associées"
-        props:
-          associates:
-            - ministère de la défense et de la logistique des forces armées (MODAFL)
-            - Defense Industries Organization (DIO)
-            - Aerospace Industries Organization (AIO)
-            - Iran Electronic Industries (IEI)
+        associates:
+          - ministère de la défense et de la logistique des forces armées (MODAFL)
+          - Defense Industries Organization (DIO)
+          - Aerospace Industries Organization (AIO)
+          - Iran Electronic Industries (IEI)
       - match: "N° d'identification national - Établissement principal: Téhéran, Iran - Entités associées: Aerospace Industries Organisation [Organisation des industries aérospatiales] (AIO): 10103864724"
+        associates:
+            - Aerospace Industries Organisation (AIO)
         props:
           jurisdiction: ir
           address: "Téhéran, Iran"
-          associates:
-            - Aerospace Industries Organisation (AIO)
           idNumber: 10103864724
       - match: "N° d'enregistrement - Lieu d'enregistrement: Iran - Date d'enregistrement: 1992: 339747"
         props:
@@ -4300,13 +4294,13 @@ lookups:
           incorporationDate: 1992
           registrationNumber: 339747
       - match: "Lieu d'enregistrement: Iran - Date d'enregistrement: 2000 (en tant que Qeshm Air) et renommée Yas Air en 2008 - Entités associées: Corps des gardiens de la révolution islamique (IRGC) - Sites internet: pouyaair.com; yasair.com: Type d'entité: compagnie aérienne de fret"
+        associates:
+            - Corps des gardiens de la révolution islamique (IRGC)
         props:
           jurisdiction: ir     
           incorporationDate:
             - 2000
             - 2008
-          associates:
-            - Corps des gardiens de la révolution islamique (IRGC)
           websites:
             - pouyaair.com
             - yasair.com
@@ -4316,44 +4310,39 @@ lookups:
           jurisdiction: ir
           address: "Téhéran, Iran"
       - match: "Entités associées: Defense Industries Organization [Organisation des industries de la défense] (DIO); ministère de la défense et de la logistique des forces armées (MODAFL: /"
-        props:
-          associates:
-            - Defense Industries Organization (DIO)
-            - ministère de la défense et de la logistique des forces armées (MODAFL)
+        associates:
+          - Defense Industries Organization (DIO)
+          - ministère de la défense et de la logistique des forces armées (MODAFL)
       - match: "Aerospace Industries Organisation [Organisation des industries aérospatiales] (AIO): Entités associées"
-        props:
-          associates:
-            - Aerospace Industries Organisation (AIO)
+        associates:
+          - Aerospace Industries Organisation (AIO)
       - match: "Entités associées: Iran's Aerospace Industries Organisation [Organisation des industries aérospatiales] (AIO)"
-        props:
-          associates:
-            - Iran's Aerospace Industries Organisation (AIO)
+        associates:
+          - Iran's Aerospace Industries Organisation (AIO)
       - match: "Lieu d'enregistrement: Iran - Établissement principal: Iran - Entités associées: Corps des gardiens de la révolution islamique (IRGC); Fater Institute: Type d'entité: entreprise publique"
+        associates:
+          - Corps des gardiens de la révolution islamique (IRGC)
+          - Fater Institute
         props:
           jurisdiction: ir
-          associates:
-            - Corps des gardiens de la révolution islamique (IRGC)
-            - Fater Institute
           legalForm: entreprise publique
       - match: "Lieu d'enregistrement: Téhéran, Iran - Établissement principal: Iran: /"
         props:
           jurisdiction: ir
           address: "Téhéran, Iran"
       - match: "Entités associées: Ammunition and Metallurgy Industries Group [Groupe des industries des munitions et de la métallurgie] (AMIG); Defense Industries Organization [Organisation des industries de la défense] (DIO): /"
-        props:
-          associates:
-            - Ammunition and Metallurgy Industries Group (AMIG)
-            - Defense Industries Organization (DIO)
+        associates:
+          - Ammunition and Metallurgy Industries Group (AMIG)
+          - Defense Industries Organization (DIO)
       - match: "Entités associées: Kaveh Cutting Tool Company; 7th of Tir Industries; Khorasan Metallurgy Industries; Iran Aviation Industries Organization (IAIO) [Organisation des industries de l’aviation de l’Iran] (IAIO); Aerospace Industries Organization [Organisation des industries aérospatiales] (AIO); Iran Electronic Industries (IEI); ministère de la défense et de la logistique des forces armées (MODAFL): /"
-        props:
-          associates:
-            - Kaveh Cutting Tool Company
-            - 7th of Tir Industries
-            - Khorasan Metallurgy Industries
-            - Iran Aviation Industries Organization (IAIO)
-            - Aerospace Industries Organization (AIO)
-            - Iran Electronic Industries (IEI)
-            - ministère de la défense et de la logistique des forces armées (MODAFL)
+        associates:
+          - Kaveh Cutting Tool Company
+          - 7th of Tir Industries
+          - Khorasan Metallurgy Industries
+          - Iran Aviation Industries Organization (IAIO)
+          - Aerospace Industries Organization (AIO)
+          - Iran Electronic Industries (IEI)
+          - ministère de la défense et de la logistique des forces armées (MODAFL)
       - match: "Lieu d'enregistrement: Téhéran - No d'enregistrement: 176855 - Code économique: 411139673763 - Date d'enregistrement: 1987 et 2001 - : Numéro d'identification national 10102191894"
         props:
           jurisdiction: ir

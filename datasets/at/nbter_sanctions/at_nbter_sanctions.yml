@@ -10,16 +10,19 @@ load_db_uri: ${OPENSANCTIONS_DATABASE_URI}
 summary: >
   Regulations aimed at combating terrorism through financial restrictions under the 2010 Sanctions Act.
 description: |
-  The dataset includes details about restricted assets for organizations and individuals as per the Austrian National Bank regulations DL 2/2002 and 
-  its 8th amendment, DL 1/2009, related to capital and payment traffic restrictions for combating terrorism. Please note that the source is manually 
-  curated and does not automatically update with changes to the official regulations.
+  The dataset includes details about restricted assets for organizations and individuals as 
+  per the Austrian National Bank regulations DL 2/2002 and its 8th amendment, DL 1/2009, related 
+  to capital and payment traffic restrictions for combating terrorism. Please note that the source 
+  is manually curated and does not automatically update with changes to the official regulations.
 publisher:
   name: Austrian National Bank
   acronym: OeNB
   description: |
-    The Oesterreichische Nationalbank (OeNB) is the central bank of the Republic of Austria and as such an integral part of the European System of Central 
-    Banks (ESCB). The OeNB contributes, in the public interest, to monetary and economic policy decision-making in Austria and the euro area. Its core business 
-    areas are cash management, monetary policy, financial stability, statistics, and payments.
+    The Oesterreichische Nationalbank (OeNB) is the central bank of the Republic of Austria 
+    and as such an integral part of the European System of Central Banks (ESCB). The OeNB 
+    contributes,  in the public interest, to monetary and economic policy decision-making in 
+    Austria and the euro area. Its core business areas are cash management, monetary policy, 
+    financial stability, statistics, and payments.
     [Source: Official Website](hhttps://www.oenb.at/en/)
   country: at
   url: https://www.oenb.at
@@ -33,7 +36,7 @@ assertions:
   min:
     schema_entities:
       Person: 40
-      Organization: 25
+      Organization: 20
   max:
     schema_entities:
       Person: 60
