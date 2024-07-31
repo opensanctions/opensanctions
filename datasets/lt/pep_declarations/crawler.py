@@ -155,7 +155,8 @@ def crawl(context: Context) -> None:
 
     pinreg = PinregSession(context)
     for deklaracija_id in DEKLARACIJA_ID_RANGE:
-        sleep(0.3)
+        if deklaracija_id % 1000 == 0:
+            context.cache.flush()
         if not (record := pinreg.get_deklaracija_by_id(deklaracija_id)):
             continue
 
