@@ -37,17 +37,19 @@ def crawl_common(
 ) -> None:
     name = item.pop("name")
     name_result = context.lookup("name", name)
-    if name_result:
+    if name_result is not None:
         names = name_result.values
+        print(names)
         for name in names:
             if check_name(context, entity, subject_id, name):
                 entity.add("name", name)
+                print(entity)
     else:
         if check_name(context, entity, subject_id, name):
             entity.add("name", name, lang="ukr")
-        name_translit = item.pop("translit")
-        if check_name(context, entity, subject_id, name_translit):
-            entity.add("name", name_translit, lang="eng")
+    name_translit = item.pop("translit")
+    if check_name(context, entity, subject_id, name_translit):
+        entity.add("name", name_translit, lang="eng")
 
     identifiers = item.pop("identifiers") or []
     for ident in identifiers:
@@ -165,10 +167,26 @@ def crawl_legal(context: Context, item: Dict[str, Any]) -> None:
 
 
 def crawl(context: Context) -> None:
-    #for item in fetch_data(context, "/v2/subjects?subjectType=individual"):
-    #    crawl_indiviudal(context, item)
-
+    # for item in fetch_data(context, "/v2/subjects?subjectType=individual"):
+    #     crawl_indiviudal(context, item)
     for item in fetch_data(context, "/v2/subjects?subjectType=legal"):
-        if item.get("sid") != 10048:
-            continue
-        crawl_legal(context, item)
+        sids = [
+            10048,
+            15605,
+            15604,
+            15603,
+            15602,
+            15601,
+            15583,
+            13138,
+            10346,
+            10339,
+            10257,
+            10256,
+            10255,
+            10048,
+        ]
+        for sid in sids:
+            if item.get("sid") != sid:
+                continue
+            crawl_legal(context, item)

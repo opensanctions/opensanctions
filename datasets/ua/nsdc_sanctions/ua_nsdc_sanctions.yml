@@ -130,8 +130,11 @@ lookups:
           - "RTR-Planeta"
           - "Rosiia-24"
           - "Rossyia-24"
-
-  #   - contains: "1027739597819"
+  #     - match: "Filiia Derzhavnoho unitarnoho pidpryiemstva "Respubliky Krym" "Krymski morski porty" "Derzhhidrohrafiia" (Fylyal Hosudarstvennoho unytarnoho predpryiatyia "Respublyky Krym" "Krymskye morskye porty" "Hoshydrohrafyia", Filiia Derzhavnoho unitarnoho pidpryiemstva "Respubliky Krym" "Krymski morski porty" "Derzhhidrohrafiia""
+  #       values:
+  #         - Filiia Derzhavnoho unitarnoho pidpryiemstva "Respubliky Krym" "Krymski morski porty" "Derzhhidrohrafiia"
+  #         - Fylyal Hosudarstvennoho unytarnoho predpryiatyia "Respublyky Krym" "Krymskye morskye porty" "Hoshydrohrafyia"
+  # #   - contains: "1027739597819"
   #     values:
   #       - Tovarystvo z obmezhenoiu vidpovidalnistiu "Raiffaizen-Lizynh"
   #       - Limited Liability Company "Raiffeisen-Leasing"
@@ -278,11 +281,13 @@ lookups:
         prop: registrationNumber
       - match:
           # Reregistration
-          - Перереєстрація
         contains:
           - Перереєстрація
+        prop: notes
+        contains: 
           - перереєстроване відповідно до
         prop: notes
+        weight: 2
       - match:
           - Примітка
           - Інша інформація
@@ -368,6 +373,10 @@ lookups:
       - match:
           - Дата реєстрації
         value: incorporationDate
+      - match:
+         - Кореспондентський рахунок
+         - Розрахунковий рахунок 
+        value: bikCode 
 
   overrides:
     options:
