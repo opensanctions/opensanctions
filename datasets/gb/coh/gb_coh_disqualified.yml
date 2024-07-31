@@ -79,6 +79,5 @@ lookups:
           - Brithish
         value: Great Britain
   type.date:
-      - match: 
-          - 3018-12-12
+      - match: "3018-12-12"
         value: 2018-12-12
