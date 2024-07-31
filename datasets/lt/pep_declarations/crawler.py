@@ -1,5 +1,4 @@
 from datetime import datetime
-from time import sleep
 from typing import Optional
 
 from requests import HTTPError
@@ -8,7 +7,9 @@ from zavod import Context, Entity
 from zavod import helpers as h
 from zavod.logic.pep import OccupancyStatus, categorise
 
-DEKLARACIJA_ID_RANGE = range(301_730, 637_217)
+DEKLARACIJA_ID_RANGE = range(301_730, 1_000_000)
+# We'll stop after MAX_GAP consecutive 404s
+MAX_GAP = 200
 # sample 50 for dev purposes
 # import random
 # DEKLARACIJA_ID_RANGE = random.sample(DEKLARACIJA_ID_RANGE, 5000)
@@ -154,10 +155,17 @@ def crawl(context: Context) -> None:
     """exhaustively scans PINREG portal and emits all deklaracijos"""
 
     pinreg = PinregSession(context)
+    gap = 0
     for deklaracija_id in DEKLARACIJA_ID_RANGE:
-        sleep(0.3)
+        if deklaracija_id % 1000 == 0:
+            context.cache.flush()
         if not (record := pinreg.get_deklaracija_by_id(deklaracija_id)):
+            gap += 1
+            if gap > MAX_GAP:
+                context.log.info("gap threshold reached, stopping.")
+                break
             continue
+        gap = 0
 
         assert record.pop("id") == deklaracija_id
 

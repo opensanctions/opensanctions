@@ -1,5 +1,4 @@
 from typing import Any, Generator
-
 from zavod.entity import Entity
 from zavod.archive import DELTA_EXPORT_FILE
 from zavod.exporters.common import Exporter
@@ -16,6 +15,11 @@ class DeltaExporter(Exporter):
         super().setup()
         self.delta = HashDelta(self.dataset)
         self.delta.backfill()
+        self.counts = {
+            "ADD": 0,
+            "MOD": 0,
+            "DEL": 0,
+        }
 
     def feed(self, entity: Entity) -> None:
         self.delta.feed(entity)
@@ -33,6 +37,17 @@ class DeltaExporter(Exporter):
     def finish(self) -> None:
         with open(self.path, "wb") as fh:
             for op in self.generate():
+                self.counts[op["op"]] += 1
                 write_json(op, fh)
         self.delta.close()
+        self.context.log.info(
+            "Delta export complete",
+            version=str(self.context.version),
+            dataset=self.dataset.name,
+            metric="delta_counts",
+            added=self.counts["ADD"],
+            modified=self.counts["MOD"],
+            deleted=self.counts["DEL"],
+        )
+
         super().finish()
