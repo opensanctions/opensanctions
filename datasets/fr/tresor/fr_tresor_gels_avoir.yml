@@ -4260,6 +4260,7 @@ lookups:
         associates:
           - Corps des gardiens de la révolution islamique (IRGC)
           - Khatam al-Anbiya Construction Headquarters (KAA)
+        props:
           legalForm: entreprise publique
         props:
           jurisdiction: ir
@@ -4283,7 +4284,7 @@ lookups:
           - Iran Electronic Industries (IEI)
       - match: "N° d'identification national - Établissement principal: Téhéran, Iran - Entités associées: Aerospace Industries Organisation [Organisation des industries aérospatiales] (AIO): 10103864724"
         associates:
-            - Aerospace Industries Organisation (AIO)
+          - Aerospace Industries Organisation (AIO)
         props:
           jurisdiction: ir
           address: "Téhéran, Iran"
@@ -4295,7 +4296,7 @@ lookups:
           registrationNumber: 339747
       - match: "Lieu d'enregistrement: Iran - Date d'enregistrement: 2000 (en tant que Qeshm Air) et renommée Yas Air en 2008 - Entités associées: Corps des gardiens de la révolution islamique (IRGC) - Sites internet: pouyaair.com; yasair.com: Type d'entité: compagnie aérienne de fret"
         associates:
-            - Corps des gardiens de la révolution islamique (IRGC)
+          - Corps des gardiens de la révolution islamique (IRGC)
         props:
           jurisdiction: ir     
           incorporationDate:
