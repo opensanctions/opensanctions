@@ -59,8 +59,10 @@ inputs:
   - sanctions
 
 config:
-  type: nomenklatura.enrich.yente:YenteEnricher
-  api: https://api.graph.opensanctions.org/
+  type: zavod.runner.local_enricher:LocalEnricher
+  limit: 100
+  index_options:
+    max_candidates: 100
   dataset: gb_coh_psc
   api_key: ${OPENSANCTIONS_GRAPH_API_KEY}
   strip_namespace: true
